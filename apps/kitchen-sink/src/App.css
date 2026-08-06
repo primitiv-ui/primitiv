@@ -299,6 +299,24 @@ body {
   line-height: var(--primitiv-label-sm-line-height);
 }
 
+/* Listbox demos. The component fills its column like the Select ones, so the
+   frame's own border is what bounds it — no width is set here. */
+.ks-listbox {
+  inline-size: 100%;
+}
+
+/* The row-boundary height recipe from the README, made concrete: six rows plus
+   their five gaps plus the frame's own block padding. Sizing from the row-height
+   token rather than a round pixel value is what stops the viewport mid-row,
+   which reads as a rendering bug rather than "there is more below". */
+.ks-listbox--scroll {
+  --primitiv-listbox-max-block-size: calc(
+    6 * var(--primitiv-listbox-option-height) + 5 *
+      var(--primitiv-listbox-option-spacing) + 2 *
+      var(--primitiv-listbox-padding-block)
+  );
+}
+
 /* A "Soon" style pill for the trailing slot, showing that the slot takes any
    content at its natural width — not just an icon square. */
 .ks-select-badge {

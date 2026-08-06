@@ -1,0 +1,448 @@
+/*
+ * Listbox — Primitiv default theme (canonical CSS).
+ *
+ * Copied into the consumer repo by `primitiv add listbox`. It is yours to edit:
+ * the stable surface is the contract (the .primitiv-listbox frame + __option /
+ * __option-indicator / __option-checkbox / __option-leading / __option-label /
+ * __option-trailing / __group / __group-label / __empty parts, the --xs…--xl
+ * size modifiers, the aria-selected / data-highlighted / data-disabled /
+ * aria-invalid hooks, and the --primitiv-listbox-* custom properties), not
+ * these values (RFC 0006 Principle 2 — names are stable, values are not).
+ *
+ * Anatomy mirrors the Figma sets on page "Listbox" (`Listbox / Option`,
+ * `Listbox / CheckboxOption`, `Listbox / Empty` and the composed `Listbox`).
+ * The frame is a form control on Input's geometry — hairline border, no shadow,
+ * framed-control radius — and the rows resolve the shared dropdown/* tokens, so
+ * a listbox and a menu are the same surface. Rows lay out
+ * [indicator][leading][label FILL][trailing].
+ *
+ * THE ONE THING TO UNDERSTAND BEFORE EDITING: two independent row states are on
+ * screen at once, which is unique to this component.
+ *
+ *   - The CURSOR is `[data-highlighted]` — virtual focus, published as
+ *     `aria-activedescendant` on the frame. It is NOT `:focus`; an option never
+ *     matches `:focus` because DOM focus never leaves the frame.
+ *   - SELECTION is `[aria-selected="true"]`.
+ *
+ * They are independent, so a row can be neither, either, or both. The cursor
+ * therefore gets the heavier tint (action/secondary/default) and pointer hover
+ * the lighter one (action/ghost/hover) — and hover must never reuse the cursor's
+ * tint, because hovering does NOT move the cursor (the headless layer has no
+ * pointer handlers at all), so two rows would look current at once. The cursor
+ * wins outright where both apply. Settled on the Figma "Listbox — exploration"
+ * page, sections B and B5; see docs/listbox-future-work.md.
+ *
+ * The mark gutter is reserved by the indicator element simply EXISTING in the
+ * flow — unlike Select, whose ItemIndicator unmounts while unselected and so
+ * needs a computed inset on the row. Here the mark is always in the DOM and CSS
+ * reveals it, which is also why a checkbox row (whose column is wider) needs no
+ * special-casing: flex does it.
+ */
+@layer primitiv.reset, primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;
+
+@layer primitiv.base {
+  .primitiv-listbox {
+    /* Frame — Input's geometry, deliberately WITHOUT elevation. A shadow is a
+       claim that the surface floats above the page; this one is in the page, and
+       the lift reads as a stuck-open dropdown (Figma exploration §A2, rejected).
+       Note surface/sunken and surface/subtle are both the same value as the
+       cursor tint, so neither can be used as this fill — the cursor row would
+       disappear (§A4, rejected). */
+    --primitiv-listbox-surface: var(--primitiv-surface-default);
+    --primitiv-listbox-fg: var(--primitiv-content-primary);
+    --primitiv-listbox-border-width: var(--primitiv-border-width-1);
+    --primitiv-listbox-border-color: var(--primitiv-border-default);
+    --primitiv-listbox-border-color-invalid: var(--primitiv-border-invalid);
+    --primitiv-listbox-radius: var(--primitiv-framed-control-md-radius);
+    --primitiv-listbox-padding-block: var(--primitiv-dropdown-md-panel-padding-block);
+    /* A small inset so a row's tint sits inside the frame edge rather than
+       running flush against the border — the same value the Dropdown panel
+       uses. */
+    --primitiv-listbox-padding-inline: var(--primitiv-space-space-4);
+    /* Past this the list scrolls. Consumer-owned: no token can know how many
+       rows a given list should show (the same conclusion Select reached for its
+       popup viewport). To stop the viewport on a row boundary rather than
+       mid-row, size it to
+       calc(N * var(--primitiv-listbox-option-height) + (N - 1) * var(--primitiv-listbox-option-spacing) + 2 * var(--primitiv-listbox-padding-block)). */
+    --primitiv-listbox-max-block-size: 18rem;
+
+    --primitiv-listbox-ring-color: var(--primitiv-border-focus);
+    --primitiv-listbox-ring-width: var(--primitiv-focus-ring-width);
+    --primitiv-listbox-ring-offset: var(--primitiv-focus-ring-offset);
+
+    /* Rows — the shared dropdown ramp, whose font-size already aliases body/*. */
+    --primitiv-listbox-option-height: var(--primitiv-dropdown-md-item-height);
+    --primitiv-listbox-option-padding-inline: var(--primitiv-dropdown-md-item-padding-inline);
+    --primitiv-listbox-option-gap: var(--primitiv-dropdown-md-item-gap);
+    --primitiv-listbox-option-radius: var(--primitiv-dropdown-md-item-radius);
+    --primitiv-listbox-option-icon-size: var(--primitiv-dropdown-md-item-icon-size);
+    --primitiv-listbox-option-font-family: var(--primitiv-body-sm-font-family);
+    --primitiv-listbox-option-font-size: var(--primitiv-dropdown-md-item-font-size);
+    --primitiv-listbox-option-font-weight: var(--primitiv-body-sm-font-weight);
+    --primitiv-listbox-option-line-height: var(--primitiv-dropdown-md-item-line-height);
+    --primitiv-listbox-option-color: var(--primitiv-content-primary);
+    --primitiv-listbox-option-color-disabled: var(--primitiv-content-disabled);
+    --primitiv-listbox-option-bg: var(--primitiv-color-transparent);
+    --primitiv-listbox-option-bg-hover: var(--primitiv-action-ghost-hover);
+    --primitiv-listbox-option-bg-highlighted: var(--primitiv-action-secondary-default);
+    /* Breathing room between rows, a step down from the row's own icon-to-label
+       gap, so both size and density track it with no separate ramp. */
+    --primitiv-listbox-option-spacing: calc(var(--primitiv-listbox-option-gap) / 2);
+
+    --primitiv-listbox-indicator-color: var(--primitiv-content-primary);
+
+    /* The multi-select box. Its own column is wider than the checkmark's
+       (checkbox box-size, not icon-size) — which is fine, because a listbox is
+       single-select OR multiple and the two row types never coexist. */
+    --primitiv-listbox-checkbox-size: var(--primitiv-checkbox-md-box-size);
+    --primitiv-listbox-checkbox-radius: var(--primitiv-checkbox-md-box-radius);
+    --primitiv-listbox-checkbox-mark-size: var(--primitiv-checkbox-md-mark-size);
+    --primitiv-listbox-checkbox-bg: var(--primitiv-surface-default);
+    --primitiv-listbox-checkbox-bg-selected: var(--primitiv-action-primary-default);
+    --primitiv-listbox-checkbox-border-width: var(--primitiv-border-width-1);
+    --primitiv-listbox-checkbox-border-color: var(--primitiv-border-strong);
+    --primitiv-listbox-checkbox-border-color-selected: var(--primitiv-action-primary-default);
+    --primitiv-listbox-checkbox-mark-color: var(--primitiv-action-primary-foreground-default);
+
+    --primitiv-listbox-group-label-height: var(--primitiv-dropdown-md-label-height);
+    --primitiv-listbox-group-label-padding-inline: var(--primitiv-dropdown-md-label-padding-inline);
+    --primitiv-listbox-group-label-color: var(--primitiv-content-muted);
+    --primitiv-listbox-group-label-font-family: var(--primitiv-label-xs-font-family);
+    --primitiv-listbox-group-label-font-size: var(--primitiv-label-xs-font-size);
+    --primitiv-listbox-group-label-font-weight: var(--primitiv-label-xs-font-weight);
+    --primitiv-listbox-group-label-line-height: var(--primitiv-label-xs-line-height);
+    --primitiv-listbox-group-label-letter-spacing: var(--primitiv-letter-spacing-wide);
+
+    --primitiv-listbox-empty-color: var(--primitiv-content-muted);
+    --primitiv-listbox-empty-min-block-size: calc(var(--primitiv-listbox-option-height) * 2);
+
+    display: flex;
+    flex-direction: column;
+    gap: var(--primitiv-listbox-option-spacing);
+    box-sizing: border-box;
+    max-block-size: var(--primitiv-listbox-max-block-size);
+    padding-block: var(--primitiv-listbox-padding-block);
+    padding-inline: var(--primitiv-listbox-padding-inline);
+    overflow-y: auto;
+    border: var(--primitiv-listbox-border-width) solid var(--primitiv-listbox-border-color);
+    border-radius: var(--primitiv-listbox-radius);
+    background: var(--primitiv-listbox-surface);
+    color: var(--primitiv-listbox-fg);
+  }
+
+  /* Horizontal orientation is supported by the headless layer and published as
+     data-orientation. Deliberately not modelled in Figma (a horizontal listbox
+     reads as a Segmented Control), but the axis has to work in CSS. */
+  .primitiv-listbox[data-orientation="horizontal"] {
+    flex-direction: row;
+    max-block-size: none;
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+
+  /* ── Rows ── */
+  .primitiv-listbox__option {
+    display: flex;
+    align-items: center;
+    gap: var(--primitiv-listbox-option-gap);
+    box-sizing: border-box;
+    min-block-size: var(--primitiv-listbox-option-height);
+    padding-inline: var(--primitiv-listbox-option-padding-inline);
+    border-radius: var(--primitiv-listbox-option-radius);
+    background: var(--primitiv-listbox-option-bg);
+    color: var(--primitiv-listbox-option-color);
+    font-family: var(--primitiv-listbox-option-font-family);
+    font-size: var(--primitiv-listbox-option-font-size);
+    font-weight: var(--primitiv-listbox-option-font-weight);
+    line-height: var(--primitiv-listbox-option-line-height);
+    cursor: default;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+
+  /* The mark. Always in the DOM so the column it occupies is reserved whatever
+     the selection state — hiding it with `visibility` rather than `display`
+     keeps the row's layout identical selected or not. This is the whole reason
+     the row needs no computed inset (contrast Select, whose indicator
+     unmounts). */
+  .primitiv-listbox__option-indicator {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    inline-size: var(--primitiv-listbox-option-icon-size);
+    block-size: var(--primitiv-listbox-option-icon-size);
+    color: var(--primitiv-listbox-indicator-color);
+    visibility: hidden;
+  }
+
+  /* The multi-select box, drawn here rather than composed from the `checkbox`
+     component: a real <input type="checkbox"> inside role="option" would add a
+     second focusable control inside a row that is not itself focusable. This is
+     presentational only — the row's own aria-selected carries the state, and
+     the element is aria-hidden. */
+  .primitiv-listbox__option-checkbox {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    inline-size: var(--primitiv-listbox-checkbox-size);
+    block-size: var(--primitiv-listbox-checkbox-size);
+    border: var(--primitiv-listbox-checkbox-border-width) solid
+      var(--primitiv-listbox-checkbox-border-color);
+    border-radius: var(--primitiv-listbox-checkbox-radius);
+    background: var(--primitiv-listbox-checkbox-bg);
+  }
+
+  /* The tick, drawn as a rotated L so the box needs no icon dependency. */
+  .primitiv-listbox__option-checkbox::after {
+    display: block;
+    inline-size: calc(var(--primitiv-listbox-checkbox-mark-size) / 2);
+    block-size: var(--primitiv-listbox-checkbox-mark-size);
+    border-color: var(--primitiv-listbox-checkbox-mark-color);
+    border-style: solid;
+    border-width: 0 var(--primitiv-listbox-checkbox-border-width)
+      var(--primitiv-listbox-checkbox-border-width) 0;
+    opacity: 0;
+    content: "";
+    rotate: 45deg;
+    translate: 0 -12%;
+  }
+
+  .primitiv-listbox__option-leading,
+  .primitiv-listbox__option-trailing {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    block-size: var(--primitiv-listbox-option-icon-size);
+  }
+
+  .primitiv-listbox__option-leading {
+    inline-size: var(--primitiv-listbox-option-icon-size);
+  }
+
+  /* Trailing content is often a shortcut hint or a badge rather than an icon, so
+     it keeps its natural inline size and is only constrained in the block axis. */
+  .primitiv-listbox__option-trailing {
+    margin-inline-start: auto;
+  }
+
+  .primitiv-listbox__option-indicator > svg,
+  .primitiv-listbox__option-leading > svg,
+  .primitiv-listbox__option-trailing > svg {
+    inline-size: var(--primitiv-listbox-option-icon-size);
+    block-size: var(--primitiv-listbox-option-icon-size);
+  }
+
+  /* Takes the row's free space, so a trailing affordance sits on the inline-end
+     edge and a long label truncates rather than wrapping the row taller. */
+  .primitiv-listbox__option-label {
+    flex: 1 1 auto;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* ── Groups ── */
+  .primitiv-listbox__group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--primitiv-listbox-option-spacing);
+  }
+
+  /* The visible group heading. APG requires every group to carry an accessible
+     name; the headless GroupLabel wires the group's aria-labelledby to this
+     element. Options are deliberately NOT indented under it — the reserved mark
+     column already puts every label on one axis, and indenting would break that
+     against ungrouped rows. */
+  .primitiv-listbox__group-label {
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    min-block-size: var(--primitiv-listbox-group-label-height);
+    padding-inline: var(--primitiv-listbox-group-label-padding-inline);
+    color: var(--primitiv-listbox-group-label-color);
+    font-family: var(--primitiv-listbox-group-label-font-family);
+    font-size: var(--primitiv-listbox-group-label-font-size);
+    font-weight: var(--primitiv-listbox-group-label-font-weight);
+    letter-spacing: var(--primitiv-listbox-group-label-letter-spacing);
+    line-height: var(--primitiv-listbox-group-label-line-height);
+    text-transform: uppercase;
+  }
+
+  /* On a scrollable grouped list the heading pins to the top edge, otherwise you
+     cannot tell which group the row under the cursor belongs to. It needs its
+     own background or rows scroll through it. */
+  .primitiv-listbox__group-label {
+    position: sticky;
+    inset-block-start: calc(-1 * var(--primitiv-listbox-padding-block));
+    z-index: 1;
+    background: var(--primitiv-listbox-surface);
+  }
+
+  /* ── Empty ── */
+  /* Roughly two rows tall so the frame does not snap shut while the user keeps
+     typing — a box that resizes on every keystroke under a focused input is
+     disorienting. role="presentation", never an option: only role="option"
+     elements may sit inside a listbox. */
+  .primitiv-listbox__empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    min-block-size: var(--primitiv-listbox-empty-min-block-size);
+    padding-inline: var(--primitiv-listbox-option-padding-inline);
+    color: var(--primitiv-listbox-empty-color);
+    font-family: var(--primitiv-listbox-option-font-family);
+    font-size: var(--primitiv-listbox-option-font-size);
+    line-height: var(--primitiv-listbox-option-line-height);
+    text-align: center;
+  }
+}
+
+@layer primitiv.variants {
+  .primitiv-listbox--xs {
+    --primitiv-listbox-radius: var(--primitiv-framed-control-xs-radius);
+    --primitiv-listbox-padding-block: var(--primitiv-dropdown-xs-panel-padding-block);
+    --primitiv-listbox-option-height: var(--primitiv-dropdown-xs-item-height);
+    --primitiv-listbox-option-padding-inline: var(--primitiv-dropdown-xs-item-padding-inline);
+    --primitiv-listbox-option-gap: var(--primitiv-dropdown-xs-item-gap);
+    --primitiv-listbox-option-radius: var(--primitiv-dropdown-xs-item-radius);
+    --primitiv-listbox-option-icon-size: var(--primitiv-dropdown-xs-item-icon-size);
+    --primitiv-listbox-option-font-size: var(--primitiv-dropdown-xs-item-font-size);
+    --primitiv-listbox-option-line-height: var(--primitiv-dropdown-xs-item-line-height);
+    --primitiv-listbox-checkbox-size: var(--primitiv-checkbox-xs-box-size);
+    --primitiv-listbox-checkbox-radius: var(--primitiv-checkbox-xs-box-radius);
+    --primitiv-listbox-checkbox-mark-size: var(--primitiv-checkbox-xs-mark-size);
+    --primitiv-listbox-group-label-height: var(--primitiv-dropdown-xs-label-height);
+    --primitiv-listbox-group-label-padding-inline: var(--primitiv-dropdown-xs-label-padding-inline);
+  }
+
+  .primitiv-listbox--sm {
+    --primitiv-listbox-radius: var(--primitiv-framed-control-sm-radius);
+    --primitiv-listbox-padding-block: var(--primitiv-dropdown-sm-panel-padding-block);
+    --primitiv-listbox-option-height: var(--primitiv-dropdown-sm-item-height);
+    --primitiv-listbox-option-padding-inline: var(--primitiv-dropdown-sm-item-padding-inline);
+    --primitiv-listbox-option-gap: var(--primitiv-dropdown-sm-item-gap);
+    --primitiv-listbox-option-radius: var(--primitiv-dropdown-sm-item-radius);
+    --primitiv-listbox-option-icon-size: var(--primitiv-dropdown-sm-item-icon-size);
+    --primitiv-listbox-option-font-size: var(--primitiv-dropdown-sm-item-font-size);
+    --primitiv-listbox-option-line-height: var(--primitiv-dropdown-sm-item-line-height);
+    --primitiv-listbox-checkbox-size: var(--primitiv-checkbox-sm-box-size);
+    --primitiv-listbox-checkbox-radius: var(--primitiv-checkbox-sm-box-radius);
+    --primitiv-listbox-checkbox-mark-size: var(--primitiv-checkbox-sm-mark-size);
+    --primitiv-listbox-group-label-height: var(--primitiv-dropdown-sm-label-height);
+    --primitiv-listbox-group-label-padding-inline: var(--primitiv-dropdown-sm-label-padding-inline);
+  }
+
+  .primitiv-listbox--md {
+    --primitiv-listbox-radius: var(--primitiv-framed-control-md-radius);
+    --primitiv-listbox-padding-block: var(--primitiv-dropdown-md-panel-padding-block);
+    --primitiv-listbox-option-height: var(--primitiv-dropdown-md-item-height);
+    --primitiv-listbox-option-padding-inline: var(--primitiv-dropdown-md-item-padding-inline);
+    --primitiv-listbox-option-gap: var(--primitiv-dropdown-md-item-gap);
+    --primitiv-listbox-option-radius: var(--primitiv-dropdown-md-item-radius);
+    --primitiv-listbox-option-icon-size: var(--primitiv-dropdown-md-item-icon-size);
+    --primitiv-listbox-option-font-size: var(--primitiv-dropdown-md-item-font-size);
+    --primitiv-listbox-option-line-height: var(--primitiv-dropdown-md-item-line-height);
+    --primitiv-listbox-checkbox-size: var(--primitiv-checkbox-md-box-size);
+    --primitiv-listbox-checkbox-radius: var(--primitiv-checkbox-md-box-radius);
+    --primitiv-listbox-checkbox-mark-size: var(--primitiv-checkbox-md-mark-size);
+    --primitiv-listbox-group-label-height: var(--primitiv-dropdown-md-label-height);
+    --primitiv-listbox-group-label-padding-inline: var(--primitiv-dropdown-md-label-padding-inline);
+  }
+
+  .primitiv-listbox--lg {
+    --primitiv-listbox-radius: var(--primitiv-framed-control-lg-radius);
+    --primitiv-listbox-padding-block: var(--primitiv-dropdown-lg-panel-padding-block);
+    --primitiv-listbox-option-height: var(--primitiv-dropdown-lg-item-height);
+    --primitiv-listbox-option-padding-inline: var(--primitiv-dropdown-lg-item-padding-inline);
+    --primitiv-listbox-option-gap: var(--primitiv-dropdown-lg-item-gap);
+    --primitiv-listbox-option-radius: var(--primitiv-dropdown-lg-item-radius);
+    --primitiv-listbox-option-icon-size: var(--primitiv-dropdown-lg-item-icon-size);
+    --primitiv-listbox-option-font-size: var(--primitiv-dropdown-lg-item-font-size);
+    --primitiv-listbox-option-line-height: var(--primitiv-dropdown-lg-item-line-height);
+    --primitiv-listbox-checkbox-size: var(--primitiv-checkbox-lg-box-size);
+    --primitiv-listbox-checkbox-radius: var(--primitiv-checkbox-lg-box-radius);
+    --primitiv-listbox-checkbox-mark-size: var(--primitiv-checkbox-lg-mark-size);
+    --primitiv-listbox-group-label-height: var(--primitiv-dropdown-lg-label-height);
+    --primitiv-listbox-group-label-padding-inline: var(--primitiv-dropdown-lg-label-padding-inline);
+  }
+
+  .primitiv-listbox--xl {
+    --primitiv-listbox-radius: var(--primitiv-framed-control-xl-radius);
+    --primitiv-listbox-padding-block: var(--primitiv-dropdown-xl-panel-padding-block);
+    --primitiv-listbox-option-height: var(--primitiv-dropdown-xl-item-height);
+    --primitiv-listbox-option-padding-inline: var(--primitiv-dropdown-xl-item-padding-inline);
+    --primitiv-listbox-option-gap: var(--primitiv-dropdown-xl-item-gap);
+    --primitiv-listbox-option-radius: var(--primitiv-dropdown-xl-item-radius);
+    --primitiv-listbox-option-icon-size: var(--primitiv-dropdown-xl-item-icon-size);
+    --primitiv-listbox-option-font-size: var(--primitiv-dropdown-xl-item-font-size);
+    --primitiv-listbox-option-line-height: var(--primitiv-dropdown-xl-item-line-height);
+    --primitiv-listbox-checkbox-size: var(--primitiv-checkbox-xl-box-size);
+    --primitiv-listbox-checkbox-radius: var(--primitiv-checkbox-xl-box-radius);
+    --primitiv-listbox-checkbox-mark-size: var(--primitiv-checkbox-xl-mark-size);
+    --primitiv-listbox-group-label-height: var(--primitiv-dropdown-xl-label-height);
+    --primitiv-listbox-group-label-padding-inline: var(--primitiv-dropdown-xl-label-padding-inline);
+  }
+}
+
+@layer primitiv.states {
+  /* The FRAME carries the only focus ring, because the frame is the tab stop.
+     Offset outward so it never crowds the first row's tint — an inset ring would
+     sit under it. Both indicators show at once and answer different questions:
+     the ring says where Tab landed, the cursor row says what Enter will do. */
+  .primitiv-listbox:focus-visible {
+    outline: var(--primitiv-listbox-ring-width) solid var(--primitiv-listbox-ring-color);
+    outline-offset: var(--primitiv-listbox-ring-offset);
+  }
+
+  .primitiv-listbox[aria-invalid="true"] {
+    border-color: var(--primitiv-listbox-border-color-invalid);
+  }
+
+  /* Pointer hover — deliberately WEAKER than the cursor below, and never the
+     same value. Hover does not move the cursor, so if the two matched, two rows
+     would read as current and the pointer would appear to move a cursor it
+     cannot move. */
+  .primitiv-listbox__option:hover:not([data-disabled]) {
+    background: var(--primitiv-listbox-option-bg-hover);
+  }
+
+  /* The cursor. Style it from [data-highlighted] — an option never matches
+     :focus, because DOM focus stays on the frame. This rule sits after :hover so
+     the cursor wins on a row that is both. */
+  .primitiv-listbox__option[data-highlighted] {
+    background: var(--primitiv-listbox-option-bg-highlighted);
+  }
+
+  /* Selection reveals the mark. `visibility` rather than `display` so the
+     column it reserves never changes width. */
+  .primitiv-listbox__option[aria-selected="true"] .primitiv-listbox__option-indicator {
+    visibility: visible;
+  }
+
+  .primitiv-listbox__option[aria-selected="true"] .primitiv-listbox__option-checkbox {
+    border-color: var(--primitiv-listbox-checkbox-border-color-selected);
+    background: var(--primitiv-listbox-checkbox-bg-selected);
+  }
+
+  .primitiv-listbox__option[aria-selected="true"] .primitiv-listbox__option-checkbox::after {
+    opacity: 1;
+  }
+
+  /* Disabled options stay in the DOM and in the accessibility tree as
+     aria-disabled — they drop out of cursor navigation, typeahead and focus
+     seeding, but they are still announced. A house extension: APG's listbox
+     pattern does not itself specify disabled options. */
+  .primitiv-listbox__option[data-disabled] {
+    color: var(--primitiv-listbox-option-color-disabled);
+    cursor: not-allowed;
+  }
+
+  .primitiv-listbox__option[data-disabled] .primitiv-listbox__option-indicator {
+    color: var(--primitiv-listbox-option-color-disabled);
+  }
+}

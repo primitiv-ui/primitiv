@@ -323,6 +323,11 @@ const FILES: &[(&str, &str, &str)] = &[
     registry_file!("split-button", "split-button.recipe.ts"),
     registry_file!("split-button", "split-button.tsx"),
     registry_file!("split-button", "contract.json"),
+    registry_file!("listbox", "styles.css"),
+    registry_file!("listbox", "styles.scss"),
+    registry_file!("listbox", "listbox.recipe.ts"),
+    registry_file!("listbox", "listbox.tsx"),
+    registry_file!("listbox", "contract.json"),
 ];
 
 impl Registry for EmbeddedRegistry {

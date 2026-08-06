@@ -1,5 +1,6 @@
 import {
   Fragment,
+  useRef,
   useState,
   type ReactElement,
 } from "react";
@@ -156,6 +157,16 @@ import {
   TableCell,
   TableCaption,
   TableScrollArea,
+  Listbox,
+  ListboxOption,
+  ListboxOptionIndicator,
+  ListboxOptionCheckbox,
+  ListboxOptionLeading,
+  ListboxOptionLabel,
+  ListboxOptionTrailing,
+  ListboxGroup,
+  ListboxGroupLabel,
+  ListboxEmpty,
   SegmentedControl,
   SegmentedControlItem,
   Select,
@@ -346,6 +357,52 @@ const REGIONS = [
   },
 ] as const;
 
+// Listbox fixtures. Long enough to scroll (so the sticky group headings and the
+// row-boundary height recipe are both visible) and with overlapping prefixes so
+// typeahead cycling can be tried by hand.
+const LB_CITIES = [
+  { value: "ams", name: "Amsterdam" },
+  { value: "ber", name: "Berlin" },
+  { value: "cph", name: "Copenhagen" },
+  { value: "dub", name: "Dublin" },
+  { value: "edi", name: "Edinburgh" },
+  { value: "flr", name: "Florence" },
+  { value: "gva", name: "Geneva" },
+  { value: "hel", name: "Helsinki" },
+] as const;
+
+const LB_TOPPINGS: { value: string; name: string; soon?: boolean }[] = [
+  { value: "olives", name: "Olives" },
+  { value: "capers", name: "Capers" },
+  { value: "anchovies", name: "Anchovies" },
+  { value: "artichoke", name: "Artichoke" },
+  { value: "chilli", name: "Chilli oil", soon: true },
+];
+
+const LB_COMMANDS = [
+  {
+    label: "Files",
+    options: [
+      { value: "open", name: "Open file…", shortcut: "⌘O" },
+      { value: "save", name: "Save", shortcut: "⌘S" },
+    ],
+  },
+  {
+    label: "Edit",
+    options: [
+      { value: "undo", name: "Undo", shortcut: "⌘Z" },
+      { value: "find", name: "Find in file…", shortcut: "⌘F" },
+    ],
+  },
+  {
+    label: "View",
+    options: [
+      { value: "zen", name: "Toggle zen mode", shortcut: "⌘K Z" },
+      { value: "term", name: "Toggle terminal", shortcut: "⌃`" },
+    ],
+  },
+] as const;
+
 type Release = { pkg: string; status: string; downloads: number; size: number };
 
 const RELEASES: Release[] = [
@@ -442,7 +499,7 @@ const PAGE_TOC: { category: string; titles: string[] }[] = [
       "Textarea",
     ],
   },
-  { category: "Collections & Selection", titles: ["Select"] },
+  { category: "Collections & Selection", titles: ["Listbox", "Select"] },
   { category: "Typography", titles: ["Code Block"] },
   {
     category: "Overlays",
@@ -699,6 +756,22 @@ export function App(): ReactElement {
     useState("vue");
   const [selRegion, setSelRegion] = useState("");
   const [selFruit, setSelFruit] = useState("");
+  // Listbox demo state. The cursor is NOT state here — it lives inside the
+  // primitive as virtual focus; only the selection is controlled.
+  const [lbCity, setLbCity] = useState("ber");
+  const [lbToppings, setLbToppings] = useState<string[]>(["olives", "capers"]);
+  const [lbCommand, setLbCommand] = useState("");
+  const [lbQuery, setLbQuery] = useState("");
+  const [lbResult, setLbResult] = useState("");
+  // The palette composition keeps DOM focus in the input, so the listbox never
+  // receives the keystrokes the primitive's keymap listens for. Re-dispatching
+  // them at the frame is the seam: React attaches its listeners at the root
+  // container, so a native event on the frame bubbles up and fires the
+  // primitive's own onKeyDown.
+  const lbPaletteRef = useRef<HTMLDivElement>(null);
+  const lbMatches = LB_CITIES.filter((c) =>
+    c.name.toLowerCase().startsWith(lbQuery.trim().toLowerCase()),
+  );
   const [readMoreOpen, setReadMoreOpen] = useState(false);
   // Chip demo state — a real removable filter list, so the remove button
   // does something rather than just showing the hover/active/focus styling.
@@ -2383,6 +2456,156 @@ export function ramp(hue: number, chroma = 0.12) {
             </Button>
           </InputGroupTrailingAdornment>
         </InputGroup>
+      </Section>
+
+      <Section title="Listbox" column>
+        {/* Single-select. The mark stays in the DOM on every row and CSS reveals
+            it on the selected one, so the label column never shifts. Arrow keys
+            move the cursor without selecting — Enter commits — and clicking a
+            row moves the cursor to it too, so both ways of choosing agree about
+            where you are in the list. */}
+        <div className="ks-select-demo">
+          <span className="ks-select-demo__caption">
+            Single-select · cursor is separate from selection
+          </span>
+          <Listbox
+            type="single"
+            size={size}
+            value={lbCity}
+            onValueChange={setLbCity}
+            aria-label="City"
+            className="ks-listbox"
+          >
+            {LB_CITIES.slice(0, 5).map(({ value, name }) => (
+              <ListboxOption key={value} value={value}>
+                <ListboxOptionIndicator>
+                  <Check aria-hidden="true" />
+                </ListboxOptionIndicator>
+                <ListboxOptionLabel>{name}</ListboxOptionLabel>
+              </ListboxOption>
+            ))}
+          </Listbox>
+        </div>
+
+        {/* Multiple. The mark swaps to a checkbox — deliberately unlike
+            Dropdown's checkmark indicator, because a list you accumulate a
+            selection in and submit needs an affordance that invites clicking and
+            an unambiguous empty state. The box is presentational; the row's own
+            aria-selected carries the state. Shift+Arrow and ⌘A work. */}
+        <div className="ks-select-demo">
+          <span className="ks-select-demo__caption">
+            Multi-select · checkbox mark, one disabled row
+          </span>
+          <Listbox
+            type="multiple"
+            size={size}
+            value={lbToppings}
+            onValueChange={setLbToppings}
+            aria-label="Toppings"
+            className="ks-listbox"
+          >
+            {LB_TOPPINGS.map(({ value, name, soon }) => (
+              <ListboxOption key={value} value={value} disabled={soon}>
+                <ListboxOptionCheckbox />
+                <ListboxOptionLabel>{name}</ListboxOptionLabel>
+              </ListboxOption>
+            ))}
+          </Listbox>
+        </div>
+
+        {/* Grouped and scrollable. The headings stick to the top edge as you
+            scroll, otherwise you cannot tell which group the row under the
+            cursor belongs to. Height is set from the row-height token so the
+            viewport stops on a row boundary rather than mid-row. */}
+        <div className="ks-select-demo">
+          <span className="ks-select-demo__caption">
+            Grouped · sticky headings, trailing shortcuts, scrolls on a row boundary
+          </span>
+          <Listbox
+            type="single"
+            size={size}
+            value={lbCommand}
+            onValueChange={setLbCommand}
+            aria-label="Command"
+            className="ks-listbox ks-listbox--scroll"
+          >
+            {LB_COMMANDS.map((group) => (
+              <ListboxGroup key={group.label}>
+                <ListboxGroupLabel>{group.label}</ListboxGroupLabel>
+                {group.options.map(({ value, name, shortcut }) => (
+                  <ListboxOption key={value} value={value}>
+                    <ListboxOptionIndicator>
+                      <Check aria-hidden="true" />
+                    </ListboxOptionIndicator>
+                    <ListboxOptionLabel>{name}</ListboxOptionLabel>
+                    <ListboxOptionTrailing>
+                      <span className="ks-select-badge">{shortcut}</span>
+                    </ListboxOptionTrailing>
+                  </ListboxOption>
+                ))}
+              </ListboxGroup>
+            ))}
+          </Listbox>
+        </div>
+
+        {/* THE COMPOSITION THIS COMPONENT EXISTS FOR. DOM focus stays in the
+            input, so the list has no focus ring anywhere — the cursor is the
+            only thing telling you what Enter will fire, which is why it is
+            styled unconditionally rather than only while focused. Type "c",
+            then arrow and press Enter without ever leaving the field. */}
+        <div className="ks-select-demo">
+          <span className="ks-select-demo__caption">
+            Driven by an input · focus never leaves the field
+            {lbResult ? ` — picked ${lbResult}` : ""}
+          </span>
+          <Input
+            size={size}
+            value={lbQuery}
+            placeholder="Filter cities…"
+            aria-label="Filter cities"
+            onChange={(event) => setLbQuery(event.target.value)}
+            onKeyDown={(event) => {
+              if (
+                !["ArrowDown", "ArrowUp", "Home", "End", "Enter"].includes(event.key)
+              ) {
+                return;
+              }
+              // Let the primitive own the keymap — just deliver the event to it.
+              event.preventDefault();
+              lbPaletteRef.current?.dispatchEvent(
+                new KeyboardEvent("keydown", {
+                  key: event.key,
+                  bubbles: true,
+                }),
+              );
+            }}
+          />
+          <Listbox
+            ref={lbPaletteRef}
+            type="single"
+            size={size}
+            value={lbResult}
+            onValueChange={setLbResult}
+            aria-label="Matching cities"
+            className="ks-listbox"
+          >
+            {lbMatches.length === 0 ? (
+              <ListboxEmpty>No cities match “{lbQuery}”</ListboxEmpty>
+            ) : (
+              lbMatches.map(({ value, name }) => (
+                <ListboxOption key={value} value={value}>
+                  <ListboxOptionIndicator>
+                    <Check aria-hidden="true" />
+                  </ListboxOptionIndicator>
+                  <ListboxOptionLeading>
+                    <Search aria-hidden="true" />
+                  </ListboxOptionLeading>
+                  <ListboxOptionLabel>{name}</ListboxOptionLabel>
+                </ListboxOption>
+              ))
+            )}
+          </Listbox>
+        </div>
       </Section>
 
       <Section title="Modal">

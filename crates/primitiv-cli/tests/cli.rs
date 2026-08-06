@@ -172,10 +172,13 @@ fn add_all_resolves_every_embedded_component() {
         // unlike props-based alert/chip whose primitives are single elements) +
         // SplitButton (hand-authored, composes the headless SplitButton compound
         // plus the registry Button for both halves and Dropdown for the menu —
-        // three surfaces, so no generator shape fits).
-        .stdout(predicate::str::contains("Resolved 54 components to add:"))
+        // three surfaces, so no generator shape fits) + Listbox (hand-authored,
+        // composes the headless Listbox compound; five of its parts are
+        // presentational spans with no primitive, and Empty has none at all).
+        .stdout(predicate::str::contains("Resolved 55 components to add:"))
         .stdout(predicate::str::contains("button"))
         .stdout(predicate::str::contains("split-button"))
+        .stdout(predicate::str::contains("listbox"))
         .stdout(predicate::str::contains("card"))
         .stdout(predicate::str::contains("avatar-group"))
         .stdout(predicate::str::contains("breadcrumb-overflow"))

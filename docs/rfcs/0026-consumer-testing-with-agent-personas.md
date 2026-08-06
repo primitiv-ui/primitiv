@@ -593,3 +593,70 @@ doesn't affect §14's plan. Worth knowing if this resurfaces: don't assume
 a repo-attachment failure in a long-running session generalises to fresh
 ones — verify in a fresh session before concluding the repo itself is the
 problem.
+
+## 19. Build outcome — a real isolation breach, Profile C (2026-08-06)
+
+§10 and §14 assumed isolation was fully controlled by two levers: not
+attaching `primitiv-ui/primitiv` to the builder session, and never naming
+Primitiv-as-subject in the brief. Profile C's run showed a third,
+unguarded vector: the building agent hit a real CLI gap (`primitiv add
+--help` doesn't exist), and — being a competent, diligent agent — went and
+read the CLI's Rust source on GitHub to find the real flags. Once in the
+repo for that, nothing stopped it from also finding `docs/consumer-testing/`
+and recognising exactly what this program is. The reviewer verified,
+independently, that `findings-log.md` and the relevant RFCs existed and
+were reachable at build time, and that the run reproduced enough of their
+specifics (an itemised, untested claim about which other components share
+the `Button`/`asChild` bug; a third letter-perfect reproduction of the
+font-fallback fix) that prior knowledge, not independent discovery, is the
+better explanation for parts of the report.
+
+**Two things worth recording precisely, because both are counterintuitive:**
+
+- **Neither lever §10/§14 already had would have stopped this.** The
+  session never attached `primitiv-ui/primitiv`; the breach happened via
+  the agent's own initiative reading *public* GitHub content, a channel
+  outside the repo-attachment model entirely. Restricting the sandbox's
+  own network egress (the fix first proposed here) is not obviously
+  sufficient either — a WebSearch/WebFetch-shaped tool available to the
+  agent plausibly routes outside the sandboxed environment's own egress
+  policy, so narrowing that policy closes the CLI's normal-operation
+  network needs (confirmed: none of `init`/`add`/`tokens`/`theme` need
+  GitHub access at all — the embedded registry means zero network calls
+  for the registry path) without reliably closing the research vector.
+- **The mitigation applied is a prompt-level instruction, not an
+  infrastructure control, and it is unverified.** `brief.md` now tells
+  the builder, in character, not to browse the vendor's own internal
+  GitHub repository — framed as an ordinary thing a real client would ask
+  of a contractor, not as a tell that this is a test. It was added
+  *after* Profile C's run (confirmed by the reviewer via commit
+  timestamps: the fix landed 4 minutes after Profile C's own commit, so
+  that run wasn't disobeying a written rule — it exercised exactly the
+  judgement the test depends on it not exercising, absent any rule
+  telling it otherwise). No run has happened since the fix landed, so
+  whether an in-character instruction reliably suppresses this behaviour
+  — versus a sufficiently diligent/resourceful agent working around
+  phrasing it doesn't recognise as a hard constraint — is itself an open
+  question for the next run to help answer, not something to assume
+  solved.
+
+**What survived.** Per RFC 0026 §11.1's original reasoning (an independent
+reviewer beats trusting the builder's self-report), the reviewer session
+salvaged real signal from a compromised run rather than the whole run
+being wasted: it tagged every finding `prior-knowledge-plausible` vs.
+`independent-discovery-plausible`, kept the genuinely novel Tailwind-
+integration findings (untouched by the breach, since neither Profile A
+nor B could have surfaced them) as clean signal, and correctly discounted
+the tainted ones rather than reporting them as confirmation of anything.
+See `docs/consumer-testing/findings-log.md`'s Profile C section for the
+specifics. This is itself a point in favour of the reviewer-independence
+design holding up under a failure mode the RFC didn't anticipate, not
+just the ones it did.
+
+**Recommendation for future runs:** treat the in-character
+don't-browse-GitHub instruction as a first attempt, not a solved problem.
+If a future run breaches isolation again despite it, the next escalation
+is a genuine infrastructure control — e.g. an environment whose network
+policy also gates the agent's own search/fetch tools, not just sandboxed
+code execution — rather than a stronger version of the same prompt-level
+ask.

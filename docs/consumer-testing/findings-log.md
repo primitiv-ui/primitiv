@@ -89,7 +89,9 @@ Full report: `simonrevill/primitiv-consumer-testing/runs/2026-08-05-fernglass-pl
   image host, but it's a real, reproducible boundary case (any consumer
   whose avatar images fail to load hits the same thing). **Status: open**
   — needs a design decision (smaller fallback-mode overlap? a
-  minimum-legible-size floor?), not just a token tweak.
+  minimum-legible-size floor?), not just a token tweak. **Recurred a
+  third time in Profile C** (2026-08-06, 7-face stack) — three-for-three
+  across every profile that's used the component. Worth prioritising.
 - RFC 0026 wasn't visible in the reviewer's checkout because this branch
   hadn't been merged to `main` yet, so it fell back to citing RFC
   0022/0025 instead (self-corrected fine, but worth fixing). **Status:
@@ -174,3 +176,80 @@ over-installing costs nothing and nothing forces a consumer to actually
 wire something up; a plain `npm install` + manual `import` can't produce
 an unused component by construction. Not actionable on its own, but a
 data point for how the two consumption modes differ in practice.
+
+## Profile C — 2026-08-06 (Kettlewell Coffee Roasters)
+
+Full report: `simonrevill/primitiv-consumer-testing/runs/2026-08-06-kettlewell-coffee/report.md`
+
+**This run's isolation was broken** — the building agent proactively
+researched `primitiv-ui/primitiv` on GitHub mid-build (to work around the
+CLI's missing `--help`, see below) and, by its own account, also read
+"architecture docs" while it was in there, deliberately skipping only the
+reviewer-only file. The reviewer verified `findings-log.md` and the RFCs
+were reachable and existed in the repo at build time, and — fairly —
+confirmed the brief.md fix telling agents not to do this landed *after*
+this run had already pushed, so it wasn't disobeying a written rule. The
+reviewer tagged every finding `prior-knowledge-plausible` or
+`independent-discovery-plausible` rather than discarding the report
+outright; only the latter are logged below as fresh signal. See RFC 0026's
+build-outcome notes for the methodology lesson this surfaced.
+
+**Positive, and answers an open RFC 0026 question:** the Tailwind/Primitiv
+cascade-layer question flagged as genuinely open in RFC 0026 §5 resolved
+cleanly here. Tailwind's utilities layer is declared last
+(`@layer theme, base, components, primitiv, utilities`), so a bare
+Tailwind class predictably wins over Primitiv's own `@layer primitiv.*`
+sublayers — the two systems don't fight. No entry needed; recorded because
+it directly closes a question the RFC posed before any run happened.
+
+New items, independent-discovery-plausible (Tailwind-specific territory —
+neither Profile A nor B could have surfaced these, so nothing here is
+tainted by the isolation break):
+
+- **Tailwind-format tokens don't self-supply their own values.** The
+  `--format tailwind` output only emits the `@theme` mapping, not the
+  underlying values — needed a second `primitiv tokens --format css`
+  output imported first to actually populate anything. **Status: open**
+  — worth a note in the CLI's Tailwind-format docs at minimum; possibly
+  the two should be combinable in one emit.
+- **Primitiv's semantic role tokens aren't in a namespace Tailwind
+  recognises**, forcing arbitrary-value shorthand
+  (`bg-(--surface-default)`) everywhere instead of a clean utility class.
+  **Status: open** — a real Tailwind-integration DX gap, not a bug.
+- **`Figure.Media` has no placeholder background, unlike `Card`'s media
+  slot.** Same broken-image scenario (blocked `picsum.photos`), two
+  different results: `Card`'s media area shows a clearly-bounded grey
+  placeholder box (`registry/components/card/styles.css:49,82`,
+  `--primitiv-card-media-background`); `Figure.Media` shows nothing at
+  all — no box, not even a broken-image icon
+  (`registry/components/figure/styles.css` has no background token on
+  `.primitiv-figure__media`, by design, since the media is meant to be
+  size-independent). **Status: open** — worth deciding whether `Figure`
+  should get the same placeholder treatment `Card` has, for consistency.
+- **`primitiv add --help` (and other subcommands) don't implement
+  `--help`** — independently confirmed by the reviewer. Real CLI gap;
+  its accidental discovery (reading the Rust source on GitHub instead)
+  is the actual contamination vector for this run, but the gap itself is
+  real and unrelated to that. **Status: open.**
+- **`mt-[2px]` on `PlansPage.tsx:189`** — an exact-match token
+  (`--primitiv-space-space-2`, 0.125rem/2px, exposed to Tailwind as
+  `--spacing-space-2`) existed and wasn't used in favour of a literal.
+  **Status: open** — minor, clean token-compliance slip, not urgent.
+- **Hand-typed `leading-[1.05]`/`[1.3]`** on two headline/statement
+  elements instead of the token-backed `leading-*` Tailwind scale that
+  does exist. One value (`1.05`) is legitimately tighter than any ramp
+  step offers; the other (`1.3`) had a near-exact match
+  (`leading-36`) available and unused. **Status: open** — minor.
+
+Container/Grid and the measure/prose-width gap recurred a third time
+(same items as above); the `Button`/`asChild` writeup and the
+font-fallback fix were also reproduced but are **not** logged as
+independent confirmation here — the reviewer rated both
+prior-knowledge-plausible (the former's suspiciously complete,
+untested claim about four other affected components in particular).
+
+**Component coverage: 13 of 18 meaningfully used, 5 dead** (`field`,
+`input`, `stack`, `box`, `center`) — and unlike Profile A, `NOTES.md`
+correctly and completely disclosed its own dead installs rather than
+overstating usage. A real, checkable accuracy point in the run's favour,
+independent of the isolation question.

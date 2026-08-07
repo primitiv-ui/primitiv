@@ -44,6 +44,10 @@ export function useMillerColumnsItem(
   const { depth } = useMillerColumnsColumnContext();
 
   const selected = activePath[depth] === value;
+  // The deepest selected item — the one the user actually landed on, as
+  // opposed to the ancestors its path passes through. Nothing else in the
+  // DOM distinguishes the two, and styling them alike loses the depth cue.
+  const terminal = selected && depth === activePath.length - 1;
 
   const itemRef = useRef<HTMLDivElement>(null);
   const composedRef = ref ? composeRefs(itemRef, ref) : itemRef;
@@ -139,6 +143,7 @@ export function useMillerColumnsItem(
     "aria-level": depth + 1,
     ...(hasChildren ? { "aria-expanded": selected } : {}),
     "data-state": selected ? "selected" : "unselected",
+    ...(terminal ? { "data-terminal": "" } : {}),
     "data-depth": depth,
     ...(hasChildren ? { "data-has-children": "" } : {}),
     ...(disabled ? { "aria-disabled": true, "data-disabled": "" } : {}),

@@ -26,9 +26,14 @@
  *    (xs|sm -> xs, md -> sm, lg -> md, xl -> lg), matching both the row type
  *    ladder and the Figma Tree / Selection Path set.
  *
+ * Because Tree.Branch finds its control and content by inspecting its children
+ * BEFORE rendering them, it sees these wrapper components rather than what they
+ * render — so both declare which part they stand in for via TREE_PART. Without
+ * that marker Tree.Branch throws "must contain a <Tree.BranchControl>".
+ *
  * Keep this file, contract.json, and the stylesheet in sync by hand.
  */
-import { Tree as TreePrimitive } from "@primitiv-ui/react";
+import { TREE_PART, Tree as TreePrimitive } from "@primitiv-ui/react";
 import { Children, Fragment, type ComponentPropsWithRef, type ReactNode } from "react";
 import {
   Breadcrumb,
@@ -127,6 +132,8 @@ export function TreeBranchControl({ className, children, ...props }: TreeBranchC
   );
 }
 
+TreeBranchControl[TREE_PART] = "branch-control";
+
 export type TreeBranchContentProps = DistributiveOmit<
   ComponentPropsWithRef<typeof TreePrimitive.BranchContent>,
   "forceMount"
@@ -145,6 +152,8 @@ export function TreeBranchContent({ className, children, ...props }: TreeBranchC
     </TreePrimitive.BranchContent>
   );
 }
+
+TreeBranchContent[TREE_PART] = "branch-content";
 
 export type TreeBranchIndicatorProps = ComponentPropsWithRef<typeof TreePrimitive.BranchIndicator>;
 

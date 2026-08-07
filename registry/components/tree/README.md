@@ -114,6 +114,14 @@ first ink a whole icon-width further along. One length for both leaves a leaf's
 line dying in blank space. The two knobs are
 `--primitiv-tree-connector-stub-width` and `-stub-width-leaf`.
 
+**The part wrappers carry a `TREE_PART` marker, and they need it.**
+`Tree.Branch` finds its control and content by inspecting its children *before*
+rendering them, so it sees `TreeBranchControl` / `TreeBranchContent` rather than
+the headless parts they render. Both set `[TREE_PART]` so the branch recognises
+them; strip the marker and you get `A Tree.Branch must contain a
+<Tree.BranchControl>.` at runtime. Any wrapper of your own around these parts
+needs the same marker.
+
 **Selected, hover and focus are drawn on the row, not the treeitem.** The
 headless puts the roving tabstop on `TreeBranch`, which wraps the whole
 subtree — styling `:focus-visible` on it directly would ring every descendant.

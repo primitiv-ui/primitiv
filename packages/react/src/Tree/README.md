@@ -223,6 +223,41 @@ styles.
 > }
 > ```
 
+## Wrapping Tree in a styled layer
+
+`Tree.Branch` finds its control and content by **inspecting its children before
+rendering them**, so it sees the component you wrote — not what that component
+renders. A styling layer that wraps each part in its own component to attach
+classes is therefore invisible to it, and the branch throws:
+
+```
+A Tree.Branch must contain a <Tree.BranchControl>.
+```
+
+Set `TREE_PART` on the wrapper and it partitions like the part it renders:
+
+```tsx
+import { TREE_PART, Tree } from "@primitiv-ui/react";
+
+function StyledBranchControl(props: TreeBranchControlProps) {
+  return <Tree.BranchControl {...props} className="row" />;
+}
+StyledBranchControl[TREE_PART] = "branch-control";
+
+function StyledBranchContent(props: TreeBranchContentProps) {
+  return <Tree.BranchContent {...props} className="group" />;
+}
+StyledBranchContent[TREE_PART] = "branch-content";
+```
+
+The accepted names are `"branch-control"` and `"branch-content"`
+(`TreePartName`). Only these two parts need it — every other part is found by
+position or context, not by inspection. The one-control and one-content rules
+still apply: two marked controls in a branch is still an error.
+
+This is what the registry `tree` component does; no other primitive in the
+library needs a marker, because none of the others read their children's types.
+
 ## Selection path
 
 `Tree.Item` and `Tree.Branch` accept an optional `label` prop. It does

@@ -1,8 +1,6 @@
 import { useCallback, useRef, type KeyboardEvent } from "react";
 
-import { TYPEAHEAD_RESET_MS } from "../constants";
-
-type UseListboxTypeaheadArgs = {
+type UseTypeaheadArgs = {
   /** Reads the navigable (enabled) option values in current DOM order. Called
    * per keystroke so an in-place reorder is picked up. */
   getNavigable: () => string[];
@@ -12,26 +10,30 @@ type UseListboxTypeaheadArgs = {
   currentKey: string | undefined;
   /** Moves the cursor to the matched option. */
   onMatch: (optionValue: string) => void;
+  /** Milliseconds of inactivity after which the accumulated query resets. */
+  resetMs: number;
 };
 
 /**
- * Printable-character typeahead for the Listbox cursor, per APG's
- * recommendation for lists longer than about seven options.
+ * Printable-character typeahead for a list cursor, per APG's
+ * recommendation for lists longer than about seven options. Shared by
+ * `Listbox` and `MillerColumns` (which scopes it to the focused column).
  *
- * Keystrokes accumulate into a query that resets after
- * {@link TYPEAHEAD_RESET_MS} of inactivity. A query of all-identical
+ * Keystrokes accumulate into a query that resets after `resetMs` of
+ * inactivity. A query of all-identical
  * characters is treated as a repeat of that single character, which cycles
  * through the options starting with it rather than searching for a literal
  * run — so pressing "a" three times walks the "a" options instead of looking
  * for "aaa". Matching is a case-insensitive prefix test against the option's
  * text, and the search wraps.
  */
-export function useListboxTypeahead({
+export function useTypeahead({
   getNavigable,
   getLabel,
   currentKey,
   onMatch,
-}: UseListboxTypeaheadArgs): {
+  resetMs,
+}: UseTypeaheadArgs): {
   handleTypeahead: (event: KeyboardEvent<HTMLElement>) => void;
 } {
   const stateRef = useRef<{ query: string; timer: number | null }>({
@@ -54,7 +56,7 @@ export function useListboxTypeahead({
       state.timer = window.setTimeout(() => {
         state.query = "";
         state.timer = null;
-      }, TYPEAHEAD_RESET_MS);
+      }, resetMs);
 
       const isRepeat =
         // Stryker disable next-line ConditionalExpression,EqualityOperator: equivalent — for a single character `every()` is trivially true, so both forms yield the same isRepeat.
@@ -86,7 +88,7 @@ export function useListboxTypeahead({
         }
       }
     },
-    [getNavigable, getLabel, currentKey, onMatch],
+    [getNavigable, getLabel, currentKey, onMatch, resetMs],
   );
 
   return { handleTypeahead };

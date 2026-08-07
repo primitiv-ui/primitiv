@@ -31,6 +31,7 @@ export function useMillerColumnsItem(
   hasChildren: boolean,
 ) {
   const {
+    dir,
     activePath,
     select,
     registerItem,
@@ -107,10 +108,15 @@ export function useMillerColumnsItem(
     : depth === 0 &&
       getColumnItems(0).find((item) => !item.disabled)?.value === value;
 
+  // Columns run left-to-right under ltr and right-to-left under rtl, so
+  // the key that steps *into* a child column mirrors with the direction.
+  const stepInKey = dir === "rtl" ? "ArrowLeft" : "ArrowRight";
+  const stepOutKey = dir === "rtl" ? "ArrowRight" : "ArrowLeft";
+
   function handleKeyDown(event: KeyboardEvent<HTMLDivElement>) {
     onKeyDown?.(event);
 
-    if (event.key === "ArrowRight") {
+    if (event.key === stepInKey) {
       if (!hasChildren || disabled) {
         return;
       }
@@ -124,7 +130,7 @@ export function useMillerColumnsItem(
       return;
     }
 
-    if (event.key === "ArrowLeft") {
+    if (event.key === stepOutKey) {
       if (depth === 0) {
         return;
       }

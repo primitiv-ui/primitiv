@@ -1,13 +1,24 @@
 import { ComponentProps, ReactNode, Ref } from "react";
 
+import type { Direction } from "../DirectionProvider/types";
+
 /**
  * Shared base for both {@link MillerColumnsRootProps} variants — the native
- * `<div>` attributes (minus `ref`, which the strip owns internally).
+ * `<div>` attributes (minus `ref`, which the strip owns internally, and
+ * `dir`, narrowed below to the {@link Direction} union).
  */
 export type MillerColumnsRootBaseProps = Omit<
   ComponentProps<"div">,
-  "ref" | "defaultValue"
+  "ref" | "defaultValue" | "dir"
 > & {
+  /**
+   * Reading direction. Under `"rtl"` the horizontal arrow pair is
+   * mirrored — ArrowLeft steps *into* a branch's child column and
+   * ArrowRight walks back out — so navigation follows the visual order.
+   * Inherited from a `DirectionProvider` ancestor when omitted.
+   * @default "ltr"
+   */
+  dir?: Direction;
   /**
    * The strip's tree, authored recursively: root
    * {@link MillerColumnsColumnProps | Column(s)} whose branch
@@ -65,8 +76,10 @@ export type MillerColumnsRootProps =
  */
 export type MillerColumnsColumnProps = ComponentProps<"div"> & {
   /** The column's {@link MillerColumnsItemProps | Items} and, optionally, a
-   * {@link MillerColumnsResizeHandleProps | ResizeHandle}. */
-  children: ReactNode;
+   * {@link MillerColumnsResizeHandleProps | ResizeHandle}. Optional: a
+   * childless branch legitimately opens an empty column, which carries
+   * `data-empty` for the styling layer. */
+  children?: ReactNode;
 };
 
 /**
@@ -156,6 +169,8 @@ export type MillerColumnsItemAddress = {
 
 /** Value shared through the root MillerColumns context. */
 export type MillerColumnsContextValue = {
+  /** The resolved reading direction — the `dir` prop, else the inherited one. */
+  dir: Direction;
   /** Portal slots keyed by column depth. */
   slots: Map<number, HTMLElement>;
   /** Per-depth column widths set via the resize handle. */

@@ -83,16 +83,18 @@ export function MillerColumnsRoot({
   defaultValue,
   value,
   onValueChange,
+  dir,
   ...rest
 }: MillerColumnsRootProps): ReactElement {
-  const { contextValue, columnCount, registerSlotRef, stripRef } =
-    useMillerColumnsRoot(value, defaultValue, onValueChange);
+  const { contextValue, columnCount, registerSlotRef, stripRef, resolvedDir } =
+    useMillerColumnsRoot(value, defaultValue, onValueChange, dir);
   const { aria, rest: containerProps } = partitionAriaProps(rest);
 
   return (
     <MillerColumnsContext.Provider value={contextValue}>
       <div
         ref={stripRef}
+        dir={resolvedDir}
         data-miller-columns-strip=""
         data-orientation="horizontal"
         {...containerProps}

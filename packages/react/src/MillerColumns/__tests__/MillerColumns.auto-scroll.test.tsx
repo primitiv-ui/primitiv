@@ -32,9 +32,11 @@ describe("MillerColumns — auto-scroll", () => {
   it("scrolls the strip to reveal a newly opened column", async () => {
     const user = userEvent.setup();
 
-    render(<Tree />);
+    const { container } = render(<Tree />);
 
-    const strip = screen.getByRole("tree");
+    const strip = container.querySelector<HTMLElement>(
+      "[data-miller-columns-strip]",
+    )!;
     const scrollTo = vi.spyOn(strip, "scrollTo");
 
     await user.click(screen.getByRole("treeitem", { name: "Fruit" }));

@@ -18,7 +18,7 @@ import {
   useMillerColumnsRoot,
 } from "./hooks/index.ts";
 
-import { partitionItemChildren } from "./utils";
+import { partitionAriaProps, partitionItemChildren } from "./utils";
 
 import type {
   MillerColumnsRootProps,
@@ -87,24 +87,26 @@ export function MillerColumnsRoot({
 }: MillerColumnsRootProps): ReactElement {
   const { contextValue, columnCount, registerSlotRef, stripRef } =
     useMillerColumnsRoot(value, defaultValue, onValueChange);
+  const { aria, rest: containerProps } = partitionAriaProps(rest);
 
   return (
     <MillerColumnsContext.Provider value={contextValue}>
       <div
         ref={stripRef}
-        role="tree"
         data-miller-columns-strip=""
         data-orientation="horizontal"
-        {...rest}
+        {...containerProps}
       >
-        {Array.from({ length: columnCount }, (_, depth) => (
-          <div
-            key={depth}
-            data-miller-columns-slot=""
-            style={{ display: "contents" }}
-            ref={registerSlotRef(depth)}
-          />
-        ))}
+        <div role="tree" data-miller-columns-tree="" {...aria}>
+          {Array.from({ length: columnCount }, (_, depth) => (
+            <div
+              key={depth}
+              data-miller-columns-slot=""
+              style={{ display: "contents" }}
+              ref={registerSlotRef(depth)}
+            />
+          ))}
+        </div>
         {children}
       </div>
     </MillerColumnsContext.Provider>

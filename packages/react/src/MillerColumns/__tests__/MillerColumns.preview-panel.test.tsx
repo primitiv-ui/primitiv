@@ -4,7 +4,7 @@ import { MillerColumns } from "../MillerColumns";
 
 describe("MillerColumns — preview panel", () => {
   it("renders a panel at the trailing edge of the strip", () => {
-    render(
+    const { container } = render(
       <MillerColumns.Root>
         <MillerColumns.Column>
           <MillerColumns.Item value="a">A</MillerColumns.Item>
@@ -13,7 +13,7 @@ describe("MillerColumns — preview panel", () => {
       </MillerColumns.Root>,
     );
 
-    const strip = screen.getByRole("tree");
+    const strip = container.querySelector("[data-miller-columns-strip]")!;
     const panel = screen.getByText("preview");
 
     expect(panel).toHaveAttribute("data-miller-columns-preview");

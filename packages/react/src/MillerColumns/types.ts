@@ -131,7 +131,26 @@ export type MillerColumnsItemIndicatorProps = ComponentProps<"span"> & {
  * Props for {@link MillerColumnsResizeHandle | `MillerColumns.ResizeHandle`},
  * the drag-to-resize separator for its containing column.
  */
-export type MillerColumnsResizeHandleProps = ComponentProps<"div">;
+export type MillerColumnsResizeHandleProps = ComponentProps<"div"> & {
+  /**
+   * Smallest width the column can be dragged or stepped to, in pixels.
+   * Also published as `aria-valuemin`.
+   * @default 0
+   */
+  minWidth?: number;
+  /**
+   * Largest width the column can be dragged or stepped to, in pixels.
+   * Published as `aria-valuemax` when finite; left unbounded by default,
+   * in which case the attribute is omitted.
+   * @default Infinity
+   */
+  maxWidth?: number;
+  /**
+   * Pixels moved per arrow-key press.
+   * @default 10
+   */
+  step?: number;
+};
 
 /**
  * Props for {@link MillerColumnsPreviewPanel | `MillerColumns.PreviewPanel`},

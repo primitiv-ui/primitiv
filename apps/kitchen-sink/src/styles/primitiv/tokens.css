@@ -380,6 +380,8 @@
     --primitiv-table-row-hover: var(--primitiv-color-neutral-100);
     --primitiv-table-row-selected: var(--primitiv-color-brand-100);
     --primitiv-table-row-stripe: var(--primitiv-color-neutral-50);
+    --primitiv-tree-row-hover: var(--primitiv-color-neutral-alpha-100);
+    --primitiv-tree-row-selected: var(--primitiv-color-neutral-alpha-200);
   }
   [data-theme="dark"] {
     --primitiv-color-absolute-black: #000000;
@@ -564,6 +566,8 @@
     --primitiv-table-row-hover: var(--primitiv-color-neutral-100);
     --primitiv-table-row-selected: var(--primitiv-color-brand-900);
     --primitiv-table-row-stripe: var(--primitiv-color-neutral-50);
+    --primitiv-tree-row-hover: var(--primitiv-color-neutral-alpha-100);
+    --primitiv-tree-row-selected: var(--primitiv-color-neutral-alpha-200);
   }
   :root,
   [data-density="comfortable"] {

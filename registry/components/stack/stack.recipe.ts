@@ -14,6 +14,8 @@ export const stack = cva("primitiv-stack", {
     direction: {
       column: "primitiv-stack--column",
       row: "primitiv-stack--row",
+      "column-reverse": "primitiv-stack--column-reverse",
+      "row-reverse": "primitiv-stack--row-reverse",
     },
     gap: {
       none: "primitiv-stack--gap-none",
@@ -22,6 +24,10 @@ export const stack = cva("primitiv-stack", {
       md: "primitiv-stack--gap-md",
       lg: "primitiv-stack--gap-lg",
       xl: "primitiv-stack--gap-xl",
+    },
+    wrap: {
+      nowrap: "primitiv-stack--nowrap",
+      wrap: "primitiv-stack--wrap",
     },
     align: {
       start: "primitiv-stack--align-start",
@@ -42,6 +48,7 @@ export const stack = cva("primitiv-stack", {
   defaultVariants: {
     direction: "column",
     gap: "md",
+    wrap: "nowrap",
     align: "stretch",
     justify: "start",
   },

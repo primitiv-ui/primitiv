@@ -41,6 +41,9 @@
        `align`/`justify` note in the file header. */
     align-items: stretch;
     justify-content: flex-start;
+    /* The CSS default — a row/column may overflow its container rather than
+       break onto additional lines. The `wrap` variant below opts in. */
+    flex-wrap: nowrap;
     gap: var(--primitiv-stack-gap);
   }
 }
@@ -51,6 +54,12 @@
   }
   .primitiv-stack--column {
     flex-direction: column;
+  }
+  .primitiv-stack--row-reverse {
+    flex-direction: row-reverse;
+  }
+  .primitiv-stack--column-reverse {
+    flex-direction: column-reverse;
   }
 
   /* gap steps — each a dedicated density-scaled Context token
@@ -75,6 +84,17 @@
   }
   .primitiv-stack--gap-xl {
     --primitiv-stack-gap: var(--primitiv-stack-gap-xl);
+  }
+
+  /* Wrap — `nowrap` is the CSS default and is listed here too (like
+     `align-stretch`/`justify-start` above) so an explicit `wrap="nowrap"` is a
+     no-op rather than a missing class. A row that must never overflow its
+     container (a squeezed flex row, a mobile viewport) opts into `wrap`. */
+  .primitiv-stack--nowrap {
+    flex-wrap: nowrap;
+  }
+  .primitiv-stack--wrap {
+    flex-wrap: wrap;
   }
 
   /* Align — cross-axis (`align-items`), from a curated preset set. Logical

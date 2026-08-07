@@ -1493,7 +1493,7 @@ primitiv add --all`}</code>
           seam rather than painting over the other half.
         </p>
 
-        <Stack direction="row" gap="md">
+        <Stack direction="row" gap="md" wrap="wrap">
           <SplitButton size={size}>
             <SplitButtonAction>Squash and merge</SplitButtonAction>
             <SplitButtonTrigger>
@@ -1543,7 +1543,7 @@ primitiv add --all`}</code>
           glyph gutter lines up whichever rows carry an icon.
         </p>
 
-        <Stack direction="row" gap="md" align="center">
+        <Stack direction="row" gap="md" align="center" wrap="wrap">
           <SplitButton size={size}>
             <SplitButtonAction
               onClick={() => setPublishAction("Published immediately.")}
@@ -1603,7 +1603,7 @@ primitiv add --all`}</code>
           alternatives stay reachable), or the trigger alone.
         </p>
 
-        <Stack direction="row" gap="md">
+        <Stack direction="row" gap="md" wrap="wrap">
           <SplitButton size={size} disabled>
             <SplitButtonAction>Whole group</SplitButtonAction>
             <SplitButtonTrigger>

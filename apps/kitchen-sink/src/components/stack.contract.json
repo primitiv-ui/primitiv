@@ -2,7 +2,7 @@
   "$schema": "https://primitiv-ui.dev/schema/contract.json",
   "name": "stack",
   "version": "0.1.0",
-  "description": "A Flexbox stack \u2014 `direction` picks the axis, `gap` the spacing (a density-scaled Context token per step), and `align`/`justify` the alignment, all as modifier classes. No inline styles: the alignment props are curated presets, not raw CSS keywords (RFC 0022 \u00a78).",
+  "description": "A Flexbox stack \u2014 `direction` picks the axis, `gap` the spacing (a density-scaled Context token per step), `wrap` whether the row may break onto additional lines, and `align`/`justify` the alignment, all as modifier classes. No inline styles: the alignment props are curated presets, not raw CSS keywords (RFC 0022 \u00a78).",
   "docs": "https://primitiv-ui.dev/docs/components/stack",
   "root": {
     "element": "div",
@@ -13,7 +13,7 @@
     {
       "name": "direction",
       "default": "column",
-      "description": "Flex axis.",
+      "description": "Flex axis, and its resting or reversed order — the four `flex-direction` keywords directly.",
       "options": [
         {
           "name": "column",
@@ -24,6 +24,16 @@
           "name": "row",
           "class": "primitiv-stack--row",
           "description": "Stack horizontally."
+        },
+        {
+          "name": "column-reverse",
+          "class": "primitiv-stack--column-reverse",
+          "description": "Stack vertically, last child first."
+        },
+        {
+          "name": "row-reverse",
+          "class": "primitiv-stack--row-reverse",
+          "description": "Stack horizontally, last child first."
         }
       ]
     },
@@ -93,6 +103,23 @@
           "name": "baseline",
           "class": "primitiv-stack--align-baseline",
           "description": "Children aligned on their first text baseline."
+        }
+      ]
+    },
+    {
+      "name": "wrap",
+      "default": "nowrap",
+      "description": "Whether children may wrap onto additional lines when the main axis runs out of room (`flex-wrap`).",
+      "options": [
+        {
+          "name": "nowrap",
+          "class": "primitiv-stack--nowrap",
+          "description": "Children stay on one line and the row may overflow (the default)."
+        },
+        {
+          "name": "wrap",
+          "class": "primitiv-stack--wrap",
+          "description": "Children wrap onto additional lines instead of overflowing."
         }
       ]
     },

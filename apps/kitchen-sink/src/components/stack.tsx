@@ -25,9 +25,12 @@ export type StackProps = ComponentPropsWithRef<"div"> &
   };
 
 /**
- * A Flexbox stack. `direction` (`column`|`row`, default `column`) sets the
- * axis; `gap` (`none`–`xl`, default `md`) resolves against the space-* scale;
- * `align` (`start`|`center`|`end`|`stretch`|`baseline`, default `stretch`) and
+ * A Flexbox stack. `direction` (`column`|`row`|`column-reverse`|`row-reverse`,
+ * default `column`) sets the axis and order; `gap` (`none`–`xl`, default
+ * `md`) resolves against the space-* scale;
+ * `wrap` (`nowrap`|`wrap`, default `nowrap`) lets children break onto
+ * additional lines instead of overflowing the main axis; `align`
+ * (`start`|`center`|`end`|`stretch`|`baseline`, default `stretch`) and
  * `justify` (`start`|`center`|`end`|`between`|`around`|`evenly`, default
  * `start`) set the alignment. Every prop is a modifier class — `Stack` writes
  * no inline styles.
@@ -43,6 +46,11 @@ export type StackProps = ComponentPropsWithRef<"div"> &
  *   <Avatar />
  *   <span>Jane Cooper</span>
  * </Stack>
+ *
+ * <Stack direction="row" wrap="wrap" gap="md">
+ *   <Button>One</Button>
+ *   <Button>Two</Button>
+ * </Stack>
  * ```
  *
  * @see https://primitiv-ui.dev/docs/components/stack
@@ -50,6 +58,7 @@ export type StackProps = ComponentPropsWithRef<"div"> &
 export function Stack({
   direction,
   gap,
+  wrap,
   align,
   justify,
   asChild = false,
@@ -59,7 +68,9 @@ export function Stack({
   const Comp: ElementType = asChild ? Slot : "div";
   return (
     <Comp
-      className={[stack({ direction, gap, align, justify }), className].filter(Boolean).join(" ")}
+      className={[stack({ direction, gap, wrap, align, justify }), className]
+        .filter(Boolean)
+        .join(" ")}
       {...props}
     />
   );

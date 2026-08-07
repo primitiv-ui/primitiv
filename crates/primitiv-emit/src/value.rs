@@ -8,6 +8,14 @@ const LENGTH_CATEGORIES: &[&str] = &[
     "line-height",
     "border-width",
     "letter-spacing",
+    // `tree` is a component namespace, not a primitive scale — the one entry
+    // here that is. Component families normally alias the primitive scales, so
+    // their numbers never reach this function; Tree's two connector stub widths
+    // (`tree.{size}.connector.stub-width` / `-leaf`) are deliberately literal
+    // because they are derived from chevron-glyph geometry and land off every
+    // rung of the ladder (13, 18, 23, 34…). Without this they would emit
+    // unitless and be invalid as a width — the trap `avatar-group` documents.
+    "tree",
 ];
 
 /// Format a raw DTCG `number` value as a CSS string, choosing the unit from the

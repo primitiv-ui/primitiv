@@ -9,6 +9,15 @@ fn emits_length_categories_as_rem_against_a_16px_base() {
 }
 
 #[test]
+fn emits_trees_off_ladder_connector_widths_as_rem() {
+    // `tree` is the one component namespace in LENGTH_CATEGORIES: its connector
+    // stub widths are literal (chevron-glyph geometry, off every primitive
+    // rung), so without the entry they would emit unitless and be invalid.
+    assert_eq!(format_number("tree", 13.0), "0.8125rem");
+    assert_eq!(format_number("tree", 23.0), "1.4375rem");
+}
+
+#[test]
 fn rounds_letter_spacing_float_noise_to_clean_rem() {
     // Figma exports carry float noise; -2.4 / 16 must land on -0.15rem.
     assert_eq!(format_number("letter-spacing", -2.4000000953674316), "-0.15rem");

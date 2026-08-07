@@ -174,9 +174,14 @@ fn add_all_resolves_every_embedded_component() {
         // plus the registry Button for both halves and Dropdown for the menu —
         // three surfaces, so no generator shape fits) + Listbox (hand-authored,
         // composes the headless Listbox compound; five of its parts are
-        // presentational spans with no primitive, and Empty has none at all).
-        .stdout(predicate::str::contains("Resolved 55 components to add:"))
+        // presentational spans with no primitive, and Empty has none at all) +
+        // Tree (hand-tuned like Accordion/Collapsible — BranchContent
+        // force-mounts and adds a clip for the grid open/close transition, and
+        // SelectionPath rebuilds each trail from the registry Breadcrumb through
+        // the headless render prop, which is why it dependsOn breadcrumb).
+        .stdout(predicate::str::contains("Resolved 56 components to add:"))
         .stdout(predicate::str::contains("button"))
+        .stdout(predicate::str::contains("tree"))
         .stdout(predicate::str::contains("split-button"))
         .stdout(predicate::str::contains("listbox"))
         .stdout(predicate::str::contains("card"))

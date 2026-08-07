@@ -53,3 +53,4 @@ export * from "./tag";
 export * from "./textarea";
 export * from "./toggle-group";
 export * from "./tooltip";
+export * from "./tree";

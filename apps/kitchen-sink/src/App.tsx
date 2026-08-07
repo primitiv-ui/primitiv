@@ -210,6 +210,13 @@ import {
   TooltipPortal,
   TooltipContent,
   TooltipArrow,
+  Tree,
+  TreeBranch,
+  TreeBranchContent,
+  TreeBranchControl,
+  TreeBranchIndicator,
+  TreeItem,
+  TreeSelectionPath,
 } from "./components";
 import {
   Calendar,
@@ -3606,6 +3613,163 @@ export function ramp(hue: number, chroma = 0.12) {
             );
           })}
         </TooltipProvider>
+      </Section>
+
+      <Section title="Tree" column>
+        <div className="ks-tree-showcase">
+          {/* Guide lines on (the default), with the selection-path bar above the
+              rows — the VS Code layout. Selection is uncontrolled; SelectionPath
+              reads it from context, so it needs no wiring. */}
+          <div className="ks-tree-showcase__column">
+            <p className="ks-tree-showcase__caption">Connectors + selection path</p>
+            <Tree
+              size={size}
+              defaultExpandedValues={["src", "components"]}
+              defaultSelectedValue="button.tsx"
+            >
+              <TreeSelectionPath size={size} />
+              <TreeBranch value="src" label="src">
+                <TreeBranchControl>
+                  <TreeBranchIndicator>
+                    <ChevronDown />
+                  </TreeBranchIndicator>
+                  <span className="primitiv-tree__branch-control-icon">
+                    <Folder />
+                  </span>
+                  <span className="primitiv-tree__branch-control-label">src</span>
+                </TreeBranchControl>
+                <TreeBranchContent>
+                  <TreeBranch value="components" label="components">
+                    <TreeBranchControl>
+                      <TreeBranchIndicator>
+                        <ChevronDown />
+                      </TreeBranchIndicator>
+                      <span className="primitiv-tree__branch-control-icon">
+                        <Folder />
+                      </span>
+                      <span className="primitiv-tree__branch-control-label">components</span>
+                    </TreeBranchControl>
+                    <TreeBranchContent>
+                      <TreeItem value="button.tsx" label="button.tsx">
+                        <span className="primitiv-tree__item-icon">
+                          <File />
+                        </span>
+                        <span className="primitiv-tree__item-label">button.tsx</span>
+                      </TreeItem>
+                      <TreeItem value="input.tsx" label="input.tsx">
+                        <span className="primitiv-tree__item-icon">
+                          <File />
+                        </span>
+                        <span className="primitiv-tree__item-label">input.tsx</span>
+                      </TreeItem>
+                    </TreeBranchContent>
+                  </TreeBranch>
+                  <TreeBranch value="hooks" label="hooks">
+                    <TreeBranchControl>
+                      <TreeBranchIndicator>
+                        <ChevronRight />
+                      </TreeBranchIndicator>
+                      <span className="primitiv-tree__branch-control-icon">
+                        <Folder />
+                      </span>
+                      <span className="primitiv-tree__branch-control-label">hooks</span>
+                    </TreeBranchControl>
+                    <TreeBranchContent>
+                      <TreeItem value="use-id.ts" label="use-id.ts">
+                        <span className="primitiv-tree__item-icon">
+                          <File />
+                        </span>
+                        <span className="primitiv-tree__item-label">use-id.ts</span>
+                      </TreeItem>
+                    </TreeBranchContent>
+                  </TreeBranch>
+                  <TreeItem value="index.ts" label="index.ts">
+                    <span className="primitiv-tree__item-icon">
+                      <File />
+                    </span>
+                    <span className="primitiv-tree__item-label">index.ts</span>
+                  </TreeItem>
+                </TreeBranchContent>
+              </TreeBranch>
+              <TreeItem value="readme" label="README.md">
+                <span className="primitiv-tree__item-icon">
+                  <File />
+                </span>
+                <span className="primitiv-tree__item-label">README.md</span>
+              </TreeItem>
+            </Tree>
+          </div>
+
+          {/* Guide lines off — indentation alone still carries the hierarchy.
+              Text-only rows, no icons: a plain tree stays legitimate. */}
+          <div className="ks-tree-showcase__column">
+            <p className="ks-tree-showcase__caption">No connectors, text only</p>
+            <Tree size={size} connectors="none" defaultExpandedValues={["docs"]}>
+              <TreeBranch value="docs" label="docs">
+                <TreeBranchControl>
+                  <TreeBranchIndicator>
+                    <ChevronDown />
+                  </TreeBranchIndicator>
+                  docs
+                </TreeBranchControl>
+                <TreeBranchContent>
+                  <TreeItem value="getting-started">Getting started</TreeItem>
+                  <TreeItem value="theming">Theming</TreeItem>
+                  <TreeItem value="deprecated" disabled>
+                    Deprecated (disabled)
+                  </TreeItem>
+                </TreeBranchContent>
+              </TreeBranch>
+              <TreeItem value="changelog">Changelog</TreeItem>
+            </Tree>
+          </div>
+
+          {/* Multiple selection — Ctrl/Cmd-click to toggle, Shift-click for a
+              range. SelectionPath renders one trail per selected value. Size
+              comes from the shared header control, like every other demo. */}
+          <div className="ks-tree-showcase__column">
+            <p className="ks-tree-showcase__caption">Multiple selection</p>
+            <Tree
+              size={size}
+              selectionMode="multiple"
+              defaultExpandedValues={["assets"]}
+              defaultSelectedValues={["logo.svg", "hero.png"]}
+            >
+              <TreeSelectionPath size={size} />
+              <TreeBranch value="assets" label="assets">
+                <TreeBranchControl>
+                  <TreeBranchIndicator>
+                    <ChevronDown />
+                  </TreeBranchIndicator>
+                  <span className="primitiv-tree__branch-control-icon">
+                    <Folder />
+                  </span>
+                  <span className="primitiv-tree__branch-control-label">assets</span>
+                </TreeBranchControl>
+                <TreeBranchContent>
+                  <TreeItem value="logo.svg" label="logo.svg">
+                    <span className="primitiv-tree__item-icon">
+                      <File />
+                    </span>
+                    <span className="primitiv-tree__item-label">logo.svg</span>
+                  </TreeItem>
+                  <TreeItem value="hero.png" label="hero.png">
+                    <span className="primitiv-tree__item-icon">
+                      <File />
+                    </span>
+                    <span className="primitiv-tree__item-label">hero.png</span>
+                  </TreeItem>
+                  <TreeItem value="icon.ico" label="icon.ico">
+                    <span className="primitiv-tree__item-icon">
+                      <File />
+                    </span>
+                    <span className="primitiv-tree__item-label">icon.ico</span>
+                  </TreeItem>
+                </TreeBranchContent>
+              </TreeBranch>
+            </Tree>
+          </div>
+        </div>
       </Section>
       </div>
     </div>

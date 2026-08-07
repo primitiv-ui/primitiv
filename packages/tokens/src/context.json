@@ -2086,6 +2086,43 @@
         "connector": { "elbow-height": { "$type": "number", "$value": "{size.size-20}" }, "stub-width": { "$type": "number", "$value": 18 }, "stub-width-leaf": { "$type": "number", "$value": 40 } }
       }
     },
+    "miller-columns": {
+      "xs": {
+        "item": { "height": { "$type": "number", "$value": "{size.size-20}" }, "padding-inline": { "$type": "number", "$value": "{space.space-4}" }, "gap": { "$type": "number", "$value": "{space.space-4}" }, "icon-size": { "$type": "number", "$value": "{size.size-12}" } },
+        "column-width": { "$type": "number", "$value": "{size.size-140}" },
+        "column-min-width": { "$type": "number", "$value": "{size.size-68}" },
+        "preview-width": { "$type": "number", "$value": "{size.size-168}" },
+        "resize-handle-width": { "$type": "number", "$value": "{size.size-6}" }
+      },
+      "sm": {
+        "item": { "height": { "$type": "number", "$value": "{size.size-24}" }, "padding-inline": { "$type": "number", "$value": "{space.space-6}" }, "gap": { "$type": "number", "$value": "{space.space-4}" }, "icon-size": { "$type": "number", "$value": "{size.size-14}" } },
+        "column-width": { "$type": "number", "$value": "{size.size-168}" },
+        "column-min-width": { "$type": "number", "$value": "{size.size-80}" },
+        "preview-width": { "$type": "number", "$value": "{size.size-200}" },
+        "resize-handle-width": { "$type": "number", "$value": "{size.size-6}" }
+      },
+      "md": {
+        "item": { "height": { "$type": "number", "$value": "{size.size-28}" }, "padding-inline": { "$type": "number", "$value": "{space.space-8}" }, "gap": { "$type": "number", "$value": "{space.space-6}" }, "icon-size": { "$type": "number", "$value": "{size.size-16}" } },
+        "column-width": { "$type": "number", "$value": "{size.size-200}" },
+        "column-min-width": { "$type": "number", "$value": "{size.size-96}" },
+        "preview-width": { "$type": "number", "$value": "{size.size-240}" },
+        "resize-handle-width": { "$type": "number", "$value": "{size.size-6}" }
+      },
+      "lg": {
+        "item": { "height": { "$type": "number", "$value": "{size.size-32}" }, "padding-inline": { "$type": "number", "$value": "{space.space-10}" }, "gap": { "$type": "number", "$value": "{space.space-8}" }, "icon-size": { "$type": "number", "$value": "{size.size-20}" } },
+        "column-width": { "$type": "number", "$value": "{size.size-240}" },
+        "column-min-width": { "$type": "number", "$value": "{size.size-116}" },
+        "preview-width": { "$type": "number", "$value": "{size.size-288}" },
+        "resize-handle-width": { "$type": "number", "$value": "{size.size-6}" }
+      },
+      "xl": {
+        "item": { "height": { "$type": "number", "$value": "{size.size-40}" }, "padding-inline": { "$type": "number", "$value": "{space.space-12}" }, "gap": { "$type": "number", "$value": "{space.space-8}" }, "icon-size": { "$type": "number", "$value": "{size.size-24}" } },
+        "column-width": { "$type": "number", "$value": "{size.size-288}" },
+        "column-min-width": { "$type": "number", "$value": "{size.size-140}" },
+        "preview-width": { "$type": "number", "$value": "{size.size-344}" },
+        "resize-handle-width": { "$type": "number", "$value": "{size.size-6}" }
+      }
+    },
     "toggle": {
       "label": {
         "font-weight": {
@@ -4940,6 +4977,43 @@
         "indent": { "$type": "number", "$value": "{size.size-28}" },
         "item": { "height": { "$type": "number", "$value": "{size.size-40}" }, "padding-inline": { "$type": "number", "$value": "{space.space-12}" }, "gap": { "$type": "number", "$value": "{space.space-8}" }, "icon-size": { "$type": "number", "$value": "{size.size-24}" }, "radius": { "$type": "number", "$value": "{radii.6}" }, "focus-ring-gap-radius": { "$type": "number", "$value": "{radii.8}" }, "focus-ring-radius": { "$type": "number", "$value": "{radii.10}" } },
         "connector": { "elbow-height": { "$type": "number", "$value": "{size.size-20}" }, "stub-width": { "$type": "number", "$value": 18 }, "stub-width-leaf": { "$type": "number", "$value": 40 } }
+      }
+    },
+    "miller-columns": {
+      "xs": {
+        "item": { "height": { "$type": "number", "$value": "{size.size-20}" }, "padding-inline": { "$type": "number", "$value": "{space.space-4}" }, "gap": { "$type": "number", "$value": "{space.space-4}" }, "icon-size": { "$type": "number", "$value": "{size.size-12}" } },
+        "column-width": { "$type": "number", "$value": "{size.size-140}" },
+        "column-min-width": { "$type": "number", "$value": "{size.size-68}" },
+        "preview-width": { "$type": "number", "$value": "{size.size-168}" },
+        "resize-handle-width": { "$type": "number", "$value": "{size.size-6}" }
+      },
+      "sm": {
+        "item": { "height": { "$type": "number", "$value": "{size.size-24}" }, "padding-inline": { "$type": "number", "$value": "{space.space-6}" }, "gap": { "$type": "number", "$value": "{space.space-4}" }, "icon-size": { "$type": "number", "$value": "{size.size-14}" } },
+        "column-width": { "$type": "number", "$value": "{size.size-168}" },
+        "column-min-width": { "$type": "number", "$value": "{size.size-80}" },
+        "preview-width": { "$type": "number", "$value": "{size.size-200}" },
+        "resize-handle-width": { "$type": "number", "$value": "{size.size-6}" }
+      },
+      "md": {
+        "item": { "height": { "$type": "number", "$value": "{size.size-28}" }, "padding-inline": { "$type": "number", "$value": "{space.space-8}" }, "gap": { "$type": "number", "$value": "{space.space-6}" }, "icon-size": { "$type": "number", "$value": "{size.size-16}" } },
+        "column-width": { "$type": "number", "$value": "{size.size-200}" },
+        "column-min-width": { "$type": "number", "$value": "{size.size-96}" },
+        "preview-width": { "$type": "number", "$value": "{size.size-240}" },
+        "resize-handle-width": { "$type": "number", "$value": "{size.size-6}" }
+      },
+      "lg": {
+        "item": { "height": { "$type": "number", "$value": "{size.size-32}" }, "padding-inline": { "$type": "number", "$value": "{space.space-10}" }, "gap": { "$type": "number", "$value": "{space.space-8}" }, "icon-size": { "$type": "number", "$value": "{size.size-20}" } },
+        "column-width": { "$type": "number", "$value": "{size.size-240}" },
+        "column-min-width": { "$type": "number", "$value": "{size.size-116}" },
+        "preview-width": { "$type": "number", "$value": "{size.size-288}" },
+        "resize-handle-width": { "$type": "number", "$value": "{size.size-6}" }
+      },
+      "xl": {
+        "item": { "height": { "$type": "number", "$value": "{size.size-40}" }, "padding-inline": { "$type": "number", "$value": "{space.space-12}" }, "gap": { "$type": "number", "$value": "{space.space-8}" }, "icon-size": { "$type": "number", "$value": "{size.size-24}" } },
+        "column-width": { "$type": "number", "$value": "{size.size-288}" },
+        "column-min-width": { "$type": "number", "$value": "{size.size-140}" },
+        "preview-width": { "$type": "number", "$value": "{size.size-344}" },
+        "resize-handle-width": { "$type": "number", "$value": "{size.size-6}" }
       }
     },
     "toggle": {
@@ -7798,6 +7872,43 @@
         "connector": { "elbow-height": { "$type": "number", "$value": "{size.size-20}" }, "stub-width": { "$type": "number", "$value": 18 }, "stub-width-leaf": { "$type": "number", "$value": 40 } }
       }
     },
+    "miller-columns": {
+      "xs": {
+        "item": { "height": { "$type": "number", "$value": "{size.size-20}" }, "padding-inline": { "$type": "number", "$value": "{space.space-4}" }, "gap": { "$type": "number", "$value": "{space.space-4}" }, "icon-size": { "$type": "number", "$value": "{size.size-12}" } },
+        "column-width": { "$type": "number", "$value": "{size.size-140}" },
+        "column-min-width": { "$type": "number", "$value": "{size.size-68}" },
+        "preview-width": { "$type": "number", "$value": "{size.size-168}" },
+        "resize-handle-width": { "$type": "number", "$value": "{size.size-6}" }
+      },
+      "sm": {
+        "item": { "height": { "$type": "number", "$value": "{size.size-24}" }, "padding-inline": { "$type": "number", "$value": "{space.space-6}" }, "gap": { "$type": "number", "$value": "{space.space-4}" }, "icon-size": { "$type": "number", "$value": "{size.size-14}" } },
+        "column-width": { "$type": "number", "$value": "{size.size-168}" },
+        "column-min-width": { "$type": "number", "$value": "{size.size-80}" },
+        "preview-width": { "$type": "number", "$value": "{size.size-200}" },
+        "resize-handle-width": { "$type": "number", "$value": "{size.size-6}" }
+      },
+      "md": {
+        "item": { "height": { "$type": "number", "$value": "{size.size-28}" }, "padding-inline": { "$type": "number", "$value": "{space.space-8}" }, "gap": { "$type": "number", "$value": "{space.space-6}" }, "icon-size": { "$type": "number", "$value": "{size.size-16}" } },
+        "column-width": { "$type": "number", "$value": "{size.size-200}" },
+        "column-min-width": { "$type": "number", "$value": "{size.size-96}" },
+        "preview-width": { "$type": "number", "$value": "{size.size-240}" },
+        "resize-handle-width": { "$type": "number", "$value": "{size.size-6}" }
+      },
+      "lg": {
+        "item": { "height": { "$type": "number", "$value": "{size.size-32}" }, "padding-inline": { "$type": "number", "$value": "{space.space-10}" }, "gap": { "$type": "number", "$value": "{space.space-8}" }, "icon-size": { "$type": "number", "$value": "{size.size-20}" } },
+        "column-width": { "$type": "number", "$value": "{size.size-240}" },
+        "column-min-width": { "$type": "number", "$value": "{size.size-116}" },
+        "preview-width": { "$type": "number", "$value": "{size.size-288}" },
+        "resize-handle-width": { "$type": "number", "$value": "{size.size-6}" }
+      },
+      "xl": {
+        "item": { "height": { "$type": "number", "$value": "{size.size-40}" }, "padding-inline": { "$type": "number", "$value": "{space.space-12}" }, "gap": { "$type": "number", "$value": "{space.space-8}" }, "icon-size": { "$type": "number", "$value": "{size.size-24}" } },
+        "column-width": { "$type": "number", "$value": "{size.size-288}" },
+        "column-min-width": { "$type": "number", "$value": "{size.size-140}" },
+        "preview-width": { "$type": "number", "$value": "{size.size-344}" },
+        "resize-handle-width": { "$type": "number", "$value": "{size.size-6}" }
+      }
+    },
     "toggle": {
       "label": {
         "font-weight": {
@@ -10652,6 +10763,43 @@
         "indent": { "$type": "number", "$value": "{size.size-28}" },
         "item": { "height": { "$type": "number", "$value": "{size.size-40}" }, "padding-inline": { "$type": "number", "$value": "{space.space-12}" }, "gap": { "$type": "number", "$value": "{space.space-8}" }, "icon-size": { "$type": "number", "$value": "{size.size-24}" }, "radius": { "$type": "number", "$value": "{radii.6}" }, "focus-ring-gap-radius": { "$type": "number", "$value": "{radii.8}" }, "focus-ring-radius": { "$type": "number", "$value": "{radii.10}" } },
         "connector": { "elbow-height": { "$type": "number", "$value": "{size.size-20}" }, "stub-width": { "$type": "number", "$value": 18 }, "stub-width-leaf": { "$type": "number", "$value": 40 } }
+      }
+    },
+    "miller-columns": {
+      "xs": {
+        "item": { "height": { "$type": "number", "$value": "{size.size-20}" }, "padding-inline": { "$type": "number", "$value": "{space.space-4}" }, "gap": { "$type": "number", "$value": "{space.space-4}" }, "icon-size": { "$type": "number", "$value": "{size.size-12}" } },
+        "column-width": { "$type": "number", "$value": "{size.size-140}" },
+        "column-min-width": { "$type": "number", "$value": "{size.size-68}" },
+        "preview-width": { "$type": "number", "$value": "{size.size-168}" },
+        "resize-handle-width": { "$type": "number", "$value": "{size.size-6}" }
+      },
+      "sm": {
+        "item": { "height": { "$type": "number", "$value": "{size.size-24}" }, "padding-inline": { "$type": "number", "$value": "{space.space-6}" }, "gap": { "$type": "number", "$value": "{space.space-4}" }, "icon-size": { "$type": "number", "$value": "{size.size-14}" } },
+        "column-width": { "$type": "number", "$value": "{size.size-168}" },
+        "column-min-width": { "$type": "number", "$value": "{size.size-80}" },
+        "preview-width": { "$type": "number", "$value": "{size.size-200}" },
+        "resize-handle-width": { "$type": "number", "$value": "{size.size-6}" }
+      },
+      "md": {
+        "item": { "height": { "$type": "number", "$value": "{size.size-28}" }, "padding-inline": { "$type": "number", "$value": "{space.space-8}" }, "gap": { "$type": "number", "$value": "{space.space-6}" }, "icon-size": { "$type": "number", "$value": "{size.size-16}" } },
+        "column-width": { "$type": "number", "$value": "{size.size-200}" },
+        "column-min-width": { "$type": "number", "$value": "{size.size-96}" },
+        "preview-width": { "$type": "number", "$value": "{size.size-240}" },
+        "resize-handle-width": { "$type": "number", "$value": "{size.size-6}" }
+      },
+      "lg": {
+        "item": { "height": { "$type": "number", "$value": "{size.size-32}" }, "padding-inline": { "$type": "number", "$value": "{space.space-10}" }, "gap": { "$type": "number", "$value": "{space.space-8}" }, "icon-size": { "$type": "number", "$value": "{size.size-20}" } },
+        "column-width": { "$type": "number", "$value": "{size.size-240}" },
+        "column-min-width": { "$type": "number", "$value": "{size.size-116}" },
+        "preview-width": { "$type": "number", "$value": "{size.size-288}" },
+        "resize-handle-width": { "$type": "number", "$value": "{size.size-6}" }
+      },
+      "xl": {
+        "item": { "height": { "$type": "number", "$value": "{size.size-40}" }, "padding-inline": { "$type": "number", "$value": "{space.space-12}" }, "gap": { "$type": "number", "$value": "{space.space-8}" }, "icon-size": { "$type": "number", "$value": "{size.size-24}" } },
+        "column-width": { "$type": "number", "$value": "{size.size-288}" },
+        "column-min-width": { "$type": "number", "$value": "{size.size-140}" },
+        "preview-width": { "$type": "number", "$value": "{size.size-344}" },
+        "resize-handle-width": { "$type": "number", "$value": "{size.size-6}" }
       }
     },
     "toggle": {

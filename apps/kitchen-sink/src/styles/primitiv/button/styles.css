@@ -81,9 +81,19 @@
      node — not the flex container — for engines to honour it. The registry
      component wraps string/number children in this span automatically so
      consumers never need to do it by hand. */
+  /* Never wrap the label. A multi-word label (e.g. SplitButtonAction's
+     "Squash and merge") sits inside an inline-flex row with no width of its
+     own, so a squeezed ancestor (a narrow flex row, a mobile viewport) would
+     otherwise let it break mid-phrase — the button's fixed block-size doesn't
+     grow to fit, so the extra lines spill outside the control entirely. This
+     also raises the label's min-content width to its full rendered width,
+     which is what stops the button itself shrinking narrower than the text
+     in a flex/Stack row (a flex item's default min-width:auto is its
+     min-content size). Same rule Badge/Chip/Tag already carry. */
   .primitiv-button__label {
     text-box-trim: trim-both;
     text-box-edge: cap alphabetic;
+    white-space: nowrap;
   }
 }
 

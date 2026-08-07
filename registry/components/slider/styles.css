@@ -201,8 +201,13 @@
     opacity: var(--primitiv-opacity-transparent);
     transition: opacity var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
   }
-  .primitiv-slider__thumb:hover::before {
-    opacity: var(--primitiv-slider-thumb-glow-opacity);
+  /* Guarded to real pointers: a raw :hover fires on tap too, and with no
+     pointer to leave afterwards a dragged/tapped thumb would keep glowing
+     until something else is tapped. */
+  @media (hover: hover) {
+    .primitiv-slider__thumb:hover::before {
+      opacity: var(--primitiv-slider-thumb-glow-opacity);
+    }
   }
 
   /* Disabled — every part shares the hook so the whole control dims and
@@ -215,7 +220,9 @@
   .primitiv-slider[data-disabled] .primitiv-slider__thumb {
     cursor: not-allowed;
   }
-  .primitiv-slider[data-disabled] .primitiv-slider__thumb:hover::before {
-    opacity: var(--primitiv-opacity-transparent);
+  @media (hover: hover) {
+    .primitiv-slider[data-disabled] .primitiv-slider__thumb:hover::before {
+      opacity: var(--primitiv-opacity-transparent);
+    }
   }
 }

@@ -413,9 +413,14 @@
   /* Pointer hover — deliberately WEAKER than the cursor below, and never the
      same value. Hover does not move the cursor, so if the two matched, two rows
      would read as current and the pointer would appear to move a cursor it
-     cannot move. */
-  .primitiv-listbox__option:hover:not([data-disabled]) {
-    background: var(--primitiv-listbox-option-bg-hover);
+     cannot move. Guarded to real pointers: a raw :hover fires on tap too, and
+     with no pointer to leave afterwards it sticks on the just-tapped row until
+     another row is tapped — on a multi-select list that reads as two rows
+     being "current" at once, exactly what this rule exists to prevent. */
+  @media (hover: hover) {
+    .primitiv-listbox__option:hover:not([data-disabled]) {
+      background: var(--primitiv-listbox-option-bg-hover);
+    }
   }
 
   /* The cursor. Style it from [data-highlighted] — an option never matches

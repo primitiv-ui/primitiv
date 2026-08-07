@@ -86,14 +86,22 @@
 
     --primitiv-tree-item-color: var(--primitiv-content-primary);
     --primitiv-tree-item-bg: var(--primitiv-color-transparent);
-    /* The neutral-alpha ghost layer, but one step lighter than action/ghost/*
-       (which is 200/300). A tree is a dense column of stacked rows scanned at a
-       glance, not a single button: at the button weight the bands read heavy and
-       the tree looks striped. Deliberately NOT rebound to action/ghost/*, so
+    /* The row state layer — its own semantic Intent pair, aliasing the
+       neutral-alpha ghost ramp one step lighter than action/ghost/* (which is
+       200/300). A tree is a dense column of stacked rows scanned at a glance,
+       not a single button: at the button weight the bands read heavy and the
+       tree looks striped. Deliberately NOT rebound to action/ghost/*, so
        Button, Icon Button, the Modal close and Dropdown keep their own weight.
-       Selected is the persistent tint; hover layers over it. */
-    --primitiv-tree-item-bg-hover: var(--primitiv-color-neutral-alpha-100);
-    --primitiv-tree-item-bg-selected: var(--primitiv-color-neutral-alpha-200);
+
+       These resolve tree/row/* rather than reaching straight for the
+       color/neutral-alpha/* primitives. In CSS either would work — the palette
+       flips by theme — but Figma resolves its Palette collection through Light
+       mode on dark frames, so only a semantic Intent token (which carries its
+       own Light/Dark modes) can be bound on both sides. Going through the
+       semantic layer is what lets the Figma sets and this sheet stay in
+       lockstep. Selected is the persistent tint; hover layers over it. */
+    --primitiv-tree-item-bg-hover: var(--primitiv-tree-row-hover);
+    --primitiv-tree-item-bg-selected: var(--primitiv-tree-row-selected);
 
     --primitiv-tree-focus-ring-radius: var(--primitiv-tree-md-item-focus-ring-radius);
 
@@ -149,7 +157,11 @@
       )
       var(--primitiv-tree-item-padding-inline);
     border-radius: var(--primitiv-tree-item-radius);
-    background: var(--primitiv-tree-item-bg);
+    /* background-COLOR, not the shorthand: the states layer paints the hover
+       tint into background-image so the two can composite, and mixing a
+       shorthand here with a longhand there is the kind of subtlety that quietly
+       breaks later. Both channels stay explicit. */
+    background-color: var(--primitiv-tree-item-bg);
     cursor: default;
     -webkit-tap-highlight-color: transparent;
     user-select: none;
@@ -442,18 +454,40 @@
 
   /* Selected — the ghost active tint persists (not just while pressed). On a
      branch the focusable treeitem wraps the whole subtree, so the tint has to be
-     drawn on its control row instead, or it would fill the entire subtree. */
+     drawn on its control row instead, or it would fill the entire subtree.
+
+     Claims background-COLOR specifically, leaving background-image free for the
+     hover layer below. */
   .primitiv-tree__item[data-selected],
   .primitiv-tree__branch[data-selected] > .primitiv-tree__branch-control {
-    background: var(--primitiv-tree-item-bg-selected);
+    background-color: var(--primitiv-tree-item-bg-selected);
   }
 
-  /* Hover — layers over the selected tint. Targeted at the row, never at the
-     branch container: hovering a nested row also hovers every ancestor branch,
-     which would light the whole path. */
+  /* Hover — genuinely layers OVER the selected tint instead of replacing it.
+
+     Both tints are translucent, and CSS cannot sum two alphas within one
+     property, so the two states paint different channels: selected takes
+     background-color, hover takes a flat background-image over it. A hovered
+     selected row then composites both (0.10 beneath 0.06 ≈ 0.15) and reads
+     darker than either alone. Sharing one `background` shorthand meant the
+     later rule simply won, so hovering a selected row swapped its 0.10 tint for
+     the lighter 0.06 one and the row went LIGHTER on hover — backwards.
+
+     Table solves the same collision by ordering instead, and is right to: its
+     row tokens are opaque (neutral/brand steps), so there is nothing to
+     composite and replacement is the only sensible reading. Tree's are alphas,
+     which is what makes layering both meaningful and achievable. Figma models
+     no selected+hover variant at all, so this is CSS expressing a state its
+     variant grid cannot.
+
+     Targeted at the row, never at the branch container: hovering a nested row
+     also hovers every ancestor branch, which would light the whole path. */
   .primitiv-tree__item:hover,
   .primitiv-tree__branch-control:hover {
-    background: var(--primitiv-tree-item-bg-hover);
+    background-image: linear-gradient(
+      var(--primitiv-tree-item-bg-hover),
+      var(--primitiv-tree-item-bg-hover)
+    );
   }
 
   /* Disabled — dimmed and inert, but still rendered and still focusable, so a

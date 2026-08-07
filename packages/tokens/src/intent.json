@@ -336,6 +336,18 @@
         }
       }
     },
+    "tree": {
+      "row": {
+        "hover": {
+          "$type": "color",
+          "$value": "{color.neutral-alpha.100}"
+        },
+        "selected": {
+          "$type": "color",
+          "$value": "{color.neutral-alpha.200}"
+        }
+      }
+    },
     "highlight": {
       "background": {
         "$type": "color",
@@ -705,6 +717,18 @@
         "selected": {
           "$type": "color",
           "$value": "{color.brand.900}"
+        }
+      }
+    },
+    "tree": {
+      "row": {
+        "hover": {
+          "$type": "color",
+          "$value": "{color.neutral-alpha.100}"
+        },
+        "selected": {
+          "$type": "color",
+          "$value": "{color.neutral-alpha.200}"
         }
       }
     },

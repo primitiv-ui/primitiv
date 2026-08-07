@@ -128,6 +128,8 @@ describe.each([
   'action/secondary/border/disabled',
   'action/ghost/hover',
   'action/ghost/active',
+  'tree/row/hover',
+  'tree/row/selected',
 ] as const)('%s', (token) => {
   it('resolves to a different colour in light vs dark mode', () => {
     expect(intentColor('light', token)).not.toBe(intentColor('dark', token))

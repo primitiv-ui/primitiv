@@ -1,0 +1,132 @@
+{
+  "$schema": "https://primitiv-ui.dev/schema/contract.json",
+  "name": "tree",
+  "version": "0.1.0",
+  "description": "A hierarchical list of expandable branches and selectable leaves — the WAI-ARIA tree view, with connector guide lines and an optional breadcrumb of the selected node's ancestry.",
+  "docs": "https://primitiv-ui.dev/docs/components/tree",
+  "root": {
+    "element": "div",
+    "class": "primitiv-tree",
+    "component": "Root"
+  },
+  "dataAttributes": [
+    { "name": "data-selection-mode", "value": "single", "when": "selectionMode is single", "source": "auto" },
+    { "name": "data-selection-mode", "value": "multiple", "when": "selectionMode is multiple", "source": "auto" }
+  ],
+  "modifiers": [
+    {
+      "name": "size",
+      "default": "md",
+      "description": "Row size for the whole tree; `data-density` scales each size further.",
+      "options": [
+        { "name": "xs", "class": "primitiv-tree--xs", "description": "Extra small." },
+        { "name": "sm", "class": "primitiv-tree--sm", "description": "Small." },
+        { "name": "md", "class": "primitiv-tree--md", "description": "Medium (the default)." },
+        { "name": "lg", "class": "primitiv-tree--lg", "description": "Large." },
+        { "name": "xl", "class": "primitiv-tree--xl", "description": "Extra large." }
+      ]
+    },
+    {
+      "name": "connectors",
+      "default": "lines",
+      "description": "Whether nested rows are joined to their parent by hairline guide lines.",
+      "options": [
+        { "name": "lines", "class": "primitiv-tree--connectors-lines", "description": "Draw the vertical rail and per-row elbow (the default)." },
+        { "name": "none", "class": "primitiv-tree--connectors-none", "description": "Indentation only — no guide lines." }
+      ]
+    }
+  ],
+  "subcomponents": [
+    {
+      "name": "item",
+      "component": "Item",
+      "element": "div",
+      "class": "primitiv-tree__item",
+      "wrapTextChildren": true,
+      "dataAttributes": [
+        { "name": "data-leaf", "value": "", "when": "always", "source": "auto" },
+        { "name": "data-depth", "value": "{n}", "when": "always", "source": "auto" },
+        { "name": "data-selected", "value": "", "when": "selected", "source": "auto" },
+        { "name": "data-disabled", "value": "", "when": "disabled", "source": "auto" }
+      ]
+    },
+    {
+      "name": "branch",
+      "component": "Branch",
+      "element": "div",
+      "class": "primitiv-tree__branch",
+      "dataAttributes": [
+        { "name": "data-branch", "value": "", "when": "always", "source": "auto" },
+        { "name": "data-depth", "value": "{n}", "when": "always", "source": "auto" },
+        { "name": "data-state", "value": "open", "when": "expanded", "source": "auto" },
+        { "name": "data-state", "value": "closed", "when": "collapsed", "source": "auto" },
+        { "name": "data-selected", "value": "", "when": "selected", "source": "auto" },
+        { "name": "data-disabled", "value": "", "when": "disabled", "source": "auto" }
+      ]
+    },
+    {
+      "name": "branch-control",
+      "component": "BranchControl",
+      "element": "div",
+      "class": "primitiv-tree__branch-control",
+      "wrapTextChildren": true
+    },
+    {
+      "name": "branch-content",
+      "component": "BranchContent",
+      "element": "div",
+      "class": "primitiv-tree__branch-content",
+      "dataAttributes": [
+        { "name": "data-depth", "value": "{n}", "when": "always", "source": "auto" },
+        { "name": "data-state", "value": "open", "when": "expanded", "source": "auto" },
+        { "name": "data-state", "value": "closed", "when": "collapsed", "source": "auto" }
+      ]
+    },
+    {
+      "name": "branch-indicator",
+      "component": "BranchIndicator",
+      "element": "span",
+      "class": "primitiv-tree__branch-indicator",
+      "dataAttributes": [
+        { "name": "data-state", "value": "open", "when": "expanded", "source": "auto" },
+        { "name": "data-state", "value": "closed", "when": "collapsed", "source": "auto" }
+      ]
+    },
+    {
+      "name": "selection-path",
+      "component": "SelectionPath",
+      "element": "div",
+      "class": "primitiv-tree__selection-path",
+      "dataAttributes": [
+        { "name": "data-tree-selection-path", "value": "", "when": "always", "source": "auto" },
+        { "name": "data-empty", "value": "", "when": "nothing is selected", "source": "auto" }
+      ]
+    }
+  ],
+  "customProperties": [
+    { "name": "--primitiv-tree-indent", "defaultsTo": "var(--primitiv-tree-md-indent)" },
+    { "name": "--primitiv-tree-item-height", "defaultsTo": "var(--primitiv-tree-md-item-height)" },
+    { "name": "--primitiv-tree-item-padding-inline", "defaultsTo": "var(--primitiv-tree-md-item-padding-inline)" },
+    { "name": "--primitiv-tree-item-gap", "defaultsTo": "var(--primitiv-tree-md-item-gap)" },
+    { "name": "--primitiv-tree-item-radius", "defaultsTo": "var(--primitiv-tree-md-item-radius)" },
+    { "name": "--primitiv-tree-item-icon-size", "defaultsTo": "var(--primitiv-tree-md-item-icon-size)" },
+    { "name": "--primitiv-tree-item-font-family", "defaultsTo": "var(--primitiv-body-sm-font-family)" },
+    { "name": "--primitiv-tree-item-font-size", "defaultsTo": "var(--primitiv-body-sm-font-size)" },
+    { "name": "--primitiv-tree-item-font-weight", "defaultsTo": "var(--primitiv-body-sm-font-weight)" },
+    { "name": "--primitiv-tree-item-line-height", "defaultsTo": "var(--primitiv-body-sm-line-height)" },
+    { "name": "--primitiv-tree-item-color", "defaultsTo": "var(--primitiv-content-primary)" },
+    { "name": "--primitiv-tree-item-bg", "defaultsTo": "var(--primitiv-color-transparent)" },
+    { "name": "--primitiv-tree-item-bg-hover", "defaultsTo": "var(--primitiv-action-ghost-hover)" },
+    { "name": "--primitiv-tree-item-bg-selected", "defaultsTo": "var(--primitiv-action-ghost-active)" },
+    { "name": "--primitiv-tree-focus-ring-radius", "defaultsTo": "var(--primitiv-tree-md-item-focus-ring-radius)" },
+    { "name": "--primitiv-tree-connector-color", "defaultsTo": "var(--primitiv-border-subtle)" },
+    { "name": "--primitiv-tree-connector-thickness", "defaultsTo": "var(--primitiv-border-width-1)" },
+    { "name": "--primitiv-tree-connector-elbow-height", "defaultsTo": "var(--primitiv-tree-md-connector-elbow-height)" },
+    { "name": "--primitiv-tree-connector-stub-width", "defaultsTo": "var(--primitiv-tree-md-connector-stub-width)" },
+    { "name": "--primitiv-tree-connector-stub-width-leaf", "defaultsTo": "var(--primitiv-tree-md-connector-stub-width-leaf)" },
+    { "name": "--primitiv-tree-connector-rail-offset", "defaultsTo": "calc(var(--primitiv-tree-item-padding-inline) + var(--primitiv-tree-item-icon-size) / 2)" },
+    { "name": "--primitiv-tree-transition-duration", "defaultsTo": "var(--primitiv-motion-duration-control)" },
+    { "name": "--primitiv-tree-transition-easing", "defaultsTo": "var(--primitiv-motion-easing-default)" },
+    { "name": "--primitiv-tree-selection-path-gap", "defaultsTo": "var(--primitiv-space-space-4)" }
+  ]
+}

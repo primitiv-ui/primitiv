@@ -1035,6 +1035,42 @@
       },
       "contract": "contract.json"
     },
+    "tree": {
+      "version": "0.1.0",
+      "dependsOn": {
+        "packages": [
+          {
+            "name": "@primitiv-ui/react",
+            "version": "^0.1.0"
+          }
+        ],
+        "tokens": true,
+        "components": [
+          "breadcrumb"
+        ]
+      },
+      "styles": {
+        "packages": [
+          "class-variance-authority"
+        ],
+        "react": [
+          "tree.recipe.ts",
+          "tree.tsx"
+        ],
+        "formats": {
+          "css": [
+            "styles.css"
+          ],
+          "scss": [
+            "styles.scss"
+          ],
+          "tailwind": [
+            "styles.css"
+          ]
+        }
+      },
+      "contract": "contract.json"
+    },
     "tooltip": {
       "version": "0.1.0",
       "dependsOn": {

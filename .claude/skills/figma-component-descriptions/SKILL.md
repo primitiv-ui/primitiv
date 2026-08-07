@@ -1583,3 +1583,105 @@ a **single** definition, and `set.appendChild(component)` on an already-combined
 set reconciles the same way — the appended variants' refs re-point at the
 canonical ids automatically (verified: zero orphans across all 10). So a large set
 can be built in batches without hand-fixing property ids.
+
+### Tree — five sets on page "Tree" (`1583:3`)
+
+`Tree / Item` (`1590:3`, 25) · `Tree / Branch Control` (`1611:13`, 50) ·
+`Tree / Connector` (`1674:64`, 30) · `Tree / Selection Path` (`1733:1215`, 10) ·
+`Tree` (`1733:1790`, 5 — the composed specimen). All md-first. The live
+descriptions on the nodes are long and are the source of truth — read them
+before editing. Design record: the "Tree — exploration" page (`1567:43`),
+sections A–I. Headless source: `packages/react/src/Tree/Tree.tsx`.
+
+The two row sets share one token family and one visual language by
+construction — `tree/{size}/item/height|padding-inline|gap|icon-size|radius`
+(+ the `focus-ring-radius` / `focus-ring-gap-radius` pair) and
+`tree/{size}/indent`. Row labels use `body/*` **one tier down** from the row's
+own Size (xs|sm→body/xs · md→body/sm · lg→body/md · xl→body/lg), because a Tree
+row reads visually smaller than a framed control of the same Size name — unlike
+Dropdown's 1:1 mapping.
+
+**Tree / Selection Path — `1733:1215`**
+
+```
+Breadcrumb trail of the selected node's ancestry — the VS Code-style editor path bar shown above (or below) a Tree.
+
+Type: non-framed composition (composes Breadcrumb/Item + Breadcrumb/Separator)
+
+Axes: Size xs|sm|md|lg|xl · State filled|empty
+
+Tokens: no new tokens — ancestors are Breadcrumb/Item State=link (content/muted), the leaf is State=current (content/primary), separators are Breadcrumb/Separator Type=icon; gap is space/space-4, flat across every Size
+
+Properties: Show ancestor 1 (BOOL true) · Show ancestor 2 (BOOL true) — labels are edited on the exposed nested instances (ancestor-1 / ancestor-2 / current)
+
+Density: Context mode override on parent frame (via the nested Breadcrumb instances)
+Pairs with: Tree (the composed specimen), Breadcrumb/Item + Breadcrumb/Separator (nested)
+```
+
+**Tree — `1733:1790` (composed specimen)**
+
+```
+Composed Tree specimen — a real 14-row, 3-level file tree built from Tree/Branch Control, Tree/Item and Tree/Connector instances.
+
+Type: non-framed composition (a specimen — drag in and edit, not a building block)
+
+Axes: Size xs|sm|md|lg|xl
+
+Properties: Show connectors (BOOL true) — toggles the whole `connectors` frame. Row labels/icons are edited by selecting the nested row instance.
+
+Density: Context mode override on parent frame (via the nested instances)
+Pairs with: Tree/Item, Tree/Branch Control, Tree/Connector (nested), Tree/Selection Path
+```
+
+**Five things most likely to be "corrected" by mistake:**
+
+- **Selection Path composes Breadcrumb's *parts*, not the composed `Breadcrumb`
+  trail** — deliberately, because that is exactly what headless
+  `Tree.SelectionPath` renders. Two hard API constraints also force it:
+  `componentPropertyReferences` on a node inside a nested instance throws
+  (*"Cannot set component property references on instance sublayer"*), so the
+  `Show ancestor` toggles are impossible with a composed instance; and exposing
+  a composed `Breadcrumb` instance surfaces only `Size`/`Separator`/`Overflow`,
+  never its segment labels.
+- **`isExposedInstance = true` and a `visible` componentPropertyReference are
+  mutually exclusive on the same node.** Setting the exposure flag silently
+  wipes the property reference — *both* then revert, and the write reports
+  success at the time it is made, so it only surfaces on a later read. Selection
+  Path's `segment-N` wrapper FRAMEs exist purely for this: the visibility ref
+  lives on the frame, the exposure flag on the instance inside it. Do not
+  flatten them away. (This also corrects the older blanket claim that
+  `isExposedInstance` is a no-op via the plugin API — it works fine on its own.)
+- **`Tree / Connector` has a `Target branch|leaf` axis, and it is not
+  cosmetic.** The stub must stop before a branch row's chevron, but a leaf row
+  leaves that slot empty, so its first ink is the icon-or-label at
+  `padding-inline + icon-size + gap`. A branch-length stub dies in blank space
+  ~16/17/21/26/30px short at xs/sm/md/lg/xl and reads as a broken line.
+  `Target=leaf` ends at `indent + icon-size/2` — the right edge of the empty
+  chevron slot. `Style=rail` ignores Target (its two variants are identical,
+  kept only to keep the grid rectangular).
+- **`tree/{size}/connector/stub-width` and `-leaf` are literal numbers, off the
+  primitive ladder, on purpose** (13, 18, 23, 34 …) — they derive from chevron
+  glyph geometry. This is why **`tree` is the one component namespace in the
+  emitter's `LENGTH_CATEGORIES`** (`crates/primitiv-emit/src/value.rs`): without
+  it those two families emit unitless and are invalid as a width.
+- **The composed `Tree` set is absolutely positioned, not auto-layout.** A rail
+  sits at `parentRowX + padding-inline + icon-size/2`, which lands 4px *left* of
+  the child row's own left edge at every size — rails do not fall on indent
+  boundaries, so they cannot be auto-layout columns. Its `connectors` frame is
+  child 0 so a hovered/selected row's fill covers the rail.
+
+**Build facts worth reusing:**
+
+- **Resizing a `COMPONENT_SET` while its children are still at their old
+  coordinates makes Figma re-fit the frame and silently move `set.x`/`set.y`.**
+  Labels generated afterwards land against a drifted origin (observed: a set
+  jumping from x=100 to x=3566). `arrange-tree-component-sets.js` captures the
+  anchor before resizing and restores it before generating labels.
+- **Clone-drops-refs, third occurrence.** All 60 non-md variants across
+  `Tree / Item` and `Tree / Branch Control` had *empty*
+  `componentPropertyReferences` — `Label`'s `characters` and the Icon
+  instance's `visible` + `mainComponent` — so those three properties silently
+  did nothing at xs/sm/lg/xl. The panel accepted values and
+  `componentProperties` read them back correctly; only a **render** exposed it.
+  Same class as the Dropdown/CheckboxItem label bug and the Button ghost-variant
+  bug. Re-check refs after any clone-based size expansion.

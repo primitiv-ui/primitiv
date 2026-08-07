@@ -788,6 +788,76 @@ source of truth for when a skill applies.
   tokens` dropped the stale copy (`primitiv-base.css` itself was already
   current). Both were CI-gating (`qa:stylesheets`, the separate "Token drift"
   workflow) and neither was caused by this composite's own work.
+- **Tree — Figma design complete (2026-08-07); registry + kitchen-sink still
+  open.** Five md-first sets on page "Tree" (`1583:3`): `Tree / Item`
+  (`1590:3`, 25), `Tree / Branch Control` (`1611:13`, 50), `Tree / Connector`
+  (`1674:64`, 30), `Tree / Selection Path` (`1733:1215`, 10) and the composed
+  `Tree` specimen (`1733:1790`, 5). The headless component was already built
+  and untouched; this session added the last two sets, extended Connector, and
+  mirrored the token family into code. Design record: the nine-section "Tree —
+  exploration" page (`1567:43`).
+  - **Selection Path composes Breadcrumb's *parts*, not the composed
+    `Breadcrumb` trail** — deliberately, because that is exactly what headless
+    `Tree.SelectionPath` renders (`Breadcrumb.Root > List > Item/Separator/
+    Page`). Two hard API constraints also force it: `componentPropertyReferences`
+    on a node inside a nested instance throws (*"Cannot set component property
+    references on instance sublayer"*), so the `Show ancestor` toggles are
+    impossible over a composed instance; and exposing a composed `Breadcrumb`
+    surfaces only `Size`/`Separator`/`Overflow`, never its segment labels.
+    **The registry will reuse `breadcrumb` rather than grow its own path
+    anatomy** (settled with the human): a `tree` component declares
+    `dependsOn: ["breadcrumb"]` and adds only the `[data-empty]` em-dash and
+    the multi-select stacked-trails layout. Tree Size maps to a Breadcrumb size
+    **one tier down** (xs|sm→xs · md→sm · lg→md · xl→lg), the same ladder the
+    row labels already use.
+  - **`isExposedInstance = true` and a `visible` componentPropertyReference are
+    mutually exclusive on the same node.** Setting the exposure flag silently
+    wipes the ref — *both* then revert, and the write reports success at the
+    time it is made, so it only surfaces on a later read. Selection Path's
+    `segment-N` wrapper FRAMEs exist purely for this (ref on the frame,
+    exposure on the instance inside). This also **corrects the earlier blanket
+    claim** in the Select notes above that `isExposedInstance` is a plugin-API
+    no-op — on its own it works fine, and is what makes the three segment
+    labels panel-editable.
+  - **`Tree / Connector` gained a `Target branch|leaf` axis** (15→30 variants)
+    after a human review of a rendered specimen. A branch row draws a chevron
+    in its leading slot so the stub must stop before that glyph; a leaf leaves
+    the slot empty, so its first ink is the icon-or-label at `padding-inline +
+    icon-size + gap` — a branch-length stub dies in blank space ~16/17/21/26/30px
+    short at xs/sm/md/lg/xl and reads as a broken line. `Target=leaf` ends at
+    `indent + icon-size/2`, the right edge of the empty chevron slot, leaving
+    the label one row `gap` away. `Style=rail` ignores Target (identical pair,
+    kept so the grid stays rectangular). Target maps straight onto the existing
+    headless `data-leaf`/`data-branch` attributes, so connectors remain **pure
+    registry CSS with zero new headless hooks**.
+  - **Clone-drops-refs, third occurrence** (after Dropdown/CheckboxItem and the
+    Button ghost variants). All **60 non-md variants** across `Tree / Item` and
+    `Tree / Branch Control` had *empty* `componentPropertyReferences` —
+    `Label`'s `characters` plus the Icon instance's `visible` + `mainComponent`
+    — so those three properties silently did nothing at xs/sm/lg/xl. The panel
+    accepted values and `componentProperties` read them back correctly; **only
+    a render exposed it.** Re-check refs after any clone-based size expansion.
+  - **Resizing a `COMPONENT_SET` before repositioning its children** makes Figma
+    re-fit the frame and silently move `set.x`/`set.y` (observed: a set jumping
+    x=100 → x=3566), so labels generated afterwards land against a drifted
+    origin. `apps/harmoni-figma-plugin/scripts/arrange-tree-component-sets.js`
+    captures the anchor first and restores it before generating labels; verified
+    idempotent (a re-run produces zero geometry change).
+  - **Tokens: 55 `tree/*` Context tokens now in `packages/tokens/src/context.json`**
+    (they had existed in Figma only). Only `tree/md/item/{radius,
+    focus-ring-radius,focus-ring-gap-radius}` are genuinely density-sensitive;
+    the rest are flat across all four modes — an acknowledged placeholder, same
+    as when the family was first authored. `tree/{size}/connector/stub-width`
+    and `-leaf` are **literal numbers off the primitive ladder** (13, 18, 23,
+    34 …) because they derive from chevron-glyph geometry — which is why `tree`
+    is now the one component namespace in the emitter's `LENGTH_CATEGORIES`
+    (`crates/primitiv-emit/src/value.rs`); without it they emit unitless and are
+    invalid as a width, the trap `avatar-group` documents.
+  - The composed `Tree` set is **absolutely positioned, not auto-layout**: a
+    rail sits at `parentRowX + padding-inline + icon-size/2`, which lands 4px
+    *left* of the child row's own left edge at every size, so rails never fall
+    on indent boundaries and cannot be auto-layout columns. Its `connectors`
+    frame is child 0 so a hovered/selected row's fill covers the rail.
 
 ## Useful commands
 

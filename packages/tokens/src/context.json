@@ -2059,6 +2059,33 @@
         }
       }
     },
+    "tree": {
+      "xs": {
+        "indent": { "$type": "number", "$value": "{size.size-12}" },
+        "item": { "height": { "$type": "number", "$value": "{size.size-20}" }, "padding-inline": { "$type": "number", "$value": "{space.space-4}" }, "gap": { "$type": "number", "$value": "{space.space-4}" }, "icon-size": { "$type": "number", "$value": "{size.size-12}" }, "radius": { "$type": "number", "$value": "{radii.2}" }, "focus-ring-gap-radius": { "$type": "number", "$value": "{radii.4}" }, "focus-ring-radius": { "$type": "number", "$value": "{radii.6}" } },
+        "connector": { "elbow-height": { "$type": "number", "$value": "{size.size-10}" }, "stub-width": { "$type": "number", "$value": 6 }, "stub-width-leaf": { "$type": "number", "$value": 18 } }
+      },
+      "sm": {
+        "indent": { "$type": "number", "$value": "{size.size-16}" },
+        "item": { "height": { "$type": "number", "$value": "{size.size-24}" }, "padding-inline": { "$type": "number", "$value": "{space.space-6}" }, "gap": { "$type": "number", "$value": "{space.space-4}" }, "icon-size": { "$type": "number", "$value": "{size.size-14}" }, "radius": { "$type": "number", "$value": "{radii.2}" }, "focus-ring-gap-radius": { "$type": "number", "$value": "{radii.4}" }, "focus-ring-radius": { "$type": "number", "$value": "{radii.6}" } },
+        "connector": { "elbow-height": { "$type": "number", "$value": "{size.size-12}" }, "stub-width": { "$type": "number", "$value": 10 }, "stub-width-leaf": { "$type": "number", "$value": 23 } }
+      },
+      "md": {
+        "indent": { "$type": "number", "$value": "{space.space-20}" },
+        "item": { "height": { "$type": "number", "$value": "{size.size-28}" }, "padding-inline": { "$type": "number", "$value": "{space.space-8}" }, "gap": { "$type": "number", "$value": "{space.space-6}" }, "icon-size": { "$type": "number", "$value": "{size.size-16}" }, "radius": { "$type": "number", "$value": "{radii.4}" }, "focus-ring-gap-radius": { "$type": "number", "$value": "{radii.6}" }, "focus-ring-radius": { "$type": "number", "$value": "{radii.8}" } },
+        "connector": { "elbow-height": { "$type": "number", "$value": "{size.size-14}" }, "stub-width": { "$type": "number", "$value": 13 }, "stub-width-leaf": { "$type": "number", "$value": 28 } }
+      },
+      "lg": {
+        "indent": { "$type": "number", "$value": "{size.size-24}" },
+        "item": { "height": { "$type": "number", "$value": "{size.size-32}" }, "padding-inline": { "$type": "number", "$value": "{space.space-10}" }, "gap": { "$type": "number", "$value": "{space.space-8}" }, "icon-size": { "$type": "number", "$value": "{size.size-20}" }, "radius": { "$type": "number", "$value": "{radii.6}" }, "focus-ring-gap-radius": { "$type": "number", "$value": "{radii.8}" }, "focus-ring-radius": { "$type": "number", "$value": "{radii.10}" } },
+        "connector": { "elbow-height": { "$type": "number", "$value": "{size.size-16}" }, "stub-width": { "$type": "number", "$value": 16 }, "stub-width-leaf": { "$type": "number", "$value": 34 } }
+      },
+      "xl": {
+        "indent": { "$type": "number", "$value": "{size.size-28}" },
+        "item": { "height": { "$type": "number", "$value": "{size.size-40}" }, "padding-inline": { "$type": "number", "$value": "{space.space-12}" }, "gap": { "$type": "number", "$value": "{space.space-8}" }, "icon-size": { "$type": "number", "$value": "{size.size-24}" }, "radius": { "$type": "number", "$value": "{radii.6}" }, "focus-ring-gap-radius": { "$type": "number", "$value": "{radii.8}" }, "focus-ring-radius": { "$type": "number", "$value": "{radii.10}" } },
+        "connector": { "elbow-height": { "$type": "number", "$value": "{size.size-20}" }, "stub-width": { "$type": "number", "$value": 18 }, "stub-width-leaf": { "$type": "number", "$value": 40 } }
+      }
+    },
     "toggle": {
       "label": {
         "font-weight": {
@@ -4886,6 +4913,33 @@
             "$value": "{radii.10}"
           }
         }
+      }
+    },
+    "tree": {
+      "xs": {
+        "indent": { "$type": "number", "$value": "{size.size-12}" },
+        "item": { "height": { "$type": "number", "$value": "{size.size-20}" }, "padding-inline": { "$type": "number", "$value": "{space.space-4}" }, "gap": { "$type": "number", "$value": "{space.space-4}" }, "icon-size": { "$type": "number", "$value": "{size.size-12}" }, "radius": { "$type": "number", "$value": "{radii.2}" }, "focus-ring-gap-radius": { "$type": "number", "$value": "{radii.4}" }, "focus-ring-radius": { "$type": "number", "$value": "{radii.6}" } },
+        "connector": { "elbow-height": { "$type": "number", "$value": "{size.size-10}" }, "stub-width": { "$type": "number", "$value": 6 }, "stub-width-leaf": { "$type": "number", "$value": 18 } }
+      },
+      "sm": {
+        "indent": { "$type": "number", "$value": "{size.size-16}" },
+        "item": { "height": { "$type": "number", "$value": "{size.size-24}" }, "padding-inline": { "$type": "number", "$value": "{space.space-6}" }, "gap": { "$type": "number", "$value": "{space.space-4}" }, "icon-size": { "$type": "number", "$value": "{size.size-14}" }, "radius": { "$type": "number", "$value": "{radii.2}" }, "focus-ring-gap-radius": { "$type": "number", "$value": "{radii.4}" }, "focus-ring-radius": { "$type": "number", "$value": "{radii.6}" } },
+        "connector": { "elbow-height": { "$type": "number", "$value": "{size.size-12}" }, "stub-width": { "$type": "number", "$value": 10 }, "stub-width-leaf": { "$type": "number", "$value": 23 } }
+      },
+      "md": {
+        "indent": { "$type": "number", "$value": "{space.space-20}" },
+        "item": { "height": { "$type": "number", "$value": "{size.size-28}" }, "padding-inline": { "$type": "number", "$value": "{space.space-8}" }, "gap": { "$type": "number", "$value": "{space.space-6}" }, "icon-size": { "$type": "number", "$value": "{size.size-16}" }, "radius": { "$type": "number", "$value": "{radii.4}" }, "focus-ring-gap-radius": { "$type": "number", "$value": "{radii.6}" }, "focus-ring-radius": { "$type": "number", "$value": "{radii.8}" } },
+        "connector": { "elbow-height": { "$type": "number", "$value": "{size.size-14}" }, "stub-width": { "$type": "number", "$value": 13 }, "stub-width-leaf": { "$type": "number", "$value": 28 } }
+      },
+      "lg": {
+        "indent": { "$type": "number", "$value": "{size.size-24}" },
+        "item": { "height": { "$type": "number", "$value": "{size.size-32}" }, "padding-inline": { "$type": "number", "$value": "{space.space-10}" }, "gap": { "$type": "number", "$value": "{space.space-8}" }, "icon-size": { "$type": "number", "$value": "{size.size-20}" }, "radius": { "$type": "number", "$value": "{radii.6}" }, "focus-ring-gap-radius": { "$type": "number", "$value": "{radii.8}" }, "focus-ring-radius": { "$type": "number", "$value": "{radii.10}" } },
+        "connector": { "elbow-height": { "$type": "number", "$value": "{size.size-16}" }, "stub-width": { "$type": "number", "$value": 16 }, "stub-width-leaf": { "$type": "number", "$value": 34 } }
+      },
+      "xl": {
+        "indent": { "$type": "number", "$value": "{size.size-28}" },
+        "item": { "height": { "$type": "number", "$value": "{size.size-40}" }, "padding-inline": { "$type": "number", "$value": "{space.space-12}" }, "gap": { "$type": "number", "$value": "{space.space-8}" }, "icon-size": { "$type": "number", "$value": "{size.size-24}" }, "radius": { "$type": "number", "$value": "{radii.6}" }, "focus-ring-gap-radius": { "$type": "number", "$value": "{radii.8}" }, "focus-ring-radius": { "$type": "number", "$value": "{radii.10}" } },
+        "connector": { "elbow-height": { "$type": "number", "$value": "{size.size-20}" }, "stub-width": { "$type": "number", "$value": 18 }, "stub-width-leaf": { "$type": "number", "$value": 40 } }
       }
     },
     "toggle": {
@@ -7717,6 +7771,33 @@
         }
       }
     },
+    "tree": {
+      "xs": {
+        "indent": { "$type": "number", "$value": "{size.size-12}" },
+        "item": { "height": { "$type": "number", "$value": "{size.size-20}" }, "padding-inline": { "$type": "number", "$value": "{space.space-4}" }, "gap": { "$type": "number", "$value": "{space.space-4}" }, "icon-size": { "$type": "number", "$value": "{size.size-12}" }, "radius": { "$type": "number", "$value": "{radii.2}" }, "focus-ring-gap-radius": { "$type": "number", "$value": "{radii.4}" }, "focus-ring-radius": { "$type": "number", "$value": "{radii.6}" } },
+        "connector": { "elbow-height": { "$type": "number", "$value": "{size.size-10}" }, "stub-width": { "$type": "number", "$value": 6 }, "stub-width-leaf": { "$type": "number", "$value": 18 } }
+      },
+      "sm": {
+        "indent": { "$type": "number", "$value": "{size.size-16}" },
+        "item": { "height": { "$type": "number", "$value": "{size.size-24}" }, "padding-inline": { "$type": "number", "$value": "{space.space-6}" }, "gap": { "$type": "number", "$value": "{space.space-4}" }, "icon-size": { "$type": "number", "$value": "{size.size-14}" }, "radius": { "$type": "number", "$value": "{radii.2}" }, "focus-ring-gap-radius": { "$type": "number", "$value": "{radii.4}" }, "focus-ring-radius": { "$type": "number", "$value": "{radii.6}" } },
+        "connector": { "elbow-height": { "$type": "number", "$value": "{size.size-12}" }, "stub-width": { "$type": "number", "$value": 10 }, "stub-width-leaf": { "$type": "number", "$value": 23 } }
+      },
+      "md": {
+        "indent": { "$type": "number", "$value": "{space.space-20}" },
+        "item": { "height": { "$type": "number", "$value": "{size.size-28}" }, "padding-inline": { "$type": "number", "$value": "{space.space-8}" }, "gap": { "$type": "number", "$value": "{space.space-6}" }, "icon-size": { "$type": "number", "$value": "{size.size-16}" }, "radius": { "$type": "number", "$value": "{radii.6}" }, "focus-ring-gap-radius": { "$type": "number", "$value": "{radii.8}" }, "focus-ring-radius": { "$type": "number", "$value": "{radii.10}" } },
+        "connector": { "elbow-height": { "$type": "number", "$value": "{size.size-14}" }, "stub-width": { "$type": "number", "$value": 13 }, "stub-width-leaf": { "$type": "number", "$value": 28 } }
+      },
+      "lg": {
+        "indent": { "$type": "number", "$value": "{size.size-24}" },
+        "item": { "height": { "$type": "number", "$value": "{size.size-32}" }, "padding-inline": { "$type": "number", "$value": "{space.space-10}" }, "gap": { "$type": "number", "$value": "{space.space-8}" }, "icon-size": { "$type": "number", "$value": "{size.size-20}" }, "radius": { "$type": "number", "$value": "{radii.6}" }, "focus-ring-gap-radius": { "$type": "number", "$value": "{radii.8}" }, "focus-ring-radius": { "$type": "number", "$value": "{radii.10}" } },
+        "connector": { "elbow-height": { "$type": "number", "$value": "{size.size-16}" }, "stub-width": { "$type": "number", "$value": 16 }, "stub-width-leaf": { "$type": "number", "$value": 34 } }
+      },
+      "xl": {
+        "indent": { "$type": "number", "$value": "{size.size-28}" },
+        "item": { "height": { "$type": "number", "$value": "{size.size-40}" }, "padding-inline": { "$type": "number", "$value": "{space.space-12}" }, "gap": { "$type": "number", "$value": "{space.space-8}" }, "icon-size": { "$type": "number", "$value": "{size.size-24}" }, "radius": { "$type": "number", "$value": "{radii.6}" }, "focus-ring-gap-radius": { "$type": "number", "$value": "{radii.8}" }, "focus-ring-radius": { "$type": "number", "$value": "{radii.10}" } },
+        "connector": { "elbow-height": { "$type": "number", "$value": "{size.size-20}" }, "stub-width": { "$type": "number", "$value": 18 }, "stub-width-leaf": { "$type": "number", "$value": 40 } }
+      }
+    },
     "toggle": {
       "label": {
         "font-weight": {
@@ -10544,6 +10625,33 @@
             "$value": "{radii.8}"
           }
         }
+      }
+    },
+    "tree": {
+      "xs": {
+        "indent": { "$type": "number", "$value": "{size.size-12}" },
+        "item": { "height": { "$type": "number", "$value": "{size.size-20}" }, "padding-inline": { "$type": "number", "$value": "{space.space-4}" }, "gap": { "$type": "number", "$value": "{space.space-4}" }, "icon-size": { "$type": "number", "$value": "{size.size-12}" }, "radius": { "$type": "number", "$value": "{radii.2}" }, "focus-ring-gap-radius": { "$type": "number", "$value": "{radii.4}" }, "focus-ring-radius": { "$type": "number", "$value": "{radii.6}" } },
+        "connector": { "elbow-height": { "$type": "number", "$value": "{size.size-10}" }, "stub-width": { "$type": "number", "$value": 6 }, "stub-width-leaf": { "$type": "number", "$value": 18 } }
+      },
+      "sm": {
+        "indent": { "$type": "number", "$value": "{size.size-16}" },
+        "item": { "height": { "$type": "number", "$value": "{size.size-24}" }, "padding-inline": { "$type": "number", "$value": "{space.space-6}" }, "gap": { "$type": "number", "$value": "{space.space-4}" }, "icon-size": { "$type": "number", "$value": "{size.size-14}" }, "radius": { "$type": "number", "$value": "{radii.2}" }, "focus-ring-gap-radius": { "$type": "number", "$value": "{radii.4}" }, "focus-ring-radius": { "$type": "number", "$value": "{radii.6}" } },
+        "connector": { "elbow-height": { "$type": "number", "$value": "{size.size-12}" }, "stub-width": { "$type": "number", "$value": 10 }, "stub-width-leaf": { "$type": "number", "$value": 23 } }
+      },
+      "md": {
+        "indent": { "$type": "number", "$value": "{space.space-20}" },
+        "item": { "height": { "$type": "number", "$value": "{size.size-28}" }, "padding-inline": { "$type": "number", "$value": "{space.space-8}" }, "gap": { "$type": "number", "$value": "{space.space-6}" }, "icon-size": { "$type": "number", "$value": "{size.size-16}" }, "radius": { "$type": "number", "$value": "{radii.2}" }, "focus-ring-gap-radius": { "$type": "number", "$value": "{radii.4}" }, "focus-ring-radius": { "$type": "number", "$value": "{radii.6}" } },
+        "connector": { "elbow-height": { "$type": "number", "$value": "{size.size-14}" }, "stub-width": { "$type": "number", "$value": 13 }, "stub-width-leaf": { "$type": "number", "$value": 28 } }
+      },
+      "lg": {
+        "indent": { "$type": "number", "$value": "{size.size-24}" },
+        "item": { "height": { "$type": "number", "$value": "{size.size-32}" }, "padding-inline": { "$type": "number", "$value": "{space.space-10}" }, "gap": { "$type": "number", "$value": "{space.space-8}" }, "icon-size": { "$type": "number", "$value": "{size.size-20}" }, "radius": { "$type": "number", "$value": "{radii.6}" }, "focus-ring-gap-radius": { "$type": "number", "$value": "{radii.8}" }, "focus-ring-radius": { "$type": "number", "$value": "{radii.10}" } },
+        "connector": { "elbow-height": { "$type": "number", "$value": "{size.size-16}" }, "stub-width": { "$type": "number", "$value": 16 }, "stub-width-leaf": { "$type": "number", "$value": 34 } }
+      },
+      "xl": {
+        "indent": { "$type": "number", "$value": "{size.size-28}" },
+        "item": { "height": { "$type": "number", "$value": "{size.size-40}" }, "padding-inline": { "$type": "number", "$value": "{space.space-12}" }, "gap": { "$type": "number", "$value": "{space.space-8}" }, "icon-size": { "$type": "number", "$value": "{size.size-24}" }, "radius": { "$type": "number", "$value": "{radii.6}" }, "focus-ring-gap-radius": { "$type": "number", "$value": "{radii.8}" }, "focus-ring-radius": { "$type": "number", "$value": "{radii.10}" } },
+        "connector": { "elbow-height": { "$type": "number", "$value": "{size.size-20}" }, "stub-width": { "$type": "number", "$value": 18 }, "stub-width-leaf": { "$type": "number", "$value": 40 } }
       }
     },
     "toggle": {

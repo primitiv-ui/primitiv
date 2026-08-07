@@ -33,6 +33,27 @@ describe("MillerColumns — data attributes", () => {
     expect(groups[1]).toHaveAttribute("data-depth", "1");
   });
 
+  it("flags a column with no items as empty", async () => {
+    const user = userEvent.setup();
+
+    render(
+      <MillerColumns.Root>
+        <MillerColumns.Column>
+          <MillerColumns.Item value="empty-folder">
+            Empty folder
+            <MillerColumns.Column />
+          </MillerColumns.Item>
+        </MillerColumns.Column>
+      </MillerColumns.Root>,
+    );
+
+    await user.click(screen.getByRole("treeitem", { name: "Empty folder" }));
+
+    const [root, revealed] = screen.getAllByRole("group");
+    expect(root).not.toHaveAttribute("data-empty");
+    expect(revealed).toHaveAttribute("data-empty");
+  });
+
   it("reflects selection through data-state", async () => {
     const user = userEvent.setup();
 

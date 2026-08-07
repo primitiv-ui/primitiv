@@ -2,7 +2,7 @@ import {
   FocusEvent,
   KeyboardEvent,
   MouseEvent,
-  useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
 } from "react";
@@ -52,7 +52,10 @@ export function useMillerColumnsItem(
   const itemRef = useRef<HTMLDivElement>(null);
   const composedRef = ref ? composeRefs(itemRef, ref) : itemRef;
 
-  useEffect(() => {
+  // Registration is a *layout* effect so the resulting state update lands
+  // before paint. As a passive effect, a populated column would paint one
+  // frame with `data-empty` before its items registered.
+  useLayoutEffect(() => {
     registerItem(depth, value, itemRef.current, disabled);
     return () => registerItem(depth, value, null, disabled);
   }, [depth, value, disabled, registerItem]);

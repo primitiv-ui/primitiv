@@ -145,7 +145,8 @@ export function MillerColumnsColumn({
   style,
   ...rest
 }: MillerColumnsColumnProps): ReactPortal | null {
-  const { slot, depth, width, columnContextValue } = useMillerColumnsColumn();
+  const { slot, depth, width, empty, columnContextValue } =
+    useMillerColumnsColumn();
 
   if (!slot) {
     return null;
@@ -157,6 +158,7 @@ export function MillerColumnsColumn({
         role="group"
         data-miller-columns-column=""
         data-depth={depth}
+        {...(empty ? { "data-empty": "" } : {})}
         style={{ ...style, ...(width !== undefined ? { width } : {}) }}
         {...rest}
       >
@@ -367,10 +369,14 @@ export function MillerColumnsPreviewPanel({
   children,
   ...rest
 }: MillerColumnsPreviewPanelProps): ReactElement {
-  useMillerColumnsContext();
+  const { activePath } = useMillerColumnsContext();
 
   return (
-    <div data-miller-columns-preview="" {...rest}>
+    <div
+      data-miller-columns-preview=""
+      {...(activePath.length === 0 ? { "data-empty": "" } : {})}
+      {...rest}
+    >
       {children}
     </div>
   );

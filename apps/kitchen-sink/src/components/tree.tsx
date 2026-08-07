@@ -34,8 +34,17 @@ import "../styles/primitiv/tree/styles.css";
  *
  * Keep this file, contract.json, and the stylesheet in sync by hand.
  */
-import { TREE_PART, Tree as TreePrimitive } from "@primitiv-ui/react";
-import { Children, Fragment, type ComponentPropsWithRef, type ReactNode } from "react";
+import { TREE_PART, Tree as TreePrimitive, useTreeLevel } from "@primitiv-ui/react";
+import {
+  Children,
+  Fragment,
+  cloneElement,
+  isValidElement,
+  type ComponentPropsWithRef,
+  type CSSProperties,
+  type ReactElement,
+  type ReactNode,
+} from "react";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -76,6 +85,43 @@ function wrapRowTextNodes(children: ReactNode, className: string): ReactNode {
 }
 
 /**
+ * Stamp `forceMount` onto the content child.
+ *
+ * `Tree.Branch` decides whether to render its content with
+ * `content.props.forceMount === true`, reading the props of the element it is
+ * HANDED — which is this layer's `TreeBranchContent` wrapper, not the headless
+ * part it renders. Setting `forceMount` inside the wrapper is therefore
+ * invisible to the branch: it unmounts the subtree on close, and the
+ * open/close transition never runs (it has nothing left to animate). React
+ * removed `defaultProps` for function components, so the only place to apply
+ * it is here, on the element itself, before the branch sees it.
+ */
+function forceMountBranchContent(children: ReactNode): ReactNode {
+  return Children.map(children, (child) =>
+    isValidElement(child) &&
+    (child.type as { [TREE_PART]?: string })?.[TREE_PART] === "branch-content"
+      ? cloneElement(child as ReactElement<{ forceMount?: boolean }>, { forceMount: true })
+      : child,
+  );
+}
+
+/**
+ * Publish the row's nesting depth to CSS.
+ *
+ * The indent is applied as the ROW's own padding rather than as padding on each
+ * enclosing group, so every row's box spans the tree's full width and a hover or
+ * selected band runs edge to edge (VS Code / Chakra behaviour) instead of
+ * starting at the nested level. That needs the depth as a number: `data-depth`
+ * is already on the element, but reading it in CSS needs
+ * `attr(… type(<integer>))`, which Firefox does not support — so it is threaded
+ * through as a custom property instead. `useTreeLevel` is the headless hook that
+ * exposes it.
+ */
+function depthStyle(depth: number, style: CSSProperties | undefined): CSSProperties {
+  return { ...style, "--primitiv-tree-depth": depth } as CSSProperties;
+}
+
+/**
  * A hierarchical list of expandable branches and selectable leaves — the WAI-ARIA tree view, with connector guide lines and an optional breadcrumb of the selected node's ancestry.
  *
  * @see https://primitiv-ui.dev/docs/components/tree
@@ -108,9 +154,14 @@ export function Tree({ size, connectors, className, ...props }: TreeProps) {
 
 export type TreeItemProps = ComponentPropsWithRef<typeof TreePrimitive.Item>;
 
-export function TreeItem({ className, children, ...props }: TreeItemProps) {
+export function TreeItem({ className, children, style, ...props }: TreeItemProps) {
+  const { depth } = useTreeLevel();
   return (
-    <TreePrimitive.Item className={cx(treeItem(), className)} {...props}>
+    <TreePrimitive.Item
+      className={cx(treeItem(), className)}
+      style={depthStyle(depth, style)}
+      {...props}
+    >
       <span className="primitiv-tree__item-spacer" aria-hidden="true" />
       {wrapRowTextNodes(children, "primitiv-tree__item-label")}
     </TreePrimitive.Item>
@@ -119,8 +170,17 @@ export function TreeItem({ className, children, ...props }: TreeItemProps) {
 
 export type TreeBranchProps = ComponentPropsWithRef<typeof TreePrimitive.Branch>;
 
-export function TreeBranch({ className, ...props }: TreeBranchProps) {
-  return <TreePrimitive.Branch className={cx(treeBranch(), className)} {...props} />;
+export function TreeBranch({ className, children, style, ...props }: TreeBranchProps) {
+  const { depth } = useTreeLevel();
+  return (
+    <TreePrimitive.Branch
+      className={cx(treeBranch(), className)}
+      style={depthStyle(depth, style)}
+      {...props}
+    >
+      {forceMountBranchContent(children)}
+    </TreePrimitive.Branch>
+  );
 }
 
 export type TreeBranchControlProps = ComponentPropsWithRef<typeof TreePrimitive.BranchControl>;

@@ -1,4 +1,4 @@
-import { useTreeContext } from "../TreeContext";
+import { useTreeContext, useTreeLevelContext } from "../TreeContext";
 
 import type { TreePathSegment } from "../types";
 
@@ -65,4 +65,36 @@ export function useTreePath(value: string): TreePathSegment[] {
 export function useTreeSelectionPaths(): TreePathSegment[][] {
   const { selectedOrder, getPath } = useTreeContext();
   return selectedOrder.map((value) => getPath(value));
+}
+
+/**
+ * Read the current nesting depth inside a `Tree` — `0` for a node directly
+ * under {@link TreeRoot | `Tree.Root`}, one deeper per enclosing
+ * {@link TreeBranchContent | `Tree.BranchContent`}.
+ *
+ * A styling layer needs the depth as a *number* to compute a row's indent, and
+ * so to make the row span the tree's full width (a hover or selected band that
+ * runs edge to edge, as VS Code and most file trees do). Reading it back off
+ * the `data-depth` attribute in CSS requires `attr(data-depth type(<integer>))`,
+ * which Firefox does not support — hence this hook.
+ *
+ * @throws If called outside a `Tree.Root`.
+ *
+ * @example Indenting a row so its background still spans the full width
+ * ```tsx
+ * function StyledItem(props: TreeItemProps) {
+ *   const { depth } = useTreeLevel();
+ *   return (
+ *     <Tree.Item
+ *       {...props}
+ *       style={{ "--depth": depth } as CSSProperties}
+ *       className="row"
+ *     />
+ *   );
+ * }
+ * ```
+ */
+export function useTreeLevel(): { depth: number } {
+  const { depth } = useTreeLevelContext();
+  return { depth };
 }

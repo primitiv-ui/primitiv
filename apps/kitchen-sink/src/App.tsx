@@ -506,7 +506,7 @@ const PAGE_TOC: { category: string; titles: string[] }[] = [
       "Textarea",
     ],
   },
-  { category: "Collections & Selection", titles: ["Listbox", "Select"] },
+  { category: "Collections & Selection", titles: ["Listbox", "Select", "Tree"] },
   { category: "Typography", titles: ["Code Block"] },
   {
     category: "Overlays",

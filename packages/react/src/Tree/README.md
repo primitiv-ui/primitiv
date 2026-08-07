@@ -258,6 +258,35 @@ still apply: two marked controls in a branch is still an error.
 This is what the registry `tree` component does; no other primitive in the
 library needs a marker, because none of the others read their children's types.
 
+### Indenting without `attr()`
+
+`useTreeLevel()` returns `{ depth }` — `0` directly under `Tree.Root`, one
+deeper per enclosing `BranchContent`. A styling layer needs the depth as a
+*number* to apply the indent as the **row's own padding**, which is what keeps
+each row's box full-width so a hover or selected band runs edge to edge rather
+than starting at the nested level. Reading `data-depth` back in CSS would need
+`attr(data-depth type(<integer>))` — Chrome 133+ / Safari 18.2+, unsupported in
+Firefox — so the depth is exposed here instead.
+
+```tsx
+function StyledItem(props: TreeItemProps) {
+  const { depth } = useTreeLevel();
+  return (
+    <Tree.Item
+      {...props}
+      style={{ "--depth": depth } as CSSProperties}
+      className="row"
+    />
+  );
+}
+```
+
+```css
+.row {
+  padding-inline-start: calc(var(--depth, 0) * 1.25rem + 0.5rem);
+}
+```
+
 ## Selection path
 
 `Tree.Item` and `Tree.Branch` accept an optional `label` prop. It does

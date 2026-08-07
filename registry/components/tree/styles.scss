@@ -15,12 +15,17 @@
  * fixed-height rows, each a leaf or a disclosure, joined to their parent by
  * hairline guide lines.
  *
- * INDENTATION COMES FROM NESTING, NOT FROM data-depth. BranchContent physically
- * contains its children, so one padding-inline-start on the content body
- * indents an entire subtree, recursively, at any depth. That is deliberate: the
- * headless README offers `attr(data-depth type(<integer>))`, but the advanced
- * attr() syntax is Chrome 133+ / Safari 18.2+ and Firefox falls back to the
- * default — nesting sidesteps the whole problem and needs no per-depth rules.
+ * INDENTATION IS THE ROW'S OWN PADDING, driven by --primitiv-tree-depth, which
+ * the wrapper publishes from the headless `useTreeLevel` hook. Indenting via
+ * padding on each enclosing group would be simpler, but it starts every nested
+ * row's BOX at the indent — so a hover or selected band would begin partway
+ * across the tree instead of running edge to edge the way VS Code and most file
+ * trees do. Padding the row instead keeps every box full-width and moves only
+ * its contents. (Pulling an indented row back out with a negative margin was
+ * the other option, and it does not work: the open/close clip below would cut
+ * the overhang at every level.) The depth is threaded as a custom property
+ * rather than read from `data-depth` in CSS because `attr(… type(<integer>))`
+ * is Chrome 133+ / Safari 18.2+ and Firefox falls back to the default.
  *
  * CONNECTORS. Each nested treeitem draws its own two segments, positioned
  * against its PARENT's rail column, which sits a fixed distance to its
@@ -81,11 +86,14 @@
 
     --primitiv-tree-item-color: var(--primitiv-content-primary);
     --primitiv-tree-item-bg: var(--primitiv-color-transparent);
-    /* The neutral-alpha ghost state layer Button and Dropdown already use, so a
-       row tints the same way over any surface. Selected is the persistent
-       active tint; hover layers over it. */
-    --primitiv-tree-item-bg-hover: var(--primitiv-action-ghost-hover);
-    --primitiv-tree-item-bg-selected: var(--primitiv-action-ghost-active);
+    /* The neutral-alpha ghost layer, but one step lighter than action/ghost/*
+       (which is 200/300). A tree is a dense column of stacked rows scanned at a
+       glance, not a single button: at the button weight the bands read heavy and
+       the tree looks striped. Deliberately NOT rebound to action/ghost/*, so
+       Button, Icon Button, the Modal close and Dropdown keep their own weight.
+       Selected is the persistent tint; hover layers over it. */
+    --primitiv-tree-item-bg-hover: var(--primitiv-color-neutral-alpha-100);
+    --primitiv-tree-item-bg-selected: var(--primitiv-color-neutral-alpha-200);
 
     --primitiv-tree-focus-ring-radius: var(--primitiv-tree-md-item-focus-ring-radius);
 
@@ -124,7 +132,13 @@
     gap: var(--primitiv-tree-item-gap);
     box-sizing: border-box;
     min-block-size: var(--primitiv-tree-item-height);
-    padding-inline: var(--primitiv-tree-item-padding-inline);
+    /* The indent lives here, not on the enclosing group, so the box stays
+       full-width and only the contents move inward. */
+    padding-inline: calc(
+        var(--primitiv-tree-depth, 0) * var(--primitiv-tree-indent) +
+          var(--primitiv-tree-item-padding-inline)
+      )
+      var(--primitiv-tree-item-padding-inline);
     border-radius: var(--primitiv-tree-item-radius);
     background: var(--primitiv-tree-item-bg);
     cursor: default;
@@ -209,10 +223,12 @@
       var(--primitiv-tree-transition-easing);
   }
 
-  /* The body — one indent step, applied once per level. This single declaration
-     is the entire indentation system: nesting does the arithmetic. */
+  /* The body — a plain structural wrapper. It carries no indent (the rows do),
+     which is what keeps every level's box full-width and stops the clip above
+     from cutting a row's hover band. It stays as the hook the connector rules
+     below key off, and as the element the clip collapses. */
   .primitiv-tree__branch-content-body {
-    padding-inline-start: var(--primitiv-tree-indent);
+    display: flow-root;
   }
 
   /* ── Connectors ──
@@ -231,7 +247,8 @@
     content: "";
     position: absolute;
     inset-inline-start: calc(
-      var(--primitiv-tree-connector-rail-offset) - var(--primitiv-tree-indent)
+      (var(--primitiv-tree-depth, 1) - 1) * var(--primitiv-tree-indent) +
+        var(--primitiv-tree-connector-rail-offset)
     );
     background: var(--primitiv-tree-connector-color);
   }

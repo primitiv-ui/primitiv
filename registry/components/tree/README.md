@@ -92,12 +92,15 @@ Everything else — `selectionMode`, `defaultExpandedValues` / `expandedValues`,
 
 ## Patterns and gotchas
 
-**Indentation comes from nesting, not from `data-depth`.** `TreeBranchContent`
-physically contains its children, so one `padding-inline-start` on the content
-body indents an entire subtree at any depth. The headless README suggests
-`attr(data-depth type(<integer>))`, but that syntax is Chrome 133+ / Safari
-18.2+ and Firefox silently falls back — nesting avoids the problem and needs no
-per-depth rules. **There is no depth cap.**
+**Indentation is the row's own padding, and that is what makes the hover /
+selected band full-width.** Padding each enclosing group would be simpler, but
+it starts every nested row's *box* at the indent, so the band would begin
+partway across the tree instead of running edge to edge (VS Code, Chakra and
+most file trees run it edge to edge). Padding the row keeps the box full-width
+and moves only its contents. The depth comes from the headless `useTreeLevel`
+hook, published as `--primitiv-tree-depth`; reading `data-depth` in CSS would
+need `attr(… type(<integer>))`, which Firefox does not support. **There is no
+depth cap.**
 
 **Branches animate open and closed.** `TreeBranchContent` is force-mounted and
 uses the same `display: grid` 0fr↔1fr row-track transition as Accordion, so a

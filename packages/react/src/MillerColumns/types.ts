@@ -1,4 +1,4 @@
-import { ComponentProps, ReactNode, Ref } from "react";
+import { ComponentProps, KeyboardEvent, ReactNode, Ref } from "react";
 
 import type { Direction } from "../DirectionProvider/types";
 
@@ -209,6 +209,8 @@ export type MillerColumnsContextValue = {
   ) => void;
   /** Get the registered items for a column. */
   getColumnItems: (depth: number) => MillerColumnsItemMeta[];
+  /** Read a registered item's rendered cell text, for typeahead matching. */
+  getItemLabel: (depth: number, value: string) => string;
   /** Move focus to the given item. */
   focusItem: (depth: number, value: string) => void;
   /** Focus the first item in a column; returns whether one was focused. */
@@ -219,6 +221,8 @@ export type MillerColumnsContextValue = {
   activeItem: MillerColumnsItemAddress | null;
   /** Set the active (focused) item. */
   setActiveItem: (item: MillerColumnsItemAddress) => void;
+  /** Printable-character typeahead, scoped to the focused item's column. */
+  handleTypeahead: (event: KeyboardEvent<HTMLElement>) => void;
 };
 
 /** Value shared through a column's context. */

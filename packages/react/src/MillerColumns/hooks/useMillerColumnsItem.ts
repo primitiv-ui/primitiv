@@ -41,6 +41,7 @@ export function useMillerColumnsItem(
     requestColumnFocus,
     activeItem,
     setActiveItem,
+    handleTypeahead,
   } = useMillerColumnsContext();
   const { depth } = useMillerColumnsColumnContext();
 
@@ -142,6 +143,13 @@ export function useMillerColumnsItem(
     }
 
     rovingKeyDown(event);
+
+    // The keymap gets first refusal — it calls preventDefault on every key
+    // it consumes, so only a still-unhandled printable character reaches
+    // typeahead (Space activates, and never falls through).
+    if (!event.defaultPrevented) {
+      handleTypeahead(event);
+    }
   }
 
   const itemProps = {

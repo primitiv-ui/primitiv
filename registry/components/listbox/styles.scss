@@ -180,7 +180,10 @@
      component: a real <input type="checkbox"> inside role="option" would add a
      second focusable control inside a row that is not itself focusable. This is
      presentational only — the row's own aria-selected carries the state, and
-     the element is aria-hidden. */
+     the element is aria-hidden. Its box and mark deliberately reuse the real
+     `checkbox` component's own anatomy (clip-path tick + scale reveal, not a
+     border-drawn shape) and the same `--primitiv-motion-*` timing, so a listbox
+     multi-select row reads as the same control, not a lookalike. */
   .primitiv-listbox__option-checkbox {
     display: inline-flex;
     flex: none;
@@ -193,21 +196,25 @@
       var(--primitiv-listbox-checkbox-border-color);
     border-radius: var(--primitiv-listbox-checkbox-radius);
     background: var(--primitiv-listbox-checkbox-bg);
+    transition:
+      background-color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default),
+      border-color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
   }
 
-  /* The tick, drawn as a rotated L so the box needs no icon dependency. */
+  /* The tick — the same mark-size square, clipped to a checkmark and filled with
+     `currentColor`'s stand-in (the mark colour token), that `checkbox.tsx`'s
+     `__indicator` draws. Scaled to nothing at rest and revealed by scaling to 1
+     in the states layer below, so it animates in on selection exactly like the
+     real checkbox rather than popping via opacity. */
   .primitiv-listbox__option-checkbox::after {
     display: block;
-    inline-size: calc(var(--primitiv-listbox-checkbox-mark-size) / 2);
+    inline-size: var(--primitiv-listbox-checkbox-mark-size);
     block-size: var(--primitiv-listbox-checkbox-mark-size);
-    border-color: var(--primitiv-listbox-checkbox-mark-color);
-    border-style: solid;
-    border-width: 0 var(--primitiv-listbox-checkbox-border-width)
-      var(--primitiv-listbox-checkbox-border-width) 0;
-    opacity: 0;
+    background: var(--primitiv-listbox-checkbox-mark-color);
+    clip-path: polygon(40% 68%, 12% 40%, 0% 52%, 40% 92%, 100% 22%, 88% 10%);
+    scale: 0;
     content: "";
-    rotate: 45deg;
-    translate: 0 -12%;
+    transition: scale var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
   }
 
   .primitiv-listbox__option-leading,
@@ -430,7 +437,7 @@
   }
 
   .primitiv-listbox__option[aria-selected="true"] .primitiv-listbox__option-checkbox::after {
-    opacity: 1;
+    scale: 1;
   }
 
   /* Disabled options stay in the DOM and in the accessibility tree as

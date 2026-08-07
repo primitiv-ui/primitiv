@@ -102,6 +102,18 @@ hook, published as `--primitiv-tree-depth`; reading `data-depth` in CSS would
 need `attr(… type(<integer>))`, which Firefox does not support. **There is no
 depth cap.**
 
+**The chevron needs no setup.** `<TreeBranchIndicator />` ships its own glyph
+(inlined, so no icon package) and the stylesheet turns it a quarter-turn off
+`data-state`, on the same duration and easing as the panel. One glyph rotated
+rather than two swapped, so it cannot fall out of sync with the branch. Pass
+children to substitute your own — supply the *closed* orientation, since it gets
+rotated the same way. The open angle is `--primitiv-tree-indicator-rotation`.
+
+Note the Figma set models this as a two-glyph swap (`Expanded=closed` →
+chevron-right, `open` → chevron-down). That is the same design expressed in the
+vocabulary each platform has: Figma cannot express a transform, and a swap
+cannot animate.
+
 **Branches animate open and closed.** `TreeBranchContent` is force-mounted and
 uses the same `display: grid` 0fr↔1fr row-track transition as Accordion, so a
 branch opens to its subtree's exact height with no `max-height` guess and no JS

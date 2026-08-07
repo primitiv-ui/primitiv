@@ -119,6 +119,7 @@
     { "name": "--primitiv-tree-item-bg-hover", "defaultsTo": "var(--primitiv-color-neutral-alpha-100)" },
     { "name": "--primitiv-tree-item-bg-selected", "defaultsTo": "var(--primitiv-color-neutral-alpha-200)" },
     { "name": "--primitiv-tree-focus-ring-radius", "defaultsTo": "var(--primitiv-tree-md-item-focus-ring-radius)" },
+    { "name": "--primitiv-tree-indicator-rotation", "defaultsTo": "0deg" },
     { "name": "--primitiv-tree-connector-color", "defaultsTo": "var(--primitiv-border-subtle)" },
     { "name": "--primitiv-tree-connector-thickness", "defaultsTo": "var(--primitiv-border-width-1)" },
     { "name": "--primitiv-tree-connector-elbow-height", "defaultsTo": "var(--primitiv-tree-md-connector-elbow-height)" },

@@ -31,6 +31,10 @@
  * render — so both declare which part they stand in for via TREE_PART. Without
  * that marker Tree.Branch throws "must contain a <Tree.BranchControl>".
  *
+ * TreeBranchIndicator ships its own chevron and the stylesheet rotates it off
+ * data-state, so `<TreeBranchIndicator />` needs no icon package, no glyph and
+ * no state wiring from the consumer.
+ *
  * Keep this file, contract.json, and the stylesheet in sync by hand.
  */
 import { TREE_PART, Tree as TreePrimitive, useTreeLevel } from "@primitiv-ui/react";
@@ -101,6 +105,25 @@ function forceMountBranchContent(children: ReactNode): ReactNode {
     (child.type as { [TREE_PART]?: string })?.[TREE_PART] === "branch-content"
       ? cloneElement(child as ReactElement<{ forceMount?: boolean }>, { forceMount: true })
       : child,
+  );
+}
+
+/**
+ * The default disclosure chevron. The path is copied verbatim from
+ * `@primitiv-ui/icons`' chevron-right (packages/icons/icons/svg/chevron-right.svg)
+ * rather than imported: no registry component depends on the icons package, so
+ * a copied surface never drags one in — the same trade Chip makes with its
+ * remove glyph. Re-copy it if that glyph is ever redrawn. Drawn in the
+ * CLOSED orientation — the stylesheet turns it a quarter-turn when the branch
+ * opens, so one glyph covers both states and cannot fall out of sync. Pass
+ * children to `TreeBranchIndicator` to use your own; it will be rotated the
+ * same way, so supply the closed orientation.
+ */
+function ChevronRightGlyph() {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M17.06 12 9 20.06 7.94 19l7-7-7-7L9 3.94 17.06 12Z" />
+    </svg>
   );
 }
 
@@ -217,9 +240,15 @@ TreeBranchContent[TREE_PART] = "branch-content";
 
 export type TreeBranchIndicatorProps = ComponentPropsWithRef<typeof TreePrimitive.BranchIndicator>;
 
-export function TreeBranchIndicator({ className, ...props }: TreeBranchIndicatorProps) {
+export function TreeBranchIndicator({
+  className,
+  children,
+  ...props
+}: TreeBranchIndicatorProps) {
   return (
-    <TreePrimitive.BranchIndicator className={cx(treeBranchIndicator(), className)} {...props} />
+    <TreePrimitive.BranchIndicator className={cx(treeBranchIndicator(), className)} {...props}>
+      {children ?? <ChevronRightGlyph />}
+    </TreePrimitive.BranchIndicator>
   );
 }
 

@@ -3630,9 +3630,7 @@ export function ramp(hue: number, chroma = 0.12) {
               <TreeSelectionPath size={size} />
               <TreeBranch value="src" label="src">
                 <TreeBranchControl>
-                  <TreeBranchIndicator>
-                    <ChevronDown />
-                  </TreeBranchIndicator>
+                  <TreeBranchIndicator />
                   <span className="primitiv-tree__branch-control-icon">
                     <Folder />
                   </span>
@@ -3641,9 +3639,7 @@ export function ramp(hue: number, chroma = 0.12) {
                 <TreeBranchContent>
                   <TreeBranch value="components" label="components">
                     <TreeBranchControl>
-                      <TreeBranchIndicator>
-                        <ChevronDown />
-                      </TreeBranchIndicator>
+                      <TreeBranchIndicator />
                       <span className="primitiv-tree__branch-control-icon">
                         <Folder />
                       </span>
@@ -3666,9 +3662,7 @@ export function ramp(hue: number, chroma = 0.12) {
                   </TreeBranch>
                   <TreeBranch value="hooks" label="hooks">
                     <TreeBranchControl>
-                      <TreeBranchIndicator>
-                        <ChevronRight />
-                      </TreeBranchIndicator>
+                      <TreeBranchIndicator />
                       <span className="primitiv-tree__branch-control-icon">
                         <Folder />
                       </span>
@@ -3707,9 +3701,7 @@ export function ramp(hue: number, chroma = 0.12) {
             <Tree size={size} connectors="none" defaultExpandedValues={["docs"]}>
               <TreeBranch value="docs" label="docs">
                 <TreeBranchControl>
-                  <TreeBranchIndicator>
-                    <ChevronDown />
-                  </TreeBranchIndicator>
+                  <TreeBranchIndicator />
                   docs
                 </TreeBranchControl>
                 <TreeBranchContent>
@@ -3738,9 +3730,7 @@ export function ramp(hue: number, chroma = 0.12) {
               <TreeSelectionPath size={size} />
               <TreeBranch value="assets" label="assets">
                 <TreeBranchControl>
-                  <TreeBranchIndicator>
-                    <ChevronDown />
-                  </TreeBranchIndicator>
+                  <TreeBranchIndicator />
                   <span className="primitiv-tree__branch-control-icon">
                     <Folder />
                   </span>

@@ -97,6 +97,15 @@
 
     --primitiv-tree-focus-ring-radius: var(--primitiv-tree-md-item-focus-ring-radius);
 
+    /* Chevron rotation. A single glyph rotated, NOT the two-glyph swap the
+       Figma set models (Expanded=closed uses chevron-right, open uses
+       chevron-down): a swap cannot animate, and Figma has no way to express a
+       transform, so the two describe the same design in the vocabulary each
+       platform has. Rotating also keeps the affordance in sync by construction
+       — there is only one glyph, so it cannot disagree with the state. Mirrors
+       Collapsible's trigger-icon-rotation. */
+    --primitiv-tree-indicator-rotation: 0deg;
+
     --primitiv-tree-connector-color: var(--primitiv-border-subtle);
     --primitiv-tree-connector-thickness: var(--primitiv-border-width-1);
     --primitiv-tree-connector-elbow-height: var(--primitiv-tree-md-connector-elbow-height);
@@ -163,6 +172,11 @@
     justify-content: center;
     inline-size: var(--primitiv-tree-item-icon-size);
     block-size: var(--primitiv-tree-item-icon-size);
+  }
+
+  /* Pass a single closed-orientation glyph (chevron-right); this turns it. */
+  .primitiv-tree__branch-indicator {
+    rotate: var(--primitiv-tree-indicator-rotation);
   }
 
   .primitiv-tree__branch-indicator > svg,
@@ -414,12 +428,16 @@
     visibility: visible;
   }
 
-  /* Chevron — the headless swaps glyph via data-state rather than rotating, so
-     nothing rotates here by default; the transition is for consumers who drop in
-     a single rotating glyph instead. */
+  /* Chevron — turns a quarter-turn in lockstep with the panel, on the same
+     duration and easing, so the two read as one movement. The headless puts
+     data-state on the indicator itself, so this needs no wiring. */
   .primitiv-tree__branch-indicator {
     transition: rotate var(--primitiv-tree-transition-duration)
       var(--primitiv-tree-transition-easing);
+  }
+
+  .primitiv-tree__branch-indicator[data-state="open"] {
+    --primitiv-tree-indicator-rotation: 90deg;
   }
 
   /* Selected — the ghost active tint persists (not just while pressed). On a
@@ -486,6 +504,7 @@ $primitiv-tree-item-bg: var(--primitiv-tree-item-bg);
 $primitiv-tree-item-bg-hover: var(--primitiv-tree-item-bg-hover);
 $primitiv-tree-item-bg-selected: var(--primitiv-tree-item-bg-selected);
 $primitiv-tree-focus-ring-radius: var(--primitiv-tree-focus-ring-radius);
+$primitiv-tree-indicator-rotation: var(--primitiv-tree-indicator-rotation);
 $primitiv-tree-connector-color: var(--primitiv-tree-connector-color);
 $primitiv-tree-connector-thickness: var(--primitiv-tree-connector-thickness);
 $primitiv-tree-connector-elbow-height: var(--primitiv-tree-connector-elbow-height);

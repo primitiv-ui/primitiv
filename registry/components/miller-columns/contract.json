@@ -270,16 +270,16 @@
       "defaultsTo": "var(--primitiv-content-disabled)"
     },
     {
-      "name": "--primitiv-miller-columns-row-hover",
-      "defaultsTo": "var(--primitiv-tree-row-hover)"
+      "name": "--primitiv-miller-columns-item-bg-hover",
+      "defaultsTo": "var(--primitiv-miller-columns-row-hover)"
     },
     {
-      "name": "--primitiv-miller-columns-row-ancestor",
-      "defaultsTo": "var(--primitiv-tree-row-hover)"
+      "name": "--primitiv-miller-columns-item-bg-ancestor",
+      "defaultsTo": "var(--primitiv-miller-columns-row-ancestor)"
     },
     {
-      "name": "--primitiv-miller-columns-row-terminal",
-      "defaultsTo": "var(--primitiv-action-ghost-active)"
+      "name": "--primitiv-miller-columns-item-bg-terminal",
+      "defaultsTo": "var(--primitiv-miller-columns-row-terminal)"
     },
     {
       "name": "--primitiv-miller-columns-resize-ink-width",

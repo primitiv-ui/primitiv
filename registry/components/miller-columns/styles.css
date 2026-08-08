@@ -101,13 +101,16 @@
     --primitiv-miller-columns-muted-foreground: var(--primitiv-content-muted);
     --primitiv-miller-columns-disabled-foreground: var(--primitiv-content-disabled);
 
-    /* Row state layer. Ancestor deliberately equals hover: a path row's tint is
-       selection state, so it must not move under the pointer. Terminal is a step
-       above both, which is the whole depth cue. Aliased to the shared Intent
-       tints rather than re-declared, so Tree and MillerColumns agree. */
-    --primitiv-miller-columns-row-hover: var(--primitiv-tree-row-hover);
-    --primitiv-miller-columns-row-ancestor: var(--primitiv-tree-row-hover);
-    --primitiv-miller-columns-row-terminal: var(--primitiv-action-ghost-active);
+    /* Row state layer — three distinct steps on the neutral-alpha ramp, because
+       all three can be on screen at once: hover 3%, ancestor 6%, terminal 14%.
+       Hover is the faintest, being the only transient one; an earlier revision
+       gave it the ancestor's value, which made a row you merely pointed at
+       indistinguishable from one on the selection path. The 8% gap between
+       ancestor and terminal is the depth cue and is deliberately wide — half
+       that was tried and could not be read at a glance. */
+    --primitiv-miller-columns-item-bg-hover: var(--primitiv-miller-columns-row-hover);
+    --primitiv-miller-columns-item-bg-ancestor: var(--primitiv-miller-columns-row-ancestor);
+    --primitiv-miller-columns-item-bg-terminal: var(--primitiv-miller-columns-row-terminal);
 
     /* Resize seam. At rest the grip paints nothing at all — the hairline you
        see is the column's own border, so there is no idle chrome and nothing
@@ -245,9 +248,17 @@
         var(--primitiv-miller-columns-transition-easing);
   }
 
+  /* The pane ABSORBS the strip's remaining width rather than sitting at a fixed
+     column width, which is what Finder does — so there is never a bare field
+     after it. preview-width is the basis it grows from and the floor it will
+     not shrink below, so an overflowing strip scrolls instead of collapsing it.
+     Its content is centred as a block, again following Finder: a preview reads
+     as a framed object, not as another list. */
   .primitiv-miller-columns__preview {
-    flex: 0 0 auto;
-    inline-size: var(--primitiv-miller-columns-preview-width);
+    flex: 1 0 var(--primitiv-miller-columns-preview-width);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     padding: var(--primitiv-miller-columns-preview-padding);
     overflow-y: auto;
     /* The same field as the columns — tinting it makes the pane read as chrome
@@ -357,23 +368,27 @@
 }
 
 @layer primitiv.states {
-  /* Hover only bites on rows that are NOT on the path — an ancestor already sits
-     at this exact value and the terminal row above it, so neither moves under
-     the pointer. That is deliberate: their tint is selection state. */
+  /* Hover bites only on rows that are NOT on the path. Excluding them by
+     selector rather than by source order is deliberate: `:hover:not(...)` is a
+     more specific selector than `[data-terminal]`, so an ordering-only fix
+     would let a hovered terminal row fall BACK to the hover tint — lightening
+     the one row whose depth cue matters most, exactly while you point at it. */
   @media (hover: hover) {
-    .primitiv-miller-columns__item:hover:not([data-disabled]) {
-      background: var(--primitiv-miller-columns-row-hover);
+    .primitiv-miller-columns__item:hover:not([data-disabled]):not(
+        [data-state="selected"]
+      ) {
+      background: var(--primitiv-miller-columns-item-bg-hover);
     }
   }
 
   .primitiv-miller-columns__item[data-state="selected"] {
-    background: var(--primitiv-miller-columns-row-ancestor);
+    background: var(--primitiv-miller-columns-item-bg-ancestor);
   }
 
   /* The row actually clicked, as opposed to the ancestors the path passes
      through. Without this the strip has no depth cue at all. */
   .primitiv-miller-columns__item[data-terminal] {
-    background: var(--primitiv-miller-columns-row-terminal);
+    background: var(--primitiv-miller-columns-item-bg-terminal);
   }
 
   .primitiv-miller-columns__item[data-disabled] {

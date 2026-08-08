@@ -229,11 +229,13 @@ export type MillerColumnsItemProps = ComponentPropsWithRef<
  *
  * **Ancestors and the terminal row look different, deliberately.** Every item
  * on the active path gets `data-state="selected"`, and the deepest one — the
- * row actually clicked — also gets `data-terminal`. Ancestors are tinted at
- * the hover value and the terminal row a step above it. That is the strip's
- * whole depth cue: styled alike, there is no way to tell which of several
- * highlighted rows was chosen. It also means **hovering a path row is inert**,
- * because its tint is carrying selection rather than pointer state.
+ * row actually clicked — also gets `data-terminal`. Three distinct steps on the
+ * neutral-alpha ramp, because all three can be on screen at once: hover 3%,
+ * ancestor 6%, terminal 14%. That gap is the strip's whole depth cue — styled
+ * alike, there is no way to tell which of several highlighted rows was chosen.
+ * **Hover never applies to a path row**, since its tint is carrying selection
+ * rather than pointer state; hover is also the faintest step, so a row you
+ * merely point at cannot be mistaken for one on the path.
  *
  * Pass `disabled` to skip the item in roving navigation; it stays in the DOM
  * and focusable for discovery. Pass `asChild` to render the cell as your own
@@ -387,7 +389,9 @@ export type MillerColumnsPreviewPanelProps = ComponentPropsWithRef<
  *
  * Its field is `surface/default`, the same as the columns, separated only by
  * the last column's hairline: tinting it makes the pane read as chrome wrapped
- * around the list rather than as its last pane.
+ * around the list rather than as its last pane. It fills the strip's remaining
+ * width and centres its content as a block, following Finder — so a single
+ * wrapper element around your preview content is the shape that lands best.
  *
  * @extends HTMLDivElement
  *

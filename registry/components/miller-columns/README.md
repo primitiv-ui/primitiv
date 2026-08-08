@@ -133,13 +133,23 @@ of the tree rather than a child. The strip is the horizontal scroll
 container; style it with `.primitiv-miller-columns`, and the tree — which
 the headless owns outright — with `[data-miller-columns-tree]`.
 
-**Ancestors and the terminal row are tinted differently, on purpose.** Every
-item on the active path is `data-state="selected"`; the deepest one — the row
-actually clicked — also carries `data-terminal`. Styling them alike loses the
-depth cue entirely: with a uniform selected state there is no way to tell
-which of several highlighted rows was chosen. Ancestors sit at the hover
-value and the terminal row a step above, which is why **hovering a path row
-does nothing** — its tint is carrying selection, not pointer state.
+**Three row tints, all distinct.** Every item on the active path is
+`data-state="selected"`; the deepest one — the row actually clicked — also
+carries `data-terminal`. Styling those alike loses the depth cue entirely:
+with a uniform selected state there is no way to tell which of several
+highlighted rows was chosen.
+
+| State | Token | Alpha |
+| --- | --- | --- |
+| hover | `--primitiv-miller-columns-row-hover` | 3% |
+| ancestor | `--primitiv-miller-columns-row-ancestor` | 6% |
+| terminal | `--primitiv-miller-columns-row-terminal` | 14% |
+
+Hover is the faintest because it is the only transient one, and **hover never
+applies to a row on the path** — its tint is carrying selection, not pointer
+state. An earlier revision gave hover the ancestor's value, which made a row
+you merely pointed at indistinguishable from one on the selection path; that
+is why they are now separate tokens rather than aliases of Tree's.
 
 **Rows are full-bleed and square.** A band spans the column edge to edge. A
 radius would leave the column's field showing at each corner and read as
@@ -167,6 +177,12 @@ seam is the ink alone.
 so a column always reads as a column, even where the strip is wider than its
 contents and the rest is empty field. The pane never draws a leading border:
 one hairline per seam, always owned by the column to its left.
+
+**The preview pane fills the strip's remaining width** rather than sitting at
+a fixed column width, and centres its content as a block — both following
+Finder. `--primitiv-miller-columns-preview-width` is the basis it grows from
+and the floor it will not shrink below, so an overflowing strip scrolls rather
+than collapsing it.
 
 **Empty columns.** Selecting a childless branch opens a column with nothing
 in it, so there are no children through which to pass a message. The wrapper

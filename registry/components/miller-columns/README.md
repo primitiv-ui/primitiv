@@ -163,11 +163,10 @@ shrinks back in — both the width and the colour transition, so it eases in
 each direction. While the grip is live the column's border steps aside so the
 seam is the ink alone.
 
-**Seams.** Every column draws one trailing hairline. Only the *final element
-in the strip* suppresses one, where it would double against the strip's own
-border — so with a preview pane present every column keeps its seam and the
-last one is what divides it from the pane. The pane never draws a leading
-border.
+**Seams.** Every column draws one trailing hairline, the last one included —
+so a column always reads as a column, even where the strip is wider than its
+contents and the rest is empty field. The pane never draws a leading border:
+one hairline per seam, always owned by the column to its left.
 
 **Empty columns.** Selecting a childless branch opens a column with nothing
 in it, so there are no children through which to pass a message. The wrapper

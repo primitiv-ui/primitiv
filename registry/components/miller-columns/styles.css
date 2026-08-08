@@ -22,10 +22,13 @@
  * sits immediately after the last one (Finder's placement) and the strip — not
  * the tree — is what scrolls when they overflow.
  *
- * SEAMS. Every column draws a single trailing hairline. Only the FINAL element
- * in the strip suppresses one, where it would double up against the strip's own
- * border — so with a preview panel present all the columns keep theirs and the
- * last column's seam is what divides it from the pane. The panel never draws a
+ * SEAMS. Every column draws a trailing hairline, the last one included. An
+ * earlier revision suppressed it on the final element to avoid doubling against
+ * the strip's own border, but the tree is only as wide as its columns — so that
+ * edge almost never meets the strip border, and dropping the line just left the
+ * last column bleeding into empty background with nothing to close it off. The
+ * two only coincide when the columns happen to fill the strip exactly, which is
+ * a 1px overlap and cheaper than the alternative. The preview pane never draws a
  * leading border: one hairline per seam, always owned by the column to its left.
  * Columns butt up with no gap, because the resize grip IS that shared hairline
  * and a gap would give it no line to sit on.
@@ -161,16 +164,6 @@
     transition: border-inline-end-color
       var(--primitiv-miller-columns-transition-duration)
       var(--primitiv-miller-columns-transition-easing);
-  }
-
-  /* Only the FINAL element in the strip drops its seam, where it would double
-     up against the strip's own border. With a preview pane present the pane is
-     final, so every column keeps its seam and the last one divides the two. */
-  .primitiv-miller-columns:not(:has(.primitiv-miller-columns__preview))
-    [data-miller-columns-tree]
-    > :last-child
-    .primitiv-miller-columns__column {
-    border-inline-end-color: transparent;
   }
 
   .primitiv-miller-columns__item {

@@ -37,6 +37,11 @@ const SHARED_MODULES = {
   // The button-based tri-state hook for menu checkbox-items. Checkbox itself is
   // input-based (useCheckboxInput); this is used by Dropdown / ContextMenu.
   "src/Checkbox/hooks/useCheckboxRoot.ts": ["Dropdown", "ContextMenu"],
+  // Printable-character typeahead. It began life under src/Listbox/hooks and so
+  // was mutated by Listbox's run; promoting it to src/hooks for MillerColumns to
+  // share took it out of every component's glob, silently dropping it from the
+  // ratchet. Re-home it onto its consumers so the gate still covers it.
+  "src/hooks/useTypeahead.ts": ["Listbox", "MillerColumns"],
 };
 
 /**

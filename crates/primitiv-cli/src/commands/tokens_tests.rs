@@ -152,6 +152,18 @@ fn surfaces_a_base_companion_write_failure() {
 }
 
 #[test]
+fn surfaces_a_breakpoints_companion_write_failure() {
+    let fs = InMemoryFs::new();
+    let stdout = InMemoryOutput::new();
+    let out = Path::new("src/styles/primitiv/tokens.css");
+    fs.fail_writes_to(Path::new("src/styles/primitiv/breakpoints.ts"));
+
+    let err = tokens(&fs, &stdout, Some(Format::Css), Some(out)).unwrap_err();
+
+    assert!(matches!(err, CliError::Io(_)));
+}
+
+#[test]
 fn falls_back_to_the_config_path_when_out_is_omitted() {
     let fs = InMemoryFs::new();
     let stdout = InMemoryOutput::new();

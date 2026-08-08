@@ -1,9 +1,14 @@
 import { useCallback, useId, useState, type KeyboardEvent } from "react";
 
-import { useCollection, useControllableState } from "../../hooks/index.ts";
+import {
+  useCollection,
+  useControllableState,
+  useTypeahead,
+} from "../../hooks/index.ts";
 import { deriveId, getKeyToActionMap } from "../../utils/index.ts";
 
-import { useListboxTypeahead } from "./useListboxTypeahead";
+import { TYPEAHEAD_RESET_MS } from "../constants";
+
 
 type OptionMeta = { element: HTMLElement; disabled: boolean };
 
@@ -324,11 +329,12 @@ export function useListboxRoot({
     [itemsRef],
   );
 
-  const { handleTypeahead } = useListboxTypeahead({
+  const { handleTypeahead } = useTypeahead({
     getNavigable: getNavigableValues,
     getLabel,
     currentKey: activeValue,
     onMatch: navigateTo,
+    resetMs: TYPEAHEAD_RESET_MS,
   });
 
   // The keymap gets first refusal: it calls preventDefault on every key it

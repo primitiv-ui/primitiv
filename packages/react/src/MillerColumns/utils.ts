@@ -23,6 +23,33 @@ export function selectAtDepth(
 }
 
 /**
+ * Splits a props bag into its `aria-*` entries and everything else.
+ *
+ * `Root` renders two elements — a plain strip container and the inner
+ * `role="tree"` widget — so one props bag has two possible homes. ARIA
+ * belongs on the widget (an `aria-label` must name the tree, not its
+ * scroll container); `className`, `id`, `style` and the rest belong on
+ * the container the consumer actually lays out.
+ */
+export function partitionAriaProps(props: Record<string, unknown>): {
+  aria: Record<string, unknown>;
+  rest: Record<string, unknown>;
+} {
+  const aria: Record<string, unknown> = {};
+  const rest: Record<string, unknown> = {};
+
+  for (const [key, value] of Object.entries(props)) {
+    if (key.startsWith("aria-")) {
+      aria[key] = value;
+    } else {
+      rest[key] = value;
+    }
+  }
+
+  return { aria, rest };
+}
+
+/**
  * Whether `node` is a `MillerColumns.Column` element — the identity
  * check used to separate an Item's cell content from its child column.
  */

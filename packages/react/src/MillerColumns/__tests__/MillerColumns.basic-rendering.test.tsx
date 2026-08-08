@@ -3,8 +3,8 @@ import { render, screen } from "@testing-library/react";
 import { MillerColumns } from "../MillerColumns";
 
 describe("MillerColumns — basic rendering", () => {
-  it("renders the strip with role=tree and a horizontal orientation hook", () => {
-    render(
+  it("renders a strip container with a horizontal orientation hook", () => {
+    const { container } = render(
       <MillerColumns.Root>
         <MillerColumns.Column>
           <MillerColumns.Item value="a">A</MillerColumns.Item>
@@ -12,10 +12,25 @@ describe("MillerColumns — basic rendering", () => {
       </MillerColumns.Root>,
     );
 
-    const strip = screen.getByRole("tree");
+    const strip = container.querySelector("[data-miller-columns-strip]");
 
     expect(strip).toBeInTheDocument();
     expect(strip).toHaveAttribute("data-orientation", "horizontal");
+  });
+
+  it("renders the tree widget inside the strip container", () => {
+    const { container } = render(
+      <MillerColumns.Root>
+        <MillerColumns.Column>
+          <MillerColumns.Item value="a">A</MillerColumns.Item>
+        </MillerColumns.Column>
+      </MillerColumns.Root>,
+    );
+
+    const tree = screen.getByRole("tree");
+
+    expect(tree).toHaveAttribute("data-miller-columns-tree");
+    expect(container.querySelector("[data-miller-columns-strip]")).toContainElement(tree);
   });
 
   it("projects the top-level column into the strip as a group", () => {

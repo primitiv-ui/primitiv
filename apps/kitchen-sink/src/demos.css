@@ -482,3 +482,41 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* Miller Columns — the strip is the horizontal scroll container, so it needs a
+   height to scroll within and a max-width to overflow against. */
+.ks-miller-showcase {
+  inline-size: 100%;
+}
+
+.ks-miller-showcase__strip {
+  block-size: 18rem;
+  max-inline-size: 100%;
+}
+
+.ks-miller-showcase__preview {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--primitiv-space-space-4);
+}
+
+.ks-miller-showcase__preview-meta {
+  color: var(--primitiv-content-muted);
+  font-size: var(--primitiv-body-xs-font-size);
+  line-height: var(--primitiv-body-xs-line-height);
+}
+
+.ks-miller-showcase__thumb {
+  display: block;
+  inline-size: 100%;
+  block-size: auto;
+  border-radius: var(--primitiv-radii-4);
+}
+
+.ks-miller-showcase__full {
+  display: block;
+  inline-size: 100%;
+  block-size: auto;
+  border-radius: var(--primitiv-radii-6);
+}

@@ -210,6 +210,12 @@ import {
   TooltipPortal,
   TooltipContent,
   TooltipArrow,
+  MillerColumns,
+  MillerColumnsColumn,
+  MillerColumnsItem,
+  MillerColumnsItemIndicator,
+  MillerColumnsPreviewPanel,
+  MillerColumnsResizeHandle,
   Tree,
   TreeBranch,
   TreeBranchContent,
@@ -240,7 +246,7 @@ import {
   Upload,
   User,
 } from "@primitiv-ui/icons";
-import { VisuallyHidden } from "@primitiv-ui/react";
+import { VisuallyHidden, useMillerColumnsSelection } from "@primitiv-ui/react";
 import cardPhoto1 from "./assets/carousel-photos/photo-1.jpg";
 import cardPhoto2 from "./assets/carousel-photos/photo-2.jpg";
 import cardPhoto3 from "./assets/carousel-photos/photo-3.jpg";
@@ -506,7 +512,7 @@ const PAGE_TOC: { category: string; titles: string[] }[] = [
       "Textarea",
     ],
   },
-  { category: "Collections & Selection", titles: ["Listbox", "Select", "Tree"] },
+  { category: "Collections & Selection", titles: ["Listbox", "Miller Columns", "Select", "Tree"] },
   { category: "Typography", titles: ["Code Block"] },
   {
     category: "Overlays",
@@ -720,6 +726,181 @@ const TOOLTIP_DEMOS = [
   { placement: "left", tone: "default", label: "Left" },
   { placement: "top", tone: "inverted", label: "Inverted" },
 ] as const;
+
+// ---------------------------------------------------------------------------
+// Miller Columns demo data. The strip is authored by RECURSIVE COMPOSITION —
+// there is no data prop — so this shape is the demo's own, walked by MillerNode.
+// "Archive" is deliberately a branch with no children: selecting it opens an
+// empty column, which is an ordinary state here rather than an error.
+type MillerFileNode = {
+  id: string;
+  label: string;
+  kind: "folder" | "file";
+  meta?: string;
+  /** Images get a preview button in the pane; the source is generated below so
+      the demo needs no binary assets in the repo. */
+  image?: boolean;
+  children?: MillerFileNode[];
+};
+
+const MILLER_TREE: MillerFileNode[] = [
+  {
+    id: "documents",
+    label: "Documents",
+    kind: "folder",
+    children: [
+      {
+        id: "work",
+        label: "Work",
+        kind: "folder",
+        children: [
+          { id: "report", label: "report.pdf", kind: "file", meta: "PDF document · 248 KB" },
+          { id: "notes", label: "notes.txt", kind: "file", meta: "Plain text · 4 KB" },
+          { id: "budget", label: "budget.xlsx", kind: "file", meta: "Spreadsheet · 62 KB" },
+        ],
+      },
+      {
+        id: "personal",
+        label: "Personal",
+        kind: "folder",
+        children: [
+          { id: "taxes", label: "taxes.pdf", kind: "file", meta: "PDF document · 1.2 MB" },
+          { id: "letter", label: "letter.docx", kind: "file", meta: "Document · 18 KB" },
+        ],
+      },
+      { id: "readme", label: "README.md", kind: "file", meta: "Markdown · 2 KB" },
+    ],
+  },
+  {
+    id: "pictures",
+    label: "Pictures",
+    kind: "folder",
+    children: [
+      {
+        id: "holiday",
+        label: "Holiday",
+        kind: "folder",
+        children: [
+          { id: "beach", label: "beach.jpg", kind: "file", meta: "Image · 3.4 MB", image: true },
+          { id: "sunset", label: "sunset.jpg", kind: "file", meta: "Image · 2.9 MB", image: true },
+        ],
+      },
+      { id: "profile", label: "profile.png", kind: "file", meta: "Image · 240 KB", image: true },
+    ],
+  },
+  { id: "archive", label: "Archive", kind: "folder", children: [] },
+  { id: "licence", label: "LICENCE", kind: "file", meta: "Plain text · 1 KB" },
+];
+
+/** A self-contained stand-in image, hued from the filename so each differs. */
+function millerImageSource(label: string): string {
+  const hue =
+    [...label].reduce((sum, character) => sum + character.charCodeAt(0), 0) % 360;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="640" height="420">
+    <rect width="640" height="420" fill="hsl(${hue}, 62%, 56%)"/>
+    <rect width="640" height="420" fill="hsl(${(hue + 40) % 360}, 62%, 46%)" opacity="0.45" transform="skewX(-18)"/>
+    <text x="320" y="228" font-family="sans-serif" font-size="34" fill="rgba(255,255,255,0.92)" text-anchor="middle">${label}</text>
+  </svg>`;
+  return `data:image/svg+xml,${encodeURIComponent(svg)}`;
+}
+
+const MILLER_INDEX = new Map<string, MillerFileNode>();
+(function indexMillerTree(nodes: MillerFileNode[]) {
+  for (const node of nodes) {
+    MILLER_INDEX.set(node.id, node);
+    if (node.children) indexMillerTree(node.children);
+  }
+})(MILLER_TREE);
+
+// A branch is any node with a `children` array — including an EMPTY one, which
+// is what makes "Archive" open a column rather than behave as a leaf.
+function MillerNode({ node }: { node: MillerFileNode }) {
+  return (
+    <MillerColumnsItem value={node.id}>
+      {node.label}
+      {node.children ? (
+        <>
+          <MillerColumnsItemIndicator />
+          <MillerColumnsColumn>
+            <MillerColumnsResizeHandle
+              aria-label={`Resize ${node.label}`}
+              minWidth={120}
+              maxWidth={360}
+            />
+            {node.children.map((child) => (
+              <MillerNode key={child.id} node={child} />
+            ))}
+          </MillerColumnsColumn>
+        </>
+      ) : null}
+    </MillerColumnsItem>
+  );
+}
+
+// Lives inside the PreviewPanel and reads the selection itself — the component
+// is content-agnostic, so what a preview looks like is entirely ours to decide.
+function MillerPreview() {
+  const { selectedValue } = useMillerColumnsSelection();
+  const node = selectedValue ? MILLER_INDEX.get(selectedValue) : undefined;
+
+  if (!node) {
+    return <p className="primitiv-miller-columns__empty">Nothing selected</p>;
+  }
+  return (
+    <div className="ks-miller-showcase__preview">
+      <strong>{node.label}</strong>
+      <span className="ks-miller-showcase__preview-meta">
+        {node.children
+          ? `Folder · ${node.children.length} item${node.children.length === 1 ? "" : "s"}`
+          : node.meta}
+      </span>
+      {node.image ? (
+        <>
+          <img
+            className="ks-miller-showcase__thumb"
+            src={millerImageSource(node.label)}
+            alt=""
+          />
+          {/* The pane is content-agnostic, so an image preview is entirely the
+              consumer's call — here a Modal shows it larger. `key` on the Modal
+              resets its open state when the selection changes, so switching
+              from one image to another does not leave a stale dialog open. */}
+          <Modal key={node.id}>
+            <ModalTrigger asChild>
+              <Button size="sm" variant="secondary">
+                Preview
+              </Button>
+            </ModalTrigger>
+            {/* forceMount keeps the dialog mounted while closed, which is what
+                lets it animate OUT — without it a native <dialog> snaps shut. */}
+            <ModalPortal forceMount>
+              <ModalContent size="lg">
+                <ModalHeader>
+                  <ModalTitle>{node.label}</ModalTitle>
+                  <ModalDescription>{node.meta}</ModalDescription>
+                </ModalHeader>
+                <ModalBody>
+                  <img
+                    className="ks-miller-showcase__full"
+                    src={millerImageSource(node.label)}
+                    alt={`Preview of ${node.label}`}
+                  />
+                </ModalBody>
+                <ModalFooter>
+                  <ModalClose asChild>
+                    <Button size="sm" variant="secondary">
+                      Close
+                    </Button>
+                  </ModalClose>
+                </ModalFooter>
+              </ModalContent>
+            </ModalPortal>
+          </Modal>
+        </>
+      ) : null}
+    </div>
+  );
+}
 
 export function App(): ReactElement {
   // Density and theme are ambient (applied on <html> by the shell's
@@ -3613,6 +3794,37 @@ export function ramp(hue: number, chroma = 0.12) {
             );
           })}
         </TooltipProvider>
+      </Section>
+
+
+      <Section title="Miller Columns" column>
+        <div className="ks-miller-showcase">
+          {/* A Finder-style file browser. Selection is uncontrolled — the strip
+              owns the path — and the preview pane reads it from context via
+              useMillerColumnsSelection, so nothing here wires state by hand.
+              Every column carries a ResizeHandle: drag it, or Tab to it and use
+              the arrow keys (Home/End jump to the min/max). */}
+          <MillerColumns
+            size={size}
+            aria-label="Files"
+            defaultValue={["documents", "work"]}
+            className="ks-miller-showcase__strip"
+          >
+            <MillerColumnsColumn>
+              <MillerColumnsResizeHandle
+                aria-label="Resize column"
+                minWidth={120}
+                maxWidth={360}
+              />
+              {MILLER_TREE.map((node) => (
+                <MillerNode key={node.id} node={node} />
+              ))}
+            </MillerColumnsColumn>
+            <MillerColumnsPreviewPanel>
+              <MillerPreview />
+            </MillerColumnsPreviewPanel>
+          </MillerColumns>
+        </div>
       </Section>
 
       <Section title="Tree" column>

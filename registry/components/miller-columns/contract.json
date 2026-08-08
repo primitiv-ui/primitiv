@@ -1,0 +1,321 @@
+{
+  "$schema": "https://primitiv-ui.dev/schema/contract.json",
+  "name": "miller-columns",
+  "version": "0.1.0",
+  "description": "A horizontal strip of vertical lists where selecting a node reveals its children in the next column \u2014 the macOS Finder column view, with drag/keyboard-resizable columns and an optional preview pane.",
+  "docs": "https://primitiv-ui.dev/docs/components/miller-columns",
+  "root": {
+    "element": "div",
+    "class": "primitiv-miller-columns",
+    "component": "Root"
+  },
+  "dataAttributes": [
+    {
+      "name": "data-orientation",
+      "value": "horizontal",
+      "when": "always",
+      "source": "auto"
+    }
+  ],
+  "modifiers": [
+    {
+      "name": "size",
+      "default": "md",
+      "description": "Row and column size for the whole strip; `data-density` scales each size further.",
+      "options": [
+        {
+          "name": "xs",
+          "class": "primitiv-miller-columns--xs",
+          "description": "Extra small."
+        },
+        {
+          "name": "sm",
+          "class": "primitiv-miller-columns--sm",
+          "description": "Small."
+        },
+        {
+          "name": "md",
+          "class": "primitiv-miller-columns--md",
+          "description": "Medium (the default)."
+        },
+        {
+          "name": "lg",
+          "class": "primitiv-miller-columns--lg",
+          "description": "Large."
+        },
+        {
+          "name": "xl",
+          "class": "primitiv-miller-columns--xl",
+          "description": "Extra large."
+        }
+      ]
+    }
+  ],
+  "subcomponents": [
+    {
+      "name": "tree",
+      "component": "Root",
+      "element": "div",
+      "description": "The inner role=\"tree\" widget the Root renders around its columns. A tree may own only treeitem and group, so the preview panel sits outside it. The headless component owns this element outright, so it is targeted by its data attribute rather than a class a consumer could set.",
+      "dataAttributes": [],
+      "selector": "[data-miller-columns-tree]"
+    },
+    {
+      "name": "column",
+      "component": "Column",
+      "element": "div",
+      "class": "primitiv-miller-columns__column",
+      "dataAttributes": [
+        {
+          "name": "data-depth",
+          "value": "{n}",
+          "when": "always",
+          "source": "auto"
+        },
+        {
+          "name": "data-empty",
+          "value": "",
+          "when": "the column holds no items",
+          "source": "auto"
+        }
+      ]
+    },
+    {
+      "name": "item",
+      "component": "Item",
+      "element": "div",
+      "class": "primitiv-miller-columns__item",
+      "wrapTextChildren": true,
+      "dataAttributes": [
+        {
+          "name": "data-state",
+          "value": "selected",
+          "when": "on the active path",
+          "source": "auto"
+        },
+        {
+          "name": "data-state",
+          "value": "unselected",
+          "when": "not on the active path",
+          "source": "auto"
+        },
+        {
+          "name": "data-terminal",
+          "value": "",
+          "when": "the deepest selected item",
+          "source": "auto"
+        },
+        {
+          "name": "data-depth",
+          "value": "{n}",
+          "when": "always",
+          "source": "auto"
+        },
+        {
+          "name": "data-has-children",
+          "value": "",
+          "when": "the item is a branch",
+          "source": "auto"
+        },
+        {
+          "name": "data-disabled",
+          "value": "",
+          "when": "disabled",
+          "source": "auto"
+        }
+      ]
+    },
+    {
+      "name": "item-label",
+      "component": null,
+      "element": "span",
+      "class": "primitiv-miller-columns__item-label",
+      "description": "Presentational slot wrapping a row's bare text so it becomes the flex item that absorbs free space and truncates."
+    },
+    {
+      "name": "item-indicator",
+      "component": "ItemIndicator",
+      "element": "span",
+      "class": "primitiv-miller-columns__item-indicator",
+      "dataAttributes": [
+        {
+          "name": "data-state",
+          "value": "selected",
+          "when": "the parent item is selected",
+          "source": "auto"
+        },
+        {
+          "name": "data-has-children",
+          "value": "",
+          "when": "always",
+          "source": "auto"
+        }
+      ]
+    },
+    {
+      "name": "resize-handle",
+      "component": "ResizeHandle",
+      "element": "div",
+      "class": "primitiv-miller-columns__resize-handle",
+      "dataAttributes": [
+        {
+          "name": "data-dragging",
+          "value": "",
+          "when": "a pointer drag is in progress",
+          "source": "auto"
+        }
+      ]
+    },
+    {
+      "name": "preview",
+      "component": "PreviewPanel",
+      "element": "div",
+      "class": "primitiv-miller-columns__preview",
+      "dataAttributes": [
+        {
+          "name": "data-empty",
+          "value": "",
+          "when": "nothing is selected",
+          "source": "auto"
+        }
+      ]
+    },
+    {
+      "name": "empty",
+      "component": null,
+      "element": "p",
+      "class": "primitiv-miller-columns__empty",
+      "description": "Muted resting line rendered by Column when it holds no items, and available for a consumer's empty preview pane."
+    }
+  ],
+  "customProperties": [
+    {
+      "name": "--primitiv-miller-columns-item-height",
+      "defaultsTo": "var(--primitiv-miller-columns-md-item-height)"
+    },
+    {
+      "name": "--primitiv-miller-columns-item-padding-inline",
+      "defaultsTo": "var(--primitiv-miller-columns-md-item-padding-inline)"
+    },
+    {
+      "name": "--primitiv-miller-columns-item-gap",
+      "defaultsTo": "var(--primitiv-miller-columns-md-item-gap)"
+    },
+    {
+      "name": "--primitiv-miller-columns-item-icon-size",
+      "defaultsTo": "var(--primitiv-miller-columns-md-item-icon-size)"
+    },
+    {
+      "name": "--primitiv-miller-columns-item-focus-ring-radius",
+      "defaultsTo": "var(--primitiv-miller-columns-md-item-focus-ring-radius)"
+    },
+    {
+      "name": "--primitiv-miller-columns-column-width",
+      "defaultsTo": "var(--primitiv-miller-columns-md-column-width)"
+    },
+    {
+      "name": "--primitiv-miller-columns-column-min-width",
+      "defaultsTo": "var(--primitiv-miller-columns-md-column-min-width)"
+    },
+    {
+      "name": "--primitiv-miller-columns-preview-width",
+      "defaultsTo": "var(--primitiv-miller-columns-md-preview-width)"
+    },
+    {
+      "name": "--primitiv-miller-columns-preview-padding",
+      "defaultsTo": "var(--primitiv-miller-columns-md-preview-padding)"
+    },
+    {
+      "name": "--primitiv-miller-columns-resize-handle-width",
+      "defaultsTo": "var(--primitiv-miller-columns-md-resize-handle-width)"
+    },
+    {
+      "name": "--primitiv-miller-columns-strip-radius",
+      "defaultsTo": "var(--primitiv-miller-columns-md-strip-radius)"
+    },
+    {
+      "name": "--primitiv-miller-columns-font-size",
+      "defaultsTo": "var(--primitiv-body-sm-font-size)"
+    },
+    {
+      "name": "--primitiv-miller-columns-line-height",
+      "defaultsTo": "var(--primitiv-body-sm-line-height)"
+    },
+    {
+      "name": "--primitiv-miller-columns-background",
+      "defaultsTo": "var(--primitiv-surface-default)"
+    },
+    {
+      "name": "--primitiv-miller-columns-border-color",
+      "defaultsTo": "var(--primitiv-border-default)"
+    },
+    {
+      "name": "--primitiv-miller-columns-border-width",
+      "defaultsTo": "var(--primitiv-border-width-1)"
+    },
+    {
+      "name": "--primitiv-miller-columns-seam-color",
+      "defaultsTo": "var(--primitiv-border-subtle)"
+    },
+    {
+      "name": "--primitiv-miller-columns-foreground",
+      "defaultsTo": "var(--primitiv-content-primary)"
+    },
+    {
+      "name": "--primitiv-miller-columns-muted-foreground",
+      "defaultsTo": "var(--primitiv-content-muted)"
+    },
+    {
+      "name": "--primitiv-miller-columns-disabled-foreground",
+      "defaultsTo": "var(--primitiv-content-disabled)"
+    },
+    {
+      "name": "--primitiv-miller-columns-row-hover",
+      "defaultsTo": "var(--primitiv-tree-row-hover)"
+    },
+    {
+      "name": "--primitiv-miller-columns-row-ancestor",
+      "defaultsTo": "var(--primitiv-tree-row-hover)"
+    },
+    {
+      "name": "--primitiv-miller-columns-row-terminal",
+      "defaultsTo": "var(--primitiv-action-ghost-active)"
+    },
+    {
+      "name": "--primitiv-miller-columns-resize-ink-width",
+      "defaultsTo": "var(--primitiv-border-width-0)"
+    },
+    {
+      "name": "--primitiv-miller-columns-resize-ink-width-active",
+      "defaultsTo": "var(--primitiv-border-width-2)"
+    },
+    {
+      "name": "--primitiv-miller-columns-resize-ink-color",
+      "defaultsTo": "var(--primitiv-border-subtle)"
+    },
+    {
+      "name": "--primitiv-miller-columns-resize-ink-color-hover",
+      "defaultsTo": "var(--primitiv-border-strong)"
+    },
+    {
+      "name": "--primitiv-miller-columns-resize-ink-color-dragging",
+      "defaultsTo": "var(--primitiv-focus-ring)"
+    },
+    {
+      "name": "--primitiv-miller-columns-resize-cursor",
+      "defaultsTo": "col-resize"
+    },
+    {
+      "name": "--primitiv-miller-columns-item-inset",
+      "defaultsTo": "0px"
+    },
+    {
+      "name": "--primitiv-miller-columns-transition-duration",
+      "defaultsTo": "var(--primitiv-motion-duration-control)"
+    },
+    {
+      "name": "--primitiv-miller-columns-transition-easing",
+      "defaultsTo": "var(--primitiv-motion-easing-default)"
+    }
+  ]
+}

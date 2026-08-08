@@ -18,7 +18,7 @@ import {
   useMillerColumnsRoot,
 } from "./hooks/index.ts";
 
-import { partitionItemChildren } from "./utils";
+import { partitionAriaProps, partitionItemChildren } from "./utils";
 
 import type {
   MillerColumnsRootProps,
@@ -33,9 +33,20 @@ import type {
  * The root of a Miller Columns widget — a horizontal strip of vertical
  * lists where selecting a node reveals its children in the next column.
  *
- * Renders the strip container (`role="tree"`, `data-orientation="horizontal"`)
- * into which every {@link MillerColumnsColumn | `MillerColumns.Column`}
- * projects itself via a portal. Authoring the tree is **recursive** and
+ * Renders **two** elements: an outer strip container
+ * (`data-miller-columns-strip`, `data-orientation="horizontal"`) that the
+ * consumer lays out and scrolls, and an inner `role="tree"` widget
+ * (`data-miller-columns-tree`) holding only the columns. The split exists
+ * because a tree may own nothing but `treeitem` and `group` — keeping the
+ * {@link MillerColumnsPreviewPanel | `PreviewPanel`} outside it means the
+ * panel is not an illegal child of the tree.
+ *
+ * Consequently **`aria-*` props land on the tree widget** (an `aria-label`
+ * must name the tree, not its scroll container) while every other prop —
+ * `className`, `id`, `style`, `data-*` — lands on the strip container.
+ *
+ * Every {@link MillerColumnsColumn | `MillerColumns.Column`}
+ * projects itself into the tree via a portal. Authoring the tree is **recursive** and
  * data-less: there is no `items` prop — an {@link MillerColumnsItem | `Item`}
  * declares its child column as a *nested* `<MillerColumns.Column>`, and the
  * strip flattens those nested columns into a single left-to-right row by
@@ -58,7 +69,15 @@ import type {
  * before any focus it defaults to the deepest selected item, falling back
  * to the first enabled root item. Within a column, Up/Down/Home/End move
  * focus; ArrowRight opens (and steps into) a branch item's child column,
- * ArrowLeft returns to the parent item.
+ * ArrowLeft returns to the parent item. Under
+ * {@link MillerColumnsRootBaseProps.dir | `dir="rtl"`} that horizontal pair
+ * is mirrored, so the step-in key always points at the child column.
+ *
+ * **Typeahead.** Printable characters move focus to the first item whose
+ * label starts with the accumulated query, wrapping, and cycling through
+ * matches when the same character repeats. The query is owned by `Root` —
+ * so it survives the focus move a match causes — but resolves against the
+ * **focused item's own column**, each column being an independent list.
  *
  * **Context.** Root establishes {@link MillerColumnsContext} (selection
  * path, portal slots, item registry, column widths, and focus commands);
@@ -83,28 +102,32 @@ export function MillerColumnsRoot({
   defaultValue,
   value,
   onValueChange,
+  dir,
   ...rest
 }: MillerColumnsRootProps): ReactElement {
-  const { contextValue, columnCount, registerSlotRef, stripRef } =
-    useMillerColumnsRoot(value, defaultValue, onValueChange);
+  const { contextValue, columnCount, registerSlotRef, stripRef, resolvedDir } =
+    useMillerColumnsRoot(value, defaultValue, onValueChange, dir);
+  const { aria, rest: containerProps } = partitionAriaProps(rest);
 
   return (
     <MillerColumnsContext.Provider value={contextValue}>
       <div
         ref={stripRef}
-        role="tree"
+        dir={resolvedDir}
         data-miller-columns-strip=""
         data-orientation="horizontal"
-        {...rest}
+        {...containerProps}
       >
-        {Array.from({ length: columnCount }, (_, depth) => (
-          <div
-            key={depth}
-            data-miller-columns-slot=""
-            style={{ display: "contents" }}
-            ref={registerSlotRef(depth)}
-          />
-        ))}
+        <div role="tree" data-miller-columns-tree="" {...aria}>
+          {Array.from({ length: columnCount }, (_, depth) => (
+            <div
+              key={depth}
+              data-miller-columns-slot=""
+              style={{ display: "contents" }}
+              ref={registerSlotRef(depth)}
+            />
+          ))}
+        </div>
         {children}
       </div>
     </MillerColumnsContext.Provider>
@@ -121,6 +144,10 @@ MillerColumnsRoot.displayName = "MillerColumnsRoot";
  * `Column` nested inside an `Item` still appears side-by-side with its
  * ancestors rather than in document flow. Until its slot has mounted the
  * component renders `null`.
+ *
+ * A column holding no registered items carries **`data-empty`** — selecting
+ * a childless branch legitimately opens an empty column, and the styling
+ * layer needs to be able to say so rather than show a void.
  *
  * It reads its depth from {@link MillerColumnsContext} and re-provides it to
  * descendant {@link MillerColumnsItem | Items} via
@@ -143,7 +170,8 @@ export function MillerColumnsColumn({
   style,
   ...rest
 }: MillerColumnsColumnProps): ReactPortal | null {
-  const { slot, depth, width, columnContextValue } = useMillerColumnsColumn();
+  const { slot, depth, width, empty, columnContextValue } =
+    useMillerColumnsColumn();
 
   if (!slot) {
     return null;
@@ -155,6 +183,7 @@ export function MillerColumnsColumn({
         role="group"
         data-miller-columns-column=""
         data-depth={depth}
+        {...(empty ? { "data-empty": "" } : {})}
         style={{ ...style, ...(width !== undefined ? { width } : {}) }}
         {...rest}
       >
@@ -173,6 +202,13 @@ MillerColumnsColumn.displayName = "MillerColumnsColumn";
  * Renders a `<div role="treeitem">` for its cell content, with
  * `aria-selected`, `aria-level` (1-based depth), and `data-state` /
  * `data-depth` styling hooks.
+ *
+ * **Terminal vs ancestor.** Every item on the active path is
+ * `data-state="selected"`, including the ancestors the path merely passes
+ * through. The deepest one — the item the user actually landed on — also
+ * carries **`data-terminal`**. Style the two differently or the strip loses
+ * its depth cue: with a uniform selected state there is no way to tell
+ * which of four highlighted rows was clicked.
  *
  * The {@link MillerColumnsItemProps.value | `value`} prop is the stable
  * identifier used to match this item against the active selection path.
@@ -299,9 +335,27 @@ export function MillerColumnsItemIndicator({
 MillerColumnsItemIndicator.displayName = "MillerColumnsItemIndicator";
 
 /**
- * A drag-to-resize affordance for the column it is rendered in. Renders a
- * `<div role="separator" aria-orientation="vertical">` that, while
- * pointer-dragged, drives that column's width as state on the `Root`.
+ * A resize affordance for the column it is rendered in — the WAI-ARIA
+ * window-splitter pattern. Renders a focusable
+ * `<div role="separator" aria-orientation="vertical" tabIndex={0}>` that
+ * drives its column's width as state on the `Root`.
+ *
+ * **Pointer and keyboard.** Drag it, or focus it and use the arrow keys:
+ * the inline-end arrow widens by
+ * {@link MillerColumnsResizeHandleProps.step | `step`} and the inline-start
+ * arrow narrows (mirrored under `dir="rtl"`), with Home and End jumping to
+ * {@link MillerColumnsResizeHandleProps.minWidth | `minWidth`} /
+ * {@link MillerColumnsResizeHandleProps.maxWidth | `maxWidth`}. Both paths
+ * clamp to the same bounds. End is a no-op while `maxWidth` is unbounded.
+ *
+ * **Value semantics.** `aria-valuenow` tracks the column's real rendered
+ * width — measured with a `ResizeObserver`, so it is truthful before the
+ * first resize and follows CSS- or container-driven changes too.
+ * `aria-valuemin` always renders; `aria-valuemax` renders only when
+ * `maxWidth` is finite.
+ *
+ * **Give it an accessible name.** A splitter announces as an unnamed
+ * separator otherwise — pass `aria-label` (e.g. `"Resize column"`).
  *
  * Must be rendered among a {@link MillerColumnsColumn | `MillerColumns.Column`}'s
  * children — it reads the column's depth from
@@ -313,7 +367,11 @@ MillerColumnsItemIndicator.displayName = "MillerColumnsItemIndicator";
  * @example
  * ```tsx
  * <MillerColumns.Column>
- *   <MillerColumns.ResizeHandle />
+ *   <MillerColumns.ResizeHandle
+ *     aria-label="Resize column"
+ *     minWidth={120}
+ *     maxWidth={400}
+ *   />
  *   <MillerColumns.Item value="a">A</MillerColumns.Item>
  * </MillerColumns.Column>
  * ```
@@ -334,9 +392,14 @@ MillerColumnsResizeHandle.displayName = "MillerColumnsResizeHandle";
  * macOS-Finder-style preview pane.
  *
  * Renders a plain `<div data-miller-columns-preview>` as the last child
- * of the strip, sitting to the right of the columns. The component is
- * deliberately content-agnostic: it does not know how to preview an
- * item, so the consumer supplies whatever the panel should show.
+ * of the strip — *outside* the inner `role="tree"` widget, since a tree may
+ * own only `treeitem` and `group`. The component is deliberately
+ * content-agnostic: it does not know how to preview an item, so the
+ * consumer supplies whatever the panel should show.
+ *
+ * While nothing is selected the panel carries **`data-empty`**, so the
+ * styling layer can render a resting state without the consumer having to
+ * re-derive the selection.
  *
  * Pair it with {@link useMillerColumnsSelection} to render content for
  * the current selection. Author it as the **last child** of `Root`, a
@@ -365,10 +428,14 @@ export function MillerColumnsPreviewPanel({
   children,
   ...rest
 }: MillerColumnsPreviewPanelProps): ReactElement {
-  useMillerColumnsContext();
+  const { activePath } = useMillerColumnsContext();
 
   return (
-    <div data-miller-columns-preview="" {...rest}>
+    <div
+      data-miller-columns-preview=""
+      {...(activePath.length === 0 ? { "data-empty": "" } : {})}
+      {...rest}
+    >
       {children}
     </div>
   );

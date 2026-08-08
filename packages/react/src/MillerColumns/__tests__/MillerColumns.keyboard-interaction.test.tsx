@@ -1,6 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
+import { DirectionProvider } from "../../DirectionProvider/index.ts";
 import { MillerColumns } from "../MillerColumns";
 import { verticalArrowCases } from "./MillerColumns.fixtures";
 
@@ -16,9 +17,9 @@ function FlatList() {
   );
 }
 
-function Tree() {
+function Tree({ dir }: { dir?: "ltr" | "rtl" } = {}) {
   return (
-    <MillerColumns.Root>
+    <MillerColumns.Root dir={dir}>
       <MillerColumns.Column>
         <MillerColumns.Item value="fruit">
           Fruit
@@ -176,6 +177,38 @@ describe("MillerColumns — keyboard interaction", () => {
       await user.keyboard("{ArrowLeft}");
 
       expect(veg).toHaveFocus();
+    });
+  });
+
+  describe("reading direction", () => {
+    it("swaps the horizontal arrow pair under rtl", async () => {
+      const user = userEvent.setup();
+
+      render(<Tree dir="rtl" />);
+      screen.getByRole("treeitem", { name: "Fruit" }).focus();
+
+      // The child column sits to the LEFT in rtl, so ArrowLeft steps in.
+      await user.keyboard("{ArrowLeft}");
+      expect(screen.getByRole("treeitem", { name: "Apple" })).toHaveFocus();
+
+      // ...and ArrowRight walks back out to the parent.
+      await user.keyboard("{ArrowRight}");
+      expect(screen.getByRole("treeitem", { name: "Fruit" })).toHaveFocus();
+    });
+
+    it("inherits the direction from a DirectionProvider", async () => {
+      const user = userEvent.setup();
+
+      render(
+        <DirectionProvider dir="rtl">
+          <Tree />
+        </DirectionProvider>,
+      );
+      screen.getByRole("treeitem", { name: "Fruit" }).focus();
+
+      await user.keyboard("{ArrowLeft}");
+
+      expect(screen.getByRole("treeitem", { name: "Apple" })).toHaveFocus();
     });
   });
 });

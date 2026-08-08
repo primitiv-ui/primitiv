@@ -1,0 +1,440 @@
+/*
+ * MillerColumns — Primitiv default theme (canonical CSS).
+ *
+ * Copied into the consumer repo by `primitiv add miller-columns`. It is yours to
+ * edit: the stable surface is the contract (the .primitiv-miller-columns strip +
+ * __tree / __column / __item / __item-label / __item-indicator / __resize-handle
+ * / __preview parts, the --xs…--xl size modifiers, the data-state / data-terminal
+ * / data-empty / data-depth / data-has-children / data-disabled / data-dragging
+ * hooks, and the --primitiv-miller-columns-* custom properties), not these values
+ * (RFC 0006 Principle 2 — names are stable, values are not).
+ *
+ * Anatomy mirrors the Figma design (page "Miller Columns": Miller Columns / Item,
+ * / Resize Handle, / Column, / Preview Panel, and the composed Miller Columns
+ * specimen): one horizontal strip of vertical lists, each column separated from
+ * the next by a single hairline, with an optional trailing preview pane.
+ *
+ * TWO ELEMENTS AT THE ROOT. The headless Root renders the strip container and,
+ * inside it, the role="tree" widget holding only the columns. A tree may own
+ * nothing but treeitem and group, so the preview panel is a sibling of the tree
+ * rather than a child of it. The strip is the horizontal scroll container; the
+ * tree is a plain flex row that grows to fill it.
+ *
+ * SEAMS. Every column draws a single trailing hairline. Only the FINAL element
+ * in the strip suppresses one, where it would double up against the strip's own
+ * border — so with a preview panel present all the columns keep theirs and the
+ * last column's seam is what divides it from the pane. The panel never draws a
+ * leading border: one hairline per seam, always owned by the column to its left.
+ * Columns butt up with no gap, because the resize grip IS that shared hairline
+ * and a gap would give it no line to sit on.
+ *
+ * ROWS ARE FULL-BLEED AND SQUARE. A band spans the column edge to edge; a radius
+ * would leave the column's field showing at each corner and read as floating
+ * rather than as this row of this list. There is deliberately no item radius
+ * token — the only rounded thing here is the focus ring.
+ *
+ * SELECTION DEPTH. Every item on the active path is data-state="selected",
+ * including the ancestors the path merely passes through; the deepest one — the
+ * row actually clicked — also carries data-terminal. They are tinted DIFFERENTLY
+ * on purpose: with a uniform selected state there is no way to tell which of
+ * several highlighted rows was chosen. Ancestors sit at the hover value and the
+ * terminal row a step above it, which is why hovering a path row is inert — the
+ * tint is carrying selection, not pointer state.
+ *
+ * THE FOCUS RING IS INSET, where Button and Tree draw theirs outset. A column is
+ * overflow-y:auto, and per CSS Overflow 3 an axis set to `visible` computes to
+ * `auto` when the other is not — so a column can never be overflow-x:visible and
+ * an outset ring is always clipped at its edges. It is drawn as a ::before inset
+ * by the ring offset, with its own border-radius; an inset box-shadow would take
+ * the band's square corners instead of rounding.
+ *
+ * Structure follows RFC 0008: per-component API tokens + the resting look live
+ * in primitiv.base, the size modifiers in primitiv.variants, and the hover /
+ * selected / disabled / focus / drag styling in primitiv.states. The sublayer
+ * order is declared once in the shared token layer (primitiv.tokens.css); this
+ * file only re-opens the named sublayers.
+ *
+ * Requires the token layer (`primitiv tokens`) for the
+ * --primitiv-miller-columns-*, --primitiv-content-*, --primitiv-border-*,
+ * --primitiv-tree-row-*, --primitiv-action-*, --primitiv-body-*,
+ * --primitiv-focus-*, --primitiv-surface-* and --primitiv-motion-* custom
+ * properties it resolves.
+ */
+
+/* Declare the sublayer order up front so this sheet is safe to load ahead of the
+ * token layer (RFC 0008 §7). */
+@layer primitiv.reset, primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;
+
+@layer primitiv.base {
+  .primitiv-miller-columns {
+    /* Per-component API — the themable knobs, defaulting to the md size. The
+       size modifiers re-point the sizing knobs; consumers can override any one
+       without touching the rule. */
+    --primitiv-miller-columns-item-height: var(--primitiv-miller-columns-md-item-height);
+    --primitiv-miller-columns-item-padding-inline: var(--primitiv-miller-columns-md-item-padding-inline);
+    --primitiv-miller-columns-item-gap: var(--primitiv-miller-columns-md-item-gap);
+    --primitiv-miller-columns-item-icon-size: var(--primitiv-miller-columns-md-item-icon-size);
+    --primitiv-miller-columns-item-focus-ring-radius: var(--primitiv-miller-columns-md-item-focus-ring-radius);
+    --primitiv-miller-columns-column-width: var(--primitiv-miller-columns-md-column-width);
+    --primitiv-miller-columns-column-min-width: var(--primitiv-miller-columns-md-column-min-width);
+    --primitiv-miller-columns-preview-width: var(--primitiv-miller-columns-md-preview-width);
+    --primitiv-miller-columns-preview-padding: var(--primitiv-miller-columns-md-preview-padding);
+    --primitiv-miller-columns-resize-handle-width: var(--primitiv-miller-columns-md-resize-handle-width);
+    --primitiv-miller-columns-strip-radius: var(--primitiv-miller-columns-md-strip-radius);
+
+    /* Row type is one tier BELOW the row's own size on the xs<sm<md<lg<xl
+       ladder (md rows read at body/sm) — the same ladder Tree uses, because a
+       list row reads visually smaller than a framed control of the same name. */
+    --primitiv-miller-columns-font-size: var(--primitiv-body-sm-font-size);
+    --primitiv-miller-columns-line-height: var(--primitiv-body-sm-line-height);
+
+    --primitiv-miller-columns-background: var(--primitiv-surface-default);
+    --primitiv-miller-columns-border-color: var(--primitiv-border-default);
+    --primitiv-miller-columns-border-width: var(--primitiv-border-width-1);
+    --primitiv-miller-columns-seam-color: var(--primitiv-border-subtle);
+    --primitiv-miller-columns-foreground: var(--primitiv-content-primary);
+    --primitiv-miller-columns-muted-foreground: var(--primitiv-content-muted);
+    --primitiv-miller-columns-disabled-foreground: var(--primitiv-content-disabled);
+
+    /* Row state layer. Ancestor deliberately equals hover: a path row's tint is
+       selection state, so it must not move under the pointer. Terminal is a step
+       above both, which is the whole depth cue. Aliased to the shared Intent
+       tints rather than re-declared, so Tree and MillerColumns agree. */
+    --primitiv-miller-columns-row-hover: var(--primitiv-tree-row-hover);
+    --primitiv-miller-columns-row-ancestor: var(--primitiv-tree-row-hover);
+    --primitiv-miller-columns-row-terminal: var(--primitiv-action-ghost-active);
+
+    /* Resize seam. At rest the grip paints nothing at all — the hairline you
+       see is the column's own border, so there is no idle chrome and nothing
+       doubles up. On approach the ink grows out of that border and darkens; on
+       leave it shrinks back in. Width AND colour are both transitioned, so the
+       seam eases in each direction rather than snapping. */
+    --primitiv-miller-columns-resize-ink-width: var(--primitiv-border-width-0);
+    --primitiv-miller-columns-resize-ink-width-active: var(--primitiv-border-width-2);
+    --primitiv-miller-columns-resize-ink-color: var(--primitiv-border-subtle);
+    --primitiv-miller-columns-resize-ink-color-hover: var(--primitiv-border-strong);
+    --primitiv-miller-columns-resize-ink-color-dragging: var(--primitiv-focus-ring);
+    --primitiv-miller-columns-resize-cursor: col-resize;
+
+    /* Reserved leading inset for a row's content — an escape hatch for lists
+       that align labels past an icon gutter. Zero by default. */
+    --primitiv-miller-columns-item-inset: 0px;
+
+    --primitiv-miller-columns-transition-duration: var(--primitiv-motion-duration-control);
+    --primitiv-miller-columns-transition-easing: var(--primitiv-motion-easing-default);
+
+    display: flex;
+    overflow-x: auto;
+    overflow-y: hidden;
+    background: var(--primitiv-miller-columns-background);
+    border: var(--primitiv-miller-columns-border-width) solid
+      var(--primitiv-miller-columns-border-color);
+    border-radius: var(--primitiv-miller-columns-strip-radius);
+    color: var(--primitiv-miller-columns-foreground);
+    font-size: var(--primitiv-miller-columns-font-size);
+    line-height: var(--primitiv-miller-columns-line-height);
+  }
+
+  /* The role="tree" widget — a plain flex row of columns. It grows so the
+     preview pane, its sibling, is pushed to the trailing edge. */
+  [data-miller-columns-tree] {
+    display: flex;
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .primitiv-miller-columns__column {
+    position: relative;
+    flex: 0 0 auto;
+    width: var(--primitiv-miller-columns-column-width);
+    min-width: var(--primitiv-miller-columns-column-min-width);
+    overflow-y: auto;
+    /* One hairline per seam, owned by the column to the seam's left. */
+    border-inline-end: var(--primitiv-miller-columns-border-width) solid
+      var(--primitiv-miller-columns-seam-color);
+    transition: border-inline-end-color
+      var(--primitiv-miller-columns-transition-duration)
+      var(--primitiv-miller-columns-transition-easing);
+  }
+
+  /* Only the FINAL element in the strip drops its seam, where it would double
+     up against the strip's own border. With a preview pane present the pane is
+     final, so every column keeps its seam and the last one divides the two. */
+  .primitiv-miller-columns:not(:has(.primitiv-miller-columns__preview))
+    [data-miller-columns-tree]
+    > :last-child
+    .primitiv-miller-columns__column {
+    border-inline-end-color: transparent;
+  }
+
+  .primitiv-miller-columns__item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: var(--primitiv-miller-columns-item-gap);
+    block-size: var(--primitiv-miller-columns-item-height);
+    padding-inline: var(--primitiv-miller-columns-item-padding-inline);
+    padding-inline-start: calc(
+      var(--primitiv-miller-columns-item-padding-inline) +
+        var(--primitiv-miller-columns-item-inset)
+    );
+    cursor: pointer;
+    user-select: none;
+  }
+
+  /* The label absorbs the row's free space so a long name truncates rather than
+     pushing the chevron out of the column. */
+  .primitiv-miller-columns__item-label {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* Trailing chevron, branch rows only. It NEVER rotates — it means "children
+     open to the right", a direction rather than an open/closed state, which the
+     appearing column already shows. A leaf reserves no slot, so labels in a
+     mixed column stay aligned with no spacer. */
+  .primitiv-miller-columns__item-indicator {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    inline-size: var(--primitiv-miller-columns-item-icon-size);
+    block-size: var(--primitiv-miller-columns-item-icon-size);
+    color: var(--primitiv-miller-columns-muted-foreground);
+  }
+
+  .primitiv-miller-columns__item-indicator > svg {
+    inline-size: 100%;
+    block-size: 100%;
+  }
+
+  /* The grip straddles the seam: a comfortable pointer target whose ink stays a
+     hairline. The 6px box is never painted. */
+  /* The grip sits INSIDE the column's trailing edge, not straddling it: a
+     column is overflow-y:auto, so anything hanging past its padding box is
+     clipped. The 6px target therefore reaches inward from the seam and is
+     never painted. */
+  .primitiv-miller-columns__resize-handle {
+    position: absolute;
+    inset-block: 0;
+    inset-inline-end: 0;
+    inline-size: var(--primitiv-miller-columns-resize-handle-width);
+    z-index: 1;
+    cursor: var(--primitiv-miller-columns-resize-cursor);
+    touch-action: none;
+  }
+
+  /* The ink has NO width at rest — the resting hairline is the column's own
+     border, so there is nothing to double up on. On approach it grows out of
+     that border and darkens; on leave it shrinks back into it. Both the width
+     and the colour transition, so the seam eases in each direction rather than
+     snapping. */
+  .primitiv-miller-columns__resize-handle::after {
+    content: "";
+    position: absolute;
+    inset-block: 0;
+    inset-inline-end: 0;
+    inline-size: var(--primitiv-miller-columns-resize-ink-width);
+    background: var(--primitiv-miller-columns-resize-ink-color);
+    transition:
+      inline-size var(--primitiv-miller-columns-transition-duration)
+        var(--primitiv-miller-columns-transition-easing),
+      background-color var(--primitiv-miller-columns-transition-duration)
+        var(--primitiv-miller-columns-transition-easing);
+  }
+
+  .primitiv-miller-columns__preview {
+    flex: 0 0 auto;
+    inline-size: var(--primitiv-miller-columns-preview-width);
+    padding: var(--primitiv-miller-columns-preview-padding);
+    overflow-y: auto;
+    /* The same field as the columns — tinting it makes the pane read as chrome
+       wrapped around the list rather than as its last pane, and fights consumer
+       content carrying its own surface. */
+    background: var(--primitiv-miller-columns-background);
+  }
+
+  /* Resting states. Both are ordinary — an empty column happens whenever a
+     childless branch is opened, and an empty pane is simply "nothing chosen
+     yet" — so each is one muted line, not an EmptyState block. */
+  .primitiv-miller-columns__empty {
+    display: none;
+    margin: 0;
+    padding: var(--primitiv-miller-columns-item-padding-inline);
+    color: var(--primitiv-miller-columns-muted-foreground);
+  }
+
+  /* Whether a column is empty is the headless component's answer, derived from
+     its registered items — the wrapper always renders the line and this reveals
+     it, rather than the wrapper guessing from its children. */
+  .primitiv-miller-columns__column[data-empty] .primitiv-miller-columns__empty {
+    display: block;
+  }
+}
+
+@layer primitiv.variants {
+  .primitiv-miller-columns--xs {
+    --primitiv-miller-columns-item-height: var(--primitiv-miller-columns-xs-item-height);
+    --primitiv-miller-columns-item-padding-inline: var(--primitiv-miller-columns-xs-item-padding-inline);
+    --primitiv-miller-columns-item-gap: var(--primitiv-miller-columns-xs-item-gap);
+    --primitiv-miller-columns-item-icon-size: var(--primitiv-miller-columns-xs-item-icon-size);
+    --primitiv-miller-columns-item-focus-ring-radius: var(--primitiv-miller-columns-xs-item-focus-ring-radius);
+    --primitiv-miller-columns-column-width: var(--primitiv-miller-columns-xs-column-width);
+    --primitiv-miller-columns-column-min-width: var(--primitiv-miller-columns-xs-column-min-width);
+    --primitiv-miller-columns-preview-width: var(--primitiv-miller-columns-xs-preview-width);
+    --primitiv-miller-columns-preview-padding: var(--primitiv-miller-columns-xs-preview-padding);
+    --primitiv-miller-columns-resize-handle-width: var(--primitiv-miller-columns-xs-resize-handle-width);
+    --primitiv-miller-columns-strip-radius: var(--primitiv-miller-columns-xs-strip-radius);
+    --primitiv-miller-columns-font-size: var(--primitiv-body-xs-font-size);
+    --primitiv-miller-columns-line-height: var(--primitiv-body-xs-line-height);
+  }
+
+  .primitiv-miller-columns--sm {
+    --primitiv-miller-columns-item-height: var(--primitiv-miller-columns-sm-item-height);
+    --primitiv-miller-columns-item-padding-inline: var(--primitiv-miller-columns-sm-item-padding-inline);
+    --primitiv-miller-columns-item-gap: var(--primitiv-miller-columns-sm-item-gap);
+    --primitiv-miller-columns-item-icon-size: var(--primitiv-miller-columns-sm-item-icon-size);
+    --primitiv-miller-columns-item-focus-ring-radius: var(--primitiv-miller-columns-sm-item-focus-ring-radius);
+    --primitiv-miller-columns-column-width: var(--primitiv-miller-columns-sm-column-width);
+    --primitiv-miller-columns-column-min-width: var(--primitiv-miller-columns-sm-column-min-width);
+    --primitiv-miller-columns-preview-width: var(--primitiv-miller-columns-sm-preview-width);
+    --primitiv-miller-columns-preview-padding: var(--primitiv-miller-columns-sm-preview-padding);
+    --primitiv-miller-columns-resize-handle-width: var(--primitiv-miller-columns-sm-resize-handle-width);
+    --primitiv-miller-columns-strip-radius: var(--primitiv-miller-columns-sm-strip-radius);
+    --primitiv-miller-columns-font-size: var(--primitiv-body-xs-font-size);
+    --primitiv-miller-columns-line-height: var(--primitiv-body-xs-line-height);
+  }
+
+  .primitiv-miller-columns--md {
+    --primitiv-miller-columns-item-height: var(--primitiv-miller-columns-md-item-height);
+    --primitiv-miller-columns-item-padding-inline: var(--primitiv-miller-columns-md-item-padding-inline);
+    --primitiv-miller-columns-item-gap: var(--primitiv-miller-columns-md-item-gap);
+    --primitiv-miller-columns-item-icon-size: var(--primitiv-miller-columns-md-item-icon-size);
+    --primitiv-miller-columns-item-focus-ring-radius: var(--primitiv-miller-columns-md-item-focus-ring-radius);
+    --primitiv-miller-columns-column-width: var(--primitiv-miller-columns-md-column-width);
+    --primitiv-miller-columns-column-min-width: var(--primitiv-miller-columns-md-column-min-width);
+    --primitiv-miller-columns-preview-width: var(--primitiv-miller-columns-md-preview-width);
+    --primitiv-miller-columns-preview-padding: var(--primitiv-miller-columns-md-preview-padding);
+    --primitiv-miller-columns-resize-handle-width: var(--primitiv-miller-columns-md-resize-handle-width);
+    --primitiv-miller-columns-strip-radius: var(--primitiv-miller-columns-md-strip-radius);
+    --primitiv-miller-columns-font-size: var(--primitiv-body-sm-font-size);
+    --primitiv-miller-columns-line-height: var(--primitiv-body-sm-line-height);
+  }
+
+  .primitiv-miller-columns--lg {
+    --primitiv-miller-columns-item-height: var(--primitiv-miller-columns-lg-item-height);
+    --primitiv-miller-columns-item-padding-inline: var(--primitiv-miller-columns-lg-item-padding-inline);
+    --primitiv-miller-columns-item-gap: var(--primitiv-miller-columns-lg-item-gap);
+    --primitiv-miller-columns-item-icon-size: var(--primitiv-miller-columns-lg-item-icon-size);
+    --primitiv-miller-columns-item-focus-ring-radius: var(--primitiv-miller-columns-lg-item-focus-ring-radius);
+    --primitiv-miller-columns-column-width: var(--primitiv-miller-columns-lg-column-width);
+    --primitiv-miller-columns-column-min-width: var(--primitiv-miller-columns-lg-column-min-width);
+    --primitiv-miller-columns-preview-width: var(--primitiv-miller-columns-lg-preview-width);
+    --primitiv-miller-columns-preview-padding: var(--primitiv-miller-columns-lg-preview-padding);
+    --primitiv-miller-columns-resize-handle-width: var(--primitiv-miller-columns-lg-resize-handle-width);
+    --primitiv-miller-columns-strip-radius: var(--primitiv-miller-columns-lg-strip-radius);
+    --primitiv-miller-columns-font-size: var(--primitiv-body-md-font-size);
+    --primitiv-miller-columns-line-height: var(--primitiv-body-md-line-height);
+  }
+
+  .primitiv-miller-columns--xl {
+    --primitiv-miller-columns-item-height: var(--primitiv-miller-columns-xl-item-height);
+    --primitiv-miller-columns-item-padding-inline: var(--primitiv-miller-columns-xl-item-padding-inline);
+    --primitiv-miller-columns-item-gap: var(--primitiv-miller-columns-xl-item-gap);
+    --primitiv-miller-columns-item-icon-size: var(--primitiv-miller-columns-xl-item-icon-size);
+    --primitiv-miller-columns-item-focus-ring-radius: var(--primitiv-miller-columns-xl-item-focus-ring-radius);
+    --primitiv-miller-columns-column-width: var(--primitiv-miller-columns-xl-column-width);
+    --primitiv-miller-columns-column-min-width: var(--primitiv-miller-columns-xl-column-min-width);
+    --primitiv-miller-columns-preview-width: var(--primitiv-miller-columns-xl-preview-width);
+    --primitiv-miller-columns-preview-padding: var(--primitiv-miller-columns-xl-preview-padding);
+    --primitiv-miller-columns-resize-handle-width: var(--primitiv-miller-columns-xl-resize-handle-width);
+    --primitiv-miller-columns-strip-radius: var(--primitiv-miller-columns-xl-strip-radius);
+    --primitiv-miller-columns-font-size: var(--primitiv-body-lg-font-size);
+    --primitiv-miller-columns-line-height: var(--primitiv-body-lg-line-height);
+  }
+}
+
+@layer primitiv.states {
+  /* Hover only bites on rows that are NOT on the path — an ancestor already sits
+     at this exact value and the terminal row above it, so neither moves under
+     the pointer. That is deliberate: their tint is selection state. */
+  @media (hover: hover) {
+    .primitiv-miller-columns__item:hover:not([data-disabled]) {
+      background: var(--primitiv-miller-columns-row-hover);
+    }
+  }
+
+  .primitiv-miller-columns__item[data-state="selected"] {
+    background: var(--primitiv-miller-columns-row-ancestor);
+  }
+
+  /* The row actually clicked, as opposed to the ancestors the path passes
+     through. Without this the strip has no depth cue at all. */
+  .primitiv-miller-columns__item[data-terminal] {
+    background: var(--primitiv-miller-columns-row-terminal);
+  }
+
+  .primitiv-miller-columns__item[data-disabled] {
+    color: var(--primitiv-miller-columns-disabled-foreground);
+    cursor: not-allowed;
+  }
+
+  .primitiv-miller-columns__item[data-disabled] .primitiv-miller-columns__item-indicator {
+    color: var(--primitiv-miller-columns-disabled-foreground);
+  }
+
+  /* Inset ring — see the header. A ::before rather than an inset box-shadow,
+     because the shadow would follow the band's square corners and the ring is
+     the one rounded element here. */
+  .primitiv-miller-columns__item:focus-visible {
+    outline: none;
+  }
+
+  .primitiv-miller-columns__item:focus-visible::before {
+    content: "";
+    position: absolute;
+    inset: var(--primitiv-focus-ring-offset);
+    border: var(--primitiv-focus-ring-width) solid var(--primitiv-focus-ring);
+    border-radius: var(--primitiv-miller-columns-item-focus-ring-radius);
+    pointer-events: none;
+  }
+
+  /* While the grip is live the column's own border steps aside, so the seam is
+     the grip's ink alone rather than a hairline with a thicker bar beside it. */
+  .primitiv-miller-columns__column:has(.primitiv-miller-columns__resize-handle:hover),
+  .primitiv-miller-columns__column:has(.primitiv-miller-columns__resize-handle:focus-visible),
+  .primitiv-miller-columns__column:has(.primitiv-miller-columns__resize-handle[data-dragging]) {
+    border-inline-end-color: transparent;
+  }
+
+  /* The seam thickens and darkens on approach and eases back on leave — both the
+     width and the colour are transitioned in primitiv.base, so this rule only
+     states the destination. */
+  @media (hover: hover) {
+    .primitiv-miller-columns__resize-handle:hover::after {
+      inline-size: var(--primitiv-miller-columns-resize-ink-width-active);
+      background: var(--primitiv-miller-columns-resize-ink-color-hover);
+    }
+  }
+
+  .primitiv-miller-columns__resize-handle:focus-visible {
+    outline: none;
+  }
+
+  .primitiv-miller-columns__resize-handle:focus-visible::after,
+  .primitiv-miller-columns__resize-handle[data-dragging]::after {
+    inline-size: var(--primitiv-miller-columns-resize-ink-width-active);
+    background: var(--primitiv-miller-columns-resize-ink-color-dragging);
+  }
+
+  /* Honour reduced-motion: the seam snaps rather than eases. */
+  @media (prefers-reduced-motion: reduce) {
+    .primitiv-miller-columns__column,
+    .primitiv-miller-columns__resize-handle::after {
+      transition: none;
+    }
+  }
+}

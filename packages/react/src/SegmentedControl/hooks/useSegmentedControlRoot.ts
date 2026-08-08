@@ -72,6 +72,7 @@ export function useSegmentedControlRoot({
       // Stryker disable next-line OptionalChaining: unreachable given that invariant.
       itemsRef.current.get(itemValue)?.element.focus();
     },
+    // Stryker disable next-line ArrayDeclaration: equivalent — itemsRef is a stable RefObject.
     [itemsRef],
   );
 

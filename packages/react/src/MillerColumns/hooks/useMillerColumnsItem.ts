@@ -2,7 +2,7 @@ import {
   FocusEvent,
   KeyboardEvent,
   MouseEvent,
-  useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
 } from "react";
@@ -31,6 +31,7 @@ export function useMillerColumnsItem(
   hasChildren: boolean,
 ) {
   const {
+    dir,
     activePath,
     select,
     registerItem,
@@ -40,15 +41,23 @@ export function useMillerColumnsItem(
     requestColumnFocus,
     activeItem,
     setActiveItem,
+    handleTypeahead,
   } = useMillerColumnsContext();
   const { depth } = useMillerColumnsColumnContext();
 
   const selected = activePath[depth] === value;
+  // The deepest selected item — the one the user actually landed on, as
+  // opposed to the ancestors its path passes through. Nothing else in the
+  // DOM distinguishes the two, and styling them alike loses the depth cue.
+  const terminal = selected && depth === activePath.length - 1;
 
   const itemRef = useRef<HTMLDivElement>(null);
   const composedRef = ref ? composeRefs(itemRef, ref) : itemRef;
 
-  useEffect(() => {
+  // Registration is a *layout* effect so the resulting state update lands
+  // before paint. As a passive effect, a populated column would paint one
+  // frame with `data-empty` before its items registered.
+  useLayoutEffect(() => {
     registerItem(depth, value, itemRef.current, disabled);
     return () => registerItem(depth, value, null, disabled);
   }, [depth, value, disabled, registerItem]);
@@ -100,10 +109,15 @@ export function useMillerColumnsItem(
     : depth === 0 &&
       getColumnItems(0).find((item) => !item.disabled)?.value === value;
 
+  // Columns run left-to-right under ltr and right-to-left under rtl, so
+  // the key that steps *into* a child column mirrors with the direction.
+  const stepInKey = dir === "rtl" ? "ArrowLeft" : "ArrowRight";
+  const stepOutKey = dir === "rtl" ? "ArrowRight" : "ArrowLeft";
+
   function handleKeyDown(event: KeyboardEvent<HTMLDivElement>) {
     onKeyDown?.(event);
 
-    if (event.key === "ArrowRight") {
+    if (event.key === stepInKey) {
       if (!hasChildren || disabled) {
         return;
       }
@@ -117,7 +131,7 @@ export function useMillerColumnsItem(
       return;
     }
 
-    if (event.key === "ArrowLeft") {
+    if (event.key === stepOutKey) {
       if (depth === 0) {
         return;
       }
@@ -129,6 +143,13 @@ export function useMillerColumnsItem(
     }
 
     rovingKeyDown(event);
+
+    // The keymap gets first refusal — it calls preventDefault on every key
+    // it consumes, so only a still-unhandled printable character reaches
+    // typeahead (Space activates, and never falls through).
+    if (!event.defaultPrevented) {
+      handleTypeahead(event);
+    }
   }
 
   const itemProps = {
@@ -139,6 +160,7 @@ export function useMillerColumnsItem(
     "aria-level": depth + 1,
     ...(hasChildren ? { "aria-expanded": selected } : {}),
     "data-state": selected ? "selected" : "unselected",
+    ...(terminal ? { "data-terminal": "" } : {}),
     "data-depth": depth,
     ...(hasChildren ? { "data-has-children": "" } : {}),
     ...(disabled ? { "aria-disabled": true, "data-disabled": "" } : {}),

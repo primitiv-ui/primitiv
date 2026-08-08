@@ -1,13 +1,24 @@
-import { ComponentProps, ReactNode, Ref } from "react";
+import { ComponentProps, KeyboardEvent, ReactNode, Ref } from "react";
+
+import type { Direction } from "../DirectionProvider/types";
 
 /**
  * Shared base for both {@link MillerColumnsRootProps} variants — the native
- * `<div>` attributes (minus `ref`, which the strip owns internally).
+ * `<div>` attributes (minus `ref`, which the strip owns internally, and
+ * `dir`, narrowed below to the {@link Direction} union).
  */
 export type MillerColumnsRootBaseProps = Omit<
   ComponentProps<"div">,
-  "ref" | "defaultValue"
+  "ref" | "defaultValue" | "dir"
 > & {
+  /**
+   * Reading direction. Under `"rtl"` the horizontal arrow pair is
+   * mirrored — ArrowLeft steps *into* a branch's child column and
+   * ArrowRight walks back out — so navigation follows the visual order.
+   * Inherited from a `DirectionProvider` ancestor when omitted.
+   * @default "ltr"
+   */
+  dir?: Direction;
   /**
    * The strip's tree, authored recursively: root
    * {@link MillerColumnsColumnProps | Column(s)} whose branch
@@ -65,8 +76,10 @@ export type MillerColumnsRootProps =
  */
 export type MillerColumnsColumnProps = ComponentProps<"div"> & {
   /** The column's {@link MillerColumnsItemProps | Items} and, optionally, a
-   * {@link MillerColumnsResizeHandleProps | ResizeHandle}. */
-  children: ReactNode;
+   * {@link MillerColumnsResizeHandleProps | ResizeHandle}. Optional: a
+   * childless branch legitimately opens an empty column, which carries
+   * `data-empty` for the styling layer. */
+  children?: ReactNode;
 };
 
 /**
@@ -118,7 +131,26 @@ export type MillerColumnsItemIndicatorProps = ComponentProps<"span"> & {
  * Props for {@link MillerColumnsResizeHandle | `MillerColumns.ResizeHandle`},
  * the drag-to-resize separator for its containing column.
  */
-export type MillerColumnsResizeHandleProps = ComponentProps<"div">;
+export type MillerColumnsResizeHandleProps = ComponentProps<"div"> & {
+  /**
+   * Smallest width the column can be dragged or stepped to, in pixels.
+   * Also published as `aria-valuemin`.
+   * @default 0
+   */
+  minWidth?: number;
+  /**
+   * Largest width the column can be dragged or stepped to, in pixels.
+   * Published as `aria-valuemax` when finite; left unbounded by default,
+   * in which case the attribute is omitted.
+   * @default Infinity
+   */
+  maxWidth?: number;
+  /**
+   * Pixels moved per arrow-key press.
+   * @default 10
+   */
+  step?: number;
+};
 
 /**
  * Props for {@link MillerColumnsPreviewPanel | `MillerColumns.PreviewPanel`},
@@ -156,6 +188,8 @@ export type MillerColumnsItemAddress = {
 
 /** Value shared through the root MillerColumns context. */
 export type MillerColumnsContextValue = {
+  /** The resolved reading direction — the `dir` prop, else the inherited one. */
+  dir: Direction;
   /** Portal slots keyed by column depth. */
   slots: Map<number, HTMLElement>;
   /** Per-depth column widths set via the resize handle. */
@@ -175,6 +209,8 @@ export type MillerColumnsContextValue = {
   ) => void;
   /** Get the registered items for a column. */
   getColumnItems: (depth: number) => MillerColumnsItemMeta[];
+  /** Read a registered item's rendered cell text, for typeahead matching. */
+  getItemLabel: (depth: number, value: string) => string;
   /** Move focus to the given item. */
   focusItem: (depth: number, value: string) => void;
   /** Focus the first item in a column; returns whether one was focused. */
@@ -185,6 +221,8 @@ export type MillerColumnsContextValue = {
   activeItem: MillerColumnsItemAddress | null;
   /** Set the active (focused) item. */
   setActiveItem: (item: MillerColumnsItemAddress) => void;
+  /** Printable-character typeahead, scoped to the focused item's column. */
+  handleTypeahead: (event: KeyboardEvent<HTMLElement>) => void;
 };
 
 /** Value shared through a column's context. */

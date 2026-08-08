@@ -1250,3 +1250,73 @@ questions to answer.
    no frames have been created yet (`<Page> — xs (360)`, `sm (640)`, `md
    (768)`, `lg (1024)`, `xl (1280)`). Lower priority than the variables
    themselves; do the variables first so any new frames can reference them.
+
+## 🧱 Layout primitives — Container + Grid landed (2026-08-08), Figma pending (RFC 0022 §10)
+
+RFC 0022's build-order **step 3** — the last unbuilt piece of the layout family
+— landed the same day RFC 0025's breakpoint scale unblocked it. **The RFC is now
+closed in full.** Registry + kitchen-sink for both; full account in RFC 0022 §10.
+
+**§4's open decision resolved to responsive for both**, reversing the draft's
+"(a) non-responsive v1" recommendation — which had been made *only* because no
+breakpoint scale existed, a reason that expired when RFC 0025 landed. RFC 0026's
+consumer testing had independently found all three profiles hand-rolling both a
+max-width wrapper and a responsive multi-column grid, which is direct evidence
+for shipping the responsive shape rather than the cheap one.
+
+**Landed:**
+
+- **`container/gutter/{sm,md,lg}`** and **`grid/gap/{xs..xl}`** Context families,
+  all four density modes (`packages/tokens/src/context.json`). `grid/gap-*`
+  mirrors `stack/gap-*` step for step — a shared `layout/gap-*` is the obvious
+  future consolidation if that duplication ever bites.
+- **Registry `container`** — `size` (xs–2xl|full) resolves straight against
+  `--primitiv-breakpoint-*` rather than a container-specific width scale;
+  `gutter` (responsive|none|sm|md|lg) escalates at md and lg. Full-bleed is two
+  knobs (`size="full"` drops the cap, `gutter="none"` drops the padding).
+- **Registry `grid`** — `columns` takes a count or a mobile-first map
+  (`{ base: 1, md: 2, lg: 3 }`), resolved to **modifier classes, never inline
+  styles**: 42 one-liners re-pointing `--primitiv-grid-columns`, emitted
+  ascending so the widest matching tier wins. Pure CSS, so it is correct in SSR
+  markup on the first paint — the `useMediaQuery` route was rejected precisely
+  because the hook returns `false` until hydration and would flash
+  single-column.
+- Roster count **57 → 59** across `registry.json`, `ports/registry.rs`,
+  `tests/cli.rs`.
+
+**⚠️ A token namespace moved — Figma is now out of step:**
+
+Taking `container/*` for the layout component required evicting a squatter: a
+pre-existing size-slotted `container/{sm,md,lg,xl}/{padding,gap,radius}` family
+(a near-duplicate of `card/*`, adopted by **no** registry component, read only by
+`apps/workbench`'s OklchPicker and PluginFrameExample) **moved to `surface/*`**.
+The human explicitly authorised this over preserving the workbench's naming —
+the workbench is a legacy surface the kitchen-sink replaces.
+
+The eight workbench references were updated and both token layers regenerated,
+so the **code side is consistent**. The **Figma Context collection still carries
+the old `container/*` names.** Until that rename lands, a sync-plugin backup
+would reintroduce the old family and drop the new gutter one.
+
+**Not yet done — pick up here next session:**
+
+1. **Rename the Figma Context variables `container/{size}/*` → `surface/{size}/*`**
+   (16 variables: 4 size slots × padding/gap/radius, across the density modes).
+   Mechanical, but it must happen before any sync-plugin backup.
+2. **Add the Figma Context variables for `container/gutter/{sm,md,lg}` and
+   `grid/gap/{xs..xl}`**, values per `packages/tokens/src/context.json`.
+3. **Container's Figma component set** — 7 `Size` variants (xs–2xl, full) + a
+   Slot for content, per the human's brief ("a container surface with some
+   padding and an empty Figma Slot"). One divergence to record in the
+   description: **Figma auto-layout padding cannot be responsive**, so the set
+   shows a single gutter value where CSS escalates across three. Watch the
+   `figma_execute` slot gotcha in `CLAUDE.md` — `createSlot()` ignores its
+   options object.
+4. **No Grid Figma set, deliberately** — a grid's value is its reflow, which a
+   fixed-width frame cannot express; auto-layout already covers the static case.
+   Recorded in `ROADMAP.md` as `—`, matching the other layout primitives.
+
+**Bridge status:** the same `MCP error -32003` that blocked the breakpoint
+variables (see the section above) blocks all four items here — they are the same
+Figma session problem, not four independent ones. Fix the pairing once and all
+of it unblocks together.

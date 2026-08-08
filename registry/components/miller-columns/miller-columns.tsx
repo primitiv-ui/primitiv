@@ -358,7 +358,8 @@ export type MillerColumnsPreviewPanelProps = ComponentPropsWithRef<
  *
  * Deliberately **content-agnostic**: the component cannot know how to preview
  * an item, so you decide what it shows. Read the current selection from any
- * component inside the strip with `useMillerColumnsSelection`.
+ * component inside the strip with `useMillerColumnsSelection`, imported from
+ * `@primitiv-ui/react` — this surface does not re-export it.
  *
  * It carries `data-empty` while nothing is selected. Unlike a column it is not
  * given a message of its own — it always has your children, and inventing one
@@ -373,6 +374,8 @@ export type MillerColumnsPreviewPanelProps = ComponentPropsWithRef<
  *
  * @example
  * ```tsx
+ * import { useMillerColumnsSelection } from "@primitiv-ui/react";
+ *
  * function FilePreview() {
  *   const { selectedValue } = useMillerColumnsSelection();
  *   if (!selectedValue) {

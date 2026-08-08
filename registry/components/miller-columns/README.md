@@ -65,6 +65,29 @@ function Node({ node }) {
 </MillerColumns>;
 ```
 
+### Reading the selection
+
+The preview pane is content-agnostic, so *what* it shows is up to you. Read
+the current selection with `useMillerColumnsSelection` from **the headless
+package** — the registry surface does not re-export it:
+
+```tsx
+import { useMillerColumnsSelection } from "@primitiv-ui/react";
+
+function FilePreview() {
+  const { path, selectedValue } = useMillerColumnsSelection();
+  if (!selectedValue) {
+    return <p className="primitiv-miller-columns__empty">Nothing selected</p>;
+  }
+  return <Preview id={selectedValue} />;
+}
+```
+
+It returns the full active `path` (ids, root column first) and the deepest
+`selectedValue` (`undefined` when nothing is selected). It works in both
+controlled and uncontrolled strips, and throws if called outside a
+`MillerColumns`.
+
 ### Resizing
 
 `MillerColumnsResizeHandle` is the WAI-ARIA window splitter. Drag it, or

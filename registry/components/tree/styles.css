@@ -130,6 +130,13 @@
     --primitiv-tree-transition-easing: var(--primitiv-motion-easing-default);
 
     --primitiv-tree-selection-path-gap: var(--primitiv-space-space-4);
+    /* The selected node is marked by WEIGHT, never by size — see the selection
+       path rules below for why. */
+    --primitiv-tree-selection-path-current-font-weight: var(
+      --primitiv-font-weight-semibold
+    );
+    /* Vertical slack for the row label's clip box — see the label rule below. */
+    --primitiv-tree-label-ink-slack: var(--primitiv-space-space-1);
 
     color: var(--primitiv-tree-item-color);
     font-family: var(--primitiv-tree-item-font-family);
@@ -210,7 +217,23 @@
   }
 
   /* The label takes the free space; min-inline-size:0 overrides the flex item's
-     auto content floor so a long name truncates rather than widening the row. */
+     auto content floor so a long name truncates rather than widening the row.
+
+     The padding/negative-margin pair exists to stop `overflow: hidden` from
+     shaving the bottom off descenders (g, j, p, q, y). The clip box is the
+     line box, and Asta Sans has a content area of 1.193em — measured off the
+     real font, not assumed — while the tighter rungs of the density ramp set
+     line-height below or barely above that: dense/lg is 13px on 16px (1.23)
+     and dense/xs is 10px on 12px (1.20). The deepest ink then lands within
+     0.25–0.5px of the clip edge, so whether it survives comes down to device
+     pixel ratio, browser zoom and the row's subpixel offset — which is exactly
+     why it cut "sometimes" rather than always, and why it never reproduces at
+     the comfortable/md default. Padding grows the clip box (overflow clips at
+     the PADDING box, not the content box); the equal negative margin gives the
+     space straight back, so the row's height and rhythm are untouched. Both
+     axes stay a single `overflow` value on purpose: setting overflow-y visible
+     with overflow-x hidden is not a thing CSS allows — the visible axis
+     computes to auto and you get a scrollbar. */
   .primitiv-tree__item-label,
   .primitiv-tree__branch-control-label {
     flex: 1 1 auto;
@@ -218,6 +241,8 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    padding-block: var(--primitiv-tree-label-ink-slack);
+    margin-block: calc(-1 * var(--primitiv-tree-label-ink-slack));
   }
 
   /* ── The collapsible group — Accordion's display:grid row-track collapse ──
@@ -319,6 +344,37 @@
     display: flex;
     flex-direction: column;
     gap: var(--primitiv-tree-selection-path-gap);
+  }
+
+  /* Every segment states Breadcrumb's own type explicitly rather than
+     inheriting it. Only the terminal segment is a real BreadcrumbPage; the
+     ancestors are bare spans (Breadcrumb has no non-link crumb part, and they
+     are not links — nothing in this bar navigates). So without this rule the
+     ancestors take their size from whatever encloses the bar: the Tree root
+     when the bar sits inside it, the page when it does not. Those agreed only
+     by coincidence — the Tree's own type ladder and BREADCRUMB_SIZE both step
+     one tier down, so they matched until something moved. Anything that broke
+     the coincidence (a SelectionPath rendered outside its Tree, or given a
+     `size` its Tree does not share) showed up as one segment jumping. Stating
+     the type here makes that impossible rather than merely unlikely. */
+  .primitiv-tree__selection-path [data-tree-selection-segment] {
+    font-family: var(--primitiv-breadcrumb-font-family);
+    font-size: var(--primitiv-breadcrumb-font-size);
+    font-weight: var(--primitiv-breadcrumb-font-weight);
+    line-height: var(--primitiv-breadcrumb-line-height);
+  }
+
+  /* The selected node, marked by WEIGHT — deliberately not by size. A trail is
+     read as one line, and changing size mid-line changes that line's metrics,
+     so the whole bar re-heights as the selection moves and the crumbs reflow
+     around it. Weight changes ink density and nothing else, so the bar holds
+     its height however deep the path goes. This doubles up with the colour
+     Breadcrumb already gives its page — that is the intent (it is what VS
+     Code's own breadcrumb does), since colour alone is easy to miss at the
+     small end of the ramp. Semibold, not bold: at body/xs on a dense tree,
+     bold reads as an error state rather than a selection. */
+  .primitiv-tree__selection-path .primitiv-breadcrumb__page[data-tree-selection-segment] {
+    font-weight: var(--primitiv-tree-selection-path-current-font-weight);
   }
 
   /* Nothing selected — an em dash placeholder, so the bar keeps its height

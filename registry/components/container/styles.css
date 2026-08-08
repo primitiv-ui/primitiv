@@ -1,0 +1,124 @@
+/*
+ * Container — Primitiv default theme (canonical CSS).
+ *
+ * Copied into the consumer repo by `primitiv add container`. It is yours to
+ * edit: the stable surface is the contract (the .primitiv-container class, the
+ * --xs…--2xl/--full and --gutter-* modifiers, and the --primitiv-container-*
+ * custom properties), not these values (RFC 0006 Principle 2 — names are
+ * stable, values are not).
+ *
+ * The model (RFC 0022, build-order step 3): a centred content column that
+ * stops growing at a max-width and pads its inline edges. `size` resolves
+ * straight against the breakpoint primitives (RFC 0025) rather than a
+ * container-specific width scale — one source of truth, so `size="lg"` caps
+ * exactly where the `lg` breakpoint begins. `gutter` resolves against a
+ * dedicated, density-scaled container/gutter-* Context token per step, the
+ * same treatment Stack's gap steps get, so the gutter re-tightens under
+ * [data-density]; `none` pins the flat space-space-0 primitive directly (zero
+ * is zero at every density, so there is nothing to scale).
+ *
+ * box-sizing is border-box, so the gutter sits inside the cap: at size="lg"
+ * with the lg gutter, the column measures 64rem edge to edge and the content
+ * area is what remains. This matches Tailwind's and Chakra's containers.
+ *
+ * Container centres itself; centring content within it is <Center>'s job.
+ *
+ * Requires the token layer (`primitiv tokens`) for the --primitiv-breakpoint-*,
+ * --primitiv-container-gutter-* and --primitiv-space-space-0 custom properties
+ * it resolves.
+ */
+
+/* Declare the sublayer order up front so this sheet is safe to load ahead of
+ * the token layer: CSS fixes layer precedence by first appearance, so without
+ * this a component stylesheet seen first would register primitiv.base before
+ * primitiv.reset and let the reset win (RFC 0008 §7). */
+@layer primitiv.reset, primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;
+
+@layer primitiv.base {
+  .primitiv-container {
+    /* Per-component API — the themable knobs, defaulting to the lg cap and the
+       small gutter. The variants layer below re-points both. */
+    --primitiv-container-max-width: var(--primitiv-breakpoint-lg);
+    --primitiv-container-gutter: var(--primitiv-container-gutter-sm);
+
+    box-sizing: border-box;
+    /* Fill the parent up to the cap, then stop and centre in the leftover
+       space. width:100% (not just max-width) so the column still fills a
+       flex/grid parent that would otherwise size it to its content. */
+    width: 100%;
+    max-width: var(--primitiv-container-max-width);
+    margin-inline: auto;
+    padding-inline: var(--primitiv-container-gutter);
+  }
+}
+
+@layer primitiv.variants {
+  /* Size — the width cap, straight off the breakpoint scale. `full` uses `none`
+     rather than a large length so the column genuinely tracks its parent at any
+     width, including inside another capped Container. */
+  .primitiv-container--xs {
+    --primitiv-container-max-width: var(--primitiv-breakpoint-xs);
+  }
+  .primitiv-container--sm {
+    --primitiv-container-max-width: var(--primitiv-breakpoint-sm);
+  }
+  .primitiv-container--md {
+    --primitiv-container-max-width: var(--primitiv-breakpoint-md);
+  }
+  .primitiv-container--lg {
+    --primitiv-container-max-width: var(--primitiv-breakpoint-lg);
+  }
+  .primitiv-container--xl {
+    --primitiv-container-max-width: var(--primitiv-breakpoint-xl);
+  }
+  .primitiv-container--2xl {
+    --primitiv-container-max-width: var(--primitiv-breakpoint-2xl);
+  }
+  .primitiv-container--full {
+    --primitiv-container-max-width: none;
+  }
+
+  /* Gutter — fixed steps pin one density-scaled token at every width. */
+  .primitiv-container--gutter-none {
+    --primitiv-container-gutter: var(--primitiv-space-space-0);
+  }
+  .primitiv-container--gutter-sm {
+    --primitiv-container-gutter: var(--primitiv-container-gutter-sm);
+  }
+  .primitiv-container--gutter-md {
+    --primitiv-container-gutter: var(--primitiv-container-gutter-md);
+  }
+  .primitiv-container--gutter-lg {
+    --primitiv-container-gutter: var(--primitiv-container-gutter-lg);
+  }
+
+  /* Gutter=responsive — the default: the small gutter on narrow viewports,
+     stepping up at md and again at lg, so edge padding grows with the room
+     available rather than staying phone-sized on a desktop.
+
+     The media conditions are written as literals because a custom property
+     cannot appear inside an @media condition — `@media (min-width:
+     var(--primitiv-breakpoint-md))` is not valid CSS (RFC 0025 §4). That is a
+     CSS-language limit, not a missing token, and it is the one deliberate
+     exception to this sheet's no-magic-numbers rule. The values are the
+     breakpoint scale's own: md = 48rem, lg = 64rem, matching both
+     --primitiv-breakpoint-{md,lg} and the generated breakpoints.ts constant
+     that `primitiv tokens` emits beside the token layer. Keep all three in
+     step if the scale ever moves.
+
+     Ordering matters: these blocks must stay in ascending breakpoint order, so
+     that when both match the lg value lands last and wins. */
+  .primitiv-container--gutter-responsive {
+    --primitiv-container-gutter: var(--primitiv-container-gutter-sm);
+  }
+  @media (min-width: 48rem) {
+    .primitiv-container--gutter-responsive {
+      --primitiv-container-gutter: var(--primitiv-container-gutter-md);
+    }
+  }
+  @media (min-width: 64rem) {
+    .primitiv-container--gutter-responsive {
+      --primitiv-container-gutter: var(--primitiv-container-gutter-lg);
+    }
+  }
+}

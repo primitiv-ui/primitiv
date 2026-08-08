@@ -338,6 +338,16 @@ const FILES: &[(&str, &str, &str)] = &[
     registry_file!("listbox", "listbox.recipe.ts"),
     registry_file!("listbox", "listbox.tsx"),
     registry_file!("listbox", "contract.json"),
+    registry_file!("container", "styles.css"),
+    registry_file!("container", "styles.scss"),
+    registry_file!("container", "container.recipe.ts"),
+    registry_file!("container", "container.tsx"),
+    registry_file!("container", "contract.json"),
+    registry_file!("grid", "styles.css"),
+    registry_file!("grid", "styles.scss"),
+    registry_file!("grid", "grid.recipe.ts"),
+    registry_file!("grid", "grid.tsx"),
+    registry_file!("grid", "contract.json"),
 ];
 
 impl Registry for EmbeddedRegistry {

@@ -1,0 +1,274 @@
+/*
+ * Grid — Primitiv default theme (canonical CSS).
+ *
+ * Copied into the consumer repo by `primitiv add grid`. It is yours to edit:
+ * the stable surface is the contract (the .primitiv-grid class, the --cols-*,
+ * --{tier}-cols-*, --gap-*, --align-* and --justify-* modifiers, and the
+ * --primitiv-grid-* custom properties), not these values (RFC 0006 Principle 2
+ * — names are stable, values are not).
+ *
+ * The model (RFC 0022, build-order step 3): a CSS Grid container whose column
+ * count is a plain count or a mobile-first per-breakpoint map, and whose `gap`
+ * resolves against a dedicated, density-scaled grid/gap-* Context token per
+ * step — the same treatment Stack's gap steps get, so the gap re-tightens
+ * under [data-density]. `none` pins the flat space-space-0 primitive directly
+ * (zero is zero at every density, so there is nothing to scale). The grid/gap-*
+ * ramp deliberately mirrors stack/gap-* step for step, so a Grid and a Stack at
+ * the same step line up when nested; if that duplication ever needs collapsing,
+ * a shared layout/gap-* family is the obvious move.
+ *
+ * Every column rule re-points one custom property rather than writing
+ * grid-template-columns itself, which is what makes --primitiv-grid-columns a
+ * genuine escape hatch: a consumer needing a tier outside this scale writes
+ * their own media query against that one property and needs no new classes.
+ *
+ * Tracks are minmax(0, 1fr), not 1fr. A bare 1fr track has an `auto` minimum,
+ * so one child with long unbreakable content (a code span, a long URL) pushes
+ * its track wider than its share and blows the row out past the container.
+ *
+ * The media conditions are written as literals because a custom property cannot
+ * appear inside an @media condition — `@media (min-width:
+ * var(--primitiv-breakpoint-md))` is not valid CSS (RFC 0025 §4). That is a
+ * CSS-language limit, not a missing token, and it is the one deliberate
+ * exception to this sheet's no-magic-numbers rule. The values are the
+ * breakpoint scale's own, matching both --primitiv-breakpoint-* and the
+ * generated breakpoints.ts constant that `primitiv tokens` emits beside the
+ * token layer. Keep all three in step if the scale ever moves.
+ *
+ * Requires the token layer (`primitiv tokens`) for the --primitiv-grid-gap-*
+ * and --primitiv-space-space-0 custom properties it resolves.
+ */
+
+/* Declare the sublayer order up front so this sheet is safe to load ahead of
+ * the token layer: CSS fixes layer precedence by first appearance, so without
+ * this a component stylesheet seen first would register primitiv.base before
+ * primitiv.reset and let the reset win (RFC 0008 §7). */
+@layer primitiv.reset, primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;
+
+@layer primitiv.base {
+  .primitiv-grid {
+    /* Per-component API — the themable knobs, defaulting to a single column and
+       the md gap. The variants layer below re-points both. */
+    --primitiv-grid-columns: 1;
+    --primitiv-grid-gap: var(--primitiv-grid-gap-md);
+
+    box-sizing: border-box;
+    display: grid;
+    grid-template-columns: repeat(var(--primitiv-grid-columns), minmax(0, 1fr));
+    gap: var(--primitiv-grid-gap);
+    /* The resting alignment; the variants layer re-points both from a curated
+       preset set. These are the CSS defaults, listed explicitly so an explicit
+       align="stretch" is a no-op rather than a missing class. */
+    align-items: stretch;
+    justify-items: stretch;
+  }
+}
+
+@layer primitiv.variants {
+  /* gap steps — each a dedicated density-scaled Context token
+     (--primitiv-grid-gap-{xs,sm,md,lg,xl}). `none` is the one exception: zero
+     has no density curve to scale, so it pins the flat space-space-0 primitive
+     directly. */
+  .primitiv-grid--gap-none {
+    --primitiv-grid-gap: var(--primitiv-space-space-0);
+  }
+  .primitiv-grid--gap-xs {
+    --primitiv-grid-gap: var(--primitiv-grid-gap-xs);
+  }
+  .primitiv-grid--gap-sm {
+    --primitiv-grid-gap: var(--primitiv-grid-gap-sm);
+  }
+  .primitiv-grid--gap-md {
+    --primitiv-grid-gap: var(--primitiv-grid-gap-md);
+  }
+  .primitiv-grid--gap-lg {
+    --primitiv-grid-gap: var(--primitiv-grid-gap-lg);
+  }
+  .primitiv-grid--gap-xl {
+    --primitiv-grid-gap: var(--primitiv-grid-gap-xl);
+  }
+
+  /* Column counts — the base tier, applied at every width. Each rule sets
+     only the custom property; the track template itself lives in the base
+     layer above. */
+  .primitiv-grid--cols-1 {
+    --primitiv-grid-columns: 1;
+  }
+  .primitiv-grid--cols-2 {
+    --primitiv-grid-columns: 2;
+  }
+  .primitiv-grid--cols-3 {
+    --primitiv-grid-columns: 3;
+  }
+  .primitiv-grid--cols-4 {
+    --primitiv-grid-columns: 4;
+  }
+  .primitiv-grid--cols-5 {
+    --primitiv-grid-columns: 5;
+  }
+  .primitiv-grid--cols-6 {
+    --primitiv-grid-columns: 6;
+  }
+
+  /* Column counts per breakpoint tier, ascending — so when a grid names
+     several tiers, the widest matching one is the last rule to apply and
+     therefore wins. Mobile-first: each tier is a floor, not a range. */
+  @media (min-width: 22.5rem) {
+    .primitiv-grid--xs-cols-1 {
+      --primitiv-grid-columns: 1;
+    }
+    .primitiv-grid--xs-cols-2 {
+      --primitiv-grid-columns: 2;
+    }
+    .primitiv-grid--xs-cols-3 {
+      --primitiv-grid-columns: 3;
+    }
+    .primitiv-grid--xs-cols-4 {
+      --primitiv-grid-columns: 4;
+    }
+    .primitiv-grid--xs-cols-5 {
+      --primitiv-grid-columns: 5;
+    }
+    .primitiv-grid--xs-cols-6 {
+      --primitiv-grid-columns: 6;
+    }
+  }
+  @media (min-width: 40rem) {
+    .primitiv-grid--sm-cols-1 {
+      --primitiv-grid-columns: 1;
+    }
+    .primitiv-grid--sm-cols-2 {
+      --primitiv-grid-columns: 2;
+    }
+    .primitiv-grid--sm-cols-3 {
+      --primitiv-grid-columns: 3;
+    }
+    .primitiv-grid--sm-cols-4 {
+      --primitiv-grid-columns: 4;
+    }
+    .primitiv-grid--sm-cols-5 {
+      --primitiv-grid-columns: 5;
+    }
+    .primitiv-grid--sm-cols-6 {
+      --primitiv-grid-columns: 6;
+    }
+  }
+  @media (min-width: 48rem) {
+    .primitiv-grid--md-cols-1 {
+      --primitiv-grid-columns: 1;
+    }
+    .primitiv-grid--md-cols-2 {
+      --primitiv-grid-columns: 2;
+    }
+    .primitiv-grid--md-cols-3 {
+      --primitiv-grid-columns: 3;
+    }
+    .primitiv-grid--md-cols-4 {
+      --primitiv-grid-columns: 4;
+    }
+    .primitiv-grid--md-cols-5 {
+      --primitiv-grid-columns: 5;
+    }
+    .primitiv-grid--md-cols-6 {
+      --primitiv-grid-columns: 6;
+    }
+  }
+  @media (min-width: 64rem) {
+    .primitiv-grid--lg-cols-1 {
+      --primitiv-grid-columns: 1;
+    }
+    .primitiv-grid--lg-cols-2 {
+      --primitiv-grid-columns: 2;
+    }
+    .primitiv-grid--lg-cols-3 {
+      --primitiv-grid-columns: 3;
+    }
+    .primitiv-grid--lg-cols-4 {
+      --primitiv-grid-columns: 4;
+    }
+    .primitiv-grid--lg-cols-5 {
+      --primitiv-grid-columns: 5;
+    }
+    .primitiv-grid--lg-cols-6 {
+      --primitiv-grid-columns: 6;
+    }
+  }
+  @media (min-width: 80rem) {
+    .primitiv-grid--xl-cols-1 {
+      --primitiv-grid-columns: 1;
+    }
+    .primitiv-grid--xl-cols-2 {
+      --primitiv-grid-columns: 2;
+    }
+    .primitiv-grid--xl-cols-3 {
+      --primitiv-grid-columns: 3;
+    }
+    .primitiv-grid--xl-cols-4 {
+      --primitiv-grid-columns: 4;
+    }
+    .primitiv-grid--xl-cols-5 {
+      --primitiv-grid-columns: 5;
+    }
+    .primitiv-grid--xl-cols-6 {
+      --primitiv-grid-columns: 6;
+    }
+  }
+  @media (min-width: 96rem) {
+    .primitiv-grid--2xl-cols-1 {
+      --primitiv-grid-columns: 1;
+    }
+    .primitiv-grid--2xl-cols-2 {
+      --primitiv-grid-columns: 2;
+    }
+    .primitiv-grid--2xl-cols-3 {
+      --primitiv-grid-columns: 3;
+    }
+    .primitiv-grid--2xl-cols-4 {
+      --primitiv-grid-columns: 4;
+    }
+    .primitiv-grid--2xl-cols-5 {
+      --primitiv-grid-columns: 5;
+    }
+    .primitiv-grid--2xl-cols-6 {
+      --primitiv-grid-columns: 6;
+    }
+  }
+
+  /* Align — how each item sits within its cell on the block axis
+     (`align-items`). Logical keywords (`start`/`end`, not `flex-start`) so they
+     follow the writing mode. */
+  .primitiv-grid--align-start {
+    align-items: start;
+  }
+  .primitiv-grid--align-center {
+    align-items: center;
+  }
+  .primitiv-grid--align-end {
+    align-items: end;
+  }
+  .primitiv-grid--align-stretch {
+    align-items: stretch;
+  }
+  .primitiv-grid--align-baseline {
+    align-items: baseline;
+  }
+
+  /* Justify — the inline-axis equivalent (`justify-items`). Grid distributes
+     tracks itself, so there is no space-between/around/evenly here the way
+     there is on Stack's flex `justify-content`. */
+  .primitiv-grid--justify-start {
+    justify-items: start;
+  }
+  .primitiv-grid--justify-center {
+    justify-items: center;
+  }
+  .primitiv-grid--justify-end {
+    justify-items: end;
+  }
+  .primitiv-grid--justify-stretch {
+    justify-items: stretch;
+  }
+}
+
+$primitiv-grid-columns: var(--primitiv-grid-columns);
+$primitiv-grid-gap: var(--primitiv-grid-gap);

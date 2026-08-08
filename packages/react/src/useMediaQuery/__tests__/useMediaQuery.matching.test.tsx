@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { renderHook } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { useMediaQuery } from "../useMediaQuery.ts";
 
 function mockMatchMedia(matches: boolean) {
@@ -13,6 +13,11 @@ function mockMatchMedia(matches: boolean) {
   }));
 }
 
+function MediaQueryProbe({ query }: { query: string }) {
+  const matches = useMediaQuery(query);
+  return <span data-testid="result">{matches ? "true" : "false"}</span>;
+}
+
 describe("useMediaQuery matching", () => {
   afterEach(() => {
     // @ts-expect-error: restore by deletion so other suites get jsdom default.
@@ -22,16 +27,16 @@ describe("useMediaQuery matching", () => {
   it("should return true when the query currently matches", () => {
     mockMatchMedia(true);
 
-    const { result } = renderHook(() => useMediaQuery("(min-width: 40rem)"));
+    render(<MediaQueryProbe query="(min-width: 40rem)" />);
 
-    expect(result.current).toBe(true);
+    expect(screen.getByTestId("result")).toHaveTextContent("true");
   });
 
   it("should return false when the query does not currently match", () => {
     mockMatchMedia(false);
 
-    const { result } = renderHook(() => useMediaQuery("(min-width: 40rem)"));
+    render(<MediaQueryProbe query="(min-width: 40rem)" />);
 
-    expect(result.current).toBe(false);
+    expect(screen.getByTestId("result")).toHaveTextContent("false");
   });
 });

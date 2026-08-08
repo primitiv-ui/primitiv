@@ -1,0 +1,157 @@
+{
+  "$schema": "https://primitiv-ui.dev/schema/contract.json",
+  "name": "grid",
+  "version": "0.1.0",
+  "description": "A CSS Grid container. `columns` takes a count or a mobile-first per-breakpoint map, `gap` the spacing (a density-scaled Context token per step), and `align`/`justify` how each item sits within its cell. No inline styles: the per-breakpoint column counts resolve to modifier classes, so the responsive behaviour is correct in server-rendered markup on the first paint (RFC 0022 §8).",
+  "docs": "https://primitiv-ui.dev/docs/components/grid",
+  "root": {
+    "element": "div",
+    "class": "primitiv-grid"
+  },
+  "dataAttributes": [],
+  "modifiers": [
+    {
+      "name": "columns",
+      "default": "1",
+      "description": "The column count. The options below are the base tier, applied at every width. Each is also available per breakpoint as `primitiv-grid--{tier}-cols-{n}`, where tier is one of xs|sm|md|lg|xl|2xl — e.g. `primitiv-grid--md-cols-2`. Tiers are mobile-first floors, not ranges, and the stylesheet orders them ascending so the widest matching tier wins. A count outside 1–6, or a tier outside this scale, is a media query of your own against `--primitiv-grid-columns`.",
+      "options": [
+        {
+          "name": "1",
+          "class": "primitiv-grid--cols-1",
+          "description": "One column (the default)."
+        },
+        {
+          "name": "2",
+          "class": "primitiv-grid--cols-2",
+          "description": "Two columns."
+        },
+        {
+          "name": "3",
+          "class": "primitiv-grid--cols-3",
+          "description": "Three columns."
+        },
+        {
+          "name": "4",
+          "class": "primitiv-grid--cols-4",
+          "description": "Four columns."
+        },
+        {
+          "name": "5",
+          "class": "primitiv-grid--cols-5",
+          "description": "Five columns."
+        },
+        {
+          "name": "6",
+          "class": "primitiv-grid--cols-6",
+          "description": "Six columns."
+        }
+      ]
+    },
+    {
+      "name": "gap",
+      "default": "md",
+      "description": "Space between tracks; each step (except none) is a density-scaled Context token, mirroring Stack's gap ramp step for step.",
+      "options": [
+        {
+          "name": "none",
+          "class": "primitiv-grid--gap-none",
+          "description": "No gap."
+        },
+        {
+          "name": "xs",
+          "class": "primitiv-grid--gap-xs",
+          "description": "Extra small."
+        },
+        {
+          "name": "sm",
+          "class": "primitiv-grid--gap-sm",
+          "description": "Small."
+        },
+        {
+          "name": "md",
+          "class": "primitiv-grid--gap-md",
+          "description": "Medium (the default)."
+        },
+        {
+          "name": "lg",
+          "class": "primitiv-grid--gap-lg",
+          "description": "Large."
+        },
+        {
+          "name": "xl",
+          "class": "primitiv-grid--gap-xl",
+          "description": "Extra large."
+        }
+      ]
+    },
+    {
+      "name": "align",
+      "default": "stretch",
+      "description": "How each item sits within its cell on the block axis (`align-items`), as a preset set rather than a raw CSS passthrough.",
+      "options": [
+        {
+          "name": "start",
+          "class": "primitiv-grid--align-start",
+          "description": "Items packed at the block-start edge of their cell."
+        },
+        {
+          "name": "center",
+          "class": "primitiv-grid--align-center",
+          "description": "Items centred in their cell on the block axis."
+        },
+        {
+          "name": "end",
+          "class": "primitiv-grid--align-end",
+          "description": "Items packed at the block-end edge of their cell."
+        },
+        {
+          "name": "stretch",
+          "class": "primitiv-grid--align-stretch",
+          "description": "Items fill their cell on the block axis (the default)."
+        },
+        {
+          "name": "baseline",
+          "class": "primitiv-grid--align-baseline",
+          "description": "Items aligned on their first text baseline."
+        }
+      ]
+    },
+    {
+      "name": "justify",
+      "default": "stretch",
+      "description": "The inline-axis equivalent (`justify-items`). Grid distributes tracks itself, so there is no between/around/evenly here the way there is on Stack's flex justify-content.",
+      "options": [
+        {
+          "name": "start",
+          "class": "primitiv-grid--justify-start",
+          "description": "Items packed at the inline-start edge of their cell."
+        },
+        {
+          "name": "center",
+          "class": "primitiv-grid--justify-center",
+          "description": "Items centred in their cell on the inline axis."
+        },
+        {
+          "name": "end",
+          "class": "primitiv-grid--justify-end",
+          "description": "Items packed at the inline-end edge of their cell."
+        },
+        {
+          "name": "stretch",
+          "class": "primitiv-grid--justify-stretch",
+          "description": "Items fill their cell on the inline axis (the default)."
+        }
+      ]
+    }
+  ],
+  "customProperties": [
+    {
+      "name": "--primitiv-grid-columns",
+      "defaultsTo": "1"
+    },
+    {
+      "name": "--primitiv-grid-gap",
+      "defaultsTo": "var(--primitiv-grid-gap-md)"
+    }
+  ]
+}

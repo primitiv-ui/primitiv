@@ -520,3 +520,32 @@
   block-size: auto;
   border-radius: var(--primitiv-radii-6);
 }
+
+/* ── Container ────────────────────────────────────────────────────────────
+ * Container is invisible by design — it caps a width, centres itself, and pads
+ * its inline edges, none of which reads on the page without something to see it
+ * against. The tint fills the column so its cap and the auto margins either side
+ * are both obvious, and the inner rule marks where the gutter ends and content
+ * begins. Demo furniture, not a hint that Container is missing a surface API. */
+.ks-container-demo {
+  background-color: var(--primitiv-surface-subtle);
+  border-radius: var(--primitiv-radii-6);
+}
+
+.ks-container-demo > * {
+  margin: var(--primitiv-space-space-0);
+  outline: var(--primitiv-border-width-1) dashed var(--primitiv-border-default);
+}
+
+/* ── Grid ─────────────────────────────────────────────────────────────────
+ * Filled tiles so the column count — and the way it changes across breakpoints
+ * — is readable at a glance. Each cell is deliberately short and uniform: the
+ * demo is about track layout, not content. */
+.ks-grid-cell {
+  box-sizing: border-box;
+  background-color: var(--primitiv-surface-subtle);
+  border: var(--primitiv-border-width-1) solid var(--primitiv-border-subtle);
+  border-radius: var(--primitiv-radii-6);
+  padding: var(--primitiv-space-space-12);
+  text-align: center;
+}

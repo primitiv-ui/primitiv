@@ -58,9 +58,9 @@ export function useMillerColumnsItem(
   // before paint. As a passive effect, a populated column would paint one
   // frame with `data-empty` before its items registered.
   useLayoutEffect(() => {
-    registerItem(depth, value, itemRef.current, disabled);
-    return () => registerItem(depth, value, null, disabled);
-  }, [depth, value, disabled, registerItem]);
+    registerItem(depth, value, itemRef.current, disabled, hasChildren);
+    return () => registerItem(depth, value, null, disabled, hasChildren);
+  }, [depth, value, disabled, hasChildren, registerItem]);
 
   const enabledValues = getColumnItems(depth)
     .filter((item) => !item.disabled)

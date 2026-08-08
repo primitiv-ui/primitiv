@@ -426,9 +426,16 @@ MillerColumnsResizeHandle.displayName = "MillerColumnsResizeHandle";
  */
 export function MillerColumnsPreviewPanel({
   children,
+  forceMount = false,
   ...rest
-}: MillerColumnsPreviewPanelProps): ReactElement {
-  const { activePath } = useMillerColumnsContext();
+}: MillerColumnsPreviewPanelProps): ReactElement | null {
+  const { activePath, terminalIsLeaf } = useMillerColumnsContext();
+
+  // Finder's rule: the preview occupies the slot *after* the selected item, so
+  // it exists only where that item has no children to open there instead.
+  if (!forceMount && !terminalIsLeaf) {
+    return null;
+  }
 
   return (
     <div

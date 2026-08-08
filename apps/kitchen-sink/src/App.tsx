@@ -843,17 +843,16 @@ function MillerPreview() {
   const { selectedValue } = useMillerColumnsSelection();
   const node = selectedValue ? MILLER_INDEX.get(selectedValue) : undefined;
 
+  // The pane only mounts for a selected LEAF (Finder's rule, enforced by the
+  // headless), so there is no "nothing selected" or folder case to handle.
   if (!node) {
-    return <p className="primitiv-miller-columns__empty">Nothing selected</p>;
+    return null;
   }
+
   return (
     <div className="ks-miller-showcase__preview">
       <strong>{node.label}</strong>
-      <span className="ks-miller-showcase__preview-meta">
-        {node.children
-          ? `Folder · ${node.children.length} item${node.children.length === 1 ? "" : "s"}`
-          : node.meta}
-      </span>
+      <span className="ks-miller-showcase__preview-meta">{node.meta}</span>
       {node.image ? (
         <>
           <img

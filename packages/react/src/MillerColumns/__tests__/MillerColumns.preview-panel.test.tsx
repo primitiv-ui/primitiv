@@ -6,7 +6,7 @@ import { MillerColumns } from "../MillerColumns";
 describe("MillerColumns — preview panel", () => {
   it("renders a panel at the trailing edge of the strip", () => {
     const { container } = render(
-      <MillerColumns.Root>
+      <MillerColumns.Root defaultValue={["a"]}>
         <MillerColumns.Column>
           <MillerColumns.Item value="a">A</MillerColumns.Item>
         </MillerColumns.Column>
@@ -22,7 +22,9 @@ describe("MillerColumns — preview panel", () => {
     expect(strip.lastElementChild).toBe(panel);
   });
 
-  it("flags the panel as empty until something is selected", async () => {
+  // Only reachable under forceMount: without it the panel does not exist while
+  // nothing is selected, so there is nothing to flag.
+  it("flags a force-mounted panel as empty until something is selected", async () => {
     const user = userEvent.setup();
 
     render(
@@ -30,7 +32,9 @@ describe("MillerColumns — preview panel", () => {
         <MillerColumns.Column>
           <MillerColumns.Item value="a">A</MillerColumns.Item>
         </MillerColumns.Column>
-        <MillerColumns.PreviewPanel>preview</MillerColumns.PreviewPanel>
+        <MillerColumns.PreviewPanel forceMount>
+          preview
+        </MillerColumns.PreviewPanel>
       </MillerColumns.Root>,
     );
 
@@ -44,7 +48,7 @@ describe("MillerColumns — preview panel", () => {
 
   it("forwards props to the panel element", () => {
     render(
-      <MillerColumns.Root>
+      <MillerColumns.Root defaultValue={["a"]}>
         <MillerColumns.Column>
           <MillerColumns.Item value="a">A</MillerColumns.Item>
         </MillerColumns.Column>

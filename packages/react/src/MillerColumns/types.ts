@@ -160,6 +160,14 @@ export type MillerColumnsPreviewPanelProps = ComponentProps<"div"> & {
   /** The preview content for the current selection (typically driven by
    * {@link useMillerColumnsSelection}). */
   children?: ReactNode;
+  /**
+   * Keep the panel mounted regardless of the selection, instead of following
+   * Finder's rule (a preview only where a selected *leaf* would open a child
+   * column). Use it for a persistent inspector, or to animate the panel in
+   * and out.
+   * @default false
+   */
+  forceMount?: boolean;
 };
 
 /** The current selection, as returned by `useMillerColumnsSelection`. */
@@ -206,7 +214,11 @@ export type MillerColumnsContextValue = {
     value: string,
     element: HTMLElement | null,
     disabled: boolean,
+    hasChildren: boolean,
   ) => void;
+  /** Whether the deepest selected item is a leaf — Finder's rule for whether a
+   * preview occupies the slot after it. `false` when nothing is selected. */
+  terminalIsLeaf: boolean;
   /** Get the registered items for a column. */
   getColumnItems: (depth: number) => MillerColumnsItemMeta[];
   /** Read a registered item's rendered cell text, for typeahead matching. */

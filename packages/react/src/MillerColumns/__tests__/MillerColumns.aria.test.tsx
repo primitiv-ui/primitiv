@@ -79,7 +79,7 @@ describe("MillerColumns — aria", () => {
 
   it("keeps the preview panel outside the tree", () => {
     render(
-      <MillerColumns.Root>
+      <MillerColumns.Root defaultValue={["a"]}>
         <MillerColumns.Column>
           <MillerColumns.Item value="a">A</MillerColumns.Item>
         </MillerColumns.Column>

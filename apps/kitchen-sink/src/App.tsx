@@ -210,6 +210,12 @@ import {
   TooltipPortal,
   TooltipContent,
   TooltipArrow,
+  MillerColumns,
+  MillerColumnsColumn,
+  MillerColumnsItem,
+  MillerColumnsItemIndicator,
+  MillerColumnsPreviewPanel,
+  MillerColumnsResizeHandle,
   Tree,
   TreeBranch,
   TreeBranchContent,
@@ -240,7 +246,7 @@ import {
   Upload,
   User,
 } from "@primitiv-ui/icons";
-import { VisuallyHidden } from "@primitiv-ui/react";
+import { VisuallyHidden, useMillerColumnsSelection } from "@primitiv-ui/react";
 import cardPhoto1 from "./assets/carousel-photos/photo-1.jpg";
 import cardPhoto2 from "./assets/carousel-photos/photo-2.jpg";
 import cardPhoto3 from "./assets/carousel-photos/photo-3.jpg";
@@ -506,7 +512,7 @@ const PAGE_TOC: { category: string; titles: string[] }[] = [
       "Textarea",
     ],
   },
-  { category: "Collections & Selection", titles: ["Listbox", "Select", "Tree"] },
+  { category: "Collections & Selection", titles: ["Listbox", "Miller Columns", "Select", "Tree"] },
   { category: "Typography", titles: ["Code Block"] },
   {
     category: "Overlays",
@@ -720,6 +726,122 @@ const TOOLTIP_DEMOS = [
   { placement: "left", tone: "default", label: "Left" },
   { placement: "top", tone: "inverted", label: "Inverted" },
 ] as const;
+
+// ---------------------------------------------------------------------------
+// Miller Columns demo data. The strip is authored by RECURSIVE COMPOSITION —
+// there is no data prop — so this shape is the demo's own, walked by MillerNode.
+// "Archive" is deliberately a branch with no children: selecting it opens an
+// empty column, which is an ordinary state here rather than an error.
+type MillerFileNode = {
+  id: string;
+  label: string;
+  kind: "folder" | "file";
+  meta?: string;
+  children?: MillerFileNode[];
+};
+
+const MILLER_TREE: MillerFileNode[] = [
+  {
+    id: "documents",
+    label: "Documents",
+    kind: "folder",
+    children: [
+      {
+        id: "work",
+        label: "Work",
+        kind: "folder",
+        children: [
+          { id: "report", label: "report.pdf", kind: "file", meta: "PDF document · 248 KB" },
+          { id: "notes", label: "notes.txt", kind: "file", meta: "Plain text · 4 KB" },
+          { id: "budget", label: "budget.xlsx", kind: "file", meta: "Spreadsheet · 62 KB" },
+        ],
+      },
+      {
+        id: "personal",
+        label: "Personal",
+        kind: "folder",
+        children: [
+          { id: "taxes", label: "taxes.pdf", kind: "file", meta: "PDF document · 1.2 MB" },
+          { id: "letter", label: "letter.docx", kind: "file", meta: "Document · 18 KB" },
+        ],
+      },
+      { id: "readme", label: "README.md", kind: "file", meta: "Markdown · 2 KB" },
+    ],
+  },
+  {
+    id: "pictures",
+    label: "Pictures",
+    kind: "folder",
+    children: [
+      {
+        id: "holiday",
+        label: "Holiday",
+        kind: "folder",
+        children: [
+          { id: "beach", label: "beach.jpg", kind: "file", meta: "Image · 3.4 MB" },
+          { id: "sunset", label: "sunset.jpg", kind: "file", meta: "Image · 2.9 MB" },
+        ],
+      },
+      { id: "profile", label: "profile.png", kind: "file", meta: "Image · 240 KB" },
+    ],
+  },
+  { id: "archive", label: "Archive", kind: "folder", children: [] },
+  { id: "licence", label: "LICENCE", kind: "file", meta: "Plain text · 1 KB" },
+];
+
+const MILLER_INDEX = new Map<string, MillerFileNode>();
+(function indexMillerTree(nodes: MillerFileNode[]) {
+  for (const node of nodes) {
+    MILLER_INDEX.set(node.id, node);
+    if (node.children) indexMillerTree(node.children);
+  }
+})(MILLER_TREE);
+
+// A branch is any node with a `children` array — including an EMPTY one, which
+// is what makes "Archive" open a column rather than behave as a leaf.
+function MillerNode({ node }: { node: MillerFileNode }) {
+  return (
+    <MillerColumnsItem value={node.id}>
+      {node.label}
+      {node.children ? (
+        <>
+          <MillerColumnsItemIndicator />
+          <MillerColumnsColumn>
+            <MillerColumnsResizeHandle
+              aria-label={`Resize ${node.label}`}
+              minWidth={120}
+              maxWidth={360}
+            />
+            {node.children.map((child) => (
+              <MillerNode key={child.id} node={child} />
+            ))}
+          </MillerColumnsColumn>
+        </>
+      ) : null}
+    </MillerColumnsItem>
+  );
+}
+
+// Lives inside the PreviewPanel and reads the selection itself — the component
+// is content-agnostic, so what a preview looks like is entirely ours to decide.
+function MillerPreview() {
+  const { selectedValue } = useMillerColumnsSelection();
+  const node = selectedValue ? MILLER_INDEX.get(selectedValue) : undefined;
+
+  if (!node) {
+    return <p className="primitiv-miller-columns__empty">Nothing selected</p>;
+  }
+  return (
+    <div className="ks-miller-showcase__preview">
+      <strong>{node.label}</strong>
+      <span className="ks-miller-showcase__preview-meta">
+        {node.children
+          ? `Folder · ${node.children.length} item${node.children.length === 1 ? "" : "s"}`
+          : node.meta}
+      </span>
+    </div>
+  );
+}
 
 export function App(): ReactElement {
   // Density and theme are ambient (applied on <html> by the shell's
@@ -3613,6 +3735,37 @@ export function ramp(hue: number, chroma = 0.12) {
             );
           })}
         </TooltipProvider>
+      </Section>
+
+
+      <Section title="Miller Columns" column>
+        <div className="ks-miller-showcase">
+          {/* A Finder-style file browser. Selection is uncontrolled — the strip
+              owns the path — and the preview pane reads it from context via
+              useMillerColumnsSelection, so nothing here wires state by hand.
+              Every column carries a ResizeHandle: drag it, or Tab to it and use
+              the arrow keys (Home/End jump to the min/max). */}
+          <MillerColumns
+            size={size}
+            aria-label="Files"
+            defaultValue={["documents", "work"]}
+            className="ks-miller-showcase__strip"
+          >
+            <MillerColumnsColumn>
+              <MillerColumnsResizeHandle
+                aria-label="Resize column"
+                minWidth={120}
+                maxWidth={360}
+              />
+              {MILLER_TREE.map((node) => (
+                <MillerNode key={node.id} node={node} />
+              ))}
+            </MillerColumnsColumn>
+            <MillerColumnsPreviewPanel>
+              <MillerPreview />
+            </MillerColumnsPreviewPanel>
+          </MillerColumns>
+        </div>
       </Section>
 
       <Section title="Tree" column>

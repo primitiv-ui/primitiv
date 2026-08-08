@@ -32,6 +32,7 @@ export * from "./input-group";
 export * from "./kbd";
 export * from "./list";
 export * from "./listbox";
+export * from "./miller-columns";
 export * from "./modal";
 export * from "./navigation-menu";
 export * from "./popover";

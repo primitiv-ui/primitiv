@@ -737,6 +737,9 @@ type MillerFileNode = {
   label: string;
   kind: "folder" | "file";
   meta?: string;
+  /** Images get a preview button in the pane; the source is generated below so
+      the demo needs no binary assets in the repo. */
+  image?: boolean;
   children?: MillerFileNode[];
 };
 
@@ -778,16 +781,28 @@ const MILLER_TREE: MillerFileNode[] = [
         label: "Holiday",
         kind: "folder",
         children: [
-          { id: "beach", label: "beach.jpg", kind: "file", meta: "Image · 3.4 MB" },
-          { id: "sunset", label: "sunset.jpg", kind: "file", meta: "Image · 2.9 MB" },
+          { id: "beach", label: "beach.jpg", kind: "file", meta: "Image · 3.4 MB", image: true },
+          { id: "sunset", label: "sunset.jpg", kind: "file", meta: "Image · 2.9 MB", image: true },
         ],
       },
-      { id: "profile", label: "profile.png", kind: "file", meta: "Image · 240 KB" },
+      { id: "profile", label: "profile.png", kind: "file", meta: "Image · 240 KB", image: true },
     ],
   },
   { id: "archive", label: "Archive", kind: "folder", children: [] },
   { id: "licence", label: "LICENCE", kind: "file", meta: "Plain text · 1 KB" },
 ];
+
+/** A self-contained stand-in image, hued from the filename so each differs. */
+function millerImageSource(label: string): string {
+  const hue =
+    [...label].reduce((sum, character) => sum + character.charCodeAt(0), 0) % 360;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="640" height="420">
+    <rect width="640" height="420" fill="hsl(${hue}, 62%, 56%)"/>
+    <rect width="640" height="420" fill="hsl(${(hue + 40) % 360}, 62%, 46%)" opacity="0.45" transform="skewX(-18)"/>
+    <text x="320" y="228" font-family="sans-serif" font-size="34" fill="rgba(255,255,255,0.92)" text-anchor="middle">${label}</text>
+  </svg>`;
+  return `data:image/svg+xml,${encodeURIComponent(svg)}`;
+}
 
 const MILLER_INDEX = new Map<string, MillerFileNode>();
 (function indexMillerTree(nodes: MillerFileNode[]) {
@@ -839,6 +854,50 @@ function MillerPreview() {
           ? `Folder · ${node.children.length} item${node.children.length === 1 ? "" : "s"}`
           : node.meta}
       </span>
+      {node.image ? (
+        <>
+          <img
+            className="ks-miller-showcase__thumb"
+            src={millerImageSource(node.label)}
+            alt=""
+          />
+          {/* The pane is content-agnostic, so an image preview is entirely the
+              consumer's call — here a Modal shows it larger. `key` on the Modal
+              resets its open state when the selection changes, so switching
+              from one image to another does not leave a stale dialog open. */}
+          <Modal key={node.id}>
+            <ModalTrigger asChild>
+              <Button size="sm" variant="secondary">
+                Preview
+              </Button>
+            </ModalTrigger>
+            {/* forceMount keeps the dialog mounted while closed, which is what
+                lets it animate OUT — without it a native <dialog> snaps shut. */}
+            <ModalPortal forceMount>
+              <ModalContent size="lg">
+                <ModalHeader>
+                  <ModalTitle>{node.label}</ModalTitle>
+                  <ModalDescription>{node.meta}</ModalDescription>
+                </ModalHeader>
+                <ModalBody>
+                  <img
+                    className="ks-miller-showcase__full"
+                    src={millerImageSource(node.label)}
+                    alt={`Preview of ${node.label}`}
+                  />
+                </ModalBody>
+                <ModalFooter>
+                  <ModalClose asChild>
+                    <Button size="sm" variant="secondary">
+                      Close
+                    </Button>
+                  </ModalClose>
+                </ModalFooter>
+              </ModalContent>
+            </ModalPortal>
+          </Modal>
+        </>
+      ) : null}
     </div>
   );
 }

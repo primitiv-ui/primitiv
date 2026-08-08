@@ -506,3 +506,17 @@
   font-size: var(--primitiv-body-xs-font-size);
   line-height: var(--primitiv-body-xs-line-height);
 }
+
+.ks-miller-showcase__thumb {
+  display: block;
+  inline-size: 100%;
+  block-size: auto;
+  border-radius: var(--primitiv-radii-4);
+}
+
+.ks-miller-showcase__full {
+  display: block;
+  inline-size: 100%;
+  block-size: auto;
+  border-radius: var(--primitiv-radii-6);
+}

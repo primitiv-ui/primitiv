@@ -64,10 +64,19 @@ import { Tabs } from "@primitiv-ui/react";
 | [Tree](src/Tree/README.md)               | WAI-ARIA Tree pattern — hierarchical tree view authored by recursive composition with `Branch`/`BranchControl`/`BranchContent`, controlled/uncontrolled expansion, single or multiple selection with Ctrl/Cmd and Shift+click range, `forceMount` for branch animation, single-tabstop roving keyboard navigation, disabled items, and `asChild` composition |
 | [VisuallyHidden](src/VisuallyHidden/README.md) | Screen-reader-only primitive — visually hides its children with the canonical clip styles while keeping them in the accessibility tree, with consumer `style` merging and `asChild` composition |
 
+## Hooks
+
+| Hook                                                | Description                                                                                                    |
+| ---------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| [useMediaQuery](src/useMediaQuery/README.md)         | Tracks whether a CSS media query currently matches, re-rendering on change — generic, not tied to Primitiv's own breakpoint scale, with a safe `false` default during server rendering |
+
 ## Internal utilities
 
 **`Slot`** is the `asChild` composition utility used internally by components
-such as `Tabs.Trigger`. It is not a public component API.
+such as `Tabs.Trigger`. It is not a public component API. The `hooks/`
+directory (`useCollection`, `useControllableState`, `useRovingTabindex`) is
+similarly internal — shared implementation details of compound components,
+not part of the public API.
 
 ## Testing
 

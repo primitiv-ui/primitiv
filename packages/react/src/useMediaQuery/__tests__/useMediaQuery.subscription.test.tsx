@@ -20,6 +20,8 @@ function createMatchMediaMock(initialMatches: Record<string, boolean>) {
     removeEventListener: vi.fn((_type: "change", listener: ChangeListener) => {
       listeners.get(query)?.delete(listener);
     }),
+    addListener: vi.fn(),
+    removeListener: vi.fn(),
     dispatchEvent: vi.fn(),
   }));
 

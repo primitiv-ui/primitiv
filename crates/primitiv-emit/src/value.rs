@@ -8,6 +8,7 @@ const LENGTH_CATEGORIES: &[&str] = &[
     "line-height",
     "border-width",
     "letter-spacing",
+    "breakpoint",
     // `tree` is a component namespace, not a primitive scale — the one entry
     // here that is. Component families normally alias the primitive scales, so
     // their numbers never reach this function; Tree's two connector stub widths

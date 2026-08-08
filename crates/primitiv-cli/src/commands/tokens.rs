@@ -1,7 +1,8 @@
 use std::path::{Path, PathBuf};
 
 use primitiv_emit::{
-    emit_tailwind_tokens, emit_tokens_css, emit_tokens_scss, TokenSources, BASE_CSS, BASE_SCSS,
+    emit_breakpoints_ts, emit_tailwind_tokens, emit_tokens_css, emit_tokens_scss,
+    tokens_from_dtcg, TokenSources, BASE_CSS, BASE_SCSS,
 };
 use serde_json::Value;
 
@@ -24,6 +25,11 @@ use crate::ports::output::Output;
 // the layered `shadow.*` box-shadows and the semantic `elevation.*` roles are
 // code-only composites (Figma has no shadow variable type — effect styles are
 // their Figma form).
+// `breakpoint` is also a mode-independent base document (RFC 0025): a flat
+// `xs`/`sm`/`md`/`lg`/`xl`/`2xl` scale, code-only like `motion` (no Figma
+// variable backs a viewport breakpoint). `sm`-`2xl` deliberately match
+// Tailwind v4's own built-in defaults, so `emit_tailwind` (RFC 0025 D2)
+// omits redeclaring those five and emits only the additive `xs`.
 const PRIMITIVES: &str =
     include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/../../packages/tokens/src/primitives.json"));
 const INTERACTION: &str =
@@ -32,6 +38,8 @@ const MOTION: &str =
     include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/../../packages/tokens/src/motion.json"));
 const ELEVATION: &str =
     include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/../../packages/tokens/src/elevation.json"));
+const BREAKPOINT: &str =
+    include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/../../packages/tokens/src/breakpoint.json"));
 const PALETTE: &str =
     include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/../../packages/tokens/src/palette.json"));
 const INTENT: &str =
@@ -65,7 +73,13 @@ pub fn tokens(
     let format = format
         .or_else(|| config.as_ref().map(|config| config.tokens.format))
         .unwrap_or(Format::Css);
-    let base = [parse(PRIMITIVES), parse(INTERACTION), parse(MOTION), parse(ELEVATION)];
+    let base = [
+        parse(PRIMITIVES),
+        parse(INTERACTION),
+        parse(MOTION),
+        parse(ELEVATION),
+        parse(BREAKPOINT),
+    ];
     let theme = [parse(PALETTE), parse(INTENT)];
     let density = [parse(CONTEXT)];
     let sources = TokenSources {
@@ -90,6 +104,11 @@ pub fn tokens(
             fs.write(&path.with_file_name(base_name), base_styles.as_bytes())?;
             let imported = format!("@import \"./{base_name}\";\n\n{rendered}");
             fs.write(&path, imported.as_bytes())?;
+            // A JS-consumable sibling for consumers that need a real value outside
+            // the CSS cascade — e.g. useMediaQuery's matchMedia() (RFC 0025 §5).
+            let breakpoint_tokens = tokens_from_dtcg(&parse(BREAKPOINT));
+            let breakpoints_ts = emit_breakpoints_ts(&breakpoint_tokens);
+            fs.write(&path.with_file_name("breakpoints.ts"), breakpoints_ts.as_bytes())?;
         }
         // No file to host a sibling: inline the base layer after the tokens so the
         // streamed foundation stays self-contained.

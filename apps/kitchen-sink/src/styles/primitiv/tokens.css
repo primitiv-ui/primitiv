@@ -195,6 +195,12 @@
     --primitiv-shadow-color-medium: #0000000f;
     --primitiv-shadow-color-soft: #0000000a;
     --primitiv-shadow-color-strong: #00000014;
+    --primitiv-breakpoint-2xl: 96rem;
+    --primitiv-breakpoint-lg: 64rem;
+    --primitiv-breakpoint-md: 48rem;
+    --primitiv-breakpoint-sm: 40rem;
+    --primitiv-breakpoint-xl: 80rem;
+    --primitiv-breakpoint-xs: 22.5rem;
   }
   :root,
   [data-theme="light"] {

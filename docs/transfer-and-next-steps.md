@@ -1185,3 +1185,68 @@ questions to answer.
 - **Dark-mode ramp encoding** — reviewed and **accepted as-is**; see
   `packages/tokens/README.md` and the `figma-variable-architecture` skill. Do not
   "fix" by ramp index.
+
+## 📐 Responsive breakpoints — web landed (2026-08-08), Figma sync pending (RFC 0025)
+
+**Web side is fully landed and on `main`:**
+
+- `packages/tokens/src/breakpoint.json` — the six-tier scale (`xs`/360,
+  `sm`/640, `md`/768, `lg`/1024, `xl`/1280, `2xl`/1536), `$type: "number"` like
+  every other primitive category, not the DTCG-spec `"dimension"` the RFC
+  draft's example JSON used.
+- Emitter (`crates/primitiv-emit`): `breakpoint` added to `value.rs`'s
+  `LENGTH_CATEGORIES` (rem at the 16px base); `tailwind.rs` deliberately
+  **omits `sm`–`2xl`** from the `@theme` output (they match Tailwind v4's own
+  defaults — redeclaring them risks clobbering a consumer's customization of
+  those exact names, since Tailwind requires the bare `--breakpoint-*` name to
+  drive its variants, unlike every other Primitiv token) and emits only the
+  additive `xs`.
+- A generated **`breakpoints.ts`** companion (`crates/primitiv-emit/src/js.rs`
+  → `emit_breakpoints_ts`), written by `primitiv tokens` next to the token
+  layer — the JS-consumable constants a consumer's `useMediaQuery` calls build
+  query strings from, since `matchMedia` can't read a CSS custom property.
+  Regenerated in the kitchen-sink
+  (`apps/kitchen-sink/src/styles/primitiv/{tokens.css,breakpoints.ts}`).
+- **`useMediaQuery`** (`packages/react/src/useMediaQuery/`) — the first public
+  hook in `@primitiv-ui/react`. Generic (`useMediaQuery(query: string):
+  boolean`, no dependency on Primitiv's own scale), live via
+  `useSyncExternalStore` (real `matchMedia` subscription, cleanup, resubscribe
+  on query change), SSR-safe (`getServerSnapshot` returns `false`, verified in
+  an actual Node vitest environment, not just jsdom). Tested through rendered
+  probe components, not `renderHook` (this codebase's convention — no other
+  hook is tested via `renderHook` either).
+- A Rust coverage-gate regression from this work was caught by CI (the new
+  `breakpoints.ts` write's error path was untested — 99.03% regions on
+  `commands/tokens.rs`) and fixed same-session
+  (`surfaces_a_breakpoints_companion_write_failure`).
+
+**Not yet done — pick up here next session:**
+
+1. **Figma variables for the six values.** Pairing the Desktop Bridge today
+   (2026-08-08) hit `MCP error -32003: MCP tool call requires approval` on a
+   basic `figma_execute` read (`return { file: figma.root.name, page:
+   figma.currentPage.name };`), immediately after a fresh pairing code was
+   entered — twice, same error both times. Unclear yet whether this is a
+   stale plugin session, a pending approval dialog inside Figma Desktop that
+   needs a click, or something else. **Next attempt:** re-pair with a fresh
+   code (`figma_pair_plugin`), have the human toggle Cloud Mode off/on first
+   per the `figma-bridge-token-sync` skill's troubleshooting note, and check
+   Figma Desktop for a pending tool-approval prompt before retrying. If the
+   bridge still won't cooperate, fall back to `use_figma` (the official Figma
+   MCP, no pairing needed) with the file's URL — see the skill's "No-pair
+   alternative" section.
+2. **Where the variables live is an open decision, not yet made.** Unlike
+   density/theme tokens, breakpoints aren't part of the existing Context
+   (density) or Intent (theme) collections — they're a flat, mode-independent
+   primitive scale, closer in shape to Motion (code-only, no Figma variable
+   today) or Elevation's `shadow.*` ramp (its own small FLOAT set). Decide
+   whether this warrants a new dedicated collection (e.g. `Breakpoint`) or
+   folds into an existing one before creating anything — check
+   `figma-variable-architecture` for the current collection inventory first.
+3. **Keep the Figma values identical to the DTCG** (`packages/tokens/src/breakpoint.json`)
+   so a future sync-plugin backup is a no-op: `xs` 360, `sm` 640, `md` 768,
+   `lg` 1024, `xl` 1280, `2xl` 1536.
+4. **RFC 0025 §3's Figma design-frame presets are also still just a plan** —
+   no frames have been created yet (`<Page> — xs (360)`, `sm (640)`, `md
+   (768)`, `lg (1024)`, `xl (1280)`). Lower priority than the variables
+   themselves; do the variables first so any new frames can reference them.

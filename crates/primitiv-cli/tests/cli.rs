@@ -445,6 +445,47 @@ fn tokens_emits_the_elevation_layer() {
 }
 
 #[test]
+fn tokens_emits_the_full_breakpoint_scale_as_css() {
+    let dir = assert_fs::TempDir::new().unwrap();
+
+    Command::cargo_bin("primitiv")
+        .unwrap()
+        .current_dir(dir.path())
+        .args(["tokens", "--format", "css"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("--primitiv-breakpoint-xs: 22.5rem;"))
+        .stdout(predicate::str::contains("--primitiv-breakpoint-sm: 40rem;"))
+        .stdout(predicate::str::contains("--primitiv-breakpoint-md: 48rem;"))
+        .stdout(predicate::str::contains("--primitiv-breakpoint-lg: 64rem;"))
+        .stdout(predicate::str::contains("--primitiv-breakpoint-xl: 80rem;"))
+        .stdout(predicate::str::contains("--primitiv-breakpoint-2xl: 96rem;"));
+}
+
+#[test]
+fn tokens_emits_only_the_additive_xs_breakpoint_as_tailwind() {
+    let dir = assert_fs::TempDir::new().unwrap();
+
+    // RFC 0025 §4/D2: sm-2xl deliberately match Tailwind v4's own defaults, so
+    // redeclaring them in @theme would risk clobbering a consumer's own
+    // customization of those exact names. Only the additive `xs` is safe.
+    Command::cargo_bin("primitiv")
+        .unwrap()
+        .current_dir(dir.path())
+        .args(["tokens", "--format", "tailwind"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains(
+            "--breakpoint-xs: var(--primitiv-breakpoint-xs);",
+        ))
+        .stdout(predicate::str::contains("--breakpoint-sm:").not())
+        .stdout(predicate::str::contains("--breakpoint-md:").not())
+        .stdout(predicate::str::contains("--breakpoint-lg:").not())
+        .stdout(predicate::str::contains("--breakpoint-xl:").not())
+        .stdout(predicate::str::contains("--breakpoint-2xl:").not());
+}
+
+#[test]
 fn tokens_writes_the_base_companion_next_to_the_token_layer() {
     let dir = assert_fs::TempDir::new().unwrap();
 
@@ -461,6 +502,27 @@ fn tokens_writes_the_base_companion_next_to_the_token_layer() {
         .assert(predicate::str::contains("@import \"./primitiv-base.css\";"));
     dir.child("primitiv-base.css")
         .assert(predicate::str::contains("@layer primitiv.reset {"));
+}
+
+#[test]
+fn tokens_writes_a_js_consumable_breakpoints_companion() {
+    let dir = assert_fs::TempDir::new().unwrap();
+
+    // RFC 0025 §5: matchMedia() needs a real numeric/string value, not a CSS
+    // custom property, so `tokens` also writes a small generated `breakpoints.ts`
+    // sibling for consumers of e.g. useMediaQuery.
+    Command::cargo_bin("primitiv")
+        .unwrap()
+        .current_dir(dir.path())
+        .args(["tokens", "--format", "css", "--out", "tokens.css"])
+        .assert()
+        .success();
+
+    dir.child("breakpoints.ts").assert(
+        predicate::str::contains("export const breakpoints = {")
+            .and(predicate::str::contains("\"xs\": \"22.5rem\","))
+            .and(predicate::str::contains("\"2xl\": \"96rem\",")),
+    );
 }
 
 #[test]

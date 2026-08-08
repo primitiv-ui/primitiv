@@ -1,0 +1,10 @@
+{
+  "breakpoint": {
+    "xs": { "$type": "number", "$value": 360 },
+    "sm": { "$type": "number", "$value": 640 },
+    "md": { "$type": "number", "$value": 768 },
+    "lg": { "$type": "number", "$value": 1024 },
+    "xl": { "$type": "number", "$value": 1280 },
+    "2xl": { "$type": "number", "$value": 1536 }
+  }
+}

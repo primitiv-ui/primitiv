@@ -11,7 +11,7 @@ status, summary, and decision record; this page is the index.
 | [0002](0002-harmoni-to-intent-to-plugin.md) | Harmoni → Intent → Plugin | Phase B complete; Phase C in progress |
 | [0003](0003-dynamic-foreground-wiring.md) | Dynamic foreground wiring | Implemented (engine + sync-plugin + DTCG) |
 | [0017](0017-elevation-and-shadow-tokens.md) | Elevation & shadow tokens | Draft — in progress |
-| [0025](0025-responsive-breakpoints.md) | Responsive breakpoints | Draft — proposed |
+| [0025](0025-responsive-breakpoints.md) | Responsive breakpoints | Web landed; Figma sync pending |
 
 - **0001** — the six-pattern layered token stack (primitives → intent → role →
   anatomy → interaction → component), the contexts model, and the Button worked
@@ -31,12 +31,16 @@ status, summary, and decision record; this page is the index.
   or behind a Boolean component property — is a documented follow-up session (§7).
 - **0025** — responsive breakpoints: a six-tier, mobile-first `min-width`
   scale (`xs`/360 → `2xl`/1536), emitted in `rem` at the same 16px base every
-  other length token uses, plus matching Figma design-frame presets. `xs` is
-  additive over Tailwind's default 5-tier scale, anchored to the current
-  dominant small-Android viewport width rather than the older 375px default.
-  Directly unblocks RFC 0022's deferred `Container`/`Grid` responsiveness.
-  Scopes (without building) a future public `useMediaQuery` hook and its
-  package boundary as a follow-on session.
+  other length token uses. `xs` is additive over Tailwind's default 5-tier
+  scale, anchored to the current dominant small-Android viewport width rather
+  than the older 375px default; the Tailwind `@theme` output deliberately
+  omits `sm`–`2xl` (they match Tailwind v4's own defaults, so redeclaring them
+  risks clobbering a consumer's customization) and emits only the additive
+  `xs`. Directly unblocks RFC 0022's deferred `Container`/`Grid`
+  responsiveness. Ships the public `useMediaQuery` hook (the first public hook
+  in `@primitiv-ui/react`) and a generated `breakpoints.ts` companion for it.
+  **Web side landed (2026-08-08); Figma variables and the §3 design-frame
+  presets are still pending** — see `docs/transfer-and-next-steps.md`.
 
 ## Consumption layer
 

@@ -91,6 +91,7 @@
     { "name": "--primitiv-listbox-group-label-line-height", "defaultsTo": "var(--primitiv-label-xs-line-height)" },
     { "name": "--primitiv-listbox-group-label-letter-spacing", "defaultsTo": "var(--primitiv-letter-spacing-wide)" },
     { "name": "--primitiv-listbox-empty-color", "defaultsTo": "var(--primitiv-content-muted)" },
-    { "name": "--primitiv-listbox-empty-min-block-size", "defaultsTo": "calc(var(--primitiv-listbox-option-height) * 2)" }
+    { "name": "--primitiv-listbox-empty-min-block-size", "defaultsTo": "calc(var(--primitiv-listbox-option-height) * 2)" },
+    { "name": "--primitiv-listbox-label-ink-slack", "defaultsTo": "var(--primitiv-space-space-1)" }
   ]
 }

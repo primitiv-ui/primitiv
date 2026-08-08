@@ -187,3 +187,21 @@ disabled.
 
 The design record, including all twelve settled decisions, is in
 [`docs/listbox-future-work.md`](../../../docs/listbox-future-work.md).
+
+
+## Truncated labels and descenders
+
+The truncating label carries a 1px `padding-block` with an equal negative
+`margin-block`. It needs `overflow: hidden` for `text-overflow: ellipsis`, and
+the clip box is the line box — so on the tighter rungs of the density ramp the
+deepest ink of a `g`, `j`, `p`, `q` or `y` lands a fraction of a pixel from that
+edge and gets shaved, depending on device pixel ratio, browser zoom and the
+row's subpixel offset. (Asta Sans has a 1.193em content area, measured off the
+real font; `dense`/`xs` sets line-height at 1.20 and `dense`/`lg` at 1.23.)
+Padding grows the clip box — overflow clips at the **padding** box — and the
+equal negative margin gives the space straight back, so row height and rhythm
+are unchanged. Retarget it with `--primitiv-listbox-label-ink-slack`.
+
+Both axes stay a single `overflow` value on purpose: `overflow-y: visible` with
+`overflow-x: hidden` is not a combination CSS honours — the visible axis
+computes to `auto` and you get a scrollbar.

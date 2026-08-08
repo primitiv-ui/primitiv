@@ -123,6 +123,7 @@
     { "name": "--primitiv-select-group-label-letter-spacing", "defaultsTo": "var(--primitiv-letter-spacing-wide)" },
     { "name": "--primitiv-select-separator-spacing", "defaultsTo": "var(--primitiv-dropdown-md-separator-spacing)" },
     { "name": "--primitiv-select-separator-color", "defaultsTo": "var(--primitiv-border-subtle)" },
-    { "name": "--primitiv-select-separator-thickness", "defaultsTo": "var(--primitiv-border-width-1)" }
+    { "name": "--primitiv-select-separator-thickness", "defaultsTo": "var(--primitiv-border-width-1)" },
+    { "name": "--primitiv-select-label-ink-slack", "defaultsTo": "var(--primitiv-space-space-1)" }
   ]
 }

@@ -156,6 +156,51 @@ don't try to fold the clamp value into the row track. Instead:
   ordinary "hide on close" rule doesn't apply — a clamped preview is real,
   readable content that is never actually hidden.
 
+## Truncating text needs ink slack, or `overflow: hidden` shaves descenders
+
+Any element that pairs `overflow: hidden` with text — i.e. every
+`text-overflow: ellipsis` label — **must** give its clip box vertical slack:
+
+```css
+.primitiv-x__label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding-block: var(--primitiv-x-label-ink-slack);
+  margin-block: calc(-1 * var(--primitiv-x-label-ink-slack));
+}
+```
+
+with `--primitiv-x-label-ink-slack: var(--primitiv-space-space-1)` declared in
+the component's base rule and registered in `contract.json`.
+
+**Why.** The clip box is the line box, and the house text face (Asta Sans) has a
+**1.193em content area** — measured off the real TTF in Chromium, not assumed.
+The tighter rungs of the density ramp sit at or barely above that: `dense`/`xs`
+is 10px on 12px (1.20) and `dense`/`lg` is 13px on 16px (1.23). The deepest ink
+of a `g`, `j`, `p`, `q` or `y` then lands **0.25–0.53px** from the clip edge, so
+whether it survives comes down to device pixel ratio, browser zoom and the row's
+subpixel offset. That is why it cuts *sometimes*, and why it never reproduces at
+the `comfortable`/`md` default you would test by hand. Padding grows the clip box
+(overflow clips at the **padding** box, not the content box); the equal negative
+margin returns the space, so height and rhythm are untouched.
+
+**Don't reach for the obvious alternatives.** `overflow-y: visible` with
+`overflow-x: hidden` is not a combination CSS honours — the visible axis computes
+to `auto` and you get a scrollbar. And don't loosen the `line-height` tokens: the
+tight rungs are deliberate, the ramp is shared by everything, and only the
+handful of components that actually clip are affected.
+
+**This is not the tokens' problem, it's the clip's.** An audit of all 136
+typography pairs found 17 below 1px ink clearance, but most are false positives
+for this bug — `tag`/`badge`/`chip` set tight line-heights on **fixed-height
+pills that never clip** (chip's stylesheet documents having hit exactly this and
+resolving it by *not* using `overflow: hidden`). Only four components clip text
+at the line box today: `tree`, `listbox`, `miller-columns`, `select` — all four
+carry the slack. Khand and JetBrains Mono pass everywhere despite Khand's much
+larger 1.529em content area, because its ink sits well inside it; content area
+is not the thing to measure, ink is.
+
 ## Finding the token name
 
 The custom property is `--primitiv-<dtcg-path-joined-by-dashes>`. Confirm a token

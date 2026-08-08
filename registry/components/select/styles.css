@@ -67,6 +67,8 @@
 
 @layer primitiv.base {
   .primitiv-select {
+    /* Vertical slack for the label's clip box — see the truncation rule below. */
+    --primitiv-select-label-ink-slack: var(--primitiv-space-space-1);
     /* Per-component API — the themable knobs, defaulting to the md size and the
        resting (default) border. The states layer below re-points the border on
        hover / focus / invalid; consumers can override any one without touching
@@ -140,6 +142,8 @@
     white-space: nowrap;
     text-overflow: ellipsis;
     text-align: start;
+    padding-block: var(--primitiv-select-label-ink-slack);
+    margin-block: calc(-1 * var(--primitiv-select-label-ink-slack));
   }
 
   /* Slot parts mirrored out of the selected option land here in the value's
@@ -167,6 +171,8 @@
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
+    padding-block: var(--primitiv-select-label-ink-slack);
+    margin-block: calc(-1 * var(--primitiv-select-label-ink-slack));
   }
 
   /* An icon mirrored out of the selected item (or dropped into the leading

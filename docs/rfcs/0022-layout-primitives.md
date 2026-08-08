@@ -316,11 +316,11 @@ quo (a) was going to leave them in anyway.
 
 ### Outstanding
 
-- **Container's Figma component set** — 7 `Size` variants plus a Slot. One
-  divergence to record in its description when built: Figma auto-layout padding
-  cannot be responsive, so the set shows a single gutter value where CSS
-  escalates across three.
-- **The `container/*` → `surface/*` Figma variable rename**, to match the code
-  side. Until it lands, the Figma Context collection and
-  `packages/tokens/src/context.json` disagree on those names, and a sync-plugin
-  backup would reintroduce the old family.
+The whole Figma side, specified in full in
+[`docs/layout-primitives-figma-work.md`](../layout-primitives-figma-work.md) —
+the `container/*` → `surface/*` variable rename (which must land before any
+sync-plugin backup, or it silently undoes the web work), the two new Context
+families, and Container's component set. Grid deliberately gets no set.
+
+Blocked as of 2026-08-08 on the same Figma bridge failure
+(`MCP error -32003`) as RFC 0025's variable work, not on any open decision.

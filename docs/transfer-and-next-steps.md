@@ -1298,25 +1298,24 @@ so the **code side is consistent**. The **Figma Context collection still carries
 the old `container/*` names.** Until that rename lands, a sync-plugin backup
 would reintroduce the old family and drop the new gutter one.
 
-**Not yet done — pick up here next session:**
+**Not yet done — the whole Figma side.** Written up as an executable spec in
+**[`docs/layout-primitives-figma-work.md`](layout-primitives-figma-work.md)**,
+with every value already extracted from `context.json` so nothing needs
+re-deriving. In short:
 
-1. **Rename the Figma Context variables `container/{size}/*` → `surface/{size}/*`**
-   (16 variables: 4 size slots × padding/gap/radius, across the density modes).
-   Mechanical, but it must happen before any sync-plugin backup.
-2. **Add the Figma Context variables for `container/gutter/{sm,md,lg}` and
-   `grid/gap/{xs..xl}`**, values per `packages/tokens/src/context.json`.
-3. **Container's Figma component set** — 7 `Size` variants (xs–2xl, full) + a
-   Slot for content, per the human's brief ("a container surface with some
-   padding and an empty Figma Slot"). One divergence to record in the
-   description: **Figma auto-layout padding cannot be responsive**, so the set
-   shows a single gutter value where CSS escalates across three. Watch the
-   `figma_execute` slot gotcha in `CLAUDE.md` — `createSlot()` ignores its
-   options object.
-4. **No Grid Figma set, deliberately** — a grid's value is its reflow, which a
-   fixed-width frame cannot express; auto-layout already covers the static case.
-   Recorded in `ROADMAP.md` as `—`, matching the other layout primitives.
+1. **Rename the Figma Context variables `container/{size}/*` →
+   `surface/{size}/*`** (16 variables). ⚠️ **Do this first** — it is the
+   hazard, not just a gap: until it lands, a sync-plugin backup reintroduces
+   the old family and drops the new gutter one, silently undoing the web work.
+2. **Create `container/gutter/{sm,md,lg}` and `grid/gap/{xs..xl}`** in the
+   Context collection, as aliases onto `space/*`.
+3. **The `Container` component set** — 7 `Size` variants + a Slot. Build `lg`
+   (the default) first; `defaultVariant` is read-only, so a retroactive
+   reorder can't fix the dropdown later.
+4. **No Grid set, deliberately** — a grid's value is its reflow, which a
+   fixed-width frame can't express.
 
 **Bridge status:** the same `MCP error -32003` that blocked the breakpoint
-variables (see the section above) blocks all four items here — they are the same
-Figma session problem, not four independent ones. Fix the pairing once and all
-of it unblocks together.
+variables (see the section above) blocks all of this — one Figma session
+problem, not several. Fix the pairing once and both sets of items unblock
+together.

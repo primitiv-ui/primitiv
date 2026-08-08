@@ -1,9 +1,12 @@
 # RFC 0025 — Responsive breakpoints
 
-> **Status:** **Draft — proposed.** Settled out of the docs-site wireframe
-> planning discussion (2026-07-27); the scale and units are decided, the
-> Figma design-frame presets are recorded, and the token-emission + hook work
-> are scoped as a follow-on session (§4–5).
+> **Status:** **Web landed (2026-08-08); Figma sync pending.** The token
+> category (§4), the Tailwind collision-safe emission, the generated
+> `breakpoints.ts` companion (§5), and the public `useMediaQuery` hook are all
+> shipped and on `main`. **Not yet done:** mirroring the six values into Figma
+> variables, and the §3 design-frame presets. See
+> `docs/transfer-and-next-steps.md` → "📐 Responsive breakpoints" for the live
+> checklist and why the Figma half is blocked for now.
 >
 > **Author:** simonrevill, with architectural drafting.
 > **Date:** 2026-07-27

@@ -27,6 +27,12 @@
  * it resolves.
  */
 
+/* Declare the sublayer order up front so this sheet is safe to load ahead of
+ * the token layer: CSS fixes layer precedence by first appearance, so without
+ * this a component stylesheet seen first would register primitiv.base before
+ * primitiv.reset and let the reset win (RFC 0008 §7). */
+@layer primitiv.reset, primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;
+
 @layer primitiv.reset {
   /* ===== UA-rendered chrome follows the app's theme ===== */
 
@@ -231,18 +237,25 @@
     color: var(--primitiv-list-marker-foreground);
   }
 
-  /* Description list: term in the label face (contrast does the hierarchy),
-     definition in secondary body, indented under its term. The container's UA
-     block margin is zeroed; flow rhythm is opt-in (RFC 0016 D66). */
+  /* Description list: term in the **body face at SemiBold**, definition in
+     secondary body, indented under its term. The container's UA block margin is
+     zeroed; flow rhythm is opt-in (RFC 0016 D66).
+
+     The term deliberately matches what the `description-list` component renders
+     (and therefore Figma's DescriptionList, node 585:6947, whose Term binds
+     body/{size} + font-style/semibold) so a bare <dl> and the component read
+     alike. It was previously the `label/sm` face — a different family *and* a
+     different scale: label/sm only coincides with body/md at Comfortable, and
+     diverges at Compact (14 vs 16), Spacious (18 vs 16) and Dense (11 vs 12). */
   dl {
     margin-block: var(--primitiv-space-space-0);
   }
 
   dt {
-    font-family: var(--primitiv-label-sm-font-family);
-    font-size: var(--primitiv-label-sm-font-size);
-    font-weight: var(--primitiv-label-sm-font-weight);
-    line-height: var(--primitiv-label-sm-line-height);
+    font-family: var(--primitiv-body-md-font-family);
+    font-size: var(--primitiv-body-md-font-size);
+    font-weight: var(--primitiv-font-weight-semibold);
+    line-height: var(--primitiv-body-md-line-height);
     color: var(--primitiv-content-primary);
   }
 
@@ -267,6 +280,19 @@
     border-inline-start: var(--primitiv-border-width-3) solid var(--primitiv-border-strong);
     padding-inline-start: var(--primitiv-quote-padding-inline);
     margin-inline: var(--primitiv-space-space-0);
+    margin-block: var(--primitiv-space-space-0);
+  }
+
+  /* Contact address: upright secondary body text. The UA italic is dropped to
+     hold the no-native-italic model (obliques are synthesised, never native);
+     the outer block margin is zeroed so flow rhythm owns its spacing (D66). */
+  address {
+    font-family: var(--primitiv-body-md-font-family);
+    font-size: var(--primitiv-body-md-font-size);
+    font-weight: var(--primitiv-body-md-font-weight);
+    line-height: var(--primitiv-body-md-line-height);
+    color: var(--primitiv-content-secondary);
+    font-style: normal;
     margin-block: var(--primitiv-space-space-0);
   }
 

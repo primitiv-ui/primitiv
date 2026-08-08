@@ -1261,7 +1261,7 @@
         }
       }
     },
-    "container": {
+    "surface": {
       "sm": {
         "padding": {
           "$type": "number",
@@ -2877,6 +2877,46 @@
         "$value": "{space.space-16}"
       }
     },
+    "container": {
+      "gutter": {
+        "sm": {
+          "$type": "number",
+          "$value": "{space.space-16}"
+        },
+        "md": {
+          "$type": "number",
+          "$value": "{space.space-24}"
+        },
+        "lg": {
+          "$type": "number",
+          "$value": "{space.space-32}"
+        }
+      }
+    },
+    "grid": {
+      "gap": {
+        "xs": {
+          "$type": "number",
+          "$value": "{space.space-4}"
+        },
+        "sm": {
+          "$type": "number",
+          "$value": "{space.space-8}"
+        },
+        "md": {
+          "$type": "number",
+          "$value": "{space.space-16}"
+        },
+        "lg": {
+          "$type": "number",
+          "$value": "{space.space-24}"
+        },
+        "xl": {
+          "$type": "number",
+          "$value": "{space.space-32}"
+        }
+      }
+    },
     "stack": {
       "gap": {
         "xs": {
@@ -4164,7 +4204,7 @@
         }
       }
     },
-    "container": {
+    "surface": {
       "sm": {
         "padding": {
           "$type": "number",
@@ -5780,6 +5820,46 @@
         "$value": "{space.space-12}"
       }
     },
+    "container": {
+      "gutter": {
+        "sm": {
+          "$type": "number",
+          "$value": "{space.space-12}"
+        },
+        "md": {
+          "$type": "number",
+          "$value": "{space.space-16}"
+        },
+        "lg": {
+          "$type": "number",
+          "$value": "{space.space-24}"
+        }
+      }
+    },
+    "grid": {
+      "gap": {
+        "xs": {
+          "$type": "number",
+          "$value": "{space.space-3}"
+        },
+        "sm": {
+          "$type": "number",
+          "$value": "{space.space-6}"
+        },
+        "md": {
+          "$type": "number",
+          "$value": "{space.space-12}"
+        },
+        "lg": {
+          "$type": "number",
+          "$value": "{space.space-20}"
+        },
+        "xl": {
+          "$type": "number",
+          "$value": "{space.space-24}"
+        }
+      }
+    },
     "stack": {
       "gap": {
         "xs": {
@@ -7067,7 +7147,7 @@
         }
       }
     },
-    "container": {
+    "surface": {
       "sm": {
         "padding": {
           "$type": "number",
@@ -8683,6 +8763,46 @@
         "$value": "{space.space-20}"
       }
     },
+    "container": {
+      "gutter": {
+        "sm": {
+          "$type": "number",
+          "$value": "{space.space-20}"
+        },
+        "md": {
+          "$type": "number",
+          "$value": "{space.space-32}"
+        },
+        "lg": {
+          "$type": "number",
+          "$value": "{space.space-48}"
+        }
+      }
+    },
+    "grid": {
+      "gap": {
+        "xs": {
+          "$type": "number",
+          "$value": "{space.space-6}"
+        },
+        "sm": {
+          "$type": "number",
+          "$value": "{space.space-10}"
+        },
+        "md": {
+          "$type": "number",
+          "$value": "{space.space-20}"
+        },
+        "lg": {
+          "$type": "number",
+          "$value": "{space.space-28}"
+        },
+        "xl": {
+          "$type": "number",
+          "$value": "{space.space-40}"
+        }
+      }
+    },
     "stack": {
       "gap": {
         "xs": {
@@ -9970,7 +10090,7 @@
         }
       }
     },
-    "container": {
+    "surface": {
       "sm": {
         "padding": {
           "$type": "number",
@@ -11584,6 +11704,46 @@
       "details-indent": {
         "$type": "number",
         "$value": "{space.space-12}"
+      }
+    },
+    "container": {
+      "gutter": {
+        "sm": {
+          "$type": "number",
+          "$value": "{space.space-8}"
+        },
+        "md": {
+          "$type": "number",
+          "$value": "{space.space-12}"
+        },
+        "lg": {
+          "$type": "number",
+          "$value": "{space.space-16}"
+        }
+      }
+    },
+    "grid": {
+      "gap": {
+        "xs": {
+          "$type": "number",
+          "$value": "{space.space-2}"
+        },
+        "sm": {
+          "$type": "number",
+          "$value": "{space.space-4}"
+        },
+        "md": {
+          "$type": "number",
+          "$value": "{space.space-8}"
+        },
+        "lg": {
+          "$type": "number",
+          "$value": "{space.space-16}"
+        },
+        "xl": {
+          "$type": "number",
+          "$value": "{space.space-20}"
+        }
       }
     },
     "stack": {

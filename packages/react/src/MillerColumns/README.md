@@ -80,7 +80,14 @@ column deeper than _d_ closes.
 The two shapes are discriminated at the type level: passing
 `defaultValue` alongside `value` is a type error.
 
-There is no multi-select — only one path is active at a time.
+**Single path only, by decision.** There is no multi-select and there is
+not going to be one — this is settled, not a v1 shortfall awaiting a
+follow-up. A Miller strip's whole premise is that the selection *is* the
+path: column N+1 exists because exactly one item in column N is chosen.
+Two selections in a column have no defined answer for what the next
+column should show. A consumer needing to mark many nodes should keep
+that set themselves and render it as content inside each `Item` (a
+checkbox, a badge), leaving the path to mean navigation.
 
 Every item on the path renders `data-state="selected"`, including the
 ancestors the path merely passes through. The **deepest** one also gets

@@ -179,9 +179,10 @@ fn add_all_resolves_every_embedded_component() {
         // force-mounts and adds a clip for the grid open/close transition, and
         // SelectionPath rebuilds each trail from the registry Breadcrumb through
         // the headless render prop, which is why it dependsOn breadcrumb).
-        .stdout(predicate::str::contains("Resolved 56 components to add:"))
+        .stdout(predicate::str::contains("Resolved 57 components to add:"))
         .stdout(predicate::str::contains("button"))
         .stdout(predicate::str::contains("tree"))
+        .stdout(predicate::str::contains("miller-columns"))
         .stdout(predicate::str::contains("split-button"))
         .stdout(predicate::str::contains("listbox"))
         .stdout(predicate::str::contains("card"))

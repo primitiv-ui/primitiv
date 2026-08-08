@@ -420,10 +420,12 @@ source of truth for when a skill applies.
     `Select / Trigger` already had `Filled` (placeholder↔filled); the third
     content state (filled+leading-icon) landed as a `Show leading`
     BOOLEAN + `Leading` SWAP. **INSTANCE_SWAP needed no manual
-    UI step** — the slots default to the *published* Icon set, so
-    `addComponentProperty(…, 'INSTANCE_SWAP', …)` resolves via the plugin API
-    (the two-step slotted-components limitation is only for *local* default
-    components). Also corrected a stale claim: `isExposedInstance=true` is a
+    UI step** — `addComponentProperty(…, 'INSTANCE_SWAP', …)` resolves via the
+    plugin API, no two-step dance. **Corrected 2026-08-08:** the default value
+    must be the component's **`id`**, not its `.key` — `.key` throws
+    *"Property value is incompatible with component property type"* for a set
+    local to the file. (`preferredValues` is the opposite: it takes `key`.)
+    Also corrected a stale claim: `isExposedInstance=true` is a
     no-op via the plugin API (per `figma-framed-control-component`'s
     component-properties reference), so the doc's earlier "exposed Panel Slot"
     note was wrong — formal INSTANCE_SWAP is the working path. Descriptions on
@@ -858,6 +860,41 @@ source of truth for when a skill applies.
     *left* of the child row's own left edge at every size, so rails never fall
     on indent boundaries and cannot be auto-layout columns. Its `connectors`
     frame is child 0 so a hovered/selected row's fill covers the rail.
+
+## Figma plugin-API gotchas (scripting via `figma_execute`)
+
+Traps that fail *silently* or point at the wrong culprit. Each cost a real
+debugging cycle; none is discoverable from the API surface.
+
+1. **Slots: `component.createSlot()`, not `figma.createSlot`.** Probing the
+   `figma` global returns `undefined` and makes slots look unavailable — the
+   method is on `ComponentNode`. The dedicated MCP tools
+   (`figma_create_slot` etc.) may still be blocked (`MCP error -32003`);
+   `figma_execute` is the working path. **It ignores its options object**:
+   `createSlot({ name, layoutMode, … })` yields a slot named `"Slot"` with
+   `layoutMode: "NONE"`, which absolutely positions every child at 0,0 — so
+   appended rows stack invisibly and only the last shows. Set `name`,
+   `layoutMode`, both sizing modes and `itemSpacing` *after* creation, and
+   clear the slot's default `fills`.
+2. **`INSTANCE_SWAP` default value takes a component `id`, not `.key`** (see
+   the Select notes above). `preferredValues` takes `key`.
+3. **`setBoundVariableForEffect` resets `spread` to 0.** A two-layer focus
+   ring binds its colours correctly and renders *nothing*; the read-back shows
+   `boundVariables` present and `spread: 0`. Re-apply spread onto the returned
+   object (`Object.assign({}, bound, { spread })`) — the binding survives.
+   Sibling trap, already in the `figma-component-descriptions` skill: a bound
+   *paint* keeps a literal `color`/`opacity` snapshot the bind does not fill
+   in. Treat every `setBoundVariableFor*` return value as needing its
+   non-colour fields re-set.
+4. **`addComponentProperty` can partially apply.** A call that throws on one
+   property may already have created the earlier ones, so a naive retry leaves
+   duplicates (`Label2`, `Show leading2`). Read `componentPropertyDefinitions`
+   before retrying and `deleteComponentProperty` the strays.
+5. **Text nodes created by script default to `textAutoResize: "NONE"`** with
+   whatever height `resize()` set. Figma still *renders* the overflowing text,
+   so a page looks right while every node reports a 20px box — which makes any
+   overlap/overflow audit meaningless. Set `textAutoResize = "HEIGHT"` before
+   measuring.
 
 ## Useful commands
 

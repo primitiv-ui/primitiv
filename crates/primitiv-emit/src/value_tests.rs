@@ -9,6 +9,12 @@ fn emits_length_categories_as_rem_against_a_16px_base() {
 }
 
 #[test]
+fn emits_breakpoints_as_rem_against_a_16px_base() {
+    assert_eq!(format_number("breakpoint", 360.0), "22.5rem");
+    assert_eq!(format_number("breakpoint", 1536.0), "96rem");
+}
+
+#[test]
 fn emits_trees_off_ladder_connector_widths_as_rem() {
     // `tree` is the one component namespace in LENGTH_CATEGORIES: its connector
     // stub widths are literal (chevron-glyph geometry, off every primitive

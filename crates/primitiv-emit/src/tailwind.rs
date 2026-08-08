@@ -20,6 +20,9 @@ pub fn emit_tailwind(tokens: &[Token]) -> String {
     let mut out = String::from("@theme {\n");
     let mut seen = HashSet::new();
     for token in tokens {
+        if is_tailwinds_own_default_breakpoint(&token.path) {
+            continue;
+        }
         let name = token.path.join("-");
         if seen.insert(name.clone()) {
             out.push_str(&format!(
@@ -63,6 +66,18 @@ fn theme_name(path: &[String]) -> String {
     let mut segments = vec![tailwind_namespace(category).to_string()];
     segments.extend(rest.iter().cloned());
     segments.join("-")
+}
+
+/// `breakpoint.{sm,md,lg,xl,2xl}` deliberately match Tailwind v4's own
+/// built-in `--breakpoint-*` defaults (RFC 0025 D2). Unlike every other
+/// Primitiv token, Tailwind requires the bare name to drive its `sm:`/`md:`
+/// variants, so there is no namespaced-alias escape hatch — redeclaring these
+/// five in our own `@theme` block would silently override a consumer's own
+/// customization of those exact names. `xs` is additive (no Tailwind
+/// default), so it is always safe and is the only one emitted here.
+fn is_tailwinds_own_default_breakpoint(path: &[String]) -> bool {
+    const TAILWIND_DEFAULTS: &[&str] = &["sm", "md", "lg", "xl", "2xl"];
+    matches!(path, [category, name] if category == "breakpoint" && TAILWIND_DEFAULTS.contains(&name.as_str()))
 }
 
 /// Map a token category onto Tailwind v4's theme namespace where the names

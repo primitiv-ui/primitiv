@@ -50,11 +50,50 @@ export function partitionAriaProps(props: Record<string, unknown>): {
 }
 
 /**
- * Whether `node` is a `MillerColumns.Column` element — the identity
- * check used to separate an Item's cell content from its child column.
+ * Marker a styling layer sets on a component that renders a `MillerColumns`
+ * part, so this module recognises the wrapper as that part.
+ *
+ * `Item` inspects its children **before** rendering them, so it sees the
+ * wrapper component rather than the `MillerColumns.Column` the wrapper
+ * returns. Without a marker a wrapped child column is mis-read as cell
+ * content: the item stops being a branch (no `aria-expanded`, no chevron, no
+ * ArrowRight) and — worse — the column projects into whatever depth slot
+ * happens to be open, so selecting *one* branch reveals *every* sibling's
+ * children at once.
+ *
+ * ```tsx
+ * function StyledColumn(props: MillerColumnsColumnProps) {
+ *   return <MillerColumns.Column {...props} className="column" />;
+ * }
+ * StyledColumn[MILLER_COLUMNS_PART] = "column";
+ * ```
+ */
+export const MILLER_COLUMNS_PART: "__primitivMillerColumnsPart" =
+  "__primitivMillerColumnsPart";
+
+/** The part names {@link MILLER_COLUMNS_PART} accepts. */
+export type MillerColumnsPartName = "column";
+
+/** Read a component's {@link MILLER_COLUMNS_PART} marker, if it declares one. */
+function millerColumnsPartOf(
+  type: unknown,
+): MillerColumnsPartName | undefined {
+  return (type as Record<string, MillerColumnsPartName | undefined> | null)?.[
+    MILLER_COLUMNS_PART
+  ];
+}
+
+/**
+ * Whether `node` is a `MillerColumns.Column` element — either the part itself,
+ * or a component that marks itself as standing in for it (see
+ * {@link MILLER_COLUMNS_PART}).
  */
 export function isColumnElement(node: ReactNode): node is ReactElement {
-  return isValidElement(node) && node.type === MillerColumnsColumn;
+  return (
+    isValidElement(node) &&
+    (node.type === MillerColumnsColumn ||
+      millerColumnsPartOf(node.type) === "column")
+  );
 }
 
 /**

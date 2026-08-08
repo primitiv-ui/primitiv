@@ -18,10 +18,14 @@ import "../styles/primitiv/miller-columns/styles.css";
  * be inferred from `children` — a column holding nothing but a ResizeHandle has
  * a child yet no items.
  *
- * THE PREVIEW PANE IS NOT GIVEN AN EMPTY LINE. Unlike a column it always has
- * children (whatever the consumer renders), so inventing one would fight them;
- * `.primitiv-miller-columns__empty` is exported as a part for consumers who want
- * the same muted treatment for their own "nothing selected" copy.
+ * THE PREVIEW PANE FOLLOWS FINDER. It occupies the slot *after* the selected
+ * item, so it exists only where that item has no children to open there
+ * instead — select a folder and you get its contents, not a preview; select
+ * nothing and there is no preview at all. The headless enforces this; pass
+ * `forceMount` for a persistent inspector pane. Because of that rule the pane
+ * has no "nothing selected" state to render under normal use, so it is given no
+ * empty line of its own; `.primitiv-miller-columns__empty` remains available as
+ * a part for a force-mounted pane.
  *
  * ROW CHEVRON: `ItemIndicator` ships its own chevron, so `<MillerColumnsItemIndicator />`
  * needs no icon package and no glyph from the consumer. It renders only for branch
@@ -30,7 +34,10 @@ import "../styles/primitiv/miller-columns/styles.css";
  *
  * Keep this file, contract.json, and the stylesheet in sync by hand.
  */
-import { MillerColumns as MillerColumnsPrimitive } from "@primitiv-ui/react";
+import {
+  MILLER_COLUMNS_PART,
+  MillerColumns as MillerColumnsPrimitive,
+} from "@primitiv-ui/react";
 import {
   Children,
   type ComponentPropsWithRef,
@@ -196,6 +203,18 @@ export function MillerColumnsColumn({
 }
 
 /** Props for {@link MillerColumnsItem}. */
+/**
+ * Declare that this wrapper stands in for `MillerColumns.Column`.
+ *
+ * `Item` partitions its children *before* rendering them, so it sees this
+ * component rather than the part it returns. Without the marker a nested
+ * `<MillerColumnsColumn>` is mis-read as cell content: the row stops being a
+ * branch (no `aria-expanded`, no chevron, no ArrowRight) and its column
+ * projects into whatever depth slot is open — so selecting one branch reveals
+ * every sibling's children at once.
+ */
+MillerColumnsColumn[MILLER_COLUMNS_PART] = "column";
+
 export type MillerColumnsItemProps = ComponentPropsWithRef<
   typeof MillerColumnsPrimitive.Item
 >;
@@ -359,7 +378,8 @@ export type MillerColumnsPreviewPanelProps = ComponentPropsWithRef<
  *
  * Deliberately **content-agnostic**: the component cannot know how to preview
  * an item, so you decide what it shows. Read the current selection from any
- * component inside the strip with `useMillerColumnsSelection`.
+ * component inside the strip with `useMillerColumnsSelection`, imported from
+ * `@primitiv-ui/react` — this surface does not re-export it.
  *
  * It carries `data-empty` while nothing is selected. Unlike a column it is not
  * given a message of its own — it always has your children, and inventing one
@@ -374,6 +394,8 @@ export type MillerColumnsPreviewPanelProps = ComponentPropsWithRef<
  *
  * @example
  * ```tsx
+ * import { useMillerColumnsSelection } from "@primitiv-ui/react";
+ *
  * function FilePreview() {
  *   const { selectedValue } = useMillerColumnsSelection();
  *   if (!selectedValue) {

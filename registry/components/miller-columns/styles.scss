@@ -18,7 +18,9 @@
  * inside it, the role="tree" widget holding only the columns. A tree may own
  * nothing but treeitem and group, so the preview panel is a sibling of the tree
  * rather than a child of it. The strip is the horizontal scroll container; the
- * tree is a plain flex row that grows to fill it.
+ * tree is a plain flex row sized to exactly its columns, so the preview pane
+ * sits immediately after the last one (Finder's placement) and the strip — not
+ * the tree — is what scrolls when they overflow.
  *
  * SEAMS. Every column draws a single trailing hairline. Only the FINAL element
  * in the strip suppresses one, where it would double up against the strip's own
@@ -135,12 +137,16 @@
     line-height: var(--primitiv-miller-columns-line-height);
   }
 
-  /* The role="tree" widget — a plain flex row of columns. It grows so the
-     preview pane, its sibling, is pushed to the trailing edge. */
+  /* The role="tree" widget — a plain flex row of columns, sized to exactly the
+     columns it holds. It must neither grow nor shrink: growing would push the
+     preview pane (its sibling) to the far edge, leaving a gap where Finder puts
+     it immediately after the selected item's column; shrinking (which a
+     min-width of 0 would permit) lets the columns overflow their own box and
+     paint over the pane once the strip runs out of room. The strip scrolls
+     instead. */
   [data-miller-columns-tree] {
     display: flex;
-    flex: 1 1 auto;
-    min-width: 0;
+    flex: 0 0 auto;
   }
 
   .primitiv-miller-columns__column {

@@ -28,6 +28,64 @@ describe("Activation mode tests", () => {
     expect(secondTabPanel).not.toHaveAttribute("hidden");
   });
 
+  it("does not activate a tab on arrow navigation in manual mode", async () => {
+    // Directly asserts the manual guard: arrow moves focus without activating,
+    // so Tab 1 stays selected and Tab 2 does not.
+    const user = userEvent.setup();
+    render(
+      <Tabs.Root defaultValue="tab1" activationMode="manual">
+        <Tabs.List label="Test tabs">
+          <Tabs.Trigger value="tab1">Tab 1</Tabs.Trigger>
+          <Tabs.Trigger value="tab2">Tab 2</Tabs.Trigger>
+        </Tabs.List>
+        <Tabs.Content value="tab1">Content 1</Tabs.Content>
+        <Tabs.Content value="tab2">Content 2</Tabs.Content>
+      </Tabs.Root>,
+    );
+
+    await user.tab();
+    await user.keyboard("{ArrowRight}");
+
+    expect(screen.getByRole("tab", { name: "Tab 2" })).toHaveAttribute(
+      "aria-selected",
+      "false",
+    );
+    expect(screen.getByRole("tab", { name: "Tab 1" })).toHaveAttribute(
+      "aria-selected",
+      "true",
+    );
+  });
+
+  it("activates a non-native asChild tab via the roving Enter handler (manual)", async () => {
+    // A plain <div> fires no synthetic click on Enter, so activation can only
+    // come from the roving hook's includeActivate mapping — the guarantee a
+    // native <button> would mask.
+    const user = userEvent.setup();
+    render(
+      <Tabs.Root defaultValue="tab1" activationMode="manual">
+        <Tabs.List label="Test tabs">
+          <Tabs.Trigger asChild value="tab1">
+            <div>Tab 1</div>
+          </Tabs.Trigger>
+          <Tabs.Trigger asChild value="tab2">
+            <div>Tab 2</div>
+          </Tabs.Trigger>
+        </Tabs.List>
+        <Tabs.Content value="tab1">Content 1</Tabs.Content>
+        <Tabs.Content value="tab2">Content 2</Tabs.Content>
+      </Tabs.Root>,
+    );
+
+    await user.tab();
+    await user.keyboard("{ArrowRight}");
+    await user.keyboard("{Enter}");
+
+    expect(screen.getByRole("tab", { name: "Tab 2" })).toHaveAttribute(
+      "aria-selected",
+      "true",
+    );
+  });
+
   it("should not activate the second tab when focusing its tab in manual mode", async () => {
     // Arrange
     const user = userEvent.setup();

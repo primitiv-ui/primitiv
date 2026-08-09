@@ -26,6 +26,23 @@ describe("Tabs lazyMount", () => {
     expect(screen.getByText("Content 3")).toBeInTheDocument();
   });
 
+  it("defaults lazyMount to off when the prop is omitted (eager render)", () => {
+    // Omitting the prop must fall back to eager mounting — a default of `true`
+    // would hide inactive panel children on mount.
+    render(
+      <Tabs.Root defaultValue="tab1">
+        <Tabs.List label="Test tabs">
+          <Tabs.Trigger value="tab1">Tab 1</Tabs.Trigger>
+          <Tabs.Trigger value="tab2">Tab 2</Tabs.Trigger>
+        </Tabs.List>
+        <Tabs.Content value="tab1">Content 1</Tabs.Content>
+        <Tabs.Content value="tab2">Content 2</Tabs.Content>
+      </Tabs.Root>,
+    );
+
+    expect(screen.getByText("Content 2")).toBeInTheDocument();
+  });
+
   it("should not render inactive panel children on initial mount when lazyMount is true", () => {
     renderTabs(true);
 

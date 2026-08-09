@@ -51,6 +51,9 @@ export function useTabsTrigger({
     (newValue: string, index: number) => {
       if (activeValue === newValue) return;
       if (isControlled) {
+        // Controlled mode requires `onValueChange` (discriminated-union prop
+        // type), so the optional call can never no-op in valid usage.
+        // Stryker disable next-line OptionalChaining: unreachable — controlled requires onValueChange.
         onValueChange?.(newValue);
       } else {
         setActiveValue(newValue);
@@ -87,10 +90,12 @@ export function useTabsTrigger({
     includeActivate: true,
     onNavigate: (targetValue, action) => {
       const isDisabled = disabledTriggerValues.has(targetValue);
+      // Automatic mode activates on any navigation; manual mode activates only
+      // on an explicit activation key (Enter/Space). Since the mode is always
+      // "automatic" or "manual", `automatic || isActivationKey` captures both.
       const shouldActivate =
         !isDisabled &&
-        (activationMode === "automatic" ||
-          (activationMode === "manual" && action === "activate"));
+        (activationMode === "automatic" || action === "activate");
       if (shouldActivate) {
         activateTab(targetValue, triggerValues.indexOf(targetValue));
       }

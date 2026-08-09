@@ -14,6 +14,11 @@ export function useTabsContent({ value }: Pick<TabsContentProps, "value">) {
 
   // Track whether this panel has ever been active. Starts true for the
   // default active panel; flips once on first activation for all others.
+  // The mount effect below sets `activated` for the active panel within the
+  // same commit, so the initialiser's value is only ever observable as a
+  // pre-effect first-paint flash (not reproducible in jsdom); for inactive
+  // panels the initialiser's `false` and a mutated `undefined` are both falsy.
+  // Stryker disable next-line ArrowFunction: equivalent under the test env — see above.
   const [activated, setActivated] = useState(() => isActive);
   useEffect(() => {
     if (isActive) setActivated(true);

@@ -18,15 +18,23 @@ type TriggerMeta = {
 
 export function useTabsRoot(
   {
-    orientation = "horizontal",
-    dir = "ltr",
-    activationMode = "automatic",
+    orientation,
+    dir,
+    activationMode,
     defaultValue,
     value,
     onValueChange,
     onChange,
-    lazyMount = false,
-  }: Omit<TabsRootProps, "className">,
+    lazyMount,
+  }: // `TabsRoot` always resolves these four before calling the hook, so they
+  // are required here (a default would be dead code the tests never reach).
+  Omit<TabsRootProps, "className"> &
+    Required<
+      Pick<
+        TabsRootProps,
+        "orientation" | "dir" | "activationMode" | "lazyMount"
+      >
+    >,
   ref: Ref<TabsImperativeApi>,
 ) {
   const tabsId = useId();
@@ -47,6 +55,10 @@ export function useTabsRoot(
     (
       triggerValue: string,
       element: HTMLButtonElement | null,
+      // The default is only reached by the cleanup call `registerTrigger(value,
+      // null)`, where `element` is null and `disabled` is discarded — so its
+      // value is never observable.
+      // Stryker disable next-line BooleanLiteral
       disabled = false,
     ) => {
       registerTriggerBase(
@@ -54,6 +66,9 @@ export function useTabsRoot(
         element ? { element, disabled } : null,
       );
     },
+    // `registerTriggerBase` is a stable useCollection callback, so emptying this
+    // array yields the identical memoised function.
+    // Stryker disable next-line ArrayDeclaration: equivalent — stable dependency.
     [registerTriggerBase],
   );
 
@@ -71,8 +86,14 @@ export function useTabsRoot(
 
   const focusTrigger = useCallback(
     (triggerValue: string) => {
+      // `triggerValue` is always sourced from the navigable set (registered
+      // triggers), so a value that reaches here has a live entry.
+      // Stryker disable next-line OptionalChaining: unreachable given that invariant.
       triggersRef.current.get(triggerValue)?.element.focus();
     },
+    // `triggersRef` is a stable RefObject, so emptying this array yields the
+    // identical memoised function.
+    // Stryker disable next-line ArrayDeclaration: equivalent — stable dependency.
     [triggersRef],
   );
 
@@ -100,6 +121,9 @@ export function useTabsRoot(
         }
 
         if (isControlled) {
+          // Controlled mode requires `onValueChange` (discriminated-union prop
+          // type), so the optional call can never no-op in valid usage.
+          // Stryker disable next-line OptionalChaining: unreachable — controlled requires onValueChange.
           onValueChange?.(newValue);
         } else {
           setActiveValue(newValue);

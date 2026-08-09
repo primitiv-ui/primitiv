@@ -148,6 +148,7 @@ export const TabsRoot: ForwardRefExoticComponent<
   );
 });
 
+// Stryker disable next-line StringLiteral: overwritten by the compound alias — an equivalent mutant.
 TabsRoot.displayName = "TabsRoot";
 
 /**

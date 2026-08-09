@@ -2,6 +2,42 @@ import { render, screen } from "@testing-library/react";
 import { Tabs } from "../Tabs";
 import userEvent from "@testing-library/user-event";
 
+describe("Tabs disabled re-registration", () => {
+  it("re-registers a trigger's disabled flag when it changes after mount", async () => {
+    // Arrange — automatic mode: arrowing onto a tab activates it unless the
+    // trigger is registered as disabled. Tab 2 starts enabled, then disables.
+    const user = userEvent.setup();
+    function Fixture({ tab2Disabled }: { tab2Disabled: boolean }) {
+      return (
+        <Tabs.Root defaultValue="tab1">
+          <Tabs.List label="Test tabs">
+            <Tabs.Trigger value="tab1">Tab 1</Tabs.Trigger>
+            <Tabs.Trigger value="tab2" disabled={tab2Disabled}>
+              Tab 2
+            </Tabs.Trigger>
+          </Tabs.List>
+          <Tabs.Content value="tab1">Content 1</Tabs.Content>
+          <Tabs.Content value="tab2">Content 2</Tabs.Content>
+        </Tabs.Root>
+      );
+    }
+    const { rerender } = render(<Fixture tab2Disabled={false} />);
+
+    // Act — disable Tab 2 after mount, then arrow onto it.
+    rerender(<Fixture tab2Disabled />);
+    await user.tab();
+    await user.keyboard("{ArrowRight}");
+
+    // Assert — the registrar effect re-ran, so Tab 2 is focused but NOT
+    // activated. A stale registration would treat it as enabled and activate
+    // it on arrow (automatic mode).
+    expect(screen.getByRole("tab", { name: "Tab 2" })).toHaveAttribute(
+      "aria-selected",
+      "false",
+    );
+  });
+});
+
 describe("Tabs disabled tabs tests", () => {
   it("should have the aria-disabled attribute set to false by default", () => {
     // Arrange

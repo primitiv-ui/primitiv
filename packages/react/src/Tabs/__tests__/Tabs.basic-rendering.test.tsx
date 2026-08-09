@@ -1,6 +1,21 @@
 import { render, screen } from "@testing-library/react";
 
 import { Tabs, TabsOrientation } from "../index.ts";
+import { TabsContext } from "../TabsContext";
+
+describe("Tabs displayNames", () => {
+  it("sets a displayName on the compound, each sub-component, and the context", () => {
+    // Assert — empty displayNames would render each as anonymous in DevTools.
+    // `Tabs`, `Tabs.Root`, and the underlying component are one object
+    // (Object.assign compound), so the compound's "Tabs" alias is the
+    // observable Root displayName; the sub-components are distinct objects.
+    expect(Tabs.displayName).toBe("Tabs");
+    expect(Tabs.List.displayName).toBe("TabsList");
+    expect(Tabs.Trigger.displayName).toBe("TabsTrigger");
+    expect(Tabs.Content.displayName).toBe("TabsContent");
+    expect(TabsContext.displayName).toBe("TabsContext");
+  });
+});
 
 describe("Tabs basic rendering tests", () => {
   describe("Tabs.Root", () => {

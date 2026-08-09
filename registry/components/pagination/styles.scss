@@ -76,6 +76,12 @@
 
     display: flex;
     align-items: center;
+    /* Wrap between the three groups (summary / controls / trailing) rather than
+       compressing them. Identical while the row fits; once it doesn't, a group
+       drops to its own line instead of the labels breaking mid-phrase or the
+       row running off the container. The numbered cell row itself never wraps —
+       `variant="compact"` is the answer for a genuinely narrow container. */
+    flex-wrap: wrap;
     gap: var(--primitiv-pagination-group-gap);
   }
 
@@ -118,6 +124,7 @@
   /* Compact's readout. Not a control — plain text between the two chevrons. */
   .primitiv-pagination__status {
     color: var(--primitiv-content-primary);
+    white-space: nowrap;
     /* A control's own readout is not page content: a tap-hold here should not
        select it or pop iOS's callout. */
     user-select: none;
@@ -127,12 +134,20 @@
 
   .primitiv-pagination__summary {
     color: var(--primitiv-content-muted);
+    white-space: nowrap;
   }
 
   .primitiv-pagination__trailing {
     display: flex;
     align-items: center;
     gap: var(--primitiv-pagination-control-gap);
+    /* These three parts hold short, control-adjacent phrases — "Go to",
+       "Page 3 of 20", "Showing 21-30 of 237". A flex item's min-width: auto
+       resolves to MIN-CONTENT for text, i.e. its widest single word, so under
+       any pressure the row happily breaks "Go to" across two lines rather than
+       keeping the label intact. None of them is prose; they should overflow or
+       be re-laid-out by the wrap below, never hyphenate a two-word label. */
+    white-space: nowrap;
   }
 }
 

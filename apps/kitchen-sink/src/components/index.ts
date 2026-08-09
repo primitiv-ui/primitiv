@@ -37,6 +37,7 @@ export * from "./listbox";
 export * from "./miller-columns";
 export * from "./modal";
 export * from "./navigation-menu";
+export * from "./pagination";
 export * from "./popover";
 export * from "./progress";
 export * from "./prose";

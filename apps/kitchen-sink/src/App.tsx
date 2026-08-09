@@ -137,6 +137,7 @@ import {
   NavigationMenuLinkDescription,
   NavigationMenuLinkLeading,
   NavigationMenuLinkTrailing,
+  Pagination,
   Popover,
   PopoverTrigger,
   PopoverContent,
@@ -545,6 +546,7 @@ const PAGE_TOC: { category: string; titles: string[] }[] = [
       "Breadcrumb",
       "Breadcrumb Overflow",
       "Collapsible",
+      "Pagination",
       "Tabs",
     ],
   },
@@ -1015,6 +1017,13 @@ export function App(): ReactElement {
   );
   const [cmAlign, setCmAlign] = useState("left");
   const [framework, setFramework] = useState("react");
+  // Pagination demo state — one page index per demo, so paging one row doesn't
+  // move the others (and so the compact/summary demos can sit at different
+  // points in their range).
+  const [pageBasic, setPageBasic] = useState(3);
+  const [pageCompact, setPageCompact] = useState(1);
+  const [pageFooter, setPageFooter] = useState(3);
+  const [pageWide, setPageWide] = useState(50);
   // Select demo state — controlled so the trigger's mirrored content and the
   // checkmark indicator both track a real selection.
   const [selFramework, setSelFramework] = useState("");
@@ -3316,6 +3325,83 @@ export function ramp(hue: number, chroma = 0.12) {
               </DrawerPortal>
             </Drawer>
           </div>
+        </Section>
+
+        <Section title="Pagination" column>
+          <p className="kitchen-sink__note">
+            Page cells are square by <InlineCode size={size}>min-inline-size</InlineCode>,
+            so <InlineCode size={size}>1</InlineCode> and{" "}
+            <InlineCode size={size}>20</InlineCode> match and the row does not
+            re-centre as the page number gains a digit. Every cell is a real
+            Button and the overflow menu a real Dropdown — Pagination adds no
+            new keyboard model of its own. Cells and their gap track the Size
+            and Density controls above.
+          </p>
+          <Pagination
+            label="Basic pagination"
+            size={size}
+            page={pageBasic}
+            pageCount={20}
+            onPageChange={setPageBasic}
+          />
+
+          <p className="kitchen-sink__note">
+            Compact — no numbered cells, for narrow containers and table
+            footers.
+          </p>
+          <Pagination
+            label="Compact pagination"
+            variant="compact"
+            size={size}
+            page={pageCompact}
+            pageCount={20}
+            onPageChange={setPageCompact}
+          />
+
+          <p className="kitchen-sink__note">
+            With both optional slots filled — a range summary before the
+            controls and a jump-to-page Select after them.
+          </p>
+          <Pagination
+            label="Table footer pagination"
+            size={size}
+            page={pageFooter}
+            pageCount={20}
+            onPageChange={setPageFooter}
+            summary={`Showing ${(pageFooter - 1) * 10 + 1}-${pageFooter * 10} of 200`}
+          >
+            {/* native: the jump control wants the platform popup, not a rich
+                listbox — and native mode needs no anchor-name/position-anchor
+                wiring, which a rich panel would (see the .ks-anchor-sel-*
+                classes in demos.css). */}
+            <Select
+              native
+              size={size}
+              aria-label="Go to page"
+              value={String(pageFooter)}
+              onValueChange={(value) => setPageFooter(Number(value))}
+            >
+              {Array.from({ length: 20 }, (_, i) => (
+                <SelectItem key={i + 1} value={String(i + 1)}>
+                  {`Page ${i + 1}`}
+                </SelectItem>
+              ))}
+            </Select>
+          </Pagination>
+
+          <p className="kitchen-sink__note">
+            A wide range, mid-way through — both gaps collapse, and each
+            ellipsis opens a menu of the pages it hid, so nothing in a
+            100-page range is more than two clicks away.
+          </p>
+          <Pagination
+            label="Wide-range pagination"
+            size={size}
+            page={pageWide}
+            pageCount={100}
+            siblingCount={2}
+            onPageChange={setPageWide}
+          />
         </Section>
 
         <Section title="Popover" column>

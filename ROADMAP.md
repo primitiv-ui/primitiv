@@ -262,7 +262,35 @@ None of these are built yet; listed here for backlog visibility.
       registry-only `elevation` prop — a Figma BOOLEAN cannot toggle an effect
       style, and an `Elevation` variant axis would have doubled the set to 60.
 - [ ] Stepper / Wizard (`Tabs` + `Button` + decorative step row)
-- [ ] Pagination (`Button` + `Select`)
+- [x] Pagination (`Button` + `Dropdown` + `Select`). **Landed 2026-08-09, tokens
+      + Figma + registry + kitchen-sink.** New `pagination/{size}/{gap,
+      item-min-width}` Context tokens (code + Figma, all 4 density modes);
+      `item-min-width` aliases `framed-control/{size}/height`, the same
+      context→context alias `avatar/radius/*` uses, so a page cell stays square
+      at every density with no duplicated numbers. Figma: page "Pagination"
+      (10 variants, `Variant numbered|compact` × `Size xs-xl`, md-first — built
+      md-variants-first, which is what finally produced a genuinely md-first
+      Size dropdown) plus a 7-section "Pagination — exploration" page carrying
+      the settled-decisions panel. **Registry** (hand-authored, primitive-less
+      — every cell is a real `Button` and the overflow menu a real `Dropdown`,
+      so there is no new ARIA pattern for a headless primitive to own): cells
+      are square by **`min-inline-size`, not a fixed width**, so `1` and `20`
+      match while a 4-digit page grows rather than clipping — without the floor
+      the whole row visibly resizes and re-centres each time the page number
+      gains a digit (9 → 10 → 100). The **ellipsis is a real Button opening a
+      Dropdown** of the collapsed pages, not a static glyph, so a truncated
+      range never puts a page out of reach; that menu re-points Dropdown's own
+      `--primitiv-dropdown-min-inline-size` (12rem, sized for menu *labels*)
+      down to the page-cell width, an override which **must** live in
+      `primitiv.variants` — after `primitiv.base` where Dropdown declares it —
+      or the winner would depend on stylesheet order (the trap Alert hit).
+      `page`/`pageCount`/`onPageChange` is a real data model, deliberately
+      unlike `avatar-group`/`breadcrumb-overflow` taking children: those would
+      have had to model *content*, this models two integers. Registered in
+      `registry/registry.json`, `crates/primitiv-cli/src/ports/registry.rs`,
+      `crates/primitiv-cli/tests/cli.rs` (roster count 60). RFC 0021 scoped
+      this as "`Button` + `Select`"; `Dropdown` is a deliberate extension for
+      the overflow menu, same precedent as Breadcrumb Overflow.
 - [ ] Data Table (`Table` + `Checkbox` + `Dropdown` + `Select` + Pagination + `InputGroup`)
 - [ ] Rating (`RadioGroup` re-skinned — reclassified out of Forms below)
 - [ ] Stat / KPI tile (`Progress` + `Badge` + `Prose`)
@@ -419,7 +447,7 @@ semantics that CSS alone cannot provide.
 - [x] Breadcrumb
 - [x] Carousel
 - [x] Collapsible
-- [ ] Pagination
+- [x] Pagination — Figma set (10 variants, md-first) + `pagination/*` tokens + registry surface + kitchen-sink demo. Registry-only leaf (no headless primitive): composes `Button` + `Dropdown`, introduces no new ARIA pattern. See [RFC 0021](docs/rfcs/0021-composite-components.md)
 - [ ] Steps
 - [x] Tabs
 

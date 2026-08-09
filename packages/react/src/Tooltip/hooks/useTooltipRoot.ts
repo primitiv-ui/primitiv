@@ -31,6 +31,11 @@ export function useTooltipRoot({
   const gracePeriodTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const openImmediate = useCallback(() => {
+    // Stryker disable next-line ConditionalExpression: equivalent —
+    // clearTimeout(null) is a spec'd no-op, so forcing this guard true is
+    // harmless when no open timer is pending; the false / never-clear variant
+    // is killed by the "cancels a pending hover-delay open timer when the
+    // trigger is focused before it elapses" test.
     if (openTimerRef.current !== null) {
       clearTimeout(openTimerRef.current);
       openTimerRef.current = null;
@@ -52,6 +57,11 @@ export function useTooltipRoot({
   }, [openImmediate, effectiveDelayDuration, providerCtx.isOpenGlobally]);
 
   const closeImmediate = useCallback(() => {
+    // Stryker disable next-line ConditionalExpression: equivalent —
+    // clearTimeout(null) is a spec'd no-op, so forcing this guard true is
+    // harmless when no grace timer is pending; the false / never-clear variant
+    // is killed by the "cancels a pending grace-period timer when the tooltip
+    // closes immediately during the grace window" test.
     if (gracePeriodTimerRef.current !== null) {
       clearTimeout(gracePeriodTimerRef.current);
       gracePeriodTimerRef.current = null;
@@ -60,14 +70,28 @@ export function useTooltipRoot({
     providerCtx.onCloseGlobally();
   }, [setOpen, providerCtx]);
 
-  const cancelGrace = useCallback(() => {
-    if (gracePeriodTimerRef.current !== null) {
-      clearTimeout(gracePeriodTimerRef.current);
-      gracePeriodTimerRef.current = null;
-    }
-  }, []);
+  const cancelGrace = useCallback(
+    () => {
+      // Stryker disable next-line ConditionalExpression: equivalent —
+      // clearTimeout(null) is a spec'd no-op, so forcing this guard true is
+      // harmless when no grace timer is pending; the false / never-clear
+      // variant is killed by the "cancels the grace-period close timer when
+      // the pointer moves into the content" test.
+      if (gracePeriodTimerRef.current !== null) {
+        clearTimeout(gracePeriodTimerRef.current);
+        gracePeriodTimerRef.current = null;
+      }
+    },
+    // Stryker disable next-line ArrayDeclaration: equivalent — no dependency to freeze.
+    [],
+  );
 
   const closeWithGrace = useCallback(() => {
+    // Stryker disable next-line ConditionalExpression: equivalent —
+    // clearTimeout(null) is a spec'd no-op, so forcing this guard true is
+    // harmless when no open timer is pending; the false / never-clear variant
+    // is killed by the "cancels a pending hover-delay open timer when the
+    // pointer leaves before it elapses" test.
     if (openTimerRef.current !== null) {
       clearTimeout(openTimerRef.current);
       openTimerRef.current = null;

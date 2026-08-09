@@ -14,13 +14,22 @@ export function useTooltipProvider({
   const [isOpenGlobally, setIsOpenGlobally] = useState(false);
   const skipDelayTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const onOpenGlobally = useCallback(() => {
-    if (skipDelayTimerRef.current !== null) {
-      clearTimeout(skipDelayTimerRef.current);
-      skipDelayTimerRef.current = null;
-    }
-    setIsOpenGlobally(true);
-  }, []);
+  const onOpenGlobally = useCallback(
+    () => {
+      // Stryker disable next-line ConditionalExpression: equivalent —
+      // clearTimeout(null) is a spec'd no-op, so forcing this guard true is
+      // harmless when no skip-delay timer is pending; the false / never-clear
+      // variant is killed by the "clears a pending skip-delay timer when a
+      // tooltip opens again within the skip window" test.
+      if (skipDelayTimerRef.current !== null) {
+        clearTimeout(skipDelayTimerRef.current);
+        skipDelayTimerRef.current = null;
+      }
+      setIsOpenGlobally(true);
+    },
+    // Stryker disable next-line ArrayDeclaration: equivalent — no dependency to freeze.
+    [],
+  );
 
   const onCloseGlobally = useCallback(() => {
     skipDelayTimerRef.current = setTimeout(() => {
@@ -33,13 +42,22 @@ export function useTooltipProvider({
   // component it was scheduled from unless explicitly cancelled — without
   // this, an in-flight timer fires after unmount and can throw once its
   // surrounding environment (e.g. a test's jsdom `window`) is gone.
-  useEffect(() => {
-    return () => {
-      if (skipDelayTimerRef.current !== null) {
-        clearTimeout(skipDelayTimerRef.current);
-      }
-    };
-  }, []);
+  useEffect(
+    () => {
+      return () => {
+        // Stryker disable next-line ConditionalExpression: equivalent —
+        // clearTimeout(null) is a spec'd no-op, so forcing this guard true is
+        // harmless when no skip-delay timer is pending; the false / never-clear
+        // variant is killed by the "clears the pending skip-delay timeout on
+        // unmount" test.
+        if (skipDelayTimerRef.current !== null) {
+          clearTimeout(skipDelayTimerRef.current);
+        }
+      };
+    },
+    // Stryker disable next-line ArrayDeclaration: equivalent — no dependency to freeze (mount/unmount only).
+    [],
+  );
 
   const contextValue: TooltipProviderContextValue = {
     delayDuration,

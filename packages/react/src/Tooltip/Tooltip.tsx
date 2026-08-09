@@ -120,7 +120,7 @@ export function TooltipRoot({
   return <TooltipProvider value={contextValue}>{children}</TooltipProvider>;
 }
 
-/** @internal */
+// Stryker disable next-line StringLiteral: overwritten by the compound alias — an equivalent mutant.
 TooltipRoot.displayName = "TooltipRoot";
 
 /**

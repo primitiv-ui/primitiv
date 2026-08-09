@@ -1,6 +1,24 @@
 import { render, screen } from "@testing-library/react";
 
 import { Tooltip } from "../Tooltip";
+import { TooltipContext, TooltipProviderContext } from "../TooltipContext";
+
+describe("Tooltip displayNames", () => {
+  it("sets a displayName on the compound, each sub-component, and both contexts", () => {
+    // Assert — empty displayNames would render each as anonymous in DevTools.
+    // Tooltip.Root is the same object as the compound (Object.assign), so its
+    // own "TooltipRoot" assignment is overwritten and has no observable
+    // Root displayName; the sub-components are distinct objects.
+    expect(Tooltip.displayName).toBe("Tooltip");
+    expect(Tooltip.Provider.displayName).toBe("TooltipProvider");
+    expect(Tooltip.Trigger.displayName).toBe("TooltipTrigger");
+    expect(Tooltip.Portal.displayName).toBe("TooltipPortal");
+    expect(Tooltip.Content.displayName).toBe("TooltipContent");
+    expect(Tooltip.Arrow.displayName).toBe("TooltipArrow");
+    expect(TooltipProviderContext.displayName).toBe("TooltipProviderContext");
+    expect(TooltipContext.displayName).toBe("TooltipContext");
+  });
+});
 
 describe("Tooltip — basic rendering", () => {
   it("renders Tooltip.Trigger as a button with type='button'", () => {
@@ -133,6 +151,38 @@ describe("Tooltip — basic rendering", () => {
     );
 
     expect(screen.queryByRole("tooltip")).toBeNull();
+  });
+
+  it("Tooltip.Portal does not render arbitrary children when closed, independent of Content's own guard", () => {
+    // Content has its own open guard, so wrapping it can't tell Portal's
+    // guard apart from Content's. Wrap a plain element instead.
+    render(
+      <Tooltip.Provider>
+        <Tooltip.Root>
+          <Tooltip.Trigger>Hover me</Tooltip.Trigger>
+          <Tooltip.Portal>
+            <div data-testid="portal-child">child</div>
+          </Tooltip.Portal>
+        </Tooltip.Root>
+      </Tooltip.Provider>,
+    );
+
+    expect(screen.queryByTestId("portal-child")).toBeNull();
+  });
+
+  it("Tooltip.Portal renders arbitrary children via forceMount even when closed", () => {
+    render(
+      <Tooltip.Provider>
+        <Tooltip.Root>
+          <Tooltip.Trigger>Hover me</Tooltip.Trigger>
+          <Tooltip.Portal forceMount>
+            <div data-testid="portal-child">child</div>
+          </Tooltip.Portal>
+        </Tooltip.Root>
+      </Tooltip.Provider>,
+    );
+
+    expect(screen.getByTestId("portal-child")).toBeInTheDocument();
   });
 
   it("Tooltip.Arrow renders a span inside the content", () => {

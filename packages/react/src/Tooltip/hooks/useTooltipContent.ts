@@ -29,6 +29,9 @@ export function useTooltipContent({
   useEffect(() => {
     if (!open) return;
     const handlePointerDown = (event: PointerEvent) => {
+      // Stryker disable next-line OptionalChaining: equivalent — this listener
+      // is only attached while `open` is true, and the Content `<div>` (and
+      // therefore internalRef.current) is always mounted whenever open is true.
       if (internalRef.current?.contains(event.target as Node)) return;
       onPointerDownOutside?.(event);
       if (event.defaultPrevented) return;

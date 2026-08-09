@@ -50,6 +50,18 @@
     padding: var(--primitiv-space-space-0);
     list-style: none;
   }
+
+  /* Neutralise the base `li + li` inter-item margin (the RFC 0016 flow-rhythm
+     rule in the token layer's reset). It is a bare element selector, so it
+     reaches these cells even though they are a control row rather than prose —
+     and because it is `li + li` it skips the FIRST cell only, pushing every
+     other one down by --primitiv-list-item-gap. In a centred horizontal row
+     that reads as the prev button being the one item out of alignment, which
+     is a confusing way for the real cause to present. Same fix Breadcrumb,
+     Dropdown and NavigationMenu apply to their own rows. */
+  .primitiv-pagination__cell {
+    margin-block: var(--primitiv-space-space-0);
+  }
 }
 
 @layer primitiv.base {
@@ -93,15 +105,6 @@
     min-inline-size: var(--primitiv-pagination-item-min-inline-size);
   }
 
-  /* Prev/next are icon-only, so Button's text padding would stretch the square
-     into a lozenge — the min-inline-size above already reserves the width, and
-     the icon centres in it. `justify-content` is restated because Button's own
-     base rule sets it for a label+icon row. */
-  .primitiv-pagination__nav {
-    padding-inline: var(--primitiv-space-space-0);
-    justify-content: center;
-  }
-
   /* The inlined chevrons carry a viewBox but no intrinsic width/height, so
      without this they fall back to the SVG default (300×150) and blow the row
      apart. Sized off the same icon token the Figma Icon Button binds, so the
@@ -134,6 +137,20 @@
 }
 
 @layer primitiv.variants {
+  /* Prev/next are icon-only, so Button's text padding would stretch the square
+     into a lozenge — the min-inline-size in primitiv.base already reserves the
+     width, and the icon centres in it.
+   *
+   * This MUST sit in a layer after primitiv.base, where `.primitiv-button` sets
+   * padding-inline. Both selectors are a single class, so at equal specificity
+   * in the SAME layer the winner would come down to which stylesheet the
+   * bundler emitted last — i.e. it would work or not depending on install
+   * order. A later layer always wins. (Same trap Alert hit re-pointing Button's
+   * --primitiv-button-fg, and the dropdown menu's min-inline-size below.) */
+  .primitiv-pagination__nav {
+    padding-inline: var(--primitiv-space-space-0);
+  }
+
   /* Size — both knobs come from the same size slot, so a cell stays square at
      every density (item-min-width aliases framed-control/{size}/height). */
   .primitiv-pagination--xs {

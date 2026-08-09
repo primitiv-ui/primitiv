@@ -8,9 +8,16 @@
  * variant modifiers, and the --primitiv-pagination-* custom properties), not
  * these values (RFC 0006 Principle 2 — names are stable, values are not).
  *
- * Requires the token layer for: pagination/{size}/{gap,item-min-width},
- * space/*, and — through the composed Button and Dropdown surfaces —
- * framed-control/*, action/*, surface/*, border/*, content/*.
+ * Requires the token layer for: pagination/{size}/{gap,group-gap,
+ * item-min-width}, framed-control/{size}/{gap,icon-size}, space/*, and —
+ * through the composed Button and Dropdown surfaces — action/*, surface/*,
+ * border/*, content/*.
+ *
+ * EVERY size-dependent value is re-pointed by the --xs…--xl modifiers, not just
+ * the two obvious ones. The base rule's md values are defaults for an unsized
+ * root; a knob declared there and NOT restated per size silently pins itself to
+ * md at every size (which is exactly what happened to the group gap, the
+ * compact gap and the chevron size on the first pass).
  *
  * Anatomy mirrors the Figma design (page "Pagination"): three top-level
  * children, [summary][controls][trailing], of which only `controls` is always
@@ -49,7 +56,9 @@
   .primitiv-pagination {
     --primitiv-pagination-gap: var(--primitiv-pagination-md-gap);
     --primitiv-pagination-item-min-inline-size: var(--primitiv-pagination-md-item-min-width);
-    --primitiv-pagination-group-gap: var(--primitiv-space-space-24);
+    --primitiv-pagination-group-gap: var(--primitiv-pagination-md-group-gap);
+    --primitiv-pagination-control-gap: var(--primitiv-framed-control-md-gap);
+    --primitiv-pagination-icon-size: var(--primitiv-framed-control-md-icon-size);
     --primitiv-pagination-menu-min-inline-size: var(--primitiv-pagination-md-item-min-width);
 
     display: flex;
@@ -69,13 +78,37 @@
     display: flex;
   }
 
-  /* The floor that makes a cell square. Applied to the composed Button (and to
-     the ellipsis trigger, which is also a Button) rather than to the <li>, so
-     it is the control's own box that squares up — the hit target, the fill and
-     the focus ring all follow it. */
+  /* The floor that makes a cell square. Applied to the composed Button rather
+     than to the <li>, so it is the control's own box that squares up — the hit
+     target, the fill and the focus ring all follow it.
+   *
+   * EVERY cell in the row takes it, prev/next included. They are the same
+   * square as a page number in Figma (Icon Button, whose width and height both
+   * bind to framed-control/{size}/height), and leaving them off here is what
+   * made the chevrons render narrower than the numbers beside them. */
   .primitiv-pagination__item,
-  .primitiv-pagination__ellipsis {
+  .primitiv-pagination__ellipsis,
+  .primitiv-pagination__nav {
     min-inline-size: var(--primitiv-pagination-item-min-inline-size);
+  }
+
+  /* Prev/next are icon-only, so Button's text padding would stretch the square
+     into a lozenge — the min-inline-size above already reserves the width, and
+     the icon centres in it. `justify-content` is restated because Button's own
+     base rule sets it for a label+icon row. */
+  .primitiv-pagination__nav {
+    padding-inline: var(--primitiv-space-space-0);
+    justify-content: center;
+  }
+
+  /* The inlined chevrons carry a viewBox but no intrinsic width/height, so
+     without this they fall back to the SVG default (300×150) and blow the row
+     apart. Sized off the same icon token the Figma Icon Button binds, so the
+     glyph tracks size AND density rather than sitting at one fixed scale. */
+  .primitiv-pagination__nav > svg {
+    inline-size: var(--primitiv-pagination-icon-size);
+    block-size: var(--primitiv-pagination-icon-size);
+    flex-shrink: 0;
   }
 
   /* Compact's readout. Not a control — plain text between the two chevrons. */
@@ -95,7 +128,7 @@
   .primitiv-pagination__trailing {
     display: flex;
     align-items: center;
-    gap: var(--primitiv-framed-control-md-gap);
+    gap: var(--primitiv-pagination-control-gap);
   }
 }
 
@@ -104,30 +137,45 @@
      every density (item-min-width aliases framed-control/{size}/height). */
   .primitiv-pagination--xs {
     --primitiv-pagination-gap: var(--primitiv-pagination-xs-gap);
+    --primitiv-pagination-group-gap: var(--primitiv-pagination-xs-group-gap);
+    --primitiv-pagination-control-gap: var(--primitiv-framed-control-xs-gap);
+    --primitiv-pagination-icon-size: var(--primitiv-framed-control-xs-icon-size);
     --primitiv-pagination-item-min-inline-size: var(--primitiv-pagination-xs-item-min-width);
     --primitiv-pagination-menu-min-inline-size: var(--primitiv-pagination-xs-item-min-width);
   }
 
   .primitiv-pagination--sm {
     --primitiv-pagination-gap: var(--primitiv-pagination-sm-gap);
+    --primitiv-pagination-group-gap: var(--primitiv-pagination-sm-group-gap);
+    --primitiv-pagination-control-gap: var(--primitiv-framed-control-sm-gap);
+    --primitiv-pagination-icon-size: var(--primitiv-framed-control-sm-icon-size);
     --primitiv-pagination-item-min-inline-size: var(--primitiv-pagination-sm-item-min-width);
     --primitiv-pagination-menu-min-inline-size: var(--primitiv-pagination-sm-item-min-width);
   }
 
   .primitiv-pagination--md {
     --primitiv-pagination-gap: var(--primitiv-pagination-md-gap);
+    --primitiv-pagination-group-gap: var(--primitiv-pagination-md-group-gap);
+    --primitiv-pagination-control-gap: var(--primitiv-framed-control-md-gap);
+    --primitiv-pagination-icon-size: var(--primitiv-framed-control-md-icon-size);
     --primitiv-pagination-item-min-inline-size: var(--primitiv-pagination-md-item-min-width);
     --primitiv-pagination-menu-min-inline-size: var(--primitiv-pagination-md-item-min-width);
   }
 
   .primitiv-pagination--lg {
     --primitiv-pagination-gap: var(--primitiv-pagination-lg-gap);
+    --primitiv-pagination-group-gap: var(--primitiv-pagination-lg-group-gap);
+    --primitiv-pagination-control-gap: var(--primitiv-framed-control-lg-gap);
+    --primitiv-pagination-icon-size: var(--primitiv-framed-control-lg-icon-size);
     --primitiv-pagination-item-min-inline-size: var(--primitiv-pagination-lg-item-min-width);
     --primitiv-pagination-menu-min-inline-size: var(--primitiv-pagination-lg-item-min-width);
   }
 
   .primitiv-pagination--xl {
     --primitiv-pagination-gap: var(--primitiv-pagination-xl-gap);
+    --primitiv-pagination-group-gap: var(--primitiv-pagination-xl-group-gap);
+    --primitiv-pagination-control-gap: var(--primitiv-framed-control-xl-gap);
+    --primitiv-pagination-icon-size: var(--primitiv-framed-control-xl-icon-size);
     --primitiv-pagination-item-min-inline-size: var(--primitiv-pagination-xl-item-min-width);
     --primitiv-pagination-menu-min-inline-size: var(--primitiv-pagination-xl-item-min-width);
   }
@@ -135,7 +183,7 @@
   /* Compact's prev / readout / next are three separate groups, not adjacent
      cells, so they take the ordinary control gap rather than the tight one. */
   .primitiv-pagination--compact .primitiv-pagination__controls {
-    gap: var(--primitiv-framed-control-md-gap);
+    gap: var(--primitiv-pagination-control-gap);
   }
 
   /* Re-point Dropdown's own panel floor for the overflow menu.

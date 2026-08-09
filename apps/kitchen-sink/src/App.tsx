@@ -138,6 +138,17 @@ import {
   NavigationMenuLinkLeading,
   NavigationMenuLinkTrailing,
   Pagination,
+  PaginationSummary,
+  PaginationTrailing,
+  PaginationList,
+  PaginationItem,
+  PaginationLink,
+  PaginationPrevious,
+  PaginationNext,
+  PaginationEllipsis,
+  PaginationMenuItem,
+  PaginationStatus,
+  paginationRange,
   Popover,
   PopoverTrigger,
   PopoverContent,
@@ -982,6 +993,94 @@ function MillerPreview() {
         </>
       ) : null}
     </div>
+  );
+}
+
+// One composed Pagination row.
+//
+// Pagination is a compound, like Breadcrumb and Select — the consumer owns the
+// page state and composes the row from PaginationList / PaginationItem / the
+// cell parts, and `paginationRange` supplies the which-pages-collapse
+// arithmetic. That is deliberately more verbose than a single prop-driven
+// component, so the kitchen-sink wraps it once here rather than repeating the
+// same ~30 lines across four demos. The component README writes the
+// composition out in full.
+function DemoPagination({
+  label,
+  size,
+  page,
+  pageCount,
+  onPageChange,
+  variant = "numbered",
+  siblingCount = 1,
+  summary,
+  trailing,
+}: {
+  label: string;
+  size: "xs" | "sm" | "md" | "lg" | "xl";
+  page: number;
+  pageCount: number;
+  onPageChange: (page: number) => void;
+  variant?: "numbered" | "compact";
+  siblingCount?: number;
+  summary?: ReactNode;
+  trailing?: ReactNode;
+}) {
+  const items = paginationRange(page, pageCount, siblingCount);
+  return (
+    <Pagination label={label} size={size} variant={variant}>
+      {summary !== undefined && <PaginationSummary>{summary}</PaginationSummary>}
+      <PaginationList>
+        <PaginationItem>
+          <PaginationPrevious
+            disabled={page <= 1}
+            onClick={() => onPageChange(page - 1)}
+          />
+        </PaginationItem>
+        {variant === "compact" ? (
+          <PaginationItem>
+            <PaginationStatus>
+              Page {page} of {pageCount}
+            </PaginationStatus>
+          </PaginationItem>
+        ) : (
+          items.map((item, i) =>
+            item.type === "page" ? (
+              <PaginationItem key={`page-${item.page}`}>
+                <PaginationLink
+                  isActive={item.page === page}
+                  onClick={() => onPageChange(item.page)}
+                >
+                  {item.page}
+                </PaginationLink>
+              </PaginationItem>
+            ) : (
+              <PaginationItem key={`gap-${i}`}>
+                <PaginationEllipsis>
+                  {item.pages.map((hidden) => (
+                    <PaginationMenuItem
+                      key={hidden}
+                      onSelect={() => onPageChange(hidden)}
+                    >
+                      {hidden}
+                    </PaginationMenuItem>
+                  ))}
+                </PaginationEllipsis>
+              </PaginationItem>
+            ),
+          )
+        )}
+        <PaginationItem>
+          <PaginationNext
+            disabled={page >= pageCount}
+            onClick={() => onPageChange(page + 1)}
+          />
+        </PaginationItem>
+      </PaginationList>
+      {trailing !== undefined && (
+        <PaginationTrailing>{trailing}</PaginationTrailing>
+      )}
+    </Pagination>
   );
 }
 
@@ -3329,15 +3428,19 @@ export function ramp(hue: number, chroma = 0.12) {
 
         <Section title="Pagination" column>
           <p className="kitchen-sink__note">
-            Page cells are square by <InlineCode size={size}>min-inline-size</InlineCode>,
-            so <InlineCode size={size}>1</InlineCode> and{" "}
-            <InlineCode size={size}>20</InlineCode> match and the row does not
-            re-centre as the page number gains a digit. Every cell is a real
-            Button and the overflow menu a real Dropdown — Pagination adds no
-            new keyboard model of its own. Cells and their gap track the Size
-            and Density controls above.
+            A compound, not one prop-heavy component: compose{" "}
+            <InlineCode size={size}>PaginationList</InlineCode> /{" "}
+            <InlineCode size={size}>PaginationItem</InlineCode> and the cell
+            parts, and use{" "}
+            <InlineCode size={size}>paginationRange()</InlineCode> for the
+            which-pages-collapse arithmetic. Every cell is a real Button and the
+            overflow menu a real Dropdown, so Pagination adds no keyboard model
+            of its own. Cells are square by{" "}
+            <InlineCode size={size}>min-inline-size</InlineCode> — prev/next
+            included — so the row does not re-centre as a page number gains a
+            digit. Everything tracks the Size and Density controls above.
           </p>
-          <Pagination
+          <DemoPagination
             label="Basic pagination"
             size={size}
             page={pageBasic}
@@ -3346,10 +3449,11 @@ export function ramp(hue: number, chroma = 0.12) {
           />
 
           <p className="kitchen-sink__note">
-            Compact — no numbered cells, for narrow containers and table
+            Compact — a <InlineCode size={size}>PaginationStatus</InlineCode>{" "}
+            readout instead of numbered cells, for narrow containers and table
             footers.
           </p>
-          <Pagination
+          <DemoPagination
             label="Compact pagination"
             variant="compact"
             size={size}
@@ -3359,42 +3463,48 @@ export function ramp(hue: number, chroma = 0.12) {
           />
 
           <p className="kitchen-sink__note">
-            With both optional slots filled — a range summary before the
-            controls and a jump-to-page Select after them.
+            With both optional slots filled —{" "}
+            <InlineCode size={size}>PaginationSummary</InlineCode> before the
+            controls and <InlineCode size={size}>PaginationTrailing</InlineCode>{" "}
+            after them.
           </p>
-          <Pagination
+          <DemoPagination
             label="Table footer pagination"
             size={size}
             page={pageFooter}
             pageCount={20}
             onPageChange={setPageFooter}
             summary={`Showing ${(pageFooter - 1) * 10 + 1}-${pageFooter * 10} of 200`}
-          >
-            {/* native: the jump control wants the platform popup, not a rich
-                listbox — and native mode needs no anchor-name/position-anchor
-                wiring, which a rich panel would (see the .ks-anchor-sel-*
-                classes in demos.css). */}
-            <Select
-              native
-              size={size}
-              aria-label="Go to page"
-              value={String(pageFooter)}
-              onValueChange={(value) => setPageFooter(Number(value))}
-            >
-              {Array.from({ length: 20 }, (_, i) => (
-                <SelectItem key={i + 1} value={String(i + 1)}>
-                  {`Page ${i + 1}`}
-                </SelectItem>
-              ))}
-            </Select>
-          </Pagination>
+            trailing={
+              <>
+                <span>Go to</span>
+                {/* native: the jump control wants the platform popup, and
+                    native mode needs no anchor-name/position-anchor wiring,
+                    which a rich panel would (see .ks-anchor-sel-* in
+                    demos.css). */}
+                <Select
+                  native
+                  size={size}
+                  aria-label="Go to page"
+                  value={String(pageFooter)}
+                  onValueChange={(value) => setPageFooter(Number(value))}
+                >
+                  {Array.from({ length: 20 }, (_, i) => (
+                    <SelectItem key={i + 1} value={String(i + 1)}>
+                      {`Page ${i + 1}`}
+                    </SelectItem>
+                  ))}
+                </Select>
+              </>
+            }
+          />
 
           <p className="kitchen-sink__note">
             A wide range, mid-way through — both gaps collapse, and each
-            ellipsis opens a menu of the pages it hid, so nothing in a
-            100-page range is more than two clicks away.
+            ellipsis opens a menu of the pages it hid, so nothing in a 100-page
+            range is more than two clicks away.
           </p>
-          <Pagination
+          <DemoPagination
             label="Wide-range pagination"
             size={size}
             page={pageWide}

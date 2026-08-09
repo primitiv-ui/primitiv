@@ -1186,7 +1186,7 @@ questions to answer.
   `packages/tokens/README.md` and the `figma-variable-architecture` skill. Do not
   "fix" by ramp index.
 
-## 📐 Responsive breakpoints — web landed (2026-08-08), Figma sync pending (RFC 0025)
+## 📐 Responsive breakpoints — web landed (2026-08-08), Figma variables landed (2026-08-09) (RFC 0025)
 
 **Web side is fully landed and on `main`:**
 
@@ -1220,7 +1220,20 @@ questions to answer.
   `commands/tokens.rs`) and fixed same-session
   (`surfaces_a_breakpoints_companion_write_failure`).
 
-**Not yet done — pick up here next session:**
+**Figma variables — DONE 2026-08-09.** All six exist in the **`Primitives`
+collection**, values identical to `packages/tokens/src/breakpoint.json`, so a
+sync-plugin backup is a no-op. **Placement decision (item 2 below) resolved to
+`Primitives`:** it is the only collection with a single, mode-independent mode
+(`Value`), and the DTCG already treats breakpoints as a primitive category
+alongside `space`/`size`/`radii`, which all live there. Elevation looked like a
+precedent for a dedicated collection, but it is separate because its
+`shadow.color.*` values are theme-adjacent colours, not because it is
+mode-independent. The bridge paired without incident, so the blocker below was
+transient. `Container`'s seven frame widths now bind to these.
+
+**Still outstanding:** only RFC 0025 §3's design-frame presets (item 4).
+
+**Historical — the blocker as it stood on 2026-08-08:**
 
 1. **Figma variables for the six values.** Pairing the Desktop Bridge today
    (2026-08-08) hit `MCP error -32003: MCP tool call requires approval` on a
@@ -1251,7 +1264,13 @@ questions to answer.
    (768)`, `lg (1024)`, `xl (1280)`). Lower priority than the variables
    themselves; do the variables first so any new frames can reference them.
 
-## 🧱 Layout primitives — Container + Grid landed (2026-08-08), Figma pending (RFC 0022 §10)
+## 🧱 Layout primitives — Container + Grid landed (2026-08-08), Figma landed (2026-08-09) (RFC 0022 §10)
+
+> **Figma is complete.** `container/*` → `surface/*` renamed (12 variables, all
+> 9 existing bindings verified intact — the doc's "nothing consumes these" was
+> wrong), `container/gutter/*` and `grid/gap/*` created, and the `Container`
+> set built on its own page (`1765:41081`, 7 lg-first variants). No `Grid` set,
+> deliberately. Full account in `layout-primitives-figma-work.md`.
 
 RFC 0022's build-order **step 3** — the last unbuilt piece of the layout family
 — landed the same day RFC 0025's breakpoint scale unblocked it. **The RFC is now
@@ -1320,7 +1339,16 @@ variables (see the section above) blocks all of this — one Figma session
 problem, not several. Fix the pairing once and both sets of items unblock
 together.
 
-## 🌳 Tree selection-path typography — web landed (2026-08-09), one Figma item
+## 🌳 Tree selection-path typography — web landed (2026-08-09), Figma landed (2026-08-09)
+
+> **Done.** `Tree / Selection Path`'s five `State=filled` variants now render
+> their `current` segment SemiBold, applied as an override on that set's own
+> instances — `Breadcrumb/Item` is untouched (its states are `link` and
+> `current`, both still Regular; the brief's "State=page" does not exist in this
+> file). One divergence recorded on the set: the weight is a literal, not a
+> variable binding, because Figma will not hold a `fontStyle` binding on an
+> instance sublayer — `setBoundVariable` reports success, changes the style, and
+> the binding is absent on read-back.
 
 The Tree selection path now keeps **one font size across every segment** and
 marks the selected node with **weight** instead. Previously the terminal segment

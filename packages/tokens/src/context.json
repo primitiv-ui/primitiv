@@ -1527,7 +1527,7 @@
       "xs": {
         "track-thickness": {
           "$type": "number",
-          "$value": "{space.space-2}"
+          "$value": "{size.size-3}"
         },
         "focus-ring-gap-radius": {
           "$type": "number",
@@ -1553,7 +1553,7 @@
       "sm": {
         "track-thickness": {
           "$type": "number",
-          "$value": "{space.space-3}"
+          "$value": "{size.size-4}"
         },
         "focus-ring-gap-radius": {
           "$type": "number",
@@ -1579,7 +1579,7 @@
       "md": {
         "track-thickness": {
           "$type": "number",
-          "$value": "{space.space-3}"
+          "$value": "{size.size-4}"
         },
         "focus-ring-gap-radius": {
           "$type": "number",
@@ -1605,7 +1605,7 @@
       "lg": {
         "track-thickness": {
           "$type": "number",
-          "$value": "{space.space-4}"
+          "$value": "{size.size-6}"
         },
         "focus-ring-gap-radius": {
           "$type": "number",
@@ -1631,7 +1631,7 @@
       "xl": {
         "track-thickness": {
           "$type": "number",
-          "$value": "{space.space-4}"
+          "$value": "{size.size-6}"
         },
         "focus-ring-gap-radius": {
           "$type": "number",
@@ -4475,7 +4475,7 @@
       "xs": {
         "track-thickness": {
           "$type": "number",
-          "$value": "{space.space-2}"
+          "$value": "{size.size-3}"
         },
         "focus-ring-gap-radius": {
           "$type": "number",
@@ -4501,7 +4501,7 @@
       "sm": {
         "track-thickness": {
           "$type": "number",
-          "$value": "{space.space-2}"
+          "$value": "{size.size-3}"
         },
         "focus-ring-gap-radius": {
           "$type": "number",
@@ -4527,7 +4527,7 @@
       "md": {
         "track-thickness": {
           "$type": "number",
-          "$value": "{space.space-3}"
+          "$value": "{size.size-4}"
         },
         "focus-ring-gap-radius": {
           "$type": "number",
@@ -4553,7 +4553,7 @@
       "lg": {
         "track-thickness": {
           "$type": "number",
-          "$value": "{space.space-3}"
+          "$value": "{size.size-4}"
         },
         "focus-ring-gap-radius": {
           "$type": "number",
@@ -4579,7 +4579,7 @@
       "xl": {
         "track-thickness": {
           "$type": "number",
-          "$value": "{space.space-4}"
+          "$value": "{size.size-6}"
         },
         "focus-ring-gap-radius": {
           "$type": "number",
@@ -7423,7 +7423,7 @@
       "xs": {
         "track-thickness": {
           "$type": "number",
-          "$value": "{space.space-2}"
+          "$value": "{size.size-3}"
         },
         "focus-ring-gap-radius": {
           "$type": "number",
@@ -7449,7 +7449,7 @@
       "sm": {
         "track-thickness": {
           "$type": "number",
-          "$value": "{space.space-3}"
+          "$value": "{size.size-4}"
         },
         "focus-ring-gap-radius": {
           "$type": "number",
@@ -7475,7 +7475,7 @@
       "md": {
         "track-thickness": {
           "$type": "number",
-          "$value": "{space.space-4}"
+          "$value": "{size.size-6}"
         },
         "focus-ring-gap-radius": {
           "$type": "number",
@@ -7501,7 +7501,7 @@
       "lg": {
         "track-thickness": {
           "$type": "number",
-          "$value": "{space.space-4}"
+          "$value": "{size.size-6}"
         },
         "focus-ring-gap-radius": {
           "$type": "number",
@@ -7527,7 +7527,7 @@
       "xl": {
         "track-thickness": {
           "$type": "number",
-          "$value": "{space.space-6}"
+          "$value": "{size.size-8}"
         },
         "focus-ring-gap-radius": {
           "$type": "number",
@@ -10371,7 +10371,7 @@
       "xs": {
         "track-thickness": {
           "$type": "number",
-          "$value": "{space.space-2}"
+          "$value": "{size.size-3}"
         },
         "focus-ring-gap-radius": {
           "$type": "number",
@@ -10397,7 +10397,7 @@
       "sm": {
         "track-thickness": {
           "$type": "number",
-          "$value": "{space.space-2}"
+          "$value": "{size.size-3}"
         },
         "focus-ring-gap-radius": {
           "$type": "number",
@@ -10423,7 +10423,7 @@
       "md": {
         "track-thickness": {
           "$type": "number",
-          "$value": "{space.space-2}"
+          "$value": "{size.size-3}"
         },
         "focus-ring-gap-radius": {
           "$type": "number",
@@ -10449,7 +10449,7 @@
       "lg": {
         "track-thickness": {
           "$type": "number",
-          "$value": "{space.space-3}"
+          "$value": "{size.size-4}"
         },
         "focus-ring-gap-radius": {
           "$type": "number",
@@ -10475,7 +10475,7 @@
       "xl": {
         "track-thickness": {
           "$type": "number",
-          "$value": "{space.space-3}"
+          "$value": "{size.size-4}"
         },
         "focus-ring-gap-radius": {
           "$type": "number",

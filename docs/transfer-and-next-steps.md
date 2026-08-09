@@ -1319,3 +1319,37 @@ re-deriving. In short:
 variables (see the section above) blocks all of this — one Figma session
 problem, not several. Fix the pairing once and both sets of items unblock
 together.
+
+## 🌳 Tree selection-path typography — web landed (2026-08-09), one Figma item
+
+The Tree selection path now keeps **one font size across every segment** and
+marks the selected node with **weight** instead. Previously the terminal segment
+resolved a different size from its ancestors, so the bar re-heighted as the
+selection moved. Full reasoning in `registry/components/tree/README.md`.
+
+**No new Figma variables.** Both custom properties added by this work default to
+primitives that already exist —
+`--primitiv-tree-selection-path-current-font-weight` →
+`font-weight/semibold`, and `--primitiv-tree-label-ink-slack` → `space/space-1`.
+Nothing to create in the Context or Primitive collections.
+
+**One visual item to check:**
+
+- **`Tree / Selection Path` (`1733:1215`, 10 variants)** — the terminal segment
+  should render **semibold**. The set composes `Breadcrumb/Item` +
+  `Breadcrumb/Separator` directly, so the sizes are probably already uniform
+  (one shared Item master); it is the weight that is new. The composed `Tree`
+  specimen (`1733:1790`) instances it, so it inherits the change.
+- ⚠️ **Apply it as an override on Selection Path's own instances, not to the
+  shared `Breadcrumb/Item` master.** The weight is a Tree decision — on the web
+  it is scoped to `.primitiv-tree__selection-path .primitiv-breadcrumb__page`,
+  deliberately leaving plain Breadcrumbs and `BreadcrumbOverflow` untouched.
+  Changing `State=page` at the master would restyle every breadcrumb in the
+  file.
+
+**Nothing to mirror for the descender fix.** The 1px padding / negative-margin
+pair on truncating labels (`tree`, `listbox`, `miller-columns`, `select`) is a
+pure CSS clipping mechanic: it stops `overflow: hidden` shaving descenders and
+changes no measurement — row heights and rhythm are identical before and after.
+Figma text nodes do not clip this way, so there is no counterpart to build. It
+belongs with Card's documented CSS-only divergences, not on the canvas.

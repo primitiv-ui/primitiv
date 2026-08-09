@@ -73,3 +73,24 @@ describe("MillerColumns — selection state under keyboard navigation", () => {
     expect(state("Documents")).toBe("unselected");
   });
 });
+
+describe("MillerColumns — a selected leaf deep in the path", () => {
+  it("marks the leaf terminal and its ancestors selected", async () => {
+    const user = userEvent.setup();
+
+    render(<Tree />);
+
+    await user.click(screen.getByRole("treeitem", { name: "Pictures" }));
+    await user.click(screen.getByRole("treeitem", { name: "Holiday" }));
+    await user.click(screen.getByRole("treeitem", { name: "beach.jpg" }));
+
+    expect(state("Pictures")).toBe("selected");
+    expect(terminal("Pictures")).toBe(false);
+    expect(state("Holiday")).toBe("selected");
+    expect(terminal("Holiday")).toBe(false);
+
+    // The row the user actually landed on.
+    expect(state("beach.jpg")).toBe("selected");
+    expect(terminal("beach.jpg")).toBe(true);
+  });
+});

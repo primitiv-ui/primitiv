@@ -2094,7 +2094,8 @@
         "preview-width": { "$type": "number", "$value": "{size.size-168}" },
         "resize-handle-width": { "$type": "number", "$value": "{size.size-6}" },
         "preview-padding": { "$type": "number", "$value": "{space.space-8}" },
-        "strip-radius": { "$type": "number", "$value": "{radii.4}" }
+        "strip-radius": { "$type": "number", "$value": "{radii.4}" },
+        "height": { "$type": "number", "$value": "{size.size-168}" }
       },
       "sm": {
         "item": { "height": { "$type": "number", "$value": "{size.size-24}" }, "padding-inline": { "$type": "number", "$value": "{space.space-6}" }, "gap": { "$type": "number", "$value": "{space.space-4}" }, "icon-size": { "$type": "number", "$value": "{size.size-14}" }, "focus-ring-radius": { "$type": "number", "$value": "{radii.2}" } },
@@ -2103,7 +2104,8 @@
         "preview-width": { "$type": "number", "$value": "{size.size-200}" },
         "resize-handle-width": { "$type": "number", "$value": "{size.size-6}" },
         "preview-padding": { "$type": "number", "$value": "{space.space-12}" },
-        "strip-radius": { "$type": "number", "$value": "{radii.6}" }
+        "strip-radius": { "$type": "number", "$value": "{radii.6}" },
+        "height": { "$type": "number", "$value": "{size.size-200}" }
       },
       "md": {
         "item": { "height": { "$type": "number", "$value": "{size.size-28}" }, "padding-inline": { "$type": "number", "$value": "{space.space-8}" }, "gap": { "$type": "number", "$value": "{space.space-6}" }, "icon-size": { "$type": "number", "$value": "{size.size-16}" }, "focus-ring-radius": { "$type": "number", "$value": "{radii.4}" } },
@@ -2112,7 +2114,8 @@
         "preview-width": { "$type": "number", "$value": "{size.size-240}" },
         "resize-handle-width": { "$type": "number", "$value": "{size.size-6}" },
         "preview-padding": { "$type": "number", "$value": "{space.space-16}" },
-        "strip-radius": { "$type": "number", "$value": "{radii.8}" }
+        "strip-radius": { "$type": "number", "$value": "{radii.8}" },
+        "height": { "$type": "number", "$value": "{size.size-240}" }
       },
       "lg": {
         "item": { "height": { "$type": "number", "$value": "{size.size-32}" }, "padding-inline": { "$type": "number", "$value": "{space.space-10}" }, "gap": { "$type": "number", "$value": "{space.space-8}" }, "icon-size": { "$type": "number", "$value": "{size.size-20}" }, "focus-ring-radius": { "$type": "number", "$value": "{radii.6}" } },
@@ -2121,7 +2124,8 @@
         "preview-width": { "$type": "number", "$value": "{size.size-288}" },
         "resize-handle-width": { "$type": "number", "$value": "{size.size-6}" },
         "preview-padding": { "$type": "number", "$value": "{space.space-20}" },
-        "strip-radius": { "$type": "number", "$value": "{radii.8}" }
+        "strip-radius": { "$type": "number", "$value": "{radii.8}" },
+        "height": { "$type": "number", "$value": "{size.size-288}" }
       },
       "xl": {
         "item": { "height": { "$type": "number", "$value": "{size.size-40}" }, "padding-inline": { "$type": "number", "$value": "{space.space-12}" }, "gap": { "$type": "number", "$value": "{space.space-8}" }, "icon-size": { "$type": "number", "$value": "{size.size-24}" }, "focus-ring-radius": { "$type": "number", "$value": "{radii.6}" } },
@@ -2130,7 +2134,8 @@
         "preview-width": { "$type": "number", "$value": "{size.size-344}" },
         "resize-handle-width": { "$type": "number", "$value": "{size.size-6}" },
         "preview-padding": { "$type": "number", "$value": "{space.space-24}" },
-        "strip-radius": { "$type": "number", "$value": "{radii.10}" }
+        "strip-radius": { "$type": "number", "$value": "{radii.10}" },
+        "height": { "$type": "number", "$value": "{size.size-344}" }
       }
     },
     "toggle": {
@@ -5037,7 +5042,8 @@
         "preview-width": { "$type": "number", "$value": "{size.size-168}" },
         "resize-handle-width": { "$type": "number", "$value": "{size.size-6}" },
         "preview-padding": { "$type": "number", "$value": "{space.space-8}" },
-        "strip-radius": { "$type": "number", "$value": "{radii.4}" }
+        "strip-radius": { "$type": "number", "$value": "{radii.4}" },
+        "height": { "$type": "number", "$value": "{size.size-168}" }
       },
       "sm": {
         "item": { "height": { "$type": "number", "$value": "{size.size-24}" }, "padding-inline": { "$type": "number", "$value": "{space.space-6}" }, "gap": { "$type": "number", "$value": "{space.space-4}" }, "icon-size": { "$type": "number", "$value": "{size.size-14}" }, "focus-ring-radius": { "$type": "number", "$value": "{radii.2}" } },
@@ -5046,7 +5052,8 @@
         "preview-width": { "$type": "number", "$value": "{size.size-200}" },
         "resize-handle-width": { "$type": "number", "$value": "{size.size-6}" },
         "preview-padding": { "$type": "number", "$value": "{space.space-12}" },
-        "strip-radius": { "$type": "number", "$value": "{radii.6}" }
+        "strip-radius": { "$type": "number", "$value": "{radii.6}" },
+        "height": { "$type": "number", "$value": "{size.size-200}" }
       },
       "md": {
         "item": { "height": { "$type": "number", "$value": "{size.size-28}" }, "padding-inline": { "$type": "number", "$value": "{space.space-8}" }, "gap": { "$type": "number", "$value": "{space.space-6}" }, "icon-size": { "$type": "number", "$value": "{size.size-16}" }, "focus-ring-radius": { "$type": "number", "$value": "{radii.4}" } },
@@ -5055,7 +5062,8 @@
         "preview-width": { "$type": "number", "$value": "{size.size-240}" },
         "resize-handle-width": { "$type": "number", "$value": "{size.size-6}" },
         "preview-padding": { "$type": "number", "$value": "{space.space-16}" },
-        "strip-radius": { "$type": "number", "$value": "{radii.8}" }
+        "strip-radius": { "$type": "number", "$value": "{radii.8}" },
+        "height": { "$type": "number", "$value": "{size.size-240}" }
       },
       "lg": {
         "item": { "height": { "$type": "number", "$value": "{size.size-32}" }, "padding-inline": { "$type": "number", "$value": "{space.space-10}" }, "gap": { "$type": "number", "$value": "{space.space-8}" }, "icon-size": { "$type": "number", "$value": "{size.size-20}" }, "focus-ring-radius": { "$type": "number", "$value": "{radii.6}" } },
@@ -5064,7 +5072,8 @@
         "preview-width": { "$type": "number", "$value": "{size.size-288}" },
         "resize-handle-width": { "$type": "number", "$value": "{size.size-6}" },
         "preview-padding": { "$type": "number", "$value": "{space.space-20}" },
-        "strip-radius": { "$type": "number", "$value": "{radii.8}" }
+        "strip-radius": { "$type": "number", "$value": "{radii.8}" },
+        "height": { "$type": "number", "$value": "{size.size-288}" }
       },
       "xl": {
         "item": { "height": { "$type": "number", "$value": "{size.size-40}" }, "padding-inline": { "$type": "number", "$value": "{space.space-12}" }, "gap": { "$type": "number", "$value": "{space.space-8}" }, "icon-size": { "$type": "number", "$value": "{size.size-24}" }, "focus-ring-radius": { "$type": "number", "$value": "{radii.6}" } },
@@ -5073,7 +5082,8 @@
         "preview-width": { "$type": "number", "$value": "{size.size-344}" },
         "resize-handle-width": { "$type": "number", "$value": "{size.size-6}" },
         "preview-padding": { "$type": "number", "$value": "{space.space-24}" },
-        "strip-radius": { "$type": "number", "$value": "{radii.10}" }
+        "strip-radius": { "$type": "number", "$value": "{radii.10}" },
+        "height": { "$type": "number", "$value": "{size.size-344}" }
       }
     },
     "toggle": {
@@ -7980,7 +7990,8 @@
         "preview-width": { "$type": "number", "$value": "{size.size-168}" },
         "resize-handle-width": { "$type": "number", "$value": "{size.size-6}" },
         "preview-padding": { "$type": "number", "$value": "{space.space-8}" },
-        "strip-radius": { "$type": "number", "$value": "{radii.4}" }
+        "strip-radius": { "$type": "number", "$value": "{radii.4}" },
+        "height": { "$type": "number", "$value": "{size.size-168}" }
       },
       "sm": {
         "item": { "height": { "$type": "number", "$value": "{size.size-24}" }, "padding-inline": { "$type": "number", "$value": "{space.space-6}" }, "gap": { "$type": "number", "$value": "{space.space-4}" }, "icon-size": { "$type": "number", "$value": "{size.size-14}" }, "focus-ring-radius": { "$type": "number", "$value": "{radii.2}" } },
@@ -7989,7 +8000,8 @@
         "preview-width": { "$type": "number", "$value": "{size.size-200}" },
         "resize-handle-width": { "$type": "number", "$value": "{size.size-6}" },
         "preview-padding": { "$type": "number", "$value": "{space.space-12}" },
-        "strip-radius": { "$type": "number", "$value": "{radii.6}" }
+        "strip-radius": { "$type": "number", "$value": "{radii.6}" },
+        "height": { "$type": "number", "$value": "{size.size-200}" }
       },
       "md": {
         "item": { "height": { "$type": "number", "$value": "{size.size-28}" }, "padding-inline": { "$type": "number", "$value": "{space.space-8}" }, "gap": { "$type": "number", "$value": "{space.space-6}" }, "icon-size": { "$type": "number", "$value": "{size.size-16}" }, "focus-ring-radius": { "$type": "number", "$value": "{radii.6}" } },
@@ -7998,7 +8010,8 @@
         "preview-width": { "$type": "number", "$value": "{size.size-240}" },
         "resize-handle-width": { "$type": "number", "$value": "{size.size-6}" },
         "preview-padding": { "$type": "number", "$value": "{space.space-16}" },
-        "strip-radius": { "$type": "number", "$value": "{radii.8}" }
+        "strip-radius": { "$type": "number", "$value": "{radii.8}" },
+        "height": { "$type": "number", "$value": "{size.size-240}" }
       },
       "lg": {
         "item": { "height": { "$type": "number", "$value": "{size.size-32}" }, "padding-inline": { "$type": "number", "$value": "{space.space-10}" }, "gap": { "$type": "number", "$value": "{space.space-8}" }, "icon-size": { "$type": "number", "$value": "{size.size-20}" }, "focus-ring-radius": { "$type": "number", "$value": "{radii.6}" } },
@@ -8007,7 +8020,8 @@
         "preview-width": { "$type": "number", "$value": "{size.size-288}" },
         "resize-handle-width": { "$type": "number", "$value": "{size.size-6}" },
         "preview-padding": { "$type": "number", "$value": "{space.space-20}" },
-        "strip-radius": { "$type": "number", "$value": "{radii.8}" }
+        "strip-radius": { "$type": "number", "$value": "{radii.8}" },
+        "height": { "$type": "number", "$value": "{size.size-288}" }
       },
       "xl": {
         "item": { "height": { "$type": "number", "$value": "{size.size-40}" }, "padding-inline": { "$type": "number", "$value": "{space.space-12}" }, "gap": { "$type": "number", "$value": "{space.space-8}" }, "icon-size": { "$type": "number", "$value": "{size.size-24}" }, "focus-ring-radius": { "$type": "number", "$value": "{radii.6}" } },
@@ -8016,7 +8030,8 @@
         "preview-width": { "$type": "number", "$value": "{size.size-344}" },
         "resize-handle-width": { "$type": "number", "$value": "{size.size-6}" },
         "preview-padding": { "$type": "number", "$value": "{space.space-24}" },
-        "strip-radius": { "$type": "number", "$value": "{radii.10}" }
+        "strip-radius": { "$type": "number", "$value": "{radii.10}" },
+        "height": { "$type": "number", "$value": "{size.size-344}" }
       }
     },
     "toggle": {
@@ -10923,7 +10938,8 @@
         "preview-width": { "$type": "number", "$value": "{size.size-168}" },
         "resize-handle-width": { "$type": "number", "$value": "{size.size-6}" },
         "preview-padding": { "$type": "number", "$value": "{space.space-8}" },
-        "strip-radius": { "$type": "number", "$value": "{radii.4}" }
+        "strip-radius": { "$type": "number", "$value": "{radii.4}" },
+        "height": { "$type": "number", "$value": "{size.size-168}" }
       },
       "sm": {
         "item": { "height": { "$type": "number", "$value": "{size.size-24}" }, "padding-inline": { "$type": "number", "$value": "{space.space-6}" }, "gap": { "$type": "number", "$value": "{space.space-4}" }, "icon-size": { "$type": "number", "$value": "{size.size-14}" }, "focus-ring-radius": { "$type": "number", "$value": "{radii.2}" } },
@@ -10932,7 +10948,8 @@
         "preview-width": { "$type": "number", "$value": "{size.size-200}" },
         "resize-handle-width": { "$type": "number", "$value": "{size.size-6}" },
         "preview-padding": { "$type": "number", "$value": "{space.space-12}" },
-        "strip-radius": { "$type": "number", "$value": "{radii.6}" }
+        "strip-radius": { "$type": "number", "$value": "{radii.6}" },
+        "height": { "$type": "number", "$value": "{size.size-200}" }
       },
       "md": {
         "item": { "height": { "$type": "number", "$value": "{size.size-28}" }, "padding-inline": { "$type": "number", "$value": "{space.space-8}" }, "gap": { "$type": "number", "$value": "{space.space-6}" }, "icon-size": { "$type": "number", "$value": "{size.size-16}" }, "focus-ring-radius": { "$type": "number", "$value": "{radii.2}" } },
@@ -10941,7 +10958,8 @@
         "preview-width": { "$type": "number", "$value": "{size.size-240}" },
         "resize-handle-width": { "$type": "number", "$value": "{size.size-6}" },
         "preview-padding": { "$type": "number", "$value": "{space.space-16}" },
-        "strip-radius": { "$type": "number", "$value": "{radii.8}" }
+        "strip-radius": { "$type": "number", "$value": "{radii.8}" },
+        "height": { "$type": "number", "$value": "{size.size-240}" }
       },
       "lg": {
         "item": { "height": { "$type": "number", "$value": "{size.size-32}" }, "padding-inline": { "$type": "number", "$value": "{space.space-10}" }, "gap": { "$type": "number", "$value": "{space.space-8}" }, "icon-size": { "$type": "number", "$value": "{size.size-20}" }, "focus-ring-radius": { "$type": "number", "$value": "{radii.6}" } },
@@ -10950,7 +10968,8 @@
         "preview-width": { "$type": "number", "$value": "{size.size-288}" },
         "resize-handle-width": { "$type": "number", "$value": "{size.size-6}" },
         "preview-padding": { "$type": "number", "$value": "{space.space-20}" },
-        "strip-radius": { "$type": "number", "$value": "{radii.8}" }
+        "strip-radius": { "$type": "number", "$value": "{radii.8}" },
+        "height": { "$type": "number", "$value": "{size.size-288}" }
       },
       "xl": {
         "item": { "height": { "$type": "number", "$value": "{size.size-40}" }, "padding-inline": { "$type": "number", "$value": "{space.space-12}" }, "gap": { "$type": "number", "$value": "{space.space-8}" }, "icon-size": { "$type": "number", "$value": "{size.size-24}" }, "focus-ring-radius": { "$type": "number", "$value": "{radii.6}" } },
@@ -10959,7 +10978,8 @@
         "preview-width": { "$type": "number", "$value": "{size.size-344}" },
         "resize-handle-width": { "$type": "number", "$value": "{size.size-6}" },
         "preview-padding": { "$type": "number", "$value": "{space.space-24}" },
-        "strip-radius": { "$type": "number", "$value": "{radii.10}" }
+        "strip-radius": { "$type": "number", "$value": "{radii.10}" },
+        "height": { "$type": "number", "$value": "{size.size-344}" }
       }
     },
     "toggle": {

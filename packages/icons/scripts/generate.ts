@@ -14,6 +14,23 @@ function toPascalCase(name: string): string {
     .join('')
 }
 
+// Exported-name overrides, keyed by SVG filename stem.
+//
+// A component name normally comes straight from the filename, which is what
+// keeps the SVG asset, the Figma glyph and the React export in lockstep — so
+// only add an entry here for a genuine collision, never for taste.
+//
+// `grid` is the one entry: `Grid` is also a registry layout component (RFC
+// 0022), and a consumer importing both in the same module gets a
+// duplicate-identifier error that fails the build outright (which is exactly
+// how this was found — the kitchen-sink imports both). Renaming the asset to
+// `grid-icon.svg` would fix it too, but it pushes a redundant "-icon" suffix
+// onto the SVG and the Figma glyph, where it reads as a mistake. Overriding
+// only the exported symbol leaves both of those named `grid`.
+const NAME_OVERRIDES: Record<string, string> = {
+  grid: 'GridIcon',
+}
+
 function extractInnerSvg(svgString: string): string {
   const match = svgString.match(/<svg[^>]*>([\s\S]*?)<\/svg>/)
   if (!match) throw new Error('No <svg> element found')
@@ -46,7 +63,11 @@ const componentNames: string[] = []
 
 for (const file of svgFiles) {
   const svgContent = readFileSync(join(SVG_DIR, file), 'utf-8')
-  const componentName = toPascalCase(basename(file, '.svg'))
+  const stem = basename(file, '.svg')
+  const componentName = NAME_OVERRIDES[stem] ?? toPascalCase(stem)
+  // Prose names the glyph, not the symbol, so an overridden entry documents
+  // itself as "The Grid icon." rather than "The GridIcon icon."
+  const glyphName = toPascalCase(stem)
 
   const { data: optimized } = optimize(svgContent, {
     plugins: [
@@ -64,14 +85,14 @@ import type { IconProps } from '../types.ts'
 import { IconBase } from '../IconBase.tsx'
 
 /**
- * The ${componentName} icon.
+ * The ${glyphName} icon.
  *
  * A fill-based SVG that inherits \`currentColor\` and scales via the
  * \`size\` prop. Accepts all native \`<svg>\` attributes (see {@link IconProps}).
  *
  * @example
  * \`\`\`tsx
- * <${componentName} size={20} aria-label="${componentName}" />
+ * <${componentName} size={20} aria-label="${glyphName}" />
  * \`\`\`
  */
 export const ${componentName} = (props: IconProps): ReactElement => (

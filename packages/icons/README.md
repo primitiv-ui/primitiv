@@ -64,7 +64,7 @@ All other [SVG element attributes](https://developer.mozilla.org/en-US/docs/Web/
 | [File](src/icons/File.tsx) | `import { File } from "@primitiv-ui/icons"` |
 | [Filter](src/icons/Filter.tsx) | `import { Filter } from "@primitiv-ui/icons"` |
 | [Folder](src/icons/Folder.tsx) | `import { Folder } from "@primitiv-ui/icons"` |
-| [Grid](src/icons/Grid.tsx) | `import { Grid } from "@primitiv-ui/icons"` |
+| [Grid](src/icons/GridIcon.tsx) | `import { GridIcon } from "@primitiv-ui/icons"` — exported as `GridIcon`, see below |
 | [Home](src/icons/Home.tsx) | `import { Home } from "@primitiv-ui/icons"` |
 | [Image](src/icons/Image.tsx) | `import { Image } from "@primitiv-ui/icons"` |
 | [Info](src/icons/Info.tsx) | `import { Info } from "@primitiv-ui/icons"` |
@@ -104,6 +104,34 @@ All other [SVG element attributes](https://developer.mozilla.org/en-US/docs/Web/
 6. Write a smoke test in `src/icons/<Name>.test.tsx` (see `Check.test.tsx` as a template).
 
 The five design sizes (`xs`=16, `sm`=20, `md`=24, `lg`=32, `xl`=48) are all driven by the `size` prop at runtime — only the `md` SVG needs to be exported from Figma.
+
+### Exported-name overrides
+
+An icon's exported name normally comes straight from its filename, which is what
+keeps the SVG asset, the Figma glyph and the React export in lockstep. One icon
+is an exception, via `NAME_OVERRIDES` in `scripts/generate.ts`:
+
+| Glyph / SVG / Figma | Exported as |
+|---|---|
+| `grid` | **`GridIcon`** |
+
+`Grid` is also a registry layout component (RFC 0022), so a consumer importing
+both in the same module gets a duplicate-identifier error that fails the build
+outright — which is exactly how this was found. Renaming the asset to
+`grid-icon.svg` would fix it too, but it pushes a redundant `-icon` suffix onto
+the SVG and the Figma glyph, where it reads as a mistake. Overriding only the
+exported symbol leaves both of those named `grid`, so **nothing needs renaming
+in Figma**.
+
+Only add an override for a genuine collision, never for taste — every entry is
+a place where the code name and the design name can drift.
+
+**`List` is the same shape of collision and is deliberately *not* overridden.**
+There is a registry `list` component too, but nothing imports both in one module
+today, and renaming a published export is a breaking change that should not be
+made speculatively. If you hit it, either alias at the import site
+(`import { List as ListIcon } from "@primitiv-ui/icons"`) or add the override
+here and take the break knowingly.
 
 ## Architecture
 

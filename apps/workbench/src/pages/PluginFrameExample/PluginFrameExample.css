@@ -97,7 +97,7 @@
 .pf-frame {
   box-sizing: border-box;
   border: var(--primitiv-border-width-2) solid var(--primitiv-border-default);
-  border-radius: var(--primitiv-container-md-radius);
+  border-radius: var(--primitiv-surface-md-radius);
   overflow: hidden;
   box-shadow: 0 var(--primitiv-space-space-8) var(--primitiv-space-space-24)
     rgb(0 0 0 / 0.25);
@@ -409,7 +409,7 @@
 .pf-brand__swatch {
   width: var(--primitiv-space-space-16);
   height: var(--primitiv-space-space-16);
-  border-radius: var(--primitiv-container-sm-radius);
+  border-radius: var(--primitiv-surface-sm-radius);
   border: var(--primitiv-border-width-1) solid var(--primitiv-border-subtle);
 }
 

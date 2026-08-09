@@ -72,6 +72,8 @@
 
 @layer primitiv.base {
   .primitiv-miller-columns {
+    /* Vertical slack for the label's clip box — see the truncation rule below. */
+    --primitiv-miller-columns-label-ink-slack: var(--primitiv-space-space-1);
     /* Per-component API — the themable knobs, defaulting to the md size. The
        size modifiers re-point the sizing knobs; consumers can override any one
        without touching the rule. */
@@ -200,6 +202,8 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    padding-block: var(--primitiv-miller-columns-label-ink-slack);
+    margin-block: calc(-1 * var(--primitiv-miller-columns-label-ink-slack));
   }
 
   /* Trailing chevron, branch rows only. It NEVER rotates — it means "children

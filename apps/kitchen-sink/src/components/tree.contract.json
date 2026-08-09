@@ -128,6 +128,8 @@
     { "name": "--primitiv-tree-connector-rail-offset", "defaultsTo": "calc(var(--primitiv-tree-item-padding-inline) + var(--primitiv-tree-item-icon-size) / 2)" },
     { "name": "--primitiv-tree-transition-duration", "defaultsTo": "var(--primitiv-motion-duration-control)" },
     { "name": "--primitiv-tree-transition-easing", "defaultsTo": "var(--primitiv-motion-easing-default)" },
-    { "name": "--primitiv-tree-selection-path-gap", "defaultsTo": "var(--primitiv-space-space-4)" }
+    { "name": "--primitiv-tree-selection-path-gap", "defaultsTo": "var(--primitiv-space-space-4)" },
+    { "name": "--primitiv-tree-selection-path-current-font-weight", "defaultsTo": "var(--primitiv-font-weight-semibold)" },
+    { "name": "--primitiv-tree-label-ink-slack", "defaultsTo": "var(--primitiv-space-space-1)" }
   ]
 }

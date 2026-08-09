@@ -94,6 +94,7 @@ question is decoupled from their readiness rather than blocking it.
 | Code Block | ✓ | registry only | ✓ | ✓ | 601:9607 (Size×Type=default\|tabbed; tabbed = Tabs/Trigger strip + text Copy Button, Copy one size below block); registry-only React surface (Prism highlighting via prism-react-renderer); tabbed composes headless Tabs + registry Button |
 | Collapsible | ✓ | ✓ | ✓ | ✓ | New "Collapsible" page (`1207:42772`): `Collapsible / Trigger` set (`1207:43048`, 30 variants — Variant[plain\|card\|inline] × State[closed\|open] × Size[xs-xl], md first/default) + composed `Collapsible` set (`1207:43244`, 30 variants) instancing the size-matched Trigger; `Content` SLOT property (20 open/inline variants) + exposed `Label` TEXT property (RFC 0019 dep); headless `collapsedHeight` + fade-shadow landed; registry `collapsible` (grid open/close shared with Accordion, plain/card/inline dressings, card gets a hairline seam instead of a gap once open); kitchen-sink = one collapsible per dressing, inline demonstrating `collapsedHeight` |
 | ConfirmDialog | ✓ | registry only | ✓ | ✓ | RFC 0021 (Tier 1 composite, `Modal` + `Button`). Figma-first per RFC 0021 §6: a "Confirm / Alert Dialog — exploration" page (real Modal/Button/Icon instances) settled tone-follows-the-action, no default leading icon, editable labels, close-off-by-default — then the real `ConfirmDialog` component set (8 variants, Tone default\|danger × Size sm-xl) landed on a new "ConfirmDialog" page, right after "Modal". Body uses a genuine Figma SLOT (a live nested `Modal/Body` instance, not a `Message` text property) — building it surfaced and fixed a real `Modal/Body` shared-master bug (fixed-80px slot silently overlapping the footer on long content → hug-with-`minHeight:80`-floor, fixing every Modal in the file). No headless companion — Modal's own native-`<dialog>` focus trap and dismissal already cover everything needed. Registry `confirm-dialog` composes the registry `modal` (Content/Header/Body/Footer/Title/Close) and `button` directly, exposing `title`/children-as-slot/`tone` (→ Confirm button primary\|danger)/`size` (default `sm`, smaller than Modal's `md`)/`confirmLabel`/`cancelLabel`/`onConfirm`/`showClose` (default off) as props rather than new dialog anatomy; `Portal`/`Overlay` aren't re-exported (identical to a plain Modal's — compose `./modal`'s directly). Kitchen-sink = a controlled danger-tone "Remove member" demo |
+| Container | pending | registry only | ✓ | ✓ | RFC 0022 (layout primitives, build-order step 3) — unblocked by RFC 0025's breakpoint scale. Registry-only — a centred, max-width content column. `size` (xs–2xl\|full, default lg) resolves **straight against the breakpoint primitives** (`var(--primitiv-breakpoint-lg)`) rather than a container-specific width scale: one source of truth, and a Context family would be the wrong collection since Context is density-scoped and a max-width shouldn't tighten with density. `gutter` (responsive\|none\|sm\|md\|lg) is a new density-scaled `container/gutter-{sm,md,lg}` Context family; `responsive` (the default) steps up at md and lg. `box-sizing: border-box`, so the gutter sits inside the cap (Tailwind/Chakra behaviour). Full-bleed is deliberately two knobs — `size="full"` drops the cap, `gutter="none"` drops the padding. No `centerContent` prop: Container centres itself, `Center` centres content within it. Taking the `container/*` Context namespace required moving the pre-existing size-slotted padding/gap/radius family to `surface/*` (adopted by no registry component; only the workbench's OklchPicker/PluginFrame read its radius). Figma set still to build. Kitchen-sink = three containers in one parent showing cap and gutter |
 | ContextMenu | ✓ | ✓ | ✓ | ✓ | 1142:25899 (reuses Dropdown/* rows via slots — no ContextMenu-specific sub-components). Registry `context-menu` = same row anatomy as Dropdown, resolving the shared `--primitiv-dropdown-*` panel/row tokens rather than a parallel ramp (the same escape hatch Select's listbox uses); root Content is positioned at the cursor by the headless layer, with a bespoke `@position-try` overflow-flip (no anchor to flip around, unlike Dropdown's `flip-inline`/`flip-block` keywords) — opt-in via `anchor-name` (Trigger) + `position-anchor` (Content). Submenus are unchanged anchor-positioned Dropdown-style subs. Kitchen-sink = a canvas/shape-editor right-click menu (leading-icon items + shortcuts, a disabled row, a tri-state checkbox, a radio group, one-level submenu) |
 | DescriptionList | ✓ | registry only | ✓ | ✓ | RFC 0012 D10 / RFC 0023. Registry-only prose family — no headless companion. `<dl>` compound (`DescriptionList.Term`/`.Details`); term fixed `font-weight: font-weight-semibold` across every density (D10) — CSS separates Figma's "fontStyle" instance-naming into `font-weight`, so the term binds weight, not style. `layout` (`stacked` default \| `inline`) matches Figma's `Layout` axis (added after a Figma re-check found the first build was missing it entirely) — `inline` is a two-column CSS Grid, no DOM change. No new *colour* tokens; row-gap/column-gap/details-indent are a density-scaled `description-list/*` Context family; `inline`'s pair-to-pair gap reuses List's item-gap directly (the real Figma binding). Kitchen-sink = styled pair in the intro article, both layouts |
 | Divider | ✓ | ✓ | ✓ | ✓ | |
@@ -103,6 +104,7 @@ question is decoupled from their readiness rather than blocking it.
 | Field | ✓ | ✓ | ✓ | ✓ | 394:7449 |
 | Fieldset | — | ✓ | — | — | No Figma needed, by design — see the intro paragraph (aliases `label/{size}/*` for the legend, `stack/gap-*` for spacing). Registry surface not yet built |
 | Figure | ✓ | registry only | ✓ | ✓ | 607:32844 (Figure), 606:32739 (Figcaption) — RFC 0015 / RFC 0023. Registry-only prose family — RFC 0015 decided against a headless companion. `Figure.Media` + `Figure.Caption`, `captionPosition` below\|above\|overlay, `size` xs–xl (drives the caption type only — the media is size-independent, as in Figma) and `Figure.Caption`'s own `align` start\|center\|end; unlike the Figma build (which nests the caption inside the media frame to clip it for the overlay treatment), Media and Caption stay DOM siblings in every position — the stylesheet pins the caption over the media's bottom edge with `position: absolute` and matches its corner radii. Kitchen-sink = below/above/overlay laid out with `Stack` |
+| Grid | — | registry only | ✓ | ✓ | RFC 0022 (layout primitives, build-order step 3) — unblocked by RFC 0025's breakpoint scale. Registry-only, and deliberately **no Figma set**: a grid's whole value is how it reflows, which a fixed-width frame can't express (auto-layout already covers the static case). `columns` takes a count **or a mobile-first per-breakpoint map** (`{ base: 1, md: 2, lg: 3 }`) — RFC 0022 §4's open decision, settled toward the responsive object over the cheaper single-`from`-floor because a floor can't express a two-step ramp or a 2-up mobile grid, roughly half of real grids. It resolves to **modifier classes, never inline styles** (42 one-liners re-pointing `--primitiv-grid-columns`, emitted ascending so the widest matching tier wins), so it is correct in SSR markup on first paint with no hydration flash — the `useMediaQuery` route was rejected for that reason. Tracks are `minmax(0, 1fr)`, not `1fr`, so one long-content child can't blow the row out. `gap` is a new `grid/gap-{xs..xl}` Context family mirroring `stack/gap-*` step for step (a shared `layout/gap-*` is the obvious future consolidation). `columns` is the one prop not driven by `cva` — an object doesn't fit its Record<string,string> variant model — so a `gridColumns` helper resolves it. An intrinsic `minChildWidth` mode was scoped and deferred. Kitchen-sink = a 1→2→3 card ramp and a 2→4 swatch strip |
 | Icon Button | ✓ | — | — | — | 433:8386 (icon-only Button — no separate headless/registry) |
 | Inline Code | — | registry only | ✓ | ✓ | registry-only (dedicated `code/*` font-size ramp) |
 | Input | ✓ | ✓ | ✓ | ✓ | 393:6159 |
@@ -286,27 +288,32 @@ A structural gap flagged separately from the composites above: nothing in
 the library today arranges components *on a page* — every entry is a
 widget. See
 [`docs/rfcs/0022-layout-primitives.md`](docs/rfcs/0022-layout-primitives.md).
-Hand-authored/primitive-less, same shape as `prose`. `Container`/`Grid`
-raise an open question (no breakpoint token scale exists yet) the RFC
-recommends deferring rather than solving inline. **Build-order steps 1 and 2
-are landed** (registry + kitchen-sink, 2026-07-28) — Box, Stack, Spacer,
-Center, AspectRatio. Step 3 (Container, Grid — blocked on RFC 0025's
-breakpoint scale) remains.
+Hand-authored/primitive-less, same shape as `prose`. **All three build-order
+steps are landed** — Box, Stack, Spacer (step 1) and Center, AspectRatio
+(step 2) on 2026-07-28; Container and Grid (step 3) on 2026-08-08, once RFC
+0025's breakpoint scale unblocked them. §4's open question — whether
+`Container`/`Grid` should be responsive at all, given no breakpoint scale
+existed when the RFC was written — is settled in the affirmative for both:
+Container's gutter escalates at `md`/`lg`, and Grid's `columns` takes a
+mobile-first per-breakpoint map. See RFC 0022 §10.
 
 - [x] Box
 - [x] Stack
 - [x] Spacer
 - [x] Center
 - [x] AspectRatio
-- [ ] Container — responsive `size` deferred, see RFC 0022 §4. **Confirmed
-      the highest-value gap in the library by RFC 0026's consumer-testing
-      program**: all three runs (Profiles A, B, C — greenfield/styled,
-      brownfield/headless, Tailwind — `docs/consumer-testing/findings-log.md`)
-      independently hand-rolled a page-content max-width wrapper, each
-      inventing near-identical values from scratch every time.
-- [ ] Grid — responsive `columns` deferred, see RFC 0022 §4. Same
-      confirmation as `Container` above — every run hand-rolled a
-      responsive multi-column grid.
+- [x] Container — landed 2026-08-08 with a responsive gutter (RFC 0022 §4
+      resolved, not deferred). **Confirmed the highest-value gap in the
+      library by RFC 0026's consumer-testing program**: all three runs
+      (Profiles A, B, C — greenfield/styled, brownfield/headless, Tailwind —
+      `docs/consumer-testing/findings-log.md`) independently hand-rolled a
+      page-content max-width wrapper, each inventing near-identical values
+      from scratch every time.
+- [x] Grid — landed 2026-08-08 with a per-breakpoint `columns` map (RFC 0022
+      §4 resolved, not deferred). Same confirmation as `Container` above —
+      every run hand-rolled a responsive multi-column grid, which is the
+      direct evidence for choosing the responsive object over a
+      single-breakpoint floor.
 
 ## Prose & content components (proposed)
 

@@ -320,6 +320,10 @@
     {
       "name": "--primitiv-miller-columns-transition-easing",
       "defaultsTo": "var(--primitiv-motion-easing-default)"
+    },
+    {
+      "name": "--primitiv-miller-columns-label-ink-slack",
+      "defaultsTo": "var(--primitiv-space-space-1)"
     }
   ]
 }

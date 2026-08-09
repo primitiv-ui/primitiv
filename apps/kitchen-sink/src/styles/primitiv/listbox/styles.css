@@ -42,6 +42,8 @@
 
 @layer primitiv.base {
   .primitiv-listbox {
+    /* Vertical slack for the label's clip box — see the truncation rule below. */
+    --primitiv-listbox-label-ink-slack: var(--primitiv-space-space-1);
     /* Frame — Input's geometry, deliberately WITHOUT elevation. A shadow is a
        claim that the surface floats above the page; this one is in the page, and
        the lift reads as a stuck-open dropdown (Figma exploration §A2, rejected).
@@ -250,6 +252,8 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    padding-block: var(--primitiv-listbox-label-ink-slack);
+    margin-block: calc(-1 * var(--primitiv-listbox-label-ink-slack));
   }
 
   /* ── Groups ── */

@@ -1,9 +1,11 @@
 # RFC 0022 — Layout primitives
 
-> **Status:** Partially landed — build-order steps 1 and 2 shipped 2026-07-28
-> (Box, Stack, Spacer, Center, AspectRatio: registry + kitchen-sink). Step 3
-> (Container, Grid — blocked on RFC 0025's breakpoint scale, see §4) remains
-> proposed.
+> **Status:** **Landed in full.** Build-order steps 1 and 2 shipped 2026-07-28
+> (Box, Stack, Spacer, Center, AspectRatio); step 3 shipped 2026-08-08
+> (Container, Grid), once RFC 0025's breakpoint scale unblocked §4. All seven
+> primitives have registry + kitchen-sink surfaces. §4's open decision is
+> resolved — **both components are responsive** (see §10). The one outstanding
+> item is Container's Figma component set.
 > **Author:** Claude, with architectural drafting
 > **Date:** 2026-07-27
 > **Builds on:** RFC 0008 (CSS architecture — the `@layer primitiv.*` stack
@@ -217,3 +219,108 @@ dedicated one). No new tokens for either.
   from a screenshot.
 
 Container, Grid (step 3, blocked on RFC 0025) remain unbuilt.
+
+## 10. Build outcome — step 3 (landed 2026-08-08)
+
+Container and Grid landed together, both hand-authored/primitive-less per §2,
+registry + kitchen-sink (extending the "Layout Primitives" section from step 1
+rather than earning their own). This closes the RFC.
+
+### §4 is resolved: option (b), for both components
+
+The draft recommended **(a) ship non-responsive v1**, explicitly and only
+because no breakpoint scale existed to build against. RFC 0025 landed that
+scale on 2026-08-08, so the reason for (a) expired before either component was
+built and the recommendation was reversed deliberately rather than by default.
+
+Two pieces of evidence settled it beyond the RFC's own reasoning. RFC 0026's
+consumer-testing program had, in the meantime, run three independent profiles
+(greenfield/styled, brownfield/headless, Tailwind) and **all three hand-rolled
+both a max-width page wrapper and a responsive multi-column grid** — the exact
+two things this step ships, with the responsiveness as the part they each
+reinvented. And a `from`-style single-breakpoint floor (the cheap middle path:
+"one column below tier X, N columns above") was costed and rejected on the
+merits: it cannot express `{ base: 1, md: 2, lg: 3 }`, the standard card ramp,
+nor `{ base: 2, md: 4 }`, the thumbnail/swatch shape — roughly half of real
+grids, with no escape but the consumer's own media query, which is the status
+quo (a) was going to leave them in anyway.
+
+### Container
+
+- **`size` resolves straight against the breakpoint primitives** —
+  `max-width: var(--primitiv-breakpoint-lg)` — rather than minting a
+  `container/max-width/*` family. One source of truth, so `size="lg"` means
+  exactly "stops growing where the `lg` breakpoint begins", and it avoids a
+  wrong-collection token: Context is density-scoped across four modes, and a
+  max-width should not tighten with density.
+- **The gutter *is* a new Context family** (`container/gutter/{sm,md,lg}`, all
+  four modes), following the correction §8 already had to make for `stack/gap-*`
+  — binding raw `space-*` there meant a Stack's gap didn't re-tighten under
+  `[data-density]` and needed a follow-up fix. Not repeated here.
+- **`box-sizing: border-box`**, so the gutter sits inside the cap (Tailwind's
+  and Chakra's behaviour): at `size="lg"` the column measures 64rem edge to
+  edge.
+- **Full-bleed is two knobs, not one.** `size="full"` drops the width cap but
+  keeps the gutters — a full-width band with readable edges, which is what
+  "full bleed" usually means in a page layout — and `gutter="none"` drops the
+  padding. True edge-to-edge is both.
+- **No `centerContent` prop**, which Chakra's Container has. Container centres
+  *itself*; centring content *within* it is `Center`'s job, and composing the
+  two is the system's existing answer.
+- **Taking the `container/*` Context namespace required moving a squatter.** A
+  pre-existing size-slotted `container/{sm,md,lg,xl}/{padding,gap,radius}`
+  family — a near-duplicate of `card/*`, adopted by no registry component and
+  read only by two workbench stylesheets (OklchPicker, PluginFrameExample) —
+  moved to `surface/*`, which is what it actually describes. Flagged to the
+  human before doing it; confirmed, on the grounds that the workbench is a
+  legacy surface the kitchen-sink replaces and must not constrain the token
+  vocabulary. **The Figma variables still carry the old names** — see §10's
+  outstanding items.
+
+### Grid
+
+- **`columns` takes a count or a mobile-first map**, resolved to **modifier
+  classes, never inline styles** (§8's standing rule). 42 one-line rules, each
+  re-pointing `--primitiv-grid-columns`, emitted in ascending breakpoint order
+  so the widest matching tier is the last to apply and therefore wins.
+- **The `useMediaQuery` route was considered and rejected.** RFC 0025 §5's hook
+  and its generated `breakpoints.ts` constant make a JS-resolved responsive
+  object genuinely possible, but the hook returns `false` on the server and on
+  the first client paint, so an SSR'd grid would flash single-column before
+  hydration — unacceptable for a layout primitive, and it would additionally
+  need `add` to rewrite a `breakpoints.ts` import path the way it already
+  rewrites the stylesheet one. Pure CSS has neither problem.
+- **42 modifier classes is not the "CSS utility framework" §2 rules out.** The
+  prohibition is on general-purpose utilities applicable to any element; this
+  is one component's modifier set, scoped to `.primitiv-grid`. Stack already
+  carries 23.
+- **Tracks are `minmax(0, 1fr)`, not `1fr`** — a bare `1fr` has an `auto`
+  minimum, so one child with long unbreakable content pushes its track past its
+  share and blows the row out wider than the container.
+- **`columns` is the one prop `cva` does not drive.** Its variants are a
+  `Record<string, string>` — one class per discrete value — which an object
+  prop cannot express, so an exported `gridColumns` helper resolves it and the
+  wrapper concatenates the two class lists.
+- **`rows` was dropped** from the draft's sketch (§3): explicit row counts are
+  rarely what a consumer wants, since grid auto-flow already handles them.
+- **An intrinsic `minChildWidth` mode was scoped and deferred** —
+  `repeat(auto-fit, minmax(min(<token>, 100%), 1fr))`, Chakra's `SimpleGrid`
+  behaviour. It is a second, mutually exclusive layout mode with its own
+  precedence rules, and the per-breakpoint map covers the motivating cases.
+  Worth revisiting if container queries make an intrinsic grid the more natural
+  default.
+- **No Figma set, deliberately** — a grid's value is its reflow, which a
+  fixed-width frame cannot show; auto-layout already covers the static case.
+  Container *does* get one, because a fixed max-width column is precisely what
+  a design frame can express.
+
+### Outstanding
+
+The whole Figma side, specified in full in
+[`docs/layout-primitives-figma-work.md`](../layout-primitives-figma-work.md) —
+the `container/*` → `surface/*` variable rename (which must land before any
+sync-plugin backup, or it silently undoes the web work), the two new Context
+families, and Container's component set. Grid deliberately gets no set.
+
+Blocked as of 2026-08-08 on the same Figma bridge failure
+(`MCP error -32003`) as RFC 0025's variable work, not on any open decision.

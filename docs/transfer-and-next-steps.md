@@ -1250,3 +1250,106 @@ questions to answer.
    no frames have been created yet (`<Page> — xs (360)`, `sm (640)`, `md
    (768)`, `lg (1024)`, `xl (1280)`). Lower priority than the variables
    themselves; do the variables first so any new frames can reference them.
+
+## 🧱 Layout primitives — Container + Grid landed (2026-08-08), Figma pending (RFC 0022 §10)
+
+RFC 0022's build-order **step 3** — the last unbuilt piece of the layout family
+— landed the same day RFC 0025's breakpoint scale unblocked it. **The RFC is now
+closed in full.** Registry + kitchen-sink for both; full account in RFC 0022 §10.
+
+**§4's open decision resolved to responsive for both**, reversing the draft's
+"(a) non-responsive v1" recommendation — which had been made *only* because no
+breakpoint scale existed, a reason that expired when RFC 0025 landed. RFC 0026's
+consumer testing had independently found all three profiles hand-rolling both a
+max-width wrapper and a responsive multi-column grid, which is direct evidence
+for shipping the responsive shape rather than the cheap one.
+
+**Landed:**
+
+- **`container/gutter/{sm,md,lg}`** and **`grid/gap/{xs..xl}`** Context families,
+  all four density modes (`packages/tokens/src/context.json`). `grid/gap-*`
+  mirrors `stack/gap-*` step for step — a shared `layout/gap-*` is the obvious
+  future consolidation if that duplication ever bites.
+- **Registry `container`** — `size` (xs–2xl|full) resolves straight against
+  `--primitiv-breakpoint-*` rather than a container-specific width scale;
+  `gutter` (responsive|none|sm|md|lg) escalates at md and lg. Full-bleed is two
+  knobs (`size="full"` drops the cap, `gutter="none"` drops the padding).
+- **Registry `grid`** — `columns` takes a count or a mobile-first map
+  (`{ base: 1, md: 2, lg: 3 }`), resolved to **modifier classes, never inline
+  styles**: 42 one-liners re-pointing `--primitiv-grid-columns`, emitted
+  ascending so the widest matching tier wins. Pure CSS, so it is correct in SSR
+  markup on the first paint — the `useMediaQuery` route was rejected precisely
+  because the hook returns `false` until hydration and would flash
+  single-column.
+- Roster count **57 → 59** across `registry.json`, `ports/registry.rs`,
+  `tests/cli.rs`.
+
+**⚠️ A token namespace moved — Figma is now out of step:**
+
+Taking `container/*` for the layout component required evicting a squatter: a
+pre-existing size-slotted `container/{sm,md,lg,xl}/{padding,gap,radius}` family
+(a near-duplicate of `card/*`, adopted by **no** registry component, read only by
+`apps/workbench`'s OklchPicker and PluginFrameExample) **moved to `surface/*`**.
+The human explicitly authorised this over preserving the workbench's naming —
+the workbench is a legacy surface the kitchen-sink replaces.
+
+The eight workbench references were updated and both token layers regenerated,
+so the **code side is consistent**. The **Figma Context collection still carries
+the old `container/*` names.** Until that rename lands, a sync-plugin backup
+would reintroduce the old family and drop the new gutter one.
+
+**Not yet done — the whole Figma side.** Written up as an executable spec in
+**[`docs/layout-primitives-figma-work.md`](layout-primitives-figma-work.md)**,
+with every value already extracted from `context.json` so nothing needs
+re-deriving. In short:
+
+1. **Rename the Figma Context variables `container/{size}/*` →
+   `surface/{size}/*`** (16 variables). ⚠️ **Do this first** — it is the
+   hazard, not just a gap: until it lands, a sync-plugin backup reintroduces
+   the old family and drops the new gutter one, silently undoing the web work.
+2. **Create `container/gutter/{sm,md,lg}` and `grid/gap/{xs..xl}`** in the
+   Context collection, as aliases onto `space/*`.
+3. **The `Container` component set** — 7 `Size` variants + a Slot. Build `lg`
+   (the default) first; `defaultVariant` is read-only, so a retroactive
+   reorder can't fix the dropdown later.
+4. **No Grid set, deliberately** — a grid's value is its reflow, which a
+   fixed-width frame can't express.
+
+**Bridge status:** the same `MCP error -32003` that blocked the breakpoint
+variables (see the section above) blocks all of this — one Figma session
+problem, not several. Fix the pairing once and both sets of items unblock
+together.
+
+## 🌳 Tree selection-path typography — web landed (2026-08-09), one Figma item
+
+The Tree selection path now keeps **one font size across every segment** and
+marks the selected node with **weight** instead. Previously the terminal segment
+resolved a different size from its ancestors, so the bar re-heighted as the
+selection moved. Full reasoning in `registry/components/tree/README.md`.
+
+**No new Figma variables.** Both custom properties added by this work default to
+primitives that already exist —
+`--primitiv-tree-selection-path-current-font-weight` →
+`font-weight/semibold`, and `--primitiv-tree-label-ink-slack` → `space/space-1`.
+Nothing to create in the Context or Primitive collections.
+
+**One visual item to check:**
+
+- **`Tree / Selection Path` (`1733:1215`, 10 variants)** — the terminal segment
+  should render **semibold**. The set composes `Breadcrumb/Item` +
+  `Breadcrumb/Separator` directly, so the sizes are probably already uniform
+  (one shared Item master); it is the weight that is new. The composed `Tree`
+  specimen (`1733:1790`) instances it, so it inherits the change.
+- ⚠️ **Apply it as an override on Selection Path's own instances, not to the
+  shared `Breadcrumb/Item` master.** The weight is a Tree decision — on the web
+  it is scoped to `.primitiv-tree__selection-path .primitiv-breadcrumb__page`,
+  deliberately leaving plain Breadcrumbs and `BreadcrumbOverflow` untouched.
+  Changing `State=page` at the master would restyle every breadcrumb in the
+  file.
+
+**Nothing to mirror for the descender fix.** The 1px padding / negative-margin
+pair on truncating labels (`tree`, `listbox`, `miller-columns`, `select`) is a
+pure CSS clipping mechanic: it stops `overflow: hidden` shaving descenders and
+changes no measurement — row heights and rhythm are identical before and after.
+Figma text nodes do not clip this way, so there is no counterpart to build. It
+belongs with Card's documented CSS-only divergences, not on the canvas.

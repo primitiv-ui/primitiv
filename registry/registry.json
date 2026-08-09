@@ -683,6 +683,40 @@
       },
       "contract": "contract.json"
     },
+    "container": {
+      "version": "0.1.0",
+      "dependsOn": {
+        "packages": [
+          {
+            "name": "@primitiv-ui/react",
+            "version": "^0.1.0"
+          }
+        ],
+        "tokens": true,
+        "components": []
+      },
+      "styles": {
+        "packages": [
+          "class-variance-authority"
+        ],
+        "react": [
+          "container.recipe.ts",
+          "container.tsx"
+        ],
+        "formats": {
+          "css": [
+            "styles.css"
+          ],
+          "scss": [
+            "styles.scss"
+          ],
+          "tailwind": [
+            "styles.css"
+          ]
+        }
+      },
+      "contract": "contract.json"
+    },
     "context-menu": {
       "version": "0.1.0",
       "dependsOn": {
@@ -930,6 +964,40 @@
         "react": [
           "figure.recipe.ts",
           "figure.tsx"
+        ],
+        "formats": {
+          "css": [
+            "styles.css"
+          ],
+          "scss": [
+            "styles.scss"
+          ],
+          "tailwind": [
+            "styles.css"
+          ]
+        }
+      },
+      "contract": "contract.json"
+    },
+    "grid": {
+      "version": "0.1.0",
+      "dependsOn": {
+        "packages": [
+          {
+            "name": "@primitiv-ui/react",
+            "version": "^0.1.0"
+          }
+        ],
+        "tokens": true,
+        "components": []
+      },
+      "styles": {
+        "packages": [
+          "class-variance-authority"
+        ],
+        "react": [
+          "grid.recipe.ts",
+          "grid.tsx"
         ],
         "formats": {
           "css": [

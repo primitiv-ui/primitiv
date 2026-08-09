@@ -47,6 +47,7 @@ import {
   ConfirmDialog,
   ConfirmDialogTrigger,
   ConfirmDialogContent,
+  Container,
   ContextMenu,
   ContextMenuTrigger,
   ContextMenuContent,
@@ -102,6 +103,7 @@ import {
   FieldDescription,
   FieldErrorText,
   Figure,
+  Grid,
   InlineCode,
   Input,
   InputGroup,
@@ -2396,6 +2398,55 @@ export function ramp(hue: number, chroma = 0.12) {
             />
           </AspectRatio>
         </Box>
+        <p>
+          <code>Container</code> caps a content column and centres it in
+          whatever space is left. Both of these sit in the same full-width
+          parent — only the cap differs. The dashed inner rule is where the
+          gutter ends:
+        </p>
+        <Box className="ks-demo-frame ks-demo-frame--dashed">
+          <Container size="xs" className="ks-container-demo">
+            <p>
+              <code>size="xs"</code> — capped at 22.5rem.
+            </p>
+          </Container>
+          <Container size="sm" className="ks-container-demo">
+            <p>
+              <code>size="sm"</code> — capped at 40rem, same gutter.
+            </p>
+          </Container>
+          <Container size="sm" gutter="none" className="ks-container-demo">
+            <p>
+              <code>gutter="none"</code> — same cap, content runs to the edge.
+            </p>
+          </Container>
+        </Box>
+        <p>
+          <code>Grid</code> takes a per-breakpoint column map, resolved to
+          modifier classes rather than inline styles — so this reflows with the
+          viewport and is already correct on the server's first paint.{" "}
+          <strong>Resize the window</strong> to see it step: one column, two
+          from <code>md</code> (48rem), three from <code>lg</code> (64rem).
+        </p>
+        <Grid columns={{ base: 1, md: 2, lg: 3 }} gap="md">
+          {["One", "Two", "Three", "Four", "Five", "Six"].map((label) => (
+            <div key={label} className="ks-grid-cell">
+              {label}
+            </div>
+          ))}
+        </Grid>
+        <p>
+          A grid does not have to start at one column — this one is two up on a
+          phone and four from <code>md</code>, the shape a swatch or thumbnail
+          strip usually wants:
+        </p>
+        <Grid columns={{ base: 2, md: 4 }} gap="sm">
+          {["1", "2", "3", "4", "5", "6", "7", "8"].map((label) => (
+            <div key={label} className="ks-grid-cell">
+              {label}
+            </div>
+          ))}
+        </Grid>
       </Section>
 
       {/* One uncontrolled drawer per edge. Triggers take the raw `size`; the panels

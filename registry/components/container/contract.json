@@ -1,0 +1,98 @@
+{
+  "$schema": "https://primitiv-ui.dev/schema/contract.json",
+  "name": "container",
+  "version": "0.1.0",
+  "description": "A centred, max-width content column with token-bound inline gutters. `size` caps the width against the breakpoint scale (RFC 0025) and `gutter` sets the inline padding — `responsive` (the default) escalates it at the md and lg breakpoints, the fixed steps pin one value at every width. No inline styles: both props are curated presets (RFC 0022 §8).",
+  "docs": "https://primitiv-ui.dev/docs/components/container",
+  "root": {
+    "element": "div",
+    "class": "primitiv-container"
+  },
+  "dataAttributes": [],
+  "modifiers": [
+    {
+      "name": "size",
+      "default": "lg",
+      "description": "The width the content column stops growing at, resolved against the breakpoint scale so `size=\"lg\"` caps exactly where the `lg` breakpoint begins.",
+      "options": [
+        {
+          "name": "xs",
+          "class": "primitiv-container--xs",
+          "description": "Caps at the xs breakpoint (22.5rem)."
+        },
+        {
+          "name": "sm",
+          "class": "primitiv-container--sm",
+          "description": "Caps at the sm breakpoint (40rem)."
+        },
+        {
+          "name": "md",
+          "class": "primitiv-container--md",
+          "description": "Caps at the md breakpoint (48rem)."
+        },
+        {
+          "name": "lg",
+          "class": "primitiv-container--lg",
+          "description": "Caps at the lg breakpoint (64rem) — the default."
+        },
+        {
+          "name": "xl",
+          "class": "primitiv-container--xl",
+          "description": "Caps at the xl breakpoint (80rem)."
+        },
+        {
+          "name": "2xl",
+          "class": "primitiv-container--2xl",
+          "description": "Caps at the 2xl breakpoint (96rem)."
+        },
+        {
+          "name": "full",
+          "class": "primitiv-container--full",
+          "description": "No cap — fills its parent. Gutters still apply; pair with `gutter=\"none\"` for true edge-to-edge."
+        }
+      ]
+    },
+    {
+      "name": "gutter",
+      "default": "responsive",
+      "description": "Inline padding between the content column and its edges. Each step is a density-scaled Context token.",
+      "options": [
+        {
+          "name": "responsive",
+          "class": "primitiv-container--gutter-responsive",
+          "description": "Escalates sm → md → lg at the md and lg breakpoints (the default)."
+        },
+        {
+          "name": "none",
+          "class": "primitiv-container--gutter-none",
+          "description": "No inline padding — content runs to the column's edges."
+        },
+        {
+          "name": "sm",
+          "class": "primitiv-container--gutter-sm",
+          "description": "The small gutter, pinned at every width."
+        },
+        {
+          "name": "md",
+          "class": "primitiv-container--gutter-md",
+          "description": "The medium gutter, pinned at every width."
+        },
+        {
+          "name": "lg",
+          "class": "primitiv-container--gutter-lg",
+          "description": "The large gutter, pinned at every width."
+        }
+      ]
+    }
+  ],
+  "customProperties": [
+    {
+      "name": "--primitiv-container-max-width",
+      "defaultsTo": "var(--primitiv-breakpoint-lg)"
+    },
+    {
+      "name": "--primitiv-container-gutter",
+      "defaultsTo": "var(--primitiv-container-gutter-sm)"
+    }
+  ]
+}

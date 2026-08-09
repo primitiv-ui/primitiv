@@ -66,8 +66,28 @@ props beyond its size, and it renders one trail per selected value in
 
 Its `size` is the **tree's** size and resolves to a Breadcrumb size one tier
 down (`xs`|`sm` → `xs`, `md` → `sm`, `lg` → `md`, `xl` → `lg`), so the bar reads
-compact beside its rows. Every colour, the separator and the type come from
-Breadcrumb's own stylesheet — this component adds no path anatomy of its own.
+compact beside its rows. Every colour and the separator come from Breadcrumb's
+own stylesheet — this component adds no path anatomy of its own.
+
+**Every segment is the same size; the selected node is marked by weight.** A
+trail is read as one line, so changing size mid-line changes that line's
+metrics — the bar would re-height as the selection moved and the crumbs would
+reflow around it. Weight changes ink density and nothing else, so the bar holds
+its height however deep the path goes. It is semibold rather than bold: at
+`body/xs` on a dense tree, bold reads as an error state rather than a
+selection. Retarget it with
+`--primitiv-tree-selection-path-current-font-weight`.
+
+This doubles up with the colour Breadcrumb already gives its current page,
+which is deliberate — it is what VS Code's own breadcrumb does, and colour
+alone is easy to miss at the small end of the ramp.
+
+Note that the segments **state Breadcrumb's type explicitly** rather than
+inheriting it. Only the terminal segment is a real `BreadcrumbPage`; the
+ancestors are bare spans, because Breadcrumb has no non-link crumb part and
+these do not navigate. Left to inherit, they would take their size from
+whatever encloses the bar — the Tree root when it sits inside one, the page
+when it does not.
 
 ## Props
 
@@ -91,6 +111,24 @@ Everything else — `selectionMode`, `defaultExpandedValues` / `expandedValues`,
 | `separator` | `ReactNode`                            | —       | Overrides Breadcrumb's chevron.          |
 
 ## Patterns and gotchas
+
+**Row labels carry a 1px padding/negative-margin pair so `overflow: hidden`
+cannot shave their descenders.** The label needs `overflow: hidden` for
+`text-overflow: ellipsis`, and the clip box is the line box. Asta Sans has a
+content area of **1.193em** (measured off the real font), while the tighter
+rungs of the density ramp set line-height at or barely above that —
+`dense`/`lg` is 13px on 16px (1.23) and `dense`/`xs` is 10px on 12px (1.20).
+The deepest ink then landed **0.26–0.53px** from the clip edge, so whether a
+`g`, `j`, `p`, `q` or `y` survived came down to device pixel ratio, browser
+zoom and the row's subpixel offset — which is why it cut *sometimes*, and
+never at the `comfortable`/`md` default. Padding grows the clip box (overflow
+clips at the **padding** box); the equal negative margin gives the space back,
+so row height and rhythm are unchanged. Clearance is now ≥1.26px everywhere.
+
+Both axes stay a single `overflow` value on purpose: `overflow-y: visible` with
+`overflow-x: hidden` is not a combination CSS honours — the visible axis
+computes to `auto` and you get a scrollbar. Retarget the slack with
+`--primitiv-tree-label-ink-slack`.
 
 **Indentation is the row's own padding, and that is what makes the hover /
 selected band full-width.** Padding each enclosing group would be simpler, but

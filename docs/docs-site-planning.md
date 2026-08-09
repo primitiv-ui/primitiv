@@ -599,6 +599,57 @@ wired as `pnpm qa:prop-collisions`. Worth adding to CI and folding the
 Omit-narrowing rule into the `react-component-patterns` / `new-react-component`
 skills (the §1.16 to-do, now with teeth).
 
+### 1.22 New product goal: the docs site must be built for AI agents, not just human readers
+
+Raised in planning discussion (2026-08-09), prompted by the "Copy page" /
+"Copy MCP Server URL" / "Add MCP Server" pattern now common on docs
+platforms (e.g. Mintlify-powered sites). **Committed as a product goal for
+the docs site** — not yet scoped for implementation; the concrete build
+decisions are deferred to when the docs site build phase starts (see the
+new open question below and §3).
+
+Two distinct outcomes are wanted, and they call for different mechanisms:
+
+1. **An AI agent evaluating UI-layer options should be able to discover
+   and suggest Primitiv**, not just look it up once told to. This needs
+   something an agent can query *proactively* — a live, structured
+   interface, not a page it has to already know to fetch.
+2. **An AI agent that's already chosen Primitiv should be able to load the
+   library's full API quickly and completely.** This is closer to a
+   solved problem: serve the docs as clean, complete, LLM-friendly text.
+
+Two mechanisms map onto these, both additive to the already-planned
+Next.js docs site (§1.10) rather than a separate property:
+
+- **`llms.txt` / `llms-full.txt` + a markdown mirror of every docs page**
+  (a `.md` route alongside each page's HTML, per the "Copy Markdown page /
+  View as Markdown" pattern). Framework-level, cheap, and serves goal 2 for
+  *any* agent regardless of what tooling it has — no MCP client required.
+- **A thin MCP server wrapping the registry** — `list_components`,
+  `get_component_contract`, `get_install_command`, `search`, sourced
+  directly from `registry.json` + each component's `contract.json` (the
+  same structured data §1.5–§1.7's docs-data pipeline already consumes, so
+  this is a second consumer of that data, not a second source of truth).
+  This is what actually serves goal 1: an agent with the server available
+  can enumerate and reason over the whole library while a user is still
+  deciding on a UI layer. `"Add MCP Server"`-style one-click install
+  deep-links (registering the server straight into the requesting agent's
+  config) are the connection mechanism seen on comparable sites.
+
+Primitiv's registry model (`registry.json` + per-component `contract.json`
++ the `primitiv` CLI) is structurally close to what shadcn/ui already
+does, which is a real head start for both mechanisms — "what components
+exist" and "what's this component's API" are already structured data, not
+prose that would need separate authoring for agent consumption.
+
+**Not yet decided (deferred to the docs-site build phase):** hosting for
+the MCP server, its exact tool surface, how its data freshness relates to
+the embedded-registry-rebuild gotcha (root `CLAUDE.md` — a CLI binary must
+be rebuilt for registry changes to surface; an MCP server reading the same
+source would need the same discipline or read live from source instead of
+a baked-in copy), and where `llms.txt` generation plugs into the Next.js
+build. See the corresponding open question below.
+
 ---
 
 ## 2. Open questions
@@ -634,6 +685,14 @@ Button/Tabs (§1.14–§1.17):
    needed before the pipeline can be trusted on components beyond
    Button/Tabs, since any component redeclaring `ref`/`children`/or a
    narrowed native attribute (the exact §1.16 `dir` pattern) will hit it.
+5. **AI-agent discovery/consumption mechanism (§1.22).** `llms.txt` +
+   markdown mirror seems straightforward to fold into the Next.js build
+   whenever that starts. The MCP-server piece needs real scoping before
+   work starts: where it's hosted, its exact tool surface, whether it
+   reads the registry live or from a build artifact (and if the latter,
+   how it avoids the same stale-until-rebuilt trap the embedded CLI
+   registry has), and whether it ships alongside the docs site launch or
+   as a fast-follow.
 
 ## 3. Explicitly not yet started
 

@@ -132,6 +132,45 @@ phases use `--primitiv-motion-duration-overlay` with
 `--primitiv-motion-easing-enter` / `-exit`; `prefers-reduced-motion: reduce`
 drops them.
 
+## Collision handling
+
+The panel is positioned with CSS anchor positioning and falls back in this
+order when the chosen placement doesn't fit:
+
+1. `flip-block` — swap above/below
+2. `flip-inline` — swap start/end
+3. both together
+4. `--primitiv-dropdown-fit-above` / `--primitiv-dropdown-fit-below` — pin the
+   far edge to the viewport and scroll
+
+The order matters. Flips are tried first because a whole panel in open space
+always beats a scrolling one; the clamping fallbacks come last because a
+clamped panel *always* fits by construction, so listing them earlier would let
+one win over a perfectly good flip.
+
+The clamping fallbacks exist for the case flipping cannot solve: a menu **taller
+than the viewport** overflows whichever way it faces. They touch only the block
+axis, so the inline alignment chosen by the placement modifier survives and one
+pair serves all four placements plus submenus.
+
+`overflow` lives on the base rule, not in the `@position-try` blocks —
+`@position-try` only accepts insets, margins, sizing and self-alignment.
+
+### Bounding a long menu directly
+
+Collision fallbacks only fire on a collision. A menu that is simply *long* — a
+few hundred rows in open space — needs a cap:
+
+```css
+.my-long-menu {
+  --primitiv-dropdown-max-block-size: 18rem;
+}
+```
+
+`none` by default. The `pagination` component sets it, because a collapsed page
+range can hide hundreds of numbers.
+
+
 ## Files
 
 | File                 | Purpose                                                       |

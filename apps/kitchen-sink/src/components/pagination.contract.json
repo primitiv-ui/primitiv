@@ -2,7 +2,7 @@
   "$schema": "https://primitiv-ui.dev/schema/contract.json",
   "name": "pagination",
   "version": "0.1.0",
-  "description": "Page navigation for a paged collection — a row of square page cells with prev/next chevrons, or a compact \"Page X of Y\" readout. Truncated ranges collapse behind an ellipsis that opens a menu of the hidden pages.",
+  "description": "Page navigation for a paged collection \u2014 a row of square page cells with prev/next chevrons, or a compact \"Page X of Y\" readout. Truncated ranges collapse behind an ellipsis that opens a menu of the hidden pages.",
   "docs": "https://primitiv-ui.dev/docs/components/pagination",
   "root": {
     "element": "nav",
@@ -30,11 +30,33 @@
     }
   ],
   "customProperties": [
-    { "name": "--primitiv-pagination-gap", "defaultsTo": "var(--primitiv-pagination-md-gap)" },
-    { "name": "--primitiv-pagination-item-min-inline-size", "defaultsTo": "var(--primitiv-pagination-md-item-min-width)" },
-    { "name": "--primitiv-pagination-group-gap", "defaultsTo": "var(--primitiv-pagination-md-group-gap)" },
-    { "name": "--primitiv-pagination-control-gap", "defaultsTo": "var(--primitiv-framed-control-md-gap)" },
-    { "name": "--primitiv-pagination-icon-size", "defaultsTo": "var(--primitiv-framed-control-md-icon-size)" },
-    { "name": "--primitiv-pagination-menu-min-inline-size", "defaultsTo": "var(--primitiv-pagination-md-item-min-width)" }
+    {
+      "name": "--primitiv-pagination-gap",
+      "defaultsTo": "var(--primitiv-pagination-md-gap)"
+    },
+    {
+      "name": "--primitiv-pagination-item-min-inline-size",
+      "defaultsTo": "var(--primitiv-pagination-md-item-min-width)"
+    },
+    {
+      "name": "--primitiv-pagination-group-gap",
+      "defaultsTo": "var(--primitiv-pagination-md-group-gap)"
+    },
+    {
+      "name": "--primitiv-pagination-control-gap",
+      "defaultsTo": "var(--primitiv-framed-control-md-gap)"
+    },
+    {
+      "name": "--primitiv-pagination-icon-size",
+      "defaultsTo": "var(--primitiv-framed-control-md-icon-size)"
+    },
+    {
+      "name": "--primitiv-pagination-menu-min-inline-size",
+      "defaultsTo": "var(--primitiv-pagination-md-item-min-width)"
+    },
+    {
+      "name": "--primitiv-pagination-menu-max-block-size",
+      "defaultsTo": "var(--primitiv-size-size-288)"
+    }
   ]
 }

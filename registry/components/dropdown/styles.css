@@ -45,6 +45,29 @@
  * token layer (RFC 0008 §7). */
 @layer primitiv.reset, primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;
 
+/* Last-resort placements for a panel too TALL to fit on either side — the case
+ * flipping cannot solve, because a menu longer than the viewport overflows
+ * whichever way it faces. Each pins the far edge to the viewport, so the panel
+ * fills the space that genuinely exists and scrolls its rows (the base rule
+ * carries `overflow`, which @position-try does not accept — its allowed
+ * properties are insets, margins, sizing and self-alignment only).
+ *
+ * Both touch the BLOCK axis alone. Properties a fallback omits keep their
+ * cascaded value, so the inline alignment chosen by the placement modifier
+ * (start- vs end-aligned) survives, and one pair of fallbacks serves all four
+ * placements plus submenus. */
+@position-try --primitiv-dropdown-fit-below {
+  inset-block-start: anchor(end);
+  inset-block-end: var(--primitiv-dropdown-viewport-margin);
+  margin-block: var(--primitiv-dropdown-offset) 0;
+}
+
+@position-try --primitiv-dropdown-fit-above {
+  inset-block-start: var(--primitiv-dropdown-viewport-margin);
+  inset-block-end: anchor(start);
+  margin-block: 0 var(--primitiv-dropdown-offset);
+}
+
 @layer primitiv.reset {
   .primitiv-dropdown {
     /* Reset the native [popover] UA defaults: `margin: auto; inset: 0`
@@ -98,6 +121,13 @@
        hover). */
     --primitiv-dropdown-padding-inline: var(--primitiv-space-space-4);
     --primitiv-dropdown-min-inline-size: 12rem;
+    /* Hard cap on the panel's height, independent of collisions. `none` by
+       default so short menus are unaffected; set it when a menu can be
+       arbitrarily long (Pagination's overflow menu can hold hundreds of page
+       numbers) and you want it bounded even in open space. */
+    --primitiv-dropdown-max-block-size: none;
+    /* Breathing room kept between a clamped panel and the viewport edge. */
+    --primitiv-dropdown-viewport-margin: var(--primitiv-space-space-8);
     /* Gap between the trigger and the panel. */
     --primitiv-dropdown-offset: var(--primitiv-space-space-4);
 
@@ -148,6 +178,16 @@
     background: var(--primitiv-dropdown-surface);
     color: var(--primitiv-dropdown-fg);
     box-shadow: var(--primitiv-dropdown-shadow);
+    max-block-size: var(--primitiv-dropdown-max-block-size);
+
+    /* Scroll rather than overflow once the panel is bounded — by the cap above
+       or by one of the --fit fallbacks below. `hidden auto` rather than a bare
+       `overflow-y`: a visible axis paired with a non-visible one computes to
+       `auto`, so `overflow-y: auto` alone would also allow a horizontal
+       scrollbar. overscroll-behavior stops a menu scrolled to its end from
+       chaining the scroll to the page behind it. */
+    overflow: hidden auto;
+    overscroll-behavior: contain;
 
     /* Default placement: below the trigger, hugging its inline-start edge.
        Consumers wire `anchor-name` on the trigger + a matching `position-anchor`
@@ -156,8 +196,18 @@
     inset-block-start: anchor(end);
     inset-inline-start: anchor(start);
     margin-block-start: var(--primitiv-dropdown-offset);
-    /* Flip to the opposite side / edge when the chosen placement overflows. */
-    position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
+    /* Collision handling, in preference order: flip to the opposite side or
+       edge first (a whole panel in open space is always better), and only if no
+       flip fits, fall back to clamping against the viewport and scrolling.
+       Order matters — the browser takes the FIRST fallback that fits, and a
+       clamped panel always "fits" by construction, so listing it earlier would
+       let it win over a perfectly good flip. */
+    position-try-fallbacks:
+      flip-block,
+      flip-inline,
+      flip-block flip-inline,
+      --primitiv-dropdown-fit-above,
+      --primitiv-dropdown-fit-below;
   }
 
   /* Show when open. A closed [popover] is display:none via the UA rule; setting
@@ -435,7 +485,12 @@
     inset-inline-end: auto;
     margin-block: 0;
     margin-inline: var(--primitiv-dropdown-offset) 0;
-    position-try-fallbacks: flip-inline, flip-block, flip-inline flip-block;
+    position-try-fallbacks:
+      flip-inline,
+      flip-block,
+      flip-inline flip-block,
+      --primitiv-dropdown-fit-above,
+      --primitiv-dropdown-fit-below;
   }
 }
 

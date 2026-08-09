@@ -3506,7 +3506,11 @@ export function ramp(hue: number, chroma = 0.12) {
             while you move within a block and advance in one jump when you step
             past its edge — so cells never re-label under the cursor. Each
             ellipsis opens a menu of the pages it hid, so nothing in a 100-page
-            range is more than two clicks away.
+            range is more than two clicks away. Those menus are a good{" "}
+            <strong>collision</strong> test: the middle gap here hides ~49
+            pages, so the panel is capped and scrolls rather than running off
+            the viewport, and opening one near the bottom of the window flips it
+            above the trigger.
           </p>
           <DemoPagination
             label="Wide-range pagination"

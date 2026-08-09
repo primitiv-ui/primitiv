@@ -60,6 +60,7 @@
     --primitiv-pagination-control-gap: var(--primitiv-framed-control-md-gap);
     --primitiv-pagination-icon-size: var(--primitiv-framed-control-md-icon-size);
     --primitiv-pagination-menu-min-inline-size: var(--primitiv-pagination-md-item-min-width);
+    --primitiv-pagination-menu-max-block-size: var(--primitiv-size-size-288);
 
     display: flex;
     align-items: center;
@@ -201,6 +202,11 @@
    * while never getting narrower than the cell it drops from. */
   .primitiv-pagination__menu {
     --primitiv-dropdown-min-inline-size: var(--primitiv-pagination-menu-min-inline-size);
+    /* A collapsed run is unbounded by nature — at 1000 pages the middle gap
+       hides 499 of them. Cap the panel so it scrolls instead of running off the
+       viewport, rather than relying on a collision fallback to notice: this
+       menu is long in open space too, not only when it collides. */
+    --primitiv-dropdown-max-block-size: var(--primitiv-pagination-menu-max-block-size);
   }
 }
 

@@ -537,13 +537,20 @@
      variant grid cannot.
 
      Targeted at the row, never at the branch container: hovering a nested row
-     also hovers every ancestor branch, which would light the whole path. */
-  .primitiv-tree__item:hover,
-  .primitiv-tree__branch-control:hover {
-    background-image: linear-gradient(
-      var(--primitiv-tree-item-bg-hover),
-      var(--primitiv-tree-item-bg-hover)
-    );
+     also hovers every ancestor branch, which would light the whole path.
+
+     Gated behind (hover: hover): a touchscreen simulates :hover on tap and it
+     "sticks" until the next tap elsewhere, which would otherwise leave a
+     just-tapped node showing its hover tint instead of its resting/selected
+     one. */
+  @media (hover: hover) {
+    .primitiv-tree__item:hover,
+    .primitiv-tree__branch-control:hover {
+      background-image: linear-gradient(
+        var(--primitiv-tree-item-bg-hover),
+        var(--primitiv-tree-item-bg-hover)
+      );
+    }
   }
 
   /* Disabled — dimmed and inert, but still rendered and still focusable, so a

@@ -1655,6 +1655,58 @@
         }
       }
     },
+    "pagination": {
+      "xs": {
+        "item-min-width": {
+          "$type": "number",
+          "$value": "{framed-control.xs.height}"
+        },
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-2}"
+        }
+      },
+      "sm": {
+        "item-min-width": {
+          "$type": "number",
+          "$value": "{framed-control.sm.height}"
+        },
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-2}"
+        }
+      },
+      "md": {
+        "item-min-width": {
+          "$type": "number",
+          "$value": "{framed-control.md.height}"
+        },
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-4}"
+        }
+      },
+      "lg": {
+        "item-min-width": {
+          "$type": "number",
+          "$value": "{framed-control.lg.height}"
+        },
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-4}"
+        }
+      },
+      "xl": {
+        "item-min-width": {
+          "$type": "number",
+          "$value": "{framed-control.xl.height}"
+        },
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-6}"
+        }
+      }
+    },
     "radio": {
       "xs": {
         "box-size": {
@@ -4600,6 +4652,58 @@
         "thumb-ring-size": {
           "$type": "number",
           "$value": "{size.size-32}"
+        }
+      }
+    },
+    "pagination": {
+      "xs": {
+        "item-min-width": {
+          "$type": "number",
+          "$value": "{framed-control.xs.height}"
+        },
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-2}"
+        }
+      },
+      "sm": {
+        "item-min-width": {
+          "$type": "number",
+          "$value": "{framed-control.sm.height}"
+        },
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-2}"
+        }
+      },
+      "md": {
+        "item-min-width": {
+          "$type": "number",
+          "$value": "{framed-control.md.height}"
+        },
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-2}"
+        }
+      },
+      "lg": {
+        "item-min-width": {
+          "$type": "number",
+          "$value": "{framed-control.lg.height}"
+        },
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-3}"
+        }
+      },
+      "xl": {
+        "item-min-width": {
+          "$type": "number",
+          "$value": "{framed-control.xl.height}"
+        },
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-4}"
         }
       }
     },
@@ -7551,6 +7655,58 @@
         }
       }
     },
+    "pagination": {
+      "xs": {
+        "item-min-width": {
+          "$type": "number",
+          "$value": "{framed-control.xs.height}"
+        },
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-2}"
+        }
+      },
+      "sm": {
+        "item-min-width": {
+          "$type": "number",
+          "$value": "{framed-control.sm.height}"
+        },
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-3}"
+        }
+      },
+      "md": {
+        "item-min-width": {
+          "$type": "number",
+          "$value": "{framed-control.md.height}"
+        },
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-4}"
+        }
+      },
+      "lg": {
+        "item-min-width": {
+          "$type": "number",
+          "$value": "{framed-control.lg.height}"
+        },
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-4}"
+        }
+      },
+      "xl": {
+        "item-min-width": {
+          "$type": "number",
+          "$value": "{framed-control.xl.height}"
+        },
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-6}"
+        }
+      }
+    },
     "radio": {
       "xs": {
         "box-size": {
@@ -10496,6 +10652,58 @@
         "thumb-ring-size": {
           "$type": "number",
           "$value": "{size.size-28}"
+        }
+      }
+    },
+    "pagination": {
+      "xs": {
+        "item-min-width": {
+          "$type": "number",
+          "$value": "{framed-control.xs.height}"
+        },
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-2}"
+        }
+      },
+      "sm": {
+        "item-min-width": {
+          "$type": "number",
+          "$value": "{framed-control.sm.height}"
+        },
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-2}"
+        }
+      },
+      "md": {
+        "item-min-width": {
+          "$type": "number",
+          "$value": "{framed-control.md.height}"
+        },
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-2}"
+        }
+      },
+      "lg": {
+        "item-min-width": {
+          "$type": "number",
+          "$value": "{framed-control.lg.height}"
+        },
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-2}"
+        }
+      },
+      "xl": {
+        "item-min-width": {
+          "$type": "number",
+          "$value": "{framed-control.xl.height}"
+        },
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-3}"
         }
       }
     },

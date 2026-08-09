@@ -148,7 +148,6 @@ import {
   PaginationEllipsis,
   PaginationMenuItem,
   PaginationStatus,
-  paginationRange,
   Popover,
   PopoverTrigger,
   PopoverContent,
@@ -3456,9 +3455,11 @@ export function ramp(hue: number, chroma = 0.12) {
             A compound, not one prop-heavy component: compose{" "}
             <InlineCode size={size}>PaginationList</InlineCode> /{" "}
             <InlineCode size={size}>PaginationItem</InlineCode> and the cell
-            parts, and use{" "}
-            <InlineCode size={size}>paginationRange()</InlineCode> for the
-            which-pages-collapse arithmetic. Every cell is a real Button and the
+            parts, while{" "}
+            <InlineCode size={size}>usePagination()</InlineCode> owns the page
+            state and the which-pages-collapse arithmetic — so the hook works
+            against any data source and this row knows nothing about where the
+            pages came from. Every cell is a real Button and the
             overflow menu a real Dropdown, so Pagination adds no keyboard model
             of its own. Cells are square by{" "}
             <InlineCode size={size}>min-inline-size</InlineCode> — prev/next

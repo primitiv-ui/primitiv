@@ -54,7 +54,6 @@ import {
   type ComponentPropsWithRef,
   type ReactNode,
 } from "react";
-import { paginationRange, type PaginationRangeItem } from "@primitiv-ui/react";
 import { Button } from "./button";
 import { Dropdown, DropdownTrigger, DropdownContent, DropdownItem } from "./dropdown";
 import { pagination } from "./pagination.recipe";
@@ -369,5 +368,4 @@ export function PaginationMenuItem(props: PaginationMenuItemProps) {
  * cases (page 1, the last page, an empty range, the gap-of-one collapse) and
  * the registry has no test harness to guard a second copy.
  */
-export { paginationRange };
-export type { PaginationRangeItem };
+export { paginationRange, type PaginationRangeItem } from "@primitiv-ui/react";

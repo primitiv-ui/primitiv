@@ -261,7 +261,11 @@ import {
   Upload,
   User,
 } from "@primitiv-ui/icons";
-import { VisuallyHidden, useMillerColumnsSelection } from "@primitiv-ui/react";
+import {
+  VisuallyHidden,
+  useMillerColumnsSelection,
+  usePagination,
+} from "@primitiv-ui/react";
 import cardPhoto1 from "./assets/carousel-photos/photo-1.jpg";
 import cardPhoto2 from "./assets/carousel-photos/photo-2.jpg";
 import cardPhoto3 from "./assets/carousel-photos/photo-3.jpg";
@@ -998,44 +1002,57 @@ function MillerPreview() {
 
 // One composed Pagination row.
 //
-// Pagination is a compound, like Breadcrumb and Select — the consumer owns the
-// page state and composes the row from PaginationList / PaginationItem / the
-// cell parts, and `paginationRange` supplies the which-pages-collapse
-// arithmetic. That is deliberately more verbose than a single prop-driven
-// component, so the kitchen-sink wraps it once here rather than repeating the
-// same ~30 lines across four demos. The component README writes the
-// composition out in full.
+// Pagination is a compound, like Breadcrumb and Select: `usePagination` (from
+// @primitiv-ui/react) owns the page arithmetic, and the row is composed from
+// PaginationList / PaginationItem and the cell parts. That split is the point —
+// the hook works against any data source, and this styled row knows nothing
+// about where the pages came from. The kitchen-sink wraps it once here rather
+// than repeating the same ~30 lines across four demos; the component README
+// writes the composition out in full.
 function DemoPagination({
   label,
   size,
-  page,
-  pageCount,
-  onPageChange,
+  totalItems,
+  pageSize,
   variant = "numbered",
   siblingCount = 1,
-  summary,
-  trailing,
+  withSummary = false,
+  withJump = false,
 }: {
   label: string;
   size: "xs" | "sm" | "md" | "lg" | "xl";
-  page: number;
-  pageCount: number;
-  onPageChange: (page: number) => void;
+  totalItems: number;
+  pageSize: number;
   variant?: "numbered" | "compact";
   siblingCount?: number;
-  summary?: ReactNode;
-  trailing?: ReactNode;
+  withSummary?: boolean;
+  withJump?: boolean;
 }) {
-  const items = paginationRange(page, pageCount, siblingCount);
+  const {
+    page,
+    pageCount,
+    items,
+    setPage,
+    next,
+    previous,
+    canNext,
+    canPrevious,
+    startIndex,
+    endIndex,
+  } = usePagination({ totalItems, pageSize, siblingCount });
+
   return (
     <Pagination label={label} size={size} variant={variant}>
-      {summary !== undefined && <PaginationSummary>{summary}</PaginationSummary>}
+      {withSummary && (
+        <PaginationSummary>
+          {/* startIndex is zero-based and endIndex half-open, so the +1 is the
+              only conversion needed for a human-readable range. */}
+          Showing {startIndex + 1}-{endIndex} of {totalItems}
+        </PaginationSummary>
+      )}
       <PaginationList>
         <PaginationItem>
-          <PaginationPrevious
-            disabled={page <= 1}
-            onClick={() => onPageChange(page - 1)}
-          />
+          <PaginationPrevious disabled={!canPrevious} onClick={previous} />
         </PaginationItem>
         {variant === "compact" ? (
           <PaginationItem>
@@ -1049,7 +1066,7 @@ function DemoPagination({
               <PaginationItem key={`page-${item.page}`}>
                 <PaginationLink
                   isActive={item.page === page}
-                  onClick={() => onPageChange(item.page)}
+                  onClick={() => setPage(item.page)}
                 >
                   {item.page}
                 </PaginationLink>
@@ -1060,7 +1077,7 @@ function DemoPagination({
                   {item.pages.map((hidden) => (
                     <PaginationMenuItem
                       key={hidden}
-                      onSelect={() => onPageChange(hidden)}
+                      onSelect={() => setPage(hidden)}
                     >
                       {hidden}
                     </PaginationMenuItem>
@@ -1071,14 +1088,29 @@ function DemoPagination({
           )
         )}
         <PaginationItem>
-          <PaginationNext
-            disabled={page >= pageCount}
-            onClick={() => onPageChange(page + 1)}
-          />
+          <PaginationNext disabled={!canNext} onClick={next} />
         </PaginationItem>
       </PaginationList>
-      {trailing !== undefined && (
-        <PaginationTrailing>{trailing}</PaginationTrailing>
+      {withJump && (
+        <PaginationTrailing>
+          <span>Go to</span>
+          {/* native: the jump control wants the platform popup, and native mode
+              needs no anchor-name/position-anchor wiring, which a rich panel
+              would (see .ks-anchor-sel-* in demos.css). */}
+          <Select
+            native
+            size={size}
+            aria-label="Go to page"
+            value={String(page)}
+            onValueChange={(value) => setPage(Number(value))}
+          >
+            {Array.from({ length: pageCount }, (_, i) => (
+              <SelectItem key={i + 1} value={String(i + 1)}>
+                {`Page ${i + 1}`}
+              </SelectItem>
+            ))}
+          </Select>
+        </PaginationTrailing>
       )}
     </Pagination>
   );
@@ -1116,13 +1148,6 @@ export function App(): ReactElement {
   );
   const [cmAlign, setCmAlign] = useState("left");
   const [framework, setFramework] = useState("react");
-  // Pagination demo state — one page index per demo, so paging one row doesn't
-  // move the others (and so the compact/summary demos can sit at different
-  // points in their range).
-  const [pageBasic, setPageBasic] = useState(3);
-  const [pageCompact, setPageCompact] = useState(1);
-  const [pageFooter, setPageFooter] = useState(3);
-  const [pageWide, setPageWide] = useState(50);
   // Select demo state — controlled so the trigger's mirrored content and the
   // checkmark indicator both track a real selection.
   const [selFramework, setSelFramework] = useState("");
@@ -3443,9 +3468,8 @@ export function ramp(hue: number, chroma = 0.12) {
           <DemoPagination
             label="Basic pagination"
             size={size}
-            page={pageBasic}
-            pageCount={20}
-            onPageChange={setPageBasic}
+            totalItems={200}
+            pageSize={10}
           />
 
           <p className="kitchen-sink__note">
@@ -3457,9 +3481,8 @@ export function ramp(hue: number, chroma = 0.12) {
             label="Compact pagination"
             variant="compact"
             size={size}
-            page={pageCompact}
-            pageCount={20}
-            onPageChange={setPageCompact}
+            totalItems={200}
+            pageSize={10}
           />
 
           <p className="kitchen-sink__note">
@@ -3471,32 +3494,10 @@ export function ramp(hue: number, chroma = 0.12) {
           <DemoPagination
             label="Table footer pagination"
             size={size}
-            page={pageFooter}
-            pageCount={20}
-            onPageChange={setPageFooter}
-            summary={`Showing ${(pageFooter - 1) * 10 + 1}-${pageFooter * 10} of 200`}
-            trailing={
-              <>
-                <span>Go to</span>
-                {/* native: the jump control wants the platform popup, and
-                    native mode needs no anchor-name/position-anchor wiring,
-                    which a rich panel would (see .ks-anchor-sel-* in
-                    demos.css). */}
-                <Select
-                  native
-                  size={size}
-                  aria-label="Go to page"
-                  value={String(pageFooter)}
-                  onValueChange={(value) => setPageFooter(Number(value))}
-                >
-                  {Array.from({ length: 20 }, (_, i) => (
-                    <SelectItem key={i + 1} value={String(i + 1)}>
-                      {`Page ${i + 1}`}
-                    </SelectItem>
-                  ))}
-                </Select>
-              </>
-            }
+            totalItems={237}
+            pageSize={10}
+            withSummary
+            withJump
           />
 
           <p className="kitchen-sink__note">
@@ -3507,10 +3508,9 @@ export function ramp(hue: number, chroma = 0.12) {
           <DemoPagination
             label="Wide-range pagination"
             size={size}
-            page={pageWide}
-            pageCount={100}
+            totalItems={1000}
+            pageSize={10}
             siblingCount={2}
-            onPageChange={setPageWide}
           />
         </Section>
 

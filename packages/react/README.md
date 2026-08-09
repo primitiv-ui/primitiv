@@ -69,6 +69,7 @@ import { Tabs } from "@primitiv-ui/react";
 | Hook                                                | Description                                                                                                    |
 | ---------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
 | [useMediaQuery](src/useMediaQuery/README.md)         | Tracks whether a CSS media query currently matches, re-rendering on change — generic, not tied to Primitiv's own breakpoint scale, with a safe `false` default during server rendering |
+| [usePagination](src/usePagination/README.md)         | Page state and arithmetic for any paged data source — clamped current page, prev/next/first/last, half-open `startIndex`/`endIndex` slice bounds for client- or server-side data, and the collapsed page range to render |
 
 ## Internal utilities
 

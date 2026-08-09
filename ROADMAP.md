@@ -447,7 +447,7 @@ semantics that CSS alone cannot provide.
 - [x] Breadcrumb
 - [x] Carousel
 - [x] Collapsible
-- [x] Pagination — Figma set (10 variants, md-first) + `pagination/*` tokens + registry surface + kitchen-sink demo. Registry-only leaf (no headless primitive): composes `Button` + `Dropdown`, introduces no new ARIA pattern. See [RFC 0021](docs/rfcs/0021-composite-components.md)
+- [x] Pagination — Figma set (10 variants, md-first) + `pagination/*` tokens + the headless `usePagination` hook + a compound registry surface + kitchen-sink demo. Composes `Button` + `Dropdown` and introduces no new ARIA pattern, but is NOT primitive-less: `usePagination` holds the page arithmetic so it can be tested and reused against any data source. See [RFC 0021](docs/rfcs/0021-composite-components.md)
 - [ ] Steps
 - [x] Tabs
 

@@ -16,9 +16,9 @@ import "../styles/primitiv/pagination/styles.css";
  * broke the house convention every other compound follows (Breadcrumb, Select,
  * Card, Dropdown …) and, worse, made the component own a data model — the
  * thing `avatar-group` and `breadcrumb-overflow` explicitly refuse to do (RFC
- * 0019 §4c). The consumer now composes the row and keeps its own page state;
- * `paginationRange` below is the shared arithmetic, exported so nobody has to
- * re-derive which pages collapse.
+ * 0019 §4c). The consumer now composes the row and keeps its own page state —
+ * with `usePagination` from `@primitiv-ui/react` if they want the arithmetic,
+ * clamping and prev/next handled for them.
  *
  * `size` is shared through a context rather than repeated on every part.
  * Breadcrumb can cascade its size purely through CSS custom properties because
@@ -54,6 +54,7 @@ import {
   type ComponentPropsWithRef,
   type ReactNode,
 } from "react";
+import { paginationRange, type PaginationRangeItem } from "@primitiv-ui/react";
 import { Button } from "./button";
 import { Dropdown, DropdownTrigger, DropdownContent, DropdownItem } from "./dropdown";
 import { pagination } from "./pagination.recipe";
@@ -107,62 +108,6 @@ function ChevronRightGlyph() {
   );
 }
 
-/** One entry in a rendered page range: either a page, or a collapsed gap. */
-export type PaginationRangeItem =
-  | { type: "page"; page: number }
-  | { type: "gap"; pages: number[] };
-
-/**
- * Work out which pages to show, and which to collapse behind an overflow menu.
- *
- * Builds the visible set from three sources — the first `boundaryCount` pages,
- * the last `boundaryCount`, and `siblingCount` either side of `page` — then
- * walks the sorted result and collapses every remaining run into a `gap`.
- *
- * A gap of exactly ONE page is returned as that page instead: hiding a single
- * number behind a menu costs the reader a click and saves no width, since the
- * ellipsis cell is the same square as the number it would replace. Same
- * reasoning as `breadcrumb-overflow`, which only truncates once there is more
- * than one crumb to hide.
- *
- * A pure function of its inputs — this is the shared arithmetic the compound
- * deliberately does NOT hide, so a different layout can reuse it.
- *
- * @example
- * ```tsx
- * paginationRange(3, 20);
- * // [{page:1},{page:2},{page:3},{page:4},{gap:[5..19]},{page:20}]
- * ```
- */
-export function paginationRange(
-  page: number,
-  pageCount: number,
-  siblingCount = 1,
-  boundaryCount = 1,
-): PaginationRangeItem[] {
-  const visible = new Set<number>();
-  for (let i = 1; i <= Math.min(boundaryCount, pageCount); i++) visible.add(i);
-  for (let i = Math.max(1, pageCount - boundaryCount + 1); i <= pageCount; i++) visible.add(i);
-  for (let i = Math.max(1, page - siblingCount); i <= Math.min(pageCount, page + siblingCount); i++) {
-    visible.add(i);
-  }
-
-  const sorted = [...visible].sort((a, b) => a - b);
-  const items: PaginationRangeItem[] = [];
-
-  sorted.forEach((current, i) => {
-    if (i > 0) {
-      const missing: number[] = [];
-      for (let p = sorted[i - 1] + 1; p < current; p++) missing.push(p);
-      if (missing.length === 1) items.push({ type: "page", page: missing[0] });
-      else if (missing.length > 1) items.push({ type: "gap", pages: missing });
-    }
-    items.push({ type: "page", page: current });
-  });
-
-  return items;
-}
-
 export type PaginationProps = ComponentPropsWithRef<"nav"> & {
   /**
    * `numbered` spaces the cells tightly; `compact` uses the ordinary control
@@ -187,18 +132,18 @@ export type PaginationProps = ComponentPropsWithRef<"nav"> & {
 /**
  * Page navigation for a paged collection — the landmark and layout root.
  *
- * Compose the row from `PaginationList` / `PaginationItem` and the cell parts;
- * use `paginationRange` for the which-pages-collapse arithmetic.
+ * Compose the row from `PaginationList` / `PaginationItem` and the cell parts.
+ * `usePagination` supplies the page state and the collapsed range.
  *
  * @example
  * ```tsx
- * const [page, setPage] = useState(1);
- * const items = paginationRange(page, 20);
+ * const { page, setPage, items, canPrevious, canNext, previous, next } =
+ *   usePagination({ totalItems: 237, pageSize: 10 });
  *
  * <Pagination label="Search results">
  *   <PaginationList>
  *     <PaginationItem>
- *       <PaginationPrevious disabled={page === 1} onClick={() => setPage(page - 1)} />
+ *       <PaginationPrevious disabled={!canPrevious} onClick={previous} />
  *     </PaginationItem>
  *     {items.map((item, i) =>
  *       item.type === "page" ? (
@@ -218,7 +163,7 @@ export type PaginationProps = ComponentPropsWithRef<"nav"> & {
  *       ),
  *     )}
  *     <PaginationItem>
- *       <PaginationNext disabled={page === 20} onClick={() => setPage(page + 1)} />
+ *       <PaginationNext disabled={!canNext} onClick={next} />
  *     </PaginationItem>
  *   </PaginationList>
  * </Pagination>
@@ -416,3 +361,13 @@ export type PaginationMenuItemProps = ComponentPropsWithRef<typeof DropdownItem>
 export function PaginationMenuItem(props: PaginationMenuItemProps) {
   return <DropdownItem {...props} />;
 }
+
+/**
+ * Re-exported from `@primitiv-ui/react` so everything Pagination needs can be
+ * imported from this one copied surface. The arithmetic itself lives in the
+ * headless `usePagination` package — kept in ONE place because it has real edge
+ * cases (page 1, the last page, an empty range, the gap-of-one collapse) and
+ * the registry has no test harness to guard a second copy.
+ */
+export { paginationRange };
+export type { PaginationRangeItem };

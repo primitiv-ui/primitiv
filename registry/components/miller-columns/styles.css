@@ -86,6 +86,13 @@
     --primitiv-miller-columns-preview-padding: var(--primitiv-miller-columns-md-preview-padding);
     --primitiv-miller-columns-resize-handle-width: var(--primitiv-miller-columns-md-resize-handle-width);
     --primitiv-miller-columns-strip-radius: var(--primitiv-miller-columns-md-strip-radius);
+    --primitiv-miller-columns-height: var(--primitiv-miller-columns-md-height);
+    /* A definite height is not decoration: the columns' overflow-y is inert
+       without one, so a long folder would stretch the strip instead of
+       scrolling inside its column, and the strip's height would jump as you
+       navigated between folders of different lengths. Roughly eight rows at
+       every size; override this one property to change it. */
+    --primitiv-miller-columns-height: var(--primitiv-miller-columns-md-height);
 
     /* Row type is one tier BELOW the row's own size on the xs<sm<md<lg<xl
        ladder (md rows read at body/sm) — the same ladder Tree uses, because a
@@ -132,6 +139,7 @@
     --primitiv-miller-columns-transition-easing: var(--primitiv-motion-easing-default);
 
     display: flex;
+    block-size: var(--primitiv-miller-columns-height);
     overflow-x: auto;
     overflow-y: hidden;
     background: var(--primitiv-miller-columns-background);
@@ -269,19 +277,35 @@
 
   /* Resting states. Both are ordinary — an empty column happens whenever a
      childless branch is opened, and an empty pane is simply "nothing chosen
-     yet" — so each is one muted line, not an EmptyState block. */
+     yet" — so each is one muted line, centred in the space it has rather than
+     tucked into the top corner where it reads as a stray first row. Not an
+     EmptyState block: that is far too heavy for a 140-288px column. */
   .primitiv-miller-columns__empty {
-    display: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     margin: 0;
     padding: var(--primitiv-miller-columns-item-padding-inline);
     color: var(--primitiv-miller-columns-muted-foreground);
+    text-align: center;
+    text-wrap: balance;
+  }
+
+  /* Fill the column so "centred" means centred in the whole pane, not just
+     within one line's worth of height. */
+  .primitiv-miller-columns__column .primitiv-miller-columns__empty {
+    min-block-size: 100%;
   }
 
   /* Whether a column is empty is the headless component's answer, derived from
-     its registered items — the wrapper always renders the line and this reveals
-     it, rather than the wrapper guessing from its children. */
-  .primitiv-miller-columns__column[data-empty] .primitiv-miller-columns__empty {
-    display: block;
+     its registered items — the wrapper always renders the line and a populated
+     column hides it, rather than the wrapper guessing from its children.
+     Hiding by exception (not defaulting to display:none) is what lets the class
+     be reused for a consumer's own resting copy elsewhere, e.g. in the preview
+     pane under forceMount. */
+  .primitiv-miller-columns__column:not([data-empty])
+    .primitiv-miller-columns__empty {
+    display: none;
   }
 }
 
@@ -298,6 +322,7 @@
     --primitiv-miller-columns-preview-padding: var(--primitiv-miller-columns-xs-preview-padding);
     --primitiv-miller-columns-resize-handle-width: var(--primitiv-miller-columns-xs-resize-handle-width);
     --primitiv-miller-columns-strip-radius: var(--primitiv-miller-columns-xs-strip-radius);
+    --primitiv-miller-columns-height: var(--primitiv-miller-columns-xs-height);
     --primitiv-miller-columns-font-size: var(--primitiv-body-xs-font-size);
     --primitiv-miller-columns-line-height: var(--primitiv-body-xs-line-height);
   }
@@ -314,6 +339,7 @@
     --primitiv-miller-columns-preview-padding: var(--primitiv-miller-columns-sm-preview-padding);
     --primitiv-miller-columns-resize-handle-width: var(--primitiv-miller-columns-sm-resize-handle-width);
     --primitiv-miller-columns-strip-radius: var(--primitiv-miller-columns-sm-strip-radius);
+    --primitiv-miller-columns-height: var(--primitiv-miller-columns-sm-height);
     --primitiv-miller-columns-font-size: var(--primitiv-body-xs-font-size);
     --primitiv-miller-columns-line-height: var(--primitiv-body-xs-line-height);
   }
@@ -330,6 +356,7 @@
     --primitiv-miller-columns-preview-padding: var(--primitiv-miller-columns-md-preview-padding);
     --primitiv-miller-columns-resize-handle-width: var(--primitiv-miller-columns-md-resize-handle-width);
     --primitiv-miller-columns-strip-radius: var(--primitiv-miller-columns-md-strip-radius);
+    --primitiv-miller-columns-height: var(--primitiv-miller-columns-md-height);
     --primitiv-miller-columns-font-size: var(--primitiv-body-sm-font-size);
     --primitiv-miller-columns-line-height: var(--primitiv-body-sm-line-height);
   }
@@ -346,6 +373,7 @@
     --primitiv-miller-columns-preview-padding: var(--primitiv-miller-columns-lg-preview-padding);
     --primitiv-miller-columns-resize-handle-width: var(--primitiv-miller-columns-lg-resize-handle-width);
     --primitiv-miller-columns-strip-radius: var(--primitiv-miller-columns-lg-strip-radius);
+    --primitiv-miller-columns-height: var(--primitiv-miller-columns-lg-height);
     --primitiv-miller-columns-font-size: var(--primitiv-body-md-font-size);
     --primitiv-miller-columns-line-height: var(--primitiv-body-md-line-height);
   }
@@ -362,6 +390,7 @@
     --primitiv-miller-columns-preview-padding: var(--primitiv-miller-columns-xl-preview-padding);
     --primitiv-miller-columns-resize-handle-width: var(--primitiv-miller-columns-xl-resize-handle-width);
     --primitiv-miller-columns-strip-radius: var(--primitiv-miller-columns-xl-strip-radius);
+    --primitiv-miller-columns-height: var(--primitiv-miller-columns-xl-height);
     --primitiv-miller-columns-font-size: var(--primitiv-body-lg-font-size);
     --primitiv-miller-columns-line-height: var(--primitiv-body-lg-line-height);
   }

@@ -173,6 +173,21 @@ shrinks back in — both the width and the colour transition, so it eases in
 each direction. While the grip is live the column's border steps aside so the
 seam is the ink alone.
 
+**The strip ships its own height** — roughly eight rows at every size, from
+`miller-columns/{size}/height`. That is load-bearing, not decorative: the
+columns' `overflow-y` is inert without a definite height, so a long folder
+would stretch the strip instead of scrolling inside its column, and the
+strip's height would jump as you navigated between folders of different
+lengths. Override the single `--primitiv-miller-columns-height` property to
+change it:
+
+```css
+.my-browser { --primitiv-miller-columns-height: 30rem; }
+```
+
+There is no user-facing vertical resize — Finder resizes the window, not the
+column view, and the height is the consumer's layout decision.
+
 **Seams.** Every column draws one trailing hairline, the last one included —
 so a column always reads as a column, even where the strip is wider than its
 contents and the rest is empty field. The pane never draws a leading border:
@@ -186,10 +201,17 @@ than collapsing it.
 
 **Empty columns.** Selecting a childless branch opens a column with nothing
 in it, so there are no children through which to pass a message. The wrapper
-always renders the empty line and the stylesheet reveals it under
-`[data-empty]` — whether a column is empty is the headless component's
-answer, derived from its registered items, and cannot be inferred from
-`children` (a column holding only a `ResizeHandle` has a child but no items).
+always renders the empty line and a *populated* column hides it — whether a
+column is empty is the headless component's answer, derived from its
+registered items, and cannot be inferred from `children` (a column holding
+only a `ResizeHandle` has a child but no items). Set the copy with
+`emptyLabel`, or `null` for a silent column.
+
+The line is centred in the column rather than tucked into the top corner,
+where it would read as a stray first row. `.primitiv-miller-columns__empty`
+is hidden by exception rather than by default, so you can reuse the class for
+your own resting copy elsewhere — a force-mounted preview pane, say — and it
+will still show.
 
 **No multi-select, by decision.** The selection *is* the path: column N+1
 exists because exactly one item in column N is chosen, so two selections in

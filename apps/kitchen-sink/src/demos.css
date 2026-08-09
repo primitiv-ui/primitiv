@@ -489,8 +489,9 @@
   inline-size: 100%;
 }
 
+/* Deliberately sets no height: the component now ships its own, and the demo
+   should show that default rather than mask it. */
 .ks-miller-showcase__strip {
-  block-size: 18rem;
   max-inline-size: 100%;
 }
 
@@ -507,10 +508,16 @@
   line-height: var(--primitiv-body-xs-line-height);
 }
 
+/* Fit the thumbnail to the pane rather than letting a tall image scroll — the
+   strip's height is fixed, and Finder scales its preview to the column too.
+   Demo CSS: what a preview looks like is the consumer's call, not the
+   component's. */
 .ks-miller-showcase__thumb {
   display: block;
   inline-size: 100%;
   block-size: auto;
+  max-block-size: 14rem;
+  object-fit: contain;
   border-radius: var(--primitiv-radii-4);
 }
 

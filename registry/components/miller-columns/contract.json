@@ -234,6 +234,10 @@
       "defaultsTo": "var(--primitiv-miller-columns-md-strip-radius)"
     },
     {
+      "name": "--primitiv-miller-columns-height",
+      "defaultsTo": "var(--primitiv-miller-columns-md-height)"
+    },
+    {
       "name": "--primitiv-miller-columns-font-size",
       "defaultsTo": "var(--primitiv-body-sm-font-size)"
     },

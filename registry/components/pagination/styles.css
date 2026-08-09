@@ -89,6 +89,21 @@
     display: flex;
     align-items: center;
     gap: var(--primitiv-pagination-gap);
+
+    /* The cell row is intrinsically wide — nine cells at md is ~392px, more
+       than a 375px phone has to give — so on a narrow container it has to do
+       SOMETHING. Wrapping beats scrolling here: these cells are a set of
+       choices, and putting choices behind a horizontal scroll hides them.
+       Wrapping only engages when the row genuinely doesn't fit, so a desktop
+       row is untouched.
+     *
+     * This is the component's job, not the page layout's: a parent Grid or
+     * Stack governs how the summary / controls / trailing groups arrange, but
+     * nothing outside can stop a nowrap row overflowing its own box. For a
+     * genuinely cramped container, `variant="compact"` is still the better
+     * answer than a wrapped grid of numbers. */
+    flex-wrap: wrap;
+    justify-content: center;
   }
 
   /* Each cell is a <li> wrapping the real Button — the list item itself is

@@ -28,6 +28,7 @@
   "InputGroup",
   "Collapsible",
   "Accordion",
+  "Tabs",
   "SegmentedControl",
   "Select",
   "NavigationMenu",

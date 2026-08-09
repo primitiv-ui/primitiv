@@ -240,7 +240,7 @@ import {
   Eye,
   File,
   Folder,
-  Grid,
+  GridIcon,
   Minus,
   Search,
   Settings,
@@ -2300,7 +2300,7 @@ export function ramp(hue: number, chroma = 0.12) {
             </ContextMenuItem>
             <ContextMenuItem disabled>
               <ContextMenuItemLeading>
-                <Grid aria-hidden="true" />
+                <GridIcon aria-hidden="true" />
               </ContextMenuItemLeading>
               <ContextMenuItemLabel>Export as image</ContextMenuItemLabel>
             </ContextMenuItem>

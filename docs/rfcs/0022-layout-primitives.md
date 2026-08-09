@@ -4,8 +4,11 @@
 > (Box, Stack, Spacer, Center, AspectRatio); step 3 shipped 2026-08-08
 > (Container, Grid), once RFC 0025's breakpoint scale unblocked §4. All seven
 > primitives have registry + kitchen-sink surfaces. §4's open decision is
-> resolved — **both components are responsive** (see §10). The one outstanding
-> item is Container's Figma component set.
+> resolved — **both components are responsive** (see §10). Container's Figma
+> component set landed 2026-08-09 (`1765:41081`, 7 lg-first variants whose
+> widths bind to `breakpoint/*`); Grid deliberately has none, since a grid's
+> value is its reflow and a fixed-width frame cannot express it. **Nothing
+> outstanding.**
 > **Author:** Claude, with architectural drafting
 > **Date:** 2026-07-27
 > **Builds on:** RFC 0008 (CSS architecture — the `@layer primitiv.*` stack

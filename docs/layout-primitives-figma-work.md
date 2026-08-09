@@ -1,4 +1,18 @@
-# Layout primitives — outstanding Figma work
+# Layout primitives — Figma work (COMPLETE, 2026-08-09)
+
+> **All four steps are done.** Steps 1–3 landed 2026-08-09; step 4 was a
+> deliberate no-op. The RFC 0025 breakpoint variables listed at the foot also
+> landed in the same session, so `Container`'s widths bind to them rather than
+> being literals. Kept for the record — nothing here is outstanding.
+>
+> **One correction.** Step 1 said *"Nothing in Figma consumes these"*. A
+> `boundVariables` sweep before renaming found **9 nodes that do** — `Plate`
+> frames on the *Main Design* page binding `topLeftRadius` to
+> `container/sm/radius`. The rename was still safe (Figma bindings follow the
+> variable id, not its name) and all 9 were verified intact afterwards, but the
+> claim was wrong. Also: the family is **12** variables, not 16 — 4 slots × 3
+> props, as this doc's own table shows.
+
 
 Everything the Figma file still needs after RFC 0022's build-order step 3
 (Container + Grid) landed on the web side, 2026-08-08. The code side is
@@ -10,6 +24,9 @@ copied from `packages/tokens/src/context.json`, which is the source of truth.
 Do them in the order given: the variable work must land before the component
 set, because the set binds to variables created in step 2.
 
+> **Bridge status — RESOLVED.** The pairing worked on 2026-08-09 with no
+> special steps; the note below is kept for its troubleshooting value only.
+>
 > **Bridge status (2026-08-08).** Both attempts this session hit
 > `MCP error -32003: MCP tool call requires approval` on a bare `figma_execute`
 > read, the same failure the RFC 0025 breakpoint-variable work hit. All the
@@ -23,7 +40,7 @@ set, because the set binds to variables created in step 2.
 
 ---
 
-## ⚠️ Step 1 — rename `container/*` → `surface/*` (do this first)
+## ✅ Step 1 — rename `container/*` → `surface/*` (DONE 2026-08-09)
 
 **This is the hazard.** The layout `Container` needed the `container/*` Context
 namespace, which was already occupied by an unrelated size-slotted
@@ -62,7 +79,7 @@ the rename cannot break a binding — but confirm that with a quick
 
 ---
 
-## Step 2 — create the two new Context families
+## ✅ Step 2 — create the two new Context families (DONE 2026-08-09)
 
 Both are **new** variables in the existing **Context** collection (the
 four-mode density collection: Dense / Compact / Comfortable / Spacious). Both
@@ -96,7 +113,7 @@ its values verbatim — they are identical by design:
 
 ---
 
-## Step 3 — the `Container` component set
+## ✅ Step 3 — the `Container` component set (DONE 2026-08-09 — `1765:41081`)
 
 The human's brief: *"a container surface with some padding and an empty Figma
 Slot for placing content inside."* It is genuinely that simple — Container has
@@ -149,7 +166,7 @@ included (`box-sizing: border-box` on the web side).
 
 ---
 
-## Step 4 — no `Grid` component set, deliberately
+## ✅ Step 4 — no `Grid` component set, deliberately (HONOURED — none built)
 
 Do **not** build one. A grid's entire value is how it reflows across widths,
 which a fixed-width Figma frame cannot express — a set would be a static
@@ -162,7 +179,20 @@ max-width column *is* something a design frame can show.
 
 ---
 
-## Related, same blocker
+## ✅ Related — also landed 2026-08-09
+
+The six `breakpoint/*` variables were created **before** step 3, exactly as the
+note below suggested, so `Container`'s seven widths bind to them. **Collection
+placement decided: the existing `Primitives` collection** — it is the only one
+with a single, mode-independent mode (`Value`), and the DTCG already treats
+breakpoints as a primitive category alongside `space`/`size`/`radii`, which all
+live there. Elevation looked like a precedent for a separate collection, but it
+is separate because its `shadow.color.*` values are theme-adjacent colours, not
+because it is mode-independent.
+
+RFC 0025 §3's design-frame presets remain unbuilt (lower priority).
+
+## Related, same blocker (historical)
 
 RFC 0025's own Figma items are still outstanding and share this bridge problem
 — see `transfer-and-next-steps.md` → "📐 Responsive breakpoints":

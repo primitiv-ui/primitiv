@@ -1015,7 +1015,7 @@ function DemoPagination({
   totalItems,
   pageSize,
   variant = "numbered",
-  siblingCount = 1,
+  blockSize = 5,
   withSummary = false,
   withJump = false,
 }: {
@@ -1024,7 +1024,7 @@ function DemoPagination({
   totalItems: number;
   pageSize: number;
   variant?: "numbered" | "compact";
-  siblingCount?: number;
+  blockSize?: number;
   withSummary?: boolean;
   withJump?: boolean;
 }) {
@@ -1039,7 +1039,7 @@ function DemoPagination({
     canPrevious,
     startIndex,
     endIndex,
-  } = usePagination({ totalItems, pageSize, siblingCount });
+  } = usePagination({ totalItems, pageSize, blockSize });
 
   return (
     <Pagination label={label} size={size} variant={variant}>
@@ -3501,7 +3501,10 @@ export function ramp(hue: number, chroma = 0.12) {
           />
 
           <p className="kitchen-sink__note">
-            A wide range, mid-way through — both gaps collapse, and each
+            A wide range with a bigger block. The window is{" "}
+            <strong>paged</strong>, not sliding: the visible numbers hold still
+            while you move within a block and advance in one jump when you step
+            past its edge — so cells never re-label under the cursor. Each
             ellipsis opens a menu of the pages it hid, so nothing in a 100-page
             range is more than two clicks away.
           </p>
@@ -3510,7 +3513,7 @@ export function ramp(hue: number, chroma = 0.12) {
             size={size}
             totalItems={1000}
             pageSize={10}
-            siblingCount={2}
+            blockSize={7}
           />
         </Section>
 

@@ -7,12 +7,50 @@ export type PaginationRangeItem =
   | { type: "gap"; pages: number[] };
 
 /**
+ * How the visible page window behaves as the current page moves.
+ *
+ * - **paged** — the window holds a fixed block of pages and only advances when
+ *   the current page steps outside it. Within a block nothing re-labels; only
+ *   which cell is active changes. Stepping past the block's last page loads the
+ *   next block in one deliberate jump.
+ * - **sliding** — the window follows the current page continuously, keeping
+ *   `siblingCount` pages either side of it. The conventional behaviour, but the
+ *   numbers under the reader's cursor re-label on EVERY step, which reads as a
+ *   flash.
+ */
+export type PaginationWindow = "paged" | "sliding";
+
+/** Shape of the range — see {@link paginationRange}. */
+export type PaginationRangeOptions = {
+  /**
+   * Which windowing strategy to use.
+   * @default "paged"
+   */
+  window?: PaginationWindow;
+  /**
+   * `paged` only — how many pages a block holds.
+   * @default 5
+   */
+  blockSize?: number;
+  /**
+   * `sliding` only — pages shown either side of the current one.
+   * @default 1
+   */
+  siblingCount?: number;
+  /**
+   * Pages pinned at each end of the range, in both strategies.
+   * @default 1
+   */
+  boundaryCount?: number;
+};
+
+/**
  * Work out which pages to show, and which to collapse behind an overflow menu.
  *
- * Builds the visible set from three sources — the first `boundaryCount` pages,
- * the last `boundaryCount`, and `siblingCount` either side of `page` — then
- * walks the sorted result and collapses each remaining run into a `gap`
- * carrying the pages it hides, so a menu can offer them.
+ * Pins `boundaryCount` pages at each end, adds the window around the current
+ * page (see {@link PaginationWindow}), then walks the sorted result and
+ * collapses each remaining run into a `gap` carrying the pages it hides, so a
+ * menu can offer them.
  *
  * A run of exactly ONE page is returned as that page instead: hiding a single
  * number behind a menu costs the reader a click and saves no width, since the
@@ -23,28 +61,35 @@ export type PaginationRangeItem =
  * Pure — exported separately from the hook so a consumer holding its own page
  * state can still reuse the arithmetic.
  *
- * @param page - The current page, 1-based.
- * @param pageCount - How many pages there are.
- * @param siblingCount - Pages to show either side of `page`.
- * @param boundaryCount - Pages to pin at each end of the range.
- *
  * @example
  * ```ts
- * paginationRange(3, 20);
- * // [{page:1},{page:2},{page:3},{page:4},{gap:[5…19]},{page:20}]
+ * paginationRange(7, 20);
+ * // 1 [2,3,4,5] 6 7 8 9 10 [11…19] 20   — the 6-10 block, steady while you
+ * //                                       move within it
  * ```
  */
 export function paginationRange(
   page: number,
   pageCount: number,
-  siblingCount = 1,
-  boundaryCount = 1,
+  options: PaginationRangeOptions = {},
 ): PaginationRangeItem[] {
+  const { window = "paged", blockSize = 5, siblingCount = 1, boundaryCount = 1 } = options;
+
   const visible = new Set<number>();
   for (let i = 1; i <= Math.min(boundaryCount, pageCount); i++) visible.add(i);
   for (let i = Math.max(1, pageCount - boundaryCount + 1); i <= pageCount; i++) visible.add(i);
-  for (let i = Math.max(1, page - siblingCount); i <= Math.min(pageCount, page + siblingCount); i++) {
-    visible.add(i);
+
+  if (window === "paged") {
+    // Which block the current page falls in. Because this is derived from the
+    // page rather than centred on it, every page in the block yields the same
+    // window — that is what stops the cells re-labelling as you step.
+    const blockStart = Math.floor((page - 1) / blockSize) * blockSize + 1;
+    const blockEnd = Math.min(blockStart + blockSize - 1, pageCount);
+    for (let i = blockStart; i <= blockEnd; i++) visible.add(i);
+  } else {
+    for (let i = Math.max(1, page - siblingCount); i <= Math.min(pageCount, page + siblingCount); i++) {
+      visible.add(i);
+    }
   }
 
   const sorted = [...visible].sort((a, b) => a - b);
@@ -63,9 +108,6 @@ export function paginationRange(
   return items;
 }
 
-/**
- * Options for {@link usePagination}.
- */
 export type UsePaginationOptions = {
   /**
    * How many pages there are. Supply this directly when the page count comes
@@ -93,7 +135,19 @@ export type UsePaginationOptions = {
    */
   onPageChange?: (page: number) => void;
   /**
-   * How many pages `items` shows either side of the current one.
+   * How the visible window behaves as the page moves. See
+   * {@link PaginationWindow} — `paged` holds a block steady, `sliding` follows
+   * the current page.
+   * @default "paged"
+   */
+  window?: PaginationWindow;
+  /**
+   * `paged` only — how many pages a block holds.
+   * @default 5
+   */
+  blockSize?: number;
+  /**
+   * `sliding` only — pages shown either side of the current one.
    * @default 1
    */
   siblingCount?: number;
@@ -161,6 +215,8 @@ export function usePagination(options: UsePaginationOptions): UsePaginationResul
     page: controlledPage,
     defaultPage = 1,
     onPageChange,
+    window = "paged",
+    blockSize = 5,
     siblingCount = 1,
     boundaryCount = 1,
   } = options;
@@ -215,8 +271,8 @@ export function usePagination(options: UsePaginationOptions): UsePaginationResul
     : 0;
 
   const items = useMemo(
-    () => paginationRange(page, pageCount, siblingCount, boundaryCount),
-    [page, pageCount, siblingCount, boundaryCount],
+    () => paginationRange(page, pageCount, { window, blockSize, siblingCount, boundaryCount }),
+    [page, pageCount, window, blockSize, siblingCount, boundaryCount],
   );
 
   return {

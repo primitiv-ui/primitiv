@@ -86,8 +86,10 @@ reporting `0` pages would put `page` out of range the moment it was read.
 | `page` | `number` | — | Controlled current page, 1-based. |
 | `defaultPage` | `number` | `1` | Starting page when uncontrolled. |
 | `onPageChange` | `(page: number) => void` | — | Fired with the clamped page. |
-| `siblingCount` | `number` | `1` | Pages shown either side of the current one. |
-| `boundaryCount` | `number` | `1` | Pages pinned at each end. |
+| `window` | `"paged" \| "sliding"` | `"paged"` | See Windowing below. |
+| `blockSize` | `number` | `5` | `paged` only — pages per block. |
+| `siblingCount` | `number` | `1` | `sliding` only — pages either side of the current one. |
+| `boundaryCount` | `number` | `1` | Pages pinned at each end, both strategies. |
 
 Given neither `pageCount` nor a complete `totalItems` + `pageSize` pair, the
 hook reports a single page.
@@ -105,6 +107,44 @@ hook reports a single page.
 | `startIndex` / `endIndex` | `number` | Half-open slice bounds; `0` when no `pageSize`. |
 | `items` | `PaginationRangeItem[]` | The range to render — see below. |
 
+## Windowing — why the default is `paged`
+
+As the current page moves, something has to decide which numbers stay on screen.
+
+**`paged`** (the default) holds a fixed block and only advances when the current
+page steps outside it:
+
+```
+page 6:  1 … 6 7 8 9 10 … 20
+page 7:  1 … 6 7 8 9 10 … 20     ← identical; only the active cell moved
+page 10: 1 … 6 7 8 9 10 … 20
+page 11: 1 … 11 12 13 14 15 … 20 ← one deliberate jump
+```
+
+**`sliding`** follows the current page continuously:
+
+```
+page 6:  1 … 5 6 7 … 20
+page 7:  1 … 6 7 8 … 20          ← every cell re-labelled
+page 8:  1 … 7 8 9 … 20          ← again
+```
+
+Sliding is the more common default elsewhere, but it re-labels the numbers
+directly under the reader's cursor on every single step — the cell you are
+about to click has become a different page by the time you get there, and the
+whole row appears to flash. Paged trades that for one visible jump per block,
+which is both calmer and safer to click.
+
+Set `blockSize` to control how many pages a block holds (default 5). Choose
+`sliding` explicitly if you want the conventional behaviour:
+
+```tsx
+usePagination({ totalItems: 500, pageSize: 10, window: "sliding", siblingCount: 2 });
+```
+
+`siblingCount` applies only to `sliding`; `blockSize` only to `paged`.
+`boundaryCount` applies to both.
+
 ## `items` and `paginationRange`
 
 `items` is the range to render: each entry is either a page or a `gap` carrying
@@ -119,13 +159,10 @@ items.map((item) =>
 A run of exactly **one** hidden page is returned as that page instead — hiding a
 single number behind a menu costs a click and saves no width.
 
-`paginationRange(page, pageCount, siblingCount?, boundaryCount?)` is exported
-separately and is pure, so a consumer holding its own page state can reuse the
-arithmetic without the hook.
-
-Note the defaults are tighter than they may look: at `siblingCount: 1` and
-`boundaryCount: 1`, even a 5-page range collapses (`1 2 … 5`). Widen
-`siblingCount` to show more around the current page.
+`paginationRange(page, pageCount, options?)` is exported separately and is
+pure, so a consumer holding its own page state can reuse the arithmetic without
+the hook. It takes the same `window` / `blockSize` / `siblingCount` /
+`boundaryCount` options.
 
 ## Styled surface
 

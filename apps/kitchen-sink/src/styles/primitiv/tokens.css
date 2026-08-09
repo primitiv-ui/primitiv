@@ -1037,6 +1037,7 @@
     --primitiv-list-marker-gap: var(--primitiv-space-space-8);
     --primitiv-miller-columns-lg-column-min-width: var(--primitiv-size-size-116);
     --primitiv-miller-columns-lg-column-width: var(--primitiv-size-size-240);
+    --primitiv-miller-columns-lg-height: var(--primitiv-size-size-288);
     --primitiv-miller-columns-lg-item-focus-ring-radius: var(--primitiv-radii-6);
     --primitiv-miller-columns-lg-item-gap: var(--primitiv-space-space-8);
     --primitiv-miller-columns-lg-item-height: var(--primitiv-size-size-32);
@@ -1048,6 +1049,7 @@
     --primitiv-miller-columns-lg-strip-radius: var(--primitiv-radii-8);
     --primitiv-miller-columns-md-column-min-width: var(--primitiv-size-size-96);
     --primitiv-miller-columns-md-column-width: var(--primitiv-size-size-200);
+    --primitiv-miller-columns-md-height: var(--primitiv-size-size-240);
     --primitiv-miller-columns-md-item-focus-ring-radius: var(--primitiv-radii-4);
     --primitiv-miller-columns-md-item-gap: var(--primitiv-space-space-6);
     --primitiv-miller-columns-md-item-height: var(--primitiv-size-size-28);
@@ -1059,6 +1061,7 @@
     --primitiv-miller-columns-md-strip-radius: var(--primitiv-radii-8);
     --primitiv-miller-columns-sm-column-min-width: var(--primitiv-size-size-80);
     --primitiv-miller-columns-sm-column-width: var(--primitiv-size-size-168);
+    --primitiv-miller-columns-sm-height: var(--primitiv-size-size-200);
     --primitiv-miller-columns-sm-item-focus-ring-radius: var(--primitiv-radii-2);
     --primitiv-miller-columns-sm-item-gap: var(--primitiv-space-space-4);
     --primitiv-miller-columns-sm-item-height: var(--primitiv-size-size-24);
@@ -1070,6 +1073,7 @@
     --primitiv-miller-columns-sm-strip-radius: var(--primitiv-radii-6);
     --primitiv-miller-columns-xl-column-min-width: var(--primitiv-size-size-140);
     --primitiv-miller-columns-xl-column-width: var(--primitiv-size-size-288);
+    --primitiv-miller-columns-xl-height: var(--primitiv-size-size-344);
     --primitiv-miller-columns-xl-item-focus-ring-radius: var(--primitiv-radii-6);
     --primitiv-miller-columns-xl-item-gap: var(--primitiv-space-space-8);
     --primitiv-miller-columns-xl-item-height: var(--primitiv-size-size-40);
@@ -1081,6 +1085,7 @@
     --primitiv-miller-columns-xl-strip-radius: var(--primitiv-radii-10);
     --primitiv-miller-columns-xs-column-min-width: var(--primitiv-size-size-68);
     --primitiv-miller-columns-xs-column-width: var(--primitiv-size-size-140);
+    --primitiv-miller-columns-xs-height: var(--primitiv-size-size-168);
     --primitiv-miller-columns-xs-item-focus-ring-radius: var(--primitiv-radii-2);
     --primitiv-miller-columns-xs-item-gap: var(--primitiv-space-space-4);
     --primitiv-miller-columns-xs-item-height: var(--primitiv-size-size-20);
@@ -1826,6 +1831,7 @@
     --primitiv-list-marker-gap: var(--primitiv-space-space-8);
     --primitiv-miller-columns-lg-column-min-width: var(--primitiv-size-size-116);
     --primitiv-miller-columns-lg-column-width: var(--primitiv-size-size-240);
+    --primitiv-miller-columns-lg-height: var(--primitiv-size-size-288);
     --primitiv-miller-columns-lg-item-focus-ring-radius: var(--primitiv-radii-6);
     --primitiv-miller-columns-lg-item-gap: var(--primitiv-space-space-8);
     --primitiv-miller-columns-lg-item-height: var(--primitiv-size-size-32);
@@ -1837,6 +1843,7 @@
     --primitiv-miller-columns-lg-strip-radius: var(--primitiv-radii-8);
     --primitiv-miller-columns-md-column-min-width: var(--primitiv-size-size-96);
     --primitiv-miller-columns-md-column-width: var(--primitiv-size-size-200);
+    --primitiv-miller-columns-md-height: var(--primitiv-size-size-240);
     --primitiv-miller-columns-md-item-focus-ring-radius: var(--primitiv-radii-4);
     --primitiv-miller-columns-md-item-gap: var(--primitiv-space-space-6);
     --primitiv-miller-columns-md-item-height: var(--primitiv-size-size-28);
@@ -1848,6 +1855,7 @@
     --primitiv-miller-columns-md-strip-radius: var(--primitiv-radii-8);
     --primitiv-miller-columns-sm-column-min-width: var(--primitiv-size-size-80);
     --primitiv-miller-columns-sm-column-width: var(--primitiv-size-size-168);
+    --primitiv-miller-columns-sm-height: var(--primitiv-size-size-200);
     --primitiv-miller-columns-sm-item-focus-ring-radius: var(--primitiv-radii-2);
     --primitiv-miller-columns-sm-item-gap: var(--primitiv-space-space-4);
     --primitiv-miller-columns-sm-item-height: var(--primitiv-size-size-24);
@@ -1859,6 +1867,7 @@
     --primitiv-miller-columns-sm-strip-radius: var(--primitiv-radii-6);
     --primitiv-miller-columns-xl-column-min-width: var(--primitiv-size-size-140);
     --primitiv-miller-columns-xl-column-width: var(--primitiv-size-size-288);
+    --primitiv-miller-columns-xl-height: var(--primitiv-size-size-344);
     --primitiv-miller-columns-xl-item-focus-ring-radius: var(--primitiv-radii-6);
     --primitiv-miller-columns-xl-item-gap: var(--primitiv-space-space-8);
     --primitiv-miller-columns-xl-item-height: var(--primitiv-size-size-40);
@@ -1870,6 +1879,7 @@
     --primitiv-miller-columns-xl-strip-radius: var(--primitiv-radii-10);
     --primitiv-miller-columns-xs-column-min-width: var(--primitiv-size-size-68);
     --primitiv-miller-columns-xs-column-width: var(--primitiv-size-size-140);
+    --primitiv-miller-columns-xs-height: var(--primitiv-size-size-168);
     --primitiv-miller-columns-xs-item-focus-ring-radius: var(--primitiv-radii-2);
     --primitiv-miller-columns-xs-item-gap: var(--primitiv-space-space-4);
     --primitiv-miller-columns-xs-item-height: var(--primitiv-size-size-20);
@@ -2615,6 +2625,7 @@
     --primitiv-list-marker-gap: var(--primitiv-space-space-4);
     --primitiv-miller-columns-lg-column-min-width: var(--primitiv-size-size-116);
     --primitiv-miller-columns-lg-column-width: var(--primitiv-size-size-240);
+    --primitiv-miller-columns-lg-height: var(--primitiv-size-size-288);
     --primitiv-miller-columns-lg-item-focus-ring-radius: var(--primitiv-radii-6);
     --primitiv-miller-columns-lg-item-gap: var(--primitiv-space-space-8);
     --primitiv-miller-columns-lg-item-height: var(--primitiv-size-size-32);
@@ -2626,6 +2637,7 @@
     --primitiv-miller-columns-lg-strip-radius: var(--primitiv-radii-8);
     --primitiv-miller-columns-md-column-min-width: var(--primitiv-size-size-96);
     --primitiv-miller-columns-md-column-width: var(--primitiv-size-size-200);
+    --primitiv-miller-columns-md-height: var(--primitiv-size-size-240);
     --primitiv-miller-columns-md-item-focus-ring-radius: var(--primitiv-radii-2);
     --primitiv-miller-columns-md-item-gap: var(--primitiv-space-space-6);
     --primitiv-miller-columns-md-item-height: var(--primitiv-size-size-28);
@@ -2637,6 +2649,7 @@
     --primitiv-miller-columns-md-strip-radius: var(--primitiv-radii-8);
     --primitiv-miller-columns-sm-column-min-width: var(--primitiv-size-size-80);
     --primitiv-miller-columns-sm-column-width: var(--primitiv-size-size-168);
+    --primitiv-miller-columns-sm-height: var(--primitiv-size-size-200);
     --primitiv-miller-columns-sm-item-focus-ring-radius: var(--primitiv-radii-2);
     --primitiv-miller-columns-sm-item-gap: var(--primitiv-space-space-4);
     --primitiv-miller-columns-sm-item-height: var(--primitiv-size-size-24);
@@ -2648,6 +2661,7 @@
     --primitiv-miller-columns-sm-strip-radius: var(--primitiv-radii-6);
     --primitiv-miller-columns-xl-column-min-width: var(--primitiv-size-size-140);
     --primitiv-miller-columns-xl-column-width: var(--primitiv-size-size-288);
+    --primitiv-miller-columns-xl-height: var(--primitiv-size-size-344);
     --primitiv-miller-columns-xl-item-focus-ring-radius: var(--primitiv-radii-6);
     --primitiv-miller-columns-xl-item-gap: var(--primitiv-space-space-8);
     --primitiv-miller-columns-xl-item-height: var(--primitiv-size-size-40);
@@ -2659,6 +2673,7 @@
     --primitiv-miller-columns-xl-strip-radius: var(--primitiv-radii-10);
     --primitiv-miller-columns-xs-column-min-width: var(--primitiv-size-size-68);
     --primitiv-miller-columns-xs-column-width: var(--primitiv-size-size-140);
+    --primitiv-miller-columns-xs-height: var(--primitiv-size-size-168);
     --primitiv-miller-columns-xs-item-focus-ring-radius: var(--primitiv-radii-2);
     --primitiv-miller-columns-xs-item-gap: var(--primitiv-space-space-4);
     --primitiv-miller-columns-xs-item-height: var(--primitiv-size-size-20);
@@ -3404,6 +3419,7 @@
     --primitiv-list-marker-gap: var(--primitiv-space-space-12);
     --primitiv-miller-columns-lg-column-min-width: var(--primitiv-size-size-116);
     --primitiv-miller-columns-lg-column-width: var(--primitiv-size-size-240);
+    --primitiv-miller-columns-lg-height: var(--primitiv-size-size-288);
     --primitiv-miller-columns-lg-item-focus-ring-radius: var(--primitiv-radii-6);
     --primitiv-miller-columns-lg-item-gap: var(--primitiv-space-space-8);
     --primitiv-miller-columns-lg-item-height: var(--primitiv-size-size-32);
@@ -3415,6 +3431,7 @@
     --primitiv-miller-columns-lg-strip-radius: var(--primitiv-radii-8);
     --primitiv-miller-columns-md-column-min-width: var(--primitiv-size-size-96);
     --primitiv-miller-columns-md-column-width: var(--primitiv-size-size-200);
+    --primitiv-miller-columns-md-height: var(--primitiv-size-size-240);
     --primitiv-miller-columns-md-item-focus-ring-radius: var(--primitiv-radii-6);
     --primitiv-miller-columns-md-item-gap: var(--primitiv-space-space-6);
     --primitiv-miller-columns-md-item-height: var(--primitiv-size-size-28);
@@ -3426,6 +3443,7 @@
     --primitiv-miller-columns-md-strip-radius: var(--primitiv-radii-8);
     --primitiv-miller-columns-sm-column-min-width: var(--primitiv-size-size-80);
     --primitiv-miller-columns-sm-column-width: var(--primitiv-size-size-168);
+    --primitiv-miller-columns-sm-height: var(--primitiv-size-size-200);
     --primitiv-miller-columns-sm-item-focus-ring-radius: var(--primitiv-radii-2);
     --primitiv-miller-columns-sm-item-gap: var(--primitiv-space-space-4);
     --primitiv-miller-columns-sm-item-height: var(--primitiv-size-size-24);
@@ -3437,6 +3455,7 @@
     --primitiv-miller-columns-sm-strip-radius: var(--primitiv-radii-6);
     --primitiv-miller-columns-xl-column-min-width: var(--primitiv-size-size-140);
     --primitiv-miller-columns-xl-column-width: var(--primitiv-size-size-288);
+    --primitiv-miller-columns-xl-height: var(--primitiv-size-size-344);
     --primitiv-miller-columns-xl-item-focus-ring-radius: var(--primitiv-radii-6);
     --primitiv-miller-columns-xl-item-gap: var(--primitiv-space-space-8);
     --primitiv-miller-columns-xl-item-height: var(--primitiv-size-size-40);
@@ -3448,6 +3467,7 @@
     --primitiv-miller-columns-xl-strip-radius: var(--primitiv-radii-10);
     --primitiv-miller-columns-xs-column-min-width: var(--primitiv-size-size-68);
     --primitiv-miller-columns-xs-column-width: var(--primitiv-size-size-140);
+    --primitiv-miller-columns-xs-height: var(--primitiv-size-size-168);
     --primitiv-miller-columns-xs-item-focus-ring-radius: var(--primitiv-radii-2);
     --primitiv-miller-columns-xs-item-gap: var(--primitiv-space-space-4);
     --primitiv-miller-columns-xs-item-height: var(--primitiv-size-size-20);

@@ -249,9 +249,17 @@ surface and applies once those are read.
   that found four real defects (an unnamed `Slider` thumb that the README's
   own example reproduces, `role="tree"` with forbidden children on Tree and
   MillerColumns, a dangling `aria-controls`) plus a primary Button label at
-  4.09:1 — below AA — confirmed independently by a token-level audit and a
-  real-browser sweep. Argues the layering hard: contrast and geometry are
+  4.09:1 — below AA. Argues the layering hard: contrast and geometry are
   invisible in jsdom and belong in Playwright over the kitchen-sink, while
-  document-scoped rules are noise against a component fragment. Flags one
-  genuinely blocking decision — axe assertions mostly pass on first run, so
-  they need an explicit carve-out from `CLAUDE.md`'s pure-red-green rule.
+  document-scoped rules are noise against a component fragment; §2.1 sets
+  out which instrument answers which question, so axe is *not* reached for
+  where the engine or a token gate is cheaper and more complete. §3.4
+  re-runs Harmoni from the shipped seeds and clears it: the palette
+  reproduces exactly, and the engine's own recommendation for `brand.500`
+  (4.54:1) was **overridden** by a hand-written `{color.white}` the engine
+  had explicitly rejected at 4.09:1 — RFC 0003's failure mode recurring.
+  Separates contrast failures into engine-governed (Class A, re-wire to the
+  engine) and hand-authored semantic pairs (Class B, which the engine has no
+  model of and only a token-level gate can cover). Flags one genuinely
+  blocking decision — axe assertions mostly pass on first run, so they need
+  an explicit carve-out from `CLAUDE.md`'s pure-red-green rule.

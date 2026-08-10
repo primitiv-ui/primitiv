@@ -54,6 +54,16 @@ package ships zero styles by design, so there is nothing there to measure
 even in principle. Contrast is a **token and registry** property, and it
 must be checked where the pixels are.
 
+**(a2) Corollary — axe is not the right instrument for contrast at all.**
+§3.4 shows contrast failures originate in the token layer, one level above
+any component. axe finds them *late* and *partially*: it reports a failing
+pair only where some demo happens to render it, once per rendered instance,
+after the fact. The engine and a token-level gate find the same failures
+before a component exists, exhaustively, in milliseconds. axe's contrast
+sweep is kept as a **backstop** — it catches pairs the curated table misses
+and real compositing (opacity, overlap) that static token analysis cannot
+model — but it is explicitly *not* the primary contrast mechanism.
+
 **(b) Document-scoped rules must be switched off for fragment testing.** A
 headless test renders a fragment into a bare `<div>`, so rules that reason
 about a whole page — `region`, `landmark-one-main`, `page-has-heading-one`,
@@ -62,6 +72,28 @@ components. The spike confirmed this: an isolated Tooltip reports a
 `region` violation purely because it is not inside a landmark. These are
 real rules that matter on the docs site and in a consumer's app; they are
 pure noise against a component fragment.
+
+### 2.1 Which tool answers which question
+
+axe is one instrument, and a deliberately limited one — by the project's own
+published figures it catches roughly 30–40% of WCAG issues. Reaching for it
+where a cheaper or more complete check exists produces late, partial answers
+and a false sense of coverage. The verification story this RFC proposes is
+therefore a matrix, not a single tool:
+
+| Question | Instrument | Why not axe |
+|---|---|---|
+| Is this foreground legible on its background? | **Harmoni** (`get_best_foreground`, hard AA guarantee) | Engine knows before a component exists; axe only sees rendered instances |
+| Do the *semantic* token pairings hold? | **Token contrast gate** over a curated pairing table (§5 Phase 3) | The engine has no model of these pairs (§3.4 Class B); axe finds them late and only where demoed |
+| Is the ARIA structurally valid? | **axe** (jsdom, per component) | — this is axe's core competence |
+| Does it hold once styled, themed and open? | **axe** (Playwright, real browser) | — |
+| Do the prop types narrow safely? | `qa:prop-collisions` | Not an a11y question |
+| Is the assertion itself meaningful? | **Stryker** mutation testing | Coverage/axe both pass on an unasserted line |
+| Does it work with a screen reader / keyboard only / at 400% zoom? | **A human** | No automated tool answers this — see §6 |
+
+The rule of thumb: **push each check as far upstream as it will go.** A
+contrast failure is cheapest in the engine, then in the tokens, then in a
+browser sweep, and most expensive of all in a consumer's bug report.
 
 ## 3. The spike, and what it found
 
@@ -143,6 +175,76 @@ contrast gate is only as good as its pairing table, and that table has to be
 hand-curated. This is the main reason §5 Phase 0 is scoped as "curate the
 pairs" rather than "check everything."
 
+## 3.4 Is this Harmoni's fault? No — and that matters
+
+Harmoni exists to produce contrast-correct palettes, so a below-AA pair in
+the shipped tokens is either an engine defect or a pipeline defect, and the
+answer changes what gets fixed. The engine was therefore re-run from the
+shipped seeds and compared against the shipped tokens
+(`cargo run -p harmoni-core --example audit_shipped_palette`; the example is
+committed alongside this RFC so the audit is re-runnable after any fix).
+
+**The palette has not drifted.** A fresh generation from the brand seed
+`#236ce1` — with the soft white `#ebebeb` / soft black `#141414` anchors that
+generation used — reproduces the shipped brand ramp **exactly**, every step,
+both themes. The neutral ramp reproduces to within 1/255 on two of twenty
+steps (`#373a3f` vs `#363a3f`, `#202327` vs `#202328` — rounding, not drift).
+The engine is deterministic and its output is intact.
+
+**The engine also got the foreground right.** `get_best_foreground` carries a
+hard AA guarantee via a tiered fallback: the palette's harmonious dark (900),
+then its harmonious light (50), then the *supplied soft white/black* — each
+gated on clearing 4.5:1 — then pure white/black as a guaranteed last resort.
+For `brand.500` it returns:
+
+| | engine's pick | ratio | |
+|---|---|---|---|
+| light | `brand.50` (`#eff8ff`, tier 2) | **4.54:1** | AA |
+| dark | pure white (tier 5) | **4.88:1** | AA |
+
+Critically, the engine **evaluated the soft white and rejected it** — soft
+white on `brand.500` is 4.09:1, and tier 3 is gated on ≥4.5, so it fell
+through. The engine did exactly what it was built to do.
+
+**The shipped token then used the rejected value anyway.**
+`intent.json` hardcodes `action.primary.foreground.default` as
+`{color.white}` — the soft white, at 4.09:1. This is precisely the failure
+mode **RFC 0003 was written to eliminate**: "letting the engine's computed,
+contrast-correct foreground flow all the way through instead of being
+replaced by a static guess." The static guess came back.
+
+It is a boundary case, which is why it survived review: only step 500 fails.
+`action.primary.hover` (`brand.600`) is 6.26:1 and `active` (`brand.700`) is
+10.64:1 on the same soft white. `brand.500` is the exact step at which soft
+white stops working — and the engine knows that and the token layer does not.
+
+### The structural finding: two classes of contrast failure
+
+Re-running the engine separates the failures into two groups that need
+completely different fixes, and only one of them is about Harmoni at all.
+
+**Class A — engine-governed, engine overridden.** A pair where one colour is
+*the foreground of* the other in the engine's model, so `get_best_foreground`
+has an opinion and that opinion was discarded. `action.primary.foreground` is
+the whole of this class today. Fix: re-wire the token to the engine's output
+(RFC 0003), and guard it so it cannot silently drift again.
+
+**Class B — the engine was never consulted.** `content.muted` on
+`surface.subtle` (3.34:1) and on `surface.raised` (3.96:1) are *hand-authored
+semantic pairings*. The engine's recommended foreground for `neutral.100` is
+`neutral.900` at 13.09:1 — it has no notion of a "muted" text role that must
+also stay legible on three different surfaces. Nothing in Harmoni is wrong
+here, and no amount of improving Harmoni would catch it.
+
+This is the important architectural point, and it reframes Phase 3 from
+nice-to-have to necessary: **the engine guarantees foreground-of-background
+pairs; the intent layer invents many more pairings than that, and those
+escape the guarantee entirely.** The number of semantic pairs a designer can
+compose grows far faster than the set the engine underwrites. A token-level
+contrast gate over a curated pairing table is the *only* mechanism that
+covers Class B — axe catches it late (per rendered instance, only where a
+demo happens to exercise it), and the engine cannot catch it at all.
+
 ## 4. Design decisions
 
 **D1 — `axe-core` direct, no wrapper library.** §3.1. One dependency, a
@@ -201,6 +303,20 @@ component stylesheet would break the single-source-of-truth the whole token
 pipeline exists to provide, and would not fix Figma. Findings route to
 `packages/tokens/src/*.json` and follow the `figma-bridge-token-sync` loop.
 
+**D9 — Class A foregrounds must be derived, not hand-written (RFC 0003).**
+§3.4 showed the engine's recommendation being overridden by a literal. A
+one-off correction to `intent.json` fixes today's failure and leaves the
+mechanism that produced it intact. Any pair the engine has an opinion about
+should either be generated from `get_best_foreground` or be guarded by a
+check asserting the hand-written value still matches what the engine
+recommends. Given the token layer is currently hand-authored JSON, the guard
+is the pragmatic first move and the generation the right end state.
+
+**D10 — The token contrast gate owns Class B, and it is the only thing that
+can.** §3.4. This promotes Phase 3 from "cheapest feedback" to "the only
+coverage this class has," and is the reason it should not be the phase that
+gets dropped for time.
+
 **D8 — Do not gate CI on contrast until the backlog is burned down.** There
 are 33/81 failing nodes today. A gate turned on now blocks every PR on
 pre-existing debt. The browser sweep lands first as **reporting only**, with
@@ -229,6 +345,12 @@ currently fails on each:
 3. `MillerColumns` — the same `aria-required-children` question.
 4. `Stepper` (registry) — the dangling `aria-controls`; either mount all
    panels or drop the attribute when the target is absent.
+5. **`action.primary.foreground.default`** — the Class A failure. Re-point it
+   from `{color.white}` (4.09:1) to the engine's own recommendation. The
+   engine prefers `{color.brand.50}` (4.54:1, harmonious tier 2); pure white
+   is 4.88:1. See open question 3 — this is a design call, but *something*
+   has to change, because the current value is the one candidate the engine
+   explicitly rejected.
 
 ### Phase 1 — Headless a11y suite (`packages/react`)
 
@@ -269,19 +391,27 @@ Where contrast, focus and geometry actually get verified.
 ### Phase 3 — Token-level contrast gate
 
 Cheapest possible feedback, furthest upstream: a failing pair is caught
-before a component is even built, and it is the one check that can run in
-the Rust/emit pipeline where the tokens actually live.
+before a component is even built. **Per §3.4 / D10 this is the only coverage
+Class B has**, so it should not be the phase that slips.
 
-1. Hand-curate the pairing table (D3's honest caveat — the naive
-   cross-product is wrong).
-2. Implement as a Node script under `scripts/` beside the existing
-   `qa:*` guards, **or** in `primitiv-emit` as a Rust check. Rust is the
-   better long-term home (it is where the token model already lives, and it
-   would let `primitiv tokens` warn a consumer whose custom brand colour
-   fails AA) — but it is more work, and the 100% lines/regions/functions
-   gate applies. Recommend starting in Node, moving it to Rust if and when
-   consumer-facing warnings become a goal.
-3. Report against AA (4.5:1 text, 3:1 non-text) and note AAA distance.
+1. Hand-curate the pairing table (§3.3's caveat — the naive cross-product is
+   wrong). This table is the deliverable: it is an explicit, reviewable
+   statement of which token pairs the design system claims are legible
+   together, which currently exists nowhere.
+2. Add the **Class A guard** (D9): for every pair the engine has an opinion
+   about, assert the shipped token still equals what `get_best_foreground`
+   returns. This is the check that would have caught §3.4 at the moment it
+   was introduced. `crates/harmoni-core/examples/audit_shipped_palette.rs`
+   is the throwaway prototype of it.
+3. Implement as a Node script under `scripts/` beside the existing `qa:*`
+   guards, **or** in Rust. Rust is the better long-term home — it is where
+   the engine and token model already live, it is the only place the Class A
+   guard can call `get_best_foreground` directly, and it would let
+   `primitiv tokens` warn a *consumer* whose custom brand colour fails AA
+   (the engine's guarantee currently stops at our own palette). It is more
+   work, and the 100% lines/regions/functions gate applies. Recommend Rust
+   for the Class A guard specifically, since it needs the engine anyway.
+4. Report against AA (4.5:1 text, 3:1 non-text) and note AAA distance.
 
 ### Phase 4 — Docs site
 
@@ -320,12 +450,25 @@ the Rust/emit pipeline where the tokens actually live.
 2. **Slider's API** — should `Slider.Root` forward an accessible name to a
    lone thumb, or is doc-only the right fix? Convenience versus an explicit,
    unambiguous one-name-per-thumb model.
-3. **Is `brand.500` changing, or is the primary button's text?** The 4.09:1
-   failure has two fixes with very different blast radii: darken the brand
-   ramp step used for `action.primary.default` (changes the system's most
-   visible colour), or accept that the label needs a heavier weight / larger
-   size to qualify under the 3:1 large-text threshold (changes Button's
-   type). This is a design decision, not a test decision.
+3. **Which foreground does the primary button take?** §3.4 narrowed this
+   from "redesign the brand ramp" to a choice between two engine-sanctioned
+   values, neither of which touches `brand.500` itself:
+   `{color.brand.50}` (`#eff8ff`, 4.54:1 — the engine's own pick, keeps the
+   harmonious tint) or `{color.absolute-white}` (4.88:1 — more headroom,
+   less harmonious). A design call, but a small one now.
+4. **Should `get_best_foreground` prefer harmony or headroom at the
+   margin?** It returns the *first* tier clearing 4.5:1, not the highest
+   contrast available — which for `brand.500` means 4.54:1 over an available
+   4.88:1. At 0.04 above the threshold, a small future shift in the brand
+   colour silently drops the system below AA. Worth asking whether tier
+   preference should require a margin (say ≥4.75:1) before choosing harmony
+   over headroom. This is an engine-design question that this RFC surfaces
+   but does not decide.
+5. **Should the Class A guard block, or generate?** D9's end state is
+   generating engine-governed foregrounds rather than asserting hand-written
+   ones match. Generation removes the failure mode entirely; it also means
+   the token JSON stops being fully hand-editable, which is a real trade
+   against how the pipeline works today.
 4. **How far does the density axis go in Phase 2?** Four density modes × two
    themes × interaction states is a real runtime cost. Contrast is
    density-independent, but *font size* is not, and the AA threshold depends

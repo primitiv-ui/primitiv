@@ -105,6 +105,46 @@ describe('color/neutral-alpha ramp', () => {
   })
 })
 
+// The brand alpha ramp: the same construction as neutral-alpha (one anchor
+// colour, ten climbing alpha bytes) but anchored on `color.brand.500`, which is
+// the SAME hex in both themes. That is what makes this ramp the exception to the
+// mirror rule above — a `brand-alpha-inverse` companion would be identical to
+// `brand-alpha`, so it does not exist. Added for `action/primary/soft`, the
+// Stepper's current-step halo: `border/focus` and `action/primary/default` both
+// resolve to #236ce1, so a primary ring on the current marker would be
+// pixel-identical to the focus ring; a soft tint is what separates them.
+describe('color/brand-alpha ramp', () => {
+  const steps = ['50', '100', '200', '300', '400', '500', '600', '700', '800', '900'] as const
+
+  it.each(['light', 'dark'] as const)('%s mode anchors every step on the brand colour', (mode) => {
+    const brand = resolveRef(mode, '{color.brand.500}')
+    for (const step of steps) {
+      expect(resolveRef(mode, `{color.brand-alpha.${step}}`).slice(0, 7)).toBe(brand)
+    }
+  })
+
+  it.each(['light', 'dark'] as const)('%s mode climbs a strictly increasing alpha curve', (mode) => {
+    const alphas = steps.map((step) => parseInt(resolveRef(mode, `{color.brand-alpha.${step}}`).slice(7, 9), 16))
+    for (let i = 1; i < alphas.length; i++) {
+      expect(alphas[i]).toBeGreaterThan(alphas[i - 1])
+    }
+  })
+
+  // The reason there is no `brand-alpha-inverse`: unlike the neutral veil, the
+  // anchor does not flip with the theme, so both modes already agree.
+  it('resolves identically in light and dark mode, so it needs no inverse companion', () => {
+    for (const step of steps) {
+      expect(resolveRef('light', `{color.brand-alpha.${step}}`)).toBe(resolveRef('dark', `{color.brand-alpha.${step}}`))
+    }
+  })
+
+  it('backs action/primary/soft in both modes', () => {
+    for (const mode of ['light', 'dark'] as const) {
+      expect(intentColor(mode, 'action/primary/soft')).toBe(resolveRef(mode, '{color.brand-alpha.300}'))
+    }
+  })
+})
+
 // Surfaces and borders that are supposed to track the theme (paler in light,
 // darker in dark) rather than stay fixed.
 describe.each([

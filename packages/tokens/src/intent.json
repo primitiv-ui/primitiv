@@ -18,6 +18,10 @@
           "$type": "color",
           "$value": "{color.brand.500}"
         },
+        "soft": {
+          "$type": "color",
+          "$value": "{color.brand-alpha.300}"
+        },
         "foreground": {
           "default": {
             "$type": "color",
@@ -513,6 +517,10 @@
         "disabled": {
           "$type": "color",
           "$value": "{color.brand.500}"
+        },
+        "soft": {
+          "$type": "color",
+          "$value": "{color.brand-alpha.300}"
         },
         "foreground": {
           "default": {

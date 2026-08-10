@@ -6,6 +6,102 @@
         "$value": "{space.space-3}"
       }
     },
+    "stepper": {
+      "connector-thickness": {
+        "$type": "number",
+        "$value": "{border-width.2}"
+      },
+      "xs": {
+        "marker-size": {
+          "$type": "number",
+          "$value": "{size.size-20}"
+        },
+        "label-gap": {
+          "$type": "number",
+          "$value": "{space.space-6}"
+        },
+        "row-gap": {
+          "$type": "number",
+          "$value": "{space.space-20}"
+        },
+        "halo-outset": {
+          "$type": "number",
+          "$value": "{space.space-2}"
+        }
+      },
+      "sm": {
+        "marker-size": {
+          "$type": "number",
+          "$value": "{size.size-24}"
+        },
+        "label-gap": {
+          "$type": "number",
+          "$value": "{space.space-8}"
+        },
+        "row-gap": {
+          "$type": "number",
+          "$value": "{space.space-24}"
+        },
+        "halo-outset": {
+          "$type": "number",
+          "$value": "{space.space-3}"
+        }
+      },
+      "md": {
+        "marker-size": {
+          "$type": "number",
+          "$value": "{size.size-32}"
+        },
+        "label-gap": {
+          "$type": "number",
+          "$value": "{space.space-10}"
+        },
+        "row-gap": {
+          "$type": "number",
+          "$value": "{space.space-32}"
+        },
+        "halo-outset": {
+          "$type": "number",
+          "$value": "{space.space-4}"
+        }
+      },
+      "lg": {
+        "marker-size": {
+          "$type": "number",
+          "$value": "{size.size-40}"
+        },
+        "label-gap": {
+          "$type": "number",
+          "$value": "{space.space-12}"
+        },
+        "row-gap": {
+          "$type": "number",
+          "$value": "{space.space-40}"
+        },
+        "halo-outset": {
+          "$type": "number",
+          "$value": "{space.space-4}"
+        }
+      },
+      "xl": {
+        "marker-size": {
+          "$type": "number",
+          "$value": "{size.size-48}"
+        },
+        "label-gap": {
+          "$type": "number",
+          "$value": "{space.space-14}"
+        },
+        "row-gap": {
+          "$type": "number",
+          "$value": "{space.space-48}"
+        },
+        "halo-outset": {
+          "$type": "number",
+          "$value": "{space.space-6}"
+        }
+      }
+    },
     "tabs": {
       "gap": {
         "$type": "number",
@@ -3024,6 +3120,102 @@
       "track-padding": {
         "$type": "number",
         "$value": "{space.space-2}"
+      }
+    },
+    "stepper": {
+      "connector-thickness": {
+        "$type": "number",
+        "$value": "{border-width.2}"
+      },
+      "xs": {
+        "marker-size": {
+          "$type": "number",
+          "$value": "{size.size-16}"
+        },
+        "label-gap": {
+          "$type": "number",
+          "$value": "{space.space-4}"
+        },
+        "row-gap": {
+          "$type": "number",
+          "$value": "{space.space-16}"
+        },
+        "halo-outset": {
+          "$type": "number",
+          "$value": "{space.space-2}"
+        }
+      },
+      "sm": {
+        "marker-size": {
+          "$type": "number",
+          "$value": "{size.size-20}"
+        },
+        "label-gap": {
+          "$type": "number",
+          "$value": "{space.space-6}"
+        },
+        "row-gap": {
+          "$type": "number",
+          "$value": "{space.space-20}"
+        },
+        "halo-outset": {
+          "$type": "number",
+          "$value": "{space.space-2}"
+        }
+      },
+      "md": {
+        "marker-size": {
+          "$type": "number",
+          "$value": "{size.size-28}"
+        },
+        "label-gap": {
+          "$type": "number",
+          "$value": "{space.space-8}"
+        },
+        "row-gap": {
+          "$type": "number",
+          "$value": "{space.space-24}"
+        },
+        "halo-outset": {
+          "$type": "number",
+          "$value": "{space.space-3}"
+        }
+      },
+      "lg": {
+        "marker-size": {
+          "$type": "number",
+          "$value": "{size.size-32}"
+        },
+        "label-gap": {
+          "$type": "number",
+          "$value": "{space.space-10}"
+        },
+        "row-gap": {
+          "$type": "number",
+          "$value": "{space.space-28}"
+        },
+        "halo-outset": {
+          "$type": "number",
+          "$value": "{space.space-4}"
+        }
+      },
+      "xl": {
+        "marker-size": {
+          "$type": "number",
+          "$value": "{size.size-40}"
+        },
+        "label-gap": {
+          "$type": "number",
+          "$value": "{space.space-10}"
+        },
+        "row-gap": {
+          "$type": "number",
+          "$value": "{space.space-32}"
+        },
+        "halo-outset": {
+          "$type": "number",
+          "$value": "{space.space-4}"
+        }
       }
     },
     "tabs": {
@@ -6046,6 +6238,102 @@
         "$value": "{space.space-4}"
       }
     },
+    "stepper": {
+      "connector-thickness": {
+        "$type": "number",
+        "$value": "{border-width.2}"
+      },
+      "xs": {
+        "marker-size": {
+          "$type": "number",
+          "$value": "{size.size-24}"
+        },
+        "label-gap": {
+          "$type": "number",
+          "$value": "{space.space-8}"
+        },
+        "row-gap": {
+          "$type": "number",
+          "$value": "{space.space-24}"
+        },
+        "halo-outset": {
+          "$type": "number",
+          "$value": "{space.space-3}"
+        }
+      },
+      "sm": {
+        "marker-size": {
+          "$type": "number",
+          "$value": "{size.size-28}"
+        },
+        "label-gap": {
+          "$type": "number",
+          "$value": "{space.space-10}"
+        },
+        "row-gap": {
+          "$type": "number",
+          "$value": "{space.space-32}"
+        },
+        "halo-outset": {
+          "$type": "number",
+          "$value": "{space.space-4}"
+        }
+      },
+      "md": {
+        "marker-size": {
+          "$type": "number",
+          "$value": "{size.size-40}"
+        },
+        "label-gap": {
+          "$type": "number",
+          "$value": "{space.space-12}"
+        },
+        "row-gap": {
+          "$type": "number",
+          "$value": "{space.space-40}"
+        },
+        "halo-outset": {
+          "$type": "number",
+          "$value": "{space.space-4}"
+        }
+      },
+      "lg": {
+        "marker-size": {
+          "$type": "number",
+          "$value": "{size.size-48}"
+        },
+        "label-gap": {
+          "$type": "number",
+          "$value": "{space.space-14}"
+        },
+        "row-gap": {
+          "$type": "number",
+          "$value": "{space.space-48}"
+        },
+        "halo-outset": {
+          "$type": "number",
+          "$value": "{space.space-6}"
+        }
+      },
+      "xl": {
+        "marker-size": {
+          "$type": "number",
+          "$value": "{size.size-56}"
+        },
+        "label-gap": {
+          "$type": "number",
+          "$value": "{space.space-16}"
+        },
+        "row-gap": {
+          "$type": "number",
+          "$value": "{space.space-56}"
+        },
+        "halo-outset": {
+          "$type": "number",
+          "$value": "{space.space-6}"
+        }
+      }
+    },
     "tabs": {
       "gap": {
         "$type": "number",
@@ -9064,6 +9352,102 @@
       "track-padding": {
         "$type": "number",
         "$value": "{space.space-2}"
+      }
+    },
+    "stepper": {
+      "connector-thickness": {
+        "$type": "number",
+        "$value": "{border-width.2}"
+      },
+      "xs": {
+        "marker-size": {
+          "$type": "number",
+          "$value": "{size.size-14}"
+        },
+        "label-gap": {
+          "$type": "number",
+          "$value": "{space.space-4}"
+        },
+        "row-gap": {
+          "$type": "number",
+          "$value": "{space.space-12}"
+        },
+        "halo-outset": {
+          "$type": "number",
+          "$value": "{space.space-2}"
+        }
+      },
+      "sm": {
+        "marker-size": {
+          "$type": "number",
+          "$value": "{size.size-16}"
+        },
+        "label-gap": {
+          "$type": "number",
+          "$value": "{space.space-4}"
+        },
+        "row-gap": {
+          "$type": "number",
+          "$value": "{space.space-16}"
+        },
+        "halo-outset": {
+          "$type": "number",
+          "$value": "{space.space-2}"
+        }
+      },
+      "md": {
+        "marker-size": {
+          "$type": "number",
+          "$value": "{size.size-20}"
+        },
+        "label-gap": {
+          "$type": "number",
+          "$value": "{space.space-6}"
+        },
+        "row-gap": {
+          "$type": "number",
+          "$value": "{space.space-20}"
+        },
+        "halo-outset": {
+          "$type": "number",
+          "$value": "{space.space-3}"
+        }
+      },
+      "lg": {
+        "marker-size": {
+          "$type": "number",
+          "$value": "{size.size-24}"
+        },
+        "label-gap": {
+          "$type": "number",
+          "$value": "{space.space-8}"
+        },
+        "row-gap": {
+          "$type": "number",
+          "$value": "{space.space-24}"
+        },
+        "halo-outset": {
+          "$type": "number",
+          "$value": "{space.space-3}"
+        }
+      },
+      "xl": {
+        "marker-size": {
+          "$type": "number",
+          "$value": "{size.size-32}"
+        },
+        "label-gap": {
+          "$type": "number",
+          "$value": "{space.space-8}"
+        },
+        "row-gap": {
+          "$type": "number",
+          "$value": "{space.space-28}"
+        },
+        "halo-outset": {
+          "$type": "number",
+          "$value": "{space.space-4}"
+        }
       }
     },
     "tabs": {

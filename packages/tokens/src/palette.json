@@ -177,6 +177,48 @@
           "$value": "#000532"
         }
       },
+      "brand-alpha": {
+        "50": {
+          "$type": "color",
+          "$value": "#236ce108"
+        },
+        "100": {
+          "$type": "color",
+          "$value": "#236ce10f"
+        },
+        "200": {
+          "$type": "color",
+          "$value": "#236ce11a"
+        },
+        "300": {
+          "$type": "color",
+          "$value": "#236ce124"
+        },
+        "400": {
+          "$type": "color",
+          "$value": "#236ce133"
+        },
+        "500": {
+          "$type": "color",
+          "$value": "#236ce14d"
+        },
+        "600": {
+          "$type": "color",
+          "$value": "#236ce16b"
+        },
+        "700": {
+          "$type": "color",
+          "$value": "#236ce18c"
+        },
+        "800": {
+          "$type": "color",
+          "$value": "#236ce1b8"
+        },
+        "900": {
+          "$type": "color",
+          "$value": "#236ce1eb"
+        }
+      },
       "danger": {
         "50": {
           "$type": "color",
@@ -535,6 +577,48 @@
         "900": {
           "$type": "color",
           "$value": "#c8edff"
+        }
+      },
+      "brand-alpha": {
+        "50": {
+          "$type": "color",
+          "$value": "#236ce108"
+        },
+        "100": {
+          "$type": "color",
+          "$value": "#236ce10f"
+        },
+        "200": {
+          "$type": "color",
+          "$value": "#236ce11a"
+        },
+        "300": {
+          "$type": "color",
+          "$value": "#236ce124"
+        },
+        "400": {
+          "$type": "color",
+          "$value": "#236ce133"
+        },
+        "500": {
+          "$type": "color",
+          "$value": "#236ce14d"
+        },
+        "600": {
+          "$type": "color",
+          "$value": "#236ce16b"
+        },
+        "700": {
+          "$type": "color",
+          "$value": "#236ce18c"
+        },
+        "800": {
+          "$type": "color",
+          "$value": "#236ce1b8"
+        },
+        "900": {
+          "$type": "color",
+          "$value": "#236ce1eb"
         }
       },
       "danger": {

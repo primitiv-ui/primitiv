@@ -261,7 +261,35 @@ None of these are built yet; listed here for backlog visibility.
       tracks the content rather than scaling with the card. Elevation is a
       registry-only `elevation` prop — a Figma BOOLEAN cannot toggle an effect
       style, and an `Elevation` variant axis would have doubled the set to 60.
-- [ ] Stepper / Wizard (`Tabs` + `Button` + decorative step row)
+- [x] Stepper / Wizard (`Tabs` + `Button`). **Landed 2026-08-10, tokens + Figma +
+      registry + kitchen-sink.** New `stepper/{size}/{marker-size,label-gap,
+      row-gap,halo-outset}` + a flat `stepper/connector-thickness` (the
+      `tabs/indicator-thickness` precedent — not per-size), plus a new
+      `color.brand-alpha.*` ramp and `action.primary.soft`, all four density
+      modes, code and Figma in lockstep. Figma: page "Stepper" — `Stepper / Step`
+      (50 variants, Orientation below|beside × State × Size, md-first) and the
+      composed `Stepper` (15, Variant horizontal|vertical|compact × Size), plus
+      an 8-section "Stepper — exploration" page carrying the settled decisions.
+      **The step row IS `Tabs.List`** — each marker is a real `Tabs.Trigger`
+      restyled as a circle, so activation, `aria-selected`, the roving
+      tabindex, Home/End and `disabled` all arrive correct for free. This
+      overrides the original "decorative step row" wording: that phrasing
+      predated asking what Tabs already gives us, and a decorative row would be
+      hand-rolled the first time anyone wanted clickable completed steps. There
+      is no `linear` prop either — an unreached step is a `disabled` step.
+      **Registry** (hand-authored, seven compound parts): `data-state` (Tabs,
+      which step is current) and `data-step-state` (the progress a step carries
+      in its own right) are deliberately separate, so a failed step keeps its
+      error marker while you stand on a later one. The connector is a
+      pseudo-element on the step, not a component — a segment is filled when the
+      step to its RIGHT has been reached, so hanging it off that step keeps the
+      rule local and lets the fill animate as a `scale` from the leading edge.
+      The current marker is a soft-primary **halo, not a ring**: `border/focus`
+      and `action/primary/default` are both `#236ce1`, so a primary ring would
+      be pixel-identical to the focus ring — which is exactly why
+      `action/primary/soft` had to exist. Registered in `registry/registry.json`,
+      `crates/primitiv-cli/src/ports/registry.rs`,
+      `crates/primitiv-cli/tests/cli.rs` (roster count 61).
 - [x] Pagination (`Button` + `Dropdown` + `Select`). **Landed 2026-08-09, tokens
       + Figma + registry + kitchen-sink.** New `pagination/{size}/{gap,
       item-min-width}` Context tokens (code + Figma, all 4 density modes);

@@ -161,6 +161,13 @@ import {
   Radio,
   RadioCard,
   RadioCardItem,
+  Stepper,
+  StepperDescription,
+  StepperLabel,
+  StepperList,
+  StepperMarker,
+  StepperPanel,
+  StepperStep,
   Switch,
   Table,
   TableHead,
@@ -503,6 +510,159 @@ function Section({
         {children}
       </div>
     </section>
+  );
+}
+
+/**
+ * A real four-step sign-up wizard — the demo Stepper exists for.
+ *
+ * Everything the rail shows is derived from two pieces of state: which step is
+ * current (the Stepper's own value) and which steps have been completed. A step
+ * is `complete` once it has been left behind, `error` if it failed validation,
+ * and `disabled` until it has been reached — so the guard against jumping ahead
+ * is a Tabs prop rather than logic of Stepper's own.
+ */
+function SignUpWizard({
+  size,
+}: {
+  size: "xs" | "sm" | "md" | "lg" | "xl";
+}) {
+  const steps = ["account", "profile", "plan", "review"] as const;
+  type Step = (typeof steps)[number];
+
+  const [step, setStep] = useState<Step>("account");
+  const [furthest, setFurthest] = useState(0);
+  const [displayName, setDisplayName] = useState("ada");
+  const [plan, setPlan] = useState("team");
+  const [submitted, setSubmitted] = useState(false);
+
+  const index = steps.indexOf(step);
+  // The one deliberately invalid field, so the error marker has a real cause.
+  const nameTaken = submitted && displayName.trim().toLowerCase() === "ada";
+
+  const go = (next: number) => {
+    const clamped = Math.min(Math.max(next, 0), steps.length - 1);
+    setFurthest((f) => Math.max(f, clamped));
+    setStep(steps[clamped]);
+  };
+
+  const stepState = (i: number) => {
+    if (i === 1 && nameTaken) return "error" as const;
+    return i < furthest ? ("complete" as const) : ("upcoming" as const);
+  };
+
+  const labels: Record<Step, { title: string; description: string }> = {
+    account: { title: "Account", description: "Email and password" },
+    profile: { title: "Profile", description: "Tell us about you" },
+    plan: { title: "Plan", description: "Pick a tier" },
+    review: { title: "Review", description: "Confirm and finish" },
+  };
+
+  return (
+    <Stepper
+      value={step}
+      onValueChange={(value) => setStep(value as Step)}
+      size={size}
+    >
+      <StepperList label="Sign-up progress">
+        {steps.map((value, i) => (
+          <StepperStep
+            key={value}
+            value={value}
+            state={stepState(i)}
+            disabled={i > furthest}
+          >
+            <StepperMarker>{i + 1}</StepperMarker>
+            <StepperLabel>{labels[value].title}</StepperLabel>
+            <StepperDescription>
+              {labels[value].description}
+            </StepperDescription>
+          </StepperStep>
+        ))}
+      </StepperList>
+
+      <StepperPanel value="account">
+        <Field size={size}>
+          <FieldLabel>Email</FieldLabel>
+          <Input type="email" size={size} placeholder="you@example.com" />
+          <FieldDescription>We won't share it.</FieldDescription>
+        </Field>
+      </StepperPanel>
+
+      <StepperPanel value="profile">
+        <Field size={size}>
+          <FieldLabel>Display name</FieldLabel>
+          <Input
+            type="text"
+            size={size}
+            value={displayName}
+            onChange={(event) => setDisplayName(event.target.value)}
+            aria-invalid={nameTaken || undefined}
+          />
+          {nameTaken ? (
+            <FieldErrorText>
+              That display name is taken — try another.
+            </FieldErrorText>
+          ) : (
+            <FieldDescription>
+              Letters, numbers and hyphens only.
+            </FieldDescription>
+          )}
+        </Field>
+      </StepperPanel>
+
+      <StepperPanel value="plan">
+        <RadioCard value={plan} onValueChange={setPlan} aria-label="Plan">
+          <Stack direction="row" gap="sm" align="stretch">
+            <RadioCardItem
+              size={size}
+              value="starter"
+              title="Starter"
+              description="Everything one person needs."
+              style={{ flex: "1 1 0" }}
+            />
+            <RadioCardItem
+              size={size}
+              value="team"
+              title="Team"
+              description="Shared workspaces and roles."
+              style={{ flex: "1 1 0" }}
+            />
+          </Stack>
+        </RadioCard>
+      </StepperPanel>
+
+      <StepperPanel value="review">
+        <p>
+          Signing up as <strong>{displayName}</strong> on the{" "}
+          <strong>{plan}</strong> plan.
+        </p>
+      </StepperPanel>
+
+      <Stack direction="row" gap="sm" align="center">
+        <Button
+          variant="secondary"
+          size={size}
+          disabled={index === 0}
+          onClick={() => go(index - 1)}
+        >
+          Back
+        </Button>
+        <Button
+          size={size}
+          onClick={() => {
+            if (step === "profile") {
+              setSubmitted(true);
+              if (displayName.trim().toLowerCase() === "ada") return;
+            }
+            if (index === steps.length - 1) return;
+            go(index + 1);
+          }}
+        >
+          {index === steps.length - 1 ? "Create account" : "Continue"}
+        </Button>
+      </Stack>
+    </Stepper>
   );
 }
 
@@ -4174,6 +4334,30 @@ export function ramp(hue: number, chroma = 0.12) {
               <p>History panel content.</p>
             </TabsContent>
           </Tabs>
+        </Section>
+
+        <Section title="Stepper" column>
+          <SignUpWizard size={size} />
+          <Stepper defaultValue="two" orientation="vertical" size={size}>
+            <StepperList label="Vertical rail">
+              <StepperStep value="one" state="complete">
+                <StepperMarker>1</StepperMarker>
+                <StepperLabel>Account</StepperLabel>
+              </StepperStep>
+              <StepperStep value="two">
+                <StepperMarker>2</StepperMarker>
+                <StepperLabel>Profile</StepperLabel>
+              </StepperStep>
+              <StepperStep value="three" state="error">
+                <StepperMarker>3</StepperMarker>
+                <StepperLabel>Payment</StepperLabel>
+              </StepperStep>
+              <StepperStep value="four" disabled>
+                <StepperMarker>4</StepperMarker>
+                <StepperLabel>Review</StepperLabel>
+              </StepperStep>
+            </StepperList>
+          </Stepper>
         </Section>
 
         <Section title="Toggle Group">

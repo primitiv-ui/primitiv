@@ -1,0 +1,539 @@
+/*
+ * Stepper — Primitiv default theme (canonical CSS).
+ *
+ * Copied into the consumer repo by `primitiv add stepper`. It is yours to edit:
+ * the stable surface is the contract (the .primitiv-stepper root + __list /
+ * __step / __marker / __label / __description / __panel parts, the --xs…--xl
+ * modifiers, the data-state / data-step-state / data-orientation hooks, and the
+ * --primitiv-stepper-* custom properties), not these values (RFC 0006
+ * Principle 2 — names are stable, values are not).
+ *
+ * Each step is a real tab, drawn as a numbered circle. Two state hooks, kept
+ * deliberately separate: `data-state` (from Tabs) is which step is CURRENT;
+ * `data-step-state` (from StepperStep) is the progress a step carries in its
+ * own right, so a failed step keeps its error marker while you stand on a
+ * later one.
+ *
+ * THE CONNECTOR IS `::before` ON THE STEP, not a component and not `::after` on
+ * the previous one. A segment is filled when the step to its RIGHT has been
+ * reached, so hanging it off that step makes the rule local — CSS never has to
+ * look forward at a sibling. `::before` is the track, `::after` the fill, and
+ * the fill is a scale transform from the leading edge so advancing a step runs
+ * the line into the marker instead of repainting it.
+ *
+ * THE CURRENT MARKER IS A HALO, NOT A RING. --primitiv-border-focus and
+ * --primitiv-action-primary-default are the same colour, so a primary ring
+ * would be pixel-identical to the focus ring; a filled soft-primary disc
+ * differs in geometry as well as weight, and the two stack legibly when the
+ * current step is also focused.
+ *
+ * Structure follows RFC 0008: per-component API tokens + the resting look live
+ * in primitiv.base, the size modifiers in primitiv.variants, the
+ * current/reached/hover/focus/disabled styling in primitiv.states.
+ *
+ * Requires the token layer (`primitiv tokens`) for the --primitiv-stepper-*,
+ * --primitiv-action-*, --primitiv-content-*, --primitiv-border-*,
+ * --primitiv-feedback-*, --primitiv-framed-control-*, --primitiv-focus-ring-*,
+ * --primitiv-label-*, --primitiv-body-*, --primitiv-panel-*, --primitiv-size-*,
+ * --primitiv-space-*, --primitiv-opacity-* and --primitiv-motion-* custom
+ * properties it resolves.
+ */
+
+/* Declare the sublayer order up front so this sheet is safe to load ahead of
+ * the token layer: CSS fixes layer precedence by first appearance, so without
+ * this a component stylesheet seen first would register primitiv.base before
+ * primitiv.reset and let the reset win (RFC 0008 §7). */
+@layer primitiv.reset, primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;
+
+@layer primitiv.base {
+  .primitiv-stepper {
+    /* Per-component API — the themable knobs, defaulting to the md size and the
+       resting (upcoming) step. Size modifiers re-point the sizing knobs; the
+       states layer re-points the colour knobs. They inherit to the parts below,
+       so consumers can override any one on the root without touching a rule. */
+    --primitiv-stepper-marker-size: var(--primitiv-stepper-md-marker-size);
+    --primitiv-stepper-label-gap: var(--primitiv-stepper-md-label-gap);
+    --primitiv-stepper-row-gap: var(--primitiv-stepper-md-row-gap);
+    --primitiv-stepper-halo-outset: var(--primitiv-stepper-md-halo-outset);
+    --primitiv-stepper-connector-size: var(--primitiv-stepper-connector-thickness);
+    --primitiv-stepper-connector-color: var(--primitiv-border-default);
+    --primitiv-stepper-connector-color-reached: var(--primitiv-action-primary-default);
+    --primitiv-stepper-connector-gap: var(--primitiv-space-space-12);
+    --primitiv-stepper-marker-background: var(--primitiv-surface-default);
+    --primitiv-stepper-marker-border-color: var(--primitiv-border-default);
+    --primitiv-stepper-marker-border-width: var(--primitiv-framed-control-border-width);
+    --primitiv-stepper-marker-fg: var(--primitiv-content-muted);
+    --primitiv-stepper-marker-icon-size: var(--primitiv-framed-control-md-icon-size);
+    --primitiv-stepper-halo-color: var(--primitiv-action-primary-soft);
+    --primitiv-stepper-halo-scale: 0;
+    --primitiv-stepper-label-color: var(--primitiv-content-muted);
+    --primitiv-stepper-label-font-family: var(--primitiv-label-md-font-family);
+    --primitiv-stepper-label-font-size: var(--primitiv-label-md-font-size);
+    --primitiv-stepper-label-font-weight: var(--primitiv-label-md-font-weight);
+    --primitiv-stepper-label-line-height: var(--primitiv-label-md-line-height);
+    --primitiv-stepper-description-color: var(--primitiv-content-muted);
+    --primitiv-stepper-description-font-family: var(--primitiv-body-sm-font-family);
+    --primitiv-stepper-description-font-size: var(--primitiv-body-sm-font-size);
+    --primitiv-stepper-description-font-weight: var(--primitiv-body-sm-font-weight);
+    --primitiv-stepper-description-line-height: var(--primitiv-body-sm-line-height);
+    --primitiv-stepper-panel-padding-block: var(--primitiv-panel-padding-block);
+    --primitiv-stepper-panel-padding-inline: var(--primitiv-panel-padding-inline);
+    --primitiv-stepper-panel-fg: var(--primitiv-content-primary);
+    --primitiv-stepper-panel-font-family: var(--primitiv-body-md-font-family);
+    --primitiv-stepper-panel-font-size: var(--primitiv-body-md-font-size);
+    --primitiv-stepper-panel-font-weight: var(--primitiv-body-md-font-weight);
+    --primitiv-stepper-panel-line-height: var(--primitiv-body-md-line-height);
+    --primitiv-stepper-tap-target: var(--primitiv-size-size-48);
+    --primitiv-stepper-transition-duration: var(--primitiv-motion-duration-control);
+    --primitiv-stepper-connector-duration: var(--primitiv-motion-duration-expand);
+    --primitiv-stepper-transition-easing: var(--primitiv-motion-easing-default);
+
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* The rail. Equal cells: every step takes the same fraction of the width, so
+     the marker sits at a predictable point in its own cell and a long label can
+     never collide with its neighbour. Rejected during design: markers flush to
+     both ends with even pitch — the outer labels then have no cell of their own.
+     This is the grid the connector pseudo-elements are positioned against. */
+  .primitiv-stepper__list {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 1fr;
+    align-items: start;
+  }
+
+  /* A step — the marker over (or beside) its label. `position: relative` is
+     load-bearing: the connector pseudo-elements are positioned against it. */
+  .primitiv-stepper__step {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--primitiv-stepper-label-gap);
+    padding: 0;
+    border: none;
+    background: transparent;
+    text-align: center;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    /* Prevent tap-hold from selecting the step's label / triggering iOS's
+       text-selection callout — a control's own label isn't page content. */
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+  }
+
+  /* The connector's track and fill. `::before` is the full-width rule between
+     this marker's leading edge and the previous one; `::after` is the reached
+     portion, scaled from 0 so it grows INTO the marker when the step is
+     reached. Both sit on the marker's centre line. The first step has no
+     incoming segment — see the :first-child rule in the states layer. */
+  .primitiv-stepper__step::before,
+  .primitiv-stepper__step::after {
+    content: "";
+    position: absolute;
+    inset-block-start: calc(
+      (var(--primitiv-stepper-marker-size) - var(--primitiv-stepper-connector-size)) / 2
+    );
+    /* From the midpoint of the previous cell to this marker's leading edge. */
+    inset-inline-end: calc(50% + (var(--primitiv-stepper-marker-size) / 2) + var(--primitiv-stepper-connector-gap));
+    inline-size: calc(100% - var(--primitiv-stepper-marker-size) - (var(--primitiv-stepper-connector-gap) * 2));
+    block-size: var(--primitiv-stepper-connector-size);
+    border-radius: var(--primitiv-radii-full);
+  }
+
+  .primitiv-stepper__step::before {
+    background: var(--primitiv-stepper-connector-color);
+  }
+
+  /* The fill. Grows from the leading (previous-step) edge towards the marker,
+     so advancing runs the line forwards rather than repainting it. */
+  .primitiv-stepper__step::after {
+    background: var(--primitiv-stepper-connector-color-reached);
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform var(--primitiv-stepper-connector-duration) var(--primitiv-stepper-transition-easing);
+  }
+
+  /* The marker. A circle whose glyph is either the step number or the state's
+     own tick / warning. The halo is a pseudo-element rather than a box-shadow
+     so it can scale independently of the circle. */
+  .primitiv-stepper__marker {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: none;
+    inline-size: var(--primitiv-stepper-marker-size);
+    block-size: var(--primitiv-stepper-marker-size);
+    border: var(--primitiv-stepper-marker-border-width) solid var(--primitiv-stepper-marker-border-color);
+    border-radius: var(--primitiv-radii-full);
+    background: var(--primitiv-stepper-marker-background);
+    color: var(--primitiv-stepper-marker-fg);
+    font-family: var(--primitiv-stepper-label-font-family);
+    font-size: var(--primitiv-stepper-label-font-size);
+    font-weight: var(--primitiv-stepper-label-font-weight);
+    line-height: 1;
+    transition:
+      background-color var(--primitiv-stepper-transition-duration) var(--primitiv-stepper-transition-easing),
+      border-color var(--primitiv-stepper-transition-duration) var(--primitiv-stepper-transition-easing),
+      color var(--primitiv-stepper-transition-duration) var(--primitiv-stepper-transition-easing);
+  }
+
+  /* The current-step halo. Scaled to 0 at rest and to 1 by the states layer, so
+     arriving at a step blooms the disc outwards instead of popping it in. */
+  .primitiv-stepper__marker::before {
+    content: "";
+    position: absolute;
+    inset: calc(-1 * var(--primitiv-stepper-halo-outset));
+    border-radius: var(--primitiv-radii-full);
+    background: var(--primitiv-stepper-halo-color);
+    transform: scale(var(--primitiv-stepper-halo-scale));
+    transition: transform var(--primitiv-stepper-transition-duration) var(--primitiv-stepper-transition-easing);
+  }
+
+  .primitiv-stepper__marker svg {
+    inline-size: var(--primitiv-stepper-marker-icon-size);
+    block-size: var(--primitiv-stepper-marker-icon-size);
+  }
+
+  /* The tap target. A marker is smaller than the 44px minimum at every size
+     below lg, so the STEP carries the hit area as a pseudo-element rather than
+     padding — padding would push the label away from the marker and break the
+     rail's even cells. */
+  .primitiv-stepper__step > .primitiv-stepper__marker::after {
+    content: "";
+    position: absolute;
+    inset-inline-start: 50%;
+    inset-block-start: 50%;
+    inline-size: max(100%, var(--primitiv-stepper-tap-target));
+    block-size: max(100%, var(--primitiv-stepper-tap-target));
+    transform: translate(-50%, -50%);
+  }
+
+  .primitiv-stepper__label {
+    color: var(--primitiv-stepper-label-color);
+    font-family: var(--primitiv-stepper-label-font-family);
+    font-size: var(--primitiv-stepper-label-font-size);
+    font-weight: var(--primitiv-stepper-label-font-weight);
+    line-height: var(--primitiv-stepper-label-line-height);
+    /* text-box-trim must be applied to the element directly wrapping the text
+       node — not the flex container — for engines to honour it. */
+    text-box-trim: trim-both;
+    text-box-edge: cap alphabetic;
+    transition: color var(--primitiv-stepper-transition-duration) var(--primitiv-stepper-transition-easing);
+  }
+
+  .primitiv-stepper__description {
+    display: block;
+    color: var(--primitiv-stepper-description-color);
+    font-family: var(--primitiv-stepper-description-font-family);
+    font-size: var(--primitiv-stepper-description-font-size);
+    font-weight: var(--primitiv-stepper-description-font-weight);
+    line-height: var(--primitiv-stepper-description-line-height);
+  }
+
+  /* The panel. Padded like Tabs' own, and the active one fades up on arrival. */
+  .primitiv-stepper__panel {
+    padding-block: var(--primitiv-stepper-panel-padding-block);
+    padding-inline: var(--primitiv-stepper-panel-padding-inline);
+    color: var(--primitiv-stepper-panel-fg);
+    font-family: var(--primitiv-stepper-panel-font-family);
+    font-size: var(--primitiv-stepper-panel-font-size);
+    font-weight: var(--primitiv-stepper-panel-font-weight);
+    line-height: var(--primitiv-stepper-panel-line-height);
+  }
+}
+
+@layer primitiv.variants {
+  /* Size — re-points the marker, gap and typography knobs to the chosen slot.
+     Density stays ambient via [data-density] on the token values themselves
+     (RFC 0009). The description drops one tier below the label at every size:
+     the label face is condensed, so a same-size description out-measures it. */
+  .primitiv-stepper--xs {
+    --primitiv-stepper-marker-size: var(--primitiv-stepper-xs-marker-size);
+    --primitiv-stepper-label-gap: var(--primitiv-stepper-xs-label-gap);
+    --primitiv-stepper-row-gap: var(--primitiv-stepper-xs-row-gap);
+    --primitiv-stepper-halo-outset: var(--primitiv-stepper-xs-halo-outset);
+    --primitiv-stepper-marker-icon-size: var(--primitiv-framed-control-xs-icon-size);
+    --primitiv-stepper-label-font-family: var(--primitiv-label-xs-font-family);
+    --primitiv-stepper-label-font-size: var(--primitiv-label-xs-font-size);
+    --primitiv-stepper-label-font-weight: var(--primitiv-label-xs-font-weight);
+    --primitiv-stepper-label-line-height: var(--primitiv-label-xs-line-height);
+    --primitiv-stepper-description-font-family: var(--primitiv-body-xs-font-family);
+    --primitiv-stepper-description-font-size: var(--primitiv-body-xs-font-size);
+    --primitiv-stepper-description-font-weight: var(--primitiv-body-xs-font-weight);
+    --primitiv-stepper-description-line-height: var(--primitiv-body-xs-line-height);
+    --primitiv-stepper-panel-font-family: var(--primitiv-body-xs-font-family);
+    --primitiv-stepper-panel-font-size: var(--primitiv-body-xs-font-size);
+    --primitiv-stepper-panel-font-weight: var(--primitiv-body-xs-font-weight);
+    --primitiv-stepper-panel-line-height: var(--primitiv-body-xs-line-height);
+  }
+  .primitiv-stepper--sm {
+    --primitiv-stepper-marker-size: var(--primitiv-stepper-sm-marker-size);
+    --primitiv-stepper-label-gap: var(--primitiv-stepper-sm-label-gap);
+    --primitiv-stepper-row-gap: var(--primitiv-stepper-sm-row-gap);
+    --primitiv-stepper-halo-outset: var(--primitiv-stepper-sm-halo-outset);
+    --primitiv-stepper-marker-icon-size: var(--primitiv-framed-control-sm-icon-size);
+    --primitiv-stepper-label-font-family: var(--primitiv-label-sm-font-family);
+    --primitiv-stepper-label-font-size: var(--primitiv-label-sm-font-size);
+    --primitiv-stepper-label-font-weight: var(--primitiv-label-sm-font-weight);
+    --primitiv-stepper-label-line-height: var(--primitiv-label-sm-line-height);
+    --primitiv-stepper-description-font-family: var(--primitiv-body-xs-font-family);
+    --primitiv-stepper-description-font-size: var(--primitiv-body-xs-font-size);
+    --primitiv-stepper-description-font-weight: var(--primitiv-body-xs-font-weight);
+    --primitiv-stepper-description-line-height: var(--primitiv-body-xs-line-height);
+    --primitiv-stepper-panel-font-family: var(--primitiv-body-sm-font-family);
+    --primitiv-stepper-panel-font-size: var(--primitiv-body-sm-font-size);
+    --primitiv-stepper-panel-font-weight: var(--primitiv-body-sm-font-weight);
+    --primitiv-stepper-panel-line-height: var(--primitiv-body-sm-line-height);
+  }
+  .primitiv-stepper--md {
+    --primitiv-stepper-marker-size: var(--primitiv-stepper-md-marker-size);
+    --primitiv-stepper-label-gap: var(--primitiv-stepper-md-label-gap);
+    --primitiv-stepper-row-gap: var(--primitiv-stepper-md-row-gap);
+    --primitiv-stepper-halo-outset: var(--primitiv-stepper-md-halo-outset);
+    --primitiv-stepper-marker-icon-size: var(--primitiv-framed-control-md-icon-size);
+    --primitiv-stepper-label-font-family: var(--primitiv-label-md-font-family);
+    --primitiv-stepper-label-font-size: var(--primitiv-label-md-font-size);
+    --primitiv-stepper-label-font-weight: var(--primitiv-label-md-font-weight);
+    --primitiv-stepper-label-line-height: var(--primitiv-label-md-line-height);
+    --primitiv-stepper-description-font-family: var(--primitiv-body-sm-font-family);
+    --primitiv-stepper-description-font-size: var(--primitiv-body-sm-font-size);
+    --primitiv-stepper-description-font-weight: var(--primitiv-body-sm-font-weight);
+    --primitiv-stepper-description-line-height: var(--primitiv-body-sm-line-height);
+    --primitiv-stepper-panel-font-family: var(--primitiv-body-md-font-family);
+    --primitiv-stepper-panel-font-size: var(--primitiv-body-md-font-size);
+    --primitiv-stepper-panel-font-weight: var(--primitiv-body-md-font-weight);
+    --primitiv-stepper-panel-line-height: var(--primitiv-body-md-line-height);
+  }
+  .primitiv-stepper--lg {
+    --primitiv-stepper-marker-size: var(--primitiv-stepper-lg-marker-size);
+    --primitiv-stepper-label-gap: var(--primitiv-stepper-lg-label-gap);
+    --primitiv-stepper-row-gap: var(--primitiv-stepper-lg-row-gap);
+    --primitiv-stepper-halo-outset: var(--primitiv-stepper-lg-halo-outset);
+    --primitiv-stepper-marker-icon-size: var(--primitiv-framed-control-lg-icon-size);
+    --primitiv-stepper-label-font-family: var(--primitiv-label-lg-font-family);
+    --primitiv-stepper-label-font-size: var(--primitiv-label-lg-font-size);
+    --primitiv-stepper-label-font-weight: var(--primitiv-label-lg-font-weight);
+    --primitiv-stepper-label-line-height: var(--primitiv-label-lg-line-height);
+    --primitiv-stepper-description-font-family: var(--primitiv-body-md-font-family);
+    --primitiv-stepper-description-font-size: var(--primitiv-body-md-font-size);
+    --primitiv-stepper-description-font-weight: var(--primitiv-body-md-font-weight);
+    --primitiv-stepper-description-line-height: var(--primitiv-body-md-line-height);
+    --primitiv-stepper-panel-font-family: var(--primitiv-body-lg-font-family);
+    --primitiv-stepper-panel-font-size: var(--primitiv-body-lg-font-size);
+    --primitiv-stepper-panel-font-weight: var(--primitiv-body-lg-font-weight);
+    --primitiv-stepper-panel-line-height: var(--primitiv-body-lg-line-height);
+  }
+  .primitiv-stepper--xl {
+    --primitiv-stepper-marker-size: var(--primitiv-stepper-xl-marker-size);
+    --primitiv-stepper-label-gap: var(--primitiv-stepper-xl-label-gap);
+    --primitiv-stepper-row-gap: var(--primitiv-stepper-xl-row-gap);
+    --primitiv-stepper-halo-outset: var(--primitiv-stepper-xl-halo-outset);
+    --primitiv-stepper-marker-icon-size: var(--primitiv-framed-control-xl-icon-size);
+    --primitiv-stepper-label-font-family: var(--primitiv-label-xl-font-family);
+    --primitiv-stepper-label-font-size: var(--primitiv-label-xl-font-size);
+    --primitiv-stepper-label-font-weight: var(--primitiv-label-xl-font-weight);
+    --primitiv-stepper-label-line-height: var(--primitiv-label-xl-line-height);
+    --primitiv-stepper-description-font-family: var(--primitiv-body-lg-font-family);
+    --primitiv-stepper-description-font-size: var(--primitiv-body-lg-font-size);
+    --primitiv-stepper-description-font-weight: var(--primitiv-body-lg-font-weight);
+    --primitiv-stepper-description-line-height: var(--primitiv-body-lg-line-height);
+    --primitiv-stepper-panel-font-family: var(--primitiv-body-xl-font-family);
+    --primitiv-stepper-panel-font-size: var(--primitiv-body-xl-font-size);
+    --primitiv-stepper-panel-font-weight: var(--primitiv-body-xl-font-weight);
+    --primitiv-stepper-panel-line-height: var(--primitiv-body-xl-line-height);
+  }
+
+  /* Vertical — the rail runs down the leading edge with the label beside each
+     marker. The connector rotates with it: same two pseudo-elements, now a
+     column between one marker's foot and the next one's head, filling on scaleY.
+     `data-orientation` comes from Tabs, so nothing extra is passed to get it. */
+  .primitiv-stepper__list[data-orientation="vertical"] {
+    grid-auto-flow: row;
+    grid-auto-columns: auto;
+    row-gap: var(--primitiv-stepper-row-gap);
+    align-items: stretch;
+  }
+
+  .primitiv-stepper__list[data-orientation="vertical"] .primitiv-stepper__step {
+    flex-direction: row;
+    align-items: flex-start;
+    text-align: start;
+  }
+
+  .primitiv-stepper__list[data-orientation="vertical"] .primitiv-stepper__step::before,
+  .primitiv-stepper__list[data-orientation="vertical"] .primitiv-stepper__step::after {
+    inset-block-start: auto;
+    inset-inline-end: auto;
+    inset-inline-start: calc(
+      (var(--primitiv-stepper-marker-size) - var(--primitiv-stepper-connector-size)) / 2
+    );
+    inset-block-end: calc(100% + var(--primitiv-stepper-connector-gap));
+    inline-size: var(--primitiv-stepper-connector-size);
+    block-size: calc(var(--primitiv-stepper-row-gap) - (var(--primitiv-stepper-connector-gap) * 2));
+  }
+
+  .primitiv-stepper__list[data-orientation="vertical"] .primitiv-stepper__step::after {
+    transform: scaleY(0);
+    transform-origin: center top;
+  }
+}
+
+@layer primitiv.states {
+  /* The first step has no incoming segment — there is nothing to its leading
+     side to join it to. */
+  .primitiv-stepper__step:first-child::before,
+  .primitiv-stepper__step:first-child::after {
+    content: none;
+  }
+
+  /* Reached — complete, error, or the current step. The incoming connector
+     fills, running the line into the marker. */
+  .primitiv-stepper__step[data-state="active"]::after,
+  .primitiv-stepper__step[data-step-state="complete"]::after,
+  .primitiv-stepper__step[data-step-state="error"]::after {
+    transform: scaleX(1);
+  }
+
+  .primitiv-stepper__list[data-orientation="vertical"] .primitiv-stepper__step[data-state="active"]::after,
+  .primitiv-stepper__list[data-orientation="vertical"] .primitiv-stepper__step[data-step-state="complete"]::after,
+  .primitiv-stepper__list[data-orientation="vertical"] .primitiv-stepper__step[data-step-state="error"]::after {
+    transform: scaleY(1);
+  }
+
+  /* Complete — a solid primary disc holding a tick. */
+  .primitiv-stepper__step[data-step-state="complete"] {
+    --primitiv-stepper-marker-background: var(--primitiv-action-primary-default);
+    --primitiv-stepper-marker-border-color: var(--primitiv-action-primary-default);
+    --primitiv-stepper-marker-fg: var(--primitiv-action-primary-foreground-default);
+    --primitiv-stepper-label-color: var(--primitiv-content-primary);
+  }
+
+  /* Error — a solid danger disc holding a warning glyph. Survives being on a
+     later step, which is the whole reason this is its own attribute. */
+  .primitiv-stepper__step[data-step-state="error"] {
+    --primitiv-stepper-marker-background: var(--primitiv-feedback-danger-solid-background);
+    --primitiv-stepper-marker-border-color: var(--primitiv-feedback-danger-solid-background);
+    --primitiv-stepper-marker-fg: var(--primitiv-feedback-danger-solid-foreground);
+    --primitiv-stepper-label-color: var(--primitiv-content-error);
+  }
+
+  /* Current — the halo blooms out and the label lifts to primary. Applied last
+     among the state rules so it wins the marker colours on a step that is both
+     complete and current (a revisited step). */
+  .primitiv-stepper__step[data-state="active"] {
+    --primitiv-stepper-halo-scale: 1;
+    --primitiv-stepper-label-color: var(--primitiv-content-primary);
+  }
+
+  .primitiv-stepper__step[data-state="active"][data-step-state="upcoming"] {
+    --primitiv-stepper-marker-background: var(--primitiv-action-primary-default);
+    --primitiv-stepper-marker-border-color: var(--primitiv-action-primary-default);
+    --primitiv-stepper-marker-fg: var(--primitiv-action-primary-foreground-default);
+  }
+
+  /* Hover — only on a step that is not current. Gated behind (hover: hover): a
+     touchscreen simulates :hover on tap and it "sticks" until the next tap
+     elsewhere, which would leave a just-tapped step showing its hover colour. */
+  @media (hover: hover) {
+    .primitiv-stepper__step[data-state="inactive"]:not([data-disabled]):hover {
+      --primitiv-stepper-label-color: var(--primitiv-content-primary);
+      --primitiv-stepper-halo-color: var(--primitiv-action-ghost-hover);
+      --primitiv-stepper-halo-scale: 1;
+    }
+  }
+
+  /* Focus — the shared two-layer ring, on the MARKER rather than the step, so
+     it hugs the circle instead of boxing the whole label column. CSS follows
+     border-radius automatically, so the ring is round with no extra work. */
+  .primitiv-stepper__step:focus-visible {
+    outline: none;
+  }
+
+  .primitiv-stepper__step:focus-visible .primitiv-stepper__marker {
+    box-shadow:
+      0 0 0 var(--primitiv-focus-ring-offset) var(--primitiv-surface-default),
+      0 0 0 calc(var(--primitiv-focus-ring-offset) + var(--primitiv-focus-ring-width)) var(--primitiv-focus-ring);
+  }
+
+  /* Disabled — a step the user has not unlocked. State-neutral so it reads the
+     same whatever progress the step reports. */
+  .primitiv-stepper__step[data-disabled] {
+    opacity: var(--primitiv-opacity-50);
+    cursor: not-allowed;
+  }
+
+  /* The active panel fades up on arrival. Only the active one animates — the
+     inactive panels stay mounted but hidden, so there is nothing to transition. */
+  .primitiv-stepper__panel[data-state="active"] {
+    animation: primitiv-stepper-panel-enter var(--primitiv-stepper-connector-duration)
+      var(--primitiv-stepper-transition-easing) both;
+  }
+
+  @keyframes primitiv-stepper-panel-enter {
+    from {
+      opacity: 0;
+      transform: translateY(var(--primitiv-space-space-4));
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  /* Motion is decoration here — every state is already carried by colour and
+     glyph, so switching it off loses nothing. */
+  @media (prefers-reduced-motion: reduce) {
+    .primitiv-stepper__step::after,
+    .primitiv-stepper__marker,
+    .primitiv-stepper__marker::before,
+    .primitiv-stepper__label {
+      transition: none;
+    }
+
+    .primitiv-stepper__panel[data-state="active"] {
+      animation: none;
+    }
+  }
+}
+
+$primitiv-stepper-marker-size: var(--primitiv-stepper-marker-size);
+$primitiv-stepper-label-gap: var(--primitiv-stepper-label-gap);
+$primitiv-stepper-row-gap: var(--primitiv-stepper-row-gap);
+$primitiv-stepper-halo-outset: var(--primitiv-stepper-halo-outset);
+$primitiv-stepper-connector-size: var(--primitiv-stepper-connector-size);
+$primitiv-stepper-connector-color: var(--primitiv-stepper-connector-color);
+$primitiv-stepper-connector-color-reached: var(--primitiv-stepper-connector-color-reached);
+$primitiv-stepper-connector-gap: var(--primitiv-stepper-connector-gap);
+$primitiv-stepper-marker-background: var(--primitiv-stepper-marker-background);
+$primitiv-stepper-marker-border-color: var(--primitiv-stepper-marker-border-color);
+$primitiv-stepper-marker-border-width: var(--primitiv-stepper-marker-border-width);
+$primitiv-stepper-marker-fg: var(--primitiv-stepper-marker-fg);
+$primitiv-stepper-marker-icon-size: var(--primitiv-stepper-marker-icon-size);
+$primitiv-stepper-halo-color: var(--primitiv-stepper-halo-color);
+$primitiv-stepper-halo-scale: var(--primitiv-stepper-halo-scale);
+$primitiv-stepper-label-color: var(--primitiv-stepper-label-color);
+$primitiv-stepper-label-font-family: var(--primitiv-stepper-label-font-family);
+$primitiv-stepper-label-font-size: var(--primitiv-stepper-label-font-size);
+$primitiv-stepper-label-font-weight: var(--primitiv-stepper-label-font-weight);
+$primitiv-stepper-label-line-height: var(--primitiv-stepper-label-line-height);
+$primitiv-stepper-description-color: var(--primitiv-stepper-description-color);
+$primitiv-stepper-description-font-family: var(--primitiv-stepper-description-font-family);
+$primitiv-stepper-description-font-size: var(--primitiv-stepper-description-font-size);
+$primitiv-stepper-description-font-weight: var(--primitiv-stepper-description-font-weight);
+$primitiv-stepper-description-line-height: var(--primitiv-stepper-description-line-height);
+$primitiv-stepper-panel-padding-block: var(--primitiv-stepper-panel-padding-block);
+$primitiv-stepper-panel-padding-inline: var(--primitiv-stepper-panel-padding-inline);
+$primitiv-stepper-panel-fg: var(--primitiv-stepper-panel-fg);
+$primitiv-stepper-panel-font-family: var(--primitiv-stepper-panel-font-family);
+$primitiv-stepper-panel-font-size: var(--primitiv-stepper-panel-font-size);
+$primitiv-stepper-panel-font-weight: var(--primitiv-stepper-panel-font-weight);
+$primitiv-stepper-panel-line-height: var(--primitiv-stepper-panel-line-height);
+$primitiv-stepper-tap-target: var(--primitiv-stepper-tap-target);
+$primitiv-stepper-transition-duration: var(--primitiv-stepper-transition-duration);
+$primitiv-stepper-connector-duration: var(--primitiv-stepper-connector-duration);
+$primitiv-stepper-transition-easing: var(--primitiv-stepper-transition-easing);

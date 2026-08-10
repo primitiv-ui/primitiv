@@ -224,6 +224,7 @@ surface and applies once those are read.
 | # | Title | Status |
 |---|---|---|
 | [0026](0026-consumer-testing-with-agent-personas.md) | Consumer testing with agent personas | First cycle complete — re-run scoped |
+| [0027](0027-accessibility-verification.md) | Accessibility verification with axe-core | Draft — proposed |
 
 - **0026** — an outside-in usability program: AI agents role-play distinct
   consumer profiles (greenfield + full styled registry, brownfield headless
@@ -242,3 +243,15 @@ surface and applies once those are read.
   workspace-source-aliased packages like `apps/kitchen-sink` uses) and an
   independent, browser-verified reviewer pass rather than trusting the
   building agent's self-report.
+- **0027** — axe-core as a third verification axis alongside coverage and
+  mutation: coverage proves a line ran, mutation proves it is asserted on,
+  axe proves the assertion was the right one. Backed by a measured spike
+  that found four real defects (an unnamed `Slider` thumb that the README's
+  own example reproduces, `role="tree"` with forbidden children on Tree and
+  MillerColumns, a dangling `aria-controls`) plus a primary Button label at
+  4.09:1 — below AA — confirmed independently by a token-level audit and a
+  real-browser sweep. Argues the layering hard: contrast and geometry are
+  invisible in jsdom and belong in Playwright over the kitchen-sink, while
+  document-scoped rules are noise against a component fragment. Flags one
+  genuinely blocking decision — axe assertions mostly pass on first run, so
+  they need an explicit carve-out from `CLAUDE.md`'s pure-red-green rule.

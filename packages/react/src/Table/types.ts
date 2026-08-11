@@ -1,4 +1,5 @@
 import type {
+  ButtonHTMLAttributes,
   HTMLAttributes,
   ReactNode,
   TableHTMLAttributes,
@@ -87,6 +88,100 @@ export type TableScrollAreaProps = {
    */
   style?: HTMLAttributes<HTMLDivElement>["style"];
 } & Omit<HTMLAttributes<HTMLDivElement>, "style">;
+
+/**
+ * The value shared by {@link TableExpandable | `Table.Expandable`} with its
+ * {@link TableExpandTrigger | `Table.ExpandTrigger`} and
+ * {@link TableDetailRow | `Table.DetailRow`} children.
+ *
+ * @internal
+ */
+export type TableExpandableContextValue = {
+  /** Whether the detail row is currently revealed. */
+  expanded: boolean;
+  /** The id wired to the detail row's `<tr>` and the trigger's `aria-controls`. */
+  detailId: string;
+  /** Flips `expanded` and notifies `onExpandedChange`. */
+  toggle: () => void;
+};
+
+/**
+ * Props for {@link TableExpandable | `Table.Expandable`} — the pairing
+ * provider for one expandable row and its detail row.
+ */
+export type TableExpandableProps = {
+  /** The parent {@link TableRow | `Table.Row`} and its
+   * {@link TableDetailRow | `Table.DetailRow`}, as siblings. */
+  children: ReactNode;
+  /**
+   * Whether the detail row is revealed. Pass this (with
+   * `onExpandedChange`) to drive expansion from outside — which is what an
+   * external table engine such as TanStack Table does.
+   */
+  expanded?: boolean;
+  /**
+   * Initial expanded state when running uncontrolled. Ignored when
+   * `expanded` is supplied.
+   * @default false
+   */
+  defaultExpanded?: boolean;
+  /** Called with the next expanded state whenever the trigger is activated. */
+  onExpandedChange?: (expanded: boolean) => void;
+};
+
+/**
+ * Props for {@link TableExpandTrigger | `Table.ExpandTrigger`} — all
+ * `ButtonHTMLAttributes` on the native `<button>`.
+ *
+ * `aria-expanded`, `aria-controls` and `type` are owned by the component and
+ * therefore `Omit`-ted: they are derived from the surrounding
+ * {@link TableExpandable | `Table.Expandable`} and must not be overridden, or
+ * the relationship the pair exists to express would break.
+ *
+ * @extends HTMLButtonElement
+ */
+export type TableExpandTriggerProps = Omit<
+  ButtonHTMLAttributes<HTMLButtonElement>,
+  "aria-expanded" | "aria-controls" | "type"
+>;
+
+/**
+ * Props for {@link TableDetailRow | `Table.DetailRow`} — a required `colSpan`
+ * plus all `HTMLAttributes` on the native `<tr>`.
+ *
+ * `id` is component-owned (it is the target of the trigger's `aria-controls`)
+ * and so is `Omit`-ted.
+ *
+ * @extends HTMLTableRowElement
+ */
+export type TableDetailRowProps = {
+  /** The detail panel's content. */
+  children?: ReactNode;
+  /**
+   * How many columns the panel spans — **every** column the table renders,
+   * control columns included.
+   *
+   * Deliberately a required prop rather than a value counted from context:
+   * counting would mean the table registering its own columns, and an
+   * external table engine already knows the number (TanStack Table:
+   * `table.getVisibleLeafColumns().length`).
+   */
+  colSpan: number;
+  /**
+   * Keep the row mounted while collapsed so a CSS transition can run.
+   *
+   * Off by default, and that default matters more here than it does on a
+   * `<div>`-based disclosure: a mounted row is still a **row**, so assistive
+   * technology counts it, and a table of 24 rows with 24 force-mounted
+   * detail rows announces 48. Opt in only when you are animating, and note
+   * that the collapsed row remains in the accessibility tree while you do.
+   * @default false
+   */
+  forceMount?: boolean;
+  /** Passed through to the `<td>` that spans the row, for styling the cell
+   * itself rather than the row. */
+  cellProps?: TdHTMLAttributes<HTMLTableCellElement>;
+} & Omit<HTMLAttributes<HTMLTableRowElement>, "id" | "children">;
 
 /**
  * Props for {@link TableCaption | `Table.Caption`} — a required `children`,

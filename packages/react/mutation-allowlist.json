@@ -34,5 +34,6 @@
   "Select",
   "NavigationMenu",
   "SplitButton",
-  "Listbox"
+  "Listbox",
+  "Table"
 ]

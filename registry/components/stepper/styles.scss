@@ -59,11 +59,23 @@
     --primitiv-stepper-connector-color: var(--primitiv-border-default);
     --primitiv-stepper-connector-color-reached: var(--primitiv-action-primary-default);
     --primitiv-stepper-connector-gap: var(--primitiv-space-space-12);
+    /* The vertical rail's connector lives entirely inside the row gap, so it
+       needs a much smaller inset than the horizontal one, which has to clear a
+       marker's full diameter along the rail. */
+    --primitiv-stepper-connector-inset: var(--primitiv-space-space-4);
+    /* Compact — the rail collapsed to a progress bar for narrow containers. */
+    --primitiv-stepper-compact-segment-height: var(--primitiv-size-size-4);
+    --primitiv-stepper-compact-gap: var(--primitiv-space-space-6);
     --primitiv-stepper-marker-background: var(--primitiv-surface-default);
     --primitiv-stepper-marker-border-color: var(--primitiv-border-default);
     --primitiv-stepper-marker-border-width: var(--primitiv-framed-control-border-width);
     --primitiv-stepper-marker-fg: var(--primitiv-content-muted);
     --primitiv-stepper-marker-icon-size: var(--primitiv-framed-control-md-icon-size);
+    --primitiv-stepper-mark-size: var(--primitiv-checkbox-md-mark-size);
+    /* The completed tick is Checkbox's mark, not an icon glyph — same polygon,
+       sized from Checkbox's own token so the stroke weight is identical rather
+       than merely similar. Thickness is baked into the polygon's proportions, so
+       it scales with the mark size and therefore across size AND density. */
     --primitiv-stepper-halo-color: var(--primitiv-action-primary-soft);
     --primitiv-stepper-halo-scale: 0;
     --primitiv-stepper-label-color: var(--primitiv-content-muted);
@@ -194,9 +206,37 @@
     transition: transform var(--primitiv-stepper-transition-duration) var(--primitiv-stepper-transition-easing);
   }
 
+  /* The step number. Trimmed to cap height so the box hugs the digit — the
+     marker then centres the DIGIT rather than the font's full line box, which
+     Khand's asymmetric metrics otherwise push visibly off-centre in a circle.
+     It has to sit on the span directly wrapping the text: engines ignore
+     text-box-trim on a flex container, which the marker is. */
+  .primitiv-stepper__marker-number {
+    text-box-trim: trim-both;
+    text-box-edge: cap alphabetic;
+  }
+
+  .primitiv-stepper__marker-mark {
+    inline-size: var(--primitiv-stepper-mark-size);
+    block-size: var(--primitiv-stepper-mark-size);
+    background: currentColor;
+    /* Byte-identical to .primitiv-checkbox__indicator's tick — keep them in step
+       if either is ever redrawn. */
+    clip-path: polygon(40% 68%, 12% 40%, 0% 52%, 40% 92%, 100% 22%, 88% 10%);
+  }
+
+  /* A consumer's own icon in a marker keeps the icon scale... */
   .primitiv-stepper__marker svg {
     inline-size: var(--primitiv-stepper-marker-icon-size);
     block-size: var(--primitiv-stepper-marker-icon-size);
+  }
+
+  /* ...but the built-in state marks share ONE size with the tick, so complete
+     and error read as the same weight at every size and density. Two class
+     selectors so this beats the descendant-svg rule above on specificity. */
+  .primitiv-stepper__marker .primitiv-stepper__marker-error {
+    inline-size: var(--primitiv-stepper-mark-size);
+    block-size: var(--primitiv-stepper-mark-size);
   }
 
   /* The tap target. A marker is smaller than the 44px minimum at every size
@@ -258,6 +298,7 @@
     --primitiv-stepper-row-gap: var(--primitiv-stepper-xs-row-gap);
     --primitiv-stepper-halo-outset: var(--primitiv-stepper-xs-halo-outset);
     --primitiv-stepper-marker-icon-size: var(--primitiv-framed-control-xs-icon-size);
+    --primitiv-stepper-mark-size: var(--primitiv-checkbox-xs-mark-size);
     --primitiv-stepper-label-font-family: var(--primitiv-label-xs-font-family);
     --primitiv-stepper-label-font-size: var(--primitiv-label-xs-font-size);
     --primitiv-stepper-label-font-weight: var(--primitiv-label-xs-font-weight);
@@ -277,6 +318,7 @@
     --primitiv-stepper-row-gap: var(--primitiv-stepper-sm-row-gap);
     --primitiv-stepper-halo-outset: var(--primitiv-stepper-sm-halo-outset);
     --primitiv-stepper-marker-icon-size: var(--primitiv-framed-control-sm-icon-size);
+    --primitiv-stepper-mark-size: var(--primitiv-checkbox-sm-mark-size);
     --primitiv-stepper-label-font-family: var(--primitiv-label-sm-font-family);
     --primitiv-stepper-label-font-size: var(--primitiv-label-sm-font-size);
     --primitiv-stepper-label-font-weight: var(--primitiv-label-sm-font-weight);
@@ -296,6 +338,11 @@
     --primitiv-stepper-row-gap: var(--primitiv-stepper-md-row-gap);
     --primitiv-stepper-halo-outset: var(--primitiv-stepper-md-halo-outset);
     --primitiv-stepper-marker-icon-size: var(--primitiv-framed-control-md-icon-size);
+    --primitiv-stepper-mark-size: var(--primitiv-checkbox-md-mark-size);
+    /* The completed tick is Checkbox's mark, not an icon glyph — same polygon,
+       sized from Checkbox's own token so the stroke weight is identical rather
+       than merely similar. Thickness is baked into the polygon's proportions, so
+       it scales with the mark size and therefore across size AND density. */
     --primitiv-stepper-label-font-family: var(--primitiv-label-md-font-family);
     --primitiv-stepper-label-font-size: var(--primitiv-label-md-font-size);
     --primitiv-stepper-label-font-weight: var(--primitiv-label-md-font-weight);
@@ -315,6 +362,7 @@
     --primitiv-stepper-row-gap: var(--primitiv-stepper-lg-row-gap);
     --primitiv-stepper-halo-outset: var(--primitiv-stepper-lg-halo-outset);
     --primitiv-stepper-marker-icon-size: var(--primitiv-framed-control-lg-icon-size);
+    --primitiv-stepper-mark-size: var(--primitiv-checkbox-lg-mark-size);
     --primitiv-stepper-label-font-family: var(--primitiv-label-lg-font-family);
     --primitiv-stepper-label-font-size: var(--primitiv-label-lg-font-size);
     --primitiv-stepper-label-font-weight: var(--primitiv-label-lg-font-weight);
@@ -334,6 +382,7 @@
     --primitiv-stepper-row-gap: var(--primitiv-stepper-xl-row-gap);
     --primitiv-stepper-halo-outset: var(--primitiv-stepper-xl-halo-outset);
     --primitiv-stepper-marker-icon-size: var(--primitiv-framed-control-xl-icon-size);
+    --primitiv-stepper-mark-size: var(--primitiv-checkbox-xl-mark-size);
     --primitiv-stepper-label-font-family: var(--primitiv-label-xl-font-family);
     --primitiv-stepper-label-font-size: var(--primitiv-label-xl-font-size);
     --primitiv-stepper-label-font-weight: var(--primitiv-label-xl-font-weight);
@@ -348,10 +397,16 @@
     --primitiv-stepper-panel-line-height: var(--primitiv-body-xl-line-height);
   }
 
-  /* Vertical — the rail runs down the leading edge with the label beside each
-     marker. The connector rotates with it: same two pseudo-elements, now a
-     column between one marker's foot and the next one's head, filling on scaleY.
-     `data-orientation` comes from Tabs, so nothing extra is passed to get it. */
+  /* Vertical — the rail runs down the leading edge with the step bodies beside it,
+     so the root turns into a row and the rail keeps its natural width. Group the
+     panels (and any footer controls) in one element so they form the second
+     column — see the README. */
+  .primitiv-stepper[data-orientation="vertical"] {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: var(--primitiv-stepper-panel-padding-inline);
+  }
+
   .primitiv-stepper__list[data-orientation="vertical"] {
     grid-auto-flow: row;
     grid-auto-columns: auto;
@@ -359,27 +414,123 @@
     align-items: stretch;
   }
 
+  /* A GRID, not a flex row. The parts are flat siblings — marker, label,
+     description — so a flex row would put the description BESIDE the title.
+     Two columns: the marker and the title share row 1, the description takes
+     row 2 under the title.
+
+     The marker is pinned to the TOP of the step (`align-items: start`), not
+     centred in it, and this is load-bearing for the connector rather than a
+     look: a step's height changes with whether it has a description, so a
+     centred marker sits at an unpredictable offset from the step's top edge and
+     the connector — which can only measure its own box — starts a different
+     distance below each marker. Pinning makes the marker's position a constant,
+     so the rail is even with or without descriptions, and with different numbers
+     of lines in them.
+
+     The TITLE is what gets centred against the marker instead: row 1 is as tall
+     as the marker, so `align-self: center` on the label lines the title up with
+     the circle without moving the circle. */
   .primitiv-stepper__list[data-orientation="vertical"] .primitiv-stepper__step {
-    flex-direction: row;
-    align-items: flex-start;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    column-gap: var(--primitiv-stepper-label-gap);
+    row-gap: 0;
+    align-items: start;
+    justify-items: start;
     text-align: start;
   }
 
+  .primitiv-stepper__list[data-orientation="vertical"] .primitiv-stepper__marker {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .primitiv-stepper__list[data-orientation="vertical"] .primitiv-stepper__label {
+    grid-column: 2;
+    grid-row: 1;
+    align-self: center;
+  }
+
+  .primitiv-stepper__list[data-orientation="vertical"] .primitiv-stepper__description {
+    grid-column: 2;
+    grid-row: 2;
+  }
+
+  /* The vertical connector runs DOWNWARD out of its own marker, unlike the
+     horizontal one which runs in from the previous step. That flip is what makes
+     the rail even: anchored at both ends against its own box, its length is
+     `100% - marker + row-gap`, so it always ends exactly at the next marker's
+     top edge no matter how tall either step's label block is. Anchoring it
+     upward instead would require knowing the PREVIOUS step's height, which CSS
+     cannot see from here — that is the inconsistent-gap bug. */
   .primitiv-stepper__list[data-orientation="vertical"] .primitiv-stepper__step::before,
   .primitiv-stepper__list[data-orientation="vertical"] .primitiv-stepper__step::after {
-    inset-block-start: auto;
     inset-inline-end: auto;
     inset-inline-start: calc(
       (var(--primitiv-stepper-marker-size) - var(--primitiv-stepper-connector-size)) / 2
     );
-    inset-block-end: calc(100% + var(--primitiv-stepper-connector-gap));
+    inset-block-start: calc(
+      var(--primitiv-stepper-marker-size) + var(--primitiv-stepper-connector-inset)
+    );
+    inset-block-end: calc(
+      -1 * (var(--primitiv-stepper-row-gap) - var(--primitiv-stepper-connector-inset))
+    );
     inline-size: var(--primitiv-stepper-connector-size);
-    block-size: calc(var(--primitiv-stepper-row-gap) - (var(--primitiv-stepper-connector-gap) * 2));
+    block-size: auto;
   }
 
   .primitiv-stepper__list[data-orientation="vertical"] .primitiv-stepper__step::after {
     transform: scaleY(0);
     transform-origin: center top;
+  }
+
+  /* COMPACT — the settled treatment for narrow containers: the rail becomes a
+     progress bar, one segment per step, and the step titles give way to a
+     heading the consumer writes ("Step 2 of 4", the current step's name).
+
+     It is a re-presentation of the SAME steps, not different markup. The
+     triggers stay mounted and keep their ids, so every panel's
+     `aria-labelledby` still resolves — swapping the rail out for a hand-rolled
+     bar at narrow widths silently breaks that reference. Hiding the marker and
+     label with `display: none` also keeps them out of the accessibility tree,
+     so a screen reader is not read a rail that is not visually there, while the
+     tab semantics survive intact.
+
+     Turn it on from the consumer side (`useMediaQuery`, a container query, or
+     any other rule): the threshold belongs in the app, not baked in here, not
+     least because CSS cannot read a custom property inside an @container
+     condition. */
+  .primitiv-stepper__list--compact {
+    grid-auto-flow: column;
+    grid-auto-columns: 1fr;
+    align-items: stretch;
+    gap: var(--primitiv-stepper-compact-gap);
+  }
+
+  .primitiv-stepper__list--compact .primitiv-stepper__step {
+    display: block;
+    block-size: var(--primitiv-stepper-compact-segment-height);
+    border-radius: var(--primitiv-radii-full);
+    /* Unreached segments read as the connector's track; the states layer fills
+       a reached one with the same colour the connector uses, so a compact rail
+       and a full rail describe progress with one vocabulary. */
+    background: var(--primitiv-stepper-connector-color);
+    transition: background-color var(--primitiv-stepper-connector-duration)
+      var(--primitiv-stepper-transition-easing);
+  }
+
+  /* The connector pseudo-elements are the rail's, not the bar's — the segments
+     ARE the progress here. */
+  .primitiv-stepper__list--compact .primitiv-stepper__step::before,
+  .primitiv-stepper__list--compact .primitiv-stepper__step::after {
+    content: none;
+  }
+
+  .primitiv-stepper__list--compact .primitiv-stepper__marker,
+  .primitiv-stepper__list--compact .primitiv-stepper__label,
+  .primitiv-stepper__list--compact .primitiv-stepper__description {
+    display: none;
   }
 }
 
@@ -399,9 +550,29 @@
     transform: scaleX(1);
   }
 
-  .primitiv-stepper__list[data-orientation="vertical"] .primitiv-stepper__step[data-state="active"]::after,
-  .primitiv-stepper__list[data-orientation="vertical"] .primitiv-stepper__step[data-step-state="complete"]::after,
-  .primitiv-stepper__list[data-orientation="vertical"] .primitiv-stepper__step[data-step-state="error"]::after {
+  /* Vertical draws its connector downward out of its own marker (see the
+     variants layer), so the suppression flips too: the LAST step is the one with
+     nothing to join, and the first step's connector must be put back. */
+  .primitiv-stepper__list[data-orientation="vertical"] .primitiv-stepper__step:first-child::before,
+  .primitiv-stepper__list[data-orientation="vertical"] .primitiv-stepper__step:first-child::after {
+    content: "";
+  }
+
+  .primitiv-stepper__list[data-orientation="vertical"] .primitiv-stepper__step:last-child::before,
+  .primitiv-stepper__list[data-orientation="vertical"] .primitiv-stepper__step:last-child::after {
+    content: none;
+  }
+
+  /* And the fill condition inverts with it. The segment still fills when the
+     step BELOW it has been reached — but that step is now the next sibling
+     rather than the owner, so it takes a `:has()` on the following step instead
+     of reading the owner's own attributes. */
+  .primitiv-stepper__list[data-orientation="vertical"]
+    .primitiv-stepper__step:has(+ .primitiv-stepper__step[data-state="active"])::after,
+  .primitiv-stepper__list[data-orientation="vertical"]
+    .primitiv-stepper__step:has(+ .primitiv-stepper__step[data-step-state="complete"])::after,
+  .primitiv-stepper__list[data-orientation="vertical"]
+    .primitiv-stepper__step:has(+ .primitiv-stepper__step[data-step-state="error"])::after {
     transform: scaleY(1);
   }
 
@@ -467,6 +638,19 @@
     cursor: not-allowed;
   }
 
+  /* A reached segment takes the connector's reached colour. Same rule as the
+     rail: complete, error, or the step you are standing on. */
+  .primitiv-stepper__list--compact .primitiv-stepper__step[data-state="active"],
+  .primitiv-stepper__list--compact .primitiv-stepper__step[data-step-state="complete"],
+  .primitiv-stepper__list--compact .primitiv-stepper__step[data-step-state="error"] {
+    background: var(--primitiv-stepper-connector-color-reached);
+  }
+
+  /* An errored step still says so, even with no marker to show it. */
+  .primitiv-stepper__list--compact .primitiv-stepper__step[data-step-state="error"] {
+    background: var(--primitiv-feedback-danger-solid-background);
+  }
+
   /* The active panel fades up on arrival. Only the active one animates — the
      inactive panels stay mounted but hidden, so there is nothing to transition. */
   .primitiv-stepper__panel[data-state="active"] {
@@ -474,14 +658,15 @@
       var(--primitiv-stepper-transition-easing) both;
   }
 
+  /* Fade only — no translate. A vertical slide reads as the panel jumping
+     rather than as motion, especially against a fixed-height panel where the
+     content underneath does not move. */
   @keyframes primitiv-stepper-panel-enter {
     from {
       opacity: 0;
-      transform: translateY(var(--primitiv-space-space-4));
     }
     to {
       opacity: 1;
-      transform: none;
     }
   }
 
@@ -509,11 +694,15 @@ $primitiv-stepper-connector-size: var(--primitiv-stepper-connector-size);
 $primitiv-stepper-connector-color: var(--primitiv-stepper-connector-color);
 $primitiv-stepper-connector-color-reached: var(--primitiv-stepper-connector-color-reached);
 $primitiv-stepper-connector-gap: var(--primitiv-stepper-connector-gap);
+$primitiv-stepper-connector-inset: var(--primitiv-stepper-connector-inset);
+$primitiv-stepper-compact-segment-height: var(--primitiv-stepper-compact-segment-height);
+$primitiv-stepper-compact-gap: var(--primitiv-stepper-compact-gap);
 $primitiv-stepper-marker-background: var(--primitiv-stepper-marker-background);
 $primitiv-stepper-marker-border-color: var(--primitiv-stepper-marker-border-color);
 $primitiv-stepper-marker-border-width: var(--primitiv-stepper-marker-border-width);
 $primitiv-stepper-marker-fg: var(--primitiv-stepper-marker-fg);
 $primitiv-stepper-marker-icon-size: var(--primitiv-stepper-marker-icon-size);
+$primitiv-stepper-mark-size: var(--primitiv-stepper-mark-size);
 $primitiv-stepper-halo-color: var(--primitiv-stepper-halo-color);
 $primitiv-stepper-halo-scale: var(--primitiv-stepper-halo-scale);
 $primitiv-stepper-label-color: var(--primitiv-stepper-label-color);

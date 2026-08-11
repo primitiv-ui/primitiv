@@ -27,6 +27,15 @@
   ],
   "modifiers": [
     {
+      "name": "compact",
+      "default": "false",
+      "description": "Collapses the rail into a progress bar — the same steps, drawn as segments with their markers and labels hidden. For narrow containers, where a labelled rail cannot fit. The steps stay in the DOM, so each panel keeps the `aria-labelledby` pointing at its trigger; swapping the rail out for a hand-rolled bar would break that. Drive it from the consumer side (e.g. `useMediaQuery`), and pair it with your own \"Step N of M\" line — Stepper owns no step data model.",
+      "options": [
+        { "name": "false", "class": "", "description": "The full rail with markers and labels (the default)." },
+        { "name": "true", "class": "primitiv-stepper__list--compact", "description": "Segmented progress bar." }
+      ]
+    },
+    {
       "name": "size",
       "default": "md",
       "description": "Rail size; `data-density` scales each size further.",
@@ -48,11 +57,15 @@
     { "name": "--primitiv-stepper-connector-color", "defaultsTo": "var(--primitiv-border-default)" },
     { "name": "--primitiv-stepper-connector-color-reached", "defaultsTo": "var(--primitiv-action-primary-default)" },
     { "name": "--primitiv-stepper-connector-gap", "defaultsTo": "var(--primitiv-space-space-12)" },
+    { "name": "--primitiv-stepper-connector-inset", "defaultsTo": "var(--primitiv-space-space-4)" },
+    { "name": "--primitiv-stepper-compact-segment-height", "defaultsTo": "var(--primitiv-size-size-4)" },
+    { "name": "--primitiv-stepper-compact-gap", "defaultsTo": "var(--primitiv-space-space-6)" },
     { "name": "--primitiv-stepper-marker-background", "defaultsTo": "var(--primitiv-surface-default)" },
     { "name": "--primitiv-stepper-marker-border-color", "defaultsTo": "var(--primitiv-border-default)" },
     { "name": "--primitiv-stepper-marker-border-width", "defaultsTo": "var(--primitiv-framed-control-border-width)" },
     { "name": "--primitiv-stepper-marker-fg", "defaultsTo": "var(--primitiv-content-muted)" },
     { "name": "--primitiv-stepper-marker-icon-size", "defaultsTo": "var(--primitiv-framed-control-md-icon-size)" },
+    { "name": "--primitiv-stepper-mark-size", "defaultsTo": "var(--primitiv-checkbox-md-mark-size)" },
     { "name": "--primitiv-stepper-halo-color", "defaultsTo": "var(--primitiv-action-primary-soft)" },
     { "name": "--primitiv-stepper-halo-scale", "defaultsTo": "0" },
     { "name": "--primitiv-stepper-label-color", "defaultsTo": "var(--primitiv-content-muted)" },

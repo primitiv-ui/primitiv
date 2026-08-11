@@ -26,7 +26,17 @@ export const stepper = cva("primitiv-stepper", {
 
 export type StepperVariants = VariantProps<typeof stepper>;
 
-export const stepperList = cva("primitiv-stepper__list");
+export const stepperList = cva("primitiv-stepper__list", {
+  variants: {
+    compact: {
+      true: "primitiv-stepper__list--compact",
+      false: "",
+    },
+  },
+  defaultVariants: {
+    compact: false,
+  },
+});
 
 export type StepperListVariants = VariantProps<typeof stepperList>;
 

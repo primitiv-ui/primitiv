@@ -13,13 +13,16 @@
     "update": "pnpm update @primitiv-ui/react @primitiv-ui/icons primitiv-ui && pnpm exec primitiv add --all --force && pnpm exec primitiv tokens"
   },
   "dependencies": {
+    "@hookform/resolvers": "^5.7.1",
     "@primitiv-ui/icons": "^0.1.28",
     "@primitiv-ui/react": "^0.1.0",
     "class-variance-authority": "^0.7.1",
     "prism-react-renderer": "^2.4.0",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
-    "react-router-dom": "^7.14.1"
+    "react-hook-form": "^7.85.0",
+    "react-router-dom": "^7.14.1",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@eslint/js": "^9.13.0",
@@ -28,10 +31,10 @@
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.1",
+    "esbuild": "^0.27.7",
     "eslint": "^9.13.0",
     "eslint-plugin-react-hooks": "^5.0.0",
     "eslint-plugin-react-refresh": "^0.4.14",
-    "esbuild": "^0.27.7",
     "globals": "^15.11.0",
     "primitiv-ui": "^0.1.28",
     "typescript": "~6.0.2",

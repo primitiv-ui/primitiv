@@ -556,3 +556,72 @@
   padding: var(--primitiv-space-space-12);
   text-align: center;
 }
+
+/* ── Stepper ──────────────────────────────────────────────────────────────
+ * Demo-only sizing, NOT part of the component. Two things happen here:
+ *
+ * 1. The step bodies are grouped into one column so a vertical rail has a
+ *    second column to sit beside (the component turns its root into a row for
+ *    `orientation="vertical"`; what goes in the right-hand column is the
+ *    consumer's call).
+ * 2. The panels are pinned to a fixed height. Real panels grow with their
+ *    content, but in a demo that makes the Back/Continue pair jump every time
+ *    you change step, which reads as a layout bug rather than a feature. 140px
+ *    is a rung on the size ladder, so no calc is needed to express it —
+ *    `--primitiv-size-size-140` is exactly 8.75rem. */
+.ks-stepper-body {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-inline-size: 0;
+}
+
+.ks-stepper-body .primitiv-stepper__panel {
+  box-sizing: border-box;
+  min-block-size: var(--primitiv-size-size-140);
+}
+
+/* The Back / Continue row is the demo's own composition, not a Stepper part, so
+ * it starts with no padding of its own and sits flush against the panel's padded
+ * edge. Borrowing the panel's INLINE padding lines the buttons up with the
+ * fields above them; reading it from the component's own custom property means
+ * it tracks any theme change to the panel rather than pinning today's value.
+ * No block-end padding — the buttons are the last thing in the column, and the
+ * section's own spacing already carries the gap below them. */
+.ks-stepper-footer {
+  padding-inline: var(--primitiv-stepper-panel-padding-inline);
+}
+
+/* The compact Stepper demo. Constrained to a phone-ish width so the compact
+ * rail is shown in the container it exists for, rather than stretched across a
+ * desktop page where it would read as a stray progress bar. */
+.ks-stepper-compact-demo {
+  /* The breakpoint scale itself, which is what Container's own `size` modifiers
+     resolve to — no invented value. */
+  max-inline-size: var(--primitiv-breakpoint-xs);
+}
+
+/* The "Step N of M" line the consumer owns — Stepper deliberately has no step
+ * data model, so this is app content, not a component part. */
+.ks-stepper-caption {
+  display: flex;
+  flex-direction: column;
+  gap: var(--primitiv-space-space-2);
+  padding-inline: var(--primitiv-stepper-panel-padding-inline);
+  padding-block-start: var(--primitiv-stepper-panel-padding-block);
+}
+
+.ks-stepper-caption > span {
+  color: var(--primitiv-content-muted);
+  font-family: var(--primitiv-body-sm-font-family);
+  font-size: var(--primitiv-body-sm-font-size);
+  line-height: var(--primitiv-body-sm-line-height);
+}
+
+.ks-stepper-caption > strong {
+  color: var(--primitiv-content-primary);
+  font-family: var(--primitiv-heading-h6-font-family);
+  font-size: var(--primitiv-heading-h6-font-size);
+  font-weight: var(--primitiv-heading-h6-font-weight);
+  line-height: var(--primitiv-heading-h6-line-height);
+}

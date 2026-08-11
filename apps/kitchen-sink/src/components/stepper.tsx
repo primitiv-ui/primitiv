@@ -33,9 +33,11 @@ import "../styles/primitiv/stepper/styles.css";
  */
 import { Tabs } from "@primitiv-ui/react";
 import {
+  Children,
   createContext,
   useContext,
   type ComponentPropsWithRef,
+  type ReactNode,
 } from "react";
 import {
   stepper,
@@ -78,22 +80,25 @@ export type StepState = "upcoming" | "complete" | "error";
 
 const StepperStepContext = createContext<StepState>("upcoming");
 
-/** The glyphs a marker swaps in for itself. Inlined rather than pulled from
- *  `@primitiv-ui/icons` so installing Stepper adds no extra package (the same
- *  call `chip` made for its remove control). */
-function CheckGlyph() {
-  return (
-    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-      <path d="M21.057 5.904 10.05 19.111 2.939 12 4 10.94l5.95 5.949 9.954-11.946z" />
-    </svg>
-  );
+/** The completed tick. NOT an icon: it is Checkbox's mark, drawn the same way
+ *  (a `currentColor` box behind a clip-path) and sized from Checkbox's own
+ *  token, so a completed step and a ticked checkbox carry exactly the same
+ *  stroke weight at every size and density. An icon glyph could only ever
+ *  approximate that, because its stroke weight is fixed in the path. */
+function CheckMark() {
+  return <span className="primitiv-stepper__marker-mark" aria-hidden="true" />;
 }
 
-function WarningGlyph() {
+function ErrorMark() {
   return (
-    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-      <path d="M23.311 20.75H.688L12 1.52zm-20-1.5H20.69L12 4.479z" />
-      <path d="M11.25 8.25h1.5v6.5h-1.5zm0 7.5h1.5v2.5h-1.5z" />
+    <svg
+      className="primitiv-stepper__marker-error"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      aria-hidden="true"
+    >
+      <rect x="10.2" y="3.6" width="3.6" height="10.6" rx="1.8" />
+      <circle cx="12" cy="18.6" r="2" />
     </svg>
   );
 }
@@ -170,7 +175,24 @@ export function Stepper({
   );
 }
 
-export type StepperListProps = ComponentPropsWithRef<typeof Tabs.List>;
+export type StepperListProps = ComponentPropsWithRef<typeof Tabs.List> & {
+  /**
+   * Collapse the rail into a progress bar — the same steps, drawn as segments
+   * with their markers and labels hidden. For narrow containers, where a
+   * labelled rail cannot fit.
+   *
+   * Deliberately a presentation of the SAME steps rather than different markup:
+   * the triggers stay mounted, so every {@link StepperPanel} keeps its
+   * `aria-labelledby` pointing at a real trigger. Swapping the rail out for a
+   * hand-rolled bar at narrow widths breaks that reference on exactly the
+   * viewport where it is least likely to be noticed.
+   *
+   * Stepper owns no step data model, so pair it with your own "Step N of M"
+   * line — you already have the index.
+   * @default false
+   */
+  compact?: boolean;
+};
 
 /**
  * The rail — a `Tabs.List` rendering `<div role="tablist">`, laid out as equal
@@ -189,10 +211,22 @@ export type StepperListProps = ComponentPropsWithRef<typeof Tabs.List>;
  * </StepperList>
  * ```
  *
+ * @example Collapsing to a progress bar on narrow screens
+ * ```tsx
+ * const isNarrow = useMediaQuery("(max-width: 40rem)");
+ * <StepperList label="Sign-up progress" compact={isNarrow}>…</StepperList>
+ * ```
+ *
  * @see {@link StepperStep} for one entry.
  */
-export function StepperList({ className, ...props }: StepperListProps) {
-  return <Tabs.List className={cx(stepperList(), className)} {...props} />;
+export function StepperList({
+  compact = false,
+  className,
+  ...props
+}: StepperListProps) {
+  return (
+    <Tabs.List className={cx(stepperList({ compact }), className)} {...props} />
+  );
 }
 
 export type StepperStepProps = ComponentPropsWithRef<typeof Tabs.Trigger> & {
@@ -267,6 +301,25 @@ export function StepperStep({
   );
 }
 
+/**
+ * `text-box-trim` is only honoured on the element that directly wraps the text
+ * node, never on a flex container — and the marker is a flex box that also holds
+ * the tick / warning SVGs. So the step number gets its own span, exactly as
+ * `TabsTrigger` wraps its label. Without the trim the marker centres the font's
+ * full line box rather than the digit, and Khand's asymmetric ascender/descender
+ * metrics make that visibly off-centre inside a circle.
+ */
+function wrapStepperMarkerTextNodes(children: ReactNode): ReactNode {
+  const mapped = Children.map(children, (child) =>
+    typeof child === "string" || typeof child === "number" ? (
+      <span className="primitiv-stepper__marker-number">{child}</span>
+    ) : (
+      child
+    ),
+  );
+  return Array.isArray(mapped) && mapped.length === 1 ? mapped[0] : mapped;
+}
+
 export type StepperMarkerProps = ComponentPropsWithRef<"span">;
 
 /**
@@ -296,11 +349,11 @@ export function StepperMarker({
   return (
     <span className={cx(stepperMarker(), className)} {...props}>
       {state === "complete" ? (
-        <CheckGlyph />
+        <CheckMark />
       ) : state === "error" ? (
-        <WarningGlyph />
+        <ErrorMark />
       ) : (
-        children
+        wrapStepperMarkerTextNodes(children)
       )}
     </span>
   );

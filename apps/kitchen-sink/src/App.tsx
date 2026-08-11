@@ -280,6 +280,10 @@ import cardPhoto5 from "./assets/carousel-photos/photo-5.jpg";
 import cardPhoto6 from "./assets/carousel-photos/photo-6.jpg";
 import { useChrome } from "./chrome";
 import "./App.css";
+import { useMediaQuery } from "@primitiv-ui/react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Controller, useForm } from "react-hook-form";
+import * as z from "zod";
 import "./demos.css";
 
 /* Simplified, monochrome framework marks for the Segmented Control demo. They
@@ -514,58 +518,140 @@ function Section({
 }
 
 /**
- * A real four-step sign-up wizard — the demo Stepper exists for.
+ * A real four-step sign-up wizard, driven by react-hook-form.
  *
- * Everything the rail shows is derived from two pieces of state: which step is
- * current (the Stepper's own value) and which steps have been completed. A step
- * is `complete` once it has been left behind, `error` if it failed validation,
- * and `disabled` until it has been reached — so the guard against jumping ahead
- * is a Tabs prop rather than logic of Stepper's own.
+ * The form library is what makes the Stepper's own states honest here: RHF owns
+ * validation, so `state="error"` on a step and the error text under a field come
+ * from ONE source (`formState.errors`) rather than being asserted twice, and
+ * Continue advances only when the current step's fields actually validate.
+ *
+ * Note what Stepper does NOT know: there is no react-hook-form in the component.
+ * `state` and `disabled` are plain props, which is exactly why this works the
+ * same with RHF, Formik or a bare useState.
  */
+const wizardSchema = z.object({
+  email: z
+    .string()
+    .min(1, "An email address is required.")
+    // z.email() is Zod 4's top-level string format. Piped rather than used
+    // alone so "required" and "malformed" say different things.
+    .pipe(z.email("That does not look like an email address.")),
+  displayName: z
+    .string()
+    .min(3, "At least three characters.")
+    // Stands in for a server-side uniqueness check.
+    .refine(
+      (value) => value.trim().toLowerCase() !== "ada",
+      "That display name is taken — try another.",
+    ),
+  plan: z.enum(["starter", "team"], "Choose a plan."),
+});
+
+type WizardValues = z.infer<typeof wizardSchema>;
+
+const WIZARD_STEPS = ["account", "profile", "plan", "review"] as const;
+type WizardStep = (typeof WIZARD_STEPS)[number];
+
+/** Which fields each step owns — the unit `trigger()` validates before letting
+ *  you move on, and the set a step reports an error for. */
+const STEP_FIELDS: Record<WizardStep, (keyof WizardValues)[]> = {
+  account: ["email"],
+  profile: ["displayName"],
+  plan: ["plan"],
+  review: [],
+};
+
+/** The same schema sliced per step, so "is this step valid right now" is one
+ *  `safeParse` rather than a hand-rolled reading of touched/dirty state. That is
+ *  what lets Continue be disabled rather than merely refusing to advance. */
+const STEP_SCHEMAS: Record<WizardStep, z.ZodTypeAny> = {
+  account: wizardSchema.pick({ email: true }),
+  profile: wizardSchema.pick({ displayName: true }),
+  plan: wizardSchema.pick({ plan: true }),
+  review: z.object({}),
+};
+
+const WIZARD_LABELS: Record<
+  WizardStep,
+  { title: string; description: string }
+> = {
+  account: { title: "Account", description: "Email and password" },
+  profile: { title: "Profile", description: "Tell us about you" },
+  plan: { title: "Plan", description: "Pick a tier" },
+  review: { title: "Review", description: "Confirm and finish" },
+};
+
 function SignUpWizard({
   size,
+  orientation = "horizontal",
+  compact = false,
 }: {
   size: "xs" | "sm" | "md" | "lg" | "xl";
+  orientation?: "horizontal" | "vertical";
+  compact?: boolean;
 }) {
-  const steps = ["account", "profile", "plan", "review"] as const;
-  type Step = (typeof steps)[number];
-
-  const [step, setStep] = useState<Step>("account");
+  const [step, setStep] = useState<WizardStep>("account");
   const [furthest, setFurthest] = useState(0);
-  const [displayName, setDisplayName] = useState("ada");
-  const [plan, setPlan] = useState("team");
-  const [submitted, setSubmitted] = useState(false);
+  const [submitted, setSubmitted] = useState<WizardValues | null>(null);
 
-  const index = steps.indexOf(step);
-  // The one deliberately invalid field, so the error marker has a real cause.
-  const nameTaken = submitted && displayName.trim().toLowerCase() === "ada";
+  const {
+    register,
+    control,
+    handleSubmit,
+    trigger,
+    watch,
+    formState: { errors, isSubmitting },
+  } = useForm<WizardValues>({
+    resolver: zodResolver(wizardSchema),
+    // "all" validates on both change and blur, so `errors` tracks the form
+    // continuously — which is what keeps the Continue button's disabled state
+    // honest instead of lagging a keystroke behind.
+    mode: "all",
+    defaultValues: { email: "", displayName: "", plan: "team" },
+  });
 
-  const go = (next: number) => {
-    const clamped = Math.min(Math.max(next, 0), steps.length - 1);
+  const index = WIZARD_STEPS.indexOf(step);
+  const isLast = index === WIZARD_STEPS.length - 1;
+
+  // Parse the live values against this step's slice. Deliberately not
+  // `formState.isValid`, which answers for the WHOLE form — on step 1 that is
+  // false because later steps are still empty, and Continue would never enable.
+  const values = watch();
+  const stepValid = STEP_SCHEMAS[step].safeParse(values).success;
+
+  const goTo = (next: number) => {
+    const clamped = Math.min(Math.max(next, 0), WIZARD_STEPS.length - 1);
     setFurthest((f) => Math.max(f, clamped));
-    setStep(steps[clamped]);
+    setStep(WIZARD_STEPS[clamped]);
+  };
+
+  // Continue validates only the current step's fields. A failure leaves you put,
+  // and the step's marker turns to the error state via `errors` below.
+  const continueToNext = async () => {
+    const valid = await trigger(STEP_FIELDS[step], { shouldFocus: true });
+    if (valid) goTo(index + 1);
+  };
+
+  const onSubmit = async (values: WizardValues) => {
+    await new Promise((resolve) => setTimeout(resolve, 600));
+    setSubmitted(values);
   };
 
   const stepState = (i: number) => {
-    if (i === 1 && nameTaken) return "error" as const;
+    const fields = STEP_FIELDS[WIZARD_STEPS[i]];
+    if (fields.some((field) => errors[field])) return "error" as const;
     return i < furthest ? ("complete" as const) : ("upcoming" as const);
-  };
-
-  const labels: Record<Step, { title: string; description: string }> = {
-    account: { title: "Account", description: "Email and password" },
-    profile: { title: "Profile", description: "Tell us about you" },
-    plan: { title: "Plan", description: "Pick a tier" },
-    review: { title: "Review", description: "Confirm and finish" },
   };
 
   return (
     <Stepper
       value={step}
-      onValueChange={(value) => setStep(value as Step)}
+      onValueChange={(value) => setStep(value as WizardStep)}
       size={size}
+      orientation={orientation}
     >
-      <StepperList label="Sign-up progress">
-        {steps.map((value, i) => (
+      <StepperList label="Sign-up progress" compact={compact}>
+        {WIZARD_STEPS.map((value, i) => (
           <StepperStep
             key={value}
             value={value}
@@ -573,95 +659,154 @@ function SignUpWizard({
             disabled={i > furthest}
           >
             <StepperMarker>{i + 1}</StepperMarker>
-            <StepperLabel>{labels[value].title}</StepperLabel>
+            <StepperLabel>{WIZARD_LABELS[value].title}</StepperLabel>
             <StepperDescription>
-              {labels[value].description}
+              {WIZARD_LABELS[value].description}
             </StepperDescription>
           </StepperStep>
         ))}
       </StepperList>
 
-      <StepperPanel value="account">
-        <Field size={size}>
-          <FieldLabel>Email</FieldLabel>
-          <Input type="email" size={size} placeholder="you@example.com" />
-          <FieldDescription>We won't share it.</FieldDescription>
-        </Field>
-      </StepperPanel>
+      {/* Compact hides the markers and labels, so the step's name has to come
+        from somewhere — and it is the consumer's to write, because Stepper owns
+        no step data model. The index and the count are already here. */}
+      {compact ? (
+        <div className="ks-stepper-caption">
+          <span>
+            Step {index + 1} of {WIZARD_STEPS.length}
+          </span>
+          <strong>{WIZARD_LABELS[step].title}</strong>
+        </div>
+      ) : null}
 
-      <StepperPanel value="profile">
-        <Field size={size}>
-          <FieldLabel>Display name</FieldLabel>
-          <Input
-            type="text"
-            size={size}
-            value={displayName}
-            onChange={(event) => setDisplayName(event.target.value)}
-            aria-invalid={nameTaken || undefined}
-          />
-          {nameTaken ? (
-            <FieldErrorText>
-              That display name is taken — try another.
-            </FieldErrorText>
+      {/* A vertical rule between the rail and the step bodies — only in the
+        vertical variant, where they sit side by side in the same row. The
+        Divider self-stretches (align-self: stretch), so it spans whichever of
+        the two columns is taller without being told a height. */}
+      {orientation === "vertical" ? <Divider orientation="vertical" /> : null}
+      <div className="ks-stepper-body">
+        <StepperPanel value="account">
+          {/* `invalid` on the Field is what makes FieldErrorText render at all —
+            it returns null without it — and the Field then supplies aria-invalid
+            to the Input through context, so the Input needs nothing itself. */}
+          <Field size={size} invalid={!!errors.email}>
+            <FieldLabel>Email</FieldLabel>
+            <Input
+              type="email"
+              size={size}
+              placeholder="you@example.com"
+              {...register("email")}
+            />
+            {errors.email ? (
+              <FieldErrorText>{errors.email.message}</FieldErrorText>
+            ) : (
+              <FieldDescription>We won't share it.</FieldDescription>
+            )}
+          </Field>
+        </StepperPanel>
+
+        <StepperPanel value="profile">
+          <Field size={size} invalid={!!errors.displayName}>
+            <FieldLabel>Display name</FieldLabel>
+            <Input type="text" size={size} {...register("displayName")} />
+            {errors.displayName ? (
+              <FieldErrorText>{errors.displayName.message}</FieldErrorText>
+            ) : (
+              <FieldDescription>
+                Letters, numbers and hyphens only.
+              </FieldDescription>
+            )}
+          </Field>
+        </StepperPanel>
+
+        <StepperPanel value="plan">
+          {/* RadioCard is controlled (value + onValueChange), so it needs
+            Controller rather than register — the same seam any controlled
+            registry component sits behind. Wrapped in a Field so its error has
+            somewhere to render: a bare FieldErrorText throws outside one. */}
+          <Field size={size} invalid={!!errors.plan}>
+            <FieldLabel>Plan</FieldLabel>
+            <Controller
+              control={control}
+              name="plan"
+              render={({ field }) => (
+                <RadioCard
+                  value={field.value}
+                  onValueChange={field.onChange}
+                  aria-label="Plan"
+                >
+                  <Stack direction="row" gap="sm" align="stretch">
+                    <RadioCardItem
+                      size={size}
+                      value="starter"
+                      title="Starter"
+                      description="Everything one person needs."
+                      style={{ flex: "1 1 0" }}
+                    />
+                    <RadioCardItem
+                      size={size}
+                      value="team"
+                      title="Team"
+                      description="Shared workspaces and roles."
+                      style={{ flex: "1 1 0" }}
+                    />
+                  </Stack>
+                </RadioCard>
+              )}
+            />
+            <FieldErrorText>{errors.plan?.message}</FieldErrorText>
+          </Field>
+        </StepperPanel>
+
+        <StepperPanel value="review">
+          {submitted ? (
+            <p>
+              Account created for <strong>{submitted.displayName}</strong> on
+              the <strong>{submitted.plan}</strong> plan.
+            </p>
           ) : (
-            <FieldDescription>
-              Letters, numbers and hyphens only.
-            </FieldDescription>
+            <p>
+              Signing up <strong>{watch("email") || "—"}</strong> as{" "}
+              <strong>{watch("displayName") || "—"}</strong> on the{" "}
+              <strong>{watch("plan")}</strong> plan.
+            </p>
           )}
-        </Field>
-      </StepperPanel>
+        </StepperPanel>
 
-      <StepperPanel value="plan">
-        <RadioCard value={plan} onValueChange={setPlan} aria-label="Plan">
-          <Stack direction="row" gap="sm" align="stretch">
-            <RadioCardItem
-              size={size}
-              value="starter"
-              title="Starter"
-              description="Everything one person needs."
-              style={{ flex: "1 1 0" }}
-            />
-            <RadioCardItem
-              size={size}
-              value="team"
-              title="Team"
-              description="Shared workspaces and roles."
-              style={{ flex: "1 1 0" }}
-            />
-          </Stack>
-        </RadioCard>
-      </StepperPanel>
-
-      <StepperPanel value="review">
-        <p>
-          Signing up as <strong>{displayName}</strong> on the{" "}
-          <strong>{plan}</strong> plan.
-        </p>
-      </StepperPanel>
-
-      <Stack direction="row" gap="sm" align="center">
-        <Button
-          variant="secondary"
-          size={size}
-          disabled={index === 0}
-          onClick={() => go(index - 1)}
+        <Stack
+          direction="row"
+          gap="sm"
+          align="center"
+          justify="end"
+          className="ks-stepper-footer"
         >
-          Back
-        </Button>
-        <Button
-          size={size}
-          onClick={() => {
-            if (step === "profile") {
-              setSubmitted(true);
-              if (displayName.trim().toLowerCase() === "ada") return;
+          <Button
+            variant="secondary"
+            size={size}
+            disabled={index === 0 || isSubmitting}
+            onClick={() => goTo(index - 1)}
+          >
+            Back
+          </Button>
+          <Button
+            size={size}
+            disabled={
+              isSubmitting || !stepValid || (isLast && submitted !== null)
             }
-            if (index === steps.length - 1) return;
-            go(index + 1);
-          }}
-        >
-          {index === steps.length - 1 ? "Create account" : "Continue"}
-        </Button>
-      </Stack>
+            onClick={
+              isLast ? handleSubmit(onSubmit) : () => void continueToNext()
+            }
+          >
+            {isLast
+              ? isSubmitting
+                ? "Creating account..."
+                : submitted
+                  ? "Account created"
+                  : "Create account"
+              : "Continue"}
+          </Button>
+        </Stack>
+      </div>
     </Stepper>
   );
 }
@@ -675,7 +820,18 @@ function SignUpWizard({
 // entry, so it never appears there) — it's this nav's own addition, grouping
 // it with the intro article it's a sibling of.
 const PAGE_TOC: { category: string; titles: string[] }[] = [
-  { category: "Layout", titles: ["Divider", "Layout Primitives"] },
+  {
+    category: "Layout",
+    titles: [
+      "Aspect Ratio",
+      "Box",
+      "Center",
+      "Container",
+      "Divider",
+      "Grid",
+      "Stack & Spacer",
+    ],
+  },
   { category: "Buttons", titles: ["Button", "Split Button"] },
   {
     category: "Forms",
@@ -721,6 +877,7 @@ const PAGE_TOC: { category: string; titles: string[] }[] = [
       "Breadcrumb Overflow",
       "Collapsible",
       "Pagination",
+      "Stepper",
       "Tabs",
     ],
   },
@@ -1280,6 +1437,13 @@ export function App(): ReactElement {
   // ChromeProvider); this page only needs `size`, which it threads as a prop to
   // the components that expose a size axis.
   const { size } = useChrome();
+  // Drives the Stepper compact demo. useMediaQuery watches the VIEWPORT, so on
+  // a wide screen a narrow demo box would still get the full rail — hence the
+  // explicit toggle beside it, so the compact presentation is visible without
+  // resizing the window. Either source flips the same boolean, which is the
+  // point: `compact` is a plain prop and the consumer decides what drives it.
+  const isNarrow = useMediaQuery("(max-width: 40rem)");
+  const [forceCompactStepper, setForceCompactStepper] = useState(true);
   // Popover and Modal panels have no `xs` size (they start at `sm`), so clamp the
   // shared control's `xs` down to `sm` for those overlay surfaces.
   const overlaySize = size === "xs" ? "sm" : size;
@@ -2751,7 +2915,7 @@ export function ramp(hue: number, chroma = 0.12) {
           so this demo gives it a one-off border via a plain style prop to
           show it holds one); Stack arranges a toolbar; Spacer pushes the
           trailing group to the far edge. */}
-        <Section title="Layout Primitives" column>
+        <Section title="Box" column>
           <p>
             <code>Box</code> is the escape hatch — a bare element with no visual
             opinion of its own, so this one carries a one-off inline style:
@@ -2759,6 +2923,9 @@ export function ramp(hue: number, chroma = 0.12) {
           <Box className="ks-demo-frame ks-demo-frame--dashed">
             A plain Box, styled inline — no built-in look of its own.
           </Box>
+        </Section>
+
+        <Section title="Stack & Spacer" column>
           <p>
             <code>Stack</code> arranges a toolbar row; <code>Spacer</code>{" "}
             pushes the trailing group to the far edge:
@@ -2784,6 +2951,9 @@ export function ramp(hue: number, chroma = 0.12) {
             </Button>
             <Button size={size}>Publish</Button>
           </Stack>
+        </Section>
+
+        <Section title="Center" column>
           <p>
             <code>Center</code> centres content along one or both axes — this
             one needs an explicit block-size for vertical centring to have room
@@ -2792,6 +2962,9 @@ export function ramp(hue: number, chroma = 0.12) {
           <Center className="ks-demo-frame ks-demo-frame--tall">
             <Button size={size}>Centred both axes</Button>
           </Center>
+        </Section>
+
+        <Section title="Aspect Ratio" column>
           <p>
             <code>AspectRatio</code> constrains its content to a ratio via CSS{" "}
             <code>aspect-ratio</code> — no padding-bottom hack:
@@ -2821,6 +2994,9 @@ export function ramp(hue: number, chroma = 0.12) {
               />
             </AspectRatio>
           </Box>
+        </Section>
+
+        <Section title="Container" column>
           <p>
             <code>Container</code> caps a content column and centres it in
             whatever space is left. Both of these sit in the same full-width
@@ -2844,6 +3020,9 @@ export function ramp(hue: number, chroma = 0.12) {
               </p>
             </Container>
           </Box>
+        </Section>
+
+        <Section title="Grid" column>
           <p>
             <code>Grid</code> takes a per-breakpoint column map, resolved to
             modifier classes rather than inline styles — so this reflows with
@@ -3615,11 +3794,10 @@ export function ramp(hue: number, chroma = 0.12) {
             A compound, not one prop-heavy component: compose{" "}
             <InlineCode size={size}>PaginationList</InlineCode> /{" "}
             <InlineCode size={size}>PaginationItem</InlineCode> and the cell
-            parts, while{" "}
-            <InlineCode size={size}>usePagination()</InlineCode> owns the page
-            state and the which-pages-collapse arithmetic — so the hook works
-            against any data source and this row knows nothing about where the
-            pages came from. Every cell is a real Button and the
+            parts, while <InlineCode size={size}>usePagination()</InlineCode>{" "}
+            owns the page state and the which-pages-collapse arithmetic — so the
+            hook works against any data source and this row knows nothing about
+            where the pages came from. Every cell is a real Button and the
             overflow menu a real Dropdown, so Pagination adds no keyboard model
             of its own. Cells are square by{" "}
             <InlineCode size={size}>min-inline-size</InlineCode> — prev/next
@@ -4336,28 +4514,36 @@ export function ramp(hue: number, chroma = 0.12) {
           </Tabs>
         </Section>
 
+        {/* Two real wizards rather than a rail specimen — the panels and the
+          Back/Continue pair are what make the rail mean anything. The panels are
+          pinned to a fixed height HERE ONLY (see .ks-stepper-body in App.css):
+          a demo whose height jumps between steps reads as a layout bug. */}
         <Section title="Stepper" column>
           <SignUpWizard size={size} />
-          <Stepper defaultValue="two" orientation="vertical" size={size}>
-            <StepperList label="Vertical rail">
-              <StepperStep value="one" state="complete">
-                <StepperMarker>1</StepperMarker>
-                <StepperLabel>Account</StepperLabel>
-              </StepperStep>
-              <StepperStep value="two">
-                <StepperMarker>2</StepperMarker>
-                <StepperLabel>Profile</StepperLabel>
-              </StepperStep>
-              <StepperStep value="three" state="error">
-                <StepperMarker>3</StepperMarker>
-                <StepperLabel>Payment</StepperLabel>
-              </StepperStep>
-              <StepperStep value="four" disabled>
-                <StepperMarker>4</StepperMarker>
-                <StepperLabel>Review</StepperLabel>
-              </StepperStep>
-            </StepperList>
-          </Stepper>
+          <Divider />
+          <SignUpWizard size={size} orientation="vertical" />
+          {/* The compact rail. `compact` is a presentation of the SAME steps —
+            the triggers stay mounted, so each panel keeps its aria-labelledby —
+            and the decision to use it stays with the consumer. Two sources are
+            wired here on purpose: a viewport media query, and a manual toggle so
+            the presentation is visible without resizing the window. */}
+          {/* Uncontrolled: Switch owns its own checked state by design
+            (`checked` is typed `never` — see its README), so the demo mirrors
+            the change out rather than driving it in. */}
+          <Divider />
+          <Switch
+            size={size}
+            defaultChecked
+            onCheckedChange={setForceCompactStepper}
+          >
+            Compact rail
+          </Switch>
+          <div className="ks-stepper-compact-demo">
+            <SignUpWizard
+              size={size}
+              compact={isNarrow || forceCompactStepper}
+            />
+          </div>
         </Section>
 
         <Section title="Toggle Group">

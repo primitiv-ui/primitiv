@@ -94,6 +94,12 @@
        Tabs' file-tab header). An explicit 100% makes the width definite so
        stretch always wins. */
     inline-size: 100%;
+    /* Pairs with the 100% above: with the default content-box the two 1px
+       borders sit OUTSIDE that 100%, so the block measured 2px wider than its
+       container and overflowed it (caught by an overflow audit of the
+       kitchen-sink page — 962 in a 960 column). Any `inline-size: 100%` on a
+       bordered box needs this. */
+    box-sizing: border-box;
     background: var(--primitiv-code-block-background);
     color: var(--primitiv-code-block-color);
     border: var(--primitiv-code-block-border-width) solid var(--primitiv-code-block-border-color);

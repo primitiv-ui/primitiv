@@ -1,0 +1,222 @@
+# DataTable
+
+A framed data-table shell — a toolbar, a table and a footer that read as one
+object, plus the anatomy that sorting, selection and expandable rows need.
+
+**It owns anatomy, never state.** Sorting, selection, expansion, filtering and
+pagination all arrive as props and leave as callbacks, so an external table
+engine drives it without this component duplicating a single concept. There is
+no `columns` / `data` API on purpose — see [Why no data model](#why-no-data-model).
+
+```sh
+primitiv add data-table
+```
+
+## Usage with TanStack Table
+
+```tsx
+const table = useReactTable({
+  data,
+  columns,
+  state: { sorting, rowSelection, expanded, columnVisibility, pagination },
+  getCoreRowModel: getCoreRowModel(),
+  getSortedRowModel: getSortedRowModel(),
+  getFilteredRowModel: getFilteredRowModel(),
+  getPaginationRowModel: getPaginationRowModel(),
+});
+
+<DataTable size="md">
+  <DataTableToolbar>
+    <DataTableRegion align="start">
+      <Input value={filter} onChange={…} placeholder="Filter deployments..." />
+    </DataTableRegion>
+    <DataTableRegion align="end">{/* your field menu */}</DataTableRegion>
+  </DataTableToolbar>
+
+  <TableScrollArea>
+    <Table>
+      <TableHead>
+        <TableRow>
+          <DataTableControlCell header>
+            <Checkbox
+              checked={table.getIsAllPageRowsSelected()}
+              indeterminate={table.getIsSomePageRowsSelected()}
+              onChange={table.getToggleAllPageRowsSelectedHandler()}
+              aria-label="Select all rows"
+            />
+          </DataTableControlCell>
+          <DataTableControlCell header />
+          {headers.map((header) => (
+            <DataTableSortHeader
+              key={header.id}
+              direction={header.column.getIsSorted() || "none"}
+              onSort={header.column.getToggleSortingHandler()}
+            >
+              {header.label}
+            </DataTableSortHeader>
+          ))}
+        </TableRow>
+      </TableHead>
+
+      <TableBody>
+        {table.getRowModel().rows.map((row) => (
+          <Table.Expandable
+            key={row.id}
+            expanded={row.getIsExpanded()}
+            onExpandedChange={row.getToggleExpandedHandler()}
+          >
+            <TableRow aria-selected={row.getIsSelected()}>
+              <DataTableControlCell>
+                <Checkbox
+                  checked={row.getIsSelected()}
+                  onChange={row.getToggleSelectedHandler()}
+                  aria-label={`Select ${row.original.name}`}
+                />
+              </DataTableControlCell>
+              <DataTableControlCell>
+                <DataTableExpandTrigger aria-label={`Show details for ${row.original.name}`} />
+              </DataTableControlCell>
+              {/* your cells */}
+            </TableRow>
+
+            <DataTableDetailRow
+              colSpan={table.getVisibleLeafColumns().length + 2}
+              forceMount
+            >
+              <DeploymentDetail row={row.original} />
+            </DataTableDetailRow>
+          </Table.Expandable>
+        ))}
+      </TableBody>
+    </Table>
+  </TableScrollArea>
+
+  <DataTableFooter>
+    <DataTableRegion align="start">{selectedSummary}</DataTableRegion>
+    <DataTableRegion align="end">
+      <Pagination label="Pages" size="sm">
+        <PaginationSummary>Page {pageIndex + 1} of {table.getPageCount()}</PaginationSummary>
+        <PaginationList>
+          <PaginationItem>
+            <PaginationPrevious disabled={!table.getCanPreviousPage()} onClick={() => table.previousPage()} />
+          </PaginationItem>
+          {/* one PaginationItem + PaginationLink per page in your window */}
+          <PaginationItem>
+            <PaginationNext disabled={!table.getCanNextPage()} onClick={() => table.nextPage()} />
+          </PaginationItem>
+        </PaginationList>
+      </Pagination>
+    </DataTableRegion>
+  </DataTableFooter>
+</DataTable>
+```
+
+Nothing above is TanStack-specific beyond the handler names — a plain `useState`
+drives the same props.
+
+## Parts
+
+| Export | Renders | Notes |
+| --- | --- | --- |
+| `DataTable` | `<div>` | The framed shell. `size`, `frame`, `sticky`. |
+| `DataTableToolbar` | `<div>` | The padded bar above the table. |
+| `DataTableFooter` | `<div>` | The padded bar below it — identical mechanism. |
+| `DataTableRegion` | `<div>` | One of the bar's three regions: `align="start" \| "center" \| "end"`. |
+| `DataTableControlCell` | `<td>` / `<th>` | Square cell for a control. `header` renders a `<th>`. |
+| `DataTableSortHeader` | `<th>` + `<button>` | A sortable column header, `aria-sort` included. Prefer this. |
+| `DataTableSortButton` | `<button>` | The sort control alone, if you are assembling the `<th>` yourself. |
+| `DataTableExpandTrigger` | `<button>` | The row's disclosure. Composes headless `Table.ExpandTrigger`. |
+| `DataTableDetailRow` | `<tr>` | The revealed panel. Composes headless `Table.DetailRow`. |
+
+The table itself is the `table` component's job — `Table`, `TableHead`,
+`TableRow`, `TableHeader`, `TableCell`. This component never restyles it.
+
+## The detail row's indent
+
+The panel aligns with the first **data** column, not the table's edge — a
+full-bleed panel starting under the checkbox reads as a new section of the table
+rather than an opened row. Only you know which control columns exist, so the
+indent is a knob rather than a guess:
+
+```css
+.deployments {
+  /* two control columns: each is (2 × table/cell/padding-block) + its control,
+     plus the first data cell's own inline padding */
+  --primitiv-data-table-detail-indent: calc(
+    2 * (2 * var(--primitiv-table-cell-padding-block) + 1.25rem) +
+      var(--primitiv-table-cell-padding-inline)
+  );
+}
+```
+
+The parent row sheds its own bottom rule automatically while expanded, so the
+row and its panel read as one block closed by the detail row's rule — detected
+with `:has()` rather than asked for with a prop, since the DOM already knows.
+
+## Transitions
+
+Pass `forceMount` to `DataTableDetailRow` and the panel animates open with the
+`display: grid` 0fr↔1fr technique (on a wrapper **inside** the cell — it cannot
+go on a `<tr>` or `<td>` without collapsing column alignment). The chevron
+rotates in lockstep. Both are disabled under `prefers-reduced-motion`.
+
+A force-mounted collapsed row is `aria-hidden`, so animating never inflates the
+table's announced row count.
+
+## Sticky header
+
+`sticky` pins the header and adds an opaque background — which the base `Table`
+deliberately does not have, so without it rows scroll straight through the
+header. Give the surrounding `TableScrollArea` a `max-block-size` so there is
+something to scroll within. Two details are handled for you: sticky sits on the
+`<th>` (unsupported on `<thead>`/`<tr>` in older Safari), and the header rule
+becomes an inset shadow because `border-collapse` drops a stuck cell's border.
+
+## Why no data model
+
+A `columns` / `data` API is shorter for the demo case and wrong for every case
+after it: it re-invents the column definition every real engine already has, so
+you write your columns twice; it needs a cell-renderer escape hatch within a
+week, which is the parts model wearing a costume; and column groups, `colSpan`,
+footer aggregates, per-row detail and virtualisation are all ordinary JSX here
+and a new prop there. `NavigationMenu` refused to own nav data for the same
+reason (RFC 0019 §4c), as did `avatar-group` and `breadcrumb-overflow`.
+
+It also ships **no toolbar controls**, column visibility included — shipping that
+would mean owning the column list. Compose it from `dropdown`.
+
+## Accessibility
+
+- Every row checkbox needs a name identifying **its row** ("Select harmoni-engine"),
+  and the header's is "Select all rows". A column of identically-named checkboxes
+  is unusable in a screen reader's element list.
+- `aria-selected` on the row is a **styling hook only**; the checkbox's own
+  checked state is what assistive technology reliably reports.
+- `aria-sort` belongs on the `<th>`, one column at a time. `DataTableSortHeader`
+  does it for you.
+- The expander's state lives on the **button**, not the row: a row's
+  `aria-expanded` is only reliably announced inside a `role="treegrid"`.
+- Expanding into hierarchical child **rows** is a treegrid — a different pattern,
+  and out of scope. This is a disclosure holding a detail panel.
+- Add `aria-rowcount` to the table when paginated, or AT announces the page's row
+  count as the whole table's.
+- Give the empty actions/expand header cells a visually-hidden name.
+
+## Files
+
+| File | Purpose |
+| --- | --- |
+| `data-table.tsx` | The wrapper — the parts above. |
+| `data-table.recipe.ts` | `cva` class recipes. |
+| `styles.css` | The default theme (canonical). |
+| `styles.scss` | The same, plus `$`-aliases for every custom property. |
+| `contract.json` | Parts, modifiers and every `--primitiv-data-table-*` knob. |
+
+## Dependencies
+
+Components: `table`, `checkbox`, `button`, `dropdown`, `select`, `pagination`,
+`empty-state`. Packages: `@primitiv-ui/react` (the headless `Table` seam) and
+`class-variance-authority`. Glyphs are inlined, so no icon package is pulled in.
+
+Badges and avatars in cells are content choices — add `badge` / `avatar` if you
+want them.

@@ -1,9 +1,18 @@
-import type { ReactElement } from "react";
+import { useId, useMemo, type ReactElement } from "react";
 
+import { useControllableState } from "../hooks/index.ts";
+import { deriveId } from "../utils/index.ts";
+import {
+  TableExpandableContext,
+  useTableExpandableContext,
+} from "./TableExpandableContext";
 import {
   TableBodyProps,
   TableCaptionProps,
   TableCellProps,
+  TableDetailRowProps,
+  TableExpandableProps,
+  TableExpandTriggerProps,
   TableFooterProps,
   TableHeaderProps,
   TableHeadProps,
@@ -16,10 +25,16 @@ import {
  * The root of a Table widget — renders a plain `<table>` element and passes
  * all `TableHTMLAttributes` through to the DOM.
  *
- * Stateless: `Table` is a purely structural compound with no context, no
- * internal state, and no `data-*` attributes of its own (verified by
- * `Table.contract.test.tsx` against the registry contract) — every part
- * renders exactly what its native HTML element provides.
+ * Structural: every part below renders exactly what its native HTML element
+ * provides, with no context and no `data-*` attributes of its own (verified by
+ * `Table.contract.test.tsx` against the registry contract).
+ *
+ * The one exception is the expandable-row trio —
+ * {@link TableExpandable | `Table.Expandable`},
+ * {@link TableExpandTrigger | `Table.ExpandTrigger`} and
+ * {@link TableDetailRow | `Table.DetailRow`} — which share a context so the
+ * trigger's `aria-controls` can reach the detail row. They are opt-in: a table
+ * that does not use them is still entirely static.
  *
  * The `<table>` element carries an implicit `role="table"` in the accessibility
  * tree. Assistive technology will announce it as a table and report the number
@@ -56,6 +71,10 @@ export function TableRoot({ children, ...rest }: TableRootProps): ReactElement {
 }
 
 /** @internal */
+// `TableRoot` and the exported `Table` compound are the same object
+// (`Object.assign`), and the compound re-assigns this displayName at the bottom
+// of the file — so this assignment is unobservable and any value survives.
+// Stryker disable next-line StringLiteral: equivalent — overwritten by the compound.
 TableRoot.displayName = "Table";
 
 /**
@@ -343,10 +362,133 @@ export function TableCaption({
 TableCaption.displayName = "TableCaption";
 
 /**
+ * Pairs one expandable {@link TableRow | `Table.Row`} with its
+ * {@link TableDetailRow | `Table.DetailRow`}, sharing the id that wires the
+ * trigger's `aria-controls` to the detail row.
+ *
+ * Renders **no DOM of its own** — it is a context provider, so the two `<tr>`
+ * elements stay direct children of the `<tbody>` and the table's structure is
+ * untouched.
+ */
+export function TableExpandable({
+  children,
+  expanded: expandedProp,
+  defaultExpanded = false,
+  onExpandedChange,
+}: TableExpandableProps): ReactElement {
+  const reactId = useId();
+  const [expanded, setExpanded] = useControllableState(
+    expandedProp,
+    defaultExpanded,
+    onExpandedChange,
+  );
+
+  const value = useMemo(
+    () => ({
+      expanded,
+      // The id is opaque: the only contracts are that the trigger's
+      // aria-controls matches the detail row's id, and that two Expandables on
+      // one page differ — both of which `useId` alone guarantees. The suffixes
+      // are for legibility when inspecting the DOM, so emptying them yields an
+      // equally valid id.
+      // Stryker disable next-line StringLiteral: equivalent — see above.
+      detailId: deriveId(reactId, "detail", "row"),
+      toggle: () => setExpanded(!expanded),
+    }),
+    [expanded, reactId, setExpanded],
+  );
+
+  return (
+    <TableExpandableContext.Provider value={value}>
+      {children}
+    </TableExpandableContext.Provider>
+  );
+}
+
+/** @internal */
+TableExpandable.displayName = "TableExpandable";
+
+/**
+ * The disclosure control for an expandable row — renders a `<button>` inside
+ * one of the row's cells.
+ *
+ * The **button** carries the state, not the row. `role="row"` does list
+ * `aria-expanded` among its supported properties, but a button's expanded state
+ * is announced universally while a row's is only reliably announced inside a
+ * `role="treegrid"` — so the button owns `aria-expanded` and `aria-controls`.
+ *
+ * Give it a name that identifies its row ("Show details for Ada Lovelace", or
+ * visually-hidden text beside the glyph). A column of buttons all called
+ * "Expand" is the same defect as a column of checkboxes all called "Select":
+ * obvious on screen, useless in a screen reader's element list.
+ *
+ * @extends HTMLButtonElement
+ */
+export function TableExpandTrigger({
+  children,
+  onClick,
+  ...rest
+}: TableExpandTriggerProps): ReactElement {
+  const { expanded, detailId, toggle } = useTableExpandableContext();
+
+  return (
+    <button
+      type="button"
+      aria-expanded={expanded}
+      aria-controls={detailId}
+      onClick={(event) => {
+        onClick?.(event);
+        toggle();
+      }}
+      {...rest}
+    >
+      {children}
+    </button>
+  );
+}
+
+/** @internal */
+TableExpandTrigger.displayName = "TableExpandTrigger";
+
+/**
+ * The revealed panel for an expandable row — renders a `<tr>` holding a single
+ * `<td colSpan>`.
+ */
+export function TableDetailRow({
+  children,
+  colSpan,
+  forceMount = false,
+  cellProps,
+  ...rest
+}: TableDetailRowProps): ReactElement | null {
+  const { expanded, detailId } = useTableExpandableContext();
+  const collapsed = !expanded;
+
+  return (
+    <tr
+      id={detailId}
+      hidden={collapsed && !forceMount}
+      aria-hidden={collapsed && forceMount ? true : undefined}
+      {...rest}
+    >
+      <td colSpan={colSpan} {...cellProps}>
+        {children}
+      </td>
+    </tr>
+  );
+}
+
+/** @internal */
+TableDetailRow.displayName = "TableDetailRow";
+
+/**
  * The shape of the exported `Table` value — callable as `Table.Root` and
  * carrying every sub-component as a static property.
  */
 export type TableCompound = typeof TableRoot & {
+  Expandable: typeof TableExpandable;
+  ExpandTrigger: typeof TableExpandTrigger;
+  DetailRow: typeof TableDetailRow;
   Root: typeof TableRoot;
   Head: typeof TableHead;
   Body: typeof TableBody;
@@ -423,6 +565,9 @@ export type TableCompound = typeof TableRoot & {
  * @see {@link TableScrollArea} for the horizontal-scroll style caveat.
  */
 const TableCompound: TableCompound = Object.assign(TableRoot, {
+  Expandable: TableExpandable,
+  ExpandTrigger: TableExpandTrigger,
+  DetailRow: TableDetailRow,
   Root: TableRoot,
   Head: TableHead,
   Body: TableBody,

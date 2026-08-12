@@ -91,6 +91,11 @@
 
     display: flex;
     flex-direction: column;
+    /* Never grow past the container: ten columns of table are easily wider than
+       a page's content column, and without this the shell widens instead of
+       letting the scroll area scroll. */
+    max-inline-size: 100%;
+    min-inline-size: 0;
     background-color: var(--primitiv-data-table-background);
     border: var(--primitiv-data-table-border-width) solid var(--primitiv-data-table-border-color);
     border-radius: var(--primitiv-data-table-radius);
@@ -150,11 +155,22 @@
     justify-content: flex-end;
   }
 
-  /* Square control cell — see the header note on why it takes no block padding. */
-  .primitiv-data-table__control-cell {
+  /* Square control cell — see the header note on why it takes no block padding.
+     Qualified with the table's own cell classes so this wins regardless of which
+     stylesheet the bundler emits first (both live in primitiv.base, where source
+     order would otherwise decide). */
+  .primitiv-table__cell.primitiv-data-table__control-cell,
+  .primitiv-table__header.primitiv-data-table__control-cell {
     padding-inline: var(--primitiv-data-table-control-padding-inline);
     padding-block: var(--primitiv-border-width-0);
     text-align: center;
+  }
+
+  /* In the head, match the sort button's block padding: with zero padding the
+     control cell is shorter than its neighbours and the header rule visibly
+     breaks into segments under the control columns. */
+  .primitiv-table__header.primitiv-data-table__control-cell {
+    padding-block: var(--primitiv-table-cell-padding-block);
   }
 
   .primitiv-data-table__control-cell > * {

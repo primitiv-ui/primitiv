@@ -31,7 +31,7 @@
  */
 import { type ComponentPropsWithRef, type ReactElement, type ReactNode } from "react";
 import { Table } from "@primitiv-ui/react";
-import { TableHeader } from "./table";
+import { TableCell, TableHeader } from "./table";
 import {
   dataTable,
   dataTableToolbar,
@@ -129,8 +129,15 @@ export type DataTableControlCellProps = ComponentPropsWithRef<"td"> & {
  * text cells produce.
  */
 export function DataTableControlCell({ header = false, className, ...props }: DataTableControlCellProps): ReactElement {
-  const Element = header ? "th" : "td";
-  return <Element className={cx(dataTableControlCell(), className)} {...props} />;
+  /* Composes the registry Table's own cells rather than emitting a bare th/td.
+     That matters for more than tidiness: the table's rules and the sticky-header
+     rule both target .primitiv-table__header / __cell, so a hand-rolled cell
+     silently opted out of both — the row rule broke into segments under the
+     control columns, and a sticky header left its checkbox cell behind. */
+  if (header) {
+    return <TableHeader scope="col" className={cx(dataTableControlCell(), className)} {...props} />;
+  }
+  return <TableCell className={cx(dataTableControlCell(), className)} {...props} />;
 }
 
 function SortGlyph({ direction }: { direction: SortDirection }): ReactElement {

@@ -12,7 +12,7 @@
  * engine-agnostic, so a v9 migration changes this file's hooks and none of its
  * markup.
  */
-import { useMemo, useState, type ReactElement } from "react";
+import { Fragment, useMemo, useState, type ReactElement } from "react";
 import {
   useReactTable,
   getCoreRowModel,
@@ -105,8 +105,11 @@ function buildDeployments(count: number): Deployment[] {
   let seed = 20260812;
   const next = (max: number) => {
     seed = (seed * 1103515245 + 12345) % 2147483648;
-    return seed % max;
+    /* High bits, not low: an LCG's low-order bits have very short periods, and
+       reading them directly made every commit SHA come out as 0000000. */
+    return Math.floor(seed / 65536) % max;
   };
+  const hex = () => next(16);
   return Array.from({ length: count }, (_, index) => {
     const [author, initials] = AUTHORS[next(AUTHORS.length)];
     const status = STATUSES[next(STATUSES.length)];
@@ -120,7 +123,7 @@ function buildDeployments(count: number): Deployment[] {
       durationSeconds: 14 + next(600),
       commits: 1 + next(180),
       deployedHoursAgo: 1 + next(320),
-      commit: Array.from({ length: 7 }, () => "0123456789abcdef"[next(16)]).join(""),
+      commit: Array.from({ length: 7 }, () => "0123456789abcdef"[hex()]).join(""),
       branch: next(4) === 0 ? `feat/${SERVICES[next(SERVICES.length)]}` : "main",
     };
   });
@@ -160,7 +163,7 @@ const NUMERIC = new Set(["durationSeconds", "commits"]);
 const PAGE_SIZES = [10, 25, 50];
 
 export function DeploymentsTable(): ReactElement {
-  const [size, setSize] = useState<Size>("md");
+  const [size, setSize] = useState<Size>("sm");
   const [density, setDensity] = useState<Density>("comfortable");
   const [sticky, setSticky] = useState(true);
 
@@ -214,7 +217,18 @@ export function DeploymentsTable(): ReactElement {
   }, [pageIndex, pageCount]);
 
   return (
-    <div data-density={density} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+    <div
+      data-density={density}
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        gap: "1rem",
+        /* Without these the table's min-content width widens the whole content
+           column and slides it under the page nav. */
+        minInlineSize: 0,
+        maxInlineSize: "100%",
+      }}
+    >
       {/* Size / density / sticky switchers — proof the whole thing is
           token-driven rather than an assertion that it is. */}
       <div style={{ display: "flex", gap: "0.75rem", alignItems: "end", flexWrap: "wrap" }}>
@@ -237,11 +251,17 @@ export function DeploymentsTable(): ReactElement {
         size={size}
         sticky={sticky}
         style={{
+          maxInlineSize: "100%",
           /* The panel aligns with the first DATA column. Only the consumer knows
-             which control columns exist, so only the consumer can sum them:
-             two square control cells + the first data cell's own inline padding. */
+             which control columns exist, so only the consumer can sum them: two
+             square control cells + the first data cell's own inline padding.
+             KNOWN LIMITATION: the control's own width is a literal here, so this
+             is exact at the default size and drifts a few px at the extremes.
+             The proper fix is for DetailRow to emit empty gutter <td>s matching
+             the control columns and let table layout do the aligning — no
+             arithmetic at all. Logged as follow-up. */
           ["--primitiv-data-table-detail-indent" as string]:
-            "calc(2 * (2 * var(--primitiv-table-cell-padding-block) + 1.25rem) + var(--primitiv-table-cell-padding-inline))",
+            "calc(2 * (2 * var(--primitiv-table-cell-padding-block) + 1rem) + var(--primitiv-table-cell-padding-inline))",
         }}
       >
         <DataTableToolbar>
@@ -261,7 +281,7 @@ export function DeploymentsTable(): ReactElement {
                 composition — data-table ships no toolbar controls, because
                 shipping the field menu would mean owning the column list. */}
             <Dropdown>
-              <DropdownTrigger>
+              <DropdownTrigger asChild>
                 <Button variant="secondary" size={size}>
                   Environment{envFilter.length ? ` (${envFilter.length})` : ""}
                 </Button>
@@ -281,7 +301,7 @@ export function DeploymentsTable(): ReactElement {
             </Dropdown>
 
             <Dropdown>
-              <DropdownTrigger>
+              <DropdownTrigger asChild>
                 <Button variant="secondary" size={size}>
                   Status{statusFilter.length ? ` (${statusFilter.length})` : ""}
                 </Button>
@@ -301,7 +321,7 @@ export function DeploymentsTable(): ReactElement {
             </Dropdown>
 
             <Dropdown>
-              <DropdownTrigger>
+              <DropdownTrigger asChild>
                 <Button variant="secondary" size={size}>
                   Fields
                 </Button>
@@ -421,7 +441,7 @@ export function DeploymentsTable(): ReactElement {
                         }
                         if (column.id === "author") {
                           return (
-                            <TableCell key={key}>
+                            <TableCell key={key} style={{ whiteSpace: "nowrap" }}>
                               <span style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem" }}>
                                 <Avatar size="xs">
                                   <AvatarFallback>{deployment.initials}</AvatarFallback>
@@ -453,7 +473,7 @@ export function DeploymentsTable(): ReactElement {
 
                       <DataTableControlCell>
                         <Dropdown>
-                          <DropdownTrigger>
+                          <DropdownTrigger asChild>
                             <Button
                               variant="ghost"
                               size={size === "xs" ? "xs" : "sm"}
@@ -473,17 +493,15 @@ export function DeploymentsTable(): ReactElement {
                       </DataTableControlCell>
                     </TableRow>
 
-                    {/* forceMount so the panel can animate; the collapsed row is
-                        aria-hidden, so it never inflates the announced row count. */}
-                    <DataTableDetailRow colSpan={detailColSpan} forceMount>
+                    {/* No forceMount: a collapsed row is then `hidden`, i.e.
+                        display:none, so it cannot occupy height. The animated
+                        variant (forceMount + the grid-collapse clip) is still
+                        available on the component and wants a browser check. */}
+                    <DataTableDetailRow colSpan={detailColSpan}>
                       <DescriptionList
                         size={size === "xs" ? "xs" : "sm"}
-                        style={{
-                          display: "grid",
-                          gridTemplateColumns: "repeat(auto-fit, minmax(9rem, max-content))",
-                          gap: "0.75rem 2rem",
-                          margin: 0,
-                        }}
+                        layout="inline"
+                        style={{ margin: 0 }}
                       >
                         {[
                           ["Commit", <code key="c">{deployment.commit}</code>],
@@ -493,13 +511,13 @@ export function DeploymentsTable(): ReactElement {
                           ["Duration", formatDuration(deployment.durationSeconds)],
                           ["Commits in deploy", deployment.commits.toLocaleString()],
                         ].map(([label, value]) => (
-                          <div key={String(label)}>
-                            {/* dt/dd are native children by design: the prose
-                                family styles bare elements, and description-list
-                                exports only its <dl> root. */}
+                          /* dt/dd are native children by design: the prose family
+                             styles bare elements, and description-list exports
+                             only its <dl> root. */
+                          <Fragment key={String(label)}>
                             <dt>{label}</dt>
-                            <dd>{value}</dd>
-                          </div>
+                            <dd style={{ whiteSpace: "nowrap" }}>{value}</dd>
+                          </Fragment>
                         ))}
                       </DescriptionList>
                     </DataTableDetailRow>

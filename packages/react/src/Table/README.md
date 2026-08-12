@@ -53,7 +53,7 @@ import { Table } from "@primitiv-ui/react";
 | `Table.Caption`    | `<caption>` | Visible table label — see [Caption](#caption).                                              |
 | `Table.Expandable` | *nothing*   | Pairs a row with its detail row — see [Expandable rows](#expandable-rows).                   |
 | `Table.ExpandTrigger` | `<button>` | The row's disclosure control; owns `aria-expanded` / `aria-controls`.                     |
-| `Table.DetailRow`  | `<tr>`      | The revealed panel, as a `<td colSpan>`.                                                    |
+| `Table.DetailRow`  | `<tr>`      | The revealed panel, as a `<td colSpan>`. `gutter` offsets it to the first data column.       |
 
 ## Accessible headers
 
@@ -259,6 +259,30 @@ It must cover every column the table renders, control columns included. It is a
 prop rather than a count taken from context on purpose: counting would mean the
 table registering its own columns, and an external engine already knows the
 number (TanStack Table: `table.getVisibleLeafColumns().length`).
+
+### `gutter` aligns the panel with the first data column
+
+A panel that starts at the table's edge, under the checkbox, reads as a new
+section of the table rather than as an opened row. `gutter` is how many leading
+columns to leave empty — the control columns in front of the data:
+
+```tsx
+{/* select + expand columns, then eight data columns */}
+<Table.DetailRow colSpan={10} gutter={2}>
+```
+
+The panel spans what remains, so `colSpan` keeps its meaning: the table's full
+column count, gutter included.
+
+It renders **one** empty `<td colSpan={gutter}>`, not `gutter` of them — a
+spanning cell takes the full width of the columns it covers, so the alignment is
+identical and the row gains a single blank cell instead of several.
+
+Aligning by empty cell rather than by a CSS indent is the point: the browser's
+own table layout resolves the width, so it stays exact across every size,
+density and control-column set. Indenting instead means summing control widths
+and paddings by hand, which is right at one size and wrong at the other four —
+measured drift of 7-21px across xs…xl before this existed.
 
 ### `forceMount` and the row count
 

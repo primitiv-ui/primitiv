@@ -1,6 +1,7 @@
-import { useId, useMemo, type ReactElement } from "react";
+import { useId, useMemo, type MouseEvent, type ReactElement } from "react";
 
 import { useControllableState } from "../hooks/index.ts";
+import { Slot } from "../Slot/index.ts";
 import { deriveId } from "../utils/index.ts";
 import {
   TableExpandableContext,
@@ -426,23 +427,29 @@ TableExpandable.displayName = "TableExpandable";
  */
 export function TableExpandTrigger({
   children,
+  asChild = false,
   onClick,
   ...rest
 }: TableExpandTriggerProps): ReactElement {
   const { expanded, detailId, toggle } = useTableExpandableContext();
 
-  return (
-    <button
-      type="button"
-      aria-expanded={expanded}
-      aria-controls={detailId}
-      data-state={expanded ? "open" : "closed"}
-      onClick={(event) => {
-        onClick?.(event);
-        toggle();
-      }}
-      {...rest}
-    >
+  const wiring = {
+    "aria-expanded": expanded,
+    "aria-controls": detailId,
+    "data-state": expanded ? "open" : "closed",
+    onClick: (event: MouseEvent<HTMLButtonElement>) => {
+      onClick?.(event);
+      toggle();
+    },
+    ...rest,
+  };
+
+  // `type` is set only on the native button: a Slot child may not be a
+  // <button> at all, and `type` on a non-button element is invalid HTML.
+  return asChild ? (
+    <Slot {...wiring}>{children}</Slot>
+  ) : (
+    <button type="button" {...wiring}>
       {children}
     </button>
   );
@@ -452,12 +459,50 @@ export function TableExpandTrigger({
 TableExpandTrigger.displayName = "TableExpandTrigger";
 
 /**
- * The revealed panel for an expandable row — renders a `<tr>` holding a single
- * `<td colSpan>`.
+ * The revealed panel for an expandable row — a `<tr>` holding a `<td colSpan>`,
+ * and the target of its {@link TableExpandTrigger | `Table.ExpandTrigger`}'s
+ * `aria-controls`. Must be rendered inside a
+ * {@link TableExpandable | `Table.Expandable`}, as the sibling of the data row.
+ *
+ * This is a **disclosure**, not a treegrid: the panel holds detail *about* the
+ * row (a summary, a form, a chart), not child rows. Expanding into hierarchical
+ * child rows is a different pattern with a different role and keyboard model.
+ *
+ * Two things it leaves to you, both because only the caller can know them:
+ * {@link TableDetailRowProps.colSpan | `colSpan`}, since counting columns would
+ * mean the table registering its own, and
+ * {@link TableDetailRowProps.gutter | `gutter`}, which aligns the panel with the
+ * first data column by spanning the control columns in front of it.
+ *
+ * Collapsed, the row is `hidden` — so it cannot be reached, and cannot inflate
+ * the table's announced row count. Pass
+ * {@link TableDetailRowProps.forceMount | `forceMount`} when you are animating
+ * it: `display: none` cannot transition, so the row stays in the layout and
+ * takes `aria-hidden` instead, which keeps the row count honest either way.
+ *
+ * @extends HTMLTableRowElement
+ *
+ * @example
+ * ```tsx
+ * <Table.Expandable>
+ *   <Table.Row>
+ *     <Table.Cell>
+ *       <Table.ExpandTrigger aria-label="Show details for harmoni-engine">
+ *         ▸
+ *       </Table.ExpandTrigger>
+ *     </Table.Cell>
+ *     <Table.Cell>harmoni-engine</Table.Cell>
+ *   </Table.Row>
+ *   <Table.DetailRow colSpan={2} gutter={1}>
+ *     <DeploymentSummary />
+ *   </Table.DetailRow>
+ * </Table.Expandable>
+ * ```
  */
 export function TableDetailRow({
   children,
   colSpan,
+  gutter = 0,
   forceMount = false,
   cellProps,
   ...rest
@@ -473,7 +518,11 @@ export function TableDetailRow({
       aria-hidden={collapsed && forceMount ? true : undefined}
       {...rest}
     >
-      <td colSpan={colSpan} {...cellProps}>
+      {/* ONE spanning cell rather than `gutter` empty ones: a spanning cell
+          takes the full width of the columns it covers, so the alignment is
+          identical and the row gains a single blank cell instead of several. */}
+      {gutter > 0 ? <td colSpan={gutter} /> : null}
+      <td colSpan={colSpan - gutter} {...cellProps}>
         {children}
       </td>
     </tr>

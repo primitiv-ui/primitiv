@@ -140,7 +140,21 @@ export type TableExpandableProps = {
  *
  * @extends HTMLButtonElement
  */
-export type TableExpandTriggerProps = Omit<
+export type TableExpandTriggerProps = {
+  /**
+   * Render a consumer-supplied control instead of the native `<button>`, with
+   * this part's `aria-expanded`, `aria-controls`, `data-state` and click
+   * handling merged onto it via the {@link Slot} pattern.
+   *
+   * This is how a styled layer composes a real Button rather than re-creating
+   * one: the registry `data-table` renders a ghost Button through it, matching
+   * the Figma set, whose Expand Trigger is an Icon Button instance rather than a
+   * drawn glyph. The child must be a single element that accepts a `ref`, and it
+   * should be a `<button>` — the wiring assumes a control.
+   * @default false
+   */
+  asChild?: boolean;
+} & Omit<
   ButtonHTMLAttributes<HTMLButtonElement>,
   "aria-expanded" | "aria-controls" | "type"
 >;
@@ -167,6 +181,22 @@ export type TableDetailRowProps = {
    * `table.getVisibleLeafColumns().length`).
    */
   colSpan: number;
+  /**
+   * How many leading columns to leave empty before the panel starts — the
+   * control columns (select, expand) a row renders in front of its data.
+   *
+   * The panel then spans the columns that remain, so `colSpan` keeps its
+   * meaning: the table's full column count, gutter included.
+   *
+   * This is how a panel aligns with the first **data** column instead of the
+   * table's edge (a panel starting under the checkbox reads as a new section of
+   * the table rather than an opened row). Alignment by empty cell rather than by
+   * a CSS indent is deliberate: the browser's own table layout resolves the
+   * width, so it stays exact across every size, density and control-column set
+   * with nothing measured and no arithmetic to drift.
+   * @default 0
+   */
+  gutter?: number;
   /**
    * Keep the row mounted while collapsed so a CSS transition can run.
    *

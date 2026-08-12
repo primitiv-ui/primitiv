@@ -39,6 +39,39 @@ describe("Table.ExpandTrigger accessibility", () => {
   });
 });
 
+describe("Table.ExpandTrigger composition", () => {
+  it("should hand its aria wiring to a consumer's own control when asChild is set", () => {
+    // Arrange — the styled layer composes a real ghost Button here rather than
+    // hand-rolling a bare <button>, which is what the Figma set models.
+    render(
+      <table>
+        <tbody>
+          <Table.Expandable>
+            <Table.Row>
+              <Table.Cell>
+                <Table.ExpandTrigger asChild>
+                  <button type="button" className="my-button">
+                    Details
+                  </button>
+                </Table.ExpandTrigger>
+              </Table.Cell>
+            </Table.Row>
+            <Table.DetailRow colSpan={1}>Panel</Table.DetailRow>
+          </Table.Expandable>
+        </tbody>
+      </table>,
+    );
+    const trigger = screen.getByRole("button", { name: "Details" });
+
+    // Assert — one button, the consumer's, carrying the wiring
+    expect(trigger).toHaveClass("my-button");
+    expect(trigger).toHaveAttribute("aria-expanded", "false");
+    expect(trigger).toHaveAttribute("aria-controls");
+    expect(trigger).toHaveAttribute("data-state", "closed");
+    expect(screen.getAllByRole("button")).toHaveLength(1);
+  });
+});
+
 describe("Table.ExpandTrigger activation", () => {
   it("should report the next expanded state and reveal the detail row when uncontrolled", async () => {
     // Arrange

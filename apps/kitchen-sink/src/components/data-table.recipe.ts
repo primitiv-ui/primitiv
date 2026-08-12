@@ -80,3 +80,5 @@ export const dataTableDetailCell = cva("primitiv-data-table__detail-cell");
 export const dataTableDetailClip = cva("primitiv-data-table__detail-clip");
 
 export const dataTableDetailBody = cva("primitiv-data-table__detail-body");
+
+export const dataTableDetailContent = cva("primitiv-data-table__detail-content");

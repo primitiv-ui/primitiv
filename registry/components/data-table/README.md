@@ -81,6 +81,7 @@ const table = useReactTable({
 
             <DataTableDetailRow
               colSpan={table.getVisibleLeafColumns().length + 2}
+              gutter={2}
               forceMount
             >
               <DeploymentDetail row={row.original} />
@@ -135,19 +136,20 @@ The table itself is the `table` component's job — `Table`, `TableHead`,
 
 The panel aligns with the first **data** column, not the table's edge — a
 full-bleed panel starting under the checkbox reads as a new section of the table
-rather than an opened row. Only you know which control columns exist, so the
-indent is a knob rather than a guess:
+rather than an opened row. Say how many control columns to clear and the table
+layout does the rest:
 
-```css
-.deployments {
-  /* two control columns: each is (2 × table/cell/padding-block) + its control,
-     plus the first data cell's own inline padding */
-  --primitiv-data-table-detail-indent: calc(
-    2 * (2 * var(--primitiv-table-cell-padding-block) + 1.25rem) +
-      var(--primitiv-table-cell-padding-inline)
-  );
-}
+```tsx
+{/* select + expand, then the data columns */}
+<DataTableDetailRow colSpan={table.getVisibleLeafColumns().length + 2} gutter={2} />
 ```
+
+`gutter` renders one empty `<td>` spanning those columns, so the browser resolves
+the width and the panel stays aligned at every size and density. There is
+deliberately **no CSS indent knob**: an indent has to sum the control widths and
+their paddings by hand, and the sum is only right at one size — the checkbox
+scales with `size`, the chevron glyph does not, and the measured drift across
+xs…xl was 7-21px. Nothing to configure beats a knob you can only set right once.
 
 The parent row sheds its own bottom rule automatically while expanded, so the
 row and its panel read as one block closed by the detail row's rule — detected
@@ -171,6 +173,22 @@ header. Give the surrounding `TableScrollArea` a `max-block-size` so there is
 something to scroll within. Two details are handled for you: sticky sits on the
 `<th>` (unsupported on `<thead>`/`<tr>` in older Safari), and the header rule
 becomes an inset shadow because `border-collapse` drops a stuck cell's border.
+
+**Pass `sticky` only when there is something to scroll.** It reserves the
+scrollbar gutter (`scrollbar-gutter: stable`), so the columns don't shift
+sideways as rows are filtered in and out and the header's trailing edge stays
+aligned with the body's. The gutter is reserved whether or not the body actually
+overflows, so on a table shorter than its cap — a filtered-to-nothing result, an
+empty state, five rows — it shows as a ~15px empty strip down the trailing edge.
+Reserving it conditionally would need an overflow state query, which hasn't
+shipped, so the call site decides:
+
+```tsx
+<DataTable sticky={sticky && rows.length > 0}>
+```
+
+Which is also the honest reading of the prop: pinning a header over a body that
+does not scroll isn't doing anything.
 
 ## Why no data model
 

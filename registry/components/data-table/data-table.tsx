@@ -29,8 +29,16 @@
  * Glyphs are inlined rather than imported from `@primitiv-ui/icons`, so
  * installing this pulls in no extra package (the `chip` precedent).
  */
-import { type ComponentPropsWithRef, type ReactElement, type ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useMemo,
+  type ComponentPropsWithRef,
+  type ReactElement,
+  type ReactNode,
+} from "react";
 import { Table } from "@primitiv-ui/react";
+import { Button } from "./button";
 import { TableCell, TableHeader } from "./table";
 import {
   dataTable,
@@ -46,12 +54,46 @@ import {
   dataTableDetailCell,
   dataTableDetailClip,
   dataTableDetailBody,
+  dataTableDetailContent,
 } from "./data-table.recipe";
 
 type Size = "xs" | "sm" | "md" | "lg" | "xl";
 type SortDirection = "none" | "asc" | "desc";
 
 const cx = (...parts: (string | undefined | false)[]) => parts.filter(Boolean).join(" ");
+
+/*
+ * The shell shares its `size` with the parts that compose a real Button, the
+ * same way `pagination` does — a Button takes its scale as a prop, so CSS
+ * inheritance alone cannot reach it.
+ */
+type DataTableStyleContextValue = { size: Size };
+
+const DataTableStyleContext = createContext<DataTableStyleContextValue | null>(null);
+
+function useDataTableStyle(part: string): DataTableStyleContextValue {
+  const context = useContext(DataTableStyleContext);
+  if (context === null) {
+    throw new Error(`${part} must be rendered inside a <DataTable>.`);
+  }
+  return context;
+}
+
+/*
+ * A control inside a data row is sized ONE TIER DOWN from the row, floored at
+ * xs. Read off the live Figma sets, which instance a `Size=sm` ghost Icon Button
+ * into an `md` row (and xs into both xs and sm): a same-tier control reads as an
+ * icon button dropped into a cell rather than as part of the row, and at the
+ * small end there is no tier below xs to drop to. The same ladder Tree uses for
+ * its Breadcrumb sizes.
+ */
+const CONTROL_SIZE: Record<Size, Size> = {
+  xs: "xs",
+  sm: "xs",
+  md: "sm",
+  lg: "md",
+  xl: "lg",
+};
 
 export type DataTableProps = ComponentPropsWithRef<"div"> & {
   /**
@@ -79,7 +121,12 @@ export type DataTableProps = ComponentPropsWithRef<"div"> & {
 
 /** The framed shell: a toolbar, a table and a footer that read as one object. */
 export function DataTable({ size, frame, sticky, className, ...props }: DataTableProps): ReactElement {
-  return <div className={cx(dataTable({ size, frame, sticky }), className)} {...props} />;
+  const value = useMemo(() => ({ size: size ?? "md" }), [size]);
+  return (
+    <DataTableStyleContext.Provider value={value}>
+      <div className={cx(dataTable({ size, frame, sticky }), className)} {...props} />
+    </DataTableStyleContext.Provider>
+  );
 }
 
 export type DataTableToolbarProps = ComponentPropsWithRef<"div">;
@@ -183,7 +230,13 @@ export function DataTableSortButton({ direction = "none", align, className, chil
   );
 }
 
-export type DataTableSortHeaderProps = Omit<ComponentPropsWithRef<typeof TableHeader>, "children"> & {
+/* `align` is Omitted, not just overridden: `<th>` carries a native `align`
+   attribute (React types it as the deprecated `"left" | "center" | "right" |
+   "justify" | "char"`), so intersecting it with this component's own
+   `"start" | "end"` leaves a type nothing satisfies — `align="end"` failed to
+   compile at the call site with a bewildering "string is not assignable to
+   undefined". The house prop-collision check exists for exactly this. */
+export type DataTableSortHeaderProps = Omit<ComponentPropsWithRef<typeof TableHeader>, "children" | "align"> & {
   /** The column's current sort state, mirrored onto the `<th>`'s `aria-sort`. */
   direction?: SortDirection;
   /** Match the column's text alignment — `end` for numeric columns. */
@@ -223,12 +276,25 @@ export type DataTableExpandTriggerProps = ComponentPropsWithRef<typeof Table.Exp
  * list. The chevron rotates rather than swapping glyphs, so it can animate.
  */
 export function DataTableExpandTrigger({ className, children, ...props }: DataTableExpandTriggerProps): ReactElement {
+  const { size } = useDataTableStyle("DataTableExpandTrigger");
+  /* A real ghost Button through `asChild`, not a hand-rolled <button>. The Figma
+     set instances an Icon Button here, and composing the component is what makes
+     the control's box track size AND density: its square comes from Button's own
+     `framed-control/{size}/height`, and its hover / active / focus-visible / ink
+     come from the ghost variant. Hand-rolling it meant a box derived from a
+     padding token plus a glyph, which drifted from every other control. */
   return (
-    <Table.ExpandTrigger className={cx(dataTableExpand(), className)} {...props}>
-      {children}
-      <svg className={dataTableExpandIcon()} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-        <path d="m6 4 4 4-4 4" />
-      </svg>
+    <Table.ExpandTrigger asChild {...props}>
+      <Button
+        variant="ghost"
+        size={CONTROL_SIZE[size]}
+        className={cx(dataTableExpand(), className)}
+      >
+        {children}
+        <svg className={dataTableExpandIcon()} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="m6 4 4 4-4 4" />
+        </svg>
+      </Button>
     </Table.ExpandTrigger>
   );
 }
@@ -242,11 +308,12 @@ export type DataTableDetailRowProps = ComponentPropsWithRef<typeof Table.DetailR
  * `<td>` (it takes the element out of the table layout algorithm and column
  * alignment collapses with it), so it lives one level in.
  *
- * Draws no fill and no leading rule: containment comes from the indent, which
- * you set with `--primitiv-data-table-detail-indent` because only you know
- * which control columns the table renders. The parent row sheds its own bottom
- * rule automatically while expanded (a `:has()` rule in styles.css), so the two
- * read as one block without you having to say so.
+ * Draws no fill and no leading rule: containment comes from the indent, which is
+ * the headless `gutter` prop — pass the number of control columns and the panel
+ * starts at the first data column, aligned by an empty spanning cell rather than
+ * by CSS. The parent row sheds its own bottom rule automatically while expanded
+ * (a `:has()` rule in styles.css), so the two read as one block without you
+ * having to say so.
  *
  * Pass `forceMount` to animate. The collapsed row is then `aria-hidden`, so it
  * still does not inflate the table's announced row count.
@@ -258,8 +325,16 @@ export function DataTableDetailRow({ className, children, cellProps, ...props }:
       cellProps={{ ...cellProps, className: cx(dataTableDetailCell(), cellProps?.className) }}
       {...props}
     >
+      {/* THREE levels, not two, and each one is load-bearing: the grid clip, the
+          zero-min-height overflow box, and — one further in — the padded body.
+          Padding on the collapsing box sits outside its content box and FLOORS
+          the collapse at twice the padding, so a closed row keeps a visible band
+          (measured: 24px at md). Accordion's content/content-inner/content-body
+          is the same three-part shape for the same reason. */}
       <div className={dataTableDetailClip()}>
-        <div className={dataTableDetailBody()}>{children}</div>
+        <div className={dataTableDetailBody()}>
+          <div className={dataTableDetailContent()}>{children}</div>
+        </div>
       </div>
     </Table.DetailRow>
   );

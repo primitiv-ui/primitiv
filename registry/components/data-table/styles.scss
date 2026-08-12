@@ -29,9 +29,11 @@
  *    automatically while expanded (a `:has()` rule below) so the two read as one block that the detail row's own
  *    rule closes. A fill was drawn and rejected: surface/subtle borrows the same
  *    neutral ramp as the zebra stripe and the hover fill, so all three become
- *    hard to separate. `--primitiv-data-table-detail-indent` aligns the panel
- *    with the first DATA column; it defaults to 0 because only the consumer
- *    knows which control columns exist (see the README).
+ *    hard to separate. The indent itself is NOT CSS — it is the headless
+ *    `gutter` prop, an empty cell spanning the control columns, so the browser's
+ *    table layout resolves the width. A CSS indent has to sum control widths and
+ *    paddings by hand and was measured 7-21px out across xs…xl (the checkbox
+ *    scales with size, the chevron does not).
  *
  *  - A detail row must OPT OUT of the row hover fill. The `table` component
  *    hovers every row in the body; a detail row is not a data row and must not
@@ -43,6 +45,17 @@
  *    header dead. The glyph sits NEXT TO the label, not at the cell's trailing
  *    edge, and space for it is reserved even when unsorted so the label never
  *    shifts when sorting starts.
+ *
+ *  - EVERY var a standalone part reads carries a FALLBACK, and it is not
+ *    belt-and-braces. `DataTableSortHeader` and `DataTableExpandTrigger` are
+ *    usable on a plain `table` with no `.primitiv-data-table` ancestor — a
+ *    sortable table needs no toolbar or footer — and there the root's API block
+ *    never resolves. An unresolved var is not "the default": `gap` collapses to
+ *    `normal`, a `color` to the inherited ink, and an `inline-size` to `auto`,
+ *    which makes an SVG with no width/height attributes balloon to fill its
+ *    header. Every fallback below mirrors the root's own default exactly, so the
+ *    only thing standalone use loses is the per-size re-pointing (it gets the md
+ *    slot until the consumer re-points it).
  *
  * Structure follows RFC 0008: per-component API tokens + the resting look live
  * in primitiv.base, the size/frame modifiers in primitiv.variants, and hover /
@@ -74,14 +87,74 @@
     --primitiv-data-table-bar-padding-block: var(--primitiv-table-cell-padding-block);
     --primitiv-data-table-bar-gap: var(--primitiv-table-cell-padding-block);
     --primitiv-data-table-control-padding-inline: var(--primitiv-table-cell-padding-block);
+    /* How many BODY rows a sticky table shows before it scrolls, and what one row
+       is assumed to measure. Together they cap the scrollport at a whole number
+       of rows: a cap picked as a round length lands mid-row, and half a row
+       showing at the fold reads as a rendering fault rather than as "there is
+       more below".
+
+       The height is an assumption, not a measurement — CSS cannot ask how tall a
+       row came out, and measuring in JS is exactly what this component's
+       positioning avoids everywhere else. The default is the arithmetic for a
+       TEXT row (its two block paddings, its line box, and its rule), which is
+       exact until a cell holds something taller than text. An avatar, a large
+       badge or a two-line cell all make rows taller, so re-point
+       `row-block-size` when they do — the kitchen-sink's Deployments demo does,
+       because its author column carries an avatar. */
+    --primitiv-data-table-visible-rows: 8;
+    --primitiv-data-table-row-block-size: calc(
+      2 * var(--primitiv-table-cell-padding-block) + var(--primitiv-body-md-line-height) +
+        var(--primitiv-data-table-border-width)
+    );
+    /* The header gets its OWN term rather than counting as one more body row.
+       It is a text row by definition (a column label), so it does not follow
+       `row-block-size` once that is re-pointed for taller content — measured at
+       md the header is 48px against 65px body rows, and treating them as equal
+       over-allocated the scrollport by ~0.26 of a row, which is precisely the
+       half-row-at-the-fold this knob exists to remove. It also carries no rule of
+       its own in the total: under `border-collapse` the header's bottom rule is
+       shared with the first body row, whose height already counts it. Verified
+       against rendered heights at xs / md / xl (40 / 48 / 60). */
+    --primitiv-data-table-header-block-size: calc(
+      2 * var(--primitiv-table-cell-padding-block) + var(--primitiv-body-md-line-height)
+    );
+    /* Type for the BARS' own text — a row count, a "Rows per page" label, a
+       page summary. The parts held no type, so they inherited the surrounding
+       page's body copy and moved with neither `size` nor density while the
+       controls beside them scaled (the same omission `pagination`'s summary
+       had). On the root, so both bars inherit it; the composed Button, Select,
+       Input and Pagination surfaces set their own type from their own tokens and
+       are unaffected. */
+    --primitiv-data-table-font-family: var(--primitiv-body-md-font-family);
+    --primitiv-data-table-font-size: var(--primitiv-body-md-font-size);
+    --primitiv-data-table-font-weight: var(--primitiv-body-md-font-weight);
+    --primitiv-data-table-line-height: var(--primitiv-body-md-line-height);
+    /* Both glyphs (sort indicator, expand chevron) take ONE size, re-pointed per
+       size below. A token rather than `1em`: an em is the *type* scale, and this
+       is a control glyph — the two ladders are not the same, and the whole
+       system's glyphs come from `framed-control/{size}/icon-size` (accordion and
+       collapsible size their chevrons from exactly this). An em also silently
+       changes size whenever the type it inherits from does, which is not a
+       decision anyone made.
+
+       ONE TIER DOWN from the row's own size, not the same tier — verified against
+       the live Figma `Data Table / Row` and `/ Header Row` sets, which bind
+       framed-control/{xs,xs,sm,md,lg}/icon-size for row sizes xs/sm/md/lg/xl
+       (12/12/14/16/20px). A control glyph inside a data row is secondary to the
+       text beside it, and a same-tier glyph reads as an icon button dropped into
+       a cell. Same ladder Tree uses for its Breadcrumb sizes. The first pass took
+       the same tier and was a rung too big at every size — caught by reading the
+       Figma file, not by eye. */
+    --primitiv-data-table-icon-size: var(--primitiv-framed-control-sm-icon-size);
     --primitiv-data-table-sort-gap: var(--primitiv-space-space-4);
     --primitiv-data-table-sort-hover-background: var(--primitiv-table-row-hover);
     --primitiv-data-table-sort-idle-color: var(--primitiv-content-muted);
-    --primitiv-data-table-expand-color: var(--primitiv-content-muted);
-    --primitiv-data-table-expand-hover-background: var(--primitiv-action-ghost-hover);
-    /* Zero, not a token: only the consumer knows which control columns the
-       table renders, so only they can sum them. See the README. */
-    --primitiv-data-table-detail-indent: 0px;
+    /* No expand-color / -hover-background / -radius knobs: the expander is a
+       real ghost Button, so its ink (action/secondary/foreground/default), its
+       hover and active tints (action/ghost/*), its radius and its focus ring all
+       come from `button` — and they are then right by construction instead of
+       being restated here. A first pass hand-rolled all four and got the ink
+       wrong (content/muted) and the shape wrong (a pill). */
     --primitiv-data-table-detail-padding-inline: var(--primitiv-table-cell-padding-inline);
     --primitiv-data-table-detail-padding-block: var(--primitiv-table-cell-padding-block);
     --primitiv-data-table-transition-duration: var(--primitiv-motion-duration-expand);
@@ -114,6 +187,10 @@
   /* The two bars: three regions on one grid. */
   .primitiv-data-table__toolbar,
   .primitiv-data-table__footer {
+    font-family: var(--primitiv-data-table-font-family);
+    font-size: var(--primitiv-data-table-font-size);
+    font-weight: var(--primitiv-data-table-font-weight);
+    line-height: var(--primitiv-data-table-line-height);
     display: grid;
     /* minmax(0, 1fr) rather than a bare 1fr so a wide filter shrinks instead of
        shoving the centre region off-centre. Equal fractional flanks are the only
@@ -141,6 +218,11 @@
     /* So a long child (a filter field) shrinks rather than widening the grid
        track past its share. */
     min-inline-size: 0;
+    /* Wrap rather than overflow, and note this needs NO threshold: four controls
+       in a toolbar too narrow for them drop onto a second line by themselves.
+       Without it the row simply ran out of the bar — the filter field was pushed
+       out of the shell entirely on a phone. */
+    flex-wrap: wrap;
   }
 
   .primitiv-data-table__region--start {
@@ -155,13 +237,28 @@
     justify-content: flex-end;
   }
 
+  /* Cells centre their content on the block axis. A table cell's default
+     `vertical-align: baseline` aligns every cell in the row on ONE text
+     baseline, which is right for a prose table of running text and wrong the
+     moment a row mixes heights — an avatar, a badge, a checkbox. The tallest
+     cell sets the row height, the shorter cells' text then sits low against it,
+     and an inline-flex pair (avatar + name) contributes its FIRST flex item's
+     baseline, dropping the circle below the text it labels. Centring is what
+     every data table does, and it is scoped here rather than pushed onto
+     `table` because it is mixed-height rows — this component's whole subject —
+     that make it necessary. */
+  .primitiv-data-table .primitiv-table__cell,
+  .primitiv-data-table .primitiv-table__header {
+    vertical-align: middle;
+  }
+
   /* Square control cell — see the header note on why it takes no block padding.
      Qualified with the table's own cell classes so this wins regardless of which
      stylesheet the bundler emits first (both live in primitiv.base, where source
      order would otherwise decide). */
   .primitiv-table__cell.primitiv-data-table__control-cell,
   .primitiv-table__header.primitiv-data-table__control-cell {
-    padding-inline: var(--primitiv-data-table-control-padding-inline);
+    padding-inline: var(--primitiv-data-table-control-padding-inline, var(--primitiv-table-cell-padding-block));
     padding-block: var(--primitiv-border-width-0);
     text-align: center;
   }
@@ -173,18 +270,40 @@
     padding-block: var(--primitiv-table-cell-padding-block);
   }
 
-  .primitiv-data-table__control-cell > * {
-    /* Centre the control in whatever height the text cells set. */
-    display: inline-flex;
+  /* The control cell centres its content with text-align, and text-align
+     INHERITS — including into a popover that is a DOM descendant, such as a menu
+     opened from a row-action button. That silently centred the menu's items and
+     is a leak, not a style choice, so it is reset on any popover inside. */
+  .primitiv-data-table__control-cell [popover] {
+    text-align: start;
+  }
+
+  /* Centre the control in whatever height the text cells set — on BOTH axes, and
+     as a BLOCK-level box, which is the part that matters.
+     `display: inline-flex` + `vertical-align: middle` (the first attempt) cannot
+     centre exactly: `middle` on an inline box aligns its centre with the parent's
+     baseline plus half the font's x-height, so the error tracks the type size.
+     Measured against the row's true centre, the checkbox sat 0.7px low at xs and
+     2.4px low at xl while the expander, avatar and text all landed on it.
+     A block-level child has no baseline to align against, so the cell's own
+     `vertical-align: middle` centres it exactly at every size; `fit-content` keeps
+     it hugging its control (so a Button's min-inline-size still applies) and the
+     auto inline margins centre it across.
+     Popovers are excluded: a menu opened from a row-action button is a DOM child
+     of this cell, and a flex box with centred items shrink-wraps every row of the
+     panel. */
+  .primitiv-data-table__control-cell > *:not([popover]) {
+    display: flex;
     align-items: center;
-    vertical-align: middle;
+    inline-size: fit-content;
+    margin-inline: auto;
   }
 
   /* The sort control fills its header cell, so the whole header is the target. */
   .primitiv-data-table__sort {
     display: flex;
     align-items: center;
-    gap: var(--primitiv-data-table-sort-gap);
+    gap: var(--primitiv-data-table-sort-gap, var(--primitiv-space-space-4));
     /* Inherit the cell's own padding rather than adding a second inset: the
        header cell zeroes its padding and hands it to the button below. */
     padding-inline: var(--primitiv-table-cell-padding-inline);
@@ -196,6 +315,9 @@
     color: inherit;
     text-align: inherit;
     cursor: pointer;
+    transition: background-color
+      var(--primitiv-data-table-transition-duration, var(--primitiv-motion-duration-expand))
+      var(--primitiv-data-table-transition-easing, var(--primitiv-motion-easing-default));
   }
 
   /* A header cell holding a sort button gives up its padding to the button. */
@@ -208,48 +330,57 @@
     justify-content: flex-end;
   }
 
+  /* Both glyph rules carry a FALLBACK, and it is load-bearing: `sort` and
+     `expand` are usable on a plain `table` with no `.primitiv-data-table`
+     ancestor (a sortable table that needs no toolbar or footer), and there the
+     root's `--primitiv-data-table-icon-size` never resolves. An unresolved
+     inline-size falls back to `auto`, and an SVG with no width/height attributes
+     sizes itself to the viewport — the glyph balloons to fill the header. A
+     fallback cannot know the size modifier, so standalone use gets the md slot
+     until the consumer re-points it. */
   .primitiv-data-table__sort-icon {
     /* Reserved even when unsorted, so the label never shifts as sorting starts. */
     flex: none;
-    inline-size: 1em;
-    block-size: 1em;
+    inline-size: var(--primitiv-data-table-icon-size, var(--primitiv-framed-control-sm-icon-size));
+    block-size: var(--primitiv-data-table-icon-size, var(--primitiv-framed-control-sm-icon-size));
   }
 
   .primitiv-data-table__sort[aria-sort="none"] .primitiv-data-table__sort-icon,
   .primitiv-data-table__sort--unsorted .primitiv-data-table__sort-icon {
-    color: var(--primitiv-data-table-sort-idle-color);
+    color: var(--primitiv-data-table-sort-idle-color, var(--primitiv-content-muted));
   }
 
-  /* The expander: an icon-only ghost control that must not set the row height. */
-  .primitiv-data-table__expand {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: var(--primitiv-data-table-control-padding-inline);
-    /* Cancelled by an equal negative margin so hover/active get a comfortable
-       target with zero layout footprint beyond the glyph itself — the
-       breadcrumb-overflow trigger technique. */
-    margin: calc(-1 * var(--primitiv-data-table-control-padding-inline));
-    border: var(--primitiv-border-width-0) solid transparent;
-    border-radius: var(--primitiv-radii-full);
-    background: none;
-    color: var(--primitiv-data-table-expand-color);
-    cursor: pointer;
-  }
+  /* The expander is a real ghost Button (composed through the headless
+     ExpandTrigger's `asChild`), so its square, radius, ink, hover, active and
+     focus ring all come from `button` — none of it is restated here. What is left
+     is the icon-only correction every icon Button in this system needs: Button's
+     inline padding is sized for text and would stretch the square into a lozenge,
+     so it is zeroed and the width comes from the same
+     `framed-control/{size}/height` its block-size already uses. Identical to
+     `pagination__nav`, and it must sit in a LATER layer than primitiv.base, where
+     `.primitiv-button` sets padding-inline — at equal specificity in the same
+     layer the winner would depend on which stylesheet the bundler emitted last.
+     Hence the rule in primitiv.variants below rather than here. */
 
   .primitiv-data-table__expand-icon {
-    inline-size: 1em;
-    block-size: 1em;
-    transition: transform var(--primitiv-data-table-transition-duration)
-      var(--primitiv-data-table-transition-easing);
+    inline-size: var(--primitiv-data-table-icon-size, var(--primitiv-framed-control-sm-icon-size));
+    block-size: var(--primitiv-data-table-icon-size, var(--primitiv-framed-control-sm-icon-size));
+    transition: transform var(--primitiv-data-table-transition-duration, var(--primitiv-motion-duration-expand))
+      var(--primitiv-data-table-transition-easing, var(--primitiv-motion-easing-default));
   }
 
-  /* The detail row: no fill, no leading rule — the indent is the affordance. */
-  .primitiv-data-table__detail-row > .primitiv-data-table__detail-cell {
-    /* Zero, or a closed row keeps a padded empty band. The padding lives on the
-       body wrapper inside instead. */
+  /* The detail row: no fill, no leading rule — the indent is the affordance, and
+     it comes from the headless `gutter` (an empty cell spanning the control
+     columns), not from anything here.
+
+     BOTH cells, not just the panel: the gutter cell carries no class (the
+     headless layer ships no styling), so the base reset's bare `td` rule still
+     reaches it — and a table cell sets its ROW's height, so the gutter's padding
+     alone held every closed row 25px tall. Padding lives on the content wrapper
+     two levels in; the rule is drawn below, only while open. */
+  .primitiv-data-table__detail-row > td {
     padding: var(--primitiv-border-width-0);
-    padding-inline-start: var(--primitiv-data-table-detail-indent);
+    border-block-end: var(--primitiv-border-width-0) solid transparent;
   }
 
   /* The grid-collapse clip. This CANNOT go on the <tr> or the <td>: display:grid
@@ -258,8 +389,8 @@
   .primitiv-data-table__detail-clip {
     display: grid;
     grid-template-rows: 0fr;
-    transition: grid-template-rows var(--primitiv-data-table-transition-duration)
-      var(--primitiv-data-table-transition-easing);
+    transition: grid-template-rows var(--primitiv-data-table-transition-duration, var(--primitiv-motion-duration-expand))
+      var(--primitiv-data-table-transition-easing, var(--primitiv-motion-easing-default));
   }
 
   .primitiv-data-table__detail-body {
@@ -271,32 +402,157 @@
     /* Transitioned, not instant, so it stays visible for the whole close and
        only then leaves the tab order and the accessibility tree. */
     visibility: hidden;
-    transition: visibility var(--primitiv-data-table-transition-duration)
-      var(--primitiv-data-table-transition-easing);
+    transition: visibility var(--primitiv-data-table-transition-duration, var(--primitiv-motion-duration-expand))
+      var(--primitiv-data-table-transition-easing, var(--primitiv-motion-easing-default));
+  }
+
+  /* The padding lives HERE, one level below the clipped box — never on it.
+     Padding sits outside the content box, so a padded collapsing element floors
+     at twice its padding-block and a closed row keeps a visible empty band
+     (measured: 24px at md, which is exactly 2 × the md cell padding). Down here
+     the padding is clipped away with the rest of the panel, so it is also
+     constant through the whole animation — nothing shifts as the copy arrives.
+     Same three-part shape as Accordion's content / content-inner /
+     content-body. */
+  .primitiv-data-table__detail-content {
     padding-inline: var(--primitiv-data-table-detail-padding-inline);
     padding-block: var(--primitiv-data-table-detail-padding-block);
   }
 }
 
+/* Narrow viewport — the bars stack.
+ *
+ * A CONTAINER query is the right tool here and had to be abandoned: the shell's
+ * own width is what matters (a data table in a narrow sidebar on a wide screen
+ * has a phone's problem, and a media query cannot tell them apart), but
+ * `container-type: inline-size` on the shell inflates the height of any
+ * FLEX-COLUMN parent. Measured: a section body holding nothing but this component
+ * went from 549px to 1209px, the extra 660px tracking the shell's *unclipped*
+ * content — the flex container sizes the item as though its `overflow: hidden`
+ * and the scroll area's `max-block-size` were not there. With the same parent as
+ * `display: block` it is correct, and no shell-level fix helped
+ * (`block-size: fit-content`, `min-block-size: 0`, `overflow: clip`, dropping
+ * flex, or moving the container to a wrapper). A flex column is far too ordinary
+ * a parent to break, so this is a viewport query until that interaction is
+ * understood. Consumers nesting a table in a narrow column re-declare these two
+ * rules against their own container.
+ *
+ *
+ * Wrapping alone is not enough for the footer: its three regions sit on a
+ * `1fr auto 1fr` grid, so a pager needing ~300px inside a ~170px flank overflows
+ * its track and paints over the region beside it (measured on a 390px viewport:
+ * the row-count text and the rows-per-page Select overlapped). Below the
+ * threshold each region takes the full width on its own line instead, and an
+ * `end`/`center` region aligns to the start, because a right-aligned block in a
+ * stacked column reads as a mistake rather than as alignment.
+ *
+ * The threshold is baked in here, which is a deliberate departure from
+ * `stepper`'s compact treatment (where the consumer picks the width, because
+ * swapping a rail for a progress bar is a design decision). This is not a
+ * presentation swap — it is the difference between a bar that degrades and one
+ * that overlaps itself — and "not broken on a phone" cannot be opt-in. Consumers
+ * who want a different threshold re-declare the two rules; the container is
+ * named so their own queries stay separate. */
+@media (max-width: 40rem) {
+  @layer primitiv.variants {
+    .primitiv-data-table__toolbar,
+    .primitiv-data-table__footer {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .primitiv-data-table__region,
+    .primitiv-data-table__region--center,
+    .primitiv-data-table__region--end {
+      justify-content: flex-start;
+    }
+  }
+}
+
 @layer primitiv.variants {
   .primitiv-data-table--xs {
+    --primitiv-data-table-row-block-size: calc(
+      2 * var(--primitiv-table-cell-padding-block) + var(--primitiv-body-xs-line-height) +
+        var(--primitiv-data-table-border-width)
+    );
+    --primitiv-data-table-header-block-size: calc(
+      2 * var(--primitiv-table-cell-padding-block) + var(--primitiv-body-xs-line-height)
+    );
+    --primitiv-data-table-font-family: var(--primitiv-body-xs-font-family);
+    --primitiv-data-table-font-size: var(--primitiv-body-xs-font-size);
+    --primitiv-data-table-font-weight: var(--primitiv-body-xs-font-weight);
+    --primitiv-data-table-line-height: var(--primitiv-body-xs-line-height);
     --primitiv-data-table-radius: var(--primitiv-surface-sm-radius);
+    --primitiv-data-table-icon-size: var(--primitiv-framed-control-xs-icon-size);
   }
 
   .primitiv-data-table--sm {
+    --primitiv-data-table-row-block-size: calc(
+      2 * var(--primitiv-table-cell-padding-block) + var(--primitiv-body-sm-line-height) +
+        var(--primitiv-data-table-border-width)
+    );
+    --primitiv-data-table-header-block-size: calc(
+      2 * var(--primitiv-table-cell-padding-block) + var(--primitiv-body-sm-line-height)
+    );
+    --primitiv-data-table-font-family: var(--primitiv-body-sm-font-family);
+    --primitiv-data-table-font-size: var(--primitiv-body-sm-font-size);
+    --primitiv-data-table-font-weight: var(--primitiv-body-sm-font-weight);
+    --primitiv-data-table-line-height: var(--primitiv-body-sm-line-height);
     --primitiv-data-table-radius: var(--primitiv-surface-sm-radius);
+    --primitiv-data-table-icon-size: var(--primitiv-framed-control-xs-icon-size);
   }
 
   .primitiv-data-table--md {
+    --primitiv-data-table-row-block-size: calc(
+      2 * var(--primitiv-table-cell-padding-block) + var(--primitiv-body-md-line-height) +
+        var(--primitiv-data-table-border-width)
+    );
+    --primitiv-data-table-header-block-size: calc(
+      2 * var(--primitiv-table-cell-padding-block) + var(--primitiv-body-md-line-height)
+    );
+    --primitiv-data-table-font-family: var(--primitiv-body-md-font-family);
+    --primitiv-data-table-font-size: var(--primitiv-body-md-font-size);
+    --primitiv-data-table-font-weight: var(--primitiv-body-md-font-weight);
+    --primitiv-data-table-line-height: var(--primitiv-body-md-line-height);
     --primitiv-data-table-radius: var(--primitiv-surface-md-radius);
+    --primitiv-data-table-icon-size: var(--primitiv-framed-control-sm-icon-size);
   }
 
   .primitiv-data-table--lg {
+    --primitiv-data-table-row-block-size: calc(
+      2 * var(--primitiv-table-cell-padding-block) + var(--primitiv-body-lg-line-height) +
+        var(--primitiv-data-table-border-width)
+    );
+    --primitiv-data-table-header-block-size: calc(
+      2 * var(--primitiv-table-cell-padding-block) + var(--primitiv-body-lg-line-height)
+    );
+    --primitiv-data-table-font-family: var(--primitiv-body-lg-font-family);
+    --primitiv-data-table-font-size: var(--primitiv-body-lg-font-size);
+    --primitiv-data-table-font-weight: var(--primitiv-body-lg-font-weight);
+    --primitiv-data-table-line-height: var(--primitiv-body-lg-line-height);
     --primitiv-data-table-radius: var(--primitiv-surface-lg-radius);
+    --primitiv-data-table-icon-size: var(--primitiv-framed-control-md-icon-size);
   }
 
   .primitiv-data-table--xl {
+    --primitiv-data-table-row-block-size: calc(
+      2 * var(--primitiv-table-cell-padding-block) + var(--primitiv-body-xl-line-height) +
+        var(--primitiv-data-table-border-width)
+    );
+    --primitiv-data-table-header-block-size: calc(
+      2 * var(--primitiv-table-cell-padding-block) + var(--primitiv-body-xl-line-height)
+    );
+    --primitiv-data-table-font-family: var(--primitiv-body-xl-font-family);
+    --primitiv-data-table-font-size: var(--primitiv-body-xl-font-size);
+    --primitiv-data-table-font-weight: var(--primitiv-body-xl-font-weight);
+    --primitiv-data-table-line-height: var(--primitiv-body-xl-line-height);
     --primitiv-data-table-radius: var(--primitiv-surface-xl-radius);
+    --primitiv-data-table-icon-size: var(--primitiv-framed-control-lg-icon-size);
+  }
+
+  /* Icon-only Button correction — see the note in primitiv.base. */
+  .primitiv-data-table__expand {
+    padding-inline: var(--primitiv-space-space-0);
+    min-inline-size: var(--primitiv-button-height);
   }
 
   /* Bare: no surface of its own, and the bars align to the page rather than to
@@ -320,19 +576,17 @@
      and it sticks until the next tap elsewhere. */
   @media (hover: hover) {
     .primitiv-data-table__sort:hover {
-      background-color: var(--primitiv-data-table-sort-hover-background);
+      background-color: var(--primitiv-data-table-sort-hover-background, var(--primitiv-table-row-hover));
     }
 
-    .primitiv-data-table__expand:hover {
-      background-color: var(--primitiv-data-table-expand-hover-background);
-    }
   }
 
-  .primitiv-data-table__sort:focus-visible,
-  .primitiv-data-table__expand:focus-visible {
-    outline: var(--primitiv-data-table-focus-ring-width) solid
-      var(--primitiv-data-table-focus-ring-color);
-    outline-offset: calc(-1 * var(--primitiv-data-table-focus-ring-width));
+  /* The SORT button only: it is a bare <button>, so it draws its own ring. The
+     expander is a real Button and brings the shared ring with it. */
+  .primitiv-data-table__sort:focus-visible {
+    outline: var(--primitiv-data-table-focus-ring-width, var(--primitiv-border-width-2)) solid
+      var(--primitiv-data-table-focus-ring-color, var(--primitiv-border-focus));
+    outline-offset: calc(-1 * var(--primitiv-data-table-focus-ring-width, var(--primitiv-border-width-2)));
   }
 
   /* A detail row is not a data row: it must not light up under the pointer, or
@@ -355,6 +609,16 @@
     visibility: visible;
   }
 
+  /* The panel's closing rule, drawn only while OPEN and across both its cells so
+     it runs the full width. Stated here rather than left to the base reset's
+     bare `td` border, which drew a stray hairline under every CLOSED detail row —
+     directly beneath the data row's own rule, reading as a 2px line. Paired with
+     the `:has()` rule below: open, the parent sheds its rule and this one closes
+     the pair; closed, the parent keeps its own and this draws nothing. */
+  .primitiv-data-table__detail-row[data-state="open"] > td {
+    border-block-end: var(--primitiv-data-table-border-width) solid var(--primitiv-data-table-rule-color);
+  }
+
   /* An expanded row sheds its own bottom rule so the row and its panel read as
      ONE block, closed by the detail row's rule. Detected with :has() rather than
      asked for with a prop — the DOM already knows, so making the consumer say it
@@ -374,6 +638,36 @@
           collapsed border belongs to the table grid, not the cell, so it does
           not travel and the header rule silently vanishes on scroll. Draw it
           with an inset shadow instead. */
+  /* Reserve the scrollbar gutter so it does not appear and disappear as rows are
+     filtered in and out, which shifts every column a few px sideways. It also
+     keeps the header's trailing edge aligned with the body's.
+
+     The gutter cannot be painted into — it sits outside the content box — so the
+     track does still run the sticky header's full height. That is inherent to a
+     scroll container whose first child is the header, and the alternative (a
+     separate non-scrolling header table) would mean pinning column widths
+     explicitly, i.e. this component owning a width model. Deliberate trade.
+
+     The cost, and it is unavoidable in CSS today: the gutter is reserved whether
+     or not the body actually overflows, so a table shorter than its cap shows a
+     ~15px empty strip down its trailing edge (measured on an empty state:
+     scrollHeight === clientHeight, offsetWidth - clientWidth === 15). Reserving
+     conditionally would need an overflow state query, which has not shipped. So
+     pass `sticky` only when there IS something to scroll — see the README. */
+  .primitiv-data-table--sticky .primitiv-table__scroll-area {
+    scrollbar-gutter: stable;
+    /* The cap the pinned header needs something to scroll within. Stated here
+       rather than left to the call site, which is where it was: `sticky` already
+       means "the body scrolls", so needing a second, hand-picked max-block-size
+       beside it was a hole in the API — and a length chosen by hand is what puts
+       half a row at the fold. The header is its own term, not one more row —
+       see `--primitiv-data-table-header-block-size`. */
+    max-block-size: calc(
+      var(--primitiv-data-table-header-block-size) + var(--primitiv-data-table-visible-rows) *
+        var(--primitiv-data-table-row-block-size)
+    );
+  }
+
   .primitiv-data-table--sticky .primitiv-table__head .primitiv-table__header {
     position: sticky;
     inset-block-start: 0;
@@ -405,17 +699,13 @@
   @media (prefers-reduced-motion: reduce) {
     .primitiv-data-table__detail-clip,
     .primitiv-data-table__detail-body,
-    .primitiv-data-table__expand-icon {
+    .primitiv-data-table__expand-icon,
+    .primitiv-data-table__sort {
       transition: none;
     }
   }
 }
 
-/*
- * SCSS aliases for every custom property in contract.json, in contract order,
- * so a Sass consumer can reference a knob as a variable without hard-coding the
- * custom-property name. Generated from the contract — do not hand-edit.
- */
 $primitiv-data-table-background: var(--primitiv-data-table-background);
 $primitiv-data-table-border-color: var(--primitiv-data-table-border-color);
 $primitiv-data-table-border-width: var(--primitiv-data-table-border-width);
@@ -426,12 +716,17 @@ $primitiv-data-table-bar-padding-inline: var(--primitiv-data-table-bar-padding-i
 $primitiv-data-table-bar-padding-block: var(--primitiv-data-table-bar-padding-block);
 $primitiv-data-table-bar-gap: var(--primitiv-data-table-bar-gap);
 $primitiv-data-table-control-padding-inline: var(--primitiv-data-table-control-padding-inline);
+$primitiv-data-table-visible-rows: var(--primitiv-data-table-visible-rows);
+$primitiv-data-table-row-block-size: var(--primitiv-data-table-row-block-size);
+$primitiv-data-table-header-block-size: var(--primitiv-data-table-header-block-size);
+$primitiv-data-table-font-family: var(--primitiv-data-table-font-family);
+$primitiv-data-table-font-size: var(--primitiv-data-table-font-size);
+$primitiv-data-table-font-weight: var(--primitiv-data-table-font-weight);
+$primitiv-data-table-line-height: var(--primitiv-data-table-line-height);
+$primitiv-data-table-icon-size: var(--primitiv-data-table-icon-size);
 $primitiv-data-table-sort-gap: var(--primitiv-data-table-sort-gap);
 $primitiv-data-table-sort-hover-background: var(--primitiv-data-table-sort-hover-background);
 $primitiv-data-table-sort-idle-color: var(--primitiv-data-table-sort-idle-color);
-$primitiv-data-table-expand-color: var(--primitiv-data-table-expand-color);
-$primitiv-data-table-expand-hover-background: var(--primitiv-data-table-expand-hover-background);
-$primitiv-data-table-detail-indent: var(--primitiv-data-table-detail-indent);
 $primitiv-data-table-detail-padding-inline: var(--primitiv-data-table-detail-padding-inline);
 $primitiv-data-table-detail-padding-block: var(--primitiv-data-table-detail-padding-block);
 $primitiv-data-table-transition-duration: var(--primitiv-data-table-transition-duration);

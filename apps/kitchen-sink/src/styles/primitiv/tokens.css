@@ -397,7 +397,7 @@
     --primitiv-surface-selected: var(--primitiv-color-absolute-white);
     --primitiv-surface-subtle: var(--primitiv-color-neutral-100);
     --primitiv-surface-sunken: var(--primitiv-color-neutral-100);
-    --primitiv-table-row-hover: var(--primitiv-color-neutral-100);
+    --primitiv-table-row-hover: var(--primitiv-color-neutral-alpha-100);
     --primitiv-table-row-selected: var(--primitiv-color-brand-100);
     --primitiv-table-row-stripe: var(--primitiv-color-neutral-50);
     --primitiv-tree-row-hover: var(--primitiv-color-neutral-alpha-100);
@@ -597,7 +597,7 @@
     --primitiv-surface-selected: var(--primitiv-color-neutral-900);
     --primitiv-surface-subtle: var(--primitiv-color-neutral-100);
     --primitiv-surface-sunken: var(--primitiv-color-neutral-100);
-    --primitiv-table-row-hover: var(--primitiv-color-neutral-100);
+    --primitiv-table-row-hover: var(--primitiv-color-neutral-alpha-100);
     --primitiv-table-row-selected: var(--primitiv-color-brand-900);
     --primitiv-table-row-stripe: var(--primitiv-color-neutral-50);
     --primitiv-tree-row-hover: var(--primitiv-color-neutral-alpha-100);

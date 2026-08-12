@@ -166,6 +166,13 @@
  * TOOLTIP_DEMOS in App.tsx. */
 
 /* One-off triggers: context menu, dropdown (+ 3 nested submenus), selects. */
+/* The Dropdown demo needs no anchor classes: `dropdown` derives its own
+   trigger↔panel ident pair from useId(), submenus included. The eight rules that
+   used to live here were removed rather than left dead — scaffolding that does
+   nothing still tells the next reader the wiring is their job.
+   The .ks-anchor-cm* rules above stay: a ContextMenu anchors to an arbitrary
+   region (the canvas it is opened over), not to a trigger, so choosing that
+   element really is the consumer's call. */
 .ks-anchor-cm {
   anchor-name: --ks-cm;
 }
@@ -177,30 +184,6 @@
 }
 .ks-anchored-cm-s1 {
   position-anchor: --ks-cm-s1;
-}
-.ks-anchor-dd {
-  anchor-name: --ks-dd;
-}
-.ks-anchored-dd {
-  position-anchor: --ks-dd;
-}
-.ks-anchor-dd-s1 {
-  anchor-name: --ks-dd-s1;
-}
-.ks-anchored-dd-s1 {
-  position-anchor: --ks-dd-s1;
-}
-.ks-anchor-dd-s2 {
-  anchor-name: --ks-dd-s2;
-}
-.ks-anchored-dd-s2 {
-  position-anchor: --ks-dd-s2;
-}
-.ks-anchor-dd-s3 {
-  anchor-name: --ks-dd-s3;
-}
-.ks-anchored-dd-s3 {
-  position-anchor: --ks-dd-s3;
 }
 .ks-anchor-sel-framework {
   anchor-name: --ks-sel-framework;
@@ -624,4 +607,179 @@
   font-size: var(--primitiv-heading-h6-font-size);
   font-weight: var(--primitiv-heading-h6-font-weight);
   line-height: var(--primitiv-heading-h6-line-height);
+}
+
+/* ── Data Table (demos/DeploymentsTable.tsx) ──────────────────────────────
+ *
+ * Everything here is staging, not contract. Two things deliberately stayed
+ * inline in the demo because a class genuinely cannot express them:
+ *
+ *   - the `anchor-name` / `position-anchor` idents on each Dropdown trigger and
+ *     panel. They must be UNIQUE PER INSTANCE (a menu per row), so they are
+ *     derived from useId() at render time — a static class would give every row
+ *     the same ident and every menu would anchor to the first trigger.
+ *
+ * Anything else that had to be inline was a component gap, and was fixed there
+ * instead: the bars' text not scaling with `size`/density is now the
+ * data-table's own `--primitiv-data-table-font-*` family, so the row-count
+ * below only needs a colour.
+ */
+.ks-dt {
+  display: flex;
+  flex-direction: column;
+  gap: var(--primitiv-space-space-16);
+  /* Without both of these the table's min-content width widens the whole
+     content column and slides it under the page nav. */
+  min-inline-size: 0;
+  max-inline-size: 100%;
+}
+
+.ks-dt__controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--primitiv-space-space-12);
+}
+
+/* Sticky caps its own scrollport now — `--primitiv-data-table-visible-rows` is
+   the knob, no hand-picked height. Five rows here rather than the default eight,
+   so the demo is short enough to see the pinned header work.
+
+   The row-height override is the part worth reading. The component's default
+   assumes a TEXT row (two block paddings + a line box + the rule), which is
+   right until a cell holds something taller — and this table's author column
+   carries an Avatar, whose diameter is framed-control/{size}/height. Left
+   unadjusted the cap lands mid-row, which is the exact complaint this fixes.
+   Keyed off the component's own size modifier rather than passed inline, so it
+   still scales across all five sizes and all four densities. */
+.ks-dt .primitiv-data-table {
+  --primitiv-data-table-visible-rows: 5;
+}
+
+.ks-dt .primitiv-data-table--xs {
+  --primitiv-data-table-row-block-size: calc(
+    2 * var(--primitiv-table-cell-padding-block) + var(--primitiv-framed-control-xs-height) +
+      var(--primitiv-data-table-border-width)
+  );
+}
+
+.ks-dt .primitiv-data-table--sm {
+  --primitiv-data-table-row-block-size: calc(
+    2 * var(--primitiv-table-cell-padding-block) + var(--primitiv-framed-control-sm-height) +
+      var(--primitiv-data-table-border-width)
+  );
+}
+
+.ks-dt .primitiv-data-table--md {
+  --primitiv-data-table-row-block-size: calc(
+    2 * var(--primitiv-table-cell-padding-block) + var(--primitiv-framed-control-md-height) +
+      var(--primitiv-data-table-border-width)
+  );
+}
+
+.ks-dt .primitiv-data-table--lg {
+  --primitiv-data-table-row-block-size: calc(
+    2 * var(--primitiv-table-cell-padding-block) + var(--primitiv-framed-control-lg-height) +
+      var(--primitiv-data-table-border-width)
+  );
+}
+
+.ks-dt .primitiv-data-table--xl {
+  --primitiv-data-table-row-block-size: calc(
+    2 * var(--primitiv-table-cell-padding-block) + var(--primitiv-framed-control-xl-height) +
+      var(--primitiv-data-table-border-width)
+  );
+}
+
+.ks-dt__nowrap {
+  white-space: nowrap;
+}
+
+/* A numeric column: end-aligned so the digits line up on the units, and
+   tabular figures so they stay in their columns as the values change.
+   COMPONENT GAP, flagged not papered over: `DataTableSortHeader` takes
+   `align="end"` for exactly this, but there is no counterpart for the cells, so
+   a numeric column has to be aligned twice — once through the component's API
+   and once by hand here. */
+.ks-dt__num {
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+}
+
+/* The avatar + name pair. `flex`, not `inline-flex`: an inline-flex box hands
+   the line its FIRST flex item's baseline — the initials inside the circle — so
+   the circle hangs below the name and the strut's descent pushes the pair high
+   in the cell. A block-level flex box has no baseline to contribute, so the
+   cell's own `vertical-align: middle` centres it exactly. */
+.ks-dt__author {
+  display: flex;
+  align-items: center;
+  gap: var(--primitiv-table-cell-padding-block);
+}
+
+/* The expanded row's detail panel. The DescriptionList's own block margin is
+   the prose rhythm; inside a panel that already has padding it doubles the
+   seam. */
+.ks-dt__detail {
+  margin: var(--primitiv-space-space-0);
+}
+
+/* The footer's selected-row count. Colour only — the type comes from the
+   data-table's bar type family, which scales with size and density. */
+.ks-dt__count {
+  color: var(--primitiv-content-muted);
+}
+
+/* The rows-per-page Select shrinks to its content instead of filling the
+   footer region. */
+.ks-dt__page-size {
+  inline-size: auto;
+}
+
+/* ── Data Table: the expanded detail panel ────────────────────────────────
+ * The panel is composed from Stack / Grid / Divider / DescriptionList, so the
+ * arrangement is the components' job and only three things are left here: a
+ * label style, a muted byline, and the grid's narrow-viewport collapse.
+ *
+ * There is deliberately NO font-size in this block. The panel sits inside the
+ * <tbody>, so it inherits the table's own size-scaled type — writing a size here
+ * would pin the panel to one step while the table around it moved, which is the
+ * bug the pagination summary had. */
+
+/* No label rule: every label in the panel is a real <dt> through
+   DescriptionList.Term, which brings its own SemiBold face and — unlike the
+   hand-styled span this replaced — answers to the `size` prop. */
+
+/* Secondary prose: who committed what, the file count, the reviewer names. */
+.ks-dt__panel-byline {
+  color: var(--primitiv-content-secondary);
+}
+
+/* No grid rule here: Grid's own `columns` prop takes a mobile-first map
+   (`{ base: 1, lg: 3 }`), so the responsive collapse is the component's, not a
+   media query of ours overriding it. */
+
+/* The panel spans every column via `colSpan`, so on a table wide enough to
+   scroll it is wider than the visible scrollport and its right-hand content sits
+   past the fold. Cap it at a readable measure instead: a three-column grid
+   1090px wide is too wide to read anyway, which is why real products cap it.
+   48rem was picked by measurement, not taste: the cap has to be narrower than
+   the visible scrollport (here ~928px) or the third column is still cut off, and
+   a first pass at 64rem was not. A candidate for a
+   `--primitiv-data-table-detail-max-inline-size` knob on the component if this
+   turns out to be everyone's answer. */
+.ks-dt__panel {
+  max-inline-size: var(--primitiv-breakpoint-md, 48rem);
+}
+
+/* The stacked lists in the panel drop the details indent. It exists so a stacked
+   <dd> reads as subordinate to its <dt> the way a nested list does — right for
+   prose, wrong when the value is a widget: it pushed the avatar group, the badges
+   and the progress track 16px off the label above them, which reads as stray
+   padding rather than as hierarchy. The `inline` layout already resets it to zero
+   for the same reason, so this follows the component's own precedent.
+   `--primitiv-description-list-details-indent` is a declared part of the
+   component's contract — there is no `indent` variant, and this is the knob. */
+.ks-dt__panel .primitiv-description-list--stacked {
+  --primitiv-description-list-details-indent: var(--primitiv-space-space-0);
 }

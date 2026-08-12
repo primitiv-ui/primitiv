@@ -174,7 +174,6 @@ import {
   TableBody,
   TableFooter,
   TableRow,
-  TableHeader,
   TableCell,
   TableCaption,
   TableScrollArea,
@@ -253,7 +252,6 @@ import {
   ChevronDown,
   ChevronLeft,
   ChevronRight,
-  ChevronUp,
   Close,
   Copy,
   Delete,
@@ -265,7 +263,6 @@ import {
   Minus,
   Search,
   Settings,
-  Sort,
   Upload,
   User,
 } from "@primitiv-ui/icons";
@@ -886,7 +883,14 @@ const PAGE_TOC: { category: string; titles: string[] }[] = [
   { category: "Navigation", titles: ["Navigation Menu", "Toggle Group"] },
   {
     category: "Data Display",
-    titles: ["Avatar", "Avatar Group", "Badge, Tag & Chip", "Card", "Table"],
+    titles: [
+      "Avatar",
+      "Avatar Group",
+      "Badge, Tag & Chip",
+      "Card",
+      "Data Table",
+      "Table",
+    ],
   },
 ];
 
@@ -3118,12 +3122,12 @@ export function ramp(hue: number, chroma = 0.12) {
           </p>
           <Dropdown>
             <DropdownTrigger asChild>
-              <Button variant="secondary" size={size} className="ks-anchor-dd">
+              <Button variant="secondary" size={size}>
                 Menu
                 <ChevronDown aria-hidden="true" />
               </Button>
             </DropdownTrigger>
-            <DropdownContent size={size} className="ks-anchored-dd">
+            <DropdownContent size={size}>
               {/* The row slots: a leading glyph, a label that takes the free space,
                 and a trailing shortcut that keeps its natural width. */}
               <DropdownGroup>
@@ -3219,34 +3223,32 @@ export function ramp(hue: number, chroma = 0.12) {
               <DropdownSeparator />
 
               <DropdownSub>
-                <DropdownSubTrigger className="ks-anchor-dd-s1">
+                <DropdownSubTrigger>
                   Open Recent
                   <ChevronRight aria-hidden="true" />
                 </DropdownSubTrigger>
-                <DropdownSubContent size={size} className="ks-anchored-dd-s1">
+                <DropdownSubContent size={size}>
                   <DropdownItem>project-alpha</DropdownItem>
                   <DropdownItem>project-beta</DropdownItem>
                   <DropdownSeparator />
                   <DropdownSub>
-                    <DropdownSubTrigger className="ks-anchor-dd-s2">
+                    <DropdownSubTrigger>
                       Archived
                       <ChevronRight aria-hidden="true" />
                     </DropdownSubTrigger>
                     <DropdownSubContent
                       size={size}
-                      className="ks-anchored-dd-s2"
                     >
                       <DropdownItem>archive-2025</DropdownItem>
                       <DropdownItem>archive-2024</DropdownItem>
                       <DropdownSeparator />
                       <DropdownSub>
-                        <DropdownSubTrigger className="ks-anchor-dd-s3">
+                        <DropdownSubTrigger>
                           Older still
                           <ChevronRight aria-hidden="true" />
                         </DropdownSubTrigger>
                         <DropdownSubContent
                           size={size}
-                          className="ks-anchored-dd-s3"
                         >
                           <DropdownItem>archive-2023</DropdownItem>
                           <DropdownItem>archive-2022</DropdownItem>

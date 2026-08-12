@@ -12,7 +12,7 @@
  * engine-agnostic, so a v9 migration changes this file's hooks and none of its
  * markup.
  */
-import { Fragment, useId, useMemo, useState, type CSSProperties, type ReactElement, type ReactNode } from "react";
+import { useMemo, useState, type ReactElement, type ReactNode } from "react";
 import {
   useReactTable,
   getCoreRowModel,
@@ -28,6 +28,8 @@ import {
 import {
   Avatar,
   AvatarFallback,
+  AvatarGroup,
+  AvatarImage,
   Badge,
   Button,
   Checkbox,
@@ -40,9 +42,11 @@ import {
   DataTableRegion,
   DataTableSortHeader,
   DataTableToolbar,
+  Divider,
   Dropdown,
   DropdownCheckboxItem,
   DropdownContent,
+  DropdownItemIndicator,
   DropdownItem,
   DropdownLabel,
   DropdownSeparator,
@@ -50,28 +54,43 @@ import {
   EmptyState,
   EmptyStateDescription,
   EmptyStateTitle,
+  Grid,
+  InlineCode,
   Input,
   Pagination,
+  PaginationEllipsis,
   PaginationItem,
   PaginationLink,
   PaginationList,
+  PaginationMenuItem,
   PaginationNext,
   PaginationPrevious,
+  PaginationStatus,
   PaginationSummary,
+  Progress,
+  ProgressIndicator,
   Select,
+  Stack,
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableRow,
   TableScrollArea,
+  Tag,
 } from "../components";
-import { Table as HeadlessTable, VisuallyHidden } from "@primitiv-ui/react";
+import {
+  Table as HeadlessTable,
+  VisuallyHidden,
+  paginationRange,
+  useMediaQuery,
+} from "@primitiv-ui/react";
+import { Check, ChevronDown } from "@primitiv-ui/icons";
+import { useChrome } from "../chrome";
 
 type Environment = "production" | "staging" | "preview";
-type Status = "succeeded" | "running" | "in review" | "failed";
+type Status = "Succeeded" | "Running" | "In review" | "Failed";
 type Size = "xs" | "sm" | "md" | "lg" | "xl";
-type Density = "dense" | "compact" | "comfortable" | "spacious";
 
 type Deployment = {
   id: string;
@@ -80,24 +99,78 @@ type Deployment = {
   status: Status;
   author: string;
   initials: string;
+  face: string;
   durationSeconds: number;
   commits: number;
   deployedHoursAgo: number;
   commit: string;
   branch: string;
+  /* The expanded panel's content. A detail panel that only restates the row is
+     a demo of nothing — these are the fields a real deployments table would
+     open onto, and they are what the panel's grid is sized around. */
+  message: string;
+  filesChanged: number;
+  additions: number;
+  deletions: number;
+  reviewers: Author[];
+  checksPassed: number;
+  checksTotal: number;
 };
 
 const SERVICES = [
-  "harmoni-engine", "primitiv-registry", "docs-site", "figma-bridge", "primitiv-cli",
-  "token-emitter", "palette-worker", "contract-schema", "icons-pipeline", "wasm-gateway",
-  "kitchen-sink", "release-bot",
+  "harmoni-engine",
+  "primitiv-registry",
+  "docs-site",
+  "figma-bridge",
+  "primitiv-cli",
+  "token-emitter",
+  "palette-worker",
+  "contract-schema",
+  "icons-pipeline",
+  "wasm-gateway",
+  "kitchen-sink",
+  "release-bot",
 ];
-const AUTHORS: [string, string][] = [
-  ["Ada Lovelace", "AL"], ["Grace Hopper", "GH"], ["Alan Turing", "AT"],
-  ["Katherine Johnson", "KJ"], ["Barbara Liskov", "BL"], ["Radia Perlman", "RP"],
+type Author = { name: string; initials: string; face: string };
+
+/*
+ * Real photographs, matched to each name — the same five faces the Avatar Group
+ * demo uses, served from public/ (BASE_URL-relative, not imported: they are demo
+ * fixtures, not bundled assets).
+ *
+ * avatar-2 and avatar-3 are the two male faces, so Alan Turing takes one and the
+ * five women share the three female faces — which means two faces appear twice.
+ * That is the asset set, not an oversight; add two more female photographs and
+ * the repeats go away. Every Avatar still carries initials as its
+ * AvatarFallback, which is what renders if an image 404s.
+ */
+const face = (n: number) => `${import.meta.env.BASE_URL}avatar-${n}.png`;
+
+const AUTHORS: Author[] = [
+  { name: "Ada Lovelace", initials: "AL", face: face(1) },
+  { name: "Grace Hopper", initials: "GH", face: face(4) },
+  { name: "Alan Turing", initials: "AT", face: face(2) },
+  { name: "Katherine Johnson", initials: "KJ", face: face(5) },
+  { name: "Barbara Liskov", initials: "BL", face: face(1) },
+  { name: "Radia Perlman", initials: "RP", face: face(4) },
 ];
+/* Written as real commit subjects — imperative mood, no trailing full stop —
+   because the panel renders them as the deployment's headline. */
+const MESSAGES = [
+  "Bind the focus ring to per-side stroke weights",
+  "Collapse the detail row with a grid row track",
+  "Emit var() references for every alias format",
+  "Reserve the scrollbar gutter on sticky tables",
+  "Derive the anchor ident from useId, not a class",
+  "Alias dropdown row text to the body scale",
+  "Split the reset out of the token layer",
+  "Cap the sticky scrollport at whole rows",
+  "Re-point the row hover to the alpha ramp",
+  "Compose the expander from a ghost Icon Button",
+];
+
 const ENVIRONMENTS: Environment[] = ["production", "staging", "preview"];
-const STATUSES: Status[] = ["succeeded", "running", "in review", "failed"];
+const STATUSES: Status[] = ["Succeeded", "Running", "In review", "Failed"];
 
 /* Deterministic, so the demo never reshuffles between renders (and so a
    screenshot is reproducible). A small LCG beats Math.random here. */
@@ -111,20 +184,53 @@ function buildDeployments(count: number): Deployment[] {
   };
   const hex = () => next(16);
   return Array.from({ length: count }, (_, index) => {
-    const [author, initials] = AUTHORS[next(AUTHORS.length)];
+    const author = AUTHORS[next(AUTHORS.length)];
     const status = STATUSES[next(STATUSES.length)];
+    /* Checks track the status, or the panel contradicts its own row: a failed
+       deployment with every check green is the kind of detail that makes a demo
+       look generated. */
+    const checksTotal = 24 + next(120);
+    const checksPassed =
+      status === "Succeeded"
+        ? checksTotal
+        : status === "Failed"
+          ? checksTotal - (1 + next(6))
+          : checksTotal - next(12);
     return {
       id: `dep-${String(index + 1).padStart(3, "0")}`,
       service: SERVICES[next(SERVICES.length)],
       environment: ENVIRONMENTS[next(ENVIRONMENTS.length)],
       status,
-      author,
-      initials,
+      author: author.name,
+      initials: author.initials,
+      face: author.face,
       durationSeconds: 14 + next(600),
       commits: 1 + next(180),
       deployedHoursAgo: 1 + next(320),
-      commit: Array.from({ length: 7 }, () => "0123456789abcdef"[hex()]).join(""),
-      branch: next(4) === 0 ? `feat/${SERVICES[next(SERVICES.length)]}` : "main",
+      commit: Array.from({ length: 7 }, () => "0123456789abcdef"[hex()]).join(
+        "",
+      ),
+      branch:
+        next(4) === 0 ? `feat/${SERVICES[next(SERVICES.length)]}` : "main",
+      message: MESSAGES[next(MESSAGES.length)],
+      filesChanged: 1 + next(40),
+      additions: 3 + next(400),
+      deletions: next(180),
+      /* Two to four reviewers, never the author — a self-approval would read as
+         a bug in the demo data rather than as a deliberate example. */
+      reviewers: (() => {
+        const pool = AUTHORS.filter((a) => a.name !== author.name);
+        const wanted = 2 + next(3);
+        const picked: Author[] = [];
+        while (picked.length < wanted && picked.length < pool.length) {
+          const candidate = pool[next(pool.length)];
+          if (!picked.some((a) => a.name === candidate.name))
+            picked.push(candidate);
+        }
+        return picked;
+      })(),
+      checksPassed,
+      checksTotal,
     };
   });
 }
@@ -132,14 +238,16 @@ function buildDeployments(count: number): Deployment[] {
 const DEPLOYMENTS = buildDeployments(72);
 
 const TONE_FOR: Record<Status, "success" | "warning" | "info" | "danger"> = {
-  succeeded: "success",
-  running: "info",
-  "in review": "warning",
-  failed: "danger",
+  Succeeded: "success",
+  Running: "info",
+  "In review": "warning",
+  Failed: "danger",
 };
 
 const formatDuration = (seconds: number) =>
-  seconds < 60 ? `${seconds}s` : `${Math.floor(seconds / 60)}m ${String(seconds % 60).padStart(2, "0")}s`;
+  seconds < 60
+    ? `${seconds}s`
+    : `${Math.floor(seconds / 60)}m ${String(seconds % 60).padStart(2, "0")}s`;
 
 const formatWhen = (hours: number) =>
   hours < 24 ? `${hours}h ago` : `${Math.floor(hours / 24)}d ago`;
@@ -150,9 +258,18 @@ const columnHelper = createColumnHelper<Deployment>();
    carry the cell markup for the rich columns — those are rendered inline below,
    which is exactly the escape hatch a config-driven API would have had to grow. */
 const COLUMNS = [
-  columnHelper.accessor("service", { header: "Service", filterFn: "includesString" }),
-  columnHelper.accessor("environment", { header: "Environment", filterFn: "arrIncludesSome" }),
-  columnHelper.accessor("status", { header: "Status", filterFn: "arrIncludesSome" }),
+  columnHelper.accessor("service", {
+    header: "Service",
+    filterFn: "includesString",
+  }),
+  columnHelper.accessor("environment", {
+    header: "Environment",
+    filterFn: "arrIncludesSome",
+  }),
+  columnHelper.accessor("status", {
+    header: "Status",
+    filterFn: "arrIncludesSome",
+  }),
   columnHelper.accessor("author", { header: "Author" }),
   columnHelper.accessor("durationSeconds", { header: "Duration" }),
   columnHelper.accessor("commits", { header: "Commits" }),
@@ -162,61 +279,205 @@ const COLUMNS = [
 const NUMERIC = new Set(["durationSeconds", "commits"]);
 const PAGE_SIZES = [10, 25, 50];
 
-
 /*
- * A Dropdown with its CSS anchor positioning wired up.
+ * A Dropdown, with nothing to wire.
  *
- * The bare `dropdown` component deliberately leaves `anchor-name` /
- * `position-anchor` to the consumer, and with neither set every panel falls back
- * to the viewport corner. A static class pair (the `.ks-anchor-dd` convention)
- * cannot serve a menu-per-row, so the ident is derived from useId — the same fix
- * breadcrumb-overflow makes internally. useId's output is colon-bracketed and so
- * not a valid CSS <custom-ident>, hence the replace.
+ * `dropdown` derives its own `anchor-name` / `position-anchor` pair from
+ * useId(), so a menu-per-row needs no per-instance plumbing here — this helper
+ * exists only to avoid repeating the trigger's Button + chevron five times.
  */
 function AnchoredMenu({
   label,
   size,
   variant = "secondary",
+  placement,
   ariaLabel,
+  /* A labelled menu button takes the chevron — the disclosure affordance every
+     other Dropdown trigger in this app carries. An icon-only trigger does not:
+     the row-action ellipsis IS its own affordance, and a second glyph beside it
+     reads as two controls. */
+  chevron = true,
   children,
 }: {
   label: ReactNode;
   size: Size;
   variant?: "secondary" | "ghost";
+  placement?: "bottom-start" | "bottom-end";
   ariaLabel?: string;
+  chevron?: boolean;
   children: ReactNode;
 }): ReactElement {
-  const anchor = `--dt-menu-${useId().replace(/[^A-Za-z0-9_-]/g, "-")}`;
   return (
     <Dropdown>
       <DropdownTrigger asChild>
-        <Button
-          variant={variant}
-          size={size}
-          aria-label={ariaLabel}
-          className="dt-anchor"
-          style={{ "--dt-anchor": anchor } as CSSProperties}
-        >
+        <Button variant={variant} size={size} aria-label={ariaLabel}>
           {label}
+          {chevron && <ChevronDown aria-hidden="true" />}
         </Button>
       </DropdownTrigger>
-      <DropdownContent
-        size={size}
-        className="dt-anchored"
-        style={{ "--dt-anchor": anchor } as CSSProperties}
-      >
+      <DropdownContent size={size} placement={placement}>
         {children}
       </DropdownContent>
     </Dropdown>
   );
 }
 
+/*
+ * The expanded panel.
+ *
+ * Composed entirely from registry components so every part of it answers to the
+ * global size and density controls — which is the point of showing it here: a
+ * detail panel is where a data table stops being a grid of text and starts
+ * needing the rest of the system. Nothing is laid out by hand: Stack and Grid
+ * own the arrangement, Divider the seam, and the type comes from the table it
+ * sits inside (a <tbody> descendant inherits the table's size-scaled type), so
+ * there is no font-size written anywhere below.
+ *
+ * Structure: a headline (who, what, when) over a three-column grid of the facts
+ * the row itself has no room for. The grid drops to one column on a narrow
+ * viewport via .ks-dt__panel-grid in demos.css.
+ */
+function DeploymentDetail({
+  deployment,
+  size,
+}: {
+  deployment: Deployment;
+  size: Size;
+}): ReactElement {
+  const checkRatio = Math.round(
+    (deployment.checksPassed / deployment.checksTotal) * 100,
+  );
+  const allPassed = deployment.checksPassed === deployment.checksTotal;
+
+  return (
+    <Stack direction="column" gap="md" className="ks-dt__panel">
+      {/* The headline is prose, so it is a <p> with the subject in <strong> —
+          not a heading. `heading/h6` is 20px against body-md's 16px: the heading
+          scale is page-level and would out-shout the table it sits inside, and it
+          does not answer to the `size` prop either. */}
+      <Stack direction="row" gap="md" align="center" wrap="wrap">
+        <Avatar size={size}>
+          <AvatarImage src={deployment.face} alt="" />
+          <AvatarFallback>{deployment.initials}</AvatarFallback>
+        </Avatar>
+        <Stack direction="column" gap="none">
+          <p>
+            <strong>{deployment.message}</strong>
+          </p>
+          <p className="ks-dt__panel-byline">
+            {deployment.author} committed{" "}
+            {formatWhen(deployment.deployedHoursAgo)} to{" "}
+            <InlineCode size={size}>{deployment.branch}</InlineCode>
+          </p>
+        </Stack>
+      </Stack>
+
+      <Divider />
+
+      {/* Responsive columns come from Grid itself — one column on a narrow
+          viewport, three from `lg` up. A media query in demo CSS would have
+          fought the component's own mechanism (`columns` takes a mobile-first
+          map, not just a count). */}
+      <Grid columns={{ base: 1, lg: 3 }} gap="xl">
+        {/* Every label→value pair is a real <dl> through DescriptionList.Term /
+            .Details. Bare <dt>/<dd> inside it look identical at md and are a
+            trap: the base reset dresses a bare description list with declarations
+            ON the element, which beat the component's inherited values, so
+            neither part responds to `size` at all. The parts carry the classes
+            that do. */}
+        <DescriptionList size={size} layout="inline">
+          <DescriptionList.Term>Commit</DescriptionList.Term>
+          <DescriptionList.Details>
+            <InlineCode size={size}>{deployment.commit}</InlineCode>
+          </DescriptionList.Details>
+          <DescriptionList.Term>Environment</DescriptionList.Term>
+          <DescriptionList.Details>
+            <Tag size={size} tone="neutral">
+              {deployment.environment}
+            </Tag>
+          </DescriptionList.Details>
+          <DescriptionList.Term>Duration</DescriptionList.Term>
+          <DescriptionList.Details className="ks-dt__nowrap">
+            {formatDuration(deployment.durationSeconds)}
+          </DescriptionList.Details>
+          <DescriptionList.Term>Commits</DescriptionList.Term>
+          <DescriptionList.Details>
+            {deployment.commits.toLocaleString()}
+          </DescriptionList.Details>
+        </DescriptionList>
+
+        <DescriptionList size={size} layout="stacked">
+          <DescriptionList.Term>Changes</DescriptionList.Term>
+          <DescriptionList.Details>
+            <Stack direction="row" gap="xs" align="center" wrap="wrap">
+              <Badge size={size} tone="success">
+                +{deployment.additions.toLocaleString()}
+              </Badge>
+              <Badge size={size} tone="danger">
+                -{deployment.deletions.toLocaleString()}
+              </Badge>
+              <span>
+                across {deployment.filesChanged} file
+                {deployment.filesChanged === 1 ? "" : "s"}
+              </span>
+            </Stack>
+          </DescriptionList.Details>
+          <DescriptionList.Term>Checks</DescriptionList.Term>
+          <DescriptionList.Details>
+            <Stack direction="column" gap="xs">
+              {/* ProgressIndicator is a required child, not optional: the root is
+                  only the track, so a Progress without one renders an empty bar. */}
+              <Progress
+                size={size}
+                intent={allPassed ? "primary" : "danger"}
+                value={deployment.checksPassed}
+                max={deployment.checksTotal}
+                aria-label={`${deployment.checksPassed} of ${deployment.checksTotal} checks passed`}
+              >
+                <ProgressIndicator />
+              </Progress>
+              <span>
+                {deployment.checksPassed} of {deployment.checksTotal} passed (
+                {checkRatio}%)
+              </span>
+            </Stack>
+          </DescriptionList.Details>
+        </DescriptionList>
+
+        <DescriptionList size={size} layout="stacked">
+          <DescriptionList.Term>Reviewed by</DescriptionList.Term>
+          <DescriptionList.Details>
+            <Stack direction="column" gap="xs">
+              {/* max one below the pool, so the +N counter is exercised whenever
+                  a deployment drew four reviewers. */}
+              <AvatarGroup size={size} max={3}>
+                {deployment.reviewers.map((reviewer) => (
+                  <Avatar key={reviewer.name} size={size}>
+                    <AvatarImage src={reviewer.face} alt="" />
+                    <AvatarFallback>{reviewer.initials}</AvatarFallback>
+                  </Avatar>
+                ))}
+              </AvatarGroup>
+              <span>{deployment.reviewers.map((r) => r.name).join(", ")}</span>
+            </Stack>
+          </DescriptionList.Details>
+        </DescriptionList>
+      </Grid>
+    </Stack>
+  );
+}
+
 export function DeploymentsTable(): ReactElement {
-  const [size, setSize] = useState<Size>("sm");
-  const [density, setDensity] = useState<Density>("comfortable");
+  /* Size and density come from the app header — the single source of truth for
+     every component on the page, this table's pagination and buttons included.
+     Density is applied ambiently on <html> by the chrome provider, so nothing
+     here has to thread it. */
+  const { size } = useChrome();
   const [sticky, setSticky] = useState(true);
 
-  const [sorting, setSorting] = useState<SortingState>([{ id: "deployedHoursAgo", desc: false }]);
+  const [sorting, setSorting] = useState<SortingState>([
+    { id: "deployedHoursAgo", desc: false },
+  ]);
   const [globalFilter, setGlobalFilter] = useState("");
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
@@ -226,7 +487,13 @@ export function DeploymentsTable(): ReactElement {
   const table = useReactTable({
     data: DEPLOYMENTS,
     columns: COLUMNS,
-    state: { sorting, globalFilter, columnFilters, columnVisibility, rowSelection },
+    state: {
+      sorting,
+      globalFilter,
+      columnFilters,
+      columnVisibility,
+      rowSelection,
+    },
     onSortingChange: setSorting,
     onGlobalFilterChange: setGlobalFilter,
     onColumnFiltersChange: setColumnFilters,
@@ -242,77 +509,85 @@ export function DeploymentsTable(): ReactElement {
 
   const rows = table.getRowModel().rows;
   const visibleLeafCount = table.getVisibleLeafColumns().length;
-  /* +2 for the two control columns (select, expand) the table renders outside
-     TanStack's column model. */
-  const detailColSpan = visibleLeafCount + 2;
-  const selectedCount = Object.keys(rowSelection).filter((id) => rowSelection[id]).length;
+  /* The control columns live outside TanStack's column model, so they are
+     counted here: two before the data (select, expand) and one after it (row
+     actions). Named rather than inlined because the LEADING count is also the
+     detail row's `gutter` — the same number in both places, and a table that
+     grows a third control column has one line to change instead of two that
+     could disagree. */
+  const leadingControlColumns = 2;
+  const trailingControlColumns = 1;
+  const detailColSpan =
+    visibleLeafCount + leadingControlColumns + trailingControlColumns;
+  /* Every field switched off in the Fields menu. A real state, not an edge case:
+     the menu lets you uncheck the last one, and TanStack is perfectly happy to
+     report zero visible columns. */
+  const noColumns = visibleLeafCount === 0;
+  const selectedCount = Object.keys(rowSelection).filter(
+    (id) => rowSelection[id],
+  ).length;
   const pageCount = table.getPageCount();
   const pageIndex = table.getState().pagination.pageIndex;
 
-  const envFilter = (table.getColumn("environment")?.getFilterValue() as Environment[]) ?? [];
-  const statusFilter = (table.getColumn("status")?.getFilterValue() as Status[]) ?? [];
+  const envFilter =
+    (table.getColumn("environment")?.getFilterValue() as Environment[]) ?? [];
+  const statusFilter =
+    (table.getColumn("status")?.getFilterValue() as Status[]) ?? [];
 
-  const toggleFacet = <T extends string>(columnId: string, current: T[], value: T) => {
-    const next = current.includes(value) ? current.filter((v) => v !== value) : [...current, value];
+  const toggleFacet = <T extends string>(
+    columnId: string,
+    current: T[],
+    value: T,
+  ) => {
+    const next = current.includes(value)
+      ? current.filter((v) => v !== value)
+      : [...current, value];
     table.getColumn(columnId)?.setFilterValue(next.length ? next : undefined);
   };
 
-  const pageWindow = useMemo(() => {
-    const window: number[] = [];
-    const span = 3;
-    const first = Math.max(0, Math.min(pageIndex - 1, pageCount - span));
-    for (let page = first; page < Math.min(pageCount, first + span); page += 1) window.push(page);
-    return window;
-  }, [pageIndex, pageCount]);
+  /* `paginationRange` — the same arithmetic `usePagination` uses, exported
+     separately for exactly this case: TanStack owns the page state, so the hook
+     itself would be a second owner of it. Its default `window: "paged"` is the
+     point. A window CENTRED on the current page re-labels every cell on every
+     step, so clicking "3" renumbers the row under your cursor and reads as a
+     flash; a paged window holds a block of five steady and only advances when
+     you step outside it, so clicking a number activates it and moves nothing.
+     Pages 1-based here, TanStack's index 0-based — the one conversion. */
+  const pageItems = useMemo(
+    () => paginationRange(pageIndex + 1, Math.max(pageCount, 1)),
+    [pageIndex, pageCount],
+  );
+
+  /* Which pager presentation fits. Deliberately a WIDER threshold than the
+     40rem at which the bars stack, because the two answer different questions:
+     the bars stack to stop regions overlapping, while the pager collapses long
+     before that — measured, a numbered pager over 8 pages occupies ~650px, so
+     with a rows-per-page Select and a row count beside it the footer needs ~900px
+     before all three sit on one line. At 820px the numbered pager squeezed the
+     row count into a 39px column three lines deep.
+     `compact` is the shipped answer for a narrow container (a "Page 1 of 8"
+     readout between the two arrows), and picking the threshold is the consumer's
+     job — the component cannot know whether it sits in a page or a sidebar. */
+  const narrow = useMediaQuery("(max-width: 56rem)");
+
+  /* Sticky asks for two things — a capped scrollport and a reserved scrollbar
+     gutter — and both are wrong when the body has nothing to scroll: the cap does
+     nothing and the gutter shows as an empty ~15px strip down the trailing edge
+     (visible on the empty states, which is where it was spotted). Pinning a
+     header over a body that does not scroll isn't doing anything either, so the
+     prop follows the content rather than the checkbox alone. */
+  const scrolls = !noColumns && rows.length > 0;
+  const stickyHeader = sticky && scrolls;
 
   return (
-    <div
-      data-density={density}
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        gap: "1rem",
-        /* Without these the table's min-content width widens the whole content
-           column and slides it under the page nav. */
-        minInlineSize: 0,
-        maxInlineSize: "100%",
-      }}
-    >
-      {/* Size / density / sticky switchers — proof the whole thing is
-          token-driven rather than an assertion that it is. */}
-      <div style={{ display: "flex", gap: "0.75rem", alignItems: "end", flexWrap: "wrap" }}>
-        <Select native size="sm" aria-label="Table size" value={size} onValueChange={(v) => setSize(v as Size)} style={{ inlineSize: "auto" }}>
-          {(["xs", "sm", "md", "lg", "xl"] as Size[]).map((value) => (
-            <option key={value} value={value}>{`size: ${value}`}</option>
-          ))}
-        </Select>
-        <Select native size="sm" aria-label="Density" value={density} onValueChange={(v) => setDensity(v as Density)} style={{ inlineSize: "auto" }}>
-          {(["dense", "compact", "comfortable", "spacious"] as Density[]).map((value) => (
-            <option key={value} value={value}>{`density: ${value}`}</option>
-          ))}
-        </Select>
-        <Checkbox size="sm" checked={sticky} onCheckedChange={setSticky}>
+    <div className="ks-dt">
+      <div className="ks-dt__controls">
+        <Checkbox size={size} checked={sticky} onCheckedChange={setSticky}>
           Sticky header
         </Checkbox>
       </div>
 
-      <DataTable
-        size={size}
-        sticky={sticky}
-        style={{
-          maxInlineSize: "100%",
-          /* The panel aligns with the first DATA column. Only the consumer knows
-             which control columns exist, so only the consumer can sum them: two
-             square control cells + the first data cell's own inline padding.
-             KNOWN LIMITATION: the control's own width is a literal here, so this
-             is exact at the default size and drifts a few px at the extremes.
-             The proper fix is for DetailRow to emit empty gutter <td>s matching
-             the control columns and let table layout do the aligning — no
-             arithmetic at all. Logged as follow-up. */
-          ["--primitiv-data-table-detail-indent" as string]:
-            "calc(2 * (2 * var(--primitiv-table-cell-padding-block) + 1rem) + var(--primitiv-table-cell-padding-inline))",
-        }}
-      >
+      <DataTable size={size} sticky={stickyHeader}>
         <DataTableToolbar>
           <DataTableRegion align="start">
             <Input
@@ -329,27 +604,45 @@ export function DeploymentsTable(): ReactElement {
             {/* Faceted filters and the field menu are the CONSUMER's
                 composition — data-table ships no toolbar controls, because
                 shipping the field menu would mean owning the column list. */}
-            <AnchoredMenu size={size} label={`Environment${envFilter.length ? ` (${envFilter.length})` : ""}`}>
+            <AnchoredMenu
+              size={size}
+              label={`Environment${envFilter.length ? ` (${envFilter.length})` : ""}`}
+            >
               <DropdownLabel>Filter by environment</DropdownLabel>
               {ENVIRONMENTS.map((value) => (
                 <DropdownCheckboxItem
                   key={value}
                   checked={envFilter.includes(value)}
-                  onCheckedChange={() => toggleFacet("environment", envFilter, value)}
+                  onCheckedChange={() =>
+                    toggleFacet("environment", envFilter, value)
+                  }
+                  onSelect={(event) => event.preventDefault()}
                 >
+                  <DropdownItemIndicator>
+                    <Check aria-hidden="true" />
+                  </DropdownItemIndicator>
                   {value}
                 </DropdownCheckboxItem>
               ))}
             </AnchoredMenu>
 
-            <AnchoredMenu size={size} label={`Status${statusFilter.length ? ` (${statusFilter.length})` : ""}`}>
+            <AnchoredMenu
+              size={size}
+              label={`Status${statusFilter.length ? ` (${statusFilter.length})` : ""}`}
+            >
               <DropdownLabel>Filter by status</DropdownLabel>
               {STATUSES.map((value) => (
                 <DropdownCheckboxItem
                   key={value}
                   checked={statusFilter.includes(value)}
-                  onCheckedChange={() => toggleFacet("status", statusFilter, value)}
+                  onCheckedChange={() =>
+                    toggleFacet("status", statusFilter, value)
+                  }
+                  onSelect={(event) => event.preventDefault()}
                 >
+                  <DropdownItemIndicator>
+                    <Check aria-hidden="true" />
+                  </DropdownItemIndicator>
                   {value}
                 </DropdownCheckboxItem>
               ))}
@@ -362,7 +655,11 @@ export function DeploymentsTable(): ReactElement {
                   key={column.id}
                   checked={column.getIsVisible()}
                   onCheckedChange={() => column.toggleVisibility()}
+                  onSelect={(event) => event.preventDefault()}
                 >
+                  <DropdownItemIndicator>
+                    <Check aria-hidden="true" />
+                  </DropdownItemIndicator>
                   {String(column.columnDef.header)}
                 </DropdownCheckboxItem>
               ))}
@@ -370,199 +667,253 @@ export function DeploymentsTable(): ReactElement {
           </DataTableRegion>
         </DataTableToolbar>
 
-        <TableScrollArea style={sticky ? { maxBlockSize: "26rem" } : undefined}>
+        <TableScrollArea>
           <Table size={size}>
-            <TableHead>
-              <TableRow>
-                <DataTableControlCell header>
-                  <Checkbox
-                    size={size}
-                    aria-label="Select all rows on this page"
-                    checked={
-                      table.getIsAllPageRowsSelected()
-                        ? true
-                        : table.getIsSomePageRowsSelected()
-                          ? "indeterminate"
-                          : false
-                    }
-                    onCheckedChange={(checked) => table.toggleAllPageRowsSelected(checked)}
-                  />
-                </DataTableControlCell>
-                <DataTableControlCell header>
-                  <VisuallyHidden>Expand</VisuallyHidden>
-                </DataTableControlCell>
+            {/* The head goes with the columns. Left in place it would be a
+                select-all checkbox and two hidden labels floating above a "no
+                fields" message — a control that selects rows nothing is showing,
+                which reads as a broken table rather than an empty one. */}
+            {!noColumns && (
+              <TableHead>
+                <TableRow>
+                  <DataTableControlCell header>
+                    <Checkbox
+                      size={size}
+                      aria-label="Select all rows on this page"
+                      checked={
+                        table.getIsAllPageRowsSelected()
+                          ? true
+                          : table.getIsSomePageRowsSelected()
+                            ? "indeterminate"
+                            : false
+                      }
+                      onCheckedChange={(checked) =>
+                        table.toggleAllPageRowsSelected(checked)
+                      }
+                    />
+                  </DataTableControlCell>
+                  <DataTableControlCell header>
+                    <VisuallyHidden>Expand</VisuallyHidden>
+                  </DataTableControlCell>
 
-                {table.getVisibleLeafColumns().map((column) => (
-                  <DataTableSortHeader
-                    key={column.id}
-                    direction={column.getIsSorted() === "asc" ? "asc" : column.getIsSorted() === "desc" ? "desc" : "none"}
-                    align={NUMERIC.has(column.id) ? "end" : "start"}
-                    onSort={() => column.toggleSorting(undefined, false)}
-                  >
-                    {String(column.columnDef.header)}
-                  </DataTableSortHeader>
-                ))}
+                  {table.getVisibleLeafColumns().map((column) => (
+                    <DataTableSortHeader
+                      key={column.id}
+                      direction={
+                        column.getIsSorted() === "asc"
+                          ? "asc"
+                          : column.getIsSorted() === "desc"
+                            ? "desc"
+                            : "none"
+                      }
+                      align={NUMERIC.has(column.id) ? "end" : "start"}
+                      onSort={() => column.toggleSorting(undefined, false)}
+                    >
+                      {String(column.columnDef.header)}
+                    </DataTableSortHeader>
+                  ))}
 
-                <DataTableControlCell header>
-                  <VisuallyHidden>Actions</VisuallyHidden>
-                </DataTableControlCell>
-              </TableRow>
-            </TableHead>
+                  <DataTableControlCell header>
+                    <VisuallyHidden>Actions</VisuallyHidden>
+                  </DataTableControlCell>
+                </TableRow>
+              </TableHead>
+            )}
 
             <TableBody>
-              {rows.length === 0 && (
+              {/* Two empty states, and WHICH ONE wins matters: hiding every
+                  column takes precedence over an empty filter result, because
+                  with no columns there is nothing a row could show, so "no
+                  deployments match" would be both unhelpful and possibly untrue.
+                  Each names the control that gets the reader out of it — an empty
+                  state that only reports the absence leaves them stuck. No action
+                  Button on either: the way out is a menu in the toolbar they can
+                  already see, and a button that just opens it would be a second
+                  route to the same control. */}
+              {noColumns ? (
+                <TableRow>
+                  <TableCell colSpan={detailColSpan}>
+                    <EmptyState size={size}>
+                      <EmptyStateTitle>No fields shown</EmptyStateTitle>
+                      <EmptyStateDescription>
+                        Every column is hidden. Choose at least one from the
+                        Fields menu above to see your deployments.
+                      </EmptyStateDescription>
+                    </EmptyState>
+                  </TableCell>
+                </TableRow>
+              ) : rows.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={detailColSpan}>
                     <EmptyState size={size}>
                       <EmptyStateTitle>No deployments match</EmptyStateTitle>
                       <EmptyStateDescription>
-                        Clear the filter or widen the environment and status facets.
+                        Clear the filter or widen the environment and status
+                        facets.
                       </EmptyStateDescription>
                     </EmptyState>
                   </TableCell>
                 </TableRow>
-              )}
+              ) : null}
 
-              {rows.map((row) => {
-                const deployment = row.original;
-                const isOpen = Boolean(expanded[row.id]);
-                return (
-                  <HeadlessTable.Expandable
-                    key={row.id}
-                    expanded={isOpen}
-                    onExpandedChange={(next) =>
-                      setExpanded((current) => ({ ...current, [row.id]: next }))
-                    }
-                  >
-                    <TableRow aria-selected={row.getIsSelected()}>
-                      <DataTableControlCell>
-                        <Checkbox
-                          size={size}
-                          aria-label={`Select ${deployment.service}`}
-                          checked={row.getIsSelected()}
-                          onCheckedChange={(checked) => row.toggleSelected(checked)}
-                        />
-                      </DataTableControlCell>
-                      <DataTableControlCell>
-                        <DataTableExpandTrigger
-                          aria-label={`Show details for ${deployment.service}`}
-                        />
-                      </DataTableControlCell>
+              {!noColumns &&
+                rows.map((row) => {
+                  const deployment = row.original;
+                  const isOpen = Boolean(expanded[row.id]);
+                  return (
+                    <HeadlessTable.Expandable
+                      key={row.id}
+                      expanded={isOpen}
+                      onExpandedChange={(next) =>
+                        setExpanded((current) => ({
+                          ...current,
+                          [row.id]: next,
+                        }))
+                      }
+                    >
+                      <TableRow aria-selected={row.getIsSelected()}>
+                        <DataTableControlCell>
+                          <Checkbox
+                            size={size}
+                            aria-label={`Select ${deployment.service}`}
+                            checked={row.getIsSelected()}
+                            onCheckedChange={(checked) =>
+                              row.toggleSelected(checked)
+                            }
+                          />
+                        </DataTableControlCell>
+                        <DataTableControlCell>
+                          <DataTableExpandTrigger
+                            aria-label={`Show details for ${deployment.service}`}
+                          />
+                        </DataTableControlCell>
 
-                      {table.getVisibleLeafColumns().map((column) => {
-                        const key = `${row.id}-${column.id}`;
-                        if (column.id === "service") {
-                          return (
-                            <TableCell key={key} style={{ whiteSpace: "nowrap" }}>
-                              {deployment.service}
-                            </TableCell>
-                          );
-                        }
-                        if (column.id === "status") {
+                        {table.getVisibleLeafColumns().map((column) => {
+                          const key = `${row.id}-${column.id}`;
+                          if (column.id === "service") {
+                            return (
+                              <TableCell key={key} className="ks-dt__nowrap">
+                                {deployment.service}
+                              </TableCell>
+                            );
+                          }
+                          if (column.id === "status") {
+                            return (
+                              <TableCell key={key}>
+                                <Badge
+                                  size={size}
+                                  tone={TONE_FOR[deployment.status]}
+                                >
+                                  {deployment.status}
+                                </Badge>
+                              </TableCell>
+                            );
+                          }
+                          if (column.id === "author") {
+                            return (
+                              <TableCell key={key} className="ks-dt__nowrap">
+                                {/* A real photograph, matched to the name (see
+                                    AUTHORS), with the initials as the fallback if
+                                    it 404s. Scales with the global control; the
+                                    pair's layout is .ks-dt__author in demos.css. */}
+                                <span className="ks-dt__author">
+                                  <Avatar size={size}>
+                                    <AvatarImage src={deployment.face} alt="" />
+                                    <AvatarFallback>
+                                      {deployment.initials}
+                                    </AvatarFallback>
+                                  </Avatar>
+                                  {deployment.author}
+                                </span>
+                              </TableCell>
+                            );
+                          }
+                          if (column.id === "durationSeconds") {
+                            return (
+                              <TableCell key={key} className="ks-dt__num">
+                                {formatDuration(deployment.durationSeconds)}
+                              </TableCell>
+                            );
+                          }
+                          if (column.id === "commits") {
+                            return (
+                              <TableCell key={key} className="ks-dt__num">
+                                {deployment.commits.toLocaleString()}
+                              </TableCell>
+                            );
+                          }
+                          if (column.id === "deployedHoursAgo") {
+                            return (
+                              <TableCell key={key}>
+                                {formatWhen(deployment.deployedHoursAgo)}
+                              </TableCell>
+                            );
+                          }
                           return (
                             <TableCell key={key}>
-                              <Badge size={size === "xs" ? "xs" : "sm"} tone={TONE_FOR[deployment.status]}>
-                                {deployment.status}
-                              </Badge>
+                              {deployment.environment}
                             </TableCell>
                           );
-                        }
-                        if (column.id === "author") {
-                          return (
-                            <TableCell key={key} style={{ whiteSpace: "nowrap" }}>
-                              <span style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem" }}>
-                                <Avatar size="xs">
-                                  <AvatarFallback>{deployment.initials}</AvatarFallback>
-                                </Avatar>
-                                {deployment.author}
-                              </span>
-                            </TableCell>
-                          );
-                        }
-                        if (column.id === "durationSeconds") {
-                          return (
-                            <TableCell key={key} style={{ textAlign: "end", fontVariantNumeric: "tabular-nums" }}>
-                              {formatDuration(deployment.durationSeconds)}
-                            </TableCell>
-                          );
-                        }
-                        if (column.id === "commits") {
-                          return (
-                            <TableCell key={key} style={{ textAlign: "end", fontVariantNumeric: "tabular-nums" }}>
-                              {deployment.commits.toLocaleString()}
-                            </TableCell>
-                          );
-                        }
-                        if (column.id === "deployedHoursAgo") {
-                          return <TableCell key={key}>{formatWhen(deployment.deployedHoursAgo)}</TableCell>;
-                        }
-                        return <TableCell key={key}>{deployment.environment}</TableCell>;
-                      })}
+                        })}
 
-                      <DataTableControlCell>
-                        <AnchoredMenu
-                          size={size === "xs" ? "xs" : "sm"}
-                          variant="ghost"
-                          label="⋯"
-                          ariaLabel={`Actions for ${deployment.service}`}
-                        >
-                          <DropdownItem>View logs</DropdownItem>
-                          <DropdownItem>Redeploy</DropdownItem>
-                          <DropdownItem>Copy commit SHA</DropdownItem>
-                          <DropdownSeparator />
-                          <DropdownItem>Roll back</DropdownItem>
-                        </AnchoredMenu>
-                      </DataTableControlCell>
-                    </TableRow>
+                        <DataTableControlCell>
+                          <AnchoredMenu
+                            size={size}
+                            variant="ghost"
+                            placement="bottom-end"
+                            chevron={false}
+                            label="..."
+                            ariaLabel={`Actions for ${deployment.service}`}
+                          >
+                            <DropdownItem>View logs</DropdownItem>
+                            <DropdownItem>Redeploy</DropdownItem>
+                            <DropdownItem>Copy commit SHA</DropdownItem>
+                            <DropdownSeparator />
+                            <DropdownItem>Roll back</DropdownItem>
+                          </AnchoredMenu>
+                        </DataTableControlCell>
+                      </TableRow>
 
-                    {/* No forceMount: a collapsed row is then `hidden`, i.e.
-                        display:none, so it cannot occupy height. The animated
-                        variant (forceMount + the grid-collapse clip) is still
-                        available on the component and wants a browser check. */}
-                    <DataTableDetailRow colSpan={detailColSpan}>
-                      <DescriptionList
-                        size={size === "xs" ? "xs" : "sm"}
-                        layout="inline"
-                        style={{ margin: 0 }}
+                      {/* forceMount is what makes it ANIMATE: without it a closed
+                        row is `hidden` (display:none), and display:none cannot
+                        transition — the panel would snap. Force-mounted, the row
+                        stays in the layout at zero height and the grid-collapse
+                        clip animates it open, while `aria-hidden` on the closed
+                        row keeps it out of the announced row count. */}
+                      <DataTableDetailRow
+                        colSpan={detailColSpan}
+                        gutter={leadingControlColumns}
+                        forceMount
                       >
-                        {[
-                          ["Commit", <code key="c">{deployment.commit}</code>],
-                          ["Branch", deployment.branch],
-                          ["Environment", deployment.environment],
-                          ["Triggered by", deployment.author],
-                          ["Duration", formatDuration(deployment.durationSeconds)],
-                          ["Commits in deploy", deployment.commits.toLocaleString()],
-                        ].map(([label, value]) => (
-                          /* dt/dd are native children by design: the prose family
-                             styles bare elements, and description-list exports
-                             only its <dl> root. */
-                          <Fragment key={String(label)}>
-                            <dt>{label}</dt>
-                            <dd style={{ whiteSpace: "nowrap" }}>{value}</dd>
-                          </Fragment>
-                        ))}
-                      </DescriptionList>
-                    </DataTableDetailRow>
-                  </HeadlessTable.Expandable>
-                );
-              })}
+                        <DeploymentDetail deployment={deployment} size={size} />
+                      </DataTableDetailRow>
+                    </HeadlessTable.Expandable>
+                  );
+                })}
             </TableBody>
           </Table>
         </TableScrollArea>
 
         <DataTableFooter>
           <DataTableRegion align="start">
-            <span style={{ color: "var(--primitiv-content-muted)", fontSize: "var(--primitiv-body-sm-font-size)" }}>
-              {selectedCount} of {table.getFilteredRowModel().rows.length} rows selected
-            </span>
+            {/* Colour only: the type comes from the data-table\'s own bar
+                type family, which scales with size and density. This was a
+                hardcoded `body-sm` — the same bug the pagination summary
+                had, written by hand instead of omitted. */}
+            {/* "…rows selected" wrapped onto two lines even at desktop width
+                once the numbered pager and the Select took their share. The
+                shorter phrase says the same thing on one line. */}
+            <p className="ks-dt__count">
+              {selectedCount} of {table.getFilteredRowModel().rows.length} selected
+            </p>
           </DataTableRegion>
 
           <DataTableRegion align="end">
             <Select
               native
-              size={size === "xs" ? "xs" : "sm"}
+              size={size}
               aria-label="Rows per page"
-              style={{ inlineSize: "auto" }}
+              className="ks-dt__page-size"
               value={String(table.getState().pagination.pageSize)}
               onValueChange={(value) => table.setPageSize(Number(value))}
             >
@@ -571,10 +922,18 @@ export function DeploymentsTable(): ReactElement {
               ))}
             </Select>
 
-            <Pagination label="Deployments pages" size={size === "xs" ? "xs" : "sm"}>
-              <PaginationSummary>
-                Page {pageIndex + 1} of {Math.max(pageCount, 1)}
-              </PaginationSummary>
+            <Pagination
+              label="Deployments pages"
+              size={size}
+              variant={narrow ? "compact" : "numbered"}
+            >
+              {/* Compact already carries the page readout between its arrows, so
+                  the summary would say it twice. */}
+              {!narrow && (
+                <PaginationSummary>
+                  Page {pageIndex + 1} of {Math.max(pageCount, 1)}
+                </PaginationSummary>
+              )}
               <PaginationList>
                 <PaginationItem>
                   <PaginationPrevious
@@ -582,16 +941,43 @@ export function DeploymentsTable(): ReactElement {
                     onClick={() => table.previousPage()}
                   />
                 </PaginationItem>
-                {pageWindow.map((page) => (
-                  <PaginationItem key={page}>
-                    <PaginationLink
-                      isActive={page === pageIndex}
-                      onClick={() => table.setPageIndex(page)}
-                    >
-                      {page + 1}
-                    </PaginationLink>
+                {/* `compact` is a re-presentation, not a different pager: the
+                    same prev/next controls stay, and the number cells give way to
+                    a readout. Rendering the cells with the compact class would
+                    just be the numbered pager in disguise. */}
+                {narrow ? (
+                  <PaginationItem>
+                    <PaginationStatus>
+                      Page {pageIndex + 1} of {Math.max(pageCount, 1)}
+                    </PaginationStatus>
                   </PaginationItem>
-                ))}
+                ) : (
+                  pageItems.map((item, index) =>
+                    item.type === "page" ? (
+                      <PaginationItem key={`page-${item.page}`}>
+                        <PaginationLink
+                          isActive={item.page === pageIndex + 1}
+                          onClick={() => table.setPageIndex(item.page - 1)}
+                        >
+                          {item.page}
+                        </PaginationLink>
+                      </PaginationItem>
+                    ) : (
+                      <PaginationItem key={`gap-${index}`}>
+                        <PaginationEllipsis>
+                          {item.pages.map((hidden) => (
+                            <PaginationMenuItem
+                              key={hidden}
+                              onSelect={() => table.setPageIndex(hidden - 1)}
+                            >
+                              {hidden}
+                            </PaginationMenuItem>
+                          ))}
+                        </PaginationEllipsis>
+                      </PaginationItem>
+                    ),
+                  )
+                )}
                 <PaginationItem>
                   <PaginationNext
                     disabled={!table.getCanNextPage()}

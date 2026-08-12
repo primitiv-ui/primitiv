@@ -1381,3 +1381,161 @@ pure CSS clipping mechanic: it stops `overflow: hidden` shaving descenders and
 changes no measurement — row heights and rhythm are identical before and after.
 Figma text nodes do not clip this way, so there is no counterpart to build. It
 belongs with Card's documented CSS-only divergences, not on the canvas.
+
+## 🧮 Data Table (RFC 0021 Tier 1) — Figma + headless + registry + kitchen-sink landed (2026-08-12)
+
+> **Done.** Figma first (a "Data Table — exploration" page, then six component
+> sets), the expandable-row trio in `packages/react`, the registry `data-table`
+> component, and a 72-row TanStack Table v8 demo in the kitchen-sink. Roster
+> count 62.
+
+**Outstanding on the canvas:** component descriptions on the six sets. Nothing
+else — the token work this needed was already in the file.
+
+**What went into `packages/react`, and why only this.** The composition needed
+exactly one behaviour the system did not have: an expandable row. Hence
+`Table.Expandable` / `Table.ExpandTrigger` / `Table.DetailRow`, sharing a context
+so the trigger's `aria-controls` reaches the panel's `id`. `aria-expanded` lives
+on the **button**, never the row — a row's expanded state is only reliably
+announced inside a `role="treegrid"`, and this is a disclosure holding a detail
+panel, not a tree. Everything else (sorting, selection, filtering, column
+visibility, pagination) was already available and stays outside the component.
+
+**Four mechanics worth not rediscovering:**
+
+1. **The indent is a `gutter` prop, not CSS.** `Table.DetailRow` takes
+   `gutter={n}` and renders one empty `<td colSpan={n}>` in front of the panel,
+   spanning the control columns, so the browser's table layout resolves the
+   width. The CSS alternative — summing control widths and paddings by hand —
+   was built first and measured **7-21px out across xs…xl**, because the checkbox
+   scales with `size` and the chevron glyph did not. `colSpan` keeps meaning the
+   table's full column count; the panel spans what remains. The
+   `--primitiv-data-table-detail-indent` custom property this replaced has been
+   **removed from the contract**, not merely deprecated: two mechanisms for one
+   alignment is how the wrong one gets used.
+2. **The collapse transition needs three nested wrappers, not two** — grid clip
+   (`0fr`↔`1fr`), zero-`min-height` overflow box, then the padded body. Padding on
+   the collapsing box sits *outside* its content box and floors the collapse: a
+   closed row kept a **24px visible band** at md, exactly 2 × the cell padding.
+   Accordion's content / content-inner / content-body is the same three-part
+   shape for the same reason, and two thirds of it is a bug that only shows on
+   the closed state.
+3. **`vertical-align: middle` on cells, scoped to `.primitiv-data-table`.** A
+   cell's default baseline alignment is correct for a prose table of running text
+   and wrong the moment a row mixes heights. An `inline-flex` avatar+name pair
+   contributes its **first flex item's** baseline, which drops the circle below
+   the name it labels; the strut's descent then leaves the pair sitting high in
+   the cell (measured 12px above, 20px below). Scoped here rather than pushed
+   onto `table` because mixed-height rows are this component's whole subject.
+4. **Glyphs size from `framed-control/{size}/icon-size`, never `1em`.** The em was
+   worse than off-system: a `<button>` does not inherit `font-size` from its cell,
+   so the expand chevron resolved against the UA's default **13.3px and never
+   scaled at all**, while the sort glyph — whose button does set `font: inherit` —
+   tracked the type scale. Two ladders where the system has one, and the frozen
+   one looked plausible at md. Accordion and Collapsible size their chevrons from
+   this same family.
+
+**The kitchen-sink demo pages with `paginationRange`'s default `paged` window.**
+A window centred on the current page relabels every cell on every step, so
+clicking "3" renumbers the row under the reader's cursor — it reads as a flash.
+`paged` holds a block of five steady and only advances when the page steps
+outside it. `paginationRange` is exported separately from `usePagination` for
+exactly this case: TanStack owns the page state, so the hook would be a second
+owner of it.
+
+**One `Omit`-narrowing artifact, caught by the type-checker.**
+`DataTableSortHeader` takes an `align` prop, and `<th>` has a native `align`
+attribute (React types it as the deprecated `"left" | "center" | "right" |
+"justify" | "char"`). Intersecting the two leaves a type nothing satisfies, and
+`align="end"` failed at the call site with "string is not assignable to
+undefined". `Omit<…, "align">` is the fix — the same prop-collision scan that
+caught `NavigationMenu.Item`'s `value`.
+
+### Cross-component fixes found while building the demo (2026-08-12)
+
+The Data Table demo turned into an audit of everything it composes. These are
+changes to OTHER components, each caught by measuring in a real browser rather
+than by review:
+
+1. **`table/row/hover` was a surface, not a state layer.** It aliased
+   `{color.neutral.100}` = `#d3dae3` — the *same value* as `surface/subtle` and
+   `surface/sunken`. Re-pointed to `{color.neutral-alpha.100}` (~6% ink), matching
+   `tree/row/hover` and `miller-columns/row/hover`; Table was the outlier of the
+   three. The **primitive is untouched**, so every other `neutral.100` consumer
+   stays put — the blast radius is `table` + `data-table`. Figma synced: Light →
+   `color/neutral-alpha/100`, Dark → `color/neutral-alpha-**inverse**/100` (this
+   file resolves Palette through Light mode on dark frames). All 23 bound nodes
+   re-resolved; no stale paint literals.
+2. **An alpha hover has to paint on the CELLS, not the row.** Set as the row's
+   `background-color` it *replaces* the zebra stripe rather than sitting over it,
+   so a striped row would go from `#e5ecf6` to a 6% veil over white — lighter on
+   hover, the wrong direction. Cells paint above their row, so the same value on
+   the cells composites over stripe, selection or bare surface. It also
+   transitions, which a layered `background-image` gradient would not.
+3. **Hover fills now transition** on `table` cells and on every menu row
+   (`dropdown`, `context-menu`, `select`, `listbox`) — 150ms `background-color`,
+   the shared control duration every other hover fill in the system already used.
+   `listbox` had **no `prefers-reduced-motion` block at all**; its checkbox fill
+   and tick reveal were ungated too, now closed.
+4. **`dropdown` derives its own anchor idents.** `anchor-name` /
+   `position-anchor` were the consumer's job, per-instance and unique — which does
+   not scale: a table with a menu per row cannot use a static ident, so every
+   consumer wrote the same `useId` wrapper by hand. `Dropdown` and `DropdownSub`
+   now mint one from `useId()` and pass it through context (the fix
+   `breadcrumb-overflow` already made internally). A consumer's own
+   `style.anchorName` still wins — verified that `pagination` and
+   `breadcrumb-overflow`, which pass explicit idents through `asChild`, keep them.
+   `context-menu` deliberately untouched: it anchors to an arbitrary region, not a
+   trigger, so that really is the consumer's choice.
+5. **`pagination`'s summary/status/trailing had no type at all**, so they
+   inherited the page's body copy and moved with neither `size` nor density while
+   the page cells scaled around them. A missing knob is harder to spot than a
+   mis-pointed one — there is no wrong value to see. `data-table`'s bars had the
+   same hole.
+6. **`box-sizing` on any `inline-size: 100%` bordered box.** `code-block` measured
+   962px in a 960px container: its two 1px borders sat outside the 100%. Same
+   class of bug as the kitchen-sink's own content column (992 in a 960 grid
+   track, which ate a 24px gap and overlapped the TOC by 8px).
+7. **`Table.ExpandTrigger` gained `asChild`**, so a styled layer can compose a real
+   Button instead of re-creating one. The registry expander was a hand-rolled
+   `<button>`; it is now a ghost Button at one tier down, matching Figma, whose
+   Expand Trigger is an **Icon Button** instance. That deleted three custom
+   properties (`expand-color`, `-hover-background`, `-radius`) — Button owns them,
+   and correctly: the hand-rolled version had the wrong ink (`content/muted`
+   against Figma's `action/secondary/foreground/default`) and the wrong shape (a
+   pill).
+8. **Control glyphs are one tier down, off the Figma ladder** —
+   `framed-control/{xs,xs,sm,md,lg}/icon-size` for row sizes xs…xl (12/12/14/16/20).
+   A first pass used the same tier and was a rung too big at every size. Same
+   ladder Tree uses for its Breadcrumb sizes.
+9. **`vertical-align: middle` cannot centre an inline box exactly.** It aligns to
+   `baseline + half the font's x-height`, so the error tracks the type size: the
+   row checkbox sat 0.7px low at xs and **2.4px low at xl** while the expander,
+   avatar and text all landed on the row's centre. The control is now a
+   block-level flex box with `fit-content` width and auto inline margins.
+10. **Bare `<dt>`/`<dd>` inside `<DescriptionList>` silently ignore `size`.** The
+    base reset dresses a bare description list with declarations *on the element*,
+    and a direct declaration beats an inherited one regardless of layer — so the
+    parts stayed at `body/md`. `DescriptionList.Term` / `.Details` carry the
+    classes that scale. Invisible at `md`, where the two coincide.
+11. **The kitchen-sink never loaded `table`'s stylesheet.** `table.tsx` was the
+    only one of 62 wrappers missing its `import "…/styles.css"`, so the plain
+    Table demo had been rendering off the base-element reset — hence "not full
+    width" (no `inline-size: 100%`).
+
+**Mobile.** `data-table`'s bars stack below `40rem`; regions also `flex-wrap`,
+which needs no threshold at all. It is a **media** query, and a container query
+was tried first and reverted: `container-type: inline-size` on the shell inflates
+the height of any flex-column parent. Measured, a section body holding nothing but
+this component went 549px → 1209px, the extra 660px tracking the shell's
+*unclipped* content, as though its `overflow: hidden` and the scroll area's
+`max-block-size` were not there. The same parent as `display: block` is correct,
+and no shell-level fix helped (`block-size: fit-content`, `min-block-size: 0`,
+`overflow: clip`, dropping flex, or moving the container to a wrapper). A flex
+column is far too ordinary a parent to break. The threshold is baked in, departing from `stepper`'s
+"the consumer picks the width" stance — that is a presentation swap, this is the
+difference between a bar that degrades and one that overlaps itself, and "not
+broken on a phone" cannot be opt-in. Which pager to show IS the consumer's call
+(`useMediaQuery`, `compact` at `56rem`), and the two thresholds deliberately
+differ: a numbered pager over 8 pages needs ~650px, so the footer wants ~900px
+before a Select and a row count can share its line.

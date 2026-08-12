@@ -319,7 +319,52 @@ None of these are built yet; listed here for backlog visibility.
       `crates/primitiv-cli/tests/cli.rs` (roster count 60). RFC 0021 scoped
       this as "`Button` + `Select`"; `Dropdown` is a deliberate extension for
       the overflow menu, same precedent as Breadcrumb Overflow.
-- [ ] Data Table (`Table` + `Checkbox` + `Dropdown` + `Select` + Pagination + `InputGroup`)
+- [x] Data Table (`Table` + `Checkbox` + `Dropdown` + `Select` + Pagination + `InputGroup`)
+      — Figma first (a "Data Table — exploration" page, then six component sets),
+      then the one thing the composition genuinely needed in `packages/react`:
+      the **expandable-row trio**, `Table.Expandable` / `Table.ExpandTrigger` /
+      `Table.DetailRow`, sharing a context so the trigger's `aria-controls`
+      reaches the panel. `aria-expanded` sits on the **button**, never the row —
+      a row's expanded state is only reliably announced inside a
+      `role="treegrid"`, and this is a disclosure holding a detail panel, not a
+      tree. Registry `data-table` owns **anatomy only**: sorting, selection,
+      expansion, filtering, column visibility and pagination all arrive as props
+      and leave as callbacks, so TanStack Table drives the kitchen-sink demo
+      without the component duplicating one concept, and there is no
+      `columns`/`data` API (RFC 0019 §4c again). It ships no toolbar controls
+      either, column visibility included — that would mean owning the column
+      list. Four things worth keeping:
+      **(a)** the detail row's indent is the headless **`gutter`** prop — one
+      empty `<td colSpan={gutter}>` spanning the control columns — **not** a CSS
+      indent. A CSS indent has to sum control widths and paddings by hand, and
+      the sum can only be right at one size: measured 7-21px out across xs…xl,
+      because the checkbox scales with `size` and the chevron glyph did not.
+      The gutter is exact at every size and density because the browser's own
+      table layout resolves it.
+      **(b)** the open/close transition needs **three** nested wrappers, not two:
+      the grid clip (`0fr`↔`1fr`), a zero-`min-height` overflow box, and — one
+      further in — the padded body. Padding on the collapsing box sits outside
+      its content box and floors the collapse (measured 24px of visible band at
+      md on a closed row). Accordion's content / content-inner / content-body is
+      the same three-part shape for the same reason; two thirds of it is a bug.
+      **(c)** cells are `vertical-align: middle` inside a data table. A cell's
+      default baseline alignment is right for running text and wrong the moment
+      a row mixes heights — an inline-flex avatar+name pair contributes its
+      *first flex item's* baseline, dropping the circle below the name it labels.
+      **(d)** glyphs size from `framed-control/{size}/icon-size`, not `1em`. The
+      em was worse than merely off-system: a `<button>` does not inherit
+      `font-size` from its cell, so the expand chevron resolved against the UA's
+      default 13.3px and never scaled at all, while the sort glyph (whose button
+      does set `font: inherit`) tracked the type scale — two ladders where the
+      system has one.
+      Kitchen-sink: a 72-row Deployments table on TanStack v8 (pinned — v9 drops
+      `useReactTable`), paged with `paginationRange`'s default **`paged`** window
+      rather than a centred one, so clicking a page number activates it and
+      relabels nothing (a sliding window renumbers the cell under the reader's
+      cursor on every step, which reads as a flash). Registered in
+      `registry/registry.json`, `crates/primitiv-cli/src/ports/registry.rs`,
+      `crates/primitiv-cli/tests/cli.rs` (roster count 62). **Outstanding:**
+      component descriptions on the six Figma sets.
 - [ ] Rating (`RadioGroup` re-skinned — reclassified out of Forms below)
 - [ ] Stat / KPI tile (`Progress` + `Badge` + `Prose`)
 - [ ] Notification / inbox popover (`Popover` + `Badge` + `Status`)

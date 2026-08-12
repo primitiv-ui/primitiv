@@ -57,6 +57,22 @@
     {
       "name": "--primitiv-pagination-menu-max-block-size",
       "defaultsTo": "var(--primitiv-size-size-288)"
+    },
+    {
+      "name": "--primitiv-pagination-font-family",
+      "defaultsTo": "var(--primitiv-body-md-font-family)"
+    },
+    {
+      "name": "--primitiv-pagination-font-size",
+      "defaultsTo": "var(--primitiv-body-md-font-size)"
+    },
+    {
+      "name": "--primitiv-pagination-font-weight",
+      "defaultsTo": "var(--primitiv-body-md-font-weight)"
+    },
+    {
+      "name": "--primitiv-pagination-line-height",
+      "defaultsTo": "var(--primitiv-body-md-line-height)"
     }
   ]
 }

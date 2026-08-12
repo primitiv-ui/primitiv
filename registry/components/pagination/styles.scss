@@ -19,6 +19,12 @@
  * md at every size (which is exactly what happened to the group gap, the
  * compact gap and the chevron size on the first pass).
  *
+ * The same class of bug, one step worse, hit TYPE: the summary / status /
+ * trailing parts declared no font at all, so they did not pin to md — they
+ * inherited the surrounding page's body copy and moved with neither `size` nor
+ * density, while the page cells scaled around them. A missing knob is easier to
+ * miss than a mis-pointed one, because there is no wrong value to spot.
+ *
  * Anatomy mirrors the Figma design (page "Pagination"): three top-level
  * children, [summary][controls][trailing], of which only `controls` is always
  * present. `controls` owns the TIGHT cell gap (pagination/{size}/gap); the root
@@ -73,6 +79,17 @@
     --primitiv-pagination-icon-size: var(--primitiv-framed-control-md-icon-size);
     --primitiv-pagination-menu-min-inline-size: var(--primitiv-pagination-md-item-min-width);
     --primitiv-pagination-menu-max-block-size: var(--primitiv-size-size-288);
+    /* Type, declared on the ROOT so the three text parts (__summary, __status,
+       __trailing) inherit it. They carried no type at all, so they resolved the
+       page's body copy and ignored both the size modifier and density — the
+       page cells scaled around a summary that never moved. It sits on the root
+       rather than on each part because the composed Button cells and Dropdown
+       rows set their own type from their own tokens, so they are immune to it.
+       body/{size} matches what the Dropdown row text aliases. */
+    --primitiv-pagination-font-family: var(--primitiv-body-md-font-family);
+    --primitiv-pagination-font-size: var(--primitiv-body-md-font-size);
+    --primitiv-pagination-font-weight: var(--primitiv-body-md-font-weight);
+    --primitiv-pagination-line-height: var(--primitiv-body-md-line-height);
 
     display: flex;
     align-items: center;
@@ -83,6 +100,10 @@
        `variant="compact"` is the answer for a genuinely narrow container. */
     flex-wrap: wrap;
     gap: var(--primitiv-pagination-group-gap);
+    font-family: var(--primitiv-pagination-font-family);
+    font-size: var(--primitiv-pagination-font-size);
+    font-weight: var(--primitiv-pagination-font-weight);
+    line-height: var(--primitiv-pagination-line-height);
   }
 
   .primitiv-pagination__controls {
@@ -184,6 +205,10 @@
   /* Size — both knobs come from the same size slot, so a cell stays square at
      every density (item-min-width aliases framed-control/{size}/height). */
   .primitiv-pagination--xs {
+    --primitiv-pagination-font-family: var(--primitiv-body-xs-font-family);
+    --primitiv-pagination-font-size: var(--primitiv-body-xs-font-size);
+    --primitiv-pagination-font-weight: var(--primitiv-body-xs-font-weight);
+    --primitiv-pagination-line-height: var(--primitiv-body-xs-line-height);
     --primitiv-pagination-gap: var(--primitiv-pagination-xs-gap);
     --primitiv-pagination-group-gap: var(--primitiv-pagination-xs-group-gap);
     --primitiv-pagination-control-gap: var(--primitiv-framed-control-xs-gap);
@@ -193,6 +218,10 @@
   }
 
   .primitiv-pagination--sm {
+    --primitiv-pagination-font-family: var(--primitiv-body-sm-font-family);
+    --primitiv-pagination-font-size: var(--primitiv-body-sm-font-size);
+    --primitiv-pagination-font-weight: var(--primitiv-body-sm-font-weight);
+    --primitiv-pagination-line-height: var(--primitiv-body-sm-line-height);
     --primitiv-pagination-gap: var(--primitiv-pagination-sm-gap);
     --primitiv-pagination-group-gap: var(--primitiv-pagination-sm-group-gap);
     --primitiv-pagination-control-gap: var(--primitiv-framed-control-sm-gap);
@@ -202,6 +231,10 @@
   }
 
   .primitiv-pagination--md {
+    --primitiv-pagination-font-family: var(--primitiv-body-md-font-family);
+    --primitiv-pagination-font-size: var(--primitiv-body-md-font-size);
+    --primitiv-pagination-font-weight: var(--primitiv-body-md-font-weight);
+    --primitiv-pagination-line-height: var(--primitiv-body-md-line-height);
     --primitiv-pagination-gap: var(--primitiv-pagination-md-gap);
     --primitiv-pagination-group-gap: var(--primitiv-pagination-md-group-gap);
     --primitiv-pagination-control-gap: var(--primitiv-framed-control-md-gap);
@@ -211,6 +244,10 @@
   }
 
   .primitiv-pagination--lg {
+    --primitiv-pagination-font-family: var(--primitiv-body-lg-font-family);
+    --primitiv-pagination-font-size: var(--primitiv-body-lg-font-size);
+    --primitiv-pagination-font-weight: var(--primitiv-body-lg-font-weight);
+    --primitiv-pagination-line-height: var(--primitiv-body-lg-line-height);
     --primitiv-pagination-gap: var(--primitiv-pagination-lg-gap);
     --primitiv-pagination-group-gap: var(--primitiv-pagination-lg-group-gap);
     --primitiv-pagination-control-gap: var(--primitiv-framed-control-lg-gap);
@@ -220,6 +257,10 @@
   }
 
   .primitiv-pagination--xl {
+    --primitiv-pagination-font-family: var(--primitiv-body-xl-font-family);
+    --primitiv-pagination-font-size: var(--primitiv-body-xl-font-size);
+    --primitiv-pagination-font-weight: var(--primitiv-body-xl-font-weight);
+    --primitiv-pagination-line-height: var(--primitiv-body-xl-line-height);
     --primitiv-pagination-gap: var(--primitiv-pagination-xl-gap);
     --primitiv-pagination-group-gap: var(--primitiv-pagination-xl-group-gap);
     --primitiv-pagination-control-gap: var(--primitiv-framed-control-xl-gap);
@@ -274,5 +315,9 @@ $primitiv-pagination-control-gap: var(--primitiv-pagination-control-gap);
 $primitiv-pagination-icon-size: var(--primitiv-pagination-icon-size);
 $primitiv-pagination-menu-min-inline-size: var(--primitiv-pagination-menu-min-inline-size);
 $primitiv-pagination-menu-max-block-size: var(--primitiv-pagination-menu-max-block-size);
+$primitiv-pagination-font-family: var(--primitiv-pagination-font-family);
+$primitiv-pagination-font-size: var(--primitiv-pagination-font-size);
+$primitiv-pagination-font-weight: var(--primitiv-pagination-font-weight);
+$primitiv-pagination-line-height: var(--primitiv-pagination-line-height);
 $primitiv-dropdown-min-inline-size: var(--primitiv-dropdown-min-inline-size);
 $primitiv-dropdown-max-block-size: var(--primitiv-dropdown-max-block-size);

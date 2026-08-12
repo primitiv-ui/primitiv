@@ -160,6 +160,12 @@
     cursor: default;
     -webkit-tap-highlight-color: transparent;
     user-select: none;
+    /* The cursor fill fades in rather than snapping. [data-highlighted] is the
+       virtual focus, set by arrow navigation as well as the pointer, so this
+       rides keyboard runs too; the shared control duration matches every other
+       hover fill in the system. */
+    transition: background-color var(--primitiv-motion-duration-control)
+      var(--primitiv-motion-easing-default);
   }
 
   /* The mark. Always in the DOM so the column it occupies is reserved whatever
@@ -460,5 +466,16 @@
 
   .primitiv-listbox__option[data-disabled] .primitiv-listbox__option-indicator {
     color: var(--primitiv-listbox-option-color-disabled);
+  }
+
+  /* Honour reduced-motion. This sheet had no such block: the option checkbox's
+     fill transition and the tick's scale reveal were both ungated, so they are
+     closed here alongside the new cursor fill. */
+  @media (prefers-reduced-motion: reduce) {
+    .primitiv-listbox__option,
+    .primitiv-listbox__option-checkbox,
+    .primitiv-listbox__option-checkbox::after {
+      transition: none;
+    }
   }
 }

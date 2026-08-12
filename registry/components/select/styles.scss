@@ -344,6 +344,13 @@
     cursor: default;
     -webkit-tap-highlight-color: transparent;
     user-select: none;
+    /* The highlight fades in rather than snapping. [data-highlighted] is set on
+       pointer-enter AND on keyboard navigation, so this rides arrow-key runs as
+       well as hover; the shared control duration is what every other hover fill
+       in the system uses (button, chip, navigation-menu, and miller-columns —
+       the closest analogue, a row list with a highlight). */
+    transition: background-color var(--primitiv-motion-duration-control)
+      var(--primitiv-motion-easing-default);
   }
 
   /* Breathing room between rows — margin-block-start on the second of an
@@ -794,6 +801,10 @@
 
   /* Honour reduced-motion: no scale / fade / chevron sweep, just show / hide. */
   @media (prefers-reduced-motion: reduce) {
+    .primitiv-select__item {
+      transition: none;
+    }
+
     .primitiv-select,
     .primitiv-select__icon,
     .primitiv-select__content {

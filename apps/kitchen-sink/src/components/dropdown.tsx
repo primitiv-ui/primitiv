@@ -10,13 +10,34 @@ import "../styles/primitiv/dropdown/styles.css";
  * row slots with no headless counterpart — plain spans carrying the row-layout
  * classes, mirroring the Figma Item / CheckboxItem / RadioItem slot properties.
  * Content carries the size + placement modifiers; SubContent reuses the panel
- * with the `submenu` placement default. Positioning is CSS anchor positioning —
- * wire an `anchor-name` on the trigger and a matching `position-anchor` on
- * Content / SubContent. Keep contract.json + the stylesheet + this file in sync
- * by hand.
+ * with the `submenu` placement default. Keep contract.json + the stylesheet +
+ * this file in sync by hand.
+ *
+ * ANCHOR POSITIONING WIRES ITSELF. Positioning is CSS anchor positioning, which
+ * needs a unique `anchor-name` on the trigger and a matching `position-anchor`
+ * on the panel — per instance, because reusing one ident across two menus makes
+ * the anchor ambiguous and both panels resolve to the same trigger. That used to
+ * be the consumer's job, and it does not scale: a table with a menu per row
+ * cannot use a static ident at all, so every consumer ended up writing the same
+ * useId-derived wrapper by hand. `Dropdown` and `DropdownSub` now derive their
+ * own from `useId()` and hand it to their trigger and panel through context —
+ * the fix `breadcrumb-overflow` already makes internally, for the same reason.
+ *
+ * It is an inline style rather than a custom property because `anchor-name:
+ * var(--x)` does not work: the property is not var()-substitutable in this
+ * position and computes to `none`. A consumer's own `style.anchorName` /
+ * `style.positionAnchor` still wins (spread order), which is the escape hatch
+ * for anchoring a panel to something other than its trigger.
  */
 import { Dropdown as DropdownPrimitive } from "@primitiv-ui/react";
-import { type ComponentPropsWithRef } from "react";
+import {
+  createContext,
+  useContext,
+  useId,
+  type ComponentPropsWithRef,
+  type CSSProperties,
+  type ReactNode,
+} from "react";
 import {
   dropdown,
   dropdownItem,
@@ -37,6 +58,29 @@ type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K>
 
 const cx = (...classes: (string | undefined)[]) => classes.filter(Boolean).join(" ");
 
+/* `useId()` returns something like ":r3:", and a CSS <custom-ident> may not
+   contain a colon — so every character outside [A-Za-z0-9_-] becomes a hyphen.
+   Same helper as NavigationMenu's `toAnchorIdentFragment` and
+   breadcrumb-overflow's copy of it. */
+const toAnchorIdent = (id: string) => `--primitiv-dropdown-${id.replace(/[^A-Za-z0-9_-]/g, "-")}`;
+
+/* Undefined outside a Dropdown, which is what lets the parts stay usable on
+   their own — they simply set no ident, exactly as before this existed. */
+const DropdownAnchorContext = createContext<string | undefined>(undefined);
+
+/* A submenu's pair must not reuse its parent menu's ident, or the submenu panel
+   anchors to the top-level trigger. `DropdownSub` provides a fresh one, and
+   because SubTrigger and SubContent are both its children, the nearest-provider
+   lookup gives each subtree the right ident with no plumbing. */
+function useAnchorIdent(): string | undefined {
+  return useContext(DropdownAnchorContext);
+}
+
+function AnchorProvider({ children }: { children: ReactNode }) {
+  const ident = toAnchorIdent(useId());
+  return <DropdownAnchorContext.Provider value={ident}>{children}</DropdownAnchorContext.Provider>;
+}
+
 type DropdownSize = "xs" | "sm" | "md" | "lg" | "xl";
 
 type DropdownPlacement =
@@ -54,13 +98,23 @@ type DropdownPlacement =
 export type DropdownProps = ComponentPropsWithRef<typeof DropdownPrimitive.Root>;
 
 export function Dropdown(props: DropdownProps) {
-  return <DropdownPrimitive.Root {...props} />;
+  return (
+    <AnchorProvider>
+      <DropdownPrimitive.Root {...props} />
+    </AnchorProvider>
+  );
 }
 
 export type DropdownTriggerProps = ComponentPropsWithRef<typeof DropdownPrimitive.Trigger>;
 
-export function DropdownTrigger(props: DropdownTriggerProps) {
-  return <DropdownPrimitive.Trigger {...props} />;
+export function DropdownTrigger({ style, ...props }: DropdownTriggerProps) {
+  const anchorName = useAnchorIdent();
+  return (
+    <DropdownPrimitive.Trigger
+      style={{ anchorName, ...style } as CSSProperties}
+      {...props}
+    />
+  );
 }
 
 export type DropdownContentProps = DistributiveOmit<
@@ -74,18 +128,26 @@ export type DropdownContentProps = DistributiveOmit<
    */
   size?: DropdownSize;
   /**
-   * Which side of the trigger the panel opens on. Wire `anchor-name` on the
-   * trigger and a matching `position-anchor` on this panel (inline style).
+   * Which side of the trigger the panel opens on. The trigger↔panel anchor
+   * wiring is automatic — nothing to set.
    * @default "bottom-start"
    * @see https://primitiv-ui.dev/docs/components/dropdown
    */
   placement?: Exclude<DropdownPlacement, "submenu">;
 };
 
-export function DropdownContent({ size, placement, className, ...props }: DropdownContentProps) {
+export function DropdownContent({
+  size,
+  placement,
+  className,
+  style,
+  ...props
+}: DropdownContentProps) {
+  const positionAnchor = useAnchorIdent();
   return (
     <DropdownPrimitive.Content
       className={cx(dropdown({ size, placement }), className)}
+      style={{ positionAnchor, ...style } as CSSProperties}
       {...props}
     />
   );
@@ -198,14 +260,23 @@ export function DropdownRadioGroup({ className, ...props }: DropdownRadioGroupPr
 export type DropdownSubProps = ComponentPropsWithRef<typeof DropdownPrimitive.Sub>;
 
 export function DropdownSub(props: DropdownSubProps) {
-  return <DropdownPrimitive.Sub {...props} />;
+  return (
+    <AnchorProvider>
+      <DropdownPrimitive.Sub {...props} />
+    </AnchorProvider>
+  );
 }
 
 export type DropdownSubTriggerProps = ComponentPropsWithRef<typeof DropdownPrimitive.SubTrigger>;
 
-export function DropdownSubTrigger({ className, ...props }: DropdownSubTriggerProps) {
+export function DropdownSubTrigger({ className, style, ...props }: DropdownSubTriggerProps) {
+  const anchorName = useAnchorIdent();
   return (
-    <DropdownPrimitive.SubTrigger className={cx(dropdownSubTrigger(), className)} {...props} />
+    <DropdownPrimitive.SubTrigger
+      className={cx(dropdownSubTrigger(), className)}
+      style={{ anchorName, ...style } as CSSProperties}
+      {...props}
+    />
   );
 }
 
@@ -220,8 +291,8 @@ export type DropdownSubContentProps = DistributiveOmit<
    */
   size?: DropdownSize;
   /**
-   * Where the submenu opens. Defaults to the inline-end side of its parent row;
-   * wire `anchor-name` on the SubTrigger and a matching `position-anchor` here.
+   * Where the submenu opens. Defaults to the inline-end side of its parent row.
+   * The SubTrigger↔panel anchor wiring is automatic — nothing to set.
    * @default "submenu"
    * @see https://primitiv-ui.dev/docs/components/dropdown
    */
@@ -232,11 +303,14 @@ export function DropdownSubContent({
   size,
   placement = "submenu",
   className,
+  style,
   ...props
 }: DropdownSubContentProps) {
+  const positionAnchor = useAnchorIdent();
   return (
     <DropdownPrimitive.SubContent
       className={cx(dropdown({ size, placement }), className)}
+      style={{ positionAnchor, ...style } as CSSProperties}
       {...props}
     />
   );

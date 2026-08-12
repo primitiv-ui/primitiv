@@ -252,6 +252,13 @@
     cursor: default;
     -webkit-tap-highlight-color: transparent;
     user-select: none;
+    /* The highlight fades in rather than snapping. [data-highlighted] is set on
+       pointer-enter AND on keyboard navigation, so this rides arrow-key runs as
+       well as hover; the shared control duration is what every other hover fill
+       in the system uses (button, chip, navigation-menu, and miller-columns —
+       the closest analogue, a row list with a highlight). */
+    transition: background-color var(--primitiv-motion-duration-control)
+      var(--primitiv-motion-easing-default);
   }
 
   /* The row's text label takes the remaining space so the SubTrigger chevron /
@@ -548,6 +555,13 @@
 
   /* Honour reduced-motion: no scale / fade, just show / hide. */
   @media (prefers-reduced-motion: reduce) {
+    .primitiv-dropdown__item,
+    .primitiv-dropdown__checkbox-item,
+    .primitiv-dropdown__radio-item,
+    .primitiv-dropdown__sub-trigger {
+      transition: none;
+    }
+
     .primitiv-dropdown {
       transition: none;
     }

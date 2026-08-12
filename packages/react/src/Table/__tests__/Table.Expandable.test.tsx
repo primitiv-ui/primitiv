@@ -64,6 +64,42 @@ describe("Table.Expandable contract", () => {
     );
   });
 
+  it.each([
+    { expanded: true, state: "open" },
+    { expanded: false, state: "closed" },
+  ])(
+    "should publish data-state=$state on both parts for the styling layer",
+    ({ expanded, state }) => {
+      // Arrange
+      render(
+        <table>
+          <tbody>
+            <Table.Expandable expanded={expanded}>
+              <Table.Row>
+                <Table.Cell>
+                  <Table.ExpandTrigger>Toggle</Table.ExpandTrigger>
+                </Table.Cell>
+              </Table.Row>
+              <Table.DetailRow colSpan={2} forceMount>
+                Detail panel
+              </Table.DetailRow>
+            </Table.Expandable>
+          </tbody>
+        </table>,
+      );
+
+      // Assert — the registry stylesheet animates the panel off this attribute,
+      // because a CSS transition needs a selector, not an unmount.
+      expect(screen.getByRole("button", { name: "Toggle" })).toHaveAttribute(
+        "data-state",
+        state,
+      );
+      expect(
+        screen.getByText("Detail panel").closest("tr"),
+      ).toHaveAttribute("data-state", state);
+    },
+  );
+
   it("should not aria-hide a force-mounted row once it is expanded", () => {
     // Arrange
     render(

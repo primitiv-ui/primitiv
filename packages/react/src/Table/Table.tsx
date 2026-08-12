@@ -436,6 +436,7 @@ export function TableExpandTrigger({
       type="button"
       aria-expanded={expanded}
       aria-controls={detailId}
+      data-state={expanded ? "open" : "closed"}
       onClick={(event) => {
         onClick?.(event);
         toggle();
@@ -467,6 +468,7 @@ export function TableDetailRow({
   return (
     <tr
       id={detailId}
+      data-state={collapsed ? "closed" : "open"}
       hidden={collapsed && !forceMount}
       aria-hidden={collapsed && forceMount ? true : undefined}
       {...rest}

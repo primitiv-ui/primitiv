@@ -51,6 +51,9 @@ import { Table } from "@primitiv-ui/react";
 | `Table.Cell`       | `<td>`      | Data cell. Accepts `colSpan` and `rowSpan`.                                                 |
 | `Table.ScrollArea` | `<div>`     | Horizontal-scroll wrapper — see [Responsive scrolling](#responsive-scrolling).              |
 | `Table.Caption`    | `<caption>` | Visible table label — see [Caption](#caption).                                              |
+| `Table.Expandable` | *nothing*   | Pairs a row with its detail row — see [Expandable rows](#expandable-rows).                   |
+| `Table.ExpandTrigger` | `<button>` | The row's disclosure control; owns `aria-expanded` / `aria-controls`.                     |
+| `Table.DetailRow`  | `<tr>`      | The revealed panel, as a `<td colSpan>`.                                                    |
 
 ## Accessible headers
 
@@ -203,3 +206,78 @@ caption {
 ---
 
 [Back to @primitiv-ui/react](../../README.md)
+
+## Expandable rows
+
+A row can open onto a detail panel. This is a **disclosure**, not a
+[treegrid](https://www.w3.org/WAI/ARIA/apg/patterns/treegrid/): expanding into
+hierarchical child *rows* is a different pattern with a full cell-navigation
+keyboard model, and is deliberately out of scope here.
+
+`Table.Expandable` renders no DOM of its own — it is a context provider, so both
+`<tr>`s stay direct children of the `<tbody>` and the table's structure is
+untouched.
+
+```tsx
+<Table.Body>
+  <Table.Expandable expanded={open} onExpandedChange={setOpen}>
+    <Table.Row>
+      <Table.Cell>
+        <Table.ExpandTrigger>
+          <ChevronIcon aria-hidden="true" />
+          <span className="sr-only">Show details for Ada Lovelace</span>
+        </Table.ExpandTrigger>
+      </Table.Cell>
+      <Table.Cell>Ada Lovelace</Table.Cell>
+    </Table.Row>
+
+    <Table.DetailRow colSpan={2}>
+      <ContributorDetail />
+    </Table.DetailRow>
+  </Table.Expandable>
+</Table.Body>
+```
+
+Controlled via `expanded` + `onExpandedChange` (what an external table engine
+drives), or uncontrolled with `defaultExpanded`.
+
+### Why the state is on the button
+
+`role="row"` does list `aria-expanded` among its supported properties, but a
+**button's** expanded state is announced universally while a row's is only
+reliably announced inside a `role="treegrid"`. So the button owns
+`aria-expanded` and `aria-controls`, and the detail row publishes the matching
+`id`.
+
+Give the trigger a name that identifies **its row**. A column of buttons all
+called "Expand" is the same defect as a column of checkboxes all called
+"Select": obvious on screen, useless in a screen reader's element list.
+
+### `colSpan` is required
+
+It must cover every column the table renders, control columns included. It is a
+prop rather than a count taken from context on purpose: counting would mean the
+table registering its own columns, and an external engine already knows the
+number (TanStack Table: `table.getVisibleLeafColumns().length`).
+
+### `forceMount` and the row count
+
+By default a collapsed detail row is `hidden`, so it is absent from the
+accessibility tree — which matters more here than on a `<div>`-based disclosure,
+because a mounted `<tr>` is still a **row**: 24 data rows each with a
+force-mounted detail row would announce 48.
+
+Pass `forceMount` to keep it mounted so CSS can transition it. While collapsed it
+then carries `aria-hidden="true"`, so the announced row count stays truthful
+either way.
+
+### Styling hooks
+
+`data-state="open" | "closed"` on both the trigger and the detail row.
+
+Note that the `display: grid` 0fr↔1fr open/close technique used by Accordion and
+Collapsible **cannot** go on the `<tr>` or the `<td>` — `display: grid` on either
+takes it out of the table layout algorithm and column alignment collapses with
+it. Put the animated wrapper inside the cell, and zero the cell's block padding
+so a closed row leaves no padded band. The registry `data-table` component does
+this for you.

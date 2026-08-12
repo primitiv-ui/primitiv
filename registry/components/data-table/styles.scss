@@ -380,8 +380,26 @@
     z-index: 1;
     background-color: var(--primitiv-data-table-header-background);
     border-block-end: var(--primitiv-border-width-0) solid transparent;
-    box-shadow: inset 0 calc(-1 * var(--primitiv-data-table-border-width)) 0 0
-      var(--primitiv-table-header-rule-color);
+  }
+
+  /* The rule is drawn as a positioned overlay rather than a border or an inset
+     shadow. border-collapse hands a cell's border to the table grid, so a stuck
+     cell loses it; and an inset shadow does not paint reliably on a collapsed
+     cell either. The cell is already `position: sticky`, so an ::after can pin
+     to its trailing edge and travel with it. */
+  .primitiv-data-table--sticky .primitiv-table__head .primitiv-table__header::after {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    inset-block-end: 0;
+    block-size: var(--primitiv-data-table-border-width);
+    /* Fallback chain: the table's own header-rule knob is not guaranteed to be
+       in scope on a sticky cell, and an unresolved var silently computes to
+       transparent — a 1px rule of nothing, which is exactly what it did. */
+    background-color: var(
+      --primitiv-table-header-rule-color,
+      var(--primitiv-border-strong, currentColor)
+    );
   }
 
   @media (prefers-reduced-motion: reduce) {

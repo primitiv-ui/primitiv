@@ -12,7 +12,7 @@
  * engine-agnostic, so a v9 migration changes this file's hooks and none of its
  * markup.
  */
-import { Fragment, useMemo, useState, type ReactElement } from "react";
+import { Fragment, useId, useMemo, useState, type CSSProperties, type ReactElement, type ReactNode } from "react";
 import {
   useReactTable,
   getCoreRowModel,
@@ -162,6 +162,55 @@ const COLUMNS = [
 const NUMERIC = new Set(["durationSeconds", "commits"]);
 const PAGE_SIZES = [10, 25, 50];
 
+
+/*
+ * A Dropdown with its CSS anchor positioning wired up.
+ *
+ * The bare `dropdown` component deliberately leaves `anchor-name` /
+ * `position-anchor` to the consumer, and with neither set every panel falls back
+ * to the viewport corner. A static class pair (the `.ks-anchor-dd` convention)
+ * cannot serve a menu-per-row, so the ident is derived from useId — the same fix
+ * breadcrumb-overflow makes internally. useId's output is colon-bracketed and so
+ * not a valid CSS <custom-ident>, hence the replace.
+ */
+function AnchoredMenu({
+  label,
+  size,
+  variant = "secondary",
+  ariaLabel,
+  children,
+}: {
+  label: ReactNode;
+  size: Size;
+  variant?: "secondary" | "ghost";
+  ariaLabel?: string;
+  children: ReactNode;
+}): ReactElement {
+  const anchor = `--dt-menu-${useId().replace(/[^A-Za-z0-9_-]/g, "-")}`;
+  return (
+    <Dropdown>
+      <DropdownTrigger asChild>
+        <Button
+          variant={variant}
+          size={size}
+          aria-label={ariaLabel}
+          className="dt-anchor"
+          style={{ "--dt-anchor": anchor } as CSSProperties}
+        >
+          {label}
+        </Button>
+      </DropdownTrigger>
+      <DropdownContent
+        size={size}
+        className="dt-anchored"
+        style={{ "--dt-anchor": anchor } as CSSProperties}
+      >
+        {children}
+      </DropdownContent>
+    </Dropdown>
+  );
+}
+
 export function DeploymentsTable(): ReactElement {
   const [size, setSize] = useState<Size>("sm");
   const [density, setDensity] = useState<Density>("comfortable");
@@ -280,65 +329,44 @@ export function DeploymentsTable(): ReactElement {
             {/* Faceted filters and the field menu are the CONSUMER's
                 composition — data-table ships no toolbar controls, because
                 shipping the field menu would mean owning the column list. */}
-            <Dropdown>
-              <DropdownTrigger asChild>
-                <Button variant="secondary" size={size}>
-                  Environment{envFilter.length ? ` (${envFilter.length})` : ""}
-                </Button>
-              </DropdownTrigger>
-              <DropdownContent size={size}>
-                <DropdownLabel>Filter by environment</DropdownLabel>
-                {ENVIRONMENTS.map((value) => (
-                  <DropdownCheckboxItem
-                    key={value}
-                    checked={envFilter.includes(value)}
-                    onCheckedChange={() => toggleFacet("environment", envFilter, value)}
-                  >
-                    {value}
-                  </DropdownCheckboxItem>
-                ))}
-              </DropdownContent>
-            </Dropdown>
+            <AnchoredMenu size={size} label={`Environment${envFilter.length ? ` (${envFilter.length})` : ""}`}>
+              <DropdownLabel>Filter by environment</DropdownLabel>
+              {ENVIRONMENTS.map((value) => (
+                <DropdownCheckboxItem
+                  key={value}
+                  checked={envFilter.includes(value)}
+                  onCheckedChange={() => toggleFacet("environment", envFilter, value)}
+                >
+                  {value}
+                </DropdownCheckboxItem>
+              ))}
+            </AnchoredMenu>
 
-            <Dropdown>
-              <DropdownTrigger asChild>
-                <Button variant="secondary" size={size}>
-                  Status{statusFilter.length ? ` (${statusFilter.length})` : ""}
-                </Button>
-              </DropdownTrigger>
-              <DropdownContent size={size}>
-                <DropdownLabel>Filter by status</DropdownLabel>
-                {STATUSES.map((value) => (
-                  <DropdownCheckboxItem
-                    key={value}
-                    checked={statusFilter.includes(value)}
-                    onCheckedChange={() => toggleFacet("status", statusFilter, value)}
-                  >
-                    {value}
-                  </DropdownCheckboxItem>
-                ))}
-              </DropdownContent>
-            </Dropdown>
+            <AnchoredMenu size={size} label={`Status${statusFilter.length ? ` (${statusFilter.length})` : ""}`}>
+              <DropdownLabel>Filter by status</DropdownLabel>
+              {STATUSES.map((value) => (
+                <DropdownCheckboxItem
+                  key={value}
+                  checked={statusFilter.includes(value)}
+                  onCheckedChange={() => toggleFacet("status", statusFilter, value)}
+                >
+                  {value}
+                </DropdownCheckboxItem>
+              ))}
+            </AnchoredMenu>
 
-            <Dropdown>
-              <DropdownTrigger asChild>
-                <Button variant="secondary" size={size}>
-                  Fields
-                </Button>
-              </DropdownTrigger>
-              <DropdownContent size={size}>
-                <DropdownLabel>Show fields</DropdownLabel>
-                {table.getAllLeafColumns().map((column) => (
-                  <DropdownCheckboxItem
-                    key={column.id}
-                    checked={column.getIsVisible()}
-                    onCheckedChange={() => column.toggleVisibility()}
-                  >
-                    {String(column.columnDef.header)}
-                  </DropdownCheckboxItem>
-                ))}
-              </DropdownContent>
-            </Dropdown>
+            <AnchoredMenu size={size} label="Fields">
+              <DropdownLabel>Show fields</DropdownLabel>
+              {table.getAllLeafColumns().map((column) => (
+                <DropdownCheckboxItem
+                  key={column.id}
+                  checked={column.getIsVisible()}
+                  onCheckedChange={() => column.toggleVisibility()}
+                >
+                  {String(column.columnDef.header)}
+                </DropdownCheckboxItem>
+              ))}
+            </AnchoredMenu>
           </DataTableRegion>
         </DataTableToolbar>
 
@@ -472,24 +500,18 @@ export function DeploymentsTable(): ReactElement {
                       })}
 
                       <DataTableControlCell>
-                        <Dropdown>
-                          <DropdownTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size={size === "xs" ? "xs" : "sm"}
-                              aria-label={`Actions for ${deployment.service}`}
-                            >
-                              ⋯
-                            </Button>
-                          </DropdownTrigger>
-                          <DropdownContent size={size}>
-                            <DropdownItem>View logs</DropdownItem>
-                            <DropdownItem>Redeploy</DropdownItem>
-                            <DropdownItem>Copy commit SHA</DropdownItem>
-                            <DropdownSeparator />
-                            <DropdownItem>Roll back</DropdownItem>
-                          </DropdownContent>
-                        </Dropdown>
+                        <AnchoredMenu
+                          size={size === "xs" ? "xs" : "sm"}
+                          variant="ghost"
+                          label="⋯"
+                          ariaLabel={`Actions for ${deployment.service}`}
+                        >
+                          <DropdownItem>View logs</DropdownItem>
+                          <DropdownItem>Redeploy</DropdownItem>
+                          <DropdownItem>Copy commit SHA</DropdownItem>
+                          <DropdownSeparator />
+                          <DropdownItem>Roll back</DropdownItem>
+                        </AnchoredMenu>
                       </DataTableControlCell>
                     </TableRow>
 

@@ -53,6 +53,26 @@ independently of size (matching the Figma model — RFC 0014).
 `aria-selected="true"` on a `.primitiv-table__row` (the headless layer sets
 neither).
 
+**Hover paints on the CELLS, selection on the ROW**, and swapping them breaks
+things. `table/row/hover` is an alpha veil — it aliases the `neutral-alpha` ramp,
+as `tree/row/hover` and `miller-columns/row/hover` do; an opaque neutral here was
+as dark as `surface/sunken` and read as a selection rather than a hover. An alpha
+value set as the *row's* `background-color` **replaces** the stripe instead of
+sitting over it, so a striped row would lighten on hover — the wrong direction.
+Cells paint above their row, so the same value on the cells composites over
+whatever is behind: the stripe, the selected fill, or bare surface. Selection
+stays on the row because it is opaque, needs no compositing, and shows through
+every cell for free.
+
+If you re-point `--primitiv-table-row-hover`, keep it **translucent**. An opaque
+value will hide the stripe underneath it and look correct only on unstriped tables.
+
+**The fill transitions**, via `--primitiv-table-transition-duration` /
+`-easing` (150ms, the shared control duration), and is disabled under
+`prefers-reduced-motion`. `background-color` is transitionable where a layered
+`background-image` gradient would not have been — one of the reasons the state
+layer is a cell background rather than a stacked gradient.
+
 **`rows="striped"` is a table-level zebra.** Figma models striping as a per-row
 `State=striped` alongside hover and selected, but on the web the idiomatic shape is
 a `:nth-child(even)` banding driven from the table, so it's a `rows` prop rather

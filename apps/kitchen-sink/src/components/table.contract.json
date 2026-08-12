@@ -58,6 +58,8 @@
     { "name": "--primitiv-table-caption-font-size", "defaultsTo": "var(--primitiv-body-sm-font-size)" },
     { "name": "--primitiv-table-caption-font-weight", "defaultsTo": "var(--primitiv-body-sm-font-weight)" },
     { "name": "--primitiv-table-caption-line-height", "defaultsTo": "var(--primitiv-body-sm-line-height)" },
-    { "name": "--primitiv-table-caption-foreground", "defaultsTo": "var(--primitiv-content-muted)" }
+    { "name": "--primitiv-table-caption-foreground", "defaultsTo": "var(--primitiv-content-muted)" },
+    { "name": "--primitiv-table-transition-duration", "defaultsTo": "var(--primitiv-motion-duration-control)" },
+    { "name": "--primitiv-table-transition-easing", "defaultsTo": "var(--primitiv-motion-easing-default)" }
   ]
 }

@@ -51,6 +51,8 @@
     --primitiv-table-caption-font-size: var(--primitiv-body-sm-font-size);
     --primitiv-table-caption-font-weight: var(--primitiv-body-sm-font-weight);
     --primitiv-table-caption-line-height: var(--primitiv-body-sm-line-height);
+    --primitiv-table-transition-duration: var(--primitiv-motion-duration-control);
+    --primitiv-table-transition-easing: var(--primitiv-motion-easing-default);
 
     border-collapse: collapse;
     /* Fill the container by default. On a narrow viewport, content wider than
@@ -71,6 +73,12 @@
     padding-block: var(--primitiv-table-cell-padding-block);
     text-align: start;
     border-block-end: var(--primitiv-border-width-1) solid var(--primitiv-table-rule-color);
+    /* The hover state layer paints on the CELLS (see primitiv.states), so the
+       transition belongs here too. Instant fills read as a flicker when the
+       pointer crosses a table, which is the one place a pointer sweeps across
+       many interactive surfaces in a row. */
+    transition: background-color var(--primitiv-table-transition-duration)
+      var(--primitiv-table-transition-easing);
   }
 
   /* Header cells: the semibold face. */
@@ -183,13 +191,34 @@
      "sticks" until the next tap elsewhere, which would otherwise leave a
      just-tapped row (a consumer commonly wires an onClick for row selection)
      showing its hover fill instead of its resting/selected one. */
+  /* The hover fill is a STATE LAYER on the cells, not a background on the row,
+     and the two are not interchangeable. `table/row/hover` is an alpha veil (it
+     aliases the neutral-alpha ramp, as tree/row/hover and
+     miller-columns/row/hover do — an opaque neutral here was as dark as
+     surface/sunken and read as a selection, not a hover). An alpha value set as
+     the ROW's background-color *replaces* the stripe rather than sitting over it,
+     so a striped row would go from #e5ecf6 to a 6% veil over white — lighter on
+     hover, the wrong direction entirely. Cells paint above their row, so the same
+     value on the cells composites over the stripe, the selected fill, or bare
+     surface, whichever is behind. background-color also transitions, which a
+     layered background-image gradient does not. */
   @media (hover: hover) {
-    .primitiv-table__body .primitiv-table__row:hover {
+    .primitiv-table__body .primitiv-table__row:hover > .primitiv-table__cell,
+    .primitiv-table__body .primitiv-table__row:hover > .primitiv-table__header {
       background-color: var(--primitiv-table-row-hover);
     }
   }
 
+  /* Selection stays on the ROW: it is an opaque fill and the row is the thing
+     selected, so it needs no compositing and inherits to every cell for free. */
   .primitiv-table__body .primitiv-table__row[aria-selected="true"] {
     background-color: var(--primitiv-table-row-selected);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .primitiv-table__header,
+    .primitiv-table__cell {
+      transition: none;
+    }
   }
 }

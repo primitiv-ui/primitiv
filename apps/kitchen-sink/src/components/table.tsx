@@ -1,3 +1,4 @@
+import "../styles/primitiv/table/styles.css";
 /*
  * Table — styled wrapper, generated from contract.json.
  *

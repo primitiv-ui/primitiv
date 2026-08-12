@@ -32,6 +32,7 @@ import {
   Button,
   Checkbox,
   DataTable,
+  DescriptionList,
   DataTableControlCell,
   DataTableDetailRow,
   DataTableExpandTrigger,
@@ -65,7 +66,7 @@ import {
   TableRow,
   TableScrollArea,
 } from "../components";
-import { Table as HeadlessTable } from "@primitiv-ui/react";
+import { Table as HeadlessTable, VisuallyHidden } from "@primitiv-ui/react";
 
 type Environment = "production" | "staging" | "preview";
 type Status = "succeeded" | "running" | "in review" | "failed";
@@ -340,7 +341,7 @@ export function DeploymentsTable(): ReactElement {
                   />
                 </DataTableControlCell>
                 <DataTableControlCell header>
-                  <span className="primitiv-visually-hidden">Expand</span>
+                  <VisuallyHidden>Expand</VisuallyHidden>
                 </DataTableControlCell>
 
                 {table.getVisibleLeafColumns().map((column) => (
@@ -355,7 +356,7 @@ export function DeploymentsTable(): ReactElement {
                 ))}
 
                 <DataTableControlCell header>
-                  <span className="primitiv-visually-hidden">Actions</span>
+                  <VisuallyHidden>Actions</VisuallyHidden>
                 </DataTableControlCell>
               </TableRow>
             </TableHead>
@@ -475,7 +476,8 @@ export function DeploymentsTable(): ReactElement {
                     {/* forceMount so the panel can animate; the collapsed row is
                         aria-hidden, so it never inflates the announced row count. */}
                     <DataTableDetailRow colSpan={detailColSpan} forceMount>
-                      <dl
+                      <DescriptionList
+                        size={size === "xs" ? "xs" : "sm"}
                         style={{
                           display: "grid",
                           gridTemplateColumns: "repeat(auto-fit, minmax(9rem, max-content))",
@@ -492,13 +494,14 @@ export function DeploymentsTable(): ReactElement {
                           ["Commits in deploy", deployment.commits.toLocaleString()],
                         ].map(([label, value]) => (
                           <div key={String(label)}>
-                            <dt style={{ color: "var(--primitiv-content-muted)", fontSize: "var(--primitiv-body-sm-font-size)" }}>
-                              {label}
-                            </dt>
-                            <dd style={{ margin: 0 }}>{value}</dd>
+                            {/* dt/dd are native children by design: the prose
+                                family styles bare elements, and description-list
+                                exports only its <dl> root. */}
+                            <dt>{label}</dt>
+                            <dd>{value}</dd>
                           </div>
                         ))}
-                      </dl>
+                      </DescriptionList>
                     </DataTableDetailRow>
                   </HeadlessTable.Expandable>
                 );

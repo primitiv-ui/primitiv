@@ -244,6 +244,7 @@ import {
   TreeBranchIndicator,
   TreeItem,
   TreeSelectionPath,
+  DataTableSortHeader,
 } from "./components";
 import { DeploymentsTable } from "./demos/DeploymentsTable";
 import {
@@ -4425,37 +4426,15 @@ export function ramp(hue: number, chroma = 0.12) {
                   {TABLE_COLUMNS.map((col) => {
                     const active = sort.key === col.key;
                     return (
-                      <TableHeader
+                      <DataTableSortHeader
                         key={col.key}
                         className={`ks-table__align-${col.align}`}
-                        aria-sort={
-                          active
-                            ? sort.dir === "asc"
-                              ? "ascending"
-                              : "descending"
-                            : "none"
-                        }
+                        direction={active ? (sort.dir === "asc" ? "asc" : "desc") : "none"}
+                        align={col.numeric ? "end" : "start"}
+                        onSort={() => toggleSort(col.key)}
                       >
-                        <button
-                          type="button"
-                          className="ks-table__sort"
-                          onClick={() => toggleSort(col.key)}
-                        >
-                          <span>{col.label}</span>
-                          {active ? (
-                            sort.dir === "asc" ? (
-                              <ChevronUp aria-hidden="true" />
-                            ) : (
-                              <ChevronDown aria-hidden="true" />
-                            )
-                          ) : (
-                            <Sort
-                              className="ks-table__sort-idle"
-                              aria-hidden="true"
-                            />
-                          )}
-                        </button>
-                      </TableHeader>
+                        {col.label}
+                      </DataTableSortHeader>
                     );
                   })}
                 </TableRow>

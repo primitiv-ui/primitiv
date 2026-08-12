@@ -20,6 +20,7 @@ export * from "./collapsible";
 export * from "./confirm-dialog";
 export * from "./container";
 export * from "./context-menu";
+export * from "./data-table";
 export * from "./description-list";
 export * from "./divider";
 export * from "./drawer";

@@ -245,6 +245,7 @@ import {
   TreeItem,
   TreeSelectionPath,
 } from "./components";
+import { DeploymentsTable } from "./demos/DeploymentsTable";
 import {
   Calendar,
   Check,
@@ -4403,6 +4404,12 @@ export function ramp(hue: number, chroma = 0.12) {
               <ProgressIndicator />
             </Progress>
           </Stack>
+        </Section>
+
+        <Section title="Data Table" column>
+          {/* The flagship composite: every piece of state lives in TanStack
+              Table, and the registry parts just render what they are handed. */}
+          <DeploymentsTable />
         </Section>
 
         <Section title="Table" column>

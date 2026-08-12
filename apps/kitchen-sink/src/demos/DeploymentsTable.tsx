@@ -27,6 +27,7 @@ import {
 
 import {
   Avatar,
+  AvatarFallback,
   Badge,
   Button,
   Checkbox,
@@ -205,8 +206,9 @@ export function DeploymentsTable(): ReactElement {
 
   const pageWindow = useMemo(() => {
     const window: number[] = [];
-    const first = Math.max(0, Math.min(pageIndex - 2, pageCount - 5));
-    for (let page = first; page < Math.min(pageCount, first + 5); page += 1) window.push(page);
+    const span = 3;
+    const first = Math.max(0, Math.min(pageIndex - 1, pageCount - span));
+    for (let page = first; page < Math.min(pageCount, first + span); page += 1) window.push(page);
     return window;
   }, [pageIndex, pageCount]);
 
@@ -215,12 +217,12 @@ export function DeploymentsTable(): ReactElement {
       {/* Size / density / sticky switchers — proof the whole thing is
           token-driven rather than an assertion that it is. */}
       <div style={{ display: "flex", gap: "0.75rem", alignItems: "end", flexWrap: "wrap" }}>
-        <Select native size="sm" aria-label="Table size" value={size} onValueChange={(v) => setSize(v as Size)}>
+        <Select native size="sm" aria-label="Table size" value={size} onValueChange={(v) => setSize(v as Size)} style={{ inlineSize: "auto" }}>
           {(["xs", "sm", "md", "lg", "xl"] as Size[]).map((value) => (
             <option key={value} value={value}>{`size: ${value}`}</option>
           ))}
         </Select>
-        <Select native size="sm" aria-label="Density" value={density} onValueChange={(v) => setDensity(v as Density)}>
+        <Select native size="sm" aria-label="Density" value={density} onValueChange={(v) => setDensity(v as Density)} style={{ inlineSize: "auto" }}>
           {(["dense", "compact", "comfortable", "spacious"] as Density[]).map((value) => (
             <option key={value} value={value}>{`density: ${value}`}</option>
           ))}
@@ -402,8 +404,8 @@ export function DeploymentsTable(): ReactElement {
                         const key = `${row.id}-${column.id}`;
                         if (column.id === "service") {
                           return (
-                            <TableCell key={key}>
-                              <code>{deployment.service}</code>
+                            <TableCell key={key} style={{ whiteSpace: "nowrap" }}>
+                              {deployment.service}
                             </TableCell>
                           );
                         }
@@ -420,7 +422,9 @@ export function DeploymentsTable(): ReactElement {
                           return (
                             <TableCell key={key}>
                               <span style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem" }}>
-                                <Avatar size="xs" initials={deployment.initials} />
+                                <Avatar size="xs">
+                                  <AvatarFallback>{deployment.initials}</AvatarFallback>
+                                </Avatar>
                                 {deployment.author}
                               </span>
                             </TableCell>
@@ -474,7 +478,7 @@ export function DeploymentsTable(): ReactElement {
                       <dl
                         style={{
                           display: "grid",
-                          gridTemplateColumns: "repeat(auto-fit, minmax(10rem, 1fr))",
+                          gridTemplateColumns: "repeat(auto-fit, minmax(9rem, max-content))",
                           gap: "0.75rem 2rem",
                           margin: 0,
                         }}
@@ -515,6 +519,7 @@ export function DeploymentsTable(): ReactElement {
               native
               size={size === "xs" ? "xs" : "sm"}
               aria-label="Rows per page"
+              style={{ inlineSize: "auto" }}
               value={String(table.getState().pagination.pageSize)}
               onValueChange={(value) => table.setPageSize(Number(value))}
             >

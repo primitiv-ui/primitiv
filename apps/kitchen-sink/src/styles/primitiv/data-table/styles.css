@@ -25,8 +25,8 @@
  *    produce. Needs no new token and stays density-aware for free.
  *
  *  - The DETAIL ROW draws NO fill and NO leading rule. Containment comes from
- *    the indent alone, and its parent sheds its bottom rule (set `rule={false}`
- *    on the parent row) so the two read as one block that the detail row's own
+ *    the indent alone, and its parent sheds its bottom rule
+ *    automatically while expanded (a `:has()` rule below) so the two read as one block that the detail row's own
  *    rule closes. A fill was drawn and rejected: surface/subtle borrows the same
  *    neutral ramp as the zebra stripe and the hover fill, so all three become
  *    hard to separate. `--primitiv-data-table-detail-indent` aligns the panel
@@ -97,6 +97,13 @@
     /* Required, not decorative: the table is full-bleed, so without the clip its
        first and last rows square off the shell's corners. */
     overflow: hidden;
+  }
+
+  /* Flex items refuse to shrink below min-content unless told to, so a table
+     wider than the shell would overflow it rather than letting the scroll area
+     scroll. */
+  .primitiv-data-table > * {
+    min-inline-size: 0;
   }
 
   /* The two bars: three regions on one grid. */
@@ -241,6 +248,15 @@
 
   .primitiv-data-table__detail-body {
     overflow: hidden;
+    /* THE line that makes 0fr collapse: an `fr` track resolves to
+       minmax(auto, 0fr), so without this the track never shrinks below the
+       content's min-content height and the panel stays visible. */
+    min-height: 0;
+    /* Transitioned, not instant, so it stays visible for the whole close and
+       only then leaves the tab order and the accessibility tree. */
+    visibility: hidden;
+    transition: visibility var(--primitiv-data-table-transition-duration)
+      var(--primitiv-data-table-transition-easing);
     padding-inline: var(--primitiv-data-table-detail-padding-inline);
     padding-block: var(--primitiv-data-table-detail-padding-block);
   }
@@ -319,6 +335,10 @@
     grid-template-rows: 1fr;
   }
 
+  .primitiv-data-table__detail-row[data-state="open"] .primitiv-data-table__detail-body {
+    visibility: visible;
+  }
+
   /* An expanded row sheds its own bottom rule so the row and its panel read as
      ONE block, closed by the detail row's rule. Detected with :has() rather than
      asked for with a prop — the DOM already knows, so making the consumer say it
@@ -350,6 +370,7 @@
 
   @media (prefers-reduced-motion: reduce) {
     .primitiv-data-table__detail-clip,
+    .primitiv-data-table__detail-body,
     .primitiv-data-table__expand-icon {
       transition: none;
     }

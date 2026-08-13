@@ -1,4 +1,4 @@
-import { useId, useMemo, useState, type ReactElement } from "react";
+import { useCallback, useId, useMemo, useState, type ReactElement } from "react";
 
 import { ComboboxProvider, useComboboxContext } from "./ComboboxContext";
 import type {
@@ -10,15 +10,31 @@ import type {
 /** The root of a Combobox — owns the open state and wraps the input and popup. */
 export function ComboboxRoot({
   defaultOpen = false,
+  onQueryChange,
   children,
   ...rest
 }: ComboboxRootProps): ReactElement {
-  const [open] = useState(defaultOpen);
+  const [open, setOpen] = useState(defaultOpen);
+  const [query, setQueryState] = useState("");
   // One listbox per combobox, so this is a fixed suffix rather than a
   // `deriveId` per-item id — there is no per-item value to discriminate on.
   const comboboxId = useId();
   const listboxId = `${comboboxId}-listbox`;
-  const value = useMemo(() => ({ open, listboxId }), [open, listboxId]);
+  // Typing always opens the popup: the user is narrowing a list, so the list
+  // has to be on screen to be narrowed.
+  const setQuery = useCallback(
+    (next: string) => {
+      setQueryState(next);
+      setOpen(true);
+      onQueryChange?.(next);
+    },
+    [onQueryChange],
+  );
+
+  const value = useMemo(
+    () => ({ open, listboxId, query, setQuery }),
+    [open, listboxId, query, setQuery],
+  );
 
   return (
     <ComboboxProvider value={value}>
@@ -32,7 +48,7 @@ ComboboxRoot.displayName = "ComboboxRoot";
 
 /** The editable text field, carrying `role="combobox"` per the ARIA 1.2 pattern. */
 export function ComboboxInput({ ...rest }: ComboboxInputProps): ReactElement {
-  const { open, listboxId } = useComboboxContext();
+  const { open, listboxId, query, setQuery } = useComboboxContext();
 
   return (
     <input
@@ -40,6 +56,8 @@ export function ComboboxInput({ ...rest }: ComboboxInputProps): ReactElement {
       aria-expanded={open}
       aria-controls={listboxId}
       aria-autocomplete="list"
+      value={query}
+      onChange={(event) => setQuery(event.target.value)}
       {...rest}
     />
   );

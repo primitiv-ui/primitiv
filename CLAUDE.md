@@ -895,6 +895,52 @@ debugging cycle; none is discoverable from the API surface.
    so a page looks right while every node reports a 20px box — which makes any
    overlap/overflow audit meaningless. Set `textAutoResize = "HEIGHT"` before
    measuring.
+6. **`resize()` silently flips `primaryAxisSizingMode` to `FIXED`.** The
+   costliest trap of the 2026-08-13 session — it bit three times in one sitting:
+   it pinned a slot leaf at 1px (which clipped 92 restored text nodes down to a
+   faint sliver, while every text node still reported the correct 24px height),
+   pinned six freshly-built layout masters at 8px, and squashed a specimen
+   frame. Nothing errors and the read-back of the *children* looks right; only
+   the parent's height is wrong. After any `resize()` on an auto-layout frame,
+   re-assert `primaryAxisSizingMode = 'AUTO'` (or `layoutSizingVertical`).
+   Corollary: **never `resize()` a slot to shrink it** — use `minHeight`. An
+   empty slot sits at Figma's default 100px; `minHeight` is the only lever that
+   makes it collapse *and* still grow with content.
+7. **`combineAsVariants` merges identically-named slot properties into one.**
+   This is the whole technique for slots + variants, and it is invisible from
+   the API. `createSlot()` registers a NEW property per call, so N variants
+   built separately give N slot properties — and slot content then does **not**
+   survive switching variant (content is an override keyed to the property).
+   Name the slot the same string in every variant *before* combining and you
+   get one shared property with per-variant layout, content intact across
+   switches. This is exactly why `Collapsible` has one `Content` across 20
+   variants while `Tabs / Panel` had five (`slot`, `slot2` … `slot5`).
+8. **A slot cannot be duplicated by any clone path.** `slot.clone()` returns a
+   plain `FRAME` (silently — it litters look-alike frames that no longer
+   function), and cloning a whole `COMPONENT` variant drops its slot entirely.
+   For a set that already exists and cannot be re-combined, the only fix is a
+   **shared slotted leaf component nested as an instance** in every variant —
+   the `Card / Slot`, `Tabs / Panel Slot`, `Accordion / Panel Slot` pattern.
+   Verified: slot content in a nested leaf survives parent variant switches.
+9. **`GRID` layoutMode cannot be applied to Slot frames** (hard error). Native
+   CSS-grid auto-layout works on ordinary frames, but never where slot content
+   lives — so a faithful CSS-Grid component is impossible in Figma. The
+   registry `grid` is mirrored as a wrap-based flex approximation instead
+   (RFC 0022; see the `Grid` component description).
+10. **What an instance will and won't let you override**, which is what decides
+    whether a registry prop becomes a Figma variant or is left native:
+    *not* overridable — `layoutMode` (on the root *or* on a slot) and
+    `gridColumnCount`; overridable, and variable-bindable — `itemSpacing`,
+    `counterAxisSpacing`, `layoutWrap`, `primaryAxisAlignItems` /
+    `counterAxisAlignItems`. This is why `Stack` needs only a `Direction` axis
+    rather than the 1,440 variants a literal reading of its contract implies.
+11. **Broad `findAll` / `.name` reads crash on stale instance sublayers**
+    (`"The node (instance sublayer or table cell) with id … does not exist"`),
+    especially just after a shared master has changed. It aborts mid-script, so
+    earlier writes in the same call have already applied — the
+    `addComponentProperty` partial-apply hazard (4) generalised. Walk
+    `children` explicitly instead of `findAll`, wrap `.name`/`.children` reads
+    in try/catch, and re-check state before retrying.
 
 ## Useful commands
 

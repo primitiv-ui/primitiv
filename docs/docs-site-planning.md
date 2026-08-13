@@ -510,9 +510,17 @@ Two site-chrome controls settled while wireframing the landing page
 - **Install code blocks are package-manager-tabbed.** Every install code
   block (the per-component "Getting this component" block, §1.13) carries
   **npm / pnpm / yarn / bun** tabs so the reader copies the command for
-  their own manager; npm is the default/active tab. (The at-a-glance
+  their own manager; npm is the default/active tab. ~~(The at-a-glance
   install *chips* on the three consumption-path cards stay single-line —
-  the tabbed block is the interactive one.)
+  the tabbed block is the interactive one.)~~
+  **Superseded 2026-08-13** — the consumption-path cards now carry full
+  tabbed blocks too, decided while reviewing the landing page built from
+  the system (see §1.23). The Headless card tabs **npm / pnpm / yarn /
+  bun**; the Styled card tabs the CLI *runners* — **npx / pnpm dlx /
+  yarn dlx / bunx** — because `primitiv add` is executed, not installed.
+  The Figma card gets **no code block at all**: there is no command to
+  copy, so it takes a secondary Button ("Open the Figma library") instead.
+  Forcing a code block there would have been a block with nothing to say.
 
 Both are wireframe-level IA/site-chrome decisions, not distribution-model
 changes — `docs/consumption-design.md` and the RFCs are unaffected.
@@ -709,6 +717,56 @@ be rebuilt for registry changes to surface; an MCP server reading the same
 source would need the same discipline or read live from source instead of
 a baked-in copy), and where `llms.txt` generation plugs into the Next.js
 build. See the corresponding open question below.
+
+### 1.23 Landed: the landing page rebuilt from the design system, and what that exposed
+
+The v2 landing wireframe was rebuilt in Figma **using only components,
+variables and text styles that exist in the file** — a deliberate capability
+test of whether Primitiv can build its own docs. Two frames sit side by side
+on the "Wireframes — Docs Site (v1 — landing)" page for comparison.
+
+| | first build | rebuilt on the primitives |
+| --- | --- | --- |
+| Component instances | 35 | **72** |
+| Anonymous scaffold frames | **37** | **0** |
+| Text nodes / using a text style | 21 / 21 | 21 / 21 |
+
+**The finding that mattered: Figma had no layout primitives at all.** The
+registry has shipped `box`, `stack`, `grid`, `center`, `spacer` and
+`aspect-ratio` since RFC 0022, but the design file only had `Container` — so
+roughly half of any page was anonymous auto-layout frames that no code
+component corresponded to, which is exactly the drift the two-surface model
+exists to prevent. All six are now built (page "Layout Primitives"), and the
+rebuild has **zero** anonymous frames: every band is a `Box`, every row and
+column a `Stack`, the card row a `Grid`, the nav split by a `Spacer`.
+
+Gaps this test found and closed, all Figma-side:
+
+- **`Card` had no content slot** — a card could hold a title and one
+  paragraph and nothing else, so the install affordance had to sit outside
+  the card's border. Card now has one.
+- **`ListItem` had no text property, then no way to hold a Link** — labels
+  were unexposed inner nodes. It now has `Label`, plus `Show link` and a
+  nested slot so a row can contain a real `Link` while keeping
+  `<ul><li><a>` semantics.
+- **58 of 314 slot nodes were broken** — `Tabs` and `Accordion` content
+  slots were `layoutMode: NONE`, which positions appended children at 0,0
+  so content stacked invisibly; `Container`'s slot was a fixed 240px. All
+  repaired, and the per-size slot-property fragmentation on `Tabs / Panel`
+  and `Accordion/Panel` fixed too (content now survives a Size switch).
+- **`Button` and `Input` defaulted both icon booleans to `true`**, so every
+  new instance arrived wearing two chevrons.
+
+Two things the design file still cannot express faithfully, both recorded in
+the component descriptions: **`Grid` is a wrap-based approximation** because
+Figma rejects CSS-grid layout on slot frames, so there is no `columns` axis
+and no per-breakpoint column map; and **`Aspect Ratio` is fixed-pixel**
+rather than fluid.
+
+**Still open:** more creative section backgrounds. The Next.js site is not
+limited to flat bands, so the design should explore gradients, textures and
+inverted sections — the constraint is only that the *elements* stay on
+existing tokens, variables and components.
 
 ---
 

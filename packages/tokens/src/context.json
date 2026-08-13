@@ -1991,6 +1991,10 @@
           "radius": {
             "$type": "number",
             "$value": "{radii.4}"
+          },
+          "offset": {
+            "$type": "number",
+            "$value": "{space.space-8}"
           }
         }
       },
@@ -2049,6 +2053,10 @@
           "radius": {
             "$type": "number",
             "$value": "{radii.6}"
+          },
+          "offset": {
+            "$type": "number",
+            "$value": "{space.space-8}"
           }
         }
       },
@@ -2107,6 +2115,10 @@
           "radius": {
             "$type": "number",
             "$value": "{radii.8}"
+          },
+          "offset": {
+            "$type": "number",
+            "$value": "{space.space-8}"
           }
         }
       },
@@ -2165,6 +2177,10 @@
           "radius": {
             "$type": "number",
             "$value": "{radii.10}"
+          },
+          "offset": {
+            "$type": "number",
+            "$value": "{space.space-10}"
           }
         }
       },
@@ -2223,6 +2239,10 @@
           "radius": {
             "$type": "number",
             "$value": "{radii.12}"
+          },
+          "offset": {
+            "$type": "number",
+            "$value": "{space.space-12}"
           }
         }
       }
@@ -5107,6 +5127,10 @@
           "radius": {
             "$type": "number",
             "$value": "{radii.4}"
+          },
+          "offset": {
+            "$type": "number",
+            "$value": "{space.space-8}"
           }
         }
       },
@@ -5165,6 +5189,10 @@
           "radius": {
             "$type": "number",
             "$value": "{radii.6}"
+          },
+          "offset": {
+            "$type": "number",
+            "$value": "{space.space-8}"
           }
         }
       },
@@ -5223,6 +5251,10 @@
           "radius": {
             "$type": "number",
             "$value": "{radii.8}"
+          },
+          "offset": {
+            "$type": "number",
+            "$value": "{space.space-8}"
           }
         }
       },
@@ -5281,6 +5313,10 @@
           "radius": {
             "$type": "number",
             "$value": "{radii.8}"
+          },
+          "offset": {
+            "$type": "number",
+            "$value": "{space.space-8}"
           }
         }
       },
@@ -5339,6 +5375,10 @@
           "radius": {
             "$type": "number",
             "$value": "{radii.10}"
+          },
+          "offset": {
+            "$type": "number",
+            "$value": "{space.space-10}"
           }
         }
       }
@@ -8223,6 +8263,10 @@
           "radius": {
             "$type": "number",
             "$value": "{radii.6}"
+          },
+          "offset": {
+            "$type": "number",
+            "$value": "{space.space-8}"
           }
         }
       },
@@ -8281,6 +8325,10 @@
           "radius": {
             "$type": "number",
             "$value": "{radii.8}"
+          },
+          "offset": {
+            "$type": "number",
+            "$value": "{space.space-8}"
           }
         }
       },
@@ -8339,6 +8387,10 @@
           "radius": {
             "$type": "number",
             "$value": "{radii.12}"
+          },
+          "offset": {
+            "$type": "number",
+            "$value": "{space.space-10}"
           }
         }
       },
@@ -8397,6 +8449,10 @@
           "radius": {
             "$type": "number",
             "$value": "{radii.12}"
+          },
+          "offset": {
+            "$type": "number",
+            "$value": "{space.space-12}"
           }
         }
       },
@@ -8455,6 +8511,10 @@
           "radius": {
             "$type": "number",
             "$value": "{radii.16}"
+          },
+          "offset": {
+            "$type": "number",
+            "$value": "{space.space-14}"
           }
         }
       }
@@ -11339,6 +11399,10 @@
           "radius": {
             "$type": "number",
             "$value": "{radii.4}"
+          },
+          "offset": {
+            "$type": "number",
+            "$value": "{space.space-8}"
           }
         }
       },
@@ -11397,6 +11461,10 @@
           "radius": {
             "$type": "number",
             "$value": "{radii.4}"
+          },
+          "offset": {
+            "$type": "number",
+            "$value": "{space.space-8}"
           }
         }
       },
@@ -11455,6 +11523,10 @@
           "radius": {
             "$type": "number",
             "$value": "{radii.6}"
+          },
+          "offset": {
+            "$type": "number",
+            "$value": "{space.space-8}"
           }
         }
       },
@@ -11513,6 +11585,10 @@
           "radius": {
             "$type": "number",
             "$value": "{radii.6}"
+          },
+          "offset": {
+            "$type": "number",
+            "$value": "{space.space-8}"
           }
         }
       },
@@ -11571,6 +11647,10 @@
           "radius": {
             "$type": "number",
             "$value": "{radii.8}"
+          },
+          "offset": {
+            "$type": "number",
+            "$value": "{space.space-8}"
           }
         }
       }

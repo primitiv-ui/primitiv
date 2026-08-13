@@ -404,32 +404,92 @@ or redefines a same-named native HTML attribute must `Omit` it from the
 base `ComponentProps<T>` first, or the docs-data pipeline will silently
 drop it.
 
-### 1.17 New gap found: the docs site itself needs components that don't exist yet
+### 1.17 Component gaps for the docs site — re-audited, only the search / command palette remains
 
-Cross-checked the 41-component headless inventory
+**Original audit.** Cross-checked the then-41-component headless
+inventory
 (`.claude/skills/new-react-component/_generated/component-inventory.md`)
-and the 17-component registry (`registry/registry.json`) against what a
-docs UI structurally needs. Most of it is already covered — `Tree`
-(nav sidebar), `Breadcrumb`, `Table` (props tables), `Accordion`/
+and the then-17-component registry (`registry/registry.json`) against
+what a docs UI structurally needs. Most of it was already covered —
+`Tree` (nav sidebar), `Breadcrumb`, `Table` (props tables), `Accordion`/
 `Collapsible` (collapsible nav/FAQ sections), `code-block`/`inline-code`
 (already registry components, built for this), `prose` (already the
 flow-rhythm foundation RFC 0016 built, i.e. the reading-experience base),
 `SkipNav`, and `ToggleGroup` (a plausible fit for the mode-switch control
 itself — already has a registry surface, so no new component needed
-there). **Missing entirely:**
+there). Three things were missing entirely: **Callout / admonition**,
+**Badge / status pill**, and **Search / command palette**. `Tree` and
+`Breadcrumb` also existed headless but had no registry/styled surface,
+which fed open question 2 below.
 
-- **Callout / admonition** (info/warning/tip boxes) — not in the
-  inventory at all.
-- **Badge / status pill** (stable/beta status, required-prop indicator)
-  — not in the inventory at all.
-- **Search / command palette** — the biggest gap; `Select`'s
-  Combobox/Command gap is already tracked in `docs/select-future-work.md`,
-  this would build on closing that.
+**Re-audit, 2026-08-13.** Walked the v2 landing wireframe (Figma page
+"Wireframes — Docs Site (v1 — landing)" — desktop, mobile, mobile
+menu-open, mobile framework-dropdown-open, plus its `Wireframe notes`
+frame) region by region against the current library: **46 headless
+primitives and 62 registry components**, up from 41 and 17. Two of the
+three original gaps have closed and both registry-surface caveats are
+gone:
 
-`Tree` and `Breadcrumb` exist headless but have no registry/styled
-surface — relevant only if the docs site itself should be built the
-"eat your own dogfood" way (styled registry components) rather than
-one-off internal CSS; not yet decided, see open question 2 below.
+- **Callout / admonition → closed.** `alert` shipped as a registry
+  component (`info`|`success`|`warning`|`danger` × xs–xl, optional
+  dismiss composing Icon Button). A docs admonition wants a title, rich
+  body and no dismiss — all of which Alert already supports.
+- **Badge / status pill → closed.** `badge` landed 2026-07-29 with
+  RFC 0021, alongside `tag` and `chip`.
+- **`Tree` + `Breadcrumb` registry surfaces → landed** (plus
+  `breadcrumb-overflow`). **This effectively settles open question 2 in
+  favour of dogfooding**: there is no longer a "build the registry
+  surface first" cost blocking the nav/breadcrumb pieces.
+- **Search / command palette → still the one real gap.** See below.
+
+The whole landing page is therefore buildable today except the palette.
+Region-by-region (bracketed numbers are the `Wireframe notes` callouts):
+
+| Wireframe region | Built from |
+|---|---|
+| Nav bar (transparent over hero) | `container` + CSS; sticky/transparent is pure CSS, no component |
+| Audience fork — "Design in Figma / Build with code" [2] | `navigation-menu` (its underline `Indicator` modifier already exists) or `tabs` |
+| Framework selector — React/Vue/Svelte [10] | `segmented-control` on desktop · `select` rich mode on mobile |
+| Mode switch — Headless/Styled/Figma [1] | `segmented-control` (the original audit nominated `ToggleGroup`; both have registry surfaces) |
+| Search field [3] | `input-group` + `input` + the `search` icon — the **field**, not the palette behind it |
+| Theme toggle (nav circle button; Light/Dark row in the mobile menu) | `segmented-control` / `toggle-group` |
+| Hero lockup [9] | Existing asset — `logo-concepts/primitiv-lockup-stacked.svg` (also copied into `apps/docs/public/`) |
+| Hero dot-grid texture [9] | CSS `radial-gradient`, no component |
+| Headline / sub-paragraph / scroll cue | `prose` flow rhythm + plain markup |
+| Two hero CTAs | `button` (primary + secondary) |
+| Three consumption-path cards [4] | `card` + `inline-code` for the single-line install chips + the `arrow-right` icon |
+| Documentation map [5] | `grid` + `list` (a nested list is just a `List` inside a `List.Item`) + `tag`/`badge` for the "mode-scoped" pill [6] |
+| Tabbed install block [7] | **Already built** — `CodeBlock.Tabs`/`.List`/`.Trigger`/`.Content` composes the headless `Tabs` primitive for npm/pnpm/yarn/bun and carries the Copy control, i.e. §1.18's tabbed-install decision is implemented |
+| Status badge "Stable" [8] | `badge` — `success`\|`warning`\|`info`\|`danger` × `label`\|`counter` × xs–xl |
+| Props table | `table` or `data-table`; `scripts/docs-data/extract-docs-data.mjs` already emits the data (§1.19) |
+| Footer | `grid` + `list` + `divider` |
+| Mobile hamburger menu | `drawer` + `collapsible` + `navigation-menu` — this exact composition is already demoed in the kitchen-sink |
+| Mobile Audience / Mode / Framework rows | `select` rich mode — `SelectItemIndicator` (the ✓), `SelectItemLeading` (framework logo), `SelectItemTrailing` (the "Soon" pill), and headless `Select.Item disabled` for greyed Vue/Svelte |
+| "Soon" pills | `tag` (it carries the neutral tone `badge` deliberately lacks) |
+
+**What is still needed:**
+
+1. **Search / command palette.** Nothing named combobox, command or
+   palette exists in `packages/react` or the registry. It is composable
+   rather than from-scratch — `Listbox` is already **virtual-focus**
+   (`aria-activedescendant`), exactly right for a palette whose real DOM
+   focus stays in the input, and `Modal` supplies the overlay and focus
+   trap. What is missing is the combobox wiring itself: filtering,
+   `aria-expanded`/`aria-controls` on the input, forwarding
+   arrow/Enter/Escape from the input into the list, grouped results, and
+   an empty state. Tracked as the deferred Combobox in
+   `docs/select-future-work.md` ("Open questions for the Combobox").
+   The search *index* is a site concern, not a component one.
+2. **Framework brand logos.** `@primitiv-ui/icons` is 45 glyphs in the
+   house line style and holds no third-party brand marks, so the
+   React/Vue/Svelte logos the framework selector needs [10] must be
+   added as their own SVG assets — and deliberately **not** redrawn in
+   the house line style, since they are trademarks with their own
+   published usage rules.
+3. **A judgement call, not a gap:** `badge` has no neutral tone, so a
+   greyed "Deprecated" status pill would want `tag` instead, splitting
+   status pills across two components. Worth settling before the
+   component page is built.
 
 ### 1.18 Wireframe-surfaced UI decisions: framework selector + package-manager-tabbed installs
 
@@ -658,18 +718,26 @@ The original six are resolved (§1.8–§1.13, plus §1.5–§1.6); several new
 ones surfaced while validating the extraction pipeline against
 Button/Tabs (§1.14–§1.17):
 
-1. **Registry coverage for v1 launch.** Only 17 of 41 headless components
-   have a `contract.json`/styled surface (§1.17's component check). Every
-   other component's docs page would only ever render "Headless" mode
-   content. Is a "Styled mode: coming soon" state acceptable per-component
-   for v1, or does registry coverage need to expand first (and if so, how
-   far — everything, or just what the docs site itself uses)?
+1. **Registry coverage for v1 launch — largely resolved by the
+   §1.17 re-audit, one decision left.** When this question was written
+   only 17 of 41 headless components had a `contract.json`/styled
+   surface. As of 2026-08-13 it is **36 of the 40 visual headless
+   primitives**; the four without one are `fieldset`, `radio-group`,
+   `status` and `toggle`, and each looks deliberate rather than a gap
+   (`status` is a bare live region with nothing to style; the other
+   three are plausibly folded into `field`, `radio` and `toggle-group`).
+   **Remaining decision:** confirm those four are intentional
+   fold-ins rather than genuinely missing, and if so record it — after
+   which no component's docs page needs a "Styled mode: coming soon"
+   state for v1.
 2. **Should the docs site's own UI be built with registry/styled
-   components** (dogfooding — `primitiv add tree`, `primitiv add
-   breadcrumb` after building their registry surfaces) **or hand-rolled
-   internal CSS**, for the navigation/breadcrumb pieces that are
-   currently headless-only (§1.17)? Affects whether building the docs
-   site first requires building those registry surfaces first.
+   components** (dogfooding) **or hand-rolled internal CSS?**
+   **Effectively settled in favour of dogfooding** by the §1.17
+   re-audit: the blocker was that the navigation/breadcrumb pieces were
+   headless-only, and `tree`, `breadcrumb` and `breadcrumb-overflow` all
+   now have registry surfaces, so building the docs site no longer
+   requires building those surfaces first. Left open only as a
+   deliberate confirmation.
 3. **Where does Figma reference data (`figma.componentSetKey`/node IDs)
    come from structurally?** It currently lives in `ROADMAP.md`'s
    hand-maintained "Figma design coverage" prose table, which also shows

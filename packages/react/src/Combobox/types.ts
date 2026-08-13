@@ -4,6 +4,8 @@ import type { ComponentProps } from "react";
 export interface ComboboxContextValue {
   /** Whether the popup listbox is open. */
   open: boolean;
+  /** DOM id of the popup listbox, wired to the input's `aria-controls`. */
+  listboxId: string;
 }
 
 /** Props for `Combobox.Root` — the wrapper that owns the combobox's state. */

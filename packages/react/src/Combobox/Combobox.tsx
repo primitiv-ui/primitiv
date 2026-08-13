@@ -1,4 +1,4 @@
-import { useMemo, useState, type ReactElement } from "react";
+import { useId, useMemo, useState, type ReactElement } from "react";
 
 import { ComboboxProvider, useComboboxContext } from "./ComboboxContext";
 import type {
@@ -14,7 +14,11 @@ export function ComboboxRoot({
   ...rest
 }: ComboboxRootProps): ReactElement {
   const [open] = useState(defaultOpen);
-  const value = useMemo(() => ({ open }), [open]);
+  // One listbox per combobox, so this is a fixed suffix rather than a
+  // `deriveId` per-item id — there is no per-item value to discriminate on.
+  const comboboxId = useId();
+  const listboxId = `${comboboxId}-listbox`;
+  const value = useMemo(() => ({ open, listboxId }), [open, listboxId]);
 
   return (
     <ComboboxProvider value={value}>
@@ -28,9 +32,17 @@ ComboboxRoot.displayName = "ComboboxRoot";
 
 /** The editable text field, carrying `role="combobox"` per the ARIA 1.2 pattern. */
 export function ComboboxInput({ ...rest }: ComboboxInputProps): ReactElement {
-  const { open } = useComboboxContext();
+  const { open, listboxId } = useComboboxContext();
 
-  return <input role="combobox" aria-expanded={open} {...rest} />;
+  return (
+    <input
+      role="combobox"
+      aria-expanded={open}
+      aria-controls={listboxId}
+      aria-autocomplete="list"
+      {...rest}
+    />
+  );
 }
 
 // Stryker disable next-line StringLiteral: equivalent — a DevTools label, asserted by no behaviour.
@@ -41,12 +53,12 @@ ComboboxInput.displayName = "ComboboxInput";
  * in the accessibility tree at all.
  */
 export function ComboboxContent({ children, ...rest }: ComboboxContentProps): ReactElement | null {
-  const { open } = useComboboxContext();
+  const { open, listboxId } = useComboboxContext();
 
   if (!open) return null;
 
   return (
-    <div role="listbox" {...rest}>
+    <div role="listbox" id={listboxId} {...rest}>
       {children}
     </div>
   );

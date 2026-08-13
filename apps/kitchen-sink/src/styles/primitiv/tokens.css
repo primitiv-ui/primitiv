@@ -856,6 +856,7 @@
     --primitiv-dropdown-lg-item-radius: var(--primitiv-radii-6);
     --primitiv-dropdown-lg-label-height: var(--primitiv-size-size-32);
     --primitiv-dropdown-lg-label-padding-inline: var(--primitiv-space-space-20);
+    --primitiv-dropdown-lg-panel-offset: var(--primitiv-space-space-10);
     --primitiv-dropdown-lg-panel-padding-block: var(--primitiv-space-space-8);
     --primitiv-dropdown-lg-panel-radius: var(--primitiv-radii-10);
     --primitiv-dropdown-lg-separator-spacing: var(--primitiv-space-space-8);
@@ -868,6 +869,7 @@
     --primitiv-dropdown-md-item-radius: var(--primitiv-radii-4);
     --primitiv-dropdown-md-label-height: var(--primitiv-size-size-28);
     --primitiv-dropdown-md-label-padding-inline: var(--primitiv-space-space-16);
+    --primitiv-dropdown-md-panel-offset: var(--primitiv-space-space-8);
     --primitiv-dropdown-md-panel-padding-block: var(--primitiv-space-space-8);
     --primitiv-dropdown-md-panel-radius: var(--primitiv-radii-8);
     --primitiv-dropdown-md-separator-spacing: var(--primitiv-space-space-8);
@@ -880,6 +882,7 @@
     --primitiv-dropdown-sm-item-radius: var(--primitiv-radii-2);
     --primitiv-dropdown-sm-label-height: var(--primitiv-size-size-24);
     --primitiv-dropdown-sm-label-padding-inline: var(--primitiv-space-space-12);
+    --primitiv-dropdown-sm-panel-offset: var(--primitiv-space-space-8);
     --primitiv-dropdown-sm-panel-padding-block: var(--primitiv-space-space-4);
     --primitiv-dropdown-sm-panel-radius: var(--primitiv-radii-6);
     --primitiv-dropdown-sm-separator-spacing: var(--primitiv-space-space-4);
@@ -892,6 +895,7 @@
     --primitiv-dropdown-xl-item-radius: var(--primitiv-radii-6);
     --primitiv-dropdown-xl-label-height: var(--primitiv-size-size-40);
     --primitiv-dropdown-xl-label-padding-inline: var(--primitiv-space-space-24);
+    --primitiv-dropdown-xl-panel-offset: var(--primitiv-space-space-12);
     --primitiv-dropdown-xl-panel-padding-block: var(--primitiv-space-space-10);
     --primitiv-dropdown-xl-panel-radius: var(--primitiv-radii-12);
     --primitiv-dropdown-xl-separator-spacing: var(--primitiv-space-space-10);
@@ -904,6 +908,7 @@
     --primitiv-dropdown-xs-item-radius: var(--primitiv-radii-2);
     --primitiv-dropdown-xs-label-height: var(--primitiv-size-size-16);
     --primitiv-dropdown-xs-label-padding-inline: var(--primitiv-space-space-8);
+    --primitiv-dropdown-xs-panel-offset: var(--primitiv-space-space-8);
     --primitiv-dropdown-xs-panel-padding-block: var(--primitiv-space-space-4);
     --primitiv-dropdown-xs-panel-radius: var(--primitiv-radii-4);
     --primitiv-dropdown-xs-separator-spacing: var(--primitiv-space-space-4);
@@ -1694,6 +1699,7 @@
     --primitiv-dropdown-lg-item-radius: var(--primitiv-radii-4);
     --primitiv-dropdown-lg-label-height: var(--primitiv-size-size-28);
     --primitiv-dropdown-lg-label-padding-inline: var(--primitiv-space-space-16);
+    --primitiv-dropdown-lg-panel-offset: var(--primitiv-space-space-8);
     --primitiv-dropdown-lg-panel-padding-block: var(--primitiv-space-space-4);
     --primitiv-dropdown-lg-panel-radius: var(--primitiv-radii-8);
     --primitiv-dropdown-lg-separator-spacing: var(--primitiv-space-space-4);
@@ -1706,6 +1712,7 @@
     --primitiv-dropdown-md-item-radius: var(--primitiv-radii-4);
     --primitiv-dropdown-md-label-height: var(--primitiv-size-size-24);
     --primitiv-dropdown-md-label-padding-inline: var(--primitiv-space-space-12);
+    --primitiv-dropdown-md-panel-offset: var(--primitiv-space-space-8);
     --primitiv-dropdown-md-panel-padding-block: var(--primitiv-space-space-4);
     --primitiv-dropdown-md-panel-radius: var(--primitiv-radii-8);
     --primitiv-dropdown-md-separator-spacing: var(--primitiv-space-space-4);
@@ -1718,6 +1725,7 @@
     --primitiv-dropdown-sm-item-radius: var(--primitiv-radii-2);
     --primitiv-dropdown-sm-label-height: var(--primitiv-size-size-20);
     --primitiv-dropdown-sm-label-padding-inline: var(--primitiv-space-space-10);
+    --primitiv-dropdown-sm-panel-offset: var(--primitiv-space-space-8);
     --primitiv-dropdown-sm-panel-padding-block: var(--primitiv-space-space-4);
     --primitiv-dropdown-sm-panel-radius: var(--primitiv-radii-6);
     --primitiv-dropdown-sm-separator-spacing: var(--primitiv-space-space-4);
@@ -1730,6 +1738,7 @@
     --primitiv-dropdown-xl-item-radius: var(--primitiv-radii-6);
     --primitiv-dropdown-xl-label-height: var(--primitiv-size-size-32);
     --primitiv-dropdown-xl-label-padding-inline: var(--primitiv-space-space-20);
+    --primitiv-dropdown-xl-panel-offset: var(--primitiv-space-space-10);
     --primitiv-dropdown-xl-panel-padding-block: var(--primitiv-space-space-8);
     --primitiv-dropdown-xl-panel-radius: var(--primitiv-radii-10);
     --primitiv-dropdown-xl-separator-spacing: var(--primitiv-space-space-8);
@@ -1742,6 +1751,7 @@
     --primitiv-dropdown-xs-item-radius: var(--primitiv-radii-2);
     --primitiv-dropdown-xs-label-height: var(--primitiv-size-size-16);
     --primitiv-dropdown-xs-label-padding-inline: var(--primitiv-space-space-6);
+    --primitiv-dropdown-xs-panel-offset: var(--primitiv-space-space-8);
     --primitiv-dropdown-xs-panel-padding-block: var(--primitiv-space-space-2);
     --primitiv-dropdown-xs-panel-radius: var(--primitiv-radii-4);
     --primitiv-dropdown-xs-separator-spacing: var(--primitiv-space-space-2);
@@ -2532,6 +2542,7 @@
     --primitiv-dropdown-lg-item-radius: var(--primitiv-radii-2);
     --primitiv-dropdown-lg-label-height: var(--primitiv-size-size-24);
     --primitiv-dropdown-lg-label-padding-inline: var(--primitiv-space-space-12);
+    --primitiv-dropdown-lg-panel-offset: var(--primitiv-space-space-8);
     --primitiv-dropdown-lg-panel-padding-block: var(--primitiv-space-space-4);
     --primitiv-dropdown-lg-panel-radius: var(--primitiv-radii-6);
     --primitiv-dropdown-lg-separator-spacing: var(--primitiv-space-space-4);
@@ -2544,6 +2555,7 @@
     --primitiv-dropdown-md-item-radius: var(--primitiv-radii-2);
     --primitiv-dropdown-md-label-height: var(--primitiv-size-size-20);
     --primitiv-dropdown-md-label-padding-inline: var(--primitiv-space-space-8);
+    --primitiv-dropdown-md-panel-offset: var(--primitiv-space-space-8);
     --primitiv-dropdown-md-panel-padding-block: var(--primitiv-space-space-4);
     --primitiv-dropdown-md-panel-radius: var(--primitiv-radii-6);
     --primitiv-dropdown-md-separator-spacing: var(--primitiv-space-space-4);
@@ -2556,6 +2568,7 @@
     --primitiv-dropdown-sm-item-radius: var(--primitiv-radii-2);
     --primitiv-dropdown-sm-label-height: var(--primitiv-size-size-16);
     --primitiv-dropdown-sm-label-padding-inline: var(--primitiv-space-space-6);
+    --primitiv-dropdown-sm-panel-offset: var(--primitiv-space-space-8);
     --primitiv-dropdown-sm-panel-padding-block: var(--primitiv-space-space-2);
     --primitiv-dropdown-sm-panel-radius: var(--primitiv-radii-4);
     --primitiv-dropdown-sm-separator-spacing: var(--primitiv-space-space-2);
@@ -2568,6 +2581,7 @@
     --primitiv-dropdown-xl-item-radius: var(--primitiv-radii-4);
     --primitiv-dropdown-xl-label-height: var(--primitiv-size-size-28);
     --primitiv-dropdown-xl-label-padding-inline: var(--primitiv-space-space-16);
+    --primitiv-dropdown-xl-panel-offset: var(--primitiv-space-space-8);
     --primitiv-dropdown-xl-panel-padding-block: var(--primitiv-space-space-4);
     --primitiv-dropdown-xl-panel-radius: var(--primitiv-radii-8);
     --primitiv-dropdown-xl-separator-spacing: var(--primitiv-space-space-4);
@@ -2580,6 +2594,7 @@
     --primitiv-dropdown-xs-item-radius: var(--primitiv-radii-2);
     --primitiv-dropdown-xs-label-height: var(--primitiv-size-size-16);
     --primitiv-dropdown-xs-label-padding-inline: var(--primitiv-space-space-4);
+    --primitiv-dropdown-xs-panel-offset: var(--primitiv-space-space-8);
     --primitiv-dropdown-xs-panel-padding-block: var(--primitiv-space-space-2);
     --primitiv-dropdown-xs-panel-radius: var(--primitiv-radii-4);
     --primitiv-dropdown-xs-separator-spacing: var(--primitiv-space-space-2);
@@ -3370,6 +3385,7 @@
     --primitiv-dropdown-lg-item-radius: var(--primitiv-radii-6);
     --primitiv-dropdown-lg-label-height: var(--primitiv-size-size-40);
     --primitiv-dropdown-lg-label-padding-inline: var(--primitiv-space-space-28);
+    --primitiv-dropdown-lg-panel-offset: var(--primitiv-space-space-12);
     --primitiv-dropdown-lg-panel-padding-block: var(--primitiv-space-space-14);
     --primitiv-dropdown-lg-panel-radius: var(--primitiv-radii-12);
     --primitiv-dropdown-lg-separator-spacing: var(--primitiv-space-space-10);
@@ -3382,6 +3398,7 @@
     --primitiv-dropdown-md-item-radius: var(--primitiv-radii-6);
     --primitiv-dropdown-md-label-height: var(--primitiv-size-size-32);
     --primitiv-dropdown-md-label-padding-inline: var(--primitiv-space-space-20);
+    --primitiv-dropdown-md-panel-offset: var(--primitiv-space-space-10);
     --primitiv-dropdown-md-panel-padding-block: var(--primitiv-space-space-12);
     --primitiv-dropdown-md-panel-radius: var(--primitiv-radii-12);
     --primitiv-dropdown-md-separator-spacing: var(--primitiv-space-space-8);
@@ -3394,6 +3411,7 @@
     --primitiv-dropdown-sm-item-radius: var(--primitiv-radii-4);
     --primitiv-dropdown-sm-label-height: var(--primitiv-size-size-28);
     --primitiv-dropdown-sm-label-padding-inline: var(--primitiv-space-space-14);
+    --primitiv-dropdown-sm-panel-offset: var(--primitiv-space-space-8);
     --primitiv-dropdown-sm-panel-padding-block: var(--primitiv-space-space-8);
     --primitiv-dropdown-sm-panel-radius: var(--primitiv-radii-8);
     --primitiv-dropdown-sm-separator-spacing: var(--primitiv-space-space-8);
@@ -3406,6 +3424,7 @@
     --primitiv-dropdown-xl-item-radius: var(--primitiv-radii-8);
     --primitiv-dropdown-xl-label-height: var(--primitiv-size-size-48);
     --primitiv-dropdown-xl-label-padding-inline: var(--primitiv-space-space-32);
+    --primitiv-dropdown-xl-panel-offset: var(--primitiv-space-space-14);
     --primitiv-dropdown-xl-panel-padding-block: var(--primitiv-space-space-16);
     --primitiv-dropdown-xl-panel-radius: var(--primitiv-radii-16);
     --primitiv-dropdown-xl-separator-spacing: var(--primitiv-space-space-12);
@@ -3418,6 +3437,7 @@
     --primitiv-dropdown-xs-item-radius: var(--primitiv-radii-2);
     --primitiv-dropdown-xs-label-height: var(--primitiv-size-size-20);
     --primitiv-dropdown-xs-label-padding-inline: var(--primitiv-space-space-10);
+    --primitiv-dropdown-xs-panel-offset: var(--primitiv-space-space-8);
     --primitiv-dropdown-xs-panel-padding-block: var(--primitiv-space-space-4);
     --primitiv-dropdown-xs-panel-radius: var(--primitiv-radii-6);
     --primitiv-dropdown-xs-separator-spacing: var(--primitiv-space-space-4);

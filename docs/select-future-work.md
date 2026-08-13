@@ -6,6 +6,13 @@ folding a richer, fully-styleable render path into that same component,
 plus the separately-deferred Combobox, so the next session can pick either
 up cold.
 
+> **Combobox status (2026-08-13):** its design is no longer deferred. The
+> four open questions this doc carried are all answered below, and the
+> source of truth has moved to the Figma **"Combobox — exploration"** page
+> (settled in full) plus the built `Combobox` component set. What remains
+> is implementation: the headless cycles, then the registry surface and a
+> kitchen-sink demo. Read that page before starting, not this section.
+
 ## One `Select`, not a second component (D: unify, 2026-07-24)
 
 Originally planned as two components — a shipped "Native Select" and a
@@ -464,17 +471,53 @@ tier and still hold for `Select`'s default (non-`native`) render path.
   `<select name=…>` so submission works through the browser, mirroring
   what `native` mode already gets for free.
 
-## Open questions for the Combobox
+## Open questions for the Combobox — all four answered (2026-08-13)
 
-- Filtering strategy — owned by the component (built-in `filter` prop /
-  string-match predicate) or by the consumer (always-controlled with a
-  `useDeferredValue`-style API)?
-- Async option loading — does the component own request state, or just
-  call back with the current filter string?
-- Multi-select on Combobox specifically — token chips inside the input?
-  Separate `MultiCombobox`?
-- Virtualization — accept a `windowed` prop, or document a recipe with
-  `react-virtual` / `tanstack-virtual`?
+Settled on the Figma **"Combobox — exploration"** page, which is now the
+source of truth for the component's design; the Figma `Combobox` component
+set is built. All four questions below resolved the same way — **out of the
+minimal v1**, deliberately, because none of them is needed by the docs site
+and answering them generously would have made Combobox the largest component
+in the library after Carousel.
+
+- **Filtering strategy → consumer-owned.** No built-in `filter` prop and no
+  string-match predicate: the consumer filters and passes the options in.
+  A component-owned `filter` stays deferred.
+- **Async option loading → out.** The component owns no request state. The
+  ownership question is untouched, not answered.
+- **Multi-select / token chips → out.** v1 is single-select only. Whether it
+  becomes a `multiple` prop or a separate `MultiCombobox` is still open, and
+  is now the one genuinely unanswered Combobox question.
+- **Virtualization → out.** Neither a `windowed` prop nor a documented
+  `react-virtual` recipe. A ~60-row list does not need windowing.
+
+**Also settled there** (see the exploration page for the rejected
+alternatives and why): the popup is a floating `Dropdown / Panel` at
+`elevation/overlay`, not the in-page Listbox frame; the control is `Input`
+verbatim plus a trailing chevron, with the search flavour a documented
+variant rather than a second component; the input keeps its focus ring while
+a popup row carries the cursor tint, both unconditional (inherited from
+Listbox §C1/§C4, which was decided for exactly this external-input case);
+the input shows the live query while open and resets from the value on close;
+and no-results reuses Listbox's empty part as `ComboboxEmpty`.
+
+Rows are `Listbox / Option`, **not** `Dropdown / CheckboxItem` — it is the
+only row component in the library with a `cursor` state, which is what
+virtual focus needs.
+
+One new token family came out of it, `dropdown/{size}/panel/offset`, for the
+control-to-popup gap: the focus ring is a fixed 4px that does not scale with
+density, so a 4px gap was entirely consumed by it. **Select's own composed
+set and `Dropdown` still hardcode that literal `4`** and have the identical
+problem — to be adopted when the registry work happens.
+
+### The Command Palette is not this component
+
+The docs-site search/command palette (`docs/docs-site-planning.md` §1.17,
+still the one component gap the docs site has) **composes** Combobox inside
+a `Modal` — it is a separate Tier-1 composite, not a Combobox mode. Modal
+already supplies the overlay, focus trap and Escape/backdrop dismissal, so
+there is nothing new for a headless primitive to own there.
 
 ## Browser-support caveat — resolved (2026-07-24)
 

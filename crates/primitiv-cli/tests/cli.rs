@@ -178,8 +178,11 @@ fn add_all_resolves_every_embedded_component() {
         // Tree (hand-tuned like Accordion/Collapsible — BranchContent
         // force-mounts and adds a clip for the grid open/close transition, and
         // SelectionPath rebuilds each trail from the registry Breadcrumb through
-        // the headless render prop, which is why it dependsOn breadcrumb).
-        .stdout(predicate::str::contains("Resolved 62 components to add:"))
+        // the headless render prop, which is why it dependsOn breadcrumb) +
+        // Combobox (hand-authored: the control has to be a wrapper element
+        // around the headless <input> so a chevron can sit beside the field,
+        // and six of its parts are presentational with no primitive).
+        .stdout(predicate::str::contains("Resolved 63 components to add:"))
         .stdout(predicate::str::contains("button"))
         .stdout(predicate::str::contains("container"))
         .stdout(predicate::str::contains("grid"))
@@ -187,6 +190,7 @@ fn add_all_resolves_every_embedded_component() {
         .stdout(predicate::str::contains("miller-columns"))
         .stdout(predicate::str::contains("split-button"))
         .stdout(predicate::str::contains("listbox"))
+        .stdout(predicate::str::contains("combobox"))
         .stdout(predicate::str::contains("card"))
         .stdout(predicate::str::contains("avatar-group"))
         .stdout(predicate::str::contains("breadcrumb-overflow"))

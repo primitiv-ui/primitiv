@@ -17,6 +17,7 @@ export * from "./checkbox-card";
 export * from "./chip";
 export * from "./code-block";
 export * from "./collapsible";
+export * from "./combobox";
 export * from "./confirm-dialog";
 export * from "./container";
 export * from "./context-menu";

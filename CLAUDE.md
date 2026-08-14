@@ -860,6 +860,45 @@ source of truth for when a skill applies.
     *left* of the child row's own left edge at every size, so rails never fall
     on indent boundaries and cannot be auto-layout columns. Its `connectors`
     frame is child 0 so a hovered/selected row's fill covers the rail.
+- **Combobox — fully complete, all four stages (2026-08-14).** Figma
+  (`1816:61259`, 10 variants, md-first) + the "Combobox — exploration" page
+  (`1816:60308`, seven calls, all settled 2026-08-13) landed earlier; the headless
+  compound landed after; this session added the **registry surface and the
+  kitchen-sink demo**. Deferred work — including three headless follow-ups found
+  only while building the registry — is in `docs/combobox-future-work.md`. Four
+  things worth knowing before touching it:
+  - **No new design tokens, and that is structural.** It falls out of §B1 + §A1:
+    the control is **Input verbatim** (`framed-control/{size}/*`, Input's own
+    states) and the popup is a **Dropdown panel** at `elevation/overlay`. Revisit
+    either and the token cost comes straight back. Rows are `Listbox / Option`
+    (not `Dropdown / CheckboxItem`) because Listbox's row is the only one in the
+    library with a **cursor** state — so Combobox and Listbox share their entire
+    row language on purpose, and a change to one should be checked against both.
+  - **The control had to become a wrapper, and this is forced, not a choice.**
+    Figma draws one Input frame as `[leading][value FILL][chevron]`, but you
+    cannot put a chevron inside an `<input>`. So the frame moved to
+    `.primitiv-combobox__control` with a bare field inside, and every state —
+    focus ring, invalid, disabled, chevron flip — is read off the inner input with
+    `:has()`. Don't "simplify" it back onto the input.
+  - **`size` is set once, on the root** — deliberately unlike Select, which
+    repeats the axis on trigger *and* content because its root renders no element
+    in rich mode. Combobox's headless root is a real `<div>` containing both
+    halves, so every knob is declared there and inherits down the DOM; the
+    fixed-position panel picks them up too, because custom properties inherit
+    through the **DOM tree, not the containing block**. Matches the Figma set's
+    single Size axis.
+  - **Two headless gaps the registry papers over, and one it refuses to.** The
+    popup is `position: fixed` + anchor positioning rather than a top-layer
+    `[popover]`, because the headless `Combobox.Content` **unmounts** while closed
+    instead of driving the Popover API (contrast `Select.Content`) — which costs
+    light-dismiss and any exit animation, and is why the panel animates in via
+    `@starting-style` only. Wiring `popover="manual"` + a mount effect in the
+    wrapper was considered and rejected: it would put layering behaviour in a file
+    that gets copied into consumer repos, and it fails *closed* (a `[popover]` is
+    `display: none` until shown, so the panel would vanish rather than
+    mispositioned). Groups were likewise **omitted rather than half-shipped** —
+    `role="group"` + `aria-labelledby` belongs to the headless layer, as
+    `Listbox.Group` already does it.
 
 ## Figma plugin-API gotchas (scripting via `figma_execute`)
 

@@ -187,6 +187,18 @@ import {
   ListboxGroup,
   ListboxGroupLabel,
   ListboxEmpty,
+  Combobox,
+  ComboboxControl,
+  ComboboxLeading,
+  ComboboxInput,
+  ComboboxIcon,
+  ComboboxContent,
+  ComboboxItem,
+  ComboboxItemIndicator,
+  ComboboxItemLeading,
+  ComboboxItemLabel,
+  ComboboxItemTrailing,
+  ComboboxEmpty,
   SegmentedControl,
   SegmentedControlItem,
   Select,
@@ -410,6 +422,36 @@ const LB_CITIES = [
   { value: "flr", name: "Florence" },
   { value: "gva", name: "Geneva" },
   { value: "hel", name: "Helsinki" },
+] as const;
+
+// Combobox fixtures. Overlapping prefixes on purpose ("React" / "Reason ML" /
+// "Rescript") so filtering down to several matches, then arrowing between them,
+// is possible by hand — and long enough that the panel scrolls.
+const CB_FRAMEWORKS = [
+  { value: "react", name: "React" },
+  { value: "reason", name: "Reason ML" },
+  { value: "rescript", name: "Rescript" },
+  { value: "preact", name: "Preact" },
+  { value: "solid", name: "Solid" },
+  { value: "svelte", name: "Svelte" },
+  { value: "vue", name: "Vue" },
+  { value: "qwik", name: "Qwik" },
+  { value: "angular", name: "Angular" },
+] as const;
+
+// The search-flavour demo keeps `value` equal to the visible label, because its
+// rows use ComboboxItemLabel: the headless layer only derives a committed label
+// from *string* children, so with elements inside a row the value stands in.
+// Making them the same is the cheapest way to keep the closed-state text right —
+// see registry/components/combobox/README.md, "The label caveat".
+const CB_DOCS_PAGES = [
+  { value: "Anchor positioning", section: "Guide" },
+  { value: "Density", section: "Guide" },
+  { value: "Design tokens", section: "Guide" },
+  { value: "Dark mode", section: "Guide" },
+  { value: "Combobox", section: "React" },
+  { value: "Listbox", section: "React" },
+  { value: "Select", section: "React" },
 ] as const;
 
 const LB_TOPPINGS: { value: string; name: string; soon?: boolean }[] = [
@@ -849,7 +891,7 @@ const PAGE_TOC: { category: string; titles: string[] }[] = [
   },
   {
     category: "Collections & Selection",
-    titles: ["Listbox", "Miller Columns", "Select", "Tree"],
+    titles: ["Combobox", "Listbox", "Miller Columns", "Select", "Tree"],
   },
   { category: "Typography", titles: ["Code Block"] },
   {
@@ -1500,6 +1542,20 @@ export function App(): ReactElement {
   const lbPaletteRef = useRef<HTMLDivElement>(null);
   const lbMatches = LB_CITIES.filter((c) =>
     c.name.toLowerCase().startsWith(lbQuery.trim().toLowerCase()),
+  );
+  // Combobox demo state. Filtering is consumer-owned by design — there is no
+  // `filter` prop — so each demo keeps its own query and does its own matching.
+  // The cursor is NOT state here either: it lives inside the primitive as
+  // virtual focus, so only the query and the committed value are controlled.
+  const [cbQuery, setCbQuery] = useState("");
+  const [cbFramework, setCbFramework] = useState("");
+  const [cbSearchQuery, setCbSearchQuery] = useState("");
+  const [cbPage, setCbPage] = useState("");
+  const cbMatches = CB_FRAMEWORKS.filter((f) =>
+    f.name.toLowerCase().includes(cbQuery.trim().toLowerCase()),
+  );
+  const cbPageMatches = CB_DOCS_PAGES.filter((p) =>
+    p.value.toLowerCase().includes(cbSearchQuery.trim().toLowerCase()),
   );
   const [readMoreOpen, setReadMoreOpen] = useState(false);
   // Chip demo state — a real removable filter list, so the remove button
@@ -3443,6 +3499,147 @@ export function ramp(hue: number, chroma = 0.12) {
                 ))
               )}
             </Listbox>
+          </div>
+        </Section>
+
+        {/* Combobox sits immediately after Listbox on purpose: the last Listbox
+            demo above wires an external Input to a Listbox by hand, re-dispatching
+            keystrokes at the frame. Combobox IS that composition, done properly —
+            one field, one popup, and the whole keymap already forwarded. Compare
+            the two side by side.
+
+            Note what is NOT here: no `filter` prop (each demo does its own
+            matching, which is the settled design), and no anchor-name wiring —
+            the wrapper derives its own ident from useId(), so two comboboxes on
+            this page cannot collide. */}
+        <Section title="Combobox" column>
+          {/* The canonical shape. Children are a plain STRING, so the headless
+              layer derives the committed label from them and the field shows
+              "Reason ML" after a commit rather than the "reason" value — which is
+              why there is no ComboboxItemLabel in this one. */}
+          <div className="ks-select-demo">
+            <span className="ks-select-demo__caption">
+              Single-select · type to filter, arrow to move the cursor, Enter to
+              commit, Escape to restore
+              {cbFramework ? ` — value: ${cbFramework}` : ""}
+            </span>
+            <Combobox
+              size={size}
+              value={cbFramework}
+              onValueChange={setCbFramework}
+              onQueryChange={setCbQuery}
+            >
+              <ComboboxControl>
+                <ComboboxInput
+                  aria-label="Framework"
+                  placeholder="Search frameworks..."
+                />
+                <ComboboxIcon>
+                  <ChevronDown aria-hidden="true" />
+                </ComboboxIcon>
+              </ComboboxControl>
+              <ComboboxContent aria-label="Matching frameworks">
+                {cbMatches.length === 0 ? (
+                  <ComboboxEmpty>No frameworks match “{cbQuery}”</ComboboxEmpty>
+                ) : (
+                  cbMatches.map(({ value, name }) => (
+                    <ComboboxItem key={value} value={value}>
+                      <ComboboxItemIndicator>
+                        <Check aria-hidden="true" />
+                      </ComboboxItemIndicator>
+                      {name}
+                    </ComboboxItem>
+                  ))
+                )}
+              </ComboboxContent>
+            </Combobox>
+          </div>
+
+          {/* The search flavour — settled in the Figma exploration (§B1) as a
+              documented variation, not a second component: a magnifier in the
+              leading slot and NO chevron. This is the shape the docs-site search
+              field wants. It also exercises the full row anatomy
+              [mark][leading][label FILL][trailing], with `value` deliberately
+              equal to the visible label so the committed text stays right. */}
+          <div className="ks-select-demo">
+            <span className="ks-select-demo__caption">
+              Search flavour · leading glyph, no chevron, full row anatomy
+              {cbPage ? ` — value: ${cbPage}` : ""}
+            </span>
+            <Combobox
+              size={size}
+              value={cbPage}
+              onValueChange={setCbPage}
+              onQueryChange={setCbSearchQuery}
+            >
+              <ComboboxControl>
+                <ComboboxLeading>
+                  <Search aria-hidden="true" />
+                </ComboboxLeading>
+                <ComboboxInput
+                  aria-label="Search the docs"
+                  placeholder="Search the docs..."
+                />
+              </ComboboxControl>
+              <ComboboxContent aria-label="Matching pages">
+                {cbPageMatches.length === 0 ? (
+                  <ComboboxEmpty>
+                    Nothing matches “{cbSearchQuery}”
+                  </ComboboxEmpty>
+                ) : (
+                  cbPageMatches.map(({ value, section }) => (
+                    <ComboboxItem key={value} value={value}>
+                      <ComboboxItemIndicator>
+                        <Check aria-hidden="true" />
+                      </ComboboxItemIndicator>
+                      <ComboboxItemLeading>
+                        <Search aria-hidden="true" />
+                      </ComboboxItemLeading>
+                      <ComboboxItemLabel>{value}</ComboboxItemLabel>
+                      <ComboboxItemTrailing>
+                        <Tag tone="neutral" size="xs">
+                          {section}
+                        </Tag>
+                      </ComboboxItemTrailing>
+                    </ComboboxItem>
+                  ))
+                )}
+              </ComboboxContent>
+            </Combobox>
+          </div>
+
+          {/* Invalid + disabled. Both are read off the inner input with :has(),
+              because the frame is a wrapper rather than the input itself — so
+              they go on ComboboxInput, not on the root. */}
+          <div className="ks-select-demo">
+            <span className="ks-select-demo__caption">
+              Invalid and disabled · set on the input, forwarded to the frame with
+              :has()
+            </span>
+            <Combobox size={size}>
+              <ComboboxControl>
+                <ComboboxInput
+                  aria-label="Invalid framework"
+                  aria-invalid="true"
+                  placeholder="Pick a framework"
+                />
+                <ComboboxIcon>
+                  <ChevronDown aria-hidden="true" />
+                </ComboboxIcon>
+              </ComboboxControl>
+            </Combobox>
+            <Combobox size={size}>
+              <ComboboxControl>
+                <ComboboxInput
+                  aria-label="Disabled framework"
+                  disabled
+                  placeholder="Unavailable"
+                />
+                <ComboboxIcon>
+                  <ChevronDown aria-hidden="true" />
+                </ComboboxIcon>
+              </ComboboxControl>
+            </Combobox>
           </div>
         </Section>
 

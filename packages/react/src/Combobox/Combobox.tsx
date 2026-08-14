@@ -9,7 +9,7 @@ import {
   type ReactElement,
 } from "react";
 
-import { useCollection, useRovingTabindex } from "../hooks/index.ts";
+import { useCollection, useControllableState, useRovingTabindex } from "../hooks/index.ts";
 import { deriveId } from "../utils/index.ts";
 
 import { ComboboxProvider, useComboboxContext } from "./ComboboxContext";
@@ -25,14 +25,18 @@ import type {
 /** The root of a Combobox — owns the open state and wraps the input and popup. */
 export function ComboboxRoot({
   defaultOpen = false,
+  open: openProp,
+  onOpenChange,
+  defaultValue = "",
+  value: valueProp,
   onQueryChange,
   onValueChange,
   children,
   ...rest
 }: ComboboxRootProps): ReactElement {
-  const [open, setOpen] = useState(defaultOpen);
+  const [open, setOpen] = useControllableState(openProp, defaultOpen, onOpenChange);
   const [query, setQueryState] = useState("");
-  const [value, setValue] = useState("");
+  const [value, setValue] = useControllableState(valueProp, defaultValue, onValueChange);
   // The label of the committed value, kept so Escape can put the text back
   // after the user has typed over it (D1: the field never keeps a stale query).
   const [committedLabel, setCommittedLabel] = useState("");
@@ -48,7 +52,7 @@ export function ComboboxRoot({
       setOpen(true);
       onQueryChange?.(next);
     },
-    [onQueryChange],
+    [onQueryChange, setOpen],
   );
 
   // D1: committing a choice closes the popup and resets the text FROM THE
@@ -61,9 +65,8 @@ export function ComboboxRoot({
       setQueryState(label);
       setCommittedLabel(label);
       setOpen(false);
-      onValueChange?.(nextValue);
     },
-    [onValueChange],
+    [setValue, setOpen],
   );
 
   // The cursor. Null until the user asks for one with an arrow key — an
@@ -98,7 +101,7 @@ export function ComboboxRoot({
     setOpen(false);
     setQueryState(committedLabel);
     setActiveValue(null);
-  }, [committedLabel]);
+  }, [committedLabel, setOpen]);
 
   // useRovingTabindex deliberately refuses to move `next`/`prev` when there is
   // no current key (RadioGroup's disabled-current contract), so seeding the

@@ -43,6 +43,14 @@ export interface ComboboxRootProps extends ComponentProps<"div"> {
    * @default false
    */
   defaultOpen?: boolean;
+  /** Whether the popup is open, for the controlled case. */
+  open?: boolean;
+  /** Called when the combobox wants the popup opened or closed. */
+  onOpenChange?: (open: boolean) => void;
+  /** The selected value on first render, for the uncontrolled case. */
+  defaultValue?: string;
+  /** The selected value, for the controlled case. */
+  value?: string;
   /**
    * Called with the input's text on every keystroke. Filtering is
    * consumer-owned: use this to narrow the options you render.

@@ -19,6 +19,9 @@ export function ComboboxRoot({
   const [open, setOpen] = useState(defaultOpen);
   const [query, setQueryState] = useState("");
   const [value, setValue] = useState("");
+  // The label of the committed value, kept so Escape can put the text back
+  // after the user has typed over it (D1: the field never keeps a stale query).
+  const [committedLabel, setCommittedLabel] = useState("");
   // One listbox per combobox, so this is a fixed suffix rather than a
   // `deriveId` per-item id — there is no per-item value to discriminate on.
   const comboboxId = useId();
@@ -42,15 +45,21 @@ export function ComboboxRoot({
     (nextValue: string, label: string) => {
       setValue(nextValue);
       setQueryState(label);
+      setCommittedLabel(label);
       setOpen(false);
       onValueChange?.(nextValue);
     },
     [onValueChange],
   );
 
+  const dismiss = useCallback(() => {
+    setOpen(false);
+    setQueryState(committedLabel);
+  }, [committedLabel]);
+
   const contextValue = useMemo(
-    () => ({ open, listboxId, query, setQuery, value, select }),
-    [open, listboxId, query, setQuery, value, select],
+    () => ({ open, listboxId, query, setQuery, value, select, dismiss }),
+    [open, listboxId, query, setQuery, value, select, dismiss],
   );
 
   return (
@@ -65,7 +74,7 @@ ComboboxRoot.displayName = "ComboboxRoot";
 
 /** The editable text field, carrying `role="combobox"` per the ARIA 1.2 pattern. */
 export function ComboboxInput({ ...rest }: ComboboxInputProps): ReactElement {
-  const { open, listboxId, query, setQuery } = useComboboxContext();
+  const { open, listboxId, query, setQuery, dismiss } = useComboboxContext();
 
   return (
     <input
@@ -75,6 +84,9 @@ export function ComboboxInput({ ...rest }: ComboboxInputProps): ReactElement {
       aria-autocomplete="list"
       value={query}
       onChange={(event) => setQuery(event.target.value)}
+      onKeyDown={(event) => {
+        if (event.key === "Escape") dismiss();
+      }}
       {...rest}
     />
   );

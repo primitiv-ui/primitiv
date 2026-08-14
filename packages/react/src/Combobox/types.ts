@@ -14,6 +14,8 @@ export interface ComboboxContextValue {
   value: string;
   /** Commits a selection: sets the value, closes, and resets the input text. */
   select: (value: string, label: string) => void;
+  /** Closes the popup and abandons the query, restoring the committed label. */
+  dismiss: () => void;
 }
 
 /** Props for `Combobox.Root` — the wrapper that owns the combobox's state. */

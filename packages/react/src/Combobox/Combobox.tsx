@@ -4,6 +4,7 @@ import { ComboboxProvider, useComboboxContext } from "./ComboboxContext";
 import type {
   ComboboxContentProps,
   ComboboxInputProps,
+  ComboboxItemProps,
   ComboboxRootProps,
 } from "./types";
 
@@ -11,11 +12,13 @@ import type {
 export function ComboboxRoot({
   defaultOpen = false,
   onQueryChange,
+  onValueChange,
   children,
   ...rest
 }: ComboboxRootProps): ReactElement {
   const [open, setOpen] = useState(defaultOpen);
   const [query, setQueryState] = useState("");
+  const [value, setValue] = useState("");
   // One listbox per combobox, so this is a fixed suffix rather than a
   // `deriveId` per-item id — there is no per-item value to discriminate on.
   const comboboxId = useId();
@@ -31,13 +34,27 @@ export function ComboboxRoot({
     [onQueryChange],
   );
 
-  const value = useMemo(
-    () => ({ open, listboxId, query, setQuery }),
-    [open, listboxId, query, setQuery],
+  // D1: committing a choice closes the popup and resets the text FROM THE
+  // VALUE, so the field never sits showing a half-typed query that is not the
+  // value. The label comes from the item because the value alone cannot say
+  // how it should read.
+  const select = useCallback(
+    (nextValue: string, label: string) => {
+      setValue(nextValue);
+      setQueryState(label);
+      setOpen(false);
+      onValueChange?.(nextValue);
+    },
+    [onValueChange],
+  );
+
+  const contextValue = useMemo(
+    () => ({ open, listboxId, query, setQuery, value, select }),
+    [open, listboxId, query, setQuery, value, select],
   );
 
   return (
-    <ComboboxProvider value={value}>
+    <ComboboxProvider value={contextValue}>
       <div {...rest}>{children}</div>
     </ComboboxProvider>
   );
@@ -85,6 +102,36 @@ export function ComboboxContent({ children, ...rest }: ComboboxContentProps): Re
 // Stryker disable next-line StringLiteral: equivalent — a DevTools label, asserted by no behaviour.
 ComboboxContent.displayName = "ComboboxContent";
 
+/** One selectable option in the popup listbox. */
+export function ComboboxItem({
+  value: itemValue,
+  children,
+  ...rest
+}: ComboboxItemProps): ReactElement {
+  const { value, select } = useComboboxContext();
+  const selected = value === itemValue;
+
+  return (
+    <div
+      role="option"
+      aria-selected={selected}
+      onClick={() => {
+        // An item is commonly an icon plus a label, so children are not always
+        // a string. There is no reliable way to read a label out of arbitrary
+        // JSX, so the value stands in — consumers wanting a nicer closed-state
+        // label should pass string children.
+        select(itemValue, typeof children === "string" ? children : itemValue);
+      }}
+      {...rest}
+    >
+      {children}
+    </div>
+  );
+}
+
+// Stryker disable next-line StringLiteral: equivalent — a DevTools label, asserted by no behaviour.
+ComboboxItem.displayName = "ComboboxItem";
+
 /**
  * The shape of the exported `Combobox` value — callable as `Combobox.Root` and
  * carrying its sub-components as static properties.
@@ -93,12 +140,14 @@ export type TComboboxCompound = typeof ComboboxRoot & {
   Root: typeof ComboboxRoot;
   Input: typeof ComboboxInput;
   Content: typeof ComboboxContent;
+  Item: typeof ComboboxItem;
 };
 
 const ComboboxCompound: TComboboxCompound = Object.assign(ComboboxRoot, {
   Root: ComboboxRoot,
   Input: ComboboxInput,
   Content: ComboboxContent,
+  Item: ComboboxItem,
 });
 
 // Stryker disable next-line StringLiteral: equivalent — a DevTools label, asserted by no behaviour.

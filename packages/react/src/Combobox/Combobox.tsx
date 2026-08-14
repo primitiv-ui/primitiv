@@ -23,7 +23,29 @@ import type {
   ComboboxRootProps,
 } from "./types";
 
-/** The root of a Combobox — owns the open state and wraps the input and popup. */
+/**
+ * The root of a Combobox — owns the open state, the selected value, the live
+ * query and the virtual-focus cursor, and provides {@link ComboboxContextValue}
+ * to its parts.
+ *
+ * **Filtering is consumer-owned.** There is deliberately no `filter` prop: the
+ * root reports keystrokes through
+ * {@link ComboboxRootProps.onQueryChange | `onQueryChange`} and you render the
+ * options you want. That keeps async loading, fuzzy matching and sorting where
+ * the data lives.
+ *
+ * **Query versus value.** While the popup is open the input holds whatever the
+ * user typed; committing a choice or pressing Escape resets the text from the
+ * selected value, so the field never sits showing a half-typed query that is
+ * not the value.
+ *
+ * **Virtual focus, not a roving tabstop.** DOM focus never leaves the input.
+ * The cursor is published as `aria-activedescendant` on the input and
+ * `data-highlighted` on the item, which is what lets the input keep focus while
+ * driving the list.
+ *
+ * @extends HTMLDivElement
+ */
 export function ComboboxRoot({
   asChild = false,
   defaultOpen = false,
@@ -184,7 +206,17 @@ export function ComboboxRoot({
 // Stryker disable next-line StringLiteral: equivalent — a DevTools label, asserted by no behaviour.
 ComboboxRoot.displayName = "ComboboxRoot";
 
-/** The editable text field, carrying `role="combobox"` per the ARIA 1.2 pattern. */
+/**
+ * The editable text field. Carries `role="combobox"`, `aria-expanded`,
+ * `aria-controls`, `aria-autocomplete="list"` and — once the user asks for a
+ * cursor — `aria-activedescendant`, per the ARIA 1.2 combobox pattern.
+ *
+ * Owns the whole keyboard model: ArrowDown/ArrowUp move the cursor (seeding the
+ * first/last item when there is none), Home/End jump to the ends, Enter commits
+ * the cursor item, and Escape closes and restores the committed label.
+ *
+ * @extends HTMLInputElement
+ */
 export function ComboboxInput({
   asChild = false,
   onChange,
@@ -215,8 +247,10 @@ export function ComboboxInput({
 ComboboxInput.displayName = "ComboboxInput";
 
 /**
- * The popup listbox. Unmounted while closed — the closed combobox has no list
- * in the accessibility tree at all.
+ * The popup listbox. **Unmounted while closed**, so a closed combobox has no
+ * list in the accessibility tree at all — not a hidden one.
+ *
+ * @extends HTMLDivElement
  */
 export function ComboboxContent({
   asChild = false,
@@ -239,7 +273,15 @@ export function ComboboxContent({
 // Stryker disable next-line StringLiteral: equivalent — a DevTools label, asserted by no behaviour.
 ComboboxContent.displayName = "ComboboxContent";
 
-/** One selectable option in the popup listbox. */
+/**
+ * One selectable option in the popup listbox. Renders `role="option"` with
+ * `aria-selected`, plus `data-highlighted` while the cursor sits on it.
+ *
+ * Registers itself with the root so the arrow keys know the DOM order and Enter
+ * resolves the same label a click would.
+ *
+ * @extends HTMLDivElement
+ */
 export function ComboboxItem({
   asChild = false,
   value: itemValue,
@@ -287,10 +329,12 @@ ComboboxItem.displayName = "ComboboxItem";
 
 /**
  * The no-results message shown inside the popup while the filtered list is
- * empty. `role="presentation"` so it is not announced as an option and the
- * cursor has nothing to land on — the panel stays open at a stable height so
- * the user can keep typing. Rendering it is the consumer's call, since
- * filtering is consumer-owned.
+ * empty. `role="presentation"`, so it is never announced as an option and the
+ * cursor has nothing to land on — the panel simply keeps its height while the
+ * user carries on typing. Rendering it is your call, since filtering is
+ * consumer-owned.
+ *
+ * @extends HTMLDivElement
  */
 export function ComboboxEmpty({
   asChild = false,
@@ -310,8 +354,9 @@ export function ComboboxEmpty({
 ComboboxEmpty.displayName = "ComboboxEmpty";
 
 /**
- * The shape of the exported `Combobox` value — callable as `Combobox.Root` and
- * carrying its sub-components as static properties.
+ * The shape of the exported `Combobox` value — callable as
+ * {@link ComboboxRoot | `Combobox.Root`} and carrying its sub-components as
+ * static properties.
  */
 export type TComboboxCompound = typeof ComboboxRoot & {
   Root: typeof ComboboxRoot;
@@ -321,6 +366,49 @@ export type TComboboxCompound = typeof ComboboxRoot & {
   Empty: typeof ComboboxEmpty;
 };
 
+/**
+ * Headless, accessible **Combobox** — an editable text field with a filtered
+ * popup listbox, implementing the
+ * {@link https://www.w3.org/WAI/ARIA/apg/patterns/combobox/ | WAI-ARIA APG combobox pattern}.
+ *
+ * `Combobox` is both callable (an alias of {@link ComboboxRoot | `Combobox.Root`})
+ * and carries its sub-components as static properties.
+ *
+ * - {@link ComboboxRoot | `Combobox.Root`} — state owner and context provider.
+ * - {@link ComboboxInput | `Combobox.Input`} — the editable field and the whole
+ *   keyboard model.
+ * - {@link ComboboxContent | `Combobox.Content`} — the popup listbox.
+ * - {@link ComboboxItem | `Combobox.Item`} — one selectable option.
+ * - {@link ComboboxEmpty | `Combobox.Empty`} — the no-results message.
+ *
+ * v1 is **single-select with consumer-owned filtering**. Multi-select, async
+ * option loading and virtualization are deliberately out of scope.
+ *
+ * @example Filtering is yours to do
+ * ```tsx
+ * import { Combobox } from "@primitiv-ui/react";
+ *
+ * const [query, setQuery] = useState("");
+ * const matches = FRAMEWORKS.filter((f) =>
+ *   f.label.toLowerCase().includes(query.toLowerCase()),
+ * );
+ *
+ * <Combobox.Root onQueryChange={setQuery} onValueChange={setFramework}>
+ *   <Combobox.Input aria-label="Framework" />
+ *   <Combobox.Content aria-label="Frameworks">
+ *     {matches.map((f) => (
+ *       <Combobox.Item key={f.value} value={f.value}>
+ *         {f.label}
+ *       </Combobox.Item>
+ *     ))}
+ *     {matches.length === 0 && <Combobox.Empty>No matches</Combobox.Empty>}
+ *   </Combobox.Content>
+ * </Combobox.Root>;
+ * ```
+ *
+ * @see {@link ComboboxRoot} for the state model and the query/value split.
+ * @see {@link ComboboxInput} for the keyboard model and ARIA wiring.
+ */
 const ComboboxCompound: TComboboxCompound = Object.assign(ComboboxRoot, {
   Root: ComboboxRoot,
   Input: ComboboxInput,

@@ -8,6 +8,7 @@ export * from "./Carousel/index.ts";
 export * from "./Checkbox/index.ts";
 export * from "./CheckboxCard/index.ts";
 export * from "./Collapsible/index.ts";
+export * from "./Combobox/index.ts";
 export * from "./ContextMenu/index.ts";
 export * from "./DirectionProvider/index.ts";
 export * from "./Divider/index.ts";

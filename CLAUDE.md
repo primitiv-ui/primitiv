@@ -954,16 +954,24 @@ debugging cycle; none is discoverable from the API surface.
    *paint* keeps a literal `color`/`opacity` snapshot the bind does not fill
    in. Treat every `setBoundVariableFor*` return value as needing its
    non-colour fields re-set.
-4. **`addComponentProperty` can partially apply.** A call that throws on one
+4. **`clone()` drops `componentPropertyReferences` — assume it, always repair.**
+   Now **four** occurrences (Dropdown/CheckboxItem, the Button ghost variants,
+   `Tree / Item` + `Branch Control`, and 2026-08-14 the `List` set's Marker
+   axis, where all four `Show Item 5-8` refs were lost on every one of 20
+   clones). The panel still accepts values and `componentProperties` reads them
+   back correctly, so **only a render or an explicit ref re-read exposes it**.
+   Any clone-based variant expansion needs a repair-then-verify pass in the same
+   script.
+5. **`addComponentProperty` can partially apply.** A call that throws on one
    property may already have created the earlier ones, so a naive retry leaves
    duplicates (`Label2`, `Show leading2`). Read `componentPropertyDefinitions`
    before retrying and `deleteComponentProperty` the strays.
-5. **Text nodes created by script default to `textAutoResize: "NONE"`** with
+6. **Text nodes created by script default to `textAutoResize: "NONE"`** with
    whatever height `resize()` set. Figma still *renders* the overflowing text,
    so a page looks right while every node reports a 20px box — which makes any
    overlap/overflow audit meaningless. Set `textAutoResize = "HEIGHT"` before
    measuring.
-6. **`resize()` silently flips `primaryAxisSizingMode` to `FIXED`.** The
+7. **`resize()` silently flips `primaryAxisSizingMode` to `FIXED`.** The
    costliest trap of the 2026-08-13 session — it bit three times in one sitting:
    it pinned a slot leaf at 1px (which clipped 92 restored text nodes down to a
    faint sliver, while every text node still reported the correct 24px height),
@@ -974,7 +982,7 @@ debugging cycle; none is discoverable from the API surface.
    Corollary: **never `resize()` a slot to shrink it** — use `minHeight`. An
    empty slot sits at Figma's default 100px; `minHeight` is the only lever that
    makes it collapse *and* still grow with content.
-7. **`combineAsVariants` merges identically-named slot properties into one.**
+8. **`combineAsVariants` merges identically-named slot properties into one.**
    This is the whole technique for slots + variants, and it is invisible from
    the API. `createSlot()` registers a NEW property per call, so N variants
    built separately give N slot properties — and slot content then does **not**
@@ -983,30 +991,30 @@ debugging cycle; none is discoverable from the API surface.
    get one shared property with per-variant layout, content intact across
    switches. This is exactly why `Collapsible` has one `Content` across 20
    variants while `Tabs / Panel` had five (`slot`, `slot2` … `slot5`).
-8. **A slot cannot be duplicated by any clone path.** `slot.clone()` returns a
+9. **A slot cannot be duplicated by any clone path.** `slot.clone()` returns a
    plain `FRAME` (silently — it litters look-alike frames that no longer
    function), and cloning a whole `COMPONENT` variant drops its slot entirely.
    For a set that already exists and cannot be re-combined, the only fix is a
    **shared slotted leaf component nested as an instance** in every variant —
    the `Card / Slot`, `Tabs / Panel Slot`, `Accordion / Panel Slot` pattern.
    Verified: slot content in a nested leaf survives parent variant switches.
-9. **`GRID` layoutMode cannot be applied to Slot frames** (hard error). Native
+10. **`GRID` layoutMode cannot be applied to Slot frames** (hard error). Native
    CSS-grid auto-layout works on ordinary frames, but never where slot content
    lives — so a faithful CSS-Grid component is impossible in Figma. The
    registry `grid` is mirrored as a wrap-based flex approximation instead
    (RFC 0022; see the `Grid` component description).
-10. **What an instance will and won't let you override**, which is what decides
+11. **What an instance will and won't let you override**, which is what decides
     whether a registry prop becomes a Figma variant or is left native:
     *not* overridable — `layoutMode` (on the root *or* on a slot) and
     `gridColumnCount`; overridable, and variable-bindable — `itemSpacing`,
     `counterAxisSpacing`, `layoutWrap`, `primaryAxisAlignItems` /
     `counterAxisAlignItems`. This is why `Stack` needs only a `Direction` axis
     rather than the 1,440 variants a literal reading of its contract implies.
-11. **Broad `findAll` / `.name` reads crash on stale instance sublayers**
+12. **Broad `findAll` / `.name` reads crash on stale instance sublayers**
     (`"The node (instance sublayer or table cell) with id … does not exist"`),
     especially just after a shared master has changed. It aborts mid-script, so
     earlier writes in the same call have already applied — the
-    `addComponentProperty` partial-apply hazard (4) generalised. Walk
+    `addComponentProperty` partial-apply hazard (5) generalised. Walk
     `children` explicitly instead of `findAll`, wrap `.name`/`.children` reads
     in try/catch, and re-check state before retrying.
 

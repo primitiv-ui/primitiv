@@ -100,6 +100,29 @@
     content: counter(primitiv-list) ".";
   }
 
+  /* `marker="false"` — the equivalent of `list-style: none`, for prose and
+     landing-page lists where bullets read as noise.
+
+     THIS RULE MUST STAY AFTER THE --ordered ONE ABOVE. Both are two classes plus
+     a pseudo-element, so they have identical specificity and source order is the
+     only thing that separates them — placed first, this loses to the counter and
+     `type="ordered" marker={false}` silently keeps its numbers.
+
+     `content: none` rather than `display: none` or `visibility: hidden`: a
+     ::before with `content: none` generates NO BOX at all, and flex `gap` only
+     applies between boxes that exist — so the marker↔text gap goes with the
+     marker and the row sits genuinely flush. The other two would each leave a
+     marker-width column plus its gap behind. Figma agrees by measurement: the md
+     unordered variant reflows 136px → 120px with Marker=false.
+
+     Independent of `indent`: this drops the marker, `indent` drops the list's own
+     left padding. Combine both for a fully flush list. The element stays a
+     <ul>/<ol>, so dropping the marker costs nothing semantically — an unbulleted
+     list is still a list to a screen reader. */
+  .primitiv-list--no-marker > .primitiv-list__item::before {
+    content: none;
+  }
+
   /* Size — re-points only the type scale. item-gap, marker-gap and indent
      stay constant across sizes; they only change with [data-density]
      (RFC 0012 D9). */
@@ -146,9 +169,6 @@
   }
 }
 
-$primitiv-list-item-gap: var(--primitiv-list-item-gap);
-$primitiv-list-marker-gap: var(--primitiv-list-marker-gap);
-$primitiv-list-indent: var(--primitiv-list-indent);
 $primitiv-list-marker-color: var(--primitiv-list-marker-color);
 $primitiv-list-item-disabled-opacity: var(--primitiv-list-item-disabled-opacity);
 $primitiv-list-item-color: var(--primitiv-list-item-color);

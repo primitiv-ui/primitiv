@@ -1709,6 +1709,17 @@ export function App(): ReactElement {
                 </List.Item>
                 <List.Item>Another available entry</List.Item>
               </List>
+              {/* marker={false} is the `list-style: none` case. Paired with
+                  indent={false} it sits fully flush — the two are independent,
+                  one dropping the marker and the other the left padding. Note
+                  the rows align with the paragraph above rather than hanging off
+                  a phantom marker column: `content: none` generates no box, so
+                  the row's flex gap has nothing to space against. */}
+              <List marker={false} indent={false} size={size}>
+                <List.Item>No marker, no indent — flush with the prose</List.Item>
+                <List.Item>Still a real &lt;ul&gt;, so still a list to a screen reader</List.Item>
+                <List.Item>The shape a landing page usually wants</List.Item>
+              </List>
             </Stack>
             <h3>Heading 3 - A bare description list</h3>
             <p>

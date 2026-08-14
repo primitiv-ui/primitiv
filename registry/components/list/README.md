@@ -17,12 +17,23 @@ model; the CSS-generated `::before` approach here matches it exactly.
 
 - `type` — `"unordered"` (bullet, the default) or `"ordered"` (numbered);
   drives both the rendered element (`<ul>`/`<ol>`) and the marker content.
+- `marker` — `boolean` (default `true`). Whether each item draws its leading
+  bullet/number. `marker={false}` is the `list-style: none` case, for prose and
+  landing-page lists where bullets read as noise. The marker's box **and its
+  gap** both go, so rows sit genuinely flush — the marker is a `::before`, and
+  `content: none` generates no box at all, which leaves the row's flex `gap`
+  nothing to space against. The element stays a `<ul>`/`<ol>`, so an unbulleted
+  list is still a list to a screen reader.
 - `indent` — `boolean` (default `true`). Applies the `list/indent` left
   padding; set `false` for flush/inline contexts where a parent already
   supplies the indentation.
+
 - `size` — `"xs" | "sm" | "md" | "lg" | "xl"` (default `"md"`). Scales the
   item text only — `item-gap`, `marker-gap` and `indent` are density-scaled
   Context tokens shared across every size, not size-varied (RFC 0012 D9).
+
+`marker` and `indent` are independent — one drops the marker, the other drops
+the list's own left padding. Set both `false` for a fully flush list.
 
 `List.Item` renders the `<li>`, and takes one prop:
 
@@ -84,16 +95,22 @@ import { List } from "@/components/list";
   <List.Item>Install the CLI</List.Item>
   <List.Item>Add every component</List.Item>
 </List>
+
+// Prose / landing-page list: no bullets, no indent
+<List marker={false} indent={false}>
+  <List.Item>Ships with zero styles</List.Item>
+  <List.Item>Accessible by construction</List.Item>
+</List>
 ```
 
 ## Files
 
 | File | Authored? | Role |
 |---|---|---|
-| `contract.json` | **authored** | The styling contract — the `.primitiv-list` root class, the `--unordered`/`--ordered`, `--indent` and `--xs…--xl` modifiers, the `.primitiv-list__item` part, and the `--primitiv-list-*` custom properties. |
+| `contract.json` | **authored** | The styling contract — the `.primitiv-list` root class, the `--unordered`/`--ordered`, `--no-marker`, `--indent` and `--xs…--xl` modifiers, the `.primitiv-list__item` part, and the `--primitiv-list-*` custom properties. |
 | `styles.css` | **authored** | The canonical default theme: the marker/counter machinery + type scale, in `@layer primitiv.base`/`primitiv.variants`, plus the disabled row in `primitiv.states`. |
 | `styles.scss` | **authored** | `styles.css` plus a trailing `$`-alias block, one `$primitiv-list-<prop>` per custom property. |
-| `list.recipe.ts` | **authored** | `cva("primitiv-list", { variants: { type, indent, size } })`. |
+| `list.recipe.ts` | **authored** | `cva("primitiv-list", { variants: { type, marker, indent, size } })`. |
 | `list.tsx` | **authored** | The `<List>`/`<List.Item>` wrappers. Hand-written (there is no primitive to generate from): `List` swaps its rendered element between `<ul>`/`<ol>` off the `type` prop; `List.Item` is a thin `<li>` that maps its `disabled` prop onto the `data-disabled` hook. |
 
 Because there is no headless primitive, `list.tsx`/`list.recipe.ts` are

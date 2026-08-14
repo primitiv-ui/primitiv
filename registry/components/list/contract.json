@@ -21,6 +21,19 @@
       ]
     },
     {
+      "name": "marker",
+      "default": "true",
+      "description": "Whether each item draws its leading bullet/number. `false` is the equivalent of `list-style: none` — the marker's box and its gap both go, so rows sit flush — for prose and landing-page lists where bullets read as noise. Independent of `indent`; combine both `false` for a fully flush list. Mirrors the Figma `List` set's `Marker` axis and `ListItem`'s `Show marker` boolean.",
+      "options": [
+        { "name": "true", "class": "", "description": "Draws the marker (the default)." },
+        {
+          "name": "false",
+          "class": "primitiv-list--no-marker",
+          "description": "No marker — the list stays a real `<ul>`/`<ol>`, so its semantics are unchanged."
+        }
+      ]
+    },
+    {
       "name": "indent",
       "default": "true",
       "description": "Whether the list applies its own left indent, or sits flush for inline/nested contexts where a parent already supplies it.",

@@ -26,9 +26,14 @@ export type ListProps = ComponentPropsWithoutRef<"ul"> &
 /**
  * A `<ul>` or `<ol>` with custom, density-scaled markers, item gap and
  * indent. `type` (`"unordered"|"ordered"`, default `"unordered"`) picks the
- * marker; `indent` (default `true`) toggles the left indent for flush/inline
- * contexts where a parent already supplies it; `size` (`xs`–`xl`, default
- * `md`) scales the item text.
+ * marker; `marker` (default `true`) draws it at all; `indent` (default `true`)
+ * toggles the left indent for flush/inline contexts where a parent already
+ * supplies it; `size` (`xs`–`xl`, default `md`) scales the item text.
+ *
+ * `marker={false}` is the `list-style: none` case — the marker's box and its gap
+ * both go, so rows sit flush, and the element stays a `<ul>`/`<ol>` so an
+ * unbulleted list is still a list to a screen reader. It is independent of
+ * `indent`; set both `false` for a fully flush list.
  *
  * @example
  * ```tsx
@@ -38,14 +43,30 @@ export type ListProps = ComponentPropsWithoutRef<"ul"> &
  * </List>
  * ```
  *
+ * @example Prose or landing-page list — no bullets, no indent
+ * ```tsx
+ * <List marker={false} indent={false}>
+ *   <List.Item>Ships with zero styles</List.Item>
+ *   <List.Item>Accessible by construction</List.Item>
+ * </List>
+ * ```
+ *
  * @see https://primitiv-ui.dev/docs/components/list
  */
-export function List({ type = "unordered", indent, size, className, ref, ...props }: ListProps) {
+export function List({
+  type = "unordered",
+  marker,
+  indent,
+  size,
+  className,
+  ref,
+  ...props
+}: ListProps) {
   const Comp = type === "ordered" ? "ol" : "ul";
   return (
     <Comp
       ref={ref as never}
-      className={[list({ type, indent, size }), className].filter(Boolean).join(" ")}
+      className={[list({ type, marker, indent, size }), className].filter(Boolean).join(" ")}
       {...props}
     />
   );

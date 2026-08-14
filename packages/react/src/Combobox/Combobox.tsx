@@ -1,4 +1,16 @@
-import { useCallback, useId, useMemo, useState, type ReactElement } from "react";
+import {
+  useCallback,
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+  type KeyboardEvent,
+  type ReactElement,
+} from "react";
+
+import { useCollection, useRovingTabindex } from "../hooks/index.ts";
+import { deriveId } from "../utils/index.ts";
 
 import { ComboboxProvider, useComboboxContext } from "./ComboboxContext";
 import type {
@@ -52,14 +64,90 @@ export function ComboboxRoot({
     [onValueChange],
   );
 
+  // The cursor. Null until the user asks for one with an arrow key — an
+  // unopened combobox must not imply a pre-made choice.
+  const [activeValue, setActiveValue] = useState<string | null>(null);
+  const { register: registerItem, keys: itemValues } = useCollection<string, HTMLElement>();
+  const getItemId = useCallback(
+    (itemValue: string) => deriveId(comboboxId, "option", itemValue),
+    [comboboxId],
+  );
+
+  // Keys only — no tabIndex is manipulated anywhere, because DOM focus never
+  // leaves the input. Same use of this hook as NavigationMenu.
+  // `string | null`: unlike NavigationMenu's roving tabstop there is
+  // legitimately no cursor until the user asks for one, so null is a real
+  // state rather than an absence to be defaulted away.
+  const { handleKeyDown: handleArrowKeys } = useRovingTabindex<string | null>({
+    orientation: "vertical",
+    navigable: itemValues,
+    currentKey: activeValue,
+    includeHomeEnd: true,
+    onNavigate: (target) => {
+      setActiveValue(target);
+    },
+  });
+
   const dismiss = useCallback(() => {
     setOpen(false);
     setQueryState(committedLabel);
+    setActiveValue(null);
   }, [committedLabel]);
 
+  // useRovingTabindex deliberately refuses to move `next`/`prev` when there is
+  // no current key (RadioGroup's disabled-current contract), so seeding the
+  // first cursor is this component's job: per APG, ArrowDown takes the first
+  // item and ArrowUp the last.
+  const handleInputKeyDown = useCallback(
+    (event: KeyboardEvent<HTMLElement>) => {
+      if (event.key === "Escape") {
+        dismiss();
+        return;
+      }
+
+      if (activeValue === null && itemValues.length > 0) {
+        if (event.key === "ArrowDown") {
+          event.preventDefault();
+          setActiveValue(itemValues[0]);
+          return;
+        }
+        if (event.key === "ArrowUp") {
+          event.preventDefault();
+          setActiveValue(itemValues[itemValues.length - 1]);
+          return;
+        }
+      }
+
+      handleArrowKeys(event);
+    },
+    [dismiss, activeValue, itemValues, handleArrowKeys],
+  );
+
   const contextValue = useMemo(
-    () => ({ open, listboxId, query, setQuery, value, select, dismiss }),
-    [open, listboxId, query, setQuery, value, select, dismiss],
+    () => ({
+      open,
+      listboxId,
+      query,
+      setQuery,
+      value,
+      select,
+      handleInputKeyDown,
+      activeValue,
+      getItemId,
+      registerItem,
+    }),
+    [
+      open,
+      listboxId,
+      query,
+      setQuery,
+      value,
+      select,
+      handleInputKeyDown,
+      activeValue,
+      getItemId,
+      registerItem,
+    ],
   );
 
   return (
@@ -74,7 +162,8 @@ ComboboxRoot.displayName = "ComboboxRoot";
 
 /** The editable text field, carrying `role="combobox"` per the ARIA 1.2 pattern. */
 export function ComboboxInput({ ...rest }: ComboboxInputProps): ReactElement {
-  const { open, listboxId, query, setQuery, dismiss } = useComboboxContext();
+  const { open, listboxId, query, setQuery, activeValue, getItemId, handleInputKeyDown } =
+    useComboboxContext();
 
   return (
     <input
@@ -83,10 +172,9 @@ export function ComboboxInput({ ...rest }: ComboboxInputProps): ReactElement {
       aria-controls={listboxId}
       aria-autocomplete="list"
       value={query}
+      aria-activedescendant={activeValue === null ? undefined : getItemId(activeValue)}
       onChange={(event) => setQuery(event.target.value)}
-      onKeyDown={(event) => {
-        if (event.key === "Escape") dismiss();
-      }}
+      onKeyDown={handleInputKeyDown}
       {...rest}
     />
   );
@@ -120,13 +208,23 @@ export function ComboboxItem({
   children,
   ...rest
 }: ComboboxItemProps): ReactElement {
-  const { value, select } = useComboboxContext();
+  const { value, select, activeValue, getItemId, registerItem } = useComboboxContext();
   const selected = value === itemValue;
+  const highlighted = activeValue === itemValue;
+
+  const localRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    registerItem(itemValue, localRef.current);
+    return () => registerItem(itemValue, null);
+  }, [itemValue, registerItem]);
 
   return (
     <div
       role="option"
+      id={getItemId(itemValue)}
+      ref={localRef}
       aria-selected={selected}
+      data-highlighted={highlighted ? "" : undefined}
       onClick={() => {
         // An item is commonly an icon plus a label, so children are not always
         // a string. There is no reliable way to read a label out of arbitrary

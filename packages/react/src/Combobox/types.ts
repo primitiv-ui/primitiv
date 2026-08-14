@@ -1,4 +1,4 @@
-import type { ComponentProps } from "react";
+import type { ComponentProps, KeyboardEvent } from "react";
 
 /** The value carried from `Combobox.Root` to its parts. */
 export interface ComboboxContextValue {
@@ -14,8 +14,14 @@ export interface ComboboxContextValue {
   value: string;
   /** Commits a selection: sets the value, closes, and resets the input text. */
   select: (value: string, label: string) => void;
-  /** Closes the popup and abandons the query, restoring the committed label. */
-  dismiss: () => void;
+  /** The input's whole keydown behaviour: Escape, cursor seeding, arrow keys. */
+  handleInputKeyDown: (event: KeyboardEvent<HTMLElement>) => void;
+  /** The value the virtual-focus cursor sits on, or `null` for no cursor. */
+  activeValue: string | null;
+  /** Builds the DOM id for an item, so the input can point at it. */
+  getItemId: (value: string) => string;
+  /** Registers a mounted item so the arrow keys know the order. */
+  registerItem: (value: string, element: HTMLElement | null) => void;
 }
 
 /** Props for `Combobox.Root` — the wrapper that owns the combobox's state. */

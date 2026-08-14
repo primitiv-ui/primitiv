@@ -31,6 +31,48 @@ describe("Combobox keyboard interaction", () => {
     expect(input).toHaveFocus();
   });
 
+  it("moves the cursor with the arrow keys and publishes it as aria-activedescendant", async () => {
+    const user = userEvent.setup();
+    renderCombobox();
+
+    const input = screen.getByRole("combobox", { name: "Framework" });
+    await user.click(input);
+
+    // no cursor until the user asks for one
+    expect(input).not.toHaveAttribute("aria-activedescendant");
+
+    await user.keyboard("{ArrowDown}");
+    const react = screen.getByRole("option", { name: "React" });
+    expect(input).toHaveAttribute("aria-activedescendant", react.id);
+    expect(react).toHaveAttribute("data-highlighted", "");
+
+    await user.keyboard("{ArrowDown}");
+    const preact = screen.getByRole("option", { name: "Preact" });
+    expect(input).toHaveAttribute("aria-activedescendant", preact.id);
+    expect(react).not.toHaveAttribute("data-highlighted");
+
+    await user.keyboard("{ArrowUp}");
+    expect(input).toHaveAttribute("aria-activedescendant", react.id);
+
+    // virtual focus: the cursor moves without an option ever taking DOM focus
+    expect(input).toHaveFocus();
+    expect(react).not.toHaveFocus();
+  });
+
+  it("seeds the cursor on the last item when ArrowUp opens the cursor", async () => {
+    const user = userEvent.setup();
+    renderCombobox();
+
+    const input = screen.getByRole("combobox", { name: "Framework" });
+    await user.click(input);
+    await user.keyboard("{ArrowUp}");
+
+    expect(input).toHaveAttribute(
+      "aria-activedescendant",
+      screen.getByRole("option", { name: "Preact" }).id,
+    );
+  });
+
   it("keeps the committed value when Escape closes the popup", async () => {
     const user = userEvent.setup();
     renderCombobox();

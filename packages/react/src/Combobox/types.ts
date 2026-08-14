@@ -1,5 +1,13 @@
 import type { ComponentProps, KeyboardEvent } from "react";
 
+/** What a mounted `Combobox.Item` registers with the root. */
+export interface ComboboxItemMeta {
+  /** The rendered element, kept for future scroll-into-view work. */
+  element: HTMLElement | null;
+  /** The label to show in the input once this item is committed. */
+  label: string;
+}
+
 /** The value carried from `Combobox.Root` to its parts. */
 export interface ComboboxContextValue {
   /** Whether the popup listbox is open. */
@@ -20,8 +28,11 @@ export interface ComboboxContextValue {
   activeValue: string | null;
   /** Builds the DOM id for an item, so the input can point at it. */
   getItemId: (value: string) => string;
-  /** Registers a mounted item so the arrow keys know the order. */
-  registerItem: (value: string, element: HTMLElement | null) => void;
+  /**
+   * Registers a mounted item so the arrow keys know the order and Enter can
+   * resolve the same label a click would.
+   */
+  registerItem: (value: string, meta: ComboboxItemMeta | null) => void;
 }
 
 /** Props for `Combobox.Root` — the wrapper that owns the combobox's state. */

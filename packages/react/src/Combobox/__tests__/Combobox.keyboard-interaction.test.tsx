@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { Combobox } from "../Combobox";
 
@@ -71,6 +71,50 @@ describe("Combobox keyboard interaction", () => {
       "aria-activedescendant",
       screen.getByRole("option", { name: "Preact" }).id,
     );
+  });
+
+  it("commits the cursor item on Enter", async () => {
+    const user = userEvent.setup();
+    const onValueChange = vi.fn();
+
+    render(
+      <Combobox.Root defaultOpen onValueChange={onValueChange}>
+        <Combobox.Input aria-label="Framework" />
+        <Combobox.Content aria-label="Frameworks">
+          <Combobox.Item value="react">React</Combobox.Item>
+          <Combobox.Item value="preact">Preact</Combobox.Item>
+        </Combobox.Content>
+      </Combobox.Root>,
+    );
+
+    const input = screen.getByRole("combobox", { name: "Framework" });
+    await user.click(input);
+    await user.keyboard("{ArrowDown}{ArrowDown}");
+    await user.keyboard("{Enter}");
+
+    expect(onValueChange).toHaveBeenCalledWith("preact");
+    expect(screen.queryByRole("listbox")).not.toBeInTheDocument();
+    expect(input).toHaveValue("Preact");
+  });
+
+  it("ignores Enter while there is no cursor", async () => {
+    const user = userEvent.setup();
+    const onValueChange = vi.fn();
+
+    render(
+      <Combobox.Root defaultOpen onValueChange={onValueChange}>
+        <Combobox.Input aria-label="Framework" />
+        <Combobox.Content aria-label="Frameworks">
+          <Combobox.Item value="react">React</Combobox.Item>
+        </Combobox.Content>
+      </Combobox.Root>,
+    );
+
+    await user.click(screen.getByRole("combobox", { name: "Framework" }));
+    await user.keyboard("{Enter}");
+
+    expect(onValueChange).not.toHaveBeenCalled();
+    expect(screen.getByRole("listbox")).toBeInTheDocument();
   });
 
   it("keeps the committed value when Escape closes the popup", async () => {

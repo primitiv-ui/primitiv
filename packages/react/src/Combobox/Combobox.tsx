@@ -15,6 +15,7 @@ import { deriveId } from "../utils/index.ts";
 import { ComboboxProvider, useComboboxContext } from "./ComboboxContext";
 import type {
   ComboboxContentProps,
+  ComboboxItemMeta,
   ComboboxInputProps,
   ComboboxItemProps,
   ComboboxRootProps,
@@ -67,7 +68,11 @@ export function ComboboxRoot({
   // The cursor. Null until the user asks for one with an arrow key — an
   // unopened combobox must not imply a pre-made choice.
   const [activeValue, setActiveValue] = useState<string | null>(null);
-  const { register: registerItem, keys: itemValues } = useCollection<string, HTMLElement>();
+  const {
+    register: registerItem,
+    keys: itemValues,
+    itemsRef,
+  } = useCollection<string, ComboboxItemMeta>();
   const getItemId = useCallback(
     (itemValue: string) => deriveId(comboboxId, "option", itemValue),
     [comboboxId],
@@ -105,6 +110,17 @@ export function ComboboxRoot({
         return;
       }
 
+      if (event.key === "Enter") {
+        if (activeValue === null) return;
+        event.preventDefault();
+        // Enter resolves the label from the registry so it agrees with what a
+        // click on the same item would commit. The cursor can only ever hold a
+        // value the registry put there, so the lookup cannot miss — asserted
+        // rather than branched, as Listbox does for the same registry.
+        select(activeValue, itemsRef.current.get(activeValue)!.label);
+        return;
+      }
+
       if (activeValue === null && itemValues.length > 0) {
         if (event.key === "ArrowDown") {
           event.preventDefault();
@@ -120,7 +136,7 @@ export function ComboboxRoot({
 
       handleArrowKeys(event);
     },
-    [dismiss, activeValue, itemValues, handleArrowKeys],
+    [dismiss, activeValue, itemValues, handleArrowKeys, select, itemsRef],
   );
 
   const contextValue = useMemo(
@@ -212,11 +228,17 @@ export function ComboboxItem({
   const selected = value === itemValue;
   const highlighted = activeValue === itemValue;
 
+  // An item is commonly an icon plus a label, so children are not always a
+  // string. There is no reliable way to read a label out of arbitrary JSX, so
+  // the value stands in — consumers wanting a nicer closed-state label should
+  // pass string children. Registered here so click and Enter agree.
+  const label = typeof children === "string" ? children : itemValue;
+
   const localRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
-    registerItem(itemValue, localRef.current);
+    registerItem(itemValue, { element: localRef.current, label });
     return () => registerItem(itemValue, null);
-  }, [itemValue, registerItem]);
+  }, [itemValue, label, registerItem]);
 
   return (
     <div
@@ -226,11 +248,7 @@ export function ComboboxItem({
       aria-selected={selected}
       data-highlighted={highlighted ? "" : undefined}
       onClick={() => {
-        // An item is commonly an icon plus a label, so children are not always
-        // a string. There is no reliable way to read a label out of arbitrary
-        // JSX, so the value stands in — consumers wanting a nicer closed-state
-        // label should pass string children.
-        select(itemValue, typeof children === "string" ? children : itemValue);
+        select(itemValue, label);
       }}
       {...rest}
     >

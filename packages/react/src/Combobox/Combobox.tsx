@@ -15,6 +15,7 @@ import { deriveId } from "../utils/index.ts";
 import { ComboboxProvider, useComboboxContext } from "./ComboboxContext";
 import type {
   ComboboxContentProps,
+  ComboboxEmptyProps,
   ComboboxItemMeta,
   ComboboxInputProps,
   ComboboxItemProps,
@@ -261,6 +262,24 @@ export function ComboboxItem({
 ComboboxItem.displayName = "ComboboxItem";
 
 /**
+ * The no-results message shown inside the popup while the filtered list is
+ * empty. `role="presentation"` so it is not announced as an option and the
+ * cursor has nothing to land on — the panel stays open at a stable height so
+ * the user can keep typing. Rendering it is the consumer's call, since
+ * filtering is consumer-owned.
+ */
+export function ComboboxEmpty({ children, ...rest }: ComboboxEmptyProps): ReactElement {
+  return (
+    <div role="presentation" {...rest}>
+      {children}
+    </div>
+  );
+}
+
+// Stryker disable next-line StringLiteral: equivalent — a DevTools label, asserted by no behaviour.
+ComboboxEmpty.displayName = "ComboboxEmpty";
+
+/**
  * The shape of the exported `Combobox` value — callable as `Combobox.Root` and
  * carrying its sub-components as static properties.
  */
@@ -269,6 +288,7 @@ export type TComboboxCompound = typeof ComboboxRoot & {
   Input: typeof ComboboxInput;
   Content: typeof ComboboxContent;
   Item: typeof ComboboxItem;
+  Empty: typeof ComboboxEmpty;
 };
 
 const ComboboxCompound: TComboboxCompound = Object.assign(ComboboxRoot, {
@@ -276,6 +296,7 @@ const ComboboxCompound: TComboboxCompound = Object.assign(ComboboxRoot, {
   Input: ComboboxInput,
   Content: ComboboxContent,
   Item: ComboboxItem,
+  Empty: ComboboxEmpty,
 });
 
 // Stryker disable next-line StringLiteral: equivalent — a DevTools label, asserted by no behaviour.

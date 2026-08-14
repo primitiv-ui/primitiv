@@ -63,3 +63,6 @@ export interface ComboboxItemProps extends Omit<ComponentProps<"div">, "value"> 
   /** The value committed when this item is chosen. */
   value: string;
 }
+
+/** Props for `Combobox.Empty` — the no-results message inside the popup. */
+export type ComboboxEmptyProps = ComponentProps<"div">;

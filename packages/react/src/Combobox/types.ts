@@ -35,8 +35,19 @@ export interface ComboboxContextValue {
   registerItem: (value: string, meta: ComboboxItemMeta | null) => void;
 }
 
+/** Props shared by every asChild-capable part. */
+export interface ComboboxSlottableProps {
+  /**
+   * Render the consumer's own element instead of the default one, merging
+   * behaviour onto it.
+   *
+   * @default false
+   */
+  asChild?: boolean;
+}
+
 /** Props for `Combobox.Root` — the wrapper that owns the combobox's state. */
-export interface ComboboxRootProps extends ComponentProps<"div"> {
+export interface ComboboxRootProps extends ComponentProps<"div">, ComboboxSlottableProps {
   /**
    * Whether the popup is open on first render, for the uncontrolled case.
    *
@@ -61,16 +72,18 @@ export interface ComboboxRootProps extends ComponentProps<"div"> {
 }
 
 /** Props for `Combobox.Input` — the editable text field. */
-export type ComboboxInputProps = ComponentProps<"input">;
+export interface ComboboxInputProps extends ComponentProps<"input">, ComboboxSlottableProps {}
 
 /** Props for `Combobox.Content` — the popup listbox. */
-export type ComboboxContentProps = ComponentProps<"div">;
+export interface ComboboxContentProps extends ComponentProps<"div">, ComboboxSlottableProps {}
 
 /** Props for `Combobox.Item` — one selectable option in the popup. */
-export interface ComboboxItemProps extends Omit<ComponentProps<"div">, "value"> {
+export interface ComboboxItemProps
+  extends Omit<ComponentProps<"div">, "value">,
+    ComboboxSlottableProps {
   /** The value committed when this item is chosen. */
   value: string;
 }
 
 /** Props for `Combobox.Empty` — the no-results message inside the popup. */
-export type ComboboxEmptyProps = ComponentProps<"div">;
+export interface ComboboxEmptyProps extends ComponentProps<"div">, ComboboxSlottableProps {}

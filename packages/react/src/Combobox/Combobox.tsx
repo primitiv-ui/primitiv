@@ -10,6 +10,7 @@ import {
 } from "react";
 
 import { useCollection, useControllableState, useRovingTabindex } from "../hooks/index.ts";
+import { Slot, composeEventHandlers } from "../Slot/index.ts";
 import { deriveId } from "../utils/index.ts";
 
 import { ComboboxProvider, useComboboxContext } from "./ComboboxContext";
@@ -24,6 +25,7 @@ import type {
 
 /** The root of a Combobox — owns the open state and wraps the input and popup. */
 export function ComboboxRoot({
+  asChild = false,
   defaultOpen = false,
   open: openProp,
   onOpenChange,
@@ -170,9 +172,11 @@ export function ComboboxRoot({
     ],
   );
 
+  const Root = asChild ? Slot : "div";
+
   return (
     <ComboboxProvider value={contextValue}>
-      <div {...rest}>{children}</div>
+      <Root {...rest}>{children}</Root>
     </ComboboxProvider>
   );
 }
@@ -181,20 +185,27 @@ export function ComboboxRoot({
 ComboboxRoot.displayName = "ComboboxRoot";
 
 /** The editable text field, carrying `role="combobox"` per the ARIA 1.2 pattern. */
-export function ComboboxInput({ ...rest }: ComboboxInputProps): ReactElement {
+export function ComboboxInput({
+  asChild = false,
+  onChange,
+  onKeyDown,
+  ...rest
+}: ComboboxInputProps): ReactElement {
   const { open, listboxId, query, setQuery, activeValue, getItemId, handleInputKeyDown } =
     useComboboxContext();
 
+  const Input = asChild ? Slot : "input";
+
   return (
-    <input
+    <Input
       role="combobox"
       aria-expanded={open}
       aria-controls={listboxId}
       aria-autocomplete="list"
       value={query}
       aria-activedescendant={activeValue === null ? undefined : getItemId(activeValue)}
-      onChange={(event) => setQuery(event.target.value)}
-      onKeyDown={handleInputKeyDown}
+      onChange={composeEventHandlers(onChange, (event) => setQuery(event.target.value))}
+      onKeyDown={composeEventHandlers(onKeyDown, handleInputKeyDown)}
       {...rest}
     />
   );
@@ -207,15 +218,21 @@ ComboboxInput.displayName = "ComboboxInput";
  * The popup listbox. Unmounted while closed — the closed combobox has no list
  * in the accessibility tree at all.
  */
-export function ComboboxContent({ children, ...rest }: ComboboxContentProps): ReactElement | null {
+export function ComboboxContent({
+  asChild = false,
+  children,
+  ...rest
+}: ComboboxContentProps): ReactElement | null {
   const { open, listboxId } = useComboboxContext();
 
   if (!open) return null;
 
+  const Content = asChild ? Slot : "div";
+
   return (
-    <div role="listbox" id={listboxId} {...rest}>
+    <Content role="listbox" id={listboxId} {...rest}>
       {children}
-    </div>
+    </Content>
   );
 }
 
@@ -224,8 +241,10 @@ ComboboxContent.displayName = "ComboboxContent";
 
 /** One selectable option in the popup listbox. */
 export function ComboboxItem({
+  asChild = false,
   value: itemValue,
   children,
+  onClick,
   ...rest
 }: ComboboxItemProps): ReactElement {
   const { value, select, activeValue, getItemId, registerItem } = useComboboxContext();
@@ -244,20 +263,22 @@ export function ComboboxItem({
     return () => registerItem(itemValue, null);
   }, [itemValue, label, registerItem]);
 
+  const Item = asChild ? Slot : "div";
+
   return (
-    <div
+    <Item
       role="option"
       id={getItemId(itemValue)}
       ref={localRef}
       aria-selected={selected}
       data-highlighted={highlighted ? "" : undefined}
-      onClick={() => {
+      onClick={composeEventHandlers(onClick, () => {
         select(itemValue, label);
-      }}
+      })}
       {...rest}
     >
       {children}
-    </div>
+    </Item>
   );
 }
 
@@ -271,11 +292,17 @@ ComboboxItem.displayName = "ComboboxItem";
  * the user can keep typing. Rendering it is the consumer's call, since
  * filtering is consumer-owned.
  */
-export function ComboboxEmpty({ children, ...rest }: ComboboxEmptyProps): ReactElement {
+export function ComboboxEmpty({
+  asChild = false,
+  children,
+  ...rest
+}: ComboboxEmptyProps): ReactElement {
+  const Empty = asChild ? Slot : "div";
+
   return (
-    <div role="presentation" {...rest}>
+    <Empty role="presentation" {...rest}>
       {children}
-    </div>
+    </Empty>
   );
 }
 

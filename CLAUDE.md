@@ -887,16 +887,22 @@ source of truth for when a skill applies.
     fixed-position panel picks them up too, because custom properties inherit
     through the **DOM tree, not the containing block**. Matches the Figma set's
     single Size axis.
-  - **Two headless gaps the registry papers over, and one it refuses to.** The
-    popup is `position: fixed` + anchor positioning rather than a top-layer
-    `[popover]`, because the headless `Combobox.Content` **unmounts** while closed
-    instead of driving the Popover API (contrast `Select.Content`) — which costs
-    light-dismiss and any exit animation, and is why the panel animates in via
-    `@starting-style` only. Wiring `popover="manual"` + a mount effect in the
-    wrapper was considered and rejected: it would put layering behaviour in a file
-    that gets copied into consumer repos, and it fails *closed* (a `[popover]` is
-    `display: none` until shown, so the panel would vanish rather than
-    mispositioned). Groups were likewise **omitted rather than half-shipped** —
+  - **`position: fixed` is NOT enough for the panel — it needs the top layer, and
+    this was observed, not theorised.** The first build used `position: fixed` +
+    anchor positioning (the headless `Combobox.Content` unmounts while closed
+    rather than driving the Popover API, unlike `Select.Content`) and documented
+    `Portal` as the stacking escape hatch. Rendering it showed **the kitchen-sink's
+    own disabled-Combobox demo painting over the open panel**: a fixed panel still
+    competes in the page's stacking contexts, and `opacity: 0.5` on the disabled
+    control forms one later in the DOM. A `z-index` bump was rejected as
+    cause-dependent; `ComboboxContent` now sets `popover="manual"` +
+    `showPopover()` on mount, which is safe because **mount is open** (nothing to
+    desync — empty dep list), `manual` avoids UA dismissal hiding a still-mounted
+    panel, and it **fails open**: `display` is set unconditionally, not gated on
+    `:popover-open`, so a missing API leaves the panel merely un-promoted. Do not
+    "tidy" that into a `:popover-open` gate the way `select`'s sheet has it — here
+    that would make any failure hide the panel outright. Belongs headless
+    long-term. Groups, by contrast, were **omitted rather than half-shipped** —
     `role="group"` + `aria-labelledby` belongs to the headless layer, as
     `Listbox.Group` already does it.
 

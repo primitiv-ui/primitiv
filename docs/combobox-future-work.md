@@ -46,40 +46,58 @@ designed to agree. The registry styling is then a straight port of
 `.primitiv-listbox__group` / `__group-label` (including the `position: sticky`
 heading, which matters more here — a filtered grouped list scrolls constantly).
 
-### 1.2 The popup is not in the top layer (headless)
+### 1.2 The Popover API lives in the registry, not the headless layer
 
 **Settled in Figma §G**, which lists "Popover-API popup layer (all four engines
 have shipped it; the Firefox caveat closed at FF 125)" as explicitly **IN** for
-v1. **Shipped: `Combobox.Content` unmounts while closed instead**, and never
-touches `showPopover()` — unlike `Select.Content`, which does.
+v1. **The headless shipped without it**: `Combobox.Content` unmounts while closed
+and never touches `showPopover()` — unlike `Select.Content`, which does.
 
-The registry works around it with `position: fixed` + CSS anchor positioning,
-which is genuinely most of the way there: it escapes an ancestor's
-`overflow: hidden` and flips above the control on viewport overflow. What it does
-**not** escape is z-index stacking, so a later-painted sibling can cover the
-panel. The documented escape hatch is wrapping `ComboboxContent` in the `Portal`
-primitive.
+**The registry now supplies it, after `position: fixed` alone was tried and
+observed to fail.** This is worth recording precisely, because the first attempt
+looked reasonable and was wrong.
 
-Two further consequences of unmount-while-closed, both currently accepted:
+`position: fixed` + anchor positioning escapes an ancestor's `overflow: hidden`
+and flips on viewport overflow, so it seemed enough, with `Portal` documented as
+the escape hatch for stacking. It is not enough: a fixed panel still competes in
+the page's stacking contexts, and **the kitchen-sink's own disabled-Combobox demo
+painted straight over the open panel** — `opacity: 0.5` forms a stacking context,
+and it sits later in the DOM. Caught by rendering it, not by review.
 
-- **No exit animation is possible.** React removes the node, so nothing can still
-  match it. The panel animates in via `@starting-style` only. Select gets both
-  because `[popover]` + `transition-behavior: allow-discrete` keeps the element
-  painted through the close.
-- **No light dismiss.** A `popover="auto"` gets outside-click dismissal from the
-  UA for free. The headless owns Escape and commit-on-select, but clicking
-  elsewhere on the page currently leaves the popup open. This is the more
-  user-visible of the two.
+A `z-index` bump was rejected as the fix: it only covers the cases you thought
+of, and diagnosing *which* element wins requires a browser. The top layer is
+cause-independent. So `ComboboxContent` sets `popover="manual"` and calls
+`showPopover()` in a mount effect.
 
-**Deliberately not fixed in the registry.** It was considered: the wrapper could
-set `popover="manual"` and call `showPopover()` in a mount effect, since with
-unmount-while-closed "mounted" is exactly "open", so no state would be
-duplicated. Rejected because (a) it puts layering behaviour in a file that is
-copied into consumer repos and then diverges, (b) it fails *closed* — a
-`[popover]` is `display: none` until shown, so any failure in that effect makes
-the panel invisible rather than mispositioned, and (c) the layer decision belongs
-to the headless layer, which is where `Select` makes it. Fix it there and the
-registry sheet loses a caveat rather than gaining one.
+Three properties make that safe rather than a second source of truth:
+
+- **Mount is open.** Because the headless unmounts while closed, "mounted"
+  is exactly "open" — the effect has an empty dependency list and never re-runs,
+  so there is nothing to desync.
+- **`manual`, not `auto`.** An auto popover gets UA light-dismiss and Escape,
+  which would hide the element while React still had it mounted — a combobox that
+  thinks it is open with nothing on screen. Escape and commit-on-select belong to
+  the headless layer.
+- **It fails open.** The stylesheet sets `display` unconditionally instead of
+  gating it on `:popover-open`, and author styles beat the UA's
+  `[popover]:not(:popover-open) { display: none }`. If the API is missing or the
+  effect never runs, the panel renders exactly as it did before, merely
+  un-promoted. Gating on `:popover-open` — the obvious-looking tidy-up, and what
+  `select`'s sheet does — would make any failure hide the panel outright. There is
+  a comment in the sheet saying so; keep it.
+
+**The clean end state is still to move this into the headless layer**, where
+`Select` does it, at which point the effect deletes itself and the registry drops
+both the `ref`/`popover` Omit and the fail-open comment. Until then the behaviour
+lives in a file that gets copied into consumer repos, which is the real cost of
+the current arrangement.
+
+One consequence remains regardless of layer, because it follows from
+unmount-while-closed rather than from the top layer: **no exit animation is
+possible.** React removes the node, so nothing can still match it, and the panel
+animates in via `@starting-style` only. Select gets both because `[popover]` +
+`transition-behavior: allow-discrete` keeps the element painted through the close
+— which needs the headless layer to keep the element mounted and merely hidden.
 
 ### 1.3 The chevron does nothing when clicked (headless)
 

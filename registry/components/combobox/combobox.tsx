@@ -56,13 +56,20 @@
  * `style.positionAnchor` still wins (spread order), which is the escape hatch for
  * anchoring the panel to something other than its control.
  *
+ * THE PANEL PROMOTES ITSELF INTO THE TOP LAYER — the one piece of behaviour in
+ * this file, and the only part of it worth reading twice. See ComboboxContent
+ * below for why `position: fixed` alone was not enough, why the popover is
+ * `manual` rather than `auto`, and how it fails open.
+ *
  * Keep contract.json + the stylesheet + this file in sync by hand.
  */
 import { Combobox as ComboboxPrimitive } from "@primitiv-ui/react";
 import {
   createContext,
   useContext,
+  useEffect,
   useId,
+  useRef,
   type ComponentPropsWithRef,
   type CSSProperties,
   type ReactNode,
@@ -197,15 +204,74 @@ export function ComboboxIcon({ className, ...props }: ComboboxIconProps) {
   return <span aria-hidden="true" className={cx(comboboxIcon(), className)} {...props} />;
 }
 
-export type ComboboxContentProps = ComponentPropsWithRef<typeof ComboboxPrimitive.Content>;
+/**
+ * The popup listbox panel.
+ *
+ * `ref` and `popover` are **component-owned** and so omitted from the props: the
+ * panel promotes itself into the top layer, which needs both. See the note on the
+ * component below for why.
+ */
+export type ComboboxContentProps = DistributiveOmit<
+  ComponentPropsWithRef<typeof ComboboxPrimitive.Content>,
+  "ref" | "popover"
+>;
 
 export function ComboboxContent({ className, style, ...props }: ComboboxContentProps) {
   const positionAnchor = useAnchorIdent();
+  const ref = useRef<HTMLDivElement | null>(null);
+
+  /*
+   * Promote the panel into the TOP LAYER, so nothing on the page can paint over
+   * it. This is the one piece of behaviour in this file, and it exists because a
+   * plain `position: fixed` panel is not enough: it escapes an ancestor's
+   * `overflow: hidden`, but it still competes in the page's stacking contexts, so
+   * any later sibling that forms one paints on top. That is not hypothetical —
+   * the kitchen-sink's own disabled Combobox demo does it, because
+   * `opacity: 0.5` forms a stacking context, and a bare `z-index` bump only fixes
+   * the cases you happened to think of.
+   *
+   * Mount IS open here, which is what makes this safe: the headless
+   * `Combobox.Content` unmounts while closed rather than driving the Popover API
+   * itself (contrast `Select.Content`, which does), so there is no second source
+   * of open state to fall out of sync with — the effect has no dependency on
+   * anything and never re-runs.
+   *
+   * `manual`, not `auto`: an auto popover gets UA light-dismiss and Escape, which
+   * would hide the element while React still has it mounted, leaving a combobox
+   * that thinks it is open with nothing on screen. Escape and commit-on-select
+   * belong to the headless layer.
+   *
+   * It FAILS OPEN by design. The stylesheet sets `display` unconditionally
+   * instead of gating it on `:popover-open`, and author styles beat the UA's
+   * `[popover]:not(:popover-open) { display: none }` — so if the API is missing or
+   * this effect never runs, the panel still renders exactly as it did before,
+   * merely un-promoted. The alternative (gating on `:popover-open`) would make any
+   * failure here hide the panel completely.
+   *
+   * The clean end state is for the headless layer to own this, as Select does, at
+   * which point this effect deletes itself. Recorded in
+   * docs/combobox-future-work.md.
+   */
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof el.showPopover !== "function") return;
+    el.showPopover();
+    // StrictMode runs mount → cleanup → mount on the SAME element, and
+    // showPopover() throws InvalidStateError on an already-open popover, so the
+    // cleanup is required rather than optional. Guarded because by the time a real
+    // close runs this, React may already have detached the node.
+    return () => {
+      if (el.isConnected && el.matches(":popover-open")) el.hidePopover();
+    };
+  }, []);
+
   return (
     <ComboboxPrimitive.Content
       className={cx(comboboxContent(), className)}
       style={{ positionAnchor, ...style } as CSSProperties}
       {...props}
+      ref={ref}
+      popover="manual"
     />
   );
 }

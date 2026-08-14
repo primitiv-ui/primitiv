@@ -145,14 +145,31 @@ set**: `Combobox` derives a unique ident from `useId()` and hands it to
 one page never collide. Your own `style.anchorName` / `style.positionAnchor`
 still wins (spread order) if you need to anchor the panel to something else.
 
-The panel is `position: fixed` and flips above the control when there is no room
-below. It is **not** in the top layer — the headless `Combobox.Content` unmounts
-while closed rather than driving the Popover API, unlike `Select.Content`. Fixed
-positioning escapes an ancestor's `overflow: hidden`, but not z-index stacking:
-wrap `ComboboxContent` in the `Portal` primitive if a later sibling paints over
-it.
+The panel is `position: fixed`, flips above the control when there is no room
+below, and **promotes itself into the top layer** so nothing on the page can
+paint over it.
 
-That also means the panel animates **in** only (via `@starting-style`) — React
+That promotion is the one piece of behaviour in the wrapper, and it is there
+because `position: fixed` alone was not enough: it escapes an ancestor's
+`overflow: hidden`, but it still competes in the page's stacking contexts, so any
+later sibling forming one paints on top. (The kitchen-sink's own disabled-Combobox
+demo did exactly that — `opacity: 0.5` forms a stacking context.) A `z-index` bump
+only fixes the cases you thought of, so `ComboboxContent` sets `popover="manual"`
+and calls `showPopover()` on mount instead — the same layer every other popup in
+the library uses.
+
+It is safe because **mount is open**: the headless `Combobox.Content` unmounts
+while closed rather than driving the Popover API itself, so there is no second
+source of open state to desync from. `manual` rather than `auto`, because an auto
+popover's UA light-dismiss and Escape would hide the element while React still had
+it mounted. And it **fails open** — the stylesheet sets `display`
+unconditionally rather than gating it on `:popover-open`, so if the API is missing
+the panel still renders, merely un-promoted.
+
+`ref` and `popover` are therefore component-owned and omitted from
+`ComboboxContentProps`.
+
+The panel still animates **in** only (via `@starting-style`): the headless layer
 removes the node on close, so no rule can still match it to animate out.
 
 ## The chevron is decorative

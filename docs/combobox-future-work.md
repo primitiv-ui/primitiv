@@ -71,10 +71,10 @@ spread *before* `{...rest}`. That silently took out both the top layer and light
 dismiss. Now composed with `composeRefs` (the `RadioGroup.tsx:206` pattern) and
 pinned by a test.
 
-`ComboboxItem` had the identical shape and was fixed the same way, but **as a
-refactor, not a red-green cycle** — nothing reads the `element` it registers, so
-there is no observable behaviour to drive a failing test with. That absence is
-itself a finding; see §1.0.
+`ComboboxItem` had the identical shape and was fixed the same way. At the time
+that was a refactor rather than a red-green cycle, because nothing read the
+`element` it registers — an absence that turned out to be the real finding, and is
+now closed by §0.4.
 
 ### 0.3 Clearing the query now clears the value
 
@@ -91,7 +91,39 @@ already-empty field never reports a change the consumer didn't cause. More confi
 here (opt-out, a clear button) is plausible later; the headless needs other work
 anyway.
 
-### 0.4 The docs site's component list is reconciled
+### 0.4 The cursor now scrolls into view
+
+Found by fixing `ComboboxItem`'s ref (§0.2): **`ComboboxItemMeta.element` had no
+reader anywhere** — only `.label` was used, in the Enter branch. Its JSDoc called
+it "kept for future scroll-into-view work", so it read as a spare field. It was
+not: it was an **unfinished feature with a live symptom.** The styled panel caps at
+`--primitiv-combobox-content-max-block-size: 18rem` and scrolls past it, so
+arrowing down a filtered list walked the cursor off the bottom with nothing
+following it, and Home/End jumped to an item that could be far outside the
+viewport. Any list long enough to scroll was affected — for a combobox, the normal
+case.
+
+Fixed by copying Listbox's `moveCursor` exactly: a single callback that wraps
+`setActiveValue` and scrolls, so **no path can move the cursor without bringing it
+on screen**. That funnelling is the point — the arrow-key hook's `onNavigate` and
+both first-cursor seeds (ArrowDown → first, ArrowUp → last) now go through it, and
+a future cursor mover would have to opt out deliberately to reintroduce the bug.
+`block: "nearest"` for the same reason Listbox chose it: it is the option that does
+nothing when the item is already visible, so ordinary arrowing does not jerk the
+list about.
+
+`ComboboxItemMeta.element` is now typed `HTMLElement` rather than
+`HTMLElement | null`, which is what it always was in practice — registration
+happens in the item's own effect, so the ref has attached by then. That also
+retires the §0.2 caveat: with a reader for `element`, the ref composition is
+observable behaviour, and four tests now pin it.
+
+**Correction to an earlier note in this file: Listbox does NOT share this gap.**
+`useListboxRoot.ts` has done it since it was built. The suspicion was raised on the
+grounds that the two share a registry shape, and checking it was what turned up the
+implementation to copy.
+
+### 0.5 The docs site's component list is reconciled
 
 Was §3.1. `apps/docs/.vitepress/components.mjs` listed 39 of 46 components with
 READMEs; it now lists all 46.
@@ -136,32 +168,6 @@ rows are `Listbox / Option` instances in Figma precisely because the two were
 designed to agree. The registry styling is then a straight port of
 `.primitiv-listbox__group` / `__group-label` (including the `position: sticky`
 heading, which matters more here — a filtered grouped list scrolls constantly).
-
-### 1.0 The cursor does not scroll into view (headless) — most user-visible
-
-Found 2026-08-14 while fixing `ComboboxItem`'s ref. **`ComboboxItemMeta.element`
-has no reader anywhere** — only `.label` is used (`Combobox.tsx`, the Enter
-branch). Its JSDoc says it is "kept for future scroll-into-view work", and that
-work has not happened.
-
-That is not a speculative field, though — it is an **unfinished feature with a live
-symptom.** The registry panel caps at
-`--primitiv-combobox-content-max-block-size: 18rem` and scrolls past it, so
-arrowing the cursor down a filtered list walks it straight off the bottom of the
-visible panel with nothing following it. Home/End are worse: they jump to an item
-that may be far outside the viewport. Any list long enough to scroll is affected,
-which for a combobox is the normal case.
-
-The fix is small and the hook already exists: read
-`itemsRef.current.get(activeValue)!.element` wherever `activeValue` changes and
-call `scrollIntoView({ block: "nearest" })`. `block: "nearest"` specifically — it
-is the option that does nothing when the item is already visible, so ordinary
-arrowing does not jerk the list around. Listbox has the same registry shape and may
-have the same gap; check both together.
-
-Note this also makes the ref-composition fix testable: with a reader for
-`element`, "a consumer ref must not replace the internal one" becomes an
-observable behaviour rather than the untestable refactor it was.
 
 ### 1.2 The chevron does nothing when clicked (headless)
 

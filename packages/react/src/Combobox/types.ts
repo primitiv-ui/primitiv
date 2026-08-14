@@ -2,8 +2,12 @@ import type { ComponentProps, KeyboardEvent } from "react";
 
 /** What a mounted `Combobox.Item` registers with the root. */
 export interface ComboboxItemMeta {
-  /** The rendered element, kept for future scroll-into-view work. */
-  element: HTMLElement | null;
+  /**
+   * The rendered element, used to scroll the cursor into view. Non-nullable:
+   * registration happens in the item's own effect, so the ref has always been
+   * attached by then — an item is never in the registry without its element.
+   */
+  element: HTMLElement;
   /** The label to show in the input once this item is committed. */
   label: string;
 }

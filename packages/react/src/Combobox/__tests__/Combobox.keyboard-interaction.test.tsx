@@ -16,6 +16,70 @@ function renderCombobox() {
   );
 }
 
+/*
+ * Cursor scrolling. The registry panel caps at 18rem and scrolls past it, so a
+ * cursor that moves without bringing itself into view walks straight off the
+ * bottom of a filtered list — APG requires the referenced option to be made
+ * visible. `block: "nearest"` specifically: it is the option that does nothing
+ * when the item is already on screen, so ordinary arrowing does not jerk the list
+ * about. Same contract, and the same spy technique, as Listbox.
+ */
+describe("Combobox cursor scrolling", () => {
+  it("scrolls the seeded item into view when ArrowDown opens the cursor", async () => {
+    const user = userEvent.setup();
+    renderCombobox();
+
+    const react = screen.getByRole("option", { hidden: true, name: "React" });
+    const scrollIntoView = vi.spyOn(react, "scrollIntoView");
+
+    await user.click(screen.getByRole("combobox", { name: "Framework" }));
+    await user.keyboard("{ArrowDown}");
+
+    expect(scrollIntoView).toHaveBeenCalledWith({ block: "nearest" });
+  });
+
+  it("scrolls each item into view as the cursor moves onto it", async () => {
+    const user = userEvent.setup();
+    renderCombobox();
+
+    const preact = screen.getByRole("option", { hidden: true, name: "Preact" });
+    const scrollIntoView = vi.spyOn(preact, "scrollIntoView");
+
+    await user.click(screen.getByRole("combobox", { name: "Framework" }));
+    await user.keyboard("{ArrowDown}{ArrowDown}");
+
+    expect(scrollIntoView).toHaveBeenCalledWith({ block: "nearest" });
+  });
+
+  it("scrolls the last item into view on End", async () => {
+    const user = userEvent.setup();
+    renderCombobox();
+
+    const preact = screen.getByRole("option", { hidden: true, name: "Preact" });
+    const scrollIntoView = vi.spyOn(preact, "scrollIntoView");
+
+    await user.click(screen.getByRole("combobox", { name: "Framework" }));
+    // Seed the cursor first: Home/End move an existing cursor rather than
+    // creating one.
+    await user.keyboard("{ArrowDown}{End}");
+
+    expect(scrollIntoView).toHaveBeenCalledWith({ block: "nearest" });
+  });
+
+  it("scrolls the seeded item into view when ArrowUp opens the cursor at the end", async () => {
+    const user = userEvent.setup();
+    renderCombobox();
+
+    const preact = screen.getByRole("option", { hidden: true, name: "Preact" });
+    const scrollIntoView = vi.spyOn(preact, "scrollIntoView");
+
+    await user.click(screen.getByRole("combobox", { name: "Framework" }));
+    await user.keyboard("{ArrowUp}");
+
+    expect(scrollIntoView).toHaveBeenCalledWith({ block: "nearest" });
+  });
+});
+
 describe("Combobox keyboard interaction", () => {
   it("closes the popup on Escape while leaving focus in the input", async () => {
     const user = userEvent.setup();

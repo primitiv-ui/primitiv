@@ -117,6 +117,24 @@ export function ComboboxRoot({
     [comboboxId],
   );
 
+  // APG: when the referenced option is not fully visible, scroll it into view.
+  // Every cursor move goes through here rather than calling setActiveValue
+  // directly, so no path can move the cursor without bringing it on screen —
+  // which matters because the styled panel scrolls (18rem by default), so an
+  // unscrolled cursor simply walks off the bottom of a filtered list. Mirrors
+  // Listbox's own `moveCursor`, down to `block: "nearest"` — the option that
+  // does nothing when the item is already visible, so ordinary arrowing does not
+  // jerk the list about.
+  const moveCursor = useCallback(
+    (target: string) => {
+      setActiveValue(target);
+      // The cursor only ever holds a value the registry put there, so the lookup
+      // cannot miss — the same assertion the Enter branch below relies on.
+      itemsRef.current.get(target)!.element.scrollIntoView({ block: "nearest" });
+    },
+    [itemsRef],
+  );
+
   // Keys only — no tabIndex is manipulated anywhere, because DOM focus never
   // leaves the input. Same use of this hook as NavigationMenu.
   // `string | null`: unlike NavigationMenu's roving tabstop there is
@@ -128,7 +146,11 @@ export function ComboboxRoot({
     currentKey: activeValue,
     includeHomeEnd: true,
     onNavigate: (target) => {
-      setActiveValue(target);
+      // The hook is instantiated with `string | null` so that `currentKey` can be
+      // null (no cursor yet), which widens `target` to match — but null is only
+      // ever a *current* key, never a navigable one: `navigable` is itemValues,
+      // which holds strings only. So a navigation target is always a real value.
+      moveCursor(target!);
     },
   });
 
@@ -163,19 +185,19 @@ export function ComboboxRoot({
       if (activeValue === null && itemValues.length > 0) {
         if (event.key === "ArrowDown") {
           event.preventDefault();
-          setActiveValue(itemValues[0]);
+          moveCursor(itemValues[0]);
           return;
         }
         if (event.key === "ArrowUp") {
           event.preventDefault();
-          setActiveValue(itemValues[itemValues.length - 1]);
+          moveCursor(itemValues[itemValues.length - 1]);
           return;
         }
       }
 
       handleArrowKeys(event);
     },
-    [dismiss, activeValue, itemValues, handleArrowKeys, select, itemsRef],
+    [dismiss, activeValue, itemValues, handleArrowKeys, moveCursor, select, itemsRef],
   );
 
   const contextValue = useMemo(
@@ -361,7 +383,10 @@ export function ComboboxItem({
   // unnoticed until the first feature that does (scroll-into-view).
   const setRef = useMemo(() => composeRefs(localRef, ref), [ref]);
   useEffect(() => {
-    registerItem(itemValue, { element: localRef.current, label });
+    // Non-null by construction: this effect runs after React has attached the
+    // ref, so an item is never registered without its element (see
+    // ComboboxItemMeta.element).
+    registerItem(itemValue, { element: localRef.current!, label });
     return () => registerItem(itemValue, null);
   }, [itemValue, label, registerItem]);
 

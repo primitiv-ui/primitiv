@@ -864,10 +864,10 @@ source of truth for when a skill applies.
   (`1816:61259`, 10 variants, md-first) + the "Combobox — exploration" page
   (`1816:60308`, seven calls, all settled 2026-08-13) landed earlier; the headless
   compound landed after; this session added the **registry surface and the
-  kitchen-sink demo**, plus four fixes that only a real browser surfaced (top
-  layer, light dismiss, clearing-clears-the-value, and the docs site's component
-  list). Full account in `docs/combobox-future-work.md` — §0 for what was fixed,
-  §1 for the three headless follow-ups still open (the cursor not scrolling into view is the user-visible one). Four things worth knowing before
+  kitchen-sink demo**, plus five fixes that only a real browser surfaced (top
+  layer, light dismiss, clearing-clears-the-value, cursor scroll-into-view, and
+  the docs site's component list). Full account in `docs/combobox-future-work.md` — §0 for what was fixed,
+  §1 for the two headless follow-ups still open. Four things worth knowing before
   touching it:
   - **No new design tokens, and that is structural.** It falls out of §B1 + §A1:
     the control is **Input verbatim** (`framed-control/{size}/*`, Input's own

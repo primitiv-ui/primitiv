@@ -116,7 +116,10 @@ trade for a closed combobox having no listbox in the accessibility tree at all.
 | <kbd>Enter</kbd>      | Commits the cursor item. Ignored when there is no cursor          |
 | <kbd>Escape</kbd>     | Closes, clears the cursor, restores the committed label           |
 
-Arrow travel wraps at both ends.
+Arrow travel wraps at both ends, and every cursor move **scrolls the item into
+view** (`scrollIntoView({ block: "nearest" })`, so a move to an already-visible item
+doesn't jerk the list). That matters because the styled panel scrolls — without it
+the cursor walks off the bottom of a long filtered list.
 
 ## Virtual focus, not a roving tabstop
 

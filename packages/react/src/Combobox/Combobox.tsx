@@ -340,6 +340,7 @@ export function ComboboxItem({
   value: itemValue,
   children,
   onClick,
+  ref,
   ...rest
 }: ComboboxItemProps): ReactElement {
   const { value, select, activeValue, getItemId, registerItem } = useComboboxContext();
@@ -353,6 +354,12 @@ export function ComboboxItem({
   const label = typeof children === "string" ? children : itemValue;
 
   const localRef = useRef<HTMLDivElement | null>(null);
+  // Composed, not overwritten. Spreading `ref={localRef}` ahead of `{...rest}`
+  // would let a consumer ref replace it, registering `element: null` — the same
+  // shape of bug that silently disabled Content's whole popover. Harmless today
+  // because nothing reads `element` yet, which is precisely why it would have gone
+  // unnoticed until the first feature that does (scroll-into-view).
+  const setRef = useMemo(() => composeRefs(localRef, ref), [ref]);
   useEffect(() => {
     registerItem(itemValue, { element: localRef.current, label });
     return () => registerItem(itemValue, null);
@@ -364,13 +371,13 @@ export function ComboboxItem({
     <Item
       role="option"
       id={getItemId(itemValue)}
-      ref={localRef}
       aria-selected={selected}
       data-highlighted={highlighted ? "" : undefined}
       onClick={composeEventHandlers(onClick, () => {
         select(itemValue, label);
       })}
       {...rest}
+      ref={setRef}
     >
       {children}
     </Item>

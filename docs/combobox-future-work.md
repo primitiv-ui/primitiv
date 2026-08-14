@@ -69,8 +69,12 @@ just closing, so clicking away and pressing Escape leave the field identical.
 the popover needs was being clobbered by any consumer-passed `ref`, because it was
 spread *before* `{...rest}`. That silently took out both the top layer and light
 dismiss. Now composed with `composeRefs` (the `RadioGroup.tsx:206` pattern) and
-pinned by a test. `ComboboxItem` has the same shape and may deserve the same
-treatment.
+pinned by a test.
+
+`ComboboxItem` had the identical shape and was fixed the same way, but **as a
+refactor, not a red-green cycle** — nothing reads the `element` it registers, so
+there is no observable behaviour to drive a failing test with. That absence is
+itself a finding; see §1.0.
 
 ### 0.3 Clearing the query now clears the value
 
@@ -132,6 +136,32 @@ rows are `Listbox / Option` instances in Figma precisely because the two were
 designed to agree. The registry styling is then a straight port of
 `.primitiv-listbox__group` / `__group-label` (including the `position: sticky`
 heading, which matters more here — a filtered grouped list scrolls constantly).
+
+### 1.0 The cursor does not scroll into view (headless) — most user-visible
+
+Found 2026-08-14 while fixing `ComboboxItem`'s ref. **`ComboboxItemMeta.element`
+has no reader anywhere** — only `.label` is used (`Combobox.tsx`, the Enter
+branch). Its JSDoc says it is "kept for future scroll-into-view work", and that
+work has not happened.
+
+That is not a speculative field, though — it is an **unfinished feature with a live
+symptom.** The registry panel caps at
+`--primitiv-combobox-content-max-block-size: 18rem` and scrolls past it, so
+arrowing the cursor down a filtered list walks it straight off the bottom of the
+visible panel with nothing following it. Home/End are worse: they jump to an item
+that may be far outside the viewport. Any list long enough to scroll is affected,
+which for a combobox is the normal case.
+
+The fix is small and the hook already exists: read
+`itemsRef.current.get(activeValue)!.element` wherever `activeValue` changes and
+call `scrollIntoView({ block: "nearest" })`. `block: "nearest"` specifically — it
+is the option that does nothing when the item is already visible, so ordinary
+arrowing does not jerk the list around. Listbox has the same registry shape and may
+have the same gap; check both together.
+
+Note this also makes the ref-composition fix testable: with a reader for
+`element`, "a consumer ref must not replace the internal one" becomes an
+observable behaviour rather than the untestable refactor it was.
 
 ### 1.2 The chevron does nothing when clicked (headless)
 

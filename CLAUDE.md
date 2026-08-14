@@ -867,7 +867,7 @@ source of truth for when a skill applies.
   kitchen-sink demo**, plus four fixes that only a real browser surfaced (top
   layer, light dismiss, clearing-clears-the-value, and the docs site's component
   list). Full account in `docs/combobox-future-work.md` — §0 for what was fixed,
-  §1 for the two headless follow-ups still open. Four things worth knowing before
+  §1 for the three headless follow-ups still open (the cursor not scrolling into view is the user-visible one). Four things worth knowing before
   touching it:
   - **No new design tokens, and that is structural.** It falls out of §B1 + §A1:
     the control is **Input verbatim** (`framed-control/{size}/*`, Input's own

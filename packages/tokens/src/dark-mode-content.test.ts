@@ -158,6 +158,7 @@ describe.each([
   'border/default',
   'table/row/stripe',
   'table/row/hover',
+  'table/row/selected',
   'action/secondary/default',
   'action/secondary/hover',
   'action/secondary/active',
@@ -194,5 +195,32 @@ describe('surface/selected and content/on-selected', () => {
       const ratio = contrastRatio(intentColor(mode, 'content/on-selected'), intentColor(mode, 'surface/selected'))
       expect(ratio).toBeGreaterThanOrEqual(4.5)
     }
+  })
+})
+
+// The swapped-index guard above only asserts light ≠ dark, which is too weak for
+// an OPAQUE background: `table/row/selected` was light #cbe5ff / dark #c8edff —
+// two different pale blues, so it passed that check while rendering a glaring
+// pale row on a dark surface. This is the assertion that actually pins the role:
+// an opaque background that tracks the theme must be light in light mode and dark
+// in dark mode, not merely different.
+//
+// Deliberately opaque-only. The alpha state layers (`*/row/hover`,
+// `tree/row/selected`, `action/ghost/*`) invert their ink by design — light mode
+// tints with dark ink, dark mode with light ink — and `surface/overlay` is an
+// inverse surface on purpose, so neither belongs here.
+describe.each([
+  'surface/subtle',
+  'surface/raised',
+  'surface/floating',
+  'surface/sunken',
+  'action/secondary/default',
+  'table/row/stripe',
+  'table/row/selected',
+  'choice-card/selected/background',
+] as const)('%s (opaque, theme-tracking background)', (token) => {
+  it('is light in light mode and dark in dark mode', () => {
+    expect(luminance(intentColor('light', token))).toBeGreaterThan(0.5)
+    expect(luminance(intentColor('dark', token))).toBeLessThan(0.5)
   })
 })

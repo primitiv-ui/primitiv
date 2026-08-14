@@ -932,7 +932,7 @@
         },
         "selected": {
           "$type": "color",
-          "$value": "{color.brand.900}"
+          "$value": "{color.brand.100}"
         }
       }
     },

@@ -57,11 +57,15 @@ import "../styles/primitiv/combobox/styles.css";
  * `style.positionAnchor` still wins (spread order), which is the escape hatch for
  * anchoring the panel to something other than its control.
  *
- * The panel's paint order is a STYLESHEET concern, not this file's — see the
- * z-index note in styles.css. There is deliberately no `showPopover()` call here:
- * that was tried, could not be verified to work in a real browser from this
- * sandbox, and is recorded as a headless-layer job in
- * docs/combobox-future-work.md (where `Select.Content` already does it).
+ * THE PANEL'S LAYER IS NOT THIS FILE'S JOB, and there is deliberately no
+ * `showPopover()` call here. The headless `Combobox.Content` renders
+ * `popover="auto"` and promotes itself, exactly as `Select.Content` does — which
+ * is what gives the panel the top layer and the browser's own outside-click
+ * dismissal. Putting it in this wrapper was tried and reverted: it belongs where
+ * the open state lives, not in a file that gets copied into consumer repos.
+ * Consequences for the stylesheet (no z-index, `display` only under
+ * `:popover-open`, and a mandatory `[popover]` reset) are documented in
+ * styles.css; see docs/combobox-future-work.md §0.1 for the full account.
  *
  * Keep contract.json + the stylesheet + this file in sync by hand.
  */

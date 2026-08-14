@@ -13,7 +13,7 @@ describe("Combobox ids and ARIA wiring", () => {
     );
 
     const input = screen.getByRole("combobox", { name: "Framework" });
-    const listbox = screen.getByRole("listbox", { name: "Frameworks" });
+    const listbox = screen.getByRole("listbox", { hidden: true });
 
     expect(listbox.id).not.toBe("");
     expect(input).toHaveAttribute("aria-controls", listbox.id);
@@ -47,8 +47,11 @@ describe("Combobox ids and ARIA wiring", () => {
       </>,
     );
 
-    const first = screen.getByRole("listbox", { name: "First list" });
-    const second = screen.getByRole("listbox", { name: "Second list" });
+    // Indexed rather than named: the popup is a [popover], which jsdom leaves
+    // `display: none` (it does not wire up the `:popover-open` selector), and an
+    // `aria-label` on a hidden element yields no accessible name — so `{ name }`
+    // cannot tell these two apart. DOM order can.
+    const [first, second] = screen.getAllByRole("listbox", { hidden: true });
 
     expect(first.id).not.toBe(second.id);
     expect(screen.getByRole("combobox", { name: "First" })).toHaveAttribute(

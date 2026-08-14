@@ -9,7 +9,7 @@
 // always fresh.
 //
 // Run with: pnpm --filter @primitiv-ui/docs gen:react
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
@@ -54,21 +54,46 @@ function readReadme(relPath) {
   return sanitize(readFileSync(resolve(root, relPath), "utf8").trimEnd());
 }
 
-// Per-component pages: sanitized README + the workbench example source.
+/*
+ * Per-component pages: sanitized README + a live example.
+ *
+ * The example section is chosen per component, and that conditional is the whole
+ * reason it exists. The workbench is a LEGACY example surface — since 2026-07-25
+ * new components demo in the kitchen-sink instead (see CLAUDE.md), so everything
+ * built after that date has no `apps/workbench/src/pages/<Name>Example` at all.
+ * VitePress's `<<<` include is a hard build error when its target is missing, so
+ * an unconditional workbench include meant a component could not be listed in
+ * `reactComponents` until someone wrote it a workbench page — which is exactly
+ * how Combobox, Listbox, Drawer, NavigationMenu, SegmentedControl and
+ * SplitButton ended up with no docs page despite all having READMEs.
+ *
+ * So: embed the workbench source where it exists, and otherwise link the
+ * kitchen-sink section. The anchors line up for free — the kitchen-sink's own
+ * `sectionSlug` (lowercase, spaces to hyphens) agrees with `slugFor` for every
+ * component, including the two-word ones ("Navigation Menu" → navigation-menu).
+ */
 for (const { name } of reactComponents) {
   const slug = slugFor(name);
+  const examplePath = `apps/workbench/src/pages/${name}Example/${name}Example.tsx`;
+  const example = existsSync(resolve(root, examplePath))
+    ? `## Workbench example
+
+Open the interactive version in the [workbench](/workbench/#/${slug}). Its source:
+
+<<< ../../../${examplePath}
+`
+    : `## Live example
+
+See it running in the [kitchen sink](/kitchen-sink/#${slug}) — the reference app
+that installs every styled registry component.
+`;
   const page = `---
 title: ${name}
 ---
 
 ${readReadme(`packages/react/src/${name}/README.md`)}
 
-## Workbench example
-
-Open the interactive version in the [workbench](/workbench/#/${slug}). Its source:
-
-<<< ../../../apps/workbench/src/pages/${name}Example/${name}Example.tsx
-`;
+${example}`;
   writeFileSync(resolve(reactDir, `${slug}.md`), page);
 }
 

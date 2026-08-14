@@ -10,7 +10,7 @@ import {
 } from "react";
 
 import { useCollection, useControllableState, useRovingTabindex } from "../hooks/index.ts";
-import { Slot, composeEventHandlers } from "../Slot/index.ts";
+import { Slot, composeEventHandlers, composeRefs } from "../Slot/index.ts";
 import { deriveId } from "../utils/index.ts";
 
 import { ComboboxProvider, useComboboxContext } from "./ComboboxContext";
@@ -75,8 +75,19 @@ export function ComboboxRoot({
       setQueryState(next);
       setOpen(true);
       onQueryChange?.(next);
+      // Emptying the field is a DESELECT. D1 resets the text from the value on
+      // close, which taken alone made a cleared field un-clearable — Escape put
+      // the deleted label straight back. Clearing the value too keeps D1's
+      // invariant (the field never shows text that is not the value: here both
+      // are empty) while letting the gesture mean what the user intended.
+      // Guarded on there being something to clear, so an already-empty field
+      // never reports a change the consumer did not cause.
+      if (next === "" && value !== "") {
+        setValue("");
+        setCommittedLabel("");
+      }
     },
-    [onQueryChange, setOpen],
+    [onQueryChange, setOpen, setValue, value],
   );
 
   // D1: committing a choice closes the popup and resets the text FROM THE
@@ -176,6 +187,7 @@ export function ComboboxRoot({
       value,
       select,
       handleInputKeyDown,
+      dismiss,
       activeValue,
       getItemId,
       registerItem,
@@ -188,6 +200,7 @@ export function ComboboxRoot({
       value,
       select,
       handleInputKeyDown,
+      dismiss,
       activeValue,
       getItemId,
       registerItem,
@@ -250,21 +263,61 @@ ComboboxInput.displayName = "ComboboxInput";
  * The popup listbox. **Unmounted while closed**, so a closed combobox has no
  * list in the accessibility tree at all — not a hidden one.
  *
+ * Rendered as a `popover="auto"` element and promoted with `showPopover()` on
+ * open, which buys two things no amount of CSS can: the **top layer**, so nothing
+ * on the page can paint over the panel, and the browser's own **light dismiss**,
+ * so clicking outside closes it. There is deliberately no hand-rolled
+ * pointerdown-outside listener — the browser already does that detection, and it
+ * reports the result back as a `toggle` event, which is the only way React hears
+ * about a close it did not initiate. Same construction as `Select.Content`.
+ *
+ * A light dismiss runs the full {@link ComboboxContextValue.dismiss | `dismiss`},
+ * not just a close, so clicking away and pressing Escape leave the field in the
+ * same state rather than one of them stranding a half-typed query on screen.
+ *
  * @extends HTMLDivElement
  */
 export function ComboboxContent({
   asChild = false,
   children,
+  ref,
   ...rest
 }: ComboboxContentProps): ReactElement | null {
-  const { open, listboxId } = useComboboxContext();
+  const { open, listboxId, dismiss } = useComboboxContext();
+  const localRef = useRef<HTMLDivElement | null>(null);
+  // Composed, not overwritten: the popover machinery needs `localRef` to call
+  // showPopover() on, so a consumer ref replacing it would silently take out both
+  // the top layer and light dismiss.
+  const setRef = useMemo(() => composeRefs(localRef, ref), [ref]);
+
+  // Promote into the top layer. Keyed on `open` rather than mount, because this
+  // component stays mounted across opens and only its DOM output comes and goes —
+  // and because `open` is a boolean, the element can never already be showing
+  // when this runs, so showPopover() cannot throw InvalidStateError.
+  useEffect(() => {
+    if (!open) return;
+    localRef.current!.showPopover();
+  }, [open]);
+
+  // The browser's report that it closed the popup behind React's back.
+  useEffect(() => {
+    if (!open) return;
+    const element = localRef.current!;
+    const handleToggle = (event: Event) => {
+      // Only a close is news. A toggle to "open" is this component's own
+      // showPopover() echoing back, and acting on it would thrash state.
+      if ((event as ToggleEvent).newState === "closed") dismiss();
+    };
+    element.addEventListener("toggle", handleToggle);
+    return () => element.removeEventListener("toggle", handleToggle);
+  }, [open, dismiss]);
 
   if (!open) return null;
 
   const Content = asChild ? Slot : "div";
 
   return (
-    <Content role="listbox" id={listboxId} {...rest}>
+    <Content role="listbox" id={listboxId} popover="auto" {...rest} ref={setRef}>
       {children}
     </Content>
   );

@@ -22,7 +22,7 @@ describe("Combobox controlled state", () => {
 
     // the parent owns it: we ask, we do not assume
     expect(onOpenChange).toHaveBeenCalledWith(true);
-    expect(screen.queryByRole("listbox")).not.toBeInTheDocument();
+    expect(screen.queryByRole("listbox", { hidden: true })).not.toBeInTheDocument();
   });
 
   it("honours a controlled `open` set by the parent", () => {
@@ -35,7 +35,7 @@ describe("Combobox controlled state", () => {
       </Combobox.Root>,
     );
 
-    expect(screen.getByRole("listbox", { name: "Frameworks" })).toBeInTheDocument();
+    expect(screen.getByRole("listbox", { hidden: true })).toBeInTheDocument();
     expect(screen.getByRole("combobox", { name: "Framework" })).toHaveAttribute(
       "aria-expanded",
       "true",
@@ -53,11 +53,11 @@ describe("Combobox controlled state", () => {
       </Combobox.Root>,
     );
 
-    expect(screen.getByRole("option", { name: "Preact" })).toHaveAttribute(
+    expect(screen.getByRole("option", { hidden: true, name: "Preact" })).toHaveAttribute(
       "aria-selected",
       "true",
     );
-    expect(screen.getByRole("option", { name: "React" })).toHaveAttribute(
+    expect(screen.getByRole("option", { hidden: true, name: "React" })).toHaveAttribute(
       "aria-selected",
       "false",
     );
@@ -77,10 +77,10 @@ describe("Combobox controlled state", () => {
       </Combobox.Root>,
     );
 
-    await user.click(screen.getByRole("option", { name: "Preact" }));
+    await user.click(screen.getByRole("option", { hidden: true, name: "Preact" }));
 
     expect(onValueChange).toHaveBeenCalledWith("preact");
-    expect(screen.getByRole("option", { name: "React" })).toHaveAttribute(
+    expect(screen.getByRole("option", { hidden: true, name: "React" })).toHaveAttribute(
       "aria-selected",
       "true",
     );

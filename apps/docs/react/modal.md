@@ -9,10 +9,16 @@ A headless, accessible compound component implementing the
 
 Modal is built on the native
 [`<dialog>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dialog)
-element and its `showModal()` API, so focus trapping, inert background,
-top-layer stacking, and Esc-to-close are handled by the browser. The
-React layer adds what native `<dialog>` doesn't give you:
+element and its `showModal()` API, so the inert background, top-layer
+stacking, and Esc-to-close are handled by the browser. The React layer
+adds what native `<dialog>` doesn't give you:
 
+- **Focus trapping.** `showModal()` inerts the background but does
+  _not_ cycle focus — Tab past the last element escapes to the browser
+  chrome and back. A `keydown` handler on the dialog wraps `Tab`
+  (last → first) and `Shift+Tab` (first → last) so focus stays inside,
+  as the WAI-ARIA APG requires. Interior Tabs stay native, so the
+  browser's inert-aware order (radio groups, etc.) is untouched.
 - Click-outside-to-close via a `pointerdown` listener on the dialog
   that checks the pointer against `getBoundingClientRect()` — coords
   outside the rect mean the pointer landed on the native `::backdrop`.
@@ -51,6 +57,12 @@ import { Modal } from "@primitiv-ui/react";
 </Modal.Root>;
 ```
 
+This headless layer is structure-only. The **styled distribution** (`primitiv add
+modal`) composes these primitives into the full Figma anatomy — a divided
+header / body / footer, and an icon-button close (a ghost `Button` + `Close` icon
+via `Modal.Close asChild`, sized one step below the dialog). See that package's
+README for the canonical composed example; nothing below changes.
+
 ## Sub-components
 
 | Export              | Element           | Notes                                                                                                                                          |
@@ -66,10 +78,11 @@ import { Modal } from "@primitiv-ui/react";
 
 ## Keyboard interaction
 
-| Key   | Behaviour                                                                     |
-| ----- | ----------------------------------------------------------------------------- |
-| `Esc` | Closes the modal (native `cancel` event). Preventable via `onEscapeKeyDown`   |
-| `Tab` | Focus is trapped inside the dialog by the browser's native modal dialog logic |
+| Key         | Behaviour                                                                                                                                                                                       |
+| ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Esc`       | Closes the modal (native `cancel` event). Preventable via `onEscapeKeyDown`                                                                                                                      |
+| `Tab`       | Wraps from the last focusable back to the first — focus stays inside the dialog. `showModal()` inerts the background but doesn't cycle focus, so this wrap is added by a `keydown` handler |
+| `Shift+Tab` | Wraps from the first focusable to the last                                                                                                                                                       |
 
 ## State modes
 
@@ -154,8 +167,10 @@ handlers, so only its ARIA and `data-state` are forwarded.
 ```
 
 `Modal.Content` is intentionally **not** slot-able. Its native
-`<dialog>` element is the whole reason Modal works without a focus
-trap or a scroll-lock library, so we don't expose a way to swap it.
+`<dialog>` element — the inert background and top-layer stacking — is
+the whole reason Modal needs no scroll-lock library and only a minimal
+Tab-wrap (rather than a full focus-trap library), so we don't expose a
+way to swap it.
 
 ## Animation hooks
 
@@ -172,10 +187,10 @@ animation can play against the `data-state="closed"` attribute:
 
 ```css
 [data-state="open"] {
-  animation: fade-in 150ms ease-out;
+  animation: fade-in var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-enter);
 }
 [data-state="closed"] {
-  animation: fade-out 120ms ease-in forwards;
+  animation: fade-out var(--primitiv-motion-duration-feedback) var(--primitiv-motion-easing-exit) forwards;
 }
 ```
 

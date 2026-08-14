@@ -864,9 +864,11 @@ source of truth for when a skill applies.
   (`1816:61259`, 10 variants, md-first) + the "Combobox — exploration" page
   (`1816:60308`, seven calls, all settled 2026-08-13) landed earlier; the headless
   compound landed after; this session added the **registry surface and the
-  kitchen-sink demo**. Deferred work — including three headless follow-ups found
-  only while building the registry — is in `docs/combobox-future-work.md`. Four
-  things worth knowing before touching it:
+  kitchen-sink demo**, plus four fixes that only a real browser surfaced (top
+  layer, light dismiss, clearing-clears-the-value, and the docs site's component
+  list). Full account in `docs/combobox-future-work.md` — §0 for what was fixed,
+  §1 for the two headless follow-ups still open. Four things worth knowing before
+  touching it:
   - **No new design tokens, and that is structural.** It falls out of §B1 + §A1:
     the control is **Input verbatim** (`framed-control/{size}/*`, Input's own
     states) and the popup is a **Dropdown panel** at `elevation/overlay`. Revisit
@@ -887,37 +889,45 @@ source of truth for when a skill applies.
     fixed-position panel picks them up too, because custom properties inherit
     through the **DOM tree, not the containing block**. Matches the Figma set's
     single Size axis.
-  - **`position: fixed` is NOT enough for the panel — it needs an explicit
-    `z-index`, and this was observed in a browser, not theorised.** The first build
-    used fixed + anchor positioning (the headless `Combobox.Content` unmounts while
-    closed rather than driving the Popover API, unlike `Select.Content`) and
-    documented `Portal` as the stacking escape hatch. Rendering it showed **the
-    kitchen-sink's own disabled-Combobox demo painting over the open panel**: a
-    fixed panel still competes in the page's stacking contexts, and `opacity: 0.5`
-    on the disabled control forms one later in the DOM. Fixed with
-    `--primitiv-combobox-content-z-index: 1000`, which is deterministic *because*
-    none of the panel's ancestors forms a stacking context (static div, flex
-    containers) so its nearest one is the root element. A middle attempt —
-    `popover="manual"` + `showPopover()` on mount — did **not** fix the render and
-    was reverted; its cause is unknowable from this sandbox, because **jsdom's
-    `showPopover()` is a no-op stub** (verified: a bare `div[popover=manual]` never
-    matches `:popover-open` afterwards, though the selector itself parses), so no
-    jsdom test can tell promotion-failed from promotion-unimplemented. Lesson worth
-    keeping: that attempt paired the popover with an ungated `display` so it would
-    "fail open", but the fallback *was itself the broken state* — fail-open only
-    means something when the fallback is correct alone. Groups, by contrast, were
-    **omitted rather than half-shipped** — `role="group"` + `aria-labelledby`
-    belongs to the headless layer, as `Listbox.Group` already does it.
-  - **Two live defects found by rendering it, both headless, both in
-    `docs/combobox-future-work.md` §1.0 / §1.0b.** No **outside-click dismiss** at
-    all (the headless handles Escape and commit-on-select only) — fixing the layer
-    question with `popover="auto"` would give it for free, which is the reason to
-    prefer that over a hand-rolled outside-click hook. And **Escape over a cleared
-    query restores the old committed label**, which is `dismiss()` behaving exactly
-    as exploration §D1 specified — but §D1 weighed "restore the value" against
-    "keep the raw query" and never considered that *clearing the field is itself a
-    deselect intent*. Unresolved; needs a human call, since option 1 (clearing the
-    query clears the value) changes a settled decision and fires `onValueChange("")`.
+  - **THE PANEL LIVES IN THE TOP LAYER, and getting there took three attempts —
+    read `docs/combobox-future-work.md` §0.1 before touching it.** Every failure was
+    a real-browser paint bug that no test in this repo would catch. (1)
+    `position: fixed` + anchor positioning alone: escapes overflow clipping but
+    still competes in the page's stacking contexts, and **the kitchen-sink's own
+    disabled-Combobox demo painted over the open panel** (`opacity: 0.5` forms a
+    stacking context, later in the DOM). (2) `popover="manual"` + `showPopover()` in
+    the *registry wrapper*: did nothing — `manual` popovers have **no light
+    dismiss** and there was no `toggle` listener. (3) `popover="auto"` +
+    `showPopover()` + a `toggle` listener in the **headless** `Combobox.Content`:
+    correct, and the established `useSelectContent` pattern. A `z-index: 1000`
+    shipped briefly in between and did fix the overlap; removed once the top layer
+    landed, because a top-layer element ignores z-index and a knob that does nothing
+    is worse than none. **Two traps left behind:** the `[popover]` UA reset
+    (`margin: auto` + `inset: 0` centre it and fight the anchor insets) is NOT
+    optional — deleting it visibly misaligned the popup — and `display` must be set
+    only under `:popover-open`, an ungated `display` having been tried as a "fail
+    open" hedge whose fallback state was itself the broken one. Fail-open only means
+    something when the fallback is correct alone.
+  - **Light dismiss and clearing, both settled 2026-08-14 after a human tested it.**
+    Clicking outside now closes the popup: the browser hit-tests and reports a
+    `toggle` event, so there is deliberately **no** hand-rolled pointerdown-outside
+    listener, and a dismiss runs the full `dismiss()` rather than only closing.
+    **Emptying the field now clears the value** (`onValueChange("")`), guarded so an
+    already-empty field fires nothing — exploration §D1 had weighed only "restore the
+    value" against "keep the raw query" and never considered that clearing is itself
+    a deselect intent. Groups remain **omitted rather than half-shipped**:
+    `role="group"` + `aria-labelledby` belongs to the headless layer, as
+    `Listbox.Group` already does it.
+  - **Two jsdom facts that shape the tests.** jsdom does not wire up the
+    `:popover-open` selector, so the UA rule keeps the panel `display: none` and
+    every popup role query needs `{ hidden: true }` (Select's suite has the same).
+    And on a hidden element, name-from-*content* still resolves but
+    name-from-`aria-label` does **not** — so the listbox queries dropped their
+    `name` filter and the two-instance ids test indexes `getAllByRole` instead.
+    Unmount-while-closed was kept deliberately: it is what preserves "a closed
+    combobox has no listbox in the a11y tree" and keeps the closed-state assertions
+    meaningful. It is also why the panel can animate in but not out.
+
 
 ## Figma plugin-API gotchas (scripting via `figma_execute`)
 

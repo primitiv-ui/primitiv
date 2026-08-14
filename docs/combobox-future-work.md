@@ -14,13 +14,100 @@ already existed. If either decision is revisited, the token cost comes straight
 back.
 
 This file records what was *deliberately left out*, and why, so a later session
-does not have to re-derive it. Three kinds of item: gaps between the settled
-design and the shipped code (§1), the exploration's own deferrals (§2), and
-adjacent things noticed while building the registry (§3).
+does not have to re-derive it. Four kinds of item: what was found and fixed after
+the first pass (§0), remaining gaps between the settled design and the shipped
+code (§1), the exploration's own deferrals (§2), and adjacent things noticed while
+building the registry (§3).
 
 ---
 
-## 1 · Gaps between the settled design and the shipped code
+## 0 · Found by rendering it, then fixed (2026-08-14)
+
+Everything in this section was reported from a real browser after the registry
+surface first landed, and **none of it would have been caught by a test in this
+repo.** That is the takeaway worth keeping: this component's failure modes are all
+paint-order and browser-API behaviour, which jsdom does not model.
+
+### 0.1 The panel needs the top layer — three attempts to get there
+
+Exploration §G listed the Popover API as **in** for v1. The headless shipped
+without it, and closing that gap took three goes:
+
+1. **`position: fixed` + anchor positioning, no popover.** Escapes an ancestor's
+   `overflow: hidden`, so it looked right — but the panel still competes in the
+   page's stacking contexts, and the kitchen-sink's own disabled-Combobox demo
+   painted straight over the open panel (`opacity: 0.5` forms a stacking context,
+   later in the DOM).
+2. **`popover="manual"` + `showPopover()` in the registry wrapper.** Did nothing.
+   The reason, found later: `manual` popovers have **no light dismiss at all**, and
+   there was no `toggle` listener — so this was never going to work even if the
+   promotion succeeded. Reverted rather than left in with a comment claiming it
+   worked.
+3. **`popover="auto"` + `showPopover()` + a `toggle` listener, in the headless.**
+   Correct, and the established pattern — `useSelectContent` already does exactly
+   this. Landed.
+
+A `z-index: 1000` shipped briefly between (1) and (3) and did fix the overlap; it
+was removed once the top layer landed, because a top-layer element ignores
+z-index entirely and a knob that does nothing is worse than no knob.
+
+**Two traps for whoever touches this next.** First, the `[popover]` UA defaults
+(`margin: auto` + `inset: 0`) centre the panel in the viewport and fight the anchor
+insets — the `primitiv.reset` block undoing them is **not optional**, and deleting
+it produced a visibly misaligned popup. Second, `display` must be set *only* under
+`:popover-open`; an ungated `display` was tried as a "fail open" hedge and was the
+wrong instinct, because the state it fell back to was itself the broken one.
+
+### 0.2 Light dismiss — clicking outside now closes it
+
+Followed from 0.1: the browser does the hit-testing and reports it as a `toggle`
+event. There is deliberately **no** hand-rolled pointerdown-outside listener. A
+light dismiss runs the full `dismiss()` (now exposed on the context) rather than
+just closing, so clicking away and pressing Escape leave the field identical.
+
+**Bug found while building it, worth knowing about generally:** the internal ref
+the popover needs was being clobbered by any consumer-passed `ref`, because it was
+spread *before* `{...rest}`. That silently took out both the top layer and light
+dismiss. Now composed with `composeRefs` (the `RadioGroup.tsx:206` pattern) and
+pinned by a test. `ComboboxItem` has the same shape and may deserve the same
+treatment.
+
+### 0.3 Clearing the query now clears the value
+
+Reported as "this doesn't feel like correct behaviour": with a value committed,
+emptying the field and pressing Escape put the old label straight back. It was
+behaving exactly as exploration §D1 specified — but §D1 weighed only "restore the
+value" against "keep the raw query", and never considered that **clearing the
+field is itself a deselect intent**.
+
+Settled as: emptying the query clears the value, firing `onValueChange("")`. §D1's
+invariant survives — empty text, empty value, so the field still isn't showing
+something that is not the value. Guarded on there being something to clear, so an
+already-empty field never reports a change the consumer didn't cause. More config
+here (opt-out, a clear button) is plausible later; the headless needs other work
+anyway.
+
+### 0.4 The docs site's component list is reconciled
+
+Was §3.1. `apps/docs/.vitepress/components.mjs` listed 39 of 46 components with
+READMEs; it now lists all 46.
+
+**The interesting part is why it had drifted**, because it would have drifted again
+otherwise: `gen-react-pages.mjs` emitted an unconditional VitePress `<<<` include
+for `apps/workbench/src/pages/<Name>Example/<Name>Example.tsx`, and a missing
+`<<<` target is a **hard build error**. Since the 2026-07-25 decision moved
+examples to the kitchen-sink, nothing built after that date has a workbench page —
+so adding any of them to the list would have broken the docs build, and they were
+quietly left out instead. The generator now picks per component: embed the
+workbench source where it exists, otherwise link the kitchen-sink section. The
+anchors agree for free, since the kitchen-sink's `sectionSlug` and the docs'
+`slugFor` produce the same string for every component.
+
+Only `Slot` is unlisted now, and correctly so — it has no README.
+
+---
+
+## 1 · Remaining gaps between the settled design and the shipped code
 
 These are places where the Figma record says one thing and the built component
 does another. Each is a real follow-up, not a documentation error.
@@ -46,116 +133,7 @@ designed to agree. The registry styling is then a straight port of
 `.primitiv-listbox__group` / `__group-label` (including the `position: sticky`
 heading, which matters more here — a filtered grouped list scrolls constantly).
 
-### 1.0 No outside-click dismiss (headless) — the most user-visible gap
-
-Reported from a real render, 2026-08-14: **clicking outside an open combobox does
-not close it.** The headless layer handles Escape and commit-on-select and
-nothing else — there is no pointerdown-outside listener anywhere in
-`packages/react/src/Combobox`.
-
-This is a genuine defect rather than a scoping decision. Every comparable popup
-in the library gets dismissal for free from the Popover API's light-dismiss
-(`popover="auto"`), which is exactly what §1.2 below is about — so fixing the
-layer question fixes this at the same time, and that is the reason to prefer it
-over hand-rolling an outside-click hook. If it is fixed independently, note that
-the listener must be `pointerdown` rather than `click` (a `click` fires after
-focus has already moved) and must not fire for a pointerdown that starts inside
-the panel and ends outside it, which is the usual bug in hand-rolled versions.
-
-APG's combobox pattern does not mandate outside-click dismissal, but every real
-combobox has it and users expect it.
-
-### 1.0b Escape restores the committed label over a cleared query (design gap)
-
-Also reported 2026-08-14: with a value committed, clearing the input and pressing
-Escape **puts the old value's label back** rather than leaving the field empty.
-
-This is the settled behaviour, not a bug: exploration §D1 says "on close or
-commit it shows the selected option's label", and `dismiss()` does
-`setQueryState(committedLabel)` deliberately, so that the field can never sit
-showing text that is not the value — §D1 explicitly rejected letting the raw
-query persist for that reason.
-
-**But the report is fair, because §D1 only considered two options and there is a
-third.** It weighed "restore from the value" against "keep the raw query"; it
-never considered that *clearing the field is itself an intent* — the user is
-plausibly trying to deselect, and the component silently refuses. The options:
-
-1. **Clearing the query clears the value** (`select("", "")` when the user empties
-   a field that has a committed value). Matches the intent, keeps §D1's invariant
-   intact — the field is empty *and* the value is empty, so it is still not
-   lying — and needs `onValueChange("")` to fire, which consumers must handle.
-2. **Keep today's behaviour**, and document that deselection is the consumer's job
-   via a clear button (an `InputGroup`-style trailing affordance). This is what
-   most libraries do.
-3. Escape-on-empty clears, Escape-on-partial-query restores. Most faithful to
-   intent, least predictable to explain.
-
-Option 1 is the most defensible, but it changes a settled decision and fires a
-value change the current demos do not expect, so it wants a deliberate call rather
-than a drive-by fix. **Unresolved — needs a human decision.**
-
-### 1.2 The panel needs the top layer, and the registry can only approximate it
-
-**Settled in Figma §G**, which lists "Popover-API popup layer (all four engines
-have shipped it; the Firefox caveat closed at FF 125)" as explicitly **IN** for
-v1. **The headless shipped without it**: `Combobox.Content` unmounts while closed
-and never touches `showPopover()` — unlike `Select.Content`, which does.
-
-**The registry ships `z-index: 1000` instead. That works, and the route to it is
-worth recording, because two plausible-looking attempts failed first.**
-
-*Attempt 1 — `position: fixed` + anchor positioning alone,* with `Portal`
-documented as the escape hatch for stacking. Wrong: a fixed panel escapes an
-ancestor's `overflow: hidden` but still competes in the page's stacking contexts,
-and **the kitchen-sink's own disabled-Combobox demo painted straight over the open
-panel** — `opacity: 0.5` forms a stacking context and that demo sits later in the
-DOM. Caught by rendering it; no test in this repo would have.
-
-*Attempt 2 — `popover="manual"` + `showPopover()` in a mount effect on
-`ComboboxContent`.* The reasoning was sound on paper (mount *is* open, since the
-headless unmounts while closed, so there is nothing to desync; `manual` avoids UA
-dismissal hiding a still-mounted element). **It did not fix the render.** The cause
-was never established, because it cannot be from this sandbox: jsdom's
-`showPopover()` is a **no-op stub** — verified directly, a bare
-`div[popover=manual]` never matches `:popover-open` after `showPopover()`, while
-the `:popover-open` selector itself parses fine — so no jsdom test can distinguish
-"promotion failed" from "jsdom does not implement promotion". It was reverted
-rather than left in place, on the grounds that unverifiable code carrying a comment
-claiming it works is worse than no code.
-
-That attempt also had a design flaw worth remembering: it paired the popover with
-an **ungated `display`** so it would "fail open" if the API were missing — but
-falling back to a plain fixed panel *was itself the broken state*. Fail-open only
-means something if the fallback is correct on its own. The z-index is what makes
-the fallback correct, which is why it should stay even once the top layer lands.
-
-*What shipped — `--primitiv-combobox-content-z-index: 1000`.* Deterministic here,
-and the reasoning is the point: none of the panel's ancestors forms a stacking
-context (`.primitiv-combobox` is a static `<div>`; flex containers don't form
-one), so the panel's nearest stacking context is the **root element**, and a
-positive z-index there clears every `z-index: auto` positioned box and every
-opacity/transform-induced context on the page. Confirmed fixed in the browser.
-`1000` rather than `1` so it also clears a consumer's sticky header; a native
-`<dialog>` or `[popover]` is in the top layer and still wins, which is correct — a
-combobox inside a modal must not paint over the modal.
-
-**Its limit, and why the top layer is still wanted:** a z-index cannot escape a
-stacking context formed by an ancestor *of the combobox itself* — a transformed or
-opacity-reduced card, say. `Portal` is the documented escape hatch. Do it properly
-in the headless layer, with `popover="auto"`, and three things land at once: the
-top layer, **outside-click dismissal for free** (§1.0), and the possibility of an
-exit animation.
-
-That last one is worth being precise about, because it follows from
-unmount-while-closed rather than from layering: **no exit animation is possible
-today.** React removes the node, so nothing can still match it, and the panel
-animates in via `@starting-style` only. Select gets both because `[popover]` +
-`transition-behavior: allow-discrete` keeps the element painted through the close —
-which needs the headless layer to keep the element **mounted and merely hidden**,
-a bigger change than adding `showPopover()`.
-
-### 1.3 The chevron does nothing when clicked (headless)
+### 1.2 The chevron does nothing when clicked (headless)
 
 **Figma §H names a `ComboboxTrigger`** part for the chevron. **Shipped as
 `ComboboxIcon`** — a decorative `<span aria-hidden>` mirroring `SelectIcon`,
@@ -211,22 +189,6 @@ narrowly keeps it small, and none of the four is needed by the docs site."
 ---
 
 ## 3 · Noticed while building the registry
-
-### 3.1 The docs site's React component list is well behind the library
-
-`apps/docs/.vitepress/components.mjs` — the single source of truth that
-`gen-react-pages.mjs` and the VitePress sidebar both read — lists 39 components,
-and **Combobox is not one of them**. Neither are `Listbox`, `NavigationMenu`,
-`SplitButton`, `SegmentedControl`, `Pagination`, `Popover`, `Drawer`,
-`ContextMenu`'s siblings, or several others. So none of them has a docs page,
-even though every one has a consumer-facing README that the generator would pick
-up for free.
-
-Deliberately **not** fixed in this session: adding Combobox alone would be
-arbitrary, and the list needs one sweep reconciled against `packages/react/src`
-plus a group assignment per entry. It is a cheap, high-value job — one array, and
-the pages generate themselves — and it is squarely part of "minimum features for
-the docs site landing page", so it wants doing soon.
 
 ### 3.2 Figma `Input` has a hover state the registry `input` does not
 

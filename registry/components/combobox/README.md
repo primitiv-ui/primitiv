@@ -69,7 +69,7 @@ the component would have to own.
 | `ComboboxLeading`       | `<span>`  | Optional standing glyph at the start of the field. **Registry-only**       |
 | `ComboboxInput`         | `<input>` | `role="combobox"`, the keyboard model, all the ARIA wiring                 |
 | `ComboboxIcon`          | `<span>`  | The trailing chevron. Decorative. **Registry-only**                        |
-| `ComboboxContent`       | `<div>`   | `role="listbox"` popup panel, **unmounted while closed**                    |
+| `ComboboxContent`       | `<div>`   | `role="listbox"` `popover="auto"` panel — top layer, light dismiss, **unmounted while closed** |
 | `ComboboxItem`          | `<div>`   | `role="option"` row                                                        |
 | `ComboboxItemIndicator` | `<span>`  | The selected mark. **Registry-only**                                       |
 | `ComboboxItemLeading`   | `<span>`  | Optional leading slot inside a row. **Registry-only**                      |
@@ -148,27 +148,32 @@ still wins (spread order) if you need to anchor the panel to something else.
 The panel is `position: fixed` and flips above the control when there is no room
 below.
 
-**It also carries an explicit `z-index`, and that is load-bearing.**
-`position: fixed` escapes an ancestor's `overflow: hidden`, but the panel still
-competes in the page's stacking contexts — the kitchen-sink's own
-disabled-Combobox demo painted straight over it, because `opacity: 0.5` forms a
-stacking context and sits later in the DOM. `--primitiv-combobox-content-z-index`
-(default `1000`) is the knob.
+**It sits in the top layer, and two rules here depend on that.** The headless
+`Combobox.Content` renders `popover="auto"` and promotes itself with
+`showPopover()` — the same construction `Select.Content` uses. So:
 
-The value works because none of the panel's ancestors forms a stacking context
-(the root is a static `<div>`, and flex containers don't form one), so the panel's
-nearest stacking context is the root element — which is also the limit: **a
-z-index cannot escape a stacking context formed by an ancestor of the combobox
-itself**, such as a transformed or opacity-reduced card. Portal the panel out for
-that; the `Portal` primitive is the escape hatch.
+- there is **no `z-index`** anywhere, because the top layer paints above the whole
+  page regardless and one would be inert; and
+- `display` is set **only** under `:popover-open`, never on the base rule — a
+  closed `[popover]` is `display: none` via the UA rule, and a visible `display` on
+  the base rule would leak the panel before it is promoted.
 
-The proper fix is the top layer, which is what every other popup in the library
-uses. That belongs in the headless layer — `Select.Content` already drives
-`showPopover()` — and is recorded in
-[`docs/combobox-future-work.md`](../../../docs/combobox-future-work.md) §1.2.
+There is also a small `primitiv.reset` block undoing the `[popover]` UA defaults
+(`margin: auto` + `inset: 0`, which centre a popover in the viewport and fight the
+anchor insets). **It is not optional** — removing it visibly misaligns the popup,
+which is exactly how it was found.
 
-The panel animates **in** only (via `@starting-style`): the headless layer removes
-the node on close, so no rule can still match it to animate out.
+Worth knowing, because it looked fine at first: an earlier build used
+`position: fixed` *without* the top layer. That escapes an ancestor's
+`overflow: hidden` but still competes in the page's stacking contexts, and the
+kitchen-sink's own disabled-Combobox demo painted straight over the open panel
+(`opacity: 0.5` forms a stacking context, later in the DOM). If the panel ever
+loses its promotion, that is the failure mode to expect — misaligned or
+overpainted, not invisible.
+
+The panel animates **in** only: `Combobox.Content` unmounts on close rather than
+staying mounted and hidden, so React removes the node and no rule can still match
+it to animate out.
 
 ## The chevron is decorative
 

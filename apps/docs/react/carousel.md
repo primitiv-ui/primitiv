@@ -20,7 +20,15 @@ Currently exposes:
 - **`Carousel.Viewport`** — slide container, rendered as a `<div>` with
   a `data-carousel-viewport` attribute the recommended scroll-snap CSS
   targets. Must be rendered as a descendant of `Carousel.Root`; rendering
-  it elsewhere throws a descriptive error.
+  it elsewhere throws a descriptive error. Also owns mouse click-and-drag
+  scrolling — pointerdown/pointermove track the pointer into
+  `scrollLeft`/`scrollTop` (amplified by a sensitivity multiplier) once
+  past a small movement threshold (so a link/button inside a slide still
+  receives a plain click), flipping a `data-dragging` styling hook for
+  the duration; release lets the
+  existing `scroll-snap-type` settle to the nearest slide, and a
+  horizontal (non-`Shift`) mouse-wheel notch translates to horizontal
+  scroll — see "JS vs CSS responsibilities" below for both.
 - **`Carousel.Slide`** — an individual slide. Renders a `&lt;div role="group"
 aria-roledescription="slide">` and self-registers with the Root so each
   slide knows its zero-based `data-index` and the live `data-total`
@@ -28,7 +36,17 @@ aria-roledescription="slide">` and self-registers with the Root so each
   `"N of M"` (e.g. `"1 of 3"`); pass `ariaLabel` to override with a more
   meaningful description (e.g. `"Hand-picked for you"`). Emits
   `data-state="active" | "inactive"` tracking the active page, plus a
-  `data-carousel-slide` CSS hook.
+  `data-carousel-slide` CSS hook. Also emits
+  `data-snap-align="start" | "center" | "end"` on a page's leading slide
+  only (every slide, when `slidesPerPage` is 1), valued from its own
+  `snapAlign` prop if set, else the root's resolved `snapAlign` — the hook
+  consumer CSS should scope `scroll-snap-align` to, so an interior slide of
+  a multi-slide page is never a valid scroll-snap resting position, and the
+  native resting position agrees with `snapAlign` (see "Multi-slide snap
+  targeting" below). Pass `snapAlign` directly on a `Carousel.Slide` to
+  override the root default for that one slide (e.g. a variable-width
+  layout where only some slides should centre — matches Ark UI's per-`Item`
+  `snapAlign`).
 - **`Carousel.NextTrigger`** — `<button>` that advances the active page
   by one. `disabled` at the last page, and whenever zero or one slides
   are registered. Consumer `onClick` runs before the navigation;
@@ -71,8 +89,9 @@ auto-rotation tick.
 
 The component ships zero styles, but a few features sit on the line
 between JS and CSS. This table is the contract — the rule of thumb
-is that JS owns _what is the active page_ and _delegates the scroll to
-the browser_ (`scrollIntoView`), and CSS owns _what the user sees_:
+is that JS owns _what is the active page_ and _scrolls the viewport_
+(`viewport.scrollTo`, then the browser's CSS snap engine makes the final
+correction), and CSS owns _what the user sees_:
 
 | Feature                            | JS owns                                                  | CSS owns                                                                 |
 | ---------------------------------- | -------------------------------------------------------- | ------------------------------------------------------------------------ |
@@ -80,20 +99,30 @@ the browser_ (`scrollIntoView`), and CSS owns _what the user sees_:
 | Boundary clamping                  | `canGoNext` / `canGoPrevious`, trigger `disabled`        | —                                                                        |
 | Crossfade / scale / dissolve       | `data-state="active"` flip on slides                     | `position: absolute`, `opacity` + `transition`                           |
 | Slide layout & widths              | —                                                        | `flex-basis` / `inline-size`, `gap`, `aspect-ratio`                      |
-| Peek of adjacent slides            | `snapAlign` → `scrollIntoView({ inline })`               | Viewport `padding-inline`, slide `flex-basis`, `scroll-snap-align`       |
+| Peek of adjacent slides            | `snapAlign` → viewport `scrollTo` alignment              | Viewport `padding-inline`, slide `flex-basis`, `scroll-snap-align`       |
 | Gap between slides                 | —                                                        | `gap` on the viewport (no `spacing` prop — pure CSS)                     |
-| Variable-size slides               | `scrollIntoView` on the target slide                     | Per-slide width / `aspect-ratio`, `scroll-snap-align`                    |
-| Snap targeting                     | `snapAlign: "start" \| "center"` (Root only)             | `scroll-snap-type` on viewport, `scroll-snap-align` on each slide        |
+| Variable-size slides               | viewport `scrollTo` the target slide's offset            | Per-slide width / `aspect-ratio`, `scroll-snap-align`                    |
+| Snap targeting                     | `snapAlign: "start" \| "center" \| "end"` (Root default, overridable per-`Slide`) | `scroll-snap-type` on viewport, `scroll-snap-align` scoped to `[data-snap-align="start" \| "center" \| "end"]` |
+| Snap strictness                    | `snapType: "mandatory" \| "proximity"` (Root only)       | `scroll-snap-type` strictness scoped to `[data-snap-type="mandatory" \| "proximity"]` on the viewport |
 | Reduced motion                     | `behavior: "instant"`                                    | Optional `@media (prefers-reduced-motion: reduce)` on consumer animations |
 | Keyboard navigation                | Arrow / Home / End on focused viewport                   | `:focus-visible` on viewport                                             |
 | Touch / swipe                      | Native scroll + `scrollsnapchange` to sync state         | `overscroll-behavior-x: contain`, `scrollbar-width: none`                |
+| Mouse click-and-drag (`allowMouseDrag`, off by default) | `scrollLeft`/`scrollTop` set from the pointer delta × sensitivity | `cursor: grab`, `cursor: grabbing` on `[data-dragging]` |
+| Mouse-wheel scroll (horizontal)    | `deltaY` → `scrollLeft` when `deltaX` is negligible       | —                                                                        |
+| Overscroll (keyboard / wheel / drag) | `onOverscrollStatusChange`, `isOverscrolling()` (drag only) | Optional resistance visual on `[data-overscroll="start" \| "end"]` (drag only) |
 | Indicator state                    | `data-state` on `[data-carousel-indicator]`              | Visual: dot, bar, thumbnail, etc.                                        |
+| Continuous scroll progress         | `getScrollProgress()` / `getSlideProgress(index)`, rAF-batched | Reads `--carousel-progress` / `--slide-progress` for real-time effects, no re-render |
 
 The only JS prop on the visual side is `snapAlign`, and only because it
-picks the `inline` option passed to `scrollIntoView` (`"start"` or
-`"center"`) so the programmatic scroll lands where the browser's CSS
-snap engine will settle. Everything else is either a state knob (JS) or
-a visual rule (CSS), with no overlap.
+picks whether the viewport `scrollTo` aligns the target slide's leading
+edge (`"start"`) or centres it (`"center"`) so the programmatic scroll
+lands where the browser's CSS snap engine will settle. Everything else is
+either a state knob (JS) or a visual rule (CSS), with no overlap.
+
+The scroll is issued on the **viewport element itself** (`viewport.scrollTo`),
+never `element.scrollIntoView()` — the latter walks every scrollable
+ancestor (including the page/window) and would scroll the whole document
+when a carousel is off-screen.
 
 The `apps/workbench` workbench at `/carousel` ships worked recipes for
 each cell of the matrix (single / multi / multi-step × slide / fade)
@@ -284,18 +313,67 @@ const carouselRef = useRef<CarouselImperativeApi>(null);
 carouselRef.current?.next();
 carouselRef.current?.previous();
 carouselRef.current?.goTo(2);
+carouselRef.current?.scrollToIndex(5);
 carouselRef.current?.play();
 carouselRef.current?.pause();
 carouselRef.current?.refresh();
 const { page, totalPages, value } = carouselRef.current!.getProgress();
+const pageSnapPoints = carouselRef.current!.getPageSnapPoints();
+const isDragging = carouselRef.current!.isDragging();
+const scrollProgress = carouselRef.current!.getScrollProgress(); // 0..1, continuous
+const slideProgress = carouselRef.current!.getSlideProgress(0); // -1..1, continuous
 ```
 
-`refresh()` re-issues the viewport's `scrollIntoView` for the current
+`next()`, `previous()`, and `goTo()` each take an optional trailing
+`instant` boolean (default `false`) that bypasses the resolved
+smooth/reduced-motion scroll for **just that one call** — matching Ark
+UI's `scrollNext(instant?)` / `scrollPrev(instant?)` /
+`scrollTo(page, instant?)`. Useful for e.g. an instant jump when
+restoring a remembered position on mount, followed by ordinary smooth
+navigation from then on:
+
+```tsx
+carouselRef.current?.goTo(rememberedPage, true); // instant, no animation
+carouselRef.current?.next(); // smooth, as usual
+```
+
+The override never outlives the single call it's passed to — a plain
+`next()` / `previous()` / `goTo()` right after always falls back to
+the normal resolved behavior (`prefers-reduced-motion`-aware smooth
+scrolling by default).
+
+`scrollToIndex(slideIndex, instant?)` is the slide-granularity
+counterpart to `goTo`'s page granularity — matching Ark UI's
+`scrollToIndex(index, instant?)`. In a plain single-slide-per-page
+carousel the two are equivalent; the distinction matters once
+`slidesPerPage > 1`, where an interior slide of a page isn't itself a
+scroll-snap position — `scrollToIndex` maps the given slide index to
+its *containing* page (the same mapping `Carousel.Indicator` uses
+internally) rather than requiring you to compute the page yourself.
+It takes the same optional `instant` override as `next` / `previous` /
+`goTo`.
+
+`refresh()` re-issues the viewport's `scrollTo` for the current
 page — useful when external layout changes (window resize, container
 reflow, dynamic content) leave the scroll position misaligned with
 React state. `getProgress()` returns a normalised
 `value` in `[0, 1]` (`0` when there's at most one page) plus the
 live `page` and `totalPages`, intended for custom progress bars.
+`getPageSnapPoints()` returns the leading slide index each page snaps
+to (one entry per page, length `totalPages`) — the same offset
+formula the carousel uses internally, including the end-aligned last
+page for multi-slide layouts whose total isn't a whole number of
+pages (see "Multi-slide pages and partial page advance" below).
+Useful for a custom progress bar or indicator built from the raw
+offsets instead of just the page count. `isDragging()` is a live
+snapshot of whether a mouse drag is in progress (always `false`
+unless `allowMouseDrag` is set) — see "Drag status" below for the
+matching `onDragStatusChange` callback. For a ready-made rendered
+progress announcement instead of building one from `getProgress()`
+yourself, see "Progress text" below. `getScrollProgress()` and
+`getSlideProgress(slideIndex)` are a *continuous* complement to
+`getProgress()`'s page-granular step function — see "Continuous scroll
+progress" below.
 
 Every method routes through the same internal state machine the
 trigger components use, so controlled-mode `onPageChange` /
@@ -340,77 +418,194 @@ browser snap-correcting after the scroll:
 </Carousel.Root>
 ```
 
-Pair with `scroll-snap-align: start` on `Carousel.Slide` in your CSS.
-The default is `"center"`; `snapAlign` picks the `inline` option passed
-to `scrollIntoView` (`"start"`, `"center"`, or `"end"`), and the browser's
-CSS snap engine makes the final correction.
+`Carousel.Slide` publishes the resolved value as
+`data-snap-align="start" | "center" | "end"` (on each valid resting slide —
+see "Multi-slide snap targeting" below), so pair it with
+`[data-snap-align="start"] { scroll-snap-align: start }` in your CSS
+rather than hardcoding `scroll-snap-align: start` — that way the
+native snap the user's own scroll settles into always agrees with
+`snapAlign`, not just the programmatic `scrollTo`. The default is
+`"center"`; `snapAlign` picks whether the viewport `scrollTo` aligns the
+target slide's leading edge (`"start"`), centres it (`"center"`), or
+aligns its trailing edge (`"end"`), and the browser's CSS snap engine
+makes the final correction.
+
+**Per-slide override.** `Carousel.Slide` also accepts its own `snapAlign`,
+overriding the root default for just that slide — useful for a
+variable-width layout where only some slides should start- or end-align
+(matches Ark UI's per-`Item` `snapAlign`, which is where the `"end"` value
+comes from too — the root-level prop above has no Ark equivalent):
+
+```tsx
+<Carousel.Root ariaLabel="Gallery">
+  <Carousel.Viewport>
+    <Carousel.Slide>Regular, centre-aligned</Carousel.Slide>
+    <Carousel.Slide snapAlign="start">This one aligns to its leading edge</Carousel.Slide>
+  </Carousel.Viewport>
+</Carousel.Root>
+```
+
+The override only takes effect on a slide that's actually a valid
+scroll-snap resting position (a page's leading slide) — an interior slide
+of a multi-slide page never snaps, regardless of this prop (see "Multi-slide
+snap targeting" below).
+
+### Snap strictness
+
+`snapType` (default `"mandatory"`) is the raw `scroll-snap-type`
+strictness — pass `"proximity"` for a looser, free-scrolling feel where
+the browser only nudges toward a snap point near where the scroll
+ends, rather than always forcing a rest on one:
+
+```tsx
+<Carousel.Root ariaLabel="Gallery" snapType="proximity">
+  …
+</Carousel.Root>
+```
+
+`Carousel.Viewport` publishes the resolved value as
+`data-snap-type="mandatory" | "proximity"`; pair it with
+`[data-snap-type="proximity"] { scroll-snap-type: x proximity }` (`y`
+when `orientation="vertical"`) in your CSS. Matches Ark UI's `snapType`.
+
+### Orientation
+
+By default the carousel pages along the **inline (horizontal) axis**.
+Pass `orientation="vertical"` to page along the **block (vertical)
+axis** instead:
+
+```tsx
+<Carousel.Root ariaLabel="Featured products" orientation="vertical">
+  …
+</Carousel.Root>
+```
+
+`orientation` is behavioural, not cosmetic — the primitive ships no
+layout. It changes three things:
+
+- **Scroll axis.** Programmatic paging scrolls the viewport on the
+  `top` (block) axis instead of `left` (inline), leaving the cross axis
+  untouched,
+  and the user-swipe sync reads `snapTargetBlock` off `scrollsnapchange`
+  instead of `snapTargetInline`.
+- **Keyboard.** The viewport pages on `ArrowDown` / `ArrowUp` (the
+  horizontal arrows go inert). See [Keyboard navigation](#keyboard-navigation).
+- **Styling hook.** The resolved value is published as
+  `data-orientation="horizontal" | "vertical"` on the rendered
+  `<section>`, so a single selector can switch your layout to a column
+  viewport with `scroll-snap-type: y mandatory`:
+
+```css
+[data-orientation="vertical"] [data-carousel-viewport] {
+  flex-direction: column;
+  overflow-block: auto;
+  overflow-inline: hidden;
+  scroll-snap-type: y mandatory;
+}
+```
+
+The vertical viewport needs a bounded block-size (a height) for the
+scroll axis to exist — give the root or viewport an explicit
+`block-size` / `aspect-ratio`.
 
 ### Transition modes
 
 `Carousel.Root` accepts a `transition` prop that controls how the
-viewport handles slide changes visually.
+viewport handles slide changes visually. The resolved value is
+published on the Root as `data-transition` so consumer CSS can switch
+the visual off a single hook (mirroring `data-orientation`).
 
 - `transition="slide"` (default) — relies on native CSS scroll-snap.
   The Viewport scrolls programmatically when the page changes and
   listens for `scrollsnapchange` so user swipes update React state.
+- `transition="fade"` — installs no scroll wiring (like `"none"`), but
+  names the intent so a styled surface can ship a crossfade by default.
+  Native swipe/drag and peek don't apply (there's no scroll to swipe);
+  controls, indicators, and keyboard paging still work.
 - `transition="none"` — the Viewport installs no scroll wiring at
-  all. Consumer CSS owns the visual via the `data-state="active" |
-"inactive"` hook on each slide, which still flips with the active
-  page. This is the entry point for crossfade, dissolve, zoom, or
-  any CSS-only transition pattern:
+  all and no default visual is implied. Consumer CSS owns the visual
+  via the `data-state="active" | "inactive"` hook on each slide, which
+  still flips with the active page.
+
+Both `"fade"` and `"none"` are the entry point for crossfade, dissolve,
+zoom, or any CSS-only transition pattern — stack the slides and drive
+opacity/transform off `data-state`, keyed off the `data-transition`
+hook so the scroll-snap layout isn't affected:
 
 ```css
-[data-carousel-slide] {
-  position: absolute;
-  inset: 0;
+[data-transition="fade"] [data-carousel-slide] {
+  grid-area: 1 / 1; /* stack every slide in one cell */
   opacity: 0;
   transition: opacity 400ms;
 }
-[data-carousel-slide][data-state="active"] {
+[data-transition="fade"] [data-carousel-slide][data-state="active"] {
   opacity: 1;
 }
 ```
 
 ### Reduced motion
 
-The Viewport's programmatic `scrollIntoView` reads
+The Viewport's programmatic `scrollTo` reads
 `window.matchMedia("(prefers-reduced-motion: reduce)")` once on
 mount. When the user has reduced motion enabled at the OS level,
 page changes use `behavior: "instant"` instead of `"smooth"` so the
 carousel doesn't fight that preference. Touch-driven scrolling is
-unaffected — the browser owns that animation.
+unaffected — the browser owns that animation. The imperative API's
+per-call `instant` override (see "Imperative API" above) composes
+with this — it forces `"instant"` for one call regardless of the
+resolved preference, while every other call still follows it.
 
 ### Programmatic scroll sync
 
 When the active page changes for any reason (`Carousel.NextTrigger` /
 `Carousel.PreviousTrigger` click, indicator click, autoplay tick),
-the viewport calls `scrollIntoView` on the first slide of the new page
-so the visual surface tracks React state. Because the browser owns the
-scroll, consumer CSS owns slide width and gap, and `scroll-snap-align`
-makes the final correction. Default `behavior` is `"smooth"`.
+the viewport `scrollTo`s to the first slide of the new page (by its
+measured offset — not `element.scrollIntoView()`, which would scroll the
+whole document when the carousel is off-screen) so the visual surface
+tracks React state. Consumer CSS owns slide width and gap, and
+`scroll-snap-align` makes the final correction. Default `behavior` is
+`"smooth"`.
 
 The reverse path is also wired: when the user swipes the viewport,
 the browser fires `scrollsnapchange` with the snapped slide as the
-target. The Viewport listens for that event, computes
-`floor(slideIndex / slidesPerPage)`, and calls `goTo` so React state
-follows the user's scroll. `onPageChange` is only invoked when the
-page genuinely changes, so a snap that lands back on the active page
-doesn't dispatch a spurious callback.
+target. The Viewport listens for that event, maps the snapped slide
+back to its page (grouping by `slidesPerPage` in `"auto"` mode, or
+rounding to the nearest window start in numeric `slidesPerMove` mode,
+clamped so an end-aligned tail slide lands on the last page), and calls
+`goTo` so React state follows the user's scroll. `onPageChange` is only
+invoked when the page genuinely changes, so a snap that lands back on
+the active page doesn't dispatch a spurious callback.
 
 For browsers without `scrollsnapchange`, the same path runs against
-an `IntersectionObserver` (threshold 0.6) on each slide — when the
-observer fires, the lowest-index visible slide derives the active
-page via `floor(firstVisibleSlideIndex / slidesPerPage)`. This
-page-drive is **only** a fallback: when `scrollsnapchange` is
-supported it is authoritative (it reports the precisely-snapped
-slide), so the observer stands down and does not also drive the page.
-That matters for `snapAlign="center"` carousels with several slides
-visible at once (e.g. a cover flow) — the lowest-index-visible
-heuristic would otherwise track the *leftmost* visible slide rather
-than the centred one and fight `scrollsnapchange`. The observer still
-always feeds `Carousel.Root`'s imperative `isInView(slideIndex)` so
-consumers can lazy-load slide content based on actual visibility, not
-just the active-page index.
+an `IntersectionObserver` (threshold `0.6` by default — see
+`inViewThreshold` below) on each slide — when the observer fires, the
+lowest-index visible slide derives the active page via the same
+slide-index-to-page mapping. This page-drive is **only** a fallback:
+when `scrollsnapchange` is supported it is authoritative (it reports
+the precisely-snapped slide), so the observer stands down and does
+not also drive the page. That matters for `snapAlign="center"`
+carousels with several slides visible at once (e.g. a cover flow) —
+the lowest-index-visible heuristic would otherwise track the
+*leftmost* visible slide rather than the centred one and fight
+`scrollsnapchange`. The observer still always feeds `Carousel.Root`'s
+imperative `isInView(slideIndex)` so consumers can lazy-load slide
+content based on actual visibility, not just the active-page index.
+
+**`inViewThreshold`.** Pass a number or an array of numbers on
+`Carousel.Root` to override the default `0.6`:
+
+```tsx
+<Carousel.Root ariaLabel="Featured products" inViewThreshold={0.3}>
+```
+
+The value is passed straight through as the `IntersectionObserver`'s
+own `threshold` option. For the single "is this slide in view"
+boolean that `isInView` reports (and that the page-drive fallback
+above reads), a plain number is used directly as the cutoff; an array
+uses its **highest** value — the strictest crossing counts as
+genuinely in view, since multiple thresholds otherwise only exist to
+fire the observer's callback more often, not to change what "in view"
+means.
 
 ### Custom DOM ids
 
@@ -496,8 +691,12 @@ With `slidesPerPage={3}` and 5 slides:
 
 - Total pages = `ceil(5 / 3) === 2`. `Carousel.Indicators` renders 2
   dots.
-- Page 0 contains slides 0–2; page 1 contains the remaining 3, 4 (a
-  partial last page).
+- Page 0 contains slides 0–2; page 1 **end-aligns** to slides 2–4 (a
+  full window flush with the track end, not a partial `[3,4]`). A
+  partial last page's leading slide can't align to the viewport start,
+  so it would snap to the previous slide and desync the active page —
+  end-aligning keeps every page a full, cleanly-snapping window (7
+  slides at `slidesPerPage={3}` → `[0,1,2] [3,4,5] [4,5,6]`).
 - Each slide on the active page emits `data-state="active"`; slides
   on other pages emit `"inactive"`.
 - `Carousel.NextTrigger` advances one page per click; the boundary
@@ -525,9 +724,23 @@ With `slidesPerPage=3`, `slidesPerMove=1`, and 5 slides, the active
 window slides one slide at a time — pages show `[0,1,2]`, `[1,2,3]`,
 `[2,3,4]`, so `Carousel.Indicators` renders 3 dots and the boundary
 clamp respects the last full window. The indicator count formula is
-`floor((total - slidesPerPage) / slidesPerMove) + 1` (vs.
+`ceil((total - slidesPerPage) / slidesPerMove) + 1` (vs.
 `ceil(total / slidesPerPage)` for `"auto"`), so the visible window
 always stays full in numeric mode.
+
+**The last window is end-aligned.** When the move doesn't divide the
+track evenly, the final page snaps to the track end rather than dropping
+the remainder — so every slide is always reachable. With
+`slidesPerPage={3}`, `slidesPerMove={2}`, and 6 slides the pages are
+`[0,1,2]`, `[2,3,4]`, `[3,4,5]` (the last shifts back by one to include
+slide 5) — never `[0,1,2]`, `[2,3,4]` with slide 5 orphaned.
+
+**Bounds are guarded.** `slidesPerPage` is coerced to an integer ≥ 1 and
+a numeric `slidesPerMove` to an integer in `[1, slidesPerPage]`, so a
+consumer passing `0`, a negative, a fraction, `NaN`, or a move larger
+than a page can never divide by zero, skip past a page (orphaning the
+slides in the gap), or make the carousel inert — it degrades to the
+nearest sane layout.
 
 ### Boundary behaviour
 
@@ -536,23 +749,145 @@ The prev/next triggers clamp at the ends: `Carousel.PreviousTrigger` is
 are also `disabled` when zero or one slides are registered, since
 there's nowhere to navigate.
 
+### Loop (wrap-around navigation)
+
+Pass `loop` to make navigation wrap around instead of clamping. `loop`
+is a **mode selector** — a boolean for ergonomics, or a named mode:
+
+```tsx
+<Carousel.Root ariaLabel="Featured products" loop>            {/* = "wrap" */}
+<Carousel.Root ariaLabel="Featured products" loop="wrap">     {/* semantic wrap */}
+<Carousel.Root ariaLabel="Featured products" loop="infinite"> {/* continuous infinite */}
+```
+
+| `loop`                    | Resolved `data-loop` | Behaviour                                  |
+| ------------------------- | -------------------- | ------------------------------------------ |
+| omitted / `false`         | `"none"`             | Clamp at the ends (triggers disable).      |
+| `true` / `"wrap"`         | `"wrap"`             | Semantic wrap (visible rewind).            |
+| `"infinite"`              | `"infinite"`         | Continuous infinite (no rewind).           |
+
+In every wrapping mode:
+
+- `Carousel.NextTrigger` on the last page advances to the first;
+  `Carousel.PreviousTrigger` on the first page retreats to the last.
+- Neither trigger `disabled`s at a boundary (the arrow keys wrap too,
+  since they route through the same `next` / `previous`).
+- **Autoplay keeps rotating past the last page** rather than stopping —
+  the natural pairing for an auto-rotating hero.
+
+A single page has no wrap target, so the triggers stay `disabled`
+regardless of `loop`. The resolved mode is published as
+`data-loop="none" | "wrap" | "infinite"` on the Root (mirroring
+`data-orientation` / `data-transition`) for consumer CSS.
+
+**`"wrap"` vs `"infinite"`.** Both share the same page model (the wrap
+arithmetic and never-disable boundaries). They differ only in the visual:
+`"wrap"` smooth-scrolls the whole track back on a last→first wrap (a visible
+rewind, the same path `Home` takes), while `"infinite"` glides one step on
+with no rewind.
+
+Under `loop="infinite"` the Viewport is **not** a scroll container. It clips
+a **JS transform track** (`data-carousel-track`) laid out as one contiguous,
+periodic strip: the real slides are flanked by a full period of `aria-hidden`,
+`inert` **clones** each side (`[clones] [real slides] [clones]`), so every seam
+is already-painted DOM. Navigation only ever translates the **whole track** — no
+slide moves relative to it — and when a glide carries past the last real slide
+onto a clone, the settle **re-bases** the track by exactly one period so the
+identical real slide sits at the same pixels. Because the strip is periodic, the
+re-base reveals nothing unrasterised and moves nothing (RFC 0018, clone-strip
+revision), which is what structurally removes the iOS seam flash a per-slide fill
+could never avoid. Every page change glides the track via a GPU-composited CSS
+`transform` transition, but the **path differs by kind**: a *relative* step
+(Prev / Next, the arrow keys, autoplay) always takes the **short way** —
+continuing forward off the last slide onto the clone rather than rewinding
+across the whole strip — while a *direct jump to a specific page* (an
+indicator/thumbnail click, or `goTo()` / `scrollToIndex()`) takes the
+**literal** distance between the two slides instead, even when the ring's
+wrap would be shorter: picking the last indicator from the first visibly
+travels forward through every slide in between, matching the indicators' own
+reading order, rather than silently rewinding one step the other way around
+the ring. The first positioning is instant (no glide on load).
+`prefers-reduced-motion` sets the offset instantly with no transition.
+
+The glide's **duration and easing** are read off the track from the
+`--primitiv-carousel-glide-duration` and `--primitiv-carousel-glide-easing` custom
+properties, so a consumer retunes the feel purely in CSS (the registry stylesheet
+defaults them to motion tokens and ships `--glide-fast/medium/slow` presets). With
+no stylesheet the engine falls back to a built-in `500ms` ease-out. Every slide is
+also promoted to its own compositor layer (`transform: translateZ(0)` in the
+registry sheet) so its rounded, clipped bitmap is painted before it scrolls in — no
+iOS entering-edge white — while the engine windows the painted set (far slides are
+`visibility: hidden`) to keep that layer count bounded.
+
+The engine **re-measures on a `ResizeObserver`** (watching the track and the
+slides), so it self-heals when the container resizes or a size-affecting knob
+changes at runtime — `peek`, the slide `ratio`, ambient density, a multi-slide
+`gap` — re-homing the track to the current page and re-running the paint window
+against the fresh geometry. (A change that resizes *no* box — e.g. a single-slide
+`gap`, which only alters the between-slide spacing — isn't observable; call the
+imperative `refresh()` after one of those, or it self-corrects on the next
+navigation.)
+
+**Touch / mouse drag.** The track follows the pointer 1:1 (transition off), and
+on release a velocity-projected **fling** snaps to the nearest **page** boundary
+with the same glide, updating the active page from where it lands. With
+`slidesPerPage > 1` the snap is a whole page, so a multi-slide fling advances (or
+holds) a full page rather than settling mid-page and being jerked to the page
+lead. Touch drag is always
+on (there's no native scroll to fall back to); mouse drag stays opt-in via
+`allowMouseDrag`. A tap under a small threshold still reaches a link / button
+inside a slide.
+
+**Direction, peek and multi-slide.** The engine is axis- and direction-generic:
+it reads the sign of the measured stride as the axis direction, so an **RTL**
+loop mirrors every move (no rewind) — including `snapAlign`, whose `start` / `end`
+swap so the reading start stays the right edge — and it cancels the track's own
+inset so **peek** / viewport padding stays centred. **Multi-slide**
+(`slidesPerPage > 1`)
+glides to each page's leading slide, so Prev / Next advance a whole page and wrap
+cleanly; the inter-slide gap returns between the on-screen pair (single-slide
+stays gapless so the gap never flashes through the viewport mid-glide). The gap
+is scoped by the `data-slides-per-page` hook the engine sets on the track.
+
+No slide is ever individually transformed — the strip only ever slides as a unit,
+so there are no per-slide layers to flash. The track is **not** force-promoted to
+one permanent GPU layer either (2D `translate`, no `backface-visibility`): the
+clone strip is several viewports wide, and iOS Safari rasterises a large permanent
+layer in tiles on demand, blanking slides at rest until they fill in. Letting the
+browser composite the transition on the GPU but rasterise the visible region
+normally at rest — like native scroll — sidesteps that.
+
+This is the same transform + clone approach Embla and Swiper use. It replaced two
+earlier attempts that each flashed on iOS: a native-scroll-snap **clone buffer**
+(the native snap fought the teleport) and a clone-free per-slide `wrapShift` fill
+(individual slides teleported, which iOS can't pre-rasterise). Keeping the clones
+but driving them purely in JS — no native snap, no per-slide moves — removes both
+failure modes at once.
+
+> The track geometry is browser-only (jsdom reports no layout), so it ships
+> unit-tested with mocked geometry, and real-browser tested in Playwright.
+
 ### Keyboard navigation
 
 `Carousel.Viewport` is in the tab order so keyboard users can reach the
 rotation control without first tabbing through every slide's
 interactive content. With the Viewport focused:
 
-| Key          | Action                                          |
-| ------------ | ----------------------------------------------- |
-| `ArrowRight` | Advance by one page (same as `NextTrigger`)     |
-| `ArrowLeft`  | Retreat by one page (same as `PreviousTrigger`) |
-| `Home`       | Jump to the first page                          |
-| `End`        | Jump to the last page                           |
+| Key                   | Action                                          |
+| --------------------- | ----------------------------------------------- |
+| `ArrowRight` / `ArrowDown` | Advance by one page (same as `NextTrigger`)     |
+| `ArrowLeft` / `ArrowUp`    | Retreat by one page (same as `PreviousTrigger`) |
+| `Home`                | Jump to the first page                          |
+| `End`                 | Jump to the last page                           |
 
-Arrow keys clamp at the boundaries, mirroring the trigger buttons.
-Keypresses are only intercepted when the Viewport itself is the focus
-target — focus inside a slide (e.g. on a link or form control) keeps
-its native arrow-key semantics.
+The paging arrows follow the [orientation](#orientation): `ArrowRight` /
+`ArrowLeft` for the default horizontal axis, `ArrowDown` / `ArrowUp` when
+`orientation="vertical"` (the off-axis arrows go inert). `Home` / `End`
+work in both. Arrow keys clamp at the boundaries, mirroring the trigger
+buttons — or wrap around when [`loop`](#loop-wrap-around-navigation) is
+set. Keypresses are only intercepted when the Viewport itself is the
+focus target — focus inside a slide (e.g. on a link or form control)
+keeps its native arrow-key semantics.
 
 ```tsx
 <Carousel.Root ariaLabel="Featured products">
@@ -569,6 +904,207 @@ its native arrow-key semantics.
 Consumer-supplied `disabled={true}` on either trigger is honoured
 regardless of boundary state — useful for momentarily freezing
 navigation while another part of the UI takes over.
+
+### Mouse input
+
+Two mouse interactions ship on `Carousel.Viewport` alongside the native
+touch/trackpad scroll that already worked with zero custom code (the
+scroll-driven `scrollsnapchange` sync doesn't care how the viewport got
+scrolled):
+
+- **Click-and-drag** — **opt-in** via `allowMouseDrag` on `Carousel.Root`
+  (default `false`; an unconditionally-on drag could conflict with a
+  consumer's own drag-sensitive slide content — a nested carousel, a
+  draggable card, a canvas). When enabled: click and hold on the viewport,
+  drag, and it scrolls like a swipe — `scrollLeft`/`scrollTop` track the
+  pointer, amplified by a 2× sensitivity multiplier so a full-slide
+  transition doesn't require dragging the slide's full on-screen width
+  (still no momentum/flick — the multiplier only scales the tracked
+  delta, motion stops dead on release) once the drag clears a small
+  (3px) movement threshold — below the threshold nothing happens, so a
+  plain click on a
+  link or button inside a slide still reaches it. Releasing the pointer
+  lets the existing `scroll-snap-type` settle to the nearest slide, exactly
+  like a touch swipe — no extra "scroll → state" wiring needed, the
+  `scrollsnapchange` sync already covers it. A `data-dragging` attribute is
+  set on the viewport for the duration of an active drag (see "Recommended
+  CSS" for the `cursor: grab` / `grabbing` pairing). Ignores non-mouse
+  pointer types (`touch`, `pen`) even when enabled — native scroll already
+  handles those. Also suppresses the browser's own native image/link drag
+  (the semi-transparent ghost that follows the cursor) on the viewport via
+  `preventDefault()` on `dragstart` — real `<img>`/`<a>` slide content is
+  natively draggable, and without this its native HTML5 drag would visually
+  compete with the custom pointer-drag above. Only active while
+  `allowMouseDrag` is on; native drag is left untouched otherwise.
+- **Mouse-wheel scroll.** A physical wheel's vertical notches
+  (`deltaY`) already natively scroll a `orientation="vertical"`
+  carousel — nothing needed there. But browsers only auto-translate a
+  plain vertical wheel to horizontal scroll when `Shift` is held, so the
+  default horizontal orientation gets no scroll at all from a plain
+  wheel without help: the Viewport translates `deltaY` into `scrollLeft`
+  whenever `deltaX` is negligible. A trackpad or Magic Mouse horizontal
+  swipe already produces real `deltaX` and already scrolls a horizontal
+  viewport natively (the same mechanism as touch) — the translation
+  stands down whenever `deltaX` is non-negligible so it never fights
+  that. `deltaY` is normalized from `DOM_DELTA_LINE` / `DOM_DELTA_PAGE`
+  units to pixels first, so a physical wheel's larger, fewer ticks feel
+  proportional to a trackpad's many small pixel-mode ones.
+
+Both stand down when `transition` isn't `"slide"` (the viewport isn't a
+scrolling track in `"fade"` / `"none"` mode).
+
+### Drag status
+
+The `data-dragging` DOM hook above is enough for CSS, but a consumer
+reacting in JS — e.g. pausing a video in the active slide while the
+user drags — needs the imperative `isDragging()` and/or the
+`onDragStatusChange` callback (both only ever reachable when
+`allowMouseDrag` is `true`; matches Ark UI's `api.isDragging` /
+`onDragStatusChange`):
+
+```tsx
+const carouselRef = useRef<CarouselImperativeApi>(null);
+
+<Carousel.Root
+  ref={carouselRef}
+  ariaLabel="Featured products"
+  allowMouseDrag
+  onDragStatusChange={({ type, page, isDragging }) => {
+    // type: "dragging.start" | "dragging" | "dragging.end"
+  }}
+>
+  …
+</Carousel.Root>;
+
+carouselRef.current?.isDragging(); // live snapshot, read on demand
+```
+
+`onDragStatusChange` fires `"dragging.start"` the moment a drag crosses
+the click-vs-drag movement threshold, `"dragging"` on every subsequent
+pointer move while it's still active, and `"dragging.end"` on release
+(`pointerup` or `pointercancel`) — never for a plain click that never
+crossed the threshold. `page` is the live active page at that moment.
+
+### Overscroll
+
+Pushing against a boundary with nowhere further to go — via the
+keyboard, the wheel, or a mouse drag — fires `Carousel.Root`'s
+`onOverscrollStatusChange`:
+
+```tsx
+<Carousel.Root
+  ariaLabel="Featured products"
+  allowMouseDrag
+  onOverscrollStatusChange={({ type, edge, source, amount, page }) => {
+    // type: "overscroll.start" | "overscroll" | "overscroll.end"
+    // edge: "start" | "end"
+    // source: "keyboard" | "wheel" | "drag"
+  }}
+>
+  …
+</Carousel.Root>;
+```
+
+Detection is driven by the same page-boundary truth
+(`canGoNext`/`canGoPrevious`) as everything else in the primitive, from
+three input sources the carousel already owns the physics for:
+
+- **Keyboard** — the forward/backward arrow key pressed while already
+  at that boundary. `Home`/`End` are absolute jumps, not directional
+  pushes, so they never fire this.
+- **Wheel** — the horizontal-desktop wheel-to-scroll translation (see
+  "Mouse input" above), blocked at a boundary.
+- **Mouse drag** — a drag (`allowMouseDrag`) pushing past a boundary.
+
+Keyboard and wheel are instantaneous taps with no meaningful distance —
+they always fire a single bare `"overscroll"` with `amount: 0`. Drag is
+the one continuous, physically real case: it fires `"overscroll.start"`
+the moment the drag starts pushing past the boundary, `"overscroll"` on
+every subsequent move while still pushing (with the live `amount`, the
+drag delta past the boundary), and `"overscroll.end"` when the drag
+stops pushing past it — either a reversal back within bounds mid-drag,
+or the drag ending — mirroring `onDragStatusChange`'s shape. A drag
+overscroll also sets a persistent `data-overscroll="start" | "end"`
+attribute on the Viewport for the same duration — a CSS hook for a
+rubber-band resistance visual, with no JS required. For the live
+imperative equivalent of `isDragging()`, `isOverscrolling()` reports
+whether a drag is currently pushing past a boundary (always `false` for
+a keyboard/wheel tap, which is instantaneous rather than a sustained
+state).
+
+**Native touch/swipe overscroll is out of scope.** OS-level rubber-
+banding when a touch swipe is dragged past a boundary is browser-owned
+scroll physics with no JS hook to observe it from — consistent with
+this primitive's "native scroll is the source of truth" approach
+elsewhere (see "Mouse input" above, and "Reduced motion").
+
+### Continuous scroll progress
+
+`getProgress()` and `isInView()` are both coarse — a page-granular step
+function and a threshold boolean, respectively. For a continuous signal
+(a parallax effect, a cover-flow-style scale/rotate, a custom progress
+bar that fills smoothly instead of stepping), `Carousel.Root` exposes
+two additional getters, each mirrored live onto a CSS custom property so
+a consumer's stylesheet can read them directly without touching
+JavaScript at all:
+
+```tsx
+carouselRef.current!.getScrollProgress(); // 0 (start) .. 1 (end)
+carouselRef.current!.getSlideProgress(0); // -1 .. 0 (centered) .. 1
+```
+
+```css
+/* on the Viewport */
+.my-progress-bar {
+  transform: scaleX(var(--carousel-progress));
+}
+
+/* on each Slide */
+.my-slide {
+  opacity: calc(1 - abs(var(--slide-progress)));
+}
+```
+
+`--carousel-progress` (on the Viewport) mirrors `getScrollProgress()` —
+how far the viewport has scrolled along its main axis, `0` at the start
+and `1` at the end (`0` when there's no overflow to scroll at all).
+`--slide-progress` (on each Slide) mirrors `getSlideProgress(index)` —
+`0` when that slide's center coincides with the viewport's center, `±1`
+when the slide's center has reached the viewport edge (clamped beyond
+that). Both recompute on every scroll tick and on viewport/slide resize,
+coalesced to at most once per animation frame so a fast native scroll
+never forces more than one layout read per frame.
+
+`getSlideProgress` is normalised by the **viewport's** half-extent, not
+the slide's own — at `slidesPerPage > 1` a page's outer members can
+already read a large magnitude (e.g. ~±0.67 at three-per-page) while
+still fully on-screen and settled. This is *not* the same signal as
+`isInView` flipping to `false`: `isInView` is an IntersectionObserver
+threshold crossing, while `getSlideProgress` is raw geometry — a slide
+can read a large `getSlideProgress` magnitude and still be fully
+`isInView`, or vice versa near a partial-visibility threshold.
+
+`getScrollProgress()` is robust under RTL with no `dir` check: modern
+browsers standardize RTL `scrollLeft` on the "negative" convention (`0`
+at the start, down to the negative of the max scroll at the end), so the
+implementation takes the absolute value before normalising — the same
+reasoning that lets the mouse-drag handler skip RTL special-casing (see
+"Mouse input" above).
+
+**Under `loop="infinite"`**, this effect stands down (nothing ever
+scrolls — the engine translates the track via a JS transform instead),
+so `--slide-progress` is driven by the infinite engine itself: analytically
+on every discrete paint (an instant move, or any of a drag's many calls),
+plus a live-reading rAF ticker for the duration of an animated glide so
+the drift keeps pace with the track's own CSS transition rather than
+snapping to the settled value once it ends. This covers every CSS
+consumer of `--slide-progress` (parallax included) — the imperative
+**`getSlideProgress()` / `getScrollProgress()` getters are not** (they
+still only read what the native-scroll effect last wrote, so they read
+frozen under infinite); reach for the CSS custom property there instead.
+There is also no infinite equivalent of `--carousel-progress` — a
+0 (start) .. 1 (end) reading has no natural definition for a loop with
+no start or end.
 
 ### Indicator dots (manual)
 
@@ -692,6 +1228,62 @@ manual navigation is announced to assistive tech, and flips to
 The flip is reactive — pausing via `PlayPauseTrigger` returns the
 viewport to `"polite"` for the duration of the pause.
 
+### Autoplay status
+
+The `playing` flag and `data-state` on `PlayPauseTrigger` cover
+play/pause toggles, but a consumer reacting to the timer itself in JS
+— e.g. logging analytics on every autoplay rotation — needs the
+`onAutoplayStatusChange` callback (only ever reachable when
+`autoplay` is enabled; matches Ark UI's `onAutoplayStatusChange`):
+
+```tsx
+<Carousel.Root
+  ariaLabel="Featured products"
+  autoplay
+  defaultPlaying
+  onAutoplayStatusChange={({ type, page, isPlaying }) => {
+    // type: "autoplay.start" | "autoplay" | "autoplay.stop"
+  }}
+>
+  …
+</Carousel.Root>
+```
+
+`onAutoplayStatusChange` fires `"autoplay.start"` the moment the timer
+becomes active (autoplay enabled, `playing` true, another page
+remains, not suspended by hover/focus/touch), `"autoplay"` on every
+tick while it stays active, and `"autoplay.stop"` when the timer stops
+running — whether because `playing` flipped `false`, the last page was
+reached, or hover/focus/touch suspended it. `page` is the active page
+at that moment.
+
+### Progress text
+
+`getProgress()` on the imperative API gives you the raw
+`{ page, totalPages, value }` data, but wiring an actual rendered
+announcement (`"1 of 3"`) yourself every time is boilerplate.
+`Carousel.ProgressText` renders it for you, formatted by
+`translations.progressText` (matches Ark UI's `Carousel.ProgressText`
+anatomy part):
+
+```tsx
+<Carousel.Root ariaLabel="Featured products">
+  <Carousel.Viewport>…</Carousel.Viewport>
+  <Carousel.ProgressText />
+</Carousel.Root>
+```
+
+Renders `"1 of 3"` by default (1-indexed, matching `slideLabel`); pass a
+`progressText` formatter through `translations` (a
+`({ page, totalPages }) => …` function) on the Root to customise the
+format, or `children` on `Carousel.ProgressText`
+itself to render something else entirely (an icon alongside the
+count, say) instead of the computed text. `Carousel.ProgressText`
+carries no ARIA wiring of its own — compose it inside your own live
+region if you want page changes announced; this mirrors Ark's
+unopinionated `progressText` part rather than duplicating the
+Viewport's own `aria-live` toggling (see "Autoplay timer" above).
+
 ### Indicator dots (auto-rendered)
 
 For the common case of one dot per slide with auto-generated labels,
@@ -714,6 +1306,28 @@ The dot count tracks slide count automatically — add or remove a
 slide and the indicator row updates on the next render. For custom
 indicator content (thumbnails, numbers, mixed icons), drop down to
 the manual `IndicatorGroup` + `Indicator` API above.
+
+### Read-only (presentational) indicators
+
+Pass `readOnly` when the dots are a progress display rather than a
+navigation control — e.g. a carousel driven solely by
+[`allowMouseDrag`](#mouse-input), where clickable dots would be a
+redundant, confusing second way to navigate:
+
+```tsx
+<Carousel.Indicators label="Progress" readOnly />
+// or, on a manually-mapped dot:
+<Carousel.Indicator index={0} readOnly />
+```
+
+A `readOnly` indicator renders a `<span>` instead of a `<button>`
+(no button semantics), carries `aria-hidden="true"` (it's decorative
+and not announced to assistive tech), and no longer calls `goTo`
+when clicked. It still tracks `data-state="active" | "inactive"`, so
+the same CSS that paints a normal indicator keeps working. A
+consumer's own `onClick` on an individual `Indicator`, if passed,
+still fires — only the internal navigation is suppressed. On
+`Carousel.Indicators`, `readOnly` forwards to every generated dot.
 
 ## Recommended CSS
 
@@ -741,7 +1355,19 @@ and target the `data-carousel-*` attributes:
 [data-carousel-slide] {
   flex: 0 0 100%;
   scroll-snap-align: start;
-  /* Stop the OS picking up images for drag/save during a swipe. */
+}
+
+/* Stop the OS picking up an image for drag/save during a swipe. Repeated on
+   the media element itself, not just the slide wrapper — -webkit-user-drag
+   isn't inherited, so a real <img>'s own native drag-source eligibility is
+   unaffected by an ancestor's value. WebKit-only (no Firefox equivalent);
+   pair with `allowMouseDrag`, which also `preventDefault()`s the drag start
+   in JS for full cross-browser coverage. */
+[data-carousel-slide],
+[data-carousel-slide] > img,
+[data-carousel-slide] > video,
+[data-carousel-slide] > picture,
+[data-carousel-slide] > picture > img {
   -webkit-user-drag: none;
 }
 
@@ -769,9 +1395,60 @@ and target the `data-carousel-*` attributes:
 For multi-slide pages (`slidesPerPage={3}`, etc.), tune the slide's
 `flex-basis` to share the viewport — e.g. `calc(100% / 3)` for three
 slides per page, plus a `gap` on the viewport for the inter-slide
-spacing. For a crossfade transition, use `transition="none"` on
+spacing. **Scope `scroll-snap-align` to `[data-snap-align]` instead of
+every `[data-carousel-slide]`** once `slidesPerPage > 1` — see
+"Multi-slide snap targeting" below; the recipe above is correct as-is
+for the single-slide-per-page default, where every slide carries the
+hook. For a crossfade transition, use `transition="none"` on
 `Carousel.Root` and style the slides absolute-positioned with an
 opacity transition keyed off `[data-carousel-slide][data-state="active"]`.
+
+### Multi-slide snap targeting
+
+When `slidesPerPage > 1`, only a page's *leading* slide is a valid
+scroll-snap resting position — an interior slide has no page of its
+own, so letting the browser's mandatory snap stop there leaves the
+viewport showing a straddled mix of two pages while `currentPage` (and
+any indicators driven from it) still claim a single clean page is
+active. This is easy to hit with incremental input — a mouse wheel
+notch or a drag release — that lands mid-page rather than jumping a
+full page at once. Scope `scroll-snap-align` to the `data-snap-align`
+hook (present only on each page's leading slide, and on every slide
+when `slidesPerPage` is 1) rather than applying it to every slide. Its
+*value* mirrors the root's resolved `snapAlign` — or the individual
+slide's own override (`Carousel.Slide`'s `snapAlign` prop), if it set
+one — so a user's own scroll (wheel/touch/drag) settles wherever the
+programmatic scroll already targets. Style all three values, not just
+`"start"`, if the consumer might set `snapAlign="center"` / `"end"` on
+the root or on individual slides:
+
+```css
+[data-carousel-slide] {
+  flex: 0 0 calc(100% / 3); /* three slides per page, for example */
+}
+[data-carousel-slide][data-snap-align="start"] {
+  scroll-snap-align: start;
+}
+[data-carousel-slide][data-snap-align="center"] {
+  scroll-snap-align: center;
+}
+[data-carousel-slide][data-snap-align="end"] {
+  scroll-snap-align: end;
+}
+```
+
+**Centering/ending a multi-slide page, not just its leading slide.** A
+`scroll-snap-align` on a single element only ever aligns *that* element's
+own box — `scroll-snap-align: center` on the leading slide would centre
+just the leading slide, leaving the rest of a `slidesPerPage > 1` page
+clipped off the trailing edge, if that were the whole story. It isn't:
+the Viewport also sets `scroll-margin-inline-end` (`-block-end` when
+vertical) on each page's leading slide, extending its native snap area —
+invisibly, with no layout effect — out to the page's actual last member.
+So `scroll-snap-align: center`/`"end"` end up centering/ending the whole
+page, matching what the programmatic `scrollTo` already does. This is
+automatic and needs no consumer CSS; it's a no-op when `slidesPerPage` is
+1 (the leading slide already *is* the whole page).
 
 ### Cover Flow (scroll-driven 3D)
 

@@ -21,6 +21,7 @@ token transformer (e.g. CSS variables, Tailwind config) reads from.
 | `src/index.ts` | Public entry; re-exports the transform, the server, and types |
 | `src/*.test.ts` | Vitest unit tests, 100% coverage |
 | `src/{primitives,palette,intent,context,interaction}.json` | DTCG output written by the sync server. **Committed** — these files are the repo's source of truth for downstream transformers. |
+| `src/motion.json` | **Code-only** DTCG (motion durations + easing curves + the semantic `motion.*` layer). Hand-authored, *not* a sync target — Figma has no `cubicBezier` variable type, so motion can't round-trip. Sits outside the five-file write-set, so a backup never touches it. |
 
 ## Backing up tokens (end-to-end)
 
@@ -122,3 +123,31 @@ backup "real".
   key in that file (e.g. `palette.json` has `light` and `dark` keys).
 - Single-mode collections (`Primitives`, `Interaction`) are read from
   `defaultModeId` and emitted flat.
+
+## Dark mode: this repo and Figma encode it *oppositely*
+
+Both are correct. They just put the inversion in different places, and knowing
+which is which is the difference between reading a real bug and inventing one.
+
+| | Where the flip lives | `content/primary` |
+|---|---|---|
+| **This repo** (`intent.json` + `palette.json`) | the **palette** flips per theme (`color.neutral.900` is `#121418` under `light`, `#e5ecf6` under `dark`) | `{color.neutral.900}` in **both** blocks |
+| **Figma** | the **semantic alias** flips; `Primitives / Palette` stays pinned to **Light** on dark frames | `neutral/900` in Light, `neutral/50` in Dark |
+
+So in `intent.json` a semantic token usually names the **same ramp step in both
+blocks** and lets the inverted dark palette do the work; in Figma the palette is
+held still and the alias moves. Emitted CSS follows the repo model — the
+`[data-theme="dark"]` block re-points `--primitiv-color-neutral-*` itself, so
+every semantic token above it can keep one step.
+
+> **Don't diff the two by ramp index.** Doing that reports ~24 bogus mismatches
+> across nearly all of Dark mode (hit 2026-07-28 during the RFC 0022/0023 Figma
+> cross-check). Resolve each side through its own model first: **13 of 23** dark
+> tokens are then byte-identical, and the remaining 10 differ by only 3–9/255
+> because harmoni *generates* the dark ramp instead of literally reversing it, so
+> only the endpoints (`50`↔`900`) mirror exactly. Reviewed and accepted as-is —
+> those interior dark values aren't expressible as a light-palette alias, so
+> there is nothing better for Figma to point at, and retargeting its dark aliases
+> to this repo's steps would resolve them through Palette/Light and turn dark
+> greys pale. The Figma side of this is in the `figma-variable-architecture`
+> skill.

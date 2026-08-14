@@ -24,6 +24,12 @@ export interface ComboboxContextValue {
   select: (value: string, label: string) => void;
   /** The input's whole keydown behaviour: Escape, cursor seeding, arrow keys. */
   handleInputKeyDown: (event: KeyboardEvent<HTMLElement>) => void;
+  /**
+   * Closes the popup, clears the cursor and resets the input text from the
+   * committed value. Shared by Escape and by the browser's own light-dismiss, so
+   * clicking away and pressing Escape leave the field in the same state.
+   */
+  dismiss: () => void;
   /** The value the virtual-focus cursor sits on, or `null` for no cursor. */
   activeValue: string | null;
   /** Builds the DOM id for an item, so the input can point at it. */

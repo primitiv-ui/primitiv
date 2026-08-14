@@ -20,8 +20,8 @@ describe("Combobox item", () => {
   it("renders each item as an option", () => {
     renderCombobox();
 
-    expect(screen.getByRole("option", { name: "React" })).toBeInTheDocument();
-    expect(screen.getByRole("option", { name: "Preact" })).toBeInTheDocument();
+    expect(screen.getByRole("option", { hidden: true, name: "React" })).toBeInTheDocument();
+    expect(screen.getByRole("option", { hidden: true, name: "Preact" })).toBeInTheDocument();
   });
 
   it("selects on click: reports the value, closes, and shows the label in the input", async () => {
@@ -29,10 +29,10 @@ describe("Combobox item", () => {
     const onValueChange = vi.fn();
     renderCombobox({ onValueChange });
 
-    await user.click(screen.getByRole("option", { name: "Preact" }));
+    await user.click(screen.getByRole("option", { hidden: true, name: "Preact" }));
 
     expect(onValueChange).toHaveBeenCalledWith("preact");
-    expect(screen.queryByRole("listbox")).not.toBeInTheDocument();
+    expect(screen.queryByRole("listbox", { hidden: true })).not.toBeInTheDocument();
     // D1: closing resets the input text from the value, not from the query
     expect(screen.getByRole("combobox", { name: "Framework" })).toHaveValue("Preact");
   });
@@ -52,7 +52,7 @@ describe("Combobox item", () => {
       </Combobox.Root>,
     );
 
-    await user.click(screen.getByRole("option", { name: "React" }));
+    await user.click(screen.getByRole("option", { hidden: true, name: "React" }));
 
     expect(screen.getByRole("combobox", { name: "Framework" })).toHaveValue("react");
   });
@@ -61,14 +61,14 @@ describe("Combobox item", () => {
     const user = userEvent.setup();
     renderCombobox();
 
-    await user.click(screen.getByRole("option", { name: "Preact" }));
+    await user.click(screen.getByRole("option", { hidden: true, name: "Preact" }));
     await user.type(screen.getByRole("combobox", { name: "Framework" }), "a");
 
-    expect(screen.getByRole("option", { name: "Preact" })).toHaveAttribute(
+    expect(screen.getByRole("option", { hidden: true, name: "Preact" })).toHaveAttribute(
       "aria-selected",
       "true",
     );
-    expect(screen.getByRole("option", { name: "React" })).toHaveAttribute(
+    expect(screen.getByRole("option", { hidden: true, name: "React" })).toHaveAttribute(
       "aria-selected",
       "false",
     );

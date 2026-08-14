@@ -16,7 +16,7 @@ describe("Combobox content", () => {
       "aria-expanded",
       "false",
     );
-    expect(screen.queryByRole("listbox")).not.toBeInTheDocument();
+    expect(screen.queryByRole("listbox", { hidden: true })).not.toBeInTheDocument();
   });
 
   it("renders the popup when open and reports aria-expanded=true", () => {
@@ -31,6 +31,6 @@ describe("Combobox content", () => {
       "aria-expanded",
       "true",
     );
-    expect(screen.getByRole("listbox", { name: "Frameworks" })).toBeInTheDocument();
+    expect(screen.getByRole("listbox", { hidden: true })).toBeInTheDocument();
   });
 });

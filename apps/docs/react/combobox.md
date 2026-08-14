@@ -1,3 +1,7 @@
+---
+title: Combobox
+---
+
 # Combobox
 
 A headless, accessible **combobox** — an editable text field with a filtered
@@ -165,3 +169,8 @@ Deliberately out of scope, recorded on the Figma "Combobox — exploration" page
 a built-in `filter` prop, async option loading, multi-select with token chips,
 and virtualization. The **command palette** is a separate composite that
 *wraps* this component in a `Modal` — it is not a Combobox mode.
+
+## Live example
+
+See it running in the [kitchen sink](/kitchen-sink/#combobox) — the reference app
+that installs every styled registry component.

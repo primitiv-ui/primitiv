@@ -23,11 +23,11 @@ describe("Combobox keyboard interaction", () => {
 
     const input = screen.getByRole("combobox", { name: "Framework" });
     await user.click(input);
-    expect(screen.getByRole("listbox")).toBeInTheDocument();
+    expect(screen.getByRole("listbox", { hidden: true })).toBeInTheDocument();
 
     await user.keyboard("{Escape}");
 
-    expect(screen.queryByRole("listbox")).not.toBeInTheDocument();
+    expect(screen.queryByRole("listbox", { hidden: true })).not.toBeInTheDocument();
     expect(input).toHaveFocus();
   });
 
@@ -42,12 +42,12 @@ describe("Combobox keyboard interaction", () => {
     expect(input).not.toHaveAttribute("aria-activedescendant");
 
     await user.keyboard("{ArrowDown}");
-    const react = screen.getByRole("option", { name: "React" });
+    const react = screen.getByRole("option", { hidden: true, name: "React" });
     expect(input).toHaveAttribute("aria-activedescendant", react.id);
     expect(react).toHaveAttribute("data-highlighted", "");
 
     await user.keyboard("{ArrowDown}");
-    const preact = screen.getByRole("option", { name: "Preact" });
+    const preact = screen.getByRole("option", { hidden: true, name: "Preact" });
     expect(input).toHaveAttribute("aria-activedescendant", preact.id);
     expect(react).not.toHaveAttribute("data-highlighted");
 
@@ -69,7 +69,7 @@ describe("Combobox keyboard interaction", () => {
 
     expect(input).toHaveAttribute(
       "aria-activedescendant",
-      screen.getByRole("option", { name: "Preact" }).id,
+      screen.getByRole("option", { hidden: true, name: "Preact" }).id,
     );
   });
 
@@ -93,7 +93,7 @@ describe("Combobox keyboard interaction", () => {
     await user.keyboard("{Enter}");
 
     expect(onValueChange).toHaveBeenCalledWith("preact");
-    expect(screen.queryByRole("listbox")).not.toBeInTheDocument();
+    expect(screen.queryByRole("listbox", { hidden: true })).not.toBeInTheDocument();
     expect(input).toHaveValue("Preact");
   });
 
@@ -114,7 +114,7 @@ describe("Combobox keyboard interaction", () => {
     await user.keyboard("{Enter}");
 
     expect(onValueChange).not.toHaveBeenCalled();
-    expect(screen.getByRole("listbox")).toBeInTheDocument();
+    expect(screen.getByRole("listbox", { hidden: true })).toBeInTheDocument();
   });
 
   it("keeps the committed value when Escape closes the popup", async () => {
@@ -122,7 +122,7 @@ describe("Combobox keyboard interaction", () => {
     renderCombobox();
 
     const input = screen.getByRole("combobox", { name: "Framework" });
-    await user.click(screen.getByRole("option", { name: "React" }));
+    await user.click(screen.getByRole("option", { hidden: true, name: "React" }));
     await user.type(input, "zzz");
     await user.keyboard("{Escape}");
 

@@ -227,6 +227,70 @@ styles.
 > }
 > ```
 
+## Wrapping Tree in a styled layer
+
+`Tree.Branch` finds its control and content by **inspecting its children before
+rendering them**, so it sees the component you wrote — not what that component
+renders. A styling layer that wraps each part in its own component to attach
+classes is therefore invisible to it, and the branch throws:
+
+```
+A Tree.Branch must contain a <Tree.BranchControl>.
+```
+
+Set `TREE_PART` on the wrapper and it partitions like the part it renders:
+
+```tsx
+import { TREE_PART, Tree } from "@primitiv-ui/react";
+
+function StyledBranchControl(props: TreeBranchControlProps) {
+  return <Tree.BranchControl {...props} className="row" />;
+}
+StyledBranchControl[TREE_PART] = "branch-control";
+
+function StyledBranchContent(props: TreeBranchContentProps) {
+  return <Tree.BranchContent {...props} className="group" />;
+}
+StyledBranchContent[TREE_PART] = "branch-content";
+```
+
+The accepted names are `"branch-control"` and `"branch-content"`
+(`TreePartName`). Only these two parts need it — every other part is found by
+position or context, not by inspection. The one-control and one-content rules
+still apply: two marked controls in a branch is still an error.
+
+This is what the registry `tree` component does; no other primitive in the
+library needs a marker, because none of the others read their children's types.
+
+### Indenting without `attr()`
+
+`useTreeLevel()` returns `{ depth }` — `0` directly under `Tree.Root`, one
+deeper per enclosing `BranchContent`. A styling layer needs the depth as a
+*number* to apply the indent as the **row's own padding**, which is what keeps
+each row's box full-width so a hover or selected band runs edge to edge rather
+than starting at the nested level. Reading `data-depth` back in CSS would need
+`attr(data-depth type(<integer>))` — Chrome 133+ / Safari 18.2+, unsupported in
+Firefox — so the depth is exposed here instead.
+
+```tsx
+function StyledItem(props: TreeItemProps) {
+  const { depth } = useTreeLevel();
+  return (
+    <Tree.Item
+      {...props}
+      style={{ "--depth": depth } as CSSProperties}
+      className="row"
+    />
+  );
+}
+```
+
+```css
+.row {
+  padding-inline-start: calc(var(--depth, 0) * 1.25rem + 0.5rem);
+}
+```
+
 ## Selection path
 
 `Tree.Item` and `Tree.Branch` accept an optional `label` prop. It does

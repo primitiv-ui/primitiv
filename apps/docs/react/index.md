@@ -16,6 +16,7 @@ workbench example).
 ## Buttons
 
 - [Button](/react/button)
+- [SplitButton](/react/split-button)
 
 ## Forms
 
@@ -28,6 +29,7 @@ workbench example).
 - [Radio](/react/radio)
 - [RadioGroup](/react/radio-group)
 - [RadioCard](/react/radio-card)
+- [SegmentedControl](/react/segmented-control)
 - [Select](/react/select)
 - [Slider](/react/slider)
 - [Switch](/react/switch)
@@ -35,14 +37,18 @@ workbench example).
 
 ## Collections & Selection
 
+- [Combobox](/react/combobox)
+- [Listbox](/react/listbox)
 - [MillerColumns](/react/miller-columns)
 - [Tree](/react/tree)
 
 ## Overlays
 
 - [ContextMenu](/react/context-menu)
+- [Drawer](/react/drawer)
 - [Dropdown](/react/dropdown)
 - [Modal](/react/modal)
+- [Popover](/react/popover)
 - [Tooltip](/react/tooltip)
 
 ## Disclosure
@@ -55,6 +61,7 @@ workbench example).
 
 ## Navigation
 
+- [NavigationMenu](/react/navigation-menu)
 - [Toggle](/react/toggle)
 - [ToggleGroup](/react/toggle-group)
 

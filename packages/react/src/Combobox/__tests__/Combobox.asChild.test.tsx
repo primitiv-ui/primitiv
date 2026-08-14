@@ -54,7 +54,7 @@ describe("Combobox asChild", () => {
       </Combobox.Root>,
     );
 
-    await user.click(screen.getByRole("option", { name: "React" }));
+    await user.click(screen.getByRole("option", { hidden: true, name: "React" }));
 
     expect(onItemClick).toHaveBeenCalledTimes(1);
     expect(onValueChange).toHaveBeenCalledWith("react");

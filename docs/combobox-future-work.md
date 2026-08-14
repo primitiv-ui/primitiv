@@ -46,58 +46,114 @@ designed to agree. The registry styling is then a straight port of
 `.primitiv-listbox__group` / `__group-label` (including the `position: sticky`
 heading, which matters more here — a filtered grouped list scrolls constantly).
 
-### 1.2 The Popover API lives in the registry, not the headless layer
+### 1.0 No outside-click dismiss (headless) — the most user-visible gap
+
+Reported from a real render, 2026-08-14: **clicking outside an open combobox does
+not close it.** The headless layer handles Escape and commit-on-select and
+nothing else — there is no pointerdown-outside listener anywhere in
+`packages/react/src/Combobox`.
+
+This is a genuine defect rather than a scoping decision. Every comparable popup
+in the library gets dismissal for free from the Popover API's light-dismiss
+(`popover="auto"`), which is exactly what §1.2 below is about — so fixing the
+layer question fixes this at the same time, and that is the reason to prefer it
+over hand-rolling an outside-click hook. If it is fixed independently, note that
+the listener must be `pointerdown` rather than `click` (a `click` fires after
+focus has already moved) and must not fire for a pointerdown that starts inside
+the panel and ends outside it, which is the usual bug in hand-rolled versions.
+
+APG's combobox pattern does not mandate outside-click dismissal, but every real
+combobox has it and users expect it.
+
+### 1.0b Escape restores the committed label over a cleared query (design gap)
+
+Also reported 2026-08-14: with a value committed, clearing the input and pressing
+Escape **puts the old value's label back** rather than leaving the field empty.
+
+This is the settled behaviour, not a bug: exploration §D1 says "on close or
+commit it shows the selected option's label", and `dismiss()` does
+`setQueryState(committedLabel)` deliberately, so that the field can never sit
+showing text that is not the value — §D1 explicitly rejected letting the raw
+query persist for that reason.
+
+**But the report is fair, because §D1 only considered two options and there is a
+third.** It weighed "restore from the value" against "keep the raw query"; it
+never considered that *clearing the field is itself an intent* — the user is
+plausibly trying to deselect, and the component silently refuses. The options:
+
+1. **Clearing the query clears the value** (`select("", "")` when the user empties
+   a field that has a committed value). Matches the intent, keeps §D1's invariant
+   intact — the field is empty *and* the value is empty, so it is still not
+   lying — and needs `onValueChange("")` to fire, which consumers must handle.
+2. **Keep today's behaviour**, and document that deselection is the consumer's job
+   via a clear button (an `InputGroup`-style trailing affordance). This is what
+   most libraries do.
+3. Escape-on-empty clears, Escape-on-partial-query restores. Most faithful to
+   intent, least predictable to explain.
+
+Option 1 is the most defensible, but it changes a settled decision and fires a
+value change the current demos do not expect, so it wants a deliberate call rather
+than a drive-by fix. **Unresolved — needs a human decision.**
+
+### 1.2 The panel needs the top layer, and the registry can only approximate it
 
 **Settled in Figma §G**, which lists "Popover-API popup layer (all four engines
 have shipped it; the Firefox caveat closed at FF 125)" as explicitly **IN** for
 v1. **The headless shipped without it**: `Combobox.Content` unmounts while closed
 and never touches `showPopover()` — unlike `Select.Content`, which does.
 
-**The registry now supplies it, after `position: fixed` alone was tried and
-observed to fail.** This is worth recording precisely, because the first attempt
-looked reasonable and was wrong.
+**The registry ships `z-index: 1000` instead. That works, and the route to it is
+worth recording, because two plausible-looking attempts failed first.**
 
-`position: fixed` + anchor positioning escapes an ancestor's `overflow: hidden`
-and flips on viewport overflow, so it seemed enough, with `Portal` documented as
-the escape hatch for stacking. It is not enough: a fixed panel still competes in
-the page's stacking contexts, and **the kitchen-sink's own disabled-Combobox demo
-painted straight over the open panel** — `opacity: 0.5` forms a stacking context,
-and it sits later in the DOM. Caught by rendering it, not by review.
+*Attempt 1 — `position: fixed` + anchor positioning alone,* with `Portal`
+documented as the escape hatch for stacking. Wrong: a fixed panel escapes an
+ancestor's `overflow: hidden` but still competes in the page's stacking contexts,
+and **the kitchen-sink's own disabled-Combobox demo painted straight over the open
+panel** — `opacity: 0.5` forms a stacking context and that demo sits later in the
+DOM. Caught by rendering it; no test in this repo would have.
 
-A `z-index` bump was rejected as the fix: it only covers the cases you thought
-of, and diagnosing *which* element wins requires a browser. The top layer is
-cause-independent. So `ComboboxContent` sets `popover="manual"` and calls
-`showPopover()` in a mount effect.
+*Attempt 2 — `popover="manual"` + `showPopover()` in a mount effect on
+`ComboboxContent`.* The reasoning was sound on paper (mount *is* open, since the
+headless unmounts while closed, so there is nothing to desync; `manual` avoids UA
+dismissal hiding a still-mounted element). **It did not fix the render.** The cause
+was never established, because it cannot be from this sandbox: jsdom's
+`showPopover()` is a **no-op stub** — verified directly, a bare
+`div[popover=manual]` never matches `:popover-open` after `showPopover()`, while
+the `:popover-open` selector itself parses fine — so no jsdom test can distinguish
+"promotion failed" from "jsdom does not implement promotion". It was reverted
+rather than left in place, on the grounds that unverifiable code carrying a comment
+claiming it works is worse than no code.
 
-Three properties make that safe rather than a second source of truth:
+That attempt also had a design flaw worth remembering: it paired the popover with
+an **ungated `display`** so it would "fail open" if the API were missing — but
+falling back to a plain fixed panel *was itself the broken state*. Fail-open only
+means something if the fallback is correct on its own. The z-index is what makes
+the fallback correct, which is why it should stay even once the top layer lands.
 
-- **Mount is open.** Because the headless unmounts while closed, "mounted"
-  is exactly "open" — the effect has an empty dependency list and never re-runs,
-  so there is nothing to desync.
-- **`manual`, not `auto`.** An auto popover gets UA light-dismiss and Escape,
-  which would hide the element while React still had it mounted — a combobox that
-  thinks it is open with nothing on screen. Escape and commit-on-select belong to
-  the headless layer.
-- **It fails open.** The stylesheet sets `display` unconditionally instead of
-  gating it on `:popover-open`, and author styles beat the UA's
-  `[popover]:not(:popover-open) { display: none }`. If the API is missing or the
-  effect never runs, the panel renders exactly as it did before, merely
-  un-promoted. Gating on `:popover-open` — the obvious-looking tidy-up, and what
-  `select`'s sheet does — would make any failure hide the panel outright. There is
-  a comment in the sheet saying so; keep it.
+*What shipped — `--primitiv-combobox-content-z-index: 1000`.* Deterministic here,
+and the reasoning is the point: none of the panel's ancestors forms a stacking
+context (`.primitiv-combobox` is a static `<div>`; flex containers don't form
+one), so the panel's nearest stacking context is the **root element**, and a
+positive z-index there clears every `z-index: auto` positioned box and every
+opacity/transform-induced context on the page. Confirmed fixed in the browser.
+`1000` rather than `1` so it also clears a consumer's sticky header; a native
+`<dialog>` or `[popover]` is in the top layer and still wins, which is correct — a
+combobox inside a modal must not paint over the modal.
 
-**The clean end state is still to move this into the headless layer**, where
-`Select` does it, at which point the effect deletes itself and the registry drops
-both the `ref`/`popover` Omit and the fail-open comment. Until then the behaviour
-lives in a file that gets copied into consumer repos, which is the real cost of
-the current arrangement.
+**Its limit, and why the top layer is still wanted:** a z-index cannot escape a
+stacking context formed by an ancestor *of the combobox itself* — a transformed or
+opacity-reduced card, say. `Portal` is the documented escape hatch. Do it properly
+in the headless layer, with `popover="auto"`, and three things land at once: the
+top layer, **outside-click dismissal for free** (§1.0), and the possibility of an
+exit animation.
 
-One consequence remains regardless of layer, because it follows from
-unmount-while-closed rather than from the top layer: **no exit animation is
-possible.** React removes the node, so nothing can still match it, and the panel
+That last one is worth being precise about, because it follows from
+unmount-while-closed rather than from layering: **no exit animation is possible
+today.** React removes the node, so nothing can still match it, and the panel
 animates in via `@starting-style` only. Select gets both because `[popover]` +
-`transition-behavior: allow-discrete` keeps the element painted through the close
-— which needs the headless layer to keep the element mounted and merely hidden.
+`transition-behavior: allow-discrete` keeps the element painted through the close —
+which needs the headless layer to keep the element **mounted and merely hidden**,
+a bigger change than adding `showPopover()`.
 
 ### 1.3 The chevron does nothing when clicked (headless)
 

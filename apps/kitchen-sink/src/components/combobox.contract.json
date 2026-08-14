@@ -187,6 +187,7 @@
       "defaultsTo": "anchor-size(width)"
     },
     { "name": "--primitiv-combobox-content-max-block-size", "defaultsTo": "18rem" },
+    { "name": "--primitiv-combobox-content-z-index", "defaultsTo": "1000" },
     {
       "name": "--primitiv-combobox-offset",
       "defaultsTo": "var(--primitiv-dropdown-md-panel-offset)"

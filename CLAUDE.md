@@ -887,24 +887,37 @@ source of truth for when a skill applies.
     fixed-position panel picks them up too, because custom properties inherit
     through the **DOM tree, not the containing block**. Matches the Figma set's
     single Size axis.
-  - **`position: fixed` is NOT enough for the panel — it needs the top layer, and
-    this was observed, not theorised.** The first build used `position: fixed` +
-    anchor positioning (the headless `Combobox.Content` unmounts while closed
-    rather than driving the Popover API, unlike `Select.Content`) and documented
-    `Portal` as the stacking escape hatch. Rendering it showed **the kitchen-sink's
-    own disabled-Combobox demo painting over the open panel**: a fixed panel still
-    competes in the page's stacking contexts, and `opacity: 0.5` on the disabled
-    control forms one later in the DOM. A `z-index` bump was rejected as
-    cause-dependent; `ComboboxContent` now sets `popover="manual"` +
-    `showPopover()` on mount, which is safe because **mount is open** (nothing to
-    desync — empty dep list), `manual` avoids UA dismissal hiding a still-mounted
-    panel, and it **fails open**: `display` is set unconditionally, not gated on
-    `:popover-open`, so a missing API leaves the panel merely un-promoted. Do not
-    "tidy" that into a `:popover-open` gate the way `select`'s sheet has it — here
-    that would make any failure hide the panel outright. Belongs headless
-    long-term. Groups, by contrast, were **omitted rather than half-shipped** —
-    `role="group"` + `aria-labelledby` belongs to the headless layer, as
-    `Listbox.Group` already does it.
+  - **`position: fixed` is NOT enough for the panel — it needs an explicit
+    `z-index`, and this was observed in a browser, not theorised.** The first build
+    used fixed + anchor positioning (the headless `Combobox.Content` unmounts while
+    closed rather than driving the Popover API, unlike `Select.Content`) and
+    documented `Portal` as the stacking escape hatch. Rendering it showed **the
+    kitchen-sink's own disabled-Combobox demo painting over the open panel**: a
+    fixed panel still competes in the page's stacking contexts, and `opacity: 0.5`
+    on the disabled control forms one later in the DOM. Fixed with
+    `--primitiv-combobox-content-z-index: 1000`, which is deterministic *because*
+    none of the panel's ancestors forms a stacking context (static div, flex
+    containers) so its nearest one is the root element. A middle attempt —
+    `popover="manual"` + `showPopover()` on mount — did **not** fix the render and
+    was reverted; its cause is unknowable from this sandbox, because **jsdom's
+    `showPopover()` is a no-op stub** (verified: a bare `div[popover=manual]` never
+    matches `:popover-open` afterwards, though the selector itself parses), so no
+    jsdom test can tell promotion-failed from promotion-unimplemented. Lesson worth
+    keeping: that attempt paired the popover with an ungated `display` so it would
+    "fail open", but the fallback *was itself the broken state* — fail-open only
+    means something when the fallback is correct alone. Groups, by contrast, were
+    **omitted rather than half-shipped** — `role="group"` + `aria-labelledby`
+    belongs to the headless layer, as `Listbox.Group` already does it.
+  - **Two live defects found by rendering it, both headless, both in
+    `docs/combobox-future-work.md` §1.0 / §1.0b.** No **outside-click dismiss** at
+    all (the headless handles Escape and commit-on-select only) — fixing the layer
+    question with `popover="auto"` would give it for free, which is the reason to
+    prefer that over a hand-rolled outside-click hook. And **Escape over a cleared
+    query restores the old committed label**, which is `dismiss()` behaving exactly
+    as exploration §D1 specified — but §D1 weighed "restore the value" against
+    "keep the raw query" and never considered that *clearing the field is itself a
+    deselect intent*. Unresolved; needs a human call, since option 1 (clearing the
+    query clears the value) changes a settled decision and fires `onValueChange("")`.
 
 ## Figma plugin-API gotchas (scripting via `figma_execute`)
 

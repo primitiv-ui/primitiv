@@ -145,32 +145,30 @@ set**: `Combobox` derives a unique ident from `useId()` and hands it to
 one page never collide. Your own `style.anchorName` / `style.positionAnchor`
 still wins (spread order) if you need to anchor the panel to something else.
 
-The panel is `position: fixed`, flips above the control when there is no room
-below, and **promotes itself into the top layer** so nothing on the page can
-paint over it.
+The panel is `position: fixed` and flips above the control when there is no room
+below.
 
-That promotion is the one piece of behaviour in the wrapper, and it is there
-because `position: fixed` alone was not enough: it escapes an ancestor's
-`overflow: hidden`, but it still competes in the page's stacking contexts, so any
-later sibling forming one paints on top. (The kitchen-sink's own disabled-Combobox
-demo did exactly that — `opacity: 0.5` forms a stacking context.) A `z-index` bump
-only fixes the cases you thought of, so `ComboboxContent` sets `popover="manual"`
-and calls `showPopover()` on mount instead — the same layer every other popup in
-the library uses.
+**It also carries an explicit `z-index`, and that is load-bearing.**
+`position: fixed` escapes an ancestor's `overflow: hidden`, but the panel still
+competes in the page's stacking contexts — the kitchen-sink's own
+disabled-Combobox demo painted straight over it, because `opacity: 0.5` forms a
+stacking context and sits later in the DOM. `--primitiv-combobox-content-z-index`
+(default `1000`) is the knob.
 
-It is safe because **mount is open**: the headless `Combobox.Content` unmounts
-while closed rather than driving the Popover API itself, so there is no second
-source of open state to desync from. `manual` rather than `auto`, because an auto
-popover's UA light-dismiss and Escape would hide the element while React still had
-it mounted. And it **fails open** — the stylesheet sets `display`
-unconditionally rather than gating it on `:popover-open`, so if the API is missing
-the panel still renders, merely un-promoted.
+The value works because none of the panel's ancestors forms a stacking context
+(the root is a static `<div>`, and flex containers don't form one), so the panel's
+nearest stacking context is the root element — which is also the limit: **a
+z-index cannot escape a stacking context formed by an ancestor of the combobox
+itself**, such as a transformed or opacity-reduced card. Portal the panel out for
+that; the `Portal` primitive is the escape hatch.
 
-`ref` and `popover` are therefore component-owned and omitted from
-`ComboboxContentProps`.
+The proper fix is the top layer, which is what every other popup in the library
+uses. That belongs in the headless layer — `Select.Content` already drives
+`showPopover()` — and is recorded in
+[`docs/combobox-future-work.md`](../../../docs/combobox-future-work.md) §1.2.
 
-The panel still animates **in** only (via `@starting-style`): the headless layer
-removes the node on close, so no rule can still match it to animate out.
+The panel animates **in** only (via `@starting-style`): the headless layer removes
+the node on close, so no rule can still match it to animate out.
 
 ## The chevron is decorative
 

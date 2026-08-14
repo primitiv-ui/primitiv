@@ -62,25 +62,31 @@
  * through context, the same fix dropdown and breadcrumb-overflow already make.
  * Nothing for a consumer to set.
  *
- * THE PANEL LIVES IN THE TOP LAYER, and the `display` rule below is deliberately
- * ungated because of it. `position: fixed` alone was tried first and is NOT
- * enough: it escapes an ancestor's overflow clipping, but it still competes in
- * the page's stacking contexts, so any later sibling that forms one paints over
- * the panel. The kitchen-sink's own disabled-Combobox demo does exactly that,
- * because `opacity: 0.5` forms a stacking context. A `z-index` bump only fixes
- * the cases you thought of, so the wrapper promotes the panel with the Popover
- * API instead — the same layer every other popup in the library already uses.
+ * THE PANEL NEEDS AN EXPLICIT z-index, AND THIS IS NOT OPTIONAL. `position: fixed`
+ * alone was shipped first and is NOT enough: it escapes an ancestor's overflow
+ * clipping, but the panel still competes in the page's stacking contexts. The
+ * kitchen-sink's own disabled-Combobox demo painted straight over the open panel,
+ * because `opacity: 0.5` forms a stacking context and that demo sits later in the
+ * DOM. Caught by rendering it; no test would have.
  *
- * That is why `display: flex` sits on the base rule unconditionally rather than
- * behind `:popover-open` (contrast select's sheet, which gates it). Author styles
- * beat the UA's `[popover]:not(:popover-open) { display: none }`, so an ungated
- * `display` makes the panel FAIL OPEN: if the Popover API is missing, the panel
- * still renders as a plain fixed-position box, merely un-promoted. Gating it
- * would mean any failure in that promotion hides the panel outright. Do not
- * "tidy" this into a `:popover-open` gate.
+ * Why a z-index is the right tool HERE, specifically: none of the panel's
+ * ancestors forms a stacking context (the root is a static div, and flex
+ * containers do not form one), so the panel's nearest stacking context is the root
+ * element — which means a positive z-index puts it above every z-index: auto
+ * positioned box AND above every opacity / transform-induced context on the page.
+ * That reasoning is what makes the value load-bearing rather than a magic number,
+ * and it is also its limit: it CANNOT escape a stacking context formed by an
+ * ancestor of the combobox itself (a transformed or opacity-reduced card, say).
+ * For that, portal the panel out — the Portal primitive is the escape hatch.
  *
- * The panel can still only animate IN (via @starting-style), top layer or not:
- * the headless layer removes the node on close, so no rule can still match it.
+ * The real fix is the top layer, which is what every other popup in this library
+ * uses and what the Figma exploration §G called for. It belongs in the headless
+ * layer, where Select.Content already drives showPopover(); doing it in this
+ * wrapper was tried and could not be verified in a real browser. See
+ * docs/combobox-future-work.md §1.2.
+ *
+ * The panel can only animate IN (via @starting-style): the headless layer removes
+ * the node on close, so no rule can still match it to animate out.
  *
  * Structure follows RFC 0008: per-component API tokens + the resting look live
  * in primitiv.base, the size modifiers in primitiv.variants, and the focus /
@@ -99,16 +105,6 @@
 /* Declare the sublayer order up front so this sheet is safe to load ahead of the
  * token layer (RFC 0008 §7). */
 @layer primitiv.reset, primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;
-
-@layer primitiv.reset {
-  .primitiv-combobox__content {
-    /* Reset the native [popover] UA defaults — `margin: auto; inset: 0`, which
-       centre it in the viewport — so the anchor-positioning insets in the base
-       layer take over. Same reset select's panel needs, for the same reason. */
-    margin: 0;
-    inset: auto;
-  }
-}
 
 @layer primitiv.base {
   .primitiv-combobox {
@@ -158,6 +154,14 @@
        rather than mid-row, size it to
        calc(N * var(--primitiv-combobox-item-height) + (N - 1) * var(--primitiv-combobox-item-spacing) + 2 * var(--primitiv-combobox-content-padding-block)). */
     --primitiv-combobox-content-max-block-size: 18rem;
+    /* Paint order. Load-bearing, not a magic number — see the header note: the
+       panel's nearest stacking context is the root element, so a positive value
+       here clears every z-index: auto box and every opacity / transform-induced
+       context on the page. High rather than 1 so it also clears a consumer's
+       sticky header or toolbar without them having to think about it; a native
+       <dialog> or [popover] is in the top layer and so still wins over it, which
+       is correct — a combobox inside a modal must not paint over the modal. */
+    --primitiv-combobox-content-z-index: 1000;
     /* Gap between the control and the panel — the real dropdown panel offset
        token, which is what the Figma set binds. */
     --primitiv-combobox-offset: var(--primitiv-dropdown-md-panel-offset);
@@ -276,6 +280,7 @@
     /* position: fixed lets anchor() resolve, and escapes an ancestor's overflow
        clipping. The flex column stacks the rows. */
     position: fixed;
+    z-index: var(--primitiv-combobox-content-z-index);
     display: flex;
     flex-direction: column;
     gap: var(--primitiv-combobox-item-spacing);
@@ -290,9 +295,8 @@
     background: var(--primitiv-combobox-content-surface);
     color: var(--primitiv-combobox-content-fg);
     box-shadow: var(--primitiv-combobox-content-shadow);
-    /* Both axes stated, because the [popover] UA rule sets `overflow: auto` and a
-       y-only override would leave overflow-x scrollable — a stray horizontal
-       scrollbar under a list whose labels already ellipsis. */
+    /* Both axes stated: the rows' labels already ellipsis, so there is nothing a
+       horizontal scrollbar could usefully reveal. */
     overflow: hidden auto;
     overscroll-behavior: contain;
     /* Below the control, hugging its inline-start edge. The ident these insets

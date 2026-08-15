@@ -63,14 +63,54 @@ struct Seed {
     seed: String,
 }
 
+/// One step, measured twice.
+///
+/// `l`/`c`/`h` are what the engine *intends* — the OKLCH it computed. `rendered_*`
+/// are what a browser actually paints: the intended colour quantised to an sRGB
+/// hex and read back. The two diverge wherever the requested chroma falls
+/// outside the sRGB gamut, which is most of the yellow and green regions.
+///
+/// The first CI run made the distinction unavoidable. Measuring only the
+/// intended values reported a hue span of **0.0° for every ramp** — the engine
+/// holds hue constant by construction, so of course it does — while the same
+/// ramps measured from their committed hex spanned up to 38.7°. The intended
+/// number says the engine is behaving; the rendered number says what a user
+/// sees. Only the second one can be wrong, so quality metrics use `rendered_*`.
 struct StepMetric {
     label: String,
     hex: String,
     l: f32,
     c: f32,
     h: f32,
+    rendered_l: f32,
+    rendered_c: f32,
+    rendered_h: f32,
+    /// The engine's own accessible-foreground recommendation for this swatch,
+    /// with the tier it came from and the contrast it guarantees. Surfaced
+    /// because it changes what several audit findings mean: the engine is not
+    /// silent on contrast, it already answers "what text goes on this fill".
+    fg_hex: String,
+    fg_source: String,
+    fg_ratio: f32,
+    fg_rating: String,
+    /// Absolute perceived-lightness distance from the previous step. Absolute
+    /// because dark ramps run the other way — the first run flagged every dark
+    /// ramp with a negative delta, which was the metric's bug, not the ramp's.
     delta_l: Option<f32>,
     committed_hex: Option<String>,
+}
+
+/// How closely a regenerated step matches the committed one.
+#[derive(PartialEq, Clone, Copy)]
+enum MatchKind {
+    /// Byte-identical.
+    Exact,
+    /// Every channel within one unit — the engine and the committed value agree,
+    /// and the difference is quantisation. Not drift, and not worth reporting as
+    /// a failure.
+    Rounding,
+    /// A real difference: the committed palette was not produced by this engine.
+    Drift,
 }
 
 struct RampReport {
@@ -78,10 +118,17 @@ struct RampReport {
     seed: String,
     theme: String,
     steps: Vec<StepMetric>,
+    /// Measured on the rendered colours, so it reflects gamut clamping.
     hue_span: Option<f32>,
+    /// The gap between intended and rendered hue span. A large number here is
+    /// the signature of gamut clamping bending a ramp the engine believes is
+    /// straight, and points the fix at the OKLCH→sRGB mapping rather than at
+    /// the ramp definition.
+    hue_span_intended: Option<f32>,
     min_light_end_delta_l: Option<f32>,
     chroma_peak_label: Option<String>,
     reproduces: Option<bool>,
+    rounding_only: usize,
     mismatches: Vec<String>,
 }
 
@@ -227,12 +274,19 @@ fn analyse(
 
     for swatch in &palette.swatches {
         let label = swatch.label.to_string();
-        let delta_l = prev_l.map(|p| (p - swatch.l) * 100.0);
+        // Absolute: a dark ramp climbs in lightness, so a signed delta reports
+        // every dark step as negative and flags healthy ramps.
+        let delta_l = prev_l.map(|p: f32| (p - swatch.l).abs() * 100.0);
         prev_l = Some(swatch.l);
 
         let committed_hex = committed
             .and_then(|m| m.get(&format!("{theme}/{}/{label}", seed.ramp)))
             .cloned();
+
+        // What the colour becomes once quantised to sRGB and read back — the
+        // thing a browser paints, and the only version that can be "wrong".
+        let (rendered_l, rendered_c, rendered_h) = round_trip(&swatch.hex)
+            .unwrap_or((swatch.l, swatch.c, swatch.h));
 
         steps.push(StepMetric {
             label,
@@ -240,24 +294,23 @@ fn analyse(
             l: swatch.l,
             c: swatch.c,
             h: swatch.h,
+            rendered_l,
+            rendered_c,
+            rendered_h,
             delta_l,
             committed_hex,
+            fg_hex: swatch.best_foreground.hex.to_lowercase(),
+            fg_source: format!("{:?}", swatch.foreground_source),
+            fg_ratio: swatch.contrast_result.ratio,
+            fg_rating: swatch.contrast_result.rating.clone(),
         });
     }
 
-    // Hue span across the steps that actually carry hue.
-    let hues: Vec<f32> = steps
-        .iter()
-        .filter(|s| s.c > CHROMATIC_FLOOR)
-        .map(|s| s.h)
-        .collect();
-    let hue_span = if hues.len() >= 2 {
-        let min = hues.iter().cloned().fold(f32::INFINITY, f32::min);
-        let max = hues.iter().cloned().fold(f32::NEG_INFINITY, f32::max);
-        Some(max - min)
-    } else {
-        None
-    };
+    // Hue span, measured twice. The rendered span is the real answer; the
+    // intended span is the control that says whether the engine's ramp
+    // definition or its gamut mapping is responsible for any drift.
+    let hue_span = span_of(steps.iter().filter(|s| s.rendered_c > CHROMATIC_FLOOR).map(|s| s.rendered_h));
+    let hue_span_intended = span_of(steps.iter().filter(|s| s.c > CHROMATIC_FLOOR).map(|s| s.h));
 
     // Tightest lightness step among the first few, where surfaces live.
     let min_light_end_delta_l = steps
@@ -277,13 +330,24 @@ fn analyse(
     // Reproduction: only meaningful for steps we actually have a committed
     // value for, so a ramp absent from palette.json reports None rather than
     // a misleading pass.
+    //
+    // Quantisation noise is separated from real drift. The first run reported
+    // brand and danger as failures over a single unit in one channel
+    // (#1452b5 vs #1453b5), which is the hex round-trip, not a disagreement —
+    // reporting that alongside genuine 30-unit differences buried the signal.
     let mut mismatches = Vec::new();
     let mut compared = 0usize;
+    let mut rounding_only = 0usize;
     for s in &steps {
         if let Some(expected) = &s.committed_hex {
             compared += 1;
-            if expected != &s.hex {
-                mismatches.push(format!("{}: engine {} vs committed {}", s.label, s.hex, expected));
+            match classify(&s.hex, expected) {
+                MatchKind::Exact => {}
+                MatchKind::Rounding => rounding_only += 1,
+                MatchKind::Drift => mismatches.push(format!(
+                    "{}: engine {} vs committed {}",
+                    s.label, s.hex, expected
+                )),
             }
         }
     }
@@ -299,11 +363,66 @@ fn analyse(
         theme: theme.to_string(),
         steps,
         hue_span,
+        hue_span_intended,
         min_light_end_delta_l,
         chroma_peak_label,
         reproduces,
+        rounding_only,
         mismatches,
     }
+}
+
+/// Parse a hex back to OKLCH, so the measurement reflects what renders rather
+/// than what was requested. Uses the engine's own parser — the same path a
+/// consumer's CSS takes.
+fn round_trip(hex: &str) -> Option<(f32, f32, f32)> {
+    let oklch = ColorInput::Css(hex.to_string()).to_oklch().ok()?;
+    let mut h = oklch.hue.into_degrees();
+    if h < 0.0 {
+        h += 360.0;
+    }
+    Some((oklch.l, oklch.chroma, h))
+}
+
+fn span_of(values: impl Iterator<Item = f32>) -> Option<f32> {
+    let v: Vec<f32> = values.collect();
+    if v.len() < 2 {
+        return None;
+    }
+    let min = v.iter().cloned().fold(f32::INFINITY, f32::min);
+    let max = v.iter().cloned().fold(f32::NEG_INFINITY, f32::max);
+    Some(max - min)
+}
+
+/// Byte-identical, within one unit per channel, or genuinely different.
+fn classify(engine: &str, committed: &str) -> MatchKind {
+    if engine == committed {
+        return MatchKind::Exact;
+    }
+    match (parse_channels(engine), parse_channels(committed)) {
+        (Some(a), Some(b)) => {
+            if a.iter()
+                .zip(b.iter())
+                .all(|(x, y)| (i16::from(*x) - i16::from(*y)).abs() <= 1)
+            {
+                MatchKind::Rounding
+            } else {
+                MatchKind::Drift
+            }
+        }
+        _ => MatchKind::Drift,
+    }
+}
+
+fn parse_channels(hex: &str) -> Option<[u8; 3]> {
+    let h = hex.trim_start_matches('#');
+    if h.len() < 6 {
+        return None;
+    }
+    let r = u8::from_str_radix(&h[0..2], 16).ok()?;
+    let g = u8::from_str_radix(&h[2..4], 16).ok()?;
+    let b = u8::from_str_radix(&h[4..6], 16).ok()?;
+    Some([r, g, b])
 }
 
 fn json_escape(s: &str) -> String {
@@ -321,6 +440,12 @@ fn render_json(reports: &[RampReport]) -> String {
             "      \"hueSpan\": {},\n",
             r.hue_span.map_or("null".into(), |v| format!("{v:.2}"))
         ));
+        out.push_str(&format!(
+            "      \"hueSpanIntended\": {},\n",
+            r.hue_span_intended
+                .map_or("null".into(), |v| format!("{v:.2}"))
+        ));
+        out.push_str(&format!("      \"roundingOnly\": {},\n", r.rounding_only));
         out.push_str(&format!(
             "      \"minLightEndDeltaL\": {},\n",
             r.min_light_end_delta_l
@@ -347,13 +472,20 @@ fn render_json(reports: &[RampReport]) -> String {
         out.push_str("],\n      \"steps\": [\n");
         for (j, s) in r.steps.iter().enumerate() {
             out.push_str(&format!(
-                "        {{ \"step\": \"{}\", \"hex\": \"{}\", \"l\": {:.4}, \"c\": {:.4}, \"h\": {:.2}, \"deltaL\": {} }}{}\n",
+                "        {{ \"step\": \"{}\", \"hex\": \"{}\", \"intended\": {{ \"l\": {:.4}, \"c\": {:.4}, \"h\": {:.2} }}, \"rendered\": {{ \"l\": {:.4}, \"c\": {:.4}, \"h\": {:.2} }}, \"deltaL\": {}, \"foreground\": {{ \"hex\": \"{}\", \"source\": \"{}\", \"ratio\": {:.2}, \"rating\": \"{}\" }} }}{}\n",
                 json_escape(&s.label),
                 json_escape(&s.hex),
                 s.l,
                 s.c,
                 s.h,
+                s.rendered_l,
+                s.rendered_c,
+                s.rendered_h,
                 s.delta_l.map_or("null".into(), |v| format!("{v:.2}")),
+                json_escape(&s.fg_hex),
+                json_escape(&s.fg_source),
+                s.fg_ratio,
+                json_escape(&s.fg_rating),
                 if j + 1 < r.steps.len() { "," } else { "" }
             ));
         }
@@ -385,32 +517,47 @@ fn render_markdown(reports: &[RampReport]) -> String {
     }
 
     out.push_str("## Summary\n\n");
-    out.push_str("| ramp | theme | reproduces | hue span | light-end min ΔL | chroma peak |\n");
-    out.push_str("| --- | --- | --- | ---: | ---: | --- |\n");
+    out.push_str(
+        "| ramp | theme | reproduces | hue span (rendered) | hue span (intended) | light-end min ΔL | chroma peak |\n",
+    );
+    out.push_str("| --- | --- | --- | ---: | ---: | ---: | --- |\n");
     for r in reports {
-        let repro = match r.reproduces {
-            Some(true) => "yes",
-            Some(false) => "**NO**",
-            None => "n/a",
+        let repro = match (r.reproduces, r.rounding_only) {
+            (Some(true), 0) => "yes".to_string(),
+            (Some(true), n) => format!("yes ({n} rounding)"),
+            (Some(false), _) => "**NO**".to_string(),
+            (None, _) => "n/a".to_string(),
         };
         let span = r.hue_span.map_or("—".to_string(), |v| {
             let flag = if v > HUE_SPAN_LIMIT { " ⚠" } else { "" };
             format!("{v:.1}°{flag}")
         });
+        let span_i = r
+            .hue_span_intended
+            .map_or("—".to_string(), |v| format!("{v:.1}°"));
         let dl = r.min_light_end_delta_l.map_or("—".to_string(), |v| {
             let flag = if v < MIN_LIGHT_END_DELTA_L { " ⚠" } else { "" };
             format!("{v:.1}{flag}")
         });
         out.push_str(&format!(
-            "| {} | {} | {} | {} | {} | {} |\n",
+            "| {} | {} | {} | {} | {} | {} | {} |\n",
             r.ramp,
             r.theme,
             repro,
             span,
+            span_i,
             dl,
             r.chroma_peak_label.as_deref().unwrap_or("—")
         ));
     }
+
+    out.push_str(
+        "\nTwo hue spans, because they answer different questions. **Intended** is the OKLCH the \
+         engine computed; it is near zero by construction, since holding hue is what the ramp \
+         definition does. **Rendered** is that colour quantised to sRGB and read back — what a \
+         browser paints. When the two diverge, the ramp definition is fine and the **gamut \
+         mapping** is bending it, which is where any fix belongs.\n",
+    );
 
     out.push_str(&format!(
         "\n⚠ marks a ramp past a `better-colors` threshold: hue span over {HUE_SPAN_LIMIT:.0}° \
@@ -437,20 +584,46 @@ fn render_markdown(reports: &[RampReport]) -> String {
             "### {} — {} (seed `{}`)\n\n",
             r.ramp, r.theme, r.seed
         ));
-        out.push_str("| step | hex | L | C | H | ΔL |\n| --- | --- | ---: | ---: | ---: | ---: |\n");
+        out.push_str(
+            "| step | hex | L | C | H (rendered) | H (intended) | ΔL | best foreground | source | contrast |\n",
+        );
+        out.push_str(
+            "| --- | --- | ---: | ---: | ---: | ---: | ---: | --- | --- | --- |\n",
+        );
         for s in &r.steps {
             out.push_str(&format!(
-                "| {} | `{}` | {:.3} | {:.3} | {:.1} | {} |\n",
+                "| {} | `{}` | {:.3} | {:.3} | {:.1} | {:.1} | {} | `{}` | {} | {:.2}:1 {} |\n",
                 s.label,
                 s.hex,
-                s.l,
-                s.c,
+                s.rendered_l,
+                s.rendered_c,
+                s.rendered_h,
                 s.h,
-                s.delta_l.map_or("—".to_string(), |v| format!("{v:+.1}"))
+                s.delta_l.map_or("—".to_string(), |v| format!("{v:.1}")),
+                s.fg_hex,
+                s.fg_source,
+                s.fg_ratio,
+                s.fg_rating,
             ));
         }
         out.push('\n');
     }
+
+    out.push_str(
+        "\n## On the foreground columns\n\n\
+         Every swatch carries the engine's own accessible-foreground recommendation \
+         (`Swatch::best_foreground`), the tier it came from (`ForegroundSource`), and the contrast \
+         it achieves. This is worth reading before treating any contrast finding as a token \
+         problem: the engine is **not** silent on contrast — it already guarantees a readable \
+         foreground for every fill it generates.\n\n\
+         Note what the sources are, though: `Step900`, `Step50`, `SoftWhite`, `SoftBlack`, \
+         `PureWhite`, `PureBlack`. The recommendation is drawn from the ramp's **ends or the \
+         white/black anchors**, because the question it answers is \"what text goes on this solid \
+         fill\". It does not answer \"which mid-ramp step is readable on some other surface\" — \
+         which is the shape of a link colour, a muted-text colour, or a border. That gap is why \
+         those roles are currently hand-picked in the semantic tier, and why they can drift below \
+         threshold without anything noticing.\n",
+    );
 
     out
 }

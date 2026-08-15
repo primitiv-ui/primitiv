@@ -1,0 +1,38 @@
+{
+  "$comment": [
+    "The engine inputs that produce the shipped palette.",
+    "",
+    "Until this file existed, the palette was not reproducible from the repo:",
+    "the seeds were entered interactively in the Harmoni Figma plugin and only",
+    "the OUTPUT was ever committed (packages/tokens/src/palette.json, and the",
+    "emitted tokens.css). That means nobody could regenerate the ramps from",
+    "source, and no CI check could tell you whether the committed palette still",
+    "matches what the engine produces.",
+    "",
+    "Each seed is the ramp's own step 500. That is not a convention this file",
+    "invents — harmoni-core's generate_pair documents it directly: 'Both share",
+    "the brand colour at step 500.' The ramp-audit example verifies the claim",
+    "per ramp rather than assuming it, and reports any seed that fails to",
+    "reproduce its committed ramp.",
+    "",
+    "Regenerate the audit with:  cargo run -p harmoni-core --example ramp-audit",
+    "or run the 'Harmoni ramp audit' workflow and download the artefact."
+  ],
+  "seeds": [
+    { "ramp": "brand", "seed": "#236ce1", "note": "Primitiv brand blue." },
+    { "ramp": "danger", "seed": "#db2424", "note": "Destructive actions and error states." },
+    { "ramp": "warning", "seed": "#e88e00", "note": "Caution states. See docs/interface-audit.md — this ramp measures 38.7 degrees of hue drift and a compressed light end." },
+    { "ramp": "success", "seed": "#008c11", "note": "Confirmation states. Holds hue to 2.7 degrees; the control case for ramp quality." },
+    { "ramp": "info", "seed": "#008e9d", "note": "Informational states. Measures 22.1 degrees of hue drift." }
+  ],
+  "$notScoped": {
+    "neutral": [
+      "The neutral ramp is NOT generated through generate_brand_pair — it comes",
+      "from harmoni-core's neutral module (generate_neutral_ramp / tint_neutrals),",
+      "which takes a different input shape including the hue-tint mode. It is",
+      "deliberately left out of this manifest rather than guessed at.",
+      "Adding it means reading that module's signature and extending both this",
+      "file and the ramp-audit example."
+    ]
+  }
+}

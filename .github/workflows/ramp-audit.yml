@@ -1,0 +1,96 @@
+name: Harmoni ramp audit
+
+# Runs the palette engine and publishes what it produces, so ramp quality can
+# be analysed where the Rust toolchain actually exists.
+#
+# The problem this solves: colour work happens against the *committed* palette
+# (packages/tokens/src/palette.json), because cargo does not run in the design
+# environment. That is fine for diagnosing a ramp — the 2026-08-15
+# `better-colors` pass in docs/interface-audit.md measured real defects that
+# way — but it cannot tell you whether a proposed engine change fixes them.
+# This workflow runs the engine on a branch, uploads the result, and lets the
+# analysis happen against genuine output.
+#
+# It reports three things (see crates/harmoni-core/examples/ramp-audit.rs):
+#   1. whether the committed palette still reproduces from its seeds,
+#   2. per-ramp quality metrics — hue span, light-end lightness spacing,
+#      chroma peak,
+#   3. the full per-step L/C/H table, so two runs can be diffed.
+#
+# Deliberately NOT a gate. Ramp quality is reported, never enforced: a gate
+# would block the very commits trying to improve a ramp. The one exception is
+# reproduction, which the `strict` input can escalate — a palette that no
+# longer regenerates from its seeds always means something is out of sync.
+
+on:
+  # The main way to use this: run it by hand on whatever branch carries the
+  # engine change you want to evaluate.
+  workflow_dispatch:
+    inputs:
+      strict:
+        description: 'Fail the run if a ramp no longer reproduces its committed values'
+        type: boolean
+        default: false
+
+  push:
+    branches: [main]
+    paths:
+      - 'crates/harmoni-core/**'
+      - 'packages/tokens/harmoni-seeds.json'
+      - 'packages/tokens/src/palette.json'
+      - '.github/workflows/ramp-audit.yml'
+
+  pull_request:
+    paths:
+      - 'crates/harmoni-core/**'
+      - 'packages/tokens/harmoni-seeds.json'
+      - 'packages/tokens/src/palette.json'
+      - '.github/workflows/ramp-audit.yml'
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      # Shares the cache key with the Rust workflow, so this is usually a
+      # warm build rather than a cold compile of the whole workspace.
+      - name: Cache Rust build
+        uses: Swatinem/rust-cache@v2
+
+      # --features ramp-audit is required: the example is gated behind that
+      # feature so `cargo test --workspace` (the main Rust gate) does not build
+      # it, keeping a diagnostic tool off the critical path. See the crate's
+      # Cargo.toml for the reasoning.
+      - name: Run the ramp audit
+        run: |
+          cargo run -p harmoni-core --features ramp-audit --example ramp-audit -- \
+            ${{ (inputs.strict && '--strict') || '' }}
+
+      # The markdown report lands in the run summary, so the headline result is
+      # readable without downloading anything.
+      - name: Publish report to the job summary
+        if: always()
+        run: |
+          if [ -f target/ramp-audit/ramp-audit.md ]; then
+            cat target/ramp-audit/ramp-audit.md >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "No report produced — the audit step failed before writing output." \
+              >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      # The JSON is the artefact to pull down for analysis, and the one to diff
+      # between a before-run and an after-run when evaluating an engine change.
+      - name: Upload artefact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ramp-audit
+          path: target/ramp-audit/
+          # Long enough to compare against a run from a previous iteration
+          # without re-running the old branch.
+          retention-days: 30

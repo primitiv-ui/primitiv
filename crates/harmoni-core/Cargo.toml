@@ -7,3 +7,31 @@ edition = "2024"
 csscolorparser = "0.8.3"
 palette = "0.7.6"
 serde = { version = "1.0", features = ["derive"] }
+
+# Dev-only, and deliberately so. The `ramp-audit` example reads the seed
+# manifest and the committed palette.json to check that the engine still
+# reproduces the shipped tokens, which needs a JSON parser. This does NOT
+# change harmoni-core's runtime dependency posture — the crate still compiles
+# to the same three direct deps for every real consumer, and nothing here
+# reaches the wasm build. Keep it out of [dependencies].
+[dev-dependencies]
+serde_json = "1.0"
+
+# The ramp-audit example is gated behind its own feature so that
+# `cargo test --workspace` — the gate in .github/workflows/rust.yml — does not
+# build it. Examples are normally compiled by `cargo test`, which would put a
+# diagnostic tool on the critical path of the main CI gate for no benefit: a
+# mistake in the audit reporter would fail the workspace test run and block
+# unrelated work.
+#
+# With `required-features`, only the ramp-audit workflow builds it
+# (`--features ramp-audit`), so a failure there is scoped to the thing that
+# actually broke. The feature is empty because serde_json is a dev-dependency
+# and is therefore already available to examples; it exists purely as a build
+# gate, not to switch any code on.
+[features]
+ramp-audit = []
+
+[[example]]
+name = "ramp-audit"
+required-features = ["ramp-audit"]

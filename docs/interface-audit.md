@@ -669,8 +669,30 @@ stylesheets against **505** semantic ones.
 ### Measure the rendered pair, then report
 
 Reported per principle 9 — the pair, its measured value, and the threshold it
-misses. Colours are **not** changed here; candidates are given because each
-resolves to a single step on an existing ramp (route 2).
+misses. Colours are **not** changed here.
+
+> **Revised after the first ramp-audit run (see the addendum below).** These
+> were originally filed as route-2 re-bindings. They are better understood as
+> one **engine capability gap**, and the re-binding is a mitigation rather than
+> the fix.
+>
+> The engine is not silent on contrast. Every `Swatch` carries
+> `best_foreground`, a `ForegroundSource`, and a `contrast_result` — and across
+> all 100 generated swatches there is **not one `Fail`**: 72 AAA, 28 AA. The
+> foreground guarantee is real and complete.
+>
+> But look at what `ForegroundSource` can return: `Step900`, `Step50`,
+> `SoftWhite`, `SoftBlack`, `PureWhite`, `PureBlack`. It draws from the ramp's
+> **ends or the white/black anchors**, because the question it answers is *"what
+> text goes on this solid fill"*. It has no answer for *"which mid-ramp step is
+> readable on some other surface"* — which is exactly the shape of a link
+> colour, a muted-text colour, and a border.
+>
+> So those three roles are hand-picked in the semantic tier, with nothing
+> checking them. That is why they drifted below threshold silently, and it is
+> why re-binding them fixes today's values without preventing tomorrow's. The
+> durable fix is to extend the engine to recommend an accessible step for a
+> given (ramp, surface, threshold) and have the semantic tier consume it.
 
 | Severity | Location | Before | After | Why |
 | --- | --- | --- | --- | --- |
@@ -682,7 +704,7 @@ resolves to a single step on an existing ramp (route 2).
 
 | Severity | Location | Before | After | Why |
 | --- | --- | --- | --- | --- |
-| MEDIUM | `palette.json` → `warning` (both themes) — **route 1, engine input** | Two measured defects. **Hue drifts 38.7°** across the ramp: `99.6°` (yellow-green) at step 200 down to `60.9°` (orange) at 800. And the **light end is compressed** — ΔL of `+1.3` and `+2.1` between 50/100/200, against `+5.5` to `+6.7` on every other ramp | An engine-input change; the remedy needs CI verification (see the conventions note above) | Two principles at once. A 38.7° span means the top and bottom of the ramp are not the same colour — the principle treats anything beyond 15° as a different hue, and `warning-200` beside `warning-800` reads as yellow beside orange. Separately, `50`/`100`/`200` differing by 1–2% lightness are not usable as three distinct surfaces, which is what those steps exist for. Both are consistent with gamut clamping in the yellow region, where OKLCH chroma limits bite hardest — plausibly one root cause. For comparison: `success` holds hue to **2.7°** and `danger` to **6.0°**, so the engine demonstrably does this well elsewhere. |
+| MEDIUM | `palette.json` → `warning`, and the sRGB gamut mapping — **route 1** | Measured on the committed palette: hue drifts **38.7°** (`99.6°` yellow-green at 200 → `60.9°` orange at 800), and the light end is compressed to ΔL `+1.3`/`+2.1` against `+5.5`–`+6.7` elsewhere | See the addendum — the root cause is **not** the ramp definition | **Substantially revised.** The original diagnosis blamed the ramp curve. The ramp-audit run shows the engine's *intended* hue span is **0.0° on all ten ramps** — it holds hue perfectly by construction. The entire drift appears in the sRGB quantisation step. So the ramp definition is correct and the **gamut mapping** is what bends it, which is where any fix belongs. The compressed light end is real and stands (still ΔL 0.0 on current output). |
 
 ### Remaining
 
@@ -767,18 +789,111 @@ uses (`#0000001a` today), and let the migration sweep it with everything else.
   the `opacity: 0.5` disabled recipe from pass 02 — is not reflected in these
   numbers and will measure worse.
 
+## Addendum — measured against the live engine
+
+Everything above was measured against the **committed** palette, because the
+Rust toolchain is unavailable here. The `ramp-audit` workflow now runs the real
+engine, and the first two runs changed several conclusions. Corrections first.
+
+### Colour problems belong to Harmoni
+
+The framing that makes the rest of this coherent: **Figma and the CSS are
+carriers.** Neither invents a colour — both receive whatever the engine emits.
+So a defect in a ramp is an engine defect, and a token-tier edit that papers
+over it is a mitigation, not a fix. The three re-bindings above are worth doing
+because they stop shipping failing contrast today; they are not the answer to
+why those values were wrong.
+
+### The engine holds hue perfectly — the gamut mapping does not
+
+| ramp | theme | hue span **intended** | hue span **rendered** |
+| --- | --- | ---: | ---: |
+| brand | light | 0.0° | 15.6° ⚠ |
+| brand | dark | 0.0° | **31.2°** ⚠ |
+| danger | light | 0.0° | 6.0° |
+| danger | dark | 0.0° | 6.5° |
+| warning | light | 0.0° | 33.4° ⚠ |
+| warning | dark | 0.0° | 22.8° ⚠ |
+| success | light | 0.0° | 0.9° |
+| success | dark | 0.0° | 1.6° |
+| info | light | 0.0° | 6.0° |
+| info | dark | 0.0° | 2.6° |
+
+**Intended is 0.0° everywhere.** The engine's ramp definition is not the
+problem — it holds hue exactly, on every ramp, in both themes. All drift is
+introduced when the colour is quantised into the sRGB gamut, so the fix belongs
+in the OKLCH→sRGB mapping. That is the same machinery RFC 0010 already tightened
+once (the `linear_in_gamut` tolerance change from `±1e-3` to `1e-5`).
+
+### Two corrections to my own findings
+
+**`info` is already fixed, and the finding was stale.** I filed it at 22.1°
+drift. Current engine output is **6.0° / 2.6°** — comfortably inside the
+threshold. The committed `info` ramp simply predates an engine improvement.
+
+**I missed `brand` dark entirely, and it is the worst ramp in the system at
+31.2°.** My pass-05 script measured light ramps only, so a drift worse than
+`warning` dark went unreported — and unlike warning, this one *does* reproduce
+from the current engine, so it is live in the shipped tokens. Brand is also the
+most-used ramp (38 aliases). This should outrank the original warning finding.
+
+### The committed palette is stale for three ramps
+
+| ramp | reproduces from its seed? |
+| --- | --- |
+| brand | yes (1 step differs by one unit — quantisation, not drift) |
+| danger | yes (1 step, same) |
+| warning | **no** — 8 steps differ materially in light, 6 in dark |
+| success | **no** — 8 steps in light, 6 in dark |
+| info | **no** — differs in both |
+
+The seeds in `harmoni-seeds.json` are correct (brand and danger reproduce
+exactly), so this is not a manifest error — `warning`, `success` and `info` were
+generated by an older engine and never regenerated. **Regenerating is its own
+fix**: it resolves `info` outright and improves `warning` from 38.7° to 33.4°.
+Nothing in the repo currently detects this; the workflow now does.
+
+### The engine's accessibility guarantee is complete — within its scope
+
+Across all 100 generated swatches: **zero `Fail` ratings, 72 AAA, 28 AA.** Every
+swatch the engine produces has a guaranteed-accessible foreground, and that
+guarantee holds even on the defective ramps — the warning ramp's hue drift never
+produces an unreadable fill.
+
+The limit is scope, not quality. `ForegroundSource` returns `Step900`, `Step50`,
+`SoftWhite`, `SoftBlack`, `PureWhite` or `PureBlack` — ramp ends and anchors,
+answering *"what text goes on this fill"*. The roles that failed (link, muted
+text, border) are mid-ramp-step-on-a-different-surface, which the engine has no
+API for. **That gap is the real finding behind all three contrast failures**,
+and closing it would make the whole class impossible rather than fixing three
+instances.
+
+### What this changes about priority
+
+1. **Regenerate the palette.** Free, fixes `info`, improves `warning`, and
+   removes the stale-snapshot problem. Verify with a `ramp-audit` run.
+2. **Investigate `brand` dark at 31.2°** — worst ramp, most-used ramp, live in
+   the shipped tokens, and not previously reported.
+3. **Extend the engine's foreground API** to cover mid-ramp-on-surface roles, so
+   the semantic tier consumes a guarantee instead of a hand-picked step.
+4. **Re-bind the three failing pairs** as a stopgap while 3 is built.
+5. **Gamut mapping** is the root cause of all hue drift — the deepest fix and
+   the one to scope last.
+
 ## Verdict
 
-**Needs changes.** Four Medium and three Low, no High.
+**Needs changes.** Four Medium and three Low as filed, plus one previously
+unreported ramp defect (`brand` dark) surfaced by the first engine run.
 
-The token architecture is the best result in the whole audit — the
-primitive/semantic seam is not violated once in 62 stylesheets, and the ramp
-curves are demonstrably engineered rather than picked. Three of the four
-Mediums are a single alias each.
+The token architecture remains the best result in the whole audit — the
+primitive/semantic seam is not violated once in 62 stylesheets. And the engine
+is in better shape than the committed palette suggests: it holds hue exactly,
+and it guarantees an accessible foreground for all 100 swatches with zero
+failures.
 
-Start with the dark link colour: it is one token, it fixes a 3.78:1 pair, and
-the correct value is already sitting in the ramp beside the hover step that
-got it right.
+Start by **regenerating the palette**. It costs nothing, fixes one finding
+outright, improves another, and stops three ramps shipping from an engine
+version nobody is running any more.
 
 
 

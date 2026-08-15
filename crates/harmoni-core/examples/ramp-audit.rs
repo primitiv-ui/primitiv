@@ -58,6 +58,14 @@ const MIN_LIGHT_END_DELTA_L: f32 = 4.0;
 /// How many steps from the light end to hold to the tighter spacing rule.
 const LIGHT_END_STEPS: usize = 3;
 
+/// The step the seed pins. Steps at or past it are expected to be stable across
+/// engine changes; the interesting movement is below it.
+const SEED_STEP: u16 = 500;
+
+/// A mean chroma drop past this much across the light end is a collapse, not a
+/// refinement — the ramp is being greyed rather than corrected.
+const CHROMA_COLLAPSE_PCT: f32 = -10.0;
+
 struct Seed {
     ramp: String,
     seed: String,
@@ -98,6 +106,12 @@ struct StepMetric {
     /// ramp with a negative delta, which was the metric's bug, not the ramp's.
     delta_l: Option<f32>,
     committed_hex: Option<String>,
+    /// Rendered chroma of the *committed* value, so the report can say whether
+    /// regenerating would make a ramp more or less colourful. Added after a
+    /// regeneration was nearly committed on the strength of an improved hue
+    /// span that turned out to be chroma collapse in disguise — a greyer ramp
+    /// trivially holds hue, because there is less colour left to drift.
+    committed_c: Option<f32>,
 }
 
 /// How closely a regenerated step matches the committed one.
@@ -127,6 +141,15 @@ struct RampReport {
     hue_span_intended: Option<f32>,
     min_light_end_delta_l: Option<f32>,
     chroma_peak_label: Option<String>,
+    /// Mean chroma change, engine vs committed, over the steps *lighter* than
+    /// the seed. Those are the steps a gamut-mapping change moves, because the
+    /// seed itself is pinned and the dark end has chroma headroom to spare.
+    ///
+    /// This exists because "regenerate the palette" looked free on the hue
+    /// numbers and was not: the engine now produces 17–47% less chroma below
+    /// step 500 on warning and info. Without this column the report recommends
+    /// its own regression.
+    light_end_chroma_delta_pct: Option<f32>,
     reproduces: Option<bool>,
     rounding_only: usize,
     mismatches: Vec<String>,
@@ -298,6 +321,7 @@ fn analyse(
             rendered_c,
             rendered_h,
             delta_l,
+            committed_c: committed_hex.as_deref().and_then(round_trip).map(|t| t.1),
             committed_hex,
             fg_hex: swatch.best_foreground.hex.to_lowercase(),
             fg_source: format!("{:?}", swatch.foreground_source),
@@ -357,6 +381,26 @@ fn analyse(
         Some(mismatches.is_empty())
     };
 
+    // Chroma change over the steps lighter than the seed. `SEED_STEP` is where
+    // the ramp is pinned, so anything at or past it is expected to be stable —
+    // including it would dilute the signal with a run of guaranteed zeros.
+    let mut ratios: Vec<f32> = Vec::new();
+    for s in &steps {
+        if s.label.parse::<u16>().map(|n| n >= SEED_STEP).unwrap_or(true) {
+            continue;
+        }
+        if let Some(cc) = s.committed_c {
+            if cc > CHROMATIC_FLOOR {
+                ratios.push((s.rendered_c - cc) / cc * 100.0);
+            }
+        }
+    }
+    let light_end_chroma_delta_pct = if ratios.is_empty() {
+        None
+    } else {
+        Some(ratios.iter().sum::<f32>() / ratios.len() as f32)
+    };
+
     RampReport {
         ramp: seed.ramp.clone(),
         seed: seed.seed.clone(),
@@ -366,6 +410,7 @@ fn analyse(
         hue_span_intended,
         min_light_end_delta_l,
         chroma_peak_label,
+        light_end_chroma_delta_pct,
         reproduces,
         rounding_only,
         mismatches,
@@ -447,6 +492,11 @@ fn render_json(reports: &[RampReport]) -> String {
         ));
         out.push_str(&format!("      \"roundingOnly\": {},\n", r.rounding_only));
         out.push_str(&format!(
+            "      \"lightEndChromaDeltaPct\": {},\n",
+            r.light_end_chroma_delta_pct
+                .map_or("null".into(), |v| format!("{v:.2}"))
+        ));
+        out.push_str(&format!(
             "      \"minLightEndDeltaL\": {},\n",
             r.min_light_end_delta_l
                 .map_or("null".into(), |v| format!("{v:.2}"))
@@ -518,9 +568,9 @@ fn render_markdown(reports: &[RampReport]) -> String {
 
     out.push_str("## Summary\n\n");
     out.push_str(
-        "| ramp | theme | reproduces | hue span (rendered) | hue span (intended) | light-end min ΔL | chroma peak |\n",
+        "| ramp | theme | reproduces | hue span (rendered) | hue span (intended) | light-end min ΔL | light-end chroma vs committed | chroma peak |\n",
     );
-    out.push_str("| --- | --- | --- | ---: | ---: | ---: | --- |\n");
+    out.push_str("| --- | --- | --- | ---: | ---: | ---: | ---: | --- |\n");
     for r in reports {
         let repro = match (r.reproduces, r.rounding_only) {
             (Some(true), 0) => "yes".to_string(),
@@ -539,14 +589,21 @@ fn render_markdown(reports: &[RampReport]) -> String {
             let flag = if v < MIN_LIGHT_END_DELTA_L { " ⚠" } else { "" };
             format!("{v:.1}{flag}")
         });
+        let chroma = r
+            .light_end_chroma_delta_pct
+            .map_or("—".to_string(), |v| {
+                let flag = if v < CHROMA_COLLAPSE_PCT { " ⚠" } else { "" };
+                format!("{v:+.0}%{flag}")
+            });
         out.push_str(&format!(
-            "| {} | {} | {} | {} | {} | {} | {} |\n",
+            "| {} | {} | {} | {} | {} | {} | {} | {} |\n",
             r.ramp,
             r.theme,
             repro,
             span,
             span_i,
             dl,
+            chroma,
             r.chroma_peak_label.as_deref().unwrap_or("—")
         ));
     }
@@ -556,7 +613,14 @@ fn render_markdown(reports: &[RampReport]) -> String {
          engine computed; it is near zero by construction, since holding hue is what the ramp \
          definition does. **Rendered** is that colour quantised to sRGB and read back — what a \
          browser paints. When the two diverge, the ramp definition is fine and the **gamut \
-         mapping** is bending it, which is where any fix belongs.\n",
+         mapping** is bending it, which is where any fix belongs.\n\n\
+         **Read the chroma column before acting on the hue column.** They can point in opposite \
+         directions, and the hue number is the more flattering of the two. A ramp that has lost \
+         chroma will *always* show a better hue span — there is less colour left to drift, and \
+         near-grey steps drop out of the measurement entirely. So an apparent hue improvement \
+         accompanied by a large negative chroma delta is a ramp being greyed, not corrected. \
+         Regenerating on the strength of the hue column alone is how a desaturation regression \
+         gets shipped as a fix.\n",
     );
 
     out.push_str(&format!(

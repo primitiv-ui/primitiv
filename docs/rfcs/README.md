@@ -12,6 +12,7 @@ status, summary, and decision record; this page is the index.
 | [0003](0003-dynamic-foreground-wiring.md) | Dynamic foreground wiring | Implemented (engine + sync-plugin + DTCG) |
 | [0017](0017-elevation-and-shadow-tokens.md) | Elevation & shadow tokens | Draft — in progress |
 | [0025](0025-responsive-breakpoints.md) | Responsive breakpoints | Web landed; Figma sync pending |
+| [0027](0027-ramp-quality-and-generation-feedback.md) | Ramp quality metrics & generation feedback | Draft — proposed, nothing built |
 
 - **0001** — the six-pattern layered token stack (primitives → intent → role →
   anatomy → interaction → component), the contexts model, and the Button worked
@@ -41,6 +42,20 @@ status, summary, and decision record; this page is the index.
   in `@primitiv-ui/react`) and a generated `breakpoints.ts` companion for it.
   **Web side landed (2026-08-08); Figma variables and the §3 design-frame
   presets are still pending** — see `docs/transfer-and-next-steps.md`.
+- **0027** — ramp quality metrics: Harmoni generates palettes and nothing knows
+  whether they are good. The engine is rigorous about per-swatch foreground
+  contrast (zero failures across 100 swatches) but measures nothing about the
+  *ramp* — hue stability, step spacing, or how much of the available chroma it
+  uses. A throwaway audit example caught a chroma regression that had sat in
+  `main` since RFC 0010, where tightening `linear_in_gamut` for the picker's Hue
+  chart also cost the palette generator up to 41% of its light-end chroma.
+  Proposes a `RampQuality` type in `harmoni-core::audit`, measuring chroma
+  against **what the gamut allows** rather than a committed baseline, consumed by
+  regression tests, the CI report, and — the most valuable part — the picker UI,
+  so a designer learns at pick time that their cyan will mute in sRGB rather than
+  months later. Also proposes extending the foreground API from "text on this
+  fill" to "which step is readable on this surface", which is the structural fix
+  for the three contrast failures in `docs/interface-audit.md`. Nothing built.
 
 ## Consumption layer
 

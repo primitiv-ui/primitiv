@@ -512,7 +512,7 @@
     --primitiv-action-ghost-active: var(--primitiv-color-neutral-alpha-300);
     --primitiv-action-ghost-hover: var(--primitiv-color-neutral-alpha-200);
     --primitiv-action-link-foreground-active: var(--primitiv-color-brand-200);
-    --primitiv-action-link-foreground-default: var(--primitiv-color-brand-500);
+    --primitiv-action-link-foreground-default: var(--primitiv-color-brand-600);
     --primitiv-action-link-foreground-disabled: var(--primitiv-color-brand-500);
     --primitiv-action-link-foreground-hover: var(--primitiv-color-brand-300);
     --primitiv-action-link-foreground-visited: var(--primitiv-color-brand-300);
@@ -547,7 +547,7 @@
     --primitiv-content-disabled: var(--primitiv-color-neutral-500);
     --primitiv-content-error: var(--primitiv-color-danger-500);
     --primitiv-content-inverse: var(--primitiv-color-black);
-    --primitiv-content-muted: var(--primitiv-color-neutral-500);
+    --primitiv-content-muted: var(--primitiv-color-neutral-600);
     --primitiv-content-on-action: var(--primitiv-color-absolute-white);
     --primitiv-content-on-selected: var(--primitiv-color-neutral-50);
     --primitiv-content-primary: var(--primitiv-color-neutral-900);

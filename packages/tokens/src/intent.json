@@ -657,7 +657,7 @@
         "foreground": {
           "default": {
             "$type": "color",
-            "$value": "{color.brand.500}"
+            "$value": "{color.brand.600}"
           },
           "hover": {
             "$type": "color",
@@ -889,7 +889,7 @@
       },
       "muted": {
         "$type": "color",
-        "$value": "{color.neutral.500}"
+        "$value": "{color.neutral.600}"
       },
       "disabled": {
         "$type": "color",

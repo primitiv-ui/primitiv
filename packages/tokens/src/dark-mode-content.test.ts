@@ -52,7 +52,24 @@ function contrastRatio(a: string, b: string): number {
 // Dark ramp — not re-swapping the index a second time. Several tokens were
 // swapped a second time, cancelling the intended flip and landing both
 // modes on the same (or a same-toned) colour.
-describe.each(['content/primary', 'content/secondary'] as const)('%s', (token) => {
+// `content/muted` and `action/link/foreground/default` were added after a
+// contrast audit (docs/interface-audit.md, 2026-08-15 `better-colors`) found
+// both failing in dark mode while passing in light — 4.20:1 and 3.78:1 against
+// `surface/default`, missing 4.5:1. Neither was covered here, which is why the
+// guard above did not catch them.
+//
+// The link is the instructive one: its *hover* and *active* steps were already
+// correctly theme-inverted (light 500 → 600 → 700 darker, dark 500 → 300 → 200
+// lighter), and only `default` had been left on 500 in both modes. The failure
+// was a missed alias inside an otherwise correct pattern, not a missing dark
+// mode — exactly the shape a per-token guard catches and a per-family one does
+// not.
+describe.each([
+  'content/primary',
+  'content/secondary',
+  'content/muted',
+  'action/link/foreground/default',
+] as const)('%s', (token) => {
   it('resolves to a different colour in light vs dark mode', () => {
     expect(intentColor('light', token)).not.toBe(intentColor('dark', token))
   })

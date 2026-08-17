@@ -58,6 +58,8 @@
      footprint beyond the bare "…" glyph. */
   .primitiv-breadcrumb-overflow__trigger {
     display: inline-flex;
+    /* Press feedback depth. Set to 1 to switch the press scale off. */
+    --primitiv-breadcrumb-overflow-press-scale: 0.96;
     align-items: center;
     border: none;
     background: var(--primitiv-color-transparent);
@@ -69,7 +71,8 @@
     user-select: none;
     -webkit-user-select: none;
     -webkit-touch-callout: none;
-    transition: background-color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
+    transition: background-color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default),
+      scale var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
   }
 }
 
@@ -90,5 +93,13 @@
   .primitiv-breadcrumb-overflow__trigger:focus-visible {
     outline: var(--primitiv-focus-ring-width) solid var(--primitiv-focus-ring);
     outline-offset: var(--primitiv-focus-ring-offset);
+  }
+  /* Press feedback — see Button for the full reasoning. Additive: the colour
+     change on :active is not gated, so a reduced-motion user still gets a press
+     state, just not a moving one. --primitiv-breadcrumb-overflow-press-scale to 1 disables it. */
+  @media (prefers-reduced-motion: no-preference) {
+    .primitiv-breadcrumb-overflow__trigger:active {
+      scale: var(--primitiv-breadcrumb-overflow-press-scale);
+    }
   }
 }

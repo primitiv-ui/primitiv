@@ -42,6 +42,8 @@
     --primitiv-button-font-weight: var(--primitiv-label-md-font-weight);
     --primitiv-button-line-height: var(--primitiv-label-md-line-height);
     --primitiv-button-shadow: var(--primitiv-elevation-flat);
+    /* Press feedback depth. Set to 1 to switch the press scale off. */
+    --primitiv-button-press-scale: 0.96;
 
     display: inline-flex;
     align-items: center;
@@ -69,7 +71,8 @@
       background-color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default),
       border-color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default),
       box-shadow var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default),
-      color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
+      color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default),
+      scale var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
   }
 
   .primitiv-button svg {
@@ -299,6 +302,23 @@
     opacity: var(--primitiv-opacity-50);
     cursor: not-allowed;
   }
+    /* Press feedback. A 4% shrink is the cheapest tactile signal a control can
+       give, and it is additive: the background/border already change on :active,
+       so colour remains the static cue and this only sharpens it. 0.96 exactly —
+       below 0.95 reads as exaggerated.
+
+       Gated behind (prefers-reduced-motion: no-preference) so motion is opt-in,
+       which is safe precisely because the colour change is not gated: a reduced-
+       motion user still gets a press state, just not a moving one.
+
+       Set --primitiv-button-press-scale to 1 to switch it off without touching
+       the rule — the registry's own escape-hatch idiom, rather than a new prop
+       that would need a contract, recipe and wrapper change. */
+    @media (prefers-reduced-motion: no-preference) {
+      .primitiv-button:active {
+        scale: var(--primitiv-button-press-scale);
+      }
+    }
 }
 
 $primitiv-button-bg: var(--primitiv-button-bg);
@@ -315,3 +335,4 @@ $primitiv-button-font-size: var(--primitiv-button-font-size);
 $primitiv-button-font-weight: var(--primitiv-button-font-weight);
 $primitiv-button-line-height: var(--primitiv-button-line-height);
 $primitiv-button-shadow: var(--primitiv-button-shadow);
+$primitiv-button-press-scale: var(--primitiv-button-press-scale);

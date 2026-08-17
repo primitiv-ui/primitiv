@@ -516,6 +516,8 @@
   .primitiv-carousel__prev,
   .primitiv-carousel__next {
     display: inline-grid;
+    /* Press feedback depth. Set to 1 to switch the press scale off. */
+    --primitiv-carousel-control-press-scale: 0.96;
     place-items: center;
     /* Fixed-size controls never flex — otherwise a tight joined bar would squash
        them into ellipses instead of keeping their circle. */
@@ -536,7 +538,8 @@
     user-select: none;
     -webkit-user-select: none;
     -webkit-touch-callout: none;
-    transition: background-color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
+    transition: background-color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default),
+      scale var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
   }
   .primitiv-carousel__prev svg,
   .primitiv-carousel__next svg {
@@ -2328,5 +2331,14 @@
   .primitiv-carousel__next:disabled {
     opacity: var(--primitiv-opacity-50);
     cursor: not-allowed;
+  }
+  /* Press feedback — see Button for the full reasoning. Additive: the colour
+     change on :active is not gated, so a reduced-motion user still gets a press
+     state, just not a moving one. --primitiv-carousel-control-press-scale to 1 disables it. */
+  @media (prefers-reduced-motion: no-preference) {
+    .primitiv-carousel__prev:active,
+    .primitiv-carousel__next:active {
+      scale: var(--primitiv-carousel-control-press-scale);
+    }
   }
 }

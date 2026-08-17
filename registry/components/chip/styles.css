@@ -72,10 +72,13 @@
     background-color: var(--primitiv-chip-background);
     color: var(--primitiv-chip-foreground);
     white-space: nowrap;
+    /* Press feedback depth. Set to 1 to switch the press scale off. */
+    --primitiv-chip-press-scale: 0.96;
     transition:
       background-color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default),
       border-color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default),
-      box-shadow var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
+      box-shadow var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default),
+      scale var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
     /* The chip's own label/icons aren't page content a user is trying to
        copy — no tap-hold selection or iOS callout on any of it. */
     user-select: none;
@@ -251,5 +254,13 @@
     --primitiv-chip-background: var(--primitiv-action-secondary-disabled);
     --primitiv-chip-border-color: var(--primitiv-action-secondary-border-disabled);
     --primitiv-chip-foreground: var(--primitiv-action-secondary-foreground-disabled);
+  }
+  /* Press feedback — see Button for the full reasoning. Additive: the colour
+     change on :active is not gated, so a reduced-motion user still gets a press
+     state, just not a moving one. --primitiv-chip-press-scale to 1 disables it. */
+  @media (prefers-reduced-motion: no-preference) {
+    .primitiv-chip:has(.primitiv-chip__remove:active) {
+      scale: var(--primitiv-chip-press-scale);
+    }
   }
 }

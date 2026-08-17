@@ -19,6 +19,7 @@ Landed against these findings, newest first:
 
 | Commit | Finding | Pass |
 | --- | --- | --- |
+| `4096fc63` · `33a11417` | Heading letter-spacing — a per-density Context member, plus two new ramp steps, a table guard and a browser test | `better-typography` |
 | `8ca536e0` · `3996e39e` | Button optical icon inset — new token family, plus a browser test | `better-ui` |
 | `208023c9` | `from-font` underline metrics, `text-wrap: balance`/`pretty` | `better-typography` |
 | `9b0f810a` | Dark link state ramp ran toward black — all four states, plus a direction guard | `better-colors` |
@@ -33,7 +34,14 @@ Landed against these findings, newest first:
 
 Deliberately parked: the font pair (blocks the `tabular-nums` fix being effective —
 there is now a live pairing preview in the kitchen sink, `0198b27d`), the
-`border/default` alias convention, and the `table` numeric-cell API.
+`border/default` alias convention, the `table` numeric-cell API, and the two
+Figma text-style findings in Pass 06 below.
+
+One build gap closed along the way (`140ed09c`): the workbench's committed
+`primitiv-base.css` had silently missed this session's three typography fixes,
+because no workflow emits that file and no gate checks it. Both committed copies
+are now synced by hand. The underlying gap — two generated files with no
+regeneration path — is still open.
 
 ## Passes
 
@@ -588,7 +596,7 @@ that already exists.
 
 | Severity | Location | Before | After | Why |
 | --- | --- | --- | --- | --- |
-| LOW | `packages/tokens/src/context.json` → `heading.h1`–`h6`<br>`primitiv-base.css:176` | The heading token family carries `font-family`, `font-size`, `font-style`, `font-weight` and `line-height` — but **no `letter-spacing` member**, so no heading sets tracking | Add `heading.h{n}.letter-spacing`, binding `letter-spacing-tight` at h1–h2 and easing to normal by h4 | `--primitiv-letter-spacing-tight` (`-0.075rem`) and `-tighter` (`-0.15rem`) **already exist in the token layer** and are used nowhere. An `h1` at 48px with default tracking reads loose — large type is exactly where negative tracking earns its place. This is a new token member plus a binding, not a new value. |
+| ~~LOW~~ **FIXED** (`4096fc63`, tested `33a11417`) | `packages/tokens/src/context.json` → `heading.h1`–`h6`<br>`primitiv-base.css:176` | The heading token family carries `font-family`, `font-size`, `font-style`, `font-weight` and `line-height` — but **no `letter-spacing` member**, so no heading sets tracking | A `heading.h{n}.letter-spacing` member whose alias differs **per density mode**, plus two new ramp steps | `--primitiv-letter-spacing-tight` (`-0.075rem`) and `-tighter` (`-0.15rem`) **already exist in the token layer** and are used nowhere. An `h1` at 48px with default tracking reads loose — large type is exactly where negative tracking earns its place.<br><br>**Fixed 2026-08-17.** Built in Figma first (2 primitives + 6 Context variables + bound on 24 heading text styles), mirrored into `primitives.json` / `context.json`, regenerated, then consumed on `h1`–`h6` in `base.css` / `base.scss`.<br><br>**The proposed shape was wrong, and the reason matters.** "Bind `tight` at h1–h2, easing to normal by h4" assumes one value per level. But tracking here is **absolute** (`rem`, like its `font-size`/`line-height` siblings) while `heading.h1` is **18px in Dense and 88px in Spacious** — a single `tight` would read as `-0.067em` and `-0.014em` respectively, the first unreadable and the second invisible. So the source is a 24-cell table: each mode aliases the step landing near `-0.02..-0.03em` at *its* size, easing to `normal` by roughly 24px. Every cell verified against its own font size; all land in `-0.017..-0.030em`.<br><br>**Two new ramp steps were needed, not a new value bent to fit.** `letter-spacing/normal` (`0`) and `/snug` (`-0.6`, continuing the ramp's existing halving `2.4 → 1.2 → 0.6`). Without `snug`, Compact h1 at 32px had to take `tight` and would have landed at `-0.0375em`, outside the band — adding the missing rung beat distorting a cell to reach the rungs that existed. Literals stay in the primitive tier; all 24 Context cells are aliases.<br><br>**Figma held it as PERCENT, which would have silently diverged.** Every one of the 188 text styles carries `letterSpacing: {unit: PERCENT, value: 0}`, and a bound FLOAT adopts the node's existing unit — so `-2.4` would have meant `-2.4%` (≈`-0.024em`) in Figma while the emitter writes `-0.15rem` (`-2.4px`). The unit is pinned to PIXELS before each bind so both platforms mean the same thing.<br><br>**Guarded twice.** `packages/tokens/src/heading-tracking.test.ts` (18 tests) asserts every cell exists, sits in the band relative to its own font size, and is monotone in both directions — the check against a cell copied from the wrong column, which is invisible by inspection since `{letter-spacing.tighter}` looks as plausible at h6 as at h1. `apps/kitchen-sink/e2e/heading-tracking.spec.ts` (3 specs) then proves it reaches an element, because the wiring failure is silent: a `var()` naming a property that does not exist drops the declaration and leaves the heading at `normal` with no error. That spec asserts the property is *declared* as well as used — without it, an unwired level passes by reading `0 === 0`. Verified red by breaking one var name. |
 
 ### Underlines from the font
 
@@ -1084,6 +1092,24 @@ from reaching the tokens.
 The one thing safe to do immediately is re-binding the three failing contrast
 pairs. That is a semantic-tier edit, it does not touch the engine, and it stops
 shipping sub-threshold contrast while the rest is investigated.
+
+---
+
+# Pass 06 — Figma text styles
+
+**2026-08-17.** Not a skill pass. Two findings surfaced while reading the Figma
+file to build the heading `letter-spacing` variables, both about the text-style
+layer rather than the tokens under it. Filed here rather than fixed, because each
+is a judgement call about the file's structure.
+
+| Severity | Location | Finding | Why it matters |
+| --- | --- | --- | --- |
+| MEDIUM | Figma text styles — 188 of them, `{Dense,Compact,Comfortable,Spacious} / …` | **The density prefix in a text-style name carries no information.** All four density-named variants bind the *same* Context variable: `Dense / Heading / h1` and `Spacious / Heading / h1` both bind `heading/h1/font-size`, so the two styles are identical. Density resolves from the consuming frame's Context mode, not from which style is applied. | This is exactly what modes are *for*, so the tokens are right and the style layer is 4× redundant. The cost is that the names actively mislead: a designer picking `Dense / Heading / h1` on a Comfortable frame gets Comfortable type, and nothing in the UI says so. Collapsing 188 → 47 is the obvious fix, but it is a destructive change to a shared library (every existing instance re-points), so it needs a deliberate decision rather than a sweep. |
+| LOW | Figma text styles vs `registry/components/{dropdown,select,listbox,context-menu}/styles.css` | **`letter-spacing/wide` is bound nowhere in Figma.** Before this pass no text style bound `letterSpacing` at all; the four uppercase group labels in the registry bind `--primitiv-letter-spacing-wide`, so the tracking on those labels exists only in code. | A one-directional drift: the code is right (small uppercase labels need positive tracking — `better-typography` principle 8) and the Figma equivalent, `Overline`, renders untracked. Small, and it only affects the file's fidelity rather than any shipped pixel, but it is the same class of gap as the heading one just closed. |
+
+Both were found by reading the file rather than by reasoning about it — the same
+thing that caught the overlay-edge and `min-block-size` reversals earlier in this
+audit.
 
 
 

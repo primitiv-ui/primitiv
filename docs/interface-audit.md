@@ -19,6 +19,7 @@ Landed against these findings, newest first:
 
 | Commit | Finding | Pass |
 | --- | --- | --- |
+| `219b0cc6` | Drawer scroll containment, and font smoothing at the root | `better-accessibility` / `better-typography` |
 | `230da21c` | Image outlines — Avatar / Card / Carousel / Figure | `better-ui` |
 | `a05445fc` | `tabular-nums` on Pagination / Data Table / Carousel (**inert** — see the font note) | `better-typography` |
 | `768b0f35` | Forced-colors focus indicator, 27 blocks across 26 components, plus a guard | `better-accessibility` |
@@ -398,7 +399,9 @@ findings are concentrated in **rendering modes and sizing**, not in markup.
 
 | Severity | Location | Before | After | Why |
 | --- | --- | --- | --- | --- |
-| MEDIUM | `registry/components/modal/styles.css`<br>`registry/components/drawer/styles.css` | Neither declares `overscroll-behavior` | `overscroll-behavior: contain` on the scrollable content region of both | Dropdown, Combobox, Select and Carousel all get this right — Modal and Drawer, the two components where it matters most, do not. Scrolling to the end of a modal's body chains to the page behind it, so the background moves under an open dialog. The focus trap itself is sound: Modal uses a native `<dialog>` (which inerts the background) plus a boundary-only Tab-wrap in `useModalContent.ts` and focus restore on close. |
+| ~~MEDIUM~~ **FIXED for Drawer** (`219b0cc6`); Modal half withdrawn | `registry/components/drawer/styles.css:181` | Drawer's `__body` scrolls (`overflow: auto`) with no `overscroll-behavior` | `overscroll-behavior: contain` — **Drawer only** | Dropdown, Combobox, Select and Carousel all contain their own scroll; Drawer was the one overlay that did not, so reaching the end of its body moved the page behind it.
+
+**The Modal half was wrong.** Modal has no `overflow`, no `max-block-size` and no height cap of any kind — so it has no independently scrollable region for the scroll to chain out of, and nothing to contain. That absence is arguably its own finding (a Modal with long content has no internal scroll and will grow past the viewport rather than scrolling its body) but it is a different problem from this one, and not filed here. The focus trap itself is sound: Modal uses a native `<dialog>` (which inerts the background) plus a boundary-only Tab-wrap in `useModalContent.ts` and focus restore on close. |
 
 ### Motion and timed UI
 
@@ -545,7 +548,7 @@ that already exists.
 
 | Severity | Location | Before | After | Why |
 | --- | --- | --- | --- | --- |
-| MEDIUM | `primitiv-base.css` | No `-webkit-font-smoothing` / `-moz-osx-font-smoothing` anywhere in the sheet or the registry | `-webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;` once on the root | On macOS text renders heavier than intended without it. This one has an unusually clear home: `primitiv-base.css` describes itself as "the global typographic foundation… shipped as part of the foundation, not installed per-component", which is exactly the root-level, once-only placement the principle calls for. Nothing about the current structure makes this awkward — it is simply absent. |
+| ~~MEDIUM~~ **FIXED** (`219b0cc6`) | `crates/primitiv-emit/assets/base.{css,scss}` | No `-webkit-font-smoothing` / `-moz-osx-font-smoothing` anywhere in the sheet or the registry | `-webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;` once on the root | On macOS text renders heavier than intended without it. This one has an unusually clear home: `primitiv-base.css` describes itself as "the global typographic foundation… shipped as part of the foundation, not installed per-component", which is exactly the root-level, once-only placement the principle calls for. Nothing about the current structure makes this awkward — it is simply absent. |
 
 ### Letter-spacing by size
 
@@ -666,7 +669,9 @@ about *growth and context*, not direction.
 
 | Severity | Location | Before | After | Why |
 | --- | --- | --- | --- | --- |
-| MEDIUM | `button/styles.css:50` · `input/styles.css:51` · `select/styles.css:101` · `chip/styles.css:67` · `badge/styles.css:60` · `tag/styles.css:56` | `block-size: var(--primitiv-<component>-height)` — a **fixed** height on six text-bearing controls | `min-block-size:` instead, so the designed height is the floor rather than the ceiling | A fixed height cannot absorb a longer string. German and Finnish button labels commonly run 30–40% longer than English, and Button additionally sets `white-space: nowrap` (`:96`) — so the label cannot wrap *and* the box cannot grow, leaving overflow or clipping as the only outcomes. The `nowrap` itself is correct and should stay (a wrapped button label reads as broken); it is the fixed `block-size` that removes the escape route. One property per component, and the visual result is identical at English lengths. |
+| ~~MEDIUM~~ **WITHDRAWN** — the finding was wrong | `button/styles.css:50` and five siblings | `block-size: var(--primitiv-<component>-height)` — a **fixed** height on six text-bearing controls | **No change. `min-block-size` does not address the problem I described** | **Withdrawn 2026-08-17.** `block-size` is *height*; a longer translation needs *width*, and the width is already `auto`. The reasoning is documented in the code I was proposing to change (`button/styles.css:84–92`): `white-space: nowrap` raises the label's min-content width to its full rendered width, and a flex item's default `min-width: auto` **is** its min-content size — so the button grows to fit a longer label and cannot be squeezed narrower than its own text. There is no clipping.
+
+The Figma mockup that appeared to show clipping only did so because I forced a fixed frame width, which is not what CSS does. `min-block-size` would only help if a consumer overrode `font-size` above what the fixed height accommodates — a far narrower case than the one filed, and a definite height is arguably correct for a framed control since it is what makes a row of them align. The `nowrap` itself is correct and should stay (a wrapped button label reads as broken); it is the fixed `block-size` that removes the escape route. One property per component, and the visual result is identical at English lengths. |
 
 ### Hold structure until it breaks
 

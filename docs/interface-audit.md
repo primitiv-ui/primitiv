@@ -160,6 +160,30 @@ carries `tnum` makes the already-shipped declaration work everywhere with zero
 API change.** That makes the font decision the highest-leverage move here, and
 an argument for leaving the API alone until it is settled.
 
+## Two committed generated files that nothing regenerates
+
+Found while shipping the font-smoothing fix, and worth its own entry because it
+will bite again.
+
+`primitiv-base.css` is emitted from a hand-authored asset
+(`crates/primitiv-emit/assets/base.{css,scss}`, embedded verbatim via
+`include_str!`). Changing the asset does **not** update the committed copy at
+`apps/kitchen-sink/src/styles/primitiv/primitiv-base.css`: the *Regenerate
+tokens* workflow only runs `primitiv tokens --out …/tokens.css`, which does not
+write the base sheet. It ran green after the change and committed nothing.
+
+The copy is byte-identical to the asset, so syncing it is a straight file copy —
+exactly what the generator produces — but nothing *checks* that, and the
+*Token drift* gate covers only `tokens.css`.
+
+The same gap exists for `apps/workbench/src/primitiv-tokens.css`, flagged
+earlier: a committed generated file that no workflow emits and no gate checks,
+which is why it still carried the pre-fix dark contrast values.
+
+**Two candidate fixes, neither taken here:** extend *Regenerate tokens* (and the
+drift gate) to cover both files, or retire the copies that no longer need to
+exist. Either is a decision about the build, not a finding about the interface.
+
 **Verifying a route-1 change needs CI.** The Rust toolchain is not available in
 the agent environment (org policy, not a missing binary), so an engine-input
 change cannot be validated where the design work happens — you can reason about

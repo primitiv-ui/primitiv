@@ -72,6 +72,12 @@
 
 @layer primitiv.base {
   .primitiv-pagination {
+    /* Tabular figures. Every number here changes in place — a page number as
+       you page, a "3 of 12" as the carousel advances, a value in a numeric
+       column — and proportional digits have different widths, so each update
+       shifts the text (and any column aligned to it) sideways. Inherited, so
+       one declaration on the root covers every numeric part. */
+    font-variant-numeric: tabular-nums;
     --primitiv-pagination-gap: var(--primitiv-pagination-md-gap);
     --primitiv-pagination-item-min-inline-size: var(--primitiv-pagination-md-item-min-width);
     --primitiv-pagination-group-gap: var(--primitiv-pagination-md-group-gap);

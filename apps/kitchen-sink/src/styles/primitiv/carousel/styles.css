@@ -588,6 +588,9 @@
   .primitiv-carousel__progress-text {
     color: var(--primitiv-carousel-progress-text-color);
     font-size: var(--primitiv-carousel-progress-text-font-size);
+    /* Tabular figures: this readout counts ("3 of 12") and proportional digits
+       have different widths, so it would shift sideways on every advance. */
+    font-variant-numeric: tabular-nums;
   }
 }
 

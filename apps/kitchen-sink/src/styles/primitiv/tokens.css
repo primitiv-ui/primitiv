@@ -511,11 +511,11 @@
     --primitiv-action-danger-hover: var(--primitiv-color-danger-300);
     --primitiv-action-ghost-active: var(--primitiv-color-neutral-alpha-300);
     --primitiv-action-ghost-hover: var(--primitiv-color-neutral-alpha-200);
-    --primitiv-action-link-foreground-active: var(--primitiv-color-brand-200);
+    --primitiv-action-link-foreground-active: var(--primitiv-color-brand-800);
     --primitiv-action-link-foreground-default: var(--primitiv-color-brand-600);
-    --primitiv-action-link-foreground-disabled: var(--primitiv-color-brand-500);
-    --primitiv-action-link-foreground-hover: var(--primitiv-color-brand-300);
-    --primitiv-action-link-foreground-visited: var(--primitiv-color-brand-300);
+    --primitiv-action-link-foreground-disabled: var(--primitiv-color-brand-600);
+    --primitiv-action-link-foreground-hover: var(--primitiv-color-brand-700);
+    --primitiv-action-link-foreground-visited: var(--primitiv-color-brand-700);
     --primitiv-action-primary-active: var(--primitiv-color-brand-200);
     --primitiv-action-primary-border-active: var(--primitiv-color-brand-200);
     --primitiv-action-primary-border-default: var(--primitiv-color-brand-500);

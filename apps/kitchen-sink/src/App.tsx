@@ -2295,6 +2295,31 @@ primitiv add --all`}</code>
         </Section>
 
         <Section title="Button">
+          {/* Optical alignment cases (RFC-less; docs/interface-audit.md finding 01).
+              Five shapes so the icon-side inset can be seen — and measured by
+              e2e/button-optical.spec.ts — against the three that must stay
+              symmetric. */}
+          <div data-testid="button-optical" style={{ display: "flex", gap: 8, flexWrap: "wrap", width: "100%" }}>
+            <Button variant="secondary" size={size} data-testid="btn-label-only">
+              Label only
+            </Button>
+            <Button variant="secondary" size={size} data-testid="btn-leading">
+              <ChevronLeft />
+              Leading
+            </Button>
+            <Button variant="secondary" size={size} data-testid="btn-trailing">
+              Trailing
+              <ChevronRight />
+            </Button>
+            <Button variant="secondary" size={size} data-testid="btn-both">
+              <ChevronLeft />
+              Both
+              <ChevronRight />
+            </Button>
+            <Button variant="secondary" size={size} aria-label="Icon only" data-testid="btn-icon-only">
+              <ChevronLeft />
+            </Button>
+          </div>
           <Button variant="primary" size={size}>
             <ChevronLeft />
             Primary

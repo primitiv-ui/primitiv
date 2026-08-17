@@ -200,11 +200,21 @@
     text-wrap: balance;
   }
 
+  /* Each level's tracking is a Context token, not a literal: it is **absolute**
+     (rem, like its font-size/line-height siblings), so the correct amount differs
+     per density mode — `heading.h1` is 18px in Dense and 88px in Spacious, where a
+     single -1.2px (-0.075rem) would read as -0.067em and -0.014em respectively. Each mode
+     therefore aliases the ramp step landing near -0.02..-0.03em at its own size,
+     easing to `letter-spacing.normal` by roughly 24px. Consequence worth knowing:
+     overriding a heading's font-size without also re-pointing its letter-spacing
+     detunes the tracking. Guarded by packages/tokens/src/heading-tracking.test.ts. */
+
   h1 {
     font-family: var(--primitiv-heading-h1-font-family);
     font-size: var(--primitiv-heading-h1-font-size);
     font-weight: var(--primitiv-heading-h1-font-weight);
     line-height: var(--primitiv-heading-h1-line-height);
+    letter-spacing: var(--primitiv-heading-h1-letter-spacing);
   }
 
   h2 {
@@ -212,6 +222,7 @@
     font-size: var(--primitiv-heading-h2-font-size);
     font-weight: var(--primitiv-heading-h2-font-weight);
     line-height: var(--primitiv-heading-h2-line-height);
+    letter-spacing: var(--primitiv-heading-h2-letter-spacing);
   }
 
   h3 {
@@ -219,6 +230,7 @@
     font-size: var(--primitiv-heading-h3-font-size);
     font-weight: var(--primitiv-heading-h3-font-weight);
     line-height: var(--primitiv-heading-h3-line-height);
+    letter-spacing: var(--primitiv-heading-h3-letter-spacing);
   }
 
   h4 {
@@ -226,6 +238,7 @@
     font-size: var(--primitiv-heading-h4-font-size);
     font-weight: var(--primitiv-heading-h4-font-weight);
     line-height: var(--primitiv-heading-h4-line-height);
+    letter-spacing: var(--primitiv-heading-h4-letter-spacing);
   }
 
   h5 {
@@ -233,6 +246,7 @@
     font-size: var(--primitiv-heading-h5-font-size);
     font-weight: var(--primitiv-heading-h5-font-weight);
     line-height: var(--primitiv-heading-h5-line-height);
+    letter-spacing: var(--primitiv-heading-h5-letter-spacing);
   }
 
   h6 {
@@ -240,6 +254,7 @@
     font-size: var(--primitiv-heading-h6-font-size);
     font-weight: var(--primitiv-heading-h6-font-weight);
     line-height: var(--primitiv-heading-h6-line-height);
+    letter-spacing: var(--primitiv-heading-h6-letter-spacing);
   }
 
   /* Lists: body text, indented, with a secondary-toned marker. The marker→content

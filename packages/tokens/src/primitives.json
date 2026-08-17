@@ -456,6 +456,14 @@
       "$type": "number",
       "$value": 1.2000000476837158
     },
+    "normal": {
+      "$type": "number",
+      "$value": 0
+    },
+    "snug": {
+      "$type": "number",
+      "$value": -0.6000000238418579
+    },
     "tight": {
       "$type": "number",
       "$value": -1.2000000476837158

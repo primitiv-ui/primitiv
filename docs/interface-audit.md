@@ -19,6 +19,7 @@ Landed against these findings, newest first:
 
 | Commit | Finding | Pass |
 | --- | --- | --- |
+| `5b091aea` | Safe-area clearance on Drawer, per docked side | `better-layout` |
 | `e0be6466` | One edge token for the dropdown-family overlay panels | `better-ui` |
 | `80fb3a50` | Tactile press feedback — `scale(0.96)` on Button / Chip / Breadcrumb Overflow / Carousel | `better-ui` |
 | `219b0cc6` | Drawer scroll containment, and font smoothing at the root | `better-accessibility` / `better-typography` |
@@ -713,7 +714,7 @@ The Figma mockup that appeared to show clipping only did so because I forced a f
 
 | Severity | Location | Before | After | Why |
 | --- | --- | --- | --- | --- |
-| MEDIUM | `drawer/styles.css:94`, `:123`, `:133` | `position: fixed` with `inset-block: 0` / `inset-inline: auto 0`, and **no** `env(safe-area-inset-*)` anywhere in the registry | Pad the drawer's edges with `max(<token>, env(safe-area-inset-<side>))` | Drawer is pinned to the viewport edges by design, which is right — but on any device with a home indicator or a notch, that means its content sits underneath them. A bottom drawer's final action lands under the iOS home indicator; a side drawer in landscape runs under the notch. Drawer is the only component that pins to a physical viewport edge, so this is one component's fix rather than a system-wide sweep. |
+| ~~MEDIUM~~ **FIXED** (`5b091aea`) | `drawer/styles.css:94`, `:123`, `:133` | `position: fixed` with `inset-block: 0` / `inset-inline: auto 0`, and **no** `env(safe-area-inset-*)` anywhere in the registry | Pad the drawer's edges with `max(<token>, env(safe-area-inset-<side>))` | Drawer pins to physical viewport edges, so its content sat under a notch or home indicator — a bottom drawer's footer actions being the worst case. **Fixed 2026-08-17** with padding rather than inset, so the surface still bleeds to the edge and only the content clears it.<br><br>Necessarily **per docked side**: `env(safe-area-inset-*)` is a *viewport*-level value, not a per-element one, so padding a right-docked drawer by the left inset would add space for an edge it never touches. Each variant pads only the three edges it actually meets. The `env()` names have no logical equivalents, which is why these are physical properties in a file that is otherwise logical throughout.<br><br>**One dependency worth knowing:** these resolve to 0 unless the page sets `viewport-fit=cover` on its viewport meta — iOS reports no insets without it. The kitchen sink did not have it, so the fix would have been unobservable there; it now does. A consumer who omits it gets a correct-but-inert rule rather than a wrong one. |
 
 ### Breakpoints and remaining physical properties
 

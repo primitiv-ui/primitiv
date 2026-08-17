@@ -943,6 +943,7 @@
     --primitiv-framed-control-lg-focus-ring-radius: var(--primitiv-radii-12);
     --primitiv-framed-control-lg-gap: var(--primitiv-space-space-8);
     --primitiv-framed-control-lg-height: var(--primitiv-size-size-48);
+    --primitiv-framed-control-lg-icon-optical-inset: var(--primitiv-space-space-4);
     --primitiv-framed-control-lg-icon-size: var(--primitiv-size-size-20);
     --primitiv-framed-control-lg-padding-inline: var(--primitiv-space-space-20);
     --primitiv-framed-control-lg-radius: var(--primitiv-radii-8);
@@ -950,6 +951,7 @@
     --primitiv-framed-control-md-focus-ring-radius: var(--primitiv-radii-12);
     --primitiv-framed-control-md-gap: var(--primitiv-space-space-8);
     --primitiv-framed-control-md-height: var(--primitiv-size-size-40);
+    --primitiv-framed-control-md-icon-optical-inset: var(--primitiv-space-space-4);
     --primitiv-framed-control-md-icon-size: var(--primitiv-size-size-16);
     --primitiv-framed-control-md-padding-inline: var(--primitiv-space-space-16);
     --primitiv-framed-control-md-radius: var(--primitiv-radii-8);
@@ -957,6 +959,7 @@
     --primitiv-framed-control-sm-focus-ring-radius: var(--primitiv-radii-10);
     --primitiv-framed-control-sm-gap: var(--primitiv-space-space-4);
     --primitiv-framed-control-sm-height: var(--primitiv-size-size-32);
+    --primitiv-framed-control-sm-icon-optical-inset: var(--primitiv-space-space-3);
     --primitiv-framed-control-sm-icon-size: var(--primitiv-size-size-14);
     --primitiv-framed-control-sm-padding-inline: var(--primitiv-space-space-12);
     --primitiv-framed-control-sm-radius: var(--primitiv-radii-6);
@@ -964,6 +967,7 @@
     --primitiv-framed-control-xl-focus-ring-radius: var(--primitiv-radii-14);
     --primitiv-framed-control-xl-gap: var(--primitiv-space-space-12);
     --primitiv-framed-control-xl-height: var(--primitiv-size-size-56);
+    --primitiv-framed-control-xl-icon-optical-inset: var(--primitiv-space-space-6);
     --primitiv-framed-control-xl-icon-size: var(--primitiv-size-size-24);
     --primitiv-framed-control-xl-padding-inline: var(--primitiv-space-space-24);
     --primitiv-framed-control-xl-radius: var(--primitiv-radii-10);
@@ -971,6 +975,7 @@
     --primitiv-framed-control-xs-focus-ring-radius: var(--primitiv-radii-8);
     --primitiv-framed-control-xs-gap: var(--primitiv-space-space-4);
     --primitiv-framed-control-xs-height: var(--primitiv-size-size-24);
+    --primitiv-framed-control-xs-icon-optical-inset: var(--primitiv-space-space-2);
     --primitiv-framed-control-xs-icon-size: var(--primitiv-size-size-12);
     --primitiv-framed-control-xs-padding-inline: var(--primitiv-space-space-8);
     --primitiv-framed-control-xs-radius: var(--primitiv-radii-4);
@@ -1786,6 +1791,7 @@
     --primitiv-framed-control-lg-focus-ring-radius: var(--primitiv-radii-12);
     --primitiv-framed-control-lg-gap: var(--primitiv-space-space-6);
     --primitiv-framed-control-lg-height: var(--primitiv-size-size-40);
+    --primitiv-framed-control-lg-icon-optical-inset: var(--primitiv-space-space-4);
     --primitiv-framed-control-lg-icon-size: var(--primitiv-size-size-20);
     --primitiv-framed-control-lg-padding-inline: var(--primitiv-space-space-16);
     --primitiv-framed-control-lg-radius: var(--primitiv-radii-8);
@@ -1793,6 +1799,7 @@
     --primitiv-framed-control-md-focus-ring-radius: var(--primitiv-radii-10);
     --primitiv-framed-control-md-gap: var(--primitiv-space-space-4);
     --primitiv-framed-control-md-height: var(--primitiv-size-size-32);
+    --primitiv-framed-control-md-icon-optical-inset: var(--primitiv-space-space-3);
     --primitiv-framed-control-md-icon-size: var(--primitiv-size-size-16);
     --primitiv-framed-control-md-padding-inline: var(--primitiv-space-space-12);
     --primitiv-framed-control-md-radius: var(--primitiv-radii-6);
@@ -1800,6 +1807,7 @@
     --primitiv-framed-control-sm-focus-ring-radius: var(--primitiv-radii-10);
     --primitiv-framed-control-sm-gap: var(--primitiv-space-space-4);
     --primitiv-framed-control-sm-height: var(--primitiv-size-size-28);
+    --primitiv-framed-control-sm-icon-optical-inset: var(--primitiv-space-space-2);
     --primitiv-framed-control-sm-icon-size: var(--primitiv-size-size-14);
     --primitiv-framed-control-sm-padding-inline: var(--primitiv-space-space-10);
     --primitiv-framed-control-sm-radius: var(--primitiv-radii-6);
@@ -1807,6 +1815,7 @@
     --primitiv-framed-control-xl-focus-ring-radius: var(--primitiv-radii-12);
     --primitiv-framed-control-xl-gap: var(--primitiv-space-space-8);
     --primitiv-framed-control-xl-height: var(--primitiv-size-size-48);
+    --primitiv-framed-control-xl-icon-optical-inset: var(--primitiv-space-space-4);
     --primitiv-framed-control-xl-icon-size: var(--primitiv-size-size-24);
     --primitiv-framed-control-xl-padding-inline: var(--primitiv-space-space-20);
     --primitiv-framed-control-xl-radius: var(--primitiv-radii-8);
@@ -1814,6 +1823,7 @@
     --primitiv-framed-control-xs-focus-ring-radius: var(--primitiv-radii-8);
     --primitiv-framed-control-xs-gap: var(--primitiv-space-space-4);
     --primitiv-framed-control-xs-height: var(--primitiv-size-size-20);
+    --primitiv-framed-control-xs-icon-optical-inset: var(--primitiv-space-space-1);
     --primitiv-framed-control-xs-icon-size: var(--primitiv-size-size-12);
     --primitiv-framed-control-xs-padding-inline: var(--primitiv-space-space-6);
     --primitiv-framed-control-xs-radius: var(--primitiv-radii-4);
@@ -2629,6 +2639,7 @@
     --primitiv-framed-control-lg-focus-ring-radius: var(--primitiv-radii-10);
     --primitiv-framed-control-lg-gap: var(--primitiv-space-space-4);
     --primitiv-framed-control-lg-height: var(--primitiv-size-size-32);
+    --primitiv-framed-control-lg-icon-optical-inset: var(--primitiv-space-space-3);
     --primitiv-framed-control-lg-icon-size: var(--primitiv-size-size-16);
     --primitiv-framed-control-lg-padding-inline: var(--primitiv-space-space-12);
     --primitiv-framed-control-lg-radius: var(--primitiv-radii-6);
@@ -2636,6 +2647,7 @@
     --primitiv-framed-control-md-focus-ring-radius: var(--primitiv-radii-8);
     --primitiv-framed-control-md-gap: var(--primitiv-space-space-4);
     --primitiv-framed-control-md-height: var(--primitiv-size-size-24);
+    --primitiv-framed-control-md-icon-optical-inset: var(--primitiv-space-space-2);
     --primitiv-framed-control-md-icon-size: var(--primitiv-size-size-14);
     --primitiv-framed-control-md-padding-inline: var(--primitiv-space-space-8);
     --primitiv-framed-control-md-radius: var(--primitiv-radii-4);
@@ -2643,6 +2655,7 @@
     --primitiv-framed-control-sm-focus-ring-radius: var(--primitiv-radii-8);
     --primitiv-framed-control-sm-gap: var(--primitiv-space-space-4);
     --primitiv-framed-control-sm-height: var(--primitiv-size-size-20);
+    --primitiv-framed-control-sm-icon-optical-inset: var(--primitiv-space-space-1);
     --primitiv-framed-control-sm-icon-size: var(--primitiv-size-size-12);
     --primitiv-framed-control-sm-padding-inline: var(--primitiv-space-space-6);
     --primitiv-framed-control-sm-radius: var(--primitiv-radii-4);
@@ -2650,6 +2663,7 @@
     --primitiv-framed-control-xl-focus-ring-radius: var(--primitiv-radii-12);
     --primitiv-framed-control-xl-gap: var(--primitiv-space-space-6);
     --primitiv-framed-control-xl-height: var(--primitiv-size-size-40);
+    --primitiv-framed-control-xl-icon-optical-inset: var(--primitiv-space-space-4);
     --primitiv-framed-control-xl-icon-size: var(--primitiv-size-size-20);
     --primitiv-framed-control-xl-padding-inline: var(--primitiv-space-space-16);
     --primitiv-framed-control-xl-radius: var(--primitiv-radii-8);
@@ -2657,6 +2671,7 @@
     --primitiv-framed-control-xs-focus-ring-radius: var(--primitiv-radii-6);
     --primitiv-framed-control-xs-gap: var(--primitiv-space-space-2);
     --primitiv-framed-control-xs-height: var(--primitiv-size-size-16);
+    --primitiv-framed-control-xs-icon-optical-inset: var(--primitiv-space-space-1);
     --primitiv-framed-control-xs-icon-size: var(--primitiv-size-size-10);
     --primitiv-framed-control-xs-padding-inline: var(--primitiv-space-space-4);
     --primitiv-framed-control-xs-radius: var(--primitiv-radii-2);
@@ -3472,6 +3487,7 @@
     --primitiv-framed-control-lg-focus-ring-radius: var(--primitiv-radii-14);
     --primitiv-framed-control-lg-gap: var(--primitiv-space-space-10);
     --primitiv-framed-control-lg-height: var(--primitiv-size-size-56);
+    --primitiv-framed-control-lg-icon-optical-inset: var(--primitiv-space-space-6);
     --primitiv-framed-control-lg-icon-size: var(--primitiv-size-size-24);
     --primitiv-framed-control-lg-padding-inline: var(--primitiv-space-space-28);
     --primitiv-framed-control-lg-radius: var(--primitiv-radii-10);
@@ -3479,6 +3495,7 @@
     --primitiv-framed-control-md-focus-ring-radius: var(--primitiv-radii-12);
     --primitiv-framed-control-md-gap: var(--primitiv-space-space-8);
     --primitiv-framed-control-md-height: var(--primitiv-size-size-48);
+    --primitiv-framed-control-md-icon-optical-inset: var(--primitiv-space-space-4);
     --primitiv-framed-control-md-icon-size: var(--primitiv-size-size-20);
     --primitiv-framed-control-md-padding-inline: var(--primitiv-space-space-20);
     --primitiv-framed-control-md-radius: var(--primitiv-radii-8);
@@ -3486,6 +3503,7 @@
     --primitiv-framed-control-sm-focus-ring-radius: var(--primitiv-radii-12);
     --primitiv-framed-control-sm-gap: var(--primitiv-space-space-6);
     --primitiv-framed-control-sm-height: var(--primitiv-size-size-40);
+    --primitiv-framed-control-sm-icon-optical-inset: var(--primitiv-space-space-3);
     --primitiv-framed-control-sm-icon-size: var(--primitiv-size-size-16);
     --primitiv-framed-control-sm-padding-inline: var(--primitiv-space-space-14);
     --primitiv-framed-control-sm-radius: var(--primitiv-radii-8);
@@ -3493,6 +3511,7 @@
     --primitiv-framed-control-xl-focus-ring-radius: var(--primitiv-radii-16);
     --primitiv-framed-control-xl-gap: var(--primitiv-space-space-12);
     --primitiv-framed-control-xl-height: var(--primitiv-size-size-68);
+    --primitiv-framed-control-xl-icon-optical-inset: var(--primitiv-space-space-8);
     --primitiv-framed-control-xl-icon-size: var(--primitiv-size-size-28);
     --primitiv-framed-control-xl-padding-inline: var(--primitiv-space-space-32);
     --primitiv-framed-control-xl-radius: var(--primitiv-radii-12);
@@ -3500,6 +3519,7 @@
     --primitiv-framed-control-xs-focus-ring-radius: var(--primitiv-radii-10);
     --primitiv-framed-control-xs-gap: var(--primitiv-space-space-4);
     --primitiv-framed-control-xs-height: var(--primitiv-size-size-28);
+    --primitiv-framed-control-xs-icon-optical-inset: var(--primitiv-space-space-2);
     --primitiv-framed-control-xs-icon-size: var(--primitiv-size-size-14);
     --primitiv-framed-control-xs-padding-inline: var(--primitiv-space-space-10);
     --primitiv-framed-control-xs-radius: var(--primitiv-radii-6);

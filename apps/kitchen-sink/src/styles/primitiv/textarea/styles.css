@@ -148,6 +148,18 @@
         var(--primitiv-focus-ring);
   }
 
+  /* Forced colours (Windows High Contrast) discards box-shadow, so the ring
+     above renders nothing and the `outline: none` beside it is all that
+     survives — leaving no focus indicator at all. Restore a real outline,
+     which the mode does honour, in the system Highlight colour. Same tokens
+     as the ring, so the geometry is unchanged. */
+  @media (forced-colors: active) {
+    .primitiv-textarea:focus-visible {
+      outline: var(--primitiv-focus-ring-width) solid Highlight;
+      outline-offset: var(--primitiv-focus-ring-offset);
+    }
+  }
+
   /* Invalid — the field flags itself with aria-invalid (set directly or cascaded
      from a Field.Root). The danger border wins over the resting and focus colours
      because the states layer sits above base/variants and this rule follows the

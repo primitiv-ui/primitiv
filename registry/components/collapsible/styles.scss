@@ -421,6 +421,18 @@
         var(--primitiv-focus-ring);
   }
 
+  /* Forced colours (Windows High Contrast) discards box-shadow, so the ring
+     above renders nothing and the `outline: none` beside it is all that
+     survives — leaving no focus indicator at all. Restore a real outline,
+     which the mode does honour, in the system Highlight colour. Same tokens
+     as the ring, so the geometry is unchanged. */
+  @media (forced-colors: active) {
+    .primitiv-collapsible__trigger:focus-visible {
+      outline: var(--primitiv-focus-ring-width) solid Highlight;
+      outline-offset: var(--primitiv-focus-ring-offset);
+    }
+  }
+
   /* Disabled dims the whole widget (root, so the trigger row and any card
      frame fade together) rather than muting only the trigger label. */
   .primitiv-collapsible[data-disabled="true"] {

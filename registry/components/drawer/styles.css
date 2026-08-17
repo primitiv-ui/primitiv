@@ -357,6 +357,18 @@
         var(--primitiv-focus-ring);
   }
 
+  /* Forced colours (Windows High Contrast) discards box-shadow, so the ring
+     above renders nothing and the `outline: none` beside it is all that
+     survives — leaving no focus indicator at all. Restore a real outline,
+     which the mode does honour, in the system Highlight colour. Same tokens
+     as the ring, so the geometry is unchanged. */
+  @media (forced-colors: active) {
+    .primitiv-drawer__close:focus-visible {
+      outline: var(--primitiv-focus-ring-width) solid Highlight;
+      outline-offset: var(--primitiv-focus-ring-offset);
+    }
+  }
+
   .primitiv-drawer__close[data-disabled],
   .primitiv-drawer__close:disabled {
     opacity: var(--primitiv-opacity-50);

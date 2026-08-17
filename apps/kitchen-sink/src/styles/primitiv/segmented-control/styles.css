@@ -260,6 +260,18 @@
         var(--primitiv-focus-ring);
   }
 
+  /* Forced colours (Windows High Contrast) discards box-shadow, so the ring
+     above renders nothing and the `outline: none` beside it is all that
+     survives — leaving no focus indicator at all. Restore a real outline,
+     which the mode does honour, in the system Highlight colour. Same tokens
+     as the ring, so the geometry is unchanged. */
+  @media (forced-colors: active) {
+    .primitiv-segmented-control__item:focus-visible {
+      outline: var(--primitiv-focus-ring-width) solid Highlight;
+      outline-offset: var(--primitiv-focus-ring-offset);
+    }
+  }
+
   /* Disabled is state-neutral so it reads the same whether selected or not; a
      whole-control disable sets data-disabled on every segment too. */
   .primitiv-segmented-control__item[data-disabled] {

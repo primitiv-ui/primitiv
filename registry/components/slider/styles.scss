@@ -176,6 +176,18 @@
         var(--primitiv-focus-ring);
   }
 
+  /* Forced colours (Windows High Contrast) discards box-shadow, so the ring
+     above renders nothing and the `outline: none` beside it is all that
+     survives — leaving no focus indicator at all. Restore a real outline,
+     which the mode does honour, in the system Highlight colour. Same tokens
+     as the ring, so the geometry is unchanged. */
+  @media (forced-colors: active) {
+    .primitiv-slider__thumb:focus-visible {
+      outline: var(--primitiv-focus-ring-width) solid Highlight;
+      outline-offset: var(--primitiv-focus-ring-offset);
+    }
+  }
+
   /* Hover — the Figma Thumb component carries a "glow" layer, hidden on every
      state but hover: a brand-coloured disc at thumb-ring-size behind the thumb
      at 20% opacity. Reproduced as a ::before so the 20% stays an *opacity on a

@@ -189,6 +189,18 @@
         var(--primitiv-focus-ring);
   }
 
+  /* Forced colours (Windows High Contrast) discards box-shadow, so the ring
+     above renders nothing and the `outline: none` beside it is all that
+     survives — leaving no focus indicator at all. Restore a real outline,
+     which the mode does honour, in the system Highlight colour. Same tokens
+     as the ring, so the geometry is unchanged. */
+  @media (forced-colors: active) {
+    .primitiv-input-group:focus-within {
+      outline: var(--primitiv-focus-ring-width) solid Highlight;
+      outline-offset: var(--primitiv-focus-ring-offset);
+    }
+  }
+
   /* The wrapped Input surrenders its own focus ring to the group's: on keyboard
      focus only the group frame shows a ring, never a second ring hugging the
      inner control. This must live in primitiv.states (not base) so it
@@ -197,6 +209,18 @@
      specificity (later layers win; RFC 0008 §2.3). */
   .primitiv-input-group .primitiv-input:focus-visible {
     box-shadow: none;
+  }
+
+  /* Forced colours (Windows High Contrast) discards box-shadow, so the ring
+     above renders nothing and the `outline: none` beside it is all that
+     survives — leaving no focus indicator at all. Restore a real outline,
+     which the mode does honour, in the system Highlight colour. Same tokens
+     as the ring, so the geometry is unchanged. */
+  @media (forced-colors: active) {
+    .primitiv-input-group .primitiv-input:focus-visible {
+      outline: var(--primitiv-focus-ring-width) solid Highlight;
+      outline-offset: var(--primitiv-focus-ring-offset);
+    }
   }
 
   /* Invalid — the frame reads the wrapped control's `aria-invalid` directly, so

@@ -2284,6 +2284,23 @@
         var(--primitiv-focus-ring);
   }
 
+  /* Forced colours (Windows High Contrast) discards box-shadow, so the ring
+     above renders nothing and the `outline: none` beside it is all that
+     survives — leaving no focus indicator at all. Restore a real outline,
+     which the mode does honour, in the system Highlight colour. Same tokens
+     as the ring, so the geometry is unchanged. These selectors also cover the
+     active-thumbnail ring above, which is a subset of `__indicator`. */
+  @media (forced-colors: active) {
+    .primitiv-carousel__viewport:focus-visible,
+    .primitiv-carousel__prev:focus-visible,
+    .primitiv-carousel__next:focus-visible,
+    .primitiv-carousel__indicator:focus-visible,
+    .primitiv-carousel__indicator-group > button:focus-visible {
+      outline: var(--primitiv-focus-ring-width) solid Highlight;
+      outline-offset: var(--primitiv-focus-ring-offset);
+    }
+  }
+
   /* Boundary-clamped controls (the headless layer sets `disabled`). */
   .primitiv-carousel__prev:disabled,
   .primitiv-carousel__next:disabled {

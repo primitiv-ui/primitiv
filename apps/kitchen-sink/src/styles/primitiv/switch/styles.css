@@ -220,6 +220,18 @@
         var(--primitiv-focus-ring);
   }
 
+  /* Forced colours (Windows High Contrast) discards box-shadow, so the ring
+     above renders nothing and the `outline: none` beside it is all that
+     survives — leaving no focus indicator at all. Restore a real outline,
+     which the mode does honour, in the system Highlight colour. Same tokens
+     as the ring, so the geometry is unchanged. */
+  @media (forced-colors: active) {
+    .primitiv-switch > input:focus-visible ~ .primitiv-switch__control {
+      outline: var(--primitiv-focus-ring-width) solid Highlight;
+      outline-offset: var(--primitiv-focus-ring-offset);
+    }
+  }
+
   /* Disabled is state-neutral so it reads the same checked or unchecked, and
      dims the whole row (track and label together). The data-disabled hook is a
      reliable prop mirror (unlike checked, disabled is never changed behind

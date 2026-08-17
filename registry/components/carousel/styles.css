@@ -469,6 +469,25 @@
     object-position: var(--primitiv-carousel-slide-object-position);
   }
 
+  /* Hairline outline so a pale-edged image still reads as a shape against a light
+     surface — the finding was photo Avatars losing their top-left edge while the
+     filled initials variants read crisply. Pure black / pure white at 10% and
+     deliberately NOT a border token: this system's neutrals are hue-tinted
+     (neutral-300 is #a8aeb6), and a tinted hairline picks up the surface beneath
+     it and reads as dirt on the image edge. Negative outline-offset puts it just
+     inside the frame so it adds nothing to the box, and outline follows
+     border-radius, so it curves with the clip. It sits on the clipping frame
+     rather than the <img>: the frame owns the radius, and overflow: hidden would
+     crop a square outline off an inner element. */
+  .primitiv-carousel__slide:has(> :is(img, video, picture)) {
+    outline: var(--primitiv-border-width-1) solid #0000001a;
+    outline-offset: calc(-1 * var(--primitiv-border-width-1));
+  }
+
+  [data-theme="dark"] .primitiv-carousel__slide:has(> :is(img, video, picture)) {
+    outline-color: #ffffff1a;
+  }
+
   /* Optional inner content layer, sized to fill the slide box exactly like a
      direct media child above. A plain positioning layer on its own (no
      `effect` reads it yet); wrap a slide's media in it when a per-slide

@@ -91,6 +91,25 @@
     object-fit: cover;
   }
 
+  /* Hairline outline so a pale-edged image still reads as a shape against a light
+     surface — the finding was photo Avatars losing their top-left edge while the
+     filled initials variants read crisply. Pure black / pure white at 10% and
+     deliberately NOT a border token: this system's neutrals are hue-tinted
+     (neutral-300 is #a8aeb6), and a tinted hairline picks up the surface beneath
+     it and reads as dirt on the image edge. Negative outline-offset puts it just
+     inside the frame so it adds nothing to the box, and outline follows
+     border-radius, so it curves with the clip. It sits on the clipping frame
+     rather than the <img>: the frame owns the radius, and overflow: hidden would
+     crop a square outline off an inner element. */
+  .primitiv-card__media:has(:is(img, picture, video)) {
+    outline: var(--primitiv-border-width-1) solid #0000001a;
+    outline-offset: calc(-1 * var(--primitiv-border-width-1));
+  }
+
+  [data-theme="dark"] .primitiv-card__media:has(:is(img, picture, video)) {
+    outline-color: #ffffff1a;
+  }
+
   .primitiv-card__content {
     display: flex;
     flex-direction: column;

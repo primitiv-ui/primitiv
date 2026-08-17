@@ -229,7 +229,20 @@
     --primitiv-select-content-surface: var(--primitiv-surface-default);
     --primitiv-select-content-fg: var(--primitiv-content-primary);
     --primitiv-select-content-border-width: var(--primitiv-border-width-1);
-    --primitiv-select-content-border-color: var(--primitiv-border-default);
+    /* border/subtle, not border/default — matching the Figma `Dropdown / Panel`
+       stroke and the Combobox panel, which already had it right.
+
+       The system distinguishes overlay weights deliberately: a light, transient
+       panel (this, Select, Combobox) takes the subtle edge, a heavy one (Modal,
+       Drawer — `border/default` in Figma too) takes the stronger one, and Popover
+       takes none at all because a border would seam across its arrow's base.
+       That is three answers for three different things, not an inconsistency.
+
+       The border is also load-bearing in dark mode and cannot simply be dropped
+       in favour of the shadow: shadow.color.* is absolute-black based and does
+       not invert, so at 4–8% black on a dark surface the elevation is close to
+       invisible and this edge is the only thing defining the panel. */
+    --primitiv-select-content-border-color: var(--primitiv-border-subtle);
     --primitiv-select-content-shadow: var(--primitiv-elevation-overlay);
     --primitiv-select-content-radius: var(--primitiv-dropdown-md-panel-radius);
     --primitiv-select-content-padding-block: var(--primitiv-dropdown-md-panel-padding-block);

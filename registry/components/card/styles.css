@@ -142,6 +142,12 @@
   }
 
   .primitiv-card__description {
+    /* Avoid a one-word last line. `pretty` rather than `balance`: a description
+       is prose that may run to several lines, where balance's even-distribution
+       is the wrong goal (and it caps out after a few lines anyway) — pretty only
+       pulls a word back to prevent the orphan. Deliberately not applied to
+       long-form copy; see the base sheet's `p`. */
+    text-wrap: pretty;
     margin: var(--primitiv-space-space-0);
     color: var(--primitiv-card-description-color);
     font-family: var(--primitiv-card-description-font-family);

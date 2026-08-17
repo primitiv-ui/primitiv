@@ -34,6 +34,20 @@
 @layer primitiv.reset, primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;
 
 @layer primitiv.reset {
+  /* ===== Font smoothing ===== */
+
+  /* macOS renders text heavier than the design intends without these, and they
+     belong exactly once at the root rather than per component — every element
+     inherits the result. Kept in the lowest layer so a consumer who wants the
+     platform default back can simply override it.
+
+     Deliberately not tokenised: these are platform rendering hints with two
+     valid values each, not design decisions with a scale behind them. */
+  :root {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
   /* ===== UA-rendered chrome follows the app's theme ===== */
 
   /* `data-theme` is the design system's theme switch (RFC 0009), but a browser
@@ -90,6 +104,14 @@
   u {
     color: var(--primitiv-content-primary);
     text-decoration-line: underline;
+    /* Position and thickness from the typeface's own metrics rather than the
+       browser's guess, so the line sits where the designer of the face put it —
+       which for a text face at body sizes usually means clear of the descenders
+       a browser default cuts through. `skip-ink` already defaults to `auto`, so
+       the worst case was avoided; this is about where the line sits, not whether
+       it breaks. */
+    text-underline-position: from-font;
+    text-decoration-thickness: from-font;
   }
 
   /* Abbreviation: dotted underline, secondary, help cursor. */
@@ -171,6 +193,11 @@
   h6 {
     color: var(--primitiv-content-primary);
     margin-block: var(--primitiv-space-space-0);
+    /* Distribute a wrapped heading evenly across its lines instead of leaving a
+       short last line. Headings only — `balance` is capped at a few lines by
+       design and is the wrong tool for long-form copy, which is why `p` below
+       does not get it (nor `pretty`, per the same guidance). */
+    text-wrap: balance;
   }
 
   h1 {
@@ -362,6 +389,14 @@
   a {
     color: var(--primitiv-action-link-foreground-default);
     text-decoration-line: underline;
+    /* Position and thickness from the typeface's own metrics rather than the
+       browser's guess, so the line sits where the designer of the face put it —
+       which for a text face at body sizes usually means clear of the descenders
+       a browser default cuts through. `skip-ink` already defaults to `auto`, so
+       the worst case was avoided; this is about where the line sits, not whether
+       it breaks. */
+    text-underline-position: from-font;
+    text-decoration-thickness: from-font;
   }
 
   a:visited {

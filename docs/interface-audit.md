@@ -19,6 +19,7 @@ Landed against these findings, newest first:
 
 | Commit | Finding | Pass |
 | --- | --- | --- |
+| `80fb3a50` | Tactile press feedback — `scale(0.96)` on Button / Chip / Breadcrumb Overflow / Carousel | `better-ui` |
 | `219b0cc6` | Drawer scroll containment, and font smoothing at the root | `better-accessibility` / `better-typography` |
 | `230da21c` | Image outlines — Avatar / Card / Carousel / Figure | `better-ui` |
 | `a05445fc` | `tabular-nums` on Pagination / Data Table / Carousel (**inert** — see the font note) | `better-typography` |
@@ -284,7 +285,11 @@ their edge.
 
 | Severity | Location | Before | After | Why |
 | --- | --- | --- | --- | --- |
-| MEDIUM | `registry/components/button/styles.css` and all 62 components | No `:active` transform anywhere in the registry — zero matches across every stylesheet | `:active { scale: 0.96; }` with `transition-property: scale`, a `static` escape hatch, and a `prefers-reduced-motion` guard | Press currently changes colour only. A 4% scale is the cheapest tactile signal a control can give, and its absence is most noticeable on Button and Chip, otherwise the most finished surfaces in the set. Worth deciding deliberately either way — right now it reads as unconsidered rather than declined. |
+| ~~MEDIUM~~ **FIXED** (`80fb3a50`) | `button` · `chip` · `breadcrumb-overflow` · `carousel` | No `:active` transform anywhere in the registry — zero matches across every stylesheet | `:active { scale: 0.96; }` with `transition-property: scale`, a `static` escape hatch, and a `prefers-reduced-motion` guard | Press changed colour only. **Fixed 2026-08-17**, and the scope is smaller than 62 components because Button is composed almost everywhere — modal/drawer/popover close, alert dismiss, split-button halves, code-block copy all inherit it. Only Chip, Breadcrumb Overflow and the Carousel controls draw their own bare `<button>` and needed it directly.
+
+Two implementation calls worth keeping. It is gated behind `prefers-reduced-motion: no-preference`, which is only safe *because* the `:active` colour change is not gated — motion is additive, so a reduced-motion user still gets a press state. And it is disabled per instance via `--primitiv-<c>-press-scale: 1`, matching the registry's custom-property escape-hatch idiom, rather than the `static` prop the principle suggests: a prop would need contract, recipe and wrapper changes on a copied surface for the same effect.
+
+**Selection controls were deliberately left out** — Tabs, Segmented Control, Toggle Group, Pagination. Pressing those selects rather than acts, and they are high-frequency, which is exactly where motion restraint applies. |
 
 ### Suppress transitions on theme switch
 

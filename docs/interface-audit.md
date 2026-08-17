@@ -13,6 +13,21 @@ The companion Figma page is **`Interface Audit — 2026-08-15`** (page id
 built from real component instances. Every pass adds a numbered section to
 both surfaces.
 
+## Fixed so far
+
+Landed against these findings, newest first:
+
+| Commit | Finding | Pass |
+| --- | --- | --- |
+| `230da21c` | Image outlines — Avatar / Card / Carousel / Figure | `better-ui` |
+| `a05445fc` | `tabular-nums` on Pagination / Data Table / Carousel (**inert** — see the font note) | `better-typography` |
+| `768b0f35` | Forced-colors focus indicator, 27 blocks across 26 components, plus a guard | `better-accessibility` |
+| `d44ade7f` | Dark `action/link/foreground/default` and `content/muted` contrast, plus test coverage | `better-colors` |
+
+Deliberately parked: the font pair (blocks the `tabular-nums` fix being effective —
+there is now a live pairing preview in the kitchen sink, `0198b27d`), the
+`border/default` alias convention, and the `table` numeric-cell API.
+
 ## Passes
 
 | Date | Skill | Findings | Verdict |
@@ -232,7 +247,7 @@ their edge.
 
 | Severity | Location | Before | After | Why |
 | --- | --- | --- | --- | --- |
-| MEDIUM | `registry/components/avatar/styles.css`<br>`registry/components/card/styles.css:87`<br>`registry/components/carousel/styles.css:460`<br>`registry/components/figure/styles.css` | No outline on any image surface anywhere in the registry | `outline: 1px solid oklch(0 0 0 / 0.1); outline-offset: -1px;` and `oklch(1 0 0 / 0.1)` under `[data-theme=dark]` | Pale-edged photography dissolves into a light surface. Visible in the Figma Avatar set: initials and placeholder avatars carry a neutral fill so their circle reads crisply, while photo avatars — studio portraits on a near-white backdrop — lose their top-left edge entirely. Same component, same size, inconsistent shape definition purely because there is an image in it.<br><br>**Use raw literals, not tokens, for this one colour.** The neutral ramp is deliberately hue-tinted (`neutral-300` is `#a8aeb6`, a cool blue-grey), and a tinted outline picks up the surface beneath it and reads as dirt on the image edge. This is the one place in the stylesheet where a literal beats the token. |
+| ~~MEDIUM~~ **FIXED** (`230da21c`) | `avatar` · `card` · `carousel` · `figure` | No outline on any image surface anywhere in the registry | `outline: 1px solid oklch(0 0 0 / 0.1); outline-offset: -1px;` and `oklch(1 0 0 / 0.1)` under `[data-theme=dark]` | Pale-edged photography dissolves into a light surface. Visible in the Figma Avatar set: initials and placeholder avatars carry a neutral fill so their circle reads crisply, while photo avatars — studio portraits on a near-white backdrop — lose their top-left edge entirely. Same component, same size, inconsistent shape definition purely because there is an image in it.<br><br>**Use raw literals, not tokens, for this one colour.** The neutral ramp is deliberately hue-tinted (`neutral-300` is `#a8aeb6`, a cool blue-grey), and a tinted outline picks up the surface beneath it and reads as dirt on the image edge. This is the one place in the stylesheet where a literal beats the token. |
 
 ### Shadows for elevation, borders for structure
 
@@ -371,7 +386,7 @@ findings are concentrated in **rendering modes and sizing**, not in markup.
 
 | Severity | Location | Before | After | Why |
 | --- | --- | --- | --- | --- |
-| **HIGH** | `registry/components/button/styles.css:276`<br>and every one of the 28 components that draws a focus ring | `:focus-visible { outline: none; box-shadow: 0 0 0 <offset> <surface>, 0 0 0 <offset+width> <ring>; }` — **zero** `forced-colors` blocks exist across all 62 components | Add to the shared ring recipe:<br>`@media (forced-colors: active) { outline: 2px solid Highlight; outline-offset: 2px; }` | **Browsers strip `box-shadow` entirely in forced-colors mode** (Windows High Contrast). The `outline: none` survives. The net result is that a keyboard user in forced-colors gets **no visible focus indicator anywhere in the system** — every button, input, tab, tree row and menu item. The two-layer box-shadow ring is otherwise excellent work (it follows the control's radius and stays concentric at every size, verified 120/120 in pass 01); it just needs a forced-colors fallback beside it. This is one shared recipe, so it is one fix, not 28. |
+| ~~**HIGH**~~ **FIXED** (`768b0f35`) | `registry/components/*/styles.css` — 27 blocks across 26 components | `:focus-visible { outline: none; box-shadow: 0 0 0 <offset> <surface>, 0 0 0 <offset+width> <ring>; }` — **zero** `forced-colors` blocks exist across all 62 components | Add to the shared ring recipe:<br>`@media (forced-colors: active) { outline: 2px solid Highlight; outline-offset: 2px; }` | **Browsers strip `box-shadow` entirely in forced-colors mode** (Windows High Contrast). The `outline: none` survives. The net result is that a keyboard user in forced-colors gets **no visible focus indicator anywhere in the system** — every button, input, tab, tree row and menu item. The two-layer box-shadow ring is otherwise excellent work (it follows the control's radius and stays concentric at every size, verified 120/120 in pass 01); it just needs a forced-colors fallback beside it. This is one shared recipe, so it is one fix, not 28. |
 
 ### Minimum hit area
 

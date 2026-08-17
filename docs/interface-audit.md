@@ -56,6 +56,44 @@ expressed as one of:
 on the next generate. Any colour finding must be routed to one of the three
 above.
 
+## Not every fix can start in Figma
+
+The colour pipeline above is Figma-first because the ramps genuinely originate
+there. Some fixes cannot follow it at all, and `tabular-nums` is the clearest
+case — worth recording so the asymmetry isn't mistaken for an oversight.
+
+**Figma's plugin API cannot set OpenType features.** Probed on all three
+families: `openTypeFeatures` is **read-only** ("no setter for property"),
+`getRangeOpenTypeFeatures` reports only *applied* features rather than available
+ones, and `setRangeOpenTypeFeatures` does not exist. `listAvailableFontsAsync`
+carries nothing but `fontName`. So there is no scripted path, and the sync
+plugin can never carry this.
+
+**And the CSS fix relies on inheritance, which Figma has no equivalent for.**
+`font-variant-numeric` is inherited, so one declaration on a component root
+covers every numeric part beneath it. Figma applies OpenType features per text
+node or per text style — there is no cascade. That leaves three options, and
+none of them is a clean mirror:
+
+| | Cost | Problem |
+| --- | --- | --- |
+| Per text node | **251 nodes** (Pagination 87, Data Table 76, Stepper 65, Badge 20, Carousel 3) | Impractical by hand, impossible by script |
+| On the shared `Body / *` + `Label / *` styles | 40 styles (5 sizes × 4 density modes × 2 families) | **Wrong on design grounds** — prose wants *proportional* figures; this would turn tabular figures on for all body copy |
+| Leave Figma as-is, document it | 0 | The Figma file is a slightly inexact spec for these three components |
+
+**The third is the right answer**, and it is the same call Card already documents
+three times over: where CSS expresses something Figma cannot, record the
+divergence rather than distorting one side to match. Figma showing proportional
+digits on a Pagination mock is a known, harmless inexactness.
+
+**One gating unknown.** Whether Asta Sans actually exposes `tnum` is unverified —
+`getRangeOpenTypeFeatures` returning `{}` means "none applied", not "none
+available", and the font is a variable Google Font not installed locally. If it
+has no tabular figures the shipped CSS is **inert**, and the fix becomes either
+setting those readouts in JetBrains Mono (measured at 0px spread) or accepting
+the drift. That is a browser check with the real font loaded, and it should
+happen before this finding is closed.
+
 **Verifying a route-1 change needs CI.** The Rust toolchain is not available in
 the agent environment (org policy, not a missing binary), so an engine-input
 change cannot be validated where the design work happens — you can reason about
@@ -424,7 +462,7 @@ that already exists.
 
 | Severity | Location | Before | After | Why |
 | --- | --- | --- | --- | --- |
-| MEDIUM | `registry/components/pagination` · `progress` · `stepper` · `data-table` · `slider` · `carousel` (ProgressText) | **Zero** `font-variant-numeric` declarations across all 62 stylesheets | `font-variant-numeric: tabular-nums` on the numeric parts | Proportional digits have different widths, so every value that updates shifts the layout around it as it changes. All six of the components where this is visible ship without it: page numbers reflow as you page, a progress percentage jitters as it climbs, `"3 of 12"` in the carousel shifts on each advance, and a numeric data-table column will not align down the page. This is the single cheapest fix in the pass — one declaration per numeric part. |
+| MEDIUM | `registry/components/pagination` · `data-table` · `carousel` (ProgressText) | **Zero** `font-variant-numeric` declarations across all 62 stylesheets | `font-variant-numeric: tabular-nums` — on the root for Pagination and Data Table (the property inherits), on `__progress-text` for Carousel | Proportional digits have different widths, so every value that updates shifts the layout around it. **Fixed 2026-08-17** (`a05445fc`). Measured in Figma at 100px: Asta Sans spreads **46px** between `1111` and `8888` (23%), Khand **66px** (54%, it is condensed so its `1` is very narrow), JetBrains Mono 0px. Khand being the worst matters because it is the *label* font — numeric Badges and Stepper markers are the sharpest case, not the tables.<br><br>**Scope corrected from six components to three.** Progress and Slider render no numeric text at all — they pass values as attributes and a CSS custom property, the bar is purely visual. Stepper's marker is an `aria-hidden` dot, not a numeral. The original finding counted components that conceptually have numbers rather than checking what they render. |
 
 ### Cap the measure
 

@@ -34,6 +34,20 @@
 @layer primitiv.reset, primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;
 
 @layer primitiv.reset {
+  /* ===== Font smoothing ===== */
+
+  /* macOS renders text heavier than the design intends without these, and they
+     belong exactly once at the root rather than per component — every element
+     inherits the result. Kept in the lowest layer so a consumer who wants the
+     platform default back can simply override it.
+
+     Deliberately not tokenised: these are platform rendering hints with two
+     valid values each, not design decisions with a scale behind them. */
+  :root {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
   /* ===== UA-rendered chrome follows the app's theme ===== */
 
   /* `data-theme` is the design system's theme switch (RFC 0009), but a browser

@@ -182,6 +182,12 @@
     flex: 1 1 0%;
     min-block-size: 0;
     overflow: auto;
+    /* Stop the scroll chaining to the page behind the drawer once this region
+       hits its end — without it the background moves under an open overlay,
+       which reads as the drawer having lost focus. Dropdown, Combobox, Select
+       and Carousel already contain their own scroll; this was the one overlay
+       that did not. */
+    overscroll-behavior: contain;
     display: flex;
     flex-direction: column;
     gap: var(--primitiv-drawer-gap);

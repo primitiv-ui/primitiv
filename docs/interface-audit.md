@@ -19,6 +19,8 @@ Landed against these findings, newest first:
 
 | Commit | Finding | Pass |
 | --- | --- | --- |
+| `208023c9` | `from-font` underline metrics, `text-wrap: balance`/`pretty` | `better-typography` |
+| `9b0f810a` | Dark link state ramp ran toward black — all four states, plus a direction guard | `better-colors` |
 | `5b091aea` | Safe-area clearance on Drawer, per docked side | `better-layout` |
 | `e0be6466` | One edge token for the dropdown-family overlay panels | `better-ui` |
 | `80fb3a50` | Tactile press feedback — `scale(0.96)` on Button / Chip / Breadcrumb Overflow / Carousel | `better-ui` |
@@ -591,13 +593,13 @@ that already exists.
 
 | Severity | Location | Before | After | Why |
 | --- | --- | --- | --- | --- |
-| LOW | `primitiv-base.css:92`, `:364` | `text-decoration-line: underline` with no position or thickness control | Add `text-underline-position: from-font` and `text-decoration-thickness: from-font` | Default underlines sit wherever the browser decides rather than where the typeface's own metrics put them, and at `Asta Sans`' body sizes that usually means clipping descenders. `text-decoration-skip-ink` defaults to `auto` so the worst case is avoided, but position and thickness are still browser guesses. Note the `<abbr>` treatment at line 98 is already correct — dotted underline as the extra-info hint, exactly per the principle. |
+| ~~LOW~~ **FIXED** (`208023c9`) | `primitiv-base.css:92`, `:364` | `text-decoration-line: underline` with no position or thickness control | Add `text-underline-position: from-font` and `text-decoration-thickness: from-font` | Default underlines sit wherever the browser decides rather than where the typeface's own metrics put them, and at `Asta Sans`' body sizes that usually means clipping descenders. `text-decoration-skip-ink` defaults to `auto` so the worst case is avoided, but position and thickness are still browser guesses. Note the `<abbr>` treatment at line 98 is already correct — dotted underline as the extra-info hint, exactly per the principle.<br><br>**Fixed 2026-08-17** on links and `<ins>`/`<u>`. `<abbr>` was left alone deliberately — its dotted underline is a tuned affordance signalling extra information, not a browser default to override. |
 
 ### Wrap deliberately
 
 | Severity | Location | Before | After | Why |
 | --- | --- | --- | --- | --- |
-| LOW | 61 of 62 registry stylesheets | `text-wrap: balance` appears **once** (`miller-columns/styles.css:295`); `text-wrap: pretty` appears **nowhere** | `balance` on headings (base sheet `h1`–`h6`), `pretty` on descriptions — Card, Alert, EmptyState, Tooltip | A two-line heading currently breaks wherever it lands, commonly leaving one short word on line two; a card description can end on a single-word orphan. Both are one declaration and neither affects long-form text, where both should stay off. Miller Columns having it proves the convention is understood — it just was not generalised. |
+| ~~LOW~~ **FIXED** (`208023c9`) | 61 of 62 registry stylesheets | `text-wrap: balance` appears **once** (`miller-columns/styles.css:295`); `text-wrap: pretty` appears **nowhere** | `balance` on headings (base sheet `h1`–`h6`), `pretty` on descriptions — Card, Alert, EmptyState, Tooltip | A two-line heading currently breaks wherever it lands, commonly leaving one short word on line two; a card description can end on a single-word orphan. Both are one declaration and neither affects long-form text, where both should stay off. Miller Columns having it proves the convention is understood — it just was not generalised.<br><br>**Fixed 2026-08-17**: `balance` on the base sheet's `h1`–`h6`, `pretty` on the ten `__description` parts. Neither applied to long-form copy — `balance` caps out after a few lines, and both are the wrong tool for a paragraph. |
 
 ## Verified clean
 

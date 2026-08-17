@@ -159,6 +159,48 @@
     --primitiv-drawer-slide: 0 100%;
   }
 
+  /* Safe-area clearance. The drawer is position: fixed against physical viewport
+     edges, so on a device with a notch or a home indicator its content sits
+     underneath them — a bottom drawer's footer actions being the worst case.
+     Padding, not inset: the surface should still bleed to the physical edge
+     (Content bleeds, controls float); only the content clears the unsafe zone.
+
+     Necessarily per-side and necessarily physical. env(safe-area-inset-*) is a
+     VIEWPORT-level value, not a per-element one, so padding a right-docked
+     drawer by the *left* inset would add spurious space for an edge it does not
+     touch — each variant therefore pads only the three edges it actually meets.
+     The env() names have no logical equivalents, which is why these are physical
+     properties in a file that is otherwise logical throughout; the `data-side`
+     values are physical for the same reason.
+
+     Each carries a 0px fallback so the declaration stays valid where the
+     variable is unknown. Note these resolve to 0 unless the page sets
+     `viewport-fit=cover` on its viewport meta — without it iOS reports no
+     insets at all, so this is inert rather than wrong on such a page. */
+  .primitiv-drawer[data-side="right"] {
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    padding-right: env(safe-area-inset-right, 0px);
+  }
+
+  .primitiv-drawer[data-side="left"] {
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    padding-left: env(safe-area-inset-left, 0px);
+  }
+
+  .primitiv-drawer[data-side="top"] {
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-left: env(safe-area-inset-left, 0px);
+    padding-right: env(safe-area-inset-right, 0px);
+  }
+
+  .primitiv-drawer[data-side="bottom"] {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    padding-left: env(safe-area-inset-left, 0px);
+    padding-right: env(safe-area-inset-right, 0px);
+  }
+
   /* The three stacked regions. Each owns its padding so the header/footer
      dividers run full-bleed to the panel edge; the root has none. Padding / gap
      resolve the size-scoped --primitiv-drawer-* knobs (re-pointed by the size

@@ -2,7 +2,10 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- viewport-fit=cover is required for env(safe-area-inset-*) to report anything:
+         without it iOS hands back 0 on every edge, so Drawer's safe-area clearance
+         would be inert here and the fix could not be seen. -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <!-- The token layer's default font-family values (src/styles/primitiv/tokens.css:
          --primitiv-font-family-heading: Khand, --primitiv-font-family-text: Asta Sans,
          --primitiv-font-family-mono: JetBrains Mono) name these families but don't load

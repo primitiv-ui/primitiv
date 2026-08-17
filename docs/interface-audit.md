@@ -114,7 +114,35 @@ much they cost:
 3. **Reconsider the default text font.** Correct in the long run if numeric
    alignment matters across the system, and far out of scope for a finding.
 
-Not decided. Whichever way it goes, the `tabular-nums` declaration stays.
+**Option 2 turned out not to be implementable as scoped** (investigated
+2026-08-17). The recommendation was mono on Data Table's *numeric columns* —
+but there is no way to identify one:
+
+- `data-table` imports `TableCell` / `TableHeader` from the **`table`**
+  component, so the data cells are not its own.
+- `table`'s `TableCellProps` is just the primitive's props — no `align`, no
+  `numeric` — and its stylesheet sets `text-align: start` for every cell.
+- The `align: "end"` prop that *does* exist, documented "for numeric columns",
+  is on `DataTableSortButton` — the column **header**, not the cells. And
+  `__region--end` is the **toolbar** region (it carries `bar-gap` and holds
+  filter fields), not a cell container. Both were misread as numeric-cell
+  affordances during the audit.
+
+So a consumer right-aligns a numeric column with their own class or inline
+style, and the component has no notion of it.
+
+**That is its own finding: `table` has no numeric-column affordance.** A table
+component with no way to mark a numeric column is a real gap independent of any
+font question — it is what a `numeric` cell modifier would exist for
+(`text-align: end` + `tabular-nums`, and a font hook if wanted).
+
+**Deliberately not built yet.** Adding a cell API is a proper feature — contract,
+recipe, tsx, styles, scss, README, kitchen-sink, Figma variant — and it should
+not be rushed as a side effect of a font limitation. Especially because the
+font-pairing question may remove the need for it entirely: **a text font that
+carries `tnum` makes the already-shipped declaration work everywhere with zero
+API change.** That makes the font decision the highest-leverage move here, and
+an argument for leaving the API alone until it is settled.
 
 **Verifying a route-1 change needs CI.** The Rust toolchain is not available in
 the agent environment (org policy, not a missing binary), so an engine-input

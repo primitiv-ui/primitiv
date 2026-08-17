@@ -19,6 +19,7 @@ Landed against these findings, newest first:
 
 | Commit | Finding | Pass |
 | --- | --- | --- |
+| `e0be6466` | One edge token for the dropdown-family overlay panels | `better-ui` |
 | `80fb3a50` | Tactile press feedback — `scale(0.96)` on Button / Chip / Breadcrumb Overflow / Carousel | `better-ui` |
 | `219b0cc6` | Drawer scroll containment, and font smoothing at the root | `better-accessibility` / `better-typography` |
 | `230da21c` | Image outlines — Avatar / Card / Carousel / Figure | `better-ui` |
@@ -279,7 +280,7 @@ their edge.
 
 | Severity | Location | Before | After | Why |
 | --- | --- | --- | --- | --- |
-| MEDIUM | `registry/components/dropdown/styles.css:115`<br>`registry/components/combobox/styles.css:154`<br>`registry/components/popover/styles.css:64`<br>`registry/components/modal/styles.css:65`<br>`registry/components/drawer/styles.css:78` | Three different answers to one question. Dropdown: `border-default` + `elevation/overlay`. Combobox: `border-subtle` + `elevation/overlay`. Popover: no border, chained `drop-shadow` | Pick one. Popover already follows the principle — its shadow alone carries the depth | On a surface already carrying `elevation/overlay`, the border exists only to fake depth, which is what the principle rules out. The real cost is the inconsistency: Combobox's popup is documented as "a Dropdown panel", yet the two draw their edge differently. `CLAUDE.md` already logs the Dropdown panel stroke as a known Figma↔registry drift — this is the same seam from the CSS side. |
+| ~~MEDIUM~~ **FIXED, and substantially rediagnosed** (`e0be6466`) | `dropdown/styles.css:115` · `select/styles.css:232` | Dropdown and Select drew `border-default`; Combobox drew `border-subtle` — the same conceptual surface, two tokens | Align on `border-subtle`, which is what Figma's `Dropdown / Panel` stroke specifies | On a surface already carrying `elevation/overlay`, the border exists only to fake depth, which is what the principle rules out. The real cost is the inconsistency: Combobox's popup is documented as "a Dropdown panel", yet the two draw their edge differently. `CLAUDE.md` already logs the Dropdown panel stroke as a known Figma↔registry drift — this is the same seam from the CSS side. |
 
 ### Scale on press
 

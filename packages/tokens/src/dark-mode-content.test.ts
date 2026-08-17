@@ -58,12 +58,16 @@ function contrastRatio(a: string, b: string): number {
 // `surface/default`, missing 4.5:1. Neither was covered here, which is why the
 // guard above did not catch them.
 //
-// The link is the instructive one: its *hover* and *active* steps were already
-// correctly theme-inverted (light 500 → 600 → 700 darker, dark 500 → 300 → 200
-// lighter), and only `default` had been left on 500 in both modes. The failure
-// was a missed alias inside an otherwise correct pattern, not a missing dark
-// mode — exactly the shape a per-token guard catches and a per-family one does
-// not.
+// CORRECTION (2026-08-17): an earlier version of this comment claimed the link's
+// hover and active steps were "already correctly theme-inverted (dark 500 → 300 →
+// 200 lighter)". They were not — in the DARK ramp a higher step is lighter, so
+// 500 → 300 → 200 descends toward black and measured 5.95:1 → 1.74:1 → 1.33:1.
+// The whole dark state set was broken, not just `default`, and fixing `default`
+// alone made the jump to a near-black hover more obvious rather than less.
+//
+// The lesson is in the `action/link/foreground` describe block at the end of this
+// file: a per-token contrast check cannot see a state ramp running the wrong way,
+// because it only ever measures the resting value.
 describe.each([
   'content/primary',
   'content/secondary',
@@ -240,4 +244,45 @@ describe.each([
     expect(luminance(intentColor('light', token))).toBeGreaterThan(0.5)
     expect(luminance(intentColor('dark', token))).toBeLessThan(0.5)
   })
+})
+
+/*
+ * Interactive foreground states must gain contrast, not lose it.
+ *
+ * This exists because a per-token contrast check is not enough. The dark link
+ * ramp descended — default → hover → active resolved #5291f9 → #033a8c →
+ * #022968, i.e. 5.95:1 → 1.74:1 → 1.33:1 — and the earlier guard passed
+ * throughout, because it only ever measured `default`.
+ *
+ * The cause was reading the step numbers as if both ramps ran the same way. They
+ * do not: in the LIGHT ramp a higher step is darker, in the DARK ramp a higher
+ * step is lighter. So "500 → 300 → 200" gains contrast against white and loses
+ * it against black, and the same alias pattern that is right in one mode is
+ * exactly wrong in the other.
+ *
+ * Asserting the DIRECTION rather than the values is what makes this robust: it
+ * holds whichever steps a future palette picks, and it is mode-agnostic, so the
+ * inverted ramp cannot fool it again.
+ */
+describe('action/link/foreground interactive states', () => {
+  const states = ['default', 'hover', 'active', 'visited'] as const
+
+  it.each(['light', 'dark'] as const)('%s mode: every state clears AA on surface/default', (mode) => {
+    const bg = intentColor(mode, 'surface/default')
+    for (const state of states) {
+      const ratio = contrastRatio(intentColor(mode, `action/link/foreground/${state}`), bg)
+      expect(ratio).toBeGreaterThanOrEqual(4.5)
+    }
+  })
+
+  it.each(['light', 'dark'] as const)(
+    '%s mode: hover and active are more prominent than the resting state',
+    (mode) => {
+      const bg = intentColor(mode, 'surface/default')
+      const at = (state: string) =>
+        contrastRatio(intentColor(mode, `action/link/foreground/${state}`), bg)
+      expect(at('hover')).toBeGreaterThan(at('default'))
+      expect(at('active')).toBeGreaterThan(at('hover'))
+    },
+  )
 })

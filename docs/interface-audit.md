@@ -86,13 +86,35 @@ three times over: where CSS expresses something Figma cannot, record the
 divergence rather than distorting one side to match. Figma showing proportional
 digits on a Pagination mock is a known, harmless inexactness.
 
-**One gating unknown.** Whether Asta Sans actually exposes `tnum` is unverified —
-`getRangeOpenTypeFeatures` returning `{}` means "none applied", not "none
-available", and the font is a variable Google Font not installed locally. If it
-has no tabular figures the shipped CSS is **inert**, and the fix becomes either
-setting those readouts in JetBrains Mono (measured at 0px spread) or accepting
-the drift. That is a browser check with the real font loaded, and it should
-happen before this finding is closed.
+**Resolved 2026-08-17: Asta Sans does not expose `tnum`.** Checked in Figma's
+type-settings panel — no figure-style control appears for the family, and Figma
+does surface that control for fonts that have the feature. Not independently
+confirmed in a browser (no browser access in the agent environment), so this
+rests on the Figma panel rather than a rendered measurement.
+
+**Consequence: the shipped declaration is inert for the default theme.** Browsers
+do not synthesise tabular figures the way they synthesise bold — with no `tnum`
+in the font, `font-variant-numeric: tabular-nums` silently does nothing.
+
+**It is still the right declaration, and it stays.** Registry components are
+copied surfaces and `--primitiv-font-family-text` is a token consumers override,
+so any consumer whose text font carries tabular figures gets the benefit with no
+work. The declaration is dead only against *our* default font, not in general —
+removing it would take the fix away from every consumer who can use it.
+
+**What remains open is the default theme.** Three options, in rough order of how
+much they cost:
+
+1. **Accept the drift and document it.** Cheapest; leaves a real 23% digit-width
+   swing in Pagination and Data Table.
+2. **Set the numeric readouts in `--primitiv-font-family-mono`** (JetBrains Mono,
+   measured at 0px spread). For a Data Table's numeric columns this is arguably
+   an improvement rather than a compromise — aligned columns are the point. For
+   Pagination it changes the look noticeably.
+3. **Reconsider the default text font.** Correct in the long run if numeric
+   alignment matters across the system, and far out of scope for a finding.
+
+Not decided. Whichever way it goes, the `tabular-nums` declaration stays.
 
 **Verifying a route-1 change needs CI.** The Rust toolchain is not available in
 the agent environment (org policy, not a missing binary), so an engine-input

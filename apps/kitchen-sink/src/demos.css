@@ -783,3 +783,20 @@
 .ks-dt__panel .primitiv-description-list--stacked {
   --primitiv-description-list-details-indent: var(--primitiv-space-space-0);
 }
+
+/* Font pairing panel (src/FontPairing.tsx). Same per-instance identity pattern
+   as the Select anchors above: the trigger declares the name, the panel resolves
+   against it. Without BOTH halves the panel has no anchor and falls back to the
+   initial containing block — i.e. the page's top-left corner. */
+.ks-anchor-font-heading {
+  anchor-name: --ks-font-heading;
+}
+.ks-anchored-font-heading {
+  position-anchor: --ks-font-heading;
+}
+.ks-anchor-font-body {
+  anchor-name: --ks-font-body;
+}
+.ks-anchored-font-body {
+  position-anchor: --ks-font-body;
+}

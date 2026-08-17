@@ -486,3 +486,147 @@ body {
    composes `DataTableSortHeader`, which brings its own button, glyph and
    `aria-sort`. A demo of a design system should not be hand-styling a control
    the system ships. */
+
+/* ---------------------------------------------------------------------------
+   Font pairing preview (src/FontPairing.tsx)
+
+   Lives in grid COLUMN 1 — the left gutter, which was empty. The TOC already
+   owns column 3, so putting this there would make the two compete for the same
+   22rem. Column 1 is the symmetric twin, so the page ends up balanced: nav on
+   one side, the live font controls on the other.
+
+   Geometry deliberately mirrors .kitchen-sink__toc rather than inventing its
+   own — same 22rem, same sticky/top, same min-width: 0 (without which this
+   box's own width would set column 1's `auto` minimum and break the 1fr/1fr
+   split that centres the content column, the exact bug the TOC comment
+   documents). `justify-self: end` hugs the content column's left edge, the
+   mirror of the TOC hugging its right.
+   --------------------------------------------------------------------------- */
+.ks-fonts {
+  display: none;
+}
+
+@media (min-width: 108rem) {
+  .ks-fonts {
+    display: flex;
+    flex-direction: column;
+    gap: var(--primitiv-space-space-10);
+    grid-column: 1;
+    grid-row: 1;
+    justify-self: end;
+    min-width: 0;
+    position: sticky;
+    top: var(--kitchen-sink-toc-top);
+    inline-size: 22rem;
+    max-block-size: calc(
+      100vh - var(--kitchen-sink-toc-top) - var(--primitiv-space-space-24)
+    );
+    overflow-y: auto;
+    padding: var(--primitiv-space-space-16);
+    border: var(--primitiv-border-width-1) solid var(--primitiv-border-subtle);
+    border-radius: var(--primitiv-surface-md-radius);
+    background: var(--primitiv-surface-raised);
+  }
+}
+
+.ks-fonts__title {
+  margin: 0;
+  font-family: var(--primitiv-label-sm-font-family);
+  font-size: var(--primitiv-label-sm-font-size);
+  font-weight: var(--primitiv-font-weight-semibold);
+  color: var(--primitiv-content-primary);
+}
+
+.ks-fonts__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--primitiv-space-space-4);
+}
+
+.ks-fonts__label {
+  font-family: var(--primitiv-body-xs-font-family);
+  font-size: var(--primitiv-body-xs-font-size);
+  color: var(--primitiv-content-secondary);
+}
+
+.ks-fonts__status {
+  margin: 0;
+  font-family: var(--primitiv-body-xs-font-family);
+  font-size: var(--primitiv-body-xs-font-size);
+  line-height: var(--primitiv-body-xs-line-height);
+  color: var(--primitiv-content-muted);
+}
+
+/* A local specimen so the pair can be judged without scrolling: the two faces
+   side by side, with digits, which is the thing under review. */
+.ks-fonts__specimen {
+  display: flex;
+  flex-direction: column;
+  gap: var(--primitiv-space-space-2);
+  padding-block: var(--primitiv-space-space-8);
+  border-block-start: var(--primitiv-border-width-1) solid var(--primitiv-border-subtle);
+}
+
+.ks-fonts__specimen-heading {
+  font-family: var(--primitiv-font-family-heading);
+  font-size: var(--primitiv-heading-h5-font-size);
+  font-weight: var(--primitiv-font-weight-semibold);
+  color: var(--primitiv-content-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.ks-fonts__specimen-body {
+  font-family: var(--primitiv-font-family-text);
+  font-size: var(--primitiv-body-sm-font-size);
+  color: var(--primitiv-content-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.ks-fonts__toggle {
+  align-self: flex-start;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-family: var(--primitiv-body-xs-font-family);
+  font-size: var(--primitiv-body-xs-font-size);
+  color: var(--primitiv-action-link-foreground-default);
+  text-decoration-line: underline;
+  cursor: pointer;
+}
+
+.ks-fonts__rejected {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--primitiv-space-space-2);
+  font-family: var(--primitiv-body-xs-font-family);
+  font-size: var(--primitiv-body-xs-font-size);
+  color: var(--primitiv-content-muted);
+}
+
+.ks-fonts__rejected li {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--primitiv-space-space-8);
+}
+
+.ks-fonts__reason {
+  color: var(--primitiv-content-error);
+  white-space: nowrap;
+}
+
+/* Self-diagnosis line. Present because this panel failed twice with a silently
+   empty list, and a count with no explanation is not debuggable from the page. */
+.ks-fonts__diag {
+  font-family: var(--primitiv-font-family-mono);
+  font-size: var(--primitiv-code-xs-font-size, 0.6875rem);
+  color: var(--primitiv-content-muted);
+}
+
+/* A failing family is still listed when it is the current selection — the two
+   fonts shipped today both fail, so hiding them would empty the trigger. */
+.ks-fonts__fails {
+  color: var(--primitiv-content-error);
+}

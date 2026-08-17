@@ -258,6 +258,7 @@ import {
   DataTableSortHeader,
 } from "./components";
 import { DeploymentsTable } from "./demos/DeploymentsTable";
+import { FontPairing } from "./FontPairing";
 import {
   Calendar,
   Check,
@@ -1608,6 +1609,7 @@ export function App(): ReactElement {
 
   return (
     <div className="kitchen-sink-layout">
+      <FontPairing />
       <PageToc />
       <div className="kitchen-sink">
         <Prose asChild>

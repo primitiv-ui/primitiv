@@ -636,6 +636,7 @@
     },
     "framed-control": {
       "xs": {
+        "icon-optical-inset": { "$type": "number", "$value": "{space.space-2}" },
         "height": {
           "$type": "number",
           "$value": "{size.size-24}"
@@ -666,6 +667,7 @@
         }
       },
       "sm": {
+        "icon-optical-inset": { "$type": "number", "$value": "{space.space-3}" },
         "height": {
           "$type": "number",
           "$value": "{size.size-32}"
@@ -696,6 +698,7 @@
         }
       },
       "md": {
+        "icon-optical-inset": { "$type": "number", "$value": "{space.space-4}" },
         "height": {
           "$type": "number",
           "$value": "{size.size-40}"
@@ -726,6 +729,7 @@
         }
       },
       "lg": {
+        "icon-optical-inset": { "$type": "number", "$value": "{space.space-4}" },
         "height": {
           "$type": "number",
           "$value": "{size.size-48}"
@@ -756,6 +760,7 @@
         }
       },
       "xl": {
+        "icon-optical-inset": { "$type": "number", "$value": "{space.space-6}" },
         "height": {
           "$type": "number",
           "$value": "{size.size-56}"
@@ -3772,6 +3777,7 @@
     },
     "framed-control": {
       "xs": {
+        "icon-optical-inset": { "$type": "number", "$value": "{space.space-1}" },
         "height": {
           "$type": "number",
           "$value": "{size.size-20}"
@@ -3802,6 +3808,7 @@
         }
       },
       "sm": {
+        "icon-optical-inset": { "$type": "number", "$value": "{space.space-2}" },
         "height": {
           "$type": "number",
           "$value": "{size.size-28}"
@@ -3832,6 +3839,7 @@
         }
       },
       "md": {
+        "icon-optical-inset": { "$type": "number", "$value": "{space.space-3}" },
         "height": {
           "$type": "number",
           "$value": "{size.size-32}"
@@ -3862,6 +3870,7 @@
         }
       },
       "lg": {
+        "icon-optical-inset": { "$type": "number", "$value": "{space.space-4}" },
         "height": {
           "$type": "number",
           "$value": "{size.size-40}"
@@ -3892,6 +3901,7 @@
         }
       },
       "xl": {
+        "icon-optical-inset": { "$type": "number", "$value": "{space.space-4}" },
         "height": {
           "$type": "number",
           "$value": "{size.size-48}"
@@ -6908,6 +6918,7 @@
     },
     "framed-control": {
       "xs": {
+        "icon-optical-inset": { "$type": "number", "$value": "{space.space-2}" },
         "height": {
           "$type": "number",
           "$value": "{size.size-28}"
@@ -6938,6 +6949,7 @@
         }
       },
       "sm": {
+        "icon-optical-inset": { "$type": "number", "$value": "{space.space-3}" },
         "height": {
           "$type": "number",
           "$value": "{size.size-40}"
@@ -6968,6 +6980,7 @@
         }
       },
       "md": {
+        "icon-optical-inset": { "$type": "number", "$value": "{space.space-4}" },
         "height": {
           "$type": "number",
           "$value": "{size.size-48}"
@@ -6998,6 +7011,7 @@
         }
       },
       "lg": {
+        "icon-optical-inset": { "$type": "number", "$value": "{space.space-6}" },
         "height": {
           "$type": "number",
           "$value": "{size.size-56}"
@@ -7028,6 +7042,7 @@
         }
       },
       "xl": {
+        "icon-optical-inset": { "$type": "number", "$value": "{space.space-8}" },
         "height": {
           "$type": "number",
           "$value": "{size.size-68}"
@@ -10044,6 +10059,7 @@
     },
     "framed-control": {
       "xs": {
+        "icon-optical-inset": { "$type": "number", "$value": "{space.space-1}" },
         "height": {
           "$type": "number",
           "$value": "{size.size-16}"
@@ -10074,6 +10090,7 @@
         }
       },
       "sm": {
+        "icon-optical-inset": { "$type": "number", "$value": "{space.space-1}" },
         "height": {
           "$type": "number",
           "$value": "{size.size-20}"
@@ -10104,6 +10121,7 @@
         }
       },
       "md": {
+        "icon-optical-inset": { "$type": "number", "$value": "{space.space-2}" },
         "height": {
           "$type": "number",
           "$value": "{size.size-24}"
@@ -10134,6 +10152,7 @@
         }
       },
       "lg": {
+        "icon-optical-inset": { "$type": "number", "$value": "{space.space-3}" },
         "height": {
           "$type": "number",
           "$value": "{size.size-32}"
@@ -10164,6 +10183,7 @@
         }
       },
       "xl": {
+        "icon-optical-inset": { "$type": "number", "$value": "{space.space-4}" },
         "height": {
           "$type": "number",
           "$value": "{size.size-40}"

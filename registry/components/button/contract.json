@@ -54,6 +54,7 @@
     { "name": "--primitiv-button-padding-inline", "defaultsTo": "var(--primitiv-framed-control-md-padding-inline)" },
     { "name": "--primitiv-button-gap", "defaultsTo": "var(--primitiv-framed-control-md-gap)" },
     { "name": "--primitiv-button-icon-size", "defaultsTo": "var(--primitiv-framed-control-md-icon-size)" },
+    { "name": "--primitiv-button-icon-optical-inset", "defaultsTo": "var(--primitiv-framed-control-md-icon-optical-inset)" },
     { "name": "--primitiv-button-font-family", "defaultsTo": "var(--primitiv-label-md-font-family)" },
     { "name": "--primitiv-button-font-size", "defaultsTo": "var(--primitiv-label-md-font-size)" },
     { "name": "--primitiv-button-font-weight", "defaultsTo": "var(--primitiv-label-md-font-weight)" },

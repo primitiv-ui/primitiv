@@ -37,6 +37,7 @@
     --primitiv-button-padding-inline: var(--primitiv-framed-control-md-padding-inline);
     --primitiv-button-gap: var(--primitiv-framed-control-md-gap);
     --primitiv-button-icon-size: var(--primitiv-framed-control-md-icon-size);
+    --primitiv-button-icon-optical-inset: var(--primitiv-framed-control-md-icon-optical-inset);
     --primitiv-button-font-family: var(--primitiv-label-md-font-family);
     --primitiv-button-font-size: var(--primitiv-label-md-font-size);
     --primitiv-button-font-weight: var(--primitiv-label-md-font-weight);
@@ -217,6 +218,7 @@
     --primitiv-button-padding-inline: var(--primitiv-framed-control-xs-padding-inline);
     --primitiv-button-gap: var(--primitiv-framed-control-xs-gap);
     --primitiv-button-icon-size: var(--primitiv-framed-control-xs-icon-size);
+    --primitiv-button-icon-optical-inset: var(--primitiv-framed-control-xs-icon-optical-inset);
     --primitiv-button-font-family: var(--primitiv-label-xs-font-family);
     --primitiv-button-font-size: var(--primitiv-label-xs-font-size);
     --primitiv-button-font-weight: var(--primitiv-label-xs-font-weight);
@@ -228,6 +230,7 @@
     --primitiv-button-padding-inline: var(--primitiv-framed-control-sm-padding-inline);
     --primitiv-button-gap: var(--primitiv-framed-control-sm-gap);
     --primitiv-button-icon-size: var(--primitiv-framed-control-sm-icon-size);
+    --primitiv-button-icon-optical-inset: var(--primitiv-framed-control-sm-icon-optical-inset);
     --primitiv-button-font-family: var(--primitiv-label-sm-font-family);
     --primitiv-button-font-size: var(--primitiv-label-sm-font-size);
     --primitiv-button-font-weight: var(--primitiv-label-sm-font-weight);
@@ -239,6 +242,7 @@
     --primitiv-button-padding-inline: var(--primitiv-framed-control-md-padding-inline);
     --primitiv-button-gap: var(--primitiv-framed-control-md-gap);
     --primitiv-button-icon-size: var(--primitiv-framed-control-md-icon-size);
+    --primitiv-button-icon-optical-inset: var(--primitiv-framed-control-md-icon-optical-inset);
     --primitiv-button-font-family: var(--primitiv-label-md-font-family);
     --primitiv-button-font-size: var(--primitiv-label-md-font-size);
     --primitiv-button-font-weight: var(--primitiv-label-md-font-weight);
@@ -250,6 +254,7 @@
     --primitiv-button-padding-inline: var(--primitiv-framed-control-lg-padding-inline);
     --primitiv-button-gap: var(--primitiv-framed-control-lg-gap);
     --primitiv-button-icon-size: var(--primitiv-framed-control-lg-icon-size);
+    --primitiv-button-icon-optical-inset: var(--primitiv-framed-control-lg-icon-optical-inset);
     --primitiv-button-font-family: var(--primitiv-label-lg-font-family);
     --primitiv-button-font-size: var(--primitiv-label-lg-font-size);
     --primitiv-button-font-weight: var(--primitiv-label-lg-font-weight);
@@ -261,10 +266,36 @@
     --primitiv-button-padding-inline: var(--primitiv-framed-control-xl-padding-inline);
     --primitiv-button-gap: var(--primitiv-framed-control-xl-gap);
     --primitiv-button-icon-size: var(--primitiv-framed-control-xl-icon-size);
+    --primitiv-button-icon-optical-inset: var(--primitiv-framed-control-xl-icon-optical-inset);
     --primitiv-button-font-family: var(--primitiv-label-xl-font-family);
     --primitiv-button-font-size: var(--primitiv-label-xl-font-size);
     --primitiv-button-font-weight: var(--primitiv-label-xl-font-weight);
     --primitiv-button-line-height: var(--primitiv-label-xl-line-height);
+  }
+
+  /* Optical alignment for an icon+label button.
+     An icon fills its box to the edge; a text label carries natural side
+     bearing. With equal padding the icon side therefore reads heavier and the
+     label looks pushed toward the far edge. Pulling the icon side in by
+     framed-control/{size}/icon-optical-inset evens the two out — the same
+     correction alert/{size}/icon-offset-top already makes on the block axis.
+
+     The `:has(> .primitiv-button__label)` guard is load-bearing: it restricts
+     this to buttons that actually pair an icon with text. An icon-ONLY button
+     is its own first and last child, so without the guard both sides would be
+     pulled in and a control that should be symmetric would shrink. The label
+     span is added automatically for string/number children; a consumer who
+     passes their own element gets no inset rather than a wrong one. */
+  .primitiv-button:has(> svg:first-child):has(> .primitiv-button__label) {
+    padding-inline-start: calc(
+      var(--primitiv-button-padding-inline) - var(--primitiv-button-icon-optical-inset)
+    );
+  }
+
+  .primitiv-button:has(> svg:last-child):has(> .primitiv-button__label) {
+    padding-inline-end: calc(
+      var(--primitiv-button-padding-inline) - var(--primitiv-button-icon-optical-inset)
+    );
   }
 }
 
@@ -330,6 +361,7 @@ $primitiv-button-height: var(--primitiv-button-height);
 $primitiv-button-padding-inline: var(--primitiv-button-padding-inline);
 $primitiv-button-gap: var(--primitiv-button-gap);
 $primitiv-button-icon-size: var(--primitiv-button-icon-size);
+$primitiv-button-icon-optical-inset: var(--primitiv-button-icon-optical-inset);
 $primitiv-button-font-family: var(--primitiv-button-font-family);
 $primitiv-button-font-size: var(--primitiv-button-font-size);
 $primitiv-button-font-weight: var(--primitiv-button-font-weight);

@@ -34,7 +34,9 @@ Landed against these findings, newest first:
 | `d44ade7f` | Dark `action/link/foreground/default` and `content/muted` contrast, plus test coverage | `better-colors` |
 
 Deliberately parked: the `border/default` alias convention, the `table`
-numeric-cell API, and the two Figma text-style findings in Pass 06 below.
+numeric-cell API (**downgraded** — it was motivated by digit shift, which
+`tabular-nums` turns out to fix, so it is now only about column *alignment*), and
+the two Figma text-style findings in Pass 06 below.
 
 **The font pair is no longer one of them.** It was parked as blocking the
 `tabular-nums` fix; measurement on 2026-08-18 reversed that — Asta Sans carries
@@ -44,11 +46,29 @@ the feature, which affects Badge's numerals alone. The live pairing preview
 the body slot needs it, hiding most display and condensed faces from the heading
 list; that slot now offers 11 more.
 
-One build gap closed along the way (`140ed09c`): the workbench's committed
-`primitiv-base.css` had silently missed this session's three typography fixes,
-because no workflow emits that file and no gate checks it. Both committed copies
-are now synced by hand. The underlying gap — two generated files with no
-regeneration path — is still open.
+**The generated-file gap is now closed** (`23d2ea59` · regenerated `14653d97`).
+It first showed as the workbench's `primitiv-base.css` having silently missed this
+session's three typography fixes (hand-synced in `140ed09c`), but the cause was
+bigger than a missing workflow:
+
+`primitiv tokens --out <path>` writes **three** files — the token layer, plus
+`primitiv-base.css` and `breakpoints.ts` as siblings — and the regenerate workflow
+staged **only the token layer**. So the other two regenerated correctly on every
+run and were then discarded, which is why it reported "already up to date" and
+committed nothing after a base-sheet change. Nothing was broken; a subset was
+being thrown away.
+
+Measured extent once the gate was written: the kitchen-sink's files were current,
+and the **workbench's token layer was 424 diff lines stale** — missing the new
+`letter-spacing` steps and entire `color.brand.alpha.*` families. It also carried a
+hand-added "GENERATED — do not edit by hand" header, i.e. it had stopped being a
+generated file and become a fork.
+
+Both workflows now cover all six files across both apps. The gate demonstrated
+itself in the process: **it failed on the commit that introduced it** (catching the
+real staleness) and passed on the regeneration commit — the same red-green the
+token source already follows. The only thing lost is that hand-written header,
+which a gate enforces far more reliably than a comment ever did.
 
 ## Passes
 

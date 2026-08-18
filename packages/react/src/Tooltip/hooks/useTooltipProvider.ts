@@ -32,6 +32,14 @@ export function useTooltipProvider({
   );
 
   const onCloseGlobally = useCallback(() => {
+    // Cancel before re-scheduling. The ref tracks only the newest timer, so
+    // overwriting it without cancelling orphans the previous one: it survives,
+    // fires unobserved, and can no longer be cancelled by a later open. Two
+    // closes in a row is not hypothetical — `closeImmediate` is unguarded and
+    // both Escape and blur are wired straight to it, so pressing Escape and then
+    // tabbing away leaks a timer. `clearTimeout(undefined)` is a spec'd no-op, so
+    // this needs no guard for the first close.
+    clearTimeout(skipDelayTimerRef.current ?? undefined);
     skipDelayTimerRef.current = setTimeout(() => {
       setIsOpenGlobally(false);
       skipDelayTimerRef.current = null;

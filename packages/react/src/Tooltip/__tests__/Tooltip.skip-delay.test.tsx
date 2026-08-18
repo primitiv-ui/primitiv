@@ -61,6 +61,49 @@ describe("Tooltip.Provider — skip-delay coordination", () => {
     setTimeoutSpy.mockRestore();
   });
 
+  it("does not orphan a skip-delay timer when two closes land in a row", async () => {
+    const user = userEvent.setup();
+    const clearTimeoutSpy = vi.spyOn(globalThis, "clearTimeout");
+    const setTimeoutSpy = vi.spyOn(globalThis, "setTimeout");
+
+    render(
+      <Tooltip.Provider delayDuration={0} skipDelayDuration={5000}>
+        <Tooltip.Root>
+          <Tooltip.Trigger>Hover me</Tooltip.Trigger>
+          <Tooltip.Content>Tooltip text</Tooltip.Content>
+        </Tooltip.Root>
+        <button>Other</button>
+      </Tooltip.Provider>,
+    );
+
+    // `closeImmediate` is deliberately unguarded — it calls `onCloseGlobally()`
+    // whether or not the tooltip is open — so two close-triggering events in a row
+    // schedule two skip-delay timers. Escape and blur are both wired straight to
+    // it (pointer-leave is not: it routes through `closeWithGrace`, which is why
+    // an earlier version of this test using unhover only ever produced one timer).
+    await user.tab(); // focus the trigger → opens
+    await user.keyboard("{Escape}"); // → close #1
+    await user.tab(); // blur → close #2
+
+    const skipTimers = setTimeoutSpy.mock.calls
+      .map((call, i) => ({ delay: call[1], id: setTimeoutSpy.mock.results[i].value }))
+      .filter(({ delay }) => delay === 5000)
+      .map(({ id }) => id);
+
+    // Two closes, so two timers were scheduled — and every one but the newest
+    // must have been cancelled. Without that, the ref only ever tracks the latest,
+    // so the earlier timer survives, fires unobserved, and cannot be cancelled by
+    // a later open. It is also what made the sibling test above flaky in CI: it
+    // pins one specific Timeout object, and with two alive it could pin the wrong.
+    expect(skipTimers.length).toBeGreaterThan(1);
+    for (const orphan of skipTimers.slice(0, -1)) {
+      expect(clearTimeoutSpy).toHaveBeenCalledWith(orphan);
+    }
+
+    clearTimeoutSpy.mockRestore();
+    setTimeoutSpy.mockRestore();
+  });
+
   it("schedules the skip-delay timer using the Provider's skipDelayDuration when a tooltip closes", async () => {
     const user = userEvent.setup();
     const setTimeoutSpy = vi.spyOn(globalThis, "setTimeout");

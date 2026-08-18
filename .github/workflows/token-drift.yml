@@ -1,13 +1,19 @@
 name: Token drift
 
 # Guards against a stale committed token layer: if someone edits the DTCG source
-# (packages/tokens/src/*.json) or the emitter (primitiv-emit / primitiv-cli) but
-# doesn't regenerate apps/kitchen-sink/src/styles/primitiv/tokens.css, this fails.
+# (packages/tokens/src/*.json), the emitter (primitiv-emit / primitiv-cli), or the
+# hand-authored base stylesheet assets, but doesn't regenerate the committed
+# output, this fails.
 #
-# It re-emits the token layer into a temp file and diffs it against the committed
-# one. To FIX a failure, don't hand-edit tokens.css — run the "Regenerate tokens"
-# workflow (Actions -> Regenerate tokens -> Run workflow), which re-emits and
-# commits it for you.
+# It covers everything `primitiv tokens` writes, for BOTH apps — the token layer
+# plus the `primitiv-base.css` and `breakpoints.ts` siblings emitted beside it.
+# Checking only the token layer is what let the base sheet drift twice in one
+# session (2026-08-18): the regenerate workflow staged a subset, so the rest
+# regenerated and was discarded with nothing reporting it.
+#
+# It re-emits into a temp directory and diffs against the committed files. To FIX
+# a failure, don't hand-edit them — run the "Regenerate tokens" workflow (Actions
+# -> Regenerate tokens -> Run workflow), which re-emits and commits for you.
 #
 # The CLI `include_str!`s the DTCG at compile time, so `cargo run` reflects the
 # current source with no Node/pnpm.
@@ -20,6 +26,11 @@ on:
       - 'crates/primitiv-emit/**'
       - 'crates/primitiv-cli/**'
       - 'apps/kitchen-sink/src/styles/primitiv/tokens.css'
+      - 'apps/kitchen-sink/src/styles/primitiv/primitiv-base.css'
+      - 'apps/kitchen-sink/src/styles/primitiv/breakpoints.ts'
+      - 'apps/workbench/src/primitiv-tokens.css'
+      - 'apps/workbench/src/primitiv-base.css'
+      - 'apps/workbench/src/breakpoints.ts'
       - '.github/workflows/token-drift.yml'
   pull_request:
     paths:
@@ -27,6 +38,11 @@ on:
       - 'crates/primitiv-emit/**'
       - 'crates/primitiv-cli/**'
       - 'apps/kitchen-sink/src/styles/primitiv/tokens.css'
+      - 'apps/kitchen-sink/src/styles/primitiv/primitiv-base.css'
+      - 'apps/kitchen-sink/src/styles/primitiv/breakpoints.ts'
+      - 'apps/workbench/src/primitiv-tokens.css'
+      - 'apps/workbench/src/primitiv-base.css'
+      - 'apps/workbench/src/breakpoints.ts'
       - '.github/workflows/token-drift.yml'
 
 jobs:
@@ -42,13 +58,31 @@ jobs:
       - name: Cache Rust build
         uses: Swatinem/rust-cache@v2
 
-      - name: Re-emit the token layer to a temp file
-        run: cargo run -q -p primitiv-cli -- tokens --format css --out "${RUNNER_TEMP}/tokens.css"
-
-      - name: Fail if the committed tokens.css is stale
+      - name: Re-emit the token layer to a temp directory
         run: |
-          if ! diff -u apps/kitchen-sink/src/styles/primitiv/tokens.css "${RUNNER_TEMP}/tokens.css"; then
-            echo "::error::apps/kitchen-sink/src/styles/primitiv/tokens.css is out of date with the DTCG source. Run the 'Regenerate tokens' workflow (Actions -> Regenerate tokens -> Run workflow) to refresh and commit it."
-            exit 1
-          fi
-          echo "tokens.css is up to date with the DTCG source."
+          mkdir -p "${RUNNER_TEMP}/emit"
+          # One invocation writes all three files into the temp directory.
+          cargo run -q -p primitiv-cli -- tokens --format css --out "${RUNNER_TEMP}/emit/tokens.css"
+
+      - name: Fail if any committed generated file is stale
+        run: |
+          set -u
+          stale=0
+          # committed path : freshly emitted counterpart
+          check() {
+            if ! diff -u "$1" "$2"; then
+              echo "::error file=$1::$1 is out of date with the DTCG source. Run the 'Regenerate tokens' workflow (Actions -> Regenerate tokens -> Run workflow) to refresh and commit it."
+              stale=1
+            fi
+          }
+          KS=apps/kitchen-sink/src/styles/primitiv
+          WB=apps/workbench/src
+          check "$KS/tokens.css"          "${RUNNER_TEMP}/emit/tokens.css"
+          check "$KS/primitiv-base.css"   "${RUNNER_TEMP}/emit/primitiv-base.css"
+          check "$KS/breakpoints.ts"      "${RUNNER_TEMP}/emit/breakpoints.ts"
+          # The workbench emits the same content under its own token-layer name.
+          check "$WB/primitiv-tokens.css" "${RUNNER_TEMP}/emit/tokens.css"
+          check "$WB/primitiv-base.css"   "${RUNNER_TEMP}/emit/primitiv-base.css"
+          check "$WB/breakpoints.ts"      "${RUNNER_TEMP}/emit/breakpoints.ts"
+          if [ "$stale" -ne 0 ]; then exit 1; fi
+          echo "Every committed generated token file is up to date with the DTCG source."

@@ -19,6 +19,7 @@ Landed against these findings, newest first:
 
 | Commit | Finding | Pass |
 | --- | --- | --- |
+| `990ce2f2` | Prose measure cap — an opt-in `measure` modifier at a calibrated `51ch`, guarded by a real character count | `better-typography` / `better-layout` |
 | `4096fc63` · `33a11417` | Heading letter-spacing — a per-density Context member, plus two new ramp steps, a table guard and a browser test | `better-typography` |
 | `8ca536e0` · `3996e39e` | Button optical icon inset — new token family, plus a browser test | `better-ui` |
 | `208023c9` | `from-font` underline metrics, `text-wrap: balance`/`pretty` | `better-typography` |
@@ -578,7 +579,7 @@ that already exists.
 
 | Severity | Location | Before | After | Why |
 | --- | --- | --- | --- | --- |
-| MEDIUM | `registry/components/prose/styles.css` (54 lines, flow spacing only)<br>`registry/components/container/styles.css:41` | Prose sets **no** width constraint of any kind. Container caps at breakpoints — `lg` is `64rem` = **1024px** | Add a measure cap to Prose (`max-width: 68ch` or equivalent), keeping Container's breakpoint cap for layout | These are the two components a consumer composes for long-form reading, and neither caps line length. At Container `lg` with `body-md` (16px), a paragraph runs roughly **128 characters** per line — nearly double the 60–75 range. Container's cap is a *layout* width and correctly so; the measure cap belongs on Prose, whose entire purpose is long-form content. |
+| ~~MEDIUM~~ **FIXED** (`990ce2f2`) | `registry/components/prose/styles.css` (54 lines, flow spacing only)<br>`registry/components/container/styles.css:41` | Prose sets **no** width constraint of any kind. Container caps at breakpoints — `lg` is `64rem` = **1024px** | An **opt-in** `measure` modifier on Prose, capping at `51ch` — a calibrated value, not the conventional one | These are the two components a consumer composes for long-form reading, and neither caps line length. Container's cap is a *layout* width and correctly so; the measure cap belongs on Prose, whose entire purpose is long-form content.<br><br>**Fixed 2026-08-18, and the estimate was wrong in both directions.** This row originally said "roughly 128 characters", which was arithmetic from `1024px ÷ 16px`, not a reading — and this pass's own verification notes admit "nothing was read at real content lengths". Measured in Chromium: at Container `lg` a paragraph runs **137** characters, and even at `sm` (608px) it runs **90**. Both worse than filed.<br><br>**`51ch`, not the `68ch` proposed.** `ch` is the width of the `0` glyph, and the ratio between that and the average character advance varies by typeface. For the shipped body face (Asta Sans, 16px): `1ch` = 9.656px, average advance = 7.216px, ratio **0.747** — an unusually wide `0`. So the conventional `65ch` would run about **87** characters, past the range, and the proposed `68ch` about 91. `51ch` lands at ~68. The first calibration run was thrown away because it measured a **fallback font** (`document.fonts.ready` was not awaited, giving ratio 0.818) — a 20% error that would have shipped a wrong constant.<br><br>**Opt-in, and the kitchen-sink is the proof.** `.primitiv-flow` is a rhythm context, not a text column: `apps/kitchen-sink/src/App.tsx` wraps the *entire page* in one `<Prose asChild>`, every grid, table and card inside it. A default cap would have collapsed the lot. So `measure` is a modifier a consumer applies to running text, with `--primitiv-prose-measure` to retune or switch off (`none`).<br><br>**Deliberately not a design token.** A measure is only meaningful in `ch`, and neither tier can express it — the emitter writes lengths as `rem`, Figma frame widths are px. A token would either drop the font-relative unit (losing the one property that makes a measure survive a size change) or mean something different on each platform. It is a component custom property with its calibration recorded in the stylesheet, the README and the test.<br><br>**Guarded by measurement** (`apps/kitchen-sink/e2e/prose-measure.spec.ts`, 3 specs): the capped column's median line is ≥ 60 characters and no line exceeds 75; an uncapped flow still fills its parent; the custom property still narrows it. This is the guard for the coupling nothing else catches — **change the body font pair and the ratio moves**, so the measure drifts out of range with the stylesheet untouched, and this test is what will say so. Verified red by deleting the cap rule: 2 fail, and the opt-in guard correctly still passes. |
 
 ### Inputs at 16px on mobile
 
@@ -658,9 +659,12 @@ would have adapted. Documenting the pairing requirement is probably enough.
 
 ### Still to verify
 
-- **Nothing was read at real content lengths.** The measure finding is
-  arithmetic; the wrapping findings are from absent declarations. Both want the
-  viewport resized against real copy to see where lines actually break.
+- ~~**Nothing was read at real content lengths.**~~ **Closed 2026-08-18** for the
+  measure finding, which was indeed arithmetic and indeed wrong: real copy laid
+  out in Chromium gives 137 characters at Container `lg`, not the 128 estimated,
+  and 90 even at `sm`. The correction is in the fixed row above, and the character
+  count is now a standing test rather than a one-off reading. The **wrapping**
+  findings are still only from absent declarations.
 - **No macOS rendering comparison** was made for the font-smoothing finding.
 - **The typefaces were not evaluated.** Khand (headings) / Asta Sans (text) /
   JetBrains Mono are loaded from Google Fonts and the pairing was not assessed

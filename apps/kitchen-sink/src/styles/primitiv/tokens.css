@@ -339,7 +339,7 @@
     --primitiv-action-secondary-foreground-default: var(--primitiv-color-neutral-900);
     --primitiv-action-secondary-foreground-disabled: var(--primitiv-color-neutral-400);
     --primitiv-action-secondary-hover: var(--primitiv-color-neutral-200);
-    --primitiv-border-default: var(--primitiv-color-neutral-300);
+    --primitiv-border-default: var(--primitiv-color-neutral-400);
     --primitiv-border-focus: var(--primitiv-color-brand-500);
     --primitiv-border-invalid: var(--primitiv-color-danger-500);
     --primitiv-border-strong: var(--primitiv-color-neutral-500);
@@ -539,10 +539,10 @@
     --primitiv-action-secondary-foreground-default: var(--primitiv-color-neutral-900);
     --primitiv-action-secondary-foreground-disabled: var(--primitiv-color-neutral-500);
     --primitiv-action-secondary-hover: var(--primitiv-color-neutral-200);
-    --primitiv-border-default: var(--primitiv-color-neutral-400);
+    --primitiv-border-default: var(--primitiv-color-neutral-500);
     --primitiv-border-focus: var(--primitiv-color-brand-500);
     --primitiv-border-invalid: var(--primitiv-color-danger-500);
-    --primitiv-border-strong: var(--primitiv-color-neutral-500);
+    --primitiv-border-strong: var(--primitiv-color-neutral-600);
     --primitiv-border-subtle: var(--primitiv-color-neutral-200);
     --primitiv-choice-card-selected-background: var(--primitiv-color-brand-100);
     --primitiv-choice-card-selected-border: var(--primitiv-color-brand-500);

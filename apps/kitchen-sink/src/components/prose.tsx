@@ -10,21 +10,28 @@ import "../styles/primitiv/prose/styles.css";
  */
 import { Slot } from "@primitiv-ui/react";
 import { type ComponentPropsWithRef, type ElementType } from "react";
-import { prose } from "./prose.recipe";
+import { prose, type ProseVariants } from "./prose.recipe";
 
-export type ProseProps = ComponentPropsWithRef<"div"> & {
-  /**
-   * Render the single child element instead of a wrapping <div>, merging the
-   * flow class onto it — e.g. `<Prose asChild><article>…</article></Prose>`.
-   */
-  asChild?: boolean;
-};
+export type ProseProps = ComponentPropsWithRef<"div"> &
+  ProseVariants & {
+    /**
+     * Render the single child element instead of a wrapping <div>, merging the
+     * flow class onto it — e.g. `<Prose asChild><article>…</article></Prose>`.
+     */
+    asChild?: boolean;
+  };
 
 /**
  * A flow-rhythm container. Applies `.primitiv-flow` so its **direct** children
  * get density-scoped vertical spacing (large air above headings, tight space
  * below them, even paragraph rhythm between blocks). Nested regions opt in with
  * their own `<Prose>` — rhythm never leaks across a container boundary (RFC 0016).
+ *
+ * `measure` (default `false`) caps the column at a comfortable reading line
+ * length — roughly 68 characters, via `--primitiv-prose-measure`. It is opt-in
+ * because a flow context is just as often a whole page region containing grids
+ * and media, which a reading-width cap would break; reach for it on running
+ * text. Retune or disable it per subtree with the custom property.
  *
  * @example
  * ```tsx
@@ -34,11 +41,18 @@ export type ProseProps = ComponentPropsWithRef<"div"> & {
  *     <p>Body…</p>
  *   </article>
  * </Prose>
+ *
+ * // Long-form reading column, capped at the measure
+ * <Prose measure asChild>
+ *   <article>…</article>
+ * </Prose>
  * ```
  *
  * @see https://primitiv-ui.dev/docs/components/prose
  */
-export function Prose({ asChild = false, className, ...props }: ProseProps) {
+export function Prose({ measure, asChild = false, className, ...props }: ProseProps) {
   const Comp: ElementType = asChild ? Slot : "div";
-  return <Comp className={[prose(), className].filter(Boolean).join(" ")} {...props} />;
+  return (
+    <Comp className={[prose({ measure }), className].filter(Boolean).join(" ")} {...props} />
+  );
 }

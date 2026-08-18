@@ -1674,6 +1674,32 @@ export function App(): ReactElement {
               open the command palette, or <Kbd size={size}>Esc</Kbd> to close
               it.
             </p>
+            <h3>Heading 3 - The measure cap</h3>
+            <p>
+              This article is one big <code>&lt;Prose asChild&gt;</code> wrapping
+              every demo on the page, which is exactly why{" "}
+              <code>measure</code> is opt-in: a reading-width cap here would
+              squeeze every grid, table and card below into a column. Add{" "}
+              <code>measure</code> where the content really is running text, and
+              the column caps at about 68 characters.
+            </p>
+            <Prose measure>
+              <p>
+                Capped. The cap is <code>51ch</code> rather than the
+                conventional 65-70 because <code>ch</code> is the width of the
+                zero glyph, and this body face has an unusually wide one - at{" "}
+                <code>65ch</code> a line would run nearer 87 characters. Compare
+                the paragraph below, which is the same text uncapped and runs
+                past 130 characters on a wide screen.
+              </p>
+            </Prose>
+            <p>
+              Uncapped. The cap is <code>51ch</code> rather than the
+              conventional 65-70 because <code>ch</code> is the width of the
+              zero glyph, and this body face has an unusually wide one - at{" "}
+              <code>65ch</code> a line would run nearer 87 characters. Compare
+              the paragraph above, which is the same text capped at the measure.
+            </p>
             <h3>Heading 3 - An unordered list</h3>
             <ul>
               <li>Hairline rows, no boxes</li>

@@ -33,6 +33,12 @@
     margin-block-start: var(--primitiv-flow-normal);
   }
 
+  /* The reading-measure knob, declared here but only *applied* by the --measure
+     modifier below, so a plain flow context keeps filling its parent. */
+  .primitiv-flow {
+    --primitiv-prose-measure: 51ch;
+  }
+
   /* Discrete proportionality: larger headings get more leading air. */
   .primitiv-flow > * + :where(h1, h2) {
     margin-block-start: var(--primitiv-flow-region);
@@ -50,5 +56,31 @@
   /* Self-contained blocks (a rule) own their breathing room on both sides. */
   .primitiv-flow > hr {
     margin-block: var(--primitiv-flow-region);
+  }
+}
+
+@layer primitiv.variants {
+  /* Measure — cap the column at a comfortable reading line length.
+   *
+   * OPT-IN, and deliberately so. `.primitiv-flow` is a *rhythm* context, not a
+   * text column: it is routinely applied (often via `asChild`) to whole regions
+   * that contain grids, cards and media, and capping those at a reading width
+   * would break them. So the cap is a modifier a consumer asks for on running
+   * text, not a default. `--primitiv-prose-measure: none` switches it back off
+   * for a subtree.
+   *
+   * Why 51ch and not the usual 65-70ch: `ch` is the width of the "0" glyph, and
+   * the ratio between that and the average character advance varies by typeface.
+   * Measured in Chromium against the shipped body face (Asta Sans, 16px):
+   * 1ch = 9.656px, average advance = 7.216px, ratio 0.747 — a wide "0". So 65ch
+   * would run about 87 characters, well past the 60-75 range, while 51ch lands
+   * at ~68. The number is calibrated, not conventional.
+   *
+   * Consequence worth knowing: this couples to the font pair. Change the body
+   * face and the ratio moves, so re-measure rather than assuming 51ch travels.
+   * `ch` already handles a change of *size* on its own — this is only about the
+   * shape of the face. */
+  .primitiv-flow--measure {
+    max-inline-size: var(--primitiv-prose-measure);
   }
 }

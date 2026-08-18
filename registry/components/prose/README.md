@@ -26,6 +26,33 @@ The values are the density-scoped `--primitiv-flow-{tight,normal,section,region}
 tokens from the token layer, so a `[data-density]` ancestor re-rhythms the whole
 subtree.
 
+## The measure cap
+
+`measure` (default `false`) caps the column at a comfortable reading line length
+— about **68 characters** — by setting `max-inline-size: var(--primitiv-prose-measure)`.
+
+**It is opt-in on purpose.** `.primitiv-flow` is a *rhythm* context, not a text
+column: it is routinely applied to whole page regions that contain grids, cards
+and media, and capping those at a reading width would break them. Reach for
+`measure` on running text.
+
+**The default is `51ch`, not the conventional 65-70ch, because it was measured.**
+`ch` is the width of the `0` glyph, and the ratio between that and the average
+character advance varies by typeface. Against the shipped body face (Asta Sans at
+16px): `1ch` = 9.656px, average advance = 7.216px — a ratio of 0.747, so a wide
+`0`. At `65ch` a line would run about **87** characters, well past the 60-75
+range; `51ch` lands at ~68.
+
+This couples the value to the font pair. `ch` already absorbs a change of *size*
+on its own, but a different face has a different ratio — so if the body font
+changes, re-measure rather than assuming `51ch` travels. Retune or switch it off
+per subtree with the custom property:
+
+```css
+.wide-article { --primitiv-prose-measure: 68ch; }
+.no-cap       { --primitiv-prose-measure: none; }
+```
+
 ## Usage
 
 ```tsx
@@ -43,6 +70,11 @@ import { Prose } from "@/components/prose";
 
 // Or the bare class on your own markup (styles-only consumers):
 <article className="primitiv-flow">…</article>
+
+// A long-form reading column, capped at the measure:
+<Prose measure asChild>
+  <article>…</article>
+</Prose>
 ```
 
 Nest regions by wrapping each in its own `.primitiv-flow` — e.g. a card body
@@ -54,10 +86,10 @@ inside an article. Override a value locally by setting `--primitiv-flow-normal`
 
 | File | Authored? | Role |
 |---|---|---|
-| `contract.json` | **authored** | The styling contract — the `.primitiv-flow` root class and the `--primitiv-flow-*` rhythm tokens it consumes. |
-| `styles.css` | **authored** | The canonical default theme: the owl + role overrides, in `@layer primitiv.base`. |
-| `styles.scss` | **authored** | Byte-identical mirror of `styles.css` — `prose` owns no `--primitiv-prose-*` tokens, so there is no `$`-alias block to derive. |
-| `prose.recipe.ts` | **authored** | A base-only `cva("primitiv-flow")` — the class as a recipe, for parity with the other entries. |
+| `contract.json` | **authored** | The styling contract — the `.primitiv-flow` root class, the `--measure` modifier, and the custom properties it consumes. |
+| `styles.css` | **authored** | The canonical default theme: the owl + role overrides in `@layer primitiv.base`, the measure cap in `@layer primitiv.variants`. |
+| `styles.scss` | **authored** | Mirror of `styles.css` plus the one `$`-alias it now derives — `prose` owns `--primitiv-prose-measure`. |
+| `prose.recipe.ts` | **authored** | `cva("primitiv-flow")` with the single `measure` boolean variant. |
 | `prose.tsx` | **authored** | The `<Prose>` wrapper. Hand-written (there is no primitive to generate from): a thin `asChild` (Slot) wrapper that renders a `<div>`, or the consumer's own element. |
 
 Because there is no headless primitive, `prose.tsx`/`prose.recipe.ts` are **not**
@@ -69,5 +101,13 @@ generated wrappers, D53). `prose.tsx` is type-checked in CI by
 
 `prose` consumes the `flow/*` Context namespace (`--primitiv-flow-tight`,
 `-normal`, `-section`, `-region`), density-scoped in the token layer. They are
-shared, not component-owned, so they are present whenever the token layer is — no
-per-component knob block. See RFC 0016 §3.
+shared, not component-owned, so they are present whenever the token layer is. See
+RFC 0016 §3.
+
+The one component-owned knob is `--primitiv-prose-measure`, which is **not** a
+design token and deliberately so: a measure is only meaningful in `ch`, and
+neither tier can express that — the emitter writes lengths as `rem`, and Figma
+frame widths are px. A token would have to either drop the font-relative unit
+(losing the only property that makes a measure survive a size change) or restate
+it in a unit that means something different on each platform. So it lives here,
+with its calibration recorded above.

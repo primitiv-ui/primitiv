@@ -9,8 +9,14 @@
     "class": "primitiv-flow"
   },
   "dataAttributes": [],
-  "modifiers": [],
+  "modifiers": [
+    {
+      "name": "primitiv-flow--measure",
+      "description": "Caps the column at a comfortable reading line length (~68 characters) via --primitiv-prose-measure. Opt-in: a flow context is often a whole region containing grids and media, which a reading-width cap would break."
+    }
+  ],
   "customProperties": [
+    { "name": "--primitiv-prose-measure", "defaultsTo": "51ch" },
     { "name": "--primitiv-flow-tight", "defaultsTo": "var(--primitiv-space-space-12)" },
     { "name": "--primitiv-flow-normal", "defaultsTo": "var(--primitiv-space-space-20)" },
     { "name": "--primitiv-flow-section", "defaultsTo": "var(--primitiv-space-space-32)" },

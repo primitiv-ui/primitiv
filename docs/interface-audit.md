@@ -29,14 +29,20 @@ Landed against these findings, newest first:
 | `80fb3a50` | Tactile press feedback — `scale(0.96)` on Button / Chip / Breadcrumb Overflow / Carousel | `better-ui` |
 | `219b0cc6` | Drawer scroll containment, and font smoothing at the root | `better-accessibility` / `better-typography` |
 | `230da21c` | Image outlines — Avatar / Card / Carousel / Figure | `better-ui` |
-| `a05445fc` · guarded `d45a3a66` | `tabular-nums` on Pagination / Data Table / Carousel — **working**, not inert; the "no `tnum`" verdict was corrected by measurement on 2026-08-18 | `better-typography` |
+| `a05445fc` · `d45a3a66` · `f5032434` | `tabular-nums` — **working**, not inert (the "no `tnum`" verdict was corrected by measurement); extended to the Avatar Group counter, with Badge's heading-face numerals left as a design question | `better-typography` |
 | `768b0f35` | Forced-colors focus indicator, 27 blocks across 26 components, plus a guard | `better-accessibility` |
 | `d44ade7f` | Dark `action/link/foreground/default` and `content/muted` contrast, plus test coverage | `better-colors` |
 
-Deliberately parked: the font pair (blocks the `tabular-nums` fix being effective —
-there is now a live pairing preview in the kitchen sink, `0198b27d`), the
-`border/default` alias convention, the `table` numeric-cell API, and the two
-Figma text-style findings in Pass 06 below.
+Deliberately parked: the `border/default` alias convention, the `table`
+numeric-cell API, and the two Figma text-style findings in Pass 06 below.
+
+**The font pair is no longer one of them.** It was parked as blocking the
+`tabular-nums` fix; measurement on 2026-08-18 reversed that — Asta Sans carries
+`tnum` and the fix works. What remains is narrower: only the *heading* face lacks
+the feature, which affects Badge's numerals alone. The live pairing preview
+(`0198b27d`) also had the numeric requirement applied to **both** slots when only
+the body slot needs it, hiding most display and condensed faces from the heading
+list; that slot now offers 11 more.
 
 One build gap closed along the way (`140ed09c`): the workbench's committed
 `primitiv-base.css` had silently missed this session's three typography fixes,
@@ -168,10 +174,34 @@ nothing.~~
 > **Why it was wrong is worth keeping.** Checking a font's features through a
 > design tool's UI and inferring browser behaviour is the same class of mistake as
 > the other reversals in this audit: reasoning about a rendered property without
-> rendering it. Two separate probes in this session hit the neighbouring trap of
-> measuring before `document.fonts.ready`, which silently reports the *fallback*
-> face — the likely reason the kitchen-sink's own font-pairing tool also rejected
-> Asta Sans on `tnum`.
+> rendering it.
+>
+> **The sweep was also incomplete**, which only showed up once I stopped asking
+> "which components did we declare this on" and started scanning for components
+> that *render* digits. Two were missed, both fixed in `f5032434`:
+>
+> | Component | Renders | Face | Outcome |
+> | --- | --- | --- | --- |
+> | `avatar-group__counter` | `+3`, `+2`, `+1` | Asta Sans | **Fixed** — the declaration works |
+> | `badge` | `12`, `+135`, `-169` (35 instances) | **Khand** | Declared, but **inert** — see below |
+>
+> Ruled out by the same scan rather than assumed: **Progress** renders no digits
+> at all, and **Stepper**'s markers are static per step, so neither is a changing
+> value. Injecting a digit run measures a font's metrics, not what a component
+> displays — a distinction that would have produced two more phantom findings.
+>
+> **Open design question — Badge's numerals.** Badge is very often a count or a
+> delta, and `--primitiv-badge-font-family` resolves the **heading** family, which
+> under the shipped pair is Khand and has no `tnum` (9px swing per four digits at
+> 100px). The declaration is right and stays — the family is a knob, so a consumer
+> whose heading face carries the feature, or who points that knob at
+> `--primitiv-font-family-text`, gets aligned digits for free — but making them
+> align under the *shipped* pair is a decision about which face a numeric badge is
+> set in, not a CSS fix. Three ways out: point Badge's family at the text family
+> (changes its label's face too), accept the shift, or choose a heading face with
+> `tnum`. **Recorded, not decided.** The current state is pinned by a test that
+> asserts the measured inertness, so whichever way it goes, the change announces
+> itself.
 
 **It is still the right declaration, and it stays.** Registry components are
 copied surfaces and `--primitiv-font-family-text` is a token consumers override,

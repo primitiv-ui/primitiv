@@ -70,6 +70,19 @@
     font-size: var(--primitiv-badge-font-size);
     font-weight: var(--primitiv-badge-font-weight);
     line-height: var(--primitiv-badge-line-height);
+    /* A badge is very often a count or a delta ("12", "+135", "-169"), which is
+       exactly the changing value that must not retime its own pill width.
+       IMPORTANT, and measured: this is **inert under the default theme**, because
+       `--primitiv-badge-font-family` resolves the *heading* family and the shipped
+       heading face (Khand) implements no `tnum` — its figures stay proportional
+       with a 9px swing per four digits at 100px, and browsers do not synthesise
+       tabular figures. It is kept because the declaration is right and the family
+       is a knob: a consumer whose heading face carries the feature, or who points
+       `--primitiv-badge-font-family` at `--primitiv-font-family-text` (which does
+       carry it), gets aligned digits for free. Aligning them under the shipped
+       pair is a *design* decision about which face a numeric badge is set in —
+       recorded in docs/interface-audit.md rather than decided here. */
+    font-variant-numeric: tabular-nums;
     white-space: nowrap;
     user-select: none;
     -webkit-user-select: none;

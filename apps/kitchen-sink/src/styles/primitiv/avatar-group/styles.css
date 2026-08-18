@@ -64,6 +64,15 @@
   .primitiv-avatar-group__item--counter {
     z-index: 1000;
   }
+
+  /* The counter is a *changing* value — "+3" becomes "+12" as the group grows —
+     and the shipped text face draws proportional figures (a 7px swing per four
+     digits at 100px), so without this the row's width moves with its contents.
+     Effective here because the text family carries `tnum`; see the Badge sheet
+     for the case where the family does not. */
+  .primitiv-avatar-group__counter {
+    font-variant-numeric: tabular-nums;
+  }
 }
 
 @layer primitiv.variants {

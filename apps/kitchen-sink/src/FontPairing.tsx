@@ -2,12 +2,19 @@
  * Font pairing preview — a live heading/body font swap for the whole page.
  *
  * Why it exists: the 2026-08-15 typography and colour passes left a font
- * decision open (docs/interface-audit.md). Asta Sans turns out to carry no
- * tabular figures, so the `font-variant-numeric: tabular-nums` shipped on
- * Pagination / Data Table / Carousel is inert against the default theme — and
- * the real fix is probably the font pair, not more CSS. A pairing cannot be
- * judged from specimens, only in situ across every component at once, which is
- * exactly what the kitchen sink is.
+ * decision open (docs/interface-audit.md). A pairing cannot be judged from
+ * specimens, only in situ across every component at once, which is exactly what
+ * the kitchen sink is.
+ *
+ * CORRECTED 2026-08-18. This header used to say Asta Sans carries no tabular
+ * figures, making the `tabular-nums` shipped on Pagination / Data Table /
+ * Carousel inert. Measured in Chromium, that is wrong: **Asta Sans implements
+ * `tnum`** (proportional by default — a 45px spread on "1111" vs "8888" at 100px
+ * — collapsing to 0 with the feature on), so those declarations work. **Khand
+ * does not** (71px either way), which is what the Figma type panel was showing,
+ * and which matters because the heading family is what Badge renders its counts
+ * in. So the pair is mostly fine and the open question is narrower than it
+ * looked: only heading-face numerals are unaligned.
  *
  * THE LIST IS VERIFIED, NOT CURATED. Both requirements are measured in the
  * browser rather than taken on trust, because a hand-assembled "these should be
@@ -28,8 +35,17 @@
  *      against "8888" with `font-variant-numeric: normal`, then again with
  *      `tabular-nums`. If the spread collapses, the family has `tnum`; if it
  *      was already zero the family is monospaced-by-figure and equally fine.
- *      This is the same measurement that found Asta Sans spreads 46px and
- *      Khand 66px at 100px — only here it is the real engine, not Figma.
+ *      This is the measurement that corrected the Figma-panel reading above.
+ *
+ *      It is a HARD requirement for the body slot and a SOFT one for the heading
+ *      slot, because every component that renders a *changing* number resolves
+ *      the text family — Pagination, Data Table, the Avatar Group counter — while
+ *      the heading family is consumed by headings, `label/*` and `overline/*`,
+ *      which do not. Badge is the one exception, so heading families that fail
+ *      only this check are offered with that caveat attached rather than hidden.
+ *      Hiding them was excluding most display and condensed faces (they rarely
+ *      ship `tnum`) and quietly turning the heading list into a list of body
+ *      faces.
  *
  * Rejections are shown with their reason rather than filtered away silently: a
  * mysteriously short list teaches nothing, and "no 600" vs "no tabular figures"
@@ -269,6 +285,28 @@ export function FontPairing() {
   const passing = useMemo(() => (verdicts ?? []).filter((v) => v.ok), [verdicts]);
   const rejected = useMemo(() => (verdicts ?? []).filter((v) => !v.ok), [verdicts]);
 
+  /*
+   * Tabular figures are a hard requirement for the TEXT slot and a soft one for
+   * the HEADING slot, so the heading list also offers families that fail only
+   * the numeric check — labelled, not hidden.
+   *
+   * Measured 2026-08-18 rather than assumed: every component that actually
+   * renders a *changing* number resolves the text family — Pagination, Data
+   * Table and the Avatar Group counter — so the text face has to align its
+   * digits. The heading family is consumed by headings, `label/*` and
+   * `overline/*`, none of which carry changing numbers. The one exception is
+   * Badge, which does render counts and deltas in the heading face; that is why
+   * these families are flagged rather than treated as fine.
+   *
+   * Filtering them out was hiding most display and condensed faces — the natural
+   * heading choices almost never ship `tnum` — which made the heading list look
+   * like a set of body faces and narrowed the search for no good reason.
+   */
+  const headingCandidates = useMemo(
+    () => (verdicts ?? []).filter((v) => v.ok || (v.missingWeights.length === 0 && !v.numericOk)),
+    [verdicts],
+  );
+
   const reset = useCallback(() => { setHeading("Khand"); setBody("Asta Sans"); }, []);
 
   /*
@@ -281,22 +319,28 @@ export function FontPairing() {
    * other kitchen-sink anchors.
    */
   /*
-   * Passing families, plus the current selection even if it failed.
+   * Candidates for a slot, plus the current selection even if it failed.
    *
-   * Both fonts the system ships today are rejected — Khand and Asta Sans have no
-   * tabular figures, which is the whole reason this panel exists — so filtering
-   * strictly to passing families left the initial value absent from its own list
-   * and the trigger rendered empty. Keeping the current value visible (and
-   * labelled with why it fails) also preserves the point of including the
-   * shipped pair at all: a baseline to compare against.
+   * Filtering strictly to passing families left the initial value absent from its
+   * own list and the trigger rendered empty — Khand fails the numeric check, so
+   * the heading select had no Khand in it. Keeping the current value visible (and
+   * labelled with why it fails) also preserves the point of including the shipped
+   * pair at all: a baseline to compare against.
+   *
+   * Corrected 2026-08-18: this used to say "both fonts the system ships today are
+   * rejected". **Asta Sans passes** — it draws proportional figures by default but
+   * does implement `tnum`, so the tabular check collapses its spread to 0. Only
+   * Khand fails. The earlier claim came from reading Figma's type panel rather
+   * than measuring a rendered line.
    */
   const optionsFor = useCallback(
-    (current: string): Verdict[] => {
-      if (passing.some((v) => v.family === current)) return passing;
+    (current: string, slot: string): Verdict[] => {
+      const pool = slot === "font-heading" ? headingCandidates : passing;
+      if (pool.some((v) => v.family === current)) return pool;
       const failing = (verdicts ?? []).find((v) => v.family === current);
-      return failing ? [failing, ...passing] : passing;
+      return failing ? [failing, ...pool] : pool;
     },
-    [passing, verdicts],
+    [passing, headingCandidates, verdicts],
   );
 
   const renderSelect = (
@@ -310,7 +354,7 @@ export function FontPairing() {
           <SelectIcon><ChevronDown /></SelectIcon>
         </SelectTrigger>
         <SelectContent size="sm" className={`ks-anchored-${slot}`}>
-          {optionsFor(value).map((v) => (
+          {optionsFor(value, slot).map((v) => (
             <SelectItem key={v.family} value={v.family}>
               {/* Each row previews in its own face, the way Figma's picker does —
                   the point of a rich Select here rather than a native <select>,
@@ -318,7 +362,16 @@ export function FontPairing() {
               <SelectItemLabel style={{ fontFamily: `"${v.family}"` }}>
                 {v.family}
                 {v.ok ? null : (
-                  <span className="ks-fonts__fails"> · {v.reason}</span>
+                  <span className="ks-fonts__fails">
+                    {" · "}
+                    {/* On the heading slot a numeric-only failure is a caveat, not
+                        a rejection: the only heading-face component that renders a
+                        changing number is Badge. Say which, so the trade-off is
+                        legible instead of reading as "this font is unusable". */}
+                    {slot === "font-heading" && v.missingWeights.length === 0
+                      ? "no tabular figures — Badge counts will shift"
+                      : v.reason}
+                  </span>
                 )}
               </SelectItemLabel>
             </SelectItem>

@@ -67,12 +67,29 @@ test.describe("tabular figures", () => {
   for (const [name, selector] of [
     ["Pagination", ".primitiv-pagination"],
     ["Data Table", ".primitiv-data-table"],
+    // The overflow counter is a changing value ("+3" → "+12"); it was missed by
+    // the original sweep and found by scanning for components that actually
+    // render digits rather than ones that merely could.
+    ["Avatar Group counter", ".primitiv-avatar-group__counter"],
   ] as const) {
     test(`${name} advances every figure equally`, async ({ page }) => {
       const { narrow, wide, fontFamily } = await digitRuns(page, selector);
       expect(wide, `${name} renders in ${fontFamily}`).toBeCloseTo(narrow, 1);
     });
   }
+
+  test("Badge carries the declaration but is inert under the shipped heading face", async ({
+    page,
+  }) => {
+    // Badge renders counts and deltas, so it declares tabular-nums — but it
+    // resolves the *heading* family, and Khand implements no `tnum`. This asserts
+    // the measured reality rather than the intent, so that the day the heading
+    // face changes (or the badge family is re-pointed at the text family) this
+    // fails and says so, instead of the system quietly having been wrong.
+    const { narrow, wide, fontFamily } = await digitRuns(page, ".primitiv-badge");
+    expect(fontFamily).toContain("Khand");
+    expect(Math.abs(wide - narrow)).toBeGreaterThan(1);
+  });
 
   test("the declaration is doing the work — the body default still shifts", async ({ page }) => {
     // Without this, the suite would pass just as happily on a font whose figures

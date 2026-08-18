@@ -29,7 +29,7 @@ Landed against these findings, newest first:
 | `80fb3a50` | Tactile press feedback — `scale(0.96)` on Button / Chip / Breadcrumb Overflow / Carousel | `better-ui` |
 | `219b0cc6` | Drawer scroll containment, and font smoothing at the root | `better-accessibility` / `better-typography` |
 | `230da21c` | Image outlines — Avatar / Card / Carousel / Figure | `better-ui` |
-| `a05445fc` | `tabular-nums` on Pagination / Data Table / Carousel (**inert** — see the font note) | `better-typography` |
+| `a05445fc` · guarded `d45a3a66` | `tabular-nums` on Pagination / Data Table / Carousel — **working**, not inert; the "no `tnum`" verdict was corrected by measurement on 2026-08-18 | `better-typography` |
 | `768b0f35` | Forced-colors focus indicator, 27 blocks across 26 components, plus a guard | `better-accessibility` |
 | `d44ade7f` | Dark `action/link/foreground/default` and `content/muted` contrast, plus test coverage | `better-colors` |
 
@@ -117,15 +117,61 @@ three times over: where CSS expresses something Figma cannot, record the
 divergence rather than distorting one side to match. Figma showing proportional
 digits on a Pagination mock is a known, harmless inexactness.
 
-**Resolved 2026-08-17: Asta Sans does not expose `tnum`.** Checked in Figma's
-type-settings panel — no figure-style control appears for the family, and Figma
-does surface that control for fonts that have the feature. Not independently
-confirmed in a browser (no browser access in the agent environment), so this
-rests on the Figma panel rather than a rendered measurement.
+**~~Resolved 2026-08-17: Asta Sans does not expose `tnum`.~~ WRONG — see the
+correction below.** Checked in Figma's type-settings panel — no figure-style
+control appears for the family, and Figma does surface that control for fonts that
+have the feature. Not independently confirmed in a browser (no browser access in
+the agent environment), so this rests on the Figma panel rather than a rendered
+measurement.
 
-**Consequence: the shipped declaration is inert for the default theme.** Browsers
-do not synthesise tabular figures the way they synthesise bold — with no `tnum`
-in the font, `font-variant-numeric: tabular-nums` silently does nothing.
+**~~Consequence: the shipped declaration is inert for the default theme.~~**
+~~Browsers do not synthesise tabular figures the way they synthesise bold — with
+no `tnum` in the font, `font-variant-numeric: tabular-nums` silently does
+nothing.~~
+
+> ### Correction (2026-08-18, measured in Chromium)
+>
+> **Asta Sans *does* implement `tnum`, and the fix works.** The caveat above —
+> "rests on the Figma panel rather than a rendered measurement" — was the right
+> caveat, and the measurement reverses the conclusion. At 100px:
+>
+> | Face | `1111111111` | `8888888888` | With `tabular-nums` |
+> | --- | --- | --- | --- |
+> | Asta Sans (body) | 488 | 600 | **603.67 / 603.67 — uniform** |
+> | Khand (heading) | 278 | 455 | 278 / 455 — no change |
+>
+> So the body face draws proportional figures by default (a real 23% swing, as
+> filed) **and** carries the feature to fix them. Khand genuinely has no `tnum`,
+> which is probably what the Figma panel was showing — and Figma resolves the
+> *heading* family for many of these specimens.
+>
+> **Confirmed on the real components, not just the face:** `.primitiv-pagination`
+> and `.primitiv-data-table` both resolve `"Asta Sans"` with
+> `font-variant-numeric: tabular-nums` in effect and measure a digit run
+> identically at `96.59` either way. `.primitiv-carousel__progress-text` is a
+> contract part a consumer applies, so the kitchen-sink renders no instance to
+> measure — its rule is identical in kind.
+>
+> **Everything below this box is therefore moot**: there is no inertness to
+> accept, no numeric readout to move to mono, and no reason to reconsider the
+> text font on these grounds. The `table` numeric-column gap that came out of
+> investigating option 2 is still a real finding, but it is about **column
+> alignment**, not digit shift — a genuine downgrade in urgency.
+>
+> **Guarded** by `apps/kitchen-sink/e2e/tabular-figures.spec.ts` (3 specs), since
+> this is a font-pair coupling exactly like the Prose measure: a body face without
+> `tnum` would silently restore the shifting. One spec asserts body text is
+> **still** proportional, so the suite cannot pass by the font being uniform on
+> its own instead of by our declaration working. Verified red by deleting
+> Pagination's declaration — only that component failed.
+>
+> **Why it was wrong is worth keeping.** Checking a font's features through a
+> design tool's UI and inferring browser behaviour is the same class of mistake as
+> the other reversals in this audit: reasoning about a rendered property without
+> rendering it. Two separate probes in this session hit the neighbouring trap of
+> measuring before `document.fonts.ready`, which silently reports the *fallback*
+> face — the likely reason the kitchen-sink's own font-pairing tool also rejected
+> Asta Sans on `tnum`.
 
 **It is still the right declaration, and it stays.** Registry components are
 copied surfaces and `--primitiv-font-family-text` is a token consumers override,

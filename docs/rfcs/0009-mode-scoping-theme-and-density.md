@@ -234,15 +234,33 @@ there. The remaining gap is precise: **CSS cannot set an attribute from a
 reusable *declaration block* a container query can apply:
 
 ```css
+/* The container and the queried element must be DIFFERENT elements — see the
+   correction below. The helper marks an ancestor; the density block applies to
+   a descendant that opts in. */
 .primitiv-density-container { container-type: inline-size; }
 
 @container (max-width: 30rem) {
-  .primitiv-density-container {
+  .primitiv-density-scope {
     --primitiv-framed-control-md-height: 1.5rem;   /* the dense value-set */
     /* … */
   }
 }
 ```
+
+**Correction (2026-08-18, measured).** An earlier version of this snippet put
+`container-type` and the queried rule on the *same* class, which cannot work: a
+container query resolves against the nearest **ancestor** container, and an
+element is never its own query container. Verified in Chromium rather than
+inferred — with `container-type: inline-size` on a 320px element and a matching
+`@container (min-width: 100px)` block, the rule applied to a child and **not** to
+the element declaring the containment. So responsive density needs a **two-element
+structure**: the helper class on a wrapper, the density block on something inside
+it. This is the same constraint that blocks the equivalent fix on `Grid`
+(`docs/interface-audit.md`, pass 04) — `Grid` renders a single element, and
+`asChild` can make that element the consumer's own, so it has no ancestor to
+query and cannot gain one without a DOM change. Whatever shape this work
+eventually takes, it has to decide where the container element comes from before
+any of it can be written.
 
 The value-sets are the *same* ones the attribute scopes use (one source of truth,
 RFC 0006 Principle 1), so this is additive: the emitter exposes each density's

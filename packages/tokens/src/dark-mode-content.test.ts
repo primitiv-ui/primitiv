@@ -166,6 +166,32 @@ describe('color/brand-alpha ramp', () => {
   })
 })
 
+// `border/default` is a NON-TEXT contrast case, not decoration: it draws the
+// boundary of Input, Select, Card and Modal, which is exactly the "boundary
+// needed to identify the control" that WCAG 1.4.11 puts at 3:1. Both modes failed
+// when the colour pass measured them (2.24:1 light, 2.66:1 dark), so each moved up
+// one step on its own ramp.
+//
+// `border/subtle` is deliberately NOT held to this. It draws dividers, which are
+// decoration rather than a control boundary and are legitimately exempt — it
+// measures 1.79:1 light and would fail on purpose.
+describe('border/default — WCAG 1.4.11 non-text contrast', () => {
+  it.each(['light', 'dark'] as const)('%s mode: clears 3:1 against surface/default', (mode) => {
+    const ratio = contrastRatio(intentColor(mode, 'border/default'), intentColor(mode, 'surface/default'))
+    expect(ratio).toBeGreaterThanOrEqual(3)
+  })
+
+  it.each(['light', 'dark'] as const)('%s mode: stays quieter than the text roles', (mode) => {
+    // The floor is one half of it — a border pushed to body-text contrast would
+    // pass this file and look like a mistake. It must stay below `content/muted`,
+    // the quietest text role, so "accessible" cannot drift into "heavy".
+    const bg = intentColor(mode, 'surface/default')
+    const border = contrastRatio(intentColor(mode, 'border/default'), bg)
+    const muted = contrastRatio(intentColor(mode, 'content/muted'), bg)
+    expect(border).toBeLessThan(muted)
+  })
+})
+
 // Surfaces and borders that are supposed to track the theme (paler in light,
 // darker in dark) rather than stay fixed.
 describe.each([

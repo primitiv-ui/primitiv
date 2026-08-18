@@ -477,7 +477,7 @@
       },
       "default": {
         "$type": "color",
-        "$value": "{color.neutral.300}"
+        "$value": "{color.neutral.400}"
       },
       "strong": {
         "$type": "color",
@@ -977,11 +977,11 @@
       },
       "default": {
         "$type": "color",
-        "$value": "{color.neutral.400}"
+        "$value": "{color.neutral.500}"
       },
       "strong": {
         "$type": "color",
-        "$value": "{color.neutral.500}"
+        "$value": "{color.neutral.600}"
       },
       "focus": {
         "$type": "color",

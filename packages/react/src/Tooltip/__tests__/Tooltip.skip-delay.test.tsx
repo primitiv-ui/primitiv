@@ -3,12 +3,20 @@ import userEvent from "@testing-library/user-event";
 
 import { Tooltip } from "../Tooltip";
 
+// The skip-delay duration is a deliberately odd number, not a round 5000. These
+// tests identify "the skip-delay timer" by the delay passed to setTimeout, and
+// 5000 is common enough that other machinery in the environment schedules one too
+// — which silently made a foreign timer look like ours. That is the most likely
+// root cause of this file being flaky in CI while passing locally: the assertion
+// pinned whichever 5000ms timer happened to be scheduled first.
+const SKIP_DELAY = 4321;
+
 describe("Tooltip.Provider — skip-delay coordination", () => {
   it("skips the delay for a tooltip while another is already open, even with a long base delay", async () => {
     const user = userEvent.setup();
 
     render(
-      <Tooltip.Provider delayDuration={100000} skipDelayDuration={5000}>
+      <Tooltip.Provider delayDuration={100000} skipDelayDuration={SKIP_DELAY}>
         <Tooltip.Root delayDuration={0}>
           <Tooltip.Trigger>First</Tooltip.Trigger>
           <Tooltip.Content>First tip</Tooltip.Content>
@@ -34,7 +42,7 @@ describe("Tooltip.Provider — skip-delay coordination", () => {
     const setTimeoutSpy = vi.spyOn(globalThis, "setTimeout");
 
     render(
-      <Tooltip.Provider delayDuration={0} skipDelayDuration={5000}>
+      <Tooltip.Provider delayDuration={0} skipDelayDuration={SKIP_DELAY}>
         <Tooltip.Root>
           <Tooltip.Trigger>Hover me</Tooltip.Trigger>
           <Tooltip.Content>Tooltip text</Tooltip.Content>
@@ -49,7 +57,7 @@ describe("Tooltip.Provider — skip-delay coordination", () => {
     expect(screen.queryByRole("tooltip")).toBeNull();
 
     const skipTimerCallIndex = setTimeoutSpy.mock.calls.findIndex(
-      ([, delay]) => delay === 5000,
+      ([, delay]) => delay === SKIP_DELAY,
     );
     const timerId = setTimeoutSpy.mock.results[skipTimerCallIndex].value;
 
@@ -61,13 +69,12 @@ describe("Tooltip.Provider — skip-delay coordination", () => {
     setTimeoutSpy.mockRestore();
   });
 
-  it("does not orphan a skip-delay timer when two closes land in a row", async () => {
-    const user = userEvent.setup();
+  it("does not orphan a skip-delay timer when two closes land in a row", () => {
     const clearTimeoutSpy = vi.spyOn(globalThis, "clearTimeout");
     const setTimeoutSpy = vi.spyOn(globalThis, "setTimeout");
 
     render(
-      <Tooltip.Provider delayDuration={0} skipDelayDuration={5000}>
+      <Tooltip.Provider delayDuration={0} skipDelayDuration={SKIP_DELAY}>
         <Tooltip.Root>
           <Tooltip.Trigger>Hover me</Tooltip.Trigger>
           <Tooltip.Content>Tooltip text</Tooltip.Content>
@@ -79,23 +86,33 @@ describe("Tooltip.Provider — skip-delay coordination", () => {
     // `closeImmediate` is deliberately unguarded — it calls `onCloseGlobally()`
     // whether or not the tooltip is open — so two close-triggering events in a row
     // schedule two skip-delay timers. Escape and blur are both wired straight to
-    // it (pointer-leave is not: it routes through `closeWithGrace`, which is why
-    // an earlier version of this test using unhover only ever produced one timer).
-    await user.tab(); // focus the trigger → opens
-    await user.keyboard("{Escape}"); // → close #1
-    await user.tab(); // blur → close #2
+    // it; pointer-leave is not (it routes through `closeWithGrace`, which is why an
+    // earlier version of this test using unhover only ever produced one timer).
+    //
+    // Driven with `fireEvent`, not `userEvent`: this asserts an exact timer count,
+    // so it must not depend on how a higher-level helper chooses to synthesise
+    // focus and key events — which is precisely the kind of environment
+    // sensitivity that made this file flaky.
+    const trigger = screen.getByRole("button", { name: "Hover me" });
+    fireEvent.focus(trigger);
+    fireEvent.keyDown(trigger, { key: "Escape" }); // → close #1
+    fireEvent.blur(trigger); // → close #2
 
     const skipTimers = setTimeoutSpy.mock.calls
       .map((call, i) => ({ delay: call[1], id: setTimeoutSpy.mock.results[i].value }))
-      .filter(({ delay }) => delay === 5000)
+      .filter(({ delay }) => delay === SKIP_DELAY)
       .map(({ id }) => id);
 
-    // Two closes, so two timers were scheduled — and every one but the newest
-    // must have been cancelled. Without that, the ref only ever tracks the latest,
-    // so the earlier timer survives, fires unobserved, and cannot be cancelled by
-    // a later open. It is also what made the sibling test above flaky in CI: it
-    // pins one specific Timeout object, and with two alive it could pin the wrong.
-    expect(skipTimers.length).toBeGreaterThan(1);
+    // At least two timers, asserted rather than assumed: with fewer than two the
+    // loop below would pass vacuously and quietly stop testing anything. NOT an
+    // exact count — an earlier version demanded exactly two and measured three,
+    // because how many close events a given engine and testing helper synthesise
+    // is not the property under test. The invariant is what matters, and it holds
+    // for any number of closes.
+    expect(skipTimers.length).toBeGreaterThanOrEqual(2);
+    // Every timer but the newest must have been cancelled. Without that the ref
+    // only ever tracks the latest, so the earlier one survives, fires unobserved,
+    // and can no longer be cancelled by a later open.
     for (const orphan of skipTimers.slice(0, -1)) {
       expect(clearTimeoutSpy).toHaveBeenCalledWith(orphan);
     }

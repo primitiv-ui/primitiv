@@ -469,19 +469,6 @@ body {
   --primitiv-divider-spacing: 0;
 }
 
-/* Table demo — per-column alignment. Unlayered, so these win over the table
-   stylesheet's layered `text-align: start` regardless of specificity. The header
-   cell aligns its inline-block sort button; the body cell aligns its text. */
-.ks-table__align-start {
-  text-align: start;
-}
-.ks-table__align-center {
-  text-align: center;
-}
-.ks-table__align-end {
-  text-align: end;
-}
-
 /* The hand-rolled header sort control this demo used to carry is gone: the table
    composes `DataTableSortHeader`, which brings its own button, glyph and
    `aria-sort`. A demo of a design system should not be hand-styling a control

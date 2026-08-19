@@ -4691,9 +4691,8 @@ export function ramp(hue: number, chroma = 0.12) {
                     return (
                       <DataTableSortHeader
                         key={col.key}
-                        className={`ks-table__align-${col.align}`}
                         direction={active ? (sort.dir === "asc" ? "asc" : "desc") : "none"}
-                        align={col.numeric ? "end" : "start"}
+                        align={col.align}
                         onSort={() => toggleSort(col.key)}
                       >
                         {col.label}
@@ -4706,10 +4705,7 @@ export function ramp(hue: number, chroma = 0.12) {
                 {sortedReleases.map((r) => (
                   <TableRow key={r.pkg}>
                     {TABLE_COLUMNS.map((col) => (
-                      <TableCell
-                        key={col.key}
-                        className={`ks-table__align-${col.align}`}
-                      >
+                      <TableCell key={col.key} align={col.align}>
                         {col.numeric
                           ? (r[col.key] as number).toLocaleString()
                           : r[col.key]}
@@ -4724,10 +4720,7 @@ export function ramp(hue: number, chroma = 0.12) {
               <TableFooter>
                 <TableRow>
                   {TABLE_COLUMNS.map((col) => (
-                    <TableCell
-                      key={col.key}
-                      className={`ks-table__align-${col.align}`}
-                    >
+                    <TableCell key={col.key} align={col.align}>
                       {col.key === "pkg"
                         ? "Total"
                         : col.numeric

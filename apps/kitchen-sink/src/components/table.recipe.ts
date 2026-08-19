@@ -45,11 +45,33 @@ export const tableRow = cva("primitiv-table__row");
 
 export type TableRowVariants = VariantProps<typeof tableRow>;
 
-export const tableHeader = cva("primitiv-table__header");
+export const tableHeader = cva("primitiv-table__header", {
+  variants: {
+    align: {
+      start: "primitiv-table__header--start",
+      center: "primitiv-table__header--center",
+      end: "primitiv-table__header--end",
+    },
+  },
+  defaultVariants: {
+    align: "start",
+  },
+});
 
 export type TableHeaderVariants = VariantProps<typeof tableHeader>;
 
-export const tableCell = cva("primitiv-table__cell");
+export const tableCell = cva("primitiv-table__cell", {
+  variants: {
+    align: {
+      start: "primitiv-table__cell--start",
+      center: "primitiv-table__cell--center",
+      end: "primitiv-table__cell--end",
+    },
+  },
+  defaultVariants: {
+    align: "start",
+  },
+});
 
 export type TableCellVariants = VariantProps<typeof tableCell>;
 

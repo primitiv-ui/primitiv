@@ -163,9 +163,20 @@ export function DataTableRegion({ align, className, ...props }: DataTableRegionP
   return <div className={cx(dataTableRegion({ align }), className)} {...props} />;
 }
 
-export type DataTableControlCellProps = ComponentPropsWithRef<"td"> & {
+/* `align` is Omitted and re-declared for the same reason it is on
+   `DataTableSortHeaderProps` below: `<td>` carries a native `align` attribute
+   (React types it as the deprecated `"left" | "center" | "right" | "justify" |
+   "char"`), and this spreads its props straight into `TableCell`, whose own
+   `align` is the logical `"start" | "center" | "end"`. Without the Omit the two
+   unions have no overlap and the spread fails to compile. */
+export type DataTableControlCellProps = Omit<ComponentPropsWithRef<"td">, "align"> & {
   /** Render a `<th>` instead of a `<td>` — for the select-all cell in the head. */
   header?: boolean;
+  /**
+   * Cell text alignment. A control cell centres its content by default via its
+   * own class, so this is only for overriding that.
+   */
+  align?: "start" | "center" | "end";
 };
 
 /**
@@ -211,7 +222,7 @@ export type DataTableSortButtonProps = Omit<ComponentPropsWithRef<"button">, "ty
    */
   direction?: SortDirection;
   /** Match the column's text alignment — `end` for numeric columns. @default "start" */
-  align?: "start" | "end";
+  align?: "start" | "center" | "end";
 };
 
 /**
@@ -240,8 +251,9 @@ export function DataTableSortButton({ direction = "none", align, className, chil
 export type DataTableSortHeaderProps = Omit<ComponentPropsWithRef<typeof TableHeader>, "children" | "align"> & {
   /** The column's current sort state, mirrored onto the `<th>`'s `aria-sort`. */
   direction?: SortDirection;
-  /** Match the column's text alignment — `end` for numeric columns. */
-  align?: "start" | "end";
+  /** Match the column's text alignment — `end` for numeric columns. Forwarded to
+   *  the `<th>` as well as the sort button, so the header and its cells agree. */
+  align?: "start" | "center" | "end";
   /** The visible column label. */
   children?: ReactNode;
   /** Fires when the header is activated — hand it the engine's sort toggler. */
@@ -257,7 +269,13 @@ export type DataTableSortHeaderProps = Omit<ComponentPropsWithRef<typeof TableHe
  */
 export function DataTableSortHeader({ direction = "none", align, children, onSort, ...props }: DataTableSortHeaderProps): ReactElement {
   return (
-    <TableHeader scope="col" aria-sort={direction === "none" ? "none" : direction === "asc" ? "ascending" : "descending"} {...props}>
+    // `align` goes to BOTH the <th> and the button, and it has to. The button is
+    // a flex row, so its label and glyph are placed by `justify-content`; the
+    // <th>'s own `text-align` is what the column's <td>s match. Forwarding it to
+    // the button alone — which is all this did originally — right-aligned the
+    // header label while every cell below stayed at the leading edge, so the
+    // documented way to mark a numeric column produced a visibly broken one.
+    <TableHeader scope="col" align={align} aria-sort={direction === "none" ? "none" : direction === "asc" ? "ascending" : "descending"} {...props}>
       <DataTableSortButton direction={direction} align={align} onClick={onSort}>
         {children}
       </DataTableSortButton>

@@ -142,8 +142,9 @@ that output.
 Both are **generated** from `contract.json` (RFC 0004 §3.5 / D53):
 
 - **`table.recipe.ts`** — one [`class-variance-authority`](https://cva.style)
-  recipe per part: a `table` recipe carrying the `size` and `rows` variants, and a base-only
-  `cva` for each subcomponent class.
+  recipe per part: a `table` recipe carrying the `size` and `rows` variants, an
+  `align` variant on the `tableHeader` and `tableCell` recipes, and a base-only
+  `cva` for each remaining subcomponent class.
 - **`table.tsx`** — N thin per-part wrappers (`Table`, `TableHead`, `TableBody`,
   `TableFooter`, `TableRow`, `TableHeader`, `TableCell`, `TableScrollArea`,
   `TableCaption`), each applying its part class and forwarding the rest. The
@@ -152,3 +153,36 @@ Both are **generated** from `contract.json` (RFC 0004 §3.5 / D53):
 
 Drift guards in `crates/primitiv-emit/src/{recipe,wrapper}_tests.rs` assert each
 committed artifact equals the generator's output for the committed contract.
+
+## Column alignment
+
+`TableHeader` and `TableCell` take `align` (`"start" | "center" | "end"`, default
+`"start"`), mirroring the `Align` axis that Figma's **Table / Cell** and **Table /
+Header Cell** sets carry. Use `end` for a numeric column.
+
+**Set it on every cell in the column, including the header.** That is a CSS limit
+rather than an API choice: `text-align` does not apply to `<col>` — only `border`,
+`background`, `width` and `visibility` do — so there is no way to align a column
+from one declaration. A consumer who prefers one rule can still write
+`td:nth-child(3) { text-align: end }` themselves.
+
+```tsx
+<TableHeader align="end">Downloads</TableHeader>
+<TableCell align="end">{n.toLocaleString()}</TableCell>
+```
+
+For a **sortable** column use `DataTableSortHeader`, which forwards `align` to the
+`<th>` *and* to its sort button. Both are needed and for different reasons: the
+button is a flex row, so its label and glyph are placed by `justify-content`, while
+the `<th>`'s own `text-align` is what the column's cells match. Forwarding only to
+the button — which is what it did originally — right-aligns the header while every
+cell below stays at the leading edge.
+
+The glyph stays to the **trailing** side of the label at every alignment, matching
+Figma's Header Cell. That does mean an `end`-aligned header label sits inboard of
+its numbers by the glyph's width; it is the designed behaviour, not an oversight in
+this stylesheet.
+
+Numeric columns inside a `DataTable` already get `font-variant-numeric:
+tabular-nums` from the shell, so they need nothing further. A plain `Table` does
+not — add it yourself if a column's values change in place.

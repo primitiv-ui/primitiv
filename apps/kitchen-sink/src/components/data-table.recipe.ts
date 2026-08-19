@@ -51,8 +51,12 @@ export const dataTableControlCell = cva("primitiv-data-table__control-cell");
 
 export const dataTableSort = cva("primitiv-data-table__sort", {
   variants: {
+    // `center` mirrors Figma's Table / Header Cell, whose Align axis crosses all
+    // four Sort states — a centred sortable column is a designed combination, and
+    // this only offered start|end.
     align: {
       start: "",
+      center: "primitiv-data-table__sort--center",
       end: "primitiv-data-table__sort--end",
     },
     direction: {

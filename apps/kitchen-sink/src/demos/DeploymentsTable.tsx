@@ -830,14 +830,14 @@ export function DeploymentsTable(): ReactElement {
                           }
                           if (column.id === "durationSeconds") {
                             return (
-                              <TableCell key={key} className="ks-dt__num">
+                              <TableCell key={key} align="end">
                                 {formatDuration(deployment.durationSeconds)}
                               </TableCell>
                             );
                           }
                           if (column.id === "commits") {
                             return (
-                              <TableCell key={key} className="ks-dt__num">
+                              <TableCell key={key} align="end">
                                 {deployment.commits.toLocaleString()}
                               </TableCell>
                             );

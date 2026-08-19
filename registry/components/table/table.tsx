@@ -66,16 +66,36 @@ export function TableRow({ className, ...props }: TableRowProps) {
   return <TablePrimitive.Row className={[tableRow(), className].filter(Boolean).join(" ")} {...props} />;
 }
 
-export type TableHeaderProps = ComponentPropsWithRef<typeof TablePrimitive.Header>;
+export type TableHeaderProps = DistributiveOmit<ComponentPropsWithRef<typeof TablePrimitive.Header>, "align"> & {
+  /**
+   * Column text alignment, matching Figma's Table / Header Cell `Align` axis. Set it to match the column's cells — `end` for numeric columns. Direction-aware — `start`/`end` follow the reading direction, flipping under RTL.
+   * - `start` — Header text at the start edge (the default).
+   * - `center` — Header text centred.
+   * - `end` — Header text at the end edge, for a numeric column.
+   * @default "start"
+   * @see https://primitiv-ui.dev/docs/components/table
+   */
+  align?: "start" | "center" | "end";
+};
 
-export function TableHeader({ className, ...props }: TableHeaderProps) {
-  return <TablePrimitive.Header className={[tableHeader(), className].filter(Boolean).join(" ")} {...props} />;
+export function TableHeader({ align, className, ...props }: TableHeaderProps) {
+  return <TablePrimitive.Header className={[tableHeader({ align }), className].filter(Boolean).join(" ")} {...props} />;
 }
 
-export type TableCellProps = ComponentPropsWithRef<typeof TablePrimitive.Cell>;
+export type TableCellProps = DistributiveOmit<ComponentPropsWithRef<typeof TablePrimitive.Cell>, "align"> & {
+  /**
+   * Cell text alignment, matching Figma's Table / Cell `Align` axis. CSS cannot align a whole column (`text-align` does not apply to `<col>`), so set this on every cell in the column. Direction-aware — `start`/`end` follow the reading direction, flipping under RTL.
+   * - `start` — Cell text at the start edge (the default).
+   * - `center` — Cell text centred.
+   * - `end` — Cell text at the end edge, for a numeric column.
+   * @default "start"
+   * @see https://primitiv-ui.dev/docs/components/table
+   */
+  align?: "start" | "center" | "end";
+};
 
-export function TableCell({ className, ...props }: TableCellProps) {
-  return <TablePrimitive.Cell className={[tableCell(), className].filter(Boolean).join(" ")} {...props} />;
+export function TableCell({ align, className, ...props }: TableCellProps) {
+  return <TablePrimitive.Cell className={[tableCell({ align }), className].filter(Boolean).join(" ")} {...props} />;
 }
 
 export type TableScrollAreaProps = ComponentPropsWithRef<typeof TablePrimitive.ScrollArea>;

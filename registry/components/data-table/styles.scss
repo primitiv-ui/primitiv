@@ -332,6 +332,15 @@
   }
 
   /* End-aligned (numeric) columns put the glyph after the label, still adjacent. */
+  /* The sort control is a flex row, so the header's own `text-align` cannot place
+     its label and glyph — these do. They pair with `TableHeader`'s `align`, which
+     is what the column's cells match; forwarding one without the other aligns the
+     header against its own column. Order stays label-then-glyph at every
+     alignment, matching Figma's Table / Header Cell. */
+  .primitiv-data-table__sort--center {
+    justify-content: center;
+  }
+
   .primitiv-data-table__sort--end {
     justify-content: flex-end;
   }

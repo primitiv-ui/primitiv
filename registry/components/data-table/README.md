@@ -124,10 +124,31 @@ drives the same props.
 | `DataTableFooter` | `<div>` | The padded bar below it — identical mechanism. |
 | `DataTableRegion` | `<div>` | One of the bar's three regions: `align="start" \| "center" \| "end"`. |
 | `DataTableControlCell` | `<td>` / `<th>` | Square cell for a control. `header` renders a `<th>`. |
-| `DataTableSortHeader` | `<th>` + `<button>` | A sortable column header, `aria-sort` included. Prefer this. |
+| `DataTableSortHeader` | `<th>` + `<button>` | A sortable column header, `aria-sort` included. `align` goes to the `<th>` **and** the button. Prefer this. |
 | `DataTableSortButton` | `<button>` | The sort control alone, if you are assembling the `<th>` yourself. |
 | `DataTableExpandTrigger` | `<button>` | The row's disclosure. Composes headless `Table.ExpandTrigger`. |
 | `DataTableDetailRow` | `<tr>` | The revealed panel. Composes headless `Table.DetailRow`. |
+
+### Aligning a numeric column
+
+`DataTableSortHeader` takes `align` (`"start" | "center" | "end"`) and forwards it
+to **both** the `<th>` and its sort button — and it has to. The button is a flex
+row, so `justify-content` places its label and glyph; the `<th>`'s `text-align` is
+what the column's `<td>`s match. Set the same `align` on the column's cells:
+
+```tsx
+<DataTableSortHeader align="end" direction={dir} onSort={toggle}>Duration</DataTableSortHeader>
+…
+<TableCell align="end">{ms}ms</TableCell>
+```
+
+Forwarding to the button alone was the original behaviour, and it made the
+documented way to mark a numeric column produce a visibly broken one: a
+right-aligned heading over left-aligned numbers. Cells carry their own `align`
+because CSS cannot align a column (`text-align` does not apply to `<col>`).
+
+Numeric cells need no `tabular-nums` of their own — the shell sets it, so every
+cell inherits it.
 
 The table itself is the `table` component's job — `Table`, `TableHead`,
 `TableRow`, `TableHeader`, `TableCell`. This component never restyles it.

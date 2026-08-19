@@ -38,8 +38,44 @@
     { "name": "body", "component": "Body", "element": "tbody", "class": "primitiv-table__body", "dataAttributes": [] },
     { "name": "footer", "component": "Footer", "element": "tfoot", "class": "primitiv-table__footer", "dataAttributes": [] },
     { "name": "row", "component": "Row", "element": "tr", "class": "primitiv-table__row", "dataAttributes": [] },
-    { "name": "header", "component": "Header", "element": "th", "class": "primitiv-table__header", "dataAttributes": [] },
-    { "name": "cell", "component": "Cell", "element": "td", "class": "primitiv-table__cell", "dataAttributes": [] },
+    {
+      "name": "header",
+      "component": "Header",
+      "element": "th",
+      "class": "primitiv-table__header",
+      "modifiers": [
+        {
+          "name": "align",
+          "default": "start",
+          "description": "Column text alignment, matching Figma's Table / Header Cell `Align` axis. Set it to match the column's cells — `end` for numeric columns. Direction-aware — `start`/`end` follow the reading direction, flipping under RTL.",
+          "options": [
+            { "name": "start", "class": "primitiv-table__header--start", "description": "Header text at the start edge (the default)." },
+            { "name": "center", "class": "primitiv-table__header--center", "description": "Header text centred." },
+            { "name": "end", "class": "primitiv-table__header--end", "description": "Header text at the end edge, for a numeric column." }
+          ]
+        }
+      ],
+      "dataAttributes": []
+    },
+    {
+      "name": "cell",
+      "component": "Cell",
+      "element": "td",
+      "class": "primitiv-table__cell",
+      "modifiers": [
+        {
+          "name": "align",
+          "default": "start",
+          "description": "Cell text alignment, matching Figma's Table / Cell `Align` axis. CSS cannot align a whole column (`text-align` does not apply to `<col>`), so set this on every cell in the column. Direction-aware — `start`/`end` follow the reading direction, flipping under RTL.",
+          "options": [
+            { "name": "start", "class": "primitiv-table__cell--start", "description": "Cell text at the start edge (the default)." },
+            { "name": "center", "class": "primitiv-table__cell--center", "description": "Cell text centred." },
+            { "name": "end", "class": "primitiv-table__cell--end", "description": "Cell text at the end edge, for a numeric column." }
+          ]
+        }
+      ],
+      "dataAttributes": []
+    },
     { "name": "scroll-area", "component": "ScrollArea", "element": "div", "class": "primitiv-table__scroll-area", "dataAttributes": [] },
     { "name": "caption", "component": "Caption", "element": "caption", "class": "primitiv-table__caption", "dataAttributes": [] }
   ],

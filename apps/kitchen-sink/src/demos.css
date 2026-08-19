@@ -701,11 +701,6 @@
    `align="end"` for exactly this, but there is no counterpart for the cells, so
    a numeric column has to be aligned twice — once through the component's API
    and once by hand here. */
-.ks-dt__num {
-  text-align: end;
-  font-variant-numeric: tabular-nums;
-}
-
 /* The avatar + name pair. `flex`, not `inline-flex`: an inline-flex box hands
    the line its FIRST flex item's baseline — the initials inside the circle — so
    the circle hangs below the name and the strut's descent pushes the pair high

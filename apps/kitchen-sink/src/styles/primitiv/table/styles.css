@@ -135,6 +135,36 @@
 }
 
 @layer primitiv.variants {
+  /* Column alignment — mirrors the `Align` axis that Figma's Table / Cell and
+     Table / Header Cell sets already carried before the code did. Logical
+     values, so `start`/`end` follow the reading direction and flip under RTL.
+     `start` is declared rather than left to the base rule so a cell can be
+     pulled back to the leading edge inside an otherwise end-aligned column.
+
+     Per CELL, not per column, and that is a CSS limit rather than a choice:
+     `text-align` does not apply to `<col>` — only border, background, width and
+     visibility do — so a column is aligned by aligning each of its cells.
+
+     For a SORTABLE header this is only half the job: the sort control is a flex
+     row, so its glyph and label are placed by `justify-content` (the
+     `data-table` sheet's `__sort--end`), not by `text-align`. Both are needed,
+     which is why `DataTableSortHeader` forwards `align` to the `<th>` as well as
+     to the button. */
+  .primitiv-table__header--start,
+  .primitiv-table__cell--start {
+    text-align: start;
+  }
+
+  .primitiv-table__header--center,
+  .primitiv-table__cell--center {
+    text-align: center;
+  }
+
+  .primitiv-table__header--end,
+  .primitiv-table__cell--end {
+    text-align: end;
+  }
+
   .primitiv-table--xs {
     --primitiv-table-font-family: var(--primitiv-body-xs-font-family);
     --primitiv-table-font-size: var(--primitiv-body-xs-font-size);

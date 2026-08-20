@@ -1017,6 +1017,138 @@ debugging cycle; none is discoverable from the API surface.
     `addComponentProperty` partial-apply hazard (5) generalised. Walk
     `children` explicitly instead of `findAll`, wrap `.name`/`.children` reads
     in try/catch, and re-check state before retrying.
+13. **Append a slotted instance into its parent FIRST, then configure its
+    slot.** Writing any layout property on a *detached* instance's slot
+    (`stack.children[0].itemSpacing = 0`) and only then `appendChild`-ing that
+    instance invalidates the slot handle: appending rebuilds the sublayer, so
+    every later write throws `"The node (instance sublayer or table cell) with
+    id … does not exist"` — while *reads* keep returning a plausible id, which
+    is what makes it point at the wrong culprit. Order every layout-primitive
+    helper as append → configure. Corollary: **never
+    `getNodeByIdAsync` a detached node** — it returns a dead handle that reads
+    fine and rejects writes, so a "re-fetch to dodge staleness" helper makes
+    this *worse*, not better.
+14. **An instance sublayer accepts neither `appendChild` nor `resize()`.**
+    `appendChild` fails with *"New parent is an instance or is inside of an
+    instance"*, and `resize()` on a nested cell silently reverts (the read-back
+    shows the original width, with `minWidth`/`maxWidth` both null — so nothing
+    looks wrong). This is a **design constraint, not just a scripting one**:
+    a component leaf that exposes only a `TEXT` property cannot hold another
+    component, and its column widths are whatever the master says. **The fix is
+    always a slot** (`Card / Slot`, `List / Item Slot`, `Tabs / Panel Slot`,
+    `Table / Cell Slot`, `Table / Cells Slot`), because **slot content is real
+    nodes the consumer owns** — freely added, removed and resized — whereas a
+    master's own children are sublayers. `Table` was the reference failure and
+    is now the reference fix (2026-08-19): `Table / Cell` gained a content slot
+    behind `Show content` / `Show text`, and `Table / Row` gained a
+    `Cells fixed|custom` axis whose `custom` variants hold a `Table / Cells
+    Slot`, so column count and width become editable. When you hit this, reach
+    for a slot rather than hand-composing a look-alike out of `Box` / `Stack`.
+15. **A slot's empty-collapse lever depends on its axis, and slot content
+    seeded in a MASTER inherits to its instances.** Two findings from the
+    `Table` fix, neither discoverable from the API surface:
+    - `minHeight` collapses an empty **VERTICAL** slot from Figma's default
+      100px (what `Card / Slot` relies on) but does **nothing** to a
+      **HORIZONTAL** one, where height is the *counter* axis — `maxHeight` is
+      what collapses that, and once a horizontal slot has held content it keeps
+      that hug height rather than springing back to 100.
+    - Content placed in a slot **inside a component master** becomes the
+      default for every instance, and each instance can then add, remove and
+      **resize** it. That is what makes a slot rebuild worth the effort: seed
+      once at the master, with no per-instance repopulation. Verified three
+      instance levels deep (`Table` → `Row` → `Cell` → slot) and across a
+      top-level variant switch.
+    Related sizing trap: `layoutSizingHorizontal = 'FILL'` throws on a
+    page-level component master (*"FILL can only be set on children of
+    auto-layout frames"*) — set FILL on the **instances**, and give the master a
+    plain `resize()` plus the right `primary`/`counterAxisSizingMode`.
+16. **Prefer an opt-in variant axis over migrating shared-master children.**
+    Moving a master's existing children into a new slot re-paths them, which
+    destroys every downstream override. Count first: `Table / Cell` had 2,830
+    instances across six pages, ~1,242 carrying real `Text`/`Align`/`Sort`
+    overrides, so the migration would have silently reset all of them. Cloning
+    the 6 `Table / Row` variants into a `Cells=custom` twin instead left every
+    existing instance untouched and made the new behaviour opt-in. Remember
+    gotcha 4 when you do: the clones lose their
+    `componentPropertyReferences` (the `Bottom Border` ref here) and need
+    repairing in the same script.
+17. **A set-level `INSTANCE_SWAP` property holds ONE value across every
+    variant — so a `Size` axis can never drive swapped children.** This is the
+    single most misleading structure in the file: the property panel shows a
+    `Size` axis, the axis appears to do nothing, and no amount of per-variant
+    swapping fixes it. Writing the `xs` variant's child rewrites `xl`'s too
+    (verified directly). Two attempts to size-match `Dropdown / Group`'s five
+    variants both collapsed every variant to the last size written — that was
+    this, not a scripting bug. Diagnose it by changing one variant and
+    re-reading a different one.
+    - Resolution depends on whether the swaps are load-bearing. `Dropdown /
+      Group` + `RadioGroup` (2026-08-20): the swaps were dropped, so each
+      variant now nests size-matched children. `Dropdown` itself: **left
+      alone deliberately** — its `Size` genuinely drives the *panel* (padding,
+      radius and width each bound per size) and ~20 of its 43 instances carry
+      real swap overrides that *are* the documentation, so deleting them would
+      destroy the page and remove the only mechanism that sizes rows. Read
+      both component descriptions before touching either.
+    - Related: **nested-instance swaps do not survive a parent variant
+      switch.** The children re-resolve from the new variant and your swaps
+      vanish silently. Set the variant FIRST, then apply nested swaps.
+    - Related: **`INSTANCE_SWAP` inherits the replaced instance's
+      overrides.** Swapping a `Framework Mark` into an icon slot inherited the
+      `Icon`'s token-bound fill (`content/primary`), so the brand colour never
+      appeared — use the `Mono` treatment in colour-token-driven slots.
+18. **The composed `Tabs` set caps at `Count=5`, and hand-composing loses the
+    tablist baseline.** For more tabs (the docs-site Select props table needs
+    9, one per part) compose `Tabs / Trigger` instances in a `Stack row` — the
+    way `Code Block [Type=tabbed]` does. But the baseline rule lives on the
+    composed set's `primitiv-tabs__list` frame as a `baseline` RECTANGLE, so a
+    hand-built strip silently has no bottom rule. Reproduce it with a bottom
+    stroke bound to the *same* two variables the rectangle uses —
+    `border/subtle` (`346:4441`) and `border-width/1` (`154:2226`) — and
+    `strokeAlign: INSIDE`, so the active trigger's indicator overlaps it as it
+    does in the real component. A `Divider` is token-identical but stacks
+    *below* the indicator instead of under it, reading 1px thicker.
+19. **Never read `variant.name` from a live `children` array while mutating
+    it.** The array reorders as you swap, so the name you parse drifts and
+    every variant ends up with the last value written. Snapshot
+    `set.children.map(v => ({ id: v.id, size: parse(v.name) }))` first, then
+    re-fetch each variant by id inside the loop. Same family as gotcha 12.
+20. **Component-set variant scaffolds have hard caps worth checking before
+    promising a design.** Known so far: `Tabs` `Count` ≤ 5 · `Table`
+    `Row 1-8` (lifted by `Rows=custom`) · `Dropdown / Group` exactly 3 rows,
+    no `Show Row N` · `Segmented Control` `Count` ≤ 5. When the cap bites, the
+    fix is a slot leaf behind an opt-in axis (gotcha 16), not detaching — a
+    detached instance stops tracking the master, so later token or geometry
+    changes never reach it.
+21. **A deeply-nested frame can develop a self-referential slot alias, and
+    the only cure is `clone()`.** The most destructive trap in this file. In a
+    frame ~20 slot-levels deep, `instance.children[0]` on a freshly-inserted
+    `Stack` starts returning **the parent slot instead of the instance's own
+    slot**. Content then lands one level up from where you asked, and because
+    the section ends up reachable as a child of its own card's slot, every
+    subsequent operation targets a node that is simultaneously container and
+    contained.
+    - **Symptoms, in the order they appear:** appended content doesn't paint ·
+      `remove()` fails with *"Removing this node is not allowed"* even for
+      plain (non-`I…`) ids · `visible = false` on an apparent stray hides an
+      entire section · a `.children` walk crashes on
+      *"The node (instance sublayer or table cell) … does not exist"* while
+      `findAllWithCriteria` still finds everything · `resize()` on a collapsed
+      slot silently no-ops.
+    - **Diagnose** by reading the suspect container's slot children: if the
+      section appears as a child of its own descendant, stop editing
+      immediately. Every further "repair" compounds it — that mistake cost the
+      Select desktop page a clipped preview and three undeletable nodes.
+    - **Cure: `clone()` the whole top-level frame.** Cloning rebuilds the node
+      tree and the alias does not survive the copy; the clone's structure comes
+      out clean and accepts edits first time. The corrupt *top-level frame* is
+      removable even when its internals are not, so clone → edit the clone →
+      delete the original → rename and reposition. This preserved a 10,626px
+      nine-section page that would otherwise have needed a full rebuild.
+    - **Prevention:** never configure a fresh instance's slot via
+      `.children[0]` in a deep tree — prefer cloning an already-working
+      subtree (it brings its own valid slot), and use `Box` over `Stack` for
+      deep wrappers, since `Stack` slots have gone stale twice and `Box` slots
+      have not.
 
 ## Useful commands
 

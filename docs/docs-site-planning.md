@@ -768,6 +768,72 @@ limited to flat bands, so the design should explore gradients, textures and
 inverted sections — the constraint is only that the *elements* stay on
 existing tokens, variables and components.
 
+### 1.24 Resolved: props tables are tabbed **by part**, and the styled-vs-headless tint is replaced by a `From` column
+
+Building the Button and Select component pages from the design system
+settled how §1.7's prop data is presented. Two changes to what the
+wireframes assumed:
+
+**The tinted "contract row" is gone.** The Button page originally marked
+styled-contract props with a tinted table row plus a legend — *"Tinted
+rows are added by the styling contract — absent in Headless mode."* That
+asks the reader to decode a colour, and it encodes meaning in colour
+alone, which fails WCAG 1.4.1. Replaced by an explicit **`From`** column
+reading `headless` or `contract`. Columns are now Prop · Type · Default ·
+From · Description.
+
+**Props are tabbed by part, not by mode.** Tabs were first proposed for
+Headless | Styled — legitimate under §1.1, which keeps the global switch
+primary "but per-component override remains available as an escape
+hatch." Rejected on weight: for a 9-part compound like Select the mode
+axis has 2 values and the styled side adds only three modifiers (`size`,
+`mode`, `placement`) that already appear in the mode-agnostic contract
+block (§1.5–§1.6), whereas the *part* axis has 9 values and Root alone
+carries 14 props — nine stacked tables otherwise. Part tabs also avoid a
+desync question the mode tabs create: if the global switch says Headless
+and a props tab says Styled, the Installation block is still following
+the global switch.
+
+Rich-vs-native needed no column of its own: the part answers it for five
+of the nine (Trigger, Value, Content, ItemIndicator and Separator are
+rich-only; Placeholder is native-only), and for Root's three exceptions
+the source JSDoc already opens *"Rich mode only —"*, so the generated
+description carries it.
+
+**Superseded in the same session: `Accordion`, not tabs.** Tabs hide
+content, so find-in-page, deep-linking and printing all suffer — which is
+why Radix stacks every part visibly. The deciding detail was structural:
+`Accordion/Item` carries its own hairline (`border/subtle`, bottom 1px)
+and its description says *"No container, no per-item box"*, so stacking
+nine is **lossless**. `Tabs` puts its rule on the composed set's
+`primitiv-tabs__list` frame, so a hand-built strip has no baseline at all
+and had to fake one with a bound stroke. Both composed sets cap at
+`Count=5` and neither can hold nine parts as a drop-in, but Accordion's
+parts (`Accordion/Item` + `Accordion/Panel` + `Accordion / Panel Slot`)
+compose cleanly where Tabs' do not.
+
+Settled: **desktop shows all nine expanded** — Radix's model plus a
+collapse affordance, and everything stays searchable. **Mobile shows the
+first expanded only**, which also sidesteps a 9-tab strip wrapping to
+three rows at 390px.
+
+**Consequence for §1.1 — the props table is mode-agnostic.** With a
+`From` column the table lists headless *and* contract props at once, so
+it no longer responds to the global mode switch. That is deliberate and
+follows §1.1's existing precedent for the mode-agnostic contract block: a
+Headless reader benefits from seeing exactly which props they do *not*
+get, which is more useful than hiding them, and it keeps the `From`
+column informative in every mode. Filtering the rows instead would make
+the column redundant in Headless mode (every row would read `headless`),
+and dimming them would put the meaning back into colour alone.
+
+So the switch's remit is narrower than the wireframe note claimed
+("Mode switch changes page CONTENT"). It drives: the **Installation**
+command (`npm i` vs `primitiv add`), which **Playground** controls exist
+(`variant`/`size`/`mode`/`placement` disappear under Headless), and
+whether the **Styling contract** section appears. It does not filter the
+props table.
+
 ---
 
 ## 2. Open questions

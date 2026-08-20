@@ -79,6 +79,14 @@ pub struct RampQuality {
     /// a ramp with fewer than two steps. A minimum rather than a mean: one
     /// collapsed pair is a defect however well spaced the rest of the ramp is.
     pub min_delta_l: Option<f32>,
+    /// The mean [`StepQuality::chroma_utilisation`] across every step that has
+    /// one, or `None` when no step does.
+    ///
+    /// The headline answer to "is this ramp as colourful as this hue permits?",
+    /// and the metric that pulls against the hue metrics by design: a grey ramp
+    /// scores perfectly on hue and near zero here, so the two must be read
+    /// together (RFC 0027 §8).
+    pub mean_chroma_utilisation: Option<f32>,
     /// The gamut these metrics were measured against. Carried so a report can
     /// never present sRGB numbers as if they were Display-P3 ones.
     pub gamut: Gamut,
@@ -183,7 +191,15 @@ pub fn assess(palette: &Palette, gamut: Gamut) -> RampQuality {
             Some(tightest.map_or(delta, |t| t.min(delta)))
         });
 
+    let measured: Vec<f32> = steps
+        .iter()
+        .filter_map(|step| step.chroma_utilisation)
+        .collect();
+    let mean_chroma_utilisation =
+        (!measured.is_empty()).then(|| measured.iter().sum::<f32>() / measured.len() as f32);
+
     RampQuality {
+        mean_chroma_utilisation,
         min_delta_l,
         steps,
         hue_span_intended: hue_span(&intended_hues),

@@ -338,3 +338,47 @@ mod min_delta_l {
         assert_eq!(quality.min_delta_l, None);
     }
 }
+
+mod mean_chroma_utilisation {
+    use super::*;
+    use crate::color::gamut::max_in_gamut_chroma;
+
+    #[test]
+    fn averages_what_the_steps_took_of_what_was_on_offer() {
+        let boundary = max_in_gamut_chroma(0.55, 200.0, Gamut::Srgb);
+        let p = palette(vec![
+            swatch(400, 0.55, boundary, 200.0, 8.0),
+            swatch(500, 0.55, boundary / 2.0, 200.0, 7.0),
+        ]);
+
+        let quality = assess(&p, Gamut::Srgb);
+
+        let mean = quality.mean_chroma_utilisation.expect("two measured steps");
+        assert!((mean - 0.75).abs() < 1e-6, "expected 0.75, got {mean}");
+    }
+
+    #[test]
+    fn steps_with_no_measurable_utilisation_do_not_drag_the_mean_down() {
+        // A step where the gamut permits no chroma has no utilisation to
+        // average in — counting it as zero would report a ramp riding the
+        // boundary as one leaving half on the table.
+        let boundary = max_in_gamut_chroma(0.55, 200.0, Gamut::DisplayP3);
+        let p = palette(vec![
+            swatch(500, 0.55, boundary, 200.0, 7.0),
+            swatch(900, 1.0, 0.0, 200.0, 21.0),
+        ]);
+
+        let quality = assess(&p, Gamut::DisplayP3);
+
+        assert_eq!(quality.mean_chroma_utilisation, Some(1.0));
+    }
+
+    #[test]
+    fn a_ramp_with_nothing_measurable_has_no_mean() {
+        let p = palette(vec![swatch(900, 1.0, 0.0, 200.0, 21.0)]);
+
+        let quality = assess(&p, Gamut::DisplayP3);
+
+        assert_eq!(quality.mean_chroma_utilisation, None);
+    }
+}

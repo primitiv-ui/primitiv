@@ -12,7 +12,7 @@
 //! script, so the tests, the CI report and (later) the picker all read the same
 //! numbers (RFC 0027 D1).
 
-use crate::color::gamut::Gamut;
+use crate::color::gamut::{max_in_gamut_chroma, Gamut};
 use crate::palette::generator::{Palette, SwatchLabel};
 
 /// Quality metrics for a single step of a ramp.
@@ -20,6 +20,15 @@ use crate::palette::generator::{Palette, SwatchLabel};
 pub struct StepQuality {
     /// The step this describes, so a failure names a swatch rather than an index.
     pub label: SwatchLabel,
+    /// Chroma actually used, as a fraction of what the gamut allows at this
+    /// step's lightness and hue: `1.0` rides the boundary, `0.5` leaves half on
+    /// the table, `0.0` is grey.
+    ///
+    /// Measured against the gamut rather than against a committed baseline, so
+    /// it needs no reference palette, the bar cannot drift, and it answers "is
+    /// this ramp as colourful as this hue permits?" rather than only "did this
+    /// change?" (RFC 0027 D2).
+    pub chroma_utilisation: Option<f32>,
 }
 
 /// Quality metrics for a whole ramp, judged against one [`Gamut`].
@@ -43,6 +52,7 @@ pub fn assess(palette: &Palette, gamut: Gamut) -> RampQuality {
         .iter()
         .map(|swatch| StepQuality {
             label: swatch.label.clone(),
+            chroma_utilisation: Some(swatch.c / max_in_gamut_chroma(swatch.l, swatch.h, gamut)),
         })
         .collect();
 

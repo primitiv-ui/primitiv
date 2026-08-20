@@ -189,3 +189,84 @@ mod hue_error {
         assert!(error < 20.0, "expected the short way round, got {error}");
     }
 }
+
+mod hue_span {
+    use super::*;
+
+    #[test]
+    fn the_intended_span_is_zero_for_a_ramp_that_holds_one_hue() {
+        // What the engine does by construction — stated so the rendered span
+        // below has a control to be read against.
+        let p = palette(vec![
+            swatch(300, 0.75, 0.15, 200.0, 9.0),
+            swatch(500, 0.55, 0.12, 200.0, 7.0),
+            swatch(700, 0.35, 0.10, 200.0, 11.0),
+        ]);
+
+        let quality = assess(&p, Gamut::Srgb);
+
+        assert_eq!(quality.hue_span_intended, Some(0.0));
+    }
+
+    #[test]
+    fn the_intended_span_is_the_spread_when_the_steps_disagree() {
+        let p = palette(vec![
+            swatch(300, 0.75, 0.15, 200.0, 9.0),
+            swatch(500, 0.55, 0.12, 205.0, 7.0),
+            swatch(700, 0.35, 0.10, 210.0, 11.0),
+        ]);
+
+        let quality = assess(&p, Gamut::Srgb);
+
+        let span = quality.hue_span_intended.expect("three chromatic steps");
+        assert!((span - 10.0).abs() < 1e-4, "expected 10 degrees, got {span}");
+    }
+
+    #[test]
+    fn the_rendered_span_opens_up_where_the_intended_one_stayed_shut() {
+        // The whole point of measuring twice: this ramp's definition is
+        // flawless and what a browser paints is not (RFC 0027 §2).
+        let p = palette(vec![
+            swatch(300, 0.75, 0.15, 200.0, 9.0),
+            swatch(500, 0.55, 0.12, 200.0, 7.0),
+            swatch(700, 0.35, 0.10, 200.0, 11.0),
+        ]);
+
+        let quality = assess(&p, Gamut::Srgb);
+
+        let rendered = quality.hue_span_rendered.expect("three chromatic steps");
+        assert_eq!(quality.hue_span_intended, Some(0.0));
+        assert!(rendered > 0.0, "expected drift after quantisation, got {rendered}");
+    }
+
+    #[test]
+    fn near_grey_steps_are_excluded_because_they_can_report_any_hue_at_all() {
+        // A step with almost no chroma carries no meaningful hue, so including
+        // it measures quantisation noise rather than the ramp.
+        let p = palette(vec![
+            swatch(50, 0.97, 0.005, 30.0, 12.0),
+            swatch(500, 0.55, 0.12, 200.0, 7.0),
+            swatch(700, 0.35, 0.10, 200.0, 11.0),
+        ]);
+
+        let quality = assess(&p, Gamut::Srgb);
+
+        assert_eq!(quality.hue_span_intended, Some(0.0));
+    }
+
+    #[test]
+    fn a_grey_ramp_has_no_measurable_hue_span_at_all() {
+        // The trap this whole RFC exists to avoid: a grey ramp holds hue
+        // perfectly, so reporting 0.0 here would score it as the best ramp in
+        // the system (RFC 0027 §2, D3).
+        let p = palette(vec![
+            swatch(300, 0.75, 0.0, 200.0, 9.0),
+            swatch(500, 0.55, 0.0, 200.0, 7.0),
+        ]);
+
+        let quality = assess(&p, Gamut::Srgb);
+
+        assert_eq!(quality.hue_span_intended, None);
+        assert_eq!(quality.hue_span_rendered, None);
+    }
+}

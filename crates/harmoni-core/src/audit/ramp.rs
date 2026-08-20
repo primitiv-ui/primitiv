@@ -64,9 +64,35 @@ pub struct StepQuality {
 pub struct RampQuality {
     /// Per-step metrics, in ramp order.
     pub steps: Vec<StepQuality>,
+    /// How many degrees of hue the ramp's *definition* spans, or `None` when
+    /// fewer than two steps carry enough chroma to have a meaningful hue.
+    pub hue_span_intended: Option<f32>,
+    /// How many degrees of hue the ramp spans once quantised to 8-bit sRGB —
+    /// what a browser actually paints, and the only one of the two that can be
+    /// wrong. `None` under the same condition as [`Self::hue_span_intended`].
+    ///
+    /// `None` rather than `0.0` for a ramp with no colour in it, because a grey
+    /// ramp holds hue perfectly and would otherwise score as the best ramp in
+    /// the system (RFC 0027 §2).
+    pub hue_span_rendered: Option<f32>,
     /// The gamut these metrics were measured against. Carried so a report can
     /// never present sRGB numbers as if they were Display-P3 ones.
     pub gamut: Gamut,
+}
+
+/// Below this chroma a step carries no meaningful hue — quantisation can push a
+/// near-grey to any hue at all — so including it in a hue span measures noise.
+const CHROMATIC_FLOOR: f32 = 0.02;
+
+/// The spread of a set of hues in degrees, or `None` when fewer than two were
+/// supplied and a span is therefore undefined.
+fn hue_span(hues: &[f32]) -> Option<f32> {
+    if hues.len() < 2 {
+        return None;
+    }
+    let min = hues.iter().copied().fold(f32::INFINITY, f32::min);
+    let max = hues.iter().copied().fold(f32::NEG_INFINITY, f32::max);
+    Some(max - min)
 }
 
 /// The colour a browser actually paints: the requested OkLCH quantised to 8-bit
@@ -106,6 +132,8 @@ fn chroma_utilisation(l: f32, c: f32, h: f32, gamut: Gamut) -> Option<f32> {
 pub fn assess(palette: &Palette, gamut: Gamut) -> RampQuality {
     let mut previous_l: Option<f32> = None;
     let mut steps = Vec::with_capacity(palette.swatches.len());
+    let mut intended_hues: Vec<f32> = Vec::new();
+    let mut rendered_hues: Vec<f32> = Vec::new();
 
     for swatch in &palette.swatches {
         let rendered = rendered_oklch(swatch.l, swatch.c, swatch.h);
@@ -117,7 +145,19 @@ pub fn assess(palette: &Palette, gamut: Gamut) -> RampQuality {
             hue_error: hue_distance(rendered.hue.into_degrees(), swatch.h),
         });
         previous_l = Some(swatch.l);
+
+        if swatch.c > CHROMATIC_FLOOR {
+            intended_hues.push(swatch.h);
+        }
+        if rendered.chroma > CHROMATIC_FLOOR {
+            rendered_hues.push(rendered.hue.into_degrees());
+        }
     }
 
-    RampQuality { steps, gamut }
+    RampQuality {
+        steps,
+        hue_span_intended: hue_span(&intended_hues),
+        hue_span_rendered: hue_span(&rendered_hues),
+        gamut,
+    }
 }

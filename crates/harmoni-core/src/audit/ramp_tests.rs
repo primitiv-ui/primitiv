@@ -308,3 +308,33 @@ mod hue_span_across_the_seam {
         assert!(span < 15.0, "expected the short arc, got {span}");
     }
 }
+
+mod min_delta_l {
+    use super::*;
+
+    #[test]
+    fn reports_the_tightest_gap_anywhere_in_the_ramp() {
+        // The headline number for "are these steps distinguishable as
+        // surfaces?" — one collapsed pair is a defect however healthy the rest
+        // of the ramp is, so it is a minimum rather than a mean.
+        let p = palette(vec![
+            swatch(50, 0.97, 0.02, 200.0, 12.0),
+            swatch(100, 0.91, 0.05, 200.0, 11.0),
+            swatch(200, 0.89, 0.08, 200.0, 10.0),
+        ]);
+
+        let quality = assess(&p, Gamut::Srgb);
+
+        let min = quality.min_delta_l.expect("two gaps to choose between");
+        assert!((min - 0.02).abs() < 1e-6, "expected 0.02, got {min}");
+    }
+
+    #[test]
+    fn a_single_step_ramp_has_no_gap_to_measure() {
+        let p = palette(vec![swatch(500, 0.55, 0.12, 200.0, 7.0)]);
+
+        let quality = assess(&p, Gamut::Srgb);
+
+        assert_eq!(quality.min_delta_l, None);
+    }
+}

@@ -75,6 +75,10 @@ pub struct RampQuality {
     /// ramp holds hue perfectly and would otherwise score as the best ramp in
     /// the system (RFC 0027 §2).
     pub hue_span_rendered: Option<f32>,
+    /// The tightest [`StepQuality::delta_l`] anywhere in the ramp, or `None` for
+    /// a ramp with fewer than two steps. A minimum rather than a mean: one
+    /// collapsed pair is a defect however well spaced the rest of the ramp is.
+    pub min_delta_l: Option<f32>,
     /// The gamut these metrics were measured against. Carried so a report can
     /// never present sRGB numbers as if they were Display-P3 ones.
     pub gamut: Gamut,
@@ -172,7 +176,15 @@ pub fn assess(palette: &Palette, gamut: Gamut) -> RampQuality {
         }
     }
 
+    let min_delta_l = steps
+        .iter()
+        .filter_map(|step| step.delta_l)
+        .fold(None, |tightest: Option<f32>, delta| {
+            Some(tightest.map_or(delta, |t| t.min(delta)))
+        });
+
     RampQuality {
+        min_delta_l,
         steps,
         hue_span_intended: hue_span(&intended_hues),
         hue_span_rendered: hue_span(&rendered_hues),

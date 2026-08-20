@@ -66,6 +66,16 @@ const SEED_STEP: u16 = 500;
 /// refinement — the ramp is being greyed rather than corrected.
 const CHROMA_COLLAPSE_PCT: f32 = -10.0;
 
+/// Below this fraction of the chroma the gamut allows, a ramp is leaving real
+/// colour on the table. Unlike the column beside it this needs no reference
+/// palette — it is measured against the gamut itself (RFC 0027 D2).
+const MIN_CHROMA_UTILISATION: f32 = 0.6;
+
+/// Above this, the generator is asking for chroma the gamut does not have. The
+/// excess cannot be painted, so it is absorbed by channel clamping — which is
+/// where the hue drift in the column to the left comes from.
+const MAX_CHROMA_DEMAND: f32 = 1.5;
+
 struct Seed {
     ramp: String,
     seed: String,
@@ -487,6 +497,16 @@ fn render_json(reports: &[RampReport]) -> String {
             r.hue_span_intended
                 .map_or("null".into(), |v| format!("{v:.2}"))
         ));
+        out.push_str(&format!(
+            "      \"meanChromaUtilisation\": {},\n",
+            r.mean_chroma_utilisation
+                .map_or("null".into(), |v| format!("{v:.3}"))
+        ));
+        out.push_str(&format!(
+            "      \"meanChromaDemand\": {},\n",
+            r.mean_chroma_demand
+                .map_or("null".into(), |v| format!("{v:.3}"))
+        ));
         out.push_str(&format!("      \"roundingOnly\": {},\n", r.rounding_only));
         out.push_str(&format!(
             "      \"lightEndChromaDeltaPct\": {},\n",
@@ -519,7 +539,7 @@ fn render_json(reports: &[RampReport]) -> String {
         out.push_str("],\n      \"steps\": [\n");
         for (j, s) in r.steps.iter().enumerate() {
             out.push_str(&format!(
-                "        {{ \"step\": \"{}\", \"hex\": \"{}\", \"intended\": {{ \"l\": {:.4}, \"c\": {:.4}, \"h\": {:.2} }}, \"rendered\": {{ \"l\": {:.4}, \"c\": {:.4}, \"h\": {:.2} }}, \"deltaL\": {}, \"foreground\": {{ \"hex\": \"{}\", \"source\": \"{}\", \"ratio\": {:.2}, \"rating\": \"{}\" }} }}{}\n",
+                "        {{ \"step\": \"{}\", \"hex\": \"{}\", \"intended\": {{ \"l\": {:.4}, \"c\": {:.4}, \"h\": {:.2} }}, \"rendered\": {{ \"l\": {:.4}, \"c\": {:.4}, \"h\": {:.2} }}, \"deltaL\": {}, \"chromaUtilisation\": {}, \"chromaDemand\": {}, \"foreground\": {{ \"hex\": \"{}\", \"source\": \"{}\", \"ratio\": {:.2}, \"rating\": \"{}\" }} }}{}\n",
                 json_escape(&s.label),
                 json_escape(&s.hex),
                 s.l,
@@ -529,6 +549,9 @@ fn render_json(reports: &[RampReport]) -> String {
                 s.rendered_c,
                 s.rendered_h,
                 s.delta_l.map_or("null".into(), |v| format!("{v:.2}")),
+                s.chroma_utilisation
+                    .map_or("null".into(), |v| format!("{v:.3}")),
+                s.chroma_demand.map_or("null".into(), |v| format!("{v:.3}")),
                 json_escape(&s.fg_hex),
                 json_escape(&s.fg_source),
                 s.fg_ratio,
@@ -565,9 +588,9 @@ fn render_markdown(reports: &[RampReport]) -> String {
 
     out.push_str("## Summary\n\n");
     out.push_str(
-        "| ramp | theme | reproduces | hue span (rendered) | hue span (intended) | light-end min ΔL | light-end chroma vs committed | chroma peak |\n",
+        "| ramp | theme | reproduces | hue span (rendered) | hue span (intended) | light-end min ΔL | chroma used | chroma asked | light-end chroma vs committed | chroma peak |\n",
     );
-    out.push_str("| --- | --- | --- | ---: | ---: | ---: | ---: | --- |\n");
+    out.push_str("| --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |\n");
     for r in reports {
         let repro = match (r.reproduces, r.rounding_only) {
             (Some(true), 0) => "yes".to_string(),
@@ -586,6 +609,14 @@ fn render_markdown(reports: &[RampReport]) -> String {
             let flag = if v < MIN_LIGHT_END_DELTA_L { " ⚠" } else { "" };
             format!("{v:.1}{flag}")
         });
+        let used = r.mean_chroma_utilisation.map_or("—".to_string(), |v| {
+            let flag = if v < MIN_CHROMA_UTILISATION { " ⚠" } else { "" };
+            format!("{:.0}%{flag}", v * 100.0)
+        });
+        let asked = r.mean_chroma_demand.map_or("—".to_string(), |v| {
+            let flag = if v > MAX_CHROMA_DEMAND { " ⚠" } else { "" };
+            format!("{v:.2}×{flag}")
+        });
         let chroma = r
             .light_end_chroma_delta_pct
             .map_or("—".to_string(), |v| {
@@ -593,13 +624,15 @@ fn render_markdown(reports: &[RampReport]) -> String {
                 format!("{v:+.0}%{flag}")
             });
         out.push_str(&format!(
-            "| {} | {} | {} | {} | {} | {} | {} | {} |\n",
+            "| {} | {} | {} | {} | {} | {} | {} | {} | {} | {} |\n",
             r.ramp,
             r.theme,
             repro,
             span,
             span_i,
             dl,
+            used,
+            asked,
             chroma,
             r.chroma_peak_label.as_deref().unwrap_or("—")
         ));
@@ -617,7 +650,15 @@ fn render_markdown(reports: &[RampReport]) -> String {
          near-grey steps drop out of the measurement entirely. So an apparent hue improvement \
          accompanied by a large negative chroma delta is a ramp being greyed, not corrected. \
          Regenerating on the strength of the hue column alone is how a desaturation regression \
-         gets shipped as a fix.\n",
+         gets shipped as a fix.\n\n\
+         **chroma used** and **chroma asked** are the same measurement taken twice, against the \
+         gamut rather than against the committed palette — so they need no reference colours and \
+         the bar cannot drift with whatever was committed last. *Used* is what the ramp gets, as \
+         a fraction of the chroma available at each step; *asked* is what the generator requested \
+         on the same scale. A ramp asking for well over 1.00× is not colourful, it is demanding \
+         colour that does not exist: the excess is absorbed by channel clamping, and that clamp \
+         is exactly what bends the hue. Read the two together — a ramp can sit at 100% used and \
+         still be badly wrong if it asked for 15×.\n",
     );
 
     out.push_str(&format!(

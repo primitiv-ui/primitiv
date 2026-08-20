@@ -39,12 +39,12 @@ use std::collections::BTreeMap;
 use std::fs;
 use std::path::{Path, PathBuf};
 
-use harmoni_core::api::generate_brand_pair;
+use harmoni_core::api::{assess_ramp, generate_brand_pair, Gamut};
 use harmoni_core::{ColorInput, Palette};
 
-/// Steps below this chroma carry no meaningful hue, so including them in a
-/// hue-span measurement produces noise rather than signal — a near-grey step
-/// can report any hue at all.
+/// Steps below this chroma carry no meaningful hue. The engine applies its own
+/// floor when measuring hue spans; this copy is only used to decide whether a
+/// *committed* value is chromatic enough to compare chroma against.
 const CHROMATIC_FLOOR: f32 = 0.02;
 
 /// The `better-colors` guidance treats anything within 15 degrees as the same
@@ -112,6 +112,11 @@ struct StepMetric {
     /// span that turned out to be chroma collapse in disguise — a greyer ramp
     /// trivially holds hue, because there is less colour left to drift.
     committed_c: Option<f32>,
+    /// What the step got, as a fraction of the chroma the gamut allows.
+    chroma_utilisation: Option<f32>,
+    /// What the generator asked for, on the same scale. Above 1.0 it asked for
+    /// chroma that does not exist, and the excess is what bends the hue.
+    chroma_demand: Option<f32>,
 }
 
 /// How closely a regenerated step matches the committed one.
@@ -139,6 +144,11 @@ struct RampReport {
     /// straight, and points the fix at the OKLCH→sRGB mapping rather than at
     /// the ramp definition.
     hue_span_intended: Option<f32>,
+    /// Mean chroma the ramp actually got, as a fraction of what the gamut
+    /// allows — the answer to "is this ramp as colourful as this hue permits?".
+    mean_chroma_utilisation: Option<f32>,
+    /// Mean chroma the generator asked for, on the same scale.
+    mean_chroma_demand: Option<f32>,
     min_light_end_delta_l: Option<f32>,
     chroma_peak_label: Option<String>,
     /// Mean chroma change, engine vs committed, over the steps *lighter* than
@@ -292,24 +302,18 @@ fn analyse(
     palette: &Palette,
     committed: Option<&BTreeMap<String, String>>,
 ) -> RampReport {
+    // Every metric below comes from the engine's own assessment rather than a
+    // private copy of the same maths, so the report and the tests can never
+    // disagree about what a ramp measures (RFC 0027 D1, build order step 3).
+    let quality = assess_ramp(palette, Gamut::Srgb);
     let mut steps: Vec<StepMetric> = Vec::new();
-    let mut prev_l: Option<f32> = None;
 
-    for swatch in &palette.swatches {
+    for (swatch, measured) in palette.swatches.iter().zip(&quality.steps) {
         let label = swatch.label.to_string();
-        // Absolute: a dark ramp climbs in lightness, so a signed delta reports
-        // every dark step as negative and flags healthy ramps.
-        let delta_l = prev_l.map(|p: f32| (p - swatch.l).abs() * 100.0);
-        prev_l = Some(swatch.l);
 
         let committed_hex = committed
             .and_then(|m| m.get(&format!("{theme}/{}/{label}", seed.ramp)))
             .cloned();
-
-        // What the colour becomes once quantised to sRGB and read back — the
-        // thing a browser paints, and the only version that can be "wrong".
-        let (rendered_l, rendered_c, rendered_h) = round_trip(&swatch.hex)
-            .unwrap_or((swatch.l, swatch.c, swatch.h));
 
         steps.push(StepMetric {
             label,
@@ -317,11 +321,15 @@ fn analyse(
             l: swatch.l,
             c: swatch.c,
             h: swatch.h,
-            rendered_l,
-            rendered_c,
-            rendered_h,
-            delta_l,
-            committed_c: committed_hex.as_deref().and_then(round_trip).map(|t| t.1),
+            rendered_l: measured.rendered_l,
+            rendered_c: measured.rendered_c,
+            rendered_h: measured.rendered_h,
+            // Scaled to lightness percentage points for display; the engine
+            // reports it in its own 0..1 units.
+            delta_l: measured.delta_l.map(|d| d * 100.0),
+            chroma_utilisation: measured.chroma_utilisation,
+            chroma_demand: measured.chroma_demand,
+            committed_c: committed_hex.as_deref().and_then(committed_oklch).map(|t| t.1),
             committed_hex,
             fg_hex: swatch.best_foreground.hex.to_lowercase(),
             fg_source: format!("{:?}", swatch.foreground_source),
@@ -330,13 +338,10 @@ fn analyse(
         });
     }
 
-    // Hue span, measured twice. The rendered span is the real answer; the
-    // intended span is the control that says whether the engine's ramp
-    // definition or its gamut mapping is responsible for any drift.
-    let hue_span = span_of(steps.iter().filter(|s| s.rendered_c > CHROMATIC_FLOOR).map(|s| s.rendered_h));
-    let hue_span_intended = span_of(steps.iter().filter(|s| s.c > CHROMATIC_FLOOR).map(|s| s.h));
-
-    // Tightest lightness step among the first few, where surfaces live.
+    // Tightest lightness step among the first few, where surfaces live. The
+    // ramp-wide minimum is on the assessment as `min_delta_l`; this report wants
+    // the light end specifically, so it narrows the engine's per-step numbers
+    // rather than recomputing them.
     let min_light_end_delta_l = steps
         .iter()
         .take(LIGHT_END_STEPS + 1)
@@ -406,8 +411,10 @@ fn analyse(
         seed: seed.seed.clone(),
         theme: theme.to_string(),
         steps,
-        hue_span,
-        hue_span_intended,
+        hue_span: quality.hue_span_rendered,
+        hue_span_intended: quality.hue_span_intended,
+        mean_chroma_utilisation: quality.mean_chroma_utilisation,
+        mean_chroma_demand: quality.mean_chroma_demand,
         min_light_end_delta_l,
         chroma_peak_label,
         light_end_chroma_delta_pct,
@@ -417,26 +424,16 @@ fn analyse(
     }
 }
 
-/// Parse a hex back to OKLCH, so the measurement reflects what renders rather
-/// than what was requested. Uses the engine's own parser — the same path a
-/// consumer's CSS takes.
-fn round_trip(hex: &str) -> Option<(f32, f32, f32)> {
+/// Parse a *committed* hex back to OKLCH so its chroma can be compared against
+/// the engine's. Only external values go through here — everything the engine
+/// produces is measured by `assess_ramp` instead.
+fn committed_oklch(hex: &str) -> Option<(f32, f32, f32)> {
     let oklch = ColorInput::Css(hex.to_string()).to_oklch().ok()?;
     let mut h = oklch.hue.into_degrees();
     if h < 0.0 {
         h += 360.0;
     }
     Some((oklch.l, oklch.chroma, h))
-}
-
-fn span_of(values: impl Iterator<Item = f32>) -> Option<f32> {
-    let v: Vec<f32> = values.collect();
-    if v.len() < 2 {
-        return None;
-    }
-    let min = v.iter().cloned().fold(f32::INFINITY, f32::min);
-    let max = v.iter().cloned().fold(f32::NEG_INFINITY, f32::max);
-    Some(max - min)
 }
 
 /// Byte-identical, within one unit per channel, or genuinely different.

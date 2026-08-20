@@ -86,13 +86,31 @@ const CHROMATIC_FLOOR: f32 = 0.02;
 
 /// The spread of a set of hues in degrees, or `None` when fewer than two were
 /// supplied and a span is therefore undefined.
+///
+/// Hue is a circle, so the spread is the **smallest arc containing every hue** —
+/// found as `360°` minus the widest empty gap between neighbours — not the
+/// distance between the numeric extremes. Subtracting the extremes puts a seam
+/// in the measurement: a tight red ramp either side of 0°, or a cyan ramp either
+/// side of the half turn once the renderer has normalised to `-180..180`, both
+/// score as a near-full-circle swing. Normalising to `0..360` first only moves
+/// the seam; taking the widest gap removes it.
 fn hue_span(hues: &[f32]) -> Option<f32> {
     if hues.len() < 2 {
         return None;
     }
-    let min = hues.iter().copied().fold(f32::INFINITY, f32::min);
-    let max = hues.iter().copied().fold(f32::NEG_INFINITY, f32::max);
-    Some(max - min)
+
+    let mut sorted: Vec<f32> = hues.iter().map(|hue| hue.rem_euclid(360.0)).collect();
+    sorted.sort_by(|a, b| a.total_cmp(b));
+
+    // Gaps between neighbours, plus the one that closes the circle from the
+    // last hue back round to the first.
+    let wrap_gap = sorted[0] + 360.0 - sorted[sorted.len() - 1];
+    let widest_gap = sorted
+        .windows(2)
+        .map(|pair| pair[1] - pair[0])
+        .fold(wrap_gap, f32::max);
+
+    Some(360.0 - widest_gap)
 }
 
 /// The colour a browser actually paints: the requested OkLCH quantised to 8-bit

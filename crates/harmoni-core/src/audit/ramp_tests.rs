@@ -270,3 +270,41 @@ mod hue_span {
         assert_eq!(quality.hue_span_rendered, None);
     }
 }
+
+mod hue_span_across_the_seam {
+    use super::*;
+
+    #[test]
+    fn the_intended_span_measures_the_short_arc_around_zero() {
+        // 358° and 3° are five degrees apart. Subtracting the extremes reports
+        // 355 — a tight red ramp scored as one that swung nearly full circle.
+        let p = palette(vec![
+            swatch(400, 0.55, 0.10, 358.0, 8.0),
+            swatch(600, 0.45, 0.10, 3.0, 9.0),
+        ]);
+
+        let quality = assess(&p, Gamut::Srgb);
+
+        let span = quality.hue_span_intended.expect("two chromatic steps");
+        assert!((span - 5.0).abs() < 1e-4, "expected 5 degrees, got {span}");
+    }
+
+    #[test]
+    fn the_rendered_span_measures_the_short_arc_around_the_half_turn() {
+        // The rendered hue arrives normalised to -180..180, which moves the seam
+        // from 0 to 180 rather than removing it — a cyan ramp either side of the
+        // half turn reads as a 355 degree swing. Handling the wrap once, on
+        // hues normalised to 0..360, covers both seams for good.
+        let p = palette(vec![
+            swatch(300, 0.75, 0.08, 177.0, 10.0),
+            swatch(400, 0.65, 0.10, 178.0, 8.0),
+            swatch(600, 0.55, 0.10, 183.0, 9.0),
+            swatch(700, 0.45, 0.09, 184.0, 11.0),
+        ]);
+
+        let quality = assess(&p, Gamut::Srgb);
+
+        let span = quality.hue_span_rendered.expect("four chromatic steps");
+        assert!(span < 15.0, "expected the short arc, got {span}");
+    }
+}

@@ -28,6 +28,13 @@ pub struct StepQuality {
     /// it needs no reference palette, the bar cannot drift, and it answers "is
     /// this ramp as colourful as this hue permits?" rather than only "did this
     /// change?" (RFC 0027 D2).
+    ///
+    /// `None` where the gamut permits no chroma at this lightness (pure white in
+    /// Display-P3), because the question has no answer there — `0.0` would read
+    /// as "grey when it could be colourful" and `1.0` as "riding the boundary".
+    /// Values above `1.0` are meaningful and deliberately not clamped: the step
+    /// wants more chroma than the gamut has, so it will be mapped on the way to
+    /// the screen.
     pub chroma_utilisation: Option<f32>,
 }
 
@@ -41,6 +48,14 @@ pub struct RampQuality {
     pub gamut: Gamut,
 }
 
+/// What fraction of the chroma available at `(l, h)` a step's `c` actually uses.
+/// `None` where the gamut permits none, which would otherwise divide by zero and
+/// hand every aggregate a `NaN`.
+fn chroma_utilisation(l: f32, c: f32, h: f32, gamut: Gamut) -> Option<f32> {
+    let available = max_in_gamut_chroma(l, h, gamut);
+    (available > 0.0).then(|| c / available)
+}
+
 /// Measures the quality of an already-generated `palette` against `gamut`.
 ///
 /// Takes a `Palette` rather than a seed so assessment stays separate from
@@ -52,7 +67,7 @@ pub fn assess(palette: &Palette, gamut: Gamut) -> RampQuality {
         .iter()
         .map(|swatch| StepQuality {
             label: swatch.label.clone(),
-            chroma_utilisation: Some(swatch.c / max_in_gamut_chroma(swatch.l, swatch.h, gamut)),
+            chroma_utilisation: chroma_utilisation(swatch.l, swatch.c, swatch.h, gamut),
         })
         .collect();
 

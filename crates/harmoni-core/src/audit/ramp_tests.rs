@@ -80,3 +80,20 @@ mod chroma_utilisation {
         assert!(p3 < srgb, "expected P3 {p3:?} < sRGB {srgb:?}");
     }
 }
+
+mod undefined_utilisation {
+    use super::*;
+
+    #[test]
+    fn a_step_where_the_gamut_permits_no_chroma_has_no_utilisation() {
+        // Pure white admits no chroma at all in Display-P3, so "what fraction of
+        // the available chroma is this using?" has no answer — reporting 0.0
+        // would read as "this step is grey when it could be colourful", and 1.0
+        // as "it is riding the boundary". Both are lies.
+        let p = palette(vec![swatch(900, 1.0, 0.0, 200.0, 21.0)]);
+
+        let quality = assess(&p, Gamut::DisplayP3);
+
+        assert_eq!(quality.steps[0].chroma_utilisation, None);
+    }
+}

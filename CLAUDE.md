@@ -929,6 +929,44 @@ source of truth for when a skill applies.
     meaningful. It is also why the panel can animate in but not out.
 
 
+- **RFC 0027 (ramp quality metrics) — steps 1–3 landed (2026-08-20); 4–7 open.**
+  `harmoni-core::audit::ramp` now owns `assess(&Palette, Gamut) -> RampQuality`,
+  exposed as `api::assess_ramp`. The gamut boundary primitive moved down to
+  `color::gamut` first (`audit` must not reach up into `api`); `api::gamut`
+  re-exports it and keeps the picker's painters. 100% lines/regions/functions.
+  Four things worth knowing before touching it:
+  - **Chroma is measured twice, and it has to be.** `chroma_demand` is the
+    intended chroma over the gamut boundary; `chroma_utilisation` is the
+    *rendered* chroma over the boundary **at the rendered colour's own lightness
+    and hue**. The RFC sketched one number and one threshold
+    (`mean_chroma_utilisation > 0.9`) — unsound, because demand routinely exceeds
+    1.0 and would pass a visibly broken ramp. `warning/200` demands **14.9×** the
+    chroma sRGB has. Don't re-merge them, and don't share the denominator: gamut
+    mapping moves lightness too, so rendered-chroma-over-intended-boundary reads
+    above 1.0 whenever the mapping lands where the gamut is wider.
+  - **The generator has never been gamut-aware — this corrects RFC 0027 §1.**
+    `palette::generator::max_in_gamut_chroma` is a *separate* clamped copy from
+    the picker's `color::gamut` one, and it returns the constant **0.4** at every
+    lightness and hue (verified). The term cancels, so every step is
+    `base_chroma × 0.95 × chroma_factor` regardless of what the gamut permits
+    there, and the excess is absorbed by hard channel clamping at hex time —
+    which is where all the hue drift comes from (`warning/200` drifts 28.4°;
+    every low-demand `success` step drifts under 0.5°). Step 4 is "build a
+    gamut-aware search", not "revert an RFC 0010 tolerance".
+  - **Aggregates are `Option`, and hue spans use the smallest enclosing arc.**
+    `None` for a colourless ramp, because reporting `0.0` is exactly the
+    grey-ramp-scores-perfectly trap the RFC exists to avoid. Subtracting the
+    numeric extremes puts a seam at 0° (intended hues) and at 180° (the renderer
+    hands back `-180..180`) — both were real failing tests.
+  - **What is gated vs reported.** `crates/harmoni-core/tests/ramp_regression.rs`
+    gates every manifest seed × theme plus a hard yellow (`#f5c400`, not in the
+    manifest) on: foreground coverage complete, mean utilisation ≥ 0.60, intended
+    hue span 0.0°, and a fourth test proving the guard set isn't empty. **Not**
+    gated — hue span, chroma demand, light-end ΔL — because all three have real
+    failures today (`warning` light: 33.4° span, ΔL exactly 0.0) and a gate would
+    block the fix. The `ramp-audit` example now measures through `assess_ramp`
+    instead of its own maths; its output was byte-identical across the rewire.
+
 ## Figma plugin-API gotchas (scripting via `figma_execute`)
 
 Traps that fail *silently* or point at the wrong culprit. Each cost a real

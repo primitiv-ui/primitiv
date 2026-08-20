@@ -41,6 +41,22 @@ pub struct StepQuality {
     /// [`Self::chroma_utilisation`]. The excess is absorbed by clamping on the
     /// way to the screen, and that clamp is where hue drift comes from.
     pub chroma_demand: Option<f32>,
+    /// Chroma the ramp *actually gets*, as a fraction of what the gamut allows —
+    /// measured on the rendered colour, against the boundary at that colour's own
+    /// lightness and hue, so it never meaningfully exceeds `1.0`.
+    ///
+    /// The boundary is deliberately re-read there rather than shared with
+    /// [`Self::chroma_demand`]: gamut mapping moves lightness as well as chroma,
+    /// and dividing the rendered chroma by the boundary at the *intended*
+    /// lightness mixes two different colours into one ratio — which reads above
+    /// `1.0` whenever the mapping lands somewhere the gamut is wider.
+    ///
+    /// This is the quality metric: the honest answer to "is this ramp as
+    /// colourful as this hue permits?" (RFC 0027 §4). Demand answers a different
+    /// question — "did the generator ask for something impossible?" — and the
+    /// gap between the two is chroma the generator asked for and did not get, the
+    /// same intended-versus-rendered diagnostic the hue metrics use (RFC 0027 D3).
+    pub chroma_utilisation: Option<f32>,
     /// Distance in OkLCH lightness from the previous step, in engine units
     /// (`0.0..=1.0`), or `None` for the first step. Steps exist to be
     /// distinguishable surfaces; where this collapses toward zero, neighbouring
@@ -108,6 +124,12 @@ pub struct RampQuality {
     /// The mean [`StepQuality::chroma_demand`] across every step that has
     /// one, or `None` when no step does.
     ///
+    /// The mean [`StepQuality::chroma_utilisation`] across every step that has
+    /// one, or `None` when no step does — the headline answer to "is this ramp as
+    /// colourful as this hue permits?", and the metric that pulls against the hue
+    /// metrics by design: a grey ramp scores perfectly on hue and near zero here,
+    /// so the two must be read together (RFC 0027 §8).
+    pub mean_chroma_utilisation: Option<f32>,
     /// The mean over-ask across the ramp. Well above `1.0` means the generator is
     /// requesting chroma the gamut does not have, not that the ramp is colourful.
     pub mean_chroma_demand: Option<f32>,
@@ -116,6 +138,12 @@ pub struct RampQuality {
     /// The gamut these metrics were measured against. Carried so a report can
     /// never present sRGB numbers as if they were Display-P3 ones.
     pub gamut: Gamut,
+}
+
+/// The mean of a set of measurements, or `None` when there were none to average.
+fn mean(values: impl Iterator<Item = f32>) -> Option<f32> {
+    let values: Vec<f32> = values.collect();
+    (!values.is_empty()).then(|| values.iter().sum::<f32>() / values.len() as f32)
 }
 
 /// Below this chroma a step carries no meaningful hue — quantisation can push a
@@ -172,10 +200,10 @@ fn hue_distance(a: f32, b: f32) -> f32 {
     }
 }
 
-/// What fraction of the chroma available at `(l, h)` a step's `c` actually uses.
+/// What fraction of the chroma available at `(l, h)` a given `c` represents.
 /// `None` where the gamut permits none, which would otherwise divide by zero and
 /// hand every aggregate a `NaN`.
-fn chroma_demand(l: f32, c: f32, h: f32, gamut: Gamut) -> Option<f32> {
+fn chroma_fraction(l: f32, c: f32, h: f32, gamut: Gamut) -> Option<f32> {
     let available = max_in_gamut_chroma(l, h, gamut);
     (available > 0.0).then(|| c / available)
 }
@@ -197,7 +225,13 @@ pub fn assess(palette: &Palette, gamut: Gamut) -> RampQuality {
 
         steps.push(StepQuality {
             label: swatch.label.clone(),
-            chroma_demand: chroma_demand(swatch.l, swatch.c, swatch.h, gamut),
+            chroma_demand: chroma_fraction(swatch.l, swatch.c, swatch.h, gamut),
+            chroma_utilisation: chroma_fraction(
+                rendered.l,
+                rendered.chroma,
+                rendered.hue.into_degrees(),
+                gamut,
+            ),
             delta_l: previous_l.map(|previous: f32| (previous - swatch.l).abs()),
             hue_error: hue_distance(rendered.hue.into_degrees(), swatch.h),
         });
@@ -224,16 +258,10 @@ pub fn assess(palette: &Palette, gamut: Gamut) -> RampQuality {
             Some(tightest.map_or(delta, |t| t.min(delta)))
         });
 
-    let measured: Vec<f32> = steps
-        .iter()
-        .filter_map(|step| step.chroma_demand)
-        .collect();
-    let mean_chroma_demand =
-        (!measured.is_empty()).then(|| measured.iter().sum::<f32>() / measured.len() as f32);
-
     RampQuality {
         foreground_coverage,
-        mean_chroma_demand,
+        mean_chroma_utilisation: mean(steps.iter().filter_map(|step| step.chroma_utilisation)),
+        mean_chroma_demand: mean(steps.iter().filter_map(|step| step.chroma_demand)),
         min_delta_l,
         steps,
         hue_span_intended: hue_span(&intended_hues),

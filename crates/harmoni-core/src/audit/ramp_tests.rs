@@ -431,3 +431,78 @@ mod foreground_coverage {
         assert!(coverage.is_complete());
     }
 }
+
+mod chroma_utilisation {
+    use super::*;
+    use crate::color::gamut::max_in_gamut_chroma;
+
+    #[test]
+    fn a_step_asking_for_more_chroma_than_exists_still_only_gets_the_boundary() {
+        // Demand and utilisation are the chroma pair that hue already has:
+        // what was asked for, and what a browser paints. A step demanding many
+        // times the available chroma is not many times as colourful — the
+        // excess is clamped away, and clamping is what bends the hue.
+        let boundary = max_in_gamut_chroma(0.9, 200.0, Gamut::Srgb);
+        let p = palette(vec![swatch(100, 0.9, boundary * 4.0, 200.0, 11.0)]);
+
+        let quality = assess(&p, Gamut::Srgb);
+
+        let demand = quality.steps[0].chroma_demand.expect("a measurable demand");
+        let got = quality.steps[0].chroma_utilisation.expect("a measurable utilisation");
+        assert!((demand - 4.0).abs() < 1e-3, "expected a 4x demand, got {demand}");
+        assert!(got <= 1.01, "expected the boundary at most, got {got}");
+    }
+
+    #[test]
+    fn a_step_well_inside_the_gamut_gets_what_it_asked_for() {
+        let boundary = max_in_gamut_chroma(0.55, 200.0, Gamut::Srgb);
+        let p = palette(vec![swatch(500, 0.55, boundary / 2.0, 200.0, 7.0)]);
+
+        let quality = assess(&p, Gamut::Srgb);
+
+        let got = quality.steps[0].chroma_utilisation.expect("a measurable utilisation");
+        assert!((got - 0.5).abs() < 0.02, "expected about half, got {got}");
+    }
+
+    #[test]
+    fn a_grey_step_uses_none_of_the_available_chroma() {
+        let p = palette(vec![swatch(500, 0.55, 0.0, 200.0, 7.0)]);
+
+        let quality = assess(&p, Gamut::Srgb);
+
+        let got = quality.steps[0].chroma_utilisation.expect("a measurable utilisation");
+        assert!(got < 0.01, "expected nothing used, got {got}");
+    }
+
+    #[test]
+    fn a_step_where_the_gamut_permits_no_chroma_has_no_utilisation_either() {
+        let p = palette(vec![swatch(900, 1.0, 0.0, 200.0, 21.0)]);
+
+        let quality = assess(&p, Gamut::DisplayP3);
+
+        assert_eq!(quality.steps[0].chroma_utilisation, None);
+    }
+
+    #[test]
+    fn the_ramp_mean_averages_what_the_steps_actually_got() {
+        let boundary = max_in_gamut_chroma(0.55, 200.0, Gamut::Srgb);
+        let p = palette(vec![
+            swatch(400, 0.55, boundary, 200.0, 8.0),
+            swatch(500, 0.55, boundary / 2.0, 200.0, 7.0),
+        ]);
+
+        let quality = assess(&p, Gamut::Srgb);
+
+        let mean = quality.mean_chroma_utilisation.expect("two measured steps");
+        assert!((mean - 0.75).abs() < 0.02, "expected about 0.75, got {mean}");
+    }
+
+    #[test]
+    fn a_ramp_with_nothing_measurable_has_no_mean_utilisation() {
+        let p = palette(vec![swatch(900, 1.0, 0.0, 200.0, 21.0)]);
+
+        let quality = assess(&p, Gamut::DisplayP3);
+
+        assert_eq!(quality.mean_chroma_utilisation, None);
+    }
+}

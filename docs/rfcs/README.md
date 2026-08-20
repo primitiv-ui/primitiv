@@ -12,7 +12,7 @@ status, summary, and decision record; this page is the index.
 | [0003](0003-dynamic-foreground-wiring.md) | Dynamic foreground wiring | Implemented (engine + sync-plugin + DTCG) |
 | [0017](0017-elevation-and-shadow-tokens.md) | Elevation & shadow tokens | Draft — in progress |
 | [0025](0025-responsive-breakpoints.md) | Responsive breakpoints | Web landed; Figma sync pending |
-| [0027](0027-ramp-quality-and-generation-feedback.md) | Ramp quality metrics & generation feedback | Draft — proposed, nothing built |
+| [0027](0027-ramp-quality-and-generation-feedback.md) | Ramp quality metrics & generation feedback | Steps 1–3 landed; 4–7 open |
 
 - **0001** — the six-pattern layered token stack (primitives → intent → role →
   anatomy → interaction → component), the contexts model, and the Button worked
@@ -55,7 +55,15 @@ status, summary, and decision record; this page is the index.
   so a designer learns at pick time that their cyan will mute in sRGB rather than
   months later. Also proposes extending the foreground API from "text on this
   fill" to "which step is readable on this surface", which is the structural fix
-  for the three contrast failures in `docs/interface-audit.md`. Nothing built.
+  for the three contrast failures in `docs/interface-audit.md`.
+  **Steps 1–3 landed (2026-08-20)**: `assess()` in `harmoni-core::audit`,
+  regression tests gating every shipped seed, and the `ramp-audit` example
+  rewired onto the engine. Building it corrected the RFC's own diagnosis — the
+  generator does **not** share the picker's gamut search; its private copy
+  returns the constant `0.4` at every lightness, so chroma has never been
+  gamut-aware and the light end has always demanded colour that does not exist
+  (`warning/200` asks for 14.9×). Chroma is consequently measured twice, demanded
+  and rendered, the way hue already was. See the RFC's §11.
 
 ## Consumption layer
 

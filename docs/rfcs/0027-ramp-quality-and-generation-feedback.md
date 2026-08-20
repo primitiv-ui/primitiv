@@ -1,6 +1,9 @@
 # RFC 0027 — Ramp quality metrics & generation feedback
 
-> **Status:** Draft — proposed, nothing built
+> **Status:** Steps 1–3 landed (2026-08-20) — `assess()` in the engine, regression
+> tests gating the shipped seeds, and the `ramp-audit` example measuring through
+> the engine. Steps 4–7 open. See §11 for what building it found, including a
+> correction to §1's diagnosis.
 > **Author:** simonrevill, with architectural review
 > **Date:** 2026-08-15
 > **Relates to:** RFC 0002 (Harmoni → Intent → Plugin); RFC 0003 (Dynamic
@@ -295,12 +298,13 @@ Those are downstream decisions this RFC only makes measurable.
 
 ## 9. Build order
 
-1. **`assess()` + `chroma_utilisation`** in `harmoni-core::audit` (§3, §4).
-   Everything else depends on it. TDD as usual.
-2. **Regression tests** (§5) — cheapest real protection, and the immediate
-   payoff.
-3. **Point `ramp-audit` at `assess()`** instead of its own private maths, so the
-   example and the engine cannot disagree.
+1. ~~**`assess()` + `chroma_utilisation`** in `harmoni-core::audit` (§3, §4).
+   Everything else depends on it. TDD as usual.~~ **Landed.**
+2. ~~**Regression tests** (§5) — cheapest real protection, and the immediate
+   payoff.~~ **Landed** — `crates/harmoni-core/tests/ramp_regression.rs`.
+3. ~~**Point `ramp-audit` at `assess()`** instead of its own private maths, so the
+   example and the engine cannot disagree.~~ **Landed**, and the rewired report is
+   byte-identical to the private maths it replaced.
 4. **Diagnose the RFC 0010 chroma regression** using the new utilisation metric,
    and fix the gamut mapping. This unblocks regeneration.
 5. **Regenerate the palette**, verifying utilisation is back before committing.
@@ -333,3 +337,121 @@ Steps 1–3 are one focused session. Step 4 is the one with real unknowns.
 - **D6 — No colour changes in this RFC.** Regeneration and re-binding are
   downstream of the measurement work; bundling them would make an engine change
   and a design change indistinguishable in review (§8).
+
+
+---
+
+## 11. What building steps 1–3 found (2026-08-20)
+
+Three findings, in descending order of how much they change what happens next.
+Two of them correct this document.
+
+### 11.1 §1's diagnosis is wrong: the generator has never been gamut-aware
+
+§1 says "the palette generator shares `max_in_gamut_chroma`", so RFC 0010's
+tolerance change propagated into generation. It does not share it. The generator
+has **its own copy** — `palette::generator::max_in_gamut_chroma` — which uses the
+*clamped* conversion, and whose own doc comment already admitted the predicate
+"effectively always passes and it returns the `hi` ceiling".
+
+Measured, it returns the constant `0.4` at every lightness and hue:
+
+| lightness | hue | generator | true sRGB boundary |
+|---:|---:|---:|---:|
+| 0.97 | 70° | 0.400000 | 0.021674 |
+| 0.83 | 70° | 0.400000 | 0.134867 |
+| 0.55 | 70° | 0.400000 | 0.119155 |
+| 0.15 | 70° | 0.400000 | 0.032632 |
+
+So the `0.4` cancels out of the ratio and every step's chroma reduces to
+`base_chroma × 0.95 × chroma_factor` — **independent of what the gamut permits at
+that lightness**. There is no gamut mapping in generation at all; there is a
+constant, and then hard channel clamping at the very end when the colour is
+written to hex.
+
+That reframes step 4. It is not "find what RFC 0010 broke and revert it" — it is
+"the chroma search has never worked, and the light end has always been asking for
+colour that does not exist". The committed palette still fails to reproduce on
+six ramps, so something *did* change; but the fix is a gamut-aware search, not a
+tolerance revert.
+
+### 11.2 §5's proposed threshold would not have worked
+
+§5 sketches `assert!(q.mean_chroma_utilisation > 0.9)`. Under §3's definition —
+chroma used as a fraction of what the gamut allows — that assertion passes on a
+visibly broken ramp, because the measurement routinely exceeds `1.0`:
+
+| ramp (light) | mean, intended chroma ÷ boundary |
+|---|---:|
+| success | 0.91 |
+| info | 0.99 |
+| brand | 1.27 |
+| danger | 1.70 |
+| **warning** | **3.48** |
+
+`warning/200` alone asks for **14.9×** the chroma sRGB has at that lightness. A
+single number cannot be both "did the generator ask for something impossible?"
+and "is the ramp as colourful as it could be?", so the metric is now **measured
+twice**, exactly as hue already is (D3):
+
+- **`chroma_demand`** — the intended chroma over the boundary. Above `1.0` the
+  generator is asking for colour that does not exist.
+- **`chroma_utilisation`** — the *rendered* chroma over the boundary, measured at
+  the rendered colour's own lightness and hue. Never meaningfully above `1.0`.
+  This is the quality metric §4 wanted.
+
+The gap between them is chroma asked for and not received. It is also, directly,
+where the hue drift comes from: the excess is absorbed by channel clamping, and
+clamping moves hue. The correlation is visible per step —
+`warning/200` demands 14.9× and drifts **28.4°**; every `success` light step
+demands under 1.0× and drifts under **0.5°**.
+
+### 11.3 Two defects the metrics now name, both still open
+
+Neither is gated, because both fail today (D4 gates regressions, not existing
+defects):
+
+- **`warning` light has a light-end ΔL of exactly 0.0** — steps 50/100/200 are
+  one colour, as §2 predicted. The cause is now visible: their intended lightness
+  is clamped to the `0.99` ceiling, so three steps land on the same value.
+- **Rendered hue spans of 33.4° (`warning` light) and 31.2° (`brand` dark)**, far
+  past the 15° guideline, with intended spans of 0.0° on every ramp. The ramp
+  definitions are flawless; the clamping is doing all of it.
+
+### 11.4 What is gated, and what deliberately is not
+
+`crates/harmoni-core/tests/ramp_regression.rs` runs every seed in
+`packages/tokens/harmoni-seeds.json`, both themes, plus a deliberately hard yellow
+(`#f5c400`, demand 3.22×, light-end ΔL 0.0) that is **not** in the manifest —
+so the guards keep exercising the case where the mapping has to make a decision
+even once the shipped ramps are healthy.
+
+Gated: accessible-foreground coverage on every step; mean chroma utilisation at or
+above 0.60 (the shipped ramps sit at 0.75–1.00); intended hue span at 0.0°, which
+is the control that keeps the rendered span attributable. Plus a fourth test
+asserting the guard set is non-empty and covers every manifest seed — without it,
+a manifest that failed to parse would make all three pass by iterating over
+nothing.
+
+Not gated, per D4 and §8: hue span, chroma demand, and light-end ΔL — all three
+have real failures today, and gating them would block the commits trying to fix
+them.
+
+### 11.5 Decisions added to §10
+
+- **D7 — Chroma is measured twice, demanded and rendered.** One number cannot
+  answer both "did the generator ask for the impossible?" and "is this as
+  colourful as the hue permits?", and the version that can exceed `1.0` is
+  useless as a quality score (§11.2).
+- **D8 — Utilisation's denominator is the boundary at the *rendered* colour**,
+  not at the intended one. Gamut mapping moves lightness as well as chroma, so
+  dividing rendered chroma by the boundary at the intended lightness mixes two
+  different colours into one ratio — and reads above `1.0` whenever the mapping
+  lands where the gamut is wider.
+- **D9 — Hue spans use the smallest enclosing arc, not the numeric range.**
+  Subtracting the extremes puts a seam in the measurement: at 0° for the intended
+  hues, and at 180° for the renderer-normalised ones, where a tight ramp either
+  side of the seam scores as a near-full-circle swing.
+- **D10 — Aggregates are `Option`, and a colourless ramp reports `None`.**
+  Reporting `0.0` for a grey ramp's hue span is precisely the trap §2 describes;
+  `None` says "there was nothing to measure" instead.

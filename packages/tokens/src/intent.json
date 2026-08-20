@@ -967,7 +967,7 @@
     "highlight": {
       "background": {
         "$type": "color",
-        "$value": "{color.brand.800}"
+        "$value": "{color.brand.100}"
       }
     },
     "border": {

@@ -585,7 +585,7 @@
     --primitiv-feedback-warning-solid-background: var(--primitiv-color-warning-500);
     --primitiv-feedback-warning-solid-foreground: var(--primitiv-color-absolute-black);
     --primitiv-focus-ring: var(--primitiv-color-brand-500);
-    --primitiv-highlight-background: var(--primitiv-color-brand-800);
+    --primitiv-highlight-background: var(--primitiv-color-brand-100);
     --primitiv-list-marker-foreground: var(--primitiv-content-secondary);
     --primitiv-miller-columns-row-ancestor: var(--primitiv-color-neutral-alpha-100);
     --primitiv-miller-columns-row-hover: var(--primitiv-color-neutral-alpha-50);

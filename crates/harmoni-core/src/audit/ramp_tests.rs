@@ -506,3 +506,37 @@ mod chroma_utilisation {
         assert_eq!(quality.mean_chroma_utilisation, None);
     }
 }
+
+mod rendered_colour {
+    use super::*;
+
+    #[test]
+    fn reports_the_colour_a_browser_actually_paints() {
+        // A saturated light yellow is far outside sRGB, so what renders is a
+        // materially different colour from what was asked for. Reported on the
+        // step so a consumer never has to round-trip the hex itself and end up
+        // measuring against a second, disagreeing implementation (RFC 0027 D1).
+        let p = palette(vec![swatch(100, 0.95, 0.25, 100.0, 11.0)]);
+
+        let step = &assess(&p, Gamut::Srgb).steps[0];
+
+        assert!(step.rendered_c < 0.25, "expected clamping, got {}", step.rendered_c);
+        assert!(step.rendered_l < 0.95, "expected clamping, got {}", step.rendered_l);
+    }
+
+    #[test]
+    fn reports_the_rendered_hue_as_a_bearing_rather_than_a_signed_offset() {
+        // The renderer hands back -180..180, which reads as a negative hue for
+        // anything just below 360. Every consumer of this number wants a
+        // bearing, so it is normalised once here rather than in each of them.
+        let p = palette(vec![swatch(500, 0.9, 0.20, 1.0, 7.0)]);
+
+        let step = &assess(&p, Gamut::Srgb).steps[0];
+
+        assert!(
+            (step.rendered_h - 345.0).abs() < 1.0,
+            "expected a bearing near 345, got {}",
+            step.rendered_h,
+        );
+    }
+}

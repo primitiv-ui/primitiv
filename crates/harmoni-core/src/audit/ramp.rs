@@ -57,6 +57,18 @@ pub struct StepQuality {
     /// gap between the two is chroma the generator asked for and did not get, the
     /// same intended-versus-rendered diagnostic the hue metrics use (RFC 0027 D3).
     pub chroma_utilisation: Option<f32>,
+    /// The OkLCH lightness a browser actually paints — the requested colour
+    /// quantised to 8-bit sRGB and read back. Reported alongside the metrics so
+    /// a consumer never has to round-trip the hex itself and end up measuring
+    /// against a second, disagreeing implementation (RFC 0027 D1).
+    pub rendered_l: f32,
+    /// The chroma a browser actually paints. Below the requested chroma wherever
+    /// the gamut could not meet the demand.
+    pub rendered_c: f32,
+    /// The hue a browser actually paints, as a bearing in `0..360`. Normalised
+    /// here rather than in each consumer: the renderer hands back `-180..180`,
+    /// which reads as a negative hue for anything just short of a full turn.
+    pub rendered_h: f32,
     /// Distance in OkLCH lightness from the previous step, in engine units
     /// (`0.0..=1.0`), or `None` for the first step. Steps exist to be
     /// distinguishable surfaces; where this collapses toward zero, neighbouring
@@ -222,18 +234,17 @@ pub fn assess(palette: &Palette, gamut: Gamut) -> RampQuality {
 
     for swatch in &palette.swatches {
         let rendered = rendered_oklch(swatch.l, swatch.c, swatch.h);
+        let rendered_h = rendered.hue.into_degrees().rem_euclid(360.0);
 
         steps.push(StepQuality {
             label: swatch.label.clone(),
             chroma_demand: chroma_fraction(swatch.l, swatch.c, swatch.h, gamut),
-            chroma_utilisation: chroma_fraction(
-                rendered.l,
-                rendered.chroma,
-                rendered.hue.into_degrees(),
-                gamut,
-            ),
+            chroma_utilisation: chroma_fraction(rendered.l, rendered.chroma, rendered_h, gamut),
+            rendered_l: rendered.l,
+            rendered_c: rendered.chroma,
+            rendered_h,
             delta_l: previous_l.map(|previous: f32| (previous - swatch.l).abs()),
-            hue_error: hue_distance(rendered.hue.into_degrees(), swatch.h),
+            hue_error: hue_distance(rendered_h, swatch.h),
         });
         previous_l = Some(swatch.l);
 
@@ -247,7 +258,7 @@ pub fn assess(palette: &Palette, gamut: Gamut) -> RampQuality {
             intended_hues.push(swatch.h);
         }
         if rendered.chroma > CHROMATIC_FLOOR {
-            rendered_hues.push(rendered.hue.into_degrees());
+            rendered_hues.push(rendered_h);
         }
     }
 

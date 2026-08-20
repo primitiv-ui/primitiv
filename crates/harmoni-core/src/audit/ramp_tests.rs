@@ -382,3 +382,52 @@ mod mean_chroma_utilisation {
         assert_eq!(quality.mean_chroma_utilisation, None);
     }
 }
+
+mod foreground_coverage {
+    use super::*;
+
+    #[test]
+    fn counts_each_step_under_the_rating_the_engine_already_gave_it() {
+        // Read back from the swatch's own ContrastResult rather than re-derived
+        // from the ratio, so the audit and the contrast module cannot drift
+        // apart on where AA ends and AAA begins (RFC 0027 D1).
+        let p = palette(vec![
+            swatch(50, 0.97, 0.02, 200.0, 12.0),
+            swatch(300, 0.75, 0.15, 200.0, 6.0),
+            swatch(500, 0.55, 0.12, 200.0, 5.0),
+            swatch(700, 0.35, 0.10, 200.0, 3.0),
+        ]);
+
+        let coverage = assess(&p, Gamut::Srgb).foreground_coverage;
+
+        assert_eq!(coverage.aaa, 1);
+        assert_eq!(coverage.aa, 2);
+        assert_eq!(coverage.fail, 1);
+    }
+
+    #[test]
+    fn a_ramp_is_incomplete_when_any_step_has_no_accessible_foreground() {
+        let p = palette(vec![
+            swatch(50, 0.97, 0.02, 200.0, 12.0),
+            swatch(700, 0.35, 0.10, 200.0, 3.0),
+        ]);
+
+        let coverage = assess(&p, Gamut::Srgb).foreground_coverage;
+
+        assert!(!coverage.is_complete());
+    }
+
+    #[test]
+    fn a_ramp_is_complete_when_every_step_clears_aa() {
+        // True of every ramp the engine ships today. Asserted so a future
+        // change cannot quietly break a guarantee nothing was watching.
+        let p = palette(vec![
+            swatch(50, 0.97, 0.02, 200.0, 12.0),
+            swatch(500, 0.55, 0.12, 200.0, 4.5),
+        ]);
+
+        let coverage = assess(&p, Gamut::Srgb).foreground_coverage;
+
+        assert!(coverage.is_complete());
+    }
+}

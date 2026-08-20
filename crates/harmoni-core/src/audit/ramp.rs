@@ -59,6 +59,30 @@ pub struct StepQuality {
     pub hue_error: f32,
 }
 
+/// How many of a ramp's steps have an accessible foreground, by WCAG rating.
+///
+/// The engine has always guaranteed this — across the ten shipped ramps there is
+/// not a single failure — but nothing stated it, so nothing could notice it
+/// breaking. Counted from each swatch's own `ContrastResult`, not re-derived
+/// from its ratio, so the audit and the contrast module cannot disagree about
+/// where AA ends and AAA begins (RFC 0027 D1).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub struct ForegroundCoverage {
+    /// Steps whose recommended foreground clears 7:1.
+    pub aaa: usize,
+    /// Steps whose recommended foreground clears 4.5:1 but not 7:1.
+    pub aa: usize,
+    /// Steps with no accessible foreground at all. Zero on every shipped ramp.
+    pub fail: usize,
+}
+
+impl ForegroundCoverage {
+    /// Whether every step has an accessible foreground.
+    pub fn is_complete(&self) -> bool {
+        self.fail == 0
+    }
+}
+
 /// Quality metrics for a whole ramp, judged against one [`Gamut`].
 #[derive(Debug, Clone, PartialEq)]
 pub struct RampQuality {
@@ -87,6 +111,8 @@ pub struct RampQuality {
     /// scores perfectly on hue and near zero here, so the two must be read
     /// together (RFC 0027 §8).
     pub mean_chroma_utilisation: Option<f32>,
+    /// Whether every step has an accessible foreground, and at what rating.
+    pub foreground_coverage: ForegroundCoverage,
     /// The gamut these metrics were measured against. Carried so a report can
     /// never present sRGB numbers as if they were Display-P3 ones.
     pub gamut: Gamut,
@@ -162,6 +188,7 @@ fn chroma_utilisation(l: f32, c: f32, h: f32, gamut: Gamut) -> Option<f32> {
 pub fn assess(palette: &Palette, gamut: Gamut) -> RampQuality {
     let mut previous_l: Option<f32> = None;
     let mut steps = Vec::with_capacity(palette.swatches.len());
+    let mut foreground_coverage = ForegroundCoverage::default();
     let mut intended_hues: Vec<f32> = Vec::new();
     let mut rendered_hues: Vec<f32> = Vec::new();
 
@@ -175,6 +202,12 @@ pub fn assess(palette: &Palette, gamut: Gamut) -> RampQuality {
             hue_error: hue_distance(rendered.hue.into_degrees(), swatch.h),
         });
         previous_l = Some(swatch.l);
+
+        match swatch.contrast_result.rating.as_str() {
+            "AAA" => foreground_coverage.aaa += 1,
+            "AA" => foreground_coverage.aa += 1,
+            _ => foreground_coverage.fail += 1,
+        }
 
         if swatch.c > CHROMATIC_FLOOR {
             intended_hues.push(swatch.h);
@@ -199,6 +232,7 @@ pub fn assess(palette: &Palette, gamut: Gamut) -> RampQuality {
         (!measured.is_empty()).then(|| measured.iter().sum::<f32>() / measured.len() as f32);
 
     RampQuality {
+        foreground_coverage,
         mean_chroma_utilisation,
         min_delta_l,
         steps,

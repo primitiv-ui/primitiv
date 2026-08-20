@@ -97,3 +97,54 @@ mod undefined_utilisation {
         assert_eq!(quality.steps[0].chroma_utilisation, None);
     }
 }
+
+mod delta_l {
+    use super::*;
+
+    /// Asserts a metric is within float-comparison distance of `expected`.
+    fn assert_close(actual: Option<f32>, expected: f32) {
+        let actual = actual.expect("expected a measured value");
+        assert!(
+            (actual - expected).abs() < 1e-6,
+            "expected {expected}, got {actual}",
+        );
+    }
+
+    #[test]
+    fn the_first_step_has_no_previous_step_to_measure_against() {
+        let p = palette(vec![
+            swatch(50, 0.97, 0.02, 200.0, 12.0),
+            swatch(100, 0.91, 0.05, 200.0, 11.0),
+        ]);
+
+        let quality = assess(&p, Gamut::Srgb);
+
+        assert_eq!(quality.steps[0].delta_l, None);
+    }
+
+    #[test]
+    fn each_later_step_measures_its_distance_from_the_one_before() {
+        let p = palette(vec![
+            swatch(50, 0.97, 0.02, 200.0, 12.0),
+            swatch(100, 0.91, 0.05, 200.0, 11.0),
+        ]);
+
+        let quality = assess(&p, Gamut::Srgb);
+
+        assert_close(quality.steps[1].delta_l, 0.06);
+    }
+
+    #[test]
+    fn a_dark_ramp_climbing_in_lightness_reports_a_positive_distance() {
+        // Absolute, not signed: a dark palette runs the other way, and a signed
+        // delta reported every healthy dark step as a defect (RFC 0027 §2).
+        let p = palette(vec![
+            swatch(50, 0.21, 0.02, 200.0, 12.0),
+            swatch(100, 0.25, 0.05, 200.0, 11.0),
+        ]);
+
+        let quality = assess(&p, Gamut::Srgb);
+
+        assert_close(quality.steps[1].delta_l, 0.04);
+    }
+}

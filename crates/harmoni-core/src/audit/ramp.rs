@@ -36,6 +36,15 @@ pub struct StepQuality {
     /// wants more chroma than the gamut has, so it will be mapped on the way to
     /// the screen.
     pub chroma_utilisation: Option<f32>,
+    /// Distance in OkLCH lightness from the previous step, in engine units
+    /// (`0.0..=1.0`), or `None` for the first step. Steps exist to be
+    /// distinguishable surfaces; where this collapses toward zero, neighbouring
+    /// steps are effectively one colour.
+    ///
+    /// Absolute, not signed: a dark palette climbs in lightness rather than
+    /// falling, and a signed delta reported every healthy dark ramp as a defect
+    /// (RFC 0027 §2).
+    pub delta_l: Option<f32>,
 }
 
 /// Quality metrics for a whole ramp, judged against one [`Gamut`].
@@ -62,14 +71,17 @@ fn chroma_utilisation(l: f32, c: f32, h: f32, gamut: Gamut) -> Option<f32> {
 /// generation: the same function can judge a freshly generated ramp, the
 /// committed `palette.json`, or a palette imported from elsewhere (RFC 0027 §3).
 pub fn assess(palette: &Palette, gamut: Gamut) -> RampQuality {
-    let steps = palette
-        .swatches
-        .iter()
-        .map(|swatch| StepQuality {
+    let mut previous_l: Option<f32> = None;
+    let mut steps = Vec::with_capacity(palette.swatches.len());
+
+    for swatch in &palette.swatches {
+        steps.push(StepQuality {
             label: swatch.label.clone(),
             chroma_utilisation: chroma_utilisation(swatch.l, swatch.c, swatch.h, gamut),
-        })
-        .collect();
+            delta_l: previous_l.map(|previous: f32| (previous - swatch.l).abs()),
+        });
+        previous_l = Some(swatch.l);
+    }
 
     RampQuality { steps, gamut }
 }

@@ -32,7 +32,7 @@ mod steps {
     }
 }
 
-mod chroma_utilisation {
+mod chroma_demand {
     use super::*;
     use crate::color::gamut::max_in_gamut_chroma;
 
@@ -43,7 +43,7 @@ mod chroma_utilisation {
 
         let quality = assess(&p, Gamut::Srgb);
 
-        assert_eq!(quality.steps[0].chroma_utilisation, Some(1.0));
+        assert_eq!(quality.steps[0].chroma_demand, Some(1.0));
     }
 
     #[test]
@@ -53,7 +53,7 @@ mod chroma_utilisation {
 
         let quality = assess(&p, Gamut::Srgb);
 
-        assert_eq!(quality.steps[0].chroma_utilisation, Some(0.5));
+        assert_eq!(quality.steps[0].chroma_demand, Some(0.5));
     }
 
     #[test]
@@ -65,7 +65,7 @@ mod chroma_utilisation {
 
         let quality = assess(&p, Gamut::Srgb);
 
-        assert_eq!(quality.steps[0].chroma_utilisation, Some(0.0));
+        assert_eq!(quality.steps[0].chroma_demand, Some(0.0));
     }
 
     #[test]
@@ -74,8 +74,8 @@ mod chroma_utilisation {
         // it is using less of what is on offer (RFC 0027 D2).
         let p = palette(vec![swatch(500, 0.65, 0.15, 142.0, 7.0)]);
 
-        let srgb = assess(&p, Gamut::Srgb).steps[0].chroma_utilisation;
-        let p3 = assess(&p, Gamut::DisplayP3).steps[0].chroma_utilisation;
+        let srgb = assess(&p, Gamut::Srgb).steps[0].chroma_demand;
+        let p3 = assess(&p, Gamut::DisplayP3).steps[0].chroma_demand;
 
         assert!(p3 < srgb, "expected P3 {p3:?} < sRGB {srgb:?}");
     }
@@ -94,7 +94,7 @@ mod undefined_utilisation {
 
         let quality = assess(&p, Gamut::DisplayP3);
 
-        assert_eq!(quality.steps[0].chroma_utilisation, None);
+        assert_eq!(quality.steps[0].chroma_demand, None);
     }
 }
 
@@ -339,7 +339,7 @@ mod min_delta_l {
     }
 }
 
-mod mean_chroma_utilisation {
+mod mean_chroma_demand {
     use super::*;
     use crate::color::gamut::max_in_gamut_chroma;
 
@@ -353,7 +353,7 @@ mod mean_chroma_utilisation {
 
         let quality = assess(&p, Gamut::Srgb);
 
-        let mean = quality.mean_chroma_utilisation.expect("two measured steps");
+        let mean = quality.mean_chroma_demand.expect("two measured steps");
         assert!((mean - 0.75).abs() < 1e-6, "expected 0.75, got {mean}");
     }
 
@@ -370,7 +370,7 @@ mod mean_chroma_utilisation {
 
         let quality = assess(&p, Gamut::DisplayP3);
 
-        assert_eq!(quality.mean_chroma_utilisation, Some(1.0));
+        assert_eq!(quality.mean_chroma_demand, Some(1.0));
     }
 
     #[test]
@@ -379,7 +379,7 @@ mod mean_chroma_utilisation {
 
         let quality = assess(&p, Gamut::DisplayP3);
 
-        assert_eq!(quality.mean_chroma_utilisation, None);
+        assert_eq!(quality.mean_chroma_demand, None);
     }
 }
 

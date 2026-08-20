@@ -1,87 +1,22 @@
 //! Gamut rendering helpers for the OKLCH colour picker (RFC 0010).
 //!
 //! These paint flat RGBA buffers a `<canvas>` can blit directly via
-//! `ImageData`, and re-expose the sRGB gamut-boundary primitive the picker
-//! overlays as a curve. The colour maths lives here so the picker renders
-//! from engine output rather than a second colour library in JS — one source
-//! of truth (RFC 0010 §1, Principle 1).
+//! `ImageData`, and re-expose `color::gamut`'s boundary primitive so the picker
+//! can overlay it as a curve. The colour maths lives in the engine rather than
+//! a second colour library in JS — one source of truth (RFC 0010 §1,
+//! Principle 1).
 
-use palette::convert::IntoColorUnclamped;
-use palette::encoding::Linear;
-use palette::rgb::Rgb as PaletteRgb;
-use palette::{LinSrgb, Oklch};
+use palette::Oklch;
 
+use crate::color::gamut::in_gamut;
 use crate::color::output::{oklch_to_rgb, Rgb};
-use crate::color::p3::{oklch_to_p3_rgb, DisplayP3};
+use crate::color::p3::oklch_to_p3_rgb;
 
-/// The display gamut a picker chart is rendered against (RFC 0010 §7). sRGB is
-/// the v1 default; Display-P3 is the additive wide-gamut mode.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum Gamut {
-    /// The standard sRGB gamut Harmoni computes everywhere else.
-    Srgb,
-    /// The wider Display-P3 gamut (`crate::color::p3::DisplayP3`).
-    DisplayP3,
-}
-
-/// Whether a linear-RGB triple sits inside its unit cube, with a small epsilon
-/// absorbing floating-point error at the faces.
-///
-/// The epsilon is held at float-conversion scale (`1e-5`). A looser tolerance
-/// (the old `1e-3`) is ~100× the genuine round-trip error and admits *out-of-
-/// gamut* near-black colours: their linear channels are all tiny, so a chromatic
-/// dark whose limiting channel is only slightly negative still sits within an
-/// absolute `±1e-3`. That spurious near-black chroma spiked the picker's Hue-
-/// chart boundary at the bottom edge; tightening it collapses the gamut to the
-/// black point as it should, while every genuine boundary is unchanged — the
-/// limiting channel crosses zero steeply there (RFC 0010 §10).
-fn linear_in_gamut(red: f32, green: f32, blue: f32) -> bool {
-    (-1e-5..=1.000_01).contains(&red)
-        && (-1e-5..=1.000_01).contains(&green)
-        && (-1e-5..=1.000_01).contains(&blue)
-}
-
-/// Whether an OkLCH `(lightness, chroma, hue)` is inside the given `gamut`,
-/// tested on the **unclamped** linear channels: the clamped conversion the
-/// renderer uses snaps every channel into range, which would hide every
-/// out-of-gamut colour.
-fn in_gamut(lightness: f32, chroma: f32, hue: f32, gamut: Gamut) -> bool {
-    let color = Oklch::new(lightness, chroma, hue);
-    match gamut {
-        Gamut::Srgb => {
-            let rgb: LinSrgb = color.into_color_unclamped();
-            linear_in_gamut(rgb.red, rgb.green, rgb.blue)
-        }
-        Gamut::DisplayP3 => {
-            let rgb: PaletteRgb<Linear<DisplayP3>> = color.into_color_unclamped();
-            linear_in_gamut(rgb.red, rgb.green, rgb.blue)
-        }
-    }
-}
-
-/// The maximum chroma that keeps an OkLCH lightness and hue inside `gamut` — the
-/// boundary curve the picker overlays, and the cutoff its painters use to mark
-/// out-of-gamut pixels.
-///
-/// Binary search over chroma testing the unclamped linear channels (see
-/// [`in_gamut`]). This is deliberately separate from
-/// `palette::generator::max_in_gamut_chroma`, whose clamped form the generated
-/// palettes depend on (RFC 0010 §3).
-pub fn max_in_gamut_chroma(lightness: f32, hue: f32, gamut: Gamut) -> f32 {
-    let mut lo: f32 = 0.0;
-    let mut hi: f32 = 0.4;
-
-    for _ in 0..20 {
-        let mid = (lo + hi) / 2.0;
-        if in_gamut(lightness, mid, hue, gamut) {
-            lo = mid;
-        } else {
-            hi = mid;
-        }
-    }
-
-    lo
-}
+// The gamut primitive itself lives in `color::gamut`, so the ramp audit can
+// measure against the same boundary these charts paint (RFC 0027 D1). Re-exported
+// here because adapters reach the engine only through `api` — they must not
+// import from `color` directly.
+pub use crate::color::gamut::{max_in_gamut_chroma, Gamut};
 
 /// Quantises a `0.0..=1.0` channel to a `u8`, matching `oklch_to_hex`.
 fn to_byte(channel: f32) -> u8 {

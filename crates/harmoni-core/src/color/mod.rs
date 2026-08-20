@@ -1,6 +1,10 @@
+pub mod gamut;
 pub mod input;
 pub mod output;
 pub mod p3;
+
+#[cfg(test)]
+mod gamut_tests;
 
 #[cfg(test)]
 mod input_tests;

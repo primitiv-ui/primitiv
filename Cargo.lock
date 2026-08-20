@@ -259,6 +259,7 @@ dependencies = [
  "csscolorparser",
  "palette",
  "serde",
+ "serde_json",
 ]
 
 [[package]]

@@ -45,3 +45,19 @@ fn audit_contrast_propagates_an_invalid_foreground_color_when_the_background_is_
         Err(ColorInputError::InvalidCss("not-a-color".to_string()))
     );
 }
+
+mod ramp_quality_through_the_api {
+    use crate::api::{assess_ramp, generate_brand_pair, Gamut};
+    use crate::color::input::ColorInput;
+
+    #[test]
+    fn assesses_a_generated_brand_ramp_without_reaching_below_the_api() {
+        let pair = generate_brand_pair(ColorInput::Css("#236ce1".to_string()))
+            .expect("the brand seed should generate");
+
+        let quality = assess_ramp(&pair.light, Gamut::Srgb);
+
+        assert_eq!(quality.steps.len(), pair.light.swatches.len());
+        assert!(quality.foreground_coverage.is_complete());
+    }
+}

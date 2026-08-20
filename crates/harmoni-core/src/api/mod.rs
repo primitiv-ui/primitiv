@@ -13,7 +13,7 @@ pub mod generate;
 pub mod neutral;
 
 pub use alpha::generate_alpha_ramp;
-pub use audit::audit_contrast;
+pub use audit::{assess_ramp, audit_contrast, ForegroundCoverage, RampQuality, StepQuality};
 pub use gamut::{
     max_in_gamut_chroma, paint_ch_plane, paint_chroma_strip, paint_hue_strip, paint_lc_plane,
     paint_lh_plane, paint_lightness_strip, Gamut,

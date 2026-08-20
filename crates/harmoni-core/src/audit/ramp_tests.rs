@@ -148,3 +148,44 @@ mod delta_l {
         assert_close(quality.steps[1].delta_l, 0.04);
     }
 }
+
+mod hue_error {
+    use super::*;
+
+    #[test]
+    fn a_step_the_gamut_cannot_render_reports_the_hue_it_was_pushed_to() {
+        // A saturated light yellow sits well outside sRGB. Gamut mapping moves
+        // it, and the gap between intended and rendered is what localises the
+        // fault to the mapping rather than to the ramp definition (RFC 0027 D3).
+        let p = palette(vec![swatch(100, 0.95, 0.25, 100.0, 12.0)]);
+
+        let quality = assess(&p, Gamut::Srgb);
+
+        let error = quality.steps[0].hue_error;
+        assert!(error > 1.0, "expected a measurable hue error, got {error}");
+    }
+
+    #[test]
+    fn measures_the_short_way_round_when_the_rendered_hue_crosses_above_zero() {
+        // Intended 359.5°, rendered ~6.5°. Subtracting gives 353°, which would
+        // report a ramp that barely moved as one that swung nearly full circle.
+        let p = palette(vec![swatch(500, 0.5, 0.30, 359.5, 7.0)]);
+
+        let quality = assess(&p, Gamut::Srgb);
+
+        let error = quality.steps[0].hue_error;
+        assert!(error < 10.0, "expected the short way round, got {error}");
+    }
+
+    #[test]
+    fn measures_the_short_way_round_when_the_rendered_hue_crosses_below_zero() {
+        // The mirror case: intended 1.0°, rendered ~345°. The naive difference
+        // is 344°; the real distance is ~16°.
+        let p = palette(vec![swatch(500, 0.9, 0.20, 1.0, 7.0)]);
+
+        let quality = assess(&p, Gamut::Srgb);
+
+        let error = quality.steps[0].hue_error;
+        assert!(error < 20.0, "expected the short way round, got {error}");
+    }
+}

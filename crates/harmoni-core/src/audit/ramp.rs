@@ -12,7 +12,10 @@
 //! script, so the tests, the CI report and (later) the picker all read the same
 //! numbers (RFC 0027 D1).
 
+use palette::{IntoColor, Oklch, Srgb};
+
 use crate::color::gamut::{max_in_gamut_chroma, Gamut};
+use crate::color::output::oklch_to_rgb;
 use crate::palette::generator::{Palette, SwatchLabel};
 
 /// Quality metrics for a single step of a ramp.
@@ -45,6 +48,15 @@ pub struct StepQuality {
     /// falling, and a signed delta reported every healthy dark ramp as a defect
     /// (RFC 0027 §2).
     pub delta_l: Option<f32>,
+    /// How far the rendered hue sits from the hue the engine intended, in
+    /// degrees, measured the short way round the colour circle.
+    ///
+    /// The engine holds hue *exactly* by construction, so every degree here
+    /// appears during quantisation to 8-bit sRGB. Measuring only the intended
+    /// hue therefore reports a flawless engine, and measuring only the rendered
+    /// hue blames the ramp definition for what the gamut mapping did — the gap
+    /// between them is the diagnostic (RFC 0027 D3).
+    pub hue_error: f32,
 }
 
 /// Quality metrics for a whole ramp, judged against one [`Gamut`].
@@ -55,6 +67,27 @@ pub struct RampQuality {
     /// The gamut these metrics were measured against. Carried so a report can
     /// never present sRGB numbers as if they were Display-P3 ones.
     pub gamut: Gamut,
+}
+
+/// The colour a browser actually paints: the requested OkLCH quantised to 8-bit
+/// sRGB and read back. Equivalent to round-tripping through the swatch's hex —
+/// hex *is* that quantisation — but without a fallible string parse in the
+/// middle of a metric that must always produce a number.
+fn rendered_oklch(l: f32, c: f32, h: f32) -> Oklch {
+    let rgb = oklch_to_rgb(Oklch::new(l, c, h));
+    let quantise = |channel: f32| (channel * 255.0).round() / 255.0;
+    Srgb::new(quantise(rgb.r), quantise(rgb.g), quantise(rgb.b)).into_color()
+}
+
+/// Angular distance between two hues in degrees, the short way round: 359° and
+/// 1° are 2° apart, not 358°.
+fn hue_distance(a: f32, b: f32) -> f32 {
+    let diff = (a - b).rem_euclid(360.0);
+    if diff > 180.0 {
+        360.0 - diff
+    } else {
+        diff
+    }
 }
 
 /// What fraction of the chroma available at `(l, h)` a step's `c` actually uses.
@@ -75,10 +108,13 @@ pub fn assess(palette: &Palette, gamut: Gamut) -> RampQuality {
     let mut steps = Vec::with_capacity(palette.swatches.len());
 
     for swatch in &palette.swatches {
+        let rendered = rendered_oklch(swatch.l, swatch.c, swatch.h);
+
         steps.push(StepQuality {
             label: swatch.label.clone(),
             chroma_utilisation: chroma_utilisation(swatch.l, swatch.c, swatch.h, gamut),
             delta_l: previous_l.map(|previous: f32| (previous - swatch.l).abs()),
+            hue_error: hue_distance(rendered.hue.into_degrees(), swatch.h),
         });
         previous_l = Some(swatch.l);
     }

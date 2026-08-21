@@ -4,24 +4,14 @@
  * names/types/defaults, and the required marker.
  */
 
-.docs-prop-name,
-.docs-prop-type,
-.docs-prop-default {
+/* The Prop column stays a plain mono span: it is an identifier being *named*,
+   not a code fragment being quoted, so a chip on every row would be noise.
+   Type and Default use the registry InlineCode (see PropsTable.tsx). */
+.docs-prop-name {
   font-family: var(--primitiv-font-family-mono);
   font-size: var(--primitiv-code-sm-font-size);
-}
-
-.docs-prop-name {
   color: var(--primitiv-content-primary);
   white-space: nowrap;
-}
-
-.docs-prop-type {
-  color: var(--primitiv-content-secondary);
-}
-
-.docs-prop-default {
-  color: var(--primitiv-content-muted);
 }
 
 .docs-prop-required {

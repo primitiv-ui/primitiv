@@ -127,7 +127,7 @@ export const buttonSpec: ComponentSpec = {
             [
               `<Button asChild>`,
               `  <Link href="/components">`,
-              `    View the docs`,
+              `    <span className="primitiv-button__label">View the docs</span>`,
               `    <ArrowRight />`,
               `  </Link>`,
               `</Button>`,
@@ -137,7 +137,10 @@ export const buttonSpec: ComponentSpec = {
           {() => (
             <Button asChild>
               <Link href="/components/">
-                View the docs
+                {/* See docs/registry-bugs.md §5: under asChild the text is one
+                    level deeper than Button's wrapTextNodes reaches, so the
+                    label span (and its text-box-trim) has to be explicit. */}
+                <span className="primitiv-button__label">View the docs</span>
                 <ArrowRight />
               </Link>
             </Button>

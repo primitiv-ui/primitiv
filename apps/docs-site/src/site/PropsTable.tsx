@@ -28,15 +28,28 @@ import "./props-table.css";
  * the braces; treating them as HTML would mean trusting doc comments as markup.
  * Splitting on the two known forms keeps it safe — nothing is ever handed to
  * `dangerouslySetInnerHTML`.
+ *
+ * `size="sm"` throughout, matching the Type/Default chips and the table's own
+ * size — the default `md` would render code fragments LARGER than the body-sm
+ * prose around them.
  */
 const renderDoc = (text: string) => {
   const parts = text.split(/(`[^`]+`|\{@link\s+[^}]+\})/g);
   return parts.map((part, i) => {
     if (part.length > 1 && part.startsWith("`") && part.endsWith("`")) {
-      return <InlineCode key={i}>{part.slice(1, -1)}</InlineCode>;
+      return (
+        <InlineCode key={i} size="sm">
+          {part.slice(1, -1)}
+        </InlineCode>
+      );
     }
     const link = part.match(/^\{@link\s+([^}\s|]+)/);
-    if (link) return <InlineCode key={i}>{link[1]}</InlineCode>;
+    if (link)
+      return (
+        <InlineCode key={i} size="sm">
+          {link[1]}
+        </InlineCode>
+      );
     return part;
   });
 };
@@ -69,10 +82,20 @@ const PropRows = ({
           )}
         </TableCell>
         <TableCell>
-          <span className="docs-prop-type">{prop.type}</span>
+          {/* The registry InlineCode, not a bare mono span: a type IS code, and
+              this keeps it visually identical to the backticked fragments
+              renderDoc() already emits in the Description column. `size="sm"`
+              matches the table's own size so the chip does not inflate rows. */}
+          <InlineCode size="sm">{prop.type}</InlineCode>
         </TableCell>
         <TableCell>
-          <span className="docs-prop-default">{prop.default ?? "—"}</span>
+          {/* The em dash means "no default" — prose, not code, so it stays a
+              plain string rather than an empty-looking code chip. */}
+          {prop.default === null ? (
+            "—"
+          ) : (
+            <InlineCode size="sm">{prop.default}</InlineCode>
+          )}
         </TableCell>
         <TableCell>{from}</TableCell>
         <TableCell>
@@ -102,7 +125,8 @@ export const PropsTable = ({
 
       {sub.extends && (
         <p className="docs-prop-extends">
-          Extends <InlineCode>{sub.extends}</InlineCode> — every native attribute
+          Extends <InlineCode size="sm">{sub.extends}</InlineCode> — every native
+          attribute
           of that element is accepted and forwarded.
         </p>
       )}

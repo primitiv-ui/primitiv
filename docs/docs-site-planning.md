@@ -508,7 +508,7 @@ Two site-chrome controls settled while wireframing the landing page
   (headless / styled / Figma), framework = *which code flavour* — for v1
   the latter has exactly one enabled option.
 - **Install code blocks are package-manager-tabbed.** Every install code
-  block (the per-component "Getting this component" block, §1.13) carries
+  block (the per-component "Installing a component" block, §1.13) carries
   **npm / pnpm / yarn / bun** tabs so the reader copies the command for
   their own manager; npm is the default/active tab. ~~(The at-a-glance
   install *chips* on the three consumption-path cards stay single-line —

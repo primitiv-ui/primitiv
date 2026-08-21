@@ -9,7 +9,7 @@ import { useLocalStorage } from "@primitiv-ui/react";
  * store — every consumer of the same key subscribes to it and is notified on
  * write (the in-document listener set, since the browser's `storage` event
  * fires only in *other* documents). So the nav's mode switch and the landing's
- * "Getting this component" block stay in step by both calling `useMode()`,
+ * "Installing a component" block stay in step by both calling `useMode()`,
  * with no provider to thread through the tree.
  */
 

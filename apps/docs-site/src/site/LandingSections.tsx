@@ -197,7 +197,7 @@ export const DocumentationMap = () => (
   </LandingSection>
 );
 
-/* ── Getting this component ───────────────────────────────────────────────── */
+/* ── Installing a component ───────────────────────────────────────────────── */
 
 export const ComponentBlock = () => {
   const [mode] = useMode();
@@ -210,7 +210,7 @@ export const ComponentBlock = () => {
     <LandingSection
       id="component-block"
       overline="On every component page"
-      heading="Getting this component"
+      heading="Installing a component"
     >
       <Grid columns={2} gap="xl">
         <Stack gap="md">
@@ -257,12 +257,14 @@ export const ComponentBlock = () => {
                       <span className="docs-prop-name">{prop.name}</span>
                     </TableCell>
                     <TableCell>
-                      <span className="docs-prop-type">{prop.type}</span>
+                      <InlineCode size="sm">{prop.type}</InlineCode>
                     </TableCell>
                     <TableCell>
-                      <span className="docs-prop-default">
-                        {prop.default ?? "—"}
-                      </span>
+                      {prop.default === null ? (
+                        "—"
+                      ) : (
+                        <InlineCode size="sm">{prop.default}</InlineCode>
+                      )}
                     </TableCell>
                     <TableCell>{prop.required ? "yes" : "no"}</TableCell>
                   </TableRow>

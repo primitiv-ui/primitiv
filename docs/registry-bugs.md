@@ -1,12 +1,14 @@
 # Registry bugs — surfaced by the docs-site build
 
-Status as of 2026-08-21. All four were found while building `apps/docs-site`,
+Status as of 2026-08-21. All five were found while building `apps/docs-site`,
 which is the **first consumer that imports registry components individually**
 rather than through a barrel that pulls in all 63. That distinction is what
-exposed them: the kitchen-sink imports everything, so three of these four are
+exposed them: the kitchen-sink imports everything, so three of these five are
 invisible there.
 
-Two are **fixed at source**; two are still **open** and need a decision.
+Two are **fixed at source**; three are still **open** and need a decision. The
+two open ones that matter most are §3 (a one-line import) and §5 (a change to the
+wrapper generator, so it needs CI).
 
 Common thread worth keeping in mind: every one of these is a case where a
 component behaves correctly in the kitchen-sink and incorrectly for a real
@@ -181,6 +183,97 @@ are neutralised by load-bearing `margin: 0` declarations in
 Option 1 is a change to the shared base sheet, so it affects every consumer and
 wants a deliberate call rather than a drive-by fix. Worth checking against the
 prose specimens and `apps/kitchen-sink`'s prose sections before landing.
+
+---
+
+## 5. `Button` — `asChild` loses `text-box-trim` and `nowrap` — OPEN (generator)
+
+**Symptom.** `<Button asChild><Link>Start Here</Link></Button>` renders without
+optical text trimming, and without the `white-space: nowrap` that stops a button
+shrinking below its own text in a flex row. A plain `<Button>Start Here</Button>`
+gets both.
+
+**Cause.** The two properties live on the label span, not the root:
+
+```css
+.primitiv-button__label {
+  text-box-trim: trim-both;
+  text-box-edge: cap alphabetic;
+  white-space: nowrap;
+}
+```
+
+and the stylesheet explains why: trimming "must be applied to the element
+directly wrapping the text node — not the flex container — for engines to honour
+it." The generated wrapper creates that span in `wrapTextNodes`, which maps only
+`string | number` children:
+
+```tsx
+typeof child === "string" || typeof child === "number"
+  ? <span className="primitiv-button__label">{child}</span>
+  : child
+```
+
+Under `asChild` the single child is the consumer's ELEMENT (a `<Link>`, an
+`<a>`), so it passes through untouched and its text sits one level deeper than
+`wrapTextNodes` reaches. Nothing wraps it, so nothing is trimmed.
+
+**Half-considered already.** `crates/primitiv-emit/src/wrapper.rs`'s doc comment
+for `emit_wrap_text_helper` explicitly reasons about this case — it unwraps the
+single-child array specifically so `<Button asChild><a>Text</a></Button>` "still
+hands `Slot` a single element". Making `asChild` not *crash* was solved; giving
+that element's text a label span was not.
+
+**Where the fix belongs.** NOT in `button.tsx` — that file is generated ("Do not
+edit by hand: change registry/components/button/contract.json and regenerate")
+by `crates/primitiv-emit/src/wrapper.rs`. A hand edit is overwritten on the next
+regeneration.
+
+Proposed change, in the emitter: when `asChild` is set and `children` is a valid
+element, clone it with its own children run through `wrapTextNodes`. Roughly
+
+```tsx
+const content =
+  props.asChild && isValidElement(children)
+    ? cloneElement(children, undefined, wrapTextNodes(children.props.children))
+    : wrapTextNodes(children);
+```
+
+Points to settle before landing it:
+
+- **It affects every text-wrapping wrapper**, not just Button — the same helper
+  is emitted for each. That is probably desirable (the bug is identical
+  everywhere) but it regenerates all 63 wrappers, so the emit fixtures in
+  `crates/primitiv-emit/src/wrapper_tests.rs` move with it.
+- `cloneElement` on a foreign element is a slightly stronger claim than `Slot`
+  already makes — worth checking against a component whose `asChild` child is
+  something unusual (a routing library's `<NavLink>`, a `<label>`).
+- One level of recursion only, or all the way down? One level covers the real
+  cases and keeps the behaviour predictable.
+- Cannot be verified in this sandbox (no local Rust build). Needs CI — a
+  throwaway workflow running `cargo test -p primitiv-emit` plus a regeneration
+  diff would confirm it.
+
+**Workaround in place.** `apps/docs-site` wraps the label by hand:
+
+```tsx
+<Button asChild>
+  <Link href="/components/">
+    <span className="primitiv-button__label">Start Here</span>
+  </Link>
+</Button>
+```
+
+Measured after: `text-box-trim: trim-both`, `text-box-edge: cap alphabetic`,
+`white-space: nowrap` on both hero CTAs. Applied at both call sites — the hero,
+and the Button page's own `asChild` example, whose *displayed snippet* was
+updated too so the sample matches what actually renders.
+
+**But note the workaround reaches for a private class.** `contract.json` declares
+only `.primitiv-button` (the root) — `__label` is not part of the documented
+surface, and the stylesheet comment says the component wraps text "so consumers
+never need to do it by hand". Every one of these spans should be deleted when the
+generator fix lands; they are marked with a comment saying so.
 
 ---
 

@@ -968,9 +968,12 @@ the header nav, sidebar, footer, TOC and documentation map — flex `gap` plus t
 reset margin, the same doubling `list` had. Navigation is the common case for
 hand-rolled lists, so every consumer will meet this. Options (scope to
 `.primitiv-flow`, scope to `.primitiv-list`, or document it) are written up in
-**`docs/registry-bugs.md` §4**, alongside three other bugs the same build found —
-two already fixed at source (`Button` `asChild` underline, `List` nested layout),
-one open (`code-block` borrowing `.primitiv-tabs__*` without importing it).
+**`docs/registry-bugs.md` §4**, alongside four other bugs the same build found —
+two already fixed at source (`Button` `asChild` underline, `List` nested layout)
+and two open: `code-block` borrowing `.primitiv-tabs__*` without importing it
+(§3, a one-line import), and `asChild` losing `text-box-trim`/`nowrap` because
+the generated `wrapTextNodes` cannot see text inside the consumer's element
+(§5 — a `crates/primitiv-emit/src/wrapper.rs` change, so it needs CI).
 
 ### The container-spacing bug class — closed, one instance
 

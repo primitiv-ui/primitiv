@@ -49,11 +49,31 @@ export const Hero = () => (
           </p>
 
           <Stack direction="row" gap="sm" justify="center">
+            {/*
+             * The label span is wrapped by hand here, which a plain
+             * `<Button>Text</Button>` never needs.
+             *
+             * `text-box-trim`/`text-box-edge` live on `.primitiv-button__label`,
+             * because trimming has to sit on the element DIRECTLY wrapping the
+             * text node — not the flex container. Button's generated
+             * `wrapTextNodes` only wraps `string | number` children, so under
+             * `asChild` the single child is the consumer's <Link> ELEMENT and its
+             * text sits one level deeper than Button ever looks. Result: no trim,
+             * and no `white-space: nowrap` either.
+             *
+             * This is a gap in the wrapper generator
+             * (crates/primitiv-emit/src/wrapper.rs), not in this call site — see
+             * docs/registry-bugs.md §5. Remove these spans once it is fixed.
+             */}
             <Button asChild>
-              <Link href="/components/">Start Here</Link>
+              <Link href="/components/">
+                <span className="primitiv-button__label">Start Here</span>
+              </Link>
             </Button>
             <Button asChild variant="secondary">
-              <Link href="/components/">Browse Components</Link>
+              <Link href="/components/">
+                <span className="primitiv-button__label">Browse Components</span>
+              </Link>
             </Button>
           </Stack>
 

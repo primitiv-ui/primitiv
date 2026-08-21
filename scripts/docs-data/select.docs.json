@@ -1,0 +1,582 @@
+{
+  "id": "select",
+  "displayName": "Select",
+  "kind": "registry",
+  "status": "stable",
+  "description": "A single-select control with two render paths behind one API: a rich Popover-API listbox (the default) whose options carry icons, badges and a selected mark, or a native `<select>` for flat, OS-native cases. The rich control is a framed field on the same geometry as Input; its panel and rows resolve the shared dropdown tokens, so a Select listbox and a Dropdown menu are the same surface. Positioned with CSS anchor positioning; keyboard, typeahead, focus and form submission are owned by the headless primitive.",
+  "headless": {
+    "package": "@primitiv-ui/react",
+    "importPath": "@primitiv-ui/react",
+    "subComponents": [
+      {
+        "name": "Select.Root",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "When `true`, Root delegates to a single consumer-supplied element\n(expected to render a `<select>`) and merges its own props onto it\nvia the {@link Slot } pattern. Placeholder-detection inside Root\nwalks direct children only in this mode, so the `asChild` +\nplaceholder combination requires the consumer to set\n`defaultValue=\"\"` explicitly."
+          },
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": false,
+            "default": null,
+            "description": "Content of the select — typically {@link SelectOption }, {@link SelectGroup },\nand optionally a leading {@link SelectPlaceholder }."
+          },
+          {
+            "name": "defaultOpen",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Rich mode only — whether the listbox popover is open on first render.\nIgnored under `native` (the browser owns the popup). Uncontrolled: pass\nthis (or omit for closed) and let the component manage the state."
+          },
+          {
+            "name": "defaultValue",
+            "type": "string",
+            "required": false,
+            "default": null,
+            "description": "Value of the option selected on first render. When omitted and a\n{@link SelectPlaceholder } is present among Root's direct children,\nRoot infers `\"\"` automatically so the placeholder is the initial\nselection.\nForbidden in controlled mode — use `value` instead."
+          },
+          {
+            "name": "native",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Selects the render path:\n\n- `false` (the default) — the **rich** render path: a fully-styleable\n  Popover-API listbox built from {@link SelectTrigger `Select.Trigger`},\n  {@link SelectValue `Select.Value`},\n  {@link SelectContent `Select.Content`} and\n  {@link SelectItem `Select.Item`}. Icons and other rich content on an\n  item render as authored.\n- `true` — the **native** render path: a thin wrapper over a real\n  `<select>` / `<option>` / `<optgroup>`, for flat, OS-native cases\n  (mobile wheel pickers, maximum-compatibility forms). Under `native`,\n  {@link SelectItem `Select.Item`} renders an `<option>` from its\n  string/number children only — element children (icons, indicators)\n  are dropped.\n\nBoth modes share the same `value` / `onValueChange` / `disabled` / form\n`name` API."
+          },
+          {
+            "name": "onChange",
+            "type": "ChangeEventHandler<HTMLSelectElement>",
+            "required": false,
+            "default": null,
+            "description": "Native `change` handler. Fires alongside `onValueChange` whenever the\nuser picks a different option. Use this when you want the raw\n`ChangeEvent` (e.g. to inspect `event.target.validity`)."
+          },
+          {
+            "name": "onOpenChange",
+            "type": "(open: boolean) => void",
+            "required": false,
+            "default": null,
+            "description": "Rich mode only — called with the next open state whenever the listbox\nopens or closes (trigger click, selection, Escape, light-dismiss)."
+          },
+          {
+            "name": "onValueChange",
+            "type": "(value: string) => void) | ((value: string) => void",
+            "required": false,
+            "default": null,
+            "description": "Called with the new option value whenever the user changes the\nselection. Optional in uncontrolled mode.\nCalled with the new option value whenever the user changes the\nselection. Required in controlled mode."
+          },
+          {
+            "name": "open",
+            "type": "boolean",
+            "required": false,
+            "default": null,
+            "description": "Rich mode only — the controlled open state of the listbox popover. Pass\ntogether with {@link SelectRootBaseProps.onOpenChange`onOpenChange`}\nto own the state from the parent."
+          },
+          {
+            "name": "ref",
+            "type": "Ref<HTMLSelectElement>",
+            "required": false,
+            "default": null,
+            "description": "Allows getting a ref to the component instance.\nOnce the component unmounts, React will set `ref.current` to `null`\n(or call the ref with `null` if you passed a callback ref).\nForwarded to the underlying `HTMLSelectElement`."
+          },
+          {
+            "name": "value",
+            "type": "string",
+            "required": false,
+            "default": null,
+            "description": "Forbidden in uncontrolled mode — use `defaultValue` instead.\nThe currently selected option value. Must be kept in sync by the\nparent via `onValueChange`."
+          }
+        ],
+        "contractProps": [],
+        "dataAttributes": []
+      },
+      {
+        "name": "Select.Trigger",
+        "extends": "HTMLButtonElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Render the composed child element instead of a `<button>`, merging the\ntrigger's ARIA attributes and click handler via the {@link Slot }\npattern."
+          },
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": false,
+            "default": null,
+            "description": "Trigger content — typically a {@link SelectValue `Select.Value`}."
+          },
+          {
+            "name": "ref",
+            "type": "Ref<HTMLButtonElement>",
+            "required": false,
+            "default": null,
+            "description": "Allows getting a ref to the component instance.\nOnce the component unmounts, React will set `ref.current` to `null`\n(or call the ref with `null` if you passed a callback ref).\nForwarded to the underlying `HTMLButtonElement`."
+          }
+        ],
+        "contractProps": [
+          {
+            "name": "size",
+            "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
+            "default": "md",
+            "description": "Control scale; `data-density` scales the sizing within each size. Re-points the frame (height/padding/radius/gap/icon) and the typography. On `SelectContent` the same axis re-points the panel + row sizing knobs."
+          },
+          {
+            "name": "mode",
+            "type": "\"rich\" | \"native\"",
+            "default": "rich",
+            "description": "Which render path the frame is dressing. `rich` lays the control out as `[leading][value][chevron]`; `native` leaves the inner layout and the popup to the platform, but paints its own chevron (matching the rich one's shape/size/inset) over the UA's default arrow."
+          },
+          {
+            "name": "placement",
+            "type": "\"bottom-start\" | \"bottom-end\" | \"top-start\" | \"top-end\"",
+            "default": "bottom-start",
+            "description": "Which side of the trigger the panel opens on, via anchor-positioning insets on `SelectContent`. Requires the consumer to wire `anchor-name` (on the trigger) + `position-anchor` (on Content)."
+          }
+        ],
+        "dataAttributes": [
+          "aria-expanded",
+          "aria-invalid",
+          "data-disabled",
+          "data-placeholder",
+          "data-state"
+        ]
+      },
+      {
+        "name": "Select.Value",
+        "extends": "HTMLSpanElement",
+        "props": [
+          {
+            "name": "placeholder",
+            "type": "ReactNode",
+            "required": false,
+            "default": null,
+            "description": "Shown when no value is selected (e.g. `\"Select a framework…\"`)."
+          },
+          {
+            "name": "ref",
+            "type": "Ref<HTMLSpanElement>",
+            "required": false,
+            "default": null,
+            "description": "Allows getting a ref to the component instance.\nOnce the component unmounts, React will set `ref.current` to `null`\n(or call the ref with `null` if you passed a callback ref).\nForwarded to the underlying `HTMLSpanElement`."
+          }
+        ],
+        "contractProps": [],
+        "dataAttributes": []
+      },
+      {
+        "name": "Select.Placeholder",
+        "extends": "HTMLSpanElement",
+        "props": [
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": false,
+            "default": null,
+            "description": "The placeholder hint text shown in the closed select before the user\nmakes a selection (e.g. `\"Choose a fruit…\"`)."
+          },
+          {
+            "name": "ref",
+            "type": "Ref<HTMLOptionElement>",
+            "required": false,
+            "default": null,
+            "description": "Allows getting a ref to the component instance.\nOnce the component unmounts, React will set `ref.current` to `null`\n(or call the ref with `null` if you passed a callback ref).\nForwarded to the underlying `HTMLOptionElement`."
+          }
+        ],
+        "contractProps": [],
+        "dataAttributes": []
+      },
+      {
+        "name": "Select.Content",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Render the composed child element instead of a `<div>`, merging the\nlistbox props via the {@link Slot } pattern."
+          },
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": false,
+            "default": null,
+            "description": "Listbox content — {@link SelectItem `Select.Item`} /\n{@link SelectGroup `Select.Group`} elements."
+          },
+          {
+            "name": "ref",
+            "type": "Ref<HTMLDivElement>",
+            "required": false,
+            "default": null,
+            "description": "Allows getting a ref to the component instance.\nOnce the component unmounts, React will set `ref.current` to `null`\n(or call the ref with `null` if you passed a callback ref).\nForwarded to the underlying `HTMLDivElement`."
+          }
+        ],
+        "contractProps": [],
+        "dataAttributes": []
+      },
+      {
+        "name": "Select.Item",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "value",
+            "type": "string",
+            "required": true,
+            "default": null,
+            "description": "The value this item represents; committed as the Select's value when\nchosen, and matched against the current value for the selected state."
+          },
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": false,
+            "default": null,
+            "description": "The item content. In `native` mode only its string/number parts are\nkept as the `<option>` text (element children are dropped); in rich mode\narbitrary content (icons, indicators) renders as authored."
+          },
+          {
+            "name": "disabled",
+            "type": "boolean",
+            "required": false,
+            "default": null,
+            "description": "Marks the item unselectable while still visible."
+          }
+        ],
+        "contractProps": [],
+        "dataAttributes": []
+      },
+      {
+        "name": "Select.ItemIndicator",
+        "extends": "HTMLSpanElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Render the composed child element instead of a `<span>` via the\n{@link Slot } pattern."
+          },
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": false,
+            "default": null,
+            "description": "The mark to render (e.g. a checkmark glyph or icon)."
+          },
+          {
+            "name": "forceMount",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Keep the indicator mounted even when the item is not selected (it still\nexposes `data-state=\"unchecked\"`), useful for CSS enter/exit animation."
+          },
+          {
+            "name": "ref",
+            "type": "Ref<HTMLSpanElement>",
+            "required": false,
+            "default": null,
+            "description": "Allows getting a ref to the component instance.\nOnce the component unmounts, React will set `ref.current` to `null`\n(or call the ref with `null` if you passed a callback ref).\nForwarded to the underlying `HTMLSpanElement`."
+          }
+        ],
+        "contractProps": [],
+        "dataAttributes": []
+      },
+      {
+        "name": "Select.Group",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "label",
+            "type": "string",
+            "required": true,
+            "default": null,
+            "description": "The group heading. In `native` mode it is the `<optgroup>`'s `label`\nattribute; in rich mode it becomes the `<div role=\"group\">`'s\n`aria-label`. Either way it is the group's accessible name. Required —\na group without one is inaccessible."
+          },
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": false,
+            "default": null,
+            "description": "The {@link SelectItem } elements belonging to this group."
+          }
+        ],
+        "contractProps": [],
+        "dataAttributes": []
+      },
+      {
+        "name": "Select.Separator",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Render the composed child element (with separator semantics) instead of\nthe default `<div role=\"separator\">`."
+          },
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": false,
+            "default": null,
+            "description": "Optional content; separators are usually empty, and only render (via\nthe {@link Slot } pattern) when `asChild` composes onto a custom element."
+          },
+          {
+            "name": "ref",
+            "type": "Ref<HTMLDivElement>",
+            "required": false,
+            "default": null,
+            "description": "Allows getting a ref to the component instance.\nOnce the component unmounts, React will set `ref.current` to `null`\n(or call the ref with `null` if you passed a callback ref).\nForwarded to the underlying `HTMLDivElement`."
+          }
+        ],
+        "contractProps": [],
+        "dataAttributes": []
+      }
+    ]
+  },
+  "styled": {
+    "installCommand": "primitiv add select",
+    "rootClass": "primitiv-select",
+    "customProperties": [
+      {
+        "name": "--primitiv-select-bg",
+        "defaultsTo": "var(--primitiv-surface-default)"
+      },
+      {
+        "name": "--primitiv-select-fg",
+        "defaultsTo": "var(--primitiv-content-primary)"
+      },
+      {
+        "name": "--primitiv-select-placeholder-color",
+        "defaultsTo": "var(--primitiv-content-muted)"
+      },
+      {
+        "name": "--primitiv-select-border-color",
+        "defaultsTo": "var(--primitiv-border-default)"
+      },
+      {
+        "name": "--primitiv-select-border-color-hover",
+        "defaultsTo": "var(--primitiv-border-strong)"
+      },
+      {
+        "name": "--primitiv-select-border-color-focus",
+        "defaultsTo": "var(--primitiv-border-focus)"
+      },
+      {
+        "name": "--primitiv-select-border-color-invalid",
+        "defaultsTo": "var(--primitiv-border-invalid)"
+      },
+      {
+        "name": "--primitiv-select-border-width",
+        "defaultsTo": "var(--primitiv-framed-control-border-width)"
+      },
+      {
+        "name": "--primitiv-select-radius",
+        "defaultsTo": "var(--primitiv-framed-control-md-radius)"
+      },
+      {
+        "name": "--primitiv-select-height",
+        "defaultsTo": "var(--primitiv-framed-control-md-height)"
+      },
+      {
+        "name": "--primitiv-select-padding-inline",
+        "defaultsTo": "var(--primitiv-framed-control-md-padding-inline)"
+      },
+      {
+        "name": "--primitiv-select-gap",
+        "defaultsTo": "var(--primitiv-framed-control-md-gap)"
+      },
+      {
+        "name": "--primitiv-select-icon-size",
+        "defaultsTo": "var(--primitiv-framed-control-md-icon-size)"
+      },
+      {
+        "name": "--primitiv-select-icon-color",
+        "defaultsTo": "var(--primitiv-content-secondary)"
+      },
+      {
+        "name": "--primitiv-select-native-chevron",
+        "defaultsTo": "a data: URI of the ChevronDown path, filled #121418 (light) / #e5ecf6 (dark) — currentColor cannot cross into a data: URI, so the glyph colour is baked per theme"
+      },
+      {
+        "name": "--primitiv-select-font-family",
+        "defaultsTo": "var(--primitiv-body-md-font-family)"
+      },
+      {
+        "name": "--primitiv-select-font-size",
+        "defaultsTo": "var(--primitiv-body-md-font-size)"
+      },
+      {
+        "name": "--primitiv-select-font-weight",
+        "defaultsTo": "var(--primitiv-body-md-font-weight)"
+      },
+      {
+        "name": "--primitiv-select-line-height",
+        "defaultsTo": "var(--primitiv-body-md-line-height)"
+      },
+      {
+        "name": "--primitiv-select-bg-disabled",
+        "defaultsTo": "var(--primitiv-surface-subtle)"
+      },
+      {
+        "name": "--primitiv-select-fg-disabled",
+        "defaultsTo": "var(--primitiv-content-disabled)"
+      },
+      {
+        "name": "--primitiv-select-content-surface",
+        "defaultsTo": "var(--primitiv-surface-default)"
+      },
+      {
+        "name": "--primitiv-select-content-fg",
+        "defaultsTo": "var(--primitiv-content-primary)"
+      },
+      {
+        "name": "--primitiv-select-content-border-width",
+        "defaultsTo": "var(--primitiv-border-width-1)"
+      },
+      {
+        "name": "--primitiv-select-content-border-color",
+        "defaultsTo": "var(--primitiv-border-default)"
+      },
+      {
+        "name": "--primitiv-select-content-shadow",
+        "defaultsTo": "var(--primitiv-elevation-overlay)"
+      },
+      {
+        "name": "--primitiv-select-content-radius",
+        "defaultsTo": "var(--primitiv-dropdown-md-panel-radius)"
+      },
+      {
+        "name": "--primitiv-select-content-padding-block",
+        "defaultsTo": "var(--primitiv-dropdown-md-panel-padding-block)"
+      },
+      {
+        "name": "--primitiv-select-content-padding-inline",
+        "defaultsTo": "var(--primitiv-space-space-4)"
+      },
+      {
+        "name": "--primitiv-select-content-min-inline-size",
+        "defaultsTo": "anchor-size(width)"
+      },
+      {
+        "name": "--primitiv-select-content-max-block-size",
+        "defaultsTo": "18rem"
+      },
+      {
+        "name": "--primitiv-select-offset",
+        "defaultsTo": "var(--primitiv-space-space-4)"
+      },
+      {
+        "name": "--primitiv-select-item-height",
+        "defaultsTo": "var(--primitiv-dropdown-md-item-height)"
+      },
+      {
+        "name": "--primitiv-select-item-padding-inline",
+        "defaultsTo": "var(--primitiv-dropdown-md-item-padding-inline)"
+      },
+      {
+        "name": "--primitiv-select-item-gap",
+        "defaultsTo": "var(--primitiv-dropdown-md-item-gap)"
+      },
+      {
+        "name": "--primitiv-select-item-radius",
+        "defaultsTo": "var(--primitiv-dropdown-md-item-radius)"
+      },
+      {
+        "name": "--primitiv-select-item-font-size",
+        "defaultsTo": "var(--primitiv-dropdown-md-item-font-size)"
+      },
+      {
+        "name": "--primitiv-select-item-line-height",
+        "defaultsTo": "var(--primitiv-dropdown-md-item-line-height)"
+      },
+      {
+        "name": "--primitiv-select-item-icon-size",
+        "defaultsTo": "var(--primitiv-dropdown-md-item-icon-size)"
+      },
+      {
+        "name": "--primitiv-select-item-font-family",
+        "defaultsTo": "var(--primitiv-body-sm-font-family)"
+      },
+      {
+        "name": "--primitiv-select-item-font-weight",
+        "defaultsTo": "var(--primitiv-body-sm-font-weight)"
+      },
+      {
+        "name": "--primitiv-select-item-color",
+        "defaultsTo": "var(--primitiv-content-primary)"
+      },
+      {
+        "name": "--primitiv-select-item-bg",
+        "defaultsTo": "var(--primitiv-color-transparent)"
+      },
+      {
+        "name": "--primitiv-select-item-bg-highlighted",
+        "defaultsTo": "var(--primitiv-action-secondary-default)"
+      },
+      {
+        "name": "--primitiv-select-item-spacing",
+        "defaultsTo": "calc(var(--primitiv-select-item-gap) / 2)"
+      },
+      {
+        "name": "--primitiv-select-item-inset",
+        "defaultsTo": "calc(var(--primitiv-select-item-padding-inline) + var(--primitiv-select-item-icon-size) + var(--primitiv-select-item-gap))"
+      },
+      {
+        "name": "--primitiv-select-group-label-height",
+        "defaultsTo": "var(--primitiv-dropdown-md-label-height)"
+      },
+      {
+        "name": "--primitiv-select-group-label-padding-inline",
+        "defaultsTo": "var(--primitiv-dropdown-md-label-padding-inline)"
+      },
+      {
+        "name": "--primitiv-select-group-label-color",
+        "defaultsTo": "var(--primitiv-content-muted)"
+      },
+      {
+        "name": "--primitiv-select-group-label-font-family",
+        "defaultsTo": "var(--primitiv-label-xs-font-family)"
+      },
+      {
+        "name": "--primitiv-select-group-label-font-size",
+        "defaultsTo": "var(--primitiv-label-xs-font-size)"
+      },
+      {
+        "name": "--primitiv-select-group-label-font-weight",
+        "defaultsTo": "var(--primitiv-label-xs-font-weight)"
+      },
+      {
+        "name": "--primitiv-select-group-label-line-height",
+        "defaultsTo": "var(--primitiv-label-xs-line-height)"
+      },
+      {
+        "name": "--primitiv-select-group-label-letter-spacing",
+        "defaultsTo": "var(--primitiv-letter-spacing-wide)"
+      },
+      {
+        "name": "--primitiv-select-separator-spacing",
+        "defaultsTo": "var(--primitiv-dropdown-md-separator-spacing)"
+      },
+      {
+        "name": "--primitiv-select-separator-color",
+        "defaultsTo": "var(--primitiv-border-subtle)"
+      },
+      {
+        "name": "--primitiv-select-separator-thickness",
+        "defaultsTo": "var(--primitiv-border-width-1)"
+      },
+      {
+        "name": "--primitiv-select-label-ink-slack",
+        "defaultsTo": "var(--primitiv-space-space-1)"
+      }
+    ]
+  },
+  "figma": {
+    "componentSetKey": "1816:61259"
+  }
+}

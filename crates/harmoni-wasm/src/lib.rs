@@ -50,9 +50,6 @@ extern "C" {
     #[wasm_bindgen(typescript_type = "Palette")]
     pub type Palette;
 
-    // Same reason: a bare Vec cannot cross the wasm ABI.
-    #[wasm_bindgen(typescript_type = "ChromaHeadroom[]")]
-    pub type ChromaHeadroomList;
 }
 
 #[wasm_bindgen]
@@ -340,16 +337,13 @@ pub fn chroma_headroom(
     c: f32,
     h: f32,
     gamut: types::Gamut,
-) -> Result<ChromaHeadroomList, JsError> {
-    let rows: Vec<types::ChromaHeadroom> =
-        api::chroma_headroom(palette::Oklch::new(l, c, h), 0.0, 0.0, gamut.into())
+) -> types::ChromaHeadroomReport {
+    types::ChromaHeadroomReport {
+        steps: api::chroma_headroom(palette::Oklch::new(l, c, h), 0.0, 0.0, gamut.into())
             .into_iter()
             .map(Into::into)
-            .collect();
-
-    serde_wasm_bindgen::to_value(&rows)
-        .map(ChromaHeadroomList::from)
-        .map_err(|e| JsError::new(&e.to_string()))
+            .collect(),
+    }
 }
 
 #[wasm_bindgen]

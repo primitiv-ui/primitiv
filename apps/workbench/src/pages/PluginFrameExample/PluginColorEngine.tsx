@@ -11,6 +11,7 @@ import { Button, Slider, Switch } from "@primitiv-ui/react";
 
 import {
   OklchPicker,
+  RampFeedback,
   LightnessSlider,
   parseColor,
   formatColor,
@@ -254,12 +255,17 @@ export function PluginColorEngine({ chartAspect }: PluginColorEngineProps) {
             <code className="pf-brand__hex">{brand.hex}</code>
           </div>
           {brandValue && (
-            <OklchPicker
-              value={brandValue}
-              onChange={handleBrandPick}
-              layout="row"
-              chartAspect={chartAspect}
-            />
+            <>
+              <OklchPicker
+                value={brandValue}
+                onChange={handleBrandPick}
+                layout="row"
+                chartAspect={chartAspect}
+              />
+              {/* Only the brand picker gets this: it is the one colour here that
+                  the engine turns into a ten-step ramp (RFC 0027 §6). */}
+              <RampFeedback value={brandValue} />
+            </>
           )}
           <Button
             type="button"

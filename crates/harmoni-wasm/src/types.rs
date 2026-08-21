@@ -607,6 +607,15 @@ pub struct ChromaHeadroom {
     pub granted: f32,
 }
 
+/// A whole ramp's headroom. Wrapped in a struct rather than returned as a bare
+/// `Vec`, which is not a first-class wasm-abi return type — the same reason
+/// `AlphaRamp` exists.
+#[derive(Tsify, Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[tsify(into_wasm_abi, from_wasm_abi)]
+pub struct ChromaHeadroomReport {
+    pub steps: Vec<ChromaHeadroom>,
+}
+
 impl From<core::ChromaHeadroom> for ChromaHeadroom {
     fn from(value: core::ChromaHeadroom) -> Self {
         ChromaHeadroom {

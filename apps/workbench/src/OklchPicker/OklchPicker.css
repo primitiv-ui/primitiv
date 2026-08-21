@@ -274,3 +274,78 @@
   flex-direction: column;
   gap: var(--primitiv-space-space-4);
 }
+
+/* Ramp feedback (RFC 0027 §6) ---------------------------------------------- */
+
+.ramp-feedback {
+  display: flex;
+  flex-direction: column;
+  gap: var(--primitiv-space-space-16);
+  padding-block-start: var(--primitiv-space-space-16);
+  border-block-start: var(--primitiv-border-width-1) solid var(--primitiv-border-subtle);
+}
+
+.ramp-feedback__block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--primitiv-space-space-8);
+}
+
+.ramp-feedback__heading {
+  margin: 0;
+  font-size: var(--primitiv-label-sm-font-size);
+  line-height: var(--primitiv-label-sm-line-height);
+  font-weight: var(--primitiv-font-weight-medium);
+  letter-spacing: var(--primitiv-letter-spacing-wide);
+  text-transform: uppercase;
+  color: var(--primitiv-content-muted);
+}
+
+.ramp-feedback__note {
+  margin: 0;
+  font-size: var(--primitiv-body-sm-font-size);
+  line-height: var(--primitiv-body-sm-line-height);
+  color: var(--primitiv-content-secondary);
+}
+
+.ramp-feedback__steps {
+  display: flex;
+  flex-direction: column;
+  gap: var(--primitiv-space-space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ramp-feedback__step {
+  display: grid;
+  grid-template-columns: 3rem 1fr 3rem;
+  align-items: center;
+  gap: var(--primitiv-space-space-8);
+  font-size: var(--primitiv-body-sm-font-size);
+  font-variant-numeric: tabular-nums;
+  color: var(--primitiv-content-secondary);
+}
+
+/* The bar is the reading, so it is sized from the measurement itself: the
+   filled portion is exactly the fraction of requested chroma the step gets. */
+.ramp-feedback__bar {
+  position: relative;
+  height: var(--primitiv-space-space-8);
+  border-radius: var(--primitiv-radii-full);
+  background: var(--primitiv-surface-sunken);
+  overflow: hidden;
+}
+
+.ramp-feedback__bar::before {
+  content: "";
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  inline-size: calc(var(--reach) * 100%);
+  background: var(--primitiv-content-muted);
+}
+
+.ramp-feedback__step-reach {
+  text-align: end;
+}

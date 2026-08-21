@@ -1,5 +1,7 @@
 export { OklchPicker } from "./OklchPicker";
 export type { OklchPickerProps } from "./OklchPicker";
+export { RampFeedback } from "./RampFeedback";
+export type { RampFeedbackProps } from "./RampFeedback";
 export { LightnessSlider } from "./LightnessSlider";
 export type { LightnessSliderProps } from "./LightnessSlider";
 export { parseColor, formatColor } from "./color";

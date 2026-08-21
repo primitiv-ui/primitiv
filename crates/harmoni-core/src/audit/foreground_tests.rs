@@ -313,3 +313,53 @@ fn should_panic_when_a_nan_background_defeats_every_ratio_comparison() {
 
 
 
+
+/// RFC 0027 §7 — "which step of this ramp is readable on *that* surface", the
+/// question a link, muted-text or border colour actually asks. `get_best_foreground`
+/// above answers a different one ("what text goes on this fill") and can only
+/// return ramp ends or white/black anchors.
+mod readable_step {
+    use crate::audit::foreground::readable_step;
+    use crate::audit::ramp_fixtures::{palette, swatch};
+    use crate::palette::generator::SwatchStep;
+
+    fn white() -> SwatchStep {
+        SwatchStep::from_label(1.0, 0.0, 0.0, "White")
+    }
+
+    /// A blue ramp, light at 50 and dark at 900.
+    fn blue_ramp() -> crate::palette::generator::Palette {
+        palette(vec![
+            swatch(50, 0.97, 0.02, 264.0, 21.0),
+            swatch(300, 0.76, 0.12, 264.0, 21.0),
+            swatch(500, 0.55, 0.20, 264.0, 21.0),
+            swatch(700, 0.32, 0.14, 264.0, 21.0),
+            swatch(900, 0.15, 0.08, 264.0, 21.0),
+        ])
+    }
+
+    #[test]
+    fn returns_a_step_that_clears_the_threshold_on_the_given_surface() {
+        let found = readable_step(&blue_ramp(), &white(), 4.5).expect("a readable step on white");
+
+        assert!(
+            found.contrast_ratio >= 4.5,
+            "{} measures {:.2}:1 against white",
+            found.label,
+            found.contrast_ratio,
+        );
+    }
+
+    #[test]
+    fn returns_nothing_when_the_ramp_cannot_clear_the_threshold() {
+        // The guarantee the hand-picked semantic tier never had: a role that
+        // cannot be satisfied says so, rather than quietly handing back the
+        // closest near-miss (RFC 0027 §7).
+        let pale = palette(vec![
+            swatch(50, 0.97, 0.02, 264.0, 21.0),
+            swatch(100, 0.94, 0.03, 264.0, 21.0),
+        ]);
+
+        assert_eq!(readable_step(&pale, &white(), 4.5), None);
+    }
+}

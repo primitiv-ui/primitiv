@@ -1,3 +1,5 @@
+use crate::palette::generator::Palette;
+use crate::palette::generator::SwatchLabel;
 use crate::SwatchStep;
 use palette::color_difference::Wcag21RelativeContrast;
 use palette::{IntoColor, LinSrgb, Oklch};
@@ -43,6 +45,50 @@ fn wcag_contrast(lum_a: f32, lum_b: f32) -> f32 {
         (lum_b, lum_a)
     };
     (lighter + 0.05) / (darker + 0.05)
+}
+
+/// A ramp step that is readable against some other surface, with the contrast it
+/// achieves there.
+#[derive(Debug, Clone, PartialEq)]
+pub struct ReadableStep {
+    /// Which step of the ramp this is, so a consumer can re-express it as an
+    /// alias (`{color.brand.600}`) rather than baking the colour.
+    pub label: SwatchLabel,
+    pub color: SwatchStep,
+    pub contrast_ratio: f32,
+}
+
+/// The step of `ramp` to use for a role that must clear `threshold` against
+/// `surface` — a link colour, a muted-text colour, a border (RFC 0027 §7).
+///
+/// [`get_best_foreground`] answers a different question: "what text goes on this
+/// solid fill", drawing from the ramp's ends and the white/black anchors. It has
+/// no answer for "which *mid-ramp* step is readable on some *other* surface",
+/// which is the shape all three of those roles have — so they were hand-picked in
+/// the semantic tier with nothing checking them, and all three drifted below
+/// threshold silently.
+///
+/// Returns `None` when no step clears, which is the guarantee: a role that cannot
+/// be satisfied says so instead of handing back the closest near-miss.
+pub fn readable_step(ramp: &Palette, surface: &SwatchStep, threshold: f32) -> Option<ReadableStep> {
+    let surface_luminance = relative_luminance(surface.l, surface.c, surface.h);
+
+    ramp.swatches
+        .iter()
+        .map(|swatch| {
+            let ratio = wcag_contrast(
+                surface_luminance,
+                relative_luminance(swatch.l, swatch.c, swatch.h),
+            );
+            (swatch, ratio)
+        })
+        .filter(|(_, ratio)| *ratio >= threshold)
+        .map(|(swatch, ratio)| ReadableStep {
+            label: swatch.label.clone(),
+            color: SwatchStep::from_label(swatch.l, swatch.c, swatch.h, swatch.label.clone()),
+            contrast_ratio: ratio,
+        })
+        .next()
 }
 
 /// Picks the best foreground for `background` from a tiered candidate set:

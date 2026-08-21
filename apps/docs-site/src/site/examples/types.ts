@@ -32,6 +32,56 @@ export type ComponentSpec = {
   }[];
 
   /**
+   * The part tree, one entry per render path.
+   *
+   * Optional because it only earns its place on a COMPOUND component. Button has
+   * a single part, so an anatomy block would restate its own name; Select has
+   * nine, and — the actual reason the Figma frame gives it a whole section —
+   * five of them render nothing at all under `native`, so the tree is genuinely
+   * different per path and a reader cannot infer one from the other.
+   *
+   * `code` is annotated source: the part on the left, the DOM/ARIA it produces
+   * in a trailing `//` comment. That pairing is the point of the section — it is
+   * the only place the site says what each part actually emits.
+   */
+  readonly anatomy?: readonly {
+    /** Tab label, e.g. `"Rich"`. Also the tab's `value`. */
+    readonly label: string;
+    readonly code: string;
+  }[];
+
+  /** Intro line for the anatomy section. Backtick-marked, like the rest. */
+  readonly anatomyMeta?: string;
+
+  /**
+   * Keyboard model, hand-authored — §1.7, same reasoning as `accessibility`.
+   *
+   * NOT derivable: `contract.json` records data attributes and modifiers but
+   * says nothing about key handling, which lives in the headless hooks. Optional
+   * because a component whose keys are entirely native (Button: Space/Enter on a
+   * `<button>`) has nothing to document that the platform does not already
+   * guarantee.
+   *
+   * `keys` is a list so a row can carry a pair (`ArrowDown` / `ArrowUp`); each
+   * entry renders as a `Kbd`. `literal` opts out of that for a row describing a
+   * CLASS of key rather than a key — "printable character" is prose, and setting
+   * it in a key cap would claim there is a key with that legend.
+   */
+  readonly keyboard?: readonly {
+    readonly keys: readonly string[];
+    readonly literal?: boolean;
+    /** Backtick-marked, like every other string here. */
+    readonly behaviour: string;
+  }[];
+
+  /**
+   * Optional intro line for the keyboard table — scope and the cross-cutting
+   * rules that belong to no single row (what is focused on open, whether
+   * disabled options are skipped).
+   */
+  readonly keyboardMeta?: string;
+
+  /**
    * Hand-authored: §1.7 records a11y as not derivable from source.
    *
    * Written with the SAME backtick convention as source JSDoc — `asChild`,

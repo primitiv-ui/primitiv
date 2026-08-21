@@ -1,0 +1,40 @@
+/*
+ * Footer. Figma landing v2: padding-block 56, four columns, a top hairline
+ * separating it from the last section.
+ */
+
+.docs-site-footer {
+  padding-block: var(--primitiv-space-space-56);
+  border-block-start: var(--primitiv-border-width-1) solid
+    var(--primitiv-border-subtle);
+  background-color: var(--primitiv-surface-default);
+}
+
+.docs-footer-tagline {
+  margin: 0;
+  font-family: var(--primitiv-body-sm-font-family);
+  font-size: var(--primitiv-body-sm-font-size);
+  line-height: var(--primitiv-body-sm-line-height);
+  color: var(--primitiv-content-muted);
+}
+
+.docs-footer-heading {
+  margin: 0;
+  font-family: var(--primitiv-label-md-font-family);
+  font-size: var(--primitiv-label-md-font-size);
+  font-weight: var(--primitiv-font-weight-semibold);
+  color: var(--primitiv-content-primary);
+}
+
+
+.docs-footer-link {
+  font-family: var(--primitiv-body-sm-font-family);
+  font-size: var(--primitiv-body-sm-font-size);
+  color: var(--primitiv-action-link-foreground-default);
+  text-decoration: none;
+}
+
+.docs-footer-link:hover {
+  color: var(--primitiv-action-link-foreground-hover);
+  text-decoration: underline;
+}

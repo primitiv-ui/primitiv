@@ -1,0 +1,92 @@
+/*
+ * Landing hero. Figma landing v2: padding-block 96, Stack gap 32, everything
+ * centred; headline 68px Khand Medium in content/primary, lede 20px Asta Sans
+ * in content/secondary (= body/lg at comfortable).
+ */
+
+.docs-hero {
+  /*
+   * 68px is NOT on the comfortable type scale — the largest heading token there
+   * is h1 at 48. It is the h2 value at the *spacious* density, used here as a
+   * deliberate one-off display size, so it is a named constant rather than a
+   * literal at the use site.
+   */
+  --docs-hero-heading-size: 4.25rem; /* 68px */
+  /* Caps the lede at a comfortable measure without pulling in the prose
+     component's own `.primitiv-flow` context. */
+  --docs-hero-lede-measure: 42rem;
+
+  /*
+   * Fill the viewport below the top bar.
+   *
+   * `svh`, not `dvh`, deliberately. All three units would "work", but they fail
+   * differently on mobile:
+   *
+   * - `dvh` tracks the *current* viewport, so when the browser's URL bar
+   *   collapses on scroll the hero resizes mid-scroll — a visible reflow of the
+   *   headline every time, which is the jankiest of the three.
+   * - `lvh` is the largest viewport, so with the URL bar showing the bottom of
+   *   the hero (the CTAs) sits behind it.
+   * - `svh` is the smallest viewport — the URL-bar-visible case — so the hero
+   *   always fits without being clipped and never resizes while scrolling.
+   *
+   * `min-block-size` rather than `block-size` so the section still grows if the
+   * content plus padding needs more room than the viewport offers (a short
+   * landscape phone, or large text settings).
+   */
+  min-block-size: calc(100svh - var(--docs-nav-height));
+
+  /* Centres the single content row in whatever height the above resolves to.
+     `align-content` on a grid moves the track itself, so the padding below stays
+     a floor rather than being competed with. */
+  display: grid;
+  align-content: center;
+
+  padding-block: var(--primitiv-space-space-96);
+  text-align: center;
+  background-color: var(--primitiv-surface-default);
+}
+
+/* The Container child must span the grid cell — a grid item does not stretch
+   once it has its own max-inline-size and auto margins. */
+.docs-hero > .primitiv-container {
+  inline-size: 100%;
+}
+
+.docs-hero-heading {
+  margin: 0;
+  font-family: var(--primitiv-font-family-heading);
+  font-size: var(--docs-hero-heading-size);
+  font-weight: var(--primitiv-font-weight-medium);
+  line-height: var(--primitiv-heading-h1-line-height);
+  letter-spacing: var(--primitiv-heading-h1-letter-spacing);
+  color: var(--primitiv-content-primary);
+}
+
+.docs-hero-lede {
+  margin: 0;
+  max-inline-size: var(--docs-hero-lede-measure);
+  font-family: var(--primitiv-body-lg-font-family);
+  font-size: var(--primitiv-body-lg-font-size);
+  line-height: var(--primitiv-body-lg-line-height);
+  color: var(--primitiv-content-secondary);
+}
+
+.docs-hero-scroll {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--primitiv-stack-gap-xs);
+  margin: 0;
+  font-family: var(--primitiv-body-sm-font-family);
+  font-size: var(--primitiv-body-sm-font-size);
+  color: var(--primitiv-content-muted);
+}
+
+/* The headline is the one place a fluid step is worth it: 68px overflows a
+   390px viewport badly, and clamping keeps it from wrapping to four lines. */
+@media (max-width: 47.9375rem) {
+  .docs-hero {
+    --docs-hero-heading-size: 2.5rem;
+    padding-block: var(--primitiv-space-space-56);
+  }
+}

@@ -1,0 +1,78 @@
+{
+  "$schema": "https://primitiv-ui.dev/schema/contract.json",
+  "name": "pagination",
+  "version": "0.1.0",
+  "description": "Page navigation for a paged collection \u2014 a row of square page cells with prev/next chevrons, or a compact \"Page X of Y\" readout. Truncated ranges collapse behind an ellipsis that opens a menu of the hidden pages.",
+  "docs": "https://primitiv-ui.dev/docs/components/pagination",
+  "root": {
+    "element": "nav",
+    "class": "primitiv-pagination",
+    "component": "Pagination"
+  },
+  "subcomponents": [],
+  "modifiers": [
+    {
+      "name": "size",
+      "classes": [
+        "primitiv-pagination--xs",
+        "primitiv-pagination--sm",
+        "primitiv-pagination--md",
+        "primitiv-pagination--lg",
+        "primitiv-pagination--xl"
+      ]
+    },
+    {
+      "name": "variant",
+      "classes": [
+        "primitiv-pagination--numbered",
+        "primitiv-pagination--compact"
+      ]
+    }
+  ],
+  "customProperties": [
+    {
+      "name": "--primitiv-pagination-gap",
+      "defaultsTo": "var(--primitiv-pagination-md-gap)"
+    },
+    {
+      "name": "--primitiv-pagination-item-min-inline-size",
+      "defaultsTo": "var(--primitiv-pagination-md-item-min-width)"
+    },
+    {
+      "name": "--primitiv-pagination-group-gap",
+      "defaultsTo": "var(--primitiv-pagination-md-group-gap)"
+    },
+    {
+      "name": "--primitiv-pagination-control-gap",
+      "defaultsTo": "var(--primitiv-framed-control-md-gap)"
+    },
+    {
+      "name": "--primitiv-pagination-icon-size",
+      "defaultsTo": "var(--primitiv-framed-control-md-icon-size)"
+    },
+    {
+      "name": "--primitiv-pagination-menu-min-inline-size",
+      "defaultsTo": "var(--primitiv-pagination-md-item-min-width)"
+    },
+    {
+      "name": "--primitiv-pagination-menu-max-block-size",
+      "defaultsTo": "var(--primitiv-size-size-288)"
+    },
+    {
+      "name": "--primitiv-pagination-font-family",
+      "defaultsTo": "var(--primitiv-body-md-font-family)"
+    },
+    {
+      "name": "--primitiv-pagination-font-size",
+      "defaultsTo": "var(--primitiv-body-md-font-size)"
+    },
+    {
+      "name": "--primitiv-pagination-font-weight",
+      "defaultsTo": "var(--primitiv-body-md-font-weight)"
+    },
+    {
+      "name": "--primitiv-pagination-line-height",
+      "defaultsTo": "var(--primitiv-body-md-line-height)"
+    }
+  ]
+}

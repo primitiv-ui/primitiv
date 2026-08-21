@@ -1,0 +1,58 @@
+/*
+ * Props-table presentation. The table itself is the registry `Table` component;
+ * this supplies only what a generic table cannot know — monospace cells for
+ * names/types/defaults, and the required marker.
+ */
+
+.docs-prop-name,
+.docs-prop-type,
+.docs-prop-default {
+  font-family: var(--primitiv-font-family-mono);
+  font-size: var(--primitiv-code-sm-font-size);
+}
+
+.docs-prop-name {
+  color: var(--primitiv-content-primary);
+  white-space: nowrap;
+}
+
+.docs-prop-type {
+  color: var(--primitiv-content-secondary);
+}
+
+.docs-prop-default {
+  color: var(--primitiv-content-muted);
+}
+
+.docs-prop-required {
+  color: var(--primitiv-content-error);
+  margin-inline-start: var(--primitiv-space-space-2);
+}
+
+.docs-prop-description {
+  font-family: var(--primitiv-body-sm-font-family);
+  font-size: var(--primitiv-body-sm-font-size);
+  line-height: var(--primitiv-body-sm-line-height);
+  color: var(--primitiv-content-secondary);
+}
+
+.docs-prop-extends {
+  margin-block: 0 var(--primitiv-flow-tight);
+  font-family: var(--primitiv-body-sm-font-family);
+  font-size: var(--primitiv-body-sm-font-size);
+  color: var(--primitiv-content-muted);
+}
+
+.docs-props-sub-heading {
+  margin-block: var(--primitiv-flow-section) var(--primitiv-flow-tight);
+  font-family: var(--primitiv-heading-h3-font-family);
+  font-size: var(--primitiv-heading-h3-font-size);
+  line-height: var(--primitiv-heading-h3-line-height);
+  color: var(--primitiv-content-primary);
+}
+
+.docs-props-empty {
+  font-family: var(--primitiv-body-sm-font-family);
+  font-size: var(--primitiv-body-sm-font-size);
+  color: var(--primitiv-content-muted);
+}

@@ -1,0 +1,25 @@
+{
+  "$schema": "https://primitiv-ui.dev/schema/contract.json",
+  "name": "center",
+  "version": "0.1.0",
+  "description": "A single- or both-axis Flexbox centring box (RFC 0022).",
+  "docs": "https://primitiv-ui.dev/docs/components/center",
+  "root": {
+    "element": "div",
+    "class": "primitiv-center"
+  },
+  "dataAttributes": [],
+  "modifiers": [
+    {
+      "name": "axis",
+      "default": "both",
+      "description": "Which axis (or axes) to centre content along.",
+      "options": [
+        { "name": "both", "class": "primitiv-center--both", "description": "Centre both axes (the default)." },
+        { "name": "horizontal", "class": "primitiv-center--horizontal", "description": "Centre the inline axis only; block-size stays content-driven." },
+        { "name": "vertical", "class": "primitiv-center--vertical", "description": "Centre the block axis only; inline-size stays content-driven." }
+      ]
+    }
+  ],
+  "customProperties": []
+}

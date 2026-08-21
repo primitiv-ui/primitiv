@@ -1,0 +1,2344 @@
+/*
+ * Carousel — Primitiv default theme (canonical CSS).
+ *
+ * Copied into the consumer repo by `primitiv add carousel`. It is yours to edit:
+ * the stable surface is the contract (the .primitiv-carousel class, the part
+ * classes __viewport / __slide / __controls / __prev / __next /
+ * __indicator-group / __indicator, and the --primitiv-carousel-* custom
+ * properties), not these values (RFC 0006 Principle 2 — names are stable,
+ * values are not).
+ *
+ * The component adapts to its container by default: the root fills its inline
+ * space and each slide holds its shape with aspect-ratio, so the carousel is
+ * responsive without media queries. Layout leans on native CSS scroll-snap and
+ * logical properties so it mirrors correctly under RTL.
+ *
+ * Structure follows RFC 0008: per-component API tokens + the base rules live in
+ * primitiv.base, state styling (active dot, focus ring, disabled controls) in
+ * primitiv.states. The sublayer order is declared once in the shared token
+ * layer; this file only re-opens the named sublayers.
+ *
+ * Requires the token layer (`primitiv tokens`) for the --primitiv-space-*,
+ * --primitiv-framed-control-*, --primitiv-surface-*, --primitiv-content-*,
+ * --primitiv-border-*, --primitiv-action-*, --primitiv-opacity-* and
+ * --primitiv-focus-ring-* custom properties it resolves.
+ */
+
+/* Declare the sublayer order up front so this sheet is safe to load ahead of
+ * the token layer (RFC 0008 §7). */
+@layer primitiv.reset, primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;
+
+@layer primitiv.base {
+  .primitiv-carousel {
+    /* Per-component API — the themable knobs. Consumers override any one
+       without touching the rules below. */
+    --primitiv-carousel-gap: var(--primitiv-space-space-16);
+    /* Peek gutter — the sliver of the adjacent slides revealed on either side of
+       the active one. 0 = no peek (the active slide fills the viewport). The
+       `peek` modifier re-points it; the viewport maps it to the axis that
+       matches the orientation (inline for horizontal, block for vertical). */
+    --primitiv-carousel-peek: var(--primitiv-space-space-0);
+    /* Viewport padding — inner breathing room *inside the viewport*, so the
+       slides sit inset from the track edges. Paired with the viewport frame knobs
+       below (surface / border / radius), it renders the viewport as a padded,
+       framed track. 0 = no padding (the default; the viewport is a bare, frameless
+       scroll box). The `padding` modifier re-points it and turns the frame on. It
+       composes with peek on the scroll axis (peek narrows the slides further to
+       reveal the neighbours within the track); the `padding` sizes couple the
+       inter-slide gap so the resting track stays clean (no accidental peek). */
+    --primitiv-carousel-viewport-padding: var(--primitiv-space-space-0);
+    /* Content-spacing ramp — a shared 4-rung scale that peek / viewport-padding /
+       inter-slide gap all draw from, so the three content gutters breathe together
+       with size + ambient density (the `carousel-{slot}-content-space-*` tokens are
+       density-scoped). `md` is the base slot, re-pointed per slot by the size
+       modifier in the variants layer; each gutter's t-shirt step picks a rung — gap
+       → 1/2/3, peek & padding → 2/3/4 — so peek/padding sit one rung above gap (as
+       they do today: peek `md` = 32 is gap `md` = 16 one step up). */
+    --primitiv-carousel-content-space-1: var(--primitiv-carousel-md-content-space-1);
+    --primitiv-carousel-content-space-2: var(--primitiv-carousel-md-content-space-2);
+    --primitiv-carousel-content-space-3: var(--primitiv-carousel-md-content-space-3);
+    --primitiv-carousel-content-space-4: var(--primitiv-carousel-md-content-space-4);
+    /* Viewport frame — the surface, border and rounding of the scroll track. All
+       off by default (transparent surface, zero-width border, square) so a plain
+       carousel has no visible track; the `padding` modifier turns them on to draw
+       the framed box the padding insets the slides within. */
+    --primitiv-carousel-viewport-surface: transparent;
+    --primitiv-carousel-viewport-border-width: var(--primitiv-border-width-0);
+    --primitiv-carousel-viewport-border-color: transparent;
+    --primitiv-carousel-viewport-radius: var(--primitiv-radii-0);
+    /* How many slides share the viewport at once. 1 = one slide fills it (the
+       default); higher counts divide the content box into equal shares. The
+       `slidesPerPage` prop sets this inline (the same number it hands the
+       headless page model, so the visible count and the indicator/navigation
+       maths stay in lockstep); the slide derives its flex-basis from it and the
+       gap. Override the knob directly for a CSS-only count. A count is a shape,
+       not a token value — like the aspect ratios below. */
+    --primitiv-carousel-slides-per-page: 1;
+    --primitiv-carousel-slide-aspect-ratio: 16 / 9;
+    /* The box the vertical viewport derives its height from (only read in the
+       [data-orientation="vertical"] layout): one slide is shown and you scroll
+       down to the next. Defaults to the shared `ratio` knob, so the `ratio`
+       modifier shapes the slides in *both* orientations (square vertical slides,
+       a widescreen vertical scroller, …); override it directly to decouple the
+       vertical track's shape from the horizontal ratio. A ratio is a shape, not a
+       token value — like the slide ratio above. */
+    --primitiv-carousel-vertical-aspect-ratio: var(--primitiv-carousel-slide-aspect-ratio);
+    /* The carousel corner radius scales with size + ambient density
+       (`carousel-{slot}-radius`, density-scoped); `md` is the default slot,
+       re-pointed per slot by the size modifier. Both the slide corners and the
+       opt-in root-container (viewport track) rounding reference it, so they always
+       match. */
+    --primitiv-carousel-radius: var(--primitiv-carousel-md-radius);
+    --primitiv-carousel-slide-radius: var(--primitiv-carousel-radius);
+    /* How a media child (img / picture / video) fills the slide box. `cover`
+       (default) fills + crops to keep the ratio; the `fit` slide modifier swaps it
+       to `contain`. `object-position` is the crop's focal point — a consumer sets it
+       per slide (e.g. `object-position: top`) to control what a cover-crop keeps.
+       Keyword values (a CSS shape, not a token — like the aspect ratios / control
+       radius above). */
+    --primitiv-carousel-slide-object-fit: cover;
+    --primitiv-carousel-slide-object-position: center;
+    /* Optional slide backdrop (the fill behind the media). Transparent by default
+       — opt in with the slide `surface` modifier to back a `contain` letterbox (or a
+       transparent image). Mirrors the root viewport surface, same token. */
+    --primitiv-carousel-slide-surface: transparent;
+    /* The chrome gaps + the indicator/thumbnail dimensions track the carousel
+       size ramp (`carousel-{slot}-*`, density-scoped); `md` is the default slot,
+       re-pointed per slot by the size modifier in the variants layer. */
+    --primitiv-carousel-block-gap: var(--primitiv-carousel-md-chrome-gap);
+    --primitiv-carousel-controls-gap: var(--primitiv-carousel-md-chrome-gap);
+    /* The prev/next controls track the shared framed-control size ramp (so they
+       match a same-size Button and inherit its density scaling); `md` is the
+       default slot, re-pointed per slot by the size modifier in the variants layer. */
+    --primitiv-carousel-control-size: var(--primitiv-framed-control-md-height);
+    /* 50% on a square control draws a circle — a shape, not a token value
+       (like the indicator dot below). The design uses circular controls. */
+    --primitiv-carousel-control-radius: 50%;
+    --primitiv-carousel-control-bg: var(--primitiv-action-secondary-default);
+    --primitiv-carousel-control-bg-hover: var(--primitiv-action-secondary-hover);
+    --primitiv-carousel-control-bg-active: var(--primitiv-action-secondary-active);
+    --primitiv-carousel-control-fg: var(--primitiv-action-secondary-foreground-default);
+    --primitiv-carousel-control-icon-size: var(--primitiv-framed-control-md-icon-size);
+    --primitiv-carousel-indicator-gap: var(--primitiv-space-space-0);
+    --primitiv-carousel-indicator-hit-area: var(--primitiv-carousel-md-dot-hit-area);
+    --primitiv-carousel-indicator-size: var(--primitiv-carousel-md-dot-size);
+    /* The active dot elongates into a pill along the dot row's axis. */
+    --primitiv-carousel-indicator-size-active: var(--primitiv-carousel-md-active-pill);
+    --primitiv-carousel-indicator-color: var(--primitiv-border-strong);
+    --primitiv-carousel-indicator-color-active: var(--primitiv-action-primary-default);
+    /* Progress text is a plain caption the consumer places anywhere (inside
+       the controls row, standalone, wherever) — no layout knobs of its own,
+       just typography, muted like a caption. */
+    --primitiv-carousel-progress-text-color: var(--primitiv-content-secondary);
+    --primitiv-carousel-progress-text-font-size: var(--primitiv-body-sm-font-size);
+
+    /* Thumbnail-indicator knobs — read only under `--indicators-thumbnails`,
+       where each indicator is a rounded-rect image thumbnail rather than a dot
+       (the gallery pattern). The active thumbnail is ringed in the primary
+       colour; the rest are dimmed until hovered/active. The aspect ratio *tracks
+       the slide's* (via the shared `--primitiv-carousel-slide-aspect-ratio` knob),
+       so the strip reads as a shrunk-down filmstrip and reshapes with the carousel's
+       ratio — set the ratio on the root so it reaches both the slides and the
+       thumbnails (per-slide ratios are a later revisit). */
+    --primitiv-carousel-thumbnail-inline-size: var(--primitiv-carousel-md-thumbnail-size);
+    --primitiv-carousel-thumbnail-aspect-ratio: var(--primitiv-carousel-slide-aspect-ratio);
+    --primitiv-carousel-thumbnail-gap: var(--primitiv-space-space-8);
+    --primitiv-carousel-thumbnail-radius: var(--primitiv-radii-8);
+    --primitiv-carousel-thumbnail-ring-width: var(--primitiv-border-width-2);
+    --primitiv-carousel-thumbnail-ring-color: var(--primitiv-action-primary-default);
+    --primitiv-carousel-thumbnail-inactive-opacity: var(--primitiv-opacity-60);
+
+    /* Overlay-placement knobs — read only under `--placement-overlay`, where the
+       controls sit on the imagery. The scrim palette is the theme-adaptive
+       neutral-alpha ramp (a dark veil in light mode, a light veil in dark mode),
+       so a control reads on arbitrary photography in either theme; the glyph is
+       `content-inverse`, which inverts to match. */
+    --primitiv-carousel-overlay-control-inset: var(--primitiv-space-space-16);
+    /* One step more opaque than the design's 500 base so the controls read more
+       solidly on bright imagery (still a translucent scrim). */
+    --primitiv-carousel-overlay-control-bg: var(--primitiv-color-neutral-alpha-600);
+    --primitiv-carousel-overlay-control-bg-hover: var(--primitiv-color-neutral-alpha-700);
+    --primitiv-carousel-overlay-control-bg-active: var(--primitiv-color-neutral-alpha-800);
+    --primitiv-carousel-overlay-control-fg: var(--primitiv-content-inverse);
+    --primitiv-carousel-overlay-indicator-inset: var(--primitiv-space-space-8);
+    /* Dots on the scrim pill: inactive is a translucent inverse veil, active a
+       solid inverse (white on the light-mode dark scrim, black on the dark-mode
+       light scrim) — both read on the pill in either theme. The Figma binds the
+       active dot + glyph to absolute-white (it pins light mode); code uses the
+       theme-adaptive content-inverse so dark mode stays legible — reconcile at
+       the Figma lockstep. */
+    --primitiv-carousel-overlay-indicator-color: var(--primitiv-color-neutral-alpha-inverse-600);
+    --primitiv-carousel-overlay-indicator-color-active: var(--primitiv-content-inverse);
+    --primitiv-carousel-overlay-pill-bg: var(--primitiv-color-neutral-alpha-600);
+    /* The scrim pill's inner padding tracks the carousel size ramp
+       (`carousel-{slot}-pill-padding-*`, density-scoped); `md` is the default slot,
+       re-pointed per slot by the size modifier in the variants layer. */
+    --primitiv-carousel-overlay-pill-padding-inline: var(--primitiv-carousel-md-pill-padding-inline);
+    --primitiv-carousel-overlay-pill-padding-block: var(--primitiv-carousel-md-pill-padding-block);
+    /* Crossfade timing — read only under [data-transition="fade"], where the
+       slides stack and the active one fades in over the others. */
+    --primitiv-carousel-fade-duration: var(--primitiv-motion-duration-overlay);
+    --primitiv-carousel-fade-easing: var(--primitiv-motion-easing-default);
+    /* Glide timing — the infinite loop's JS transform transition (RFC 0018), read
+       only under loop="infinite" (every other mode uses native scroll, whose speed
+       and easing the browser owns). The engine reads these off the track and builds
+       `transition: transform <duration> <easing>`, so re-pointing either (or picking
+       a --glide-* preset) retunes the glide. Ease-out (enter) so the page flies in
+       and settles, like the momentum of a swipe. */
+    --primitiv-carousel-glide-duration: var(--primitiv-duration-500);
+    --primitiv-carousel-glide-easing: var(--primitiv-motion-easing-enter);
+    /* Slideshow-parallax geometry, read only under the `effect="parallax"`
+       modifier. `scale` zooms the drifting media (its slide-content layer) so it
+       overhangs the slide; the drift `amount` is derived from it as exactly half
+       that overhang, so a full-bleed photo drifts end to end (a Ken-Burns pan)
+       and never slides its own edge into view — the "cut in half" a 100%-sized
+       layer showed. Bump `scale` for a bigger drift + zoom; both track together.
+       Not design tokens — the technique's own geometry, not themeable values. */
+    --primitiv-carousel-parallax-scale: 1.3;
+    --primitiv-carousel-parallax-amount: calc(
+      (var(--primitiv-carousel-parallax-scale) - 1) / 2 * 100%
+    );
+    /* Cover Flow geometry, read only under the `effect="coverflow"` modifier.
+       Tuned to Blossom Carousel's Cover Flow recipe — its `rotate-cover` sweeps
+       rotateY ±55deg edge to edge, matched here. `perspective` is the depth of the
+       3D scene set on each slide (a smaller value exaggerates the tilt); `rotate`
+       is the edge tilt angle (0 flat at centre). `scale` shrinks the *edge* slides
+       rather than growing the centre: Blossom grows its centred card to 1.2x, but
+       its slides are tiny in tall padding — ours fill the viewport, so growing the
+       centre past 100% would clip against the viewport's cross-axis. Shrinking the
+       edges to 0.85 instead gives the same ~1.2x centre-to-neighbour ratio
+       (1 / 0.85) with no clipping. `spread` is Blossom's `slide-cover` translateX
+       — how far each slide slides *toward the centre* along the scroll axis as a
+       fraction of its own size, so higher values pull the neighbours in and
+       overlap them onto the centred card (0 leaves them at their scroll-snap
+       positions). Not design tokens — the technique's own 3D geometry, the same
+       exception class as the parallax knobs above. */
+    --primitiv-carousel-coverflow-perspective: 1200px;
+    --primitiv-carousel-coverflow-rotate: 55deg;
+    --primitiv-carousel-coverflow-scale: 0.85;
+    --primitiv-carousel-coverflow-spread: 40%;
+    /* How wide each card is, as a fraction of the viewport, under coverflow. With
+       one slide per page a card would otherwise fill the viewport and only the
+       immediate neighbour could peek in; narrowing it (a smaller value) lets more
+       cards sit either side of the centred one — the number visible is roughly
+       `1 / card-width`. The centred card is still the one that snaps to centre. */
+    --primitiv-carousel-coverflow-card-width: 60%;
+
+    /* Fill the container and stack the viewport above the controls row, spaced
+       by the block gap. The single column is an explicit full-width track
+       (`minmax(0, 1fr)`, not the implicit content-sized `auto`) so the controls
+       bar always spans the viewport's width — `align` / `distribution` then have
+       room to position the cluster with justify-content. The `min` of 0 lets the
+       scroll-container viewport shrink instead of forcing overflow. The vertical,
+       external-split and vertical-overlay layouts set their own columns; horizontal overlay
+       keeps this single full-width column (its controls are absolute). */
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--primitiv-carousel-block-gap);
+    inline-size: 100%;
+  }
+
+  /* Controls row — the wrapper a consumer puts prev / indicators / next in.
+     Centres them and spaces the buttons from the indicator group via its own
+     gap knob, distinct from the tight dot-to-dot indicator gap. */
+  .primitiv-carousel__controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--primitiv-carousel-controls-gap);
+    /* A grid item's default min-inline-size is its content's natural (unshrunk)
+       width — without this, a wide cluster (e.g. many thumbnails) just blows through
+       the bar's grid track instead of being constrained to it, so nothing downstream
+       (shrinking or wrapping) ever gets a chance to engage. */
+    min-inline-size: 0;
+  }
+
+  /* The scroll-snap track. Native horizontal scroll owns the swipe; the headless
+     layer syncs React state off scrollsnapchange. It is also the framed box: the
+     surface / border / radius knobs (off by default) draw the track, and the
+     viewport padding insets the slides inside it. border-box keeps the padding and
+     border within the 100% inline-size; overflow clips the scrolling slides to the
+     rounded corners. */
+  .primitiv-carousel__viewport {
+    display: flex;
+    box-sizing: border-box;
+    gap: var(--primitiv-carousel-gap);
+    background: var(--primitiv-carousel-viewport-surface);
+    border: var(--primitiv-carousel-viewport-border-width) solid
+      var(--primitiv-carousel-viewport-border-color);
+    border-radius: var(--primitiv-carousel-viewport-radius);
+    /* Inline padding = peek + viewport padding (both inset the active slide on the
+       scroll axis; peek reveals the neighbours, the viewport padding frames the
+       track); block padding = viewport padding (pure top/bottom frame inset).
+       scroll-padding keeps programmatic + swipe nav landing on the padded snap
+       position. */
+    padding-inline: calc(
+      var(--primitiv-carousel-peek) + var(--primitiv-carousel-viewport-padding)
+    );
+    padding-block: var(--primitiv-carousel-viewport-padding);
+    scroll-padding-inline: calc(
+      var(--primitiv-carousel-peek) + var(--primitiv-carousel-viewport-padding)
+    );
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    /* Stop vertical page scroll rubber-banding into the carousel on touch. */
+    overscroll-behavior-x: contain;
+    /* Hide the native scrollbar while keeping scroll behaviour. */
+    scrollbar-width: none;
+  }
+  .primitiv-carousel__viewport::-webkit-scrollbar {
+    display: none;
+  }
+  /* Looser scroll-snap: the browser only nudges toward a snap point near
+     where the scroll ends, rather than always forcing a rest on one — for a
+     free-scrolling feel (e.g. a gallery). data-snap-type mirrors the
+     resolved root `snapType` ("mandatory" default, set above; "proximity"
+     here). Axis stays explicit (x) so the cross axis isn't reset to the
+     `scroll-snap-type` shorthand's "both" default. */
+  .primitiv-carousel__viewport[data-snap-type="proximity"] {
+    scroll-snap-type: x proximity;
+  }
+  /* Infinite loop (RFC 0018, clone-strip revision) is transform-driven, not
+     scroll-driven: the viewport clips a JS-translated track instead of scrolling.
+     The engine (useCarouselLoop) lays the track out as one contiguous, periodic
+     strip — the real slides flanked by a full period of aria-hidden, inert clones
+     each side — and translates the WHOLE track, re-basing by one period on settle
+     so every seam is contiguous painted DOM (no native snap, no per-slide moves —
+     the two things that flashed on iOS). The track is the flex row the viewport
+     itself was for the scroll modes; each slide keeps its viewport-relative
+     flex-basis because the track spans the viewport's inline size and the slides
+     overflow it, clipped here. */
+  .primitiv-carousel[data-loop="infinite"] .primitiv-carousel__viewport {
+    /* Block, not flex: the track is the flex row now. As a flex *item* the track
+       mis-sized on iOS Safari (leaving white margins that flashed between slides
+       mid-glide); a block child sizes to `inline-size: 100%` deterministically. */
+    display: block;
+    overflow: hidden;
+    scroll-snap-type: none;
+    /* The drag engine owns the scroll axis; the page still scrolls on the cross
+       axis (pan-y here, pan-x when vertical). Stop the finger/mouse dragging a
+       text selection instead of the track. */
+    touch-action: pan-y;
+    user-select: none;
+  }
+  .primitiv-carousel[data-loop="infinite"][data-orientation="vertical"]
+    .primitiv-carousel__viewport {
+    touch-action: pan-x;
+  }
+  .primitiv-carousel__track {
+    display: flex;
+    /* Positioned so a slide's offsetLeft/Top is measured relative to the TRACK,
+       not a far ancestor: the engine reads the first real slide's position to
+       anchor the clone strip, and needs it buffer-relative from the very first
+       measure — before the JS transform (which would itself make the track the
+       offsetParent) has run. */
+    position: relative;
+    /* The inter-slide gap follows the gap knob, exactly like the native-scroll
+       viewport — so the `gap` modifier works in every mode (it was a no-op on the
+       single-slide infinite track before) and multi-slide pages read as separated
+       cards. On single-up only one slide rests in view, so the gap is a
+       spaceBetween revealed during the glide and in the peek gutters; set
+       gap="none" for a flush loop. The engine's measured stride includes it, so the
+       seam wrap stays aligned. */
+    gap: var(--primitiv-carousel-gap);
+    inline-size: 100%;
+    /* Deliberately NOT force-promoted to a permanent GPU layer (no translate3d, no
+       backface-visibility, no will-change): the clone strip is several viewports
+       wide, and iOS Safari rasterises a large permanent layer in tiles on demand —
+       so a re-base that exposes fresh tiles leaves slides briefly blank at rest
+       until they fill in. A 2D translate lets the browser composite the transition
+       on the GPU but rasterise the visible region normally at rest, like native
+       scroll (there are no per-slide layers to flash — the strip never moves
+       internally). */
+  }
+  .primitiv-carousel[data-orientation="vertical"] .primitiv-carousel__track {
+    flex-direction: column;
+    block-size: 100%;
+  }
+  /* Each infinite slide is promoted to its OWN compositor layer (translateZ(0))
+     so its rounded, overflow-clipped bitmap is rasterised up front — when the
+     track translates it into view it is already painted, with no iOS
+     entering-edge white. Safari otherwise rasterises each rounded/clipped slide's
+     clip layer lazily as it scrolls in (a white slice for the first frame). The
+     engine windows the painted set (far slides are visibility:hidden), so only a
+     handful of these layers are ever live — which is why per-slide promotion is
+     safe here, where force-promoting the whole viewports-wide track (one giant
+     tiled layer) blanked slides at rest. Slides are still never individually
+     *translated*: every slide rides the track, which only ever slides as a unit.
+     Scoped to loop="infinite" — native-scroll modes have no such seam. */
+  .primitiv-carousel[data-loop="infinite"] .primitiv-carousel__slide {
+    transform: translateZ(0);
+  }
+  /* Mouse click-and-drag is opt-in (Carousel.Root's allowMouseDrag, off by
+     default) — data-mouse-drag is only present when it's enabled, so the
+     grab-cursor affordance never implies a capability that isn't actually
+     there. */
+  .primitiv-carousel__viewport[data-mouse-drag] {
+    cursor: grab;
+  }
+  /* Active drag (set by the headless layer once the pointer clears the
+     click-vs-drag threshold): the grabbing cursor + no text selection while
+     the pointer tracks across slide content. */
+  .primitiv-carousel__viewport[data-dragging] {
+    cursor: grabbing;
+    user-select: none;
+  }
+
+  /* Each slide takes an equal share of the viewport: the content box left after
+     the inter-slide gaps, divided by the slides-per-page count. With the default
+     count of 1 this is the full 100% (one slide per view). It fills its share and
+     keeps its ratio as the container resizes (the Blossom approach). The % is of
+     the viewport's *content* box, so peek padding narrows it and the neighbours
+     show through; min-inline-size:0 lets a slide shrink below its intrinsic width. */
+  .primitiv-carousel__slide {
+    flex: 0 0
+      calc(
+        (100% - (var(--primitiv-carousel-slides-per-page) - 1) * var(--primitiv-carousel-gap)) /
+          var(--primitiv-carousel-slides-per-page)
+      );
+    min-inline-size: 0;
+    /* Symmetric partner to min-inline-size:0. A flex item's default
+       `min-block-size: auto` (min-content) blocks `aspect-ratio` from sizing the
+       slide when several share the viewport (slidesPerPage > 1): the flex line's
+       cross size collapses and the slides render as a short landscape strip
+       instead of their ratio. 0 lets aspect-ratio drive the height. (A min-size
+       reset — a CSS mechanic, not a spacing token — like min-inline-size above.) */
+    min-block-size: 0;
+    aspect-ratio: var(--primitiv-carousel-slide-aspect-ratio);
+    border-radius: var(--primitiv-carousel-slide-radius);
+    /* Optional backdrop behind the media — transparent unless the `surface`
+       modifier opts it in (an inline `style` background still overrides it). */
+    background: var(--primitiv-carousel-slide-surface);
+    overflow: hidden;
+    /* No snap by default — only a page's leading slide (data-snap-align,
+       published by the headless primitive) is a valid resting position.
+       Letting every slide snap (the old default) let mandatory scroll-snap
+       stop scroll on an interior slide of a multi-slide page: the viewport
+       shows a straddled mix of two pages while currentPage/the indicators
+       still claim a single clean page is active — the wheel/drag desync. At
+       slidesPerPage 1 every slide carries the hook, so this is a no-op there. */
+    scroll-snap-align: none;
+    /* Positioning context so a consumer can absolutely-position layered content
+       (a caption, a CTA, a gradient scrim) over the media without any extra
+       wrapper — it anchors to the slide box and clips to its rounded corners. */
+    position: relative;
+    /* Stop the OS grabbing images for drag/save mid-swipe. */
+    -webkit-user-drag: none;
+  }
+  /* The value mirrors the resolved root snapAlign — or this slide's own
+     override (Carousel.Slide's `snapAlign` prop), if set — so a user's own
+     scroll (wheel/touch/drag) settles wherever the programmatic scroll
+     already targets, not always the leading edge regardless of snapAlign. */
+  .primitiv-carousel__slide[data-snap-align="start"] {
+    scroll-snap-align: start;
+  }
+  .primitiv-carousel__slide[data-snap-align="center"] {
+    scroll-snap-align: center;
+  }
+  .primitiv-carousel__slide[data-snap-align="end"] {
+    scroll-snap-align: end;
+  }
+
+  /* Media children fill the slide box. The slide box is always correctly sized by
+     the layout (flex-basis + aspect-ratio), but a real <img> / <video> is a
+     replaced element with its own intrinsic size and ratio — left alone it renders
+     at that size, anchored top-left and clipped, not filling. So a *direct* media
+     child is stretched to the box and `object-fit` decides how it conforms: `cover`
+     (default) fills and crops, `contain` (via the `fit` modifier) letterboxes. A
+     <picture> is a wrapper, so its inner <img> is targeted too. Scoped to direct
+     media children so layered content (captions/overlays) is left untouched.
+     `-webkit-user-drag: none` is repeated here (not just on the slide wrapper
+     above) because it isn't inherited — WebKit resolves an <img>'s own native
+     drag-source eligibility per-element regardless of an ancestor's value, so
+     the wrapper's copy alone doesn't stop a real image from firing the OS's
+     drag-ghost. This is still WebKit-only (no Firefox equivalent exists); the
+     actual cross-browser fix is the headless `onDragStart` handler
+     (useCarouselViewport.ts), which `preventDefault()`s under `allowMouseDrag`
+     — this CSS is defense-in-depth for the browsers it does cover. */
+  .primitiv-carousel__slide > img,
+  .primitiv-carousel__slide > video,
+  .primitiv-carousel__slide > picture,
+  .primitiv-carousel__slide > picture > img {
+    display: block;
+    inline-size: 100%;
+    block-size: 100%;
+    -webkit-user-drag: none;
+    object-fit: var(--primitiv-carousel-slide-object-fit);
+    object-position: var(--primitiv-carousel-slide-object-position);
+  }
+
+  /* Hairline outline so a pale-edged image still reads as a shape against a light
+     surface — the finding was photo Avatars losing their top-left edge while the
+     filled initials variants read crisply. Pure black / pure white at 10% and
+     deliberately NOT a border token: this system's neutrals are hue-tinted
+     (neutral-300 is #a8aeb6), and a tinted hairline picks up the surface beneath
+     it and reads as dirt on the image edge. Negative outline-offset puts it just
+     inside the frame so it adds nothing to the box, and outline follows
+     border-radius, so it curves with the clip. It sits on the clipping frame
+     rather than the <img>: the frame owns the radius, and overflow: hidden would
+     crop a square outline off an inner element. */
+  .primitiv-carousel__slide:has(> :is(img, video, picture)) {
+    outline: var(--primitiv-border-width-1) solid #0000001a;
+    outline-offset: calc(-1 * var(--primitiv-border-width-1));
+  }
+
+  [data-theme="dark"] .primitiv-carousel__slide:has(> :is(img, video, picture)) {
+    outline-color: #ffffff1a;
+  }
+
+  /* Optional inner content layer, sized to fill the slide box exactly like a
+     direct media child above. A plain positioning layer on its own (no
+     `effect` reads it yet); wrap a slide's media in it when a per-slide
+     content transform is needed independently of the slide box itself — the
+     `effect="parallax"` modifier below is the first consumer. Media inside
+     it gets the same object-fit/position treatment as a direct slide child. */
+  .primitiv-carousel__slide-content {
+    display: block;
+    inline-size: 100%;
+    block-size: 100%;
+  }
+  .primitiv-carousel__slide-content > img,
+  .primitiv-carousel__slide-content > video,
+  .primitiv-carousel__slide-content > picture,
+  .primitiv-carousel__slide-content > picture > img {
+    display: block;
+    inline-size: 100%;
+    block-size: 100%;
+    -webkit-user-drag: none;
+    object-fit: var(--primitiv-carousel-slide-object-fit);
+    object-position: var(--primitiv-carousel-slide-object-position);
+  }
+
+  /* Prev / next controls. Circular, centred glyph, sized off the control knob;
+     the secondary-action fill matches the design's external-context control. */
+  .primitiv-carousel__prev,
+  .primitiv-carousel__next {
+    display: inline-grid;
+    /* Press feedback depth. Set to 1 to switch the press scale off. */
+    --primitiv-carousel-control-press-scale: 0.96;
+    place-items: center;
+    /* Fixed-size controls never flex — otherwise a tight joined bar would squash
+       them into ellipses instead of keeping their circle. */
+    flex: none;
+    inline-size: var(--primitiv-carousel-control-size);
+    block-size: var(--primitiv-carousel-control-size);
+    /* Reset the UA button padding — at small sizes/densities its inline 6px
+       squeezes the grid content box and knocks the glyph off centre. */
+    padding: var(--primitiv-space-space-0);
+    border: none;
+    border-radius: var(--primitiv-carousel-control-radius);
+    background: var(--primitiv-carousel-control-bg);
+    color: var(--primitiv-carousel-control-fg);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    /* Prevent tap-hold from triggering iOS's text-selection callout — a
+       control's own icon isn't page content. */
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    transition: background-color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default),
+      scale var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
+  }
+  .primitiv-carousel__prev svg,
+  .primitiv-carousel__next svg {
+    /* block kills the inline-SVG baseline gap so the glyph sits dead-centre. */
+    display: block;
+    inline-size: var(--primitiv-carousel-control-icon-size);
+    block-size: var(--primitiv-carousel-control-icon-size);
+  }
+
+  /* Indicator dots — centred row. */
+  .primitiv-carousel__indicator-group {
+    display: flex;
+    gap: var(--primitiv-carousel-indicator-gap);
+    justify-content: center;
+  }
+
+  /* WCAG 2.5.8: the button carries the larger hit area; the visible dot stays
+     small via ::before. Targets both the manual `__indicator` part and the
+     auto-rendered dots inside `Carousel.Indicators` (headless `<button>`s with
+     no part class), so the count-correct convenience is styled without the
+     consumer wiring one indicator per slide. */
+  .primitiv-carousel__indicator,
+  .primitiv-carousel__indicator-group > button {
+    /* Positioning context for the absolutely-centred dot below. */
+    position: relative;
+    display: inline-grid;
+    place-items: center;
+    min-inline-size: var(--primitiv-carousel-indicator-hit-area);
+    min-block-size: var(--primitiv-carousel-indicator-hit-area);
+    background: none;
+    border: none;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    /* Prevent tap-hold from triggering iOS's text-selection callout — a
+       control has no text to select in the first place. */
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+  }
+  .primitiv-carousel__indicator::before,
+  .primitiv-carousel__indicator-group > button::before {
+    content: "";
+    /* Absolutely centred (inset:0 + margin:auto) so growing into the active pill
+       never changes the button footprint — otherwise the group's width would flex
+       mid-transition and wobble the prev/next controls. */
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    inline-size: var(--primitiv-carousel-indicator-size);
+    block-size: var(--primitiv-carousel-indicator-size);
+    /* radii-full is a circle on the square dot and a stadium once the active dot
+       elongates into a pill. */
+    border-radius: var(--primitiv-radii-full);
+    background: var(--primitiv-carousel-indicator-color);
+    /* Animate the grow/shrink and the colour swap as the active dot changes. */
+    transition:
+      inline-size var(--primitiv-motion-duration-control)
+        var(--primitiv-motion-easing-default),
+      block-size var(--primitiv-motion-duration-control)
+        var(--primitiv-motion-easing-default),
+      background-color var(--primitiv-motion-duration-control)
+        var(--primitiv-motion-easing-default);
+  }
+
+  /* Progress text — a plain caption; the consumer places it wherever it
+     belongs (inside `__controls`, standalone, …), so this rule carries no
+     layout, only the muted caption typography. */
+  .primitiv-carousel__progress-text {
+    color: var(--primitiv-carousel-progress-text-color);
+    font-size: var(--primitiv-carousel-progress-text-font-size);
+    /* Tabular figures: this readout counts ("3 of 12") and proportional digits
+       have different widths, so it would shift sideways on every advance. */
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@layer primitiv.variants {
+  /* Size — the whole control chrome scales on a t-shirt ramp so a carousel matches
+     the UI around it; the viewport/slides stay container-driven. Each slot re-points:
+     the prev/next controls to the shared framed-control ramp (control box = the Button
+     height, chevron = its icon size) so they match a same-size Button; the dots, their
+     WCAG hit area (floored ≥24 in the token), the active pill, the thumbnails and the
+     chrome gaps to the bespoke density-scoped `carousel-{slot}-*` ramp. `size` picks
+     the slot, the ambient `data-density` shifts it. `md` is the base default (on the
+     knobs above); the dots ramp is deliberately gentle (they're already small). */
+  .primitiv-carousel--size-xs {
+    --primitiv-carousel-control-size: var(--primitiv-framed-control-xs-height);
+    --primitiv-carousel-control-icon-size: var(--primitiv-framed-control-xs-icon-size);
+    --primitiv-carousel-indicator-size: var(--primitiv-carousel-xs-dot-size);
+    --primitiv-carousel-indicator-hit-area: var(--primitiv-carousel-xs-dot-hit-area);
+    --primitiv-carousel-indicator-size-active: var(--primitiv-carousel-xs-active-pill);
+    --primitiv-carousel-thumbnail-inline-size: var(--primitiv-carousel-xs-thumbnail-size);
+    --primitiv-carousel-block-gap: var(--primitiv-carousel-xs-chrome-gap);
+    --primitiv-carousel-controls-gap: var(--primitiv-carousel-xs-chrome-gap);
+    --primitiv-carousel-radius: var(--primitiv-carousel-xs-radius);
+    --primitiv-carousel-content-space-1: var(--primitiv-carousel-xs-content-space-1);
+    --primitiv-carousel-content-space-2: var(--primitiv-carousel-xs-content-space-2);
+    --primitiv-carousel-content-space-3: var(--primitiv-carousel-xs-content-space-3);
+    --primitiv-carousel-content-space-4: var(--primitiv-carousel-xs-content-space-4);
+    --primitiv-carousel-overlay-pill-padding-inline: var(--primitiv-carousel-xs-pill-padding-inline);
+    --primitiv-carousel-overlay-pill-padding-block: var(--primitiv-carousel-xs-pill-padding-block);
+  }
+  .primitiv-carousel--size-sm {
+    --primitiv-carousel-control-size: var(--primitiv-framed-control-sm-height);
+    --primitiv-carousel-control-icon-size: var(--primitiv-framed-control-sm-icon-size);
+    --primitiv-carousel-indicator-size: var(--primitiv-carousel-sm-dot-size);
+    --primitiv-carousel-indicator-hit-area: var(--primitiv-carousel-sm-dot-hit-area);
+    --primitiv-carousel-indicator-size-active: var(--primitiv-carousel-sm-active-pill);
+    --primitiv-carousel-thumbnail-inline-size: var(--primitiv-carousel-sm-thumbnail-size);
+    --primitiv-carousel-block-gap: var(--primitiv-carousel-sm-chrome-gap);
+    --primitiv-carousel-controls-gap: var(--primitiv-carousel-sm-chrome-gap);
+    --primitiv-carousel-radius: var(--primitiv-carousel-sm-radius);
+    --primitiv-carousel-content-space-1: var(--primitiv-carousel-sm-content-space-1);
+    --primitiv-carousel-content-space-2: var(--primitiv-carousel-sm-content-space-2);
+    --primitiv-carousel-content-space-3: var(--primitiv-carousel-sm-content-space-3);
+    --primitiv-carousel-content-space-4: var(--primitiv-carousel-sm-content-space-4);
+    --primitiv-carousel-overlay-pill-padding-inline: var(--primitiv-carousel-sm-pill-padding-inline);
+    --primitiv-carousel-overlay-pill-padding-block: var(--primitiv-carousel-sm-pill-padding-block);
+  }
+  .primitiv-carousel--size-md {
+    --primitiv-carousel-control-size: var(--primitiv-framed-control-md-height);
+    --primitiv-carousel-control-icon-size: var(--primitiv-framed-control-md-icon-size);
+    --primitiv-carousel-indicator-size: var(--primitiv-carousel-md-dot-size);
+    --primitiv-carousel-indicator-hit-area: var(--primitiv-carousel-md-dot-hit-area);
+    --primitiv-carousel-indicator-size-active: var(--primitiv-carousel-md-active-pill);
+    --primitiv-carousel-thumbnail-inline-size: var(--primitiv-carousel-md-thumbnail-size);
+    --primitiv-carousel-block-gap: var(--primitiv-carousel-md-chrome-gap);
+    --primitiv-carousel-controls-gap: var(--primitiv-carousel-md-chrome-gap);
+    --primitiv-carousel-radius: var(--primitiv-carousel-md-radius);
+    --primitiv-carousel-content-space-1: var(--primitiv-carousel-md-content-space-1);
+    --primitiv-carousel-content-space-2: var(--primitiv-carousel-md-content-space-2);
+    --primitiv-carousel-content-space-3: var(--primitiv-carousel-md-content-space-3);
+    --primitiv-carousel-content-space-4: var(--primitiv-carousel-md-content-space-4);
+    --primitiv-carousel-overlay-pill-padding-inline: var(--primitiv-carousel-md-pill-padding-inline);
+    --primitiv-carousel-overlay-pill-padding-block: var(--primitiv-carousel-md-pill-padding-block);
+  }
+  .primitiv-carousel--size-lg {
+    --primitiv-carousel-control-size: var(--primitiv-framed-control-lg-height);
+    --primitiv-carousel-control-icon-size: var(--primitiv-framed-control-lg-icon-size);
+    --primitiv-carousel-indicator-size: var(--primitiv-carousel-lg-dot-size);
+    --primitiv-carousel-indicator-hit-area: var(--primitiv-carousel-lg-dot-hit-area);
+    --primitiv-carousel-indicator-size-active: var(--primitiv-carousel-lg-active-pill);
+    --primitiv-carousel-thumbnail-inline-size: var(--primitiv-carousel-lg-thumbnail-size);
+    --primitiv-carousel-block-gap: var(--primitiv-carousel-lg-chrome-gap);
+    --primitiv-carousel-controls-gap: var(--primitiv-carousel-lg-chrome-gap);
+    --primitiv-carousel-radius: var(--primitiv-carousel-lg-radius);
+    --primitiv-carousel-content-space-1: var(--primitiv-carousel-lg-content-space-1);
+    --primitiv-carousel-content-space-2: var(--primitiv-carousel-lg-content-space-2);
+    --primitiv-carousel-content-space-3: var(--primitiv-carousel-lg-content-space-3);
+    --primitiv-carousel-content-space-4: var(--primitiv-carousel-lg-content-space-4);
+    --primitiv-carousel-overlay-pill-padding-inline: var(--primitiv-carousel-lg-pill-padding-inline);
+    --primitiv-carousel-overlay-pill-padding-block: var(--primitiv-carousel-lg-pill-padding-block);
+  }
+  .primitiv-carousel--size-xl {
+    --primitiv-carousel-control-size: var(--primitiv-framed-control-xl-height);
+    --primitiv-carousel-control-icon-size: var(--primitiv-framed-control-xl-icon-size);
+    --primitiv-carousel-indicator-size: var(--primitiv-carousel-xl-dot-size);
+    --primitiv-carousel-indicator-hit-area: var(--primitiv-carousel-xl-dot-hit-area);
+    --primitiv-carousel-indicator-size-active: var(--primitiv-carousel-xl-active-pill);
+    --primitiv-carousel-thumbnail-inline-size: var(--primitiv-carousel-xl-thumbnail-size);
+    --primitiv-carousel-block-gap: var(--primitiv-carousel-xl-chrome-gap);
+    --primitiv-carousel-controls-gap: var(--primitiv-carousel-xl-chrome-gap);
+    --primitiv-carousel-radius: var(--primitiv-carousel-xl-radius);
+    --primitiv-carousel-content-space-1: var(--primitiv-carousel-xl-content-space-1);
+    --primitiv-carousel-content-space-2: var(--primitiv-carousel-xl-content-space-2);
+    --primitiv-carousel-content-space-3: var(--primitiv-carousel-xl-content-space-3);
+    --primitiv-carousel-content-space-4: var(--primitiv-carousel-xl-content-space-4);
+    --primitiv-carousel-overlay-pill-padding-inline: var(--primitiv-carousel-xl-pill-padding-inline);
+    --primitiv-carousel-overlay-pill-padding-block: var(--primitiv-carousel-xl-pill-padding-block);
+  }
+
+  /* Overlay thumbnails are smaller than external's at every slot — they sit *on* the
+     slide (an absolute tray), so a wrapped multi-column/row tray can meaningfully
+     obscure the image; external's filmstrip sits in its own chrome track, so it can
+     afford to stay bigger. Re-points the shared thumbnail-inline-size knob to the
+     dedicated `carousel-{slot}-overlay-thumbnail-size` ramp — a compound selector
+     (size + placement) so it wins over the plain per-size rules above regardless of
+     which is declared first. */
+  .primitiv-carousel--size-xs.primitiv-carousel--placement-overlay {
+    --primitiv-carousel-thumbnail-inline-size: var(--primitiv-carousel-xs-overlay-thumbnail-size);
+  }
+  .primitiv-carousel--size-sm.primitiv-carousel--placement-overlay {
+    --primitiv-carousel-thumbnail-inline-size: var(--primitiv-carousel-sm-overlay-thumbnail-size);
+  }
+  .primitiv-carousel--size-md.primitiv-carousel--placement-overlay {
+    --primitiv-carousel-thumbnail-inline-size: var(--primitiv-carousel-md-overlay-thumbnail-size);
+  }
+  .primitiv-carousel--size-lg.primitiv-carousel--placement-overlay {
+    --primitiv-carousel-thumbnail-inline-size: var(--primitiv-carousel-lg-overlay-thumbnail-size);
+  }
+  .primitiv-carousel--size-xl.primitiv-carousel--placement-overlay {
+    --primitiv-carousel-thumbnail-inline-size: var(--primitiv-carousel-xl-overlay-thumbnail-size);
+  }
+
+  /* Vertical orientation (headless `orientation="vertical"` → data-orientation).
+     The viewport scrolls on the block axis and the controls sit in a column
+     beside it (up / dots / down), mirroring the horizontal below-the-viewport
+     row rotated a quarter turn. The grid columns follow writing direction, so
+     the controls flip to the start side under RTL with no extra CSS. */
+  .primitiv-carousel[data-orientation="vertical"] {
+    grid-auto-flow: column;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+  }
+
+  /* Column scroll track snapping on the block axis. Physical overflow — the scroll
+     axis is vertical in both LTR and RTL, so it doesn't mirror. The viewport's shape
+     is the per-slide ratio *divided by slidesPerPage* on the block axis: unlike the
+     horizontal slide, the vertical slide's own aspect stands down (below) and it
+     fills a 1/N slice of the viewport height, so the viewport must be N slides tall
+     for each slice to come out at the ratio (e.g. 2 square slides → a 1:2 track).
+     `calc(ratio / 1)` for the single-slide default is just the ratio. */
+  .primitiv-carousel[data-orientation="vertical"] .primitiv-carousel__viewport {
+    flex-direction: column;
+    aspect-ratio: calc(
+      var(--primitiv-carousel-vertical-aspect-ratio) /
+        var(--primitiv-carousel-slides-per-page)
+    );
+    overflow-x: hidden;
+    overflow-y: auto;
+    scroll-snap-type: y mandatory;
+    overscroll-behavior-y: contain;
+    /* The scroll axis is the block axis when vertical, so peek + viewport padding
+       run on block, and the viewport padding's frame inset runs on inline (the
+       cross axis). Mirror of the horizontal base rule, axes swapped. */
+    padding-block: calc(
+      var(--primitiv-carousel-peek) + var(--primitiv-carousel-viewport-padding)
+    );
+    scroll-padding-block: calc(
+      var(--primitiv-carousel-peek) + var(--primitiv-carousel-viewport-padding)
+    );
+    padding-inline: var(--primitiv-carousel-viewport-padding);
+    scroll-padding-inline: var(--primitiv-space-space-0);
+  }
+  /* Vertical mirror of the horizontal proximity override above — axis y
+     instead of x, same reasoning. */
+  .primitiv-carousel[data-orientation="vertical"]
+    .primitiv-carousel__viewport[data-snap-type="proximity"] {
+    scroll-snap-type: y proximity;
+  }
+
+  /* Each slide fills the portrait viewport — flex-basis owns the block size, so
+     the horizontal slide aspect-ratio must stand down. */
+  .primitiv-carousel[data-orientation="vertical"] .primitiv-carousel__slide {
+    aspect-ratio: auto;
+  }
+
+  /* Controls stack into a column; the dot group runs vertically too. */
+  .primitiv-carousel[data-orientation="vertical"] .primitiv-carousel__controls,
+  .primitiv-carousel[data-orientation="vertical"] .primitiv-carousel__indicator-group {
+    flex-direction: column;
+  }
+
+  /* Peek — re-points the peek knob to reveal adjacent-slide slivers. Works in
+     both orientations (the viewport maps the knob to the right axis). `none` is
+     the default (no peek). */
+  .primitiv-carousel--peek-none {
+    --primitiv-carousel-peek: var(--primitiv-space-space-0);
+  }
+  .primitiv-carousel--peek-sm {
+    --primitiv-carousel-peek: var(--primitiv-carousel-content-space-2);
+  }
+  .primitiv-carousel--peek-md {
+    --primitiv-carousel-peek: var(--primitiv-carousel-content-space-3);
+  }
+  .primitiv-carousel--peek-lg {
+    --primitiv-carousel-peek: var(--primitiv-carousel-content-space-4);
+  }
+
+  /* Glide speed — re-points the infinite loop's glide duration to a motion
+     duration token. `medium` (500ms) is the default the base rule already resolves;
+     `fast` (200ms) and `slow` (1000ms) bracket it. Applies only under
+     loop="infinite" (the JS transform engine reads the knob); native-scroll modes
+     ignore it. Easing stays on --primitiv-carousel-glide-easing — re-point that for
+     a different curve. */
+  .primitiv-carousel--glide-fast {
+    --primitiv-carousel-glide-duration: var(--primitiv-duration-200);
+  }
+  .primitiv-carousel--glide-medium {
+    --primitiv-carousel-glide-duration: var(--primitiv-duration-500);
+  }
+  .primitiv-carousel--glide-slow {
+    --primitiv-carousel-glide-duration: var(--primitiv-duration-1000);
+  }
+
+  /* Slide gap — re-points the inter-slide gap knob on a t-shirt scale. `md`
+     (space-16) is the default the base rule already resolves. Runs on the scroll
+     axis in both orientations and composes with every variant (the slide flex-basis
+     subtracts the gap, so multi-slide recomputes automatically). Declared *before*
+     the padding rules below so the framed-track gap coupling still wins when both
+     are set. */
+  .primitiv-carousel--gap-none {
+    --primitiv-carousel-gap: var(--primitiv-space-space-0);
+  }
+  .primitiv-carousel--gap-sm {
+    --primitiv-carousel-gap: var(--primitiv-carousel-content-space-1);
+  }
+  .primitiv-carousel--gap-md {
+    --primitiv-carousel-gap: var(--primitiv-carousel-content-space-2);
+  }
+  .primitiv-carousel--gap-lg {
+    --primitiv-carousel-gap: var(--primitiv-carousel-content-space-3);
+  }
+
+  /* Viewport padding — makes the viewport a padded, framed track: it re-points the
+     padding knob (inner inset on every edge) and turns on the track **outline**
+     (border + rounded corners), so the padding reads as breathing room inside a
+     visible box. The background **surface fill is opt-in** — add the `surface`
+     modifier for it (the border alone renders an outlined track). Shares peek's
+     t-shirt scale. `none` is the default (no padding, no frame — a bare scroll
+     box). The border is shared across the sizes; the padding and the corner radius
+     grow with size/density (the radius via the shared scaled carousel radius, so a
+     padded track's corners match the slides). */
+  .primitiv-carousel--padding-sm,
+  .primitiv-carousel--padding-md,
+  .primitiv-carousel--padding-lg {
+    --primitiv-carousel-viewport-border-width: var(--primitiv-border-width-1);
+    --primitiv-carousel-viewport-border-color: var(--primitiv-border-subtle);
+    --primitiv-carousel-viewport-radius: var(--primitiv-carousel-radius);
+  }
+  .primitiv-carousel--padding-none {
+    --primitiv-carousel-viewport-padding: var(--primitiv-space-space-0);
+  }
+  .primitiv-carousel--padding-sm {
+    --primitiv-carousel-viewport-padding: var(--primitiv-carousel-content-space-2);
+  }
+  .primitiv-carousel--padding-md {
+    --primitiv-carousel-viewport-padding: var(--primitiv-carousel-content-space-3);
+  }
+  .primitiv-carousel--padding-lg {
+    --primitiv-carousel-viewport-padding: var(--primitiv-carousel-content-space-4);
+  }
+
+  /* Viewport surface — opt into the track's background fill (off by default, so a
+     framed track is just an outline). `subtle` fills it with the subtle surface
+     token; pairs with `padding` (on its own it just tints the scroll box). */
+  .primitiv-carousel--surface-none {
+    --primitiv-carousel-viewport-surface: transparent;
+  }
+  .primitiv-carousel--surface-subtle {
+    --primitiv-carousel-viewport-surface: var(--primitiv-surface-subtle);
+  }
+
+  /* Root container rounding — opt into rounding the viewport track (the scroll box
+     around the slides), independent of the `padding` frame. `md` rounds it to the
+     shared, size/density-scaled carousel radius, so the track corners match the
+     slide corners (the viewport already clips to its radius, so the slides are
+     clipped to the rounded track). `none` (the default) is a no-op — the track
+     stays at the base square corners, or keeps `padding`'s rounding if a framed
+     track is on — so it never fights the padding frame. */
+  .primitiv-carousel--radius-md {
+    --primitiv-carousel-viewport-radius: var(--primitiv-carousel-radius);
+  }
+
+  /* Slide corner rounding — re-points the radius knob. `md` is the default
+     (the base rule already rounds); `none` squares the slide off. */
+  .primitiv-carousel__slide--radius-md {
+    --primitiv-carousel-slide-radius: var(--primitiv-carousel-radius);
+  }
+  .primitiv-carousel__slide--radius-none {
+    --primitiv-carousel-slide-radius: var(--primitiv-radii-0);
+  }
+
+  /* Slide media fit — re-points the object-fit knob per slide. `cover` (default,
+     the base rule already sets it) fills + crops; `contain` fits the whole image
+     without cropping (letterboxed against the slide's own background). */
+  .primitiv-carousel__slide--fit-cover {
+    --primitiv-carousel-slide-object-fit: cover;
+  }
+  .primitiv-carousel__slide--fit-contain {
+    --primitiv-carousel-slide-object-fit: contain;
+  }
+
+  /* Slide backdrop — opt into a fill behind the media (off by default). `subtle`
+     uses the same surface token as the root track, so a contain letterbox reads as
+     a neutral backdrop; pairs with `fit="contain"` (on its own it just tints a
+     slide with no full-bleed media). */
+  .primitiv-carousel__slide--surface-none {
+    --primitiv-carousel-slide-surface: transparent;
+  }
+  .primitiv-carousel__slide--surface-subtle {
+    --primitiv-carousel-slide-surface: var(--primitiv-surface-subtle);
+  }
+
+  /* Carousel aspect ratio — re-points the aspect-ratio knob at the *root* to a
+     common media ratio, so it applies uniformly to every slide (they inherit it)
+     and the thumbnail indicators track it (read only in the horizontal layout;
+     the vertical viewport owns its own ratio, so the slide aspect stands down
+     there). The values are ratio *shapes*, not token values — like the base
+     slide/vertical aspect ratios and the circular control radius. `wide` (16:9)
+     is the default the base rule already resolves; the modifier lets a consumer
+     square the carousel (1:1) or go standard/cinematic without touching the knob.
+     (Per-slide ratios are a later revisit.) */
+  .primitiv-carousel--ratio-square {
+    --primitiv-carousel-slide-aspect-ratio: 1 / 1;
+  }
+  .primitiv-carousel--ratio-standard {
+    --primitiv-carousel-slide-aspect-ratio: 4 / 3;
+  }
+  .primitiv-carousel--ratio-wide {
+    --primitiv-carousel-slide-aspect-ratio: 16 / 9;
+  }
+  .primitiv-carousel--ratio-ultrawide {
+    --primitiv-carousel-slide-aspect-ratio: 21 / 9;
+  }
+
+  /* Slide width — `equal` (the default, the base rule already resolves it) shares
+     the viewport evenly across slidesPerPage slides, each holding the `ratio`
+     aspect-ratio. `content` lets a slide size to its own content instead: the
+     flex-basis switches from the equal-share percentage to `auto` (an intrinsic
+     size — an image's natural dimensions, an explicit inline width, a
+     natural-width card) and the aspect-ratio resets to `auto` (no forced ratio)
+     so it doesn't fight that intrinsic size — the same reset the vertical
+     orientation rule above already applies, for the same reason. `@layer`
+     ordering (variants after base) means this correctly overrides the *horizontal*
+     base rule's `aspect-ratio: var(...)` too, without needing extra specificity.
+     Scoped to slidesPerPage=1 — the multi-slide flex-basis calc above assumes
+     equal shares, which a content-driven width breaks; composing the two is
+     unsupported. */
+  .primitiv-carousel--slide-width-content .primitiv-carousel__slide {
+    flex: 0 0 auto;
+    aspect-ratio: auto;
+  }
+
+  /* Slideshow parallax — a native, zero-JavaScript scroll-driven animation
+     (Blossom Carousel's Slideshow example). Each slide names a view-timeline
+     scoped to itself; its slide-content layer animates along that timeline as
+     the slide crosses the viewport (animation-range: cover), so the content
+     drifts at a different rate than the scroll itself. Requires wrapping the
+     slide's media in <CarouselSlideContent> — the slide itself already clips
+     via `overflow: hidden` (set above), so the drifting content stays inside
+     the slide box exactly like Blossom's `.slide`/`.card` pair. Gated behind
+     @supports so unsupporting browsers (Firefox stable, as of writing —
+     Interop 2026 priority) get no partial rule at all, not a
+     silently-broken one.
+
+     The view-timeline axis is the **physical** `x`/`y` keyword, not the
+     logical `inline`/`block` one — it follows the scroll direction like
+     peek/padding/gap (x horizontal, y vertical), matching this carousel's
+     own physical scroll container (`overflow-x` / `scroll-snap-type: x`).
+
+     ⚠️ RTL horizontal is a special case handled below, NOT by the axis
+     keyword. Chromium resolves a horizontal view-timeline's `cover` progress
+     against the wrong scroll bounds in an RTL scroller (the resting, centred
+     slide lands at 0%/100% instead of 50%, so its content sticks jammed to
+     an edge) — and this is true for both `x` and the logical `inline`, since
+     the bug is in the cover-range resolution, not the axis. Rather than rely
+     on the broken native timeline there, horizontal RTL abandons it and
+     drives the drift off the JS `--slide-progress` signal (the same physical,
+     direction-agnostic geometry the @supports-not fallback uses — correct by
+     construction). Vertical is unaffected (block scrolling doesn't flip under
+     RTL), so only the `[data-orientation="vertical"]` axis swap is needed for
+     it. Both confirmed live in-browser. */
+  /* Oversize the drifting media by the parallax scale so the drift never exposes
+     the slide edge: scaled, it overhangs the slide by exactly the drift amount
+     (which is derived from the scale), so a full-bleed photo stays covered end to
+     end — a Ken-Burns pan — instead of sliding half out of the box. A uniform
+     scale (object-fit still governs the fit) zooms without stretching; it rides
+     the same slide-content layer the drift translates, so the two compose. */
+  .primitiv-carousel--effect-parallax .primitiv-carousel__slide-content > img,
+  .primitiv-carousel--effect-parallax .primitiv-carousel__slide-content > video,
+  .primitiv-carousel--effect-parallax .primitiv-carousel__slide-content > picture,
+  .primitiv-carousel--effect-parallax
+    .primitiv-carousel__slide-content
+    > picture
+    > img {
+    transform: scale(var(--primitiv-carousel-parallax-scale));
+  }
+  @supports (animation-timeline: view()) {
+    .primitiv-carousel--effect-parallax .primitiv-carousel__slide {
+      view-timeline-name: --primitiv-carousel-slide-timeline;
+      view-timeline-axis: x;
+    }
+    .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--effect-parallax
+      .primitiv-carousel__slide {
+      view-timeline-axis: y;
+    }
+    .primitiv-carousel--effect-parallax .primitiv-carousel__slide-content {
+      animation: primitiv-carousel-parallax-inline linear both;
+      animation-timeline: --primitiv-carousel-slide-timeline;
+      animation-range: cover;
+    }
+    .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--effect-parallax
+      .primitiv-carousel__slide-content {
+      animation-name: primitiv-carousel-parallax-block;
+    }
+    /* Horizontal RTL: skip the (Chromium-broken) native timeline and drive the
+       drift off --slide-progress instead — see the note above. Scoped to
+       horizontal (`:not([data-orientation="vertical"])`) so vertical RTL keeps
+       its correct native y-axis timeline. */
+    .primitiv-carousel--effect-parallax:not([data-orientation="vertical"])
+      .primitiv-carousel__slide-content:dir(rtl) {
+      animation: none;
+      transform: translateX(
+        calc(var(--slide-progress, 0) * var(--primitiv-carousel-parallax-amount))
+      );
+    }
+    /* loop="infinite": the transform engine translates the TRACK via a JS
+       transform — no native scroll ever happens, so a view-timeline (which is
+       fundamentally tied to actual scroll position) never progresses; the
+       drift would be permanently frozen at whatever phase it mounted in,
+       reading as "parallax doesn't do anything". Unlike the RTL case above,
+       this needs BOTH orientations (there's no native path to fall back to
+       here — infinite never scrolls regardless of axis), so it isn't scoped to
+       horizontal. The engine (useCarouselLoop) drives --slide-progress itself
+       for this mode: analytically on every discrete paint (an instant move, or
+       any of a drag's many calls), and via a live-reading rAF ticker for the
+       duration of an animated (button/autoplay) glide, so the drift keeps
+       pace with the slide's own CSS transition instead of snapping to the
+       settled value. */
+    .primitiv-carousel[data-loop="infinite"].primitiv-carousel--effect-parallax
+      .primitiv-carousel__slide-content {
+      animation: none;
+      transform: translateX(
+        calc(var(--slide-progress, 0) * var(--primitiv-carousel-parallax-amount))
+      );
+    }
+    .primitiv-carousel[data-loop="infinite"][data-orientation="vertical"].primitiv-carousel--effect-parallax
+      .primitiv-carousel__slide-content {
+      transform: translateY(
+        calc(var(--slide-progress, 0) * var(--primitiv-carousel-parallax-amount))
+      );
+    }
+  }
+
+  /* Fallback for browsers without view-timeline support: read the headless
+     --slide-progress signal instead — a continuous, orientation-agnostic
+     -1..0..1 value the primitive already writes on every Slide regardless of
+     this CSS technique (see the Carousel README's "Continuous scroll
+     progress" section) — so the drift still reads correctly rather than only
+     working in some browsers. Both branches share the same
+     --primitiv-carousel-parallax-amount knob and the same direction (a slide
+     entering reads negative on both --slide-progress and the 0% keyframe
+     stop above), so the effect is visually equivalent either way. */
+  @supports not (animation-timeline: view()) {
+    .primitiv-carousel--effect-parallax .primitiv-carousel__slide-content {
+      transform: translateX(calc(var(--slide-progress, 0) * var(--primitiv-carousel-parallax-amount)));
+    }
+    .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--effect-parallax
+      .primitiv-carousel__slide-content {
+      transform: translateY(calc(var(--slide-progress, 0) * var(--primitiv-carousel-parallax-amount)));
+    }
+  }
+
+  @keyframes primitiv-carousel-parallax-inline {
+    0% {
+      transform: translateX(calc(var(--primitiv-carousel-parallax-amount) * -1));
+    }
+    50% {
+      transform: translateX(0%);
+    }
+    100% {
+      transform: translateX(var(--primitiv-carousel-parallax-amount));
+    }
+  }
+  @keyframes primitiv-carousel-parallax-block {
+    0% {
+      transform: translateY(calc(var(--primitiv-carousel-parallax-amount) * -1));
+    }
+    50% {
+      transform: translateY(0%);
+    }
+    100% {
+      transform: translateY(var(--primitiv-carousel-parallax-amount));
+    }
+  }
+
+  /* Parallax is a scroll-linked motion effect, not a discrete UI transition —
+     disable it entirely under reduced motion, in both the view-timeline and
+     the --slide-progress fallback branches. Same specificity + textually
+     later in this layer than both @supports blocks above, so it wins the tie
+     (RFC 0008 §3.1). */
+  @media (prefers-reduced-motion: reduce) {
+    /* The second selector matches the horizontal-RTL override's specificity
+       (it too carries `:not()` + `:dir()`), so reduced motion still cancels
+       that rule — source order alone wouldn't beat its higher specificity. */
+    .primitiv-carousel--effect-parallax .primitiv-carousel__slide-content,
+    .primitiv-carousel--effect-parallax:not([data-orientation="vertical"])
+      .primitiv-carousel__slide-content:dir(rtl) {
+      animation: none;
+      transform: none;
+    }
+  }
+
+  /* Cover Flow — a native, scroll-driven 3D tilt (the iTunes/Apple "Cover Flow"
+     look; Blossom Carousel's Cover Flow example). Each slide is its own 3D scene
+     (`perspective` on the slide) and its <CarouselSlideContent> layer rotates —
+     rotateY (horizontal) / rotateX (vertical) — and scales down as the slide
+     crosses the viewport, so the centred slide sits flat, forward and full-size
+     while its neighbours tilt away. Driven by the same per-slide view-timeline as
+     parallax (animation-range: cover), and targeting <CarouselSlideContent>, NOT
+     the slide itself: the infinite-loop engine measures each slide's
+     getBoundingClientRect, which a transform on the slide would corrupt, whereas a
+     child transform leaves the slide's own box (and native scroll-snap) untouched.
+     So the slide opts out of its own clipping (overflow: visible) to let the
+     tilted content escape its flat slot and overlap its neighbours, and the
+     rounding/clip moves onto the content layer instead. Composes best with `peek`
+     (to reveal the tilting neighbours) and snapAlign="center". Requires wrapping
+     the slide's media in <CarouselSlideContent>, like parallax. The @supports /
+     RTL / infinite / reduced-motion handling mirrors the parallax block above —
+     see it for the full rationale on each branch.
+
+     `animation-range: cover` (not Blossom's `contain` + a `view-timeline` inset):
+     Blossom's `contain` range is calibrated for tiny (100px) slides in a wide
+     scrollport, where the slide is briefly fully contained. Our slides fill the
+     viewport, so `contain` would collapse to nothing — `cover`'s 50% mark ("slide
+     centre aligns with scrollport centre") is exactly the snapAlign="center" rest
+     position, so the flat state lands on the resting slide for our geometry. */
+  .primitiv-carousel--effect-coverflow .primitiv-carousel__slide {
+    overflow: visible;
+    perspective: var(--primitiv-carousel-coverflow-perspective);
+  }
+  /* The content layer becomes the clipped, rounded card that tilts: it inherits
+     the slide's own radius so the corners still round, and clips its media the way
+     the slide box did before it went overflow: visible. */
+  .primitiv-carousel--effect-coverflow .primitiv-carousel__slide-content {
+    border-radius: var(--primitiv-carousel-slide-radius);
+    overflow: hidden;
+  }
+  /* `ratio` fix: the coverflow slide both hosts the `view-timeline-name` and is
+     `overflow: visible` — either can stop its own `aspect-ratio` from reshaping the
+     card, so changing the `ratio` modifier looked inert under coverflow. Carry the
+     aspect-ratio on the *content card* instead (which hosts neither) and let the
+     slide box follow it (`aspect-ratio: auto`), so the visible card honours `ratio`
+     again. Horizontal only — vertical's slide shape is driven by its own rule. */
+  .primitiv-carousel--effect-coverflow:not([data-orientation="vertical"])
+    .primitiv-carousel__slide {
+    aspect-ratio: auto;
+    block-size: auto;
+    /* Narrow each card below the viewport so several neighbours sit either side of
+       the centred one (classic Cover Flow) — a card would otherwise fill the
+       viewport with one slide per page and only the immediate neighbour could
+       peek in. Composes with peek/padding (those still add their gutters) and with
+       snapAlign="center" (which centres the card). */
+    flex-basis: var(--primitiv-carousel-coverflow-card-width);
+  }
+  .primitiv-carousel--effect-coverflow:not([data-orientation="vertical"])
+    .primitiv-carousel__slide-content {
+    aspect-ratio: var(--primitiv-carousel-slide-aspect-ratio);
+    block-size: auto;
+  }
+  /* Lift the centred (active) card above its neighbours so the inward `spread`
+     crowd overlaps *behind* it, not over it. Cross-slide 3D z-sorting isn't
+     available — each slide is its own perspective context (the scroll container
+     can't be preserve-3d), so this 2D stacking keeps the flat, forward card on
+     top; the neighbours keep DOM order among themselves. The slide is a flex
+     item, so z-index applies without needing an extra positioning context. */
+  .primitiv-carousel--effect-coverflow
+    .primitiv-carousel__slide[data-state="active"] {
+    z-index: 1;
+  }
+  @supports (animation-timeline: view()) {
+    .primitiv-carousel--effect-coverflow .primitiv-carousel__slide {
+      view-timeline-name: --primitiv-carousel-coverflow-timeline;
+      view-timeline-axis: x;
+    }
+    .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--effect-coverflow
+      .primitiv-carousel__slide {
+      view-timeline-axis: y;
+    }
+    .primitiv-carousel--effect-coverflow .primitiv-carousel__slide-content {
+      animation: primitiv-carousel-coverflow-inline linear both;
+      animation-timeline: --primitiv-carousel-coverflow-timeline;
+      animation-range: cover;
+    }
+    .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--effect-coverflow
+      .primitiv-carousel__slide-content {
+      animation-name: primitiv-carousel-coverflow-block;
+    }
+    /* Horizontal RTL: skip the Chromium-broken native timeline and drive the tilt
+       off --slide-progress instead (the same cover-range bug parallax documents);
+       scoped to horizontal so vertical RTL keeps its correct native y-axis. */
+    .primitiv-carousel--effect-coverflow:not([data-orientation="vertical"])
+      .primitiv-carousel__slide-content:dir(rtl) {
+      animation: none;
+      transform: translateX(
+          calc(var(--slide-progress, 0) * var(--primitiv-carousel-coverflow-spread))
+        )
+        rotateY(
+          calc(var(--slide-progress, 0) * var(--primitiv-carousel-coverflow-rotate))
+        )
+        scale(
+          calc(
+            1 - (1 - var(--primitiv-carousel-coverflow-scale)) *
+              max(var(--slide-progress, 0), calc(var(--slide-progress, 0) * -1))
+          )
+        );
+    }
+    /* loop="infinite": the engine translates the track via JS, so a view-timeline
+       never progresses — drive the tilt off --slide-progress in both orientations
+       (there's no native scroll to fall back to here). Mirrors parallax. */
+    .primitiv-carousel[data-loop="infinite"].primitiv-carousel--effect-coverflow
+      .primitiv-carousel__slide-content {
+      animation: none;
+      transform: translateX(
+          calc(var(--slide-progress, 0) * var(--primitiv-carousel-coverflow-spread))
+        )
+        rotateY(
+          calc(var(--slide-progress, 0) * var(--primitiv-carousel-coverflow-rotate))
+        )
+        scale(
+          calc(
+            1 - (1 - var(--primitiv-carousel-coverflow-scale)) *
+              max(var(--slide-progress, 0), calc(var(--slide-progress, 0) * -1))
+          )
+        );
+    }
+    .primitiv-carousel[data-loop="infinite"][data-orientation="vertical"].primitiv-carousel--effect-coverflow
+      .primitiv-carousel__slide-content {
+      transform: translateY(
+          calc(var(--slide-progress, 0) * var(--primitiv-carousel-coverflow-spread))
+        )
+        rotateX(
+          calc(var(--slide-progress, 0) * var(--primitiv-carousel-coverflow-rotate))
+        )
+        scale(
+          calc(
+            1 - (1 - var(--primitiv-carousel-coverflow-scale)) *
+              max(var(--slide-progress, 0), calc(var(--slide-progress, 0) * -1))
+          )
+        );
+    }
+  }
+  /* Fallback for browsers without view-timeline support (Firefox stable, as of
+     writing): read the headless --slide-progress signal, the same -1..0..1 value
+     the primitive writes on every slide regardless of technique. */
+  @supports not (animation-timeline: view()) {
+    .primitiv-carousel--effect-coverflow .primitiv-carousel__slide-content {
+      transform: translateX(
+          calc(var(--slide-progress, 0) * var(--primitiv-carousel-coverflow-spread))
+        )
+        rotateY(
+          calc(var(--slide-progress, 0) * var(--primitiv-carousel-coverflow-rotate))
+        )
+        scale(
+          calc(
+            1 - (1 - var(--primitiv-carousel-coverflow-scale)) *
+              max(var(--slide-progress, 0), calc(var(--slide-progress, 0) * -1))
+          )
+        );
+    }
+    .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--effect-coverflow
+      .primitiv-carousel__slide-content {
+      transform: translateY(
+          calc(var(--slide-progress, 0) * var(--primitiv-carousel-coverflow-spread))
+        )
+        rotateX(
+          calc(var(--slide-progress, 0) * var(--primitiv-carousel-coverflow-rotate))
+        )
+        scale(
+          calc(
+            1 - (1 - var(--primitiv-carousel-coverflow-scale)) *
+              max(var(--slide-progress, 0), calc(var(--slide-progress, 0) * -1))
+          )
+        );
+    }
+  }
+
+  @keyframes primitiv-carousel-coverflow-inline {
+    0% {
+      transform: translateX(calc(var(--primitiv-carousel-coverflow-spread) * -1))
+        rotateY(calc(var(--primitiv-carousel-coverflow-rotate) * -1))
+        scale(var(--primitiv-carousel-coverflow-scale));
+    }
+    50% {
+      transform: translateX(0) rotateY(0deg) scale(1);
+    }
+    100% {
+      transform: translateX(var(--primitiv-carousel-coverflow-spread))
+        rotateY(var(--primitiv-carousel-coverflow-rotate))
+        scale(var(--primitiv-carousel-coverflow-scale));
+    }
+  }
+  @keyframes primitiv-carousel-coverflow-block {
+    0% {
+      transform: translateY(calc(var(--primitiv-carousel-coverflow-spread) * -1))
+        rotateX(calc(var(--primitiv-carousel-coverflow-rotate) * -1))
+        scale(var(--primitiv-carousel-coverflow-scale));
+    }
+    50% {
+      transform: translateY(0) rotateX(0deg) scale(1);
+    }
+    100% {
+      transform: translateY(var(--primitiv-carousel-coverflow-spread))
+        rotateX(var(--primitiv-carousel-coverflow-rotate))
+        scale(var(--primitiv-carousel-coverflow-scale));
+    }
+  }
+
+  /* Cover Flow is scroll-linked decorative 3D motion — disable it entirely under
+     reduced motion, in both the view-timeline and the --slide-progress branches.
+     Textually later + matching specificity (the RTL selector carries the same
+     :not()+:dir()), so it wins the tie (RFC 0008 §3.1). */
+  @media (prefers-reduced-motion: reduce) {
+    .primitiv-carousel--effect-coverflow .primitiv-carousel__slide-content,
+    .primitiv-carousel--effect-coverflow:not([data-orientation="vertical"])
+      .primitiv-carousel__slide-content:dir(rtl) {
+      animation: none;
+      transform: none;
+    }
+  }
+
+  /* Control hover / active re-point the fill knob, matching the secondary-action
+     button so the two stay visually consistent. Hover is gated behind
+     (hover: hover): a touchscreen simulates :hover on tap and it "sticks" until
+     the next tap elsewhere, which would otherwise leave a just-tapped control
+     showing its hover fill instead of its resting one. */
+  @media (hover: hover) {
+    .primitiv-carousel__prev:hover,
+    .primitiv-carousel__next:hover {
+      --primitiv-carousel-control-bg: var(--primitiv-carousel-control-bg-hover);
+    }
+  }
+  .primitiv-carousel__prev:active,
+  .primitiv-carousel__next:active {
+    --primitiv-carousel-control-bg: var(--primitiv-carousel-control-bg-active);
+  }
+
+  /* Placement — off vs on the imagery. `external` (the default) keeps the controls
+     in the space around the viewport (a grid places them in tracks); `overlay`
+     insets them on the slide (absolute). How the controls are *arranged* — one bar
+     vs prev/next flanking the viewport edges — is the orthogonal `cluster` axis;
+     `side` / `distribution` / `align` / `orientation` compose on top of both. */
+  .primitiv-carousel--placement-external {
+    /* External + joined: the base grid already stacks viewport + the __controls bar
+       (external + split overrides it with the flanking grid below). Declared so the
+       placement axis stays explicit if toggled dynamically. */
+    position: static;
+  }
+
+  /* Side — which cross-axis edge the external bar (or the external-split indicators) sits
+     on, relative to the scroll direction. `after` (the default) trails the
+     viewport; `before` leads it. Orientation-relative + logical, so it reaches
+     all four physical edges by composing with `orientation` and mirrors in RTL. */
+  .primitiv-carousel--side-after {
+    /* Trailing edge — the base layout already puts the bar after the viewport. */
+  }
+  /* Before: move the control bar ahead of the viewport. `order` re-places it in
+     the grid's source-order flow — the horizontal single-column stack (bar above)
+     and, with the column swap below, the vertical two-column layout (bar on the
+     start side). Only the external joined bar reads it, so split/overlay ignore it. */
+  .primitiv-carousel--side-before .primitiv-carousel__controls {
+    order: -1;
+  }
+
+  /* Distribution / align position the joined `<CarouselControls>` bar (external or
+     overlay). `group` (default) bunches the cluster — `align` then moves it;
+     `stretch` is space-between across the edge. The bar is a flex row (horizontal)
+     or column (vertical), so one justify-content drives both orientations. (For
+     `split` the same justify-content instead positions the separate indicator
+     cluster — see the split rules below.) */
+  .primitiv-carousel--distribution-group .primitiv-carousel__controls {
+    /* Bunched — the base bar already gaps + centres the cluster; `align` moves it. */
+  }
+  .primitiv-carousel--distribution-stretch .primitiv-carousel__controls {
+    justify-content: space-between;
+  }
+  /* The external joined bar is a grid item, so it must fill its cell for
+     justify-content to have room to move the cluster — this is the determinism grid
+     buys us over a shrink-to-fit flex bar. Fill both axes: the width in the
+     horizontal row, the height in the vertical column. The overlay joined bar is
+     absolute and already spans its edge, so it doesn't read this. */
+  .primitiv-carousel--placement-external.primitiv-carousel--cluster-joined
+    .primitiv-carousel__controls {
+    justify-self: stretch;
+    align-self: stretch;
+  }
+
+  /* Align — where the *grouped* bar sits along its edge (moot under `stretch`,
+     which fills the edge). `center` is the base default; start/end pin the
+     cluster to the leading/trailing end. Scoped under `--distribution-group` so
+     `stretch` always wins regardless of source order. Logical → mirrors in RTL
+     and follows the scroll axis when vertical. */
+  .primitiv-carousel--distribution-group.primitiv-carousel--align-start
+    .primitiv-carousel__controls {
+    justify-content: flex-start;
+  }
+  .primitiv-carousel--distribution-group.primitiv-carousel--align-center
+    .primitiv-carousel__controls {
+    justify-content: center;
+  }
+  .primitiv-carousel--distribution-group.primitiv-carousel--align-end
+    .primitiv-carousel__controls {
+    justify-content: flex-end;
+  }
+
+  /* Vertical external + side=before: swap the two-column track so the control
+     bar's `auto` column leads and the viewport's 1fr trails (the `order: -1`
+     above moves the bar into that first column). */
+  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--side-before {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  /* Overlay: the root becomes the positioning context; prev/next flank the slide
+     edges on a translucent scrim and the dots sit in a pill along the bottom, all
+     over the imagery. Re-points the shared control/indicator colour knobs to the
+     on-imagery scrim palette; logical properties keep it mirrored under RTL. */
+  .primitiv-carousel--placement-overlay {
+    position: relative;
+    --primitiv-carousel-control-bg: var(--primitiv-carousel-overlay-control-bg);
+    --primitiv-carousel-control-bg-hover: var(--primitiv-carousel-overlay-control-bg-hover);
+    --primitiv-carousel-control-bg-active: var(--primitiv-carousel-overlay-control-bg-active);
+    --primitiv-carousel-control-fg: var(--primitiv-carousel-overlay-control-fg);
+    --primitiv-carousel-indicator-color: var(--primitiv-carousel-overlay-indicator-color);
+    --primitiv-carousel-indicator-color-active: var(--primitiv-carousel-overlay-indicator-color-active);
+  }
+
+  /* --- Overlay + split: prev/next flank the scroll-axis edges, dots on a cross side.
+     Scoped to `.cluster-split` so under `joined` the (nested) parts flow in the bar
+     untouched — no resets needed. Horizontal: prev/next on the inline edges,
+     block-centred (inset-block:0 + auto block margins centre the fixed-height
+     control). --- */
+  .primitiv-carousel--placement-overlay.primitiv-carousel--cluster-split .primitiv-carousel__prev,
+  .primitiv-carousel--placement-overlay.primitiv-carousel--cluster-split .primitiv-carousel__next {
+    position: absolute;
+    inset-block: 0;
+    margin-block: auto;
+    z-index: 1;
+  }
+  /* Inset the control past everything between the viewport edge and the active
+     slide's leading edge — the frame (border + viewport padding) and the peek
+     gutter — plus the control inset, so it sits *on the slide* with a comfortable
+     gap from its edge, not straddling the padded-track gutter. All the frame
+     terms are 0 when unset, so a plain overlay (no padding, no peek) reduces to
+     the bare control inset. */
+  .primitiv-carousel--placement-overlay.primitiv-carousel--cluster-split .primitiv-carousel__prev {
+    inset-inline-start: calc(
+      var(--primitiv-carousel-viewport-border-width) +
+        var(--primitiv-carousel-viewport-padding) + var(--primitiv-carousel-peek) +
+        var(--primitiv-carousel-overlay-control-inset)
+    );
+  }
+  .primitiv-carousel--placement-overlay.primitiv-carousel--cluster-split .primitiv-carousel__next {
+    inset-inline-end: calc(
+      var(--primitiv-carousel-viewport-border-width) +
+        var(--primitiv-carousel-viewport-padding) + var(--primitiv-carousel-peek) +
+        var(--primitiv-carousel-overlay-control-inset)
+    );
+  }
+
+  /* Dots in a pill, centred along the bottom edge. inset-inline:0 + auto inline
+     margins + fit-content width centre the pill without a transform, so it stays
+     centred under RTL. */
+  .primitiv-carousel--placement-overlay.primitiv-carousel--cluster-split .primitiv-carousel__indicator-group {
+    position: absolute;
+    /* Sit inside the slide's bottom edge — clear the frame (border + viewport
+       padding) on the block axis too, then the indicator inset. 0 when unset. */
+    inset-block-end: calc(
+      var(--primitiv-carousel-viewport-border-width) +
+        var(--primitiv-carousel-viewport-padding) +
+        var(--primitiv-carousel-overlay-indicator-inset)
+    );
+    inset-inline: 0;
+    margin-inline: auto;
+    inline-size: fit-content;
+    z-index: 1;
+    padding-block: var(--primitiv-carousel-overlay-pill-padding-block);
+    padding-inline: var(--primitiv-carousel-overlay-pill-padding-inline);
+    background: var(--primitiv-carousel-overlay-pill-bg);
+    border-radius: var(--primitiv-radii-full);
+  }
+
+  /* Vertical overlay: controls are absolute, so drop the reserved controls column —
+     the root is exactly the viewport and every inset measures from the slide edge. */
+  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-overlay {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* Vertical split: up/down flank the block edges, centred inline over the slide; the
+     dots run as a column on the inline-end side (after). Resets the horizontal-split
+     block-centre onto inline-centre + block edges. */
+  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-overlay.primitiv-carousel--cluster-split
+    .primitiv-carousel__prev,
+  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-overlay.primitiv-carousel--cluster-split
+    .primitiv-carousel__next {
+    inset-block: auto;
+    margin-block: 0;
+    inset-inline: 0;
+    margin-inline: auto;
+  }
+  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-overlay.primitiv-carousel--cluster-split
+    .primitiv-carousel__prev {
+    inset-block-start: calc(
+      var(--primitiv-carousel-viewport-border-width) +
+        var(--primitiv-carousel-viewport-padding) + var(--primitiv-carousel-peek) +
+        var(--primitiv-carousel-overlay-control-inset)
+    );
+  }
+  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-overlay.primitiv-carousel--cluster-split
+    .primitiv-carousel__next {
+    inset-block-end: calc(
+      var(--primitiv-carousel-viewport-border-width) +
+        var(--primitiv-carousel-viewport-padding) + var(--primitiv-carousel-peek) +
+        var(--primitiv-carousel-overlay-control-inset)
+    );
+  }
+  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-overlay.primitiv-carousel--cluster-split
+    .primitiv-carousel__indicator-group {
+    /* A compact pill, block-centred on the inline-end edge — the mirror of the
+       horizontal pill (block-centre + inline edge → inline-centre + block edge).
+       distribution/align then move it along the block axis via inset-block, exactly
+       as the horizontal pill moves along inline. */
+    inset-block: 0;
+    margin-block: auto;
+    inset-inline-start: auto;
+    inset-inline-end: calc(
+      var(--primitiv-carousel-viewport-border-width) +
+        var(--primitiv-carousel-viewport-padding) +
+        var(--primitiv-carousel-overlay-indicator-inset)
+    );
+    margin-inline: 0;
+    inline-size: fit-content;
+    block-size: fit-content;
+    /* The pill runs vertically now — swap the horizontal pill's padding so it hugs
+       the dot column instead of being ~2× too wide. */
+    padding-block: var(--primitiv-carousel-overlay-pill-padding-inline);
+    padding-inline: var(--primitiv-carousel-overlay-pill-padding-block);
+  }
+
+  /* --- Overlay + split + side=before — move the dots cluster to the leading edge;
+     prev/next keep flanking the scroll-axis edges either way. --- */
+  /* Horizontal: dots pill to the top. */
+  .primitiv-carousel--placement-overlay.primitiv-carousel--cluster-split.primitiv-carousel--side-before
+    .primitiv-carousel__indicator-group {
+    inset-block-start: calc(
+      var(--primitiv-carousel-viewport-border-width) +
+        var(--primitiv-carousel-viewport-padding) +
+        var(--primitiv-carousel-overlay-indicator-inset)
+    );
+    inset-block-end: auto;
+  }
+  /* Vertical: dots column to the inline-start (the block-span from the base rule
+     holds — higher specificity — so only the inline lane flips). */
+  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-overlay.primitiv-carousel--cluster-split.primitiv-carousel--side-before
+    .primitiv-carousel__indicator-group {
+    inset-inline-end: auto;
+    inset-inline-start: calc(
+      var(--primitiv-carousel-viewport-border-width) +
+        var(--primitiv-carousel-viewport-padding) +
+        var(--primitiv-carousel-overlay-indicator-inset)
+    );
+  }
+
+  /* External + split: prev/next sit *outside* the viewport, flanking its two
+     scroll-axis edges, with the indicators as a separate cluster on a perpendicular
+     side (`side` picks which). Unlike `joined` (parts in a __controls bar), split
+     places the parts directly on a grid by area — compose them as direct children of
+     the root. The controls keep the default secondary-action fill (they're off the
+     imagery — that's what `external` means). Named grid areas + logical templates →
+     prev/next and the indicators swap sides under RTL with no extra CSS. */
+
+  /* Horizontal: prev | viewport | next in a row, indicators as a cluster in a second
+     row. `side=after` (default) puts the indicators below; `before` above. */
+  .primitiv-carousel--placement-external.primitiv-carousel--cluster-split {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-areas:
+      "prev viewport next"
+      ". indicators .";
+    align-items: center;
+  }
+  .primitiv-carousel--placement-external.primitiv-carousel--cluster-split.primitiv-carousel--side-before {
+    grid-template-areas:
+      ". indicators ."
+      "prev viewport next";
+  }
+  .primitiv-carousel--placement-external.primitiv-carousel--cluster-split
+    .primitiv-carousel__viewport {
+    grid-area: viewport;
+  }
+  .primitiv-carousel--placement-external.primitiv-carousel--cluster-split .primitiv-carousel__prev {
+    grid-area: prev;
+  }
+  .primitiv-carousel--placement-external.primitiv-carousel--cluster-split .primitiv-carousel__next {
+    grid-area: next;
+  }
+  .primitiv-carousel--placement-external.primitiv-carousel--cluster-split .primitiv-carousel__indicator-group {
+    grid-area: indicators;
+  }
+
+  /* Vertical external-split: the scroll axis is the block axis, so prev/next become the
+     up/down controls flanking the viewport's top/bottom edges (centred over it),
+     and the indicators run as a column on a perpendicular *inline* side —
+     `after` (default) on the end/right, `before` on the start/left. Overrides the
+     vertical rule's column auto-flow with an explicit 2-D grid; higher specificity
+     (orientation attr + placement class) wins over the base vertical layout. */
+  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-external.primitiv-carousel--cluster-split {
+    grid-auto-flow: row;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    grid-template-areas:
+      "prev      ."
+      "viewport  indicators"
+      "next      .";
+    align-items: center;
+  }
+  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-external.primitiv-carousel--cluster-split.primitiv-carousel--side-before {
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-areas:
+      ".          prev"
+      "indicators viewport"
+      ".          next";
+  }
+  /* Centre the up/down controls horizontally over the viewport column (the
+     viewport itself fills its cell). */
+  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-external.primitiv-carousel--cluster-split
+    .primitiv-carousel__prev,
+  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-external.primitiv-carousel--cluster-split
+    .primitiv-carousel__next {
+    justify-self: center;
+  }
+  /* The grid's `align-items: center` (above, to centre the up/down controls) would
+     leave the indicator column content-height, so its justify-content (the block
+     axis distribution/align run on when vertical) has no room. Stretch just the
+     indicator group to fill the tall cell so the dots can move. Horizontal doesn't
+     need this — there the group fills its 1fr cell on the inline axis. */
+  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-external.primitiv-carousel--cluster-split
+    .primitiv-carousel__indicator-group {
+    align-self: stretch;
+  }
+
+  /* ── Indicator-cluster align / distribution for split (external + overlay) ──
+     For `split` the prev/next flank the viewport edges, so these axes govern the
+     **indicator cluster**: `align` positions it along its edge, `distribution=stretch`
+     spreads it across the full edge (dots space-between). `align=center` +
+     `distribution=group` is the base look, so only start/end/stretch override. (For
+     `joined` the same axes drive the whole __controls bar — the shared bar rules.) */
+
+  /* External + split (both orientations): the indicator group fills its grid cell
+     along the edge, so its own justify-content positions the dots — the flex main-axis
+     follows orientation (row when horizontal, column when vertical), exactly like the
+     external bar. */
+  .primitiv-carousel--placement-external.primitiv-carousel--cluster-split.primitiv-carousel--distribution-group.primitiv-carousel--align-start
+    .primitiv-carousel__indicator-group {
+    justify-content: flex-start;
+  }
+  .primitiv-carousel--placement-external.primitiv-carousel--cluster-split.primitiv-carousel--distribution-group.primitiv-carousel--align-end
+    .primitiv-carousel__indicator-group {
+    justify-content: flex-end;
+  }
+  .primitiv-carousel--placement-external.primitiv-carousel--cluster-split.primitiv-carousel--distribution-stretch
+    .primitiv-carousel__indicator-group {
+    justify-content: space-between;
+  }
+
+  /* Horizontal overlay: the dots pill is absolutely positioned, so `align` moves it
+     along its edge via the inline insets and `distribution=stretch` spans it the full
+     slide width with the dots space-between. The edge inset matches the pill's own
+     edge clearance (frame + peek + control inset), so an aligned pill lines up with
+     the prev/next controls. Scoped away from vertical overlay, where the pill shares
+     the up/down lane. */
+  .primitiv-carousel--placement-overlay:not([data-orientation="vertical"]).primitiv-carousel--cluster-split.primitiv-carousel--distribution-group.primitiv-carousel--align-start
+    .primitiv-carousel__indicator-group {
+    inset-inline-start: calc(
+      var(--primitiv-carousel-viewport-border-width) +
+        var(--primitiv-carousel-viewport-padding) + var(--primitiv-carousel-peek) +
+        var(--primitiv-carousel-overlay-control-inset)
+    );
+    inset-inline-end: auto;
+    margin-inline: 0;
+  }
+  .primitiv-carousel--placement-overlay:not([data-orientation="vertical"]).primitiv-carousel--cluster-split.primitiv-carousel--distribution-group.primitiv-carousel--align-end
+    .primitiv-carousel__indicator-group {
+    inset-inline-end: calc(
+      var(--primitiv-carousel-viewport-border-width) +
+        var(--primitiv-carousel-viewport-padding) + var(--primitiv-carousel-peek) +
+        var(--primitiv-carousel-overlay-control-inset)
+    );
+    inset-inline-start: auto;
+    margin-inline: 0;
+  }
+  .primitiv-carousel--placement-overlay:not([data-orientation="vertical"]).primitiv-carousel--cluster-split.primitiv-carousel--distribution-stretch
+    .primitiv-carousel__indicator-group {
+    inset-inline: calc(
+      var(--primitiv-carousel-viewport-border-width) +
+        var(--primitiv-carousel-viewport-padding) + var(--primitiv-carousel-peek) +
+        var(--primitiv-carousel-overlay-control-inset)
+    );
+    margin-inline: 0;
+    inline-size: auto;
+    justify-content: space-between;
+  }
+
+  /* Vertical overlay split: the dots pill moves along the block axis via inset-block
+     (the mirror of horizontal's inset-inline). align lines the pill up with the
+     up/down controls (frame + peek + control inset); stretch spans the block edge and
+     spaces the dots between. */
+  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-overlay.primitiv-carousel--cluster-split.primitiv-carousel--distribution-group.primitiv-carousel--align-start
+    .primitiv-carousel__indicator-group {
+    inset-block-start: calc(
+      var(--primitiv-carousel-viewport-border-width) +
+        var(--primitiv-carousel-viewport-padding) + var(--primitiv-carousel-peek) +
+        var(--primitiv-carousel-overlay-control-inset)
+    );
+    inset-block-end: auto;
+    margin-block: 0;
+  }
+  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-overlay.primitiv-carousel--cluster-split.primitiv-carousel--distribution-group.primitiv-carousel--align-end
+    .primitiv-carousel__indicator-group {
+    inset-block-end: calc(
+      var(--primitiv-carousel-viewport-border-width) +
+        var(--primitiv-carousel-viewport-padding) + var(--primitiv-carousel-peek) +
+        var(--primitiv-carousel-overlay-control-inset)
+    );
+    inset-block-start: auto;
+    margin-block: 0;
+  }
+  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-overlay.primitiv-carousel--cluster-split.primitiv-carousel--distribution-stretch
+    .primitiv-carousel__indicator-group {
+    inset-block: calc(
+      var(--primitiv-carousel-viewport-border-width) +
+        var(--primitiv-carousel-viewport-padding) + var(--primitiv-carousel-peek) +
+        var(--primitiv-carousel-overlay-control-inset)
+    );
+    margin-block: 0;
+    block-size: auto;
+    justify-content: space-between;
+  }
+
+  /* ── Cluster: split vs joined ──
+     `split` (default) flanks prev/next on the viewport's scroll-axis edges with a
+     separate indicator cluster; `joined` bundles prev + indicators + next into the one
+     `<CarouselControls>` bar. For `external` the bar stacks beside the viewport and
+     split uses the flanking grid above; for `overlay` the bar is overlaid on the slide
+     and split positions the parts absolutely. Both split layouts are scoped to
+     `.cluster-split`, so joined's (nested) parts flow in the bar untouched — no resets.
+     Compose the parts inside `<CarouselControls>` for `joined`, as direct children of
+     the root for `split`. */
+  .primitiv-carousel--cluster-split {
+    /* The split layout is the base — nothing to re-point (and nothing to declare: a
+       property here would land on the root and could override a placement rule, e.g.
+       overlay's `position: relative`). */
+  }
+
+  /* Overlay + joined — the __controls bar is overlaid on the slide, spanning its edge
+     so distribution/align drive its justify-content (the shared __controls rules).
+     Horizontal: a bar on the block edge (bottom = after), full inline span. */
+  .primitiv-carousel--placement-overlay.primitiv-carousel--cluster-joined:not([data-orientation="vertical"])
+    .primitiv-carousel__controls {
+    position: absolute;
+    /* Span the framed viewport edge (not minus peek — subtracting a large peek would
+       undersize the bar and squash / mis-order its flex items). */
+    inset-inline: calc(
+      var(--primitiv-carousel-viewport-border-width) +
+        var(--primitiv-carousel-viewport-padding) +
+        var(--primitiv-carousel-overlay-control-inset)
+    );
+    inset-block-end: calc(
+      var(--primitiv-carousel-viewport-border-width) +
+        var(--primitiv-carousel-viewport-padding) +
+        var(--primitiv-carousel-overlay-indicator-inset)
+    );
+    z-index: 1;
+  }
+  .primitiv-carousel--placement-overlay.primitiv-carousel--cluster-joined:not([data-orientation="vertical"]).primitiv-carousel--side-before
+    .primitiv-carousel__controls {
+    inset-block-start: calc(
+      var(--primitiv-carousel-viewport-border-width) +
+        var(--primitiv-carousel-viewport-padding) +
+        var(--primitiv-carousel-overlay-indicator-inset)
+    );
+    inset-block-end: auto;
+  }
+  /* Vertical: a bar on the inline edge (end = after), full block span so the shared
+     justify-content rules can move the up/dots/down cluster. */
+  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-overlay.primitiv-carousel--cluster-joined
+    .primitiv-carousel__controls {
+    position: absolute;
+    /* Span the framed viewport height (not minus peek — see the horizontal note). */
+    inset-block: calc(
+      var(--primitiv-carousel-viewport-border-width) +
+        var(--primitiv-carousel-viewport-padding) +
+        var(--primitiv-carousel-overlay-control-inset)
+    );
+    inset-inline-start: auto;
+    inset-inline-end: calc(
+      var(--primitiv-carousel-viewport-border-width) +
+        var(--primitiv-carousel-viewport-padding) +
+        var(--primitiv-carousel-overlay-indicator-inset)
+    );
+    z-index: 1;
+  }
+  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-overlay.primitiv-carousel--cluster-joined.primitiv-carousel--side-before
+    .primitiv-carousel__controls {
+    inset-inline-end: auto;
+    inset-inline-start: calc(
+      var(--primitiv-carousel-viewport-border-width) +
+        var(--primitiv-carousel-viewport-padding) +
+        var(--primitiv-carousel-overlay-indicator-inset)
+    );
+  }
+  /* The dots keep their pill inside the joined bar — split's pill styling is scoped to
+     `.cluster-split`, so re-apply the appearance here (positioning is the bar's job). */
+  .primitiv-carousel--placement-overlay.primitiv-carousel--cluster-joined
+    .primitiv-carousel__indicator-group {
+    padding-block: var(--primitiv-carousel-overlay-pill-padding-block);
+    padding-inline: var(--primitiv-carousel-overlay-pill-padding-inline);
+    background: var(--primitiv-carousel-overlay-pill-bg);
+    border-radius: var(--primitiv-radii-full);
+  }
+  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-overlay.primitiv-carousel--cluster-joined
+    .primitiv-carousel__indicator-group {
+    padding-block: var(--primitiv-carousel-overlay-pill-padding-inline);
+    padding-inline: var(--primitiv-carousel-overlay-pill-padding-block);
+  }
+
+  /* Thumbnails — swap the dot indicators for rounded-rect image thumbnails (the
+     gallery pattern). The consumer supplies each thumbnail as children of a
+     `<CarouselIndicator>` (an <img> or a background element). `dots` is the
+     default (the base dot styling); `thumbnails` re-points the group gap to the
+     thumbnail gap and reshapes each indicator button into a thumbnail frame — the
+     active one ringed in the primary colour (states layer). It composes with
+     every placement and orientation: under vertical the group already flips to a
+     column, so the thumbnails stack into a rail; under overlay they ride the
+     scrim pill. */
+  .primitiv-carousel--indicators-dots {
+    /* Compact dots — the base styling already draws them, nothing to re-point.
+       Declared so the indicators axis stays explicit if toggled dynamically. */
+    --primitiv-carousel-indicator-gap: var(--primitiv-space-space-0);
+  }
+  .primitiv-carousel--indicators-thumbnails {
+    /* Real breathing room between the thumbnails (the dot row sits flush at 0). */
+    --primitiv-carousel-indicator-gap: var(--primitiv-carousel-thumbnail-gap);
+  }
+
+  /* Each indicator becomes a thumbnail frame: sized off the thumbnail knobs,
+     rounded, clipping its image to the corners, and dimmed until hovered/active.
+     The thumbnail is its own hit area (well past the 24px floor), so the dot's
+     square minimum stands down. Targets both the manual `__indicator` part and
+     the auto-rendered `__indicator-group > button`. */
+  .primitiv-carousel--indicators-thumbnails .primitiv-carousel__indicator,
+  .primitiv-carousel--indicators-thumbnails .primitiv-carousel__indicator-group > button {
+    inline-size: var(--primitiv-carousel-thumbnail-inline-size);
+    aspect-ratio: var(--primitiv-carousel-thumbnail-aspect-ratio);
+    min-inline-size: var(--primitiv-space-space-0);
+    min-block-size: var(--primitiv-space-space-0);
+    padding: var(--primitiv-space-space-0);
+    border-radius: var(--primitiv-carousel-thumbnail-radius);
+    /* A real border (this one and the multi-slide-per-page group frame below)
+       sits on the border-box, not added on top of it, so a thumbnail's
+       footprint never shifts when active/group state toggles a border on/off.
+       The active ring is a transparent-by-default border (see [data-state=
+       "active"] below) rather than an inset box-shadow: the thumbnail's own
+       content fills 100%/100% of this box with no padding, so a box-shadow
+       drawn at the same edge paints *under* that flush content and is almost
+       entirely occluded by it — a real border reserves its own width as
+       actual layout space the content can't paint over, whether or not it's
+       currently visible (transparent). */
+    border: var(--primitiv-carousel-thumbnail-ring-width) solid transparent;
+    box-sizing: border-box;
+    overflow: hidden;
+    opacity: var(--primitiv-carousel-thumbnail-inactive-opacity);
+    /* Joining/leaving a multi-slide group flips border-inline-start/-end
+       between "none" and "solid" (border-style isn't interpolatable), so
+       that edge necessarily snaps in rather than fading — no transition
+       list change fixes that. border-color still transitions smoothly for
+       the plain active/inactive ring. */
+    transition:
+      opacity var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default),
+      box-shadow var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default),
+      border-color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
+  }
+  /* No dot for a thumbnail — suppress the base ::before. */
+  .primitiv-carousel--indicators-thumbnails .primitiv-carousel__indicator::before,
+  .primitiv-carousel--indicators-thumbnails
+    .primitiv-carousel__indicator-group
+    > button::before {
+    display: none;
+  }
+  /* The thumbnail image (or background element) fills and rounds with the frame.
+     Absolutely positioned (inset: 0, against the frame's own `position: relative`
+     set above) rather than flowed at `inline-size/block-size: 100%` — the frame is
+     `display: inline-grid` (for the dot's centring, elsewhere in this file), and a
+     percentage block-size on an in-flow grid item resolves against its *row
+     track's* size, not the frame's own `aspect-ratio` box: with no explicit
+     `grid-template-rows`, that track is intrinsically sized to the item's content —
+     for a real `<img>`, its natural aspect ratio — so the thumbnail silently
+     tracked each photo's own proportions instead of the frame's, off by however far
+     that photo's ratio sits from the configured one. Taking the child out of flow
+     sidesteps grid track sizing entirely, positioning it against the frame's own
+     padding box instead — the same reason the dot below is `position: absolute`.
+     The radius is the frame's own radius *inset by the reserved border width*,
+     not a flat `inherit` — the content sits on a box shrunk by the border (
+     box-sizing: border-box), so nesting concentrically with the frame's outer
+     curve needs the smaller inner radius; reusing the same radius value on
+     that smaller box over-rounds it, leaving a visible gap at each corner
+     between the border and the content once the border has a real colour
+     (max(...) guards the calc against going negative at very small radii). */
+  .primitiv-carousel--indicators-thumbnails .primitiv-carousel__indicator > *,
+  .primitiv-carousel--indicators-thumbnails
+    .primitiv-carousel__indicator-group
+    > button
+    > * {
+    position: absolute;
+    inset: 0;
+    object-fit: cover;
+    border-radius: max(
+      var(--primitiv-radii-0),
+      calc(
+        var(--primitiv-carousel-thumbnail-radius) -
+          var(--primitiv-carousel-thumbnail-ring-width)
+      )
+    );
+  }
+  /* Hover lifts an inactive thumbnail to full opacity (the active one is already
+     full — states layer). `[data-group-hover]` is the consumer-set hook for
+     "hovering any member of my slidesPerPage>1 page group" — CSS can't derive
+     group membership from :hover alone (no selector projects it onto an
+     arbitrary-length sibling run), so the consumer's own composition tracks
+     it via the headless pageForSlideIndex and marks every sharing thumbnail;
+     see the registry README's thumbnail composition section. The bare :hover
+     pair is gated behind (hover: hover) — a touchscreen simulates :hover on tap
+     and it sticks until the next tap elsewhere; `[data-group-hover]` is left
+     unguarded since it is the consumer's own tracked attribute, not this
+     stylesheet's concern. */
+  @media (hover: hover) {
+    .primitiv-carousel--indicators-thumbnails .primitiv-carousel__indicator:hover,
+    .primitiv-carousel--indicators-thumbnails
+      .primitiv-carousel__indicator-group
+      > button:hover {
+      opacity: var(--primitiv-opacity-100);
+    }
+  }
+  .primitiv-carousel--indicators-thumbnails
+    .primitiv-carousel__indicator[data-group-hover],
+  .primitiv-carousel--indicators-thumbnails
+    .primitiv-carousel__indicator-group
+    > button[data-group-hover] {
+    opacity: var(--primitiv-opacity-100);
+  }
+
+  /* Overlay + thumbnails — the scrim container reshapes from the dots' full pill
+     into a rounded-rect frame that matches the thumbnails' own corners, with an
+     even inset equal to the thumbnail gap so the strip reads as one cohesive tray.
+     Crucially it is *capped to the slide* on the scroll axis (the external-split grid
+     column constrains its thumbnails for free; the absolute overlay pill was
+     fit-content, so a long strip overflowed the imagery), inset from the slide edges
+     by the same terms the overlay controls clear (all 0 when unset).
+
+     The thumbnails **wrap** rather than shrink to fit: they hold their sensible
+     `thumbnail-inline-size` (see the flex-shrink:0 rule below) and a long strip
+     wraps onto a second row within the capped tray (align-content centres the
+     rows). The threshold is hold-size-then-wrap — a thumbnail never shrinks below
+     its set size; the tray grows a row instead — so the strip stays a cohesive
+     gallery instead of a row of tiny slivers (the mirror of the dots' wrap, which
+     can't shrink at all). */
+  .primitiv-carousel--placement-overlay.primitiv-carousel--indicators-thumbnails
+    .primitiv-carousel__indicator-group {
+    border-radius: var(--primitiv-radii-12);
+    padding: var(--primitiv-carousel-thumbnail-gap);
+    flex-wrap: wrap;
+    align-content: center;
+    max-inline-size: calc(
+      100% - 2 *
+        (
+          var(--primitiv-carousel-viewport-border-width) +
+            var(--primitiv-carousel-viewport-padding) +
+            var(--primitiv-carousel-peek) +
+            var(--primitiv-carousel-overlay-control-inset)
+        )
+    );
+  }
+  /* Hold each overlay thumbnail at its full size so the tray wraps instead of
+     shrinking the thumbnails (the base rule sets min-*-size:0, which would let flex
+     shrink them to slivers before ever wrapping). */
+  .primitiv-carousel--placement-overlay.primitiv-carousel--indicators-thumbnails
+    .primitiv-carousel__indicator-group
+    > button,
+  .primitiv-carousel--placement-overlay.primitiv-carousel--indicators-thumbnails
+    .primitiv-carousel__indicator {
+    flex-shrink: 0;
+  }
+
+  /* Joined-bar thumbnails (external or overlay `cluster="joined"`) — the group sits
+     inside the `<CarouselControls>` flex row alongside prev/next, so it needs the
+     same hold-size-then-wrap treatment as the overlay tray above rather than
+     overflowing the bar (the bar's own min-inline-size:0, set on __controls, is
+     what lets it actually get squeezed down to its grid track first). */
+  .primitiv-carousel--indicators-thumbnails .primitiv-carousel__controls .primitiv-carousel__indicator-group {
+    flex-wrap: wrap;
+    justify-content: center;
+    min-inline-size: 0;
+  }
+  .primitiv-carousel--indicators-thumbnails .primitiv-carousel__controls .primitiv-carousel__indicator-group > button,
+  .primitiv-carousel--indicators-thumbnails .primitiv-carousel__controls .primitiv-carousel__indicator {
+    flex-shrink: 0;
+  }
+
+  /* Vertical overlay thumbnails ride an inline-end/start lane, and stay a *single*
+     column — never wrapping into a second one — so the tray's width never grows
+     past one thumbnail no matter how many there are (a wrapped 2nd column was the
+     actual source of "the tray eats a quarter of the slide"; shrinking the thumbnail
+     size alone has sharply diminishing returns once the tray's fixed gap+padding
+     becomes the bigger share of that width). The align rules above (start/center/end)
+     already size this box to its content (`block-size: fit-content` on the base
+     align-center rule) and position it within the lane, so a short strip must stay
+     content-sized — a forced-full-height box would make every align choice look
+     identical. `flex-wrap: nowrap` overrides the shared horizontal rule's wrap (which
+     would otherwise still try to start a 2nd column once content runs past the cap);
+     `max-block-size` caps the column at the lane's height instead, and a strip
+     longer than that scrolls internally (`overflow-block: auto`) rather than
+     wrapping sideways or overflowing past the slide. The scrollbar is hidden to match
+     the main viewport's chrome-free scroll (native touch/wheel/keyboard scrolling —
+     and a focused thumbnail's native scroll-into-view — still work with no JS). */
+  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-overlay.primitiv-carousel--indicators-thumbnails
+    .primitiv-carousel__indicator-group {
+    max-inline-size: none;
+    flex-wrap: nowrap;
+    max-block-size: calc(
+      100% - 2 *
+        (
+          var(--primitiv-carousel-viewport-border-width) +
+            var(--primitiv-carousel-viewport-padding) +
+            var(--primitiv-carousel-overlay-control-inset)
+        )
+    );
+    overflow-block: auto;
+    scrollbar-width: none;
+  }
+  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-overlay.primitiv-carousel--indicators-thumbnails
+    .primitiv-carousel__indicator-group::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Overlay + dots (horizontal split) — dots can't shrink to fit (fixed WCAG hit
+     area), so a long dot run on the scrim would overflow the slide. Cap the pill to
+     the slide and let the dots wrap onto a second row (flex-wrap; the base
+     justify-content: center centres each line, align-content: center the block).
+     Scoped to the horizontal split pill — joined dots sit in the sized bar, and the
+     vertical split pill wraps into balanced columns via the grid rule below. */
+  .primitiv-carousel--placement-overlay.primitiv-carousel--cluster-split:not([data-orientation="vertical"]).primitiv-carousel--indicators-dots
+    .primitiv-carousel__indicator-group {
+    flex-wrap: wrap;
+    align-content: center;
+    max-inline-size: calc(
+      100% - 2 *
+        (
+          var(--primitiv-carousel-viewport-border-width) +
+            var(--primitiv-carousel-viewport-padding) +
+            var(--primitiv-carousel-peek) +
+            var(--primitiv-carousel-overlay-control-inset)
+        )
+    );
+  }
+
+  /* Overlay + dots (vertical split) — the mirror of the horizontal wrap. The
+     vertical viewport is landscape (short block axis), so a long dot column
+     overflows its top/bottom edges, and dots can't shrink (fixed WCAG hit area).
+     Flex column-wrap can't help here — it collapses the pill's inline width so the
+     wrapped columns overflow (the known column-wrap bug) — so switch the pill to a
+     grid capped at 5 rows and let `grid-auto-flow: column` add columns on its own
+     as the count grows. Column-major flow keeps the dots in **sequential** order —
+     top→bottom down each column, then wrap to the next — so the active dot advances
+     cleanly down a column instead of alternating left↔right (the row-major bug this
+     replaces). The grid's intrinsic width grows to contain the extra columns,
+     keeping the run within the slide height and clear of the block-centred up/down
+     controls. A short last column (e.g. 5+3) is fine — sequential order is the
+     point. Triggered at 6+ dots (≤5 stay a single flex column); side-agnostic (the
+     group's inline lane is placed by the side rules above). */
+  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-overlay.primitiv-carousel--cluster-split.primitiv-carousel--indicators-dots
+    .primitiv-carousel__indicator-group:has(> :nth-child(6)) {
+    display: grid;
+    grid-auto-flow: column;
+    grid-template-rows: repeat(5, auto);
+    place-items: center;
+  }
+
+  /* Fade transition (headless `transition="fade"` → data-transition="fade").
+     The viewport stops scrolling and stacks every slide in one grid cell; the
+     active slide cross-fades in over the others off its data-state hook (the
+     active override lives in the states layer). Keyed off the data-transition
+     hook so the default `slide` scroll-snap layout is left untouched. */
+  .primitiv-carousel[data-transition="fade"] .primitiv-carousel__viewport {
+    display: grid;
+    /* One full-width column the stacked slides fill (minmax(0,…) lets them
+       shrink below intrinsic width — a grid shape, like the vertical layout). */
+    grid-template-columns: minmax(0, 1fr);
+    /* No scroll track — neutralise the snap / scroll / peek machinery. */
+    gap: var(--primitiv-space-space-0);
+    overflow: hidden;
+    padding-inline: var(--primitiv-space-space-0);
+    padding-block: var(--primitiv-space-space-0);
+  }
+
+  /* Every slide shares the single cell; only the active one is shown.
+     `visibility` is delayed by the fade duration so the outgoing slide stays
+     hittable/announced until it has finished fading out, then drops from the
+     hit-test + a11y tree (the active override clears the delay so the incoming
+     slide appears at once). */
+  .primitiv-carousel[data-transition="fade"] .primitiv-carousel__slide {
+    grid-area: 1 / 1;
+    opacity: var(--primitiv-opacity-transparent);
+    visibility: hidden;
+    transition:
+      opacity var(--primitiv-carousel-fade-duration) var(--primitiv-carousel-fade-easing),
+      /* 0s = flip visibility instantly, but delayed by the fade duration so the
+         outgoing slide stays visible/hittable until the opacity fade completes.
+         0s is "no animatable duration" — a logic value, not a themeable token. */
+        visibility 0s var(--primitiv-motion-easing-linear)
+        var(--primitiv-carousel-fade-duration);
+  }
+}
+
+@layer primitiv.states {
+  /* Active dot (manual part + auto-rendered dot): colour swap + elongate into a pill
+     along the dot row's axis. Horizontal → wider (inline); the vertical override
+     below elongates on the block axis instead. */
+  .primitiv-carousel__indicator[data-state="active"]::before,
+  .primitiv-carousel__indicator-group > button[data-state="active"]::before {
+    inline-size: var(--primitiv-carousel-indicator-size-active);
+    background: var(--primitiv-carousel-indicator-color-active);
+  }
+  .primitiv-carousel[data-orientation="vertical"]
+    .primitiv-carousel__indicator[data-state="active"]::before,
+  .primitiv-carousel[data-orientation="vertical"]
+    .primitiv-carousel__indicator-group
+    > button[data-state="active"]::before {
+    inline-size: var(--primitiv-carousel-indicator-size);
+    block-size: var(--primitiv-carousel-indicator-size-active);
+  }
+
+  /* Active thumbnail — full opacity + the primary-colour ring. Just a
+     border-color swap (the border itself — same width, transparent — is
+     already reserved on every thumbnail above), so the ring appears fully
+     around the frame instead of being painted under the flush 100%/100%
+     thumbnail content. The dot's active ::before rule above is inert here
+     (the ::before is display:none). */
+  .primitiv-carousel--indicators-thumbnails
+    .primitiv-carousel__indicator[data-state="active"],
+  .primitiv-carousel--indicators-thumbnails
+    .primitiv-carousel__indicator-group
+    > button[data-state="active"] {
+    opacity: var(--primitiv-opacity-100);
+    border-color: var(--primitiv-carousel-thumbnail-ring-color);
+  }
+
+  /* An active thumbnail that also has keyboard focus keeps both rings — the
+     primary ring (active, a real border) plus the two-layer focus ring
+     (outset box-shadow, unaffected by the border change above). A focused
+     inactive thumbnail is handled by the shared focus-visible rule below. */
+  .primitiv-carousel--indicators-thumbnails
+    .primitiv-carousel__indicator[data-state="active"]:focus-visible,
+  .primitiv-carousel--indicators-thumbnails
+    .primitiv-carousel__indicator-group
+    > button[data-state="active"]:focus-visible {
+    outline: none;
+    box-shadow:
+      0 0 0 var(--primitiv-focus-ring-offset) var(--primitiv-surface-default),
+      0 0 0 calc(var(--primitiv-focus-ring-offset) + var(--primitiv-focus-ring-width))
+        var(--primitiv-focus-ring);
+  }
+
+  /* Multi-slide-per-page group frame. When slidesPerPage > 1, several adjacent
+     thumbnails share one page (each gets `index={pageForSlideIndex(slideIndex)}`
+     from the consumer, so they already share `data-state="active"` — the ring above
+     already highlights each of them individually, no change needed there). This adds
+     ONE continuous border around the *whole run*, on top of each thumbnail's own
+     ring, so the group reads as a single current-page unit. A lone active thumbnail
+     (the common, slidesPerPage=1 case) never matches these selectors — `+` and
+     `:has(+ …)` both require a genuine second active sibling — so nothing changes
+     there.
+
+     Built from only forward-looking selectors (CSS has no "preceding sibling"
+     combinator): a "baseline" edge is drawn on every run member that shares it, then
+     cancelled on the members that aren't actually at that edge of the run. The
+     `:where(...)` wrappers neutralise the relational lookups' own specificity, so a
+     baseline/cancel pair for the same edge always ties on specificity and the one
+     declared *later* wins — without them, `:has(+ …)` and the adjacent-sibling form
+     carry different specificity by accident, and a 3+ member run's middle thumbnail
+     would keep a stray edge instead of none. Logical properties throughout keep this
+     RTL- and orientation-safe. */
+  .primitiv-carousel--indicators-thumbnails
+    :is(.primitiv-carousel__indicator, .primitiv-carousel__indicator-group > button)[data-state="active"]:where(:has(+ [data-state="active"])),
+  .primitiv-carousel--indicators-thumbnails
+    :where(:is(.primitiv-carousel__indicator, .primitiv-carousel__indicator-group > button)[data-state="active"])
+    + :is(.primitiv-carousel__indicator, .primitiv-carousel__indicator-group > button)[data-state="active"] {
+    /* Horizontal (row) runs: every member shares the top/bottom edge; only the
+       run's first/last member gets the outer inline edge (below). Vertical (column)
+       runs swap this — see the [data-orientation="vertical"] override. */
+    border-block: var(--primitiv-carousel-thumbnail-ring-width) solid var(--primitiv-carousel-thumbnail-ring-color);
+  }
+  /* Inline-start baseline — every member with a *following* active sibling (the
+     run's start + middle). */
+  .primitiv-carousel--indicators-thumbnails
+    :is(.primitiv-carousel__indicator, .primitiv-carousel__indicator-group > button)[data-state="active"]:where(:has(+ [data-state="active"])) {
+    border-inline-start: var(--primitiv-carousel-thumbnail-ring-width) solid var(--primitiv-carousel-thumbnail-ring-color);
+  }
+  /* Inline-end baseline — every member with a *preceding* active sibling (middle +
+     end). */
+  .primitiv-carousel--indicators-thumbnails
+    :where(:is(.primitiv-carousel__indicator, .primitiv-carousel__indicator-group > button)[data-state="active"])
+    + :is(.primitiv-carousel__indicator, .primitiv-carousel__indicator-group > button)[data-state="active"] {
+    border-inline-end: var(--primitiv-carousel-thumbnail-ring-width) solid var(--primitiv-carousel-thumbnail-ring-color);
+  }
+  /* Cancel inline-start on middle + end (they have a preceding active sibling, so
+     the run's start edge isn't theirs). Declared after the inline-start baseline so
+     it wins the (now-equal) specificity tie. */
+  .primitiv-carousel--indicators-thumbnails
+    :where(:is(.primitiv-carousel__indicator, .primitiv-carousel__indicator-group > button)[data-state="active"])
+    + :is(.primitiv-carousel__indicator, .primitiv-carousel__indicator-group > button)[data-state="active"] {
+    border-inline-start: none;
+  }
+  /* Cancel inline-end on start + middle (they have a following active sibling, so
+     the run's end edge isn't theirs). Declared after the inline-end baseline. */
+  .primitiv-carousel--indicators-thumbnails
+    :is(.primitiv-carousel__indicator, .primitiv-carousel__indicator-group > button)[data-state="active"]:where(:has(+ [data-state="active"])) {
+    border-inline-end: none;
+  }
+
+  /* Vertical thumbnail rails stack top-to-bottom, so a run's shared axis flips:
+     every member shares the *inline* edges (left/right), and only the run's
+     first/last member gets the outer *block* edge. Same baseline/cancel technique,
+     axes swapped; higher specificity (the orientation attribute) wins over the
+     horizontal rules above. */
+  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--indicators-thumbnails
+    :is(.primitiv-carousel__indicator, .primitiv-carousel__indicator-group > button)[data-state="active"]:where(:has(+ [data-state="active"])),
+  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--indicators-thumbnails
+    :where(:is(.primitiv-carousel__indicator, .primitiv-carousel__indicator-group > button)[data-state="active"])
+    + :is(.primitiv-carousel__indicator, .primitiv-carousel__indicator-group > button)[data-state="active"] {
+    border-block: none;
+    border-inline: var(--primitiv-carousel-thumbnail-ring-width) solid var(--primitiv-carousel-thumbnail-ring-color);
+  }
+  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--indicators-thumbnails
+    :is(.primitiv-carousel__indicator, .primitiv-carousel__indicator-group > button)[data-state="active"]:where(:has(+ [data-state="active"])) {
+    border-block-start: var(--primitiv-carousel-thumbnail-ring-width) solid var(--primitiv-carousel-thumbnail-ring-color);
+  }
+  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--indicators-thumbnails
+    :where(:is(.primitiv-carousel__indicator, .primitiv-carousel__indicator-group > button)[data-state="active"])
+    + :is(.primitiv-carousel__indicator, .primitiv-carousel__indicator-group > button)[data-state="active"] {
+    border-block-end: var(--primitiv-carousel-thumbnail-ring-width) solid var(--primitiv-carousel-thumbnail-ring-color);
+  }
+  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--indicators-thumbnails
+    :where(:is(.primitiv-carousel__indicator, .primitiv-carousel__indicator-group > button)[data-state="active"])
+    + :is(.primitiv-carousel__indicator, .primitiv-carousel__indicator-group > button)[data-state="active"] {
+    border-block-start: none;
+  }
+  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--indicators-thumbnails
+    :is(.primitiv-carousel__indicator, .primitiv-carousel__indicator-group > button)[data-state="active"]:where(:has(+ [data-state="active"])) {
+    border-block-end: none;
+  }
+
+
+  /* Fade transition: the active slide is the only visible one. Clearing the
+     visibility delay (0s all round) makes the incoming slide appear at once
+     while the outgoing one fades under it. */
+  .primitiv-carousel[data-transition="fade"]
+    .primitiv-carousel__slide[data-state="active"] {
+    opacity: var(--primitiv-opacity-100);
+    visibility: visible;
+    transition:
+      opacity var(--primitiv-carousel-fade-duration) var(--primitiv-carousel-fade-easing),
+      visibility 0s;
+  }
+
+  /* Focus — the shared two-layer ring, keyed to keyboard focus. The viewport is
+     tabbable (it is the rotation control); the prev/next and dots are buttons.
+     Restyle globally via the --primitiv-focus-ring* / --primitiv-surface-default
+     tokens, not a per-component knob. */
+  .primitiv-carousel__viewport:focus-visible,
+  .primitiv-carousel__prev:focus-visible,
+  .primitiv-carousel__next:focus-visible,
+  .primitiv-carousel__indicator:focus-visible,
+  .primitiv-carousel__indicator-group > button:focus-visible {
+    outline: none;
+    box-shadow:
+      0 0 0 var(--primitiv-focus-ring-offset) var(--primitiv-surface-default),
+      0 0 0 calc(var(--primitiv-focus-ring-offset) + var(--primitiv-focus-ring-width))
+        var(--primitiv-focus-ring);
+  }
+
+  /* Forced colours (Windows High Contrast) discards box-shadow, so the ring
+     above renders nothing and the `outline: none` beside it is all that
+     survives — leaving no focus indicator at all. Restore a real outline,
+     which the mode does honour, in the system Highlight colour. Same tokens
+     as the ring, so the geometry is unchanged. These selectors also cover the
+     active-thumbnail ring above, which is a subset of `__indicator`. */
+  @media (forced-colors: active) {
+    .primitiv-carousel__viewport:focus-visible,
+    .primitiv-carousel__prev:focus-visible,
+    .primitiv-carousel__next:focus-visible,
+    .primitiv-carousel__indicator:focus-visible,
+    .primitiv-carousel__indicator-group > button:focus-visible {
+      outline: var(--primitiv-focus-ring-width) solid Highlight;
+      outline-offset: var(--primitiv-focus-ring-offset);
+    }
+  }
+
+  /* Boundary-clamped controls (the headless layer sets `disabled`). */
+  .primitiv-carousel__prev:disabled,
+  .primitiv-carousel__next:disabled {
+    opacity: var(--primitiv-opacity-50);
+    cursor: not-allowed;
+  }
+  /* Press feedback — see Button for the full reasoning. Additive: the colour
+     change on :active is not gated, so a reduced-motion user still gets a press
+     state, just not a moving one. --primitiv-carousel-control-press-scale to 1 disables it. */
+  @media (prefers-reduced-motion: no-preference) {
+    .primitiv-carousel__prev:active,
+    .primitiv-carousel__next:active {
+      scale: var(--primitiv-carousel-control-press-scale);
+    }
+  }
+}

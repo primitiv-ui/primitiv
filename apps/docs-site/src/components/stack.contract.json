@@ -1,0 +1,170 @@
+{
+  "$schema": "https://primitiv-ui.dev/schema/contract.json",
+  "name": "stack",
+  "version": "0.1.0",
+  "description": "A Flexbox stack \u2014 `direction` picks the axis, `gap` the spacing (a density-scaled Context token per step), `wrap` whether the row may break onto additional lines, and `align`/`justify` the alignment, all as modifier classes. No inline styles: the alignment props are curated presets, not raw CSS keywords (RFC 0022 \u00a78).",
+  "docs": "https://primitiv-ui.dev/docs/components/stack",
+  "root": {
+    "element": "div",
+    "class": "primitiv-stack"
+  },
+  "dataAttributes": [],
+  "modifiers": [
+    {
+      "name": "direction",
+      "default": "column",
+      "description": "Flex axis, and its resting or reversed order — the four `flex-direction` keywords directly.",
+      "options": [
+        {
+          "name": "column",
+          "class": "primitiv-stack--column",
+          "description": "Stack vertically (the default)."
+        },
+        {
+          "name": "row",
+          "class": "primitiv-stack--row",
+          "description": "Stack horizontally."
+        },
+        {
+          "name": "column-reverse",
+          "class": "primitiv-stack--column-reverse",
+          "description": "Stack vertically, last child first."
+        },
+        {
+          "name": "row-reverse",
+          "class": "primitiv-stack--row-reverse",
+          "description": "Stack horizontally, last child first."
+        }
+      ]
+    },
+    {
+      "name": "gap",
+      "default": "md",
+      "description": "Space between children; each step (except none) is a density-scaled Context token.",
+      "options": [
+        {
+          "name": "none",
+          "class": "primitiv-stack--gap-none",
+          "description": "No gap."
+        },
+        {
+          "name": "xs",
+          "class": "primitiv-stack--gap-xs",
+          "description": "Extra small."
+        },
+        {
+          "name": "sm",
+          "class": "primitiv-stack--gap-sm",
+          "description": "Small."
+        },
+        {
+          "name": "md",
+          "class": "primitiv-stack--gap-md",
+          "description": "Medium (the default)."
+        },
+        {
+          "name": "lg",
+          "class": "primitiv-stack--gap-lg",
+          "description": "Large."
+        },
+        {
+          "name": "xl",
+          "class": "primitiv-stack--gap-xl",
+          "description": "Extra large."
+        }
+      ]
+    },
+    {
+      "name": "align",
+      "default": "stretch",
+      "description": "Cross-axis alignment (`align-items`), as a preset set rather than a raw CSS passthrough.",
+      "options": [
+        {
+          "name": "start",
+          "class": "primitiv-stack--align-start",
+          "description": "Children packed at the cross-axis start edge."
+        },
+        {
+          "name": "center",
+          "class": "primitiv-stack--align-center",
+          "description": "Children centred on the cross axis."
+        },
+        {
+          "name": "end",
+          "class": "primitiv-stack--align-end",
+          "description": "Children packed at the cross-axis end edge."
+        },
+        {
+          "name": "stretch",
+          "class": "primitiv-stack--align-stretch",
+          "description": "Children fill the cross axis (the default)."
+        },
+        {
+          "name": "baseline",
+          "class": "primitiv-stack--align-baseline",
+          "description": "Children aligned on their first text baseline."
+        }
+      ]
+    },
+    {
+      "name": "wrap",
+      "default": "nowrap",
+      "description": "Whether children may wrap onto additional lines when the main axis runs out of room (`flex-wrap`).",
+      "options": [
+        {
+          "name": "nowrap",
+          "class": "primitiv-stack--nowrap",
+          "description": "Children stay on one line and the row may overflow (the default)."
+        },
+        {
+          "name": "wrap",
+          "class": "primitiv-stack--wrap",
+          "description": "Children wrap onto additional lines instead of overflowing."
+        }
+      ]
+    },
+    {
+      "name": "justify",
+      "default": "start",
+      "description": "Main-axis distribution (`justify-content`), as a preset set rather than a raw CSS passthrough.",
+      "options": [
+        {
+          "name": "start",
+          "class": "primitiv-stack--justify-start",
+          "description": "Children packed at the main-axis start edge (the default)."
+        },
+        {
+          "name": "center",
+          "class": "primitiv-stack--justify-center",
+          "description": "Children centred on the main axis."
+        },
+        {
+          "name": "end",
+          "class": "primitiv-stack--justify-end",
+          "description": "Children packed at the main-axis end edge."
+        },
+        {
+          "name": "between",
+          "class": "primitiv-stack--justify-between",
+          "description": "Equal space between children, none at the edges."
+        },
+        {
+          "name": "around",
+          "class": "primitiv-stack--justify-around",
+          "description": "Equal space around each child."
+        },
+        {
+          "name": "evenly",
+          "class": "primitiv-stack--justify-evenly",
+          "description": "Equal space between children and at the edges."
+        }
+      ]
+    }
+  ],
+  "customProperties": [
+    {
+      "name": "--primitiv-stack-gap",
+      "defaultsTo": "var(--primitiv-stack-gap-md)"
+    }
+  ]
+}

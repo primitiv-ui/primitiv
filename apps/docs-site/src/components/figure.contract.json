@@ -1,0 +1,73 @@
+{
+  "$schema": "https://primitiv-ui.dev/schema/contract.json",
+  "name": "figure",
+  "version": "0.1.0",
+  "description": "A <figure>/<figcaption> pairing that wraps self-contained content (an image, illustration, chart, code listing, table) with an optional caption in one of three positions — below (default), above, or overlaid on the media (RFC 0015). `size` scales the caption's type off the body/{size} ramp (the media is size-independent, as in Figma); the caption's own `align` matches Figma's Figcaption Align axis.",
+  "docs": "https://primitiv-ui.dev/docs/components/figure",
+  "root": {
+    "element": "figure",
+    "class": "primitiv-figure",
+    "component": "Root"
+  },
+  "dataAttributes": [],
+  "modifiers": [
+    {
+      "name": "captionPosition",
+      "default": "below",
+      "description": "Caption placement relative to the media.",
+      "options": [
+        { "name": "below", "class": "primitiv-figure--below", "description": "Caption below the media (the default)." },
+        { "name": "above", "class": "primitiv-figure--above", "description": "Caption above the media." },
+        { "name": "overlay", "class": "primitiv-figure--overlay", "description": "Caption pinned over the bottom of the media, on a scrim bar." }
+      ]
+    },
+    {
+      "name": "size",
+      "default": "md",
+      "description": "Caption type size, matching Figma's `Size` axis — it drives the nested Figcaption's `body/{size}` scale only; the media is size-independent. `data-density` scales each size further.",
+      "options": [
+        { "name": "xs", "class": "primitiv-figure--xs", "description": "Extra small." },
+        { "name": "sm", "class": "primitiv-figure--sm", "description": "Small." },
+        { "name": "md", "class": "primitiv-figure--md", "description": "Medium (the default)." },
+        { "name": "lg", "class": "primitiv-figure--lg", "description": "Large." },
+        { "name": "xl", "class": "primitiv-figure--xl", "description": "Extra large." }
+      ]
+    }
+  ],
+  "subcomponents": [
+    {
+      "name": "media",
+      "component": "Media",
+      "class": "primitiv-figure__media",
+      "dataAttributes": []
+    },
+    {
+      "name": "caption",
+      "component": "Caption",
+      "class": "primitiv-figure__caption",
+      "modifiers": [
+        {
+          "name": "align",
+          "default": "start",
+          "description": "Caption text alignment, matching Figma's Figcaption `Align` axis. Direction-aware — `start`/`end` follow the reading direction, flipping under RTL.",
+          "options": [
+            { "name": "start", "class": "primitiv-figure__caption--start", "description": "Caption text at the start edge (the default)." },
+            { "name": "center", "class": "primitiv-figure__caption--center", "description": "Caption text centred." },
+            { "name": "end", "class": "primitiv-figure__caption--end", "description": "Caption text at the end edge." }
+          ]
+        }
+      ],
+      "dataAttributes": []
+    }
+  ],
+  "customProperties": [
+    { "name": "--primitiv-figure-caption-gap", "defaultsTo": "var(--primitiv-space-space-12)" },
+    { "name": "--primitiv-figure-media-radius", "defaultsTo": "var(--primitiv-radii-8)" },
+    { "name": "--primitiv-figure-caption-color", "defaultsTo": "var(--primitiv-content-muted)" },
+    { "name": "--primitiv-figure-overlay-scrim", "defaultsTo": "var(--primitiv-surface-inverse)" },
+    { "name": "--primitiv-figure-overlay-caption-color", "defaultsTo": "var(--primitiv-content-inverse)" },
+    { "name": "--primitiv-figure-font-family", "defaultsTo": "var(--primitiv-body-md-font-family)" },
+    { "name": "--primitiv-figure-font-size", "defaultsTo": "var(--primitiv-body-md-font-size)" },
+    { "name": "--primitiv-figure-line-height", "defaultsTo": "var(--primitiv-body-md-line-height)" }
+  ]
+}

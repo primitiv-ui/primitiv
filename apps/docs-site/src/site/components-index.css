@@ -1,0 +1,51 @@
+/*
+ * The /components index — a card grid over every component with generated
+ * docs-data.
+ */
+
+.docs-index-title {
+  margin-block: 0 var(--primitiv-flow-tight);
+  font-family: var(--primitiv-heading-h1-font-family);
+  font-size: var(--primitiv-heading-h1-font-size);
+  line-height: var(--primitiv-heading-h1-line-height);
+  letter-spacing: var(--primitiv-heading-h1-letter-spacing);
+  color: var(--primitiv-content-primary);
+}
+
+.docs-index-lede {
+  margin-block: 0 var(--primitiv-flow-region);
+  font-family: var(--primitiv-body-lg-font-family);
+  font-size: var(--primitiv-body-lg-font-size);
+  line-height: var(--primitiv-body-lg-line-height);
+  color: var(--primitiv-content-secondary);
+}
+
+.docs-index-grid {
+  /* Narrowest a card may get before the auto-fill grid drops a column. */
+  --docs-index-card-min: 16rem;
+
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(var(--docs-index-card-min), 1fr)
+  );
+  gap: var(--primitiv-grid-gap-lg);
+}
+
+/* The card IS the link (Card asChild), so it needs the block layout and a
+   focus ring of its own — the default anchor underline would also apply to
+   every card title, so it is cleared here rather than in the base layer. */
+.docs-index-card {
+  display: block;
+  block-size: 100%;
+  text-decoration: none;
+  color: inherit;
+}
+
+.docs-index-card:focus-visible {
+  outline: var(--primitiv-border-width-2) solid var(--primitiv-focus-ring);
+  outline-offset: var(--primitiv-space-space-2);
+}

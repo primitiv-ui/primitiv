@@ -1,0 +1,10 @@
+{
+  "$schema": "https://primitiv-ui.dev/schema/primitiv.json",
+  "version": 1,
+  "framework": "react",
+  "styles": { "enabled": true, "format": "css", "path": "src/styles/primitiv" },
+  "tokens": { "format": "css", "path": "src/styles/primitiv/tokens.css" },
+  "theme": { "brand": "#0a7755" },
+  "aliases": {},
+  "registry": { "version": "0.1.0" }
+}

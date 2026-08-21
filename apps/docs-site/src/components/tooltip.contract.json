@@ -1,0 +1,79 @@
+{
+  "$schema": "https://primitiv-ui.dev/schema/contract.json",
+  "name": "tooltip",
+  "version": "0.1.0",
+  "description": "A deferred, non-modal label anchored to a trigger (hover / focus). A flat bubble with a pointer arrow, in two tones — a high-contrast dark bubble (default) or a surface-coloured one (inverted).",
+  "docs": "https://primitiv-ui.dev/docs/components/tooltip",
+  "root": {
+    "element": "div",
+    "class": "primitiv-tooltip",
+    "component": "Content"
+  },
+  "dataAttributes": [
+    { "name": "data-state", "value": "open", "when": "open", "source": "auto" },
+    { "name": "data-state", "value": "closed", "when": "closed", "source": "auto" }
+  ],
+  "modifiers": [
+    {
+      "name": "tone",
+      "default": "default",
+      "description": "The bubble's colour treatment. `default` is a high-contrast dark bubble (inverts with the theme); `inverted` is a surface-coloured bubble for use on dark backgrounds.",
+      "options": [
+        { "name": "default", "class": "primitiv-tooltip--default", "description": "Dark bubble (content/primary fill, content/inverse text)." },
+        { "name": "inverted", "class": "primitiv-tooltip--inverted", "description": "Surface bubble (surface/default fill, content/primary text)." }
+      ]
+    },
+    {
+      "name": "size",
+      "default": "md",
+      "description": "Bubble size; `data-density` scales the padding within each size.",
+      "options": [
+        { "name": "sm", "class": "primitiv-tooltip--sm", "description": "Small." },
+        { "name": "md", "class": "primitiv-tooltip--md", "description": "Medium (the default)." },
+        { "name": "lg", "class": "primitiv-tooltip--lg", "description": "Large." },
+        { "name": "xl", "class": "primitiv-tooltip--xl", "description": "Extra large." }
+      ]
+    },
+    {
+      "name": "placement",
+      "default": "top",
+      "description": "Which side of the anchor the bubble sits on, and how it aligns — sets the CSS `position-area` and points the arrow at the anchor. Wire `anchor-name` on the trigger and a matching `position-anchor` on this bubble.",
+      "options": [
+        { "name": "top", "class": "primitiv-tooltip--top", "description": "Above, centred." },
+        { "name": "top-start", "class": "primitiv-tooltip--top-start", "description": "Above, start-aligned." },
+        { "name": "top-end", "class": "primitiv-tooltip--top-end", "description": "Above, end-aligned." },
+        { "name": "right", "class": "primitiv-tooltip--right", "description": "After, centred." },
+        { "name": "right-start", "class": "primitiv-tooltip--right-start", "description": "After, start-aligned." },
+        { "name": "right-end", "class": "primitiv-tooltip--right-end", "description": "After, end-aligned." },
+        { "name": "bottom", "class": "primitiv-tooltip--bottom", "description": "Below, centred." },
+        { "name": "bottom-start", "class": "primitiv-tooltip--bottom-start", "description": "Below, start-aligned." },
+        { "name": "bottom-end", "class": "primitiv-tooltip--bottom-end", "description": "Below, end-aligned." },
+        { "name": "left", "class": "primitiv-tooltip--left", "description": "Before, centred." },
+        { "name": "left-start", "class": "primitiv-tooltip--left-start", "description": "Before, start-aligned." },
+        { "name": "left-end", "class": "primitiv-tooltip--left-end", "description": "Before, end-aligned." }
+      ]
+    }
+  ],
+  "subcomponents": [
+    {
+      "name": "arrow",
+      "component": "Arrow",
+      "element": "span",
+      "class": "primitiv-tooltip__arrow"
+    }
+  ],
+  "customProperties": [
+    { "name": "--primitiv-tooltip-surface", "defaultsTo": "var(--primitiv-content-primary)" },
+    { "name": "--primitiv-tooltip-fg", "defaultsTo": "var(--primitiv-content-inverse)" },
+    { "name": "--primitiv-tooltip-radius", "defaultsTo": "var(--primitiv-tooltip-md-radius)" },
+    { "name": "--primitiv-tooltip-padding-inline", "defaultsTo": "var(--primitiv-tooltip-md-padding-inline)" },
+    { "name": "--primitiv-tooltip-padding-block", "defaultsTo": "var(--primitiv-tooltip-md-padding-block)" },
+    { "name": "--primitiv-tooltip-arrow-size", "defaultsTo": "var(--primitiv-tooltip-md-arrow-size)" },
+    { "name": "--primitiv-tooltip-offset", "defaultsTo": "var(--primitiv-tooltip-arrow-size)" },
+    { "name": "--primitiv-tooltip-max-inline-size", "defaultsTo": "var(--primitiv-size-size-240)" },
+    { "name": "--primitiv-tooltip-font-family", "defaultsTo": "var(--primitiv-body-md-font-family)" },
+    { "name": "--primitiv-tooltip-font-size", "defaultsTo": "var(--primitiv-body-md-font-size)" },
+    { "name": "--primitiv-tooltip-font-weight", "defaultsTo": "var(--primitiv-body-md-font-weight)" },
+    { "name": "--primitiv-tooltip-line-height", "defaultsTo": "var(--primitiv-body-md-line-height)" }
+  ]
+}

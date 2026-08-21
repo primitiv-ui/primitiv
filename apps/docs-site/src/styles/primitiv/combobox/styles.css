@@ -1,0 +1,664 @@
+/*
+ * Combobox — Primitiv default theme (canonical CSS).
+ *
+ * Copied into the consumer repo by `primitiv add combobox`. It is yours to edit:
+ * the stable surface is the contract (the .primitiv-combobox root + __control /
+ * __leading / __input / __icon / __content / __item / __item-indicator /
+ * __item-leading / __item-label / __item-trailing / __empty parts, the --xs…--xl
+ * size modifiers, the aria-expanded / aria-selected / data-highlighted /
+ * aria-invalid hooks, and the --primitiv-combobox-* custom properties), not these
+ * values (RFC 0006 Principle 2 — names are stable, values are not).
+ *
+ * Anatomy mirrors the Figma set on page "Combobox" and the decisions settled on
+ * the "Combobox — exploration" page. Its headline outcome: this component needs
+ * NO new design tokens. The control is Input verbatim (exploration §B1) — the
+ * same framed-control geometry and the same states, because it IS an editable
+ * text field — and the popup is a Dropdown panel at elevation/overlay (§A1), so
+ * every number already exists. Rows are Listbox options, not menu items (§H):
+ * Listbox's row is the only one in the library with a cursor state, which is
+ * exactly what virtual focus needs.
+ *
+ * WHY THE CONTROL IS A WRAPPER, NOT THE INPUT. Figma draws one Input frame laid
+ * out [leading][value FILL][chevron], but you cannot put a chevron inside an
+ * <input>. So the frame moves out to __control and the field itself becomes a
+ * bare text run inside it: __control owns the border, radius, height, background
+ * and the focus ring, and reads the input's state through :has(). That is the
+ * one structural difference from the design, and it is forced.
+ *
+ * TWO STATE SIGNALS ON SCREEN AT ONCE, which is the thing to understand before
+ * editing (exploration §C1, inherited from Listbox §C1/§C4):
+ *
+ *   - The control keeps its full focus ring the whole time the popup is open,
+ *     because DOM focus never leaves the input — the input is the tab stop.
+ *   - The row CURSOR is [data-highlighted] — virtual focus, published as
+ *     aria-activedescendant on the input. It is NOT :focus; a row never matches
+ *     :focus, because focus stays in the field.
+ *
+ * Both showing at once is correct, not a bug. The ring says "keystrokes go
+ * here"; the tint says "Enter picks this". Do not dim either one.
+ *
+ * SELECTION is [aria-selected="true"] and is independent of the cursor, so a row
+ * can be neither, either, or both. The cursor therefore takes the heavier tint
+ * (action/secondary/default) and pointer hover the lighter one
+ * (action/ghost/hover) — hover must never reuse the cursor's tint, because
+ * hovering does not move the cursor, so two rows would read as current at once.
+ *
+ * THE MARK GUTTER is reserved by the indicator element simply EXISTING in the
+ * flow, revealed with visibility rather than display — the Listbox model, not
+ * Select's. Select's indicator unmounts while unselected and so needs a computed
+ * inset on the row; here the mark is always in the DOM, so flex does it and a
+ * row's label never shifts when it becomes the selection.
+ *
+ * SIZE IS SET ONCE, ON THE ROOT. Unlike Select — whose root renders no element
+ * in rich mode, so its size has to be repeated on the trigger and the panel —
+ * the headless Combobox root is a real <div> that both the control and the panel
+ * live inside. Every knob is declared on the root and inherits down the DOM
+ * tree, which the fixed-position panel does too (custom properties inherit
+ * through the DOM, not the containing block). One size prop, matching the Figma
+ * set's single Size axis.
+ *
+ * POSITIONING is CSS anchor positioning, and it wires itself: the wrapper
+ * derives a unique ident from useId() and hands it to __control and __content
+ * through context, the same fix dropdown and breadcrumb-overflow already make.
+ * Nothing for a consumer to set.
+ *
+ * THE PANEL IS IN THE TOP LAYER, and two rules here depend on it. The headless
+ * Combobox.Content renders `popover="auto"` and calls showPopover() (exploration
+ * §G; the same construction Select.Content uses), which is what gives the panel
+ * both the top layer and the browser's own outside-click dismissal.
+ *
+ * That is why (a) there is NO z-index — the top layer paints above the whole page
+ * regardless, so one would be inert — and (b) `display` is set ONLY under
+ * `:popover-open`, never on the base rule, because a closed [popover] is
+ * display:none via the UA rule and a visible display on the base rule would leak
+ * the panel before it is promoted.
+ *
+ * Worth knowing, because `position: fixed` alone was shipped first and looked
+ * fine: it escapes an ancestor's overflow clipping, but the panel still competes
+ * in the page's stacking contexts, and the kitchen-sink's own disabled-Combobox
+ * demo painted straight over the open panel (`opacity: 0.5` forms a stacking
+ * context, later in the DOM). Caught by rendering it; no test in this repo would
+ * have. If the panel ever loses its promotion, that is the failure mode to expect
+ * — misaligned or overpainted, not invisible.
+ *
+ * The [popover] UA reset above is likewise not optional; see its own note.
+ *
+ * The panel can only animate IN: Combobox.Content unmounts on close rather than
+ * staying mounted and hidden, so React removes the node and no rule can still
+ * match it to animate out.
+ *
+ * Structure follows RFC 0008: per-component API tokens + the resting look live
+ * in primitiv.base, the size modifiers in primitiv.variants, and the focus /
+ * invalid / disabled / hover / cursor / selected styling in primitiv.states. The
+ * sublayer order is declared once in the shared token layer
+ * (primitiv.tokens.css); this file only re-opens the named sublayers.
+ *
+ * Requires the token layer (`primitiv tokens`) for the --primitiv-surface-*,
+ * --primitiv-content-*, --primitiv-border-*, --primitiv-elevation-*,
+ * --primitiv-framed-control-*, --primitiv-dropdown-*, --primitiv-body-*,
+ * --primitiv-space-*, --primitiv-color-*, --primitiv-action-*,
+ * --primitiv-focus-ring-*, --primitiv-opacity-* and --primitiv-motion-* custom
+ * properties it resolves.
+ */
+
+/* Declare the sublayer order up front so this sheet is safe to load ahead of the
+ * token layer (RFC 0008 §7). */
+@layer primitiv.reset, primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;
+
+@layer primitiv.reset {
+  .primitiv-combobox__content {
+    /* Undo the native [popover] UA defaults. `margin: auto` + `inset: 0` centre a
+       popover in the viewport, which fights the anchor-positioning insets in the
+       base layer — the panel lands mid-page instead of under the control. This
+       block is not optional; removing it visibly misaligns the popup. (The base
+       layer outranks this one, so the panel's own margin-block-start offset still
+       applies on top.) Same reset select's panel needs, for the same reason. */
+    margin: 0;
+    inset: auto;
+  }
+}
+
+@layer primitiv.base {
+  .primitiv-combobox {
+    /* Vertical slack for a label's clip box — see the truncation rule below. */
+    --primitiv-combobox-label-ink-slack: var(--primitiv-space-space-1);
+
+    /* ── Control — Input's own knobs, verbatim (exploration §B1). Declared on
+       the root so the panel inherits the same size context. ── */
+    --primitiv-combobox-bg: var(--primitiv-surface-default);
+    --primitiv-combobox-fg: var(--primitiv-content-primary);
+    --primitiv-combobox-placeholder-color: var(--primitiv-content-muted);
+    --primitiv-combobox-border-color: var(--primitiv-border-default);
+    --primitiv-combobox-border-color-focus: var(--primitiv-border-focus);
+    --primitiv-combobox-border-color-invalid: var(--primitiv-border-invalid);
+    --primitiv-combobox-border-width: var(--primitiv-framed-control-border-width);
+    --primitiv-combobox-radius: var(--primitiv-framed-control-md-radius);
+    --primitiv-combobox-height: var(--primitiv-framed-control-md-height);
+    --primitiv-combobox-padding-inline: var(--primitiv-framed-control-md-padding-inline);
+    --primitiv-combobox-gap: var(--primitiv-framed-control-md-gap);
+    --primitiv-combobox-icon-size: var(--primitiv-framed-control-md-icon-size);
+    /* content/muted, a step quieter than the value — the Figma binding on both
+       the leading glyph and the chevron. */
+    --primitiv-combobox-icon-color: var(--primitiv-content-muted);
+    --primitiv-combobox-font-family: var(--primitiv-body-md-font-family);
+    --primitiv-combobox-font-size: var(--primitiv-body-md-font-size);
+    --primitiv-combobox-font-weight: var(--primitiv-body-md-font-weight);
+    --primitiv-combobox-line-height: var(--primitiv-body-md-line-height);
+
+    /* ── Panel — the shared dropdown panel tokens, so a combobox listbox and a
+       menu are the same surface by construction. Its border is border/subtle,
+       a hairline under the overlay shadow rather than a form-control edge. ── */
+    --primitiv-combobox-content-surface: var(--primitiv-surface-default);
+    --primitiv-combobox-content-fg: var(--primitiv-content-primary);
+    --primitiv-combobox-content-border-width: var(--primitiv-border-width-1);
+    --primitiv-combobox-content-border-color: var(--primitiv-border-subtle);
+    --primitiv-combobox-content-shadow: var(--primitiv-elevation-overlay);
+    --primitiv-combobox-content-radius: var(--primitiv-dropdown-md-panel-radius);
+    --primitiv-combobox-content-padding-block: var(--primitiv-dropdown-md-panel-padding-block);
+    /* A small inline inset so a row's tint sits inside the panel edge instead of
+       running flush against the border. */
+    --primitiv-combobox-content-padding-inline: var(--primitiv-space-space-4);
+    /* At least as wide as the control it is anchored to, free to grow for longer
+       options. */
+    --primitiv-combobox-content-min-inline-size: anchor-size(width);
+    /* Past this the list scrolls. Consumer-owned: no token can know how many
+       rows a given list should show. To stop the viewport on a row boundary
+       rather than mid-row, size it to
+       calc(N * var(--primitiv-combobox-item-height) + (N - 1) * var(--primitiv-combobox-item-spacing) + 2 * var(--primitiv-combobox-content-padding-block)). */
+    --primitiv-combobox-content-max-block-size: 18rem;
+    /* Gap between the control and the panel — the real dropdown panel offset
+       token, which is what the Figma set binds. */
+    --primitiv-combobox-offset: var(--primitiv-dropdown-md-panel-offset);
+
+    /* ── Rows — the shared dropdown ramp, whose font-size already aliases the
+       body scale. ── */
+    --primitiv-combobox-item-height: var(--primitiv-dropdown-md-item-height);
+    --primitiv-combobox-item-padding-inline: var(--primitiv-dropdown-md-item-padding-inline);
+    --primitiv-combobox-item-gap: var(--primitiv-dropdown-md-item-gap);
+    --primitiv-combobox-item-radius: var(--primitiv-dropdown-md-item-radius);
+    --primitiv-combobox-item-icon-size: var(--primitiv-dropdown-md-item-icon-size);
+    --primitiv-combobox-item-font-family: var(--primitiv-body-sm-font-family);
+    --primitiv-combobox-item-font-size: var(--primitiv-dropdown-md-item-font-size);
+    --primitiv-combobox-item-font-weight: var(--primitiv-body-sm-font-weight);
+    --primitiv-combobox-item-line-height: var(--primitiv-dropdown-md-item-line-height);
+    --primitiv-combobox-item-color: var(--primitiv-content-primary);
+    --primitiv-combobox-item-bg: var(--primitiv-color-transparent);
+    --primitiv-combobox-item-bg-hover: var(--primitiv-action-ghost-hover);
+    --primitiv-combobox-item-bg-highlighted: var(--primitiv-action-secondary-default);
+    /* Breathing room between rows, a step down from the row's own icon-to-label
+       gap, so both size and density track it with no separate ramp. */
+    --primitiv-combobox-item-spacing: calc(var(--primitiv-combobox-item-gap) / 2);
+
+    --primitiv-combobox-indicator-color: var(--primitiv-content-primary);
+
+    --primitiv-combobox-empty-color: var(--primitiv-content-muted);
+    --primitiv-combobox-empty-min-block-size: calc(var(--primitiv-combobox-item-height) * 2);
+  }
+
+  /* ── The framed control — Input's frame, moved out to a wrapper so the chevron
+     has somewhere to live. cursor: text because the box reads as a text field:
+     the bare input fills nearly all of it, and the chevron below is
+     pointer-events: none so a click near it still lands on the field. ── */
+  .primitiv-combobox__control {
+    display: flex;
+    align-items: center;
+    gap: var(--primitiv-combobox-gap);
+    box-sizing: border-box;
+    inline-size: 100%;
+    block-size: var(--primitiv-combobox-height);
+    padding-inline: var(--primitiv-combobox-padding-inline);
+    border: var(--primitiv-combobox-border-width) solid var(--primitiv-combobox-border-color);
+    border-radius: var(--primitiv-combobox-radius);
+    background: var(--primitiv-combobox-bg);
+    color: var(--primitiv-combobox-fg);
+    cursor: text;
+    transition:
+      border-color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default),
+      box-shadow var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
+  }
+
+  /* The field itself — a bare text run. Every framed property belongs to the
+     control above, so this strips the UA's border, padding and background and
+     inherits the colour. flex-basis is 0, not auto: an <input> has an intrinsic
+     width of about 20 characters, which on `auto` would push the control wider
+     than its column. */
+  .primitiv-combobox__input {
+    flex: 1 1 0;
+    min-inline-size: 0;
+    box-sizing: border-box;
+    block-size: 100%;
+    margin: 0;
+    padding: 0;
+    border: var(--primitiv-border-width-0);
+    background: none;
+    color: inherit;
+    font-family: var(--primitiv-combobox-font-family);
+    font-size: var(--primitiv-combobox-font-size);
+    font-weight: var(--primitiv-combobox-font-weight);
+    line-height: var(--primitiv-combobox-line-height);
+    /* The ring is drawn on the control, which is the box a consumer sees as the
+       field — an outline here would trace the text run instead. */
+    outline: none;
+  }
+
+  .primitiv-combobox__input::placeholder {
+    color: var(--primitiv-combobox-placeholder-color);
+  }
+
+  /* ── Leading slot — the search flavour (exploration §B1): a standing glyph at
+     the start of the field. Kept as a documented variation rather than a second
+     component; drop the chevron and put a magnifier here. ── */
+  .primitiv-combobox__leading,
+  .primitiv-combobox__icon {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: var(--primitiv-combobox-icon-size);
+    block-size: var(--primitiv-combobox-icon-size);
+    color: var(--primitiv-combobox-icon-color);
+  }
+
+  .primitiv-combobox__leading > svg,
+  .primitiv-combobox__icon > svg {
+    inline-size: var(--primitiv-combobox-icon-size);
+    block-size: var(--primitiv-combobox-icon-size);
+  }
+
+  /* ── Chevron — the trailing mark that says this field has a popup, and it
+     flips while the popup is open. Purely decorative, and that is a real
+     difference from Select: there the whole frame is a <button>, so a click on
+     the chevron opens the listbox for free. Here the frame is a <div> wrapping
+     an <input>, and the headless layer exposes no open-toggle for a trigger to
+     call — the popup opens on typing or ArrowDown. pointer-events: none so a
+     click aimed at the chevron falls through to the field rather than landing on
+     dead space. ── */
+  .primitiv-combobox__icon {
+    pointer-events: none;
+    transition: rotate var(--primitiv-motion-duration-control)
+      var(--primitiv-motion-easing-default);
+  }
+
+  /* ── The popup panel ── */
+  .primitiv-combobox__content {
+    /* position: fixed lets anchor() resolve; the flex column stacks the rows.
+       No display here on purpose — a closed [popover] is display:none via the UA
+       rule, and setting a visible display on the base rule would leak the panel
+       before the headless layer promotes it. Only the display flip is gated,
+       below. No z-index either: the panel is in the top layer, which paints above
+       the whole page regardless, so one would be inert. */
+    position: fixed;
+    flex-direction: column;
+    gap: var(--primitiv-combobox-item-spacing);
+    box-sizing: border-box;
+    min-inline-size: var(--primitiv-combobox-content-min-inline-size);
+    max-block-size: var(--primitiv-combobox-content-max-block-size);
+    padding-block: var(--primitiv-combobox-content-padding-block);
+    padding-inline: var(--primitiv-combobox-content-padding-inline);
+    border: var(--primitiv-combobox-content-border-width) solid
+      var(--primitiv-combobox-content-border-color);
+    border-radius: var(--primitiv-combobox-content-radius);
+    background: var(--primitiv-combobox-content-surface);
+    color: var(--primitiv-combobox-content-fg);
+    box-shadow: var(--primitiv-combobox-content-shadow);
+    /* Both axes stated: the rows' labels already ellipsis, so there is nothing a
+       horizontal scrollbar could usefully reveal. */
+    overflow: hidden auto;
+    overscroll-behavior: contain;
+    /* Below the control, hugging its inline-start edge. The ident these insets
+       resolve against is wired by the wrapper, not the consumer. */
+    inset-block-start: anchor(end);
+    inset-inline-start: anchor(start);
+    margin-block-start: var(--primitiv-combobox-offset);
+    /* Flip above the control when there is no room below — the common case for a
+       field near the foot of a page. */
+    position-try-fallbacks: flip-block;
+  }
+
+  /* Show when open. A closed [popover] is display:none via the UA rule, so this
+     is the only place a visible display belongs. */
+  .primitiv-combobox__content:popover-open {
+    display: flex;
+  }
+
+  /* ── Rows ── */
+  .primitiv-combobox__item {
+    display: flex;
+    align-items: center;
+    gap: var(--primitiv-combobox-item-gap);
+    box-sizing: border-box;
+    min-block-size: var(--primitiv-combobox-item-height);
+    padding-inline: var(--primitiv-combobox-item-padding-inline);
+    border-radius: var(--primitiv-combobox-item-radius);
+    background: var(--primitiv-combobox-item-bg);
+    color: var(--primitiv-combobox-item-color);
+    font-family: var(--primitiv-combobox-item-font-family);
+    font-size: var(--primitiv-combobox-item-font-size);
+    font-weight: var(--primitiv-combobox-item-font-weight);
+    line-height: var(--primitiv-combobox-item-line-height);
+    cursor: default;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    /* The cursor fill fades in rather than snapping. [data-highlighted] is set by
+       arrow navigation, so this rides keyboard runs as well as hover. */
+    transition: background-color var(--primitiv-motion-duration-control)
+      var(--primitiv-motion-easing-default);
+  }
+
+  /* The mark. Always in the DOM so its column is reserved whatever the selection
+     state — hidden with visibility rather than display, which keeps the row's
+     layout identical selected or not. This is the whole reason a row needs no
+     computed inset (contrast Select, whose indicator unmounts). */
+  .primitiv-combobox__item-indicator {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    inline-size: var(--primitiv-combobox-item-icon-size);
+    block-size: var(--primitiv-combobox-item-icon-size);
+    color: var(--primitiv-combobox-indicator-color);
+    visibility: hidden;
+  }
+
+  .primitiv-combobox__item-leading,
+  .primitiv-combobox__item-trailing {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    block-size: var(--primitiv-combobox-item-icon-size);
+  }
+
+  .primitiv-combobox__item-leading {
+    inline-size: var(--primitiv-combobox-item-icon-size);
+  }
+
+  /* Trailing content is often a shortcut hint or a badge rather than an icon, so
+     it keeps its natural inline size and is only constrained in the block
+     axis. */
+  .primitiv-combobox__item-trailing {
+    margin-inline-start: auto;
+  }
+
+  .primitiv-combobox__item-indicator > svg,
+  .primitiv-combobox__item-leading > svg,
+  .primitiv-combobox__item-trailing > svg {
+    inline-size: var(--primitiv-combobox-item-icon-size);
+    block-size: var(--primitiv-combobox-item-icon-size);
+  }
+
+  /* Takes the row's free space, so a trailing affordance sits on the inline-end
+     edge and a long label truncates rather than wrapping the row taller. The
+     ink-slack pair gives the clip box vertical room so descenders are not shaved
+     by overflow: hidden, then takes the space back with a negative margin. */
+  .primitiv-combobox__item-label {
+    flex: 1 1 auto;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    padding-block: var(--primitiv-combobox-label-ink-slack);
+    margin-block: calc(-1 * var(--primitiv-combobox-label-ink-slack));
+  }
+
+  /* ── Empty ──
+     Roughly two rows tall so the panel does not snap shut while the user keeps
+     typing — and it matters more here than in a persistent listbox, because
+     filtering produces this state on almost every mistyped character. A box that
+     resizes under a focused field on every keystroke is disorienting.
+     role="presentation", never an option: only role="option" elements may sit
+     inside a listbox, and the headless layer ignores anything that is not an Item
+     for cursor and seeding purposes. */
+  .primitiv-combobox__empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    min-block-size: var(--primitiv-combobox-empty-min-block-size);
+    padding-inline: var(--primitiv-combobox-item-padding-inline);
+    color: var(--primitiv-combobox-empty-color);
+    font-family: var(--primitiv-combobox-item-font-family);
+    font-size: var(--primitiv-combobox-item-font-size);
+    line-height: var(--primitiv-combobox-item-line-height);
+    text-align: center;
+  }
+}
+
+@layer primitiv.variants {
+  /* Size — one modifier on the root re-points the control, the panel and the
+     rows together, because every knob is declared there and inherits down.
+     Density stays ambient via [data-density] on the token values themselves
+     (RFC 0009). */
+  .primitiv-combobox--xs {
+    --primitiv-combobox-radius: var(--primitiv-framed-control-xs-radius);
+    --primitiv-combobox-height: var(--primitiv-framed-control-xs-height);
+    --primitiv-combobox-padding-inline: var(--primitiv-framed-control-xs-padding-inline);
+    --primitiv-combobox-gap: var(--primitiv-framed-control-xs-gap);
+    --primitiv-combobox-icon-size: var(--primitiv-framed-control-xs-icon-size);
+    --primitiv-combobox-font-family: var(--primitiv-body-xs-font-family);
+    --primitiv-combobox-font-size: var(--primitiv-body-xs-font-size);
+    --primitiv-combobox-font-weight: var(--primitiv-body-xs-font-weight);
+    --primitiv-combobox-line-height: var(--primitiv-body-xs-line-height);
+    --primitiv-combobox-content-radius: var(--primitiv-dropdown-xs-panel-radius);
+    --primitiv-combobox-content-padding-block: var(--primitiv-dropdown-xs-panel-padding-block);
+    --primitiv-combobox-offset: var(--primitiv-dropdown-xs-panel-offset);
+    --primitiv-combobox-item-height: var(--primitiv-dropdown-xs-item-height);
+    --primitiv-combobox-item-padding-inline: var(--primitiv-dropdown-xs-item-padding-inline);
+    --primitiv-combobox-item-gap: var(--primitiv-dropdown-xs-item-gap);
+    --primitiv-combobox-item-radius: var(--primitiv-dropdown-xs-item-radius);
+    --primitiv-combobox-item-icon-size: var(--primitiv-dropdown-xs-item-icon-size);
+    --primitiv-combobox-item-font-size: var(--primitiv-dropdown-xs-item-font-size);
+    --primitiv-combobox-item-line-height: var(--primitiv-dropdown-xs-item-line-height);
+  }
+
+  .primitiv-combobox--sm {
+    --primitiv-combobox-radius: var(--primitiv-framed-control-sm-radius);
+    --primitiv-combobox-height: var(--primitiv-framed-control-sm-height);
+    --primitiv-combobox-padding-inline: var(--primitiv-framed-control-sm-padding-inline);
+    --primitiv-combobox-gap: var(--primitiv-framed-control-sm-gap);
+    --primitiv-combobox-icon-size: var(--primitiv-framed-control-sm-icon-size);
+    --primitiv-combobox-font-family: var(--primitiv-body-sm-font-family);
+    --primitiv-combobox-font-size: var(--primitiv-body-sm-font-size);
+    --primitiv-combobox-font-weight: var(--primitiv-body-sm-font-weight);
+    --primitiv-combobox-line-height: var(--primitiv-body-sm-line-height);
+    --primitiv-combobox-content-radius: var(--primitiv-dropdown-sm-panel-radius);
+    --primitiv-combobox-content-padding-block: var(--primitiv-dropdown-sm-panel-padding-block);
+    --primitiv-combobox-offset: var(--primitiv-dropdown-sm-panel-offset);
+    --primitiv-combobox-item-height: var(--primitiv-dropdown-sm-item-height);
+    --primitiv-combobox-item-padding-inline: var(--primitiv-dropdown-sm-item-padding-inline);
+    --primitiv-combobox-item-gap: var(--primitiv-dropdown-sm-item-gap);
+    --primitiv-combobox-item-radius: var(--primitiv-dropdown-sm-item-radius);
+    --primitiv-combobox-item-icon-size: var(--primitiv-dropdown-sm-item-icon-size);
+    --primitiv-combobox-item-font-size: var(--primitiv-dropdown-sm-item-font-size);
+    --primitiv-combobox-item-line-height: var(--primitiv-dropdown-sm-item-line-height);
+  }
+
+  .primitiv-combobox--md {
+    --primitiv-combobox-radius: var(--primitiv-framed-control-md-radius);
+    --primitiv-combobox-height: var(--primitiv-framed-control-md-height);
+    --primitiv-combobox-padding-inline: var(--primitiv-framed-control-md-padding-inline);
+    --primitiv-combobox-gap: var(--primitiv-framed-control-md-gap);
+    --primitiv-combobox-icon-size: var(--primitiv-framed-control-md-icon-size);
+    --primitiv-combobox-font-family: var(--primitiv-body-md-font-family);
+    --primitiv-combobox-font-size: var(--primitiv-body-md-font-size);
+    --primitiv-combobox-font-weight: var(--primitiv-body-md-font-weight);
+    --primitiv-combobox-line-height: var(--primitiv-body-md-line-height);
+    --primitiv-combobox-content-radius: var(--primitiv-dropdown-md-panel-radius);
+    --primitiv-combobox-content-padding-block: var(--primitiv-dropdown-md-panel-padding-block);
+    --primitiv-combobox-offset: var(--primitiv-dropdown-md-panel-offset);
+    --primitiv-combobox-item-height: var(--primitiv-dropdown-md-item-height);
+    --primitiv-combobox-item-padding-inline: var(--primitiv-dropdown-md-item-padding-inline);
+    --primitiv-combobox-item-gap: var(--primitiv-dropdown-md-item-gap);
+    --primitiv-combobox-item-radius: var(--primitiv-dropdown-md-item-radius);
+    --primitiv-combobox-item-icon-size: var(--primitiv-dropdown-md-item-icon-size);
+    --primitiv-combobox-item-font-size: var(--primitiv-dropdown-md-item-font-size);
+    --primitiv-combobox-item-line-height: var(--primitiv-dropdown-md-item-line-height);
+  }
+
+  .primitiv-combobox--lg {
+    --primitiv-combobox-radius: var(--primitiv-framed-control-lg-radius);
+    --primitiv-combobox-height: var(--primitiv-framed-control-lg-height);
+    --primitiv-combobox-padding-inline: var(--primitiv-framed-control-lg-padding-inline);
+    --primitiv-combobox-gap: var(--primitiv-framed-control-lg-gap);
+    --primitiv-combobox-icon-size: var(--primitiv-framed-control-lg-icon-size);
+    --primitiv-combobox-font-family: var(--primitiv-body-lg-font-family);
+    --primitiv-combobox-font-size: var(--primitiv-body-lg-font-size);
+    --primitiv-combobox-font-weight: var(--primitiv-body-lg-font-weight);
+    --primitiv-combobox-line-height: var(--primitiv-body-lg-line-height);
+    --primitiv-combobox-content-radius: var(--primitiv-dropdown-lg-panel-radius);
+    --primitiv-combobox-content-padding-block: var(--primitiv-dropdown-lg-panel-padding-block);
+    --primitiv-combobox-offset: var(--primitiv-dropdown-lg-panel-offset);
+    --primitiv-combobox-item-height: var(--primitiv-dropdown-lg-item-height);
+    --primitiv-combobox-item-padding-inline: var(--primitiv-dropdown-lg-item-padding-inline);
+    --primitiv-combobox-item-gap: var(--primitiv-dropdown-lg-item-gap);
+    --primitiv-combobox-item-radius: var(--primitiv-dropdown-lg-item-radius);
+    --primitiv-combobox-item-icon-size: var(--primitiv-dropdown-lg-item-icon-size);
+    --primitiv-combobox-item-font-size: var(--primitiv-dropdown-lg-item-font-size);
+    --primitiv-combobox-item-line-height: var(--primitiv-dropdown-lg-item-line-height);
+  }
+
+  .primitiv-combobox--xl {
+    --primitiv-combobox-radius: var(--primitiv-framed-control-xl-radius);
+    --primitiv-combobox-height: var(--primitiv-framed-control-xl-height);
+    --primitiv-combobox-padding-inline: var(--primitiv-framed-control-xl-padding-inline);
+    --primitiv-combobox-gap: var(--primitiv-framed-control-xl-gap);
+    --primitiv-combobox-icon-size: var(--primitiv-framed-control-xl-icon-size);
+    --primitiv-combobox-font-family: var(--primitiv-body-xl-font-family);
+    --primitiv-combobox-font-size: var(--primitiv-body-xl-font-size);
+    --primitiv-combobox-font-weight: var(--primitiv-body-xl-font-weight);
+    --primitiv-combobox-line-height: var(--primitiv-body-xl-line-height);
+    --primitiv-combobox-content-radius: var(--primitiv-dropdown-xl-panel-radius);
+    --primitiv-combobox-content-padding-block: var(--primitiv-dropdown-xl-panel-padding-block);
+    --primitiv-combobox-offset: var(--primitiv-dropdown-xl-panel-offset);
+    --primitiv-combobox-item-height: var(--primitiv-dropdown-xl-item-height);
+    --primitiv-combobox-item-padding-inline: var(--primitiv-dropdown-xl-item-padding-inline);
+    --primitiv-combobox-item-gap: var(--primitiv-dropdown-xl-item-gap);
+    --primitiv-combobox-item-radius: var(--primitiv-dropdown-xl-item-radius);
+    --primitiv-combobox-item-icon-size: var(--primitiv-dropdown-xl-item-icon-size);
+    --primitiv-combobox-item-font-size: var(--primitiv-dropdown-xl-item-font-size);
+    --primitiv-combobox-item-line-height: var(--primitiv-dropdown-xl-item-line-height);
+  }
+}
+
+@layer primitiv.states {
+  /* Focus — the ring goes on the CONTROL, not the input, because the control is
+     the box a consumer reads as the field. :has() forwards the inner input's
+     state outward. The border adopts the focus colour and the shared two-layer
+     ring draws outside it: a surface-coloured gap band, then the brand ring just
+     beyond. The ring is a system concern — restyle it by overriding the
+     --primitiv-focus-ring* / --primitiv-surface-default tokens globally, not via
+     a per-component knob.
+
+     It stays lit for as long as the popup is open, which is deliberate
+     (exploration §C1): DOM focus never leaves the input, so removing the ring
+     would make the control lie about where typing lands. */
+  .primitiv-combobox__control:has(.primitiv-combobox__input:focus-visible) {
+    border-color: var(--primitiv-combobox-border-color-focus);
+    box-shadow:
+      0 0 0 var(--primitiv-focus-ring-offset) var(--primitiv-surface-default),
+      0 0 0 calc(var(--primitiv-focus-ring-offset) + var(--primitiv-focus-ring-width))
+        var(--primitiv-focus-ring);
+  }
+
+  /* Forced colours (Windows High Contrast) discards box-shadow, so the ring
+     above renders nothing and the `outline: none` beside it is all that
+     survives — leaving no focus indicator at all. Restore a real outline,
+     which the mode does honour, in the system Highlight colour. Same tokens
+     as the ring, so the geometry is unchanged. */
+  @media (forced-colors: active) {
+    .primitiv-combobox__control:has(.primitiv-combobox__input:focus-visible) {
+      outline: var(--primitiv-focus-ring-width) solid Highlight;
+      outline-offset: var(--primitiv-focus-ring-offset);
+    }
+  }
+
+  /* Open — the chevron flips. */
+  .primitiv-combobox__control:has(.primitiv-combobox__input[aria-expanded="true"])
+    .primitiv-combobox__icon {
+    rotate: 180deg;
+  }
+
+  /* Invalid — the field flags itself with aria-invalid (set on the input, or
+     cascaded from a Field.Root). The danger border wins over the resting and
+     focus colours because this rule follows them in the same layer
+     (RFC 0008 §2.3). */
+  .primitiv-combobox__control:has(.primitiv-combobox__input[aria-invalid="true"]) {
+    border-color: var(--primitiv-combobox-border-color-invalid);
+  }
+
+  /* Disabled — a dimmed frame, matching Input's own treatment rather than
+     Select's filled one, since this control IS an Input. State-neutral: the same
+     valid or invalid. */
+  .primitiv-combobox__control:has(.primitiv-combobox__input:disabled),
+  .primitiv-combobox__control:has(.primitiv-combobox__input[data-disabled]) {
+    opacity: var(--primitiv-opacity-50);
+    cursor: not-allowed;
+  }
+
+  /* Pointer hover on a row — deliberately WEAKER than the cursor below, and
+     never the same value. Hover does not move the cursor (the headless layer
+     has no pointer-enter handler), so if the two matched, two rows would read as
+     current and the pointer would appear to move a cursor it cannot move.
+     Guarded to real pointers: a raw :hover fires on tap too, and with no pointer
+     to leave afterwards it sticks on the just-tapped row. */
+  @media (hover: hover) {
+    .primitiv-combobox__item:hover {
+      background: var(--primitiv-combobox-item-bg-hover);
+    }
+  }
+
+  /* The cursor. Style it from [data-highlighted] — a row never matches :focus,
+     because DOM focus stays in the input. This rule sits after :hover so the
+     cursor wins on a row that is both. */
+  .primitiv-combobox__item[data-highlighted] {
+    background: var(--primitiv-combobox-item-bg-highlighted);
+  }
+
+  /* Selection reveals the mark. visibility rather than display, so the column it
+     reserves never changes width. */
+  .primitiv-combobox__item[aria-selected="true"] .primitiv-combobox__item-indicator {
+    visibility: visible;
+  }
+
+  /* Enter — the panel scales + fades in, driven by the native :popover-open state
+     (the headless layer calls showPopover). The resting/closed state on the base
+     rule is faded + scaled down; :popover-open brings it in; @starting-style gives
+     the enter its starting frame. allow-discrete on display + overlay is what lets
+     a transition begin from display:none at all.
+
+     Mirrors select's block exactly, with one difference: there is no exit here.
+     Combobox.Content UNMOUNTS on close rather than staying mounted and hidden, so
+     React removes the node and no rule can still match it to animate out. The
+     easing is therefore the enter curve on both rules, not exit-then-enter. */
+  .primitiv-combobox__content {
+    opacity: var(--primitiv-opacity-transparent);
+    scale: 0.97;
+    transition:
+      opacity var(--primitiv-motion-duration-overlay) var(--primitiv-motion-easing-enter),
+      scale var(--primitiv-motion-duration-overlay) var(--primitiv-motion-easing-enter),
+      display var(--primitiv-motion-duration-overlay) allow-discrete,
+      overlay var(--primitiv-motion-duration-overlay) allow-discrete;
+  }
+
+  .primitiv-combobox__content:popover-open {
+    opacity: var(--primitiv-opacity-100);
+    scale: 1;
+  }
+
+  @starting-style {
+    .primitiv-combobox__content:popover-open {
+      opacity: var(--primitiv-opacity-transparent);
+      scale: 0.97;
+    }
+  }
+
+  /* Honour reduced-motion: no scale, fade, chevron sweep or row-tint fade — just
+     show and hide. */
+  @media (prefers-reduced-motion: reduce) {
+    .primitiv-combobox__control,
+    .primitiv-combobox__icon,
+    .primitiv-combobox__content,
+    .primitiv-combobox__item {
+      transition: none;
+    }
+  }
+}

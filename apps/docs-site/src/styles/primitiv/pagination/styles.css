@@ -1,0 +1,315 @@
+/*
+ * Pagination — Primitiv default theme (canonical CSS).
+ *
+ * Copied into the consumer repo by `primitiv add pagination`. It is yours to
+ * edit: the stable surface is the contract (the .primitiv-pagination container
+ * + __summary / __controls / __item / __ellipsis / __menu / __status /
+ * __trailing parts, the --xs…--xl size modifiers, the --numbered / --compact
+ * variant modifiers, and the --primitiv-pagination-* custom properties), not
+ * these values (RFC 0006 Principle 2 — names are stable, values are not).
+ *
+ * Requires the token layer for: pagination/{size}/{gap,group-gap,
+ * item-min-width}, framed-control/{size}/{gap,icon-size}, space/*, and —
+ * through the composed Button and Dropdown surfaces — action/*, surface/*,
+ * border/*, content/*.
+ *
+ * EVERY size-dependent value is re-pointed by the --xs…--xl modifiers, not just
+ * the two obvious ones. The base rule's md values are defaults for an unsized
+ * root; a knob declared there and NOT restated per size silently pins itself to
+ * md at every size (which is exactly what happened to the group gap, the
+ * compact gap and the chevron size on the first pass).
+ *
+ * The same class of bug, one step worse, hit TYPE: the summary / status /
+ * trailing parts declared no font at all, so they did not pin to md — they
+ * inherited the surrounding page's body copy and moved with neither `size` nor
+ * density, while the page cells scaled around them. A missing knob is easier to
+ * miss than a mis-pointed one, because there is no wrong value to spot.
+ *
+ * Anatomy mirrors the Figma design (page "Pagination"): three top-level
+ * children, [summary][controls][trailing], of which only `controls` is always
+ * present. `controls` owns the TIGHT cell gap (pagination/{size}/gap); the root
+ * uses a generous group gap, because summary / controls / trailing are separate
+ * groups rather than adjacent cells. Getting this wrong — one gap for both —
+ * either spaces the page cells like a button row or crams the summary against
+ * the controls.
+ *
+ * PAGE CELLS ARE SQUARE BY min-inline-size, NOT a fixed width. This is the
+ * whole reason the component carries a token of its own rather than just
+ * leaning on Button: with Button's normal hug, a cell's width tracks its digit
+ * count, so the entire row visibly resizes and re-centres every time the page
+ * number gains a digit (9 → 10 → 100). A floor keeps 1 and 20 identical while
+ * still letting a 4-digit page grow instead of clipping — measured against the
+ * real Figma composition, not assumed.
+ *
+ * THE ELLIPSIS IS A REAL BUTTON, not a static glyph: it opens a Dropdown of the
+ * pages the range collapsed, so they stay reachable. It takes the same square
+ * cell as a page number so the row's rhythm doesn't break where it appears.
+ */
+
+@layer primitiv.reset, primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;
+
+@layer primitiv.reset {
+  /* The controls are a real <ul> for the a11y tree (nav > ul > li), so the
+     list affordances have to go. */
+  .primitiv-pagination__controls {
+    margin: var(--primitiv-space-space-0);
+    padding: var(--primitiv-space-space-0);
+    list-style: none;
+  }
+
+  /* Neutralise the base `li + li` inter-item margin (the RFC 0016 flow-rhythm
+     rule in the token layer's reset). It is a bare element selector, so it
+     reaches these cells even though they are a control row rather than prose —
+     and because it is `li + li` it skips the FIRST cell only, pushing every
+     other one down by --primitiv-list-item-gap. In a centred horizontal row
+     that reads as the prev button being the one item out of alignment, which
+     is a confusing way for the real cause to present. Same fix Breadcrumb,
+     Dropdown and NavigationMenu apply to their own rows. */
+  .primitiv-pagination__cell {
+    margin-block: var(--primitiv-space-space-0);
+  }
+}
+
+@layer primitiv.base {
+  .primitiv-pagination {
+    /* Tabular figures. Every number here changes in place — a page number as
+       you page, a "3 of 12" as the carousel advances, a value in a numeric
+       column — and proportional digits have different widths, so each update
+       shifts the text (and any column aligned to it) sideways. Inherited, so
+       one declaration on the root covers every numeric part. */
+    font-variant-numeric: tabular-nums;
+    --primitiv-pagination-gap: var(--primitiv-pagination-md-gap);
+    --primitiv-pagination-item-min-inline-size: var(--primitiv-pagination-md-item-min-width);
+    --primitiv-pagination-group-gap: var(--primitiv-pagination-md-group-gap);
+    --primitiv-pagination-control-gap: var(--primitiv-framed-control-md-gap);
+    --primitiv-pagination-icon-size: var(--primitiv-framed-control-md-icon-size);
+    --primitiv-pagination-menu-min-inline-size: var(--primitiv-pagination-md-item-min-width);
+    --primitiv-pagination-menu-max-block-size: var(--primitiv-size-size-288);
+    /* Type, declared on the ROOT so the three text parts (__summary, __status,
+       __trailing) inherit it. They carried no type at all, so they resolved the
+       page's body copy and ignored both the size modifier and density — the
+       page cells scaled around a summary that never moved. It sits on the root
+       rather than on each part because the composed Button cells and Dropdown
+       rows set their own type from their own tokens, so they are immune to it.
+       body/{size} matches what the Dropdown row text aliases. */
+    --primitiv-pagination-font-family: var(--primitiv-body-md-font-family);
+    --primitiv-pagination-font-size: var(--primitiv-body-md-font-size);
+    --primitiv-pagination-font-weight: var(--primitiv-body-md-font-weight);
+    --primitiv-pagination-line-height: var(--primitiv-body-md-line-height);
+
+    display: flex;
+    align-items: center;
+    /* Wrap between the three groups (summary / controls / trailing) rather than
+       compressing them. Identical while the row fits; once it doesn't, a group
+       drops to its own line instead of the labels breaking mid-phrase or the
+       row running off the container. The numbered cell row itself never wraps —
+       `variant="compact"` is the answer for a genuinely narrow container. */
+    flex-wrap: wrap;
+    gap: var(--primitiv-pagination-group-gap);
+    font-family: var(--primitiv-pagination-font-family);
+    font-size: var(--primitiv-pagination-font-size);
+    font-weight: var(--primitiv-pagination-font-weight);
+    line-height: var(--primitiv-pagination-line-height);
+  }
+
+  .primitiv-pagination__controls {
+    display: flex;
+    align-items: center;
+    gap: var(--primitiv-pagination-gap);
+
+    /* The cell row is intrinsically wide — nine cells at md is ~392px, more
+       than a 375px phone has to give — so on a narrow container it has to do
+       SOMETHING. Wrapping beats scrolling here: these cells are a set of
+       choices, and putting choices behind a horizontal scroll hides them.
+       Wrapping only engages when the row genuinely doesn't fit, so a desktop
+       row is untouched.
+     *
+     * This is the component's job, not the page layout's: a parent Grid or
+     * Stack governs how the summary / controls / trailing groups arrange, but
+     * nothing outside can stop a nowrap row overflowing its own box. For a
+     * genuinely cramped container, `variant="compact"` is still the better
+     * answer than a wrapped grid of numbers. */
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  /* Each cell is a <li> wrapping the real Button — the list item itself is
+     layout-neutral so the Button keeps its own box. */
+  .primitiv-pagination__cell {
+    display: flex;
+  }
+
+  /* The floor that makes a cell square. Applied to the composed Button rather
+     than to the <li>, so it is the control's own box that squares up — the hit
+     target, the fill and the focus ring all follow it.
+   *
+   * EVERY cell in the row takes it, prev/next included. They are the same
+   * square as a page number in Figma (Icon Button, whose width and height both
+   * bind to framed-control/{size}/height), and leaving them off here is what
+   * made the chevrons render narrower than the numbers beside them. */
+  .primitiv-pagination__item,
+  .primitiv-pagination__ellipsis,
+  .primitiv-pagination__nav {
+    min-inline-size: var(--primitiv-pagination-item-min-inline-size);
+  }
+
+  /* The inlined chevrons carry a viewBox but no intrinsic width/height, so
+     without this they fall back to the SVG default (300×150) and blow the row
+     apart. Sized off the same icon token the Figma Icon Button binds, so the
+     glyph tracks size AND density rather than sitting at one fixed scale. */
+  .primitiv-pagination__nav > svg {
+    inline-size: var(--primitiv-pagination-icon-size);
+    block-size: var(--primitiv-pagination-icon-size);
+    flex-shrink: 0;
+  }
+
+  /* Compact's readout. Not a control — plain text between the two chevrons. */
+  .primitiv-pagination__status {
+    color: var(--primitiv-content-primary);
+    white-space: nowrap;
+    /* A control's own readout is not page content: a tap-hold here should not
+       select it or pop iOS's callout. */
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+  }
+
+  .primitiv-pagination__summary {
+    color: var(--primitiv-content-muted);
+    white-space: nowrap;
+  }
+
+  .primitiv-pagination__trailing {
+    display: flex;
+    align-items: center;
+    gap: var(--primitiv-pagination-control-gap);
+    /* These three parts hold short, control-adjacent phrases — "Go to",
+       "Page 3 of 20", "Showing 21-30 of 237". A flex item's min-width: auto
+       resolves to MIN-CONTENT for text, i.e. its widest single word, so under
+       any pressure the row happily breaks "Go to" across two lines rather than
+       keeping the label intact. None of them is prose; they should overflow or
+       be re-laid-out by the wrap below, never hyphenate a two-word label. */
+    white-space: nowrap;
+  }
+}
+
+@layer primitiv.variants {
+  /* Prev/next are icon-only, so Button's text padding would stretch the square
+     into a lozenge — the min-inline-size in primitiv.base already reserves the
+     width, and the icon centres in it.
+   *
+   * This MUST sit in a layer after primitiv.base, where `.primitiv-button` sets
+   * padding-inline. Both selectors are a single class, so at equal specificity
+   * in the SAME layer the winner would come down to which stylesheet the
+   * bundler emitted last — i.e. it would work or not depending on install
+   * order. A later layer always wins. (Same trap Alert hit re-pointing Button's
+   * --primitiv-button-fg, and the dropdown menu's min-inline-size below.) */
+  .primitiv-pagination__nav {
+    padding-inline: var(--primitiv-space-space-0);
+  }
+
+  /* Size — both knobs come from the same size slot, so a cell stays square at
+     every density (item-min-width aliases framed-control/{size}/height). */
+  .primitiv-pagination--xs {
+    --primitiv-pagination-font-family: var(--primitiv-body-xs-font-family);
+    --primitiv-pagination-font-size: var(--primitiv-body-xs-font-size);
+    --primitiv-pagination-font-weight: var(--primitiv-body-xs-font-weight);
+    --primitiv-pagination-line-height: var(--primitiv-body-xs-line-height);
+    --primitiv-pagination-gap: var(--primitiv-pagination-xs-gap);
+    --primitiv-pagination-group-gap: var(--primitiv-pagination-xs-group-gap);
+    --primitiv-pagination-control-gap: var(--primitiv-framed-control-xs-gap);
+    --primitiv-pagination-icon-size: var(--primitiv-framed-control-xs-icon-size);
+    --primitiv-pagination-item-min-inline-size: var(--primitiv-pagination-xs-item-min-width);
+    --primitiv-pagination-menu-min-inline-size: var(--primitiv-pagination-xs-item-min-width);
+  }
+
+  .primitiv-pagination--sm {
+    --primitiv-pagination-font-family: var(--primitiv-body-sm-font-family);
+    --primitiv-pagination-font-size: var(--primitiv-body-sm-font-size);
+    --primitiv-pagination-font-weight: var(--primitiv-body-sm-font-weight);
+    --primitiv-pagination-line-height: var(--primitiv-body-sm-line-height);
+    --primitiv-pagination-gap: var(--primitiv-pagination-sm-gap);
+    --primitiv-pagination-group-gap: var(--primitiv-pagination-sm-group-gap);
+    --primitiv-pagination-control-gap: var(--primitiv-framed-control-sm-gap);
+    --primitiv-pagination-icon-size: var(--primitiv-framed-control-sm-icon-size);
+    --primitiv-pagination-item-min-inline-size: var(--primitiv-pagination-sm-item-min-width);
+    --primitiv-pagination-menu-min-inline-size: var(--primitiv-pagination-sm-item-min-width);
+  }
+
+  .primitiv-pagination--md {
+    --primitiv-pagination-font-family: var(--primitiv-body-md-font-family);
+    --primitiv-pagination-font-size: var(--primitiv-body-md-font-size);
+    --primitiv-pagination-font-weight: var(--primitiv-body-md-font-weight);
+    --primitiv-pagination-line-height: var(--primitiv-body-md-line-height);
+    --primitiv-pagination-gap: var(--primitiv-pagination-md-gap);
+    --primitiv-pagination-group-gap: var(--primitiv-pagination-md-group-gap);
+    --primitiv-pagination-control-gap: var(--primitiv-framed-control-md-gap);
+    --primitiv-pagination-icon-size: var(--primitiv-framed-control-md-icon-size);
+    --primitiv-pagination-item-min-inline-size: var(--primitiv-pagination-md-item-min-width);
+    --primitiv-pagination-menu-min-inline-size: var(--primitiv-pagination-md-item-min-width);
+  }
+
+  .primitiv-pagination--lg {
+    --primitiv-pagination-font-family: var(--primitiv-body-lg-font-family);
+    --primitiv-pagination-font-size: var(--primitiv-body-lg-font-size);
+    --primitiv-pagination-font-weight: var(--primitiv-body-lg-font-weight);
+    --primitiv-pagination-line-height: var(--primitiv-body-lg-line-height);
+    --primitiv-pagination-gap: var(--primitiv-pagination-lg-gap);
+    --primitiv-pagination-group-gap: var(--primitiv-pagination-lg-group-gap);
+    --primitiv-pagination-control-gap: var(--primitiv-framed-control-lg-gap);
+    --primitiv-pagination-icon-size: var(--primitiv-framed-control-lg-icon-size);
+    --primitiv-pagination-item-min-inline-size: var(--primitiv-pagination-lg-item-min-width);
+    --primitiv-pagination-menu-min-inline-size: var(--primitiv-pagination-lg-item-min-width);
+  }
+
+  .primitiv-pagination--xl {
+    --primitiv-pagination-font-family: var(--primitiv-body-xl-font-family);
+    --primitiv-pagination-font-size: var(--primitiv-body-xl-font-size);
+    --primitiv-pagination-font-weight: var(--primitiv-body-xl-font-weight);
+    --primitiv-pagination-line-height: var(--primitiv-body-xl-line-height);
+    --primitiv-pagination-gap: var(--primitiv-pagination-xl-gap);
+    --primitiv-pagination-group-gap: var(--primitiv-pagination-xl-group-gap);
+    --primitiv-pagination-control-gap: var(--primitiv-framed-control-xl-gap);
+    --primitiv-pagination-icon-size: var(--primitiv-framed-control-xl-icon-size);
+    --primitiv-pagination-item-min-inline-size: var(--primitiv-pagination-xl-item-min-width);
+    --primitiv-pagination-menu-min-inline-size: var(--primitiv-pagination-xl-item-min-width);
+  }
+
+  /* Compact's prev / readout / next are three separate groups, not adjacent
+     cells, so they take the ordinary control gap rather than the tight one. */
+  .primitiv-pagination--compact .primitiv-pagination__controls {
+    gap: var(--primitiv-pagination-control-gap);
+  }
+
+  /* Re-point Dropdown's own panel floor for the overflow menu.
+   *
+   * This MUST sit in a layer after `primitiv.base`, where Dropdown sets
+   * --primitiv-dropdown-min-inline-size on .primitiv-dropdown__content. Both
+   * selectors are a single class, so at equal specificity in the same layer the
+   * winner would come down to which stylesheet the bundler emitted last — i.e.
+   * it would work or not depending on install order. A later layer always wins.
+   * (Same trap Alert hit re-pointing Button's --primitiv-button-fg.)
+   *
+   * Dropdown's 12rem floor is sized for menu LABELS; this menu holds page
+   * numbers, so 12rem leaves an absurd expanse of empty panel beside "6 7 8 9".
+   * Dropping the floor to the page-cell width lets the panel hug its numbers
+   * while never getting narrower than the cell it drops from. */
+  .primitiv-pagination__menu {
+    --primitiv-dropdown-min-inline-size: var(--primitiv-pagination-menu-min-inline-size);
+    /* A collapsed run is unbounded by nature — at 1000 pages the middle gap
+       hides 499 of them. Cap the panel so it scrolls instead of running off the
+       viewport, rather than relying on a collision fallback to notice: this
+       menu is long in open space too, not only when it collides. */
+    --primitiv-dropdown-max-block-size: var(--primitiv-pagination-menu-max-block-size);
+  }
+}
+
+@layer primitiv.states {
+  /* The current page is marked with aria-current, so the styling hangs off the
+     same attribute the a11y tree uses rather than a parallel class — they
+     cannot drift apart. Visual weight comes from the composed Button's own
+     `primary` variant; nothing extra is painted here. */
+  .primitiv-pagination__item[aria-current="page"] {
+    cursor: default;
+  }
+}

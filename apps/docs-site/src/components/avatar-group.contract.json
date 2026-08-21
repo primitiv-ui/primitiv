@@ -1,0 +1,37 @@
+{
+  "$schema": "https://primitiv-ui.dev/schema/contract.json",
+  "name": "avatar-group",
+  "version": "0.1.0",
+  "description": "An overlapping row of Avatars with an optional \"+N\" overflow counter — the collaborators/attendees pattern. Composes the registry `avatar` component; the counter is itself an Avatar, not a Badge. Sized xs–xl; `data-density` scales each size further.",
+  "docs": "https://primitiv-ui.dev/docs/components/avatar-group",
+  "root": { "element": "div", "class": "primitiv-avatar-group" },
+  "dataAttributes": [],
+  "modifiers": [
+    {
+      "name": "size",
+      "default": "md",
+      "description": "Matches the nested Avatars' size; `data-density` scales each size further.",
+      "options": [
+        { "name": "xs", "class": "primitiv-avatar-group--xs", "description": "Extra small." },
+        { "name": "sm", "class": "primitiv-avatar-group--sm", "description": "Small." },
+        { "name": "md", "class": "primitiv-avatar-group--md", "description": "Medium (the default)." },
+        { "name": "lg", "class": "primitiv-avatar-group--lg", "description": "Large." },
+        { "name": "xl", "class": "primitiv-avatar-group--xl", "description": "Extra large." }
+      ]
+    },
+    {
+      "name": "direction",
+      "default": "ltr",
+      "description": "Which way the stack advances. Decides which end the counter lands on.",
+      "options": [
+        { "name": "ltr", "class": "primitiv-avatar-group--ltr", "description": "Left to right (the default)." },
+        { "name": "rtl", "class": "primitiv-avatar-group--rtl", "description": "Right to left." }
+      ]
+    }
+  ],
+  "customProperties": [
+    { "name": "--primitiv-avatar-group-overlap", "defaultsTo": "var(--primitiv-avatar-group-md-overlap)" },
+    { "name": "--primitiv-avatar-group-ring-width", "defaultsTo": "var(--primitiv-avatar-group-md-ring-width)" },
+    { "name": "--primitiv-avatar-group-ring-color", "defaultsTo": "var(--primitiv-surface-default)" }
+  ]
+}

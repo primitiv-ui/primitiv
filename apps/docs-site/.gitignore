@@ -1,0 +1,7 @@
+# Static export output. `next.config.ts` sets `output: "export"`, so a build
+# writes the whole site here — generated, never committed. The root .gitignore
+# already covers `.next/` and `node_modules/`.
+/out/
+
+# Incremental TypeScript build cache.
+*.tsbuildinfo

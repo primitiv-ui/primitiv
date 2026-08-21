@@ -1,0 +1,358 @@
+/*
+ * Button — Primitiv default theme (canonical CSS).
+ *
+ * Copied into the consumer repo by `primitiv add button`. It is yours to edit:
+ * the stable surface is the contract (the .primitiv-button class, the --xs…--xl
+ * / --primary…--link modifiers, and the --primitiv-button-* custom properties),
+ * not these values (RFC 0006 Principle 2 — names are stable, values are not).
+ *
+ * Structure follows RFC 0008: per-component API tokens + the base rule live in
+ * primitiv.base, visual modifiers in primitiv.variants, state styling in
+ * primitiv.states. The sublayer order is declared once in the shared token
+ * layer (primitiv.tokens.css); this file only re-opens the named sublayers.
+ *
+ * Requires the token layer (`primitiv tokens`) for the --primitiv-action-*,
+ * --primitiv-framed-control-*, --primitiv-focus-ring-*, --primitiv-surface-*,
+ * --primitiv-opacity-*, --primitiv-color-*, --primitiv-motion-* and
+ * --primitiv-elevation-* custom properties it resolves.
+ */
+
+/* Declare the sublayer order up front so this sheet is safe to load ahead of
+ * the token layer: CSS fixes layer precedence by first appearance, so without
+ * this a component stylesheet seen first would register primitiv.base before
+ * primitiv.reset and let the reset win (RFC 0008 §7). */
+@layer primitiv.reset, primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;
+
+@layer primitiv.base {
+  .primitiv-button {
+    /* Per-component API — the themable knobs, defaulting to the primary intent
+       at the md size. Modifiers below re-point them; consumers can override any
+       one without touching the rule. */
+    --primitiv-button-bg: var(--primitiv-action-primary-default);
+    --primitiv-button-fg: var(--primitiv-action-primary-foreground-default);
+    --primitiv-button-border-color: var(--primitiv-action-primary-border-default);
+    --primitiv-button-border-width: var(--primitiv-framed-control-border-width);
+    --primitiv-button-radius: var(--primitiv-framed-control-md-radius);
+    --primitiv-button-height: var(--primitiv-framed-control-md-height);
+    --primitiv-button-padding-inline: var(--primitiv-framed-control-md-padding-inline);
+    --primitiv-button-gap: var(--primitiv-framed-control-md-gap);
+    --primitiv-button-icon-size: var(--primitiv-framed-control-md-icon-size);
+    --primitiv-button-icon-optical-inset: var(--primitiv-framed-control-md-icon-optical-inset);
+    --primitiv-button-font-family: var(--primitiv-label-md-font-family);
+    --primitiv-button-font-size: var(--primitiv-label-md-font-size);
+    --primitiv-button-font-weight: var(--primitiv-label-md-font-weight);
+    --primitiv-button-line-height: var(--primitiv-label-md-line-height);
+    --primitiv-button-shadow: var(--primitiv-elevation-flat);
+    /* Press feedback depth. Set to 1 to switch the press scale off. */
+    --primitiv-button-press-scale: 0.96;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--primitiv-button-gap);
+    block-size: var(--primitiv-button-height);
+    padding-inline: var(--primitiv-button-padding-inline);
+    border: var(--primitiv-button-border-width) solid var(--primitiv-button-border-color);
+    border-radius: var(--primitiv-button-radius);
+    background: var(--primitiv-button-bg);
+    color: var(--primitiv-button-fg);
+    /* A <button> is never underlined, so this looks redundant — but under
+       `asChild` the rendered element is often an <a>, which inherits the base
+       layer's `text-decoration-line: underline`. Without this, every
+       link-as-button arrives underlined. The `--link` variant opts back in. */
+    text-decoration: none;
+    box-shadow: var(--primitiv-button-shadow);
+    font-family: var(--primitiv-button-font-family);
+    font-size: var(--primitiv-button-font-size);
+    font-weight: var(--primitiv-button-font-weight);
+    line-height: var(--primitiv-button-line-height);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    /* Prevent tap-hold from selecting the button's label / triggering iOS's
+       text-selection callout — a control's own label isn't page content. */
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    transition:
+      background-color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default),
+      border-color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default),
+      box-shadow var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default),
+      color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default),
+      scale var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
+  }
+
+  .primitiv-button svg {
+    inline-size: var(--primitiv-button-icon-size);
+    block-size: var(--primitiv-button-icon-size);
+  }
+
+  /* text-box-trim must be applied to the element directly wrapping the text
+     node — not the flex container — for engines to honour it. The registry
+     component wraps string/number children in this span automatically so
+     consumers never need to do it by hand. */
+  /* Never wrap the label. A multi-word label (e.g. SplitButtonAction's
+     "Squash and merge") sits inside an inline-flex row with no width of its
+     own, so a squeezed ancestor (a narrow flex row, a mobile viewport) would
+     otherwise let it break mid-phrase — the button's fixed block-size doesn't
+     grow to fit, so the extra lines spill outside the control entirely. This
+     also raises the label's min-content width to its full rendered width,
+     which is what stops the button itself shrinking narrower than the text
+     in a flex/Stack row (a flex item's default min-width:auto is its
+     min-content size). Same rule Badge/Chip/Tag already carry. */
+  .primitiv-button__label {
+    text-box-trim: trim-both;
+    text-box-edge: cap alphabetic;
+    white-space: nowrap;
+  }
+}
+
+@layer primitiv.variants {
+  /* Intent — purely visual; the headless layer has no notion of it. */
+  .primitiv-button--primary {
+    --primitiv-button-bg: var(--primitiv-action-primary-default);
+    --primitiv-button-fg: var(--primitiv-action-primary-foreground-default);
+    --primitiv-button-border-color: var(--primitiv-action-primary-border-default);
+  }
+  /* Gated behind (hover: hover) — see the note by the elevation hover rules
+     below for why every :hover rule in this file is guarded. */
+  @media (hover: hover) {
+    .primitiv-button--primary:hover {
+      --primitiv-button-bg: var(--primitiv-action-primary-hover);
+      --primitiv-button-border-color: var(--primitiv-action-primary-border-hover);
+    }
+  }
+  .primitiv-button--primary:active {
+    --primitiv-button-bg: var(--primitiv-action-primary-active);
+    --primitiv-button-border-color: var(--primitiv-action-primary-border-active);
+  }
+
+  .primitiv-button--secondary {
+    --primitiv-button-bg: var(--primitiv-action-secondary-default);
+    --primitiv-button-fg: var(--primitiv-action-secondary-foreground-default);
+    --primitiv-button-border-color: var(--primitiv-action-secondary-border-default);
+  }
+  @media (hover: hover) {
+    .primitiv-button--secondary:hover {
+      --primitiv-button-bg: var(--primitiv-action-secondary-hover);
+      --primitiv-button-border-color: var(--primitiv-action-secondary-border-hover);
+    }
+  }
+  .primitiv-button--secondary:active {
+    --primitiv-button-bg: var(--primitiv-action-secondary-active);
+    --primitiv-button-border-color: var(--primitiv-action-secondary-border-active);
+  }
+
+  .primitiv-button--danger {
+    --primitiv-button-bg: var(--primitiv-action-danger-default);
+    --primitiv-button-fg: var(--primitiv-action-danger-foreground-default);
+    --primitiv-button-border-color: var(--primitiv-action-danger-border-default);
+  }
+  @media (hover: hover) {
+    .primitiv-button--danger:hover {
+      --primitiv-button-bg: var(--primitiv-action-danger-hover);
+      --primitiv-button-border-color: var(--primitiv-action-danger-border-hover);
+    }
+  }
+  .primitiv-button--danger:active {
+    --primitiv-button-bg: var(--primitiv-action-danger-active);
+    --primitiv-button-border-color: var(--primitiv-action-danger-border-active);
+  }
+
+  /* Ghost — no frame: transparent fill and border at rest, then the ghost
+     state layer (action/ghost/*, the neutral-alpha ramp) washes in on
+     hover/active, compositing over whatever surface sits beneath instead of
+     assuming the default one. The border-color goes transparent (the
+     border-width is kept) so ghost stays pixel-aligned with the framed
+     intents — no layout shift when swapping. */
+  .primitiv-button--ghost {
+    --primitiv-button-bg: var(--primitiv-color-transparent);
+    --primitiv-button-border-color: var(--primitiv-color-transparent);
+    --primitiv-button-fg: var(--primitiv-action-secondary-foreground-default);
+  }
+  @media (hover: hover) {
+    .primitiv-button--ghost:hover {
+      --primitiv-button-bg: var(--primitiv-action-ghost-hover);
+    }
+  }
+  .primitiv-button--ghost:active {
+    --primitiv-button-bg: var(--primitiv-action-ghost-active);
+  }
+
+  /* Link — no frame; text-coloured and underlined so it reads as a link without
+     relying on colour alone (WCAG 1.4.1). `underline` is a CSS keyword with no
+     token home, like `solid` elsewhere. */
+  .primitiv-button--link {
+    --primitiv-button-bg: var(--primitiv-color-transparent);
+    --primitiv-button-border-color: var(--primitiv-color-transparent);
+    --primitiv-button-fg: var(--primitiv-action-link-foreground-default);
+    text-decoration: underline;
+  }
+  @media (hover: hover) {
+    .primitiv-button--link:hover {
+      --primitiv-button-fg: var(--primitiv-action-link-foreground-hover);
+    }
+  }
+  .primitiv-button--link:active {
+    --primitiv-button-fg: var(--primitiv-action-link-foreground-active);
+  }
+
+  /* Elevation — every framed intent lifts to the `raised` rung on hover; the
+     frameless link and ghost variants stay flat (no border to lift, so a shadow
+     would float). The lift transitions via the button's --primitiv-motion-*
+     tokens (the box-shadow is in the base rule's transition). Gated behind
+     (hover: hover), like every other :hover rule in this file: a touchscreen
+     simulates :hover on tap and it "sticks" until the next tap elsewhere (no
+     real pointer to leave), which would otherwise leave a just-tapped button
+     showing its hover shade instead of its resting one. A real mouse is
+     unaffected. */
+  @media (hover: hover) {
+    .primitiv-button:hover {
+      --primitiv-button-shadow: var(--primitiv-elevation-raised);
+    }
+    .primitiv-button--link:hover,
+    .primitiv-button--ghost:hover {
+      --primitiv-button-shadow: var(--primitiv-elevation-flat);
+    }
+  }
+
+  /* Size — re-points the framed-control knobs to the chosen slot. Density stays
+     ambient via [data-density] on the token values themselves (RFC 0009). */
+  .primitiv-button--xs {
+    --primitiv-button-radius: var(--primitiv-framed-control-xs-radius);
+    --primitiv-button-height: var(--primitiv-framed-control-xs-height);
+    --primitiv-button-padding-inline: var(--primitiv-framed-control-xs-padding-inline);
+    --primitiv-button-gap: var(--primitiv-framed-control-xs-gap);
+    --primitiv-button-icon-size: var(--primitiv-framed-control-xs-icon-size);
+    --primitiv-button-icon-optical-inset: var(--primitiv-framed-control-xs-icon-optical-inset);
+    --primitiv-button-font-family: var(--primitiv-label-xs-font-family);
+    --primitiv-button-font-size: var(--primitiv-label-xs-font-size);
+    --primitiv-button-font-weight: var(--primitiv-label-xs-font-weight);
+    --primitiv-button-line-height: var(--primitiv-label-xs-line-height);
+  }
+  .primitiv-button--sm {
+    --primitiv-button-radius: var(--primitiv-framed-control-sm-radius);
+    --primitiv-button-height: var(--primitiv-framed-control-sm-height);
+    --primitiv-button-padding-inline: var(--primitiv-framed-control-sm-padding-inline);
+    --primitiv-button-gap: var(--primitiv-framed-control-sm-gap);
+    --primitiv-button-icon-size: var(--primitiv-framed-control-sm-icon-size);
+    --primitiv-button-icon-optical-inset: var(--primitiv-framed-control-sm-icon-optical-inset);
+    --primitiv-button-font-family: var(--primitiv-label-sm-font-family);
+    --primitiv-button-font-size: var(--primitiv-label-sm-font-size);
+    --primitiv-button-font-weight: var(--primitiv-label-sm-font-weight);
+    --primitiv-button-line-height: var(--primitiv-label-sm-line-height);
+  }
+  .primitiv-button--md {
+    --primitiv-button-radius: var(--primitiv-framed-control-md-radius);
+    --primitiv-button-height: var(--primitiv-framed-control-md-height);
+    --primitiv-button-padding-inline: var(--primitiv-framed-control-md-padding-inline);
+    --primitiv-button-gap: var(--primitiv-framed-control-md-gap);
+    --primitiv-button-icon-size: var(--primitiv-framed-control-md-icon-size);
+    --primitiv-button-icon-optical-inset: var(--primitiv-framed-control-md-icon-optical-inset);
+    --primitiv-button-font-family: var(--primitiv-label-md-font-family);
+    --primitiv-button-font-size: var(--primitiv-label-md-font-size);
+    --primitiv-button-font-weight: var(--primitiv-label-md-font-weight);
+    --primitiv-button-line-height: var(--primitiv-label-md-line-height);
+  }
+  .primitiv-button--lg {
+    --primitiv-button-radius: var(--primitiv-framed-control-lg-radius);
+    --primitiv-button-height: var(--primitiv-framed-control-lg-height);
+    --primitiv-button-padding-inline: var(--primitiv-framed-control-lg-padding-inline);
+    --primitiv-button-gap: var(--primitiv-framed-control-lg-gap);
+    --primitiv-button-icon-size: var(--primitiv-framed-control-lg-icon-size);
+    --primitiv-button-icon-optical-inset: var(--primitiv-framed-control-lg-icon-optical-inset);
+    --primitiv-button-font-family: var(--primitiv-label-lg-font-family);
+    --primitiv-button-font-size: var(--primitiv-label-lg-font-size);
+    --primitiv-button-font-weight: var(--primitiv-label-lg-font-weight);
+    --primitiv-button-line-height: var(--primitiv-label-lg-line-height);
+  }
+  .primitiv-button--xl {
+    --primitiv-button-radius: var(--primitiv-framed-control-xl-radius);
+    --primitiv-button-height: var(--primitiv-framed-control-xl-height);
+    --primitiv-button-padding-inline: var(--primitiv-framed-control-xl-padding-inline);
+    --primitiv-button-gap: var(--primitiv-framed-control-xl-gap);
+    --primitiv-button-icon-size: var(--primitiv-framed-control-xl-icon-size);
+    --primitiv-button-icon-optical-inset: var(--primitiv-framed-control-xl-icon-optical-inset);
+    --primitiv-button-font-family: var(--primitiv-label-xl-font-family);
+    --primitiv-button-font-size: var(--primitiv-label-xl-font-size);
+    --primitiv-button-font-weight: var(--primitiv-label-xl-font-weight);
+    --primitiv-button-line-height: var(--primitiv-label-xl-line-height);
+  }
+
+  /* Optical alignment for an icon+label button.
+     An icon fills its box to the edge; a text label carries natural side
+     bearing. With equal padding the icon side therefore reads heavier and the
+     label looks pushed toward the far edge. Pulling the icon side in by
+     framed-control/{size}/icon-optical-inset evens the two out — the same
+     correction alert/{size}/icon-offset-top already makes on the block axis.
+
+     The `:has(> .primitiv-button__label)` guard is load-bearing: it restricts
+     this to buttons that actually pair an icon with text. An icon-ONLY button
+     is its own first and last child, so without the guard both sides would be
+     pulled in and a control that should be symmetric would shrink. The label
+     span is added automatically for string/number children; a consumer who
+     passes their own element gets no inset rather than a wrong one. */
+  .primitiv-button:has(> svg:first-child):has(> .primitiv-button__label) {
+    padding-inline-start: calc(
+      var(--primitiv-button-padding-inline) - var(--primitiv-button-icon-optical-inset)
+    );
+  }
+
+  .primitiv-button:has(> svg:last-child):has(> .primitiv-button__label) {
+    padding-inline-end: calc(
+      var(--primitiv-button-padding-inline) - var(--primitiv-button-icon-optical-inset)
+    );
+  }
+}
+
+@layer primitiv.states {
+  /* Focus — the shared two-layer ring, identical on every framed control. Two
+     stacked box-shadows so the ring follows the control's own radius and stays
+     concentric at every size (no per-size radius token needed): a surface-
+     coloured gap band, then the brand ring just outside it. :focus-visible keeps
+     it to keyboard focus. The ring is a system concern — restyle it by overriding
+     the --primitiv-focus-ring* / --primitiv-surface-default tokens globally, not
+     via a per-component knob. */
+  .primitiv-button:focus-visible {
+    outline: none;
+    box-shadow:
+      0 0 0 var(--primitiv-focus-ring-offset) var(--primitiv-surface-default),
+      0 0 0 calc(var(--primitiv-focus-ring-offset) + var(--primitiv-focus-ring-width))
+        var(--primitiv-focus-ring);
+  }
+
+  /* Forced colours (Windows High Contrast) discards box-shadow, so the ring
+     above renders nothing and the `outline: none` beside it is all that
+     survives — leaving no focus indicator at all. Restore a real outline,
+     which the mode does honour, in the system Highlight colour. Same tokens
+     as the ring, so the geometry is unchanged. */
+  @media (forced-colors: active) {
+    .primitiv-button:focus-visible {
+      outline: var(--primitiv-focus-ring-width) solid Highlight;
+      outline-offset: var(--primitiv-focus-ring-offset);
+    }
+  }
+
+  /* Disabled is intent-neutral so it reads the same on every variant; the
+     states layer sits above variants, so it always wins (RFC 0008 §2.3). */
+  .primitiv-button[data-disabled] {
+    opacity: var(--primitiv-opacity-50);
+    cursor: not-allowed;
+  }
+    /* Press feedback. A 4% shrink is the cheapest tactile signal a control can
+       give, and it is additive: the background/border already change on :active,
+       so colour remains the static cue and this only sharpens it. 0.96 exactly —
+       below 0.95 reads as exaggerated.
+
+       Gated behind (prefers-reduced-motion: no-preference) so motion is opt-in,
+       which is safe precisely because the colour change is not gated: a reduced-
+       motion user still gets a press state, just not a moving one.
+
+       Set --primitiv-button-press-scale to 1 to switch it off without touching
+       the rule — the registry's own escape-hatch idiom, rather than a new prop
+       that would need a contract, recipe and wrapper change. */
+    @media (prefers-reduced-motion: no-preference) {
+      .primitiv-button:active {
+        scale: var(--primitiv-button-press-scale);
+      }
+    }
+}

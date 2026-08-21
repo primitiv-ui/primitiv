@@ -1,0 +1,599 @@
+/*
+ * Tree — Primitiv default theme (canonical CSS).
+ *
+ * Copied into the consumer repo by `primitiv add tree`. It is yours to edit: the
+ * stable surface is the contract (the .primitiv-tree container + __item /
+ * __branch / __branch-control / __branch-content / __branch-indicator /
+ * __selection-path parts, the --xs…--xl size modifiers, the
+ * --connectors-lines / --connectors-none modifiers, the data-state /
+ * data-selected / data-disabled / data-leaf / data-branch hooks, and the
+ * --primitiv-tree-* custom properties), not these values (RFC 0006 Principle 2 —
+ * names are stable, values are not).
+ *
+ * Anatomy mirrors the Figma design (page "Tree": Tree / Item, Tree / Branch
+ * Control, Tree / Connector, and the composed Tree specimen): a column of
+ * fixed-height rows, each a leaf or a disclosure, joined to their parent by
+ * hairline guide lines.
+ *
+ * INDENTATION IS THE ROW'S OWN PADDING, driven by --primitiv-tree-depth, which
+ * the wrapper publishes from the headless `useTreeLevel` hook. Indenting via
+ * padding on each enclosing group would be simpler, but it starts every nested
+ * row's BOX at the indent — so a hover or selected band would begin partway
+ * across the tree instead of running edge to edge the way VS Code and most file
+ * trees do. Padding the row instead keeps every box full-width and moves only
+ * its contents. (Pulling an indented row back out with a negative margin was
+ * the other option, and it does not work: the open/close clip below would cut
+ * the overhang at every level.) The depth is threaded as a custom property
+ * rather than read from `data-depth` in CSS because `attr(… type(<integer>))`
+ * is Chrome 133+ / Safari 18.2+ and Firefox falls back to the default.
+ *
+ * CONNECTORS. Each nested treeitem draws its own two segments, positioned
+ * against its PARENT's rail column, which sits a fixed distance to its
+ * inline-start: --primitiv-tree-connector-rail-offset (padding-inline +
+ * icon-size / 2, i.e. the centre of the parent's chevron) minus the indent.
+ * Both offsets are logical, so RTL falls out for free.
+ *   - the vertical rail (::after) spans the treeitem's FULL height — for a
+ *     branch that includes its whole open subtree, which is exactly how an
+ *     ancestor's line continues past deeper rows;
+ *   - :last-child truncates it to --primitiv-tree-connector-elbow-height (half
+ *     a row), forming the elbow;
+ *   - the horizontal stub (::before) sits at the row's midpoint and is LONGER
+ *     for a leaf than for a branch — a branch draws a chevron in its leading
+ *     slot so the stub must stop before that glyph, while a leaf leaves the slot
+ *     empty, putting its first ink a whole icon-width further along. One length
+ *     for both leaves a leaf's stub dying in blank space (see the Figma
+ *     Tree / Connector `Target` axis, which is the same distinction).
+ * Depth-0 rows are children of the root, not of a content body, so the
+ * `__branch-content-body >` selector excludes them with no extra rule.
+ *
+ * Structure follows RFC 0008: per-component API tokens + the resting look live
+ * in primitiv.base, the size / connector modifiers in primitiv.variants, and
+ * the hover / selected / disabled / focus / open-close styling in
+ * primitiv.states. The sublayer order is declared once in the shared token
+ * layer (primitiv.tokens.css); this file only re-opens the named sublayers.
+ *
+ * Requires the token layer (`primitiv tokens`) for the --primitiv-tree-*,
+ * --primitiv-content-*, --primitiv-border-*, --primitiv-action-*,
+ * --primitiv-body-*, --primitiv-space-*, --primitiv-color-*, --primitiv-focus-*,
+ * --primitiv-surface-*, --primitiv-opacity-* and --primitiv-motion-* custom
+ * properties it resolves.
+ */
+
+/* Declare the sublayer order up front so this sheet is safe to load ahead of the
+ * token layer (RFC 0008 §7). */
+@layer primitiv.reset, primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;
+
+@layer primitiv.base {
+  .primitiv-tree {
+    /* Per-component API — the themable knobs, defaulting to the md size. The
+       size modifiers re-point the sizing knobs; consumers can override any one
+       without touching the rule. */
+    --primitiv-tree-indent: var(--primitiv-tree-md-indent);
+    --primitiv-tree-item-height: var(--primitiv-tree-md-item-height);
+    --primitiv-tree-item-padding-inline: var(--primitiv-tree-md-item-padding-inline);
+    --primitiv-tree-item-gap: var(--primitiv-tree-md-item-gap);
+    --primitiv-tree-item-radius: var(--primitiv-tree-md-item-radius);
+    --primitiv-tree-item-icon-size: var(--primitiv-tree-md-item-icon-size);
+
+    /* Row type is one tier BELOW the row's own size on the xs<sm<md<lg<xl
+       ladder (md rows read at body/sm). A tree row reads visually smaller than
+       a framed control of the same size name — unlike Dropdown, whose item type
+       tracks its size 1:1. Mirrors the Figma sets. */
+    --primitiv-tree-item-font-family: var(--primitiv-body-sm-font-family);
+    --primitiv-tree-item-font-size: var(--primitiv-body-sm-font-size);
+    --primitiv-tree-item-font-weight: var(--primitiv-body-sm-font-weight);
+    --primitiv-tree-item-line-height: var(--primitiv-body-sm-line-height);
+
+    --primitiv-tree-item-color: var(--primitiv-content-primary);
+    --primitiv-tree-item-bg: var(--primitiv-color-transparent);
+    /* The row state layer — its own semantic Intent pair, aliasing the
+       neutral-alpha ghost ramp one step lighter than action/ghost/* (which is
+       200/300). A tree is a dense column of stacked rows scanned at a glance,
+       not a single button: at the button weight the bands read heavy and the
+       tree looks striped. Deliberately NOT rebound to action/ghost/*, so
+       Button, Icon Button, the Modal close and Dropdown keep their own weight.
+
+       These resolve tree/row/* rather than reaching straight for the
+       color/neutral-alpha/* primitives. In CSS either would work — the palette
+       flips by theme — but Figma resolves its Palette collection through Light
+       mode on dark frames, so only a semantic Intent token (which carries its
+       own Light/Dark modes) can be bound on both sides. Going through the
+       semantic layer is what lets the Figma sets and this sheet stay in
+       lockstep. Selected is the persistent tint; hover layers over it. */
+    --primitiv-tree-item-bg-hover: var(--primitiv-tree-row-hover);
+    --primitiv-tree-item-bg-selected: var(--primitiv-tree-row-selected);
+
+    --primitiv-tree-focus-ring-radius: var(--primitiv-tree-md-item-focus-ring-radius);
+
+    /* Chevron rotation. A single glyph rotated, NOT the two-glyph swap the
+       Figma set models (Expanded=closed uses chevron-right, open uses
+       chevron-down): a swap cannot animate, and Figma has no way to express a
+       transform, so the two describe the same design in the vocabulary each
+       platform has. Rotating also keeps the affordance in sync by construction
+       — there is only one glyph, so it cannot disagree with the state. Mirrors
+       Collapsible's trigger-icon-rotation. */
+    --primitiv-tree-indicator-rotation: 0deg;
+
+    --primitiv-tree-connector-color: var(--primitiv-border-subtle);
+    --primitiv-tree-connector-thickness: var(--primitiv-border-width-1);
+    --primitiv-tree-connector-elbow-height: var(--primitiv-tree-md-connector-elbow-height);
+    --primitiv-tree-connector-stub-width: var(--primitiv-tree-md-connector-stub-width);
+    --primitiv-tree-connector-stub-width-leaf: var(--primitiv-tree-md-connector-stub-width-leaf);
+    /* Where the parent's rail sits inside the parent row: the centre of its
+       chevron column. Derived, not a token — it is a pure function of two knobs
+       the consumer may already have overridden. */
+    --primitiv-tree-connector-rail-offset: calc(
+      var(--primitiv-tree-item-padding-inline) + var(--primitiv-tree-item-icon-size) / 2
+    );
+
+    --primitiv-tree-transition-duration: var(--primitiv-motion-duration-control);
+    --primitiv-tree-transition-easing: var(--primitiv-motion-easing-default);
+
+    --primitiv-tree-selection-path-gap: var(--primitiv-space-space-4);
+    /* The selected node is marked by WEIGHT, never by size — see the selection
+       path rules below for why. */
+    --primitiv-tree-selection-path-current-font-weight: var(
+      --primitiv-font-weight-semibold
+    );
+    /* Vertical slack for the row label's clip box — see the label rule below. */
+    --primitiv-tree-label-ink-slack: var(--primitiv-space-space-1);
+
+    color: var(--primitiv-tree-item-color);
+    font-family: var(--primitiv-tree-item-font-family);
+    font-size: var(--primitiv-tree-item-font-size);
+    font-weight: var(--primitiv-tree-item-font-weight);
+    line-height: var(--primitiv-tree-item-line-height);
+  }
+
+  /* ── Rows — a leaf Item and a Branch's control row share one shell ──
+     A leaf treeitem IS its row; a branch treeitem is a container whose FIRST
+     child is the row (the rest is its subtree), which is why the two are styled
+     together here but targeted separately everywhere state is involved. */
+  .primitiv-tree__item,
+  .primitiv-tree__branch-control {
+    display: flex;
+    align-items: center;
+    gap: var(--primitiv-tree-item-gap);
+    box-sizing: border-box;
+    min-block-size: var(--primitiv-tree-item-height);
+    /* The indent lives here, not on the enclosing group, so the box stays
+       full-width and only the contents move inward. */
+    padding-inline: calc(
+        var(--primitiv-tree-depth, 0) * var(--primitiv-tree-indent) +
+          var(--primitiv-tree-item-padding-inline)
+      )
+      var(--primitiv-tree-item-padding-inline);
+    border-radius: var(--primitiv-tree-item-radius);
+    /* background-COLOR, not the shorthand: the states layer paints the hover
+       tint into background-image so the two can composite, and mixing a
+       shorthand here with a longhand there is the kind of subtlety that quietly
+       breaks later. Both channels stay explicit. */
+    background-color: var(--primitiv-tree-item-bg);
+    cursor: default;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+
+  /* The branch treeitem is pure structure — it stacks its control row above its
+     content group and carries no box of its own. */
+  .primitiv-tree__branch {
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* The chevron column. A leaf reserves the same square via the wrapper's
+     spacer, so leaf and branch labels line up in a mixed list. */
+  .primitiv-tree__branch-indicator,
+  .primitiv-tree__item-spacer {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: var(--primitiv-tree-item-icon-size);
+    block-size: var(--primitiv-tree-item-icon-size);
+  }
+
+  /* Pass a single closed-orientation glyph (chevron-right); this turns it. */
+  .primitiv-tree__branch-indicator {
+    rotate: var(--primitiv-tree-indicator-rotation);
+  }
+
+  .primitiv-tree__branch-indicator > svg,
+  .primitiv-tree__item-icon > svg,
+  .primitiv-tree__branch-control-icon > svg {
+    inline-size: var(--primitiv-tree-item-icon-size);
+    block-size: var(--primitiv-tree-item-icon-size);
+  }
+
+  /* Optional decoration after the chevron column (a folder / file glyph). */
+  .primitiv-tree__item-icon,
+  .primitiv-tree__branch-control-icon {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: var(--primitiv-tree-item-icon-size);
+    block-size: var(--primitiv-tree-item-icon-size);
+  }
+
+  /* The label takes the free space; min-inline-size:0 overrides the flex item's
+     auto content floor so a long name truncates rather than widening the row.
+
+     The padding/negative-margin pair exists to stop `overflow: hidden` from
+     shaving the bottom off descenders (g, j, p, q, y). The clip box is the
+     line box, and Asta Sans has a content area of 1.193em — measured off the
+     real font, not assumed — while the tighter rungs of the density ramp set
+     line-height below or barely above that: dense/lg is 13px on 16px (1.23)
+     and dense/xs is 10px on 12px (1.20). The deepest ink then lands within
+     0.25–0.5px of the clip edge, so whether it survives comes down to device
+     pixel ratio, browser zoom and the row's subpixel offset — which is exactly
+     why it cut "sometimes" rather than always, and why it never reproduces at
+     the comfortable/md default. Padding grows the clip box (overflow clips at
+     the PADDING box, not the content box); the equal negative margin gives the
+     space straight back, so the row's height and rhythm are untouched. Both
+     axes stay a single `overflow` value on purpose: setting overflow-y visible
+     with overflow-x hidden is not a thing CSS allows — the visible axis
+     computes to auto and you get a scrollbar. */
+  .primitiv-tree__item-label,
+  .primitiv-tree__branch-control-label {
+    flex: 1 1 auto;
+    min-inline-size: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    padding-block: var(--primitiv-tree-label-ink-slack);
+    margin-block: calc(-1 * var(--primitiv-tree-label-ink-slack));
+  }
+
+  /* ── The collapsible group — Accordion's display:grid row-track collapse ──
+     The group is force-mounted by the wrapper (so it is never `hidden` and can
+     animate); the row track transitions 0fr↔1fr, opening to the subtree's exact
+     height with no max-height guess and no JS measurement. */
+  .primitiv-tree__branch-content {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows var(--primitiv-tree-transition-duration)
+      var(--primitiv-tree-transition-easing);
+  }
+
+  /* The clip — the single grid item in the animated row. overflow:hidden gives
+     it a zero block min-size so the 0fr track can collapse all the way.
+     It deliberately carries NO BLOCK padding: block padding on the collapsing
+     item sits outside the row's content box and floors how far the row can
+     shrink, so a padded item can never close to nothing (Accordion's note).
+     The indent is inline-only and lives one level down on the body regardless,
+     matching Accordion's three-element shape. Note overflow clips at the
+     PADDING box, so the connector segments — which sit inside the body's
+     inline-start padding — are never clipped horizontally; only the block-axis
+     collapse clips, which is the point. */
+  .primitiv-tree__branch-content-inner {
+    overflow: hidden;
+    min-height: 0;
+    visibility: hidden;
+    transition: visibility var(--primitiv-tree-transition-duration)
+      var(--primitiv-tree-transition-easing);
+  }
+
+  /* The body — a plain structural wrapper. It carries no indent (the rows do),
+     which is what keeps every level's box full-width and stops the clip above
+     from cutting a row's hover band. It stays as the hook the connector rules
+     below key off, and as the element the clip collapses. */
+  .primitiv-tree__branch-content-body {
+    display: flow-root;
+  }
+
+  /* ── Connectors ──
+     Positioned against the PARENT's rail column, which is `rail-offset` into the
+     parent row and therefore `rail-offset - indent` (a negative length) from
+     this row's own inline-start edge. */
+  .primitiv-tree__branch-content-body > .primitiv-tree__item,
+  .primitiv-tree__branch-content-body > .primitiv-tree__branch {
+    position: relative;
+  }
+
+  .primitiv-tree__branch-content-body > .primitiv-tree__item::before,
+  .primitiv-tree__branch-content-body > .primitiv-tree__item::after,
+  .primitiv-tree__branch-content-body > .primitiv-tree__branch::before,
+  .primitiv-tree__branch-content-body > .primitiv-tree__branch::after {
+    content: "";
+    position: absolute;
+    inset-inline-start: calc(
+      (var(--primitiv-tree-depth, 1) - 1) * var(--primitiv-tree-indent) +
+        var(--primitiv-tree-connector-rail-offset)
+    );
+    background: var(--primitiv-tree-connector-color);
+  }
+
+  /* The vertical rail — full height of the treeitem, so a branch's own rail
+     continues past its entire open subtree down to the next sibling. */
+  .primitiv-tree__branch-content-body > .primitiv-tree__item::after,
+  .primitiv-tree__branch-content-body > .primitiv-tree__branch::after {
+    inset-block-start: 0;
+    inline-size: var(--primitiv-tree-connector-thickness);
+    block-size: 100%;
+  }
+
+  /* Last child — the rail stops at the row's midpoint, turning the corner. */
+  .primitiv-tree__branch-content-body > .primitiv-tree__item:last-child::after,
+  .primitiv-tree__branch-content-body > .primitiv-tree__branch:last-child::after {
+    block-size: var(--primitiv-tree-connector-elbow-height);
+  }
+
+  /* The horizontal stub, at the row's vertical centre. A branch stops before its
+     chevron ink; a leaf runs on to the edge of its (empty) chevron slot, leaving
+     the label one row `gap` away — the same spacing a chevron has to its label. */
+  .primitiv-tree__branch-content-body > .primitiv-tree__item::before,
+  .primitiv-tree__branch-content-body > .primitiv-tree__branch::before {
+    inset-block-start: var(--primitiv-tree-connector-elbow-height);
+    block-size: var(--primitiv-tree-connector-thickness);
+  }
+
+  .primitiv-tree__branch-content-body > .primitiv-tree__branch::before {
+    inline-size: var(--primitiv-tree-connector-stub-width);
+  }
+
+  .primitiv-tree__branch-content-body > .primitiv-tree__item::before {
+    inline-size: var(--primitiv-tree-connector-stub-width-leaf);
+  }
+
+  /* ── Selection path — the VS Code-style editor breadcrumb bar ──
+     Composed from the registry Breadcrumb by the wrapper, so every colour and
+     the separator come from Breadcrumb's own stylesheet, not from here. This
+     rule only stacks one trail per selected value in multiple-selection mode. */
+  .primitiv-tree__selection-path {
+    display: flex;
+    flex-direction: column;
+    gap: var(--primitiv-tree-selection-path-gap);
+  }
+
+  /* Every segment states Breadcrumb's own type explicitly rather than
+     inheriting it. Only the terminal segment is a real BreadcrumbPage; the
+     ancestors are bare spans (Breadcrumb has no non-link crumb part, and they
+     are not links — nothing in this bar navigates). So without this rule the
+     ancestors take their size from whatever encloses the bar: the Tree root
+     when the bar sits inside it, the page when it does not. Those agreed only
+     by coincidence — the Tree's own type ladder and BREADCRUMB_SIZE both step
+     one tier down, so they matched until something moved. Anything that broke
+     the coincidence (a SelectionPath rendered outside its Tree, or given a
+     `size` its Tree does not share) showed up as one segment jumping. Stating
+     the type here makes that impossible rather than merely unlikely. */
+  .primitiv-tree__selection-path [data-tree-selection-segment] {
+    font-family: var(--primitiv-breadcrumb-font-family);
+    font-size: var(--primitiv-breadcrumb-font-size);
+    font-weight: var(--primitiv-breadcrumb-font-weight);
+    line-height: var(--primitiv-breadcrumb-line-height);
+  }
+
+  /* The selected node, marked by WEIGHT — deliberately not by size. A trail is
+     read as one line, and changing size mid-line changes that line's metrics,
+     so the whole bar re-heights as the selection moves and the crumbs reflow
+     around it. Weight changes ink density and nothing else, so the bar holds
+     its height however deep the path goes. This doubles up with the colour
+     Breadcrumb already gives its page — that is the intent (it is what VS
+     Code's own breadcrumb does), since colour alone is easy to miss at the
+     small end of the ramp. Semibold, not bold: at body/xs on a dense tree,
+     bold reads as an error state rather than a selection. */
+  .primitiv-tree__selection-path .primitiv-breadcrumb__page[data-tree-selection-segment] {
+    font-weight: var(--primitiv-tree-selection-path-current-font-weight);
+  }
+
+  /* Nothing selected — an em dash placeholder, so the bar keeps its height
+     instead of the layout jumping when a selection is cleared. */
+  .primitiv-tree__selection-path[data-empty]::before {
+    content: "\2014";
+    color: var(--primitiv-content-muted);
+  }
+}
+
+@layer primitiv.variants {
+  /* Size — re-points the sizing knobs to the chosen slot. Density stays ambient
+     via [data-density] on the token values themselves (RFC 0009). Type steps one
+     tier down from the row's size (see the note in primitiv.base); xs and sm
+     both floor at body/xs, since there is no tier below it. */
+  .primitiv-tree--xs {
+    --primitiv-tree-indent: var(--primitiv-tree-xs-indent);
+    --primitiv-tree-item-height: var(--primitiv-tree-xs-item-height);
+    --primitiv-tree-item-padding-inline: var(--primitiv-tree-xs-item-padding-inline);
+    --primitiv-tree-item-gap: var(--primitiv-tree-xs-item-gap);
+    --primitiv-tree-item-radius: var(--primitiv-tree-xs-item-radius);
+    --primitiv-tree-item-icon-size: var(--primitiv-tree-xs-item-icon-size);
+    --primitiv-tree-item-font-family: var(--primitiv-body-xs-font-family);
+    --primitiv-tree-item-font-size: var(--primitiv-body-xs-font-size);
+    --primitiv-tree-item-font-weight: var(--primitiv-body-xs-font-weight);
+    --primitiv-tree-item-line-height: var(--primitiv-body-xs-line-height);
+    --primitiv-tree-focus-ring-radius: var(--primitiv-tree-xs-item-focus-ring-radius);
+    --primitiv-tree-connector-elbow-height: var(--primitiv-tree-xs-connector-elbow-height);
+    --primitiv-tree-connector-stub-width: var(--primitiv-tree-xs-connector-stub-width);
+    --primitiv-tree-connector-stub-width-leaf: var(--primitiv-tree-xs-connector-stub-width-leaf);
+  }
+  .primitiv-tree--sm {
+    --primitiv-tree-indent: var(--primitiv-tree-sm-indent);
+    --primitiv-tree-item-height: var(--primitiv-tree-sm-item-height);
+    --primitiv-tree-item-padding-inline: var(--primitiv-tree-sm-item-padding-inline);
+    --primitiv-tree-item-gap: var(--primitiv-tree-sm-item-gap);
+    --primitiv-tree-item-radius: var(--primitiv-tree-sm-item-radius);
+    --primitiv-tree-item-icon-size: var(--primitiv-tree-sm-item-icon-size);
+    --primitiv-tree-item-font-family: var(--primitiv-body-xs-font-family);
+    --primitiv-tree-item-font-size: var(--primitiv-body-xs-font-size);
+    --primitiv-tree-item-font-weight: var(--primitiv-body-xs-font-weight);
+    --primitiv-tree-item-line-height: var(--primitiv-body-xs-line-height);
+    --primitiv-tree-focus-ring-radius: var(--primitiv-tree-sm-item-focus-ring-radius);
+    --primitiv-tree-connector-elbow-height: var(--primitiv-tree-sm-connector-elbow-height);
+    --primitiv-tree-connector-stub-width: var(--primitiv-tree-sm-connector-stub-width);
+    --primitiv-tree-connector-stub-width-leaf: var(--primitiv-tree-sm-connector-stub-width-leaf);
+  }
+  .primitiv-tree--md {
+    --primitiv-tree-indent: var(--primitiv-tree-md-indent);
+    --primitiv-tree-item-height: var(--primitiv-tree-md-item-height);
+    --primitiv-tree-item-padding-inline: var(--primitiv-tree-md-item-padding-inline);
+    --primitiv-tree-item-gap: var(--primitiv-tree-md-item-gap);
+    --primitiv-tree-item-radius: var(--primitiv-tree-md-item-radius);
+    --primitiv-tree-item-icon-size: var(--primitiv-tree-md-item-icon-size);
+    --primitiv-tree-item-font-family: var(--primitiv-body-sm-font-family);
+    --primitiv-tree-item-font-size: var(--primitiv-body-sm-font-size);
+    --primitiv-tree-item-font-weight: var(--primitiv-body-sm-font-weight);
+    --primitiv-tree-item-line-height: var(--primitiv-body-sm-line-height);
+    --primitiv-tree-focus-ring-radius: var(--primitiv-tree-md-item-focus-ring-radius);
+    --primitiv-tree-connector-elbow-height: var(--primitiv-tree-md-connector-elbow-height);
+    --primitiv-tree-connector-stub-width: var(--primitiv-tree-md-connector-stub-width);
+    --primitiv-tree-connector-stub-width-leaf: var(--primitiv-tree-md-connector-stub-width-leaf);
+  }
+  .primitiv-tree--lg {
+    --primitiv-tree-indent: var(--primitiv-tree-lg-indent);
+    --primitiv-tree-item-height: var(--primitiv-tree-lg-item-height);
+    --primitiv-tree-item-padding-inline: var(--primitiv-tree-lg-item-padding-inline);
+    --primitiv-tree-item-gap: var(--primitiv-tree-lg-item-gap);
+    --primitiv-tree-item-radius: var(--primitiv-tree-lg-item-radius);
+    --primitiv-tree-item-icon-size: var(--primitiv-tree-lg-item-icon-size);
+    --primitiv-tree-item-font-family: var(--primitiv-body-md-font-family);
+    --primitiv-tree-item-font-size: var(--primitiv-body-md-font-size);
+    --primitiv-tree-item-font-weight: var(--primitiv-body-md-font-weight);
+    --primitiv-tree-item-line-height: var(--primitiv-body-md-line-height);
+    --primitiv-tree-focus-ring-radius: var(--primitiv-tree-lg-item-focus-ring-radius);
+    --primitiv-tree-connector-elbow-height: var(--primitiv-tree-lg-connector-elbow-height);
+    --primitiv-tree-connector-stub-width: var(--primitiv-tree-lg-connector-stub-width);
+    --primitiv-tree-connector-stub-width-leaf: var(--primitiv-tree-lg-connector-stub-width-leaf);
+  }
+  .primitiv-tree--xl {
+    --primitiv-tree-indent: var(--primitiv-tree-xl-indent);
+    --primitiv-tree-item-height: var(--primitiv-tree-xl-item-height);
+    --primitiv-tree-item-padding-inline: var(--primitiv-tree-xl-item-padding-inline);
+    --primitiv-tree-item-gap: var(--primitiv-tree-xl-item-gap);
+    --primitiv-tree-item-radius: var(--primitiv-tree-xl-item-radius);
+    --primitiv-tree-item-icon-size: var(--primitiv-tree-xl-item-icon-size);
+    --primitiv-tree-item-font-family: var(--primitiv-body-lg-font-family);
+    --primitiv-tree-item-font-size: var(--primitiv-body-lg-font-size);
+    --primitiv-tree-item-font-weight: var(--primitiv-body-lg-font-weight);
+    --primitiv-tree-item-line-height: var(--primitiv-body-lg-line-height);
+    --primitiv-tree-focus-ring-radius: var(--primitiv-tree-xl-item-focus-ring-radius);
+    --primitiv-tree-connector-elbow-height: var(--primitiv-tree-xl-connector-elbow-height);
+    --primitiv-tree-connector-stub-width: var(--primitiv-tree-xl-connector-stub-width);
+    --primitiv-tree-connector-stub-width-leaf: var(--primitiv-tree-xl-connector-stub-width-leaf);
+  }
+
+  /* Connectors off — indentation only. Hiding rather than not-drawing keeps the
+     rule set identical between the two modes, so a consumer can flip the
+     modifier at any breakpoint without a reflow. */
+  .primitiv-tree--connectors-none .primitiv-tree__item::before,
+  .primitiv-tree--connectors-none .primitiv-tree__item::after,
+  .primitiv-tree--connectors-none .primitiv-tree__branch::before,
+  .primitiv-tree--connectors-none .primitiv-tree__branch::after {
+    display: none;
+  }
+}
+
+@layer primitiv.states {
+  /* Open — the row track grows to the subtree's intrinsic height (1fr resolves
+     to max-content in a single-row grid) and the clip becomes visible. Closing
+     reverses both. Visibility transitions rather than switching instantly, so
+     the subtree stays painted for the whole close, then leaves the tab order and
+     the accessibility tree. */
+  .primitiv-tree__branch-content[data-state="open"] {
+    grid-template-rows: 1fr;
+  }
+
+  .primitiv-tree__branch-content[data-state="open"] .primitiv-tree__branch-content-inner {
+    visibility: visible;
+  }
+
+  /* Chevron — turns a quarter-turn in lockstep with the panel, on the same
+     duration and easing, so the two read as one movement. The headless puts
+     data-state on the indicator itself, so this needs no wiring. */
+  .primitiv-tree__branch-indicator {
+    transition: rotate var(--primitiv-tree-transition-duration)
+      var(--primitiv-tree-transition-easing);
+  }
+
+  .primitiv-tree__branch-indicator[data-state="open"] {
+    --primitiv-tree-indicator-rotation: 90deg;
+  }
+
+  /* Selected — the ghost active tint persists (not just while pressed). On a
+     branch the focusable treeitem wraps the whole subtree, so the tint has to be
+     drawn on its control row instead, or it would fill the entire subtree.
+
+     Claims background-COLOR specifically, leaving background-image free for the
+     hover layer below. */
+  .primitiv-tree__item[data-selected],
+  .primitiv-tree__branch[data-selected] > .primitiv-tree__branch-control {
+    background-color: var(--primitiv-tree-item-bg-selected);
+  }
+
+  /* Hover — genuinely layers OVER the selected tint instead of replacing it.
+
+     Both tints are translucent, and CSS cannot sum two alphas within one
+     property, so the two states paint different channels: selected takes
+     background-color, hover takes a flat background-image over it. A hovered
+     selected row then composites both (0.10 beneath 0.06 ≈ 0.15) and reads
+     darker than either alone. Sharing one `background` shorthand meant the
+     later rule simply won, so hovering a selected row swapped its 0.10 tint for
+     the lighter 0.06 one and the row went LIGHTER on hover — backwards.
+
+     Table solves the same collision by ordering instead, and is right to: its
+     row tokens are opaque (neutral/brand steps), so there is nothing to
+     composite and replacement is the only sensible reading. Tree's are alphas,
+     which is what makes layering both meaningful and achievable. Figma models
+     no selected+hover variant at all, so this is CSS expressing a state its
+     variant grid cannot.
+
+     Targeted at the row, never at the branch container: hovering a nested row
+     also hovers every ancestor branch, which would light the whole path.
+
+     Gated behind (hover: hover): a touchscreen simulates :hover on tap and it
+     "sticks" until the next tap elsewhere, which would otherwise leave a
+     just-tapped node showing its hover tint instead of its resting/selected
+     one. */
+  @media (hover: hover) {
+    .primitiv-tree__item:hover,
+    .primitiv-tree__branch-control:hover {
+      background-image: linear-gradient(
+        var(--primitiv-tree-item-bg-hover),
+        var(--primitiv-tree-item-bg-hover)
+      );
+    }
+  }
+
+  /* Disabled — dimmed and inert, but still rendered and still focusable, so a
+     disabled node stays discoverable by keyboard (the headless keeps it in the
+     roving order for Home/End). Only the row dims: a disabled branch's children
+     are not themselves disabled. */
+  .primitiv-tree__item[data-disabled],
+  .primitiv-tree__branch[data-disabled] > .primitiv-tree__branch-control {
+    opacity: var(--primitiv-opacity-50);
+    pointer-events: none;
+  }
+
+  /* Focus — the shared two-layer box-shadow ring: a surface-coloured gap, then
+     the brand ring. Same reason as the selected tint: on a branch the ring is
+     drawn on the control row, not on the focusable element itself. */
+  .primitiv-tree__item:focus-visible,
+  .primitiv-tree__branch:focus-visible > .primitiv-tree__branch-control {
+    outline: none;
+    border-radius: var(--primitiv-tree-item-radius);
+    box-shadow:
+      0 0 0 var(--primitiv-focus-ring-offset) var(--primitiv-surface-default),
+      0 0 0 calc(var(--primitiv-focus-ring-offset) + var(--primitiv-focus-ring-width))
+        var(--primitiv-focus-ring);
+  }
+
+  /* Forced colours (Windows High Contrast) discards box-shadow, so the ring
+     above renders nothing and the `outline: none` beside it is all that
+     survives — leaving no focus indicator at all. Restore a real outline,
+     which the mode does honour, in the system Highlight colour. Same tokens
+     as the ring, so the geometry is unchanged. */
+  @media (forced-colors: active) {
+    .primitiv-tree__item:focus-visible, .primitiv-tree__branch:focus-visible > .primitiv-tree__branch-control {
+      outline: var(--primitiv-focus-ring-width) solid Highlight;
+      outline-offset: var(--primitiv-focus-ring-offset);
+    }
+  }
+
+  /* Honour reduced-motion: open / close and the chevron become instantaneous. */
+  @media (prefers-reduced-motion: reduce) {
+    .primitiv-tree__branch-content,
+    .primitiv-tree__branch-content-inner,
+    .primitiv-tree__branch-indicator {
+      transition: none;
+    }
+  }
+}

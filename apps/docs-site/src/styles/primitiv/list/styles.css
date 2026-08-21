@@ -1,0 +1,182 @@
+/*
+ * List — Primitiv default theme (canonical CSS).
+ *
+ * Copied into the consumer repo by `primitiv add list`. It is yours to edit:
+ * the stable surface is the contract (the .primitiv-list class, the
+ * --unordered/--ordered, --indent and --xs…--xl modifiers, the
+ * .primitiv-list__item part, and the --primitiv-list-* custom properties),
+ * not these values (RFC 0006 Principle 2 — names are stable, values are
+ * not).
+ *
+ * The model (RFC 0012 D9): native list-style is disabled and every marker is
+ * a CSS-generated ::before instead — a static bullet for `type="unordered"`,
+ * a CSS counter for `type="ordered"` — so both the marker colour
+ * (list/marker/foreground) and the marker↔text gap (list/marker-gap) are
+ * directly controllable, matching Figma's bespoke marker + itemSpacing
+ * exactly (the browser's native ::marker pseudo-element has no controllable
+ * gap in standard CSS, so it can't reproduce list/marker-gap). item-gap,
+ * marker-gap and indent are density-scaled Context tokens shared across every
+ * size — only the type scale (font-size/line-height) moves with `size`.
+ *
+ * Requires the token layer (`primitiv tokens`) for the --primitiv-list-*,
+ * --primitiv-content-* and --primitiv-body-* custom properties it resolves.
+ */
+
+/* Declare the sublayer order up front so this sheet is safe to load ahead of
+ * the token layer: CSS fixes layer precedence by first appearance, so without
+ * this a component stylesheet seen first would register primitiv.base before
+ * primitiv.reset and let the reset win (RFC 0008 §7). */
+@layer primitiv.reset, primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;
+
+@layer primitiv.base {
+  .primitiv-list {
+    /* Per-component API — the themable knobs, defaulting to the md size. The
+       variants layer below re-points only the type scale; consumers can
+       override any one without touching the rule. item-gap/marker-gap/indent
+       are the shared, density-scaled `list/*` Context tokens (RFC 0012 D9) —
+       consumed directly rather than re-declared under a component-owned
+       name, the same "no renaming" treatment `prose` gives `flow/*`. */
+    --primitiv-list-marker-color: var(--primitiv-list-marker-foreground);
+    --primitiv-list-item-disabled-opacity: var(--primitiv-opacity-50);
+    --primitiv-list-item-color: var(--primitiv-content-primary);
+    --primitiv-list-font-family: var(--primitiv-body-md-font-family);
+    --primitiv-list-font-size: var(--primitiv-body-md-font-size);
+    --primitiv-list-line-height: var(--primitiv-body-md-line-height);
+
+    list-style: none;
+    margin: 0;
+    padding-inline-start: var(--primitiv-space-space-0);
+    display: flex;
+    flex-direction: column;
+    gap: var(--primitiv-list-item-gap);
+    color: var(--primitiv-list-item-color);
+    font-family: var(--primitiv-list-font-family);
+    font-size: var(--primitiv-list-font-size);
+    line-height: var(--primitiv-list-line-height);
+  }
+
+  /* `margin-block` is zeroed because the *container* owns the inter-item
+     rhythm here, via flex `gap`. `primitiv.reset` also spaces bare list items —
+     `li + li { margin-block-start: var(--primitiv-list-item-gap) }` — and
+     margins do not collapse in a flex container, so the reset's margin and this
+     component's gap were **adding**: every gap rendered at exactly 2x
+     `list/item-gap` (measured 4/8/16/24 against a token of 2/4/8/12 across
+     dense→spacious). Both resolve the same token, which is what made the
+     doubling look plausible rather than broken.
+
+     Zeroing it here rather than dropping the gap keeps the component
+     self-contained — the marker is a ::before on this element, so the row must
+     be a flex container regardless, and a consumer who loads the component
+     sheet without the reset still gets the right rhythm. A declaration on the
+     element beats the reset's because primitiv.base outranks primitiv.reset;
+     both are declarations on the same element, which is the only situation
+     where layer order arbitrates at all. */
+  .primitiv-list__item {
+    display: flex;
+    align-items: baseline;
+    gap: var(--primitiv-list-marker-gap);
+    margin-block: var(--primitiv-space-space-0);
+    /* Lets a NESTED list break onto its own line. The item is a flex row
+       ([marker][content]), so without this a nested <ul>/<ol> becomes a third
+       row child and lays out BESIDE the item's text instead of under it —
+       which `--primitiv-list-indent` plainly does not intend, since indent
+       exists to step nested levels in. Wrapping keeps marker and text on the
+       first line, so marker alignment is unaffected. */
+    flex-wrap: wrap;
+  }
+
+  /* Forces the break: a full-basis child cannot share the first line. */
+  .primitiv-list__item > .primitiv-list {
+    flex-basis: 100%;
+  }
+
+  .primitiv-list__item::before {
+    flex: 0 0 auto;
+    color: var(--primitiv-list-marker-color);
+    content: "\2022";
+  }
+}
+
+@layer primitiv.variants {
+  .primitiv-list--indent {
+    padding-inline-start: var(--primitiv-list-indent);
+  }
+
+  .primitiv-list--ordered {
+    counter-reset: primitiv-list;
+  }
+  .primitiv-list--ordered > .primitiv-list__item {
+    counter-increment: primitiv-list;
+  }
+  .primitiv-list--ordered > .primitiv-list__item::before {
+    content: counter(primitiv-list) ".";
+  }
+
+  /* `marker="false"` — the equivalent of `list-style: none`, for prose and
+     landing-page lists where bullets read as noise.
+
+     THIS RULE MUST STAY AFTER THE --ordered ONE ABOVE. Both are two classes plus
+     a pseudo-element, so they have identical specificity and source order is the
+     only thing that separates them — placed first, this loses to the counter and
+     `type="ordered" marker={false}` silently keeps its numbers.
+
+     `content: none` rather than `display: none` or `visibility: hidden`: a
+     ::before with `content: none` generates NO BOX at all, and flex `gap` only
+     applies between boxes that exist — so the marker↔text gap goes with the
+     marker and the row sits genuinely flush. The other two would each leave a
+     marker-width column plus its gap behind. Figma agrees by measurement: the md
+     unordered variant reflows 136px → 120px with Marker=false.
+
+     Independent of `indent`: this drops the marker, `indent` drops the list's own
+     left padding. Combine both for a fully flush list. The element stays a
+     <ul>/<ol>, so dropping the marker costs nothing semantically — an unbulleted
+     list is still a list to a screen reader. */
+  .primitiv-list--no-marker > .primitiv-list__item::before {
+    content: none;
+  }
+
+  /* Size — re-points only the type scale. item-gap, marker-gap and indent
+     stay constant across sizes; they only change with [data-density]
+     (RFC 0012 D9). */
+  .primitiv-list--xs {
+    --primitiv-list-font-family: var(--primitiv-body-xs-font-family);
+    --primitiv-list-font-size: var(--primitiv-body-xs-font-size);
+    --primitiv-list-line-height: var(--primitiv-body-xs-line-height);
+  }
+  .primitiv-list--sm {
+    --primitiv-list-font-family: var(--primitiv-body-sm-font-family);
+    --primitiv-list-font-size: var(--primitiv-body-sm-font-size);
+    --primitiv-list-line-height: var(--primitiv-body-sm-line-height);
+  }
+  .primitiv-list--md {
+    --primitiv-list-font-family: var(--primitiv-body-md-font-family);
+    --primitiv-list-font-size: var(--primitiv-body-md-font-size);
+    --primitiv-list-line-height: var(--primitiv-body-md-line-height);
+  }
+  .primitiv-list--lg {
+    --primitiv-list-font-family: var(--primitiv-body-lg-font-family);
+    --primitiv-list-font-size: var(--primitiv-body-lg-font-size);
+    --primitiv-list-line-height: var(--primitiv-body-lg-line-height);
+  }
+  .primitiv-list--xl {
+    --primitiv-list-font-family: var(--primitiv-body-xl-font-family);
+    --primitiv-list-font-size: var(--primitiv-body-xl-font-size);
+    --primitiv-list-line-height: var(--primitiv-body-xl-line-height);
+  }
+}
+
+@layer primitiv.states {
+  /* Disabled — the ListItem set's second axis (RFC 0012 D9: "States (2):
+     default, disabled", "Disabled = opacity 0.5 on component frame"). An
+     `<li>` isn't interactive, so this is a *presentational* dimming of an
+     unavailable entry, not an interaction state: `List.Item`'s `disabled`
+     prop publishes the `data-disabled` hook and the whole row — marker
+     included, since the marker is this element's own ::before — fades
+     together, exactly as the Figma frame's 50% opacity does. Anything
+     genuinely focusable inside the row still needs its own disabled
+     treatment from the consumer; dimming a row does not remove it from the
+     tab order. */
+  .primitiv-list__item[data-disabled] {
+    opacity: var(--primitiv-list-item-disabled-opacity);
+  }
+}

@@ -1,0 +1,123 @@
+/*
+ * Top bar. Matches the Figma landing v2 nav: 73px tall (padding-block 16 either
+ * side of a 40px control row), lockup left, links, then the two segmented
+ * controls, search and the theme toggle pushed right.
+ */
+
+.docs-site-header {
+  position: sticky;
+  inset-block-start: 0;
+  z-index: 20;
+  /* Fixed, not hugging — the hero subtracts `--docs-nav-height` to fill the
+     rest of the viewport, so the declared value has to be the real one.
+     border-box (from reset.css) means the padding is inside this height. */
+  block-size: var(--docs-nav-height);
+  display: flex;
+  align-items: center;
+  padding-block: var(--primitiv-space-space-16);
+  border-block-end: var(--primitiv-border-width-1) solid
+    var(--primitiv-border-subtle);
+  background-color: var(--primitiv-surface-default);
+}
+
+/* The header is now a flex row, so its Container child has to be told to take
+   the full width — a flex item does not stretch on the main axis. */
+.docs-site-header > .primitiv-container {
+  inline-size: 100%;
+}
+
+.docs-brand {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+  border-radius: var(--primitiv-radii-4);
+}
+
+.docs-brand:focus-visible {
+  outline: var(--primitiv-border-width-2) solid var(--primitiv-focus-ring);
+  outline-offset: var(--primitiv-space-space-4);
+}
+
+.docs-header-nav-list {
+  display: flex;
+  align-items: center;
+  gap: var(--primitiv-stack-gap-md);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.docs-header-link {
+  font-family: var(--primitiv-body-sm-font-family);
+  font-size: var(--primitiv-body-sm-font-size);
+  color: var(--primitiv-content-secondary);
+  text-decoration: none;
+  border-radius: var(--primitiv-radii-4);
+}
+
+.docs-header-link:hover {
+  color: var(--primitiv-content-primary);
+}
+
+/* "Build with code" is the primary route into the docs, so it carries the link
+   colour rather than sitting at secondary like its neighbour. */
+.docs-header-link--accent {
+  color: var(--primitiv-action-link-foreground-default);
+}
+
+.docs-header-link--accent:hover {
+  color: var(--primitiv-action-link-foreground-hover);
+}
+
+.docs-header-link[aria-current] {
+  color: var(--primitiv-content-primary);
+  font-weight: var(--primitiv-font-weight-medium);
+}
+
+/* Pushed to the trailing edge, and allowed to wrap so a narrow viewport drops
+   the controls onto a second line instead of overflowing the bar. */
+.docs-header-controls {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--primitiv-stack-gap-sm);
+  margin-inline-start: auto;
+}
+
+.docs-header-control {
+  display: flex;
+  align-items: center;
+}
+
+.docs-header-search {
+  /* Wide enough for the placeholder without crowding the controls beside it. */
+  --docs-search-width: 13rem;
+
+  /* Flex, not block: the input is `inline-block`, so a block wrapper gives it a
+     line box and the descender adds a phantom row of height (measured 25px
+     around a 24px input, sitting 4px lower than its neighbours). */
+  display: flex;
+  align-items: center;
+  inline-size: var(--docs-search-width);
+}
+
+/* The header is a FIXED height now (the hero subtracts it), so its content has
+   to fit one row at every width — it cannot wrap to a second line. Below lg the
+   in-bar links and search go; below md the framework switch goes too, leaving
+   brand + mode + theme, which fits 390px. All of it belongs in the mobile menu
+   that is still to be built. */
+@media (max-width: 63.9375rem) {
+  .docs-header-nav,
+  .docs-header-search {
+    display: none;
+  }
+}
+
+@media (max-width: 47.9375rem) {
+  /* Both switches go: framework AND consumption mode. Neither belongs crushed
+     into a 390px bar, and both are moving into the drawer menu. That leaves
+     brand + theme toggle, which fits comfortably. */
+  .docs-header-control {
+    display: none;
+  }
+}

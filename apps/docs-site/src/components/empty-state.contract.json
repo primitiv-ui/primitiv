@@ -1,0 +1,62 @@
+{
+  "$schema": "https://primitiv-ui.dev/schema/contract.json",
+  "name": "empty-state",
+  "version": "0.1.0",
+  "description": "The placeholder shown when a collection, search, or view has no content — a decorative media slot, a headline, supporting copy, and recovery actions, centred in the space it fills. Composes the headless EmptyState primitive (role=\"status\", a polite live region). Sized xs–xl; `data-density` scales each size further.",
+  "docs": "https://primitiv-ui.dev/docs/components/empty-state",
+  "root": {
+    "element": "div",
+    "class": "primitiv-empty-state"
+  },
+  "dataAttributes": [],
+  "modifiers": [
+    {
+      "name": "orientation",
+      "default": "vertical",
+      "description": "Layout axis. `vertical` stacks the media above centred text — the canonical empty state. `horizontal` places the media beside inline-start-aligned text, for a compact/inline empty region.",
+      "options": [
+        {
+          "name": "vertical",
+          "class": "primitiv-empty-state--vertical",
+          "description": "Media above centred text (the default)."
+        },
+        {
+          "name": "horizontal",
+          "class": "primitiv-empty-state--horizontal",
+          "description": "Media beside inline-start-aligned text."
+        }
+      ]
+    },
+    {
+      "name": "size",
+      "default": "md",
+      "description": "Empty-state size; `data-density` scales each size further.",
+      "options": [
+        { "name": "xs", "class": "primitiv-empty-state--xs", "description": "Extra small." },
+        { "name": "sm", "class": "primitiv-empty-state--sm", "description": "Small." },
+        { "name": "md", "class": "primitiv-empty-state--md", "description": "Medium (the default)." },
+        { "name": "lg", "class": "primitiv-empty-state--lg", "description": "Large." },
+        { "name": "xl", "class": "primitiv-empty-state--xl", "description": "Extra large." }
+      ]
+    }
+  ],
+  "customProperties": [
+    { "name": "--primitiv-empty-state-gap", "defaultsTo": "var(--primitiv-empty-state-md-gap)" },
+    { "name": "--primitiv-empty-state-text-gap", "defaultsTo": "var(--primitiv-empty-state-md-text-gap)" },
+    { "name": "--primitiv-empty-state-actions-gap", "defaultsTo": "var(--primitiv-framed-control-md-gap)" },
+    { "name": "--primitiv-empty-state-max-inline-size", "defaultsTo": "var(--primitiv-empty-state-md-max-inline-size)" },
+    { "name": "--primitiv-empty-state-media-size", "defaultsTo": "var(--primitiv-empty-state-md-media-size)" },
+    { "name": "--primitiv-empty-state-media-offset", "defaultsTo": "var(--primitiv-empty-state-media-offset-top)" },
+    { "name": "--primitiv-empty-state-media-color", "defaultsTo": "var(--primitiv-content-primary)" },
+    { "name": "--primitiv-empty-state-title-font-family", "defaultsTo": "var(--primitiv-heading-h4-font-family)" },
+    { "name": "--primitiv-empty-state-title-font-size", "defaultsTo": "var(--primitiv-heading-h4-font-size)" },
+    { "name": "--primitiv-empty-state-title-font-weight", "defaultsTo": "var(--primitiv-heading-h4-font-weight)" },
+    { "name": "--primitiv-empty-state-title-line-height", "defaultsTo": "var(--primitiv-heading-h4-line-height)" },
+    { "name": "--primitiv-empty-state-title-color", "defaultsTo": "var(--primitiv-content-primary)" },
+    { "name": "--primitiv-empty-state-description-font-family", "defaultsTo": "var(--primitiv-body-md-font-family)" },
+    { "name": "--primitiv-empty-state-description-font-size", "defaultsTo": "var(--primitiv-body-md-font-size)" },
+    { "name": "--primitiv-empty-state-description-font-weight", "defaultsTo": "var(--primitiv-body-md-font-weight)" },
+    { "name": "--primitiv-empty-state-description-line-height", "defaultsTo": "var(--primitiv-body-md-line-height)" },
+    { "name": "--primitiv-empty-state-description-color", "defaultsTo": "var(--primitiv-content-secondary)" }
+  ]
+}

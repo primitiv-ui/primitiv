@@ -1,0 +1,254 @@
+/*
+ * Table — Primitiv default theme (canonical CSS).
+ *
+ * Copied into the consumer repo by `primitiv add table`. It is yours to edit:
+ * the stable surface is the contract (the .primitiv-table root + __head / __body
+ * / __footer / __row / __header / __cell / __caption / __scroll-area parts, the
+ * --xs…--xl size modifiers, and the --primitiv-table-* custom properties), not
+ * these values (RFC 0006 Principle 2 — names are stable, values are not).
+ *
+ * The look: collapsed rules, body type, a header row set off by a strong
+ * underline (no fill), subtle row rules, and a hover/selected row fill. `Size` (xs–xl)
+ * re-points the type scale only; cell padding is density-driven via the
+ * table/cell/padding-* Context tokens, so it tracks `data-density` independently.
+ *
+ * Structure follows RFC 0008: per-component API tokens + the resting look live in
+ * primitiv.base, the size modifiers in primitiv.variants, the hover/selected row
+ * styling in primitiv.states. The sublayer order is declared once in the shared
+ * token layer (primitiv.tokens.css); this file only re-opens the named sublayers.
+ *
+ * Row hover/selected are styling hooks: hover is automatic; `selected` rides
+ * `aria-selected="true"` on a row (the headless layer is a static table and sets
+ * neither). Requires the token layer (`primitiv tokens`) for the
+ * --primitiv-body-*, --primitiv-content-*, --primitiv-surface-*, --primitiv-border-*,
+ * --primitiv-border-width-*, --primitiv-font-weight-* and --primitiv-table-*
+ * custom properties it resolves.
+ */
+
+/* Declare the sublayer order up front so this sheet is safe to load ahead of
+ * the token layer: CSS fixes layer precedence by first appearance, so without
+ * this a component stylesheet seen first would register primitiv.base before
+ * primitiv.reset and let the reset win (RFC 0008 §7). */
+@layer primitiv.reset, primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;
+
+@layer primitiv.base {
+  .primitiv-table {
+    /* Per-component API — the themable knobs. Type defaults to the md slot; the
+       size modifiers re-point it. They inherit to the parts below, so consumers
+       can override any one on the root without touching a rule. */
+    --primitiv-table-font-family: var(--primitiv-body-md-font-family);
+    --primitiv-table-font-size: var(--primitiv-body-md-font-size);
+    --primitiv-table-font-weight: var(--primitiv-body-md-font-weight);
+    --primitiv-table-line-height: var(--primitiv-body-md-line-height);
+    --primitiv-table-foreground: var(--primitiv-content-primary);
+    --primitiv-table-rule-color: var(--primitiv-border-subtle);
+    --primitiv-table-header-foreground: var(--primitiv-content-primary);
+    --primitiv-table-header-weight: var(--primitiv-font-weight-semibold);
+    --primitiv-table-header-rule-color: var(--primitiv-border-strong);
+    --primitiv-table-footer-rule-color: var(--primitiv-border-strong);
+    --primitiv-table-caption-foreground: var(--primitiv-content-muted);
+    --primitiv-table-caption-font-family: var(--primitiv-body-sm-font-family);
+    --primitiv-table-caption-font-size: var(--primitiv-body-sm-font-size);
+    --primitiv-table-caption-font-weight: var(--primitiv-body-sm-font-weight);
+    --primitiv-table-caption-line-height: var(--primitiv-body-sm-line-height);
+    --primitiv-table-transition-duration: var(--primitiv-motion-duration-control);
+    --primitiv-table-transition-easing: var(--primitiv-motion-easing-default);
+
+    border-collapse: collapse;
+    /* Fill the container by default. On a narrow viewport, content wider than
+       100% still overflows into the optional __scroll-area wrapper (which caps
+       at 100% and scrolls) rather than forcing the page wider. */
+    inline-size: 100%;
+    font-family: var(--primitiv-table-font-family);
+    font-size: var(--primitiv-table-font-size);
+    font-weight: var(--primitiv-table-font-weight);
+    line-height: var(--primitiv-table-line-height);
+    color: var(--primitiv-table-foreground);
+  }
+
+  /* Cells: density-driven padding, leading-edge aligned, a subtle bottom rule. */
+  .primitiv-table__header,
+  .primitiv-table__cell {
+    padding-inline: var(--primitiv-table-cell-padding-inline);
+    padding-block: var(--primitiv-table-cell-padding-block);
+    text-align: start;
+    border-block-end: var(--primitiv-border-width-1) solid var(--primitiv-table-rule-color);
+    /* The hover state layer paints on the CELLS (see primitiv.states), so the
+       transition belongs here too. Instant fills read as a flicker when the
+       pointer crosses a table, which is the one place a pointer sweeps across
+       many interactive surfaces in a row. */
+    transition: background-color var(--primitiv-table-transition-duration)
+      var(--primitiv-table-transition-easing);
+  }
+
+  /* Header cells: the semibold face. */
+  .primitiv-table__header {
+    color: var(--primitiv-table-header-foreground);
+    font-weight: var(--primitiv-table-header-weight);
+  }
+
+  /* The header row: set off by a stronger underline rule alone — no fill band
+     (the design distinguishes the header by the rule + semibold face). */
+  .primitiv-table__head .primitiv-table__header {
+    border-block-end: var(--primitiv-border-width-1) solid var(--primitiv-table-header-rule-color);
+  }
+
+  /* The footer row: a strong rule on its **leading** edge, and none on the
+     trailing one. Verified at the node level rather than from the component
+     description: the Figma Row frames carry no strokes at all — each has a
+     `Bottom Border` rectangle whose constraint picks the edge, and head/body pin
+     theirs to `vertical: MAX` (bottom) while **footer pins to MIN (top)**, in
+     `border/strong` rather than `border/subtle`. The base cell rule above gives
+     every cell a subtle bottom rule, which the footer must shed — Figma draws no
+     rule below a footer. Without this the footer was indistinguishable from an
+     ordinary body row. */
+  .primitiv-table__footer .primitiv-table__cell,
+  .primitiv-table__footer .primitiv-table__header {
+    border-block-start: var(--primitiv-border-width-1) solid var(--primitiv-table-footer-rule-color);
+    border-block-end: var(--primitiv-border-width-0) solid var(--primitiv-table-footer-rule-color);
+  }
+
+  /* Caption: muted, padded to align with the cells. */
+  /* The caption is deliberately **size-invariant**: Figma binds it to `body/sm`
+     on every one of the Table set's Size variants (xs…xl all resolve to
+     body/sm/font-size + content/muted), unlike the cells, which do re-point per
+     size. Stated explicitly here rather than inherited from `primitiv.reset`'s
+     bare `caption` rule — that rule happens to say the same thing today, so the
+     rendered result was already correct, but it left the component depending on
+     a reset value it doesn't own. Restating it keeps the Figma decision visible
+     in the component and immune to a reset change. */
+  .primitiv-table__caption {
+    padding-block: var(--primitiv-table-cell-padding-block);
+    font-family: var(--primitiv-table-caption-font-family);
+    font-size: var(--primitiv-table-caption-font-size);
+    font-weight: var(--primitiv-table-caption-font-weight);
+    line-height: var(--primitiv-table-caption-line-height);
+    text-align: start;
+    color: var(--primitiv-table-caption-foreground);
+  }
+
+  /* Scroll wrapper: the headless layer sets the scroll mechanics inline; the
+     class is a styling hook for adding a frame/radius if wanted. */
+  .primitiv-table__scroll-area {
+    max-inline-size: 100%;
+  }
+}
+
+@layer primitiv.variants {
+  /* Column alignment — mirrors the `Align` axis that Figma's Table / Cell and
+     Table / Header Cell sets already carried before the code did. Logical
+     values, so `start`/`end` follow the reading direction and flip under RTL.
+     `start` is declared rather than left to the base rule so a cell can be
+     pulled back to the leading edge inside an otherwise end-aligned column.
+
+     Per CELL, not per column, and that is a CSS limit rather than a choice:
+     `text-align` does not apply to `<col>` — only border, background, width and
+     visibility do — so a column is aligned by aligning each of its cells.
+
+     For a SORTABLE header this is only half the job: the sort control is a flex
+     row, so its glyph and label are placed by `justify-content` (the
+     `data-table` sheet's `__sort--end`), not by `text-align`. Both are needed,
+     which is why `DataTableSortHeader` forwards `align` to the `<th>` as well as
+     to the button. */
+  .primitiv-table__header--start,
+  .primitiv-table__cell--start {
+    text-align: start;
+  }
+
+  .primitiv-table__header--center,
+  .primitiv-table__cell--center {
+    text-align: center;
+  }
+
+  .primitiv-table__header--end,
+  .primitiv-table__cell--end {
+    text-align: end;
+  }
+
+  .primitiv-table--xs {
+    --primitiv-table-font-family: var(--primitiv-body-xs-font-family);
+    --primitiv-table-font-size: var(--primitiv-body-xs-font-size);
+    --primitiv-table-font-weight: var(--primitiv-body-xs-font-weight);
+    --primitiv-table-line-height: var(--primitiv-body-xs-line-height);
+  }
+
+  .primitiv-table--sm {
+    --primitiv-table-font-family: var(--primitiv-body-sm-font-family);
+    --primitiv-table-font-size: var(--primitiv-body-sm-font-size);
+    --primitiv-table-font-weight: var(--primitiv-body-sm-font-weight);
+    --primitiv-table-line-height: var(--primitiv-body-sm-line-height);
+  }
+
+  .primitiv-table--md {
+    --primitiv-table-font-family: var(--primitiv-body-md-font-family);
+    --primitiv-table-font-size: var(--primitiv-body-md-font-size);
+    --primitiv-table-font-weight: var(--primitiv-body-md-font-weight);
+    --primitiv-table-line-height: var(--primitiv-body-md-line-height);
+  }
+
+  .primitiv-table--lg {
+    --primitiv-table-font-family: var(--primitiv-body-lg-font-family);
+    --primitiv-table-font-size: var(--primitiv-body-lg-font-size);
+    --primitiv-table-font-weight: var(--primitiv-body-lg-font-weight);
+    --primitiv-table-line-height: var(--primitiv-body-lg-line-height);
+  }
+
+  .primitiv-table--xl {
+    --primitiv-table-font-family: var(--primitiv-body-xl-font-family);
+    --primitiv-table-font-size: var(--primitiv-body-xl-font-size);
+    --primitiv-table-font-weight: var(--primitiv-body-xl-font-weight);
+    --primitiv-table-line-height: var(--primitiv-body-xl-line-height);
+  }
+
+  /* Striped body rows. Figma models striping as a per-row `State=striped`, but on
+     the web a `:nth-child(even)` zebra driven from the table is the idiomatic
+     shape (the human's call), so `rows="striped"` is a table-level presentation
+     rather than something set on each row. `even` leaves the first body row
+     unbanded, which reads better immediately under the header rule.
+
+     It lives here rather than in primitiv.states on purpose: the hover and
+     selected fills below sit in a *later* layer, so they still win over the
+     stripe — a striped row that is hovered or selected shows the interaction,
+     not the banding. */
+  .primitiv-table--striped .primitiv-table__body .primitiv-table__row:nth-child(even) {
+    background-color: var(--primitiv-table-row-stripe);
+  }
+}
+
+@layer primitiv.states {
+  /* Body rows respond to the pointer and to an explicit selection. Hover is
+     gated behind (hover: hover): a touchscreen simulates :hover on tap and it
+     "sticks" until the next tap elsewhere, which would otherwise leave a
+     just-tapped row (a consumer commonly wires an onClick for row selection)
+     showing its hover fill instead of its resting/selected one. */
+  /* The hover fill is a STATE LAYER on the cells, not a background on the row,
+     and the two are not interchangeable. `table/row/hover` is an alpha veil (it
+     aliases the neutral-alpha ramp, as tree/row/hover and
+     miller-columns/row/hover do — an opaque neutral here was as dark as
+     surface/sunken and read as a selection, not a hover). An alpha value set as
+     the ROW's background-color *replaces* the stripe rather than sitting over it,
+     so a striped row would go from #e5ecf6 to a 6% veil over white — lighter on
+     hover, the wrong direction entirely. Cells paint above their row, so the same
+     value on the cells composites over the stripe, the selected fill, or bare
+     surface, whichever is behind. background-color also transitions, which a
+     layered background-image gradient does not. */
+  @media (hover: hover) {
+    .primitiv-table__body .primitiv-table__row:hover > .primitiv-table__cell,
+    .primitiv-table__body .primitiv-table__row:hover > .primitiv-table__header {
+      background-color: var(--primitiv-table-row-hover);
+    }
+  }
+
+  /* Selection stays on the ROW: it is an opaque fill and the row is the thing
+     selected, so it needs no compositing and inherits to every cell for free. */
+  .primitiv-table__body .primitiv-table__row[aria-selected="true"] {
+    background-color: var(--primitiv-table-row-selected);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .primitiv-table__header,
+    .primitiv-table__cell {
+      transition: none;
+    }
+  }
+}

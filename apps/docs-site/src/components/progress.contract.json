@@ -1,0 +1,64 @@
+{
+  "$schema": "https://primitiv-ui.dev/schema/contract.json",
+  "name": "progress",
+  "version": "0.1.0",
+  "description": "A progress bar — a track with a fill that reports completion, or an animated indeterminate state when the ratio is unknown. `intent` picks the fill colour (primary/secondary/danger), matching the Figma set; the track stays neutral in every intent.",
+  "docs": "https://primitiv-ui.dev/docs/components/progress",
+  "root": {
+    "element": "div",
+    "class": "primitiv-progress",
+    "component": "Root"
+  },
+  "dataAttributes": [
+    { "name": "data-state", "value": "indeterminate", "when": "indeterminate", "source": "auto" },
+    { "name": "data-state", "value": "loading", "when": "loading", "source": "auto" },
+    { "name": "data-state", "value": "complete", "when": "complete", "source": "auto" }
+  ],
+  "modifiers": [
+    {
+      "name": "size",
+      "default": "md",
+      "description": "Track height; `data-density` scales each size further.",
+      "options": [
+        { "name": "xs", "class": "primitiv-progress--xs", "description": "Extra small." },
+        { "name": "sm", "class": "primitiv-progress--sm", "description": "Small." },
+        { "name": "md", "class": "primitiv-progress--md", "description": "Medium (the default)." },
+        { "name": "lg", "class": "primitiv-progress--lg", "description": "Large." },
+        { "name": "xl", "class": "primitiv-progress--xl", "description": "Extra large." }
+      ]
+    },
+    {
+      "name": "intent",
+      "default": "primary",
+      "description": "Fill colour, matching Figma's `Intent` axis. The track is neutral in every intent — only the fill changes.",
+      "options": [
+        { "name": "primary", "class": "primitiv-progress--primary", "description": "Brand fill (the default)." },
+        { "name": "secondary", "class": "primitiv-progress--secondary", "description": "Neutral fill, for progress that shouldn't compete for attention." },
+        { "name": "danger", "class": "primitiv-progress--danger", "description": "Danger fill, for progress toward a destructive or failing outcome." }
+      ]
+    }
+  ],
+  "styleProps": [
+    { "prop": "value", "cssVar": "--primitiv-progress-value" },
+    { "prop": "max", "cssVar": "--primitiv-progress-max" }
+  ],
+  "subcomponents": [
+    {
+      "name": "indicator",
+      "component": "Indicator",
+      "class": "primitiv-progress__indicator",
+      "dataAttributes": [
+        { "name": "data-state", "value": "indeterminate", "when": "indeterminate", "source": "auto" },
+        { "name": "data-state", "value": "loading", "when": "loading", "source": "auto" },
+        { "name": "data-state", "value": "complete", "when": "complete", "source": "auto" }
+      ]
+    }
+  ],
+  "customProperties": [
+    { "name": "--primitiv-progress-height", "defaultsTo": "var(--primitiv-progress-md-height)" },
+    { "name": "--primitiv-progress-radius", "defaultsTo": "var(--primitiv-radii-full)" },
+    { "name": "--primitiv-progress-track-bg", "defaultsTo": "var(--primitiv-action-secondary-default)" },
+    { "name": "--primitiv-progress-fill-bg", "defaultsTo": "var(--primitiv-action-primary-default)" },
+    { "name": "--primitiv-progress-max", "defaultsTo": "100" }
+  ]
+}

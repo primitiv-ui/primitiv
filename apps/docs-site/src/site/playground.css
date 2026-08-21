@@ -1,0 +1,77 @@
+/*
+ * Playground — a live preview, the controls that drive it, and the JSX for the
+ * current state. The three stay in lockstep: the controls are the single source
+ * of state, and both the preview and the snippet render from it.
+ */
+
+.docs-playground {
+  /* Tall enough that swapping size or density doesn't make the preview box
+     jump, which would move the controls under the pointer mid-click. */
+  --docs-preview-min-height: 8rem;
+
+  border: var(--primitiv-border-width-1) solid var(--primitiv-border-subtle);
+  border-radius: var(--primitiv-radii-12);
+  overflow: hidden;
+}
+
+.docs-playground-preview {
+  display: grid;
+  place-items: center;
+  min-block-size: var(--docs-preview-min-height);
+  padding: var(--primitiv-space-space-32);
+  background-color: var(--primitiv-surface-default);
+}
+
+.docs-playground-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--primitiv-stack-gap-lg);
+  padding: var(--primitiv-space-space-16);
+  border-block-start: var(--primitiv-border-width-1) solid
+    var(--primitiv-border-subtle);
+  background-color: var(--primitiv-surface-subtle);
+}
+
+.docs-playground-control {
+  display: flex;
+  flex-direction: column;
+  gap: var(--primitiv-stack-gap-xs);
+}
+
+.docs-playground-control-label {
+  font-family: var(--primitiv-label-xs-font-family);
+  font-size: var(--primitiv-label-xs-font-size);
+  color: var(--primitiv-content-secondary);
+}
+
+.docs-playground-code {
+  border-block-start: var(--primitiv-border-width-1) solid
+    var(--primitiv-border-subtle);
+}
+
+/* The snippet sits flush inside the playground frame, which already has its own
+   border and radius — a second set would read as a box in a box. */
+.docs-playground-code .primitiv-code-block {
+  border-width: var(--primitiv-border-width-0);
+  border-radius: var(--primitiv-radii-0);
+}
+
+/* ── Size / variant example strips ───────────────────────────────────────── */
+/* No border or radius of its own: this always sits inside `.docs-playground`,
+   which supplies the frame. Two would read as a box in a box. */
+.docs-example-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--primitiv-stack-gap-md);
+  padding: var(--primitiv-space-space-24);
+  background-color: var(--primitiv-surface-default);
+}
+
+.docs-example-caption {
+  margin-block: 0 var(--primitiv-flow-tight);
+  font-family: var(--primitiv-body-sm-font-family);
+  font-size: var(--primitiv-body-sm-font-size);
+  line-height: var(--primitiv-body-sm-line-height);
+  color: var(--primitiv-content-secondary);
+}

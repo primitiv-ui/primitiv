@@ -1,0 +1,431 @@
+/*
+ * Drawer — Primitiv default theme (canonical CSS).
+ *
+ * Copied into the consumer repo by `primitiv add drawer`. It is yours to edit:
+ * the stable surface is the contract (the .primitiv-drawer dialog + __overlay /
+ * __header / __body / __footer / __title / __description / __close parts, the
+ * --sm…--xl size modifiers, the data-state / data-side hooks, and the
+ * --primitiv-drawer-* custom properties), not these values (RFC 0006 Principle 2
+ * — names are stable, values are not).
+ *
+ * A Drawer is a Modal that slides in from a screen edge. It shares the Modal
+ * anatomy — a vertical stack of __header (title + close, divided below), __body
+ * (description + content, the one region that scrolls), __footer (right-aligned
+ * actions, divided above) — but instead of a centred box it docks full-length to
+ * one viewport edge. `data-side` (emitted by the headless from the `side` prop)
+ * picks the edge, the radius/border corners, and the slide direction; the `size`
+ * modifier sets the panel's *cross-axis* extent (width for left/right, height for
+ * top/bottom). To avoid a bespoke token family the padding / gap / radius reuse
+ * the density-scaled `modal/*` tokens, so a drawer's inner spacing matches a
+ * modal's at every size and density.
+ *
+ * Structure follows RFC 0008: per-component API tokens + the resting look live
+ * in primitiv.base, the size modifiers in primitiv.variants, the open/closed +
+ * focus + disabled styling in primitiv.states. The sublayer order is declared
+ * once in the shared token layer (primitiv.tokens.css); this file only re-opens
+ * the named sublayers.
+ *
+ * The backdrop is styled in two places: the native top-layer `::backdrop` (the
+ * dim a `showModal()` dialog actually paints) and the optional decorative
+ * `.primitiv-drawer__overlay` sibling (the animation/escape-hatch surface). Both
+ * resolve the same `--primitiv-drawer-scrim` token (→ the shared `scrim` theme
+ * token).
+ *
+ * Requires the token layer (`primitiv tokens`) for the --primitiv-surface-*,
+ * --primitiv-content-*, --primitiv-border-*, --primitiv-scrim,
+ * --primitiv-elevation-*, --primitiv-modal-*, --primitiv-label-*,
+ * --primitiv-body-*, --primitiv-focus-ring-*, --primitiv-opacity-* and
+ * --primitiv-motion-* custom properties it resolves.
+ */
+
+/* Declare the sublayer order up front so this sheet is safe to load ahead of
+ * the token layer: CSS fixes layer precedence by first appearance, so without
+ * this a component stylesheet seen first would register primitiv.base before
+ * primitiv.reset and let the reset win (RFC 0008 §7). */
+@layer primitiv.reset, primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;
+
+@layer primitiv.reset {
+  /* Shed the UA dialog defaults: no inner padding, no auto-centring margin, and
+     no `fit-content` sizing. A `<dialog>` defaults to width/height: fit-content,
+     which would size the drawer to its content (not the viewport) and defeat the
+     `inset: 0` stretch below — so reset both axes to `auto`. Each per-side rule
+     then stretches the long axis via its insets and sets only the cross axis
+     (width for left/right, height for top/bottom). */
+  .primitiv-drawer {
+    margin: 0;
+    padding: 0;
+    block-size: auto;
+    inline-size: auto;
+  }
+}
+
+@layer primitiv.base {
+  .primitiv-drawer {
+    /* Per-component API — the themable knobs, defaulting to the md size. The size
+       modifiers re-point the sizing knobs; consumers can override any one without
+       touching the rule. Padding / gap / radius alias the density-scaled modal/*
+       tokens so a drawer matches a modal at each size + density. */
+    --primitiv-drawer-surface: var(--primitiv-surface-default);
+    --primitiv-drawer-fg: var(--primitiv-content-primary);
+    --primitiv-drawer-shadow: var(--primitiv-elevation-modal);
+    --primitiv-drawer-scrim: var(--primitiv-scrim);
+    --primitiv-drawer-radius: var(--primitiv-modal-md-radius);
+    --primitiv-drawer-padding-inline: var(--primitiv-modal-md-padding-inline);
+    --primitiv-drawer-padding-block: var(--primitiv-modal-md-padding-block);
+    --primitiv-drawer-gap: var(--primitiv-modal-md-gap);
+    --primitiv-drawer-size: var(--primitiv-size-size-240);
+    --primitiv-drawer-border-width: var(--primitiv-border-width-1);
+    --primitiv-drawer-border-color: var(--primitiv-border-default);
+    --primitiv-drawer-divider-color: var(--primitiv-border-subtle);
+    --primitiv-drawer-title-color: var(--primitiv-content-primary);
+    --primitiv-drawer-title-font-family: var(--primitiv-label-md-font-family);
+    --primitiv-drawer-title-font-size: var(--primitiv-label-md-font-size);
+    --primitiv-drawer-title-font-weight: var(--primitiv-label-md-font-weight);
+    --primitiv-drawer-title-line-height: var(--primitiv-label-md-line-height);
+    --primitiv-drawer-description-color: var(--primitiv-content-secondary);
+    --primitiv-drawer-description-font-family: var(--primitiv-body-sm-font-family);
+    --primitiv-drawer-description-font-size: var(--primitiv-body-sm-font-size);
+    --primitiv-drawer-description-font-weight: var(--primitiv-body-sm-font-weight);
+    --primitiv-drawer-description-line-height: var(--primitiv-body-sm-line-height);
+
+    /* Off-screen translate for the slide, overridden per side below. */
+    --primitiv-drawer-slide: 0 0;
+
+    position: fixed;
+    /* Hidden while closed (so a force-mounted drawer stays out of view); the
+       [open] rule below flips it to the flex column when the dialog opens, and
+       the states layer transitions that flip (allow-discrete) for the exit. */
+    display: none;
+    flex-direction: column;
+    /* Never exceed the viewport — a wide `size` clamps on small screens. */
+    max-inline-size: 100dvw;
+    max-block-size: 100dvh;
+    border: var(--primitiv-border-width-0) solid var(--primitiv-drawer-border-color);
+    border-radius: var(--primitiv-radii-0);
+    background: var(--primitiv-drawer-surface);
+    color: var(--primitiv-drawer-fg);
+    box-shadow: var(--primitiv-drawer-shadow);
+  }
+
+  .primitiv-drawer[open] {
+    display: flex;
+  }
+
+  .primitiv-drawer::backdrop {
+    background: var(--primitiv-drawer-scrim);
+  }
+
+  /* Positioning per edge. Each drawer spans the full length of the edge it docks
+     to (both insets on the long axis = 0) while `size` sets the perpendicular
+     extent; the border + radius land only on the inner edge that faces the page,
+     and --primitiv-drawer-slide points off-screen for the enter/exit animation. */
+  .primitiv-drawer[data-side="right"] {
+    inset-block: 0;
+    inset-inline: auto 0;
+    inline-size: var(--primitiv-drawer-size);
+    border-inline-start-width: var(--primitiv-drawer-border-width);
+    border-start-start-radius: var(--primitiv-drawer-radius);
+    border-end-start-radius: var(--primitiv-drawer-radius);
+    --primitiv-drawer-slide: 100% 0;
+  }
+
+  .primitiv-drawer[data-side="left"] {
+    inset-block: 0;
+    inset-inline: 0 auto;
+    inline-size: var(--primitiv-drawer-size);
+    border-inline-end-width: var(--primitiv-drawer-border-width);
+    border-start-end-radius: var(--primitiv-drawer-radius);
+    border-end-end-radius: var(--primitiv-drawer-radius);
+    --primitiv-drawer-slide: -100% 0;
+  }
+
+  .primitiv-drawer[data-side="top"] {
+    inset-inline: 0;
+    inset-block: 0 auto;
+    block-size: var(--primitiv-drawer-size);
+    border-block-end-width: var(--primitiv-drawer-border-width);
+    border-end-start-radius: var(--primitiv-drawer-radius);
+    border-end-end-radius: var(--primitiv-drawer-radius);
+    --primitiv-drawer-slide: 0 -100%;
+  }
+
+  .primitiv-drawer[data-side="bottom"] {
+    inset-inline: 0;
+    inset-block: auto 0;
+    block-size: var(--primitiv-drawer-size);
+    border-block-start-width: var(--primitiv-drawer-border-width);
+    border-start-start-radius: var(--primitiv-drawer-radius);
+    border-start-end-radius: var(--primitiv-drawer-radius);
+    --primitiv-drawer-slide: 0 100%;
+  }
+
+  /* Safe-area clearance. The drawer is position: fixed against physical viewport
+     edges, so on a device with a notch or a home indicator its content sits
+     underneath them — a bottom drawer's footer actions being the worst case.
+     Padding, not inset: the surface should still bleed to the physical edge
+     (Content bleeds, controls float); only the content clears the unsafe zone.
+
+     Necessarily per-side and necessarily physical. env(safe-area-inset-*) is a
+     VIEWPORT-level value, not a per-element one, so padding a right-docked
+     drawer by the *left* inset would add spurious space for an edge it does not
+     touch — each variant therefore pads only the three edges it actually meets.
+     The env() names have no logical equivalents, which is why these are physical
+     properties in a file that is otherwise logical throughout; the `data-side`
+     values are physical for the same reason.
+
+     Each carries a 0px fallback so the declaration stays valid where the
+     variable is unknown. Note these resolve to 0 unless the page sets
+     `viewport-fit=cover` on its viewport meta — without it iOS reports no
+     insets at all, so this is inert rather than wrong on such a page. */
+  .primitiv-drawer[data-side="right"] {
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    padding-right: env(safe-area-inset-right, 0px);
+  }
+
+  .primitiv-drawer[data-side="left"] {
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    padding-left: env(safe-area-inset-left, 0px);
+  }
+
+  .primitiv-drawer[data-side="top"] {
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-left: env(safe-area-inset-left, 0px);
+    padding-right: env(safe-area-inset-right, 0px);
+  }
+
+  .primitiv-drawer[data-side="bottom"] {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    padding-left: env(safe-area-inset-left, 0px);
+    padding-right: env(safe-area-inset-right, 0px);
+  }
+
+  /* The three stacked regions. Each owns its padding so the header/footer
+     dividers run full-bleed to the panel edge; the root has none. Padding / gap
+     resolve the size-scoped --primitiv-drawer-* knobs (re-pointed by the size
+     modifier and inherited down), so they track size and density. */
+  .primitiv-drawer__header {
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--primitiv-drawer-gap);
+    padding: var(--primitiv-drawer-padding-block) var(--primitiv-drawer-padding-inline);
+    border-block-end: var(--primitiv-drawer-border-width) solid var(--primitiv-drawer-divider-color);
+  }
+
+  /* The body is the one region that scrolls: `flex: 1 1 0%` makes it take all the
+     space the (pinned) header + footer leave, ignoring its own content height, so
+     a full-height drawer with long content scrolls internally instead of pushing
+     the header/footer off-screen. min-block-size:0 lets it shrink below its
+     content in the flex column (the Chakra pattern). */
+  .primitiv-drawer__body {
+    flex: 1 1 0%;
+    min-block-size: 0;
+    overflow: auto;
+    /* Stop the scroll chaining to the page behind the drawer once this region
+       hits its end — without it the background moves under an open overlay,
+       which reads as the drawer having lost focus. Dropdown, Combobox, Select
+       and Carousel already contain their own scroll; this was the one overlay
+       that did not. */
+    overscroll-behavior: contain;
+    display: flex;
+    flex-direction: column;
+    gap: var(--primitiv-drawer-gap);
+    padding: var(--primitiv-drawer-padding-block) var(--primitiv-drawer-padding-inline);
+  }
+
+  .primitiv-drawer__footer {
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--primitiv-drawer-gap);
+    padding: var(--primitiv-drawer-padding-block) var(--primitiv-drawer-padding-inline);
+    border-block-start: var(--primitiv-drawer-border-width) solid var(--primitiv-drawer-divider-color);
+  }
+
+  /* The decorative overlay sibling — the animation / custom-backdrop surface.
+     The native ::backdrop sits above it in the top layer, so this is not a
+     click-outside event target (that is wired on the dialog itself). */
+  .primitiv-drawer__overlay {
+    position: fixed;
+    inset: 0;
+    background: var(--primitiv-drawer-scrim);
+  }
+
+  .primitiv-drawer__title {
+    margin: 0;
+    color: var(--primitiv-drawer-title-color);
+    font-family: var(--primitiv-drawer-title-font-family);
+    font-size: var(--primitiv-drawer-title-font-size);
+    font-weight: var(--primitiv-drawer-title-font-weight);
+    line-height: var(--primitiv-drawer-title-line-height);
+  }
+
+  .primitiv-drawer__description {
+    /* Avoid a one-word last line. `pretty` rather than `balance`: a description
+       is prose that may run to several lines, where balance's even-distribution
+       is the wrong goal (and it caps out after a few lines anyway) — pretty only
+       pulls a word back to prevent the orphan. Deliberately not applied to
+       long-form copy; see the base sheet's `p`. */
+    text-wrap: pretty;
+    margin: 0;
+    color: var(--primitiv-drawer-description-color);
+    font-family: var(--primitiv-drawer-description-font-family);
+    font-size: var(--primitiv-drawer-description-font-size);
+    font-weight: var(--primitiv-drawer-description-font-weight);
+    line-height: var(--primitiv-drawer-description-line-height);
+  }
+
+  /* Close — a frameless affordance at the inline-end of the header row. The
+     canonical composition wraps a ghost Button with a Close icon (`asChild`),
+     sized one step below the drawer (sm→xs · md→sm · lg→md · xl→lg); this resting
+     style is the bare-<button> fallback when no Button is composed in. Because
+     `asChild` puts this class on the composed Button, every property here must
+     agree with the ghost variant: the transition list mirrors the button base
+     rule's, and hover tints with the same action/ghost state layer. */
+  .primitiv-drawer__close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: var(--primitiv-color-transparent);
+    color: var(--primitiv-content-secondary);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    /* Prevent tap-hold from triggering iOS's text-selection callout — a
+       control's own icon/label isn't page content. */
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    transition:
+      background-color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default),
+      border-color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default),
+      box-shadow var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default),
+      color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
+  }
+
+  /* Gated behind (hover: hover): a touchscreen simulates :hover on tap and it
+     "sticks" until the next tap elsewhere, which would otherwise leave a
+     just-tapped close button showing its hover fill instead of its resting
+     one. */
+  @media (hover: hover) {
+    .primitiv-drawer__close:hover {
+      background: var(--primitiv-action-ghost-hover);
+      color: var(--primitiv-content-primary);
+    }
+  }
+
+  .primitiv-drawer__close:active {
+    background: var(--primitiv-action-ghost-active);
+  }
+}
+
+@layer primitiv.variants {
+  /* Width — the cross-axis extent (width for a left/right drawer, height for a
+     top/bottom sheet), stepped xs–xl off the size/* scale. Only the extent scales
+     here: padding / gap / radius stay on the base's modal-md tokens and track
+     density ambiently (RFC 0009), so a drawer's inner spacing is independent of
+     how wide it is. */
+  .primitiv-drawer--xs {
+    --primitiv-drawer-size: var(--primitiv-size-size-168);
+  }
+  .primitiv-drawer--sm {
+    --primitiv-drawer-size: var(--primitiv-size-size-200);
+  }
+  .primitiv-drawer--md {
+    --primitiv-drawer-size: var(--primitiv-size-size-240);
+  }
+  .primitiv-drawer--lg {
+    --primitiv-drawer-size: var(--primitiv-size-size-288);
+  }
+  .primitiv-drawer--xl {
+    --primitiv-drawer-size: var(--primitiv-size-size-344);
+  }
+}
+
+@layer primitiv.states {
+  /* Enter / exit — the panel slides from its docked edge and the backdrop fades,
+     driven by the native [open] attribute (showModal / close toggle it). The
+     resting/closed state (base rule) is off-screen + faded; [open] brings it home;
+     @starting-style gives the enter its off-screen starting frame. Because the
+     same two states drive both directions, the exit is the exact reverse of the
+     enter. transition-behavior: allow-discrete on `display` + `overlay` keeps the
+     dialog painted in the top layer through the close, so it slides out instead of
+     snapping (a native <dialog> sets display:none the instant it closes). This
+     needs the dialog kept mounted while closed — pass `forceMount` to
+     Drawer.Portal. Both phases are token-driven (shared overlay duration + the
+     enter / exit easings). */
+  .primitiv-drawer {
+    translate: var(--primitiv-drawer-slide);
+    transition:
+      translate var(--primitiv-motion-duration-overlay) var(--primitiv-motion-easing-exit),
+      display var(--primitiv-motion-duration-overlay) allow-discrete,
+      overlay var(--primitiv-motion-duration-overlay) allow-discrete;
+  }
+  .primitiv-drawer[open] {
+    translate: 0 0;
+    transition-timing-function: var(--primitiv-motion-easing-enter);
+  }
+  @starting-style {
+    .primitiv-drawer[open] {
+      translate: var(--primitiv-drawer-slide);
+    }
+  }
+
+  .primitiv-drawer::backdrop {
+    opacity: var(--primitiv-opacity-transparent);
+    transition:
+      opacity var(--primitiv-motion-duration-overlay) var(--primitiv-motion-easing-exit),
+      display var(--primitiv-motion-duration-overlay) allow-discrete,
+      overlay var(--primitiv-motion-duration-overlay) allow-discrete;
+  }
+  .primitiv-drawer[open]::backdrop {
+    opacity: var(--primitiv-opacity-100);
+    transition-timing-function: var(--primitiv-motion-easing-enter);
+  }
+  @starting-style {
+    .primitiv-drawer[open]::backdrop {
+      opacity: var(--primitiv-opacity-transparent);
+    }
+  }
+
+  /* Honour reduced-motion: no slide / fade, just show / hide. */
+  @media (prefers-reduced-motion: reduce) {
+    .primitiv-drawer,
+    .primitiv-drawer::backdrop {
+      transition: none;
+    }
+  }
+
+  /* Focus — the shared two-layer ring on the close affordance, identical to
+     every framed control: a surface-coloured gap band then the brand ring just
+     outside it. Restyle globally via the --primitiv-focus-ring* tokens. */
+  .primitiv-drawer__close:focus-visible {
+    outline: none;
+    box-shadow:
+      0 0 0 var(--primitiv-focus-ring-offset) var(--primitiv-surface-default),
+      0 0 0 calc(var(--primitiv-focus-ring-offset) + var(--primitiv-focus-ring-width))
+        var(--primitiv-focus-ring);
+  }
+
+  /* Forced colours (Windows High Contrast) discards box-shadow, so the ring
+     above renders nothing and the `outline: none` beside it is all that
+     survives — leaving no focus indicator at all. Restore a real outline,
+     which the mode does honour, in the system Highlight colour. Same tokens
+     as the ring, so the geometry is unchanged. */
+  @media (forced-colors: active) {
+    .primitiv-drawer__close:focus-visible {
+      outline: var(--primitiv-focus-ring-width) solid Highlight;
+      outline-offset: var(--primitiv-focus-ring-offset);
+    }
+  }
+
+  .primitiv-drawer__close[data-disabled],
+  .primitiv-drawer__close:disabled {
+    opacity: var(--primitiv-opacity-50);
+    cursor: not-allowed;
+  }
+}

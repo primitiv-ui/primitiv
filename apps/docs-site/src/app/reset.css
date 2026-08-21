@@ -1,0 +1,99 @@
+/*
+ * The document reset this app has to supply itself.
+ *
+ * The design system does NOT ship one. `primitiv-base.css` declares a layer
+ * *called* `primitiv.reset`, but its contents are font smoothing, `color-scheme`
+ * and inline-mark styling — there is no `box-sizing` normalisation and no margin
+ * zeroing. Registry components declare `box-sizing` individually where they need
+ * it (50 separate declarations across the component sheets), which means every
+ * element the components DON'T own is still `content-box` with live UA margins.
+ * That is a legitimate division of labour for a library, but it makes a reset
+ * the consumer's job.
+ *
+ * Everything here sits in `@layer primitiv.reset` — the LOWEST sublayer in the
+ * declared order — so it can never out-rank a component's own rule, a base
+ * element style, a variant or a state. That is what makes a blanket
+ * `margin: 0` safe: `primitiv.base` already sets the margins it wants (RFC 0016
+ * D66 zeroes `p` deliberately), and anything in a higher layer wins here by
+ * construction.
+ *
+ * This is the ONE file in the app allowed bare element selectors — a reset is
+ * global by definition. `scripts/check-tokens.mjs` exempts it by name.
+ */
+
+@layer primitiv.reset {
+  /* Border-box everywhere. Without it, any element given both a size and
+     padding/border resolves larger than the token says — which is why controls
+     sat a hair off their declared height. */
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  /* UA margins removed from the block elements that have them. Components and
+     the base layer re-apply their own in higher layers. */
+  body,
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  p,
+  figure,
+  blockquote,
+  dl,
+  dd,
+  pre,
+  fieldset,
+  ul,
+  ol {
+    margin: 0;
+  }
+
+  /* Lists used for navigation carry no marker or indent. Prose lists get theirs
+     back from the base layer's own `ul`/`ol` rules. */
+  ul,
+  ol {
+    padding: 0;
+  }
+
+  /* Replaced elements are inline by default, so they sit on the text baseline
+     and inherit the line box's descender space — the classic "why is there a gap
+     under my logo" and the likely source of the phantom margin in the top bar. */
+  img,
+  svg,
+  video,
+  canvas,
+  picture {
+    display: block;
+    max-inline-size: 100%;
+  }
+
+  /* Form controls inherit neither font nor colour in any browser. */
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+    color: inherit;
+    margin: 0;
+  }
+
+  /* A tap target should not be smaller than its glyph implies. */
+  button {
+    background: none;
+    border: none;
+  }
+
+  /* Long words break rather than forcing a horizontal scrollbar on the page. */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    overflow-wrap: break-word;
+  }
+}

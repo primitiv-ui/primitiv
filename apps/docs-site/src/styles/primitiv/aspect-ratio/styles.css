@@ -1,0 +1,88 @@
+/*
+ * AspectRatio — Primitiv default theme (canonical CSS).
+ *
+ * Copied into the consumer repo by `primitiv add aspect-ratio`. It is yours
+ * to edit: the stable surface is the contract (the .primitiv-aspect-ratio
+ * class, the __content part, and the --primitiv-aspect-ratio custom
+ * property), not these values (RFC 0006 Principle 2 — names are stable,
+ * values are not).
+ *
+ * Constrains embedded media (image/video/map/iframe) to a ratio via the
+ * modern CSS `aspect-ratio` property (RFC 0022) — no padding-bottom hack.
+ * The content wrapper is absolutely positioned to fill the ratio box
+ * regardless of the child's own intrinsic size (an <img>/<video> still needs
+ * its own `object-fit` from the consumer to crop rather than distort; this
+ * component only reserves the box).
+ */
+
+/* Declare the sublayer order up front so this sheet is safe to load ahead of
+ * the token layer: CSS fixes layer precedence by first appearance, so without
+ * this a component stylesheet seen first would register primitiv.base before
+ * primitiv.reset and let the reset win (RFC 0008 §7). */
+@layer primitiv.reset, primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;
+
+@layer primitiv.base {
+  .primitiv-aspect-ratio {
+    /* Per-component API — the themable knob, defaulting to a 1:1 square.
+       Consumers pass `ratio` as a prop; the wrapper writes it here inline
+       per instance (a continuous numeric value, not a fixed enum — no
+       modifier class fits it, the same treatment Stack gives align/justify). */
+    --primitiv-aspect-ratio: 1;
+
+    position: relative;
+    aspect-ratio: var(--primitiv-aspect-ratio);
+    /* Crop, never spill — cropping is what a ratio box wants anyway, and it
+       stops a mis-sized box painting over whatever follows it on the page. */
+    overflow: hidden;
+    /* A single-cell grid, so the content layer below can fill the box while
+       staying **in flow**. It used to be `position: absolute`, which made the
+       box's height depend entirely on `aspect-ratio` resolving — with no
+       in-flow content, there was no fallback, so any parent that muddied the
+       block axis collapsed the box to nothing. In flow the box always has a
+       real height to report to its parent, which is what a flex or grid
+       container needs in order to reserve room for it. */
+    display: grid;
+  }
+
+  .primitiv-aspect-ratio__content {
+    /* The single cell. Stretch (the default) makes it fill the ratio box
+       regardless of the child's own intrinsic size — the same contract the
+       absolute version had, minus the out-of-flow side effects. */
+    grid-area: 1 / 1;
+    inline-size: 100%;
+    block-size: 100%;
+  }
+}
+
+@layer primitiv.variants {
+  /* Ratio — a curated preset per class, each just re-pointing the one knob.
+     Presets rather than a raw number so the component needs no inline style:
+     a prop that can take any value has to be written to the element at render
+     time, and that is the thing we are avoiding (RFC 0022 §8/§9). A bespoke
+     ratio is a one-line override of --primitiv-aspect-ratio in the consumer's
+     own stylesheet, which keeps it in CSS where it belongs. */
+  .primitiv-aspect-ratio--1-1 {
+    --primitiv-aspect-ratio: 1;
+  }
+  .primitiv-aspect-ratio--4-3 {
+    --primitiv-aspect-ratio: 1.3333;
+  }
+  .primitiv-aspect-ratio--3-2 {
+    --primitiv-aspect-ratio: 1.5;
+  }
+  .primitiv-aspect-ratio--16-9 {
+    --primitiv-aspect-ratio: 1.7778;
+  }
+  .primitiv-aspect-ratio--21-9 {
+    --primitiv-aspect-ratio: 2.3333;
+  }
+  .primitiv-aspect-ratio--3-4 {
+    --primitiv-aspect-ratio: 0.75;
+  }
+  .primitiv-aspect-ratio--2-3 {
+    --primitiv-aspect-ratio: 0.6667;
+  }
+  .primitiv-aspect-ratio--9-16 {
+    --primitiv-aspect-ratio: 0.5625;
+  }
+}

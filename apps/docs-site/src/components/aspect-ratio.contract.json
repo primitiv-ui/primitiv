@@ -1,0 +1,68 @@
+{
+  "$schema": "https://primitiv-ui.dev/schema/contract.json",
+  "name": "aspect-ratio",
+  "version": "0.1.0",
+  "description": "A box that constrains its content to a width-to-height ratio via CSS `aspect-ratio`. `ratio` is a curated preset set of modifier classes (1/1, 4/3, 3/2, 16/9, 21/9 and their portrait inverses); a bespoke ratio comes from overriding --primitiv-aspect-ratio in a stylesheet (RFC 0022 \u00a79).",
+  "docs": "https://primitiv-ui.dev/docs/components/aspect-ratio",
+  "root": {
+    "element": "div",
+    "class": "primitiv-aspect-ratio"
+  },
+  "dataAttributes": [],
+  "modifiers": [
+    {
+      "name": "ratio",
+      "default": "1/1",
+      "description": "Width-to-height ratio, from a curated preset set. A bespoke ratio is set by overriding the `--primitiv-aspect-ratio` custom property in your own stylesheet \u2014 the component writes no inline styles.",
+      "options": [
+        {
+          "name": "1/1",
+          "class": "primitiv-aspect-ratio--1-1",
+          "description": "Square (the default)."
+        },
+        {
+          "name": "4/3",
+          "class": "primitiv-aspect-ratio--4-3",
+          "description": "Classic landscape \u2014 4:3."
+        },
+        {
+          "name": "3/2",
+          "class": "primitiv-aspect-ratio--3-2",
+          "description": "Photographic landscape \u2014 3:2."
+        },
+        {
+          "name": "16/9",
+          "class": "primitiv-aspect-ratio--16-9",
+          "description": "Widescreen video \u2014 16:9."
+        },
+        {
+          "name": "21/9",
+          "class": "primitiv-aspect-ratio--21-9",
+          "description": "Ultrawide \u2014 21:9."
+        },
+        {
+          "name": "3/4",
+          "class": "primitiv-aspect-ratio--3-4",
+          "description": "Classic portrait \u2014 3:4."
+        },
+        {
+          "name": "2/3",
+          "class": "primitiv-aspect-ratio--2-3",
+          "description": "Photographic portrait \u2014 2:3."
+        },
+        {
+          "name": "9/16",
+          "class": "primitiv-aspect-ratio--9-16",
+          "description": "Tall portrait / mobile video \u2014 9:16."
+        }
+      ]
+    }
+  ],
+  "subcomponents": [],
+  "customProperties": [
+    {
+      "name": "--primitiv-aspect-ratio",
+      "defaultsTo": "1"
+    }
+  ]
+}

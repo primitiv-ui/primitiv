@@ -1,0 +1,42 @@
+/*
+ * Landing section chrome — the band fill and the overline/heading pair.
+ *
+ * Every value below is read off the Figma landing v2 frame: section
+ * padding-block 80 (= space-80), overline 12px Khand Medium in content/muted,
+ * heading 40px Khand SemiBold in content/primary (= heading/h2 at comfortable).
+ */
+
+.docs-landing-section {
+  padding-block: var(--primitiv-space-space-80);
+}
+
+/*
+ * The design uses a Figma SHADER fill for the banded sections, which exposes no
+ * gradient stops through the plugin API. Deliberately approximated with a flat
+ * token tint for now — `surface/subtle` is the one step off the page colour.
+ */
+.docs-landing-section--band {
+  background-color: var(--primitiv-surface-subtle);
+}
+
+.docs-section-overline {
+  margin: 0;
+  font-family: var(--primitiv-overline-font-family);
+  font-size: var(--primitiv-overline-font-size);
+  font-weight: var(--primitiv-overline-font-weight);
+  line-height: var(--primitiv-overline-line-height);
+  text-transform: uppercase;
+  color: var(--primitiv-content-muted);
+}
+
+.docs-section-heading {
+  margin: 0;
+  font-family: var(--primitiv-heading-h2-font-family);
+  font-size: var(--primitiv-heading-h2-font-size);
+  font-weight: var(--primitiv-heading-h2-font-weight);
+  line-height: var(--primitiv-heading-h2-line-height);
+  letter-spacing: var(--primitiv-heading-h2-letter-spacing);
+  color: var(--primitiv-content-primary);
+  /* Sticky header offset for in-page anchors. */
+  scroll-margin-block-start: var(--primitiv-space-space-96);
+}

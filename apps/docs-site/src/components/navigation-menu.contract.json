@@ -1,0 +1,407 @@
+{
+  "$schema": "https://primitiv-ui.dev/schema/contract.json",
+  "name": "navigation-menu",
+  "version": "0.1.0",
+  "description": "The desktop dropdown site nav \u2014 a transparent bar of top-level entries, each either a plain link or a trigger that discloses a panel, with one panel open at a time. Panels project into a shared Viewport so the open one morphs into the next, and an Indicator (arrow or underline) tracks the open trigger. Implements the ARIA APG Disclosure Navigation Menu pattern, not a menubar: keyboard, hover-intent and focus are owned by the headless primitive.",
+  "docs": "https://primitiv-ui.dev/docs/components/navigation-menu",
+  "root": {
+    "element": "nav",
+    "class": "primitiv-navigation-menu",
+    "component": "Root"
+  },
+  "dataAttributes": [
+    {
+      "name": "data-orientation",
+      "value": "horizontal",
+      "when": "horizontal",
+      "source": "auto"
+    },
+    {
+      "name": "data-orientation",
+      "value": "vertical",
+      "when": "vertical",
+      "source": "auto"
+    },
+    {
+      "name": "data-state",
+      "value": "open",
+      "when": "open",
+      "source": "auto"
+    },
+    {
+      "name": "data-state",
+      "value": "closed",
+      "when": "closed",
+      "source": "auto"
+    },
+    {
+      "name": "data-active",
+      "value": "",
+      "when": "the link is the current page",
+      "source": "auto"
+    },
+    {
+      "name": "data-motion",
+      "value": "from-start | from-end | to-start | to-end",
+      "when": "the open entry changes and this panel is the one entering or leaving",
+      "source": "auto"
+    }
+  ],
+  "modifiers": [
+    {
+      "name": "size",
+      "default": "md",
+      "description": "Entry + panel scale; `data-density` scales the sizing within each size. Re-points every child sizing knob (entry height/padding/gap/icon, panel radius/padding/offset, row padding and text gap).",
+      "options": [
+        {
+          "name": "xs",
+          "class": "primitiv-navigation-menu--xs",
+          "description": "Extra small."
+        },
+        {
+          "name": "sm",
+          "class": "primitiv-navigation-menu--sm",
+          "description": "Small."
+        },
+        {
+          "name": "md",
+          "class": "primitiv-navigation-menu--md",
+          "description": "Medium (the default)."
+        },
+        {
+          "name": "lg",
+          "class": "primitiv-navigation-menu--lg",
+          "description": "Large."
+        },
+        {
+          "name": "xl",
+          "class": "primitiv-navigation-menu--xl",
+          "description": "Extra large."
+        }
+      ]
+    }
+  ],
+  "subcomponents": [
+    {
+      "name": "list",
+      "component": "List",
+      "element": "ul",
+      "class": "primitiv-navigation-menu__list"
+    },
+    {
+      "name": "item",
+      "component": "Item",
+      "element": "li",
+      "class": "primitiv-navigation-menu__item"
+    },
+    {
+      "name": "trigger",
+      "component": "Trigger",
+      "element": "button",
+      "class": "primitiv-navigation-menu__trigger"
+    },
+    {
+      "name": "trigger-label",
+      "component": "TriggerLabel",
+      "element": "span",
+      "class": "primitiv-navigation-menu__trigger-label"
+    },
+    {
+      "name": "trigger-icon",
+      "component": "TriggerIcon",
+      "element": "span",
+      "class": "primitiv-navigation-menu__trigger-icon"
+    },
+    {
+      "name": "content",
+      "component": "Content",
+      "element": "div",
+      "class": "primitiv-navigation-menu__content"
+    },
+    {
+      "name": "viewport",
+      "component": "Viewport",
+      "element": "div",
+      "class": "primitiv-navigation-menu__viewport"
+    },
+    {
+      "name": "indicator",
+      "component": "Indicator",
+      "element": "div",
+      "class": "primitiv-navigation-menu__indicator"
+    },
+    {
+      "name": "link",
+      "component": "Link",
+      "element": "a",
+      "class": "primitiv-navigation-menu__link"
+    },
+    {
+      "name": "link-text",
+      "component": "LinkText",
+      "element": "span",
+      "class": "primitiv-navigation-menu__link-text"
+    },
+    {
+      "name": "link-title",
+      "component": "LinkTitle",
+      "element": "span",
+      "class": "primitiv-navigation-menu__link-title"
+    },
+    {
+      "name": "link-description",
+      "component": "LinkDescription",
+      "element": "span",
+      "class": "primitiv-navigation-menu__link-description"
+    },
+    {
+      "name": "link-leading",
+      "component": "LinkLeading",
+      "element": "span",
+      "class": "primitiv-navigation-menu__link-leading"
+    },
+    {
+      "name": "link-trailing",
+      "component": "LinkTrailing",
+      "element": "span",
+      "class": "primitiv-navigation-menu__link-trailing"
+    }
+  ],
+  "subcomponentModifiers": [
+    {
+      "subcomponent": "link",
+      "name": "placement",
+      "default": "bar",
+      "description": "Which of the two placements of the single headless `Link` part this is. `bar` is a top-level entry sitting beside the triggers (one line, entry geometry); `panel` is a row inside an open panel (two lines \u2014 title plus optional description \u2014 with optional leading/trailing slots). Mirrors the Figma `Navigation Menu / Bar Link` and `Navigation Menu / Panel Link` sets.",
+      "options": [
+        {
+          "name": "bar",
+          "class": "primitiv-navigation-menu__link--bar",
+          "description": "A top-level bar entry (the default)."
+        },
+        {
+          "name": "panel",
+          "class": "primitiv-navigation-menu__link--panel",
+          "description": "A row inside an open panel."
+        }
+      ]
+    },
+    {
+      "subcomponent": "indicator",
+      "name": "marker",
+      "default": "arrow",
+      "description": "How the open trigger is marked. `arrow` is a rotated square sharing the panel's fill, pointing up at the trigger from the panel's top edge; `underline` is a rule beneath the trigger. Mirrors the Figma `Navigation Menu / Indicator` Style axis.",
+      "options": [
+        {
+          "name": "arrow",
+          "class": "primitiv-navigation-menu__indicator--arrow",
+          "description": "A pointer arrow on the panel edge (the default)."
+        },
+        {
+          "name": "underline",
+          "class": "primitiv-navigation-menu__indicator--underline",
+          "description": "A rule beneath the open trigger."
+        }
+      ]
+    }
+  ],
+  "customProperties": [
+    {
+      "name": "--primitiv-navigation-menu-entry-height",
+      "defaultsTo": "var(--primitiv-nav-item-md-height)"
+    },
+    {
+      "name": "--primitiv-navigation-menu-entry-padding-inline",
+      "defaultsTo": "var(--primitiv-nav-item-md-padding-inline)"
+    },
+    {
+      "name": "--primitiv-navigation-menu-entry-gap",
+      "defaultsTo": "var(--primitiv-nav-item-md-gap)"
+    },
+    {
+      "name": "--primitiv-navigation-menu-entry-radius",
+      "defaultsTo": "var(--primitiv-framed-control-md-radius)"
+    },
+    {
+      "name": "--primitiv-navigation-menu-entry-fg",
+      "defaultsTo": "var(--primitiv-content-secondary)"
+    },
+    {
+      "name": "--primitiv-navigation-menu-entry-fg-hover",
+      "defaultsTo": "var(--primitiv-content-primary)"
+    },
+    {
+      "name": "--primitiv-navigation-menu-entry-fg-active",
+      "defaultsTo": "var(--primitiv-action-primary-default)"
+    },
+    {
+      "name": "--primitiv-navigation-menu-entry-fg-disabled",
+      "defaultsTo": "var(--primitiv-content-disabled)"
+    },
+    {
+      "name": "--primitiv-navigation-menu-entry-bg",
+      "defaultsTo": "var(--primitiv-color-transparent)"
+    },
+    {
+      "name": "--primitiv-navigation-menu-entry-bg-hover",
+      "defaultsTo": "var(--primitiv-action-ghost-hover)"
+    },
+    {
+      "name": "--primitiv-navigation-menu-entry-bg-active",
+      "defaultsTo": "var(--primitiv-action-ghost-active)"
+    },
+    {
+      "name": "--primitiv-navigation-menu-entry-font-family",
+      "defaultsTo": "var(--primitiv-label-md-font-family)"
+    },
+    {
+      "name": "--primitiv-navigation-menu-entry-font-size",
+      "defaultsTo": "var(--primitiv-label-md-font-size)"
+    },
+    {
+      "name": "--primitiv-navigation-menu-entry-font-weight",
+      "defaultsTo": "var(--primitiv-label-md-font-weight)"
+    },
+    {
+      "name": "--primitiv-navigation-menu-entry-line-height",
+      "defaultsTo": "var(--primitiv-label-md-line-height)"
+    },
+    {
+      "name": "--primitiv-navigation-menu-icon-size",
+      "defaultsTo": "var(--primitiv-nav-item-md-icon-size)"
+    },
+    {
+      "name": "--primitiv-navigation-menu-disabled-opacity",
+      "defaultsTo": "var(--primitiv-opacity-50)"
+    },
+    {
+      "name": "--primitiv-navigation-menu-surface",
+      "defaultsTo": "var(--primitiv-surface-floating)"
+    },
+    {
+      "name": "--primitiv-navigation-menu-panel-radius",
+      "defaultsTo": "var(--primitiv-dropdown-md-panel-radius)"
+    },
+    {
+      "name": "--primitiv-navigation-menu-panel-padding-block",
+      "defaultsTo": "var(--primitiv-dropdown-md-panel-padding-block)"
+    },
+    {
+      "name": "--primitiv-navigation-menu-panel-padding-inline",
+      "defaultsTo": "var(--primitiv-space-space-4)"
+    },
+    {
+      "name": "--primitiv-navigation-menu-panel-offset",
+      "defaultsTo": "var(--primitiv-nav-item-md-panel-offset)"
+    },
+    {
+      "name": "--primitiv-navigation-menu-safe-area",
+      "defaultsTo": "var(--primitiv-space-space-8)"
+    },
+    {
+      "name": "--primitiv-navigation-menu-panel-shadow",
+      "defaultsTo": "a three-layer drop-shadow() chain matching elevation/overlay"
+    },
+    {
+      "name": "--primitiv-navigation-menu-content-gap",
+      "defaultsTo": "var(--primitiv-space-space-16)"
+    },
+    {
+      "name": "--primitiv-navigation-menu-content-columns",
+      "defaultsTo": "1fr"
+    },
+    {
+      "name": "--primitiv-navigation-menu-panel-slide",
+      "defaultsTo": "var(--primitiv-space-space-8)"
+    },
+    {
+      "name": "--primitiv-navigation-menu-row-padding-inline",
+      "defaultsTo": "var(--primitiv-nav-item-md-padding-inline)"
+    },
+    {
+      "name": "--primitiv-navigation-menu-row-padding-block",
+      "defaultsTo": "var(--primitiv-nav-item-md-padding-block)"
+    },
+    {
+      "name": "--primitiv-navigation-menu-row-text-gap",
+      "defaultsTo": "var(--primitiv-nav-item-md-text-gap)"
+    },
+    {
+      "name": "--primitiv-navigation-menu-row-bg-hover",
+      "defaultsTo": "var(--primitiv-color-neutral-alpha-100)"
+    },
+    {
+      "name": "--primitiv-navigation-menu-row-title-color",
+      "defaultsTo": "var(--primitiv-content-primary)"
+    },
+    {
+      "name": "--primitiv-navigation-menu-row-description-color",
+      "defaultsTo": "var(--primitiv-content-secondary)"
+    },
+    {
+      "name": "--primitiv-navigation-menu-row-description-font-family",
+      "defaultsTo": "var(--primitiv-body-sm-font-family)"
+    },
+    {
+      "name": "--primitiv-navigation-menu-row-description-font-size",
+      "defaultsTo": "var(--primitiv-body-sm-font-size)"
+    },
+    {
+      "name": "--primitiv-navigation-menu-row-description-font-weight",
+      "defaultsTo": "var(--primitiv-body-sm-font-weight)"
+    },
+    {
+      "name": "--primitiv-navigation-menu-row-description-line-height",
+      "defaultsTo": "var(--primitiv-body-sm-line-height)"
+    },
+    {
+      "name": "--primitiv-navigation-menu-indicator-thickness",
+      "defaultsTo": "var(--primitiv-border-width-2)"
+    },
+    {
+      "name": "--primitiv-navigation-menu-indicator-color",
+      "defaultsTo": "var(--primitiv-action-primary-default)"
+    },
+    {
+      "name": "--primitiv-navigation-menu-indicator-arrow-size",
+      "defaultsTo": "var(--primitiv-space-space-8)"
+    },
+    {
+      "name": "--primitiv-navigation-menu-transition-duration",
+      "defaultsTo": "var(--primitiv-motion-duration-overlay)"
+    },
+    {
+      "name": "--primitiv-navigation-menu-transition-easing",
+      "defaultsTo": "var(--primitiv-motion-easing-default)"
+    }
+  ],
+  "publishedCustomProperties": [
+    {
+      "name": "--primitiv-navigation-menu-indicator-position",
+      "source": "headless",
+      "description": "Published by the headless `Indicator` \u2014 the open trigger's `offsetLeft` (horizontal) or `offsetTop` (vertical). Read by the indicator rules to translate the marker; unset when the open value names an entry with no rendered trigger."
+    },
+    {
+      "name": "--primitiv-navigation-menu-indicator-size",
+      "source": "headless",
+      "description": "Published by the headless `Indicator` \u2014 the open trigger's `offsetWidth` (horizontal) or `offsetHeight` (vertical). Read by the indicator rules to size the underline and to centre the arrow."
+    },
+    {
+      "name": "--primitiv-navigation-menu-viewport-width",
+      "source": "headless",
+      "description": "The measured inline size of the open panel, published by `Viewport`. The stylesheet consumes it with an `auto` fallback, so the box hugs its content until the first measurement lands and morphs between panels thereafter."
+    },
+    {
+      "name": "--primitiv-navigation-menu-viewport-height",
+      "source": "headless",
+      "description": "The measured block size of the open panel. Same mechanism as -viewport-width."
+    }
+  ],
+  "dependsOn": {
+    "components": [],
+    "packages": [
+      "@primitiv-ui/react",
+      "class-variance-authority"
+    ]
+  }
+}

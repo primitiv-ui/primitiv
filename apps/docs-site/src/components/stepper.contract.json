@@ -1,0 +1,93 @@
+{
+  "$schema": "https://primitiv-ui.dev/schema/contract.json",
+  "name": "stepper",
+  "version": "0.1.0",
+  "description": "A step rail for a multi-step form — numbered markers joined by connectors, over the headless Tabs. Each marker is a real tab: activation, `aria-selected`, the roving tabindex, Home/End and `disabled` all come from Tabs, restyled as a circle. `orientation` picks the rail direction; sized xs–xl, and `data-density` scales each size further.",
+  "docs": "https://primitiv-ui.dev/docs/components/stepper",
+  "root": {
+    "element": "div",
+    "class": "primitiv-stepper"
+  },
+  "dataAttributes": [
+    {
+      "name": "data-state",
+      "description": "Set by Tabs on each step: `active` for the current step, `inactive` otherwise.",
+      "values": ["active", "inactive"]
+    },
+    {
+      "name": "data-step-state",
+      "description": "Set by `StepperStep` for the progress a step carries in its own right, independently of which step is current. A failed step keeps `error` while you stand on a later one.",
+      "values": ["upcoming", "complete", "error"]
+    },
+    {
+      "name": "data-orientation",
+      "description": "Set by Tabs on the root, list and panels.",
+      "values": ["horizontal", "vertical"]
+    }
+  ],
+  "modifiers": [
+    {
+      "name": "compact",
+      "default": "false",
+      "description": "Collapses the rail into a progress bar — the same steps, drawn as segments with their markers and labels hidden. For narrow containers, where a labelled rail cannot fit. The steps stay in the DOM, so each panel keeps the `aria-labelledby` pointing at its trigger; swapping the rail out for a hand-rolled bar would break that. Drive it from the consumer side (e.g. `useMediaQuery`), and pair it with your own \"Step N of M\" line — Stepper owns no step data model.",
+      "options": [
+        { "name": "false", "class": "", "description": "The full rail with markers and labels (the default)." },
+        { "name": "true", "class": "primitiv-stepper__list--compact", "description": "Segmented progress bar." }
+      ]
+    },
+    {
+      "name": "size",
+      "default": "md",
+      "description": "Rail size; `data-density` scales each size further.",
+      "options": [
+        { "name": "xs", "class": "primitiv-stepper--xs", "description": "Extra small." },
+        { "name": "sm", "class": "primitiv-stepper--sm", "description": "Small." },
+        { "name": "md", "class": "primitiv-stepper--md", "description": "Medium (the default)." },
+        { "name": "lg", "class": "primitiv-stepper--lg", "description": "Large." },
+        { "name": "xl", "class": "primitiv-stepper--xl", "description": "Extra large." }
+      ]
+    }
+  ],
+  "customProperties": [
+    { "name": "--primitiv-stepper-marker-size", "defaultsTo": "var(--primitiv-stepper-md-marker-size)" },
+    { "name": "--primitiv-stepper-label-gap", "defaultsTo": "var(--primitiv-stepper-md-label-gap)" },
+    { "name": "--primitiv-stepper-row-gap", "defaultsTo": "var(--primitiv-stepper-md-row-gap)" },
+    { "name": "--primitiv-stepper-halo-outset", "defaultsTo": "var(--primitiv-stepper-md-halo-outset)" },
+    { "name": "--primitiv-stepper-connector-size", "defaultsTo": "var(--primitiv-stepper-connector-thickness)" },
+    { "name": "--primitiv-stepper-connector-color", "defaultsTo": "var(--primitiv-border-default)" },
+    { "name": "--primitiv-stepper-connector-color-reached", "defaultsTo": "var(--primitiv-action-primary-default)" },
+    { "name": "--primitiv-stepper-connector-gap", "defaultsTo": "var(--primitiv-space-space-12)" },
+    { "name": "--primitiv-stepper-connector-inset", "defaultsTo": "var(--primitiv-space-space-4)" },
+    { "name": "--primitiv-stepper-compact-segment-height", "defaultsTo": "var(--primitiv-size-size-4)" },
+    { "name": "--primitiv-stepper-compact-gap", "defaultsTo": "var(--primitiv-space-space-6)" },
+    { "name": "--primitiv-stepper-marker-background", "defaultsTo": "var(--primitiv-surface-default)" },
+    { "name": "--primitiv-stepper-marker-border-color", "defaultsTo": "var(--primitiv-border-default)" },
+    { "name": "--primitiv-stepper-marker-border-width", "defaultsTo": "var(--primitiv-framed-control-border-width)" },
+    { "name": "--primitiv-stepper-marker-fg", "defaultsTo": "var(--primitiv-content-muted)" },
+    { "name": "--primitiv-stepper-marker-icon-size", "defaultsTo": "var(--primitiv-framed-control-md-icon-size)" },
+    { "name": "--primitiv-stepper-mark-size", "defaultsTo": "var(--primitiv-checkbox-md-mark-size)" },
+    { "name": "--primitiv-stepper-halo-color", "defaultsTo": "var(--primitiv-action-primary-soft)" },
+    { "name": "--primitiv-stepper-halo-scale", "defaultsTo": "0" },
+    { "name": "--primitiv-stepper-label-color", "defaultsTo": "var(--primitiv-content-muted)" },
+    { "name": "--primitiv-stepper-label-font-family", "defaultsTo": "var(--primitiv-label-md-font-family)" },
+    { "name": "--primitiv-stepper-label-font-size", "defaultsTo": "var(--primitiv-label-md-font-size)" },
+    { "name": "--primitiv-stepper-label-font-weight", "defaultsTo": "var(--primitiv-label-md-font-weight)" },
+    { "name": "--primitiv-stepper-label-line-height", "defaultsTo": "var(--primitiv-label-md-line-height)" },
+    { "name": "--primitiv-stepper-description-color", "defaultsTo": "var(--primitiv-content-muted)" },
+    { "name": "--primitiv-stepper-description-font-family", "defaultsTo": "var(--primitiv-body-sm-font-family)" },
+    { "name": "--primitiv-stepper-description-font-size", "defaultsTo": "var(--primitiv-body-sm-font-size)" },
+    { "name": "--primitiv-stepper-description-font-weight", "defaultsTo": "var(--primitiv-body-sm-font-weight)" },
+    { "name": "--primitiv-stepper-description-line-height", "defaultsTo": "var(--primitiv-body-sm-line-height)" },
+    { "name": "--primitiv-stepper-panel-padding-block", "defaultsTo": "var(--primitiv-panel-padding-block)" },
+    { "name": "--primitiv-stepper-panel-padding-inline", "defaultsTo": "var(--primitiv-panel-padding-inline)" },
+    { "name": "--primitiv-stepper-panel-fg", "defaultsTo": "var(--primitiv-content-primary)" },
+    { "name": "--primitiv-stepper-panel-font-family", "defaultsTo": "var(--primitiv-body-md-font-family)" },
+    { "name": "--primitiv-stepper-panel-font-size", "defaultsTo": "var(--primitiv-body-md-font-size)" },
+    { "name": "--primitiv-stepper-panel-font-weight", "defaultsTo": "var(--primitiv-body-md-font-weight)" },
+    { "name": "--primitiv-stepper-panel-line-height", "defaultsTo": "var(--primitiv-body-md-line-height)" },
+    { "name": "--primitiv-stepper-tap-target", "defaultsTo": "var(--primitiv-size-size-48)" },
+    { "name": "--primitiv-stepper-transition-duration", "defaultsTo": "var(--primitiv-motion-duration-control)" },
+    { "name": "--primitiv-stepper-connector-duration", "defaultsTo": "var(--primitiv-motion-duration-expand)" },
+    { "name": "--primitiv-stepper-transition-easing", "defaultsTo": "var(--primitiv-motion-easing-default)" }
+  ]
+}

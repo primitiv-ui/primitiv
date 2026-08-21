@@ -1,0 +1,38 @@
+/*
+ * Binds the design system's font-family tokens to the actual loaded faces.
+ *
+ * The token layer NAMES three families but deliberately does not load them —
+ * that is left to the consumer, exactly like any other web font:
+ *
+ *   --primitiv-font-family-heading: Khand
+ *   --primitiv-font-family-text:    Asta Sans
+ *   --primitiv-font-family-mono:    JetBrains Mono
+ *
+ * The sibling apps satisfy that with a blocking <link> to fonts.googleapis.com.
+ * This app uses `next/font/google` instead, which downloads the faces at BUILD
+ * time and serves them as first-party static assets — so there is no
+ * third-party connection on the critical path, and Next injects
+ * `size-adjust`-corrected fallback metrics so swapping the face in causes no
+ * layout shift. Both matter for the scores this site is aiming at.
+ *
+ * The consequence is that the real family names are build-generated
+ * (`__Khand_1a2b3c`, not `Khand`), so the tokens have to be re-pointed at the
+ * CSS variables `next/font` exposes. That is what `primitiv.theme` exists for:
+ * RFC 0008 puts it AFTER `primitiv.tokens` in the layer order precisely so a
+ * consumer can re-point token values without touching the generated file.
+ *
+ * Each stack keeps a real fallback after the variable — if the font request
+ * fails, `var()` resolves to nothing and an unqualified family would leave the
+ * page with no usable font at all.
+ */
+
+@layer primitiv.theme {
+  :root {
+    --primitiv-font-family-heading: var(--docs-font-heading), "Khand",
+      system-ui, sans-serif;
+    --primitiv-font-family-text: var(--docs-font-text), "Asta Sans", system-ui,
+      sans-serif;
+    --primitiv-font-family-mono: var(--docs-font-mono), "JetBrains Mono",
+      ui-monospace, monospace;
+  }
+}

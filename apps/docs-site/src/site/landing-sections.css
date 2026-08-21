@@ -1,0 +1,77 @@
+/*
+ * The three landing sections' own bits: the path cards, the link map and the
+ * component block. Section chrome (band, overline, heading) lives in
+ * landing-section.css.
+ */
+
+/* ── Choose your path ─────────────────────────────────────────────────────── */
+
+/* Equal-height cards regardless of description length — the Grid stretches the
+   items, and this makes the card fill the cell it is given. */
+.docs-path-card {
+  block-size: 100%;
+}
+
+.docs-path-link {
+  font-family: var(--primitiv-body-sm-font-family);
+  font-size: var(--primitiv-body-sm-font-size);
+  color: var(--primitiv-action-link-foreground-default);
+  text-decoration: none;
+}
+
+.docs-path-link:hover {
+  color: var(--primitiv-action-link-foreground-hover);
+  text-decoration: underline;
+}
+
+/* ── Documentation map ────────────────────────────────────────────────────── */
+
+
+
+.docs-map-link {
+  font-family: var(--primitiv-body-sm-font-family);
+  font-size: var(--primitiv-body-sm-font-size);
+  color: var(--primitiv-action-link-foreground-default);
+  text-decoration: none;
+}
+
+.docs-map-link:hover {
+  color: var(--primitiv-action-link-foreground-hover);
+  text-decoration: underline;
+}
+
+/* ── Getting this component ───────────────────────────────────────────────── */
+
+.docs-block-title {
+  margin: 0;
+  font-family: var(--primitiv-heading-h3-font-family);
+  font-size: var(--primitiv-heading-h3-font-size);
+  line-height: var(--primitiv-heading-h3-line-height);
+  color: var(--primitiv-content-primary);
+}
+
+.docs-block-note {
+  margin: 0;
+  font-family: var(--primitiv-body-sm-font-family);
+  font-size: var(--primitiv-body-sm-font-size);
+  line-height: var(--primitiv-body-sm-line-height);
+  color: var(--primitiv-content-secondary);
+}
+
+.docs-block-meta {
+  margin: 0;
+  font-family: var(--primitiv-body-xs-font-family);
+  font-size: var(--primitiv-body-xs-font-size);
+  color: var(--primitiv-content-muted);
+}
+
+/* ── Reflow ───────────────────────────────────────────────────────────────── */
+
+/* Below md the three-up card row and both two-up grids collapse to one column.
+   Grid's `columns` prop is a fixed count, so the responsive step is done here
+   by re-pointing its own custom property rather than by swapping the prop. */
+@media (max-width: 47.9375rem) {
+  .docs-landing-section .primitiv-grid {
+    --primitiv-grid-columns: 1;
+  }
+}

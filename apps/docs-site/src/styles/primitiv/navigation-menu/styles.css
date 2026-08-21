@@ -1,0 +1,903 @@
+/*
+ * NavigationMenu — the desktop dropdown site nav.
+ *
+ * A transparent bar of top-level entries (triggers that disclose a panel, plus
+ * plain links), a shared panel host below it, and a marker tracking the open
+ * trigger. The bar is deliberately unfilled so the nav reads over any page
+ * background — a hero texture, a coloured band, or plain surface.
+ *
+ * The indicator's geometry needs no anchor positioning of its own: the headless
+ * measures the trigger's `offsetLeft` / `offsetWidth` directly, and the <nav> is
+ * that trigger's offsetParent (`.primitiv-navigation-menu` is `position: relative`),
+ * so the same numbers place the marker regardless of how the panel itself is
+ * positioned.
+ *
+ * Requires the token layer for: --primitiv-nav-item-*, --primitiv-framed-control-*,
+ * --primitiv-dropdown-*-panel-*, --primitiv-content-*, --primitiv-action-*,
+ * --primitiv-surface-*, --primitiv-shadow-color-*, --primitiv-space-*,
+ * --primitiv-label-*, --primitiv-body-*, --primitiv-motion-*, --primitiv-focus-ring*,
+ * --primitiv-radii-*, --primitiv-border-width-*, --primitiv-opacity-*,
+ * --primitiv-color-transparent.
+ *
+ * Orientation: these rules style the horizontal desktop bar. The headless also
+ * supports `orientation="vertical"`; a vertical styled surface is deliberately not
+ * shipped — the mobile presentation is a Drawer + Collapsible composition (RFC
+ * 0019 §3), not a rotated version of this.
+ *
+ * Panel positioning is CSS anchor positioning, but — unlike Dropdown and
+ * Popover — entirely headless-managed, no consumer wiring: every Trigger
+ * publishes its own `anchor-name`, and the Root publishes whichever one is
+ * open as `--primitiv-navigation-menu-active-trigger-anchor`, so the shared
+ * panel box can re-target itself per trigger with no JS positioning math.
+ * Gated behind `@supports (anchor-name: …)` — NavigationMenu has to keep
+ * working everywhere, unlike Dropdown/Popover, which have no non-anchor
+ * fallback to protect — so a browser without support keeps the plain
+ * nav-start-anchored insets below. See the `.primitiv-navigation-menu__viewport`
+ * rule for why that positioning is `position: fixed` + `anchor()` +
+ * `anchor-center`, not `position-area` — the technique Popover itself uses,
+ * but one that mis-computes here (see that rule's comment for why).
+ */
+@layer primitiv.reset, primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;
+
+@layer primitiv.reset {
+  /* Neutralise the base `li + li` inter-item margin (the RFC 0016 flow-rhythm rule
+     in the token layer's reset). Nav entries sit flush in a row; without this every
+     entry after the first is pushed down by --primitiv-list-item-gap, which in a
+     horizontal bar reads as a stray top margin on each button. Same fix Dropdown
+     applies to its menu rows. */
+  .primitiv-navigation-menu li {
+    margin-block: var(--primitiv-space-space-0);
+  }
+}
+
+@layer primitiv.base {
+  .primitiv-navigation-menu {
+    /* Per-component API — the themable knobs, defaulting to the md size. The size
+       modifiers re-point the sizing knobs; consumers can override any one without
+       touching the rule. */
+    --primitiv-navigation-menu-entry-height: var(--primitiv-nav-item-md-height);
+    --primitiv-navigation-menu-entry-padding-inline: var(--primitiv-nav-item-md-padding-inline);
+    --primitiv-navigation-menu-entry-gap: var(--primitiv-nav-item-md-gap);
+    --primitiv-navigation-menu-entry-radius: var(--primitiv-framed-control-md-radius);
+    --primitiv-navigation-menu-entry-fg: var(--primitiv-content-secondary);
+    --primitiv-navigation-menu-entry-fg-hover: var(--primitiv-content-primary);
+    --primitiv-navigation-menu-entry-fg-active: var(--primitiv-action-primary-default);
+    --primitiv-navigation-menu-entry-fg-disabled: var(--primitiv-content-disabled);
+    --primitiv-navigation-menu-entry-bg: var(--primitiv-color-transparent);
+    --primitiv-navigation-menu-entry-bg-hover: var(--primitiv-action-ghost-hover);
+    --primitiv-navigation-menu-entry-bg-active: var(--primitiv-action-ghost-active);
+    --primitiv-navigation-menu-entry-font-family: var(--primitiv-label-md-font-family);
+    --primitiv-navigation-menu-entry-font-size: var(--primitiv-label-md-font-size);
+    --primitiv-navigation-menu-entry-font-weight: var(--primitiv-label-md-font-weight);
+    --primitiv-navigation-menu-entry-line-height: var(--primitiv-label-md-line-height);
+    --primitiv-navigation-menu-icon-size: var(--primitiv-nav-item-md-icon-size);
+    --primitiv-navigation-menu-disabled-opacity: var(--primitiv-opacity-50);
+
+    /* Panel. surface/floating (not surface/default) so the panel lifts off the
+       page in dark mode — they are the same white in light, but floating resolves
+       to a raised neutral in dark where default is the page black. */
+    --primitiv-navigation-menu-surface: var(--primitiv-surface-floating);
+    --primitiv-navigation-menu-panel-radius: var(--primitiv-dropdown-md-panel-radius);
+    /* Equal on all sides, and generous: unlike a Dropdown panel — whose rows run
+       edge to edge so it needs almost none — a mega-menu panel is a content surface
+       and reads cramped without real breathing room. */
+    --primitiv-navigation-menu-panel-padding-block: var(--primitiv-space-space-16);
+    --primitiv-navigation-menu-panel-padding-inline: var(--primitiv-space-space-16);
+    --primitiv-navigation-menu-panel-offset: var(--primitiv-nav-item-md-panel-offset);
+    /* Transparent hit-area collar around the open panel. Slipping a few pixels
+       off the panel edge otherwise leaves the nav immediately and starts the
+       close timer, which reads as the panel vanishing the instant you graze it.
+       Set to 0 to opt out. */
+    --primitiv-navigation-menu-safe-area: var(--primitiv-space-space-8);
+    /* elevation/overlay (= shadow-3) rebuilt as chained drop-shadows so the shadow
+       follows the panel + arrow silhouette as ONE shape. A box-shadow is
+       per-element — it would draw a seam across the arrow's base and leave the
+       poking tip unshadowed. Same offsets / blurs / colours as --primitiv-shadow-3
+       (three layers, zero spread → drop-shadow-compatible); keep in step if
+       elevation/overlay changes. Mirrors Popover, which solved this first. */
+    --primitiv-navigation-menu-panel-shadow:
+      drop-shadow(0 var(--primitiv-space-space-2) var(--primitiv-space-space-4) var(--primitiv-shadow-color-strong))
+      drop-shadow(0 var(--primitiv-space-space-4) var(--primitiv-space-space-8) var(--primitiv-shadow-color-medium))
+      drop-shadow(0 var(--primitiv-space-space-8) var(--primitiv-space-space-16) var(--primitiv-shadow-color-soft));
+    --primitiv-navigation-menu-content-gap: var(--primitiv-space-space-16);
+    /* The panel's whole grid definition — override it for any arrangement (`1fr 1fr`,
+       `repeat(auto-fit, minmax(14rem, 1fr))`, named areas). One column is the default
+       because it is the only predictable one: auto-fitting would silently spread a
+       simple list of rows sideways as soon as the panel got wide. */
+    --primitiv-navigation-menu-content-columns: 1fr;
+    /* How far a panel slides in the direction of travel — a hint about where it
+       came from, not a full journey like Radix's own 200px reference. space-68
+       (4.25rem, 68px) is the closest step to a 64px target: the scale jumps
+       from space-56 straight to space-68, nothing sits at 64px. */
+    --primitiv-navigation-menu-panel-slide: var(--primitiv-space-space-68);
+
+    /* Panel rows. */
+    --primitiv-navigation-menu-row-padding-inline: var(--primitiv-nav-item-md-padding-inline);
+    --primitiv-navigation-menu-row-padding-block: var(--primitiv-nav-item-md-padding-block);
+    --primitiv-navigation-menu-row-text-gap: var(--primitiv-nav-item-md-text-gap);
+    --primitiv-navigation-menu-row-bg-hover: var(--primitiv-color-neutral-alpha-100);
+    --primitiv-navigation-menu-row-title-color: var(--primitiv-content-primary);
+    --primitiv-navigation-menu-row-description-color: var(--primitiv-content-secondary);
+    --primitiv-navigation-menu-row-description-font-family: var(--primitiv-body-sm-font-family);
+    --primitiv-navigation-menu-row-description-font-size: var(--primitiv-body-sm-font-size);
+    --primitiv-navigation-menu-row-description-font-weight: var(--primitiv-body-sm-font-weight);
+    --primitiv-navigation-menu-row-description-line-height: var(--primitiv-body-sm-line-height);
+
+    /* Marker. */
+    --primitiv-navigation-menu-indicator-thickness: var(--primitiv-border-width-2);
+    --primitiv-navigation-menu-indicator-color: var(--primitiv-action-primary-default);
+    --primitiv-navigation-menu-indicator-arrow-size: var(--primitiv-space-space-8);
+
+    --primitiv-navigation-menu-transition-duration: var(--primitiv-motion-duration-overlay);
+    --primitiv-navigation-menu-transition-easing: var(--primitiv-motion-easing-default);
+
+    /* The positioned containing block for the panel and the marker, and the
+       offsetParent the headless measures the open trigger against. */
+    position: relative;
+  }
+
+  .primitiv-navigation-menu__list {
+    display: flex;
+    align-items: center;
+    /* Entries sit flush; their own padding-inline does the separating, so the
+       hover tints of adjacent entries meet without a gap between them. */
+    gap: var(--primitiv-space-space-0);
+    margin: var(--primitiv-space-space-0);
+    padding: var(--primitiv-space-space-0);
+    list-style: none;
+  }
+
+  .primitiv-navigation-menu__item {
+    display: flex;
+  }
+
+  /* The two bar entries — a disclosure trigger and a plain link — are the same
+     shape; only the chevron differs. Keeping them in one rule is what guarantees
+     they stay aligned when the geometry knobs change. */
+  .primitiv-navigation-menu__trigger,
+  .primitiv-navigation-menu__link--bar {
+    display: inline-flex;
+    align-items: center;
+    box-sizing: border-box;
+    gap: var(--primitiv-navigation-menu-entry-gap);
+    block-size: var(--primitiv-navigation-menu-entry-height);
+    padding-inline: var(--primitiv-navigation-menu-entry-padding-inline);
+    border: var(--primitiv-border-width-0);
+    border-radius: var(--primitiv-navigation-menu-entry-radius);
+    background: var(--primitiv-navigation-menu-entry-bg);
+    color: var(--primitiv-navigation-menu-entry-fg);
+    font-family: var(--primitiv-navigation-menu-entry-font-family);
+    font-size: var(--primitiv-navigation-menu-entry-font-size);
+    font-weight: var(--primitiv-navigation-menu-entry-font-weight);
+    line-height: var(--primitiv-navigation-menu-entry-line-height);
+    text-decoration: none;
+    cursor: pointer;
+    /* Mobile: kill the platform tap flash, and stop a tap-hold selecting the
+       entry's own label or popping iOS's callout — a nav entry is a control, not
+       page copy. */
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    transition:
+      background-color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default),
+      color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default),
+      box-shadow var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
+  }
+
+  /* The label gets its own box so the line-box trim lands on the element directly
+     wrapping the text — engines ignore text-box-trim on a flex box that also holds
+     the chevron. */
+  .primitiv-navigation-menu__trigger-label {
+    text-box-trim: trim-both;
+    text-box-edge: cap alphabetic;
+  }
+
+  .primitiv-navigation-menu__trigger-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: var(--primitiv-navigation-menu-icon-size);
+    block-size: var(--primitiv-navigation-menu-icon-size);
+    /* Pass a single downward chevron; the open state flips it (see states). */
+    transition: rotate var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
+  }
+
+  .primitiv-navigation-menu__trigger-icon > svg {
+    inline-size: 100%;
+    block-size: 100%;
+  }
+
+  /* Bridge the bar → panel gap while a panel is open. The viewport is absolutely
+     positioned, so the panel-offset strip above it is part of neither the nav's own
+     border box nor any descendant: dragging the pointer down through it fires the
+     nav's pointerleave, starts closeDelay, and the panel vanishes mid-travel. A
+     transparent strip on the root — which is NOT clipped, unlike a pseudo-element on
+     the overflow-hidden viewport — keeps the pointer inside the nav subtree the whole
+     way down. Gated on the open state so it never swallows pointer events over the
+     page while the nav is closed. */
+  .primitiv-navigation-menu:has(.primitiv-navigation-menu__viewport[data-state="open"])::after {
+    content: "";
+    position: absolute;
+    inset-block-start: 100%;
+    inset-inline: var(--primitiv-space-space-0);
+    block-size: var(--primitiv-navigation-menu-panel-offset);
+  }
+
+  /* Row hover tint — deliberately lighter than the bar entries' ghost tint: a panel
+     row is a large target on an already-raised surface, so it needs far less to read
+     as hovered than a small entry on the page background does. */
+
+  /* The shared panel host every Content projects into. Sized to its content by
+     default; when the headless publishes measured viewport dimensions the two
+     custom properties below take over and the box morphs between panels. */
+  .primitiv-navigation-menu__viewport {
+    position: absolute;
+    /* The nav-start-anchored default, and the fallback for browsers without
+       anchor-positioning support (see the @supports block below, which
+       overrides these two insets to center the box under whichever trigger is
+       open instead). */
+    inset-block-start: 100%;
+    inset-inline-start: var(--primitiv-space-space-0);
+    margin-block-start: var(--primitiv-navigation-menu-panel-offset);
+    /* The measured size of the open panel, published by the headless Viewport, so
+       the shared box morphs between panels. Falls back to hugging its content, which
+       is what happens before the first measurement lands. */
+    inline-size: var(--primitiv-navigation-menu-viewport-width, auto);
+    block-size: var(--primitiv-navigation-menu-viewport-height, auto);
+    padding: var(--primitiv-navigation-menu-panel-padding-block)
+      var(--primitiv-navigation-menu-panel-padding-inline);
+    border-radius: var(--primitiv-navigation-menu-panel-radius);
+    background: var(--primitiv-navigation-menu-surface);
+    /* Paint above whatever follows the nav. Both the panel and any sibling nav are
+       positioned with z-index:auto, so without this a *later* positioned sibling
+       paints over this panel (DOM order decides at equal z-index) and its bar text
+       shows through the open panel. A positive z-index moves the panel into the
+       positive-stacking step, above every auto/0 positioned sibling. CSS mechanic,
+       no token home. */
+    z-index: 1;
+    /* Borderless: the surface + shadow define the panel. A border would draw a
+       seam across the arrow's base. `filter` (not box-shadow) so the shadow wraps
+       panel + arrow as one silhouette — see --primitiv-navigation-menu-panel-shadow. */
+    filter: var(--primitiv-navigation-menu-panel-shadow);
+    /* No overflow clip here — the hover-forgiveness collar below is this box's
+       own ::before, and it has to extend past these edges to widen the hit
+       area. The headless renders a second, inner element (the portal target
+       every Content actually projects into) for that; see
+       __viewport-clip below.
+
+       The fade — and the size morph, once dimensions are published — lives in
+       primitiv.states beside the open/closed rules. */
+  }
+
+  /* Anchor positioning (Chromium): re-target the shared box to whichever
+     trigger is open and center it there, instead of always hugging the nav's
+     start edge. `position: fixed` is required, not just a style choice: an
+     anchor-positioned box sharing its *containing block* with its own anchor
+     (as this one does — `.primitiv-navigation-menu` is `position: relative`,
+     the containing block for both the trigger and, if left `absolute`, this
+     box too) computes anchor insets and `position-area` wrong under
+     `position: absolute` — confirmed in complete isolation, a bare anchor +
+     target with no other CSS involved — which is the same reason Dropdown
+     and Popover both already use `position: fixed`. `position-anchor` reads
+     the headless-published active-anchor custom property directly — when
+     nothing is open it's unset, `var()` then resolves to the
+     guaranteed-invalid value, and `position-anchor` falls back to its
+     initial `none`, which is harmless (the box is invisible while closed
+     anyway). Anchor positioning re-targets and re-measures on scroll even
+     under `position: fixed`, so the panel still tracks the trigger as the
+     page scrolls rather than staying pinned to the viewport.
+
+     `inset-block-start: anchor(end)` (not `position-area`) for the block
+     axis: `position-area` silently auto-flips to the opposite side when a
+     tall panel doesn't fit in the remaining viewport height below the
+     trigger — reading as a mega-menu popping up *above* the bar, never the
+     right call here. A plain `anchor()` inset has no such auto-flip.
+
+     `justify-self: anchor-center` (not `position-area`, not a manual
+     `translate`) for centering: confirmed the only one of the three that (a)
+     genuinely re-centers under `position: fixed` and (b) keeps its own
+     built-in overflow avoidance against the containing block — a
+     `translate`-based center is invisible to the overflow check
+     `position-try-fallbacks` would need to clamp near an edge, so a
+     center-then-clamp built that way never actually clamps. `anchor-center`
+     already clamps a trigger near either end of the nav on its own, so no
+     extra `@position-try` fallbacks are needed. */
+  @supports (anchor-name: --primitiv-navigation-menu-probe) {
+    .primitiv-navigation-menu__viewport {
+      position: fixed;
+      position-anchor: var(--primitiv-navigation-menu-active-trigger-anchor);
+      inset-block-start: anchor(end);
+      inset-inline-start: auto;
+      justify-self: anchor-center;
+    }
+  }
+
+  /* The portal target, and the ONE grid cell shared by every panel. Each
+     Content is placed in that same cell, which fixes two things at once:
+     switching panels can't stack them (the outgoing panel has to hold its flow
+     through the exit for the fade to be visible, which used to push the
+     incoming one below it before snapping back), and the box is sized to the
+     largest panel — so opening or switching never resizes it, which is what
+     made the enter feel rougher than the exit.
+
+     Split from .viewport itself so THIS is what clips a sliding panel to the
+     visible box — the outer box can't take the clip directly, or it would cut
+     off its own hover-forgiveness collar (see below). Fills the outer box's
+     padded content area exactly (100%/100%), so a panel's directional slide
+     stops being visible once it crosses the panel's own edge. */
+  .primitiv-navigation-menu__viewport-clip {
+    display: grid;
+    overflow: hidden;
+    inline-size: 100%;
+    block-size: 100%;
+  }
+
+  /* The per-entry panel body — a grid, so consumers arrange the panel however they
+     like by re-pointing --primitiv-navigation-menu-content-columns (or by styling
+     their own wrapper inside Content and ignoring this entirely). The viewport owns
+     the box; this owns the arrangement. Visibility is handled in primitiv.states —
+     every panel stays in flow, overlapping in one grid cell. */
+  .primitiv-navigation-menu__content {
+    display: grid;
+    /* Every panel occupies the viewport's single cell, so they overlap rather than
+       stack. All of them stay in flow — that is what keeps the box a constant size. */
+    grid-area: 1 / 1;
+    grid-template-columns: var(--primitiv-navigation-menu-content-columns);
+    gap: var(--primitiv-navigation-menu-content-gap);
+    /* Grid items stretch to fill their row by default — exactly what breaks the
+       measurement below. The headless Viewport reads this panel's own
+       `offsetHeight` and publishes it as the box's height; a stretched panel
+       reports back whatever height was already applied instead of its own
+       natural one, so shrinking (a smaller `size`/density, or switching to a
+       shorter panel) never took effect — every later measurement just echoed
+       the stale, too-tall value forever. `start` measures true content size on
+       every open, matching whichever panel is actually rendered. */
+    align-self: start;
+    /* Grid items stretch to fill their column by default too — the inline-axis
+       twin of the bug above, but `justify-self: start` alone isn't the fix
+       here: it still sizes via `fit-content`, which clamps to the grid
+       track's *current* available width as a ceiling — so switching from a
+       narrow panel (which just shrank the box) to a wide one got stuck
+       reporting back the previous, too-narrow width forever, the same
+       self-reinforcing loop in the opposite direction. An explicit
+       `max-content` size has no such ceiling: it's computed purely from the
+       panel's own content, ignoring whatever the box currently happens to
+       be — confirmed to escape the loop in both directions (verified live,
+       switching narrow-to-wide and wide-to-narrow repeatedly). This also
+       makes `justify-self` moot: `stretch` (the default) only stretches an
+       item whose size is `auto` — an explicit `inline-size` already behaves
+       like `start` on its own. */
+    inline-size: max-content;
+  }
+
+  /* A panel row — two lines (title + optional description) with optional slots
+     either side. Fills its column so a trailing slot sits at the far edge. */
+  .primitiv-navigation-menu__link--panel {
+    display: flex;
+    align-items: center;
+    gap: var(--primitiv-navigation-menu-entry-gap);
+    /* There is no global border-box reset (each component sets its own), so a
+       100%-wide row with inline padding would measure 100% + 2x padding and spill
+       into the neighbouring column — visible as overlapping rows. */
+    box-sizing: border-box;
+    inline-size: 100%;
+    padding: var(--primitiv-navigation-menu-row-padding-block)
+      var(--primitiv-navigation-menu-row-padding-inline);
+    border-radius: var(--primitiv-navigation-menu-entry-radius);
+    background: var(--primitiv-navigation-menu-entry-bg);
+    text-decoration: none;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    transition:
+      background-color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default),
+      box-shadow var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
+  }
+
+  /* The title + description stack. Takes the free space so leading and trailing
+     slots hug their edges; min-inline-size lets a long description wrap rather
+     than forcing the row wider than its column. */
+  .primitiv-navigation-menu__link-text {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-inline-size: 0;
+  }
+
+  .primitiv-navigation-menu__link-title {
+    display: block;
+    color: var(--primitiv-navigation-menu-row-title-color);
+    font-family: var(--primitiv-navigation-menu-entry-font-family);
+    font-size: var(--primitiv-navigation-menu-entry-font-size);
+    font-weight: var(--primitiv-navigation-menu-entry-font-weight);
+    line-height: var(--primitiv-navigation-menu-entry-line-height);
+  }
+
+  .primitiv-navigation-menu__link-description {
+    display: block;
+    margin-block-start: var(--primitiv-navigation-menu-row-text-gap);
+    color: var(--primitiv-navigation-menu-row-description-color);
+    font-family: var(--primitiv-navigation-menu-row-description-font-family);
+    font-size: var(--primitiv-navigation-menu-row-description-font-size);
+    font-weight: var(--primitiv-navigation-menu-row-description-font-weight);
+    line-height: var(--primitiv-navigation-menu-row-description-line-height);
+  }
+
+  .primitiv-navigation-menu__link-leading,
+  .primitiv-navigation-menu__link-trailing {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    inline-size: var(--primitiv-navigation-menu-icon-size);
+    block-size: var(--primitiv-navigation-menu-icon-size);
+    color: inherit;
+  }
+
+  /* Non-square content (a badge, a shortcut) keeps its natural width. */
+  .primitiv-navigation-menu__link-trailing {
+    inline-size: auto;
+    min-inline-size: var(--primitiv-navigation-menu-icon-size);
+    margin-inline-start: auto;
+  }
+
+  .primitiv-navigation-menu__link-leading > svg,
+  .primitiv-navigation-menu__link-trailing > svg {
+    inline-size: 100%;
+    block-size: 100%;
+  }
+
+  /* The hover-forgiveness collar. A transparent ring just outside the panel that
+     is still a descendant of the nav, so grazing the edge keeps the pointer inside
+     the subtree instead of tripping pointerleave -> closeDelay.
+
+     Only while open, because it does capture pointer events in that ring: an
+     always-on collar would swallow clicks on whatever sits beside a closed panel.
+     Tree order puts it before the projected content, so it never covers the rows.
+     Lives on THIS box (not __viewport-clip) precisely because it has to extend
+     past its own edges — an overflow clip on the same box it's a pseudo-element
+     of would cut it off along with everything else that crosses the boundary. */
+  .primitiv-navigation-menu__viewport[data-state="open"]::before {
+    content: "";
+    position: absolute;
+    inset: calc(var(--primitiv-navigation-menu-safe-area) * -1);
+    /* Behind the rows. A positioned box paints above in-flow content, so without
+       this the collar covers the panel and swallows every row's hover and click.
+       Negative z-index paints above the viewport's own background but below its
+       in-flow children — and the collar is still the only thing out in the ring, so
+       it keeps doing its job there. The viewport's `filter` makes it a stacking
+       context, so this can't escape behind the page. */
+    z-index: -1;
+  }
+
+  /* The marker tracking the open trigger. Both styles read the geometry the
+     headless publishes on this element: -position is the trigger's offsetLeft,
+     -size its offsetWidth. Neither is set when the open value names an entry with
+     no rendered trigger, so both fall back to zero rather than parking at a
+     misleading position. */
+  .primitiv-navigation-menu__indicator {
+    position: absolute;
+    /* Same reason as the viewport — the arrow straddles the panel edge and would
+       otherwise be painted over by a following sibling. */
+    z-index: 1;
+    pointer-events: none;
+    transition:
+      translate var(--primitiv-navigation-menu-transition-duration)
+        var(--primitiv-navigation-menu-transition-easing),
+      inline-size var(--primitiv-navigation-menu-transition-duration)
+        var(--primitiv-navigation-menu-transition-easing),
+      opacity var(--primitiv-navigation-menu-transition-duration)
+        var(--primitiv-navigation-menu-transition-easing);
+  }
+
+  /* Underline — a rule the width of the trigger, sitting on the bar's lower edge. */
+  .primitiv-navigation-menu__indicator--underline {
+    inset-block-start: calc(
+      var(--primitiv-navigation-menu-entry-height) -
+        var(--primitiv-navigation-menu-indicator-thickness)
+    );
+    inset-inline-start: var(--primitiv-space-space-0);
+    inline-size: var(--primitiv-navigation-menu-indicator-size, 0);
+    block-size: var(--primitiv-navigation-menu-indicator-thickness);
+    background: var(--primitiv-navigation-menu-indicator-color);
+    translate: var(--primitiv-navigation-menu-indicator-position, 0) 0;
+  }
+
+  /* Arrow — a rotated square sharing the panel fill, centred on the trigger and
+     straddling the panel's top edge so the join is seamless and the outer half is
+     the tail. Carries the panel's own shadow chain so the tail is shadowed too.
+     VISUAL-QA: the poke depth (half the arrow) and the seam where the tail meets
+     the panel are the parts most likely to need tuning once this renders. */
+  .primitiv-navigation-menu__indicator--arrow {
+    inset-block-start: calc(100% + var(--primitiv-navigation-menu-panel-offset));
+    inset-inline-start: var(--primitiv-space-space-0);
+    inline-size: var(--primitiv-navigation-menu-indicator-arrow-size);
+    block-size: var(--primitiv-navigation-menu-indicator-arrow-size);
+    border-radius: var(--primitiv-radii-2);
+    background: var(--primitiv-navigation-menu-surface);
+    filter: var(--primitiv-navigation-menu-panel-shadow);
+    rotate: 45deg;
+    translate: calc(
+        var(--primitiv-navigation-menu-indicator-position, 0) +
+          var(--primitiv-navigation-menu-indicator-size, 0) / 2 -
+          var(--primitiv-navigation-menu-indicator-arrow-size) / 2
+      )
+      calc(var(--primitiv-navigation-menu-indicator-arrow-size) / -2);
+  }
+}
+
+@layer primitiv.variants {
+  /* Size — re-points the sizing knobs to the chosen slot. Density stays ambient
+     via [data-density] on the token values themselves (RFC 0009). */
+  .primitiv-navigation-menu--xs {
+    --primitiv-navigation-menu-entry-height: var(--primitiv-nav-item-xs-height);
+    --primitiv-navigation-menu-entry-padding-inline: var(--primitiv-nav-item-xs-padding-inline);
+    --primitiv-navigation-menu-entry-gap: var(--primitiv-nav-item-xs-gap);
+    --primitiv-navigation-menu-entry-radius: var(--primitiv-framed-control-xs-radius);
+    --primitiv-navigation-menu-entry-font-family: var(--primitiv-label-xs-font-family);
+    --primitiv-navigation-menu-entry-font-size: var(--primitiv-label-xs-font-size);
+    --primitiv-navigation-menu-entry-font-weight: var(--primitiv-label-xs-font-weight);
+    --primitiv-navigation-menu-entry-line-height: var(--primitiv-label-xs-line-height);
+    --primitiv-navigation-menu-icon-size: var(--primitiv-nav-item-xs-icon-size);
+    --primitiv-navigation-menu-panel-radius: var(--primitiv-dropdown-xs-panel-radius);
+    --primitiv-navigation-menu-panel-padding-block: var(--primitiv-space-space-8);
+    --primitiv-navigation-menu-panel-padding-inline: var(--primitiv-space-space-8);
+    --primitiv-navigation-menu-panel-offset: var(--primitiv-nav-item-xs-panel-offset);
+    --primitiv-navigation-menu-row-padding-inline: var(--primitiv-nav-item-xs-padding-inline);
+    --primitiv-navigation-menu-row-padding-block: var(--primitiv-nav-item-xs-padding-block);
+    --primitiv-navigation-menu-row-text-gap: var(--primitiv-nav-item-xs-text-gap);
+    /* The description sits one size slot below its title — bound to the same slot
+       they read as equals and the row loses its hierarchy. */
+    --primitiv-navigation-menu-row-description-font-family: var(--primitiv-body-xs-font-family);
+    --primitiv-navigation-menu-row-description-font-size: var(--primitiv-body-xs-font-size);
+    --primitiv-navigation-menu-row-description-font-weight: var(--primitiv-body-xs-font-weight);
+    --primitiv-navigation-menu-row-description-line-height: var(--primitiv-body-xs-line-height);
+  }
+
+  .primitiv-navigation-menu--sm {
+    --primitiv-navigation-menu-entry-height: var(--primitiv-nav-item-sm-height);
+    --primitiv-navigation-menu-entry-padding-inline: var(--primitiv-nav-item-sm-padding-inline);
+    --primitiv-navigation-menu-entry-gap: var(--primitiv-nav-item-sm-gap);
+    --primitiv-navigation-menu-entry-radius: var(--primitiv-framed-control-sm-radius);
+    --primitiv-navigation-menu-entry-font-family: var(--primitiv-label-sm-font-family);
+    --primitiv-navigation-menu-entry-font-size: var(--primitiv-label-sm-font-size);
+    --primitiv-navigation-menu-entry-font-weight: var(--primitiv-label-sm-font-weight);
+    --primitiv-navigation-menu-entry-line-height: var(--primitiv-label-sm-line-height);
+    --primitiv-navigation-menu-icon-size: var(--primitiv-nav-item-sm-icon-size);
+    --primitiv-navigation-menu-panel-radius: var(--primitiv-dropdown-sm-panel-radius);
+    --primitiv-navigation-menu-panel-padding-block: var(--primitiv-space-space-12);
+    --primitiv-navigation-menu-panel-padding-inline: var(--primitiv-space-space-12);
+    --primitiv-navigation-menu-panel-offset: var(--primitiv-nav-item-sm-panel-offset);
+    --primitiv-navigation-menu-row-padding-inline: var(--primitiv-nav-item-sm-padding-inline);
+    --primitiv-navigation-menu-row-padding-block: var(--primitiv-nav-item-sm-padding-block);
+    --primitiv-navigation-menu-row-text-gap: var(--primitiv-nav-item-sm-text-gap);
+    --primitiv-navigation-menu-row-description-font-family: var(--primitiv-body-xs-font-family);
+    --primitiv-navigation-menu-row-description-font-size: var(--primitiv-body-xs-font-size);
+    --primitiv-navigation-menu-row-description-font-weight: var(--primitiv-body-xs-font-weight);
+    --primitiv-navigation-menu-row-description-line-height: var(--primitiv-body-xs-line-height);
+  }
+
+  .primitiv-navigation-menu--md {
+    --primitiv-navigation-menu-entry-height: var(--primitiv-nav-item-md-height);
+    --primitiv-navigation-menu-entry-padding-inline: var(--primitiv-nav-item-md-padding-inline);
+    --primitiv-navigation-menu-entry-gap: var(--primitiv-nav-item-md-gap);
+    --primitiv-navigation-menu-entry-radius: var(--primitiv-framed-control-md-radius);
+    --primitiv-navigation-menu-entry-font-family: var(--primitiv-label-md-font-family);
+    --primitiv-navigation-menu-entry-font-size: var(--primitiv-label-md-font-size);
+    --primitiv-navigation-menu-entry-font-weight: var(--primitiv-label-md-font-weight);
+    --primitiv-navigation-menu-entry-line-height: var(--primitiv-label-md-line-height);
+    --primitiv-navigation-menu-icon-size: var(--primitiv-nav-item-md-icon-size);
+    --primitiv-navigation-menu-panel-radius: var(--primitiv-dropdown-md-panel-radius);
+    --primitiv-navigation-menu-panel-padding-block: var(--primitiv-space-space-16);
+    --primitiv-navigation-menu-panel-padding-inline: var(--primitiv-space-space-16);
+    --primitiv-navigation-menu-panel-offset: var(--primitiv-nav-item-md-panel-offset);
+    --primitiv-navigation-menu-row-padding-inline: var(--primitiv-nav-item-md-padding-inline);
+    --primitiv-navigation-menu-row-padding-block: var(--primitiv-nav-item-md-padding-block);
+    --primitiv-navigation-menu-row-text-gap: var(--primitiv-nav-item-md-text-gap);
+    --primitiv-navigation-menu-row-description-font-family: var(--primitiv-body-sm-font-family);
+    --primitiv-navigation-menu-row-description-font-size: var(--primitiv-body-sm-font-size);
+    --primitiv-navigation-menu-row-description-font-weight: var(--primitiv-body-sm-font-weight);
+    --primitiv-navigation-menu-row-description-line-height: var(--primitiv-body-sm-line-height);
+  }
+
+  .primitiv-navigation-menu--lg {
+    --primitiv-navigation-menu-entry-height: var(--primitiv-nav-item-lg-height);
+    --primitiv-navigation-menu-entry-padding-inline: var(--primitiv-nav-item-lg-padding-inline);
+    --primitiv-navigation-menu-entry-gap: var(--primitiv-nav-item-lg-gap);
+    --primitiv-navigation-menu-entry-radius: var(--primitiv-framed-control-lg-radius);
+    --primitiv-navigation-menu-entry-font-family: var(--primitiv-label-lg-font-family);
+    --primitiv-navigation-menu-entry-font-size: var(--primitiv-label-lg-font-size);
+    --primitiv-navigation-menu-entry-font-weight: var(--primitiv-label-lg-font-weight);
+    --primitiv-navigation-menu-entry-line-height: var(--primitiv-label-lg-line-height);
+    --primitiv-navigation-menu-icon-size: var(--primitiv-nav-item-lg-icon-size);
+    --primitiv-navigation-menu-panel-radius: var(--primitiv-dropdown-lg-panel-radius);
+    --primitiv-navigation-menu-panel-padding-block: var(--primitiv-space-space-20);
+    --primitiv-navigation-menu-panel-padding-inline: var(--primitiv-space-space-20);
+    --primitiv-navigation-menu-panel-offset: var(--primitiv-nav-item-lg-panel-offset);
+    --primitiv-navigation-menu-row-padding-inline: var(--primitiv-nav-item-lg-padding-inline);
+    --primitiv-navigation-menu-row-padding-block: var(--primitiv-nav-item-lg-padding-block);
+    --primitiv-navigation-menu-row-text-gap: var(--primitiv-nav-item-lg-text-gap);
+    --primitiv-navigation-menu-row-description-font-family: var(--primitiv-body-md-font-family);
+    --primitiv-navigation-menu-row-description-font-size: var(--primitiv-body-md-font-size);
+    --primitiv-navigation-menu-row-description-font-weight: var(--primitiv-body-md-font-weight);
+    --primitiv-navigation-menu-row-description-line-height: var(--primitiv-body-md-line-height);
+  }
+
+  .primitiv-navigation-menu--xl {
+    --primitiv-navigation-menu-entry-height: var(--primitiv-nav-item-xl-height);
+    --primitiv-navigation-menu-entry-padding-inline: var(--primitiv-nav-item-xl-padding-inline);
+    --primitiv-navigation-menu-entry-gap: var(--primitiv-nav-item-xl-gap);
+    --primitiv-navigation-menu-entry-radius: var(--primitiv-framed-control-xl-radius);
+    --primitiv-navigation-menu-entry-font-family: var(--primitiv-label-xl-font-family);
+    --primitiv-navigation-menu-entry-font-size: var(--primitiv-label-xl-font-size);
+    --primitiv-navigation-menu-entry-font-weight: var(--primitiv-label-xl-font-weight);
+    --primitiv-navigation-menu-entry-line-height: var(--primitiv-label-xl-line-height);
+    --primitiv-navigation-menu-icon-size: var(--primitiv-nav-item-xl-icon-size);
+    --primitiv-navigation-menu-panel-radius: var(--primitiv-dropdown-xl-panel-radius);
+    --primitiv-navigation-menu-panel-padding-block: var(--primitiv-space-space-24);
+    --primitiv-navigation-menu-panel-padding-inline: var(--primitiv-space-space-24);
+    --primitiv-navigation-menu-panel-offset: var(--primitiv-nav-item-xl-panel-offset);
+    --primitiv-navigation-menu-row-padding-inline: var(--primitiv-nav-item-xl-padding-inline);
+    --primitiv-navigation-menu-row-padding-block: var(--primitiv-nav-item-xl-padding-block);
+    --primitiv-navigation-menu-row-text-gap: var(--primitiv-nav-item-xl-text-gap);
+    --primitiv-navigation-menu-row-description-font-family: var(--primitiv-body-lg-font-family);
+    --primitiv-navigation-menu-row-description-font-size: var(--primitiv-body-lg-font-size);
+    --primitiv-navigation-menu-row-description-font-weight: var(--primitiv-body-lg-font-weight);
+    --primitiv-navigation-menu-row-description-line-height: var(--primitiv-body-lg-line-height);
+  }
+}
+
+@layer primitiv.states {
+  /* Hover is guarded: on touch, :hover sticks after a tap and would leave a
+     just-tapped entry showing the hover tint instead of its resting state. */
+  @media (hover: hover) {
+    .primitiv-navigation-menu__trigger:hover,
+    .primitiv-navigation-menu__link--bar:hover {
+      background: var(--primitiv-navigation-menu-entry-bg-hover);
+      color: var(--primitiv-navigation-menu-entry-fg-hover);
+    }
+
+    .primitiv-navigation-menu__link--panel:hover {
+      background: var(--primitiv-navigation-menu-row-bg-hover);
+    }
+  }
+
+  .primitiv-navigation-menu__trigger:active,
+  .primitiv-navigation-menu__link--bar:active {
+    background: var(--primitiv-navigation-menu-entry-bg-active);
+    color: var(--primitiv-navigation-menu-entry-fg-hover);
+  }
+
+  .primitiv-navigation-menu__link--panel:active {
+    background: var(--primitiv-navigation-menu-entry-bg-active);
+  }
+
+  /* Open — the trigger keeps the hover tint so its panel reads as attached, and
+     the chevron flips. */
+  .primitiv-navigation-menu__trigger[data-state="open"] {
+    background: var(--primitiv-navigation-menu-entry-bg-hover);
+    color: var(--primitiv-navigation-menu-entry-fg-hover);
+  }
+
+  .primitiv-navigation-menu__trigger[data-state="open"] .primitiv-navigation-menu__trigger-icon {
+    rotate: 180deg;
+  }
+
+  /* Current page — aria-current, not a pressed state. Brand-coloured rather than
+     a secondary→primary shift, which in a bar is indistinguishable from hover. */
+  .primitiv-navigation-menu__link[data-active] {
+    color: var(--primitiv-navigation-menu-entry-fg-active);
+  }
+
+  .primitiv-navigation-menu__link--panel[data-active] .primitiv-navigation-menu__link-title {
+    color: var(--primitiv-navigation-menu-entry-fg-active);
+  }
+
+  /* The system focus ring: a surface-coloured gap band, then the brand ring just
+     outside it. Restyle it by overriding the --primitiv-focus-ring* tokens
+     globally, not via a per-component knob. */
+  .primitiv-navigation-menu__trigger:focus-visible,
+  .primitiv-navigation-menu__link:focus-visible {
+    outline: none;
+    box-shadow:
+      0 0 0 var(--primitiv-focus-ring-offset) var(--primitiv-surface-default),
+      0 0 0 calc(var(--primitiv-focus-ring-offset) + var(--primitiv-focus-ring-width))
+        var(--primitiv-focus-ring);
+  }
+
+  /* Forced colours (Windows High Contrast) discards box-shadow, so the ring
+     above renders nothing and the `outline: none` beside it is all that
+     survives — leaving no focus indicator at all. Restore a real outline,
+     which the mode does honour, in the system Highlight colour. Same tokens
+     as the ring, so the geometry is unchanged. */
+  @media (forced-colors: active) {
+    .primitiv-navigation-menu__trigger:focus-visible, .primitiv-navigation-menu__link:focus-visible {
+      outline: var(--primitiv-focus-ring-width) solid Highlight;
+      outline-offset: var(--primitiv-focus-ring-offset);
+    }
+  }
+
+  .primitiv-navigation-menu__trigger:disabled,
+  .primitiv-navigation-menu__link[aria-disabled="true"] {
+    opacity: var(--primitiv-navigation-menu-disabled-opacity);
+    color: var(--primitiv-navigation-menu-entry-fg-disabled);
+    cursor: not-allowed;
+  }
+
+  /* Open / close — the straight fade Tooltip and Popover use, for the same reason:
+     the panel is a surface, so moving or scaling it draws the eye to chrome instead
+     of content. Closed is the resting state, [data-state="open"] brings it in, and
+     @starting-style gives the enter its first frame so the exit mirrors the enter.
+
+     Nothing here toggles `display`. Every force-mounted Content projects into this one
+     viewport and stays in flow, overlapping in a single grid cell — so the box holds a
+     constant size and panels can neither stack on switch nor collapse it on exit.
+     `visibility` does the hiding (see below), because it transitions and so survives
+     the fade; `display` would not.
+
+     Needs the panel kept mounted while closed: pass forceMount to Content, Viewport
+     and Indicator, or the headless applies `hidden` and there is nothing to animate. */
+  .primitiv-navigation-menu__content {
+    opacity: var(--primitiv-opacity-transparent);
+    /* visibility, not display: it transitions, so the panel stays visible for the
+       whole fade and only then flips — which also takes closed panels out of the tab
+       order and the accessibility tree, exactly the trick Accordion's clip uses.
+       Toggling `display` instead is what caused the stacking on switch. */
+    visibility: hidden;
+    pointer-events: none;
+    transition:
+      opacity var(--primitiv-navigation-menu-transition-duration) var(--primitiv-motion-easing-exit),
+      visibility var(--primitiv-navigation-menu-transition-duration) var(--primitiv-motion-easing-exit);
+  }
+
+  .primitiv-navigation-menu__content[data-state="open"] {
+    opacity: var(--primitiv-opacity-100);
+    visibility: visible;
+    pointer-events: auto;
+    transition-timing-function: var(--primitiv-motion-easing-enter);
+  }
+
+  @starting-style {
+    .primitiv-navigation-menu__content[data-state="open"] {
+      opacity: var(--primitiv-opacity-transparent);
+    }
+  }
+
+  /* Directional slide. The headless publishes data-motion on the panel — which way
+     the pointer travelled between entries — so an incoming panel enters from the
+     side it came from and the outgoing one leaves the opposite way, instead of every
+     switch being the same cross-fade. Because all panels share one grid cell this is
+     a pure translate: nothing reflows.
+
+     `animation`, not `@starting-style` + `transition`: a force-mounted panel never
+     goes through `display: none`, so it already has a "previous style" the very
+     first time a switch opens it — there is no residual offset for a transition to
+     interpolate from, only an accidental one left over from that *same* panel's own
+     prior exit (its `[data-state="closed"]` translate happens to still be sitting
+     there). That meant a panel's first-ever entrance never slid, only its second
+     and later ones — reproduced by sampling `getComputedStyle(...).translate`
+     through a live switch. A keyframe `animation` has no such dependency: matching
+     `[data-state="open"][data-motion="from-*"]` always plays its `from` keyframe,
+     the same way Radix's own `enterFromLeft` / `enterFromRight` do. Panels with no
+     direction — the first open and the full close — simply fade (no matching
+     `data-motion`, so no animation is triggered at all).
+
+     A leaving panel's opacity rides along in ITS keyframe too, front-loaded to
+     resolve by 40% — well before translate finishes its exit — rather than
+     fading over the whole duration on the shared `transition` above (an
+     animation owns a property outright once it touches it, so this opacity
+     keyframe simply wins over that transition while the exit is playing).
+     Legible text visibly sliding away was the tell: readable text still
+     travelling most of the distance read as a glitch, not a leaving panel.
+     Entering panels keep the plain transition's fade untouched (unaffected
+     visually, and there's nothing left to leak) — arriving into place doesn't
+     have the same problem. */
+  @keyframes primitiv-navigation-menu-enter-from-start {
+    from {
+      translate: calc(var(--primitiv-navigation-menu-panel-slide) * -1) 0;
+    }
+  }
+
+  @keyframes primitiv-navigation-menu-enter-from-end {
+    from {
+      translate: var(--primitiv-navigation-menu-panel-slide) 0;
+    }
+  }
+
+  @keyframes primitiv-navigation-menu-exit-to-start {
+    40% {
+      opacity: var(--primitiv-opacity-transparent);
+    }
+
+    to {
+      translate: calc(var(--primitiv-navigation-menu-panel-slide) * -1) 0;
+    }
+  }
+
+  @keyframes primitiv-navigation-menu-exit-to-end {
+    40% {
+      opacity: var(--primitiv-opacity-transparent);
+    }
+
+    to {
+      translate: var(--primitiv-navigation-menu-panel-slide) 0;
+    }
+  }
+
+  .primitiv-navigation-menu__content[data-state="open"][data-motion="from-start"] {
+    animation: primitiv-navigation-menu-enter-from-start
+      var(--primitiv-navigation-menu-transition-duration) var(--primitiv-motion-easing-enter);
+  }
+
+  .primitiv-navigation-menu__content[data-state="open"][data-motion="from-end"] {
+    animation: primitiv-navigation-menu-enter-from-end
+      var(--primitiv-navigation-menu-transition-duration) var(--primitiv-motion-easing-enter);
+  }
+
+  .primitiv-navigation-menu__content[data-state="closed"][data-motion="to-start"] {
+    animation: primitiv-navigation-menu-exit-to-start
+      var(--primitiv-navigation-menu-transition-duration) var(--primitiv-motion-easing-exit);
+  }
+
+  .primitiv-navigation-menu__content[data-state="closed"][data-motion="to-end"] {
+    animation: primitiv-navigation-menu-exit-to-end
+      var(--primitiv-navigation-menu-transition-duration) var(--primitiv-motion-easing-exit);
+  }
+
+  /* The box and the marker fade on the same curve. Because the content above holds
+     its flow through the exit, the viewport keeps its size while fading rather than
+     collapsing first. */
+  .primitiv-navigation-menu__viewport,
+  .primitiv-navigation-menu__indicator {
+    opacity: var(--primitiv-opacity-transparent);
+    transition:
+      opacity var(--primitiv-navigation-menu-transition-duration) var(--primitiv-motion-easing-exit),
+      translate var(--primitiv-navigation-menu-transition-duration)
+        var(--primitiv-navigation-menu-transition-easing),
+      inline-size var(--primitiv-navigation-menu-transition-duration)
+        var(--primitiv-navigation-menu-transition-easing),
+      block-size var(--primitiv-navigation-menu-transition-duration)
+        var(--primitiv-navigation-menu-transition-easing);
+  }
+
+  .primitiv-navigation-menu__viewport[data-state="open"],
+  .primitiv-navigation-menu__indicator[data-state="open"] {
+    opacity: var(--primitiv-opacity-100);
+    transition-timing-function: var(--primitiv-motion-easing-enter);
+  }
+
+  @starting-style {
+    .primitiv-navigation-menu__viewport[data-state="open"],
+    .primitiv-navigation-menu__indicator[data-state="open"] {
+      opacity: var(--primitiv-opacity-transparent);
+    }
+  }
+
+  /* forceMount keeps the closed panel in the DOM, and it paints above what follows
+     the nav — so it must stop hit-testing, or an invisible box swallows clicks on the
+     content beneath it. */
+  .primitiv-navigation-menu__viewport[data-state="closed"],
+  .primitiv-navigation-menu__indicator[data-state="closed"] {
+    pointer-events: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .primitiv-navigation-menu__trigger,
+    .primitiv-navigation-menu__link,
+    .primitiv-navigation-menu__trigger-icon,
+    .primitiv-navigation-menu__content,
+    .primitiv-navigation-menu__viewport,
+    .primitiv-navigation-menu__indicator {
+      transition: none;
+    }
+
+    /* The directional slide is animation-driven (see above), so reduced motion
+       has to silence animation-name too — transition:none alone doesn't touch it. */
+    .primitiv-navigation-menu__content {
+      animation: none;
+    }
+  }
+}

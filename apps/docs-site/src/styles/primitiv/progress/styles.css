@@ -1,0 +1,133 @@
+/*
+ * Progress — Primitiv default theme (canonical CSS).
+ *
+ * Copied into the consumer repo by `primitiv add progress`. It is yours to
+ * edit: the stable surface is the contract (the .primitiv-progress class,
+ * the --xs…--xl modifiers, the __indicator part, the data-state hook, and
+ * the --primitiv-progress-* custom properties), not these values (RFC 0006
+ * Principle 2 — names are stable, values are not).
+ *
+ * The model: Root is the track (a pill-shaped bar, clipping its fill),
+ * Indicator is the fill. `value`/`max` are style-props (RFC 0004 §3.4's
+ * carousel `slidesPerPage` pattern) — the generated wrapper writes them onto
+ * --primitiv-progress-value/-max as inline custom properties on Root, which
+ * inherit down to Indicator, so a single prop drives both the headless
+ * behaviour (aria-valuenow, the resolved data-state) and the visual fill —
+ * no hand-written width/transform logic in the wrapper. The fill itself
+ * transforms with `scaleX` (transform-origin: the reading-direction start
+ * edge) rather than animating `width`, so it's compositor-friendly and
+ * transitions smoothly between values. Indeterminate (no --primitiv-progress-
+ * value set, since the headless layer omits it while value is null) swaps to
+ * a looping slide animation instead of reading the (absent) custom property.
+ *
+ * Requires the token layer (`primitiv tokens`) for the --primitiv-progress-*,
+ * --primitiv-radii-full, --primitiv-surface-*, --primitiv-action-primary-*
+ * and --primitiv-motion-* custom properties it resolves.
+ */
+
+/* Declare the sublayer order up front so this sheet is safe to load ahead of
+ * the token layer: CSS fixes layer precedence by first appearance, so without
+ * this a component stylesheet seen first would register primitiv.base before
+ * primitiv.reset and let the reset win (RFC 0008 §7). */
+@layer primitiv.reset, primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;
+
+@layer primitiv.base {
+  .primitiv-progress {
+    /* Per-component API — the themable knobs, defaulting to the md size.
+       --primitiv-progress-max also doubles as the style-prop's CSS fallback
+       (the headless default is 100, so the stylesheet's default matches it)
+       so the fill still computes correctly if a consumer skips the prop. */
+    --primitiv-progress-height: var(--primitiv-progress-md-height);
+    --primitiv-progress-radius: var(--primitiv-radii-full);
+    --primitiv-progress-track-bg: var(--primitiv-action-secondary-default);
+    --primitiv-progress-fill-bg: var(--primitiv-action-primary-default);
+    --primitiv-progress-max: 100;
+
+    box-sizing: border-box;
+    inline-size: 100%;
+    block-size: var(--primitiv-progress-height);
+    border-radius: var(--primitiv-progress-radius);
+    background: var(--primitiv-progress-track-bg);
+    overflow: hidden;
+  }
+
+  .primitiv-progress__indicator {
+    display: block;
+    inline-size: 100%;
+    block-size: 100%;
+    background: var(--primitiv-progress-fill-bg);
+    transform-origin: left;
+    transform: scaleX(calc(var(--primitiv-progress-value, 0) / var(--primitiv-progress-max)));
+    transition: transform var(--primitiv-motion-duration-expand) var(--primitiv-motion-easing-default);
+  }
+
+  /* Indeterminate — no --primitiv-progress-value is ever set (the headless
+     layer omits both the style-prop and data-value while value is null), so
+     the scaleX formula above always resolves to 0. Override it with a fixed,
+     looping slide instead of reading the absent value. The 40% bar width is
+     a decorative proportion with no token home (like the pull-quote mark's
+     1.4em) — 30%, matching the Figma indeterminate variant's own fill width
+     (72 of a 240px track); the 1.4s duration is a slow, *looping* decorative animation, a
+     different category from the four short one-shot state-transition
+     --primitiv-motion-duration-* tokens (75–300ms) — no existing token fits,
+     so it stays literal, same as the motion-literal exceptions already
+     documented in registry-stylesheet-conventions. */
+  .primitiv-progress[data-state="indeterminate"] .primitiv-progress__indicator {
+    inline-size: 30%;
+    transform: none;
+    animation: primitiv-progress-indeterminate 1.4s var(--primitiv-motion-easing-default) infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .primitiv-progress[data-state="indeterminate"] .primitiv-progress__indicator {
+      animation: none;
+      inline-size: 100%;
+      opacity: var(--primitiv-opacity-50);
+    }
+  }
+
+  @keyframes primitiv-progress-indeterminate {
+    from {
+      transform: translateX(-100%);
+    }
+    to {
+      transform: translateX(250%);
+    }
+  }
+}
+
+@layer primitiv.variants {
+  /* Size — re-points only the track height. Density stays ambient via
+     [data-density] on the token values themselves (RFC 0009). */
+  .primitiv-progress--xs {
+    --primitiv-progress-height: var(--primitiv-progress-xs-height);
+  }
+  .primitiv-progress--sm {
+    --primitiv-progress-height: var(--primitiv-progress-sm-height);
+  }
+  .primitiv-progress--md {
+    --primitiv-progress-height: var(--primitiv-progress-md-height);
+  }
+  .primitiv-progress--lg {
+    --primitiv-progress-height: var(--primitiv-progress-lg-height);
+  }
+  .primitiv-progress--xl {
+    --primitiv-progress-height: var(--primitiv-progress-xl-height);
+  }
+
+  /* Intent — re-points only the fill. The track is deliberately *not* part of
+     this axis: Figma binds it to action/secondary/default on all three
+     intents, so a danger bar reads as a danger fill on the same neutral track,
+     not a wholly recoloured control. `secondary` takes the *active* step
+     rather than `default`, since `default` is what the track already uses —
+     a fill and its track need to differ to be legible. */
+  .primitiv-progress--primary {
+    --primitiv-progress-fill-bg: var(--primitiv-action-primary-default);
+  }
+  .primitiv-progress--secondary {
+    --primitiv-progress-fill-bg: var(--primitiv-action-secondary-active);
+  }
+  .primitiv-progress--danger {
+    --primitiv-progress-fill-bg: var(--primitiv-action-danger-default);
+  }
+}

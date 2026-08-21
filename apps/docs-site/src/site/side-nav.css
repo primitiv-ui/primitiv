@@ -1,0 +1,122 @@
+/*
+ * Left documentation nav.
+ *
+ * A `nav > ul > li > a` list, not a `Tree` — this is site navigation, so links
+ * plus `aria-current="page"` are the correct semantics. `Tree` would emit
+ * role="tree"/"treeitem" and tell a screen reader to expect tree navigation.
+ *
+ * Sections that are ALSO a page of their own (currently just `Components`,
+ * which owns the consumption-mode switch) render a link and an independent
+ * disclosure button side by side: the label navigates, the chevron toggles.
+ * That split is why Figma's `Tree / Branch Control` is a separate component
+ * from `Tree / Item` — you need to expand a section without leaving the page
+ * you are on, and to visit it without expanding it.
+ */
+
+.docs-side-nav {
+  --docs-nav-row-height: 1.75rem;
+  --docs-nav-chevron-size: 1.25rem;
+}
+
+/*
+ * The `List` knobs re-pointed to this nav's rhythm rather than the prose
+ * defaults: 16px between sections, and a 20px indent on the nested link lists
+ * (List defaults to 8px and 28px). `--primitiv-list-indent` inherits down to the
+ * nested lists, which is where it actually applies — the outer list is
+ * `indent={false}`.
+ */
+.docs-nav-sections {
+  --primitiv-list-item-gap: var(--primitiv-space-space-16);
+  --primitiv-list-indent: var(--primitiv-space-space-20);
+}
+
+.docs-nav-section-header {
+  display: flex;
+  align-items: center;
+  gap: var(--primitiv-stack-gap-xs);
+}
+
+.docs-nav-section-title {
+  flex: 1;
+  min-block-size: var(--docs-nav-row-height);
+  display: flex;
+  align-items: center;
+  font-family: var(--primitiv-label-sm-font-family);
+  font-size: var(--primitiv-label-sm-font-size);
+  font-weight: var(--primitiv-font-weight-semibold);
+  color: var(--primitiv-content-primary);
+  text-decoration: none;
+  border-radius: var(--primitiv-radii-4);
+}
+
+.docs-nav-section-title:hover {
+  color: var(--primitiv-action-link-foreground-hover);
+}
+
+.docs-nav-section-title:focus-visible,
+.docs-nav-disclosure:focus-visible,
+.docs-nav-link:focus-visible {
+  outline: var(--primitiv-border-width-2) solid var(--primitiv-focus-ring);
+  outline-offset: var(--primitiv-space-space-2);
+}
+
+/* A real button with aria-expanded, so the disclosure is operable and announced
+   independently of the section link beside it. */
+.docs-nav-disclosure {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: var(--docs-nav-chevron-size);
+  block-size: var(--docs-nav-chevron-size);
+  padding: var(--primitiv-space-space-0);
+  border: none;
+  border-radius: var(--primitiv-radii-4);
+  background-color: transparent;
+  color: var(--primitiv-content-muted);
+  cursor: pointer;
+}
+
+.docs-nav-disclosure:hover {
+  background-color: var(--primitiv-action-ghost-hover);
+  color: var(--primitiv-content-primary);
+}
+
+/* Targeted through the parent rather than a class on the icon: the icon is
+   rendered prop-less because IconProps collapses under Next's type-checker (see
+   SideNav.tsx). Still anchored by a .docs-* class, so it cannot leak. */
+.docs-nav-disclosure > svg {
+  transition: transform var(--primitiv-motion-duration-expand)
+    var(--primitiv-motion-easing-default);
+}
+
+.docs-nav-disclosure[aria-expanded="true"] > svg {
+  transform: rotate(90deg);
+}
+
+/* Rows abut: each link is already `--docs-nav-row-height` tall, so the section
+   rhythm above would double-space them. */
+.docs-nav-links {
+  --primitiv-list-item-gap: var(--primitiv-space-space-0);
+}
+
+.docs-nav-link {
+  display: flex;
+  align-items: center;
+  min-block-size: var(--docs-nav-row-height);
+  border-radius: var(--primitiv-radii-4);
+  font-family: var(--primitiv-body-sm-font-family);
+  font-size: var(--primitiv-body-sm-font-size);
+  color: var(--primitiv-content-muted);
+  text-decoration: none;
+  transition: color var(--primitiv-motion-duration-control)
+    var(--primitiv-motion-easing-default);
+}
+
+.docs-nav-link:hover {
+  color: var(--primitiv-content-primary);
+}
+
+.docs-nav-link[aria-current] {
+  color: var(--primitiv-content-primary);
+  font-weight: var(--primitiv-font-weight-medium);
+}

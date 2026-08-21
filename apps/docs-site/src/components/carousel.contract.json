@@ -1,0 +1,348 @@
+{
+  "$schema": "https://primitiv-ui.dev/schema/contract.json",
+  "name": "carousel",
+  "version": "0.1.0",
+  "description": "A responsive, accessible carousel — a scroll-snap viewport of slides with prev/next controls and indicator dots (WAI-ARIA Carousel pattern). Adapts to its container by default.",
+  "docs": "https://primitiv-ui.dev/docs/components/carousel",
+  "root": {
+    "element": "section",
+    "class": "primitiv-carousel",
+    "component": "Root"
+  },
+  "dataAttributes": [
+    { "name": "data-orientation", "value": "horizontal", "when": "horizontal", "source": "auto" },
+    { "name": "data-orientation", "value": "vertical", "when": "vertical", "source": "auto" },
+    { "name": "data-transition", "value": "slide", "when": "slide", "source": "auto" },
+    { "name": "data-transition", "value": "fade", "when": "fade", "source": "auto" },
+    { "name": "data-transition", "value": "none", "when": "none", "source": "auto" },
+    { "name": "data-loop", "value": "none", "when": "loop disabled (default)", "source": "auto" },
+    { "name": "data-loop", "value": "wrap", "when": "loop / loop=\"wrap\" (semantic wrap)", "source": "auto" },
+    { "name": "data-loop", "value": "infinite", "when": "loop=\"infinite\" (continuous infinite)", "source": "auto" }
+  ],
+  "modifiers": [
+    {
+      "name": "peek",
+      "default": "none",
+      "description": "Reveal a sliver of the adjacent slides on either side of the active one. Works in both orientations (inline edges when horizontal, block edges when vertical).",
+      "options": [
+        { "name": "none", "class": "primitiv-carousel--peek-none", "description": "No peek — the active slide fills the viewport (the default)." },
+        { "name": "sm", "class": "primitiv-carousel--peek-sm", "description": "A small peek." },
+        { "name": "md", "class": "primitiv-carousel--peek-md", "description": "A medium peek." },
+        { "name": "lg", "class": "primitiv-carousel--peek-lg", "description": "A large peek." }
+      ]
+    },
+    {
+      "name": "gap",
+      "default": "md",
+      "description": "The spacing between slides. A t-shirt scale re-pointing --primitiv-carousel-gap to a spacing token; `md` is the default. Works in both orientations (the gap runs on the scroll axis) and composes with every other variant. Note: the `padding` modifier couples the gap to its inset for a clean framed track, so it overrides this within a padded track.",
+      "options": [
+        { "name": "none", "class": "primitiv-carousel--gap-none", "description": "No gap — the slides sit flush." },
+        { "name": "sm", "class": "primitiv-carousel--gap-sm", "description": "A small gap." },
+        { "name": "md", "class": "primitiv-carousel--gap-md", "description": "A medium gap (the default)." },
+        { "name": "lg", "class": "primitiv-carousel--gap-lg", "description": "A large gap." }
+      ]
+    },
+    {
+      "name": "padding",
+      "default": "none",
+      "description": "Make the viewport a padded, framed track: pad the slides inward from the viewport edges and draw the track outline (border + rounded corners). The gap is coupled to the padding so the resting track doesn't itself reveal a neighbour; add `peek` for a deliberate reveal within the track. The background fill is opt-in via the `surface` modifier — padding alone renders an outlined track.",
+      "options": [
+        { "name": "none", "class": "primitiv-carousel--padding-none", "description": "No viewport padding — a bare, frameless scroll box (the default)." },
+        { "name": "sm", "class": "primitiv-carousel--padding-sm", "description": "A small inset." },
+        { "name": "md", "class": "primitiv-carousel--padding-md", "description": "A medium inset." },
+        { "name": "lg", "class": "primitiv-carousel--padding-lg", "description": "A large inset." }
+      ]
+    },
+    {
+      "name": "surface",
+      "default": "none",
+      "description": "Opt into the viewport track's background fill. Off by default (a framed track is just an outline); pairs with `padding` to render a filled, framed track.",
+      "options": [
+        { "name": "none", "class": "primitiv-carousel--surface-none", "description": "No fill — the track is transparent (the default)." },
+        { "name": "subtle", "class": "primitiv-carousel--surface-subtle", "description": "Fill the track with the subtle surface token." }
+      ]
+    },
+    {
+      "name": "radius",
+      "default": "none",
+      "description": "Opt into rounding the container (the viewport track around the slides), independent of the `padding` frame. Off by default (a square track); `md` rounds it to the shared, size/density-scaled carousel radius, so the track corners match the slide corners. (Distinct from the per-slide `radius` modifier, which rounds each slide; this rounds the track that clips them.)",
+      "options": [
+        { "name": "none", "class": "primitiv-carousel--radius-none", "description": "Square track corners (the default)." },
+        { "name": "md", "class": "primitiv-carousel--radius-md", "description": "Round the track to the scaled carousel radius, matching the slides." }
+      ]
+    },
+    {
+      "name": "placement",
+      "default": "external",
+      "description": "Where the controls sit relative to the imagery — the one axis that is off-vs-on the slide. `external` (the default) keeps the controls off the imagery, in the space around the viewport. `overlay` insets them on the slide for edge-to-edge imagery. How the controls are *arranged* (one bar vs prev/next flanking the edges) is the orthogonal `cluster` axis; `side` / `distribution` / `align` / `orientation` then compose on top of both.",
+      "options": [
+        { "name": "external", "class": "primitiv-carousel--placement-external", "description": "Controls off the imagery, in the space around the viewport (the default). A CSS grid places the parts in tracks beside the viewport." },
+        { "name": "overlay", "class": "primitiv-carousel--placement-overlay", "description": "Controls on the imagery — absolutely positioned over the slide on a translucent scrim, for edge-to-edge photography." }
+      ]
+    },
+    {
+      "name": "side",
+      "default": "after",
+      "description": "Which cross-axis edge the indicator cluster (or the joined bar) sits on, relative to the scroll direction. `after` is the trailing edge (below the viewport when horizontal, the inline-end/right side when vertical); `before` is the leading edge (above / inline-start). Orientation-relative and RTL-safe — it composes with `orientation` to reach all four physical edges. Read by both placements and both clusters.",
+      "options": [
+        { "name": "after", "class": "primitiv-carousel--side-after", "description": "Trailing edge — below the viewport (horizontal) or the end/right side (vertical). The default." },
+        { "name": "before", "class": "primitiv-carousel--side-before", "description": "Leading edge — above the viewport (horizontal) or the start/left side (vertical)." }
+      ]
+    },
+    {
+      "name": "distribution",
+      "default": "group",
+      "description": "How the controls spread along their edge. For `joined` it drives the whole prev/indicators/next bar — `group` (the default) bunches them, `stretch` pushes prev/next to the extremes with the indicators centred (space-between). For `split` it governs the indicator cluster (prev/next stay flanking the viewport edges) — `group` bunches the dots, `stretch` spreads them across the full edge. Applies to both placements.",
+      "options": [
+        { "name": "group", "class": "primitiv-carousel--distribution-group", "description": "Bunch the controls together with a fixed gap, positioned by `align` (the default)." },
+        { "name": "stretch", "class": "primitiv-carousel--distribution-stretch", "description": "Spread the controls across the full edge (space-between)." }
+      ]
+    },
+    {
+      "name": "align",
+      "default": "center",
+      "description": "Where the grouped controls sit along their edge (only read under `distribution=group`; `stretch` fills the edge, so alignment is moot). `center` is the default; `start` / `end` pin the cluster to the leading / trailing end — the whole bar for `joined`, the indicator cluster for `split`. Applies to both placements. Logical, so it mirrors under RTL and follows the scroll axis when vertical.",
+      "options": [
+        { "name": "start", "class": "primitiv-carousel--align-start", "description": "Pin the control cluster to the start of the edge (left / top, mirrored under RTL)." },
+        { "name": "center", "class": "primitiv-carousel--align-center", "description": "Centre the control cluster on the edge (the default)." },
+        { "name": "end", "class": "primitiv-carousel--align-end", "description": "Pin the control cluster to the end of the edge (right / bottom, mirrored under RTL)." }
+      ]
+    },
+    {
+      "name": "cluster",
+      "default": "split",
+      "description": "How the controls are arranged — the orthogonal companion to `placement`, read by both `external` and `overlay`. `split` (the default) sends prev/next to the viewport's two scroll-axis edges (flanking it — left/right when horizontal, top/bottom when vertical) and leaves the indicators as a separate cluster positioned by `side` / `distribution` / `align`. `joined` bundles prev + indicators + next into one `<CarouselControls>` bar that travels together, positioned as a unit by `side` / `distribution` / `align`. Compose the parts inside `<CarouselControls>` for `joined`, as direct children of the root for `split`. Together with `placement` this is the full 2×2 — external/overlay × split/joined.",
+      "options": [
+        { "name": "split", "class": "primitiv-carousel--cluster-split", "description": "Prev/next flank the viewport's scroll-axis edges; the indicators are a separate cluster (the default). Compose the parts as direct children of the root." },
+        { "name": "joined", "class": "primitiv-carousel--cluster-joined", "description": "Bundle prev + indicators + next into one bar that moves together; compose them inside `<CarouselControls>`." }
+      ]
+    },
+    {
+      "name": "indicators",
+      "default": "dots",
+      "description": "What the indicators look like. `dots` (the default) is the compact dot row; `thumbnails` swaps each indicator for a rounded-rect image thumbnail — the active one ringed in the primary colour, the classic gallery pattern. Supply the thumbnail content as children of each `<CarouselIndicator>` (an `<img>` or a background element).",
+      "options": [
+        { "name": "dots", "class": "primitiv-carousel--indicators-dots", "description": "Compact dots — one per page (the default)." },
+        { "name": "thumbnails", "class": "primitiv-carousel--indicators-thumbnails", "description": "Image thumbnails — each indicator shows its slide's thumbnail, the active one ringed in the primary colour." }
+      ]
+    },
+    {
+      "name": "size",
+      "default": "md",
+      "description": "Scale of the control chrome — the prev/next controls, indicator dots and thumbnails — on a t-shirt ramp, so a carousel matches the density of the UI around it. The viewport and slides stay container-driven (they fill their space); only the controls scale. Composes with the ambient `data-density` (which shifts every slot): `size` picks the slot, density shifts it. The prev/next controls track the shared framed-control ramp, so they match a same-size Button.",
+      "options": [
+        { "name": "xs", "class": "primitiv-carousel--size-xs", "description": "Extra small controls." },
+        { "name": "sm", "class": "primitiv-carousel--size-sm", "description": "Small controls." },
+        { "name": "md", "class": "primitiv-carousel--size-md", "description": "Medium controls (the default)." },
+        { "name": "lg", "class": "primitiv-carousel--size-lg", "description": "Large controls." },
+        { "name": "xl", "class": "primitiv-carousel--size-xl", "description": "Extra large controls." }
+      ]
+    },
+    {
+      "name": "ratio",
+      "default": "wide",
+      "description": "The carousel's aspect ratio, applied uniformly to every slide (and tracked by the thumbnail indicators). Re-points --primitiv-carousel-slide-aspect-ratio at the root; the vertical viewport's shape defaults to the same knob, so `ratio` shapes the slides in both orientations (square vertical slides, a widescreen vertical scroller, …). Override the knob directly for a bespoke value. (Per-slide ratios are a later revisit.)",
+      "options": [
+        { "name": "square", "class": "primitiv-carousel--ratio-square", "description": "1:1 — a square slide." },
+        { "name": "standard", "class": "primitiv-carousel--ratio-standard", "description": "4:3 — the classic photo ratio." },
+        { "name": "wide", "class": "primitiv-carousel--ratio-wide", "description": "16:9 — widescreen (the default)." },
+        { "name": "ultrawide", "class": "primitiv-carousel--ratio-ultrawide", "description": "21:9 — cinematic ultra-wide." }
+      ]
+    },
+    {
+      "name": "slideWidth",
+      "default": "equal",
+      "description": "How each slide's width (block size when vertical) is determined. `equal` (the default) shares the viewport's content box evenly across `slidesPerPage` slides, each holding its shape via the `ratio` aspect-ratio. `content` lets each slide size to its own content instead — an intrinsically-sized image, an explicit width on the slide, or any content with a natural size — so slides in one track can have genuinely different widths (Ark UI's `autoSize`). Scoped to `slidesPerPage=1`: the multi-slide windowing math assumes equal shares, which content-driven widths break.",
+      "options": [
+        { "name": "equal", "class": "primitiv-carousel--slide-width-equal", "description": "Every slide takes an equal share of the viewport and holds the `ratio` aspect-ratio (the default)." },
+        { "name": "content", "class": "primitiv-carousel--slide-width-content", "description": "Each slide sizes to its own content — bring your own width (an intrinsically-sized image, an explicit inline width, a natural-width card). The `ratio` aspect-ratio stands down." }
+      ]
+    },
+    {
+      "name": "effect",
+      "default": "none",
+      "description": "An opt-in scroll-driven visual effect for the slide content, layered on top of scroll-snap paging. `none` (the default) renders slides plain. `parallax` gives each slide's <CarouselSlideContent> a native, zero-JavaScript drift as the slide crosses the viewport (Blossom Carousel's Slideshow example) — a CSS view-timeline scoped to the slide drives the content's transform via animation-range: cover, following the scroll axis (inline horizontal, block vertical). `coverflow` tilts each slide's <CarouselSlideContent> in 3D as it crosses the viewport (the iTunes/Apple Cover Flow look, Blossom's Cover Flow example) — the same view-timeline drives a rotateY (rotateX when vertical) + scale off perspective set on the slide, so the centred slide sits flat and forward while its neighbours rotate away. Best composed with peek (to reveal the tilting neighbours) and snapAlign=\"center\". Both effects require wrapping the slide's media in <CarouselSlideContent>; browsers without animation-timeline: view() support fall back to reading the headless --slide-progress signal instead (an equivalent, continuously-updated transform with no extra JavaScript of our own), and both disable entirely under prefers-reduced-motion.",
+      "options": [
+        { "name": "none", "class": "primitiv-carousel--effect-none", "description": "Plain slides — no scroll-driven motion (the default)." },
+        { "name": "parallax", "class": "primitiv-carousel--effect-parallax", "description": "Each slide's <CarouselSlideContent> drifts against the scroll as the slide crosses the viewport." },
+        { "name": "coverflow", "class": "primitiv-carousel--effect-coverflow", "description": "Each slide's <CarouselSlideContent> tilts in 3D (rotateY + scale off a perspective) as it crosses the viewport — the Cover Flow look. Pair with peek and snapAlign=\"center\"." }
+      ]
+    },
+    {
+      "name": "glide",
+      "default": "medium",
+      "description": "How fast the infinite loop glides between pages (loop=\"infinite\" only — every other mode uses native scroll). A preset re-points --primitiv-carousel-glide-duration to a motion duration token; the engine reads it, with --primitiv-carousel-glide-easing, off the track and drives the transform transition. `medium` is the default. For a duration or easing outside the presets, re-point either custom property directly.",
+      "options": [
+        { "name": "fast", "class": "primitiv-carousel--glide-fast", "description": "A quick glide (200ms)." },
+        { "name": "medium", "class": "primitiv-carousel--glide-medium", "description": "The default glide (500ms)." },
+        { "name": "slow", "class": "primitiv-carousel--glide-slow", "description": "A slow, unhurried glide (1000ms)." }
+      ]
+    }
+  ],
+  "styleProps": [
+    { "prop": "slidesPerPage", "cssVar": "--primitiv-carousel-slides-per-page" }
+  ],
+  "subcomponents": [
+    {
+      "name": "viewport",
+      "component": "Viewport",
+      "element": "div",
+      "class": "primitiv-carousel__viewport"
+    },
+    {
+      "name": "controls",
+      "element": "div",
+      "class": "primitiv-carousel__controls"
+    },
+    {
+      "name": "slide",
+      "component": "Slide",
+      "element": "div",
+      "class": "primitiv-carousel__slide",
+      "modifiers": [
+        {
+          "name": "radius",
+          "default": "md",
+          "description": "Corner rounding of the slide.",
+          "options": [
+            { "name": "md", "class": "primitiv-carousel__slide--radius-md", "description": "Medium rounded corners (the default)." },
+            { "name": "none", "class": "primitiv-carousel__slide--radius-none", "description": "Sharp, un-rounded corners." }
+          ]
+        },
+        {
+          "name": "fit",
+          "default": "cover",
+          "description": "How a media child (an img / picture / video) conforms to the slide box. The slide box is always sized by the layout; this decides how a real image — which has its own intrinsic size and ratio — fills it.",
+          "options": [
+            { "name": "cover", "class": "primitiv-carousel__slide--fit-cover", "description": "Fill the slide and crop the overflow, preserving the image's aspect ratio (the default — best for photographic imagery). Set --primitiv-carousel-slide-object-position to move the focal point of the crop." },
+            { "name": "contain", "class": "primitiv-carousel__slide--fit-contain", "description": "Fit the whole image inside the slide without cropping, letterboxing any leftover space (best for logos / art that must not be cut). The letterbox shows the slide's own background — opt into one with the `surface` modifier." }
+          ]
+        },
+        {
+          "name": "surface",
+          "default": "none",
+          "description": "Optional slide backdrop — the fill behind the media. Off by default (transparent), so a cover image or a slide with its own background is unaffected; opt in to give a `contain` letterbox (or a transparent image) a surface behind it. Mirrors the root `surface` modifier and uses the same token.",
+          "options": [
+            { "name": "none", "class": "primitiv-carousel__slide--surface-none", "description": "No backdrop — the slide background is transparent (the default)." },
+            { "name": "subtle", "class": "primitiv-carousel__slide--surface-subtle", "description": "Fill the slide with the subtle surface token (--primitiv-surface-subtle) — the backdrop for a contain letterbox, matching the root track's surface." }
+          ]
+        }
+      ],
+      "dataAttributes": [
+        { "name": "data-state", "value": "active", "when": "active", "source": "auto" },
+        { "name": "data-state", "value": "inactive", "when": "inactive", "source": "auto" }
+      ]
+    },
+    {
+      "name": "slide-content",
+      "element": "div",
+      "class": "primitiv-carousel__slide-content"
+    },
+    {
+      "name": "previous-trigger",
+      "component": "PreviousTrigger",
+      "element": "button",
+      "class": "primitiv-carousel__prev"
+    },
+    {
+      "name": "next-trigger",
+      "component": "NextTrigger",
+      "element": "button",
+      "class": "primitiv-carousel__next"
+    },
+    {
+      "name": "indicator-group",
+      "component": "IndicatorGroup",
+      "element": "div",
+      "class": "primitiv-carousel__indicator-group"
+    },
+    {
+      "name": "indicator",
+      "component": "Indicator",
+      "element": "button",
+      "class": "primitiv-carousel__indicator",
+      "dataAttributes": [
+        { "name": "data-state", "value": "active", "when": "active", "source": "auto" },
+        { "name": "data-state", "value": "inactive", "when": "inactive", "source": "auto" }
+      ]
+    },
+    {
+      "name": "indicators",
+      "component": "Indicators",
+      "element": "div",
+      "class": "primitiv-carousel__indicator-group"
+    },
+    {
+      "name": "progress-text",
+      "component": "ProgressText",
+      "element": "span",
+      "class": "primitiv-carousel__progress-text"
+    }
+  ],
+  "customProperties": [
+    { "name": "--primitiv-carousel-gap", "defaultsTo": "var(--primitiv-space-space-16)" },
+    { "name": "--primitiv-carousel-peek", "defaultsTo": "var(--primitiv-space-space-0)" },
+    { "name": "--primitiv-carousel-viewport-padding", "defaultsTo": "var(--primitiv-space-space-0)" },
+    { "name": "--primitiv-carousel-content-space-1", "defaultsTo": "var(--primitiv-carousel-md-content-space-1)" },
+    { "name": "--primitiv-carousel-content-space-2", "defaultsTo": "var(--primitiv-carousel-md-content-space-2)" },
+    { "name": "--primitiv-carousel-content-space-3", "defaultsTo": "var(--primitiv-carousel-md-content-space-3)" },
+    { "name": "--primitiv-carousel-content-space-4", "defaultsTo": "var(--primitiv-carousel-md-content-space-4)" },
+    { "name": "--primitiv-carousel-viewport-surface", "defaultsTo": "transparent" },
+    { "name": "--primitiv-carousel-viewport-border-width", "defaultsTo": "var(--primitiv-border-width-0)" },
+    { "name": "--primitiv-carousel-viewport-border-color", "defaultsTo": "transparent" },
+    { "name": "--primitiv-carousel-viewport-radius", "defaultsTo": "var(--primitiv-radii-0)" },
+    { "name": "--primitiv-carousel-slides-per-page", "defaultsTo": "1" },
+    { "name": "--primitiv-carousel-slide-aspect-ratio", "defaultsTo": "16 / 9" },
+    { "name": "--primitiv-carousel-vertical-aspect-ratio", "defaultsTo": "var(--primitiv-carousel-slide-aspect-ratio)" },
+    { "name": "--primitiv-carousel-radius", "defaultsTo": "var(--primitiv-carousel-md-radius)" },
+    { "name": "--primitiv-carousel-slide-radius", "defaultsTo": "var(--primitiv-carousel-radius)" },
+    { "name": "--primitiv-carousel-slide-object-fit", "defaultsTo": "cover" },
+    { "name": "--primitiv-carousel-slide-object-position", "defaultsTo": "center" },
+    { "name": "--primitiv-carousel-slide-surface", "defaultsTo": "transparent" },
+    { "name": "--primitiv-carousel-block-gap", "defaultsTo": "var(--primitiv-carousel-md-chrome-gap)" },
+    { "name": "--primitiv-carousel-controls-gap", "defaultsTo": "var(--primitiv-carousel-md-chrome-gap)" },
+    { "name": "--primitiv-carousel-control-size", "defaultsTo": "var(--primitiv-framed-control-md-height)" },
+    { "name": "--primitiv-carousel-control-radius", "defaultsTo": "50%" },
+    { "name": "--primitiv-carousel-control-bg", "defaultsTo": "var(--primitiv-action-secondary-default)" },
+    { "name": "--primitiv-carousel-control-bg-hover", "defaultsTo": "var(--primitiv-action-secondary-hover)" },
+    { "name": "--primitiv-carousel-control-bg-active", "defaultsTo": "var(--primitiv-action-secondary-active)" },
+    { "name": "--primitiv-carousel-control-fg", "defaultsTo": "var(--primitiv-action-secondary-foreground-default)" },
+    { "name": "--primitiv-carousel-control-icon-size", "defaultsTo": "var(--primitiv-framed-control-md-icon-size)" },
+    { "name": "--primitiv-carousel-indicator-gap", "defaultsTo": "var(--primitiv-space-space-0)" },
+    { "name": "--primitiv-carousel-indicator-hit-area", "defaultsTo": "var(--primitiv-carousel-md-dot-hit-area)" },
+    { "name": "--primitiv-carousel-indicator-size", "defaultsTo": "var(--primitiv-carousel-md-dot-size)" },
+    { "name": "--primitiv-carousel-indicator-size-active", "defaultsTo": "var(--primitiv-carousel-md-active-pill)" },
+    { "name": "--primitiv-carousel-indicator-color", "defaultsTo": "var(--primitiv-border-strong)" },
+    { "name": "--primitiv-carousel-indicator-color-active", "defaultsTo": "var(--primitiv-action-primary-default)" },
+    { "name": "--primitiv-carousel-progress-text-color", "defaultsTo": "var(--primitiv-content-secondary)" },
+    { "name": "--primitiv-carousel-progress-text-font-size", "defaultsTo": "var(--primitiv-body-sm-font-size)" },
+    { "name": "--primitiv-carousel-thumbnail-inline-size", "defaultsTo": "var(--primitiv-carousel-md-thumbnail-size)" },
+    { "name": "--primitiv-carousel-thumbnail-aspect-ratio", "defaultsTo": "var(--primitiv-carousel-slide-aspect-ratio)" },
+    { "name": "--primitiv-carousel-thumbnail-gap", "defaultsTo": "var(--primitiv-space-space-8)" },
+    { "name": "--primitiv-carousel-thumbnail-radius", "defaultsTo": "var(--primitiv-radii-8)" },
+    { "name": "--primitiv-carousel-thumbnail-ring-width", "defaultsTo": "var(--primitiv-border-width-2)" },
+    { "name": "--primitiv-carousel-thumbnail-ring-color", "defaultsTo": "var(--primitiv-action-primary-default)" },
+    { "name": "--primitiv-carousel-thumbnail-inactive-opacity", "defaultsTo": "var(--primitiv-opacity-60)" },
+    { "name": "--primitiv-carousel-overlay-control-inset", "defaultsTo": "var(--primitiv-space-space-8)" },
+    { "name": "--primitiv-carousel-overlay-control-bg", "defaultsTo": "var(--primitiv-color-neutral-alpha-500)" },
+    { "name": "--primitiv-carousel-overlay-control-bg-hover", "defaultsTo": "var(--primitiv-color-neutral-alpha-600)" },
+    { "name": "--primitiv-carousel-overlay-control-bg-active", "defaultsTo": "var(--primitiv-color-neutral-alpha-700)" },
+    { "name": "--primitiv-carousel-overlay-control-fg", "defaultsTo": "var(--primitiv-content-inverse)" },
+    { "name": "--primitiv-carousel-overlay-indicator-inset", "defaultsTo": "var(--primitiv-space-space-8)" },
+    { "name": "--primitiv-carousel-overlay-indicator-color", "defaultsTo": "var(--primitiv-color-neutral-alpha-inverse-500)" },
+    { "name": "--primitiv-carousel-overlay-indicator-color-active", "defaultsTo": "var(--primitiv-content-inverse)" },
+    { "name": "--primitiv-carousel-overlay-pill-bg", "defaultsTo": "var(--primitiv-color-neutral-alpha-500)" },
+    { "name": "--primitiv-carousel-overlay-pill-padding-inline", "defaultsTo": "var(--primitiv-carousel-md-pill-padding-inline)" },
+    { "name": "--primitiv-carousel-overlay-pill-padding-block", "defaultsTo": "var(--primitiv-carousel-md-pill-padding-block)" },
+    { "name": "--primitiv-carousel-fade-duration", "defaultsTo": "var(--primitiv-motion-duration-overlay)" },
+    { "name": "--primitiv-carousel-fade-easing", "defaultsTo": "var(--primitiv-motion-easing-default)" },
+    { "name": "--primitiv-carousel-glide-duration", "defaultsTo": "var(--primitiv-duration-500)" },
+    { "name": "--primitiv-carousel-glide-easing", "defaultsTo": "var(--primitiv-motion-easing-enter)" },
+    { "name": "--primitiv-carousel-parallax-scale", "defaultsTo": "1.3" },
+    { "name": "--primitiv-carousel-parallax-amount", "defaultsTo": "calc((var(--primitiv-carousel-parallax-scale) - 1) / 2 * 100%)" },
+    { "name": "--primitiv-carousel-coverflow-perspective", "defaultsTo": "1200px" },
+    { "name": "--primitiv-carousel-coverflow-rotate", "defaultsTo": "55deg" },
+    { "name": "--primitiv-carousel-coverflow-scale", "defaultsTo": "0.85" },
+    { "name": "--primitiv-carousel-coverflow-spread", "defaultsTo": "40%" }
+  ]
+}

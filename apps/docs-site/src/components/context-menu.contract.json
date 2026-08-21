@@ -1,0 +1,93 @@
+{
+  "$schema": "https://primitiv-ui.dev/schema/contract.json",
+  "name": "context-menu",
+  "version": "0.1.0",
+  "description": "A right-click / long-press context menu built on the native HTML Popover API — the same bordered, shadow-defined panel of selectable rows (plain items, checkbox/radio items, submenus) as Dropdown, positioned at the pointer instead of anchored to a trigger. Keyboard, typeahead, and focus are owned by the headless primitive.",
+  "docs": "https://primitiv-ui.dev/docs/components/context-menu",
+  "root": {
+    "element": "menu",
+    "class": "primitiv-context-menu",
+    "component": "Content"
+  },
+  "dataAttributes": [
+    { "name": "data-popover-open", "value": "", "when": "open", "source": "auto" },
+    { "name": "data-state", "value": "open", "when": "open", "source": "auto" },
+    { "name": "data-state", "value": "closed", "when": "closed", "source": "auto" }
+  ],
+  "modifiers": [
+    {
+      "name": "size",
+      "default": "md",
+      "description": "Panel + row scale; `data-density` scales the sizing within each size. Re-points every child sizing knob (item height/padding/gap/radius/font, panel radius/padding, label, separator) — the same size scale as Dropdown.",
+      "options": [
+        { "name": "xs", "class": "primitiv-context-menu--xs", "description": "Extra small." },
+        { "name": "sm", "class": "primitiv-context-menu--sm", "description": "Small." },
+        { "name": "md", "class": "primitiv-context-menu--md", "description": "Medium (the default)." },
+        { "name": "lg", "class": "primitiv-context-menu--lg", "description": "Large." },
+        { "name": "xl", "class": "primitiv-context-menu--xl", "description": "Extra large." }
+      ]
+    },
+    {
+      "name": "placement",
+      "default": "submenu",
+      "description": "SubContent only — the root Content is always positioned at the pointer (no placement prop) via the headless layer's `left` / `top`, with `@position-try` fallbacks flipping it on viewport overflow. A submenu, like Dropdown's, is anchor-positioned to its SubTrigger via CSS anchor positioning and opens to the inline-end side by default.",
+      "options": [
+        { "name": "bottom-start", "class": "primitiv-context-menu--bottom-start", "description": "Below, start-aligned." },
+        { "name": "bottom-end", "class": "primitiv-context-menu--bottom-end", "description": "Below, end-aligned." },
+        { "name": "top-start", "class": "primitiv-context-menu--top-start", "description": "Above, start-aligned." },
+        { "name": "top-end", "class": "primitiv-context-menu--top-end", "description": "Above, end-aligned." },
+        { "name": "submenu", "class": "primitiv-context-menu--submenu", "description": "To the inline-end side of the parent row (SubContent's default)." }
+      ]
+    }
+  ],
+  "subcomponents": [
+    { "name": "item", "component": "Item", "element": "li", "class": "primitiv-context-menu__item" },
+    { "name": "checkbox-item", "component": "CheckboxItem", "element": "li", "class": "primitiv-context-menu__checkbox-item" },
+    { "name": "radio-item", "component": "RadioItem", "element": "li", "class": "primitiv-context-menu__radio-item" },
+    { "name": "item-leading", "component": "ItemLeading", "element": "span", "class": "primitiv-context-menu__item-leading" },
+    { "name": "item-label", "component": "ItemLabel", "element": "span", "class": "primitiv-context-menu__item-label" },
+    { "name": "item-trailing", "component": "ItemTrailing", "element": "span", "class": "primitiv-context-menu__item-trailing" },
+    { "name": "item-indicator", "component": "ItemIndicator", "element": "span", "class": "primitiv-context-menu__item-indicator" },
+    { "name": "label", "component": "Label", "element": "li", "class": "primitiv-context-menu__label" },
+    { "name": "separator", "component": "Separator", "element": "li", "class": "primitiv-context-menu__separator" },
+    { "name": "group", "component": "Group", "element": "li", "class": "primitiv-context-menu__group" },
+    { "name": "radio-group", "component": "RadioGroup", "element": "li", "class": "primitiv-context-menu__radio-group" },
+    { "name": "sub-trigger", "component": "SubTrigger", "element": "li", "class": "primitiv-context-menu__sub-trigger" }
+  ],
+  "customProperties": [
+    { "name": "--primitiv-context-menu-surface", "defaultsTo": "var(--primitiv-surface-default)" },
+    { "name": "--primitiv-context-menu-fg", "defaultsTo": "var(--primitiv-content-primary)" },
+    { "name": "--primitiv-context-menu-border-width", "defaultsTo": "var(--primitiv-border-width-1)" },
+    { "name": "--primitiv-context-menu-border-color", "defaultsTo": "var(--primitiv-border-default)" },
+    { "name": "--primitiv-context-menu-shadow", "defaultsTo": "var(--primitiv-elevation-overlay)" },
+    { "name": "--primitiv-context-menu-radius", "defaultsTo": "var(--primitiv-dropdown-md-panel-radius)" },
+    { "name": "--primitiv-context-menu-padding-block", "defaultsTo": "var(--primitiv-dropdown-md-panel-padding-block)" },
+    { "name": "--primitiv-context-menu-padding-inline", "defaultsTo": "var(--primitiv-space-space-4)" },
+    { "name": "--primitiv-context-menu-min-inline-size", "defaultsTo": "12rem" },
+    { "name": "--primitiv-context-menu-offset", "defaultsTo": "var(--primitiv-space-space-4)" },
+    { "name": "--primitiv-context-menu-item-height", "defaultsTo": "var(--primitiv-dropdown-md-item-height)" },
+    { "name": "--primitiv-context-menu-item-padding-inline", "defaultsTo": "var(--primitiv-dropdown-md-item-padding-inline)" },
+    { "name": "--primitiv-context-menu-item-gap", "defaultsTo": "var(--primitiv-dropdown-md-item-gap)" },
+    { "name": "--primitiv-context-menu-item-radius", "defaultsTo": "var(--primitiv-dropdown-md-item-radius)" },
+    { "name": "--primitiv-context-menu-item-font-size", "defaultsTo": "var(--primitiv-dropdown-md-item-font-size)" },
+    { "name": "--primitiv-context-menu-item-line-height", "defaultsTo": "var(--primitiv-dropdown-md-item-line-height)" },
+    { "name": "--primitiv-context-menu-item-icon-size", "defaultsTo": "var(--primitiv-dropdown-md-item-icon-size)" },
+    { "name": "--primitiv-context-menu-item-font-family", "defaultsTo": "var(--primitiv-body-sm-font-family)" },
+    { "name": "--primitiv-context-menu-item-font-weight", "defaultsTo": "var(--primitiv-body-sm-font-weight)" },
+    { "name": "--primitiv-context-menu-item-color", "defaultsTo": "var(--primitiv-content-primary)" },
+    { "name": "--primitiv-context-menu-item-bg", "defaultsTo": "var(--primitiv-color-transparent)" },
+    { "name": "--primitiv-context-menu-item-bg-highlighted", "defaultsTo": "var(--primitiv-action-secondary-default)" },
+    { "name": "--primitiv-context-menu-row-inset", "defaultsTo": "var(--primitiv-context-menu-item-padding-inline)" },
+    { "name": "--primitiv-context-menu-label-height", "defaultsTo": "var(--primitiv-dropdown-md-label-height)" },
+    { "name": "--primitiv-context-menu-label-padding-inline", "defaultsTo": "var(--primitiv-dropdown-md-label-padding-inline)" },
+    { "name": "--primitiv-context-menu-label-color", "defaultsTo": "var(--primitiv-content-muted)" },
+    { "name": "--primitiv-context-menu-label-font-family", "defaultsTo": "var(--primitiv-label-xs-font-family)" },
+    { "name": "--primitiv-context-menu-label-font-size", "defaultsTo": "var(--primitiv-label-xs-font-size)" },
+    { "name": "--primitiv-context-menu-label-font-weight", "defaultsTo": "var(--primitiv-label-xs-font-weight)" },
+    { "name": "--primitiv-context-menu-label-line-height", "defaultsTo": "var(--primitiv-label-xs-line-height)" },
+    { "name": "--primitiv-context-menu-label-letter-spacing", "defaultsTo": "var(--primitiv-letter-spacing-wide)" },
+    { "name": "--primitiv-context-menu-separator-spacing", "defaultsTo": "var(--primitiv-dropdown-md-separator-spacing)" },
+    { "name": "--primitiv-context-menu-separator-color", "defaultsTo": "var(--primitiv-border-subtle)" },
+    { "name": "--primitiv-context-menu-separator-thickness", "defaultsTo": "var(--primitiv-border-width-1)" }
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "$schema": "https://primitiv-ui.dev/schema/contract.json",
+  "name": "tag",
+  "version": "0.1.0",
+  "description": "A small label chip that tags content by category, topic, or status — typically shown in a group. Read-only, never interactive. Five tones (a plain neutral treatment plus four semantic tones), sized xs–xl; `data-density` scales each size further.",
+  "docs": "https://primitiv-ui.dev/docs/components/tag",
+  "root": {
+    "element": "span",
+    "class": "primitiv-tag"
+  },
+  "dataAttributes": [],
+  "modifiers": [
+    {
+      "name": "tone",
+      "default": "neutral",
+      "description": "Semantic colour. `neutral` is the plain grey default; the other four are reserved for status.",
+      "options": [
+        { "name": "neutral", "class": "primitiv-tag--neutral", "description": "Neutral (the default)." },
+        { "name": "success", "class": "primitiv-tag--success", "description": "Success." },
+        { "name": "warning", "class": "primitiv-tag--warning", "description": "Warning." },
+        { "name": "info", "class": "primitiv-tag--info", "description": "Info." },
+        { "name": "danger", "class": "primitiv-tag--danger", "description": "Danger." }
+      ]
+    },
+    {
+      "name": "size",
+      "default": "md",
+      "description": "Tag size; `data-density` scales each size further.",
+      "options": [
+        { "name": "xs", "class": "primitiv-tag--xs", "description": "Extra small." },
+        { "name": "sm", "class": "primitiv-tag--sm", "description": "Small." },
+        { "name": "md", "class": "primitiv-tag--md", "description": "Medium (the default)." },
+        { "name": "lg", "class": "primitiv-tag--lg", "description": "Large." },
+        { "name": "xl", "class": "primitiv-tag--xl", "description": "Extra large." }
+      ]
+    }
+  ],
+  "customProperties": [
+    { "name": "--primitiv-tag-background", "defaultsTo": "var(--primitiv-feedback-neutral-soft-background)" },
+    { "name": "--primitiv-tag-foreground", "defaultsTo": "var(--primitiv-feedback-neutral-soft-foreground)" },
+    { "name": "--primitiv-tag-height", "defaultsTo": "var(--primitiv-tag-md-height)" },
+    { "name": "--primitiv-tag-padding-inline", "defaultsTo": "var(--primitiv-tag-md-padding-inline)" },
+    { "name": "--primitiv-tag-font-family", "defaultsTo": "var(--primitiv-body-md-font-family)" },
+    { "name": "--primitiv-tag-font-size", "defaultsTo": "var(--primitiv-tag-md-font-size)" },
+    { "name": "--primitiv-tag-font-weight", "defaultsTo": "var(--primitiv-body-md-font-weight)" },
+    { "name": "--primitiv-tag-line-height", "defaultsTo": "var(--primitiv-tag-md-line-height)" },
+    { "name": "--primitiv-tag-radius", "defaultsTo": "var(--primitiv-radii-full)" }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "$schema": "https://primitiv-ui.dev/schema/contract.json",
+  "name": "chip",
+  "version": "0.1.0",
+  "description": "An interactive, removable label chip — filter bars, multi-select fields, inputs. The trailing remove button is core to the anatomy, not optional; an optional leading icon or avatar may precede the label. Sized xs–xl; `data-density` scales each size further.",
+  "docs": "https://primitiv-ui.dev/docs/components/chip",
+  "root": {
+    "element": "span",
+    "class": "primitiv-chip"
+  },
+  "dataAttributes": [],
+  "modifiers": [
+    {
+      "name": "size",
+      "default": "md",
+      "description": "Chip size; `data-density` scales each size further.",
+      "options": [
+        { "name": "xs", "class": "primitiv-chip--xs", "description": "Extra small." },
+        { "name": "sm", "class": "primitiv-chip--sm", "description": "Small." },
+        { "name": "md", "class": "primitiv-chip--md", "description": "Medium (the default)." },
+        { "name": "lg", "class": "primitiv-chip--lg", "description": "Large." },
+        { "name": "xl", "class": "primitiv-chip--xl", "description": "Extra large." }
+      ]
+    }
+  ],
+  "customProperties": [
+    { "name": "--primitiv-chip-background", "defaultsTo": "var(--primitiv-action-secondary-default)" },
+    { "name": "--primitiv-chip-border-color", "defaultsTo": "var(--primitiv-action-secondary-border-default)" },
+    { "name": "--primitiv-chip-foreground", "defaultsTo": "var(--primitiv-action-secondary-foreground-default)" },
+    { "name": "--primitiv-chip-height", "defaultsTo": "var(--primitiv-framed-control-md-height)" },
+    { "name": "--primitiv-chip-padding-inline", "defaultsTo": "var(--primitiv-framed-control-md-padding-inline)" },
+    { "name": "--primitiv-chip-gap", "defaultsTo": "var(--primitiv-framed-control-md-gap)" },
+    { "name": "--primitiv-chip-icon-size", "defaultsTo": "var(--primitiv-framed-control-md-icon-size)" },
+    { "name": "--primitiv-chip-border-width", "defaultsTo": "var(--primitiv-framed-control-border-width)" },
+    { "name": "--primitiv-chip-radius", "defaultsTo": "var(--primitiv-radii-full)" },
+    { "name": "--primitiv-chip-font-family", "defaultsTo": "var(--primitiv-label-md-font-family)" },
+    { "name": "--primitiv-chip-font-size", "defaultsTo": "var(--primitiv-label-md-font-size)" },
+    { "name": "--primitiv-chip-font-weight", "defaultsTo": "var(--primitiv-label-md-font-weight)" },
+    { "name": "--primitiv-chip-line-height", "defaultsTo": "var(--primitiv-label-md-line-height)" }
+  ]
+}

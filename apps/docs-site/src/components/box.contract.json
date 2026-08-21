@@ -1,0 +1,14 @@
+{
+  "$schema": "https://primitiv-ui.dev/schema/contract.json",
+  "name": "box",
+  "version": "0.1.0",
+  "description": "The escape hatch — a bare polymorphic element with no visual opinion. Exists so a consumer has something to attach a custom property or a one-off style to without reaching for a raw <div> (RFC 0022).",
+  "docs": "https://primitiv-ui.dev/docs/components/box",
+  "root": {
+    "element": "div",
+    "class": "primitiv-box"
+  },
+  "dataAttributes": [],
+  "modifiers": [],
+  "customProperties": []
+}

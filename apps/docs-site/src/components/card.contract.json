@@ -1,0 +1,85 @@
+{
+  "$schema": "https://primitiv-ui.dev/schema/contract.json",
+  "name": "card",
+  "version": "0.1.0",
+  "description": "A content container — an optional media region plus a padded content block holding a header, description and footer. `layout` picks the arrangement: `vertical` (media above), `horizontal` (media beside), or `cover` (media behind the content, under a legibility scrim). Sized xs–xl; `data-density` scales each size further.",
+  "docs": "https://primitiv-ui.dev/docs/components/card",
+  "root": {
+    "element": "div",
+    "class": "primitiv-card"
+  },
+  "dataAttributes": [],
+  "modifiers": [
+    {
+      "name": "layout",
+      "default": "vertical",
+      "description": "How the media region relates to the content.",
+      "options": [
+        { "name": "vertical", "class": "primitiv-card--vertical", "description": "Media stacked above the content (the default)." },
+        { "name": "horizontal", "class": "primitiv-card--horizontal", "description": "Media beside the content." },
+        { "name": "cover", "class": "primitiv-card--cover", "description": "Media fills the card, content sits over it beneath a scrim." }
+      ]
+    },
+    {
+      "name": "size",
+      "default": "md",
+      "description": "Card size; `data-density` scales each size further.",
+      "options": [
+        { "name": "xs", "class": "primitiv-card--xs", "description": "Extra small." },
+        { "name": "sm", "class": "primitiv-card--sm", "description": "Small." },
+        { "name": "md", "class": "primitiv-card--md", "description": "Medium (the default)." },
+        { "name": "lg", "class": "primitiv-card--lg", "description": "Large." },
+        { "name": "xl", "class": "primitiv-card--xl", "description": "Extra large." }
+      ]
+    },
+    {
+      "name": "elevation",
+      "default": "flat",
+      "description": "Resting shadow depth.",
+      "options": [
+        { "name": "flat", "class": "primitiv-card--flat", "description": "No shadow (the default)." },
+        { "name": "raised", "class": "primitiv-card--raised", "description": "Lifted off the page with the elevation/raised shadow." }
+      ]
+    },
+    {
+      "name": "scrim",
+      "default": "medium",
+      "description": "Strength of the legibility gradient. Only rendered by `layout=\"cover\"`.",
+      "options": [
+        { "name": "soft", "class": "primitiv-card--scrim-soft", "description": "Lightest — for calm or already-dark imagery." },
+        { "name": "medium", "class": "primitiv-card--scrim-medium", "description": "Default." },
+        { "name": "strong", "class": "primitiv-card--scrim-strong", "description": "Heaviest — for busy or high-key photographs." }
+      ]
+    }
+  ],
+  "customProperties": [
+    { "name": "--primitiv-card-background", "defaultsTo": "var(--primitiv-surface-default)" },
+    { "name": "--primitiv-card-border-color", "defaultsTo": "var(--primitiv-border-subtle)" },
+    { "name": "--primitiv-card-border-width", "defaultsTo": "var(--primitiv-framed-control-border-width)" },
+    { "name": "--primitiv-card-radius", "defaultsTo": "var(--primitiv-card-md-radius)" },
+    { "name": "--primitiv-card-padding", "defaultsTo": "var(--primitiv-card-md-padding)" },
+    { "name": "--primitiv-card-gap", "defaultsTo": "var(--primitiv-card-md-gap)" },
+    { "name": "--primitiv-card-shadow", "defaultsTo": "var(--primitiv-elevation-raised)" },
+    { "name": "--primitiv-card-media-radius-inset", "defaultsTo": "var(--primitiv-card-media-md-radius-inset)" },
+    { "name": "--primitiv-card-media-aspect-ratio", "defaultsTo": "16 / 9" },
+    { "name": "--primitiv-card-media-inline-size", "defaultsTo": "36%" },
+    { "name": "--primitiv-card-media-background", "defaultsTo": "var(--primitiv-surface-subtle)" },
+    { "name": "--primitiv-card-cover-aspect-ratio", "defaultsTo": "6 / 5" },
+    { "name": "--primitiv-card-cover-foreground-light", "defaultsTo": "var(--primitiv-color-absolute-white)" },
+    { "name": "--primitiv-card-cover-foreground-dark", "defaultsTo": "var(--primitiv-color-absolute-white)" },
+    { "name": "--primitiv-card-scrim-color", "defaultsTo": "var(--primitiv-color-absolute-black)" },
+    { "name": "--primitiv-card-scrim-opacity", "defaultsTo": "var(--primitiv-opacity-70)" },
+    { "name": "--primitiv-card-scrim-mid", "defaultsTo": "6rem" },
+    { "name": "--primitiv-card-scrim-end", "defaultsTo": "14rem" },
+    { "name": "--primitiv-card-title-color", "defaultsTo": "var(--primitiv-content-primary)" },
+    { "name": "--primitiv-card-title-font-family", "defaultsTo": "var(--primitiv-label-md-font-family)" },
+    { "name": "--primitiv-card-title-font-size", "defaultsTo": "var(--primitiv-label-md-font-size)" },
+    { "name": "--primitiv-card-title-font-weight", "defaultsTo": "var(--primitiv-label-md-font-weight)" },
+    { "name": "--primitiv-card-title-line-height", "defaultsTo": "var(--primitiv-label-md-line-height)" },
+    { "name": "--primitiv-card-description-color", "defaultsTo": "var(--primitiv-content-secondary)" },
+    { "name": "--primitiv-card-description-font-family", "defaultsTo": "var(--primitiv-body-md-font-family)" },
+    { "name": "--primitiv-card-description-font-size", "defaultsTo": "var(--primitiv-body-md-font-size)" },
+    { "name": "--primitiv-card-description-font-weight", "defaultsTo": "var(--primitiv-body-md-font-weight)" },
+    { "name": "--primitiv-card-description-line-height", "defaultsTo": "var(--primitiv-body-md-line-height)" }
+  ]
+}

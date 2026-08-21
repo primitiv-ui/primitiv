@@ -1,0 +1,109 @@
+/*
+ * AvatarGroup — Primitiv default theme (canonical CSS).
+ *
+ * Copied into the consumer repo by `primitiv add avatar-group`. It is yours to
+ * edit: the stable surface is the contract (the class names and the
+ * --primitiv-avatar-group-* custom properties), not these values (RFC 0006
+ * Principle 2).
+ *
+ * Requires the token layer for: avatar-group/{size}/*, surface/*.
+ *
+ * Two things worth knowing before editing:
+ *
+ * 1. The ring is surface-coloured so it reads as a cutout between overlapping
+ *    faces — which means it is wrong by construction on any non-surface
+ *    background. That is why --primitiv-avatar-group-ring-color is a knob:
+ *    on a coloured panel, re-point it at that panel's colour.
+ *
+ * 2. Stacking order is set inline by the wrapper (a descending z-index per
+ *    face, so the FIRST face paints on top), not here — it depends on the
+ *    child count, which CSS cannot see. The counter is lifted above all of
+ *    them by the rule below.
+ */
+
+@layer primitiv.reset, primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;
+
+@layer primitiv.base {
+  .primitiv-avatar-group {
+    --primitiv-avatar-group-overlap: var(--primitiv-avatar-group-md-overlap);
+    --primitiv-avatar-group-ring-width: var(--primitiv-avatar-group-md-ring-width);
+    --primitiv-avatar-group-ring-color: var(--primitiv-surface-default);
+
+    display: flex;
+    align-items: center;
+    /* Not `width: max-content` — the group must be able to shrink inside a
+       flex/grid parent without forcing its container wider. */
+    inline-size: fit-content;
+    /* Confines the children's z-index to this element. Without it the
+       counter's z-index competes in the PAGE's stacking context and paints
+       over sticky headers, modals and anything else it has no business being
+       above. The counter only ever needs to beat its own siblings. */
+    isolation: isolate;
+  }
+
+  .primitiv-avatar-group__item {
+    display: flex;
+    /* The ring is a box-shadow rather than a border so each Avatar keeps its
+       own border/default stroke and its geometry is unchanged. */
+    border-radius: var(--primitiv-radii-full);
+  }
+
+  .primitiv-avatar-group__item > * {
+    box-shadow: 0 0 0 var(--primitiv-avatar-group-ring-width) var(--primitiv-avatar-group-ring-color);
+  }
+
+  /* The DTCG token is a positive space step; the negative offset is applied
+     here. Figma has to store it negative instead — it cannot negate a bound
+     variable — so the two carry opposite signs on purpose. */
+  .primitiv-avatar-group__item + .primitiv-avatar-group__item {
+    margin-inline-start: calc(-1 * var(--primitiv-avatar-group-overlap));
+  }
+
+  /* Above every face regardless of count — the counter is exempt from the
+     descending z-index the wrapper assigns to the faces. */
+  .primitiv-avatar-group__item--counter {
+    z-index: 1000;
+  }
+
+  /* The counter is a *changing* value — "+3" becomes "+12" as the group grows —
+     and the shipped text face draws proportional figures (a 7px swing per four
+     digits at 100px), so without this the row's width moves with its contents.
+     Effective here because the text family carries `tnum`; see the Badge sheet
+     for the case where the family does not. */
+  .primitiv-avatar-group__counter {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@layer primitiv.variants {
+  .primitiv-avatar-group--xs {
+    --primitiv-avatar-group-overlap: var(--primitiv-avatar-group-xs-overlap);
+    --primitiv-avatar-group-ring-width: var(--primitiv-avatar-group-xs-ring-width);
+  }
+
+  .primitiv-avatar-group--sm {
+    --primitiv-avatar-group-overlap: var(--primitiv-avatar-group-sm-overlap);
+    --primitiv-avatar-group-ring-width: var(--primitiv-avatar-group-sm-ring-width);
+  }
+
+  .primitiv-avatar-group--md {
+    --primitiv-avatar-group-overlap: var(--primitiv-avatar-group-md-overlap);
+    --primitiv-avatar-group-ring-width: var(--primitiv-avatar-group-md-ring-width);
+  }
+
+  .primitiv-avatar-group--lg {
+    --primitiv-avatar-group-overlap: var(--primitiv-avatar-group-lg-overlap);
+    --primitiv-avatar-group-ring-width: var(--primitiv-avatar-group-lg-ring-width);
+  }
+
+  .primitiv-avatar-group--xl {
+    --primitiv-avatar-group-overlap: var(--primitiv-avatar-group-xl-overlap);
+    --primitiv-avatar-group-ring-width: var(--primitiv-avatar-group-xl-ring-width);
+  }
+
+  /* row-reverse mirrors the stack without touching DOM order, so reading
+     order and the descending z-index both still hold. */
+  .primitiv-avatar-group--rtl {
+    flex-direction: row-reverse;
+  }
+}

@@ -1,0 +1,104 @@
+{
+  "$schema": "https://primitiv-ui.dev/schema/contract.json",
+  "name": "tabs",
+  "version": "0.1.0",
+  "description": "An accessible tabbed interface — a tablist of triggers that switch between panels (WAI-ARIA Tabs pattern).",
+  "docs": "https://primitiv-ui.dev/docs/components/tabs",
+  "root": {
+    "element": "div",
+    "class": "primitiv-tabs",
+    "component": "Root"
+  },
+  "dataAttributes": [
+    { "name": "data-orientation", "value": "horizontal", "when": "horizontal", "source": "auto" },
+    { "name": "data-orientation", "value": "vertical", "when": "vertical", "source": "auto" }
+  ],
+  "modifiers": [
+    {
+      "name": "size",
+      "default": "md",
+      "description": "Control size for the whole widget; `data-density` scales each size further.",
+      "options": [
+        { "name": "xs", "class": "primitiv-tabs--xs", "description": "Extra small." },
+        { "name": "sm", "class": "primitiv-tabs--sm", "description": "Small." },
+        { "name": "md", "class": "primitiv-tabs--md", "description": "Medium (the default)." },
+        { "name": "lg", "class": "primitiv-tabs--lg", "description": "Large." },
+        { "name": "xl", "class": "primitiv-tabs--xl", "description": "Extra large." }
+      ]
+    }
+  ],
+  "subcomponents": [
+    {
+      "name": "list",
+      "component": "List",
+      "element": "div",
+      "class": "primitiv-tabs__list",
+      "modifiers": [
+        {
+          "name": "justify",
+          "default": "start",
+          "description": "Alignment of the triggers along the tablist. Direction-aware — `start`/`end` follow the reading direction, flipping under RTL via the inherited `DirectionProvider`.",
+          "options": [
+            { "name": "start", "class": "primitiv-tabs__list--start", "description": "Triggers grouped at the start edge (the default)." },
+            { "name": "center", "class": "primitiv-tabs__list--center", "description": "Triggers centred along the tablist." },
+            { "name": "end", "class": "primitiv-tabs__list--end", "description": "Triggers grouped at the end edge." }
+          ]
+        }
+      ],
+      "dataAttributes": [
+        { "name": "data-orientation", "value": "horizontal", "when": "horizontal", "source": "auto" },
+        { "name": "data-orientation", "value": "vertical", "when": "vertical", "source": "auto" }
+      ]
+    },
+    {
+      "name": "trigger",
+      "component": "Trigger",
+      "element": "button",
+      "class": "primitiv-tabs__trigger",
+      "wrapTextChildren": true,
+      "dataAttributes": [
+        { "name": "data-state", "value": "active", "when": "active", "source": "auto" },
+        { "name": "data-state", "value": "inactive", "when": "inactive", "source": "auto" },
+        { "name": "data-orientation", "value": "horizontal", "when": "horizontal", "source": "auto" },
+        { "name": "data-orientation", "value": "vertical", "when": "vertical", "source": "auto" },
+        { "name": "data-disabled", "value": "", "when": "disabled", "source": "auto" }
+      ]
+    },
+    {
+      "name": "content",
+      "component": "Content",
+      "element": "div",
+      "class": "primitiv-tabs__panel",
+      "dataAttributes": [
+        { "name": "data-state", "value": "active", "when": "active", "source": "auto" },
+        { "name": "data-state", "value": "inactive", "when": "inactive", "source": "auto" },
+        { "name": "data-orientation", "value": "horizontal", "when": "horizontal", "source": "auto" },
+        { "name": "data-orientation", "value": "vertical", "when": "vertical", "source": "auto" }
+      ]
+    }
+  ],
+  "customProperties": [
+    { "name": "--primitiv-tabs-trigger-height", "defaultsTo": "var(--primitiv-framed-control-md-height)" },
+    { "name": "--primitiv-tabs-trigger-padding-inline", "defaultsTo": "var(--primitiv-framed-control-md-padding-inline)" },
+    { "name": "--primitiv-tabs-trigger-gap", "defaultsTo": "var(--primitiv-framed-control-md-gap)" },
+    { "name": "--primitiv-tabs-trigger-icon-size", "defaultsTo": "var(--primitiv-framed-control-md-icon-size)" },
+    { "name": "--primitiv-tabs-trigger-fg", "defaultsTo": "var(--primitiv-content-secondary)" },
+    { "name": "--primitiv-tabs-trigger-fg-active", "defaultsTo": "var(--primitiv-content-primary)" },
+    { "name": "--primitiv-tabs-trigger-fg-hover", "defaultsTo": "var(--primitiv-content-primary)" },
+    { "name": "--primitiv-tabs-baseline-color", "defaultsTo": "var(--primitiv-border-subtle)" },
+    { "name": "--primitiv-tabs-indicator-height", "defaultsTo": "var(--primitiv-tabs-indicator-thickness)" },
+    { "name": "--primitiv-tabs-indicator-color", "defaultsTo": "transparent" },
+    { "name": "--primitiv-tabs-indicator-color-active", "defaultsTo": "var(--primitiv-action-primary-default)" },
+    { "name": "--primitiv-tabs-trigger-font-family", "defaultsTo": "var(--primitiv-label-md-font-family)" },
+    { "name": "--primitiv-tabs-trigger-font-size", "defaultsTo": "var(--primitiv-label-md-font-size)" },
+    { "name": "--primitiv-tabs-trigger-font-weight", "defaultsTo": "var(--primitiv-label-md-font-weight)" },
+    { "name": "--primitiv-tabs-trigger-line-height", "defaultsTo": "var(--primitiv-label-md-line-height)" },
+    { "name": "--primitiv-tabs-panel-padding-block", "defaultsTo": "var(--primitiv-panel-padding-block)" },
+    { "name": "--primitiv-tabs-panel-padding-inline", "defaultsTo": "var(--primitiv-panel-padding-inline)" },
+    { "name": "--primitiv-tabs-panel-fg", "defaultsTo": "var(--primitiv-content-primary)" },
+    { "name": "--primitiv-tabs-panel-font-family", "defaultsTo": "var(--primitiv-body-md-font-family)" },
+    { "name": "--primitiv-tabs-panel-font-size", "defaultsTo": "var(--primitiv-body-md-font-size)" },
+    { "name": "--primitiv-tabs-panel-font-weight", "defaultsTo": "var(--primitiv-body-md-font-weight)" },
+    { "name": "--primitiv-tabs-panel-line-height", "defaultsTo": "var(--primitiv-body-md-line-height)" }
+  ]
+}

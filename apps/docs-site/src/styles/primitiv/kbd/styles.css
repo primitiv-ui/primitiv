@@ -1,0 +1,104 @@
+/*
+ * Kbd — Primitiv default theme (canonical CSS).
+ *
+ * Copied into the consumer repo by `primitiv add kbd`. It is yours to edit:
+ * the stable surface is the contract (the .primitiv-kbd class, the --xs…--xl
+ * modifiers, and the --primitiv-kbd-* custom properties), not these values
+ * (RFC 0006 Principle 2 — names are stable, values are not).
+ *
+ * The raised-key sibling of Inline Code (RFC 0012 D17): same mono face and box
+ * geometry, but `surface/raised` + `border/default` instead of Inline Code's
+ * `surface/subtle` + `border/subtle`, so it reads as a physical key cap rather
+ * than a tinted code span.
+ *
+ * The type scale is deliberately *split* across two token families, matching
+ * the Figma build's own bindings exactly: `font-size` rides `body/{size}`
+ * while `line-height` rides `code/{size}`. This is the one place `kbd`
+ * diverges from `inline-code`, which takes both from `code/{size}` — a code
+ * *span* is set a notch below the body text it sits inside, but a key cap
+ * names a physical key and stays at full body size so a shortcut doesn't read
+ * as shrunken; the tighter `code/*` line-height keeps the cap from inflating
+ * the line box of the prose around it. Structure follows RFC 0008:
+ * per-component API tokens + the resting look live in primitiv.base, size
+ * modifiers in primitiv.variants.
+ *
+ * Requires the token layer (`primitiv tokens`) for the --primitiv-font-family-mono,
+ * --primitiv-code-*, --primitiv-content-*, --primitiv-surface-*,
+ * --primitiv-border-*, --primitiv-radii-* custom properties it resolves.
+ */
+
+/* Declare the sublayer order up front so this sheet is safe to load ahead of
+ * the token layer: CSS fixes layer precedence by first appearance, so without
+ * this a component stylesheet seen first would register primitiv.base before
+ * primitiv.reset and let the reset win (RFC 0008 §7). */
+@layer primitiv.reset, primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;
+
+@layer primitiv.base {
+  .primitiv-kbd {
+    /* Per-component API — the themable knobs, defaulting to the md size. The
+       variants layer below re-points only the type scale; consumers can
+       override any one without touching the rule. */
+    --primitiv-kbd-font-family: var(--primitiv-font-family-mono);
+    --primitiv-kbd-font-size: var(--primitiv-body-md-font-size);
+    --primitiv-kbd-font-weight: var(--primitiv-body-md-font-weight);
+    --primitiv-kbd-line-height: var(--primitiv-code-md-line-height);
+    --primitiv-kbd-color: var(--primitiv-content-primary);
+    --primitiv-kbd-background: var(--primitiv-surface-raised);
+    --primitiv-kbd-border-color: var(--primitiv-border-default);
+    --primitiv-kbd-border-width: var(--primitiv-border-width-1);
+    --primitiv-kbd-radius: var(--primitiv-radii-4);
+    --primitiv-kbd-padding-inline: var(--primitiv-code-inline-padding-inline);
+    --primitiv-kbd-padding-block: var(--primitiv-code-inline-padding-block);
+
+    font-family: var(--primitiv-kbd-font-family);
+    font-size: var(--primitiv-kbd-font-size);
+    /* Declared, not inherited. Figma binds this node to body.<size>.font-style
+       (Regular) at every size, but a `kbd` inherits weight from its context, so
+       a key cap inside a <strong> or a heading rendered **bold** — measured at
+       700 in a bold host before this line. `primitiv.reset` dresses a bare `kbd`
+       fully (surface, border, radius, padding, mono face) yet also leaves weight
+       to inheritance, so the bare element has the same gap. */
+    font-weight: var(--primitiv-kbd-font-weight);
+    line-height: var(--primitiv-kbd-line-height);
+    color: var(--primitiv-kbd-color);
+    background-color: var(--primitiv-kbd-background);
+    border: var(--primitiv-kbd-border-width) solid var(--primitiv-kbd-border-color);
+    border-radius: var(--primitiv-kbd-radius);
+    padding-inline: var(--primitiv-kbd-padding-inline);
+    padding-block: var(--primitiv-kbd-padding-block);
+  }
+}
+
+@layer primitiv.variants {
+  /* Size — re-points the type scale to the chosen slot. Density stays ambient
+     via [data-density] on the token values themselves (RFC 0009): the
+     font-size, line-height and chip padding all densify without a size
+     class. The key-cap border and radius are size-invariant, so only
+     font-size + line-height move here — and they move on *different* token
+     families (body/* and code/* respectively), per the file header. */
+  .primitiv-kbd--xs {
+    --primitiv-kbd-font-size: var(--primitiv-body-xs-font-size);
+    --primitiv-kbd-font-weight: var(--primitiv-body-xs-font-weight);
+    --primitiv-kbd-line-height: var(--primitiv-code-xs-line-height);
+  }
+  .primitiv-kbd--sm {
+    --primitiv-kbd-font-size: var(--primitiv-body-sm-font-size);
+    --primitiv-kbd-font-weight: var(--primitiv-body-sm-font-weight);
+    --primitiv-kbd-line-height: var(--primitiv-code-sm-line-height);
+  }
+  .primitiv-kbd--md {
+    --primitiv-kbd-font-size: var(--primitiv-body-md-font-size);
+    --primitiv-kbd-font-weight: var(--primitiv-body-md-font-weight);
+    --primitiv-kbd-line-height: var(--primitiv-code-md-line-height);
+  }
+  .primitiv-kbd--lg {
+    --primitiv-kbd-font-size: var(--primitiv-body-lg-font-size);
+    --primitiv-kbd-font-weight: var(--primitiv-body-lg-font-weight);
+    --primitiv-kbd-line-height: var(--primitiv-code-lg-line-height);
+  }
+  .primitiv-kbd--xl {
+    --primitiv-kbd-font-size: var(--primitiv-body-xl-font-size);
+    --primitiv-kbd-font-weight: var(--primitiv-body-xl-font-weight);
+    --primitiv-kbd-line-height: var(--primitiv-code-xl-line-height);
+  }
+}

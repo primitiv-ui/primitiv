@@ -1,0 +1,38 @@
+/*
+ * Light/dark switch in the top bar.
+ */
+
+.docs-theme-toggle {
+  --docs-theme-toggle-size: 2rem;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: var(--docs-theme-toggle-size);
+  block-size: var(--docs-theme-toggle-size);
+  padding: var(--primitiv-space-space-0);
+  border: none;
+  border-radius: var(--primitiv-radii-8);
+  background-color: transparent;
+  color: var(--primitiv-content-secondary);
+  cursor: pointer;
+  transition:
+    background-color var(--primitiv-motion-duration-control)
+      var(--primitiv-motion-easing-default),
+    color var(--primitiv-motion-duration-control)
+      var(--primitiv-motion-easing-default);
+}
+
+.docs-theme-toggle:hover {
+  background-color: var(--primitiv-action-ghost-hover);
+  color: var(--primitiv-content-primary);
+}
+
+.docs-theme-toggle:active {
+  background-color: var(--primitiv-action-ghost-active);
+}
+
+.docs-theme-toggle:focus-visible {
+  outline: var(--primitiv-border-width-2) solid var(--primitiv-focus-ring);
+  outline-offset: var(--primitiv-space-space-2);
+}

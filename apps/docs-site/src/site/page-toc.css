@@ -1,0 +1,92 @@
+/*
+ * On-this-page TOC.
+ *
+ * Visual language from the Figma redesign (2026-08-20): the list is QUIET by
+ * default — muted, regular weight — and the active entry is the only thing at
+ * full contrast, located by a bright segment of a continuous rail. The previous
+ * design made every entry `content/primary` semibold and distinguished the
+ * active one by hue alone, so nothing receded and the whole list shouted.
+ *
+ * The list itself is the registry `List` (see PageToc.tsx). Only the rail, the
+ * row treatment and the two knob overrides live here — everything about item
+ * rhythm, indent and marker behaviour is the component's.
+ *
+ * Deliberately NOT built on the headless `Tree`, even though the Figma drawing
+ * reuses `Tree / Item` for its geometry: `Tree` emits role="tree"/"treeitem",
+ * which tells a screen reader to expect tree navigation. This is a list of
+ * in-page anchors, so it is `nav > ol > li > a`, and the active anchor carries
+ * `aria-current="location"` — the non-visual equivalent of the blue bar.
+ */
+
+.docs-toc-root {
+  /* Row geometry, matching the Figma build (28px row, 2px rail). */
+  --docs-toc-row-height: 1.75rem;
+  --docs-toc-rail-width: 0.125rem;
+}
+
+.docs-toc-heading {
+  margin-block: 0 var(--primitiv-stack-gap-sm);
+  /* The overline family is unsized (no -sm/-md/-lg) and carries no
+     letter-spacing token — the face handles caps tracking itself. */
+  font-family: var(--primitiv-overline-font-family);
+  font-size: var(--primitiv-overline-font-size);
+  font-weight: var(--primitiv-overline-font-weight);
+  line-height: var(--primitiv-overline-line-height);
+  text-transform: uppercase;
+  color: var(--primitiv-content-muted);
+}
+
+/*
+ * The two `List` knobs re-pointed to the design's values, rather than accepting
+ * the prose defaults: the Figma build uses a 4px row gap and a 20px nested
+ * indent, where List defaults to 8px and 28px. Both inherit to the nested list.
+ *
+ * The rail is a border on the list itself rather than a separate element, so it
+ * always spans exactly the rendered rows with nothing to keep in sync.
+ */
+.docs-toc-list {
+  --primitiv-list-item-gap: var(--primitiv-space-space-4);
+  --primitiv-list-indent: var(--primitiv-space-space-20);
+
+  border-inline-start: var(--docs-toc-rail-width) solid
+    var(--primitiv-border-subtle);
+}
+
+.docs-toc-link {
+  display: flex;
+  align-items: center;
+  min-block-size: var(--docs-toc-row-height);
+  /* Pulls the link's own border over the list's rail so the active marker reads
+     as a segment OF the rail rather than a second line beside it. */
+  margin-inline-start: calc(-1 * var(--docs-toc-rail-width));
+  border-inline-start: var(--docs-toc-rail-width) solid transparent;
+  padding-inline-start: var(--primitiv-space-space-16);
+  font-family: var(--primitiv-body-sm-font-family);
+  font-size: var(--primitiv-body-sm-font-size);
+  line-height: var(--primitiv-body-sm-line-height);
+  color: var(--primitiv-content-muted);
+  text-decoration: none;
+  transition:
+    color var(--primitiv-motion-duration-control)
+      var(--primitiv-motion-easing-default),
+    border-color var(--primitiv-motion-duration-control)
+      var(--primitiv-motion-easing-default);
+}
+
+.docs-toc-link:hover {
+  color: var(--primitiv-content-primary);
+}
+
+.docs-toc-link:focus-visible {
+  outline: var(--primitiv-border-width-2) solid var(--primitiv-focus-ring);
+  outline-offset: var(--primitiv-space-space-2);
+  border-radius: var(--primitiv-radii-4);
+}
+
+/* Keyed off aria-current, not a class — the accessible state and the visual
+   state then cannot drift apart. */
+.docs-toc-link[aria-current] {
+  color: var(--primitiv-content-primary);
+  font-weight: var(--primitiv-font-weight-medium);
+  border-inline-start-color: var(--primitiv-action-primary-default);
+}

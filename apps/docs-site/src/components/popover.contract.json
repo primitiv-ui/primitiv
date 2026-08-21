@@ -1,0 +1,90 @@
+{
+  "$schema": "https://primitiv-ui.dev/schema/contract.json",
+  "name": "popover",
+  "version": "0.1.0",
+  "description": "A non-modal floating panel anchored to a trigger, built on the native HTML Popover API — a borderless, shadow-defined surface with a pointer arrow, positioned with CSS anchor positioning across all twelve placements.",
+  "docs": "https://primitiv-ui.dev/docs/components/popover",
+  "root": {
+    "element": "div",
+    "class": "primitiv-popover",
+    "component": "Content"
+  },
+  "dataAttributes": [
+    { "name": "data-state", "value": "open", "when": "open", "source": "auto" },
+    { "name": "data-state", "value": "closed", "when": "closed", "source": "auto" }
+  ],
+  "modifiers": [
+    {
+      "name": "size",
+      "default": "md",
+      "description": "Panel size; `data-density` scales the padding within each size.",
+      "options": [
+        { "name": "sm", "class": "primitiv-popover--sm", "description": "Small." },
+        { "name": "md", "class": "primitiv-popover--md", "description": "Medium (the default)." },
+        { "name": "lg", "class": "primitiv-popover--lg", "description": "Large." },
+        { "name": "xl", "class": "primitiv-popover--xl", "description": "Extra large." }
+      ]
+    },
+    {
+      "name": "placement",
+      "default": "bottom",
+      "description": "Which side of the anchor the panel sits on, and how it aligns — sets the CSS `position-area` and points the arrow at the anchor. Requires the consumer to wire `anchor-name` (on the trigger or Popover.Anchor) + `position-anchor` (on Content).",
+      "options": [
+        { "name": "top", "class": "primitiv-popover--top", "description": "Above, centered." },
+        { "name": "top-start", "class": "primitiv-popover--top-start", "description": "Above, start-aligned." },
+        { "name": "top-end", "class": "primitiv-popover--top-end", "description": "Above, end-aligned." },
+        { "name": "right", "class": "primitiv-popover--right", "description": "After, centered." },
+        { "name": "right-start", "class": "primitiv-popover--right-start", "description": "After, start-aligned." },
+        { "name": "right-end", "class": "primitiv-popover--right-end", "description": "After, end-aligned." },
+        { "name": "bottom", "class": "primitiv-popover--bottom", "description": "Below, centered (the default)." },
+        { "name": "bottom-start", "class": "primitiv-popover--bottom-start", "description": "Below, start-aligned." },
+        { "name": "bottom-end", "class": "primitiv-popover--bottom-end", "description": "Below, end-aligned." },
+        { "name": "left", "class": "primitiv-popover--left", "description": "Before, centered." },
+        { "name": "left-start", "class": "primitiv-popover--left-start", "description": "Before, start-aligned." },
+        { "name": "left-end", "class": "primitiv-popover--left-end", "description": "Before, end-aligned." }
+      ]
+    }
+  ],
+  "subcomponents": [
+    {
+      "name": "title",
+      "component": "Title",
+      "element": "h2",
+      "class": "primitiv-popover__title"
+    },
+    {
+      "name": "description",
+      "component": "Description",
+      "element": "p",
+      "class": "primitiv-popover__description"
+    },
+    {
+      "name": "close",
+      "component": "Close",
+      "element": "button",
+      "class": "primitiv-popover__close"
+    }
+  ],
+  "customProperties": [
+    { "name": "--primitiv-popover-surface", "defaultsTo": "var(--primitiv-surface-floating)" },
+    { "name": "--primitiv-popover-fg", "defaultsTo": "var(--primitiv-content-primary)" },
+    { "name": "--primitiv-popover-shadow", "defaultsTo": "var(--primitiv-elevation-overlay)" },
+    { "name": "--primitiv-popover-radius", "defaultsTo": "var(--primitiv-popover-md-radius)" },
+    { "name": "--primitiv-popover-padding-inline", "defaultsTo": "var(--primitiv-popover-md-padding-inline)" },
+    { "name": "--primitiv-popover-padding-block", "defaultsTo": "var(--primitiv-popover-md-padding-block)" },
+    { "name": "--primitiv-popover-gap", "defaultsTo": "var(--primitiv-popover-md-gap)" },
+    { "name": "--primitiv-popover-arrow-size", "defaultsTo": "var(--primitiv-popover-md-arrow-size)" },
+    { "name": "--primitiv-popover-offset", "defaultsTo": "0.5rem" },
+    { "name": "--primitiv-popover-max-inline-size", "defaultsTo": "20rem" },
+    { "name": "--primitiv-popover-title-color", "defaultsTo": "var(--primitiv-content-primary)" },
+    { "name": "--primitiv-popover-title-font-family", "defaultsTo": "var(--primitiv-label-md-font-family)" },
+    { "name": "--primitiv-popover-title-font-size", "defaultsTo": "var(--primitiv-label-md-font-size)" },
+    { "name": "--primitiv-popover-title-font-weight", "defaultsTo": "var(--primitiv-label-md-font-weight)" },
+    { "name": "--primitiv-popover-title-line-height", "defaultsTo": "var(--primitiv-label-md-line-height)" },
+    { "name": "--primitiv-popover-description-color", "defaultsTo": "var(--primitiv-content-secondary)" },
+    { "name": "--primitiv-popover-description-font-family", "defaultsTo": "var(--primitiv-body-sm-font-family)" },
+    { "name": "--primitiv-popover-description-font-size", "defaultsTo": "var(--primitiv-body-sm-font-size)" },
+    { "name": "--primitiv-popover-description-font-weight", "defaultsTo": "var(--primitiv-body-sm-font-weight)" },
+    { "name": "--primitiv-popover-description-line-height", "defaultsTo": "var(--primitiv-body-sm-line-height)" }
+  ]
+}

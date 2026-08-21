@@ -1,0 +1,101 @@
+{
+  "$schema": "https://primitiv-ui.dev/schema/contract.json",
+  "name": "modal",
+  "version": "0.1.0",
+  "description": "An accessible modal dialog built on the native `<dialog>` element — a fixed-width surface with an optional dimmed backdrop (WAI-ARIA Modal Dialog pattern).",
+  "docs": "https://primitiv-ui.dev/docs/components/modal",
+  "root": {
+    "element": "dialog",
+    "class": "primitiv-modal",
+    "component": "Content"
+  },
+  "dataAttributes": [
+    { "name": "data-state", "value": "open", "when": "open", "source": "auto" },
+    { "name": "data-state", "value": "closed", "when": "closed", "source": "auto" }
+  ],
+  "modifiers": [
+    {
+      "name": "size",
+      "default": "md",
+      "description": "Dialog width; `data-density` scales the padding within each size.",
+      "options": [
+        { "name": "sm", "class": "primitiv-modal--sm", "description": "Small (360px)." },
+        { "name": "md", "class": "primitiv-modal--md", "description": "Medium (520px, the default)." },
+        { "name": "lg", "class": "primitiv-modal--lg", "description": "Large (640px)." },
+        { "name": "xl", "class": "primitiv-modal--xl", "description": "Extra large (800px)." }
+      ]
+    }
+  ],
+  "subcomponents": [
+    {
+      "name": "overlay",
+      "component": "Overlay",
+      "element": "div",
+      "class": "primitiv-modal__overlay",
+      "dataAttributes": [
+        { "name": "data-state", "value": "open", "when": "open", "source": "auto" },
+        { "name": "data-state", "value": "closed", "when": "closed", "source": "auto" }
+      ]
+    },
+    {
+      "name": "header",
+      "component": "Header",
+      "element": "div",
+      "class": "primitiv-modal__header"
+    },
+    {
+      "name": "body",
+      "component": "Body",
+      "element": "div",
+      "class": "primitiv-modal__body"
+    },
+    {
+      "name": "footer",
+      "component": "Footer",
+      "element": "div",
+      "class": "primitiv-modal__footer"
+    },
+    {
+      "name": "title",
+      "component": "Title",
+      "element": "h2",
+      "class": "primitiv-modal__title"
+    },
+    {
+      "name": "description",
+      "component": "Description",
+      "element": "p",
+      "class": "primitiv-modal__description"
+    },
+    {
+      "name": "close",
+      "component": "Close",
+      "element": "button",
+      "class": "primitiv-modal__close"
+    }
+  ],
+  "customProperties": [
+    { "name": "--primitiv-modal-surface", "defaultsTo": "var(--primitiv-surface-default)" },
+    { "name": "--primitiv-modal-fg", "defaultsTo": "var(--primitiv-content-primary)" },
+    { "name": "--primitiv-modal-shadow", "defaultsTo": "var(--primitiv-elevation-modal)" },
+    { "name": "--primitiv-modal-scrim", "defaultsTo": "var(--primitiv-scrim)" },
+    { "name": "--primitiv-modal-radius", "defaultsTo": "var(--primitiv-modal-md-radius)" },
+    { "name": "--primitiv-modal-padding-inline", "defaultsTo": "var(--primitiv-modal-md-padding-inline)" },
+    { "name": "--primitiv-modal-padding-block", "defaultsTo": "var(--primitiv-modal-md-padding-block)" },
+    { "name": "--primitiv-modal-gap", "defaultsTo": "var(--primitiv-modal-md-gap)" },
+    { "name": "--primitiv-modal-width", "defaultsTo": "32.5rem" },
+    { "name": "--primitiv-modal-border-width", "defaultsTo": "var(--primitiv-border-width-1)" },
+    { "name": "--primitiv-modal-border-color", "defaultsTo": "var(--primitiv-border-default)" },
+    { "name": "--primitiv-modal-divider-color", "defaultsTo": "var(--primitiv-border-subtle)" },
+    { "name": "--primitiv-modal-title-color", "defaultsTo": "var(--primitiv-content-primary)" },
+    { "name": "--primitiv-modal-title-font-family", "defaultsTo": "var(--primitiv-label-md-font-family)" },
+    { "name": "--primitiv-modal-title-font-size", "defaultsTo": "var(--primitiv-label-md-font-size)" },
+    { "name": "--primitiv-modal-title-font-weight", "defaultsTo": "var(--primitiv-label-md-font-weight)" },
+    { "name": "--primitiv-modal-title-line-height", "defaultsTo": "var(--primitiv-label-md-line-height)" },
+    { "name": "--primitiv-modal-description-color", "defaultsTo": "var(--primitiv-content-secondary)" },
+    { "name": "--primitiv-modal-description-font-family", "defaultsTo": "var(--primitiv-body-sm-font-family)" },
+    { "name": "--primitiv-modal-description-font-size", "defaultsTo": "var(--primitiv-body-sm-font-size)" },
+    { "name": "--primitiv-modal-description-font-weight", "defaultsTo": "var(--primitiv-body-sm-font-weight)" },
+    { "name": "--primitiv-modal-description-line-height", "defaultsTo": "var(--primitiv-body-sm-line-height)" }
+  ]
+}

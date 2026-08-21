@@ -1,0 +1,53 @@
+/*
+ * Document-level typography.
+ *
+ * The design system's base layer deliberately does NOT set a font on `html` or
+ * `body` — it styles `p`, `h1`–`h6`, `kbd`, `code` and friends individually, so
+ * a library consumer keeps their own document typography. Correct for a library,
+ * but it leaves every `div`, `span`, `button` and `li` on the UA default until
+ * the *app* sets one. That is this file's only job.
+ *
+ * Structural resets (box-sizing, margin zeroing, `font: inherit` on controls)
+ * live in reset.css, which is in the lower `primitiv.reset` layer.
+ *
+ * `body` is a bare element selector, breaking this app's docs-prefix rule. That
+ * rule exists to stop a selector LEAKING across pages; a document-root rule is
+ * global on purpose, so it is allowlisted in scripts/check-tokens.mjs.
+ *
+ * Placed in `primitiv.base` rather than unlayered: unlayered CSS beats every
+ * layer, so a stray inherited declaration here could out-rank a component's own
+ * variant or state rule.
+ */
+
+@layer primitiv.base {
+  /*
+   * Cancel the base layer's PROSE list rhythm on the app's UI lists.
+   *
+   * `primitiv-base.css` sets `li + li { margin-block-start: list-item-gap }`
+   * (8px at comfortable) for reading-list rhythm — but via a bare selector, so
+   * it lands on every list in the app, navigation included. Each list below
+   * spaces itself with flex `gap`, so the inherited margin was stacking on top
+   * of it: measured 8px of dead space above the *second* item in the header nav,
+   * and the same in the sidebar, footer, TOC and doc map.
+   *
+   * Cannot be fixed in reset.css — that is a LOWER layer than primitiv.base, so
+   * the base rule would still win. Here the `.docs-*` class also out-specifies
+   * `li + li`.
+   *
+   * Deliberately a list of names rather than something broad: `.docs-list` (the
+   * accessibility notes on component pages) is genuine prose and SHOULD keep the
+   * rhythm. A new UI list needs adding here.
+   */
+  .docs-header-nav-list > li,
+  .docs-index-grid > li {
+    margin-block: 0;
+  }
+
+  body {
+    font-family: var(--primitiv-body-md-font-family);
+    font-size: var(--primitiv-body-md-font-size);
+    line-height: var(--primitiv-body-md-line-height);
+    color: var(--primitiv-content-primary);
+    background-color: var(--primitiv-surface-default);
+  }
+}

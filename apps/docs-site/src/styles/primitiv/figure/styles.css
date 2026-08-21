@@ -1,0 +1,210 @@
+/*
+ * Figure — Primitiv default theme (canonical CSS).
+ *
+ * Copied into the consumer repo by `primitiv add figure`. It is yours to
+ * edit: the stable surface is the contract (the .primitiv-figure class, the
+ * --below/--above/--overlay modifiers, the __media/__caption parts, and the
+ * --primitiv-figure-* custom properties), not these values (RFC 0006
+ * Principle 2 — names are stable, values are not).
+ *
+ * The model (RFC 0015): below/above are Flexbox ordering (`column` vs
+ * `column-reverse`); overlay pins the caption over the media's bottom edge
+ * via `position: absolute` on the caption within a `position: relative`
+ * figure, rather than nesting the caption inside the media's DOM the way the
+ * Figma build does (there, the caption must be a physical child of the media
+ * frame to clip to its rounded corners — on the web, matching the caption's
+ * own bottom corner radii to the media's radius achieves the same seamless
+ * look without requiring the two parts to nest, so `Figure.Media` and
+ * `Figure.Caption` stay DOM siblings in every position). The scrim is an
+ * opaque background on the caption itself, matching the Figma build — see the
+ * note on the overlay rule for why the earlier 90% pseudo-element went.
+ *
+ * Requires the token layer (`primitiv tokens`) for the --primitiv-figure-*,
+ * --primitiv-radii-*, --primitiv-content-*, --primitiv-surface-*,
+ * --primitiv-body-* and --primitiv-space-space-0
+ * custom properties it resolves.
+ */
+
+/* Declare the sublayer order up front so this sheet is safe to load ahead of
+ * the token layer: CSS fixes layer precedence by first appearance, so without
+ * this a component stylesheet seen first would register primitiv.base before
+ * primitiv.reset and let the reset win (RFC 0008 §7). */
+@layer primitiv.reset, primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;
+
+@layer primitiv.base {
+  .primitiv-figure {
+    /* Per-component API — the themable knobs. figure-caption-gap is the
+       shared, density-scaled Context token (RFC 0015 §5.1) — consumed
+       directly rather than re-declared under a component-owned name, the
+       same "no renaming" treatment `prose` gives `flow/*`. */
+    --primitiv-figure-media-radius: var(--primitiv-radii-8);
+    --primitiv-figure-caption-color: var(--primitiv-content-muted);
+    --primitiv-figure-overlay-scrim: var(--primitiv-surface-inverse);
+    --primitiv-figure-overlay-caption-color: var(--primitiv-content-inverse);
+    --primitiv-figure-font-family: var(--primitiv-body-md-font-family);
+    --primitiv-figure-font-size: var(--primitiv-body-md-font-size);
+    --primitiv-figure-font-weight: var(--primitiv-body-md-font-weight);
+    --primitiv-figure-line-height: var(--primitiv-body-md-line-height);
+
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--primitiv-figure-caption-gap);
+  }
+
+  .primitiv-figure__media {
+    border-radius: var(--primitiv-figure-media-radius);
+    overflow: hidden;
+  }
+
+  /* Hairline outline so a pale-edged image still reads as a shape against a light
+     surface — the finding was photo Avatars losing their top-left edge while the
+     filled initials variants read crisply. Pure black / pure white at 10% and
+     deliberately NOT a border token: this system's neutrals are hue-tinted
+     (neutral-300 is #a8aeb6), and a tinted hairline picks up the surface beneath
+     it and reads as dirt on the image edge. Negative outline-offset puts it just
+     inside the frame so it adds nothing to the box, and outline follows
+     border-radius, so it curves with the clip. It sits on the clipping frame
+     rather than the <img>: the frame owns the radius, and overflow: hidden would
+     crop a square outline off an inner element. */
+  .primitiv-figure__media:has(:is(img, picture, video)) {
+    outline: var(--primitiv-border-width-1) solid #0000001a;
+    outline-offset: calc(-1 * var(--primitiv-border-width-1));
+  }
+
+  [data-theme="dark"] .primitiv-figure__media:has(:is(img, picture, video)) {
+    outline-color: #ffffff1a;
+  }
+
+  /* The caption restates `font-weight` alongside the rest of its type, rather
+     than letting it inherit. `primitiv.reset` dresses a bare `figcaption` at
+     `body/sm` — weight included — and a declaration on the element beats an
+     inherited one whatever the layer, so the weight was pinned to `body/sm`'s
+     while family/size/line-height tracked `size`. Every step's
+     `body.<size>.font-weight` currently resolves to `regular`, so nothing
+     rendered wrong; it was a latent
+     pin that would have surfaced the moment one step's weight diverged. Figma
+     binds this node to `body/{size}/font-style` (Regular), i.e. the same size
+     axis as the rest. `margin: 0` below is load-bearing for the same reason —
+     the reset also gives `figcaption` a `margin-block-start` of
+     `figure/caption-gap`, which would otherwise add to this figure's flex `gap`
+     and double the media-to-caption distance. */
+  .primitiv-figure__caption {
+    margin: 0;
+    font-style: normal;
+    color: var(--primitiv-figure-caption-color);
+    font-family: var(--primitiv-figure-font-family);
+    font-size: var(--primitiv-figure-font-size);
+    font-weight: var(--primitiv-figure-font-weight);
+    line-height: var(--primitiv-figure-line-height);
+  }
+}
+
+@layer primitiv.variants {
+  .primitiv-figure--below {
+    flex-direction: column;
+  }
+  .primitiv-figure--above {
+    flex-direction: column-reverse;
+  }
+
+  /* Overlay — media and caption share one grid cell, so the caption aligns to
+     the **media's** bottom edge rather than the figure's.
+     This has to be a grid rather than `position: absolute` + `inset-block-end`,
+     because those pin to the nearest positioned ancestor — the figure — and a
+     figure is very often taller than its media: put three figures in a row with
+     `align-items: stretch` (the Flexbox default) and the overlay one is stretched
+     to match the tallest sibling. Measured on the deployed build: figure 210px,
+     media 174px, so only 12px of a 48px caption landed on the artwork and 36px
+     hung below it onto the page — the "black strip" under the image. A single
+     grid cell sized to the media (`grid-template-rows: max-content`) leaves any
+     stretched surplus below the cell, where it belongs, and the caption stays on
+     the artwork. Matches the Figma build, where the caption is a child of the
+     Media frame pinned `vertical: MAX`. */
+  .primitiv-figure--overlay {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: max-content;
+    align-content: start;
+    gap: var(--primitiv-space-space-0);
+  }
+  .primitiv-figure--overlay > .primitiv-figure__media {
+    grid-area: 1 / 1;
+  }
+  .primitiv-figure--overlay > .primitiv-figure__caption {
+    grid-area: 1 / 1;
+    align-self: end;
+    overflow: hidden;
+    border-end-start-radius: var(--primitiv-figure-media-radius);
+    border-end-end-radius: var(--primitiv-figure-media-radius);
+    padding: var(--primitiv-figure-caption-gap);
+    color: var(--primitiv-figure-overlay-caption-color);
+    /* The scrim: a plain **opaque** background on the caption itself, matching
+       the Figma build (its overlay Caption frame is `surface/inverse` at full
+       opacity — verified via the Desktop Bridge, node 607:32823).
+       RFC 0015 §4 originally specified 90% "so a hint of media shows through",
+       and an earlier build implemented that as a `z-index: -1` pseudo-element
+       with `opacity`. Two problems: the pseudo-element needed `isolation:
+       isolate` to stop it escaping the caption and painting *behind* the media
+       (`position: absolute` alone is not a stacking context), and against
+       anything other than flat artwork the 10% read as the media bleeding
+       through the bar rather than as a deliberate hint. Opaque matches the
+       design, and collapses the whole mechanism to one declaration.
+       A translucent scrim is still available to a consumer without touching
+       this rule — set `--primitiv-figure-overlay-scrim` to a colour that
+       carries its own alpha (RFC 0015 §9 defers a first-class one). */
+    background: var(--primitiv-figure-overlay-scrim);
+  }
+
+  /* Size — re-points only the caption's type scale. The media is deliberately
+     size-independent (Figma's Figure `Size` axis drives nothing but the nested
+     Figcaption; the media placeholder is resized freely), and caption-gap is a
+     single density-scaled token rather than a per-size one, so neither moves
+     here. Density stays ambient via [data-density] on the body/* values
+     themselves (RFC 0009). */
+  .primitiv-figure--xs {
+    --primitiv-figure-font-family: var(--primitiv-body-xs-font-family);
+    --primitiv-figure-font-size: var(--primitiv-body-xs-font-size);
+    --primitiv-figure-font-weight: var(--primitiv-body-xs-font-weight);
+    --primitiv-figure-line-height: var(--primitiv-body-xs-line-height);
+  }
+  .primitiv-figure--sm {
+    --primitiv-figure-font-family: var(--primitiv-body-sm-font-family);
+    --primitiv-figure-font-size: var(--primitiv-body-sm-font-size);
+    --primitiv-figure-font-weight: var(--primitiv-body-sm-font-weight);
+    --primitiv-figure-line-height: var(--primitiv-body-sm-line-height);
+  }
+  .primitiv-figure--md {
+    --primitiv-figure-font-family: var(--primitiv-body-md-font-family);
+    --primitiv-figure-font-size: var(--primitiv-body-md-font-size);
+    --primitiv-figure-font-weight: var(--primitiv-body-md-font-weight);
+    --primitiv-figure-line-height: var(--primitiv-body-md-line-height);
+  }
+  .primitiv-figure--lg {
+    --primitiv-figure-font-family: var(--primitiv-body-lg-font-family);
+    --primitiv-figure-font-size: var(--primitiv-body-lg-font-size);
+    --primitiv-figure-font-weight: var(--primitiv-body-lg-font-weight);
+    --primitiv-figure-line-height: var(--primitiv-body-lg-line-height);
+  }
+  .primitiv-figure--xl {
+    --primitiv-figure-font-family: var(--primitiv-body-xl-font-family);
+    --primitiv-figure-font-size: var(--primitiv-body-xl-font-size);
+    --primitiv-figure-font-weight: var(--primitiv-body-xl-font-weight);
+    --primitiv-figure-line-height: var(--primitiv-body-xl-line-height);
+  }
+
+  /* Caption alignment — Figma's Figcaption `Align` axis (start/center/end),
+     which is `textAlignHorizontal` on a caption that fills the figure's width.
+     Logical keywords, not left/right, so start/end follow the reading
+     direction and flip under RTL. */
+  .primitiv-figure__caption--start {
+    text-align: start;
+  }
+  .primitiv-figure__caption--center {
+    text-align: center;
+  }
+  .primitiv-figure__caption--end {
+    text-align: end;
+  }
+}

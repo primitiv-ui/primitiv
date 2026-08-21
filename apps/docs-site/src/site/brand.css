@@ -1,0 +1,19 @@
+/*
+ * Brand artwork colour.
+ *
+ * The inlined logos fill with `currentColor`, so a single `color` declaration
+ * drives them. Absolute tokens, not `content/*`: the mark is brand artwork and
+ * wants true black / true white, whereas `content/primary` is a hue-tinted
+ * near-black (#121418) / near-white (#e5ecf6) intended for text.
+ *
+ * Light is the unconditional default and dark is the override, keyed off
+ * `[data-theme="dark"]` — the attribute ThemeToggle writes on <html>.
+ */
+
+.docs-brand-logo {
+  color: var(--primitiv-color-absolute-black);
+}
+
+[data-theme="dark"] .docs-brand-logo {
+  color: var(--primitiv-color-absolute-white);
+}

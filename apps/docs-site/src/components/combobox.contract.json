@@ -1,0 +1,254 @@
+{
+  "$schema": "https://primitiv-ui.dev/schema/contract.json",
+  "name": "combobox",
+  "version": "0.1.0",
+  "description": "An editable text field with a filtered popup listbox, implementing the WAI-ARIA APG combobox pattern. The control is Input verbatim — same `framed-control/{size}/*` geometry, same states — wrapped so a trailing chevron can sit beside the field, and the popup is a floating panel at `elevation/overlay` whose rows resolve the shared dropdown tokens, so a combobox listbox and a menu are the same surface. Filtering is consumer-owned: there is no `filter` prop. Keyboard, virtual-focus cursor, the query/value split and the open state all belong to the headless primitive.",
+  "docs": "https://primitiv-ui.dev/docs/components/combobox",
+  "root": {
+    "element": "div",
+    "class": "primitiv-combobox",
+    "component": "Combobox"
+  },
+  "dataAttributes": [
+    { "name": "aria-expanded", "value": "true", "when": "the popup is open", "source": "auto" },
+    { "name": "aria-expanded", "value": "false", "when": "the popup is closed", "source": "auto" },
+    {
+      "name": "aria-activedescendant",
+      "value": "<item id>",
+      "when": "the cursor sits on an item",
+      "source": "auto"
+    },
+    { "name": "aria-selected", "value": "true", "when": "the committed item", "source": "auto" },
+    { "name": "aria-selected", "value": "false", "when": "an uncommitted item", "source": "auto" },
+    {
+      "name": "data-highlighted",
+      "value": "",
+      "when": "the cursor sits on this item",
+      "source": "auto"
+    },
+    {
+      "name": "aria-invalid",
+      "value": "true",
+      "when": "invalid — set it on the input yourself, or cascade it from a Field.Root; there is no `invalid` prop",
+      "source": "consumer"
+    }
+  ],
+  "modifiers": [
+    {
+      "name": "size",
+      "default": "md",
+      "description": "Control + panel + row scale, set once on the root and inherited by every part; `data-density` scales the sizing within each size. Re-points the control's framed-control knobs, the panel's dropdown geometry and every row knob plus the typography.",
+      "options": [
+        { "name": "xs", "class": "primitiv-combobox--xs", "description": "Extra small." },
+        { "name": "sm", "class": "primitiv-combobox--sm", "description": "Small." },
+        { "name": "md", "class": "primitiv-combobox--md", "description": "Medium (the default)." },
+        { "name": "lg", "class": "primitiv-combobox--lg", "description": "Large." },
+        { "name": "xl", "class": "primitiv-combobox--xl", "description": "Extra large." }
+      ]
+    }
+  ],
+  "subcomponents": [
+    {
+      "name": "control",
+      "component": "Control",
+      "element": "div",
+      "class": "primitiv-combobox__control"
+    },
+    {
+      "name": "leading",
+      "component": "Leading",
+      "element": "span",
+      "class": "primitiv-combobox__leading"
+    },
+    { "name": "input", "component": "Input", "element": "input", "class": "primitiv-combobox__input" },
+    { "name": "icon", "component": "Icon", "element": "span", "class": "primitiv-combobox__icon" },
+    {
+      "name": "content",
+      "component": "Content",
+      "element": "div",
+      "class": "primitiv-combobox__content"
+    },
+    { "name": "item", "component": "Item", "element": "div", "class": "primitiv-combobox__item" },
+    {
+      "name": "item-indicator",
+      "component": "ItemIndicator",
+      "element": "span",
+      "class": "primitiv-combobox__item-indicator"
+    },
+    {
+      "name": "item-leading",
+      "component": "ItemLeading",
+      "element": "span",
+      "class": "primitiv-combobox__item-leading"
+    },
+    {
+      "name": "item-label",
+      "component": "ItemLabel",
+      "element": "span",
+      "class": "primitiv-combobox__item-label"
+    },
+    {
+      "name": "item-trailing",
+      "component": "ItemTrailing",
+      "element": "span",
+      "class": "primitiv-combobox__item-trailing"
+    },
+    { "name": "empty", "component": "Empty", "element": "div", "class": "primitiv-combobox__empty" }
+  ],
+  "customProperties": [
+    { "name": "--primitiv-combobox-bg", "defaultsTo": "var(--primitiv-surface-default)" },
+    { "name": "--primitiv-combobox-fg", "defaultsTo": "var(--primitiv-content-primary)" },
+    {
+      "name": "--primitiv-combobox-placeholder-color",
+      "defaultsTo": "var(--primitiv-content-muted)"
+    },
+    {
+      "name": "--primitiv-combobox-border-color",
+      "defaultsTo": "var(--primitiv-border-default)"
+    },
+    {
+      "name": "--primitiv-combobox-border-color-focus",
+      "defaultsTo": "var(--primitiv-border-focus)"
+    },
+    {
+      "name": "--primitiv-combobox-border-color-invalid",
+      "defaultsTo": "var(--primitiv-border-invalid)"
+    },
+    {
+      "name": "--primitiv-combobox-border-width",
+      "defaultsTo": "var(--primitiv-framed-control-border-width)"
+    },
+    {
+      "name": "--primitiv-combobox-radius",
+      "defaultsTo": "var(--primitiv-framed-control-md-radius)"
+    },
+    {
+      "name": "--primitiv-combobox-height",
+      "defaultsTo": "var(--primitiv-framed-control-md-height)"
+    },
+    {
+      "name": "--primitiv-combobox-padding-inline",
+      "defaultsTo": "var(--primitiv-framed-control-md-padding-inline)"
+    },
+    { "name": "--primitiv-combobox-gap", "defaultsTo": "var(--primitiv-framed-control-md-gap)" },
+    {
+      "name": "--primitiv-combobox-icon-size",
+      "defaultsTo": "var(--primitiv-framed-control-md-icon-size)"
+    },
+    { "name": "--primitiv-combobox-icon-color", "defaultsTo": "var(--primitiv-content-muted)" },
+    {
+      "name": "--primitiv-combobox-font-family",
+      "defaultsTo": "var(--primitiv-body-md-font-family)"
+    },
+    { "name": "--primitiv-combobox-font-size", "defaultsTo": "var(--primitiv-body-md-font-size)" },
+    {
+      "name": "--primitiv-combobox-font-weight",
+      "defaultsTo": "var(--primitiv-body-md-font-weight)"
+    },
+    {
+      "name": "--primitiv-combobox-line-height",
+      "defaultsTo": "var(--primitiv-body-md-line-height)"
+    },
+    { "name": "--primitiv-combobox-label-ink-slack", "defaultsTo": "var(--primitiv-space-space-1)" },
+    {
+      "name": "--primitiv-combobox-content-surface",
+      "defaultsTo": "var(--primitiv-surface-default)"
+    },
+    {
+      "name": "--primitiv-combobox-content-fg",
+      "defaultsTo": "var(--primitiv-content-primary)"
+    },
+    {
+      "name": "--primitiv-combobox-content-border-width",
+      "defaultsTo": "var(--primitiv-border-width-1)"
+    },
+    {
+      "name": "--primitiv-combobox-content-border-color",
+      "defaultsTo": "var(--primitiv-border-subtle)"
+    },
+    {
+      "name": "--primitiv-combobox-content-shadow",
+      "defaultsTo": "var(--primitiv-elevation-overlay)"
+    },
+    {
+      "name": "--primitiv-combobox-content-radius",
+      "defaultsTo": "var(--primitiv-dropdown-md-panel-radius)"
+    },
+    {
+      "name": "--primitiv-combobox-content-padding-block",
+      "defaultsTo": "var(--primitiv-dropdown-md-panel-padding-block)"
+    },
+    {
+      "name": "--primitiv-combobox-content-padding-inline",
+      "defaultsTo": "var(--primitiv-space-space-4)"
+    },
+    {
+      "name": "--primitiv-combobox-content-min-inline-size",
+      "defaultsTo": "anchor-size(width)"
+    },
+    { "name": "--primitiv-combobox-content-max-block-size", "defaultsTo": "18rem" },
+    {
+      "name": "--primitiv-combobox-offset",
+      "defaultsTo": "var(--primitiv-dropdown-md-panel-offset)"
+    },
+    {
+      "name": "--primitiv-combobox-item-height",
+      "defaultsTo": "var(--primitiv-dropdown-md-item-height)"
+    },
+    {
+      "name": "--primitiv-combobox-item-padding-inline",
+      "defaultsTo": "var(--primitiv-dropdown-md-item-padding-inline)"
+    },
+    {
+      "name": "--primitiv-combobox-item-gap",
+      "defaultsTo": "var(--primitiv-dropdown-md-item-gap)"
+    },
+    {
+      "name": "--primitiv-combobox-item-radius",
+      "defaultsTo": "var(--primitiv-dropdown-md-item-radius)"
+    },
+    {
+      "name": "--primitiv-combobox-item-icon-size",
+      "defaultsTo": "var(--primitiv-dropdown-md-item-icon-size)"
+    },
+    {
+      "name": "--primitiv-combobox-item-font-family",
+      "defaultsTo": "var(--primitiv-body-sm-font-family)"
+    },
+    {
+      "name": "--primitiv-combobox-item-font-size",
+      "defaultsTo": "var(--primitiv-dropdown-md-item-font-size)"
+    },
+    {
+      "name": "--primitiv-combobox-item-font-weight",
+      "defaultsTo": "var(--primitiv-body-sm-font-weight)"
+    },
+    {
+      "name": "--primitiv-combobox-item-line-height",
+      "defaultsTo": "var(--primitiv-dropdown-md-item-line-height)"
+    },
+    { "name": "--primitiv-combobox-item-color", "defaultsTo": "var(--primitiv-content-primary)" },
+    { "name": "--primitiv-combobox-item-bg", "defaultsTo": "var(--primitiv-color-transparent)" },
+    {
+      "name": "--primitiv-combobox-item-bg-hover",
+      "defaultsTo": "var(--primitiv-action-ghost-hover)"
+    },
+    {
+      "name": "--primitiv-combobox-item-bg-highlighted",
+      "defaultsTo": "var(--primitiv-action-secondary-default)"
+    },
+    {
+      "name": "--primitiv-combobox-item-spacing",
+      "defaultsTo": "calc(var(--primitiv-combobox-item-gap) / 2)"
+    },
+    {
+      "name": "--primitiv-combobox-indicator-color",
+      "defaultsTo": "var(--primitiv-content-primary)"
+    },
+    { "name": "--primitiv-combobox-empty-color", "defaultsTo": "var(--primitiv-content-muted)" },
+    {
+      "name": "--primitiv-combobox-empty-min-block-size",
+      "defaultsTo": "calc(var(--primitiv-combobox-item-height) * 2)"
+    }
+  ]
+}

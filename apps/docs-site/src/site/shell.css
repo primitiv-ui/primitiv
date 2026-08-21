@@ -1,0 +1,126 @@
+/*
+ * Shared shell chrome: the outer frame, the skip link, and the documentation
+ * layout's three-column grid. The top bar and footer live in site-header.css /
+ * site-footer.css, because both shells (docs and landing) use them.
+ *
+ * Conventions for every stylesheet in this app, matching apps/kitchen-sink:
+ *
+ * - Global CSS with a `docs-` class prefix. The `primitiv-` namespace belongs
+ *   to the registry components, whose classes are a PUBLIC contract consumers
+ *   restyle; `docs-` classes are this app's private implementation detail.
+ * - EVERY selector is class-prefixed. Never a bare element or attribute
+ *   selector — the workbench has been bitten by exactly that (a bare selector
+ *   in one page's CSS leaking onto every other page), and with global CSS the
+ *   prefix is the only thing preventing it.
+ * - No magic numbers: every colour, gap, radius, border and type value resolves
+ *   a `--primitiv-*` token. The site's own layout constants are declared ONCE
+ *   as `--docs-*` custom properties rather than repeated as bare literals.
+ *   `scripts/check-tokens.mjs` enforces both halves of this.
+ */
+
+.docs-shell {
+  /* Column geometry for the docs layout, from the Figma component-page frame:
+     260 / 920 / 260 inside 1440. */
+  --docs-sidebar-width: 16.25rem; /* 260px */
+  --docs-toc-width: 16.25rem; /* 260px */
+  /*
+   * The top bar's height, from the Figma nav (73px). This is AUTHORITATIVE, not
+   * descriptive: site-header.css sizes the header to it rather than letting the
+   * bar hug its content. That matters because the hero subtracts this value to
+   * fill the remaining viewport — a header that hugged would leave the hero
+   * short or long by however much the constant was out of date (it was already
+   * drifting: 4.5rem declared, 67px measured).
+   */
+  --docs-nav-height: 4.5625rem; /* 73px */
+
+  min-block-size: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--primitiv-surface-default);
+  color: var(--primitiv-content-primary);
+}
+
+/* ── Skip link ───────────────────────────────────────────────────────────── */
+/* Moved off-screen by transform rather than `display: none`, which would drop
+   it out of the tab order and defeat the point. */
+.docs-skip-link {
+  position: absolute;
+  inset-inline-start: var(--primitiv-space-space-8);
+  inset-block-start: var(--primitiv-space-space-8);
+  z-index: 100;
+  transform: translateY(-200%);
+  padding-block: var(--primitiv-space-space-8);
+  padding-inline: var(--primitiv-space-space-16);
+  border-radius: var(--primitiv-radii-8);
+  background-color: var(--primitiv-surface-default);
+  color: var(--primitiv-content-primary);
+  box-shadow: var(--primitiv-elevation-overlay);
+  font-family: var(--primitiv-label-md-font-family);
+  font-size: var(--primitiv-label-md-font-size);
+  text-decoration: none;
+  transition: transform var(--primitiv-motion-duration-control)
+    var(--primitiv-motion-easing-default);
+}
+
+.docs-skip-link:focus-visible {
+  transform: translateY(0);
+}
+
+/* ── Documentation layout: three columns ─────────────────────────────────── */
+/* Matches the header's own Container size="xl" so the sidebar lines up with the
+   brand mark above it. */
+.docs-grid {
+  flex: 1;
+  inline-size: 100%;
+  max-inline-size: var(--primitiv-breakpoint-xl);
+  margin-inline: auto;
+  padding-inline: var(--primitiv-container-gutter-lg);
+  display: grid;
+  grid-template-columns: 1fr;
+  align-items: start;
+  gap: var(--primitiv-grid-gap-xl);
+}
+
+/* Both rails hold still while the centre column scrolls, and each scrolls
+   independently once its own content outgrows the viewport — the Select TOC is
+   already 21 rows and the component list will pass 50. Without the
+   max-block-size + overflow pair the tail of either rail is unreachable. */
+.docs-rail {
+  position: sticky;
+  inset-block-start: calc(
+    var(--docs-nav-height) + var(--primitiv-space-space-24)
+  );
+  max-block-size: calc(
+    100dvh - var(--docs-nav-height) - var(--primitiv-space-space-48)
+  );
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.docs-sidebar,
+.docs-toc {
+  display: none;
+}
+
+.docs-main {
+  /* Lets long code blocks and props tables scroll inside themselves instead of
+     stretching the grid column. */
+  min-inline-size: 0;
+  padding-block: var(--primitiv-flow-region);
+}
+
+/* Desktop: the full three-column shell. Below this the rails are hidden and the
+   main column runs full width. */
+@media (min-width: 64rem) {
+  .docs-grid {
+    grid-template-columns:
+      var(--docs-sidebar-width)
+      minmax(0, 1fr)
+      var(--docs-toc-width);
+  }
+
+  .docs-sidebar,
+  .docs-toc {
+    display: block;
+  }
+}

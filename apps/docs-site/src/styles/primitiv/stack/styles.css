@@ -1,0 +1,141 @@
+/*
+ * Stack — Primitiv default theme (canonical CSS).
+ *
+ * Copied into the consumer repo by `primitiv add stack`. It is yours to edit:
+ * the stable surface is the contract (the .primitiv-stack class, the --row/
+ * --column and --gap-* modifiers, and the --primitiv-stack-* custom
+ * properties), not these values (RFC 0006 Principle 2 — names are stable,
+ * values are not).
+ *
+ * The model (RFC 0022): a Flexbox stack, `direction="column"` by default,
+ * with `gap` resolved against a dedicated, density-scaled `stack/gap-*`
+ * Context token per step (`xs`–`xl`) — never a raw px value, continuing RFC
+ * 0016's "gap is the tool for component-internal spacing." `gap="none"` is
+ * the one step pinned to the flat `space-space-0` primitive directly (zero
+ * is zero at every density, so there is nothing to scale). `align`/`justify`
+ * are plain Flexbox keywords, not tokens, so they pass through as inline
+ * custom properties rather than earning modifier classes.
+ *
+ * Requires the token layer (`primitiv tokens`) for the --primitiv-stack-gap-*
+ * and --primitiv-space-space-0 custom properties it resolves.
+ */
+
+/* Declare the sublayer order up front so this sheet is safe to load ahead of
+ * the token layer: CSS fixes layer precedence by first appearance, so without
+ * this a component stylesheet seen first would register primitiv.base before
+ * primitiv.reset and let the reset win (RFC 0008 §7). */
+@layer primitiv.reset, primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;
+
+@layer primitiv.base {
+  .primitiv-stack {
+    /* Per-component API — the themable knobs, defaulting to the md gap and a
+       column direction. The variants layer below re-points the gap steps and
+       the direction; align/justify are set inline per instance. */
+    --primitiv-stack-gap: var(--primitiv-stack-gap-md);
+
+    display: flex;
+    flex-direction: column;
+    /* The resting alignment; the variants layer re-points both from a curated
+       preset set. Written as literal keywords rather than custom properties
+       because they are no longer a consumer-supplied passthrough — see the
+       `align`/`justify` note in the file header. */
+    align-items: stretch;
+    justify-content: flex-start;
+    /* The CSS default — a row/column may overflow its container rather than
+       break onto additional lines. The `wrap` variant below opts in. */
+    flex-wrap: nowrap;
+    gap: var(--primitiv-stack-gap);
+  }
+}
+
+@layer primitiv.variants {
+  .primitiv-stack--row {
+    flex-direction: row;
+  }
+  .primitiv-stack--column {
+    flex-direction: column;
+  }
+  .primitiv-stack--row-reverse {
+    flex-direction: row-reverse;
+  }
+  .primitiv-stack--column-reverse {
+    flex-direction: column-reverse;
+  }
+
+  /* gap steps — each a dedicated density-scaled Context token
+     (--primitiv-stack-gap-{xs,sm,md,lg,xl}), so a Stack's gap re-tightens
+     under [data-density] the same way every other spacing knob in the
+     system does. `none` is the one exception: zero has no density curve to
+     scale, so it pins the flat space-space-0 primitive directly. */
+  .primitiv-stack--gap-none {
+    --primitiv-stack-gap: var(--primitiv-space-space-0);
+  }
+  .primitiv-stack--gap-xs {
+    --primitiv-stack-gap: var(--primitiv-stack-gap-xs);
+  }
+  .primitiv-stack--gap-sm {
+    --primitiv-stack-gap: var(--primitiv-stack-gap-sm);
+  }
+  .primitiv-stack--gap-md {
+    --primitiv-stack-gap: var(--primitiv-stack-gap-md);
+  }
+  .primitiv-stack--gap-lg {
+    --primitiv-stack-gap: var(--primitiv-stack-gap-lg);
+  }
+  .primitiv-stack--gap-xl {
+    --primitiv-stack-gap: var(--primitiv-stack-gap-xl);
+  }
+
+  /* Wrap — `nowrap` is the CSS default and is listed here too (like
+     `align-stretch`/`justify-start` above) so an explicit `wrap="nowrap"` is a
+     no-op rather than a missing class. A row that must never overflow its
+     container (a squeezed flex row, a mobile viewport) opts into `wrap`. */
+  .primitiv-stack--nowrap {
+    flex-wrap: nowrap;
+  }
+  .primitiv-stack--wrap {
+    flex-wrap: wrap;
+  }
+
+  /* Align — cross-axis (`align-items`), from a curated preset set. Logical
+     keywords (`start`/`end`, not `flex-start`/`flex-end`) so they follow the
+     writing mode. `stretch` is the base default and is listed here too, so an
+     explicit `align="stretch"` is a no-op rather than a missing class. */
+  .primitiv-stack--align-start {
+    align-items: start;
+  }
+  .primitiv-stack--align-center {
+    align-items: center;
+  }
+  .primitiv-stack--align-end {
+    align-items: end;
+  }
+  .primitiv-stack--align-stretch {
+    align-items: stretch;
+  }
+  .primitiv-stack--align-baseline {
+    align-items: baseline;
+  }
+
+  /* Justify — main-axis (`justify-content`), same preset treatment. The
+     `space-*` keywords get the shorter prop names (`between`/`around`/`evenly`)
+     the rest of the system uses. */
+  .primitiv-stack--justify-start {
+    justify-content: start;
+  }
+  .primitiv-stack--justify-center {
+    justify-content: center;
+  }
+  .primitiv-stack--justify-end {
+    justify-content: end;
+  }
+  .primitiv-stack--justify-between {
+    justify-content: space-between;
+  }
+  .primitiv-stack--justify-around {
+    justify-content: space-around;
+  }
+  .primitiv-stack--justify-evenly {
+    justify-content: space-evenly;
+  }
+}

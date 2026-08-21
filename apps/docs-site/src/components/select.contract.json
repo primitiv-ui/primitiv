@@ -1,0 +1,129 @@
+{
+  "$schema": "https://primitiv-ui.dev/schema/contract.json",
+  "name": "select",
+  "version": "0.1.0",
+  "description": "A single-select control with two render paths behind one API: a rich Popover-API listbox (the default) whose options carry icons, badges and a selected mark, or a native `<select>` for flat, OS-native cases. The rich control is a framed field on the same geometry as Input; its panel and rows resolve the shared dropdown tokens, so a Select listbox and a Dropdown menu are the same surface. Positioned with CSS anchor positioning; keyboard, typeahead, focus and form submission are owned by the headless primitive.",
+  "docs": "https://primitiv-ui.dev/docs/components/select",
+  "root": {
+    "element": "button",
+    "class": "primitiv-select",
+    "component": "Trigger"
+  },
+  "dataAttributes": [
+    { "name": "aria-expanded", "value": "true", "when": "open", "source": "auto" },
+    { "name": "aria-expanded", "value": "false", "when": "closed", "source": "auto" },
+    { "name": "aria-invalid", "value": "true", "when": "invalid", "source": "auto" },
+    { "name": "data-disabled", "value": "", "when": "disabled (native root)", "source": "auto" },
+    { "name": "data-placeholder", "value": "", "when": "nothing selected (on the value part)", "source": "auto" },
+    { "name": "data-state", "value": "checked", "when": "selected option", "source": "auto" },
+    { "name": "data-state", "value": "unchecked", "when": "unselected option", "source": "auto" }
+  ],
+  "modifiers": [
+    {
+      "name": "size",
+      "default": "md",
+      "description": "Control scale; `data-density` scales the sizing within each size. Re-points the frame (height/padding/radius/gap/icon) and the typography. On `SelectContent` the same axis re-points the panel + row sizing knobs.",
+      "options": [
+        { "name": "xs", "class": "primitiv-select--xs", "description": "Extra small." },
+        { "name": "sm", "class": "primitiv-select--sm", "description": "Small." },
+        { "name": "md", "class": "primitiv-select--md", "description": "Medium (the default)." },
+        { "name": "lg", "class": "primitiv-select--lg", "description": "Large." },
+        { "name": "xl", "class": "primitiv-select--xl", "description": "Extra large." }
+      ]
+    },
+    {
+      "name": "mode",
+      "default": "rich",
+      "description": "Which render path the frame is dressing. `rich` lays the control out as `[leading][value][chevron]`; `native` leaves the inner layout and the popup to the platform, but paints its own chevron (matching the rich one's shape/size/inset) over the UA's default arrow.",
+      "options": [
+        { "name": "rich", "class": "primitiv-select--rich", "description": "The Popover-API listbox trigger (the default)." },
+        { "name": "native", "class": "primitiv-select--native", "description": "A real `<select>` element." }
+      ]
+    },
+    {
+      "name": "placement",
+      "default": "bottom-start",
+      "description": "Which side of the trigger the panel opens on, via anchor-positioning insets on `SelectContent`. Requires the consumer to wire `anchor-name` (on the trigger) + `position-anchor` (on Content).",
+      "options": [
+        { "name": "bottom-start", "class": "primitiv-select__content--bottom-start", "description": "Below, start-aligned (the default)." },
+        { "name": "bottom-end", "class": "primitiv-select__content--bottom-end", "description": "Below, end-aligned." },
+        { "name": "top-start", "class": "primitiv-select__content--top-start", "description": "Above, start-aligned." },
+        { "name": "top-end", "class": "primitiv-select__content--top-end", "description": "Above, end-aligned." }
+      ]
+    }
+  ],
+  "subcomponents": [
+    { "name": "value", "component": "Value", "element": "span", "class": "primitiv-select__value" },
+    { "name": "leading", "component": "Leading", "element": "span", "class": "primitiv-select__leading" },
+    { "name": "icon", "component": "Icon", "element": "span", "class": "primitiv-select__icon" },
+    { "name": "content", "component": "Content", "element": "div", "class": "primitiv-select__content" },
+    { "name": "item", "component": "Item", "element": "div", "class": "primitiv-select__item" },
+    { "name": "item-indicator", "component": "ItemIndicator", "element": "span", "class": "primitiv-select__item-indicator" },
+    { "name": "item-leading", "component": "ItemLeading", "element": "span", "class": "primitiv-select__item-leading" },
+    { "name": "item-label", "component": "ItemLabel", "element": "span", "class": "primitiv-select__item-label" },
+    { "name": "item-trailing", "component": "ItemTrailing", "element": "span", "class": "primitiv-select__item-trailing" },
+    { "name": "group", "component": "Group", "element": "div", "class": "primitiv-select__group" },
+    { "name": "group-label", "component": "GroupLabel", "element": "span", "class": "primitiv-select__group-label" },
+    { "name": "separator", "component": "Separator", "element": "div", "class": "primitiv-select__separator" }
+  ],
+  "customProperties": [
+    { "name": "--primitiv-select-bg", "defaultsTo": "var(--primitiv-surface-default)" },
+    { "name": "--primitiv-select-fg", "defaultsTo": "var(--primitiv-content-primary)" },
+    { "name": "--primitiv-select-placeholder-color", "defaultsTo": "var(--primitiv-content-muted)" },
+    { "name": "--primitiv-select-border-color", "defaultsTo": "var(--primitiv-border-default)" },
+    { "name": "--primitiv-select-border-color-hover", "defaultsTo": "var(--primitiv-border-strong)" },
+    { "name": "--primitiv-select-border-color-focus", "defaultsTo": "var(--primitiv-border-focus)" },
+    { "name": "--primitiv-select-border-color-invalid", "defaultsTo": "var(--primitiv-border-invalid)" },
+    { "name": "--primitiv-select-border-width", "defaultsTo": "var(--primitiv-framed-control-border-width)" },
+    { "name": "--primitiv-select-radius", "defaultsTo": "var(--primitiv-framed-control-md-radius)" },
+    { "name": "--primitiv-select-height", "defaultsTo": "var(--primitiv-framed-control-md-height)" },
+    { "name": "--primitiv-select-padding-inline", "defaultsTo": "var(--primitiv-framed-control-md-padding-inline)" },
+    { "name": "--primitiv-select-gap", "defaultsTo": "var(--primitiv-framed-control-md-gap)" },
+    { "name": "--primitiv-select-icon-size", "defaultsTo": "var(--primitiv-framed-control-md-icon-size)" },
+    { "name": "--primitiv-select-icon-color", "defaultsTo": "var(--primitiv-content-secondary)" },
+    { "name": "--primitiv-select-native-chevron", "defaultsTo": "a data: URI of the ChevronDown path, filled #121418 (light) / #e5ecf6 (dark) — currentColor cannot cross into a data: URI, so the glyph colour is baked per theme" },
+    { "name": "--primitiv-select-font-family", "defaultsTo": "var(--primitiv-body-md-font-family)" },
+    { "name": "--primitiv-select-font-size", "defaultsTo": "var(--primitiv-body-md-font-size)" },
+    { "name": "--primitiv-select-font-weight", "defaultsTo": "var(--primitiv-body-md-font-weight)" },
+    { "name": "--primitiv-select-line-height", "defaultsTo": "var(--primitiv-body-md-line-height)" },
+    { "name": "--primitiv-select-bg-disabled", "defaultsTo": "var(--primitiv-surface-subtle)" },
+    { "name": "--primitiv-select-fg-disabled", "defaultsTo": "var(--primitiv-content-disabled)" },
+    { "name": "--primitiv-select-content-surface", "defaultsTo": "var(--primitiv-surface-default)" },
+    { "name": "--primitiv-select-content-fg", "defaultsTo": "var(--primitiv-content-primary)" },
+    { "name": "--primitiv-select-content-border-width", "defaultsTo": "var(--primitiv-border-width-1)" },
+    { "name": "--primitiv-select-content-border-color", "defaultsTo": "var(--primitiv-border-default)" },
+    { "name": "--primitiv-select-content-shadow", "defaultsTo": "var(--primitiv-elevation-overlay)" },
+    { "name": "--primitiv-select-content-radius", "defaultsTo": "var(--primitiv-dropdown-md-panel-radius)" },
+    { "name": "--primitiv-select-content-padding-block", "defaultsTo": "var(--primitiv-dropdown-md-panel-padding-block)" },
+    { "name": "--primitiv-select-content-padding-inline", "defaultsTo": "var(--primitiv-space-space-4)" },
+    { "name": "--primitiv-select-content-min-inline-size", "defaultsTo": "anchor-size(width)" },
+    { "name": "--primitiv-select-content-max-block-size", "defaultsTo": "18rem" },
+    { "name": "--primitiv-select-offset", "defaultsTo": "var(--primitiv-space-space-4)" },
+    { "name": "--primitiv-select-item-height", "defaultsTo": "var(--primitiv-dropdown-md-item-height)" },
+    { "name": "--primitiv-select-item-padding-inline", "defaultsTo": "var(--primitiv-dropdown-md-item-padding-inline)" },
+    { "name": "--primitiv-select-item-gap", "defaultsTo": "var(--primitiv-dropdown-md-item-gap)" },
+    { "name": "--primitiv-select-item-radius", "defaultsTo": "var(--primitiv-dropdown-md-item-radius)" },
+    { "name": "--primitiv-select-item-font-size", "defaultsTo": "var(--primitiv-dropdown-md-item-font-size)" },
+    { "name": "--primitiv-select-item-line-height", "defaultsTo": "var(--primitiv-dropdown-md-item-line-height)" },
+    { "name": "--primitiv-select-item-icon-size", "defaultsTo": "var(--primitiv-dropdown-md-item-icon-size)" },
+    { "name": "--primitiv-select-item-font-family", "defaultsTo": "var(--primitiv-body-sm-font-family)" },
+    { "name": "--primitiv-select-item-font-weight", "defaultsTo": "var(--primitiv-body-sm-font-weight)" },
+    { "name": "--primitiv-select-item-color", "defaultsTo": "var(--primitiv-content-primary)" },
+    { "name": "--primitiv-select-item-bg", "defaultsTo": "var(--primitiv-color-transparent)" },
+    { "name": "--primitiv-select-item-bg-highlighted", "defaultsTo": "var(--primitiv-action-secondary-default)" },
+    { "name": "--primitiv-select-item-spacing", "defaultsTo": "calc(var(--primitiv-select-item-gap) / 2)" },
+    { "name": "--primitiv-select-item-inset", "defaultsTo": "calc(var(--primitiv-select-item-padding-inline) + var(--primitiv-select-item-icon-size) + var(--primitiv-select-item-gap))" },
+    { "name": "--primitiv-select-group-label-height", "defaultsTo": "var(--primitiv-dropdown-md-label-height)" },
+    { "name": "--primitiv-select-group-label-padding-inline", "defaultsTo": "var(--primitiv-dropdown-md-label-padding-inline)" },
+    { "name": "--primitiv-select-group-label-color", "defaultsTo": "var(--primitiv-content-muted)" },
+    { "name": "--primitiv-select-group-label-font-family", "defaultsTo": "var(--primitiv-label-xs-font-family)" },
+    { "name": "--primitiv-select-group-label-font-size", "defaultsTo": "var(--primitiv-label-xs-font-size)" },
+    { "name": "--primitiv-select-group-label-font-weight", "defaultsTo": "var(--primitiv-label-xs-font-weight)" },
+    { "name": "--primitiv-select-group-label-line-height", "defaultsTo": "var(--primitiv-label-xs-line-height)" },
+    { "name": "--primitiv-select-group-label-letter-spacing", "defaultsTo": "var(--primitiv-letter-spacing-wide)" },
+    { "name": "--primitiv-select-separator-spacing", "defaultsTo": "var(--primitiv-dropdown-md-separator-spacing)" },
+    { "name": "--primitiv-select-separator-color", "defaultsTo": "var(--primitiv-border-subtle)" },
+    { "name": "--primitiv-select-separator-thickness", "defaultsTo": "var(--primitiv-border-width-1)" },
+    { "name": "--primitiv-select-label-ink-slack", "defaultsTo": "var(--primitiv-space-space-1)" }
+  ]
+}

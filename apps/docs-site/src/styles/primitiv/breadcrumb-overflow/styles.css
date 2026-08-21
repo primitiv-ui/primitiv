@@ -1,0 +1,105 @@
+/*
+ * BreadcrumbOverflow — Primitiv default theme (canonical CSS).
+ *
+ * Copied into the consumer repo by `primitiv add breadcrumb-overflow`. It is
+ * yours to edit: the stable surface is the contract (the .primitiv-breadcrumb-
+ * overflow class + __trigger part, and the --primitiv-breadcrumb-overflow-*
+ * custom properties), not these values (RFC 0006 Principle 2 — names are
+ * stable, values are not).
+ *
+ * BreadcrumbOverflow is a pre-arranged Breadcrumb, not a new visual surface —
+ * it renders the registry Breadcrumb's own List/Item/Separator/Ellipsis parts
+ * and the registry Dropdown for the overflow menu directly, so the trail
+ * typography, separator glyph, link/page colour and menu panel all already
+ * live in breadcrumb/styles.css and dropdown/styles.css and need no
+ * restatement here. `.primitiv-breadcrumb-overflow` is applied alongside
+ * `.primitiv-breadcrumb` purely as a reserved identification hook, and
+ * carries no declarations of its own.
+ *
+ * The one genuinely new surface is the __trigger — the button wrapping
+ * Breadcrumb.Ellipsis. Figma's own Overflow=true variant (`436:12911`) has
+ * no code equivalent for it: there, "…" renders as a bare Breadcrumb/Item
+ * (State=link) with NO fill, NO padding, and the same 4px itemSpacing as
+ * every other crumb — "inherits hover/focus/colour/sizing for free," per
+ * that component set's own description, which also flags the 4px gap itself
+ * as a hardcoded, unbound literal (an open token question, not something
+ * this component invents). This sheet matches that exactly AT REST: the
+ * trigger has no visible background and its padding is cancelled by an
+ * equal negative margin, so it never grows the trail's own item spacing.
+ * The hover/active background below is a code-only affordance beyond what
+ * the static Figma design models — a menu trigger benefits from a clearer
+ * "this opens a panel" cue than a plain link gets, so it borrows the
+ * ghost-hover state layer (RFC 0017's action/ghost/* ramp) rather than
+ * inventing a new one.
+ *
+ * Requires the token layer (`primitiv tokens`) for the --primitiv-space-*,
+ * --primitiv-action-ghost-*, --primitiv-radii-*, --primitiv-motion-* and
+ * --primitiv-focus-ring-* custom properties it resolves, plus whatever
+ * breadcrumb/styles.css and dropdown/styles.css require.
+ */
+
+/* Declare the sublayer order up front so this sheet is safe to load ahead of
+ * the token layer: CSS fixes layer precedence by first appearance, so without
+ * this a component stylesheet seen first would register primitiv.base before
+ * primitiv.reset and let the reset win (RFC 0008 §7). */
+@layer primitiv.reset, primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;
+
+@layer primitiv.base {
+  .primitiv-breadcrumb-overflow {
+    /* Per-component API for the trigger's hover/active state layer — see
+       the states rule below. */
+    --primitiv-breadcrumb-overflow-trigger-hover-background: var(--primitiv-action-ghost-hover);
+    --primitiv-breadcrumb-overflow-trigger-active-background: var(--primitiv-action-ghost-active);
+  }
+
+  /* Real interactive element (opens the overflow menu), but visually a plain
+     inline glyph at rest — see the file header for why. The padding/margin
+     pair gives :hover/:active a comfortable pill without adding any layout
+     footprint beyond the bare "…" glyph. */
+  .primitiv-breadcrumb-overflow__trigger {
+    display: inline-flex;
+    /* Press feedback depth. Set to 1 to switch the press scale off. */
+    --primitiv-breadcrumb-overflow-press-scale: 0.96;
+    align-items: center;
+    border: none;
+    background: var(--primitiv-color-transparent);
+    padding: var(--primitiv-space-space-2) var(--primitiv-space-space-6);
+    margin: calc(-1 * var(--primitiv-space-space-2)) calc(-1 * var(--primitiv-space-space-6));
+    border-radius: var(--primitiv-radii-4);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    transition: background-color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default),
+      scale var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
+  }
+}
+
+@layer primitiv.states {
+  /* Gated behind (hover: hover): a touchscreen simulates :hover on tap and it
+     "sticks" until the next tap elsewhere, which would otherwise leave a
+     just-tapped trigger showing its hover fill instead of its resting one. */
+  @media (hover: hover) {
+    .primitiv-breadcrumb-overflow__trigger:hover {
+      background: var(--primitiv-breadcrumb-overflow-trigger-hover-background);
+    }
+  }
+
+  .primitiv-breadcrumb-overflow__trigger:active {
+    background: var(--primitiv-breadcrumb-overflow-trigger-active-background);
+  }
+
+  .primitiv-breadcrumb-overflow__trigger:focus-visible {
+    outline: var(--primitiv-focus-ring-width) solid var(--primitiv-focus-ring);
+    outline-offset: var(--primitiv-focus-ring-offset);
+  }
+  /* Press feedback — see Button for the full reasoning. Additive: the colour
+     change on :active is not gated, so a reduced-motion user still gets a press
+     state, just not a moving one. --primitiv-breadcrumb-overflow-press-scale to 1 disables it. */
+  @media (prefers-reduced-motion: no-preference) {
+    .primitiv-breadcrumb-overflow__trigger:active {
+      scale: var(--primitiv-breadcrumb-overflow-press-scale);
+    }
+  }
+}

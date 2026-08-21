@@ -1,0 +1,43 @@
+/*
+ * Center — Primitiv default theme (canonical CSS).
+ *
+ * Copied into the consumer repo by `primitiv add center`. It is yours to
+ * edit: the stable surface is the contract (the .primitiv-center class and
+ * the --both/--horizontal/--vertical modifiers), not these values (RFC 0006
+ * Principle 2 — names are stable, values are not).
+ *
+ * A single- or both-axis Flexbox centring box (RFC 0022). Deliberately
+ * carries no sizing opinion — like Box/Stack/Spacer, it forces no width or
+ * height, only the alignment behaviour; a consumer sizes the box itself
+ * (fills its parent in normal block flow, or gets an explicit size). Each
+ * axis variant sets *both* alignment properties explicitly (rather than
+ * overriding one from a shared base) so the uncentred axis reads as
+ * `flex-start` — content-driven, not stretched to fill it.
+ */
+
+/* Declare the sublayer order up front so this sheet is safe to load ahead of
+ * the token layer: CSS fixes layer precedence by first appearance, so without
+ * this a component stylesheet seen first would register primitiv.base before
+ * primitiv.reset and let the reset win (RFC 0008 §7). */
+@layer primitiv.reset, primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;
+
+@layer primitiv.base {
+  .primitiv-center {
+    display: flex;
+  }
+}
+
+@layer primitiv.variants {
+  .primitiv-center--both {
+    align-items: center;
+    justify-content: center;
+  }
+  .primitiv-center--horizontal {
+    align-items: flex-start;
+    justify-content: center;
+  }
+  .primitiv-center--vertical {
+    align-items: center;
+    justify-content: flex-start;
+  }
+}

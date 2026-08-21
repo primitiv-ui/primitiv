@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!--
+    Primitiv — primary logo mark.
+
+    Equilateral triangle A(50,10) B(11,77.5) C(89,77.5), divided into
+    three bands parallel to the right edge (AC) and converging at the
+    bottom-left vertex (B). Band thicknesses follow the golden ratio
+    (1 : φ : φ²), so the steps ascend left-to-right into a heavy mass
+    at the bottom-right. White gaps are 0.0375 of the edge span each
+    side (≈5.06u perpendicular).
+
+    Single colour: black on transparent.
+  -->
+  <path fill="#000" d="M 11.00 77.50 L 16.99 67.14 L 22.97 77.50 Z
+                       M 19.91 62.08 L 29.04 46.28 L 47.08 77.50 L 28.82 77.50 Z
+                       M 31.96 41.22 L 50.00 10.00 L 89.00 77.50 L 52.92 77.50 Z"/>
+</svg>

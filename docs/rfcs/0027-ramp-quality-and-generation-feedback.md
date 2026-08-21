@@ -1,10 +1,11 @@
 # RFC 0027 — Ramp quality metrics & generation feedback
 
-> **Status:** Steps 1–5 landed (2026-08-20/21) — `assess()` in the engine, regression
+> **Status:** Steps 1–6 landed (2026-08-20/21) — `assess()` in the engine, regression
 > tests gating the shipped seeds, and the `ramp-audit` example measuring through
 > the engine, the gamut mapping fixed, and the light lightness curve anchored.
 > **Step 5 (regenerate) is done — palette, emitted token layers and Figma
-> variables are in lockstep (§12.4).** Steps 6–7 open. See §11 for what building
+> variables are in lockstep (§12.4).** Step 6's API is landed (§13); step 7 and
+> the Intent-layer consumption of §7 remain open. See §11 for what building
 > it found, including a correction to §1's diagnosis.
 > **Author:** simonrevill, with architectural review
 > **Date:** 2026-08-15
@@ -312,7 +313,8 @@ Those are downstream decisions this RFC only makes measurable.
    for the diagnosis and §12 for what it unmasked.
 5. ~~**Regenerate the palette**, verifying utilisation is back before committing.~~
    **Landed** — see §12.4.
-6. **Foreground API extension** (§7).
+6. ~~**Foreground API extension** (§7).~~ **API landed** — see §13. Having the
+   Intent layer *consume* it is the remaining half.
 7. **Picker feedback** (§6) — the largest surface, and it wants 1–4 settled
    first so it is displaying trustworthy numbers.
 
@@ -616,3 +618,51 @@ unifies features across the whole workspace build — switching it on silently
 flipped `primitiv-emit`'s token ordering from sorted to insertion order and broke
 five of its goldens. The text path needs no feature, and was verified to produce a
 byte-identical file.
+
+
+---
+
+## 13. Step 6: `readable_step` (2026-08-21)
+
+`harmoni_core::api::readable_step(ramp, surface, threshold) -> Option<ReadableStep>`
+answers the question §7 identified and the engine had no API for: **which step of
+this ramp is readable on *that* surface**.
+
+`get_best_foreground` answers a different one — "what text goes on this solid
+fill" — and structurally cannot answer this, because `ForegroundSource` only ever
+returns ramp ends and the white/black anchors. Link, muted-text and border
+colours are all mid-ramp-step-on-a-different-surface, which is why all three were
+hand-picked in the semantic tier with nothing checking them, and why all three
+drifted below threshold silently.
+
+Three decisions, each driven by a failing test:
+
+- **It returns the *quietest* step that clears, not the first one found.** A role
+  wants the least contrast that still passes: a border pushed to body-text weight
+  clears any floor and looks like a mistake. Ramp order matches increasing
+  contrast only while the ramp and the surface share a theme, so walking the ramp
+  gives the right answer by luck rather than by rule — a light ramp on a dark
+  surface returns the *loudest* step that way.
+- **The threshold is a parameter, and it genuinely changes the answer.** Text
+  needs 4.5:1; a border is non-text and WCAG 1.4.11 asks 3:1. This only shows on a
+  ramp fine enough to have a step between the two bars — which the neutral ramp is
+  (`border/default` sits at `neutral.400`, 3.05:1) and a coarse fixture is not.
+- **`None` when nothing clears.** A role that cannot be satisfied says so rather
+  than handing back the closest near-miss, which is the guarantee the hand-picked
+  tier never had.
+
+**The calibration check that matters:** given the dark brand ramp and the dark
+page surface at 4.5:1, the engine returns **`600`** — the exact step the audit had
+to hand-pick after finding `dark.action.link.foreground.default` failing at
+3.78:1. The engine derives independently what a human found by measuring.
+
+### What remains of §7
+
+The API exists; the semantic tier does not yet consume it. `intent.json` still
+hand-picks these steps, and the guarantee is still enforced downstream by
+`packages/tokens/src/dark-mode-content.test.ts`, which carries its own
+hand-rolled contrast maths — a second implementation that can disagree with the
+engine's. Closing that is an architectural question this RFC does not decide:
+whether the semantic tier's contrast-bearing roles become *generated* from the
+engine rather than authored. Worth noting the 114 token tests pass unchanged
+against the regenerated palette, so nothing is failing today.

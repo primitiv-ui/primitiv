@@ -56,7 +56,7 @@ status, summary, and decision record; this page is the index.
   months later. Also proposes extending the foreground API from "text on this
   fill" to "which step is readable on this surface", which is the structural fix
   for the three contrast failures in `docs/interface-audit.md`.
-  **Steps 1–4 landed (2026-08-20/21)**: `assess()` in `harmoni-core::audit`,
+  **Steps 1–6 landed (2026-08-20/21)**: `assess()` in `harmoni-core::audit`,
   regression tests gating every shipped seed, and the `ramp-audit` example
   rewired onto the engine. Building it corrected the RFC's own diagnosis — the
   generator does **not** share the picker's gamut search; its private copy

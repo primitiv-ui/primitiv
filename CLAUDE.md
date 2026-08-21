@@ -929,7 +929,8 @@ source of truth for when a skill applies.
     meaningful. It is also why the panel can animate in but not out.
 
 
-- **RFC 0027 (ramp quality metrics) — steps 1–5 landed (2026-08-20/21); 6–7 open.**
+- **RFC 0027 (ramp quality metrics) — steps 1–6 landed (2026-08-20/21); step 7
+  and the Intent half of step 6 open.**
   `harmoni-core::audit::ramp` now owns `assess(&Palette, Gamut) -> RampQuality`,
   exposed as `api::assess_ramp`. The gamut boundary primitive moved down to
   `color::gamut` first (`audit` must not reach up into `api`); `api::gamut`
@@ -1012,6 +1013,21 @@ source of truth for when a skill applies.
     the chroma scale even asks for). The genuine incremental price of holding hue
     is ~**8%**, on `brand` and `danger`; `warning` and `success` come out level or
     better than the original engine. Full table in RFC 0027 §12.3.
+  - **Step 6 (landed): `api::readable_step(ramp, surface, threshold)`** answers
+    "which step of this ramp is readable on *that* surface" — link, muted-text and
+    border colours. `get_best_foreground` cannot: `ForegroundSource` only returns
+    ramp ends and white/black anchors, which is *why* those three roles were
+    hand-picked and drifted silently. It returns the **quietest** step that clears
+    (a border at body-text weight passes any floor and looks wrong), `None` when
+    nothing does, and the threshold really does change the answer — but only on a
+    ramp fine enough to have a step between 3:1 and 4.5:1, which `neutral` is and a
+    coarse fixture is not. **Calibration check worth keeping:** on the dark brand
+    ramp against the dark page surface it returns `600` — the exact step the audit
+    hand-picked after finding the link role failing at 3.78:1.
+    **Still open:** `intent.json` does not consume it, and
+    `packages/tokens/src/dark-mode-content.test.ts` still guards these roles with
+    its own hand-rolled contrast maths — a second implementation that can disagree
+    with the engine.
   - **`cargo llvm-cov` accumulates stale profile data across builds.** After a
     `git stash`/checkout round-trip it reported `generator.rs` at 73% with
     `Display for SwatchLabel` "uncovered" despite passing tests — two

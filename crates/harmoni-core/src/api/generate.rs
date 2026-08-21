@@ -8,6 +8,10 @@ use crate::palette::generator::{
     TARGET_LIGHTNESS, TARGET_LIGHTNESS_DARK, validate_lightness_curve,
 };
 
+// What each step of the ramp a colour would seed asks for, against what the
+// gamut grants — the picker's chroma-headroom feedback (RFC 0027 §6).
+pub use crate::palette::generator::{chroma_headroom, ChromaHeadroom};
+
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct GenerateOptions {
     pub light_padding: f32,

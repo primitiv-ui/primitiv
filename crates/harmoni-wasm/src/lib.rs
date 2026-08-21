@@ -49,6 +49,10 @@ extern "C" {
     // Needed because Vec<T> is not a first-class wasm-abi return type.
     #[wasm_bindgen(typescript_type = "Palette")]
     pub type Palette;
+
+    // Same reason: a bare Vec cannot cross the wasm ABI.
+    #[wasm_bindgen(typescript_type = "ChromaHeadroom[]")]
+    pub type ChromaHeadroomList;
 }
 
 #[wasm_bindgen]
@@ -325,6 +329,22 @@ pub fn assess_brand_ramp(
 ) -> Result<types::RampQuality, JsError> {
     let palette = api::generate(ColorInput::Oklch { l, c, h }).map_err(to_js_error)?;
     Ok(api::assess_ramp(&palette, gamut.into()).into())
+}
+
+/// Per-step chroma headroom for the ramp this colour would seed: what each
+/// step's scale asks for, against what the gamut grants. The gap is what tells a
+/// designer their hue will mute — and where (RFC 0027 §6).
+#[wasm_bindgen]
+pub fn chroma_headroom(l: f32, c: f32, h: f32) -> Result<ChromaHeadroomList, JsError> {
+    let rows: Vec<types::ChromaHeadroom> =
+        api::chroma_headroom(palette::Oklch::new(l, c, h), 0.0, 0.0)
+            .into_iter()
+            .map(Into::into)
+            .collect();
+
+    serde_wasm_bindgen::to_value(&rows)
+        .map(ChromaHeadroomList::from)
+        .map_err(|e| JsError::new(&e.to_string()))
 }
 
 #[wasm_bindgen]

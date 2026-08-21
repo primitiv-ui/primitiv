@@ -596,3 +596,23 @@ impl From<core::RampQuality> for RampQuality {
         }
     }
 }
+
+/// Mirror of `core::ChromaHeadroom` — what a ramp step's scale asked for against
+/// what the gamut granted it (RFC 0027 §6).
+#[derive(Tsify, Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[tsify(into_wasm_abi, from_wasm_abi)]
+pub struct ChromaHeadroom {
+    pub label: String,
+    pub requested: f32,
+    pub granted: f32,
+}
+
+impl From<core::ChromaHeadroom> for ChromaHeadroom {
+    fn from(value: core::ChromaHeadroom) -> Self {
+        ChromaHeadroom {
+            label: value.label.to_string(),
+            requested: value.requested,
+            granted: value.granted,
+        }
+    }
+}

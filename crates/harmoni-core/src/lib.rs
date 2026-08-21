@@ -14,4 +14,4 @@ pub use color::output::{format_oklch, format_oklch_alpha, oklch_to_hex, oklch_to
 pub use neutral::derive::SoftNeutrals;
 pub use neutral::ramp::{RampOptions, TintMode};
 pub use api::generate::PaletteSet;
-pub use palette::generator::{Palette, Swatch, SwatchLabel, SwatchStep};
+pub use palette::generator::{chroma_headroom, ChromaHeadroom, Palette, Swatch, SwatchLabel, SwatchStep};

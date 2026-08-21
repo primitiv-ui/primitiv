@@ -22,8 +22,8 @@ pub use gamut::{
     paint_lh_plane, paint_lightness_strip, Gamut,
 };
 pub use generate::{
-    generate, generate_brand_pair, generate_pair, generate_with_lightness, generate_with_options,
-    GenerateOptions, PaletteSet,
+    chroma_headroom, generate, generate_brand_pair, generate_pair, generate_with_lightness,
+    generate_with_options, ChromaHeadroom, GenerateOptions, PaletteSet,
 };
 pub use neutral::{
     derive_soft_neutrals, generate_neutral_ramp, tint_neutrals, tint_neutrals_duotone,

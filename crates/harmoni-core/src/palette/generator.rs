@@ -1,7 +1,8 @@
-use palette::{IntoColor, LinSrgb, Oklch};
+use palette::Oklch;
 use serde::{Deserialize, Serialize};
 
 use crate::audit::contrast::get_contrast_rating_for_step;
+use crate::color::gamut::{max_in_gamut_chroma, Gamut};
 use crate::audit::foreground::{get_best_foreground, ForegroundSource};
 use crate::color::output::{format_oklch, oklch_to_hex, oklch_to_rgb, Rgb};
 use crate::ContrastResult;
@@ -119,36 +120,28 @@ const DARK_TEXT_ANCHOR: f32 = 0.94;
 pub const TARGET_LIGHTNESS_DARK: [f32; 10] =
     [0.21, 0.25, 0.30, 0.37, 0.46, 0.55, 0.66, 0.77, 0.87, 0.94];
 
-/// Binary search for the maximum chroma that stays within the sRGB gamut
-/// for a given OkLCH lightness and hue.
+/// How close to the gamut boundary a generated step is allowed to sit. A small
+/// margin, so 8-bit quantisation at hex time cannot nudge a step back out.
+const GAMUT_SAFETY_MARGIN: f32 = 0.95;
+
+/// Headroom applied to every non-seed step's requested chroma. Kept from the
+/// original chroma model so that fixing the gamut search below changes only the
+/// steps that were genuinely out of gamut, and leaves every step that already
+/// rendered faithfully byte-identical.
+const CHROMA_HEADROOM: f32 = 0.95;
+
+/// A step's chroma: what the ramp asks for, held inside the sRGB gamut.
 ///
-/// Note: this uses the *clamped* `into_color`, so the predicate effectively
-/// always passes and it returns the `hi` ceiling. Generated palettes depend on
-/// this behaviour (the term cancels in the chroma-ratio scaling), so it is left
-/// unchanged. The OKLCH picker needs a genuine boundary and uses its own
-/// unclamped `api::gamut::max_in_gamut_chroma` instead (RFC 0010 §3).
-pub fn max_in_gamut_chroma(lightness: f32, hue: f32) -> f32 {
-    let mut lo: f32 = 0.0;
-    let mut hi: f32 = 0.4;
-
-    for _ in 0..20 {
-        let mid = (lo + hi) / 2.0;
-        let srgb: LinSrgb = Oklch::new(lightness, mid, hue).into_color();
-
-        if srgb.red >= -0.001
-            && srgb.red <= 1.001
-            && srgb.green >= -0.001
-            && srgb.green <= 1.001
-            && srgb.blue >= -0.001
-            && srgb.blue <= 1.001
-        {
-            lo = mid;
-        } else {
-            hi = mid;
-        }
-    }
-
-    lo
+/// The cap is applied **here, in OkLCH, at constant lightness and hue**. That is
+/// the whole point: the alternative is to request whatever the chroma scale says
+/// and let per-channel clamping absorb the excess when the colour is written to
+/// hex — which reduces chroma *and moves hue*, because the channels do not clip
+/// evenly. Every degree of the ramps' rendered hue drift came from that clamp
+/// (RFC 0027 §11.1); capping in OkLCH gives up the same unrenderable chroma
+/// while holding the hue exactly.
+fn chroma_within_gamut(requested: f32, lightness: f32, hue: f32) -> f32 {
+    let ceiling = max_in_gamut_chroma(lightness, hue, Gamut::Srgb) * GAMUT_SAFETY_MARGIN;
+    requested.min(ceiling)
 }
 
 fn apply_padding_to_lightness(
@@ -286,15 +279,6 @@ pub fn generate_palette_with_scale(
     let adjusted_lightness =
         apply_padding_to_lightness(lightness_scale, light_padding, dark_padding);
 
-    // Express the base chroma as a fraction of its gamut maximum,
-    // so we can apply the same proportional saturation at every step.
-    let base_gamut_max = max_in_gamut_chroma(base_lightness, base_hue);
-    let base_ratio = if base_gamut_max > 0.001 {
-        (base_chroma / base_gamut_max).min(1.0)
-    } else {
-        0.0
-    };
-
     let backgrounds: Vec<SwatchStep> = STEPS
         .iter()
         .zip(adjusted_lightness.iter())
@@ -305,10 +289,8 @@ pub fn generate_palette_with_scale(
             } else {
                 let offset = reference_lightness - 0.55;
                 let l = (base_lightness + offset).clamp(0.01, 0.99);
-                let step_gamut_max = max_in_gamut_chroma(l, base_hue);
-                // Use 95% of gamut max as a safety margin to avoid edge clipping
-                let chroma = step_gamut_max * 0.95 * base_ratio * chroma_factor;
-                (l, chroma)
+                let requested = base_chroma * CHROMA_HEADROOM * chroma_factor;
+                (l, chroma_within_gamut(requested, l, base_hue))
             };
 
             let oklch_color = Oklch::new(final_lightness, final_chroma, base_hue);
@@ -346,13 +328,6 @@ pub fn generate_dark_palette(
     let base_lightness = base_500.l;
     let adjusted_curve = apply_padding_to_lightness(dark_curve, light_padding, dark_padding);
 
-    let base_gamut_max = max_in_gamut_chroma(base_lightness, base_hue);
-    let base_ratio = if base_gamut_max > 0.001 {
-        (base_chroma / base_gamut_max).min(1.0)
-    } else {
-        0.0
-    };
-
     let backgrounds: Vec<SwatchStep> = STEPS
         .iter()
         .enumerate()
@@ -374,10 +349,9 @@ pub fn generate_dark_palette(
                 base_lightness + frac * (DARK_TEXT_ANCHOR - base_lightness)
             };
             let l = l.clamp(0.01, 0.99);
-            let step_gamut_max = max_in_gamut_chroma(l, base_hue);
-            let chroma = step_gamut_max * 0.95 * base_ratio * chroma_factor;
+            let requested = base_chroma * CHROMA_HEADROOM * chroma_factor;
 
-            SwatchStep::from_label(l, chroma, base_hue, step)
+            SwatchStep::from_label(l, chroma_within_gamut(requested, l, base_hue), base_hue, step)
         })
         .collect();
 

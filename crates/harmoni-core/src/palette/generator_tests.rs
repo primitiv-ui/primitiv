@@ -154,18 +154,41 @@ mod generator_tests {
         }
     }
 
-    mod max_in_gamut_chroma_edge_cases {
+    mod gamut_awareness {
         use super::*;
+        use crate::color::gamut::{max_in_gamut_chroma as boundary, Gamut};
+        use crate::color::input::ColorInput;
+
+        /// `warning`'s shipped seed. Orange-yellow sits where sRGB is narrowest
+        /// at high lightness, so its light steps are where an un-gamut-aware
+        /// chroma search shows up worst.
+        fn warning_seed() -> Oklch {
+            ColorInput::Css("#e88e00".to_string())
+                .to_oklch()
+                .expect("the warning seed should parse")
+        }
 
         #[test]
-        fn returns_zero_when_hue_is_nan() {
-            // Every srgb.{red,green,blue} >= -0.001 comparison is false
-            // against a NaN-poisoned conversion, so the binary search's
-            // "out of gamut" branch (hi = mid) runs on every iteration and
-            // `lo` never advances past its 0.0 starting point.
-            let result = max_in_gamut_chroma(0.5, f32::NAN);
+        fn no_step_asks_for_more_chroma_than_the_gamut_can_render() {
+            // The chroma scale is a fraction of what the gamut allows at each
+            // step — that is the design. It has never worked: the generator's
+            // own gamut search returns a constant, so the term cancels and the
+            // request ignores the gamut entirely. What cannot be rendered is
+            // then absorbed by per-channel clamping at hex time, which is what
+            // bends the hue (RFC 0027 §11.1).
+            let palette = generate_palette(warning_seed(), 0.0, 0.0);
 
-            assert_eq!(result, 0.0);
+            for swatch in &palette.swatches {
+                let available = boundary(swatch.l, swatch.h, Gamut::Srgb);
+                assert!(
+                    swatch.c <= available,
+                    "step {} asks for {:.4} chroma where the gamut allows {:.4} ({:.1}x)",
+                    swatch.label,
+                    swatch.c,
+                    available,
+                    swatch.c / available,
+                );
+            }
         }
     }
 
@@ -173,9 +196,8 @@ mod generator_tests {
         use super::*;
 
         // A NaN hue drives max_in_gamut_chroma to 0.0 (see
-        // max_in_gamut_chroma_edge_cases above), so base_ratio takes the
-        // "0.0" fallback arm instead of dividing by the gamut ceiling. The
-        // NaN hue then poisons every background's Oklab a/b via `chroma *
+        // `color::gamut_tests`), so the gamut ceiling is 0.0 and every step's
+        // chroma is capped to nothing. The NaN hue then poisons every background's Oklab a/b via `chroma *
         // hue.cos()` (0.0 * NaN is NaN, not 0.0), which in turn poisons
         // relative luminance — so the audit's "impossible" guarantee in
         // get_best_foreground is genuinely violated and it panics. This

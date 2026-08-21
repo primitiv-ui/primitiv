@@ -45,6 +45,7 @@ export * from "./Toggle/index.ts";
 export * from "./ToggleGroup/index.ts";
 export * from "./Tooltip/index.ts";
 export * from "./Tree/index.ts";
+export * from "./useLocalStorage/index.ts";
 export * from "./useMediaQuery/index.ts";
 export * from "./usePagination/index.ts";
 export * from "./VisuallyHidden/index.ts";

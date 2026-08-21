@@ -20,6 +20,8 @@ import {
   type PlaygroundControl,
 } from "@/lib/playground";
 
+import { useMode, type Mode } from "@/site/preferences";
+
 import "./playground.css";
 
 const titleCase = (s: string) => s[0].toUpperCase() + s.slice(1);
@@ -70,7 +72,9 @@ export type PlaygroundProps = {
   controls: readonly PlaygroundControl[];
   children: (values: Record<string, string>) => ReactNode;
   snippetChildren?: string;
-  snippetPrefix?: string;
+  snippetPrefix?: string | ((mode: Mode) => string);
+  /** Replaces the generated snippet — see `ComponentSpec.playground.snippet`. */
+  snippet?: (values: Record<string, string>, mode: Mode) => string;
 };
 
 /**
@@ -113,12 +117,23 @@ export const Playground = ({
   children,
   snippetChildren,
   snippetPrefix,
+  snippet,
 }: PlaygroundProps) => {
   const [values, setValues] = useState(() => initialValues(controls));
   const [density, setDensity] = useState<Density>(DEFAULT_DENSITY);
+  const [mode] = useMode();
 
-  const jsx = toJsx({ component, values, controls, children: snippetChildren });
-  const code = snippetPrefix ? `${snippetPrefix}\n\n${jsx}` : jsx;
+  /* The snippet has to know the mode: a compound's part names differ between
+     headless (`Select.Trigger`) and styled (`SelectTrigger`), and only one of
+     the two is importable at a time. Read here rather than threaded from the
+     page, because `useMode` is a shared store — every caller subscribes to the
+     same key (see preferences.ts). */
+  const jsx = snippet
+    ? snippet(values, mode)
+    : toJsx({ component, values, controls, children: snippetChildren });
+  const prefix =
+    typeof snippetPrefix === "function" ? snippetPrefix(mode) : snippetPrefix;
+  const code = prefix ? `${prefix}\n\n${jsx}` : jsx;
 
   return (
     <Stack gap="md">

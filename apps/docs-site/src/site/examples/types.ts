@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
 
+import type { Mode } from "@/site/preferences";
+
 /**
  * The bespoke half of a component page.
  *
@@ -18,8 +20,38 @@ export type ComponentSpec = {
     readonly component: string;
     /** Literal children placed inside the generated snippet. */
     readonly snippetChildren?: string;
-    /** Extra lines above the snippet, e.g. an import. */
-    readonly snippetPrefix?: string;
+    /**
+     * Extra lines above the snippet — in practice, the import block.
+     *
+     * A function when it depends on the consumption mode, which an import always
+     * does: the specifier differs (`@primitiv-ui/react` vs the copied
+     * `@/components/ui/<id>`) and for a compound the named symbols differ too.
+     */
+    readonly snippetPrefix?: string | ((mode: Mode) => string);
+    /**
+     * Writes the whole snippet, replacing the generated one.
+     *
+     * The generated `toJsx` puts every control on the NAMED component, which is
+     * right only when the controls are that component's own props. For a
+     * compound whose modifiers live on child parts it produces a lie: Select's
+     * `size`/`mode`/`placement` are declared on `Select.Trigger` and
+     * `Select.Content`, so the generated line reads
+     * `<Select size="md" mode="rich" placement="bottom-start" />` — three props
+     * the root does not accept, on a component that in rich mode renders no
+     * element at all.
+     *
+     * Providing this is therefore not a styling preference, it is the escape
+     * hatch for "the controls do not belong to the root". Keep the same
+     * every-prop-including-defaults rule that `toJsx` follows, for the same
+     * reason: the snippet is a readout of the current state, so a control whose
+     * value never appears looks broken.
+     *
+     * Receives the consumption `mode`, because a compound's part names are not
+     * mode-independent: headless exports one `Select` and the parts hang off it
+     * (`Select.Trigger`), while styled copies a file of flat exports
+     * (`SelectTrigger`) that exist nowhere else. See `partNamer`/`importBlock`.
+     */
+    readonly snippet?: (values: Record<string, string>, mode: Mode) => string;
     /** Renders the live preview for the current control values. */
     readonly render: (values: Record<string, string>) => ReactNode;
   };

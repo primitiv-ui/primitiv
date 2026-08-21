@@ -4,8 +4,21 @@ import Link from "next/link";
 import { ArrowRight, Plus } from "@primitiv-ui/icons";
 
 import { Button } from "@/components/button";
+import { importBlock } from "@/lib/playground";
 import { InteractiveExample } from "@/site/InteractiveExample";
+import type { Mode } from "@/site/preferences";
 import type { ComponentSpec } from "./types";
+
+/**
+ * The import lines for a Button snippet, in the current mode.
+ *
+ * Only the specifier varies here — Button is a single part, so there are no part
+ * names to disagree about (which is why the mode-aware naming Select needs never
+ * came up on this page). The line still has to change, because the styled export
+ * lives in the file `primitiv add` copied rather than in the package.
+ */
+const imports = (mode: Mode, icons: readonly string[] = []) =>
+  importBlock({ mode, component: "Button", componentId: "button", icons });
 
 const SIZES = ["xs", "sm", "md", "lg", "xl"] as const;
 const VARIANTS = ["primary", "secondary", "danger", "ghost", "link"] as const;
@@ -20,6 +33,7 @@ export const buttonSpec: ComponentSpec = {
   playground: {
     component: "Button",
     snippetChildren: "Save changes",
+    snippetPrefix: (mode) => imports(mode),
     render: (values) => (
       <Button
         variant={values.variant as (typeof VARIANTS)[number]}
@@ -37,8 +51,10 @@ export const buttonSpec: ComponentSpec = {
       render: () => (
         <InteractiveExample
           caption="Five intents. `primary` carries the main action on a view; `link` reads as text so it keeps the button's hit area and focus ring."
-          code={(density) =>
+          code={(density, mode) =>
             [
+              imports(mode),
+              ``,
               `<div data-density="${density}">`,
               ...VARIANTS.map(
                 (v) =>
@@ -64,8 +80,10 @@ export const buttonSpec: ComponentSpec = {
       render: () => (
         <InteractiveExample
           caption="Five sizes — and every one rescales again with the nearest `data-density` ancestor. Change the density above and watch the whole ramp shift: that is the Context system, not a `Button` prop."
-          code={(density) =>
+          code={(density, mode) =>
             [
+              imports(mode),
+              ``,
               `<div data-density="${density}">`,
               ...SIZES.map((s) => `  <Button size="${s}">Button ${s}</Button>`),
               `</div>`,
@@ -88,8 +106,10 @@ export const buttonSpec: ComponentSpec = {
       render: () => (
         <InteractiveExample
           caption="Icons are `children`, not props, so a leading or trailing glyph is just composition — nothing to configure."
-          code={() =>
+          code={(_density, mode) =>
             [
+              imports(mode, ["ArrowRight", "Plus"]),
+              ``,
               `<Button>`,
               `  <Plus />`,
               `  Add item`,
@@ -125,8 +145,11 @@ export const buttonSpec: ComponentSpec = {
           caption={
             '`asChild` renders your own element instead of a `<button>` — here a Next `<Link>` — merging the button props and styles onto it. The a11y wiring follows, so it stays `role="link"`.'
           }
-          code={() =>
+          code={(_density, mode) =>
             [
+              `import Link from "next/link";`,
+              imports(mode, ["ArrowRight"]),
+              ``,
               `<Button asChild>`,
               `  <Link href="/components">`,
               `    <span className="primitiv-button__label">View the docs</span>`,
@@ -156,8 +179,10 @@ export const buttonSpec: ComponentSpec = {
       render: () => (
         <InteractiveExample
           caption="`disabled` sets the native attribute and exposes `data-disabled`, so pointer events stop and the focus ring is suppressed — no ARIA needed, because the real attribute is doing the work."
-          code={() =>
+          code={(_density, mode) =>
             [
+              imports(mode),
+              ``,
               `<Button disabled>Save changes</Button>`,
               `<Button variant="secondary" disabled>Cancel</Button>`,
             ].join("\n")

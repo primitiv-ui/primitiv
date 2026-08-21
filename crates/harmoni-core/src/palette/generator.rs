@@ -106,6 +106,42 @@ pub const TARGET_LIGHTNESS: [f32; 10] =
 pub const TARGET_CHROMA_SCALE: [f32; 10] =
     [0.12, 0.35, 0.65, 0.80, 0.92, 1.0, 0.92, 0.80, 0.65, 0.50];
 
+/// The shortest ramp the model supports: a light end, the brand, a dark end.
+pub const MIN_STEPS: usize = 3;
+
+/// The index carrying label 500 — the step the brand seed is pinned to.
+///
+/// Index 0 is the tint step (50), so the main 100-900 ladder occupies
+/// `1..count`, and 500 sits at its midpoint. At ten steps this is index 5,
+/// which is where 500 has always been.
+pub fn pivot_index(count: usize) -> usize {
+    let midpoint = 1 + (((count - 2) as f32) / 2.0).round() as usize;
+    // At least one step has to sit above 500, or a ramp loses its dark end.
+    midpoint.min(count - 2)
+}
+
+/// The numeric labels for a ramp of `count` steps.
+///
+/// Index 0 is 50 and the rest walk 100-900 in two halves that meet at 500, so
+/// every ramp — whatever its length — still has a 500 step for the brand to
+/// pin to and for the semantic layer to alias. Labels are rounded to the
+/// nearest ten to stay readable as token names.
+pub fn step_labels(count: usize) -> Vec<u16> {
+    let pivot = pivot_index(count);
+    let round_to_ten = |value: f32| (value / 10.0).round() as u16 * 10;
+
+    (0..count)
+        .map(|index| match index {
+            0 => 50,
+            i if i == pivot => 500,
+            i if i < pivot => {
+                round_to_ten(100.0 + 400.0 * (i - 1) as f32 / (pivot - 1) as f32)
+            }
+            i => round_to_ten(500.0 + 400.0 * (i - pivot) as f32 / (count - 1 - pivot) as f32),
+        })
+        .collect()
+}
+
 /// Sample a curve's *shape* at `count` evenly-spaced positions.
 ///
 /// A ramp's length is a user knob, but the curves above describe a shape at ten

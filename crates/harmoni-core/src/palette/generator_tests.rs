@@ -140,6 +140,39 @@ mod generator_tests {
         }
     }
 
+    mod step_label_ladder {
+        use super::*;
+
+        #[test]
+        fn ten_steps_reproduce_the_ladder_this_engine_has_always_used() {
+            assert_eq!(
+                step_labels(10),
+                vec![50, 100, 200, 300, 400, 500, 600, 700, 800, 900]
+            );
+        }
+
+        #[test]
+        fn every_supported_length_ascends_and_carries_exactly_one_500_step() {
+            // 500 is where the brand pins and what the semantic layer aliases,
+            // so no ramp length may lose it — and the shortest ramp that can
+            // hold a light end, the brand and a dark end is three steps.
+            for count in MIN_STEPS..=32 {
+                let labels = step_labels(count);
+
+                assert_eq!(labels.len(), count, "length {count}");
+                assert_eq!(
+                    labels.iter().filter(|&&l| l == 500).count(),
+                    1,
+                    "length {count} labels {labels:?}"
+                );
+                assert!(
+                    labels.windows(2).all(|w| w[0] < w[1]),
+                    "length {count} labels {labels:?}"
+                );
+            }
+        }
+    }
+
     mod swatch_label {
         use super::*;
 

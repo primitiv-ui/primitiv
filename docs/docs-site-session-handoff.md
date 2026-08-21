@@ -1,22 +1,67 @@
 # Docs site — session handoff (2026-08-21)
 
-Continuing the `apps/docs-site` build. The **Button** component page is the
-finished reference; **Select** is next and should be brought to the same
-standard. Read `docs/registry-bugs.md` alongside this.
+Continuing the `apps/docs-site` build. **Button and Select are both built.** Read
+`docs/registry-bugs.md` alongside this — it now runs to §9.
 
 ---
 
 ## State
 
-- **Pushed to `main`:** 8 commits ending `00a335fc` — `useLocalStorage` in
-  `packages/react`, two registry fixes at source (Button underline, List nested
-  layout), the Select docs-data extractor entry, the docs-site scaffold, the
-  registry-bugs record, InlineCode props tables, and the published-icons switch.
-- **UNCOMMITTED** at handoff: the component-page template rebuilt against Figma,
-  plus a batch of tweaks (see "What Button now does"), and a `:has()` scoping fix
-  to `List` in `registry/components/list/styles.{css,scss}` and both app copies.
-  Commit these in logical pieces before starting Select.
+- **Pushed to `main`.** The previous session's work was already committed and in
+  sync; this session added five commits taking Select to Button's standard.
 - Dev server: `cd apps/docs-site && pnpm dev` → **http://localhost:4100**.
+
+### What the Select pass changed
+
+Select's Figma frame turned out to specify a RICHER template than Button's, not
+the same one — it adds three sections and drops none:
+
+- **Anatomy** (new) — the part tree as a tabbed `CodeBlock`, one tab per render
+  path, each part paired with the DOM/ARIA it emits in a trailing `//` comment.
+  Earns its section because five of Select's nine parts render nothing under
+  `native`, so neither tree can be inferred from the other. Opt-in per spec
+  (`anatomy`); Button has one part and gets none.
+- **Keyboard** (new) — a Key/Behaviour table with `Kbd` caps. Hand-authored
+  (`keyboard`), because key handling lives in the headless hooks and is nowhere
+  in `contract.json`. A `literal` flag keeps "printable character" out of a key
+  cap, since it names a class of key rather than a key.
+- **Data attributes** (new) — **generated** from `contract.json`, so it is
+  guarded on the data rather than the spec and Button gets a one-row table for
+  free. This needed an extractor change: `dataAttributes` carried only NAMES, and
+  `data-state` is declared twice (`checked`/`unchecked`), so keyed on the name
+  alone the second row vanished. Now carries name/value/when.
+- **Accessibility is KEPT**, though Select's frame omits it. The frame's Keyboard
+  table is a subset of a11y documentation, and dropping the section would have
+  lost the top-layer, form-submission and unmount-while-closed notes. Additive
+  reading, deliberate.
+- **Styling contract is grouped by part** once there is more than one — 58
+  undifferentiated names is a wall. The grouping is DERIVED from the names
+  (`--primitiv-select-<part>-…`), never listed, and anything unrecognised falls
+  into the base group so a new part shows up in the wrong place rather than
+  disappearing. Button (15 knobs, one part) still renders one ungrouped list.
+
+Three defects found by measuring, all invisible in review:
+
+1. **The playground was dead.** Controls came from `subs[0].contractProps`, and
+   `Select.Root` has none (they are on `Select.Trigger`) — so zero controls and a
+   snippet reading `<Select />`. `contractControls` now gathers across every
+   part, deduped. It failed silently because an empty control set is legitimate.
+2. **Every Select panel was unanchored**, painting at the viewport corner.
+   Registry-bugs §7a — fixed at source, the same fix `dropdown` already carries.
+3. **No chevrons anywhere**, and the trigger hugged to 61px as a result. The
+   component does not supply one in rich mode; registry-bugs §7b.
+
+Two things the human corrected mid-session, worth keeping:
+
+- **Icons belong in the playground's rich rows** — it is the headline rich-mode
+  feature and the caption claims it. The icon set has 47 general-purpose glyphs
+  and no framework logos, so the playground uses its own theme-picker data
+  (Sun/Moon/Settings) where the glyphs mean something, while the examples keep
+  the frame's framework data. Flipping Mode to `native` then visibly drops the
+  icons and the mark, which demonstrates the native path's real cost.
+- **The preview box stays at Button's 96px.** A taller box was tried so the open
+  panel would not cover the controls; it was rejected as too big. The knob was
+  removed rather than left unused.
 
 **Pushing.** Work directly on `main` — no branches, no PRs. The remote gains
 commits from other sessions (a 27-commit Harmoni run landed mid-session), so a
@@ -123,6 +168,36 @@ new page code, only its spec and any shape differences.
 - **Accessibility** — registry `List` with markers on, notes through
   `renderDoc`.
 
+## Snippets are mode-aware now — read this before adding a component
+
+The nav's mode switch (default **headless**) changes what a snippet may name, and
+this was silently wrong before Select exposed it:
+
+- **headless** — one compound export, parts reached through it: `Select.Trigger`.
+  These are also the names the props tables use.
+- **styled** — `primitiv add` copies a file of flat exports: `SelectTrigger`,
+  which exists *only* in that file.
+
+Button never showed the problem: `<Button variant="…">` reads identically in both
+modes. Select's page had been printing `SelectTrigger` in the default mode, where
+it is not importable.
+
+Use `partNamer(mode, "Select")` for part names and `importBlock({…})` for the
+import lines (`src/lib/playground.ts`). Every snippet now carries its imports,
+which is also what makes the difference self-evidencing — the reader can see
+`SelectTrigger` present in one mode and absent in the other. `ComponentSpec`'s
+`snippet` and each example's `code` both receive `mode`; `snippetPrefix` accepts
+a function of it.
+
+Also: **`toJsx` is only right when the controls are the ROOT's props.** For a
+compound whose modifiers sit on child parts it emits a lie — Select's generated
+line was `<Select size="md" mode="rich" placement="bottom-start" />`, three props
+the root does not accept. That is what `playground.snippet` is the escape hatch
+for, not styling preference.
+
+**Figma mode still gets the dot form**, which is the closer read but not really
+right — JSX is not the artifact a designer wants. See Outstanding.
+
 ## Select specifically
 
 - Spec lives in `src/site/examples/select.tsx`; 4 examples already exist (Rich
@@ -159,11 +234,34 @@ new page code, only its spec and any shape differences.
 
 ## Outstanding
 
-1. Commit + push the uncommitted work.
-2. Bring Select up to Button's standard.
-3. **Mobile drawer menu** — both header segmented controls hide below `48rem`
+1. **Mobile drawer menu** — both header segmented controls hide below `48rem`
    awaiting it, and the sidebar/TOC rails are hidden below `64rem` with no
    replacement.
-4. **Accessibility pass** — deferred by the user until after the first build;
+2. **Accessibility pass** — deferred by the user until after the first build;
    they want excellent scores.
-5. Registry-bugs §3, §4, §5 are open and need decisions.
+3. **Figma mode shows JSX.** Every code block falls back to the headless dot form
+   in Figma mode. A designer wants the component-set path and its property values
+   (`Select / Trigger · Size=md`), the way the Installation panel already handles
+   Figma honestly. Not designed in the frame either.
+4. **The main column is 632px, the frame says 920** (824 content). Registry-bugs
+   §9 — a shell-wide change, so it wants a deliberate call. It is why the anatomy
+   tree needs a no-wrap override at all.
+5. **The playground has no `State` control**, which Select's frame draws (a fourth
+   Select beside Size/Mode/Placement, showing `default`). Deliberately skipped:
+   `disabled` and invalid are not contract modifiers, and `toJsx`'s rule is that
+   every control appears in the snippet — so a control that must NOT appear needs
+   a "not a prop" concept the playground does not have. The states are documented
+   in the Data attributes table instead.
+6. Registry-bugs **§3, §4, §5, §7b, §8** are open and need decisions.
+
+Two notes on the gates, both cost time this session:
+
+- `check-registry-stylesheets.mjs` lives at the **repo root**, not
+  `apps/docs-site/scripts/` (the old line above was wrong).
+- The Playwright measuring script must run from `apps/kitchen-sink` AND
+  `page.evaluate` takes **one** argument — pass an object, or it throws
+  *"Too many arguments"*.
+- Copying a registry `.tsx` over an app copy **strips its stylesheet import**
+  (the CLI prepends `import "../styles/primitiv/<name>/styles.css"`, the registry
+  source has none). Doing that silently unstyled the whole component and cost a
+  wrong-diagnosis detour. Re-add the line after any such copy.

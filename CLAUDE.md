@@ -929,7 +929,8 @@ source of truth for when a skill applies.
     meaningful. It is also why the panel can animate in but not out.
 
 
-- **RFC 0027 (ramp quality metrics) — steps 1–3 landed (2026-08-20); 4–7 open.**
+- **RFC 0027 (ramp quality metrics) — steps 1–4 landed (2026-08-20/21); step 5
+  blocked, 6–7 open.**
   `harmoni-core::audit::ramp` now owns `assess(&Palette, Gamut) -> RampQuality`,
   exposed as `api::assess_ramp`. The gamut boundary primitive moved down to
   `color::gamut` first (`audit` must not reach up into `api`); `api::gamut`
@@ -966,6 +967,37 @@ source of truth for when a skill applies.
     failures today (`warning` light: 33.4° span, ΔL exactly 0.0) and a gate would
     block the fix. The `ramp-audit` example now measures through `assess_ramp`
     instead of its own maths; its output was byte-identical across the rewire.
+  - **Step 4 (landed): chroma is capped in OkLCH, at constant lightness and hue.**
+    That is the entire fix — the alternative, letting per-channel clipping absorb
+    the excess at hex time, reduces chroma *and* moves hue because the channels
+    don't clip evenly. Rendered hue span went 33.4°/31.2° → **under 6° on every
+    ramp**, which unlocked the hue-span gate the RFC couldn't write. The request
+    formula deliberately keeps the original `0.95` headroom so in-gamut steps stay
+    **byte-identical** and "what changed" is exactly "what was broken".
+    `primitiv-emit`'s three `theme --brand` goldens move with the engine —
+    regenerate with `cargo run -p primitiv-emit --example regen-brand-goldens`,
+    never by hand.
+  - **Step 5 (regenerate) is BLOCKED on a design call — don't just run it.** The
+    fix unmasked a second, independent defect: the light palette **shifts** its
+    lightness curve (`base_l + ref - 0.55`) where the dark palette **anchors**
+    it, so any seed lighter than ~0.60 collides steps at the `0.99` clamp.
+    `warning` (seed L 0.72) renders **three identical near-whites**
+    (`#fffbf7` ×3); a hard yellow (L 0.84) renders four. This was always true
+    (ΔL was already 0.0) but was masked by out-of-gamut clipping rendering the
+    steps as distinguishable yellows. Applying dark's anchored two-segment model
+    to the light side fixes it and barely moves mid-lightness seeds — but it
+    changes every ramp, so it's a human's call (RFC 0027 §8, §12).
+  - **The committed palette's vivid light steps were out-of-gamut renders.**
+    `info-300`'s `#00cbd5` — the swatch RFC §1 holds up as what was lost — is one.
+    So regeneration *reduces* light-end chroma: `info` −26%, `warning` −18%,
+    `brand` 0% under an anchored model (`warning` −63% under today's). That
+    residual is the real price of ramps that hold their hue in sRGB.
+  - **`cargo llvm-cov` accumulates stale profile data across builds.** After a
+    `git stash`/checkout round-trip it reported `generator.rs` at 73% with
+    `Display for SwatchLabel` "uncovered" despite passing tests — two
+    differently-hashed copies of the same file failing to merge. Run
+    **`cargo llvm-cov clean --workspace`** before trusting any coverage number
+    that follows a code switch.
 
 ## Figma plugin-API gotchas (scripting via `figma_execute`)
 

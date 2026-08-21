@@ -1,6 +1,6 @@
 # Registry bugs — surfaced by the docs-site build
 
-Status as of 2026-08-21. All six were found while building `apps/docs-site`,
+Status as of 2026-08-21. The first six were found while building `apps/docs-site`,
 which is the **first consumer that imports registry components individually**
 rather than through a barrel that pulls in all 63. That distinction is what
 exposed them: the kitchen-sink imports everything, so most of these are invisible
@@ -361,3 +361,106 @@ slash, so no section auto-opened and `aria-current` never matched anywhere.
 
 Lesson: for any "why is this spaced/positioned wrong" question, measure first.
 Reading CSS finds rules you wrote; measuring finds rules you inherited.
+
+---
+
+## 7. `select` — the panel was not anchored, and the chevron is asymmetric — FIXED / OPEN
+
+Two findings on the same component, from building its docs page.
+
+### 7a. The panel pinned to the viewport corner — FIXED
+
+**Symptom.** Every open Select listbox on the page painted at the top-left of the
+viewport, over the site header.
+
+**Measured**, not inferred (the CSS reads as if it should work): with the trigger
+at `(425, 723)` the panel sat at `(0, 4)`, all four insets computing to `0px` and
+`margin: auto` doing the positioning. `anchor-name` was `none` on all five
+triggers.
+
+**Cause.** `select` required the CONSUMER to wire the anchor pair by hand —
+`style={{ anchorName }}` on the trigger, `style={{ positionAnchor }}` on Content
+— per its own README and stylesheet. Nothing supplies it, so with no ident the
+`anchor()` insets never resolve and the UA `[popover]` centring wins.
+
+This is the third time the same bug has been fixed in this registry.
+`dropdown`'s header comment already says it outright: *"every consumer ended up
+writing the same useId-derived wrapper by hand"*, and `breadcrumb-overflow` and
+`pagination` each derive their own. `select` was simply never given the same
+treatment — and it needs it MORE than the others, because its panel is a
+top-layer popover whose failure mode is landing in the corner of the screen
+rather than merely a few pixels out.
+
+**Fix (landed).** `Select` mints an ident from `useId()` and hands it to Trigger
+and Content through context, exactly as `dropdown` does. The native path skips
+the provider (the platform owns that popup). A consumer's own `style.anchorName`
+/ `style.positionAnchor` still wins on spread order, which keeps "anchor the
+panel to something else" available. Applied to `registry/components/select/`
+(tsx, both stylesheets, `contract.json`, README) and both app copies.
+Re-measured after: `dx: 0`, 4px below the trigger, panel width equal to the
+trigger's, on all four instances.
+
+**Worth generalising.** Four components have now hand-rolled the same
+`toAnchorIdent` + context pair. It wants to be one shared helper — and the
+remaining anchor-positioned components (`context-menu`, `popover`, `tooltip`,
+`combobox`, `navigation-menu`) should be audited for the same gap rather than
+waiting for a consumer to find each one.
+
+### 7b. The rich trigger has no chevron, but the native one does — OPEN
+
+**Symptom.** A rich `SelectTrigger` renders as bare text with no disclosure
+affordance. Spotted on the rendered page, not in review.
+
+**Cause.** Not a bug in the strict sense — `SelectIcon` is a part the consumer
+composes, and the README's example includes it. But the two render paths
+disagree: under `native` the STYLESHEET paints its own chevron over the UA arrow
+(`contract.json` describes this as deliberate), so a native Select gets one for
+free while a rich Select silently gets nothing. Same component, same prop
+surface, two different answers to "is there a chevron".
+
+Omitting it is also invisible in code review and obvious on screen, which is the
+signature of a defaulting problem rather than a documentation one.
+
+**Options.** Either have `SelectTrigger` render a default `SelectIcon` when the
+consumer supplies none (matching the native path, and matching what every design
+in the Figma file draws), or drop the native path's painted chevron so both
+require the part. The first is the smaller surprise. Needs a decision — it is a
+visual default change on a shipped component.
+
+---
+
+## 8. `code-block` always wraps, and one consumer needs it not to — WORKED AROUND
+
+**Symptom.** The docs site's anatomy tree — component parts on the left, the DOM
+they emit in an aligned trailing `//` comment — reflowed, dropping each
+annotation onto the next line where it read as belonging to the part below.
+
+**Cause, and it is deliberate.** `code-block`'s `__pre` sets
+`white-space: pre-wrap; overflow-wrap: anywhere`, with a comment recording that a
+horizontal scrollbar was worse on mobile. That is the right default for ordinary
+snippets. It is wrong for content whose column alignment IS the content.
+
+**Workaround in place.** `apps/docs-site` scopes `white-space: pre` +
+`overflow-wrap: normal` to `.docs-anatomy`, so that one block scrolls inside its
+own box — the same contract the props tables already use via `TableScrollArea`.
+
+**Proposed fix.** A `wrap={false}` prop on `CodeBlock`, if a second consumer
+wants it. Not worth changing the default: one consumer with alignment-critical
+content does not outweigh the mobile reasoning already recorded in the sheet.
+
+---
+
+## 9. Not a registry bug: the docs column is 632px where the frame says 920
+
+Recorded here because it was measured during the same pass and affects how every
+code block and props table reads.
+
+`.docs-grid` caps at `--primitiv-breakpoint-xl` (1280) and then subtracts two
+container gutters and two grid gaps from the 260/1fr/260 columns, leaving **632px**
+for the main column — and it does not grow past that at any viewport width. The
+Figma component-page frame specifies 260/920/260 inside 1440, i.e. 824px of
+content after the column's own padding.
+
+Not changed here: it is a shell-wide property of the already-accepted Button page,
+so widening it is a deliberate design call rather than a drive-by fix. It is the
+reason the anatomy tree needed §8 at all — at 824px those lines fit.

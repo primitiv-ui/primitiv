@@ -77,3 +77,29 @@
   line-height: var(--primitiv-body-sm-line-height);
   color: var(--primitiv-content-muted);
 }
+
+/* ── Anatomy: the one code block that must not reflow ─────────────────────── */
+
+/*
+ * The registry `code-block` wraps on purpose — `white-space: pre-wrap` +
+ * `overflow-wrap: anywhere` on `__pre`, so a long line reflows instead of
+ * pushing a horizontal scrollbar (its own comment records that being caught on
+ * mobile). That is the right default for the snippets on this page.
+ *
+ * It is wrong for exactly one of them. The anatomy tree pairs each part with the
+ * DOM it emits in a trailing `//` comment, aligned into a column — that column
+ * IS the content, and reflowing a line drops its annotation onto the next row
+ * where it reads as belonging to the part below. So this block scrolls instead,
+ * inside its own box: the same contract the props tables already use, and it
+ * never widens the page.
+ *
+ * Scoped to `.docs-anatomy` rather than fixed in the registry component,
+ * because the component's default is a considered decision with a stated reason
+ * and this is one consumer's content needing the opposite. Recorded in
+ * docs/registry-bugs.md §8 — if a second consumer wants it, the component wants
+ * a `wrap={false}` knob rather than a second copy of this rule.
+ */
+.docs-anatomy .primitiv-code-block__pre {
+  white-space: pre;
+  overflow-wrap: normal;
+}

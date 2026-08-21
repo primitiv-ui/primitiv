@@ -9,6 +9,7 @@ import { Stack } from "@/components/stack";
 import { DensityRadios } from "./DensityRadios";
 import { DEFAULT_DENSITY, type Density } from "@/lib/playground";
 import { renderDoc } from "@/lib/render-doc";
+import { useMode, type Mode } from "@/site/preferences";
 
 import "./playground.css";
 
@@ -32,9 +33,12 @@ export const InteractiveExample = ({
 }: {
   caption?: ReactNode;
   children: (density: Density) => ReactNode;
-  code: (density: Density) => string;
+  code: (density: Density, mode: Mode) => string;
 }) => {
   const [density, setDensity] = useState<Density>(DEFAULT_DENSITY);
+  /* Same reason as the Playground: a compound's part names differ by mode, and
+     naming a symbol the reader cannot import is worse than no snippet. */
+  const [mode] = useMode();
 
   return (
     <Stack gap="md">
@@ -58,7 +62,7 @@ export const InteractiveExample = ({
         </CardContent>
       </Card>
 
-      <CodeBlock code={code(density)} language="tsx" size="sm" />
+      <CodeBlock code={code(density, mode)} language="tsx" size="sm" />
     </Stack>
   );
 };

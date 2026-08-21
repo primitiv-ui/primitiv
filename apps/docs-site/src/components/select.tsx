@@ -13,12 +13,32 @@ import "../styles/primitiv/select/styles.css";
  * `native` picks the render path. Under `native` the root IS the control, so it
  * takes the frame classes (mode `native`, which keeps the platform popup and
  * arrow); in rich mode the frame goes on Trigger (mode `rich`) and the panel on
- * Content. Positioning is CSS anchor positioning — wire an `anchor-name` on the
- * trigger and a matching `position-anchor` on Content. Keep contract.json + the
- * stylesheet + this file in sync by hand.
+ * Content. Keep contract.json + the stylesheet + this file in sync by hand.
+ *
+ * Positioning is CSS anchor positioning, and `Select` derives its OWN
+ * `anchor-name` — it does not ask the consumer to wire one. This mirrors the fix
+ * `dropdown` (and `breadcrumb-overflow`, and `pagination`) already makes, for
+ * the same reason: a page may hold more than one Select, so a static ident is
+ * unusable, and every consumer ended up writing the same `useId`-derived
+ * wrapper by hand. Left to the consumer it also fails in the worst possible
+ * way — with no ident the panel's `anchor()` insets do not resolve, so instead
+ * of landing near the trigger it pins to the viewport's top-left corner.
+ *
+ * It is an inline style rather than a custom property because `anchor-name:
+ * var(--x)` does not work: the property is not var()-substitutable in this
+ * position and computes to `none`. A consumer's own `style.anchorName` /
+ * `style.positionAnchor` still wins (spread order), which is the escape hatch
+ * for anchoring the panel to something other than its trigger.
  */
 import { Select as SelectPrimitive } from "@primitiv-ui/react";
-import { type ComponentPropsWithRef } from "react";
+import {
+  createContext,
+  useContext,
+  useId,
+  type ComponentPropsWithRef,
+  type CSSProperties,
+  type ReactNode,
+} from "react";
 import {
   select,
   selectValue,
@@ -42,6 +62,24 @@ const cx = (...classes: (string | undefined)[]) => classes.filter(Boolean).join(
 type SelectSize = "xs" | "sm" | "md" | "lg" | "xl";
 
 type SelectPlacement = "bottom-start" | "bottom-end" | "top-start" | "top-end";
+
+/* `useId()` returns something like ":r3:", and a CSS <custom-ident> may not
+   contain a colon — so every character outside [A-Za-z0-9_-] becomes a hyphen.
+   Same helper as NavigationMenu's `toAnchorIdentFragment` and dropdown's copy. */
+const toAnchorIdent = (id: string) => `--primitiv-select-${id.replace(/[^A-Za-z0-9_-]/g, "-")}`;
+
+/* Undefined outside a `Select`, which is what keeps the parts usable on their
+   own — they simply set no ident, exactly as before this existed. */
+const SelectAnchorContext = createContext<string | undefined>(undefined);
+
+function useAnchorIdent(): string | undefined {
+  return useContext(SelectAnchorContext);
+}
+
+function AnchorProvider({ children }: { children: ReactNode }) {
+  const ident = toAnchorIdent(useId());
+  return <SelectAnchorContext.Provider value={ident}>{children}</SelectAnchorContext.Provider>;
+}
 
 /**
  * A single-select control with two render paths behind one API — a rich
@@ -69,7 +107,10 @@ export function Select({ size, className, ...props }: SelectProps) {
   const nativeClassName = props.native
     ? cx(select({ size, mode: "native" }), className)
     : className;
-  return <SelectPrimitive.Root className={nativeClassName} {...props} />;
+  const root = <SelectPrimitive.Root className={nativeClassName} {...props} />;
+  // The native path has no panel to anchor — the platform owns the popup — so it
+  // skips the provider rather than minting an ident nothing consumes.
+  return props.native ? root : <AnchorProvider>{root}</AnchorProvider>;
 }
 
 export type SelectTriggerProps = DistributiveOmit<
@@ -85,10 +126,12 @@ export type SelectTriggerProps = DistributiveOmit<
   size?: SelectSize;
 };
 
-export function SelectTrigger({ size, className, ...props }: SelectTriggerProps) {
+export function SelectTrigger({ size, className, style, ...props }: SelectTriggerProps) {
+  const anchorName = useAnchorIdent();
   return (
     <SelectPrimitive.Trigger
       className={cx(select({ size, mode: "rich" }), className)}
+      style={{ anchorName, ...style } as CSSProperties}
       {...props}
     />
   );
@@ -137,18 +180,27 @@ export type SelectContentProps = DistributiveOmit<
    */
   size?: SelectSize;
   /**
-   * Which side of the trigger the panel opens on. Wire `anchor-name` on the
-   * trigger and a matching `position-anchor` on this panel (inline style).
+   * Which side of the trigger the panel opens on. The anchor wiring is automatic
+   * — `Select` publishes an `anchor-name` on the trigger and this panel picks it
+   * up; pass your own `style.positionAnchor` to anchor elsewhere.
    * @default "bottom-start"
    * @see https://primitiv-ui.dev/docs/components/select
    */
   placement?: SelectPlacement;
 };
 
-export function SelectContent({ size, placement, className, ...props }: SelectContentProps) {
+export function SelectContent({
+  size,
+  placement,
+  className,
+  style,
+  ...props
+}: SelectContentProps) {
+  const anchorName = useAnchorIdent();
   return (
     <SelectPrimitive.Content
       className={cx(selectContent({ size, placement }), className)}
+      style={{ positionAnchor: anchorName, ...style } as CSSProperties}
       {...props}
     />
   );

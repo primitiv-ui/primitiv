@@ -303,6 +303,99 @@ fn assemble_palette(
     }
 }
 
+/// What a step's chroma scale asked for, and what the gamut allowed it to keep.
+///
+/// Generation caps the request and then discards it, so nothing downstream can
+/// see *why* a step is quiet — a deliberately tapered scale and a hue the gamut
+/// cannot hold look identical in the output. The picker needs both numbers to
+/// tell a designer their cyan will mute at the light end before they build a
+/// system on it (RFC 0027 §6).
+#[derive(Debug, Clone, PartialEq)]
+pub struct ChromaHeadroom {
+    pub label: SwatchLabel,
+    /// The chroma the ramp's scale asked for at this step.
+    pub requested: f32,
+    /// What survived the gamut cap. Equal to `requested` wherever the gamut had
+    /// room; below it wherever the hue ran out.
+    pub granted: f32,
+}
+
+/// One step's derived geometry, shared by generation and by
+/// [`chroma_headroom`] so the two cannot disagree about what the ramp asks for.
+struct StepPlan {
+    label: SwatchLabel,
+    lightness: f32,
+    requested_chroma: f32,
+    granted_chroma: f32,
+}
+
+/// Derives every step of a light ramp: its lightness from the anchored curve,
+/// the chroma its scale asks for, and what the gamut grants.
+fn plan_light_ramp(
+    base_500: Oklch,
+    lightness_scale: &[f32; 10],
+    chroma_scale: &[f32],
+    light_padding: f32,
+    dark_padding: f32,
+) -> Vec<StepPlan> {
+    let base_hue = base_500.hue.into_degrees();
+    let base_chroma = base_500.chroma;
+    let base_lightness = base_500.l;
+    let adjusted = apply_padding_to_lightness(lightness_scale, light_padding, dark_padding);
+
+    STEPS
+        .iter()
+        .enumerate()
+        .zip(chroma_scale.iter())
+        .map(|((index, &step), &chroma_factor)| {
+            if step == 500 {
+                return StepPlan {
+                    label: step.into(),
+                    lightness: base_lightness,
+                    requested_chroma: base_chroma,
+                    granted_chroma: base_chroma,
+                };
+            }
+
+            let lightness = anchored_lightness(
+                index,
+                &adjusted,
+                base_lightness,
+                adjusted[0],
+                adjusted[9],
+            )
+            .clamp(0.01, 0.99);
+            let requested_chroma = base_chroma * CHROMA_HEADROOM * chroma_factor;
+
+            StepPlan {
+                label: step.into(),
+                lightness,
+                requested_chroma,
+                granted_chroma: chroma_within_gamut(requested_chroma, lightness, base_hue),
+            }
+        })
+        .collect()
+}
+
+/// Per-step chroma headroom for the ramp `base_500` would seed — what each step
+/// asks for against what the gamut allows (RFC 0027 §6).
+pub fn chroma_headroom(base_500: Oklch, light_padding: f32, dark_padding: f32) -> Vec<ChromaHeadroom> {
+    plan_light_ramp(
+        base_500,
+        &TARGET_LIGHTNESS,
+        &TARGET_CHROMA_SCALE,
+        light_padding,
+        dark_padding,
+    )
+    .into_iter()
+    .map(|plan| ChromaHeadroom {
+        label: plan.label,
+        requested: plan.requested_chroma,
+        granted: plan.granted_chroma,
+    })
+    .collect()
+}
+
 pub fn generate_palette_with_scale(
     base_500: Oklch,
     lightness_scale: &[f32; 10],
@@ -313,41 +406,17 @@ pub fn generate_palette_with_scale(
     soft_black: Option<Oklch>,
 ) -> Palette {
     let base_hue = base_500.hue.into_degrees();
-    let base_chroma = base_500.chroma;
-    let base_lightness = base_500.l;
-    let adjusted_lightness =
-        apply_padding_to_lightness(lightness_scale, light_padding, dark_padding);
 
-    let backgrounds: Vec<SwatchStep> = STEPS
-        .iter()
-        .enumerate()
-        .zip(chroma_scale.iter())
-        .map(|((index, &step), &chroma_factor)| {
-            let (final_lightness, final_chroma) = if step == 500 {
-                (base_lightness, base_chroma)
-            } else {
-                let l = anchored_lightness(
-                    index,
-                    &adjusted_lightness,
-                    base_lightness,
-                    adjusted_lightness[0],
-                    adjusted_lightness[9],
-                )
-                .clamp(0.01, 0.99);
-                let requested = base_chroma * CHROMA_HEADROOM * chroma_factor;
-                (l, chroma_within_gamut(requested, l, base_hue))
-            };
-
-            let oklch_color = Oklch::new(final_lightness, final_chroma, base_hue);
-
-            SwatchStep::from_label(
-                oklch_color.l,
-                oklch_color.chroma,
-                oklch_color.hue.into_degrees(),
-                step,
-            )
-        })
-        .collect();
+    let backgrounds: Vec<SwatchStep> = plan_light_ramp(
+        base_500,
+        lightness_scale,
+        chroma_scale,
+        light_padding,
+        dark_padding,
+    )
+    .into_iter()
+    .map(|plan| SwatchStep::from_label(plan.lightness, plan.granted_chroma, base_hue, plan.label))
+    .collect();
 
     assemble_palette(backgrounds, *lightness_scale, base_hue, soft_white, soft_black)
 }

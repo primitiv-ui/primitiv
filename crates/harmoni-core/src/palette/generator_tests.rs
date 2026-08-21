@@ -244,6 +244,71 @@ mod generator_tests {
         }
     }
 
+    mod chroma_headroom_reporting {
+        use super::*;
+        use crate::color::input::ColorInput;
+        use crate::palette::generator::chroma_headroom;
+
+        fn seed(css: &str) -> Oklch {
+            ColorInput::Css(css.to_string())
+                .to_oklch()
+                .expect("the seed should parse")
+        }
+
+        #[test]
+        fn reports_what_each_step_asked_for_and_what_the_gamut_allowed() {
+            // The picker's question (RFC 0027 §6): "how much chroma will each step
+            // actually get versus what it wants?" Generation caps the request
+            // against the gamut and then throws the request away, so a designer
+            // cannot see that their cyan mutes at the light end until they have
+            // built a system on it.
+            let headroom = chroma_headroom(seed("#008e9d"), 0.0, 0.0);
+
+            assert_eq!(headroom.len(), 10);
+            assert!(
+                headroom.iter().all(|step| step.granted <= step.requested + 1e-6),
+                "no step can be granted more than it asked for",
+            );
+        }
+
+        #[test]
+        fn a_hue_the_gamut_cannot_hold_is_cut_back_at_the_light_end() {
+            // Orange-yellow at high lightness is where sRGB is narrowest, so the
+            // light steps are the ones the cap actually bites on.
+            let headroom = chroma_headroom(seed("#e88e00"), 0.0, 0.0);
+
+            // Not necessarily the very lightest step: anchoring pulled step 50
+            // back to 0.97 where the gamut still has room, so the cap now bites
+            // in the middle of the light half rather than at its end.
+            let cut_back: Vec<String> = headroom
+                .iter()
+                .take(5)
+                .filter(|step| step.granted < step.requested - 1e-6)
+                .map(|step| step.label.to_string())
+                .collect();
+
+            assert!(
+                !cut_back.is_empty(),
+                "expected the gamut to bind somewhere in the light half of a yellow ramp",
+            );
+        }
+
+        #[test]
+        fn the_seed_step_asks_for_exactly_what_it_is() {
+            // Step 500 is the brand colour itself, pinned. It neither requests
+            // from the scale nor gets capped.
+            let base = seed("#236ce1");
+            let headroom = chroma_headroom(base, 0.0, 0.0);
+
+            let step_500 = headroom
+                .iter()
+                .find(|step| step.label.to_string() == "500")
+                .expect("a step 500");
+            assert!((step_500.requested - base.chroma).abs() < 1e-6);
+            assert!((step_500.granted - base.chroma).abs() < 1e-6);
+        }
+    }
+
     mod gamut_fallback_propagation {
         use super::*;
 

@@ -52,9 +52,9 @@ export const ThemeToggle = () => {
       aria-label="Dark mode"
       onClick={() => setStored(isDark ? "light" : "dark")}
     >
-      {/* Icons render prop-less: IconProps collapses under Next's type-checker
-          (see SideNav.tsx), and IconBase already marks them aria-hidden, which
-          is right — the button's aria-label is the accessible name. */}
+      {/* No aria-hidden needed: IconBase applies it automatically unless an
+          aria-label is passed, so the glyph is already hidden and the button's
+          own aria-label is the accessible name. */}
       {isDark ? <Moon /> : <Sun />}
     </button>
   );

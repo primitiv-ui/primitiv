@@ -56,22 +56,7 @@ const Section = ({
           aria-label={`${open ? "Collapse" : "Expand"} ${section.title}`}
           onClick={() => setOpen((o) => !o)}
         >
-          {/*
-           * Rendered with NO props, deliberately.
-           *
-           * `IconProps extends SVGProps<SVGSVGElement>` so `className` is valid
-           * in principle — but `packages/icons` has no resolvable React types
-           * in this workspace (no local node_modules, none at the root), so
-           * under Next's build type-checker `SVGProps` degrades and `IconProps`
-           * collapses to `{}`, rejecting every prop. Plain `tsc` resolves it
-           * via this app's tsconfig `paths`; Next's checker does not.
-           *
-           * The rotation is therefore applied from the parent button in CSS
-           * instead. No aria-hidden needed either: IconBase sets it
-           * automatically unless an aria-label is passed, so the glyph is
-           * already hidden and the button's own aria-label is the name.
-           */}
-          <ChevronRight />
+          <ChevronRight className="docs-nav-chevron" />
         </button>
       </div>
 

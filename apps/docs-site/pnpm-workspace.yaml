@@ -7,12 +7,28 @@
 # ERR_PNPM_WORKSPACE_PKG_NOT_FOUND before it ever reaches this app. Rooting the
 # install here keeps the docs site installable regardless.
 #
-# The `link:` deps in package.json still point at the monorepo source
-# (packages/react, packages/icons), so this app is pinned to the packages *in
-# development*, not to whatever is published on npm.
+# `@primitiv-ui/react` is a `link:` dep pointing at the monorepo source, so this
+# app exercises the package *in development* rather than whatever is on npm.
+# (`@primitiv-ui/icons` is the deliberate exception — see the note below.)
 packages: []
 
 # @primitiv-ui/react and /icons ship raw TypeScript (their `exports` resolve to
 # ./src/index.ts with no build step), so Next has to compile them itself — see
 # `transpilePackages` in next.config.ts.
+#
+# NOTE the two are deliberately wired DIFFERENTLY in package.json:
+#
+#   @primitiv-ui/react → link:../../packages/react   (source)
+#   @primitiv-ui/icons → ^0.1.29                     (published)
+#
+# `icons` declares `@types/react` as a PEER dependency. A `link:` dep is a bare
+# symlink to a directory with no node_modules of its own, so that peer is never
+# installed — `SVGProps` fails to resolve, `IconProps extends SVGProps<…>`
+# degrades to `{}`, and every icon rejects every prop (className, aria-*) under
+# Next's build type-checker. Installing the published package instead resolves
+# the peer from this app's own tree, and costs nothing in freshness: published
+# 0.1.29 IS the current source version, and icons are generated from SVGs so
+# they change rarely. `react` stays linked because it is under active
+# development. If icons ever needs to be linked again, the peer has to be
+# satisfied some other way first.
 minimumReleaseAge: 0

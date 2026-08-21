@@ -81,15 +81,12 @@
   color: var(--primitiv-content-primary);
 }
 
-/* Targeted through the parent rather than a class on the icon: the icon is
-   rendered prop-less because IconProps collapses under Next's type-checker (see
-   SideNav.tsx). Still anchored by a .docs-* class, so it cannot leak. */
-.docs-nav-disclosure > svg {
+.docs-nav-chevron {
   transition: transform var(--primitiv-motion-duration-expand)
     var(--primitiv-motion-easing-default);
 }
 
-.docs-nav-disclosure[aria-expanded="true"] > svg {
+.docs-nav-disclosure[aria-expanded="true"] .docs-nav-chevron {
   transform: rotate(90deg);
 }
 

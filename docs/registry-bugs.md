@@ -1,12 +1,13 @@
 # Registry bugs — surfaced by the docs-site build
 
-Status as of 2026-08-21. All five were found while building `apps/docs-site`,
+Status as of 2026-08-21. All six were found while building `apps/docs-site`,
 which is the **first consumer that imports registry components individually**
 rather than through a barrel that pulls in all 63. That distinction is what
-exposed them: the kitchen-sink imports everything, so three of these five are
-invisible there.
+exposed them: the kitchen-sink imports everything, so most of these are invisible
+there.
 
-Two are **fixed at source**; three are still **open** and need a decision. The
+Two are **fixed at source**, one is **worked around**, and three are still
+**open** and need a decision. The
 two open ones that matter most are §3 (a one-line import) and §5 (a change to the
 wrapper generator, so it needs CI).
 
@@ -274,6 +275,50 @@ only `.primitiv-button` (the root) — `__label` is not part of the documented
 surface, and the stylesheet comment says the component wraps text "so consumers
 never need to do it by hand". Every one of these spans should be deleted when the
 generator fix lands; they are marked with a comment saying so.
+
+---
+
+## 6. `@primitiv-ui/icons` is unusable as a `link:` dependency — WORKED AROUND
+
+**Symptom.** Every icon rejects every prop. `<ChevronRight className="…" />`
+fails to compile with *"Property 'className' does not exist on type
+'IntrinsicAttributes & IconProps'"* — even though `IconProps extends
+SVGProps<SVGSVGElement>`, which plainly has it.
+
+**Cause.** `packages/icons` declares `@types/react` as a **peerDependency**. A
+`link:` dependency is a bare symlink to a source directory with no
+`node_modules` of its own, so nothing installs that peer. `import type {
+SVGProps } from "react"` then fails to resolve, `IconProps extends SVGProps<…>`
+degrades to `{}`, and the component accepts nothing.
+
+**Sharp edge worth knowing:** plain `tsc` did NOT reproduce it. The app's
+tsconfig `paths` mapping (`"react": ["./node_modules/@types/react"]`) satisfied
+it and reported 0 errors, while `next build`'s own type-checker still failed.
+Two checkers, two answers — so "typecheck passes" was not evidence here.
+
+**Fix (in place).** Depend on the **published** package instead of linking it:
+
+```json
+"@primitiv-ui/icons": "^0.1.29"     // not link:../../packages/icons
+```
+
+pnpm then installs it properly and resolves the peer from the app's own tree
+(`@primitiv-ui+icons@0.1.29_@types+react@19.2.17_react@19.2.8` — note it picks
+up the *same* `@types/react` the app pins, which is what keeps the two React type
+identities from diverging). Verified: icons accept `className` again, and the
+hand-rolled workarounds (rendering icons prop-less, styling glyphs via
+`.parent > svg`) are all removed.
+
+**Costs nothing in freshness.** Published `0.1.29` *is* the current source
+version, and icons are generated from SVGs so they change rarely — unlike
+`@primitiv-ui/react`, which stays `link:`ed because it is under active
+development.
+
+**The real fix, if linking icons ever matters:** move `@types/react` from
+`peerDependencies` to `devDependencies` as well (peers are for what the consumer
+provides; the *types* are needed to compile the package itself), or give
+`packages/icons` an install of its own. Until then, treat "link this package"
+and "pass props to an icon" as mutually exclusive.
 
 ---
 

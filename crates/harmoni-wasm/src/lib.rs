@@ -104,6 +104,58 @@ pub fn generate_palette_with_lightness(
     palette_to_js(palette_data)
 }
 
+/// The ramp lengths the engine supports, as `[min, default, max]` — what a
+/// step-count control should bound itself to rather than hardcoding.
+#[wasm_bindgen]
+pub fn supported_step_range() -> Vec<usize> {
+    vec![api::MIN_STEPS, api::DEFAULT_STEPS, api::MAX_STEPS]
+}
+
+/// Generate a light palette of `steps` steps, reading the built-in curves at
+/// that resolution. `steps` outside the supported range is an error rather
+/// than being clamped, so a caller finds out it asked for the impossible.
+#[wasm_bindgen]
+pub fn generate_palette_with_steps(
+    hex: &str,
+    steps: usize,
+    light_padding: f32,
+    dark_padding: f32,
+) -> Result<Palette, JsError> {
+    let palette_data = api::generate_with_options(
+        ColorInput::Css(hex.to_string()),
+        GenerateOptions {
+            light_padding,
+            dark_padding,
+            steps,
+            ..GenerateOptions::default()
+        },
+    )
+    .map_err(to_js_error)?;
+
+    palette_to_js(palette_data)
+}
+
+/// A light/dark pair of `steps` steps each, from the built-in curves.
+#[wasm_bindgen]
+pub fn generate_palette_pair_with_steps(
+    hex: &str,
+    steps: usize,
+    light_padding: f32,
+    dark_padding: f32,
+) -> Result<types::PaletteSet, JsError> {
+    api::generate_brand_pair_with_options(
+        ColorInput::Css(hex.to_string()),
+        GenerateOptions {
+            light_padding,
+            dark_padding,
+            steps,
+            ..GenerateOptions::default()
+        },
+    )
+    .map(Into::into)
+    .map_err(to_js_error)
+}
+
 #[wasm_bindgen]
 pub fn generate_palette_pair(
     hex: &str,

@@ -76,12 +76,23 @@
     align-items: baseline;
     gap: var(--primitiv-list-marker-gap);
     margin-block: var(--primitiv-space-space-0);
-    /* Lets a NESTED list break onto its own line. The item is a flex row
-       ([marker][content]), so without this a nested <ul>/<ol> becomes a third
-       row child and lays out BESIDE the item's text instead of under it —
-       which `--primitiv-list-indent` plainly does not intend, since indent
-       exists to step nested levels in. Wrapping keeps marker and text on the
-       first line, so marker alignment is unaffected. */
+  }
+
+  /*
+   * Lets a NESTED list break onto its own line. The item is a flex row
+   * ([marker][content]), so a nested <ul>/<ol> would otherwise become a third
+   * row child and lay out BESIDE the item's text instead of under it — which
+   * `--primitiv-list-indent` plainly does not intend, since indent exists to
+   * step nested levels in.
+   *
+   * Scoped with `:has()` to items that actually contain a nested list. An
+   * unconditional `flex-wrap: wrap` breaks the ordinary case: the item's text is
+   * an ANONYMOUS flex item sized from its max-content, so a label longer than
+   * the remaining line wraps in its entirety and the marker is left stranded on
+   * a line of its own (measured: 34px above its own text). Without wrap the
+   * text shrinks and wraps internally instead, keeping the hanging indent.
+   */
+  .primitiv-list__item:has(> .primitiv-list) {
     flex-wrap: wrap;
   }
 

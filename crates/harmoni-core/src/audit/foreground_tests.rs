@@ -351,6 +351,22 @@ mod readable_step {
     }
 
     #[test]
+    fn picks_the_quietest_step_that_clears_rather_than_the_loudest() {
+        // Every step darker than the surface clears easily; the role wants the
+        // least contrast that still passes, so a border does not come back at
+        // body-text weight. Walking the ramp in order gives the right answer only
+        // while ramp order happens to run the same way as contrast — which it
+        // does for a light ramp on a light surface, and does not here.
+        let dark_surface = SwatchStep::from_label(0.2, 0.0, 0.0, "Surface");
+
+        let found = readable_step(&blue_ramp(), &dark_surface, 4.5).expect("a readable step");
+
+        // 50 is the lightest step and clears by a mile; 300 is the first that
+        // clears at all going down the ramp. 500 is too close to the surface.
+        assert_eq!(found.label.to_string(), "300");
+    }
+
+    #[test]
     fn returns_nothing_when_the_ramp_cannot_clear_the_threshold() {
         // The guarantee the hand-picked semantic tier never had: a role that
         // cannot be satisfied says so, rather than quietly handing back the

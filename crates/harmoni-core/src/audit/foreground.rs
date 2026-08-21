@@ -83,12 +83,17 @@ pub fn readable_step(ramp: &Palette, surface: &SwatchStep, threshold: f32) -> Op
             (swatch, ratio)
         })
         .filter(|(_, ratio)| *ratio >= threshold)
+        // The *quietest* step that clears, not the first one found. A role wants
+        // the least contrast that still passes — a border pushed to body-text
+        // weight passes a floor and looks like a mistake. Ramp order matches
+        // increasing contrast only while the ramp and the surface share a theme,
+        // so ordering cannot be relied on to give this for free.
+        .min_by(|(_, a), (_, b)| a.total_cmp(b))
         .map(|(swatch, ratio)| ReadableStep {
             label: swatch.label.clone(),
             color: SwatchStep::from_label(swatch.l, swatch.c, swatch.h, swatch.label.clone()),
             contrast_ratio: ratio,
         })
-        .next()
 }
 
 /// Picks the best foreground for `background` from a tiered candidate set:

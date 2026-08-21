@@ -31,7 +31,15 @@ serde_json = "1.0"
 # gate, not to switch any code on.
 [features]
 ramp-audit = []
+# The palette regenerator is gated for the same reason as ramp-audit: it is a
+# maintenance tool, not part of the engine, and `cargo test --workspace` should
+# not build it.
+regen-palette = []
 
 [[example]]
 name = "ramp-audit"
 required-features = ["ramp-audit"]
+
+[[example]]
+name = "regen-palette"
+required-features = ["regen-palette"]

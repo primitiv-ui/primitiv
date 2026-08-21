@@ -32,13 +32,13 @@ import {
 } from "./components";
 
 <Select value={framework} onValueChange={setFramework}>
-  <SelectTrigger size="md" style={{ anchorName: "--framework" }}>
+  <SelectTrigger size="md">
     <SelectValue placeholder="Pick a framework…" />
     <SelectIcon>
       <ChevronDown />
     </SelectIcon>
   </SelectTrigger>
-  <SelectContent size="md" style={{ positionAnchor: "--framework" }}>
+  <SelectContent size="md">
     <SelectItem value="react">
       <SelectItemIndicator><Check /></SelectItemIndicator>
       <SelectItemLeading><ReactLogo /></SelectItemLeading>
@@ -68,12 +68,21 @@ Native mode is the same component with `native` set:
 
 ### Positioning
 
-Like Dropdown, placement is pure CSS anchor positioning — no JS. Put an
-`anchor-name` on the trigger and the matching `position-anchor` on the panel:
+Like Dropdown, placement is pure CSS anchor positioning — no JS, and the wiring
+is automatic: `Select` derives an `anchor-name` from `useId()`, publishes it on
+the trigger, and `SelectContent` picks it up through context. Choose a side and
+you are done:
 
 ```tsx
-<SelectTrigger style={{ anchorName: "--framework" }} />
-<SelectContent placement="bottom-start" style={{ positionAnchor: "--framework" }} />
+<SelectContent placement="bottom-start" />
+```
+
+A page may hold many Selects, so a static ident cannot work — which is why this
+is the component's job rather than yours. Anchoring the panel to something other
+than its trigger is still possible; pass your own `positionAnchor` and it wins:
+
+```tsx
+<SelectContent style={{ positionAnchor: "--my-own-anchor" }} />
 ```
 
 The panel is at least as wide as its trigger (`anchor-size(width)`, matching the
@@ -166,7 +175,7 @@ itself. Native mode needs it on the root only.
 | Export                | Wraps                  | Styled? | Notes                                                     |
 | --------------------- | ---------------------- | ------- | --------------------------------------------------------- |
 | `Select`              | `Select.Root`          | native  | State owner; renders the frame only under `native`         |
-| `SelectTrigger`       | `Select.Trigger`       | ✓ root  | The rich control; carries `size`, set its `anchor-name`    |
+| `SelectTrigger`       | `Select.Trigger`       | ✓ root  | The rich control; carries `size`, publishes the anchor     |
 | `SelectValue`         | `Select.Value`         | ✓       | Mirrors the selection; `data-placeholder` when empty       |
 | `SelectLeading`       | —                      | ✓       | Standing glyph in the trigger, independent of selection    |
 | `SelectIcon`          | —                      | ✓       | The chevron; flips while open                              |

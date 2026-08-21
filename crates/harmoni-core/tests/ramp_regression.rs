@@ -26,6 +26,16 @@ use harmoni_core::ColorInput;
 /// exists because of.
 const MIN_MEAN_CHROMA_UTILISATION: f32 = 0.6;
 
+/// The most a ramp may bend once quantised to sRGB. `better-colors` treats
+/// anything within 15° as the same colour; the shipped ramps now sit under 6°,
+/// so this gate has real headroom.
+///
+/// This could not be written before the gamut fix — `warning` measured 33.4° and
+/// `brand` dark 31.2°, so any honest gate would have failed on `main`. It is here
+/// because holding the ramp inside the gamut in OkLCH removed the cause, not
+/// because the threshold was relaxed to fit (RFC 0027 §11.1).
+const MAX_RENDERED_HUE_SPAN: f32 = 10.0;
+
 /// A yellow close enough to the sRGB edge that the gamut mapping genuinely has
 /// to make a decision at the light end. Deliberately *not* from the manifest:
 /// the shipped seeds are the set we care about, and this is the hard case that
@@ -143,6 +153,23 @@ fn the_guards_above_actually_cover_every_shipped_ramp() {
         assert!(
             covered.iter().any(|(label, _)| label.starts_with(name)),
             "{name} is in the manifest but no guard assessed it",
+        );
+    }
+}
+
+#[test]
+fn no_ramp_bends_its_hue_on_the_way_to_the_screen() {
+    // The engine holds hue exactly, so this measures gamut mapping alone. It
+    // fails if anything reintroduces per-channel clamping as the way excess
+    // chroma gets absorbed.
+    for (label, quality) in every_ramp() {
+        let rendered = quality
+            .hue_span_rendered
+            .unwrap_or_else(|| panic!("{label}: no chromatic steps to measure a hue span across"));
+
+        assert!(
+            rendered <= MAX_RENDERED_HUE_SPAN,
+            "{label}: spans {rendered:.1}° once rendered, past the {MAX_RENDERED_HUE_SPAN}° bar",
         );
     }
 }

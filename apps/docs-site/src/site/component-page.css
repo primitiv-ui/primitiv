@@ -1,87 +1,79 @@
 /*
- * Component page layout — the section rhythm and the sticky-anchor offset.
+ * Component-page layout.
+ *
+ * Read off the Figma "Component page — Button (desktop) — system build" frame:
+ * the main column is 920 wide with 48 inline padding (824 content), and the
+ * sections sit 48 apart. Section chrome itself lives in docs-section.css.
  */
 
-.docs-page-title {
-  margin-block: 0 var(--primitiv-flow-tight);
-  font-family: var(--primitiv-heading-h1-font-family);
-  font-size: var(--primitiv-heading-h1-font-size);
-  line-height: var(--primitiv-heading-h1-line-height);
-  letter-spacing: var(--primitiv-heading-h1-letter-spacing);
-  color: var(--primitiv-content-primary);
+.docs-page-column {
+  /*
+   * The 48px section rhythm, declared once. `Stack gap="none"` is passed in the
+   * TSX and overridden here rather than using `gap="xl"` (32), because the
+   * design's section gap is `flow/region` — the rung that means "a page region"
+   * rather than a paragraph break, and the one the Figma frame was moved to.
+   */
+  --primitiv-stack-gap: var(--primitiv-flow-region);
 }
 
-.docs-page-lede {
-  margin-block: 0 var(--primitiv-flow-region);
-  font-family: var(--primitiv-body-lg-font-family);
-  font-size: var(--primitiv-body-lg-font-size);
-  line-height: var(--primitiv-body-lg-line-height);
-  color: var(--primitiv-content-secondary);
-}
-
-/* Section spacing matches the Figma redesign: `flow/region` (48 at comfortable)
-   between top-level sections, which is the largest flow rung and the one that
-   means "a page region" rather than a paragraph break. */
-.docs-section {
-  margin-block-start: var(--primitiv-flow-region);
-}
-
-.docs-section-heading {
-  margin-block: 0 var(--primitiv-flow-normal);
-  font-family: var(--primitiv-heading-h2-font-family);
-  font-size: var(--primitiv-heading-h2-font-size);
-  line-height: var(--primitiv-heading-h2-line-height);
-  letter-spacing: var(--primitiv-heading-h2-letter-spacing);
-  color: var(--primitiv-content-primary);
-}
-
-.docs-subsection-heading {
-  margin-block: var(--primitiv-flow-section) var(--primitiv-flow-tight);
+.docs-example-title {
+  margin: 0;
   font-family: var(--primitiv-heading-h3-font-family);
   font-size: var(--primitiv-heading-h3-font-size);
+  font-weight: var(--primitiv-heading-h3-font-weight);
   line-height: var(--primitiv-heading-h3-line-height);
   color: var(--primitiv-content-primary);
-}
-
-.docs-prose {
-  margin-block: 0 var(--primitiv-flow-normal);
-  font-family: var(--primitiv-body-md-font-family);
-  font-size: var(--primitiv-body-md-font-size);
-  line-height: var(--primitiv-body-md-line-height);
-  color: var(--primitiv-content-secondary);
-}
-
-/*
- * Every heading is an anchor target and the header is sticky, so without this a
- * jump-link lands with the heading hidden behind the top bar.
- * `scroll-margin-block-start` is the modern fix — no invisible offset elements.
- */
-.docs-section-heading,
-.docs-subsection-heading,
-.docs-props-sub-heading {
   scroll-margin-block-start: var(--primitiv-space-space-96);
 }
 
-.docs-list {
-  margin-block: 0 var(--primitiv-flow-normal);
-  padding-inline-start: var(--primitiv-space-space-24);
-  font-family: var(--primitiv-body-md-font-family);
-  font-size: var(--primitiv-body-md-font-size);
-  line-height: var(--primitiv-body-md-line-height);
-  color: var(--primitiv-content-secondary);
-}
+/* ── Installation: two columns ────────────────────────────────────────────── */
 
-.docs-list > li {
-  margin-block-end: var(--primitiv-stack-gap-xs);
-}
+/*
+ * The design is a `Stack row` with gap 24. A grid rather than a flex row so the
+ * install block cannot be squeezed narrower than its own tabs by a long import
+ * path beside it, and so it collapses to one column cleanly.
+ */
+.docs-install-grid {
+  --docs-install-min: 18rem;
 
-.docs-css-vars {
-  margin-block: 0;
-  padding: 0;
-  list-style: none;
   display: grid;
-  gap: var(--primitiv-stack-gap-xs);
-  font-family: var(--primitiv-font-family-mono);
-  font-size: var(--primitiv-code-sm-font-size);
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(var(--docs-install-min), 1fr)
+  );
+  gap: var(--primitiv-grid-gap-lg);
+  align-items: start;
+}
+
+/* Section-level overline, e.g. "IMPORT PATH". Same treatment as the landing's
+   section overlines, so the two pages share one voice. */
+.docs-overline {
+  /* The overline family ships no letter-spacing token, and uppercase Khand at
+     12px is condensed enough that the word spaces disappear — "ON THIS PAGE"
+     reads as "ONTHISPAGE". `wide` restores the gaps. */
+  letter-spacing: var(--primitiv-letter-spacing-wide);
+  margin: 0;
+  font-family: var(--primitiv-overline-font-family);
+  font-size: var(--primitiv-overline-font-size);
+  font-weight: var(--primitiv-overline-font-weight);
+  line-height: var(--primitiv-overline-line-height);
+  text-transform: uppercase;
+  color: var(--primitiv-content-muted);
+}
+
+.docs-install-note {
+  margin: 0;
+  font-family: var(--primitiv-body-sm-font-family);
+  font-size: var(--primitiv-body-sm-font-size);
+  line-height: var(--primitiv-body-sm-line-height);
   color: var(--primitiv-content-secondary);
+}
+
+/* The 12px muted trailing hint — "Headless mode installs …", "… 14 total". */
+.docs-install-hint {
+  margin: 0;
+  font-family: var(--primitiv-body-sm-font-family);
+  font-size: var(--primitiv-overline-font-size);
+  line-height: var(--primitiv-body-sm-line-height);
+  color: var(--primitiv-content-muted);
 }

@@ -65,6 +65,8 @@ export type ComponentDocs = {
     readonly rootClass: string;
     readonly customProperties: readonly DocsCustomProperty[];
   };
+  /** Figma node id, so the page can deep-link to the component set. */
+  readonly figma: { readonly componentSetKey: string };
 };
 
 const DOCS = {

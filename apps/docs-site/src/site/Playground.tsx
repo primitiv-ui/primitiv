@@ -2,14 +2,18 @@
 
 import { useId, useState, type ReactNode } from "react";
 
+import { Card, CardContent } from "@/components/card";
 import { CodeBlock } from "@/components/code-block";
+import { Divider } from "@/components/divider";
+
+import { DensityRadios } from "./DensityRadios";
 import {
   SegmentedControl,
   SegmentedControlItem,
 } from "@/components/segmented-control";
+import { Stack } from "@/components/stack";
 import {
   DEFAULT_DENSITY,
-  DENSITIES,
   initialValues,
   toJsx,
   type Density,
@@ -18,13 +22,15 @@ import {
 
 import "./playground.css";
 
+const titleCase = (s: string) => s[0].toUpperCase() + s.slice(1);
+
 /**
- * One labelled segmented control.
+ * A labelled control column.
  *
- * `SegmentedControl` is built on RadioGroup semantics (single-select), which is
- * the correct model for "pick one variant" — a ToggleGroup would allow none or
- * many. The visible label is tied to the group with `aria-labelledby` rather
- * than a `<label>`, because a radiogroup is labelled by reference, not wrapped.
+ * Not `Field` + `FieldLabel`: those wire a `<label for>` to a form control's id,
+ * but `SegmentedControl` renders `role="radiogroup"`, which is labelled BY
+ * REFERENCE (`aria-labelledby`) rather than by a wrapping/pointing label. A
+ * `<label>` aimed at a radiogroup names nothing.
  */
 const ControlGroup = ({
   label,
@@ -40,7 +46,7 @@ const ControlGroup = ({
   const labelId = `${useId()}-label`;
   return (
     <div className="docs-playground-control">
-      <span className="docs-playground-control-label" id={labelId}>
+      <span className="docs-control-label" id={labelId}>
         {label}
       </span>
       <SegmentedControl
@@ -60,24 +66,46 @@ const ControlGroup = ({
 };
 
 export type PlaygroundProps = {
-  /** Component name used in the generated snippet, e.g. `"Button"`. */
   component: string;
-  /** Controls derived from the registry contract via `toControls`. */
   controls: readonly PlaygroundControl[];
-  /** Renders the live preview for the current prop values. */
   children: (values: Record<string, string>) => ReactNode;
-  /** Literal children to place inside the generated snippet. */
   snippetChildren?: string;
-  /** Extra lines appended to the snippet, e.g. an import. */
   snippetPrefix?: string;
 };
 
 /**
  * The interactive playground that leads every component page.
  *
- * State lives here and nowhere else, which is what keeps the preview and the
- * code sample honest: the snippet is derived from the same values that render
- * the preview, so it cannot drift from what is on screen.
+ * Structure read off the Figma "Section · Playground" frame — one `Card`
+ * (size `lg`) divided into three regions by hairline `Divider`s:
+ *
+ *   DENSITY   overline + a row of RADIOS          (Dense…Spacious)
+ *   ─────
+ *   PREVIEW   overline + the centred live preview
+ *   ─────
+ *   Variant / Size — labelled SEGMENTED CONTROLS, two-up
+ *
+ * then the snippet in a `CodeBlock` (size `sm`) below the card, and a 12px
+ * muted note.
+ *
+ * Two control types, deliberately, because the design distinguishes them and
+ * the distinction carries meaning:
+ *
+ * - **Density is radios.** It is not a component prop at all — it is a
+ *   `data-density` ANCESTOR that re-points every Context token beneath it. A
+ *   radio group says "pick one of four states of the environment", and keeping
+ *   all four visible shows the scale it moves through.
+ * - **Variant and size are segmented controls.** The Figma frame draws these as
+ *   `Select` dropdowns; segmented controls were preferred on review, because
+ *   every option stays visible and comparable in one glance, which is the point
+ *   of a playground. The trade-off is real and worth remembering: a segmented
+ *   control does not scale past roughly five options, so a component with a
+ *   long variant list will need the select after all.
+ *
+ * Density sits at the TOP and the prop controls at the BOTTOM, per the design.
+ * That ordering is also the robust one: the preview resizes when either
+ * changes, and a control below a resizing preview gets pushed by its own click,
+ * moving the option out from under the pointer.
  */
 export const Playground = ({
   component,
@@ -93,40 +121,64 @@ export const Playground = ({
   const code = snippetPrefix ? `${snippetPrefix}\n\n${jsx}` : jsx;
 
   return (
-    <div className="docs-playground">
-      {/*
-       * Density is applied as an ANCESTOR attribute, not a prop: `data-density`
-       * re-points every Context token beneath it. That is the whole mechanism,
-       * so the playground demonstrates it by scoping it to the preview box.
-       */}
-      <div className="docs-playground-preview" data-density={density}>
-        {children(values)}
-      </div>
+    <Stack gap="md">
+      <Card size="lg">
+        <CardContent>
+          <Stack gap="md">
+            <DensityRadios value={density} onChange={setDensity} />
 
-      <div className="docs-playground-controls">
-        {controls.map((control) => (
-          <ControlGroup
-            key={control.name}
-            label={control.name}
-            options={control.options}
-            value={values[control.name]}
-            onChange={(next) =>
-              setValues((v) => ({ ...v, [control.name]: next }))
-            }
-          />
-        ))}
+            <Divider />
 
-        <ControlGroup
-          label="density"
-          options={DENSITIES}
-          value={density}
-          onChange={(next) => setDensity(next as Density)}
-        />
-      </div>
+            <Stack gap="sm">
+              <p className="docs-overline">Preview</p>
+              {/* data-density on the wrapper, not the component: that IS the
+                  mechanism the control above is demonstrating. */}
+              <div className="docs-playground-preview" data-density={density}>
+                {children(values)}
+              </div>
+            </Stack>
 
-      <div className="docs-playground-code">
-        <CodeBlock code={code} language="tsx" size="sm" />
-      </div>
-    </div>
+            {controls.length > 0 && (
+              <>
+                <Divider />
+                {/*
+                 * An auto-fit grid, not `Grid columns={2}`. A fixed two-up
+                 * cannot work here: Button has five variants AND five sizes, and
+                 * two equal-width 5-segment controls need ~840px of segment
+                 * width alone — more than the 824px content column. So a fixed
+                 * pair overflows, and `Grid`'s knob is a column COUNT, which
+                 * cannot express "as many as fit".
+                 *
+                 * Shrinking them with a denser `data-density` on the container
+                 * would also fit, but was rejected: these controls are chrome,
+                 * and making chrome smaller to dodge a layout problem trades a
+                 * real hit-area for tidiness. Reflowing costs nothing.
+                 */}
+                <div className="docs-control-grid">
+                  {controls.map((control) => (
+                    <ControlGroup
+                      key={control.name}
+                      label={titleCase(control.name)}
+                      options={control.options}
+                      value={values[control.name]}
+                      onChange={(next) =>
+                        setValues((v) => ({ ...v, [control.name]: next }))
+                      }
+                    />
+                  ))}
+                </div>
+              </>
+            )}
+          </Stack>
+        </CardContent>
+      </Card>
+
+      <CodeBlock code={code} language="tsx" size="sm" />
+
+      <p className="docs-playground-note">
+        Density is set by a <code>data-density</code> ancestor — the Context
+        system, not a {component} prop.
+      </p>
+    </Stack>
   );
 };

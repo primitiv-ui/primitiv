@@ -58,9 +58,18 @@ export const initialValues = (
 /**
  * Renders a JSX snippet for the current playground state.
  *
- * A prop at its default value is OMITTED, so the generated code is what someone
- * would actually write rather than a fully-specified call with every default
- * spelled out. `children` is passed separately because it is not a control.
+ * EVERY control is written out, including props sitting at their default value.
+ *
+ * That is deliberate, and it was wrong the other way round first: omitting
+ * defaults produces the code someone would idiomatically *write*, but a
+ * playground snippet is a readout of the current state, not a style guide. With
+ * defaults omitted, selecting `variant="primary"` and `size="md"` renders a bare
+ * `<Button>` — so the snippet appears not to respond to the controls at all,
+ * which is exactly the opposite of the thing being demonstrated. The Figma frame
+ * agrees: it shows `<Button variant="primary" size="md">Button</Button>` with
+ * both props at their defaults.
+ *
+ * `children` is passed separately because it is not a control.
  */
 export const toJsx = ({
   component,
@@ -73,9 +82,7 @@ export const toJsx = ({
   controls: readonly PlaygroundControl[];
   children?: string;
 }): string => {
-  const attrs = controls
-    .filter((c) => values[c.name] !== c.defaultValue)
-    .map((c) => `${c.name}="${values[c.name]}"`);
+  const attrs = controls.map((c) => `${c.name}="${values[c.name]}"`);
 
   const open = [component, ...attrs].join(" ");
   if (!children) return `<${open} />`;

@@ -1,0 +1,54 @@
+/*
+ * Component-page title block. Figma: h1 48px Khand SemiBold, lede 20px Asta
+ * Sans in content/secondary, block gap 8.
+ */
+
+.docs-component-title {
+  margin: 0;
+  /* 48px at comfortable — the design's h1 size resolves the token exactly. */
+  font-family: var(--primitiv-heading-h1-font-family);
+  font-size: var(--primitiv-heading-h1-font-size);
+  font-weight: var(--primitiv-heading-h1-font-weight);
+  line-height: var(--primitiv-heading-h1-line-height);
+  letter-spacing: var(--primitiv-heading-h1-letter-spacing);
+  color: var(--primitiv-content-primary);
+}
+
+.docs-component-lede {
+  margin: 0;
+  font-family: var(--primitiv-body-lg-font-family);
+  font-size: var(--primitiv-body-lg-font-size);
+  line-height: var(--primitiv-body-lg-line-height);
+  color: var(--primitiv-content-secondary);
+}
+
+/* The design's `Link` + external-link-icon pair. No registry Link component
+   exists (RFC 0019 §4c declined one), so this is the site's own. */
+.docs-meta-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--primitiv-stack-gap-xs);
+  font-family: var(--primitiv-body-sm-font-family);
+  font-size: var(--primitiv-body-sm-font-size);
+  color: var(--primitiv-action-link-foreground-default);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.docs-meta-link:hover {
+  color: var(--primitiv-action-link-foreground-hover);
+  text-decoration: underline;
+}
+
+.docs-meta-link:focus-visible {
+  outline: var(--primitiv-border-width-2) solid var(--primitiv-focus-ring);
+  outline-offset: var(--primitiv-space-space-2);
+  border-radius: var(--primitiv-radii-4);
+}
+
+/* Below md the links wrap under the heading rather than squeezing it. */
+@media (max-width: 47.9375rem) {
+  .docs-component-title {
+    font-size: var(--primitiv-heading-h2-font-size);
+  }
+}

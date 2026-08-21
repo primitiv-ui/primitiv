@@ -1,77 +1,111 @@
 /*
- * Playground — a live preview, the controls that drive it, and the JSX for the
- * current state. The three stay in lockstep: the controls are the single source
- * of state, and both the preview and the snippet render from it.
+ * Playground and interactive examples.
+ *
+ * The frame is the registry `Card` (size lg) — read off the Figma
+ * component-page frame, which uses a Card with header and footer hidden as the
+ * preview surface. So there is no bespoke bordered box here any more; only the
+ * preview centring, the control row and the muted note below.
  */
 
-.docs-playground {
-  /* Tall enough that swapping size or density doesn't make the preview box
-     jump, which would move the controls under the pointer mid-click. */
-  --docs-preview-min-height: 8rem;
-
-  border: var(--primitiv-border-width-1) solid var(--primitiv-border-subtle);
-  border-radius: var(--primitiv-radii-12);
-  overflow: hidden;
-}
-
 .docs-playground-preview {
+  /* Tall enough that swapping size or density doesn't make the box jump, which
+     would move the controls under the pointer mid-click. */
+  --docs-preview-min-height: 6rem;
+
   display: grid;
   place-items: center;
   min-block-size: var(--docs-preview-min-height);
-  padding: var(--primitiv-space-space-32);
-  background-color: var(--primitiv-surface-default);
 }
 
 .docs-playground-controls {
   display: flex;
   flex-wrap: wrap;
   gap: var(--primitiv-stack-gap-lg);
-  padding: var(--primitiv-space-space-16);
-  border-block-start: var(--primitiv-border-width-1) solid
-    var(--primitiv-border-subtle);
-  background-color: var(--primitiv-surface-subtle);
+}
+
+/*
+ * As many control columns as fit, then wrap. The min is set so a five-segment
+ * control at `sm` is never squeezed to the point of truncating a label like
+ * "secondary" — below that width it takes a row of its own instead.
+ */
+.docs-control-grid {
+  --docs-control-min: 26rem;
+
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(var(--docs-control-min), 1fr));
+  gap: var(--primitiv-grid-gap-lg);
 }
 
 .docs-playground-control {
   display: flex;
   flex-direction: column;
   gap: var(--primitiv-stack-gap-xs);
+  /* A grid item defaults to min-width:auto (its min-content), which would let a
+     wide control push the column past its track. */
+  min-inline-size: 0;
 }
 
-.docs-playground-control-label {
-  font-family: var(--primitiv-label-xs-font-family);
-  font-size: var(--primitiv-label-xs-font-size);
+/*
+ * Two label treatments, because the design uses two: DENSITY and PREVIEW are
+ * muted overlines (they label a REGION of the card), while Variant and Size are
+ * real labels in content/primary (they label a CONTROL you are about to use).
+ * `.docs-overline` covers the first; this covers the second.
+ */
+.docs-control-label {
+  font-family: var(--primitiv-label-md-font-family);
+  font-size: var(--primitiv-label-md-font-size);
+  font-weight: var(--primitiv-font-weight-semibold);
+  line-height: var(--primitiv-label-md-line-height);
+  color: var(--primitiv-content-primary);
+}
+
+/* A fieldset carries UA border/padding/margin that has no place here — the
+   card and the Divider provide the structure. */
+.docs-fieldset {
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+
+/*
+ * `xl` (32) between radios, not `lg` (24), and the reason is legibility rather
+ * than taste: each radio has an 8px control↔label gap of its own, so the gap
+ * BETWEEN radios has to be decisively larger or a label reads as ambiguously
+ * belonging to either neighbour. 32 against 8 is a clear 4:1; 24 was not enough
+ * separation. It also matches the measured spacing in the Figma frame.
+ */
+.docs-radio-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--primitiv-stack-gap-xl);
+  margin-block-start: var(--primitiv-stack-gap-xs);
+}
+
+/* Body text, not a footnote: it explains the Context system, which is one of
+   the two concepts the playground exists to teach — too important to set at
+   12px muted. */
+.docs-playground-note {
+  margin: 0;
+  font-family: var(--primitiv-body-md-font-family);
+  font-size: var(--primitiv-body-md-font-size);
+  line-height: var(--primitiv-body-md-line-height);
   color: var(--primitiv-content-secondary);
 }
 
-.docs-playground-code {
-  border-block-start: var(--primitiv-border-width-1) solid
-    var(--primitiv-border-subtle);
-}
+/* ── Example strips ───────────────────────────────────────────────────────── */
 
-/* The snippet sits flush inside the playground frame, which already has its own
-   border and radius — a second set would read as a box in a box. */
-.docs-playground-code .primitiv-code-block {
-  border-width: var(--primitiv-border-width-0);
-  border-radius: var(--primitiv-radii-0);
-}
-
-/* ── Size / variant example strips ───────────────────────────────────────── */
-/* No border or radius of its own: this always sits inside `.docs-playground`,
-   which supplies the frame. Two would read as a box in a box. */
 .docs-example-row {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: var(--primitiv-stack-gap-md);
-  padding: var(--primitiv-space-space-24);
-  background-color: var(--primitiv-surface-default);
+  min-block-size: var(--primitiv-space-space-56);
 }
 
 .docs-example-caption {
-  margin-block: 0 var(--primitiv-flow-tight);
-  font-family: var(--primitiv-body-sm-font-family);
-  font-size: var(--primitiv-body-sm-font-size);
-  line-height: var(--primitiv-body-sm-line-height);
+  margin: 0;
+  font-family: var(--primitiv-body-md-font-family);
+  font-size: var(--primitiv-body-md-font-size);
+  line-height: var(--primitiv-body-md-line-height);
   color: var(--primitiv-content-secondary);
 }

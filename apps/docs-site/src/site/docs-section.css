@@ -1,0 +1,31 @@
+/*
+ * Component-page section chrome.
+ *
+ * Values read off the Figma component-page frame: heading 40px Khand SemiBold
+ * (= heading/h2 at comfortable), meta line 12px Asta Sans in content/muted,
+ * section gap 16 (Stack gap="md").
+ */
+
+.docs-section-title {
+  margin: 0;
+  font-family: var(--primitiv-heading-h2-font-family);
+  font-size: var(--primitiv-heading-h2-font-size);
+  font-weight: var(--primitiv-heading-h2-font-weight);
+  line-height: var(--primitiv-heading-h2-line-height);
+  letter-spacing: var(--primitiv-heading-h2-letter-spacing);
+  color: var(--primitiv-content-primary);
+  /* The header is sticky, so an anchored heading would otherwise land behind
+     it. `scroll-margin` is the modern fix — no offset spacer elements. */
+  scroll-margin-block-start: var(--primitiv-space-space-96);
+}
+
+/* The annotation under each section heading. Body text, not a 12px caption:
+   these lines carry real information ("Extends HTMLButtonElement", "generated
+   from source") that a reader is meant to read, not skim past. */
+.docs-section-meta {
+  margin: 0;
+  font-family: var(--primitiv-body-md-font-family);
+  font-size: var(--primitiv-body-md-font-size);
+  line-height: var(--primitiv-body-md-line-height);
+  color: var(--primitiv-content-secondary);
+}

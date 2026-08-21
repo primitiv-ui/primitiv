@@ -36,6 +36,16 @@ const MIN_MEAN_CHROMA_UTILISATION: f32 = 0.6;
 /// because the threshold was relaxed to fit (RFC 0027 §11.1).
 const MAX_RENDERED_HUE_SPAN: f32 = 10.0;
 
+/// The least lightness two neighbouring steps may sit apart before they stop
+/// being usable as two distinct surfaces. The shipped ramps now sit at 0.018 and
+/// up; the bar is set below the tightest so a *worsening* fails rather than
+/// today's spacing being blessed as the target.
+///
+/// Like the hue gate, this could not be written before: `warning` and the hard
+/// yellow both measured exactly 0.0, three and four steps collapsed onto the
+/// lightness clamp. Anchoring the light curve removed the cause (RFC 0027 §12.2).
+const MIN_DELTA_L: f32 = 0.012;
+
 /// A yellow close enough to the sRGB edge that the gamut mapping genuinely has
 /// to make a decision at the light end. Deliberately *not* from the manifest:
 /// the shipped seeds are the set we care about, and this is the hard case that
@@ -170,6 +180,23 @@ fn no_ramp_bends_its_hue_on_the_way_to_the_screen() {
         assert!(
             rendered <= MAX_RENDERED_HUE_SPAN,
             "{label}: spans {rendered:.1}° once rendered, past the {MAX_RENDERED_HUE_SPAN}° bar",
+        );
+    }
+}
+
+#[test]
+fn no_ramp_collapses_two_steps_onto_one_colour() {
+    // Steps exist to be distinguishable surfaces. This fails if the lightness
+    // model ever again pushes steps into a clamp, where they pile up on one
+    // value and render identically.
+    for (label, quality) in every_ramp() {
+        let tightest = quality
+            .min_delta_l
+            .unwrap_or_else(|| panic!("{label}: fewer than two steps to space apart"));
+
+        assert!(
+            tightest >= MIN_DELTA_L,
+            "{label}: two steps sit {tightest:.4} apart in lightness, under the {MIN_DELTA_L} bar",
         );
     }
 }

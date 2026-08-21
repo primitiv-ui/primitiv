@@ -335,9 +335,14 @@ pub fn assess_brand_ramp(
 /// step's scale asks for, against what the gamut grants. The gap is what tells a
 /// designer their hue will mute — and where (RFC 0027 §6).
 #[wasm_bindgen]
-pub fn chroma_headroom(l: f32, c: f32, h: f32) -> Result<ChromaHeadroomList, JsError> {
+pub fn chroma_headroom(
+    l: f32,
+    c: f32,
+    h: f32,
+    gamut: types::Gamut,
+) -> Result<ChromaHeadroomList, JsError> {
     let rows: Vec<types::ChromaHeadroom> =
-        api::chroma_headroom(palette::Oklch::new(l, c, h), 0.0, 0.0)
+        api::chroma_headroom(palette::Oklch::new(l, c, h), 0.0, 0.0, gamut.into())
             .into_iter()
             .map(Into::into)
             .collect();

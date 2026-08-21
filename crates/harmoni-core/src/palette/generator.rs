@@ -178,8 +178,8 @@ fn anchored_lightness(
 /// evenly. Every degree of the ramps' rendered hue drift came from that clamp
 /// (RFC 0027 §11.1); capping in OkLCH gives up the same unrenderable chroma
 /// while holding the hue exactly.
-fn chroma_within_gamut(requested: f32, lightness: f32, hue: f32) -> f32 {
-    let ceiling = max_in_gamut_chroma(lightness, hue, Gamut::Srgb) * GAMUT_SAFETY_MARGIN;
+fn chroma_within_gamut(requested: f32, lightness: f32, hue: f32, gamut: Gamut) -> f32 {
+    let ceiling = max_in_gamut_chroma(lightness, hue, gamut) * GAMUT_SAFETY_MARGIN;
     requested.min(ceiling)
 }
 
@@ -337,6 +337,7 @@ fn plan_light_ramp(
     chroma_scale: &[f32],
     light_padding: f32,
     dark_padding: f32,
+    gamut: Gamut,
 ) -> Vec<StepPlan> {
     let base_hue = base_500.hue.into_degrees();
     let base_chroma = base_500.chroma;
@@ -371,7 +372,7 @@ fn plan_light_ramp(
                 label: step.into(),
                 lightness,
                 requested_chroma,
-                granted_chroma: chroma_within_gamut(requested_chroma, lightness, base_hue),
+                granted_chroma: chroma_within_gamut(requested_chroma, lightness, base_hue, gamut),
             }
         })
         .collect()
@@ -379,13 +380,22 @@ fn plan_light_ramp(
 
 /// Per-step chroma headroom for the ramp `base_500` would seed — what each step
 /// asks for against what the gamut allows (RFC 0027 §6).
-pub fn chroma_headroom(base_500: Oklch, light_padding: f32, dark_padding: f32) -> Vec<ChromaHeadroom> {
+/// `gamut` is a *what-if*: generation always targets sRGB, but asking the same
+/// question of Display-P3 is what lets the picker state the trade-off between
+/// them rather than leaving a designer to discover it (RFC 0027 §6).
+pub fn chroma_headroom(
+    base_500: Oklch,
+    light_padding: f32,
+    dark_padding: f32,
+    gamut: Gamut,
+) -> Vec<ChromaHeadroom> {
     plan_light_ramp(
         base_500,
         &TARGET_LIGHTNESS,
         &TARGET_CHROMA_SCALE,
         light_padding,
         dark_padding,
+        gamut,
     )
     .into_iter()
     .map(|plan| ChromaHeadroom {
@@ -407,12 +417,15 @@ pub fn generate_palette_with_scale(
 ) -> Palette {
     let base_hue = base_500.hue.into_degrees();
 
+    // Generation always targets sRGB; the gamut parameter exists for the
+    // picker's what-if comparison, not to make the shipped palette configurable.
     let backgrounds: Vec<SwatchStep> = plan_light_ramp(
         base_500,
         lightness_scale,
         chroma_scale,
         light_padding,
         dark_padding,
+        Gamut::Srgb,
     )
     .into_iter()
     .map(|plan| SwatchStep::from_label(plan.lightness, plan.granted_chroma, base_hue, plan.label))
@@ -463,7 +476,12 @@ pub fn generate_dark_palette(
             .clamp(0.01, 0.99);
             let requested = base_chroma * CHROMA_HEADROOM * chroma_factor;
 
-            SwatchStep::from_label(l, chroma_within_gamut(requested, l, base_hue), base_hue, step)
+            SwatchStep::from_label(
+                l,
+                chroma_within_gamut(requested, l, base_hue, Gamut::Srgb),
+                base_hue,
+                step,
+            )
         })
         .collect();
 

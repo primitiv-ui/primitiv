@@ -246,6 +246,7 @@ mod generator_tests {
 
     mod chroma_headroom_reporting {
         use super::*;
+        use crate::color::gamut::Gamut;
         use crate::color::input::ColorInput;
         use crate::palette::generator::chroma_headroom;
 
@@ -262,7 +263,7 @@ mod generator_tests {
             // against the gamut and then throws the request away, so a designer
             // cannot see that their cyan mutes at the light end until they have
             // built a system on it.
-            let headroom = chroma_headroom(seed("#008e9d"), 0.0, 0.0);
+            let headroom = chroma_headroom(seed("#008e9d"), 0.0, 0.0, Gamut::Srgb);
 
             assert_eq!(headroom.len(), 10);
             assert!(
@@ -275,7 +276,7 @@ mod generator_tests {
         fn a_hue_the_gamut_cannot_hold_is_cut_back_at_the_light_end() {
             // Orange-yellow at high lightness is where sRGB is narrowest, so the
             // light steps are the ones the cap actually bites on.
-            let headroom = chroma_headroom(seed("#e88e00"), 0.0, 0.0);
+            let headroom = chroma_headroom(seed("#e88e00"), 0.0, 0.0, Gamut::Srgb);
 
             // Not necessarily the very lightest step: anchoring pulled step 50
             // back to 0.97 where the gamut still has room, so the cap now bites
@@ -298,7 +299,7 @@ mod generator_tests {
             // Step 500 is the brand colour itself, pinned. It neither requests
             // from the scale nor gets capped.
             let base = seed("#236ce1");
-            let headroom = chroma_headroom(base, 0.0, 0.0);
+            let headroom = chroma_headroom(base, 0.0, 0.0, Gamut::Srgb);
 
             let step_500 = headroom
                 .iter()
@@ -306,6 +307,35 @@ mod generator_tests {
                 .expect("a step 500");
             assert!((step_500.requested - base.chroma).abs() < 1e-6);
             assert!((step_500.granted - base.chroma).abs() < 1e-6);
+        }
+    }
+
+    mod chroma_headroom_across_gamuts {
+        use super::*;
+        use crate::color::gamut::Gamut;
+        use crate::color::input::ColorInput;
+        use crate::palette::generator::chroma_headroom;
+
+        #[test]
+        fn display_p3_grants_a_hard_hue_more_of_what_it_asked_for() {
+            // The honest statement RFC 0027 §6 wants the picker to make: the same
+            // hue that mutes in sRGB may be comfortable in Display-P3, and a
+            // designer should see that trade-off before committing to a brand
+            // colour rather than discovering it months later.
+            let seed = ColorInput::Css("#e88e00".to_string())
+                .to_oklch()
+                .expect("the seed should parse");
+
+            let srgb: f32 = chroma_headroom(seed, 0.0, 0.0, Gamut::Srgb)
+                .iter()
+                .map(|step| step.granted)
+                .sum();
+            let p3: f32 = chroma_headroom(seed, 0.0, 0.0, Gamut::DisplayP3)
+                .iter()
+                .map(|step| step.granted)
+                .sum();
+
+            assert!(p3 > srgb, "expected P3 {p3:.4} to grant more than sRGB {srgb:.4}");
         }
     }
 

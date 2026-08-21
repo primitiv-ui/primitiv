@@ -50,6 +50,19 @@ export type DocsCustomProperty = {
   readonly defaultsTo: string;
 };
 
+/**
+ * One row of the "Data attributes" section, straight from `contract.json`.
+ *
+ * `value` is why this is a triple rather than the bare name list the props
+ * tables carry: `data-state` is declared twice with different values
+ * (`checked`/`unchecked`), so keying on the name alone loses a row.
+ */
+export type DocsDataAttribute = {
+  readonly name: string;
+  readonly value: string;
+  readonly when: string;
+};
+
 export type ComponentDocs = {
   readonly id: string;
   readonly displayName: string;
@@ -64,6 +77,7 @@ export type ComponentDocs = {
     readonly installCommand: string;
     readonly rootClass: string;
     readonly customProperties: readonly DocsCustomProperty[];
+    readonly dataAttributes: readonly DocsDataAttribute[];
   };
   /** Figma node id, so the page can deep-link to the component set. */
   readonly figma: { readonly componentSetKey: string };

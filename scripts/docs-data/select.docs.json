@@ -574,6 +574,43 @@
         "name": "--primitiv-select-label-ink-slack",
         "defaultsTo": "var(--primitiv-space-space-1)"
       }
+    ],
+    "dataAttributes": [
+      {
+        "name": "aria-expanded",
+        "value": "true",
+        "when": "open"
+      },
+      {
+        "name": "aria-expanded",
+        "value": "false",
+        "when": "closed"
+      },
+      {
+        "name": "aria-invalid",
+        "value": "true",
+        "when": "invalid"
+      },
+      {
+        "name": "data-disabled",
+        "value": "",
+        "when": "disabled (native root)"
+      },
+      {
+        "name": "data-placeholder",
+        "value": "",
+        "when": "nothing selected (on the value part)"
+      },
+      {
+        "name": "data-state",
+        "value": "checked",
+        "when": "selected option"
+      },
+      {
+        "name": "data-state",
+        "value": "unchecked",
+        "when": "unselected option"
+      }
     ]
   },
   "figma": {

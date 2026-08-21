@@ -98,10 +98,16 @@ export function RampFeedback({ value }: RampFeedbackProps) {
 
       <div className="ramp-feedback__block" data-testid="ramp-feedback-contrast">
         <h3 className="ramp-feedback__heading">Contrast reach</h3>
-        <p className="ramp-feedback__note">
-          Every step carries readable text: {coverage.aaa} at AAA, {coverage.aa} at AA
-          {coverage.fail > 0 ? `, ${coverage.fail} with no accessible foreground` : ""}.
-        </p>
+        {coverage.fail === 0 ? (
+          <p className="ramp-feedback__note">
+            Every step carries readable text: {coverage.aaa} at AAA, {coverage.aa} at AA.
+          </p>
+        ) : (
+          <p className="ramp-feedback__note">
+            {coverage.aaa} steps carry text at AAA and {coverage.aa} at AA, but {coverage.fail}{" "}
+            {coverage.fail === 1 ? "has" : "have"} no accessible foreground at all.
+          </p>
+        )}
       </div>
     </section>
   );

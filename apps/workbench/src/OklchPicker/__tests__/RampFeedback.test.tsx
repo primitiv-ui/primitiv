@@ -108,9 +108,19 @@ describe("RampFeedback", () => {
 
     render(<RampFeedback value={value} />);
 
-    expect(screen.getByTestId("ramp-feedback-contrast")).toHaveTextContent(
-      /no accessible foreground/,
-    );
+    const block = screen.getByTestId("ramp-feedback-contrast");
+    expect(block).toHaveTextContent(/no accessible foreground/);
+    // ...and does not also claim every step is fine, which the one-sentence
+    // version did: it appended the failure to "Every step carries readable text".
+    expect(block).not.toHaveTextContent(/every step/i);
+  });
+
+  it("agrees its verb with the number of failing steps", () => {
+    vi.mocked(assess_brand_ramp).mockReturnValue(coverage(6, 2, 2) as never);
+
+    render(<RampFeedback value={value} />);
+
+    expect(screen.getByTestId("ramp-feedback-contrast")).toHaveTextContent(/2 have no/);
   });
 
   it("renders nothing when the engine cannot answer", () => {

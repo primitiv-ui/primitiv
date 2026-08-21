@@ -960,6 +960,18 @@ margin (the two menu separators). **Two harness lessons worth keeping:**
   at the default, measure where they diverge — a single-density probe can't
   attribute a value.
 
+**Scope caveat added 2026-08-21 — "closed" means closed for registry parts.**
+Building `apps/docs-site` hit `li + li` again, in **consumer-authored markup**:
+a hand-rolled `<nav><ul><li>` is not a registry part, so the 20-part sweep above
+could not have covered it. Measured 8px of dead space above the second item of
+the header nav, sidebar, footer, TOC and documentation map — flex `gap` plus the
+reset margin, the same doubling `list` had. Navigation is the common case for
+hand-rolled lists, so every consumer will meet this. Options (scope to
+`.primitiv-flow`, scope to `.primitiv-list`, or document it) are written up in
+**`docs/registry-bugs.md` §4**, alongside three other bugs the same build found —
+two already fixed at source (`Button` `asChild` underline, `List` nested layout),
+one open (`code-block` borrowing `.primitiv-tabs__*` without importing it).
+
 ### The container-spacing bug class — closed, one instance
 
 Found on `divider`: a component that reserves **separation from its siblings** as

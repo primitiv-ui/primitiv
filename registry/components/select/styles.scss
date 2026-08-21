@@ -27,14 +27,15 @@
  * `--primitiv-select-item-*` knobs to break the tie.
  *
  * Positioning is CSS anchor positioning (no JS), the same wiring as Dropdown:
- * put an `anchor-name` on the trigger and a matching `position-anchor` on
- * Content, then the logical anchor(start)/anchor(end) insets place the panel
- * below-start of the trigger and flip on overflow. `anchor-size(width)` makes the
- * panel at least as wide as its trigger, matching the Figma composition where
- * the Panel instance FILLs the Trigger's width.
+ * an `anchor-name` on the trigger and a matching `position-anchor` on Content,
+ * then the logical anchor(start)/anchor(end) insets place the panel below-start
+ * of the trigger and flip on overflow. `anchor-size(width)` makes the panel at
+ * least as wide as its trigger, matching the Figma composition where the Panel
+ * instance FILLs the Trigger's width.
  *
- *   <SelectTrigger style={{ anchorName: "--framework" }} />
- *   <SelectContent style={{ positionAnchor: "--framework" }} />
+ * The component wires that pair itself, from a `useId`-derived ident (see
+ * select.tsx) — nothing is required of the consumer. Pass your own
+ * `style.positionAnchor` on Content to anchor the panel elsewhere.
  *
  * Structure follows RFC 0008: per-component API tokens + the resting look live
  * in primitiv.base, the size / mode / placement modifiers in primitiv.variants,

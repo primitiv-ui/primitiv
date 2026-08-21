@@ -1,27 +1,23 @@
 "use client";
 
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-  CollapsibleTriggerIcon,
-} from "@/components/collapsible";
 import { InlineCode } from "@/components/inline-code";
 import { List } from "@/components/list";
 import { Stack } from "@/components/stack";
-import { ChevronDown } from "@primitiv-ui/icons";
-import { useState } from "react";
 
 import { getDocs, type ComponentId } from "@/lib/docs-data";
 import { renderDoc } from "@/lib/render-doc";
 import { contractControls } from "@/lib/playground";
+import { Anatomy } from "@/site/Anatomy";
 import { ComponentPageHeader } from "@/site/ComponentPageHeader";
+import { DataAttributesTable } from "@/site/DataAttributesTable";
 import { DocsSection } from "@/site/DocsSection";
 import { SPECS } from "@/site/examples";
 import { InstallTabs } from "@/site/InstallTabs";
+import { KeyboardTable } from "@/site/KeyboardTable";
 import { Playground } from "@/site/Playground";
 import { PropsTable } from "@/site/PropsTable";
 import { Shell } from "@/site/Shell";
+import { StylingContract } from "@/site/StylingContract";
 import { installCommand, label, useMode } from "@/site/preferences";
 import type { TocEntry } from "@/site/PageToc";
 
@@ -29,16 +25,6 @@ import "./component-page.css";
 
 const propsHeadingId = (subName: string) =>
   `props-${subName.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
-
-/**
- * How tall the closed styling-contract panel is, in px.
- *
- * `collapsedHeight` clamps the panel instead of hiding it, so the list is one
- * Collapsible showing a clipped preview rather than two lists either side of a
- * boundary. Sized to show roughly six chips (a ~28px row plus an 8px gap), which
- * is what the Figma frame previews before its "… 14 total".
- */
-const CONTRACT_PREVIEW_HEIGHT = 200;
 
 /**
  * A component's documentation page, rebuilt against the Figma
@@ -57,12 +43,19 @@ export const ComponentDocsPage = ({ id }: { id: ComponentId }) => {
   const [mode] = useMode();
 
   const cssVars = docs.styled.customProperties;
-  // Controlled, so the trigger label can say what it will do next.
-  const [contractOpen, setContractOpen] = useState(false);
+  const dataAttrs = docs.styled.dataAttributes;
 
+  /*
+   * The TOC is built from the same three sources the sections render from
+   * (`docs`, `spec`, and the presence tests below), in one pass — which is what
+   * keeps it honest. Every conditional section is conditional in BOTH places
+   * because it is the same expression, so a section cannot appear in the rail
+   * without appearing on the page.
+   */
   const toc: readonly TocEntry[] = [
     { id: "playground", title: "Playground" },
     { id: "installation", title: "Installation" },
+    ...(spec.anatomy ? [{ id: "anatomy", title: "Anatomy" }] : []),
     {
       id: "props",
       title: "Props",
@@ -74,6 +67,10 @@ export const ComponentDocsPage = ({ id }: { id: ComponentId }) => {
       })),
     },
     { id: "styling", title: "Styling contract" },
+    ...(spec.keyboard ? [{ id: "keyboard", title: "Keyboard" }] : []),
+    ...(dataAttrs.length > 0
+      ? [{ id: "data-attributes", title: "Data attributes" }]
+      : []),
     { id: "accessibility", title: "Accessibility" },
     {
       id: "examples",
@@ -161,6 +158,22 @@ export const ComponentDocsPage = ({ id }: { id: ComponentId }) => {
           </div>
         </DocsSection>
 
+        {/*
+         * Anatomy sits between Installation and Props, per the frame: you have
+         * just installed it, so "what are the parts and what do they emit" is
+         * the next question — and it is the context that makes nine props
+         * tables legible rather than a wall.
+         */}
+        {spec.anatomy && (
+          <DocsSection
+            id="anatomy"
+            title="Anatomy"
+            meta={renderDoc(spec.anatomyMeta ?? "")}
+          >
+            <Anatomy paths={spec.anatomy} />
+          </DocsSection>
+        )}
+
         <DocsSection
           id="props"
           title="Props"
@@ -184,58 +197,48 @@ export const ComponentDocsPage = ({ id }: { id: ComponentId }) => {
         </DocsSection>
 
         {/*
-         * A stack of code chips, truncated with a count — the design shows six
-         * and then "... 14 total" rather than the full list, because the full
-         * list is reference material the reader scrolls past.
+         * A stack of code chips, clipped with a "show all" — the design shows a
+         * handful per group rather than the full list, because the full list is
+         * reference material the reader scrolls past. Grouped by the part each
+         * knob dresses once there is more than one part: 58 undifferentiated
+         * names is a wall, and the grouping is derived from the names rather
+         * than listed (see StylingContract).
          */}
         <DocsSection
           id="styling"
           title="Styling contract"
-          meta={`CSS custom properties on .${docs.styled.rootClass} — mode-agnostic. These names are the stable surface; the values are not (RFC 0006 Principle 2).`}
+          meta={`${cssVars.length} CSS custom properties on .${docs.styled.rootClass} — mode-agnostic. These names are the stable surface; the values are not (RFC 0006 Principle 2).`}
         >
-          {/*
-           * ONE Collapsible over the whole list, using `collapsedHeight` — the
-           * clamped-preview dressing rather than the hide-everything default.
-           * The closed panel shows a clipped preview with the component's own
-           * bottom fade reading over the clamp, so the truncation is visibly a
-           * truncation rather than a list that happens to stop.
-           *
-           * `variant="inline"` because this sits inside an existing section: the
-           * `card` dressing would draw a second box around content the page
-           * already frames.
-           *
-           * The trigger follows the content, which is the read-more reading
-           * order — you meet the clipped list, then the way to see the rest.
-           */}
-          <Collapsible
-            variant="inline"
-            size="sm"
-            open={contractOpen}
-            onOpenChange={setContractOpen}
-          >
-            <CollapsibleContent collapsedHeight={CONTRACT_PREVIEW_HEIGHT}>
-              <Stack gap="sm" align="start">
-                {cssVars.map((prop) => (
-                  <InlineCode key={prop.name} size="sm">
-                    {prop.name}
-                  </InlineCode>
-                ))}
-              </Stack>
-            </CollapsibleContent>
-
-            <CollapsibleTrigger>
-              {contractOpen ? "Show fewer" : `Show all ${cssVars.length}`}
-              {/* TriggerIcon is a slot for your own glyph — it supplies the
-                  open/closed rotation, not the artwork. `size="100%"` fills the
-                  wrapper the component sizes via
-                  `--primitiv-collapsible-trigger-icon-size`, rather than
-                  hardcoding a pixel value beside a token. */}
-              <CollapsibleTriggerIcon>
-                <ChevronDown size="100%" />
-              </CollapsibleTriggerIcon>
-            </CollapsibleTrigger>
-          </Collapsible>
+          <StylingContract
+            properties={cssVars}
+            rootClass={docs.styled.rootClass}
+          />
         </DocsSection>
+
+        {spec.keyboard && (
+          <DocsSection
+            id="keyboard"
+            title="Keyboard"
+            meta={renderDoc(spec.keyboardMeta ?? "")}
+          >
+            <KeyboardTable rows={spec.keyboard} />
+          </DocsSection>
+        )}
+
+        {/*
+         * Generated from `contract.json`, so it is guarded on the data rather
+         * than on the spec: a component that declares no data attributes gets no
+         * section, and one that adds a declaration gets a row with no page edit.
+         */}
+        {dataAttrs.length > 0 && (
+          <DocsSection
+            id="data-attributes"
+            title="Data attributes"
+            meta="Emitted automatically by the headless primitive — style against these rather than adding your own state classes."
+          >
+            <DataAttributesTable rows={dataAttrs} />
+          </DocsSection>
+        )}
 
         {/* The registry List with markers ON — unlike the nav lists, this IS
             prose, so the bullets and the base layer's reading rhythm are right. */}

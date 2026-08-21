@@ -168,6 +168,28 @@ for (const sub of contract.subcomponents || []) {
   };
 }
 
+/*
+ * The full data-attribute rows, for the page's "Data attributes" table.
+ *
+ * The per-sub `dataAttributes` above is a list of NAMES only, which is all the
+ * props tables need. The table wants the whole triple — attribute, value, and
+ * the state that emits it — and `value` is load-bearing rather than decorative:
+ * `data-state` appears twice with different values (`checked`/`unchecked`), so a
+ * name-only list silently collapses two rows into one.
+ *
+ * Read from the contract's own declarations, root and sub-components together,
+ * because an attribute belongs to the COMPONENT rather than to any one part —
+ * `data-placeholder` is emitted on the value part while `aria-expanded` is on
+ * the trigger, and the reader wants one table, not nine.
+ *
+ * `source` is dropped: every entry in every contract is `"auto"`, so a column
+ * of identical values is noise. Reinstate it if a `"manual"` ever appears.
+ */
+const dataAttributes = [
+  ...(contract.dataAttributes || []),
+  ...(contract.subcomponents || []).flatMap((s) => s.dataAttributes || []),
+].map((d) => ({ name: d.name, value: d.value ?? "", when: d.when ?? "" }));
+
 // ---- merge ----
 const subComponents = cfg.subComponents.map((sc) => {
   const head = extractSub(sc);
@@ -189,6 +211,7 @@ const out = {
     installCommand: `primitiv add ${name}`,
     rootClass: contract.root?.class,
     customProperties: (contract.customProperties || []).map((c) => ({ name: c.name, defaultsTo: c.defaultsTo })),
+    dataAttributes,
   },
   figma: { componentSetKey: cfg.figmaComponentSetKey },
 };
@@ -199,7 +222,8 @@ writeFileSync(outPath, JSON.stringify(out, null, 2) + "\n");
 const totalProps = subComponents.reduce((n, s) => n + s.props.length, 0);
 const totalContract = subComponents.reduce((n, s) => n + s.contractProps.length, 0);
 console.log(`✓ ${cfg.displayName}: ${subComponents.length} sub-component(s), ${totalProps} headless props, ` +
-  `${totalContract} contract props, ${out.styled.customProperties.length} css vars`);
+  `${totalContract} contract props, ${out.styled.customProperties.length} css vars, ` +
+  `${dataAttributes.length} data attribute(s)`);
 for (const s of subComponents) {
   console.log(`  ${s.name}  (extends ${s.extends})  props: ${s.props.map((p) => p.name).join(", ") || "—"}` +
     (s.contractProps.length ? `  · contract: ${s.contractProps.map((p) => p.name).join(", ")}` : ""));

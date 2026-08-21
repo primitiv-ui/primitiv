@@ -102,6 +102,10 @@
         "defaultsTo": "var(--primitiv-framed-control-md-icon-size)"
       },
       {
+        "name": "--primitiv-button-icon-optical-inset",
+        "defaultsTo": "var(--primitiv-framed-control-md-icon-optical-inset)"
+      },
+      {
         "name": "--primitiv-button-font-family",
         "defaultsTo": "var(--primitiv-label-md-font-family)"
       },
@@ -120,6 +124,13 @@
       {
         "name": "--primitiv-button-shadow",
         "defaultsTo": "var(--primitiv-elevation-flat)"
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-disabled",
+        "value": "",
+        "when": "disabled"
       }
     ]
   },

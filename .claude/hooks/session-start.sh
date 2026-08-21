@@ -21,7 +21,11 @@ cd "$CLAUDE_PROJECT_DIR"
 # The stub's exports are derived from the Rust source rather than hand-listed,
 # so a new #[wasm_bindgen] entry point cannot go missing from it. Each throws:
 # a test that forgets to mock gets a clear message instead of undefined.
-if [ ! -f crates/harmoni-wasm/pkg/harmoni_wasm.js ]; then
+# Guarded on the real artefact (the .wasm blob), not on the stub itself: a stub
+# written before a new #[wasm_bindgen] entry point existed would otherwise stay
+# stale for the life of the container, and the missing export only shows up as an
+# unrelated-looking test failure.
+if [ ! -f crates/harmoni-wasm/pkg/harmoni_wasm_bg.wasm ]; then
   mkdir -p crates/harmoni-wasm/pkg
   cat > crates/harmoni-wasm/pkg/package.json << 'JSON'
 {

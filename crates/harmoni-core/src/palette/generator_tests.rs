@@ -192,6 +192,58 @@ mod generator_tests {
         }
     }
 
+    mod pale_seed_lightness {
+        use super::*;
+        use crate::color::input::ColorInput;
+
+        /// A yellow at OkLCH lightness 0.84 — far above the 0.55 the light curve
+        /// is written around, and the hardest case the shipped seeds approach.
+        fn pale_seed() -> Oklch {
+            ColorInput::Css("#f5c400".to_string())
+                .to_oklch()
+                .expect("the seed should parse")
+        }
+
+        #[test]
+        fn a_pale_seed_keeps_its_light_steps_distinguishable() {
+            // The light model *shifts* the whole curve so step 500 lands on the
+            // brand, where the dark model *anchors* its ends. A seed lighter than
+            // about 0.60 therefore pushes its top steps past the 0.99 clamp,
+            // where they collide: this seed pins four steps to 0.99 and renders
+            // them as four identical near-whites. Steps exist to be
+            // distinguishable surfaces (RFC 0027 §12.2).
+            let palette = generate_palette(pale_seed(), 0.0, 0.0);
+
+            for pair in palette.swatches.windows(2) {
+                let gap = (pair[1].l - pair[0].l).abs();
+                assert!(
+                    gap > 0.01,
+                    "steps {} and {} are {gap:.4} apart in lightness ({} vs {})",
+                    pair[0].label,
+                    pair[1].label,
+                    pair[0].hex,
+                    pair[1].hex,
+                );
+            }
+        }
+
+        #[test]
+        fn a_pale_seed_still_reaches_a_genuinely_dark_step_900() {
+            // The other half of the same defect: a shifted curve bottoms out at
+            // `base_l + 0.15 - 0.55`, so a pale seed never gets a dark end
+            // either. Anchoring pins 900 to the curve's own floor.
+            let palette = generate_palette(pale_seed(), 0.0, 0.0);
+
+            let darkest = palette.swatches.last().expect("a step 900");
+            assert!(
+                darkest.l < 0.2,
+                "step 900 sits at lightness {:.2} ({})",
+                darkest.l,
+                darkest.hex,
+            );
+        }
+    }
+
     mod gamut_fallback_propagation {
         use super::*;
 

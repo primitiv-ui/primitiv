@@ -130,6 +130,45 @@ const GAMUT_SAFETY_MARGIN: f32 = 0.95;
 /// rendered faithfully byte-identical.
 const CHROMA_HEADROOM: f32 = 0.95;
 
+/// Places step `index` on the anchored two-segment lightness model: the ramp's
+/// two ends pinned to `start_anchor` and `end_anchor`, step 500 pinned to the
+/// brand's own lightness, and each half shaped by `curve`.
+///
+/// Anchoring rather than shifting is what keeps a ramp usable for any seed. The
+/// light side used to translate the whole curve so 500 landed on the brand,
+/// which works only while the brand sits near the curve's own midpoint: a seed
+/// lighter than about 0.60 pushed its top steps past the clamp, where three or
+/// four of them collided on one lightness and rendered as the same colour. The
+/// dark side has always anchored, for the same reason in the other direction —
+/// a pale brand must still get dark backgrounds (RFC 0027 §12.2).
+///
+/// Both halves read the same way: start at the half's own anchor and travel
+/// toward the brand by however far along the curve this step sits. A curve whose
+/// half has no span gives no shape to travel along, so the half collapses onto
+/// its anchor — which is what a flat curve means, and keeps the division safe.
+fn anchored_lightness(
+    index: usize,
+    curve: &[f32],
+    base_lightness: f32,
+    start_anchor: f32,
+    end_anchor: f32,
+) -> f32 {
+    let (anchor, anchor_index) = if index < 5 {
+        (start_anchor, 0)
+    } else {
+        (end_anchor, curve.len() - 1)
+    };
+
+    let span = curve[5] - curve[anchor_index];
+    let fraction = if span == 0.0 {
+        0.0
+    } else {
+        (curve[index] - curve[anchor_index]) / span
+    };
+
+    anchor + fraction * (base_lightness - anchor)
+}
+
 /// A step's chroma: what the ramp asks for, held inside the sRGB gamut.
 ///
 /// The cap is applied **here, in OkLCH, at constant lightness and hue**. That is
@@ -281,14 +320,20 @@ pub fn generate_palette_with_scale(
 
     let backgrounds: Vec<SwatchStep> = STEPS
         .iter()
-        .zip(adjusted_lightness.iter())
+        .enumerate()
         .zip(chroma_scale.iter())
-        .map(|((&step, &reference_lightness), &chroma_factor)| {
+        .map(|((index, &step), &chroma_factor)| {
             let (final_lightness, final_chroma) = if step == 500 {
                 (base_lightness, base_chroma)
             } else {
-                let offset = reference_lightness - 0.55;
-                let l = (base_lightness + offset).clamp(0.01, 0.99);
+                let l = anchored_lightness(
+                    index,
+                    &adjusted_lightness,
+                    base_lightness,
+                    adjusted_lightness[0],
+                    adjusted_lightness[9],
+                )
+                .clamp(0.01, 0.99);
                 let requested = base_chroma * CHROMA_HEADROOM * chroma_factor;
                 (l, chroma_within_gamut(requested, l, base_hue))
             };
@@ -339,16 +384,14 @@ pub fn generate_dark_palette(
 
             // Lower half interpolates the dark background anchor up to the
             // brand; upper half interpolates the brand up to the text anchor.
-            let l = if i < 5 {
-                let frac = (adjusted_curve[i] - adjusted_curve[0])
-                    / (adjusted_curve[5] - adjusted_curve[0]);
-                DARK_BG_ANCHOR + frac * (base_lightness - DARK_BG_ANCHOR)
-            } else {
-                let frac = (adjusted_curve[i] - adjusted_curve[5])
-                    / (adjusted_curve[9] - adjusted_curve[5]);
-                base_lightness + frac * (DARK_TEXT_ANCHOR - base_lightness)
-            };
-            let l = l.clamp(0.01, 0.99);
+            let l = anchored_lightness(
+                i,
+                &adjusted_curve,
+                base_lightness,
+                DARK_BG_ANCHOR,
+                DARK_TEXT_ANCHOR,
+            )
+            .clamp(0.01, 0.99);
             let requested = base_chroma * CHROMA_HEADROOM * chroma_factor;
 
             SwatchStep::from_label(l, chroma_within_gamut(requested, l, base_hue), base_hue, step)

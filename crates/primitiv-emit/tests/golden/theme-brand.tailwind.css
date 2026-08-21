@@ -1,16 +1,16 @@
 @layer primitiv.theme {
   :root,
   [data-theme="light"] {
-    --primitiv-color-brand-50: #e0e9e4;
-    --primitiv-color-brand-100: #bfdacd;
-    --primitiv-color-brand-200: #93c7ae;
-    --primitiv-color-brand-300: #72b396;
-    --primitiv-color-brand-400: #4d9979;
+    --primitiv-color-brand-50: #eef8f3;
+    --primitiv-color-brand-100: #cbe7d9;
+    --primitiv-color-brand-200: #9cd0b8;
+    --primitiv-color-brand-300: #79ba9d;
+    --primitiv-color-brand-400: #519d7d;
     --primitiv-color-brand-500: #0a7755;
-    --primitiv-color-brand-600: #0a573d;
-    --primitiv-color-brand-700: #033021;
-    --primitiv-color-brand-800: #01150c;
-    --primitiv-color-brand-900: #000503;
+    --primitiv-color-brand-600: #0b5a40;
+    --primitiv-color-brand-700: #043726;
+    --primitiv-color-brand-800: #011f14;
+    --primitiv-color-brand-900: #000f08;
   }
   [data-theme="dark"] {
     --primitiv-color-brand-50: #131a17;

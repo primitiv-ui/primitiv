@@ -1,9 +1,10 @@
 # RFC 0027 — Ramp quality metrics & generation feedback
 
-> **Status:** Steps 1–4 landed (2026-08-20/21) — `assess()` in the engine, regression
+> **Status:** Steps 1–5 landed (2026-08-20/21) — `assess()` in the engine, regression
 > tests gating the shipped seeds, and the `ramp-audit` example measuring through
 > the engine, the gamut mapping fixed, and the light lightness curve anchored.
-> **Step 5 (regenerate) is unblocked but not done — see §12.4.** Steps 6–7 open. See §11 for what building
+> **Step 5 (regenerate) is done — palette, emitted token layers and Figma
+> variables are in lockstep (§12.4).** Steps 6–7 open. See §11 for what building
 > it found, including a correction to §1's diagnosis.
 > **Author:** simonrevill, with architectural review
 > **Date:** 2026-08-15
@@ -309,8 +310,8 @@ Those are downstream decisions this RFC only makes measurable.
 4. ~~**Diagnose the RFC 0010 chroma regression** using the new utilisation metric,
    and fix the gamut mapping. This unblocks regeneration.~~ **Landed** — see §11.1
    for the diagnosis and §12 for what it unmasked.
-5. **Regenerate the palette**, verifying utilisation is back before committing.
-   Unblocked — see §12.4 for what will change.
+5. ~~**Regenerate the palette**, verifying utilisation is back before committing.~~
+   **Landed** — see §12.4.
 6. **Foreground API extension** (§7).
 7. **Picker feedback** (§6) — the largest surface, and it wants 1–4 settled
    first so it is displaying trustworthy numbers.
@@ -577,10 +578,41 @@ the original engine — `warning` improves from −21% to −19% while going fro
 identical near-whites to a real ramp, and its rendered hue span falls from 33.4°
 to 1.3°.
 
-### 12.4 Step 5 is now unblocked
+### 12.4 Step 5: regenerated, and synced to Figma
 
-Both defects are fixed and both are gated. Regeneration is a separate,
-deliberate act (D6): the engine is correct, but
-`packages/tokens/src/palette.json` still holds the old committed colours, and
-every ramp will change when it is regenerated — most visibly `info`, for reasons
-that predate this RFC.
+**83 of 100 steps changed.** The 17 that did not are step 500 in every ramp
+(pinned to the seed by construction) plus seven dark low steps that were already
+in gamut. Four surfaces moved together:
+
+- `packages/tokens/src/palette.json` — rewritten by a new
+  `regen-palette` example. Until it existed the palette was only ever committed
+  as *output*: the seeds were entered interactively in the Harmoni plugin, so an
+  engine fix could not reach the shipped tokens without hand-editing a hundred
+  hexes.
+- The emitted token layers for the kitchen-sink, the workbench **and the docs
+  site**. The last had been added without a drift guard and went stale the moment
+  the palette moved; `token-drift.yml` now covers it.
+- The `Primitives / Palette` Figma variables, both modes, via the Desktop
+  Bridge — **83 changed, 17 unchanged**, the same split the regenerator reported,
+  which is the cross-check that the two sides agree.
+
+Deliberately untouched: `brand-alpha` (the *seed* at the alpha curve's
+opacities, so it is anchored to a colour regeneration does not move), and the
+`neutral` families, which come from the `neutral` module rather than
+`generate_brand_pair`.
+
+Nothing downstream needed a second pass. In Figma, **203 of 206** Intent values
+are aliases into the palette, so they follow automatically; the only three raw
+values are `scrim` (black) and `surface/floating` in Dark, neither ramp-derived.
+The file carries **no paint styles at all**, so there is nowhere for a raw ramp
+colour to hide outside the variable layer. The `foreground/<ramp>/<step>` family
+that `intentSpec.ts` can alias does not exist in the file — the Intent foreground
+tokens resolve to `color/white`, `color/absolute-white` and `color/neutral/*`
+instead — so there was nothing there to strand.
+
+**One trap worth keeping.** The regenerator edits `palette.json` as *text*. Doing
+it structurally needs serde_json's `preserve_order` to hold key order, and Cargo
+unifies features across the whole workspace build — switching it on silently
+flipped `primitiv-emit`'s token ordering from sorted to insertion order and broke
+five of its goldens. The text path needs no feature, and was verified to produce a
+byte-identical file.

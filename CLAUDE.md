@@ -929,8 +929,7 @@ source of truth for when a skill applies.
     meaningful. It is also why the panel can animate in but not out.
 
 
-- **RFC 0027 (ramp quality metrics) — steps 1–4 landed (2026-08-20/21); step 5
-  unblocked but not done, 6–7 open.**
+- **RFC 0027 (ramp quality metrics) — steps 1–5 landed (2026-08-20/21); 6–7 open.**
   `harmoni-core::audit::ramp` now owns `assess(&Palette, Gamut) -> RampQuality`,
   exposed as `api::assess_ramp`. The gamut boundary primitive moved down to
   `color::gamut` first (`audit` must not reach up into `api`); `api::gamut`
@@ -987,6 +986,25 @@ source of truth for when a skill applies.
     anchor, travel toward the brand" — which is also what makes a **flat curve**
     safe (`generate_with_lightness` accepts one, and the old inline dark copy
     would have divided by zero). Min ΔL is now ≥0.018 everywhere; gated.
+  - **Step 5 (landed): the palette IS regenerated, and Figma is in lockstep.**
+    83 of 100 steps changed; the 17 that didn't are step 500 in every ramp (pinned
+    to the seed) plus seven already-in-gamut dark steps. **Never hand-edit
+    `palette.json`** — `cargo run -p harmoni-core --features regen-palette
+    --example regen-palette` rewrites it from the seeds, then re-emit the token
+    layer into **all three** apps (kitchen-sink, workbench, docs-site). The
+    docs-site copy was added without a drift guard and went stale immediately;
+    `token-drift.yml` now covers it. Figma's `Primitives / Palette` was updated via
+    the Desktop Bridge — 83 changed / 17 unchanged, the same split, which is the
+    cross-check that both sides agree. Nothing else needed touching: 203 of 206
+    Intent values are aliases, the only raw ones are `scrim` and `surface/floating`
+    (dark), and the file has **no paint styles at all**. `brand-alpha` is anchored
+    to the *seed*, so it does not move with the ramp.
+  - **`serde_json`'s `preserve_order` is a workspace-wide hazard — don't reach for
+    it.** Adding it (even as a harmoni-core *dev*-dependency) unifies across the
+    Cargo build graph and flips `primitiv-emit`'s token ordering from sorted to
+    insertion order, breaking five of its goldens with no obvious connection to
+    the change. `regen-palette` edits `palette.json` line-by-line as text instead;
+    verified byte-identical to the structured rewrite.
   - **Don't quote a chroma loss without checking the committed palette.**
     `info`'s light end reads −42% against `palette.json`, but it was **already
     −41% before any of this work** — that ramp is not reproducible from its seed

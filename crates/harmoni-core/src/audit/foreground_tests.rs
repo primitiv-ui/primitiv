@@ -367,6 +367,36 @@ mod readable_step {
     }
 
     #[test]
+    fn a_lower_threshold_admits_a_quieter_step() {
+        // The three roles do not share a bar: text needs 4.5:1, but a border is
+        // non-text and WCAG 1.4.11 asks 3:1. Handing back the 4.5 answer for a
+        // border would darken every control edge in the system.
+        // Finely spaced, like the neutral ramp these roles actually draw from:
+        // in production `border/default` sits at `neutral.400` (3.05:1) while
+        // muted text needs a darker step. The answer only differs where the ramp
+        // has a step between the two bars, which a coarse ramp does not.
+        let greys = palette(vec![
+            swatch(300, 0.80, 0.005, 264.0, 21.0),
+            swatch(400, 0.72, 0.005, 264.0, 21.0),
+            swatch(500, 0.64, 0.005, 264.0, 21.0),
+            swatch(600, 0.56, 0.005, 264.0, 21.0),
+            swatch(700, 0.48, 0.005, 264.0, 21.0),
+        ]);
+
+        let text = readable_step(&greys, &white(), 4.5).expect("a text colour");
+        let border = readable_step(&greys, &white(), 3.0).expect("a border colour");
+
+        assert!(
+            border.contrast_ratio < text.contrast_ratio,
+            "border {} ({:.2}:1) should be quieter than text {} ({:.2}:1)",
+            border.label,
+            border.contrast_ratio,
+            text.label,
+            text.contrast_ratio,
+        );
+    }
+
+    #[test]
     fn returns_nothing_when_the_ramp_cannot_clear_the_threshold() {
         // The guarantee the hand-picked semantic tier never had: a role that
         // cannot be satisfied says so, rather than quietly handing back the

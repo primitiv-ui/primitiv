@@ -29,7 +29,7 @@ pub fn swatch(label: u16, l: f32, c: f32, h: f32, contrast_ratio: f32) -> Swatch
 pub fn palette(swatches: Vec<Swatch>) -> Palette {
     Palette {
         swatches,
-        lightness_curve: [0.0; 10],
+        lightness_curve: vec![0.0; 10],
         max_recommended_light_padding: 0.0,
         max_recommended_dark_padding: 0.0,
         note: String::new(),

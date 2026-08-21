@@ -241,7 +241,7 @@ impl From<core::Swatch> for Swatch {
 #[tsify(into_wasm_abi, from_wasm_abi)]
 pub struct Palette {
     pub swatches: Vec<Swatch>,
-    pub lightness_curve: [f32; 10],
+    pub lightness_curve: Vec<f32>,
     pub max_recommended_light_padding: f32,
     pub max_recommended_dark_padding: f32,
     pub note: String,

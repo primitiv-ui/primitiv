@@ -92,13 +92,11 @@ pub struct Swatch {
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Palette {
     pub swatches: Vec<Swatch>,
-    pub lightness_curve: [f32; 10],
+    pub lightness_curve: Vec<f32>,
     pub max_recommended_light_padding: f32,
     pub max_recommended_dark_padding: f32,
     pub note: String,
 }
-
-const STEPS: [u16; 10] = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900];
 
 pub const TARGET_LIGHTNESS: [f32; 10] =
     [0.97, 0.91, 0.83, 0.76, 0.67, 0.55, 0.45, 0.32, 0.22, 0.15];
@@ -108,6 +106,10 @@ pub const TARGET_CHROMA_SCALE: [f32; 10] =
 
 /// The shortest ramp the model supports: a light end, the brand, a dark end.
 pub const MIN_STEPS: usize = 3;
+
+/// The longest ramp the model supports. Beyond this the labels — rounded to
+/// the nearest ten so they read as token names — start colliding.
+pub const MAX_STEPS: usize = 32;
 
 /// The index carrying label 500 — the step the brand seed is pinned to.
 ///
@@ -211,17 +213,18 @@ const CHROMA_HEADROOM: f32 = 0.95;
 fn anchored_lightness(
     index: usize,
     curve: &[f32],
+    pivot: usize,
     base_lightness: f32,
     start_anchor: f32,
     end_anchor: f32,
 ) -> f32 {
-    let (anchor, anchor_index) = if index < 5 {
+    let (anchor, anchor_index) = if index < pivot {
         (start_anchor, 0)
     } else {
         (end_anchor, curve.len() - 1)
     };
 
-    let span = curve[5] - curve[anchor_index];
+    let span = curve[pivot] - curve[anchor_index];
     let fraction = if span == 0.0 {
         0.0
     } else {
@@ -297,7 +300,7 @@ pub fn validate_lightness_curve(lightness: [f32; 10]) -> Result<(), String> {
 /// assemble the `Palette`. Independent of how `backgrounds` was derived.
 fn assemble_palette(
     backgrounds: Vec<SwatchStep>,
-    lightness_curve: [f32; 10],
+    lightness_curve: Vec<f32>,
     base_hue: f32,
     soft_white: Option<Oklch>,
     soft_black: Option<Oklch>,
@@ -395,7 +398,7 @@ struct StepPlan {
 /// the chroma its scale asks for, and what the gamut grants.
 fn plan_light_ramp(
     base_500: Oklch,
-    lightness_scale: &[f32; 10],
+    lightness_scale: &[f32],
     chroma_scale: &[f32],
     light_padding: f32,
     dark_padding: f32,
@@ -405,8 +408,10 @@ fn plan_light_ramp(
     let base_chroma = base_500.chroma;
     let base_lightness = base_500.l;
     let adjusted = apply_padding_to_lightness(lightness_scale, light_padding, dark_padding);
+    let pivot = pivot_index(adjusted.len());
+    let last = adjusted.len() - 1;
 
-    STEPS
+    step_labels(adjusted.len())
         .iter()
         .enumerate()
         .zip(chroma_scale.iter())
@@ -423,9 +428,10 @@ fn plan_light_ramp(
             let lightness = anchored_lightness(
                 index,
                 &adjusted,
+                pivot,
                 base_lightness,
                 adjusted[0],
-                adjusted[9],
+                adjusted[last],
             )
             .clamp(0.01, 0.99);
             let requested_chroma = base_chroma * CHROMA_HEADROOM * chroma_factor;
@@ -470,7 +476,7 @@ pub fn chroma_headroom(
 
 pub fn generate_palette_with_scale(
     base_500: Oklch,
-    lightness_scale: &[f32; 10],
+    lightness_scale: &[f32],
     chroma_scale: &[f32],
     light_padding: f32,
     dark_padding: f32,
@@ -493,7 +499,13 @@ pub fn generate_palette_with_scale(
     .map(|plan| SwatchStep::from_label(plan.lightness, plan.granted_chroma, base_hue, plan.label))
     .collect();
 
-    assemble_palette(backgrounds, *lightness_scale, base_hue, soft_white, soft_black)
+    assemble_palette(
+        backgrounds,
+        lightness_scale.to_vec(),
+        base_hue,
+        soft_white,
+        soft_black,
+    )
 }
 
 /// Generate a dark-mode palette using the anchored two-segment model:
@@ -506,7 +518,7 @@ pub fn generate_palette_with_scale(
 /// runs, reshaping the steps between the fixed 50/500/900 anchors.
 pub fn generate_dark_palette(
     base_500: Oklch,
-    dark_curve: &[f32; 10],
+    dark_curve: &[f32],
     light_padding: f32,
     dark_padding: f32,
     soft_white: Option<Oklch>,
@@ -517,10 +529,13 @@ pub fn generate_dark_palette(
     let base_lightness = base_500.l;
     let adjusted_curve = apply_padding_to_lightness(dark_curve, light_padding, dark_padding);
 
-    let backgrounds: Vec<SwatchStep> = STEPS
+    let pivot = pivot_index(adjusted_curve.len());
+    let chroma_scale = resample(&TARGET_CHROMA_SCALE, adjusted_curve.len());
+
+    let backgrounds: Vec<SwatchStep> = step_labels(adjusted_curve.len())
         .iter()
         .enumerate()
-        .zip(TARGET_CHROMA_SCALE.iter())
+        .zip(chroma_scale.iter())
         .map(|((i, &step), &chroma_factor)| {
             if step == 500 {
                 return SwatchStep::from_label(base_lightness, base_chroma, base_hue, step);
@@ -531,6 +546,7 @@ pub fn generate_dark_palette(
             let l = anchored_lightness(
                 i,
                 &adjusted_curve,
+                pivot,
                 base_lightness,
                 DARK_BG_ANCHOR,
                 DARK_TEXT_ANCHOR,
@@ -547,7 +563,36 @@ pub fn generate_dark_palette(
         })
         .collect();
 
-    assemble_palette(backgrounds, *dark_curve, base_hue, soft_white, soft_black)
+    assemble_palette(backgrounds, dark_curve.to_vec(), base_hue, soft_white, soft_black)
+}
+
+/// Generate a light palette of `steps` steps, reading the default curves at
+/// whatever resolution is asked for.
+///
+/// The ramp's length is a user knob; its shape is not. `steps` outside
+/// `MIN_STEPS..=MAX_STEPS` is rejected rather than clamped, so a caller finds
+/// out it asked for something the model cannot express.
+pub fn generate_palette_with_steps(
+    base_500: Oklch,
+    steps: usize,
+    light_padding: f32,
+    dark_padding: f32,
+) -> Result<Palette, String> {
+    if !(MIN_STEPS..=MAX_STEPS).contains(&steps) {
+        return Err(format!(
+            "Step count must be between {MIN_STEPS} and {MAX_STEPS}, got {steps}"
+        ));
+    }
+
+    Ok(generate_palette_with_scale(
+        base_500,
+        &resample(&TARGET_LIGHTNESS, steps),
+        &resample(&TARGET_CHROMA_SCALE, steps),
+        light_padding,
+        dark_padding,
+        None,
+        None,
+    ))
 }
 
 pub fn generate_palette(base_500: Oklch, light_padding: f32, dark_padding: f32) -> Palette {

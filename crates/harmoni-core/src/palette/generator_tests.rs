@@ -173,6 +173,82 @@ mod generator_tests {
         }
     }
 
+    mod variable_step_count {
+        use super::*;
+
+        #[test]
+        fn ten_steps_are_byte_identical_to_the_fixed_length_generator() {
+            // The length knob must not disturb the palette anyone already has.
+            let base_500 = Oklch::new(0.55, 0.15, 240.0);
+
+            let fixed = generate_palette(base_500, 0.0, 0.0);
+            let variable = generate_palette_with_steps(base_500, 10, 0.0, 0.0).unwrap();
+
+            let hexes = |p: &Palette| -> Vec<String> {
+                p.swatches.iter().map(|s| s.hex.clone()).collect()
+            };
+            assert_eq!(hexes(&variable), hexes(&fixed));
+            assert_eq!(variable.lightness_curve, fixed.lightness_curve);
+        }
+
+        #[test]
+        fn a_shorter_ramp_keeps_its_ends_and_pins_the_brand_to_500() {
+            let base_500 = Oklch::new(0.55, 0.15, 240.0);
+            let palette = generate_palette_with_steps(base_500, 5, 0.0, 0.0).unwrap();
+
+            let labels: Vec<String> =
+                palette.swatches.iter().map(|s| s.label.to_string()).collect();
+            assert_eq!(labels, vec!["50", "100", "300", "500", "900"]);
+
+            let brand = &palette.swatches[3];
+            assert_eq!(brand.l, base_500.l);
+            assert_eq!(brand.c, base_500.chroma);
+        }
+
+        #[test]
+        fn a_longer_ramp_stays_monotonically_darker_and_carries_a_foreground_everywhere() {
+            // The foreground pairing is the accessibility guarantee, so it has
+            // to survive at every length, not just at ten.
+            for count in MIN_STEPS..=MAX_STEPS {
+                let palette =
+                    generate_palette_with_steps(Oklch::new(0.55, 0.15, 240.0), count, 0.0, 0.0)
+                        .unwrap();
+
+                assert_eq!(palette.swatches.len(), count, "length {count}");
+                assert!(
+                    palette.swatches.windows(2).all(|w| w[0].l > w[1].l),
+                    "length {count} is not monotonically darker"
+                );
+                assert!(
+                    palette
+                        .swatches
+                        .iter()
+                        .all(|s| s.contrast_result.ratio >= 4.5),
+                    "length {count} has a step with no readable foreground"
+                );
+            }
+        }
+
+        #[test]
+        fn a_ramp_shorter_than_the_minimum_is_rejected() {
+            let result = generate_palette_with_steps(Oklch::new(0.55, 0.15, 240.0), 2, 0.0, 0.0);
+
+            assert!(result.is_err());
+        }
+
+        #[test]
+        fn a_ramp_longer_than_the_maximum_is_rejected() {
+            let result = generate_palette_with_steps(
+                Oklch::new(0.55, 0.15, 240.0),
+                MAX_STEPS + 1,
+                0.0,
+                0.0,
+            );
+
+            assert!(result.is_err());
+        }
+    }
+
     mod swatch_label {
         use super::*;
 

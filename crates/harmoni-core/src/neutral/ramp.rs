@@ -137,7 +137,7 @@ pub fn generate_neutral_ramp(
 
     Palette {
         swatches,
-        lightness_curve,
+        lightness_curve: lightness_curve.to_vec(),
         max_recommended_light_padding: 0.0,
         max_recommended_dark_padding: 0.0,
         note: String::new(),

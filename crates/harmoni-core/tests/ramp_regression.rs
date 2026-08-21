@@ -17,7 +17,10 @@
 
 use std::path::PathBuf;
 
-use harmoni_core::api::{assess_ramp, generate_brand_pair, Gamut, RampQuality};
+use harmoni_core::api::{
+    assess_ramp, generate_brand_pair, generate_brand_pair_with_options, Gamut, GenerateOptions,
+    RampQuality, DEFAULT_STEPS, MAX_STEPS, MIN_STEPS,
+};
 use harmoni_core::ColorInput;
 
 /// Below this mean utilisation a ramp is being greyed rather than refined. The
@@ -198,5 +201,60 @@ fn no_ramp_collapses_two_steps_onto_one_colour() {
             tightest >= MIN_DELTA_L,
             "{label}: two steps sit {tightest:.4} apart in lightness, under the {MIN_DELTA_L} bar",
         );
+    }
+}
+
+#[test]
+fn every_shipped_ramp_holds_its_guarantees_at_every_supported_length() {
+    // The ramp's length is a user knob, so the properties gated above at ten
+    // steps have to survive at three and at thirty-two — most of all the
+    // foreground pairing, which is how a step states its accessibility.
+    for (name, seed) in shipped_seeds()
+        .iter()
+        .map(|(n, s)| (n.as_str(), s.as_str()))
+        .chain([("hard-hue", HARD_HUE_SEED)])
+    {
+        for steps in MIN_STEPS..=MAX_STEPS {
+            let pair = generate_brand_pair_with_options(
+                ColorInput::Css(seed.to_string()),
+                GenerateOptions {
+                    steps,
+                    ..GenerateOptions::default()
+                },
+            )
+            .unwrap_or_else(|e| panic!("{name} at {steps} steps should generate: {e:?}"));
+
+            for (side, palette) in [("light", &pair.light), ("dark", &pair.dark)] {
+                let label = format!("{name} {side} at {steps} steps");
+                let quality = assess_ramp(palette, Gamut::Srgb);
+
+                assert_eq!(palette.swatches.len(), steps, "{label}: wrong length");
+                assert!(
+                    quality.foreground_coverage.is_complete(),
+                    "{label}: {} step(s) have no accessible foreground",
+                    quality.foreground_coverage.fail,
+                );
+
+                let mean = quality
+                    .mean_chroma_utilisation
+                    .unwrap_or_else(|| panic!("{label}: no measurable utilisation"));
+                assert!(
+                    mean >= MIN_MEAN_CHROMA_UTILISATION,
+                    "{label}: mean chroma utilisation {mean:.3} — the ramp is being greyed",
+                );
+
+                // Steps sit closer together the more of them there are, so the
+                // spacing bar is the ten-step bar scaled to this length.
+                let floor =
+                    MIN_DELTA_L * (DEFAULT_STEPS - 1) as f32 / (steps - 1) as f32;
+                let tightest = quality
+                    .min_delta_l
+                    .unwrap_or_else(|| panic!("{label}: fewer than two steps"));
+                assert!(
+                    tightest >= floor,
+                    "{label}: two steps sit {tightest:.4} apart, under the {floor:.4} bar",
+                );
+            }
+        }
     }
 }

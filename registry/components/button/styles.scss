@@ -56,6 +56,11 @@
     border-radius: var(--primitiv-button-radius);
     background: var(--primitiv-button-bg);
     color: var(--primitiv-button-fg);
+    /* A <button> is never underlined, so this looks redundant — but under
+       `asChild` the rendered element is often an <a>, which inherits the base
+       layer's `text-decoration-line: underline`. Without this, every
+       link-as-button arrives underlined. The `--link` variant opts back in. */
+    text-decoration: none;
     box-shadow: var(--primitiv-button-shadow);
     font-family: var(--primitiv-button-font-family);
     font-size: var(--primitiv-button-font-size);

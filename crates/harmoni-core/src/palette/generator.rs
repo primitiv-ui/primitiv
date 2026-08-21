@@ -153,6 +153,9 @@ pub fn step_labels(count: usize) -> Vec<u16> {
 /// Positions are computed as `i * (len - 1) / (count - 1)` — integers first, so
 /// asking for the curve's own length lands exactly on its own points and a
 /// ten-step ramp stays byte-identical to the one this engine has always made.
+///
+/// `count` must be at least 2; a single position has no interval to divide by.
+/// `MIN_STEPS` is what guarantees that for every caller.
 pub fn resample(shape: &[f32], count: usize) -> Vec<f32> {
     let last = shape.len() - 1;
 

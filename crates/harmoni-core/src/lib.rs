@@ -9,6 +9,7 @@ pub use alpha::ramp::{generate_alpha_ramp, AlphaSwatch, ALPHA_CURVE};
 pub use audit::contrast::ContrastResult;
 pub use audit::foreground::{readable_step, ForegroundSource, ReadableStep};
 pub use audit::ramp::{assess as assess_ramp, ForegroundCoverage, RampQuality, StepQuality};
+pub use api::GenerateError;
 pub use color::input::{ColorInput, ColorInputError};
 pub use color::output::{format_oklch, format_oklch_alpha, oklch_to_hex, oklch_to_rgb, Rgb};
 pub use neutral::derive::SoftNeutrals;

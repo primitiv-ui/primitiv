@@ -1,6 +1,6 @@
 use crate::api::generate::{
     generate, generate_brand_pair, generate_pair, generate_with_lightness, generate_with_options,
-    GenerateOptions,
+    generate_brand_pair_with_options, GenerateError, GenerateOptions,
 };
 use crate::color::input::{ColorInput, ColorInputError};
 use crate::palette::generator::{SwatchLabel, TARGET_LIGHTNESS, TARGET_LIGHTNESS_DARK};
@@ -161,7 +161,9 @@ fn generate_with_options_propagates_an_invalid_color_input() {
 
     assert_eq!(
         result,
-        Err(ColorInputError::InvalidCss("not-a-color".to_string()))
+        Err(GenerateError::InvalidColor(ColorInputError::InvalidCss(
+            "not-a-color".to_string()
+        )))
     );
 }
 
@@ -176,7 +178,9 @@ fn generate_pair_propagates_an_invalid_color_input() {
 
     assert_eq!(
         result,
-        Err(ColorInputError::InvalidCss("not-a-color".to_string()))
+        Err(GenerateError::InvalidColor(ColorInputError::InvalidCss(
+            "not-a-color".to_string()
+        )))
     );
 }
 
@@ -186,7 +190,9 @@ fn generate_with_lightness_propagates_an_invalid_color_input() {
 
     assert_eq!(
         result,
-        Err(ColorInputError::InvalidCss("not-a-color".to_string()))
+        Err(GenerateError::InvalidColor(ColorInputError::InvalidCss(
+            "not-a-color".to_string()
+        )))
     );
 }
 
@@ -199,8 +205,138 @@ fn generate_with_lightness_rejects_a_lightness_curve_with_an_out_of_range_step()
 
     assert_eq!(
         result,
-        Err(ColorInputError::InvalidCss(
+        Err(GenerateError::InvalidCurve(
             "Lightness at index 3 out of range: 1.5".to_string()
         ))
+    );
+}
+
+#[test]
+fn generate_with_options_honours_a_requested_step_count() {
+    let palette = generate_with_options(
+        ColorInput::Css("#236ce1".to_string()),
+        GenerateOptions {
+            steps: 5,
+            ..GenerateOptions::default()
+        },
+    )
+    .unwrap();
+
+    assert_eq!(palette.swatches.len(), 5);
+}
+
+#[test]
+fn generate_defaults_to_the_ten_step_ramp() {
+    let palette = generate(ColorInput::Css("#236ce1".to_string())).unwrap();
+
+    assert_eq!(palette.swatches.len(), 10);
+}
+
+#[test]
+fn generate_with_options_rejects_an_unsupported_step_count() {
+    let result = generate_with_options(
+        ColorInput::Css("#236ce1".to_string()),
+        GenerateOptions {
+            steps: 99,
+            ..GenerateOptions::default()
+        },
+    );
+
+    assert_eq!(result, Err(GenerateError::UnsupportedStepCount(99)));
+}
+
+#[test]
+fn an_out_of_range_lightness_curve_is_reported_as_a_curve_error_not_a_colour_error() {
+    let mut curve = TARGET_LIGHTNESS;
+    curve[3] = 1.5;
+
+    let result = generate_with_lightness(
+        ColorInput::Css("#236ce1".to_string()),
+        curve,
+        GenerateOptions::default(),
+    );
+
+    assert!(matches!(result, Err(GenerateError::InvalidCurve(_))));
+}
+
+#[test]
+fn a_pair_whose_curves_disagree_on_length_is_rejected() {
+    let result = generate_pair(
+        sample_input(),
+        &TARGET_LIGHTNESS,
+        &TARGET_LIGHTNESS_DARK[..8],
+        GenerateOptions::default(),
+    );
+
+    assert!(matches!(result, Err(GenerateError::InvalidCurve(_))));
+}
+
+#[test]
+fn a_brand_pair_honours_a_requested_step_count_on_both_sides() {
+    let set = generate_brand_pair_with_options(
+        sample_input(),
+        GenerateOptions {
+            steps: 6,
+            ..GenerateOptions::default()
+        },
+    )
+    .unwrap();
+
+    assert_eq!(set.light.swatches.len(), 6);
+    assert_eq!(set.dark.swatches.len(), 6);
+}
+
+#[test]
+fn a_brand_pair_rejects_an_unsupported_step_count_before_resampling() {
+    // The guard has to run first: resampling to fewer than two points would
+    // read off the end of the curve.
+    let result = generate_brand_pair_with_options(
+        sample_input(),
+        GenerateOptions {
+            steps: 1,
+            ..GenerateOptions::default()
+        },
+    );
+
+    assert_eq!(result, Err(GenerateError::UnsupportedStepCount(1)));
+}
+
+#[test]
+fn each_generate_error_says_what_went_wrong() {
+    assert_eq!(
+        GenerateError::InvalidColor(ColorInputError::InvalidCss("zzz".to_string())).to_string(),
+        "Invalid colour: zzz"
+    );
+    assert_eq!(
+        GenerateError::InvalidCurve("curve is wrong".to_string()).to_string(),
+        "curve is wrong"
+    );
+    assert_eq!(
+        GenerateError::UnsupportedStepCount(99).to_string(),
+        "Step count must be between 3 and 32, got 99"
+    );
+}
+
+#[test]
+fn a_pair_whose_curves_agree_but_are_too_short_is_rejected() {
+    let two_step = [0.9, 0.2];
+
+    let result = generate_pair(
+        sample_input(),
+        &two_step,
+        &two_step,
+        GenerateOptions::default(),
+    );
+
+    assert_eq!(result, Err(GenerateError::UnsupportedStepCount(2)));
+}
+
+#[test]
+fn a_brand_pair_reports_an_unparseable_colour() {
+    let result = generate_brand_pair(ColorInput::Css("not-a-color".to_string()));
+
+    assert_eq!(
+        result,
+        Err(ColorInputError::InvalidCss("not-a-color".to_string()))
     );
 }

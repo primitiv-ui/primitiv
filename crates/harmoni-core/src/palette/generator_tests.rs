@@ -101,6 +101,45 @@ mod generator_tests {
         }
     }
 
+    mod curve_resampling {
+        use super::*;
+
+        #[test]
+        fn resampling_a_curve_to_its_own_length_returns_it_unchanged() {
+            // Ten steps must stay byte-identical, so the resampler has to be
+            // exact — not merely close — at the canonical length.
+            assert_eq!(resample(&TARGET_LIGHTNESS, 10), TARGET_LIGHTNESS.to_vec());
+        }
+
+        #[test]
+        fn resampling_to_a_longer_ramp_interpolates_between_the_authored_points() {
+            // 19 positions fall on i/2, so every even index is an authored
+            // point and every odd one is the exact midpoint of its neighbours.
+            let finer = resample(&TARGET_LIGHTNESS, 19);
+
+            assert_eq!(finer.len(), 19);
+            for (i, &authored) in TARGET_LIGHTNESS.iter().enumerate() {
+                assert_eq!(finer[i * 2], authored);
+            }
+            for i in 0..TARGET_LIGHTNESS.len() - 1 {
+                let midpoint = (TARGET_LIGHTNESS[i] + TARGET_LIGHTNESS[i + 1]) / 2.0;
+                assert!((finer[i * 2 + 1] - midpoint).abs() < 1e-6);
+            }
+        }
+
+        #[test]
+        fn resampling_to_a_shorter_ramp_keeps_both_ends_of_the_curve() {
+            // Whatever the length, a ramp still starts at the curve's lightest
+            // point and finishes at its darkest — the two anchors the model
+            // pins everything else against.
+            let coarse = resample(&TARGET_LIGHTNESS, 5);
+
+            assert_eq!(coarse.len(), 5);
+            assert_eq!(coarse[0], TARGET_LIGHTNESS[0]);
+            assert_eq!(coarse[4], TARGET_LIGHTNESS[9]);
+        }
+    }
+
     mod swatch_label {
         use super::*;
 

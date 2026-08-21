@@ -106,6 +106,32 @@ pub const TARGET_LIGHTNESS: [f32; 10] =
 pub const TARGET_CHROMA_SCALE: [f32; 10] =
     [0.12, 0.35, 0.65, 0.80, 0.92, 1.0, 0.92, 0.80, 0.65, 0.50];
 
+/// Sample a curve's *shape* at `count` evenly-spaced positions.
+///
+/// A ramp's length is a user knob, but the curves above describe a shape at ten
+/// samples. Resampling reads that shape at whatever resolution is asked for,
+/// so one authored curve serves every ramp length.
+///
+/// Positions are computed as `i * (len - 1) / (count - 1)` — integers first, so
+/// asking for the curve's own length lands exactly on its own points and a
+/// ten-step ramp stays byte-identical to the one this engine has always made.
+pub fn resample(shape: &[f32], count: usize) -> Vec<f32> {
+    let last = shape.len() - 1;
+
+    (0..count)
+        .map(|i| {
+            let position = (i * last) as f32 / (count - 1) as f32;
+            let lower = position.floor() as usize;
+            let fraction = position - lower as f32;
+
+            match shape.get(lower + 1) {
+                Some(&upper) => shape[lower] + (upper - shape[lower]) * fraction,
+                None => shape[lower],
+            }
+        })
+        .collect()
+}
+
 /// Absolute OkLCH lightness of step 50 in a dark palette — the darkest
 /// background, pinned regardless of the brand colour.
 const DARK_BG_ANCHOR: f32 = 0.21;

@@ -514,3 +514,85 @@ mod tests {
         );
     }
 }
+
+/// Mirror of `core::StepQuality` — one step's ramp-quality metrics
+/// (RFC 0027 §3). `label` is flattened to its token-path string rather than
+/// mirroring `SwatchLabel`, because every consumer of this type renders it.
+#[derive(Tsify, Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[tsify(into_wasm_abi, from_wasm_abi)]
+pub struct StepQuality {
+    pub label: String,
+    pub chroma_demand: Option<f32>,
+    pub chroma_utilisation: Option<f32>,
+    pub rendered_l: f32,
+    pub rendered_c: f32,
+    pub rendered_h: f32,
+    pub delta_l: Option<f32>,
+    pub hue_error: f32,
+}
+
+impl From<core::StepQuality> for StepQuality {
+    fn from(value: core::StepQuality) -> Self {
+        StepQuality {
+            label: value.label.to_string(),
+            chroma_demand: value.chroma_demand,
+            chroma_utilisation: value.chroma_utilisation,
+            rendered_l: value.rendered_l,
+            rendered_c: value.rendered_c,
+            rendered_h: value.rendered_h,
+            delta_l: value.delta_l,
+            hue_error: value.hue_error,
+        }
+    }
+}
+
+/// Mirror of `core::ForegroundCoverage` — how many of a ramp's steps carry an
+/// accessible foreground, by WCAG rating (RFC 0027 §3).
+#[derive(Tsify, Debug, Clone, Copy, Serialize, Deserialize, PartialEq)]
+#[tsify(into_wasm_abi, from_wasm_abi)]
+pub struct ForegroundCoverage {
+    pub aaa: usize,
+    pub aa: usize,
+    pub fail: usize,
+}
+
+impl From<core::ForegroundCoverage> for ForegroundCoverage {
+    fn from(value: core::ForegroundCoverage) -> Self {
+        ForegroundCoverage {
+            aaa: value.aaa,
+            aa: value.aa,
+            fail: value.fail,
+        }
+    }
+}
+
+/// Mirror of `core::RampQuality` — what a hue can and cannot do as a ramp in a
+/// given gamut, which is what the picker states to a designer at pick time
+/// (RFC 0027 §6).
+#[derive(Tsify, Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[tsify(into_wasm_abi, from_wasm_abi)]
+pub struct RampQuality {
+    pub steps: Vec<StepQuality>,
+    pub hue_span_intended: Option<f32>,
+    pub hue_span_rendered: Option<f32>,
+    pub min_delta_l: Option<f32>,
+    pub mean_chroma_utilisation: Option<f32>,
+    pub mean_chroma_demand: Option<f32>,
+    pub foreground_coverage: ForegroundCoverage,
+    pub gamut: Gamut,
+}
+
+impl From<core::RampQuality> for RampQuality {
+    fn from(value: core::RampQuality) -> Self {
+        RampQuality {
+            steps: value.steps.into_iter().map(Into::into).collect(),
+            hue_span_intended: value.hue_span_intended,
+            hue_span_rendered: value.hue_span_rendered,
+            min_delta_l: value.min_delta_l,
+            mean_chroma_utilisation: value.mean_chroma_utilisation,
+            mean_chroma_demand: value.mean_chroma_demand,
+            foreground_coverage: value.foreground_coverage.into(),
+            gamut: value.gamut.into(),
+        }
+    }
+}

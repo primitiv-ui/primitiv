@@ -308,6 +308,25 @@ pub fn paint_chroma_strip(
 /// round-trips through — `{ l, c, h }` plus the `hex`/`rgb`/`oklch` renderings
 /// (RFC 0010 §4). Parsing crosses into the one Rust engine; no JS colour
 /// library is involved (Principle 1). Errors on an unparseable string.
+/// Generates the ramp this OkLCH colour would seed and measures what it can
+/// actually do in `gamut` — chroma the steps get versus what they ask for, hue
+/// held versus rendered, step spacing, and foreground coverage.
+///
+/// This is the picker's feedback source (RFC 0027 §6): the data is already on
+/// screen as a gamut boundary, it was simply never interpreted. Call it once per
+/// gamut to state the trade-off — the same hue that mutes badly in sRGB may be
+/// comfortable in Display-P3.
+#[wasm_bindgen]
+pub fn assess_brand_ramp(
+    l: f32,
+    c: f32,
+    h: f32,
+    gamut: types::Gamut,
+) -> Result<types::RampQuality, JsError> {
+    let palette = api::generate(ColorInput::Oklch { l, c, h }).map_err(to_js_error)?;
+    Ok(api::assess_ramp(&palette, gamut.into()).into())
+}
+
 #[wasm_bindgen]
 pub fn parse_color(input: &str) -> Result<types::OklchTriple, JsError> {
     let oklch = ColorInput::Css(input.to_string())

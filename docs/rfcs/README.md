@@ -56,14 +56,21 @@ status, summary, and decision record; this page is the index.
   months later. Also proposes extending the foreground API from "text on this
   fill" to "which step is readable on this surface", which is the structural fix
   for the three contrast failures in `docs/interface-audit.md`.
-  **Steps 1–3 landed (2026-08-20)**: `assess()` in `harmoni-core::audit`,
+  **Steps 1–4 landed (2026-08-20/21)**: `assess()` in `harmoni-core::audit`,
   regression tests gating every shipped seed, and the `ramp-audit` example
   rewired onto the engine. Building it corrected the RFC's own diagnosis — the
   generator does **not** share the picker's gamut search; its private copy
   returns the constant `0.4` at every lightness, so chroma has never been
   gamut-aware and the light end has always demanded colour that does not exist
   (`warning/200` asks for 14.9×). Chroma is consequently measured twice, demanded
-  and rendered, the way hue already was. See the RFC's §11.
+  and rendered, the way hue already was. Step 4 then capped chroma **in OkLCH at
+  constant lightness and hue** instead of letting per-channel clipping absorb it,
+  which collapsed rendered hue drift from 33.4°/31.2° to under 6° on every ramp
+  and unlocked a hue-span gate the RFC could not write. **Step 5 (regenerate) is
+  blocked**: the fix unmasked a second defect — the light palette *shifts* its
+  lightness curve where the dark palette *anchors* it, so any seed lighter than
+  ~0.60 collides steps at the 0.99 ceiling (`warning` renders three identical
+  near-whites). See the RFC's §11 and §12.
 
 ## Consumption layer
 

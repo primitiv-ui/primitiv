@@ -1,9 +1,10 @@
 # RFC 0027 — Ramp quality metrics & generation feedback
 
-> **Status:** Steps 1–3 landed (2026-08-20) — `assess()` in the engine, regression
+> **Status:** Steps 1–4 landed (2026-08-20/21) — `assess()` in the engine, regression
 > tests gating the shipped seeds, and the `ramp-audit` example measuring through
-> the engine. Steps 4–7 open. See §11 for what building it found, including a
-> correction to §1's diagnosis.
+> the engine, and the gamut mapping fixed. **Step 5 (regenerate) is blocked on a
+> second, separate defect — see §12.** Steps 6–7 open. See §11 for what building
+> it found, including a correction to §1's diagnosis.
 > **Author:** simonrevill, with architectural review
 > **Date:** 2026-08-15
 > **Relates to:** RFC 0002 (Harmoni → Intent → Plugin); RFC 0003 (Dynamic
@@ -305,9 +306,11 @@ Those are downstream decisions this RFC only makes measurable.
 3. ~~**Point `ramp-audit` at `assess()`** instead of its own private maths, so the
    example and the engine cannot disagree.~~ **Landed**, and the rewired report is
    byte-identical to the private maths it replaced.
-4. **Diagnose the RFC 0010 chroma regression** using the new utilisation metric,
-   and fix the gamut mapping. This unblocks regeneration.
+4. ~~**Diagnose the RFC 0010 chroma regression** using the new utilisation metric,
+   and fix the gamut mapping. This unblocks regeneration.~~ **Landed** — see §11.1
+   for the diagnosis and §12 for what it unmasked.
 5. **Regenerate the palette**, verifying utilisation is back before committing.
+   **Blocked on §12.**
 6. **Foreground API extension** (§7).
 7. **Picker feedback** (§6) — the largest surface, and it wants 1–4 settled
    first so it is displaying trustworthy numbers.
@@ -455,3 +458,108 @@ them.
 - **D10 — Aggregates are `Option`, and a colourless ramp reports `None`.**
   Reporting `0.0` for a grey ramp's hue span is precisely the trap §2 describes;
   `None` says "there was nothing to measure" instead.
+
+
+---
+
+## 12. Step 4: the fix, and the defect it unmasked (2026-08-21)
+
+### 12.1 The fix
+
+`palette::generator` no longer has its own gamut search. Every non-seed step now
+takes its chroma from:
+
+```rust
+let requested = base_chroma * CHROMA_HEADROOM * chroma_factor;
+let ceiling = max_in_gamut_chroma(l, hue, Gamut::Srgb) * GAMUT_SAFETY_MARGIN;
+let chroma = requested.min(ceiling);
+```
+
+The cap is applied **in OkLCH, at constant lightness and hue**. That is the whole
+fix. The alternative — request whatever the chroma scale says and let per-channel
+clamping absorb the excess at hex time — reduces chroma *and* moves hue, because
+the channels do not clip evenly. Giving up the same unrenderable chroma
+deliberately, in OkLCH, holds the hue exactly.
+
+Rendered hue span, before → after:
+
+| ramp | before | after |
+|---|---:|---:|
+| warning light | 33.4° | **1.8°** |
+| brand dark | 31.2° | **5.4°** |
+| warning dark | 22.8° | **1.9°** |
+| brand light | 15.6° | **1.0°** |
+| info light | 6.0° | **2.3°** |
+
+Every ramp is now under 6°, against a `better-colors` bar of 15°. The gate §5
+could not write — a rendered-hue-span assertion — is now in
+`ramp_regression.rs` at 10°.
+
+The request formula deliberately keeps the original `0.95` headroom, so steps
+that were already inside the gamut are **byte-identical** and "what changed" is
+exactly "what was broken". `primitiv-emit`'s three `theme --brand` goldens moved
+accordingly, regenerated via `cargo run -p primitiv-emit --example
+regen-brand-goldens` rather than by hand.
+
+### 12.2 What it unmasked: the light model shifts where it should anchor
+
+Holding chroma inside the gamut made a **second, independent defect** visible.
+The light palette's lightness model is a *shift*:
+
+```rust
+let l = (base_lightness + reference_lightness - 0.55).clamp(0.01, 0.99);
+```
+
+So a seed lighter than about `0.60` pushes its top steps past the `0.99` ceiling,
+where they collide:
+
+| ramp | seed L | intended lightness | steps at ceiling | min ΔL |
+|---|---:|---|---:|---:|
+| brand | 0.56 | 0.98 0.92 0.84 0.77 … | 0 | 0.060 |
+| info | 0.59 | 0.99 0.95 0.87 0.80 … | 1 | 0.039 |
+| warning | 0.72 | **0.99 0.99 0.99** 0.93 … | 3 | **0.000** |
+| hard yellow | 0.84 | **0.99 0.99 0.99 0.99** 0.96 … | 4 | **0.000** |
+
+This is not new — `warning`'s ΔL was already exactly 0.0 before the fix (§11.3).
+What is new is the *consequence*. Previously those three steps had different
+requested chromas and per-channel clipping happened to render them as three
+distinguishable yellows. Now that chroma is honestly capped at a lightness where
+sRGB has almost none, they come out as three identical near-whites:
+`#fffbf7 #fffbf7 #fffbf7`. The hard yellow gives four identical `#fffcf3`.
+
+The dark palette already solves exactly this, with the **anchored two-segment
+model**: pin 50 and 900 to absolute anchors, pin 500 to the brand, interpolate
+each half by the curve's shape. The light side has no equivalent. Applying the
+same model to the light side, measured:
+
+| ramp | today's L | anchored L |
+|---|---|---|
+| warning | `0.99 0.99 0.99 0.93 …` → 3 identical whites | `0.97 0.93 0.89 0.85 …` → `#fef3e9 #fee5cc #fdd1a5 #fdbf7f` |
+| hard yellow | `0.99 0.99 0.99 0.99 …` → 4 identical | `0.97 0.95 0.93 0.90 …` → a real ramp |
+| brand (L 0.56) | `0.98 0.92 0.84 …` | `0.97 0.91 0.83 …` — essentially unchanged |
+
+It fixes the pale-seed collapse and barely moves mid-lightness seeds. It also
+gives pale seeds a genuinely dark 900 for the first time (`hard yellow` goes from
+L 0.44 to 0.15).
+
+### 12.3 Why step 5 is blocked
+
+The light-end chroma the committed palette shows was mostly **out-of-gamut colour
+rendered by channel clipping** — `info-300`'s vivid `#00cbd5`, which §1 holds up
+as what was lost, is one of those. Regenerating today would therefore reduce it.
+How much depends entirely on which lightness model ships:
+
+| ramp | committed light-end chroma | fixed, today's lightness | fixed, anchored lightness |
+|---|---:|---:|---:|
+| brand | 0.0808 | 0.0808 (+0%) | 0.0829 (+3%) |
+| info | 0.0740 | 0.0546 (−26%) | 0.0548 (−26%) |
+| warning | 0.0935 | 0.0345 (**−63%**) | 0.0770 (**−18%**) |
+
+Two thirds of `warning`'s apparent chroma loss is the lightness collapse, not the
+chroma cap. The residual — `info` −26%, `warning` −18%, `brand` 0% — is the real,
+unavoidable price of ramps that hold their hue in sRGB.
+
+So regeneration should not happen until the lightness model is settled, or the
+shipped palette takes a −63% light-end hit on `warning` for no reason. **This is a
+design decision, not an engine one** (§8: the metrics inform, a human resolves),
+and it is the open question at the top of step 5.

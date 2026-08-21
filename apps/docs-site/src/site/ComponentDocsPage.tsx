@@ -14,7 +14,7 @@ import { useState } from "react";
 
 import { getDocs, type ComponentId } from "@/lib/docs-data";
 import { renderDoc } from "@/lib/render-doc";
-import { toControls } from "@/lib/playground";
+import { contractControls } from "@/lib/playground";
 import { ComponentPageHeader } from "@/site/ComponentPageHeader";
 import { DocsSection } from "@/site/DocsSection";
 import { SPECS } from "@/site/examples";
@@ -53,7 +53,7 @@ export const ComponentDocsPage = ({ id }: { id: ComponentId }) => {
   const docs = getDocs(id);
   const spec = SPECS[id];
   const subs = docs.headless.subComponents;
-  const controls = toControls(subs[0]?.contractProps);
+  const controls = contractControls(subs);
   const [mode] = useMode();
 
   const cssVars = docs.styled.customProperties;

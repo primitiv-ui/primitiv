@@ -1,7 +1,8 @@
 /*
- * Props-table presentation. The table itself is the registry `Table` component;
- * this supplies only what a generic table cannot know — monospace cells for
- * names/types/defaults, and the required marker.
+ * Presentation for the page's spec tables — Props, Keyboard, Data attributes.
+ * The tables themselves are the registry `Table` component; this supplies only
+ * what a generic table cannot know — monospace cells for names/types/defaults,
+ * the required marker, and the separator between a pair of key caps.
  */
 
 /* The Prop column stays a plain mono span: it is an identifier being *named*,
@@ -45,5 +46,11 @@
 .docs-props-empty {
   font-family: var(--primitiv-body-sm-font-family);
   font-size: var(--primitiv-body-sm-font-size);
+  color: var(--primitiv-content-muted);
+}
+
+/* The " / " between a row's two key caps (ArrowDown / ArrowUp). Outside the caps
+   on purpose: it is prose joining them, not a legend on either. */
+.docs-key-sep {
   color: var(--primitiv-content-muted);
 }

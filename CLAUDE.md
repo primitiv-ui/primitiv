@@ -930,7 +930,7 @@ source of truth for when a skill applies.
 
 
 - **RFC 0027 (ramp quality metrics) — steps 1–4 landed (2026-08-20/21); step 5
-  blocked, 6–7 open.**
+  unblocked but not done, 6–7 open.**
   `harmoni-core::audit::ramp` now owns `assess(&Palette, Gamut) -> RampQuality`,
   exposed as `api::assess_ramp`. The gamut boundary primitive moved down to
   `color::gamut` first (`audit` must not reach up into `api`); `api::gamut`
@@ -977,21 +977,23 @@ source of truth for when a skill applies.
     `primitiv-emit`'s three `theme --brand` goldens move with the engine —
     regenerate with `cargo run -p primitiv-emit --example regen-brand-goldens`,
     never by hand.
-  - **Step 5 (regenerate) is BLOCKED on a design call — don't just run it.** The
-    fix unmasked a second, independent defect: the light palette **shifts** its
-    lightness curve (`base_l + ref - 0.55`) where the dark palette **anchors**
-    it, so any seed lighter than ~0.60 collides steps at the `0.99` clamp.
-    `warning` (seed L 0.72) renders **three identical near-whites**
-    (`#fffbf7` ×3); a hard yellow (L 0.84) renders four. This was always true
-    (ΔL was already 0.0) but was masked by out-of-gamut clipping rendering the
-    steps as distinguishable yellows. Applying dark's anchored two-segment model
-    to the light side fixes it and barely moves mid-lightness seeds — but it
-    changes every ramp, so it's a human's call (RFC 0027 §8, §12).
-  - **The committed palette's vivid light steps were out-of-gamut renders.**
-    `info-300`'s `#00cbd5` — the swatch RFC §1 holds up as what was lost — is one.
-    So regeneration *reduces* light-end chroma: `info` −26%, `warning` −18%,
-    `brand` 0% under an anchored model (`warning` −63% under today's). That
-    residual is the real price of ramps that hold their hue in sRGB.
+  - **The light curve is ANCHORED now, not shifted — and both sides share one
+    helper.** The chroma fix unmasked a second defect: the light palette shifted
+    its curve (`base_l + ref - 0.55`) where the dark palette anchored its ends,
+    so any seed lighter than ~0.60 collided steps at the `0.99` clamp — `warning`
+    (seed L 0.72) rendered **three identical near-whites**, a hard yellow (L 0.84)
+    four. `anchored_lightness` now serves both: pin the ramp's ends, pin 500 to
+    the brand, shape each half by the curve. Both halves read "start at the half's
+    anchor, travel toward the brand" — which is also what makes a **flat curve**
+    safe (`generate_with_lightness` accepts one, and the old inline dark copy
+    would have divided by zero). Min ΔL is now ≥0.018 everywhere; gated.
+  - **Don't quote a chroma loss without checking the committed palette.**
+    `info`'s light end reads −42% against `palette.json`, but it was **already
+    −41% before any of this work** — that ramp is not reproducible from its seed
+    and hasn't been for some time (its `#55dee5`/`#00cbd5` are more chromatic than
+    the chroma scale even asks for). The genuine incremental price of holding hue
+    is ~**8%**, on `brand` and `danger`; `warning` and `success` come out level or
+    better than the original engine. Full table in RFC 0027 §12.3.
   - **`cargo llvm-cov` accumulates stale profile data across builds.** After a
     `git stash`/checkout round-trip it reported `generator.rs` at 73% with
     `Display for SwatchLabel` "uncovered" despite passing tests — two

@@ -92,6 +92,7 @@ export const ComponentDocsPage = ({ id }: { id: ComponentId }) => {
             controls={controls}
             snippetChildren={spec.playground.snippetChildren}
             snippetPrefix={spec.playground.snippetPrefix}
+            snippet={spec.playground.snippet}
           >
             {spec.playground.render}
           </Playground>
@@ -170,7 +171,9 @@ export const ComponentDocsPage = ({ id }: { id: ComponentId }) => {
             title="Anatomy"
             meta={renderDoc(spec.anatomyMeta ?? "")}
           >
-            <Anatomy paths={spec.anatomy} />
+            <div className="docs-anatomy">
+              <Anatomy paths={spec.anatomy} />
+            </div>
           </DocsSection>
         )}
 

@@ -1,4 +1,94 @@
 import type { DocsContractProp } from "./docs-data";
+import type { Mode } from "@/site/preferences";
+
+/**
+ * Names a compound's parts the way the CURRENT MODE actually exports them.
+ *
+ * The two modes do not agree, and a snippet that ignores the switch is wrong in
+ * one of them:
+ *
+ * - **headless** — one compound export from `@primitiv-ui/react`, so the parts
+ *   are reached through it: `Select.Trigger`. These are also the names the props
+ *   tables use, because they come from the same source.
+ * - **styled** — `primitiv add` copies a file of flat named exports, so the part
+ *   is a symbol of its own: `SelectTrigger`. It exists ONLY in that file.
+ *
+ * Button never exposed this because its snippet is `<Button variant="…">` in
+ * both modes — a single-part component has no part names to disagree about.
+ * Select does: `SelectTrigger` does not exist in headless mode, which is the
+ * site's default, so the page shipped a snippet naming a symbol the reader
+ * cannot import.
+ *
+ * Figma mode gets the dot form too. It is the closer read — the Figma sets are
+ * themselves named `Select / Trigger` — but JSX is not really the right artifact
+ * for a designer at all; see the handoff's outstanding list.
+ *
+ * For COMPOUNDS only. A single-part component's spec writes its own name
+ * literally, since there is nothing to vary.
+ */
+export const partNamer =
+  (mode: Mode, component: string) =>
+  (part: string): string =>
+    mode === "styled"
+      ? part === "Root"
+        ? component
+        : `${component}${part}`
+      : `${component}.${part}`;
+
+/**
+ * The import lines a snippet needs, for the current mode.
+ *
+ * Worth generating rather than hardcoding, because the import is the clearest
+ * statement of what the mode switch actually changes — and the two shapes are
+ * genuinely different, not just a different path:
+ *
+ * - **headless** — ONE symbol from the package, with the parts reached through
+ *   it. `import { Select } from "@primitiv-ui/react"` and then `Select.Trigger`.
+ * - **styled** — every part is its own named export from the file `primitiv add`
+ *   copied into your project, so they are all listed.
+ *
+ * Showing it also makes the naming difference self-evidencing: the reader can
+ * see that `SelectTrigger` is imported in one mode and absent in the other,
+ * rather than having to take the prose's word for it.
+ *
+ * `icons` is separate because glyphs come from `@primitiv-ui/icons` in BOTH
+ * modes — they are not part of what the switch changes, and a reader who omits
+ * that line gets a confusing "Check is not defined" rather than an unstyled
+ * component.
+ */
+export const importBlock = ({
+  mode,
+  component,
+  componentId,
+  parts = [],
+  icons = [],
+}: {
+  mode: Mode;
+  /** The exported root name, e.g. `"Select"`. */
+  component: string;
+  /** The registry id, for the styled copy's path — e.g. `"select"`. */
+  componentId: string;
+  /** Part names used by the snippet, e.g. `["Trigger", "Content"]`. */
+  parts?: readonly string[];
+  icons?: readonly string[];
+}): string => {
+  const lines: string[] = [];
+
+  if (mode === "styled") {
+    const named = [component, ...parts.map((p) => `${component}${p}`)];
+    lines.push(
+      `import { ${named.join(", ")} } from "@/components/ui/${componentId}";`,
+    );
+  } else {
+    lines.push(`import { ${component} } from "@primitiv-ui/react";`);
+  }
+
+  if (icons.length > 0) {
+    lines.push(`import { ${icons.join(", ")} } from "@primitiv-ui/icons";`);
+  }
+
+  return lines.join("\n");
+};
 
 /**
  * The four density modes of the Context system.

@@ -49,6 +49,39 @@ export const toControls = (
 ): readonly PlaygroundControl[] =>
   (props ?? []).map(toControl).filter((c): c is PlaygroundControl => c !== null);
 
+/**
+ * Every contract-derived control for a component, gathered across ALL its parts.
+ *
+ * Reading `subComponents[0].contractProps` looks right and works for Button,
+ * whose one part IS the contract root — but it silently produces an empty
+ * control set for any compound whose modifiers live on a child part. Select is
+ * exactly that: `size`/`mode`/`placement` are declared on `Select.Trigger`,
+ * while `Select.Root` (part 0) has no modifiers at all, so the playground
+ * rendered zero controls and a snippet reading `<Select />`. It failed silently
+ * because an empty control list is a legitimate state — a component may have no
+ * modifiers.
+ *
+ * Deduped by name because one modifier can be declared on more than one part:
+ * `size` re-points the frame on the trigger AND the panel sizing on Content, so
+ * a flat concatenation would render the control twice. First declaration wins,
+ * which is the contract's own reading order.
+ *
+ * Which part each value is APPLIED to stays the spec's business — the render
+ * function receives the whole `values` bag and decides. That split is what lets
+ * one control drive two parts (Select's `size` reaches both) without this
+ * function knowing anything about the component.
+ */
+export const contractControls = (
+  subs: readonly { readonly contractProps?: readonly DocsContractProp[] }[],
+): readonly PlaygroundControl[] => {
+  const seen = new Set<string>();
+  return toControls(subs.flatMap((s) => s.contractProps ?? [])).filter((c) => {
+    if (seen.has(c.name)) return false;
+    seen.add(c.name);
+    return true;
+  });
+};
+
 /** The initial `{ prop: value }` state for a control set. */
 export const initialValues = (
   controls: readonly PlaygroundControl[],

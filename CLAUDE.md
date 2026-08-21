@@ -929,8 +929,8 @@ source of truth for when a skill applies.
     meaningful. It is also why the panel can animate in but not out.
 
 
-- **RFC 0027 (ramp quality metrics) — steps 1–6 landed (2026-08-20/21); step 7
-  and the Intent half of step 6 open.**
+- **RFC 0027 (ramp quality metrics) — steps 1–7 landed (2026-08-20/21); only the
+  Intent half of step 6 open.**
   `harmoni-core::audit::ramp` now owns `assess(&Palette, Gamut) -> RampQuality`,
   exposed as `api::assess_ramp`. The gamut boundary primitive moved down to
   `color::gamut` first (`audit` must not reach up into `api`); `api::gamut`
@@ -1028,6 +1028,24 @@ source of truth for when a skill applies.
     `packages/tokens/src/dark-mode-content.test.ts` still guards these roles with
     its own hand-rolled contrast maths — a second implementation that can disagree
     with the engine.
+  - **Step 7 (landed): `RampFeedback` under the brand picker** states chroma
+    headroom per step, the sRGB↔P3 trade-off, and contrast reach. **§6's premise
+    was wrong and step 4 is why:** it assumed the picker could derive headroom
+    from the painted gamut boundary, which was true only while the generator
+    over-asked and let clipping absorb it. Capping in OkLCH moved that decision
+    inside generation, so a deliberately tapered step and a gamut-limited one now
+    look identical from outside — hence `api::chroma_headroom(seed, …, gamut)`
+    reporting **requested vs granted**. It shares `plan_light_ramp` with
+    generation so the two cannot disagree; its `gamut` argument is a *what-if*
+    (generation is always sRGB) and is what makes the P3 comparison real.
+  - **The picker's test harness was half-dead and nobody knew.** Six of fourteen
+    `OklchPicker` test files could not resolve `harmoni-wasm` — `vi.mock` needs
+    Vite to resolve the specifier *first*, and the sandbox stub had a manifest
+    with no entry point. The session-start hook now generates a stub module whose
+    exports are derived from the Rust source (so a new `#[wasm_bindgen]` fn can't
+    go missing) and regenerates unless the real `.wasm` is present. **Also worth
+    knowing: `ci.yml` does not run `pnpm --filter workbench qa:units` at all** —
+    the picker's 100% threshold is discipline, not a gate.
   - **`cargo llvm-cov` accumulates stale profile data across builds.** After a
     `git stash`/checkout round-trip it reported `generator.rs` at 73% with
     `Display for SwatchLabel` "uncovered" despite passing tests — two

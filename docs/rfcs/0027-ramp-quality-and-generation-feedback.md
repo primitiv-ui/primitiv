@@ -1,11 +1,12 @@
 # RFC 0027 — Ramp quality metrics & generation feedback
 
-> **Status:** Steps 1–6 landed (2026-08-20/21) — `assess()` in the engine, regression
+> **Status:** Steps 1–7 landed (2026-08-20/21) — `assess()` in the engine, regression
 > tests gating the shipped seeds, and the `ramp-audit` example measuring through
 > the engine, the gamut mapping fixed, and the light lightness curve anchored.
 > **Step 5 (regenerate) is done — palette, emitted token layers and Figma
 > variables are in lockstep (§12.4).** Step 6's API is landed (§13); step 7 and
-> the Intent-layer consumption of §7 remain open. See §11 for what building
+> step 7's picker feedback is landed (§14). Only the Intent-layer consumption of
+> §7 remains open. See §11 for what building
 > it found, including a correction to §1's diagnosis.
 > **Author:** simonrevill, with architectural review
 > **Date:** 2026-08-15
@@ -315,8 +316,8 @@ Those are downstream decisions this RFC only makes measurable.
    **Landed** — see §12.4.
 6. ~~**Foreground API extension** (§7).~~ **API landed** — see §13. Having the
    Intent layer *consume* it is the remaining half.
-7. **Picker feedback** (§6) — the largest surface, and it wants 1–4 settled
-   first so it is displaying trustworthy numbers.
+7. ~~**Picker feedback** (§6) — the largest surface, and it wants 1–4 settled
+   first so it is displaying trustworthy numbers.~~ **Landed** — see §14.
 
 Steps 1–3 are one focused session. Step 4 is the one with real unknowns.
 
@@ -666,3 +667,75 @@ engine's. Closing that is an architectural question this RFC does not decide:
 whether the semantic tier's contrast-bearing roles become *generated* from the
 engine rather than authored. Worth noting the 114 token tests pass unchanged
 against the regenerated palette, so nothing is failing today.
+
+
+---
+
+## 14. Step 7: picker feedback (2026-08-21)
+
+`RampFeedback` sits under the brand picker on the Color engine page and states
+the three things §6 asked for, in its order: **chroma headroom per step**, the
+**sRGB / Display-P3 trade-off**, and **contrast reach**. It states constraints
+and does not score the colour (D5).
+
+### 14.1 §6's premise turned out to be wrong, and that shaped the work
+
+§6 says the data "is on screen already; it is simply not interpreted", meaning
+the gamut boundary the picker paints. That was true when it was written. It is
+not true now, and the reason is step 4: the generator used to request chroma with
+no reference to the gamut and let per-channel clipping absorb the excess, so the
+over-ask was visible in the output as `chroma_demand`. Capping in OkLCH moved
+that decision *inside* generation — demand can no longer exceed the safety
+margin, and the request is discarded once capped.
+
+The consequence is that a quiet step now has two causes that look identical from
+outside: the chroma scale tapers the ramp's ends deliberately, and a hue the
+gamut cannot hold gets cut back. Only the first is by design, and only the
+request/grant pair separates them. So the picker could not derive this from the
+boundary; the engine had to report it:
+
+```rust
+pub fn chroma_headroom(base_500, light_padding, dark_padding, gamut) -> Vec<ChromaHeadroom>
+// ChromaHeadroom { label, requested, granted }
+```
+
+Generation and `chroma_headroom` share one `plan_light_ramp` derivation, so the
+two cannot disagree about what a ramp asks for. `gamut` is a **what-if** —
+generation always targets sRGB — and it is what makes the P3 comparison possible
+rather than hypothetical.
+
+### 14.2 What the picker shows
+
+- **Chroma headroom.** Only the steps the gamut actually held back, each with the
+  fraction of its request it got. A ramp sRGB can hold gets one sentence saying
+  so rather than ten bars of noise.
+- **Gamut.** "In sRGB this ramp reaches 76% of the chroma it asks for; in
+  Display-P3, 96%." When the hue is not constrained by sRGB it says that too, so
+  a designer is not left to infer that wide gamut would help when it would not.
+- **Contrast reach.** The `ForegroundCoverage` counts from `assess_ramp`.
+
+A failed engine call renders **nothing**. A measurement that could not be taken
+must not appear as a measured zero.
+
+### 14.3 Two things found by rendering it
+
+Neither was caught by the tests, which is the argument for rendering:
+
+1. **The contrast sentence contradicted itself.** It opened "Every step carries
+   readable text" and then appended ", 1 with no accessible foreground". True of
+   nothing the engine ships today, which is exactly why it survived review — the
+   failing branch is the one nobody looks at.
+2. **The picker's own test harness had been half-dead.** Six of the fourteen
+   `OklchPicker` test files could not even resolve `harmoni-wasm`: `vi.mock`
+   needs Vite to resolve the specifier first, and the sandbox's install-time stub
+   carried a manifest with no entry point. The stub now derives its exports from
+   the Rust source, so a new `#[wasm_bindgen]` entry point cannot go missing from
+   it, and it regenerates unless the real `.wasm` is present.
+
+### 14.4 One gap worth knowing
+
+**CI does not run the workbench picker suite.** `ci.yml` runs `qa:units` for
+`react`, `icons` and `tokens` only; the workbench is type-checked and built but
+its 143 tests and 100% threshold are enforced by discipline alone. That predates
+this work and is not fixed here, but the picker is now a big enough surface that
+it is worth a line in the workflow.

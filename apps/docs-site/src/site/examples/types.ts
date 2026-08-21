@@ -31,6 +31,13 @@ export type ComponentSpec = {
     readonly render: () => ReactNode;
   }[];
 
-  /** Hand-authored: §1.7 records a11y as not derivable from source. */
+  /**
+   * Hand-authored: §1.7 records a11y as not derivable from source.
+   *
+   * Written with the SAME backtick convention as source JSDoc — `asChild`,
+   * `:focus-visible`, `data-disabled` — and rendered through `renderDoc`, so
+   * hand-authored and generated prose get identical code chips and there is one
+   * rule to remember when adding a component.
+   */
   readonly accessibility: readonly string[];
 };

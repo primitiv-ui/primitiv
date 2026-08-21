@@ -28,9 +28,10 @@
 
 .docs-prop-extends {
   margin-block: 0 var(--primitiv-flow-tight);
-  font-family: var(--primitiv-body-sm-font-family);
-  font-size: var(--primitiv-body-sm-font-size);
-  color: var(--primitiv-content-muted);
+  font-family: var(--primitiv-body-md-font-family);
+  font-size: var(--primitiv-body-md-font-size);
+  line-height: var(--primitiv-body-md-line-height);
+  color: var(--primitiv-content-secondary);
 }
 
 .docs-props-sub-heading {

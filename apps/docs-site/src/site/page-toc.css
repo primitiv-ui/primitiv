@@ -25,6 +25,10 @@
 }
 
 .docs-toc-heading {
+  /* The overline family ships no letter-spacing token, and uppercase Khand at
+     12px is condensed enough that the word spaces disappear — "ON THIS PAGE"
+     reads as "ONTHISPAGE". `wide` restores the gaps. */
+  letter-spacing: var(--primitiv-letter-spacing-wide);
   margin-block: 0 var(--primitiv-stack-gap-sm);
   /* The overline family is unsized (no -sm/-md/-lg) and carries no
      letter-spacing token — the face handles caps tracking itself. */
@@ -46,7 +50,15 @@
  */
 .docs-toc-list {
   --primitiv-list-item-gap: var(--primitiv-space-space-4);
-  --primitiv-list-indent: var(--primitiv-space-space-20);
+  /*
+   * The nested indent is ZERO on the list, and applied to the LINK's padding
+   * instead (below). That is what keeps a nested entry's active bar on the
+   * shared rail: indent the list and its links' `border-inline-start` moves in
+   * with it, so a highlighted child would draw its marker 20px adrift of the
+   * strip every other entry uses. Padding pushes the text without moving the
+   * border.
+   */
+  --primitiv-list-indent: var(--primitiv-space-space-0);
 
   border-inline-start: var(--docs-toc-rail-width) solid
     var(--primitiv-border-subtle);
@@ -71,6 +83,13 @@
       var(--primitiv-motion-easing-default),
     border-color var(--primitiv-motion-duration-control)
       var(--primitiv-motion-easing-default);
+}
+
+/* Nested entries: text stepped in, border still on the rail. */
+.docs-toc-nested .docs-toc-link {
+  padding-inline-start: calc(
+    var(--primitiv-space-space-16) + var(--primitiv-space-space-20)
+  );
 }
 
 .docs-toc-link:hover {

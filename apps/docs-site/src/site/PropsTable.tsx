@@ -17,42 +17,9 @@ import type {
   DocsProp,
   DocsSubComponent,
 } from "@/lib/docs-data";
+import { renderDoc } from "@/lib/render-doc";
 
 import "./props-table.css";
-
-/**
- * Renders JSDoc backticks and `{@link X}` references as real markup.
- *
- * These descriptions come straight from source JSDoc, so they contain
- * `backticked` code spans and `{@link Slot}` tags. Printing them raw would show
- * the braces; treating them as HTML would mean trusting doc comments as markup.
- * Splitting on the two known forms keeps it safe — nothing is ever handed to
- * `dangerouslySetInnerHTML`.
- *
- * `size="sm"` throughout, matching the Type/Default chips and the table's own
- * size — the default `md` would render code fragments LARGER than the body-sm
- * prose around them.
- */
-const renderDoc = (text: string) => {
-  const parts = text.split(/(`[^`]+`|\{@link\s+[^}]+\})/g);
-  return parts.map((part, i) => {
-    if (part.length > 1 && part.startsWith("`") && part.endsWith("`")) {
-      return (
-        <InlineCode key={i} size="sm">
-          {part.slice(1, -1)}
-        </InlineCode>
-      );
-    }
-    const link = part.match(/^\{@link\s+([^}\s|]+)/);
-    if (link)
-      return (
-        <InlineCode key={i} size="sm">
-          {link[1]}
-        </InlineCode>
-      );
-    return part;
-  });
-};
 
 const PropRows = ({
   rows,
@@ -100,7 +67,7 @@ const PropRows = ({
         <TableCell>{from}</TableCell>
         <TableCell>
           <span className="docs-prop-description">
-            {renderDoc(prop.description)}
+            {renderDoc(prop.description, "sm")}
           </span>
         </TableCell>
       </TableRow>

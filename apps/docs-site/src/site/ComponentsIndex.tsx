@@ -11,6 +11,7 @@ import {
   CardTitle,
 } from "@/components/card";
 import { ALL_DOCS } from "@/lib/docs-data";
+import { firstSentence, renderDoc } from "@/lib/render-doc";
 
 import "./components-index.css";
 
@@ -54,9 +55,9 @@ export const ComponentsIndex = () => (
                   </Badge>
                 </CardHeader>
                 <CardDescription>
-                  {/* First sentence only — the full description belongs on the
-                      component's own page. */}
-                  {docs.description.split(/(?<=\.)\s/)[0]}
+                  {/* First sentence only — and rendered, not printed: the
+                      generated description contains backticked code spans. */}
+                  {renderDoc(firstSentence(docs.description), "sm")}
                 </CardDescription>
               </CardContent>
             </Link>

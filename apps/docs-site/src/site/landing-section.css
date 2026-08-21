@@ -20,6 +20,10 @@
 }
 
 .docs-section-overline {
+  /* The overline family ships no letter-spacing token, and uppercase Khand at
+     12px is condensed enough that the word spaces disappear — "ON THIS PAGE"
+     reads as "ONTHISPAGE". `wide` restores the gaps. */
+  letter-spacing: var(--primitiv-letter-spacing-wide);
   margin: 0;
   font-family: var(--primitiv-overline-font-family);
   font-size: var(--primitiv-overline-font-size);

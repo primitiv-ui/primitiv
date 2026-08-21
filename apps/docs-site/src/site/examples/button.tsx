@@ -36,7 +36,7 @@ export const buttonSpec: ComponentSpec = {
       title: "Variants",
       render: () => (
         <InteractiveExample
-          caption="Five intents. Primary carries the main action on a view; link reads as text so it keeps the button's hit area and focus ring."
+          caption="Five intents. `primary` carries the main action on a view; `link` reads as text so it keeps the button's hit area and focus ring."
           code={(density) =>
             [
               `<div data-density="${density}">`,
@@ -63,7 +63,7 @@ export const buttonSpec: ComponentSpec = {
       title: "Sizes",
       render: () => (
         <InteractiveExample
-          caption="Five sizes — and every one rescales again with the nearest data-density ancestor. Change the density below and watch the whole ramp shift: that is the Context system, not a Button prop."
+          caption="Five sizes — and every one rescales again with the nearest `data-density` ancestor. Change the density above and watch the whole ramp shift: that is the Context system, not a `Button` prop."
           code={(density) =>
             [
               `<div data-density="${density}">`,
@@ -87,7 +87,7 @@ export const buttonSpec: ComponentSpec = {
       title: "With icons",
       render: () => (
         <InteractiveExample
-          caption="Icons are children, not props, so a leading or trailing glyph is just composition — nothing to configure."
+          caption="Icons are `children`, not props, so a leading or trailing glyph is just composition — nothing to configure."
           code={() =>
             [
               `<Button>`,
@@ -122,7 +122,9 @@ export const buttonSpec: ComponentSpec = {
       title: "As a link (asChild)",
       render: () => (
         <InteractiveExample
-          caption="asChild renders your own element instead of a <button> — here a Next <Link> — merging the button props and styles onto it. The a11y wiring follows, so it stays role=link."
+          caption={
+            '`asChild` renders your own element instead of a `<button>` — here a Next `<Link>` — merging the button props and styles onto it. The a11y wiring follows, so it stays `role="link"`.'
+          }
           code={() =>
             [
               `<Button asChild>`,
@@ -153,7 +155,7 @@ export const buttonSpec: ComponentSpec = {
       title: "Disabled",
       render: () => (
         <InteractiveExample
-          caption="disabled sets the native attribute and exposes data-disabled, so pointer events stop and the focus ring is suppressed — no ARIA needed, because the real attribute is doing the work."
+          caption="`disabled` sets the native attribute and exposes `data-disabled`, so pointer events stop and the focus ring is suppressed — no ARIA needed, because the real attribute is doing the work."
           code={() =>
             [
               `<Button disabled>Save changes</Button>`,
@@ -175,9 +177,9 @@ export const buttonSpec: ComponentSpec = {
   ],
 
   accessibility: [
-    "Space and Enter both activate the button — the native <button> behaviour, kept rather than re-implemented.",
-    "A visible focus ring is drawn via :focus-visible, so it appears for keyboard users and not on mouse click.",
-    "disabled exposes both the native attribute and data-disabled, so pointer events stop and assistive tech reports the state.",
-    "Under asChild the a11y wiring transfers to the element you supply, so a rendered <a> keeps role=link rather than being announced as a button.",
+    "Space and Enter both activate the button — the native `<button>` behaviour, kept rather than re-implemented.",
+    "A visible focus ring is drawn via `:focus-visible`, so it appears for keyboard users and not on mouse click.",
+    "`disabled` exposes both the native attribute and `data-disabled`, so pointer events stop and assistive tech reports the state.",
+    "Under `asChild` the a11y wiring transfers to the element you supply, so a rendered `<a>` keeps `role=\"link\"` rather than being announced as a button.",
   ],
 };

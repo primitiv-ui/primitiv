@@ -13,13 +13,7 @@ import { VisuallyHidden } from "@primitiv-ui/react";
 
 import { BrandLockup } from "./Brand";
 import { ThemeToggle } from "./ThemeToggle";
-import {
-  FRAMEWORKS,
-  MODES,
-  label,
-  useFramework,
-  useMode,
-} from "./preferences";
+import { FRAMEWORKS, MODES, label, useFramework, useMode } from "./preferences";
 
 import "./site-header.css";
 
@@ -53,11 +47,6 @@ export const SiteHeader = () => {
           <nav className="docs-header-nav" aria-label="Site">
             <ul className="docs-header-nav-list">
               <li>
-                <Link className="docs-header-link" href="/#harmoni">
-                  Design in Figma
-                </Link>
-              </li>
-              <li>
                 <Link
                   className="docs-header-link docs-header-link--accent"
                   href="/components/"
@@ -65,12 +54,19 @@ export const SiteHeader = () => {
                   Build with code
                 </Link>
               </li>
+              <li>
+                <Link className="docs-header-link" href="/#harmoni">
+                  Design in Figma
+                </Link>
+              </li>
             </ul>
           </nav>
 
           <div className="docs-header-controls">
             <div className="docs-header-control">
-              <VisuallyHidden id="docs-framework-label">Framework</VisuallyHidden>
+              <VisuallyHidden id="docs-framework-label">
+                Framework
+              </VisuallyHidden>
               <SegmentedControl
                 size="xs"
                 value={framework}

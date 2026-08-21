@@ -61,3 +61,38 @@ mod ramp_quality_through_the_api {
         assert!(quality.foreground_coverage.is_complete());
     }
 }
+
+mod readable_step_through_the_api {
+    use crate::api::{generate_brand_pair, readable_step};
+    use crate::color::input::ColorInput;
+    use crate::palette::generator::SwatchStep;
+
+    /// The dark theme's page background, `#141414`.
+    fn dark_surface() -> SwatchStep {
+        let ok = ColorInput::Css("#141414".to_string())
+            .to_oklch()
+            .expect("a valid surface colour");
+        SwatchStep::from_label(ok.l, ok.chroma, ok.hue.into_degrees(), "Surface")
+    }
+
+    #[test]
+    fn recommends_the_step_the_semantic_tier_had_to_hand_pick() {
+        // `dark.action.link.foreground.default` was left aliasing `brand.500`,
+        // which measures 3.78:1 on this surface — a silent AA failure found by a
+        // design audit months later. It was fixed by hand to `brand.600`.
+        // The engine now derives the same answer, which is what makes the whole
+        // class of failure structural rather than a list of three fixes
+        // (RFC 0027 §7, docs/interface-audit.md).
+        let pair = generate_brand_pair(ColorInput::Css("#236ce1".to_string()))
+            .expect("the brand seed should generate");
+
+        let found = readable_step(&pair.dark, &dark_surface(), 4.5).expect("a readable link colour");
+
+        assert_eq!(found.label.to_string(), "600");
+        assert!(
+            found.contrast_ratio >= 4.5,
+            "expected AA, got {:.2}:1",
+            found.contrast_ratio,
+        );
+    }
+}

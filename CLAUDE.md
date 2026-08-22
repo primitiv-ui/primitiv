@@ -1131,6 +1131,11 @@ source of truth for when a skill applies.
     and step control all belong to the picker (06), not to Palette.
     `Harmoni App Header` / `Harmoni App Container` are the OLD product
     (600px / 960px) — never carry their decisions into v3.
+  - **Carry-over for the code build: `docs/harmoni-plugin-v3-build-notes.md`.**
+    What designing the real views against those panels established — the 360×700
+    window and Dense chrome measurements, which view owns which control, the
+    verified ramp/seed facts (five seeds but six ramps; the engine's negative
+    hue), the Swatch and canvas-insert rules, and what is still undesigned.
   - **OKLCH is canonical; hex is a Figma export.** The picker's value block
     leads with `oklch(...)` and shows `→ figma · hex` beneath. Chroma is *not*
     clamped at the sRGB edge — the track goes flat past the ceiling and the
@@ -1428,6 +1433,36 @@ debugging cycle; none is discoverable from the API surface.
       subtree (it brings its own valid slot), and use `Box` over `Stack` for
       deep wrappers, since `Stack` slots have gone stale twice and `Box` slots
       have not.
+
+22. **`figma.createComponent()` does NOT default to auto-layout.** Its
+   `layoutMode` is `NONE`, so every padding, gap and alignment property you set
+   silently does nothing — and `layoutSizingVertical` throws *"node must be an
+   auto-layout frame"*. A header built this way sat at 100px tall with correct-
+   looking padding values until `layoutMode = 'HORIZONTAL'` was set. `createFrame()`
+   has the same default; helpers usually hide it, which is why the component path
+   surprises you.
+23. **`targetAspectRatio` is READ-ONLY — `lockAspectRatio()` is the setter, and
+   it locks the node's CURRENT ratio.** So to get a square: clear any bound
+   `height` variable (`setBoundVariable('height', null)`, or the pin fights the
+   ratio), `resize(w, w)`, then `lockAspectRatio()`. Assigning
+   `targetAspectRatio` throws *"no setter for property"*. This is the right way
+   to keep a colour cap square at any width — better than a `cap-height` token,
+   which only happens to be square at one width.
+24. **An icon instance colours its VECTOR children, not the instance frame.**
+   Setting `fills` on the instance paints a solid block where the glyph should
+   be. Walk to the `VECTOR` nodes and bind the paint there (and clear the
+   instance's own fills).
+25. **Absolutely-positioned children are placed against the width the frame has
+   AT THAT MOMENT.** A slider thumb positioned before the track was resized to
+   its final width lands at a fraction of the intended offset, and nothing
+   errors. Position after the final resize, and set
+   `constraints = { horizontal: 'SCALE' }` so the offset survives later resizing.
+26. **`List` exposes `Show Item 5-8` but items 1-4 are ALWAYS visible.** A
+   three-item list is impossible through the property panel; hide Item 4 with a
+   `visible` override on the instance sublayer. Same family as the caps in (20).
+   Related: `Harmoni LCH Input` is a full Field composition (label + Input +
+   helper row), not a bare number field — using it beside your own label renders
+   the value twice.
 
 ## Useful commands
 

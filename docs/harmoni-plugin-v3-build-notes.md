@@ -6,28 +6,37 @@ TDD build will need and cannot re-derive cheaply. The **spec** is the Figma page
 real views against that spec taught us.
 
 Design set: page **"Harmoni Plugin — Views (v3 design)"** — Palette, Picker,
-Export, Setup, Destination. Components: `Harmoni / Panel Header`,
-`Harmoni / Swatch`, `Harmoni / Axis Slider`.
+Curve, Export, Setup, Destination. Components: `Harmoni / Panel Header`,
+`Harmoni / Context Bar`, `Harmoni / Swatch`, `Harmoni / Axis Slider`.
 
 ## 1. Window and chrome — measured, not guessed
 
-- **`figma.showUI({ width: 360, height: 700 })`.** Palette with all six ramps
-  needs 700; the picker measures 687. One window height serves both, so don't
-  ship two.
+- **`figma.showUI({ width: 360, height: 730 })`.** The picker is the tallest
+  view at 723px needed; Palette with six ramps needs 719. One window height
+  serves every view, so don't ship two.
 - **Density is Dense**, baked into `Harmoni / Panel Header`. At Comfortable the
   header alone is 57px; at Dense it is 33px with 16px controls. Every v3 view is
   360 wide, so Dense is not a preference.
-- Chrome costs **103px**: header 33 + tab bar 33 + footer 37. That leaves ~597px
-  of body. The ten-row detailed ramp is 292px of it, which is why Palette shows
+- Chrome varies **by view, deliberately**: Setup 74px (nothing bound yet, so no
+  context bar and no tabs) · picker / Curve / Destination 106px (context bar, no
+  tabs) · Palette / Export 139px (header 41 + context bar 33 + tab bar 33 +
+  footer 32). The ten-row detailed ramp is 292px, which is why Palette shows
   strips and only the canvas insert shows detailed rows.
-- **The chrome is `Harmoni · <context>` plus a gear. Nothing else.** No project
-  Select, no theme toggle, no expand control — those belong to the OLD 600/960px
-  app (`Harmoni App Header`, `Harmoni App Container`) and must not be carried over.
-- **The second slot is contextual, not "the project".** CRUD panels show the
-  project (`Harmoni · primitiv`); the picker shows the ramp (`Harmoni · brand`);
-  first run shows bare `Harmoni`. The component models this as a `Project` TEXT
-  plus a `Show project` BOOLEAN — both direct children, so unlike a nested
-  Select they *are* settable from the parent's property panel.
+- **The header is the whole Harmoni lockup plus a gear. Nothing else.** No
+  project Select, no theme toggle, no expand control — those belong to the OLD
+  600/960px app (`Harmoni App Header`, `Harmoni App Container`) and must not be
+  carried over. Branding is not a label style: the lockup is
+  `Lockup [Brand=Harmoni, Layout=Horizontal, Theme=Light]` at 4.8:1, 96×20 here.
+- **The old header's lockup instance is BROKEN** — it points at main component
+  `441:401`, an orphan whose `parent` is `null`, which is why it exports blank.
+  Not a placeholder; a dangling reference. Don't copy from it.
+- **The manifest icon is `Brand Mark [Brand=Harmoni]`** (100×100 vector, export
+  at 128×128). A `Favicon` set exists too (Default / Tile).
+- **Where you are is `Harmoni / Context Bar`, between the header and the tabs** —
+  above them, because the project scopes the tabs. Two modes: `project`
+  (the bound project, opens the switcher) and `back` (`‹ brand`, the picker's
+  only exit back to Palette). One `Label` TEXT property, on a direct child, so
+  it *is* settable from the parent's panel.
 - **The tab bar only exists once a project is bound.** Setup and Destination
   have none.
 
@@ -44,8 +53,31 @@ Palette and the picker are separate views, and the split is load-bearing:
 - **Export** is where the semantic-layer offer appears — next to the variable
   count, never in Settings — carrying its own `don't ask again`.
 
-**Open question the wireframes do not answer:** the soft white / black anchors
-appear in the old 600px app but on no v3 panel. They are real
+- **Curve** is the picker's fifth tab, and owns `light_padding` / `dark_padding`
+  plus per-step lightness handles. Settled on wireframe panel 08.
+
+**Curve tab — settled (2026-08-22).** Padding and per-step handles are the same
+job at two resolutions, so they share one view.
+
+- **Five tabs with full names**: `lightness · chroma · hue · 3D · curve`.
+- The **L/C/H sliders are absent** on this tab: it edits the *ramp*, they edit
+  the *seed*. A read-only seed swatch + OKLCH line keeps you oriented. This does
+  not break "the sliders are always there" — the handles *are* the controls for
+  what this tab edits.
+- **Overrides are a sparse map of step → lightness, not a full curve.** Padding
+  always applies to the *default* curve; the effective curve is
+  `padding(default)` with overridden steps substituted; "release" deletes that
+  step's entry. That keeps padding live on every un-overridden step and needs
+  **no engine change** — build the array and pass it to `generate_with_lightness`,
+  which already takes an explicit lightness array. "Reset to the default curve"
+  is just clearing the map.
+- **A step-count change drops overrides**, because step 7 of 10 has no
+  counterpart at 16 steps. Say so in the UI rather than guessing a remap.
+- `max_recommended_light_padding(hue)` bounds the light slider and is surfaced as
+  a hint. Its only plausible consumer is this control.
+
+**Open question the wireframes still do not answer:** the soft white / black
+anchors appear in the old 600px app but on no v3 panel. They are real
 `GenerateOptions` inputs, so they need a home — most likely Settings. Do not
 invent a place for them without settling it.
 
@@ -126,6 +158,8 @@ collides with the next chip.
 
 From the wireframes: the in-sync return visit and the drift case (CRUD 03–04),
 Roles (panel 03), Audit (panel 04), Settings (panel 05).
+The project switcher now has an entry point (the context bar's `project` mode)
+but no view yet.
 With no wireframe at all: **loading/generating, error** (write refused, missing
 permission, remote variables), and the **project switcher**.
 

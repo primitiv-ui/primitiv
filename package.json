@@ -4,6 +4,8 @@
   "scripts": {
     "qa:registry-types": "node scripts/check-registry-types.mjs",
     "qa:stylesheets": "node scripts/check-registry-stylesheets.mjs",
+    "qa:docs-data": "node scripts/docs-data/sync-docs-data.mjs --check",
+    "docs-data": "node scripts/docs-data/sync-docs-data.mjs",
     "qa:prop-collisions": "node scripts/docs-data/scan-prop-collisions.mjs",
     "build:wasm": "pnpm --filter harmoni-wasm exec wasm-pack build --target web",
     "build:core": "pnpm --filter harmoni-core exec cargo build",

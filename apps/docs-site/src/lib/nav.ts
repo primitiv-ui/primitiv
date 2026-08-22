@@ -30,6 +30,7 @@ export type NavSection = {
 export const COMPONENT_PAGES: readonly NavLink[] = [
   { title: "Button", href: "/components/button" },
   { title: "Select", href: "/components/select" },
+  { title: "Tabs", href: "/components/tabs" },
 ];
 
 export const NAV: readonly NavSection[] = [

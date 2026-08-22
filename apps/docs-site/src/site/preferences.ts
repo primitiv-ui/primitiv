@@ -35,7 +35,23 @@ const LABELS: Record<string, string> = {
 
 export const label = (value: string): string => LABELS[value] ?? value;
 
-export const useMode = () => useLocalStorage<Mode>(MODE_KEY, "headless");
+/**
+ * The consumption mode, shared by every control that reads or writes it — the
+ * top-nav switch and the playground's snippet tablist are two views of this one
+ * value, not two pieces of state (`useLocalStorage` keys the store).
+ *
+ * **Defaults to `styled`** (changed 2026-08-21, was `headless`). Styled is the
+ * copy-and-go path and the one a first-time reader almost always wants: it has
+ * an install command that produces something that looks finished, and its
+ * snippets carry the `variant`/`size` props the examples are demonstrating.
+ * Headless is the more interesting product story but the sharper landing —
+ * arriving in a mode whose snippets deliberately show no styling props reads as
+ * "the docs are incomplete" rather than "the styling is yours".
+ *
+ * Only affects readers with no stored preference; anyone who has already chosen
+ * keeps their choice.
+ */
+export const useMode = () => useLocalStorage<Mode>(MODE_KEY, "styled");
 
 export const useFramework = () =>
   useLocalStorage<Framework>(FRAMEWORK_KEY, "react");

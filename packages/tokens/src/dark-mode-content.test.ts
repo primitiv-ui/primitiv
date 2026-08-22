@@ -259,8 +259,6 @@ describe.each([
  * inverted ramp cannot fool it again.
  */
 describe('action/link/foreground interactive states', () => {
-  const states = ['default', 'hover', 'active', 'visited'] as const
-
   it.each(['light', 'dark'] as const)(
     '%s mode: hover and active are more prominent than the resting state',
     (mode) => {

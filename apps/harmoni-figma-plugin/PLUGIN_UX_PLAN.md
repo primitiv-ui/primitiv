@@ -71,6 +71,79 @@ the **project switcher**.
 - **Insert swatches** is a task surface reached from Palette, not a
   permanent tab.
 
+### Routes
+
+Routing comes back in v2 (v0 had it, v1 removed it). It is not a
+landing page this time — **the document decides what you see**, which
+is what the ownership stamps make possible.
+
+Everything below is written to be built under strict TDD, so the two
+things that carry the most behaviour — the open resolver and the
+guards — are specified as pure functions over document state. Neither
+needs Figma to test: they take "what is in this document" as input and
+return a route.
+
+#### The open resolver
+
+`/` renders nothing. On open the plugin reads the document and
+resolves to one of three routes. This is the single most important
+testable behaviour in the app.
+
+| Document state | Resolves to |
+|---|---|
+| No binding, no stamped variables | `/setup` |
+| Binding present, every stamp matches what was written | `/palette` |
+| Binding present, at least one stamp differs | `/changes` |
+
+#### Route table
+
+| Path | View | Guard | On guard failure |
+|---|---|---|---|
+| `/` | resolver — never renders | — | — |
+| `/setup` | First run: pick a project, or adopt what is here | — | — |
+| `/setup/destination` | Collection → group, mode mapping, collisions | a project is selected | → `/setup` |
+| `/palette` | Seeds, ramps, per-ramp foreground audit | a binding exists | → `/setup` |
+| `/palette/seed/:ramp` | OKLCH picker for one seed | binding · ramp exists | → `/palette` |
+| `/insert` | Insert swatches: form, layout, spacing, captions | a binding exists | → `/setup` |
+| `/roles` | Semantic roles — name plus rule | binding · semantic layer on | → `/palette` |
+| `/audit` | Every role against every surface | binding · semantic layer on | → `/palette` |
+| `/export` | Counts, targets, and the semantic-layer offer | a binding exists | → `/setup` |
+| `/changes` | Diff against the stamps | binding · drift present | → `/palette` |
+| `/settings` | Preferences, defaults, role schema | — | — |
+
+`/settings` is deliberately unguarded. "Never ask again" has to be
+reversible even in a document that has never been written to.
+
+#### What is a route and what is a state
+
+The list stays short because most of what a designer sees is a *state*
+of a route, not a route of its own:
+
+- **Routes** — addressable, guarded, survive a reload.
+- **States** — the four drift cases on `/changes`, in-sync vs
+  first-write on `/palette`, the offer vs the already-taken layer on
+  `/export`, the four Form options on `/insert`. Each is a render
+  branch, tested at the route.
+
+#### Transitions worth pinning
+
+| From | Trigger | To |
+|---|---|---|
+| `/setup` | a project is chosen | `/setup/destination` |
+| `/setup/destination` | variables written and stamped | `/palette` |
+| `/palette` | a seed is clicked | `/palette/seed/:ramp` |
+| `/export` | "Add semantic layer" | `/roles` |
+| `/export` | "No thanks" + don't ask again | `/palette`, preference written |
+| any | the gear | `/settings` |
+| `/settings` | Done | back to the previous route |
+
+#### Tab bar
+
+Palette · Roles* · Audit* · Export — where `*` renders only when the
+semantic layer is on. `/setup`, `/setup/destination`, `/insert`,
+`/changes` and `/settings` are reached by sequence or action, and
+suppress the tab bar rather than adding to it.
+
 ### Fidelity and stack
 
 - **Figma first.** All views are designed and refined in Figma before

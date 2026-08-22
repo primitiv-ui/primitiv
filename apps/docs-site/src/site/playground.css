@@ -102,6 +102,23 @@
   min-block-size: var(--primitiv-space-space-56);
 }
 
+/*
+ * For an example whose demo is a full-width WIDGET rather than a row of
+ * controls — a tab set, a table, a card. `.docs-example-row` above is a centred
+ * flex row, which is right for five buttons and wrong for two stacked tab sets:
+ * they would sit side by side, each squeezed to its content width.
+ *
+ * Sits inside `.docs-example-row` rather than replacing it, so the row keeps
+ * owning the preview's minimum height and padding; this only re-stacks its
+ * children and claims the full column.
+ */
+.docs-example-stack {
+  inline-size: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--primitiv-stack-gap-lg);
+}
+
 .docs-example-caption {
   margin: 0;
   font-family: var(--primitiv-body-md-font-family);

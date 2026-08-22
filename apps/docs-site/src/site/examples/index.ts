@@ -4,6 +4,7 @@ import type { ComponentId } from "@/lib/docs-data";
 
 import { buttonSpec } from "./button";
 import { selectSpec } from "./select";
+import { tabsSpec } from "./tabs";
 import type { ComponentSpec } from "./types";
 
 /**
@@ -14,6 +15,7 @@ import type { ComponentSpec } from "./types";
 export const SPECS: Record<ComponentId, ComponentSpec> = {
   button: buttonSpec,
   select: selectSpec,
+  tabs: tabsSpec,
 };
 
 export type { ComponentSpec };

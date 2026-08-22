@@ -1446,6 +1446,138 @@
         }
       }
     },
+    "swatch": {
+      "xs": {
+        "box": {
+          "$type": "number",
+          "$value": "{size.size-24}"
+        },
+        "min-height": {
+          "$type": "number",
+          "$value": "{size.size-20}"
+        },
+        "radius": {
+          "$type": "number",
+          "$value": "{radii.4}"
+        },
+        "padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-6}"
+        },
+        "padding-block": {
+          "$type": "number",
+          "$value": "{space.space-2}"
+        },
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-4}"
+        }
+      },
+      "sm": {
+        "box": {
+          "$type": "number",
+          "$value": "{size.size-32}"
+        },
+        "min-height": {
+          "$type": "number",
+          "$value": "{size.size-24}"
+        },
+        "radius": {
+          "$type": "number",
+          "$value": "{radii.6}"
+        },
+        "padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-8}"
+        },
+        "padding-block": {
+          "$type": "number",
+          "$value": "{space.space-4}"
+        },
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-6}"
+        }
+      },
+      "md": {
+        "box": {
+          "$type": "number",
+          "$value": "{size.size-40}"
+        },
+        "min-height": {
+          "$type": "number",
+          "$value": "{size.size-32}"
+        },
+        "radius": {
+          "$type": "number",
+          "$value": "{radii.8}"
+        },
+        "padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-12}"
+        },
+        "padding-block": {
+          "$type": "number",
+          "$value": "{space.space-6}"
+        },
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-8}"
+        }
+      },
+      "lg": {
+        "box": {
+          "$type": "number",
+          "$value": "{size.size-56}"
+        },
+        "min-height": {
+          "$type": "number",
+          "$value": "{size.size-40}"
+        },
+        "radius": {
+          "$type": "number",
+          "$value": "{radii.10}"
+        },
+        "padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-16}"
+        },
+        "padding-block": {
+          "$type": "number",
+          "$value": "{space.space-8}"
+        },
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-10}"
+        }
+      },
+      "xl": {
+        "box": {
+          "$type": "number",
+          "$value": "{size.size-68}"
+        },
+        "min-height": {
+          "$type": "number",
+          "$value": "{size.size-48}"
+        },
+        "radius": {
+          "$type": "number",
+          "$value": "{radii.12}"
+        },
+        "padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-20}"
+        },
+        "padding-block": {
+          "$type": "number",
+          "$value": "{space.space-10}"
+        },
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-12}"
+        }
+      }
+    },
     "surface": {
       "sm": {
         "padding": {
@@ -4668,6 +4800,138 @@
         "panel-offset": {
           "$type": "number",
           "$value": "{space.space-8}"
+        }
+      }
+    },
+    "swatch": {
+      "xs": {
+        "box": {
+          "$type": "number",
+          "$value": "{size.size-20}"
+        },
+        "min-height": {
+          "$type": "number",
+          "$value": "{size.size-16}"
+        },
+        "radius": {
+          "$type": "number",
+          "$value": "{radii.4}"
+        },
+        "padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-4}"
+        },
+        "padding-block": {
+          "$type": "number",
+          "$value": "{space.space-2}"
+        },
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-3}"
+        }
+      },
+      "sm": {
+        "box": {
+          "$type": "number",
+          "$value": "{size.size-28}"
+        },
+        "min-height": {
+          "$type": "number",
+          "$value": "{size.size-20}"
+        },
+        "radius": {
+          "$type": "number",
+          "$value": "{radii.6}"
+        },
+        "padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-6}"
+        },
+        "padding-block": {
+          "$type": "number",
+          "$value": "{space.space-3}"
+        },
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-4}"
+        }
+      },
+      "md": {
+        "box": {
+          "$type": "number",
+          "$value": "{size.size-40}"
+        },
+        "min-height": {
+          "$type": "number",
+          "$value": "{size.size-28}"
+        },
+        "radius": {
+          "$type": "number",
+          "$value": "{radii.8}"
+        },
+        "padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-10}"
+        },
+        "padding-block": {
+          "$type": "number",
+          "$value": "{space.space-4}"
+        },
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-6}"
+        }
+      },
+      "lg": {
+        "box": {
+          "$type": "number",
+          "$value": "{size.size-48}"
+        },
+        "min-height": {
+          "$type": "number",
+          "$value": "{size.size-32}"
+        },
+        "radius": {
+          "$type": "number",
+          "$value": "{radii.10}"
+        },
+        "padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-14}"
+        },
+        "padding-block": {
+          "$type": "number",
+          "$value": "{space.space-6}"
+        },
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-8}"
+        }
+      },
+      "xl": {
+        "box": {
+          "$type": "number",
+          "$value": "{size.size-68}"
+        },
+        "min-height": {
+          "$type": "number",
+          "$value": "{size.size-40}"
+        },
+        "radius": {
+          "$type": "number",
+          "$value": "{radii.12}"
+        },
+        "padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-16}"
+        },
+        "padding-block": {
+          "$type": "number",
+          "$value": "{space.space-8}"
+        },
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-10}"
         }
       }
     },
@@ -7896,6 +8160,138 @@
         }
       }
     },
+    "swatch": {
+      "xs": {
+        "box": {
+          "$type": "number",
+          "$value": "{size.size-28}"
+        },
+        "min-height": {
+          "$type": "number",
+          "$value": "{size.size-24}"
+        },
+        "radius": {
+          "$type": "number",
+          "$value": "{radii.4}"
+        },
+        "padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-8}"
+        },
+        "padding-block": {
+          "$type": "number",
+          "$value": "{space.space-3}"
+        },
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-4}"
+        }
+      },
+      "sm": {
+        "box": {
+          "$type": "number",
+          "$value": "{size.size-40}"
+        },
+        "min-height": {
+          "$type": "number",
+          "$value": "{size.size-28}"
+        },
+        "radius": {
+          "$type": "number",
+          "$value": "{radii.6}"
+        },
+        "padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-10}"
+        },
+        "padding-block": {
+          "$type": "number",
+          "$value": "{space.space-4}"
+        },
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-8}"
+        }
+      },
+      "md": {
+        "box": {
+          "$type": "number",
+          "$value": "{size.size-56}"
+        },
+        "min-height": {
+          "$type": "number",
+          "$value": "{size.size-40}"
+        },
+        "radius": {
+          "$type": "number",
+          "$value": "{radii.8}"
+        },
+        "padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-14}"
+        },
+        "padding-block": {
+          "$type": "number",
+          "$value": "{space.space-8}"
+        },
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-10}"
+        }
+      },
+      "lg": {
+        "box": {
+          "$type": "number",
+          "$value": "{size.size-80}"
+        },
+        "min-height": {
+          "$type": "number",
+          "$value": "{size.size-48}"
+        },
+        "radius": {
+          "$type": "number",
+          "$value": "{radii.10}"
+        },
+        "padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-20}"
+        },
+        "padding-block": {
+          "$type": "number",
+          "$value": "{space.space-10}"
+        },
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-12}"
+        }
+      },
+      "xl": {
+        "box": {
+          "$type": "number",
+          "$value": "{size.size-96}"
+        },
+        "min-height": {
+          "$type": "number",
+          "$value": "{size.size-56}"
+        },
+        "radius": {
+          "$type": "number",
+          "$value": "{radii.12}"
+        },
+        "padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-24}"
+        },
+        "padding-block": {
+          "$type": "number",
+          "$value": "{space.space-12}"
+        },
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-14}"
+        }
+      }
+    },
     "surface": {
       "sm": {
         "padding": {
@@ -11118,6 +11514,138 @@
         "panel-offset": {
           "$type": "number",
           "$value": "{space.space-6}"
+        }
+      }
+    },
+    "swatch": {
+      "xs": {
+        "box": {
+          "$type": "number",
+          "$value": "{size.size-16}"
+        },
+        "min-height": {
+          "$type": "number",
+          "$value": "{size.size-16}"
+        },
+        "radius": {
+          "$type": "number",
+          "$value": "{radii.4}"
+        },
+        "padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-4}"
+        },
+        "padding-block": {
+          "$type": "number",
+          "$value": "{space.space-1}"
+        },
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-2}"
+        }
+      },
+      "sm": {
+        "box": {
+          "$type": "number",
+          "$value": "{size.size-24}"
+        },
+        "min-height": {
+          "$type": "number",
+          "$value": "{size.size-20}"
+        },
+        "radius": {
+          "$type": "number",
+          "$value": "{radii.6}"
+        },
+        "padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-6}"
+        },
+        "padding-block": {
+          "$type": "number",
+          "$value": "{space.space-2}"
+        },
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-4}"
+        }
+      },
+      "md": {
+        "box": {
+          "$type": "number",
+          "$value": "{size.size-32}"
+        },
+        "min-height": {
+          "$type": "number",
+          "$value": "{size.size-24}"
+        },
+        "radius": {
+          "$type": "number",
+          "$value": "{radii.8}"
+        },
+        "padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-8}"
+        },
+        "padding-block": {
+          "$type": "number",
+          "$value": "{space.space-4}"
+        },
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-6}"
+        }
+      },
+      "lg": {
+        "box": {
+          "$type": "number",
+          "$value": "{size.size-40}"
+        },
+        "min-height": {
+          "$type": "number",
+          "$value": "{size.size-32}"
+        },
+        "radius": {
+          "$type": "number",
+          "$value": "{radii.10}"
+        },
+        "padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-12}"
+        },
+        "padding-block": {
+          "$type": "number",
+          "$value": "{space.space-6}"
+        },
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-8}"
+        }
+      },
+      "xl": {
+        "box": {
+          "$type": "number",
+          "$value": "{size.size-56}"
+        },
+        "min-height": {
+          "$type": "number",
+          "$value": "{size.size-40}"
+        },
+        "radius": {
+          "$type": "number",
+          "$value": "{radii.12}"
+        },
+        "padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-16}"
+        },
+        "padding-block": {
+          "$type": "number",
+          "$value": "{space.space-8}"
+        },
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-10}"
         }
       }
     },

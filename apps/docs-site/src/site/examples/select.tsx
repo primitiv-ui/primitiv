@@ -23,7 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/select";
-import { importBlock, partNamer } from "@/lib/playground";
+import { contractAttr, importBlock, partNamer } from "@/lib/playground";
 import { InteractiveExample } from "@/site/InteractiveExample";
 import type { Mode } from "@/site/preferences";
 import type { ComponentSpec } from "./types";
@@ -151,7 +151,7 @@ export const selectSpec: ComponentSpec = {
             ``,
             `// Under native an <option> cannot hold an element, so the leading`,
             `// icons and the mark are dropped — only the text survives.`,
-            `<${p("Root")} native size="${values.size}" defaultValue="light" aria-label="Theme">`,
+            `<${p("Root")} native${contractAttr({ mode, prop: "size", value: values.size })} defaultValue="light" aria-label="Theme">`,
             `  <${p("Item")} value="light">Light</${p("Item")}>`,
             `  <${p("Item")} value="dark">Dark</${p("Item")}>`,
             `  <${p("Item")} value="system">System</${p("Item")}>`,
@@ -165,11 +165,11 @@ export const selectSpec: ComponentSpec = {
             ),
             ``,
             `<${p("Root")} defaultValue="light">`,
-            `  <${p("Trigger")} size="${values.size}">`,
+            `  <${p("Trigger")}${contractAttr({ mode, prop: "size", value: values.size })}>`,
             `    <${p("Value")} placeholder="Choose a theme..." />`,
             `    <${p("Icon")}><ChevronDown /></${p("Icon")}>`,
             `  </${p("Trigger")}>`,
-            `  <${p("Content")} size="${values.size}" placement="${values.placement}">`,
+            `  <${p("Content")}${contractAttr({ mode, prop: "size", value: values.size })}${contractAttr({ mode, prop: "placement", value: values.placement })}>`,
             `    <${p("Item")} value="light">`,
             `      <${p("ItemIndicator")}><Check /></${p("ItemIndicator")}>`,
             `      <${p("ItemLeading")}><Sun /></${p("ItemLeading")}>`,
@@ -254,49 +254,53 @@ export const selectSpec: ComponentSpec = {
   anatomy: [
     {
       label: "Rich",
-      code: [
-        `<Select.Root>                       // context + a hidden <select> for form submission`,
-        `  <Select.Trigger>                  // <button aria-haspopup="listbox">`,
-        `    <Select.Value                   // <span> — mirrors the selected item`,
-        `      placeholder="Choose a framework..." />`,
-        `    <Select.Icon />                 // <span aria-hidden> — the chevron`,
-        `  </Select.Trigger>`,
-        ``,
-        `  <Select.Content>                  // <div role="listbox"> popover="auto"`,
-        `    <Select.Group label="Stable">   // <div role="group"> aria-label="Stable"`,
-        `      <Select.Item value="react">   // <div role="option">`,
-        `        <Select.ItemIndicator />    // <span> — only when selected`,
-        `        React`,
-        `      </Select.Item>`,
-        `    </Select.Group>`,
-        ``,
-        `    <Select.Separator />            // <div role="separator">`,
-        `  </Select.Content>`,
-        `</Select.Root>`,
-      ].join("\n"),
+      code: (mode) => {
+        const p = partNamer(mode, "Select");
+        return [
+          `<${p("Root")}>`,
+          `  <${p("Trigger")}>`,
+          `    <${p("Value")} placeholder="Choose a framework..." />`,
+          `    <${p("Icon")} />`,
+          `  </${p("Trigger")}>`,
+          ``,
+          `  <${p("Content")}>`,
+          `    <${p("Group")} label="Stable">`,
+          `      <${p("Item")} value="react">`,
+          `        <${p("ItemIndicator")} />`,
+          `        React`,
+          `      </${p("Item")}>`,
+          `    </${p("Group")}>`,
+          ``,
+          `    <${p("Separator")} />`,
+          `  </${p("Content")}>`,
+          `</${p("Root")}>`,
+        ].join("\n");
+      },
     },
     {
       label: "Native",
-      code: [
-        `<Select.Root native>                // <select> — the root IS the control`,
-        `  <Select.Placeholder>              // <option value="" disabled hidden>`,
-        `    Choose a framework...`,
-        `  </Select.Placeholder>`,
-        ``,
-        `  <Select.Group label="Stable">     // <optgroup label="Stable">`,
-        `    <Select.Item value="react">     // <option value="react">`,
-        `      React                         // text children only — elements are dropped`,
-        `    </Select.Item>`,
-        `  </Select.Group>`,
-        `</Select.Root>`,
-        ``,
-        `// Renders nothing under native:`,
-        `//   Select.Trigger   — the root is the control, so there is nothing to wrap`,
-        `//   Select.Value     — the platform draws the selected option`,
-        `//   Select.Content   — the platform owns the popup`,
-        `//   Select.Icon      — the stylesheet paints the chevron itself here`,
-        `//   Select.ItemIndicator — an <option> cannot contain an element`,
-      ].join("\n"),
+      code: (mode) => {
+        const p = partNamer(mode, "Select");
+        return [
+          `<${p("Root")} native>`,
+          `  <${p("Placeholder")}>Choose a framework...</${p("Placeholder")}>`,
+          ``,
+          `  <${p("Group")} label="Stable">`,
+          `    <${p("Item")} value="react">React</${p("Item")}>`,
+          `  </${p("Group")}>`,
+          `</${p("Root")}>`,
+          ``,
+          /* Kept, unlike the per-line DOM annotations: this is the whole point
+             of tabbing the two trees against each other, and it is a statement
+             about the PARTS rather than about the markup each one emits. */
+          `// Renders nothing under native:`,
+          `//   ${p("Trigger")} — the root is the control, so there is nothing to wrap`,
+          `//   ${p("Value")} — the platform draws the selected option`,
+          `//   ${p("Content")} — the platform owns the popup`,
+          `//   ${p("Icon")} — the stylesheet paints the chevron itself here`,
+          `//   ${p("ItemIndicator")} — an <option> cannot contain an element`,
+        ].join("\n");
+      },
     },
   ],
 

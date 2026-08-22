@@ -13,11 +13,14 @@ import type { Mode } from "@/site/preferences";
  * - **styled** — `primitiv add` copies a file of flat named exports, so the part
  *   is a symbol of its own: `SelectTrigger`. It exists ONLY in that file.
  *
- * Button never exposed this because its snippet is `<Button variant="…">` in
- * both modes — a single-part component has no part names to disagree about.
- * Select does: `SelectTrigger` does not exist in headless mode, which is the
- * site's default, so the page shipped a snippet naming a symbol the reader
- * cannot import.
+ * Button never exposed this because it is a single part, so there are no part
+ * names to disagree about. Select does: `SelectTrigger` does not exist in
+ * headless mode — which was the site's default at the time — so the page
+ * shipped a snippet naming a symbol the reader cannot import.
+ *
+ * (An earlier version of this note said Button's snippet is
+ * `<Button variant="…">` "in both modes" — true of what shipped, and the bug
+ * `contractAttr` below now fixes: `variant` is not a headless prop either.)
  *
  * Figma mode gets the dot form too. It is the closer read — the Figma sets are
  * themselves named `Select / Trigger` — but JSX is not really the right artifact
@@ -89,6 +92,66 @@ export const importBlock = ({
 
   return lines.join("\n");
 };
+
+/**
+ * Renders a STYLED-LAYER CONTRACT PROP inside a snippet, for the current mode.
+ *
+ * `variant`, `size` and `placement` are not props of the headless primitive —
+ * they are the copied styled file's contract. The generated docs-data already
+ * says so (they arrive as `contractProps`, and §1.24's `From` column prints it
+ * in the table), but the snippets ignored it: every code block on the Button
+ * page printed `<Button variant="primary">` under the Headless switch, naming a
+ * prop the reader cannot pass. Exactly the bug `partNamer` fixes for part names,
+ * one level down — and worse, because a wrong part name fails at import while a
+ * wrong prop fails silently.
+ *
+ * Returns a LEADING space, so it interpolates straight after the tag name and
+ * still closes cleanly when it renders nothing: `<Button${attr}>` gives
+ * `<Button variant="primary">` or plain `<Button>`.
+ *
+ * `headlessClass` decides between the two honest headless readings:
+ *
+ * - **omitted** — the prop simply goes. Right when the prop is incidental to
+ *   what the example demonstrates (the Disabled example is about `disabled`).
+ * - **supplied** — the prop becomes a `className`. Right when the prop IS the
+ *   subject: dropping `variant` from the Variants example leaves five identical
+ *   `<Button>` lines beside a preview of five different buttons, and the honest
+ *   headless answer to "how do I get a primary button" is "you write the class".
+ *   The name shown is illustrative, which is the point — in this mode it is the
+ *   reader's to choose.
+ */
+export const contractAttr = ({
+  mode,
+  prop,
+  value,
+  headlessClass,
+}: {
+  mode: Mode;
+  prop: string;
+  value: string;
+  /** Stand-in class for headless mode. Omit to drop the prop instead. */
+  headlessClass?: string;
+}): string => {
+  if (mode !== "headless") return ` ${prop}="${value}"`;
+  return headlessClass ? ` className="${headlessClass}"` : "";
+};
+
+/**
+ * The comment that precedes a snippet whose contract props were swapped for
+ * class names — so the substitution is stated rather than left to be noticed.
+ *
+ * Spread into the snippet's line array; it is empty in every other mode.
+ */
+export const contractNote = (mode: Mode, props = "`variant` and `size`"): readonly string[] =>
+  mode === "headless"
+    ? [
+        // Phrased to read correctly for one prop or several, since callers pass
+        // either ("`variant`" on the Variants example, the default elsewhere).
+        `// ${props}: styled-layer contract, absent from the headless primitive`,
+        `// — so the class names below are yours to define.`,
+        ``,
+      ]
+    : [];
 
 /**
  * The four density modes of the Context system.
@@ -193,6 +256,13 @@ export const initialValues = (
  * both props at their defaults.
  *
  * `children` is passed separately because it is not a control.
+ *
+ * Under Headless the caller passes NO controls, so this correctly renders the
+ * bare `<Button>` the paragraph above argues against — the difference being that
+ * there is then nothing on screen for the snippet to be out of step with, since
+ * the controls are gone too. Every control is a `contract.json` modifier, i.e.
+ * the styled layer's, and printing one in headless mode names a prop that does
+ * not exist (see `contractAttr`).
  */
 export const toJsx = ({
   component,

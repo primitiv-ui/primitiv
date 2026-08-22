@@ -3,13 +3,13 @@
 import { useState, type ReactNode } from "react";
 
 import { Card, CardContent } from "@/components/card";
-import { CodeBlock } from "@/components/code-block";
 import { Stack } from "@/components/stack";
 
 import { DensityRadios } from "./DensityRadios";
+import { ModeCodeBlock } from "./ModeCodeBlock";
 import { DEFAULT_DENSITY, type Density } from "@/lib/playground";
 import { renderDoc } from "@/lib/render-doc";
-import { useMode, type Mode } from "@/site/preferences";
+import { type Mode } from "@/site/preferences";
 
 import "./playground.css";
 
@@ -36,9 +36,6 @@ export const InteractiveExample = ({
   code: (density: Density, mode: Mode) => string;
 }) => {
   const [density, setDensity] = useState<Density>(DEFAULT_DENSITY);
-  /* Same reason as the Playground: a compound's part names differ by mode, and
-     naming a symbol the reader cannot import is worse than no snippet. */
-  const [mode] = useMode();
 
   return (
     <Stack gap="md">
@@ -62,7 +59,12 @@ export const InteractiveExample = ({
         </CardContent>
       </Card>
 
-      <CodeBlock code={code(density, mode)} language="tsx" size="sm" />
+      {/* Both consumption modes, tabbed and bound to the nav switch — the same
+          block the Playground uses, so a reader meets one rule per page rather
+          than a mixture. `code` is called once per TAB (not once per render),
+          which is why it takes the mode as an argument rather than reading the
+          store itself. */}
+      <ModeCodeBlock code={(m) => code(density, m)} />
     </Stack>
   );
 };

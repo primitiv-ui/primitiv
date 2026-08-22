@@ -1173,6 +1173,14 @@ source of truth for when a skill applies.
   - **`figma.currentUser` and `figma.payments` need explicit `permissions`
     entries in `manifest.json`** — both refused without them. Relevant early for
     a paid licence and for "who last wrote this".
+  - **Multi-seed is deliberately deferred (2026-08-22), and kept cheap by one
+    rule.** Nothing settled so far forecloses it — the engine already generates
+    N independent ramps, and roles are user data, so a second brand seed is
+    another entry in the seeds list plus roles pointing at it. The one thing to
+    get right *now* is that a role's rule must **name the ramp it searches**
+    (`brand · AA text`, not `AA text`). With one brand that reads as redundant;
+    with two it is the difference between adding a row and migrating every
+    stored schema.
   - **Still open:** canvas swatches / drag-to-canvas, and the multi-seed brand.
 
 ## Figma plugin-API gotchas (scripting via `figma_execute`)

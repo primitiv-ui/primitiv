@@ -4,7 +4,7 @@ import Link from "next/link";
 import { ArrowRight, Plus } from "@primitiv-ui/icons";
 
 import { Button } from "@/components/button";
-import { importBlock } from "@/lib/playground";
+import { contractAttr, contractNote, importBlock } from "@/lib/playground";
 import { InteractiveExample } from "@/site/InteractiveExample";
 import type { Mode } from "@/site/preferences";
 import type { ComponentSpec } from "./types";
@@ -16,6 +16,10 @@ import type { ComponentSpec } from "./types";
  * names to disagree about (which is why the mode-aware naming Select needs never
  * came up on this page). The line still has to change, because the styled export
  * lives in the file `primitiv add` copied rather than in the package.
+ *
+ * The PROPS still vary, though, which this page missed for longer: `variant` and
+ * `size` are contract props of the copied styled file, so every snippet below
+ * routes them through `contractAttr` rather than printing them unconditionally.
  */
 const imports = (mode: Mode, icons: readonly string[] = []) =>
   importBlock({ mode, component: "Button", componentId: "button", icons });
@@ -55,10 +59,11 @@ export const buttonSpec: ComponentSpec = {
             [
               imports(mode),
               ``,
+              ...contractNote(mode, "`variant`"),
               `<div data-density="${density}">`,
               ...VARIANTS.map(
                 (v) =>
-                  `  <Button variant="${v}">${v[0].toUpperCase()}${v.slice(1)}</Button>`,
+                  `  <Button${contractAttr({ mode, prop: "variant", value: v, headlessClass: `btn-${v}` })}>${v[0].toUpperCase()}${v.slice(1)}</Button>`,
               ),
               `</div>`,
             ].join("\n")
@@ -84,8 +89,12 @@ export const buttonSpec: ComponentSpec = {
             [
               imports(mode),
               ``,
+              ...contractNote(mode, "`size`"),
               `<div data-density="${density}">`,
-              ...SIZES.map((s) => `  <Button size="${s}">Button ${s}</Button>`),
+              ...SIZES.map(
+                (s) =>
+                  `  <Button${contractAttr({ mode, prop: "size", value: s, headlessClass: `btn-${s}` })}>Button ${s}</Button>`,
+              ),
               `</div>`,
             ].join("\n")
           }
@@ -115,7 +124,10 @@ export const buttonSpec: ComponentSpec = {
               `  Add item`,
               `</Button>`,
               ``,
-              `<Button variant="secondary">`,
+              /* Incidental to what this example shows, so it just goes in
+                 headless mode — no stand-in class. The subject is that icons
+                 are children. */
+              `<Button${contractAttr({ mode, prop: "variant", value: "secondary" })}>`,
               `  Continue`,
               `  <ArrowRight />`,
               `</Button>`,
@@ -152,7 +164,22 @@ export const buttonSpec: ComponentSpec = {
               ``,
               `<Button asChild>`,
               `  <Link href="/components">`,
-              `    <span className="primitiv-button__label">View the docs</span>`,
+              /*
+               * The label span is STYLED-ONLY, so it must not appear in the
+               * headless snippet: `wrapTextNodes` and the
+               * `primitiv-button__label` class live in the copied
+               * registry/components/button wrapper, not in the primitive. What
+               * makes the span necessary there is registry-bugs §5 — under
+               * asChild the text sits one level deeper than wrapTextNodes
+               * reaches, so the class (and its text-box-trim) has to be
+               * written by hand. In headless mode there is no wrapper and no
+               * class, so it is plain text.
+               */
+              ...(mode === "headless"
+                ? [`    View the docs`]
+                : [
+                    `    <span className="primitiv-button__label">View the docs</span>`,
+                  ]),
               `    <ArrowRight />`,
               `  </Link>`,
               `</Button>`,
@@ -184,7 +211,7 @@ export const buttonSpec: ComponentSpec = {
               imports(mode),
               ``,
               `<Button disabled>Save changes</Button>`,
-              `<Button variant="secondary" disabled>Cancel</Button>`,
+              `<Button${contractAttr({ mode, prop: "variant", value: "secondary" })} disabled>Cancel</Button>`,
             ].join("\n")
           }
         >

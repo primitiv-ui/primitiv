@@ -105,6 +105,18 @@ jobs:
       - name: Check registry stylesheets parse
         run: pnpm qa:stylesheets
 
+      # Every props table, CSS-variable list and Data attributes table on the
+      # docs site renders from a generated `<id>.docs.json` — never hand-authored
+      # (docs-site-planning.md §1.5). The generator was per-component and
+      # hand-run, so a committed file could fall behind its source with nothing
+      # reporting it, and two did: `tabs` missed the change that started
+      # carrying data-attribute values, and `select` was still telling readers to
+      # wire `anchor-name` themselves after the component took that over. This
+      # regenerates all of them and fails if the committed copies moved — the
+      # same shape of guard token-drift.yml gives the token layers.
+      - name: Check docs-data is current
+        run: pnpm qa:docs-data
+
       # Type-check and build the workbench (tsc -b && vite build). The doc-site
       # deploy (deploy-docs.yml) is manual-only, so without this a broken
       # workbench build — a type error in an example page or the OKLCH picker —

@@ -3,7 +3,7 @@
   "displayName": "Select",
   "kind": "registry",
   "status": "stable",
-  "description": "A single-select control with two render paths behind one API: a rich Popover-API listbox (the default) whose options carry icons, badges and a selected mark, or a native `<select>` for flat, OS-native cases. The rich control is a framed field on the same geometry as Input; its panel and rows resolve the shared dropdown tokens, so a Select listbox and a Dropdown menu are the same surface. Positioned with CSS anchor positioning; keyboard, typeahead, focus and form submission are owned by the headless primitive.",
+  "description": "A single-select control with two render paths behind one API: a rich Popover-API listbox (the default) whose options carry icons, badges and a selected mark, or a native `<select>` for flat, OS-native cases. The rich control is a framed field on the same geometry as Input; its panel and rows resolve the shared dropdown tokens, so a Select listbox and a Dropdown menu are the same surface. Positioned with CSS anchor positioning, wired by the component itself; keyboard, typeahead, focus and form submission are owned by the headless primitive.",
   "headless": {
     "package": "@primitiv-ui/react",
     "importPath": "@primitiv-ui/react",
@@ -136,7 +136,7 @@
             "name": "placement",
             "type": "\"bottom-start\" | \"bottom-end\" | \"top-start\" | \"top-end\"",
             "default": "bottom-start",
-            "description": "Which side of the trigger the panel opens on, via anchor-positioning insets on `SelectContent`. Requires the consumer to wire `anchor-name` (on the trigger) + `position-anchor` (on Content)."
+            "description": "Which side of the trigger the panel opens on, via anchor-positioning insets on `SelectContent`. The `anchor-name` / `position-anchor` pair is wired by the component from a `useId`-derived ident, so nothing is required of the consumer."
           }
         ],
         "dataAttributes": [

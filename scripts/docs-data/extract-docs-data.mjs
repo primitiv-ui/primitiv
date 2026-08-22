@@ -29,50 +29,7 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const require = createRequire(join(ROOT, "packages/react/"));
 const ts = require("typescript");
 
-const REGISTRY = {
-  button: {
-    displayName: "Button", kind: "registry", status: "stable",
-    propsFile: "packages/react/src/Button/types.ts",
-    subComponents: [{ name: "Button", propsType: "ButtonProps", element: "button" }],
-    contract: "registry/components/button/contract.json",
-    figmaComponentSetKey: "347:14161", importPath: "@primitiv-ui/react",
-  },
-  tabs: {
-    displayName: "Tabs", kind: "registry", status: "stable",
-    propsFile: "packages/react/src/Tabs/types.ts",
-    subComponents: [
-      { name: "Tabs.Root", propsType: "TabsRootProps", element: "div", component: "Root" },
-      { name: "Tabs.List", propsType: "TabsListProps", element: "div", component: "List" },
-      { name: "Tabs.Trigger", propsType: "TabsTriggerProps", element: "button", component: "Trigger" },
-      { name: "Tabs.Content", propsType: "TabsContentProps", element: "div", component: "Content" },
-    ],
-    contract: "registry/components/tabs/contract.json",
-    figmaComponentSetKey: "425:5528", importPath: "@primitiv-ui/react",
-  },
-  // Select is the compound stress case for the docs layout: 9 documented parts,
-  // so the "Props" section fans out into 9 tables and the page needs a nested
-  // TOC (§1.20). `Select.Root`'s controlled/uncontrolled discriminated union
-  // flattens here — the extractor drops the `never` branches, so the
-  // mutual exclusivity of value/onValueChange XOR defaultValue is NOT
-  // recoverable from this data and has to be prose on the page (§1.20.2).
-  select: {
-    displayName: "Select", kind: "registry", status: "stable",
-    propsFile: "packages/react/src/Select/types.ts",
-    subComponents: [
-      { name: "Select.Root", propsType: "SelectRootProps", element: "div", component: "Root" },
-      { name: "Select.Trigger", propsType: "SelectTriggerProps", element: "button", component: "Trigger" },
-      { name: "Select.Value", propsType: "SelectValueProps", element: "span", component: "value" },
-      { name: "Select.Placeholder", propsType: "SelectPlaceholderProps", element: "span", component: "value" },
-      { name: "Select.Content", propsType: "SelectContentProps", element: "div", component: "content" },
-      { name: "Select.Item", propsType: "SelectItemProps", element: "div", component: "item" },
-      { name: "Select.ItemIndicator", propsType: "SelectItemIndicatorProps", element: "span", component: "item-indicator" },
-      { name: "Select.Group", propsType: "SelectGroupProps", element: "div", component: "group" },
-      { name: "Select.Separator", propsType: "SelectSeparatorProps", element: "div", component: "separator" },
-    ],
-    contract: "registry/components/select/contract.json",
-    figmaComponentSetKey: "1816:61259", importPath: "@primitiv-ui/react",
-  },
-};
+import { REGISTRY } from "./registry.mjs";
 
 const EL_IFACE = {
   a: "HTMLAnchorElement", button: "HTMLButtonElement", div: "HTMLDivElement",

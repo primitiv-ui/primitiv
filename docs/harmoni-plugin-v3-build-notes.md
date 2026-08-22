@@ -178,6 +178,15 @@ invent a place for them without settling it.
 
 ## 4. The Swatch, and the canvas insert
 
+**Read `docs/rfcs/0013-configurable-palette-export.md` §3.2 / §4.5 and
+`docs/plugin-ui-design-guide.md` §5 before designing anything here.** They are
+the spec for the canvas output and predate this document: `SwatchExportConfig`
+and its full control list, the pure `planSwatches` planner, the
+`CanvasRenderer` port (one plan, two renderers — DOM preview and Figma nodes),
+the style-controls-above-a-live-preview layout, and Generate → current page at
+`figma.viewport.center`, selected and scrolled into view. What is below is the
+*Figma component* side of that, not a second spec.
+
 `Harmoni / Swatch` — 6 forms × 5 sizes, 18 properties.
 
 - **Only `row` and `tile` print inside the colour.** They take the paired
@@ -257,15 +266,21 @@ so each needs settling before it is drawn:
   crumb) but there is no view behind it.
 - **Loading / generating**, and **error** — write refused, missing permission,
   library-imported (`remote: true`) variables.
-- **The canvas insert.** §4 settles how a Swatch behaves once drawn, but
-  nothing settles the *panel* side: no view carries an insert affordance, and
-  the shape of the inserted frame is unchosen. Decided 2026-08-22 that this
-  gets its **own exploration wireframe page first**, the way every composite
-  component does — not a view drawn straight from the §4 rules. Two questions
-  the exploration has to answer: where the trigger lives (a secondary action on
-  Export, a fifth tab, or per-ramp in Palette) and what one insert draws (all
-  ramps detailed, all ramps as strips, one ramp, or a both-modes specimen
-  sheet).
+- **The canvas insert.** The *output* is specified (RFC 0013 §3.2/§4.5 —
+  config, planner, renderer, controls, Generate placement) and §4.6 of that RFC
+  asks for a Figma wireframe before it is built. Three things that spec cannot
+  answer, because they postdate it:
+  - **O7, still open in the RFC itself** — the default look: size, gap, shape,
+    which labels default on, `separate` vs `stacked`. The live preview exists
+    to settle this.
+  - **Where it lives in v3.** RFC 0013 assumes the old 600px export section
+    ("two stacked cards, each headed by a `Switch`"). The v3 panel is 360px
+    with four tabs and no such shell, so the trigger has to be re-sited.
+  - **A contradiction to resolve.** RFC 0013 §4.5 says each generate is a
+    **fresh frame** the designer positions, explicitly not idempotent. The
+    ownership stamps (§4 above) came later and carry the appearance config as
+    JSON on the frame, which makes update-in-place possible and makes a second
+    Generate ambiguous. One of the two has to give.
 
 Also outstanding: a **light-theme pass** over the view set. The built views are
 dark and the `Harmoni / Panel Header` has a `Theme=light` variant, but a Figma

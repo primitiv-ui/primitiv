@@ -1,9 +1,87 @@
-# Harmoni Plugin — UX Plan (v1)
+# Harmoni Plugin — UX Plan (v2)
 
 Design decisions and rationale for the plugin's user experience.
 This is a living document — update it as decisions are revisited.
 Past direction is preserved in **Appendix A** so the history isn't
 lost.
+
+> **v1 is superseded (2026-08-22).** The "one screen, no routes"
+> model below was written before the ownership / CRUD work existed.
+> It no longer holds: see **v2 — the settled model** immediately
+> after this note. Everything from `## v1 reset — direction` down to
+> `## Navigation model` is retained for history and should be read
+> as superseded, not as instruction.
+
+---
+
+## v2 — the settled model (2026-08-22)
+
+Settled across a full exploration session; the durable visual record
+is the Figma page **"Wireframes — Harmoni Plugin (v3 — settled)"**,
+and the reasoning lives in the interactive artefacts linked from the
+session. The engine decisions behind it are in the root `CLAUDE.md`
+under the Harmoni plugin redesign entry.
+
+### Why v1's single screen no longer works
+
+The v1 plan predates three things that each need real estate:
+
+1. **A return visit is a diff, not a form.** Every variable Harmoni
+   writes is stamped with its project and rule, so reopening a file
+   shows what changed, what a human hand-edited, and what is new.
+   That is a view, not a control group.
+2. **The destination picker is asked once and needs the whole
+   panel.** Miller columns at 360 px give three panes of 112 px —
+   viable only if the picker is not competing with the rest of the
+   screen. Making it a first-run step is what makes it fit at all.
+3. **The semantic layer is opt-in.** Taking the offer adds Roles and
+   Audit; declining leaves the panel at two views. A single screen
+   cannot express "this section exists only if you asked for it"
+   without becoming a scroll of conditional blocks.
+
+### Views
+
+| # | View | Notes |
+|---|---|---|
+| 1 | First run — empty document | Pick a project, or adopt unstamped variables already in the file |
+| 2 | Destination picker | First write only. Collection → group, mode mapping, collision policy |
+| 3 | Palette | Default view. Seeds, ramps, per-ramp foreground audit |
+| 4 | Picker | OKLCH. Three sliders, one plane for the active axis, a 3D gamut tab |
+| 5 | Roles | Opt-in. A role is a name plus a rule; both editable |
+| 6 | Audit | Opt-in. Every role against every surface, as WCAG 2.2 grades |
+| 7 | Export | Counts, targets, and the semantic-layer offer |
+| 8 | Settings | Behind the gear, not a tab. Tri-state offer, contrast readout, defaults, role schema |
+| 9 | Insert swatches | Form, layout, spacing, what each swatch shows |
+| 10 | Return — in sync | Reads the stamps, asks nothing |
+| 11 | Return — drift | Four states: seed changed, hand-edited, new role, library (read-only) |
+
+Not yet designed, and required before build: **loading / generating**,
+**error** (write refused, missing permission, remote variables), and
+the **project switcher**.
+
+### Navigation
+
+- **Tabs** carry the recurring views: Palette · Roles · Audit ·
+  Export. Roles and Audit appear only once the semantic layer is
+  taken.
+- **The gear** opens Settings. A tab slot is expensive at 360 px and
+  settings is somewhere you go once, not somewhere you spend time.
+- **First run and the destination picker are a sequence**, not tabs —
+  they happen before the tabbed panel is meaningful.
+- **Insert swatches** is a task surface reached from Palette, not a
+  permanent tab.
+
+### Fidelity and stack
+
+- **Figma first.** All views are designed and refined in Figma before
+  any UI is built, composed from the Primitiv component sets already
+  in the file.
+- **The build dogfoods the registry.** When implementation starts the
+  plugin installs the registry's styled surfaces and the emitted
+  token layer, rather than continuing with bespoke SCSS. The plugin
+  becomes a real consumer of Primitiv, so gaps in the library surface
+  where they will be felt. This is an implementation decision and
+  does not shape the Figma pass.
 
 ---
 

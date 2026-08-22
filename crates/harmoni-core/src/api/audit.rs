@@ -10,7 +10,9 @@ pub use crate::audit::ramp::{assess as assess_ramp, ForegroundCoverage, RampQual
 // "Which step of this ramp is readable on that surface" — the question link,
 // muted-text and border colours ask, which the per-swatch foreground API cannot
 // answer (RFC 0027 §7).
-pub use crate::audit::foreground::{readable_step, ReadableStep};
+pub use crate::audit::foreground::{
+    grade, readable_step, ContrastUse, Grade, Level, ReadableStep,
+};
 
 pub fn audit_contrast(
     bg: ColorInput,

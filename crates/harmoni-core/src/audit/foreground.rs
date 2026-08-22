@@ -69,6 +69,88 @@ pub struct ReadableStep {
 ///
 /// Returns `None` when no step clears, which is the guarantee: a role that cannot
 /// be satisfied says so instead of handing back the closest near-miss.
+/// What a colour is used for. WCAG 2.2 sets a different bar for each, so this
+/// is what a contrast number has to be read against — the same 4.71:1 is AA as
+/// body copy, AAA at heading size, and comfortably past the non-text bar.
+///
+/// Large text is 18pt, or 14pt bold (WCAG 2.2 §1.4.3). Non-text is the
+/// boundary of a control or a meaningful graphic (§1.4.11).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ContrastUse {
+    BodyText,
+    LargeText,
+    NonText,
+}
+
+/// A WCAG conformance level.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Level {
+    Aa,
+    Aaa,
+}
+
+/// What a measured ratio actually achieves for a given use.
+///
+/// `LargeTextOnly` is the honest middle that a pass/fail badge cannot express:
+/// the colour clears the large-text bar but not the body-text one, so it is
+/// right for a heading and wrong for a paragraph.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Grade {
+    Aaa,
+    Aa,
+    LargeTextOnly,
+    Fail,
+}
+
+impl ContrastUse {
+    /// The ratio this use must reach to satisfy `level`.
+    ///
+    /// `None` where the standard defines no such bar: §1.4.11 has a single 3:1
+    /// requirement and no enhanced tier, and reporting a number there would
+    /// invent a standard that does not exist.
+    pub fn floor(self, level: Level) -> Option<f32> {
+        match (self, level) {
+            (ContrastUse::BodyText, Level::Aa) => Some(4.5),
+            (ContrastUse::BodyText, Level::Aaa) => Some(7.0),
+            (ContrastUse::LargeText, Level::Aa) => Some(3.0),
+            (ContrastUse::LargeText, Level::Aaa) => Some(4.5),
+            (ContrastUse::NonText, Level::Aa) => Some(3.0),
+            (ContrastUse::NonText, Level::Aaa) => None,
+        }
+    }
+}
+
+/// What `ratio` achieves when the colour is used as `r#use`.
+///
+/// Reported as a level rather than a number because a level is what a designer
+/// decides on; the ratio is the evidence behind it. Non-text never reports
+/// `Aaa` — §1.4.11 has no such tier.
+pub fn grade(ratio: f32, r#use: ContrastUse) -> Grade {
+    if let Some(enhanced) = r#use.floor(Level::Aaa) {
+        if ratio >= enhanced {
+            return Grade::Aaa;
+        }
+    }
+
+    let minimum = r#use
+        .floor(Level::Aa)
+        .expect("every use defines an AA bar");
+    if ratio >= minimum {
+        return Grade::Aa;
+    }
+
+    // Body text is the only use with a bar below its own: a ratio that misses
+    // 4.5:1 may still be a genuine AA pass at heading size.
+    let large = ContrastUse::LargeText
+        .floor(Level::Aa)
+        .expect("large text defines an AA bar");
+    if r#use == ContrastUse::BodyText && ratio >= large {
+        return Grade::LargeTextOnly;
+    }
+
+    Grade::Fail
+}
+
 /// The ramp is a plain slice of colours rather than a `Palette` because that is
 /// all this needs — the foreground pairing a `Palette` also carries is a
 /// different question. Taking the narrower type is what lets a caller ask about

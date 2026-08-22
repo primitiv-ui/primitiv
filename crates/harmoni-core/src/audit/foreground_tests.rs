@@ -409,3 +409,58 @@ mod readable_step {
         assert_eq!(readable_step(&pale.steps(), &white(), 4.5), None);
     }
 }
+
+mod wcag_floors {
+    use crate::audit::foreground::{ContrastUse, Level};
+
+    #[test]
+    fn each_use_carries_the_ratio_wcag_asks_of_it() {
+        // WCAG 2.2: 1.4.3 for text at AA, 1.4.6 at AAA, 1.4.11 for non-text.
+        assert_eq!(ContrastUse::BodyText.floor(Level::Aa), Some(4.5));
+        assert_eq!(ContrastUse::BodyText.floor(Level::Aaa), Some(7.0));
+        assert_eq!(ContrastUse::LargeText.floor(Level::Aa), Some(3.0));
+        assert_eq!(ContrastUse::LargeText.floor(Level::Aaa), Some(4.5));
+        assert_eq!(ContrastUse::NonText.floor(Level::Aa), Some(3.0));
+    }
+
+    #[test]
+    fn non_text_has_no_aaa_bar_to_reach() {
+        // 1.4.11 defines one 3:1 requirement and no enhanced tier. Reporting a
+        // number here would invent a standard that does not exist.
+        assert_eq!(ContrastUse::NonText.floor(Level::Aaa), None);
+    }
+}
+
+mod wcag_grades {
+    use crate::audit::foreground::{grade, ContrastUse, Grade};
+
+    #[test]
+    fn body_text_reports_the_level_a_ratio_reaches() {
+        assert_eq!(grade(7.0, ContrastUse::BodyText), Grade::Aaa);
+        assert_eq!(grade(4.5, ContrastUse::BodyText), Grade::Aa);
+        assert_eq!(grade(2.99, ContrastUse::BodyText), Grade::Fail);
+    }
+
+    #[test]
+    fn body_text_between_the_two_bars_is_usable_at_heading_size_only() {
+        // The case a pass/fail badge has to lie about: 3.05:1 is a real AA pass
+        // for a heading and a real failure for a paragraph.
+        assert_eq!(grade(3.05, ContrastUse::BodyText), Grade::LargeTextOnly);
+    }
+
+    #[test]
+    fn large_text_reaches_aaa_at_the_ratio_body_text_only_reaches_aa() {
+        // The whole reason the use has to travel with the number.
+        assert_eq!(grade(4.5, ContrastUse::LargeText), Grade::Aaa);
+        assert_eq!(grade(3.0, ContrastUse::LargeText), Grade::Aa);
+        assert_eq!(grade(2.99, ContrastUse::LargeText), Grade::Fail);
+    }
+
+    #[test]
+    fn non_text_can_pass_but_never_reaches_aaa() {
+        // No enhanced tier exists in 1.4.11, so no ratio should ever report one.
+        assert_eq!(grade(3.0, ContrastUse::NonText), Grade::Aa);
+        assert_eq!(grade(21.0, ContrastUse::NonText), Grade::Aa);
+        assert_eq!(grade(2.99, ContrastUse::NonText), Grade::Fail);
+    }
+}

@@ -16,17 +16,19 @@
 
 use std::path::PathBuf;
 
-use harmoni_core::api::readable_step;
+use harmoni_core::api::{grade, readable_step, ContrastUse, Grade, Level};
 use harmoni_core::audit::contrast::get_contrast_rating_for_step;
 use harmoni_core::{ColorInput, SwatchLabel, SwatchStep};
 
 const STEPS: [u16; 10] = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900];
 
-/// Body-text contrast (WCAG 1.4.3 AA).
-const TEXT_THRESHOLD: f32 = 4.5;
-
-/// Non-text contrast (WCAG 1.4.11) — what a control's boundary must clear.
-const NON_TEXT_THRESHOLD: f32 = 3.0;
+/// The bar each role has to clear, read from the engine rather than restated
+/// here — the thresholds are WCAG's, and one copy of them is the point.
+fn floor(r#use: ContrastUse) -> f32 {
+    r#use
+        .floor(Level::Aa)
+        .expect("every use defines an AA bar")
+}
 
 fn token_file(name: &str) -> serde_json::Value {
     let path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
@@ -117,11 +119,11 @@ fn ramp(palette: &serde_json::Value, mode: &str, name: &str) -> Vec<SwatchStep> 
         .collect()
 }
 
-/// Every derived role as `(token, ramp, threshold)`.
-const DERIVED: [(&str, &str, f32); 3] = [
-    ("content/muted", "neutral", TEXT_THRESHOLD),
-    ("action/link/foreground/default", "brand", TEXT_THRESHOLD),
-    ("border/default", "neutral", NON_TEXT_THRESHOLD),
+/// Every derived role as `(token, ramp, what it is used as)`.
+const DERIVED: [(&str, &str, ContrastUse); 3] = [
+    ("content/muted", "neutral", ContrastUse::BodyText),
+    ("action/link/foreground/default", "brand", ContrastUse::BodyText),
+    ("border/default", "neutral", ContrastUse::NonText),
 ];
 
 #[test]
@@ -132,7 +134,8 @@ fn every_derived_role_is_the_step_the_engine_picks() {
     for mode in ["light", "dark"] {
         let surface = role(&intent, &palette, mode, "surface/default");
 
-        for (token, ramp_name, threshold) in DERIVED {
+        for (token, ramp_name, r#use) in DERIVED {
+            let threshold = floor(r#use);
             let picked = readable_step(&ramp(&palette, mode, ramp_name), &surface, threshold)
                 .unwrap_or_else(|| panic!("{mode} {token}: no step of {ramp_name} clears {threshold}"));
 
@@ -166,10 +169,11 @@ fn every_text_role_clears_aa_on_the_default_surface() {
             "action/link/foreground/visited",
         ] {
             let measured = ratio(&role(&intent, &palette, mode, token), &surface);
+            let reached = grade(measured, ContrastUse::BodyText);
 
             assert!(
-                measured >= TEXT_THRESHOLD,
-                "{mode} {token}: {measured:.2}:1 against surface/default, under AA",
+                matches!(reached, Grade::Aa | Grade::Aaa),
+                "{mode} {token}: {measured:.2}:1 against surface/default grades {reached:?}",
             );
         }
     }
@@ -191,7 +195,7 @@ fn a_label_clears_aa_on_the_surface_it_actually_sits_on() {
         );
 
         assert!(
-            measured >= TEXT_THRESHOLD,
+            measured >= floor(ContrastUse::BodyText),
             "{mode} content/on-selected: {measured:.2}:1 on surface/selected, under AA",
         );
     }
@@ -211,8 +215,8 @@ fn a_control_boundary_clears_non_text_contrast_without_reaching_text_weight() {
         let muted = ratio(&role(&intent, &palette, mode, "content/muted"), &surface);
 
         assert!(
-            border >= NON_TEXT_THRESHOLD,
-            "{mode} border/default: {border:.2}:1, under the 3:1 non-text bar",
+            matches!(grade(border, ContrastUse::NonText), Grade::Aa),
+            "{mode} border/default: {border:.2}:1, under the non-text bar",
         );
         assert!(
             border < muted,

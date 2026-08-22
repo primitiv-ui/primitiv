@@ -14,7 +14,8 @@ pub mod neutral;
 
 pub use alpha::generate_alpha_ramp;
 pub use audit::{
-    assess_ramp, audit_contrast, readable_step, ForegroundCoverage, RampQuality, ReadableStep,
+    assess_ramp, audit_contrast, grade, readable_step, ContrastUse, ForegroundCoverage, Grade,
+    Level, RampQuality, ReadableStep,
     StepQuality,
 };
 pub use gamut::{

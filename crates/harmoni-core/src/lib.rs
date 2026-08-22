@@ -7,7 +7,9 @@ pub mod palette;
 
 pub use alpha::ramp::{generate_alpha_ramp, AlphaSwatch, ALPHA_CURVE};
 pub use audit::contrast::ContrastResult;
-pub use audit::foreground::{readable_step, ForegroundSource, ReadableStep};
+pub use audit::foreground::{
+    grade, readable_step, ContrastUse, ForegroundSource, Grade, Level, ReadableStep,
+};
 pub use audit::ramp::{assess as assess_ramp, ForegroundCoverage, RampQuality, StepQuality};
 pub use api::GenerateError;
 pub use color::input::{ColorInput, ColorInputError};

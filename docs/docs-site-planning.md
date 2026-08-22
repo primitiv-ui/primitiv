@@ -43,6 +43,11 @@ A site-wide control (top nav) sets a mode that colors every page:
 
 Rationale: a reader who is headless-only is headless-only across the
 whole site; forcing a per-page choice adds friction to the common case.
+
+**Default = Styled (set 2026-08-21; was Headless).** See §1.26 — headless
+is the more interesting product story but the sharper landing, because a
+mode whose snippets deliberately carry no styling props reads as
+"incomplete docs" before it reads as "the styling is yours".
 State persists (localStorage + a shareable URL param) and per-component
 override remains available as an escape hatch, but is not the primary
 mechanism.
@@ -440,7 +445,11 @@ gone:
   `breadcrumb-overflow`). **This effectively settles open question 2 in
   favour of dogfooding**: there is no longer a "build the registry
   surface first" cost blocking the nav/breadcrumb pieces.
-- **Search / command palette → still the one real gap.** See below.
+- **Search / command palette → the component gap closed; the composite is
+  designed but not built.** `Combobox` landed 2026-08-14 (all four stages),
+  which supplies every piece of wiring item 1 below said was missing, and
+  the palette's own design was settled 2026-08-21 on the Figma
+  "Command Palette — exploration" page. See §1.25.
 
 The whole landing page is therefore buildable today except the palette.
 Region-by-region (bracketed numbers are the `Wireframe notes` callouts):
@@ -451,7 +460,7 @@ Region-by-region (bracketed numbers are the `Wireframe notes` callouts):
 | Audience fork — "Design in Figma / Build with code" [2] | `navigation-menu` (its underline `Indicator` modifier already exists) or `tabs` |
 | Framework selector — React/Vue/Svelte [10] | `segmented-control` on desktop · `select` rich mode on mobile |
 | Mode switch — Headless/Styled/Figma [1] | `segmented-control` (the original audit nominated `ToggleGroup`; both have registry surfaces) |
-| Search field [3] | `input-group` + `input` + the `search` icon — the **field**, not the palette behind it |
+| Search field [3] | **Superseded 2026-08-21 (§1.25):** not a field at all — a field-shaped `<button>` (Input's geometry) carrying a `kbd` "⌘K" hint in Input's trailing `INSTANCE_SWAP` slot. The real input lives inside the palette |
 | Theme toggle (nav circle button; Light/Dark row in the mobile menu) | `segmented-control` / `toggle-group` |
 | Hero lockup [9] | Existing asset — `logo-concepts/primitiv-lockup-stacked.svg` (also copied into `apps/docs/public/`) |
 | Hero dot-grid texture [9] | CSS `radial-gradient`, no component |
@@ -469,17 +478,17 @@ Region-by-region (bracketed numbers are the `Wireframe notes` callouts):
 
 **What is still needed:**
 
-1. **Search / command palette.** Nothing named combobox, command or
-   palette exists in `packages/react` or the registry. It is composable
-   rather than from-scratch — `Listbox` is already **virtual-focus**
-   (`aria-activedescendant`), exactly right for a palette whose real DOM
-   focus stays in the input, and `Modal` supplies the overlay and focus
-   trap. What is missing is the combobox wiring itself: filtering,
-   `aria-expanded`/`aria-controls` on the input, forwarding
-   arrow/Enter/Escape from the input into the list, grouped results, and
-   an empty state. Tracked as the deferred Combobox in
-   `docs/select-future-work.md` ("Open questions for the Combobox").
-   The search *index* is a site concern, not a component one.
+1. ~~**Search / command palette.** Nothing named combobox, command or
+   palette exists in `packages/react` or the registry… What is missing is
+   the combobox wiring itself: filtering, `aria-expanded`/`aria-controls`
+   on the input, forwarding arrow/Enter/Escape from the input into the
+   list, grouped results, and an empty state.~~
+   **Answered 2026-08-14/21.** Every item in that list is now shipped, by
+   `Combobox`. The palette is therefore a pure composition, designed and
+   settled on its own exploration page but **not yet built** — see §1.25
+   for the nine settled calls, the two changes that land in *other*
+   components, and the build order. The search *index* remains a site
+   concern, not a component one.
 2. **Framework brand logos.** `@primitiv-ui/icons` is 45 glyphs in the
    house line style and holds no third-party brand marks, so the
    React/Vue/Svelte logos the framework selector needs [10] must be
@@ -827,6 +836,69 @@ column informative in every mode. Filtering the rows instead would make
 the column redundant in Headless mode (every row would read `headless`),
 and dimming them would put the meaning back into colour alone.
 
+### 1.25 Settled: the Command Palette design (§1.17's last gap), Figma-first
+
+The palette was the one region of the landing wireframe that could not be
+built from existing components (§1.17 item 1). `Combobox` closing that gap
+did **not** make the palette a swap — per RFC 0021 §6 and `CLAUDE.md`
+working-style §8 it got a full exploration page first, **"Command Palette
+— exploration"** in the Figma file (11 sections, 130 real component
+instances, immediately after "Combobox — exploration"). All nine calls
+settled 2026-08-21.
+
+**Framing:** a **library composite** — a `command-palette` registry
+component, RFC 0021 Tier 3, which the docs site then consumes like any
+other. RFC 0021's own composition line for it ("`Modal` (or `Popover`) +
+`InputGroup` + the new Listbox") **predates Combobox and is superseded**.
+
+| § | Settled | Why it wasn't the obvious answer |
+|---|---|---|
+| A | Top-aligned dialog over a scrim | Not convention — results change on *every keystroke*, and a centred dialog (today's Modal) slides its top edge, and the input with it, under a stationary cursor |
+| B | The trigger is a field-shaped **`<button>`** + `⌘K` hint | Free in Figma: a `Kbd` swapped into Input's trailing `INSTANCE_SWAP` slot keeps its natural 34×22 rather than being squashed to the 16px icon square. In code it must be a real button with an accessible name, never an `<input readonly>` |
+| C | Combobox's **parts**; the dialog *is* the panel | Combobox §A1 settled a *floating* `Dropdown / Panel`, which does not transfer: a panel inside a dialog means doubled border + elevation, and a `popover="auto"` element over a `<dialog>` — two top-layer elements whose order nothing guarantees |
+| D | `Listbox / Option` unchanged + a `Tag` in its trailing slot | A two-line label+path row is the one option that costs tokens (a new `command-palette/{size}/item/*` family). Measured while building: the row reserves an 18px indicator gutter even at `Selected=false` — kept deliberately, since suppressing it means a Boolean on a master three components share |
+| E | Group labels **always** | Listbox §E requires groups be named; labelling only when >1 group makes the list change shape as you type |
+| F | Consumer-supplied defaults on empty query · `Listbox / Empty` on no match | `EmptyState` was genuinely tempting here (unlike in Combobox) and still loses: its furniture competes with the field, its height moves as the message wraps, and it says "dead end" when the user is one backspace from results. The component owns **no** history — "recents" is the site persisting a list and passing it in |
+| G | No header; a thin keyboard-legend footer | `Modal/Footer` is the wrong part (button-row geometry, right-aligned), so the footer is the **one** piece of anatomy this composite invents |
+| H | Modal's `Size` axis, defaulting to **`lg`**; fixed-height scrolling list | Modal already ships sm 360 / md 520 / lg 640 / xl 800, and a palette wants ~640 — so no bespoke width constant. Note it defaults *up* the ramp, the opposite of ConfirmDialog |
+| I | Search everything; state the mode per row | Scoping to the §1.1 mode switch is the wrong instinct — mode is a rendering preference, not a permission, and a Headless reader searching "button" often wants the Styled page they haven't opened. Site-level call, no contract impact |
+
+**Headline: no new design tokens** — structural rather than lucky (the
+dialog is Modal's, the rows are `Listbox / Option`'s, the list padding is
+`dropdown/{size}/panel/*`), and it holds **only** while A1 + C1 + D3 hold.
+
+**Two of the four new things land in other components on purpose:**
+
+1. **`Combobox.Content` needs a non-floating escape hatch** (`static` /
+   `popover={false}`). The only headless change, and it belongs to
+   Combobox — whose current `popover="auto"` + `showPopover()` is right for
+   the standalone component (`docs/combobox-future-work.md` §0.1 records
+   the three attempts it took) and wrong inside a dialog.
+2. **`Modal` gains `Placement=center|top`** — a Figma axis plus a registry
+   modifier. ConfirmDialog and every later dialog benefit; the alternative
+   is a composite quietly forking dialog geometry.
+3. The `⌘K`/`Ctrl+K` binding (platform split + a guard so it doesn't fire
+   inside someone else's input), owned by the root with a `shortcut={false}`
+   opt-out.
+4. `CommandPalette.Footer`.
+
+**Build order:** the Figma component set — **`lg`-first, not md-first**,
+because §H makes `lg` the default and Figma takes its default variant from
+the first one created → the two upstream changes, each its own cycle → the
+registry `command-palette` (`dependsOn`: `modal`, `combobox`, `kbd`,
+`tag`) → kitchen-sink demo → docs-site adoption.
+
+**Already applied:** the v2 desktop landing frames (light + dark) now carry
+the §B trigger instead of a live `Input`, and wireframe note [3] records the
+settled design.
+
+**Not yet applied — the live site.** `apps/docs-site/src/site/SiteHeader.tsx`
+ships a real `<Input size="xs" type="search">`. It should become the §B
+trigger, but **only when the palette exists to open** — a button that opens
+nothing is worse than a field that filters nothing, and the swap also drops
+the native `type="search"` clear affordance, so it wants doing once, with
+the palette.
+
 So the switch's remit is narrower than the wireframe note claimed
 ("Mode switch changes page CONTENT"). It drives: the **Installation**
 command (`npm i` vs `primitiv add`), which **Playground** controls exist
@@ -835,6 +907,133 @@ whether the **Styling contract** section appears. It does not filter the
 props table.
 
 ---
+
+### 1.26 Settled: contract props are mode-aware, and the playground shows both modes tabbed
+
+Three related bugs, all found by reading the rendered Button and Select
+pages rather than the code (2026-08-21).
+
+**1. Snippets printed props that do not exist in the reader's mode.**
+`variant`, `size` and `placement` are the *styled* layer's contract props —
+docs-data already classifies them that way, and §1.24's `From` column
+prints it in the table — but every code block wrote them unconditionally,
+so Headless mode showed `<Button variant="primary">`, naming a prop the
+primitive does not have. The same class of bug `partNamer` fixes for part
+names, and worse: a wrong part name fails at import, a wrong prop fails
+silently. Fixed with `contractAttr` in `lib/playground.ts`, which returns
+the attribute in styled/Figma mode and either drops it or swaps it for a
+`className` in headless. Which of the two depends on whether the prop *is*
+the example's subject: dropping `variant` from the Variants example leaves
+five identical `<Button>` lines beside a preview of five different
+buttons, so there it becomes an illustrative class name; in the Disabled
+example, where `variant="secondary"` is incidental, it simply goes.
+
+**2. The Anatomy tree ignored the switch.** Its parts read
+`Select.Trigger` in both modes; `anatomy[].code` is now `(mode) => string`
+like every other snippet, and the trailing per-line `// <button
+aria-haspopup>` annotations went with the change — they pushed every line
+past the content width, so the block scrolled and the tree became the
+harder half to read. What each part emits belongs in prose and in the
+Data attributes table.
+
+**3. Every snippet on the page now tabs BOTH modes, two-way bound to the nav.**
+Superseding §1.24's "the switch drives which Playground controls exist":
+the controls always exist, and the *snippet* is a two-tab code block —
+**Styled first, Headless second** — whose tablist is a second view of the
+global mode. Clicking a tab sets the mode; changing the nav switch moves
+the tab. `useMode` is a shared `useLocalStorage` store, so these are two
+views of one value, not two states to reconcile.
+
+Why show both rather than follow the switch: "one design system, three
+ways to build" is the product claim, and this is the one place on a
+component page where the difference is legible at a glance — same
+component, same controls, with the props moving to class names and the
+import changing shape. Following the switch hides exactly that
+comparison. It also closed a hole opened by fix 1: a single
+mode-following snippet left a headless reader with controls that changed
+the preview and nothing in the code, which reads as broken.
+
+**Figma mode has no tab of its own** and rests on Styled — JSX is not the
+artifact a designer wants (the call `partNamer` already makes), and the
+copied file is the closest thing a Figma-driven handoff produces. Nothing
+is written back on load, so a Figma reader stays in Figma mode until they
+click a tab.
+
+**One block, used everywhere** (`site/ModeCodeBlock.tsx`): the playground
+snippet and every example snippet, so a reader meets one rule per page
+rather than a mixture. Extracted rather than duplicated specifically so
+the two-way binding cannot drift between them. `code` is called once per
+*tab* rather than once per render, which is why it takes the mode as an
+argument instead of reading the store itself.
+
+**Two blocks deliberately keep their own tab axis, and this is unresolved
+UI rather than a settled call.** `InstallTabs` tabs the package managers
+(npm / pnpm / yarn / bun) and `Anatomy` tabs the render path (Rich /
+Native on Select) — one tablist cannot carry two axes, so neither took
+the mode tabs. Anatomy *does* follow the nav switch silently, so it is
+correct, just not tabbed; Installation already swaps its command with the
+mode. The open question is whether a component page should show two
+different meanings behind the same tab affordance at all, and if not,
+which axis loses. Worth settling before more component pages are built.
+
+**Found while wiring Button's examples:** the `asChild` snippet hardcoded
+`<span className="primitiv-button__label">`, which is a *styled-only*
+class — `wrapTextNodes` and that class live in the copied
+`registry/components/button` wrapper, not in the primitive (the span is
+needed there because of registry-bugs §5). In headless mode it is plain
+text. Exactly the class of bug the tabs make visible: it was invisible
+while a reader only ever saw one mode.
+
+**And the default mode is now Styled** (§1.1). Styled is the copy-and-go
+path: an install command that produces something that looks finished, and
+snippets carrying the very props the examples demonstrate. Only affects
+readers with no stored preference.
+
+### 1.27 Landed: the Tabs page, the Anatomy call, and a docs-data drift guard
+
+**Third component page: Tabs** (`/components/tabs`). Adding it confirmed the
+page template is genuinely cheap now — generated docs-data, a spec, and three
+one-line registrations (`docs-data.ts`, `examples/index.ts`, `nav.ts`); the
+route, the TOC and the nav entry all derive. Its examples deliberately cover
+what the playground cannot: `size` and `justify` are contract props with
+controls already, so the examples demonstrate *headless* behaviour instead —
+controlled vs uncontrolled, `activationMode`, `orientation`, and a disabled
+trigger.
+
+**Anatomy takes the mode tabs, so multi-path anatomies stack.** Settled
+2026-08-22: every code block on a component page carries Styled/Headless,
+Anatomy included — it is the block a reader looks up what to *type* in, so it
+is the last place that should show one mode's part names while the snippets
+below show the other's. That forces the layout, because one `CodeBlock.Tabs` is
+a single `Tabs.Root` (one tablist, one value space) and `CodeBlock.Content`
+takes a `code` string rather than children, so render-path × mode cannot share
+a tablist. Select's two paths therefore stack as labelled blocks, each with its
+own mode tabs. The cost is real: tabbing the paths put the alternative in the
+same space, which reads better for a comparison. Mode won because it changes
+what the reader can actually import, whereas the path is a choice already made
+by the time they reach the tree.
+
+**`docs-data` now has a regenerate-all script and a CI guard** —
+`node scripts/docs-data/sync-docs-data.mjs` (and `pnpm qa:docs-data` for
+`--check`), with the component list moved to `scripts/docs-data/registry.mjs`
+so the generator and the sync script cannot disagree about what exists. The
+guard regenerates and then asks *git* whether the tree moved, rather than
+reimplementing the comparison, and it refuses to run on a dirty tree so
+staleness is never confused with work in progress.
+
+It was not hypothetical. Both committed files were stale:
+
+- **`tabs`** missed the extractor change that started carrying data-attribute
+  *values* (`105c445f`) — 67 lines — so the Data attributes table would have
+  rendered from stale data, `data-state` collapsing two rows into one.
+- **`select`** was worse because it was *wrong rather than thin*: its page still
+  told readers the `placement` modifier "requires the consumer to wire
+  `anchor-name` + `position-anchor`", which `0b550c10` made false when the
+  component took that over. Prose the reader would have acted on.
+
+Both were found by running the generator before building a page, which is luck
+rather than process — hence the guard. Note the ordering consequence: the guard
+fails until the regenerated JSON is committed.
 
 ## 2. Open questions
 

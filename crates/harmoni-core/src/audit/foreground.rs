@@ -126,10 +126,8 @@ impl ContrastUse {
 /// decides on; the ratio is the evidence behind it. Non-text never reports
 /// `Aaa` — §1.4.11 has no such tier.
 pub fn grade(ratio: f32, r#use: ContrastUse) -> Grade {
-    if let Some(enhanced) = r#use.floor(Level::Aaa) {
-        if ratio >= enhanced {
-            return Grade::Aaa;
-        }
+    if r#use.floor(Level::Aaa).is_some_and(|enhanced| ratio >= enhanced) {
+        return Grade::Aaa;
     }
 
     let minimum = r#use

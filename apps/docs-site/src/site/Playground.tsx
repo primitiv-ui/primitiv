@@ -7,6 +7,7 @@ import { CodeBlock } from "@/components/code-block";
 import { Divider } from "@/components/divider";
 
 import { DensityRadios } from "./DensityRadios";
+import { ModeCodeBlock } from "./ModeCodeBlock";
 import {
   SegmentedControl,
   SegmentedControlItem,
@@ -121,19 +122,39 @@ export const Playground = ({
 }: PlaygroundProps) => {
   const [values, setValues] = useState(() => initialValues(controls));
   const [density, setDensity] = useState<Density>(DEFAULT_DENSITY);
-  const [mode] = useMode();
+  const [mode, setMode] = useMode();
 
   /* The snippet has to know the mode: a compound's part names differ between
      headless (`Select.Trigger`) and styled (`SelectTrigger`), and only one of
      the two is importable at a time. Read here rather than threaded from the
      page, because `useMode` is a shared store — every caller subscribes to the
      same key (see preferences.ts). */
-  const jsx = snippet
-    ? snippet(values, mode)
-    : toJsx({ component, values, controls, children: snippetChildren });
-  const prefix =
-    typeof snippetPrefix === "function" ? snippetPrefix(mode) : snippetPrefix;
-  const code = prefix ? `${prefix}\n\n${jsx}` : jsx;
+
+  /*
+   * The snippet is rendered for BOTH consumption modes at once and tabbed,
+   * rather than following the switch and showing one — see the tablist below
+   * for why. So this builds either, and the tab decides which is on top.
+   *
+   * Contract props are dropped from the headless snippet: every control comes
+   * from a `contract.json` modifier, i.e. from the styled layer, so printing
+   * one under Headless names a prop the reader cannot pass (`contractAttr`'s
+   * note in lib/playground.ts). Passing no controls to `toJsx` does that, since
+   * it builds the attribute list from this same array. A spec with its own
+   * `snippet` handles the same thing per-attribute.
+   */
+  const codeFor = (m: Mode) => {
+    const jsx = snippet
+      ? snippet(values, m)
+      : toJsx({
+          component,
+          values,
+          controls: m === "headless" ? [] : controls,
+          children: snippetChildren,
+        });
+    const prefix =
+      typeof snippetPrefix === "function" ? snippetPrefix(m) : snippetPrefix;
+    return prefix ? `${prefix}\n\n${jsx}` : jsx;
+  };
 
   return (
     <Stack gap="md">
@@ -188,7 +209,16 @@ export const Playground = ({
         </CardContent>
       </Card>
 
-      <CodeBlock code={code} language="tsx" size="sm" />
+      {/* Both modes, tabbed, two-way bound to the nav switch — the same block
+          every example on the page uses. See ModeCodeBlock for why both are
+          shown rather than following the switch.
+
+          It also closes a hole that appeared the moment contract props stopped
+          being printed under Headless: a single mode-following snippet left a
+          headless reader with controls that changed the preview and nothing in
+          the code, which reads as broken. With both tabs present the controls
+          always drive the preview and the Styled tab. */}
+      <ModeCodeBlock code={codeFor} />
 
       <p className="docs-playground-note">
         Density is set by a <code>data-density</code> ancestor — the Context

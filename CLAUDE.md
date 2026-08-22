@@ -1141,8 +1141,39 @@ source of truth for when a skill applies.
     L 0.556 on a spinning solid, and the sliders are already exact). The
     painted sliders are 1-D gamut charts in their own right, which is what
     makes a plane-less layout credible at all.
-  - **Still open:** canvas swatches / drag-to-canvas, the unit of saving, and
-    the multi-seed brand.
+  - **Ownership is the mechanism, and it is verified (2026-08-22).** Every
+    variable Harmoni writes is stamped with `setSharedPluginData("harmoni", …)`
+    carrying the project id and the rule that produced it. Probed live: written
+    to `color/neutral/50`, read back, cleared — variables *and* collections both
+    accept it, and `createVariable` / `setValueForMode` / `remove` / `addMode` /
+    `renameMode` all exist, so the CRUD surface is complete. The stamp is what
+    makes the four verbs safe: **read** rebuilds a project from the file itself
+    (no separate recipe to lose, and unstamped variables can be *adopted*);
+    **update** is a diff against what was last written, so a value that no
+    longer matches its stamp was hand-edited by a person and is protected by
+    default; **delete** is scoped to stamped variables, so the plugin can never
+    remove what it did not create. A generator without this cannot tell "I made
+    this and it is stale" from "a person made this on purpose".
+  - **A project is the recipe; a binding is its placement in one document.**
+    The binding lives in the file (`root.setPluginData`), so a teammate opening
+    it inherits the project; the *list* of projects lives in `clientStorage`,
+    which is genuinely per-user and per-device, and is only a convenience index.
+    Same seeds in three files means one recipe and three bindings — worth naming
+    that way now rather than discovering it later.
+  - **Destination picking is a first-run step, not a per-save step**, which is
+    what makes Miller columns viable at 360 px: asked once, it gets the whole
+    panel. Four things the live file taught: `"Primitives / Palette"` is *one
+    collection* (the slash is in the name, not a hierarchy); there is **no
+    createGroup API** — a group exists because variables are named
+    `color/brand/500`, so "choose a group" is "choose a name prefix"; type is
+    fixed per collection (dropping COLOR into `Context` is disallowed, not a
+    merge conflict); and library-imported variables report **`remote: true`**
+    and cannot be written by any plugin, which has to be caught at open rather
+    than at write.
+  - **`figma.currentUser` and `figma.payments` need explicit `permissions`
+    entries in `manifest.json`** — both refused without them. Relevant early for
+    a paid licence and for "who last wrote this".
+  - **Still open:** canvas swatches / drag-to-canvas, and the multi-seed brand.
 
 ## Figma plugin-API gotchas (scripting via `figma_execute`)
 

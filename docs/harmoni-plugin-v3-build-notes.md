@@ -120,6 +120,38 @@ invent a place for them without settling it.
   `table/{size}/*` ladder in code, mirrored to Figma, and rebinding 75 Cell and
   Header Cell variants — flagged rather than done mid-view.
 
+## 2c. Settings — reached from the gear, not a tab
+
+- **No context bar.** Settings is global, not project-scoped, so the project
+  Breadcrumb is wrong here and is absent. The **tab bar stays, with no tab
+  active** — that is what wireframe 05 draws, and it is what tells you the
+  panel is still there behind the gear. Footer action is **Done**.
+- **Both tri-states are `Segmented Control [Count=3, Size=sm]`.** `sm` is
+  forced: three FILL segments in 332px give 107px each, and `ask each time`
+  does not fit at `md`. A Checkbox cannot express "yes, always, stop asking",
+  which is the whole reason these are tri-states.
+  - Semantic layer: `ask each time · always add · never`
+  - Contrast readout: `grades · both · ratios`
+  Each carries a one-line `Body / xs` rationale underneath — the setting is
+  only legible if you say what the offer *was*.
+- **Defaults are `GenerateOptions`, surfaced as label/control rows**: Steps per
+  ramp (`Input sm`, with `Engine allows 3 – 32` right-aligned beneath — the
+  bound comes from `supported_step_range()`, never hardcoded), Gamut
+  (`Select sm`), Modes (`Select sm`).
+- **Role schema**: `In use` (`Select sm`) plus two `Button [secondary, sm]`
+  actions — `Save current as preset` and `Import schema`. This is the surface
+  that makes the role schema portable, which is what "a role is user data"
+  buys.
+- Row labels are `Body / sm`, **not `Label / sm`** — a settings row is a label
+  and its value at equal weight; SemiBold labels read as headings and fight the
+  eyebrows.
+- Sections are separated by real `Divider` instances; the tab baseline serves
+  as the first rule.
+- **Still unsettled:** `soft_white` / `soft_black` are `GenerateOptions` inputs
+  with no home in v3. DEFAULTS is now literally a `GenerateOptions` panel, so
+  it is the obvious candidate — but wireframe 05 does not draw them, so do not
+  add them without settling it.
+
 ## 3. Ramp data facts (verified against the engine this session)
 
 - Seeds are `brand #236ce1`, `danger #db2424`, `warning #e88e00`,
@@ -218,12 +250,15 @@ only prose that leaks the internal term.
 
 ## 6. Still to design
 
-From the wireframes: Settings (panel 05).
-The project switcher now has an entry point (the context bar's `project` mode)
-but no view yet.
-With no wireframe at all: **loading/generating, error** (write refused, missing
-permission, remote variables), and the **project switcher**.
+Every wireframed panel is now built. What is left has **no wireframe at all**,
+so each needs settling before it is drawn:
 
-Also outstanding: dark-theme copies of the view set (a Figma plugin follows the
-app's theme, so both are real), and `figma.currentUser` / `figma.payments` both
-need explicit `permissions` entries in `manifest.json`.
+- **The project switcher.** Its entry point exists (the Breadcrumb's project
+  crumb) but there is no view behind it.
+- **Loading / generating**, and **error** — write refused, missing permission,
+  library-imported (`remote: true`) variables.
+
+Also outstanding: a **light-theme pass** over the view set. The built views are
+dark and the `Harmoni / Panel Header` has a `Theme=light` variant, but a Figma
+plugin follows the app's theme, so both are real. And `figma.currentUser` /
+`figma.payments` both need explicit `permissions` entries in `manifest.json`.

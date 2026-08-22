@@ -1100,6 +1100,50 @@ source of truth for when a skill applies.
     **`cargo llvm-cov clean --workspace`** before trusting any coverage number
     that follows a code switch.
 
+- **Harmoni plugin redesign — settled positions (2026-08-22).** The plugin is
+  being rebuilt from scratch (its README already called the current one a
+  scaffold). Six decisions are closed; the record is the Figma page
+  **"Wireframes — Harmoni Plugin (v3 — settled)"** (panels drawn at a true
+  360 px, plain wireframes, no design-system components) plus four interactive
+  artifacts that carry the arguments.
+  - **OKLCH is canonical; hex is a Figma export.** The picker's value block
+    leads with `oklch(...)` and shows `→ figma · hex` beneath. Chroma is *not*
+    clamped at the sRGB edge — the track goes flat past the ceiling and the
+    panel states that the hex is clamped, because two OKLCH colours flatten to
+    one hex there. Making hex canonical would hand the engine a value it never
+    chose.
+  - **A step stays a lightness, not a contrast.** Contrast-authored steps were
+    modelled and rejected: they would guarantee "step 700 clears 7:1" across
+    every hue, but that guarantee already exists as the paired foreground
+    (`ForegroundSource`: 50, 900, white, black), so replacing the control buys
+    nothing and costs the even visual spacing that makes a ramp look like one.
+  - **Semantics are opt-in and the offer retires itself.** The panel starts at
+    two views; the semantic layer is offered *at export, next to the variable
+    count*, never in a settings toggle nobody opens. Settings carries a
+    tri-state (ask each time / always add / never) — a boolean cannot express
+    "yes, always, stop asking". Taking the offer adds Roles and Audit, so the
+    navigation cost is paid only by users who asked for it.
+  - **A role is a name plus a rule, and they are separate fields.** Renaming
+    touches only the name; changing the rule re-runs the engine. That is what
+    makes the role schema *user data* — renameable, extendable, portable as a
+    file — and it is the only shape where a custom accent or a fourth brand
+    colour has anywhere to go.
+  - **Contrast reports as a WCAG 2.2 grade, ratio optional.** Adding grades
+    exposed that a grade is meaningless without a use: 4.71:1 is AA as body
+    copy, AAA at heading size, and past the non-text bar. Hence `ContrastUse`
+    in the engine, and `AA-LG` as a real variant rather than a rounding of
+    FAIL. A divider and a button background carry no floor and get no verdict.
+  - **Picker layout: sliders are the control, one plane is the view.** All
+    three planes stacked measures 992 px at 360 wide and puts the ramp ~800 px
+    below the fold — you tune blind and scroll to check. Sliders-plus-one-plane
+    is 704 px and keeps seed, controls and resulting ramp in one view; a fourth
+    tab turns the sRGB gamut as a rotatable solid (view-only — you cannot hit
+    L 0.556 on a spinning solid, and the sliders are already exact). The
+    painted sliders are 1-D gamut charts in their own right, which is what
+    makes a plane-less layout credible at all.
+  - **Still open:** canvas swatches / drag-to-canvas, the unit of saving, and
+    the multi-seed brand.
+
 ## Figma plugin-API gotchas (scripting via `figma_execute`)
 
 Traps that fail *silently* or point at the wrong culprit. Each cost a real

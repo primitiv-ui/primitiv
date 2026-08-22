@@ -81,6 +81,43 @@ gets the right rhythm. The override lands because both are declarations **on the
 same element**, which is the only case where layer order arbitrates —
 `primitiv.base` outranks `primitiv.reset`.
 
+### `List.Item` wraps its children in a `.primitiv-list__item-content` block
+
+The row is a flex container — it has to be, since the marker is a `::before`
+on the `<li>` and the marker↔text gap is flex `gap`. But a flex container makes
+a flex item of **every** child, and text runs between elements become
+*anonymous* flex items. So an item mixing prose with inline elements — a
+sentence with `role="listbox"` set into it — laid every run out as its own
+column, each shrunk to min-content: one or two words per line, stacked
+sideways. No selector can fix it after the fact, because anonymous flex items
+aren't selectable.
+
+`List.Item` therefore renders one block wrapper inside the `<li>`, and the
+stylesheet makes that the single flex item (`flex: 1 1 auto; min-width: 0`).
+Everything inside is back in normal inline flow and wraps as prose. It's a
+`<div>` rather than a `<span>` because a nested `<List>` lives in there too,
+and `<ul>`/`<ol>` is flow content a `<span>` may not contain.
+
+Two consequences worth knowing:
+
+- **It replaced the nested-list wrapping trick.** A nested list used to need
+  `.primitiv-list__item:has(> .primitiv-list) { flex-wrap: wrap }` plus
+  `flex-basis: 100%` to break onto its own line, and that rule had to be
+  `:has()`-scoped because an unconditional `flex-wrap` stranded the marker on a
+  line of its own. A nested list is now just the next block inside the wrapper:
+  it lands under the text and steps in by its own `--primitiv-list-indent`.
+- **Selectors targeting an item's direct children need one more step.** A
+  consumer styling `.primitiv-list__item > a` should target
+  `.primitiv-list__item-content > a` (or simply `.primitiv-list__item a`).
+  The class isn't in `contract.json` — like `chip`'s `__remove`, it's internal
+  layout machinery rather than a part you compose — but it is stable, and it's
+  documented here for exactly that reason.
+
+`min-width: 0` is load-bearing, not defensive: a flex item's automatic minimum
+size is its min-content width, so a single unbreakable token (a long
+`--primitiv-*` name inside an inline code span) would otherwise push the row
+wider than the list.
+
 ## Usage
 
 ```tsx

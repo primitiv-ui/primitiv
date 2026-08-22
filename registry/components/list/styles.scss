@@ -79,26 +79,30 @@
   }
 
   /*
-   * Lets a NESTED list break onto its own line. The item is a flex row
-   * ([marker][content]), so a nested <ul>/<ol> would otherwise become a third
-   * row child and lay out BESIDE the item's text instead of under it — which
-   * `--primitiv-list-indent` plainly does not intend, since indent exists to
-   * step nested levels in.
+   * The row is [marker][content], and a flex container makes a flex item of
+   * EVERY child — so an item that mixes text with elements (an inline `<code>`
+   * mid-sentence, a link mid-clause) laid each run out as its own column,
+   * every one shrunk to min-content: one word per line, stacked sideways.
+   * Text runs are anonymous flex items, so no selector can group them after
+   * the fact. `List.Item` therefore renders ONE block wrapper, and this is it —
+   * a single flex item whose children are back in normal inline flow, wrapping
+   * as prose. Found on the docs site's Accessibility notes (2026-08-21), which
+   * are exactly that shape: sentences with `role="listbox"` set into them.
    *
-   * Scoped with `:has()` to items that actually contain a nested list. An
-   * unconditional `flex-wrap: wrap` breaks the ordinary case: the item's text is
-   * an ANONYMOUS flex item sized from its max-content, so a label longer than
-   * the remaining line wraps in its entirety and the marker is left stranded on
-   * a line of its own (measured: 34px above its own text). Without wrap the
-   * text shrinks and wraps internally instead, keeping the hanging indent.
+   * `min-width: 0` overrides a flex item's automatic minimum size, which is its
+   * min-content width — otherwise one unbreakable token (a long
+   * `--primitiv-*` custom property inside an inline code span) pushes the row
+   * wider than the list itself.
+   *
+   * This SUPERSEDES the older `:has(> .primitiv-list)` + `flex-basis: 100%`
+   * pair that made a nested list break onto its own line. A nested <ul>/<ol> is
+   * now inside this block, where it is simply the next block in flow: it lands
+   * under the text and steps in by its own `--primitiv-list-indent`, with no
+   * wrapping trick and none of that rule's stranded-marker caveat.
    */
-  .primitiv-list__item:has(> .primitiv-list) {
-    flex-wrap: wrap;
-  }
-
-  /* Forces the break: a full-basis child cannot share the first line. */
-  .primitiv-list__item > .primitiv-list {
-    flex-basis: 100%;
+  .primitiv-list__item-content {
+    flex: 1 1 auto;
+    min-width: 0;
   }
 
   .primitiv-list__item::before {

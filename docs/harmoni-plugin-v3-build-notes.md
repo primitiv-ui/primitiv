@@ -143,6 +143,29 @@ with the same settings); each swatch carries `step`, `value`, `oklch`.
 `circle` only works as a vertical list — in a horizontal strip the facts column
 collides with the next chip.
 
+## 4a. Wording — "stamp" is internal, never user-facing
+
+`setSharedPluginData("harmoni", …)` is a good name for what the mechanism does,
+and the wrong word for a user. It is not about *when* (so never "timestamp") and
+users need no noun for it at all. Every message it appears in reads better as a
+sentence about Harmoni:
+
+| don't write | write |
+| --- | --- |
+| variables with no stamp | variables that **weren't made by Harmoni** |
+| every stamped variable still holds… | every variable **Harmoni manages** still holds… |
+| no longer match their stamp | no longer match **what Harmoni wrote** |
+| THE STAMP MAKES THIS VISIBLE | **ALL 120 VARIABLES** (label the counts, not our mechanism) |
+
+Where a single word is genuinely needed — a Settings toggle, a menu item, a doc
+heading — it is **"managed"**: "Harmoni-managed variables". That is the
+established phrasing in tooling for this exact relationship, and it carries both
+halves the stamp encodes: authorship *and* an ongoing claim. "Tracked" is vaguer
+about by whom; "linked" implies a live connection that does not exist.
+
+The row Tags never had the problem — `in sync` and `hand-edited` are plain. It is
+only prose that leaks the internal term.
+
 ## 5. Destination
 
 - **There is no createGroup API.** A group exists because variables are *named*

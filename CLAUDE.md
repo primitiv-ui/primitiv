@@ -929,8 +929,7 @@ source of truth for when a skill applies.
     meaningful. It is also why the panel can animate in but not out.
 
 
-- **RFC 0027 (ramp quality metrics) — steps 1–7 landed (2026-08-20/21); only the
-  Intent half of step 6 open.**
+- **RFC 0027 (ramp quality metrics) — steps 1–7 all landed (2026-08-20/22).**
   `harmoni-core::audit::ramp` now owns `assess(&Palette, Gamut) -> RampQuality`,
   exposed as `api::assess_ramp`. The gamut boundary primitive moved down to
   `color::gamut` first (`audit` must not reach up into `api`); `api::gamut`
@@ -1024,10 +1023,28 @@ source of truth for when a skill applies.
     coarse fixture is not. **Calibration check worth keeping:** on the dark brand
     ramp against the dark page surface it returns `600` — the exact step the audit
     hand-picked after finding the link role failing at 3.78:1.
-    **Still open:** `intent.json` does not consume it, and
-    `packages/tokens/src/dark-mode-content.test.ts` still guards these roles with
-    its own hand-rolled contrast maths — a second implementation that can disagree
-    with the engine.
+    **Closed 2026-08-22 by a guard, not a rewrite.** `crates/harmoni-core/tests/
+    intent_roles.rs` asserts each of the three roles equals the step
+    `readable_step` picks, in both modes — and all six already matched, so the
+    hand-picked values were right and are now *pinned* to the derivation rather
+    than left free to drift again. Verified it bites: flipping dark
+    `content/muted` to 500 fails with "ships 500 but the engine picks 600 at
+    6.04:1". Two things it needed. `readable_step` now takes the ramp as
+    **`&[SwatchStep]`, not `&Palette`** (with `Palette::steps()` for the
+    generated case) — the foreground pairing a `Palette` carries is a different
+    question, and taking the narrower type is what lets a guard ask about the
+    ramp the *token layer ships*, which matters because the **neutral ramp is
+    not reproducible from `harmoni-seeds.json`** and never has been. And the
+    accessibility **floors moved out of TypeScript**:
+    `packages/tokens/src/dark-mode-content.test.ts` had its own `luminance()` /
+    `contrastRatio()` deciding whether a role passed AA — a second
+    implementation free to disagree with the engine. Floors are Rust's now; that
+    file keeps only what it alone can see (a state ramp running the wrong way, a
+    background that fails to track the theme, a pair that must stay consistent
+    *across* modes), and its helpers survive for those. It cannot call the engine
+    directly — that would need wasm, and `wasm-pack` is not in this container —
+    which is why the guard lives in Rust rather than the floors being re-pointed
+    in place.
   - **Step 7 (landed): `RampFeedback` under the brand picker** states chroma
     headroom per step, the sRGB↔P3 trade-off, and contrast reach. **§6's premise
     was wrong and step 4 is why:** it assumed the picker could derive headroom
@@ -1038,6 +1055,36 @@ source of truth for when a skill applies.
     reporting **requested vs granted**. It shares `plan_light_ramp` with
     generation so the two cannot disagree; its `gamut` argument is a *what-if*
     (generation is always sRGB) and is what makes the P3 comparison real.
+  - **A ramp is any length between 3 and 32 steps now (2026-08-22).**
+    `GenerateOptions.steps` (default 10), `generate_palette_with_steps`,
+    `generate_brand_pair_with_options`, and in wasm `generate_palette_with_steps`
+    / `generate_palette_pair_with_steps` / `supported_step_range()` → `[3, 10,
+    32]`, so a step-count control bounds itself from the engine. Four things
+    worth knowing. **Ten steps are byte-identical** — asserted, and the 365
+    `primitiv-emit` goldens passing untouched is the independent proof the token
+    layer did not move; `resample` computes positions **integers-first**
+    (`i * (len-1) / (count-1)`) so asking for the curve's own length lands
+    exactly on its own points. **`step_labels` walks 100–900 in two halves
+    meeting at 500**, with index 0 fixed at 50, so every length keeps the step
+    the brand pins to and the semantic layer aliases; `pivot_index` is clamped to
+    `count - 2` or a short ramp loses its dark end. **Primitiv's own scale is
+    structurally locked to ten** — `generate_brand_pair`, the path `primitiv
+    theme --brand` and `regen-palette` both take, accepts no options at all, so
+    the knob cannot leak into the shipped token layer (this is also why it keeps
+    the narrower `ColorInputError`). **The foreground pairing survives every
+    length**: `tests/ramp_regression.rs` gates all six seeds × light/dark ×
+    lengths 3–32 — 360 ramps — on complete foreground coverage, no greying, and
+    lightness spacing scaled to the length, and it passed first run. Out-of-range
+    counts are **rejected, not clamped**; 32 is the ceiling because labels round
+    to the nearest ten and start colliding past it. `resample` also has a real
+    precondition — `count >= 2`, or it reads off the end of the curve — which is
+    why `curves_for` guards *before* resampling rather than letting `generate_pair`
+    catch it later. Along the way `Palette.lightness_curve` became `Vec<f32>`
+    (mirrored in `harmoni-wasm/src/types.rs`), and generate calls grew a
+    **`GenerateError`** (`InvalidColor` / `InvalidCurve` / `UnsupportedStepCount`)
+    — an out-of-range lightness curve used to be reported as
+    `ColorInputError::InvalidCss("Lightness at index 3 out of range: 1.5")`,
+    telling the caller their colour was bad when their curve was.
   - **The picker's test harness was half-dead and nobody knew.** Six of fourteen
     `OklchPicker` test files could not resolve `harmoni-wasm` — `vi.mock` needs
     Vite to resolve the specifier *first*, and the sandbox stub had a manifest

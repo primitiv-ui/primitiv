@@ -45,7 +45,12 @@ split.
    when they're connected. When they aren't available in the session,
    fall back to the `gh` CLI. Either way, stay scoped to
    `primitiv-ui/primitiv` and never touch the raw API directly.
-8. **Composite / composed components: Figma first, always — never jump
+8. **Harmoni plugin views: the settled wireframes are the spec.** Before
+   designing or composing any plugin view, read the matching panel on
+   the Figma page "Wireframes — Harmoni Plugin (v3 — settled)" (node
+   ids in the Current state entry). Do not reconstruct a view from the
+   HTML artifacts, from prose, or from the old 600px app.
+9. **Composite / composed components: Figma first, always — never jump
    straight to the registry.** "This composes two ✓ done primitives, so
    there's nothing left to design" is a trap. Composing existing
    components together still surfaces real visual decisions that only
@@ -1106,6 +1111,26 @@ source of truth for when a skill applies.
   **"Wireframes — Harmoni Plugin (v3 — settled)"** (panels drawn at a true
   360 px, plain wireframes, no design-system components) plus four interactive
   artifacts that carry the arguments.
+  - **READ THE WIREFRAME PANELS BEFORE DESIGNING ANY VIEW. They are the
+    settled spec; the HTML artifacts and the prose below are only the
+    arguments that produced them.** Board `1933:110420` on that page:
+    01 default panel `1933:110428` · 02 the offer `1933:110498` ·
+    03 roles `1933:110530` · 04 audit `1933:110614` · 05 settings
+    `1933:110691` · 06 the picker `1933:110747` · 07 decisions
+    `1933:110810`; CRUD row: 01 `1935:110852` · 02 `1935:110887` ·
+    03 `1935:110947` · 04 `1935:111001` · verbs `1935:111045`.
+    Getting this wrong cost a session (2026-08-22): the panel header was
+    built from the **old 600px app** (`Harmoni App Header` — project
+    Select + moon + expand) when panel 06 and CRUD 03 clearly show the
+    settled chrome is **`Harmoni · <project>` text plus a gear, nothing
+    else**; and Palette was built as one ramp with anchor/step controls
+    when panel 01 shows it is **multi-ramp** — a SEEDS list with
+    `+ add ramp`, then per ramp a name, step count, a thin colour strip
+    and `✓ every step has a readable foreground`, with **Create
+    variables** as the footer action. The anchors, axis sliders, plane
+    and step control all belong to the picker (06), not to Palette.
+    `Harmoni App Header` / `Harmoni App Container` are the OLD product
+    (600px / 960px) — never carry their decisions into v3.
   - **OKLCH is canonical; hex is a Figma export.** The picker's value block
     leads with `oklch(...)` and shows `→ figma · hex` beneath. Chroma is *not*
     clamped at the sRGB edge — the track goes flat past the ceiling and the

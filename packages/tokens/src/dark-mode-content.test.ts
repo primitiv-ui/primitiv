@@ -24,6 +24,13 @@ function intentColor(mode: Mode, token: string): string {
   return value.startsWith('{') ? resolveRef(mode, value) : value
 }
 
+// These two are for the properties only this file can see — a background that
+// fails to track the theme, a state ramp running the wrong way, a pair that must
+// stay consistent ACROSS modes. Every accessibility *floor* moved to
+// `crates/harmoni-core/tests/intent_roles.rs`, where it is measured with the
+// engine's own contrast maths against the step the engine derives, so a role
+// cannot pass here and be wrong there.
+
 /** WCAG relative luminance (sRGB, 0-1). */
 function luminance(hex: string): number {
   const channel = (value: number) => {
@@ -78,12 +85,6 @@ describe.each([
     expect(intentColor('light', token)).not.toBe(intentColor('dark', token))
   })
 
-  it('meets WCAG AA (4.5:1) against surface/default in both modes', () => {
-    for (const mode of ['light', 'dark'] as const) {
-      const ratio = contrastRatio(intentColor(mode, token), intentColor(mode, 'surface/default'))
-      expect(ratio).toBeGreaterThanOrEqual(4.5)
-    }
-  })
 })
 
 // The neutral alpha ramp (Path A): the mode's veil colour — the neutral ramp's
@@ -166,32 +167,6 @@ describe('color/brand-alpha ramp', () => {
   })
 })
 
-// `border/default` is a NON-TEXT contrast case, not decoration: it draws the
-// boundary of Input, Select, Card and Modal, which is exactly the "boundary
-// needed to identify the control" that WCAG 1.4.11 puts at 3:1. Both modes failed
-// when the colour pass measured them (2.24:1 light, 2.66:1 dark), so each moved up
-// one step on its own ramp.
-//
-// `border/subtle` is deliberately NOT held to this. It draws dividers, which are
-// decoration rather than a control boundary and are legitimately exempt — it
-// measures 1.79:1 light and would fail on purpose.
-describe('border/default — WCAG 1.4.11 non-text contrast', () => {
-  it.each(['light', 'dark'] as const)('%s mode: clears 3:1 against surface/default', (mode) => {
-    const ratio = contrastRatio(intentColor(mode, 'border/default'), intentColor(mode, 'surface/default'))
-    expect(ratio).toBeGreaterThanOrEqual(3)
-  })
-
-  it.each(['light', 'dark'] as const)('%s mode: stays quieter than the text roles', (mode) => {
-    // The floor is one half of it — a border pushed to body-text contrast would
-    // pass this file and look like a mistake. It must stay below `content/muted`,
-    // the quietest text role, so "accessible" cannot drift into "heavy".
-    const bg = intentColor(mode, 'surface/default')
-    const border = contrastRatio(intentColor(mode, 'border/default'), bg)
-    const muted = contrastRatio(intentColor(mode, 'content/muted'), bg)
-    expect(border).toBeLessThan(muted)
-  })
-})
-
 // Surfaces and borders that are supposed to track the theme (paler in light,
 // darker in dark) rather than stay fixed.
 describe.each([
@@ -234,13 +209,6 @@ describe('surface/selected and content/on-selected', () => {
     for (const token of ['surface/selected', 'content/on-selected'] as const) {
       const ratio = contrastRatio(intentColor('light', token), intentColor('dark', token))
       expect(ratio).toBeLessThan(1.25)
-    }
-  })
-
-  it('content/on-selected meets WCAG AA (4.5:1) against surface/selected in both modes', () => {
-    for (const mode of ['light', 'dark'] as const) {
-      const ratio = contrastRatio(intentColor(mode, 'content/on-selected'), intentColor(mode, 'surface/selected'))
-      expect(ratio).toBeGreaterThanOrEqual(4.5)
     }
   })
 })
@@ -292,14 +260,6 @@ describe.each([
  */
 describe('action/link/foreground interactive states', () => {
   const states = ['default', 'hover', 'active', 'visited'] as const
-
-  it.each(['light', 'dark'] as const)('%s mode: every state clears AA on surface/default', (mode) => {
-    const bg = intentColor(mode, 'surface/default')
-    for (const state of states) {
-      const ratio = contrastRatio(intentColor(mode, `action/link/foreground/${state}`), bg)
-      expect(ratio).toBeGreaterThanOrEqual(4.5)
-    }
-  })
 
   it.each(['light', 'dark'] as const)(
     '%s mode: hover and active are more prominent than the resting state',

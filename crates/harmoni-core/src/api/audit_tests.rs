@@ -86,7 +86,7 @@ mod readable_step_through_the_api {
         let pair = generate_brand_pair(ColorInput::Css("#236ce1".to_string()))
             .expect("the brand seed should generate");
 
-        let found = readable_step(&pair.dark, &dark_surface(), 4.5).expect("a readable link colour");
+        let found = readable_step(&pair.dark.steps(), &dark_surface(), 4.5).expect("a readable link colour");
 
         assert_eq!(found.label.to_string(), "600");
         assert!(

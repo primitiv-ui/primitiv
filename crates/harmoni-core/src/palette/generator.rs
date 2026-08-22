@@ -98,6 +98,20 @@ pub struct Palette {
     pub note: String,
 }
 
+impl Palette {
+    /// The ramp's colours alone, without the foreground pairing each swatch
+    /// also carries — what `readable_step` and anything else asking a question
+    /// about the ramp itself needs.
+    pub fn steps(&self) -> Vec<SwatchStep> {
+        self.swatches
+            .iter()
+            .map(|swatch| {
+                SwatchStep::from_label(swatch.l, swatch.c, swatch.h, swatch.label.clone())
+            })
+            .collect()
+    }
+}
+
 pub const TARGET_LIGHTNESS: [f32; 10] =
     [0.97, 0.91, 0.83, 0.76, 0.67, 0.55, 0.45, 0.32, 0.22, 0.15];
 

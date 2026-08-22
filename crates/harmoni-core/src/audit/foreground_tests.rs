@@ -340,7 +340,7 @@ mod readable_step {
 
     #[test]
     fn returns_a_step_that_clears_the_threshold_on_the_given_surface() {
-        let found = readable_step(&blue_ramp(), &white(), 4.5).expect("a readable step on white");
+        let found = readable_step(&blue_ramp().steps(), &white(), 4.5).expect("a readable step on white");
 
         assert!(
             found.contrast_ratio >= 4.5,
@@ -359,7 +359,7 @@ mod readable_step {
         // does for a light ramp on a light surface, and does not here.
         let dark_surface = SwatchStep::from_label(0.2, 0.0, 0.0, "Surface");
 
-        let found = readable_step(&blue_ramp(), &dark_surface, 4.5).expect("a readable step");
+        let found = readable_step(&blue_ramp().steps(), &dark_surface, 4.5).expect("a readable step");
 
         // 50 is the lightest step and clears by a mile; 300 is the first that
         // clears at all going down the ramp. 500 is too close to the surface.
@@ -383,8 +383,8 @@ mod readable_step {
             swatch(700, 0.48, 0.005, 264.0, 21.0),
         ]);
 
-        let text = readable_step(&greys, &white(), 4.5).expect("a text colour");
-        let border = readable_step(&greys, &white(), 3.0).expect("a border colour");
+        let text = readable_step(&greys.steps(), &white(), 4.5).expect("a text colour");
+        let border = readable_step(&greys.steps(), &white(), 3.0).expect("a border colour");
 
         assert!(
             border.contrast_ratio < text.contrast_ratio,
@@ -406,6 +406,6 @@ mod readable_step {
             swatch(100, 0.94, 0.03, 264.0, 21.0),
         ]);
 
-        assert_eq!(readable_step(&pale, &white(), 4.5), None);
+        assert_eq!(readable_step(&pale.steps(), &white(), 4.5), None);
     }
 }

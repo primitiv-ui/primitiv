@@ -1,4 +1,3 @@
-use crate::palette::generator::Palette;
 use crate::palette::generator::SwatchLabel;
 use crate::SwatchStep;
 use palette::color_difference::Wcag21RelativeContrast;
@@ -70,11 +69,18 @@ pub struct ReadableStep {
 ///
 /// Returns `None` when no step clears, which is the guarantee: a role that cannot
 /// be satisfied says so instead of handing back the closest near-miss.
-pub fn readable_step(ramp: &Palette, surface: &SwatchStep, threshold: f32) -> Option<ReadableStep> {
+/// The ramp is a plain slice of colours rather than a `Palette` because that is
+/// all this needs — the foreground pairing a `Palette` also carries is a
+/// different question. Taking the narrower type is what lets a caller ask about
+/// a ramp it did not generate, such as the one the token layer ships.
+pub fn readable_step(
+    ramp: &[SwatchStep],
+    surface: &SwatchStep,
+    threshold: f32,
+) -> Option<ReadableStep> {
     let surface_luminance = relative_luminance(surface.l, surface.c, surface.h);
 
-    ramp.swatches
-        .iter()
+    ramp.iter()
         .map(|swatch| {
             let ratio = wcag_contrast(
                 surface_luminance,

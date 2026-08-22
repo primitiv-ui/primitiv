@@ -81,15 +81,31 @@
   gap: var(--primitiv-grid-gap-xl);
 }
 
-/* Both rails hold still while the centre column scrolls, and each scrolls
-   independently once its own content outgrows the viewport — the Select TOC is
-   already 21 rows and the component list will pass 50. Without the
-   max-block-size + overflow pair the tail of either rail is unreachable. */
+/* Both rails hold still while the centre column scrolls. */
 .docs-rail {
   position: sticky;
   inset-block-start: calc(
     var(--docs-nav-height) + var(--primitiv-space-space-24)
   );
+}
+
+/*
+ * Only the TOC gets the max-block-size + overflow pair, and only it needs one:
+ * Select's TOC is already 21 rows (nine sub-components under Props) and grows
+ * with the component, so without this its tail is unreachable.
+ *
+ * The SIDE NAV deliberately does NOT have it. `lib/nav.ts` is 5 sections and 12
+ * children — 17 rows if every one were open at once — and `SideNav` opens only
+ * the section containing the current page, so the realistic maximum is ~10 rows.
+ * It cannot approach viewport height, and the pair was not free: `overflow-y:
+ * auto` makes the element a scroll container, which per spec also forces
+ * `overflow-x` from `visible` to `auto`, so the rail clipped on both axes and
+ * offered a scrollbar it never had a use for.
+ *
+ * Put it back the day the Components section lists all 50+ components inline
+ * rather than linking out — which `SideNav`'s own comment anticipates.
+ */
+.docs-toc {
   max-block-size: calc(
     100dvh - var(--docs-nav-height) - var(--primitiv-space-space-48)
   );

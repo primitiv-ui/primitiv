@@ -11,34 +11,43 @@ Curve, Export, Setup, Destination. Components: `Harmoni / Panel Header`,
 
 ## 1. Window and chrome — measured, not guessed
 
-- **`figma.showUI({ width: 360, height: 730 })`.** The picker is the tallest
-  view at 723px needed; Palette with six ramps needs 719. One window height
-  serves every view, so don't ship two.
-- **Density is Dense**, baked into `Harmoni / Panel Header`. At Comfortable the
-  header alone is 57px; at Dense it is 33px with 16px controls. Every v3 view is
-  360 wide, so Dense is not a preference.
-- Chrome varies **by view, deliberately**: Setup 74px (nothing bound yet, so no
-  context bar and no tabs) · picker / Curve / Destination 106px (context bar, no
-  tabs) · Palette / Export 139px (header 41 + context bar 33 + tab bar 33 +
-  footer 32). The ten-row detailed ramp is 292px, which is why Palette shows
-  strips and only the canvas insert shows detailed rows.
+- **`figma.showUI({ width: 360, height: 900 })`.** 900 serves every view built
+  so far with room to spare; treat the height as fluid until the set is
+  complete. (An earlier note said 730 — that was measured before the views were
+  built at Compact and is superseded.)
+- **Density is Compact, size is `md`, and neither is baked into a component.**
+  The frame carries `Context = Compact`; every component instance stays at its
+  default `md` unless space genuinely forces smaller. Baking a density into a
+  component master was tried and reverted — the whole point of Primitiv is that
+  size and density are set at any level, so the *view* chooses, not the part.
+  Where smaller is forced, it is recorded: Inputs, Selects and Icon Buttons in
+  dense rows run at `sm`; the Audit table runs at `xs` (see §2b).
+- **Layout conventions, fixed across every view:**
+  - Header: padding `4/12/4/12`, gap 12, Icon Button `md`.
+  - Context bar: padding `12` all round, Breadcrumb `md`.
+  - Body: a wrapper frame with padding `0/14/0/14`, gap 10, holding the `Tabs`
+    instance. **TabList and TabPanel carry no inline padding** — the wrapper
+    supplies the 14px gutter, so the tab baseline runs full width while the
+    content lines up with the rest of the UI.
+  - Footer: padding `12` all round, Button `md`.
 - **The header is the whole Harmoni lockup plus a gear. Nothing else.** No
   project Select, no theme toggle, no expand control — those belong to the OLD
   600/960px app (`Harmoni App Header`, `Harmoni App Container`) and must not be
   carried over. Branding is not a label style: the lockup is
-  `Lockup [Brand=Harmoni, Layout=Horizontal, Theme=Light]` at 4.8:1, 96×20 here.
+  `Lockup [Brand=Harmoni, Layout=Horizontal]`, 96×20 here.
 - **The old header's lockup instance is BROKEN** — it points at main component
   `441:401`, an orphan whose `parent` is `null`, which is why it exports blank.
   Not a placeholder; a dangling reference. Don't copy from it.
 - **The manifest icon is `Brand Mark [Brand=Harmoni]`** (100×100 vector, export
   at 128×128). A `Favicon` set exists too (Default / Tile).
-- **Where you are is `Harmoni / Context Bar`, between the header and the tabs** —
-  above them, because the project scopes the tabs. Two modes: `project`
-  (the bound project, opens the switcher) and `back` (`‹ brand`, the picker's
-  only exit back to Palette). One `Label` TEXT property, on a direct child, so
-  it *is* settable from the parent's panel.
+- **Where you are is a `Breadcrumb`, between the header and the tabs** — above
+  them, because the project scopes the tabs. An earlier bespoke
+  `Harmoni / Context Bar` component was built and then **deleted**: the design
+  system already had the right component. Don't reintroduce it.
 - **The tab bar only exists once a project is bound.** Setup and Destination
   have none.
+- **`content/muted` is not used for the plugin's own text.** Every label, value
+  and note is `content/primary`; the muted role did not read well at 360px.
 
 ## 2. Which view owns what
 
@@ -80,6 +89,36 @@ job at two resolutions, so they share one view.
 anchors appear in the old 600px app but on no v3 panel. They are real
 `GenerateOptions` inputs, so they need a home — most likely Settings. Do not
 invent a place for them without settling it.
+
+## 2b. Roles and Audit — the two views the semantic layer unlocks
+
+- **Roles** is one row per role: an editable **name** field and a separate
+  **rule** Select, because a role is a name plus a rule and renaming must not
+  re-run the engine. Rows are grouped by family (surface · content · border ·
+  action) under an eyebrow head. Controls run at `sm` — four controls to a row
+  at 332px does not fit at `md`.
+- **Audit** is one **`Table`**, nothing else. Columns
+  `ROLE | AS | PAGE | SUBTLE`; the `AS` column is the `ContrastUse` (`text`,
+  `ui`, or `–` where the role carries no floor). Grades are **`Badge`**
+  instances — `success` for AAA/AA/PASS, `warning` for AA-LG, `danger` for
+  FAIL — and a role with no floor prints `–` rather than a badge, which is the
+  visual form of "a divider and a button background get no verdict".
+- The grade note lives in the Table's own **Caption**, not a loose paragraph.
+- **The Audit table runs at `Size=xs`, and this is forced.** Four columns in
+  332px at 12px cell padding leaves 148/48/68/68; `content/secondary` at `sm`
+  (14px) already overflows the ROLE column. Column widths are set on the cell
+  instances inside the row's `Cells` slot — `Rows=custom` on the Table and
+  `Cells=custom` on each Row, since a fixed row's cells take their width from
+  the master.
+- **Known token gap, found here, not yet fixed:** `table/*` in
+  `packages/tokens/src/context.json` carries only `cell.padding-inline` and
+  `cell.padding-block`, both density-scaled but **flat across every size**, and
+  the Figma set's per-size font sizes (12/14/16/20/22) are **hardcoded literals
+  with no bound variable and no text style**. So the Table's `Size` axis changes
+  type size only, by magic number. Every other family (`framed-control/*`,
+  `card/*`, `tree/*`) scales its padding with size. Fixing it means a
+  `table/{size}/*` ladder in code, mirrored to Figma, and rebinding 75 Cell and
+  Header Cell variants — flagged rather than done mid-view.
 
 ## 3. Ramp data facts (verified against the engine this session)
 
@@ -179,8 +218,7 @@ only prose that leaks the internal term.
 
 ## 6. Still to design
 
-From the wireframes: the in-sync return visit and the drift case (CRUD 03–04),
-Roles (panel 03), Audit (panel 04), Settings (panel 05).
+From the wireframes: Settings (panel 05).
 The project switcher now has an entry point (the context bar's `project` mode)
 but no view yet.
 With no wireframe at all: **loading/generating, error** (write refused, missing

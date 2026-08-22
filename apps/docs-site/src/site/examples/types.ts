@@ -72,14 +72,28 @@ export type ComponentSpec = {
    * five of them render nothing at all under `native`, so the tree is genuinely
    * different per path and a reader cannot infer one from the other.
    *
-   * `code` is annotated source: the part on the left, the DOM/ARIA it produces
-   * in a trailing `//` comment. That pairing is the point of the section — it is
-   * the only place the site says what each part actually emits.
+   * `code` is the tree and nothing else — no trailing annotations. An earlier
+   * pass paired each part with the DOM it emits in a `//` comment (as the Figma
+   * frame draws it) and it read as clutter on screen: the comment column pushed
+   * every line past the content width, so the block scrolled and the tree it was
+   * annotating became the harder half to follow. What each part emits belongs in
+   * prose and in the Data attributes table.
+   *
+   * Mode-aware for the same reason snippets are: the parts are `Select.Trigger`
+   * in headless mode and `SelectTrigger` in the copied styled file, and showing
+   * one form here while every snippet below shows the other is the confusion
+   * this page just finished removing.
    */
   readonly anatomy?: readonly {
-    /** Tab label, e.g. `"Rich"`. Also the tab's `value`. */
+    /**
+     * Render-path name, e.g. `"Rich"`.
+     *
+     * Was a tab label; since 2026-08-22 the mode tabs own the tablist (every
+     * code block on the page carries them), so multiple paths STACK as labelled
+     * blocks instead — this is the heading over each. See `Anatomy`.
+     */
     readonly label: string;
-    readonly code: string;
+    readonly code: (mode: Mode) => string;
   }[];
 
   /** Intro line for the anatomy section. Backtick-marked, like the rest. */

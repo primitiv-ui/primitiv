@@ -1,57 +1,55 @@
 "use client";
 
-import { CodeBlock } from "@/components/code-block";
+import { Stack } from "@/components/stack";
 
-/*
- * Same undeclared dependency `InstallTabs` documents: `code-block` styles its
- * tabs with the TABS component's classes but imports only its own sheet.
- * Registry-bugs §3.
- */
-import "@/styles/primitiv/tabs/styles.css";
+import { ModeCodeBlock } from "./ModeCodeBlock";
+import type { Mode } from "./preferences";
 
 /**
- * The "Anatomy" section's body — the part tree, one tab per render path.
+ * The "Anatomy" section's body — the part tree, one block per render path.
  *
- * A tabbed block rather than two stacked ones, per the Figma frame. The tabs are
- * doing real work here: the two trees are meant to be COMPARED (five of Select's
- * nine parts render nothing under `native`), and a comparison reads better when
- * the alternative occupies the same space than when it sits 300px further down.
+ * **Every code block on a component page carries the Styled/Headless tabs**, and
+ * this one is no exception: the tree is the place a reader looks up what to
+ * type, so it is the last place that should show one mode's part names while
+ * every snippet below shows the other's.
  *
- * Single-path components pass one entry and get a plain block with no tablist,
- * because a tablist with one tab is a control that cannot do anything.
+ * That decides how a MULTI-PATH component is laid out. Select's anatomy has two
+ * render paths (five of its nine parts render nothing under `native`), and one
+ * `CodeBlock.Tabs` is a single Tabs.Root — one tablist, one value space — so it
+ * cannot carry render path AND mode at once. Nesting is not available either:
+ * `CodeBlock.Content` takes a `code` string, not children.
+ *
+ * So the paths STACK, each as its own labelled block with its own mode tabs,
+ * rather than being tabbed against each other. The cost is real and worth
+ * stating: an earlier version tabbed the paths precisely so the alternative
+ * occupied the same space, which is the better way to read a comparison. Mode
+ * won because it changes what the reader can actually import, whereas the path
+ * is a choice they have already made by the time they are reading the tree.
+ *
+ * A single-path component (Tabs) gets one block and no path heading, since a
+ * heading over the only tree names nothing.
  */
 export const Anatomy = ({
   paths,
 }: {
-  paths: readonly { readonly label: string; readonly code: string }[];
+  paths: readonly {
+    /** Render-path name, e.g. `"Rich"` — the heading above its block. */
+    readonly label: string;
+    readonly code: (mode: Mode) => string;
+  }[];
 }) => {
-  if (paths.length === 1) {
-    return <CodeBlock code={paths[0].code} language="tsx" size="sm" />;
-  }
+  if (paths.length === 1) return <ModeCodeBlock code={paths[0].code} />;
 
   return (
-    <CodeBlock.Tabs size="sm" defaultValue={paths[0].label}>
-      <CodeBlock.Header>
-        {/* `label` (not `ariaLabelledBy`) — the section's own h2 says "Anatomy",
-            which names the section rather than what these tabs switch. */}
-        <CodeBlock.List label="Render path">
-          {paths.map((p) => (
-            <CodeBlock.Trigger key={p.label} value={p.label}>
-              {p.label}
-            </CodeBlock.Trigger>
-          ))}
-        </CodeBlock.List>
-        <CodeBlock.Copy />
-      </CodeBlock.Header>
-
+    <Stack gap="lg">
       {paths.map((p) => (
-        <CodeBlock.Content
-          key={p.label}
-          value={p.label}
-          language="tsx"
-          code={p.code}
-        />
+        <Stack key={p.label} gap="sm">
+          {/* h3 to match the example titles: the section's own h2 is "Anatomy",
+              and these sit one level under it. */}
+          <h3 className="docs-example-title">{p.label}</h3>
+          <ModeCodeBlock code={p.code} />
+        </Stack>
       ))}
-    </CodeBlock.Tabs>
+    </Stack>
   );
 };

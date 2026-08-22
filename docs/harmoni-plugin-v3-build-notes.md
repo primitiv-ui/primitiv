@@ -257,6 +257,15 @@ so each needs settling before it is drawn:
   crumb) but there is no view behind it.
 - **Loading / generating**, and **error** — write refused, missing permission,
   library-imported (`remote: true`) variables.
+- **The canvas insert.** §4 settles how a Swatch behaves once drawn, but
+  nothing settles the *panel* side: no view carries an insert affordance, and
+  the shape of the inserted frame is unchosen. Decided 2026-08-22 that this
+  gets its **own exploration wireframe page first**, the way every composite
+  component does — not a view drawn straight from the §4 rules. Two questions
+  the exploration has to answer: where the trigger lives (a secondary action on
+  Export, a fifth tab, or per-ramp in Palette) and what one insert draws (all
+  ramps detailed, all ramps as strips, one ramp, or a both-modes specimen
+  sheet).
 
 Also outstanding: a **light-theme pass** over the view set. The built views are
 dark and the `Harmoni / Panel Header` has a `Theme=light` variant, but a Figma

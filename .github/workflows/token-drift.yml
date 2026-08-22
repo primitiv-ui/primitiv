@@ -31,6 +31,9 @@ on:
       - 'apps/workbench/src/primitiv-tokens.css'
       - 'apps/workbench/src/primitiv-base.css'
       - 'apps/workbench/src/breakpoints.ts'
+      - 'apps/docs-site/src/styles/primitiv/tokens.css'
+      - 'apps/docs-site/src/styles/primitiv/primitiv-base.css'
+      - 'apps/docs-site/src/styles/primitiv/breakpoints.ts'
       - '.github/workflows/token-drift.yml'
   pull_request:
     paths:
@@ -43,6 +46,9 @@ on:
       - 'apps/workbench/src/primitiv-tokens.css'
       - 'apps/workbench/src/primitiv-base.css'
       - 'apps/workbench/src/breakpoints.ts'
+      - 'apps/docs-site/src/styles/primitiv/tokens.css'
+      - 'apps/docs-site/src/styles/primitiv/primitiv-base.css'
+      - 'apps/docs-site/src/styles/primitiv/breakpoints.ts'
       - '.github/workflows/token-drift.yml'
 
 jobs:
@@ -77,6 +83,7 @@ jobs:
           }
           KS=apps/kitchen-sink/src/styles/primitiv
           WB=apps/workbench/src
+          DS=apps/docs-site/src/styles/primitiv
           check "$KS/tokens.css"          "${RUNNER_TEMP}/emit/tokens.css"
           check "$KS/primitiv-base.css"   "${RUNNER_TEMP}/emit/primitiv-base.css"
           check "$KS/breakpoints.ts"      "${RUNNER_TEMP}/emit/breakpoints.ts"
@@ -84,5 +91,11 @@ jobs:
           check "$WB/primitiv-tokens.css" "${RUNNER_TEMP}/emit/tokens.css"
           check "$WB/primitiv-base.css"   "${RUNNER_TEMP}/emit/primitiv-base.css"
           check "$WB/breakpoints.ts"      "${RUNNER_TEMP}/emit/breakpoints.ts"
+          # The docs site is the PUBLIC surface, so a stale token layer there is
+          # the most visible version of this bug — and it was the one app the
+          # guard missed until 2026-08-22.
+          check "$DS/tokens.css"          "${RUNNER_TEMP}/emit/tokens.css"
+          check "$DS/primitiv-base.css"   "${RUNNER_TEMP}/emit/primitiv-base.css"
+          check "$DS/breakpoints.ts"      "${RUNNER_TEMP}/emit/breakpoints.ts"
           if [ "$stale" -ne 0 ]; then exit 1; fi
           echo "Every committed generated token file is up to date with the DTCG source."

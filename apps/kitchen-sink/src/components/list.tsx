@@ -89,13 +89,23 @@ export type ListItemProps = ComponentPropsWithRef<"li"> & {
   disabled?: boolean;
 };
 
-function ListItem({ className, disabled, ...props }: ListItemProps) {
+function ListItem({ className, disabled, children, ...props }: ListItemProps) {
   return (
     <li
       className={["primitiv-list__item", className].filter(Boolean).join(" ")}
       data-disabled={disabled ? "" : undefined}
       {...props}
-    />
+    >
+      {/* The row is a flex container ([marker][content]), which makes a flex
+          item of every child — so children mixing text with elements (an
+          inline <code> mid-sentence) would lay each run out as its own
+          min-content column. One wrapper puts them back in inline flow; see
+          the `__item-content` rule in styles.css.
+
+          A <div>, not a <span>: a nested <List> lives in here too, and a
+          <ul>/<ol> is flow content that a <span> may not contain. */}
+      <div className="primitiv-list__item-content">{children}</div>
+    </li>
   );
 }
 

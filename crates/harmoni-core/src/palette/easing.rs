@@ -19,6 +19,15 @@ pub enum Easing {
     Circular,
 }
 
+/// The accent that makes `Arc` its own shape rather than a second name for
+/// `Sine`.
+///
+/// The arc's accent sweeps it continuously from `Sine` ease-out at 0 to `Sine`
+/// ease-in at 1, so both ends of the range duplicate a family that already
+/// exists. The midpoint is the only default under which `Arc` contributes a
+/// shape nothing else in the list can make.
+pub const DEFAULT_ARC_ACCENT: f32 = 0.5;
+
 /// Which end of the ramp a family's acceleration is applied to.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Direction {
@@ -27,7 +36,32 @@ pub enum Direction {
     EaseInOut,
 }
 
-/// Sample `easing` at `count` positions across the ramp.
+/// A chosen curve: a family, the end its acceleration is applied to, and — for
+/// the one family that takes a parameter — its accent.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct CurvePreset {
+    pub easing: Easing,
+    pub direction: Direction,
+    /// Only [`Easing::Arc`] reads this; every other family is a fixed shape.
+    /// Outside `0..=1` the arc stops being monotonic, so it is clamped.
+    pub accent: f32,
+}
+
+impl CurvePreset {
+    pub fn new(easing: Easing, direction: Direction) -> Self {
+        CurvePreset {
+            easing,
+            direction,
+            accent: DEFAULT_ARC_ACCENT,
+        }
+    }
+
+    pub fn with_accent(self, accent: f32) -> Self {
+        CurvePreset { accent, ..self }
+    }
+}
+
+/// Sample `preset` at `count` positions across the ramp.
 ///
 /// Returns *sampled positions*, not a function, because not every family is
 /// expressible as `f(t)`: `Arc` samples a quarter circle evenly in angle rather
@@ -37,19 +71,21 @@ pub enum Direction {
 ///
 /// `count` must be at least 2; a single position has no interval to divide by.
 /// `MIN_STEPS` is what guarantees that for every caller.
-pub fn curve(easing: Easing, direction: Direction, count: usize) -> Vec<f32> {
+pub fn curve(preset: &CurvePreset, count: usize) -> Vec<f32> {
+    let shape = |t: f32| ease_in(preset, t);
+
     (0..count)
         .map(|i| {
             let t = i as f32 / (count - 1) as f32;
-            match direction {
-                Direction::EaseIn => ease_in(easing, t),
+            match preset.direction {
+                Direction::EaseIn => shape(t),
                 // The same curve entered from the other end: reflect through
                 // both axes rather than authoring a second set of formulae.
-                Direction::EaseOut => 1.0 - ease_in(easing, 1.0 - t),
+                Direction::EaseOut => 1.0 - shape(1.0 - t),
                 // Both halves at half scale: the ease-in shape up to the
                 // midpoint, its ease-out mirror after it.
-                Direction::EaseInOut if t < 0.5 => ease_in(easing, 2.0 * t) / 2.0,
-                Direction::EaseInOut => 1.0 - ease_in(easing, 2.0 - 2.0 * t) / 2.0,
+                Direction::EaseInOut if t < 0.5 => shape(2.0 * t) / 2.0,
+                Direction::EaseInOut => 1.0 - shape(2.0 - 2.0 * t) / 2.0,
             }
         })
         .collect()
@@ -57,8 +93,8 @@ pub fn curve(easing: Easing, direction: Direction, count: usize) -> Vec<f32> {
 
 /// A family's shape in its ease-in orientation — slow at 0, fast at 1. Every
 /// other direction is derived from this one.
-fn ease_in(easing: Easing, t: f32) -> f32 {
-    match easing {
+fn ease_in(preset: &CurvePreset, t: f32) -> f32 {
+    match preset.easing {
         Easing::Linear => t,
         Easing::Quadratic => t.powi(2),
         Easing::Cubic => t.powi(3),

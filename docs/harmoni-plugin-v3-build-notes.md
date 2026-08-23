@@ -152,6 +152,67 @@ invent a place for them without settling it.
   it is the obvious candidate — but wireframe 05 does not draw them, so do not
   add them without settling it.
 
+## 2d. Canvas swatches — the view, built 2026-08-23
+
+Built at 360 × **1030** (the four control cards plus the preview do not fit in
+900 — in the plugin the body scrolls; the frame is drawn at natural height so
+the whole view is visible). Chrome follows the **pushed-view** template, copied
+from Picker, not the tabbed one: header → Breadcrumb → Body `20/14/20/14` gap 16
+→ Footer `12/14`. Breadcrumb reads `Primitiv / Export / Canvas swatches`, so the
+way back is a crumb rather than a bespoke `‹ export` control.
+
+- **Segmented Control, not ToggleGroup.** The design guide §5 suggests
+  `ToggleGroup` for orientation / shape / ramps, but there is **no composed
+  ToggleGroup set in Figma** — only `ToggleGroup Item` (`733:239`), which would
+  have to be hand-composed and hand-size-matched. `Segmented Control`
+  (`1216:44224`) is composed, size-matched and already the single-select control
+  used by the picker's axis tabs and Settings' tri-states. Deliberate deviation.
+- **Group cards are plain frames on `surface/subtle` + `border/subtle` with
+  `surface/md/{padding,gap,radius}`** — cloned from the picker's Value card, not
+  `Card` instances. That is the established idiom across this view set.
+- **The preview ground pins `Intent = Light`** via
+  `setExplicitVariableModeForCollection` (Intent = `VariableCollectionId:346:4407`,
+  Light = `346:7`). That is how a light canvas is previewed inside a dark panel
+  without a single raw colour: every token inside the ground resolves to the
+  previewed mode. Switch the mode chip → switch the pinned mode.
+- **The preview is real `Harmoni / Swatch [Form=block, Size=sm]` instances**, not
+  a drawing. `block` at sm is 47 × 128, so five fit in the 332 body
+  (5 × 47 + 4 × 8 = 267). `panel` at sm is 65 wide and five overflow.
+
+**Config → Swatch property map** (worked out here, needed by the builder):
+
+| `SwatchExportConfig` | Swatch |
+|---|---|
+| `stepLabels.show` | `Show step` |
+| `value: hex \| oklch` | `Show hex` / `Show OKLCH` |
+| `a11yBadge.show` | `Show grade` (+ `Show ratio` for `display_ratio`) |
+| `foregroundSwatch` | `Show sample` + `Show source` |
+| `title` | the ramp title above the strip — not a Swatch property |
+| `orientation`, `ramps`, `swatchSize`, `gap`, `shape`, `cornerRadius` | layout the planner applies — no Swatch property |
+
+**New gap: `SwatchExportConfig` has no `form` field.** The Figma Swatch carries
+six forms (`tile / block / card / circle / row / panel`); the config carries only
+`shape: square | rounded`. Which form the canvas output uses is unspecified, and
+it matters — §4 says only `row` and `tile` print inside the colour. Settle it
+with the mode-field question.
+
+**Two Figma gotchas found building this:**
+
+1. **The composed `Breadcrumb`'s third item and its separator ship
+   `visible: false`.** The Picker had them off and the clone inherited it, so
+   setting the third crumb's Label reported success and rendered nothing. Check
+   `visible` on breadcrumb items before trusting a label write.
+2. **`Harmoni / Swatch`'s `Grade#1940:535` TEXT property is dead.** Verified
+   across all 30 variants: the `Grade` node carries only
+   `{"visible": "Show grade#…"}` — nothing bridges the set-level TEXT property to
+   the nested `Badge`'s own label, and nothing can, because
+   `componentPropertyReferences` cannot be set on an instance sublayer (the same
+   limit ConfirmDialog and Card hit). Every badge therefore renders the master's
+   `"AA"` no matter what the panel says. **Set it by walking to `Flags → Grade`
+   and writing the Badge's own `Label#1389:0`.** The property should be deleted
+   or the Badge detached; left in place it is a control that silently does
+   nothing.
+
 ## 3. Ramp data facts (verified against the engine this session)
 
 - Seeds are `brand #236ce1`, `danger #db2424`, `warning #e88e00`,

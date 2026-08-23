@@ -136,9 +136,21 @@ and `EaseIn · EaseOut · EaseInOut` in a second.
   Exponential · Circular · Arc` × `Ease in · Ease out · Ease in-out`. The
   abbreviations are machine names; `EaseInOut` in particular is camel-jammed and
   reads as code, not a label.
-- **`Arc` is not from easings.net** — it comes from the fettepalette / rampensau
-  lineage, where `arc` is a named curve method. Worth knowing so nobody "corrects"
-  it to a standard easing name.
+- **`Arc` is not from easings.net, and it is not a curve shape at all** — it comes
+  from the fettepalette / rampensau lineage, where `arc` is a *sampling* method.
+  Its source reduces (at accent 0) to `x = cos(θ)`, `y = sin(θ)` for
+  `θ = 0..π/2`: the same quarter-circle `Circular ease-out` traces, but with
+  points spaced evenly **in angle** rather than evenly in `t`. For a ramp that is
+  a real distinction — where the steps land is exactly what a preset controls —
+  but it has a consequence for the UI: **a curve-only glyph cannot distinguish
+  Arc from Circular.** The preview glyphs therefore draw **bars at the sample
+  positions**, not a line, which shows shape and distribution at once and matches
+  how the Curve chart already renders the ramp beneath the curve.
+- **Engine consequence:** `Arc` cannot be expressed as `f(t)` like the other
+  eight. The easing module needs to return *sampled positions*, not a function —
+  `curve(easing, direction, count) -> Vec<f32>` — so a family is free to choose
+  its own distribution. Writing the API as `fn ease(t: f32) -> f32` would make
+  Arc impossible to add later without breaking the signature.
 - **Back, Elastic and Bounce are excluded, and that is correctness not taste.**
   They overshoot past 0/1 and reverse direction, so they would either fail
   `validate_lightness_curve` or scramble step order — 300 coming out darker than

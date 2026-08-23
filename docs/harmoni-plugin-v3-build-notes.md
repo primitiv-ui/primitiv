@@ -154,13 +154,31 @@ invent a place for them without settling it.
 
 ## 2d. Canvas swatches — the view, built 2026-08-23
 
-Built at 360 × **1030** (the four control cards plus the preview do not fit in
-900 — in the plugin the body scrolls; the frame is drawn at natural height so
-the whole view is visible). Chrome follows the **pushed-view** template, copied
+Built at 360 × **824** — it fits the window, and getting there is the point of
+the layout below. Chrome follows the **pushed-view** template, copied
 from Picker, not the tabbed one: header → Breadcrumb → Body `20/14/20/14` gap 16
 → Footer `12/14`. Breadcrumb reads `Primitiv / Export / Canvas swatches`, so the
 way back is a crumb rather than a bespoke `‹ export` control.
 
+- **The controls are a 2-column grid in two cards, at Dense.** A first pass used
+  four cards of full-width label-left/control-right rows and came to 1030 px —
+  130 over the window. Three changes bought 260 px back, in this order of value:
+  **(1)** the cards pin `Context = Dense`
+  (`setExplicitVariableModeForCollection`, Context =
+  `VariableCollectionId:369:31958`, Dense = `369:8`) — the panel is tight, so the
+  controls give first, and nothing is baked into a component to do it;
+  **(2)** two columns with the label *above* its control, which halves the row
+  count; **(3)** four cards collapse to two (`Layout & shape`, `Labels & checks`),
+  saving two paddings, two eyebrows and two gaps. Only `Value` spans both columns
+  — three options will not sit in 144 px.
+- **A `Switch` carries its own label** (`Show label#881:306` + `Label#881:265`),
+  so every boolean row needs no separate label cell. That is what makes the
+  second column viable at all: `Step labels` / `A11y badge` / `Ramp title` /
+  `Foreground swatch` are self-describing controls, not label-plus-control pairs.
+- **Gotcha: setting a `Segmented Control` to FILL is not enough** — its items keep
+  hugging and the group sits right-aligned inside its own stretched frame, which
+  reads as a broken control. Set `layoutSizingHorizontal = 'FILL'` on each **item**
+  as well.
 - **Segmented Control, not ToggleGroup.** The design guide §5 suggests
   `ToggleGroup` for orientation / shape / ramps, but there is **no composed
   ToggleGroup set in Figma** — only `ToggleGroup Item` (`733:239`), which would

@@ -340,3 +340,32 @@ fn a_brand_pair_reports_an_unparseable_colour() {
         Err(ColorInputError::InvalidCss("not-a-color".to_string()))
     );
 }
+
+#[cfg(test)]
+mod curve_presets {
+    use super::*;
+    use crate::palette::easing::{CurvePreset, Direction, Easing};
+
+    #[test]
+    fn should_shape_the_ramp_by_the_preset_a_caller_opts_into() {
+        // Arrange — a linear preset spaces the ramp evenly between the light
+        // anchor and the brand, which the hand-authored default curve does not.
+        let options = GenerateOptions {
+            curve: Some(CurvePreset::new(Easing::Linear, Direction::EaseIn)),
+            ..GenerateOptions::default()
+        };
+
+        // Act
+        let palette = generate_with_options(sample_input(), options).unwrap();
+
+        // Assert
+        let expected = [0.97, 0.886, 0.802, 0.718, 0.634, 0.55];
+        for (i, want) in expected.iter().enumerate() {
+            let got = palette.swatches[i].l;
+            assert!(
+                (got - want).abs() < 1e-5,
+                "step {i}: expected {want}, got {got}"
+            );
+        }
+    }
+}

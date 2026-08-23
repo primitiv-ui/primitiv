@@ -103,3 +103,46 @@ fn the_gate_covers_every_family_direction_and_length() {
         FAMILIES.len() * DIRECTIONS.len() * ACCENTS.len() * (MAX_STEPS - MIN_STEPS + 1)
     );
 }
+
+/// The claim the opt-in design rests on: the authored default is not any of the
+/// nine presets, so `None` has to stay a separate case rather than becoming a
+/// tenth entry in the list.
+///
+/// The absolute ramp values are pinned elsewhere — by `ramp_regression.rs` and
+/// by primitiv-emit's goldens, which is what proves the token layer did not
+/// move. What is checked here is the part those cannot see: that no preset
+/// reproduces the default, so a caller who opts in always gets a real change.
+#[test]
+fn no_preset_reproduces_the_authored_default() {
+    use harmoni_core::api::{generate_with_options, GenerateOptions};
+    use harmoni_core::color::input::ColorInput;
+
+    let brand = || ColorInput::Oklch {
+        l: 0.55,
+        c: 0.15,
+        h: 240.0,
+    };
+    let default_options = GenerateOptions::default();
+    assert_eq!(default_options.curve, None, "the default must stay opt-in");
+
+    let authored = generate_with_options(brand(), default_options).unwrap();
+
+    for easing in FAMILIES {
+        for direction in DIRECTIONS {
+            let preset = CurvePreset::new(easing, direction);
+            let shaped = generate_with_options(
+                brand(),
+                GenerateOptions {
+                    curve: Some(preset),
+                    ..GenerateOptions::default()
+                },
+            )
+            .unwrap();
+
+            assert_ne!(
+                shaped.swatches, authored.swatches,
+                "{preset:?} reproduces the authored default, so opting into it does nothing"
+            );
+        }
+    }
+}

@@ -3,6 +3,7 @@
 use palette::Oklch;
 
 use crate::color::input::{ColorInput, ColorInputError};
+use crate::palette::easing::{lightness_curve, CurvePreset};
 use crate::palette::generator::{
     generate_dark_palette, generate_palette_with_scale, resample, Palette, MAX_STEPS, MIN_STEPS,
     TARGET_CHROMA_SCALE, TARGET_LIGHTNESS, TARGET_LIGHTNESS_DARK, validate_lightness_curve,
@@ -58,6 +59,12 @@ pub struct GenerateOptions {
     pub soft_black: Option<Oklch>,
     /// How many steps the ramp should have, within `MIN_STEPS..=MAX_STEPS`.
     pub steps: usize,
+    /// Which shape to build the ramp from. `None` — the default — keeps the
+    /// hand-authored curves this engine has always used, so a caller that asks
+    /// for nothing gets exactly what it got before presets existed. Note that
+    /// `None` is not `Some(Linear)`: the authored curves are not straight
+    /// lines, and no preset reproduces them.
+    pub curve: Option<CurvePreset>,
 }
 
 impl Default for GenerateOptions {
@@ -68,6 +75,7 @@ impl Default for GenerateOptions {
             soft_white: None,
             soft_black: None,
             steps: DEFAULT_STEPS,
+            curve: None,
         }
     }
 }
@@ -83,6 +91,19 @@ fn curves_for(steps: usize) -> Result<(Vec<f32>, Vec<f32>), GenerateError> {
         resample(&TARGET_LIGHTNESS, steps),
         resample(&TARGET_CHROMA_SCALE, steps),
     ))
+}
+
+/// A theme's lightness scale: the caller's preset read across the authored
+/// curve's own endpoints, or that authored curve itself where none was asked
+/// for. A preset chooses the shape between a ramp's ends; it does not move the
+/// ends, which is what keeps every preset comparable to the default.
+fn lightness_scale(authored: &[f32], steps: usize, preset: Option<&CurvePreset>) -> Vec<f32> {
+    match preset {
+        None => resample(authored, steps),
+        Some(preset) => {
+            lightness_curve(preset, steps, authored[0], authored[authored.len() - 1])
+        }
+    }
 }
 
 /// A light palette paired with its dark-mode counterpart, both derived
@@ -101,7 +122,8 @@ pub fn generate_with_options(
     input: ColorInput,
     options: GenerateOptions,
 ) -> Result<Palette, GenerateError> {
-    let (lightness, chroma) = curves_for(options.steps)?;
+    let (_, chroma) = curves_for(options.steps)?;
+    let lightness = lightness_scale(&TARGET_LIGHTNESS, options.steps, options.curve.as_ref());
     let oklch = input.to_oklch()?;
     Ok(generate_palette_with_scale(
         oklch,
@@ -196,13 +218,10 @@ pub fn generate_brand_pair_with_options(
     options: GenerateOptions,
 ) -> Result<PaletteSet, GenerateError> {
     curves_for(options.steps)?;
+    let light = lightness_scale(&TARGET_LIGHTNESS, options.steps, options.curve.as_ref());
+    let dark = lightness_scale(&TARGET_LIGHTNESS_DARK, options.steps, options.curve.as_ref());
 
-    generate_pair(
-        input,
-        &resample(&TARGET_LIGHTNESS, options.steps),
-        &resample(&TARGET_LIGHTNESS_DARK, options.steps),
-        options,
-    )
+    generate_pair(input, &light, &dark, options)
 }
 
 pub fn generate_with_lightness(

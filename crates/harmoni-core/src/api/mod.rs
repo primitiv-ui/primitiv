@@ -27,6 +27,9 @@ pub use generate::{
     generate_pair, generate_with_lightness, generate_with_options, ChromaHeadroom, GenerateError,
     GenerateOptions, PaletteSet, DEFAULT_STEPS,
 };
+pub use crate::palette::easing::{
+    curve, lightness_curve, CurvePreset, Direction, Easing, DEFAULT_ARC_ACCENT,
+};
 pub use crate::palette::generator::{MAX_STEPS, MIN_STEPS};
 pub use neutral::{
     derive_soft_neutrals, generate_neutral_ramp, tint_neutrals, tint_neutrals_duotone,

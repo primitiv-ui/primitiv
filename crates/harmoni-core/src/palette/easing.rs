@@ -10,6 +10,7 @@
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Easing {
     Linear,
+    Quadratic,
 }
 
 /// Which end of the ramp a family's acceleration is applied to.
@@ -31,9 +32,15 @@ pub enum Direction {
 /// `count` must be at least 2; a single position has no interval to divide by.
 /// `MIN_STEPS` is what guarantees that for every caller.
 pub fn curve(easing: Easing, direction: Direction, count: usize) -> Vec<f32> {
-    let _ = (easing, direction);
+    let _ = direction;
 
     (0..count)
-        .map(|i| i as f32 / (count - 1) as f32)
+        .map(|i| {
+            let t = i as f32 / (count - 1) as f32;
+            match easing {
+                Easing::Linear => t,
+                Easing::Quadratic => t * t,
+            }
+        })
         .collect()
 }

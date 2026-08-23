@@ -48,6 +48,23 @@ Curve, Export, Setup, Destination. Components: `Harmoni / Panel Header`,
   have none.
 - **`content/muted` is not used for the plugin's own text.** Every label, value
   and note is `content/primary`; the muted role did not read well at 360px.
+  **`figma.createText()` gives a literal black fill, not a token** — every text
+  node you create must have its fill bound to `content/primary`
+  (`figma.variables.setBoundVariableForPaint`). Easy to miss because it renders
+  plausibly on a dark frame; audit with a sweep for TEXT nodes whose
+  `boundVariables.fills` is empty, skipping anything inside an INSTANCE (the
+  component owns its own colour).
+- **The card is the grouping device across every view** (settled 2026-08-23): a
+  `surface/subtle` + `border/subtle` frame on `surface/md/{padding,gap,radius}`,
+  pinned to `Context = Dense`, cloned from the picker's Value card. Applied to
+  Settings (4 cards), Canvas swatches (2), **Roles** (one per role family — which
+  is what finally binds each `↳ quietest step reaching AA` line to the family it
+  belongs to, instead of floating between groups) and **Export** (`Will create`;
+  the `Offer` keeps its own accent fill and stroke deliberately — it is a pitch,
+  not a settings group). On **Palette** only `Seeds` is carded: the ramp strips
+  already group themselves visually, so an outline around 700px of them buys
+  nothing. **Do not card a view that is one table or one list** — Audit is a
+  `Table` and needs no frame around it.
 
 ## 2. Which view owns what
 

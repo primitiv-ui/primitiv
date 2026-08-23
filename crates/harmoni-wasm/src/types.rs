@@ -191,6 +191,18 @@ pub struct SwatchStep {
     pub oklch: String,
 }
 
+/// A ramp the caller holds, wrapped because `Vec<T>` is not a first-class
+/// wasm-abi type for anything but primitives.
+///
+/// Taking the steps rather than a brand colour is deliberate: it lets a caller
+/// ask about a ramp this engine did not generate — such as the one the token
+/// layer ships, which is not reproducible from its seed.
+#[derive(Tsify, Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[tsify(into_wasm_abi, from_wasm_abi)]
+pub struct Ramp {
+    pub steps: Vec<SwatchStep>,
+}
+
 /// A ramp step that is readable against some other surface, with the contrast
 /// it achieves there.
 #[derive(Tsify, Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -399,6 +411,27 @@ impl From<core::PaletteSet> for PaletteSet {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn a_named_step_passed_in_keeps_its_name() {
+        // An exhaustive match forces both arms to exist; only Number was driven
+        // by a behaviour, so this covers the one the compiler made us write.
+        // Named steps are real — the white/black anchors carry names, not
+        // numbers — so a ramp containing one must survive the boundary.
+        let named = SwatchStep {
+            l: 1.0,
+            c: 0.0,
+            h: 0.0,
+            label: SwatchLabel::Name("White".to_string()),
+            hex: "#ffffff".to_string(),
+            rgb: Rgb { r: 1.0, g: 1.0, b: 1.0 },
+            oklch: "oklch(1 0 0)".to_string(),
+        };
+
+        let converted = core::SwatchStep::from(named);
+
+        assert_eq!(converted.label, core::SwatchLabel::Name("White".to_string()));
+    }
 
     #[test]
     fn readable_step_carries_the_label_so_a_role_can_alias_rather_than_bake() {

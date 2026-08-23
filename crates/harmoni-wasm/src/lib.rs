@@ -62,6 +62,29 @@ pub fn get_contrast_rating(bg: &str, fg: &str) -> Result<types::ContrastResult, 
     .map_err(to_js_error)
 }
 
+/// The step of `ramp` to use for a role that must clear `threshold` against
+/// `surface` — a link colour, a muted-text colour, a border.
+///
+/// Returns the **quietest** step that clears, not the first: a role wants the
+/// least contrast that still passes, because a border pushed to body-text
+/// weight passes its floor and looks like a mistake. `None` where nothing in
+/// the ramp reaches the threshold, rather than the least bad option.
+///
+/// This is the question `get_best_foreground` cannot answer — that one draws
+/// from the ramp's ends and the white/black anchors, so it has nothing to say
+/// about which *mid-ramp* step is readable on some *other* surface.
+#[wasm_bindgen]
+pub fn readable_step(
+    ramp: types::Ramp,
+    surface: types::SwatchStep,
+    threshold: f32,
+) -> Option<types::ReadableStep> {
+    let steps: Vec<harmoni_core::SwatchStep> =
+        ramp.steps.into_iter().map(Into::into).collect();
+
+    api::readable_step(&steps, &surface.into(), threshold).map(Into::into)
+}
+
 /// What `ratio` achieves when the colour is used as `use`.
 ///
 /// `get_contrast_rating` answers a different question — it reports a ratio and
@@ -433,6 +456,47 @@ mod tests {
     /// The example the design note turns on: one ratio, three verdicts. A
     /// stringly-typed `rating` cannot express this, which is why the boundary
     /// needed the use-aware grade rather than only `get_contrast_rating`.
+    fn brand_ramp() -> types::Ramp {
+        let palette = api::generate(ColorInput::Css("#3b82f6".to_string()))
+            .expect("valid input should produce a palette");
+        types::Ramp {
+            steps: palette.steps().into_iter().map(Into::into).collect(),
+        }
+    }
+
+    fn white() -> types::SwatchStep {
+        harmoni_core::SwatchStep::from_label(1.0, 0.0, 0.0, 50u16).into()
+    }
+
+    #[test]
+    fn readable_step_returns_the_quietest_step_that_clears_not_the_first() {
+        let ramp = brand_ramp();
+
+        let picked = readable_step(ramp.clone(), white(), 4.5).expect("a dark step clears on white");
+
+        // A role wants the least contrast that still passes — a border pushed to
+        // body-text weight passes its floor and looks like a mistake.
+        let quieter = ramp
+            .steps
+            .iter()
+            .map(|step| {
+                let one = types::Ramp { steps: vec![step.clone()] };
+                readable_step(one, white(), 4.5).map(|r| r.contrast_ratio)
+            })
+            .flatten()
+            .filter(|ratio| *ratio < picked.contrast_ratio)
+            .count();
+
+        assert_eq!(quieter, 0, "a quieter step also cleared 4.5:1");
+    }
+
+    #[test]
+    fn readable_step_reports_nothing_rather_than_the_least_bad_option() {
+        // No step of a ramp reaches 21:1 against white but black itself, so the
+        // honest answer is that this role has no colour here.
+        assert_eq!(readable_step(brand_ramp(), white(), 21.5), None);
+    }
+
     #[test]
     fn one_ratio_grades_differently_depending_on_what_it_is_for() {
         assert_eq!(grade(4.71, types::ContrastUse::BodyText), types::Grade::Aa);

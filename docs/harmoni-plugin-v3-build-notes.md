@@ -125,6 +125,37 @@ job at two resolutions, so they share one view.
 - `max_recommended_light_padding(hue)` bounds the light slider and is surfaced as
   a hint. Its only plausible consumer is this control.
 
+**`readable_step` and the contrast grade crossed the wasm boundary (2026-08-23).**
+Both existed in `harmoni-core` and neither was reachable from the plugin, so the
+Roles and Audit views had no engine behind them.
+
+- **`grade(ratio, use)` is what `get_contrast_rating` could not be.** That one
+  returns `{ ratio, display_ratio, rating: String }` — a single stringly-typed
+  verdict, which cannot say that 4.71:1 is AA as body copy, AAA at heading size,
+  and past the non-text bar all at once. `ContrastUse` is the first mirror type
+  that converts **core-ward**, because it is the caller stating what the colour
+  is for; `TintMode` is the only precedent.
+- **`readable_step` takes the ramp's steps, not a brand colour.** That preserves
+  the property the core signature exists for — asking about a ramp the engine did
+  not generate, such as the token layer's neutral ramp, which is not reproducible
+  from its seed. `Vec<T>` is not a first-class wasm-abi type for anything but
+  primitives, so the steps are wrapped in a `Ramp` struct rather than reaching for
+  the opaque-handle pattern `Palette` uses.
+- **An inbound step has its derived fields rebuilt, not trusted.** `hex`, `rgb`
+  and `oklch` follow from `l`/`c`/`h`, and a step assembled in JS can carry values
+  that disagree with its own coordinates, so the conversion goes through
+  `SwatchStep::from_label`.
+- **`harmoni-wasm` entry points ARE natively testable — this was never a
+  constraint, just an omission.** All 18 pre-existing tests were mirror-type
+  conversions and not one entry point had a test, which reads like a boundary the
+  harness could not cross. It is not: `#[wasm_bindgen]` functions are ordinary Rust
+  under a native target and `cargo test -p harmoni-wasm` calls them directly. The
+  new entry points are driven by tests as a result. **`lib.rs` still sits at ~25%**
+  because ~30 older entry points remain untested, and the crate is excluded from
+  CI's coverage gate (`--exclude harmoni-wasm`), so nothing catches it.
+- **Verified the tests bite**, not just pass: flipping `readable_step`'s `min_by`
+  to `max_by` in the core fails the quietest-step test through the wasm layer.
+
 **Curve presets — settled 2026-08-23, engine work still to do.** Researched
 against SupaPalette (the reference the request came from), whose list is
 `Linear · Quad · Cubic · Quart · Quint · Sine · Expo · Circ · Arc` in one Select

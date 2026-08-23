@@ -11,6 +11,9 @@
 pub enum Easing {
     Linear,
     Quadratic,
+    Cubic,
+    Quartic,
+    Quintic,
 }
 
 /// Which end of the ramp a family's acceleration is applied to.
@@ -54,6 +57,9 @@ pub fn curve(easing: Easing, direction: Direction, count: usize) -> Vec<f32> {
 fn ease_in(easing: Easing, t: f32) -> f32 {
     match easing {
         Easing::Linear => t,
-        Easing::Quadratic => t * t,
+        Easing::Quadratic => t.powi(2),
+        Easing::Cubic => t.powi(3),
+        Easing::Quartic => t.powi(4),
+        Easing::Quintic => t.powi(5),
     }
 }

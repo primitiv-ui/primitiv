@@ -29,6 +29,15 @@ mod easing_tests {
         }
 
         #[test]
+        fn should_raise_the_position_to_each_familys_own_exponent() {
+            // Assert — the four exponent families differ only by their power,
+            // which is what makes the list read as near-synonyms in the UI.
+            assert_curve(curve(Easing::Cubic, Direction::EaseIn, 3), &[0.0, 0.125, 1.0]);
+            assert_curve(curve(Easing::Quartic, Direction::EaseIn, 3), &[0.0, 0.0625, 1.0]);
+            assert_curve(curve(Easing::Quintic, Direction::EaseIn, 3), &[0.0, 0.03125, 1.0]);
+        }
+
+        #[test]
         fn should_run_the_shape_and_its_mirror_at_half_scale_for_ease_in_out() {
             // Act
             let result = curve(Easing::Quadratic, Direction::EaseInOut, 5);

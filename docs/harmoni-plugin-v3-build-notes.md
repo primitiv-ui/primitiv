@@ -197,8 +197,19 @@ way back is a crumb rather than a bespoke `‹ export` control.
   *background* is the user's Figma window, which follows **their Figma theme**;
   the palette *mode* is which set of ramp values gets drawn, which is what the
   mode chip selects. Pinning the ground froze the first to the second. Consequence
-  for the copy: the `Light` / `Dark` chip means **"which ramp values"**, never
-  "what colour the canvas is" — word it so that reads.
+  for the copy: the chip reads **"Light values" / "Dark values"**, never "Light" /
+  "Dark" alone, because the word on its own gets read as the canvas colour.
+- **`swatch/{size}/panel-cap` is new (2026-08-23), and it fixes a real component
+  bug.** The `panel` form is a VERTICAL hug whose cap is `FILL` + locked square,
+  so **the cap size was an accident of the widest fact's text width** — fine with
+  hex alone (63 px at sm), thin and tall the moment OKLCH was added. Each panel
+  variant now binds **`minWidth`** (which is bindable — no magic number) to the
+  new token, so the cap is a design decision and the facts wrap under it. Compact
+  /sm resolves to **96**, taking the card from 68 × 200 (1 : 2.94) to 96 × 228
+  (1 : 2.38). Ladder is monotonic across both axes and gated by
+  `packages/tokens/src/swatch-sizing.test.ts`, which grew a `panel-cap` member.
+  **Gotcha: on an INSTANCE, `minWidth = null` does not inherit the master's
+  binding — it clears the minimum.** Re-bind the variable on the instance.
 - **The preview is real `Harmoni / Swatch [Form=panel, Size=sm]` instances**, not
   a drawing — 65 × 171 with a **square 63 × 63 cap** and the facts below it on
   their own bordered card, which is the form the square-cap/meta-below request

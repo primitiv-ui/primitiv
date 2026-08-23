@@ -20,6 +20,15 @@ mod easing_tests {
         use super::*;
 
         #[test]
+        fn should_mirror_the_shape_through_both_axes_for_ease_out() {
+            // Act
+            let result = curve(Easing::Quadratic, Direction::EaseOut, 3);
+
+            // Assert — 1 - f(1 - t): the same curve entered from the other end.
+            assert_curve(result, &[0.0, 0.75, 1.0]);
+        }
+
+        #[test]
         fn should_square_the_position_for_quadratic_ease_in() {
             // Act
             let result = curve(Easing::Quadratic, Direction::EaseIn, 3);

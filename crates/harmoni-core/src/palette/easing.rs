@@ -32,15 +32,25 @@ pub enum Direction {
 /// `count` must be at least 2; a single position has no interval to divide by.
 /// `MIN_STEPS` is what guarantees that for every caller.
 pub fn curve(easing: Easing, direction: Direction, count: usize) -> Vec<f32> {
-    let _ = direction;
-
     (0..count)
         .map(|i| {
             let t = i as f32 / (count - 1) as f32;
-            match easing {
-                Easing::Linear => t,
-                Easing::Quadratic => t * t,
+            match direction {
+                Direction::EaseIn => ease_in(easing, t),
+                // The same curve entered from the other end: reflect through
+                // both axes rather than authoring a second set of formulae.
+                Direction::EaseOut => 1.0 - ease_in(easing, 1.0 - t),
+                Direction::EaseInOut => ease_in(easing, t),
             }
         })
         .collect()
+}
+
+/// A family's shape in its ease-in orientation — slow at 0, fast at 1. Every
+/// other direction is derived from this one.
+fn ease_in(easing: Easing, t: f32) -> f32 {
+    match easing {
+        Easing::Linear => t,
+        Easing::Quadratic => t * t,
+    }
 }

@@ -295,12 +295,18 @@ the grade centred beneath it. Before this, `panel`'s Box was an empty 114 × 114
 frame and the `Aa` sample sat in the facts row **outside** the colour, hidden by
 default — the component put the foreground and the background side by side, which
 demonstrates nothing. `panel/sm` is rebuilt and is the reference:
-- `Box` is VERTICAL, centred on both axes, holding `Sample` ("Aa", 28) above
-  `Grade` ("AAA", 12). Both are painted with the paired foreground, which is
-  **data, not a token** — the same category as the Box fill itself.
-- Both carry `componentPropertyReferences`, so the panel drives them:
-  `Sample.visible` → `Show sample`, `Grade.visible` → `Show grade`,
-  `Grade.characters` → `Grade#1940:535`.
+- `Box` is VERTICAL, centred on both axes, holding three centred lines, all
+  painted with the paired foreground — which is **data, not a token**, the same
+  category as the Box fill itself:
+  **`Sample`** ("Aa", 26) · **`Source`** ("fg 900", 10) · **`Grade`** ("AAA", 12).
+  The `Aa` proves the foreground reads; the source says **which step it is**;
+  the grade is the verdict. All three answer "what did the engine pair with
+  this?" and all three belong on the colour, not beside it.
+- Each carries `componentPropertyReferences`, so the panel drives them:
+  `Sample.visible` → `Show sample`, `Source.visible/characters` →
+  `Show source` / `Source#1940:229`, `Grade.visible/characters` →
+  `Show grade` / `Grade#1940:535`. The facts-row `Source` is removed, since it
+  would now be a duplicate.
 - **This revives the dead `Grade` property.** A plain TEXT inside the master can
   carry a `characters` ref; the nested `Badge` it replaces could not (see the
   instance-sublayer limit). Correction to an earlier note: `Grade#1940:535` was
@@ -308,8 +314,9 @@ demonstrates nothing. `panel/sm` is rebuilt and is the reference:
   forms that used a Badge.
 - The external Grade badge and facts-row `Sample` are removed on `panel`. Losing
   the badge loses the green/amber pass-fail tint; the grade now takes the paired
-  foreground instead, which is the more honest reading — a failing pair looks bad,
-  which is the point.
+  foreground instead — settled 2026-08-23, "the foreground IS the signal". A
+  failing pair looks bad, which is the point; a green pill would report a verdict
+  the box is already demonstrating.
 - **Known cosmetic leftover:** the `Flags` frame stays 20 px tall on `panel` even
   with only a hidden `Gamut` left in it. A hug frame that has held content keeps
   that height (same family as the horizontal-slot hug in gotcha 15).

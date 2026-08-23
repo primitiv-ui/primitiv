@@ -172,6 +172,15 @@ way back is a crumb rather than a bespoke `‹ export` control.
   count; **(3)** four cards collapse to two (`Layout & shape`, `Labels & checks`),
   saving two paddings, two eyebrows and two gaps. Only `Value` spans both columns
   — three options will not sit in 144 px.
+- **LABELS & CHECKS is three switch pairs plus one inline row.** Each row is a
+  coherent pair — `Step labels` / `Ramp title` (what the sheet is labelled),
+  `Hex value` / `OKLCH value` (the values), `Foreground swatch` / `A11y badge`
+  (the specimen) — then `Contrast against` as a **label-left / select-right**
+  row. That lands the select in the right-hand column, directly under the
+  `A11y badge` switch it qualifies. An earlier version stacked the bare select
+  *inside* the A11y cell, which made that cell taller than its neighbour and left
+  `Ramp title` floating; a full-width select was tried next and read far too
+  heavy for a three-option control.
 - **A `Switch` carries its own label** (`Show label#881:306` + `Label#881:265`),
   so every boolean row needs no separate label cell. That is what makes the
   second column viable at all: `Step labels` / `Hex value` / `OKLCH value` /
@@ -179,6 +188,13 @@ way back is a crumb rather than a bespoke `‹ export` control.
   not label-plus-control pairs. Splitting `value` into two booleans **shortened**
   the card — the three-option Segmented Control it replaced needed a label above
   it and a full-width row of its own.
+- **Gotcha: an empty auto-layout frame is 100 × 100.** Adding a blank spacer cell
+  to balance a two-column row inflated the card by 64 px. There is no zero-size
+  placeholder — restructure the row instead of padding it.
+- **Gotcha: holding a reference to a node does not keep it alive.** Collecting the
+  card's controls into a map and *then* removing their parent rows deleted the
+  controls too, and the next `appendChild` failed with "node … does not exist" —
+  after the rows were already gone. Reparent first, then remove.
 - **Gotcha: setting a `Segmented Control` to FILL is not enough** — its items keep
   hugging and the group sits right-aligned inside its own stretched frame, which
   reads as a broken control. Set `layoutSizingHorizontal = 'FILL'` on each **item**

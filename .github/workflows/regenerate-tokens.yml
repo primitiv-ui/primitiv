@@ -61,6 +61,13 @@ jobs:
       - name: Regenerate the workbench token layer
         run: cargo run -q -p primitiv-cli -- tokens --format css --out apps/workbench/src/primitiv-tokens.css
 
+      # Added 2026-08-22. The docs site was scaffolded after the last token
+      # change, so it happened to be current — but nothing regenerated it and
+      # nothing checked it, which meant the next colour edit would have left the
+      # PUBLIC site on stale values, the one surface where that matters most.
+      - name: Regenerate the docs-site token layer
+        run: cargo run -q -p primitiv-cli -- tokens --format css --out apps/docs-site/src/styles/primitiv/tokens.css
+
       - name: Commit and push if changed
         run: |
           # Every file the command writes — the token layer plus the two siblings
@@ -72,7 +79,10 @@ jobs:
             apps/kitchen-sink/src/styles/primitiv/breakpoints.ts \
             apps/workbench/src/primitiv-tokens.css \
             apps/workbench/src/primitiv-base.css \
-            apps/workbench/src/breakpoints.ts
+            apps/workbench/src/breakpoints.ts \
+            apps/docs-site/src/styles/primitiv/tokens.css \
+            apps/docs-site/src/styles/primitiv/primitiv-base.css \
+            apps/docs-site/src/styles/primitiv/breakpoints.ts
           if git diff --cached --quiet; then
             echo "Every generated token file is already up to date — nothing to commit."
           else

@@ -29,6 +29,16 @@ mod easing_tests {
         }
 
         #[test]
+        fn should_run_the_shape_and_its_mirror_at_half_scale_for_ease_in_out() {
+            // Act
+            let result = curve(Easing::Quadratic, Direction::EaseInOut, 5);
+
+            // Assert — ease-in over the first half, ease-out over the second,
+            // meeting at the midpoint.
+            assert_curve(result, &[0.0, 0.125, 0.5, 0.875, 1.0]);
+        }
+
+        #[test]
         fn should_square_the_position_for_quadratic_ease_in() {
             // Act
             let result = curve(Easing::Quadratic, Direction::EaseIn, 3);

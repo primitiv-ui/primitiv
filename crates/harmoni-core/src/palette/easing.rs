@@ -40,7 +40,10 @@ pub fn curve(easing: Easing, direction: Direction, count: usize) -> Vec<f32> {
                 // The same curve entered from the other end: reflect through
                 // both axes rather than authoring a second set of formulae.
                 Direction::EaseOut => 1.0 - ease_in(easing, 1.0 - t),
-                Direction::EaseInOut => ease_in(easing, t),
+                // Both halves at half scale: the ease-in shape up to the
+                // midpoint, its ease-out mirror after it.
+                Direction::EaseInOut if t < 0.5 => ease_in(easing, 2.0 * t) / 2.0,
+                Direction::EaseInOut => 1.0 - ease_in(easing, 2.0 - 2.0 * t) / 2.0,
             }
         })
         .collect()

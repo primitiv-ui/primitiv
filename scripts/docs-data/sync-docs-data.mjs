@@ -28,11 +28,11 @@
  * the tree afterwards, so a failing check leaves no edits behind.
  */
 import { execFileSync, spawnSync } from "node:child_process";
-import { copyFileSync, existsSync, mkdirSync } from "node:fs";
+import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { REGISTRY } from "./registry.mjs";
+import { CATEGORIES, DISPLAY_NAME_OVERRIDES, REGISTRY } from "./registry.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(HERE, "../..");
@@ -43,6 +43,7 @@ const APP_DIR = join(ROOT, "apps/docs-site/src/docs-data");
    check. git matches these globs, not the shell — `execFileSync` runs no shell. */
 const TRACKED = [
   "scripts/docs-data/*.docs.json",
+  "scripts/docs-data/roster.json",
   "apps/docs-site/src/docs-data",
 ];
 
@@ -81,6 +82,66 @@ for (const id of ids) {
   const file = `${id}.docs.json`;
   copyFileSync(join(HERE, file), join(APP_DIR, file));
   if (!check) console.log(`✓ ${id} → ${file} (and the app copy)`);
+}
+
+/*
+ * The ROSTER: every registry component, not only the documented ones.
+ *
+ * The /components index shows the whole library so the shape of the page can be
+ * judged as a whole, with a card per component and the undocumented ones inert.
+ * That list cannot come from the docs-data (which by definition covers only what
+ * is documented), so it is built here from `registry.json` plus each component's
+ * own `contract.json` description — real prose on every card rather than filler,
+ * and nothing extra to hand-maintain but the category map.
+ */
+const registry = JSON.parse(
+  readFileSync(join(ROOT, "registry/registry.json"), "utf8"),
+);
+const registryIds = Object.keys(registry.components).sort();
+
+/* Fail loudly on either kind of rot: a component with no category would vanish
+   from the page, and a category for a component that no longer exists is a lie
+   that survives until someone reads the file. */
+const unmapped = registryIds.filter((id) => !CATEGORIES[id]);
+const stale = Object.keys(CATEGORIES).filter((id) => !registryIds.includes(id));
+if (unmapped.length || stale.length) {
+  console.error(
+    "✗ scripts/docs-data/registry.mjs CATEGORIES is out of step with registry.json:" +
+      (unmapped.length ? `\n  no category for: ${unmapped.join(", ")}` : "") +
+      (stale.length ? `\n  category for a component that no longer exists: ${stale.join(", ")}` : ""),
+  );
+  process.exit(1);
+}
+
+const titleCase = (id) =>
+  id
+    .split("-")
+    .map((w) => w[0].toUpperCase() + w.slice(1))
+    .join(" ");
+
+const roster = registryIds.map((id) => {
+  const contract = JSON.parse(
+    readFileSync(join(ROOT, `registry/components/${id}/contract.json`), "utf8"),
+  );
+  return {
+    id,
+    displayName: DISPLAY_NAME_OVERRIDES[id] ?? titleCase(id),
+    category: CATEGORIES[id],
+    description: contract.description ?? "",
+    /* Whether a docs PAGE exists — i.e. whether this id has an extractor entry.
+       The index links these and leaves the rest inert. */
+    documented: Object.hasOwn(REGISTRY, id),
+  };
+});
+
+const rosterJson = JSON.stringify(roster, null, 2) + "\n";
+writeFileSync(join(HERE, "roster.json"), rosterJson);
+writeFileSync(join(APP_DIR, "roster.json"), rosterJson);
+if (!check) {
+  const documented = roster.filter((r) => r.documented).length;
+  console.log(
+    `✓ roster → roster.json (${roster.length} components, ${documented} documented)`,
+  );
 }
 
 if (!check) {

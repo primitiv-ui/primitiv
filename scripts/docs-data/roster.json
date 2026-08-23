@@ -1,0 +1,443 @@
+[
+  {
+    "id": "accordion",
+    "displayName": "Accordion",
+    "category": "Disclosure",
+    "description": "A vertically stacked set of collapsible sections — hairline rows with a chevron that flips open→closed (WAI-ARIA Accordion pattern).",
+    "documented": false
+  },
+  {
+    "id": "alert",
+    "displayName": "Alert",
+    "category": "Feedback & Status",
+    "description": "An assertive banner for high-priority, time-sensitive messages — a tone-matched icon, an optional title, a description, and an optional dismiss button. Composes the headless Alert primitive (role=\"alert\") for the message and the registry Button (ghost variant) for the dismiss affordance. Sized xs–xl; `data-density` scales each size further.",
+    "documented": false
+  },
+  {
+    "id": "aspect-ratio",
+    "displayName": "Aspect Ratio",
+    "category": "Layout",
+    "description": "A box that constrains its content to a width-to-height ratio via CSS `aspect-ratio`. `ratio` is a curated preset set of modifier classes (1/1, 4/3, 3/2, 16/9, 21/9 and their portrait inverses); a bespoke ratio comes from overriding --primitiv-aspect-ratio in a stylesheet (RFC 0022 §9).",
+    "documented": false
+  },
+  {
+    "id": "avatar",
+    "displayName": "Avatar",
+    "category": "Data Display",
+    "description": "A user image with a graceful fallback for while it loads, or when it is missing or broken.",
+    "documented": false
+  },
+  {
+    "id": "avatar-group",
+    "displayName": "Avatar Group",
+    "category": "Data Display",
+    "description": "An overlapping row of Avatars with an optional \"+N\" overflow counter — the collaborators/attendees pattern. Composes the registry `avatar` component; the counter is itself an Avatar, not a Badge. Sized xs–xl; `data-density` scales each size further.",
+    "documented": false
+  },
+  {
+    "id": "badge",
+    "displayName": "Badge",
+    "category": "Data Display",
+    "description": "A small status/count indicator attached to another element or beside a heading. Read-only, never interactive. Four semantic tones × two treatments (a low-emphasis label chip, a high-emphasis counter chip), sized xs–xl; `data-density` scales each size further.",
+    "documented": false
+  },
+  {
+    "id": "blockquote",
+    "displayName": "Blockquote",
+    "category": "Typography",
+    "description": "A <blockquote> with a left-stroke accent bar and an optional attribution line. `tone` picks the bar colour (default | accent); `size` scales the quote and citation type together (RFC 0012 D12).",
+    "documented": false
+  },
+  {
+    "id": "box",
+    "displayName": "Box",
+    "category": "Layout",
+    "description": "The escape hatch — a bare polymorphic element with no visual opinion. Exists so a consumer has something to attach a custom property or a one-off style to without reaching for a raw <div> (RFC 0022).",
+    "documented": false
+  },
+  {
+    "id": "breadcrumb",
+    "displayName": "Breadcrumb",
+    "category": "Disclosure",
+    "description": "A WAI-ARIA breadcrumb trail — a nav landmark wrapping an ordered list of ancestor-page links, ending with the current page.",
+    "documented": false
+  },
+  {
+    "id": "breadcrumb-overflow",
+    "displayName": "Breadcrumb Overflow",
+    "category": "Disclosure",
+    "description": "A Breadcrumb trail that collapses its middle entries behind an overflow menu once the trail exceeds keepStart + keepEnd items.",
+    "documented": false
+  },
+  {
+    "id": "button",
+    "displayName": "Button",
+    "category": "Buttons",
+    "description": "A clickable action — a button, or a link styled as one via `asChild`.",
+    "documented": true
+  },
+  {
+    "id": "card",
+    "displayName": "Card",
+    "category": "Data Display",
+    "description": "A content container — an optional media region plus a padded content block holding a header, description and footer. `layout` picks the arrangement: `vertical` (media above), `horizontal` (media beside), or `cover` (media behind the content, under a legibility scrim). Sized xs–xl; `data-density` scales each size further.",
+    "documented": false
+  },
+  {
+    "id": "carousel",
+    "displayName": "Carousel",
+    "category": "Disclosure",
+    "description": "A responsive, accessible carousel — a scroll-snap viewport of slides with prev/next controls and indicator dots (WAI-ARIA Carousel pattern). Adapts to its container by default.",
+    "documented": false
+  },
+  {
+    "id": "center",
+    "displayName": "Center",
+    "category": "Layout",
+    "description": "A single- or both-axis Flexbox centring box (RFC 0022).",
+    "documented": false
+  },
+  {
+    "id": "checkbox",
+    "displayName": "Checkbox",
+    "category": "Forms",
+    "description": "A tri-state checkbox with an optional inline label — an independent on/off (or mixed) form selection.",
+    "documented": false
+  },
+  {
+    "id": "checkbox-card",
+    "displayName": "CheckboxCard",
+    "category": "Forms",
+    "description": "A card/tile-shaped checkbox — the whole bordered surface is the interactive element, not a small control plus a separate label. Composes the headless CheckboxCard primitive (role=\"checkbox\", tri-state unchecked/checked/indeterminate). Sized xs–xl; `data-density` scales each size further.",
+    "documented": false
+  },
+  {
+    "id": "chip",
+    "displayName": "Chip",
+    "category": "Data Display",
+    "description": "An interactive, removable label chip — filter bars, multi-select fields, inputs. The trailing remove button is core to the anatomy, not optional; an optional leading icon or avatar may precede the label. Sized xs–xl; `data-density` scales each size further.",
+    "documented": false
+  },
+  {
+    "id": "code-block",
+    "displayName": "Code Block",
+    "category": "Typography",
+    "description": "A block of source code — a bordered, tinted surface with mono type, an optional filename/copy header, an optional line-number gutter, and Prism syntax highlighting themed from tokens. Sized xs–xl; `data-density` scales the padding. Compound subcomponents (CodeBlock.Tabs/Header/List/Trigger/Content/Copy) add a tabbed variant that composes the headless Tabs primitive and reuses the tabs component's classes.",
+    "documented": false
+  },
+  {
+    "id": "collapsible",
+    "displayName": "Collapsible",
+    "category": "Disclosure",
+    "description": "A single disclosure widget pairing a trigger with a panel that expands and collapses — the single-item analogue of Accordion.",
+    "documented": false
+  },
+  {
+    "id": "combobox",
+    "displayName": "Combobox",
+    "category": "Collections & Selection",
+    "description": "An editable text field with a filtered popup listbox, implementing the WAI-ARIA APG combobox pattern. The control is Input verbatim — same `framed-control/{size}/*` geometry, same states — wrapped so a trailing chevron can sit beside the field, and the popup is a floating panel at `elevation/overlay` whose rows resolve the shared dropdown tokens, so a combobox listbox and a menu are the same surface. Filtering is consumer-owned: there is no `filter` prop. Keyboard, virtual-focus cursor, the query/value split and the open state all belong to the headless primitive.",
+    "documented": false
+  },
+  {
+    "id": "confirm-dialog",
+    "displayName": "Confirm Dialog",
+    "category": "Overlays",
+    "description": "A pre-arranged Modal for confirming or cancelling a single action — title, body slot, and a Cancel/Confirm footer, with the Confirm button's tone following the action (primary, or danger for a destructive one). Composes the registry `modal` and `button` components directly rather than introducing new dialog anatomy.",
+    "documented": false
+  },
+  {
+    "id": "container",
+    "displayName": "Container",
+    "category": "Layout",
+    "description": "A centred, max-width content column with token-bound inline gutters. `size` caps the width against the breakpoint scale (RFC 0025) and `gutter` sets the inline padding — `responsive` (the default) escalates it at the md and lg breakpoints, the fixed steps pin one value at every width. No inline styles: both props are curated presets (RFC 0022 §8).",
+    "documented": false
+  },
+  {
+    "id": "context-menu",
+    "displayName": "Context Menu",
+    "category": "Overlays",
+    "description": "A right-click / long-press context menu built on the native HTML Popover API — the same bordered, shadow-defined panel of selectable rows (plain items, checkbox/radio items, submenus) as Dropdown, positioned at the pointer instead of anchored to a trigger. Keyboard, typeahead, and focus are owned by the headless primitive.",
+    "documented": false
+  },
+  {
+    "id": "data-table",
+    "displayName": "Data Table",
+    "category": "Data Display",
+    "description": "A framed data-table shell — a toolbar, a table and a footer that read as one object, plus the anatomy sorting, selection and expandable rows need. Owns no state: sorting, selection, expansion, filtering and pagination all arrive as props, so an external table engine (TanStack Table) can drive it.",
+    "documented": false
+  },
+  {
+    "id": "description-list",
+    "displayName": "Description List",
+    "category": "Typography",
+    "description": "A <dl> compound — one <dt> (fixed SemiBold) + one <dd> per pair. `layout` picks `stacked` (dt above dd, dd indented) or `inline` (dt : dd side by side in a two-column grid), matching the two layouts in the Figma component set. Consumers compose multiple Term/Details pairs to form a full description list (RFC 0012 D10). row-gap/column-gap/details-indent are density-scaled Context tokens; inline's pair-to-pair gap reuses List's item-gap directly, matching the Figma binding.",
+    "documented": false
+  },
+  {
+    "id": "divider",
+    "displayName": "Divider",
+    "category": "Layout",
+    "description": "A separator between content sections — a `<span role=\"separator\">` whose `aria-orientation` drives a horizontal or vertical rule.",
+    "documented": false
+  },
+  {
+    "id": "drawer",
+    "displayName": "Drawer",
+    "category": "Overlays",
+    "description": "An accessible drawer — a Modal dialog built on the native `<dialog>` element that slides in from a screen edge (top, right, bottom, or left).",
+    "documented": false
+  },
+  {
+    "id": "dropdown",
+    "displayName": "Dropdown",
+    "category": "Overlays",
+    "description": "A menu-button dropdown built on the native HTML Popover API — a bordered, shadow-defined panel of selectable rows (plain items, checkbox/radio items, submenus), grouped with labels and separators. Positioned with CSS anchor positioning; keyboard, typeahead, and focus are owned by the headless primitive.",
+    "documented": false
+  },
+  {
+    "id": "empty-state",
+    "displayName": "EmptyState",
+    "category": "Feedback & Status",
+    "description": "The placeholder shown when a collection, search, or view has no content — a decorative media slot, a headline, supporting copy, and recovery actions, centred in the space it fills. Composes the headless EmptyState primitive (role=\"status\", a polite live region). Sized xs–xl; `data-density` scales each size further.",
+    "documented": false
+  },
+  {
+    "id": "field",
+    "displayName": "Field",
+    "category": "Forms",
+    "description": "A form-field wrapper — coordinates a label, control, description, and error message and cascades id / validity / disabled / required to the control it wraps.",
+    "documented": false
+  },
+  {
+    "id": "figure",
+    "displayName": "Figure",
+    "category": "Typography",
+    "description": "A <figure>/<figcaption> pairing that wraps self-contained content (an image, illustration, chart, code listing, table) with an optional caption in one of three positions — below (default), above, or overlaid on the media (RFC 0015). `size` scales the caption's type off the body/{size} ramp (the media is size-independent, as in Figma); the caption's own `align` matches Figma's Figcaption Align axis.",
+    "documented": false
+  },
+  {
+    "id": "grid",
+    "displayName": "Grid",
+    "category": "Layout",
+    "description": "A CSS Grid container. `columns` takes a count or a mobile-first per-breakpoint map, `gap` the spacing (a density-scaled Context token per step), and `align`/`justify` how each item sits within its cell. No inline styles: the per-breakpoint column counts resolve to modifier classes, so the responsive behaviour is correct in server-rendered markup on the first paint (RFC 0022 §8).",
+    "documented": false
+  },
+  {
+    "id": "inline-code",
+    "displayName": "Inline Code",
+    "category": "Typography",
+    "description": "Inline code — a `<code>` fragment set in the mono face on a tinted, hairline-bordered chip. Sized xs–xl so a snippet tracks the surrounding text; `data-density` scales each size further.",
+    "documented": false
+  },
+  {
+    "id": "input",
+    "displayName": "Input",
+    "category": "Forms",
+    "description": "A single-line text input — the framed field consumers type into.",
+    "documented": false
+  },
+  {
+    "id": "input-group",
+    "displayName": "Input Group",
+    "category": "Forms",
+    "description": "A framed control with leading / trailing adornment slots — wraps an Input for icons, prefixes, clear buttons, and reveal toggles.",
+    "documented": false
+  },
+  {
+    "id": "kbd",
+    "displayName": "Kbd",
+    "category": "Typography",
+    "description": "A `<kbd>` fragment set in the mono face on a raised, bordered key cap — the physical-keycap sibling of Inline Code. Sized xs–xl so a shortcut tracks the surrounding text; `data-density` scales each size further.",
+    "documented": false
+  },
+  {
+    "id": "list",
+    "displayName": "List",
+    "category": "Typography",
+    "description": "A <ul>/<ol> with custom, token-coloured markers and a controllable item gap, marker gap and indent — the styled counterpart to the bare list styles in primitiv.reset (RFC 0012 D9).",
+    "documented": false
+  },
+  {
+    "id": "listbox",
+    "displayName": "Listbox",
+    "category": "Collections & Selection",
+    "description": "A persistently-visible list of selectable options implementing the WAI-ARIA APG listbox pattern. Unlike `select`, this list is always on screen with no trigger and no popup, and its cursor is a virtual-focus position (`aria-activedescendant` on the root, `data-highlighted` on the option) rather than DOM focus — which is what lets a separate control, such as a search input or a command palette's text field, hold focus and drive the list at the same time. Framed like a form control on Input's geometry, with rows resolving the shared dropdown tokens so a listbox and a menu are the same surface. Keyboard, typeahead, cursor and selection are owned by the headless primitive.",
+    "documented": false
+  },
+  {
+    "id": "miller-columns",
+    "displayName": "Miller Columns",
+    "category": "Collections & Selection",
+    "description": "A horizontal strip of vertical lists where selecting a node reveals its children in the next column — the macOS Finder column view, with drag/keyboard-resizable columns and an optional preview pane.",
+    "documented": false
+  },
+  {
+    "id": "modal",
+    "displayName": "Modal",
+    "category": "Overlays",
+    "description": "An accessible modal dialog built on the native `<dialog>` element — a fixed-width surface with an optional dimmed backdrop (WAI-ARIA Modal Dialog pattern).",
+    "documented": false
+  },
+  {
+    "id": "navigation-menu",
+    "displayName": "Navigation Menu",
+    "category": "Navigation",
+    "description": "The desktop dropdown site nav — a transparent bar of top-level entries, each either a plain link or a trigger that discloses a panel, with one panel open at a time. Panels project into a shared Viewport so the open one morphs into the next, and an Indicator (arrow or underline) tracks the open trigger. Implements the ARIA APG Disclosure Navigation Menu pattern, not a menubar: keyboard, hover-intent and focus are owned by the headless primitive.",
+    "documented": false
+  },
+  {
+    "id": "pagination",
+    "displayName": "Pagination",
+    "category": "Disclosure",
+    "description": "Page navigation for a paged collection — a row of square page cells with prev/next chevrons, or a compact \"Page X of Y\" readout. Truncated ranges collapse behind an ellipsis that opens a menu of the hidden pages.",
+    "documented": false
+  },
+  {
+    "id": "popover",
+    "displayName": "Popover",
+    "category": "Overlays",
+    "description": "A non-modal floating panel anchored to a trigger, built on the native HTML Popover API — a borderless, shadow-defined surface with a pointer arrow, positioned with CSS anchor positioning across all twelve placements.",
+    "documented": false
+  },
+  {
+    "id": "progress",
+    "displayName": "Progress",
+    "category": "Feedback & Status",
+    "description": "A progress bar — a track with a fill that reports completion, or an animated indeterminate state when the ratio is unknown. `intent` picks the fill colour (primary/secondary/danger), matching the Figma set; the track stays neutral in every intent.",
+    "documented": false
+  },
+  {
+    "id": "prose",
+    "displayName": "Prose",
+    "category": "Typography",
+    "description": "A flow-rhythm container — applies the `.primitiv-flow` context so every direct child gets density-scoped vertical spacing via a one-directional owl (RFC 0016). Zero behaviour; renders a semantic element, composing the consumer's own element via `asChild`.",
+    "documented": false
+  },
+  {
+    "id": "pull-quote",
+    "displayName": "Pull Quote",
+    "category": "Typography",
+    "description": "A large, centred editorial quote — no accent bar, no attribution, distinct from Blockquote. Rides the existing heading/* type scale; an optional decorative open-quote mark (RFC 0012 D13).",
+    "documented": false
+  },
+  {
+    "id": "radio",
+    "displayName": "Radio",
+    "category": "Forms",
+    "description": "A single native radio input with an optional inline label, grouped with a shared `name`.",
+    "documented": false
+  },
+  {
+    "id": "radio-card",
+    "displayName": "RadioCard",
+    "category": "Forms",
+    "description": "A card/tile-shaped radio item — the whole bordered surface is the interactive element, not a small control plus a separate label. Composes the headless RadioCard primitive (RadioCard.Root is role=\"radiogroup\" with no visual anatomy of its own; RadioCard.Item is role=\"radio\"). Sized xs–xl; `data-density` scales each size further.",
+    "documented": false
+  },
+  {
+    "id": "segmented-control",
+    "displayName": "Segmented Control",
+    "category": "Forms",
+    "description": "A single-select segmented control — a linear strip of segments where exactly one is selected. The selected segment is brand-filled; the rest are secondary.",
+    "documented": false
+  },
+  {
+    "id": "select",
+    "displayName": "Select",
+    "category": "Collections & Selection",
+    "description": "A single-select control with two render paths behind one API: a rich Popover-API listbox (the default) whose options carry icons, badges and a selected mark, or a native `<select>` for flat, OS-native cases. The rich control is a framed field on the same geometry as Input; its panel and rows resolve the shared dropdown tokens, so a Select listbox and a Dropdown menu are the same surface. Positioned with CSS anchor positioning, wired by the component itself; keyboard, typeahead, focus and form submission are owned by the headless primitive.",
+    "documented": true
+  },
+  {
+    "id": "slider",
+    "displayName": "Slider",
+    "category": "Forms",
+    "description": "A draggable, keyboard-accessible control for selecting one value (or a range) along a track.",
+    "documented": false
+  },
+  {
+    "id": "spacer",
+    "displayName": "Spacer",
+    "category": "Layout",
+    "description": "A flex: 1 0 0 blank element for pushing flex siblings apart — toolbar left/right groups, card footers, nav bars (RFC 0022).",
+    "documented": false
+  },
+  {
+    "id": "split-button",
+    "displayName": "Split Button",
+    "category": "Buttons",
+    "description": "One primary action welded to a chevron trigger that opens a menu of related alternatives, bound into a single role=\"group\" widget.",
+    "documented": false
+  },
+  {
+    "id": "stack",
+    "displayName": "Stack",
+    "category": "Layout",
+    "description": "A Flexbox stack — `direction` picks the axis, `gap` the spacing (a density-scaled Context token per step), `wrap` whether the row may break onto additional lines, and `align`/`justify` the alignment, all as modifier classes. No inline styles: the alignment props are curated presets, not raw CSS keywords (RFC 0022 §8).",
+    "documented": false
+  },
+  {
+    "id": "stepper",
+    "displayName": "Stepper",
+    "category": "Disclosure",
+    "description": "A step rail for a multi-step form — numbered markers joined by connectors, over the headless Tabs. Each marker is a real tab: activation, `aria-selected`, the roving tabindex, Home/End and `disabled` all come from Tabs, restyled as a circle. `orientation` picks the rail direction; sized xs–xl, and `data-density` scales each size further.",
+    "documented": false
+  },
+  {
+    "id": "switch",
+    "displayName": "Switch",
+    "category": "Forms",
+    "description": "An on/off toggle with an optional inline label — a native switch input for an immediate binary setting.",
+    "documented": false
+  },
+  {
+    "id": "table",
+    "displayName": "Table",
+    "category": "Data Display",
+    "description": "An accessible data table — a compound of standard HTML table elements (`<table>`, `<thead>`, `<tbody>`, `<tr>`, `<th>`, `<td>`, `<caption>`) with a tokenised default theme.",
+    "documented": false
+  },
+  {
+    "id": "tabs",
+    "displayName": "Tabs",
+    "category": "Disclosure",
+    "description": "An accessible tabbed interface — a tablist of triggers that switch between panels (WAI-ARIA Tabs pattern).",
+    "documented": true
+  },
+  {
+    "id": "tag",
+    "displayName": "Tag",
+    "category": "Data Display",
+    "description": "A small label chip that tags content by category, topic, or status — typically shown in a group. Read-only, never interactive. Five tones (a plain neutral treatment plus four semantic tones), sized xs–xl; `data-density` scales each size further.",
+    "documented": false
+  },
+  {
+    "id": "textarea",
+    "displayName": "Textarea",
+    "category": "Forms",
+    "description": "A multi-line text input — the framed field consumers type longer content into.",
+    "documented": false
+  },
+  {
+    "id": "toggle-group",
+    "displayName": "Toggle Group",
+    "category": "Navigation",
+    "description": "A segmented control — a recessed pill track holding borderless items; single- or multi-select. Pressed items lift into a raised thumb.",
+    "documented": false
+  },
+  {
+    "id": "tooltip",
+    "displayName": "Tooltip",
+    "category": "Overlays",
+    "description": "A deferred, non-modal label anchored to a trigger (hover / focus). A flat bubble with a pointer arrow, in two tones — a high-contrast dark bubble (default) or a surface-coloured one (inverted).",
+    "documented": false
+  },
+  {
+    "id": "tree",
+    "displayName": "Tree",
+    "category": "Collections & Selection",
+    "description": "A hierarchical list of expandable branches and selectable leaves — the WAI-ARIA tree view, with connector guide lines and an optional breadcrumb of the selected node's ancestry.",
+    "documented": false
+  }
+]

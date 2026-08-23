@@ -61,3 +61,72 @@ export const REGISTRY = {
     figmaComponentSetKey: "1816:61259", importPath: "@primitiv-ui/react",
   },
 };
+
+/*
+ * Every registry component's group on the /components index.
+ *
+ * The categories and their order are the kitchen-sink's `PAGE_TOC`; anything its
+ * TOC does not list (the prose components, Carousel) is placed by the Figma
+ * file's page-section dividers, which use the same names. One deliberate
+ * disagreement: Figma files `Table` under PROSE, the kitchen-sink under Data
+ * Display — the kitchen-sink wins, since that is the grouping a reader of this
+ * repo meets first.
+ *
+ * Hand-authored because it genuinely cannot be derived: `registry.json` carries
+ * no category, and neither does any contract. It is checked for completeness at
+ * generation time — `sync-docs-data.mjs` throws if a registry component is
+ * missing here or if an id here no longer exists, so the list cannot rot
+ * quietly while the page silently drops a card.
+ */
+export const CATEGORIES = {
+  // Layout
+  "aspect-ratio": "Layout", box: "Layout", center: "Layout",
+  container: "Layout", divider: "Layout", grid: "Layout",
+  stack: "Layout", spacer: "Layout",
+  // Buttons
+  button: "Buttons", "split-button": "Buttons",
+  // Forms
+  checkbox: "Forms", "checkbox-card": "Forms", field: "Forms",
+  input: "Forms", "input-group": "Forms", radio: "Forms",
+  "radio-card": "Forms", "segmented-control": "Forms", slider: "Forms",
+  switch: "Forms", textarea: "Forms",
+  // Collections & Selection
+  combobox: "Collections & Selection", listbox: "Collections & Selection",
+  "miller-columns": "Collections & Selection", select: "Collections & Selection",
+  tree: "Collections & Selection",
+  // Typography — the prose family
+  blockquote: "Typography", "code-block": "Typography",
+  "description-list": "Typography", figure: "Typography",
+  "inline-code": "Typography", kbd: "Typography", list: "Typography",
+  prose: "Typography", "pull-quote": "Typography",
+  // Overlays
+  "confirm-dialog": "Overlays", "context-menu": "Overlays", drawer: "Overlays",
+  dropdown: "Overlays", modal: "Overlays", popover: "Overlays",
+  tooltip: "Overlays",
+  // Feedback & Status
+  alert: "Feedback & Status", "empty-state": "Feedback & Status",
+  progress: "Feedback & Status",
+  // Disclosure
+  accordion: "Disclosure", breadcrumb: "Disclosure",
+  "breadcrumb-overflow": "Disclosure", carousel: "Disclosure",
+  collapsible: "Disclosure", pagination: "Disclosure", stepper: "Disclosure",
+  tabs: "Disclosure",
+  // Navigation
+  "navigation-menu": "Navigation", "toggle-group": "Navigation",
+  // Data Display
+  avatar: "Data Display", "avatar-group": "Data Display", badge: "Data Display",
+  card: "Data Display", chip: "Data Display", "data-table": "Data Display",
+  table: "Data Display", tag: "Data Display",
+};
+
+/*
+ * Where kebab-to-Title-Case gets the name wrong. Each of these is one word as
+ * the component exports it (`CheckboxCard`, not `Checkbox Card`), and the page
+ * should call it what you would type.
+ */
+export const DISPLAY_NAME_OVERRIDES = {
+  "checkbox-card": "CheckboxCard",
+  "radio-card": "RadioCard",
+  "empty-state": "EmptyState",
+  kbd: "Kbd",
+};

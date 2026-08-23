@@ -140,3 +140,17 @@ fn arc(t: f32, accent: f32) -> f32 {
 
     (at(t) - start) / (end - start)
 }
+
+/// Read a preset across a ramp's own lightness endpoints.
+///
+/// Families are normalised so one set of them serves both themes: a light ramp
+/// runs bright to dark and a dark ramp runs the other way, and neither
+/// direction is the families' business. `from` and `to` are the ramp's ends —
+/// which the anchored model then pins its two halves to, so this decides the
+/// shape between them and nothing else.
+pub fn lightness_curve(preset: &CurvePreset, count: usize, from: f32, to: f32) -> Vec<f32> {
+    curve(preset, count)
+        .into_iter()
+        .map(|t| from + t * (to - from))
+        .collect()
+}

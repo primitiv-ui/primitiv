@@ -90,6 +90,39 @@ mod easing_tests {
         }
     }
 
+    mod mapping_onto_a_ramp {
+        use super::*;
+
+        #[test]
+        fn should_carry_a_normalised_curve_across_a_ramps_own_endpoints() {
+            // Act — a light ramp runs bright to dark, so its range descends.
+            let result = lightness_curve(
+                &CurvePreset::new(Easing::Linear, Direction::EaseIn),
+                3,
+                0.97,
+                0.15,
+            );
+
+            // Assert
+            assert_curve(result, &[0.97, 0.56, 0.15]);
+        }
+
+        #[test]
+        fn should_ascend_for_a_dark_ramp_without_the_families_knowing_which() {
+            // Act — the dark ramp runs the other way. Normalised curves are
+            // what let one set of families serve both.
+            let result = lightness_curve(
+                &CurvePreset::new(Easing::Quadratic, Direction::EaseIn),
+                3,
+                0.21,
+                0.94,
+            );
+
+            // Assert — 0.21 + t^2 * 0.73.
+            assert_curve(result, &[0.21, 0.3925, 0.94]);
+        }
+    }
+
     mod arc {
         use super::*;
 

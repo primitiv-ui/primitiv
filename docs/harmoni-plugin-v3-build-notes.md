@@ -125,6 +125,42 @@ job at two resolutions, so they share one view.
 - `max_recommended_light_padding(hue)` bounds the light slider and is surfaced as
   a hint. Its only plausible consumer is this control.
 
+**Curve presets — settled 2026-08-23, engine work still to do.** Researched
+against SupaPalette (the reference the request came from), whose list is
+`Linear · Quad · Cubic · Quart · Quint · Sine · Expo · Circ · Arc` in one Select
+and `EaseIn · EaseOut · EaseInOut` in a second.
+
+- **We match the vocabulary, not the spelling.** Two Selects — `Easing` and
+  `Direction` — as one two-column row at the top of the Curve chart card. But
+  **full words**: `Linear · Quadratic · Cubic · Quartic · Quintic · Sine ·
+  Exponential · Circular · Arc` × `Ease in · Ease out · Ease in-out`. The
+  abbreviations are machine names; `EaseInOut` in particular is camel-jammed and
+  reads as code, not a label.
+- **`Arc` is not from easings.net** — it comes from the fettepalette / rampensau
+  lineage, where `arc` is a named curve method. Worth knowing so nobody "corrects"
+  it to a standard easing name.
+- **Back, Elastic and Bounce are excluded, and that is correctness not taste.**
+  They overshoot past 0/1 and reverse direction, so they would either fail
+  `validate_lightness_curve` or scramble step order — 300 coming out darker than
+  400. SupaPalette omits them too, which is independent confirmation rather than
+  a gap in their list.
+- **Their easing runs over HSL, ours runs over the OKLCH lightness curve.** Same
+  family name, same mathematical shape, different axis — so `Sine ease-in-out`
+  will NOT reproduce SupaPalette's ramp, and should not. Say so somewhere a user
+  can find it, or it gets reported as a bug.
+- **Engine spec (not built — views first).** A `palette::easing` module:
+  `Easing` (9) × `Direction` (3) producing a normalised 0..1 shape that feeds the
+  existing `resample` → padding → `anchored_lightness` chain. **No change to the
+  generation model** — a preset only replaces which shape the anchoring works
+  from, exactly as `TARGET_LIGHTNESS` does today. `Linear` ignores direction.
+  Gate it on the property the whole feature rests on: every family × direction ×
+  ramp length 3-32 must be **monotonic and within 0..1**.
+- **Two interaction rules, following existing decisions.** Padding still applies
+  on top of the preset (padding shapes the default curve; a preset replaces which
+  curve is default). And **switching preset drops per-step overrides**, for the
+  same reason a step-count change does: an override is keyed to a step of a
+  particular curve.
+
 **Open question the wireframes still do not answer:** the soft white / black
 anchors appear in the old 600px app but on no v3 panel. They are real
 `GenerateOptions` inputs, so they need a home — most likely Settings. Do not

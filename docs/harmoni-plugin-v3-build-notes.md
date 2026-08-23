@@ -139,10 +139,15 @@ invent a place for them without settling it.
 
 ## 2c. Settings — reached from the gear, not a tab
 
-- **No context bar.** Settings is global, not project-scoped, so the project
-  Breadcrumb is wrong here and is absent. The **tab bar stays, with no tab
-  active** — that is what wireframe 05 draws, and it is what tells you the
-  panel is still there behind the gear. Footer action is **Done**.
+- **No context bar and NO TAB BAR.** Settings is global, not project-scoped, so
+  the project Breadcrumb is wrong here — and by the same argument so is the tab
+  strip. Wireframe 05 draws tabs with none active, but that panel was drawn at
+  600px before the chrome settled, and a tab strip with nothing active is a dead
+  control: it reads as a bug. Setup and Destination have no tabs either, so this
+  is consistent, not an exception. Footer action is **Done**, which is the way
+  back. The Body sits directly in the wrapper — and remember the wrapper is
+  HORIZONTAL with `counterAxisAlignItems: CENTER`, so a body that is not
+  `layoutSizingVertical = 'FILL'` floats in the middle of the panel.
 - **Both tri-states are `Segmented Control [Count=3, Size=sm]`.** `sm` is
   forced: three FILL segments in 332px give 107px each, and `ask each time`
   does not fit at `md`. A Checkbox cannot express "yes, always, stop asking",

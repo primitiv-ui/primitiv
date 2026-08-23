@@ -205,6 +205,27 @@ and `EaseIn · EaseOut · EaseInOut` in a second.
   on `width / steps`, so the whole plot is generated from one set of positions or
   the handles no longer sit on their own columns. It is the same argument as the
   preset glyph: the curve alone does not tell you what colour you get.
+- **The columns are sloped quadrilaterals, and every one of them carries three
+  top vertices** (2026-08-23, after two failed passes). A bar chart's idiom —
+  flat-topped rectangles, a 1px gutter between them — is wrong here: the gutters
+  let the dark card show through as stripes, and each flat top diverges from the
+  sloped curve above it, leaving a triangular void per step. So each column is a
+  `VECTOR` quad whose top edge *is* the curve. Two rules make it seamless:
+  - **Neighbours share the same computed edge value.** Column `i`'s right edge and
+    column `i+1`'s left edge both come from one `curveY(x)` call at the same `x`,
+    so a seam cannot exist by construction — not "a seam too small to see".
+  - **Each column needs a vertex at its own handle, not just at its two edges.**
+    A handle sits at its column's *midpoint* (`cx(i) = i·bw + bw/2`), so a
+    straight top chords across the bend and dips below the curve. Only the first
+    column showed it — that is where the slope change is largest — but every
+    column had it. The top is `[x0, curveY(x0)] → [cx(i), cy(i)] → [x1,
+    curveY(x1)]`.
+- **`curveY` clamps flat past the end handles rather than extrapolating, and the
+  curve vector is drawn to the plot edges to match.** The first handle sits half
+  a column in from the left, so the outer half of columns 0 and 9 has no curve
+  segment over it — inventing a slope there would draw a lightness the ramp never
+  produces. Flat is the truthful shape, and running the stroke out to `x = 0` and
+  `x = W` is what stops the fill's top edge reading as unfinished at both ends.
 - **Two interaction rules, following existing decisions.** Padding still applies
   on top of the preset (padding shapes the default curve; a preset replaces which
   curve is default). And **switching preset drops per-step overrides**, for the

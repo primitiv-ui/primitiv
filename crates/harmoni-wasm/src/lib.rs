@@ -10,25 +10,33 @@ fn to_js_error(e: impl std::fmt::Debug) -> JsError {
     JsError::new(&format!("Invalid color input: {:?}", e))
 }
 
-fn array_to_lightness(js_array: Array) -> Result<[f32; 10], JsError> {
-    if js_array.length() != 10 {
-        return Err(JsError::new(&format!(
+/// The checks behind [`array_to_lightness`], split from the `Array` that
+/// carries them. A JS array cannot be built off-target, so the iteration below
+/// is only reachable under a wasm runtime — but the length and per-index rules
+/// are the part that can actually be wrong, and this keeps them reachable.
+fn lightness_from_values(values: &[Option<f64>]) -> Result<[f32; 10], String> {
+    if values.len() != 10 {
+        return Err(format!(
             "Lightness array must have exactly 10 values, got {}",
-            js_array.length()
-        )));
+            values.len()
+        ));
     }
 
     let mut lightness = [0.0f32; 10];
-    for i in 0..10 {
-        let value = js_array.get(i as u32);
-        let f = value
-            .as_f64()
-            .ok_or_else(|| JsError::new(&format!("Lightness at index {} is not a number", i)))?
-            as f32;
-        lightness[i] = f;
+    for (i, value) in values.iter().enumerate() {
+        lightness[i] =
+            value.ok_or_else(|| format!("Lightness at index {} is not a number", i))? as f32;
     }
 
     Ok(lightness)
+}
+
+fn array_to_lightness(js_array: Array) -> Result<[f32; 10], JsError> {
+    let values: Vec<Option<f64>> = (0..js_array.length())
+        .map(|i| js_array.get(i).as_f64())
+        .collect();
+
+    lightness_from_values(&values).map_err(|message| JsError::new(&message))
 }
 
 fn palette_to_js(palette_data: harmoni_core::Palette) -> Result<Palette, JsError> {
@@ -456,6 +464,151 @@ mod tests {
     /// The example the design note turns on: one ratio, three verdicts. A
     /// stringly-typed `rating` cannot express this, which is why the boundary
     /// needed the use-aware grade rather than only `get_contrast_rating`.
+    #[test]
+    fn a_lightness_curve_of_the_wrong_length_says_what_it_actually_got() {
+        let five = vec![Some(0.5); 5];
+        assert_eq!(
+            lightness_from_values(&five),
+            Err("Lightness array must have exactly 10 values, got 5".to_string())
+        );
+    }
+
+    #[test]
+    fn a_non_numeric_lightness_names_the_index_that_is_wrong() {
+        // Without the index a caller has ten candidates and no way to tell
+        // which one it handed over.
+        let mut values = vec![Some(0.5); 10];
+        values[7] = None;
+        assert_eq!(
+            lightness_from_values(&values),
+            Err("Lightness at index 7 is not a number".to_string())
+        );
+    }
+
+    #[test]
+    fn a_well_formed_lightness_curve_narrows_to_a_fixed_array() {
+        let values: Vec<Option<f64>> = (0..10).map(|i| Some(i as f64 / 10.0)).collect();
+        let curve = lightness_from_values(&values).expect("ten numbers is a valid curve");
+        assert_eq!(curve.len(), 10);
+        assert_eq!(curve[0], 0.0);
+        assert_eq!(curve[9], 0.9);
+    }
+
+    const BRAND: &str = "#3b82f6";
+    const NONSENSE: &str = "not-a-colour";
+
+    #[test]
+    fn black_on_white_is_the_maximum_contrast_the_standard_defines() {
+        let result = get_contrast_rating("#ffffff", "#000000").unwrap();
+        assert_eq!(result.ratio.round(), 21.0);
+        assert!(!result.display_ratio.is_empty());
+    }
+
+    #[test]
+    fn the_step_range_is_reported_so_a_control_need_not_hardcode_it() {
+        assert_eq!(supported_step_range(), vec![3, 10, 32]);
+    }
+
+    #[test]
+    fn a_pair_gives_both_themes_at_the_length_that_was_asked_for() {
+        let pair = generate_palette_pair_with_steps(BRAND, 5, 0.0, 0.0).unwrap();
+        assert_eq!(pair.light.swatches.len(), 5);
+        assert_eq!(pair.dark.swatches.len(), 5);
+        // The two themes are genuinely different ramps, not one copied twice.
+        assert_ne!(pair.light.swatches[0].hex, pair.dark.swatches[0].hex);
+    }
+
+    #[test]
+    fn an_alpha_ramp_climbs_from_nearly_clear_to_nearly_solid() {
+        let ramp = generate_alpha_ramp("#121418").unwrap();
+        assert!(ramp.swatches.len() > 1);
+        let alphas: Vec<f32> = ramp.swatches.iter().map(|s| s.alpha).collect();
+        for pair in alphas.windows(2) {
+            assert!(pair[1] > pair[0], "alpha ramp is not ascending: {alphas:?}");
+        }
+    }
+
+    #[test]
+    fn soft_neutrals_stay_the_right_way_round() {
+        let soft = derive_soft_neutrals(BRAND, 0.5).unwrap();
+        assert!(soft.white.l > soft.black.l);
+    }
+
+    #[test]
+    fn tinting_pulls_neutrals_toward_the_source_hue() {
+        let untinted = tint_neutrals("#ffffff", "#000000", BRAND, 0.0).unwrap();
+        let tinted = tint_neutrals("#ffffff", "#000000", BRAND, 1.0).unwrap();
+        assert!(tinted.white.c > untinted.white.c, "no tint was applied");
+    }
+
+    #[test]
+    fn duotone_tinting_can_pull_the_two_ends_apart() {
+        let duotone = tint_neutrals_duotone("#ffffff", "#000000", "#ff0000", "#0000ff", 1.0)
+            .unwrap();
+        // Highlight and shadow are different hues, so the ends must differ.
+        assert_ne!(duotone.white.h.round(), duotone.black.h.round());
+    }
+
+    #[test]
+    fn display_p3_never_offers_less_chroma_than_srgb() {
+        for hue in [0.0, 60.0, 120.0, 180.0, 240.0, 300.0] {
+            let srgb = max_in_gamut_chroma(0.6, hue, types::Gamut::Srgb);
+            let p3 = max_in_gamut_chroma(0.6, hue, types::Gamut::DisplayP3);
+            assert!(p3 >= srgb, "P3 was narrower than sRGB at hue {hue}");
+            assert!(srgb > 0.0, "sRGB reported no chroma at hue {hue}");
+        }
+    }
+
+    #[test]
+    fn every_painter_fills_exactly_the_rgba_buffer_it_promised() {
+        let g = types::Gamut::Srgb;
+        assert_eq!(paint_lc_plane(260.0, 8, 5, 0.4, g).len(), 8 * 5 * 4);
+        assert_eq!(paint_ch_plane(0.6, 8, 5, 0.4, g).len(), 8 * 5 * 4);
+        assert_eq!(paint_lh_plane(0.1, 8, 5, g).len(), 8 * 5 * 4);
+        assert_eq!(paint_hue_strip(0.6, 0.1, 8, g).len(), 8 * 4);
+        assert_eq!(paint_lightness_strip(0.1, 260.0, 8, g, 0.0, 1.0).len(), 8 * 4);
+        assert_eq!(paint_chroma_strip(0.6, 260.0, 8, 0.4, g).len(), 8 * 4);
+    }
+
+    #[test]
+    fn a_painted_plane_is_not_uniformly_transparent() {
+        // A buffer of the right length full of zeroes would pass the length
+        // check above while painting nothing.
+        let plane = paint_lc_plane(260.0, 16, 16, 0.4, types::Gamut::Srgb);
+        assert!(plane.iter().any(|&byte| byte != 0), "plane painted nothing");
+    }
+
+    #[test]
+    fn assessing_a_ramp_reports_a_foreground_for_every_step() {
+        let quality = assess_brand_ramp(0.5557, 0.192, 259.9, types::Gamut::Srgb).unwrap();
+        let coverage = quality.foreground_coverage;
+        assert_eq!(coverage.fail, 0, "a step has no accessible foreground");
+        assert_eq!(coverage.aaa + coverage.aa, quality.steps.len());
+        assert_eq!(quality.gamut, types::Gamut::Srgb);
+    }
+
+    #[test]
+    fn chroma_headroom_never_grants_more_than_was_asked_for() {
+        let report = chroma_headroom(0.5557, 0.192, 259.9, types::Gamut::Srgb);
+        assert_eq!(report.steps.len(), 10);
+        for step in &report.steps {
+            assert!(
+                step.granted <= step.requested,
+                "{} granted more than it requested",
+                step.label
+            );
+        }
+    }
+
+    #[test]
+    fn parsing_and_describing_a_colour_agree_with_each_other() {
+        let parsed = parse_color(BRAND).unwrap();
+        let described = describe_oklch(parsed.l, parsed.c, parsed.h);
+
+        assert_eq!(described.hex.to_lowercase(), BRAND);
+        assert_eq!(described.oklch, parsed.oklch);
+    }
+
     fn brand_ramp() -> types::Ramp {
         let palette = api::generate(ColorInput::Css("#3b82f6".to_string()))
             .expect("valid input should produce a palette");
@@ -517,3 +670,4 @@ mod tests {
         assert_eq!(grade(21.0, types::ContrastUse::NonText), types::Grade::Aa);
     }
 }
+

@@ -138,18 +138,35 @@ const dedupeRows = (rows) => {
   });
 };
 
+/*
+ * Joins a REGISTRY entry's part to its contract entry.
+ *
+ * Normalised because the two files disagreed on spelling and nothing said so:
+ * `registry.mjs` wrote Select's parts as the contract's `name` (`value`,
+ * `item-indicator`) while this map was keyed by its `component` (`Value`,
+ * `ItemIndicator`), so every Select sub-component silently resolved to no
+ * contract props and no data attributes. Tabs happened to use PascalCase and
+ * worked, which is why the failure stayed hidden. Both spellings now key the
+ * same entry, and anything still unmatched is reported below rather than
+ * quietly emitting an empty part.
+ */
+const partKey = (k) => String(k ?? "").replace(/[-_]/g, "").toLowerCase();
+
 // component-name → { contractProps, dataAttributes }
 const styledByComponent = {};
 const rootComp = contract.root?.component || cfg.subComponents[0].component || cfg.subComponents[0].name;
-styledByComponent[rootComp] = {
+styledByComponent[partKey(rootComp)] = {
   contractProps: modsFor(contract.modifiers),
   dataAttributes: rowsFor(contract.dataAttributes),
 };
 for (const sub of contract.subcomponents || []) {
-  styledByComponent[sub.component] = {
+  const entry = {
     contractProps: modsFor(sub.modifiers),
     dataAttributes: rowsFor(sub.dataAttributes),
   };
+  /* Both spellings, so a registry entry can name the part either way. */
+  styledByComponent[partKey(sub.component)] = entry;
+  styledByComponent[partKey(sub.name)] = entry;
 }
 
 /*
@@ -175,17 +192,22 @@ const dataAttributes = [
 ].map((d) => ({ name: d.name, value: d.value ?? "", when: d.when ?? "" }));
 
 // ---- merge ----
+/* Parts with no contract entry at all. Legitimate for a headless-only part, but
+   worth printing: an accidental one used to produce a silently empty part. */
+const unmatchedParts = [];
+
 const subComponents = cfg.subComponents.map((sc) => {
   const head = extractSub(sc);
-  const key = sc.component || sc.name;
-  const styled = styledByComponent[key] || { contractProps: [], dataAttributes: [] };
+  const key = partKey(sc.component || sc.name);
+  const styled = styledByComponent[key];
+  if (!styled) unmatchedParts.push(sc.name);
   // dedupe dataAttributes, drop the styled contract-prop names that duplicate nothing
   return {
     ...head,
-    contractProps: styled.contractProps,
+    contractProps: styled?.contractProps ?? [],
     /* Keyed on name+value, not name: `data-state` legitimately appears twice
        with different values, and deduping by name alone dropped one of them. */
-    dataAttributes: dedupeRows(styled.dataAttributes),
+    dataAttributes: dedupeRows(styled?.dataAttributes ?? []),
   };
 });
 
@@ -214,5 +236,9 @@ console.log(`✓ ${cfg.displayName}: ${subComponents.length} sub-component(s), $
 for (const s of subComponents) {
   console.log(`  ${s.name}  (extends ${s.extends})  props: ${s.props.map((p) => p.name).join(", ") || "—"}` +
     (s.contractProps.length ? `  · contract: ${s.contractProps.map((p) => p.name).join(", ")}` : ""));
+}
+if (unmatchedParts.length) {
+  console.log(`  ! no contract entry for: ${unmatchedParts.join(", ")}` +
+    ` — fine for a headless-only part, a typo otherwise`);
 }
 console.log(`  → ${outPath.replace(ROOT + "/", "")}`);

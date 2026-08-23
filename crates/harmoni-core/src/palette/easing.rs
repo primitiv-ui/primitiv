@@ -17,6 +17,7 @@ pub enum Easing {
     Sine,
     Exponential,
     Circular,
+    Arc,
 }
 
 /// The accent that makes `Arc` its own shape rather than a second name for
@@ -107,5 +108,35 @@ fn ease_in(preset: &CurvePreset, t: f32) -> f32 {
         Easing::Exponential if t == 0.0 => 0.0,
         Easing::Exponential => (10.0 * t - 10.0).exp2(),
         Easing::Circular => 1.0 - (1.0 - t * t).sqrt(),
+        // The arc's own orientation is fast-at-zero, so its ease-in is that
+        // shape entered from the other end — the same reflection `curve` uses.
+        Easing::Arc => 1.0 - arc(1.0 - t, preset.accent),
     }
+}
+
+/// A quarter circle sampled evenly in **angle** rather than evenly in `t`,
+/// which is what separates this family from `Circular` — the two trace the same
+/// arc but place their steps differently, and where the steps land is exactly
+/// what a preset controls.
+///
+/// From fettepalette's `pointOnCurve`, whose arc branch reduces to
+/// `y = sin(θ + a)` for `θ = t·π/2`. Two departures from that source, both
+/// forced by what a *lightness* ramp needs:
+///
+/// - **The accent is negated and clamped to `0..=1`.** `sin` turns over inside
+///   the sampled window for a positive accent, which would run a ramp's
+///   lightness back down: 300 coming out darker than 400.
+/// - **The result is normalised over its own sampled span, not clamped into
+///   `0..=1`.** Clamping — what the source does — parks several samples on one
+///   value at any non-zero accent, and colliding steps are the defect the
+///   anchored model exists to prevent (RFC 0027 §12.2).
+///
+/// At accent 0 this is `sin(t·π/2)`, which is the sine family exactly; at 1 it
+/// is sine's other orientation. Only between them is it a shape of its own.
+fn arc(t: f32, accent: f32) -> f32 {
+    let a = accent.clamp(0.0, 1.0) * std::f32::consts::FRAC_PI_2;
+    let at = |t: f32| (t * std::f32::consts::FRAC_PI_2 - a).sin();
+    let (start, end) = (at(0.0), at(1.0));
+
+    (at(t) - start) / (end - start)
 }

@@ -93,6 +93,26 @@ pub fn readable_step(
     api::readable_step(&steps, &surface.into(), threshold).map(Into::into)
 }
 
+/// Sample a curve preset at `count` positions, normalised to `0..=1` ascending.
+///
+/// This is the shape itself, not a ramp: what a preview glyph draws, and what a
+/// chart plots before the ramp's own endpoints are applied to it.
+#[wasm_bindgen]
+pub fn curve_samples(preset: types::CurvePreset, count: usize) -> Vec<f32> {
+    api::curve(&preset.into(), count)
+}
+
+/// The accent at which `Arc` is a shape of its own.
+///
+/// Both ends of the accent range duplicate `Sine` — 0 is its ease-out, 1 its
+/// ease-in — so the default is a real engine decision rather than a midpoint
+/// picked for tidiness. A control that hardcodes it drifts the moment the
+/// engine changes its mind, the same argument as `supported_step_range`.
+#[wasm_bindgen]
+pub fn default_arc_accent() -> f32 {
+    api::DEFAULT_ARC_ACCENT
+}
+
 /// What `ratio` achieves when the colour is used as `use`.
 ///
 /// `get_contrast_rating` answers a different question — it reports a ratio and
@@ -492,6 +512,48 @@ mod tests {
         assert_eq!(curve.len(), 10);
         assert_eq!(curve[0], 0.0);
         assert_eq!(curve[9], 0.9);
+    }
+
+    fn preset(easing: types::Easing, direction: types::Direction) -> types::CurvePreset {
+        types::CurvePreset { easing, direction, accent: default_arc_accent() }
+    }
+
+    #[test]
+    fn sampling_a_preset_spans_the_unit_interval_end_to_end() {
+        let samples = curve_samples(preset(types::Easing::Sine, types::Direction::EaseInOut), 10);
+
+        assert_eq!(samples.len(), 10);
+        assert_eq!(samples.first().copied(), Some(0.0));
+        assert_eq!(samples.last().copied(), Some(1.0));
+    }
+
+    #[test]
+    fn the_arc_accent_default_comes_from_the_engine_not_the_ui() {
+        // Both ends of the accent range duplicate Sine, so the default is a
+        // real engine decision. A control that hardcodes 0.5 drifts silently
+        // the moment the engine changes its mind.
+        let accent = default_arc_accent();
+        assert!((0.0..=1.0).contains(&accent));
+
+        let at_default = curve_samples(preset(types::Easing::Arc, types::Direction::EaseOut), 5);
+        let at_zero = curve_samples(
+            types::CurvePreset { accent: 0.0, ..preset(types::Easing::Arc, types::Direction::EaseOut) },
+            5,
+        );
+        assert_ne!(at_default, at_zero, "the default accent is the degenerate one");
+    }
+
+    #[test]
+    fn the_accent_only_moves_the_arc() {
+        let a = curve_samples(
+            types::CurvePreset { accent: 0.0, ..preset(types::Easing::Sine, types::Direction::EaseIn) },
+            6,
+        );
+        let b = curve_samples(
+            types::CurvePreset { accent: 1.0, ..preset(types::Easing::Sine, types::Direction::EaseIn) },
+            6,
+        );
+        assert_eq!(a, b, "accent leaked into a family that does not take one");
     }
 
     const BRAND: &str = "#3b82f6";

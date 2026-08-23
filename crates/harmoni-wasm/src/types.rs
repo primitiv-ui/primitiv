@@ -61,6 +61,24 @@ impl From<Direction> for core::Direction {
     }
 }
 
+/// A chosen curve: a family, the end its acceleration is applied to, and — for
+/// the one family that takes a parameter — its accent.
+#[derive(Tsify, Debug, Clone, Copy, Serialize, Deserialize, PartialEq)]
+#[tsify(into_wasm_abi, from_wasm_abi)]
+pub struct CurvePreset {
+    pub easing: Easing,
+    pub direction: Direction,
+    /// Only [`Easing::Arc`] reads this; every other family is a fixed shape.
+    pub accent: f32,
+}
+
+impl From<CurvePreset> for core::CurvePreset {
+    fn from(value: CurvePreset) -> Self {
+        core::CurvePreset::new(value.easing.into(), value.direction.into())
+            .with_accent(value.accent)
+    }
+}
+
 /// What a colour is being used for, which is what decides the bar it must
 /// clear. Passed *into* the engine, so it converts core-ward.
 #[derive(Tsify, Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]

@@ -178,8 +178,7 @@ and `EaseIn · EaseOut · EaseInOut` in a second.
     gains a user-facing accent**, which sweeps it from Sine ease-out at 0 to Sine
     ease-in at 1. Both ends duplicate sine, so `DEFAULT_ARC_ACCENT` is **0.5** —
     the only default under which Arc contributes something nothing else can make.
-    **This adds a third control to the Curve card that the settled wireframe does
-    not have**, and that view needs reopening before the plugin is built.
+    **This added a third control to the Curve card**, built the same day (below).
   - **Two departures from fettepalette's `pointOnCurve`, both forced by what a
     lightness ramp needs.** Its arc branch is `y = cos(-π/2 + i·slice + accent)`,
     i.e. `sin(θ + a)`, then **clamped** into `0..1`. (1) The accent is negated and
@@ -203,6 +202,30 @@ and `EaseIn · EaseOut · EaseInOut` in a second.
     structurally locked to the authored curve, the same guarantee that keeps the
     step-count knob out of it. The 365 primitiv-emit goldens passing untouched is
     the independent proof.
+  - **The accent control landed in the Curve view (2026-08-23).** A full-width
+    `label · slider · value` row directly under the two Selects, cloned from the
+    Padding card's row so it inherits that shape exactly — and cloned rather than
+    built because an instance sublayer cannot be resized (gotcha 14), while
+    `pad dark`'s slider already sat at exactly 50% (`range-fill` 117/234, thumb
+    111), which is the default accent.
+    - **A full-width row, not a third column.** Three controls across 310 px
+      gives ~97 px each and the Select triggers already truncate at that width.
+      It costs zero height in the other eight states because the accent only
+      exists for Arc — which is also why the panel now documents the **Arc**
+      state rather than Sine: a control that appears conditionally has to be
+      shown in the condition that produces it.
+    - **The chart was redrawn from real engine output, not approximated.** The
+      panel said Arc while the plot still drew the hand-authored default, which
+      is worse than no panel. `cargo run -p harmoni-core --example preset-ramp`
+      (added for exactly this loop) prints a preset's lightnesses and hexes; the
+      plot's own lightness→y mapping is recoverable from its end handles
+      (`TOP 16.68 / BOTTOM 144.6` against `L 0.97 / 0.15`), so columns, curve,
+      handles **and** the seeded-ramp strip below all move together.
+    - **Copy: "0 and 1 match Sine — the shape lives between them".** A first pass
+      read "Arc only · 0 and 1 match Sine", which spends half a 310 px line
+      saying something the user can already see — the row is on screen *because*
+      Arc is selected. The half that carries information is which values are
+      degenerate.
   - **`Exponential`'s first sample is pinned to 0**; `2^(10t−10)` lands on `2^-10`
     at `t = 0`, and anchoring reads the curve's own endpoints, so a ramp whose
     curve starts just off zero starts just off its anchor.

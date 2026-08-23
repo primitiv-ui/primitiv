@@ -160,13 +160,29 @@ and `EaseIn · EaseOut · EaseInOut` in a second.
   family name, same mathematical shape, different axis — so `Sine ease-in-out`
   will NOT reproduce SupaPalette's ramp, and should not. Say so somewhere a user
   can find it, or it gets reported as a bug.
-- **Engine spec (not built — views first).** A `palette::easing` module:
-  `Easing` (9) × `Direction` (3) producing a normalised 0..1 shape that feeds the
-  existing `resample` → padding → `anchored_lightness` chain. **No change to the
-  generation model** — a preset only replaces which shape the anchoring works
-  from, exactly as `TARGET_LIGHTNESS` does today. `Linear` ignores direction.
-  Gate it on the property the whole feature rests on: every family × direction ×
-  ramp length 3-32 must be **monotonic and within 0..1**.
+- **Engine spec (not built — views first).** A `palette::easing` module,
+  `Easing` (9) × `Direction` (3), exposing
+  **`curve(easing, direction, count) -> Vec<f32>`** — sampled positions, not a
+  function, for the Arc reason above. It replaces `TARGET_LIGHTNESS` as the shape
+  fed to the existing padding → `anchored_lightness` chain, so there is **no
+  change to the generation model**; a preset only changes which shape the
+  anchoring works from. Note it supersedes `resample` for preset curves: a family
+  that can sample itself at any `count` does not need a ten-point shape read at
+  another resolution. `Linear` ignores direction. Gate it on the property the
+  whole feature rests on: every family × direction × ramp length 3-32 must be
+  **monotonic and within 0..1**.
+- **The glyphs are a component set, and they follow the direction** (settled
+  2026-08-23). `Harmoni / Easing Glyph` — `Easing` (9) × `Direction` (3) = **27
+  variants**, drawn as bars bound to `content/primary`. The family Select renders
+  each row's glyph *at the currently-selected direction*, so the list never shows
+  a curve you would not get; the alternative — canonical ease-in-out glyphs that
+  ignore the direction control — defeats the point of having a preview. `Linear`
+  keeps three identical variants so the grid stays rectangular, the same
+  concession `Tree / Connector` makes for `Style=rail` ignoring `Target`.
+- **This is what Rich Select is for.** The family list is nine near-synonyms
+  (`Quadratic`, `Cubic`, `Quartic`, `Quintic` differ only by exponent) — names
+  alone do not tell you what you are choosing, so the row glyph is the actual
+  content and the label is the caption. A native `<select>` cannot carry it.
 - **Two interaction rules, following existing decisions.** Padding still applies
   on top of the preset (padding shapes the default curve; a preset replaces which
   curve is default). And **switching preset drops per-step overrides**, for the

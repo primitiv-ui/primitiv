@@ -173,8 +173,11 @@ way back is a crumb rather than a bespoke `‹ export` control.
   — three options will not sit in 144 px.
 - **A `Switch` carries its own label** (`Show label#881:306` + `Label#881:265`),
   so every boolean row needs no separate label cell. That is what makes the
-  second column viable at all: `Step labels` / `A11y badge` / `Ramp title` /
-  `Foreground swatch` are self-describing controls, not label-plus-control pairs.
+  second column viable at all: `Step labels` / `Hex value` / `OKLCH value` /
+  `A11y badge` / `Ramp title` / `Foreground swatch` are self-describing controls,
+  not label-plus-control pairs. Splitting `value` into two booleans **shortened**
+  the card — the three-option Segmented Control it replaced needed a label above
+  it and a full-width row of its own.
 - **Gotcha: setting a `Segmented Control` to FILL is not enough** — its items keep
   hugging and the group sits right-aligned inside its own stretched frame, which
   reads as a broken control. Set `layoutSizingHorizontal = 'FILL'` on each **item**
@@ -188,11 +191,14 @@ way back is a crumb rather than a bespoke `‹ export` control.
 - **Group cards are plain frames on `surface/subtle` + `border/subtle` with
   `surface/md/{padding,gap,radius}`** — cloned from the picker's Value card, not
   `Card` instances. That is the established idiom across this view set.
-- **The preview ground pins `Intent = Light`** via
-  `setExplicitVariableModeForCollection` (Intent = `VariableCollectionId:346:4407`,
-  Light = `346:7`). That is how a light canvas is previewed inside a dark panel
-  without a single raw colour: every token inside the ground resolves to the
-  previewed mode. Switch the mode chip → switch the pinned mode.
+- **The preview ground does NOT pin its Intent mode — it inherits the panel's.**
+  A first pass pinned it to Light so a light canvas showed inside a dark panel,
+  and that was wrong: it conflated two independent things. The canvas
+  *background* is the user's Figma window, which follows **their Figma theme**;
+  the palette *mode* is which set of ramp values gets drawn, which is what the
+  mode chip selects. Pinning the ground froze the first to the second. Consequence
+  for the copy: the `Light` / `Dark` chip means **"which ramp values"**, never
+  "what colour the canvas is" — word it so that reads.
 - **The preview is real `Harmoni / Swatch [Form=panel, Size=sm]` instances**, not
   a drawing — 65 × 171 with a **square 63 × 63 cap** and the facts below it on
   their own bordered card, which is the form the square-cap/meta-below request
@@ -368,16 +374,26 @@ so each needs settling before it is drawn:
      full view with a `‹ export` crumb, the route the picker already takes out
      of Palette. RFC 0013 assumed a 600px section with two `Switch`-headed
      cards; v3 has no such shell.
-  2. **The controls are `SwatchExportConfig`, unchanged.** The only new thing is
-     grouping — nine controls sized for 600px fit at 360 as four cards
-     (LAYOUT / SHAPE / LABELS / CHECKS) above the preview.
+  2. **The controls are `SwatchExportConfig`, with one change.** Grouping —
+     nine controls sized for 600px fit at 360 only as two Dense two-column cards
+     above the preview — and **`value` stops being a `'none' | 'hex' | 'oklch'`
+     enum and becomes two booleans**, so one swatch can print both. "None" is
+     both off. RFC 0013 §3.2 needs that edit.
   3. **O7 — the default is the contact sheet**: separate · rounded 4 · size 56 ·
-     gap 8 · step labels below · value hex · a11y badge auto · foreground swatch
-     on · title on · **oklch off**. The badge and paired foreground are free data
-     the engine already carries, so a default that hides them spends nothing and
-     proves nothing; oklch stays off because it is canonical but not what a
-     Figma reader pastes. **O7 is closed** — update RFC 0013's open-questions
-     list when that RFC is next touched.
+     gap 8 · step labels below · **hex and oklch** · a11y badge auto · foreground
+     swatch on · title on. The badge and paired foreground are free data the
+     engine already carries, so a default that hides them spends nothing and
+     proves nothing. **O7 is closed** — update RFC 0013's open-questions list
+     when that RFC is next touched.
+     **Amended 2026-08-23**, reversing the original "oklch off": the sheet is the
+     artefact people hand around, and decision 01 of the whole plugin is that
+     OKLCH is canonical, so a sheet printing only hex says hex is the truth. It
+     is affordable only **wrapped to two lines** (`0.82 0.07` / `259.8`) —
+     measured at `panel`/sm: hex alone is a 61 × 171 swatch; two-line OKLCH is
+     68 × 200 (+7 px wide); bare one-line is 104 × 220; the full
+     `oklch(0.82 0.07 259.8)` string is **146 × 262**, because the text node alone
+     demands 132 px against a 63 px cap. Never print the unwrapped form on a
+     swatch.
   4. **The preview is a canvas ground at 1:1, and it scrolls** rather than
      scaling — clipping with paddles, because the question it exists to answer is
      whether an 8px label reads on that fill.

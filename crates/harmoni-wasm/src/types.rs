@@ -10,6 +10,48 @@ use harmoni_core as core;
 use serde::{Deserialize, Serialize};
 use tsify::Tsify;
 
+/// What a colour is being used for, which is what decides the bar it must
+/// clear. Passed *into* the engine, so it converts core-ward.
+#[derive(Tsify, Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
+#[tsify(into_wasm_abi, from_wasm_abi)]
+pub enum ContrastUse {
+    BodyText,
+    LargeText,
+    NonText,
+}
+
+impl From<ContrastUse> for core::ContrastUse {
+    fn from(value: ContrastUse) -> Self {
+        match value {
+            ContrastUse::BodyText => core::ContrastUse::BodyText,
+            ContrastUse::LargeText => core::ContrastUse::LargeText,
+            ContrastUse::NonText => core::ContrastUse::NonText,
+        }
+    }
+}
+
+/// What a measured ratio achieves for a given use. `LargeTextOnly` is the
+/// honest middle a pass/fail badge cannot express.
+#[derive(Tsify, Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
+#[tsify(into_wasm_abi, from_wasm_abi)]
+pub enum Grade {
+    Aaa,
+    Aa,
+    LargeTextOnly,
+    Fail,
+}
+
+impl From<core::Grade> for Grade {
+    fn from(value: core::Grade) -> Self {
+        match value {
+            core::Grade::Aaa => Grade::Aaa,
+            core::Grade::Aa => Grade::Aa,
+            core::Grade::LargeTextOnly => Grade::LargeTextOnly,
+            core::Grade::Fail => Grade::Fail,
+        }
+    }
+}
+
 #[derive(Tsify, Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Default)]
 #[tsify(into_wasm_abi, from_wasm_abi)]
 pub enum TintMode {
@@ -316,6 +358,37 @@ impl From<core::PaletteSet> for PaletteSet {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn contrast_use_converts_into_core_because_a_caller_chooses_it() {
+        // A use is passed *in* — it is the caller stating what the colour is
+        // for — so it needs a conversion the other way from every other mirror.
+        assert_eq!(
+            core::ContrastUse::from(ContrastUse::BodyText),
+            core::ContrastUse::BodyText
+        );
+        assert_eq!(
+            core::ContrastUse::from(ContrastUse::LargeText),
+            core::ContrastUse::LargeText
+        );
+        assert_eq!(
+            core::ContrastUse::from(ContrastUse::NonText),
+            core::ContrastUse::NonText
+        );
+    }
+
+    #[test]
+    fn grade_converts_from_core_including_the_honest_middle() {
+        // LargeTextOnly is the variant a pass/fail badge cannot express, so it
+        // is the one that must survive the boundary intact.
+        assert_eq!(Grade::from(core::Grade::Aaa), Grade::Aaa);
+        assert_eq!(Grade::from(core::Grade::Aa), Grade::Aa);
+        assert_eq!(
+            Grade::from(core::Grade::LargeTextOnly),
+            Grade::LargeTextOnly
+        );
+        assert_eq!(Grade::from(core::Grade::Fail), Grade::Fail);
+    }
 
     #[test]
     fn swatch_label_number_converts_from_core() {

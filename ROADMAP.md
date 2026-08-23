@@ -379,7 +379,7 @@ None of these are built yet; listed here for backlog visibility.
 
 **Tier 3 — blocked on a primitive-backlog item landing first:**
 
-- [ ] Command Palette (⌘K) — `Listbox` landed (headless); needs its registry surface
+- [ ] Command Palette (⌘K) — **unblocked, and the design is settled** (2026-08-21, Figma page "Command Palette — exploration", nine calls; `docs/docs-site-planning.md` §1.25). Composes `modal` + `combobox` + `kbd` + `tag`; no new design tokens. Still to build, in order: the Figma set (**`lg`-first** — `lg` is the default size), then two upstream cycles — `Modal` gains `Placement=center|top` and `Combobox.Content` gains a non-floating (`static`) escape hatch — then the registry surface + kitchen-sink demo. Closes the last `docs-site-planning` §1.17 gap
 - [ ] Search with suggestions — `Listbox` landed (headless); needs its registry surface
 - [ ] Date Picker — needs Calendar
 - [ ] File Upload UI (dropzone + previews) — needs File Upload

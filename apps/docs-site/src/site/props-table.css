@@ -54,3 +54,16 @@
 .docs-key-sep {
   color: var(--primitiv-content-muted);
 }
+
+/*
+ * One data-attribute table per part, stacked. The gap is the same rhythm the
+ * examples use between a heading and its content, so a part's name reads as
+ * belonging to the table under it rather than floating between two.
+ */
+.docs-data-attributes-group + .docs-data-attributes-group {
+  margin-block-start: var(--primitiv-flow-region);
+}
+
+.docs-data-attributes-group .docs-example-title {
+  margin-block-end: var(--primitiv-flow-tight);
+}

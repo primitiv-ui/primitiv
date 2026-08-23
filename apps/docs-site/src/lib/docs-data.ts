@@ -44,7 +44,18 @@ export type DocsSubComponent = {
   readonly extends: string | null;
   readonly props: readonly DocsProp[];
   readonly contractProps?: readonly DocsContractProp[];
-  readonly dataAttributes?: readonly { name: string; description: string }[];
+  /**
+   * The data attributes THIS part emits, as full rows.
+   *
+   * Was declared as `{ name, description }` and optional, which the extractor
+   * never emitted — it wrote names only, and now writes the same
+   * `{ name, value, when }` rows the section renders. Corrected rather than
+   * cast at the call site: the type existed but described nothing real, so it
+   * type-checked a shape that could not occur while hiding the one that did.
+   *
+   * Always present, empty when the part emits nothing.
+   */
+  readonly dataAttributes: readonly DocsDataAttribute[];
 };
 
 export type DocsCustomProperty = {

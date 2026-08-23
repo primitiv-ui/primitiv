@@ -43,7 +43,13 @@ export const ComponentDocsPage = ({ id }: { id: ComponentId }) => {
   const [mode] = useMode();
 
   const cssVars = docs.styled.customProperties;
-  const dataAttrs = docs.styled.dataAttributes;
+  /* One group per part that actually emits something — Button and Select have a
+     single one, Tabs four. Built from the per-part rows rather than the flat
+     union, so each table can say which part it belongs to; see
+     DataAttributesTable for why they are not tabbed or collapsed. */
+  const dataAttrGroups = subs
+    .filter((sub) => sub.dataAttributes.length > 0)
+    .map((sub) => ({ part: sub.name, rows: sub.dataAttributes }));
 
   /*
    * The TOC is built from the same three sources the sections render from
@@ -68,7 +74,7 @@ export const ComponentDocsPage = ({ id }: { id: ComponentId }) => {
     },
     { id: "styling", title: "Styling contract" },
     ...(spec.keyboard ? [{ id: "keyboard", title: "Keyboard" }] : []),
-    ...(dataAttrs.length > 0
+    ...(dataAttrGroups.length > 0
       ? [{ id: "data-attributes", title: "Data attributes" }]
       : []),
     { id: "accessibility", title: "Accessibility" },
@@ -234,13 +240,13 @@ export const ComponentDocsPage = ({ id }: { id: ComponentId }) => {
          * than on the spec: a component that declares no data attributes gets no
          * section, and one that adds a declaration gets a row with no page edit.
          */}
-        {dataAttrs.length > 0 && (
+        {dataAttrGroups.length > 0 && (
           <DocsSection
             id="data-attributes"
             title="Data attributes"
-            meta="Emitted automatically by the headless primitive — style against these rather than adding your own state classes."
+            meta="Emitted automatically by the headless primitive — style against these rather than adding your own state classes. Grouped by the part that emits them, since most are emitted by more than one."
           >
-            <DataAttributesTable rows={dataAttrs} />
+            <DataAttributesTable groups={dataAttrGroups} />
           </DocsSection>
         )}
 

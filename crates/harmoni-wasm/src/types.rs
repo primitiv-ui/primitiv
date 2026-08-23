@@ -10,6 +10,57 @@ use harmoni_core as core;
 use serde::{Deserialize, Serialize};
 use tsify::Tsify;
 
+/// The shape of the lightness curve a ramp is generated from. Passed *into* the
+/// engine, so it converts core-ward.
+#[derive(Tsify, Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
+#[tsify(into_wasm_abi, from_wasm_abi)]
+pub enum Easing {
+    Linear,
+    Quadratic,
+    Cubic,
+    Quartic,
+    Quintic,
+    Sine,
+    Exponential,
+    Circular,
+    Arc,
+}
+
+impl From<Easing> for core::Easing {
+    fn from(value: Easing) -> Self {
+        match value {
+            Easing::Linear => core::Easing::Linear,
+            Easing::Quadratic => core::Easing::Quadratic,
+            Easing::Cubic => core::Easing::Cubic,
+            Easing::Quartic => core::Easing::Quartic,
+            Easing::Quintic => core::Easing::Quintic,
+            Easing::Sine => core::Easing::Sine,
+            Easing::Exponential => core::Easing::Exponential,
+            Easing::Circular => core::Easing::Circular,
+            Easing::Arc => core::Easing::Arc,
+        }
+    }
+}
+
+/// Which end of the ramp a family's acceleration is applied to.
+#[derive(Tsify, Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
+#[tsify(into_wasm_abi, from_wasm_abi)]
+pub enum Direction {
+    EaseIn,
+    EaseOut,
+    EaseInOut,
+}
+
+impl From<Direction> for core::Direction {
+    fn from(value: Direction) -> Self {
+        match value {
+            Direction::EaseIn => core::Direction::EaseIn,
+            Direction::EaseOut => core::Direction::EaseOut,
+            Direction::EaseInOut => core::Direction::EaseInOut,
+        }
+    }
+}
+
 /// What a colour is being used for, which is what decides the bar it must
 /// clear. Passed *into* the engine, so it converts core-ward.
 #[derive(Tsify, Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
@@ -471,6 +522,40 @@ mod tests {
         assert_eq!(converted.hex, honest.hex);
         assert_eq!(converted.oklch, honest.oklch);
         assert_ne!(converted.hex, "#000000");
+    }
+
+    #[test]
+    fn every_easing_family_maps_to_a_distinct_core_family() {
+        // A copy-paste slip that points two arms at the same core variant is
+        // the realistic failure here, and it would silently hand a caller a
+        // curve it did not choose. Distinctness is what catches that.
+        let families = [
+            Easing::Linear, Easing::Quadratic, Easing::Cubic, Easing::Quartic,
+            Easing::Quintic, Easing::Sine, Easing::Exponential, Easing::Circular,
+            Easing::Arc,
+        ];
+
+        let mut seen: Vec<core::Easing> = Vec::new();
+        for family in families {
+            let mapped = core::Easing::from(family);
+            assert!(!seen.contains(&mapped), "{family:?} duplicates an earlier family");
+            seen.push(mapped);
+        }
+        assert_eq!(seen.len(), 9);
+        assert_eq!(core::Easing::from(Easing::Arc), core::Easing::Arc);
+    }
+
+    #[test]
+    fn every_direction_maps_to_a_distinct_core_direction() {
+        let directions = [Direction::EaseIn, Direction::EaseOut, Direction::EaseInOut];
+
+        let mut seen: Vec<core::Direction> = Vec::new();
+        for direction in directions {
+            let mapped = core::Direction::from(direction);
+            assert!(!seen.contains(&mapped), "{direction:?} duplicates an earlier direction");
+            seen.push(mapped);
+        }
+        assert_eq!(seen.len(), 3);
     }
 
     #[test]

@@ -14,6 +14,7 @@ pub use audit::ramp::{assess as assess_ramp, ForegroundCoverage, RampQuality, St
 pub use api::GenerateError;
 pub use color::input::{ColorInput, ColorInputError};
 pub use color::output::{format_oklch, format_oklch_alpha, oklch_to_hex, oklch_to_rgb, Rgb};
+pub use palette::easing::{curve, CurvePreset, Direction, Easing, DEFAULT_ARC_ACCENT};
 pub use neutral::derive::SoftNeutrals;
 pub use neutral::ramp::{RampOptions, TintMode};
 pub use api::generate::PaletteSet;

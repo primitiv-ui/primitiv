@@ -14,6 +14,8 @@ pub enum Easing {
     Cubic,
     Quartic,
     Quintic,
+    Sine,
+    Circular,
 }
 
 /// Which end of the ramp a family's acceleration is applied to.
@@ -61,5 +63,7 @@ fn ease_in(easing: Easing, t: f32) -> f32 {
         Easing::Cubic => t.powi(3),
         Easing::Quartic => t.powi(4),
         Easing::Quintic => t.powi(5),
+        Easing::Sine => 1.0 - (t * std::f32::consts::FRAC_PI_2).cos(),
+        Easing::Circular => 1.0 - (1.0 - t * t).sqrt(),
     }
 }

@@ -57,6 +57,28 @@ mod easing_tests {
         }
     }
 
+    mod closed_form_families {
+        use super::*;
+
+        #[test]
+        fn should_trace_a_quarter_cosine_for_sine() {
+            // Act
+            let result = curve(Easing::Sine, Direction::EaseIn, 3);
+
+            // Assert — 1 - cos(t·pi/2).
+            assert_curve(result, &[0.0, 0.292_893_2, 1.0]);
+        }
+
+        #[test]
+        fn should_trace_a_quarter_circle_for_circular() {
+            // Act
+            let result = curve(Easing::Circular, Direction::EaseIn, 3);
+
+            // Assert — 1 - sqrt(1 - t^2).
+            assert_curve(result, &[0.0, 0.133_974_6, 1.0]);
+        }
+    }
+
     mod linear {
         use super::*;
 

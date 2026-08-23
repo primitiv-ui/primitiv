@@ -76,6 +76,8 @@ export type PlaygroundProps = {
   snippetPrefix?: string | ((mode: Mode) => string);
   /** Replaces the generated snippet — see `ComponentSpec.playground.snippet`. */
   snippet?: (values: Record<string, string>, mode: Mode) => string;
+  /** Stretch the preview to its container's width — see `ComponentSpec`. */
+  fill?: boolean;
 };
 
 /**
@@ -116,6 +118,7 @@ export const Playground = ({
   component,
   controls,
   children,
+  fill = false,
   snippetChildren,
   snippetPrefix,
   snippet,
@@ -169,7 +172,14 @@ export const Playground = ({
               <p className="docs-overline">Preview</p>
               {/* data-density on the wrapper, not the component: that IS the
                   mechanism the control above is demonstrating. */}
-              <div className="docs-playground-preview" data-density={density}>
+              <div
+                className={
+                  fill
+                    ? "docs-playground-preview docs-playground-preview--fill"
+                    : "docs-playground-preview"
+                }
+                data-density={density}
+              >
                 {children(values)}
               </div>
             </Stack>

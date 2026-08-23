@@ -180,6 +180,10 @@ export const tabsSpec: ComponentSpec = {
           }),
         }),
       ].join("\n"),
+    /* The tablist has to span the container or `justify` has nothing to move
+       the triggers within — start, center and end would all render identically
+       on a tablist hugging its own content. */
+    fill: true,
     render: (values) => (
       <Demo size={values.size as Size} justify={values.justify as Justify} />
     ),

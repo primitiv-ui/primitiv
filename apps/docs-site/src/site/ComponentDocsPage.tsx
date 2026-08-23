@@ -93,6 +93,7 @@ export const ComponentDocsPage = ({ id }: { id: ComponentId }) => {
             snippetChildren={spec.playground.snippetChildren}
             snippetPrefix={spec.playground.snippetPrefix}
             snippet={spec.playground.snippet}
+            fill={spec.playground.fill}
           >
             {spec.playground.render}
           </Playground>

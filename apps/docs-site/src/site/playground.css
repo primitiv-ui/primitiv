@@ -17,6 +17,19 @@
   min-block-size: var(--docs-preview-min-height);
 }
 
+/*
+ * A preview that spans its container, for a component whose width is part of
+ * what the controls demonstrate.
+ *
+ * Only the INLINE axis changes: `place-items: center` above is shorthand for
+ * both axes, so overriding `justify-items` alone keeps the preview vertically
+ * centred in the min-height box while letting it fill horizontally. Stretching
+ * both would pin a short component to the top of a 6rem box.
+ */
+.docs-playground-preview--fill {
+  justify-items: stretch;
+}
+
 .docs-playground-controls {
   display: flex;
   flex-wrap: wrap;

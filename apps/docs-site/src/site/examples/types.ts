@@ -54,6 +54,19 @@ export type ComponentSpec = {
     readonly snippet?: (values: Record<string, string>, mode: Mode) => string;
     /** Renders the live preview for the current control values. */
     readonly render: (values: Record<string, string>) => ReactNode;
+    /**
+     * Stretch the preview to the full width of its container instead of
+     * centring it at its natural size.
+     *
+     * For components where the WIDTH is part of what the controls do. Tabs is
+     * the case that asked for it: `justify` moves the triggers within the
+     * tablist, so on a tablist hugging its own content `start`, `center` and
+     * `end` render identically and the control looks broken. A Button has no
+     * such axis, and stretching it would just misrepresent how it lays out.
+     *
+     * @default false
+     */
+    readonly fill?: boolean;
   };
 
   readonly examples: readonly {

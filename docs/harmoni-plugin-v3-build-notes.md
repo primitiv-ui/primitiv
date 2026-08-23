@@ -266,11 +266,11 @@ so each needs settling before it is drawn:
   crumb) but there is no view behind it.
 - **Loading / generating**, and **error** — write refused, missing permission,
   library-imported (`remote: true`) variables.
-- **The canvas insert — exploration drawn 2026-08-23, awaiting sign-off.** Page
-  **"Wireframes — Harmoni Plugin (canvas insert — exploration)"**, five panels
-  plus a decisions frame. The *output* was already specified (RFC 0013 §3.2/§4.5
-  — config, planner, renderer, controls, Generate placement); the exploration
-  covers only what that RFC cannot answer. Proposed, for sign-off:
+- **The canvas insert — settled 2026-08-23.** Design record: page **"Wireframes —
+  Harmoni Plugin (canvas insert — exploration)"**, five panels plus a decisions
+  frame. The *output* was already specified (RFC 0013 §3.2/§4.5 — config,
+  planner, renderer, controls, Generate placement); only what that RFC could not
+  answer was explored, and all of it is now signed off:
   1. **The canvas output is a view, pushed from Export** — not a fifth tab, not
      a second footer button. Export keeps one primary; the secondary pushes to a
      full view with a `‹ export` crumb, the route the picker already takes out
@@ -283,24 +283,30 @@ so each needs settling before it is drawn:
      gap 8 · step labels below · value hex · a11y badge auto · foreground swatch
      on · title on · **oklch off**. The badge and paired foreground are free data
      the engine already carries, so a default that hides them spends nothing and
-     proves nothing.
+     proves nothing; oklch stays off because it is canonical but not what a
+     Figma reader pastes. **O7 is closed** — update RFC 0013's open-questions
+     list when that RFC is next touched.
   4. **The preview is a canvas ground at 1:1, and it scrolls** rather than
-     scaling — it is the DOM `CanvasRenderer` on the same `planSwatches` plan, so
-     it cannot drift from the output.
+     scaling — clipping with paddles, because the question it exists to answer is
+     whether an 8px label reads on that fill.
   5. **Generate looks for a stamped frame before it draws one.** Found →
      *Update in place* / *Place a copy*, staleness read by comparing each
      swatch's stamped `value` to the palette. Nothing found → RFC 0013's original
-     fresh frame at viewport centre.
-  Still open, and **two of the three are conflicts with RFC 0013**:
-  - `SwatchExportConfig` has **no mode field**. One mode previews fine; "all
-    modes" must choose between one frame per mode and one frame with two
-    sections.
-  - **`planSwatches` emits `PlacedNode[]`, not instances.** RFC 0013 §5 plans raw
-    rectangles and text so the same plan can render to DOM; §4 above says the
-    canvas frame must be Swatch **instances, never detached**, so token changes
-    still reach it. Those are different outputs and one plan cannot produce both.
-  - **O6 — drag-to-canvas.** Draw the handle, mark it a fast-follow, ship the
-    button first. Unchanged from the RFC.
+     fresh frame at viewport centre. **This supersedes §4.5's "no clobber concern
+     here"**, which was written before the ownership stamps existed.
+
+  **Parked, deliberately — do not quietly assume either side.**
+  `planSwatches` emits `PlacedNode[]` (RFC 0013 §5) so one plan renders to both
+  DOM and Figma, which is what makes the preview *provably* identical to the
+  output. §4 above requires the canvas frame to be Swatch **instances, never
+  detached**, so later token and geometry changes still reach it. Both guarantees
+  are real; one plan cannot produce both. Neither is load-bearing until code
+  exists, so the first implementation forces the answer.
+
+  **Still open:** `SwatchExportConfig` has **no mode field** — one mode previews
+  fine, but "all modes" must choose between one frame per mode and one frame with
+  two sections. And **O6**, drag-to-canvas: draw the handle, mark it a
+  fast-follow, ship the button first.
 
 Also outstanding: a **light-theme pass** over the view set. The built views are
 dark and the `Harmoni / Panel Header` has a `Theme=light` variant, but a Figma

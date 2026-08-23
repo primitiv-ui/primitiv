@@ -145,8 +145,20 @@ invent a place for them without settling it.
 - Row labels are `Body / sm`, **not `Label / sm`** — a settings row is a label
   and its value at equal weight; SemiBold labels read as headings and fight the
   eyebrows.
-- Sections are separated by real `Divider` instances; the tab baseline serves
-  as the first rule.
+- **Sections are cards, not eyebrow-plus-divider** (reworked 2026-08-23 to match
+  the canvas-swatches view): four `surface/subtle` + `border/subtle` frames on
+  `surface/md/{padding,gap,radius}`, each pinned to `Context = Dense`, each headed
+  by its own overline. Cloned from the picker's Value card, which is the
+  established surface idiom in this view set. It reads as grouped settings rather
+  than a list with rules through it, and it is **shorter** — 436 px of content
+  against ~600 with dividers, because a card's padding replaces the 20/1/20 gap
+  a divider needed either side of it.
+- **Two row shapes, and the choice is meaningful.** A *label-above-control cell*
+  in a two-column grid for controls that sit side by side (Steps per ramp ·
+  Gamut); a *label-left / control-right inline row* for a control that qualifies
+  what is above it or stands alone (Modes · In use · Contrast against on the
+  canvas view). The inline form also lands the control in the right-hand column,
+  so it lines up with the grid above rather than floating.
 - **Still unsettled:** `soft_white` / `soft_black` are `GenerateOptions` inputs
   with no home in v3. DEFAULTS is now literally a `GenerateOptions` panel, so
   it is the obvious candidate — but wireframe 05 does not draw them, so do not

@@ -162,6 +162,7 @@ const subComponents = cfg.subComponents.map((sc) => {
 
 const out = {
   id: name, displayName: cfg.displayName, kind: cfg.kind, status: cfg.status,
+  category: cfg.category,
   description: contract.description,
   headless: { package: "@primitiv-ui/react", importPath: cfg.importPath, subComponents },
   styled: {

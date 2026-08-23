@@ -7,19 +7,26 @@
  * second copy of this list would drift the moment a component was added — which
  * is the whole failure mode the sync script exists to catch.
  *
+ * `category` groups the component on the /components index. The names and their
+ * order are the canonical set the rest of the repo already uses — the
+ * kitchen-sink's own `PAGE_TOC` and the Figma file's page-section dividers — so
+ * this is a fourth copy of that list only in the sense that it is the one the
+ * docs site can read. The index's `CATEGORY_ORDER` types these as a union, so a
+ * typo here fails the docs-site typecheck rather than silently dropping a card.
+ *
  * Adding a component page starts here: add an entry, then run
  * `node scripts/docs-data/sync-docs-data.mjs`.
  */
 export const REGISTRY = {
   button: {
-    displayName: "Button", kind: "registry", status: "stable",
+    displayName: "Button", kind: "registry", status: "stable", category: "Buttons",
     propsFile: "packages/react/src/Button/types.ts",
     subComponents: [{ name: "Button", propsType: "ButtonProps", element: "button" }],
     contract: "registry/components/button/contract.json",
     figmaComponentSetKey: "347:14161", importPath: "@primitiv-ui/react",
   },
   tabs: {
-    displayName: "Tabs", kind: "registry", status: "stable",
+    displayName: "Tabs", kind: "registry", status: "stable", category: "Disclosure",
     propsFile: "packages/react/src/Tabs/types.ts",
     subComponents: [
       { name: "Tabs.Root", propsType: "TabsRootProps", element: "div", component: "Root" },
@@ -37,7 +44,7 @@ export const REGISTRY = {
   // mutual exclusivity of value/onValueChange XOR defaultValue is NOT
   // recoverable from this data and has to be prose on the page (§1.20.2).
   select: {
-    displayName: "Select", kind: "registry", status: "stable",
+    displayName: "Select", kind: "registry", status: "stable", category: "Collections & Selection",
     propsFile: "packages/react/src/Select/types.ts",
     subComponents: [
       { name: "Select.Root", propsType: "SelectRootProps", element: "div", component: "Root" },

@@ -3,6 +3,7 @@
   "displayName": "Select",
   "kind": "registry",
   "status": "stable",
+  "category": "Collections & Selection",
   "description": "A single-select control with two render paths behind one API: a rich Popover-API listbox (the default) whose options carry icons, badges and a selected mark, or a native `<select>` for flat, OS-native cases. The rich control is a framed field on the same geometry as Input; its panel and rows resolve the shared dropdown tokens, so a Select listbox and a Dropdown menu are the same surface. Positioned with CSS anchor positioning, wired by the component itself; keyboard, typeahead, focus and form submission are owned by the headless primitive.",
   "headless": {
     "package": "@primitiv-ui/react",

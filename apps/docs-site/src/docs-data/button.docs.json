@@ -3,6 +3,7 @@
   "displayName": "Button",
   "kind": "registry",
   "status": "stable",
+  "category": "Buttons",
   "description": "A clickable action — a button, or a link styled as one via `asChild`.",
   "headless": {
     "package": "@primitiv-ui/react",

@@ -3,6 +3,7 @@
   "displayName": "Tabs",
   "kind": "registry",
   "status": "stable",
+  "category": "Disclosure",
   "description": "An accessible tabbed interface — a tablist of triggers that switch between panels (WAI-ARIA Tabs pattern).",
   "headless": {
     "package": "@primitiv-ui/react",

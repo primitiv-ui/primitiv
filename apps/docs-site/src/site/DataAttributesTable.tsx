@@ -80,75 +80,86 @@ const partName = (group: DataAttributeGroup, mode: Mode): string => {
   const [base, part] = group.part.split(".");
   return part ? partNamer(mode, base)(part) : base;
 };
-
 export const DataAttributesTable = ({
   groups,
 }: {
   groups: readonly DataAttributeGroup[];
 }) => (
-  <ModeTabs label="Consumption mode">
-    {(mode) => (
-      <>
-        {groups.map((group) => (
-          <section className="docs-data-attributes-group" key={group.part}>
-            {/* h3 to match the other sub-headings on the page, and it names the
-                table below it via aria-labelledby — so each is announced as its
-                part rather than as the fourth unnamed table on the page. The id
-                is keyed on the part, not on the heading text, so it survives a
-                mode switch. */}
-            <h3
-              className="docs-example-title"
-              id={`data-attributes-${group.part}`}
-            >
-              {partName(group, mode)}
-            </h3>
+  <>
+    {groups.map((group) => (
+      <section className="docs-data-attributes-group" key={group.part}>
+        {/* One tablist PER PART, not one for the whole section: each title and
+            table is its own pair, and the title has to sit inside the panel
+            because the title is what changes (`Tabs` styled, `Tabs.Root`
+            headless). The label names the part — four tablists all announced
+            "Consumption mode" would be four identical controls in a screen
+            reader's element list. */}
+        <ModeTabs label={`Consumption mode for ${group.part}`} size="sm">
+          {(mode) => (
+            <>
+              {/* h3 to match the page's other sub-headings, and it names the
+                  table below via aria-labelledby, so each table is announced as
+                  its part rather than as the fourth unnamed table on the page.
+                  The id is keyed on the part rather than the heading text, so it
+                  survives a mode switch. */}
+              <h3
+                className="docs-example-title"
+                id={`data-attributes-${group.part}`}
+              >
+                {partName(group, mode)}
+              </h3>
 
-            {/* The selector a styled-mode reader writes to reach this part —
-                shown IN ADDITION to the part name, not instead of it, since the
-                name is what identifies the part and the class is what you type.
-                Headless mode has no class to show: the element is the
-                consumer's. */}
-            {mode !== "headless" && group.className && (
-              <p className="docs-data-attributes-class">
-                <InlineCode size="sm">{`.${group.className}`}</InlineCode>
-              </p>
-            )}
+              {/* The selector a styled-mode reader writes to reach this part —
+                  shown IN ADDITION to the part name, not instead of it: the name
+                  identifies the part, the class is what you type. Headless mode
+                  has no class to show, because the element is the consumer's. */}
+              {mode !== "headless" && group.className && (
+                <p className="docs-data-attributes-class">
+                  <InlineCode size="sm">{`.${group.className}`}</InlineCode>
+                </p>
+              )}
 
-            <TableScrollArea>
-              <Table size="sm" aria-labelledby={`data-attributes-${group.part}`}>
-                <TableHead>
-                  <TableRow>
-                    <TableHeader scope="col">Attribute</TableHeader>
-                    <TableHeader scope="col">Value</TableHeader>
-                    <TableHeader scope="col">When</TableHeader>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {group.rows.map((row) => (
-                    <TableRow key={`${group.part}-${row.name}-${row.value}`}>
-                      <TableCell>
-                        <InlineCode size="sm">{row.name}</InlineCode>
-                      </TableCell>
-                      <TableCell>
-                        {/* An empty value is meaningful — a boolean data
-                            attribute is present with no value — so it is shown
-                            as the empty string it is, rather than the em dash
-                            that means "not applicable" in the props tables. */}
-                        <InlineCode size="sm">
-                          {row.value === "" ? '""' : row.value}
-                        </InlineCode>
-                      </TableCell>
-                      <TableCell>
-                        <span className="docs-prop-description">{row.when}</span>
-                      </TableCell>
+              <TableScrollArea>
+                <Table
+                  size="sm"
+                  aria-labelledby={`data-attributes-${group.part}`}
+                >
+                  <TableHead>
+                    <TableRow>
+                      <TableHeader scope="col">Attribute</TableHeader>
+                      <TableHeader scope="col">Value</TableHeader>
+                      <TableHeader scope="col">When</TableHeader>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableScrollArea>
-          </section>
-        ))}
-      </>
-    )}
-  </ModeTabs>
+                  </TableHead>
+                  <TableBody>
+                    {group.rows.map((row) => (
+                      <TableRow key={`${group.part}-${row.name}-${row.value}`}>
+                        <TableCell>
+                          <InlineCode size="sm">{row.name}</InlineCode>
+                        </TableCell>
+                        <TableCell>
+                          {/* An empty value is meaningful — a boolean data
+                              attribute is present with no value — so it shows as
+                              the empty string it is, rather than the em dash that
+                              means "not applicable" in the props tables. */}
+                          <InlineCode size="sm">
+                            {row.value === "" ? '""' : row.value}
+                          </InlineCode>
+                        </TableCell>
+                        <TableCell>
+                          <span className="docs-prop-description">
+                            {row.when}
+                          </span>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableScrollArea>
+            </>
+          )}
+        </ModeTabs>
+      </section>
+    ))}
+  </>
 );

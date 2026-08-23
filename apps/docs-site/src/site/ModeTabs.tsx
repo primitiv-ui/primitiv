@@ -37,10 +37,17 @@ const TABS = [
  */
 export const ModeTabs = ({
   label,
+  size = "md",
   children,
 }: {
-  /** Names the tablist, e.g. `"Consumption mode"`. */
+  /**
+   * Names the tablist. Must be DISTINCT per instance where a page carries
+   * several — four tablists all announced "Consumption mode" are four identical
+   * controls in a screen reader's element list.
+   */
   label: string;
+  /** `sm` where the tabs are a sub-control inside a section, not the section. */
+  size?: "sm" | "md";
   children: (mode: Mode) => ReactNode;
 }) => {
   const [mode, setMode] = useMode();
@@ -49,6 +56,7 @@ export const ModeTabs = ({
   return (
     <Tabs
       className="docs-mode-tabs"
+      size={size}
       value={active}
       onValueChange={(next) => setMode(next as Mode)}
     >

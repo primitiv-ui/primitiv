@@ -96,4 +96,34 @@
   h6 {
     overflow-wrap: break-word;
   }
+
+  /*
+   * In-page jumps animate instead of teleporting — the TOC rails on the
+   * component pages and the /components index, and any hash you arrive on.
+   *
+   * CSS rather than the kitchen-sink's `scrollIntoView({ behavior: "smooth" })`:
+   * there, the handler exists because GitHub Pages forces a HashRouter and a
+   * bare `href="#id"` would be read as a route change, so the click had to be
+   * intercepted anyway. This app has no such constraint — the TOC renders plain
+   * `<a href="#id">`, so one declaration covers every anchor, including
+   * back/forward navigation and a link someone pastes, which a click handler
+   * cannot reach.
+   *
+   * `html`, not `:root`: this is the document's scroll container. Combined with
+   * the `scroll-margin-block-start` on each anchored heading, the animation ends
+   * with the heading clear of the sticky nav rather than under it.
+   */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* A page that scrolls itself is exactly the motion this query is for, and
+     unlike a decorative transition there is no reduced version worth keeping —
+     so it goes back to an instant jump. Matches how the registry sheets opt out
+     (`prefers-reduced-motion: reduce`) rather than opting in. */
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
 }

@@ -57,7 +57,11 @@
           }
         ],
         "dataAttributes": [
-          "data-disabled"
+          {
+            "name": "data-disabled",
+            "value": "",
+            "when": "disabled"
+          }
         ]
       }
     ]

@@ -79,7 +79,16 @@
           }
         ],
         "dataAttributes": [
-          "data-orientation"
+          {
+            "name": "data-orientation",
+            "value": "horizontal",
+            "when": "horizontal"
+          },
+          {
+            "name": "data-orientation",
+            "value": "vertical",
+            "when": "vertical"
+          }
         ]
       },
       {
@@ -110,7 +119,16 @@
           }
         ],
         "dataAttributes": [
-          "data-orientation"
+          {
+            "name": "data-orientation",
+            "value": "horizontal",
+            "when": "horizontal"
+          },
+          {
+            "name": "data-orientation",
+            "value": "vertical",
+            "when": "vertical"
+          }
         ]
       },
       {
@@ -148,9 +166,31 @@
         ],
         "contractProps": [],
         "dataAttributes": [
-          "data-state",
-          "data-orientation",
-          "data-disabled"
+          {
+            "name": "data-state",
+            "value": "active",
+            "when": "active"
+          },
+          {
+            "name": "data-state",
+            "value": "inactive",
+            "when": "inactive"
+          },
+          {
+            "name": "data-orientation",
+            "value": "horizontal",
+            "when": "horizontal"
+          },
+          {
+            "name": "data-orientation",
+            "value": "vertical",
+            "when": "vertical"
+          },
+          {
+            "name": "data-disabled",
+            "value": "",
+            "when": "disabled"
+          }
         ]
       },
       {
@@ -167,8 +207,26 @@
         ],
         "contractProps": [],
         "dataAttributes": [
-          "data-state",
-          "data-orientation"
+          {
+            "name": "data-state",
+            "value": "active",
+            "when": "active"
+          },
+          {
+            "name": "data-state",
+            "value": "inactive",
+            "when": "inactive"
+          },
+          {
+            "name": "data-orientation",
+            "value": "horizontal",
+            "when": "horizontal"
+          },
+          {
+            "name": "data-orientation",
+            "value": "vertical",
+            "when": "vertical"
+          }
         ]
       }
     ]

@@ -141,11 +141,41 @@
           }
         ],
         "dataAttributes": [
-          "aria-expanded",
-          "aria-invalid",
-          "data-disabled",
-          "data-placeholder",
-          "data-state"
+          {
+            "name": "aria-expanded",
+            "value": "true",
+            "when": "open"
+          },
+          {
+            "name": "aria-expanded",
+            "value": "false",
+            "when": "closed"
+          },
+          {
+            "name": "aria-invalid",
+            "value": "true",
+            "when": "invalid"
+          },
+          {
+            "name": "data-disabled",
+            "value": "",
+            "when": "disabled (native root)"
+          },
+          {
+            "name": "data-placeholder",
+            "value": "",
+            "when": "nothing selected (on the value part)"
+          },
+          {
+            "name": "data-state",
+            "value": "checked",
+            "when": "selected option"
+          },
+          {
+            "name": "data-state",
+            "value": "unchecked",
+            "when": "unselected option"
+          }
         ]
       },
       {

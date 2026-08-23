@@ -111,17 +111,44 @@ const modsFor = (mods) => (mods || []).map((m) => ({
   default: m.default ?? null,
   description: m.description || "",
 }));
+/*
+ * A part's data attributes as full { name, value, when } rows.
+ *
+ * These used to be names only, with the whole triple living in a single flat
+ * top-level list — which is what made the Tabs page unreadable: `data-orientation`
+ * is emitted by all four parts, so the one table showed it four times over with
+ * nothing saying which part each row belonged to (and, since the table keys rows
+ * on name+value, four React children with the same key). Per-part rows let the
+ * page render a table per part instead.
+ */
+const rowsFor = (attrs) =>
+  (attrs || []).map((d) => ({
+    name: d.name,
+    value: d.value ?? "",
+    when: d.when ?? "",
+  }));
+
+const dedupeRows = (rows) => {
+  const seen = new Set();
+  return rows.filter((r) => {
+    const key = `${r.name}\u0000${r.value}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+};
+
 // component-name → { contractProps, dataAttributes }
 const styledByComponent = {};
 const rootComp = contract.root?.component || cfg.subComponents[0].component || cfg.subComponents[0].name;
 styledByComponent[rootComp] = {
   contractProps: modsFor(contract.modifiers),
-  dataAttributes: (contract.dataAttributes || []).map((d) => d.name),
+  dataAttributes: rowsFor(contract.dataAttributes),
 };
 for (const sub of contract.subcomponents || []) {
   styledByComponent[sub.component] = {
     contractProps: modsFor(sub.modifiers),
-    dataAttributes: (sub.dataAttributes || []).map((d) => d.name),
+    dataAttributes: rowsFor(sub.dataAttributes),
   };
 }
 
@@ -156,7 +183,9 @@ const subComponents = cfg.subComponents.map((sc) => {
   return {
     ...head,
     contractProps: styled.contractProps,
-    dataAttributes: [...new Set(styled.dataAttributes)],
+    /* Keyed on name+value, not name: `data-state` legitimately appears twice
+       with different values, and deduping by name alone dropped one of them. */
+    dataAttributes: dedupeRows(styled.dataAttributes),
   };
 });
 

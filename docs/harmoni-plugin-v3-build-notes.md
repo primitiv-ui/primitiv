@@ -266,21 +266,41 @@ so each needs settling before it is drawn:
   crumb) but there is no view behind it.
 - **Loading / generating**, and **error** — write refused, missing permission,
   library-imported (`remote: true`) variables.
-- **The canvas insert.** The *output* is specified (RFC 0013 §3.2/§4.5 —
-  config, planner, renderer, controls, Generate placement) and §4.6 of that RFC
-  asks for a Figma wireframe before it is built. Three things that spec cannot
-  answer, because they postdate it:
-  - **O7, still open in the RFC itself** — the default look: size, gap, shape,
-    which labels default on, `separate` vs `stacked`. The live preview exists
-    to settle this.
-  - **Where it lives in v3.** RFC 0013 assumes the old 600px export section
-    ("two stacked cards, each headed by a `Switch`"). The v3 panel is 360px
-    with four tabs and no such shell, so the trigger has to be re-sited.
-  - **A contradiction to resolve.** RFC 0013 §4.5 says each generate is a
-    **fresh frame** the designer positions, explicitly not idempotent. The
-    ownership stamps (§4 above) came later and carry the appearance config as
-    JSON on the frame, which makes update-in-place possible and makes a second
-    Generate ambiguous. One of the two has to give.
+- **The canvas insert — exploration drawn 2026-08-23, awaiting sign-off.** Page
+  **"Wireframes — Harmoni Plugin (canvas insert — exploration)"**, five panels
+  plus a decisions frame. The *output* was already specified (RFC 0013 §3.2/§4.5
+  — config, planner, renderer, controls, Generate placement); the exploration
+  covers only what that RFC cannot answer. Proposed, for sign-off:
+  1. **The canvas output is a view, pushed from Export** — not a fifth tab, not
+     a second footer button. Export keeps one primary; the secondary pushes to a
+     full view with a `‹ export` crumb, the route the picker already takes out
+     of Palette. RFC 0013 assumed a 600px section with two `Switch`-headed
+     cards; v3 has no such shell.
+  2. **The controls are `SwatchExportConfig`, unchanged.** The only new thing is
+     grouping — nine controls sized for 600px fit at 360 as four cards
+     (LAYOUT / SHAPE / LABELS / CHECKS) above the preview.
+  3. **O7 — the default is the contact sheet**: separate · rounded 4 · size 56 ·
+     gap 8 · step labels below · value hex · a11y badge auto · foreground swatch
+     on · title on · **oklch off**. The badge and paired foreground are free data
+     the engine already carries, so a default that hides them spends nothing and
+     proves nothing.
+  4. **The preview is a canvas ground at 1:1, and it scrolls** rather than
+     scaling — it is the DOM `CanvasRenderer` on the same `planSwatches` plan, so
+     it cannot drift from the output.
+  5. **Generate looks for a stamped frame before it draws one.** Found →
+     *Update in place* / *Place a copy*, staleness read by comparing each
+     swatch's stamped `value` to the palette. Nothing found → RFC 0013's original
+     fresh frame at viewport centre.
+  Still open, and **two of the three are conflicts with RFC 0013**:
+  - `SwatchExportConfig` has **no mode field**. One mode previews fine; "all
+    modes" must choose between one frame per mode and one frame with two
+    sections.
+  - **`planSwatches` emits `PlacedNode[]`, not instances.** RFC 0013 §5 plans raw
+    rectangles and text so the same plan can render to DOM; §4 above says the
+    canvas frame must be Swatch **instances, never detached**, so token changes
+    still reach it. Those are different outputs and one plan cannot produce both.
+  - **O6 — drag-to-canvas.** Draw the handle, mark it a fast-follow, ship the
+    button first. Unchanged from the RFC.
 
 Also outstanding: a **light-theme pass** over the view set. The built views are
 dark and the `Harmoni / Panel Header` has a `Theme=light` variant, but a Figma

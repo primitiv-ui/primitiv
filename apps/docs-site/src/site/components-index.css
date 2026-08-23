@@ -20,6 +20,23 @@
   color: var(--primitiv-content-secondary);
 }
 
+/* One group per category, in the order `CATEGORY_ORDER` fixes. The gap between
+   groups is the flow region — the same rhythm the component pages use between
+   their sections, since these headings do the same job. */
+.docs-index-group + .docs-index-group {
+  margin-block-start: var(--primitiv-flow-region);
+}
+
+.docs-index-group-title {
+  margin-block: 0 var(--primitiv-flow-tight);
+  font-family: var(--primitiv-heading-h3-font-family);
+  font-size: var(--primitiv-heading-h3-font-size);
+  font-weight: var(--primitiv-heading-h3-font-weight);
+  line-height: var(--primitiv-heading-h3-line-height);
+  letter-spacing: var(--primitiv-heading-h3-letter-spacing);
+  color: var(--primitiv-content-primary);
+}
+
 .docs-index-grid {
   /* Narrowest a card may get before the auto-fill grid drops a column. */
   --docs-index-card-min: 16rem;

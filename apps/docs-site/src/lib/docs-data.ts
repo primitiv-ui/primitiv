@@ -64,10 +64,38 @@ export type DocsDataAttribute = {
   readonly when: string;
 };
 
+/**
+ * The component groups on the /components index, in display order.
+ *
+ * The names and the order are the canonical set the repo already uses — the
+ * kitchen-sink's `PAGE_TOC` and the Figma file's page-section dividers — so the
+ * three surfaces group a component the same way and a reader who learns one
+ * learns all three.
+ *
+ * A union rather than `string`: `category` arrives from generated docs-data, and
+ * typing it here means a typo in `scripts/docs-data/registry.mjs` fails the
+ * typecheck instead of silently dropping that component's card off the page.
+ */
+export const CATEGORY_ORDER = [
+  "Layout",
+  "Buttons",
+  "Forms",
+  "Collections & Selection",
+  "Typography",
+  "Overlays",
+  "Feedback & Status",
+  "Disclosure",
+  "Navigation",
+  "Data Display",
+] as const;
+
+export type Category = (typeof CATEGORY_ORDER)[number];
+
 export type ComponentDocs = {
   readonly id: string;
   readonly displayName: string;
   readonly status: string;
+  readonly category: Category;
   readonly description: string;
   readonly headless: {
     readonly package: string;

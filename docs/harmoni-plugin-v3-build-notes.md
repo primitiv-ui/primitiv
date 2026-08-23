@@ -175,9 +175,22 @@ way back is a crumb rather than a bespoke `‹ export` control.
   Light = `346:7`). That is how a light canvas is previewed inside a dark panel
   without a single raw colour: every token inside the ground resolves to the
   previewed mode. Switch the mode chip → switch the pinned mode.
-- **The preview is real `Harmoni / Swatch [Form=block, Size=sm]` instances**, not
-  a drawing. `block` at sm is 47 × 128, so five fit in the 332 body
-  (5 × 47 + 4 × 8 = 267). `panel` at sm is 65 wide and five overflow.
+- **The preview is real `Harmoni / Swatch [Form=panel, Size=sm]` instances**, not
+  a drawing — 65 × 171 with a **square 63 × 63 cap** and the facts below it on
+  their own bordered card, which is the form the square-cap/meta-below request
+  produced in the first place. `block` was tried first and is wrong here: its cap
+  is a squat 47 × 32 and the facts run to four lines.
+- **The ground is drawn as the Figma canvas, not a panel surface** — `surface/default`
+  with a `border/subtle` dot grid at 26 px. The dots are a depiction of an
+  external surface, not styling of ours, which is why a dot grid is allowed here
+  and nowhere else in the panel. One seeded ellipse is bound to the token and
+  then cloned; `clone()` carries the bound fill, so it is one bind, not eighty.
+- **The strip overflows on purpose.** Five panels are 337 px against 300 px of
+  ground, so the fifth clips and a real `Icon Button [secondary, sm]` sits over it
+  as the scroll paddle. That is the signed-off "1:1, and it scrolls rather than
+  scales" made literal — a preview that fitted would be lying about the size.
+- `Show source` is **off**: the "fg 900" line is not in `SwatchExportConfig`.
+  `foregroundSwatch` maps to `Show sample` (the `Aa`) alone.
 
 **Config → Swatch property map** (worked out here, needed by the builder):
 

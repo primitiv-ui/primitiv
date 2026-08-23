@@ -74,6 +74,33 @@
 }
 
 /*
+ * A linked card lifts on hover — the flat→raised step Button has had since
+ * RFC 0017, which Card never got because a Card is not inherently interactive.
+ * That is also why this lives here and not in the registry sheet: a hover rule
+ * on `.primitiv-card` would animate every card in every consuming app,
+ * including ones with nothing to click.
+ *
+ * No transition needed — `.primitiv-card` already declares one for `box-shadow`
+ * so elevation and the focus ring interpolate rather than snap, and this
+ * inherits it.
+ *
+ * The `elevation/raised` TOKEN, not the card's own `--primitiv-card-shadow`
+ * knob, even though the knob defaults to exactly this. `check-tokens` resolves
+ * app-sheet references against the emitted token layer only, and the knob is
+ * declared by the card's stylesheet — so reaching for it is both a check failure
+ * and a real coupling to a sheet the CLI regenerates. The token is the stable
+ * name; `raised` is also the step Button lifts to, so the two agree.
+ *
+ * `:not(--inert)` is the point of the rule, not a detail — an undocumented card
+ * has nothing to click, and a card that lifts under the cursor is the clearest
+ * possible claim that it does.
+ */
+.docs-index-card:not(.docs-index-card--inert):hover,
+.docs-index-card:not(.docs-index-card--inert):focus-visible {
+  box-shadow: var(--primitiv-elevation-raised);
+}
+
+/*
  * A component with no docs page yet: real content, nothing to click.
  *
  * Held slightly back rather than dimmed to unreadability — the description is

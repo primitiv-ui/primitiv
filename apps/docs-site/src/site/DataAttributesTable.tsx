@@ -64,15 +64,19 @@ export type DataAttributeGroup = {
 };
 
 /**
- * The part's heading, in the spelling that mode's reader would type.
+ * The part's name, in the spelling that mode's reader would type.
  *
- * Styled mode gets the class, because that is what goes in the selector.
- * Headless mode gets the part name via `partNamer` — the same helper the
- * snippets and the anatomy tree use, so one component is named identically
- * everywhere on the page.
+ * `partNamer` throughout — the same helper the snippets and the anatomy tree
+ * use, so one part is named identically everywhere on the page. That is what
+ * makes the root differ per mode: `Tabs` in styled mode, where the copied file
+ * exports it under the component's own name, and `Tabs.Root` in headless, where
+ * the parts hang off one export.
+ *
+ * Plain text, not a code span: this is the section's heading structure, and
+ * setting a heading in mono made it read as a snippet rather than as the label
+ * for the table under it. The class below it IS code, and is marked up as such.
  */
-const heading = (group: DataAttributeGroup, mode: Mode): string => {
-  if (mode !== "headless" && group.className) return `.${group.className}`;
+const partName = (group: DataAttributeGroup, mode: Mode): string => {
   const [base, part] = group.part.split(".");
   return part ? partNamer(mode, base)(part) : base;
 };
@@ -96,10 +100,19 @@ export const DataAttributesTable = ({
               className="docs-example-title"
               id={`data-attributes-${group.part}`}
             >
-              <code className="docs-data-attributes-part">
-                {heading(group, mode)}
-              </code>
+              {partName(group, mode)}
             </h3>
+
+            {/* The selector a styled-mode reader writes to reach this part —
+                shown IN ADDITION to the part name, not instead of it, since the
+                name is what identifies the part and the class is what you type.
+                Headless mode has no class to show: the element is the
+                consumer's. */}
+            {mode !== "headless" && group.className && (
+              <p className="docs-data-attributes-class">
+                <InlineCode size="sm">{`.${group.className}`}</InlineCode>
+              </p>
+            )}
 
             <TableScrollArea>
               <Table size="sm" aria-labelledby={`data-attributes-${group.part}`}>

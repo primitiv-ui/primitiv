@@ -160,7 +160,54 @@ and `EaseIn · EaseOut · EaseInOut` in a second.
   family name, same mathematical shape, different axis — so `Sine ease-in-out`
   will NOT reproduce SupaPalette's ramp, and should not. Say so somewhere a user
   can find it, or it gets reported as a bug.
-- **Engine spec (not built — views first).** A `palette::easing` module,
+- **Engine spec — BUILT 2026-08-23 (`crates/harmoni-core/src/palette/easing.rs`),
+  and building it corrected two things below.** What landed: `Easing` (9) ×
+  `Direction` (3), `curve(&CurvePreset, count) -> Vec<f32>` returning normalised
+  `0..=1` ascending positions, plus `lightness_curve(preset, count, from, to)`
+  reading them across a ramp's own endpoints. Opt-in via
+  `GenerateOptions.curve: Option<CurvePreset>`, default `None`. 100% lines,
+  regions and functions; gated by `crates/harmoni-core/tests/easing_curves.rs`.
+  - **`Arc` at accent 0 IS `Sine`, exactly — the original spec below was wrong
+    about which family it collides with.** Parametrising a quarter circle evenly
+    in angle gives `sin θ` and `1 − cos θ`, which *are* sine's two directions, so
+    under any 1-D reading Arc has no shape of its own. The spec compared Arc only
+    against `Circular` (0.87 vs 0.71 at the midpoint) and that gap is real — but
+    0.71 is `sin(π/4)`, so those very numbers were the collision. The distinction
+    survives in fettepalette only because there `x` and `y` feed *different*
+    channels. **Resolution (settled with the human): Arc keeps its place and
+    gains a user-facing accent**, which sweeps it from Sine ease-out at 0 to Sine
+    ease-in at 1. Both ends duplicate sine, so `DEFAULT_ARC_ACCENT` is **0.5** —
+    the only default under which Arc contributes something nothing else can make.
+    **This adds a third control to the Curve card that the settled wireframe does
+    not have**, and that view needs reopening before the plugin is built.
+  - **Two departures from fettepalette's `pointOnCurve`, both forced by what a
+    lightness ramp needs.** Its arc branch is `y = cos(-π/2 + i·slice + accent)`,
+    i.e. `sin(θ + a)`, then **clamped** into `0..1`. (1) The accent is negated and
+    clamped to `0..=1`: `sin` turns over inside the sampled window for a positive
+    accent, which would run lightness back down — 300 darker than 400. (2) The
+    result is **normalised over its own sampled span, not clamped**: clamping
+    parks several samples on one value at any non-zero accent, and colliding
+    steps are precisely the defect the anchored model exists to prevent (RFC 0027
+    §12.2). Verified the gate catches both by reintroducing the clamp.
+  - **The signature grew a struct, and that was forced too.** `curve(easing,
+    direction, count)` had nowhere to put an accent, so the choice is carried as
+    `CurvePreset { easing, direction, accent }`. The property the spec actually
+    cared about — sampled positions rather than `fn ease(t)` — is unchanged.
+  - **`None` is not `Some(Linear)`.** The authored `TARGET_LIGHTNESS` /
+    `TARGET_LIGHTNESS_DARK` are not straight lines and no preset reproduces them,
+    which the gate asserts across all 27 combinations. So the default stays a
+    separate case rather than becoming a tenth list entry — and a caller who opts
+    in always gets a real change.
+  - **`generate_brand_pair` still takes no options**, so a preset cannot reach
+    `primitiv theme --brand` or `regen-palette`. Primitiv's own token layer stays
+    structurally locked to the authored curve, the same guarantee that keeps the
+    step-count knob out of it. The 365 primitiv-emit goldens passing untouched is
+    the independent proof.
+  - **`Exponential`'s first sample is pinned to 0**; `2^(10t−10)` lands on `2^-10`
+    at `t = 0`, and anchoring reads the curve's own endpoints, so a ramp whose
+    curve starts just off zero starts just off its anchor.
+
+- **Engine spec as originally settled (superseded above where they disagree).** A `palette::easing` module,
   `Easing` (9) × `Direction` (3), exposing
   **`curve(easing, direction, count) -> Vec<f32>`** — sampled positions, not a
   function, for the Arc reason above. It replaces `TARGET_LIGHTNESS` as the shape

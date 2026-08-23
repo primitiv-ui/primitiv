@@ -288,6 +288,32 @@ with the mode-field question.
 
 ## 4. The Swatch, and the canvas insert
 
+**THE BOX IS A SPECIMEN, NOT A COLOUR CHIP (2026-08-23).** The point of Harmoni
+is that the engine finds a foreground that reads on each step, so the swatch has
+to show that *literally*: the paired foreground painted **on** the colour, with
+the grade centred beneath it. Before this, `panel`'s Box was an empty 114 × 114
+frame and the `Aa` sample sat in the facts row **outside** the colour, hidden by
+default — the component put the foreground and the background side by side, which
+demonstrates nothing. `panel/sm` is rebuilt and is the reference:
+- `Box` is VERTICAL, centred on both axes, holding `Sample` ("Aa", 28) above
+  `Grade` ("AAA", 12). Both are painted with the paired foreground, which is
+  **data, not a token** — the same category as the Box fill itself.
+- Both carry `componentPropertyReferences`, so the panel drives them:
+  `Sample.visible` → `Show sample`, `Grade.visible` → `Show grade`,
+  `Grade.characters` → `Grade#1940:535`.
+- **This revives the dead `Grade` property.** A plain TEXT inside the master can
+  carry a `characters` ref; the nested `Badge` it replaces could not (see the
+  instance-sublayer limit). Correction to an earlier note: `Grade#1940:535` was
+  never dead on `row`, which already had a real TEXT wired — only on the five
+  forms that used a Badge.
+- The external Grade badge and facts-row `Sample` are removed on `panel`. Losing
+  the badge loses the green/amber pass-fail tint; the grade now takes the paired
+  foreground instead, which is the more honest reading — a failing pair looks bad,
+  which is the point.
+- **Known cosmetic leftover:** the `Flags` frame stays 20 px tall on `panel` even
+  with only a hidden `Gamut` left in it. A hug frame that has held content keeps
+  that height (same family as the horizontal-slot hug in gotcha 15).
+
 **Read `docs/rfcs/0013-configurable-palette-export.md` §3.2 / §4.5 and
 `docs/plugin-ui-design-guide.md` §5 before designing anything here.** They are
 the spec for the canvas output and predate this document: `SwatchExportConfig`

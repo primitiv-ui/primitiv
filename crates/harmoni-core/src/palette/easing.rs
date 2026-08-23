@@ -15,6 +15,7 @@ pub enum Easing {
     Quartic,
     Quintic,
     Sine,
+    Exponential,
     Circular,
 }
 
@@ -64,6 +65,11 @@ fn ease_in(easing: Easing, t: f32) -> f32 {
         Easing::Quartic => t.powi(4),
         Easing::Quintic => t.powi(5),
         Easing::Sine => 1.0 - (t * std::f32::consts::FRAC_PI_2).cos(),
+        // 2^(10t - 10) lands on 2^-10 rather than 0, so the zero is pinned:
+        // anchoring reads the curve's own endpoints and a ramp whose curve
+        // starts just off zero starts just off its anchor.
+        Easing::Exponential if t == 0.0 => 0.0,
+        Easing::Exponential => (10.0 * t - 10.0).exp2(),
         Easing::Circular => 1.0 - (1.0 - t * t).sqrt(),
     }
 }

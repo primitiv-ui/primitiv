@@ -61,6 +61,17 @@ mod easing_tests {
         use super::*;
 
         #[test]
+        fn should_pin_exponentials_first_sample_to_zero_rather_than_its_formula() {
+            // Act
+            let result = curve(Easing::Exponential, Direction::EaseIn, 3);
+
+            // Assert — 2^(10t - 10) is 2^-10 at t = 0, not 0. Anchoring reads
+            // the curve's own endpoints, so a ramp whose curve starts just off
+            // zero starts just off its anchor; the family is pinned instead.
+            assert_curve(result, &[0.0, 0.031_25, 1.0]);
+        }
+
+        #[test]
         fn should_trace_a_quarter_cosine_for_sine() {
             // Act
             let result = curve(Easing::Sine, Direction::EaseIn, 3);

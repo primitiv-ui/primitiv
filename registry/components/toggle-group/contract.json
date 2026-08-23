@@ -7,12 +7,12 @@
   "root": {
     "element": "div",
     "class": "primitiv-toggle-group",
-    "component": "Root",
-    "dataAttributes": [
-      { "name": "data-orientation", "value": "horizontal", "when": "horizontal", "source": "auto" },
-      { "name": "data-orientation", "value": "vertical", "when": "vertical", "source": "auto" }
-    ]
+    "component": "Root"
   },
+  "dataAttributes": [
+    { "name": "data-orientation", "value": "horizontal", "when": "horizontal", "source": "auto" },
+    { "name": "data-orientation", "value": "vertical", "when": "vertical", "source": "auto" }
+  ],
   "modifiers": [
     {
       "name": "size",

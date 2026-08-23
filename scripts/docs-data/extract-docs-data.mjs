@@ -157,7 +157,14 @@ const styledByComponent = {};
 const rootComp = contract.root?.component || cfg.subComponents[0].component || cfg.subComponents[0].name;
 styledByComponent[partKey(rootComp)] = {
   contractProps: modsFor(contract.modifiers),
-  dataAttributes: rowsFor(contract.dataAttributes),
+  /* Both shapes: a top-level `dataAttributes` (the canonical one, 32 contracts)
+     and `root.dataAttributes` (toggle-group, segmented-control). Reading only
+     the first would drop those two components' root attributes from their page
+     without a word — the same silent-omission class as the part-name casing. */
+  dataAttributes: rowsFor([
+    ...(contract.dataAttributes || []),
+    ...(contract.root?.dataAttributes || []),
+  ]),
   class: contract.root?.class ?? null,
 };
 for (const sub of contract.subcomponents || []) {

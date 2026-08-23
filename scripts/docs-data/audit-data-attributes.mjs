@@ -36,6 +36,11 @@ import { fileURLToPath } from "node:url";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const quiet = process.argv.includes("--quiet");
+/* --locate <id>: for one component, print where each undeclared attribute is
+   set and the function that sets it, so it can be declared on the RIGHT part.
+   Attributing to the wrong part is the Select bug this whole audit came from. */
+const locateArg = process.argv.indexOf("--locate");
+const locate = locateArg === -1 ? null : process.argv[locateArg + 1];
 
 const registry = JSON.parse(
   readFileSync(join(ROOT, "registry/registry.json"), "utf8"),
@@ -47,6 +52,18 @@ const headlessDir = (id) =>
     .split("-")
     .map((w) => w[0].toUpperCase() + w.slice(1))
     .join("");
+
+/** name → [{ file, line, fn }] for every place a `data-*` attribute is set. */
+const sites = new Map();
+const noteSite = (name, file, src, index) => {
+  const line = src.slice(0, index).split("\n").length;
+  /* The nearest preceding declaration is the part doing the emitting. */
+  const before = src.slice(0, index);
+  const decl = [...before.matchAll(/(?:export\s+)?(?:function|const)\s+([A-Z][A-Za-z0-9_]*)/g)].pop();
+  const list = sites.get(name) ?? [];
+  list.push({ file: file.replace(ROOT + "/", ""), line, fn: decl?.[1] ?? "?" });
+  sites.set(name, list);
+};
 
 /** Every `data-*` attribute NAME a source tree sets. */
 const emittedBy = (dir) => {
@@ -64,19 +81,40 @@ const emittedBy = (dir) => {
       const src = readFileSync(p, "utf8");
       /* Assignment shapes only — a bare mention in a comment or a README is not
          an emission, and counting those was the first version's mistake. */
-      for (const m of src.matchAll(/"(data-[a-z-]+)":/g)) found.add(m[1]);
-      for (const m of src.matchAll(/\sdata-([a-z-]+)=/g)) found.add(`data-${m[1]}`);
+      for (const m of src.matchAll(/"(data-[a-z-]+)":/g)) {
+        found.add(m[1]);
+        noteSite(m[1], p, src, m.index);
+      }
+      for (const m of src.matchAll(/\sdata-([a-z-]+)=/g)) {
+        found.add(`data-${m[1]}`);
+        noteSite(`data-${m[1]}`, p, src, m.index);
+      }
       /* Imperative form: a hook or effect stamping the attribute on a ref. */
-      for (const m of src.matchAll(/setAttribute\(\s*["'`](data-[a-z-]+)/g)) found.add(m[1]);
+      for (const m of src.matchAll(/setAttribute\(\s*["'`](data-[a-z-]+)/g)) {
+        found.add(m[1]);
+        noteSite(m[1], p, src, m.index);
+      }
     }
   };
   walk(dir);
   return found;
 };
 
-/** Contract entries as `{ name, part, when }`, root included. */
+/**
+ * Contract entries as `{ name, part, when }`, root included.
+ *
+ * Root attributes live in TWO places in the wild: a top-level `dataAttributes`
+ * (32 contracts) and `root.dataAttributes` (toggle-group, segmented-control).
+ * Reading only the first reported `data-orientation` as undeclared on those two
+ * when it was there all along — so both are read, and the outliers are being
+ * normalised to the top-level form separately.
+ */
 const declaredIn = (contract) => {
-  const rows = (contract.dataAttributes || []).map((d) => ({
+  const rootRows = [
+    ...(contract.dataAttributes || []),
+    ...(contract.root?.dataAttributes || []),
+  ];
+  const rows = rootRows.map((d) => ({
     ...d,
     part: contract.root?.component ?? "root",
     isRoot: true,
@@ -135,6 +173,22 @@ for (const id of Object.keys(registry.components).sort()) {
   const misattributed = declared.filter(
     (d) => d.isRoot && PART_WORDS.test(d.when ?? ""),
   );
+
+  if (locate === id) {
+    console.log(`${id} — where each undeclared attribute is set:`);
+    /* `sites` spans every component scanned so far, and names repeat —
+       data-orientation is set by nine of them — so filter to this component's
+       own files or the listing is useless. */
+    const mine = (f) =>
+      f.startsWith(`packages/react/src/${headlessDir(id)}/`) ||
+      f.startsWith(`registry/components/${id}/`);
+    for (const name of undeclared) {
+      for (const site of (sites.get(name) ?? []).filter((s) => mine(s.file))) {
+        console.log(`  ${name.padEnd(32)} ${site.fn.padEnd(26)} ${site.file}:${site.line}`);
+      }
+    }
+    process.exit(0);
+  }
 
   const bad = undeclared.length + orphaned.length + misattributed.length;
   problems += bad;

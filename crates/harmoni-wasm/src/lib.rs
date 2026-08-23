@@ -62,6 +62,18 @@ pub fn get_contrast_rating(bg: &str, fg: &str) -> Result<types::ContrastResult, 
     .map_err(to_js_error)
 }
 
+/// What `ratio` achieves when the colour is used as `use`.
+///
+/// `get_contrast_rating` answers a different question — it reports a ratio and
+/// a single stringly-typed rating, which cannot say that one ratio is AA as
+/// body copy, AAA at heading size, and past the non-text bar all at once. A
+/// grade is what a designer decides on; compose this with the ratio from
+/// `get_contrast_rating` when the evidence behind the verdict is wanted too.
+#[wasm_bindgen]
+pub fn grade(ratio: f32, r#use: types::ContrastUse) -> types::Grade {
+    api::grade(ratio, r#use.into()).into()
+}
+
 #[wasm_bindgen]
 pub fn generate_palette(
     hex: &str,
@@ -412,4 +424,32 @@ pub fn parse_color(input: &str) -> Result<types::OklchTriple, JsError> {
 #[wasm_bindgen]
 pub fn describe_oklch(l: f32, c: f32, h: f32) -> types::OklchTriple {
     types::oklch_triple(palette::Oklch::new(l, c, h))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// The example the design note turns on: one ratio, three verdicts. A
+    /// stringly-typed `rating` cannot express this, which is why the boundary
+    /// needed the use-aware grade rather than only `get_contrast_rating`.
+    #[test]
+    fn one_ratio_grades_differently_depending_on_what_it_is_for() {
+        assert_eq!(grade(4.71, types::ContrastUse::BodyText), types::Grade::Aa);
+        assert_eq!(grade(4.71, types::ContrastUse::LargeText), types::Grade::Aaa);
+        assert_eq!(grade(4.71, types::ContrastUse::NonText), types::Grade::Aa);
+    }
+
+    #[test]
+    fn body_text_below_its_own_bar_can_still_pass_at_heading_size() {
+        assert_eq!(
+            grade(3.5, types::ContrastUse::BodyText),
+            types::Grade::LargeTextOnly
+        );
+    }
+
+    #[test]
+    fn non_text_never_reports_the_enhanced_tier_it_has_no_standard_for() {
+        assert_eq!(grade(21.0, types::ContrastUse::NonText), types::Grade::Aa);
+    }
 }

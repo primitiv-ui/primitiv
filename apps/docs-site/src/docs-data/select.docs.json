@@ -92,7 +92,8 @@
           }
         ],
         "contractProps": [],
-        "dataAttributes": []
+        "dataAttributes": [],
+        "class": null
       },
       {
         "name": "Select.Trigger",
@@ -161,7 +162,8 @@
             "value": "",
             "when": "disabled — on the native `<select>`, which shares this class"
           }
-        ]
+        ],
+        "class": "primitiv-select"
       },
       {
         "name": "Select.Value",
@@ -189,7 +191,8 @@
             "value": "",
             "when": "nothing selected"
           }
-        ]
+        ],
+        "class": "primitiv-select__value"
       },
       {
         "name": "Select.Placeholder",
@@ -211,7 +214,8 @@
           }
         ],
         "contractProps": [],
-        "dataAttributes": []
+        "dataAttributes": [],
+        "class": null
       },
       {
         "name": "Select.Content",
@@ -240,7 +244,8 @@
           }
         ],
         "contractProps": [],
-        "dataAttributes": []
+        "dataAttributes": [],
+        "class": "primitiv-select__content"
       },
       {
         "name": "Select.Item",
@@ -285,7 +290,8 @@
             "value": "",
             "when": "the option is disabled"
           }
-        ]
+        ],
+        "class": "primitiv-select__item"
       },
       {
         "name": "Select.ItemIndicator",
@@ -332,7 +338,8 @@
             "value": "unchecked",
             "when": "its option is not selected"
           }
-        ]
+        ],
+        "class": "primitiv-select__item-indicator"
       },
       {
         "name": "Select.Group",
@@ -354,7 +361,8 @@
           }
         ],
         "contractProps": [],
-        "dataAttributes": []
+        "dataAttributes": [],
+        "class": "primitiv-select__group"
       },
       {
         "name": "Select.Separator",
@@ -383,7 +391,8 @@
           }
         ],
         "contractProps": [],
-        "dataAttributes": []
+        "dataAttributes": [],
+        "class": "primitiv-select__separator"
       }
     ]
   },

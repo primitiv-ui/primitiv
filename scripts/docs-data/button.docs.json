@@ -62,7 +62,8 @@
             "value": "",
             "when": "disabled"
           }
-        ]
+        ],
+        "class": "primitiv-button"
       }
     ]
   },

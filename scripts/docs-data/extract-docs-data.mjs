@@ -158,11 +158,16 @@ const rootComp = contract.root?.component || cfg.subComponents[0].component || c
 styledByComponent[partKey(rootComp)] = {
   contractProps: modsFor(contract.modifiers),
   dataAttributes: rowsFor(contract.dataAttributes),
+  class: contract.root?.class ?? null,
 };
 for (const sub of contract.subcomponents || []) {
   const entry = {
     contractProps: modsFor(sub.modifiers),
     dataAttributes: rowsFor(sub.dataAttributes),
+    /* The class a styled-mode reader actually writes in their CSS. In headless
+       mode there is no class — the element is theirs — so the page shows the
+       part name instead. */
+    class: sub.class ?? null,
   };
   /* Both spellings, so a registry entry can name the part either way. */
   styledByComponent[partKey(sub.component)] = entry;
@@ -208,6 +213,7 @@ const subComponents = cfg.subComponents.map((sc) => {
     /* Keyed on name+value, not name: `data-state` legitimately appears twice
        with different values, and deduping by name alone dropped one of them. */
     dataAttributes: dedupeRows(styled?.dataAttributes ?? []),
+    class: styled?.class ?? null,
   };
 });
 

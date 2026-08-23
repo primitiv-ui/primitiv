@@ -89,7 +89,8 @@
             "value": "vertical",
             "when": "vertical"
           }
-        ]
+        ],
+        "class": "primitiv-tabs"
       },
       {
         "name": "Tabs.List",
@@ -129,7 +130,8 @@
             "value": "vertical",
             "when": "vertical"
           }
-        ]
+        ],
+        "class": "primitiv-tabs__list"
       },
       {
         "name": "Tabs.Trigger",
@@ -191,7 +193,8 @@
             "value": "",
             "when": "disabled"
           }
-        ]
+        ],
+        "class": "primitiv-tabs__trigger"
       },
       {
         "name": "Tabs.Content",
@@ -227,7 +230,8 @@
             "value": "vertical",
             "when": "vertical"
           }
-        ]
+        ],
+        "class": "primitiv-tabs__panel"
       }
     ]
   },

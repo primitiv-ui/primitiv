@@ -151,6 +151,9 @@ export const DataAttributesTable = ({
                   has no class to show, because the element is the consumer's. */}
               {mode !== "headless" && group.className && (
                 <p className="docs-data-attributes-class">
+                  <span className="docs-data-attributes-class-label">
+                    className:
+                  </span>{" "}
                   <InlineCode size="sm">{`.${group.className}`}</InlineCode>
                 </p>
               )}

@@ -68,15 +68,36 @@
   margin-block-end: var(--primitiv-flow-tight);
 }
 
-/* The styled-mode selector under a part's heading. Sits tight to the heading it
-   belongs to, not spaced as its own block — it is a subtitle, and the table
-   below is what the pair introduces. */
+/* The styled-mode selector under a part's heading — a subtitle to it, and the
+   pair introduces the table below.
+
+   It used to carry a negative top margin that cancelled the heading's own
+   bottom margin exactly, so the two sat flush and read as one wrapped line. The
+   heading's `flow-tight` now stands, and this only spaces itself from the table. */
 .docs-data-attributes-class {
-  margin-block: calc(-1 * var(--primitiv-flow-tight)) var(--primitiv-flow-tight);
+  margin-block: var(--primitiv-space-space-0) var(--primitiv-flow-tight);
 }
 
 /* The "|" between an attribute's values. Muted, because it is the page's
    punctuation rather than part of any value. */
 .docs-data-attributes-or {
   color: var(--primitiv-content-muted);
+}
+
+/*
+ * The "className:" term on that line.
+ *
+ * Set in the `label/sm` face at `content/primary`, so it reads as a label rather
+ * than as prose — but it is a `<span>`, not a `<label>`: that element is for
+ * naming a form control, and there is no control here. Nothing was inherited
+ * either way, since `primitiv-base.css` carries no bare `label` rule at all, so
+ * the face has to be stated whichever element is used.
+ */
+.docs-data-attributes-class-label {
+  display: inline;
+  font-family: var(--primitiv-label-sm-font-family);
+  font-size: var(--primitiv-label-sm-font-size);
+  font-weight: var(--primitiv-label-sm-font-weight);
+  line-height: var(--primitiv-label-sm-line-height);
+  color: var(--primitiv-content-primary);
 }

@@ -64,7 +64,19 @@ Curve, Export, Setup, Destination. Components: `Harmoni / Panel Header`,
   not a settings group). On **Palette** only `Seeds` is carded: the ramp strips
   already group themselves visually, so an outline around 700px of them buys
   nothing. **Do not card a view that is one table or one list** — Audit is a
-  `Table` and needs no frame around it.
+  `Table` and needs no frame around it. Also carded: **Setup** (`Projects`,
+  `Adopt`), **Destination** (`Where`, `Modes`, `Collision`) and **Curve**
+  (`Curve chart`, `Padding`, `Ramp` — which is what separates the thing you edit,
+  the bounds you edit it within, and the ramp it produces). Every card is
+  `Context = Dense`, with `itemSpacing 16` between them.
+- **Setup's `EmptyState` stays bare** — it is a component with its own
+  presentation, so a card round it is a box round a box. It does run at
+  **`Size=sm`, not `xs`**: `EmptyState` caps its text column with a real measure
+  token, `empty-state/{size}/max-inline-size`, which at `xs` in Compact is
+  **168 px** and broke "No Harmoni variables here" four words to one. That wrap
+  was the token doing its job, not a bug — **the fix is the size axis, not the
+  copy**, and the copy is worth keeping because "*Harmoni* variables **here**" is
+  exactly what sets up the adopt-what-is-here choice below it.
 
 ## 2. Which view owns what
 

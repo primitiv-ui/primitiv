@@ -45,6 +45,14 @@ export type DocsSubComponent = {
   readonly props: readonly DocsProp[];
   readonly contractProps?: readonly DocsContractProp[];
   /**
+   * The registry class for this part, or null when it has none.
+   *
+   * What a STYLED-mode reader writes in their CSS to reach the element the data
+   * attributes land on. Null in headless mode's world by definition — there the
+   * element is the consumer's, so the part name is the only identifier.
+   */
+  readonly class: string | null;
+  /**
    * The data attributes THIS part emits, as full rows.
    *
    * Was declared as `{ name, description }` and optional, which the extractor

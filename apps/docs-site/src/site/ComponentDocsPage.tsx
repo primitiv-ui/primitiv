@@ -49,7 +49,11 @@ export const ComponentDocsPage = ({ id }: { id: ComponentId }) => {
      DataAttributesTable for why they are not tabbed or collapsed. */
   const dataAttrGroups = subs
     .filter((sub) => sub.dataAttributes.length > 0)
-    .map((sub) => ({ part: sub.name, rows: sub.dataAttributes }));
+    .map((sub) => ({
+      part: sub.name,
+      className: sub.class,
+      rows: sub.dataAttributes,
+    }));
 
   /*
    * The TOC is built from the same three sources the sections render from

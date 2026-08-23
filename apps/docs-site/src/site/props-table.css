@@ -67,3 +67,10 @@
 .docs-data-attributes-group .docs-example-title {
   margin-block-end: var(--primitiv-flow-tight);
 }
+
+/* The part name / class in a data-attributes heading. Code-set, because it is a
+   thing you type — a class in styled mode, a component name in headless. */
+.docs-data-attributes-part {
+  font-family: var(--primitiv-code-md-font-family);
+  font-size: inherit;
+}

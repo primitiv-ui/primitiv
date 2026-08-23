@@ -1,0 +1,13 @@
+/*
+ * The Styled/Headless switch over a non-code section.
+ *
+ * The registry Tabs panel carries its own padding (`panel/padding-*`), which is
+ * right for a tab panel holding prose but wrong here: the section already has
+ * its own rhythm, and the inherited padding indented the tables away from every
+ * other block on the page. Zeroed on the inline axis and reduced on the block
+ * axis, so the tables line up with the props tables above them.
+ */
+.docs-mode-tabs .primitiv-tabs__panel {
+  padding-inline: var(--primitiv-space-space-0);
+  padding-block-end: var(--primitiv-space-space-0);
+}

@@ -171,9 +171,19 @@ and `EaseIn · EaseOut · EaseInOut` in a second.
   another resolution. `Linear` ignores direction. Gate it on the property the
   whole feature rests on: every family × direction × ramp length 3-32 must be
   **monotonic and within 0..1**.
-- **The glyphs are a component set, and they follow the direction** (settled
-  2026-08-23). `Harmoni / Easing Glyph` — `Easing` (9) × `Direction` (3) = **27
-  variants**, drawn as bars bound to `content/primary`. The family Select renders
+- **The glyphs are a component set, and they follow the direction** (built
+  2026-08-23). `Harmoni / Easing Glyph` (`1975:129542`, page "Harmoni Easing
+  Glyph") — `Easing` (9) × `Direction` (3) = **27 variants**, drawn as bars bound
+  to `content/primary`. **16 px with 4 bars**, and that pairing is forced: the
+  glyph sits in `Select / Trigger`'s `Leading` slot, which is sized for an icon,
+  so a 24 px glyph **overflows and prints on top of the value text**. Four bars at
+  16 px give a 2.6 px bar — the same weight five bars had at 24 px — so
+  legibility survives the shrink. Do not add bars without re-checking bar width;
+  the first attempt used seven and rendered as hairlines.
+  **Only the Easing trigger carries a glyph.** It already previews the chosen
+  direction, so repeating it on the Direction trigger would show the same mark
+  twice in one row; in the open lists both carry glyphs (the family list at the
+  current direction, the direction list at the current family). The family Select renders
   each row's glyph *at the currently-selected direction*, so the list never shows
   a curve you would not get; the alternative — canonical ease-in-out glyphs that
   ignore the direction control — defeats the point of having a preview. `Linear`

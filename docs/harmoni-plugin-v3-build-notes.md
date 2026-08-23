@@ -46,6 +46,17 @@ Curve, Export, Setup, Destination. Components: `Harmoni / Panel Header`,
   system already had the right component. Don't reintroduce it.
 - **The tab bar only exists once a project is bound.** Setup and Destination
   have none.
+- **Link buttons are the exception, not a style choice** (settled 2026-08-23).
+  A discrete action a user is meant to notice gets `Variant=secondary`; five were
+  converted (`+ Add ramp`, `+ New project`, `Scan for an existing palette` ×2,
+  `Reset to the default curve`). `link` survives in exactly two situations:
+  - **the control is a row inside a list** — Destination's `+ New…` sits among
+    Miller Columns rows, and a framed button there reads as a row of a different
+    kind and breaks the column rhythm;
+  - **quiet is the point** — In sync's `Remove 120 variables from this file` is
+    destructive and lives in the footer. A framed button makes it easier to hit
+    by accident, and `Variant=danger` would be louder still: a filled red button
+    is more emphasis than a footer escape hatch should carry.
 - **`content/muted` is not used for the plugin's own text.** Every label, value
   and note is `content/primary`; the muted role did not read well at 360px.
   **`figma.createText()` gives a literal black fill, not a token** — every text

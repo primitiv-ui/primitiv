@@ -327,7 +327,27 @@ variant. And **rebuilding the nodes clears the per-instance foreground fills**,
 since the fill is an instance override on a node that no longer exists; re-apply
 them after any master surgery.
 
-`Harmoni / Swatch` — 6 forms × 5 sizes, 18 properties.
+`Harmoni / Swatch` — **4 forms × 5 sizes** (20 variants), 18 properties.
+
+**The form list was cut from six to four (2026-08-23).** `block` and `card` were
+**removed, not hidden**: they differed from `panel` only by cap size — which
+`swatchSize` already controls and `swatch/{size}/panel-cap` already tokenises —
+and from each other only by a border. Two near-identical entries in a select,
+duplicating a slider that already exists. Checked first that the only instances
+anywhere in the file were in the forms-comparison specimen. What remains are four
+distinct layout ideas, and this is the list `SwatchExportConfig.form` offers:
+
+| Form | Idea | Where the facts go |
+|---|---|---|
+| `panel` | colour dominant, facts below | all three specimen lines on the colour |
+| `tile` | compact square, everything on the colour | on the colour |
+| `row` | full-width bar, everything on the colour | on the colour |
+| `circle` | a dot list, **vertical only** | beside the disc |
+
+`circle` and `row` are **vertical-only** layouts, so **`form` constrains
+`orientation`** — the same kind of dependency that retired
+`stepLabels.placement`. The planner reads orientation from the form for those
+two rather than taking it as input.
 
 - **Only `row` and `tile` print inside the colour.** They take the paired
   foreground; `panel`, `block`, `card`, `circle` print on the page and keep the

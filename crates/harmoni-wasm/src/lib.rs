@@ -93,6 +93,34 @@ pub fn readable_step(
     api::readable_step(&steps, &surface.into(), threshold).map(Into::into)
 }
 
+/// A light/dark pair shaped by a curve preset instead of the built-in curves.
+///
+/// Additive rather than a parameter on `generate_palette_pair_with_steps`,
+/// because a preset is genuinely opt-in: the hand-authored curves are not
+/// straight lines and no preset reproduces them, so "no preset" has to stay a
+/// distinct call rather than becoming `Linear` by default.
+#[wasm_bindgen]
+pub fn generate_palette_pair_with_curve(
+    hex: &str,
+    steps: usize,
+    light_padding: f32,
+    dark_padding: f32,
+    curve: types::CurvePreset,
+) -> Result<types::PaletteSet, JsError> {
+    api::generate_brand_pair_with_options(
+        ColorInput::Css(hex.to_string()),
+        GenerateOptions {
+            light_padding,
+            dark_padding,
+            steps,
+            curve: Some(curve.into()),
+            ..GenerateOptions::default()
+        },
+    )
+    .map(Into::into)
+    .map_err(to_js_error)
+}
+
 /// Sample a curve preset at `count` positions, normalised to `0..=1` ascending.
 ///
 /// This is the shape itself, not a ramp: what a preview glyph draws, and what a
@@ -516,6 +544,45 @@ mod tests {
 
     fn preset(easing: types::Easing, direction: types::Direction) -> types::CurvePreset {
         types::CurvePreset { easing, direction, accent: default_arc_accent() }
+    }
+
+    #[test]
+    fn a_preset_shapes_the_generated_pair_and_the_default_is_not_one_of_them() {
+        let authored = generate_palette_pair_with_steps(BRAND, 10, 0.0, 0.0).unwrap();
+
+        let shaped = generate_palette_pair_with_curve(
+            BRAND,
+            10,
+            0.0,
+            0.0,
+            preset(types::Easing::Linear, types::Direction::EaseIn),
+        )
+        .unwrap();
+
+        assert_eq!(shaped.light.swatches.len(), 10);
+        assert_eq!(shaped.dark.swatches.len(), 10);
+        // The hand-authored curves are not straight lines, so opting in has to
+        // be a real change — on both themes, not just the light one.
+        assert_ne!(shaped.light.swatches, authored.light.swatches);
+        assert_ne!(shaped.dark.swatches, authored.dark.swatches);
+    }
+
+    #[test]
+    fn the_accent_reaches_generation_not_just_the_preview() {
+        let at_default = generate_palette_pair_with_curve(
+            BRAND, 10, 0.0, 0.0,
+            preset(types::Easing::Arc, types::Direction::EaseOut),
+        ).unwrap();
+
+        let at_zero = generate_palette_pair_with_curve(
+            BRAND, 10, 0.0, 0.0,
+            types::CurvePreset {
+                accent: 0.0,
+                ..preset(types::Easing::Arc, types::Direction::EaseOut)
+            },
+        ).unwrap();
+
+        assert_ne!(at_default.light.swatches, at_zero.light.swatches);
     }
 
     #[test]

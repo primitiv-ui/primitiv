@@ -66,3 +66,49 @@
   outline: var(--primitiv-border-width-2) solid var(--primitiv-focus-ring);
   outline-offset: var(--primitiv-space-space-2);
 }
+
+/*
+ * Stand-in artwork, until the per-component set is drawn in Figma. Sized by the
+ * media region's own aspect-ratio, so this only supplies the mark's colour and
+ * weight.
+ *
+ * `content/muted` at a low opacity rather than a pale token: the mark has to
+ * read as provisional in BOTH themes, and one muted colour dimmed works where a
+ * fixed pale grey would vanish on the dark surface.
+ */
+.docs-index-card-placeholder {
+  color: var(--primitiv-content-muted);
+  opacity: var(--primitiv-opacity-30);
+}
+
+.docs-index-card-placeholder rect {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+}
+
+/* The two inner bars are filled, so the mark reads as "a thing with content in
+   it" rather than three empty outlines. */
+.docs-index-card-placeholder rect:not(:first-child) {
+  fill: currentColor;
+  stroke: none;
+}
+
+/*
+ * Every description clamps to three lines, so a grid row's cards are the same
+ * height whatever the generated prose does — and the media region absorbs any
+ * remaining slack, since `.primitiv-card--vertical > .primitiv-card__media`
+ * carries `flex-grow: 1`.
+ *
+ * The `-webkit-` trio is the interoperable spelling (all four engines ship it);
+ * the unprefixed `line-clamp` is listed after it for when that lands. Truncation
+ * is visual only — the full text remains in the DOM for assistive tech and for
+ * find-in-page.
+ */
+.docs-index-card-description {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  overflow: hidden;
+}

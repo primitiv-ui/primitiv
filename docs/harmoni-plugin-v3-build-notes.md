@@ -125,6 +125,37 @@ job at two resolutions, so they share one view.
 - `max_recommended_light_padding(hue)` bounds the light slider and is surfaced as
   a hint. Its only plausible consumer is this control.
 
+**The curve presets crossed the wasm boundary too (2026-08-23).** The easing
+module and the Curve view's accent control both landed the same day with nothing
+joining them — the engine existed and the Figma control existed, and the plugin
+could reach neither. Four entry points close it:
+
+- **`curve_samples(preset, count)`** — the shape itself, normalised `0..=1`, which
+  is what a preview glyph draws and what a chart plots before a ramp's endpoints
+  are applied. `Vec<f32>` crosses the ABI natively, so this one is fully testable.
+- **`generate_palette_pair_with_curve(...)`** — additive, *not* a parameter added
+  to `generate_palette_pair_with_steps`. "No preset" has to stay a distinct call:
+  the authored curves are not straight lines and no preset reproduces them, so
+  folding the two together would quietly make `Linear` the default.
+- **`default_arc_accent()`** — the same argument as `supported_step_range`. Both
+  ends of the accent range duplicate `Sine`, so the default is a real engine
+  decision; a slider that hardcodes 0.5 drifts silently the moment the engine
+  changes its mind.
+- **`Easing` / `Direction` / `CurvePreset` mirrors**, all converting core-ward
+  since a caller chooses them. The tests assert the nine families map to nine
+  **distinct** core families rather than checking each pair — a duplicated match
+  arm is the realistic slip, and it would hand back a curve nobody asked for.
+
+`palette::easing` also had to be re-exported from harmoni-core's **root**
+(`lib.rs`), not just `api`, because the mirror convention addresses core types as
+`core::X`.
+
+**Worth checking before the plugin is built:** the 27 `Harmoni / Easing Glyph`
+variants were drawn from a bar model derived by hand *before* the engine existed.
+`curve_samples(preset, 3)` is now the authority on those three bar heights, so the
+glyphs should be regenerated from it the way the Curve chart was — otherwise the
+preview can disagree with the ramp it previews.
+
 **`readable_step` and the contrast grade crossed the wasm boundary (2026-08-23).**
 Both existed in `harmoni-core` and neither was reachable from the plugin, so the
 Roles and Audit views had no engine behind them.

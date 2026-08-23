@@ -191,6 +191,28 @@ pub struct SwatchStep {
     pub oklch: String,
 }
 
+/// A ramp step that is readable against some other surface, with the contrast
+/// it achieves there.
+#[derive(Tsify, Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[tsify(into_wasm_abi, from_wasm_abi)]
+pub struct ReadableStep {
+    /// Which step of the ramp this is, so a consumer can re-express it as an
+    /// alias (`{color.brand.600}`) rather than baking the colour.
+    pub label: SwatchLabel,
+    pub color: SwatchStep,
+    pub contrast_ratio: f32,
+}
+
+impl From<core::ReadableStep> for ReadableStep {
+    fn from(value: core::ReadableStep) -> Self {
+        ReadableStep {
+            label: value.label.into(),
+            color: value.color.into(),
+            contrast_ratio: value.contrast_ratio,
+        }
+    }
+}
+
 /// Inbound, for entry points that ask a question *about* a ramp the caller
 /// holds. Only `l`, `c`, `h` and the label are read: `hex`, `rgb` and `oklch`
 /// are derived, and a step assembled in JS can carry values that disagree with
@@ -377,6 +399,23 @@ impl From<core::PaletteSet> for PaletteSet {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn readable_step_carries_the_label_so_a_role_can_alias_rather_than_bake() {
+        let core_step = core::ReadableStep {
+            label: core::SwatchLabel::Number(600),
+            color: core::SwatchStep::from_label(0.45, 0.14, 259.0, 600u16),
+            contrast_ratio: 6.04,
+        };
+
+        let wasm_step: ReadableStep = core_step.clone().into();
+
+        // The label is the point: a consumer writes {color.brand.600} rather
+        // than baking the hex, so it has to survive the boundary.
+        assert_eq!(wasm_step.label, SwatchLabel::Number(600));
+        assert_eq!(wasm_step.contrast_ratio, 6.04);
+        assert_eq!(wasm_step.color.hex, core_step.color.hex);
+    }
 
     #[test]
     fn a_step_passed_in_has_its_derived_fields_recomputed_not_trusted() {

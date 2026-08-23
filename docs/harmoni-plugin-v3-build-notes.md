@@ -154,8 +154,9 @@ invent a place for them without settling it.
 
 ## 2d. Canvas swatches — the view, built 2026-08-23
 
-Built at 360 × **824** — it fits the window, and getting there is the point of
-the layout below. Chrome follows the **pushed-view** template, copied
+Built at 360 × **912** — 12 over the window, which is fine while the height is
+fluid; the layout notes below are what got seven controls plus a live preview
+into that at all. Chrome follows the **pushed-view** template, copied
 from Picker, not the tabbed one: header → Breadcrumb → Body `20/14/20/14` gap 16
 → Footer `12/14`. Breadcrumb reads `Primitiv / Export / Canvas swatches`, so the
 way back is a crumb rather than a bespoke `‹ export` control.
@@ -385,11 +386,21 @@ so each needs settling before it is drawn:
      full view with a `‹ export` crumb, the route the picker already takes out
      of Palette. RFC 0013 assumed a 600px section with two `Switch`-headed
      cards; v3 has no such shell.
-  2. **The controls are `SwatchExportConfig`, with one change.** Grouping —
-     nine controls sized for 600px fit at 360 only as two Dense two-column cards
-     above the preview — and **`value` stops being a `'none' | 'hex' | 'oklch'`
-     enum and becomes two booleans**, so one swatch can print both. "None" is
-     both off. RFC 0013 §3.2 needs that edit.
+  2. **The controls are `SwatchExportConfig`, with three changes.** RFC 0013
+     §3.2 needs all three.
+     - **Grouping** — nine controls sized for 600px fit at 360 only as two Dense
+       two-column cards above the preview.
+     - **`value`** stops being a `'none' | 'hex' | 'oklch'` enum and becomes two
+       booleans, so one swatch can print both. "None" is both off.
+     - **`form` is added** (`tile | block | card | circle | row | panel`) and
+       **`stepLabels.placement` is removed.** The config exposed `cornerRadius`,
+       the smallest visual decision, while hard-coding the largest one; and
+       inside-vs-below is a **property of the form**, not an independent axis —
+       §4 says only `row` and `tile` print on the colour, and `panel` cannot
+       print inside without becoming `tile`. The built view proved the overlap
+       was real: `Inside` was selectable on a `panel` and silently did nothing.
+       `shape` / `cornerRadius` stay — corner treatment genuinely is independent
+       of form, and it is the taste knob the form axis is not.
   3. **O7 — the default is the contact sheet**: separate · rounded 4 · size 56 ·
      gap 8 · step labels below · **hex and oklch** · a11y badge auto · foreground
      swatch on · title on. The badge and paired foreground are free data the

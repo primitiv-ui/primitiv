@@ -459,7 +459,6 @@ mod generator_tests {
     }
 
     mod chroma_headroom_across_gamuts {
-        use super::*;
         use crate::color::gamut::Gamut;
         use crate::color::input::ColorInput;
         use crate::palette::generator::chroma_headroom;

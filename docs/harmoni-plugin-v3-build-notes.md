@@ -290,6 +290,27 @@ and `EaseIn · EaseOut · EaseInOut` in a second.
     column showed it — that is where the slope change is largest — but every
     column had it. The top is `[x0, curveY(x0)] → [cx(i), cy(i)] → [x1,
     curveY(x1)]`.
+- **Handles stay on the bar CENTRES, and the bars stay sloped — both were
+  reopened and re-settled by rendering, 2026-08-23.** Handles-at-bar-start was
+  proposed and modelled. With sloped tops it is wrong: bar `i` would then run
+  from exactly step `i` to exactly step `i+1`, rendering the *interval between*
+  two steps while filled with step `i`'s colour, which is only correct at its
+  extreme left edge. It also puts every handle on a boundary (ambiguous which
+  bar owns it) and clips handle 0 against the plot frame.
+  - **Handles-at-start is only right for FLAT treads** — and with flat treads the
+    question dissolves, because a tread carries its value across its whole width,
+    so the centre is exact too. Centre then wins on clipping and ambiguity alone.
+  - **The staircase was built and rejected on the render.** It is the more
+    truthful encoding, but this chart exists so a user can choose a *shape*, and
+    a staircase makes the easing much harder to read at a glance. A hybrid — flat
+    treads plus the smooth curve drawn over them — was also built and is the
+    worst of the three: the tread corners poking above the line read as rendering
+    artifacts.
+  - **The correctness argument for the staircase is weaker than it sounds.**
+    Nobody reads this chart as "step 300's lightness varies across its width".
+    The bars are a **colour bed for the curve**, not a data encoding to be
+    measured off. Legibility of the shape is the thing worth optimising.
+
 - **`curveY` clamps flat past the end handles rather than extrapolating, and the
   curve vector is drawn to the plot edges to match.** The first handle sits half
   a column in from the left, so the outer half of columns 0 and 9 has no curve

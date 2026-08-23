@@ -1456,6 +1456,14 @@
           "$type": "number",
           "$value": "{size.size-80}"
         },
+        "sample-size": {
+          "$type": "number",
+          "$value": "{font-size.18}"
+        },
+        "sample-caption-size": {
+          "$type": "number",
+          "$value": "{font-size.11}"
+        },
         "min-height": {
           "$type": "number",
           "$value": "{size.size-20}"
@@ -1485,6 +1493,14 @@
         "panel-cap": {
           "$type": "number",
           "$value": "{size.size-116}"
+        },
+        "sample-size": {
+          "$type": "number",
+          "$value": "{font-size.24}"
+        },
+        "sample-caption-size": {
+          "$type": "number",
+          "$value": "{font-size.12}"
         },
         "min-height": {
           "$type": "number",
@@ -1516,6 +1532,14 @@
           "$type": "number",
           "$value": "{size.size-140}"
         },
+        "sample-size": {
+          "$type": "number",
+          "$value": "{font-size.32}"
+        },
+        "sample-caption-size": {
+          "$type": "number",
+          "$value": "{font-size.13}"
+        },
         "min-height": {
           "$type": "number",
           "$value": "{size.size-32}"
@@ -1546,6 +1570,14 @@
           "$type": "number",
           "$value": "{size.size-168}"
         },
+        "sample-size": {
+          "$type": "number",
+          "$value": "{font-size.40}"
+        },
+        "sample-caption-size": {
+          "$type": "number",
+          "$value": "{font-size.14}"
+        },
         "min-height": {
           "$type": "number",
           "$value": "{size.size-40}"
@@ -1575,6 +1607,14 @@
         "panel-cap": {
           "$type": "number",
           "$value": "{size.size-200}"
+        },
+        "sample-size": {
+          "$type": "number",
+          "$value": "{font-size.48}"
+        },
+        "sample-caption-size": {
+          "$type": "number",
+          "$value": "{font-size.16}"
         },
         "min-height": {
           "$type": "number",
@@ -4833,6 +4873,14 @@
           "$type": "number",
           "$value": "{size.size-68}"
         },
+        "sample-size": {
+          "$type": "number",
+          "$value": "{font-size.16}"
+        },
+        "sample-caption-size": {
+          "$type": "number",
+          "$value": "{font-size.10}"
+        },
         "min-height": {
           "$type": "number",
           "$value": "{size.size-16}"
@@ -4862,6 +4910,14 @@
         "panel-cap": {
           "$type": "number",
           "$value": "{size.size-96}"
+        },
+        "sample-size": {
+          "$type": "number",
+          "$value": "{font-size.20}"
+        },
+        "sample-caption-size": {
+          "$type": "number",
+          "$value": "{font-size.11}"
         },
         "min-height": {
           "$type": "number",
@@ -4893,6 +4949,14 @@
           "$type": "number",
           "$value": "{size.size-116}"
         },
+        "sample-size": {
+          "$type": "number",
+          "$value": "{font-size.26}"
+        },
+        "sample-caption-size": {
+          "$type": "number",
+          "$value": "{font-size.12}"
+        },
         "min-height": {
           "$type": "number",
           "$value": "{size.size-28}"
@@ -4923,6 +4987,14 @@
           "$type": "number",
           "$value": "{size.size-140}"
         },
+        "sample-size": {
+          "$type": "number",
+          "$value": "{font-size.32}"
+        },
+        "sample-caption-size": {
+          "$type": "number",
+          "$value": "{font-size.13}"
+        },
         "min-height": {
           "$type": "number",
           "$value": "{size.size-32}"
@@ -4952,6 +5024,14 @@
         "panel-cap": {
           "$type": "number",
           "$value": "{size.size-168}"
+        },
+        "sample-size": {
+          "$type": "number",
+          "$value": "{font-size.40}"
+        },
+        "sample-caption-size": {
+          "$type": "number",
+          "$value": "{font-size.14}"
         },
         "min-height": {
           "$type": "number",
@@ -8210,6 +8290,14 @@
           "$type": "number",
           "$value": "{size.size-96}"
         },
+        "sample-size": {
+          "$type": "number",
+          "$value": "{font-size.20}"
+        },
+        "sample-caption-size": {
+          "$type": "number",
+          "$value": "{font-size.11}"
+        },
         "min-height": {
           "$type": "number",
           "$value": "{size.size-24}"
@@ -8239,6 +8327,14 @@
         "panel-cap": {
           "$type": "number",
           "$value": "{size.size-140}"
+        },
+        "sample-size": {
+          "$type": "number",
+          "$value": "{font-size.28}"
+        },
+        "sample-caption-size": {
+          "$type": "number",
+          "$value": "{font-size.13}"
         },
         "min-height": {
           "$type": "number",
@@ -8270,6 +8366,14 @@
           "$type": "number",
           "$value": "{size.size-168}"
         },
+        "sample-size": {
+          "$type": "number",
+          "$value": "{font-size.36}"
+        },
+        "sample-caption-size": {
+          "$type": "number",
+          "$value": "{font-size.14}"
+        },
         "min-height": {
           "$type": "number",
           "$value": "{size.size-40}"
@@ -8300,6 +8404,14 @@
           "$type": "number",
           "$value": "{size.size-200}"
         },
+        "sample-size": {
+          "$type": "number",
+          "$value": "{font-size.48}"
+        },
+        "sample-caption-size": {
+          "$type": "number",
+          "$value": "{font-size.16}"
+        },
         "min-height": {
           "$type": "number",
           "$value": "{size.size-48}"
@@ -8329,6 +8441,14 @@
         "panel-cap": {
           "$type": "number",
           "$value": "{size.size-240}"
+        },
+        "sample-size": {
+          "$type": "number",
+          "$value": "{font-size.56}"
+        },
+        "sample-caption-size": {
+          "$type": "number",
+          "$value": "{font-size.17}"
         },
         "min-height": {
           "$type": "number",
@@ -11587,6 +11707,14 @@
           "$type": "number",
           "$value": "{size.size-56}"
         },
+        "sample-size": {
+          "$type": "number",
+          "$value": "{font-size.14}"
+        },
+        "sample-caption-size": {
+          "$type": "number",
+          "$value": "{font-size.10}"
+        },
         "min-height": {
           "$type": "number",
           "$value": "{size.size-16}"
@@ -11616,6 +11744,14 @@
         "panel-cap": {
           "$type": "number",
           "$value": "{size.size-68}"
+        },
+        "sample-size": {
+          "$type": "number",
+          "$value": "{font-size.18}"
+        },
+        "sample-caption-size": {
+          "$type": "number",
+          "$value": "{font-size.10}"
         },
         "min-height": {
           "$type": "number",
@@ -11647,6 +11783,14 @@
           "$type": "number",
           "$value": "{size.size-80}"
         },
+        "sample-size": {
+          "$type": "number",
+          "$value": "{font-size.22}"
+        },
+        "sample-caption-size": {
+          "$type": "number",
+          "$value": "{font-size.11}"
+        },
         "min-height": {
           "$type": "number",
           "$value": "{size.size-24}"
@@ -11677,6 +11821,14 @@
           "$type": "number",
           "$value": "{size.size-96}"
         },
+        "sample-size": {
+          "$type": "number",
+          "$value": "{font-size.28}"
+        },
+        "sample-caption-size": {
+          "$type": "number",
+          "$value": "{font-size.12}"
+        },
         "min-height": {
           "$type": "number",
           "$value": "{size.size-32}"
@@ -11706,6 +11858,14 @@
         "panel-cap": {
           "$type": "number",
           "$value": "{size.size-116}"
+        },
+        "sample-size": {
+          "$type": "number",
+          "$value": "{font-size.32}"
+        },
+        "sample-caption-size": {
+          "$type": "number",
+          "$value": "{font-size.13}"
         },
         "min-height": {
           "$type": "number",

@@ -290,45 +290,42 @@ with the mode-field question.
 
 **THE BOX IS A SPECIMEN, NOT A COLOUR CHIP (2026-08-23).** The point of Harmoni
 is that the engine finds a foreground that reads on each step, so the swatch has
-to show that *literally*: the paired foreground painted **on** the colour, with
-the grade centred beneath it. Before this, `panel`'s Box was an empty 114 × 114
-frame and the `Aa` sample sat in the facts row **outside** the colour, hidden by
-default — the component put the foreground and the background side by side, which
-demonstrates nothing. `panel/sm` is rebuilt and is the reference:
-- `Box` is VERTICAL, centred on both axes, holding three centred lines, all
-  painted with the paired foreground — which is **data, not a token**, the same
-  category as the Box fill itself:
-  **`Sample`** ("Aa", 26) · **`Source`** ("fg 900", 10) · **`Grade`** ("AAA", 12).
-  The `Aa` proves the foreground reads; the source says **which step it is**;
-  the grade is the verdict. All three answer "what did the engine pair with
-  this?" and all three belong on the colour, not beside it.
-- Each carries `componentPropertyReferences`, so the panel drives them:
-  `Sample.visible` → `Show sample`, `Source.visible/characters` →
-  `Show source` / `Source#1940:229`, `Grade.visible/characters` →
-  `Show grade` / `Grade#1940:535`. The facts-row `Source` is removed, since it
-  would now be a duplicate.
-- **This revives the dead `Grade` property.** A plain TEXT inside the master can
-  carry a `characters` ref; the nested `Badge` it replaces could not (see the
-  instance-sublayer limit). Correction to an earlier note: `Grade#1940:535` was
-  never dead on `row`, which already had a real TEXT wired — only on the five
-  forms that used a Badge.
-- The external Grade badge and facts-row `Sample` are removed on `panel`. Losing
-  the badge loses the green/amber pass-fail tint; the grade now takes the paired
-  foreground instead — settled 2026-08-23, "the foreground IS the signal". A
-  failing pair looks bad, which is the point; a green pill would report a verdict
-  the box is already demonstrating.
-- **Known cosmetic leftover:** the `Flags` frame stays 20 px tall on `panel` even
-  with only a hidden `Gamut` left in it. A hug frame that has held content keeps
-  that height (same family as the horizontal-slot hug in gotcha 15).
+to show that *literally*: the paired foreground painted **on** the colour. Before
+this, `panel`'s Box was an empty 114 × 114 frame and the sample sat in the facts
+row **outside** the colour, hidden by default — the component put the foreground
+and the background side by side, which demonstrates nothing. Landed across all
+30 variants.
 
-**Read `docs/rfcs/0013-configurable-palette-export.md` §3.2 / §4.5 and
-`docs/plugin-ui-design-guide.md` §5 before designing anything here.** They are
-the spec for the canvas output and predate this document: `SwatchExportConfig`
-and its full control list, the pure `planSwatches` planner, the
-`CanvasRenderer` port (one plan, two renderers — DOM preview and Figma nodes),
-the style-controls-above-a-live-preview layout, and Generate → current page at
-`figma.viewport.center`, selected and scrolled into view. What is below is the
-*Figma component* side of that, not a second spec.
+- Three TEXT nodes: **`Sample`** ("Ag"), **`Source`** ("fg 900" — *which step*
+  the foreground came from) and **`Grade`** ("AAA"). All take the paired
+  foreground, which is **data, not a token** — the same category as the Box fill.
+- **"Ag", not "Aa"** — cap height plus a descender is the full vertical extent;
+  two x-height-ish forms are a weaker legibility test.
+- Wired to `Show sample` / `Show source` + `Source#1940:229` / `Show grade` +
+  `Grade#1940:535`, with `fontSize` bound to the new
+  **`swatch/{size}/sample-size`** and **`/sample-caption-size`** (TDD'd through
+  `swatch-sizing.test.ts` like `panel-cap`, aliased to `font-size.*`).
+- **This revives the dead `Grade` property.** A plain TEXT inside the master can
+  carry a `characters` ref; the nested `Badge` it replaces could not. Correction
+  to an earlier note: `Grade#1940:535` was never dead on `row`, which already had
+  a real TEXT wired — only on the five forms that used a Badge.
+- **How much fits depends on the cap, and that is per form, on purpose.**
+  `panel`'s square cap holds all three lines centred. `block` / `card` / `circle`
+  have bar or circle caps (24–68px), so **only the `Ag` goes inside**, at caption
+  size, and Source + Grade sit in the facts. `tile` and `row` already print their
+  facts on the colour, so all three live there. A first pass gave every form the
+  full stack and three of them overflowed — a 24px bar cannot hold a
+  display-sized `Ag`. Don't "unify" this.
+- **The grade takes the paired foreground, not a green/amber pill** — settled
+  2026-08-23, "the foreground IS the signal". A failing pair looks bad, which is
+  the demonstration; a pill would report a verdict the box is already making.
+
+**Two gotchas this cost.** These TEXT nodes must be
+`textAutoResize = 'WIDTH_AND_HEIGHT'` — on `HEIGHT` they keep whatever width they
+were measured at, so changing `Aa` to `Ag` silently wrapped to two lines in every
+variant. And **rebuilding the nodes clears the per-instance foreground fills**,
+since the fill is an instance override on a node that no longer exists; re-apply
+them after any master surgery.
 
 `Harmoni / Swatch` — 6 forms × 5 sizes, 18 properties.
 

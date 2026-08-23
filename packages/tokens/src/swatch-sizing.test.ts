@@ -24,7 +24,7 @@ type DtcgNode = { $type?: string; $value?: unknown; [key: string]: unknown }
 const MODES: Mode[] = ['dense', 'compact', 'comfortable', 'spacious']
 /** Ascending by design: each size is larger than the one before it. */
 const SIZES = ['xs', 'sm', 'md', 'lg', 'xl'] as const
-const MEMBERS = ['box', 'panel-cap', 'min-height', 'radius', 'padding-inline', 'padding-block', 'gap'] as const
+const MEMBERS = ['box', 'panel-cap', 'sample-size', 'sample-caption-size', 'min-height', 'radius', 'padding-inline', 'padding-block', 'gap'] as const
 
 function member(mode: Mode, size: string, name: string): DtcgNode | undefined {
   const swatch = (context as Record<Mode, DtcgNode>)[mode].swatch as DtcgNode | undefined

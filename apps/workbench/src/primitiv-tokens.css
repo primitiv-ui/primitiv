@@ -1352,6 +1352,8 @@
     --primitiv-swatch-lg-padding-inline: var(--primitiv-space-space-16);
     --primitiv-swatch-lg-panel-cap: var(--primitiv-size-size-168);
     --primitiv-swatch-lg-radius: var(--primitiv-radii-10);
+    --primitiv-swatch-lg-sample-caption-size: var(--primitiv-font-size-14);
+    --primitiv-swatch-lg-sample-size: var(--primitiv-font-size-40);
     --primitiv-swatch-md-box: var(--primitiv-size-size-40);
     --primitiv-swatch-md-gap: var(--primitiv-space-space-8);
     --primitiv-swatch-md-min-height: var(--primitiv-size-size-32);
@@ -1359,6 +1361,8 @@
     --primitiv-swatch-md-padding-inline: var(--primitiv-space-space-12);
     --primitiv-swatch-md-panel-cap: var(--primitiv-size-size-140);
     --primitiv-swatch-md-radius: var(--primitiv-radii-8);
+    --primitiv-swatch-md-sample-caption-size: var(--primitiv-font-size-13);
+    --primitiv-swatch-md-sample-size: var(--primitiv-font-size-32);
     --primitiv-swatch-sm-box: var(--primitiv-size-size-32);
     --primitiv-swatch-sm-gap: var(--primitiv-space-space-6);
     --primitiv-swatch-sm-min-height: var(--primitiv-size-size-24);
@@ -1366,6 +1370,8 @@
     --primitiv-swatch-sm-padding-inline: var(--primitiv-space-space-8);
     --primitiv-swatch-sm-panel-cap: var(--primitiv-size-size-116);
     --primitiv-swatch-sm-radius: var(--primitiv-radii-6);
+    --primitiv-swatch-sm-sample-caption-size: var(--primitiv-font-size-12);
+    --primitiv-swatch-sm-sample-size: var(--primitiv-font-size-24);
     --primitiv-swatch-xl-box: var(--primitiv-size-size-68);
     --primitiv-swatch-xl-gap: var(--primitiv-space-space-12);
     --primitiv-swatch-xl-min-height: var(--primitiv-size-size-48);
@@ -1373,6 +1379,8 @@
     --primitiv-swatch-xl-padding-inline: var(--primitiv-space-space-20);
     --primitiv-swatch-xl-panel-cap: var(--primitiv-size-size-200);
     --primitiv-swatch-xl-radius: var(--primitiv-radii-12);
+    --primitiv-swatch-xl-sample-caption-size: var(--primitiv-font-size-16);
+    --primitiv-swatch-xl-sample-size: var(--primitiv-font-size-48);
     --primitiv-swatch-xs-box: var(--primitiv-size-size-24);
     --primitiv-swatch-xs-gap: var(--primitiv-space-space-4);
     --primitiv-swatch-xs-min-height: var(--primitiv-size-size-20);
@@ -1380,6 +1388,8 @@
     --primitiv-swatch-xs-padding-inline: var(--primitiv-space-space-6);
     --primitiv-swatch-xs-panel-cap: var(--primitiv-size-size-80);
     --primitiv-swatch-xs-radius: var(--primitiv-radii-4);
+    --primitiv-swatch-xs-sample-caption-size: var(--primitiv-font-size-11);
+    --primitiv-swatch-xs-sample-size: var(--primitiv-font-size-18);
     --primitiv-switch-lg-thumb-margin: var(--primitiv-space-space-2);
     --primitiv-switch-lg-thumb-size: var(--primitiv-size-size-20);
     --primitiv-switch-lg-track-height: var(--primitiv-size-size-24);
@@ -2256,6 +2266,8 @@
     --primitiv-swatch-lg-padding-inline: var(--primitiv-space-space-14);
     --primitiv-swatch-lg-panel-cap: var(--primitiv-size-size-140);
     --primitiv-swatch-lg-radius: var(--primitiv-radii-10);
+    --primitiv-swatch-lg-sample-caption-size: var(--primitiv-font-size-13);
+    --primitiv-swatch-lg-sample-size: var(--primitiv-font-size-32);
     --primitiv-swatch-md-box: var(--primitiv-size-size-40);
     --primitiv-swatch-md-gap: var(--primitiv-space-space-6);
     --primitiv-swatch-md-min-height: var(--primitiv-size-size-28);
@@ -2263,6 +2275,8 @@
     --primitiv-swatch-md-padding-inline: var(--primitiv-space-space-10);
     --primitiv-swatch-md-panel-cap: var(--primitiv-size-size-116);
     --primitiv-swatch-md-radius: var(--primitiv-radii-8);
+    --primitiv-swatch-md-sample-caption-size: var(--primitiv-font-size-12);
+    --primitiv-swatch-md-sample-size: var(--primitiv-font-size-26);
     --primitiv-swatch-sm-box: var(--primitiv-size-size-28);
     --primitiv-swatch-sm-gap: var(--primitiv-space-space-4);
     --primitiv-swatch-sm-min-height: var(--primitiv-size-size-20);
@@ -2270,6 +2284,8 @@
     --primitiv-swatch-sm-padding-inline: var(--primitiv-space-space-6);
     --primitiv-swatch-sm-panel-cap: var(--primitiv-size-size-96);
     --primitiv-swatch-sm-radius: var(--primitiv-radii-6);
+    --primitiv-swatch-sm-sample-caption-size: var(--primitiv-font-size-11);
+    --primitiv-swatch-sm-sample-size: var(--primitiv-font-size-20);
     --primitiv-swatch-xl-box: var(--primitiv-size-size-68);
     --primitiv-swatch-xl-gap: var(--primitiv-space-space-10);
     --primitiv-swatch-xl-min-height: var(--primitiv-size-size-40);
@@ -2277,6 +2293,8 @@
     --primitiv-swatch-xl-padding-inline: var(--primitiv-space-space-16);
     --primitiv-swatch-xl-panel-cap: var(--primitiv-size-size-168);
     --primitiv-swatch-xl-radius: var(--primitiv-radii-12);
+    --primitiv-swatch-xl-sample-caption-size: var(--primitiv-font-size-14);
+    --primitiv-swatch-xl-sample-size: var(--primitiv-font-size-40);
     --primitiv-swatch-xs-box: var(--primitiv-size-size-20);
     --primitiv-swatch-xs-gap: var(--primitiv-space-space-3);
     --primitiv-swatch-xs-min-height: var(--primitiv-size-size-16);
@@ -2284,6 +2302,8 @@
     --primitiv-swatch-xs-padding-inline: var(--primitiv-space-space-4);
     --primitiv-swatch-xs-panel-cap: var(--primitiv-size-size-68);
     --primitiv-swatch-xs-radius: var(--primitiv-radii-4);
+    --primitiv-swatch-xs-sample-caption-size: var(--primitiv-font-size-10);
+    --primitiv-swatch-xs-sample-size: var(--primitiv-font-size-16);
     --primitiv-switch-lg-thumb-margin: var(--primitiv-space-space-2);
     --primitiv-switch-lg-thumb-size: var(--primitiv-size-size-16);
     --primitiv-switch-lg-track-height: var(--primitiv-size-size-20);
@@ -3160,6 +3180,8 @@
     --primitiv-swatch-lg-padding-inline: var(--primitiv-space-space-12);
     --primitiv-swatch-lg-panel-cap: var(--primitiv-size-size-96);
     --primitiv-swatch-lg-radius: var(--primitiv-radii-10);
+    --primitiv-swatch-lg-sample-caption-size: var(--primitiv-font-size-12);
+    --primitiv-swatch-lg-sample-size: var(--primitiv-font-size-28);
     --primitiv-swatch-md-box: var(--primitiv-size-size-32);
     --primitiv-swatch-md-gap: var(--primitiv-space-space-6);
     --primitiv-swatch-md-min-height: var(--primitiv-size-size-24);
@@ -3167,6 +3189,8 @@
     --primitiv-swatch-md-padding-inline: var(--primitiv-space-space-8);
     --primitiv-swatch-md-panel-cap: var(--primitiv-size-size-80);
     --primitiv-swatch-md-radius: var(--primitiv-radii-8);
+    --primitiv-swatch-md-sample-caption-size: var(--primitiv-font-size-11);
+    --primitiv-swatch-md-sample-size: var(--primitiv-font-size-22);
     --primitiv-swatch-sm-box: var(--primitiv-size-size-24);
     --primitiv-swatch-sm-gap: var(--primitiv-space-space-4);
     --primitiv-swatch-sm-min-height: var(--primitiv-size-size-20);
@@ -3174,6 +3198,8 @@
     --primitiv-swatch-sm-padding-inline: var(--primitiv-space-space-6);
     --primitiv-swatch-sm-panel-cap: var(--primitiv-size-size-68);
     --primitiv-swatch-sm-radius: var(--primitiv-radii-6);
+    --primitiv-swatch-sm-sample-caption-size: var(--primitiv-font-size-10);
+    --primitiv-swatch-sm-sample-size: var(--primitiv-font-size-18);
     --primitiv-swatch-xl-box: var(--primitiv-size-size-56);
     --primitiv-swatch-xl-gap: var(--primitiv-space-space-10);
     --primitiv-swatch-xl-min-height: var(--primitiv-size-size-40);
@@ -3181,6 +3207,8 @@
     --primitiv-swatch-xl-padding-inline: var(--primitiv-space-space-16);
     --primitiv-swatch-xl-panel-cap: var(--primitiv-size-size-116);
     --primitiv-swatch-xl-radius: var(--primitiv-radii-12);
+    --primitiv-swatch-xl-sample-caption-size: var(--primitiv-font-size-13);
+    --primitiv-swatch-xl-sample-size: var(--primitiv-font-size-32);
     --primitiv-swatch-xs-box: var(--primitiv-size-size-16);
     --primitiv-swatch-xs-gap: var(--primitiv-space-space-2);
     --primitiv-swatch-xs-min-height: var(--primitiv-size-size-16);
@@ -3188,6 +3216,8 @@
     --primitiv-swatch-xs-padding-inline: var(--primitiv-space-space-4);
     --primitiv-swatch-xs-panel-cap: var(--primitiv-size-size-56);
     --primitiv-swatch-xs-radius: var(--primitiv-radii-4);
+    --primitiv-swatch-xs-sample-caption-size: var(--primitiv-font-size-10);
+    --primitiv-swatch-xs-sample-size: var(--primitiv-font-size-14);
     --primitiv-switch-lg-thumb-margin: var(--primitiv-space-space-2);
     --primitiv-switch-lg-thumb-size: var(--primitiv-size-size-12);
     --primitiv-switch-lg-track-height: var(--primitiv-size-size-16);
@@ -4064,6 +4094,8 @@
     --primitiv-swatch-lg-padding-inline: var(--primitiv-space-space-20);
     --primitiv-swatch-lg-panel-cap: var(--primitiv-size-size-200);
     --primitiv-swatch-lg-radius: var(--primitiv-radii-10);
+    --primitiv-swatch-lg-sample-caption-size: var(--primitiv-font-size-16);
+    --primitiv-swatch-lg-sample-size: var(--primitiv-font-size-48);
     --primitiv-swatch-md-box: var(--primitiv-size-size-56);
     --primitiv-swatch-md-gap: var(--primitiv-space-space-10);
     --primitiv-swatch-md-min-height: var(--primitiv-size-size-40);
@@ -4071,6 +4103,8 @@
     --primitiv-swatch-md-padding-inline: var(--primitiv-space-space-14);
     --primitiv-swatch-md-panel-cap: var(--primitiv-size-size-168);
     --primitiv-swatch-md-radius: var(--primitiv-radii-8);
+    --primitiv-swatch-md-sample-caption-size: var(--primitiv-font-size-14);
+    --primitiv-swatch-md-sample-size: var(--primitiv-font-size-36);
     --primitiv-swatch-sm-box: var(--primitiv-size-size-40);
     --primitiv-swatch-sm-gap: var(--primitiv-space-space-8);
     --primitiv-swatch-sm-min-height: var(--primitiv-size-size-28);
@@ -4078,6 +4112,8 @@
     --primitiv-swatch-sm-padding-inline: var(--primitiv-space-space-10);
     --primitiv-swatch-sm-panel-cap: var(--primitiv-size-size-140);
     --primitiv-swatch-sm-radius: var(--primitiv-radii-6);
+    --primitiv-swatch-sm-sample-caption-size: var(--primitiv-font-size-13);
+    --primitiv-swatch-sm-sample-size: var(--primitiv-font-size-28);
     --primitiv-swatch-xl-box: var(--primitiv-size-size-96);
     --primitiv-swatch-xl-gap: var(--primitiv-space-space-14);
     --primitiv-swatch-xl-min-height: var(--primitiv-size-size-56);
@@ -4085,6 +4121,8 @@
     --primitiv-swatch-xl-padding-inline: var(--primitiv-space-space-24);
     --primitiv-swatch-xl-panel-cap: var(--primitiv-size-size-240);
     --primitiv-swatch-xl-radius: var(--primitiv-radii-12);
+    --primitiv-swatch-xl-sample-caption-size: var(--primitiv-font-size-17);
+    --primitiv-swatch-xl-sample-size: var(--primitiv-font-size-56);
     --primitiv-swatch-xs-box: var(--primitiv-size-size-28);
     --primitiv-swatch-xs-gap: var(--primitiv-space-space-4);
     --primitiv-swatch-xs-min-height: var(--primitiv-size-size-24);
@@ -4092,6 +4130,8 @@
     --primitiv-swatch-xs-padding-inline: var(--primitiv-space-space-8);
     --primitiv-swatch-xs-panel-cap: var(--primitiv-size-size-96);
     --primitiv-swatch-xs-radius: var(--primitiv-radii-4);
+    --primitiv-swatch-xs-sample-caption-size: var(--primitiv-font-size-11);
+    --primitiv-swatch-xs-sample-size: var(--primitiv-font-size-20);
     --primitiv-switch-lg-thumb-margin: var(--primitiv-space-space-2);
     --primitiv-switch-lg-thumb-size: var(--primitiv-size-size-24);
     --primitiv-switch-lg-track-height: var(--primitiv-size-size-28);

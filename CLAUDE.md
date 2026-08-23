@@ -1457,7 +1457,14 @@ debugging cycle; none is discoverable from the API surface.
    its final width lands at a fraction of the intended offset, and nothing
    errors. Position after the final resize, and set
    `constraints = { horizontal: 'SCALE' }` so the offset survives later resizing.
-26. **`List` exposes `Show Item 5-8` but items 1-4 are ALWAYS visible.** A
+26. **A VECTOR's `x`/`y` positions its BOUNDING BOX, not its path origin.**
+   After `vectorPaths = [{ data: 'M 15.5 16.7 L …' }]`, setting `x = 0; y = 0`
+   does not leave the path where its coordinates say — it slides the whole path
+   up and left by its own minimum point, so a curve drawn onto a plot lands
+   offset from the handles it should touch. Set `x`/`y` to the path's **minimum
+   x and y**, or author the path relative to its own bbox and position it after.
+   Nothing errors; it just renders wrong by exactly the bbox origin.
+27. **`List` exposes `Show Item 5-8` but items 1-4 are ALWAYS visible.** A
    three-item list is impossible through the property panel; hide Item 4 with a
    `visible` override on the instance sublayer. Same family as the caps in (20).
    Related: `Harmoni LCH Input` is a full Field composition (label + Input +

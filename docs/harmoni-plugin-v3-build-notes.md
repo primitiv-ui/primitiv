@@ -197,6 +197,14 @@ and `EaseIn · EaseOut · EaseInOut` in a second.
   (`Quadratic`, `Cubic`, `Quartic`, `Quintic` differ only by exponent) — names
   alone do not tell you what you are choosing, so the row glyph is the actual
   content and the label is the caption. A native `<select>` cannot carry it.
+- **The chart draws the ramp as columns under the curve** (2026-08-23, matching
+  SupaPalette). One bar per step, filled with **that step's actual colour**, rising
+  from the plot floor to the curve; gridlines over the bars; the curve as a single
+  vector; handles on the **bar centres**. Adding bars is not a layer you drop
+  behind an existing plot — the handles were on a ~34.7px pitch and the bars are
+  on `width / steps`, so the whole plot is generated from one set of positions or
+  the handles no longer sit on their own columns. It is the same argument as the
+  preset glyph: the curve alone does not tell you what colour you get.
 - **Two interaction rules, following existing decisions.** Padding still applies
   on top of the preset (padding shapes the default curve; a preset replaces which
   curve is default). And **switching preset drops per-step overrides**, for the

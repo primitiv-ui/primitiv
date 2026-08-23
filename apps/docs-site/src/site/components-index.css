@@ -35,6 +35,12 @@
   line-height: var(--primitiv-heading-h3-line-height);
   letter-spacing: var(--primitiv-heading-h3-letter-spacing);
   color: var(--primitiv-content-primary);
+  /* These are anchor targets for the TOC rail, and the header is sticky — so
+     without this the heading you jumped to lands behind the nav. Same value as
+     every other anchored heading on the site (docs-section.css,
+     component-page.css, landing-section.css): the 73px bar plus clearance, so
+     the heading arrives with air above it rather than flush under the bar. */
+  scroll-margin-block-start: var(--primitiv-space-space-96);
 }
 
 .docs-index-grid {

@@ -191,6 +191,25 @@ pub struct SwatchStep {
     pub oklch: String,
 }
 
+/// Inbound, for entry points that ask a question *about* a ramp the caller
+/// holds. Only `l`, `c`, `h` and the label are read: `hex`, `rgb` and `oklch`
+/// are derived, and a step assembled in JS can carry values that disagree with
+/// its own coordinates, so they are rebuilt rather than trusted.
+impl From<SwatchStep> for core::SwatchStep {
+    fn from(value: SwatchStep) -> Self {
+        core::SwatchStep::from_label(value.l, value.c, value.h, core::SwatchLabel::from(value.label))
+    }
+}
+
+impl From<SwatchLabel> for core::SwatchLabel {
+    fn from(value: SwatchLabel) -> Self {
+        match value {
+            SwatchLabel::Number(n) => core::SwatchLabel::Number(n),
+            SwatchLabel::Name(s) => core::SwatchLabel::Name(s),
+        }
+    }
+}
+
 impl From<core::SwatchStep> for SwatchStep {
     fn from(value: core::SwatchStep) -> Self {
         SwatchStep {
@@ -358,6 +377,29 @@ impl From<core::PaletteSet> for PaletteSet {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn a_step_passed_in_has_its_derived_fields_recomputed_not_trusted() {
+        // hex, rgb and oklch are derived from l/c/h. A caller assembling a step
+        // in JS can set them inconsistently, so the inbound conversion rebuilds
+        // them rather than believing what it was handed.
+        let claimed = SwatchStep {
+            l: 0.55,
+            c: 0.12,
+            h: 30.0,
+            label: SwatchLabel::Number(500),
+            hex: "#000000".to_string(),
+            rgb: Rgb { r: 0.0, g: 0.0, b: 0.0 },
+            oklch: "oklch(0 0 0)".to_string(),
+        };
+
+        let converted = core::SwatchStep::from(claimed);
+        let honest = core::SwatchStep::from_label(0.55, 0.12, 30.0, 500u16);
+
+        assert_eq!(converted.hex, honest.hex);
+        assert_eq!(converted.oklch, honest.oklch);
+        assert_ne!(converted.hex, "#000000");
+    }
 
     #[test]
     fn contrast_use_converts_into_core_because_a_caller_chooses_it() {

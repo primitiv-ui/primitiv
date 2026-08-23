@@ -145,14 +145,33 @@ Roles and Audit views had no engine behind them.
   and `oklch` follow from `l`/`c`/`h`, and a step assembled in JS can carry values
   that disagree with its own coordinates, so the conversion goes through
   `SwatchStep::from_label`.
-- **`harmoni-wasm` entry points ARE natively testable — this was never a
-  constraint, just an omission.** All 18 pre-existing tests were mirror-type
-  conversions and not one entry point had a test, which reads like a boundary the
-  harness could not cross. It is not: `#[wasm_bindgen]` functions are ordinary Rust
-  under a native target and `cargo test -p harmoni-wasm` calls them directly. The
-  new entry points are driven by tests as a result. **`lib.rs` still sits at ~25%**
-  because ~30 older entry points remain untested, and the crate is excluded from
-  CI's coverage gate (`--exclude harmoni-wasm`), so nothing catches it.
+- **Most `harmoni-wasm` entry points ARE natively testable, and the line is
+  exactly the JS boundary** (measured 2026-08-23, after a coverage pass took
+  `lib.rs` from 25% to **80.5% regions** and `types.rs` to **100%**).
+  `#[wasm_bindgen]` functions are ordinary Rust under a native target, so
+  `cargo test -p harmoni-wasm` calls them directly — the crate's 18 pre-existing
+  tests being *all* mirror-type conversions read like a boundary the harness
+  could not cross, and it is not.
+  - **What genuinely cannot be reached off-target**, all failing with
+    *"cannot call wasm-bindgen imported functions on non-wasm targets"*:
+    anything constructing a **`JsError`** (so **every error path**, even on an
+    otherwise-pure entry point — `is_err()` is unreachable because building the
+    error panics first), anything crossing through **`serde_wasm_bindgen`**
+    (`palette_to_js`, and the six `Palette`-returning entry points), and anything
+    taking a **`js_sys::Array`**. That residue is 13 functions and is the whole
+    of it — every entry point returning a plain Rust or Tsify type is covered.
+  - **Probe before assuming, in both directions.** Two probes settled this:
+    calling `get_contrast_rating` natively works, and calling `generate_palette`
+    natively panics. Neither was predictable from the crate's own test suite.
+  - **`array_to_lightness` was split** so the length and per-index rules survive
+    off-target (`lightness_from_values`); only the mechanical `Array` iteration is
+    now unreachable. Worth doing rather than a coverage contortion because this
+    area has form — `generate_with_lightness` once reported a bad *curve* as
+    `ColorInputError::InvalidCss`, telling a caller their colour was wrong.
+  - **The crate is still excluded from CI's coverage gate**
+    (`--exclude harmoni-wasm`), so none of this is enforced. A gate here would
+    have to be set below 100% or wait for `wasm-pack test`, which is not in the
+    container.
 - **Verified the tests bite**, not just pass: flipping `readable_step`'s `min_by`
   to `max_by` in the core fails the quietest-step test through the wasm layer.
 

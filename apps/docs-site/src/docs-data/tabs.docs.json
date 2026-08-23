@@ -82,12 +82,12 @@
           {
             "name": "data-orientation",
             "value": "horizontal",
-            "when": "horizontal"
+            "when": "the root's `orientation`"
           },
           {
             "name": "data-orientation",
             "value": "vertical",
-            "when": "vertical"
+            "when": "the root's `orientation`"
           }
         ],
         "class": "primitiv-tabs"
@@ -123,12 +123,12 @@
           {
             "name": "data-orientation",
             "value": "horizontal",
-            "when": "horizontal"
+            "when": "the root's `orientation`"
           },
           {
             "name": "data-orientation",
             "value": "vertical",
-            "when": "vertical"
+            "when": "the root's `orientation`"
           }
         ],
         "class": "primitiv-tabs__list"
@@ -171,22 +171,22 @@
           {
             "name": "data-state",
             "value": "active",
-            "when": "active"
+            "when": "whether this tab is the active one"
           },
           {
             "name": "data-state",
             "value": "inactive",
-            "when": "inactive"
+            "when": "whether this tab is the active one"
           },
           {
             "name": "data-orientation",
             "value": "horizontal",
-            "when": "horizontal"
+            "when": "the root's `orientation`"
           },
           {
             "name": "data-orientation",
             "value": "vertical",
-            "when": "vertical"
+            "when": "the root's `orientation`"
           },
           {
             "name": "data-disabled",
@@ -213,22 +213,22 @@
           {
             "name": "data-state",
             "value": "active",
-            "when": "active"
+            "when": "whether this panel's tab is active"
           },
           {
             "name": "data-state",
             "value": "inactive",
-            "when": "inactive"
+            "when": "whether this panel's tab is active"
           },
           {
             "name": "data-orientation",
             "value": "horizontal",
-            "when": "horizontal"
+            "when": "the root's `orientation`"
           },
           {
             "name": "data-orientation",
             "value": "vertical",
-            "when": "vertical"
+            "when": "the root's `orientation`"
           }
         ],
         "class": "primitiv-tabs__panel"
@@ -332,42 +332,42 @@
       {
         "name": "data-orientation",
         "value": "horizontal",
-        "when": "horizontal"
+        "when": "the root's `orientation`"
       },
       {
         "name": "data-orientation",
         "value": "vertical",
-        "when": "vertical"
+        "when": "the root's `orientation`"
       },
       {
         "name": "data-orientation",
         "value": "horizontal",
-        "when": "horizontal"
+        "when": "the root's `orientation`"
       },
       {
         "name": "data-orientation",
         "value": "vertical",
-        "when": "vertical"
+        "when": "the root's `orientation`"
       },
       {
         "name": "data-state",
         "value": "active",
-        "when": "active"
+        "when": "whether this tab is the active one"
       },
       {
         "name": "data-state",
         "value": "inactive",
-        "when": "inactive"
+        "when": "whether this tab is the active one"
       },
       {
         "name": "data-orientation",
         "value": "horizontal",
-        "when": "horizontal"
+        "when": "the root's `orientation`"
       },
       {
         "name": "data-orientation",
         "value": "vertical",
-        "when": "vertical"
+        "when": "the root's `orientation`"
       },
       {
         "name": "data-disabled",
@@ -377,22 +377,22 @@
       {
         "name": "data-state",
         "value": "active",
-        "when": "active"
+        "when": "whether this panel's tab is active"
       },
       {
         "name": "data-state",
         "value": "inactive",
-        "when": "inactive"
+        "when": "whether this panel's tab is active"
       },
       {
         "name": "data-orientation",
         "value": "horizontal",
-        "when": "horizontal"
+        "when": "the root's `orientation`"
       },
       {
         "name": "data-orientation",
         "value": "vertical",
-        "when": "vertical"
+        "when": "the root's `orientation`"
       }
     ]
   },

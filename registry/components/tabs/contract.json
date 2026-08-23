@@ -10,8 +10,8 @@
     "component": "Root"
   },
   "dataAttributes": [
-    { "name": "data-orientation", "value": "horizontal", "when": "horizontal", "source": "auto" },
-    { "name": "data-orientation", "value": "vertical", "when": "vertical", "source": "auto" }
+    { "name": "data-orientation", "value": "horizontal", "when": "the root's `orientation`", "source": "auto" },
+    { "name": "data-orientation", "value": "vertical", "when": "the root's `orientation`", "source": "auto" }
   ],
   "modifiers": [
     {
@@ -46,8 +46,8 @@
         }
       ],
       "dataAttributes": [
-        { "name": "data-orientation", "value": "horizontal", "when": "horizontal", "source": "auto" },
-        { "name": "data-orientation", "value": "vertical", "when": "vertical", "source": "auto" }
+        { "name": "data-orientation", "value": "horizontal", "when": "the root's `orientation`", "source": "auto" },
+        { "name": "data-orientation", "value": "vertical", "when": "the root's `orientation`", "source": "auto" }
       ]
     },
     {
@@ -57,10 +57,10 @@
       "class": "primitiv-tabs__trigger",
       "wrapTextChildren": true,
       "dataAttributes": [
-        { "name": "data-state", "value": "active", "when": "active", "source": "auto" },
-        { "name": "data-state", "value": "inactive", "when": "inactive", "source": "auto" },
-        { "name": "data-orientation", "value": "horizontal", "when": "horizontal", "source": "auto" },
-        { "name": "data-orientation", "value": "vertical", "when": "vertical", "source": "auto" },
+        { "name": "data-state", "value": "active", "when": "whether this tab is the active one", "source": "auto" },
+        { "name": "data-state", "value": "inactive", "when": "whether this tab is the active one", "source": "auto" },
+        { "name": "data-orientation", "value": "horizontal", "when": "the root's `orientation`", "source": "auto" },
+        { "name": "data-orientation", "value": "vertical", "when": "the root's `orientation`", "source": "auto" },
         { "name": "data-disabled", "value": "", "when": "disabled", "source": "auto" }
       ]
     },
@@ -70,10 +70,10 @@
       "element": "div",
       "class": "primitiv-tabs__panel",
       "dataAttributes": [
-        { "name": "data-state", "value": "active", "when": "active", "source": "auto" },
-        { "name": "data-state", "value": "inactive", "when": "inactive", "source": "auto" },
-        { "name": "data-orientation", "value": "horizontal", "when": "horizontal", "source": "auto" },
-        { "name": "data-orientation", "value": "vertical", "when": "vertical", "source": "auto" }
+        { "name": "data-state", "value": "active", "when": "whether this panel's tab is active", "source": "auto" },
+        { "name": "data-state", "value": "inactive", "when": "whether this panel's tab is active", "source": "auto" },
+        { "name": "data-orientation", "value": "horizontal", "when": "the root's `orientation`", "source": "auto" },
+        { "name": "data-orientation", "value": "vertical", "when": "the root's `orientation`", "source": "auto" }
       ]
     }
   ],

@@ -50,10 +50,19 @@ import "./props-table.css";
  * the key is part + name + value and why the extractor had to start carrying
  * `value` — keyed on the name alone the second row silently disappears.
  *
- * Where the Figma frame merges the two `aria-expanded` rows into a single
- * `true / false` cell, this does not: that merge is a prose rewrite of two
- * separate contract declarations, and inventing a merge heuristic would put
- * hand-authorship back into a generated table.
+ * ONE ROW PER ATTRIBUTE, with its values joined — the merge the Figma frame
+ * always drew, and which an earlier pass here refused on the grounds that it
+ * rewrote two contract declarations into one. It does not: the join is
+ * mechanical (`checked | unchecked`), the contract keeps both declarations, and
+ * the reader sees one attribute as one row instead of an attribute repeated
+ * with a When column restating its own value — `data-orientation | horizontal |
+ * when: horizontal`, twice, which is what the split really produced.
+ *
+ * Identical `when` text collapses to a single phrase; genuinely different
+ * phrases join with " / " and pair positionally with the values. That is what
+ * makes the contract copy convention matter: a `when` should name the CONDITION
+ * ("whether this option is selected"), not restate each value, or the merged
+ * cell reads as a list of near-duplicates.
  */
 export type DataAttributeGroup = {
   /** The part that emits these, in dot form: `"Tabs.Trigger"`. */
@@ -76,6 +85,33 @@ export type DataAttributeGroup = {
  * setting a heading in mono made it read as a snippet rather than as the label
  * for the table under it. The class below it IS code, and is marked up as such.
  */
+/**
+ * Collapses a part's rows to one per attribute name.
+ *
+ * Order is preserved from the contract, so `true | false` and `checked |
+ * unchecked` come out in the order they were declared rather than sorted into
+ * something arbitrary.
+ */
+type MergedRow = {
+  readonly name: string;
+  readonly values: readonly string[];
+  readonly whens: readonly string[];
+};
+
+const mergeByName = (rows: readonly DocsDataAttribute[]): MergedRow[] => {
+  const byName = new Map<string, { values: string[]; whens: string[] }>();
+  for (const row of rows) {
+    const entry = byName.get(row.name) ?? { values: [], whens: [] };
+    entry.values.push(row.value);
+    /* Deduped: the common case is one condition described once per value, and
+       repeating it verbatim in the cell is the noise this merge exists to
+       remove. */
+    if (!entry.whens.includes(row.when)) entry.whens.push(row.when);
+    byName.set(row.name, entry);
+  }
+  return [...byName].map(([name, e]) => ({ name, values: e.values, whens: e.whens }));
+};
+
 const partName = (group: DataAttributeGroup, mode: Mode): string => {
   const [base, part] = group.part.split(".");
   return part ? partNamer(mode, base)(part) : base;
@@ -132,23 +168,37 @@ export const DataAttributesTable = ({
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {group.rows.map((row) => (
-                      <TableRow key={`${group.part}-${row.name}-${row.value}`}>
+                    {mergeByName(group.rows).map((row) => (
+                      <TableRow key={`${group.part}-${row.name}`}>
                         <TableCell>
                           <InlineCode size="sm">{row.name}</InlineCode>
                         </TableCell>
                         <TableCell>
-                          {/* An empty value is meaningful — a boolean data
+                          {/* Each value is its own code span with a plain "|"
+                              between, rather than one span containing the pipe:
+                              the separator is the page's punctuation, not part
+                              of any value.
+
+                              An empty value is meaningful — a boolean data
                               attribute is present with no value — so it shows as
                               the empty string it is, rather than the em dash that
                               means "not applicable" in the props tables. */}
-                          <InlineCode size="sm">
-                            {row.value === "" ? '""' : row.value}
-                          </InlineCode>
+                          {row.values.map((value, i) => (
+                            <span key={value}>
+                              {i > 0 && (
+                                <span className="docs-data-attributes-or">
+                                  {" | "}
+                                </span>
+                              )}
+                              <InlineCode size="sm">
+                                {value === "" ? '""' : value}
+                              </InlineCode>
+                            </span>
+                          ))}
                         </TableCell>
                         <TableCell>
                           <span className="docs-prop-description">
-                            {row.when}
+                            {row.whens.join(" / ")}
                           </span>
                         </TableCell>
                       </TableRow>

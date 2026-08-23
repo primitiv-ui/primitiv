@@ -74,3 +74,9 @@
 .docs-data-attributes-class {
   margin-block: calc(-1 * var(--primitiv-flow-tight)) var(--primitiv-flow-tight);
 }
+
+/* The "|" between an attribute's values. Muted, because it is the page's
+   punctuation rather than part of any value. */
+.docs-data-attributes-or {
+  color: var(--primitiv-content-muted);
+}

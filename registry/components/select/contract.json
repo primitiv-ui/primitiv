@@ -10,8 +10,8 @@
     "component": "Trigger"
   },
   "dataAttributes": [
-    { "name": "aria-expanded", "value": "true", "when": "open", "source": "auto" },
-    { "name": "aria-expanded", "value": "false", "when": "closed", "source": "auto" },
+    { "name": "aria-expanded", "value": "true", "when": "whether the listbox is open", "source": "auto" },
+    { "name": "aria-expanded", "value": "false", "when": "whether the listbox is open", "source": "auto" },
     { "name": "aria-invalid", "value": "true", "when": "invalid", "source": "auto" },
     { "name": "data-disabled", "value": "", "when": "disabled — on the native `<select>`, which shares this class", "source": "auto" }
   ],
@@ -68,8 +68,8 @@
       "element": "div",
       "class": "primitiv-select__item",
       "dataAttributes": [
-        { "name": "data-state", "value": "checked", "when": "this option is selected", "source": "auto" },
-        { "name": "data-state", "value": "unchecked", "when": "this option is not selected", "source": "auto" },
+        { "name": "data-state", "value": "checked", "when": "whether this option is selected", "source": "auto" },
+        { "name": "data-state", "value": "unchecked", "when": "whether this option is selected", "source": "auto" },
         { "name": "data-disabled", "value": "", "when": "the option is disabled", "source": "auto" }
       ]
     },
@@ -79,8 +79,8 @@
       "element": "span",
       "class": "primitiv-select__item-indicator",
       "dataAttributes": [
-        { "name": "data-state", "value": "checked", "when": "its option is selected", "source": "auto" },
-        { "name": "data-state", "value": "unchecked", "when": "its option is not selected", "source": "auto" }
+        { "name": "data-state", "value": "checked", "when": "whether its option is selected", "source": "auto" },
+        { "name": "data-state", "value": "unchecked", "when": "whether its option is selected", "source": "auto" }
       ]
     },
     { "name": "item-leading", "component": "ItemLeading", "element": "span", "class": "primitiv-select__item-leading" },

@@ -145,12 +145,12 @@
           {
             "name": "aria-expanded",
             "value": "true",
-            "when": "open"
+            "when": "whether the listbox is open"
           },
           {
             "name": "aria-expanded",
             "value": "false",
-            "when": "closed"
+            "when": "whether the listbox is open"
           },
           {
             "name": "aria-invalid",
@@ -278,12 +278,12 @@
           {
             "name": "data-state",
             "value": "checked",
-            "when": "this option is selected"
+            "when": "whether this option is selected"
           },
           {
             "name": "data-state",
             "value": "unchecked",
-            "when": "this option is not selected"
+            "when": "whether this option is selected"
           },
           {
             "name": "data-disabled",
@@ -331,12 +331,12 @@
           {
             "name": "data-state",
             "value": "checked",
-            "when": "its option is selected"
+            "when": "whether its option is selected"
           },
           {
             "name": "data-state",
             "value": "unchecked",
-            "when": "its option is not selected"
+            "when": "whether its option is selected"
           }
         ],
         "class": "primitiv-select__item-indicator"
@@ -637,12 +637,12 @@
       {
         "name": "aria-expanded",
         "value": "true",
-        "when": "open"
+        "when": "whether the listbox is open"
       },
       {
         "name": "aria-expanded",
         "value": "false",
-        "when": "closed"
+        "when": "whether the listbox is open"
       },
       {
         "name": "aria-invalid",
@@ -662,12 +662,12 @@
       {
         "name": "data-state",
         "value": "checked",
-        "when": "this option is selected"
+        "when": "whether this option is selected"
       },
       {
         "name": "data-state",
         "value": "unchecked",
-        "when": "this option is not selected"
+        "when": "whether this option is selected"
       },
       {
         "name": "data-disabled",
@@ -677,12 +677,12 @@
       {
         "name": "data-state",
         "value": "checked",
-        "when": "its option is selected"
+        "when": "whether its option is selected"
       },
       {
         "name": "data-state",
         "value": "unchecked",
-        "when": "its option is not selected"
+        "when": "whether its option is selected"
       }
     ]
   },

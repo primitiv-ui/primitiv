@@ -108,6 +108,40 @@ const FrameworkItems = () =>
     </SelectItem>
   ));
 
+/*
+ * The rich example's rows, with their leading icons.
+ *
+ * Uses THEMES rather than FRAMEWORKS for the reason recorded above: a leading
+ * icon has to mean something, and there is no React/Vue/Solid glyph to use. The
+ * rich example is the one place on the page whose subject IS the row anatomy —
+ * `[leading][label][mark]`, and `Select.Value` mirroring the chosen row's icon
+ * into the closed trigger — so showing it without icons made the caption's
+ * promise ("options carry icons… mirrors the chosen item") false on screen. The
+ * other examples keep the framework data, where the copy is about render paths.
+ */
+const ThemeItems = () =>
+  THEMES.map(({ value, label, Icon }) => (
+    <SelectItem key={value} value={value}>
+      <SelectItemIndicator>
+        <Check size="100%" />
+      </SelectItemIndicator>
+      <SelectItemLeading>
+        <Icon size="100%" />
+      </SelectItemLeading>
+      <SelectItemLabel>{label}</SelectItemLabel>
+    </SelectItem>
+  ));
+
+/** The rich example's trigger — same anatomy, its own placeholder. */
+const ThemeTrigger = () => (
+  <SelectTrigger>
+    <SelectValue placeholder="Choose a theme..." />
+    <SelectIcon>
+      <ChevronDown size="100%" />
+    </SelectIcon>
+  </SelectTrigger>
+);
+
 /**
  * The trigger, with its chevron.
  *
@@ -331,28 +365,29 @@ export const selectSpec: ComponentSpec = {
       title: "Rich mode (the default)",
       render: () => (
         <InteractiveExample
-          caption="A Popover-API listbox. Options carry icons, badges and a selected mark, and `Select.Value` mirrors the chosen item straight into the closed trigger. The panel lives in the top layer, so it escapes ancestor `overflow` and stacking contexts — and it anchors itself to its trigger, no `anchor-name` to wire."
+          caption="A Popover-API listbox. Each option carries a leading icon and a selected mark, and `Select.Value` mirrors the chosen row — icon included — straight into the closed trigger, so the trigger needs no icon of its own. The panel lives in the top layer, so it escapes ancestor `overflow` and stacking contexts, and it anchors itself to its trigger with no `anchor-name` to wire."
           code={(density, mode) => {
             const p = partNamer(mode, "Select");
             return [
               imports(
                 mode,
-                ["Trigger", "Value", "Icon", "Content", "Item", "ItemIndicator", "ItemLabel"],
-                ["Check", "ChevronDown"],
+                ["Trigger", "Value", "Icon", "Content", "Item", "ItemIndicator", "ItemLeading", "ItemLabel"],
+                ["Check", "ChevronDown", "Sun"],
               ),
               ``,
               `<div data-density="${density}">`,
-              `  <${p("Root")} defaultValue="react">`,
+              `  <${p("Root")} defaultValue="light">`,
               `    <${p("Trigger")}>`,
-              `      <${p("Value")} placeholder="Choose a framework..." />`,
+              `      <${p("Value")} placeholder="Choose a theme..." />`,
               `      <${p("Icon")}><ChevronDown /></${p("Icon")}>`,
               `    </${p("Trigger")}>`,
               `    <${p("Content")}>`,
-              `      <${p("Item")} value="react">`,
+              `      <${p("Item")} value="light">`,
               `        <${p("ItemIndicator")}><Check /></${p("ItemIndicator")}>`,
-              `        <${p("ItemLabel")}>React</${p("ItemLabel")}>`,
+              `        <${p("ItemLeading")}><Sun /></${p("ItemLeading")}>`,
+              `        <${p("ItemLabel")}>Light</${p("ItemLabel")}>`,
               `      </${p("Item")}>`,
-              `      {/* … */}`,
+              `      {/* ... */}`,
               `    </${p("Content")}>`,
               `  </${p("Root")}>`,
               `</div>`,
@@ -360,10 +395,10 @@ export const selectSpec: ComponentSpec = {
           }}
         >
           {() => (
-            <Select defaultValue="react">
-              <FrameworkTrigger />
+            <Select defaultValue="light">
+              <ThemeTrigger />
               <SelectContent>
-                <FrameworkItems />
+                <ThemeItems />
               </SelectContent>
             </Select>
           )}

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import { CATEGORY_ORDER, categorySlug } from "@/lib/docs-data";
 import { ComponentsIndex } from "@/site/ComponentsIndex";
 import { Shell } from "@/site/Shell";
 
@@ -21,8 +22,23 @@ export const metadata: Metadata = {
 };
 
 export default function ComponentsPage() {
+  /*
+   * The index gets the same right-hand TOC rail the component pages have — with
+   * sixty-odd cards across ten groups it is a long page, and the rail is how you
+   * reach "Overlays" without scrolling past four hundred pixels of Forms.
+   *
+   * Derived from `CATEGORY_ORDER` and the shared `categorySlug`, so the rail and
+   * the headings cannot disagree about an anchor. Flat rather than nested: the
+   * groups have no sub-sections, and `PageToc` reserves its second level for a
+   * component page's sub-components.
+   */
+  const toc = CATEGORY_ORDER.map((category) => ({
+    id: categorySlug(category),
+    title: category,
+  }));
+
   return (
-    <Shell>
+    <Shell toc={toc}>
       <ComponentsIndex />
     </Shell>
   );

@@ -68,6 +68,29 @@
 }
 
 /*
+ * A component with no docs page yet: real content, nothing to click.
+ *
+ * Held slightly back rather than dimmed to unreadability — the description is
+ * the useful part of the card even before its page exists, so this only needs to
+ * stop the card looking like a broken link. `cursor: default` because a Card is
+ * a div: without a link it inherits no pointer, and a hover that looks
+ * interactive on something inert is the actual problem to avoid.
+ */
+.docs-index-card--inert {
+  cursor: default;
+}
+
+.docs-index-card--inert .primitiv-card__title {
+  color: var(--primitiv-content-secondary);
+}
+
+/* Also holds the placeholder mark back a step, so a run of inert cards reads as
+   quieter than the linked ones without any of them looking disabled. */
+.docs-index-card--inert .docs-index-card-placeholder {
+  opacity: var(--primitiv-opacity-20);
+}
+
+/*
  * Stand-in artwork, until the per-component set is drawn in Figma. Sized by the
  * media region's own aspect-ratio, so this only supplies the mark's colour and
  * weight.

@@ -784,6 +784,12 @@ user's canvas, so how they read is the product.
     again and long values take two lines. **Trade-off worth knowing:** one-line
     OKLCH would need a bigger `panel-cap`, which costs roughly a third of the
     visible ramp.
+  - **OKLCH is `content/secondary`, not `content/muted`.** It had inherited the
+    quieter role from when hex led the block, so after the reorder the canonical
+    value was the dimmer of the two — the ordering said one thing and the colour
+    said the opposite. Hex keeps `content/secondary` as well: with OKLCH first,
+    **sequence carries the hierarchy** and the two facts read as equal in weight,
+    which is true — one is the value, the other is the same value exported.
   - **The engine's hue is negative** (`-100.1`, not `259.9`) — valid CSS, but the
     picker and the Swatch both normalise. Worth deciding whether `format_oklch`
     should normalise at source, since that string reaches emitted tokens.

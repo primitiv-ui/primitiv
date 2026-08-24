@@ -117,12 +117,6 @@
   color: var(--primitiv-content-secondary);
 }
 
-/* Holds an undocumented card's mark back a step, so a run of inert cards reads
-   as quieter than the linked ones without any of them looking disabled. */
-.docs-index-card--inert .docs-index-card-mark {
-  opacity: var(--primitiv-opacity-60);
-}
-
 /*
  * The mark's two roles, and the whole visual language of the set.
  *
@@ -167,13 +161,17 @@
   stroke: none;
 }
 
-/* A mark not yet drawn is quieter still, so the grid reads as partly finished
-   rather than as a set with six odd members. Find them by searching
-   `data-media-placeholder`. */
-.docs-index-card-mark[data-media-placeholder] {
-  opacity: var(--primitiv-opacity-40);
-}
-
+/*
+ * A mark not yet drawn drops its PRIMARY, keeping the same neutral stroke as
+ * every other mark. Find them by searching `data-media-placeholder`.
+ *
+ * Deliberately not an `opacity`, which is what two earlier rules did: an
+ * undocumented card dimmed its mark to 60% and a placeholder to 40%, so the
+ * same `content/muted` stroke painted at three different strengths across the
+ * grid and the set looked like it used three greys. One stroke colour, always
+ * — the placeholder reads as provisional because it carries no brand colour
+ * and no component's shape, not because it is faded.
+ */
 .docs-index-card-mark[data-media-placeholder] .docs-mark-content {
   fill: var(--primitiv-content-muted);
 }

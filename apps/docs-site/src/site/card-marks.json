@@ -894,6 +894,392 @@
         "fill": "content"
       }
     ],
+    "prose": [
+      {
+        "kind": "rect",
+        "x": 40,
+        "y": 38,
+        "w": 88,
+        "h": 12,
+        "r": 6,
+        "fill": "content"
+      },
+      {
+        "kind": "rect",
+        "x": 40,
+        "y": 66,
+        "w": 176,
+        "h": 8,
+        "r": 4,
+        "fill": "content"
+      },
+      {
+        "kind": "rect",
+        "x": 40,
+        "y": 82,
+        "w": 176,
+        "h": 8,
+        "r": 4,
+        "fill": "content"
+      },
+      {
+        "kind": "rect",
+        "x": 40,
+        "y": 98,
+        "w": 136,
+        "h": 8,
+        "r": 4,
+        "fill": "content"
+      }
+    ],
+    "blockquote": [
+      {
+        "kind": "rect",
+        "x": 40,
+        "y": 44,
+        "w": 6,
+        "h": 56,
+        "r": 3,
+        "fill": "content"
+      },
+      {
+        "kind": "rect",
+        "x": 64,
+        "y": 44,
+        "w": 152,
+        "h": 8,
+        "r": 4,
+        "fill": "content"
+      },
+      {
+        "kind": "rect",
+        "x": 64,
+        "y": 60,
+        "w": 152,
+        "h": 8,
+        "r": 4,
+        "fill": "content"
+      },
+      {
+        "kind": "rect",
+        "x": 64,
+        "y": 76,
+        "w": 152,
+        "h": 8,
+        "r": 4,
+        "fill": "content"
+      },
+      {
+        "kind": "rect",
+        "x": 64,
+        "y": 92,
+        "w": 104,
+        "h": 8,
+        "r": 4,
+        "fill": "content"
+      }
+    ],
+    "pull-quote": [
+      {
+        "kind": "rect",
+        "x": 108,
+        "y": 28,
+        "w": 16,
+        "h": 28,
+        "r": 8,
+        "fill": "content"
+      },
+      {
+        "kind": "rect",
+        "x": 132,
+        "y": 28,
+        "w": 16,
+        "h": 28,
+        "r": 8,
+        "fill": "content"
+      },
+      {
+        "kind": "rect",
+        "x": 56,
+        "y": 76,
+        "w": 144,
+        "h": 14,
+        "r": 7,
+        "fill": "content"
+      },
+      {
+        "kind": "rect",
+        "x": 80,
+        "y": 100,
+        "w": 96,
+        "h": 14,
+        "r": 7,
+        "fill": "content"
+      }
+    ],
+    "list": [
+      {
+        "kind": "rect",
+        "x": 44,
+        "y": 44,
+        "w": 8,
+        "h": 8,
+        "r": 4,
+        "fill": "content"
+      },
+      {
+        "kind": "rect",
+        "x": 44,
+        "y": 68,
+        "w": 8,
+        "h": 8,
+        "r": 4,
+        "fill": "content"
+      },
+      {
+        "kind": "rect",
+        "x": 44,
+        "y": 92,
+        "w": 8,
+        "h": 8,
+        "r": 4,
+        "fill": "content"
+      },
+      {
+        "kind": "rect",
+        "x": 64,
+        "y": 44,
+        "w": 152,
+        "h": 8,
+        "r": 4,
+        "fill": "content"
+      },
+      {
+        "kind": "rect",
+        "x": 64,
+        "y": 68,
+        "w": 120,
+        "h": 8,
+        "r": 4,
+        "fill": "content"
+      },
+      {
+        "kind": "rect",
+        "x": 64,
+        "y": 92,
+        "w": 144,
+        "h": 8,
+        "r": 4,
+        "fill": "content"
+      }
+    ],
+    "description-list": [
+      {
+        "kind": "rect",
+        "x": 40,
+        "y": 44,
+        "w": 48,
+        "h": 8,
+        "r": 4,
+        "fill": "content"
+      },
+      {
+        "kind": "rect",
+        "x": 104,
+        "y": 44,
+        "w": 112,
+        "h": 8,
+        "r": 4,
+        "fill": "content"
+      },
+      {
+        "kind": "rect",
+        "x": 40,
+        "y": 68,
+        "w": 36,
+        "h": 8,
+        "r": 4,
+        "fill": "content"
+      },
+      {
+        "kind": "rect",
+        "x": 104,
+        "y": 68,
+        "w": 80,
+        "h": 8,
+        "r": 4,
+        "fill": "content"
+      },
+      {
+        "kind": "rect",
+        "x": 40,
+        "y": 92,
+        "w": 44,
+        "h": 8,
+        "r": 4,
+        "fill": "content"
+      },
+      {
+        "kind": "rect",
+        "x": 104,
+        "y": 92,
+        "w": 96,
+        "h": 8,
+        "r": 4,
+        "fill": "content"
+      }
+    ],
+    "figure": [
+      {
+        "kind": "rect",
+        "x": 56,
+        "y": 24,
+        "w": 144,
+        "h": 76,
+        "r": 6,
+        "fill": "content"
+      },
+      {
+        "kind": "rect",
+        "x": 72,
+        "y": 112,
+        "w": 112,
+        "h": 8,
+        "r": 4,
+        "fill": "content"
+      }
+    ],
+    "code-block": [
+      {
+        "kind": "rect",
+        "x": 40,
+        "y": 24,
+        "w": 176,
+        "h": 96,
+        "r": 8
+      },
+      {
+        "kind": "path",
+        "d": "M 40 48 L 216 48"
+      },
+      {
+        "kind": "rect",
+        "x": 56,
+        "y": 32,
+        "w": 48,
+        "h": 8,
+        "r": 4,
+        "fill": "content"
+      },
+      {
+        "kind": "rect",
+        "x": 56,
+        "y": 60,
+        "w": 96,
+        "h": 8,
+        "r": 4,
+        "fill": "content"
+      },
+      {
+        "kind": "rect",
+        "x": 68,
+        "y": 76,
+        "w": 112,
+        "h": 8,
+        "r": 4,
+        "fill": "content"
+      },
+      {
+        "kind": "rect",
+        "x": 56,
+        "y": 92,
+        "w": 72,
+        "h": 8,
+        "r": 4,
+        "fill": "content"
+      }
+    ],
+    "inline-code": [
+      {
+        "kind": "rect",
+        "x": 40,
+        "y": 68,
+        "w": 48,
+        "h": 8,
+        "r": 4,
+        "fill": "content"
+      },
+      {
+        "kind": "rect",
+        "x": 96,
+        "y": 60,
+        "w": 64,
+        "h": 24,
+        "r": 6
+      },
+      {
+        "kind": "rect",
+        "x": 108,
+        "y": 68,
+        "w": 40,
+        "h": 8,
+        "r": 4,
+        "fill": "content"
+      },
+      {
+        "kind": "rect",
+        "x": 168,
+        "y": 68,
+        "w": 48,
+        "h": 8,
+        "r": 4,
+        "fill": "content"
+      }
+    ],
+    "kbd": [
+      {
+        "kind": "rect",
+        "x": 72,
+        "y": 52,
+        "w": 40,
+        "h": 40,
+        "r": 8
+      },
+      {
+        "kind": "rect",
+        "x": 84,
+        "y": 68,
+        "w": 16,
+        "h": 8,
+        "r": 4,
+        "fill": "content"
+      },
+      {
+        "kind": "path",
+        "d": "M 124 72 L 132 72"
+      },
+      {
+        "kind": "path",
+        "d": "M 128 68 L 128 76"
+      },
+      {
+        "kind": "rect",
+        "x": 144,
+        "y": 52,
+        "w": 40,
+        "h": 40,
+        "r": 8
+      },
+      {
+        "kind": "rect",
+        "x": 156,
+        "y": 68,
+        "w": 16,
+        "h": 8,
+        "r": 4,
+        "fill": "content"
+      }
+    ],
     "_placeholder": [
       {
         "kind": "rect",

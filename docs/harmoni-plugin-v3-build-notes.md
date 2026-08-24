@@ -1173,3 +1173,111 @@ Two things worth knowing if this board is ever regenerated:
   `a teammate edited`) were clipped by the neighbouring card. Anchor every edge
   at its card's **vertical centre**, not the label row - the first pass anchored
   at `card.y + 14` and routed cross-row lines straight through other cards.
+
+## 8. `Harmoni / View Shell` — the copied chrome, componentised (in progress 2026-08-24)
+
+Page **"Harmoni View Shell"** (`2004:137725`), component `2005:137776`, following
+the one-page-per-Harmoni-component convention already used by `Harmoni Swatch`,
+`Harmoni Easing Glyph`, `Harmoni Panel Header` and `Harmoni Picker`.
+
+Every view already used the design-system components *inside* — `Harmoni / Panel
+Header`, `Breadcrumb`, `Tabs`, `Table`, `Alert`, `Button`, `Harmoni / Swatch` are
+all real instances — but the shell **around** them was hand-copied 15 times (30
+with the light twins):
+
+```
+Panel Header . Context(Breadcrumb) . Body . Footer(Button…)
+```
+
+**It had already drifted four ways**, which is the empirical case for the
+refactor and is worth more than any argument for it:
+
+1. Body padding is `20/14/20/14` on Setup and Destination but `0/14/0/14` on
+   Export and Settings (the tab-bearing views need 0, because Tabs supplies its
+   own top).
+2. Settings' footer is `12/12/12/12` where every other view is `12/14/12/14`.
+3. The same frame is called `Body`, `Frame 2` and `Frame 3` across three views.
+4. Several views carry a leftover third breadcrumb segment, `Page`, from the
+   master's `Home / Section / Page` default — `Primitiv / Brand / Page`,
+   `Primitiv / First write / Page`.
+
+Export / Writing / Write refused are provably **one view**: identical trees at
+35 / 35 / 44 nodes, Writing differing from Export only in the footer button's
+label and state, Write refused only adding a `Notice(Alert)`. In sync / Drift are
+**not** — same shell, genuinely different bodies and footers (3 buttons vs 2) —
+and `First run` has no Panel Header at all, so the flow board's dashed edge there
+is defensible as an empty state but is not one composition.
+
+### The finding that reframes it: theme and density are node modes, not variants
+
+Every view pins **two** collection modes on its own frame — `Intent = Dark|Light`
+and `Context = Compact`. Neither can ever be a variant axis, because
+`setExplicitVariableModeForCollection` applies to a *node*. That explains a
+discrepancy that looked like a broken master: `Harmoni / Panel Header` measures
+49 px with 16 px padding on its own page, and 41 px with 12 px padding in all 28
+view instances — not an override, just the same component resolving at Compact
+instead of Comfortable (`framed-control/md/height` is density-scaled). **Do not
+"fix" the master to 41.** Pin the mode instead: the shell master pins
+`Context = Compact`, instances inherit it, and each instance pins its own
+`Intent`. Verified — the shell's header renders at 41 px with the pin and 49 px
+without.
+
+So "use the components and adjust the values per view depending on the context"
+is literally the Context collection.
+
+### What the shell is, and the two probes that decided its shape
+
+```
+Harmoni / View Shell        COMPONENT 360x900, VERTICAL, FIXED/FIXED
+├─ Harmoni / Panel Header   INSTANCE  FILL/HUG          41
+├─ Context                  FRAME     FILL/HUG pad 12   48   <- visible ref
+│   └─ Context              SLOT                             <- seeded Breadcrumb
+├─ Body                     SLOT      FILL/FILL grow 1  754  pad 0/14/0/14, gap 16
+└─ Footer                   SLOT      FILL/HUG          57   pad 12/14/12/14, gap 8
+```
+
+Total 900, and **every part matches the built views to the pixel**. One BOOLEAN,
+`Show context`, drives the wrapper frame's `visible` (Setup and Settings have no
+breadcrumb). Three slots, no variant axis at all — both of those fell out of
+probes rather than reasoning:
+
+- **Slot padding IS overridable per instance.** Writing `paddingTop = 20` on an
+  instance's Body slot sticks while the master stays 0. So the `20/14/20/14` vs
+  `0/14/0/14` split needs no `Body = inset | flush` axis — the shell ships flush
+  and the inset views override two numbers. This avoids the whole
+  slots-plus-variants hazard (gotcha 8's identically-named-slot rule and gotcha
+  9's "a slot cannot be duplicated by any clone path").
+- **Context has to be a slot, not a nested Breadcrumb instance.** A `Breadcrumb`
+  exposes only `Size` / `Separator` / `Overflow` — never its segment labels
+  (already recorded in the Tree notes) — so a per-view crumb is impossible to set
+  through a nested instance, and gotcha 14 blocks `appendChild` into an instance
+  sublayer. A slot gives each view real nodes it owns. Populate it by
+  instantiating `Breadcrumb` fresh and walking its `Breadcrumb/Item` children,
+  each of which *does* carry a settable `Label` property, hiding the unused
+  item-plus-separator pairs.
+
+Seeding the master's Context and Footer slots is deliberate (gotcha 15: master
+slot content becomes the default for every instance), so a new view starts as a
+plausible panel rather than an empty box with a 100 px collapsed slot.
+
+### New gotcha: moving an instance between parents can expose stale sublayers
+
+Moving Export's `Breadcrumb`, `Tabs` and `Button` into the shell instance's slots
+produced nodes whose own children could not be read — *"The node (instance
+sublayer or table cell) with id … does not exist"* — and critically **the crash
+surfaces in `exportAsync`**, i.e. in the screenshot, which cannot be wrapped in
+try/catch the way gotcha 12 wraps `.name` reads. The stale ids pointed at a
+*different* view's node range than the one being moved, so these were pre-existing
+dead override references that only re-resolved on the move. Replacing the moved
+node with a fresh instance (rather than repairing it) cleared the breadcrumb case.
+
+### State — INCOMPLETE, do not assume the file is consistent
+
+Migration is mid-flight and the Desktop Bridge dropped its connection partway.
+- Shell component built and verified.
+- `Export (shell)` instance `2005:137808` exists on the Views page at Export's
+  x, y+1000, populated and measuring 41/48/754/57.
+- **The original `Export` frame `1949:115177` is gutted** — its Breadcrumb, Tabs
+  and Button were *moved* out, not copied, so it is now empty frames. Either
+  finish the migration or move the content back; do not leave it.
+- The remaining 14 dark views and 15 light twins are untouched.

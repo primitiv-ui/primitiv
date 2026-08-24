@@ -1366,8 +1366,12 @@ rebuild.
 
 Settled: **keep the compact rasters and re-export them.** Compact and readable at
 a glance is the whole point of a flow chart; going stale is the accepted price,
-and the refresh is one script — export each view at scale 1, `figma.createImage`,
-re-fill the card's RECTANGLE. Re-run it after any change to the views.
+and the refresh is a saved script —
+`apps/harmoni-figma-plugin/scripts/refresh-view-flow-board.js`. Re-run it after any
+change to the views. It matches cards to views **by name**, reports both
+unmatched cards and uncarded views rather than guessing, and warns when a card's
+rect no longer matches its view's aspect (because `scaleMode: "FILL"` silently
+crops rather than letterboxing). Verified: 15 refreshed, 0 skipped, 0 drift.
 
 For the record, componentising *does* work if this is ever revisited:
 `figma.createComponentFromNode` **wraps** the node rather than converting it, so

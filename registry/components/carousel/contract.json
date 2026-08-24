@@ -187,7 +187,17 @@
       "name": "viewport",
       "component": "Viewport",
       "element": "div",
-      "class": "primitiv-carousel__viewport"
+      "class": "primitiv-carousel__viewport",
+      "dataAttributes": [
+        { "name": "data-carousel-viewport", "value": "", "when": "always — a structural hook the component's own CSS uses to find this part, and yours may too", "source": "auto" },
+        { "name": "data-carousel-track", "value": "", "when": "always — a structural hook the component's own CSS uses to find this part, and yours may too", "source": "auto" },
+        { "name": "data-snap-type", "value": "mandatory | proximity", "when": "the `snap` prop, mirrored so the scroll-snap CSS can read it", "source": "auto" },
+        { "name": "data-slides-per-page", "value": "<number>", "when": "how many slides share the viewport — the slide width is computed from it", "source": "auto" },
+        { "name": "data-mouse-drag", "value": "", "when": "`mouseDrag` is enabled, so pointer drag is bound as well as touch", "source": "auto" },
+        { "name": "data-carousel-clones", "value": "<number>", "when": "how many cloned slides pad each end under infinite loop", "source": "auto" },
+        { "name": "data-dragging", "value": "", "when": "a drag is in progress — the hook for suppressing snap and transitions mid-gesture", "source": "auto" },
+        { "name": "data-overscroll", "value": "start | end", "when": "a drag has pulled past the first or last slide", "source": "auto" }
+      ]
     },
     {
       "name": "controls",
@@ -229,6 +239,11 @@
         }
       ],
       "dataAttributes": [
+        { "name": "data-carousel-slide", "value": "", "when": "always — a structural hook the component's own CSS uses to find this part, and yours may too", "source": "auto" },
+        { "name": "data-carousel-clone", "value": "", "when": "this slide is one of the loop clones rather than a real one — exclude it from counts and a11y", "source": "auto" },
+        { "name": "data-index", "value": "<number>", "when": "this slide's zero-based position", "source": "auto" },
+        { "name": "data-total", "value": "<number>", "when": "how many real slides there are", "source": "auto" },
+        { "name": "data-snap-align", "value": "start | center | end", "when": "the `align` prop, mirrored so each slide's scroll-snap-align can read it", "source": "auto" },
         { "name": "data-state", "value": "active", "when": "active", "source": "auto" },
         { "name": "data-state", "value": "inactive", "when": "inactive", "source": "auto" }
       ]
@@ -262,6 +277,7 @@
       "element": "button",
       "class": "primitiv-carousel__indicator",
       "dataAttributes": [
+        { "name": "data-carousel-indicator", "value": "", "when": "always — a structural hook the component's own CSS uses to find this part, and yours may too", "source": "auto" },
         { "name": "data-state", "value": "active", "when": "active", "source": "auto" },
         { "name": "data-state", "value": "inactive", "when": "inactive", "source": "auto" }
       ]

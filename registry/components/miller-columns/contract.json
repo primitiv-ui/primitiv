@@ -10,6 +10,8 @@
     "component": "Root"
   },
   "dataAttributes": [
+    { "name": "data-miller-columns-strip", "value": "", "when": "always — a structural hook the component's own CSS uses to find this part, and yours may too", "source": "auto" },
+    { "name": "data-miller-columns-slot", "value": "", "when": "always — a structural hook the component's own CSS uses to find this part, and yours may too", "source": "auto" },
     {
       "name": "data-orientation",
       "value": "horizontal",
@@ -57,7 +59,9 @@
       "component": "Root",
       "element": "div",
       "description": "The inner role=\"tree\" widget the Root renders around its columns. A tree may own only treeitem and group, so the preview panel sits outside it. The headless component owns this element outright, so it is targeted by its data attribute rather than a class a consumer could set.",
-      "dataAttributes": [],
+      "dataAttributes": [
+        { "name": "data-miller-columns-tree", "value": "", "when": "always — a structural hook the component's own CSS uses to find this part, and yours may too", "source": "auto" }
+      ],
       "selector": "[data-miller-columns-tree]"
     },
     {
@@ -66,6 +70,7 @@
       "element": "div",
       "class": "primitiv-miller-columns__column",
       "dataAttributes": [
+        { "name": "data-miller-columns-column", "value": "", "when": "always — a structural hook the component's own CSS uses to find this part, and yours may too", "source": "auto" },
         {
           "name": "data-depth",
           "value": "{n}",
@@ -158,6 +163,7 @@
       "element": "div",
       "class": "primitiv-miller-columns__resize-handle",
       "dataAttributes": [
+        { "name": "data-miller-columns-resize-handle", "value": "", "when": "always — a structural hook the component's own CSS uses to find this part, and yours may too", "source": "auto" },
         {
           "name": "data-dragging",
           "value": "",
@@ -172,6 +178,7 @@
       "element": "div",
       "class": "primitiv-miller-columns__preview",
       "dataAttributes": [
+        { "name": "data-miller-columns-preview", "value": "", "when": "always — a structural hook the component's own CSS uses to find this part, and yours may too", "source": "auto" },
         {
           "name": "data-empty",
           "value": "",

@@ -122,13 +122,20 @@
       "name": "viewport",
       "component": "Viewport",
       "element": "div",
-      "class": "primitiv-navigation-menu__viewport"
+      "class": "primitiv-navigation-menu__viewport",
+      "dataAttributes": [
+        { "name": "data-value", "value": "<item value>", "when": "the open item's `value`, so a panel or marker can be styled per entry", "source": "auto" },
+        { "name": "data-navigation-menu-viewport-clip", "value": "", "when": "always, on the wrapper that clips the morphing panel — the hook its own animation needs", "source": "auto" }
+      ]
     },
     {
       "name": "indicator",
       "component": "Indicator",
       "element": "div",
-      "class": "primitiv-navigation-menu__indicator"
+      "class": "primitiv-navigation-menu__indicator",
+      "dataAttributes": [
+        { "name": "data-value", "value": "<item value>", "when": "the open item's `value`, so a panel or marker can be styled per entry", "source": "auto" }
+      ]
     },
     {
       "name": "link",

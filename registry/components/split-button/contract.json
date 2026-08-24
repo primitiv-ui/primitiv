@@ -9,7 +9,43 @@
     "class": "primitiv-split-button",
     "component": "SplitButton"
   },
-  "subcomponents": [],
+  "dataAttributes": [
+    { "name": "data-split-button", "value": "", "when": "always, on the frame — the hook that joins the action and the trigger into one control", "source": "auto" },
+    { "name": "data-state", "value": "open", "when": "whether the menu is open", "source": "auto" },
+    { "name": "data-state", "value": "closed", "when": "whether the menu is open", "source": "auto" },
+    { "name": "data-disabled", "value": "", "when": "the whole control is disabled", "source": "auto" }
+  ],
+  "subcomponents": [
+    {
+      "name": "action",
+      "component": "Action",
+      "element": "button",
+      "class": "primitiv-split-button__action",
+      "dataAttributes": [
+        { "name": "data-split-button-action", "value": "", "when": "always — the hook that tells the two halves apart", "source": "auto" },
+        { "name": "data-disabled", "value": "", "when": "the action half is disabled", "source": "auto" }
+      ]
+    },
+    {
+      "name": "trigger",
+      "component": "Trigger",
+      "element": "button",
+      "class": "primitiv-split-button__trigger",
+      "dataAttributes": [
+        { "name": "data-split-button-trigger", "value": "", "when": "always — the hook that tells the two halves apart", "source": "auto" },
+        { "name": "data-disabled", "value": "", "when": "the menu half is disabled", "source": "auto" }
+      ]
+    },
+    {
+      "name": "menu",
+      "component": "Menu",
+      "element": "div",
+      "class": "primitiv-split-button__menu",
+      "dataAttributes": [
+        { "name": "data-split-button-menu", "value": "", "when": "always — marks the panel as this control's menu rather than a bare Dropdown", "source": "auto" }
+      ]
+    }
+  ],
   "modifiers": [
     {
       "name": "intent",

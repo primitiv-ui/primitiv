@@ -98,6 +98,8 @@
       "element": "div",
       "class": "primitiv-tree__selection-path",
       "dataAttributes": [
+        { "name": "data-tree-selection-segment", "value": "", "when": "always, on each crumb of the path — how the row is found without depending on Breadcrumb's classes", "source": "auto" },
+        { "name": "data-value", "value": "<node value>", "when": "the node that crumb points at", "source": "auto" },
         { "name": "data-tree-selection-path", "value": "", "when": "always", "source": "auto" },
         { "name": "data-empty", "value": "", "when": "nothing is selected", "source": "auto" }
       ]

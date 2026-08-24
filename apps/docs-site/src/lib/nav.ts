@@ -29,6 +29,7 @@ export type NavSection = {
 /** Components with a docs page built so far. */
 export const COMPONENT_PAGES: readonly NavLink[] = [
   { title: "Button", href: "/components/button" },
+  { title: "Input", href: "/components/input" },
   { title: "Select", href: "/components/select" },
   { title: "Tabs", href: "/components/tabs" },
 ];

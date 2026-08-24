@@ -25,6 +25,15 @@ export const REGISTRY = {
     contract: "registry/components/button/contract.json",
     figmaComponentSetKey: "347:14161", importPath: "@primitiv-ui/react",
   },
+  input: {
+    displayName: "Input", kind: "registry", status: "stable", category: "Forms",
+    propsFile: "packages/react/src/Input/types.ts",
+    subComponents: [
+      { name: "Input", propsType: "InputProps", element: "input", component: "Input" },
+    ],
+    contract: "registry/components/input/contract.json",
+    figmaComponentSetKey: "393:6159", importPath: "@primitiv-ui/react",
+  },
   tabs: {
     displayName: "Tabs", kind: "registry", status: "stable", category: "Disclosure",
     propsFile: "packages/react/src/Tabs/types.ts",

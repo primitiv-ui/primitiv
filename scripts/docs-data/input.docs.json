@@ -1,0 +1,129 @@
+{
+  "id": "input",
+  "displayName": "Input",
+  "kind": "registry",
+  "status": "stable",
+  "category": "Forms",
+  "description": "A single-line text input — the framed field consumers type into.",
+  "headless": {
+    "package": "@primitiv-ui/react",
+    "importPath": "@primitiv-ui/react",
+    "subComponents": [
+      {
+        "name": "Input",
+        "extends": "HTMLInputElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Renders the child element instead of a native `<input>`, merging all\nprops — `aria-*`, `data-*`, event handlers, `ref` — onto it via\n{@link Slot }. Event handlers compose (child runs first). `type` is\nnot forwarded in this mode; the child owns its own type semantics.\nSee the `asChild` example on {@link Input }."
+          },
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": false,
+            "default": null,
+            "description": "Under `asChild`, becomes the single child element `Slot` merges props\nonto. Not rendered by the native `<input>` path (inputs are void\nelements in HTML)."
+          },
+          {
+            "name": "ref",
+            "type": "Ref<HTMLInputElement>",
+            "required": false,
+            "default": null,
+            "description": "Allows getting a ref to the component instance.\nOnce the component unmounts, React will set `ref.current` to `null`\n(or call the ref with `null` if you passed a callback ref).\nForwarded to the underlying `HTMLInputElement`. Under `asChild`,\nmerged onto the rendered child via {@link Slot }."
+          }
+        ],
+        "contractProps": [
+          {
+            "name": "size",
+            "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
+            "default": "md",
+            "description": "Control size; `data-density` scales each size further."
+          }
+        ],
+        "dataAttributes": [
+          {
+            "name": "data-disabled",
+            "value": "",
+            "when": "disabled"
+          }
+        ],
+        "class": "primitiv-input"
+      }
+    ]
+  },
+  "styled": {
+    "installCommand": "primitiv add input",
+    "rootClass": "primitiv-input",
+    "customProperties": [
+      {
+        "name": "--primitiv-input-bg",
+        "defaultsTo": "var(--primitiv-surface-default)"
+      },
+      {
+        "name": "--primitiv-input-fg",
+        "defaultsTo": "var(--primitiv-content-primary)"
+      },
+      {
+        "name": "--primitiv-input-placeholder-color",
+        "defaultsTo": "var(--primitiv-content-muted)"
+      },
+      {
+        "name": "--primitiv-input-border-color",
+        "defaultsTo": "var(--primitiv-border-default)"
+      },
+      {
+        "name": "--primitiv-input-border-color-focus",
+        "defaultsTo": "var(--primitiv-border-focus)"
+      },
+      {
+        "name": "--primitiv-input-border-color-invalid",
+        "defaultsTo": "var(--primitiv-border-invalid)"
+      },
+      {
+        "name": "--primitiv-input-border-width",
+        "defaultsTo": "var(--primitiv-framed-control-border-width)"
+      },
+      {
+        "name": "--primitiv-input-radius",
+        "defaultsTo": "var(--primitiv-framed-control-md-radius)"
+      },
+      {
+        "name": "--primitiv-input-height",
+        "defaultsTo": "var(--primitiv-framed-control-md-height)"
+      },
+      {
+        "name": "--primitiv-input-padding-inline",
+        "defaultsTo": "var(--primitiv-framed-control-md-padding-inline)"
+      },
+      {
+        "name": "--primitiv-input-font-family",
+        "defaultsTo": "var(--primitiv-body-md-font-family)"
+      },
+      {
+        "name": "--primitiv-input-font-size",
+        "defaultsTo": "var(--primitiv-body-md-font-size)"
+      },
+      {
+        "name": "--primitiv-input-font-weight",
+        "defaultsTo": "var(--primitiv-body-md-font-weight)"
+      },
+      {
+        "name": "--primitiv-input-line-height",
+        "defaultsTo": "var(--primitiv-body-md-line-height)"
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-disabled",
+        "value": "",
+        "when": "disabled"
+      }
+    ]
+  },
+  "figma": {
+    "componentSetKey": "393:6159"
+  }
+}

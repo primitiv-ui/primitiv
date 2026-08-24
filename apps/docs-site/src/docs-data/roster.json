@@ -235,7 +235,7 @@
     "displayName": "Input",
     "category": "Forms",
     "description": "A single-line text input — the framed field consumers type into.",
-    "documented": false
+    "documented": true
   },
   {
     "id": "input-group",

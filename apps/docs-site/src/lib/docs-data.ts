@@ -20,6 +20,7 @@
  */
 
 import buttonDocs from "@/docs-data/button.docs.json";
+import inputDocs from "@/docs-data/input.docs.json";
 import selectDocs from "@/docs-data/select.docs.json";
 import tabsDocs from "@/docs-data/tabs.docs.json";
 import rosterData from "@/docs-data/roster.json";
@@ -157,6 +158,7 @@ export type ComponentDocs = {
 
 const DOCS = {
   button: buttonDocs as unknown as ComponentDocs,
+  input: inputDocs as unknown as ComponentDocs,
   select: selectDocs as unknown as ComponentDocs,
   tabs: tabsDocs as unknown as ComponentDocs,
 } as const;

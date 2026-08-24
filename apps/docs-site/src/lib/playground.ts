@@ -224,15 +224,35 @@ export const toControls = (
  * one control drive two parts (Select's `size` reaches both) without this
  * function knowing anything about the component.
  */
+/**
+ * Controls that lead, in this order, whatever a contract's own order is.
+ *
+ * `size` and `variant` are the two axes nearly every component has, so a reader
+ * moving between pages finds them in the same place rather than hunting for
+ * them behind a component-specific axis — Badge declared `tone` first, Select
+ * `mode`. Everything else keeps the contract's reading order behind them.
+ */
+const CONTROL_ORDER = ["size", "variant"];
+
 export const contractControls = (
   subs: readonly { readonly contractProps?: readonly DocsContractProp[] }[],
 ): readonly PlaygroundControl[] => {
   const seen = new Set<string>();
-  return toControls(subs.flatMap((s) => s.contractProps ?? [])).filter((c) => {
-    if (seen.has(c.name)) return false;
-    seen.add(c.name);
-    return true;
-  });
+  const controls = toControls(subs.flatMap((s) => s.contractProps ?? [])).filter(
+    (c) => {
+      if (seen.has(c.name)) return false;
+      seen.add(c.name);
+      return true;
+    },
+  );
+
+  /* A stable sort: anything not named keeps its relative order, so this only
+     lifts the two to the front rather than reshuffling the rest. */
+  const rank = (name: string) => {
+    const i = CONTROL_ORDER.indexOf(name);
+    return i === -1 ? CONTROL_ORDER.length : i;
+  };
+  return [...controls].sort((a, b) => rank(a.name) - rank(b.name));
 };
 
 /** The initial `{ prop: value }` state for a control set. */

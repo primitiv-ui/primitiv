@@ -139,6 +139,22 @@
   stroke-linejoin: round;
 }
 
+/* A layout primitive's own box: dashed, because the container renders nothing
+   of itself. The dash length is in viewBox units, like the stroke. */
+.docs-mark-dashed {
+  stroke-dasharray: 8 8;
+}
+
+/* A stroked path in the primary — AspectRatio's ratio diagonal. The fill roles
+   below cannot serve: a diagonal line has no area to fill. */
+.docs-mark-accent {
+  fill: none;
+  stroke: var(--primitiv-action-primary-default);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
 .docs-mark-content {
   fill: var(--primitiv-action-primary-default);
   stroke: none;

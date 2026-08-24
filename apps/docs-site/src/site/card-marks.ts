@@ -35,6 +35,31 @@ import data from "./card-marks.json";
  * differently from an empty container, and it is why a layout primitive like
  * `Stack` is entirely neutral: it has no content of its own.
  *
+ * ## The layout family
+ *
+ * A layout primitive is the exception that proves the rule, and settling it
+ * took an exploration of its own (the Figma page carries the boards). It has no
+ * content of its own, so three rules fall out:
+ *
+ * - Its **own box is dashed** — the container renders nothing of itself.
+ * - Its **children stay neutral** — they are not the primitive's business.
+ * - The **primary marks the space the primitive controls**: the gap for `Stack`
+ *   and `Grid`, the equal margins for `Container`, the four equal offsets for
+ *   `Center` (the marks being the same length IS the centring).
+ *
+ * Three exceptions, each for a reason. `Spacer` and `Divider` get **no box** —
+ * they are not containers — and they are deliberately a matched pair: identical
+ * neighbours, but Spacer's primary mark is short and centred where Divider's
+ * runs the full width, because Divider draws real ink and Spacer draws none.
+ * `AspectRatio` is **solid rather than dashed**, since its box is the whole
+ * point, with a primary diagonal for the ratio it holds. And `Box` is empty but
+ * for a primary handle at one corner: its contract calls it "the escape hatch —
+ * a bare polymorphic element with no visual opinion" with zero modifiers, so
+ * there is no space for the primary to mark, and the handle stands for the one
+ * thing it is for — somewhere to attach a custom property. An entirely empty
+ * dashed rectangle was the more honest drawing and was rejected for reading as
+ * artwork that had failed to load.
+ *
  * A mark may also be **solid** rather than outlined, and that is the strongest
  * distinction in the set: `Button` is a filled primary block with a knocked-out
  * label, `Input` an outlined field with a value and a caret. Mass versus void
@@ -62,9 +87,23 @@ export type MarkShape =
    *   primary Button's text uses, so it stays legible whatever the brand ramp
    *   does.
    */
-  | { readonly kind: "rect"; readonly x: number; readonly y: number; readonly w: number; readonly h: number; readonly r: number; readonly fill?: "content" | "knockout" }
-  /** A stroked path — chevrons, dividers, the modal's close cross. Never filled. */
-  | { readonly kind: "path"; readonly d: string };
+  | {
+      readonly kind: "rect";
+      readonly x: number; readonly y: number;
+      readonly w: number; readonly h: number;
+      readonly r: number;
+      readonly fill?: "content" | "knockout";
+      /**
+       * Draw the outline dashed. Reserved for a LAYOUT primitive's own box: a
+       * dashed edge says the container renders nothing of itself, which is the
+       * literal truth for `Stack`, `Grid`, `Box`, `Center` and `Container`.
+       * `AspectRatio` is solid because its box IS the point, and `Spacer` and
+       * `Divider` have no box at all — they are not containers.
+       */
+      readonly dash?: boolean;
+    }
+  /** A stroked path. `stroke` names the role; omit it for neutral chrome. */
+  | { readonly kind: "path"; readonly d: string; readonly stroke?: "content" };
 
 export const MARK_GRID: {
   readonly viewBox: { readonly width: number; readonly height: number };

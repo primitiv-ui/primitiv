@@ -60,10 +60,18 @@ const CardMediaMark = ({ id }: { id: string }) => {
             width={shape.w}
             height={shape.h}
             rx={shape.r}
-            className={shape.fill ? `docs-mark-${shape.fill}` : "docs-mark-chrome"}
+            className={
+              shape.fill
+                ? `docs-mark-${shape.fill}`
+                : `docs-mark-chrome${shape.dash ? " docs-mark-dashed" : ""}`
+            }
           />
         ) : (
-          <path key={i} d={shape.d} className="docs-mark-chrome" />
+          <path
+            key={i}
+            d={shape.d}
+            className={shape.stroke === "content" ? "docs-mark-accent" : "docs-mark-chrome"}
+          />
         ),
       )}
     </svg>

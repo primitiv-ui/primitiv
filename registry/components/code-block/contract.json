@@ -8,7 +8,9 @@
     "element": "div",
     "class": "primitiv-code-block"
   },
-  "dataAttributes": [],
+  "dataAttributes": [
+    { "name": "data-line-numbers", "value": "", "when": "the line-number gutter is shown", "source": "auto" }
+  ],
   "modifiers": [
     {
       "name": "size",

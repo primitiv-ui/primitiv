@@ -10,6 +10,8 @@
     "component": "Root"
   },
   "dataAttributes": [
+    { "name": "data-value", "value": "<number>", "when": "the current `value` — readable from CSS without a custom property", "source": "auto" },
+    { "name": "data-max", "value": "<number>", "when": "the `max` the value is measured against", "source": "auto" },
     { "name": "data-state", "value": "indeterminate", "when": "indeterminate", "source": "auto" },
     { "name": "data-state", "value": "loading", "when": "loading", "source": "auto" },
     { "name": "data-state", "value": "complete", "when": "complete", "source": "auto" }

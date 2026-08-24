@@ -31,13 +31,19 @@
       "name": "leading-adornment",
       "component": "LeadingAdornment",
       "element": "span",
-      "class": "primitiv-input-group__leading"
+      "class": "primitiv-input-group__leading",
+      "dataAttributes": [
+        { "name": "data-input-group-adornment", "value": "leading", "when": "always — it is how the stylesheet tells the two adornment slots apart", "source": "auto" }
+      ]
     },
     {
       "name": "trailing-adornment",
       "component": "TrailingAdornment",
       "element": "span",
-      "class": "primitiv-input-group__trailing"
+      "class": "primitiv-input-group__trailing",
+      "dataAttributes": [
+        { "name": "data-input-group-adornment", "value": "trailing", "when": "always — it is how the stylesheet tells the two adornment slots apart", "source": "auto" }
+      ]
     }
   ],
   "customProperties": [

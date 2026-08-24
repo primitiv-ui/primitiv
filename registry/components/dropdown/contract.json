@@ -94,7 +94,10 @@
       "name": "item",
       "component": "Item",
       "element": "li",
-      "class": "primitiv-dropdown__item"
+      "class": "primitiv-dropdown__item",
+      "dataAttributes": [
+        { "name": "data-highlighted", "value": "", "when": "the cursor is on this row — set on pointer-enter and by keyboard navigation alike", "source": "auto" }
+      ]
     },
     {
       "name": "checkbox-item",

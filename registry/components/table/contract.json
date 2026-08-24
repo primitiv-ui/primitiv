@@ -37,7 +37,16 @@
     { "name": "head", "component": "Head", "element": "thead", "class": "primitiv-table__head", "dataAttributes": [] },
     { "name": "body", "component": "Body", "element": "tbody", "class": "primitiv-table__body", "dataAttributes": [] },
     { "name": "footer", "component": "Footer", "element": "tfoot", "class": "primitiv-table__footer", "dataAttributes": [] },
-    { "name": "row", "component": "Row", "element": "tr", "class": "primitiv-table__row", "dataAttributes": [] },
+    {
+      "name": "row",
+      "component": "Row",
+      "element": "tr",
+      "class": "primitiv-table__row",
+      "dataAttributes": [
+        { "name": "data-state", "value": "expanded", "when": "whether this row's detail row is open", "source": "auto" },
+        { "name": "data-state", "value": "collapsed", "when": "whether this row's detail row is open", "source": "auto" }
+      ]
+    },
     {
       "name": "header",
       "component": "Header",

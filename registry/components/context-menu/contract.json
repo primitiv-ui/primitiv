@@ -40,9 +40,27 @@
     }
   ],
   "subcomponents": [
-    { "name": "item", "component": "Item", "element": "li", "class": "primitiv-context-menu__item" },
+    {
+      "name": "item",
+      "component": "Item",
+      "element": "li",
+      "class": "primitiv-context-menu__item",
+      "dataAttributes": [
+        { "name": "data-highlighted", "value": "", "when": "the cursor is on this row — set on pointer-enter and by keyboard navigation alike", "source": "auto" }
+      ]
+    },
     { "name": "checkbox-item", "component": "CheckboxItem", "element": "li", "class": "primitiv-context-menu__checkbox-item" },
     { "name": "radio-item", "component": "RadioItem", "element": "li", "class": "primitiv-context-menu__radio-item" },
+    {
+      "name": "trigger",
+      "component": "Trigger",
+      "element": "span",
+      "class": null,
+      "dataAttributes": [
+        { "name": "data-disabled", "value": "", "when": "the trigger is disabled, so right-click opens nothing", "source": "auto" },
+        { "name": "data-state", "value": "closed", "when": "the trigger is enabled — it carries no open state of its own", "source": "auto" }
+      ]
+    },
     { "name": "item-leading", "component": "ItemLeading", "element": "span", "class": "primitiv-context-menu__item-leading" },
     { "name": "item-label", "component": "ItemLabel", "element": "span", "class": "primitiv-context-menu__item-label" },
     { "name": "item-trailing", "component": "ItemTrailing", "element": "span", "class": "primitiv-context-menu__item-trailing" },

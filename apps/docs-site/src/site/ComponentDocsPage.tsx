@@ -48,6 +48,10 @@ export const ComponentDocsPage = ({ id }: { id: ComponentId }) => {
      single one, Tabs four. Built from the per-part rows rather than the flat
      union, so each table can say which part it belongs to; see
      DataAttributesTable for why they are not tabbed or collapsed. */
+  /* No headless primitive at all: the mode switch cannot change how you install
+     or import it, so Installation stops pretending it can. */
+  const registryOnly = docs.kind === "registry-only";
+
   const dataAttrGroups = subs
     .filter((sub) => sub.dataAttributes.length > 0)
     .map((sub) => ({
@@ -118,9 +122,11 @@ export const ComponentDocsPage = ({ id }: { id: ComponentId }) => {
         <DocsSection id="installation" title="Installation">
           <div className="docs-install-grid">
             <InstallTabs
-              kind={mode === "styled" ? "exec" : "install"}
+              kind={mode === "styled" || registryOnly ? "exec" : "install"}
               target={
-                mode === "styled" ? `primitiv add ${docs.id}` : docs.headless.package
+                mode === "styled" || registryOnly
+                  ? `primitiv add ${docs.id}`
+                  : docs.headless.package
               }
             />
 
@@ -167,7 +173,13 @@ export const ComponentDocsPage = ({ id }: { id: ComponentId }) => {
                 />
               )}
               <p className="docs-install-note">
-                {mode === "styled" ? (
+                {registryOnly ? (
+                  <>
+                    No headless primitive — this one ships only as a copied
+                    styled surface, so <InlineCode size="sm">primitiv add</InlineCode>{" "}
+                    is the only way in, whichever mode you are reading.
+                  </>
+                ) : mode === "styled" ? (
                   <>
                     Copied into your project as{" "}
                     <InlineCode size="sm">.{docs.styled.rootClass}</InlineCode> —

@@ -2,6 +2,7 @@
 
 import type { ComponentId } from "@/lib/docs-data";
 
+import { badgeSpec } from "./badge";
 import { buttonSpec } from "./button";
 import { inputSpec } from "./input";
 import { selectSpec } from "./select";
@@ -14,6 +15,7 @@ import type { ComponentSpec } from "./types";
  * a spec, add one line here.
  */
 export const SPECS: Record<ComponentId, ComponentSpec> = {
+  badge: badgeSpec,
   button: buttonSpec,
   input: inputSpec,
   select: selectSpec,

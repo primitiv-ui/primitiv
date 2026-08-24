@@ -19,7 +19,7 @@
  */
 export const REGISTRY = {
   badge: {
-    displayName: "Badge", kind: "registry", status: "stable", category: "Data Display",
+    displayName: "Badge", kind: "registry-only", status: "stable", category: "Data Display",
     /* Primitive-less: the props live in the copied file, not packages/react. */
     propsFile: "registry/components/badge/badge.tsx",
     subComponents: [

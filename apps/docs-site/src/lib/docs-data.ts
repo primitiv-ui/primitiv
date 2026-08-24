@@ -19,6 +19,7 @@
  * list, so the mutual exclusivity has to be stated in prose on the page.
  */
 
+import badgeDocs from "@/docs-data/badge.docs.json";
 import buttonDocs from "@/docs-data/button.docs.json";
 import inputDocs from "@/docs-data/input.docs.json";
 import selectDocs from "@/docs-data/select.docs.json";
@@ -138,6 +139,13 @@ export const ROSTER = rosterData as readonly RosterEntry[];
 export type ComponentDocs = {
   readonly id: string;
   readonly displayName: string;
+  /**
+   * `registry-only` means there is NO headless primitive — the component ships
+   * solely as a copied styled surface (Badge, Kbd, Tag and the other prose
+   * leaves). It changes what Installation can honestly say: `npm i
+   * @primitiv-ui/react` does not give you one of these.
+   */
+  readonly kind: string;
   readonly status: string;
   readonly category: Category;
   readonly description: string;
@@ -157,6 +165,7 @@ export type ComponentDocs = {
 };
 
 const DOCS = {
+  badge: badgeDocs as unknown as ComponentDocs,
   button: buttonDocs as unknown as ComponentDocs,
   input: inputDocs as unknown as ComponentDocs,
   select: selectDocs as unknown as ComponentDocs,

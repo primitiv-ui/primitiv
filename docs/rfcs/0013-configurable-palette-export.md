@@ -206,8 +206,12 @@ type SwatchExportConfig = {
   swatchSize: number                        // px per swatch
   gap: number                               // px between swatches
   ramps: 'separate' | 'stacked'             // one row/col each, or one block
-  stepLabels: { show: boolean; placement: 'inside' | 'below' }
-  value: 'none' | 'hex' | 'oklch'           // print the colour value
+  form: 'tile' | 'block' | 'card' | 'circle' | 'row' | 'panel'
+                                            // the swatch's anatomy; constrains
+                                            // `orientation` for circle and row
+  stepLabels: { show: boolean }             // placement follows `form`
+  hex: boolean                              // print the hex
+  oklch: boolean                            // print the OkLCH — both may be on
   a11yBadge: { show: boolean; against: 'auto' | 'white' | 'black' }
   foregroundSwatch: boolean                 // show the engine's best foreground
   title: boolean                            // a heading per ramp
@@ -248,6 +252,8 @@ workbench's live HTML preview — same plan, two renderers.
   `dropMetadata` carries the point). Same `planSwatches` output; only the origin
   `(x, y)` differs. **Open question (O6):** ship the button first and add
   drag-and-drop as a fast-follow, since drop-positioning is the fiddlier half.
+  **Resolved (O6): the Generate button is the drag handle** — the preview's own
+  drag gesture is taken by panning.
 
 ## 4. UX
 
@@ -380,13 +386,21 @@ rebuild consumes.
   resolve after a rename.
 - **O5 — Persistence scope.** Per-file (`root.setPluginData`) vs per-user
   (`clientStorage`) vs both (presets per-user, last-used per-file). Likely both.
-- **O6 — Swatch placement.** Ship the **Generate** button (→ current page,
-  viewport centre) first; add **drag-and-drop** as a fast-follow, since
-  drop-positioning is the fiddlier half.
-- **O7 — Swatch sheet defaults & grouping.** The default look (size, gap, shape,
-  which labels/badges are on) and whether multiple ramps render `separate`
-  (a labelled block each) or `stacked`, plus how the neutral + brand + dark ramps
-  are arranged on one sheet. Settle on the Figma mock-up (§4.6).
+- ~~**O6 — Swatch placement.**~~ **Closed 2026-08-24: the Generate button is also
+  the drag handle.** Click places at viewport centre; dragging the same button
+  onto the canvas places at the cursor. A handle on the preview was rejected
+  because the preview already uses drag to pan (it shows ~6 of 10 steps at its
+  0.5× floor), and two drag gestures a few pixels apart is the ambiguity that
+  makes drag targets feel unreliable. Both paths emit the same `planSwatches`
+  output; only the origin differs, which is how §4.5 already framed them.
+- ~~**O7 — Swatch sheet defaults & grouping.**~~ **Closed on the Figma mock-up:**
+  separate · rounded 4 · size 56 · gap 8. Also settled there, and reflected in
+  `SwatchExportConfig` above: the nine controls only fit 360 px as two
+  Dense two-column cards; `value` became two independent booleans so one swatch
+  can print both; and `form` was added while `stepLabels.placement` was removed —
+  inside-vs-below is a property of the form, not an independent axis (the built
+  view proved the overlap: `Inside` was selectable on a `panel` and silently did
+  nothing).
 
 ## 8. Status
 

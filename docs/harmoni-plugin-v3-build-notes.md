@@ -1002,8 +1002,22 @@ What is genuinely left:
   modes, `1 / 12`). So there is no mode field for a user to set and no mode
   control in the cards — the alternative, one frame with a Light section above a
   Dark one, would have removed the indicator entirely but produced a single
-  enormous frame. Still open: **O6**, drag-to-canvas — draw the handle, mark it a
-  fast-follow, ship the button first.
+  enormous frame. **O6 closed 2026-08-24: the Generate button IS the drag handle.** Click
+  places at viewport centre, dragging the same button places at the cursor —
+  both emit the same `planSwatches` output, only the origin differs.
+  - **The obvious handle was already taken.** "Grab the sheet you can see and
+    drag it out" is the most literal mapping, but the preview uses drag to pan
+    (it shows ~6 of 10 steps at the 0.5× floor), and putting two drag gestures a
+    few pixels apart on one surface is what makes drag targets feel unreliable.
+    Demoting panning to a modifier was rejected for the same reason it was added:
+    it would make the thing that reveals the other four steps undiscoverable.
+  - **The affordance is a stated hint, not an icon** — `or drag onto the canvas
+    to place it`, muted, under the button. Same convention as `Drag to pan` and
+    the Curve view's handle hint: the panel says what a surface does rather than
+    hoping a glyph carries it.
+  - **There is no "dragging" panel state to draw.** The drag image is over the
+    Figma canvas, outside the iframe, so the only in-panel state is the button's
+    ordinary active look. Worth knowing before someone goes looking for one.
 
   **The preview scales to a 0.5× floor and pans (2026-08-24).** Only three
   swatches were visible at 100%, and the fix was chosen by building all three

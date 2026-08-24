@@ -1097,7 +1097,61 @@ Settled, for the record:
   (the `addComponentProperty` partial-apply hazard generalised). Load the font the
   target node actually uses, and re-read state before retrying.
 
-Also outstanding: a **light-theme pass** over the view set. The built views are
-dark and the `Harmoni / Panel Header` has a `Theme=light` variant, but a Figma
-plugin follows the app's theme, so both are real. And `figma.currentUser` /
-`figma.payments` both need explicit `permissions` entries in `manifest.json`.
+## 7. The view flow board — built 2026-08-24
+
+Page **"Harmoni Plugin — View flow (v3)"** (`2004:137277`). Every one of the 15
+dark views is on it as a 0.5x raster inside a labelled frame, laid out in two
+journey tracks, with the transitions drawn between them. It exists to inform
+test-driving the plugin's code: a route on this board is a route the code has to
+have, and a card with no arrow leaving it is a place a user can get stuck.
+
+**Two kinds of arrow, and the distinction is the point.** A **solid** arrow is a
+**route** — a place you navigate to, which the code owns as a view change. A
+**dashed** arrow is a **state** — the same view under a different condition, which
+the code owns as data. `Export -> Writing -> In sync` is three states of one
+surface; `Palette -> Picker -> Curve` is three routes. Reading them as the same
+thing is what would produce a router with twice the entries it needs.
+
+The ten edges, as drawn:
+
+| from | to | kind | trigger |
+| --- | --- | --- | --- |
+| First run | Setup | state | a project exists |
+| Setup | Destination | route | choose destination |
+| Destination | Export | route | destination chosen |
+| Export | Writing | state | `Create 120 variables` |
+| Writing | In sync | state | written |
+| Writing | Write refused | state | refused |
+| In sync | Drift | state | a teammate edited |
+| Palette | Picker | route | edit a seed |
+| Picker | Curve | route | curve tab |
+| Roles | Audit | route | what it cost |
+
+Three transitions are deliberately **notes rather than arrows**, because drawing
+them would have implied a single edge where the truth is a branch or a
+ubiquity: Export branches to **Canvas swatches** and, if the semantic offer is
+taken, to **Roles**; **Settings** is reached by the gear from *every* view, so an
+arrow from one card would be a lie; and **Roles / Audit exist only when the
+semantic layer is on**, which is a condition on the cards, not on an edge.
+
+**What the board exposed, which was the reason to build it: there is no designed
+back-path out of Roles or Audit.** `Write refused` has one — its remedy button is
+`Change destination`, which is a real route home. Roles and Audit have nothing:
+they are reached from Export's semantic offer and the panel's own chrome is
+`Harmoni . <project>` plus a gear, which is not a back control. This is recorded
+in red on the board itself and is the one open hole in the flow. It is a design
+question (does the tab strip grow to five, or does each view get a `< export`
+crumb like the picker already has?) and it needs settling before the router is
+written.
+
+Two things worth knowing if this board is ever regenerated:
+
+- **The page ground has to be light.** The arrows and captions are ink-coloured
+  and were invisible on the dark page ground the rest of this work uses. The
+  cards carry their own dark rasters, so a light board is not a theme statement -
+  it is just the only ground both the ink and the screenshots read on.
+- **Columns are 320 wide with a 150 gap, and the gap is load-bearing.** At the
+  first attempt's 250/80 the edge labels (`Create 120 variables`,
+  `a teammate edited`) were clipped by the neighbouring card. Anchor every edge
+  at its card's **vertical centre**, not the label row - the first pass anchored
+  at `card.y + 14` and routed cross-row lines straight through other cards.

@@ -127,8 +127,48 @@ const declaredIn = (contract) => {
   return rows;
 };
 
-/* A root entry whose `when` prose names a part is the Select smell. */
-const PART_WORDS = /\b(on the|native)\b.*\b(part|root|option|item|trigger|value|indicator|panel|content|list)\b/i;
+/*
+ * A root entry whose `when` prose ATTRIBUTES the attribute to another part —
+ * the Select smell, where seven attributes sat on the root and the real owner
+ * was smuggled into the prose as "(on the value part)" and "(native root)".
+ *
+ * Deliberately narrow. A looser pattern matched Combobox's perfectly correct
+ * `aria-invalid` note ("set it on the input yourself, or cascade it from a
+ * Field.Root"), and a smoke alarm that cries wolf gets ignored — so this only
+ * catches the two phrasings actually seen, and will miss a novel one.
+ */
+const PART_WORDS = /\bon the [a-z-]+ part\b|\bnative root\b/i;
+
+/*
+ * A COMPOSITE emits what it composes, and it can compose at either level.
+ *
+ * ConfirmDialog declares its composition in `registry.json`'s
+ * `dependsOn.components` (modal, button). Drawer does not — it is built on Modal
+ * inside the HEADLESS layer, `import { Modal } from "../Modal/index.ts"`, and
+ * registry-level dependsOn is empty. Following only one of the two called
+ * Drawer's perfectly real `data-state` an orphan, so both are followed.
+ */
+/** Sibling component dirs a headless source imports: `from "../Modal/…"`. */
+const headlessImports = (dir) => {
+  const found = new Set();
+  if (!existsSync(dir)) return found;
+  for (const entry of readdirSync(dir)) {
+    if (!/\.tsx?$/.test(entry) || /\.test\./.test(entry)) continue;
+    const src = readFileSync(join(dir, entry), "utf8");
+    for (const m of src.matchAll(/from\s+["'`]\.\.\/([A-Z][A-Za-z0-9]*)\//g)) {
+      found.add(m[1]);
+    }
+  }
+  return found;
+};
+const dependencyIds = (id, seen = new Set()) => {
+  if (seen.has(id)) return seen;
+  seen.add(id);
+  for (const dep of registry.components[id]?.dependsOn?.components ?? []) {
+    dependencyIds(dep, seen);
+  }
+  return seen;
+};
 
 let problems = 0;
 const lines = [];
@@ -165,10 +205,26 @@ for (const id of Object.keys(registry.components).sort()) {
   const styled = new Set(
     [...styleSrc.matchAll(/\[(data-[a-z-]+)/g)].map((m) => m[1]),
   );
+  /* Union in everything this component composes, so an inherited attribute is
+     not called an orphan. */
+  const inherited = new Set();
+  for (const dep of dependencyIds(id)) {
+    if (dep === id) continue;
+    for (const n of emittedBy(join(ROOT, "packages/react/src", headlessDir(dep))) ?? []) inherited.add(n);
+    for (const n of emittedBy(join(ROOT, `registry/components/${dep}`)) ?? []) inherited.add(n);
+  }
+  /* …and whatever the headless source composes directly. */
+  for (const sib of headlessImports(join(ROOT, "packages/react/src", headlessDir(id)))) {
+    for (const n of emittedBy(join(ROOT, "packages/react/src", sib)) ?? []) inherited.add(n);
+  }
   const orphaned = dataOnly
     ? []
     : [...declaredNames].filter(
-        (n) => n.startsWith("data-") && !emitted.has(n) && !styled.has(n),
+        (n) =>
+          n.startsWith("data-") &&
+          !emitted.has(n) &&
+          !styled.has(n) &&
+          !inherited.has(n),
       );
   const misattributed = declared.filter(
     (d) => d.isRoot && PART_WORDS.test(d.when ?? ""),

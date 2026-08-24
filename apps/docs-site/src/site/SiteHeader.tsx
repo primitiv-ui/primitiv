@@ -107,9 +107,9 @@ export const SiteHeader = () => {
                 Search the docs
               </VisuallyHidden>
               <Input
-                size="xs"
+                size="sm"
                 type="search"
-                placeholder="Search docs…"
+                placeholder="Search docs..."
                 aria-labelledby="docs-search-label"
               />
             </div>

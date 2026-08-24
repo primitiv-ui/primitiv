@@ -801,11 +801,17 @@ user's canvas, so how they read is the product.
     fills" hazard, and it is worth a standing rule: **after any edit to the
     Swatch master, re-read every instance's cap fills against the engine's
     pairing.** A render alone will not catch it — 300/400 looked plausible.
-  - **Open policy question: step 500's foreground is `white`, not a ramp step.**
-    `ForegroundSource` has `PureWhite`/`PureBlack` tiers the engine falls back to
-    when neither ramp end wins, and 500 legitimately lands there at 4.88:1. If
-    the product position is that a foreground must always be a *generated* step,
-    that is an engine policy change, not a mock fix.
+  - **Every `Source` reads `fg …`, anchors included** — `fg 900`, `fg 50`,
+    `fg white`, `fg black`. Only 500 broke the pattern, and the bare `white` was
+    what made it look like a different *kind* of thing. The prefix says the
+    anchors are foregrounds too, just not drawn from the ramp, which is the
+    honest reading: `ForegroundSource` has `PureWhite`/`PureBlack` tiers the
+    engine falls back to when neither ramp end wins, and 500 legitimately lands
+    there at 4.88:1. `preset-ramp` emits the same strings, so populating a mock
+    from it is correct by copy-paste rather than by remembering.
+  - **Hex dropped to `content/muted`.** With oklch on `content/secondary` above
+    it, colour now reinforces the ordering instead of being neutral to it: the
+    value leads, the export follows.
   - **The engine's hue is negative** (`-100.1`, not `259.9`) — valid CSS, but the
     picker and the Swatch both normalise. Worth deciding whether `format_oklch`
     should normalise at source, since that string reaches emitted tokens.

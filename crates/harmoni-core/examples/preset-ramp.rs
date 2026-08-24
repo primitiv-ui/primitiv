@@ -48,10 +48,10 @@ fn main() {
         let fg = match step.foreground_source {
             ForegroundSource::Step900 => "fg 900".to_string(),
             ForegroundSource::Step50 => "fg 50".to_string(),
-            ForegroundSource::SoftWhite => "soft white".to_string(),
-            ForegroundSource::SoftBlack => "soft black".to_string(),
-            ForegroundSource::PureWhite => "white".to_string(),
-            ForegroundSource::PureBlack => "black".to_string(),
+            ForegroundSource::SoftWhite => "fg soft white".to_string(),
+            ForegroundSource::SoftBlack => "fg soft black".to_string(),
+            ForegroundSource::PureWhite => "fg white".to_string(),
+            ForegroundSource::PureBlack => "fg black".to_string(),
         };
         let verdict = match grade(step.contrast_result.ratio, ContrastUse::BodyText) {
             Grade::Aaa => "AAA",

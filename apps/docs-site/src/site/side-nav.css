@@ -136,14 +136,26 @@
   margin-block-start: var(--primitiv-space-space-12);
 }
 
+/*
+ * Deliberately identical to the right rail's "On this page" heading
+ * (`.docs-toc-heading` in page-toc.css) — the two rails do the same job on
+ * opposite sides of the page, so a run of links under a small caps label should
+ * read the same in both. Copied declaration-for-declaration rather than shared
+ * via a class, because the two live in different component sheets; if a third
+ * rail ever wants it, that is the moment to extract one.
+ *
+ * The overline family is unsized and ships no letter-spacing token, so `wide`
+ * restores the word gaps that condensed uppercase Khand at 12px swallows —
+ * without it "DATA DISPLAY" reads as "DATADISPLAY".
+ */
 .docs-nav-group-title {
-  margin-block: var(--primitiv-space-space-0) var(--primitiv-space-space-4);
-  font-family: var(--primitiv-label-xs-font-family);
-  font-size: var(--primitiv-label-xs-font-size);
-  font-weight: var(--primitiv-font-weight-semibold);
-  line-height: var(--primitiv-label-xs-line-height);
-  /* Muted and small: it labels the run below it without competing with the
-     section titles above or the links it introduces. */
+  letter-spacing: var(--primitiv-letter-spacing-wide);
+  margin-block: 0 var(--primitiv-stack-gap-sm);
+  font-family: var(--primitiv-overline-font-family);
+  font-size: var(--primitiv-overline-font-size);
+  font-weight: var(--primitiv-overline-font-weight);
+  line-height: var(--primitiv-overline-line-height);
+  text-transform: uppercase;
   color: var(--primitiv-content-muted);
 }
 

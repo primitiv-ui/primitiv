@@ -249,7 +249,7 @@ the component's):
 
 ```css
 /* Open state on the menu panel */
-[role="menu"][data-popover-open] {
+[role="menu"]:popover-open {
   animation: fade-in var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-enter);
 }
 
@@ -274,9 +274,11 @@ the component's):
 }
 ```
 
-The native popover API adds `data-popover-open` on the element while the
-popover is showing; combine it with the standard ARIA attributes for
-state-driven styling.
+The popover API exposes the open state as the **`:popover-open` pseudo-class**,
+not as an attribute — combine it with the standard ARIA attributes for
+state-driven styling. (`data-popover-open` appears in this package's tests
+because the jsdom popover polyfill mirrors the state to an attribute; no browser
+sets it, so do not style against it.)
 
 `data-highlighted` is present on `Item`, `CheckboxItem`, `RadioItem`, and
 `SubTrigger` while the item has pointer focus (mouseenter). On `SubTrigger`

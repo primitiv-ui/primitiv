@@ -11,12 +11,6 @@
   },
   "dataAttributes": [
     {
-      "name": "data-popover-open",
-      "value": "",
-      "when": "open",
-      "source": "auto"
-    },
-    {
       "name": "data-state",
       "value": "open",
       "when": "open",

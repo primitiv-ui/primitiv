@@ -1380,10 +1380,22 @@ master, all 35 texts intact). Two caveats — it adds an instance nesting level,
 the wrapper component gets **no** `explicitVariableModes` of its own (the shell
 instance inside keeps its pins, so rendering is unaffected).
 
-### Drift preserved, deliberately
+### Drift: one flattened, one kept — and telling them apart needed the census
 
 The migrator copies each view's existing padding rather than normalising it, so
-`Settings` / `Roles` / `Audit` keep their `12/12` footer inline padding against
-everyone else's `12/14`. Structural migration and drift cleanup are separate
-changes; flattening these to the shell's defaults is a visual decision and is
-still open.
+the structural migration and the drift cleanup stayed separate changes. With all
+28 views on the shell, a census over the whole set separated the two cases
+cleanly, which is not something the copied chrome could ever have shown:
+
+- **Body padding is NOT drift — leave it.** It splits exactly 14 / 14, and the
+  split is meaningful: `0/14/0/14` for the tab-bearing views (`Tabs` supplies its
+  own top spacing) and `20/14/20/14` for the rest. Two values, one reason.
+- **Footer inline padding WAS drift — flattened to 14.** 22 views ran `12/14`
+  against 6 at `12/12` (`Settings`, `Roles`, `Audit` and their light twins). 14 is
+  the correct value because it matches the body's inline padding, so the footer
+  button lines up with the content above it; at 12 the button was 2 px wider on
+  each side than the cards it sat under. Verified on `Roles`, where the
+  `Create variables` button now shares an edge with the role group cards.
+
+Every footer is now `12/14/12/14`; heights are 900 everywhere except
+`Canvas swatches` ×2 at 865.

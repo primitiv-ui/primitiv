@@ -18,6 +18,16 @@
  * `node scripts/docs-data/sync-docs-data.mjs`.
  */
 export const REGISTRY = {
+  badge: {
+    displayName: "Badge", kind: "registry", status: "stable", category: "Data Display",
+    /* Primitive-less: the props live in the copied file, not packages/react. */
+    propsFile: "registry/components/badge/badge.tsx",
+    subComponents: [
+      { name: "Badge", propsType: "BadgeProps", element: "span", component: "Badge" },
+    ],
+    contract: "registry/components/badge/contract.json",
+    figmaComponentSetKey: "1387:32589", importPath: "@/components/ui/badge",
+  },
   button: {
     displayName: "Button", kind: "registry", status: "stable", category: "Buttons",
     propsFile: "packages/react/src/Button/types.ts",

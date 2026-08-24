@@ -45,7 +45,47 @@ if (!cfg) throw new Error(`no registry entry for "${name}"`);
 const tsconfigPath = join(ROOT, "packages/react/tsconfig.json");
 const raw = ts.readConfigFile(tsconfigPath, ts.sys.readFile).config;
 const parsed = ts.parseJsonConfigFileContent(raw, ts.sys, dirname(tsconfigPath));
-const program = ts.createProgram(parsed.fileNames, { ...parsed.options, noEmit: true });
+/*
+ * The props file joins the program explicitly when it lives outside
+ * packages/react — which is the whole of a PRIMITIVE-LESS component's API.
+ * Badge, Kbd, Tag and the rest of the prose leaves have no headless source at
+ * all: their props are declared in the copied `registry/components/<id>/*.tsx`,
+ * so the tsconfig's own file list does not reach them and `getSourceFile`
+ * returned undefined.
+ */
+const propsFileAbs = join(ROOT, cfg.propsFile);
+const rootFiles = parsed.fileNames.includes(propsFileAbs)
+  ? parsed.fileNames
+  : [...parsed.fileNames, propsFileAbs];
+/*
+ * …and it needs `paths` to resolve its imports. Module resolution runs from the
+ * FILE's directory, and `registry/components/<id>/` has no node_modules above
+ * it, so `react` and `@primitiv-ui/react` both failed to resolve — which made
+ * `ComponentPropsWithRef<"span"> & BadgeVariants` an error type with zero
+ * properties, and the extractor reported "0 headless props" rather than
+ * failing. A silently empty props table is the worst possible outcome here, so
+ * the resolution is fixed rather than the symptom tolerated.
+ */
+const program = ts.createProgram(rootFiles, {
+  ...parsed.options,
+  noEmit: true,
+  baseUrl: ROOT,
+  paths: {
+    ...(parsed.options.paths ?? {}),
+    /* @types/react, not the runtime package: React ships no declarations of its
+       own, and the types are only discoverable from a directory that has them
+       above it — which registry/components/<id>/ does not. */
+    react: ["packages/react/node_modules/@types/react"],
+    "react/*": ["packages/react/node_modules/@types/react/*"],
+    "@primitiv-ui/react": ["packages/react/src/index.ts"],
+    /* The recipe's own import. Without it `BadgeVariants` is an error type, and
+       an intersection containing one enumerates NO properties — which is how
+       this first reported "0 headless props" with no diagnostic to explain it. */
+    "class-variance-authority": [
+      "packages/react/node_modules/class-variance-authority",
+    ],
+  },
+});
 const checker = program.getTypeChecker();
 const FMT = ts.TypeFormatFlags.NoTruncation | ts.TypeFormatFlags.UseAliasDefinedOutsideCurrentScope;
 const partsToString = (parts) => Array.isArray(parts) ? parts.map((p) => p.text).join("") : String(parts ?? "");
@@ -53,6 +93,38 @@ const inNodeModules = (d) => d.getSourceFile().fileName.includes("node_modules")
 
 const sf = program.getSourceFile(join(ROOT, cfg.propsFile));
 if (!sf) throw new Error(`source file not found: ${cfg.propsFile}`);
+
+/*
+ * An unresolved import is FATAL here, not a warning.
+ *
+ * A props type that references an error type enumerates zero properties, so the
+ * extractor happily emitted "0 headless props" and a page with an empty table —
+ * no throw, no diagnostic, nothing to notice. That is exactly what happened
+ * while wiring Badge up: `react`, then `@types/react`, then
+ * `class-variance-authority` each failed to resolve in turn, and each time the
+ * only symptom was a table quietly missing a row.
+ */
+const RESOLUTION_ERRORS = new Set([2307, 7016]);
+/* The props file AND its siblings: Badge's own imports resolved fine while
+   `badge.recipe.ts` — one import away — could not find
+   `class-variance-authority`, which is what emptied the type. Checking only the
+   props file let exactly that through. */
+const propsDir = dirname(join(ROOT, cfg.propsFile));
+const unresolved = program
+  .getSourceFiles()
+  .filter((f) => dirname(f.fileName) === propsDir)
+  .flatMap((f) => program.getSemanticDiagnostics(f))
+  .filter((d) => RESOLUTION_ERRORS.has(d.code));
+if (unresolved.length > 0) {
+  const messages = unresolved
+    .map((d) => `    ${ts.flattenDiagnosticMessageText(d.messageText, " ")}`)
+    .join("\n");
+  throw new Error(
+    `${cfg.propsFile} has unresolved imports, so its props type would resolve to\n` +
+      `  an error type and emit an EMPTY props table. Add a mapping to \`paths\`\n` +
+      `  in this file.\n${messages}`,
+  );
+}
 
 function findAlias(typeName) {
   let sym;
@@ -214,8 +286,18 @@ const subComponents = cfg.subComponents.map((sc) => {
   const styled = styledByComponent[key];
   if (!styled) unmatchedParts.push(sc.name);
   // dedupe dataAttributes, drop the styled contract-prop names that duplicate nothing
+  /*
+   * A prop that is ALSO a contract modifier is dropped from the headless half,
+   * so it appears once rather than twice. For a generated wrapper this never
+   * arises — the wrapper `Omit`s the prop before re-adding it as a modifier —
+   * but a primitive-less component declares its variants in its own props type,
+   * so `tone`, `variant` and `size` would otherwise be listed on both sides of
+   * the `From` column, which says two different things about one prop.
+   */
+  const contractNames = new Set((styled?.contractProps ?? []).map((c) => c.name));
   return {
     ...head,
+    props: head.props.filter((p) => !contractNames.has(p.name)),
     contractProps: styled?.contractProps ?? [],
     /* Keyed on name+value, not name: `data-state` legitimately appears twice
        with different values, and deduping by name alone dropped one of them. */

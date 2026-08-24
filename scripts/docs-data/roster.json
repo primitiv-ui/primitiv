@@ -39,7 +39,7 @@
     "displayName": "Badge",
     "category": "Data Display",
     "description": "A small status/count indicator attached to another element or beside a heading. Read-only, never interactive. Four semantic tones × two treatments (a low-emphasis label chip, a high-emphasis counter chip), sized xs–xl; `data-density` scales each size further.",
-    "documented": false
+    "documented": true
   },
   {
     "id": "blockquote",

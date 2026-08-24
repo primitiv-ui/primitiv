@@ -1,0 +1,95 @@
+{
+  "id": "badge",
+  "displayName": "Badge",
+  "kind": "registry",
+  "status": "stable",
+  "category": "Data Display",
+  "description": "A small status/count indicator attached to another element or beside a heading. Read-only, never interactive. Four semantic tones × two treatments (a low-emphasis label chip, a high-emphasis counter chip), sized xs–xl; `data-density` scales each size further.",
+  "headless": {
+    "package": "@primitiv-ui/react",
+    "importPath": "@/components/ui/badge",
+    "subComponents": [
+      {
+        "name": "Badge",
+        "extends": "HTMLSpanElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": null,
+            "description": "Render the single child element instead of a wrapping <span>, merging\nthe badge classes onto it — e.g. `<Badge asChild><a>…</a></Badge>`."
+          }
+        ],
+        "contractProps": [
+          {
+            "name": "tone",
+            "type": "\"success\" | \"warning\" | \"info\" | \"danger\"",
+            "default": "success",
+            "description": "Semantic colour."
+          },
+          {
+            "name": "variant",
+            "type": "\"label\" | \"counter\"",
+            "default": "label",
+            "description": "Visual treatment. `label` is the low-emphasis status-word chip; `counter` is the high-emphasis count chip."
+          },
+          {
+            "name": "size",
+            "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
+            "default": "md",
+            "description": "Badge size; `data-density` scales each size further."
+          }
+        ],
+        "dataAttributes": [],
+        "class": "primitiv-badge"
+      }
+    ]
+  },
+  "styled": {
+    "installCommand": "primitiv add badge",
+    "rootClass": "primitiv-badge",
+    "customProperties": [
+      {
+        "name": "--primitiv-badge-background",
+        "defaultsTo": "var(--primitiv-feedback-success-soft-background)"
+      },
+      {
+        "name": "--primitiv-badge-foreground",
+        "defaultsTo": "var(--primitiv-feedback-success-soft-foreground)"
+      },
+      {
+        "name": "--primitiv-badge-height",
+        "defaultsTo": "var(--primitiv-badge-md-height)"
+      },
+      {
+        "name": "--primitiv-badge-padding-inline",
+        "defaultsTo": "var(--primitiv-badge-md-padding-inline)"
+      },
+      {
+        "name": "--primitiv-badge-font-family",
+        "defaultsTo": "var(--primitiv-font-family-heading)"
+      },
+      {
+        "name": "--primitiv-badge-font-size",
+        "defaultsTo": "var(--primitiv-badge-md-font-size)"
+      },
+      {
+        "name": "--primitiv-badge-font-weight",
+        "defaultsTo": "var(--primitiv-font-weight-semibold)"
+      },
+      {
+        "name": "--primitiv-badge-line-height",
+        "defaultsTo": "1"
+      },
+      {
+        "name": "--primitiv-badge-radius",
+        "defaultsTo": "var(--primitiv-radii-full)"
+      }
+    ],
+    "dataAttributes": []
+  },
+  "figma": {
+    "componentSetKey": "1387:32589"
+  }
+}

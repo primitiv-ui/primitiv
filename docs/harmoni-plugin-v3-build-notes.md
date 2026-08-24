@@ -1353,6 +1353,29 @@ Neither was caused by this work; both were invisible while the chrome was copied
    the moment it is created. Dark is therefore the default for new views —
    but changing the master's mode later will NOT retro-propagate to instances.
 
+### The flow board stays rasters — and this is a Figma constraint, not laziness
+
+Once the views became shell instances, the flow board's PNG cards went stale, so
+the obvious move was live instances. It does not work at that size, for a reason
+worth knowing generally: **a Figma instance reflows, it does not scale.** A raster
+at 170 px wide is a true 0.5x visual reduction; a live instance at 170 px is a
+170 px-wide panel whose text rewraps at full size. So a live board has to use
+full-size 360 px cards, which makes it ~7,650 px wide — and you then read it
+zoomed out, at which point it renders like the rasters anyway while having cost a
+rebuild.
+
+Settled: **keep the compact rasters and re-export them.** Compact and readable at
+a glance is the whole point of a flow chart; going stale is the accepted price,
+and the refresh is one script — export each view at scale 1, `figma.createImage`,
+re-fill the card's RECTANGLE. Re-run it after any change to the views.
+
+For the record, componentising *does* work if this is ever revisited:
+`figma.createComponentFromNode` **wraps** the node rather than converting it, so
+the shell instance survives inside as a child (verified: still linked to the shell
+master, all 35 texts intact). Two caveats — it adds an instance nesting level, and
+the wrapper component gets **no** `explicitVariableModes` of its own (the shell
+instance inside keeps its pins, so rendering is unaffected).
+
 ### Drift preserved, deliberately
 
 The migrator copies each view's existing padding rather than normalising it, so

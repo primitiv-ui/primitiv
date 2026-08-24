@@ -812,9 +812,17 @@ user's canvas, so how they read is the product.
   - **Hex dropped to `content/muted`.** With oklch on `content/secondary` above
     it, colour now reinforces the ordering instead of being neutral to it: the
     value leads, the export follows.
-  - **The engine's hue is negative** (`-100.1`, not `259.9`) — valid CSS, but the
-    picker and the Swatch both normalise. Worth deciding whether `format_oklch`
-    should normalise at source, since that string reaches emitted tokens.
+  - **The engine's hue is now positive at source — fixed 2026-08-24.**
+    `format_oklch` / `format_oklch_alpha` normalise to `0..360`, so a blue reads
+    `oklch(0.5557 0.192 259.9)` rather than `-100.1`. Both are valid CSS and
+    numerically identical, but this is a string people read and paste, and every
+    consumer was normalising by hand.
+    - **The blast radius was smaller than it looked**, which is what made the fix
+      safe: `theme --brand` emits **hex**, not OkLCH, so the string never reached
+      a shipped token layer. A repo-wide grep found no negative hue in any golden
+      or emitted stylesheet, and all 365 primitiv-emit goldens passed untouched.
+      Check where a value actually lands before assuming a formatter change moves
+      goldens.
 
 - **A real component bug surfaced while doing it: wrapper frames reserve height
   for hidden children.** `Meta` (holding `Ratio`) and `Flags` (holding `Gamut`)

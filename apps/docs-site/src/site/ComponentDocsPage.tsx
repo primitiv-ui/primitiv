@@ -1,5 +1,6 @@
 "use client";
 
+import { CodeBlock } from "@/components/code-block";
 import { InlineCode } from "@/components/inline-code";
 import { List } from "@/components/list";
 import { Stack } from "@/components/stack";
@@ -138,15 +139,28 @@ export const ComponentDocsPage = ({ id }: { id: ComponentId }) => {
                * shows the library → component path instead, in the same slot,
                * with the label changed rather than a fake import invented.
                */}
-              <InlineCode size="sm">
-                {mode === "figma"
-                  ? `Primitiv / ${docs.displayName}`
-                  : `import { ${docs.displayName} } from "${
-                      mode === "styled"
-                        ? `@/components/ui/${docs.id}`
-                        : docs.headless.importPath
-                    }";`}
-              </InlineCode>
+              {mode === "figma" ? (
+                /* Not code, so not a code chip: a library → component path,
+                   which syntax highlighting would misrepresent. */
+                <InlineCode size="sm">{`Primitiv / ${docs.displayName}`}</InlineCode>
+              ) : (
+                /* CodeBlock's inline variant: the chip shape this slot had all
+                   along, now with the highlighting it was missing. Highlighting
+                   lives in CodeBlock — with the Prism theme and the syntax
+                   palette — so extending it beat teaching InlineCode to
+                   highlight, which would have meant a second copy of both and a
+                   highlighter dependency on an otherwise dependency-free chip. */
+                <CodeBlock
+                  variant="inline"
+                  size="sm"
+                  language="tsx"
+                  code={`import { ${docs.displayName} } from "${
+                    mode === "styled"
+                      ? `@/components/ui/${docs.id}`
+                      : docs.headless.importPath
+                  }";`}
+                />
+              )}
               <p className="docs-install-note">
                 {mode === "styled" ? (
                   <>

@@ -37,7 +37,10 @@
   font-weight: var(--primitiv-overline-font-weight);
   line-height: var(--primitiv-overline-line-height);
   text-transform: uppercase;
-  color: var(--primitiv-content-muted);
+  /* content/primary, not muted: at overline size these are labels for whole runs
+     of links, and muted put them quieter than the links they introduce. Both
+     rails carry the same value so the two headings stay identical. */
+  color: var(--primitiv-content-primary);
 }
 
 /*

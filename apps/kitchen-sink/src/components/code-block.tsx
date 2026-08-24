@@ -373,7 +373,7 @@ export type CodeBlockProps = Omit<ComponentPropsWithRef<"div">, "children"> &
     filename?: string;
     /** Force the header (with the copy control) even without a filename. */
     showHeader?: boolean;
-    /** Show a line-number gutter. */
+    /** Show a line-number gutter. Ignored under `variant="inline"`. */
     showLineNumbers?: boolean;
   };
 
@@ -383,6 +383,14 @@ export type CodeBlockProps = Omit<ComponentPropsWithRef<"div">, "children"> &
  * themed from `--primitiv-code-syntax-*` (so it tracks light/dark). The `size`
  * prop (`xs`–`xl`, default `md`) sets the type; a `data-density` ancestor scales
  * the padding.
+ *
+ * `variant="inline"` renders the same highlighted source as a CHIP instead — one
+ * line, sized to its content, sitting on the baseline beside prose or a label.
+ * It is the answer to "I want `InlineCode`, but syntax-highlighted": highlighting
+ * lives here, with the Prism theme and the `--primitiv-code-syntax-*` palette, so
+ * putting it in `inline-code` would have meant a second copy of both and a
+ * highlighter dependency on a component that is otherwise dependency-free. The
+ * header and gutter are ignored in this variant — a chip has nowhere to put them.
  *
  * For a tabbed variant (e.g. an npm/pnpm/yarn/bun install block), use the
  * compound subcomponents: {@link CodeBlock.Tabs}, {@link CodeBlock.Header},
@@ -402,16 +410,26 @@ export function CodeBlock({
   filename,
   showHeader = false,
   showLineNumbers = false,
+  variant = "block",
   size = "md",
   className,
   ...props
 }: CodeBlockProps) {
-  const headerShown = showHeader || filename != null;
+  /* The chip has nowhere to put a header or a gutter — it is one line on the
+     baseline — so both are ignored rather than half-rendered. Stated here
+     because the props remain in the type: a caller switching an existing block
+     to `inline` should find them quietly dropped, not throwing. */
+  const inline = variant === "inline";
+  const headerShown = !inline && (showHeader || filename != null);
+  const gutterShown = !inline && showLineNumbers;
   const getCopyCode = useCallback(() => code, [code]);
 
   return (
     <CodeBlockContext.Provider value={{ getCopyCode, size }}>
-      <div className={[codeBlock({ size }), className].filter(Boolean).join(" ")} {...props}>
+      <div
+        className={[codeBlock({ variant, size }), className].filter(Boolean).join(" ")}
+        {...props}
+      >
         {headerShown && (
           <div className="primitiv-code-block__header">
             {filename != null && (
@@ -420,7 +438,7 @@ export function CodeBlock({
             <CodeBlockCopy />
           </div>
         )}
-        <Highlighted code={code} language={language} showLineNumbers={showLineNumbers} />
+        <Highlighted code={code} language={language} showLineNumbers={gutterShown} />
       </div>
     </CodeBlockContext.Provider>
   );

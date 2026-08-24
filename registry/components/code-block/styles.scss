@@ -282,6 +282,39 @@
 }
 
 @layer primitiv.variants {
+  /* ===== Variant: inline ===============================================
+     The same highlighted source as a chip — one line, on the baseline, sized
+     to its content. Deliberately borrows Inline Code's geometry tokens rather
+     than inventing a second chip: the two sit side by side in prose and any
+     drift between them would read as a mistake.
+
+     Only the presentation changes. The Prism theme above still applies, since
+     the root keeps `.primitiv-code-block`, which is what makes this cheaper
+     than teaching `inline-code` to highlight. */
+  .primitiv-code-block--inline {
+    display: inline-block;
+    /* Baseline, not the default stretch: the chip has to sit ON the line of
+       text it interrupts. */
+    vertical-align: baseline;
+    border-radius: var(--primitiv-radii-4);
+    /* A chip is as wide as its content, and the block form's min-width floor
+       would otherwise hold it open. */
+    min-inline-size: auto;
+    max-inline-size: 100%;
+  }
+
+  .primitiv-code-block--inline .primitiv-code-block__pre {
+    padding-inline: var(--primitiv-code-inline-padding-inline);
+    padding-block: var(--primitiv-code-inline-padding-block);
+    /* One line: no wrapping, no scroll container, no reflow — if it cannot fit
+       it is the wrong thing to put in a chip. */
+    white-space: pre;
+    overflow-wrap: normal;
+    overflow-x: visible;
+  }
+}
+
+@layer primitiv.variants {
   /* Size — re-points the body type scale to the chosen slot (see the file
      header: Figma binds body.<size>, not code.<size>). Padding stays
      ambient on the density-scoped code/padding (RFC 0009), so only the type

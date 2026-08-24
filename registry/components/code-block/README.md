@@ -95,6 +95,31 @@ The single-block `<CodeBlock code=… />` form above is unchanged — the
 subcomponents are purely additive, and both forms share one `CodeBlock.Copy` and
 one Prism highlighting implementation.
 
+## Variants
+
+`variant="inline"` renders the same highlighted source as a **chip** — one line,
+sized to its content, sitting on the baseline — instead of a standalone block.
+
+It exists because highlighting cannot cheaply live anywhere else. Prism and the
+`--primitiv-code-syntax-*` palette are both here, and the palette is declared on
+`.primitiv-code-block` with the Prism `.token.*` mapping scoped to it. Teaching
+`inline-code` to highlight would therefore have meant a second copy of the
+palette *and* a `prism-react-renderer` dependency on a component that is
+otherwise dependency-free and used widely for plain prose chips. Keeping the
+class and changing only the presentation costs neither.
+
+The chip borrows Inline Code's geometry tokens (`code/inline/padding-*`,
+`radii/4`) rather than inventing its own, since the two sit side by side in prose
+and any drift would read as a mistake. `filename`, `showHeader` and
+`showLineNumbers` are ignored in this variant — a chip has nowhere to put them.
+
+```tsx
+<p>
+  Import it with{" "}
+  <CodeBlock variant="inline" size="sm" code={`import { Button } from "@/components/ui/button";`} />
+</p>
+```
+
 ## Files
 
 | File | Authored? | Role |

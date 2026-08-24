@@ -1,6 +1,5 @@
 "use client";
 
-import { CodeBlock } from "@/components/code-block";
 import { InlineCode } from "@/components/inline-code";
 import { List } from "@/components/list";
 import { Stack } from "@/components/stack";
@@ -139,30 +138,15 @@ export const ComponentDocsPage = ({ id }: { id: ComponentId }) => {
                * shows the library → component path instead, in the same slot,
                * with the label changed rather than a fake import invented.
                */}
-              {mode === "figma" ? (
-                /* Not code, so not a code block: this is a library → component
-                   path, and syntax-highlighting it would be a lie about what it
-                   is. */
-                <InlineCode size="sm">{`Primitiv / ${docs.displayName}`}</InlineCode>
-              ) : (
-                /* A CodeBlock rather than an InlineCode: it IS a TypeScript
-                   statement, so it should be highlighted like every other
-                   snippet on the page — and `showHeader` gives it the copy
-                   control, which matters more here than anywhere else, since
-                   the import line is the thing a reader came to copy. It also
-                   rhymes with the install block beside it, which is a tabbed
-                   CodeBlock with the same header. */
-                <CodeBlock
-                  size="sm"
-                  language="tsx"
-                  showHeader
-                  code={`import { ${docs.displayName} } from "${
-                    mode === "styled"
-                      ? `@/components/ui/${docs.id}`
-                      : docs.headless.importPath
-                  }";`}
-                />
-              )}
+              <InlineCode size="sm">
+                {mode === "figma"
+                  ? `Primitiv / ${docs.displayName}`
+                  : `import { ${docs.displayName} } from "${
+                      mode === "styled"
+                        ? `@/components/ui/${docs.id}`
+                        : docs.headless.importPath
+                    }";`}
+              </InlineCode>
               <p className="docs-install-note">
                 {mode === "styled" ? (
                   <>

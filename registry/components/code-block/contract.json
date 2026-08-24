@@ -13,6 +13,15 @@
   ],
   "modifiers": [
     {
+      "name": "variant",
+      "default": "block",
+      "description": "Presentation. `block` is the standalone code surface; `inline` is a chip that sits in a line of prose or beside a label — same highlighting, same syntax palette, no header or gutter.",
+      "options": [
+        { "name": "block", "class": "", "description": "A standalone block (the default)." },
+        { "name": "inline", "class": "primitiv-code-block--inline", "description": "A chip sized to its content, on the baseline." }
+      ]
+    },
+    {
       "name": "size",
       "default": "md",
       "description": "Type size; `data-density` scales the padding further.",

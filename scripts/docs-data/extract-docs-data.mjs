@@ -36,6 +36,7 @@ const EL_IFACE = {
   input: "HTMLInputElement", span: "HTMLSpanElement", ul: "HTMLUListElement",
   li: "HTMLLIElement", label: "HTMLLabelElement", select: "HTMLSelectElement",
   textarea: "HTMLTextAreaElement", p: "HTMLParagraphElement", nav: "HTMLElement",
+  dialog: "HTMLDialogElement", h2: "HTMLHeadingElement",
 };
 
 const name = process.argv[2] || "button";
@@ -53,10 +54,23 @@ const parsed = ts.parseJsonConfigFileContent(raw, ts.sys, dirname(tsconfigPath))
  * so the tsconfig's own file list does not reach them and `getSourceFile`
  * returned undefined.
  */
-const propsFileAbs = join(ROOT, cfg.propsFile);
-const rootFiles = parsed.fileNames.includes(propsFileAbs)
-  ? parsed.fileNames
-  : [...parsed.fileNames, propsFileAbs];
+/*
+ * A component's parts can span TWO files, and Modal is the case that forced it:
+ * `Header`, `Body` and `Footer` have no headless counterpart — they are pure
+ * structure the registry adds — so `ModalHeaderProps` is declared in
+ * `registry/components/modal/modal.tsx` while the other eight parts come from
+ * `packages/react/src/Modal/types.ts`. A part may therefore name its own
+ * `propsFile`; anything that does not falls back to the component's.
+ */
+const propsFilesRel = [
+  cfg.propsFile,
+  ...(cfg.subComponents ?? []).map((s) => s.propsFile).filter(Boolean),
+].filter((f, i, all) => all.indexOf(f) === i);
+const propsFilesAbs = propsFilesRel.map((f) => join(ROOT, f));
+const rootFiles = [
+  ...parsed.fileNames,
+  ...propsFilesAbs.filter((f) => !parsed.fileNames.includes(f)),
+];
 /*
  * …and it needs `paths` to resolve its imports. Module resolution runs from the
  * FILE's directory, and `registry/components/<id>/` has no node_modules above
@@ -91,8 +105,12 @@ const FMT = ts.TypeFormatFlags.NoTruncation | ts.TypeFormatFlags.UseAliasDefined
 const partsToString = (parts) => Array.isArray(parts) ? parts.map((p) => p.text).join("") : String(parts ?? "");
 const inNodeModules = (d) => d.getSourceFile().fileName.includes("node_modules");
 
-const sf = program.getSourceFile(join(ROOT, cfg.propsFile));
-if (!sf) throw new Error(`source file not found: ${cfg.propsFile}`);
+const sourceFileFor = (rel) => {
+  const file = program.getSourceFile(join(ROOT, rel));
+  if (!file) throw new Error(`source file not found: ${rel}`);
+  return file;
+};
+const sf = sourceFileFor(cfg.propsFile);
 
 /*
  * An unresolved import is FATAL here, not a warning.
@@ -109,10 +127,10 @@ const RESOLUTION_ERRORS = new Set([2307, 7016]);
    `badge.recipe.ts` — one import away — could not find
    `class-variance-authority`, which is what emptied the type. Checking only the
    props file let exactly that through. */
-const propsDir = dirname(join(ROOT, cfg.propsFile));
+const propsDirs = new Set(propsFilesAbs.map((f) => dirname(f)));
 const unresolved = program
   .getSourceFiles()
-  .filter((f) => dirname(f.fileName) === propsDir)
+  .filter((f) => propsDirs.has(dirname(f.fileName)))
   .flatMap((f) => program.getSemanticDiagnostics(f))
   .filter((d) => RESOLUTION_ERRORS.has(d.code));
 if (unresolved.length > 0) {
@@ -120,23 +138,24 @@ if (unresolved.length > 0) {
     .map((d) => `    ${ts.flattenDiagnosticMessageText(d.messageText, " ")}`)
     .join("\n");
   throw new Error(
-    `${cfg.propsFile} has unresolved imports, so its props type would resolve to\n` +
+    `${propsFilesRel.join(", ")} has unresolved imports, so a props type would resolve\n` +
       `  an error type and emit an EMPTY props table. Add a mapping to \`paths\`\n` +
       `  in this file.\n${messages}`,
   );
 }
 
-function findAlias(typeName) {
+function findAlias(typeName, file = sf) {
   let sym;
-  ts.forEachChild(sf, (node) => {
+  ts.forEachChild(file, (node) => {
     if (ts.isTypeAliasDeclaration(node) && node.name.text === typeName) sym = checker.getSymbolAtLocation(node.name);
   });
   return sym;
 }
 
 function extractSub(sc) {
-  const sym = findAlias(sc.propsType);
-  if (!sym) throw new Error(`type ${sc.propsType} not found`);
+  const file = sc.propsFile ? sourceFileFor(sc.propsFile) : sf;
+  const sym = findAlias(sc.propsType, file);
+  if (!sym) throw new Error(`type ${sc.propsType} not found in ${sc.propsFile ?? cfg.propsFile}`);
   const extTag = sym.getJsDocTags(checker).find((t) => t.name === "extends");
   const ext = extTag ? partsToString(extTag.text).trim() : (EL_IFACE[sc.element] || null);
   const type = checker.getDeclaredTypeOfSymbol(sym);

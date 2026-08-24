@@ -277,7 +277,7 @@
     "displayName": "Modal",
     "category": "Overlays",
     "description": "An accessible modal dialog built on the native `<dialog>` element — a fixed-width surface with an optional dimmed backdrop (WAI-ARIA Modal Dialog pattern).",
-    "documented": false
+    "documented": true
   },
   {
     "id": "navigation-menu",

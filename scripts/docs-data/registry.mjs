@@ -62,6 +62,25 @@ export const REGISTRY = {
   // flattens here — the extractor drops the `never` branches, so the
   // mutual exclusivity of value/onValueChange XOR defaultValue is NOT
   // recoverable from this data and has to be prose on the page (§1.20.2).
+  modal: {
+    displayName: "Modal", kind: "registry", status: "stable", category: "Overlays",
+    propsFile: "packages/react/src/Modal/types.ts",
+    subComponents: [
+      { name: "Modal.Root", propsType: "ModalRootProps", element: "div", component: "Root" },
+      { name: "Modal.Trigger", propsType: "ModalTriggerProps", element: "button", component: "Trigger" },
+      { name: "Modal.Portal", propsType: "ModalPortalProps", element: "div", component: "Portal" },
+      { name: "Modal.Overlay", propsType: "ModalOverlayProps", element: "div", component: "Overlay" },
+      { name: "Modal.Content", propsType: "ModalContentProps", element: "dialog", component: "Content" },
+      { name: "Modal.Header", propsType: "ModalHeaderProps", propsFile: "registry/components/modal/modal.tsx", element: "div", component: "Header" },
+      { name: "Modal.Body", propsType: "ModalBodyProps", propsFile: "registry/components/modal/modal.tsx", element: "div", component: "Body" },
+      { name: "Modal.Footer", propsType: "ModalFooterProps", propsFile: "registry/components/modal/modal.tsx", element: "div", component: "Footer" },
+      { name: "Modal.Title", propsType: "ModalTitleProps", element: "h2", component: "Title" },
+      { name: "Modal.Description", propsType: "ModalDescriptionProps", element: "p", component: "Description" },
+      { name: "Modal.Close", propsType: "ModalCloseProps", element: "button", component: "Close" },
+    ],
+    contract: "registry/components/modal/contract.json",
+    figmaComponentSetKey: "435:10250", importPath: "@primitiv-ui/react",
+  },
   select: {
     displayName: "Select", kind: "registry", status: "stable", category: "Collections & Selection",
     propsFile: "packages/react/src/Select/types.ts",

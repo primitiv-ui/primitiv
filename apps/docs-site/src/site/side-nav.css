@@ -117,3 +117,34 @@
   color: var(--primitiv-content-primary);
   font-weight: var(--primitiv-font-weight-medium);
 }
+
+/*
+ * The Components section's category groups.
+ *
+ * Indented to the same 20px the link lists use, so a group heading lines up
+ * with the links of an ungrouped section rather than introducing a third
+ * indent step — the nesting is already legible from the heading itself.
+ */
+.docs-nav-groups {
+  display: flex;
+  flex-direction: column;
+  gap: var(--primitiv-stack-gap-sm);
+  padding-inline-start: var(--primitiv-space-space-20);
+}
+
+.docs-nav-group-title {
+  margin-block: var(--primitiv-space-space-0) var(--primitiv-space-space-4);
+  font-family: var(--primitiv-label-xs-font-family);
+  font-size: var(--primitiv-label-xs-font-size);
+  font-weight: var(--primitiv-font-weight-semibold);
+  line-height: var(--primitiv-label-xs-line-height);
+  /* Muted and small: it labels the run below it without competing with the
+     section titles above or the links it introduces. */
+  color: var(--primitiv-content-muted);
+}
+
+/* The links inside a group carry their own indent already, so cancel the
+   nested list's — two indents would push a component name off the rail. */
+.docs-nav-group .docs-nav-links {
+  --primitiv-list-indent: var(--primitiv-space-space-0);
+}

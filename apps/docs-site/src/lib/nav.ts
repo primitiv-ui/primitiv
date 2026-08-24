@@ -8,9 +8,17 @@
  * single-sourced even though the two presentations render different wrappers.
  */
 
+import { CATEGORY_ORDER, ROSTER } from "@/lib/docs-data";
+
 export type NavLink = {
   readonly title: string;
   readonly href: string;
+};
+
+/** A named run of links inside a section — the Components category groups. */
+export type NavGroup = {
+  readonly title: string;
+  readonly links: readonly NavLink[];
 };
 
 export type NavSection = {
@@ -24,16 +32,42 @@ export type NavSection = {
    */
   readonly href?: string;
   readonly children: readonly NavLink[];
+  /**
+   * Sub-groups, when a flat list would be too long to scan. Only Components has
+   * them: five pages today, sixty-three eventually, and an alphabetical run of
+   * that length tells a reader nothing about what sits near what. The groups are
+   * the same categories the /components index uses, so the two agree.
+   *
+   * `children` stays populated alongside — it is the flat list, which the mobile
+   * drawer and anything else non-visual can keep using.
+   */
+  readonly groups?: readonly NavGroup[];
 };
 
-/** Components with a docs page built so far. */
-export const COMPONENT_PAGES: readonly NavLink[] = [
-  { title: "Badge", href: "/components/badge" },
-  { title: "Button", href: "/components/button" },
-  { title: "Input", href: "/components/input" },
-  { title: "Select", href: "/components/select" },
-  { title: "Tabs", href: "/components/tabs" },
-];
+/**
+ * Components with a docs page, derived from the generated roster.
+ *
+ * Was a hand-kept list, which meant a fourth registration step per page and a
+ * list that could silently disagree with the pages that actually exist. The
+ * roster already knows which components are documented and which category each
+ * belongs to, so both the flat list and the groups below come from it.
+ */
+export const COMPONENT_PAGES: readonly NavLink[] = ROSTER.filter(
+  (entry) => entry.documented,
+).map((entry) => ({
+  title: entry.displayName,
+  href: `/components/${entry.id}/`,
+}));
+
+/** The same pages, grouped by category in CATEGORY_ORDER; empty ones dropped. */
+export const COMPONENT_GROUPS: readonly NavGroup[] = CATEGORY_ORDER.map(
+  (category) => ({
+    title: category,
+    links: ROSTER.filter((e) => e.documented && e.category === category).map(
+      (e) => ({ title: e.displayName, href: `/components/${e.id}/` }),
+    ),
+  }),
+).filter((group) => group.links.length > 0);
 
 export const NAV: readonly NavSection[] = [
   {
@@ -57,6 +91,7 @@ export const NAV: readonly NavSection[] = [
     title: "Components",
     href: "/components",
     children: COMPONENT_PAGES,
+    groups: COMPONENT_GROUPS,
   },
   {
     title: "Registry & CLI",

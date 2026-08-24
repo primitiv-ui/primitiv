@@ -60,21 +60,53 @@ const Section = ({
         </button>
       </div>
 
-      {open && (
-        <List marker={false} size="sm" className="docs-nav-links" id={listId}>
-          {section.children.map((child) => (
-            <List.Item key={child.href}>
-              <Link
-                className="docs-nav-link"
-                href={child.href}
-                aria-current={samePath(child.href, pathname) ? "page" : undefined}
-              >
-                {child.title}
-              </Link>
-            </List.Item>
-          ))}
-        </List>
-      )}
+      {open &&
+        (section.groups ? (
+          /* Grouped by category — the same grouping the /components index uses,
+             so a reader who learns one learns the other. Each category is its
+             own list under its own heading rather than one long run: five pages
+             today, sixty-three eventually, and by then a flat alphabetical list
+             says nothing about what sits near what. */
+          <div className="docs-nav-groups" id={listId}>
+            {section.groups.map((group) => (
+              <div className="docs-nav-group" key={group.title}>
+                {/* A real heading, not a styled span: it names the list under
+                    it, so the group is announced rather than being an indent a
+                    screen-reader user cannot see. */}
+                <h3 className="docs-nav-group-title">{group.title}</h3>
+                <List marker={false} size="sm" className="docs-nav-links">
+                  {group.links.map((child) => (
+                    <List.Item key={child.href}>
+                      <Link
+                        className="docs-nav-link"
+                        href={child.href}
+                        aria-current={
+                          samePath(child.href, pathname) ? "page" : undefined
+                        }
+                      >
+                        {child.title}
+                      </Link>
+                    </List.Item>
+                  ))}
+                </List>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <List marker={false} size="sm" className="docs-nav-links" id={listId}>
+            {section.children.map((child) => (
+              <List.Item key={child.href}>
+                <Link
+                  className="docs-nav-link"
+                  href={child.href}
+                  aria-current={samePath(child.href, pathname) ? "page" : undefined}
+                >
+                  {child.title}
+                </Link>
+              </List.Item>
+            ))}
+          </List>
+        ))}
     </List.Item>
   );
 };

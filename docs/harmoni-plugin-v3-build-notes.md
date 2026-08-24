@@ -735,6 +735,43 @@ with the same settings); each swatch carries `step`, `value`, `oklch`.
 `circle` only works as a vertical list — in a horizontal strip the facts column
 collides with the next chip.
 
+### Swatch typography — settled 2026-08-24
+
+The Swatch was **entirely JetBrains Mono** (bar the gamut badge). These land on a
+user's canvas, so how they read is the product.
+
+- **No new font was needed.** The system already has three families as
+  primitives — `font-family/heading` (Khand), `font-family/text` (**Asta Sans**),
+  `font-family/mono` (JetBrains Mono). Asta Sans *is* the generic text face, so
+  reaching for Inter would have added a fourth family outside the token layer.
+- **The split is by what the text IS, not where it sits.** Mono stays where a
+  value is read character-by-character or copied — `Hex` (0/O, 8/B), `OKLCH`
+  (which also keeps the triple aligned down a column), `Ratio` (decimal
+  alignment), `Role` (a token path, an identifier). Everything else is language
+  and moved to Asta Sans: `Source`, `Grade`, and above all **`Sample`** — "Ag" is
+  a *specimen*, whose entire job is to show what real text looks like in the
+  paired foreground, so setting it in mono demonstrated the wrong thing. That one
+  was the actual error.
+- **`Step` moved to Khand (`label/*`)** — it is the swatch's *name*, and the
+  display face gives it presence as a title over the mono values beneath, which
+  is where the hierarchy comes from. It also matches the gamut badge, already
+  Khand.
+- **Family is bound, not set.** `fontFamily` is a bindable STRING variable, so
+  each node points at `body/{size}/font-family` or `label/{size}/font-family`
+  rather than carrying a literal face.
+- **Trap, and one I fell into: detaching a text style leaves literals behind.**
+  `setTextStyleIdAsync('')` drops the style's bound `fontSize`, `lineHeight`,
+  `fills` and `fontStyle`, leaving Step on a magic 13 px. Assigning the *Label*
+  style restored every binding in one move — prefer swapping a style to
+  detaching-and-rebinding by hand.
+- **A real component bug surfaced while doing it: wrapper frames reserve height
+  for hidden children.** `Meta` (holding `Ratio`) and `Flags` (holding `Gamut`)
+  stayed visible when their only child was switched off, costing ~36 px of dead
+  space per swatch — visible in a render as an empty band under every panel. The
+  `visible` property reference now drives the **wrapper** as well as the child.
+  Check this on any component where a boolean hides the sole occupant of a frame.
+- Result: the ground shrank 200 → 175 and the view 868 → **843**.
+
 ## 4a. Wording — "stamp" is internal, never user-facing
 
 `setSharedPluginData("harmoni", …)` is a good name for what the mechanism does,

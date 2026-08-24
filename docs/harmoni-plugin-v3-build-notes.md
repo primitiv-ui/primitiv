@@ -1506,6 +1506,28 @@ project-scoped, while these change one project's generated output. Putting them
 beside "Steps per ramp" would mean editing a global silently altered every
 project's foregrounds.
 
-**Still to build:** the row itself, in the `Palette` view and its light twin.
-Both are now `Harmoni / View Shell` instances, so the edit is to their Body slot
-content.
+**Built 2026-08-24** in `Palette` and `Palette · light`. `SEEDS` now lists six
+entries against six ramps, `neutral` sitting second to match the `RAMPS` order.
+
+**The values are the neutral ramp's real ends, and they confirm the design:**
+light `color.neutral.50` = `#e5ecf6` and `.900` = `#121418`; **dark is the same
+pair reversed** (`50` = `#121418`, `900` = `#e5ecf6`). One anchor pair genuinely
+serves both modes, which is what `generate_pair` taking a single
+`GenerateOptions` already implied.
+
+**One chip, split in half — not two chips.** The first build gave the row two
+14 px chips, which pushed `neutral`'s label 5 px right of the column the other
+five share and broke the list's left edge. A single 14 px chip with a white left
+half and a black right half keeps the label column exact (`labelX` 20 on every
+row, verified) and still shows both anchors; the two hexes print on the right
+where every other row prints its one. A gradient chip was avoided — the ramp is
+ten steps, not a smooth wash.
+
+### Gotcha extension: check wrapper children in BOTH directions
+
+The sweep that repaired four views' collapsed `Tabs` looked only for children
+*shorter* than their wrapper. Re-running it symmetrically found three more that
+were **taller**: `Palette` and `Palette · light` at 764 in a 754 wrapper, and
+`Write refused` ×2 at 745 in a 622 one (the `Notice` takes 132 px off the body).
+None of them looked wrong in a render, because the overflow was empty space —
+which is exactly why a height check has to be `!=`, not `<`.

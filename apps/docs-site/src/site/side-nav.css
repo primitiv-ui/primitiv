@@ -130,6 +130,10 @@
   flex-direction: column;
   gap: var(--primitiv-stack-gap-sm);
   padding-inline-start: var(--primitiv-space-space-20);
+  /* Breathing room under the section's own trigger, so the first category
+     heading reads as the start of a new run rather than as another row of the
+     disclosure it sits inside. */
+  margin-block-start: var(--primitiv-space-space-12);
 }
 
 .docs-nav-group-title {
@@ -143,8 +147,10 @@
   color: var(--primitiv-content-muted);
 }
 
-/* The links inside a group carry their own indent already, so cancel the
-   nested list's — two indents would push a component name off the rail. */
+/* Links step in under their category heading, so the hierarchy is visible and
+   not only announced. A 12px step rather than the list's default 20: the group
+   is already indented 20 from the section, and stacking two full steps pushes a
+   name like "Navigation Menu" against the rail's edge. */
 .docs-nav-group .docs-nav-links {
-  --primitiv-list-indent: var(--primitiv-space-space-0);
+  --primitiv-list-indent: var(--primitiv-space-space-12);
 }

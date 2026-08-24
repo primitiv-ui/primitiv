@@ -1134,15 +1134,33 @@ taken, to **Roles**; **Settings** is reached by the gear from *every* view, so a
 arrow from one card would be a lie; and **Roles / Audit exist only when the
 semantic layer is on**, which is a condition on the cards, not on an edge.
 
-**What the board exposed, which was the reason to build it: there is no designed
-back-path out of Roles or Audit.** `Write refused` has one — its remedy button is
-`Change destination`, which is a real route home. Roles and Audit have nothing:
-they are reached from Export's semantic offer and the panel's own chrome is
-`Harmoni . <project>` plus a gear, which is not a back control. This is recorded
-in red on the board itself and is the one open hole in the flow. It is a design
-question (does the tab strip grow to five, or does each view get a `< export`
-crumb like the picker already has?) and it needs settling before the router is
-written.
+**What the board exposed, and it is the opposite of what a first read of it
+said.** Drawing the edges made it look as though Roles and Audit had no way back
+— they are reached from Export's semantic offer and the panel chrome is
+`Harmoni . <project>` plus a gear, which is not a back control. **Checked against
+the built views, that is wrong**, and the check is the finding: the panel has
+exactly **two** navigation controls, and between them every view has a back-path.
+
+- **The tab strip.** `Palette | Roles | Audit | Export` are four **peers**, not a
+  chain — Roles and Audit are left the same way they are reached. The strip is
+  **2 tabs before the semantic offer is taken and 4 after** (verified: the built
+  `Palette` and `Export` views read `Palette · Export`; `Roles` and `Audit` read
+  `Palette · Roles · Audit · Export`). So "taking the offer adds Roles and Audit"
+  is literally true of the strip, and the offer's cost is one control changing
+  width, not a new navigation idea.
+- **The breadcrumb.** Every pushed view returns through it: `Primitiv / Export /
+  Canvas swatches`, `Primitiv / Brand` out of the picker, and `Primitiv / First
+  write` back from Destination to the project switcher. Settings is the gear and
+  returns to wherever it was opened from.
+
+That is worth more than the hole would have been: a router with two mechanisms
+and no special cases is the thing to test-drive, and the board is now the
+statement of it. It also means the board's own layout has one weakness — the four
+tab peers are **not adjacent on it** (Export sits in track 1, Palette / Roles /
+Audit in track 2), because the board is organised by journey and the strip cuts
+across both. The `Roles <-> Audit` edge is drawn bidirectional and the note beside
+it says the arrow is one direction of a four-way peer group; don't read the
+single edge as the whole relationship.
 
 Two things worth knowing if this board is ever regenerated:
 

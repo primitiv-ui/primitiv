@@ -129,6 +129,15 @@
  *                layout primitive controls.
  * - `knockout` — what reads ON a primary fill. The same token a real primary
  *                Button's text uses, so it survives a change to the brand ramp.
+ *                Note this is NOT pure white: `action/primary/foreground/*`
+ *                resolves to `color/white`, which is #ebebeb in this system.
+ * - `on-action` — true white, in both themes, via `content/on-action` ->
+ *                `absolute-white`. For the one shape that has to be white
+ *                rather than merely light: Button's pointer, which reads as a
+ *                real cursor only if it is. A semantic Intent token rather
+ *                than the `color/absolute-white` primitive it aliases, so the
+ *                Figma side can bind it the same way (Palette primitives
+ *                resolve through Light mode on dark frames).
  *
  * Separate rather than one combined role because Button's pointer needs both
  * at once: a white fill with a neutral edge, the way a real cursor is drawn,
@@ -162,6 +171,16 @@
   fill: var(--primitiv-action-primary-foreground-default);
 }
 
+.docs-mark-fill-on-action {
+  fill: var(--primitiv-content-on-action);
+}
+
+/* Masking only — see `MarkRole`. An AvatarGroup's faces overlap, and outlined
+   circles over one another read as a Venn diagram without it. */
+.docs-mark-fill-surface {
+  fill: var(--primitiv-surface-default);
+}
+
 .docs-mark-stroke-none {
   stroke: none;
 }
@@ -176,6 +195,10 @@
 
 .docs-mark-stroke-knockout {
   stroke: var(--primitiv-action-primary-foreground-default);
+}
+
+.docs-mark-stroke-on-action {
+  stroke: var(--primitiv-content-on-action);
 }
 
 /* A layout primitive's own box: dashed, because the container renders nothing

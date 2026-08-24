@@ -94,6 +94,12 @@ export type MarkShape =
       readonly r: number;
       readonly fill?: MarkRole;
       /**
+       * The outline's role. Defaults to neutral chrome when the rect has no
+       * fill, and to nothing when it does — set it explicitly for a shape that
+       * needs both, like a masked avatar in a group.
+       */
+      readonly stroke?: MarkRole;
+      /**
        * Draw the outline dashed. Reserved for a LAYOUT primitive's own box: a
        * dashed edge says the container renders nothing of itself, which is the
        * literal truth for `Stack`, `Grid`, `Box`, `Center` and `Container`.
@@ -123,7 +129,17 @@ export type MarkShape =
  * A paint role. Each maps to one semantic token and nothing else — see the
  * class pairs in `components-index.css`.
  */
-export type MarkRole = "chrome" | "content" | "knockout";
+export type MarkRole =
+  | "chrome"
+  | "content"
+  | "knockout"
+  | "on-action"
+  /**
+   * The page surface. Only for MASKING — an `AvatarGroup`'s faces overlap, and
+   * an outlined circle over another outlined circle reads as a Venn diagram
+   * unless each one hides what is behind it.
+   */
+  | "surface";
 
 export const MARK_GRID: {
   readonly viewBox: { readonly width: number; readonly height: number };

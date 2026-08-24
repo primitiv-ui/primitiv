@@ -89,7 +89,9 @@ const CardMediaMark = ({ id }: { id: string }) => {
             rx={shape.r}
             className={markClass({
               fill: shape.fill,
-              stroke: shape.fill ? undefined : "chrome",
+              /* A rect outlines itself unless it is filled — but it may ask
+                 for both, which is what lets an avatar mask its neighbour. */
+              stroke: shape.stroke ?? (shape.fill ? undefined : "chrome"),
               dash: shape.dash,
             })}
           />

@@ -20,13 +20,29 @@ pub enum Easing {
     Arc,
 }
 
-/// The accent that makes `Arc` its own shape rather than a second name for
-/// `Sine`.
+/// Where on the arc the accent starts sampling, when the caller does not say.
 ///
-/// The arc's accent sweeps it continuously from `Sine` ease-out at 0 to `Sine`
-/// ease-in at 1, so both ends of the range duplicate a family that already
-/// exists. The midpoint is the only default under which `Arc` contributes a
-/// shape nothing else in the list can make.
+/// The accent slides which quarter of the sine `Arc` samples, and its two ends
+/// land exactly on a family that already exists. **The mapping is relative to
+/// [`Direction`]**, which is easy to state wrongly: under `EaseOut` accent 0
+/// gives `Sine` ease-out and accent 1 gives `Sine` ease-in; under `EaseIn` both
+/// swap. Same fact, seen through the direction flip. So the shape `Arc`
+/// contributes lives strictly between the ends, whichever way you read them.
+///
+/// **0.5 is the FLATTEST point of that sweep, not the most distinctive one.**
+/// It strays 0.021 from a straight line against 0.21 at either end, and the
+/// deviation rises monotonically and symmetrically away from it. A glyph of the
+/// default therefore reads as very nearly linear — correct, and not to be
+/// "fixed".
+///
+/// It is still the right default, for the reason that survives measurement:
+/// the sweep is symmetric about it, so 0.5 is the only accent that does not
+/// lean the shape toward one end — and leaning toward an end is what
+/// [`Direction`] already expresses. Any other default would duplicate that axis
+/// and bias the control before the user has touched it.
+///
+/// `tests/arc_accent.rs` pins the endpoint mapping in both directions, the
+/// flatness minimum, and the symmetry.
 pub const DEFAULT_ARC_ACCENT: f32 = 0.5;
 
 /// Which end of the ramp a family's acceleration is applied to.

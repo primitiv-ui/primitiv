@@ -1423,24 +1423,45 @@ Six bars reach 23 but fall to ~1.4 px hairlines at 12 px. The set is now a
 **sampled polyline** (17 points), which separates every family and reads as a
 miniature of the Curve view's own plot.
 
-**The old description's case for bars was measurably false, and that is the
-bigger finding.** It argued that Arc is a *sampling method* (fettepalette
-lineage — a quarter circle sampled evenly in angle) tracing the same path as
-`Circular` ease-out, so a line glyph would render the two identically. Against
-the current engine they differ by **0.432** across 17 samples, and its quoted Arc
-ease-out midpoint of **0.71 is now 0.500**. `easing.rs` implements Arc as a
-**sine-family sweep** (accent runs `Sine` ease-out at 0 to `Sine` ease-in at 1),
-not a quarter circle. So the glyph was documented against an Arc the engine does
-not implement.
+**The old description's case for bars rested on one real error, and the rest of
+it went stale because of this session's own engine change.** Corrected after
+checking it properly — the first reading of this was wrong twice and is written
+out here so the wrong version does not get reinstated:
 
-**Open, and worth deciding deliberately: is the engine's Arc the intended one?**
-At the default accent Arc sits within **0.021 of Linear** in all three
-directions — its whole row draws as three near-straight lines. That is real
-behaviour, not a bug in the glyph, and the accent is the only thing that gives
-Arc a shape. But it means the default Arc contributes almost nothing the Linear
-preset does not, which is the opposite of the claim in `easing.rs` that the
-midpoint "is the only default under which `Arc` contributes a shape nothing else
-in the list can make". Either the doc comment or the implementation is wrong.
+- It said Arc "traces exactly the same path as `Circular` ease-out and differs
+  only in where the steps land". **That part was wrong when written.** Arc at
+  accent 0 is `Sine` ease-out *exactly* (0.0000 apart across 33 samples);
+  `Circular` ease-out is 0.2938 away. It conflated Sine with Circular.
+- Its numbers — "`Circular` ease-out reads 0.87 and Arc ease-out reads 0.71" —
+  were **correct for the Arc that existed when it was written** (0.866 and
+  0.7071). Arc reads 0.500 now only because this session added the accent
+  control with a 0.5 default. That is drift caused by us, not an old mistake.
+- "The engine implements Arc as a sine-family sweep, not a quarter circle" was a
+  **false dichotomy of mine**. A quarter circle sampled evenly in angle *is* the
+  sine function; the fettepalette lineage claim was accurate. The accent is a
+  phase offset that slides which quarter gets sampled.
+
+**The Arc default is deliberate, and is now pinned rather than left to be
+re-raised as a bug** (`crates/harmoni-core/tests/arc_accent.rs`). Three
+properties the existing point-assertions in `easing_tests.rs` could not state:
+
+- **The endpoint mapping is relative to `Direction`** — under `EaseOut` accent 0
+  gives `Sine` ease-out and accent 1 gives `Sine` ease-in; under `EaseIn` both
+  swap. The doc comment stated only one reading without saying which, which is
+  what made it look reversed. Ambiguity, not inversion.
+- **0.5 is the FLATTEST point of the sweep**, straying 0.021 from a straight line
+  against 0.21 at either end, rising monotonically away from it. So the default
+  Arc glyph reading as near-linear is correct and must not be "fixed".
+- **The sweep is symmetric about 0.5.** That is the justification that survives
+  measurement: 0.5 is the only accent that does not lean the shape toward one
+  end, and leaning toward an end is what `Direction` already expresses. Any other
+  default would duplicate that axis. The old comment's reason — that the midpoint
+  is "the only default under which Arc contributes a shape nothing else in the
+  list can make" — argues distinctiveness, which is the opposite of what the
+  numbers show.
+
+Both guards were verified to bite: shifting `DEFAULT_ARC_ACCENT` to 0.35 fails
+two of three, and reversing the accent mapping fails one.
 
 **Process note: read the component description first.** The set's description
 already recorded the bars-vs-line decision and its reasoning; the options were

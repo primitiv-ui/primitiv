@@ -71,6 +71,7 @@
           }
         ],
         "styledOnly": false,
+        "headlessOnly": false,
         "contractProps": [
           {
             "name": "size",
@@ -113,6 +114,7 @@
           }
         ],
         "styledOnly": false,
+        "headlessOnly": false,
         "contractProps": [
           {
             "name": "justify",
@@ -169,6 +171,7 @@
           }
         ],
         "styledOnly": false,
+        "headlessOnly": false,
         "contractProps": [],
         "dataAttributes": [
           {
@@ -212,6 +215,7 @@
           }
         ],
         "styledOnly": false,
+        "headlessOnly": false,
         "contractProps": [],
         "dataAttributes": [
           {

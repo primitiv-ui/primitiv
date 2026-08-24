@@ -29,7 +29,7 @@
           },
           {
             "name": "onOpenChange",
-            "type": "(open: boolean) => void) | ((open: boolean) => void",
+            "type": "(open: boolean) => void",
             "required": false,
             "default": null,
             "description": "Called with the new open state whenever it changes (open or close).\nOptional in uncontrolled mode — useful purely to observe transitions.\nCalled with the requested open state whenever the modal wants to open or\nclose (trigger click, Close button, Esc, click-outside, imperative API).\nRequired in controlled mode."
@@ -50,6 +50,7 @@
           }
         ],
         "styledOnly": false,
+        "headlessOnly": false,
         "contractProps": [],
         "dataAttributes": [],
         "class": null
@@ -67,6 +68,7 @@
           }
         ],
         "styledOnly": false,
+        "headlessOnly": false,
         "contractProps": [],
         "dataAttributes": [],
         "class": null
@@ -98,6 +100,7 @@
           }
         ],
         "styledOnly": false,
+        "headlessOnly": false,
         "contractProps": [],
         "dataAttributes": [],
         "class": null
@@ -122,6 +125,7 @@
           }
         ],
         "styledOnly": false,
+        "headlessOnly": false,
         "contractProps": [],
         "dataAttributes": [
           {
@@ -157,6 +161,7 @@
           }
         ],
         "styledOnly": false,
+        "headlessOnly": false,
         "contractProps": [
           {
             "name": "size",
@@ -184,6 +189,7 @@
         "extends": "HTMLDivElement",
         "props": [],
         "styledOnly": true,
+        "headlessOnly": false,
         "contractProps": [],
         "dataAttributes": [],
         "class": "primitiv-modal__header"
@@ -193,6 +199,7 @@
         "extends": "HTMLDivElement",
         "props": [],
         "styledOnly": true,
+        "headlessOnly": false,
         "contractProps": [],
         "dataAttributes": [],
         "class": "primitiv-modal__body"
@@ -202,6 +209,7 @@
         "extends": "HTMLDivElement",
         "props": [],
         "styledOnly": true,
+        "headlessOnly": false,
         "contractProps": [],
         "dataAttributes": [],
         "class": "primitiv-modal__footer"
@@ -219,6 +227,7 @@
           }
         ],
         "styledOnly": false,
+        "headlessOnly": false,
         "contractProps": [],
         "dataAttributes": [],
         "class": "primitiv-modal__title"
@@ -236,6 +245,7 @@
           }
         ],
         "styledOnly": false,
+        "headlessOnly": false,
         "contractProps": [],
         "dataAttributes": [],
         "class": "primitiv-modal__description"
@@ -253,6 +263,7 @@
           }
         ],
         "styledOnly": false,
+        "headlessOnly": false,
         "contractProps": [],
         "dataAttributes": [],
         "class": "primitiv-modal__close"

@@ -22,6 +22,7 @@
 import badgeDocs from "@/docs-data/badge.docs.json";
 import buttonDocs from "@/docs-data/button.docs.json";
 import inputDocs from "@/docs-data/input.docs.json";
+import checkboxDocs from "@/docs-data/checkbox.docs.json";
 import modalDocs from "@/docs-data/modal.docs.json";
 import selectDocs from "@/docs-data/select.docs.json";
 import tabsDocs from "@/docs-data/tabs.docs.json";
@@ -57,6 +58,13 @@ export type DocsSubComponent = {
    * in, not hand-maintained.
    */
   readonly styledOnly?: boolean;
+  /**
+   * True when only the headless compound exports this part — Checkbox's
+   * `Indicator`, which the copied `Checkbox` renders internally rather than
+   * exporting. The mirror of {@link DocsSubComponent.styledOnly}, derived the
+   * same way: from what the registry file actually exports.
+   */
+  readonly headlessOnly?: boolean;
   readonly props: readonly DocsProp[];
   readonly contractProps?: readonly DocsContractProp[];
   /**
@@ -181,6 +189,7 @@ const DOCS = {
   badge: badgeDocs as unknown as ComponentDocs,
   button: buttonDocs as unknown as ComponentDocs,
   input: inputDocs as unknown as ComponentDocs,
+  checkbox: checkboxDocs as unknown as ComponentDocs,
   modal: modalDocs as unknown as ComponentDocs,
   select: selectDocs as unknown as ComponentDocs,
   tabs: tabsDocs as unknown as ComponentDocs,

@@ -36,6 +36,7 @@
           }
         ],
         "styledOnly": false,
+        "headlessOnly": false,
         "contractProps": [
           {
             "name": "size",

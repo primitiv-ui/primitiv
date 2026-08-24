@@ -22,6 +22,7 @@
           }
         ],
         "styledOnly": false,
+        "headlessOnly": false,
         "contractProps": [
           {
             "name": "tone",

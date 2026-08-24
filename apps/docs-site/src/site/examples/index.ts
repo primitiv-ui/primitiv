@@ -5,6 +5,7 @@ import type { ComponentId } from "@/lib/docs-data";
 import { badgeSpec } from "./badge";
 import { buttonSpec } from "./button";
 import { inputSpec } from "./input";
+import { checkboxSpec } from "./checkbox";
 import { modalSpec } from "./modal";
 import { selectSpec } from "./select";
 import { tabsSpec } from "./tabs";
@@ -19,6 +20,7 @@ export const SPECS: Record<ComponentId, ComponentSpec> = {
   badge: badgeSpec,
   button: buttonSpec,
   input: inputSpec,
+  checkbox: checkboxSpec,
   modal: modalSpec,
   select: selectSpec,
   tabs: tabsSpec,

@@ -62,6 +62,26 @@ export const REGISTRY = {
   // flattens here — the extractor drops the `never` branches, so the
   // mutual exclusivity of value/onValueChange XOR defaultValue is NOT
   // recoverable from this data and has to be prose on the page (§1.20.2).
+  checkbox: {
+    displayName: "Checkbox", kind: "registry", status: "stable", category: "Forms",
+    propsFile: "packages/react/src/Checkbox/types.ts",
+    subComponents: [
+      /*
+       * `element: "input"`, though the Root RENDERS a `<label>`.
+       *
+       * This field only picks the interface named in "Extends ... - every native
+       * attribute of that element is accepted and forwarded", and the Root's
+       * props are `Omit<ComponentProps<"input">, ...>`: everything but
+       * `className`/`style` spreads onto the nested `<input>`, which is where
+       * `name`, `required`, `form` and friends have to land. Naming the label
+       * here would print an interface none of its props come from.
+       */
+      { name: "Checkbox.Root", propsType: "CheckboxRootProps", element: "input", component: "Root" },
+      { name: "Checkbox.Indicator", propsType: "CheckboxIndicatorProps", element: "span", component: "Indicator" },
+    ],
+    contract: "registry/components/checkbox/contract.json",
+    figmaComponentSetKey: "369:30652", importPath: "@primitiv-ui/react",
+  },
   modal: {
     displayName: "Modal", kind: "registry", status: "stable", category: "Overlays",
     propsFile: "packages/react/src/Modal/types.ts",

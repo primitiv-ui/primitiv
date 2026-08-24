@@ -1,0 +1,204 @@
+{
+  "id": "checkbox",
+  "displayName": "Checkbox",
+  "kind": "registry",
+  "status": "stable",
+  "category": "Forms",
+  "description": "A tri-state checkbox with an optional inline label — an independent on/off (or mixed) form selection.",
+  "headless": {
+    "package": "@primitiv-ui/react",
+    "importPath": "@primitiv-ui/react",
+    "subComponents": [
+      {
+        "name": "Checkbox.Root",
+        "extends": "HTMLInputElement",
+        "props": [
+          {
+            "name": "checked",
+            "type": "CheckedState",
+            "required": false,
+            "default": null,
+            "description": "Forbidden in uncontrolled mode — use `defaultChecked` instead.\nThe current checked value, owned by the parent. May be `\"indeterminate\"`\nfor the tri-state; clicking a mixed checkbox resolves it to `true`. Keep it\nin sync via `onCheckedChange`."
+          },
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": false,
+            "default": null,
+            "description": ""
+          },
+          {
+            "name": "defaultChecked",
+            "type": "CheckedState",
+            "required": false,
+            "default": null,
+            "description": "Checked value on first render; the component owns it thereafter. May be\n`\"indeterminate\"` for a mixed-on-mount checkbox. Omit for an initially\nunchecked box.\nForbidden in controlled mode — use `checked` instead."
+          },
+          {
+            "name": "onCheckedChange",
+            "type": "(checked: boolean) => void",
+            "required": false,
+            "default": null,
+            "description": "Fired with the new boolean checked value on every user toggle.\nCalled with the new boolean checked value on every user toggle. Required\nin controlled mode so the parent can keep `checked` in sync."
+          },
+          {
+            "name": "ref",
+            "type": "Ref<HTMLInputElement>",
+            "required": false,
+            "default": null,
+            "description": "Allows getting a ref to the component instance.\nOnce the component unmounts, React will set `ref.current` to `null`\n(or call the ref with `null` if you passed a callback ref).\nForwarded to the underlying native `<input type=\"checkbox\">`."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [
+          {
+            "name": "size",
+            "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
+            "default": "md",
+            "description": "Control size; `data-density` scales each size further."
+          }
+        ],
+        "dataAttributes": [
+          {
+            "name": "data-state",
+            "value": "checked",
+            "when": "checked"
+          },
+          {
+            "name": "data-state",
+            "value": "unchecked",
+            "when": "unchecked"
+          },
+          {
+            "name": "data-state",
+            "value": "indeterminate",
+            "when": "indeterminate"
+          },
+          {
+            "name": "data-disabled",
+            "value": "",
+            "when": "disabled"
+          }
+        ],
+        "class": "primitiv-checkbox"
+      },
+      {
+        "name": "Checkbox.Indicator",
+        "extends": "HTMLSpanElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "When `true`, render `children` as the indicator element itself\n(via the {@link Slot } pattern) instead of wrapping them in a `<span>`.\n`data-state` and `aria-hidden` are merged onto that element."
+          },
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": false,
+            "default": null,
+            "description": "Custom mark content. Omit to let the shipped CSS draw the tick/bar off the\ninput's native `:checked` / `:indeterminate` state; provide your own (an\nicon, glyph, or nested element) to override it."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": true,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": null
+      }
+    ]
+  },
+  "styled": {
+    "installCommand": "primitiv add checkbox",
+    "rootClass": "primitiv-checkbox",
+    "customProperties": [
+      {
+        "name": "--primitiv-checkbox-bg",
+        "defaultsTo": "var(--primitiv-surface-default)"
+      },
+      {
+        "name": "--primitiv-checkbox-bg-checked",
+        "defaultsTo": "var(--primitiv-action-primary-default)"
+      },
+      {
+        "name": "--primitiv-checkbox-border-color",
+        "defaultsTo": "var(--primitiv-border-strong)"
+      },
+      {
+        "name": "--primitiv-checkbox-border-color-checked",
+        "defaultsTo": "var(--primitiv-action-primary-default)"
+      },
+      {
+        "name": "--primitiv-checkbox-border-width",
+        "defaultsTo": "var(--primitiv-border-width-1)"
+      },
+      {
+        "name": "--primitiv-checkbox-mark-color",
+        "defaultsTo": "var(--primitiv-action-primary-foreground-default)"
+      },
+      {
+        "name": "--primitiv-checkbox-size",
+        "defaultsTo": "var(--primitiv-checkbox-md-box-size)"
+      },
+      {
+        "name": "--primitiv-checkbox-radius",
+        "defaultsTo": "var(--primitiv-checkbox-md-box-radius)"
+      },
+      {
+        "name": "--primitiv-checkbox-mark-size",
+        "defaultsTo": "var(--primitiv-checkbox-md-mark-size)"
+      },
+      {
+        "name": "--primitiv-checkbox-gap",
+        "defaultsTo": "var(--primitiv-choice-control-md-gap)"
+      },
+      {
+        "name": "--primitiv-checkbox-label-color",
+        "defaultsTo": "var(--primitiv-content-primary)"
+      },
+      {
+        "name": "--primitiv-checkbox-label-font-family",
+        "defaultsTo": "var(--primitiv-label-md-font-family)"
+      },
+      {
+        "name": "--primitiv-checkbox-label-font-size",
+        "defaultsTo": "var(--primitiv-label-md-font-size)"
+      },
+      {
+        "name": "--primitiv-checkbox-label-font-weight",
+        "defaultsTo": "var(--primitiv-label-md-font-weight)"
+      },
+      {
+        "name": "--primitiv-checkbox-label-line-height",
+        "defaultsTo": "var(--primitiv-label-md-line-height)"
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-state",
+        "value": "checked",
+        "when": "checked"
+      },
+      {
+        "name": "data-state",
+        "value": "unchecked",
+        "when": "unchecked"
+      },
+      {
+        "name": "data-state",
+        "value": "indeterminate",
+        "when": "indeterminate"
+      },
+      {
+        "name": "data-disabled",
+        "value": "",
+        "when": "disabled"
+      }
+    ]
+  },
+  "figma": {
+    "componentSetKey": "369:30652"
+  }
+}

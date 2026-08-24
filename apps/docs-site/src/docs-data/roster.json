@@ -102,7 +102,7 @@
     "displayName": "Checkbox",
     "category": "Forms",
     "description": "A tri-state checkbox with an optional inline label — an independent on/off (or mixed) form selection.",
-    "documented": false
+    "documented": true
   },
   {
     "id": "checkbox-card",

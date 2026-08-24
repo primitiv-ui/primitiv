@@ -21,7 +21,7 @@
 //      node scripts/docs-data/extract-docs-data.mjs tabs
 
 import { createRequire } from "node:module";
-import { readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -144,6 +144,119 @@ if (unresolved.length > 0) {
   );
 }
 
+/*
+ * What the copied registry file actually exports.
+ *
+ * The two surfaces do not have the same parts, and they diverge in BOTH
+ * directions: Modal's `Header`/`Body`/`Footer` exist only in the registry copy,
+ * while Checkbox's `Indicator` exists only in the headless compound (the copied
+ * `Checkbox` renders one internally rather than exporting it). Either way a
+ * page that names the part in the wrong mode is telling the reader to import
+ * something that is not there — so both are DERIVED here from the file itself
+ * rather than hand-flagged per component.
+ */
+const registryFile = join(ROOT, `registry/components/${name}/${name}.tsx`);
+const registryExports = existsSync(registryFile)
+  ? new Set(
+      [...readFileSync(registryFile, "utf8").matchAll(/export (?:function|const) (\w+)/g)].map(
+        (m) => m[1],
+      ),
+    )
+  : null;
+
+/** Mirrors `partNamer("styled", …)` in the docs site — one spelling rule. */
+const styledName = (part) =>
+  part === "Root" ? cfg.displayName : `${cfg.displayName}${part}`;
+
+
+/**
+ * Splits a type string on a top-level operator, ignoring any inside brackets.
+ *
+ * A plain `String.split("|")` cuts through `Record<string, A | B>` and through
+ * every parenthesised function type, which is what makes naive type surgery
+ * produce unbalanced output.
+ */
+function splitTopLevel(type, operator) {
+  const parts = [];
+  let depth = 0;
+  let start = 0;
+  for (let i = 0; i < type.length; i += 1) {
+    const c = type[i];
+    /* `=>` first: the `>` of an arrow is not a closing angle bracket, and
+       counting it as one drove `depth` negative on every function type — which
+       is why the duplicate-member collapse below silently never fired. */
+    if (c === "=" && type[i + 1] === ">") {
+      i += 1;
+      continue;
+    }
+    if (c === "(" || c === "[" || c === "{" || c === "<") depth += 1;
+    else if (c === ")" || c === "]" || c === "}" || c === ">") depth -= 1;
+    else if (c === operator && depth === 0) {
+      parts.push(type.slice(start, i));
+      start = i + 1;
+    }
+  }
+  parts.push(type.slice(start));
+  return parts.map((p) => p.trim()).filter(Boolean);
+}
+
+/** True when the string's leading `(` is closed by its trailing `)`. */
+function wrappedInParens(type) {
+  if (!type.startsWith("(") || !type.endsWith(")")) return false;
+  let depth = 0;
+  for (let i = 0; i < type.length; i += 1) {
+    if (type[i] === "(") depth += 1;
+    else if (type[i] === ")") {
+      depth -= 1;
+      if (depth === 0) return i === type.length - 1;
+    }
+  }
+  return false;
+}
+
+/**
+ * Tidies a rendered type without corrupting it.
+ *
+ * Two jobs, both driven by a real defect on the Checkbox page:
+ *
+ * 1. **Unwrap a redundant outer paren.** The old one-line regex tested
+ *    `^\(...\)$` with a greedy middle, so on
+ *    `((c: boolean) => void) | (((c: boolean) => void) & ...)` it stripped the
+ *    FIRST `(` and the LAST `)` — which are not a matching pair — and emitted
+ *    unbalanced garbage into the props table. It only unwraps now when the
+ *    leading paren actually closes at the end.
+ *
+ * 2. **Collapse duplicate union / intersection members.** `X & X` is `X`, and
+ *    TypeScript really does produce it: `CheckboxRootProps`' controlled arm
+ *    intersects a base that already declares `onCheckedChange`, so the checker
+ *    hands back the same function type twice. Deduping is a rewrite of the
+ *    RENDERING, not of the type — the members are textually identical, so no
+ *    information is lost.
+ */
+function simplifyType(type) {
+  let out = type.trim();
+  if (wrappedInParens(out)) out = simplifyType(out.slice(1, -1).trim());
+
+  for (const operator of ["|", "&"]) {
+    const members = splitTopLevel(out, operator);
+    if (members.length < 2) continue;
+    /* Recursive, because the duplicate is not always at the top: Checkbox's
+       `onCheckedChange` is `A | (A & A)`, and the inner intersection has to
+       collapse before the outer union can see two identical members. */
+    const unique = [...new Set(members.map(simplifyType))];
+    out =
+      unique.length === 1
+        ? unique[0]
+        : unique
+            /* A function type needs its parens back beside an operator, or
+               `(c: boolean) => void | string` reads as a function RETURNING
+               `void | string`. */
+            .map((m) => (splitTopLevel(m, "=").length > 1 || m.includes("=>") ? `(${m})` : m))
+            .join(` ${operator} `);
+  }
+  return out;
+}
+
 function findAlias(typeName, file = sf) {
   let sym;
   ts.forEachChild(file, (node) => {
@@ -181,8 +294,7 @@ function extractSub(sc) {
     }
     if (propType === "never") continue; // union-excluded branch (controlled/uncontrolled)
     if (!required) propType = propType.replace(/\s*\|\s*undefined$/, "");
-    // unwrap a single outer paren around a function type (after `| undefined` is gone)
-    propType = propType.replace(/^\((\(.*\) => .*)\)$/, "$1");
+    propType = simplifyType(propType);
     const defTag = prop.getJsDocTags().find((t) => t.name === "default");
     props.push({
       name: prop.getName(), type: propType, required,
@@ -198,7 +310,14 @@ function extractSub(sc) {
    * drift: the props file IS the evidence.
    */
   const styledOnly = Boolean(sc.propsFile && sc.propsFile !== cfg.propsFile);
-  return { name: sc.name, extends: ext, props, styledOnly };
+  /* The inverse: a headless part the copied file does not export. Only asserted
+     when the registry file was found AND exports something, so a component
+     without one cannot silently flag every part. */
+  const part = sc.name.includes(".") ? sc.name.split(".")[1] : "Root";
+  const headlessOnly = Boolean(
+    registryExports && registryExports.size > 0 && !registryExports.has(styledName(part)),
+  );
+  return { name: sc.name, extends: ext, props, styledOnly, headlessOnly };
 }
 
 // ---- styled half from contract.json ----

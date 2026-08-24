@@ -98,6 +98,13 @@ export const PropsTable = ({
         </p>
       )}
 
+      {sub.headlessOnly && (
+        <p className="docs-prop-extends">
+          Headless only — the copied file renders this part for you and exports
+          no separate component, so there is nothing to import under Styled.
+        </p>
+      )}
+
       {sub.extends && (
         <p className="docs-prop-extends">
           Extends <InlineCode size="sm">{sub.extends}</InlineCode> — every native

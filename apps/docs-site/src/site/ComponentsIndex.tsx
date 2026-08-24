@@ -20,39 +20,55 @@ import {
 } from "@/lib/docs-data";
 import { renderDoc } from "@/lib/render-doc";
 
+import { CARD_MARKS, MARK_GRID, PLACEHOLDER_MARK } from "./card-marks";
+
 import "./components-index.css";
 
 /**
- * Stand-in artwork for a component card.
+ * A component's mark, or the stand-in when it has not been drawn yet.
  *
- * **Temporary, and deliberately identical on every card.** The real set is
- * per-component and will be drawn in Figma — icon-like and symbolic, not
- * screenshots of live instances — and each one replaces this. Find them all by
- * searching `data-media-placeholder`.
+ * The geometry lives in `card-marks.ts` and is shared with the Figma page
+ * "Docs — Component Card Marks" — see that file for the two-rule visual
+ * language (neutral stroke for chrome, primary fill for content) and for why
+ * colour comes from tokens rather than `currentColor`.
  *
- * Inline SVG rather than an image file: nothing to 404, nothing binary in the
- * repo, and it inherits `currentColor` so it follows the theme without a second
- * asset for dark mode. `aria-hidden` because it carries no information the card
- * title does not already give — an announced "placeholder graphic" on every card
- * in the grid would be pure noise.
+ * `aria-hidden` because the mark carries nothing the card title does not
+ * already say; announcing "graphic" on every card in a 63-card grid is pure
+ * noise.
  *
- * It does NOT pick up the media region's hairline outline: that rule is scoped
- * to `:has(img, picture, video)`, which is right — the outline exists to stop a
- * pale-edged photo losing its edge, and this has no edge to lose.
+ * The remaining components keep the placeholder, so the grid stays complete
+ * while the set is drawn in batches. Find those by searching
+ * `data-media-placeholder`.
  */
-const CardMediaPlaceholder = () => (
-  <svg
-    className="docs-index-card-placeholder"
-    data-media-placeholder
-    viewBox="0 0 64 40"
-    aria-hidden="true"
-    focusable="false"
-  >
-    <rect x="14" y="9" width="36" height="22" rx="3" />
-    <rect x="20" y="15" width="16" height="2.5" rx="1.25" />
-    <rect x="20" y="21" width="24" height="2.5" rx="1.25" />
-  </svg>
-);
+const CardMediaMark = ({ id }: { id: string }) => {
+  const shapes = CARD_MARKS[id];
+
+  return (
+    <svg
+      className="docs-index-card-mark"
+      data-media-placeholder={shapes ? undefined : ""}
+      viewBox={`0 0 ${MARK_GRID.viewBox.width} ${MARK_GRID.viewBox.height}`}
+      aria-hidden="true"
+      focusable="false"
+    >
+      {(shapes ?? PLACEHOLDER_MARK).map((shape, i) =>
+        shape.kind === "rect" ? (
+          <rect
+            key={i}
+            x={shape.x}
+            y={shape.y}
+            width={shape.w}
+            height={shape.h}
+            rx={shape.r}
+            className={shape.fill ? "docs-mark-content" : "docs-mark-chrome"}
+          />
+        ) : (
+          <path key={i} d={shape.d} className="docs-mark-chrome" />
+        ),
+      )}
+    </svg>
+  );
+};
 
 /**
  * A card's inner content — identical whether or not the component has a page.
@@ -66,7 +82,7 @@ const CardBody = ({ entry }: { entry: RosterEntry }) => (
     {/* Flush, not inset: the card's own overflow supplies the outer radius, and
         an inset media would round the inner seam against the content too. */}
     <CardMedia>
-      <CardMediaPlaceholder />
+      <CardMediaMark id={entry.id} />
     </CardMedia>
 
     {/* Header inside Content — Content owns all the padding. */}

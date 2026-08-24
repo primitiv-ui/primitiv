@@ -117,37 +117,42 @@
   color: var(--primitiv-content-secondary);
 }
 
-/* Also holds the placeholder mark back a step, so a run of inert cards reads as
-   quieter than the linked ones without any of them looking disabled. */
-.docs-index-card--inert .docs-index-card-placeholder {
-  opacity: var(--primitiv-opacity-20);
+/* Holds an undocumented card's mark back a step, so a run of inert cards reads
+   as quieter than the linked ones without any of them looking disabled. */
+.docs-index-card--inert .docs-index-card-mark {
+  opacity: var(--primitiv-opacity-60);
 }
 
 /*
- * Stand-in artwork, until the per-component set is drawn in Figma. Sized by the
- * media region's own aspect-ratio, so this only supplies the mark's colour and
- * weight.
+ * The mark's two roles, and the whole visual language of the set.
  *
- * `content/muted` at a low opacity rather than a pale token: the mark has to
- * read as provisional in BOTH themes, and one muted colour dimmed works where a
- * fixed pale grey would vanish on the dark surface.
+ * Chrome is a neutral stroke; content is a primary fill. Both are tokens, never
+ * a literal, so a mark tracks light and dark in both directions and survives a
+ * change to the brand ramp. `currentColor` was the obvious alternative and does
+ * not work here: it carries one colour, and these need two.
  */
-.docs-index-card-placeholder {
-  color: var(--primitiv-content-muted);
-  opacity: var(--primitiv-opacity-30);
-}
-
-.docs-index-card-placeholder rect {
+.docs-mark-chrome {
   fill: none;
-  stroke: currentColor;
-  stroke-width: 1.5;
+  stroke: var(--primitiv-content-muted);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
-/* The two inner bars are filled, so the mark reads as "a thing with content in
-   it" rather than three empty outlines. */
-.docs-index-card-placeholder rect:not(:first-child) {
-  fill: currentColor;
+.docs-mark-content {
+  fill: var(--primitiv-action-primary-default);
   stroke: none;
+}
+
+/* A mark not yet drawn is quieter still, so the grid reads as partly finished
+   rather than as a set with six odd members. Find them by searching
+   `data-media-placeholder`. */
+.docs-index-card-mark[data-media-placeholder] {
+  opacity: var(--primitiv-opacity-40);
+}
+
+.docs-index-card-mark[data-media-placeholder] .docs-mark-content {
+  fill: var(--primitiv-content-muted);
 }
 
 /*

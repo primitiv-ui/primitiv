@@ -846,6 +846,36 @@ so each needs settling before it is drawn:
   enormous frame. Still open: **O6**, drag-to-canvas — draw the handle, mark it a
   fast-follow, ship the button first.
 
+  **The preview scales to a 0.5× floor and pans (2026-08-24).** Only three
+  swatches were visible at 100%, and the fix was chosen by building all three
+  candidates as throwaway frames rather than arguing — which is what caught that
+  a `Fit | 100%` Segmented Control **does not fit the 332 px bar** (it clipped the
+  pager), against a prediction that it would land at 307 px.
+  - **Fit-to-floor, not fit-to-width.** A true fit of a ten-step `panel` sheet is
+    0.24×, which shows the whole composition but reduces the specimen to
+    structure. The floor keeps text legible (~6 of 10 steps) and **drag-to-pan**
+    reveals the rest, which is what makes the clipping honest rather than hidden —
+    the objection that sank fit-to-floor on its own.
+  - **The sheet is centred on both axes**, so the window sits in the middle of the
+    ramp and the clipping is symmetric: it reads as "there is more either way",
+    where left-aligned read as "this is the whole thing, badly cropped".
+  - **The interaction is stated in a muted helper line** — `Drag to pan · ‹ ›
+    changes ramp` — following the Curve view's handle hint, the house convention
+    for saying what a surface does.
+  - **Gotcha: `rescale()` fights auto-layout.** Called on the sheet frame the
+    instances re-hug and it silently does nothing (1032 px stayed 1178 px). Group
+    the subtree in a plain group and rescale *that* — verified 1032 → 516 exactly.
+    Related: `exportAsync` on a node inside a clipping parent captured only the
+    visible 316 px, not the node's full 1232 px, so rasterise at page level.
+  - **The ground shrank 286 → 200 and the frame now hugs**, taking the view from
+    912 → **868**, inside the 900 px window for the first time.
+  - **The ten steps carry real engine output**, printed by
+    `cargo run -p harmoni-core --example preset-ramp` (extended here to report
+    hex, OkLCH, paired foreground, ratio and grade). A first pass cloned swatch
+    200 five times and changed only the cap fill, so the sheet read
+    `400 500 600 200 200 200` — invisible until rendered. **Normalise the hue:**
+    the engine reports `-100.1`, which is 259.9.
+
   **The preview bar was rebuilt on that decision (2026-08-24).** It had three
   problems, two of them only visible in a render:
   - **"Live · true size" was a claim, not a control — and a false one.** The sheet

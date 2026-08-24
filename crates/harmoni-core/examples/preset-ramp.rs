@@ -9,6 +9,7 @@ use harmoni_core::api::{
     generate_with_options, CurvePreset, Direction, Easing, GenerateOptions,
 };
 use harmoni_core::color::input::ColorInput;
+use harmoni_core::{grade, ContrastUse, ForegroundSource, Grade};
 
 fn main() {
     let args: Vec<String> = std::env::args().skip(1).collect();
@@ -42,7 +43,26 @@ fn main() {
     };
 
     let palette = generate_with_options(input, options).unwrap();
+    println!("step\thex\toklch\tfg\tratio\tgrade");
     for step in &palette.swatches {
-        println!("{}\t{:.4}\t{}", step.label, step.l, step.hex);
+        let fg = match step.foreground_source {
+            ForegroundSource::Step900 => "fg 900".to_string(),
+            ForegroundSource::Step50 => "fg 50".to_string(),
+            ForegroundSource::SoftWhite => "soft white".to_string(),
+            ForegroundSource::SoftBlack => "soft black".to_string(),
+            ForegroundSource::PureWhite => "white".to_string(),
+            ForegroundSource::PureBlack => "black".to_string(),
+        };
+        let verdict = match grade(step.contrast_result.ratio, ContrastUse::BodyText) {
+            Grade::Aaa => "AAA",
+            Grade::Aa => "AA",
+            Grade::LargeTextOnly => "AA-LG",
+            Grade::Fail => "FAIL",
+        };
+        println!(
+            "{}\t{}\t{:.2} {:.2} {:.1}\t{}\t{}\t{}",
+            step.label, step.hex, step.l, step.c, step.h, fg,
+            step.contrast_result.display_ratio, verdict
+        );
     }
 }

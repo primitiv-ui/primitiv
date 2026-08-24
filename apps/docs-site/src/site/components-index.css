@@ -144,6 +144,13 @@
   stroke: none;
 }
 
+/* A label lying ON a primary fill — the same token a real primary Button's own
+   text uses, so it stays legible whatever the brand ramp does. */
+.docs-mark-knockout {
+  fill: var(--primitiv-action-primary-foreground-default);
+  stroke: none;
+}
+
 /* A mark not yet drawn is quieter still, so the grid reads as partly finished
    rather than as a set with six odd members. Find them by searching
    `data-media-placeholder`. */

@@ -35,6 +35,13 @@ import data from "./card-marks.json";
  * differently from an empty container, and it is why a layout primitive like
  * `Stack` is entirely neutral: it has no content of its own.
  *
+ * A mark may also be **solid** rather than outlined, and that is the strongest
+ * distinction in the set: `Button` is a filled primary block with a knocked-out
+ * label, `Input` an outlined field with a value and a caret. Mass versus void
+ * survives being 40px tall on a card, where two rounded rectangles differing
+ * only in width did not — and it is what the two components genuinely look
+ * like, since the default Button variant is solid brand.
+ *
  * **Colour comes only from tokens**, never a literal, so a mark tracks light and
  * dark in both directions and survives a change to the brand ramp.
  * `currentColor` would have been simpler and is deliberately not used: it
@@ -45,8 +52,17 @@ import data from "./card-marks.json";
  * component changed.
  */
 export type MarkShape =
-  /** A rounded rectangle. `fill` paints it in the primary; otherwise it is stroked chrome. */
-  | { readonly kind: "rect"; readonly x: number; readonly y: number; readonly w: number; readonly h: number; readonly r: number; readonly fill?: boolean }
+  /**
+   * A rounded rectangle. Its `fill` names the role that paints it; omit it and
+   * the rectangle is stroked chrome instead.
+   *
+   * - `"content"` — the primary, for what sits INSIDE a component.
+   * - `"knockout"` — the colour that reads ON a primary fill, for a label lying
+   *   over one. It is `action/primary/foreground/default`, the same token a real
+   *   primary Button's text uses, so it stays legible whatever the brand ramp
+   *   does.
+   */
+  | { readonly kind: "rect"; readonly x: number; readonly y: number; readonly w: number; readonly h: number; readonly r: number; readonly fill?: "content" | "knockout" }
   /** A stroked path — chevrons, dividers, the modal's close cross. Never filled. */
   | { readonly kind: "path"; readonly d: string };
 

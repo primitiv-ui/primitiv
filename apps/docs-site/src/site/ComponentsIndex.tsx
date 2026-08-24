@@ -60,7 +60,7 @@ const CardMediaMark = ({ id }: { id: string }) => {
             width={shape.w}
             height={shape.h}
             rx={shape.r}
-            className={shape.fill ? "docs-mark-content" : "docs-mark-chrome"}
+            className={shape.fill ? `docs-mark-${shape.fill}` : "docs-mark-chrome"}
           />
         ) : (
           <path key={i} d={shape.d} className="docs-mark-chrome" />

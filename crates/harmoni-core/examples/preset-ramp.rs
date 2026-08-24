@@ -59,9 +59,11 @@ fn main() {
             Grade::LargeTextOnly => "AA-LG",
             Grade::Fail => "FAIL",
         };
+        // The canonical string, not a re-format: one source of truth for how a
+        // colour is written down.
         println!(
-            "{}\t{}\t{:.2} {:.2} {:.1}\t{}\t{}\t{}",
-            step.label, step.hex, step.l, step.c, step.h, fg,
+            "{}\t{}\t{}\t{}\t{}\t{}",
+            step.label, step.hex, step.oklch, fg,
             step.contrast_result.display_ratio, verdict
         );
     }

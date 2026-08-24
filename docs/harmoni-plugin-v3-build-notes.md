@@ -764,6 +764,30 @@ user's canvas, so how they read is the product.
   `fills` and `fontStyle`, leaving Step on a magic 13 px. Assigning the *Label*
   style restored every binding in one move — prefer swapping a style to
   detaching-and-rebinding by hand.
+- **OKLCH reads above hex, with its `oklch(...)` syntax** (2026-08-24). The
+  panel's `Facts` ran `Step → Hex → OKLCH`, contradicting the settled position
+  that **OKLCH is canonical and hex is a Figma export** — the picker's value block
+  already leads with `oklch(...)`. Now `Step → OKLCH → Hex`, in all 15 facts-bearing
+  variants, and in `Form=row` too, where the column is horizontal so "above"
+  becomes "before" (its 5 variants have no `Facts` frame at all — check for that
+  rather than assuming a reorder covered the set).
+  - **The syntax was already right in the master; the sheet instances were
+    wrong** — an earlier population pass overrode them with a bare `0.80 0.09`
+    triple. The canonical string comes from `format_oklch`, so `preset-ramp` now
+    prints `step.oklch` verbatim instead of re-formatting the components, one
+    source of truth for how a colour is written down.
+  - **The longer string immediately re-triggered the bug `panel-cap` exists to
+    fix.** `oklch(0.8041 0.0938 259.9)` is 26 characters, and a hugging fact
+    column drove the panel width straight past the cap token — visible
+    instantly as six swatches dropping to four. `Meta area`, `Facts` and the
+    value texts now **FILL and wrap**, so the cap's `minWidth` governs the panel
+    again and long values take two lines. **Trade-off worth knowing:** one-line
+    OKLCH would need a bigger `panel-cap`, which costs roughly a third of the
+    visible ramp.
+  - **The engine's hue is negative** (`-100.1`, not `259.9`) — valid CSS, but the
+    picker and the Swatch both normalise. Worth deciding whether `format_oklch`
+    should normalise at source, since that string reaches emitted tokens.
+
 - **A real component bug surfaced while doing it: wrapper frames reserve height
   for hidden children.** `Meta` (holding `Ratio`) and `Flags` (holding `Gamut`)
   stayed visible when their only child was switched off, costing ~36 px of dead

@@ -944,7 +944,24 @@ canvas background is the user's Figma theme, the chip names which ramp values ar
 drawn — and light mode is the first time it was actually exercised. It holds, and
 the "Light values" wording earns itself.
 
-What is genuinely left:
+**What is genuinely left (2026-08-24):**
+
+- **The picker's `3D` tab has no content and no engine behind it.** The tab is in
+  the settled wireframe's tab strip (`lightness · chroma · hue · 3D · curve`) and
+  in the built Picker view, but the solid it is supposed to show was never
+  designed, `apps/workbench/src/OklchPicker/` has no 3D implementation, and
+  **`api::gamut` paints planes and strips only** — there is no function that
+  returns a gamut solid. It is a leaf inside one view rather than a journey, but
+  it is a real gap and the one thing standing between "all views built" and "all
+  views finished".
+- **`soft_white` / `soft_black` still have no home.** `GenerateOptions` takes
+  them and no v3 panel draws them; DEFAULTS in Settings is the obvious candidate
+  but wireframe 05 does not show them, so they need settling before being added.
+- **`figma.currentUser` and `figma.payments` need `permissions` entries in
+  `manifest.json`** — a build task, not a design one.
+
+Settled, for the record:
+
 - **The canvas insert — settled 2026-08-23.** Design record: page **"Wireframes —
   Harmoni Plugin (canvas insert — exploration)"**, five panels plus a decisions
   frame. The *output* was already specified (RFC 0013 §3.2/§4.5 — config,

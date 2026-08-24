@@ -31,6 +31,10 @@ export type ComponentSpec = {
     /**
      * Writes the whole snippet, replacing the generated one.
      *
+     * "Whole" includes the imports, so `snippetPrefix` is IGNORED when this is
+     * supplied — setting both printed Input's import line twice before the
+     * Playground was taught to honour that.
+     *
      * The generated `toJsx` puts every control on the NAMED component, which is
      * right only when the controls are that component's own props. For a
      * compound whose modifiers live on child parts it produces a lie: Select's

@@ -38,7 +38,8 @@ const fieldImports = (mode: Mode) =>
 export const inputSpec: ComponentSpec = {
   playground: {
     component: "Input",
-    snippetPrefix: (mode) => imports(mode),
+    /* No `snippetPrefix`: the snippet below writes its own imports, and the two
+       together printed the import line twice. */
     snippet: (values, mode) =>
       [
         imports(mode),

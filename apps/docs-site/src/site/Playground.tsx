@@ -146,14 +146,18 @@ export const Playground = ({
    * `snippet` handles the same thing per-attribute.
    */
   const codeFor = (m: Mode) => {
-    const jsx = snippet
-      ? snippet(values, m)
-      : toJsx({
-          component,
-          values,
-          controls: m === "headless" ? [] : controls,
-          children: snippetChildren,
-        });
+    /* `snippet` writes the WHOLE snippet by definition — imports included — so
+       `snippetPrefix` belongs only to the generated path. Applying both printed
+       Input's import line twice, and would have done so for every spec that
+       supplied the pair. */
+    if (snippet) return snippet(values, m);
+
+    const jsx = toJsx({
+      component,
+      values,
+      controls: m === "headless" ? [] : controls,
+      children: snippetChildren,
+    });
     const prefix =
       typeof snippetPrefix === "function" ? snippetPrefix(m) : snippetPrefix;
     return prefix ? `${prefix}\n\n${jsx}` : jsx;

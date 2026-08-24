@@ -118,41 +118,56 @@
 }
 
 /*
- * The mark's two roles, and the whole visual language of the set.
+ * The mark's paints.
  *
- * Chrome is a neutral stroke; content is a primary fill. Both are tokens, never
- * a literal, so a mark tracks light and dark in both directions and survives a
- * change to the brand ramp. `currentColor` was the obvious alternative and does
- * not work here: it carries one colour, and these need two.
+ * FILL and STROKE are named separately, and each shape says which role plays
+ * which — omitting either paints `none`, so nothing inherits a paint it did
+ * not ask for. Three roles, each one token:
+ *
+ * - `chrome`   — the neutral. A component's own frames, dividers, chevrons.
+ * - `content`  — the primary. What sits inside a component, or the space a
+ *                layout primitive controls.
+ * - `knockout` — what reads ON a primary fill. The same token a real primary
+ *                Button's text uses, so it survives a change to the brand ramp.
+ *
+ * Separate rather than one combined role because Button's pointer needs both
+ * at once: a white fill with a neutral edge, the way a real cursor is drawn,
+ * because it crosses the button's own boundary. Filled white alone would
+ * vanish against the page behind it; stroked neutral alone would vanish
+ * against the brand colour in front of it.
+ *
+ * Colour comes only from tokens, never a literal, so a mark tracks light and
+ * dark in both directions. `currentColor` was the obvious alternative and does
+ * not work here: it carries one colour, and these need three.
  */
-.docs-mark-chrome {
+.docs-mark {
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.docs-mark-fill-none {
   fill: none;
+}
+
+.docs-mark-fill-chrome {
+  fill: var(--primitiv-content-muted);
+}
+
+.docs-mark-fill-content {
+  fill: var(--primitiv-action-primary-default);
+}
+
+.docs-mark-fill-knockout {
+  fill: var(--primitiv-action-primary-foreground-default);
+}
+
+.docs-mark-stroke-none {
+  stroke: none;
+}
+
+.docs-mark-stroke-chrome {
   stroke: var(--primitiv-content-muted);
-  stroke-width: 2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-/* A layout primitive's own box: dashed, because the container renders nothing
-   of itself. The dash length is in viewBox units, like the stroke. */
-.docs-mark-dashed {
-  stroke-dasharray: 8 8;
-}
-
-/*
- * Stroked paths that are not neutral chrome. The fill roles cannot serve: a
- * line has no area to fill.
- *
- * `content` is AspectRatio's ratio diagonal and Tooltip's arrow. `knockout` is
- * for a path lying ON a primary fill — Button's pointer sits inside the solid
- * block, where the neutral would be near-invisible against the brand colour.
- */
-.docs-mark-stroke-content,
-.docs-mark-stroke-knockout {
-  fill: none;
-  stroke-width: 2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
 }
 
 .docs-mark-stroke-content {
@@ -163,16 +178,10 @@
   stroke: var(--primitiv-action-primary-foreground-default);
 }
 
-.docs-mark-content {
-  fill: var(--primitiv-action-primary-default);
-  stroke: none;
-}
-
-/* A label lying ON a primary fill — the same token a real primary Button's own
-   text uses, so it stays legible whatever the brand ramp does. */
-.docs-mark-knockout {
-  fill: var(--primitiv-action-primary-foreground-default);
-  stroke: none;
+/* A layout primitive's own box: dashed, because the container renders nothing
+   of itself. The dash length is in viewBox units, like the stroke. */
+.docs-mark-dashed {
+  stroke-dasharray: 8 8;
 }
 
 /*
@@ -186,7 +195,7 @@
  * — the placeholder reads as provisional because it carries no brand colour
  * and no component's shape, not because it is faded.
  */
-.docs-index-card-mark[data-media-placeholder] .docs-mark-content {
+.docs-index-card-mark[data-media-placeholder] .docs-mark-fill-content {
   fill: var(--primitiv-content-muted);
 }
 

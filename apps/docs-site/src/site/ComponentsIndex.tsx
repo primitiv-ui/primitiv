@@ -20,7 +20,7 @@ import {
 } from "@/lib/docs-data";
 import { renderDoc } from "@/lib/render-doc";
 
-import { CARD_MARKS, MARK_GRID, PLACEHOLDER_MARK } from "./card-marks";
+import { CARD_MARKS, MARK_GRID, PLACEHOLDER_MARK, type MarkRole } from "./card-marks";
 
 import "./components-index.css";
 
@@ -40,6 +40,33 @@ import "./components-index.css";
  * while the set is drawn in batches. Find those by searching
  * `data-media-placeholder`.
  */
+/**
+ * The classes for one shape.
+ *
+ * Fill and stroke are named SEPARATELY rather than as one combined role,
+ * because Button's pointer needs both at once — a white fill with a neutral
+ * edge, since it crosses the button's boundary and has to read on the fill and
+ * on the page behind it. Omitting either paints `none`, so a shape never
+ * inherits a paint it did not ask for.
+ */
+const markClass = ({
+  fill,
+  stroke,
+  dash,
+}: {
+  fill?: MarkRole;
+  stroke?: MarkRole;
+  dash?: boolean;
+}) =>
+  [
+    "docs-mark",
+    `docs-mark-fill-${fill ?? "none"}`,
+    `docs-mark-stroke-${stroke ?? "none"}`,
+    dash ? "docs-mark-dashed" : null,
+  ]
+    .filter(Boolean)
+    .join(" ");
+
 const CardMediaMark = ({ id }: { id: string }) => {
   const shapes = CARD_MARKS[id];
 
@@ -60,17 +87,17 @@ const CardMediaMark = ({ id }: { id: string }) => {
             width={shape.w}
             height={shape.h}
             rx={shape.r}
-            className={
-              shape.fill
-                ? `docs-mark-${shape.fill}`
-                : `docs-mark-chrome${shape.dash ? " docs-mark-dashed" : ""}`
-            }
+            className={markClass({
+              fill: shape.fill,
+              stroke: shape.fill ? undefined : "chrome",
+              dash: shape.dash,
+            })}
           />
         ) : (
           <path
             key={i}
             d={shape.d}
-            className={shape.stroke ? `docs-mark-stroke-${shape.stroke}` : "docs-mark-chrome"}
+            className={markClass({ fill: shape.fill, stroke: shape.stroke ?? "chrome" })}
           />
         ),
       )}

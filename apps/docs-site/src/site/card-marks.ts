@@ -92,7 +92,7 @@ export type MarkShape =
       readonly x: number; readonly y: number;
       readonly w: number; readonly h: number;
       readonly r: number;
-      readonly fill?: "content" | "knockout";
+      readonly fill?: MarkRole;
       /**
        * Draw the outline dashed. Reserved for a LAYOUT primitive's own box: a
        * dashed edge says the container renders nothing of itself, which is the
@@ -103,13 +103,27 @@ export type MarkShape =
       readonly dash?: boolean;
     }
   /**
-   * A stroked path. `stroke` names the role; omit it for neutral chrome.
+   * A path. `stroke` names the outline's role (neutral chrome by default);
+   * `fill` names the interior's, and omitting it leaves the path unfilled.
    *
-   * `"knockout"` is for a path lying ON a primary fill — Button's pointer sits
-   * inside the solid block, where neutral chrome would be near-invisible
-   * against the brand colour.
+   * The two are independent because Button's pointer needs both: it is drawn
+   * the way a real cursor is, a **white fill with a neutral edge**, and it has
+   * to be, because it crosses the button's own boundary. Filled white alone
+   * would vanish against the page behind it; stroked neutral alone would
+   * vanish against the brand colour in front of it.
    */
-  | { readonly kind: "path"; readonly d: string; readonly stroke?: "content" | "knockout" };
+  | {
+      readonly kind: "path";
+      readonly d: string;
+      readonly stroke?: MarkRole;
+      readonly fill?: MarkRole;
+    };
+
+/**
+ * A paint role. Each maps to one semantic token and nothing else — see the
+ * class pairs in `components-index.css`.
+ */
+export type MarkRole = "chrome" | "content" | "knockout";
 
 export const MARK_GRID: {
   readonly viewBox: { readonly width: number; readonly height: number };

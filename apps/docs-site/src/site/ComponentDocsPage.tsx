@@ -152,7 +152,12 @@ export const ComponentDocsPage = ({ id }: { id: ComponentId }) => {
                    highlighter dependency on an otherwise dependency-free chip. */
                 <CodeBlock
                   variant="inline"
-                  size="sm"
+                  /* xs, not sm: this column is narrow and the statement is the
+                     longest thing in it — `import { NavigationMenu } from
+                     "@/components/ui/navigation-menu";` is 62 characters. A step
+                     down keeps it on one line for most components, and the chip
+                     wraps rather than overflowing for the rest. */
+                  size="xs"
                   language="tsx"
                   code={`import { ${docs.displayName} } from "${
                     mode === "styled"

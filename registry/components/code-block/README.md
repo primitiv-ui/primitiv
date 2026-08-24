@@ -113,6 +113,14 @@ The chip borrows Inline Code's geometry tokens (`code/inline/padding-*`,
 and any drift would read as a mistake. `filename`, `showHeader` and
 `showLineNumbers` are ignored in this variant — a chip has nowhere to put them.
 
+**It wraps rather than overflowing.** The first version pinned it to a single
+line on the theory that anything longer did not belong in a chip; the first real
+use was an import statement in a narrow column, which spilled straight out of its
+container. It now uses the same `pre-wrap` + `overflow-wrap: anywhere` pair as
+the block variant, so a long line reflows and one unbreakable token cannot hold
+the chip open. Pick a smaller `size` where the column is tight — the docs site's
+import slot uses `xs`.
+
 ```tsx
 <p>
   Import it with{" "}

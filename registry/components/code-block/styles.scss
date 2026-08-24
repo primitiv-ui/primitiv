@@ -306,11 +306,15 @@
   .primitiv-code-block--inline .primitiv-code-block__pre {
     padding-inline: var(--primitiv-code-inline-padding-inline);
     padding-block: var(--primitiv-code-inline-padding-block);
-    /* One line: no wrapping, no scroll container, no reflow — if it cannot fit
-       it is the wrong thing to put in a chip. */
-    white-space: pre;
-    overflow-wrap: normal;
-    overflow-x: visible;
+    /* Wraps rather than overflowing. An earlier version pinned this to one line
+       (`white-space: pre`, visible overflow) on the theory that anything longer
+       did not belong in a chip — but the first real use is an import statement
+       in a narrow column, which is exactly the case, and it spilled out of its
+       container. Same trio the block variant uses, for the same reason:
+       `overflow-wrap: anywhere` also floors the min-content width at one glyph,
+       so a single unbreakable token cannot hold the chip open. */
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
   }
 }
 

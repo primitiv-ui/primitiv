@@ -1531,3 +1531,72 @@ were **taller**: `Palette` and `Palette · light` at 764 in a 754 wrapper, and
 `Write refused` ×2 at 745 in a 622 one (the `Notice` takes 132 px off the body).
 None of them looked wrong in a render, because the overflow was empty space —
 which is exactly why a height check has to be `!=`, not `<`.
+
+## 11. Tinting the neutrals with the brand — ported from the workbench (2026-08-24)
+
+The v3 design had no controls for this. The workbench plugin
+(`apps/workbench/src/pages/PluginFrameExample/`) already solved it, the logic is
+sound, and it is being ported rather than redesigned. `usePluginColors.ts` is the
+reference.
+
+**The surface is one button plus three sliders, all gated behind an active
+tint:**
+
+- **`Use brand as neutral tint` / `Remove tint`** — creates or breaks a **live
+  link** to the brand's *step 500* (not the raw seed). While the link is live,
+  editing the brand re-tints the neutrals; removing it breaks the link and
+  re-applying re-captures the current brand.
+- **Strength** — how strongly the hue colours the neutrals.
+- **Spread** — bipolar, centred on 0.
+- **Bow** — mid-tone chroma crest.
+
+**Three decisions to carry over unchanged, each load-bearing:**
+
+1. **Duotone is one source plus a spread angle, not two colour pickers.** It maps
+   onto `tint_neutrals_duotone(highlight = h + spread, shadow = h − spread)`. At
+   360 px two pickers would never fit; this is what makes the feature viable.
+2. **"No tint" is `tintSource === null`, never `TintMode::Achromatic`.** The
+   workbench passes `Inherit` always, so the enum never varies. This resolves a
+   real redundancy in the API — `strength = 0` and `Achromatic` reach the same
+   place, and the plugin needs only one of them.
+3. **Dark mode is the same anchor pair swapped** — `generate_neutral_ramp(black,
+   white, …)`. Independent confirmation of the one-pair-serves-both-modes finding
+   in §10.
+
+**Gating Bow behind an active tint looks like a layout convenience and is not.**
+`generate_neutral_ramp` computes `peak = soft_white.chroma.max(soft_black.chroma)`
+and bows chroma toward it, so with achromatic anchors `peak = 0` and Bow does
+literally nothing. It cannot be a standalone neutral control.
+
+**The shipped neutral IS tinted, and is approximately reproducible from this
+machinery** — which is the best evidence the port is right. Measured through the
+engine:
+
+| | L | C | H |
+| --- | --- | --- | --- |
+| `brand/500` `#236ce1` | 0.5557 | 0.1923 | −100.1° |
+| `neutral/50` `#e5ecf6` | 0.9407 | 0.0155 | −102.8° |
+| `neutral/900` `#121418` | 0.1909 | 0.0087 | −95.7° |
+
+Inverting `tint_neutrals_duotone`'s coefficients (`white.c = highlight.c × 0.08 ×
+strength`, `black.c = shadow.c × 0.05 × strength`) gives an implied strength of
+**1.005** from the white anchor and **0.906** from the black, with the two hues
+sitting −2.7° and +4.4° around the brand. So: the brand at roughly full strength
+with a small spread. Not exact — the anchors were hand-entered in the old plugin,
+which is why `harmoni-seeds.json` records neutral as `$notScoped` and the ramp
+"is not reproducible from its seed and hasn't been for some time".
+
+**Placement (settled): the tint controls live in the picker, in two-anchor
+mode**, reached by editing the `neutral` seed — because tinting *is* "what colour
+are these two anchors", which is the picker's job. This also answers what §10 left
+hanging: it is *why* the neutral seed needs its own editing surface rather than
+two plain swatches.
+
+**The seed row shows the rule, not the values.** With a tint live it reads
+`neutral   brand · 100%` where the other five rows print a hex; the split chip
+keeps showing the two resulting anchors. Chip = output, text = rule — the same
+literal-or-rule model already settled for roles ("a role is a name plus a rule"),
+applied to a seed. With no tint the row falls back to the two hexes.
+
+**Still to build:** the row's rule text, and the picker's two-anchor mode with the
+four controls.

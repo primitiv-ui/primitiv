@@ -17,7 +17,7 @@ export const MODE_KEY = "primitiv-docs-mode";
 export const FRAMEWORK_KEY = "primitiv-docs-framework";
 
 /** The three consumption modes (docs-site-planning.md §1.1). */
-export const MODES = ["headless", "styled", "figma"] as const;
+export const MODES = ["styled", "headless", "figma"] as const;
 export type Mode = (typeof MODES)[number];
 
 /** Framework flavour for code samples. */

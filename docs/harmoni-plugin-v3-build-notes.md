@@ -1271,13 +1271,92 @@ try/catch the way gotcha 12 wraps `.name` reads. The stale ids pointed at a
 dead override references that only re-resolved on the move. Replacing the moved
 node with a fresh instance (rather than repairing it) cleared the breadcrumb case.
 
-### State — INCOMPLETE, do not assume the file is consistent
+### The final shape
 
-Migration is mid-flight and the Desktop Bridge dropped its connection partway.
-- Shell component built and verified.
-- `Export (shell)` instance `2005:137808` exists on the Views page at Export's
-  x, y+1000, populated and measuring 41/48/754/57.
-- **The original `Export` frame `1949:115177` is gutted** — its Breadcrumb, Tabs
-  and Button were *moved* out, not copied, so it is now empty frames. Either
-  finish the migration or move the content back; do not leave it.
-- The remaining 14 dark views and 15 light twins are untouched.
+```
+Harmoni / View Shell        COMPONENT 360x900, VERTICAL, FIXED/FIXED
+├─ Harmoni / Panel Header   INSTANCE  FILL/HUG          41
+├─ Context                  FRAME     FILL/HUG pad 12   48   <- `Show context`
+│   └─ Context              SLOT
+├─ Body                     SLOT      FILL/FILL grow 1  754  pad 0/14/0/14, gap 16
+├─ Notice                   FRAME     FILL/HUG          132  <- `Show notice`, default off
+│   └─ Notice               SLOT
+└─ Footer                   SLOT      FILL/HUG          57   pad 12/14/12/14, gap 8
+```
+
+Four slots, two booleans, **no variant axis**. `Notice` is a real fifth section,
+not an afterthought: `Write refused` puts a danger `Alert` between the body and
+the footer, which the doc already called panel-level rather than tab content. The
+first migrator did not know about it and **silently dropped the Alert** — caught
+only because the body height came back 622 -> 754.
+
+**Migration complete: 28 instances.** Every view on the Views page is now a shell
+instance at its original coordinates, verified against the source frame's part
+heights to the pixel. `First run` and `First run · light` are deliberately NOT
+migrated — they have no Panel Header at all (just `Body > Hero + Adopt`), so they
+are a different composition, which also means the flow board's dashed edge from
+First run to Setup is an empty-state relationship rather than one view.
+
+`Show notice` is on for exactly `Write refused` ×2; `Show context` is off for
+exactly `Setup` and `Settings` ×2; heights are 900 everywhere except
+`Canvas swatches` ×2, which hugs to 865 (its body has no `layoutGrow`, so the
+migrator resizes the instance to the source height and the slot arithmetic lands
+on 697 by itself).
+
+### Two pre-existing defects the migration exposed
+
+Neither was caused by this work; both were invisible while the chrome was copied
+30 times and are now fixed in one place:
+
+- **`Curve · light` had its Panel Header stuck on `Theme=dark`.** Exactly the
+  failure the light pass warned about — the header's theme is not driven by the
+  Intent mode and has to be set per view. It was the only one of 28 wrong.
+- **`Export · light`'s breadcrumb was missing its second segment** (`Primitiv`
+  where the dark twin reads `Primitiv / Export`). A pair-wise scan of all 14
+  twins found this one and only this one.
+
+### Gotchas earned here — every one cost a cycle
+
+1. **`getVariableByIdAsync` needs the `VariableID:` prefix, and
+   `setBoundVariableForPaint` fails SILENTLY without it.** A bare `'346:4430'`
+   returns `null`; the bind is then a no-op and the paint keeps the literal
+   colour you passed as the base. The shell shipped a **pure black root and
+   footer** through the entire migration because of this — and the black body was
+   visible in the very first screenshot of the master, where it was rationalised
+   as correct. Symptom to recognise: chrome and cards follow the theme while the
+   page ground does not. Always read `fills[0].boundVariables.color` back.
+2. **`layoutGrow` is the PRIMARY axis, not "fill vertically".** In a horizontal
+   footer it means width. Reading it as vertical fill collapsed a footer Button
+   to 11 px. Copy `layoutSizingHorizontal` / `layoutSizingVertical` verbatim.
+3. **A counter-axis squash is not reversible.** Setting `layoutSizingVertical`
+   back to `HUG` reads as applied — the read-back says `HUG` — while the node
+   stays at 11 px. The only fix is to replace the node. Clone a healthy one from
+   the light twin rather than trying to repair.
+4. **`layoutMode` is not overridable on a slot** (gotcha 11), so a source frame
+   whose direction differs from the slot's must be cloned in **whole**, as a
+   wrapper, rather than having its children flattened into the slot's row. This
+   is what `In sync` (3 stacked buttons, 121 px) and `Drift` (2, 97 px) need;
+   without it both footers laid out side by side at 57 px.
+5. **Cloning a frame into a slot can drop a child's `FILL`.** Four views came out
+   with their `Tabs` at `HUG` — three merely 9 px short, but **Roles collapsed to
+   32 px**, losing its whole panel from view (the 34 text nodes were still there).
+   A pixel-perfect part-height check does not catch this, because the *wrapper*
+   is the right height; check that each wrapper's children actually fill it.
+6. **`instance.clone()` cures stale sublayers, and preserves nested slot
+   content.** Gotcha 21's "clone the whole top-level frame" cure works at
+   instance scope too — verified: 0 stale nodes and all 29 texts, including the
+   `Tabs / Panel` slot content. This is why the migrator **clones content into
+   the slot instead of moving it**: moving produced 5 stale nodes on Export
+   alone, cloning produced 0 across all 28 views.
+7. **`createInstance()` COPIES the master's explicit variable modes, it does not
+   inherit them live.** The instance carries its own `Intent`/`Context` pins from
+   the moment it is created. Dark is therefore the default for new views —
+   but changing the master's mode later will NOT retro-propagate to instances.
+
+### Drift preserved, deliberately
+
+The migrator copies each view's existing padding rather than normalising it, so
+`Settings` / `Roles` / `Audit` keep their `12/12` footer inline padding against
+everyone else's `12/14`. Structural migration and drift cleanup are separate
+changes; flattening these to the shell's defaults is a visual decision and is
+still open.

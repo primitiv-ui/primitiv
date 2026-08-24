@@ -39,6 +39,21 @@ pub fn oklch_to_hex(color: Oklch) -> String {
     )
 }
 
+/// Hue as a positive angle in `0..360`.
+///
+/// `palette` carries hue as `-180..180`, so every blue renders negative. That is
+/// valid CSS and numerically equivalent, but an OkLCH string is something people
+/// read and paste, and a negative angle reads as a mistake — every consumer was
+/// normalising it by hand before this existed.
+fn positive_hue(color: Oklch) -> f32 {
+    let degrees = color.hue.into_degrees();
+    if degrees < 0.0 {
+        degrees + 360.0
+    } else {
+        degrees
+    }
+}
+
 /// Renders an OkLCH colour as a CSS `oklch(L C H)` string, with each
 /// component rounded to four decimal places.
 pub fn format_oklch(color: Oklch) -> String {
@@ -47,7 +62,7 @@ pub fn format_oklch(color: Oklch) -> String {
         "oklch({} {} {})",
         round(color.l),
         round(color.chroma),
-        round(color.hue.into_degrees())
+        round(positive_hue(color))
     )
 }
 
@@ -61,7 +76,7 @@ pub fn format_oklch_alpha(color: Oklch, alpha: f32) -> String {
         "oklch({} {} {} / {})",
         round(color.l),
         round(color.chroma),
-        round(color.hue.into_degrees()),
+        round(positive_hue(color)),
         round(alpha)
     )
 }

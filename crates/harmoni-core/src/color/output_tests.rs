@@ -80,6 +80,25 @@ fn format_oklch_renders_a_css_oklch_string() {
 }
 
 #[test]
+fn format_oklch_reports_hue_as_a_positive_angle() {
+    // `palette` carries hue as -180..180, so every blue formats negative. That
+    // is valid CSS and equivalent, but it is a value people read and paste, and
+    // every consumer was normalising it by hand.
+    assert_eq!(
+        format_oklch(Oklch::new(0.5557, 0.192, 259.9)),
+        "oklch(0.5557 0.192 259.9)"
+    );
+}
+
+#[test]
+fn format_oklch_alpha_reports_hue_as_a_positive_angle() {
+    assert_eq!(
+        format_oklch_alpha(Oklch::new(0.5557, 0.192, 259.9), 0.5),
+        "oklch(0.5557 0.192 259.9 / 0.5)"
+    );
+}
+
+#[test]
 fn format_oklch_rounds_components_to_four_decimal_places() {
     assert_eq!(
         format_oklch(Oklch::new(0.6279012, 0.2577891, 29.234567)),

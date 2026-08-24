@@ -540,6 +540,360 @@
         "stroke": "content"
       }
     ],
+    "checkbox": [
+      {
+        "kind": "rect",
+        "x": 68,
+        "y": 56,
+        "w": 32,
+        "h": 32,
+        "r": 6
+      },
+      {
+        "kind": "path",
+        "d": "M 76 72 L 82 78 L 92 66",
+        "stroke": "content"
+      },
+      {
+        "kind": "rect",
+        "x": 116,
+        "y": 68,
+        "w": 72,
+        "h": 8,
+        "r": 4,
+        "fill": "content"
+      }
+    ],
+    "radio": [
+      {
+        "kind": "rect",
+        "x": 68,
+        "y": 56,
+        "w": 32,
+        "h": 32,
+        "r": 16
+      },
+      {
+        "kind": "rect",
+        "x": 76,
+        "y": 64,
+        "w": 16,
+        "h": 16,
+        "r": 8,
+        "fill": "content"
+      },
+      {
+        "kind": "rect",
+        "x": 116,
+        "y": 68,
+        "w": 72,
+        "h": 8,
+        "r": 4,
+        "fill": "content"
+      }
+    ],
+    "switch": [
+      {
+        "kind": "rect",
+        "x": 60,
+        "y": 60,
+        "w": 64,
+        "h": 24,
+        "r": 12
+      },
+      {
+        "kind": "rect",
+        "x": 104,
+        "y": 64,
+        "w": 16,
+        "h": 16,
+        "r": 8,
+        "fill": "content"
+      },
+      {
+        "kind": "rect",
+        "x": 140,
+        "y": 68,
+        "w": 56,
+        "h": 8,
+        "r": 4,
+        "fill": "content"
+      }
+    ],
+    "textarea": [
+      {
+        "kind": "rect",
+        "x": 40,
+        "y": 24,
+        "w": 176,
+        "h": 96,
+        "r": 8
+      },
+      {
+        "kind": "rect",
+        "x": 56,
+        "y": 44,
+        "w": 144,
+        "h": 8,
+        "r": 4,
+        "fill": "content"
+      },
+      {
+        "kind": "rect",
+        "x": 56,
+        "y": 60,
+        "w": 120,
+        "h": 8,
+        "r": 4,
+        "fill": "content"
+      },
+      {
+        "kind": "rect",
+        "x": 56,
+        "y": 76,
+        "w": 88,
+        "h": 8,
+        "r": 4,
+        "fill": "content"
+      },
+      {
+        "kind": "path",
+        "d": "M 194 110 L 206 98"
+      },
+      {
+        "kind": "path",
+        "d": "M 200 110 L 206 104"
+      }
+    ],
+    "slider": [
+      {
+        "kind": "rect",
+        "x": 40,
+        "y": 68,
+        "w": 176,
+        "h": 8,
+        "r": 4
+      },
+      {
+        "kind": "rect",
+        "x": 40,
+        "y": 68,
+        "w": 80,
+        "h": 8,
+        "r": 4,
+        "fill": "content"
+      },
+      {
+        "kind": "rect",
+        "x": 104,
+        "y": 56,
+        "w": 32,
+        "h": 32,
+        "r": 16,
+        "fill": "content"
+      }
+    ],
+    "field": [
+      {
+        "kind": "rect",
+        "x": 40,
+        "y": 32,
+        "w": 64,
+        "h": 8,
+        "r": 4,
+        "fill": "content"
+      },
+      {
+        "kind": "rect",
+        "x": 40,
+        "y": 52,
+        "w": 176,
+        "h": 40,
+        "r": 8
+      },
+      {
+        "kind": "rect",
+        "x": 56,
+        "y": 68,
+        "w": 56,
+        "h": 8,
+        "r": 4,
+        "fill": "content"
+      },
+      {
+        "kind": "rect",
+        "x": 40,
+        "y": 104,
+        "w": 96,
+        "h": 8,
+        "r": 4,
+        "fill": "content"
+      }
+    ],
+    "input-group": [
+      {
+        "kind": "rect",
+        "x": 40,
+        "y": 48,
+        "w": 176,
+        "h": 48,
+        "r": 8
+      },
+      {
+        "kind": "path",
+        "d": "M 96 48 L 96 96"
+      },
+      {
+        "kind": "rect",
+        "x": 60,
+        "y": 68,
+        "w": 16,
+        "h": 8,
+        "r": 4,
+        "fill": "content"
+      },
+      {
+        "kind": "rect",
+        "x": 112,
+        "y": 68,
+        "w": 56,
+        "h": 8,
+        "r": 4,
+        "fill": "content"
+      }
+    ],
+    "segmented-control": [
+      {
+        "kind": "rect",
+        "x": 40,
+        "y": 52,
+        "w": 176,
+        "h": 40,
+        "r": 8
+      },
+      {
+        "kind": "rect",
+        "x": 48,
+        "y": 60,
+        "w": 52,
+        "h": 24,
+        "r": 6,
+        "fill": "content"
+      },
+      {
+        "kind": "rect",
+        "x": 62,
+        "y": 70,
+        "w": 24,
+        "h": 4,
+        "r": 2,
+        "fill": "knockout"
+      },
+      {
+        "kind": "rect",
+        "x": 115,
+        "y": 70,
+        "w": 24,
+        "h": 4,
+        "r": 2,
+        "fill": "content"
+      },
+      {
+        "kind": "rect",
+        "x": 174,
+        "y": 70,
+        "w": 24,
+        "h": 4,
+        "r": 2,
+        "fill": "content"
+      }
+    ],
+    "checkbox-card": [
+      {
+        "kind": "rect",
+        "x": 40,
+        "y": 24,
+        "w": 176,
+        "h": 96,
+        "r": 8
+      },
+      {
+        "kind": "rect",
+        "x": 60,
+        "y": 58,
+        "w": 24,
+        "h": 24,
+        "r": 4
+      },
+      {
+        "kind": "path",
+        "d": "M 66 70 L 70 74 L 78 66",
+        "stroke": "content"
+      },
+      {
+        "kind": "rect",
+        "x": 96,
+        "y": 62,
+        "w": 72,
+        "h": 8,
+        "r": 4,
+        "fill": "content"
+      },
+      {
+        "kind": "rect",
+        "x": 96,
+        "y": 78,
+        "w": 96,
+        "h": 8,
+        "r": 4,
+        "fill": "content"
+      }
+    ],
+    "radio-card": [
+      {
+        "kind": "rect",
+        "x": 40,
+        "y": 24,
+        "w": 176,
+        "h": 96,
+        "r": 8
+      },
+      {
+        "kind": "rect",
+        "x": 60,
+        "y": 58,
+        "w": 24,
+        "h": 24,
+        "r": 12
+      },
+      {
+        "kind": "rect",
+        "x": 66,
+        "y": 64,
+        "w": 12,
+        "h": 12,
+        "r": 6,
+        "fill": "content"
+      },
+      {
+        "kind": "rect",
+        "x": 96,
+        "y": 62,
+        "w": 72,
+        "h": 8,
+        "r": 4,
+        "fill": "content"
+      },
+      {
+        "kind": "rect",
+        "x": 96,
+        "y": 78,
+        "w": 96,
+        "h": 8,
+        "r": 4,
+        "fill": "content"
+      }
+    ],
     "_placeholder": [
       {
         "kind": "rect",

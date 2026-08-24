@@ -835,10 +835,39 @@ so each needs settling before it is drawn:
   are real; one plan cannot produce both. Neither is load-bearing until code
   exists, so the first implementation forces the answer.
 
-  **Still open:** `SwatchExportConfig` has **no mode field** — one mode previews
-  fine, but "all modes" must choose between one frame per mode and one frame with
-  two sections. And **O6**, drag-to-canvas: draw the handle, mark it a
+  **Modes — settled 2026-08-24: one canvas frame per mode.** This was the last
+  open piece of `SwatchExportConfig`, and settling it collapsed the preview bar
+  rather than adding a control. Because the export emits every mode the project
+  defines, mode stops being something you *choose* here and becomes a property of
+  the page you are looking at: the pager walks **ramps × modes** (six ramps, two
+  modes, `1 / 12`). So there is no mode field for a user to set and no mode
+  control in the cards — the alternative, one frame with a Light section above a
+  Dark one, would have removed the indicator entirely but produced a single
+  enormous frame. Still open: **O6**, drag-to-canvas — draw the handle, mark it a
   fast-follow, ship the button first.
+
+  **The preview bar was rebuilt on that decision (2026-08-24).** It had three
+  problems, two of them only visible in a render:
+  - **"Live · true size" was a claim, not a control — and a false one.** The sheet
+    is 512 px inside a 332 px ground, so the preview is clipped by construction
+    and step 400 is cut off directly beneath the words promising true size. The
+    label was also itself truncated at the bar's right edge. Removed. If the
+    output's real dimensions ever need stating, the honest form is the measurement
+    (`560 × 96 on canvas`), which is information rather than reassurance.
+  - **Two `Tag`s read as one class of thing but behaved differently** — `Brand 1/6`
+    was paged, `Light values` was not, and neither was interactive despite being
+    styled like a chip. They are now one identity chip, `Brand · Light`.
+  - **There were two pagers.** A `‹ ›` TEXT in the bar *and* a real Icon Button
+    floating over the canvas, overlapping the sheet. Worse, the text pager sat
+    *between* the two Tags, so which one it paged was a guess. Now one pager:
+    identity left, `1 / 12` + two Icon Buttons right, the count adjacent to the
+    control that changes it.
+
+  **Gotcha: the panel's font is `Asta Sans`, not Inter.** Loading Inter and then
+  writing `characters` throws *"Cannot write to node with unloaded font"* — and
+  it throws **mid-script**, so everything before the write has already applied
+  (the `addComponentProperty` partial-apply hazard generalised). Load the font the
+  target node actually uses, and re-read state before retrying.
 
 Also outstanding: a **light-theme pass** over the view set. The built views are
 dark and the `Harmoni / Panel Header` has a `Theme=light` variant, but a Figma

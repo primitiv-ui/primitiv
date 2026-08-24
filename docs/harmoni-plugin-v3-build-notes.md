@@ -1399,3 +1399,52 @@ cleanly, which is not something the copied chrome could ever have shown:
 
 Every footer is now `12/14/12/14`; heights are 900 everywhere except
 `Canvas swatches` ×2 at 865.
+
+## 9. Easing glyphs — regenerated from the engine (2026-08-24)
+
+`Harmoni / Easing Glyph` (`1975:129542`, 27 variants) predated the easing module
+and was drawn by hand. It is now derived: `cargo run -p harmoni-core --example
+easing-glyphs` prints the geometry, which is fed to the Figma bridge.
+
+**Three bars could not carry the set, and measuring is what showed it.** With
+`count == 3` the first and last samples are always 0 and 1 — `curve` spans 0→1
+exactly — so the middle sample held all the information. Quantised to the pixel
+grid the 12 px glyph actually renders on:
+
+| bars | distinct marks of 27 |
+| --- | --- |
+| 3 (as drawn) | **8** — all nine `Ease in-out` variants identical |
+| 4 | 16 |
+| 5 | 20 |
+| 6 | 23 |
+| 7 | 21 (quantisation makes 7 worse than 6) |
+
+Six bars reach 23 but fall to ~1.4 px hairlines at 12 px. The set is now a
+**sampled polyline** (17 points), which separates every family and reads as a
+miniature of the Curve view's own plot.
+
+**The old description's case for bars was measurably false, and that is the
+bigger finding.** It argued that Arc is a *sampling method* (fettepalette
+lineage — a quarter circle sampled evenly in angle) tracing the same path as
+`Circular` ease-out, so a line glyph would render the two identically. Against
+the current engine they differ by **0.432** across 17 samples, and its quoted Arc
+ease-out midpoint of **0.71 is now 0.500**. `easing.rs` implements Arc as a
+**sine-family sweep** (accent runs `Sine` ease-out at 0 to `Sine` ease-in at 1),
+not a quarter circle. So the glyph was documented against an Arc the engine does
+not implement.
+
+**Open, and worth deciding deliberately: is the engine's Arc the intended one?**
+At the default accent Arc sits within **0.021 of Linear** in all three
+directions — its whole row draws as three near-straight lines. That is real
+behaviour, not a bug in the glyph, and the accent is the only thing that gives
+Arc a shape. But it means the default Arc contributes almost nothing the Linear
+preset does not, which is the opposite of the claim in `easing.rs` that the
+midpoint "is the only default under which `Arc` contributes a shape nothing else
+in the list can make". Either the doc comment or the implementation is wrong.
+
+**Process note: read the component description first.** The set's description
+already recorded the bars-vs-line decision and its reasoning; the options were
+put to the human before it was read, which is CLAUDE.md rule 8 and the
+`figma-component-descriptions` skill both saying the same thing. Reading it first
+would have surfaced the Arc divergence at the start rather than after the
+rebuild.

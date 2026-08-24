@@ -790,6 +790,22 @@ user's canvas, so how they read is the product.
     said the opposite. Hex keeps `content/secondary` as well: with OKLCH first,
     **sequence carries the hierarchy** and the two facts read as equal in weight,
     which is true — one is the value, the other is the same value exported.
+  - **The cap's text must be painted in the paired foreground, and it silently
+    stopped being (2026-08-24).** Seven of ten swatches disagreed with their own
+    `Source` label — 300/400 said `fg 900` while painted light, 500 said `white`
+    while painted near-black, and **900 was `#000923` on a `#000923` cap, i.e.
+    invisible**. Cause: the swatch's cap fills are **per-instance overrides with
+    no variable binding** (the foreground is *data*, not a token — it differs per
+    step), so the typography pass's edits to the master's text nodes reset them.
+    This is the already-recorded "rebuilding master nodes clears per-instance
+    fills" hazard, and it is worth a standing rule: **after any edit to the
+    Swatch master, re-read every instance's cap fills against the engine's
+    pairing.** A render alone will not catch it — 300/400 looked plausible.
+  - **Open policy question: step 500's foreground is `white`, not a ramp step.**
+    `ForegroundSource` has `PureWhite`/`PureBlack` tiers the engine falls back to
+    when neither ramp end wins, and 500 legitimately lands there at 4.88:1. If
+    the product position is that a foreground must always be a *generated* step,
+    that is an engine policy change, not a mock fix.
   - **The engine's hue is negative** (`-100.1`, not `259.9`) — valid CSS, but the
     picker and the Swatch both normalise. Worth deciding whether `format_oklch`
     should normalise at source, since that string reaches emitted tokens.

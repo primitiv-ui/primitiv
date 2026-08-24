@@ -860,13 +860,50 @@ only prose that leaks the internal term.
 
 ## 6. Still to design
 
-Every wireframed panel is now built. What is left has **no wireframe at all**,
-so each needs settling before it is drawn:
+**Corrected 2026-08-24 — the previous list was stale in a way that would have
+cost a session.** It claimed the project switcher had "no view behind it". It has
+both: CRUD wireframe **01** (`1935:110852`) *is* the switcher — `YOUR PROJECTS ·
+THIS DEVICE`, the project list, `+ new project`, `Scan for an existing palette`,
+the adopt warning — and it is built as the **Setup** view. The full mapping of
+the CRUD row to built views:
 
-- **The project switcher.** Its entry point exists (the Breadcrumb's project
-  crumb) but there is no view behind it.
-- **Loading / generating**, and **error** — write refused, missing permission,
-  library-imported (`remote: true`) variables.
+| CRUD wireframe | built view |
+| --- | --- |
+| 01 an untouched document | `Setup` (`1949:116135`) |
+| 02 choosing where it lands | `Destination` (`1949:116222`) |
+| 03 the ordinary return visit | `In sync` (`1965:116974`) |
+| 04 when something moved | `Drift` (`1965:117071`) |
+| 09 the very first open | `First run` (`1965:117172`) |
+
+**Read the CRUD row as well as the 01–09 board** before concluding a view is
+unwireframed — the two boards together are the spec.
+
+**Generating and errors are NOT views (settled 2026-08-24).** Both resolved to
+"no new route":
+
+- **A write presents on the footer button** — `Create 120 variables` becomes a
+  disabled `Creating… 47 / 120`. At 360 px a full-screen loader for a
+  seconds-long write is ceremony, and the count says more than a spinner.
+  Built as the `Writing` view.
+- **A failure surfaces where the action was started** — a danger `Alert` between
+  the body and the footer, with the remedy as the button (`Change destination`).
+  This reuses the idiom Setup already has for its adopt warning, so the panel
+  raises concerns one way rather than two. Built as `Write refused`.
+  - **It is panel-level, not tab content.** A first pass put it inside Export's
+    `Tabs / Panel Slot`; that slot is an instance sublayer and rejects
+    `appendChild` (gotcha 14) — which was the right answer anyway, since a failed
+    write is about the whole panel, not the Export tab.
+- **`remote: true` stays pre-flight.** Library collections can never be written
+  by any plugin, so they are caught when the destination is chosen, not when the
+  write fails.
+
+**Figma gap found: `Progress` cannot express a value on an instance.** The set
+(`443:7839`, 30 variants) is Size × Intent × State(default|indeterminate) with no
+value axis, and resizing the `Fill` sublayer **silently reverts** (144 px stayed
+144 px, no error). The code component takes `value`/`max`, so Figma is behind it.
+Only `indeterminate` is expressible on an instance today.
+
+What is genuinely left:
 - **The canvas insert — settled 2026-08-23.** Design record: page **"Wireframes —
   Harmoni Plugin (canvas insert — exploration)"**, five panels plus a decisions
   frame. The *output* was already specified (RFC 0013 §3.2/§4.5 — config,

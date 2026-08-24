@@ -117,6 +117,15 @@ jobs:
       - name: Check docs-data is current
         run: pnpm qa:docs-data
 
+      # Every data attribute a component emits has to be declared in its
+      # contract, on the part that emits it — that is what the docs render from,
+      # and it is a consumer's only list of what they can style against. Select
+      # had all seven on the root with the real owner buried in the `when` prose,
+      # and nine other components emitted attributes declared nowhere at all.
+      # Both were invisible until the docs page started grouping by part.
+      - name: Check contract data attributes match source
+        run: pnpm qa:data-attributes
+
       # Type-check and build the workbench (tsc -b && vite build). The doc-site
       # deploy (deploy-docs.yml) is manual-only, so without this a broken
       # workbench build — a type error in an example page or the OKLCH picker —

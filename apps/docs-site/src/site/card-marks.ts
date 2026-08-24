@@ -102,8 +102,14 @@ export type MarkShape =
        */
       readonly dash?: boolean;
     }
-  /** A stroked path. `stroke` names the role; omit it for neutral chrome. */
-  | { readonly kind: "path"; readonly d: string; readonly stroke?: "content" };
+  /**
+   * A stroked path. `stroke` names the role; omit it for neutral chrome.
+   *
+   * `"knockout"` is for a path lying ON a primary fill — Button's pointer sits
+   * inside the solid block, where neutral chrome would be near-invisible
+   * against the brand colour.
+   */
+  | { readonly kind: "path"; readonly d: string; readonly stroke?: "content" | "knockout" };
 
 export const MARK_GRID: {
   readonly viewBox: { readonly width: number; readonly height: number };

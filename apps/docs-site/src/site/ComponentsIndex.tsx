@@ -70,7 +70,7 @@ const CardMediaMark = ({ id }: { id: string }) => {
           <path
             key={i}
             d={shape.d}
-            className={shape.stroke === "content" ? "docs-mark-accent" : "docs-mark-chrome"}
+            className={shape.stroke ? `docs-mark-stroke-${shape.stroke}` : "docs-mark-chrome"}
           />
         ),
       )}

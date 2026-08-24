@@ -139,14 +139,28 @@
   stroke-dasharray: 8 8;
 }
 
-/* A stroked path in the primary — AspectRatio's ratio diagonal. The fill roles
-   below cannot serve: a diagonal line has no area to fill. */
-.docs-mark-accent {
+/*
+ * Stroked paths that are not neutral chrome. The fill roles cannot serve: a
+ * line has no area to fill.
+ *
+ * `content` is AspectRatio's ratio diagonal and Tooltip's arrow. `knockout` is
+ * for a path lying ON a primary fill — Button's pointer sits inside the solid
+ * block, where the neutral would be near-invisible against the brand colour.
+ */
+.docs-mark-stroke-content,
+.docs-mark-stroke-knockout {
   fill: none;
-  stroke: var(--primitiv-action-primary-default);
   stroke-width: 2;
   stroke-linecap: round;
   stroke-linejoin: round;
+}
+
+.docs-mark-stroke-content {
+  stroke: var(--primitiv-action-primary-default);
+}
+
+.docs-mark-stroke-knockout {
+  stroke: var(--primitiv-action-primary-foreground-default);
 }
 
 .docs-mark-content {

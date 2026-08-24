@@ -45,6 +45,18 @@ export type DocsContractProp = {
 export type DocsSubComponent = {
   readonly name: string;
   readonly extends: string | null;
+  /**
+   * True when the registry adds this part and `@primitiv-ui/react` does not
+   * export it — Modal's `Header`, `Body` and `Footer`, which are layout the
+   * copied file supplies.
+   *
+   * The heading above a props table is NOT inside the mode tabs, so it is
+   * written in the headless dot spelling for every part. On a styled-only part
+   * that spelling names an import that does not exist, so the table says so
+   * instead. Derived by the extractor from which file the props type was found
+   * in, not hand-maintained.
+   */
+  readonly styledOnly?: boolean;
   readonly props: readonly DocsProp[];
   readonly contractProps?: readonly DocsContractProp[];
   /**

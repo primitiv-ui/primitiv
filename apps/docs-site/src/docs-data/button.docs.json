@@ -42,6 +42,7 @@
             "description": "The button's native `type` attribute, restricted to the three valid\nvalues. Defaults to `\"button\"` (not the DOM's own default of\n`\"submit\"`), so a `Button` placed inside a `<form>` never triggers an\naccidental submit unless set explicitly."
           }
         ],
+        "styledOnly": false,
         "contractProps": [
           {
             "name": "variant",

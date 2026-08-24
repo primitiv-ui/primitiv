@@ -35,6 +35,7 @@
             "description": "Allows getting a ref to the component instance.\nOnce the component unmounts, React will set `ref.current` to `null`\n(or call the ref with `null` if you passed a callback ref).\nForwarded to the underlying `HTMLInputElement`. Under `asChild`,\nmerged onto the rendered child via {@link Slot }."
           }
         ],
+        "styledOnly": false,
         "contractProps": [
           {
             "name": "size",

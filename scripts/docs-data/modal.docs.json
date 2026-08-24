@@ -49,6 +49,7 @@
             "description": "Ref receiving the imperative {@link ModalImperativeApiopen/close handle}."
           }
         ],
+        "styledOnly": false,
         "contractProps": [],
         "dataAttributes": [],
         "class": null
@@ -65,6 +66,7 @@
             "description": "Render into the consumer's own element (e.g. a router `<Link>`) instead\nof the default `<button>`, merging the trigger's ARIA wiring, composed\nevent handlers, and ref onto it via the Slot pattern."
           }
         ],
+        "styledOnly": false,
         "contractProps": [],
         "dataAttributes": [],
         "class": null
@@ -95,6 +97,7 @@
             "description": "Keep the portalled subtree mounted after `open` flips false, so a CSS\nexit animation keyed off `data-state=\"closed\"` can play. Without it the\nportal unmounts as soon as the modal closes."
           }
         ],
+        "styledOnly": false,
         "contractProps": [],
         "dataAttributes": [],
         "class": null
@@ -118,6 +121,7 @@
             "description": "Keep the overlay mounted after `open` flips false so a CSS fade-out can\nplay. Without it the overlay unmounts as soon as the modal closes."
           }
         ],
+        "styledOnly": false,
         "contractProps": [],
         "dataAttributes": [
           {
@@ -152,6 +156,7 @@
             "description": "Fires on a `pointerdown` whose coordinates land outside the dialog's\nbounding rect — i.e. on the browser-painted `::backdrop`. Call\n`event.preventDefault()` to veto closing and keep the modal open."
           }
         ],
+        "styledOnly": false,
         "contractProps": [
           {
             "name": "size",
@@ -178,6 +183,7 @@
         "name": "Modal.Header",
         "extends": "HTMLDivElement",
         "props": [],
+        "styledOnly": true,
         "contractProps": [],
         "dataAttributes": [],
         "class": "primitiv-modal__header"
@@ -186,6 +192,7 @@
         "name": "Modal.Body",
         "extends": "HTMLDivElement",
         "props": [],
+        "styledOnly": true,
         "contractProps": [],
         "dataAttributes": [],
         "class": "primitiv-modal__body"
@@ -194,6 +201,7 @@
         "name": "Modal.Footer",
         "extends": "HTMLDivElement",
         "props": [],
+        "styledOnly": true,
         "contractProps": [],
         "dataAttributes": [],
         "class": "primitiv-modal__footer"
@@ -210,6 +218,7 @@
             "description": "Render into the consumer's own heading element (e.g. an `<h3>` for a\nnested dialog) instead of the default `<h2>`; the generated id is still\nregistered for `aria-labelledby`."
           }
         ],
+        "styledOnly": false,
         "contractProps": [],
         "dataAttributes": [],
         "class": "primitiv-modal__title"
@@ -226,6 +235,7 @@
             "description": "Render into the consumer's own element instead of the default `<p>`; the\ngenerated id is still registered for `aria-describedby`."
           }
         ],
+        "styledOnly": false,
         "contractProps": [],
         "dataAttributes": [],
         "class": "primitiv-modal__description"
@@ -242,6 +252,7 @@
             "description": "Render into the consumer's own element (e.g. an icon-only button)\ninstead of the default `<button>`, merging the close behaviour in. The\nconsumer's `onClick` runs first and can `event.preventDefault()` to veto."
           }
         ],
+        "styledOnly": false,
         "contractProps": [],
         "dataAttributes": [],
         "class": "primitiv-modal__close"

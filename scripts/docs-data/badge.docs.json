@@ -21,6 +21,7 @@
             "description": "Render the single child element instead of a wrapping <span>, merging\nthe badge classes onto it — e.g. `<Badge asChild><a>…</a></Badge>`."
           }
         ],
+        "styledOnly": false,
         "contractProps": [
           {
             "name": "tone",

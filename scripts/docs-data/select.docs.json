@@ -91,6 +91,7 @@
             "description": "Forbidden in uncontrolled mode — use `defaultValue` instead.\nThe currently selected option value. Must be kept in sync by the\nparent via `onValueChange`."
           }
         ],
+        "styledOnly": false,
         "contractProps": [],
         "dataAttributes": [],
         "class": null
@@ -121,6 +122,7 @@
             "description": "Allows getting a ref to the component instance.\nOnce the component unmounts, React will set `ref.current` to `null`\n(or call the ref with `null` if you passed a callback ref).\nForwarded to the underlying `HTMLButtonElement`."
           }
         ],
+        "styledOnly": false,
         "contractProps": [
           {
             "name": "size",
@@ -184,6 +186,7 @@
             "description": "Allows getting a ref to the component instance.\nOnce the component unmounts, React will set `ref.current` to `null`\n(or call the ref with `null` if you passed a callback ref).\nForwarded to the underlying `HTMLSpanElement`."
           }
         ],
+        "styledOnly": false,
         "contractProps": [],
         "dataAttributes": [
           {
@@ -213,6 +216,7 @@
             "description": "Allows getting a ref to the component instance.\nOnce the component unmounts, React will set `ref.current` to `null`\n(or call the ref with `null` if you passed a callback ref).\nForwarded to the underlying `HTMLOptionElement`."
           }
         ],
+        "styledOnly": false,
         "contractProps": [],
         "dataAttributes": [],
         "class": null
@@ -243,6 +247,7 @@
             "description": "Allows getting a ref to the component instance.\nOnce the component unmounts, React will set `ref.current` to `null`\n(or call the ref with `null` if you passed a callback ref).\nForwarded to the underlying `HTMLDivElement`."
           }
         ],
+        "styledOnly": false,
         "contractProps": [],
         "dataAttributes": [],
         "class": "primitiv-select__content"
@@ -273,6 +278,7 @@
             "description": "Marks the item unselectable while still visible."
           }
         ],
+        "styledOnly": false,
         "contractProps": [],
         "dataAttributes": [
           {
@@ -326,6 +332,7 @@
             "description": "Allows getting a ref to the component instance.\nOnce the component unmounts, React will set `ref.current` to `null`\n(or call the ref with `null` if you passed a callback ref).\nForwarded to the underlying `HTMLSpanElement`."
           }
         ],
+        "styledOnly": false,
         "contractProps": [],
         "dataAttributes": [
           {
@@ -360,6 +367,7 @@
             "description": "The {@link SelectItem } elements belonging to this group."
           }
         ],
+        "styledOnly": false,
         "contractProps": [],
         "dataAttributes": [],
         "class": "primitiv-select__group"
@@ -390,6 +398,7 @@
             "description": "Allows getting a ref to the component instance.\nOnce the component unmounts, React will set `ref.current` to `null`\n(or call the ref with `null` if you passed a callback ref).\nForwarded to the underlying `HTMLDivElement`."
           }
         ],
+        "styledOnly": false,
         "contractProps": [],
         "dataAttributes": [],
         "class": "primitiv-select__separator"

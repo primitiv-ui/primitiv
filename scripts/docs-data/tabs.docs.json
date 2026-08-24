@@ -70,6 +70,7 @@
             "description": "Value of the currently active tab."
           }
         ],
+        "styledOnly": false,
         "contractProps": [
           {
             "name": "size",
@@ -111,6 +112,7 @@
             "description": "Accessible name for the tablist, announced as `aria-label`. Pick a\nshort, human-readable description of the set (e.g. `\"Account\nsections\"`, not `\"Tabs\"`). Mutually exclusive with `ariaLabelledBy`."
           }
         ],
+        "styledOnly": false,
         "contractProps": [
           {
             "name": "justify",
@@ -166,6 +168,7 @@
             "description": "Ref to the rendered element. Defaults to `HTMLButtonElement`; when using\n`asChild`, specify the child's element type (e.g. `HTMLAnchorElement`)."
           }
         ],
+        "styledOnly": false,
         "contractProps": [],
         "dataAttributes": [
           {
@@ -208,6 +211,7 @@
             "description": "Value of the trigger this panel belongs to."
           }
         ],
+        "styledOnly": false,
         "contractProps": [],
         "dataAttributes": [
           {

@@ -3,7 +3,7 @@
 import { Field, FieldDescription, FieldLabel } from "@/components/field";
 import { Input } from "@/components/input";
 import { Stack } from "@/components/stack";
-import { contractAttr, importBlock } from "@/lib/playground";
+import { contractAttr, importBlock, partNamer } from "@/lib/playground";
 import { InteractiveExample } from "@/site/InteractiveExample";
 import type { Mode } from "@/site/preferences";
 import type { ComponentSpec } from "./types";
@@ -12,6 +12,15 @@ type Size = "xs" | "sm" | "md" | "lg" | "xl";
 
 const imports = (mode: Mode) =>
   importBlock({ mode, component: "Input", componentId: "input" });
+
+/**
+ * Field's part names, per mode.
+ *
+ * The styled copy exports them FLAT (`FieldLabel`), so writing `Field.Label`
+ * under the Styled tab names something the copied file does not export — the
+ * same class of bug the Modal page turned up on its own regions.
+ */
+const fieldPart = (mode: Mode) => partNamer(mode, "Field");
 
 /** Field's own import line — a separate component, so a separate specifier. */
 const fieldImports = (mode: Mode) =>
@@ -72,9 +81,9 @@ export const inputSpec: ComponentSpec = {
               imports(mode),
               ``,
               `<Field>`,
-              `  <Field.Label>Email address</Field.Label>`,
+              `  <${fieldPart(mode)("Label")}>Email address</${fieldPart(mode)("Label")}>`,
               `  <Input type="email" placeholder="you@example.com" />`,
-              `  <Field.Description>We only use this to send receipts.</Field.Description>`,
+              `  <${fieldPart(mode)("Description")}>We only use this to send receipts.</${fieldPart(mode)("Description")}>`,
               `</Field>`,
             ].join("\n")
           }

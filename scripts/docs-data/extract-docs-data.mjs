@@ -191,7 +191,14 @@ function extractSub(sc) {
     });
   }
   props.sort((a, b) => Number(b.required) - Number(a.required) || a.name.localeCompare(b.name));
-  return { name: sc.name, extends: ext, props };
+  /*
+   * A part whose props come from a DIFFERENT file than the component's is one
+   * the registry adds and `@primitiv-ui/react` does not export — Modal's
+   * `Header`/`Body`/`Footer`. Derived rather than hand-flagged, so it cannot
+   * drift: the props file IS the evidence.
+   */
+  const styledOnly = Boolean(sc.propsFile && sc.propsFile !== cfg.propsFile);
+  return { name: sc.name, extends: ext, props, styledOnly };
 }
 
 // ---- styled half from contract.json ----

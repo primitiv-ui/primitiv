@@ -90,6 +90,14 @@ export const PropsTable = ({
         {sub.name}
       </h3>
 
+      {sub.styledOnly && (
+        <p className="docs-prop-extends">
+          Styled surface only — the copied file adds this region.{" "}
+          <InlineCode size="sm">@primitiv-ui/react</InlineCode> exports no such
+          part, so under Headless it is your own element.
+        </p>
+      )}
+
       {sub.extends && (
         <p className="docs-prop-extends">
           Extends <InlineCode size="sm">{sub.extends}</InlineCode> — every native

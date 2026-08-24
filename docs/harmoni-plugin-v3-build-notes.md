@@ -1448,3 +1448,43 @@ put to the human before it was read, which is CLAUDE.md rule 8 and the
 `figma-component-descriptions` skill both saying the same thing. Reading it first
 would have surfaced the Arc divergence at the start rather than after the
 rebuild.
+
+## 10. Soft white / soft black — settled 2026-08-24, placement decided
+
+Previously listed as "no home in v3". They have one, and finding it turned out to
+be a matter of noticing the two engine functions name the same pair.
+
+**They are one pair, doing two jobs.** `api::neutral::generate_neutral_ramp(white,
+black, tint, options)` binds its two arguments to `soft_white` / `soft_black` and
+builds the neutral ramp *between* them. `GenerateOptions.soft_white` /
+`.soft_black` are tiers 3 and 4 of `get_best_foreground`'s six-tier fallback
+(step 900 → step 50 → **soft white → soft black** → pure white → pure black).
+Same two colours, so the plugin holds one pair per project rather than two.
+
+**One pair covers both modes**, because `generate_pair` takes a single
+`GenerateOptions` for the light and dark halves. They are project data — part of
+the recipe — not a global preference.
+
+**Placement: they are neutral's seed row in the Palette view's SEEDS list.**
+This closes a real gap in the settled wireframe rather than adding to it: panel
+01 (`1933:110428`) lists **five** seeds (brand, danger, warning, success, info)
+but **six** ramps — `neutral` appears from nowhere, because its seed is exactly
+this pair. The row carries two chips instead of one and reads
+`neutral · soft white · soft black`, and opens the picker in two-anchor mode,
+which RFC 0010 §6 already settled ("neutral white/black anchors adopt the
+picker").
+
+Two placements were built and compared before choosing (page "Wireframes —
+Harmoni Plugin (v3 — settled)"). The alternative — a separate `ANCHORS` block
+between SEEDS and RAMPS, labelled by what it does — states the dual role more
+explicitly, but costs a third block on a 360 px view *and* leaves neutral
+seedless in the list, so it fixes nothing and adds a section.
+
+**Rejected: Settings → DEFAULTS.** Settings is explicitly global and not
+project-scoped, while these change one project's generated output. Putting them
+beside "Steps per ramp" would mean editing a global silently altered every
+project's foregrounds.
+
+**Still to build:** the row itself, in the `Palette` view and its light twin.
+Both are now `Harmoni / View Shell` instances, so the edit is to their Body slot
+content.

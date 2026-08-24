@@ -903,6 +903,39 @@ value axis, and resizing the `Fill` sublayer **silently reverts** (144 px stayed
 144 px, no error). The code component takes `value`/`max`, so Figma is behind it.
 Only `indeterminate` is expressible on an instance today.
 
+**Light-theme pass — done 2026-08-24.** All 15 views now have a `· light` twin
+on the same page, one row below, pinned to `Intent = Light`. Four things it
+taught:
+
+- **The panel header's theme is NOT driven by the Intent mode.** `Harmoni / Panel
+  Header` carries its own `Theme` VARIANT, so flipping the collection leaves the
+  wordmark white on a light panel. It has to be set per view — the one part of
+  this pass that is not automatic.
+- **`setExplicitVariableModeForCollection` wants the collection NODE, not its
+  id.** Passing the id fails with *"Cannot call … with a collection id in
+  incremental mode"*.
+- **The audit I wanted was not affordable.** Scanning every view for unbound
+  fills timed out at 30 s — the dot grids and plot vectors are thousands of
+  nodes. Cloning, flipping and *looking* found the same defects in a fraction of
+  the calls, which is the same lesson as the sloped-columns and staircase passes.
+- **Generated colour correctly stays literal.** The swatch caps and the plot's
+  ramp columns are engine *output*, not tokens, so they must not follow a theme —
+  and they don't. The separation to watch is the opposite one: chrome that should
+  be bound and isn't.
+
+**One real defect found, and it was never a light-mode bug.** The Curve plot's
+`curve` stroke was an unbound literal `#ffffff` in *both* themes — invisible over
+the pale 50/100 columns in dark too, which the handles had been covering for.
+Fixed the way the handles already solve it: a **halo** (a wider, dark,
+semi-transparent copy beneath the white line), because a line crossing the whole
+ramp has no single colour that reads along it.
+
+**Verified, not assumed:** the canvas-swatch ground follows the *panel's* theme
+while the chip still reads `Brand · Light`. That is the settled separation —
+canvas background is the user's Figma theme, the chip names which ramp values are
+drawn — and light mode is the first time it was actually exercised. It holds, and
+the "Light values" wording earns itself.
+
 What is genuinely left:
 - **The canvas insert — settled 2026-08-23.** Design record: page **"Wireframes —
   Harmoni Plugin (canvas insert — exploration)"**, five panels plus a decisions

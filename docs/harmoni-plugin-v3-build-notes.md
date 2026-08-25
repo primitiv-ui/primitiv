@@ -1695,3 +1695,61 @@ Two details worth keeping:
   is now an engine-derived cool white, `oklch(0.9407 0.012 259.9)` → `#e7ecf4`,
   which also keeps the painted plane's hue defensible; a chroma of 0 under a blue
   plane would have been actively wrong.
+
+## 12. What tells a user a colour is editable (2026-08-24)
+
+Nothing did. The `SEEDS` rows were **bare frames** — no fill, no stroke, no
+trailing glyph — visually identical to a read-only list, with the `Add ramp`
+Button the only thing in the block that looked interactive. The `neutral` row
+reading `brand · 100%` made it worse: a rule looks even less editable than a hex.
+
+Everywhere else in the panel, "editable" means **it looks like a control** —
+`Select / Trigger` in Destination's Modes and in Roles' rules, `Input` in the
+picker, Miller Columns rows in Destination. The seed rows looked like none of
+them.
+
+**Settled: the row is a list item AND carries a chevron.** Three candidates were
+built from the real block and measured before choosing:
+
+| | Seeds height | vs before | fits the 754 budget |
+| --- | --- | --- | --- |
+| A · trailing chevron | 220 | +36 | 6 px over |
+| B · row is a list item | 216 | +32 | 2 px over |
+| C · value becomes a field | 208 | +24 | fits, 6 spare |
+
+The chosen combination lands at **204** (rows 22 px: 4 px padding, radius 4,
+2 px row gap, a 14 px chevron at 0.55 opacity), which is *smaller* than any
+single option measured on its own — the chevron only cost height in A because it
+was cloned at 20 px.
+
+Why both rather than one:
+
+- **The row surface says the whole row is the target**, which is true — clicking
+  anywhere opens the picker — and it matches Miller Columns / Tree, the house
+  pattern for a navigating row.
+- **The chevron survives a static spec.** A hover-only affordance cannot be seen
+  in the view set, and cannot be seen by a user who has not hovered yet.
+- **C was rejected on meaning, not cost**, despite being the only one that fit
+  outright: a field implies typing in place, and this opens a different view.
+
+**Two things the build corrected along the way.** The captions on the comparison
+first claimed B "costs height — six rows grow"; measuring showed B was *cheaper*
+than A, and the claim was written before measuring. And the values did not share
+a column: a `SPACE_BETWEEN` row with three children lets the middle one float, so
+the longer `brand · 100%` extended past the hexes. Fixed by making the value FILL
+with `textAlignHorizontal = 'RIGHT'`, so every value right-aligns against the
+chevron.
+
+### Open: the Palette panel overflows its visible area by ~50 px
+
+`RAMPS` content is 744 px against roughly 694 px of visible panel, so `info`'s
+strip is cut mid-row. **~30 px of that predates this change and ~20 px is the new
+row padding.** A scrolling panel is expected to overflow, so this is not wrong in
+itself — but it currently cuts mid-strip, which reads as accidental.
+
+The obvious recovery is sitting in the block: **`every step has a readable
+foreground` is printed six times, once per ramp, for 120 px total.** Collapsing
+that to one summary line — and keeping a per-ramp line only where a ramp *fails*
+— would recover ~100 px and fix the clip outright. It is also the better
+information design: six identical passes are noise, an exception is information.
+Not done, because it is a change to `RAMPS` that was not asked for.

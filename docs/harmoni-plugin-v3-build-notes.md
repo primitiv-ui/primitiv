@@ -2582,3 +2582,47 @@ sits as a caption **under the Collection row**, not in the Notice, because the
 Notice already carries the delete consequence and a view with two unrelated
 warnings in one slot teaches neither. Consequence at its own control is the rule
 (§17.4); this is the second view to need two of them.
+
+### 25.3 The 7-step example exposed an unsettled rule (open)
+
+Prompted by a challenge on the `Adopt` screenshot: the default **is** 10 and
+Primitiv's own scale is structurally locked to it (`generate_brand_pair` takes no
+options), so nothing in the shipped token layer moves. The 7 is a *foreign*
+palette found in someone else's document, which the engine allows
+(`supported_step_range()` -> `[3, 10, 32]`, surfaced in Settings as
+"Engine allows 3 - 32").
+
+**But `step_labels` is not a subset at other lengths.** Verified by running it:
+
+```
+ 3 steps -> [50, 500, 900]
+ 5 steps -> [50, 100, 300, 500, 900]
+ 7 steps -> [50, 100, 230, 370, 500, 700, 900]
+10 steps -> [50, 100, 200, 300, 400, 500, 600, 700, 800, 900]
+12 steps -> [50, 100, 180, 260, 340, 420, 500, 580, 660, 740, 820, 900]
+```
+
+`230` and `370` are interpolated, and **no hand-made 7-step palette is named
+that.** So "adopt keeps the found length" quietly implied one of two things and
+§25.1 settled neither:
+
+- Harmoni relabels the adopted variables onto its own ladder — which renames
+  them, contradicting *claimed, not changed*; or
+- **adopt keeps the found names as well as the found length**, and the stamp
+  records the mapping. Normalising onto Harmoni's ladder is then a deliberate
+  act in `Ramp`, with the rename warning that view already carries.
+
+The second is almost certainly right — it is the only reading under which adopt
+touches nothing — but it is **not yet drawn or written into the views**.
+
+**A second imprecision from the same source:** `Adopt`'s lead says the ramp's
+*middle* step becomes the seed. At ten steps the midpoint and the 500 step are
+both index 5, so the words were interchangeable. At seven they are not —
+`pivot_index(7)` is **4**, the fifth of seven, while the arithmetic middle is
+index 3. The rule is the pivot (the step Harmoni calls 500), not the middle, and
+the copy needs to say so.
+
+**Open, deliberately not churned:** whether the `Adopt` view should keep the
+7-step row at all. It is honest and it is what forced these two findings out, but
+it puts an unusual case in the default artwork; the alternative is six 10-step
+rows with the rule stated only in the lead.

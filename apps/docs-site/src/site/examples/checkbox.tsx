@@ -18,6 +18,14 @@ const SIZES: readonly Size[] = ["xs", "sm", "md", "lg", "xl"];
 const imports = (mode: Mode) =>
   importBlock({ mode, component: "Checkbox", componentId: "checkbox" });
 
+/** Stack and Button appear in the examples that compose them, so their import
+ *  lines have to appear too — a snippet that omits them does not run. */
+const stackImports = (mode: Mode) =>
+  importBlock({ mode, component: "Stack", componentId: "stack" });
+
+const buttonImports = (mode: Mode) =>
+  importBlock({ mode, component: "Button", componentId: "button" });
+
 /**
  * One checkbox, in the spelling of the current mode.
  *
@@ -47,6 +55,8 @@ const checkboxLines = (
 };
 
 /** The tri-state example's live half — a parent driven by its three children. */
+const LABELS = ["Comments", "Mentions", "Weekly digest"];
+
 const IndeterminateExample = () => {
   const [items, setItems] = useState([true, false, false]);
   const all = items.every(Boolean);
@@ -61,7 +71,7 @@ const IndeterminateExample = () => {
         Notifications
       </Checkbox>
       <Stack gap="sm" style={{ paddingInlineStart: "1.75rem" }}>
-        {["Comments", "Mentions", "Weekly digest"].map((label, i) => (
+        {LABELS.map((label, i) => (
           <Checkbox
             key={label}
             checked={items[i]}
@@ -210,29 +220,63 @@ export const checkboxSpec: ComponentSpec = {
           code={(_density, mode) =>
             [
               imports(mode),
+              stackImports(mode),
+              ``,
+              `const LABELS = ["Comments", "Mentions", "Weekly digest"];`,
               ``,
               `const [items, setItems] = useState([true, false, false]);`,
               `const all = items.every(Boolean);`,
               `const none = items.every((c) => !c);`,
               ``,
+              `<Stack gap="sm">`,
               ...(mode === "headless"
                 ? [
-                    `<Checkbox.Root`,
-                    `  checked={all ? true : none ? false : "indeterminate"}`,
-                    `  onCheckedChange={(checked) => setItems(items.map(() => checked))}`,
-                    `>`,
-                    `  <Checkbox.Indicator />`,
-                    `  Notifications`,
-                    `</Checkbox.Root>`,
+                    `  <Checkbox.Root`,
+                    `    checked={all ? true : none ? false : "indeterminate"}`,
+                    `    onCheckedChange={(checked) => setItems(items.map(() => checked))}`,
+                    `  >`,
+                    `    <Checkbox.Indicator />`,
+                    `    Notifications`,
+                    `  </Checkbox.Root>`,
                   ]
                 : [
-                    `<Checkbox`,
-                    `  checked={all ? true : none ? false : "indeterminate"}`,
-                    `  onCheckedChange={(checked) => setItems(items.map(() => checked))}`,
-                    `>`,
-                    `  Notifications`,
-                    `</Checkbox>`,
+                    `  <Checkbox`,
+                    `    checked={all ? true : none ? false : "indeterminate"}`,
+                    `    onCheckedChange={(checked) => setItems(items.map(() => checked))}`,
+                    `  >`,
+                    `    Notifications`,
+                    `  </Checkbox>`,
                   ]),
+              ``,
+              `  <Stack gap="sm" style={{ paddingInlineStart: "1.75rem" }}>`,
+              `    {LABELS.map((label, i) => (`,
+              ...(mode === "headless"
+                ? [
+                    `      <Checkbox.Root`,
+                    `        key={label}`,
+                    `        checked={items[i]}`,
+                    `        onCheckedChange={(checked) =>`,
+                    `          setItems(items.map((c, j) => (j === i ? checked : c)))`,
+                    `        }`,
+                    `      >`,
+                    `        <Checkbox.Indicator />`,
+                    `        {label}`,
+                    `      </Checkbox.Root>`,
+                  ]
+                : [
+                    `      <Checkbox`,
+                    `        key={label}`,
+                    `        checked={items[i]}`,
+                    `        onCheckedChange={(checked) =>`,
+                    `          setItems(items.map((c, j) => (j === i ? checked : c)))`,
+                    `        }`,
+                    `      >`,
+                    `        {label}`,
+                    `      </Checkbox>`,
+                  ]),
+              `    ))}`,
+              `  </Stack>`,
+              `</Stack>`,
             ].join("\n")
           }
         >
@@ -249,6 +293,8 @@ export const checkboxSpec: ComponentSpec = {
           code={(_density, mode) =>
             [
               imports(mode),
+              stackImports(mode),
+              buttonImports(mode),
               ``,
               `<form action="/subscribe" method="post">`,
               ...checkboxLines(mode, "Email me product updates", {
@@ -259,6 +305,11 @@ export const checkboxSpec: ComponentSpec = {
                 attrs: ` name="terms" value="accepted" required`,
                 indent: "  ",
               }),
+              ``,
+              `  <Stack direction="row" gap="sm">`,
+              `    <Button type="submit" size="sm">Submit</Button>`,
+              `    <Button type="reset" variant="secondary" size="sm">Reset</Button>`,
+              `  </Stack>`,
               `</form>`,
             ].join("\n")
           }
@@ -318,7 +369,7 @@ export const checkboxSpec: ComponentSpec = {
       title: "Customising the mark",
       render: () => (
         <InteractiveExample
-          caption="The two surfaces answer this differently, which is the clearest illustration of what the mode switch buys you. The copied file draws the tick in CSS, so you retune it with the custom properties it publishes — no React involved. In headless there is no CSS to retune: `Checkbox.Indicator` takes `children`, so you pass whatever mark you want (and `asChild` if it should BE your element rather than sit in a `<span>`). It is always mounted and `aria-hidden` in both, because the accessible state lives on the input."
+          caption="The two surfaces answer this differently, which is the clearest illustration of what the mode switch buys you. The copied file draws the tick in CSS, so you retune it with the custom properties it publishes — set below on the element for brevity, though a stylesheet is where they belong. In headless there is no CSS to retune: `Checkbox.Indicator` takes `children`, so you pass whatever mark you want (and `asChild` if it should BE your element rather than sit in a `<span>`). It is always mounted and `aria-hidden` in both, because the accessible state lives on the input."
           code={(_density, mode) => {
             const p = partNamer(mode, "Checkbox");
             if (mode === "headless") {
@@ -341,14 +392,15 @@ export const checkboxSpec: ComponentSpec = {
             return [
               imports(mode),
               ``,
-              `/* Your stylesheet. */`,
-              `.brand-checkbox {`,
-              `  --primitiv-checkbox-mark-color: var(--primitiv-content-primary);`,
-              `  --primitiv-checkbox-bg-checked: var(--primitiv-surface-sunken);`,
-              `  --primitiv-checkbox-border-color-checked: var(--primitiv-border-default);`,
-              `}`,
-              ``,
-              `<Checkbox className="brand-checkbox" defaultChecked>`,
+              `<Checkbox`,
+              `  defaultChecked`,
+              `  style={{`,
+              `    "--primitiv-checkbox-mark-color": "var(--primitiv-content-primary)",`,
+              `    "--primitiv-checkbox-bg-checked": "var(--primitiv-surface-sunken)",`,
+              `    "--primitiv-checkbox-border-color-checked":`,
+              `      "var(--primitiv-border-default)",`,
+              `  }}`,
+              `>`,
               `  Custom mark`,
               `</Checkbox>`,
             ].join("\n");

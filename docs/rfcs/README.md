@@ -184,9 +184,10 @@ surface and applies once those are read.
   actual)` behind all four ownership verbs, a two-level stamp whose `origin` field
   is what keeps the ownership promise across adopt, and eight invariants to drive
   from tests (one of them: no collection name may ever appear in the domain — the
-  destination is always the user's) — and §7.8 records the arithmetic finding the
-  modelling surfaced: a Figma mode is a value, not a variable, so the write is 60
-  variables carrying 120 values.
+  destination is always the user's) — and §7.8 records two findings: the semantic
+  layer is a second variable family with no destination of its own, and a Figma
+  mode is a value rather than a variable, so the write is 60 variables carrying
+  120 values.
 
 ## Figma library
 

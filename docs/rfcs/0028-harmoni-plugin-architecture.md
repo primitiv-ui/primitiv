@@ -1,8 +1,9 @@
 # RFC 0028 — Harmoni plugin: build architecture & test strategy
 
 > **Status:** Draft — spikes defined, not yet run. Architecture recommended;
-> the domain model is settled in §7, which surfaced one arithmetic finding
-> (§7.8 — a mode is not a variable). Repo/licence position open (§6).
+> the domain model is settled in §7, which surfaced two findings (§7.8 — the
+> semantic layer needs a destination of its own, and a mode is not a variable).
+> Repo/licence position open (§6).
 > **Author:** simonrevill, with architectural review
 > **Date:** 2026-08-25
 > **Relates to:** the settled design record — Figma page "Wireframes — Harmoni
@@ -430,11 +431,15 @@ interface ProjectStamp {
 /** On every variable Harmoni manages. */
 interface VariableStamp {
   project: ProjectId
-  ramp: RampId                    // NOT the ramp's name — see 7.3
-  step: string
+  target: StampTarget             // WHICH family, and what within it — see below
   origin: 'created' | 'adopted'   // §23.1: the fix for the adopt/remove contradiction
   wrote: ModeValues               // what Harmoni last wrote; drift is current ≠ this
 }
+
+/** Harmoni writes two families of variable, and they are not the same shape. */
+type StampTarget =
+  | { family: 'palette';  ramp: RampId; step: string }   // a ramp step
+  | { family: 'semantic'; role: RoleId }                 // a role, aliasing a step
 ```
 
 `origin` is the whole of §22.1's fix. Before it, "stamped" and "created" were the
@@ -457,7 +462,7 @@ interface Project {
   name: string
   ramps: Ramp[]
   roles: Role[]
-  destination: Destination
+  destinations: Destinations
   defaults: GenerateDefaults      // GenerateOptions, surfaced in Settings (§2c)
 }
 
@@ -487,8 +492,13 @@ type RoleRule =
   | { kind: 'search'; ramp: RampId; on: SurfaceRef; mustReach: ContrastFloor }
   | { kind: 'pin';    ramp: RampId; step: string }
 
+interface Destinations {
+  palette: Destination
+  semantic?: Destination          // populated only once the offer is accepted (§7.8)
+}
+
 interface Destination {
-  collection: CollectionRef
+  collection: CollectionRef       // an existing collection, or a name to create
   groupPrefix: string             // `color` — a NAME PREFIX, not a container (§5)
   modes: { light: ModeId; dark: ModeId }
 }
@@ -509,6 +519,12 @@ Four things in there are decisions, not notation:
   yields `[50, 100, 230, 370, 500, 700, 900]`, and no hand-made palette is named
   `230`. Normalising onto Harmoni's ladder is then a deliberate act in `Ramp`,
   carrying that view's rename warning.
+- **`destinations` is a record, not a field.** Harmoni writes two families — ramp
+  steps, and (once the offer is accepted) the roles that alias them — and the user
+  chooses where each one lands. Modelling a single `destination` bakes in an answer
+  the design has not given; see §7.8. `semantic` being optional is also what
+  encodes "the panel starts at two views" — an un-accepted offer is an absent
+  destination, not an empty one.
 - **Every rule names its ramp**, including pins. §19.2 settled it for searching
   rules (`brand · AA text`, never `AA text`) so a second brand seed means adding a
   row rather than migrating every stored role. §7.8 records that the pin's ramp is
@@ -616,14 +632,65 @@ found by reading views against each other:
 6. **Every count shown to a user is the length of a list in the plan**, never
    computed separately.
 7. **Unstamped variables appear in no operation, ever.**
-8. **No collection or group name appears anywhere in the domain.** Every target
-   comes from `Destination`, which the user chose (§5). The legacy scaffold
-   hardcodes `Primitives / Palette`; a grep for a quoted collection name in
-   `domain/` should return nothing, forever.
+8. **No collection or group name appears anywhere in the domain, for either
+   family.** Every target comes from a `Destination` the user chose (§5). The
+   legacy scaffold hardcodes `Primitives / Palette` *and* `Primitives /
+   Foreground`; a grep for a quoted collection name in `domain/` should return
+   nothing, forever. A derived second destination (§7.8) is still derived from
+   the user's first choice, never from a constant.
 
 ### 7.8 What the modelling surfaced
 
-**One finding, and it is about arithmetic rather than structure.**
+**Two findings. The first is the one that changes the model.**
+
+#### The semantic layer is a second family, and nothing says where it lands
+
+The design speaks of **the** collection throughout: `Destination` picks one
+COLLECTION → GROUP (§5), and `Project`'s `WRITES INTO` rebinds that one (§20).
+But Harmoni writes two families of variable, not one:
+
+- **ramp steps** — `<group>/<ramp>/<step>`, real colour values;
+- **roles** — the semantic layer, which §16.1 describes in its own words as what
+  *"the semantic layer aliases"*: one variable per role, aliased to the ramp step
+  its rule picks.
+
+The second family only exists once the user accepts the offer at Export — which
+is the design working as intended (§2: the offer sits next to the variable count,
+retires itself, and taking it adds Roles and Audit). What is missing is that
+accepting it needs a **destination of its own**, and the panel has nowhere to ask.
+
+**Primitiv's own file is the argument that "same collection" is not obviously
+right.** It separates `Primitives / Palette` from `Intent` deliberately — that is
+RFC 0001's layered stack, primitives underneath, semantics aliasing them — and a
+user adopting Harmoni may well want the same split, their own split, or none.
+**That is exactly why it has to be asked rather than derived.** The principle the
+rest of the model already obeys applies here too: the plugin proposes, the user
+decides, and nothing in the domain names a collection.
+
+Three ways out, and the design does not pick one:
+
+- **a second row on `Destination`**, asked at first run alongside the first.
+  Most honest; costs panel height on a screen that is already a Miller-columns
+  browser, and asks about a layer the user has not yet been offered.
+- **asked when the offer is accepted** — the offer stops being a one-tap yes and
+  becomes a short route into a destination picker. Keeps the question next to the
+  decision that raises it, at the cost of the offer's compactness.
+- **derived from the palette destination** (same collection, a sibling group
+  prefix), with the rebind in `Project` moving both. Cheapest, and defensible so
+  long as the panel *says* it rather than doing it silently — but it forecloses
+  the primitives/semantics split that Primitiv's own file uses.
+
+`Destinations` in §7.3 is shaped so that whichever is chosen, the domain does not
+change: `semantic` is absent until the offer is accepted, and populated from
+wherever the answer comes from.
+
+This also reaches three built views, which is how to tell it is real rather than
+tidy: **`Remove`** counts and deletes per family (roles are `created`, so they
+go); **`Drift`** gains a cause when a role's alias target moves; and **`Project`**'s
+`WRITES INTO` rebinds one destination today while a project may have two — and
+§25.2's release-on-rebind has to apply to each.
+
+#### A mode is not a variable
 
 **A mode is not a variable, so 6 ramps × 10 steps is 60 variables, not 120.**
 Figma's model is one variable per name holding one value *per mode*
@@ -658,12 +725,13 @@ Three ways out, and the design does not pick one:
   (`Create 60 variables · Light and Dark`), which is what the Destination screen
   already taught the user to expect.
 
-**Withdrawn: an earlier draft of this section claimed the plugin writes into two
-collections** (`Primitives / Palette` plus a `Primitives / Foreground` of aliases,
-per RFC 0003) and that `Destination` therefore under-specifies the target. That
-came from reading the **legacy scaffold**, where both names are hardcoded
-constants in `src/code/applyPalette.ts` and `applyForeground.ts` — and hardcoded
-collection names are precisely what v3 replaces. Two things say so:
+**Withdrawn, and worth keeping visible because the correction is instructive.**
+An earlier draft named the second family as a `Primitives / Foreground` collection
+of aliases (RFC 0003), read straight out of the **legacy scaffold** where both
+that name and `Primitives / Palette` are hardcoded constants in
+`src/code/applyPalette.ts` and `applyForeground.ts`. Wrong family, and wrong
+because hardcoded collection names are precisely what v3 replaces. Two things say
+so:
 
 - `Destination` exists to pick *any* collection and *any* group prefix (§5), so
   **nothing in the domain may name a collection**. `Destination.collection` is a
@@ -674,6 +742,11 @@ collection names are precisely what v3 replaces. Two things say so:
   differs per step. Palette's `✓ every step has a readable foreground` is a
   quality claim, not a variable family. RFC 0003's alias layer belongs to the old
   600 px app.
+
+The half that was right — that a single `Destination` under-specifies the target —
+survives, pointed at the family that genuinely exists in v3 rather than the one
+inherited from the old app. **Reading the shipped code for the design's structure
+is the mistake to avoid**: the scaffold predates every v3 decision.
 
 **Worth writing down as a build trap:** the legacy `applyPalette.ts` /
 `applyForeground.ts` look like a head start on the writer and are not one. They

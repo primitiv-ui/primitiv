@@ -1685,3 +1685,53 @@ Pairs with: Tree/Item, Tree/Branch Control, Tree/Connector (nested), Tree/Select
   `componentProperties` read them back correctly; only a **render** exposed it.
   Same class as the Dropdown/CheckboxItem label bug and the Button ghost-variant
   bug. Re-check refs after any clone-based size expansion.
+
+---
+
+### Card Mark / * — page "Docs — Component Card Marks" (63 components)
+
+The symbolic marks in each card's media region on the docs site's
+`/components` grid. **Docs artwork, not product components** — they have no
+axes, no properties and no density response, so their descriptions use a
+reduced form of the schema above: subject, Type, Tokens, Grid, Language,
+Notes, Source.
+
+**Do not edit these on the canvas.** The geometry lives in
+`apps/docs-site/src/site/card-marks.json` and is read by *both* surfaces — the
+docs site renders it as inline SVG, and the Figma build script draws these
+components from the same file. A canvas edit never reaches the site and is
+overwritten on the next run. Every description says so in its `Source:` line.
+
+**The visual language, which the descriptions assume:**
+
+- `256x144` trim on an `8`-unit module, `208x112` live area, stroke `2`, with a
+  shared `176` keyline for the landscape marks. The trim is dense on purpose:
+  a mark renders ~280px wide, so stroke weight is an on-screen target first and
+  a viewBox number second.
+- **neutral stroke** (`content/muted`) = the component's own chrome ·
+  **primary fill** (`action/primary/default`) = its content, or the space a
+  layout primitive controls · **knockout** (`action/primary/foreground/default`)
+  = a label lying on a primary fill · **`content/on-action`** = true white, for
+  the one shape that must be white rather than merely light ·
+  **`surface/default`** = masking only, so AvatarGroup's faces can overlap.
+- A **layout primitive**'s own box is dashed, because the container renders
+  nothing of itself. `AspectRatio` is the exception — solid, because its box is
+  the point — and `Spacer`/`Divider` take no box at all, not being containers.
+
+**The Notes field carries the near-pair warnings**, which is the part worth
+reading before changing any mark: Select/Combobox, Container/Center,
+Spacer/Divider, Badge/Tag/Chip, Collapsible/Accordion, SegmentedControl/
+ToggleGroup, Slider/Progress, Table/DataTable, Breadcrumb/BreadcrumbOverflow,
+Dropdown/ContextMenu and Popover/Tooltip are each drawn to stay distinct from
+their sibling in one specific way. "Simplifying" a mark usually means deleting
+that difference.
+
+**Gotcha worth reusing: `vectorPaths` rejects the SVG arc command.** Setting a
+path containing `A` fails with *"Failed to convert path. Invalid command at
+A"*. Rounded corners must be cubic Béziers (handle length `r * 0.5523`), and
+the shared JSON stores them in that form so both surfaces render identical
+geometry. Related: a `C` carries six parameters and only the last two are the
+endpoint, so any code deriving a path's origin by pairing every number as x,y
+is wrong the moment a curve appears — and since a VECTOR's `x`/`y` position its
+**bounding box**, a mis-read minimum slides the whole shape with nothing
+erroring.

@@ -9,6 +9,7 @@ import { accordionSpec } from "./accordion";
 import { checkboxSpec } from "./checkbox";
 import { modalSpec } from "./modal";
 import { selectSpec } from "./select";
+import { switchSpec } from "./switch";
 import { tabsSpec } from "./tabs";
 import type { ComponentSpec } from "./types";
 
@@ -25,6 +26,7 @@ export const SPECS: Record<ComponentId, ComponentSpec> = {
   checkbox: checkboxSpec,
   modal: modalSpec,
   select: selectSpec,
+  switch: switchSpec,
   tabs: tabsSpec,
 };
 

@@ -134,6 +134,31 @@ export const REGISTRY = {
     contract: "registry/components/select/contract.json",
     figmaComponentSetKey: "1816:61259", importPath: "@primitiv-ui/react",
   },
+  switch: {
+    displayName: "Switch", kind: "registry", status: "stable", category: "Forms",
+    propsFile: "packages/react/src/Switch/types.ts",
+    subComponents: [
+      /*
+       * `element: "input"` though the Root RENDERS a `<label>` — the same call
+       * Checkbox documents above, for the same reason: the Root's props are
+       * `Omit<ComponentProps<"input">, ...>` and everything but `className` /
+       * `style` spreads onto the hidden `<input>`, which is where `name`,
+       * `value`, `required` and `form` have to land.
+       */
+      { name: "Switch.Root", propsType: "SwitchRootProps", element: "input", component: "Root" },
+      /*
+       * Headless-only, and the INVERSE of Modal's styled-only regions: the
+       * copied `switch.tsx` exports just `Switch` and renders the thumb itself,
+       * so `SwitchThumb` exists nowhere in the styled surface. The extractor
+       * derives that from the registry file's exports; the contract's `thumb`
+       * part carries no `component` key, so the "no contract entry" warning on
+       * extract is expected here rather than a typo.
+       */
+      { name: "Switch.Thumb", propsType: "SwitchThumbProps", element: "span", component: "Thumb" },
+    ],
+    contract: "registry/components/switch/contract.json",
+    figmaComponentSetKey: "315:5884", importPath: "@primitiv-ui/react",
+  },
 };
 
 /*

@@ -389,7 +389,7 @@
     "displayName": "Switch",
     "category": "Forms",
     "description": "An on/off toggle with an optional inline label — a native switch input for an immediate binary setting.",
-    "documented": false
+    "documented": true
   },
   {
     "id": "table",

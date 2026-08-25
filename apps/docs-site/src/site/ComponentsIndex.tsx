@@ -18,6 +18,7 @@ import {
   categorySlug,
   type RosterEntry,
 } from "@/lib/docs-data";
+import { cardSummary } from "@/lib/card-summary";
 import { renderDoc } from "@/lib/render-doc";
 
 import { CARD_MARKS, MARK_GRID, PLACEHOLDER_MARK, type MarkRole } from "./card-marks";
@@ -142,15 +143,27 @@ const CardBody = ({ entry }: { entry: RosterEntry }) => (
         )}
       </CardHeader>
       <CardDescription className="docs-index-card-description">
-        {/* The WHOLE description, clamped to three lines in CSS rather than cut
-            to its first sentence in JS. Three lines is more useful than one
-            sentence, and the clamp keeps every card the same height whatever the
-            generated prose does. The full text stays in the DOM, so a screen
-            reader gets all of it — which is the part a tooltip would have taken
-            away.
+        {/* Shortened HERE rather than by CSS. The clamp used to append the
+            browser's own ellipsis; with that gone (see components-index.css)
+            a clamp alone cuts mid-sentence with nothing to say it was cut, and
+            no CSS can add a conditional marker — a fade or mask would blur the
+            short descriptions that are already complete. `cardSummary` only
+            marks a card it actually truncated.
+
+            The FULL text still reaches assistive tech, which is the part that
+            must not be traded away: truncating for sighted readers is a layout
+            decision, not an information one. The visible half is aria-hidden so
+            the description is not announced twice.
 
             Rendered, not printed: descriptions carry backticked code spans. */}
-        {renderDoc(entry.description, "sm")}
+        <span aria-hidden="true">
+          {renderDoc(cardSummary(entry.description), "sm")}
+        </span>
+        {/* Rendered, not raw: a screen reader would otherwise read the
+            backticks around every code span aloud. */}
+        <span className="docs-visually-hidden">
+          {renderDoc(entry.description, "sm")}
+        </span>
       </CardDescription>
     </CardContent>
   </>

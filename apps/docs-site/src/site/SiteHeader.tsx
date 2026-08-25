@@ -74,7 +74,11 @@ export const SiteHeader = () => {
                 aria-labelledby="docs-framework-label"
               >
                 {FRAMEWORKS.map((f) => (
-                  <SegmentedControlItem key={f} value={f}>
+                  <SegmentedControlItem
+                    key={f}
+                    value={f}
+                    disabled={f === "vue" || f === "svelte"}
+                  >
                     {label(f)}
                   </SegmentedControlItem>
                 ))}

@@ -270,8 +270,31 @@
     margin-block: var(--primitiv-space-space-0);
   }
 
-  /* Inter-item rhythm on the gap between items, never above the first. */
-  li + li {
+  /* Inter-item rhythm on the gap between items, never above the first — and only
+     inside a flow context.
+
+     This used to be an unscoped `li + li`, which made it the one piece of
+     content rhythm this stylesheet applied globally. RFC 0016 §1.4 kept it on
+     the grounds that it already had the owl's shape (one-directional,
+     intra-cluster) while the block margins were re-homed — but that is an
+     argument about its FORM, and D69/D76 are about its SCOPE: flow rhythm is an
+     opt-in container context, and a global owl is explicitly rejected because
+     any global rhythm is still a default the consumer did not ask for. Scoping
+     it here is what makes the sheet agree with its own decision record.
+
+     It was not academic. Every hand-rolled `<ul>`/`<ol>` in a consumer app got
+     8px between items, including navigation lists that space themselves with
+     flex `gap` — so the gap and this margin ADDED, exactly as they did inside
+     the `list` component before it zeroed its own item margin. It presents as a
+     phantom margin with no matching declaration in your own CSS, and an
+     app-level reset does not save you: the margin is on the `li`, not the list,
+     and `li + li` (0,0,2) out-specifies a `li { margin: 0 }` (0,0,1) in the same
+     layer.
+
+     `list`'s `margin-block: 0` on `.primitiv-list__item` is still load-bearing —
+     a `List` rendered inside `.primitiv-flow` is matched by this rule, and its
+     flex `gap` would double up again without it. */
+  .primitiv-flow li + li {
     margin-block-start: var(--primitiv-list-item-gap);
   }
 

@@ -21,27 +21,19 @@
 
 @layer primitiv.base {
   /*
-   * Cancel the base layer's PROSE list rhythm on the app's UI lists.
+   * There used to be a `.docs-header-nav-list > li, .docs-index-grid > li
+   * { margin-block: 0 }` rule here, cancelling the base layer's prose list
+   * rhythm on this app's UI lists: `primitiv-base.css` set `li + li
+   * { margin-block-start: list-item-gap }` via a bare selector, so it landed on
+   * every list in the app, navigation included — and since each of those spaces
+   * itself with flex `gap`, the two ADDED (8px of dead space above the *second*
+   * item in the header nav, the sidebar, the footer, the TOC and the doc map).
    *
-   * `primitiv-base.css` sets `li + li { margin-block-start: list-item-gap }`
-   * (8px at comfortable) for reading-list rhythm — but via a bare selector, so
-   * it lands on every list in the app, navigation included. Each list below
-   * spaces itself with flex `gap`, so the inherited margin was stacking on top
-   * of it: measured 8px of dead space above the *second* item in the header nav,
-   * and the same in the sidebar, footer, TOC and doc map.
-   *
-   * Cannot be fixed in reset.css — that is a LOWER layer than primitiv.base, so
-   * the base rule would still win. Here the `.docs-*` class also out-specifies
-   * `li + li`.
-   *
-   * Deliberately a list of names rather than something broad: `.docs-list` (the
-   * accessibility notes on component pages) is genuine prose and SHOULD keep the
-   * rhythm. A new UI list needs adding here.
+   * That selector is now scoped to `.primitiv-flow`, which this app never
+   * applies, so the cancellation had nothing left to cancel. If a list here ever
+   * does want prose rhythm, wrap it in the flow context rather than reaching for
+   * the margin directly.
    */
-  .docs-header-nav-list > li,
-  .docs-index-grid > li {
-    margin-block: 0;
-  }
 
   body {
     font-family: var(--primitiv-body-md-font-family);

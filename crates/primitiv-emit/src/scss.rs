@@ -67,7 +67,7 @@ pub fn emit_component_scss(css: &str) -> String {
 /// (including ones inside a removed span) so line structure survives for a
 /// line-oriented scan downstream. An unterminated `/*` drops the remainder of
 /// the input, keeping only its newlines.
-fn strip_comments(css: &str) -> String {
+pub(crate) fn strip_comments(css: &str) -> String {
     let mut out = String::with_capacity(css.len());
     let mut rest = css;
     while let Some(start) = rest.find("/*") {

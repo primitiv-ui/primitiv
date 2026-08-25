@@ -1658,3 +1658,40 @@ pre-existing inaccuracy, not one introduced here.
   where it looks like a warning rather than an explanation. Rebound to
   `content/primary`, matching the brand picker's equivalent note. Check the bound
   variable, not just the rendered colour, when cloning explanatory text.
+
+### The tint-off state — built 2026-08-24
+
+`Picker · neutral · untinted` (`2018:151969`) + its light twin (`2018:152480`).
+With no tint the engine stops owning chroma and hue, so the full picker comes
+back: plane, axis tabs, L/C/H sliders.
+
+**The two states are one view, not two routes.** `Use brand as neutral tint`
+turns the link on and the view becomes the tinted composition; `Remove tint`
+turns it off. Same route (`Neutral`, reached from the Palette seed row), no push,
+no back stack — the flow board's dashed-edge case. A router that treated it as a
+route would give it a spurious back button.
+
+**It is also the only REVERSIBLE state pair in the whole set.** Every other
+dashed edge is one-way: `First run` retires once a project exists, `Writing → In
+sync` does not go back, `In sync → Drift` is caused by someone else. This one is
+a true toggle, which is worth knowing before the state machine is written.
+
+**Both states share one shape** — `[anchors] → [tint area] → [ramp]` — where
+tint-off collapses the tint block to its single call-to-action. That is what
+makes the toggle legible rather than looking like two unrelated screens.
+
+Two details worth keeping:
+
+- **`Steps` is dropped from both neutral states.** The step count lives on the
+  Palette `RAMPS` row where it is already shown; the brand picker keeps its own
+  because that is where a brand ramp's length is chosen.
+- **The anchor toggle costs no height.** The brand picker's single 24 px `Seed`
+  swatch becomes two, the active one ringed — so "which anchor am I editing" is
+  answered in the space the seed swatch already occupied, instead of a 40 px
+  segmented control.
+- **Mock data has to agree across blocks.** The first build left the plane and
+  the three axis fields on the *brand's* values (0.5557 / 0.192 / 259.9) while
+  the value block read the anchor — visible immediately in a render. The anchor
+  is now an engine-derived cool white, `oklch(0.9407 0.012 259.9)` → `#e7ecf4`,
+  which also keeps the painted plane's hue defensible; a chroma of 0 under a blue
+  plane would have been actively wrong.

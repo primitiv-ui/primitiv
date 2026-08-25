@@ -39,6 +39,16 @@ import { codeBlock, type CodeBlockVariants } from "./code-block.recipe";
 // this resolves flat in the consumer where `add` installs both). code-block
 // `dependsOn` button; the Button wraps its text label for text-box-trim parity.
 import { Button } from "./button";
+// `CodeBlock.Tabs` borrows the tabs component's `.primitiv-tabs__*` classes (see
+// the header comment) without rendering any of its parts, so nothing else pulls
+// that stylesheet in — and a consumer importing only code-block got bare,
+// unstyled tab buttons. Importing the sibling wrapper for its side effect is what
+// supplies the sheet: `tabs.tsx` self-imports its own stylesheet (the CLI
+// prepends that line at install time, computed from the consumer's configurable
+// `styles.path`), which is why this cannot be a direct `.css` import here — the
+// registry source has no idea where the styles will land. `dependsOn` already
+// lists `tabs`, so `add code-block` installs the file this resolves to.
+import "./tabs";
 
 /* Disable Prism's inline theme so the .token.* classes take their colour from
    the stylesheet's --primitiv-code-syntax-* tokens (light/dark via the cascade). */

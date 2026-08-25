@@ -1,14 +1,11 @@
 "use client";
 
+// `code-block` styles its tabs with the TABS component's classes, and used to
+// leave loading that sheet to its importers — so this file (and `InstallTabs`)
+// each carried a `tabs/styles.css` import. `code-block.tsx` now declares the
+// dependency itself (`import "./tabs"`), so both workarounds are gone.
 import { CodeBlock } from "@/components/code-block";
 import { type Mode, useMode } from "@/site/preferences";
-
-/*
- * Same undeclared dependency `InstallTabs` and `Anatomy` document: `code-block`
- * styles its tabs with the TABS component's classes but imports only its own
- * sheet. Registry-bugs §3.
- */
-import "@/styles/primitiv/tabs/styles.css";
 
 /**
  * Styled FIRST, then Headless. Styled is the copy-and-go path and the default

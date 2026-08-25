@@ -1,15 +1,10 @@
 "use client";
 
+// `code-block` reuses the Tabs COMPONENT's `.primitiv-tabs__*` classes for the
+// look, and used to leave loading that sheet to whoever imported it — so this
+// file carried an explicit `tabs/styles.css` import. `code-block.tsx` now
+// declares that dependency itself (`import "./tabs"`), so the workaround is gone.
 import { CodeBlock } from "@/components/code-block";
-
-/*
- * `code-block` composes the headless Tabs primitive and reuses the Tabs
- * COMPONENT's `.primitiv-tabs__*` classes for the look — but `code-block.tsx`
- * imports only its own stylesheet, so those classes arrive unstyled unless the
- * tabs sheet is loaded too. The kitchen-sink gets away with it because its
- * barrel imports every component; importing a component directly does not.
- */
-import "@/styles/primitiv/tabs/styles.css";
 
 const MANAGERS = [
   { value: "npm", run: "npm i", exec: "npx" },

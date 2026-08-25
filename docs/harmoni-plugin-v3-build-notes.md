@@ -1816,8 +1816,8 @@ Two edits made by hand on the dark `Palette`, mirrored to `Palette · light`:
   card in dark, lighter in light. Being a bound variable, it inverts correctly on
   its own.
 
-The two groups are still named differently (`Frame 7` dark, `Rows` light) — worth
-unifying, left alone rather than renaming someone else's layer unasked.
+Both groups are named `Rows` (the dark one was Figma's auto-generated
+`Frame 7`).
 
 ### GOTCHA, sharper than the version in §8: a bound paint can render its STALE LITERAL
 

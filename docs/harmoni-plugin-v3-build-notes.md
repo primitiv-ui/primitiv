@@ -1802,3 +1802,43 @@ overflow recorded in §12 is gone, with 106 px spare.
   dropdown — the thing Collapsible and Select could not get retroactively.
 - All five mini variants were verified to still hold their property references
   after creation (gotcha 4 territory, even without cloning).
+
+### Mirroring hand edits to the light twin (2026-08-24)
+
+Two edits made by hand on the dark `Palette`, mirrored to `Palette · light`:
+
+- **The six seed rows are wrapped in a group** (VERTICAL, gap 2, FILL/HUG, no
+  padding or fill) so the `Seeds` gap can rise to **8** and space the rows off the
+  `Add ramp` button without loosening the rows themselves. Both blocks now read
+  `SEEDS · <group> · Button`.
+- **The chevron is bound to `surface/default`, at full opacity** — not muted ink.
+  It reads as a *recess* rather than a mark: darker than the `surface/subtle`
+  card in dark, lighter in light. Being a bound variable, it inverts correctly on
+  its own.
+
+The two groups are still named differently (`Frame 7` dark, `Rows` light) — worth
+unifying, left alone rather than renaming someone else's layer unasked.
+
+### GOTCHA, sharper than the version in §8: a bound paint can render its STALE LITERAL
+
+§8 recorded that `setBoundVariableForPaint` fails silently when the variable
+lookup returns `null`, leaving the literal you passed as the base. This is the
+follow-on, and it is worse because **the read-back looks correct**:
+
+`Palette · light`'s root fill was **bound to `surface/default`** and its node
+pinned to `Intent = Light`, where that variable resolves to `#ffffff` — and it
+painted **black**, because the paint still carried the `{0,0,0}` literal from the
+original broken bind. Every check short of looking at it passes:
+`boundVariables.color` is the right id, the mode is right, the variable's value is
+right.
+
+**The diagnostic is `variable.resolveForConsumer(node).value` compared against
+`fills[0].color`.** When they disagree, the literal is what you see. Note
+`resolveForConsumer` needs the full `VariableID:…` id — a bare `346:4430` returns
+`null` and the call throws.
+
+**The repair is to rebind with a base whose literal already equals the resolved
+value**, so snapshot and binding agree. A sweep over all 34 view instances (root,
+`Footer`, `Notice` — 64 bound paints) found exactly one mismatch, which is why it
+survived every earlier census: only a light view inheriting a dark literal shows
+it, and only against a variable whose two modes differ sharply.

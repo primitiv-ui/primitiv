@@ -1,8 +1,8 @@
 # RFC 0028 — Harmoni plugin: build architecture & test strategy
 
 > **Status:** Draft — spikes defined, not yet run. Architecture recommended;
-> the domain model is settled in §7, which surfaced one design contradiction
-> (§7.8, the two-collection write). Repo/licence position open (§6).
+> the domain model is settled in §7, which surfaced one arithmetic finding
+> (§7.8 — a mode is not a variable). Repo/licence position open (§6).
 > **Author:** simonrevill, with architectural review
 > **Date:** 2026-08-25
 > **Relates to:** the settled design record — Figma page "Wireframes — Harmoni
@@ -616,38 +616,70 @@ found by reading views against each other:
 6. **Every count shown to a user is the length of a list in the plan**, never
    computed separately.
 7. **Unstamped variables appear in no operation, ever.**
+8. **No collection or group name appears anywhere in the domain.** Every target
+   comes from `Destination`, which the user chose (§5). The legacy scaffold
+   hardcodes `Primitives / Palette`; a grep for a quoted collection name in
+   `domain/` should return nothing, forever.
 
 ### 7.8 What the modelling surfaced
 
-**One finding, and it is the §22 class — a contradiction between two settled
-facts that no view shows together.**
+**One finding, and it is about arithmetic rather than structure.**
 
-**The plugin writes into TWO collections; `Destination` picks one.**
-`applyPalette` writes `color/<ramp>/<step>` into `Primitives / Palette`, and
-`applyForeground` then writes a *second* variable, `foreground/<ramp>/<step>`,
-into a separate `Primitives / Foreground` collection, aliased per mode (RFC 0003).
-So the 120 in Export, CRUD 03 and Remove is **6 ramps × 10 steps × 2 collections**
-— and §23.1's derivation of the same number, "10 steps × 2 modes = 20 variables",
-is arithmetically right but mechanically wrong: modes are *values within one
-variable*, not variables. 6 × 10 in a two-mode collection is 60 variables holding
-120 values.
+**A mode is not a variable, so 6 ramps × 10 steps is 60 variables, not 120.**
+Figma's model is one variable per name holding one value *per mode*
+(`createVariable(...)` then `setValueForMode(mode1, ...)`,
+`setValueForMode(mode2, ...)`). So the write produces **60 variables carrying 120
+values**, and §3's derivation — "6 ramps × 10 steps × 2 modes = 120 variables,
+which is exactly what Export and CRUD 03 report" — counts values while saying
+variables. §23.1 repeats it ("10 steps x 2 modes = 20 variables").
 
-The number is fine. What is not settled is that **`Destination` (§5) offers one
-Collection and one Group**, while a write needs a home for both. Three readings,
-and the design does not pick one:
+That matters because "variables" is the word in the copy everywhere:
+`Create 120 variables`, `Remove 80 variables`, `Adopt 60 variables`,
+`Restore 2 variables`, `missing 2 / unchanged 118`. A user who accepts
+`Create 120 variables` and then opens Figma's Variables panel sees **60 rows**.
+This is §21.2's rule in a third costume — the counts have to survive being added
+up *and* being counted in the document.
 
-- the foreground layer is part of the **semantic layer** and is therefore opt-in,
-  in which case the base write is 60 and Export's 120 is counting something the
-  user has not accepted yet;
-- the foreground collection is **derived** from the chosen one (`X` → `X` +
-  `Foreground`) and never picked, in which case `Destination` should say so;
-- `Destination` grows a second row, which is the most honest and the most
-  expensive at 360 px.
+**And the multiplier is not stable anyway, which is the deeper reason the count
+must be per-variable.** The destination is user-chosen, and a collection may have
+any number of modes. `Destination` maps Harmoni's Light and Dark onto two of the
+target collection's modes; the rest are untouched. So "× 2 modes" is not a
+property of the write, it is a property of one particular target. `Slot` is
+`(ramp, step)` → one variable, and `Plan.operations.length` is the number the UI
+should report — which is invariant 6 in §7.7 doing its job.
 
-This also reaches `Remove` (does it take the foreground aliases? they are
-`created`, so yes), `Drift` (an alias whose target moved is a fifth cause), and
-`Adopt` (a found palette has no foreground layer, so adopting creates 60 variables
-while promising to change nothing — the sharpest corner of the three).
+Three ways out, and the design does not pick one:
+
+- **the counts become 60/40/20** and the word `variables` stays correct;
+- **the copy changes to values** (`Create 120 values across 60 variables`) — more
+  accurate, more words, and it puts a Figma-internal distinction in front of a
+  user who may not care;
+- **the copy counts variables and states the modes separately**
+  (`Create 60 variables · Light and Dark`), which is what the Destination screen
+  already taught the user to expect.
+
+**Withdrawn: an earlier draft of this section claimed the plugin writes into two
+collections** (`Primitives / Palette` plus a `Primitives / Foreground` of aliases,
+per RFC 0003) and that `Destination` therefore under-specifies the target. That
+came from reading the **legacy scaffold**, where both names are hardcoded
+constants in `src/code/applyPalette.ts` and `applyForeground.ts` — and hardcoded
+collection names are precisely what v3 replaces. Two things say so:
+
+- `Destination` exists to pick *any* collection and *any* group prefix (§5), so
+  **nothing in the domain may name a collection**. `Destination.collection` is a
+  `CollectionRef` — an existing collection, or a name to create — and
+  `groupPrefix` is a name prefix, because there is no createGroup API.
+- **v3 writes no foreground variables at all.** §4 settles that a swatch's paired
+  foreground is *data, not a token*, with **no variable binding**, because it
+  differs per step. Palette's `✓ every step has a readable foreground` is a
+  quality claim, not a variable family. RFC 0003's alias layer belongs to the old
+  600 px app.
+
+**Worth writing down as a build trap:** the legacy `applyPalette.ts` /
+`applyForeground.ts` look like a head start on the writer and are not one. They
+hardcode the destination, put domain logic in the sandbox (§2.1), and write a
+variable family v3 does not have. Port the *idempotent find-or-create* idea if
+anything; port none of the rest.
 
 **Four smaller things, deliberately modelled but not decided:**
 

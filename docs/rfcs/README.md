@@ -182,9 +182,11 @@ surface and applies once those are read.
   position, including the measurement that the whole public-CLI → engine coupling
   is one function call. §7 settles the domain model — one `reconcile(desired,
   actual)` behind all four ownership verbs, a two-level stamp whose `origin` field
-  is what keeps the ownership promise across adopt, and seven invariants to drive
-  from tests — and §7.8 records the contradiction the modelling surfaced: the
-  plugin writes into two collections while `Destination` picks one.
+  is what keeps the ownership promise across adopt, and eight invariants to drive
+  from tests (one of them: no collection name may ever appear in the domain — the
+  destination is always the user's) — and §7.8 records the arithmetic finding the
+  modelling surfaced: a Figma mode is a value, not a variable, so the write is 60
+  variables carrying 120 values.
 
 ## Figma library
 

@@ -1244,6 +1244,17 @@ source of truth for when a skill applies.
     — multiplayer concurrency, what a Figma undo does to `setSharedPluginData`,
     and `Drift · missing`'s copy when the whole destination collection is gone
     rather than individual variables.
+  - **THE PLUGIN MOVES TO A PRIVATE REPO before its first real commit
+    (settled 2026-08-25, RFC 0028 §6).** It is a licensed product; the engine
+    stays public and MIT. Two things to know before touching any of it:
+    **(a)** `apps/harmoni-figma-plugin/scripts/` is mis-homed — **34 of its 37
+    files are Primitiv's own design tooling** (every `arrange-*.js`, plus the
+    Modal and ToggleGroup fixers), so moving the app folder wholesale takes
+    Primitiv's tooling private by accident; rehome those first. **(b)** anything
+    gating payment goes private from its first line — a `LicencePort` interface
+    can live anywhere, its implementation and server never in a public repo.
+    §6.4 lists what moves, §6.5 the sequence (the private repo and the
+    `harmoni-wasm` npm publish both need a human).
   - **The BUILD architecture is settled: RFC 0028.** Read it before writing plugin
     code. It fixes the ports-and-adapters shape (**the domain core lives in the UI
     iframe; `code.ts` is a driven adapter executing plans the core computes** —

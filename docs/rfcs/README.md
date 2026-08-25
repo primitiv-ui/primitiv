@@ -149,7 +149,7 @@ surface and applies once those are read.
 | [0010](0010-oklch-color-picker.md) | OKLCH colour picker | Draft |
 | [0011](0011-duotone-neutral-ramps.md) | Duotone neutral ramps | Implemented (engine + workbench UI) |
 | [0013](0013-configurable-palette-export.md) | Configurable palette export (variables & canvas swatches) | Draft |
-| [0028](0028-harmoni-plugin-architecture.md) | Harmoni plugin: build architecture & test strategy | Draft — domain settled, spikes defined |
+| [0028](0028-harmoni-plugin-architecture.md) | Harmoni plugin: build architecture & test strategy | Draft — architecture, domain and repo settled; spikes pending |
 
 - **0010** — the OKLCH-first, oklch.com-style colour picker that replaces the
   hex input: paint-backed Lightness×Chroma and Hue charts with a live gamut

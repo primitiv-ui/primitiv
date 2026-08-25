@@ -1,9 +1,9 @@
 # RFC 0028 — Harmoni plugin: build architecture & test strategy
 
 > **Status:** Draft — spikes defined, not yet run. Architecture recommended;
-> the domain model is settled in §7, which surfaced two findings (§7.8 — the
-> semantic layer needs a destination of its own, and a mode is not a variable).
-> Repo/licence position open (§6).
+> the domain model is settled in §7, and both findings it surfaced are now
+> decided (§7.8). The plugin is built in a **private repo** from its first
+> commit; §6 carries the migration plan.
 > **Author:** simonrevill, with architectural review
 > **Date:** 2026-08-25
 > **Relates to:** the settled design record — Figma page "Wireframes — Harmoni
@@ -341,51 +341,98 @@ a deliberately-wrong fake — otherwise the suite proves nothing.
 
 ---
 
-## 6. Repo & licence position — open
+## 6. Repo & licence — settled 2026-08-25
 
-Recorded so the next session does not re-derive it.
+**The plugin is built in a private repo, from its first commit. The engine stays
+public and MIT where it is.**
 
-**The live problem:** the root `LICENSE` is MIT and currently covers
-`apps/harmoni-figma-plugin`, so the commercial product is being MIT-licensed
-today. That is fixed by a directory `LICENSE` plus a carve-out in the root, and
-it is independent of everything below.
+### 6.1 Why now rather than later
 
-**What a private repo does and does not buy.** A Figma plugin ships its UI as a
-single inlined HTML file to every user, so the shipped artefact is readable
-regardless, and licence enforcement must be server-side either way. A private
-repo buys privacy of *history and process*, not of the product. That is a real
-benefit, and it is the one thing that gets harder by waiting — git history is
-permanent, so extracting later means rewriting history or accepting a public
-prefix.
+The asymmetry decides it: **code written from the moment of the move is fully
+private; code written in a public repo stays in its history permanently.**
+Deleting a folder does not remove it — the objects remain, clones and forks keep
+them, and `git filter-repo` plus a force push breaks every clone without
+guaranteeing removal from forks. So "extract at first paid release" really means
+"everything built until then is public, forever".
 
-**If the engine is relicensed too, the mechanics are small.** Measured, not
-assumed: `primitiv-emit` calls `harmoni_core::api::generate_brand_pair` **once**
-(`pipeline.rs`) and imports `ColorInput` / `ColorInputError` / `Palette`;
-`primitiv-cli` imports `ColorInputError` for one error conversion. That is the
-entire public-CLI → engine coupling, and it is the `primitiv theme --brand` path.
-There is also **no `cargo publish` anywhere in the workflows and no `license`
-field in any `Cargo.toml`** — nothing consumes `harmoni-core` as a crate, and end
-users get prebuilt binaries via npm. Only contributors build from source.
+Against that, **the plugin's code does not exist yet.** The scaffold under
+`apps/harmoni-figma-plugin/src/` is being discarded rather than ported (§7.8), so
+there is nothing to carry. This is the cheapest the split will ever be, and every
+day of building raises the price by exactly what was built.
 
-Three wirings, if the split happens:
+**What a private repo does and does not protect.** A published Figma plugin ships
+its built files to every user, so the bundle is obtainable — but it is minified,
+with names mangled and no comments, tests, or history. That is reverse
+engineering, not reading. The repo is the real exposure: readable source, the
+**test suite** (an exhaustive specification of behaviour, and the single most
+useful thing a competitor could be handed), the design record, and the commit
+history showing every dead end.
 
-1. **Private git dependency behind a cargo feature.** `harmoni-core` optional
-   behind `brand-generation`, default off; the release workflow builds with it on
-   using a deploy key. Cost: outsiders cannot build or test that command, and the
-   three `theme --brand` goldens only run in the credentialed build.
-2. **Publish the engine to crates.io under a source-available licence** (BUSL,
-   PolyForm, bespoke non-commercial). Everything builds for everyone; the licence
-   is the gate, not access. Buys legal control, not secrecy.
-3. **Cut the dependency — make brand generation paid.** The open CLI emits the
-   committed `palette.json`, which is nearly the whole token pipeline anyway.
-   Cleanest boundary; costs the open CLI its most compelling feature.
+**Accepted cost:** the v3 build notes and this RFC have been public throughout and
+stay in this repo's history. Only what comes after the move is private.
 
-**Choosing between 1 and 3 is a pricing decision, not an engineering one** — the
-engineering cost is near-identical because it is one call site.
+### 6.2 The engine stays public
 
-**Recommendation:** relicense the plugin directory now; keep the engine question
-open. Options 1–3 all stay available indefinitely and none gets harder by
-waiting.
+Measured, not assumed: `primitiv-emit` calls `harmoni_core::api::generate_brand_pair`
+**once** (`pipeline.rs`) and imports `ColorInput` / `ColorInputError` / `Palette`;
+`primitiv-cli` imports `ColorInputError` for one error conversion. There is **no
+`cargo publish` anywhere in the workflows and no `license` field in any
+`Cargo.toml`** — nothing consumes `harmoni-core` as a crate, and end users get
+prebuilt binaries via npm.
+
+Relicensing it therefore has no deadline and three cheap routes whenever it is
+wanted: an optional dependency behind a cargo feature with a private git source;
+publishing to crates.io under a source-available licence; or dropping
+`theme --brand` from the open CLI so the coupling disappears. Choosing between
+them is a pricing decision, not an engineering one.
+
+### 6.3 The absolute rule
+
+**Anything that gates payment goes in the private repo from its first line** —
+licence verification, server endpoints, keys. The ports-and-adapters shape makes
+this clean: a `LicencePort` *interface* can live anywhere; its implementation and
+the server must never touch a public repo.
+
+### 6.4 What moves, and the trap in the way
+
+> **`apps/harmoni-figma-plugin/scripts/` is mis-homed and must be split before
+> anything moves.** 34 of its 37 files are **Primitiv's own design tooling** —
+> every `arrange-*.js`, plus the Modal and ToggleGroup fixers. Moving the app
+> folder wholesale takes Primitiv's tooling private by accident. Only
+> `create-v1-wireframes.js`, `create-v1-output-detail-wireframes.js` and
+> `refresh-view-flow-board.js` belong to Harmoni.
+
+| moves to the private repo | stays public |
+| --- | --- |
+| `docs/harmoni-plugin-v3-build-notes.md` | engine RFCs — 0002, 0003, 0010, 0011, 0027 |
+| this RFC (0028) | `crates/harmoni-*` (§6.2) |
+| RFC 0013 (palette export — plugin-facing) | the 34 Primitiv `scripts/` files, rehomed first |
+| `docs/plugin-ui-design-guide.md` (superseded — move or delete) | `packages/*`, the registry, the CLI |
+| plugin build plumbing: `manifest.json`, both `vite.config*.ts`, `tsconfig.*`, `eslint.config.js`, `package.json`, `index.html`, `vitest.setup.ts` | |
+| the 3 Harmoni scripts above, and `PLUGIN_UX_PLAN.md` | |
+| **not** `src/` — discarded, per §7.8 | |
+
+### 6.5 Sequence
+
+1. **Rehome the 34 Primitiv scripts** inside this repo (suggested: `scripts/figma/`).
+   One commit, before anything leaves.
+2. **Publish `harmoni-wasm` to npm.** The private repo cannot use a workspace link.
+   Public and MIT is consistent with §6.2, costs nothing, and turns the plugin into
+   an ordinary consumer of a versioned package rather than a monorepo sibling.
+   `@primitiv-ui/react` and `@primitiv-ui/icons` are already published.
+3. **Create the private repo** with fresh history — do not `git subtree split`, which
+   would carry the public history across.
+4. **Copy** the build plumbing, the 3 scripts and the docs from §6.4.
+5. **Delete** them from this repo, and drop `apps/harmoni-figma-plugin/` from
+   `pnpm-workspace.yaml`.
+6. **Write the private repo its own `CLAUDE.md`** — the plugin's working rules, with
+   a pointer to this repo for the design system, the engine and the skills. Sessions
+   that need both can attach the public repo alongside.
+7. CI in the private repo: vitest + coverage, Playwright, eslint, `tsc`. No wasm
+   build step needed once step 2 is done.
+
+**Not doable from a Claude session:** creating the private repo (no tool for it) and
+publishing to npm both need a human. Everything else is mechanical.
 
 ---
 
@@ -667,22 +714,27 @@ user adopting Harmoni may well want the same split, their own split, or none.
 rest of the model already obeys applies here too: the plugin proposes, the user
 decides, and nothing in the domain names a collection.
 
-Three ways out, and the design does not pick one:
+**Settled 2026-08-25: the second destination is asked when the offer is
+accepted.** Not at first run beside the first — that adds height to a screen
+already carrying a three-column browser, and asks about a layer the user has not
+been offered yet. And not derived from the palette destination, which would be
+cheapest but forecloses the primitives/semantics split Primitiv's own file uses
+(`Primitives / Palette` apart from `Intent`) for everyone who wants it.
 
-- **a second row on `Destination`**, asked at first run alongside the first.
-  Most honest; costs panel height on a screen that is already a Miller-columns
-  browser, and asks about a layer the user has not yet been offered.
-- **asked when the offer is accepted** — the offer stops being a one-tap yes and
-  becomes a short route into a destination picker. Keeps the question next to the
-  decision that raises it, at the cost of the offer's compactness.
-- **derived from the palette destination** (same collection, a sibling group
-  prefix), with the rebind in `Project` moving both. Cheapest, and defensible so
-  long as the panel *says* it rather than doing it silently — but it forecloses
-  the primitives/semantics split that Primitiv's own file uses.
+**The cost is named rather than hidden: the offer stops being a one-tap yes.**
+Accepting it becomes a short route into a destination picker, which is a real
+change to a view that was designed as a compact pitch beside the variable count.
+Two things make it affordable — the route already exists as an idiom (`Adopt`,
+`Canvas swatches` and `Remove` are all pushed views reached from a control), and
+nobody who leaves the semantic layer off ever sees it.
 
-`Destinations` in §7.3 is shaped so that whichever is chosen, the domain does not
-change: `semantic` is absent until the offer is accepted, and populated from
-wherever the answer comes from.
+**Still to draw:** the picker itself. It is `Destination`'s `Where` card with one
+collection and one group, minus the mode mapping (roles inherit the modes of what
+they alias), reached from Export's offer and returning to it. Add it to the flow
+board as a state of journey 5.
+
+`Destinations` in §7.3 already carries the shape: `semantic` is absent until the
+offer is accepted, and populated from this picker.
 
 This also reaches three built views, which is how to tell it is real rather than
 tidy: **`Remove`** counts and deletes per family (roles are `created`, so they
@@ -715,15 +767,20 @@ property of the write, it is a property of one particular target. `Slot` is
 `(ramp, step)` → one variable, and `Plan.operations.length` is the number the UI
 should report — which is invariant 6 in §7.7 doing its job.
 
-Three ways out, and the design does not pick one:
+**Settled 2026-08-25: count variables, and name the modes beside them** —
+`Create 60 variables · Light and Dark`. It matches what Figma shows, and it
+echoes the Destination screen, which has already taught the user that modes are a
+mapping rather than a multiplier. Bare corrected numbers (60/40/20) would be
+accurate but silently drop the fact that both themes are written; counting values
+(`120 values across 60 variables`) is the most precise and puts a Figma internal
+in front of someone who may not care.
 
-- **the counts become 60/40/20** and the word `variables` stays correct;
-- **the copy changes to values** (`Create 120 values across 60 variables`) — more
-  accurate, more words, and it puts a Figma-internal distinction in front of a
-  user who may not care;
-- **the copy counts variables and states the modes separately**
-  (`Create 60 variables · Light and Dark`), which is what the Destination screen
-  already taught the user to expect.
+**This is a sweep, not a single edit.** Every count in the built views is
+affected — Export's `Create 120 variables`, `Remove`'s 80/40 split, `Adopt`'s 60,
+`Drift`'s `missing 2 / unchanged 118`, `In sync`'s lead, and CRUD 03. Each has to
+be re-derived from ramps × steps rather than halved by eye, because the ratios
+differ per view. Invariant 6 in §7.7 is what stops it recurring: once every count
+is the length of a list in the plan, no copy can disagree with what happens.
 
 **Withdrawn, and worth keeping visible because the correction is instructive.**
 An earlier draft named the second family as a `Primitives / Foreground` collection

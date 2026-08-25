@@ -1845,3 +1845,59 @@ value**, so snapshot and binding agree. A sweep over all 34 view instances (root
 `Footer`, `Notice` — 64 bound paints) found exactly one mismatch, which is why it
 survived every earlier census: only a light view inheriting a dark literal shows
 it, and only against a variable whose two modes differ sharply.
+
+## 14. The use-case map — rebuilt from the real views (2026-08-24)
+
+Page **"Harmoni Plugin — View flow (v3)"** (`2004:137277`), rebuilt. It was 15
+PNG rasters of the views; it is now **22 live instances** across **7 journeys**,
+2960 x 7808.
+
+**The 17 dark views are COMPONENTS now.** `createComponentFromNode` wraps rather
+than converts — the result is `COMPONENT > INSTANCE(View Shell) > slots`, with
+every text and the inner instance's `Intent` / `Context` pins intact (verified
+per view: 35 texts in, 35 out, and no failures across all 17). The wrapper itself
+carries **no** mode pins, which is fine: the inner shell instance carries them, so
+a card renders dark on the board's light ground without any per-instance work.
+
+**Why not scaled-down instances.** Figma instances **reflow, they do not scale** —
+a 360 px view placed at 170 px is a 170 px-wide panel with full-size text
+rewrapping, not a small picture of a panel. So real views mean full-size cards,
+which is what makes the board 2960 wide rather than the old 4800: journeys run as
+rows, not one track.
+
+### The seven journeys
+
+| | journey | cards |
+| --- | --- | --- |
+| 1 | First write | First run ⇢ Setup → Destination → Export ⇢ Writing ⇢ In sync |
+| 2 | When the write is refused | Writing ⇢ Write refused → Destination |
+| 3 | Editing a brand ramp | Palette → Picker → Curve |
+| 4 | Editing the neutral | Palette → Picker · neutral · untinted ⇄ Picker · neutral |
+| 5 | The semantic layer | Export ⇢ Roles ⇄ Audit |
+| 6 | The return visit | In sync ⇢ Drift |
+| 7 | Side trips | Canvas swatches · Settings |
+
+Solid = route, dashed = state, as before. **Views repeat across journeys** —
+Export appears in 1, 5 and 7; Palette in 3 and 4 — and that is correct rather
+than duplication, because they genuinely are the same view entered from different
+places. Instances make that free.
+
+**Two double-headed edges, and they are the only ones.** Journey 4's tint toggle
+(the one reversible state pair in the set) and journey 5's Roles ⇄ Audit (tab
+peers). Everything else is one-way.
+
+**What is deliberately a note rather than an edge:** Settings is reached by the
+gear from *every* view, so an arrow from one card would be a lie; Canvas swatches
+is a pushed view returning by breadcrumb; and Drift's resolution loops back
+through journey 1's `Writing` state, so drawing it would make the map circular
+rather than clearer.
+
+### Follow-up this exposes
+
+The light twins are still **independent copies**, not instances of the dark
+components — which is exactly how they drifted three times today (`Curve · light`
+stuck on a dark header, `Export · light` missing a breadcrumb segment,
+`Palette · light` painting a stale black literal). Now that the dark views are
+components, each light twin could become an instance with `Intent = Light` and a
+`Theme=light` header override, single-sourcing the content and leaving only the
+mode to differ. Not done — it is a separate refactor.

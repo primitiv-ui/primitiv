@@ -1946,10 +1946,10 @@ The ownership model is built on four verbs. They are not evenly drawn.
 
 | | project (recipe) | binding | ramp / seed | role | destination | variables |
 | --- | --- | --- | --- | --- | --- | --- |
-| **create** | partial — `+ New project` has no naming view | drawn (journey 1) | drawn 2026-08-25 (`Add ramp`, §19.1) | drawn 2026-08-25 (`Role`, empty — §19.2) | drawn | drawn (`Writing`) |
+| **create** | drawn 2026-08-25 (`Project`, empty — §20) | drawn (journey 1) | drawn 2026-08-25 (`Add ramp`, §19.1) | drawn 2026-08-25 (`Role`, empty — §19.2) | drawn | drawn (`Writing`) |
 | **read** | drawn (`Setup` list) · adopt drawn 2026-08-25 (§16) · rebuild-from-file drawn 2026-08-25 (§18, a state of `In sync`) | drawn | drawn (`Palette`) | drawn (`Roles`) | drawn | drawn (`In sync`, `Audit`) |
-| **update** | **hole** (rename) | **hole** (rebind to another destination without re-running setup) | drawn (journeys 3, 4) | drawn 2026-08-25 (§19.2 — the list was already half of it) | drawn (via `Write refused`) | drawn · **hole** for the per-variable hand-edited protect/overwrite choice |
-| **delete** | **hole** (the recipe itself) | drawn 2026-08-25 (§17 — same act as removing the variables) | **hole** (one ramp; belongs to Palette) | drawn 2026-08-25 (`Role`'s footer link, §19.2 — no confirmation, deliberately) | n/a | drawn 2026-08-25 (`Remove`, §17) |
+| **update** | drawn 2026-08-25 (`Project`, §20) | drawn 2026-08-25 (`Project`'s WRITES INTO, §20) | drawn (journeys 3, 4) | drawn 2026-08-25 (§19.2 — the list was already half of it) | drawn (via `Write refused`) | drawn · **hole** for the per-variable hand-edited protect/overwrite choice |
+| **delete** | drawn 2026-08-25 (`Project`'s footer link, §20 — a different act from `Remove`) | drawn 2026-08-25 (§17 — same act as removing the variables) | **hole** (one ramp; belongs to Palette) | drawn 2026-08-25 (`Role`'s footer link, §19.2 — no confirmation, deliberately) | n/a | drawn 2026-08-25 (`Remove`, §17) |
 
 **Two things this makes obvious that the board could not.**
 
@@ -2270,3 +2270,41 @@ meaningful rather than routine.
 
 Flow board journeys **11 · ADDING A RAMP** (`Palette → Add ramp → Picker`) and
 **12 · EDITING A ROLE** (`Roles → Role`).
+
+## 20. Project — four cells, one view (2026-08-25)
+
+`Project` (`2022:167845`, light twin `2022:167996`), reached from a row in
+Setup's project list and from its `+ New project` control (empty). It closes
+**create/project, update/project, update/binding and delete/project** together,
+because they are all edits to the same small object: a name, and where it writes.
+
+- `PROJECT` — `Name`. That is the whole recipe's identity; the seeds live in
+  Palette.
+- `WRITES INTO` — `Collection` and `Group`. This is the rebind: changing a
+  destination no longer means re-running Setup, which was its own hole.
+  ("Group" is a name prefix, not a container — there is no createGroup API, a
+  group exists because variables are named `color/brand/500`.)
+
+### 20.1 Deleting a project is NOT `Remove`, and the difference is the design
+
+The two destructive actions in the panel do opposite things and both are correct:
+
+| | `Remove` (§17) | `Delete this project` |
+| --- | --- | --- |
+| the document's variables | taken, hand-edits included | **kept, untouched** |
+| the binding | dropped | dropped with the recipe |
+| the recipe | **survives on this device** | deleted |
+| what is left behind | nothing | 120 variables nobody manages |
+
+So this view's Notice is the mirror of Remove's: *"This document holds 120 of its
+variables — deleting the project leaves them exactly where they are, Harmoni just
+stops managing them."* Neither action is a superset of the other, which is why
+neither could be folded into the other, and why each states its own consequence
+where the action is.
+
+**And no confirmation here either**, on the §19.2 rule: this changes only the
+recipe. It is a heavier loss than a role (the seeds go with it), which is why it
+gets a Notice stating the consequence rather than a silent link — but the
+document is untouched, so the ceremony `Remove` earns would be misplaced.
+
+Flow board journey **13 · MANAGING A PROJECT** (`Setup → Project`).

@@ -73,7 +73,7 @@ For an empty state that is part of the initial, static page — and so has
 nothing to announce — opt out of the live region:
 
 ```tsx
-<EmptyState.Root role={undefined}>…</EmptyState.Root>
+<EmptyState.Root role={undefined}>...</EmptyState.Root>
 ```
 
 ## Media
@@ -110,7 +110,7 @@ instead of the default, merging in the sub-component's props (and, for
 
 ```tsx
 <EmptyState.Root asChild>
-  <section>…</section>
+  <section>...</section>
 </EmptyState.Root>
 ```
 

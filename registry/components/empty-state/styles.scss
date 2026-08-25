@@ -3,7 +3,7 @@
  *
  * Copied into the consumer repo by `primitiv add empty-state`. It is yours to
  * edit: the stable surface is the contract (the .primitiv-empty-state class,
- * the --xs…--xl / orientation modifiers, and the --primitiv-empty-state-*
+ * the --xs...--xl / orientation modifiers, and the --primitiv-empty-state-*
  * custom properties), not these values (RFC 0006 Principle 2 — names are
  * stable, values are not).
  *
@@ -222,7 +222,7 @@
   }
 
   /* Size — re-points the sizing knobs and the title/description type scale.
-     The title maps onto a heading slot (xs→h6 … xl→h2), not label/*; see the
+     The title maps onto a heading slot (xs→h6 ... xl→h2), not label/*; see the
      header comment for why. media-offset is deliberately absent: the token
      behind it is size-agnostic (one value per density), because every heading
      slot's line-height is font-size + 8, so the half-leading is constant

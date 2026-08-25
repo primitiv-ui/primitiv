@@ -10,7 +10,7 @@ the prose components) into a page/article/specimen with **correct inter-block
 spacing**. This is the Figma counterpart to RFC 0016's web flow model — the
 `.primitiv-flow` class and the `<Prose>` component.
 
-> **Building** a prose component *set* (List, Blockquote, …)? That's
+> **Building** a prose component *set* (List, Blockquote, ...)? That's
 > `figma-prose-component`. This skill is about **arranging** those blocks with
 > the right spacing *between* them.
 
@@ -92,7 +92,7 @@ prose.layoutSizingHorizontal = 'FIXED';       // D7: layoutSizing*, not primaryA
 prose.layoutSizingVertical = 'HUG';
 prose.setBoundVariable('itemSpacing', flowNormal);
 prose.fills = [];
-// ...appendChild each content block (paragraphs, a List instance, a Blockquote instance, …)
+// ...appendChild each content block (paragraphs, a List instance, a Blockquote instance, ...)
 ```
 
 ## 5. Strategy B — nested frames for heading asymmetry

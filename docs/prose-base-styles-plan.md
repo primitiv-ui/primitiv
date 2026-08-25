@@ -13,7 +13,7 @@ typographic marks built in Figma.
 
 1. **Global element styles, not classes.** The inline marks + base block prose
    are styled via **bare element selectors** (`strong`, `em`, `p`, `blockquote`,
-   …), not opt-in classes. Rationale: they're the most basic semantic elements;
+   ...), not opt-in classes. Rationale: they're the most basic semantic elements;
    placing them in the cascade's lowest layer means a consumer overrides any of
    them at near-zero cost. This is a deliberate exception to RFC 0008's
    "no global reset" stance (D49) — **document the reversal in RFC 0008 §7**.
@@ -111,7 +111,7 @@ via `[data-theme]` (already in the token layer).
 4. ~~**Distribute** it via `tokens`/`init`~~ — **done** (sibling
    `primitiv-base.{css,scss}` + `@import`; stdout inlines; see Progress).
 5. ~~**Table** registry entry~~ — **done** (`registry/components/table/`). Structural
-   compound mirroring the headless `Table`: root + 8 part wrappers, an `--xs…--xl`
+   compound mirroring the headless `Table`: root + 8 part wrappers, an `--xs...--xl`
    **size** (type-scale) modifier, density-driven cell padding via the
    `table/cell/padding-*` Context tokens, raised header band, hover (auto) +
    `aria-selected` selected row hooks. Generated recipe/wrapper + derived SCSS,

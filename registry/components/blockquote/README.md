@@ -81,7 +81,7 @@ import { Blockquote } from "@/components/blockquote";
 
 | File | Authored? | Role |
 |---|---|---|
-| `contract.json` | **authored** | The styling contract — the `.primitiv-blockquote` root class, the `--default`/`--accent` and `--xs…--xl` modifiers, and the `--primitiv-blockquote-*` custom properties. |
+| `contract.json` | **authored** | The styling contract — the `.primitiv-blockquote` root class, the `--default`/`--accent` and `--xs...--xl` modifiers, and the `--primitiv-blockquote-*` custom properties. |
 | `styles.css` | **authored** | The canonical default theme: the accent bar + type scale, in `@layer primitiv.base`/`primitiv.variants`. |
 | `styles.scss` | **authored** | `styles.css` plus a trailing `$`-alias block, one `$primitiv-blockquote-<prop>` per custom property. |
 | `blockquote.recipe.ts` | **authored** | `cva("primitiv-blockquote", { variants: { tone, size } })`. |

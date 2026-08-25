@@ -505,11 +505,11 @@ describe("Carousel infinite — transform engine", () => {
     await user.click(getByRole("button", { name: "Next" }));
 
     // 3 → 0 is +1 forward: offset 300 → 400 (onto the clone of slide 0), a single
-    // step onward, not a rewind. The glide animates to the clone…
+    // step onward, not a rewind. The glide animates to the clone...
     expect(track!.style.transform).toBe("translate(-400px, 0px)");
     expect(track!.style.transition).toContain("transform");
 
-    // …and once it settles the track re-bases by one period to the REAL slide 0
+    // ...and once it settles the track re-bases by one period to the REAL slide 0
     // at the identical pixels (offset 0), instantly and invisibly.
     fireEnd(track!);
     expect(track!.style.transform).toBe("translate(0px, 0px)");
@@ -768,7 +768,7 @@ describe("Carousel infinite — transform engine", () => {
 
     await user.click(getByRole("button", { name: "Next" }));
     // Offset 100 is already within [0, 400): the settle is a no-op, the transform
-    // stays put (and the transition flips to none on the instant no-op repaint…
+    // stays put (and the transition flips to none on the instant no-op repaint...
     // which doesn't run — the guard returns early, so the transition is untouched).
     expect(track!.style.transform).toBe("translate(-100px, 0px)");
     fireEnd(track!);
@@ -848,9 +848,9 @@ describe("Carousel infinite — transform engine", () => {
     await user.click(getByRole("button", { name: "Next" })); // page 2 (offset 400)
     await user.click(getByRole("button", { name: "Previous" })); // back to page 1
 
-    // Page 2 → 1: the track glides back one page (offset 400 → 200)…
+    // Page 2 → 1: the track glides back one page (offset 400 → 200)...
     expect(track!.style.transform).toBe("translate(-200px, 0px)");
-    // …and no real slide carries a transform of its own.
+    // ...and no real slide carries a transform of its own.
     for (const slide of track!.querySelectorAll<HTMLElement>(
       "[data-carousel-slide][data-index]",
     )) {

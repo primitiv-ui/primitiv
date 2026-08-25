@@ -67,7 +67,7 @@ import {
  * const [open, setOpen] = useState(false);
  *
  * <SplitButton open={open} onOpenChange={setOpen} disabled={saving}>
- *   …
+ *   ...
  * </SplitButton>
  * ```
  */
@@ -93,7 +93,7 @@ export function SplitButtonRoot({
 }
 
 /** @internal */
-// Stryker disable next-line StringLiteral: the compound is `Object.assign(SplitButtonRoot, …)`,
+// Stryker disable next-line StringLiteral: the compound is `Object.assign(SplitButtonRoot, ...)`,
 // so `SplitButton.displayName = "SplitButton"` overwrites this value at load — it is never
 // observable at runtime. The assignment itself must stay: it is what declares `displayName`
 // on `typeof SplitButtonRoot`, which `TSplitButtonCompound` extends.

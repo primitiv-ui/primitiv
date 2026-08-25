@@ -43,7 +43,7 @@ return (async function () {
         { n: "dir", t: '"ltr" | "rtl"', d: "—", desc: "Reading direction; mirrors the horizontal arrows." },
         { n: "lazyMount", t: "boolean", d: "—", desc: "Defer a panel's children until first activated." },
         { n: "onChange", t: "(m: TabMetadata) => void", d: "—", desc: "Fires on activation with { index, name }." },
-      ], contract: [{ n: "size", t: '"xs" … "xl"', d: "md", desc: "Control size; data-density scales each." }] },
+      ], contract: [{ n: "size", t: '"xs" ... "xl"', d: "md", desc: "Control size; data-density scales each." }] },
       { name: "Tabs.List", ext: "HTMLDivElement", props: [
         { n: "label", t: "string", d: "—", desc: "Accessible name (aria-label). One of label / ariaLabelledBy required." },
         { n: "ariaLabelledBy", t: "string", d: "—", desc: "Id of existing label text (aria-labelledby)." },
@@ -67,7 +67,7 @@ return (async function () {
     ],
     dataAttrs: ["data-state", "data-orientation", "data-disabled"],
     cssVars: ["--primitiv-tabs-trigger-fg", "--primitiv-tabs-trigger-fg-active", "--primitiv-tabs-indicator-color-active", "--primitiv-tabs-baseline-color", "--primitiv-tabs-panel-padding-inline", "--primitiv-tabs-trigger-height"],
-    anatomy: ['<Tabs.Root defaultValue="account">', '  <Tabs.List label="Account settings">', '    <Tabs.Trigger value="account">Account</Tabs.Trigger>', '    <Tabs.Trigger value="password">Password</Tabs.Trigger>', '  </Tabs.List>', '  <Tabs.Content value="account">…</Tabs.Content>', '  <Tabs.Content value="password">…</Tabs.Content>', '</Tabs.Root>'],
+    anatomy: ['<Tabs.Root defaultValue="account">', '  <Tabs.List label="Account settings">', '    <Tabs.Trigger value="account">Account</Tabs.Trigger>', '    <Tabs.Trigger value="password">Password</Tabs.Trigger>', '  </Tabs.List>', '  <Tabs.Content value="account">...</Tabs.Content>', '  <Tabs.Content value="password">...</Tabs.Content>', '</Tabs.Root>'],
   };
 
   const solid = (hex, a) => { const c = { r: parseInt(hex.slice(1,3),16)/255, g: parseInt(hex.slice(3,5),16)/255, b: parseInt(hex.slice(5,7),16)/255 }; const p = { type: "SOLID", color: c }; if (a != null) p.opacity = a; return [p]; };
@@ -98,10 +98,10 @@ return (async function () {
     frameworkSwitch(F, fwX, 14, 216, 36);
     rect(F, modeX, 14, 220, 36, C.white, { radius: 8, stroke: C.border }); const mseg = (220 - 4) / 3; rect(F, modeX + 2 + mseg, 16, mseg, 32, C.dark, { radius: 6 });
     text(F, "Headless", modeX + 2, 24, 13, HEADM, C.sec, { width: mseg, align: "CENTER" }); text(F, "Styled", modeX + 2 + mseg, 24, 13, HEADM, C.white, { width: mseg, align: "CENTER" }); text(F, "Figma", modeX + 2 + mseg * 2, 24, 13, HEADM, C.sec, { width: mseg, align: "CENTER" });
-    rect(F, searchX, 14, 190, 36, C.white, { radius: 8, stroke: C.border }); text(F, "Search docs…", searchX + 16, 24, 13, BODY, C.muted);
+    rect(F, searchX, 14, 190, 36, C.white, { radius: 8, stroke: C.border }); text(F, "Search docs...", searchX + 16, 24, 13, BODY, C.muted);
     rect(F, themeX, 14, 32, 32, C.white, { radius: 8, stroke: C.border }); rect(F, themeX + 9, 21, 14, 14, C.dark, { radius: 7 });
     marker(F, 1, W / 2 - 10, -6); marker(F, 4, modeX + 110 - 10, 54);
-    const nav = [{ t: "Start Here" }, { t: "Concepts", caret: "▸" }, { t: "Components", caret: "▾" }, { t: "Button", lvl: 1 }, { t: "Checkbox", lvl: 1 }, { t: "Input", lvl: 1 }, { t: "Select", lvl: 1 }, { t: "Switch", lvl: 1 }, { t: "Tabs", lvl: 1, active: true }, { t: "Accordion", lvl: 1 }, { t: "Dropdown", lvl: 1 }, { t: "Modal", lvl: 1 }, { t: "… 41 total", lvl: 1, muted: true }, { t: "Registry & CLI" }, { t: "Design in Figma", caret: "▾" }, { t: "Harmoni", lvl: 1 }, { t: "Recipes / Guides" }, { t: "Changelog / Releases" }];
+    const nav = [{ t: "Start Here" }, { t: "Concepts", caret: "▸" }, { t: "Components", caret: "▾" }, { t: "Button", lvl: 1 }, { t: "Checkbox", lvl: 1 }, { t: "Input", lvl: 1 }, { t: "Select", lvl: 1 }, { t: "Switch", lvl: 1 }, { t: "Tabs", lvl: 1, active: true }, { t: "Accordion", lvl: 1 }, { t: "Dropdown", lvl: 1 }, { t: "Modal", lvl: 1 }, { t: "... 41 total", lvl: 1, muted: true }, { t: "Registry & CLI" }, { t: "Design in Figma", caret: "▾" }, { t: "Harmoni", lvl: 1 }, { t: "Recipes / Guides" }, { t: "Changelog / Releases" }];
     let sy = NAV + 22;
     nav.forEach(it => { const lvl = it.lvl || 0, rh = lvl ? 30 : 34, x = 24 + (lvl ? 20 : 0); if (it.active) { rect(F, 0, sy - 4, SB_W, rh, C.active); rect(F, 0, sy - 4, 3, rh, C.dark); } if (it.caret) text(F, it.caret, 24, sy + (lvl ? 0 : 1), lvl ? 11 : 12, HEADM, C.muted); const col = it.muted ? C.muted : (it.active ? C.dark : (lvl ? C.sec : C.dark)); text(F, it.t, x + (it.caret ? 16 : 0), sy, lvl ? 14 : 15, (lvl && !it.active) ? BODY : HEADM, col); sy += rh; });
     marker(F, 2, SB_W - 30, NAV + 8 * 30 + 22 - 26);
@@ -123,7 +123,7 @@ return (async function () {
     text(F, "PREVIEW", MAIN_X + 16, y + 14, 10, HEADM, C.muted, { spacing: 4 });
     const tabsY = y + 40; ["Account", "Password", "Team"].forEach((t, i) => { const tx = MAIN_X + 24 + i * 96; text(F, t, tx, tabsY, 14, HEADM, i === 0 ? C.dark : C.muted, { width: 84, align: "CENTER" }); if (i === 0) rect(F, tx, tabsY + 26, 84, 2, C.dark); });
     rect(F, MAIN_X + 24, tabsY + 27, MAIN_W - 48, 1, C.border);
-    rect(F, MAIN_X + 24, tabsY + 44, MAIN_W - 48, 54, C.ph, { radius: 6 }); text(F, "Panel content for the active tab…", MAIN_X + 36, tabsY + 62, 13, BODY, C.muted);
+    rect(F, MAIN_X + 24, tabsY + 44, MAIN_W - 48, 54, C.ph, { radius: 6 }); text(F, "Panel content for the active tab...", MAIN_X + 36, tabsY + 62, 13, BODY, C.muted);
     rect(F, MAIN_X, y + 170, MAIN_W, 1, C.border);
     const cfw = (MAIN_W - 32 - 3 * 12) / 4;
     controlField(F, MAIN_X + 16, y + 186, cfw, "ORIENTATION", "horizontal");
@@ -188,7 +188,7 @@ return (async function () {
     text(F, "CSS variables + data attributes — mode-agnostic styling hooks (§1.5/§1.6)", MAIN_X, y - 8, 13, BODY, C.muted); y += 22;
     D.cssVars.forEach((v, i) => text(F, v, MAIN_X + (i % 2) * 370, y + Math.floor(i / 2) * 28, 12, BODY, C.dark));
     y += Math.ceil(D.cssVars.length / 2) * 28 + 6;
-    text(F, "… " + D.cssVarCount + " CSS vars", MAIN_X, y, 13, BODYM, C.muted);
+    text(F, "... " + D.cssVarCount + " CSS vars", MAIN_X, y, 13, BODYM, C.muted);
     text(F, "data-attributes:  " + D.dataAttrs.join("   "), MAIN_X + 160, y, 12, BODY, C.sec);
     y += 44;
 
@@ -228,7 +228,7 @@ return (async function () {
     heading("Playground");
     rect(F, M, y, CW, 118, C.white, { radius: 12, stroke: C.border });
     ["Account", "Password", "Team"].forEach((t, i) => { const tx = M + 14 + i * 84; text(F, t, tx, y + 16, 13, HEADM, i === 0 ? C.dark : C.muted, { width: 76, align: "CENTER" }); if (i === 0) rect(F, tx, y + 38, 76, 2, C.dark); });
-    rect(F, M + 14, y + 39, CW - 28, 1, C.border); rect(F, M + 14, y + 54, CW - 28, 48, C.ph, { radius: 6 }); text(F, "Panel content…", M + 26, y + 70, 12, BODY, C.muted);
+    rect(F, M + 14, y + 39, CW - 28, 1, C.border); rect(F, M + 14, y + 54, CW - 28, 48, C.ph, { radius: 6 }); text(F, "Panel content...", M + 26, y + 70, 12, BODY, C.muted);
     y += 130;
     dropdownField(F, M, y, CW, 42, "Orientation", "horizontal"); y += 50;
     dropdownField(F, M, y, CW, 42, "Size", "md"); y += 50;
@@ -270,7 +270,7 @@ return (async function () {
 
     heading("Styling contract");
     D.cssVars.slice(0, 4).forEach(v => { text(F, v, M, y, 12, BODY, C.dark); y += 24; });
-    text(F, "… " + D.cssVarCount + " CSS vars · data-attrs: " + D.dataAttrs.join(" "), M, y, 11, BODY, C.muted, { width: CW }); y += 40;
+    text(F, "... " + D.cssVarCount + " CSS vars · data-attrs: " + D.dataAttrs.join(" "), M, y, 11, BODY, C.muted, { width: CW }); y += 40;
     F.resize(W, y + 24);
   }
 
@@ -285,7 +285,7 @@ return (async function () {
       ["Multiple prop tables", "One table per sub-component (Root/List/Trigger/Content). The single Props section fans out and the page grows to ~3000px. TOC now nests (Props → the four parts). Collapsible sub-sections may be worth it."],
       ["Controlled/uncontrolled isn't extractable", "The flat prop list loses the value+onValueChange XOR defaultValue mutual-exclusivity. Needs a hand-authored callout (added, amber) or a schema 'prop group' concept — a §1.7 gap for stateful components."],
       ["Source bug found — 2 new §1.16 instances", "TabsRootProps.defaultValue and TabsTriggerProps.value narrow a native attr WITHOUT Omit-ting it, so extraction saw 'string | (readonly string[] & string)'. The extractor cleans it; the source should add the Omit (lint candidate)."],
-      ["Aliased/complex types need resolving", "String-literal aliases (TabsOrientation…) must expand to their values — the extractor now does. Non-literal aliases still leak the name (TabMetadata, Ref<T>) → need a linked types glossary."],
+      ["Aliased/complex types need resolving", "String-literal aliases (TabsOrientation...) must expand to their values — the extractor now does. Non-literal aliases still leak the name (TabMetadata, Ref<T>) → need a linked types glossary."],
       ["Generics leak a type param", "Tabs.Trigger<T> shows ref: Ref<T>. Generic sub-components need a display rule (show the default element)."],
       ["Interactive ⇒ real a11y + data-attrs", "A Keyboard-interactions table (not bullets) and per-sub-component data-attributes appear. Hand-authored (§1.7) — the a11y burden scales with complexity."],
       ["New sections for compound", "Anatomy (composition) is essential and Button never needed it. Playground controls now come from 3 sources — a headless enum prop (orientation), contract props (size/justify) and the Context system (density) — labelled by origin."],

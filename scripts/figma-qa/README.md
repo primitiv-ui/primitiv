@@ -18,7 +18,7 @@ node scripts/figma-qa/cdp.mjs <url> <path-to-expression-file> [waitMs]
 Launches headless Chrome, navigates to `<url>` (a `file://` harness or the
 deployed site), waits `waitMs` for the SPA to mount, evaluates the JS in
 `<expression-file>`, and prints the returned value. The expression must be a
-single expression — wrap it in `(() => { … })()`.
+single expression — wrap it in `(() => { ... })()`.
 
 ```sh
 # against the deployed kitchen-sink
@@ -60,11 +60,11 @@ REPO=$PWD SP=/tmp node scripts/figma-qa/size-pin.mjs   # writes $SP/size-pin.htm
 node scripts/figma-qa/cdp.mjs "file://$SP/size-pin.html" /tmp/expr-pin.js 2500
 ```
 
-Renders each component at xs…xl from the real token layer, reset and component
+Renders each component at xs...xl from the real token layer, reset and component
 stylesheets, then reports every text part whose `font-size` **doesn't move**.
 
 That is the signature of the bug class that produced three separate faults:
-`primitiv.reset` styles bare elements (`p`, `dt`, `dd`, `cite`, `caption`, …)
+`primitiv.reset` styles bare elements (`p`, `dt`, `dd`, `cite`, `caption`, ...)
 **directly**, and a declaration on an element beats an inherited one whatever the
 layer — so a component that sets its type on the root and lets a part inherit
 gets the reset's value and stops responding to `size` entirely. Each was

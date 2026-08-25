@@ -28,7 +28,7 @@ Divider is the simplest styled surface: a single element, **no modifiers**, and
   (`packages/react/src/Divider/__tests__/Divider.contract.test.tsx`). The
   component carries its orientation on **`aria-orientation`** (an ARIA hook, not a
   `data-*`), and that same test pins it — the stylesheet's
-  `[aria-orientation="…"]` selectors depend on it.
+  `[aria-orientation="..."]` selectors depend on it.
 - **`root` / `customProperties`** — authored. The `.primitiv-divider` root class
   and the `--primitiv-divider-*` custom-property API (`color`, `thickness`,
   `spacing`). There are no modifier classes: the horizontal/vertical split rides

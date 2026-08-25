@@ -62,18 +62,18 @@ import { Prose } from "@/components/prose";
 <Prose asChild>
   <article>
     <h1>Title</h1>
-    <p>Body…</p>
+    <p>Body...</p>
     <h2>Section</h2>
-    <p>More…</p>
+    <p>More...</p>
   </article>
 </Prose>
 
 // Or the bare class on your own markup (styles-only consumers):
-<article className="primitiv-flow">…</article>
+<article className="primitiv-flow">...</article>
 
 // A long-form reading column, capped at the measure:
 <Prose measure asChild>
-  <article>…</article>
+  <article>...</article>
 </Prose>
 ```
 

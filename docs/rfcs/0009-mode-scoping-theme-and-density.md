@@ -34,7 +34,7 @@ The moves:
 2. **The mode is collapsed out of the token *name* and into a *scope*.** A
    density-dependent token emits under a density-neutral name
    (`--primitiv-framed-control-md-height`); the active value is swapped by the
-   `[data-density="…"]` scope. Components read the neutral name and never know
+   `[data-density="..."]` scope. Components read the neutral name and never know
    which mode is active.
 3. **It is plain custom-property inheritance**, so it works identically in CSS,
    SCSS, and Tailwind v4, needs no JavaScript, and requires no cooperation from
@@ -60,7 +60,7 @@ the *scoping surface*; RFC 0006 emits into it.
 ### Principle 1 — A mode is a scope, not a name
 
 Theme and density multiply the token set; baking them into custom-property names
-(`--primitiv-…-dense`) would force every component to branch on mode. Instead the
+(`--primitiv-...-dense`) would force every component to branch on mode. Instead the
 mode is a *selector* that swaps values behind stable names. One name, N modes —
 the components stay mode-agnostic. (This is RFC 0006 Principle 2, "names are the
 contract," applied to the mode axes.)
@@ -109,14 +109,14 @@ density (exactly as Intent Light/Dark collapses into `[data-theme]`, RFC 0006
   [data-density="comfortable"] {
     --primitiv-framed-control-md-height: 2.5rem;          /* size-40 */
     --primitiv-framed-control-md-padding-inline: 1rem;    /* space-16 */
-    /* …every slot × every density-dependent property… */
+    /* ...every slot × every density-dependent property... */
   }
   [data-density="dense"] {
     --primitiv-framed-control-md-height: 1.5rem;           /* size-24 */
     --primitiv-framed-control-md-padding-inline: 0.5rem;
   }
-  [data-density="compact"]  { /* … */ }
-  [data-density="spacious"] { /* … */ }
+  [data-density="compact"]  { /* ... */ }
+  [data-density="spacious"] { /* ... */ }
 }
 ```
 
@@ -242,7 +242,7 @@ reusable *declaration block* a container query can apply:
 @container (max-width: 30rem) {
   .primitiv-density-scope {
     --primitiv-framed-control-md-height: 1.5rem;   /* the dense value-set */
-    /* … */
+    /* ... */
   }
 }
 ```
@@ -308,7 +308,7 @@ post-v1.)
    feature.*
 3. ~~**`add`-time Tailwind `dark:` remap.**~~ **Resolved (D49):** the wiring step
    **reuses the detect-and-offer-to-patch mechanism** (RFC 0005 §4.3, D19) —
-   documents the `@custom-variant dark …` line and offers to write it (applied
+   documents the `@custom-variant dark ...` line and offers to write it (applied
    under `--yes`, skipped under `--no-wiring`). Same mechanism as the layer-order
    statement (RFC 0008 §7.3).
 

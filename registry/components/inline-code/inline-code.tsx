@@ -15,7 +15,7 @@ export type InlineCodeProps = ComponentPropsWithRef<"code"> &
   InlineCodeVariants & {
     /**
      * Render the single child element instead of a wrapping <code>, merging the
-     * inline-code classes onto it — e.g. `<InlineCode asChild><kbd>…</kbd></InlineCode>`.
+     * inline-code classes onto it — e.g. `<InlineCode asChild><kbd>...</kbd></InlineCode>`.
      */
     asChild?: boolean;
   };

@@ -115,14 +115,14 @@ import type {
  * useEffect(() => setOpen(""), [pathname]);
  *
  * <NavigationMenu.Root value={open} onValueChange={setOpen}>
- *   …
+ *   ...
  * </NavigationMenu.Root>
  * ```
  *
  * @example Click-only, for a nav that also has to work under touch
  * ```tsx
  * <NavigationMenu.Root openOnHover={false} aria-label="Docs">
- *   …
+ *   ...
  * </NavigationMenu.Root>
  * ```
  */
@@ -230,7 +230,7 @@ NavigationMenuRoot.displayName = "NavigationMenuRoot";
  * @example
  * ```tsx
  * <NavigationMenu.List>
- *   <NavigationMenu.Item value="concepts">…</NavigationMenu.Item>
+ *   <NavigationMenu.Item value="concepts">...</NavigationMenu.Item>
  * </NavigationMenu.List>
  * ```
  */
@@ -268,7 +268,7 @@ NavigationMenuList.displayName = "NavigationMenuList";
  * ```tsx
  * <NavigationMenu.Item value="concepts">
  *   <NavigationMenu.Trigger>Concepts</NavigationMenu.Trigger>
- *   <NavigationMenu.Content>…</NavigationMenu.Content>
+ *   <NavigationMenu.Content>...</NavigationMenu.Content>
  * </NavigationMenu.Item>
  * ```
  *
@@ -483,7 +483,7 @@ NavigationMenuTrigger.displayName = "NavigationMenuTrigger";
  *
  * @example forceMount, for a CSS-animated panel
  * ```tsx
- * <NavigationMenu.Content forceMount className="panel">…</NavigationMenu.Content>
+ * <NavigationMenu.Content forceMount className="panel">...</NavigationMenu.Content>
  * ```
  * ```css
  * .panel { opacity: 0; transition: opacity 150ms; }
@@ -566,7 +566,7 @@ NavigationMenuContent.displayName = "NavigationMenuContent";
  * @example
  * ```tsx
  * <NavigationMenu.Root>
- *   <NavigationMenu.List>…</NavigationMenu.List>
+ *   <NavigationMenu.List>...</NavigationMenu.List>
  *   <NavigationMenu.Viewport className="viewport" />
  * </NavigationMenu.Root>
  * ```

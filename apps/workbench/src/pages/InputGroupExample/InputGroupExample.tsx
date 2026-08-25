@@ -193,7 +193,7 @@ export function InputGroupExample() {
             className="primitiv-input"
             type="search"
             aria-label="Search with clear button"
-            placeholder="Type to enable the clear button…"
+            placeholder="Type to enable the clear button..."
             value={search}
             onChange={(event) => setSearch(event.target.value)}
           />

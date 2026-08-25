@@ -50,7 +50,7 @@ Curve, Export, Setup, Destination. Components: `Harmoni / Panel Header`,
   A discrete action a user is meant to notice gets `Variant=secondary`; five were
   converted (`+ Add ramp`, `+ New project`, `Scan for an existing palette` ×2,
   `Reset to the default curve`). `link` survives in exactly two situations:
-  - **the control is a row inside a list** — Destination's `+ New…` sits among
+  - **the control is a row inside a list** — Destination's `+ New...` sits among
     Miller Columns rows, and a framed button there reads as a row of a different
     kind and breaks the column rhythm;
   - **quiet is the point** — In sync's `Remove 120 variables from this file` is
@@ -529,7 +529,7 @@ way back is a crumb rather than a bespoke `‹ export` control.
   placeholder — restructure the row instead of padding it.
 - **Gotcha: holding a reference to a node does not keep it alive.** Collecting the
   card's controls into a map and *then* removing their parent rows deleted the
-  controls too, and the next `appendChild` failed with "node … does not exist" —
+  controls too, and the next `appendChild` failed with "node ... does not exist" —
   after the rows were already gone. Reparent first, then remove.
 - **Gotcha: setting a `Segmented Control` to FILL is not enough** — its items keep
   hugging and the group sits right-aligned inside its own stretched frame, which
@@ -605,7 +605,7 @@ with the mode-field question.
    `visible` on breadcrumb items before trusting a label write.
 2. **`Harmoni / Swatch`'s `Grade#1940:535` TEXT property is dead.** Verified
    across all 30 variants: the `Grade` node carries only
-   `{"visible": "Show grade#…"}` — nothing bridges the set-level TEXT property to
+   `{"visible": "Show grade#..."}` — nothing bridges the set-level TEXT property to
    the nested `Badge`'s own label, and nothing can, because
    `componentPropertyReferences` cannot be set on an instance sublayer (the same
    limit ConfirmDialog and Card hit). Every badge therefore renders the master's
@@ -728,7 +728,7 @@ Figma component set a specification for a builder function, not a library the
 user imports.
 
 Ownership stamps, verified end-to-end on real inserted nodes:
-`setSharedPluginData("harmoni", …)` on the ramp frame carries `project`, `kind`,
+`setSharedPluginData("harmoni", ...)` on the ramp frame carries `project`, `kind`,
 `ramp`, `mode` and the **appearance config as JSON** (so "update" can re-render
 with the same settings); each swatch carries `step`, `value`, `oklch`.
 
@@ -801,7 +801,7 @@ user's canvas, so how they read is the product.
     fills" hazard, and it is worth a standing rule: **after any edit to the
     Swatch master, re-read every instance's cap fills against the engine's
     pairing.** A render alone will not catch it — 300/400 looked plausible.
-  - **Every `Source` reads `fg …`, anchors included** — `fg 900`, `fg 50`,
+  - **Every `Source` reads `fg ...`, anchors included** — `fg 900`, `fg 50`,
     `fg white`, `fg black`. Only 500 broke the pattern, and the bare `white` was
     what made it look like a different *kind* of thing. The prefix says the
     anchors are foregrounds too, just not drawn from the ramp, which is the
@@ -834,7 +834,7 @@ user's canvas, so how they read is the product.
 
 ## 4a. Wording — "stamp" is internal, never user-facing
 
-`setSharedPluginData("harmoni", …)` is a good name for what the mechanism does,
+`setSharedPluginData("harmoni", ...)` is a good name for what the mechanism does,
 and the wrong word for a user. It is not about *when* (so never "timestamp") and
 users need no noun for it at all. Every message it appears in reads better as a
 sentence about Harmoni:
@@ -842,7 +842,7 @@ sentence about Harmoni:
 | don't write | write |
 | --- | --- |
 | variables with no stamp | variables that **weren't made by Harmoni** |
-| every stamped variable still holds… | every variable **Harmoni manages** still holds… |
+| every stamped variable still holds... | every variable **Harmoni manages** still holds... |
 | no longer match their stamp | no longer match **what Harmoni wrote** |
 | THE STAMP MAKES THIS VISIBLE | **ALL 120 VARIABLES** (label the counts, not our mechanism) |
 
@@ -859,7 +859,7 @@ only prose that leaks the internal term.
 
 - **There is no createGroup API.** A group exists because variables are *named*
   `color/brand/500`, so "choose a group" is "choose a name prefix" — which is why
-  `+ new…` belongs on COLLECTION and GROUP but never on INSIDE.
+  `+ new...` belongs on COLLECTION and GROUP but never on INSIDE.
 - Mode mapping is decided **on the destination screen**, not in a dialog after
   the write. That is what "asked once, gets the whole panel" buys.
 - Compose three `Miller Columns / Column` instances directly. The composed
@@ -890,7 +890,7 @@ unwireframed — the two boards together are the spec.
 "no new route":
 
 - **A write presents on the footer button** — `Create 120 variables` becomes a
-  disabled `Creating… 47 / 120`. At 360 px a full-screen loader for a
+  disabled `Creating... 47 / 120`. At 360 px a full-screen loader for a
   seconds-long write is ceremony, and the count says more than a spinner.
   Built as the `Writing` view.
 - **A failure surfaces where the action was started** — a danger `Alert` between
@@ -920,7 +920,7 @@ taught:
   wordmark white on a light panel. It has to be set per view — the one part of
   this pass that is not automatic.
 - **`setExplicitVariableModeForCollection` wants the collection NODE, not its
-  id.** Passing the id fails with *"Cannot call … with a collection id in
+  id.** Passing the id fails with *"Cannot call ... with a collection id in
   incremental mode"*.
 - **The audit I wanted was not affordable.** Scanning every view for unbound
   fills timed out at 30 s — the dot grids and plot vectors are thousands of
@@ -1186,7 +1186,7 @@ all real instances — but the shell **around** them was hand-copied 15 times (3
 with the light twins):
 
 ```
-Panel Header . Context(Breadcrumb) . Body . Footer(Button…)
+Panel Header . Context(Breadcrumb) . Body . Footer(Button...)
 ```
 
 **It had already drifted four ways**, which is the empirical case for the
@@ -1264,7 +1264,7 @@ plausible panel rather than an empty box with a 100 px collapsed slot.
 
 Moving Export's `Breadcrumb`, `Tabs` and `Button` into the shell instance's slots
 produced nodes whose own children could not be read — *"The node (instance
-sublayer or table cell) with id … does not exist"* — and critically **the crash
+sublayer or table cell) with id ... does not exist"* — and critically **the crash
 surfaces in `exportAsync`**, i.e. in the screenshot, which cannot be wrapped in
 try/catch the way gotcha 12 wraps `.name` reads. The stale ids pointed at a
 *different* view's node range than the one being moved, so these were pre-existing
@@ -1560,7 +1560,7 @@ tint:**
    real redundancy in the API — `strength = 0` and `Achromatic` reach the same
    place, and the plugin needs only one of them.
 3. **Dark mode is the same anchor pair swapped** — `generate_neutral_ramp(black,
-   white, …)`. Independent confirmation of the one-pair-serves-both-modes finding
+   white, ...)`. Independent confirmation of the one-pair-serves-both-modes finding
    in §10.
 
 **Gating Bow behind an active tint looks like a layout convenience and is not.**
@@ -1793,7 +1793,7 @@ overflow recorded in §12 is gone, with 106 px spare.
   forms print `fg 900`, mini prints `900` / `50` / `white` / `black`, because
   31 px will not hold the prefix.
 - **A component property reference cannot be set until the component has JOINED
-  the set.** `componentPropertyReferences = { visible: 'Show sample#…' }` throws
+  the set.** `componentPropertyReferences = { visible: 'Show sample#...' }` throws
   *"Could not find a component property with name"* on a standalone component,
   because the definitions live on the COMPONENT_SET. Order is: create → build →
   `set.appendChild(component)` → *then* wire the references. The first attempt

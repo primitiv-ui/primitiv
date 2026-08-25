@@ -21,7 +21,7 @@ export type ContainerProps = ComponentPropsWithRef<"div"> &
   ContainerVariants & {
     /**
      * Render the single child element instead of a wrapping <div>, merging the
-     * container classes onto it — e.g. `<Container asChild><main>…</main></Container>`.
+     * container classes onto it — e.g. `<Container asChild><main>...</main></Container>`.
      */
     asChild?: boolean;
   };
@@ -41,11 +41,11 @@ export type ContainerProps = ComponentPropsWithRef<"div"> &
  * @example
  * ```tsx
  * <Container>
- *   <Prose>…</Prose>
+ *   <Prose>...</Prose>
  * </Container>
  *
  * <Container size="xl" asChild>
- *   <main>…</main>
+ *   <main>...</main>
  * </Container>
  *
  * <Container size="full" gutter="none">

@@ -140,7 +140,7 @@ type MapEntry = {
  *
  * 1. It owns the inter-item rhythm through `--primitiv-list-item-gap`, and
  *    zeroes `margin-block` on its own items to cancel the base layer's
- *    `li + li { margin-block-start: … }` prose rule. That rule is why the
+ *    `li + li { margin-block-start: ... }` prose rule. That rule is why the
  *    hand-rolled lists needed a manual override — List already fixes it, and
  *    its stylesheet documents the doubling it caused (gaps rendered at 2x).
  * 2. `marker={false}` is the real `list-style: none` case: the marker box AND

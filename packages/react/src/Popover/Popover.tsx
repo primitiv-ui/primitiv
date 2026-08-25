@@ -38,7 +38,7 @@ import type {
  * ```tsx
  * <Popover.Root>
  *   <Popover.Trigger>Open</Popover.Trigger>
- *   <Popover.Content>…</Popover.Content>
+ *   <Popover.Content>...</Popover.Content>
  * </Popover.Root>
  * ```
  *
@@ -48,7 +48,7 @@ import type {
  *
  * <Popover.Root open={open} onOpenChange={setOpen}>
  *   <Popover.Trigger>Open</Popover.Trigger>
- *   <Popover.Content>…</Popover.Content>
+ *   <Popover.Content>...</Popover.Content>
  * </Popover.Root>
  * ```
  */

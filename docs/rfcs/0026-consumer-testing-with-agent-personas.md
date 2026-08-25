@@ -521,7 +521,7 @@ Two decisions, both left open by "give each profile a brand colour":
   Primitiv's theme with the existing one, or leaves Primitiv unthemed and
   takes only headless behaviour. Bake a specific, *different* hex into
   Profile B's fixture (§5) as an established fact stated in its addendum
-  ("the app's existing primary brand colour is `#…`"), and let the agent
+  ("the app's existing primary brand colour is `#...`"), and let the agent
   decide what to do with it — log the decision either way. The addendum
   must not itself suggest running `theme --brand`; that would hand the
   agent the answer to the thing being observed.

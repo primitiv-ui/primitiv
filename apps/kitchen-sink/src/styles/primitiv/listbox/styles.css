@@ -4,7 +4,7 @@
  * Copied into the consumer repo by `primitiv add listbox`. It is yours to edit:
  * the stable surface is the contract (the .primitiv-listbox frame + __option /
  * __option-indicator / __option-checkbox / __option-leading / __option-label /
- * __option-trailing / __group / __group-label / __empty parts, the --xs…--xl
+ * __option-trailing / __group / __group-label / __empty parts, the --xs...--xl
  * size modifiers, the aria-selected / data-highlighted / data-disabled /
  * aria-invalid hooks, and the --primitiv-listbox-* custom properties), not
  * these values (RFC 0006 Principle 2 — names are stable, values are not).

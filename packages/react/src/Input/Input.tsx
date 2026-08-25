@@ -11,7 +11,7 @@ import { InputProps } from "./types";
  *
  * **Default type.** `type="text"` is set by default. Override with the
  * `type` prop for any native variant (`"email"`, `"password"`,
- * `"number"`, `"search"`, `"tel"`, `"url"`, `"date"`, …). Future
+ * `"number"`, `"search"`, `"tel"`, `"url"`, `"date"`, ...). Future
  * composite primitives (`PasswordInput`, `NumberInput`, `DatePicker`)
  * will layer richer interaction on top of those types.
  *

@@ -114,7 +114,7 @@ a hard dependency.
 
 ```tsx
 <Figure captionPosition="overlay">
-  <Figure.Media><img src="…" alt="…" /></Figure.Media>
+  <Figure.Media><img src="..." alt="..." /></Figure.Media>
   <Figure.Caption>A caption.</Figure.Caption>
 </Figure>
 ```

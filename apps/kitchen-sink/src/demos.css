@@ -14,8 +14,8 @@
  *   - the values lean on the token layer like any other stylesheet.
  *
  * Every rule is `ks-`-prefixed and class-only. Never add a bare element or
- * attribute selector here: this file is bundled globally, so `figure {…}` or
- * `[data-state] {…}` would leak onto every component on the page.
+ * attribute selector here: this file is bundled globally, so `figure {...}` or
+ * `[data-state] {...}` would leak onto every component on the page.
  */
 
 /* ── Badge/Tag/Chip demo rows ──────────────────────────────────────────────

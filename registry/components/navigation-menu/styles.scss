@@ -29,7 +29,7 @@
  * publishes its own `anchor-name`, and the Root publishes whichever one is
  * open as `--primitiv-navigation-menu-active-trigger-anchor`, so the shared
  * panel box can re-target itself per trigger with no JS positioning math.
- * Gated behind `@supports (anchor-name: …)` — NavigationMenu has to keep
+ * Gated behind `@supports (anchor-name: ...)` — NavigationMenu has to keep
  * working everywhere, unlike Dropdown/Popover, which have no non-anchor
  * fallback to protect — so a browser without support keeps the plain
  * nav-start-anchored insets below. See the `.primitiv-navigation-menu__viewport`

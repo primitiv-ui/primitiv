@@ -241,7 +241,7 @@ export const tabsSpec: ComponentSpec = {
               `const [value, setValue] = useState("props");`,
               ``,
               `<${p("Root")} value={value} onValueChange={setValue}>`,
-              `  {/* … the same List and Content parts … */}`,
+              `  {/* ... the same List and Content parts ... */}`,
               `</${p("Root")}>`,
             ].join("\n");
           }}

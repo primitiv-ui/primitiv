@@ -33,7 +33,7 @@ import {
 
 <Select value={framework} onValueChange={setFramework}>
   <SelectTrigger size="md">
-    <SelectValue placeholder="Pick a framework…" />
+    <SelectValue placeholder="Pick a framework..." />
     <SelectIcon>
       <ChevronDown />
     </SelectIcon>
@@ -58,7 +58,7 @@ Native mode is the same component with `native` set:
 
 ```tsx
 <Select native size="md" defaultValue="apple" aria-label="Pick a fruit">
-  <SelectPlaceholder>Choose a fruit…</SelectPlaceholder>
+  <SelectPlaceholder>Choose a fruit...</SelectPlaceholder>
   <SelectGroup label="Fruits">
     <SelectItem value="apple">Apple</SelectItem>
     <SelectItem value="banana">Banana</SelectItem>

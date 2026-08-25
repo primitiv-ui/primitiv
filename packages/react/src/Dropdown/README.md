@@ -213,7 +213,7 @@ submenu, which is unfocusable. While focus lives inside an open
   <Dropdown.Group>
     <Dropdown.Label>File</Dropdown.Label>
     <Dropdown.Item>New</Dropdown.Item>
-    <Dropdown.Item>Open…</Dropdown.Item>
+    <Dropdown.Item>Open...</Dropdown.Item>
   </Dropdown.Group>
   <Dropdown.Separator />
   <Dropdown.Group>

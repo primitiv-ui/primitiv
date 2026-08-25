@@ -80,14 +80,14 @@ SkipNavLink.displayName = "SkipNavLink";
  * @example Default — wraps the main page content
  * ```tsx
  * <SkipNav.Content>
- *   <main>…</main>
+ *   <main>...</main>
  * </SkipNav.Content>
  * ```
  *
  * @example Custom id (must match `contentId` on `SkipNav.Link`)
  * ```tsx
  * <SkipNav.Content id="main">
- *   <main>…</main>
+ *   <main>...</main>
  * </SkipNav.Content>
  * ```
  */
@@ -132,9 +132,9 @@ SkipNavContent.displayName = "SkipNavContent";
  *   return (
  *     <>
  *       <SkipNav.Link>Skip to main content</SkipNav.Link>
- *       <header>…site navigation…</header>
+ *       <header>...site navigation...</header>
  *       <SkipNav.Content>
- *         <main>…</main>
+ *         <main>...</main>
  *       </SkipNav.Content>
  *     </>
  *   );
@@ -145,7 +145,7 @@ SkipNavContent.displayName = "SkipNavContent";
  * ```tsx
  * <SkipNav.Link contentId="main">Skip to main content</SkipNav.Link>
  * <SkipNav.Content id="main">
- *   <main>…</main>
+ *   <main>...</main>
  * </SkipNav.Content>
  * ```
  *

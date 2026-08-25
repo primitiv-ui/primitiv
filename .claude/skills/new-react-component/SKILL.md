@@ -118,7 +118,7 @@ broken generated docs. That means, in the DOCS commit:
   prop in `types.ts`.
 - The **`Omit`-narrowing check**: any prop that narrows a same-named
   native attribute (`dir`, `value`, `defaultValue`, `label`, `type`,
-  `role`, `size`, …) must be `Omit`-ted from the base
+  `role`, `size`, ...) must be `Omit`-ted from the base
   `ComponentProps<T>` first, or it resolves to an intersection artifact
   (e.g. `string | (readonly string[] & string)`) that leaks into consumer
   types and the generated docs. Run **`pnpm qa:prop-collisions`** (it fails

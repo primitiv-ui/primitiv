@@ -9,7 +9,7 @@ import "../styles/primitiv/figure/styles.css";
  * <Prose>'s shape. Hand-written, so it has no drift-guard test.
  *
  * Compound subcomponents: `Figure.Media` wraps the embedded media (an
- * <img>, <svg>, <pre>, …) and clips it to the figure's corner radius;
+ * <img>, <svg>, <pre>, ...) and clips it to the figure's corner radius;
  * `Figure.Caption` renders the <figcaption> — mirroring the dot-property
  * pattern already used by the registry's other hand-authored compounds (e.g.
  * `CodeBlock.Header`). Both stay DOM siblings in every `captionPosition`,
@@ -34,7 +34,7 @@ export type FigureProps = ComponentPropsWithRef<"figure"> & FigureVariants;
  * @example
  * ```tsx
  * <Figure captionPosition="overlay" size="sm">
- *   <Figure.Media><img src="…" alt="…" /></Figure.Media>
+ *   <Figure.Media><img src="..." alt="..." /></Figure.Media>
  *   <Figure.Caption align="center">A caption.</Figure.Caption>
  * </Figure>
  * ```

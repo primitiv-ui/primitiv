@@ -43,7 +43,7 @@ expressed in logical properties.
 | `styles.css` | **authored** | The canonical default theme (scroll-snap track, circular controls, dot indicators). |
 | `styles.scss` | generated | The canonical CSS re-expressed for SCSS consumers (from `styles.css`). |
 | `carousel.recipe.ts` | generated | One `cva` per styled part (from `contract.json`). |
-| `carousel.tsx` | generated | The styled wrappers — `Carousel` / `CarouselViewport` / `CarouselSlide` / … (from `contract.json`). |
+| `carousel.tsx` | generated | The styled wrappers — `Carousel` / `CarouselViewport` / `CarouselSlide` / ... (from `contract.json`). |
 
 Only `contract.json` (the API) and `styles.css` (the design) are **authored**; the
 SCSS form, recipe and wrapper are **generated** by `primitiv-emit` and pinned to
@@ -77,7 +77,7 @@ so they can't fall out of sync.
   spacing between slides — on a t-shirt scale; it runs on the scroll axis in either
   orientation and composes with everything (the slide flex-basis subtracts the gap,
   so multi-slide recomputes automatically). **`peek`, `gap` and `padding` all draw
-  from one shared content-spacing ramp** (`--primitiv-carousel-content-space-1…4`,
+  from one shared content-spacing ramp** (`--primitiv-carousel-content-space-1...4`,
   the density-scoped `carousel-{slot}-content-space-*` tokens), so their resolved
   steps **breathe with `size` and ambient density** just like the control chrome —
   `gap` picks rungs 1/2/3, `peek`/`padding` rungs 2/3/4 (peek sits one rung above
@@ -193,7 +193,7 @@ so they can't fall out of sync.
   highlight together (the ring above needs no change) and clicking any one of
   them jumps to their shared page. A CSS-only **group border** frames the
   whole run of same-page thumbnails as one unit — built from
-  `:has(+ …)`/adjacent-sibling selectors (no JS, no new data attribute),
+  `:has(+ ...)`/adjacent-sibling selectors (no JS, no new data attribute),
   continuous across the group and absent entirely for a lone thumbnail (the
   `slidesPerPage=1` case, unchanged); it's agnostic to *how* the shared
   `index` value was computed, so it composes correctly with the corrected
@@ -549,8 +549,8 @@ Flat, shadcn-shaped exports the consumer composes over the headless compound:
 ```tsx
 <Carousel ariaLabel="Featured products">
   <CarouselViewport>
-    <CarouselSlide><img src="/a.jpg" alt="…" /></CarouselSlide>
-    <CarouselSlide radius="none"><img src="/b.jpg" alt="…" /></CarouselSlide>
+    <CarouselSlide><img src="/a.jpg" alt="..." /></CarouselSlide>
+    <CarouselSlide radius="none"><img src="/b.jpg" alt="..." /></CarouselSlide>
   </CarouselViewport>
   <CarouselControls>
     <CarouselPreviousTrigger><ChevronLeft /></CarouselPreviousTrigger>

@@ -272,7 +272,7 @@ both controlled and uncontrolled roots, and throws if called outside
 The panel ships with no ARIA role, and renders *outside* the inner
 `role="tree"` widget — a tree may own only `treeitem`s and `group`s, so
 the panel could not legally sit inside it. Give the panel content its
-own labelled landmark (`role`, `aria-label`, …) through props if the
+own labelled landmark (`role`, `aria-label`, ...) through props if the
 preview warrants being announced.
 
 ## `asChild` composition
@@ -287,7 +287,7 @@ element:
 ```tsx
 <MillerColumns.Item<HTMLAnchorElement> asChild value="docs">
   <a href="#docs">Docs</a>
-  <MillerColumns.Column>…</MillerColumns.Column>
+  <MillerColumns.Column>...</MillerColumns.Column>
 </MillerColumns.Item>
 ```
 

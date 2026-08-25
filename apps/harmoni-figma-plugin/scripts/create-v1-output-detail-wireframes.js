@@ -399,8 +399,8 @@
     makeDivider(f, PAD, y, CW); y += 8;
 
     const previewLines = [
-      "brand-50  brand-100  brand-200  …  brand-900",
-      "neutral-50  neutral-100  neutral-200  …  neutral-900",
+      "brand-50  brand-100  brand-200  ...  brand-900",
+      "neutral-50  neutral-100  neutral-200  ...  neutral-900",
       "Bound to light + dark modes within the collection.",
     ];
     for (const line of previewLines) {

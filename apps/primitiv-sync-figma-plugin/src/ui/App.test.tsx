@@ -7,7 +7,7 @@ describe('App', () => {
   it('shows a waiting state before the sandbox announces the page', () => {
     render(<App />)
 
-    expect(screen.getByText('Waiting for Figma…')).toBeInTheDocument()
+    expect(screen.getByText('Waiting for Figma...')).toBeInTheDocument()
   })
 
   it('announces ui-ready to the sandbox once mounted', () => {

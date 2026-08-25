@@ -106,7 +106,7 @@ pattern. A number is pixels; a string is a verbatim CSS length (`"4rem"`,
 
 ```tsx
 <Collapsible.Content collapsedHeight={96} className="preview">
-  A long passage whose first 96px stays visible while collapsed…
+  A long passage whose first 96px stays visible while collapsed...
 </Collapsible.Content>
 ```
 
@@ -165,7 +165,7 @@ elements:
     <a href="#section">Toggle</a>
     {/* rendered with role="button" aria-disabled="true" */}
   </Collapsible.Trigger>
-  <Collapsible.Content>…</Collapsible.Content>
+  <Collapsible.Content>...</Collapsible.Content>
 </Collapsible.Root>
 ```
 

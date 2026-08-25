@@ -70,7 +70,7 @@ import {
  * ```tsx
  * const [value, setValue] = useState("comfortable");
  *
- * <RadioGroup.Root value={value} onValueChange={setValue} aria-label="…">
+ * <RadioGroup.Root value={value} onValueChange={setValue} aria-label="...">
  *   <RadioGroup.Item value="compact">Compact</RadioGroup.Item>
  *   <RadioGroup.Item value="comfortable">Comfortable</RadioGroup.Item>
  * </RadioGroup.Root>

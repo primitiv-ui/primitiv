@@ -174,7 +174,7 @@ export const inputSpec: ComponentSpec = {
               imports(mode),
               ``,
               `<Input asChild>`,
-              `  <input type="search" placeholder="Search…" />`,
+              `  <input type="search" placeholder="Search..." />`,
               `</Input>`,
             ].join("\n")
           }

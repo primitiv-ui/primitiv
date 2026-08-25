@@ -100,7 +100,7 @@ export function ColorEngine() {
     <div className="color-engine">
       <h1>Harmoni Color Engine</h1>
 
-      {!wasmReady && <p>Starting engine…</p>}
+      {!wasmReady && <p>Starting engine...</p>}
 
       <section className="color-engine__inputs">
         <label>

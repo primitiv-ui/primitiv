@@ -251,10 +251,10 @@ the recipe applies can never disagree.
     "description": "Visual intent / emphasis.",
     "options": {
       "primary": { "class": "primitiv-button--primary", "description": "High-emphasis primary action." }
-      // …
+      // ...
     }
   },
-  "size": { "default": "md", "description": "…", "options": { /* xs…xl */ } }
+  "size": { "default": "md", "description": "...", "options": { /* xs...xl */ } }
 }
 ```
 
@@ -270,7 +270,7 @@ D45). Three layers, primary → escape hatch → ground truth:
 | Layer | Looks like | Role | shadcn parallel |
 |---|---|---|---|
 | **Styled wrapper** (primary) | `<Button variant="danger" size="sm">` | The typed, documented default DX | `<Button variant size>` |
-| **Recipe function** (escape hatch) | `className={button({ variant: "link" })}` | Classes on a non-component element / `asChild` | `buttonVariants({…})` |
+| **Recipe function** (escape hatch) | `className={button({ variant: "link" })}` | Classes on a non-component element / `asChild` | `buttonVariants({...})` |
 | **Raw contract classes** (ground truth) | `class="primitiv-button primitiv-button--danger"` | Framework-agnostic, documented | reading the source |
 
 Both the recipe **and** the wrapper are **generated** from `contract.json` by
@@ -296,7 +296,7 @@ Aligning with RFC 0001 §9: the Button's intents are `primary`, `secondary`,
   - size — `--xs`, `--sm`, `--md`, `--lg`, `--xl`
 - `data-*` (emitted by the headless Button): `data-disabled`, `data-loading`
 - Custom properties: `--primitiv-button-bg`, `--primitiv-button-fg`,
-  `--primitiv-button-radius`, `--primitiv-button-padding-x`, … (defaulting to
+  `--primitiv-button-radius`, `--primitiv-button-padding-x`, ... (defaulting to
   theme tokens)
 
 **How each profile consumes it.**

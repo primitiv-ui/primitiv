@@ -168,7 +168,7 @@ export function App() {
       {pageName !== null ? (
         <p className="app__page">Connected to: {pageName}</p>
       ) : (
-        <p className="app__status">Waiting for Figma…</p>
+        <p className="app__status">Waiting for Figma...</p>
       )}
       <label className="app__toggle">
         <input
@@ -204,7 +204,7 @@ export function App() {
       </div>
       {liveSync ? (
         syncStatus.kind === "syncing" ? (
-          <p className="app__sync-status">Syncing to localhost:4477…</p>
+          <p className="app__sync-status">Syncing to localhost:4477...</p>
         ) : syncStatus.kind === "success" ? (
           <p className="app__sync-status app__sync-status--ok">
             Synced to localhost:4477
@@ -255,7 +255,7 @@ export function App() {
           Bootstrap context
         </Button>
         {bootstrapStatus.kind === "running" && (
-          <p className="app__sync-status">Bootstrapping…</p>
+          <p className="app__sync-status">Bootstrapping...</p>
         )}
         {bootstrapStatus.kind === "success" && (
           <BootstrapSummary result={bootstrapStatus.result} />
@@ -278,7 +278,7 @@ export function App() {
           Bootstrap interaction
         </Button>
         {interactionStatus.kind === "running" && (
-          <p className="app__sync-status">Bootstrapping…</p>
+          <p className="app__sync-status">Bootstrapping...</p>
         )}
         {interactionStatus.kind === "success" && (
           <InteractionSummary result={interactionStatus.result} />
@@ -301,7 +301,7 @@ export function App() {
           Bootstrap Intent
         </Button>
         {intentStatus.kind === "running" && (
-          <p className="app__sync-status">Bootstrapping…</p>
+          <p className="app__sync-status">Bootstrapping...</p>
         )}
         {intentStatus.kind === "success" && (
           <IntentSummary result={intentStatus.result} />

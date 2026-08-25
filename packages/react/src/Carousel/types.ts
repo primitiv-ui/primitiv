@@ -627,7 +627,7 @@ export type CarouselSlideProps = Omit<ComponentProps<"div">, "aria-label"> & {
 /** Props for `Carousel.NextTrigger` — the button that advances one page; native `<button>` props plus `asChild`. */
 export type CarouselNextTriggerProps = ComponentProps<"button"> & {
   /** Render the child element instead of the default `<button>`. All
-   * trigger props (onClick, disabled, ids.nextTrigger, …) are merged
+   * trigger props (onClick, disabled, ids.nextTrigger, ...) are merged
    * onto the child via `Slot`. The child must accept a `ref`. */
   asChild?: boolean;
 };

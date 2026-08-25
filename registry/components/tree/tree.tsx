@@ -135,7 +135,7 @@ function ChevronRightGlyph() {
  * selected band runs edge to edge (VS Code / Chakra behaviour) instead of
  * starting at the nested level. That needs the depth as a number: `data-depth`
  * is already on the element, but reading it in CSS needs
- * `attr(… type(<integer>))`, which Firefox does not support — so it is threaded
+ * `attr(... type(<integer>))`, which Firefox does not support — so it is threaded
  * through as a custom property instead. `useTreeLevel` is the headless hook that
  * exposes it.
  */

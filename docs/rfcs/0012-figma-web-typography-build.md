@@ -55,7 +55,7 @@ The full 27-item checklist lives at
 | 16 | Figure + figcaption | Component | Done — see [RFC 0015](0015-figma-figure-figcaption-component.md) |
 | 17 | Divider / hr | Component | Done |
 | 18 | kbd | Component | Done |
-| 19–27 | char styles · … | Various | To build |
+| 19–27 | char styles · ... | Various | To build |
 
 ---
 
@@ -356,7 +356,7 @@ the mark is a one-off outlined glyph filled from `content/muted`.
 
 | Part | Token |
 |------|-------|
-| Quote text (xs→xl) | `heading/h5…h1` Context · `content/primary` |
+| Quote text (xs→xl) | `heading/h5...h1` Context · `content/primary` |
 | Decorative mark (`Pull Quote / Mark`) | outlined Hoefler Text Black `“` · `content/muted` (Marks=with only) |
 | Mark→quote gap | fixed per size — xs/sm: 8px · md: 12px · lg: 16px · xl: 20px |
 
@@ -407,7 +407,7 @@ live in the variable value — it is an emit-time concern):
      Menlo, Consolas, "Liberation Mono", monospace;
    ```
    `heading`/`text` currently emit bare (`Khand` / `Asta Sans`) with **no**
-   fallback either — give them a `…, sans-serif` stack in the same pass.
+   fallback either — give them a `..., sans-serif` stack in the same pass.
    (Today the emitter does not emit any `--primitiv-font-family-*` layer; that
    whole typography layer is part of this upcoming session.)
 2. **Load the webfont**: add JetBrains Mono to the Google Fonts `<link>`s

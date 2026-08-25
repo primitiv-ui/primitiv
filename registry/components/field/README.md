@@ -2,7 +2,7 @@
 
 The artefacts `primitiv add field` resolves and copies into a consumer repo.
 Field is a **form-field wrapper**: a structural compound that owns the label,
-helper text, and error message around a control (`Input`, a future `Textarea`, …).
+helper text, and error message around a control (`Input`, a future `Textarea`, ...).
 It carries a **`size`** axis that scales its own label / helper typography and
 stack gap (density scales each size further, ambiently). Field does **not**
 cascade size to the control it wraps — the control carries its own `size`, so set

@@ -154,7 +154,7 @@ surface is the shadcn-equivalent (`Breadcrumb` / `BreadcrumbList` /
 
 `Breadcrumb` owns no truncation or menu-open state of its own — same
 philosophy as the headless layer (see its README). `BreadcrumbEllipsis` is a
-purely decorative `"…"` glyph; compose it with the registry `dropdown`
+purely decorative `"..."` glyph; compose it with the registry `dropdown`
 component to build the real trigger. See `registry/components/breadcrumb-overflow`
 for a ready-made compound that wires this pattern up with `keepStart` /
 `keepEnd` truncation, or compose it directly:

@@ -60,7 +60,7 @@ props beyond its size, and it renders one trail per selected value in
 ```tsx
 <Tree selectionMode="single" defaultSelectedValue="index.ts">
   <TreeSelectionPath size="md" />
-  {/* …rows… */}
+  {/* ...rows... */}
 </Tree>
 ```
 
@@ -137,7 +137,7 @@ partway across the tree instead of running edge to edge (VS Code, Chakra and
 most file trees run it edge to edge). Padding the row keeps the box full-width
 and moves only its contents. The depth comes from the headless `useTreeLevel`
 hook, published as `--primitiv-tree-depth`; reading `data-depth` in CSS would
-need `attr(… type(<integer>))`, which Firefox does not support. **There is no
+need `attr(... type(<integer>))`, which Firefox does not support. **There is no
 depth cap.**
 
 **The chevron needs no setup.** `<TreeBranchIndicator />` ships its own glyph

@@ -29,7 +29,7 @@ export type AspectRatioProps = ComponentPropsWithRef<"div"> & AspectRatioVariant
  * @example
  * ```tsx
  * <AspectRatio ratio="16/9">
- *   <img src="…" alt="…" className="my-cover-image" />
+ *   <img src="..." alt="..." className="my-cover-image" />
  * </AspectRatio>
  * ```
  *

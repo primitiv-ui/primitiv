@@ -131,7 +131,7 @@ describe("Select.Value mirroring", () => {
     const trigger = screen.getByRole("button");
     expect(trigger).toHaveTextContent("React");
     expect(within(trigger).queryByTestId("mark")).not.toBeInTheDocument();
-    // …while the row's own copy stays mounted.
+    // ...while the row's own copy stays mounted.
     expect(screen.getByTestId("mark")).toBeInTheDocument();
   });
 

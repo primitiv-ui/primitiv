@@ -95,7 +95,7 @@ export const ComponentPageHeader = ({ docs }: { docs: ComponentDocs }) => (
     </Stack>
 
     {/* Generated JSDoc, so it carries backticks — Button's own description ends
-        "…via `asChild`." `lg` matches the lede's own 20px type. */}
+        "...via `asChild`." `lg` matches the lede's own 20px type. */}
     <p className="docs-component-lede">{renderDoc(docs.description, "lg")}</p>
   </Stack>
 );

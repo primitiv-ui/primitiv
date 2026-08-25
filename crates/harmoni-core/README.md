@@ -15,7 +15,7 @@ structs and convert at the boundary via `From<harmoni_core::*>`.
 ## Engine surface
 
 Adapters should program against `harmoni_core::api`, never the lower-level
-modules (`audit`, `palette::generator`, …). If an adapter needs something
+modules (`audit`, `palette::generator`, ...). If an adapter needs something
 `api` doesn't expose, extend `api` first. The curated surface is small by
 design:
 

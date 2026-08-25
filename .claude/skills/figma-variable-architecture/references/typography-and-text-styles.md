@@ -24,7 +24,7 @@ most prominent role, not its only one.
 When creating typography variables, `font-family` and `font-style` are
 **STRING**, but `font-weight`, `font-size`, and `line-height` are **FLOAT**.
 Creating a `font-weight` variable as STRING (then aliasing the FLOAT primitive)
-throws `"Mismatched variable resolved type for mode …"`. Pick the resolvedType
+throws `"Mismatched variable resolved type for mode ..."`. Pick the resolvedType
 per field, not per "it's typography".
 
 ## Text styles and mode overrides
@@ -69,7 +69,7 @@ the shared variable resolves to the correct density value.
 **Typography variable paths in text styles** follow the same naming as in
 component anatomy:
 - `label/{xs–xl}/font-family`, `font-style`, `font-size`, `line-height`
-- `body/{xs–xl}/…`, `heading/{h1–h6}/…`, `display/{lg,xl}/…`, `overline/…`
+- `body/{xs–xl}/...`, `heading/{h1–h6}/...`, `display/{lg,xl}/...`, `overline/...`
 
 **Component label text nodes** (e.g. Button's "Button text") bind directly to
 Context collection variables inline — no text style applied. They respond

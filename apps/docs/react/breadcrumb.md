@@ -90,7 +90,7 @@ It defaults to a `"/"` glyph. Pass `children` to use a custom separator:
 which crumbs collapse is a styled-surface concern (see the registry `card`
 composite for the same "no data model in the primitive" philosophy). What
 the headless layer provides is `Breadcrumb.Ellipsis`: a purely decorative
-`"…"` glyph for the trigger's visual content.
+`"..."` glyph for the trigger's visual content.
 
 Compose it with [`Dropdown`](../Dropdown/README.md) to build the actual
 trigger — a real interactive element (a `<button>`, or anything
@@ -122,7 +122,7 @@ import { Breadcrumb, Dropdown, VisuallyHidden } from "@primitiv-ui/react";
 </Breadcrumb.Item>;
 ```
 
-`Breadcrumb.Ellipsis` defaults to a `"…"` glyph; pass `children` to use a
+`Breadcrumb.Ellipsis` defaults to a `"..."` glyph; pass `children` to use a
 custom one:
 
 ```tsx

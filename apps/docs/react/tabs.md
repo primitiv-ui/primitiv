@@ -15,8 +15,8 @@ import { Tabs } from "@primitiv-ui/react";
     <Tabs.Trigger value="overview">Overview</Tabs.Trigger>
     <Tabs.Trigger value="settings">Settings</Tabs.Trigger>
   </Tabs.List>
-  <Tabs.Content value="overview">Dashboard…</Tabs.Content>
-  <Tabs.Content value="settings">Preferences…</Tabs.Content>
+  <Tabs.Content value="overview">Dashboard...</Tabs.Content>
+  <Tabs.Content value="settings">Preferences...</Tabs.Content>
 </Tabs.Root>;
 ```
 
@@ -67,7 +67,7 @@ trigger and panel is always present.
 
 ```tsx
 <Tabs.Root defaultValue="overview" lazyMount>
-  …
+  ...
 </Tabs.Root>
 ```
 
@@ -80,7 +80,7 @@ position must be computed while the panel has real dimensions.
 ```tsx
 const ref = useRef<TabsImperativeApi>(null);
 <Tabs.Root ref={ref} defaultValue="a">
-  …
+  ...
 </Tabs.Root>;
 ref.current?.setActiveTab("b");
 ```

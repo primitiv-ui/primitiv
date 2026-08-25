@@ -69,7 +69,7 @@
   color: var(--primitiv-content-secondary);
 }
 
-/* The 12px muted trailing hint — "Headless mode installs …", "… 14 total". */
+/* The 12px muted trailing hint — "Headless mode installs ...", "... 14 total". */
 .docs-install-hint {
   margin: 0;
   font-family: var(--primitiv-body-sm-font-family);

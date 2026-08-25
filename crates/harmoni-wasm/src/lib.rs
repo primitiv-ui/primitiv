@@ -448,7 +448,7 @@ pub fn paint_chroma_strip(
 }
 
 /// Parses any CSS colour string (`#rrggbb`, `oklch(L C H)`, `rgb(...)`, a
-/// named colour, …) into the OkLCH triple the picker's hex⇄oklch text field
+/// named colour, ...) into the OkLCH triple the picker's hex⇄oklch text field
 /// round-trips through — `{ l, c, h }` plus the `hex`/`rgb`/`oklch` renderings
 /// (RFC 0010 §4). Parsing crosses into the one Rust engine; no JS colour
 /// library is involved (Principle 1). Errors on an unparseable string.

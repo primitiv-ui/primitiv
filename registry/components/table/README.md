@@ -31,7 +31,7 @@ exactly like the headless API (D56).
   static layout component: it carries no state, so it emits no `data-*` (sort /
   row-state are design-guidance only — RFC 0014 §11).
 - **`root` / `modifiers` / `customProperties`** — authored. The `.primitiv-table`
-  root class with the `--xs…--xl` **size** modifier (the type scale) and the
+  root class with the `--xs...--xl` **size** modifier (the type scale) and the
   **rows** modifier (`plain` / `striped`), the part classes, and the
   `--primitiv-table-*` custom-property API.
 
@@ -44,7 +44,7 @@ token layer, so this file only re-opens the named sublayers). Collapsed rules,
 body type, a header row set off by a strong underline (no fill band), subtle row
 rules, and a hover/selected row fill.
 
-**Size is the type axis only.** `--xs…--xl` re-point the `--primitiv-table-font-*`
+**Size is the type axis only.** `--xs...--xl` re-point the `--primitiv-table-font-*`
 knobs to the matching `body/{size}` slot; **cell padding is density-driven** via
 the `table/cell/padding-*` Context tokens, so it tracks `data-density`
 independently of size (matching the Figma model — RFC 0014).

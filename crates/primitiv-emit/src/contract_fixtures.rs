@@ -100,8 +100,8 @@ pub(crate) const DEMO_VIEW: &str = r#"{
 
 /// Labelled framed-control synthetic contract — the generality proof for the
 /// inline-label decorative-slot shape (Radio/Checkbox/Switch without being any
-/// of them, D54). `label: true` nests the parts inside a `…__control` box and
-/// appends a `…__label` span fed by `children`; the `size` modifier proves the
+/// of them, D54). `label: true` nests the parts inside a `...__control` box and
+/// appends a `...__label` span fed by `children`; the `size` modifier proves the
 /// children destructure rides alongside the variant props.
 pub(crate) const DEMO_LABELLED: &str = r#"{
   "name": "demo-labelled",

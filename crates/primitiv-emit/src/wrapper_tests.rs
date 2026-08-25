@@ -61,7 +61,7 @@ fn generates_a_compound_auto_rendering_wrapper_for_a_no_modifier_parts_contract(
 }
 
 /// The inline-label decorative-slot shape (`label: true`): the parts nest inside
-/// a `…__control` box, a `…__label` span carrying `children` is appended, and
+/// a `...__control` box, a `...__label` span carrying `children` is appended, and
 /// `children` joins the destructure alongside the `size` variant prop (D54).
 #[test]
 fn generates_a_framed_control_with_inline_label_for_a_labelled_parts_contract() {
@@ -281,7 +281,7 @@ fn omits_the_distributive_helper_when_there_are_no_modifiers() {
 }
 
 /// A single-element contract can opt into wrapping its text children in a
-/// `…__label` span (so `text-box-trim` can sit on the label, not the flex box).
+/// `...__label` span (so `text-box-trim` can sit on the label, not the flex box).
 /// The wrapper then imports `Children` / `ReactNode`, emits the `wrapTextNodes`
 /// helper, destructures `children`, and renders `{wrapTextNodes(children)}`.
 #[test]

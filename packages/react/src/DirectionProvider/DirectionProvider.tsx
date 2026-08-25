@@ -21,9 +21,9 @@ import { DirectionProviderProps } from "./types";
  * ```tsx
  * <DirectionProvider dir="rtl">
  *   {/* inherits rtl *\/}
- *   <Tabs.Root defaultValue="a">…</Tabs.Root>
+ *   <Tabs.Root defaultValue="a">...</Tabs.Root>
  *   {/* explicit ltr overrides the provider *\/}
- *   <Tabs.Root dir="ltr" defaultValue="a">…</Tabs.Root>
+ *   <Tabs.Root dir="ltr" defaultValue="a">...</Tabs.Root>
  * </DirectionProvider>
  * ```
  *
@@ -39,7 +39,7 @@ import { DirectionProviderProps } from "./types";
  * import { DirectionProvider } from "@primitiv-ui/react";
  *
  * <DirectionProvider dir="rtl">
- *   <Tabs.Root defaultValue="overview">…</Tabs.Root>
+ *   <Tabs.Root defaultValue="overview">...</Tabs.Root>
  *   <Slider.Root defaultValue={[50]} aria-label="Volume" />
  * </DirectionProvider>
  * ```
@@ -47,9 +47,9 @@ import { DirectionProviderProps } from "./types";
  * @example Nested providers — inner overrides outer for its subtree
  * ```tsx
  * <DirectionProvider dir="rtl">
- *   <Tabs.Root defaultValue="a">…</Tabs.Root>
+ *   <Tabs.Root defaultValue="a">...</Tabs.Root>
  *   <DirectionProvider dir="ltr">
- *     <Tabs.Root defaultValue="b">…</Tabs.Root>
+ *     <Tabs.Root defaultValue="b">...</Tabs.Root>
  *   </DirectionProvider>
  * </DirectionProvider>
  * ```

@@ -116,7 +116,7 @@ that unlayered styles outrank layered ones.
 > **`primitiv.reset` — now populated (reversal of D49, see §7/§8).** Originally
 > reserved-but-empty (the components are headless), the lowest sublayer now carries
 > the **base element stylesheet**: tokenised bare-element styles (`p`, `h1`–`h6`,
-> `strong`, `blockquote`, `code`, `table`, the inline marks, …) for prose and
+> `strong`, `blockquote`, `code`, `table`, the inline marks, ...) for prose and
 > typographic marks. It is the lowest sublayer precisely so a consumer rule — or any
 > Primitiv component class in `base`/`variants`/`states` — overrides it at near-zero
 > cost. Shipped as a foundation file written next to the token layer by `primitiv
@@ -127,11 +127,11 @@ that unlayered styles outrank layered ones.
 | Sublayer | Contents | Example |
 |---|---|---|
 | `reset` | the global **base element stylesheet** — tokenised bare-element prose & inline-mark styles (reversal of D49) | `blockquote { border-inline-start: var(--primitiv-border-width-3) solid var(--primitiv-border-strong) }` |
-| `tokens` | shared theme-token defaults + dark-mode token overrides (§5) | `:root { --primitiv-color-primary: … }` |
+| `tokens` | shared theme-token defaults + dark-mode token overrides (§5) | `:root { --primitiv-color-primary: ... }` |
 | `theme` | `primitiv theme --brand` overrides (§5) | `:root { --primitiv-color-primary: <derived> }` |
 | `base` | a component's base rule **and its per-component API tokens** (§3.2) | `.primitiv-button { --primitiv-button-bg: var(--primitiv-color-primary); background: var(--primitiv-button-bg) }` |
-| `variants` | modifier classes (RFC 0004 §3.1.2) | `.primitiv-button--secondary { … }` |
-| `states` | `data-*` state/behavioural styling (RFC 0004 §3.1.3) | `.primitiv-button[data-disabled] { … }` |
+| `variants` | modifier classes (RFC 0004 §3.1.2) | `.primitiv-button--secondary { ... }` |
+| `states` | `data-*` state/behavioural styling (RFC 0004 §3.1.3) | `.primitiv-button[data-disabled] { ... }` |
 
 ### 2.3 Why this order — the data-vs-modifier precedence, resolved
 
@@ -177,7 +177,7 @@ defeating Principle 1. Therefore **Primitiv-emitted CSS contains no
 
 ### 2.6 Orthogonal to root-class emission (RFC 0004 §7.5)
 
-A cascade layer wraps *rule blocks* (`.primitiv-button { … }`), not the act of
+A cascade layer wraps *rule blocks* (`.primitiv-button { ... }`), not the act of
 applying a class. So the layer model holds **identically** regardless of who puts
 the class on the element. RFC 0004 §7.5 has since been **resolved (D45): the
 component emits its root/part identity classes** — but that decision and this one
@@ -205,7 +205,7 @@ dependency of `add` (RFC 0005 §4.4):
   :root {
     --primitiv-color-primary: oklch(0.55 0.13 162);
     --primitiv-radius-md: 0.5rem;
-    /* … the full theme-token surface … */
+    /* ... the full theme-token surface ... */
   }
 }
 ```
@@ -292,7 +292,7 @@ The RFC 0006 formats (D23) carry the layer model as their medium allows:
 |---|---|---|
 | **CSS** (canonical) | yes | native `@layer` blocks as shown above |
 | **SCSS** | yes | compiles to the same `@layer` blocks (Dart Sass passes `@layer` through); `$`-vars/maps resolve into the layered custom properties |
-| **Tailwind** | yes (consumer-ordered) | preset maps `--primitiv-*` via `@theme`; recipes document the recommended `@layer … primitiv … utilities` order (§2.5) |
+| **Tailwind** | yes (consumer-ordered) | preset maps `--primitiv-*` via `@theme`; recipes document the recommended `@layer ... primitiv ... utilities` order (§2.5) |
 | **TS/JS token object** | N/A | values only, no cascade — layers do not apply |
 
 One design, emitted per format (RFC 0006 §6.1); the layer structure is part of
@@ -305,7 +305,7 @@ that one design, not a per-format reinvention.
 - **Dark tokens** (RFC 0006 §5.2) are token *values*, so they live in
   `primitiv.tokens` alongside the light defaults. The `[data-theme="dark"]`
   scope wins over `:root` by normal source order *within* the layer — no
-  cross-layer interaction needed. The **density** scopes (`[data-density="…"]`,
+  cross-layer interaction needed. The **density** scopes (`[data-density="..."]`,
   RFC 0009) are the sibling mode axis and live in the same `primitiv.tokens`
   layer on identical terms; both rely on plain custom-property inheritance, not
   cascade-layer ordering, so nesting a scope works regardless of layers.
@@ -336,7 +336,7 @@ that one design, not a per-format reinvention.
    `primitiv.reset` **reserved but empty** in v1 — the components are headless and a
    reset is the consumer's concern. That reversed once **prose & inline-mark
    typography** landed in Figma: those are the most basic semantic elements (`p`,
-   `strong`, `blockquote`, `code`, `table`, the inline marks, …), and styling them
+   `strong`, `blockquote`, `code`, `table`, the inline marks, ...), and styling them
    as **bare element selectors in the lowest sublayer** lets a consumer override any
    one at near-zero cost — strictly better DX than opt-in classes for primitives.
    So `primitiv.reset` is now **populated** by the base element stylesheet, shipped
@@ -350,11 +350,11 @@ that one design, not a per-format reinvention.
    element *typography* and inline marks stay in `reset` exactly as above.
 2. ~~**Anonymous vs named nested layers.**~~ **Resolved (D49):** every
    per-component stylesheet **re-opens the named layer** (`@layer primitiv.base
-   { … }`) — re-opening is safe and order-stable, and copy-in files are imported
+   { ... }`) — re-opening is safe and order-stable, and copy-in files are imported
    independently, so a single concatenated bundle cannot be assumed.
 3. ~~**Tailwind layer-order enforcement.**~~ **Resolved (D49):** the `add` wiring
    step **reuses the existing detect-and-offer-to-patch mechanism** (RFC 0005
-   §4.3, D19) — it documents the recommended `@layer … primitiv … utilities`
+   §4.3, D19) — it documents the recommended `@layer ... primitiv ... utilities`
    statement and offers to write it (applied under `--yes`, skipped under
    `--no-wiring`). Same mechanism as the Tailwind `dark:`-variant remap (RFC 0009
    §8.3).

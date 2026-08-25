@@ -99,7 +99,7 @@ import { PullQuote } from "@/components/pull-quote";
 
 | File | Authored? | Role |
 |---|---|---|
-| `contract.json` | **authored** | The styling contract — the `.primitiv-pull-quote` root class, the `--xs…--xl` modifiers, and the `--primitiv-pull-quote-*` custom properties. |
+| `contract.json` | **authored** | The styling contract — the `.primitiv-pull-quote` root class, the `--xs...--xl` modifiers, and the `--primitiv-pull-quote-*` custom properties. |
 | `styles.css` | **authored** | The canonical default theme: the centred layout + heading-scale type + decorative mark, in `@layer primitiv.base`/`primitiv.variants`. |
 | `styles.scss` | **authored** | `styles.css` plus a trailing `$`-alias block, one `$primitiv-pull-quote-<prop>` per custom property. |
 | `pull-quote.recipe.ts` | **authored** | `cva("primitiv-pull-quote", { variants: { size } })`. |

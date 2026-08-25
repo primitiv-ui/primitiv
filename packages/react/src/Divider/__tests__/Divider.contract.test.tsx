@@ -12,7 +12,7 @@ import { Divider } from "../Divider";
  * and asserted against the rendered headless component* so it can never drift
  * from what the component actually emits. Divider has **no** data-* surface — it
  * styles off `aria-orientation` — so the guard also pins that hook: the registry
- * stylesheet's `[aria-orientation="…"]` selectors depend on it.
+ * stylesheet's `[aria-orientation="..."]` selectors depend on it.
  */
 const contractPath = resolve(
   dirname(fileURLToPath(import.meta.url)),

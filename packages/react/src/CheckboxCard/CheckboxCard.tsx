@@ -61,7 +61,7 @@ function dataStateOf(checked: CheckedState) {
  * ```tsx
  * const [enabled, setEnabled] = useState<CheckedState>(false);
  *
- * <CheckboxCard.Root checked={enabled} onCheckedChange={setEnabled} aria-label="…">
+ * <CheckboxCard.Root checked={enabled} onCheckedChange={setEnabled} aria-label="...">
  *   <CheckboxCard.Indicator />
  *   Feature name
  * </CheckboxCard.Root>

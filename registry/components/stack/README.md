@@ -76,7 +76,7 @@ Render your own semantic element via `asChild`:
 
 ```tsx
 <Stack asChild direction="row" gap="md">
-  <nav aria-label="Breadcrumb">…</nav>
+  <nav aria-label="Breadcrumb">...</nav>
 </Stack>
 ```
 

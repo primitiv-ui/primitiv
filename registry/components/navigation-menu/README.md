@@ -128,7 +128,7 @@ near the start, and vice versa) rather than spilling past the nav's own
 boundary, via named `@position-try` fallbacks.
 
 This only takes effect in browsers with CSS anchor-positioning support — the
-whole mechanism sits behind `@supports (anchor-name: …)`. Elsewhere the panel
+whole mechanism sits behind `@supports (anchor-name: ...)`. Elsewhere the panel
 falls back to the plain nav-start-anchored insets, which is why NavigationMenu
 keeps this fallback at all: unlike Dropdown/Popover it has to keep working
 everywhere, not just in Chromium.

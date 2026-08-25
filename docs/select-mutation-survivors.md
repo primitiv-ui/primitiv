@@ -49,7 +49,7 @@ re.finditer(r'"mutatorName":"([^"]+)","replacement":"((?:[^"\\]|\\.)*)",'
   version is an opaque re-render trigger.
 - `triggerRef.current?.focus()` ×2 — OptionalChaining: the trigger is always
   mounted when this runs.
-- toggle-listener cleanup `removeEventListener("toggle", …)` — StringLiteral +
+- toggle-listener cleanup `removeEventListener("toggle", ...)` — StringLiteral +
   ArrowFunction: unmount-only, unobservable.
 - toggle-effect `[setOpen]` dep — ArrayDeclaration: `setOpen` is stable (the dep
   had to be reformatted onto its own line for the marker to bind).

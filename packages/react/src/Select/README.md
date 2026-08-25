@@ -20,7 +20,7 @@ import { Select } from "@primitiv-ui/react";
 // Rich (default)
 <Select.Root value={framework} onValueChange={setFramework}>
   <Select.Trigger>
-    <Select.Value placeholder="Pick a framework…" />
+    <Select.Value placeholder="Pick a framework..." />
   </Select.Trigger>
   <Select.Content>
     <Select.Item value="react">
@@ -115,7 +115,7 @@ icon-only item with no text renders an empty, unlabelled `<option>`.
 
 ```tsx
 <Select.Root native defaultValue="apple" aria-label="Pick a fruit">
-  <Select.Placeholder>Choose a fruit…</Select.Placeholder>
+  <Select.Placeholder>Choose a fruit...</Select.Placeholder>
   <Select.Group label="Fruits">
     <Select.Item value="apple">Apple</Select.Item>
     <Select.Item value="banana">Banana</Select.Item>

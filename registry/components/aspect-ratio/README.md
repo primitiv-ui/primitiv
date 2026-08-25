@@ -55,8 +55,8 @@ Lay ratio boxes out with a Grid and **leave `align-items` alone**:
 ```tsx
 // ✓ the row sizes to the taller box; each box keeps its own ratio.
 <div className="my-two-up-grid">   {/* display: grid; grid-template-columns: 1fr 1fr */}
-  <AspectRatio ratio="16/9">…</AspectRatio>
-  <AspectRatio ratio="1/1">…</AspectRatio>
+  <AspectRatio ratio="16/9">...</AspectRatio>
+  <AspectRatio ratio="1/1">...</AspectRatio>
 </div>
 ```
 
@@ -93,7 +93,7 @@ import { AspectRatio } from "@/components/aspect-ratio";
 
 <AspectRatio ratio="16/9">
   {/* object-fit is yours: AspectRatio only reserves the box */}
-  <img src="…" alt="…" className="my-cover-image" />
+  <img src="..." alt="..." className="my-cover-image" />
 </AspectRatio>
 ```
 
@@ -101,7 +101,7 @@ import { AspectRatio } from "@/components/aspect-ratio";
 
 | File | Authored? | Role |
 |---|---|---|
-| `contract.json` | **authored** | The styling contract — the `.primitiv-aspect-ratio` root class, the eight `--1-1`…`--9-16` ratio modifiers, the `__content` part, and the `--primitiv-aspect-ratio` custom property. |
+| `contract.json` | **authored** | The styling contract — the `.primitiv-aspect-ratio` root class, the eight `--1-1`...`--9-16` ratio modifiers, the `__content` part, and the `--primitiv-aspect-ratio` custom property. |
 | `styles.css` | **authored** | The canonical default theme: the `aspect-ratio` + content-fill rules, in `@layer primitiv.base`. |
 | `styles.scss` | **authored** | `styles.css` plus a trailing `$primitiv-aspect-ratio` alias. |
 | `aspect-ratio.recipe.ts` | **authored** | `cva("primitiv-aspect-ratio", { variants: { ratio } })` over the eight ratio presets. |

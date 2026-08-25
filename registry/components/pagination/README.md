@@ -87,11 +87,11 @@ set's `Show summary` / `Show jump` booleans.
   <PaginationSummary>
     Showing {startIndex + 1}-{endIndex} of {totalItems}
   </PaginationSummary>
-  <PaginationList>{/* … */}</PaginationList>
+  <PaginationList>{/* ... */}</PaginationList>
   <PaginationTrailing>
     <span>Go to</span>
     <Select native value={String(page)} onValueChange={(v) => setPage(Number(v))}>
-      {/* … */}
+      {/* ... */}
     </Select>
   </PaginationTrailing>
 </Pagination>
@@ -167,7 +167,7 @@ file for convenience; they live in `@primitiv-ui/react`.
   and the a11y tree cannot drift apart.
 - Prev/next take `disabled` at the ends of the range; the current page cell is
   never disabled — it stays focusable so a keyboard user isn't stranded.
-- The ellipsis is a real button (not a `…` glyph), so the collapsed pages stay
+- The ellipsis is a real button (not a `...` glyph), so the collapsed pages stay
   reachable by keyboard and screen reader.
 
 ## Why the state lives in a hook
@@ -191,7 +191,7 @@ collapse). It is tested there to 100% and is reusable against any data source.
 | `--primitiv-pagination-item-min-inline-size` | `var(--primitiv-pagination-md-item-min-width)` |
 | `--primitiv-pagination-menu-min-inline-size` | `var(--primitiv-pagination-md-item-min-width)` |
 
-Every one is re-pointed by the `--xs`…`--xl` modifiers. The base rule's `md`
+Every one is re-pointed by the `--xs`...`--xl` modifiers. The base rule's `md`
 values are defaults for an unsized root — a knob declared there and *not*
 restated per size silently pins itself to `md` at every size.
 

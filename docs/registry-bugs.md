@@ -21,7 +21,7 @@ the configuration a real app needs.
 
 ## 1. `Button` — `asChild` links render underlined — FIXED
 
-**Symptom.** `<Button asChild><Link…></Button>` renders with an underline.
+**Symptom.** `<Button asChild><Link...></Button>` renders with an underline.
 
 **Cause.** `.primitiv-button` never set `text-decoration`. A `<button>` is never
 underlined, so nothing looked missing — but under `asChild` the rendered element
@@ -93,7 +93,7 @@ worth checking before landing:
   `primitiv add code-block` installs it) — confirm, because the import assumes
   the file is present.
 - It makes `code-block` pull in the tabs sheet even for the single-block
-  `<CodeBlock code=… />` form, which does not use tabs. Acceptable (one small
+  `<CodeBlock code=... />` form, which does not use tabs. Acceptable (one small
   sheet) but it is a real cost, and the alternative — documenting the dependency
   and making consumers import it — is worse DX.
 - Check whether any other hand-authored component borrows another's classes the
@@ -122,7 +122,7 @@ li + li { margin-block-start: var(--primitiv-list-item-gap); }
 ```
 
 **Which layer:** `primitiv.reset`. The *entire* `primitiv-base.css` is one
-`@layer primitiv.reset { … }` block (its only top-level layer statement besides
+`@layer primitiv.reset { ... }` block (its only top-level layer statement besides
 the order declaration), so every bare-element rule in it — `p`, `li + li`,
 `figcaption` — is in the lowest layer. Worth stating explicitly because the
 filename says "base" and it is easy to assume the rules land in `primitiv.base`.
@@ -280,7 +280,7 @@ generator fix lands; they are marked with a comment saying so.
 
 ## 6. `@primitiv-ui/icons` is unusable as a `link:` dependency — WORKED AROUND
 
-**Symptom.** Every icon rejects every prop. `<ChevronRight className="…" />`
+**Symptom.** Every icon rejects every prop. `<ChevronRight className="..." />`
 fails to compile with *"Property 'className' does not exist on type
 'IntrinsicAttributes & IconProps'"* — even though `IconProps extends
 SVGProps<SVGSVGElement>`, which plainly has it.
@@ -288,7 +288,7 @@ SVGProps<SVGSVGElement>`, which plainly has it.
 **Cause.** `packages/icons` declares `@types/react` as a **peerDependency**. A
 `link:` dependency is a bare symlink to a source directory with no
 `node_modules` of its own, so nothing installs that peer. `import type {
-SVGProps } from "react"` then fails to resolve, `IconProps extends SVGProps<…>`
+SVGProps } from "react"` then fails to resolve, `IconProps extends SVGProps<...>`
 degrades to `{}`, and the component accepts nothing.
 
 **Sharp edge worth knowing:** plain `tsc` did NOT reproduce it. The app's

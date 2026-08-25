@@ -118,7 +118,7 @@ fn root_mapping(bytes: &[u8]) -> Option<RootMapping> {
     })
 }
 
-/// A resolved root path mapping: the import-alias `prefix` (`@`, `~`, …) and the
+/// A resolved root path mapping: the import-alias `prefix` (`@`, `~`, ...) and the
 /// `components` **directory** it maps to on disk (RFC 0005 §3.3).
 struct RootMapping {
     prefix: String,

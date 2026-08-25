@@ -181,7 +181,7 @@ return (async function () {
     // search (§1.17)
     rect(F, searchX, 14, searchW, 36, C.white, { radius: 8, stroke: C.border });
     rect(F, searchX + 12, 25, 12, 12, null, { stroke: C.muted, radius: 6 });
-    text(F, "Search docs…", searchX + 34, 24, 13, BODY, C.muted);
+    text(F, "Search docs...", searchX + 34, 24, 13, BODY, C.muted);
     marker(F, 3, searchX + searchW / 2 - 10, -6);
     // theme
     rect(F, themeX, 14, themeW, 32, C.white, { radius: 8, stroke: C.border });
@@ -268,7 +268,7 @@ return (async function () {
     text(F, "PROPS", M + 500, y + 34, 12, HEADM, C.muted, { spacing: 4 });
     ["Prop", "Type", "Default"].forEach((c, i) => text(F, c, M + 500 + i * 200, y + 60, 13, HEADM, C.dark));
     rect(F, M + 500, y + 82, CW - 500 - 32, 1, C.border);
-    [["asChild", "boolean", "false"], ["variant", "\"solid\" | …", "\"solid\""], ["+ extends", "HTMLButtonElement", "—"]].forEach((r, ri) => {
+    [["asChild", "boolean", "false"], ["variant", "\"solid\" | ...", "\"solid\""], ["+ extends", "HTMLButtonElement", "—"]].forEach((r, ri) => {
       r.forEach((cell, ci) => text(F, cell, M + 500 + ci * 200, y + 96 + ri * 30, 13, ci === 0 ? HEADM : BODY, ci === 0 ? C.dark : C.sec));
     });
 
@@ -386,7 +386,7 @@ return (async function () {
     pmCodeBlock(F, M + 20, y + 82, CW - 40, "npm i @primitiv-ui/react", 13);
     text(F, "PROPS", M + 20, y + 180, 11, HEADM, C.muted, { spacing: 4 });
     rect(F, M + 20, y + 200, CW - 40, 1, C.border);
-    [["asChild", "boolean"], ["variant", "\"solid\" | …"], ["+ extends", "HTMLButtonElement"]].forEach((r, ri) => {
+    [["asChild", "boolean"], ["variant", "\"solid\" | ..."], ["+ extends", "HTMLButtonElement"]].forEach((r, ri) => {
       text(F, r[0], M + 20, y + 212 + ri * 26, 13, HEADM, C.dark);
       text(F, r[1], M + 150, y + 212 + ri * 26, 13, BODY, C.sec);
     });
@@ -429,7 +429,7 @@ return (async function () {
     let y = 78;
     rect(F, M, y, CW, 44, C.white, { radius: 8, stroke: C.border });
     rect(F, M + 14, y + 15, 14, 14, null, { stroke: C.muted, radius: 7 });
-    text(F, "Search docs…", M + 38, y + 12, 14, BODY, C.muted);
+    text(F, "Search docs...", M + 38, y + 12, 14, BODY, C.muted);
     marker(F, 3, W - M - 14, y - 8, 18);
     y += 64;
 

@@ -134,7 +134,7 @@ document** like `motion.json` / `interaction.json`. Shape:
         "offsetY": "{space.1}", "blur": "{space.2}", "spread": "{space.0}" }
     ] },
     "2": { "$type": "shadow", "$value": [ /* contact + diffuse */ ] }
-    // 3, 4, 5 …
+    // 3, 4, 5 ...
   },
   "elevation": {
     "flat":     { "$type": "shadow", "$value": [] },          // → box-shadow: none
@@ -162,7 +162,7 @@ are not yet supported and are skipped."*). The work:
    mistaken for a shadow (mirrors the `cubic_bezier_points` `$type` gate).
 3. **Inner-alias resolution.** `alias.rs` only rewrites a whole-string token
    value today; shadow sub-properties (`{space.1}`, `{shadow.color.strong}`)
-   need the same `{…}` → `var(--primitiv-…)` rewrite **per field**. Factor the
+   need the same `{...}` → `var(--primitiv-...)` rewrite **per field**. Factor the
    rewrite out of `link_aliases` into a shared helper both call.
 4. **Both alias tiers emit.** A `shadow.*` alias of another `shadow.*`
    (`elevation.raised → {shadow.2}`) resolves to
@@ -204,7 +204,7 @@ new there. The semantic `elevation.*` composites stay **code-only** in Figma
 
 ### Effect styles
 
-The **full set (10)** was authored: the raw ramp `shadow/1 … shadow/5` *and* the
+The **full set (10)** was authored: the raw ramp `shadow/1 ... shadow/5` *and* the
 semantic `elevation/{flat,raised,overlay,floating,modal}` — each a stack of
 drop-shadow layers whose offsetX/offsetY/blur/spread bind to `space/*` and whose
 colour binds to the new `shadow/color/*` variables. *(The RFC originally scoped

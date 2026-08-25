@@ -94,12 +94,12 @@ rejects mixing them.
 
 ```tsx
 // Uncontrolled
-<Modal.Root defaultOpen>…</Modal.Root>;
+<Modal.Root defaultOpen>...</Modal.Root>;
 
 // Controlled
 const [open, setOpen] = useState(false);
 <Modal.Root open={open} onOpenChange={setOpen}>
-  …
+  ...
 </Modal.Root>;
 ```
 
@@ -119,7 +119,7 @@ open. `onPointerDownOutside` receives the native `PointerEvent`
     if (isRequiredFlow) event.preventDefault();
   }}
 >
-  …
+  ...
 </Modal.Content>
 ```
 
@@ -130,7 +130,7 @@ import { Modal, type ModalImperativeApi } from "@primitiv-ui/react";
 
 const ref = useRef<ModalImperativeApi>(null);
 
-<Modal.Root ref={ref}>…</Modal.Root>;
+<Modal.Root ref={ref}>...</Modal.Root>;
 
 ref.current?.open();
 ref.current?.close();
@@ -181,7 +181,7 @@ animation can play against the `data-state="closed"` attribute:
 ```tsx
 <Modal.Portal forceMount>
   <Modal.Overlay forceMount />
-  <Modal.Content>…</Modal.Content>
+  <Modal.Content>...</Modal.Content>
 </Modal.Portal>
 ```
 

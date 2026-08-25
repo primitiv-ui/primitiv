@@ -64,7 +64,7 @@ export type PaginationRangeOptions = {
  * @example
  * ```ts
  * paginationRange(7, 20);
- * // 1 [2,3,4,5] 6 7 8 9 10 [11…19] 20   — the 6-10 block, steady while you
+ * // 1 [2,3,4,5] 6 7 8 9 10 [11...19] 20   — the 6-10 block, steady while you
  * //                                       move within it
  * ```
  */
@@ -162,7 +162,7 @@ export type UsePaginationOptions = {
  * What {@link usePagination} hands back.
  */
 export type UsePaginationResult = {
-  /** The current page, 1-based. Always within `1…pageCount`. */
+  /** The current page, 1-based. Always within `1...pageCount`. */
   page: number;
   /** How many pages there are. Never less than 1. */
   pageCount: number;

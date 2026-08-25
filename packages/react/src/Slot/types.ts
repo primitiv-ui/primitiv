@@ -2,7 +2,7 @@ import { HTMLAttributes, ReactNode } from "react";
 
 /**
  * Props for {@link Slot} — all native `HTMLAttributes` (event handlers,
- * `style`, `className`, `aria-*`, `data-*`, …), merged onto the single
+ * `style`, `className`, `aria-*`, `data-*`, ...), merged onto the single
  * child element rather than rendered onto an element `Slot` creates
  * itself. See {@link Slot} for the exact prop-merging rules (event
  * handlers compose child-first, `style` shallow-merges child-wins,

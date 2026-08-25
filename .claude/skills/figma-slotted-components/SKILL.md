@@ -50,9 +50,9 @@ Before handing off to the user, always print a table to the terminal:
 
 | Slot name | Default instance to select | Preferred values |
 |---|---|---|
-| Row 1 | Item — State=default, Size=md | Item, SubTrigger, … |
+| Row 1 | Item — State=default, Size=md | Item, SubTrigger, ... |
 | Divider 1 | Separator — default | Separator, Label |
-| … | … | … |
+| ... | ... | ... |
 
 **Never skip this step.** The user uses this table directly in the Figma UI
 to configure each property. Print it even if the slots seem obvious.
@@ -80,14 +80,14 @@ from the component set and wire each nested instance:
 ```js
 // 1. Read property IDs from the component set
 const propDefs = compSet.componentPropertyDefinitions;
-// → { 'Row 1#669:811': { type: 'INSTANCE_SWAP' }, … }
+// → { 'Row 1#669:811': { type: 'INSTANCE_SWAP' }, ... }
 
 // 2. Map slot index → property key
 const slotProps = [
   'Row 1#669:811',
   'Row 2#669:817',
   'Divider 1#669:823',
-  // … one entry per slot, in child order
+  // ... one entry per slot, in child order
 ];
 
 // 3. Wire every variant × every slot
@@ -113,8 +113,8 @@ using `compSet.deleteComponentProperty(key)` before wiring.
 
 | Child type | Slot name |
 |---|---|
-| Row sub-component | Row 1, Row 2, Row 3, … |
-| Separator / Label divider | Divider 1, Divider 2, … |
+| Row sub-component | Row 1, Row 2, Row 3, ... |
+| Separator / Label divider | Divider 1, Divider 2, ... |
 | Header label | Label |
 | Panel / wrapper | Panel |
 
@@ -154,7 +154,7 @@ into:
 // 1. Declare the property. defaultValue MUST be a string or boolean —
 //    null and {} both fail validation with "Expected boolean, received null".
 const slotProp = set.addComponentProperty('Slot', 'SLOT', '', {
-  preferredValues: [ { type: 'COMPONENT_SET', key: rowSet.key }, /* … */ ],
+  preferredValues: [ { type: 'COMPONENT_SET', key: rowSet.key }, /* ... */ ],
 });
 
 // 2. figma.createSlot is UNDEFINED. Clone an existing SLOT node instead —

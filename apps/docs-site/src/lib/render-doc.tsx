@@ -10,7 +10,7 @@ type Size = "xs" | "sm" | "md" | "lg" | "xl";
  * Every string that reaches the site from `docs-data` is **source JSDoc**, so it
  * contains authoring markup: backticked code spans and `{@link Symbol}` tags.
  * Printed raw, the reader sees the punctuation — Button's own description ends
- * "…styled as one via `asChild`." with the backticks visible.
+ * "...styled as one via `asChild`." with the backticks visible.
  *
  * Deliberately NOT a markdown renderer, and deliberately not
  * `dangerouslySetInnerHTML`: doc comments are authored prose, not trusted

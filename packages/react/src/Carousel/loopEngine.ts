@@ -13,7 +13,7 @@
  */
 export function shortestStep(from: number, to: number, count: number): number {
   if (count <= 0) return 0;
-  const forward = (((to - from) % count) + count) % count; // 0 … count-1
+  const forward = (((to - from) % count) + count) % count; // 0 ... count-1
   return forward * 2 > count ? forward - count : forward;
 }
 

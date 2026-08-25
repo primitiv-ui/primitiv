@@ -16,7 +16,7 @@ export type CenterProps = ComponentPropsWithRef<"div"> &
   CenterVariants & {
     /**
      * Render the single child element instead of a wrapping <div>, merging
-     * the center classes onto it — e.g. `<Center asChild><section>…</section></Center>`.
+     * the center classes onto it — e.g. `<Center asChild><section>...</section></Center>`.
      */
     asChild?: boolean;
   };

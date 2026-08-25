@@ -12,7 +12,7 @@
  *  - `mono` typography role is deferred.
  *  - `font-weight` variables exist (for the DTCG export) but are NOT
  *    bound on the text style; `fontName.style` stays direct because
- *    the probe found `setBoundVariable('fontWeight', …)` is a silent
+ *    the probe found `setBoundVariable('fontWeight', ...)` is a silent
  *    no-op on the current Figma plugin API.
  */
 

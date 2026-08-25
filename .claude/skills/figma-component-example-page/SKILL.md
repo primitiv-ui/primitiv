@@ -79,7 +79,7 @@ root  (VERTICAL, fills [], clip off; Intent=Light + Palette=Light so stray text 
           Cell (FIXED CELL_W, HUG height, clip off; Context = column density)
             instance  (setProperties Size + State=on/checked + Interaction=default)
     Dark panel                           (fill surface/default; Intent=Dark, Palette=Light)
-      … same grid …
+      ... same grid ...
 ```
 
 - Density **columns** (Dense · Compact · Comfortable · Spacious), size **rows**
@@ -112,7 +112,7 @@ Variant values are the set's verbatim `Size|State|Interaction` strings. `Show la
    not auto-switch pages, so cross-page `figma.currentPage.appendChild` dumps
    labels on the wrong page and can even swallow the set into a label group).
 2. Build the specimen below the set (e.g. `root.y = 340`). Re-run safe: remove any
-   existing `"… size × density × theme"` frame first.
+   existing `"... size × density × theme"` frame first.
 3. Screenshot with `get_screenshot` (needs `fileKey` + `nodeId`; pass
    `enableBase64Response: true` — the asset URL is proxy-blocked for curl
    in-sandbox). Confirm: Dark labels visible (§1), no clipped corners (§2), columns

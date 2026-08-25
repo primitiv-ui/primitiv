@@ -23,7 +23,7 @@ packages: []
 #
 # `icons` declares `@types/react` as a PEER dependency. A `link:` dep is a bare
 # symlink to a directory with no node_modules of its own, so that peer is never
-# installed — `SVGProps` fails to resolve, `IconProps extends SVGProps<…>`
+# installed — `SVGProps` fails to resolve, `IconProps extends SVGProps<...>`
 # degrades to `{}`, and every icon rejects every prop (className, aria-*) under
 # Next's build type-checker. Installing the published package instead resolves
 # the peer from this app's own tree, and costs nothing in freshness: published

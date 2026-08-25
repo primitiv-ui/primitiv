@@ -153,7 +153,7 @@ import { Carousel } from "@primitiv-ui/react";
 
 ```tsx
 <h2 id="promos">Promotions</h2>
-<Carousel.Root ariaLabelledBy="promos">…</Carousel.Root>
+<Carousel.Root ariaLabelledBy="promos">...</Carousel.Root>
 ```
 
 The discriminated union on the props type rejects shapes that supply both
@@ -174,7 +174,7 @@ Slides go inside `Carousel.Viewport`:
 ```
 
 Each `Carousel.Slide` self-registers with the Root, so every slide
-exposes its own `data-index="0"`, `data-index="1"`, … and a live
+exposes its own `data-index="0"`, `data-index="1"`, ... and a live
 `data-total` reflecting the current slide count. Add or remove slides at
 runtime and the indices and totals update automatically.
 
@@ -183,7 +183,7 @@ the WAI-ARIA Carousel APG example uses. To override the auto-label with
 a more meaningful description, pass `ariaLabel`:
 
 ```tsx
-<Carousel.Slide ariaLabel="Hand-picked for you">…</Carousel.Slide>
+<Carousel.Slide ariaLabel="Hand-picked for you">...</Carousel.Slide>
 ```
 
 The override remains stable as siblings mount and unmount around it.
@@ -224,7 +224,7 @@ strip), persisting the active page to a URL, or reacting to deep links.
 const [page, setPage] = useState(0);
 
 <Carousel.Root ariaLabel="Featured products" page={page} onPageChange={setPage}>
-  …
+  ...
 </Carousel.Root>;
 ```
 
@@ -266,7 +266,7 @@ const [open, setOpen] = useState(false);
     slidesPerPage={3}
   >
     <Carousel.Viewport>
-      <Carousel.Slide>…</Carousel.Slide>…
+      <Carousel.Slide>...</Carousel.Slide>...
     </Carousel.Viewport>
   </Carousel.Root>
 
@@ -283,7 +283,7 @@ const [open, setOpen] = useState(false);
           onPlayingChange={() => {}}
         >
           <Carousel.Viewport>
-            <Carousel.Slide>…</Carousel.Slide>…
+            <Carousel.Slide>...</Carousel.Slide>...
           </Carousel.Viewport>
           <Carousel.Indicators label="Choose slide" />
         </Carousel.Root>
@@ -307,7 +307,7 @@ exposes an imperative handle via `ref`:
 const carouselRef = useRef<CarouselImperativeApi>(null);
 
 <Carousel.Root ref={carouselRef} ariaLabel="Featured products">
-  …
+  ...
 </Carousel.Root>;
 
 carouselRef.current?.next();
@@ -414,7 +414,7 @@ browser snap-correcting after the scroll:
 
 ```tsx
 <Carousel.Root ariaLabel="Gallery" snapAlign="start">
-  …
+  ...
 </Carousel.Root>
 ```
 
@@ -459,7 +459,7 @@ ends, rather than always forcing a rest on one:
 
 ```tsx
 <Carousel.Root ariaLabel="Gallery" snapType="proximity">
-  …
+  ...
 </Carousel.Root>
 ```
 
@@ -476,7 +476,7 @@ axis** instead:
 
 ```tsx
 <Carousel.Root ariaLabel="Featured products" orientation="vertical">
-  …
+  ...
 </Carousel.Root>
 ```
 
@@ -625,13 +625,13 @@ pin DOM `id`s on the rendered sub-components via the `ids` bag on
     indicatorGroup: "promo-indicators",
   }}
 >
-  …
+  ...
 </Carousel.Root>
 ```
 
 Any keys you omit leave the corresponding element unidentified. A
 direct `id` prop on a sub-component (e.g.
-`<Carousel.NextTrigger id="…">`) wins over `ids.*` because it spreads
+`<Carousel.NextTrigger id="...">`) wins over `ids.*` because it spreads
 last.
 
 ### Internationalisation
@@ -653,7 +653,7 @@ accessible names (`"Start automatic slide show"` and
     stopSlideshow: "Arrêter le diaporama",
   }}
 >
-  …
+  ...
 </Carousel.Root>
 ```
 
@@ -704,7 +704,7 @@ With `slidesPerPage={3}` and 5 slides:
   active).
 
 The slide-level `aria-label="N of M"` continues to count individual
-slides (so a 5-slide carousel announces "1 of 5", "2 of 5", … even
+slides (so a 5-slide carousel announces "1 of 5", "2 of 5", ... even
 when grouped into 3-per-page).
 
 Pass a numeric `slidesPerMove` to advance the visible window by an
@@ -716,7 +716,7 @@ arbitrary slide count per click instead of a full page:
   slidesPerPage={3}
   slidesPerMove={1}
 >
-  …
+  ...
 </Carousel.Root>
 ```
 
@@ -973,7 +973,7 @@ const carouselRef = useRef<CarouselImperativeApi>(null);
     // type: "dragging.start" | "dragging" | "dragging.end"
   }}
 >
-  …
+  ...
 </Carousel.Root>;
 
 carouselRef.current?.isDragging(); // live snapshot, read on demand
@@ -1001,7 +1001,7 @@ keyboard, the wheel, or a mouse drag — fires `Carousel.Root`'s
     // source: "keyboard" | "wheel" | "drag"
   }}
 >
-  …
+  ...
 </Carousel.Root>;
 ```
 
@@ -1177,7 +1177,7 @@ timer while `playing` is `true`:
 ```tsx
 // Default 4000ms cadence
 <Carousel.Root ariaLabel="Featured products" autoplay defaultPlaying>
-  …
+  ...
 </Carousel.Root>
 
 // Custom delay
@@ -1186,7 +1186,7 @@ timer while `playing` is `true`:
   autoplay={{ delay: 6000 }}
   defaultPlaying
 >
-  …
+  ...
 </Carousel.Root>
 ```
 
@@ -1245,7 +1245,7 @@ play/pause toggles, but a consumer reacting to the timer itself in JS
     // type: "autoplay.start" | "autoplay" | "autoplay.stop"
   }}
 >
-  …
+  ...
 </Carousel.Root>
 ```
 
@@ -1268,14 +1268,14 @@ anatomy part):
 
 ```tsx
 <Carousel.Root ariaLabel="Featured products">
-  <Carousel.Viewport>…</Carousel.Viewport>
+  <Carousel.Viewport>...</Carousel.Viewport>
   <Carousel.ProgressText />
 </Carousel.Root>
 ```
 
 Renders `"1 of 3"` by default (1-indexed, matching `slideLabel`); pass a
 `progressText` formatter through `translations` (a
-`({ page, totalPages }) => …` function) on the Root to customise the
+`({ page, totalPages }) => ...` function) on the Root to customise the
 format, or `children` on `Carousel.ProgressText`
 itself to render something else entirely (an icon alongside the
 count, say) instead of the computed text. `Carousel.ProgressText`

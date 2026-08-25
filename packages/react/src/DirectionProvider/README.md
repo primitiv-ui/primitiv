@@ -12,7 +12,7 @@ Renders **no DOM** — only a React context provider.
 import { DirectionProvider } from "@primitiv-ui/react";
 
 <DirectionProvider dir="rtl">
-  <Tabs.Root defaultValue="overview">…</Tabs.Root>
+  <Tabs.Root defaultValue="overview">...</Tabs.Root>
   <Slider.Root defaultValue={[50]} aria-label="Volume" />
 </DirectionProvider>;
 ```
@@ -23,9 +23,9 @@ components fall back to the provider only when `dir` is omitted:
 ```tsx
 <DirectionProvider dir="rtl">
   {/* inherits rtl */}
-  <Tabs.Root defaultValue="a">…</Tabs.Root>
+  <Tabs.Root defaultValue="a">...</Tabs.Root>
   {/* explicit ltr overrides the provider */}
-  <Tabs.Root dir="ltr" defaultValue="a">…</Tabs.Root>
+  <Tabs.Root dir="ltr" defaultValue="a">...</Tabs.Root>
 </DirectionProvider>;
 ```
 
@@ -48,7 +48,7 @@ import { useDirection } from "@primitiv-ui/react";
 
 function MyControl({ dir }: { dir?: "ltr" | "rtl" }) {
   const resolvedDir = dir ?? useDirection();
-  // …
+  // ...
 }
 ```
 

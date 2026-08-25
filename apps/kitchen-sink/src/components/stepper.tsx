@@ -141,20 +141,20 @@ export type StepperProps = DistributiveOmit<
  * @example Uncontrolled
  * ```tsx
  * <Stepper defaultValue="account">
- *   <StepperList label="Sign-up progress">…</StepperList>
- *   <StepperPanel value="account">…</StepperPanel>
+ *   <StepperList label="Sign-up progress">...</StepperList>
+ *   <StepperPanel value="account">...</StepperPanel>
  * </Stepper>
  * ```
  *
  * @example Controlled, driving Back / Continue
  * ```tsx
  * const [step, setStep] = useState("account");
- * <Stepper value={step} onValueChange={setStep} size="lg">…</Stepper>
+ * <Stepper value={step} onValueChange={setStep} size="lg">...</Stepper>
  * ```
  *
  * @example A vertical rail
  * ```tsx
- * <Stepper defaultValue="account" orientation="vertical">…</Stepper>
+ * <Stepper defaultValue="account" orientation="vertical">...</Stepper>
  * ```
  *
  * @see {@link StepperList} for the rail, {@link StepperPanel} for a step's body.
@@ -207,14 +207,14 @@ export type StepperListProps = ComponentPropsWithRef<typeof Tabs.List> & {
  * @example
  * ```tsx
  * <StepperList label="Sign-up progress">
- *   <StepperStep value="account" state="complete">…</StepperStep>
+ *   <StepperStep value="account" state="complete">...</StepperStep>
  * </StepperList>
  * ```
  *
  * @example Collapsing to a progress bar on narrow screens
  * ```tsx
  * const isNarrow = useMediaQuery("(max-width: 40rem)");
- * <StepperList label="Sign-up progress" compact={isNarrow}>…</StepperList>
+ * <StepperList label="Sign-up progress" compact={isNarrow}>...</StepperList>
  * ```
  *
  * @see {@link StepperStep} for one entry.
@@ -277,7 +277,7 @@ export type StepperStepProps = ComponentPropsWithRef<typeof Tabs.Trigger> & {
  *
  * @example Locking a step the user cannot reach yet
  * ```tsx
- * <StepperStep value="review" disabled>…</StepperStep>
+ * <StepperStep value="review" disabled>...</StepperStep>
  * ```
  *
  * @see {@link StepperMarker}, {@link StepperLabel}, {@link StepperDescription}.
@@ -423,7 +423,7 @@ export type StepperPanelProps = ComponentPropsWithRef<typeof Tabs.Content>;
  * @example
  * ```tsx
  * <StepperPanel value="account">
- *   <Field label="Email">…</Field>
+ *   <Field label="Email">...</Field>
  * </StepperPanel>
  * ```
  */

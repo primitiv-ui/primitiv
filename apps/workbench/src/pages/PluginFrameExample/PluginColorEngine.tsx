@@ -211,7 +211,7 @@ export function PluginColorEngine({ chartAspect }: PluginColorEngineProps) {
     <div className="pf-color-engine">
       <h1>Harmoni Color Engine</h1>
 
-      {!wasmReady && <p>Starting engine…</p>}
+      {!wasmReady && <p>Starting engine...</p>}
 
       {/* Gate the engine body on wasmReady: the painted LightnessSliders call
           into wasm on mount, so rendering them before init() resolves throws

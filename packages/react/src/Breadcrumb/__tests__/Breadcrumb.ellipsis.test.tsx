@@ -17,7 +17,7 @@ describe("Breadcrumb ellipsis", () => {
     expect(ellipsis.tagName).toBe("SPAN");
     expect(ellipsis).toHaveAttribute("role", "presentation");
     expect(ellipsis).toHaveAttribute("aria-hidden", "true");
-    expect(ellipsis).toHaveTextContent("…");
+    expect(ellipsis).toHaveTextContent("...");
   });
 
   it("lets the consumer override the Ellipsis glyph", () => {

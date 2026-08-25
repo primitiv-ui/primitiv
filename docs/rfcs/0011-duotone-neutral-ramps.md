@@ -88,8 +88,8 @@ is what would dirty the mid-greys, the exact failure duotone is meant to cure.
 `neutral/ramp.rs` today:
 
 ```rust
-let hue = soft_white.hue.into_degrees();          // one hue …
-// … reused for every step:
+let hue = soft_white.hue.into_degrees();          // one hue ...
+// ... reused for every step:
 let c = soft_white.chroma + (soft_black.chroma - soft_white.chroma) * fraction;
 SwatchStep::from_label(l, apply_tint(c), hue, step)
 ```

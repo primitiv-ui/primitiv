@@ -45,15 +45,15 @@ pub struct Contract {
     #[serde(default, rename = "styleProps")]
     pub style_props: Vec<StyleProp>,
     /// Whether the decorative-slot wrapper is a *framed control with an inline
-    /// label*: a flex row that nests its parts inside a `…__control` box and
-    /// appends a `…__label` span carrying the wrapper's `children` (Radio,
+    /// label*: a flex row that nests its parts inside a `...__control` box and
+    /// appends a `...__label` span carrying the wrapper's `children` (Radio,
     /// Checkbox, Switch). `false` (the default) keeps the flat decorative-slot
     /// render (Switch's thumb-only shape). Only consulted when [`parts`](Self::parts)
     /// is non-empty.
     #[serde(default)]
     pub label: bool,
     /// Whether a *single-element* wrapper wraps its string/number children in a
-    /// `…__label` span (element children — icons — pass through unwrapped). This
+    /// `...__label` span (element children — icons — pass through unwrapped). This
     /// lets `text-box-trim` sit on the label text rather than the flex container
     /// (Button). `false` (the default) keeps the plain self-closing render. Only
     /// consulted when [`parts`](Self::parts) is empty.

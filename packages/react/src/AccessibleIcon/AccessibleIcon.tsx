@@ -28,7 +28,7 @@ type DecorativeIconProps = { "aria-hidden": string; focusable: string };
  * if your icon library returns a fragment.
  *
  * **Renders no host element.** `AccessibleIcon` returns a React fragment
- * (`<>…</>`), so it adds no DOM node of its own. The icon element and the
+ * (`<>...</>`), so it adds no DOM node of its own. The icon element and the
  * {@link VisuallyHidden} span are the only nodes emitted.
  *
  * @example Icon-only button

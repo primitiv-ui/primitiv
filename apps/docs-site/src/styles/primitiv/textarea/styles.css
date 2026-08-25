@@ -3,7 +3,7 @@
  *
  * Copied into the consumer repo by `primitiv add textarea`. It is yours to
  * edit: the stable surface is the contract (the .primitiv-textarea class,
- * the --xs…--xl modifiers, the data-disabled hook, and the
+ * the --xs...--xl modifiers, the data-disabled hook, and the
  * --primitiv-textarea-* custom properties), not these values (RFC 0006
  * Principle 2 — names are stable, values are not).
  *

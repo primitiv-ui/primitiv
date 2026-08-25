@@ -65,7 +65,7 @@ simultaneously:
 
 ```tsx
 <Accordion.Root multiple defaultValue="shipping">
-  …
+  ...
 </Accordion.Root>
 ```
 
@@ -172,7 +172,7 @@ to invert the arrow-key direction so `ArrowLeft` moves forward and
 
 ```tsx
 <Accordion.Root orientation="horizontal" dir="rtl">
-  …
+  ...
 </Accordion.Root>
 ```
 

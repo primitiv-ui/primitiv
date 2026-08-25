@@ -7,7 +7,7 @@ It is deliberately separate from `apps/harmoni-figma-plugin`, which is
 the consumer-facing Harmoni plugin and stays free of any sync /
 migration code. This plugin is never submitted to Figma Community; it
 is loaded locally via *Plugins → Development → Import plugin from
-manifest…*.
+manifest...*.
 
 ## How it is wired
 
@@ -45,7 +45,7 @@ cannot load local plugins.
 1. `pnpm --filter primitiv-sync-figma-plugin dev` — rebuilds `dist/` on
    every change (both builds, in watch mode).
 2. In Figma desktop: **Plugins → Development → Import plugin from
-   manifest…** and select
+   manifest...** and select
    `apps/primitiv-sync-figma-plugin/manifest.json`.
 3. Run the plugin from your Figma file. Figma reloads it whenever the
    watched `dist/` output changes.

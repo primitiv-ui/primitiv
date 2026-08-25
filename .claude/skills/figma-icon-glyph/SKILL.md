@@ -37,9 +37,9 @@ the *key* above is stable). All snippets below use `figma_execute`.
 | Stroke weight | **1.5px** (proven from `plus`/`minus`/`close`: exact 1.5px bars) |
 | Caps / joins | butt caps (`strokeCap='NONE'`) · `strokeJoin='MITER'` |
 | Final form | **filled outline** — stroke → `outlineStroke()` → `flatten` to one solid `Vector` |
-| Padding | ~2–3px (glyph spans roughly `2 … 22` in the 24-grid) |
+| Padding | ~2–3px (glyph spans roughly `2 ... 22` in the 24-grid) |
 | Sizes (frame px) | xs 16 · sm 20 · md 24 · lg 32 · xl 48 → factors `0.6667 / 0.8333 / 1 / 1.3333 / 2` |
-| Vector fill variable | `VariableID:154:2233` (content/* default) — bind at **paint** level (`boundVariables.color`), never `setBoundVariable('fills', …)` |
+| Vector fill variable | `VariableID:154:2233` (content/* default) — bind at **paint** level (`boundVariables.color`), never `setBoundVariable('fills', ...)` |
 
 ## Step 1 — Build the master geometry (24-grid)
 
@@ -144,11 +144,11 @@ path, `fill-rule="evenodd"` if it has holes / multiple subpaths (rays, rings):
 
 ```xml
 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-  <path fill="#000" fill-rule="evenodd" clip-rule="evenodd" d="…concatenated subpaths…"/>
+  <path fill="#000" fill-rule="evenodd" clip-rule="evenodd" d="...concatenated subpaths..."/>
 </svg>
 ```
 
-`generate.ts` strips `fill="…"`, converts `fill-rule→fillRule`, and runs SVGO
+`generate.ts` strips `fill="..."`, converts `fill-rule→fillRule`, and runs SVGO
 (which optimises the verbose Figma coords into tidy arcs/relative commands).
 
 ## Step 5 — Generate, document, test

@@ -57,8 +57,8 @@ import { useAccordionTrigger } from "./hooks/useAccordionTrigger";
  * @example Uncontrolled — single open item
  * ```tsx
  * <Accordion.Root defaultValue="item-1">
- *   <Accordion.Item value="item-1">…</Accordion.Item>
- *   <Accordion.Item value="item-2">…</Accordion.Item>
+ *   <Accordion.Item value="item-1">...</Accordion.Item>
+ *   <Accordion.Item value="item-2">...</Accordion.Item>
  * </Accordion.Root>
  * ```
  *
@@ -67,8 +67,8 @@ import { useAccordionTrigger } from "./hooks/useAccordionTrigger";
  * const [expanded, setExpanded] = useState<string[]>([]);
  *
  * <Accordion.Root multiple value={expanded} onValueChange={setExpanded}>
- *   <Accordion.Item value="shipping">…</Accordion.Item>
- *   <Accordion.Item value="returns">…</Accordion.Item>
+ *   <Accordion.Item value="shipping">...</Accordion.Item>
+ *   <Accordion.Item value="returns">...</Accordion.Item>
  * </Accordion.Root>
  * ```
  */
@@ -277,7 +277,7 @@ AccordionTrigger.displayName = "AccordionTrigger";
 
 /**
  * The panel that is revealed when the associated `Accordion.Trigger` is
- * activated. Renders a `<div role="region" aria-labelledby="…">` whose
+ * activated. Renders a `<div role="region" aria-labelledby="...">` whose
  * visibility is controlled by the `hidden` attribute.
  *
  * **`forceMount` prop.** By default the panel is removed from visibility with
@@ -296,7 +296,7 @@ AccordionTrigger.displayName = "AccordionTrigger";
  * default, creating an ARIA landmark. Accordions with many items can produce
  * landmark overload in screen readers. Opt out by passing `role={undefined}`:
  * ```tsx
- * <Accordion.Content role={undefined}>…</Accordion.Content>
+ * <Accordion.Content role={undefined}>...</Accordion.Content>
  * ```
  *
  * **Styling hooks.**
@@ -378,7 +378,7 @@ AccordionContent.displayName = "AccordionContent";
  * <Accordion.Trigger>
  *   Shipping policy
  *   <Accordion.TriggerIcon>
- *     <svg …><path d="…" /></svg>
+ *     <svg ...><path d="..." /></svg>
  *   </Accordion.TriggerIcon>
  * </Accordion.Trigger>
  * ```

@@ -247,7 +247,7 @@ export function FieldExample() {
             Favourite fruit
           </Field.Label>
           <Select.Root native className="primitiv-input">
-            <Select.Placeholder>Choose a fruit…</Select.Placeholder>
+            <Select.Placeholder>Choose a fruit...</Select.Placeholder>
             <Select.Item value="apple">Apple</Select.Item>
             <Select.Item value="banana">Banana</Select.Item>
             <Select.Item value="cherry">Cherry</Select.Item>

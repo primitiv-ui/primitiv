@@ -148,7 +148,7 @@ const PART_WORDS = /\bon the [a-z-]+ part\b|\bnative root\b/i;
  * registry-level dependsOn is empty. Following only one of the two called
  * Drawer's perfectly real `data-state` an orphan, so both are followed.
  */
-/** Sibling component dirs a headless source imports: `from "../Modal/…"`. */
+/** Sibling component dirs a headless source imports: `from "../Modal/..."`. */
 const headlessImports = (dir) => {
   const found = new Set();
   if (!existsSync(dir)) return found;
@@ -190,7 +190,7 @@ for (const id of Object.keys(registry.components).sort()) {
       ? null
       : new Set([...(fromHeadless ?? []), ...(fromRegistry ?? [])]);
   /* No headless directory: a hand-authored, primitive-less registry leaf (badge,
-     kbd, prose…). Nothing to compare against, so undeclared/orphan cannot be
+     kbd, prose...). Nothing to compare against, so undeclared/orphan cannot be
      judged — say that rather than reporting a clean bill. */
   const dataOnly = emitted === null;
 
@@ -213,7 +213,7 @@ for (const id of Object.keys(registry.components).sort()) {
     for (const n of emittedBy(join(ROOT, "packages/react/src", headlessDir(dep))) ?? []) inherited.add(n);
     for (const n of emittedBy(join(ROOT, `registry/components/${dep}`)) ?? []) inherited.add(n);
   }
-  /* …and whatever the headless source composes directly. */
+  /* ...and whatever the headless source composes directly. */
   for (const sib of headlessImports(join(ROOT, "packages/react/src", headlessDir(id)))) {
     for (const n of emittedBy(join(ROOT, "packages/react/src", sib)) ?? []) inherited.add(n);
   }

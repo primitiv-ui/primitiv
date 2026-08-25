@@ -7,7 +7,7 @@ describe("Select placeholder", () => {
     // Arrange & Act
     const { container } = render(
       <Select.Root native>
-        <Select.Placeholder>Choose a fruit…</Select.Placeholder>
+        <Select.Placeholder>Choose a fruit...</Select.Placeholder>
         <Select.Item value="apple">Apple</Select.Item>
       </Select.Root>,
     );
@@ -22,9 +22,9 @@ describe("Select placeholder", () => {
     expect(placeholder).not.toBeNull();
     expect(placeholder).toBeDisabled();
     expect(placeholder).toHaveAttribute("value", "");
-    expect(placeholder).toHaveTextContent("Choose a fruit…");
+    expect(placeholder).toHaveTextContent("Choose a fruit...");
 
-    // …and is the initial selection because it's the first option with an
+    // ...and is the initial selection because it's the first option with an
     // empty value.
     const select = screen.getByRole("combobox") as HTMLSelectElement;
     expect(select.value).toBe("");

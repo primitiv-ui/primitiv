@@ -2,7 +2,7 @@
  * Guards this app's three CSS rules. All three fail SILENTLY in a browser,
  * which is why they need a script rather than review.
  *
- * 1. No phantom tokens. A `var(--primitiv-…)` that does not exist resolves to
+ * 1. No phantom tokens. A `var(--primitiv-...)` that does not exist resolves to
  *    nothing and the declaration is dropped — the page looks subtly wrong with
  *    no error. The most dangerous of the three, because reaching for a token
  *    *feels* like doing the right thing. (Real example caught by this:
@@ -84,7 +84,7 @@ for (const sheet of sheets) {
   lines.forEach((line, i) => {
     const at = `${rel}:${i + 1}`;
 
-    // Track /* … */ blocks so prose in a header comment is never linted.
+    // Track /* ... */ blocks so prose in a header comment is never linted.
     if (inComment) {
       if (line.includes("*/")) inComment = false;
       return;

@@ -18,7 +18,7 @@ use crate::wiring;
 /// The order-free options `add` is invoked with (RFC 0005 §2.2 / §5), mirroring
 /// [`InitOptions`](crate::commands::init::InitOptions): one or more component
 /// names plus the agent/dry-run switches. Deriving `Default` lets later flags
-/// (`--styles-only`, `--no-styles`, …) join without churning every call site.
+/// (`--styles-only`, `--no-styles`, ...) join without churning every call site.
 #[derive(Debug, Default, PartialEq)]
 pub struct AddOptions {
     pub components: Vec<String>,
@@ -67,7 +67,7 @@ struct PlannedFile {
     dir: PathBuf,
     /// The destination path (`dir/file`) the file will be written to.
     dest: PathBuf,
-    /// For tsx wrapper files only: the `import "…";` line to prepend so the
+    /// For tsx wrapper files only: the `import "...";` line to prepend so the
     /// component self-imports its stylesheet. `None` for all other files.
     styles_import: Option<String>,
 }
@@ -314,7 +314,7 @@ fn ensure_tokens(
         return Ok(());
     }
     output.write_stdout(
-        format!("Generating token layer at {}…\n", config.tokens.path).as_bytes(),
+        format!("Generating token layer at {}...\n", config.tokens.path).as_bytes(),
     )?;
     let parent = token_path.parent().unwrap_or(Path::new(""));
     if parent != Path::new("") {

@@ -4,7 +4,7 @@
  * Copied into the consumer repo by `primitiv add accordion`. It is yours to
  * edit: the stable surface is the contract (the .primitiv-accordion root +
  * __item / __header / __trigger / __content / __trigger-icon parts, the
- * --xs…--xl modifier, the data-state / data-disabled / data-orientation
+ * --xs...--xl modifier, the data-state / data-disabled / data-orientation
  * hooks, and the --primitiv-accordion-* custom properties), not these values
  * (RFC 0006 Principle 2 — names are stable, values are not).
  *

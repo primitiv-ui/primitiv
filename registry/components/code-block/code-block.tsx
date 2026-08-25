@@ -16,7 +16,7 @@
  * primitive for the tab behaviour (roving focus, arrow keys, WAI-ARIA roles) and
  * reuses the Tabs component's `.primitiv-tabs__*` classes for the look (hence the
  * `tabs` component dependency); the copy control composes the registry `Button`
- * component. The single-block `<CodeBlock code=… />`
+ * component. The single-block `<CodeBlock code=... />`
  * form is unchanged; the subcomponents are purely additive.
  */
 import { Tabs as TabsPrimitive } from "@primitiv-ui/react";

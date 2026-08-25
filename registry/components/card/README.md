@@ -44,7 +44,7 @@ all three — `CardMedia` is always a **sibling** of `CardContent`, never a chil
 ```tsx
 <Card layout="cover" scrim="strong">
   <CardMedia><img src={src} alt="" /></CardMedia>
-  <CardContent>…</CardContent>
+  <CardContent>...</CardContent>
 </Card>
 ```
 
@@ -59,7 +59,7 @@ unusually bright image), override it independently per theme:
 ```tsx
 <Card layout="cover" coverForegroundLight="black" coverForegroundDark="white">
   <CardMedia><img src={brightSkyPhoto} alt="" /></CardMedia>
-  <CardContent>…</CardContent>
+  <CardContent>...</CardContent>
 </Card>
 ```
 
@@ -104,7 +104,7 @@ set the heading level that fits your page outline (it defaults to `<h3>`).
 
 ```tsx
 <Card asChild>
-  <a href="/posts/winter-light">…</a>
+  <a href="/posts/winter-light">...</a>
 </Card>
 ```
 

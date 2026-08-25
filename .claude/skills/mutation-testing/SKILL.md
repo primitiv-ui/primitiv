@@ -28,7 +28,7 @@ Primitiv is a **pnpm** workspace, and the canonical setup lives in
 those first; the generic flow below is background. When following any generic
 step here:
 
-- Translate commands: `npm …` / `npx …` → `pnpm …` / `pnpm exec …`, and scope
+- Translate commands: `npm ...` / `npx ...` → `pnpm ...` / `pnpm exec ...`, and scope
   to the headless library, e.g.
   `pnpm --filter @primitiv-ui/react exec stryker run`.
 - Mutation runs **one component at a time** via the `STRYKER_COMPONENT` env var
@@ -90,7 +90,7 @@ step here:
   unasserted `displayName`; assert `Component.displayName` (plus each
   sub-component and any context's `displayName`) — the reliable first kill.
 - **Compound `Object.assign` components: do NOT delete the `Root.displayName`
-  assignment.** With the `const X = Object.assign(XRoot, { … })` pattern the
+  assignment.** With the `const X = Object.assign(XRoot, { ... })` pattern the
   compound *is* `XRoot`, so `X.displayName = "X"` overwrites `XRoot.displayName`
   at load — the `XRoot.displayName = "XRoot"` line looks like dead code. It
   isn't: that assignment is what declares `displayName` on `typeof XRoot`, which

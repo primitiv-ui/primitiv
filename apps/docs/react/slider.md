@@ -96,7 +96,7 @@ only the final value.
   defaultValue={[40]}
   onValueCommit={(value) => save(value)}
 >
-  …
+  ...
 </Slider.Root>
 ```
 
@@ -145,7 +145,7 @@ surrounding `<form>`. Multi-thumb sliders suffix the name with `[]`
 ```tsx
 <form>
   <Slider.Root defaultValue={[10, 90]} name="price">
-    …
+    ...
   </Slider.Root>
 </form>
 ```

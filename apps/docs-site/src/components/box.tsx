@@ -17,7 +17,7 @@ import { box } from "./box.recipe";
 export type BoxProps = ComponentPropsWithRef<"div"> & {
   /**
    * Render the single child element instead of a wrapping <div>, merging the
-   * box class onto it — e.g. `<Box asChild><section>…</section></Box>`.
+   * box class onto it — e.g. `<Box asChild><section>...</section></Box>`.
    */
   asChild?: boolean;
 };
@@ -34,7 +34,7 @@ export type BoxProps = ComponentPropsWithRef<"div"> & {
  * </Box>
  *
  * <Box asChild>
- *   <section aria-label="Summary">…</section>
+ *   <section aria-label="Summary">...</section>
  * </Box>
  * ```
  *

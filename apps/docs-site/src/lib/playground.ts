@@ -19,7 +19,7 @@ import type { Mode } from "@/site/preferences";
  * shipped a snippet naming a symbol the reader cannot import.
  *
  * (An earlier version of this note said Button's snippet is
- * `<Button variant="…">` "in both modes" — true of what shipped, and the bug
+ * `<Button variant="...">` "in both modes" — true of what shipped, and the bug
  * `contractAttr` below now fixes: `variant` is not a headless prop either.)
  *
  * Figma mode gets the dot form too. It is the closer read — the Figma sets are

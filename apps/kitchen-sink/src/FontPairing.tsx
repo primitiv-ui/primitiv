@@ -387,7 +387,7 @@ export function FontPairing() {
 
       {verdicts === null ? (
         <p className="ks-fonts__status">
-          {diag ?? `Loading and verifying ${CANDIDATES.length} families…`}
+          {diag ?? `Loading and verifying ${CANDIDATES.length} families...`}
         </p>
       ) : (
         <>

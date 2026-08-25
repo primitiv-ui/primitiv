@@ -3,8 +3,8 @@
  *
  * Copied into the consumer repo by `primitiv add tooltip`. It is yours to edit:
  * the stable surface is the contract (the .primitiv-tooltip root + __arrow part,
- * the --default/--inverted tone modifiers, the --sm…--xl size modifiers, the
- * --top…--left-end placement modifiers, the data-state hook, and the
+ * the --default/--inverted tone modifiers, the --sm...--xl size modifiers, the
+ * --top...--left-end placement modifiers, the data-state hook, and the
  * --primitiv-tooltip-* custom properties), not these values (RFC 0006 Principle 2
  * — names are stable, values are not).
  *

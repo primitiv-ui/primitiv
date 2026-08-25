@@ -53,13 +53,13 @@ rejects mixing them.
 ```tsx
 // Uncontrolled
 <SegmentedControl.Root defaultValue="headless" aria-label="Mode">
-  …
+  ...
 </SegmentedControl.Root>;
 
 // Controlled
 const [value, setValue] = useState("headless");
 <SegmentedControl.Root value={value} onValueChange={setValue} aria-label="Mode">
-  …
+  ...
 </SegmentedControl.Root>;
 ```
 

@@ -48,7 +48,7 @@ within the group.
 ```tsx
 <Fieldset.Root>
   <Fieldset.Legend>Shipping address</Fieldset.Legend>
-  …
+  ...
 </Fieldset.Root>
 ```
 
@@ -63,7 +63,7 @@ directly:
 ```tsx
 <Fieldset.Root disabled>
   <Fieldset.Legend>Billing</Fieldset.Legend>
-  …every nested control is disabled…
+  ...every nested control is disabled...
 </Fieldset.Root>
 ```
 

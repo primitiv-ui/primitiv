@@ -34,13 +34,13 @@ At most one item is pressed at a time. Pressing the active item again
 ```tsx
 // Uncontrolled
 <ToggleGroup.Root type="single" defaultValue="center" aria-label="Alignment">
-  …
+  ...
 </ToggleGroup.Root>
 
 // Controlled — onValueChange receives string | undefined
 const [align, setAlign] = useState<string | undefined>("center");
 <ToggleGroup.Root type="single" value={align} onValueChange={setAlign} aria-label="Alignment">
-  …
+  ...
 </ToggleGroup.Root>
 ```
 
@@ -52,13 +52,13 @@ independently.
 ```tsx
 // Uncontrolled
 <ToggleGroup.Root type="multiple" defaultValue={["bold"]} aria-label="Formatting">
-  …
+  ...
 </ToggleGroup.Root>
 
 // Controlled — onValueChange receives string[]
 const [formats, setFormats] = useState<string[]>([]);
 <ToggleGroup.Root type="multiple" value={formats} onValueChange={setFormats} aria-label="Formatting">
-  …
+  ...
 </ToggleGroup.Root>
 ```
 

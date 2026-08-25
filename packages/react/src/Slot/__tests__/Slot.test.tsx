@@ -132,8 +132,8 @@ describe("Slot tests", () => {
       const baseElement = React.createElement("div", null, "text");
       const react18Element = {
         ...baseElement,
-        ref: childRef, // React ≤18: ref lives here …
-        props: { children: "text" }, // … not in props
+        ref: childRef, // React ≤18: ref lives here ...
+        props: { children: "text" }, // ... not in props
       } as unknown as React.ReactElement;
       const SlotWithRef = React.forwardRef<HTMLElement>((_props, ref) => (
         <Slot ref={ref}>{react18Element}</Slot>

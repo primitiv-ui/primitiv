@@ -18,7 +18,7 @@ pub fn link_aliases(tokens: Vec<Token>) -> Vec<Token> {
         .collect()
 }
 
-/// Replace every `{…}` alias in one value with its `var()` reference, copying
+/// Replace every `{...}` alias in one value with its `var()` reference, copying
 /// non-alias text (literals, the spaces and commas of a composite) through
 /// unchanged. An unbalanced `{` with no closing brace is left verbatim.
 fn link_value(value: &str) -> String {

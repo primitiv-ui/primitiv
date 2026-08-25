@@ -45,11 +45,11 @@ root:
 1. **Raw palette** — the literal generated `oklch()` values, plus
    `--white` / `--black`. Theme-agnostic; never consumed by component
    rules.
-2. **Semantic scale** — `--neutral-1`…`--neutral-10` and
-   `--accent-1`…`--accent-10`, one use case per step (the table above).
+2. **Semantic scale** — `--neutral-1`...`--neutral-10` and
+   `--accent-1`...`--accent-10`, one use case per step (the table above).
    Re-pointed under `.ds-test[data-theme="dark"]`.
 3. **Friendly aliases** — readable names over the semantic scale
-   (`--bg`, `--surface`, `--border`, `--text`, `--accent-solid`, …).
+   (`--bg`, `--surface`, `--border`, `--text`, `--accent-solid`, ...).
 
 Every colour on the page resolves through this scale — no literal colour
 values are used in component rules.

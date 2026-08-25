@@ -16,7 +16,7 @@ import "../styles/primitiv/combobox/styles.css";
  *
  *   <Combobox onQueryChange={setQuery} onValueChange={setFramework}>
  *     <ComboboxControl>
- *       <ComboboxInput aria-label="Framework" placeholder="Search…" />
+ *       <ComboboxInput aria-label="Framework" placeholder="Search..." />
  *       <ComboboxIcon><ChevronDown /></ComboboxIcon>
  *     </ComboboxControl>
  *     <ComboboxContent aria-label="Frameworks">

@@ -13,7 +13,7 @@
  * A COMPOUND, not one prop-heavy component. An earlier pass took
  * `page`/`pageCount`/`onPageChange` and rendered the whole row itself; that
  * broke the house convention every other compound follows (Breadcrumb, Select,
- * Card, Dropdown …) and, worse, made the component own a data model — the
+ * Card, Dropdown ...) and, worse, made the component own a data model — the
  * thing `avatar-group` and `breadcrumb-overflow` explicitly refuse to do (RFC
  * 0019 §4c). The consumer now composes the row and keeps its own page state —
  * with `usePagination` from `@primitiv-ui/react` if they want the arithmetic,
@@ -37,7 +37,7 @@
  * beside them.
  *
  * THE ELLIPSIS IS A REAL BUTTON that opens a Dropdown of the collapsed pages,
- * not a static "…" glyph — so a truncated range never puts a page out of reach.
+ * not a static "..." glyph — so a truncated range never puts a page out of reach.
  * Each `PaginationEllipsis` derives its OWN `anchor-name` from `useId()`: a
  * numbered range can open two gaps at once (before and after the current page)
  * and a page can hold more than one Pagination, so the name has to be per-gap.

@@ -60,7 +60,7 @@ isn't lost; the `primitiv.states` layer just toggles its `display` off
 Sizing and the fallback's icon size reuse the shared `framed-control/*` Context
 scale directly (Figma binds the avatar frame to the same `framed-control/{size}/
 height` token every other sized control uses, not an avatar-specific size
-token). Corner radius is genuinely avatar-specific: `avatar/radius/{xs…xl}` and
+token). Corner radius is genuinely avatar-specific: `avatar/radius/{xs...xl}` and
 `avatar/radius/full` are their own token family (pre-existing in
 `packages/tokens/src/context.json`, aliasing `framed-control/*/radius` 1:1 today
 but free to diverge later) — `shape="circle"` (the default) always resolves to

@@ -104,7 +104,7 @@ fn shadow_layers(leaf: &Value, value: &Value) -> Option<Vec<ShadowLayer>> {
     }
 }
 
-/// One shadow layer's five box-shadow components, each a CSS string (a `{…}`
+/// One shadow layer's five box-shadow components, each a CSS string (a `{...}`
 /// alias resolved later by [`crate::alias::link_aliases`], or a literal). `None`
 /// if any component is missing or non-string.
 fn shadow_layer(layer: &Value) -> Option<ShadowLayer> {

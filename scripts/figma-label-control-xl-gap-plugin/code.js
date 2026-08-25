@@ -5,7 +5,7 @@
  * carry a `gap`; only the xl slot's gap was absent. Mutates the Figma file.
  * Idempotent: re-running re-sets the same four mode aliases (and reuses the
  * variable if it already exists). Run from the plugin sandbox: Plugins →
- * Development → Import plugin from manifest… → pick this folder's manifest.json
+ * Development → Import plugin from manifest... → pick this folder's manifest.json
  * → Plugins → Development → Primitiv label-control xl gap.
  *
  * Mode aliases (control↔label gap, per density), matching

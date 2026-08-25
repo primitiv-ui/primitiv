@@ -98,7 +98,7 @@ consumers (D: "Registry CSS, derive rest"). Because SCSS is a strict superset of
 CSS, `styles.scss` is `styles.css` **verbatim** — layers and all — followed by
 one `$primitiv-switch-*` variable per `--primitiv-switch-*` knob the stylesheet
 declares, each resolving to its custom property
-(`$primitiv-switch-track-bg: var(--primitiv-switch-track-bg);` …). Override the
+(`$primitiv-switch-track-bg: var(--primitiv-switch-track-bg);` ...). Override the
 custom properties to re-skin; the `$`-vars are just the SCSS-side mirror.
 
 It is **derived, not hand-maintained**: `primitiv-emit`'s `emit_component_scss`

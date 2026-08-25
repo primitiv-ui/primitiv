@@ -71,7 +71,7 @@ has to drive a TTY.
 ### Principle 4 — Config-less where it can be
 
 Commands that don't strictly need project config (`tokens --format css`,
-`theme --brand …`, `list`) run without `init`. `primitiv.json` is an
+`theme --brand ...`, `list`) run without `init`. `primitiv.json` is an
 optimisation for repeat use, not a gate.
 
 ### Principle 5 — The binary is self-contained
@@ -142,7 +142,7 @@ deferred post-v1; for now, bring your own app via `create-vite` /
 ```sh
 primitiv init                      # scaffold primitiv.json (interactive)
 primitiv add <component...>        # ensure package + (opt-in) copy styles
-primitiv add --all                 # …for every component the registry carries
+primitiv add --all                 # ...for every component the registry carries
 primitiv tokens [--format <fmt>]   # emit the token layer in a format
 primitiv theme --brand <hex>       # Harmoni palette → theme token overrides
 primitiv list [--json]             # registry components + install state
@@ -222,7 +222,7 @@ as `pnpm primitiv add button` (and the equivalent for each manager).
 > unrelated `primitiv` npm package (Primitiv AI). Once `primitiv-ui` is
 > installed, the local `primitiv` bin shadows it, so `pnpm exec primitiv` /
 > `npx primitiv` are safe. For cold one-offs always name the package:
-> `pnpm dlx primitiv-ui …` / `npx primitiv-ui …`.
+> `pnpm dlx primitiv-ui ...` / `npx primitiv-ui ...`.
 
 **Scenario A — Existing app, complete solution (Dev 2).** Bring an app first
 (e.g. `pnpm create vite` / `create-next-app`), then:
@@ -296,7 +296,7 @@ primitiv add button
   "framework": "react",
   "styles": {
     "enabled": true,
-    "format": "css",                 // css | scss | tailwind | …
+    "format": "css",                 // css | scss | tailwind | ...
     "path": "src/styles/primitiv"    // where copied component styles land
   },
   "tokens": {
@@ -419,7 +419,7 @@ r/
     styles.scss                   # generated from styles.css
     button.recipe.ts              # generated from contract.json (cva)
     button.tsx                    # generated from contract.json (styled wrapper)
-  switch/…
+  switch/...
 ```
 
 ### 6.2 `registry.json`

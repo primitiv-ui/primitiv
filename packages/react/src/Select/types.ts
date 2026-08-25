@@ -172,7 +172,7 @@ export type SelectPlaceholderProps = Omit<
   "value" | "disabled" | "hidden"
 > & {
   /** The placeholder hint text shown in the closed select before the user
-   * makes a selection (e.g. `"Choose a fruit…"`). */
+   * makes a selection (e.g. `"Choose a fruit..."`). */
   children?: ReactNode;
   /** Forwarded to the underlying `HTMLOptionElement`. */
   ref?: Ref<HTMLOptionElement>;
@@ -204,7 +204,7 @@ export type SelectTriggerProps = ComponentProps<"button"> & {
  * `children`, which the component owns.
  */
 export type SelectValueProps = Omit<ComponentProps<"span">, "children"> & {
-  /** Shown when no value is selected (e.g. `"Select a framework…"`). */
+  /** Shown when no value is selected (e.g. `"Select a framework..."`). */
   placeholder?: ReactNode;
   /** Forwarded to the underlying `HTMLSpanElement`. */
   ref?: Ref<HTMLSpanElement>;

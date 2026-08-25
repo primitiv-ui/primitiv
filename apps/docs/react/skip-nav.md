@@ -14,9 +14,9 @@ import { SkipNav } from "@primitiv-ui/react";
 
 <>
   <SkipNav.Link>Skip to main content</SkipNav.Link>
-  <header>…site navigation…</header>
+  <header>...site navigation...</header>
   <SkipNav.Content>
-    <main>…</main>
+    <main>...</main>
   </SkipNav.Content>
 </>;
 ```
@@ -64,7 +64,7 @@ custom id, set it on both sides:
 ```tsx
 <SkipNav.Link contentId="main">Skip to main content</SkipNav.Link>
 <SkipNav.Content id="main">
-  <main>…</main>
+  <main>...</main>
 </SkipNav.Content>
 ```
 

@@ -209,7 +209,7 @@ describe("Carousel IntersectionObserver fallback + isInView", () => {
         ]);
       });
 
-      // The page stays put — scrollsnapchange owns it…
+      // The page stays put — scrollsnapchange owns it...
       expect(screen.getByTestId("slide-0")).toHaveAttribute(
         "data-state",
         "active",
@@ -218,7 +218,7 @@ describe("Carousel IntersectionObserver fallback + isInView", () => {
         "data-state",
         "inactive",
       );
-      // …but isInView still reflects what the observer reported.
+      // ...but isInView still reflects what the observer reported.
       expect(ref.current!.isInView(2)).toBe(true);
     } finally {
       delete (window as unknown as { onscrollsnapchange?: unknown })

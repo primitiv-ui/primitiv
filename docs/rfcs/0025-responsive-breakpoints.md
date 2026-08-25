@@ -133,7 +133,7 @@ scoped in detail this session**:
   `size`/`density` prop per breakpoint) — needed for the docs site itself,
   plausible as a public export.
 - `packages/react` currently exports no public hooks — existing ones
-  (`useCollection`, `useControllableState`, …) are internal implementation
+  (`useCollection`, `useControllableState`, ...) are internal implementation
   details of compound components. This would be a new kind of public surface,
   so the package boundary (a new `@primitiv-ui/hooks`/`@primitiv-ui/utils`
   package vs. a new export path on `@primitiv-ui/react`) is an open decision

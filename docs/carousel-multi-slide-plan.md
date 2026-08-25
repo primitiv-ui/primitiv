@@ -96,7 +96,7 @@ Two intended modes:
   last slides are unreachable by Prev/Next/Indicators. **Fix candidate:**
   end-align — `totalPages = ceil((total − perPage) / move) + 1`, and **clamp the
   last page's offset** to `total − perPage` (in `useCarouselSlide` *and* the
-  viewport scroll target) so the final window is `[total−perPage … total−1]`.
+  viewport scroll target) so the final window is `[total−perPage ... total−1]`.
   This is the Embla/Splide behaviour (the last page always snaps to the end).
 - **B2 — swipe→page sync inconsistent in windowed mode.** The IntersectionObserver
   maps a visible slide to `floor(slideIndex / perPage)`, but the windowed model's

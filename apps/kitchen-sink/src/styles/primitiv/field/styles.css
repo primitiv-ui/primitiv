@@ -13,7 +13,7 @@
  * declared once in the shared token layer (primitiv.tokens.css); this file only
  * re-opens the named sublayers.
  *
- * Field does not style the control it wraps — the control (Input, …) styles its
+ * Field does not style the control it wraps — the control (Input, ...) styles its
  * own invalid / disabled look from the aria-invalid / disabled that Field
  * cascades. This file owns only the label, helper text, and error message.
  *
@@ -60,7 +60,7 @@
     font-size: var(--primitiv-field-label-font-size);
     font-weight: var(--primitiv-field-label-font-weight);
     line-height: var(--primitiv-field-label-line-height);
-    /* A native <label for=…> click-proxies to its control — prevent tap-hold
+    /* A native <label for=...> click-proxies to its control — prevent tap-hold
        from selecting its text / triggering iOS's text-selection callout
        instead of just focusing the field. */
     -webkit-tap-highlight-color: transparent;

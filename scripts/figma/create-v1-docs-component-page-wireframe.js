@@ -106,7 +106,7 @@ return (async function () {
     text(F, "Styled", modeX + 2 + seg, 24, 13, HEADM, C.white, { width: seg, align: "CENTER" });
     text(F, "Figma", modeX + 2 + seg * 2, 24, 13, HEADM, C.sec, { width: seg, align: "CENTER" });
     rect(F, searchX, 14, 190, 36, C.white, { radius: 8, stroke: C.border });
-    text(F, "Search docs…", searchX + 16, 24, 13, BODY, C.muted);
+    text(F, "Search docs...", searchX + 16, 24, 13, BODY, C.muted);
     rect(F, themeX, 14, 32, 32, C.white, { radius: 8, stroke: C.border });
     rect(F, themeX + 9, 21, 14, 14, C.dark, { radius: 7 });
     marker(F, 1, W / 2 - 10, -6);
@@ -117,7 +117,7 @@ return (async function () {
       { t: "Start Here" }, { t: "Concepts", caret: "▸" }, { t: "Components", caret: "▾" },
       { t: "Button", lvl: 1, active: true }, { t: "Checkbox", lvl: 1 }, { t: "Input", lvl: 1 },
       { t: "Select", lvl: 1 }, { t: "Switch", lvl: 1 }, { t: "Tabs", lvl: 1 }, { t: "Accordion", lvl: 1 },
-      { t: "Dropdown", lvl: 1 }, { t: "Modal", lvl: 1 }, { t: "… 41 total", lvl: 1, muted: true },
+      { t: "Dropdown", lvl: 1 }, { t: "Modal", lvl: 1 }, { t: "... 41 total", lvl: 1, muted: true },
       { t: "Registry & CLI" }, { t: "Design in Figma", caret: "▾" }, { t: "Harmoni", lvl: 1 },
       { t: "Recipes / Guides" }, { t: "Changelog / Releases" },
     ];
@@ -197,7 +197,7 @@ return (async function () {
     y += 22;
     D.cssVars.forEach((v, i) => text(F, v, MAIN_X + (i % 2) * 370, y + Math.floor(i / 2) * 30, 13, BODY, C.dark));
     y += Math.ceil(D.cssVars.length / 2) * 30 + 4;
-    text(F, "… " + D.cssVarCount + " total", MAIN_X, y, 13, BODYM, C.muted);
+    text(F, "... " + D.cssVarCount + " total", MAIN_X, y, 13, BODYM, C.muted);
     y += 40;
 
     // Accessibility
@@ -208,7 +208,7 @@ return (async function () {
     // Examples
     heading("Examples");
     const exW = (MAIN_W - 20) / 2;
-    [["As a link (asChild)", "<Button asChild>…</Button>"], ["Variants", "primary · secondary · ghost"]].forEach((e, i) => { const ex = MAIN_X + i * (exW + 20); rect(F, ex, y, exW, 120, C.white, { radius: 10, stroke: C.border }); text(F, e[0], ex + 16, y + 14, 15, HEAD, C.dark); rect(F, ex + 16, y + 44, exW - 32, 58, C.ph, { radius: 6 }); text(F, e[1], ex + 28, y + 66, 12, BODY, C.muted); });
+    [["As a link (asChild)", "<Button asChild>...</Button>"], ["Variants", "primary · secondary · ghost"]].forEach((e, i) => { const ex = MAIN_X + i * (exW + 20); rect(F, ex, y, exW, 120, C.white, { radius: 10, stroke: C.border }); text(F, e[0], ex + 16, y + 14, 15, HEAD, C.dark); rect(F, ex + 16, y + 44, exW - 32, 58, C.ph, { radius: 6 }); text(F, e[1], ex + 28, y + 66, 12, BODY, C.muted); });
     y += 120 + 40;
     const contentBottom = y;
 
@@ -295,7 +295,7 @@ return (async function () {
     text(F, "CSS variables — mode-agnostic (§1.5)", M, y - 6, 12, BODY, C.muted);
     y += 18;
     D.cssVars.slice(0, 4).forEach(v => { text(F, v, M, y, 13, BODY, C.dark); y += 26; });
-    text(F, "… " + D.cssVarCount + " total", M, y, 13, HEADM, C.muted);
+    text(F, "... " + D.cssVarCount + " total", M, y, 13, HEADM, C.muted);
     y += 42;
 
     // Accessibility
@@ -305,7 +305,7 @@ return (async function () {
 
     // Examples
     heading("Examples");
-    [["As a link (asChild)", "<Button asChild>…</Button>"], ["Variants", "primary · secondary · ghost"]].forEach(e => { rect(F, M, y, CW, 96, C.white, { radius: 10, stroke: C.border }); text(F, e[0], M + 14, y + 12, 15, HEAD, C.dark); rect(F, M + 14, y + 40, CW - 28, 44, C.ph, { radius: 6 }); text(F, e[1], M + 24, y + 56, 12, BODY, C.muted); y += 96 + 12; });
+    [["As a link (asChild)", "<Button asChild>...</Button>"], ["Variants", "primary · secondary · ghost"]].forEach(e => { rect(F, M, y, CW, 96, C.white, { radius: 10, stroke: C.border }); text(F, e[0], M + 14, y + 12, 15, HEAD, C.dark); rect(F, M + 14, y + 40, CW - 28, 44, C.ph, { radius: 6 }); text(F, e[1], M + 24, y + 56, 12, BODY, C.muted); y += 96 + 12; });
     y += 20;
     F.resize(W, y + 20);
   }

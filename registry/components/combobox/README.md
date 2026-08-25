@@ -86,7 +86,7 @@ property is declared on it. They inherit down the DOM tree, panel included
 prop sizes the control, the panel and the rows together:
 
 ```tsx
-<Combobox size="sm">…</Combobox>
+<Combobox size="sm">...</Combobox>
 ```
 
 That matches the Figma set, which has a single `Size` axis.

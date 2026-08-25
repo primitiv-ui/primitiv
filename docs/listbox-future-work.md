@@ -49,7 +49,7 @@ question never arises there.
 Figma page **"Listbox — exploration"** (`1554:41672`), last page in the
 file, after "Split Button — exploration". Nine sections A–I following the
 Split Button page's convention: title + intro, lettered `SECTION`s each
-holding a `<letter> specimens` frame of `spec: …` frames, a verdict `TEXT`
+holding a `<letter> specimens` frame of `spec: ...` frames, a verdict `TEXT`
 beneath, closing with a contract-panel row.
 
 Every colour binds to a real variable, and specimens are composed from real
@@ -172,7 +172,7 @@ The first version of this doc (and §A5's note on the Figma page) claimed the
 build owed an `invalid` prop on `Listbox.Root`. It does not, and the reason is
 worth recording because it applies to any future headless control:
 
-- `ListboxRootBaseProps` extends `Omit<HTMLAttributes<HTMLDivElement>, …>`,
+- `ListboxRootBaseProps` extends `Omit<HTMLAttributes<HTMLDivElement>, ...>`,
   and `...rest` is spread onto the root's `<div>`. **`aria-invalid` already
   reaches the DOM today** — verified with a throwaway probe test, which passed
   unmodified against the shipped code and was then deleted rather than

@@ -111,7 +111,7 @@ the ToggleGroup/Tabs/Accordion redesign script — see
 Prefer the **async** node/variable APIs throughout (`getNodeByIdAsync`,
 `getVariableByIdAsync`, `getVariableCollectionByIdAsync`,
 `getLocalVariablesAsync`, `setEffectStyleIdAsync`) — the sync variants
-(`getNodeById`, `getVariableById`, …) are deprecated under dynamic-page and
+(`getNodeById`, `getVariableById`, ...) are deprecated under dynamic-page and
 throw or warn. They're all Promises, so they only work inside the async IIFE.
 
 ## Process: generating a wireframe script from scratch
@@ -152,7 +152,7 @@ changing `W` or `PAD` propagates everywhere.
 ### 3. Write the helper functions
 
 Copy the shared helper set (`solid`, `makeFrame`, `makeText`, `makeHeader`,
-…) from an existing script (`create-v1-wireframes.js`) rather than
+...) from an existing script (`create-v1-wireframes.js`) rather than
 re-inventing it — the full table and the API patterns behind it are in
 `references/wireframe-recipes.md`.
 
@@ -182,7 +182,7 @@ the filename and the Figma page name **must include a version segment**
 
 ### Versioned naming convention
 
-Every wireframe iteration is tied to a version (`v1`, `v2`, …). The
+Every wireframe iteration is tied to a version (`v1`, `v2`, ...). The
 version appears in two places so the work is trackable through time:
 
 | Surface | Pattern | Example |

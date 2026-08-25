@@ -43,7 +43,7 @@ export type PullQuoteProps = ComponentPropsWithRef<"blockquote"> &
 
 /**
  * A large, centred editorial pull quote. `size` (`xs`–`xl`, default `md`)
- * rides the existing `heading/*` type scale (xs→h5 … xl→h1); `marks` toggles
+ * rides the existing `heading/*` type scale (xs→h5 ... xl→h1); `marks` toggles
  * a decorative open-quote glyph above the text.
  *
  * @example

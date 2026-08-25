@@ -86,7 +86,7 @@ export type PlaygroundProps = {
  * Structure read off the Figma "Section · Playground" frame — one `Card`
  * (size `lg`) divided into three regions by hairline `Divider`s:
  *
- *   DENSITY   overline + a row of RADIOS          (Dense…Spacious)
+ *   DENSITY   overline + a row of RADIOS          (Dense...Spacious)
  *   ─────
  *   PREVIEW   overline + the centred live preview
  *   ─────

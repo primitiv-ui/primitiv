@@ -228,7 +228,7 @@ export function useNavigationMenuRoot({
       cancelOpen();
       cancelClose();
     },
-    // Both are `useCallback(…, [])`, so their identities are fixed for the
+    // Both are `useCallback(..., [])`, so their identities are fixed for the
     // component's lifetime: emptying this array subscribes the cleanup exactly
     // once either way.
     // Stryker disable next-line ArrayDeclaration: equivalent — stable dependencies.

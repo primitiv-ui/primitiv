@@ -71,7 +71,7 @@ this fill it:
 
 ```tsx
 <div style={{ display: "grid", placeItems: "center", minHeight: "20rem", padding: "2rem" }}>
-  <EmptyState>…</EmptyState>
+  <EmptyState>...</EmptyState>
 </div>
 ```
 
@@ -90,7 +90,7 @@ announced when it *replaces* content after a search or filter. For an empty
 state that is part of the initial, static page, there is nothing to announce:
 
 ```tsx
-<EmptyState role={undefined}>…</EmptyState>
+<EmptyState role={undefined}>...</EmptyState>
 ```
 
 **Any media works.** `EmptyStateMedia` is a fixed square box and an `<svg>`
@@ -115,7 +115,7 @@ informative rather than decorative, opt back into the accessibility tree:
 | `--primitiv-empty-state-media-size` | `empty-state/{size}/media-size` | The media box, both axes. |
 | `--primitiv-empty-state-media-offset` | `empty-state/media-offset-top` | `horizontal` only — the optical nudge aligning the media to the title's cap-height. |
 | `--primitiv-empty-state-media-color` | `content/primary` | The media glyph colour (`currentColor`). |
-| `--primitiv-empty-state-title-*` | `heading/{h6…h2}/*` | Family / size / weight / line-height, per size. |
+| `--primitiv-empty-state-title-*` | `heading/{h6...h2}/*` | Family / size / weight / line-height, per size. |
 | `--primitiv-empty-state-title-color` | `content/primary` | |
 | `--primitiv-empty-state-description-*` | `body/{size}/*` | Family / size / weight / line-height. |
 | `--primitiv-empty-state-description-color` | `content/secondary` | |

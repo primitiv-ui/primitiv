@@ -75,8 +75,8 @@ import type {
  *     <Tabs.Trigger value="overview">Overview</Tabs.Trigger>
  *     <Tabs.Trigger value="settings">Settings</Tabs.Trigger>
  *   </Tabs.List>
- *   <Tabs.Content value="overview">Dashboard…</Tabs.Content>
- *   <Tabs.Content value="settings">Preferences…</Tabs.Content>
+ *   <Tabs.Content value="overview">Dashboard...</Tabs.Content>
+ *   <Tabs.Content value="settings">Preferences...</Tabs.Content>
  * </Tabs.Root>
  * ```
  *
@@ -89,7 +89,7 @@ import type {
  *   onValueChange={setTab}
  *   onChange={({ name, index }) => track("tab_view", { name, index })}
  * >
- *   …
+ *   ...
  * </Tabs.Root>
  * ```
  *
@@ -98,7 +98,7 @@ import type {
  * const ref = useRef<TabsImperativeApi>(null);
  *
  * <Tabs.Root ref={ref} orientation="vertical" defaultValue="one">
- *   …
+ *   ...
  * </Tabs.Root>
  *
  * <button onClick={() => ref.current?.setActiveTab("two")}>Go to two</button>

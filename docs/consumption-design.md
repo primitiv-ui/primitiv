@@ -33,7 +33,7 @@ The key decisions, all settled in the 2026-06-09 design discussion:
    starting point), authored per-component against the token layer and
    **ported from Figma, the source of truth for the whole system**.
 4. **One look, many formats.** Example styles are offered in the
-   consumer's chosen format (CSS, SCSS, Tailwind, …). All formats are
+   consumer's chosen format (CSS, SCSS, Tailwind, ...). All formats are
    derived from the same Primitiv design tokens / CSS custom properties
    and are visually identical. Flexibility is the headline feature.
 5. **A Rust CLI is the orchestrator.** It is interactive for humans and
@@ -188,7 +188,7 @@ The opt-in styled layer. Four sub-decisions, all settled.
 ### 5.1 Opt-in, with format choice
 
 The CLI **first asks whether** the consumer wants example styles for a
-component, and **only then asks the format** (CSS, SCSS, Tailwind, …). A
+component, and **only then asks the format** (CSS, SCSS, Tailwind, ...). A
 consumer who wants headless-only never sees a style file. The chosen format
 is recorded in `primitiv.json` as the project default; it can be overridden
 per `add`.
@@ -365,7 +365,7 @@ SWC, lightningcss, and Tailwind's Oxide engine — **not** a fragile
 - A thin wrapper package (`primitiv` / `@primitiv-ui/cli`) whose `bin` points at
   a tiny launcher.
 - Per-platform packages (`@primitiv-ui/cli-darwin-arm64`,
-  `…-linux-x64-gnu`, `…-linux-x64-musl`, `…-win32-x64-msvc`, …), each carrying
+  `...-linux-x64-gnu`, `...-linux-x64-musl`, `...-win32-x64-msvc`, ...), each carrying
   the prebuilt binary and declaring `os`/`cpu`.
 - The wrapper lists them in `optionalDependencies`; the package manager installs
   only the matching one. The launcher resolves and execs it.
@@ -395,8 +395,8 @@ r/
     contract.json                 # root class, data-* states, css-var API
     styles.css                    # canonical
     styles.scss
-    tailwind/…                    # preset fragment + recipe
-  switch/…
+    tailwind/...                    # preset fragment + recipe
+  switch/...
 ```
 
 - **Simple, cacheable, versioned with the repo**, and trivially mirrored to
@@ -433,7 +433,7 @@ The Agent profile is first-class, not bolted on:
 | D3 | Styling contract = root class + modifier classes (visual variants) + `data-*` (state/behavioural) + `--primitiv-*` custom-property API; the data-vs-modifier rule decides which surface a given option uses |
 | D4 | Example styles = copy-in **editable** source, owned by the consumer |
 | D5 | Example styles = **polished default theme**, re-skinned via tokens, **ported from Figma** |
-| D6 | One visual design, emitted in many formats (CSS/SCSS/Tailwind/…), all token-derived |
+| D6 | One visual design, emitted in many formats (CSS/SCSS/Tailwind/...), all token-derived |
 | D7 | CLI asks **whether** styles, then **which format**; persists to `primitiv.json` |
 | D8 | Registry = **static** `registry.json` + files, no backend |
 | D9 | Agent support is first-class: static manifest + non-interactive `--json` CLI |
@@ -492,7 +492,7 @@ open questions ahead of implementation:
 | # | Decision |
 |---|---|
 | D45 | The **headless component emits its root/part identity classes** (`.primitiv-button`, `.primitiv-tabs__trigger`), merged with any consumer `className` — so a "component + styles" install needs no hand-wired identity class. **Only** root/part classes are emitted (modifiers stay consumer/recipe-applied) and **only** semantic classes (never utilities — the package stays styling-agnostic for Dev 1). Resolves RFC 0004 §7.5; unblocks the CSS-Modules story (RFC 0006 §10.6) — module projects consume the global contract stylesheet |
-| D46 | Tailwind output target = **v4 only** for v1 (CSS-variable-native); v3 best-effort via `data-[…]:` variants, not a promise. Resolves RFC 0006 §10.3 |
+| D46 | Tailwind output target = **v4 only** for v1 (CSS-variable-native); v3 best-effort via `data-[...]:` variants, not a promise. Resolves RFC 0006 §10.3 |
 | D47 | Emitted TS/JS token object = **nested + typed** (`tokens.color.primary`), **CLI-emitted** like the other formats (per D23), not hand-maintained. Resolves RFC 0006 §10.2 |
 | D48 | `primitiv theme --brand` emits a **paired light + dark** palette in v1; the emitted **structure (names, file shape, `[data-theme]` scope) is the stable contract**, while dark *values* track `harmoni-core`'s dark ramp and evolve **non-breakingly** (Principle 2). Resolves RFC 0005 §9.1 |
 | D49 | **Operational ratifications:** theme overrides = separate file in `primitiv.theme` (RFC 0006 §10.4); coverage = `cargo-llvm-cov`, command tests = in-memory FS + e2e = `assert_fs` (RFC 0007 §11); `primitiv.reset` reserved-empty + per-component stylesheets re-open named layers + Tailwind layer/`dark:` wiring reuses the D19 detect-and-offer mechanism (RFC 0008 §7, RFC 0009 §8.3); written-file manifest = separate `primitiv.lock`-style sibling, registry = GitHub raw at the pinned tag (CDN fast-follow), package managers = pnpm/npm/yarn/bun with **Deno out of scope v1** (RFC 0005 §9) |
@@ -592,6 +592,6 @@ primitiv add button --styles-only --format css
 
 **Agent:**
 ```sh
-curl …/registry.json                 # evaluate fit, read Button's contract + deps
+curl .../registry.json                 # evaluate fit, read Button's contract + deps
 primitiv add button --yes --json     # deterministic install, structured result
 ```

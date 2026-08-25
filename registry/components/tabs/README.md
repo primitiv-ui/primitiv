@@ -116,8 +116,8 @@ surface is the shadcn-equivalent (`Tabs` / `TabsList` / `TabsTrigger` /
       <TabsTrigger value="overview">Overview</TabsTrigger>
       <TabsTrigger value="settings">Settings</TabsTrigger>
     </TabsList>
-    <TabsContent value="overview">…</TabsContent>
-    <TabsContent value="settings">…</TabsContent>
+    <TabsContent value="overview">...</TabsContent>
+    <TabsContent value="settings">...</TabsContent>
   </Tabs>
   ```
 

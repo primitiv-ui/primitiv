@@ -154,7 +154,7 @@ There is **no `invalid` prop**. Set `aria-invalid` yourself and the frame's bord
 follows — the same convention `InputGroup` uses:
 
 ```tsx
-<Listbox type="single" aria-invalid aria-label="Cities">…</Listbox>
+<Listbox type="single" aria-invalid aria-label="Cities">...</Listbox>
 ```
 
 There is also no whole-list `disabled` state; only individual options can be

@@ -12,7 +12,7 @@ captures the **no-magic-numbers** rule and its edges.
 ## Tokenize literals — don't hard-code values
 
 Every value that maps to a design token must be written as that token's custom
-property (`var(--primitiv-…)`), **not** a raw literal. The stable surface is the
+property (`var(--primitiv-...)`), **not** a raw literal. The stable surface is the
 token contract; literals bypass it and can't be re-themed (RFC 0006 Principle 2 —
 names are stable, values are not).
 
@@ -47,7 +47,7 @@ firmed up.
   (`default`/`enter`/`exit`/`linear`) — never a raw `120ms ease`.
 - **Non-design CSS mechanics**, which carry no theming intent: `outline: none`,
   `flex-shrink: 0`, `z-index: 1`, and the `box-shadow` geometry zeros
-  (`0 0 0 …`) in the focus ring.
+  (`0 0 0 ...`) in the focus ring.
 
 ## Mobile tap-highlight on every interactive element
 
@@ -102,7 +102,7 @@ fix above — leave the values as literals.
 This applies more broadly than the tap-highlight rule: it also belongs on
 non-clickable transient content that still isn't meant to be selected, like
 Tooltip's bubble (no `cursor` there at all — it's a `role="tooltip"` `<div>`,
-not a button) and a `<label for=…>` that click-proxies to a separate control
+not a button) and a `<label for=...>` that click-proxies to a separate control
 (Field's `__label`). Dropdown/Select's menu and listbox rows already carry
 `user-select: none` from an earlier pass (their own reason: a long-press
 shouldn't select row text either) — this section generalises that to every
@@ -121,7 +121,7 @@ correctly on touchend, it isn't the problem) in:
 ```css
 @media (hover: hover) {
   .primitiv-x__item:hover {
-    /* … */
+    /* ... */
   }
 }
 ```
@@ -226,7 +226,7 @@ on a box with siblings (an icon + text row). Two shapes exist:
 
 - **Single-element component (Button):** the contract's top-level
   `wrapTextChildren: true` opts a single-element wrapper into rendering a
-  `…__label` span around string/number children (element children — icons —
+  `...__label` span around string/number children (element children — icons —
   pass through unwrapped). `text-box-trim`/`text-box-edge` then target
   `.primitiv-{name}__label`.
 - **Structural subcomponent (ToggleGroup.Item):** set `wrapTextChildren: true`
@@ -360,7 +360,7 @@ simplification to reach for across the library.
 
 - Keep the **CSS and SCSS bodies byte-identical** (the `.scss` is the `.css` plus
   the trailing `$primitiv-*` alias block).
-- Update the file header's *"Requires the token layer for …"* list when you
+- Update the file header's *"Requires the token layer for ..."* list when you
   reference a **new token family**.
 - If the value is an API token's default (a `--primitiv-<component>-*` knob),
   mirror the change into `contract.json`'s `defaultsTo`.
@@ -370,7 +370,7 @@ simplification to reach for across the library.
 - Same rule: also pair it with `user-select: none; -webkit-user-select: none;
   -webkit-touch-callout: none;` so tap-hold can't select the control's own
   label or pop the iOS callout — see above. Also add it to non-clickable
-  transient/label-only surfaces (a tooltip bubble, a `<label for=…>`) even
+  transient/label-only surfaces (a tooltip bubble, a `<label for=...>`) even
   without a `cursor` rule to pair it with.
 - Adding a new `:hover` rule? Wrap it in `@media (hover: hover)` — see above.
 - Animating a grid-collapse row to a fixed clamp height (a read-more /
@@ -396,13 +396,13 @@ device, invisible in landscape and on desktop):
 ## Syntax highlighting is a code-only theme
 
 `code-block` colours Prism's token classes (`.token.keyword`, `.token.string`,
-…) from seven **registry-only** `--primitiv-code-syntax-*` roles — there is no
+...) from seven **registry-only** `--primitiv-code-syntax-*` roles — there is no
 Figma variable for them (highlighting can't be expressed in Figma). Define them
 on `.primitiv-code-block` (light) with a `[data-theme="dark"] .primitiv-code-block`
 override, so the theme re-colours through the cascade when the mode flips. The
-`oklch(…)` literals here are the token *definitions* (their source of truth), so
+`oklch(...)` literals here are the token *definitions* (their source of truth), so
 they are exempt from "tokenize every literal" — but everything else in the sheet
-still resolves from `var(--primitiv-…)`. The wrapper hands Prism an **empty
+still resolves from `var(--primitiv-...)`. The wrapper hands Prism an **empty
 theme** so only the class names land and our CSS wins (never Prism's inline
 styles, which wouldn't switch with the mode — the reason Prism was chosen over
 Shiki).

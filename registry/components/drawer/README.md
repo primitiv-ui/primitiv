@@ -7,7 +7,7 @@ background, top layer, `Esc`, click-outside, controlled / uncontrolled state, th
 imperative open/close API) and adds a single presentational axis — **`side`**.
 
 `primitiv add drawer` copies this styled surface into your project. The files are
-yours to edit; the stable contract is the class names, the `--sm…--xl` size
+yours to edit; the stable contract is the class names, the `--sm...--xl` size
 modifiers, the `data-state` / `data-side` hooks, and the `--primitiv-drawer-*`
 custom properties (RFC 0006 Principle 2 — names are stable, values are not).
 
@@ -61,7 +61,7 @@ import { Close } from "@primitiv-ui/icons";
       </DrawerHeader>
       <DrawerBody>
         <DrawerDescription>Narrow the results below.</DrawerDescription>
-        {/* form fields, lists, copy… */}
+        {/* form fields, lists, copy... */}
       </DrawerBody>
       <DrawerFooter>
         <DrawerClose asChild>

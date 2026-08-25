@@ -25,7 +25,7 @@ export type BadgeProps = ComponentPropsWithRef<"span"> &
   BadgeVariants & {
     /**
      * Render the single child element instead of a wrapping <span>, merging
-     * the badge classes onto it — e.g. `<Badge asChild><a>…</a></Badge>`.
+     * the badge classes onto it — e.g. `<Badge asChild><a>...</a></Badge>`.
      */
     asChild?: boolean;
   };

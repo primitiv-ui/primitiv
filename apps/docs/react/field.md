@@ -25,7 +25,7 @@ import { Field, Input } from "@primitiv-ui/react";
 | --------------------------- | ------------------------ | ------------------------------------- |
 | `Field` / `Field.Root`      | `<div>`                  | `data-field=""`                       |
 | `Field.Label`               | `<label>` (`htmlFor=id`) | n/a                                   |
-| `Field.Description`         | `<div id=…-description>` | n/a                                   |
+| `Field.Description`         | `<div id=...-description>` | n/a                                   |
 | `Field.ErrorText`           | `<div role="alert">`     | n/a (only renders when invalid)       |
 
 Plus three state-driven hooks on the root: `data-field-invalid`,

@@ -51,7 +51,7 @@ import {
  * @example Uncontrolled
  * ```tsx
  * <Modal.Root defaultOpen>
- *   <Modal.Content>…</Modal.Content>
+ *   <Modal.Content>...</Modal.Content>
  * </Modal.Root>
  * ```
  *
@@ -63,7 +63,7 @@ import {
  *   <Modal.Trigger>Open</Modal.Trigger>
  *   <Modal.Portal>
  *     <Modal.Overlay />
- *     <Modal.Content>…</Modal.Content>
+ *     <Modal.Content>...</Modal.Content>
  *   </Modal.Portal>
  * </Modal.Root>
  * ```
@@ -140,7 +140,7 @@ ModalTrigger.displayName = "ModalTrigger";
  * ```tsx
  * <Modal.Portal container={document.getElementById("modal-root")!}>
  *   <Modal.Overlay />
- *   <Modal.Content>…</Modal.Content>
+ *   <Modal.Content>...</Modal.Content>
  * </Modal.Portal>
  * ```
  */
@@ -267,7 +267,7 @@ ModalOverlay.displayName = "ModalOverlay";
  *     if (hasUnsavedChanges) event.preventDefault();
  *   }}
  * >
- *   …
+ *   ...
  * </Modal.Content>
  * ```
  */

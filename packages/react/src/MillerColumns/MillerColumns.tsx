@@ -305,7 +305,7 @@ MillerColumnsItem.displayName = "MillerColumnsItem";
  * <MillerColumns.Item value="docs">
  *   Docs
  *   <MillerColumns.ItemIndicator>▸</MillerColumns.ItemIndicator>
- *   <MillerColumns.Column>…</MillerColumns.Column>
+ *   <MillerColumns.Column>...</MillerColumns.Column>
  * </MillerColumns.Item>
  * ```
  */
@@ -470,7 +470,7 @@ type MillerColumnsCompound = typeof MillerColumnsRoot & {
 /**
  * MillerColumns — a horizontal strip of vertical lists where selecting a
  * node reveals its children in the next column. Use as a namespace
- * (`MillerColumns.Root`, `MillerColumns.Column`, `MillerColumns.Item`, …);
+ * (`MillerColumns.Root`, `MillerColumns.Column`, `MillerColumns.Item`, ...);
  * the default export is also callable as the Root.
  */
 const MillerColumnsCompound: MillerColumnsCompound = Object.assign(

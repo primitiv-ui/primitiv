@@ -60,7 +60,7 @@ describe("Button styling contract", () => {
     );
 
     render(<Button disabled>Save</Button>);
-    // Present with the documented value when the documented condition holds…
+    // Present with the documented value when the documented condition holds...
     expect(screen.getByRole("button")).toHaveAttribute(entry.name, entry.value);
   });
 

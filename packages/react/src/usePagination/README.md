@@ -70,7 +70,7 @@ request, and is not called when the page hasn't actually moved.
 
 A page index restored from a URL or `localStorage` can easily outlive the data
 it pointed at. Every route into the page — `defaultPage`, a controlled `page`,
-and `setPage` — is clamped to `1…pageCount`, so `page` is always safe to read
+and `setPage` — is clamped to `1...pageCount`, so `page` is always safe to read
 and to index with.
 
 `pageCount` is never less than `1`: a 1-based page needs somewhere to stand, and
@@ -98,7 +98,7 @@ hook reports a single page.
 
 | Key | Type | Notes |
 |---|---|---|
-| `page` | `number` | Current page, always within `1…pageCount`. |
+| `page` | `number` | Current page, always within `1...pageCount`. |
 | `pageCount` | `number` | Never less than 1. |
 | `setPage` | `(page: number) => void` | Out-of-range requests clamp. |
 | `next` / `previous` | `() => void` | No-ops at the respective end. |
@@ -115,18 +115,18 @@ As the current page moves, something has to decide which numbers stay on screen.
 page steps outside it:
 
 ```
-page 6:  1 … 6 7 8 9 10 … 20
-page 7:  1 … 6 7 8 9 10 … 20     ← identical; only the active cell moved
-page 10: 1 … 6 7 8 9 10 … 20
-page 11: 1 … 11 12 13 14 15 … 20 ← one deliberate jump
+page 6:  1 ... 6 7 8 9 10 ... 20
+page 7:  1 ... 6 7 8 9 10 ... 20     ← identical; only the active cell moved
+page 10: 1 ... 6 7 8 9 10 ... 20
+page 11: 1 ... 11 12 13 14 15 ... 20 ← one deliberate jump
 ```
 
 **`sliding`** follows the current page continuously:
 
 ```
-page 6:  1 … 5 6 7 … 20
-page 7:  1 … 6 7 8 … 20          ← every cell re-labelled
-page 8:  1 … 7 8 9 … 20          ← again
+page 6:  1 ... 5 6 7 ... 20
+page 7:  1 ... 6 7 8 ... 20          ← every cell re-labelled
+page 8:  1 ... 7 8 9 ... 20          ← again
 ```
 
 Sliding is the more common default elsewhere, but it re-labels the numbers

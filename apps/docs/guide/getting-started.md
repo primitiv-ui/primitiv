@@ -62,8 +62,8 @@ import { Tabs } from "@primitiv-ui/react";
     <Tabs.Trigger value="overview">Overview</Tabs.Trigger>
     <Tabs.Trigger value="settings">Settings</Tabs.Trigger>
   </Tabs.List>
-  <Tabs.Content value="overview">…</Tabs.Content>
-  <Tabs.Content value="settings">…</Tabs.Content>
+  <Tabs.Content value="overview">...</Tabs.Content>
+  <Tabs.Content value="settings">...</Tabs.Content>
 </Tabs.Root>;
 ```
 

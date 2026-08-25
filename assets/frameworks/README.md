@@ -61,8 +61,8 @@ them in a way that implies endorsement.
    `userSpaceOnUse` and re-fitting would mean recomputing them. Size it by
    its own box.
 
-3. **Solid's gradient ids are namespaced** (`solid-a` … `solid-d`, upstream
-   `a` … `d`). Inlining two SVGs with `id="a"` into one document collides and
+3. **Solid's gradient ids are namespaced** (`solid-a` ... `solid-d`, upstream
+   `a` ... `d`). Inlining two SVGs with `id="a"` into one document collides and
    silently mis-paints one of them. This is the only edit made to the
    upstream artwork.
 

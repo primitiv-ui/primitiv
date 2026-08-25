@@ -23,7 +23,7 @@ import "../styles/primitiv/breadcrumb-overflow/styles.css";
  *
  * The trigger is a bare `<button>` styled by `__trigger` (styles.css), NOT
  * the registry `Button` component — Figma's own Overflow=true variant
- * renders "…" as a zero-padding, zero-fill plain-text crumb (see styles.css's
+ * renders "..." as a zero-padding, zero-fill plain-text crumb (see styles.css's
  * header), and Button's framed-control padding scale reads far too heavy
  * against that inline context (visually "a secondary button" sitting inside
  * a text trail, confirmed against a real render). `__trigger` matches the

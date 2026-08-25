@@ -17,7 +17,7 @@ export type KbdProps = ComponentPropsWithRef<"kbd"> &
   KbdVariants & {
     /**
      * Render the single child element instead of a wrapping <kbd>, merging
-     * the kbd classes onto it — e.g. `<Kbd asChild><span>…</span></Kbd>`.
+     * the kbd classes onto it — e.g. `<Kbd asChild><span>...</span></Kbd>`.
      */
     asChild?: boolean;
   };

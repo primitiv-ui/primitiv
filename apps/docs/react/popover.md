@@ -81,7 +81,7 @@ input group whose trigger is a small button.
       <Popover.Trigger aria-label="Options">▾</Popover.Trigger>
     </div>
   </Popover.Anchor>
-  <Popover.Content /* position-anchor: --popover in CSS */>…</Popover.Content>
+  <Popover.Content /* position-anchor: --popover in CSS */>...</Popover.Content>
 </Popover.Root>;
 ```
 

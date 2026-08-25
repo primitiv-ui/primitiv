@@ -194,8 +194,8 @@ The emitter surfaces both Intent modes. Default switching mechanism: a
 
 ```css
 :root,
-[data-theme="light"] { --primitiv-color-bg: #fff;  /* … */ }
-[data-theme="dark"]   { --primitiv-color-bg: #111;  /* … */ }
+[data-theme="light"] { --primitiv-color-bg: #fff;  /* ... */ }
+[data-theme="dark"]   { --primitiv-color-bg: #111;  /* ... */ }
 ```
 
 `primitiv theme` emits the dark set alongside the light one. **No bespoke
@@ -312,7 +312,7 @@ Specified in RFC 0005; listed here for the pipeline's entry points:
    inlining resolvers it relied on were removed from `primitiv-emit`.
 3. ~~**Tailwind version target.**~~ **Resolved (D46):** **v4-only** for v1
    (CSS-variable-native, aligns with the whole token model); v3 is best-effort via
-   `data-[…]:` variants, not a v1 promise.
+   `data-[...]:` variants, not a v1 promise.
 4. ~~**Theme output location.**~~ **Resolved (D49):** a **separate** overrides
    file in the `primitiv.theme` sublayer (RFC 0008 §5) — it beats the base tokens
    by *layer order*, not load order, so it is robust regardless of import order.

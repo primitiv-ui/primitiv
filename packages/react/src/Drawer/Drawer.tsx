@@ -26,7 +26,7 @@ import type {
  * @example Uncontrolled
  * ```tsx
  * <Drawer.Root defaultOpen>
- *   <Drawer.Content>…</Drawer.Content>
+ *   <Drawer.Content>...</Drawer.Content>
  * </Drawer.Root>
  * ```
  *
@@ -38,7 +38,7 @@ import type {
  *   <Drawer.Trigger>Open</Drawer.Trigger>
  *   <Drawer.Portal>
  *     <Drawer.Overlay />
- *     <Drawer.Content side="right">…</Drawer.Content>
+ *     <Drawer.Content side="right">...</Drawer.Content>
  *   </Drawer.Portal>
  * </Drawer.Root>
  * ```
@@ -92,7 +92,7 @@ DrawerTrigger.displayName = "DrawerTrigger";
  * ```tsx
  * <Drawer.Portal container={document.getElementById("drawer-root")!}>
  *   <Drawer.Overlay />
- *   <Drawer.Content>…</Drawer.Content>
+ *   <Drawer.Content>...</Drawer.Content>
  * </Drawer.Portal>
  * ```
  */
@@ -159,12 +159,12 @@ DrawerOverlay.displayName = "DrawerOverlay";
  *
  * @example Right-hand drawer (default)
  * ```tsx
- * <Drawer.Content>…</Drawer.Content>
+ * <Drawer.Content>...</Drawer.Content>
  * ```
  *
  * @example Bottom sheet
  * ```tsx
- * <Drawer.Content side="bottom">…</Drawer.Content>
+ * <Drawer.Content side="bottom">...</Drawer.Content>
  * ```
  */
 function DrawerContent({

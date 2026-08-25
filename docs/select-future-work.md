@@ -468,7 +468,7 @@ tier and still hold for `Select`'s default (non-`native`) render path.
 - **Drop `Select.Arrow`.** Consumers who want an arrow use CSS
   pseudo-elements on Content.
 - **Form integration: hidden native `<select>`.** Render an invisible
-  `<select name=…>` so submission works through the browser, mirroring
+  `<select name=...>` so submission works through the browser, mirroring
   what `native` mode already gets for free.
 
 ## Open questions for the Combobox — all four answered (2026-08-13)

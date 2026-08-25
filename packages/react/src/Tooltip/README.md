@@ -60,12 +60,12 @@ The two shapes are statically discriminated at the type level.
 
 ```tsx
 // Uncontrolled
-<Tooltip.Root defaultOpen>…</Tooltip.Root>
+<Tooltip.Root defaultOpen>...</Tooltip.Root>
 
 // Controlled
 const [open, setOpen] = useState(false);
 <Tooltip.Root open={open} onOpenChange={setOpen}>
-  …
+  ...
 </Tooltip.Root>
 ```
 
@@ -82,7 +82,7 @@ before the normal delay resumes.
 
 ```tsx
 <Tooltip.Provider delayDuration={400} skipDelayDuration={150}>
-  …
+  ...
 </Tooltip.Provider>
 ```
 
@@ -95,7 +95,7 @@ when the cursor leaves the trigger:
 
 ```tsx
 <Tooltip.Root disableHoverableContent>
-  …
+  ...
 </Tooltip.Root>
 ```
 
@@ -114,7 +114,7 @@ tooltip open:
     event.preventDefault(); // keep open when clicking outside
   }}
 >
-  …
+  ...
 </Tooltip.Content>
 ```
 
@@ -178,7 +178,7 @@ subtree stays in the DOM while closed so a CSS animation can play on
 
 ```tsx
 <Tooltip.Portal forceMount>
-  <Tooltip.Content forceMount>…</Tooltip.Content>
+  <Tooltip.Content forceMount>...</Tooltip.Content>
 </Tooltip.Portal>
 ```
 
@@ -199,7 +199,7 @@ child element; the child's own handlers run first.
 </Tooltip.Trigger>
 
 <Tooltip.Arrow asChild>
-  <svg viewBox="0 0 10 5">…</svg>
+  <svg viewBox="0 0 10 5">...</svg>
 </Tooltip.Arrow>
 ```
 

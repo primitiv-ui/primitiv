@@ -41,11 +41,11 @@ describe("Select typeahead", () => {
     await user.keyboard("a");
     expect(option("Apricot")).toHaveFocus();
 
-    // Repeated same char keeps cycling through the "a" matches…
+    // Repeated same char keeps cycling through the "a" matches...
     await user.keyboard("a");
     expect(option("Avocado")).toHaveFocus();
 
-    // …and wraps back to the first "a" match (past the non-matching Banana).
+    // ...and wraps back to the first "a" match (past the non-matching Banana).
     await user.keyboard("a");
     expect(option("Apple")).toHaveFocus();
   });
@@ -56,7 +56,7 @@ describe("Select typeahead", () => {
     await user.click(screen.getByRole("button")); // Apple focused
 
     // "av" is not a repeat; it searches from the current index without the
-    // single-char skip, so it stays put on the only "av…" match.
+    // single-char skip, so it stays put on the only "av..." match.
     await user.keyboard("av");
     expect(option("Avocado")).toHaveFocus();
   });

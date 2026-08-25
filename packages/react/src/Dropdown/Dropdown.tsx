@@ -81,7 +81,7 @@ import { MENUITEM_SELECTOR } from "./constants";
  * const [open, setOpen] = useState(false);
  *
  * <Dropdown.Root open={open} onOpenChange={setOpen}>
- *   …
+ *   ...
  * </Dropdown.Root>
  * ```
  */
@@ -960,7 +960,7 @@ export type TDropdownCompound = typeof DropdownRoot & {
  * styles ship.
  *
  * The default export is the `Root`; sub-components are attached as static
- * properties (`Dropdown.Trigger`, `Dropdown.Content`, …).
+ * properties (`Dropdown.Trigger`, `Dropdown.Content`, ...).
  */
 const DropdownCompound: TDropdownCompound = Object.assign(DropdownRoot, {
   Root: DropdownRoot,

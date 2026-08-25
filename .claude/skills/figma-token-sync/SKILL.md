@@ -56,7 +56,7 @@ move is done`. Reinstating it means restoring `planMigration` /
    Produces `dist/code.js` (sandbox) and `dist/index.html` (UI).
 
 3. **Load the plugin in Figma desktop:** *Plugins → Development →
-   Import plugin from manifest…* and pick
+   Import plugin from manifest...* and pick
    `apps/primitiv-sync-figma-plugin/manifest.json`. The browser
    version of Figma cannot load local plugins.
 

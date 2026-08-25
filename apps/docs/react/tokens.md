@@ -62,7 +62,7 @@ and `dist/index.html` (UI). Stays running and rebuilds on change.
 ### 4. Load the plugin into Figma desktop (one-time per machine)
 
 In Figma desktop: **Plugins → Development → Import plugin from
-manifest…** and select
+manifest...** and select
 `apps/primitiv-sync-figma-plugin/manifest.json`. After this Figma
 remembers it under **Plugins → Development → Primitiv Sync**.
 
@@ -114,7 +114,7 @@ backup "real".
 ## Conventions
 
 - Slash-separated Figma variable names (`font-family/heading`) become
-  nested DTCG groups (`{ "font-family": { "heading": {…} } }`).
+  nested DTCG groups (`{ "font-family": { "heading": {...} } }`).
 - Each token has `$type` and `$value`. Aliases (next cycle) will use
   DTCG's `{group.sub.name}` reference string.
 - Colours emit as hex: `#rrggbb` opaque, `#rrggbbaa` translucent.

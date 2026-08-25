@@ -5,7 +5,7 @@
 
 body {
   margin: 0;
-  /* The Primitiv base layer styles individual elements (p, headings, a's colour…)
+  /* The Primitiv base layer styles individual elements (p, headings, a's colour...)
    * but deliberately sets no global body font (RFC 0008 — no global reset), so a
    * consumer app owns its body default. Without this, unstyled chrome (the top
    * nav / carousel sidebar links) inherits the UA serif instead of Asta Sans. */
@@ -270,7 +270,7 @@ body {
 }
 
 /* Flex's cross-axis default (align-items: stretch, above) is right for a
-   section full of naturally full-width demos (Table, Accordion, Tabs, …),
+   section full of naturally full-width demos (Table, Accordion, Tabs, ...),
    but it force-stretches genuinely HUG-sized components too — Collapsible's
    row (especially the `inline` variant's flush trigger) and SegmentedControl's
    track both hug their own content per their Figma design, so they'd

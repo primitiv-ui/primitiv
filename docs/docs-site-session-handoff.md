@@ -36,7 +36,7 @@ the same one — it adds three sections and drops none:
   reading, deliberate.
 - **Styling contract is grouped by part** once there is more than one — 58
   undifferentiated names is a wall. The grouping is DERIVED from the names
-  (`--primitiv-select-<part>-…`), never listed, and anything unrecognised falls
+  (`--primitiv-select-<part>-...`), never listed, and anything unrecognised falls
   into the base group so a new part shows up in the wrong place rather than
   disappearing. Button (15 knobs, one part) still renders one ungrouped list.
 
@@ -127,7 +127,7 @@ gates after rebasing.
   `src/lib/render-doc.tsx`. `InlineCode` inherits nothing about size from
   context — pass `size` explicitly at every call site or one chip will look
   wrong.
-- **JSX attributes take no backslash escapes.** `caption="…`role=\"link\"`…"`
+- **JSX attributes take no backslash escapes.** `caption="...`role=\"link\"`..."`
   fails to parse; use an expression with a single-quoted string. Inside the
   `accessibility` array (ordinary JS strings) `\"` is fine.
 - **Props tables are generated, never hand-written** (planning doc §1.5).
@@ -159,7 +159,7 @@ new page code, only its spec and any shape differences.
 - **`InteractiveExample`** — same `Card` frame, the same shared `DensityRadios`
   above it, live `CodeBlock` below.
 - **Installation** — two-column `.docs-install-grid`: tabbed `InstallTabs`
-  beside an import panel showing a full `import { X } from "…";` statement
+  beside an import panel showing a full `import { X } from "...";` statement
   (Figma mode shows `Primitiv / X` under a "Figma library" label, since no
   import exists).
 - **Styling contract** — ONE `Collapsible variant="inline"` with
@@ -178,11 +178,11 @@ this was silently wrong before Select exposed it:
 - **styled** — `primitiv add` copies a file of flat exports: `SelectTrigger`,
   which exists *only* in that file.
 
-Button never showed the problem: `<Button variant="…">` reads identically in both
+Button never showed the problem: `<Button variant="...">` reads identically in both
 modes. Select's page had been printing `SelectTrigger` in the default mode, where
 it is not importable.
 
-Use `partNamer(mode, "Select")` for part names and `importBlock({…})` for the
+Use `partNamer(mode, "Select")` for part names and `importBlock({...})` for the
 import lines (`src/lib/playground.ts`). Every snippet now carries its imports,
 which is also what makes the difference self-evidencing — the reader can see
 `SelectTrigger` present in one mode and absent in the other. `ComponentSpec`'s

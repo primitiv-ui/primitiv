@@ -620,7 +620,7 @@ Properties: Size · Separator · Overflow only. Per-entry text is edited on each
 Density: Context mode override on parent frame (via the nested Item/Separator instances)
 Pairs with: Breadcrumb/Item, Breadcrumb/Separator (both nested), Dropdown/Panel + Dropdown/Item (the open overflow menu, unmodeled here — see below)
 Notes: fixed 3-item sample trail (Home / Section / Page) at every Size×Separator combination. State=current wired onto the trailing item across all 10 non-overflow variants 2026-07-27, alongside the Item State axis itself.
-  Overflow menu pattern (RFC 0021 Tier 1 composite) — a REAL variant, not just a documented pattern: Overflow=true swaps the middle crumb for the trigger, keeping first 1 + last 1 (the settled default collapse). No new anatomy — the trigger IS a Breadcrumb/Item (State=link, label "…") nested exactly like every other crumb, inheriting hover/focus/colour/sizing for free (no icon in the library reads as an overflow glyph; "menu" is a hamburger, not an ellipsis).
+  Overflow menu pattern (RFC 0021 Tier 1 composite) — a REAL variant, not just a documented pattern: Overflow=true swaps the middle crumb for the trigger, keeping first 1 + last 1 (the settled default collapse). No new anatomy — the trigger IS a Breadcrumb/Item (State=link, label "...") nested exactly like every other crumb, inheriting hover/focus/colour/sizing for free (no icon in the library reads as an overflow glyph; "menu" is a hamburger, not an ellipsis).
   Overflow=true shows the CLOSED state only (the trigger, not an open panel) — opening it is a real interaction (Dropdown's own open/close), not a static Figma variant. See the "Overflow pattern — example" composition lower on this page for the open-panel illustration: Dropdown/Panel + Dropdown/Item at the SAME Size as the breadcrumb (Breadcrumb and Dropdown already share one Size axis, so no size-mapping table is needed — contrast Avatar Group).
   LANDED (2026-08-01): headless Breadcrumb.Ellipsis (a decorative role=presentation/aria-hidden glyph, asChild-capable) is the composition seam; the registry `breadcrumb-overflow` compound collapses via keepStart/keepEnd props (settled directly — independent control of both ends, not a single maxVisible/max-style count), re-rendering hidden crumbs unmodified as real DropdownItem asChild menu entries. Its trigger is a bare <button> (not the registry Button — Button's padding read as "a secondary button" against this set's own zero-padding/zero-fill spec), styled to match this set's Overflow=true trigger exactly at rest.
 ```
@@ -1660,7 +1660,7 @@ Pairs with: Tree/Item, Tree/Branch Control, Tree/Connector (nested), Tree/Select
   chevron slot. `Style=rail` ignores Target (its two variants are identical,
   kept only to keep the grid rectangular).
 - **`tree/{size}/connector/stub-width` and `-leaf` are literal numbers, off the
-  primitive ladder, on purpose** (13, 18, 23, 34 …) — they derive from chevron
+  primitive ladder, on purpose** (13, 18, 23, 34 ...) — they derive from chevron
   glyph geometry. This is why **`tree` is the one component namespace in the
   emitter's `LENGTH_CATEGORIES`** (`crates/primitiv-emit/src/value.rs`): without
   it those two families emit unitless and are invalid as a width.

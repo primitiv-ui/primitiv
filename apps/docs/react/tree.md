@@ -60,7 +60,7 @@ Passing both `default*` and the controlled prop is a type error.
 
 ```ts
 // Uncontrolled
-<Tree.Root defaultExpandedValues={["src"]} onExpandedChange={(v) => …}>
+<Tree.Root defaultExpandedValues={["src"]} onExpandedChange={(v) => ...}>
 
 // Controlled
 <Tree.Root expandedValues={values} onExpandedChange={setValues}>
@@ -74,14 +74,14 @@ The selection shape depends on `selectionMode`:
 
 ```ts
 // Single (default) — selectedValue is `string | null`
-<Tree.Root defaultSelectedValue="readme" onSelectedValueChange={(v) => …}>
+<Tree.Root defaultSelectedValue="readme" onSelectedValueChange={(v) => ...}>
 <Tree.Root selectedValue={v} onSelectedValueChange={setV}>
 
 // Multiple — selectedValues is `string[]`
 <Tree.Root
   selectionMode="multiple"
   defaultSelectedValues={["readme", "index"]}
-  onSelectedValuesChange={(v) => …}
+  onSelectedValuesChange={(v) => ...}
 >
 <Tree.Root
   selectionMode="multiple"
@@ -191,7 +191,7 @@ styles.
 > [role="treeitem"][data-depth="2"] > .row {
 >   padding-inline-start: 3rem;
 > }
-> /* …extend as deep as your tree can go */
+> /* ...extend as deep as your tree can go */
 > ```
 >
 > **2. Set a CSS variable inline from the render layer** — the
@@ -324,7 +324,7 @@ import { Tree } from "@primitiv-ui/react";
 import { ChevronRight } from "@primitiv-ui/icons";
 
 <Tree.Root defaultSelectedValue="index">
-  …
+  ...
   <Tree.SelectionPath separator={<ChevronRight />} />
 </Tree.Root>;
 ```

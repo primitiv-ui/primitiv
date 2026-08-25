@@ -900,7 +900,7 @@ export function DeploymentsTable(): ReactElement {
                 type family, which scales with size and density. This was a
                 hardcoded `body-sm` — the same bug the pagination summary
                 had, written by hand instead of omitted. */}
-            {/* "…rows selected" wrapped onto two lines even at desktop width
+            {/* "...rows selected" wrapped onto two lines even at desktop width
                 once the numbered pager and the Select took their share. The
                 shorter phrase says the same thing on one line. */}
             <p className="ks-dt__count">

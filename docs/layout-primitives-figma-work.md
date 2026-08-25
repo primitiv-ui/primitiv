@@ -200,7 +200,7 @@ RFC 0025's own Figma items are still outstanding and share this bridge problem
 - the six `breakpoint/*` values as Figma variables (**collection placement is
   still an open decision** — they are mode-independent, so they fit neither
   Context nor Intent; decide before creating anything);
-- RFC 0025 §3's design-frame presets (`<Page> — xs (360)` … `xl (1280)`).
+- RFC 0025 §3's design-frame presets (`<Page> — xs (360)` ... `xl (1280)`).
 
 Doing the breakpoint variables **before** step 3 above would be tidier: the
 Container set's seven widths are exactly those values, so they could bind

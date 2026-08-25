@@ -152,7 +152,7 @@ One write-side action: **Apply palette to Figma variables.**
   Phase C if it earns its keep.
 - Naming: `color/<ramp>/<step>` where `ramp ∈ {neutral-light,
   neutral-dark, brand-light, brand-dark}` and `step ∈ {50, 100,
-  …, 900}` (or whatever step set the engine emits).
+  ..., 900}` (or whatever step set the engine emits).
 - Each variable is a literal hex value, not an alias. The engine
   produced the value; nothing higher up wants to override it.
 

@@ -53,5 +53,5 @@ INSTANCE_SWAP wiring that *does* work:
 - **Nested-instance component properties don't auto-forward in a composite set.** On a
   set built from nested instances (Toggle Group = Toggles), a parent `Item N · Label`/
   `Leading Icon` property is a no-op on the nested instance — set the nested instance's
-  OWN props directly (`item.setProperties({ "Label#…": txt, "Leading Icon#…": false }))`).
+  OWN props directly (`item.setProperties({ "Label#...": txt, "Leading Icon#...": false }))`).
   Same family as the exposed-nested-property limit above.

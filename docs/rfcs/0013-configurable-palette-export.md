@@ -27,7 +27,7 @@ writes the engine's ramps into Figma with three hardcoded choices:
 ```ts
 const COLLECTION_NAME = 'Primitives / Palette'          // fixed collection
 // fixed modes:
-const lightMode = …'Light'; const darkMode = …'Dark'
+const lightMode = ...'Light'; const darkMode = ...'Dark'
 // fixed name paths:
 `color/${name}`                 // singles  (white / black)
 `color/${ramp.name}/${step}`    // ramp steps
@@ -40,7 +40,7 @@ today's export only works for the author.
 The export section also has a **second output the plugin doesn't have yet:
 generating swatches on the Figma canvas** — laying the ramps out as frames the
 designer can see, annotate, and hand off, with their own look-and-feel controls
-(orientation, swatch shape, gap, step labels, a11y contrast badges, …). The two
+(orientation, swatch shape, gap, step labels, a11y contrast badges, ...). The two
 outputs are independent and either or both can be produced from one run.
 
 This RFC proposes a **configurable export flow** spanning both: for **variables**,
@@ -93,7 +93,7 @@ naming/location and layout logic 100%-testable and shared between the workbench
 ### Principle 2 — Works for the author *and* the stranger
 
 The same serializable `ExportConfig` powers both audiences. The author saves
-their setup (`Primitives / Palette`, `color/…`, Light/Dark) as a named preset;
+their setup (`Primitives / Palette`, `color/...`, Light/Dark) as a named preset;
 a first-time user is handed that as the default and can drill in to retarget it.
 No behaviour is reachable by one audience and not the other.
 
@@ -102,7 +102,7 @@ No behaviour is reachable by one audience and not the other.
 Writing into someone else's file must be legible and reversible-in-intent: the
 flow previews exactly which variables will be created vs. overwritten before it
 writes, and the per-step foreground aliasing (RFC 0003) is recomputed against
-the chosen names rather than assuming the fixed `color/…` paths.
+the chosen names rather than assuming the fixed `color/...` paths.
 
 ---
 
@@ -194,7 +194,7 @@ driven by unit tests with a fake `ExistingTree`.
 ### 3.2 Canvas swatches
 
 Lay the ramps out as frames on the canvas. The engine already gives every swatch
-its `hex`/`oklch`, its contrast `rating` (`AA`/`AAA`/…) and `display_ratio`, and
+its `hex`/`oklch`, its contrast `rating` (`AA`/`AAA`/...) and `display_ratio`, and
 its `best_foreground` (RFC 0003) — so labels and a11y badges are *free data*, not
 new computation.
 
@@ -283,8 +283,8 @@ knows the difference (Principle 1).
 
 The naming fields (`rampTemplate`, `separator`, `stepLabels`, `case`, optional
 prefix) above a **live preview** that shows the first few resolved variable names
-for the current palette (e.g. `color/brand/50`, `color/brand/100`, …). The
-preview is just `resolve(config, …)` run on a sample — no Figma needed — so it is
+for the current palette (e.g. `color/brand/50`, `color/brand/100`, ...). The
+preview is just `resolve(config, ...)` run on a sample — no Figma needed — so it is
 honest about exactly what will be written.
 
 ### 4.3 Mode mapping

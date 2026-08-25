@@ -30,7 +30,7 @@ export type GridProps = ComponentPropsWithRef<"div"> &
     columns?: GridColumns;
     /**
      * Render the single child element instead of a wrapping <div>, merging the
-     * grid classes onto it — e.g. `<Grid asChild><ul>…</ul></Grid>`.
+     * grid classes onto it — e.g. `<Grid asChild><ul>...</ul></Grid>`.
      */
     asChild?: boolean;
   };
@@ -60,7 +60,7 @@ export type GridProps = ComponentPropsWithRef<"div"> &
  *   {swatches.map((s) => <Swatch key={s.id} {...s} />)}
  * </Grid>
  *
- * <Grid columns={3} gap="md" align="center">…</Grid>
+ * <Grid columns={3} gap="md" align="center">...</Grid>
  * ```
  *
  * @see https://primitiv-ui.dev/docs/components/grid

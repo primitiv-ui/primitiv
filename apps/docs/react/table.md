@@ -103,14 +103,14 @@ the table via the CSS `caption-side` property. Defaults to `"bottom"`.
   /* Caption below table (default) */
 }
 <Table.Root>
-  <Table.Caption>Q1 sales by region</Table.Caption>…
+  <Table.Caption>Q1 sales by region</Table.Caption>...
 </Table.Root>;
 
 {
   /* Caption above table */
 }
 <Table.Root>
-  <Table.Caption captionSide="top">Q1 sales by region</Table.Caption>…
+  <Table.Caption captionSide="top">Q1 sales by region</Table.Caption>...
 </Table.Root>;
 ```
 
@@ -118,7 +118,7 @@ When a visible caption is not desirable, use `aria-label` directly on
 `Table.Root` instead:
 
 ```tsx
-<Table.Root aria-label="Q1 sales by region">…</Table.Root>
+<Table.Root aria-label="Q1 sales by region">...</Table.Root>
 ```
 
 ## Responsive scrolling
@@ -131,7 +131,7 @@ narrow viewports instead of overflowing or compressing columns.
 
 ```tsx
 <Table.ScrollArea>
-  <Table.Root>…</Table.Root>
+  <Table.Root>...</Table.Root>
 </Table.ScrollArea>
 ```
 
@@ -140,7 +140,7 @@ base scroll styles, so you can layer additional styles freely:
 
 ```tsx
 <Table.ScrollArea style={{ borderRadius: "8px" }}>
-  <Table.Root>…</Table.Root>
+  <Table.Root>...</Table.Root>
 </Table.ScrollArea>
 ```
 
@@ -151,14 +151,14 @@ separating logical row groups within a single table:
 
 ```tsx
 <Table.Root>
-  <Table.Head>…</Table.Head>
+  <Table.Head>...</Table.Head>
   <Table.Body>
     {/* Group 1 */}
-    <Table.Row>…</Table.Row>
+    <Table.Row>...</Table.Row>
   </Table.Body>
   <Table.Body>
     {/* Group 2 */}
-    <Table.Row>…</Table.Row>
+    <Table.Row>...</Table.Row>
   </Table.Body>
 </Table.Root>
 ```
@@ -286,7 +286,7 @@ Aligning by empty cell rather than by a CSS indent is the point: the browser's
 own table layout resolves the width, so it stays exact across every size,
 density and control-column set. Indenting instead means summing control widths
 and paddings by hand, which is right at one size and wrong at the other four —
-measured drift of 7-21px across xs…xl before this existed.
+measured drift of 7-21px across xs...xl before this existed.
 
 ### `forceMount` and the row count
 

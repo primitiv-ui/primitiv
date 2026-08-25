@@ -3,7 +3,7 @@
  *
  * Copied into the consumer repo by `primitiv add inline-code`. It is yours to
  * edit: the stable surface is the contract (the .primitiv-inline-code class, the
- * --xs…--xl modifiers, and the --primitiv-inline-code-* custom properties), not
+ * --xs...--xl modifiers, and the --primitiv-inline-code-* custom properties), not
  * these values (RFC 0006 Principle 2 — names are stable, values are not).
  *
  * Structure follows RFC 0008: per-component API tokens + the resting look live

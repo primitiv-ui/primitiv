@@ -166,17 +166,17 @@ picker sweeps it to draw the boundary curve and to clamp the cursor.
 
 **3.2 Batched painters** (return flat RGBA `Vec<u8>`, row-major, 4 bytes/pixel):
 
-- `paint_lc_plane(h, width, height, c_max, …) -> Vec<u8>` — the L×C plane at a
+- `paint_lc_plane(h, width, height, c_max, ...) -> Vec<u8>` — the L×C plane at a
   fixed hue. Reuses `oklch_to_rgb` (`crates/harmoni-core/src/color/output.rs`)
   for in-gamut pixels and `max_in_gamut_chroma` to mark out-of-gamut ones.
-- `paint_hue_strip(l, c, width, …) -> Vec<u8>` — hue `0..360` at fixed (L, C),
+- `paint_hue_strip(l, c, width, ...) -> Vec<u8>` — hue `0..360` at fixed (L, C),
   same marking.
 
 Both document their buffer layout and drive every branch (in-gamut vs
 out-of-gamut, edge widths) from a test.
 
 **3.3 OKLCH-triple generation entry (optional, decided in build).**
-`generate_palette_pair_oklch(l, c, h, …)` so the picker hands its value
+`generate_palette_pair_oklch(l, c, h, ...)` so the picker hands its value
 straight to generation. Not required — `generate_palette_pair` already accepts
 an `oklch(L C H)` CSS string via `csscolorparser` — so this is a cleanliness
 call, not a blocker.
@@ -366,7 +366,7 @@ and `eslint` are clean.
   exactly like a pointer drag, with **Shift** for a coarse step. The nudge maths
   is a pure `nudgeLc` in `geometry.ts` (every arm + the non-arrow `null` driven
   by a test); the pad's accessible name announces the live value
-  (`"Lightness and chroma. Lightness 0.60, chroma 0.150. …"`).
+  (`"Lightness and chroma. Lightness 0.60, chroma 0.150. ..."`).
   **Decision:** chosen over react-aria-style *paired hidden range inputs*. Two
   visually-hidden sliders would give true per-axis `aria-valuenow`, but they add
   a heavier DOM to carry into the Phase 5 plugin port, and the accessible
@@ -382,7 +382,7 @@ and `eslint` are clean.
   colour is unreachable; the **pad** clamps to gamut on interaction, the numeric
   fields do not.
 - **Text-field softening (the §5/item-5 rough edge).** The hex⇄oklch field no
-  longer rewrites itself to the canonical `oklch(…)` string mid-edit: while
+  longer rewrites itself to the canonical `oklch(...)` string mid-edit: while
   focused the user's text stands (even as a valid entry flows back through
   `onChange`), and it resyncs to canonical only on **blur** or when the value
   changes from elsewhere. This matches oklch.com, which never rewrites the
@@ -513,7 +513,7 @@ regions/functions/lines via `cargo llvm-cov`):**
   slider tracks): each chart on the axis it holds fixed, each strip on its two
   fixed axes, all on the gamut.
 - **`OklchPicker`** lays the three charts each above its matching slider (Lightness
-  chart over the L slider, …) in a wrapping row; the `{ l, c, h }` / `onChange`
+  chart over the L slider, ...) in a wrapping row; the `{ l, c, h }` / `onChange`
   contract and the internal-gamut-view-state decision are unchanged, so Phase-5
   portability is intact.
 
@@ -600,7 +600,7 @@ at **100% lines / branches / functions / statements** (118 tests).
   take that on (it can't be browser-verified in the sandbox and complicates the Phase 5
   plugin port — a plugin UI is a single inlined iframe), two quality-preserving wins
   landed first: **(1)** `paint_lh_plane` and the two per-pixel slider strips tested
-  `c <= max_in_gamut_chroma(…)` — a 20-iteration chroma binary search *per pixel*;
+  `c <= max_in_gamut_chroma(...)` — a 20-iteration chroma binary search *per pixel*;
   swapping in the equivalent single `in_gamut(l, c, h)` call is pixel-identical and ~20×
   cheaper (the Hue chart was the worst offender, repainting on every chroma drag).
   **(2)** the per-chart boundary sweeps are memoised so a drag of one channel no longer

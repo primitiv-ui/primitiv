@@ -22,7 +22,7 @@ import type { PortalProps } from "./types";
  * ```tsx
  * {isOpen && (
  *   <Portal>
- *     <div role="dialog">…</div>
+ *     <div role="dialog">...</div>
  *   </Portal>
  * )}
  * ```
@@ -32,7 +32,7 @@ import type { PortalProps } from "./types";
  *
  * ```tsx
  * <Portal>
- *   <div data-state={isOpen ? "open" : "closed"}>…</div>
+ *   <div data-state={isOpen ? "open" : "closed"}>...</div>
  * </Portal>
  * ```
  *

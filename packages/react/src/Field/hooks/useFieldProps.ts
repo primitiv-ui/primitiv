@@ -19,7 +19,7 @@ type FieldAwareProps = {
 /**
  * Merges consumer-supplied props with any {@link FieldContext} available
  * higher in the tree. Use it inside form controls (Input, Textarea,
- * Select, …) so they automatically inherit the field's id, aria
+ * Select, ...) so they automatically inherit the field's id, aria
  * wiring, and `disabled` / `required` cascade when nested inside
  * `<Field.Root>`.
  *

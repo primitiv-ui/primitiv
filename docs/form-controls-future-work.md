@@ -29,9 +29,9 @@ sketch, not a plan.
 ### Sketch
 
 ```tsx
-<Form.Root onSubmit={…} validation="native" | "react-hook-form" | "custom">
-  <Field.Root>…</Field.Root>
-  <Field.Root>…</Field.Root>
+<Form.Root onSubmit={...} validation="native" | "react-hook-form" | "custom">
+  <Field.Root>...</Field.Root>
+  <Field.Root>...</Field.Root>
   <Form.Submit>Save</Form.Submit>
   <Form.Reset>Cancel</Form.Reset>
 </Form.Root>
@@ -139,7 +139,7 @@ implementation, not during it.
 - Controlled / uncontrolled tag list — both modes (mirror Tabs /
   Checkbox patterns).
 - Tag rendering — slot via composition (`<TagsInput.Tag>`) or pure
-  data-driven (`renderTag={…}`)?
+  data-driven (`renderTag={...}`)?
 - Validation per-tag — accept a `validate(tag): boolean | string`
   callback that the component runs on tag commit?
 

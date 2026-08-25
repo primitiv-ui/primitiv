@@ -44,13 +44,13 @@ TypeScript rejects mixing them.
 ```tsx
 // Uncontrolled
 <RadioGroup.Root defaultValue="compact" aria-label="Density">
-  …
+  ...
 </RadioGroup.Root>;
 
 // Controlled
 const [value, setValue] = useState("compact");
 <RadioGroup.Root value={value} onValueChange={setValue} aria-label="Density">
-  …
+  ...
 </RadioGroup.Root>;
 ```
 

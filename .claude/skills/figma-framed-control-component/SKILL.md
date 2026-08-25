@@ -1,6 +1,6 @@
 ---
 name: figma-framed-control-component
-description: End-to-end playbook for building or extending a framed-control component set in Figma (Button, Switch, Checkbox, Toggle, …) bound to the design-system tokens, including component-property wiring and non-framed form-field compositions (Field). TRIGGER when building, extending, laying out, or auditing a framed-control or form-field composition, adding a variant or filling missing combinations, or wiring icon/text/swap properties on a set. SKIP for React/Rust work, token export/backup (see figma-token-sync), wireframe styling lookups (see figma-wireframe-tokens), and pure variable/token-value questions (see figma-variable-architecture).
+description: End-to-end playbook for building or extending a framed-control component set in Figma (Button, Switch, Checkbox, Toggle, ...) bound to the design-system tokens, including component-property wiring and non-framed form-field compositions (Field). TRIGGER when building, extending, laying out, or auditing a framed-control or form-field composition, adding a variant or filling missing combinations, or wiring icon/text/swap properties on a set. SKIP for React/Rust work, token export/backup (see figma-token-sync), wireframe styling lookups (see figma-wireframe-tokens), and pure variable/token-value questions (see figma-variable-architecture).
 ---
 
 # Building a framed-control component in Figma
@@ -38,13 +38,13 @@ Reference files — load the one you need, when you need it:
    await figma.loadAllPagesAsync();
    // for each page: page.findAllWithCriteria({ types: ["COMPONENT_SET"] })
    ```
-   Watch for decoy sets on `*— … Demo` pages. Verify by checking the page
+   Watch for decoy sets on `*— ... Demo` pages. Verify by checking the page
    name is plain (e.g. "Button", not "Button — Context Demo").
 3. **Read the real property names** off the set —
    `componentSet.componentPropertyDefinitions`. Do not assume casing or
    names; the live Button set uses `Variant / Size / State` with **lowercase
    values**, plus boolean / instance-swap / text props (`Show leading icon`,
-   `Leading icon`, `Label`, …). There is **no Context dimension** — density is
+   `Leading icon`, `Label`, ...). There is **no Context dimension** — density is
    controlled by the containing frame's variable mode override.
 4. **Tally the matrix** to find what's missing:
    ```js
@@ -148,7 +148,7 @@ This is not merely tidier — it is **required**, because of the next gotcha.
 
 ### Attaching an INSTANCE_SWAP property resets every nested instance
 
-`addComponentProperty(…, 'INSTANCE_SWAP', default)` followed by
+`addComponentProperty(..., 'INSTANCE_SWAP', default)` followed by
 `node.componentPropertyReferences = { mainComponent: propId }` **overwrites the
 node's current `mainComponent` with the property's single default** across every
 variant. Any per-variant, size-matched nested instance is silently replaced.
@@ -248,7 +248,7 @@ component. Quick summary:
 - Default instance: `componentSet.insertChild(0, topLeftComponent)`.
 - Re-run safe: delete the existing `"<Name> Grid Labels"` group before
   regenerating labels.
-- Run via `figma_execute` by replacing the `selection.find(…)` lookup with a
+- Run via `figma_execute` by replacing the `selection.find(...)` lookup with a
   direct `getNodeByIdAsync` call.
 
 After arranging, wire component properties (booleans, text, instance-swap) —

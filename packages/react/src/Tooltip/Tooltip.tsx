@@ -195,7 +195,7 @@ TooltipTrigger.displayName = "TooltipTrigger";
  * @example
  * ```tsx
  * <Tooltip.Portal>
- *   <Tooltip.Content>…</Tooltip.Content>
+ *   <Tooltip.Content>...</Tooltip.Content>
  * </Tooltip.Portal>
  * ```
  */

@@ -44,7 +44,7 @@ Validate visually in Figma across all 4 density contexts before committing value
 
 ### 2. The same pattern propagates to every other UI component
 
-Every text-bearing component maps its `size` onto this tier set (badge sm–lg, tag sm–lg, tab sm–lg, button xs–xl, …). Not every component needs all 5 tiers — each component's README declares which subset it supports.
+Every text-bearing component maps its `size` onto this tier set (badge sm–lg, tag sm–lg, tab sm–lg, button xs–xl, ...). Not every component needs all 5 tiers — each component's README declares which subset it supports.
 
 ### 3. Canonical 5-tier scale: `xs | sm | md | lg | xl`
 

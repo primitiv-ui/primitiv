@@ -103,7 +103,7 @@ Both sub-components accept `asChild`. The library's ARIA attributes and
 
 ```tsx
 <Progress.Root asChild value={50} aria-label="Upload progress">
-  <section>…</section>
+  <section>...</section>
 </Progress.Root>
 ```
 

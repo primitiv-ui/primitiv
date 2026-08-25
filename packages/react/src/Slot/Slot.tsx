@@ -138,7 +138,7 @@ function mergeProps(slotProps: AnyProps, childProps: AnyProps): AnyProps {
  * data attributes, event handlers, and `ref` all still land on the
  * rendered DOM node, just not the node `Slot` itself would have created.
  * The pattern avoids an extra wrapper element in the DOM, which matters for
- * layout (no unwanted `<button><a>…</a></button>` nesting) and for CSS
+ * layout (no unwanted `<button><a>...</a></button>` nesting) and for CSS
  * selectors that expect a single element.
  *
  * **Usage shape** — every component using `Slot` follows the same
@@ -205,7 +205,7 @@ function mergeProps(slotProps: AnyProps, childProps: AnyProps): AnyProps {
  *     Settings
  *   </RouterLink>
  * </Button>
- * // Rendered DOM: a single <a class="…settings-link"> — trackClick and the
+ * // Rendered DOM: a single <a class="...settings-link"> — trackClick and the
  * // link's own onClick both fire; no wrapping <button>.
  * ```
  */

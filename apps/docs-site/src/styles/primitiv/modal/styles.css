@@ -4,7 +4,7 @@
  * Copied into the consumer repo by `primitiv add modal`. It is yours to edit:
  * the stable surface is the contract (the .primitiv-modal dialog + __overlay /
  * __header / __body / __footer / __title / __description / __close parts, the
- * --sm…--xl size modifiers, the data-state hook, and the --primitiv-modal-*
+ * --sm...--xl size modifiers, the data-state hook, and the --primitiv-modal-*
  * custom properties), not these values (RFC 0006 Principle 2 — names are stable,
  * values are not).
  *

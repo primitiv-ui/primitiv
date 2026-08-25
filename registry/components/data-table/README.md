@@ -28,7 +28,7 @@ const table = useReactTable({
 <DataTable size="md">
   <DataTableToolbar>
     <DataTableRegion align="start">
-      <Input value={filter} onChange={…} placeholder="Filter deployments..." />
+      <Input value={filter} onChange={...} placeholder="Filter deployments..." />
     </DataTableRegion>
     <DataTableRegion align="end">{/* your field menu */}</DataTableRegion>
   </DataTableToolbar>
@@ -138,7 +138,7 @@ what the column's `<td>`s match. Set the same `align` on the column's cells:
 
 ```tsx
 <DataTableSortHeader align="end" direction={dir} onSort={toggle}>Duration</DataTableSortHeader>
-…
+...
 <TableCell align="end">{ms}ms</TableCell>
 ```
 
@@ -170,7 +170,7 @@ the width and the panel stays aligned at every size and density. There is
 deliberately **no CSS indent knob**: an indent has to sum the control widths and
 their paddings by hand, and the sum is only right at one size — the checkbox
 scales with `size`, the chevron glyph does not, and the measured drift across
-xs…xl was 7-21px. Nothing to configure beats a knob you can only set right once.
+xs...xl was 7-21px. Nothing to configure beats a knob you can only set right once.
 
 The parent row sheds its own bottom rule automatically while expanded, so the
 row and its panel read as one block closed by the detail row's rule — detected

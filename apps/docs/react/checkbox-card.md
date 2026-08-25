@@ -50,7 +50,7 @@ Pass `checked` and `onCheckedChange` together. The parent owns the value.
 ```tsx
 const [enabled, setEnabled] = useState<CheckedState>(false);
 
-<CheckboxCard.Root checked={enabled} onCheckedChange={setEnabled} aria-label="…">
+<CheckboxCard.Root checked={enabled} onCheckedChange={setEnabled} aria-label="...">
   <CheckboxCard.Indicator />
   Dark mode
 </CheckboxCard.Root>

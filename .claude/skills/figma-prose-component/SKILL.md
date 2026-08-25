@@ -1,6 +1,6 @@
 ---
 name: figma-prose-component
-description: Conventions for building prose/content Figma components (List, DescriptionList, Blockquote, Table, Figure, Divider…) — slot strategy, boolean-item expansion, variant axes, layout patterns, and API gotchas specific to content components. TRIGGER when building or extending a typography-library content component. SKIP for framed controls (Button, Input, Switch — see figma-framed-control-component), token value lookups (see figma-variable-architecture), and pure React/Rust work.
+description: Conventions for building prose/content Figma components (List, DescriptionList, Blockquote, Table, Figure, Divider...) — slot strategy, boolean-item expansion, variant axes, layout patterns, and API gotchas specific to content components. TRIGGER when building or extending a typography-library content component. SKIP for framed controls (Button, Input, Switch — see figma-framed-control-component), token value lookups (see figma-variable-architecture), and pure React/Rust work.
 ---
 
 # Building a prose component in Figma
@@ -158,7 +158,7 @@ List (vertical auto-layout, FIXED width, HUG height)
   itemSpacing → list/item-gap (Context variable)
   paddingLeft → list/indent (Context variable) — Indent=true only
   paddingLeft = 0 — Indent=false (unbind: setBoundVariable('paddingLeft', null))
-  Item 1 … Item 8 (ListItem instances, Show Item 5–8 boolean)
+  Item 1 ... Item 8 (ListItem instances, Show Item 5–8 boolean)
 ```
 
 ### DescriptionList stacked
@@ -166,7 +166,7 @@ List (vertical auto-layout, FIXED width, HUG height)
 ```
 DescriptionList (vertical auto-layout, HUG)
   itemSpacing → list/item-gap
-  Pair 1 … Pair 8:
+  Pair 1 ... Pair 8:
     Pair (vertical auto-layout)
       Term (DescriptionTerm instance, HUG)
       Detail (DescriptionDetail instance, HUG, paddingLeft=16)
@@ -177,7 +177,7 @@ DescriptionList (vertical auto-layout, HUG)
 ```
 DescriptionList (vertical auto-layout, FIXED 320px)
   itemSpacing → list/item-gap
-  Pair 1 … Pair 8:
+  Pair 1 ... Pair 8:
     Pair (horizontal auto-layout, FILL width, counterAxisAlignItems=CENTER)
       Term (HUG)
       Detail (FILL width, primaryAxisAlignItems='MAX' → text right-aligns)
@@ -678,7 +678,7 @@ For the Marks=without variants, set `comp.itemSpacing = 0` and omit the Mark
 node entirely — each variant is a separate `ComponentNode` in the set.
 
 Grid layout: 2 rows (with / without) × 5 columns (xs/sm/md/lg/xl). Grid labels
-group: column headers xs…xl above; row labels WITH / WITHOUT to the left.
+group: column headers xs...xl above; row labels WITH / WITHOUT to the left.
 Example frame: Light + Dark × Dense/Compact/Comfortable/Spacious (representative
 variant: `Marks=with, Size=md`).
 
@@ -724,7 +724,7 @@ readability). See RFC 0012 D16.
 
 Build the 5 components, then `figma.combineAsVariants(variants, page)` and lay
 them out in a single row (left→right, vertically centred on the tallest). Grid
-labels: just column headers xs…xl (no rotated section / per-row labels — single
+labels: just column headers xs...xl (no rotated section / per-row labels — single
 axis). Example frame: the standard Light + Dark × four-density grid,
 representative `Size=md`. No new Context/Intent tokens to back up — it reuses
 `body/*` + existing primitives + `font-family/mono`.
@@ -756,7 +756,7 @@ Key points:
 - **Header scales with Size**: bind the filename to `body/{size}` and use an Icon
   Button of the matching `Size`, with the size-matched `copy` icon variant. The
   copy→check swap on click is runtime behaviour (React/tooling), not a Figma state.
-- **Copy = Icon Button** (`secondary`), `setProperties({ "Icon#…": <copyIconNodeId> })`.
+- **Copy = Icon Button** (`secondary`), `setProperties({ "Icon#...": <copyIconNodeId> })`.
   Find `icon=copy, size=<n>` node IDs in the Icon set.
 - **Booleans after `combineAsVariants`**: `set.addComponentProperty('Show Header',
   'BOOLEAN', true)` → bind each variant's `Header` and `Gutter` via
@@ -766,5 +766,5 @@ Key points:
   `code/{size}/line-height` (inline-code snug value; block reuses body). Back both up
   to `context.json`; `line-height/18` to `primitives.json`. See RFC 0012 D16.
 
-Grid: single row of 5 fixed-width variants. Grid labels: column headers xs…xl.
+Grid: single row of 5 fixed-width variants. Grid labels: column headers xs...xl.
 Example frame: standard Light + Dark × four-density grid, representative `Size=md`.

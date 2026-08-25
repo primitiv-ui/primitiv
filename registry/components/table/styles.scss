@@ -4,7 +4,7 @@
  * Copied into the consumer repo by `primitiv add table`. It is yours to edit:
  * the stable surface is the contract (the .primitiv-table root + __head / __body
  * / __footer / __row / __header / __cell / __caption / __scroll-area parts, the
- * --xs…--xl size modifiers, and the --primitiv-table-* custom properties), not
+ * --xs...--xl size modifiers, and the --primitiv-table-* custom properties), not
  * these values (RFC 0006 Principle 2 — names are stable, values are not).
  *
  * The look: collapsed rules, body type, a header row set off by a strong
@@ -110,7 +110,7 @@
 
   /* Caption: muted, padded to align with the cells. */
   /* The caption is deliberately **size-invariant**: Figma binds it to `body/sm`
-     on every one of the Table set's Size variants (xs…xl all resolve to
+     on every one of the Table set's Size variants (xs...xl all resolve to
      body/sm/font-size + content/muted), unlike the cells, which do re-point per
      size. Stated explicitly here rather than inherited from `primitiv.reset`'s
      bare `caption` rule — that rule happens to say the same thing today, so the

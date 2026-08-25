@@ -54,12 +54,12 @@ empty by clicking the same row twice.
 
 ```tsx
 // Uncontrolled
-<Listbox.Root type="single" defaultValue="apple" aria-label="Fruit">…</Listbox.Root>
+<Listbox.Root type="single" defaultValue="apple" aria-label="Fruit">...</Listbox.Root>
 
 // Controlled — onValueChange receives string
 const [fruit, setFruit] = useState("apple");
 <Listbox.Root type="single" value={fruit} onValueChange={setFruit} aria-label="Fruit">
-  …
+  ...
 </Listbox.Root>
 ```
 
@@ -71,7 +71,7 @@ Options toggle independently and the root carries `aria-multiselectable`.
 // Controlled — onValueChange receives string[]
 const [toppings, setToppings] = useState<string[]>([]);
 <Listbox.Root type="multiple" value={toppings} onValueChange={setToppings} aria-label="Toppings">
-  …
+  ...
 </Listbox.Root>
 ```
 
@@ -106,7 +106,7 @@ since arrowing through results must not commit a choice. Opt into the APG
 example's behaviour with `selectionFollowsFocus`:
 
 ```tsx
-<Listbox.Root type="single" selectionFollowsFocus aria-label="Fruit">…</Listbox.Root>
+<Listbox.Root type="single" selectionFollowsFocus aria-label="Fruit">...</Listbox.Root>
 ```
 
 Typeahead follows APG's repeat rule: pressing the same letter repeatedly

@@ -45,7 +45,7 @@ rendering the `Portal` itself, or by wrapping it with open/closed logic:
 ```tsx
 {isOpen && (
   <Portal>
-    <div role="dialog">…</div>
+    <div role="dialog">...</div>
   </Portal>
 )}
 ```
@@ -55,7 +55,7 @@ from a `data-state` attribute:
 
 ```tsx
 <Portal>
-  <div data-state={isOpen ? "open" : "closed"}>…</div>
+  <div data-state={isOpen ? "open" : "closed"}>...</div>
 </Portal>
 ```
 

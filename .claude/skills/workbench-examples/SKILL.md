@@ -50,11 +50,11 @@ If you must match a family of classes, anchor it to the prefix:
 ### Real incident
 
 `TooltipExample.css` shipped `[class$="__content"] { pointer-events:
-none; … }`. It matched `<Modal.Content className="modal__content">` on
+none; ... }`. It matched `<Modal.Content className="modal__content">` on
 the Modal page — the `<dialog>` became click-through and the Close
 button silently stopped working. The bug was latent for days because
 the Modal example was not re-tested after the Tooltip example merged.
-Fixed by scoping the selector to `[class^="tp-"]…` (PR #62).
+Fixed by scoping the selector to `[class^="tp-"]...` (PR #62).
 
 When an example is broken in a way its own code can't explain
 (unexpected `pointer-events`, background, positioning, z-index),

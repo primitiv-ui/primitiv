@@ -389,7 +389,7 @@ for (let i = start; i < mutants.length; i++) {
       `SURVIVED [${i + 1}/${mutants.length}] ${m.file}:${m.line} ${m.mutator} -> ${m.replacement}  | ${m.label}`,
     );
   } else if ((i + 1) % 25 === 0) {
-    console.log(`  …${i + 1}/${mutants.length} (${survivors.length} survivors)`);
+    console.log(`  ...${i + 1}/${mutants.length} (${survivors.length} survivors)`);
   }
 }
 

@@ -2,8 +2,8 @@
  * Button — Primitiv default theme (canonical CSS).
  *
  * Copied into the consumer repo by `primitiv add button`. It is yours to edit:
- * the stable surface is the contract (the .primitiv-button class, the --xs…--xl
- * / --primary…--link modifiers, and the --primitiv-button-* custom properties),
+ * the stable surface is the contract (the .primitiv-button class, the --xs...--xl
+ * / --primary...--link modifiers, and the --primitiv-button-* custom properties),
  * not these values (RFC 0006 Principle 2 — names are stable, values are not).
  *
  * Structure follows RFC 0008: per-component API tokens + the base rule live in

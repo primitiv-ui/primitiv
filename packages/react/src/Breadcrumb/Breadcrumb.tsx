@@ -32,14 +32,14 @@ import {
  * @example
  * ```tsx
  * <Breadcrumb.Root>
- *   <Breadcrumb.List>…</Breadcrumb.List>
+ *   <Breadcrumb.List>...</Breadcrumb.List>
  * </Breadcrumb.Root>
  * ```
  *
  * @example Custom accessible name
  * ```tsx
  * <Breadcrumb.Root aria-label="You are here">
- *   <Breadcrumb.List>…</Breadcrumb.List>
+ *   <Breadcrumb.List>...</Breadcrumb.List>
  * </Breadcrumb.Root>
  * ```
  */
@@ -77,9 +77,9 @@ BreadcrumbRoot.displayName = "BreadcrumbRoot";
  * @example
  * ```tsx
  * <Breadcrumb.List>
- *   <Breadcrumb.Item>…</Breadcrumb.Item>
+ *   <Breadcrumb.Item>...</Breadcrumb.Item>
  *   <Breadcrumb.Separator />
- *   <Breadcrumb.Item>…</Breadcrumb.Item>
+ *   <Breadcrumb.Item>...</Breadcrumb.Item>
  * </Breadcrumb.List>
  * ```
  */
@@ -132,7 +132,7 @@ BreadcrumbItem.displayName = "BreadcrumbItem";
  * **`asChild` composition.** Pass `asChild` to render a consumer-supplied
  * element — typically a routing library's `<Link>` — instead of the native
  * `<a>`, with all of `Breadcrumb.Link`'s props (`href`, event handlers,
- * `className`, `ref`, …) merged onto it via the {@link Slot} pattern. The
+ * `className`, `ref`, ...) merged onto it via the {@link Slot} pattern. The
  * child **must** be a single React element that accepts a `ref`; the
  * native `<a>` is dropped entirely rather than wrapping the child.
  *
@@ -254,7 +254,7 @@ BreadcrumbSeparator.displayName = "BreadcrumbSeparator";
  * label) — `aria-hidden="true"` excludes this glyph from accessible-name
  * computation entirely, exactly like {@link BreadcrumbSeparator}.
  *
- * Defaults to a `"…"` glyph; pass `children` to use a custom one (an icon,
+ * Defaults to a `"..."` glyph; pass `children` to use a custom one (an icon,
  * `"···"`, etc.) — whatever is passed replaces the default entirely rather
  * than being appended to it.
  *
@@ -285,7 +285,7 @@ BreadcrumbSeparator.displayName = "BreadcrumbSeparator";
  * ```
  */
 export function BreadcrumbEllipsis({
-  children = "…",
+  children = "...",
   asChild = false,
   ...rest
 }: BreadcrumbEllipsisProps): ReactElement {

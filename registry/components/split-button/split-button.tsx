@@ -18,7 +18,7 @@
  * `[A-Za-z0-9_-]` becomes a hyphen.
  *
  * Richer menus: Root provides the Dropdown context, so `DropdownGroup`,
- * `DropdownLabel`, `DropdownItemLeading` / `…Label` / `…Trailing`,
+ * `DropdownLabel`, `DropdownItemLeading` / `...Label` / `...Trailing`,
  * `DropdownCheckboxItem` and `DropdownSub` all compose inside
  * `SplitButtonMenu` directly — import them from `./dropdown`.
  *

@@ -178,7 +178,7 @@
             "type": "ReactNode",
             "required": false,
             "default": null,
-            "description": "Shown when no value is selected (e.g. `\"Select a framework…\"`)."
+            "description": "Shown when no value is selected (e.g. `\"Select a framework...\"`)."
           },
           {
             "name": "ref",
@@ -209,7 +209,7 @@
             "type": "ReactNode",
             "required": false,
             "default": null,
-            "description": "The placeholder hint text shown in the closed select before the user\nmakes a selection (e.g. `\"Choose a fruit…\"`)."
+            "description": "The placeholder hint text shown in the closed select before the user\nmakes a selection (e.g. `\"Choose a fruit...\"`)."
           },
           {
             "name": "ref",

@@ -64,7 +64,7 @@ canvas, a list row, an image, etc.).
 
 ```tsx
 <ContextMenu.Trigger asChild>
-  <ImageCard src="…" alt="…" />
+  <ImageCard src="..." alt="..." />
 </ContextMenu.Trigger>
 ```
 

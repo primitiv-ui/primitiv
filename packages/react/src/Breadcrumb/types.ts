@@ -71,7 +71,7 @@ export type BreadcrumbSeparatorProps = ComponentProps<"li">;
  * Props for {@link BreadcrumbEllipsis | `Breadcrumb.Ellipsis`} — all native
  * `<span>` attributes plus the `asChild` escape hatch. `role="presentation"`
  * and `aria-hidden="true"` are fixed by the component; `children` defaults
- * to a `"…"` glyph when omitted (see {@link BreadcrumbEllipsis}'s
+ * to a `"..."` glyph when omitted (see {@link BreadcrumbEllipsis}'s
  * custom-glyph example).
  *
  * @extends HTMLSpanElement

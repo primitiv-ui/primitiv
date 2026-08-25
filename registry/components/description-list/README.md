@@ -31,7 +31,7 @@ applies to every heading and `<strong>`.
 
 ### `layout` needed no DOM change — only Grid auto-placement
 
-Both layouts compose the exact same flat `Term`/`Details`/`Term`/`Details`…
+Both layouts compose the exact same flat `Term`/`Details`/`Term`/`Details`...
 children. `"inline"` switches the root to `display: grid;
 grid-template-columns: max-content 1fr`, and Grid's default auto-placement
 already lays plain document-order children into rows two at a time — no
@@ -100,7 +100,7 @@ import { DescriptionList } from "@/components/description-list";
 
 | File | Authored? | Role |
 |---|---|---|
-| `contract.json` | **authored** | The styling contract — the `.primitiv-description-list` root class, the `--xs…--xl` and `--stacked`/`--inline` modifiers, the `.primitiv-description-list__term`/`__details` parts, and the `--primitiv-description-list-*` custom properties. |
+| `contract.json` | **authored** | The styling contract — the `.primitiv-description-list` root class, the `--xs...--xl` and `--stacked`/`--inline` modifiers, the `.primitiv-description-list__term`/`__details` parts, and the `--primitiv-description-list-*` custom properties. |
 | `styles.css` | **authored** | The canonical default theme: the two `layout` arrangements + fixed-weight term, in `@layer primitiv.base`/`primitiv.variants`. |
 | `styles.scss` | **authored** | `styles.css` plus a trailing `$`-alias block, one `$primitiv-description-list-<prop>` per custom property. |
 | `description-list.recipe.ts` | **authored** | `cva("primitiv-description-list", { variants: { size } })`. |

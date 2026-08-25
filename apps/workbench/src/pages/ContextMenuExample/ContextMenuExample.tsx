@@ -7,7 +7,7 @@ export function ContextMenuExample() {
   const [dir, setDir] = useState<"ltr" | "rtl">("ltr");
   return (
     // `dir` on the wrapper is what teaches CSS logical properties
-    // (anchor(start), margin-inline-start, …) to flip in RTL.
+    // (anchor(start), margin-inline-start, ...) to flip in RTL.
     // DirectionProvider broadcasts the value to the component's JS.
     <div className="cm-page" dir={dir}>
       <div className="cm-toolbar">

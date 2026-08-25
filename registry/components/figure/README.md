@@ -107,7 +107,7 @@ import { Figure } from "@/components/figure";
 
 <Figure captionPosition="overlay" size="sm">
   <Figure.Media>
-    <img src="…" alt="…" />
+    <img src="..." alt="..." />
   </Figure.Media>
   <Figure.Caption align="center">A caption.</Figure.Caption>
 </Figure>
@@ -117,7 +117,7 @@ import { Figure } from "@/components/figure";
 
 | File | Authored? | Role |
 |---|---|---|
-| `contract.json` | **authored** | The styling contract — the `.primitiv-figure` root class, the `--below`/`--above`/`--overlay` and `--xs…--xl` modifiers, the `__media`/`__caption` parts (with the caption's own `--start`/`--center`/`--end`), and the `--primitiv-figure-*` custom properties. |
+| `contract.json` | **authored** | The styling contract — the `.primitiv-figure` root class, the `--below`/`--above`/`--overlay` and `--xs...--xl` modifiers, the `__media`/`__caption` parts (with the caption's own `--start`/`--center`/`--end`), and the `--primitiv-figure-*` custom properties. |
 | `styles.css` | **authored** | The canonical default theme: Flexbox ordering for below/above, absolute positioning + scrim for overlay, in `@layer primitiv.base`/`primitiv.variants`. |
 | `styles.scss` | **authored** | `styles.css` plus a trailing `$`-alias block, one `$primitiv-figure-<prop>` per custom property. |
 | `figure.recipe.ts` | **authored** | `cva("primitiv-figure", { variants: { captionPosition, size } })` plus `figureCaption` — `cva("primitiv-figure__caption", { variants: { align } })`. |

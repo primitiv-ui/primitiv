@@ -68,7 +68,7 @@ import type {
  *
  * @example Labelled inline, uncontrolled
  * ```tsx
- * <Carousel.Root ariaLabel="Featured products" defaultPage={0}>…</Carousel.Root>
+ * <Carousel.Root ariaLabel="Featured products" defaultPage={0}>...</Carousel.Root>
  * ```
  *
  * @example Controlled
@@ -80,14 +80,14 @@ import type {
  *   page={page}
  *   onPageChange={setPage}
  * >
- *   …
+ *   ...
  * </Carousel.Root>
  * ```
  *
  * @example Labelled by an existing heading
  * ```tsx
  * <h2 id="promos">Promotions</h2>
- * <Carousel.Root ariaLabelledBy="promos">…</Carousel.Root>
+ * <Carousel.Root ariaLabelledBy="promos">...</Carousel.Root>
  * ```
  */
 export const CarouselRoot: ForwardRefExoticComponent<
@@ -260,7 +260,7 @@ CarouselRoot.displayName = "CarouselRoot";
  * ```tsx
  * <Carousel.Root ariaLabel="Featured products">
  *   <Carousel.Viewport>
- *     <Carousel.Slide>…</Carousel.Slide>
+ *     <Carousel.Slide>...</Carousel.Slide>
  *   </Carousel.Viewport>
  * </Carousel.Root>
  * ```
@@ -399,12 +399,12 @@ CarouselViewport.displayName = "CarouselViewport";
  *
  * @example Override the auto-label
  * ```tsx
- * <Carousel.Slide ariaLabel="Hand-picked for you">…</Carousel.Slide>
+ * <Carousel.Slide ariaLabel="Hand-picked for you">...</Carousel.Slide>
  * ```
  *
  * @example Per-slide snap alignment (overrides the root default)
  * ```tsx
- * <Carousel.Slide snapAlign="end">…</Carousel.Slide>
+ * <Carousel.Slide snapAlign="end">...</Carousel.Slide>
  * ```
  */
 export function CarouselSlide({

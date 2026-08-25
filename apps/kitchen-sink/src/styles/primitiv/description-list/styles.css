@@ -3,7 +3,7 @@
  *
  * Copied into the consumer repo by `primitiv add description-list`. It is
  * yours to edit: the stable surface is the contract (the
- * .primitiv-description-list class, the --xs…--xl modifiers, the
+ * .primitiv-description-list class, the --xs...--xl modifiers, the
  * .primitiv-description-list__term/__details parts, and the
  * --primitiv-description-list-* custom properties), not these values (RFC
  * 0006 Principle 2 — names are stable, values are not).

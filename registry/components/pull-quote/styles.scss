@@ -3,13 +3,13 @@
  *
  * Copied into the consumer repo by `primitiv add pull-quote`. It is yours to
  * edit: the stable surface is the contract (the .primitiv-pull-quote class,
- * the --xs…--xl modifiers, and the --primitiv-pull-quote-* custom
+ * the --xs...--xl modifiers, and the --primitiv-pull-quote-* custom
  * properties), not these values (RFC 0006 Principle 2 — names are stable,
  * values are not).
  *
  * A large, centred editorial quote — no accent bar, no attribution, distinct
  * from Blockquote (RFC 0012 D13). Size rides the existing heading/* Context
- * scale (xs→h5 … xl→h1) rather than a new type ramp. The decorative mark is
+ * scale (xs→h5 ... xl→h1) rather than a new type ramp. The decorative mark is
  * the *real* Figma asset — an outlined glyph, extracted as an inline SVG
  * (see pull-quote.tsx) — not a CSS-generated character; this stylesheet only
  * sizes and colours it. Its block-size is `em`, so it scales with `size` and
@@ -73,7 +73,7 @@
 }
 
 @layer primitiv.variants {
-  /* Size — re-points the type scale (heading/h5…h1), the fixed mark↔quote
+  /* Size — re-points the type scale (heading/h5...h1), the fixed mark↔quote
      gap, and the mark's em ratio (the real Figma asset's mark-height ÷
      heading-font-size, per size — not a constant, since the source asset
      isn't a fixed proportion of its heading step). All three are

@@ -120,7 +120,7 @@ export type ControlledModalRootProps = {
  * TypeScript accepts only one shape at a time.
  */
 export type ModalRootProps = {
-  /** The modal's sub-components (Trigger, Portal, Overlay, Content, …). */
+  /** The modal's sub-components (Trigger, Portal, Overlay, Content, ...). */
   children?: ReactNode;
 } & (UncontrolledModalRootProps | ControlledModalRootProps) & {
     /** Ref receiving the imperative {@link ModalImperativeApi | open/close handle}. */

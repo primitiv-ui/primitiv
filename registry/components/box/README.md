@@ -37,7 +37,7 @@ import { Box } from "@/components/box";
 
 // Or your own semantic element via asChild:
 <Box asChild>
-  <section aria-label="Summary">…</section>
+  <section aria-label="Summary">...</section>
 </Box>
 ```
 

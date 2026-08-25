@@ -20,7 +20,7 @@ the thing every consumer previously hand-rolled.
   `"lg"`. `responsive` uses the small gutter on narrow viewports and steps up
   at `md` and again at `lg`, so edge padding grows with the room available
   instead of staying phone-sized on a desktop.
-- `asChild` — render your own element (`<main>`, `<section>`, …) instead of the
+- `asChild` — render your own element (`<main>`, `<section>`, ...) instead of the
   wrapping `<div>`.
 
 `box-sizing` is `border-box`, so the gutter sits **inside** the cap: at
@@ -47,7 +47,7 @@ system's existing answer:
 
 ```tsx
 <Container>
-  <Center>…</Center>
+  <Center>...</Center>
 </Container>
 ```
 
@@ -57,15 +57,15 @@ system's existing answer:
 import { Container } from "@/components/container";
 
 <Container>
-  <Prose>…</Prose>
+  <Prose>...</Prose>
 </Container>
 
 <Container size="xl" asChild>
-  <main>…</main>
+  <main>...</main>
 </Container>
 
 <Container size="md" gutter="lg">
-  <article>…</article>
+  <article>...</article>
 </Container>
 ```
 
@@ -73,7 +73,7 @@ import { Container } from "@/components/container";
 
 | File | Authored? | Role |
 |---|---|---|
-| `contract.json` | **authored** | The styling contract — the `.primitiv-container` root class, the `--xs`…`--2xl`/`--full` and `--gutter-*` modifiers, and the two custom properties. |
+| `contract.json` | **authored** | The styling contract — the `.primitiv-container` root class, the `--xs`...`--2xl`/`--full` and `--gutter-*` modifiers, and the two custom properties. |
 | `styles.css` | **authored** | The canonical default theme: the cap/centre/pad rules in `@layer primitiv.base`, the size and gutter modifiers in `primitiv.variants`. |
 | `styles.scss` | **authored** | Byte-identical mirror of `styles.css` plus the `$primitiv-container-*` alias block. |
 | `container.recipe.ts` | **authored** | `cva("primitiv-container", { variants: { size, gutter } })`. |
@@ -88,7 +88,7 @@ by `scripts/check-registry-types.mjs` like every other registry wrapper.
 
 | Token | Role |
 |---|---|
-| `--primitiv-breakpoint-{xs…2xl}` | The width caps. Referenced directly — no `container/max-width/*` family exists, deliberately (see below). |
+| `--primitiv-breakpoint-{xs...2xl}` | The width caps. Referenced directly — no `container/max-width/*` family exists, deliberately (see below). |
 | `--primitiv-container-gutter-{sm,md,lg}` | The gutter ramp — a density-scaled Context family, so the gutter re-tightens under `[data-density]`. |
 | `--primitiv-space-space-0` | `gutter="none"`. Zero has no density curve to scale, so it pins the flat primitive directly. |
 

@@ -73,7 +73,7 @@ duplicate `id`s in the accessibility tree. See RFC 0019 §3–4a.
 {/* A disclosure — has a panel */}
 <NavigationMenu.Item value="concepts">
   <NavigationMenu.Trigger>Concepts</NavigationMenu.Trigger>
-  <NavigationMenu.Content>…</NavigationMenu.Content>
+  <NavigationMenu.Content>...</NavigationMenu.Content>
 </NavigationMenu.Item>
 
 {/* A plain link — no panel, no value */}
@@ -106,7 +106,7 @@ const [open, setOpen] = useState("");
 const { pathname } = useLocation();
 useEffect(() => setOpen(""), [pathname]);
 
-<NavigationMenu.Root value={open} onValueChange={setOpen}>…</NavigationMenu.Root>;
+<NavigationMenu.Root value={open} onValueChange={setOpen}>...</NavigationMenu.Root>;
 ```
 
 ## Hover intent
@@ -171,7 +171,7 @@ animates between panels instead of each entry expanding separately:
 
 ```tsx
 <NavigationMenu.Root>
-  <NavigationMenu.List>…</NavigationMenu.List>
+  <NavigationMenu.List>...</NavigationMenu.List>
   <NavigationMenu.Viewport className="viewport" />
 </NavigationMenu.Root>
 ```

@@ -161,7 +161,7 @@ level:
 const [open, setOpen] = useState(false);
 
 <SplitButton open={open} onOpenChange={setOpen}>
-  …
+  ...
 </SplitButton>;
 ```
 
@@ -169,7 +169,7 @@ const [open, setOpen] = useState(false);
 
 ```tsx
 {/* Both halves disabled */}
-<SplitButton disabled>…</SplitButton>
+<SplitButton disabled>...</SplitButton>
 
 {/* Only the action — alternatives stay reachable */}
 <SplitButton.Action disabled>Squash and merge</SplitButton.Action>
@@ -212,7 +212,7 @@ invert their open/close arrow keys in RTL.
 ```tsx
 {/* The group is a <section> */}
 <SplitButton asChild>
-  <section aria-label="Merge">…</section>
+  <section aria-label="Merge">...</section>
 </SplitButton>
 
 {/* The primary action navigates instead of firing a handler.

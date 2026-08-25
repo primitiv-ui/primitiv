@@ -71,7 +71,7 @@ import {
  * ```tsx
  * const [value, setValue] = useState("headless");
  *
- * <SegmentedControl.Root value={value} onValueChange={setValue} aria-label="…">
+ * <SegmentedControl.Root value={value} onValueChange={setValue} aria-label="...">
  *   <SegmentedControl.Item value="headless">Headless</SegmentedControl.Item>
  *   <SegmentedControl.Item value="styled">Styled</SegmentedControl.Item>
  * </SegmentedControl.Root>

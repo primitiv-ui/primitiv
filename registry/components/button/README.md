@@ -29,7 +29,7 @@ A **hybrid** document with two halves and two sources of truth (D15):
   `data-disabled` (empty value, when `disabled`).
 - **`root` / `modifiers` / `customProperties`** — authored. These are styling
   conventions the headless layer does not emit: the `.primitiv-button` root
-  class, the `--primary…--link` / `--xs…--xl` visual modifiers, and the
+  class, the `--primary...--link` / `--xs...--xl` visual modifiers, and the
   `--primitiv-button-*` custom-property API. Each modifier group carries a
   `description`, a `default`, an optional `prop` (the consumer-facing prop name —
   `intent` surfaces as `variant`, D52) and `options` mapping each value to its
@@ -66,7 +66,7 @@ consumers (D: "Registry CSS, derive rest"). Because SCSS is a strict superset of
 CSS, `styles.scss` is `styles.css` **verbatim** — layers, `text-box` longhands
 and all — followed by one `$primitiv-button-*` variable per `--primitiv-button-*`
 knob the stylesheet declares, each resolving to its custom property
-(`$primitiv-button-bg: var(--primitiv-button-bg);` …). Override the custom
+(`$primitiv-button-bg: var(--primitiv-button-bg);` ...). Override the custom
 properties to re-skin; the `$`-vars are just the SCSS-side mirror of the same
 knobs.
 
@@ -83,7 +83,7 @@ The primary DX is the wrapper — a typed `<Button variant size>` over the headl
 
 - **`button.recipe.ts`** — a [`class-variance-authority`](https://cva.style)
   (cva) function mapping the `variant` / `size` props to the contract's
-  **modifier classes** (`primitiv-button--primary`, …) — *not* Tailwind
+  **modifier classes** (`primitiv-button--primary`, ...) — *not* Tailwind
   utilities. The styling stays in `styles.css`, so the design round-trips
   perfectly (the `action/*` / `framed-control/*` / `label/*` semantic tokens fall
   outside Tailwind's utility namespaces, and the knob seam / `text-box` trim /

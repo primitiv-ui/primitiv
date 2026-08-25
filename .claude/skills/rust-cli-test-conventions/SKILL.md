@@ -98,7 +98,7 @@ pub trait FileSystem {
   `fail()`). Reach for this pattern whenever a per-call error region won't
   close.
 
-The command is the seam's consumer: `theme(fs: &impl FileSystem, …)`
+The command is the seam's consumer: `theme(fs: &impl FileSystem, ...)`
 takes the port by generic, so the same function runs on `OsFs` in the
 bin and `InMemoryFs` in tests.
 
@@ -175,7 +175,7 @@ thin and only covers what they can't fake.
 ## The bin shell & e2e subprocess coverage
 
 `main.rs` is the one part the unit/command layers can't reach —
-`env::args` collection and the `CliError` → `eprintln!("primitiv: …")` +
+`env::args` collection and the `CliError` → `eprintln!("primitiv: ...")` +
 `ExitCode::from(error.exit_code())` map. It is **covered by e2e, not
 exempted**:
 
@@ -195,7 +195,7 @@ report (**verified in this repo** — `main.rs` reaches 100% from the e2e
 subprocess alone), so there is **no `--ignore-filename-regex`
 carve-out**. Two e2e tests cover the whole shell: one success path
 (asserts the written file) and one error path (`.code(2)` +
-`.stderr(contains("primitiv: …"))`). The documented-exemption fallback
+`.stderr(contains("primitiv: ..."))`). The documented-exemption fallback
 exists only if subprocess coverage ever regresses.
 
 - The bin target is named `primitiv` via an explicit `[[bin]]` in

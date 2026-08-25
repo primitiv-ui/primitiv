@@ -4,7 +4,7 @@
  * Copied into the consumer repo by `primitiv add data-table`. It is yours to
  * edit: the stable surface is the contract (the .primitiv-data-table root +
  * __toolbar / __footer / __region / __control-cell / __sort / __expand /
- * __detail-row parts, the --xs…--xl / --bare / --sticky modifiers, and the
+ * __detail-row parts, the --xs...--xl / --bare / --sticky modifiers, and the
  * --primitiv-data-table-* custom properties), not these values (RFC 0006
  * Principle 2 — names are stable, values are not).
  *
@@ -32,7 +32,7 @@
  *    hard to separate. The indent itself is NOT CSS — it is the headless
  *    `gutter` prop, an empty cell spanning the control columns, so the browser's
  *    table layout resolves the width. A CSS indent has to sum control widths and
- *    paddings by hand and was measured 7-21px out across xs…xl (the checkbox
+ *    paddings by hand and was measured 7-21px out across xs...xl (the checkbox
  *    scales with size, the chevron does not).
  *
  *  - A detail row must OPT OUT of the row hover fill. The `table` component

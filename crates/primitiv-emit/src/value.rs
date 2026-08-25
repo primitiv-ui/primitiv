@@ -14,7 +14,7 @@ const LENGTH_CATEGORIES: &[&str] = &[
     // their numbers never reach this function; Tree's two connector stub widths
     // (`tree.{size}.connector.stub-width` / `-leaf`) are deliberately literal
     // because they are derived from chevron-glyph geometry and land off every
-    // rung of the ladder (13, 18, 23, 34…). Without this they would emit
+    // rung of the ladder (13, 18, 23, 34...). Without this they would emit
     // unitless and be invalid as a width — the trap `avatar-group` documents.
     "tree",
 ];

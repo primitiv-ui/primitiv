@@ -124,7 +124,7 @@ describe("useTreeLevel", () => {
 
   it("reports the nesting depth so a styled layer can indent without attr()", () => {
     // A styled layer needs the depth as a NUMBER to compute a row's indent.
-    // Reading it back off `data-depth` in CSS needs `attr(… type(<integer>))`,
+    // Reading it back off `data-depth` in CSS needs `attr(... type(<integer>))`,
     // which Firefox does not support — so the depth is exposed here instead.
 
     // Arrange / Act

@@ -180,7 +180,7 @@ source of truth for when a skill applies.
   `add` (resolve → install → copy the styled surface + React surface +
   `contract.json` → `primitiv.lock` refresh / `--force` / interactive
   overwrite-keep → project wiring → auto-generates token layer when absent →
-  **prepends a `import "./styles…css"` line to the tsx wrapper** so the
+  **prepends a `import "./styles...css"` line to the tsx wrapper** so the
   component self-imports its stylesheet), `tokens`, `theme`, and `list` (with
   the lock-backed installed column). The registry has three
   adapters behind one port — embedded (baked in), `LocalRegistry`
@@ -267,15 +267,15 @@ source of truth for when a skill applies.
   semantic `elevation.*` depth hierarchy (`flat/raised/overlay/floating/modal`),
   in code-only `packages/tokens/src/elevation.json`. The emitter gained a DTCG
   **`shadow` composite** (`value.rs::format_shadow`, `dtcg.rs::shadow_layers`, and
-  a generalised `alias.rs::link_aliases` resolving every embedded `{…}`). Geometry
+  a generalised `alias.rs::link_aliases` resolving every embedded `{...}`). Geometry
   aliases the existing `space.*` scale, so only the 3 colours are new; colour is
   `absolute-black`-based so it doesn't invert in dark mode (single shared scale,
   v1). Adopted on Button (flat→raised hover lift) and the Switch thumb
   (`shadow.1`); workbench specimen at `/elevation` (with a light/dark toggle).
   **Figma side built 2026-06-28 via the writable Figma-console bridge (NOT the
   sync plugin — D8):** an `Elevation` COLOR collection (3 `shadow/color/*`) + the
-  **full effect-style set (10)** — raw `shadow/1…5` *and* semantic
-  `elevation/flat…modal`, every layer bound to `space/*` + `shadow/color/*`. Baked
+  **full effect-style set (10)** — raw `shadow/1...5` *and* semantic
+  `elevation/flat...modal`, every layer bound to `space/*` + `shadow/color/*`. Baked
   in (model 1) on the 15 Button hover variants (link excluded) and all 40 Switch
   thumbs; both component descriptions updated. **Next:** apply elevation to the
   remaining Figma sets with hardcoded shadows — Modal (`elevation/modal`),
@@ -425,7 +425,7 @@ source of truth for when a skill applies.
     `Select / Trigger` already had `Filled` (placeholder↔filled); the third
     content state (filled+leading-icon) landed as a `Show leading`
     BOOLEAN + `Leading` SWAP. **INSTANCE_SWAP needed no manual
-    UI step** — `addComponentProperty(…, 'INSTANCE_SWAP', …)` resolves via the
+    UI step** — `addComponentProperty(..., 'INSTANCE_SWAP', ...)` resolves via the
     plugin API, no two-step dance. **Corrected 2026-08-08:** the default value
     must be the component's **`id`**, not its `.key` — `.key` throws
     *"Property value is incompatible with component property type"* for a set
@@ -525,7 +525,7 @@ source of truth for when a skill applies.
     explicit no-op handler). Four hard-won testing facts worth reusing:
     **(a)** a state update from a real timer that fires outside `act` is
     *queued, not applied*, so a wait that must observe one has to be
-    `await act(() => …)`-wrapped or it reads a stale DOM; **(b)**
+    `await act(() => ...)`-wrapped or it reads a stale DOM; **(b)**
     `userEvent` awaits a macrotask between events, which is long enough for
     a 0 ms timer to fire — a **`delay: null` multi-step `user.pointer`
     call** is the only way to keep "opens now" distinguishable from "opens
@@ -608,7 +608,7 @@ source of truth for when a skill applies.
   package. Chip's Interaction states are drawn on the whole pill even though
   only the nested `<button>` is truly interactive/focusable: `:hover` on
   the root directly, `:active`/`:focus-visible`/`:disabled` via
-  `:has(.primitiv-chip__remove:…)`, with the shared two-layer box-shadow
+  `:has(.primitiv-chip__remove:...)`, with the shared two-layer box-shadow
   focus ring (CSS follows border-radius automatically, unlike Figma's
   frame-based ring). Registered in `registry/registry.json`,
   `crates/primitiv-cli/src/ports/registry.rs`,
@@ -718,7 +718,7 @@ source of truth for when a skill applies.
   a descending inline z-index per face. Do not "simplify" either into the other.
   **The overlap token carries opposite signs on the two platforms, on purpose.**
   DTCG stores it positive, aliased to the space scale, and the CSS negates with
-  `calc(-1 * …)`; a raw negative number emits **unitless** (`avatar-group` is not
+  `calc(-1 * ...)`; a raw negative number emits **unitless** (`avatar-group` is not
   in the emitter's `LENGTH_CATEGORIES`) and is invalid for a margin. Figma
   stores it negative, because Figma cannot negate a bound variable — verified
   that a bound *negative* variable does work, which is what keeps the Figma
@@ -738,12 +738,12 @@ source of truth for when a skill applies.
   was flagged and corrected: the composed set (`436:12911`) gained a real,
   selectable `Overflow` false|true axis (10→20 variants), not documentation
   alone. At `Overflow=true` the middle crumb is a bare `Breadcrumb/Item`
-  (`State=link`, label `"…"`) with **no fill and no padding** — inherits
+  (`State=link`, label `"..."`) with **no fill and no padding** — inherits
   hover/focus/colour/sizing for free from the plain-link treatment, per that
   component set's own description — which is what set the registry trigger's
   entire visual contract below. Headless `Breadcrumb.Ellipsis` landed next: a
   decorative `role="presentation"`/`aria-hidden` glyph, `asChild`-capable,
-  defaulting to `"…"`. Breadcrumb still owns no truncation or menu-open state
+  defaulting to `"..."`. Breadcrumb still owns no truncation or menu-open state
   of its own (RFC 0019 §4c) — Ellipsis is the composition seam, documented in
   both READMEs with a `Dropdown`-composition example.
   **`keepStart`/`keepEnd`, not a single `maxVisible`** — settled by directly
@@ -778,7 +778,7 @@ source of truth for when a skill applies.
   CSS `<custom-ident>`, so every character outside `[A-Za-z0-9_-]` becomes a
   hyphen) rather than asking the consumer to wire one. Roster count 52.
   Kitchen-sink: a "Breadcrumb Overflow" section right after Breadcrumb — a
-  5-crumb trail collapsing to `Home / … / Neuromancer`, beside a 3-crumb
+  5-crumb trail collapsing to `Home / ... / Neuromancer`, beside a 3-crumb
   trail short enough that `keepStart + keepEnd` already covers it (no
   overflow menu appears, confirming the below-threshold fallback).
   Along the way, also fixed two things unrelated to the composite itself but
@@ -856,7 +856,7 @@ source of truth for when a skill applies.
     the rest are flat across all four modes — an acknowledged placeholder, same
     as when the family was first authored. `tree/{size}/connector/stub-width`
     and `-leaf` are **literal numbers off the primitive ladder** (13, 18, 23,
-    34 …) because they derive from chevron-glyph geometry — which is why `tree`
+    34 ...) because they derive from chevron-glyph geometry — which is why `tree`
     is now the one component namespace in the emitter's `LENGTH_CATEGORIES`
     (`crates/primitiv-emit/src/value.rs`); without it they emit unitless and are
     invalid as a width, the trap `avatar-group` documents.
@@ -1056,7 +1056,7 @@ source of truth for when a skill applies.
     from the painted gamut boundary, which was true only while the generator
     over-asked and let clipping absorb it. Capping in OkLCH moved that decision
     inside generation, so a deliberately tapered step and a gamut-limited one now
-    look identical from outside — hence `api::chroma_headroom(seed, …, gamut)`
+    look identical from outside — hence `api::chroma_headroom(seed, ..., gamut)`
     reporting **requested vs granted**. It shares `plan_light_ramp` with
     generation so the two cannot disagree; its `gamut` argument is a *what-if*
     (generation is always sRGB) and is what makes the P3 comparison real.
@@ -1172,7 +1172,7 @@ source of truth for when a skill applies.
     painted sliders are 1-D gamut charts in their own right, which is what
     makes a plane-less layout credible at all.
   - **Ownership is the mechanism, and it is verified (2026-08-22).** Every
-    variable Harmoni writes is stamped with `setSharedPluginData("harmoni", …)`
+    variable Harmoni writes is stamped with `setSharedPluginData("harmoni", ...)`
     carrying the project id and the rule that produced it. Probed live: written
     to `color/neutral/50`, read back, cleared — variables *and* collections both
     accept it, and `createVariable` / `setValueForMode` / `remove` / `addMode` /
@@ -1223,7 +1223,7 @@ debugging cycle; none is discoverable from the API surface.
    method is on `ComponentNode`. The dedicated MCP tools
    (`figma_create_slot` etc.) may still be blocked (`MCP error -32003`);
    `figma_execute` is the working path. **It ignores its options object**:
-   `createSlot({ name, layoutMode, … })` yields a slot named `"Slot"` with
+   `createSlot({ name, layoutMode, ... })` yields a slot named `"Slot"` with
    `layoutMode: "NONE"`, which absolutely positions every child at 0,0 — so
    appended rows stack invisibly and only the last shows. Set `name`,
    `layoutMode`, both sizing modes and `itemSpacing` *after* creation, and
@@ -1274,7 +1274,7 @@ debugging cycle; none is discoverable from the API surface.
    Name the slot the same string in every variant *before* combining and you
    get one shared property with per-variant layout, content intact across
    switches. This is exactly why `Collapsible` has one `Content` across 20
-   variants while `Tabs / Panel` had five (`slot`, `slot2` … `slot5`).
+   variants while `Tabs / Panel` had five (`slot`, `slot2` ... `slot5`).
 9. **A slot cannot be duplicated by any clone path.** `slot.clone()` returns a
    plain `FRAME` (silently — it litters look-alike frames that no longer
    function), and cloning a whole `COMPONENT` variant drops its slot entirely.
@@ -1295,7 +1295,7 @@ debugging cycle; none is discoverable from the API surface.
     `counterAxisAlignItems`. This is why `Stack` needs only a `Direction` axis
     rather than the 1,440 variants a literal reading of its contract implies.
 12. **Broad `findAll` / `.name` reads crash on stale instance sublayers**
-    (`"The node (instance sublayer or table cell) with id … does not exist"`),
+    (`"The node (instance sublayer or table cell) with id ... does not exist"`),
     especially just after a shared master has changed. It aborts mid-script, so
     earlier writes in the same call have already applied — the
     `addComponentProperty` partial-apply hazard (5) generalised. Walk
@@ -1306,7 +1306,7 @@ debugging cycle; none is discoverable from the API surface.
     (`stack.children[0].itemSpacing = 0`) and only then `appendChild`-ing that
     instance invalidates the slot handle: appending rebuilds the sublayer, so
     every later write throws `"The node (instance sublayer or table cell) with
-    id … does not exist"` — while *reads* keep returning a plausible id, which
+    id ... does not exist"` — while *reads* keep returning a plausible id, which
     is what makes it point at the wrong culprit. Order every layout-primitive
     helper as append → configure. Corollary: **never
     `getNodeByIdAsync` a detached node** — it returns a dead handle that reads
@@ -1413,9 +1413,9 @@ debugging cycle; none is discoverable from the API surface.
     contained.
     - **Symptoms, in the order they appear:** appended content doesn't paint ·
       `remove()` fails with *"Removing this node is not allowed"* even for
-      plain (non-`I…`) ids · `visible = false` on an apparent stray hides an
+      plain (non-`I...`) ids · `visible = false` on an apparent stray hides an
       entire section · a `.children` walk crashes on
-      *"The node (instance sublayer or table cell) … does not exist"* while
+      *"The node (instance sublayer or table cell) ... does not exist"* while
       `findAllWithCriteria` still finds everything · `resize()` on a collapsed
       slot silently no-ops.
     - **Diagnose** by reading the suspect container's slot children: if the
@@ -1458,7 +1458,7 @@ debugging cycle; none is discoverable from the API surface.
    errors. Position after the final resize, and set
    `constraints = { horizontal: 'SCALE' }` so the offset survives later resizing.
 26. **A VECTOR's `x`/`y` positions its BOUNDING BOX, not its path origin.**
-   After `vectorPaths = [{ data: 'M 15.5 16.7 L …' }]`, setting `x = 0; y = 0`
+   After `vectorPaths = [{ data: 'M 15.5 16.7 L ...' }]`, setting `x = 0; y = 0`
    does not leave the path where its coordinates say — it slides the whole path
    up and left by its own minimum point, so a curve drawn onto a plot lands
    offset from the handles it should touch. Set `x`/`y` to the path's **minimum

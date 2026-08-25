@@ -44,7 +44,7 @@ type GetKeyToActionMapOptions = {
  * "activate") into its own movement / activation logic.
  *
  * Returns a plain `Record<string, RovingKeyAction>` so call sites can do
- * `const action = map[event.key]; if (action === "next") …`.
+ * `const action = map[event.key]; if (action === "next") ...`.
  *
  * @example Tabs trigger (horizontal, RTL, all features)
  * ```ts

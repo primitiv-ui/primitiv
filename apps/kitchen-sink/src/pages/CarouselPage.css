@@ -65,7 +65,7 @@
 }
 
 /* Shared example grid — every carousel-grid page (multi-slide edge cases, the
- * viewport-padding matrix, …) uses the same four-column layout: small
+ * viewport-padding matrix, ...) uses the same four-column layout: small
  * instances, each a numbered title + carousel + description so every case can
  * be ticked off. Steps down on narrower viewports (wide-desktop QA is the
  * primary target — the component's own responsiveness is proven elsewhere,

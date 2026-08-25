@@ -27,7 +27,7 @@ say so in a comment).
     largely holds steady; that is by design, not a bug (decided 2026-07-20).
 - **Size is a prop.** Thread it from `useChrome().size` as `size={size}` onto
   every component that has a size axis (Button, Input, Table, the Popover
-  triggers, Modal, …). A new demo **must** pass `size={size}`.
+  triggers, Modal, ...). A new demo **must** pass `size={size}`.
   - Overlay *panels* (Popover, Modal) have no `xs` size, so pass the clamped
     `overlaySize` (`xs → sm`) to those, while their triggers take the raw
     `size`. That is the only sanctioned deviation, and it's a clamp, not an

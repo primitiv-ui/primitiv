@@ -19,7 +19,7 @@ import type { DocsCustomProperty } from "@/lib/docs-data";
  * `collapsedHeight` clamps the panel instead of hiding it, so the list is one
  * Collapsible showing a clipped preview rather than two lists either side of a
  * boundary. Sized to show roughly six chips, which is what the Figma frame
- * previews before its "… N in this group".
+ * previews before its "... N in this group".
  */
 const PREVIEW_HEIGHT = 200;
 

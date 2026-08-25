@@ -4,7 +4,7 @@
  * Shipped as part of the foundation (written alongside the token layer by
  * `primitiv tokens` / `primitiv init`), not installed per-component. Unlike the
  * registry component stylesheets, these are **bare element selectors** (`p`,
- * `strong`, `blockquote`, …) rather than opt-in classes: they style the most
+ * `strong`, `blockquote`, ...) rather than opt-in classes: they style the most
  * basic semantic HTML so prose and inline marks look right with zero markup.
  *
  * Everything lives in `@layer primitiv.reset` — the lowest sublayer declared in
@@ -16,7 +16,7 @@
  * Every value that maps to a design token is written as that token's custom
  * property (no magic numbers — RFC 0006 Principle 2). The few literals left are
  * CSS mechanics with no token home: the synthetic-oblique skew angle, the
- * sub/sup size ratio, and decoration/keyword values (`solid`, `underline`, …).
+ * sub/sup size ratio, and decoration/keyword values (`solid`, `underline`, ...).
  *
  * Requires the token layer (`primitiv tokens`) for the --primitiv-body-*,
  * --primitiv-heading-*, --primitiv-label-*, --primitiv-content-*,

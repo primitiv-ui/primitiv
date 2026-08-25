@@ -294,7 +294,7 @@ rationale).
 A component's props table shows only props it actually declares —
 `asChild`, `type` on `ButtonProps`, for example — plus a single "extends
 `HTMLButtonElement`" note, rather than listing every inherited native
-DOM attribute (`onClick`, every `aria-*`, `style`, …). Verified against a
+DOM attribute (`onClick`, every `aria-*`, `style`, ...). Verified against a
 real, working extraction (`react-docgen-typescript@2.4.0`, `typescript@6.0.3`
 — the repo's actual TS version; note this doesn't yet work against
 `typescript@7.x`, which changed the internal API `react-docgen-typescript`
@@ -479,7 +479,7 @@ Region-by-region (bracketed numbers are the `Wireframe notes` callouts):
 **What is still needed:**
 
 1. ~~**Search / command palette.** Nothing named combobox, command or
-   palette exists in `packages/react` or the registry… What is missing is
+   palette exists in `packages/react` or the registry... What is missing is
    the combobox wiring itself: filtering, `aria-expanded`/`aria-controls`
    on the input, forwarding arrow/Enter/Escape from the input into the
    list, grouped results, and an empty state.~~
@@ -660,7 +660,7 @@ components**:
   case (D58: a styled wrapper spreading these props back could fail to
   type-check).
 
-**Fix:** add the native attribute to each base `Omit<ComponentProps<…>, …>`
+**Fix:** add the native attribute to each base `Omit<ComponentProps<...>, ...>`
 (the same fix §1.16 applied to `dir`, and that `Tabs.Root` already used for
 `ref`). Type-only; no runtime change. The 215 benign `ref`/`children`
 same-type re-declarations were left alone.

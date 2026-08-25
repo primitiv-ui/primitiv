@@ -66,7 +66,7 @@ the wrapper assigns it. The counter is lifted above all of them by
 
 **The overlap token is positive; the CSS negates it.** `--primitiv-avatar-group-*-overlap`
 is a positive space step and the stylesheet applies
-`calc(-1 * …)`. The Figma variable stores the *negative* instead, because Figma
+`calc(-1 * ...)`. The Figma variable stores the *negative* instead, because Figma
 can't negate a bound variable — the opposite signs are deliberate.
 
 ## Files

@@ -48,7 +48,7 @@ rejected (no drop-in figure).
 | --- | --- |
 | `<figure>` | **Figure** (top-level set) — media placeholder + nested Figcaption |
 | `<figcaption>` | **Figcaption** (set) — the caption text leaf |
-| the media (`<img>`, `<svg>`, `<pre>`, …) | a **media-slot placeholder** frame inside Figure — a documented swap target, not its own set |
+| the media (`<img>`, `<svg>`, `<pre>`, ...) | a **media-slot placeholder** frame inside Figure — a documented swap target, not its own set |
 
 Two component sets get built: **Figcaption** and **Figure**, both on the new
 **Figure & Figcaption** page.
@@ -214,9 +214,9 @@ Per the prose-component definition of done:
 
 ### 7.1 Grid-labels groups
 
-- **Figcaption** — column headers `xs…xl`; rotated `START / CENTER / END` align
+- **Figcaption** — column headers `xs...xl`; rotated `START / CENTER / END` align
   bands.
-- **Figure** — column headers `xs…xl`; rotated `BELOW / ABOVE / OVERLAY` position
+- **Figure** — column headers `xs...xl`; rotated `BELOW / ABOVE / OVERLAY` position
   bands.
 
 Khand SemiBold 11px, `content/primary` headers / `content/secondary` sub-labels.

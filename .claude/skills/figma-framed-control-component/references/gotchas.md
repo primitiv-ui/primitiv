@@ -3,7 +3,7 @@
 Read this before any build or audit sweep. Geometry/auto-layout gotchas live in
 `auto-layout-sizing.md`; property-wiring gotchas in `component-properties.md`.
 
-- Decoy POC sets (modes, "… Demo" page) vs the real default-mode set.
+- Decoy POC sets (modes, "... Demo" page) vs the real default-mode set.
 - `getNodeByIdAsync` etc. required (dynamic-page document access).
 - `figma.currentPage = page` **throws** — use `await figma.setCurrentPageAsync(page)`.
 - `boundVariables`: `fills`/`strokes` are colour paints (skip when rebinding

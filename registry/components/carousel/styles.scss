@@ -79,7 +79,7 @@
        [data-orientation="vertical"] layout): one slide is shown and you scroll
        down to the next. Defaults to the shared `ratio` knob, so the `ratio`
        modifier shapes the slides in *both* orientations (square vertical slides,
-       a widescreen vertical scroller, …); override it directly to decouple the
+       a widescreen vertical scroller, ...); override it directly to decouple the
        vertical track's shape from the horizontal ratio. A ratio is a shape, not a
        token value — like the slide ratio above. */
     --primitiv-carousel-vertical-aspect-ratio: var(--primitiv-carousel-slide-aspect-ratio);
@@ -605,7 +605,7 @@
   }
 
   /* Progress text — a plain caption; the consumer places it wherever it
-     belongs (inside `__controls`, standalone, …), so this rule carries no
+     belongs (inside `__controls`, standalone, ...), so this rule carries no
      layout, only the muted caption typography. */
   .primitiv-carousel__progress-text {
     color: var(--primitiv-carousel-progress-text-color);
@@ -2113,7 +2113,7 @@
      hook so the default `slide` scroll-snap layout is left untouched. */
   .primitiv-carousel[data-transition="fade"] .primitiv-carousel__viewport {
     display: grid;
-    /* One full-width column the stacked slides fill (minmax(0,…) lets them
+    /* One full-width column the stacked slides fill (minmax(0,...) lets them
        shrink below intrinsic width — a grid shape, like the vertical layout). */
     grid-template-columns: minmax(0, 1fr);
     /* No scroll track — neutralise the snap / scroll / peek machinery. */
@@ -2198,7 +2198,7 @@
      ONE continuous border around the *whole run*, on top of each thumbnail's own
      ring, so the group reads as a single current-page unit. A lone active thumbnail
      (the common, slidesPerPage=1 case) never matches these selectors — `+` and
-     `:has(+ …)` both require a genuine second active sibling — so nothing changes
+     `:has(+ ...)` both require a genuine second active sibling — so nothing changes
      there.
 
      Built from only forward-looking selectors (CSS has no "preceding sibling"
@@ -2206,7 +2206,7 @@
      cancelled on the members that aren't actually at that edge of the run. The
      `:where(...)` wrappers neutralise the relational lookups' own specificity, so a
      baseline/cancel pair for the same edge always ties on specificity and the one
-     declared *later* wins — without them, `:has(+ …)` and the adjacent-sibling form
+     declared *later* wins — without them, `:has(+ ...)` and the adjacent-sibling form
      carry different specificity by accident, and a 3+ member run's middle thumbnail
      would keep a stray edge instead of none. Logical properties throughout keep this
      RTL- and orientation-safe. */

@@ -6,7 +6,7 @@ shown on hover / focus. A flat bubble with a pointer arrow, built on the headles
 
 `primitiv add tooltip` copies this styled surface into your project. The files are
 yours to edit; the stable contract is the class names, the `--default`/`--inverted`
-tone modifiers, the `--sm…--xl` size modifiers, the 12 placement modifiers, the
+tone modifiers, the `--sm...--xl` size modifiers, the 12 placement modifiers, the
 `data-state` hook, and the `--primitiv-tooltip-*` custom properties.
 
 ## Tone

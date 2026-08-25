@@ -183,7 +183,7 @@ Recipe (run via `figma_execute`, async API throughout):
    `getVariableByIdAsync` per `variableIds`).
 2. `const clone = src.clone(); set.appendChild(clone);`
 3. `clone.name = "Context=<ctx>, Variant=<v>, Size=<s>, State=<st>"` — setting the
-   name in `prop=value, …` form is what sets `variantProperties`.
+   name in `prop=value, ...` form is what sets `variantProperties`.
 4. Walk every node depth-first and rebind:
    - read `node.boundVariables`; **skip `fills` and `strokes`** (colour paints —
      not context-bound);
@@ -206,5 +206,5 @@ map. This keeps async overhead minimal even for large component sets.
 
 Arrange scripts lay sets out into a size-rows × variant/state-columns grid.
 Props are `Variant/Size/State` (no Context dimension). `md` is placed first
-(top row) so `md/primary/default` is top-left; the script `insertChild(0, …)`
+(top row) so `md/primary/default` is top-left; the script `insertChild(0, ...)`
 that component so Figma uses it as the **default instance**.

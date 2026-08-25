@@ -212,7 +212,7 @@ With `assess()` in the engine, the chroma collapse becomes a test:
 fn light_steps_use_most_of_the_available_chroma() {
     let p = generate_brand_pair(ColorInput::Css("#008e9d".into())).unwrap();
     let q = assess(&p.light, Gamut::Srgb);
-    assert!(q.mean_chroma_utilisation > 0.9, "…");
+    assert!(q.mean_chroma_utilisation > 0.9, "...");
 }
 ```
 
@@ -519,10 +519,10 @@ where they collided:
 
 | ramp | seed L | intended lightness | steps at ceiling | min ΔL |
 |---|---:|---|---:|---:|
-| brand | 0.56 | 0.98 0.92 0.84 0.77 … | 0 | 0.060 |
-| info | 0.59 | 0.99 0.95 0.87 0.80 … | 1 | 0.039 |
-| warning | 0.72 | **0.99 0.99 0.99** 0.93 … | 3 | **0.000** |
-| hard yellow | 0.84 | **0.99 0.99 0.99 0.99** 0.96 … | 4 | **0.000** |
+| brand | 0.56 | 0.98 0.92 0.84 0.77 ... | 0 | 0.060 |
+| info | 0.59 | 0.99 0.95 0.87 0.80 ... | 1 | 0.039 |
+| warning | 0.72 | **0.99 0.99 0.99** 0.93 ... | 3 | **0.000** |
+| hard yellow | 0.84 | **0.99 0.99 0.99 0.99** 0.96 ... | 4 | **0.000** |
 
 This was not new — `warning`'s ΔL was already exactly 0.0 before the chroma fix
 (§11.3). What was new is the *consequence*. Previously those steps had different
@@ -542,9 +542,9 @@ the division safe.
 
 | ramp | before | after |
 |---|---|---|
-| warning | `0.99 0.99 0.99 0.93 …` → 3 identical whites | `0.97 0.93 0.89 0.85 …` → `#fef3e9 #fee5cc #fdd1a5 #fdbf7f` |
-| hard yellow | `0.99 0.99 0.99 0.99 …` → 4 identical | `0.97 0.95 0.93 0.90 …` → a real ramp |
-| brand (L 0.56) | `0.98 0.92 0.84 …` | `0.97 0.91 0.83 …` — essentially unchanged |
+| warning | `0.99 0.99 0.99 0.93 ...` → 3 identical whites | `0.97 0.93 0.89 0.85 ...` → `#fef3e9 #fee5cc #fdd1a5 #fdbf7f` |
+| hard yellow | `0.99 0.99 0.99 0.99 ...` → 4 identical | `0.97 0.95 0.93 0.90 ...` → a real ramp |
+| brand (L 0.56) | `0.98 0.92 0.84 ...` | `0.97 0.91 0.83 ...` — essentially unchanged |
 
 It fixes the pale-seed collapse, barely moves mid-lightness seeds, and gives a
 pale seed a genuinely dark 900 for the first time (the hard yellow's 900 goes

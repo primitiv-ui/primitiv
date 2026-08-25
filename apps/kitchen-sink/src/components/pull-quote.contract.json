@@ -15,7 +15,7 @@
     {
       "name": "size",
       "default": "md",
-      "description": "Quote size, mapped to the heading/* scale (xs→h5 … xl→h1); `data-density` scales each size further.",
+      "description": "Quote size, mapped to the heading/* scale (xs→h5 ... xl→h1); `data-density` scales each size further.",
       "options": [
         { "name": "xs", "class": "primitiv-pull-quote--xs", "description": "Extra small (heading/h5)." },
         { "name": "sm", "class": "primitiv-pull-quote--sm", "description": "Small (heading/h4)." },

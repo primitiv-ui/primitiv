@@ -33,7 +33,7 @@ fn leaves_a_non_alias_literal_untouched() {
 
 #[test]
 fn rewrites_every_embedded_alias_in_a_composite_value() {
-    // A shadow composite carries many `{…}` aliases in one value string; each is
+    // A shadow composite carries many `{...}` aliases in one value string; each is
     // resolved to its var() reference, the literals between them left in place.
     let tokens = vec![Token::new(
         &["shadow", "1"],

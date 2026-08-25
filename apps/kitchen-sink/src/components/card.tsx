@@ -91,7 +91,7 @@ export type CardProps = ComponentPropsWithRef<"div"> &
     coverForegroundDark?: CoverForeground;
     /**
      * Render the single child element instead of a wrapping `<div>`, merging
-     * the card classes onto it — e.g. `<Card asChild><a href="…">…</a></Card>`
+     * the card classes onto it — e.g. `<Card asChild><a href="...">...</a></Card>`
      * for a card that is itself one link.
      */
     asChild?: boolean;

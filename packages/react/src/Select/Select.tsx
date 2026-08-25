@@ -121,7 +121,7 @@ function hasPlaceholderChild(children: ReactNode): boolean {
  * ```tsx
  * <Select.Root value={framework} onValueChange={setFramework}>
  *   <Select.Trigger>
- *     <Select.Value placeholder="Pick a framework…" />
+ *     <Select.Value placeholder="Pick a framework..." />
  *   </Select.Trigger>
  *   <Select.Content>
  *     <Select.Item value="react">
@@ -141,7 +141,7 @@ function hasPlaceholderChild(children: ReactNode): boolean {
  * @example Native
  * ```tsx
  * <Select.Root native defaultValue="apple" aria-label="Pick a fruit">
- *   <Select.Placeholder>Choose…</Select.Placeholder>
+ *   <Select.Placeholder>Choose...</Select.Placeholder>
  *   <Select.Group label="Fruits">
  *     <Select.Item value="apple">Apple</Select.Item>
  *     <Select.Item value="banana">Banana</Select.Item>
@@ -155,7 +155,7 @@ function hasPlaceholderChild(children: ReactNode): boolean {
  *   <Field.Label>Framework</Field.Label>
  *   <Select.Root name="framework" value={value} onValueChange={onChange}>
  *     <Select.Trigger>
- *       <Select.Value placeholder="Choose…" />
+ *       <Select.Value placeholder="Choose..." />
  *     </Select.Trigger>
  *     <Select.Content>
  *       <Select.Item value="react">React</Select.Item>
@@ -365,7 +365,7 @@ SelectItem.displayName = "SelectItem";
  * @example
  * ```tsx
  * <Select.Trigger>
- *   <Select.Value placeholder="Pick a framework…" />
+ *   <Select.Value placeholder="Pick a framework..." />
  * </Select.Trigger>
  * ```
  */
@@ -415,7 +415,7 @@ SelectTrigger.displayName = "SelectTrigger";
  *
  * @example
  * ```tsx
- * <Select.Value placeholder="Select a framework…" />
+ * <Select.Value placeholder="Select a framework..." />
  * ```
  */
 export function SelectValue({
@@ -639,7 +639,7 @@ SelectSeparator.displayName = "SelectSeparator";
  * @example
  * ```tsx
  * <Select.Root native required aria-label="Pick a fruit">
- *   <Select.Placeholder>Choose a fruit…</Select.Placeholder>
+ *   <Select.Placeholder>Choose a fruit...</Select.Placeholder>
  *   <Select.Item value="apple">Apple</Select.Item>
  *   <Select.Item value="banana">Banana</Select.Item>
  * </Select.Root>
@@ -698,7 +698,7 @@ export type TSelectCompound = typeof SelectRoot & {
  *
  * <Select.Root value={framework} onValueChange={setFramework}>
  *   <Select.Trigger>
- *     <Select.Value placeholder="Pick a framework…" />
+ *     <Select.Value placeholder="Pick a framework..." />
  *   </Select.Trigger>
  *   <Select.Content>
  *     <Select.Item value="react">
@@ -716,7 +716,7 @@ export type TSelectCompound = typeof SelectRoot & {
  * @example Native
  * ```tsx
  * <Select.Root native defaultValue="apple" aria-label="Pick a fruit">
- *   <Select.Placeholder>Choose…</Select.Placeholder>
+ *   <Select.Placeholder>Choose...</Select.Placeholder>
  *   <Select.Group label="Fruits">
  *     <Select.Item value="apple">Apple</Select.Item>
  *     <Select.Item value="banana">Banana</Select.Item>

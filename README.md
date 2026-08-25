@@ -71,7 +71,7 @@ ones), sync design tokens from Figma, and install it all with one command.
 npm create primitiv-ui@latest
 ```
 
-…or add it to an existing app and pull in components as you need them:
+...or add it to an existing app and pull in components as you need them:
 
 ```sh
 npm i -D primitiv-ui

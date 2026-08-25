@@ -249,7 +249,7 @@ export type MillerColumnsItemProps = ComponentPropsWithRef<
  * <MillerColumnsItem value="docs">
  *   Docs
  *   <MillerColumnsItemIndicator />
- *   <MillerColumnsColumn>…</MillerColumnsColumn>
+ *   <MillerColumnsColumn>...</MillerColumnsColumn>
  * </MillerColumnsItem>
  * ```
  */

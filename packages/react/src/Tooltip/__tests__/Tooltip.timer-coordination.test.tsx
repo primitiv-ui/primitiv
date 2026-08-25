@@ -103,9 +103,9 @@ describe("Tooltip.Root — timer coordination (fake timers)", () => {
     fireEvent.pointerEnter(screen.getByRole("button", { name: "Hover me" }));
     expect(onOpenChange).toHaveBeenCalledTimes(1);
 
-    // Leaving the trigger starts the grace-period close timer…
+    // Leaving the trigger starts the grace-period close timer...
     fireEvent.pointerLeave(screen.getByRole("button", { name: "Hover me" }));
-    // …then Escape closes immediately, which must cancel that pending timer.
+    // ...then Escape closes immediately, which must cancel that pending timer.
     fireEvent.keyDown(screen.getByRole("button", { name: "Hover me" }), {
       key: "Escape",
     });

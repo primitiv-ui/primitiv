@@ -1,7 +1,7 @@
 %% Harmoni API surface — View 1: the two ways in (entry points + inputs).
 %% Same capabilities via two facades: pure-Rust harmoni_core::api and the
 %% harmoni_wasm #[wasm_bindgen] layer (a thin string/number wrapper over it).
-%% Every CoreApi method returns Result<…, ColorInputError> (omitted below).
+%% Every CoreApi method returns Result<..., ColorInputError> (omitted below).
 %% Curve = a 10-element lightness array ([f32; 10] in Rust, number[] in TS).
 classDiagram
     direction LR

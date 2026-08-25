@@ -26,7 +26,7 @@ show.)
   token per step.
 - `align` / `justify` — how each item sits **within its cell**
   (`align-items`/`justify-items`), from a curated preset set.
-- `asChild` — render your own element (`<ul>`, `<section>`, …) instead of the
+- `asChild` — render your own element (`<ul>`, `<section>`, ...) instead of the
   wrapping `<div>`.
 
 ### The responsive model
@@ -78,7 +78,7 @@ import { Grid } from "@/components/grid";
 </Grid>
 
 <Grid columns={3} gap="md" align="center" asChild>
-  <ul>…</ul>
+  <ul>...</ul>
 </Grid>
 ```
 

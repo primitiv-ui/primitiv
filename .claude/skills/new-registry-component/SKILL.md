@@ -9,7 +9,7 @@ A **registry component** is the styled surface `primitiv add <name>` copies into
 a consumer repo — *not* a headless `@primitiv-ui/react` primitive (that's
 `new-react-component`). Most registry components are **generated** from
 `contract.json` by `primitiv-emit` and wrap a headless primitive (button, input,
-tabs, …). Some carry no primitive and are **hand-authored** (prose, inline-code,
+tabs, ...). Some carry no primitive and are **hand-authored** (prose, inline-code,
 code-block). This skill is the hand-authored flow — the one that isn't generated.
 
 ## When it's hand-authored (the prose pattern)
@@ -29,11 +29,11 @@ primitive (code-block's Prism + copy), it is hand-authored:
 
 | File | Notes |
 |---|---|
-| `contract.json` | Source-of-truth metadata: `root` (element + class), `modifiers` (e.g. the `size` group → `--xs…--xl`), `customProperties` (every `--primitiv-<name>-*` knob + its `defaultsTo`). Even hand-authored components have one — it's copied to the consumer and drives docs. |
+| `contract.json` | Source-of-truth metadata: `root` (element + class), `modifiers` (e.g. the `size` group → `--xs...--xl`), `customProperties` (every `--primitiv-<name>-*` knob + its `defaultsTo`). Even hand-authored components have one — it's copied to the consumer and drives docs. |
 | `styles.css` | The default theme. **First line after the header comment must be the `@layer` order statement** (see below). Follow `registry-stylesheet-conventions` (no magic numbers). |
 | `styles.scss` | The CSS **plus** a trailing `$`-alias block — one `$primitiv-<name>-<prop>: var(--primitiv-<name>-<prop>);` per custom property, in contract order. Generate it from the CSS so it can't drift. |
-| `<name>.recipe.ts` | `cva("primitiv-<name>", { variants: { size: {…} }, defaultVariants: { size: "md" } })`. Match the shape of a generated recipe (e.g. input's). |
-| `<name>.tsx` | The wrapper. **No stylesheet import in the registry source** — `add` prepends `import "…/styles.css";` when it copies. |
+| `<name>.recipe.ts` | `cva("primitiv-<name>", { variants: { size: {...} }, defaultVariants: { size: "md" } })`. Match the shape of a generated recipe (e.g. input's). |
+| `<name>.tsx` | The wrapper. **No stylesheet import in the registry source** — `add` prepends `import ".../styles.css";` when it copies. |
 | `README.md` | Mirror `prose`/`inline-code` READMEs: what it does, usage, a Files table, dependencies. |
 
 ## Registration — three edits, or the CLI can't serve it

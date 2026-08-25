@@ -106,7 +106,7 @@ describe("Listbox typeahead reset window", () => {
 
     await user.tab();
 
-    // A two-character query narrows in place onto the only "av…" match.
+    // A two-character query narrows in place onto the only "av..." match.
     await user.keyboard("av");
     cursorIsOn("Avocado");
 

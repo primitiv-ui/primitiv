@@ -61,8 +61,8 @@ and changes no behaviour, focus, or ARIA — it exists purely so the styling lay
 can position and animate the panel against the right edge:
 
 ```tsx
-<Drawer.Content side="bottom">…</Drawer.Content>
-// → <dialog data-side="bottom" data-state="open" …>
+<Drawer.Content side="bottom">...</Drawer.Content>
+// → <dialog data-side="bottom" data-state="open" ...>
 ```
 
 ```css

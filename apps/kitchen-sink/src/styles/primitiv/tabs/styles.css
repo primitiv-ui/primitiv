@@ -3,7 +3,7 @@
  *
  * Copied into the consumer repo by `primitiv add tabs`. It is yours to edit:
  * the stable surface is the contract (the .primitiv-tabs root + __list / __trigger
- * / __panel parts, the --xs…--xl / justify modifiers, the data-state / data-disabled
+ * / __panel parts, the --xs...--xl / justify modifiers, the data-state / data-disabled
  * hooks, and the --primitiv-tabs-* custom properties), not these values
  * (RFC 0006 Principle 2 — names are stable, values are not).
  *

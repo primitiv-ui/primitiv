@@ -4,7 +4,7 @@
  * Copied into the consumer repo by `primitiv add tree`. It is yours to edit: the
  * stable surface is the contract (the .primitiv-tree container + __item /
  * __branch / __branch-control / __branch-content / __branch-indicator /
- * __selection-path parts, the --xs…--xl size modifiers, the
+ * __selection-path parts, the --xs...--xl size modifiers, the
  * --connectors-lines / --connectors-none modifiers, the data-state /
  * data-selected / data-disabled / data-leaf / data-branch hooks, and the
  * --primitiv-tree-* custom properties), not these values (RFC 0006 Principle 2 —
@@ -24,7 +24,7 @@
  * its contents. (Pulling an indented row back out with a negative margin was
  * the other option, and it does not work: the open/close clip below would cut
  * the overhang at every level.) The depth is threaded as a custom property
- * rather than read from `data-depth` in CSS because `attr(… type(<integer>))`
+ * rather than read from `data-depth` in CSS because `attr(... type(<integer>))`
  * is Chrome 133+ / Safari 18.2+ and Firefox falls back to the default.
  *
  * CONNECTORS. Each nested treeitem draws its own two segments, positioned

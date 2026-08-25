@@ -28,7 +28,7 @@ import { FieldsetLegendProps, FieldsetProps } from "./types";
  *
  * ```tsx
  * const ref = useRef<HTMLFieldSetElement>(null);
- * <Fieldset.Root ref={ref}>…</Fieldset.Root>
+ * <Fieldset.Root ref={ref}>...</Fieldset.Root>
  * ```
  *
  * @extends HTMLFieldSetElement
@@ -46,7 +46,7 @@ import { FieldsetLegendProps, FieldsetProps } from "./types";
  * ```tsx
  * <Fieldset.Root disabled>
  *   <Fieldset.Legend>Billing</Fieldset.Legend>
- *   …every nested control is disabled…
+ *   ...every nested control is disabled...
  * </Fieldset.Root>
  * ```
  */
@@ -138,7 +138,7 @@ export type FieldsetCompound = typeof FieldsetRoot & {
  * ```tsx
  * <Fieldset.Root disabled>
  *   <Fieldset.Legend>Billing</Fieldset.Legend>
- *   …every nested control is disabled…
+ *   ...every nested control is disabled...
  * </Fieldset.Root>
  * ```
  *

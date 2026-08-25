@@ -69,7 +69,7 @@ appended here:
   headless primitive but is still part of the copied surface. (b) `slidesPerPage`
   is a **modifier** (not just a raw knob) with **numeric option names** (`1`–`4`):
   safe because `check-registry-types.mjs` stubs `cva`, so the recipe's numeric
-  object keys never meet cva's generic inference — the wrapper's `"1" | … | "4"`
+  object keys never meet cva's generic inference — the wrapper's `"1" | ... | "4"`
   string union is the typed surface. The `--primitiv-carousel-slides-per-page` knob
   stays exposed for arbitrary counts.
 
@@ -162,7 +162,7 @@ appended here:
   `builder` composability sandbox — is human-approved as shipped. Every
   iteration heading below that previously read "(awaiting human QA)" has been
   updated to "(human-approved)" to reflect this; the many in-body **"Next:**
-  human QA of …" pointers scattered through older iteration entries predate
+  human QA of ..." pointers scattered through older iteration entries predate
   this confirmation and are now historical rather than outstanding action
   items — read them for narrative/implementation history, not current status.
   **This does not clear Figma lockstep** — that stays tracked per iteration as
@@ -507,7 +507,7 @@ RTL-specific CSS.
 
 **Naming.** `placement` option `external-row` → **`row`**: the recipe emitter
 doesn't quote cva variant keys, so a hyphenated option name emits invalid JS
-(`external-row: …`). Every existing modifier option is a single-word identifier;
+(`external-row: ...`). Every existing modifier option is a single-word identifier;
 `placement="row"` / `"overlay"` keeps that and reads cleanly. (Future placements:
 `flank`, `top`.)
 
@@ -569,7 +569,7 @@ stylesheet stops the viewport scrolling (`display: grid`, gap/peek/overflow
 neutralised), stacks every slide in the one cell (`grid-area: 1 / 1`), and
 cross-fades the active slide in over the others off its `data-state` hook. The
 outgoing slide keeps `visibility: visible` (hittable/announced) until the opacity
-fade completes via a `visibility 0s … <fade-duration>` delay, then drops from the
+fade completes via a `visibility 0s ... <fade-duration>` delay, then drops from the
 hit-test + a11y tree; the active override (states layer) clears that delay. Two
 new knobs — `--primitiv-carousel-fade-duration` (`motion-duration-overlay`) /
 `--primitiv-carousel-fade-easing` (`motion-easing-default`) — and the
@@ -611,7 +611,7 @@ publish gotcha.
 **`slidesPerPage` as a modifier with numeric option keys is type-safe** because
 `check-registry-types.mjs` stubs `cva` as `(props?: Record<string, unknown>) =>
 string` — cva's real generic inference never runs, so the recipe's numeric object
-keys (`{ 1: …, 2: … }`, valid JS, runtime string keys) don't clash with the
+keys (`{ 1: ..., 2: ... }`, valid JS, runtime string keys) don't clash with the
 wrapper's explicit `"1" | "2" | "3" | "4"` string union. Confirmed green.
 
 **`__controls` promoted to a generated `<CarouselControls>` part** (the human's
@@ -630,7 +630,7 @@ surface. Reusable by any future grouping wrapper.
 by side.
 
 **Regenerated** (recipe/tsx carry the `slidesPerPage` prop + the `CarouselControls`
-part; styles.scss re-derived with the new `$…-slides-per-page` var) + drift-green +
+part; styles.scss re-derived with the new `$...-slides-per-page` var) + drift-green +
 kitchen-sink hand-synced. Registry README updated (the `slidesPerPage` modifier, the
 slide flex-basis bullet, `<CarouselControls>` throughout).
 
@@ -669,7 +669,7 @@ passthrough.
 
 **Regenerated** (recipe/tsx carry the `padding` root prop — omitted from the
 headless passthrough, so no DOM leak; styles.scss re-derived with the new
-`$…-viewport-padding` var) + drift-green + kitchen-sink hand-synced. Registry
+`$...-viewport-padding` var) + drift-green + kitchen-sink hand-synced. Registry
 README updated (scope, modifiers, viewport bullet).
 
 **Gates green:** `cargo test -p primitiv-emit -p primitiv-cli` (364 + 20 + 105),
@@ -769,7 +769,7 @@ indicator count and existing headless bugs; the fix spanned three layers.
 separately, commit `8b30295`): (1) **end-align the last windowed page** —
 `ceil((total − perPage) / move) + 1` with the offset clamped to `total − perPage`
 — so an inexact move (6 slides, perPage 3, move 2) no longer orphans the tail
-(`[0,1,2] [2,3,4] [3,4,5]`, not `… [2,3,4]`); (2) **clamp numeric `move` to
+(`[0,1,2] [2,3,4] [3,4,5]`, not `... [2,3,4]`); (2) **clamp numeric `move` to
 `[1, perPage]`** so a move can't skip past a page; (3) **guard `perPage` / `move`
 to an integer ≥ 1** (0 / negative / NaN / fractional) so a bad count can't divide
 by zero (Infinity dots → RangeError) or go inert; (4) a `currentPageOffset` +
@@ -783,7 +783,7 @@ was swallowing `slidesPerPage` (CSS-class only, never forwarded) so the headless
 still thought it was 1 → one dot per slide. New **`primitiv-emit` capability**:
 a contract **`styleProps`** entry (`{prop, cssVar}`) makes a root prop that (a)
 stays in the props type (it flows from the primitive), (b) drives a CSS custom
-property inline (`style={{…} as CSSProperties}`, unset when `undefined`), and (c)
+property inline (`style={{...} as CSSProperties}`, unset when `undefined`), and (c)
 is re-forwarded to the primitive — so **one number drives both** the flex-basis
 and the headless page model. `slidesPerPage` moved from a capped `1`–`4` modifier
 to this styleProp (any count now); `slidesPerMove` needs no contract change (it
@@ -1184,7 +1184,7 @@ prev/indicators/next in `<CarouselControls>`, `overlay`/`flank` render them as
 direct children (matching the example helpers) — swaps auto `<CarouselIndicators>`
 (dots, page-count-correct) vs a manual group of image thumbs (thumbnails), swaps the
 prev/next chevrons under vertical, and wraps in `dir="rtl"` when RTL. A **`<pre>`
-readout** echoes the active `<Carousel …>` props so a spotted bug reports its exact
+readout** echoes the active `<Carousel ...>` props so a spotted bug reports its exact
 combination. A Reset button restores the iteration-1 defaults.
 
 **Headless fix the Builder surfaced (TDD, 100%).** Dragging the slide-count control
@@ -1591,7 +1591,7 @@ down and the **viewport's** `--primitiv-carousel-vertical-aspect-ratio` (default
 governed the shape, and the `ratio` modifier (horizontal-only) never wired to it. Fixed the
 inconsistency: `--primitiv-carousel-vertical-aspect-ratio` now **defaults to
 `var(--primitiv-carousel-slide-aspect-ratio)`**, so the root `ratio` modifier shapes the slides
-in **both** orientations (square vertical slides, a widescreen vertical scroller, …), while the
+in **both** orientations (square vertical slides, a widescreen vertical scroller, ...), while the
 knob stays independently overridable to decouple the vertical track. Default `ratio=wide` keeps
 the vertical viewport at 16/9 — no regression. The Builder ratio grey-out (added in round 2 for
 the vertical no-op) is removed since ratio is now live there. Contract + CSS regenerated
@@ -1664,7 +1664,7 @@ inter-slide `gap` now breathe with `size` + ambient density, mirroring the contr
   4/12, today's values), scaling on the chrome cadence — it's chrome-level padding, kin to
   `chrome-gap`, not a content gutter. The dot/thumbnail gaps already scale via `chrome-gap`.
 - **CSS wiring:** the base rule + each `--size-{slot}` rule publish `--primitiv-carousel-
-  content-space-1…4` (default = md slot; re-pointed per slot) and re-point the two pill-
+  content-space-1...4` (default = md slot; re-pointed per slot) and re-point the two pill-
   padding knobs to the `carousel-{slot}-pill-padding-*` ramp; the `peek-*`/`gap-*`/`padding-*`
   step modifiers pick a rung from those intermediate vars. Size class sets the ramp, step
   class picks — density baked into the token, no combined `.size-x.gap-y` selectors.
@@ -1886,7 +1886,7 @@ Images, Overlay/Fade's row cells, and (most visibly) all 18 "External" cells on 
 Placement page.
 
 **Grid: bumped to 4 columns + converted the remaining 5 pages.** `.carousel-grid`
-`grid-template-columns` `repeat(2, …)` → `repeat(4, …)` (with a `72rem`→2-col and
+`grid-template-columns` `repeat(2, ...)` → `repeat(4, ...)` (with a `72rem`→2-col and
 `40rem`→1-col responsive fallback, new — the old fixed 2-col had no narrow-viewport
 concession, and 4 columns need one). `Example` gained a `wide` boolean prop
 (`.carousel-page--wide`, `max-inline-size: 88rem` vs the default `64rem`) — applied to
@@ -2789,7 +2789,7 @@ explicit RTL (`dir`), `autoSize` + per-item
       (`--primitiv-carousel-progress-text-color` → `content-secondary`,
       `--primitiv-carousel-progress-text-font-size` → `body-sm-font-size`) in
       `styles.css`/`.scss` — no layout of its own, the consumer places it
-      anywhere (inside `<CarouselControls>`, standalone, …). Kitchen-sink
+      anywhere (inside `<CarouselControls>`, standalone, ...). Kitchen-sink
       hand-synced (`carousel.contract.json` / `.recipe.ts` / `.tsx` / the
       stylesheet).
 - [x] **Per-call `instant` (skip-animation) override on imperative scroll
@@ -3262,7 +3262,7 @@ verified against it).
 
 **Grouped-thumbnail hover.** With `slidesPerPage > 1`, several thumbnails
 already share one page and highlight together when *active* (a CSS-only
-`:has(+ …)`-adjacency trick, since every member independently computes the
+`:has(+ ...)`-adjacency trick, since every member independently computes the
 identical `data-state="active"` value via `pageForSlideIndex`). Hover can't
 reuse that trick — `:hover` only ever applies to the pointed-at element,
 and no CSS selector can project it onto an arbitrary-length sibling run
@@ -5160,7 +5160,7 @@ mirrored.
 
 **Regenerated** `carousel.recipe.ts` (the `coverflow` variant line), `carousel.tsx`
 (the `effect?: "none" | "parallax" | "coverflow"` union + JSDoc), and `styles.scss`
-(CSS body + three new `$…coverflow-*` aliases) via the throwaway
+(CSS body + three new `$...coverflow-*` aliases) via the throwaway
 `crates/primitiv-emit/examples/gen_carousel.rs` (deleted after). Drift guards
 green — `cargo test -p primitiv-emit` (106) + `-p primitiv-cli` (20).
 

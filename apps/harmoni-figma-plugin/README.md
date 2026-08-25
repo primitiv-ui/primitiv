@@ -43,7 +43,7 @@ cannot load local plugins.
 2. `pnpm --filter harmoni-figma-plugin dev` — rebuilds `dist/` on every
    change (both builds, in watch mode).
 3. In Figma desktop: **Plugins → Development → Import plugin from
-   manifest…** and select `apps/harmoni-figma-plugin/manifest.json`.
+   manifest...** and select `apps/harmoni-figma-plugin/manifest.json`.
 4. Run the plugin from your Figma file. Figma reloads it whenever the
    watched `dist/` output changes.
 

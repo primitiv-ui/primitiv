@@ -164,9 +164,9 @@ surface and applies once those are read.
 - **0013** — configurable palette export with **two outputs** from one
   serializable `ExportConfig`: **Figma variables** (choose the target collection +
   group location — browsed with MillerColumns / Tree — and a naming convention
-  with a live preview; today's `Primitives / Palette` + `color/…` is the default
+  with a live preview; today's `Primitives / Palette` + `color/...` is the default
   preset) and **canvas swatches** (configure orientation, shape, gap, step
-  labels, a11y contrast badges, … and generate the sheet onto the current page via
+  labels, a11y contrast badges, ... and generate the sheet onto the current page via
   a button or drag-and-drop). Pure `resolve` / `planSwatches` cores behind
   `VariableStore` / `CanvasRenderer` ports; built workbench-first with a live HTML
   preview. Works for the author and the end user alike.
@@ -221,7 +221,7 @@ surface and applies once those are read.
   composing ≥2 existing primitives with no new ARIA pattern (Confirm Dialog =
   `Modal` + `Button`; Data Table = `Table` + `Checkbox` + `Dropdown` + `Select`
   + `Pagination`; Card, Avatar Group, Stepper, Toast, Command Palette, Date
-  Picker, …). Defines the selection criteria, a three-tier candidate list
+  Picker, ...). Defines the selection criteria, a three-tier candidate list
   (buildable now / needs one small shared extraction / blocked on a
   primitive-backlog item), what got filtered out for needing genuine new ARIA
   (Toolbar, Menubar, Splitter, QR Code), and a suggested build order starting

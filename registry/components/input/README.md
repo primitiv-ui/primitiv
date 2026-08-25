@@ -76,7 +76,7 @@ The primary DX is the wrapper — a single `<Input>` over the headless
 - **`input.tsx`** — the wrapper. Because the styled `size` prop shares its name
   with the native `<input size>` attribute (typed `number`), the props type
   **`DistributiveOmit`s** `size` from the primitive props before intersecting the
-  `"xs" | … | "xl"` union in — a plain intersection would collapse `size` to
+  `"xs" | ... | "xl"` union in — a plain intersection would collapse `size` to
   `never`, and a non-distributive `Omit` would break the controlled /
   uncontrolled prop union on spread (D59). The omit is emitted automatically for
   every wrapper whose modifier prop names could shadow a native attribute.

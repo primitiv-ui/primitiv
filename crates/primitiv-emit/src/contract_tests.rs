@@ -34,6 +34,6 @@ fn the_recipe_binding_is_the_camelcased_component_name() {
 
 #[test]
 fn a_reserved_word_name_gets_a_recipe_suffix() {
-    // `export const switch = …` is a syntax error, so the binding disambiguates.
+    // `export const switch = ...` is a syntax error, so the binding disambiguates.
     assert_eq!(recipe_binding("switch"), "switchRecipe");
 }

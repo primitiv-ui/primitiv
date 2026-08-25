@@ -22,7 +22,7 @@ pub struct RegistryIndex {
 pub struct ComponentEntry {
     pub version: String,
     /// The siblings `add` must pull in alongside this component (§4.4). Absent
-    /// in the JSON means none, so a minimal `{ "version": … }` entry still
+    /// in the JSON means none, so a minimal `{ "version": ... }` entry still
     /// parses (the same forward-compatibility the `list`-facing fields rely on).
     #[serde(rename = "dependsOn", default)]
     pub depends_on: DependsOn,
@@ -100,7 +100,7 @@ pub struct DependsOn {
 /// `@primitiv-ui/react` too old to carry that component's exports (the skew that
 /// shipped a "has no exported member" error). Deserializes from either a bare
 /// string (`"@primitiv-ui/react"` → no pin) or an object
-/// (`{ "name": …, "version": "^0.1.0" }`), so existing string entries still parse.
+/// (`{ "name": ..., "version": "^0.1.0" }`), so existing string entries still parse.
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 #[serde(from = "PackageDepRepr")]
 pub struct PackageDep {

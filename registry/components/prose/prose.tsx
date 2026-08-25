@@ -15,7 +15,7 @@ export type ProseProps = ComponentPropsWithRef<"div"> &
   ProseVariants & {
     /**
      * Render the single child element instead of a wrapping <div>, merging the
-     * flow class onto it — e.g. `<Prose asChild><article>…</article></Prose>`.
+     * flow class onto it — e.g. `<Prose asChild><article>...</article></Prose>`.
      */
     asChild?: boolean;
   };
@@ -37,13 +37,13 @@ export type ProseProps = ComponentPropsWithRef<"div"> &
  * <Prose asChild>
  *   <article>
  *     <h1>Title</h1>
- *     <p>Body…</p>
+ *     <p>Body...</p>
  *   </article>
  * </Prose>
  *
  * // Long-form reading column, capped at the measure
  * <Prose measure asChild>
- *   <article>…</article>
+ *   <article>...</article>
  * </Prose>
  * ```
  *

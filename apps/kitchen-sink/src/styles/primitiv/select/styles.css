@@ -4,7 +4,7 @@
  * Copied into the consumer repo by `primitiv add select`. It is yours to edit:
  * the stable surface is the contract (the .primitiv-select control + __value /
  * __leading / __icon / __content / __item / __item-indicator / __item-leading /
- * __item-label / __item-trailing / __group / __group-label parts, the --xs…--xl
+ * __item-label / __item-trailing / __group / __group-label parts, the --xs...--xl
  * size modifiers, the --rich / --native mode modifiers, the content placement
  * modifiers, the aria-expanded / data-placeholder / data-state / aria-selected
  * hooks, and the --primitiv-select-* custom properties), not these values
@@ -165,7 +165,7 @@
   }
 
   /* The one part that actually holds overflowing text — clip it to the value's
-     available width so a long selection still ends in "…" (Figma's single-line
+     available width so a long selection still ends in "..." (Figma's single-line
      ending truncation) instead of a hard, unindicated cut once the row's own
      flex-shrink kicks in. */
   .primitiv-select__value .primitiv-select__item-label {

@@ -350,8 +350,8 @@ Structure (VERTICAL auto-layout, HUG, `itemSpacing = 0`):
 Table (Size × Borders axes)
   ├─ Caption        text node — Show Caption bool; Caption Side = top|bottom
   ├─ Head           Row instance (Section=head)        — 4 Header Cells
-  ├─ Row 1 … Row 4  Row instances (Section=body)       — 4 Cells each (always visible)
-  ├─ Row 5 … Row 8  Row instances (Section=body)       — Show Row 5–8 booleans
+  ├─ Row 1 ... Row 4  Row instances (Section=body)       — 4 Cells each (always visible)
+  ├─ Row 5 ... Row 8  Row instances (Section=body)       — Show Row 5–8 booleans
   └─ Footer         Row instance (Section=footer)      — Show Footer bool
 ```
 
@@ -384,7 +384,7 @@ script it.
   and `striped` so the drop-in shows the zebra pattern immediately; a designer
   flips them back to `default` if unwanted.
 - **`Show Row 5–8`** collapse to zero height when off (the prose 8-slot rule).
-- The top-level Table is the **default instance** target — `insertChild(0, …)`
+- The top-level Table is the **default instance** target — `insertChild(0, ...)`
   the `Size=md, Borders=horizontal` variant so it's the one Figma offers first.
 
 **ScrollArea** is documented only: wrap the Table in a frame with horizontal
@@ -403,13 +403,13 @@ both of these exist (use `figma-arrange-component-set` for layout + labels):
 One `"<Set> Grid Labels"` group per set (Khand SemiBold 11px,
 `content/primary` headers / `content/secondary` sub-labels):
 
-- **Table / Cell** — column headers `xs…xl`; rotated `START` / `END` align row
+- **Table / Cell** — column headers `xs...xl`; rotated `START` / `END` align row
   bands.
-- **Table / Header Cell** — column headers `xs…xl`; rotated align bands; per-row
+- **Table / Header Cell** — column headers `xs...xl`; rotated align bands; per-row
   `NONE / SORTABLE / ASC / DESC` sort labels.
 - **Table / Row** — labels for the 6 sparse variants (`HEAD`, `FOOTER`,
   `BODY · DEFAULT/STRIPED/HOVER/SELECTED`).
-- **Table** — column headers `xs…xl`; rotated `NONE / HORIZONTAL / GRID` border
+- **Table** — column headers `xs...xl`; rotated `NONE / HORIZONTAL / GRID` border
   bands.
 
 ### 7.2 Light + Dark example frame

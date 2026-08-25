@@ -156,7 +156,7 @@ pre-settled by the draft:
   scale, so it still pins `space-space-0` directly.
 - **`align`/`justify` are inline-style passthroughs, not modifier
   classes** — they're plain Flexbox keywords (`"center"`,
-  `"space-between"`, …), not design tokens, so there's no fixed enum to
+  `"space-between"`, ...), not design tokens, so there's no fixed enum to
   drive a `cva` variant from.
 
   **Reversed on human review (2026-07-28).** There *is* a natural finite set,

@@ -144,7 +144,7 @@ import { List } from "@/components/list";
 
 | File | Authored? | Role |
 |---|---|---|
-| `contract.json` | **authored** | The styling contract — the `.primitiv-list` root class, the `--unordered`/`--ordered`, `--no-marker`, `--indent` and `--xs…--xl` modifiers, the `.primitiv-list__item` part, and the `--primitiv-list-*` custom properties. |
+| `contract.json` | **authored** | The styling contract — the `.primitiv-list` root class, the `--unordered`/`--ordered`, `--no-marker`, `--indent` and `--xs...--xl` modifiers, the `.primitiv-list__item` part, and the `--primitiv-list-*` custom properties. |
 | `styles.css` | **authored** | The canonical default theme: the marker/counter machinery + type scale, in `@layer primitiv.base`/`primitiv.variants`, plus the disabled row in `primitiv.states`. |
 | `styles.scss` | **authored** | `styles.css` plus a trailing `$`-alias block, one `$primitiv-list-<prop>` per custom property. |
 | `list.recipe.ts` | **authored** | `cva("primitiv-list", { variants: { type, marker, indent, size } })`. |

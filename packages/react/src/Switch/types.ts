@@ -8,7 +8,7 @@ import { ChangeEventHandler, ComponentProps, ReactNode, Ref } from "react";
  *
  * Prop routing: `className` / `style` style the **track** (the visible
  * `<label>`, since the input is visually hidden); every other prop — `name`,
- * `value`, `id`, `aria-*`, `required`, `disabled`, `ref`, … — spreads onto the
+ * `value`, `id`, `aria-*`, `required`, `disabled`, `ref`, ... — spreads onto the
  * hidden `<input>`, because semantically the Root *is* the switch.
  */
 export type SwitchRootBaseProps = Omit<

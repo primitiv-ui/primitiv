@@ -80,7 +80,7 @@ export function DesignSystemTestExample() {
           <input
             className="ds-test__search"
             type="search"
-            placeholder="Search…"
+            placeholder="Search..."
           />
           <label className="ds-test__theme">
             <span className="ds-test__theme-label">

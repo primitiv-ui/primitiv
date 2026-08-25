@@ -138,19 +138,19 @@ and the direction of dependencies do.
 
 ```
 ┌──────────────────────────────────────────────────────────┐
-│ 6. Component        button, input, badge, card, tabs…    │
+│ 6. Component        button, input, badge, card, tabs...    │
 ├──────────────────────────────────────────────────────────┤
 │ 5. Interaction      hover · active · disabled · focus    │
 ├──────────────────────────────────────────────────────────┤
 │ 4. Anatomy          framed-control · label-control ·     │
 │                     nav-item · container                 │
 ├──────────────────────────────────────────────────────────┤
-│ 3. Role             typography (label/body/heading/…)    │
+│ 3. Role             typography (label/body/heading/...)    │
 ├──────────────────────────────────────────────────────────┤
 │ 2. Intent           action · surface · content ·         │
 │                     border · focus                       │
 ├──────────────────────────────────────────────────────────┤
-│ 1. Primitives       palette · size scale · font scale …  │
+│ 1. Primitives       palette · size scale · font scale ...  │
 └──────────────────────────────────────────────────────────┘
 ```
 
@@ -243,13 +243,13 @@ action.primary.{default, hover, active, disabled}
 action.primary.foreground.{default, disabled}
 action.primary.border.{default, hover, active, disabled}
 
-action.secondary.{…}
-action.secondary.foreground.{…}
-action.secondary.border.{…}
+action.secondary.{...}
+action.secondary.foreground.{...}
+action.secondary.border.{...}
 
-action.danger.{…}
-action.danger.foreground.{…}
-action.danger.border.{…}
+action.danger.{...}
+action.danger.foreground.{...}
+action.danger.border.{...}
 ```
 
 > Future: `action.success`, `action.warning`, `action.info` once palette
@@ -455,7 +455,7 @@ the ChatGPT v1 RFC's orthogonal axes and is justified by:
 Per‑component overrides remain possible. A component MAY define:
 
 ```
-button.size.md.height: {…override…}
+button.size.md.height: {...override...}
 ```
 
 These overrides are documented per component (§8.5). They exist for the
@@ -478,7 +478,7 @@ semantic.context.comfortable.typography.label.md
 semantic.context.comfortable.anatomy.framed-control.md.height
 semantic.context.spacious.typography.label.md
 semantic.context.dense.typography.label.md
-…
+...
 ```
 
 **Shape B — concern-as-root with mode-based override (one collection,
@@ -677,7 +677,7 @@ Resolution chain:
 button.primary.background.hover
   → action.primary.hover                            (intent)
   → palette.brand.600                               (primitive alias)
-  → #… (real hex, defined by Harmoni)               (primitive)
+  → #... (real hex, defined by Harmoni)               (primitive)
 
 button.size.md.anatomy.height
   → anatomy.framed-control.md.height                (anatomy role)
@@ -1283,7 +1283,7 @@ Concretely:
 2. Never delete by absence ("the manifest doesn't mention it, so
    remove it"). Deletes need an explicit operation name.
 3. Renames keep the same Figma node, so bindings survive. A "rename"
-   is `variable.name = …`, **not** `delete + create`.
+   is `variable.name = ...`, **not** `delete + create`.
 4. If a script can't find a variable it expects, it errors loudly and
    bails — it does not invent state.
 
@@ -1429,11 +1429,11 @@ this order:
 
 3. **Font‑weight binding — landed via `fontStyle`.** The Tier‑1
    console probe (run against the working Figma desktop on
-   2026‑05‑26) confirmed that `setBoundVariable('fontWeight', …)` is
+   2026‑05‑26) confirmed that `setBoundVariable('fontWeight', ...)` is
    a **silent no‑op** on the current Plugin API — the call returns
    without throwing, but the binding never appears in
    `style.boundVariables`. The supported alternative is
-   `setBoundVariable('fontStyle', …)` against a **STRING** variable
+   `setBoundVariable('fontStyle', ...)` against a **STRING** variable
    whose value is a font style name (`"SemiBold"`, `"Medium"`,
    `"Regular"`). The action now binds `fontStyle` against a parallel
    `font-style/*` STRING primitive group; the existing numeric
@@ -1489,6 +1489,6 @@ conversation, in code review, and in component READMEs.
 | `interaction.hover/active/disabled` | 5     | State opacity modifiers          |
 | `interaction.focus.ring`      | 5           | Focus ring geometry              |
 | `button.*`                    | 6           | Button wiring                    |
-| (future) `input.*`, `badge.*`, `card.*`, `tabs.*` | 6 | …    |
+| (future) `input.*`, `badge.*`, `card.*`, `tabs.*` | 6 | ...    |
 
 End.

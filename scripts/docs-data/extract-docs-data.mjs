@@ -72,7 +72,7 @@ const rootFiles = [
   ...propsFilesAbs.filter((f) => !parsed.fileNames.includes(f)),
 ];
 /*
- * …and it needs `paths` to resolve its imports. Module resolution runs from the
+ * ...and it needs `paths` to resolve its imports. Module resolution runs from the
  * FILE's directory, and `registry/components/<id>/` has no node_modules above
  * it, so `react` and `@primitiv-ui/react` both failed to resolve — which made
  * `ComponentPropsWithRef<"span"> & BadgeVariants` an error type with zero
@@ -164,7 +164,7 @@ const registryExports = existsSync(registryFile)
     )
   : null;
 
-/** Mirrors `partNamer("styled", …)` in the docs site — one spelling rule. */
+/** Mirrors `partNamer("styled", ...)` in the docs site — one spelling rule. */
 const styledName = (part) =>
   part === "Root" ? cfg.displayName : `${cfg.displayName}${part}`;
 

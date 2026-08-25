@@ -111,7 +111,7 @@ Intent collection 2026-07-02):
 
 Added 2026-07-01 for the ToggleGroup redesign (inset track + floating thumb); a
 reusable pattern for any "recessed well with a raised selected chip" (segmented
-controls, selected list rows, …).
+controls, selected list rows, ...).
 
 | Token | Light | Dark | Role |
 | ----- | ----- | ---- | ---- |

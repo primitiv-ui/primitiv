@@ -141,7 +141,7 @@
     {
       "name": "ratio",
       "default": "wide",
-      "description": "The carousel's aspect ratio, applied uniformly to every slide (and tracked by the thumbnail indicators). Re-points --primitiv-carousel-slide-aspect-ratio at the root; the vertical viewport's shape defaults to the same knob, so `ratio` shapes the slides in both orientations (square vertical slides, a widescreen vertical scroller, …). Override the knob directly for a bespoke value. (Per-slide ratios are a later revisit.)",
+      "description": "The carousel's aspect ratio, applied uniformly to every slide (and tracked by the thumbnail indicators). Re-points --primitiv-carousel-slide-aspect-ratio at the root; the vertical viewport's shape defaults to the same knob, so `ratio` shapes the slides in both orientations (square vertical slides, a widescreen vertical scroller, ...). Override the knob directly for a bespoke value. (Per-slide ratios are a later revisit.)",
       "options": [
         { "name": "square", "class": "primitiv-carousel--ratio-square", "description": "1:1 — a square slide." },
         { "name": "standard", "class": "primitiv-carousel--ratio-standard", "description": "4:3 — the classic photo ratio." },

@@ -82,14 +82,14 @@ adapters, hand-authored golden files, 100% coverage):
 - [x] **Rust CI + test harness** (RFC 0007 §7) — add `cargo test --workspace` + `cargo llvm-cov` gate (Rust runs in no workflow today); scaffold the `primitiv-emit` / `primitiv-cli` crates (lib + thin bin) and the port traits.
   - **Done (2026-06-10).** `crates/primitiv-cli` holds the `FileSystem` port + in-memory fake; `crates/primitiv-emit` is the pure emitter; `.github/workflows/rust.yml` runs `cargo test --workspace` and a `cargo llvm-cov --fail-under-lines 100` gate scoped to the CLI crates (`--exclude harmoni-core --exclude harmoni-wasm`, so new CLI crates fall under it automatically). 100% regions/lines/functions held throughout.
 - [x] **Token emitter** (RFC 0006 §4) — DTCG → CSS (canonical) / SCSS / Tailwind, the pure `primitiv-emit` crate (TS/JS dropped, D50). TDD with golden files from the existing `packages/tokens` fixtures. Both `tokens` and the example styles depend on it, so it goes first. Its output shape is fixed by **RFC 0008**: the `@layer primitiv` sublayer stack, no `!important`, and the two-tier token split (shared theme tokens once; per-component API tokens inside each component stylesheet) — bake both into the first golden file.
-  - **Done (CSS / SCSS / Tailwind) — CSS-canonical emit is done end-to-end** (`emit_tokens_css`): DTCG parse/flatten → category-aware number formatting → mode-aware flatten → `var()` alias linking → `:root` + `[data-theme]`/`[data-density]` scope blocks inside `@layer primitiv.tokens`, no `!important`. Proven against the real `packages/tokens` (all 1199 aliases linked, both axes scoped). The **SCSS serialiser** is also landed (`emit_scss` / `emit_tokens_scss`): the canonical CSS verbatim followed by `$primitiv-*` variables resolving to the custom properties (deduped across mode scopes), the thinnest adapter over the CSS (RFC 0006 §4.2). The **two-tier per-component split** is landed too (`emit_component_css` / `emit_component_tokens_css`): a `.primitiv-<name>` block of `--primitiv-<name>-<part>` API tokens emitted inside the component's own stylesheet in `@layer primitiv.base` (not the shared file), with alias values linked to `var()` references (RFC 0008 §3.2). The **`primitiv.theme` overrides layer** is landed (`emit_theme_css` / `emit_theme_overrides_css`): paired light + dark brand overrides emitted as a separate file in `@layer primitiv.theme` (above `primitiv.tokens`, no sublayer declaration), so a re-skin beats the base palette by layer order (RFC 0006 §5 / RFC 0008 §5). The **Tailwind v4 serialiser** is landed (`emit_tailwind` / `emit_tailwind_tokens`): a `@theme` preset mapping the shared surface (once per name, deduped across modes) onto Tailwind's namespaces (`space`→`spacing`, `font-size`→`text`, …) as `var()` references, so utilities resolve the custom properties and a mode ancestor re-skins them (RFC 0006 §4.2 / RFC 0009 §4.2). A **TS/JS serialiser** was originally landed but has since been **dropped (D50)** — it inlined values rather than emitting `var()` references, so it could not lean on the cascade to resolve theme/density, and the mode-varying tokens it blocked on are exactly the ones that must not be frozen into JS; `emit_ts` / `emit_ts_tokens` and the inlining resolvers (`resolve_aliases` / `resolve_against_base`) that served only it were removed. **The three cascade-based formats (CSS / SCSS / Tailwind) are the supported set.** The `@custom-variant dark` remap stays a CLI `add`-wiring concern (RFC 0009 §4.2). The remaining emitter-adjacent work is the `primitiv theme` brand→palette computation that feeds the override docs (separate item below).
+  - **Done (CSS / SCSS / Tailwind) — CSS-canonical emit is done end-to-end** (`emit_tokens_css`): DTCG parse/flatten → category-aware number formatting → mode-aware flatten → `var()` alias linking → `:root` + `[data-theme]`/`[data-density]` scope blocks inside `@layer primitiv.tokens`, no `!important`. Proven against the real `packages/tokens` (all 1199 aliases linked, both axes scoped). The **SCSS serialiser** is also landed (`emit_scss` / `emit_tokens_scss`): the canonical CSS verbatim followed by `$primitiv-*` variables resolving to the custom properties (deduped across mode scopes), the thinnest adapter over the CSS (RFC 0006 §4.2). The **two-tier per-component split** is landed too (`emit_component_css` / `emit_component_tokens_css`): a `.primitiv-<name>` block of `--primitiv-<name>-<part>` API tokens emitted inside the component's own stylesheet in `@layer primitiv.base` (not the shared file), with alias values linked to `var()` references (RFC 0008 §3.2). The **`primitiv.theme` overrides layer** is landed (`emit_theme_css` / `emit_theme_overrides_css`): paired light + dark brand overrides emitted as a separate file in `@layer primitiv.theme` (above `primitiv.tokens`, no sublayer declaration), so a re-skin beats the base palette by layer order (RFC 0006 §5 / RFC 0008 §5). The **Tailwind v4 serialiser** is landed (`emit_tailwind` / `emit_tailwind_tokens`): a `@theme` preset mapping the shared surface (once per name, deduped across modes) onto Tailwind's namespaces (`space`→`spacing`, `font-size`→`text`, ...) as `var()` references, so utilities resolve the custom properties and a mode ancestor re-skins them (RFC 0006 §4.2 / RFC 0009 §4.2). A **TS/JS serialiser** was originally landed but has since been **dropped (D50)** — it inlined values rather than emitting `var()` references, so it could not lean on the cascade to resolve theme/density, and the mode-varying tokens it blocked on are exactly the ones that must not be frozen into JS; `emit_ts` / `emit_ts_tokens` and the inlining resolvers (`resolve_aliases` / `resolve_against_base`) that served only it were removed. **The three cascade-based formats (CSS / SCSS / Tailwind) are the supported set.** The `@custom-variant dark` remap stays a CLI `add`-wiring concern (RFC 0009 §4.2). The remaining emitter-adjacent work is the `primitiv theme` brand→palette computation that feeds the override docs (separate item below).
 - [x] **`primitiv theme`** (RFC 0006 §5) — link `harmoni-core`; brand → palette → token overrides; emit light + dark token sets.
   - **Done (CSS-canonical, brand → paired overrides).** `harmoni-core` is linked
     natively into `primitiv-emit`: a new `api::generate_brand_pair` encapsulates
     the system default theme curves (`TARGET_LIGHTNESS` / `TARGET_LIGHTNESS_DARK`),
     so the adapter passes only the brand. `emit_theme_brand_css(brand)` derives a
     contrast-checked paired light + dark palette, maps each side's ramp to
-    `--primitiv-color-brand-50…900` tokens (`theme::brand_tokens`), and serialises
+    `--primitiv-color-brand-50...900` tokens (`theme::brand_tokens`), and serialises
     them into the `primitiv.theme` layer — light sharing `:root,
     [data-theme="light"]`, dark in `[data-theme="dark"]` — reusing the existing
     `emit_theme_css` surface. Step 500 is the brand byte-for-byte on both sides;
@@ -114,8 +114,8 @@ adapters, hand-authored golden files, 100% coverage):
     contract: the `data-*` half (`data-disabled`, `source: "auto"`) is
     drift-guarded against the rendered headless `Button` by a `packages/react`
     test (`Button.contract.test.tsx`) so it cannot drift from what the component
-    emits; the authored half (`.primitiv-button` root class, `--primary…--link` /
-    `--xs…--xl` modifiers, the `--primitiv-button-*` custom-property API incl.
+    emits; the authored half (`.primitiv-button` root class, `--primary...--link` /
+    `--xs...--xl` modifiers, the `--primitiv-button-*` custom-property API incl.
     typography) is hand-written. The React package is **untouched** (stays
     headless — root/part class *emission* is parked for the `add`-wiring
     increment, options sketched: generated local wrapper vs provider vs
@@ -439,7 +439,7 @@ adapters, hand-authored golden files, 100% coverage):
 
 ## 🎞️ Motion tokens — landed (code-only DTCG, not Figma-synced)
 
-The full motion scale — durations (`0…1000` ms), the four `cubic-bezier` easings,
+The full motion scale — durations (`0...1000` ms), the four `cubic-bezier` easings,
 and the semantic `motion.duration` / `motion.easing` layer — lives in
 `packages/tokens/src/motion.json`, a **code-only DTCG document**: hand-authored,
 emitted into the token layer like the other base files, but with **no Figma
@@ -461,7 +461,7 @@ can't wipe it — the reason easings/durations live here and not in `primitives.
 / `interaction.json` (which a backup *would* clobber). The CLI embeds it as a
 mode-independent base source alongside `primitives` + `interaction`. If motion ever
 needs a Figma presence, easings would have to become `STRING` vars holding the CSS
-`cubic-bezier(…)` string (carried by the emitter's string passthrough).
+`cubic-bezier(...)` string (carried by the emitter's string passthrough).
 
 ## 🛋️ Elevation / shadow tokens — landed (web + Figma) (RFC 0017)
 
@@ -472,7 +472,7 @@ alphas) and a semantic `elevation.*` depth hierarchy
 `packages/tokens/src/elevation.json`, a code-only base DTCG document embedded by
 the CLI alongside `primitives` / `interaction` / `motion`. The emitter gained a
 DTCG **`shadow` composite** (`value.rs::format_shadow`, `dtcg.rs::shadow_layers`,
-and a generalised `alias.rs::link_aliases` that resolves *every* embedded `{…}`).
+and a generalised `alias.rs::link_aliases` that resolves *every* embedded `{...}`).
 Geometry **aliases the existing `space.*` scale**, so shadows emit in `rem` and
 only the 3 colours are new. Adopted on **Button** (flat→raised hover lift) and the
 **Switch thumb** (`shadow.1`). Workbench specimen at `/elevation`.
@@ -492,7 +492,7 @@ being retired in favour of backing variables up as-you-go. So **no `elevationSpe
 - [x] **`Elevation` COLOR collection** — 3 `shadow/color/{strong,medium,soft}`
   variables (black at ~8/6/4%), created via the bridge.
 - [x] **Effect styles — the full set (10), not just 6.** The raw ramp
-  `shadow/1…shadow/5` *and* the semantic `elevation/{flat,raised,overlay,floating,modal}`,
+  `shadow/1...shadow/5` *and* the semantic `elevation/{flat,raised,overlay,floating,modal}`,
   every layer's `offsetX/offsetY/radius/spread` bound to `space/*` and colour to
   `shadow/color/*`. The full ramp was authored (not the 6 in §5) so the Switch
   thumb can reference a named `shadow/1` style and so Figma mirrors the token system
@@ -542,7 +542,7 @@ alpha**: the gradient stops bind `color/transparent` (a=0) and
 `opacity` bound to an `opacity/*` primitive (`opacity/50|70|90` for its three
 strengths). In Figma a bound gradient stop adopts that variable's own alpha, so
 this split is what makes a token-only gradient possible at all; in CSS the same
-split is `color-mix(in srgb, var(--primitiv-color-absolute-black) …%,
+split is `color-mix(in srgb, var(--primitiv-color-absolute-black) ...%,
 var(--primitiv-color-transparent))`. If `scrim` were re-expressed the same way
 (`absolute-black` × `opacity/50`) it would stay theme-static, lose the hardcoded
 `#00000080`, and need no second alpha ramp. Not done here — `scrim` is consumed
@@ -724,7 +724,7 @@ marks (PR #206), in three parts:
   `registry.json` + the `EmbeddedRegistry`, and each has a `data-*` contract guard in
   `packages/react`. **Divider** is a single element styling off `aria-orientation`
   (no class modifier). **Table** is a structural compound (root + 8 part wrappers)
-  with an `--xs…--xl` type-scale modifier; cell padding stays density-driven via the
+  with an `--xs...--xl` type-scale modifier; cell padding stays density-driven via the
   `table/cell/padding-*` Context tokens (size ≠ density), with hover (auto) and
   `aria-selected` row hooks. No CLI/emit *logic* changed for these (D54 holds — they
   are registry data + drift guards only). Outstanding on the branch: real-browser
@@ -761,9 +761,9 @@ XPrimitiveProps`. That is a hard TypeScript error (TS2312) whenever the primitiv
 props are a controlled/uncontrolled **union** — an `interface` can only extend an
 object type or an intersection of object types, not a union — and the broken type
 silently dropped inherited members like `children`. It surfaced first on `Tabs`
-(`TabsRootProps` is `… & (Uncontrolled | Controlled)`) but `Switch` shared the latent
+(`TabsRootProps` is `... & (Uncontrolled | Controlled)`) but `Switch` shared the latent
 bug. The no-modifier branch already side-stepped it with a plain `type` alias; the
-fix makes the modifier branch emit `type XProps = XPrimitiveProps & { … }` too, so
+fix makes the modifier branch emit `type XProps = XPrimitiveProps & { ... }` too, so
 **every** generated component is a `type` intersection. Intersection distributes over
 the union (`(A | B) & M` = `(A & M) | (B & M)`), preserving `children` and the
 discriminated controlled/uncontrolled shape. The registry `.tsx` files are
@@ -778,7 +778,7 @@ behind D57: `TabsRootProps` derived from `ComponentProps<"div">`, which carries
 `TabsImperativeApi` handle. Using `<Tabs.Root>` directly was fine (the component
 type strips and re-adds the ref), but the styled wrapper spreads the **raw**
 `TabsRootProps` back in (`<Tabs.Root {...props} />`), and the `HTMLDivElement` vs
-`TabsImperativeApi` ref types collide. Fix: `Omit<…, "onChange" | "ref">` on the
+`TabsImperativeApi` ref types collide. Fix: `Omit<..., "onChange" | "ref">` on the
 root props (any future imperative-handle component needs the same). `Button` and
 `Switch` are unaffected — their refs are the real `HTMLButtonElement`. The
 **root cause of both D57 and D58 is the same**: the generated wrappers were
@@ -793,10 +793,10 @@ ref mismatch at the spread), so no consumer fixture is needed.
 derived with `ComponentPropsWithRef<typeof Primitive>` (D59).** The invariant a
 consumer can rely on: choosing the styled component over the raw
 `@primitiv-ui/react` one changes **nothing** about the API except the added
-convenience props (`variant`, `size`, `justify`, …). The generator no longer
+convenience props (`variant`, `size`, `justify`, ...). The generator no longer
 imports a named `XPrimitiveProps` type; it derives each wrapper's props from the
 part component itself — `type XProps = ComponentPropsWithRef<typeof Primitive> &
-{ …conveniences }` — and the wrapper's existing `{...props}` spread forwards the
+{ ...conveniences }` — and the wrapper's existing `{...props}` spread forwards the
 `ref`. `ComponentPropsWithRef` yields *exactly* the props a consumer passes to
 the headless part, with the **correct** ref per pattern: the imperative handle
 for `Tabs.Root` (`forwardRef`), the DOM node for `Button` / `Switch.Root` /
@@ -863,14 +863,14 @@ nothing extra to do — the contract drives it; just keep convenience props as t
   `{ l, c, h }` / `Palette` contract the rebuild consumes.
 - **Component-level JSDoc on the generated styled wrappers (future session).**
   Today the generator emits a JSDoc block (the contract `description` + `@see`)
-  on the `export type …Props`, and **per-prop** JSDoc already flows through on
+  on the `export type ...Props`, and **per-prop** JSDoc already flows through on
   hover because the props are `ComponentPropsWithRef<typeof Primitive>` (e.g.
   hovering `label` on `<TabsList>` shows the headless prop's docs — D59). What's
   missing is a JSDoc block on the **`export function`** itself, so hovering the
   *component* (`<Tabs>`) surfaces its usage docs. The goal (raised after a
   consumer was caught out by `Tabs.List`'s required `label`): on hover of a
   styled component, show the **styling props first** (`variant`, `size`,
-  `justify`, … — the contract `modifiers`), then the headless component's own
+  `justify`, ... — the contract `modifiers`), then the headless component's own
   rich JSDoc (examples, keyboard tables, a11y notes). **Open design question —
   where the headless prose comes from:** it lives in the react *source*, not in
   `contract.json`, so the options are (a) embed/sync a `jsdoc` field into the
@@ -909,7 +909,7 @@ One component at a time.
 | `divider` | ✅ **audited, one bug fixed.** Colour (`border/subtle` → `#bcc2cb`), 1px thickness, orientation axis and zero radius all match exactly. **Bug:** the component baked in `margin-block`/`margin-inline: space/16`, which Figma does not specify at all — its `Divider` is a bare 1px rule and all ~30 instances across the layout mockups take separation from the **parent auto-layout `itemSpacing`** (0 / 32 / 48 / 56, i.e. contextual *and* density-dependent). The baked margin double-spaced in gap containers (measured **32px** in the kitchen-sink's own demo: 16 gap + 16 margin, no collapsing in flex), couldn't reach 0, and couldn't track density. Spacing now defaults to `space/0`; the knob stays for block-flow contexts. Two non-bugs recorded in the README: thickness resolves via `border-width/1` not Figma's `size/size-1` (identical 1px — token-family choice), and the vertical rule's `display: inline-block` computes to `block` under flex blockification (kept for inline flow). |
 | `list` | ✅ **audited, one bug fixed.** Marker colour (`list/marker/foreground` → `neutral-700` → `#363a3f`) exact; `list/item-gap`, `marker-gap` and `indent` all track density exactly (8/8/28 comfortable, 4/8/24 compact, 2/4/16 dense, 12/12/32 spacious); type scale 12/14/16/20/22 × 16/20/24/32/36 across xs→xl exact; markers `•` / `counter() "."`; disabled opacity 0.5. **Bug:** `primitiv.reset`'s `li + li { margin-block-start: list/item-gap }` stacked on the container's flex `gap` — same token both sides, margins don't collapse in flex — so **every gap rendered at 2×** (measured 4/8/16/24 vs a 2/4/8/12 token). Because it stayed proportional it read as a deliberately airy list, not a bug. `.primitiv-list__item` now zeroes `margin-block`. This also made the README's "web rows sit `list/item-gap` apart" claim true — it wasn't before. Confirmed platform differences: `align-items: baseline` vs Figma's MIN (baseline is correct for wrapped items), and `Show Item 5–8` slot booleans (HTML takes arbitrary children). The unbound 2px `ListItem` block padding was already a recorded deliberate difference and still is. **Figma cleanup:** a second, stale `List` component set (`584:6570` — `Type` only, 2 variants, hardcoded `itemSpacing: 4`, zero instances anywhere, and the one throwing "Component set has existing errors") was **deleted** with the human's approval; `586:7300` is now the only `List` set. Bridge gotcha: after `.remove()`, `node.removed` still read `false` and `getNodeByIdAsync` still resolved the node — the authoritative checks are `node.parent === null` plus a document-wide `findAllWithCriteria` enumeration. |
 | `figure` | ✅ **audited clean** (one latent pin hardened). Every binding exact: caption `content/muted` `#6f747b`, overlay caption `content/inverse` `#ebebeb`, overlay scrim `surface/inverse` `#202328` **opaque**, media `radii/8` + clip, type scale 12/14/16/20/22 × 16/20/24/32/36, `align` start/center/end, and `figure/caption-gap` tracking density (4/8/12/16) as *both* the below/above gap **and** all four sides of the overlay caption's padding — exactly as Figma binds it. Overlay verified against the old black-strip regression: in a stretched flex row beside a 260px sibling the figure grows to 260 but the caption's bottom stays flush with the media's (offset 0). **Hardened:** the caption didn't declare `font-weight`, so it sat on the reset's `body/sm` while family/size/line-height tracked `size` — invisible today since every step resolves to `regular`, but a latent pin; now a `--primitiv-figure-font-weight` knob across all 5 sizes. Documented platform differences: the caption's bottom corners carry `radii/8` (Figma's caption is square and clipped by the parent Media frame, which a DOM *sibling* can't be), and `Show Caption` is a Figma slot mechanism. |
-| `pull-quote` | ✅ **audited clean.** Every binding exact at comfortable: quote `heading/{h5…h1}` in Khand SemiBold at 24/28/32/40/48 × 32/36/40/48/56, `content/primary` `#121418`; mark `content/muted` `#6f747b` at 18/22/28/32/38 — **all five per-size `calc()` ratios match Figma to 4dp** (0.75 / 0.7857 / 0.875 / 0.8 / 0.7917), as do all five mark↔quote gaps (8/8/12/16/20). Centred both axes, `marks` covered by a prop + `data-marks`. Documented platform differences: the 480px width **and** its 24px padding stay deferred until `Container` (both unbound literals; the padding is that card's gutter, not a typographic decision), and — newly written up — **Figma's mark is a fixed vector per Size with nothing bound, so it does not track density**, while the `calc()` here holds the ratio constant in all four modes (md = 0.875 at 16/26/32/52). **Flagged, not changed:** code defaults `marks={false}`, Figma's `Marks` defaultValue is `with` — but Figma variant defaults are unreliable in this file (`defaultVariant` is read-only; `Size` defaults to `xs`, which is certainly not intended), so this needs a human call, not an inference. **Observation, not a bug:** the `heading/*` ramp compresses to 13–18px at `dense` and expands to 20–88px at `spacious`; code and Figma agree exactly in all four modes, so it's the deliberate design — but an `xl` pull quote at `dense` is 18px, barely above body. Any change belongs to the heading scale system-wide. |
+| `pull-quote` | ✅ **audited clean.** Every binding exact at comfortable: quote `heading/{h5...h1}` in Khand SemiBold at 24/28/32/40/48 × 32/36/40/48/56, `content/primary` `#121418`; mark `content/muted` `#6f747b` at 18/22/28/32/38 — **all five per-size `calc()` ratios match Figma to 4dp** (0.75 / 0.7857 / 0.875 / 0.8 / 0.7917), as do all five mark↔quote gaps (8/8/12/16/20). Centred both axes, `marks` covered by a prop + `data-marks`. Documented platform differences: the 480px width **and** its 24px padding stay deferred until `Container` (both unbound literals; the padding is that card's gutter, not a typographic decision), and — newly written up — **Figma's mark is a fixed vector per Size with nothing bound, so it does not track density**, while the `calc()` here holds the ratio constant in all four modes (md = 0.875 at 16/26/32/52). **Flagged, not changed:** code defaults `marks={false}`, Figma's `Marks` defaultValue is `with` — but Figma variant defaults are unreliable in this file (`defaultVariant` is read-only; `Size` defaults to `xs`, which is certainly not intended), so this needs a human call, not an inference. **Observation, not a bug:** the `heading/*` ramp compresses to 13–18px at `dense` and expands to 20–88px at `spacious`; code and Figma agree exactly in all four modes, so it's the deliberate design — but an `xl` pull quote at `dense` is 18px, barely above body. Any change belongs to the heading scale system-wide. |
 | `code-block` | ✅ **audited, one bug fixed.** **Bug:** the type scale was `code.<size>`; Figma binds **`body.<size>`** — verified at the binding level on `601:9607` (Code, Gutter *and* filename all bind `fontSize`/`lineHeight` to `body.<size>`, only `fontFamily` to `font-family/mono`; nothing in the set touches `code.<size>`). Every block rendered a full step small — 13px vs 16px at md/comfortable, 2–4px low across xs–xl, line-height 20 vs 24. The old justification was also factually wrong: it claimed `body/*` isn't density-scoped, and it is. This makes `code.<size>` **inline-code's alone** — the split is deliberate (inline code sits inside body text where mono reads optically larger, so it steps down; a block is standalone, so it takes the body size straight — same reason Kbd binds `body.<size>`). Everything else exact: `surface/subtle` `#d3dae3`, `border/subtle` `#bcc2cb` 1px, `radii/8`, `code/padding` on both the pre and the gutter gap, `space/8` header block padding + `code/padding` inline, `content/secondary` filename, `content/muted` gutter, `content/primary` code, JetBrains Mono. The **tabbed** `Type` is fully implemented and exact — header padding-block zeroed so the tablist owns the top breathing room (8/8/12/12/16 by size), the header's 1px bottom border kept as the ink-bar baseline, and the borrowed tablist's own border suppressed so the baseline isn't doubled. `COPY_SIZE` = xs→xs, sm→xs, md→sm, lg→md, xl→lg, matching Figma's stepping rule exactly. Platform difference: Prism syntax colours via 7 registry-only `--primitiv-code-syntax-*` roles — Figma is deliberately single-colour ("syntax highlighting is the consuming tooling's job"). **Flagged:** `contract.json` declares `subcomponents: []` although the stylesheet header claims the contract covers the `__header`/`__filename`/`__copy`/`__pre`/`__line`/`__ln` parts. |
 
 ### The reset-leak bug class — closed, with a standing check
@@ -951,7 +951,7 @@ margin (the two menu separators). **Two harness lessons worth keeping:**
 
 - A first pass probing each part inside a bare `<ul>` reported **13 of 20**
   leaking. All false: a rule scoped to the component's own container
-  (`.primitiv-breadcrumb__list > …`) can't fire without that ancestor. Build the
+  (`.primitiv-breadcrumb__list > ...`) can't fire without that ancestor. Build the
   real nesting from `contract.json`.
 - The two menu separators still flagged, because their own
   `dropdown/separator-spacing` happens to equal `list/item-gap` (8px) at
@@ -1034,7 +1034,7 @@ properties their stylesheet **consumes but never declares** —
 **Context tokens that share the component's name prefix**, supplied by the token
 layer, and each is listed in the component's `contract.json`. The generator only
 scans declarations, so it would not emit them. Either `emit_component_scss` should
-also scan `var(--primitiv-<component>-…)` usages, or those three files are
+also scan `var(--primitiv-<component>-...)` usages, or those three files are
 over-exposing tokens the token layer already provides. Deleting them would narrow a
 published contract, so the check allows the extra aliases (order and body still
 enforced) and says so out loud. Whoever settles it should empty that list.
@@ -1087,7 +1087,7 @@ Cheapest wins in the queue.
 |---|---|
 | ~~`kbd`~~ | ✅ **audited, one gap closed.** The split scale is confirmed at the binding level — `fontSize` → `body.<size>`, `lineHeight` → `code.<size>` — matching this build exactly at all 5 sizes (12/14/16/20/22 × 16/18/20/24/28). Colours/geometry exact: `surface/raised` `#e5ecf6`, `border/default` `#a8aeb6` 1px, `radii/4`, `content/primary`, JetBrains Mono. **Gap closed:** `font-weight` was never declared, so a cap inside a `<strong>` rendered at **700** where Figma binds Regular at every size (measured 700 → 400). **New fact on the known padding difference:** `primitiv.reset` dresses a bare `<kbd>` with the *fixed* `space-4`/`space-2`, matching Figma rather than the component's density-scaled `code/inline/padding-*` — so at Dense the component pads 3/1 while a bare `<kbd>` pads 4/2, and at Spacious 6/3 against 4/2. The same cap renders two ways on one page depending on the class. The already-noted Figma rebind should come with a matching reset change so all three agree. **Observation:** the web box is +1px at `sm`/`lg` only — an inline element's box height comes from font metrics, not `line-height`, and a CSS border adds where Figma's INSIDE stroke doesn't; the two nearly cancel. Not worth chasing (making it `inline-block` would make it worse, +2px, and would let the cap inflate the prose line box). |
 | ~~`blockquote`~~ | ✅ **audited clean — no change needed.** All three earlier fixes confirmed by measurement. Axes `Tone × Citation × Size` = 20 all covered (`Citation=without` is the absent `cite` prop). Quote **and** citation share one scale at every size — 12/16, 14/20, 16/24, 20/32, 22/36 — exactly Figma's `body.<size>` on both nodes, so D12's "one size axis" holds and the `lg`/`xl` inversion is gone. `quote/body-gap/{size}` = 4/4/8/12/16 exact **and density-invariant** as specified, while `quote/padding-inline` densifies 12/16/20/24. Bar is 3px on the inline-start edge only (other three 0), `border/strong` `#6f747b` / accent `border/focus` `#236ce1`. Quote `content/secondary` `#363a3f`, citation `content/muted` `#6f747b`, Asta Sans, weight 400 both. **The citation is genuinely upright** — `font-style: normal` *and* `transform: none` *and* `display: block`, probed on `transform` because `font-style` alone reports a false pass against the reset's synthetic oblique — end-aligned and full width (width delta 0 against the quote). |
-| ~~`description-list`~~ | ✅ **audited clean — no code change.** Both parts on `body.<size>` at all 5 sizes (12/16 … 22/36), so the earlier "`size` inert on both parts" bug is confirmed fixed. Term is **SemiBold (600) at every size *and* density**, matching Figma's pin to the `font-style/semibold` primitive rather than `body.<size>.font-style`; detail is 400. Both `content/primary` `#121418` — the reset's `content/secondary` on `dd` is correctly overridden — and the reset's `dd` `margin-inline-start` measures 0. Stacked rhythm is uniform (term→detail == detail→term) and tracks `row-gap` 1/1/2/3; indent 12/12/16/20; inline is a `max-content 1fr` grid with `column-gap` 16/20/24/32 and `row-gap` = `list/item-gap` 2/4/8/12, detail end-aligned and flush to the right edge (delta 0). **The hand-patched `tokens.css` was verified faithful to `context.json` across all four density blocks** (cargo is unavailable in-sandbox, so it was patched by hand). `align-items: start` vs Figma's pair `CENTER` is the pre-existing documented deviation (identical for single-line, correct for a wrapped detail). **Figma gap found — see the Figma batch below:** the whole `description-list/*` Context family is **absent from Figma's Context collection**, so `row-gap`, `column-gap` and `details-indent` are hardcoded literals there (2 / 24 / 16) that merely happen to equal the code's *comfortable* values. The inline row gap is the one that *is* bound (`list/item-gap`), which is what makes the omission look like an unfinished code-first token addition rather than a decision. |
+| ~~`description-list`~~ | ✅ **audited clean — no code change.** Both parts on `body.<size>` at all 5 sizes (12/16 ... 22/36), so the earlier "`size` inert on both parts" bug is confirmed fixed. Term is **SemiBold (600) at every size *and* density**, matching Figma's pin to the `font-style/semibold` primitive rather than `body.<size>.font-style`; detail is 400. Both `content/primary` `#121418` — the reset's `content/secondary` on `dd` is correctly overridden — and the reset's `dd` `margin-inline-start` measures 0. Stacked rhythm is uniform (term→detail == detail→term) and tracks `row-gap` 1/1/2/3; indent 12/12/16/20; inline is a `max-content 1fr` grid with `column-gap` 16/20/24/32 and `row-gap` = `list/item-gap` 2/4/8/12, detail end-aligned and flush to the right edge (delta 0). **The hand-patched `tokens.css` was verified faithful to `context.json` across all four density blocks** (cargo is unavailable in-sandbox, so it was patched by hand). `align-items: start` vs Figma's pair `CENTER` is the pre-existing documented deviation (identical for single-line, correct for a wrapped detail). **Figma gap found — see the Figma batch below:** the whole `description-list/*` Context family is **absent from Figma's Context collection**, so `row-gap`, `column-gap` and `details-indent` are hardcoded literals there (2 / 24 / 16) that merely happen to equal the code's *comfortable* values. The inline row gap is the one that *is* bound (`list/item-gap`), which is what makes the omission look like an unfinished code-first token addition rather than a decision. |
 | ~~`table`~~ | ✅ **audited — one rule fixed, four missing axes flagged.** What matches exactly: cell type `body.<size>` at all 5 sizes, header weight 600 from Figma's `font-style/semibold` pin, caption **size-invariant** at `body/sm` (11/14/14/14 by density — Figma binds `body/sm` on every Size variant), `table/cell/padding-*` 8/4 · 12/8 · 16/12 · 20/16, head rule `border/strong` `#6f747b` bottom, body rule `border/subtle` `#bcc2cb` bottom, selected row `table/row/selected` `#cbe5ff`, cell + header `content/primary`, caption `content/muted`, `border-collapse: collapse`. **Fixed:** the **footer had no rule at all**. Verified at the node level rather than from the description — the Figma Row frames carry no strokes; each has a `Bottom Border` rectangle whose constraint picks the edge, and head/body pin to `vertical: MAX` while **footer pins to MIN (top)** in `border/strong`. Added `--primitiv-table-footer-rule-color` plus a leading-edge rule that also sheds the base cell's trailing rule (Figma draws nothing below a footer). `Table.Footer` exists in the headless layer but is neither styled-for nor demoed, which is why this went unnoticed. **Four axes Figma has and the code does not — real feature work, needs scoping:** `Table.Borders` none\|horizontal\|grid (the code always draws horizontal rules and never vertical ones; `Cell.Right Border` is the grid half), `Cell.Align` start\|center\|end (hardcoded `text-align: start`), `HeaderCell.Sort` none\|sortable\|ascending\|descending (absent entirely, including the icon sized 0.8× the label — 10/11/13/16/18 — and `content/muted` vs `content/primary` per state), and (at the time) `Row.State=striped`, where **`table/row/stripe` was emitted in both themes and referenced zero times** — the clearest sign a token landed and the wiring never did. **Striping is now implemented** on the human's call: a `rows="plain" | "striped"` prop driving a `:nth-child(even)` zebra, so it's table-level rather than Figma's per-row state. It sits in `primitiv.variants` while hover/selected sit in the later `primitiv.states`, so interaction still beats banding — proven on a row that is *both* even and `aria-selected` (the first version of that test used an odd row, where the stripe rule never applies, and proved nothing). It is an **enum, not a boolean**, because `emit_part` writes `defaultVariants` values quoted and a cva boolean variant needs an unquoted `false` — the generator cannot emit a valid boolean modifier today, which is why no generated component has one and `list`'s `indent` lives in a hand-authored recipe. The kitchen-sink demo now also renders a `<TableFooter>` totals row, since nothing exercised `<tfoot>` before. **Also found:** the demo already hand-rolls `Align` and `Sort` with local `ks-table__*` classes, so both remaining axes have proven need and existing styling to promote. |
 
 Also fold in the agreed **`inline-code` `font-weight`** hardening here — it is the
@@ -1099,7 +1099,7 @@ dresses directly. Ordered by exposure.
 
 | Component | Reset-dressed elements | Figma surface |
 |---|---|---|
-| ~~`breadcrumb`~~ | ✅ **audited clean — no change needed.** The best-matched component so far. Every binding exact: link `content/muted` `#6f747b`, current page `content/primary` `#121418`, separator `content/muted`, all three parts on `body.<size>` (12/16 … 22/36), Asta Sans weight 400 in both states — Figma carries no weight difference, colour alone marks the current page. Separator icon resolves `breadcrumb/<size>/icon-size` at 14/16/20/20/24 (comfortable), densifying 12/16/20/20 at md, matching Figma's binding on both width *and* height. The trail gap is a flat `4px` at every size **and** every density, matching Figma's unbound literal `4` — the stylesheet comment already says so. The reset's `li + li` margin is neutralised (measured `0px`) by a `.primitiv-breadcrumb li` rule that outspecifies it inside the same `primitiv.reset` layer. List markers, UA margin and padding all zeroed. The two code-only additions — the muted→primary hover lift with an always-present transparent underline (so revealing it is a colour transition, not a reflow) and the `:focus-visible` ring — are interaction affordances Figma's `link\|current` axis can't express, and the README already documents both. |
+| ~~`breadcrumb`~~ | ✅ **audited clean — no change needed.** The best-matched component so far. Every binding exact: link `content/muted` `#6f747b`, current page `content/primary` `#121418`, separator `content/muted`, all three parts on `body.<size>` (12/16 ... 22/36), Asta Sans weight 400 in both states — Figma carries no weight difference, colour alone marks the current page. Separator icon resolves `breadcrumb/<size>/icon-size` at 14/16/20/20/24 (comfortable), densifying 12/16/20/20 at md, matching Figma's binding on both width *and* height. The trail gap is a flat `4px` at every size **and** every density, matching Figma's unbound literal `4` — the stylesheet comment already says so. The reset's `li + li` margin is neutralised (measured `0px`) by a `.primitiv-breadcrumb li` rule that outspecifies it inside the same `primitiv.reset` layer. List markers, UA margin and padding all zeroed. The two code-only additions — the muted→primary hover lift with an always-present transparent underline (so revealing it is a colour transition, not a reflow) and the `:focus-visible` ring — are interaction affordances Figma's `link\|current` axis can't express, and the README already documents both. |
 | `navigation-menu` | `li`, `ul` | 5 sets, 150v |
 | `accordion` | `h3` | Accordion 20v + Item 40v |
 | `modal` | `h2`, `p` | 4 sets, 16v |
@@ -1422,7 +1422,7 @@ visibility, pagination) was already available and stays outside the component.
    `gutter={n}` and renders one empty `<td colSpan={n}>` in front of the panel,
    spanning the control columns, so the browser's table layout resolves the
    width. The CSS alternative — summing control widths and paddings by hand —
-   was built first and measured **7-21px out across xs…xl**, because the checkbox
+   was built first and measured **7-21px out across xs...xl**, because the checkbox
    scales with `size` and the chevron glyph did not. `colSpan` keeps meaning the
    table's full column count; the panel spans what remains. The
    `--primitiv-data-table-detail-indent` custom property this replaced has been
@@ -1463,7 +1463,7 @@ owner of it.
 attribute (React types it as the deprecated `"left" | "center" | "right" |
 "justify" | "char"`). Intersecting the two leaves a type nothing satisfies, and
 `align="end"` failed at the call site with "string is not assignable to
-undefined". `Omit<…, "align">` is the fix — the same prop-collision scan that
+undefined". `Omit<..., "align">` is the fix — the same prop-collision scan that
 caught `NavigationMenu.Item`'s `value`.
 
 ### Cross-component fixes found while building the demo (2026-08-12)
@@ -1520,7 +1520,7 @@ than by review:
    against Figma's `action/secondary/foreground/default`) and the wrong shape (a
    pill).
 8. **Control glyphs are one tier down, off the Figma ladder** —
-   `framed-control/{xs,xs,sm,md,lg}/icon-size` for row sizes xs…xl (12/12/14/16/20).
+   `framed-control/{xs,xs,sm,md,lg}/icon-size` for row sizes xs...xl (12/12/14/16/20).
    A first pass used the same tier and was a rung too big at every size. Same
    ladder Tree uses for its Breadcrumb sizes.
 9. **`vertical-align: middle` cannot centre an inline box exactly.** It aligns to
@@ -1534,7 +1534,7 @@ than by review:
     parts stayed at `body/md`. `DescriptionList.Term` / `.Details` carry the
     classes that scale. Invisible at `md`, where the two coincide.
 11. **The kitchen-sink never loaded `table`'s stylesheet.** `table.tsx` was the
-    only one of 62 wrappers missing its `import "…/styles.css"`, so the plain
+    only one of 62 wrappers missing its `import ".../styles.css"`, so the plain
     Table demo had been rendering off the base-element reset — hence "not full
     width" (no `inline-size: 100%`).
 

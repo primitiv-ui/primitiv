@@ -123,7 +123,7 @@ regularises that.)
 
 **Three tiers — not everything is a framed control:**
 
-1. **Framed controls** (Button, Input, Switch, Checkbox, Tabs…) →
+1. **Framed controls** (Button, Input, Switch, Checkbox, Tabs...) →
    `radius = k × height`.
 2. **Surfaces** (Dropdown / Context-Menu panel, Modal, Card) — no
    meaningful height to derive from, so `k × height` would blow up.

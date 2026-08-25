@@ -299,7 +299,7 @@ naming convention** described below.
 ### Naming convention
 
 Every wireframe script and the page it creates **must include a
-version segment** (e.g. `v1`, `v2`, …) so future iterations don't
+version segment** (e.g. `v1`, `v2`, ...) so future iterations don't
 overwrite or shadow earlier ones. As the design evolves we bump
 the version; older versions remain in git history but the active
 scripts on disk only carry the current version's prefix.
@@ -328,11 +328,11 @@ The format for each entry:
 
 ```
 ### YYYY-MM-DD — short title
-**Width tried:** …
-**Changes from previous:** …
-**What felt right:** …
-**What didn't:** …
-**Next experiment:** …
+**Width tried:** ...
+**Changes from previous:** ...
+**What felt right:** ...
+**What didn't:** ...
+**Next experiment:** ...
 ```
 
 ### 2026-05-22 — v1 reset + width decision
@@ -377,8 +377,8 @@ remain visible. The zone header acts as breadcrumb + back.
 `create-neutral-detail-wireframes.js`,
 `create-wide-wireframes.js`) — preserved in git history, not on
 disk. Established a versioned naming convention for both script
-filenames (`create-v1-…`) and the Figma page names they create
-(`Wireframes — Harmoni Plugin (v1 …)`) so future iterations are
+filenames (`create-v1-...`) and the Figma page names they create
+(`Wireframes — Harmoni Plugin (v1 ...)`) so future iterations are
 trackable through time. Convention documented in the
 `figma-console-scripts` skill.
 **What felt right:** _(n/a — housekeeping)_

@@ -269,7 +269,7 @@ compare.
 ### 6.2 Naming editor + live preview
 
 **What:** the naming fields above a preview of the first few resolved
-variable names for the live palette (`color/brand/50`, `color/brand/100`…)
+variable names for the live palette (`color/brand/50`, `color/brand/100`...)
 — honest about exactly what will be written (RFC 0013 §4.2).
 
 **Controls:** `rampTemplate` / `singleTemplate` (`Input` — a token string

@@ -1,6 +1,6 @@
 ---
 name: carousel-variant
-description: End-to-end playbook for developing one Carousel variant (an example from the backlog — overlay, external-flank, multi-slide, thumbnails, vertical, loop, mouse-drag, autoplay, cover-flow, …) in the kitchen-sink registry surface, following the settled iteration loop. TRIGGER when building/refining a carousel example or variant, adding a carousel placement/orientation, evolving the carousel registry contract/styles, or when the user runs /carousel-variant. SKIP for non-carousel component work, generic registry-component creation (see new-registry-component), and pure token/Figma-variable edits (see figma-bridge-token-sync).
+description: End-to-end playbook for developing one Carousel variant (an example from the backlog — overlay, external-flank, multi-slide, thumbnails, vertical, loop, mouse-drag, autoplay, cover-flow, ...) in the kitchen-sink registry surface, following the settled iteration loop. TRIGGER when building/refining a carousel example or variant, adding a carousel placement/orientation, evolving the carousel registry contract/styles, or when the user runs /carousel-variant. SKIP for non-carousel component work, generic registry-component creation (see new-registry-component), and pure token/Figma-variable edits (see figma-bridge-token-sync).
 ---
 
 # Carousel variant development

@@ -116,7 +116,7 @@ const FrameworkItems = () =>
  * rich example is the one place on the page whose subject IS the row anatomy —
  * `[leading][label][mark]`, and `Select.Value` mirroring the chosen row's icon
  * into the closed trigger — so showing it without icons made the caption's
- * promise ("options carry icons… mirrors the chosen item") false on screen. The
+ * promise ("options carry icons... mirrors the chosen item") false on screen. The
  * other examples keep the framework data, where the copy is about render paths.
  */
 const ThemeItems = () =>
@@ -209,7 +209,7 @@ export const selectSpec: ComponentSpec = {
             `      <${p("ItemLeading")}><Sun /></${p("ItemLeading")}>`,
             `      <${p("ItemLabel")}>Light</${p("ItemLabel")}>`,
             `    </${p("Item")}>`,
-            `    {/* … */}`,
+            `    {/* ... */}`,
             `  </${p("Content")}>`,
             `</${p("Root")}>`,
           ].join("\n");
@@ -454,13 +454,13 @@ export const selectSpec: ComponentSpec = {
               `<div data-density="${density}">`,
               `  <${p("Content")}>`,
               `    <${p("Group")} label="Americas">`,
-              `      <${p("Item")} value="new-york">…</${p("Item")}>`,
+              `      <${p("Item")} value="new-york">...</${p("Item")}>`,
               `    </${p("Group")}>`,
               ``,
               `    <${p("Separator")} />`,
               ``,
               `    <${p("Group")} label="Europe">`,
-              `      <${p("Item")} value="london">…</${p("Item")}>`,
+              `      <${p("Item")} value="london">...</${p("Item")}>`,
               `    </${p("Group")}>`,
               `  </${p("Content")}>`,
               `</div>`,
@@ -541,7 +541,7 @@ const ControlledSelectExample = () => {
           `    <${p("Value")} placeholder="Choose a framework..." />`,
           `    <${p("Icon")}><ChevronDown /></${p("Icon")}>`,
           `  </${p("Trigger")}>`,
-          `  {/* … */}`,
+          `  {/* ... */}`,
           `</${p("Root")}>`,
           ``,
           `// current value: ${JSON.stringify(value)}`,

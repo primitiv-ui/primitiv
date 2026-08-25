@@ -272,7 +272,7 @@ describe("Carousel numeric slidesPerMove", () => {
 
     await user.click(screen.getByRole("button", { name: "Next" }));
 
-    // Clamped move=2 → window [2,3], not the [3,…] a move of 3 would give.
+    // Clamped move=2 → window [2,3], not the [3,...] a move of 3 would give.
     expect(screen.getByTestId("slide-2")).toHaveAttribute(
       "data-state",
       "active",

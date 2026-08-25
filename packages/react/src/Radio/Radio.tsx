@@ -28,7 +28,7 @@ function dataStateOf(checked: boolean) {
  *
  * Props routing: `className` / `style` style the **box** (the `<label>` you
  * see — the input is hidden); every other prop (`name`, `value`, `id`,
- * `aria-*`, `required`, `disabled`, `ref`, …) spreads onto the input, because
+ * `aria-*`, `required`, `disabled`, `ref`, ...) spreads onto the input, because
  * semantically the Root *is* the radio.
  *
  * Supports two state modes, statically discriminated at the type level:

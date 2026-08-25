@@ -18,7 +18,7 @@
  *
  * The one genuinely new surface is the __trigger — the button wrapping
  * Breadcrumb.Ellipsis. Figma's own Overflow=true variant (`436:12911`) has
- * no code equivalent for it: there, "…" renders as a bare Breadcrumb/Item
+ * no code equivalent for it: there, "..." renders as a bare Breadcrumb/Item
  * (State=link) with NO fill, NO padding, and the same 4px itemSpacing as
  * every other crumb — "inherits hover/focus/colour/sizing for free," per
  * that component set's own description, which also flags the 4px gap itself
@@ -55,7 +55,7 @@
   /* Real interactive element (opens the overflow menu), but visually a plain
      inline glyph at rest — see the file header for why. The padding/margin
      pair gives :hover/:active a comfortable pill without adding any layout
-     footprint beyond the bare "…" glyph. */
+     footprint beyond the bare "..." glyph. */
   .primitiv-breadcrumb-overflow__trigger {
     display: inline-flex;
     /* Press feedback depth. Set to 1 to switch the press scale off. */

@@ -207,7 +207,7 @@ its DOCS commit, not later. Reference gold-standard examples:
   interface (`div`→`HTMLDivElement`, `button`→`HTMLButtonElement`,
   `ul`→`HTMLUListElement`, `li`→`HTMLLIElement`, `a`→`HTMLAnchorElement`,
   `input`→`HTMLInputElement`, `label`→`HTMLLabelElement`,
-  `dialog`→`HTMLDialogElement`, `nav`/`section`→`HTMLElement`, …).
+  `dialog`→`HTMLDialogElement`, `nav`/`section`→`HTMLElement`, ...).
 - One or more `@example` blocks (basic case + a common variant + any
   gotcha such as `asChild`).
 - **Placement rule (a real bug the project hit, §1.16):** a JSDoc block

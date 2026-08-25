@@ -88,7 +88,7 @@ import { MENUITEM_SELECTOR, TYPEAHEAD_RESET_MS } from "./constants";
  * const [open, setOpen] = useState(false);
  *
  * <ContextMenu.Root open={open} onOpenChange={setOpen}>
- *   …
+ *   ...
  * </ContextMenu.Root>
  * ```
  */
@@ -182,7 +182,7 @@ function useCloseSiblingSub() {
  * @example asChild — attach the gesture to any element
  * ```tsx
  * <ContextMenu.Trigger asChild>
- *   <ImageCard src="…" alt="…" />
+ *   <ImageCard src="..." alt="..." />
  * </ContextMenu.Trigger>
  * ```
  */
@@ -1050,7 +1050,7 @@ ContextMenuSub.displayName = "ContextMenuSub";
  * ```tsx
  * <ContextMenu.Sub>
  *   <ContextMenu.SubTrigger>More tools</ContextMenu.SubTrigger>
- *   <ContextMenu.SubContent>…</ContextMenu.SubContent>
+ *   <ContextMenu.SubContent>...</ContextMenu.SubContent>
  * </ContextMenu.Sub>
  * ```
  */

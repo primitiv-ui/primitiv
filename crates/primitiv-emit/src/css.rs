@@ -11,7 +11,7 @@ const SUBLAYER_DECLARATION: &str =
 /// A block of theme tokens under one or more selectors — a single mode scope in
 /// the `primitiv.tokens` layer (RFC 0009 §2.2). The default mode shares the
 /// `:root` selector (`:root, [data-theme="light"]`); each non-default mode emits
-/// as its own `[data-*="…"]` block, swapping values behind stable names.
+/// as its own `[data-*="..."]` block, swapping values behind stable names.
 pub struct Scope {
     pub selectors: Vec<String>,
     pub tokens: Vec<Token>,

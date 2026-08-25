@@ -5,7 +5,7 @@ repo — the opt-in, **sizeable** inline `<code>` chip mirroring the Figma
 "Inline Code" set. Like `prose`, it has **no headless `@primitiv-ui/react`
 counterpart**: `<InlineCode>` carries zero behaviour (it only adds classes), so
 it ships entirely from the registry. The load-bearing contract is the
-**`.primitiv-inline-code` class** and its `--xs…--xl` size modifiers; the
+**`.primitiv-inline-code` class** and its `--xs...--xl` size modifiers; the
 `<InlineCode>` wrapper is sugar over them.
 
 ## What it does
@@ -47,7 +47,7 @@ needed — the component sits in `primitiv.base`/`primitiv.variants`).
 | `contract.json` | **authored** | The styling contract — the `.primitiv-inline-code` root class, the `size` modifier (xs–xl), and the `--primitiv-inline-code-*` tokens it consumes. |
 | `styles.css` | **authored** | The canonical default theme: the API tokens + chip in `@layer primitiv.base`, the size re-points in `@layer primitiv.variants`. |
 | `styles.scss` | **authored** | Mirror of `styles.css` plus the `$primitiv-inline-code-*` Sass aliases over the custom properties. |
-| `inline-code.recipe.ts` | **authored** | A `cva("primitiv-inline-code", …)` with the `size` variant — the classes as a recipe, matching the generated entries' shape. |
+| `inline-code.recipe.ts` | **authored** | A `cva("primitiv-inline-code", ...)` with the `size` variant — the classes as a recipe, matching the generated entries' shape. |
 | `inline-code.tsx` | **authored** | The `<InlineCode>` wrapper. Hand-written (there is no primitive to generate from): a thin `asChild` (Slot) wrapper that renders a `<code>`, or the consumer's own element, with the `size` prop. |
 
 Because there is no headless primitive, `inline-code.tsx`/`inline-code.recipe.ts`

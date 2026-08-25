@@ -14,7 +14,7 @@ const TYPES = [
   { type: "email", label: "Email", placeholder: "you@example.com" },
   { type: "password", label: "Password", placeholder: "••••••••" },
   { type: "number", label: "Number", placeholder: "0" },
-  { type: "search", label: "Search", placeholder: "Search…" },
+  { type: "search", label: "Search", placeholder: "Search..." },
   { type: "date", label: "Date", placeholder: "" },
 ] as const;
 

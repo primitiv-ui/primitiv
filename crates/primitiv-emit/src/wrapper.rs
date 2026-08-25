@@ -67,7 +67,7 @@ pub fn emit_wrapper(contract: &Contract) -> String {
     let class_expr = format!("[{recipe_call}, className].filter(Boolean).join(\" \")");
     if contract.parts.is_empty() {
         if wrap_text {
-            // The styled element wraps text children in a `…__label` span via the
+            // The styled element wraps text children in a `...__label` span via the
             // `wrapTextNodes` helper, so it renders an open/close tag.
             out.push_str(&format!(
                 "  return (\n    <{pascal}Primitive className={{{class_expr}}} {{...props}}>\n"
@@ -81,7 +81,7 @@ pub fn emit_wrapper(contract: &Contract) -> String {
         }
     } else if contract.label {
         // A framed control with an inline label: the parts nest inside a
-        // `…__control` box, and a `…__label` span carries the wrapper's
+        // `...__control` box, and a `...__label` span carries the wrapper's
         // `children` — omitted when there are none, so the bare box still works.
         out.push_str(&format!(
             "  return (\n    <{pascal}Primitive.Root className={{{class_expr}}} {{...props}}>\n"
@@ -310,7 +310,7 @@ fn emit_distributive_omit_helper(out: &mut String, contract: &Contract) {
 }
 
 /// The `wrapTextNodes` helper for a text-wrapping single-element wrapper: it maps
-/// string/number children into a `…__label` span (so `text-box-trim` sits on the
+/// string/number children into a `...__label` span (so `text-box-trim` sits on the
 /// label, not the flex box) and passes element children — icons — through
 /// untouched, leaving the icon↔label gap intact. `Children.map` always returns
 /// an array, even for one child, which breaks `asChild`'s `Slot` — a `Slot`
@@ -459,7 +459,7 @@ fn emit_structural_wrap_text_helper(out: &mut String, sub_pascal: &str, sub_clas
 /// The function's parameter destructure and recipe call for a set of modifiers:
 /// `("className, ...props", "recipe()")` with none, otherwise the variant props
 /// are pulled out and passed to the recipe. When `children` is set (the
-/// inline-label shape), it is pulled out of the rest before the `…props` spread
+/// inline-label shape), it is pulled out of the rest before the `...props` spread
 /// so the label span can render it without it leaking back onto the element.
 fn destructure_and_call(
     binding: &str,

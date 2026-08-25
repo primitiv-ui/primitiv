@@ -102,8 +102,8 @@ across all components — do not change them.
 
 | Button axis | Meaning | Switch equivalent | Checkbox equivalent | Input equivalent | Field equivalent |
 |-------------|---------|-------------------|---------------------|------------------|------------------|
-| Variant (major col) | Visual intent (primary/secondary/…) | State (unchecked/checked) | State (unchecked/checked/indeterminate) | State (default/hover/focus/disabled/invalid) | State (default/invalid/disabled) |
-| State (sub col) | Interaction state (default/hover/…) | Interaction (default/hover/…) | Interaction (default/hover/…) | Filled (empty/filled) | — *(none — single col axis)* |
+| Variant (major col) | Visual intent (primary/secondary/...) | State (unchecked/checked) | State (unchecked/checked/indeterminate) | State (default/hover/focus/disabled/invalid) | State (default/invalid/disabled) |
+| State (sub col) | Interaction state (default/hover/...) | Interaction (default/hover/...) | Interaction (default/hover/...) | Filled (empty/filled) | — *(none — single col axis)* |
 
 If a component has no Variant equivalent (e.g. a single-appearance toggle),
 collapse to one "group" — the major column axis just has one entry. And if there
@@ -115,7 +115,7 @@ is no sub-column axis either (Field: State only), drop the inner loop entirely �
 The scripts are written to be pasted into the Figma developer console, but
 they work equally well via `figma_execute` with minor adaptations:
 
-1. Replace `figma.currentPage.selection.find(…)` with a direct `getNodeByIdAsync` lookup.
+1. Replace `figma.currentPage.selection.find(...)` with a direct `getNodeByIdAsync` lookup.
 2. Replace `await figma.setCurrentPageAsync(page)` where needed.
 3. The `figma.viewport.scrollAndZoomIntoView` call is harmless but optional.
 

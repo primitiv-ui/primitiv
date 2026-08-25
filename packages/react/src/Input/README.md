@@ -14,11 +14,11 @@ import { Input } from "@primitiv-ui/react";
 
 | Prop       | Type                       | Default  | Notes                                                          |
 | ---------- | -------------------------- | -------- | -------------------------------------------------------------- |
-| `type`     | `string`                   | `"text"` | Any native `<input>` type (`"email"`, `"password"`, …)         |
+| `type`     | `string`                   | `"text"` | Any native `<input>` type (`"email"`, `"password"`, ...)         |
 | `disabled` | `boolean`                  | —        | Native `disabled` + `data-disabled=""` styling hook            |
 | `asChild`  | `boolean`                  | `false`  | Delegate rendering to the child element via Slot               |
 | `ref`      | `Ref<HTMLInputElement>`    | —        | Forwarded to the underlying input element                      |
-| `...rest`  | `ComponentProps<"input">`  | —        | All other `<input>` props (`value`, `placeholder`, `aria-*`, …) |
+| `...rest`  | `ComponentProps<"input">`  | —        | All other `<input>` props (`value`, `placeholder`, `aria-*`, ...) |
 
 ## Default type
 

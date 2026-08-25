@@ -90,7 +90,7 @@ and Accordion use — *not* the hand-authored prose pattern:
   from `contract.json`** by `primitiv-emit` (`emit_recipe` /
   `emit_wrapper` / the scss emitter) — the same path that produced
   `registry/components/tabs/tabs.tsx`. They carry the "Do not edit by
-  hand… regenerate" header and are locked by the emit drift-guard tests.
+  hand... regenerate" header and are locked by the emit drift-guard tests.
 - `styles.css` (hand-authored) is the default theme. **Seed it from the
   Carousel README's "Recommended CSS"** (`packages/react/src/Carousel/README.md`
   §Recommended CSS) — the viewport `display:flex; overflow-x:auto;

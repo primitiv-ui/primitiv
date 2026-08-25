@@ -49,8 +49,8 @@ emitted into `primitiv.reset` as a foundation file and recorded as RFC 0008 **D6
 
 **This RFC is a counter-proposal to that block-margin layer.** It does not dispute
 the rest of the base stylesheet — the element *typography* (font/colour on `p`,
-`h1–h6`, …) and the *inline marks* (`strong`, `em`, `mark`, `del`, `code`, `kbd`,
-…) are good as global element styles and **stay**. It disputes one thing: that
+`h1–h6`, ...) and the *inline marks* (`strong`, `em`, `mark`, `del`, `code`, `kbd`,
+...) are good as global element styles and **stay**. It disputes one thing: that
 **inter-block rhythm is expressed as collapsing, element-owned `margin-block`**.
 The proposal is to **remove those outer-margin declarations** and re-home rhythm in
 an **opt-in flow context**:
@@ -97,12 +97,12 @@ one layer of the landed one for it.
 
 ```css
 @layer primitiv.reset {
-  p          { /* …type… */ margin-block: var(--primitiv-space-space-0) var(--primitiv-space-space-16); }
-  h1,h2,h3,h4,h5,h6 { /* …type… */ margin-block: var(--primitiv-space-space-24) var(--primitiv-space-space-8); }
-  ul,ol      { /* …type… */ margin-block: var(--primitiv-space-space-0) var(--primitiv-space-space-16); }
-  blockquote { /* …type… */ margin-block: var(--primitiv-space-space-16); }
-  hr         { /* …line… */ margin-block: var(--primitiv-space-space-24); }
-  /* figure, dd, li + li … */
+  p          { /* ...type... */ margin-block: var(--primitiv-space-space-0) var(--primitiv-space-space-16); }
+  h1,h2,h3,h4,h5,h6 { /* ...type... */ margin-block: var(--primitiv-space-space-24) var(--primitiv-space-space-8); }
+  ul,ol      { /* ...type... */ margin-block: var(--primitiv-space-space-0) var(--primitiv-space-space-16); }
+  blockquote { /* ...type... */ margin-block: var(--primitiv-space-space-16); }
+  hr         { /* ...line... */ margin-block: var(--primitiv-space-space-24); }
+  /* figure, dd, li + li ... */
 }
 ```
 
@@ -259,7 +259,7 @@ collapsing margins:
 
 `:where()` keeps every rule at zero specificity, and each value is a
 `--primitiv-flow-*` token. The rules target **semantic children** (`h1`–`h6`, `hr`,
-…), as Tailwind Typography's `.prose` does; non-semantic wrappers fall back to flat
+...), as Tailwind Typography's `.prose` does; non-semantic wrappers fall back to flat
 `normal` rhythm. The mapping is shipped, opinionated, and overridable (§9/D73).
 
 ---
@@ -309,7 +309,7 @@ in `primitiv.tokens`:
     --primitiv-flow-normal: 0.5rem;     /* space-8 */
     --primitiv-flow-section: 0.75rem;   /* space-12 */
   }
-  /* compact, spacious … */
+  /* compact, spacious ... */
 }
 ```
 

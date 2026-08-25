@@ -65,7 +65,7 @@
     const w = variant.width;
     const h = variant.height;
 
-    console.log(`Size=${sz}: ${variant.children.length} children, ${w}×${h} — rebuilding…`);
+    console.log(`Size=${sz}: ${variant.children.length} children, ${w}×${h} — rebuilding...`);
 
     // Remove all existing children (iterate backwards to avoid index shifts)
     for (let i = variant.children.length - 1; i >= 0; i--) {

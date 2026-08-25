@@ -61,7 +61,7 @@ const visuallyHiddenStyle: CSSProperties = {
  * ```tsx
  * <nav aria-labelledby="nav-label">
  *   <VisuallyHidden id="nav-label">Primary navigation</VisuallyHidden>
- *   …
+ *   ...
  * </nav>
  * ```
  *

@@ -25,12 +25,12 @@ alongside `.primitiv-breadcrumb`) plus the `__trigger` part and its
 ## The trigger (`__trigger`)
 
 Figma's own `Overflow=true` variant (`436:12911`) has no code equivalent for
-this: there, `"…"` renders as a bare `Breadcrumb/Item` (`State=link`) with
+this: there, `"..."` renders as a bare `Breadcrumb/Item` (`State=link`) with
 **no fill, no padding**, and the same 4px `itemSpacing` as every other crumb —
 "inherits hover/focus/colour/sizing for free," per that component set's own
 description. The registry `__trigger` class matches that **at rest**: no
 visible background, and its padding is cancelled by an equal negative margin
-so it never grows the trail's own item spacing beyond the plain `"…"` glyph's
+so it never grows the trail's own item spacing beyond the plain `"..."` glyph's
 own footprint.
 
 The trigger deliberately does **not** compose the registry `Button` component

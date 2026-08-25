@@ -63,7 +63,7 @@ export function SelectExample() {
         <label className="sel-example__row">
           <span className="sel-example__label">Pick a food</span>
           <Select.Root native className="sel-example__select">
-            <Select.Placeholder>Choose a food…</Select.Placeholder>
+            <Select.Placeholder>Choose a food...</Select.Placeholder>
             <Select.Group label="Fruits">
               <Select.Item value="apple">Apple</Select.Item>
               <Select.Item value="banana">Banana</Select.Item>
@@ -103,7 +103,7 @@ export function SelectExample() {
               name="fruit"
               required
             >
-              <Select.Placeholder>Choose a fruit…</Select.Placeholder>
+              <Select.Placeholder>Choose a fruit...</Select.Placeholder>
               <Select.Item value="apple">Apple</Select.Item>
               <Select.Item value="banana">Banana</Select.Item>
             </Select.Root>

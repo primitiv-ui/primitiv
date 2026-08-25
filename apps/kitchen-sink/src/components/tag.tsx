@@ -25,7 +25,7 @@ export type TagProps = ComponentPropsWithRef<"span"> &
   TagVariants & {
     /**
      * Render the single child element instead of a wrapping <span>, merging
-     * the tag classes onto it — e.g. `<Tag asChild><a>…</a></Tag>`.
+     * the tag classes onto it — e.g. `<Tag asChild><a>...</a></Tag>`.
      */
     asChild?: boolean;
   };

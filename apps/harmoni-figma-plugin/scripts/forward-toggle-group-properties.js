@@ -4,7 +4,7 @@
  * Adds flat component properties to the Toggle Group component set and binds
  * them to the corresponding layers inside each nested Toggle instance.
  *
- * Properties added (for each item slot N = 1 … maxCount):
+ * Properties added (for each item slot N = 1 ... maxCount):
  *   Item N · Label        TEXT     — bound to the first TEXT node inside slot N
  *   Item N · Leading Icon BOOLEAN  — bound to the icon layer's visibility inside slot N
  *

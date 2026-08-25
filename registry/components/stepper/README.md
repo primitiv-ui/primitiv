@@ -43,9 +43,9 @@ const [step, setStep] = useState("account");
     </StepperStep>
   </StepperList>
 
-  <StepperPanel value="account">…</StepperPanel>
-  <StepperPanel value="profile">…</StepperPanel>
-  <StepperPanel value="review">…</StepperPanel>
+  <StepperPanel value="account">...</StepperPanel>
+  <StepperPanel value="profile">...</StepperPanel>
+  <StepperPanel value="review">...</StepperPanel>
 </Stepper>;
 ```
 
@@ -97,12 +97,12 @@ be grouped into a single element to form the second column:
 
 ```tsx
 <Stepper defaultValue="account" orientation="vertical">
-  <StepperList label="Sign-up progress">…</StepperList>
+  <StepperList label="Sign-up progress">...</StepperList>
 
   {/* one element = one column */}
   <div className="wizard-body">
-    <StepperPanel value="account">…</StepperPanel>
-    <StepperPanel value="profile">…</StepperPanel>
+    <StepperPanel value="account">...</StepperPanel>
+    <StepperPanel value="profile">...</StepperPanel>
     <footer>
       <Button variant="secondary">Back</Button>
       <Button>Continue</Button>
@@ -139,7 +139,7 @@ const isNarrow = useMediaQuery("(max-width: 40rem)");
     Step {index + 1} of {steps.length} — {labels[step].title}
   </p>
 
-  <StepperPanel value="account">…</StepperPanel>
+  <StepperPanel value="account">...</StepperPanel>
 </Stepper>;
 ```
 
@@ -197,7 +197,7 @@ break the rail's even cells.
 
 | File | Authored? | Role |
 |---|---|---|
-| `contract.json` | **authored** | The styling contract — the `.primitiv-stepper` root, its parts, the `--xs…--xl` modifiers, the `data-state`/`data-step-state`/`data-orientation` hooks and every `--primitiv-stepper-*` custom property. |
+| `contract.json` | **authored** | The styling contract — the `.primitiv-stepper` root, its parts, the `--xs...--xl` modifiers, the `data-state`/`data-step-state`/`data-orientation` hooks and every `--primitiv-stepper-*` custom property. |
 | `styles.css` | **authored** | The default theme: rail layout, marker/halo/connector anatomy, the size modifiers, and the state + motion rules. |
 | `styles.scss` | **authored** | `styles.css` verbatim plus the `$primitiv-stepper-*` alias block. |
 | `stepper.recipe.ts` | **authored** | `cva` per part; only the root carries a modifier group, because a step's appearance is driven by data attributes rather than variant classes. |

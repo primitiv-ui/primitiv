@@ -33,7 +33,7 @@ import { Kbd } from "@/components/kbd";
 
 | File | Authored? | Role |
 |---|---|---|
-| `contract.json` | **authored** | The styling contract — the `.primitiv-kbd` root class, the `--xs…--xl` modifiers, and the `--primitiv-kbd-*` custom properties. |
+| `contract.json` | **authored** | The styling contract — the `.primitiv-kbd` root class, the `--xs...--xl` modifiers, and the `--primitiv-kbd-*` custom properties. |
 | `styles.css` | **authored** | The canonical default theme: the key-cap box + type scale, in `@layer primitiv.base`/`primitiv.variants`. |
 | `styles.scss` | **authored** | `styles.css` plus a trailing `$`-alias block, one `$primitiv-kbd-<prop>` per custom property. |
 | `kbd.recipe.ts` | **authored** | `cva("primitiv-kbd", { variants: { size } })` — mirrors `inline-code`'s recipe shape. |

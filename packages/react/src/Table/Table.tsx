@@ -274,7 +274,7 @@ TableCell.displayName = "TableCell";
  *
  * ```tsx
  * <Table.ScrollArea style={{ borderRadius: "8px" }}>
- *   …
+ *   ...
  * </Table.ScrollArea>
  * ```
  *
@@ -284,7 +284,7 @@ TableCell.displayName = "TableCell";
  * ```tsx
  * <Table.ScrollArea>
  *   <Table.Root>
- *     …
+ *     ...
  *   </Table.Root>
  * </Table.ScrollArea>
  * ```
@@ -335,7 +335,7 @@ TableScrollArea.displayName = "TableScrollArea";
  * ```tsx
  * <Table.Root>
  *   <Table.Caption>Q1 sales figures by region</Table.Caption>
- *   …
+ *   ...
  * </Table.Root>
  * ```
  *
@@ -343,7 +343,7 @@ TableScrollArea.displayName = "TableScrollArea";
  * ```tsx
  * <Table.Root>
  *   <Table.Caption captionSide="top">Q1 sales figures by region</Table.Caption>
- *   …
+ *   ...
  * </Table.Root>
  * ```
  */
@@ -597,7 +597,7 @@ export type TableCompound = typeof TableRoot & {
  * @example Responsive — horizontal scroll on narrow viewports
  * ```tsx
  * <Table.ScrollArea>
- *   <Table.Root>…</Table.Root>
+ *   <Table.Root>...</Table.Root>
  * </Table.ScrollArea>
  * ```
  *

@@ -4,7 +4,7 @@
  * Copied into the consumer repo by `primitiv add pagination`. It is yours to
  * edit: the stable surface is the contract (the .primitiv-pagination container
  * + __summary / __controls / __item / __ellipsis / __menu / __status /
- * __trailing parts, the --xs…--xl size modifiers, the --numbered / --compact
+ * __trailing parts, the --xs...--xl size modifiers, the --numbered / --compact
  * variant modifiers, and the --primitiv-pagination-* custom properties), not
  * these values (RFC 0006 Principle 2 — names are stable, values are not).
  *
@@ -13,7 +13,7 @@
  * through the composed Button and Dropdown surfaces — action/*, surface/*,
  * border/*, content/*.
  *
- * EVERY size-dependent value is re-pointed by the --xs…--xl modifiers, not just
+ * EVERY size-dependent value is re-pointed by the --xs...--xl modifiers, not just
  * the two obvious ones. The base rule's md values are defaults for an unsized
  * root; a knob declared there and NOT restated per size silently pins itself to
  * md at every size (which is exactly what happened to the group gap, the

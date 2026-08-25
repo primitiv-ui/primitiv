@@ -36,7 +36,7 @@ meaningfully smaller across the board.
 ## Required new primitives
 
 Dense cannot be built from the existing primitive set
-(`12, 14, 16, 18, 20, 22, 24, 26, …`). It needs the following added
+(`12, 14, 16, 18, 20, 22, 24, 26, ...`). It needs the following added
 to `packages/tokens/src/primitives.json`:
 
 ### `font-size` — add five

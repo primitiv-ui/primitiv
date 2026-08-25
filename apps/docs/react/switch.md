@@ -49,7 +49,7 @@ Pass `checked` and `onCheckedChange` together. The parent owns the value.
 ```tsx
 const [enabled, setEnabled] = useState(false);
 
-<Switch.Root checked={enabled} onCheckedChange={setEnabled} aria-label="…">
+<Switch.Root checked={enabled} onCheckedChange={setEnabled} aria-label="...">
   <Switch.Thumb />
 </Switch.Root>
 ```

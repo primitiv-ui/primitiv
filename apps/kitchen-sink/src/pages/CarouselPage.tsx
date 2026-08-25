@@ -920,7 +920,7 @@ export function CarouselPadding() {
 }
 
 /**
- * One numbered cell in an example grid (multi-slide, viewport padding, …): a
+ * One numbered cell in an example grid (multi-slide, viewport padding, ...): a
  * numbered title above the carousel and a short description below, so QA can
  * tick each case off. The `dir` opt lets a cell render right-to-left in place.
  */

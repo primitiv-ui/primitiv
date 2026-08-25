@@ -18,7 +18,7 @@ export type StackProps = ComponentPropsWithRef<"div"> &
   StackVariants & {
     /**
      * Render the single child element instead of a wrapping <div>, merging
-     * the stack classes onto it — e.g. `<Stack asChild><ul>…</ul></Stack>`.
+     * the stack classes onto it — e.g. `<Stack asChild><ul>...</ul></Stack>`.
      */
     asChild?: boolean;
   };

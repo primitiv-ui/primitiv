@@ -99,8 +99,8 @@ Mode**, enters the code, Connect. **It expires in ~5 min** — re-pair freely.
 When the human can't (re)pair the Desktop Bridge but can give you the **file
 URL**, the official Figma MCP's `use_figma` runs the **same Figma Plugin API**
 (`figma.getNodeByIdAsync`, `setBoundVariable`, `createVariable`, `node.description
-= …`, screenshots) — no pairing dance. Extract the `fileKey` from
-`https://figma.com/design/<fileKey>/<name>?node-id=…` and pass it on every call.
+= ...`, screenshots) — no pairing dance. Extract the `fileKey` from
+`https://figma.com/design/<fileKey>/<name>?node-id=...` and pass it on every call.
 The scripts below port over verbatim (paste into `use_figma`'s `code`). Proven on
 the 2026-07 switch focus-ring sweep + choice-control descriptions.
 
@@ -109,7 +109,7 @@ the 2026-07 switch focus-ring sweep + choice-control descriptions.
   and `node.description` / geometry writes persist cross-page (a
   `setCurrentPageAsync` guard is harmless but not required).
 - **Screenshots:** use the `get_screenshot` tool (needs `fileKey` **and**
-  `nodeId`). In-sandbox `curl` to the returned `figma.com/api/mcp/asset/…` URL is
+  `nodeId`). In-sandbox `curl` to the returned `figma.com/api/mcp/asset/...` URL is
   proxy-blocked (exit 56), so pass **`enableBase64Response: true`** to get the PNG
   inline instead.
 - Load `/figma-use` (or the `skill://figma/figma-use/SKILL.md` resource) before

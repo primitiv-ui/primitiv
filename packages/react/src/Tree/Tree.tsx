@@ -88,7 +88,7 @@ import type {
  *   selectionMode="multiple"
  *   onSelectedValuesChange={(values) => console.log(values)}
  * >
- *   {…}
+ *   {...}
  * </Tree.Root>
  * ```
  */

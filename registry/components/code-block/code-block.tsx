@@ -99,6 +99,22 @@ const CodeRegistryContext = createContext<CodeRegistryContextValue | null>(null)
    there is one highlighting implementation. No `style={style}` from Prism: the
    emptied theme returns {}, and dropping it guarantees Prism can never inline a
    font-size/background over the stylesheet (all sizing/colour comes from CSS). */
+/*
+ * NOTE: neither span spreads its props, and that is load-bearing.
+ *
+ * Both used to be written `<span {...getLineProps({ line })} key={i}>`, which
+ * is the shape prism-react-renderer's own README shows. Under the automatic
+ * JSX runtime a `key` written alongside a spread does not reach the element —
+ * the compiler cannot hoist it out of the props object, and `jsx()`, unlike
+ * `createElement`, only takes a key as its third argument. React then sees an
+ * array of keyless children and logs "Each child in a list should have a
+ * unique key prop", naming `Highlight` as the owner because the elements are
+ * created inside its render callback. It produced ~100 errors per page view.
+ *
+ * Destructuring what the getters return and passing the parts explicitly keeps
+ * the key where the compiler can see it. Do not "tidy" these back into a
+ * spread.
+ */
 function Highlighted({
   code,
   language,
@@ -119,12 +135,12 @@ function Highlighted({
         >
           <code className="primitiv-code-block__code">
             {tokens.map((line, i) => {
-              const lineProps = getLineProps({ line });
+              const { className: lineClassName, style } = getLineProps({ line });
               return (
                 <span
-                  {...lineProps}
                   key={i}
-                  className={`primitiv-code-block__line ${lineProps.className ?? ""}`}
+                  className={`primitiv-code-block__line ${lineClassName ?? ""}`}
+                  style={style}
                 >
                   {showLineNumbers && (
                     <span className="primitiv-code-block__ln" aria-hidden="true">
@@ -132,9 +148,18 @@ function Highlighted({
                     </span>
                   )}
                   <span className="primitiv-code-block__line-content">
-                    {line.map((token, key) => (
-                      <span {...getTokenProps({ token })} key={key} />
-                    ))}
+                    {line.map((token, t) => {
+                      const {
+                        children: tokenText,
+                        className: tokenClassName,
+                        style: tokenStyle,
+                      } = getTokenProps({ token });
+                      return (
+                        <span key={t} className={tokenClassName} style={tokenStyle}>
+                          {tokenText}
+                        </span>
+                      );
+                    })}
                   </span>
                 </span>
               );

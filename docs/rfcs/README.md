@@ -3,6 +3,13 @@
 Architecture decision records for Primitiv / Harmoni. Each RFC carries its own
 status, summary, and decision record; this page is the index.
 
+> **0013 and 0028 are not missing.** Both are Harmoni-plugin RFCs and moved to
+> the private `primitiv-ui/harmoni` repo on 2026-08-25 — 0013 (configurable
+> palette export) and 0028 (plugin build architecture & domain model). The
+> engine RFCs that the plugin builds on (0002, 0003, 0010, 0011, 0027) stay
+> here. New RFC numbers continue from 0029 in this repo; the plugin numbers its
+> own separately.
+
 ## Token & engine architecture
 
 | # | Title | Status |
@@ -148,8 +155,6 @@ surface and applies once those are read.
 |---|---|---|
 | [0010](0010-oklch-color-picker.md) | OKLCH colour picker | Draft |
 | [0011](0011-duotone-neutral-ramps.md) | Duotone neutral ramps | Implemented (engine + workbench UI) |
-| [0013](0013-configurable-palette-export.md) | Configurable palette export (variables & canvas swatches) | Draft |
-| [0028](0028-harmoni-plugin-architecture.md) | Harmoni plugin: build architecture & test strategy | Draft — architecture, domain and repo settled; spike 1 run |
 
 - **0010** — the OKLCH-first, oklch.com-style colour picker that replaces the
   hex input: paint-backed Lightness×Chroma and Hue charts with a live gamut
@@ -162,32 +167,6 @@ surface and applies once those are read.
   single-hue neutral tint (which becomes the equal-hue, zero-bow special case).
   Adopts Leonardo's perceptual key-colour interpolation, constrained to the
   two-anchor neutral case.
-- **0013** — configurable palette export with **two outputs** from one
-  serializable `ExportConfig`: **Figma variables** (choose the target collection +
-  group location — browsed with MillerColumns / Tree — and a naming convention
-  with a live preview; today's `Primitives / Palette` + `color/...` is the default
-  preset) and **canvas swatches** (configure orientation, shape, gap, step
-  labels, a11y contrast badges, ... and generate the sheet onto the current page via
-  a button or drag-and-drop). Pure `resolve` / `planSwatches` cores behind
-  `VariableStore` / `CanvasRenderer` ports; built workbench-first with a live HTML
-  preview. Works for the author and the end user alike.
-- **0028** — how the Harmoni Figma plugin gets built, now that the v3 design phase
-  is complete: the domain core lives in the UI iframe and `code.ts` is demoted to
-  a driven adapter executing plans the core computes (plan-shaped port verbs, not
-  per-node CRUD); a four-layer test strategy with mutation gated at the domain and
-  application layers only; Playwright ATDD driving the real UI against an in-page
-  fake Figma, kept honest by a contract suite that also runs inside the real
-  sandbox. Defines the two spikes that must run first — the (fully scriptable)
-  undo probe and the in-sandbox contract runner — and records the repo/licence
-  position, including the measurement that the whole public-CLI → engine coupling
-  is one function call. §7 settles the domain model — one `reconcile(desired,
-  actual)` behind all four ownership verbs, a two-level stamp whose `origin` field
-  is what keeps the ownership promise across adopt, and eight invariants to drive
-  from tests (one of them: no collection name may ever appear in the domain — the
-  destination is always the user's) — and §7.8 records two findings: the semantic
-  layer is a second variable family with no destination of its own, and a Figma
-  mode is a value rather than a variable, so the write is 60 variables carrying
-  120 values.
 
 ## Figma library
 

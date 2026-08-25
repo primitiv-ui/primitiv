@@ -1,4 +1,4 @@
-// Ported from apps/harmoni-figma-plugin/src/ui/useColors.ts — the plugin's colour
+// Ported from the Harmoni plugin's colour
 // engine, running here in the workbench so the plugin UI can be developed in a
 // real browser (RFC 0010 §9). Two adaptations: the engine is initialised with the
 // workbench's plain `init()` (no inlined wasm URL — vite serves the asset), and

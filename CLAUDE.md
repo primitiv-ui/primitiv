@@ -45,11 +45,9 @@ split.
    when they're connected. When they aren't available in the session,
    fall back to the `gh` CLI. Either way, stay scoped to
    `primitiv-ui/primitiv` and never touch the raw API directly.
-8. **Harmoni plugin views: the settled wireframes are the spec.** Before
-   designing or composing any plugin view, read the matching panel on
-   the Figma page "Wireframes — Harmoni Plugin (v3 — settled)" (node
-   ids in the Current state entry). Do not reconstruct a view from the
-   HTML artifacts, from prose, or from the old 600px app.
+8. **Harmoni plugin work happens in `primitiv-ui/harmoni`** (private), not
+   here — see Current state. Its rules, including that the settled
+   wireframes are the spec, live in that repo's `CLAUDE.md`.
 9. **Composite / composed components: Figma first, always — never jump
    straight to the registry.** "This composes two ✓ done primitives, so
    there's nothing left to design" is a trap. Composing existing
@@ -1123,168 +1121,27 @@ source of truth for when a skill applies.
     **`cargo llvm-cov clean --workspace`** before trusting any coverage number
     that follows a code switch.
 
-- **Harmoni plugin redesign — settled positions (2026-08-22).** The plugin is
-  being rebuilt from scratch (its README already called the current one a
-  scaffold). Six decisions are closed; the record is the Figma page
-  **"Wireframes — Harmoni Plugin (v3 — settled)"** (panels drawn at a true
-  360 px, plain wireframes, no design-system components) plus four interactive
-  artifacts that carry the arguments.
-  - **READ THE WIREFRAME PANELS BEFORE DESIGNING ANY VIEW. They are the
-    settled spec; the HTML artifacts and the prose below are only the
-    arguments that produced them.** Board `1933:110420` on that page:
-    01 default panel `1933:110428` · 02 the offer `1933:110498` ·
-    03 roles `1933:110530` · 04 audit `1933:110614` · 05 settings
-    `1933:110691` · 06 the picker `1933:110747` · 07 decisions
-    `1933:110810`; CRUD row: 01 `1935:110852` · 02 `1935:110887` ·
-    03 `1935:110947` · 04 `1935:111001` · verbs `1935:111045`.
-    Getting this wrong cost a session (2026-08-22): the panel header was
-    built from the **old 600px app** (`Harmoni App Header` — project
-    Select + moon + expand) when panel 06 and CRUD 03 clearly show the
-    settled chrome is **`Harmoni · <project>` text plus a gear, nothing
-    else**; and Palette was built as one ramp with anchor/step controls
-    when panel 01 shows it is **multi-ramp** — a SEEDS list with
-    `+ add ramp`, then per ramp a name, step count, a thin colour strip
-    and `✓ every step has a readable foreground`, with **Create
-    variables** as the footer action. The anchors, axis sliders, plane
-    and step control all belong to the picker (06), not to Palette.
-    `Harmoni App Header` / `Harmoni App Container` are the OLD product
-    (600px / 960px) — never carry their decisions into v3.
-  - **Carry-over for the code build: `docs/harmoni-plugin-v3-build-notes.md`.**
-    What designing the real views against those panels established — the 360×700
-    window and Dense chrome measurements, which view owns which control, the
-    verified ramp/seed facts (five seeds but six ramps; the engine's negative
-    hue), the Swatch and canvas-insert rules, and what is still undesigned.
-    **The design phase is complete as of 2026-08-25: 25 views (each with a light
-    twin) and 14 journeys, verified against each other mechanically.** Read
-    **§15** (the coverage grid — what was enumerated and how), then **§22 / §24**
-    (what the grid could not see) before touching any view. Three techniques were
-    used and they are not interchangeable: the grid enumerates from the ownership
-    verbs and entry states; a board↔views diff catches orphans; and reading built
-    views *against each other* for contradictions found the worst bug of the
-    session (Adopt stamped variables that Remove would then delete, breaking the
-    one promise the model exists to keep — §22.1). Only the third has no
-    completion criterion, so assume it is not finished.
-  - **OKLCH is canonical; hex is a Figma export.** The picker's value block
-    leads with `oklch(...)` and shows `→ figma · hex` beneath. Chroma is *not*
-    clamped at the sRGB edge — the track goes flat past the ceiling and the
-    panel states that the hex is clamped, because two OKLCH colours flatten to
-    one hex there. Making hex canonical would hand the engine a value it never
-    chose.
-  - **A step stays a lightness, not a contrast.** Contrast-authored steps were
-    modelled and rejected: they would guarantee "step 700 clears 7:1" across
-    every hue, but that guarantee already exists as the paired foreground
-    (`ForegroundSource`: 50, 900, white, black), so replacing the control buys
-    nothing and costs the even visual spacing that makes a ramp look like one.
-  - **Semantics are opt-in and the offer retires itself.** The panel starts at
-    two views; the semantic layer is offered *at export, next to the variable
-    count*, never in a settings toggle nobody opens. Settings carries a
-    tri-state (ask each time / always add / never) — a boolean cannot express
-    "yes, always, stop asking". Taking the offer adds Roles and Audit, so the
-    navigation cost is paid only by users who asked for it.
-  - **A role is a name plus a rule, and they are separate fields.** Renaming
-    touches only the name; changing the rule re-runs the engine. That is what
-    makes the role schema *user data* — renameable, extendable, portable as a
-    file — and it is the only shape where a custom accent or a fourth brand
-    colour has anywhere to go.
-  - **Contrast reports as a WCAG 2.2 grade, ratio optional.** Adding grades
-    exposed that a grade is meaningless without a use: 4.71:1 is AA as body
-    copy, AAA at heading size, and past the non-text bar. Hence `ContrastUse`
-    in the engine, and `AA-LG` as a real variant rather than a rounding of
-    FAIL. A divider and a button background carry no floor and get no verdict.
-  - **Picker layout: sliders are the control, one plane is the view.** All
-    three planes stacked measures 992 px at 360 wide and puts the ramp ~800 px
-    below the fold — you tune blind and scroll to check. Sliders-plus-one-plane
-    is 704 px and keeps seed, controls and resulting ramp in one view; a fourth
-    tab turns the sRGB gamut as a rotatable solid (view-only — you cannot hit
-    L 0.556 on a spinning solid, and the sliders are already exact). The
-    painted sliders are 1-D gamut charts in their own right, which is what
-    makes a plane-less layout credible at all.
-  - **Ownership is the mechanism, and it is verified (2026-08-22).** Every
-    variable Harmoni writes is stamped with `setSharedPluginData("harmoni", ...)`
-    carrying the project id and the rule that produced it. Probed live: written
-    to `color/neutral/50`, read back, cleared — variables *and* collections both
-    accept it, and `createVariable` / `setValueForMode` / `remove` / `addMode` /
-    `renameMode` all exist, so the CRUD surface is complete. The stamp is what
-    makes the four verbs safe: **read** rebuilds a project from the file itself
-    (no separate recipe to lose, and unstamped variables can be *adopted*);
-    **update** is a diff against what was last written, so a value that no
-    longer matches its stamp was hand-edited by a person and is protected by
-    default; **delete** is scoped to stamped variables, so the plugin can never
-    remove what it did not create. A generator without this cannot tell "I made
-    this and it is stale" from "a person made this on purpose".
-  - **A project is the recipe; a binding is its placement in one document.**
-    The binding lives in the file (`root.setPluginData`), so a teammate opening
-    it inherits the project; the *list* of projects lives in `clientStorage`,
-    which is genuinely per-user and per-device, and is only a convenience index.
-    Same seeds in three files means one recipe and three bindings — worth naming
-    that way now rather than discovering it later.
-  - **Destination picking is a first-run step, not a per-save step**, which is
-    what makes Miller columns viable at 360 px: asked once, it gets the whole
-    panel. Four things the live file taught: `"Primitives / Palette"` is *one
-    collection* (the slash is in the name, not a hierarchy); there is **no
-    createGroup API** — a group exists because variables are named
-    `color/brand/500`, so "choose a group" is "choose a name prefix"; type is
-    fixed per collection (dropping COLOR into `Context` is disallowed, not a
-    merge conflict); and library-imported variables report **`remote: true`**
-    and cannot be written by any plugin, which has to be caught at open rather
-    than at write.
-  - **`figma.currentUser` and `figma.payments` need explicit `permissions`
-    entries in `manifest.json`** — both refused without them. Relevant early for
-    a paid licence and for "who last wrote this".
-  - **Multi-seed is deliberately deferred (2026-08-22), and kept cheap by one
-    rule.** Nothing settled so far forecloses it — the engine already generates
-    N independent ramps, and roles are user data, so a second brand seed is
-    another entry in the seeds list plus roles pointing at it. The one thing to
-    get right *now* is that a role's rule must **name the ramp it searches**
-    (`brand · AA text`, not `AA text`). With one brand that reads as redundant;
-    with two it is the difference between adding a row and migrating every
-    stored schema.
-  - **Still open:** drag-to-canvas (the canvas swatches *view* is built — see the
-    build notes §2d), the multi-seed brand, and the three deferred items in §22.3
-    — multiplayer concurrency, what a Figma undo does to `setSharedPluginData`,
-    and `Drift · missing`'s copy when the whole destination collection is gone
-    rather than individual variables.
-  - **THE PLUGIN MOVES TO A PRIVATE REPO before its first real commit
-    (settled 2026-08-25, RFC 0028 §6).** It is a licensed product; the engine
-    stays public and MIT. Two things to know before touching any of it:
-    **(a)** `scripts/figma/` is mis-homed — **34 of its 37
-    files are Primitiv's own design tooling** (every `arrange-*.js`, plus the
-    Modal and ToggleGroup fixers), so moving the app folder wholesale takes
-    Primitiv's tooling private by accident; rehome those first. **(b)** anything
-    gating payment goes private from its first line — a `LicencePort` interface
-    can live anywhere, its implementation and server never in a public repo.
-    §6.4 lists what moves, §6.5 the sequence (the private repo and the
-    `harmoni-wasm` npm publish both need a human).
-  - **The BUILD architecture is settled: RFC 0028.** Read it before writing plugin
-    code. It fixes the ports-and-adapters shape (**the domain core lives in the UI
-    iframe; `code.ts` is a driven adapter executing plans the core computes** —
-    the current scaffold has this inverted, with ~150 lines of domain logic in
-    `src/code/`), the plan-shaped port verbs (`readInventory` / `applyPlan`, never
-    per-node CRUD — a chatty port is 120+ postMessage round trips per write), the
-    four-layer test strategy (mutation gated at the domain and application layers
-    **only**), and the Playwright-against-a-fake-Figma harness plus the contract
-    suite that is what keeps that fake honest. **Two spikes run first** (§4, §5)
-    — either can still invalidate a design decision. It also records that the
-    picker's **3D tab is cut from v1** (no design, and `api::gamut` has no
-    volumetric call).
-  - **UNDO IS SETTLED — spike run 2026-08-25, RFC 0028 §4.** A real `Cmd+Z`
-    reverts a Harmoni write **completely and atomically**: variables, collection,
-    both levels of `setSharedPluginData`, and `root.setPluginData` all go
-    together. So undo needs no design, and `Drift · missing` keeps its original
-    job (variables a *person* deleted) rather than also meaning "someone undid
-    the write". Also confirmed: plugin actions are **not** committed to undo
-    history by default, so `commitUndo()` is a design control — one commit per
-    completed write, none inside one.
-  - **`figma.triggerUndo()` IS NOT A FAITHFUL STAND-IN FOR A USER'S UNDO — never
-    test undo with it.** Called while the plugin's own execution is still open it
-    reverted the variables but left `root.setPluginData` behind *permanently*
-    (it survived four further calls) — a state a real user cannot reach. The same
-    write undone by hand reverted cleanly. Undo is verified by hand or not at all.
-  - **Three API facts earned in that spike:** `setSharedPluginData`'s namespace
-    must be `[A-Za-z0-9_.]` (a hyphen throws, **after** earlier writes have
-    applied — gotcha 5 again); `setPluginData(key, '')` genuinely **removes** the
-    key rather than emptying it; and a collection's own shared plugin data dies
-    with the collection, which bounds how durable a recipe stored there is.
+- **The Harmoni plugin lives in `primitiv-ui/harmoni` — a PRIVATE repo (moved
+  2026-08-25).** It is a licensed, commercial product; this repo keeps the
+  engine (`crates/harmoni-*`), which stays public and MIT. Its design record,
+  build architecture and working rules moved with it: the v3 build notes,
+  RFC 0028 (build architecture + domain model) and RFC 0013 (configurable
+  palette export) are all in that repo's `docs/`, and its own `CLAUDE.md`
+  carries the plugin's rules. **Do not re-add plugin design notes here** —
+  that is the split eroding. Attach the repo (`add_repo primitiv-ui/harmoni`)
+  when a session needs it.
+  - What stayed, deliberately: the **engine** and everything under
+    `crates/`, and the 34 Figma design scripts that were mis-homed under the
+    plugin app and now live in **`scripts/figma/`** (every `arrange-*.js`,
+    plus the Modal and ToggleGroup fixers — they are Primitiv's tooling, not
+    Harmoni's).
+  - The plugin consumes this repo as **published packages**
+    (`@primitiv-ui/react`, `/icons`), never a workspace link. The engine needs
+    publishing as `@primitiv-ui/harmoni-wasm` before the plugin's first
+    journey test — `crates/harmoni-wasm/pkg/` is gitignored and generated, so
+    there is no git-dependency path.
+  - **Anything gating payment belongs in the private repo only** — licence
+    verification, server endpoints, keys.
 
 ## Figma plugin-API gotchas (scripting via `figma_execute`)
 

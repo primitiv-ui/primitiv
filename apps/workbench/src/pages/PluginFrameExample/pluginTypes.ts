@@ -1,4 +1,4 @@
-// Ported from apps/harmoni-figma-plugin/src/ui/types.ts.
+// Ported from the Harmoni plugin (now primitiv-ui/harmoni, private).
 
 import { type Palette } from "harmoni-wasm";
 

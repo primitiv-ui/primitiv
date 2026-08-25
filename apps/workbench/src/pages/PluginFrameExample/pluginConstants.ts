@@ -1,4 +1,4 @@
-// Ported from apps/harmoni-figma-plugin/src/ui/constants.ts so the workbench
+// Ported from the Harmoni plugin so the workbench
 // replica generates identical ramps. Keep in sync with the plugin (this copy is
 // the UI dev surface for now; RFC 0010 Phase 5 reconciles the two).
 

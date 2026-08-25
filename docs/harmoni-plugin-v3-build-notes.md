@@ -1948,8 +1948,8 @@ The ownership model is built on four verbs. They are not evenly drawn.
 | --- | --- | --- | --- | --- | --- | --- |
 | **create** | drawn 2026-08-25 (`Project`, empty — §20) | drawn (journey 1) | drawn 2026-08-25 (`Add ramp`, §19.1) | drawn 2026-08-25 (`Role`, empty — §19.2) | drawn | drawn (`Writing`) |
 | **read** | drawn (`Setup` list) · adopt drawn 2026-08-25 (§16) · rebuild-from-file drawn 2026-08-25 (§18, a state of `In sync`) | drawn | drawn (`Palette`) | drawn (`Roles`) | drawn | drawn (`In sync`, `Audit`) |
-| **update** | drawn 2026-08-25 (`Project`, §20) | drawn 2026-08-25 (`Project`'s WRITES INTO, §20) | drawn (journeys 3, 4) | drawn 2026-08-25 (§19.2 — the list was already half of it) | drawn (via `Write refused`) | drawn · **hole** for the per-variable hand-edited protect/overwrite choice |
-| **delete** | drawn 2026-08-25 (`Project`'s footer link, §20 — a different act from `Remove`) | drawn 2026-08-25 (§17 — same act as removing the variables) | drawn 2026-08-25 (`Picker · accent`, §21.1 — removable when no role searches it) | drawn 2026-08-25 (`Role`'s footer link, §19.2 — no confirmation, deliberately) | n/a | drawn 2026-08-25 (`Remove`, §17) |
+| **update** | drawn 2026-08-25 (`Project`, §20) | drawn 2026-08-25 (`Project`'s WRITES INTO, §20) | colour: journeys 3, 4 · name + step count: `Ramp`, §23.2 | drawn 2026-08-25 (§19.2 — the list was already half of it) | drawn (via `Write refused`) | drawn · **hole** for the per-variable hand-edited protect/overwrite choice |
+| **delete** | drawn 2026-08-25 (`Project`'s footer link, §20 — a different act from `Remove`) | drawn 2026-08-25 (§17 — same act as removing the variables) | drawn 2026-08-25 (`Ramp`'s footer link, §23.2 — removable when no role searches it) | drawn 2026-08-25 (`Role`'s footer link, §19.2 — no confirmation, deliberately) | n/a | drawn 2026-08-25 (`Remove`, §17) |
 
 **Two things this makes obvious that the board could not.**
 
@@ -2318,6 +2318,9 @@ view that already existed.
 
 ### 21.1 delete/ramp — removability is derived, not a special case
 
+> **Superseded in part by §23.3** — the rule below holds, but the link moved off
+> the picker and `Picker · accent` was deleted.
+
 `Picker · accent` (`2022:168272`) is the picker for a ramp the user added,
 carrying the affordance as a quiet `Remove this ramp` link under
 `Create variables` — the same footer shape `Role` and `Project` use, and no
@@ -2375,7 +2378,7 @@ re-reading the built views against each other turns up three things it was
 structurally unable to surface, because each is a *contradiction between two
 views* rather than a missing cell.
 
-### 22.1 Adopt and Remove contradict each other
+### 22.1 Adopt and Remove contradict each other — **fixed, §23.1**
 
 The sharpest one, and neither §16 nor §17 caught it.
 
@@ -2396,7 +2399,7 @@ acting on adopted rows), and it means Remove's inventory grows a third category
 beside *taken* and *untouched*: **released**. The copy has to carry it, or the
 count on the button will not match what disappears.
 
-### 22.2 Renaming a ramp, or changing its step count, orphans variables
+### 22.2 Renaming a ramp, or changing its step count, orphans variables — **fixed, §23.2**
 
 One mechanism, two triggers, neither designed:
 
@@ -2438,3 +2441,59 @@ names around.
 
 **Not a gap, checked:** the role schema *is* importable — Settings' `Role schema`
 card carries `Save current as preset` and `Import schema` (§2c).
+
+## 23. The adopt/remove fix, and `Ramp` (2026-08-25)
+
+Both §22 findings built. Neither needed a new mechanism; both needed a view to
+stop lying about what it does.
+
+### 23.1 `Remove` now has three categories, not two
+
+The contradiction is closed by the stamp recording **origin** — `created` or
+`adopted` — and `Remove` acting on it:
+
+- **`WHAT WILL BE REMOVED`** — the four ramps Harmoni made. 80 variables.
+- **`RELEASED, NOT REMOVED`** — the two it adopted. 40 variables: the claim is
+  dropped, every one stays exactly as it is.
+- unstamped variables were never in scope and are not mentioned here at all.
+
+Footer reads `Remove 80 variables`, and the Notice counts the hand-edits *within
+the created set* (`6 of the 80`) and says the released 40 are untouched. **The
+promise holds again**: the plugin only removes what it created, and "un-adopt"
+turns out to need no separate action — it is what Remove already does to an
+adopted row.
+
+`Adopt`'s lead now says so up front ("the claim can be released later without
+touching them"), which is what makes adopting safe to accept.
+
+**A mock-arithmetic bug fell out of the same pass** (the §21.2 lesson, third
+time): the lead said 120 while six rows of "10 variables" summed to 60. Each
+ramp is **10 steps x 2 modes = 20 variables**; the rows say 20 now, and 80 + 40
+is 120.
+
+### 23.2 `Ramp` — everything that moves variable names
+
+`Ramp` (`2022:170376`, light twin below it) owns a ramp's **identity**: its name,
+its step count, and whether it exists. The picker owns its colour. That split is
+the whole point — those two fields are the ones that relabel variables, and
+`step_labels` walks 100-900 in two halves meeting at 500, so a step-count change
+moves **every** label, not just the new ones.
+
+The warning Notice states it, and the settled behaviour is **rename in place**,
+not create-plus-orphan: the stamp makes the old set findable, Figma variables
+rename, so nothing is left behind belonging to a ramp that no longer exists.
+
+`Add ramp` is the same view in its empty state — same card, same preview, same
+footer shape.
+
+### 23.3 Correction: the picker was the wrong home for `Remove this ramp`
+
+§21.1 put the delete/ramp link in the picker's footer, on the reasoning that the
+picker is where you edit a ramp. Building `Ramp` showed that was half true — you
+edit its *colour* there. Ramp identity has one home now, and `Picker · accent`
+has been **deleted** along with its light twin: with the link moved it had no
+reason to exist as a separate view.
+
+The rule it established survives unchanged and moves with the link: **a ramp is
+removable when no role's rule searches it**, which is what protects `brand` and
+`neutral` without a special case.

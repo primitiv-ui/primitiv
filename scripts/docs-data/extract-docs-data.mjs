@@ -37,7 +37,7 @@ const EL_IFACE = {
   input: "HTMLInputElement", span: "HTMLSpanElement", ul: "HTMLUListElement",
   li: "HTMLLIElement", label: "HTMLLabelElement", select: "HTMLSelectElement",
   textarea: "HTMLTextAreaElement", p: "HTMLParagraphElement", nav: "HTMLElement",
-  dialog: "HTMLDialogElement", h2: "HTMLHeadingElement",
+  dialog: "HTMLDialogElement", h2: "HTMLHeadingElement", h3: "HTMLHeadingElement",
 };
 
 const name = process.argv[2] || "button";

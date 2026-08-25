@@ -18,6 +18,22 @@
  * `node scripts/docs-data/sync-docs-data.mjs`.
  */
 export const REGISTRY = {
+  accordion: {
+    displayName: "Accordion", kind: "registry", status: "stable", category: "Disclosure",
+    propsFile: "packages/react/src/Accordion/types.ts",
+    subComponents: [
+      { name: "Accordion.Root", propsType: "AccordionRootProps", element: "div", component: "Root" },
+      { name: "Accordion.Item", propsType: "AccordionItemProps", element: "div", component: "Item" },
+      { name: "Accordion.Header", propsType: "AccordionHeaderProps", element: "h3", component: "Header" },
+      { name: "Accordion.Trigger", propsType: "AccordionTriggerProps", element: "button", component: "Trigger" },
+      { name: "Accordion.Content", propsType: "AccordionContentProps", element: "div", component: "Content" },
+      { name: "Accordion.TriggerIcon", propsType: "AccordionTriggerIconProps", element: "span", component: "TriggerIcon" },
+    ],
+    contract: "registry/components/accordion/contract.json",
+    /* The file has no single composed Accordion set — this is `Accordion/Item`,
+       the trigger, which is the more useful of the two landing points. */
+    figmaComponentSetKey: "416:6729", importPath: "@primitiv-ui/react",
+  },
   badge: {
     displayName: "Badge", kind: "registry-only", status: "stable", category: "Data Display",
     /* Primitive-less: the props live in the copied file, not packages/react. */

@@ -22,6 +22,7 @@
 import badgeDocs from "@/docs-data/badge.docs.json";
 import buttonDocs from "@/docs-data/button.docs.json";
 import inputDocs from "@/docs-data/input.docs.json";
+import accordionDocs from "@/docs-data/accordion.docs.json";
 import checkboxDocs from "@/docs-data/checkbox.docs.json";
 import modalDocs from "@/docs-data/modal.docs.json";
 import selectDocs from "@/docs-data/select.docs.json";
@@ -189,6 +190,7 @@ const DOCS = {
   badge: badgeDocs as unknown as ComponentDocs,
   button: buttonDocs as unknown as ComponentDocs,
   input: inputDocs as unknown as ComponentDocs,
+  accordion: accordionDocs as unknown as ComponentDocs,
   checkbox: checkboxDocs as unknown as ComponentDocs,
   modal: modalDocs as unknown as ComponentDocs,
   select: selectDocs as unknown as ComponentDocs,

@@ -4,7 +4,7 @@
     "displayName": "Accordion",
     "category": "Disclosure",
     "description": "A vertically stacked set of collapsible sections — hairline rows with a chevron that flips open→closed (WAI-ARIA Accordion pattern).",
-    "documented": false
+    "documented": true
   },
   {
     "id": "alert",

@@ -1,0 +1,401 @@
+{
+  "id": "accordion",
+  "displayName": "Accordion",
+  "kind": "registry",
+  "status": "stable",
+  "category": "Disclosure",
+  "description": "A vertically stacked set of collapsible sections — hairline rows with a chevron that flips open→closed (WAI-ARIA Accordion pattern).",
+  "headless": {
+    "package": "@primitiv-ui/react",
+    "importPath": "@primitiv-ui/react",
+    "subComponents": [
+      {
+        "name": "Accordion.Root",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "defaultValue",
+            "type": "string",
+            "required": false,
+            "default": null,
+            "description": "Forbidden in controlled mode — use `value`.\nValue of the item expanded on first render. A single value even in\n`multiple` mode — uncontrolled accordions can seed only one open item;\npass controlled {@link AccordionRootControlledProps.value`value`} to\nstart with several. Omit to start with everything collapsed."
+          },
+          {
+            "name": "dir",
+            "type": "\"ltr\" | \"rtl\"",
+            "required": false,
+            "default": null,
+            "description": "Reading direction; see {@link AccordionReadingDirection}. In `\"rtl\"` the\nhorizontal arrow keys are mirrored. Also set as the container's `dir`\nattribute. Inherited from the nearest {@link DirectionProvider } when\nomitted, falling back to `\"ltr\"`."
+          },
+          {
+            "name": "multiple",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Allow more than one section to be expanded at a time. When `false`,\nopening an item collapses whichever item was previously open."
+          },
+          {
+            "name": "onValueChange",
+            "type": "(values: string[]) => void",
+            "required": false,
+            "default": null,
+            "description": "Called with the complete next array of expanded values whenever the user\ntoggles an item.\nForbidden in uncontrolled mode."
+          },
+          {
+            "name": "orientation",
+            "type": "\"vertical\" | \"horizontal\"",
+            "required": false,
+            "default": "\"vertical\"",
+            "description": "Layout axis, controlling arrow-key navigation: `\"vertical\"` binds\nArrowUp/ArrowDown, `\"horizontal\"` binds ArrowLeft/ArrowRight. Surfaces as\n`data-orientation` on the root."
+          },
+          {
+            "name": "value",
+            "type": "string[]",
+            "required": false,
+            "default": null,
+            "description": "The full set of currently expanded item values. Must be kept in sync by\nthe parent via `onValueChange`. In single (`multiple={false}`) mode this\nholds at most one value.\nForbidden in uncontrolled mode — use `defaultValue`."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [
+          {
+            "name": "size",
+            "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
+            "default": "md",
+            "description": "Control size for the whole widget; `data-density` scales each size further."
+          }
+        ],
+        "dataAttributes": [
+          {
+            "name": "data-orientation",
+            "value": "horizontal",
+            "when": "horizontal"
+          },
+          {
+            "name": "data-orientation",
+            "value": "vertical",
+            "when": "vertical"
+          }
+        ],
+        "class": "primitiv-accordion"
+      },
+      {
+        "name": "Accordion.Item",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": true,
+            "default": null,
+            "description": "Section contents — typically an {@link AccordionHeaderProps`Accordion.Header`}\n+ {@link AccordionContentProps`Accordion.Content`} pair."
+          },
+          {
+            "name": "value",
+            "type": "string",
+            "required": false,
+            "default": null,
+            "description": "Stable identifier matched against the root's expanded set (and against\n`value` / `defaultValue`). When omitted, a stable id is generated via\n`useId()` — fine for anonymous items whose state is never driven from\noutside."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-accordion__item"
+      },
+      {
+        "name": "Accordion.Header",
+        "extends": "HTMLHeadingElement",
+        "props": [
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": true,
+            "default": null,
+            "description": "Header contents — typically an\n{@link AccordionTriggerProps`Accordion.Trigger`}."
+          },
+          {
+            "name": "level",
+            "type": "HeadingLevel",
+            "required": false,
+            "default": "3",
+            "description": "Heading level to render (`h1`–`h6`). Choose the level that fits the\nsurrounding document outline — the WAI-ARIA Accordion pattern requires\neach trigger to be wrapped in a heading at the right level."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-accordion__header"
+      },
+      {
+        "name": "Accordion.Trigger",
+        "extends": "HTMLButtonElement",
+        "props": [
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": true,
+            "default": null,
+            "description": "Trigger label / contents — the visible section heading text, plus an\noptional {@link AccordionTriggerIconProps`Accordion.TriggerIcon`}."
+          },
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Render the consumer's own element instead of a `<button>`, merging all\naccordion ARIA attributes, event handlers, and the ref onto it via the\n{@link Slot } pattern. When combined with `disabled`, `role=\"button\"` is\ninjected so `aria-disabled` is valid on non-button children."
+          },
+          {
+            "name": "disabled",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Disable the trigger. Rendered as `aria-disabled` / `data-disabled`\nrather than the native `disabled` attribute, so the button stays\nfocusable (discoverable by keyboard) but is excluded from arrow-key\nnavigation and cannot be activated."
+          },
+          {
+            "name": "ref",
+            "type": "Ref<T>",
+            "required": false,
+            "default": null,
+            "description": "Ref to the rendered element. Defaults to `HTMLButtonElement`; when using\n`asChild`, specify the child's element type (e.g. `HTMLAnchorElement`)."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [
+          {
+            "name": "data-state",
+            "value": "open",
+            "when": "open"
+          },
+          {
+            "name": "data-state",
+            "value": "closed",
+            "when": "closed"
+          },
+          {
+            "name": "data-disabled",
+            "value": "true",
+            "when": "disabled"
+          },
+          {
+            "name": "data-disabled",
+            "value": "false",
+            "when": "not disabled"
+          }
+        ],
+        "class": "primitiv-accordion__trigger"
+      },
+      {
+        "name": "Accordion.Content",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": true,
+            "default": null,
+            "description": "Panel contents, revealed when the matching trigger is expanded."
+          },
+          {
+            "name": "forceMount",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Keep the panel mounted in the DOM even while collapsed (instead of\nremoving it from view with the `hidden` attribute), so CSS open/close\ntransitions can run. While closed it receives `aria-hidden=\"true\"` so\nassistive tech still ignores it; drive visibility yourself via\n`[data-state=\"closed\"]`."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [
+          {
+            "name": "data-state",
+            "value": "open",
+            "when": "open"
+          },
+          {
+            "name": "data-state",
+            "value": "closed",
+            "when": "closed"
+          }
+        ],
+        "class": "primitiv-accordion__content"
+      },
+      {
+        "name": "Accordion.TriggerIcon",
+        "extends": "HTMLSpanElement",
+        "props": [
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": true,
+            "default": null,
+            "description": "Icon contents — an inline `<svg>` or any icon component. Rendered inside\nan `aria-hidden` `<span>` carrying a `data-state` open/close hook."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [
+          {
+            "name": "data-state",
+            "value": "open",
+            "when": "open"
+          },
+          {
+            "name": "data-state",
+            "value": "closed",
+            "when": "closed"
+          }
+        ],
+        "class": "primitiv-accordion__trigger-icon"
+      }
+    ]
+  },
+  "styled": {
+    "installCommand": "primitiv add accordion",
+    "rootClass": "primitiv-accordion",
+    "customProperties": [
+      {
+        "name": "--primitiv-accordion-item-border-color",
+        "defaultsTo": "var(--primitiv-border-subtle)"
+      },
+      {
+        "name": "--primitiv-accordion-item-border-width",
+        "defaultsTo": "var(--primitiv-border-width-1)"
+      },
+      {
+        "name": "--primitiv-accordion-trigger-padding-inline",
+        "defaultsTo": "var(--primitiv-framed-control-md-padding-inline)"
+      },
+      {
+        "name": "--primitiv-accordion-trigger-gap",
+        "defaultsTo": "var(--primitiv-framed-control-md-gap)"
+      },
+      {
+        "name": "--primitiv-accordion-trigger-icon-size",
+        "defaultsTo": "var(--primitiv-framed-control-md-icon-size)"
+      },
+      {
+        "name": "--primitiv-accordion-trigger-icon-rotation",
+        "defaultsTo": "0deg"
+      },
+      {
+        "name": "--primitiv-accordion-trigger-fg",
+        "defaultsTo": "var(--primitiv-content-primary)"
+      },
+      {
+        "name": "--primitiv-accordion-trigger-font-family",
+        "defaultsTo": "var(--primitiv-label-md-font-family)"
+      },
+      {
+        "name": "--primitiv-accordion-trigger-font-size",
+        "defaultsTo": "var(--primitiv-label-md-font-size)"
+      },
+      {
+        "name": "--primitiv-accordion-trigger-font-weight",
+        "defaultsTo": "var(--primitiv-label-md-font-weight)"
+      },
+      {
+        "name": "--primitiv-accordion-trigger-line-height",
+        "defaultsTo": "var(--primitiv-label-md-line-height)"
+      },
+      {
+        "name": "--primitiv-accordion-content-padding-block",
+        "defaultsTo": "var(--primitiv-panel-padding-block)"
+      },
+      {
+        "name": "--primitiv-accordion-content-padding-inline",
+        "defaultsTo": "var(--primitiv-panel-padding-inline)"
+      },
+      {
+        "name": "--primitiv-accordion-content-fg",
+        "defaultsTo": "var(--primitiv-content-secondary)"
+      },
+      {
+        "name": "--primitiv-accordion-content-font-family",
+        "defaultsTo": "var(--primitiv-body-md-font-family)"
+      },
+      {
+        "name": "--primitiv-accordion-content-font-size",
+        "defaultsTo": "var(--primitiv-body-md-font-size)"
+      },
+      {
+        "name": "--primitiv-accordion-content-font-weight",
+        "defaultsTo": "var(--primitiv-body-md-font-weight)"
+      },
+      {
+        "name": "--primitiv-accordion-content-line-height",
+        "defaultsTo": "var(--primitiv-body-md-line-height)"
+      },
+      {
+        "name": "--primitiv-accordion-content-transition-duration",
+        "defaultsTo": "var(--primitiv-motion-duration-control)"
+      },
+      {
+        "name": "--primitiv-accordion-content-transition-easing",
+        "defaultsTo": "var(--primitiv-motion-easing-default)"
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-orientation",
+        "value": "horizontal",
+        "when": "horizontal"
+      },
+      {
+        "name": "data-orientation",
+        "value": "vertical",
+        "when": "vertical"
+      },
+      {
+        "name": "data-state",
+        "value": "open",
+        "when": "open"
+      },
+      {
+        "name": "data-state",
+        "value": "closed",
+        "when": "closed"
+      },
+      {
+        "name": "data-disabled",
+        "value": "true",
+        "when": "disabled"
+      },
+      {
+        "name": "data-disabled",
+        "value": "false",
+        "when": "not disabled"
+      },
+      {
+        "name": "data-state",
+        "value": "open",
+        "when": "open"
+      },
+      {
+        "name": "data-state",
+        "value": "closed",
+        "when": "closed"
+      },
+      {
+        "name": "data-state",
+        "value": "open",
+        "when": "open"
+      },
+      {
+        "name": "data-state",
+        "value": "closed",
+        "when": "closed"
+      }
+    ]
+  },
+  "figma": {
+    "componentSetKey": "416:6729"
+  }
+}

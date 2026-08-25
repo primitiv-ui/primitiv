@@ -41,6 +41,12 @@
   font-size: var(--primitiv-heading-h3-font-size);
   line-height: var(--primitiv-heading-h3-line-height);
   color: var(--primitiv-content-primary);
+  /* An ANCHORED heading — the TOC links each part (`Field.Root`) — so it needs
+     the same sticky-header offset the section and example titles carry, or
+     following its own TOC entry lands it behind the header. It is the one
+     anchor target that was missed when that fix went in; every other id on the
+     page belongs to a `.docs-section-title` or a `.docs-example-title`. */
+  scroll-margin-block-start: var(--primitiv-space-space-96);
 }
 
 .docs-props-empty {

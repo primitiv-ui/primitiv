@@ -1949,15 +1949,14 @@ The ownership model is built on four verbs. They are not evenly drawn.
 | **create** | partial — `+ New project` has no naming view | drawn (journey 1) | **hole** — `+ Add ramp` has no destination view | **hole** | drawn | drawn (`Writing`) |
 | **read** | drawn (`Setup` list) · adopt drawn 2026-08-25 (§16) · **hole** for rebuild-from-file (state 7) | drawn | drawn (`Palette`) | drawn (`Roles`) | drawn | drawn (`In sync`, `Audit`) |
 | **update** | **hole** (rename) | **hole** (rebind to another destination without re-running setup) | drawn (journeys 3, 4) | **hole** — name and rule are separate fields by decision, and neither has a surface | drawn (via `Write refused`) | drawn · **hole** for the per-variable hand-edited protect/overwrite choice |
-| **delete** | **hole** | **hole** (unbind this file) | **hole** | **hole** | n/a | partial — `Remove 120 variables from this file` exists in `In sync`'s footer, with no confirmation and no result view |
+| **delete** | **hole** (the recipe itself) | drawn 2026-08-25 (§17 — same act as removing the variables) | **hole** (one ramp; belongs to Palette) | **hole** | n/a | drawn 2026-08-25 (`Remove`, §17) |
 
 **Two things this makes obvious that the board could not.**
 
-- **Delete is a whole verb with almost nothing behind it.** Its safety story *is*
-  the stamp — the plugin can only remove what it created — and that story has one
-  footer link and no view. The confirmation is where the scope gets stated
-  ("120 stamped variables; 6 others left alone"), so the reassurance currently
-  has nowhere to appear.
+- **Delete was a whole verb with almost nothing behind it.** Its safety story
+  *is* the stamp — the plugin can only remove what it created — and that story
+  had one footer link and no view. **Closed 2026-08-25 for variables and the
+  binding (§17)**; a single ramp and the recipe itself are still open.
 - **Adopt is the read verb's other half and it was a note.** `Scan for an
   existing palette` sat on `Setup` with nothing behind it. **Closed 2026-08-25 —
   see §16**, which also corrects two claims made here.
@@ -2131,8 +2130,13 @@ that no longer belong to any project and that nothing in the panel could later
 find — a worse outcome than removing them, but only if the person is told. The
 count is what makes it honest rather than silent.
 
-Unstamped variables are the other half of the statement and are never touched —
-the same `WHAT STAYS UNTOUCHED` card Adopt uses, for the same reason.
+Unstamped variables are the other half of the statement and are never touched.
+**They are a line in the lead, not Adopt's `WHAT STAYS UNTOUCHED` card** —
+corrected once it was on screen: the hand-edited warning belongs in the shell's
+`Notice` slot, immediately above the destructive button, and a card-wrapped
+`Alert` directly above *that* made two alerts in a row and read as a pile. The
+card earns its place on Adopt because the found/not-found split is that screen's
+substance; here what stays is a qualifier, so it folds into the sentence.
 
 ### 17.5 The write presents on the button, and lands on Setup
 
@@ -2147,3 +2151,24 @@ the binding just died. If Setup's notice does not say so, "Remove" reads as
 "delete everything" and the two concepts collapse. Deleting the recipe itself
 stays a separate hole (`delete/project`), and belongs to the Setup list or
 Settings, not here.
+
+### 17.6 Built
+
+`Remove` (`2022:162413`) at x=7480 on the Views page, `Remove · light`
+(`2022:163381`) below it — again a real instance with the inner shell's `Intent`
+pin flipped as well (§16.4). `Show notice = true`, breadcrumb `Primitiv /
+Remove`, footer a two-button stack cloned from `In sync`'s: `Variant=danger`
+`Remove 120 variables` over a secondary `Cancel`.
+
+**The Notice-slot `Alert` is deliberately larger than a body one** — the shell's
+`Notice` frame does not carry the body's `Dense` pin, so its Alert renders at the
+panel's normal scale. That is pre-existing (`Write refused` looks the same) and
+right here: a warning immediately above a destructive button should outweigh the
+body.
+
+Flow board journey **9 · DELETING WHAT WAS WRITTEN** (`In sync → Remove →
+Setup`, both solid), with the two notes this design turns on: the receipt-vs-
+choice inversion of Adopt's rows, and why the landing is Setup.
+
+**Still open in `delete`:** removing a single ramp (belongs to Palette) and
+deleting the project recipe itself (belongs to the Setup list or Settings).

@@ -234,9 +234,32 @@
  * find-in-page.
  */
 .docs-index-card-description {
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
-  line-clamp: 3;
+  /*
+   * Clamped by HEIGHT, not by `-webkit-line-clamp`, and with no truncation
+   * indicator at all.
+   *
+   * `-webkit-line-clamp` draws U+2026 itself and there is no way to suppress
+   * it: `text-overflow` does not apply to it, and the standard `block-ellipsis`
+   * that would is not shipping in any engine. Since this repo does not use that
+   * character anywhere, the clamp had to stop relying on the browser to draw
+   * one.
+   *
+   * A fade was the obvious alternative — it is what Collapsible's clipped
+   * preview uses to say "more follows" — but a mask or gradient applies
+   * UNCONDITIONALLY, so a one-line description would be faded out despite being
+   * complete. CSS cannot ask whether the text actually overflowed, so the fade
+   * would lie on exactly the cards that need no indicator at all.
+   *
+   * The line-height token carries a unit (1.5rem), so three of them is a real
+   * length and the fourth line is clipped whole rather than sliced through.
+   *
+   * `body-md` because these cards are the default size, which is what
+   * `--primitiv-card-description-line-height` resolves to. That component
+   * property is deliberately NOT referenced here even though it would inherit:
+   * it is Card's internal API, not a token, and check-tokens rightly rejects
+   * reaching for one. If the index ever passes a `size` to Card, this must
+   * change with it.
+   */
+  max-block-size: calc(3 * var(--primitiv-body-md-line-height));
   overflow: hidden;
 }

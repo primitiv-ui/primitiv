@@ -2,6 +2,16 @@
 
 import Link from "next/link";
 
+import {
+  Accordion,
+  AccordionContent,
+  AccordionHeader,
+  AccordionItem,
+  AccordionTrigger,
+  AccordionTriggerIcon,
+} from "@/components/accordion";
+import { ChevronDown } from "@primitiv-ui/icons";
+
 import { Badge } from "@/components/badge";
 import {
   Card,
@@ -20,6 +30,8 @@ import {
 } from "@/lib/docs-data";
 import { cardSummary } from "@/lib/card-summary";
 import { renderDoc } from "@/lib/render-doc";
+
+import { useCompactIndex } from "./use-compact-index";
 
 import { CARD_MARKS, MARK_GRID, PLACEHOLDER_MARK, type MarkRole } from "./card-marks";
 
@@ -170,6 +182,52 @@ const CardBody = ({ entry }: { entry: RosterEntry }) => (
 );
 
 /**
+ * One category's cards.
+ *
+ * `compact` switches the cards to Card's own `horizontal` layout — the mark
+ * beside the text rather than a 16/9 band above it. On a 375px phone that takes
+ * a card from ~333px tall to ~140px, which is the difference between 34 screens
+ * of scroll for the full index and about a third of that. It is Card's own
+ * supported layout, not a docs-side override of its internals.
+ */
+const CategoryGrid = ({
+  group,
+  compact,
+}: {
+  group: readonly RosterEntry[];
+  compact: boolean;
+}) => (
+  <ul className="docs-index-grid" data-compact={compact ? "" : undefined}>
+    {group.map((entry) => (
+      <li key={entry.id}>
+        {entry.documented ? (
+          /* asChild makes the whole card the link, so the hit area is
+             the card rather than just the title text — and it stays a
+             single <a>, not a card containing a link, which would give
+             screen-reader users two overlapping targets. */
+          <Card asChild layout={compact ? "horizontal" : "vertical"}>
+            <Link className="docs-index-card" href={`/components/${entry.id}/`}>
+              <CardBody entry={entry} />
+            </Link>
+          </Card>
+        ) : (
+          /* No link, no button, no `aria-disabled`: there is nothing to
+             interact with, so the card is static content. Marking it
+             disabled would announce an interactive element that isn't
+             there. */
+          <Card
+            className="docs-index-card docs-index-card--inert"
+            layout={compact ? "horizontal" : "vertical"}
+          >
+            <CardBody entry={entry} />
+          </Card>
+        )}
+      </li>
+    ))}
+  </ul>
+);
+
+/**
  * The `/components` index.
  *
  * This is a page in its own right, not just a nav group, because it owns the
@@ -185,60 +243,71 @@ const CardBody = ({ entry }: { entry: RosterEntry }) => (
  * component appears here the moment it is in `registry.json`, and it starts
  * linking the moment it has docs-data.
  */
-export const ComponentsIndex = () => (
-  <>
-    <h1 className="docs-index-title">Components</h1>
-    <p className="docs-index-lede">
-      Every component ships three ways: a headless primitive, a styled registry
-      surface you own outright, and a Figma component set. Pick a component to
-      see all three — pages marked <em>Docs soon</em> are on their way.
-    </p>
+export const ComponentsIndex = () => {
+  const compact = useCompactIndex();
 
-    {CATEGORY_ORDER.map((category) => {
-      const group = ROSTER.filter((entry) => entry.category === category);
-      /* Never expected now that the roster covers the whole registry, but a
-         heading over an empty grid is worse than a missing heading. */
-      if (group.length === 0) return null;
+  const groups = CATEGORY_ORDER.map((category) => ({
+    category,
+    group: ROSTER.filter((entry) => entry.category === category),
+    /* Never expected now that the roster covers the whole registry, but a
+       heading over an empty grid is worse than a missing heading. */
+  })).filter(({ group }) => group.length > 0);
 
-      return (
-        <section className="docs-index-group" key={category}>
-          {/* The id is the TOC rail's anchor; the heading is the group's
-              accessible name, so the list below is announced as "Buttons"
-              rather than as one undifferentiated run of links. */}
-          <h2 className="docs-index-group-title" id={categorySlug(category)}>
-            {category}
-          </h2>
+  return (
+    <>
+      <h1 className="docs-index-title">Components</h1>
+      <p className="docs-index-lede">
+        Every component ships three ways: a headless primitive, a styled
+        registry surface you own outright, and a Figma component set. Pick a
+        component to see all three — pages marked <em>Docs soon</em> are on
+        their way.
+      </p>
 
-          <ul className="docs-index-grid">
-            {group.map((entry) => (
-              <li key={entry.id}>
-                {entry.documented ? (
-                  /* asChild makes the whole card the link, so the hit area is
-                     the card rather than just the title text — and it stays a
-                     single <a>, not a card containing a link, which would give
-                     screen-reader users two overlapping targets. */
-                  <Card asChild>
-                    <Link
-                      className="docs-index-card"
-                      href={`/components/${entry.id}/`}
-                    >
-                      <CardBody entry={entry} />
-                    </Link>
-                  </Card>
-                ) : (
-                  /* No link, no button, no `aria-disabled`: there is nothing to
-                     interact with, so the card is static content. Marking it
-                     disabled would announce an interactive element that isn't
-                     there. */
-                  <Card className="docs-index-card docs-index-card--inert">
-                    <CardBody entry={entry} />
-                  </Card>
-                )}
-              </li>
-            ))}
-          </ul>
-        </section>
-      );
-    })}
-  </>
-);
+      {compact ? (
+        /*
+         * Ten categories, 63 components: on a phone the flat index is about 34
+         * screens of scrolling, which is not browsable. The categories become
+         * an Accordion — the library's own disclosure, rather than a bespoke
+         * one — opening at roughly a screen with the first category expanded.
+         *
+         * `multiple` so opening Forms does not close Layout: this is an index
+         * to browse, not a set of alternatives, and auto-collapsing what you
+         * just read is the wrong model for it.
+         *
+         * The heading ids stay on the triggers so the TOC rail's anchors keep
+         * working; jumping to a collapsed category still lands on its heading.
+         */
+        <Accordion multiple defaultValue={groups[0]?.category}>
+          {groups.map(({ category, group }) => (
+            <AccordionItem key={category} value={category}>
+              <AccordionHeader>
+                <AccordionTrigger id={categorySlug(category)}>
+                  {category}
+                  <AccordionTriggerIcon>
+                    <ChevronDown aria-hidden="true" />
+                  </AccordionTriggerIcon>
+                </AccordionTrigger>
+              </AccordionHeader>
+              <AccordionContent>
+                <CategoryGrid group={group} compact />
+              </AccordionContent>
+            </AccordionItem>
+          ))}
+        </Accordion>
+      ) : (
+        groups.map(({ category, group }) => (
+          <section className="docs-index-group" key={category}>
+            {/* The id is the TOC rail's anchor; the heading is the group's
+                accessible name, so the list below is announced as "Buttons"
+                rather than as one undifferentiated run of links. */}
+            <h2 className="docs-index-group-title" id={categorySlug(category)}>
+              {category}
+            </h2>
+
+            <CategoryGrid group={group} compact={false} />
+          </section>
+        ))
+      )}
+    </>
+  );
+};

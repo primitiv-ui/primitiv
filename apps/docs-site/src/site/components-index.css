@@ -58,6 +58,20 @@
   gap: var(--primitiv-grid-gap-lg);
 }
 
+/*
+ * The compact shape, set by `useCompactIndex` below 36rem — where the grid can
+ * no longer fit two 16rem columns and a 16/9 media band above every card turns
+ * the index into ~34 phone screens of scrolling.
+ *
+ * The cards themselves switch to Card's own `horizontal` layout in the markup,
+ * which is the structural half. This is only the rhythm: a tighter gap so a
+ * column of horizontal cards reads as a list rather than as cards that happen
+ * to be stacked.
+ */
+.docs-index-grid[data-compact] {
+  gap: var(--primitiv-grid-gap-sm);
+}
+
 /* The card IS the link (Card asChild), so it needs the block layout and a
    focus ring of its own — the default anchor underline would also apply to
    every card title, so it is cleared here rather than in the base layer. */

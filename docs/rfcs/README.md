@@ -149,6 +149,7 @@ surface and applies once those are read.
 | [0010](0010-oklch-color-picker.md) | OKLCH colour picker | Draft |
 | [0011](0011-duotone-neutral-ramps.md) | Duotone neutral ramps | Implemented (engine + workbench UI) |
 | [0013](0013-configurable-palette-export.md) | Configurable palette export (variables & canvas swatches) | Draft |
+| [0028](0028-harmoni-plugin-architecture.md) | Harmoni plugin: build architecture & test strategy | Draft — spikes defined |
 
 - **0010** — the OKLCH-first, oklch.com-style colour picker that replaces the
   hex input: paint-backed Lightness×Chroma and Hue charts with a live gamut
@@ -170,6 +171,16 @@ surface and applies once those are read.
   a button or drag-and-drop). Pure `resolve` / `planSwatches` cores behind
   `VariableStore` / `CanvasRenderer` ports; built workbench-first with a live HTML
   preview. Works for the author and the end user alike.
+- **0028** — how the Harmoni Figma plugin gets built, now that the v3 design phase
+  is complete: the domain core lives in the UI iframe and `code.ts` is demoted to
+  a driven adapter executing plans the core computes (plan-shaped port verbs, not
+  per-node CRUD); a four-layer test strategy with mutation gated at the domain and
+  application layers only; Playwright ATDD driving the real UI against an in-page
+  fake Figma, kept honest by a contract suite that also runs inside the real
+  sandbox. Defines the two spikes that must run first — the (fully scriptable)
+  undo probe and the in-sandbox contract runner — and records the repo/licence
+  position, including the measurement that the whole public-CLI → engine coupling
+  is one function call.
 
 ## Figma library
 

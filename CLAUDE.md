@@ -1241,14 +1241,29 @@ source of truth for when a skill applies.
     stored schema.
   - **Still open:** drag-to-canvas (the canvas swatches *view* is built — see the
     build notes §2d), the multi-seed brand, and the three deferred items in §22.3
-    — multiplayer concurrency, what a Figma undo does to `setSharedPluginData`
-    (a probe, not a design task: if the stamp goes with the undo there is no
-    recovery path), and `Drift · missing`'s copy when the whole destination
-    collection is gone rather than individual variables. ATDD / Playwright
-    against a faked document port is agreed in principle and deferred to its own
-    session — the flow board is already most of the test plan (journey → describe,
-    card → page object, edge label → step), and the piece that decides whether it
-    works is a contract suite run against both the fake and the real adapter.
+    — multiplayer concurrency, what a Figma undo does to `setSharedPluginData`,
+    and `Drift · missing`'s copy when the whole destination collection is gone
+    rather than individual variables.
+  - **The BUILD architecture is settled: RFC 0028.** Read it before writing plugin
+    code. It fixes the ports-and-adapters shape (**the domain core lives in the UI
+    iframe; `code.ts` is a driven adapter executing plans the core computes** —
+    the current scaffold has this inverted, with ~150 lines of domain logic in
+    `src/code/`), the plan-shaped port verbs (`readInventory` / `applyPlan`, never
+    per-node CRUD — a chatty port is 120+ postMessage round trips per write), the
+    four-layer test strategy (mutation gated at the domain and application layers
+    **only**), and the Playwright-against-a-fake-Figma harness plus the contract
+    suite that is what keeps that fake honest. **Two spikes run first** (§4, §5)
+    — either can still invalidate a design decision. It also records that the
+    picker's **3D tab is cut from v1** (no design, and `api::gamut` has no
+    volumetric call).
+  - **`figma.commitUndo()` / `figma.triggerUndo()` exist, so the undo probe is
+    fully scriptable** — it was recorded as needing a human pressing Cmd+Z. The
+    API read also turned up a design fact the build notes do not have: **plugin
+    actions are NOT committed to undo history by default**, so a whole write is
+    one undo step unless the plugin says otherwise. `commitUndo()` is therefore a
+    design control (what one Cmd+Z means to a user), not plumbing. What is still
+    unknown is whether `setSharedPluginData` / `root.setPluginData` participate in
+    the undo stack at all — RFC 0028 §4 has the probe and the three outcomes.
 
 ## Figma plugin-API gotchas (scripting via `figma_execute`)
 

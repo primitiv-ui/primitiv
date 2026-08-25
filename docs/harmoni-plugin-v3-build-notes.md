@@ -9,6 +9,13 @@ Design set: page **"Harmoni Plugin — Views (v3 design)"** — Palette, Picker,
 Curve, Export, Setup, Destination. Components: `Harmoni / Panel Header`,
 `Harmoni / Context Bar`, `Harmoni / Swatch`, `Harmoni / Axis Slider`.
 
+> **This file is the *what*. `docs/rfcs/0028-harmoni-plugin-architecture.md` is
+> the *how*** — the ports-and-adapters shape, the four-layer test strategy, the
+> Playwright/ATDD harness, and the two spikes that run before any plugin code.
+> It cuts the picker's 3D tab from v1 (§1.2) and supersedes §22.3's claim that
+> the undo question needs a human in Figma: `figma.triggerUndo()` exists, so the
+> probe is scriptable (RFC 0028 §4).
+
 ## 1. Window and chrome — measured, not guessed
 
 - **`figma.showUI({ width: 360, height: 900 })`.** 900 serves every view built

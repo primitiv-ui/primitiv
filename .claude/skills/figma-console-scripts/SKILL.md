@@ -175,7 +175,7 @@ for colours and type sizes, and mirror existing workspace components
 
 ### 5. Save to `scripts/` and document in `PLUGIN_UX_PLAN.md`
 
-All console scripts live in `apps/harmoni-figma-plugin/scripts/`. Both
+All console scripts live in `scripts/figma/`. Both
 the filename and the Figma page name **must include a version segment**
 (see below). Add the script to the wireframe scripts table in
 `PLUGIN_UX_PLAN.md` before committing.
@@ -202,7 +202,7 @@ each other; the wireframes file directory should always represent
 All reusable console scripts live in:
 
 ```
-apps/harmoni-figma-plugin/scripts/
+scripts/figma/
   create-v1-wireframes.js                  ← single-screen layout at 320 / 400 / 480px + tint variant
   create-v1-output-detail-wireframes.js    ← output zone in default / canvas-swatches / variables states
 ```

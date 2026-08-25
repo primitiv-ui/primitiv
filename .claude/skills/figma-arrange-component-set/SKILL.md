@@ -6,7 +6,7 @@ description: Canonical recipe for arranging a framed-control component set into 
 # Arranging a framed-control component set
 
 Every framed-control component set ships with a dedicated arrange script saved
-under `apps/harmoni-figma-plugin/scripts/`. These scripts are run once (or
+under `scripts/figma/`. These scripts are run once (or
 re-run after adding variants) via the Figma developer console **or** via
 `mcp__figma-console__figma_execute`.
 
@@ -89,7 +89,7 @@ Only use `variantProperties` in scripts that run on a clean, fully-built set.
 ## Adapting for a new component
 
 1. Copy the closest existing script to
-   `apps/harmoni-figma-plugin/scripts/arrange-<component>-component-set.js`.
+   `scripts/figma/arrange-<component>-component-set.js`.
 2. Change the property name constants and ordering arrays.
 3. Update gap constants if the component has different visual weight.
 4. Change the label group name to `"<ComponentName> Grid Labels"`.

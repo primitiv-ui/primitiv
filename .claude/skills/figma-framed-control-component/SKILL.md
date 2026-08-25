@@ -240,7 +240,7 @@ component. Quick summary:
 
 - Grid: size rows (md first, then xs sm lg xl) × variant/state columns
   (sub-grouped by interaction/state). No density rows — density is a frame concern.
-- Script lives in `apps/harmoni-figma-plugin/scripts/arrange-<component>-component-set.js`.
+- Script lives in `scripts/figma/arrange-<component>-component-set.js`.
 - **EDGE_PAD = 24** (canonical across every arrange script): all component
   positions are shifted 24 px inward (4 px ring overflow + 20 px breathing room)
   so focus ring overflow (−4 px) never reaches the component-set frame boundary

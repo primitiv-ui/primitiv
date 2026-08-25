@@ -572,7 +572,7 @@ source of truth for when a skill applies.
     `panel-offset`; and the Figma↔headless name drift is deliberate and
     recorded in the descriptions (`Content`→`Panel` is the existing house
     convention, and one `Link` part legitimately needs two geometries).
-    Arrange script: `apps/harmoni-figma-plugin/scripts/arrange-navigation-menu-component-sets.js`.
+    Arrange script: `scripts/figma/arrange-navigation-menu-component-sets.js`.
     Registry `navigation-menu` (anchor-positioned Viewport panel projection,
     trigger chevron flip, arrow/underline `Indicator` modifiers) and the
     kitchen-sink demo (desktop five-panel disclosure nav — two-column,
@@ -847,7 +847,7 @@ source of truth for when a skill applies.
   - **Resizing a `COMPONENT_SET` before repositioning its children** makes Figma
     re-fit the frame and silently move `set.x`/`set.y` (observed: a set jumping
     x=100 → x=3566), so labels generated afterwards land against a drifted
-    origin. `apps/harmoni-figma-plugin/scripts/arrange-tree-component-sets.js`
+    origin. `scripts/figma/arrange-tree-component-sets.js`
     captures the anchor first and restores it before generating labels; verified
     idempotent (a re-run produces zero geometry change).
   - **Tokens: 55 `tree/*` Context tokens now in `packages/tokens/src/context.json`**
@@ -1247,7 +1247,7 @@ source of truth for when a skill applies.
   - **THE PLUGIN MOVES TO A PRIVATE REPO before its first real commit
     (settled 2026-08-25, RFC 0028 §6).** It is a licensed product; the engine
     stays public and MIT. Two things to know before touching any of it:
-    **(a)** `apps/harmoni-figma-plugin/scripts/` is mis-homed — **34 of its 37
+    **(a)** `scripts/figma/` is mis-homed — **34 of its 37
     files are Primitiv's own design tooling** (every `arrange-*.js`, plus the
     Modal and ToggleGroup fixers), so moving the app folder wholesale takes
     Primitiv's tooling private by accident; rehome those first. **(b)** anything

@@ -1931,7 +1931,7 @@ project's recipe; and what state are the stamped variables in.
 | 2 | no | some exist | — | `Setup`, list populated | **partial** — the view is CRUD 01 and handles it; picking an existing recipe for a fresh file is not drawn as a journey |
 | 3 | yes | yes | match their stamps | `In sync` | **drawn** |
 | 4 | yes | yes | drifted | `Drift` | **drawn** |
-| 5 | yes | yes | **gone** — someone deleted them | — | **hole** |
+| 5 | yes | yes | **gone** — someone deleted them | `Drift · missing` | **drawn 2026-08-25 (§21.2)** — a cause of drift, not a route |
 | 6 | yes | yes | destination now `remote: true` | — | **note** — §6 settles it as caught pre-flight, never drawn |
 | 7 | yes | **no** — inherited from a teammate | any | `In sync · inherited` | **drawn 2026-08-25 (§18)** — a state, not a route |
 
@@ -1949,7 +1949,7 @@ The ownership model is built on four verbs. They are not evenly drawn.
 | **create** | drawn 2026-08-25 (`Project`, empty — §20) | drawn (journey 1) | drawn 2026-08-25 (`Add ramp`, §19.1) | drawn 2026-08-25 (`Role`, empty — §19.2) | drawn | drawn (`Writing`) |
 | **read** | drawn (`Setup` list) · adopt drawn 2026-08-25 (§16) · rebuild-from-file drawn 2026-08-25 (§18, a state of `In sync`) | drawn | drawn (`Palette`) | drawn (`Roles`) | drawn | drawn (`In sync`, `Audit`) |
 | **update** | drawn 2026-08-25 (`Project`, §20) | drawn 2026-08-25 (`Project`'s WRITES INTO, §20) | drawn (journeys 3, 4) | drawn 2026-08-25 (§19.2 — the list was already half of it) | drawn (via `Write refused`) | drawn · **hole** for the per-variable hand-edited protect/overwrite choice |
-| **delete** | drawn 2026-08-25 (`Project`'s footer link, §20 — a different act from `Remove`) | drawn 2026-08-25 (§17 — same act as removing the variables) | **hole** (one ramp; belongs to Palette) | drawn 2026-08-25 (`Role`'s footer link, §19.2 — no confirmation, deliberately) | n/a | drawn 2026-08-25 (`Remove`, §17) |
+| **delete** | drawn 2026-08-25 (`Project`'s footer link, §20 — a different act from `Remove`) | drawn 2026-08-25 (§17 — same act as removing the variables) | drawn 2026-08-25 (`Picker · accent`, §21.1 — removable when no role searches it) | drawn 2026-08-25 (`Role`'s footer link, §19.2 — no confirmation, deliberately) | n/a | drawn 2026-08-25 (`Remove`, §17) |
 
 **Two things this makes obvious that the board could not.**
 
@@ -2308,3 +2308,47 @@ gets a Notice stating the consequence rather than a silent link — but the
 document is untouched, so the ceremony `Remove` earns would be misplaced.
 
 Flow board journey **13 · MANAGING A PROJECT** (`Setup → Project`).
+
+## 21. Removing a ramp, and variables deleted underneath (2026-08-25)
+
+The last two grid cells. Both resolved into **existing views**, which is now the
+pattern rather than the exception: of the five things §15 called holes needing
+views, three (state 7, state 5, delete/ramp) turned out to be conditions of a
+view that already existed.
+
+### 21.1 delete/ramp — removability is derived, not a special case
+
+`Picker · accent` (`2022:168272`) is the picker for a ramp the user added,
+carrying the affordance as a quiet `Remove this ramp` link under
+`Create variables` — the same footer shape `Role` and `Project` use, and no
+confirmation, on the §19.2 rule (this changes only the recipe).
+
+**The rule that fell out is the good part: a ramp can be removed when no role's
+rule searches it.** That is why `brand` and `neutral` end up protected — roles
+search them — rather than being hardcoded as structural, and it is a direct
+consequence of §19.2 making every rule name its ramp. Without that change there
+would have been no way to ask the question, and "you may not delete brand" would
+have had to be a special case in the code.
+
+**A Notice stating the rule was built and removed.** The picker's body is 714 px
+of content; a 132 px Notice clipped the hue axis, the step control and the ramp
+strip clean off the panel. The rule lives here instead, and the link's presence
+is what expresses it in the UI.
+
+### 21.2 Entry state 5 — deletion is one more cause of drift
+
+`Drift · missing` (`2022:168657`). Someone deleted variables Harmoni manages;
+the panel already has a view for "what is here no longer matches what we wrote",
+so this is a state of it, not a route:
+
+- the `SINCE THE LAST WRITE` cause strip gains **`Deleted`** as the selected
+  cause, beside Seed / Hand-edit / New role / Library;
+- affected rows carry a **`missing`** Tag (danger) instead of `hand-edited`;
+- the Alert is **warning, not danger** — unlike a hand-edit, nothing is at risk:
+  restoring puts back exactly what was written;
+- the footer reads **`Restore 2 variables`**, and needs no confirmation for the
+  same reason.
+
+That last point is the distinction worth keeping: Drift's existing danger tone is
+earned by *hand-edits*, where updating erases someone's work. A missing variable
+is the one drift cause where the fix is free.

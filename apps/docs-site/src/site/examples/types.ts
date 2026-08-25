@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 
+import type { PlaygroundControl } from "@/lib/playground";
 import type { Mode } from "@/site/preferences";
 
 /**
@@ -58,6 +59,23 @@ export type ComponentSpec = {
     readonly snippet?: (values: Record<string, string>, mode: Mode) => string;
     /** Renders the live preview for the current control values. */
     readonly render: (values: Record<string, string>) => ReactNode;
+    /**
+     * Extra controls for props the CONTRACT does not own.
+     *
+     * `contractControls` derives the playground's knobs from the registry
+     * contract's modifiers, which is right for `size` and `variant` — they are
+     * class modifiers on the styled surface and genuinely do not exist in
+     * headless. But a compound's most interesting knob is often a HEADLESS prop
+     * that exists in both modes: Accordion's `multiple` changes what the
+     * component does, not how it looks, and no contract mentions it.
+     *
+     * These are appended after the contract's own, and unlike them they are NOT
+     * dropped under the Headless tab. A spec declaring one must therefore write
+     * its own `snippet` — the generated `toJsx` prints every control on the
+     * named component, which is only correct for contract props.
+     */
+    readonly controls?: readonly PlaygroundControl[];
+
     /**
      * Stretch the preview to the full width of its container instead of
      * centring it at its natural size.

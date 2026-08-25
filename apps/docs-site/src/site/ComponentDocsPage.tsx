@@ -40,7 +40,9 @@ export const ComponentDocsPage = ({ id }: { id: ComponentId }) => {
   const docs = getDocs(id);
   const spec = SPECS[id];
   const subs = docs.headless.subComponents;
-  const controls = contractControls(subs);
+  /* Contract modifiers first, then anything the spec adds for a headless prop
+     the contract cannot know about (see ComponentSpec.playground.controls). */
+  const controls = [...contractControls(subs), ...(spec.playground.controls ?? [])];
   const [mode] = useMode();
 
   const cssVars = docs.styled.customProperties;

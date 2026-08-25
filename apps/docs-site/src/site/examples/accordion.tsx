@@ -132,22 +132,48 @@ const ControlledExample = () => {
 export const accordionSpec: ComponentSpec = {
   playground: {
     component: "Accordion",
+    /*
+     * `multiple` is the knob worth having here and the contract cannot supply
+     * it: contract modifiers are class modifiers on the styled surface, and
+     * this is a headless prop that changes BEHAVIOUR rather than appearance.
+     * It exists in both modes, so unlike `size` it is not dropped under the
+     * Headless tab.
+     */
+    controls: [
+      {
+        name: "multiple",
+        options: ["false", "true"],
+        defaultValue: "false",
+        description:
+          "Allow more than one section to be open. When false, opening one closes the last.",
+      },
+    ],
     /* Hand-written: `size` is the root's, but the parts below it are what a
        reader needs to see, and the generated `toJsx` prints a childless
        `<Accordion size="md" />`. */
     snippet: (values, mode) => {
       const p = partNamer(mode, "Accordion");
+      /* A valueless boolean attribute, the way it is actually written. */
+      const multiple = values.multiple === "true" ? " multiple" : "";
       return [
         imports(mode),
         ``,
-        `<${p("Root")}${contractAttr({ mode, prop: "size", value: values.size })}>`,
-        ...sectionLines(mode, SECTIONS[0]),
+        `<${p("Root")}${multiple}${contractAttr({ mode, prop: "size", value: values.size })} defaultValue="install">`,
+        ...SECTIONS.flatMap((section) => sectionLines(mode, section)),
         `</${p("Root")}>`,
       ].join("\n");
     },
     fill: true,
     render: (values) => (
-      <Accordion size={values.size as Size} defaultValue="install">
+      <Accordion
+        /* Remounted when the mode flips, so the open set cannot carry over —
+           switching to single with three sections open would otherwise leave
+           an accordion in a state it can no longer reach on its own. */
+        key={values.multiple}
+        multiple={values.multiple === "true"}
+        size={values.size as Size}
+        defaultValue="install"
+      >
         {SECTIONS.map((section) => (
           <Section key={section.value} section={section} />
         ))}

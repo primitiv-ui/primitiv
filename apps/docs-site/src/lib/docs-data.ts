@@ -25,6 +25,7 @@ import inputDocs from "@/docs-data/input.docs.json";
 import accordionDocs from "@/docs-data/accordion.docs.json";
 import checkboxDocs from "@/docs-data/checkbox.docs.json";
 import modalDocs from "@/docs-data/modal.docs.json";
+import radioDocs from "@/docs-data/radio.docs.json";
 import selectDocs from "@/docs-data/select.docs.json";
 import switchDocs from "@/docs-data/switch.docs.json";
 import textareaDocs from "@/docs-data/textarea.docs.json";
@@ -195,6 +196,7 @@ const DOCS = {
   accordion: accordionDocs as unknown as ComponentDocs,
   checkbox: checkboxDocs as unknown as ComponentDocs,
   modal: modalDocs as unknown as ComponentDocs,
+  radio: radioDocs as unknown as ComponentDocs,
   select: selectDocs as unknown as ComponentDocs,
   switch: switchDocs as unknown as ComponentDocs,
   textarea: textareaDocs as unknown as ComponentDocs,

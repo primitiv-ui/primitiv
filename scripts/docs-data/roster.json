@@ -326,7 +326,7 @@
     "displayName": "Radio",
     "category": "Forms",
     "description": "A single native radio input with an optional inline label, grouped with a shared `name`.",
-    "documented": false
+    "documented": true
   },
   {
     "id": "radio-card",

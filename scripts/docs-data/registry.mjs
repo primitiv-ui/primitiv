@@ -159,6 +159,20 @@ export const REGISTRY = {
     contract: "registry/components/switch/contract.json",
     figmaComponentSetKey: "315:5884", importPath: "@primitiv-ui/react",
   },
+  radio: {
+    displayName: "Radio", kind: "registry", status: "stable", category: "Forms",
+    propsFile: "packages/react/src/Radio/types.ts",
+    subComponents: [
+      /* `element: "input"` though the Root renders a `<label>` — see Checkbox. */
+      { name: "Radio.Root", propsType: "RadioRootProps", element: "input", component: "Root" },
+      /* Headless-only, like Switch.Thumb: the copied `radio.tsx` exports one
+         `Radio` and renders the dot itself, so the "no contract entry" warning
+         on extract is expected rather than a typo. */
+      { name: "Radio.Indicator", propsType: "RadioIndicatorProps", element: "span", component: "Indicator" },
+    ],
+    contract: "registry/components/radio/contract.json",
+    figmaComponentSetKey: "401:17958", importPath: "@primitiv-ui/react",
+  },
   textarea: {
     displayName: "Textarea", kind: "registry", status: "stable", category: "Forms",
     propsFile: "packages/react/src/Textarea/types.ts",

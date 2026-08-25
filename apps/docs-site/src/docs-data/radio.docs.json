@@ -1,0 +1,190 @@
+{
+  "id": "radio",
+  "displayName": "Radio",
+  "kind": "registry",
+  "status": "stable",
+  "category": "Forms",
+  "description": "A single native radio input with an optional inline label, grouped with a shared `name`.",
+  "headless": {
+    "package": "@primitiv-ui/react",
+    "importPath": "@primitiv-ui/react",
+    "subComponents": [
+      {
+        "name": "Radio.Root",
+        "extends": "HTMLInputElement",
+        "props": [
+          {
+            "name": "checked",
+            "type": "boolean",
+            "required": false,
+            "default": null,
+            "description": "Forbidden in uncontrolled mode — use `defaultChecked` instead.\nWhether this radio is currently selected, owned by the parent. The\nconsumer owns grouping in this mode (typically deriving each radio's\n`checked` from a single shared value). Keep it in sync via\n`onCheckedChange`."
+          },
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": false,
+            "default": null,
+            "description": ""
+          },
+          {
+            "name": "defaultChecked",
+            "type": "boolean",
+            "required": false,
+            "default": null,
+            "description": "Whether this radio is selected on first render; the **browser** owns it\nthereafter, so native `name`-grouping (including silent deselection of\nsiblings) works for free. Omit for an initially unselected radio.\nForbidden in controlled mode — use `checked` instead."
+          },
+          {
+            "name": "onCheckedChange",
+            "type": "(checked: boolean) => void",
+            "required": false,
+            "default": null,
+            "description": "Fired with the new checked value whenever this radio becomes selected.\nA native radio only ever fires `change` when it moves *into* the checked\nstate, so this is always called with `true`.\nCalled (always with `true`) whenever this radio becomes selected —\nrequired in controlled mode so the parent can update its shared value."
+          },
+          {
+            "name": "ref",
+            "type": "Ref<HTMLInputElement>",
+            "required": false,
+            "default": null,
+            "description": "Allows getting a ref to the component instance.\nOnce the component unmounts, React will set `ref.current` to `null`\n(or call the ref with `null` if you passed a callback ref).\nForwarded to the underlying native `<input type=\"radio\">`."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [
+          {
+            "name": "size",
+            "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
+            "default": "md",
+            "description": "Control size; `data-density` scales each size further."
+          }
+        ],
+        "dataAttributes": [
+          {
+            "name": "data-state",
+            "value": "checked",
+            "when": "checked"
+          },
+          {
+            "name": "data-state",
+            "value": "unchecked",
+            "when": "unchecked"
+          },
+          {
+            "name": "data-disabled",
+            "value": "",
+            "when": "disabled"
+          }
+        ],
+        "class": "primitiv-radio"
+      },
+      {
+        "name": "Radio.Indicator",
+        "extends": "HTMLSpanElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "When `true`, render `children` as the indicator element itself (via the\n{@link Slot } pattern) instead of wrapping them in a `<span>`. `data-state`\nand `aria-hidden` are merged onto that element."
+          },
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": false,
+            "default": null,
+            "description": "Custom dot content. Omit to let the shipped CSS draw the dot off the\ninput's native `:checked` state; provide your own (an icon, glyph, or\nnested element) to override it."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": true,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": null
+      }
+    ]
+  },
+  "styled": {
+    "installCommand": "primitiv add radio",
+    "rootClass": "primitiv-radio",
+    "customProperties": [
+      {
+        "name": "--primitiv-radio-bg",
+        "defaultsTo": "var(--primitiv-surface-default)"
+      },
+      {
+        "name": "--primitiv-radio-border-color",
+        "defaultsTo": "var(--primitiv-border-strong)"
+      },
+      {
+        "name": "--primitiv-radio-border-color-checked",
+        "defaultsTo": "var(--primitiv-action-primary-default)"
+      },
+      {
+        "name": "--primitiv-radio-border-width",
+        "defaultsTo": "var(--primitiv-border-width-1)"
+      },
+      {
+        "name": "--primitiv-radio-dot-color",
+        "defaultsTo": "var(--primitiv-action-primary-default)"
+      },
+      {
+        "name": "--primitiv-radio-size",
+        "defaultsTo": "var(--primitiv-radio-md-box-size)"
+      },
+      {
+        "name": "--primitiv-radio-radius",
+        "defaultsTo": "var(--primitiv-radii-full)"
+      },
+      {
+        "name": "--primitiv-radio-dot-size",
+        "defaultsTo": "calc(var(--primitiv-radio-size) / 2)"
+      },
+      {
+        "name": "--primitiv-radio-gap",
+        "defaultsTo": "var(--primitiv-choice-control-md-gap)"
+      },
+      {
+        "name": "--primitiv-radio-label-color",
+        "defaultsTo": "var(--primitiv-content-primary)"
+      },
+      {
+        "name": "--primitiv-radio-label-font-family",
+        "defaultsTo": "var(--primitiv-label-md-font-family)"
+      },
+      {
+        "name": "--primitiv-radio-label-font-size",
+        "defaultsTo": "var(--primitiv-label-md-font-size)"
+      },
+      {
+        "name": "--primitiv-radio-label-font-weight",
+        "defaultsTo": "var(--primitiv-label-md-font-weight)"
+      },
+      {
+        "name": "--primitiv-radio-label-line-height",
+        "defaultsTo": "var(--primitiv-label-md-line-height)"
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-state",
+        "value": "checked",
+        "when": "checked"
+      },
+      {
+        "name": "data-state",
+        "value": "unchecked",
+        "when": "unchecked"
+      },
+      {
+        "name": "data-disabled",
+        "value": "",
+        "when": "disabled"
+      }
+    ]
+  },
+  "figma": {
+    "componentSetKey": "401:17958"
+  }
+}

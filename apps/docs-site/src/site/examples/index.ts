@@ -8,6 +8,7 @@ import { inputSpec } from "./input";
 import { accordionSpec } from "./accordion";
 import { checkboxSpec } from "./checkbox";
 import { modalSpec } from "./modal";
+import { radioSpec } from "./radio";
 import { selectSpec } from "./select";
 import { switchSpec } from "./switch";
 import { textareaSpec } from "./textarea";
@@ -26,6 +27,7 @@ export const SPECS: Record<ComponentId, ComponentSpec> = {
   accordion: accordionSpec,
   checkbox: checkboxSpec,
   modal: modalSpec,
+  radio: radioSpec,
   select: selectSpec,
   switch: switchSpec,
   textarea: textareaSpec,

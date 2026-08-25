@@ -1154,6 +1154,16 @@ source of truth for when a skill applies.
     window and Dense chrome measurements, which view owns which control, the
     verified ramp/seed facts (five seeds but six ramps; the engine's negative
     hue), the Swatch and canvas-insert rules, and what is still undesigned.
+    **The design phase is complete as of 2026-08-25: 25 views (each with a light
+    twin) and 14 journeys, verified against each other mechanically.** Read
+    **§15** (the coverage grid — what was enumerated and how), then **§22 / §24**
+    (what the grid could not see) before touching any view. Three techniques were
+    used and they are not interchangeable: the grid enumerates from the ownership
+    verbs and entry states; a board↔views diff catches orphans; and reading built
+    views *against each other* for contradictions found the worst bug of the
+    session (Adopt stamped variables that Remove would then delete, breaking the
+    one promise the model exists to keep — §22.1). Only the third has no
+    completion criterion, so assume it is not finished.
   - **OKLCH is canonical; hex is a Figma export.** The picker's value block
     leads with `oklch(...)` and shows `→ figma · hex` beneath. Chroma is *not*
     clamped at the sRGB edge — the track goes flat past the ceiling and the
@@ -1229,7 +1239,16 @@ source of truth for when a skill applies.
     (`brand · AA text`, not `AA text`). With one brand that reads as redundant;
     with two it is the difference between adding a row and migrating every
     stored schema.
-  - **Still open:** canvas swatches / drag-to-canvas, and the multi-seed brand.
+  - **Still open:** drag-to-canvas (the canvas swatches *view* is built — see the
+    build notes §2d), the multi-seed brand, and the three deferred items in §22.3
+    — multiplayer concurrency, what a Figma undo does to `setSharedPluginData`
+    (a probe, not a design task: if the stamp goes with the undo there is no
+    recovery path), and `Drift · missing`'s copy when the whole destination
+    collection is gone rather than individual variables. ATDD / Playwright
+    against a faked document port is agreed in principle and deferred to its own
+    session — the flow board is already most of the test plan (journey → describe,
+    card → page object, edge label → step), and the piece that decides whether it
+    works is a contract suite run against both the fake and the real adapter.
 
 ## Figma plugin-API gotchas (scripting via `figma_execute`)
 

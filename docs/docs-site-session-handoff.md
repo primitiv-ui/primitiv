@@ -1,73 +1,95 @@
-# Docs site — session handoff (2026-08-21)
+# Docs site — session handoff (2026-08-25)
 
-Continuing the `apps/docs-site` build. **Button and Select are both built.** Read
-`docs/registry-bugs.md` alongside this — it now runs to §9.
+Continuing the `apps/docs-site` build. **Eight component pages are live**:
+Accordion, Badge, Button, Checkbox, Input, Modal, Select, Tabs. Read
+`docs/registry-bugs.md` alongside this.
 
 ---
 
 ## State
 
-- **Pushed to `main`.** The previous session's work was already committed and in
-  sync; this session added five commits taking Select to Button's standard.
+- **Pushed to `main`** (this repo commits straight to main — no branches, no PRs
+  unless asked).
 - Dev server: `cd apps/docs-site && pnpm dev` → **http://localhost:4100**.
+- `/components` lists all 63 registry components, each with a **symbolic card
+  mark**. The marks are a shared spec — see "Card marks" below.
 
-### What the Select pass changed
+---
 
-Select's Figma frame turned out to specify a RICHER template than Button's, not
-the same one — it adds three sections and drops none:
+## Adding a component page — the procedure
 
-- **Anatomy** (new) — the part tree as a tabbed `CodeBlock`, one tab per render
-  path, each part paired with the DOM/ARIA it emits in a trailing `//` comment.
-  Earns its section because five of Select's nine parts render nothing under
-  `native`, so neither tree can be inferred from the other. Opt-in per spec
-  (`anatomy`); Button has one part and gets none.
-- **Keyboard** (new) — a Key/Behaviour table with `Kbd` caps. Hand-authored
-  (`keyboard`), because key handling lives in the headless hooks and is nowhere
-  in `contract.json`. A `literal` flag keeps "printable character" out of a key
-  cap, since it names a class of key rather than a key.
-- **Data attributes** (new) — **generated** from `contract.json`, so it is
-  guarded on the data rather than the spec and Button gets a one-row table for
-  free. This needed an extractor change: `dataAttributes` carried only NAMES, and
-  `data-state` is declared twice (`checked`/`unchecked`), so keyed on the name
-  alone the second row vanished. Now carries name/value/when.
-- **Accessibility is KEPT**, though Select's frame omits it. The frame's Keyboard
-  table is a subset of a11y documentation, and dropping the section would have
-  lost the top-layer, form-submission and unmount-while-closed notes. Additive
-  reading, deliberate.
-- **Styling contract is grouped by part** once there is more than one — 58
-  undifferentiated names is a wall. The grouping is DERIVED from the names
-  (`--primitiv-select-<part>-...`), never listed, and anything unrecognised falls
-  into the base group so a new part shows up in the wrong place rather than
-  disappearing. Button (15 knobs, one part) still renders one ungrouped list.
+Six steps. Everything except the spec file is generated.
 
-Three defects found by measuring, all invisible in review:
+1. **Add the component to `scripts/docs-data/registry.mjs`.** `propsFile`,
+   `subComponents` (each `{ name, propsType, element, component }`), `contract`,
+   `figmaComponentSetKey`, `category`, `displayName`, `status`.
+   - `component` must match the contract's `component` key, or the part silently
+     resolves to no contract props and no data attributes.
+   - `element` only picks the interface named in "Extends ... — every native
+     attribute of that element is accepted". Name the element the props actually
+     come FROM: Checkbox.Root renders a `<label>` but its props are
+     `Omit<ComponentProps<"input">, ...>`, so it is `"input"`.
+   - A part may carry its own `propsFile` when the parts span two files — see
+     below.
+2. **Extract**: `node scripts/docs-data/extract-docs-data.mjs <id>`. Read the
+   output: it prints every part, its `extends`, and its props, and warns
+   "no contract entry for X" — which is fine for a headless-only part and a typo
+   otherwise.
+3. **Write `src/site/examples/<id>.tsx`** — the only hand-authored half. See
+   `ComponentSpec` in `examples/types.ts` for what each field is for and when to
+   omit `anatomy` / `keyboard`.
+4. **Register in two places**: `src/lib/docs-data.ts` (import + the `DOCS` map)
+   and `src/site/examples/index.ts`. Nav and the roster derive themselves.
+5. **`node scripts/docs-data/sync-docs-data.mjs`** to regenerate and copy.
+6. **Gates**: docs-site `tsc`, `next build`, `npm run check:css`, plus
+   `pnpm qa:data-attributes` / `qa:stylesheets` / `qa:registry-types` at the root.
 
-1. **The playground was dead.** Controls came from `subs[0].contractProps`, and
-   `Select.Root` has none (they are on `Select.Trigger`) — so zero controls and a
-   snippet reading `<Select />`. `contractControls` now gathers across every
-   part, deduped. It failed silently because an empty control set is legitimate.
-2. **Every Select panel was unanchored**, painting at the viewport corner.
-   Registry-bugs §7a — fixed at source, the same fix `dropdown` already carries.
-3. **No chevrons anywhere**, and the trigger hugged to 61px as a result. The
-   component does not supply one in rich mode; registry-bugs §7b.
+### The two surfaces do not have the same parts
 
-Two things the human corrected mid-session, worth keeping:
+This is the thing that most often makes a page lie, and it goes in **both**
+directions:
 
-- **Icons belong in the playground's rich rows** — it is the headline rich-mode
-  feature and the caption claims it. The icon set has 47 general-purpose glyphs
-  and no framework logos, so the playground uses its own theme-picker data
-  (Sun/Moon/Settings) where the glyphs mean something, while the examples keep
-  the frame's framework data. Flipping Mode to `native` then visibly drops the
-  icons and the mark, which demonstrates the native path's real cost.
-- **The preview box stays at Button's 96px.** A taller box was tried so the open
-  panel would not cover the controls; it was rejected as too big. The knob was
-  removed rather than left unused.
+- **Modal** — `Header`, `Body` and `Footer` exist only in the copied registry
+  file; `@primitiv-ui/react` exports eight parts, not eleven. Their props type
+  lives in `registry/components/modal/modal.tsx`, so those entries carry their
+  own `propsFile`.
+- **Checkbox** — the inverse. The copied file exports only `Checkbox`, so
+  `CheckboxIndicator` exists in headless alone.
 
-**Pushing.** Work directly on `main` — no branches, no PRs. The remote gains
-commits from other sessions (a 27-commit Harmoni run landed mid-session), so a
-push may be rejected: `git fetch`, check `git diff --name-only` for overlap, then
-**rebase** (`git rebase origin/main`) and push. Never force-push. Re-run the
-gates after rebasing.
+The extractor derives both cases (`styledOnly` from which file the props type was
+found in, `headlessOnly` from what the registry file actually exports) and the
+props tables print a note. **A snippet must not name a part that mode cannot
+import** — write mode-aware structure, not just mode-aware names. Modal's
+headless snippets show plain `<div>`s where the registry adds regions.
+
+### Code blocks must match the example beside them
+
+Checked on Checkbox and all three were wrong: the indeterminate block showed only
+the parent while the demo renders parent + three children; the form block omitted
+the Submit/Reset pair its own caption told the reader to press; the custom-mark
+block showed a stylesheet rule where the example sets properties inline. **The
+snippet is what a reader types to get what they see**, imports included — a
+missing `Stack`/`Button` import line means the snippet does not run.
+
+---
+
+## Playground controls
+
+`contractControls` derives the knobs from the registry contract's modifiers,
+which is right for `size`/`variant`: they are class modifiers on the styled
+surface and genuinely do not exist in headless, which is why they are dropped
+under the Headless tab.
+
+A compound's most interesting knob is often a **headless prop the contract cannot
+know about** — Accordion's `multiple` changes what the component does, not how it
+looks. Declare those in `ComponentSpec.playground.controls`; they are appended
+after the contract's and are **not** dropped under Headless. A spec that declares
+one must write its own `snippet`, because the generated `toJsx` prints every
+control as an attribute on the named component.
+
+**A boolean control renders as a `Switch`**, keyed off the options being exactly
+`false`/`true` rather than off where the control came from — so a contract
+modifier like Stepper's `compact` gets it too.
 
 ---
 
@@ -232,11 +254,57 @@ right — JSX is not the artifact a designer wants. See Outstanding.
   `<span className="primitiv-button__label">`. Registry-bugs §5, needs a
   generator fix.
 
+
+### Traps found on 2026-08-25
+
+- **Unlayered docs CSS beats every `@layer primitiv.*` rule, whatever the
+  specificity.** `.docs-index-card { display: block }` silently disabled Card's
+  own `display: flex`, so `layout="horizontal"` stayed stacked (only the media's
+  36% width survived, being a plain width on a block child) and the vertical
+  card's `flex-grow` media never absorbed the slack that keeps a row level. An
+  `<a>` does need a block-level display; `block` was the wrong one. Anything in
+  a docs sheet that sets a property the component also sets is an override
+  whether or not it was meant as one, and `display` is the most destructive.
+- **`key` alongside a spread does not reach the element.** `code-block`'s
+  highlighter was written the way prism-react-renderer's README shows —
+  `<span {...getLineProps({ line })} key={i}>` — and logged ~105 "Each child in a
+  list should have a unique key" errors **per page view**, blamed on `Highlight`
+  because the elements are created in its render callback. Under the automatic
+  JSX runtime the compiler cannot hoist the key out of the props object, and
+  `jsx()` (unlike `createElement`) only takes a key as its third argument.
+  Destructure the getters and pass the parts explicitly.
+- **Render warnings are not in the build output.** `next build` is clean while
+  the app logs hundreds of errors per page. They land in
+  `apps/docs-site/.next/dev/logs/next-development.log` from the running dev
+  server. Reading the code will not find this class of bug and neither will a
+  hand-written `createElement` reproduction — that runtime *does* extract a key
+  from props, so it cannot reproduce a compiler behaviour. Bisect against the
+  running server, and allow ~6s for the hot reload or you get false negatives.
+- **No internal cross-references in consumer-facing prose.** RFC and decision
+  citations were rendering in 22 places. `scripts/docs-data/strip-internal-refs.mjs`
+  removes them where descriptions enter the site, so maintainers keep their
+  pointers in `contract.json` and JSDoc. It is deliberately conservative: only a
+  parenthetical that is entirely a citation, never one containing a colon or over
+  60 chars. Do not add a general punctuation repair — one was tried and rewrote
+  DescriptionList's deliberate "(dt : dd side by side)".
+- **The card description is clamped in DATA, not CSS.** `-webkit-line-clamp`
+  draws U+2026 itself and nothing suppresses it (`text-overflow` does not apply;
+  `block-ellipsis` ships nowhere). A fade or mask applies unconditionally and
+  would blur short descriptions that are already complete, since CSS cannot ask
+  whether text overflowed. `src/lib/card-summary.ts` cuts at a word boundary and
+  appends "..." only when it truncated; the full text stays in a visually hidden
+  span so assistive tech is not truncated too.
+
+---
+
 ## Outstanding
 
 1. **Mobile drawer menu** — both header segmented controls hide below `48rem`
    awaiting it, and the sidebar/TOC rails are hidden below `64rem` with no
-   replacement.
+   replacement. (The `/components` index itself now has a compact shape — see
+   Mobile below — but the shell around it does not.)
+0. **55 components still have no page.** Eight are done; the roster shows the
+   rest. Nothing blocks them but the per-page work above.
 2. **Accessibility pass** — deferred by the user until after the first build;
    they want excellent scores.
 3. **Figma mode shows JSX.** Every code block falls back to the headless dot form
@@ -254,6 +322,11 @@ right — JSX is not the artifact a designer wants. See Outstanding.
    in the Data attributes table instead.
 6. Registry-bugs **§3, §4, §5, §7b, §8** are open and need decisions.
 
+Never verified in a browser, and worth a look: the compact mobile index only
+renders client-side, so its accordion and horizontal cards have never been seen;
+and Select/Combobox plus Container/Center are the card-mark pairs least likely to
+read apart at real card size.
+
 Two notes on the gates, both cost time this session:
 
 - `check-registry-stylesheets.mjs` lives at the **repo root**, not
@@ -265,3 +338,37 @@ Two notes on the gates, both cost time this session:
   (the CLI prepends `import "../styles/primitiv/<name>/styles.css"`, the registry
   source has none). Doing that silently unstyled the whole component and cost a
   wrong-diagnosis detour. Re-add the line after any such copy.
+
+
+---
+
+## Card marks (2026-08-25)
+
+All 63 components have a symbolic mark on `/components`. **The geometry lives in
+`apps/docs-site/src/site/card-marks.json` and is read by both surfaces** — the
+site renders it as inline SVG, and the Figma page "Docs — Component Card Marks"
+builds its components from the same file. Canvas edits never reach the site and
+are overwritten; every Figma component description says so.
+
+The full visual language (256x144 trim, 8-unit module, 176 keyline, the five
+paint roles, the layout family's dashed box, and the near-pair list) is written
+up in the `figma-component-descriptions` skill under "Card Mark / *". Two things
+worth knowing before touching them:
+
+- **`content/on-action` is true white; `action/primary/foreground/*` is not** —
+  it resolves to `color/white`, which is `#ebebeb` in this system.
+- **Figma's `vectorPaths` rejects the SVG arc command.** Rounded corners must be
+  cubic Béziers (`r * 0.5523`), and a `C` carries six parameters of which only
+  the last two are the endpoint — code deriving a path's origin by pairing every
+  number as x,y is wrong the moment a curve appears, and a VECTOR's x/y position
+  its bounding box, so a mis-read minimum slides the whole shape silently.
+
+## Mobile (2026-08-25)
+
+Below `36rem` the index switches shape via `src/site/use-compact-index.ts`: the
+cards take Card's own `horizontal` layout and the ten categories become an
+`Accordion`. 63 vertical cards is ~34 phone screens. Both changes are structural,
+which is why a hook rather than a media query — one is a class modifier the
+component owns, the other a different element tree with its own ARIA. **The
+server renders the wide shape deliberately**: it is the correct no-JavaScript
+fallback, at the cost of one reflow on a phone's first load.

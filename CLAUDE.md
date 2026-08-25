@@ -865,6 +865,24 @@ source of truth for when a skill applies.
     *left* of the child row's own left edge at every size, so rails never fall
     on indent boundaries and cannot be auto-layout columns. Its `connectors`
     frame is child 0 so a hovered/selected row's fill covers the rail.
+- **Docs site (`apps/docs-site`) — eight component pages live (2026-08-25):**
+  Accordion, Badge, Button, Checkbox, Input, Modal, Select, Tabs; 55 to go.
+  **Read `docs/docs-site-session-handoff.md` before touching it** — it carries
+  the six-step per-page procedure, the mode-aware snippet rules, and the traps,
+  and it is kept current. Three things that bite hardest and are written up
+  there: the two surfaces do **not** have the same parts (Modal's Header/Body/
+  Footer are registry-only, Checkbox's Indicator is headless-only, and the
+  extractor derives both), a code block must show what the example beside it
+  renders, and **unlayered docs CSS outranks every `@layer primitiv.*` rule** —
+  a stray `display: block` silently disabled Card's own layout. Render-time
+  React errors do **not** appear in `next build`; they land in
+  `apps/docs-site/.next/dev/logs/next-development.log`.
+- **Component card marks — all 63 drawn (2026-08-25).** `/components` gives every
+  registry component a symbolic mark. Geometry lives in
+  `apps/docs-site/src/site/card-marks.json` and is read by **both** the site and
+  the Figma page "Docs — Component Card Marks"; canvas edits are overwritten. The
+  visual language and the near-pair warnings are in the
+  `figma-component-descriptions` skill under "Card Mark / *".
 - **Combobox — fully complete, all four stages (2026-08-14).** Figma
   (`1816:61259`, 10 variants, md-first) + the "Combobox — exploration" page
   (`1816:60308`, seven calls, all settled 2026-08-13) landed earlier; the headless

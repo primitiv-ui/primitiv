@@ -90,6 +90,24 @@ Figma composition) and flips to the opposite side on overflow. Past
 `--primitiv-select-content-max-block-size` the list scrolls — there are no scroll
 buttons by design.
 
+### The chevron is a default, not a requirement
+
+`SelectTrigger` renders a `SelectIcon` holding the house chevron when you compose
+none, so the usage above is showing you how to *change* the glyph rather than how
+to get one.
+
+It did not always. The two render paths used to disagree: under `native` the
+stylesheet paints a chevron over the UA arrow, so a native Select got one for
+free, while a rich trigger with no `SelectIcon` rendered as bare text with no
+disclosure affordance at all — the same component and the same prop surface
+giving two answers to "is there a chevron". Omitting the part was invisible in
+code review and obvious on screen, which is the signature of a defaulting problem
+rather than a documentation one.
+
+Composing `SelectIcon` yourself still wins, since the check is for the part and
+not for its contents — which also means `<SelectIcon />`, empty, opts out of the
+mark entirely.
+
 ### Native chevron
 
 The native `<select>`'s own disclosure arrow is stripped (`appearance: none`)
@@ -178,7 +196,7 @@ itself. Native mode needs it on the root only.
 | `SelectTrigger`       | `Select.Trigger`       | ✓ root  | The rich control; carries `size`, publishes the anchor     |
 | `SelectValue`         | `Select.Value`         | ✓       | Mirrors the selection; `data-placeholder` when empty       |
 | `SelectLeading`       | —                      | ✓       | Standing glyph in the trigger, independent of selection    |
-| `SelectIcon`          | —                      | ✓       | The chevron; flips while open                              |
+| `SelectIcon`          | —                      | ✓       | The chevron; flips while open. **Optional** — see below    |
 | `SelectContent`       | `Select.Content`       | ✓       | The panel; carries `size` + `placement`                    |
 | `SelectItem`          | `Select.Item`          | ✓       | An option (rich `<div role="option">` / native `<option>`) |
 | `SelectItemIndicator` | `Select.ItemIndicator` | ✓       | The selected mark, in the reserved gutter                  |

@@ -145,12 +145,12 @@ const ThemeTrigger = () => (
 /**
  * The trigger, with its chevron.
  *
- * `SelectIcon` is NOT supplied by the component in rich mode — the consumer
- * composes it, exactly as the component README shows. (Native mode is the
- * asymmetry: there the stylesheet paints its own chevron over the UA arrow, so
- * one appears without being asked for.) Leaving it out is invisible in code
- * review and obvious on screen: the trigger renders as bare text with no
- * disclosure affordance at all.
+ * `SelectTrigger` now supplies a default `SelectIcon` when none is composed, so
+ * the two render paths finally agree on whether a Select has a chevron — under
+ * `native` the stylesheet paints one over the UA arrow, and rich mode used to
+ * render bare text with no disclosure affordance at all (registry-bugs §7b).
+ * These examples still compose it explicitly, which is the pattern for *changing*
+ * the glyph, and it is what keeps `Select.Icon` visible as a part on this page.
  */
 const FrameworkTrigger = ({ size }: { size?: Size }) => (
   <SelectTrigger size={size}>

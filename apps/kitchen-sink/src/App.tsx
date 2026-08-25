@@ -4291,9 +4291,12 @@ export function ramp(hue: number, chroma = 0.12) {
                 className="ks-anchor-sel-framework"
               >
                 <SelectValue placeholder="Pick a framework..." />
-                <SelectIcon>
-                  <ChevronDown />
-                </SelectIcon>
+                {/* No SelectIcon on purpose: SelectTrigger supplies the house
+                  chevron when none is composed, so this reads identically to the
+                  demos below that spell it out. Rich mode used to render bare
+                  text here while a native Select got a chevron for free from the
+                  stylesheet (registry-bugs §7b). Compose the part when you want
+                  a DIFFERENT glyph — as the others do. */}
               </SelectTrigger>
               <SelectContent size={size} className="ks-anchored-sel-framework">
                 {FRAMEWORKS.map(({ value, label, Logo }) => (

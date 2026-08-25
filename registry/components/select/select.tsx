@@ -31,7 +31,9 @@
  */
 import { Select as SelectPrimitive } from "@primitiv-ui/react";
 import {
+  Children,
   createContext,
+  isValidElement,
   useContext,
   useId,
   type ComponentPropsWithRef,
@@ -125,14 +127,43 @@ export type SelectTriggerProps = DistributiveOmit<
   size?: SelectSize;
 };
 
-export function SelectTrigger({ size, className, style, ...props }: SelectTriggerProps) {
+export function SelectTrigger({
+  size,
+  className,
+  style,
+  children,
+  ...props
+}: SelectTriggerProps) {
   const anchorName = useAnchorIdent();
+  /* Supply the disclosure chevron when the consumer composes no `SelectIcon`.
+     Without this the two render paths disagreed about whether a Select has one:
+     under `native` the STYLESHEET paints a chevron over the UA arrow, so a native
+     Select got one for free, while a rich trigger rendered as bare text with no
+     disclosure affordance at all — same component, same prop surface, two
+     answers. Omitting the part is invisible in review and obvious on screen,
+     which is the signature of a defaulting problem rather than a documentation
+     one (registry-bugs §7b). Matching the native path is the smaller surprise,
+     and it is also what every design in the Figma file draws.
+
+     Composing `SelectIcon` yourself still wins — that is how you swap the glyph
+     — and passing an empty one (`<SelectIcon />`) opts out of the mark entirely,
+     since the check is for the part, not for its contents. */
+  const hasIcon = Children.toArray(children).some(
+    (child) => isValidElement(child) && child.type === SelectIcon,
+  );
   return (
     <SelectPrimitive.Trigger
       className={cx(select({ size, mode: "rich" }), className)}
       style={{ anchorName, ...style } as CSSProperties}
       {...props}
-    />
+    >
+      {children}
+      {!hasIcon && (
+        <SelectIcon>
+          <ChevronGlyph />
+        </SelectIcon>
+      )}
+    </SelectPrimitive.Trigger>
   );
 }
 
@@ -156,8 +187,12 @@ export function SelectLeading({ className, ...props }: SelectLeadingProps) {
 }
 
 /**
- * The trigger's trailing disclosure mark. Drop a chevron inside; it flips while
- * the listbox is open.
+ * The trigger's trailing disclosure mark. It flips while the listbox is open.
+ *
+ * **Optional.** `SelectTrigger` supplies one containing the house chevron when
+ * you compose none, matching the native path (whose arrow the stylesheet paints)
+ * — so this part is for *changing* the glyph, not for getting one. Render an
+ * empty `<SelectIcon />` to opt out of the mark entirely.
  *
  * @see https://primitiv-ui.dev/docs/components/select
  */
@@ -165,6 +200,22 @@ export type SelectIconProps = ComponentPropsWithRef<"span">;
 
 export function SelectIcon({ className, ...props }: SelectIconProps) {
   return <span aria-hidden="true" className={cx(selectIcon(), className)} {...props} />;
+}
+
+/* The default chevron `SelectTrigger` supplies when the consumer composes no
+   `SelectIcon`. Inlined (house path data, the same glyph `@primitiv-ui/icons`
+   exports as `ChevronDown`) so `select` installs no icon package — the same
+   choice `code-block` and `chip` make for their glyphs. It is deliberately the
+   IDENTICAL path the stylesheet already inlines as a data-URI for the native
+   path's painted arrow, so the two render paths draw one shape. Sizing comes
+   from the sheet's `.primitiv-select__icon > svg` rule, so there is nothing to
+   set here. */
+function ChevronGlyph() {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M20.06 9 12 17.06 3.94 9 5 7.94l7 7 7-7z" />
+    </svg>
+  );
 }
 
 export type SelectContentProps = DistributiveOmit<

@@ -1984,7 +1984,9 @@ what a closed cell looks like, and delete and adopt do not have it.
 
 ### 15.4 What this changes
 
-Nine holes and four partials, against 22 drawn cards. The queue that falls out,
+Ten of the grid's twenty-three live cells are holes and three are partial;
+entry state 5 adds an eleventh hole of its own. Against that, 22 drawn cards.
+The queue that falls out,
 in value order: **adopt** (15.2 read, and entry states 2 and 7 collapse into it),
 **delete** (a confirmation and a result), **inherited project** (state 7),
 **role editing**, then the affordances with no destination (`+ Add ramp`,

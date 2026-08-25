@@ -2366,3 +2366,75 @@ Light twins `Picker · accent · light` and `Drift · missing · light`, and flo
 board journey **14 · WHEN A RAMP OR A VARIABLE GOES** (`Picker · accent →
 In sync ⇢ Drift · missing` — a solid route out of the removal, a dashed state
 into the deletion).
+
+## 22. What the grid still does not see (2026-08-25)
+
+§15's grid is closed on its own axes — every verb x entity cell and all seven
+entry states are drawn. That is a statement about **one decomposition**, and
+re-reading the built views against each other turns up three things it was
+structurally unable to surface, because each is a *contradiction between two
+views* rather than a missing cell.
+
+### 22.1 Adopt and Remove contradict each other
+
+The sharpest one, and neither §16 nor §17 caught it.
+
+- **Adopt** stamps variables Harmoni did not make, so they can be updated
+  instead of duplicated.
+- **Remove** takes *everything stamped*, hand-edits included.
+
+Therefore **Remove deletes variables that predate Harmoni** — which breaks the
+one promise the whole ownership model exists to keep: *the plugin can never
+remove what it did not create.* After an adopt, "stamped" and "created" are no
+longer the same set, and every rule written before adopt existed silently
+assumed they were.
+
+**Fix: the stamp records origin — `created` or `adopted`.** Remove then treats
+adopted variables the way it already treats unstamped ones: **release the claim,
+leave the variable**. That also gives "un-adopt" for free (it is just Remove
+acting on adopted rows), and it means Remove's inventory grows a third category
+beside *taken* and *untouched*: **released**. The copy has to carry it, or the
+count on the button will not match what disappears.
+
+### 22.2 Renaming a ramp, or changing its step count, orphans variables
+
+One mechanism, two triggers, neither designed:
+
+- a ramp renamed `accent` -> `brand-2` renames every variable under it;
+- a ramp's step count changed 10 -> 12 relabels the whole ramp (`step_labels`
+  walks 100-900 in two halves meeting at 500, so *every* label moves, not just
+  the new ones).
+
+In both cases a naive write **creates the new names and leaves the old ones
+behind**, stamped, belonging to a ramp that no longer exists. Nothing in the
+panel says so, and `Drift`'s cause strip has no cause for it.
+
+**It should be a rename, not a create-plus-orphan.** Figma variables can be
+renamed in place, and the stamp is what makes the old set findable — so the
+write reconciles rather than accumulates. What still needs a surface is the
+*statement*: changing either field has to say how many variables will be renamed
+before the write, in the same spirit as `Remove`'s inventory. `Add ramp` and the
+picker's `Steps` control are where it lands.
+
+Note this is also **the missing half of `update/ramp`**: the grid recorded it
+"drawn (journeys 3, 4)", but those journeys edit a ramp's *colour*. Its name and
+length are a different thing, and they are the two fields that move variable
+names around.
+
+### 22.3 Named and deferred, not designed
+
+- **Concurrency.** Figma is multiplayer; someone can run Harmoni against the
+  same document while you have it open. Out of scope for v1, but say so — it is
+  currently absent rather than deferred.
+- **Undo.** A Figma undo after a write removes the variables and may remove the
+  `setSharedPluginData` with them. The panel recovers via `Drift · missing`
+  (§21.2) *if* the stamps survive; if they do not, the document looks unadopted.
+  Worth probing on the live API before v1, since it decides whether the recovery
+  path exists at all.
+- **The destination collection is deleted**, not just gone remote. This lands on
+  `Drift · missing` today, whose copy promises "writing again puts them back" —
+  true only if the write also recreates the collection. Route is right, copy is
+  not yet.
+
+**Not a gap, checked:** the role schema *is* importable — Settings' `Role schema`
+card carries `Save current as preset` and `Import schema` (§2c).

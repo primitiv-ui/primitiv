@@ -2352,3 +2352,17 @@ so this is a state of it, not a route:
 That last point is the distinction worth keeping: Drift's existing danger tone is
 earned by *hand-edits*, where updating erases someone's work. A missing variable
 is the one drift cause where the fix is free.
+
+**Two things only the render caught.** Drift's second footer button came along
+with the clone — a danger `Overwrite everything, including the 2` — and it is
+exactly wrong here: there is nothing to overwrite and no one's work to lose, so
+the view now has a **single** button, which is what demonstrates the claim rather
+than merely stating it. And the counts block still read `missing 2 / unchanged
+100 / hand-edited 2` against a heading of `ALL 120 VARIABLES`, which is 104. Now
+`missing 2 / unchanged 118`. Mock arithmetic is the §11 lesson in a third
+costume: numbers on one screen have to survive being added up.
+
+Light twins `Picker · accent · light` and `Drift · missing · light`, and flow
+board journey **14 · WHEN A RAMP OR A VARIABLE GOES** (`Picker · accent →
+In sync ⇢ Drift · missing` — a solid route out of the removal, a dashed state
+into the deletion).

@@ -1747,9 +1747,58 @@ strip is cut mid-row. **~30 px of that predates this change and ~20 px is the ne
 row padding.** A scrolling panel is expected to overflow, so this is not wrong in
 itself — but it currently cuts mid-strip, which reads as accidental.
 
-The obvious recovery is sitting in the block: **`every step has a readable
-foreground` is printed six times, once per ramp, for 120 px total.** Collapsing
-that to one summary line — and keeping a per-ramp line only where a ramp *fails*
-— would recover ~100 px and fix the clip outright. It is also the better
-information design: six identical passes are noise, an exception is information.
-Not done, because it is a change to `RAMPS` that was not asked for.
+**Closed 2026-08-24 by a better idea than the summary line I proposed:** show
+the claim instead of asserting it. See §13.
+
+## 13. `Form=mini` — the ramp strip proves its own claim (2026-08-24)
+
+The Palette view printed **"every step has a readable foreground" six times**,
+once per ramp — 120 px of identical assertion, and a claim that would still
+render as a tick if it were false. It is now shown rather than said: each step's
+chip carries **`Ag` drawn in that step's assigned foreground**, with the
+foreground's source beneath it.
+
+**This needed a new variant, and the numbers say why.** Ten steps across a 332 px
+strip give each chip **31 px**:
+
+| form | native size | ten across |
+| --- | --- | --- |
+| `row` (what the strip used) | **518 × 34** at sm | crushed to 31 px — only the fill survives, everything else clipped off the right |
+| `tile` | 70 × 80 (40 × 41 at xs) | needs 400 px |
+| **`mini` (new)** | **32 × 42** at md | 320 px — fits |
+
+So the strip had been showing a bare colour because a 518 px row was being
+squeezed into 31 px, not because the component lacked the parts. `Show sample`
+and `Show source` were already there and already `false`.
+
+**What it exposed.** Across the six shipped ramps the foreground is not just
+"900 or 50" — it is step 900, step 50, **pure white** (brand, neutral and danger
+at 500) and **pure black** (warning 600, success 500). Four sources, and the
+repeated tick hid all of it. Values come from `get_best_foreground` run over the
+*committed* palette, not from the seeds: passing approximate OkLCH seeds moved
+several hexes and shifted a flip point by a step.
+
+**Space:** `RAMPS` 520 → 424, panel 744 → **648** against a 754 budget. The
+overflow recorded in §12 is gone, with 106 px spare.
+
+### Build notes
+
+- **Sample and Source use RAW per-instance fills, and that is correct.** They
+  carry generated colour — the paired foreground — not a token, exactly like the
+  Box fill. This is what makes "Ag in the assigned foreground" possible at all.
+- **`Source` is a free TEXT property**, so the caller picks the wording: the wide
+  forms print `fg 900`, mini prints `900` / `50` / `white` / `black`, because
+  31 px will not hold the prefix.
+- **A component property reference cannot be set until the component has JOINED
+  the set.** `componentPropertyReferences = { visible: 'Show sample#…' }` throws
+  *"Could not find a component property with name"* on a standalone component,
+  because the definitions live on the COMPONENT_SET. Order is: create → build →
+  `set.appendChild(component)` → *then* wire the references. The first attempt
+  had it backwards and left a partial component behind.
+- **`set.parent` is not necessarily a page** — this set sits inside a frame
+  (`Swatch — masters`), so `parent.loadAsync()` is `not a function`. Use
+  `figma.currentPage` or skip the parking step entirely.
+- **md was built first**, which is what produces a genuinely md-first Size
+  dropdown — the thing Collapsible and Select could not get retroactively.
+- All five mini variants were verified to still hold their property references
+  after creation (gotcha 4 territory, even without cloning).

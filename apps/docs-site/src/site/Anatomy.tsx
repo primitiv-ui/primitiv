@@ -38,7 +38,13 @@ export const Anatomy = ({
     readonly code: (mode: Mode) => string;
   }[];
 }) => {
-  if (paths.length === 1) return <ModeCodeBlock code={paths[0].code} />;
+  /* `wrap={false}`: each line pairs a part with the DOM it emits in an aligned
+     trailing `//` comment, so that column IS the content — wrapped, an annotation
+     drops onto the next row and reads as belonging to the part below. The block
+     scrolls inside its own box instead, the contract the props tables use. This
+     was a `.docs-anatomy` override on the component's private `__pre` class until
+     `code-block` grew the knob (registry-bugs §8). */
+  if (paths.length === 1) return <ModeCodeBlock wrap={false} code={paths[0].code} />;
 
   return (
     <Stack gap="lg">
@@ -47,7 +53,7 @@ export const Anatomy = ({
           {/* h3 to match the example titles: the section's own h2 is "Anatomy",
               and these sit one level under it. */}
           <h3 className="docs-example-title">{p.label}</h3>
-          <ModeCodeBlock code={p.code} />
+          <ModeCodeBlock wrap={false} code={p.code} />
         </Stack>
       ))}
     </Stack>

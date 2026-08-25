@@ -8,8 +8,19 @@
     "element": "div",
     "class": "primitiv-code-block"
   },
-  "dataAttributes": [],
+  "dataAttributes": [
+    { "name": "data-line-numbers", "value": "", "when": "the line-number gutter is shown", "source": "auto" }
+  ],
   "modifiers": [
+    {
+      "name": "variant",
+      "default": "block",
+      "description": "Presentation. `block` is the standalone code surface; `inline` is a chip that sits in a line of prose or beside a label — same highlighting, same syntax palette, no header or gutter.",
+      "options": [
+        { "name": "block", "class": "", "description": "A standalone block (the default)." },
+        { "name": "inline", "class": "primitiv-code-block--inline", "description": "A chip sized to its content, on the baseline." }
+      ]
+    },
     {
       "name": "size",
       "default": "md",
@@ -20,6 +31,23 @@
         { "name": "md", "class": "primitiv-code-block--md", "description": "Medium (the default)." },
         { "name": "lg", "class": "primitiv-code-block--lg", "description": "Large." },
         { "name": "xl", "class": "primitiv-code-block--xl", "description": "Extra large." }
+      ]
+    },
+    {
+      "name": "wrap",
+      "default": "true",
+      "description": "Whether long lines reflow to the container. Wrapping is the default because a horizontal scrollbar reads worse on a narrow viewport. Turn it off for content whose column alignment IS the content — a tree with aligned trailing `//` annotations, a table of values — where reflowing a line drops its annotation onto the next row and makes it read as belonging to the row below. The block then scrolls inside its own box.",
+      "options": [
+        {
+          "name": "true",
+          "class": "",
+          "description": "Long lines reflow to the container (the default)."
+        },
+        {
+          "name": "false",
+          "class": "primitiv-code-block--nowrap",
+          "description": "Lines keep their own width and the block scrolls horizontally."
+        }
       ]
     }
   ],
@@ -32,8 +60,8 @@
     { "name": "--primitiv-code-block-padding", "defaultsTo": "var(--primitiv-code-padding)" },
     { "name": "--primitiv-code-block-header-padding-block", "defaultsTo": "var(--primitiv-space-space-8)" },
     { "name": "--primitiv-code-block-font-family", "defaultsTo": "var(--primitiv-font-family-mono)" },
-    { "name": "--primitiv-code-block-font-size", "defaultsTo": "var(--primitiv-code-md-font-size)" },
-    { "name": "--primitiv-code-block-line-height", "defaultsTo": "var(--primitiv-code-md-line-height)" },
+    { "name": "--primitiv-code-block-font-size", "defaultsTo": "var(--primitiv-body-md-font-size)" },
+    { "name": "--primitiv-code-block-line-height", "defaultsTo": "var(--primitiv-body-md-line-height)" },
     { "name": "--primitiv-code-block-gutter-color", "defaultsTo": "var(--primitiv-content-muted)" },
     { "name": "--primitiv-code-block-filename-color", "defaultsTo": "var(--primitiv-content-secondary)" },
     { "name": "--primitiv-code-block-tabs-header-padding", "defaultsTo": "var(--primitiv-space-space-12)" },

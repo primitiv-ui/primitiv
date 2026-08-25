@@ -348,4 +348,20 @@
     --primitiv-code-block-line-height: var(--primitiv-body-xl-line-height);
     --primitiv-code-block-tabs-header-padding: var(--primitiv-space-space-16);
   }
+
+  /* Opt out of wrapping (`wrap={false}`). For content whose column alignment IS
+     the content — a tree with aligned trailing `//` annotations, a table of
+     values — where reflowing a line drops its annotation onto the next row and
+     makes it read as belonging to the row below. `overflow-x: auto` on __pre
+     already provides the scroll surface this then needs, so this is a two-line
+     opt-out rather than a second layout.
+
+     Wrapping stays the default: the sheet's reasoning above (a horizontal
+     scrollbar is worse on a narrow viewport) is right for ordinary snippets, and
+     this axis exists so the alignment-critical case does not have to override
+     `__pre` from outside the component to get it. */
+  .primitiv-code-block--nowrap .primitiv-code-block__pre {
+    white-space: pre;
+    overflow-wrap: normal;
+  }
 }

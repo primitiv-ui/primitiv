@@ -42,14 +42,24 @@ const TABS = [
  *
  * `code` is called once per tab, not once per render, so a caller must not
  * assume it is only asked for the active mode.
+ *
+ * `wrap` is forwarded for the one caller that needs it: the anatomy tree, whose
+ * aligned trailing `//` annotations ARE its content.
  */
-export const ModeCodeBlock = ({ code }: { code: (mode: Mode) => string }) => {
+export const ModeCodeBlock = ({
+  code,
+  wrap,
+}: {
+  code: (mode: Mode) => string;
+  wrap?: boolean;
+}) => {
   const [mode, setMode] = useMode();
   const active = mode === "headless" ? "headless" : "styled";
 
   return (
     <CodeBlock.Tabs
       size="sm"
+      wrap={wrap}
       value={active}
       onValueChange={(next) => setMode(next as Mode)}
     >

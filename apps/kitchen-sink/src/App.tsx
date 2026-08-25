@@ -2807,6 +2807,27 @@ export function ramp(hue: number, chroma = 0.12) {
               code="bun add @primitiv-ui/react"
             />
           </CodeBlock.Tabs>
+
+          {/* wrap={false} — for content whose column alignment IS the content.
+            Wrapped, each trailing `//` annotation drops onto the next row and
+            reads as belonging to the part below; here the lines keep their own
+            width and the block scrolls inside its own box. Narrow the window to
+            see it scroll rather than reflow. */}
+          <CodeBlock
+            size={size}
+            wrap={false}
+            language="tsx"
+            filename="anatomy.tsx"
+            code={`<Select.Root>            // <div>    the compound root, owns the open value
+  <Select.Trigger>       // <button> the control frame; publishes anchor-name
+    <Select.Value />     // <span>   mirrors the selected item, [data-placeholder]
+    <Select.Icon />      // <span>   the disclosure chevron, flips while open
+  </Select.Trigger>
+  <Select.Content>       // <div>    the popover panel, in the top layer
+    <Select.Item>        // <div>    role=option; the mark gutter is unconditional
+  </Select.Content>
+</Select.Root>`}
+          />
         </Section>
 
         <Section title="Collapsible" column>

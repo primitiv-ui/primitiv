@@ -251,6 +251,12 @@ export type CodeBlockTabsProps = DistributiveOmit<
 > & {
   /** Type size for the block; `data-density` scales the padding. @default "md" */
   size?: CodeBlockSize;
+  /**
+   * Whether long lines reflow to the panel. Turn it off for content whose column
+   * alignment is the content; the panel then scrolls horizontally.
+   * @default true
+   */
+  wrap?: boolean;
 };
 
 /**
@@ -276,7 +282,7 @@ export type CodeBlockTabsProps = DistributiveOmit<
  * ```
  */
 function CodeBlockTabs(props: CodeBlockTabsProps) {
-  const { size = "md", className, children, onChange, ...rootProps } = props;
+  const { size = "md", wrap = true, className, children, onChange, ...rootProps } = props;
 
   // Mirror the active value for the copy control. When controlled, follow
   // `value`; otherwise track our own state, seeded from `defaultValue` and
@@ -303,7 +309,7 @@ function CodeBlockTabs(props: CodeBlockTabsProps) {
 
   return (
     <TabsPrimitive.Root
-      className={[codeBlock({ size }), "primitiv-tabs", `primitiv-tabs--${size}`, className]
+      className={[codeBlock({ size, wrap }), "primitiv-tabs", `primitiv-tabs--${size}`, className]
         .filter(Boolean)
         .join(" ")}
       onChange={handleChange}
@@ -418,6 +424,12 @@ export type CodeBlockProps = Omit<ComponentPropsWithRef<"div">, "children"> &
  * prop (`xs`–`xl`, default `md`) sets the type; a `data-density` ancestor scales
  * the padding.
  *
+ * Long lines wrap to the container by default, because a horizontal scrollbar
+ * reads worse on a narrow viewport. `wrap={false}` opts out for content whose
+ * column alignment IS the content — a tree with aligned trailing `//`
+ * annotations, say — where reflowing a line drops its annotation onto the next
+ * row; the block scrolls inside its own box instead.
+ *
  * `variant="inline"` renders the same highlighted source as a CHIP instead — one
  * line, sized to its content, sitting on the baseline beside prose or a label.
  * It is the answer to "I want `InlineCode`, but syntax-highlighted": highlighting
@@ -446,6 +458,7 @@ export function CodeBlock({
   showLineNumbers = false,
   variant = "block",
   size = "md",
+  wrap = true,
   className,
   ...props
 }: CodeBlockProps) {
@@ -461,7 +474,7 @@ export function CodeBlock({
   return (
     <CodeBlockContext.Provider value={{ getCopyCode, size }}>
       <div
-        className={[codeBlock({ variant, size }), className].filter(Boolean).join(" ")}
+        className={[codeBlock({ variant, size, wrap }), className].filter(Boolean).join(" ")}
         {...props}
       >
         {headerShown && (

@@ -215,9 +215,7 @@ export const ComponentDocsPage = ({ id }: { id: ComponentId }) => {
             title="Anatomy"
             meta={renderDoc(spec.anatomyMeta ?? "")}
           >
-            <div className="docs-anatomy">
-              <Anatomy paths={spec.anatomy} />
-            </div>
+            <Anatomy paths={spec.anatomy} />
           </DocsSection>
         )}
 

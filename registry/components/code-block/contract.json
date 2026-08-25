@@ -32,6 +32,23 @@
         { "name": "lg", "class": "primitiv-code-block--lg", "description": "Large." },
         { "name": "xl", "class": "primitiv-code-block--xl", "description": "Extra large." }
       ]
+    },
+    {
+      "name": "wrap",
+      "default": "true",
+      "description": "Whether long lines reflow to the container. Wrapping is the default because a horizontal scrollbar reads worse on a narrow viewport. Turn it off for content whose column alignment IS the content — a tree with aligned trailing `//` annotations, a table of values — where reflowing a line drops its annotation onto the next row and makes it read as belonging to the row below. The block then scrolls inside its own box.",
+      "options": [
+        {
+          "name": "true",
+          "class": "",
+          "description": "Long lines reflow to the container (the default)."
+        },
+        {
+          "name": "false",
+          "class": "primitiv-code-block--nowrap",
+          "description": "Lines keep their own width and the block scrolls horizontally."
+        }
+      ]
     }
   ],
   "customProperties": [

@@ -23,10 +23,17 @@ export const codeBlock = cva("primitiv-code-block", {
       lg: "primitiv-code-block--lg",
       xl: "primitiv-code-block--xl",
     },
+    /* Wrapping is the default, so — like `variant` above — only the deviation
+       carries a class. */
+    wrap: {
+      true: "",
+      false: "primitiv-code-block--nowrap",
+    },
   },
   defaultVariants: {
     variant: "block",
     size: "md",
+    wrap: true,
   },
 });
 

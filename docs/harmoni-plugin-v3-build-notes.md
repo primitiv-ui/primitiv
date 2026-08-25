@@ -2638,3 +2638,23 @@ regardless of the artwork:
 - **The seed is the pivot step, not the middle one.** `Adopt`'s lead said
   "middle"; at ten steps midpoint and 500 are both index 5 so the words were
   interchangeable, and at seven they are not.
+
+### 25.4 Applied
+
+`Adopt` is six ten-step rows again (60 claimed, 35 left alone,
+`Adopt 60 variables`), with the rule carried by the lead rather than by an odd
+row: *"Each ramp keeps its length, its names and its colours — Harmoni takes the
+500 step as the seed and manages them from there."* Three claims, one sentence,
+and the one that was wrong ("middle") is now right ("500").
+
+`Ramp`'s Steps field carries **`Engine allows 3 – 32`** right-aligned beneath it,
+mirroring Settings' `Steps per ramp` row exactly — the bound comes from
+`supported_step_range()`, never a literal. That is where a non-default length is
+chosen, and the rename warning already sitting on that view is what makes
+choosing one a deliberate act.
+
+**Rebuilding the row taught one small thing:** restoring a trimmed strip by
+adding swatches back is fiddly and drifts from its siblings; cloning a *sibling
+row* and repainting its strip from the real ramp gives a structurally identical
+row for free. Same instinct as the `clone()` cure in gotcha 21 — rebuild from a
+known-good copy rather than repairing in place.

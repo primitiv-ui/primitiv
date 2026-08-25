@@ -1598,5 +1598,63 @@ keeps showing the two resulting anchors. Chip = output, text = rule — the same
 literal-or-rule model already settled for roles ("a role is a name plus a rule"),
 applied to a seed. With no tint the row falls back to the two hexes.
 
-**Still to build:** the row's rule text, and the picker's two-anchor mode with the
-four controls.
+**Built 2026-08-24.** The Palette row reads `neutral   brand · 100%` in both
+themes, and `Picker · neutral` (`2014:148570`) + `Picker · neutral · light`
+(`2018:151591`) sit at the end of each row on the Views page.
+
+**The neutral picker is SIMPLER than the brand picker, and the engine forces
+that.** With a tint live, `tint_neutrals_duotone` keeps each anchor's `l` and
+**overwrites its chroma and hue**. So C and H are not the user's to set: the
+plane, the L/C/H sliders and the axis tab strip all drop away, and what is left
+is two lightness rows plus the tint block. A plane here would offer control the
+engine would immediately discard. Composition:
+
+```
+ANCHORS       soft white  L 0.94  ·  soft black  L 0.19
+              "chroma and hue come from the tint below"
+NEUTRAL TINT  [brand chip] brand · step 500        [Remove tint]
+              Strength 50%  ·  Spread 0°  ·  Bow 0%
+              The neutral ramp this makes:  [10-step grey strip]
+```
+
+The strip is cloned from the Palette view's own `ramp neutral` row, so the
+preview cannot drift from the ramp list. The first build cloned Curve's ramp
+instead and showed the **brand** blues under a neutral editor — caught only by
+rendering it.
+
+### Component gap found: `Slider` cannot express a value on an instance
+
+Identical in kind to the `Progress` gap already recorded. `Slider`'s only
+properties are `Show fill` / `Orientation` / `Variant` / `Size` / `State` —
+there is no value axis — and every route into its internals fails:
+
+| attempt | result |
+| --- | --- |
+| `range-fill.resize(w, h)` | silently reverts (105 of 210 stays 105) |
+| `range-fill.layoutSizingHorizontal = 'FILL'` | throws |
+| `range-fill.layoutGrow = 1` | no effect |
+| `range-fill.minWidth = 200` | no effect |
+| `Thumb.x = 190` | throws |
+
+So **every Slider instance in a mock is pinned at 50%**. The printed values here
+are the workbench defaults (strength 0.5, spread 0, bow 0), which are truthful at
+centre for the first two; **Bow's thumb is wrong and cannot be fixed** without a
+value property on the component. This also means **the Curve view's existing
+`Light 0.03` / `Dark 0.02` sliders do not match their thumbs either** — a
+pre-existing inaccuracy, not one introduced here.
+
+### Gotchas
+
+- **Load every font in a clone template before writing any text.** These blocks
+  use four faces (Khand Medium, Khand SemiBold, Asta Sans Regular, JetBrains Mono
+  Regular); loading only Asta Sans threw mid-script *after* the instance and
+  breadcrumb had been written — the partial-apply hazard again. Walk the
+  templates and collect `fontName` first.
+- **`setTextStyleId` throws under `documentAccess: dynamic-page`** — use
+  `await node.setTextStyleIdAsync(id)`.
+- **A cloned helper line carries its source's semantic colour.** The line under
+  the anchors came from Curve's `max 0.08 for this hue`, which is bound to
+  `feedback/warning/soft/foreground`; it read grey in dark and **amber in light**,
+  where it looks like a warning rather than an explanation. Rebound to
+  `content/primary`, matching the brand picker's equivalent note. Check the bound
+  variable, not just the rendered colour, when cloning explanatory text.

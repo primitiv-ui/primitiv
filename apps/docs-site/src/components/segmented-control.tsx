@@ -7,7 +7,7 @@ import "../styles/primitiv/segmented-control/styles.css";
  * generated recipe — the primary DX (RFC 0004 §3.5 / D51).
  */
 import { SegmentedControl as SegmentedControlPrimitive } from "@primitiv-ui/react";
-import { Children, type ComponentPropsWithRef, type ReactNode } from "react";
+import { Children, cloneElement, isValidElement, type ComponentPropsWithRef, type ReactNode } from "react";
 import { segmentedControl, segmentedControlItem } from "./segmented-control.recipe";
 
 type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K> : never;
@@ -45,7 +45,14 @@ export function SegmentedControl({ size, justify, className, ...props }: Segment
 
 export type SegmentedControlItemProps = ComponentPropsWithRef<typeof SegmentedControlPrimitive.Item>;
 
-function wrapSegmentedControlItemTextNodes(children: ReactNode): ReactNode {
+function wrapSegmentedControlItemTextNodes(children: ReactNode, asChild?: boolean): ReactNode {
+  // Under `asChild` the child is the CONSUMER's element (a routing <Link>, an
+  // <a>), so its text sits one level deeper than `Children.map` reaches and
+  // nothing would wrap it — losing the label span's text-box-trim and
+  // nowrap. One level only: it covers the real cases and stays predictable.
+  if (asChild && isValidElement<{ children?: ReactNode }>(children)) {
+    return cloneElement(children, undefined, wrapSegmentedControlItemTextNodes(children.props.children));
+  }
   const mapped = Children.map(children, (child) =>
     typeof child === "string" || typeof child === "number"
       ? <span className="primitiv-segmented-control__item-label">{child}</span>
@@ -57,7 +64,7 @@ function wrapSegmentedControlItemTextNodes(children: ReactNode): ReactNode {
 export function SegmentedControlItem({ className, children, ...props }: SegmentedControlItemProps) {
   return (
     <SegmentedControlPrimitive.Item className={[segmentedControlItem(), className].filter(Boolean).join(" ")} {...props}>
-      {wrapSegmentedControlItemTextNodes(children)}
+      {wrapSegmentedControlItemTextNodes(children, props.asChild)}
     </SegmentedControlPrimitive.Item>
   );
 }

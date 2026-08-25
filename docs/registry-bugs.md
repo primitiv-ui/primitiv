@@ -1,15 +1,32 @@
 # Registry bugs — surfaced by the docs-site build
 
-Status as of 2026-08-21. The first six were found while building `apps/docs-site`,
-which is the **first consumer that imports registry components individually**
-rather than through a barrel that pulls in all 63. That distinction is what
-exposed them: the kitchen-sink imports everything, so most of these are invisible
-there.
+Found while building `apps/docs-site`, which is the **first consumer that imports
+registry components individually** rather than through a barrel that pulls in all
+63. That distinction is what exposed them: the kitchen-sink imports everything,
+so most of these are invisible there.
 
-Two are **fixed at source**, one is **worked around**, and three are still
-**open** and need a decision. The
-two open ones that matter most are §3 (a one-line import) and §5 (a change to the
-wrapper generator, so it needs CI).
+**All of them are now fixed at source (2026-08-25).** §1, §2 and §7a landed
+earlier; §3, §4, §5, §7b and §8 closed in one pass, and every workaround they
+justified has been deleted from `apps/docs-site` — including the two that reached
+for `.primitiv-button__label`, a class `contract.json` never declared. §6 remains
+a **deliberate** arrangement (depend on published `@primitiv-ui/icons`, not
+`link:`) rather than an open bug.
+
+Three things worth carrying forward, because each contradicted what the entry
+below originally proposed:
+
+- **§3's proposed fix could not work.** The registry source carries no stylesheet
+  import at all — `add` prepends one computed from the consumer's configurable
+  `styles.path` — so a hardcoded relative path would have been wrong for anyone
+  who changed that setting. Importing the sibling wrapper for its side effect is
+  path-independent.
+- **§5 was twelve surfaces, not one.** The `wrapTextNodes` helper is *generated*
+  into 5 wrappers and *copy-pasted by hand* into 7 more, so "fix the generator"
+  only ever covered part of it. `stepper` turned out to be exempt (no `asChild`
+  anywhere — its marker is a plain `<span>`).
+- **§4 was arguably already settled** — RFC 0016 D69/D76 reject a global owl, and
+  the unscoped `li + li` was one. Scoping it made the sheet agree with its own
+  decision record rather than departing from it.
 
 Common thread worth keeping in mind: every one of these is a case where a
 component behaves correctly in the kitchen-sink and incorrectly for a real
@@ -68,7 +85,34 @@ parse, 63 scss match `emit_component_scss`).
 
 ---
 
-## 3. `code-block` — borrows `.primitiv-tabs__*` without importing that sheet — OPEN
+## 3. `code-block` — borrows `.primitiv-tabs__*` without importing that sheet — FIXED
+
+**Fix (landed), and NOT the one proposed below.** `code-block.tsx` now does
+`import "./tabs";` — a side-effect import of the sibling wrapper, which
+self-imports its own stylesheet.
+
+The proposed `import "../styles/primitiv/tabs/styles.css"` is impossible: the
+registry source has **no** stylesheet import of its own. `add` prepends exactly
+one line per tsx wrapper, computed from the consumer's configurable
+`styles.path` (`crates/primitiv-cli/src/commands/add.rs`, the `styles_import`
+field), so any path hardcoded here is wrong for a consumer who changed that
+setting. The sibling import needs no path knowledge and reuses the mechanism the
+adjacent `import { Button } from "./button"` already relies on;
+`dependsOn.components` already listed `tabs`, so `add code-block` installs the
+file it resolves to.
+
+Verified in isolation rather than on a page, because the docs site turned out to
+import `tabs` from two other places — a `vite build` of an entry importing only
+`code-block` emits CSS containing `.primitiv-tabs__trigger`, and does not when
+the line is commented out. Both docs-site workarounds (`InstallTabs.tsx` and a
+second copy in `ModeCodeBlock.tsx`) are deleted.
+
+Cost, accepted: the single-block `<CodeBlock code=... />` form now pulls in the
+tabs wrapper module too — the same cost profile as the unconditional `./button`
+import beside it.
+
+<details>
+<summary>Original entry</summary>
 
 **Symptom.** `CodeBlock.Tabs` renders unstyled tab buttons.
 
@@ -101,9 +145,45 @@ worth checking before landing:
   (already flagged in `qa:stylesheets`' generator heuristic), so this pattern
   exists elsewhere.
 
+</details>
+
 ---
 
-## 4. The reset-leak class, in CONSUMER markup — OPEN (scope refinement)
+## 4. The reset-leak class, in CONSUMER markup — FIXED (option 1)
+
+**Fix (landed).** `li + li` in `crates/primitiv-emit/assets/base.css` (and its
+byte-identical `.scss` mirror, plus all three app copies) is now
+`.primitiv-flow li + li`.
+
+**The RFC argues for this, which inverts how the entry below reads.** RFC 0016
+§1.4 kept the selector on the grounds that it already had the owl's *shape* — but
+that is an argument about its form, while **D69/D76 are about its scope**: flow
+rhythm is an opt-in container context, and a global owl is *explicitly rejected*
+because any global rhythm is still a default the consumer did not ask for. The
+unscoped `li + li` was a global owl. So this is the sheet catching up with its own
+decision record, not a departure from it.
+
+`list`'s `margin-block: 0` on `.primitiv-list__item` stays load-bearing — a
+`List` inside `.primitiv-flow` is still matched, and its flex `gap` would double
+up again without it. A new test,
+`base_tests.rs::list_item_rhythm_is_scoped_to_the_flow_context`, pins the scope;
+it scans comment-stripped source, because the rule's own comment discusses
+`li + li` at length and a naive line filter passes vacuously.
+
+**Measured, not assumed.** Every list that lost spacing on the kitchen-sink is
+its own TOC navigation — whose CSS explicitly asks for `gap: 0` with a comment
+about the gap "multiplying across ~50 entries", and was being silently overruled
+8px at a time; the category list is now 96px shorter and the nested rows step
+18px instead of 26px. Both genuine prose lists sit inside `.primitiv-flow` and
+keep their rhythm. On the docs site nothing moved at all: no `li` there had a
+non-zero margin before or after, so its `document.css` cancellation had nothing
+left to cancel and is gone.
+
+Note the docs site applies `.primitiv-flow` **nowhere**, so a consumer wanting
+prose rhythm on a bare list must now opt in — which is the point.
+
+<details>
+<summary>Original entry</summary>
 
 **This is not a new mechanism.** It is the fourth instance of the reset-leak bug
 class already documented in `transfer-and-next-steps.md` → "The reset-leak bug
@@ -185,9 +265,73 @@ Option 1 is a change to the shared base sheet, so it affects every consumer and
 wants a deliberate call rather than a drive-by fix. Worth checking against the
 prose specimens and `apps/kitchen-sink`'s prose sections before landing.
 
+</details>
+
 ---
 
-## 5. `Button` — `asChild` loses `text-box-trim` and `nowrap` — OPEN (generator)
+## 5. `Button` — `asChild` loses `text-box-trim` and `nowrap` — FIXED
+
+**Fix (landed).** Both text-wrapping helpers take an `asChild` flag and, when it
+is set and the child is a valid element, clone it with its own children run
+through the helper:
+
+```tsx
+if (asChild && isValidElement<{ children?: ReactNode }>(children)) {
+  return cloneElement(children, undefined, wrapTextNodes(children.props.children));
+}
+```
+
+One level only. The clone is gated on **`asChild`**, not on "the single child is
+an element" — ungated it would also rewrite `<Button><span>Save</span></Button>`,
+nesting a label span inside markup the consumer wrote.
+
+### It was twelve surfaces, not one
+
+The entry below reasons about "the wrapper generator", and that is only 5 of
+them. The helper is **copy-pasted by hand into 7 more components**, so a
+single-source fix did not exist:
+
+| | Components |
+|---|---|
+| **Generated** (`wrapper.rs` + regeneration) | `avatar`, `button`, `segmented-control`, `tabs`, `toggle-group` |
+| **Hand-authored copies** (edited individually) | `accordion`, `badge`, `collapsible`, `miller-columns`, `tag`, `tree` |
+| **Exempt** | `stepper` — no `asChild` anywhere, no headless part, its marker is a plain `<span>` |
+
+Three of the hand-authored ones have their own helper *shape*, not just their own
+copy: `badge`/`tag` bind `asChild` themselves (they render `Slot` directly, so the
+call is `wrapTextNodes(children, asChild)` rather than `props.asChild`), and
+`miller-columns`/`tree` share a `wrapRowTextNodes(children, className)` signature
+that takes the label class as a parameter.
+
+`emit_wrap_text_helper` and `emit_structural_wrap_text_helper` were two near-identical
+copies in the emitter too; they now share one `emit_wrap_text_fn` body, because
+"it affects every text-wrapping wrapper" is exactly the change that gets applied
+to one copy and not the other.
+
+### Typing, and what enforces it
+
+The generated call reads `props.asChild`, which assumes a `wrapTextChildren` part
+accepts `asChild` — true of all nine headless ones today. The enforcement is
+`scripts/check-registry-types.mjs`, which type-checks all 63 wrappers against the
+real `@primitiv-ui/react` types; a part that did not accept it would fail there
+rather than reach a consumer. That check is green.
+
+### Verification, given no local Rust
+
+`cargo` is unavailable in this environment, so the emitter change is CI-verified —
+but two things were checked locally first. The `accordion.wrapper.tsx` and
+`collapsible.wrapper.tsx` goldens are byte-exact `assert_eq!`s against the
+emitter's output for the **real** contracts, so `cargo test -p primitiv-emit`
+catches a single byte of drift; both were rebuilt from `wrapper.rs`'s own string
+literals and confirmed to match, as were all five generated registry wrappers.
+Then the actual behaviour: the two docs-site hero CTAs, with their hand-written
+spans deleted, now render `.primitiv-button__label` as a direct child of the
+`<a>` carrying `text-box-trim: trim-both`, `text-box-edge: cap alphabetic` and
+`white-space: nowrap` — the three properties the workaround was supplying by
+hand.
+
+<details>
+<summary>Original entry</summary>
 
 **Symptom.** `<Button asChild><Link>Start Here</Link></Button>` renders without
 optical text trimming, and without the `white-space: nowrap` that stops a button
@@ -275,6 +419,8 @@ only `.primitiv-button` (the root) — `__label` is not part of the documented
 surface, and the stylesheet comment says the component wraps text "so consumers
 never need to do it by hand". Every one of these spans should be deleted when the
 generator fix lands; they are marked with a comment saying so.
+
+</details>
 
 ---
 
@@ -406,7 +552,27 @@ remaining anchor-positioned components (`context-menu`, `popover`, `tooltip`,
 `combobox`, `navigation-menu`) should be audited for the same gap rather than
 waiting for a consumer to find each one.
 
-### 7b. The rich trigger has no chevron, but the native one does — OPEN
+### 7b. The rich trigger has no chevron, but the native one does — FIXED
+
+**Fix (landed): the first option.** `SelectTrigger` renders a `SelectIcon`
+holding the house chevron when the consumer composes none — the smaller surprise,
+and what every design in the Figma file draws.
+
+The glyph is **inlined** (the same path `@primitiv-ui/icons` exports as
+`ChevronDown`, and byte-identical to the one the stylesheet already inlines as a
+data-URI for the native arrow) so `select` installs no icon package and the two
+render paths draw one shape. `.primitiv-select__icon > svg` already sized it, so
+no stylesheet change was needed. The check is for the *part*, not its contents, so
+composing `SelectIcon` yourself still wins — and an empty `<SelectIcon />` opts
+out of the mark entirely.
+
+Verified in a browser on both surfaces: the kitchen-sink demo that composes no
+part renders one 16px chevron identical to the ones beside it that spell it out,
+and all four triggers on the docs Select page render exactly one — no doubling
+where the part is already composed.
+
+<details>
+<summary>Original entry</summary>
 
 **Symptom.** A rich `SelectTrigger` renders as bare text with no disclosure
 affordance. Spotted on the rendered page, not in review.
@@ -427,9 +593,32 @@ in the Figma file draws), or drop the native path's painted chevron so both
 require the part. The first is the smaller surprise. Needs a decision — it is a
 visual default change on a shipped component.
 
+</details>
+
 ---
 
-## 8. `code-block` always wraps, and one consumer needs it not to — WORKED AROUND
+## 8. `code-block` always wraps, and one consumer needs it not to — FIXED
+
+**Fix (landed).** A boolean `wrap` contract modifier, default `true`, whose
+`false` arm adds `.primitiv-code-block--nowrap` (`white-space: pre` +
+`overflow-wrap: normal` on `__pre`; `overflow-x: auto` was already there to
+provide the scroll surface).
+
+Shaped exactly like Stepper's `compact` — a `false`/`true` option pair — which
+also means the docs playground renders it as a `Switch` for free. **The default
+does not change**: the sheet's mobile reasoning is right for ordinary snippets,
+and this exists so the alignment-critical case need not override `__pre` from
+outside the component.
+
+The docs site's `.docs-anatomy` rule and its wrapper `<div>` are deleted;
+`Anatomy.tsx` passes `wrap={false}` through `ModeCodeBlock`. Measured after: the
+two anatomy blocks on the Select page carry `--nowrap` with `white-space: pre`
+while every other block on the page stays `pre-wrap`. It applies to the `inline`
+chip too, where a long line will then overflow — deliberate, and noted in the
+component README next to the reasoning for the chip's own wrapping default.
+
+<details>
+<summary>Original entry</summary>
 
 **Symptom.** The docs site's anatomy tree — component parts on the left, the DOM
 they emit in an aligned trailing `//` comment — reflowed, dropping each
@@ -447,6 +636,8 @@ own box — the same contract the props tables already use via `TableScrollArea`
 **Proposed fix.** A `wrap={false}` prop on `CodeBlock`, if a second consumer
 wants it. Not worth changing the default: one consumer with alignment-critical
 content does not outweigh the mobile reasoning already recorded in the sheet.
+
+</details>
 
 ---
 

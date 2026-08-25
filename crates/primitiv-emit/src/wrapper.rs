@@ -29,7 +29,7 @@ pub fn emit_wrapper(contract: &Contract) -> String {
     ));
     if wrap_text {
         out.push_str(
-            "import { Children, type ComponentPropsWithRef, type ReactNode } from \"react\";\n",
+            "import { Children, cloneElement, isValidElement, type ComponentPropsWithRef, type ReactNode } from \"react\";\n",
         );
     } else {
         out.push_str("import { type ComponentPropsWithRef } from \"react\";\n");
@@ -72,7 +72,7 @@ pub fn emit_wrapper(contract: &Contract) -> String {
             out.push_str(&format!(
                 "  return (\n    <{pascal}Primitive className={{{class_expr}}} {{...props}}>\n"
             ));
-            out.push_str("      {wrapTextNodes(children)}\n");
+            out.push_str("      {wrapTextNodes(children, props.asChild)}\n");
             out.push_str(&format!("    </{pascal}Primitive>\n  );\n"));
         } else {
             out.push_str(&format!(
@@ -151,7 +151,7 @@ fn emit_structural_wrapper(contract: &Contract) -> String {
     };
     if any_wrap_text {
         out.push_str(&format!(
-            "import {{ Children, type ComponentPropsWithRef{css}, type ReactNode }} from \"react\";\n",
+            "import {{ Children, cloneElement, isValidElement, type ComponentPropsWithRef{css}, type ReactNode }} from \"react\";\n",
         ));
     } else {
         out.push_str(&format!(
@@ -320,11 +320,48 @@ fn emit_distributive_omit_helper(out: &mut String, contract: &Contract) {
 /// `<Button>Text</Button>` still gets its label span, and
 /// `<Button asChild><a>Text</a></Button>` still hands `Slot` a single element.
 fn emit_wrap_text_helper(out: &mut String, root_class: &str) {
-    out.push_str("function wrapTextNodes(children: ReactNode): ReactNode {\n");
+    emit_wrap_text_fn(out, "wrapTextNodes", &format!("{root_class}__label"));
+}
+
+/// The body shared by both text-wrapping helpers, which differ only in their
+/// function name and label class. They were separate copies until the `asChild`
+/// branch below had to land in both — and "it affects every text-wrapping
+/// wrapper" is exactly the kind of change that gets applied to one copy and not
+/// the other.
+///
+/// The `asChild` branch is the fix for the case the single-child unwrap above
+/// only got as far as *not crashing*: under `asChild` the lone child is the
+/// consumer's own element, so the text it contains sits one level deeper than
+/// `Children.map` reaches. Nothing wrapped it, so `<Button asChild><a>Save</a>
+/// </Button>` silently lost both properties the label span carries —
+/// `text-box-trim` (optical trimming) and `white-space: nowrap` (which stops a
+/// button shrinking below its own text in a flex row) — while a plain
+/// `<Button>Save</Button>` got both.
+///
+/// Cloning is gated on `asChild` rather than on "the single child is an element"
+/// because the ungated form would also rewrite `<Button><span>Save</span>
+/// </Button>`, nesting a label span inside markup the consumer wrote. It
+/// therefore assumes a `wrapTextChildren` part accepts `asChild` — true of all
+/// nine today, and `scripts/check-registry-types.mjs` type-checks every emitted
+/// wrapper, so a part that does not would fail there rather than reach a
+/// consumer.
+fn emit_wrap_text_fn(out: &mut String, fn_name: &str, label_class: &str) {
+    out.push_str(&format!(
+        "function {fn_name}(children: ReactNode, asChild?: boolean): ReactNode {{\n"
+    ));
+    out.push_str("  // Under `asChild` the child is the CONSUMER's element (a routing <Link>, an\n");
+    out.push_str("  // <a>), so its text sits one level deeper than `Children.map` reaches and\n");
+    out.push_str("  // nothing would wrap it — losing the label span's text-box-trim and\n");
+    out.push_str("  // nowrap. One level only: it covers the real cases and stays predictable.\n");
+    out.push_str("  if (asChild && isValidElement<{ children?: ReactNode }>(children)) {\n");
+    out.push_str(&format!(
+        "    return cloneElement(children, undefined, {fn_name}(children.props.children));\n"
+    ));
+    out.push_str("  }\n");
     out.push_str("  const mapped = Children.map(children, (child) =>\n");
     out.push_str("    typeof child === \"string\" || typeof child === \"number\"\n");
     out.push_str(&format!(
-        "      ? <span className=\"{root_class}__label\">{{child}}</span>\n"
+        "      ? <span className=\"{label_class}\">{{child}}</span>\n"
     ));
     out.push_str("      : child,\n");
     out.push_str("  );\n");
@@ -425,7 +462,9 @@ fn emit_part_function(
         out.push_str(&format!(
             "  return (\n    <{tag} className={{{class_expr}}} {{...props}}>\n"
         ));
-        out.push_str(&format!("      {{wrap{styled}TextNodes(children)}}\n"));
+        out.push_str(&format!(
+            "      {{wrap{styled}TextNodes(children, props.asChild)}}\n"
+        ));
         out.push_str(&format!("    </{tag}>\n  );\n"));
     } else {
         out.push_str(&format!(
@@ -436,24 +475,17 @@ fn emit_part_function(
 }
 
 /// The `wrap{Sub}TextNodes` helper for a text-wrapping structural subcomponent:
-/// mirrors [`emit_wrap_text_helper`] — including the single-child array unwrap,
-/// for the same `asChild`/`Slot` reason — but is named per subcomponent so
-/// multiple structural parts can each opt in without colliding, and wraps into
+/// the same body as [`emit_wrap_text_helper`] (see [`emit_wrap_text_fn`] for the
+/// single-child unwrap and the `asChild` clone), but named per subcomponent so
+/// multiple structural parts can each opt in without colliding, and wrapping into
 /// a `{sub_class}-label` span (a BEM element already ends in `__part`, so
 /// `-label` reads as a sibling qualifier rather than nesting another `__`).
 fn emit_structural_wrap_text_helper(out: &mut String, sub_pascal: &str, sub_class: &str) {
-    out.push_str(&format!(
-        "function wrap{sub_pascal}TextNodes(children: ReactNode): ReactNode {{\n"
-    ));
-    out.push_str("  const mapped = Children.map(children, (child) =>\n");
-    out.push_str("    typeof child === \"string\" || typeof child === \"number\"\n");
-    out.push_str(&format!(
-        "      ? <span className=\"{sub_class}-label\">{{child}}</span>\n"
-    ));
-    out.push_str("      : child,\n");
-    out.push_str("  );\n");
-    out.push_str("  return Array.isArray(mapped) && mapped.length === 1 ? mapped[0] : mapped;\n");
-    out.push_str("}\n\n");
+    emit_wrap_text_fn(
+        out,
+        &format!("wrap{sub_pascal}TextNodes"),
+        &format!("{sub_class}-label"),
+    );
 }
 
 /// The function's parameter destructure and recipe call for a set of modifiers:

@@ -76,7 +76,22 @@ const cx = (...values: Array<string | undefined>) => values.filter(Boolean).join
  * bare string — the `typeof children === "string"` shortcut would miss it.
  * Mirrors the generator's `wrapTextChildren`.
  */
-function wrapRowTextNodes(children: ReactNode, className: string): ReactNode {
+function wrapRowTextNodes(
+  children: ReactNode,
+  className: string,
+  asChild?: boolean,
+): ReactNode {
+  // Under `asChild` the child is the CONSUMER's element, so its text sits one
+  // level deeper than `Children.map` reaches and nothing would wrap it — the
+  // row's label span is what absorbs the free space and truncates, so without
+  // this an asChild row neither fills nor ellipsises. One level only.
+  if (asChild && isValidElement<{ children?: ReactNode }>(children)) {
+    return cloneElement(
+      children,
+      undefined,
+      wrapRowTextNodes(children.props.children, className),
+    );
+  }
   const mapped = Children.map(children, (child) =>
     typeof child === "string" || typeof child === "number" ? (
       <span className={className}>{child}</span>
@@ -185,7 +200,7 @@ export function TreeItem({ className, children, style, ...props }: TreeItemProps
       {...props}
     >
       <span className="primitiv-tree__item-spacer" aria-hidden="true" />
-      {wrapRowTextNodes(children, "primitiv-tree__item-label")}
+      {wrapRowTextNodes(children, "primitiv-tree__item-label", props.asChild)}
     </TreePrimitive.Item>
   );
 }
@@ -210,7 +225,7 @@ export type TreeBranchControlProps = ComponentPropsWithRef<typeof TreePrimitive.
 export function TreeBranchControl({ className, children, ...props }: TreeBranchControlProps) {
   return (
     <TreePrimitive.BranchControl className={cx(treeBranchControl(), className)} {...props}>
-      {wrapRowTextNodes(children, "primitiv-tree__branch-control-label")}
+      {wrapRowTextNodes(children, "primitiv-tree__branch-control-label", props.asChild)}
     </TreePrimitive.BranchControl>
   );
 }

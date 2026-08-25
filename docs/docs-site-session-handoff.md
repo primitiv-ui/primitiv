@@ -248,11 +248,14 @@ right — JSX is not the artifact a designer wants. See Outstanding.
   the two remaining bespoke lists.
 - **`trailingSlash: true`** means `usePathname()` returns `/components/select/`;
   compare with `samePath`/`samePage` from `src/lib/path.ts`.
-- **`code-block` borrows `.primitiv-tabs__*`** without importing that sheet —
-  `InstallTabs` imports it explicitly. Registry-bugs §3, still open.
-- **`asChild` Buttons lose `text-box-trim`** — wrap the label in
-  `<span className="primitiv-button__label">`. Registry-bugs §5, needs a
-  generator fix.
+- ~~**`code-block` borrows `.primitiv-tabs__*`** without importing that sheet~~ —
+  fixed at source (registry-bugs §3): `code-block.tsx` does `import "./tabs";`.
+  Both docs-site workarounds are gone. Do not re-add one.
+- ~~**`asChild` Buttons lose `text-box-trim`**~~ — fixed in the wrapper generator
+  (registry-bugs §5), so a plain `<Button asChild><Link>Text</Link></Button>` is
+  correct again. **Never hand-write `<span className="primitiv-button__label">`**
+  — it is a private class `contract.json` does not declare, and both call sites
+  that did are deleted.
 
 
 ### Traps found on 2026-08-25
@@ -320,7 +323,15 @@ right — JSX is not the artifact a designer wants. See Outstanding.
    every control appears in the snippet — so a control that must NOT appear needs
    a "not a prop" concept the playground does not have. The states are documented
    in the Data attributes table instead.
-6. Registry-bugs **§3, §4, §5, §7b, §8** are open and need decisions.
+6. ~~Registry-bugs §3, §4, §5, §7b, §8~~ — **all closed 2026-08-25.** Every
+   workaround they justified is deleted from this app: the two `tabs/styles.css`
+   imports, the `.docs-anatomy` `__pre` override and its wrapper `<div>`, the
+   `document.css` `li + li` cancellation, and both hand-written
+   `.primitiv-button__label` spans. `CodeBlock` gained `wrap={false}` (used by
+   `Anatomy.tsx`) and `SelectTrigger` now supplies its own chevron, so the Select
+   page's explicit `SelectIcon`s are a glyph-swap demo rather than a requirement.
+   Read registry-bugs.md for what each fix actually was — three of them differ
+   from what that doc originally proposed.
 
 Never verified in a browser, and worth a look: the compact mobile index only
 renders client-side, so its accordion and horizontal cards have never been seen;

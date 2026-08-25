@@ -18,7 +18,14 @@ import "../styles/primitiv/tag/styles.css";
  * off-centre (registry-stylesheet-conventions).
  */
 import { Slot } from "@primitiv-ui/react";
-import { Children, type ComponentPropsWithRef, type ElementType, type ReactNode } from "react";
+import {
+  Children,
+  cloneElement,
+  isValidElement,
+  type ComponentPropsWithRef,
+  type ElementType,
+  type ReactNode,
+} from "react";
 import { tag, type TagVariants } from "./tag.recipe";
 
 export type TagProps = ComponentPropsWithRef<"span"> &
@@ -30,7 +37,13 @@ export type TagProps = ComponentPropsWithRef<"span"> &
     asChild?: boolean;
   };
 
-function wrapTextNodes(children: ReactNode): ReactNode {
+function wrapTextNodes(children: ReactNode, asChild?: boolean): ReactNode {
+  // Under `asChild` the child is the CONSUMER's element, so its text sits one
+  // level deeper than `Children.map` reaches and nothing would wrap it —
+  // losing the label span's text-box-trim. One level only.
+  if (asChild && isValidElement<{ children?: ReactNode }>(children)) {
+    return cloneElement(children, undefined, wrapTextNodes(children.props.children));
+  }
   const mapped = Children.map(children, (child) =>
     typeof child === "string" || typeof child === "number" ? (
       <span className="primitiv-tag__label">{child}</span>
@@ -60,7 +73,7 @@ export function Tag({ asChild = false, tone, size, className, children, ...props
   const Comp: ElementType = asChild ? Slot : "span";
   return (
     <Comp className={[tag({ tone, size }), className].filter(Boolean).join(" ")} {...props}>
-      {wrapTextNodes(children)}
+      {wrapTextNodes(children, asChild)}
     </Comp>
   );
 }

@@ -15,7 +15,7 @@
  * sync by hand.
  */
 import { Accordion as AccordionPrimitive } from "@primitiv-ui/react";
-import { Children, type ComponentPropsWithRef, type ReactNode } from "react";
+import { Children, cloneElement, isValidElement, type ComponentPropsWithRef, type ReactNode } from "react";
 import { accordion, accordionItem, accordionHeader, accordionTrigger, accordionContent, accordionTriggerIcon } from "./accordion.recipe";
 
 type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K> : never;
@@ -57,7 +57,14 @@ export function AccordionHeader({ className, ...props }: AccordionHeaderProps) {
 
 export type AccordionTriggerProps = ComponentPropsWithRef<typeof AccordionPrimitive.Trigger>;
 
-function wrapAccordionTriggerTextNodes(children: ReactNode): ReactNode {
+function wrapAccordionTriggerTextNodes(children: ReactNode, asChild?: boolean): ReactNode {
+  // Under `asChild` the child is the CONSUMER's element (a routing <Link>, an
+  // <a>), so its text sits one level deeper than `Children.map` reaches and
+  // nothing would wrap it — losing the label span's text-box-trim and
+  // nowrap. One level only: it covers the real cases and stays predictable.
+  if (asChild && isValidElement<{ children?: ReactNode }>(children)) {
+    return cloneElement(children, undefined, wrapAccordionTriggerTextNodes(children.props.children));
+  }
   const mapped = Children.map(children, (child) =>
     typeof child === "string" || typeof child === "number"
       ? <span className="primitiv-accordion__trigger-label">{child}</span>
@@ -69,7 +76,7 @@ function wrapAccordionTriggerTextNodes(children: ReactNode): ReactNode {
 export function AccordionTrigger({ className, children, ...props }: AccordionTriggerProps) {
   return (
     <AccordionPrimitive.Trigger className={[accordionTrigger(), className].filter(Boolean).join(" ")} {...props}>
-      {wrapAccordionTriggerTextNodes(children)}
+      {wrapAccordionTriggerTextNodes(children, props.asChild)}
     </AccordionPrimitive.Trigger>
   );
 }

@@ -295,12 +295,69 @@ fn wraps_text_children_in_a_label_span_when_the_contract_opts_in() {
     let wrapper = emit_wrapper(&Contract::parse(json).unwrap());
 
     assert!(wrapper.contains(
-        "import { Children, type ComponentPropsWithRef, type ReactNode } from \"react\";",
+        "import { Children, cloneElement, isValidElement, type ComponentPropsWithRef, type ReactNode } from \"react\";",
     ));
-    assert!(wrapper.contains("function wrapTextNodes(children: ReactNode): ReactNode {"));
+    assert!(wrapper
+        .contains("function wrapTextNodes(children: ReactNode, asChild?: boolean): ReactNode {"));
     assert!(wrapper.contains("<span className=\"primitiv-button__label\">{child}</span>"));
-    assert!(wrapper.contains("{wrapTextNodes(children)}"));
+    assert!(wrapper.contains("{wrapTextNodes(children, props.asChild)}"));
     assert!(wrapper.contains("className, children, ...props"));
+}
+
+/// Under `asChild` the lone child is the CONSUMER's element, so the text it
+/// contains sits one level deeper than `Children.map` reaches. Without the clone
+/// nothing wraps it, and `<Button asChild><a>Save</a></Button>` silently loses
+/// both properties the label span carries — `text-box-trim` and the
+/// `white-space: nowrap` that stops a button shrinking below its own text —
+/// while a plain `<Button>Save</Button>` gets them. The single-child unwrap below
+/// only ever made this case not *crash*.
+#[test]
+fn wraps_the_text_inside_an_as_child_element_too() {
+    let json = br#"{
+        "name": "button",
+        "description": "A clickable action.",
+        "root": { "element": "button", "class": "primitiv-button" },
+        "wrapTextChildren": true
+    }"#;
+    let wrapper = emit_wrapper(&Contract::parse(json).unwrap());
+
+    assert!(wrapper.contains("if (asChild && isValidElement<{ children?: ReactNode }>(children)) {"));
+    assert!(wrapper
+        .contains("return cloneElement(children, undefined, wrapTextNodes(children.props.children));"));
+}
+
+/// The clone is gated on `asChild`, not on "the single child is an element" —
+/// ungated it would also rewrite `<Button><span>Save</span></Button>`, nesting a
+/// label span inside markup the consumer wrote. So the helper takes the flag and
+/// the call site reads it off the forwarded props.
+#[test]
+fn gates_the_as_child_clone_on_the_prop_rather_than_on_the_child_shape() {
+    let json = br#"{
+        "name": "button",
+        "description": "A clickable action.",
+        "root": { "element": "button", "class": "primitiv-button" },
+        "wrapTextChildren": true
+    }"#;
+    let wrapper = emit_wrapper(&Contract::parse(json).unwrap());
+
+    assert!(wrapper.contains("if (asChild &&"));
+    assert!(!wrapper.contains("if (isValidElement"));
+}
+
+/// The same `asChild` hazard applies to a structural subcomponent's own helper
+/// (`Tabs.Trigger`, `ToggleGroup.Item`, `Accordion.Trigger` — all nine
+/// text-wrapping parts accept `asChild`), which is why both helpers are emitted
+/// from one shared body rather than two copies.
+#[test]
+fn wraps_the_text_inside_an_as_child_element_for_a_structural_subcomponent_too() {
+    let contract = Contract::parse(DEMO_STRIP.as_bytes()).unwrap();
+    let wrapper = emit_wrapper(&contract);
+
+    assert!(wrapper.contains("if (asChild && isValidElement<{ children?: ReactNode }>(children)) {"));
+    assert!(wrapper.contains(
+        "return cloneElement(children, undefined, wrapDemoStripItemTextNodes(children.props.children));",
+    ));
+    assert!(wrapper.contains("{wrapDemoStripItemTextNodes(children, props.asChild)}"));
 }
 
 /// `Children.map` always returns an array, even for a single child — which
@@ -363,14 +420,16 @@ fn wraps_text_children_in_a_label_span_for_a_structural_subcomponent_when_it_opt
     let wrapper = emit_wrapper(&contract);
 
     assert!(wrapper.contains(
-        "import { Children, type ComponentPropsWithRef, type ReactNode } from \"react\";",
+        "import { Children, cloneElement, isValidElement, type ComponentPropsWithRef, type ReactNode } from \"react\";",
     ));
-    assert!(wrapper.contains("function wrapDemoStripItemTextNodes(children: ReactNode): ReactNode {"));
+    assert!(wrapper.contains(
+        "function wrapDemoStripItemTextNodes(children: ReactNode, asChild?: boolean): ReactNode {",
+    ));
     assert!(wrapper.contains("<span className=\"primitiv-demo-strip__item-label\">{child}</span>"));
     assert!(wrapper.contains(
         "export function DemoStripItem({ className, children, ...props }: DemoStripItemProps) {",
     ));
-    assert!(wrapper.contains("{wrapDemoStripItemTextNodes(children)}"));
+    assert!(wrapper.contains("{wrapDemoStripItemTextNodes(children, props.asChild)}"));
     // The root part has no opt-in, so it stays self-closing with no `children`.
     assert!(wrapper.contains(
         "export function DemoStrip({ className, ...props }: DemoStripProps) {",

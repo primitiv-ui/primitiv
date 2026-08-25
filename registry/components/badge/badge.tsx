@@ -17,7 +17,14 @@
  * off-centre (registry-stylesheet-conventions).
  */
 import { Slot } from "@primitiv-ui/react";
-import { Children, type ComponentPropsWithRef, type ElementType, type ReactNode } from "react";
+import {
+  Children,
+  cloneElement,
+  isValidElement,
+  type ComponentPropsWithRef,
+  type ElementType,
+  type ReactNode,
+} from "react";
 import { badge, type BadgeVariants } from "./badge.recipe";
 
 export type BadgeProps = ComponentPropsWithRef<"span"> &
@@ -29,7 +36,13 @@ export type BadgeProps = ComponentPropsWithRef<"span"> &
     asChild?: boolean;
   };
 
-function wrapTextNodes(children: ReactNode): ReactNode {
+function wrapTextNodes(children: ReactNode, asChild?: boolean): ReactNode {
+  // Under `asChild` the child is the CONSUMER's element, so its text sits one
+  // level deeper than `Children.map` reaches and nothing would wrap it —
+  // losing the label span's text-box-trim. One level only.
+  if (asChild && isValidElement<{ children?: ReactNode }>(children)) {
+    return cloneElement(children, undefined, wrapTextNodes(children.props.children));
+  }
   const mapped = Children.map(children, (child) =>
     typeof child === "string" || typeof child === "number" ? (
       <span className="primitiv-badge__label">{child}</span>
@@ -62,7 +75,7 @@ export function Badge({ asChild = false, tone, variant, size, className, childre
   const Comp: ElementType = asChild ? Slot : "span";
   return (
     <Comp className={[badge({ tone, variant, size }), className].filter(Boolean).join(" ")} {...props}>
-      {wrapTextNodes(children)}
+      {wrapTextNodes(children, asChild)}
     </Comp>
   );
 }

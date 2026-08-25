@@ -165,21 +165,15 @@ export const buttonSpec: ComponentSpec = {
               `<Button asChild>`,
               `  <Link href="/components">`,
               /*
-               * The label span is STYLED-ONLY, so it must not appear in the
-               * headless snippet: `wrapTextNodes` and the
-               * `primitiv-button__label` class live in the copied
-               * registry/components/button wrapper, not in the primitive. What
-               * makes the span necessary there is registry-bugs §5 — under
-               * asChild the text sits one level deeper than wrapTextNodes
-               * reaches, so the class (and its text-box-trim) has to be
-               * written by hand. In headless mode there is no wrapper and no
-               * class, so it is plain text.
+               * Plain text in BOTH modes now. The styled snippet used to carry
+               * an explicit `primitiv-button__label` span — a class the copied
+               * wrapper owns and `contract.json` never declared — because under
+               * `asChild` the text sat one level deeper than `wrapTextNodes`
+               * reached, so its text-box-trim had to be written by hand
+               * (registry-bugs §5). The generator now wraps it, so the two modes
+               * read identically here again.
                */
-              ...(mode === "headless"
-                ? [`    View the docs`]
-                : [
-                    `    <span className="primitiv-button__label">View the docs</span>`,
-                  ]),
+              `    View the docs`,
               `    <ArrowRight />`,
               `  </Link>`,
               `</Button>`,
@@ -189,10 +183,7 @@ export const buttonSpec: ComponentSpec = {
           {() => (
             <Button asChild>
               <Link href="/components/">
-                {/* See docs/registry-bugs.md §5: under asChild the text is one
-                    level deeper than Button's wrapTextNodes reaches, so the
-                    label span (and its text-box-trim) has to be explicit. */}
-                <span className="primitiv-button__label">View the docs</span>
+                View the docs
                 <ArrowRight />
               </Link>
             </Button>

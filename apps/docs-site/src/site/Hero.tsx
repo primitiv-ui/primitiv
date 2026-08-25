@@ -50,30 +50,20 @@ export const Hero = () => (
 
           <Stack direction="row" gap="sm" justify="center">
             {/*
-             * The label span is wrapped by hand here, which a plain
-             * `<Button>Text</Button>` never needs.
-             *
-             * `text-box-trim`/`text-box-edge` live on `.primitiv-button__label`,
-             * because trimming has to sit on the element DIRECTLY wrapping the
-             * text node — not the flex container. Button's generated
-             * `wrapTextNodes` only wraps `string | number` children, so under
-             * `asChild` the single child is the consumer's <Link> ELEMENT and its
-             * text sits one level deeper than Button ever looks. Result: no trim,
-             * and no `white-space: nowrap` either.
-             *
-             * This is a gap in the wrapper generator
-             * (crates/primitiv-emit/src/wrapper.rs), not in this call site — see
-             * docs/registry-bugs.md §5. Remove these spans once it is fixed.
+             * These used to wrap their label in a `.primitiv-button__label` span
+             * by hand — reaching for a class `contract.json` does not even
+             * declare — because `wrapTextNodes` only wrapped `string | number`
+             * children, so under `asChild` the text sat one level deeper than
+             * Button ever looked and silently lost `text-box-trim` and
+             * `white-space: nowrap`. The generator now clones the `asChild` child
+             * with its own children wrapped (registry-bugs §5), so a plain label
+             * is correct again.
              */}
             <Button asChild>
-              <Link href="/components/">
-                <span className="primitiv-button__label">Start Here</span>
-              </Link>
+              <Link href="/components/">Start Here</Link>
             </Button>
             <Button asChild variant="secondary">
-              <Link href="/components/">
-                <span className="primitiv-button__label">Browse Components</span>
-              </Link>
+              <Link href="/components/">Browse Components</Link>
             </Button>
           </Stack>
 

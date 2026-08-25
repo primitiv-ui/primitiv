@@ -6,7 +6,7 @@
  * generated recipe — the primary DX (RFC 0004 §3.5 / D51).
  */
 import { Collapsible as CollapsiblePrimitive } from "@primitiv-ui/react";
-import { Children, type ComponentPropsWithRef, type ReactNode } from "react";
+import { Children, cloneElement, isValidElement, type ComponentPropsWithRef, type ReactNode } from "react";
 import { collapsible, collapsibleTrigger, collapsibleContent, collapsibleTriggerIcon } from "./collapsible.recipe";
 
 type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K> : never;
@@ -45,7 +45,14 @@ export function Collapsible({ variant, size, className, ...props }: CollapsibleP
 
 export type CollapsibleTriggerProps = ComponentPropsWithRef<typeof CollapsiblePrimitive.Trigger>;
 
-function wrapCollapsibleTriggerTextNodes(children: ReactNode): ReactNode {
+function wrapCollapsibleTriggerTextNodes(children: ReactNode, asChild?: boolean): ReactNode {
+  // Under `asChild` the child is the CONSUMER's element (a routing <Link>, an
+  // <a>), so its text sits one level deeper than `Children.map` reaches and
+  // nothing would wrap it — losing the label span's text-box-trim and
+  // nowrap. One level only: it covers the real cases and stays predictable.
+  if (asChild && isValidElement<{ children?: ReactNode }>(children)) {
+    return cloneElement(children, undefined, wrapCollapsibleTriggerTextNodes(children.props.children));
+  }
   const mapped = Children.map(children, (child) =>
     typeof child === "string" || typeof child === "number"
       ? <span className="primitiv-collapsible__trigger-label">{child}</span>
@@ -57,7 +64,7 @@ function wrapCollapsibleTriggerTextNodes(children: ReactNode): ReactNode {
 export function CollapsibleTrigger({ className, children, ...props }: CollapsibleTriggerProps) {
   return (
     <CollapsiblePrimitive.Trigger className={[collapsibleTrigger(), className].filter(Boolean).join(" ")} {...props}>
-      {wrapCollapsibleTriggerTextNodes(children)}
+      {wrapCollapsibleTriggerTextNodes(children, props.asChild)}
     </CollapsiblePrimitive.Trigger>
   );
 }

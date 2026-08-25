@@ -1947,7 +1947,7 @@ The ownership model is built on four verbs. They are not evenly drawn.
 | | project (recipe) | binding | ramp / seed | role | destination | variables |
 | --- | --- | --- | --- | --- | --- | --- |
 | **create** | partial — `+ New project` has no naming view | drawn (journey 1) | **hole** — `+ Add ramp` has no destination view | **hole** | drawn | drawn (`Writing`) |
-| **read** | drawn (`Setup` list) · **hole** for rebuild-from-file (state 7) | drawn | drawn (`Palette`) | drawn (`Roles`) | drawn | drawn (`In sync`, `Audit`) |
+| **read** | drawn (`Setup` list) · adopt drawn 2026-08-25 (§16) · **hole** for rebuild-from-file (state 7) | drawn | drawn (`Palette`) | drawn (`Roles`) | drawn | drawn (`In sync`, `Audit`) |
 | **update** | **hole** (rename) | **hole** (rebind to another destination without re-running setup) | drawn (journeys 3, 4) | **hole** — name and rule are separate fields by decision, and neither has a surface | drawn (via `Write refused`) | drawn · **hole** for the per-variable hand-edited protect/overwrite choice |
 | **delete** | **hole** | **hole** (unbind this file) | **hole** | **hole** | n/a | partial — `Remove 120 variables from this file` exists in `In sync`'s footer, with no confirmation and no result view |
 
@@ -1958,11 +1958,9 @@ The ownership model is built on four verbs. They are not evenly drawn.
   footer link and no view. The confirmation is where the scope gets stated
   ("120 stamped variables; 6 others left alone"), so the reassurance currently
   has nowhere to appear.
-- **Adopt is the read verb's other half and it is a note.** `Scan for an existing
-  palette` sits on `Setup`; what it *finds*, how a person confirms it, and what
-  happens on a name collision with an unstamped variable are undrawn. This is the
-  path that makes an existing file a Harmoni file, so it is the highest-value
-  hole in the grid.
+- **Adopt is the read verb's other half and it was a note.** `Scan for an
+  existing palette` sat on `Setup` with nothing behind it. **Closed 2026-08-25 —
+  see §16**, which also corrects two claims made here.
 
 ### 15.3 Smaller holes, same census
 
@@ -1975,8 +1973,9 @@ The ownership model is built on four verbs. They are not evenly drawn.
   home, §11 gave tinting a control, but the off state only exists as the
   `Picker · neutral · untinted` pair.
 - **Failure states other than a refused write are asserted, not drawn**: type
-  mismatch (COLOR into `Context`), a collection that went remote between sessions,
-  a name collision during adopt.
+  mismatch (COLOR into `Context`) and a collection that went remote between
+  sessions. ~~a name collision during adopt~~ — **struck 2026-08-25**:
+  `Destination`'s `IF A NAME ALREADY EXISTS` card already owns it (§16.3).
 
 **Deliberately not a hole:** multi-seed. It is deferred with a written reason and
 one rule that keeps it cheap (a role's rule names the ramp it searches). That is
@@ -1987,8 +1986,99 @@ what a closed cell looks like, and delete and adopt do not have it.
 Ten of the grid's twenty-three live cells are holes and three are partial;
 entry state 5 adds an eleventh hole of its own. Against that, 22 drawn cards.
 The queue that falls out,
-in value order: **adopt** (15.2 read, and entry states 2 and 7 collapse into it),
+in value order: **adopt** (15.2 read — done, §16; it does **not** also close entry states 2 and 7, see §16.3),
 **delete** (a confirmation and a result), **inherited project** (state 7),
 **role editing**, then the affordances with no destination (`+ Add ramp`,
 `+ New project`). The grid lives here rather than on the flow board because a
 hole is not a view yet — cards join `2004:137277` as they get designed.
+
+## 16. Adopt — the view behind "Scan for an existing palette" (2026-08-25)
+
+§15's grid put adopt at the top of the queue: the read verb's other half, argued
+in CRUD wireframe 01 and the verbs panel, but never drawn past the offer. Built
+as `Adopt` (`2018:160070`) on the Views page at x=7040, with `Adopt · light`
+(`2018:161051`) one row below.
+
+### 16.1 What adopting does — settled by building it
+
+The wireframe's own words are the whole spec: *"adopting claims them into a
+project so they can be updated instead of duplicated."* Taken literally that is a
+trap, and drawing it is what exposed why. If adopt only claims **names**, the very
+next `Create variables` regenerates from the project's own seeds and overwrites
+every colour it just adopted — the offer would destroy the thing it offered to
+keep.
+
+**So adopt derives each ramp's seed from its own 500 step, and changes nothing.**
+The colours stay; the project becomes coherent; the first write is a no-op rather
+than an overwrite. This needs **no new mechanism at all** — 500 is already the
+step the brand pins to and the semantic layer aliases (`step_labels` walks
+100-900 in two halves meeting at 500), and where a hand-made ramp does not
+reproduce from its own seed, that is exactly the "value no longer matches its
+stamp" state the ownership model already protects by default. Adopt and Drift
+turn out to be the same machinery pointed at a different starting condition.
+
+### 16.2 The view
+
+`Show context = true` (a pushed view, breadcrumb `Primitiv / Adopt`),
+`Show notice = false`, footer `Adopt 60 variables`. Two body sections:
+
+- **`FOUND IN THIS DOCUMENT`** — uncarded, exactly like Palette's `RAMPS`, and
+  for the same reason: the strips group themselves. A lead line states the count,
+  the collection, and the sentence that settles 16.1. Then one row per
+  ramp-shaped group: `[Checkbox found-name] → [Select harmoni-ramp]` over the
+  found ramp's own strip.
+- **`WHAT STAYS UNTOUCHED`** — carded, an info `Alert` naming what is not
+  ramp-shaped. Saying what will *not* be touched is half of what makes a claim
+  safe to accept.
+
+**The mapping is the work, so the mapping is the row.** A foreign document does
+not name its groups `brand` / `danger`; it names them `primary` / `red`. The row
+therefore reads `primary → brand`, borrowing Destination's `Light → [Select]`
+idiom verbatim, and the Checkbox is how a group is left out. A row that only
+listed what was found would have nothing to decide and no reason to be a view.
+
+**The strips keep their `Form=mini` Ag test** (§13) rather than showing plain
+colour. `assess_ramp` works on any ramp, not only a generated one, so the claim
+is true of found colours the moment they are scanned — and "we already checked
+what you have" is a better pitch than "we found six things".
+
+**There is no result view.** Adopting lands on Palette with the confirmation in
+the shell's `Notice` slot, on the same reasoning that made `Writing` and
+`Write refused` states rather than routes (§6).
+
+### 16.3 Two corrections to §15 this build forced
+
+- **Name collision during adopt is not a hole.** `Destination` already owns it:
+  an `IF A NAME ALREADY EXISTS` card with a Segmented Control
+  (`Overwrite | Keep theirs | Keep both`) and an Alert naming the colliding
+  groups. Adopt and that control are two answers to one situation — adopt claims
+  the existing names so there is nothing to collide with; `Keep theirs` /
+  `Overwrite` / `Keep both` is what you get if you decline. §15.3's bullet was
+  wrong and is struck.
+- **Adopt does not close entry states 2 or 7**, as §15.4 claimed. Adopt is for
+  **unstamped** variables. State 7 — a file whose variables *are* stamped, opened
+  by someone whose device has never seen the recipe — is rebuild-from-stamps, a
+  different mechanism that happens to want a similar-looking view. Keep them
+  separate; the queue after this is state 7 and delete, not "the rest of adopt".
+
+### 16.4 The light twin is an instance now, and it needs one extra step
+
+`Adopt · light` is a real **instance of the dark component** with
+`Intent = Light`, not the independent copy every other twin is — the refactor
+§14 flagged as outstanding, demonstrated on one view. It works, with a trap:
+
+**Setting the wrapper instance's mode is not enough.** `createComponentFromNode`
+wraps rather than converts, so the inner `View Shell` instance carries its own
+explicit `Intent = Dark` pin, and an inner pin beats the outer one — the first
+attempt rendered a fully dark panel with a light header and looked like the mode
+had simply failed. `setExplicitVariableModeForCollection` on the **inner instance
+sublayer** is accepted and is what actually flips the body. The Panel Header
+still needs its own `Theme = light` variant either way (§6).
+
+### 16.5 On the flow board
+
+Journey **8 · ADOPTING WHAT IS ALREADY HERE** (`Setup → Adopt → Palette`, both
+edges solid routes), plus a note under journey 1's `Setup` card saying its second
+offer leaves that journey here. Placed at the end rather than beside journey 1:
+inserting it there would have renumbered six journeys and moved ~60 nodes, and
+the board's order is not chronology (journey 7 is side trips).

@@ -13,6 +13,7 @@ import {
   SegmentedControlItem,
 } from "@/components/segmented-control";
 import { Stack } from "@/components/stack";
+import { Switch } from "@/components/switch";
 import {
   DEFAULT_DENSITY,
   initialValues,
@@ -35,6 +36,19 @@ const titleCase = (s: string) => s[0].toUpperCase() + s.slice(1);
  * REFERENCE (`aria-labelledby`) rather than by a wrapping/pointing label. A
  * `<label>` aimed at a radiogroup names nothing.
  */
+/**
+ * True for a control whose only options are the two booleans.
+ *
+ * Both the contract-derived controls and a spec's own can be boolean —
+ * Stepper's `compact` modifier and Accordion's `multiple` prop are the same
+ * shape — so the test is on the OPTIONS rather than on where the control came
+ * from.
+ */
+const isBoolean = (options: readonly string[]) =>
+  options.length === 2 &&
+  options.includes("true") &&
+  options.includes("false");
+
 const ControlGroup = ({
   label,
   options,
@@ -47,6 +61,30 @@ const ControlGroup = ({
   onChange: (next: string) => void;
 }) => {
   const labelId = `${useId()}-label`;
+
+  /*
+   * A boolean gets a Switch, not a two-segment control. A segmented control
+   * asks the reader to pick between two labels reading "false" and "true",
+   * which is a worse way to express an on/off than the component the library
+   * already ships for exactly that.
+   *
+   * The value stays a STRING either way, so nothing downstream changes: the
+   * snippet builders and previews all read `values[name]` as before.
+   */
+  if (isBoolean(options)) {
+    return (
+      <div className="docs-playground-control">
+        <Switch
+          size="sm"
+          checked={value === "true"}
+          onCheckedChange={(next) => onChange(next ? "true" : "false")}
+        >
+          {label}
+        </Switch>
+      </div>
+    );
+  }
+
   return (
     <div className="docs-playground-control">
       <span className="docs-control-label" id={labelId}>

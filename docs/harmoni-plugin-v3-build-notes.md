@@ -2082,3 +2082,68 @@ edges solid routes), plus a note under journey 1's `Setup` card saying its secon
 offer leaves that journey here. Placed at the end rather than beside journey 1:
 inserting it there would have renumbered six journeys and moved ~60 nodes, and
 the board's order is not chronology (journey 7 is side trips).
+
+## 17. Remove — the view behind In sync's footer link (2026-08-25)
+
+Next off §15's queue: `delete` is the verb the whole ownership model is built to
+make safe, and it ships today as one quiet link (`Remove 120 variables from this
+file`) with no confirmation and no result. Design settled here; build below.
+
+### 17.1 The confirmation is where the promise gets stated
+
+The stamp's whole point is *"the plugin can never remove what it did not
+create"*. Nothing in the panel says so. A confirmation is the only screen where
+that sentence has a place, and it has to be specific to be worth anything:
+**120 stamped, and the count of what is being left behind.** A generic "are you
+sure?" would carry none of it.
+
+### 17.2 A pushed view, not a `ConfirmDialog`
+
+The library has `ConfirmDialog` and this is exactly its shape — and it is still
+wrong here. Two reasons: at 360 px a modal over a 360 px panel is the whole panel
+with a scrim, so it buys none of the focus a dialog normally buys; and its body
+is a **sentence**, where this body is an inventory (six ramps, their counts, what
+stays). The panel's own grammar for "a screen you go to and come back from" is
+already push-and-breadcrumb — `Canvas swatches`, `Adopt` — so `Remove` is a
+pushed view with breadcrumb `Primitiv / Remove`.
+
+### 17.3 Removing the variables and unbinding the file are one act
+
+Not two grid cells, one view. A binding that points at nothing is meaningless, so
+`delete/variables` and `delete/binding` resolve together: `Remove` takes
+everything this project wrote **to this file** and drops the binding with it.
+That also means the rows are **not** selectable — removing one ramp is a
+different action (`delete/ramp`, still open) belonging to Palette, not here.
+
+**So Adopt's row anatomy comes back with its meaning inverted.** Same
+`name · count · strip` rows; Adopt's carry a Checkbox because they are a
+*choice*, Remove's carry none because they are a *receipt*. Worth keeping the
+resemblance — it is the same inventory, read once before claiming and once
+before releasing.
+
+### 17.4 Hand-edited variables go too, and are counted out loud
+
+The one genuinely hard call. A stamped variable whose value no longer matches its
+stamp was edited by a person, and everywhere else in the model that is protected
+by default (Drift). Here it is not: **Remove takes everything stamped, including
+the hand-edited, and names how many.** Leaving them behind would strand orphans
+that no longer belong to any project and that nothing in the panel could later
+find — a worse outcome than removing them, but only if the person is told. The
+count is what makes it honest rather than silent.
+
+Unstamped variables are the other half of the statement and are never touched —
+the same `WHAT STAYS UNTOUCHED` card Adopt uses, for the same reason.
+
+### 17.5 The write presents on the button, and lands on Setup
+
+`Removing... 47 / 120` on the footer button, per §6 — a removal is a write and
+gets no view of its own. Afterwards the document has no Harmoni variables and no
+binding, so the panel lands on **`Setup`** (not `First run`: the recipe still
+exists on this device) with the confirmation in the shell's `Notice` slot.
+
+**That landing is load-bearing copy.** Removing variables from a file does not
+delete the project — the recipe is per-device, the binding is per-file, and only
+the binding just died. If Setup's notice does not say so, "Remove" reads as
+"delete everything" and the two concepts collapse. Deleting the recipe itself
+stays a separate hole (`delete/project`), and belongs to the Setup list or
+Settings, not here.

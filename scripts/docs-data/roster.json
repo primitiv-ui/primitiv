@@ -17,7 +17,7 @@
     "id": "aspect-ratio",
     "displayName": "Aspect Ratio",
     "category": "Layout",
-    "description": "A box that constrains its content to a width-to-height ratio via CSS `aspect-ratio`. `ratio` is a curated preset set of modifier classes (1/1, 4/3, 3/2, 16/9, 21/9 and their portrait inverses); a bespoke ratio comes from overriding --primitiv-aspect-ratio in a stylesheet (RFC 0022 §9).",
+    "description": "A box that constrains its content to a width-to-height ratio via CSS `aspect-ratio`. `ratio` is a curated preset set of modifier classes (1/1, 4/3, 3/2, 16/9, 21/9 and their portrait inverses); a bespoke ratio comes from overriding --primitiv-aspect-ratio in a stylesheet.",
     "documented": false
   },
   {
@@ -45,14 +45,14 @@
     "id": "blockquote",
     "displayName": "Blockquote",
     "category": "Typography",
-    "description": "A <blockquote> with a left-stroke accent bar and an optional attribution line. `tone` picks the bar colour (default | accent); `size` scales the quote and citation type together (RFC 0012 D12).",
+    "description": "A <blockquote> with a left-stroke accent bar and an optional attribution line. `tone` picks the bar colour (default | accent); `size` scales the quote and citation type together.",
     "documented": false
   },
   {
     "id": "box",
     "displayName": "Box",
     "category": "Layout",
-    "description": "The escape hatch — a bare polymorphic element with no visual opinion. Exists so a consumer has something to attach a custom property or a one-off style to without reaching for a raw <div> (RFC 0022).",
+    "description": "The escape hatch — a bare polymorphic element with no visual opinion. Exists so a consumer has something to attach a custom property or a one-off style to without reaching for a raw <div>.",
     "documented": false
   },
   {
@@ -94,7 +94,7 @@
     "id": "center",
     "displayName": "Center",
     "category": "Layout",
-    "description": "A single- or both-axis Flexbox centring box (RFC 0022).",
+    "description": "A single- or both-axis Flexbox centring box.",
     "documented": false
   },
   {
@@ -150,7 +150,7 @@
     "id": "container",
     "displayName": "Container",
     "category": "Layout",
-    "description": "A centred, max-width content column with token-bound inline gutters. `size` caps the width against the breakpoint scale (RFC 0025) and `gutter` sets the inline padding — `responsive` (the default) escalates it at the md and lg breakpoints, the fixed steps pin one value at every width. No inline styles: both props are curated presets (RFC 0022 §8).",
+    "description": "A centred, max-width content column with token-bound inline gutters. `size` caps the width against the breakpoint scale and `gutter` sets the inline padding — `responsive` (the default) escalates it at the md and lg breakpoints, the fixed steps pin one value at every width. No inline styles: both props are curated presets.",
     "documented": false
   },
   {
@@ -171,7 +171,7 @@
     "id": "description-list",
     "displayName": "Description List",
     "category": "Typography",
-    "description": "A <dl> compound — one <dt> (fixed SemiBold) + one <dd> per pair. `layout` picks `stacked` (dt above dd, dd indented) or `inline` (dt : dd side by side in a two-column grid), matching the two layouts in the Figma component set. Consumers compose multiple Term/Details pairs to form a full description list (RFC 0012 D10). row-gap/column-gap/details-indent are density-scaled Context tokens; inline's pair-to-pair gap reuses List's item-gap directly, matching the Figma binding.",
+    "description": "A <dl> compound — one <dt> (fixed SemiBold) + one <dd> per pair. `layout` picks `stacked` (dt above dd, dd indented) or `inline` (dt : dd side by side in a two-column grid), matching the two layouts in the Figma component set. Consumers compose multiple Term/Details pairs to form a full description list. row-gap/column-gap/details-indent are density-scaled Context tokens; inline's pair-to-pair gap reuses List's item-gap directly, matching the Figma binding.",
     "documented": false
   },
   {
@@ -213,14 +213,14 @@
     "id": "figure",
     "displayName": "Figure",
     "category": "Typography",
-    "description": "A <figure>/<figcaption> pairing that wraps self-contained content (an image, illustration, chart, code listing, table) with an optional caption in one of three positions — below (default), above, or overlaid on the media (RFC 0015). `size` scales the caption's type off the body/{size} ramp (the media is size-independent, as in Figma); the caption's own `align` matches Figma's Figcaption Align axis.",
+    "description": "A <figure>/<figcaption> pairing that wraps self-contained content (an image, illustration, chart, code listing, table) with an optional caption in one of three positions — below (default), above, or overlaid on the media. `size` scales the caption's type off the body/{size} ramp (the media is size-independent, as in Figma); the caption's own `align` matches Figma's Figcaption Align axis.",
     "documented": false
   },
   {
     "id": "grid",
     "displayName": "Grid",
     "category": "Layout",
-    "description": "A CSS Grid container. `columns` takes a count or a mobile-first per-breakpoint map, `gap` the spacing (a density-scaled Context token per step), and `align`/`justify` how each item sits within its cell. No inline styles: the per-breakpoint column counts resolve to modifier classes, so the responsive behaviour is correct in server-rendered markup on the first paint (RFC 0022 §8).",
+    "description": "A CSS Grid container. `columns` takes a count or a mobile-first per-breakpoint map, `gap` the spacing (a density-scaled Context token per step), and `align`/`justify` how each item sits within its cell. No inline styles: the per-breakpoint column counts resolve to modifier classes, so the responsive behaviour is correct in server-rendered markup on the first paint.",
     "documented": false
   },
   {
@@ -255,7 +255,7 @@
     "id": "list",
     "displayName": "List",
     "category": "Typography",
-    "description": "A <ul>/<ol> with custom, token-coloured markers and a controllable item gap, marker gap and indent — the styled counterpart to the bare list styles in primitiv.reset (RFC 0012 D9).",
+    "description": "A <ul>/<ol> with custom, token-coloured markers and a controllable item gap, marker gap and indent — the styled counterpart to the bare list styles in primitiv.reset.",
     "documented": false
   },
   {
@@ -311,14 +311,14 @@
     "id": "prose",
     "displayName": "Prose",
     "category": "Typography",
-    "description": "A flow-rhythm container — applies the `.primitiv-flow` context so every direct child gets density-scoped vertical spacing via a one-directional owl (RFC 0016). Zero behaviour; renders a semantic element, composing the consumer's own element via `asChild`.",
+    "description": "A flow-rhythm container — applies the `.primitiv-flow` context so every direct child gets density-scoped vertical spacing via a one-directional owl. Zero behaviour; renders a semantic element, composing the consumer's own element via `asChild`.",
     "documented": false
   },
   {
     "id": "pull-quote",
     "displayName": "Pull Quote",
     "category": "Typography",
-    "description": "A large, centred editorial quote — no accent bar, no attribution, distinct from Blockquote. Rides the existing heading/* type scale; an optional decorative open-quote mark (RFC 0012 D13).",
+    "description": "A large, centred editorial quote — no accent bar, no attribution, distinct from Blockquote. Rides the existing heading/* type scale; an optional decorative open-quote mark.",
     "documented": false
   },
   {
@@ -360,7 +360,7 @@
     "id": "spacer",
     "displayName": "Spacer",
     "category": "Layout",
-    "description": "A flex: 1 0 0 blank element for pushing flex siblings apart — toolbar left/right groups, card footers, nav bars (RFC 0022).",
+    "description": "A flex: 1 0 0 blank element for pushing flex siblings apart — toolbar left/right groups, card footers, nav bars.",
     "documented": false
   },
   {
@@ -374,7 +374,7 @@
     "id": "stack",
     "displayName": "Stack",
     "category": "Layout",
-    "description": "A Flexbox stack — `direction` picks the axis, `gap` the spacing (a density-scaled Context token per step), `wrap` whether the row may break onto additional lines, and `align`/`justify` the alignment, all as modifier classes. No inline styles: the alignment props are curated presets, not raw CSS keywords (RFC 0022 §8).",
+    "description": "A Flexbox stack — `direction` picks the axis, `gap` the spacing (a density-scaled Context token per step), `wrap` whether the row may break onto additional lines, and `align`/`justify` the alignment, all as modifier classes. No inline styles: the alignment props are curated presets, not raw CSS keywords.",
     "documented": false
   },
   {

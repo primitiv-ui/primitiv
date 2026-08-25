@@ -252,7 +252,7 @@ export const ComponentDocsPage = ({ id }: { id: ComponentId }) => {
         <DocsSection
           id="styling"
           title="Styling contract"
-          meta={`${cssVars.length} CSS custom properties on .${docs.styled.rootClass} — mode-agnostic. These names are the stable surface; the values are not (RFC 0006 Principle 2).`}
+          meta={`${cssVars.length} CSS custom properties on .${docs.styled.rootClass} — mode-agnostic. These names are the stable surface; the values are not.`}
         >
           <StylingContract
             properties={cssVars}

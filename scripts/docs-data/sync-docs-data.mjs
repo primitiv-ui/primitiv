@@ -31,6 +31,7 @@ import { execFileSync, spawnSync } from "node:child_process";
 import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { stripInternalRefs } from "./strip-internal-refs.mjs";
 
 import { CATEGORIES, DISPLAY_NAME_OVERRIDES, REGISTRY } from "./registry.mjs";
 
@@ -127,7 +128,7 @@ const roster = registryIds.map((id) => {
     id,
     displayName: DISPLAY_NAME_OVERRIDES[id] ?? titleCase(id),
     category: CATEGORIES[id],
-    description: contract.description ?? "",
+    description: stripInternalRefs(contract.description ?? ""),
     /* Whether a docs PAGE exists — i.e. whether this id has an extractor entry.
        The index links these and leaves the rest inert. */
     documented: Object.hasOwn(REGISTRY, id),

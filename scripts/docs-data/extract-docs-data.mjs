@@ -30,6 +30,7 @@ const require = createRequire(join(ROOT, "packages/react/"));
 const ts = require("typescript");
 
 import { REGISTRY } from "./registry.mjs";
+import { stripInternalRefs } from "./strip-internal-refs.mjs";
 
 const EL_IFACE = {
   a: "HTMLAnchorElement", button: "HTMLButtonElement", div: "HTMLDivElement",
@@ -299,7 +300,7 @@ function extractSub(sc) {
     props.push({
       name: prop.getName(), type: propType, required,
       default: defTag ? partsToString(defTag.text).trim() : null,
-      description: ts.displayPartsToString(prop.getDocumentationComment(checker)).trim(),
+      description: stripInternalRefs(ts.displayPartsToString(prop.getDocumentationComment(checker)).trim()),
     });
   }
   props.sort((a, b) => Number(b.required) - Number(a.required) || a.name.localeCompare(b.name));
@@ -326,7 +327,7 @@ const modsFor = (mods) => (mods || []).map((m) => ({
   name: m.prop || m.name,
   type: (m.options || []).map((o) => `"${o.name}"`).join(" | "),
   default: m.default ?? null,
-  description: m.description || "",
+  description: stripInternalRefs(m.description || ""),
 }));
 /*
  * A part's data attributes as full { name, value, when } rows.
@@ -454,7 +455,7 @@ const subComponents = cfg.subComponents.map((sc) => {
 const out = {
   id: name, displayName: cfg.displayName, kind: cfg.kind, status: cfg.status,
   category: cfg.category,
-  description: contract.description,
+  description: stripInternalRefs(contract.description),
   headless: { package: "@primitiv-ui/react", importPath: cfg.importPath, subComponents },
   styled: {
     installCommand: `primitiv add ${name}`,

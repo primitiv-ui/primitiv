@@ -868,6 +868,10 @@ only prose that leaks the internal term.
 
 ## 6. Still to design
 
+**Read §15 with this.** This section lists what we knew was unbuilt; §15's grid
+enumerates the cells nobody had thought to look at — delete, adopt and the
+inherited-project entry state are all absent from the list below.
+
 **Corrected 2026-08-24 — the previous list was stale in a way that would have
 cost a session.** It claimed the project switcher had "no view behind it". It has
 both: CRUD wireframe **01** (`1935:110852`) *is* the switcher — `YOUR PROJECTS ·
@@ -1837,7 +1841,7 @@ right.
 
 **The diagnostic is `variable.resolveForConsumer(node).value` compared against
 `fills[0].color`.** When they disagree, the literal is what you see. Note
-`resolveForConsumer` needs the full `VariableID:…` id — a bare `346:4430` returns
+`resolveForConsumer` needs the full `VariableID:...` id — a bare `346:4430` returns
 `null` and the call throws.
 
 **The repair is to rebind with a base whose literal already equals the resolved
@@ -1901,3 +1905,88 @@ stuck on a dark header, `Export · light` missing a breadcrumb segment,
 components, each light twin could become an instance with `Intent = Light` and a
 `Theme=light` header override, single-sourcing the content and leaving only the
 mode to differ. Not done — it is a separate refactor.
+
+**The board is a consistency check, not a coverage proof.** It shows the views
+we built connect; it cannot show which views are missing. §15 enumerates that
+from the settled positions instead.
+
+## 15. The coverage grid — enumerated, not walked (2026-08-25)
+
+§14's board proves the views we built connect to each other. It cannot prove the
+*set* of views is complete, because the journeys were derived by walking the
+canvas — every hole is invisible by construction. This section enumerates from
+the settled positions instead (the four ownership verbs, the entities the plugin
+manipulates, and what can be true when the panel opens) and marks each cell
+**drawn**, **partial**, **note** (argued but never drawn), or **hole**.
+
+### 15.1 Entry states — what is true when the panel opens
+
+Three independent facts decide the opening view: is a project **bound** to this
+file (`root.setPluginData`); does *this user's* `clientStorage` hold that
+project's recipe; and what state are the stamped variables in.
+
+| | bound | recipe on this device | variables | view | |
+| --- | --- | --- | --- | --- | --- |
+| 1 | no | none exist | — | `First run` | **drawn** |
+| 2 | no | some exist | — | `Setup`, list populated | **partial** — the view is CRUD 01 and handles it; picking an existing recipe for a fresh file is not drawn as a journey |
+| 3 | yes | yes | match their stamps | `In sync` | **drawn** |
+| 4 | yes | yes | drifted | `Drift` | **drawn** |
+| 5 | yes | yes | **gone** — someone deleted them | — | **hole** |
+| 6 | yes | yes | destination now `remote: true` | — | **note** — §6 settles it as caught pre-flight, never drawn |
+| 7 | yes | **no** — inherited from a teammate | any | — | **hole** |
+
+**State 7 is structural, not exotic.** The binding lives in the file and the
+project list is per-user and per-device, so the *second person to open the file*
+is always in state 7 — or in state 2/adopt if they open a file someone built by
+hand. Three of seven drawn.
+
+### 15.2 Verbs x entities
+
+The ownership model is built on four verbs. They are not evenly drawn.
+
+| | project (recipe) | binding | ramp / seed | role | destination | variables |
+| --- | --- | --- | --- | --- | --- | --- |
+| **create** | partial — `+ New project` has no naming view | drawn (journey 1) | **hole** — `+ Add ramp` has no destination view | **hole** | drawn | drawn (`Writing`) |
+| **read** | drawn (`Setup` list) · **hole** for rebuild-from-file (state 7) | drawn | drawn (`Palette`) | drawn (`Roles`) | drawn | drawn (`In sync`, `Audit`) |
+| **update** | **hole** (rename) | **hole** (rebind to another destination without re-running setup) | drawn (journeys 3, 4) | **hole** — name and rule are separate fields by decision, and neither has a surface | drawn (via `Write refused`) | drawn · **hole** for the per-variable hand-edited protect/overwrite choice |
+| **delete** | **hole** | **hole** (unbind this file) | **hole** | **hole** | n/a | partial — `Remove 120 variables from this file` exists in `In sync`'s footer, with no confirmation and no result view |
+
+**Two things this makes obvious that the board could not.**
+
+- **Delete is a whole verb with almost nothing behind it.** Its safety story *is*
+  the stamp — the plugin can only remove what it created — and that story has one
+  footer link and no view. The confirmation is where the scope gets stated
+  ("120 stamped variables; 6 others left alone"), so the reassurance currently
+  has nowhere to appear.
+- **Adopt is the read verb's other half and it is a note.** `Scan for an existing
+  palette` sits on `Setup`; what it *finds*, how a person confirms it, and what
+  happens on a name collision with an unstamped variable are undrawn. This is the
+  path that makes an existing file a Harmoni file, so it is the highest-value
+  hole in the grid.
+
+### 15.3 Smaller holes, same census
+
+- **The picker's 3D tab is chrome with no view behind it** — and no engine call
+  either (`api::gamut` paints planes and strips, nothing volumetric).
+- **`Roles` has a list but no edit-a-rule view**, which contradicts the settled
+  position that a role is a name *plus* a rule and the two are separately
+  editable.
+- **The untinted soft white / black path is half-drawn** — §10 gave the anchors a
+  home, §11 gave tinting a control, but the off state only exists as the
+  `Picker · neutral · untinted` pair.
+- **Failure states other than a refused write are asserted, not drawn**: type
+  mismatch (COLOR into `Context`), a collection that went remote between sessions,
+  a name collision during adopt.
+
+**Deliberately not a hole:** multi-seed. It is deferred with a written reason and
+one rule that keeps it cheap (a role's rule names the ramp it searches). That is
+what a closed cell looks like, and delete and adopt do not have it.
+
+### 15.4 What this changes
+
+Nine holes and four partials, against 22 drawn cards. The queue that falls out,
+in value order: **adopt** (15.2 read, and entry states 2 and 7 collapse into it),
+**delete** (a confirmation and a result), **inherited project** (state 7),
+**role editing**, then the affordances with no destination (`+ Add ramp`,
+`+ New project`). The grid lives here rather than on the flow board because a
+hole is not a view yet — cards join `2004:137277` as they get designed.

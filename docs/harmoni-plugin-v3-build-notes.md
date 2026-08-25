@@ -2497,3 +2497,52 @@ reason to exist as a separate view.
 The rule it established survives unchanged and moves with the link: **a ramp is
 removable when no role's rule searches it**, which is what protects `brand` and
 `neutral` without a special case.
+
+## 24. Journey coverage, verified — and two more cross-view findings
+
+### 24.1 The board and the views agree
+
+Checked mechanically rather than by eye (2026-08-25): **25 view components, 25
+on the board, 14 journeys, zero orphans in either direction** — no view missing
+a journey, no card that is not a real view. Views repeat across journeys as they
+should (`In sync` appears in 1, 6, 9, 10 and 14; `Palette` in 3, 4, 8, 11, 14).
+
+Two views are reached by a note rather than an edge, deliberately: `Settings`
+(the gear, from every view) and `Canvas swatches` (pushed, returns by
+breadcrumb).
+
+**This is now checked by two independent methods** — §15's grid enumerates from
+the ownership verbs and entry states, and this diff enumerates from the canvas.
+The third method, reading built views *against each other* for contradictions
+(§22), is the one that found the worst bug of the session and has **no
+completion criterion**. Two more of its findings, from the same pass:
+
+### 24.2 Adopt must preserve the found step count
+
+§16 settled that adopting derives each ramp's seed from its 500 step and changes
+nothing. But a found ramp need not have ten steps. If adopt applies the project
+default (10) to a ramp that has seven, the very first write relabels all seven —
+which is §22.2's orphaning, triggered by the one action that promised not to
+touch anything.
+
+**So adopt reads the step count as well as the seed**, per ramp, and the
+`Adopt` rows should show it (they currently show a strip and a name). This is
+also why `Ramp`'s step field matters immediately rather than eventually: an
+adopted 7-step ramp is the first thing a user will want to normalise, and it has
+to be a deliberate act with the rename warning attached.
+
+### 24.3 Rebinding a project leaves its old variables behind
+
+`Project`'s `WRITES INTO` (§20) lets a destination change without re-running
+Setup. Nothing says what happens to the variables already written to the *old*
+collection: they stay, stamped, in a place the project no longer writes — the
+same orphan class as §22.2, reached by a different door.
+
+Three candidate answers, none yet chosen: **move** them (rename across
+collections — but Figma variables cannot change collection, so this is really
+create-there + remove-here), **release** them (drop the claim, leave them —
+consistent with §23.1's treatment of adopted rows), or **refuse** while the old
+destination still holds a written set, pointing at `Remove` first. Release is
+the cheapest and matches the vocabulary the panel already has; it needs saying
+in the view either way, because silently stranding 120 variables is exactly what
+the stamp exists to prevent.

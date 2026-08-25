@@ -2622,7 +2622,19 @@ both index 5, so the words were interchangeable. At seven they are not —
 index 3. The rule is the pivot (the step Harmoni calls 500), not the middle, and
 the copy needs to say so.
 
-**Open, deliberately not churned:** whether the `Adopt` view should keep the
-7-step row at all. It is honest and it is what forced these two findings out, but
-it puts an unusual case in the default artwork; the alternative is six 10-step
-rows with the rule stated only in the lead.
+**Settled 2026-08-25: ten is the default artwork, and the choice lives where it
+is made.** A ramp of seven steps is a legitimate user choice, not a default, so
+it does not belong in the picture a reader sees first. `Adopt` goes back to six
+ten-step rows and states the rule in its lead instead; the step count as a
+*choice* is `Ramp`'s Steps field, which carries the engine bound
+(`Engine allows 3 - 32`) the way Settings already does.
+
+The two findings the example produced stand on their own and are fixed
+regardless of the artwork:
+
+- **Adopt keeps the found NAMES as well as the found length.** Anything else
+  renames what it promised not to touch. Normalising onto Harmoni's ladder is a
+  deliberate act in `Ramp`, with the rename warning that view already carries.
+- **The seed is the pivot step, not the middle one.** `Adopt`'s lead said
+  "middle"; at ten steps midpoint and 500 are both index 5 so the words were
+  interchangeable, and at seven they are not.

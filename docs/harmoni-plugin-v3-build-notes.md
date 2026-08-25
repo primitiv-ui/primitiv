@@ -1946,10 +1946,10 @@ The ownership model is built on four verbs. They are not evenly drawn.
 
 | | project (recipe) | binding | ramp / seed | role | destination | variables |
 | --- | --- | --- | --- | --- | --- | --- |
-| **create** | partial — `+ New project` has no naming view | drawn (journey 1) | **hole** — `+ Add ramp` has no destination view | **hole** | drawn | drawn (`Writing`) |
+| **create** | partial — `+ New project` has no naming view | drawn (journey 1) | drawn 2026-08-25 (`Add ramp`, §19.1) | drawn 2026-08-25 (`Role`, empty — §19.2) | drawn | drawn (`Writing`) |
 | **read** | drawn (`Setup` list) · adopt drawn 2026-08-25 (§16) · rebuild-from-file drawn 2026-08-25 (§18, a state of `In sync`) | drawn | drawn (`Palette`) | drawn (`Roles`) | drawn | drawn (`In sync`, `Audit`) |
-| **update** | **hole** (rename) | **hole** (rebind to another destination without re-running setup) | drawn (journeys 3, 4) | **hole** — name and rule are separate fields by decision, and neither has a surface | drawn (via `Write refused`) | drawn · **hole** for the per-variable hand-edited protect/overwrite choice |
-| **delete** | **hole** (the recipe itself) | drawn 2026-08-25 (§17 — same act as removing the variables) | **hole** (one ramp; belongs to Palette) | **hole** | n/a | drawn 2026-08-25 (`Remove`, §17) |
+| **update** | **hole** (rename) | **hole** (rebind to another destination without re-running setup) | drawn (journeys 3, 4) | drawn 2026-08-25 (§19.2 — the list was already half of it) | drawn (via `Write refused`) | drawn · **hole** for the per-variable hand-edited protect/overwrite choice |
+| **delete** | **hole** (the recipe itself) | drawn 2026-08-25 (§17 — same act as removing the variables) | **hole** (one ramp; belongs to Palette) | drawn 2026-08-25 (`Role`'s footer link, §19.2 — no confirmation, deliberately) | n/a | drawn 2026-08-25 (`Remove`, §17) |
 
 **Two things this makes obvious that the board could not.**
 
@@ -1965,9 +1965,9 @@ The ownership model is built on four verbs. They are not evenly drawn.
 
 - **The picker's 3D tab is chrome with no view behind it** — and no engine call
   either (`api::gamut` paints planes and strips, nothing volumetric).
-- **`Roles` has a list but no edit-a-rule view**, which contradicts the settled
-  position that a role is a name *plus* a rule and the two are separately
-  editable.
+- ~~**`Roles` has a list but no edit-a-rule view**~~ — **closed 2026-08-25 (§19.2)**;
+  the list was already half of it, and the real gap was that the rule named its
+  floor but not its ramp.
 - **The untinted soft white / black path is half-drawn** — §10 gave the anchors a
   home, §11 gave tinting a control, but the off state only exists as the
   `Picker · neutral · untinted` pair.
@@ -2212,3 +2212,61 @@ dismissed).
   notice said the project was `Acme storefront` — the view contradicted itself.
   Both now read `Acme storefront`, which is also the point: the bound project is
   deliberately *not* one of yours here.
+
+## 19. Add ramp, and role editing (2026-08-25)
+
+### 19.1 `Add ramp` — a ramp is a name plus a seed
+
+`Add ramp` (`2022:164845`, light twin `2022:166368`), pushed from Palette's
+`+ Add ramp`. It asks for exactly two things because everything else already has
+a home: **step count and curve belong to the picker** (§11 — the brand picker
+keeps its own `Steps`; the neutral states drop it), and both have defaults. So
+the body is a two-row `NEW RAMP` card, `Name` and `Seed`, and the seed's trailing
+control opens the picker rather than growing a second colour input beside the
+one the plugin already has.
+
+**What makes it a view rather than a dialog is the `PREVIEW`.** A Palette-style
+ramp row under the form shows the ramp that seed produces, `Ag` test and all —
+so "add" is a decision taken with the answer on screen. Without it the two
+fields would not deserve a route.
+
+**The hex, the chip and the strip agree by construction.** Rather than inventing
+a seed and hand-picking ten swatch colours to match (the §11 mock-data trap), the
+build reads the painted fill off the strip's own 500 step and writes that value
+into the field and the chip. Same technique next time: derive the mock number
+from the mock artwork, never in parallel with it.
+
+### 19.2 Role editing — the list was already half of it
+
+**Correction to §15: `update/role` was not a hole.** `Roles` rows are already
+`[chip] [Input name] [Select rule] [⋯]`, so renaming is in place and the rule has
+a control. What was actually missing was narrower and more interesting:
+
+- **the rule named only its floor, not its ramp.** RFC 0027 §6's
+  `readable_step(ramp, surface, threshold)` takes three arguments and the row
+  showed one — and the settled multi-seed rule is explicit that a role's rule
+  must name the ramp it searches (`brand · AA text`, not `AA text`), or a second
+  brand seed means migrating every stored role. The three searching rules now
+  read `neutral · AA text`, `neutral · AA ui`, `brand · AA text`.
+- **pinned rows are deliberately left alone.** `step 700` does not *search*, so
+  the multi-seed rule does not bite it. Which ramp a pin sits on is a real
+  question, but it belongs to the pin's data model, not to this change.
+- **there was no way to add one.** `+ Add role` now closes the list, cloned from
+  Palette's `+ Add ramp` so the two lists gain and lose entries the same way.
+
+`Role` (`2022:165735`, light twin `2022:166500`) is the pushed editor behind a
+row, breadcrumb `Primitiv / Roles / muted`. Three blocks: `ROLE` (Family, Name —
+separate fields, because renaming must not move the colour), `RULE` (Ramp, On,
+Must reach — the engine's three arguments, one per row) and `RESULT` (the step
+the engine picks, its swatch, its ratio). Mock data agrees with the Roles view it
+came from: `content/muted` resolves to neutral 500 at 4.71:1 in both.
+
+**Its footer removes without a confirmation, on purpose.** `Remove` needed one
+because it changes the *document* and strands what it leaves behind (§17);
+deleting a role changes only the recipe and is re-creatable in the same view a
+moment later. A confirmation there would be ceremony, and the contrast is worth
+keeping visible — it is what makes the confirmation on `Remove` read as
+meaningful rather than routine.
+
+Flow board journeys **11 · ADDING A RAMP** (`Palette → Add ramp → Picker`) and
+**12 · EDITING A ROLE** (`Roles → Role`).

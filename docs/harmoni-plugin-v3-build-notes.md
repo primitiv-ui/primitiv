@@ -1622,11 +1622,15 @@ preview cannot drift from the ramp list. The first build cloned Curve's ramp
 instead and showed the **brand** blues under a neutral editor — caught only by
 rendering it.
 
-### Component gap found: `Slider` cannot express a value on an instance
+### Value-bearing components sit at their default in Figma — settled, not a gap
 
-Identical in kind to the `Progress` gap already recorded. `Slider`'s only
-properties are `Show fill` / `Orientation` / `Variant` / `Size` / `State` —
-there is no value axis — and every route into its internals fails:
+**`Slider` and `Progress` cannot express a value on an instance, and that is
+accepted: the code owns the value** (settled with the human 2026-08-24, the same
+call already made for `Progress`). Do not try to pose them, and do not read a
+mock's thumb position as a specification — only its label is meaningful.
+
+`Slider`'s only properties are `Show fill` / `Orientation` / `Variant` / `Size` /
+`State`; there is no value axis, and every route into its internals fails:
 
 | attempt | result |
 | --- | --- |
@@ -1636,12 +1640,11 @@ there is no value axis — and every route into its internals fails:
 | `range-fill.minWidth = 200` | no effect |
 | `Thumb.x = 190` | throws |
 
-So **every Slider instance in a mock is pinned at 50%**. The printed values here
-are the workbench defaults (strength 0.5, spread 0, bow 0), which are truthful at
-centre for the first two; **Bow's thumb is wrong and cannot be fixed** without a
-value property on the component. This also means **the Curve view's existing
-`Light 0.03` / `Dark 0.02` sliders do not match their thumbs either** — a
-pre-existing inaccuracy, not one introduced here.
+So **every Slider instance in a mock is pinned at 50%**, here and in the Curve
+view (`Light 0.03` / `Dark 0.02` do not match their thumbs either). The printed
+values are the workbench defaults — strength 0.5, spread 0, bow 0 — which are
+truthful at centre for the first two; Bow's thumb is simply not meaningful, by
+the rule above.
 
 ### Gotchas
 

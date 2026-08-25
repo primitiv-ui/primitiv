@@ -72,11 +72,21 @@
   gap: var(--primitiv-grid-gap-sm);
 }
 
-/* The card IS the link (Card asChild), so it needs the block layout and a
-   focus ring of its own — the default anchor underline would also apply to
-   every card title, so it is cleared here rather than in the base layer. */
+/*
+ * The card IS the link (Card asChild), so it carries the anchor resets and a
+ * focus ring of its own — the default anchor underline would otherwise apply
+ * to every card title.
+ *
+ * Deliberately NOT `display: block`, which is what this used to set. An <a> is
+ * inline and does need a block-level display, but `block` is the wrong one: it
+ * overrode Card's own `display: flex`, and because this sheet is UNLAYERED it
+ * beat the component's `@layer primitiv.*` rules no matter their specificity.
+ * That silently disabled every layout Card has — `--horizontal` stayed stacked
+ * (only its media's 36% width survived, since that is a plain width on a block
+ * child), and the vertical card's `flex-grow: 1` media never absorbed the slack
+ * that keeps a row of cards level.
+ */
 .docs-index-card {
-  display: block;
   block-size: 100%;
   text-decoration: none;
   color: inherit;

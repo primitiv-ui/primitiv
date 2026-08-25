@@ -1933,7 +1933,7 @@ project's recipe; and what state are the stamped variables in.
 | 4 | yes | yes | drifted | `Drift` | **drawn** |
 | 5 | yes | yes | **gone** — someone deleted them | — | **hole** |
 | 6 | yes | yes | destination now `remote: true` | — | **note** — §6 settles it as caught pre-flight, never drawn |
-| 7 | yes | **no** — inherited from a teammate | any | — | **hole** |
+| 7 | yes | **no** — inherited from a teammate | any | `In sync · inherited` | **drawn 2026-08-25 (§18)** — a state, not a route |
 
 **State 7 is structural, not exotic.** The binding lives in the file and the
 project list is per-user and per-device, so the *second person to open the file*
@@ -1947,7 +1947,7 @@ The ownership model is built on four verbs. They are not evenly drawn.
 | | project (recipe) | binding | ramp / seed | role | destination | variables |
 | --- | --- | --- | --- | --- | --- | --- |
 | **create** | partial — `+ New project` has no naming view | drawn (journey 1) | **hole** — `+ Add ramp` has no destination view | **hole** | drawn | drawn (`Writing`) |
-| **read** | drawn (`Setup` list) · adopt drawn 2026-08-25 (§16) · **hole** for rebuild-from-file (state 7) | drawn | drawn (`Palette`) | drawn (`Roles`) | drawn | drawn (`In sync`, `Audit`) |
+| **read** | drawn (`Setup` list) · adopt drawn 2026-08-25 (§16) · rebuild-from-file drawn 2026-08-25 (§18, a state of `In sync`) | drawn | drawn (`Palette`) | drawn (`Roles`) | drawn | drawn (`In sync`, `Audit`) |
 | **update** | **hole** (rename) | **hole** (rebind to another destination without re-running setup) | drawn (journeys 3, 4) | **hole** — name and rule are separate fields by decision, and neither has a surface | drawn (via `Write refused`) | drawn · **hole** for the per-variable hand-edited protect/overwrite choice |
 | **delete** | **hole** (the recipe itself) | drawn 2026-08-25 (§17 — same act as removing the variables) | **hole** (one ramp; belongs to Palette) | **hole** | n/a | drawn 2026-08-25 (`Remove`, §17) |
 
@@ -2172,3 +2172,43 @@ choice inversion of Adopt's rows, and why the landing is Setup.
 
 **Still open in `delete`:** removing a single ramp (belongs to Palette) and
 deleting the project recipe itself (belongs to the Setup list or Settings).
+
+## 18. The inherited project — entry state 7 (2026-08-25)
+
+Last of the three §15 items this session. It resolved to **no new route**, which
+is the useful finding: the hole was real, the view it seemed to need was not.
+
+### 18.1 It is a state of In sync, not a screen of its own
+
+The binding lives in the file (`root.setPluginData`) and the project list lives
+in `clientStorage`, which is per-user and per-device — so the second person to
+open any Harmoni document is *always* here. But nothing is at stake and nothing
+has to be decided: the recipe is recoverable from the variables Harmoni manages
+in the document, so it is rebuilt and the panel opens on `In sync` exactly as it
+would for its author. The only difference is one **dismissible info Alert** in
+the shell's `Notice` slot, saying whose project this is and that it was rebuilt.
+
+That is the same reasoning that made `First run` a state rather than a route, and
+`Writing` / `Write refused` states rather than views (§6). **§15.4 was wrong to
+queue this as a view**; the grid's job was to surface the case, not to predict
+its shape.
+
+Built as `In sync · inherited` (`2022:164274`) + its light twin
+(`2022:164464`), and flow board journey **10 · INHERITING A PROJECT**
+(`In sync · inherited ⇢ In sync`, dashed — the same view once the notice is
+dismissed).
+
+### 18.2 Two bugs this caught in the views built earlier today
+
+- **§4a was being breached by the new copy.** `Adopt`'s lead said "95 colour
+  variables with no stamp" and `Remove`'s said "carry this project's stamp" —
+  both the exact phrasings §4a's table forbids, and `Setup`'s own adopt Alert
+  already had it right ("weren't made by Harmoni"). Rewritten to "variables that
+  weren't made by Harmoni" and "Harmoni manages 120 variables ... the 35 it
+  didn't make are not touched". **Check new prose against §4a's table**; the
+  internal word is the one that comes naturally while building.
+- **Mock data has to agree across blocks** (the §11 lesson, again). The first
+  build had the breadcrumb and the `project` row saying `Primitiv` while the
+  notice said the project was `Acme storefront` — the view contradicted itself.
+  Both now read `Acme storefront`, which is also the point: the bound project is
+  deliberately *not* one of yours here.

@@ -159,6 +159,15 @@ export const REGISTRY = {
     contract: "registry/components/switch/contract.json",
     figmaComponentSetKey: "315:5884", importPath: "@primitiv-ui/react",
   },
+  textarea: {
+    displayName: "Textarea", kind: "registry", status: "stable", category: "Forms",
+    propsFile: "packages/react/src/Textarea/types.ts",
+    subComponents: [
+      { name: "Textarea", propsType: "TextareaProps", element: "textarea", component: "Textarea" },
+    ],
+    contract: "registry/components/textarea/contract.json",
+    figmaComponentSetKey: "439:14511", importPath: "@primitiv-ui/react",
+  },
 };
 
 /*

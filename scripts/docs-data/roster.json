@@ -417,7 +417,7 @@
     "displayName": "Textarea",
     "category": "Forms",
     "description": "A multi-line text input — the framed field consumers type longer content into.",
-    "documented": false
+    "documented": true
   },
   {
     "id": "toggle-group",

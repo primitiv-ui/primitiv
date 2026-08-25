@@ -1,7 +1,8 @@
 # RFC 0028 — Harmoni plugin: build architecture & test strategy
 
-> **Status:** Draft — spikes defined, not yet run. Architecture recommended,
-> repo/licence position open (§6).
+> **Status:** Draft — spikes defined, not yet run. Architecture recommended;
+> the domain model is settled in §7, which surfaced one design contradiction
+> (§7.8, the two-collection write). Repo/licence position open (§6).
 > **Author:** simonrevill, with architectural review
 > **Date:** 2026-08-25
 > **Relates to:** the settled design record — Figma page "Wireframes — Harmoni
@@ -29,6 +30,12 @@ the two spikes whose outcomes can still invalidate design decisions.
 **The one-line architecture:** the domain core lives in the UI iframe, and
 `code.ts` is demoted from a peer to a driven adapter that executes plans the core
 computes.
+
+**The one-line domain (§7):** desired state comes from the project, actual state
+comes from the document, and everything the plugin does — write, adopt, remove,
+rebind — is `reconcile(desired, actual)` producing a plan. Drift is not a state,
+it is a non-empty plan; the entry states are three facts plus a plan; and every
+count in the UI is the length of a list in it.
 
 ---
 
@@ -381,11 +388,292 @@ waiting.
 
 ---
 
-## 7. Build order
+## 7. The domain model
+
+Built first (§8), gated at 100% lines/branches/functions and 100% mutation. This
+section fixes its shape so the first red-green cycle starts against a settled
+model rather than inventing one. Every claim below traces to a settled position
+in the build notes; where the modelling exposed something the design has not
+settled, it is in §7.8 rather than quietly resolved here.
+
+### 7.1 Where each entity lives
+
+Three storage locations, and which one holds what is load-bearing — it is what
+makes entry state 7 (the inherited project) work at all.
+
+| entity | lives in | scope |
+| --- | --- | --- |
+| project list (index) | `clientStorage` | per **user, per device** — a convenience index, never the source of truth |
+| project (the recipe) | a stamp on the destination **collection** | per document — this is what makes a project recoverable from the file alone |
+| binding (project ↔ file) | `root.setPluginData` | per document, shared by everyone who opens it |
+| ramp, role, destination | inside the project | — |
+| provenance | a stamp on each **variable** | per variable |
+
+**The recipe is authoritative in the document, not in `clientStorage`.** §18.1
+settles that the second person to open any Harmoni file is *always* in state 7,
+and that nothing has to be decided because "the recipe is recoverable from the
+variables Harmoni manages". The cheapest way for that to be true is a
+project-level stamp on the collection. Seeds could alternatively be re-derived
+from pivot steps the way adopt does (§16.1), but **roles cannot** — a role schema
+is not recoverable from colour values — so something in the document has to carry
+it regardless.
+
+### 7.2 The stamp has two levels
+
+```ts
+/** On the destination collection. Makes the recipe recoverable from the file. */
+interface ProjectStamp {
+  schemaVersion: number
+  project: Project
+}
+
+/** On every variable Harmoni manages. */
+interface VariableStamp {
+  project: ProjectId
+  ramp: RampId                    // NOT the ramp's name — see 7.3
+  step: string
+  origin: 'created' | 'adopted'   // §23.1: the fix for the adopt/remove contradiction
+  wrote: ModeValues               // what Harmoni last wrote; drift is current ≠ this
+}
+```
+
+`origin` is the whole of §22.1's fix. Before it, "stamped" and "created" were the
+same set, and every rule written before adopt existed assumed they were — which
+is how `Remove` came to delete variables that predate Harmoni. With it, Remove
+deletes `created` and releases `adopted`, and "un-adopt" needs no separate action.
+
+`wrote` is what makes a hand-edit detectable: a stamped variable whose current
+value differs from the value Harmoni last wrote was edited by a person.
+
+### 7.3 The types
+
+```ts
+type ProjectId = string
+type RampId    = string   // stable ACROSS RENAME — see below
+type RoleId    = string
+
+interface Project {
+  id: ProjectId
+  name: string
+  ramps: Ramp[]
+  roles: Role[]
+  destination: Destination
+  defaults: GenerateDefaults      // GenerateOptions, surfaced in Settings (§2c)
+}
+
+interface Ramp {
+  id: RampId
+  name: string                    // the variable-name segment: `brand`
+  colour: RampColour
+  steps: StepScheme
+}
+
+type RampColour =
+  | { kind: 'seed';    seed: Oklch }              // brand, danger, warning, success, info
+  | { kind: 'neutral'; tint: NeutralTint | null } // derived from brand; HAS NO SEED (§3)
+
+type StepScheme =
+  | { kind: 'harmoni'; count: number }            // labels = step_labels(count), 3..32
+  | { kind: 'found';   labels: string[] }         // adopted: keeps the found names (§25.3)
+
+interface Role {
+  id: RoleId
+  family: 'surface' | 'content' | 'border' | 'action'
+  name: string                    // renaming must not re-run the engine (§2b)
+  rule: RoleRule
+}
+
+type RoleRule =
+  | { kind: 'search'; ramp: RampId; on: SurfaceRef; mustReach: ContrastFloor }
+  | { kind: 'pin';    ramp: RampId; step: string }
+
+interface Destination {
+  collection: CollectionRef
+  groupPrefix: string             // `color` — a NAME PREFIX, not a container (§5)
+  modes: { light: ModeId; dark: ModeId }
+}
+```
+
+Four things in there are decisions, not notation:
+
+- **`RampId` is stable across rename, and `name` is just a field.** §23.2 requires
+  rename-in-place rather than create-plus-orphan, and the stamp is what "makes the
+  old set findable". A stamp keyed on the *name* cannot do that — the name is
+  precisely what changed. Keying on an id makes reconciliation trivial and makes
+  the orphaning bug structurally impossible rather than carefully avoided.
+- **`RampColour` is a union because `neutral` genuinely has no seed** (§3: five
+  seeds, six ramps). Modelling every ramp as seed-bearing would force a fake seed
+  for neutral and lose the tint relationship the picker exposes (§11).
+- **`StepScheme` is a union because adopt keeps found *names*, not just found
+  length** (§25.3). `step_labels` is not a subset at other lengths — 7 steps
+  yields `[50, 100, 230, 370, 500, 700, 900]`, and no hand-made palette is named
+  `230`. Normalising onto Harmoni's ladder is then a deliberate act in `Ramp`,
+  carrying that view's rename warning.
+- **Every rule names its ramp**, including pins. §19.2 settled it for searching
+  rules (`brand · AA text`, never `AA text`) so a second brand seed means adding a
+  row rather than migrating every stored role. §7.8 records that the pin's ramp is
+  explicitly *not* settled — it is modelled here, not decided.
+
+### 7.4 One reconcile, four intents
+
+The design already says this in §16.1, in passing and about one case: *"Adopt and
+Drift turn out to be the same machinery pointed at a different starting
+condition."* That generalises to everything the plugin does to a document.
+
+```ts
+function reconcile(desired: DesiredState, actual: Inventory): Plan
+```
+
+`desired` is derived from the project; `actual` is what the document holds; the
+plan is the diff. The four intents differ only in how `desired` is built:
+
+| intent | desired state |
+| --- | --- |
+| **write** | run the engine over the project's ramps and roles |
+| **adopt** | exactly what was found, with claims added and nothing else changed |
+| **remove** | nothing at this destination |
+| **rebind** | nothing at the old destination; a write plan at the new one |
+
+That adopt "changes nothing" is not a special case in the writer — it falls out of
+its desired state being the found values. §16.1's trap (adopt claims names, the
+next write regenerates from seeds and overwrites everything it just adopted) is
+avoided because adopting also derives each ramp's seed from its pivot step, so the
+next write's desired state equals what is already there and the plan is empty.
+
+```ts
+type Operation =
+  | { op: 'create';  slot: Slot;         value: ModeValues }
+  | { op: 'update';  variable: VarRef;   from: ModeValues; to: ModeValues }
+  | { op: 'rename';  variable: VarRef;   from: string;     to: string }
+  | { op: 'restore'; slot: Slot;         value: ModeValues }   // stamped but missing (§21.2)
+  | { op: 'claim';   variable: VarRef;   as: VariableStamp }   // adopt
+  | { op: 'release'; variable: VarRef }                        // drop the claim, keep the variable
+  | { op: 'delete';  variable: VarRef }                        // ONLY origin === 'created'
+
+interface Plan {
+  operations: Operation[]
+  protected: ProtectedVariable[]   // current ≠ stamp.wrote: a person edited these
+  untouched: number                // unstamped at the destination — never in scope
+}
+```
+
+**`release` and `delete` are different operations and must never collapse.**
+Release is what Remove does to adopted rows (§23.1) and what rebinding does to the
+old destination (§25.2). It is already the panel's vocabulary, and it is the whole
+reason the ownership promise survives adopt.
+
+### 7.5 Drift is a reading of the plan, not a separate state
+
+`In sync` is "the plan is empty". `Drift` is "the plan is not empty", and the
+`SINCE THE LAST WRITE` cause strip is derived from *which* operations it holds:
+
+| the plan contains | cause chip |
+| --- | --- |
+| `update` where current still equals `stamp.wrote` | **Seed** — the recipe moved, the document did not |
+| a non-empty `protected` list | **Hand-edit** |
+| `create` traceable to a role added since the last write | **New role** |
+| `restore` | **Deleted** (§21.2) |
+| destination reports `remote: true` | **Library** — caught pre-flight (§6) |
+
+This is worth building deliberately, because it means **one function backs five
+surfaces**: the entry-state decision, the Drift view and its cause strip, Export's
+`Will create` count, the footer's `Creating… 47 / 120` denominator, and Remove's
+inventory. A count that appears in copy is then the length of a list in the plan,
+which is what stops §21.2's mock-arithmetic class of bug from having a runtime
+equivalent.
+
+### 7.6 The entry states fall out of it
+
+§15.1's seven states are not seven code paths — they are three facts and a plan.
+
+| bound | recipe on device | plan | view |
+| --- | --- | --- | --- |
+| no | none exist | — | `First run` |
+| no | some exist | — | `Setup` |
+| yes | yes | empty | `In sync` |
+| yes | yes | non-empty | `Drift`, cause per 7.5 |
+| yes | **no** | any | `In sync · inherited` — rebuild from the collection stamp (7.1), then as above |
+| yes | yes | destination `remote` | pre-flight refusal (§6) |
+| yes | yes | destination **deleted** | `Write refused · destination gone` (§26) |
+
+### 7.7 Invariants worth driving from tests
+
+These are the properties the model exists to guarantee. Each is one failing test
+before it is one line of code, and each corresponds to a bug the design phase
+found by reading views against each other:
+
+1. **No `delete` operation ever targets a variable whose `origin` is `adopted`.**
+   (§22.1 — the promise the whole model exists to keep.)
+2. **No plan both creates a name and leaves an old one stamped to the same
+   `RampId`.** Renaming a ramp or changing its step count produces `rename`, never
+   `create` + orphan. (§22.2 / §23.2.)
+3. **An adopt plan contains no `update`.** Adopting changes no value. (§16.1.)
+4. **A ramp is removable exactly when no role's rule names it.** Not a hardcoded
+   list — this is what protects `brand` and `neutral` without a special case.
+   (§21.1, surviving §23.3.)
+5. **A hand-edited variable is never written without an explicit overwrite.**
+   Default is protect. (Drift's danger tone is earned by this.)
+6. **Every count shown to a user is the length of a list in the plan**, never
+   computed separately.
+7. **Unstamped variables appear in no operation, ever.**
+
+### 7.8 What the modelling surfaced
+
+**One finding, and it is the §22 class — a contradiction between two settled
+facts that no view shows together.**
+
+**The plugin writes into TWO collections; `Destination` picks one.**
+`applyPalette` writes `color/<ramp>/<step>` into `Primitives / Palette`, and
+`applyForeground` then writes a *second* variable, `foreground/<ramp>/<step>`,
+into a separate `Primitives / Foreground` collection, aliased per mode (RFC 0003).
+So the 120 in Export, CRUD 03 and Remove is **6 ramps × 10 steps × 2 collections**
+— and §23.1's derivation of the same number, "10 steps × 2 modes = 20 variables",
+is arithmetically right but mechanically wrong: modes are *values within one
+variable*, not variables. 6 × 10 in a two-mode collection is 60 variables holding
+120 values.
+
+The number is fine. What is not settled is that **`Destination` (§5) offers one
+Collection and one Group**, while a write needs a home for both. Three readings,
+and the design does not pick one:
+
+- the foreground layer is part of the **semantic layer** and is therefore opt-in,
+  in which case the base write is 60 and Export's 120 is counting something the
+  user has not accepted yet;
+- the foreground collection is **derived** from the chosen one (`X` → `X` +
+  `Foreground`) and never picked, in which case `Destination` should say so;
+- `Destination` grows a second row, which is the most honest and the most
+  expensive at 360 px.
+
+This also reaches `Remove` (does it take the foreground aliases? they are
+`created`, so yes), `Drift` (an alias whose target moved is a fifth cause), and
+`Adopt` (a found palette has no foreground layer, so adopting creates 60 variables
+while promising to change nothing — the sharpest corner of the three).
+
+**Four smaller things, deliberately modelled but not decided:**
+
+- **A pinned role's ramp.** §19.2 names this open and says it belongs to the pin's
+  data model. `RoleRule` carries `ramp` on both arms so the decision has somewhere
+  to land, but nothing in the design says what a pin's ramp *means* yet.
+- **How `neutral`'s tint is expressed.** §11 gives tinting a control and an off
+  state; the model needs the shape of `NeutralTint` (a hue plus an amount? the
+  duotone two-anchor form RFC 0011 proposes?) before the picker's neutral tab can
+  be built.
+- **Whether the collection stamp stores the whole recipe or only what cannot be
+  re-derived.** Storing everything is simpler and makes state 7 trivially correct;
+  storing only roles is smaller and forces seeds to round-trip through the pivot
+  rule, which is a useful thing to be forced to keep true.
+- **Release then re-adopt.** Rebinding releases the old destination's variables
+  (§25.2), which leaves them unstamped and therefore adoptable again. That is
+  coherent and probably desirable, but nothing says it out loud.
+
+---
+
+## 8. Build order
 
 1. **Spike 1** (§4) — scriptable, one bridge session, answers a design question.
 2. **Spike 2** (§5) — decides whether the ATDD strategy is honest.
-3. **`plan()` and the domain** (§2.3), TDD + mutation to 100%, against no doubles.
+3. **The domain** (§7) — `reconcile` and the types, TDD + mutation to 100%,
+   against no doubles. §7.7's seven invariants are the first seven failing tests.
 4. **The port seam** — invert the scaffold (§2.1), `DocumentPort` with the
    fake and the real adapter behind the contract suite.
 5. **Journey 1 end to end** — First run → Setup → Destination → Export → Writing

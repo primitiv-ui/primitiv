@@ -149,7 +149,7 @@ surface and applies once those are read.
 | [0010](0010-oklch-color-picker.md) | OKLCH colour picker | Draft |
 | [0011](0011-duotone-neutral-ramps.md) | Duotone neutral ramps | Implemented (engine + workbench UI) |
 | [0013](0013-configurable-palette-export.md) | Configurable palette export (variables & canvas swatches) | Draft |
-| [0028](0028-harmoni-plugin-architecture.md) | Harmoni plugin: build architecture & test strategy | Draft — spikes defined |
+| [0028](0028-harmoni-plugin-architecture.md) | Harmoni plugin: build architecture & test strategy | Draft — domain settled, spikes defined |
 
 - **0010** — the OKLCH-first, oklch.com-style colour picker that replaces the
   hex input: paint-backed Lightness×Chroma and Hue charts with a live gamut
@@ -180,7 +180,11 @@ surface and applies once those are read.
   sandbox. Defines the two spikes that must run first — the (fully scriptable)
   undo probe and the in-sandbox contract runner — and records the repo/licence
   position, including the measurement that the whole public-CLI → engine coupling
-  is one function call.
+  is one function call. §7 settles the domain model — one `reconcile(desired,
+  actual)` behind all four ownership verbs, a two-level stamp whose `origin` field
+  is what keeps the ownership promise across adopt, and seven invariants to drive
+  from tests — and §7.8 records the contradiction the modelling surfaced: the
+  plugin writes into two collections while `Destination` picks one.
 
 ## Figma library
 

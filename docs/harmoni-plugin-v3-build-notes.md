@@ -2658,3 +2658,41 @@ adding swatches back is fiddly and drifts from its siblings; cloning a *sibling
 row* and repainting its strip from the real ramp gives a structurally identical
 row for free. Same instinct as the `clone()` cure in gotcha 21 — rebuild from a
 known-good copy rather than repairing in place.
+## 26. A deleted destination is not drift (2026-08-25)
+
+The last of §22.3's three, and it turned out to be a **routing** correction, not
+a copy tweak.
+
+`Drift · missing` promises *"writing again puts them back exactly as they were —
+nothing else moves."* That is true while the collection still exists and the
+missing rows can be compared against what Harmoni wrote. **If the collection
+itself has been deleted there is nothing to compare against and nothing to
+restore from** — the write would create a new collection, and the mode mapping
+(Light/Dark to collection modes) is gone with the old one. Same words, different
+promise, and the wrong one.
+
+So it belongs where the panel already handles "the destination will not take
+this": **`Write refused · destination gone`** (`2025:171751`, light twin
+`2025:171916`) — the same danger Alert plus remedy-as-the-footer-button idiom as
+the library-collection refusal, and the remedy is `Change destination`, landing
+on `Project`'s `WRITES INTO` (§20), which is where a bound project rebinds
+without re-running Setup.
+
+`Drift · missing`'s Alert now **names the collection** (`... no longer in
+Primitives / Palette`), which bounds its promise to the case it can actually
+keep.
+
+**And the render caught the usual thing.** The inherited Export body still read
+`WILL CREATE · Primitives / Palette · 6 ramps · 120 variables` directly above an
+Alert saying that collection does not exist. The destination row reads
+**`not found`** now. Fourth time this session that a cloned view carried a fact
+its new state contradicts — the check is always the same: read the body against
+the Notice.
+
+Flow board journey **15 · WHEN THE DESTINATION ITSELF IS GONE**
+(`Write refused · destination gone → Project`).
+
+§22.3 now has two items left, both deliberately deferred rather than undesigned:
+**multiplayer concurrency**, and the **Figma-undo probe** (does an undo take the
+`setSharedPluginData` with it? — a live-API question, and if the answer is yes
+there is no recovery path to design around).

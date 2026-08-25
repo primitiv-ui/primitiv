@@ -2517,7 +2517,7 @@ The third method, reading built views *against each other* for contradictions
 (§22), is the one that found the worst bug of the session and has **no
 completion criterion**. Two more of its findings, from the same pass:
 
-### 24.2 Adopt must preserve the found step count
+### 24.2 Adopt must preserve the found step count — **fixed**
 
 §16 settled that adopting derives each ramp's seed from its 500 step and changes
 nothing. But a found ramp need not have ten steps. If adopt applies the project
@@ -2531,7 +2531,7 @@ also why `Ramp`'s step field matters immediately rather than eventually: an
 adopted 7-step ramp is the first thing a user will want to normalise, and it has
 to be a deliberate act with the rename warning attached.
 
-### 24.3 Rebinding a project leaves its old variables behind
+### 24.3 Rebinding a project leaves its old variables behind — **fixed**
 
 `Project`'s `WRITES INTO` (§20) lets a destination change without re-running
 Setup. Nothing says what happens to the variables already written to the *old*
@@ -2546,3 +2546,39 @@ destination still holds a written set, pointing at `Remove` first. Release is
 the cheapest and matches the vocabulary the panel already has; it needs saying
 in the view either way, because silently stranding 120 variables is exactly what
 the stamp exists to prevent.
+
+## 25. Closing 24.2 and 24.3 (2026-08-25)
+
+### 25.1 A found ramp keeps its own length, and the artwork says so
+
+`Adopt`'s `grey` row is **seven swatches**, not ten, and the lead states the rule
+once: *"Each ramp keeps its own length — grey has 7 steps and stays at 7 — and
+its middle step becomes the seed."* The fact is carried by the picture and the
+rule by the sentence, which is the panel's habit everywhere else (§13's `Form=mini`
+strips prove the foreground claim rather than repeating it in prose).
+
+**A strip has to be told not to stretch.** Seven swatches in a `FILL` row grow to
+fill 332 px and a short ramp looks exactly like a long one — the opposite of the
+point. `primaryAxisAlignItems: 'MIN'` plus each swatch `FIXED` at 31 is what
+makes the row end where the ramp ends. (Same fix as the `Role` result block; it
+is now the second time, so assume it for any strip that is not full length.)
+
+**And the arithmetic moved with it**, caught before rendering this time: 5 x 10 +
+7 = **57** claimed, so 95 - 57 = **38** left alone, and the footer reads
+`Adopt 57 variables`.
+
+### 25.2 Rebinding releases; the consequence sits at the control
+
+Settled: changing `WRITES INTO` **releases** what was written to the old
+destination — the claim is dropped, the variables stay. Not *move* (Figma
+variables cannot change collection, so a move is really create-there plus
+remove-here, and remove-here is precisely what the stamp forbids for anything
+adopted), and not *refuse* (a destination you cannot change without first
+deleting your work is a trap).
+
+**Release is already the panel's vocabulary** — it is what §23.1 made `Remove`
+do to adopted rows — so this needed no new concept, only a place to say it. It
+sits as a caption **under the Collection row**, not in the Notice, because the
+Notice already carries the delete consequence and a view with two unrelated
+warnings in one slot teaches neither. Consequence at its own control is the rule
+(§17.4); this is the second view to need two of them.

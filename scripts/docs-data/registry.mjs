@@ -159,6 +159,18 @@ export const REGISTRY = {
     contract: "registry/components/switch/contract.json",
     figmaComponentSetKey: "315:5884", importPath: "@primitiv-ui/react",
   },
+  field: {
+    displayName: "Field", kind: "registry", status: "stable", category: "Forms",
+    propsFile: "packages/react/src/Field/types.ts",
+    subComponents: [
+      { name: "Field.Root", propsType: "FieldRootProps", element: "div", component: "Root" },
+      { name: "Field.Label", propsType: "FieldLabelProps", element: "label", component: "Label" },
+      { name: "Field.Description", propsType: "FieldDescriptionProps", element: "div", component: "Description" },
+      { name: "Field.ErrorText", propsType: "FieldErrorTextProps", element: "div", component: "ErrorText" },
+    ],
+    contract: "registry/components/field/contract.json",
+    figmaComponentSetKey: "394:7449", importPath: "@primitiv-ui/react",
+  },
   radio: {
     displayName: "Radio", kind: "registry", status: "stable", category: "Forms",
     propsFile: "packages/react/src/Radio/types.ts",

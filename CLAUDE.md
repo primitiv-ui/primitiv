@@ -1267,14 +1267,24 @@ source of truth for when a skill applies.
     — either can still invalidate a design decision. It also records that the
     picker's **3D tab is cut from v1** (no design, and `api::gamut` has no
     volumetric call).
-  - **`figma.commitUndo()` / `figma.triggerUndo()` exist, so the undo probe is
-    fully scriptable** — it was recorded as needing a human pressing Cmd+Z. The
-    API read also turned up a design fact the build notes do not have: **plugin
-    actions are NOT committed to undo history by default**, so a whole write is
-    one undo step unless the plugin says otherwise. `commitUndo()` is therefore a
-    design control (what one Cmd+Z means to a user), not plumbing. What is still
-    unknown is whether `setSharedPluginData` / `root.setPluginData` participate in
-    the undo stack at all — RFC 0028 §4 has the probe and the three outcomes.
+  - **UNDO IS SETTLED — spike run 2026-08-25, RFC 0028 §4.** A real `Cmd+Z`
+    reverts a Harmoni write **completely and atomically**: variables, collection,
+    both levels of `setSharedPluginData`, and `root.setPluginData` all go
+    together. So undo needs no design, and `Drift · missing` keeps its original
+    job (variables a *person* deleted) rather than also meaning "someone undid
+    the write". Also confirmed: plugin actions are **not** committed to undo
+    history by default, so `commitUndo()` is a design control — one commit per
+    completed write, none inside one.
+  - **`figma.triggerUndo()` IS NOT A FAITHFUL STAND-IN FOR A USER'S UNDO — never
+    test undo with it.** Called while the plugin's own execution is still open it
+    reverted the variables but left `root.setPluginData` behind *permanently*
+    (it survived four further calls) — a state a real user cannot reach. The same
+    write undone by hand reverted cleanly. Undo is verified by hand or not at all.
+  - **Three API facts earned in that spike:** `setSharedPluginData`'s namespace
+    must be `[A-Za-z0-9_.]` (a hyphen throws, **after** earlier writes have
+    applied — gotcha 5 again); `setPluginData(key, '')` genuinely **removes** the
+    key rather than emptying it; and a collection's own shared plugin data dies
+    with the collection, which bounds how durable a recipe stored there is.
 
 ## Figma plugin-API gotchas (scripting via `figma_execute`)
 

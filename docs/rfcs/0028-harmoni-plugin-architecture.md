@@ -1,6 +1,7 @@
 # RFC 0028 — Harmoni plugin: build architecture & test strategy
 
-> **Status:** Draft — spikes defined, not yet run. Architecture recommended;
+> **Status:** Draft — spike 1 run and clean (§4), spike 2 pending. Architecture
+> recommended;
 > the domain model is settled in §7, and both findings it surfaced are now
 > decided (§7.8). The plugin is built in a **private repo** from its first
 > commit; §6 carries the migration plan.
@@ -225,93 +226,86 @@ built on a fake nobody has checked.
 
 ---
 
-## 4. Spike 1 — the undo probe
+## 4. Spike 1 — the undo probe: RUN, and the answer is clean
 
-Build notes §22.3 flags this as the unknown that "decides whether the recovery
-path exists at all". It was recorded as needing a human pressing Cmd+Z.
+**Run 2026-08-25** against a blank scratch file through the Desktop Bridge.
+Build notes §22.3 called this the unknown that "decides whether the recovery path
+exists at all", and recorded it as needing a human pressing Cmd+Z. It needed
+both: the scriptable half gave the wrong answer, and the human half corrected it.
 
-**It does not. The probe is fully scriptable**, and reading the API for it turned
-up a design fact the notes do not have.
+### 4.1 Result: a real undo reverts everything, atomically
 
-### 4.1 The finding: plugin writes are one undo step by default
+One `Cmd+Z` after a write of a collection + variable + marks + binding, committed
+as a single undo step with `figma.commitUndo()`:
 
-From `@figma/plugin-typings`:
-
-> By default, plugin actions are not committed to undo history. Call
-> `figma.commitUndo()` so that triggered undos can revert a subset of plugin
-> actions.
-
-Both `figma.commitUndo()` and `figma.triggerUndo()` exist. Two consequences:
-
-- **Harmoni chooses its own undo granularity.** A 120-variable write plus its
-  stamps plus the `root` binding is, by default, a *single* undo step. The user
-  cannot half-undo it — which is exactly the atomicity the ownership model wants,
-  and it is a default rather than something to engineer.
-- **`commitUndo()` is a design control, not plumbing.** Where the plugin places
-  its commits decides what one Cmd+Z means to a user. Recommendation: one commit
-  per completed write, and none *inside* a write.
-
-### 4.2 What is still genuinely unknown
-
-Whether `setSharedPluginData` and `root.setPluginData` **participate in the undo
-stack at all.** The docs do not say, and plugin data has historically not always
-been undoable. Three outcomes, with different design consequences:
-
-| variables | plugin data | consequence |
+| | before | after one real Cmd+Z |
 | --- | --- | --- |
-| reverted | reverted | **Best.** Clean return to the pre-write state. No recovery view needed for undo at all. |
-| reverted | survives | Bound document, recipe intact, variables gone → this is `Drift · missing`, already drawn (§21.2). Recovery exists. |
-| survives | reverted | **Worst.** Stamped variables with no binding. Needs a route the design does not have. |
+| variable `probe/500` | exists | **gone** |
+| collection `Probe` | exists | **gone** |
+| variable mark (`setSharedPluginData`) | `created` | gone with the variable |
+| collection mark (the project stamp) | `probe-project` | gone with the collection |
+| `root.setPluginData('harmoni-binding')` | `probe-project` | **`""`, key removed** |
 
-### 4.3 The probe
+**This is outcome 1 of §4.4's three, the cleanest one. §22.3's worry closes.**
+An undo returns the document to before the write, so undo needs no design at all:
+no half-written state, no orphaned marks, no binding pointing at nothing.
+`Drift · missing` keeps the job it was drawn for — variables a *person* deleted —
+and does not have to also mean "someone undid the write".
 
-One script, run through the Desktop Bridge against a scratch file. It must be a
-scratch file — it writes and reverts variables.
+Verified visibly rather than by trusting the read: the `Probe` collection was
+watched disappearing from Figma's own Variables panel, because the binding is
+invisible in the UI and the collection vanishing is the only human-checkable
+proof the keystroke reached the document.
 
-```js
-// Spike 1: does plugin data survive triggerUndo()?
-const NS = 'harmoni-probe'
-const col = figma.variables.createVariableCollection('Probe')
-const v = figma.variables.createVariable('probe/1', col, 'COLOR')
-v.setValueForMode(col.modes[0].modeId, { r: 1, g: 0, b: 0 })
-v.setSharedPluginData(NS, 'origin', 'created')
-col.setSharedPluginData(NS, 'project', 'probe-project')
-figma.root.setPluginData('harmoni-binding', 'probe-project')
+### 4.2 The trap, and it is the most valuable thing the spike found
 
-const before = {
-  varId: v.id,
-  colId: col.id,
-  stamp: v.getSharedPluginData(NS, 'origin'),
-  colStamp: col.getSharedPluginData(NS, 'project'),
-  binding: figma.root.getPluginData('harmoni-binding'),
-}
+**`figma.triggerUndo()` does not behave like a user's undo, and a test built on
+it will assert a state real users cannot reach.**
 
-figma.commitUndo()
-figma.triggerUndo()
+Called from inside a running plugin, across two checkpoints:
 
-const after = {
-  variableStillExists: !!(await figma.variables.getVariableByIdAsync(before.varId)),
-  collectionStillExists: !!(await figma.variables.getVariableCollectionByIdAsync(before.colId)),
-  binding: figma.root.getPluginData('harmoni-binding'),
-}
-// If the variable survived, re-read its stamp; if not, the stamp went with it.
-return { before, after }
-```
+- undo 1 reverted exactly the second write — variable `B` and its root key gone,
+  variable `A` and `harmoni-binding` intact. **Granularity control confirmed:
+  `commitUndo()` really does decide what one undo means.**
+- undo 2 removed variable `A` **and the collection** but left
+  `harmoni-binding` behind — and it then survived **four further** `triggerUndo()`
+  calls. Permanently stuck: variables gone, document still bound.
 
-**Then run it a second time with the `commitUndo()` call removed**, to confirm the
-default-single-step claim in §4.1 against the live API rather than the docs.
+That is outcome 3, the one the design has no route for — and it is **an artefact
+of calling `triggerUndo()` while the plugin's own execution is still open**, not
+something a user can produce. The same write undone by hand reverted completely.
 
-**Clean up afterwards** — if the undo did not revert them, remove the probe
-collection and clear `harmoni-binding` from `root`.
+Two consequences, both binding on the build:
 
-### 4.4 What the outcome changes
+- **Never use `triggerUndo()` to test undo behaviour** — not in the contract suite
+  (§5), not in a journey. It answers a different question than the one being
+  asked. Undo is verified by hand or not at all.
+- **The domain must not treat the binding as evidence that variables exist.**
+  It already doesn't — `reconcile(desired, actual)` always reads the document —
+  and this is the concrete reason that has to stay true rather than being
+  optimised into a fast path that trusts the binding.
 
-- Outcome 1 → `Drift · missing` keeps its current job (deletion by a person), and
-  undo needs no design at all. §22.3's worry closes.
-- Outcome 2 → as designed today. No change.
-- Outcome 3 → a new route is needed: stamped variables the plugin can find but
-  cannot attribute to a bound project. Likely a state of `Setup` reached by
-  scanning, i.e. adopt's machinery pointed at Harmoni's own orphans.
+### 4.3 One design fact, carried over
+
+Plugin actions are **not** committed to undo history by default, so a whole write
+is a single undo step unless the plugin says otherwise, and `commitUndo()` is
+therefore a design control — it decides what one Cmd+Z means to a user — rather
+than plumbing. §4.2 confirms it works. **Recommendation: one commit per completed
+write, and none inside a write**, so a user's undo takes back the whole thing and
+never half of it.
+
+### 4.4 Incidental API facts earned here
+
+- **`setSharedPluginData`'s namespace must be `[A-Za-z0-9_.]`** — a hyphen throws
+  *"The namespace can only consist of alphanumeric characters, _ or ."*.
+  `"harmoni"` is fine; `"harmoni-probe"` is not. It threw **after** the collection
+  and variable had been created (the partial-apply hazard, gotcha 5, again), so
+  the retry needed a cleanup pass first.
+- **`setPluginData(key, '')` removes the key**, it does not leave an empty one —
+  `getPluginDataKeys()` comes back without it. That is how Remove drops a binding.
+- **A collection's own `setSharedPluginData` dies with the collection.** Worth
+  weighing against §7.1, which makes the collection stamp the authoritative home
+  of the recipe: it is durable exactly as long as the collection is.
 
 ---
 
@@ -328,6 +322,9 @@ it looks — better to know now than after 14 journeys.
 Promise<Result[]>` cases, importable by both a vitest run (against the fake) and
 a dev-only sandbox entry point. The sandbox build is already a separate Vite
 config in library mode, so a second entry is cheap.
+
+**Do not put undo in this suite** — §4.2 established that `triggerUndo()` is not
+a faithful stand-in for a user's undo, and there is no scriptable one that is.
 
 **Scope it to the operations the ownership model depends on** — the ones already
 probed manually and recorded as working (build notes: `createVariable`,
@@ -832,7 +829,8 @@ anything; port none of the rest.
 
 ## 8. Build order
 
-1. **Spike 1** (§4) — scriptable, one bridge session, answers a design question.
+1. ~~**Spike 1** (§4)~~ — **done 2026-08-25. Clean: a real undo reverts the whole
+   write, so undo needs no design.**
 2. **Spike 2** (§5) — decides whether the ATDD strategy is honest.
 3. **The domain** (§7) — `reconcile` and the types, TDD + mutation to 100%,
    against no doubles. §7.7's seven invariants are the first seven failing tests.

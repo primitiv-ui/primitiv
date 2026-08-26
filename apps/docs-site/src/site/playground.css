@@ -132,6 +132,19 @@
   gap: var(--primitiv-stack-gap-lg);
 }
 
+/*
+ * Indents a nested group inside an example — CheckboxCard's select-all pattern
+ * is the case, where the children have to READ as children of the parent card.
+ *
+ * Deliberately the page's own CSS and not the component's: the primitive's
+ * JSDoc says the parent-plus-children hierarchy is not baked in, so an indent
+ * shipped in `checkbox-card`'s stylesheet would contradict that. The example's
+ * caption says as much, so a reader does not copy an indent that does not exist.
+ */
+.docs-example-indent {
+  padding-inline-start: var(--primitiv-space-space-32);
+}
+
 .docs-example-caption {
   margin: 0;
   font-family: var(--primitiv-body-md-font-family);

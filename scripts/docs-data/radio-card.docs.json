@@ -1,0 +1,320 @@
+{
+  "id": "radio-card",
+  "displayName": "RadioCard",
+  "kind": "registry",
+  "status": "stable",
+  "category": "Forms",
+  "description": "A card/tile-shaped radio item — the whole bordered surface is the interactive element, not a small control plus a separate label. Composes the headless RadioCard primitive (RadioCard.Root is role=\"radiogroup\" with no visual anatomy of its own; RadioCard.Item is role=\"radio\"). Sized xs–xl; `data-density` scales each size further.",
+  "headless": {
+    "package": "@primitiv-ui/react",
+    "importPath": "@primitiv-ui/react",
+    "subComponents": [
+      {
+        "name": "RadioCard.Root",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "When `true`, Root delegates rendering to a single consumer-supplied\nelement via the {@link Slot } pattern instead of the default `<div>`;\n`role=\"radiogroup\"`, `aria-orientation`, `dir`, and remaining props\nare merged onto it."
+          },
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": false,
+            "default": null,
+            "description": "The group's cards — typically {@link RadioCardItemProps`RadioCard.Item`}\nelements, each optionally wrapping a {@link RadioCardIndicatorProps`RadioCard.Indicator`}."
+          },
+          {
+            "name": "defaultValue",
+            "type": "string",
+            "required": false,
+            "default": null,
+            "description": "Value of the card selected on first render. Omit for nothing selected\non mount.\nForbidden in controlled mode — use `value` instead."
+          },
+          {
+            "name": "dir",
+            "type": "\"ltr\" | \"rtl\"",
+            "required": false,
+            "default": null,
+            "description": "Reading direction. In `\"rtl\"` the horizontal arrow pair is swapped so\nArrow Left moves forward. When omitted, it is inherited from the\nnearest {@link DirectionProvider }, falling back to `\"ltr\"`."
+          },
+          {
+            "name": "onValueChange",
+            "type": "(value: string) => void",
+            "required": false,
+            "default": null,
+            "description": "Called with the new value whenever the selection changes. Optional in\nuncontrolled mode.\nCalled with the new value whenever the user selects a card. Required\nin controlled mode."
+          },
+          {
+            "name": "orientation",
+            "type": "\"horizontal\" | \"vertical\" | \"both\"",
+            "required": false,
+            "default": "\"both\"",
+            "description": "Which arrow keys move focus and selection through the group.\n`\"both\"` enables all four arrows; `\"horizontal\"` only Arrow\nLeft/Right; `\"vertical\"` only Arrow Up/Down. When not `\"both\"`, the\nvalue is also reflected as `aria-orientation` on the root."
+          },
+          {
+            "name": "ref",
+            "type": "Ref<HTMLDivElement>",
+            "required": false,
+            "default": null,
+            "description": "Allows getting a ref to the component instance.\nOnce the component unmounts, React will set `ref.current` to `null`\n(or call the ref with `null` if you passed a callback ref).\nForwarded to the underlying `HTMLDivElement`."
+          },
+          {
+            "name": "value",
+            "type": "string",
+            "required": false,
+            "default": null,
+            "description": "Forbidden in uncontrolled mode — use `defaultValue` instead.\nThe currently selected value. Must be kept in sync by the parent via\n`onValueChange`."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": null
+      },
+      {
+        "name": "RadioCard.Item",
+        "extends": "HTMLButtonElement",
+        "props": [
+          {
+            "name": "title",
+            "type": "string & ReactElement<unknown, string | JSXElementConstructor<any>> | string & Iterable<ReactNode> | string & ReactPortal | string & Promise<AwaitedReactNode> | undefined",
+            "required": true,
+            "default": null,
+            "description": "The card's heading. Always present — the required content."
+          },
+          {
+            "name": "value",
+            "type": "string",
+            "required": true,
+            "default": null,
+            "description": "Uniquely identifies this card within the group and is reported to\n`onValueChange` / matched against Root's `value` when selected. Required."
+          },
+          {
+            "name": "description",
+            "type": "ReactNode",
+            "required": false,
+            "default": null,
+            "description": "The card's supporting text, shown below the title."
+          },
+          {
+            "name": "ref",
+            "type": "Ref<HTMLButtonElement>",
+            "required": false,
+            "default": null,
+            "description": "Allows getting a ref to the component instance.\nOnce the component unmounts, React will set `ref.current` to `null`\n(or call the ref with `null` if you passed a callback ref).\nForwarded to the underlying `HTMLButtonElement`."
+          },
+          {
+            "name": "showDescription",
+            "type": "boolean",
+            "required": false,
+            "default": "true",
+            "description": "Shows or hides `description` without unmounting the title — a\nseparate, skippable subcomponent, not a change to the anatomy."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [
+          {
+            "name": "size",
+            "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
+            "default": "md",
+            "description": "Card size; `data-density` scales each size further."
+          }
+        ],
+        "dataAttributes": [
+          {
+            "name": "data-state",
+            "value": "checked",
+            "when": "checked"
+          },
+          {
+            "name": "data-state",
+            "value": "unchecked",
+            "when": "unchecked"
+          },
+          {
+            "name": "data-disabled",
+            "value": "",
+            "when": "disabled"
+          }
+        ],
+        "class": "primitiv-radio-card"
+      },
+      {
+        "name": "RadioCard.Indicator",
+        "extends": "HTMLSpanElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "When `true`, renders the single child element via the {@link Slot }\npattern instead of the default `<span>`; `aria-hidden` and `data-state`\nare merged onto it."
+          },
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": false,
+            "default": null,
+            "description": "The visual mark shown while the parent Item is selected."
+          },
+          {
+            "name": "forceMount",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "When `true`, keeps the indicator mounted while unchecked so a CSS exit\nanimation can play against `data-state=\"unchecked\"`. Consumers who set\nit own the exit lifecycle."
+          }
+        ],
+        "styledOnly": true,
+        "headlessOnly": true,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": null
+      }
+    ]
+  },
+  "styled": {
+    "installCommand": "primitiv add radio-card",
+    "rootClass": "primitiv-radio-card",
+    "customProperties": [
+      {
+        "name": "--primitiv-radio-card-bg",
+        "defaultsTo": "var(--primitiv-surface-default)"
+      },
+      {
+        "name": "--primitiv-radio-card-bg-selected",
+        "defaultsTo": "var(--primitiv-choice-card-selected-background)"
+      },
+      {
+        "name": "--primitiv-radio-card-border-color",
+        "defaultsTo": "var(--primitiv-border-default)"
+      },
+      {
+        "name": "--primitiv-radio-card-border-color-hover",
+        "defaultsTo": "var(--primitiv-border-strong)"
+      },
+      {
+        "name": "--primitiv-radio-card-border-color-selected",
+        "defaultsTo": "var(--primitiv-choice-card-selected-border)"
+      },
+      {
+        "name": "--primitiv-radio-card-border-width",
+        "defaultsTo": "var(--primitiv-framed-control-border-width)"
+      },
+      {
+        "name": "--primitiv-radio-card-radius",
+        "defaultsTo": "var(--primitiv-framed-control-md-radius)"
+      },
+      {
+        "name": "--primitiv-radio-card-padding",
+        "defaultsTo": "var(--primitiv-choice-card-md-padding)"
+      },
+      {
+        "name": "--primitiv-radio-card-gap",
+        "defaultsTo": "var(--primitiv-choice-control-md-gap)"
+      },
+      {
+        "name": "--primitiv-radio-card-shadow-hover",
+        "defaultsTo": "var(--primitiv-elevation-raised)"
+      },
+      {
+        "name": "--primitiv-radio-card-indicator-size",
+        "defaultsTo": "var(--primitiv-radio-md-box-size)"
+      },
+      {
+        "name": "--primitiv-radio-card-indicator-offset-top",
+        "defaultsTo": "var(--primitiv-choice-card-md-indicator-offset-top)"
+      },
+      {
+        "name": "--primitiv-radio-card-indicator-bg",
+        "defaultsTo": "var(--primitiv-surface-default)"
+      },
+      {
+        "name": "--primitiv-radio-card-indicator-border-color",
+        "defaultsTo": "var(--primitiv-border-strong)"
+      },
+      {
+        "name": "--primitiv-radio-card-indicator-border-color-selected",
+        "defaultsTo": "var(--primitiv-action-primary-default)"
+      },
+      {
+        "name": "--primitiv-radio-card-indicator-dot-color",
+        "defaultsTo": "var(--primitiv-action-primary-default)"
+      },
+      {
+        "name": "--primitiv-radio-card-title-color",
+        "defaultsTo": "var(--primitiv-content-primary)"
+      },
+      {
+        "name": "--primitiv-radio-card-title-color-selected",
+        "defaultsTo": "var(--primitiv-content-primary)"
+      },
+      {
+        "name": "--primitiv-radio-card-title-font-family",
+        "defaultsTo": "var(--primitiv-label-md-font-family)"
+      },
+      {
+        "name": "--primitiv-radio-card-title-font-size",
+        "defaultsTo": "var(--primitiv-label-md-font-size)"
+      },
+      {
+        "name": "--primitiv-radio-card-title-font-weight",
+        "defaultsTo": "var(--primitiv-label-md-font-weight)"
+      },
+      {
+        "name": "--primitiv-radio-card-title-line-height",
+        "defaultsTo": "var(--primitiv-label-md-line-height)"
+      },
+      {
+        "name": "--primitiv-radio-card-description-color",
+        "defaultsTo": "var(--primitiv-content-secondary)"
+      },
+      {
+        "name": "--primitiv-radio-card-description-color-selected",
+        "defaultsTo": "var(--primitiv-content-secondary)"
+      },
+      {
+        "name": "--primitiv-radio-card-description-font-family",
+        "defaultsTo": "var(--primitiv-body-md-font-family)"
+      },
+      {
+        "name": "--primitiv-radio-card-description-font-size",
+        "defaultsTo": "var(--primitiv-body-md-font-size)"
+      },
+      {
+        "name": "--primitiv-radio-card-description-font-weight",
+        "defaultsTo": "var(--primitiv-body-md-font-weight)"
+      },
+      {
+        "name": "--primitiv-radio-card-description-line-height",
+        "defaultsTo": "var(--primitiv-body-md-line-height)"
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-state",
+        "value": "checked",
+        "when": "checked"
+      },
+      {
+        "name": "data-state",
+        "value": "unchecked",
+        "when": "unchecked"
+      },
+      {
+        "name": "data-disabled",
+        "value": "",
+        "when": "disabled"
+      }
+    ]
+  },
+  "figma": {
+    "componentSetKey": "1417:35178"
+  }
+}

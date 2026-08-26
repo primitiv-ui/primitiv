@@ -6,10 +6,12 @@ import { badgeSpec } from "./badge";
 import { buttonSpec } from "./button";
 import { inputSpec } from "./input";
 import { accordionSpec } from "./accordion";
+import { checkboxCardSpec } from "./checkbox-card";
 import { checkboxSpec } from "./checkbox";
 import { fieldSpec } from "./field";
 import { inputGroupSpec } from "./input-group";
 import { modalSpec } from "./modal";
+import { radioCardSpec } from "./radio-card";
 import { radioSpec } from "./radio";
 import { segmentedControlSpec } from "./segmented-control";
 import { selectSpec } from "./select";
@@ -31,10 +33,12 @@ export const SPECS: Record<ComponentId, ComponentSpec> = {
   input: inputSpec,
   accordion: accordionSpec,
   checkbox: checkboxSpec,
+  "checkbox-card": checkboxCardSpec,
   field: fieldSpec,
   "input-group": inputGroupSpec,
   modal: modalSpec,
   radio: radioSpec,
+  "radio-card": radioCardSpec,
   "segmented-control": segmentedControlSpec,
   select: selectSpec,
   slider: sliderSpec,

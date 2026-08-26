@@ -159,6 +159,54 @@ export const REGISTRY = {
     contract: "registry/components/switch/contract.json",
     figmaComponentSetKey: "315:5884", importPath: "@primitiv-ui/react",
   },
+  "checkbox-card": {
+    displayName: "CheckboxCard", kind: "registry", status: "stable", category: "Forms",
+    /*
+     * The REGISTRY file, not packages/react — deliberately. The copied surface
+     * takes `title` / `description` / `showDescription` INSTEAD of children (it
+     * composes the card's anatomy itself), and those are its primary API. The
+     * headless `CheckboxCardRootProps` knows nothing about them, so pointing at
+     * it would leave the props a reader actually types undocumented. The
+     * intersection still carries the headless state API through
+     * `ComponentPropsWithRef<typeof CheckboxCard.Root>`.
+     */
+    propsFile: "registry/components/checkbox-card/checkbox-card.tsx",
+    subComponents: [
+      { name: "CheckboxCard", propsType: "CheckboxCardProps", element: "button", component: "CheckboxCard" },
+      /*
+       * Headless-only, and it needs its own propsFile because this entry's is
+       * the registry file. The copied surface renders the mark itself, so
+       * `CheckboxCardIndicator` exists nowhere in the styled path — a headless
+       * consumer, who composes Root + Indicator + their own content, does need it.
+       */
+      { name: "CheckboxCard.Indicator", propsType: "CheckboxCardIndicatorProps", element: "span",
+        component: "Indicator", propsFile: "packages/react/src/CheckboxCard/types.ts" },
+    ],
+    contract: "registry/components/checkbox-card/contract.json",
+    figmaComponentSetKey: "1417:34712", importPath: "@primitiv-ui/react",
+  },
+  "radio-card": {
+    displayName: "RadioCard", kind: "registry", status: "stable", category: "Forms",
+    /* The registry file, for the reason checkbox-card gives above: `title` /
+       `description` / `showDescription` are the Item's primary API and the
+       headless type has never heard of them. */
+    propsFile: "registry/components/radio-card/radio-card.tsx",
+    subComponents: [
+      /*
+       * The group has NO contract entry, and that is correct rather than a typo:
+       * `RadioCard.Root` is a plain `<div role="radiogroup">` with no styling of
+       * its own — the copied wrapper is a pure pass-through, and the contract's
+       * root describes the CARD (element button, class primitiv-radio-card),
+       * which is the Item below.
+       */
+      { name: "RadioCard.Root", propsType: "RadioCardProps", element: "div", component: "Root" },
+      { name: "RadioCard.Item", propsType: "RadioCardItemProps", element: "button", component: "Item" },
+      { name: "RadioCard.Indicator", propsType: "RadioCardIndicatorProps", element: "span",
+        component: "Indicator", propsFile: "packages/react/src/RadioCard/types.ts" },
+    ],
+    contract: "registry/components/radio-card/contract.json",
+    figmaComponentSetKey: "1417:35178", importPath: "@primitiv-ui/react",
+  },
   field: {
     displayName: "Field", kind: "registry", status: "stable", category: "Forms",
     propsFile: "packages/react/src/Field/types.ts",

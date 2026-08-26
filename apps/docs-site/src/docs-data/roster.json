@@ -109,7 +109,7 @@
     "displayName": "CheckboxCard",
     "category": "Forms",
     "description": "A card/tile-shaped checkbox — the whole bordered surface is the interactive element, not a small control plus a separate label. Composes the headless CheckboxCard primitive (role=\"checkbox\", tri-state unchecked/checked/indeterminate). Sized xs–xl; `data-density` scales each size further.",
-    "documented": false
+    "documented": true
   },
   {
     "id": "chip",
@@ -333,7 +333,7 @@
     "displayName": "RadioCard",
     "category": "Forms",
     "description": "A card/tile-shaped radio item — the whole bordered surface is the interactive element, not a small control plus a separate label. Composes the headless RadioCard primitive (RadioCard.Root is role=\"radiogroup\" with no visual anatomy of its own; RadioCard.Item is role=\"radio\"). Sized xs–xl; `data-density` scales each size further.",
-    "documented": false
+    "documented": true
   },
   {
     "id": "segmented-control",

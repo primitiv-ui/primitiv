@@ -15,6 +15,6 @@ import { IconBase } from '../IconBase.tsx'
  */
 export const Italic = (props: IconProps): ReactElement => (
   <IconBase {...props}>
-    <path d="M18.5 5.75H15.0283L10.5635 18.25H14V19.75H5.5V18.25H8.97168L13.4365 5.75H10V4.25H18.5V5.75Z"/>
+    <path d="M18.5 5.75h-3.472l-4.465 12.5H14v1.5H5.5v-1.5h3.472l4.465-12.5H10v-1.5h8.5z"/>
   </IconBase>
 )

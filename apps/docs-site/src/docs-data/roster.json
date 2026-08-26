@@ -340,7 +340,7 @@
     "displayName": "Segmented Control",
     "category": "Forms",
     "description": "A single-select segmented control — a linear strip of segments where exactly one is selected. The selected segment is brand-filled; the rest are secondary.",
-    "documented": false
+    "documented": true
   },
   {
     "id": "select",

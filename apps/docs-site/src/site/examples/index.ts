@@ -10,6 +10,7 @@ import { checkboxSpec } from "./checkbox";
 import { fieldSpec } from "./field";
 import { modalSpec } from "./modal";
 import { radioSpec } from "./radio";
+import { segmentedControlSpec } from "./segmented-control";
 import { selectSpec } from "./select";
 import { sliderSpec } from "./slider";
 import { switchSpec } from "./switch";
@@ -31,6 +32,7 @@ export const SPECS: Record<ComponentId, ComponentSpec> = {
   field: fieldSpec,
   modal: modalSpec,
   radio: radioSpec,
+  "segmented-control": segmentedControlSpec,
   select: selectSpec,
   slider: sliderSpec,
   switch: switchSpec,

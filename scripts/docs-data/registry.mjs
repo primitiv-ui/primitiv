@@ -185,6 +185,17 @@ export const REGISTRY = {
     contract: "registry/components/radio/contract.json",
     figmaComponentSetKey: "401:17958", importPath: "@primitiv-ui/react",
   },
+  "segmented-control": {
+    displayName: "SegmentedControl", kind: "registry", status: "stable", category: "Forms",
+    propsFile: "packages/react/src/SegmentedControl/types.ts",
+    subComponents: [
+      { name: "SegmentedControl.Root", propsType: "SegmentedControlRootProps", element: "div", component: "Root" },
+      { name: "SegmentedControl.Item", propsType: "SegmentedControlItemProps", element: "button", component: "Item" },
+    ],
+    contract: "registry/components/segmented-control/contract.json",
+    /* The track set; `1216:43507` is the Item it composes. */
+    figmaComponentSetKey: "1216:44224", importPath: "@primitiv-ui/react",
+  },
   slider: {
     displayName: "Slider", kind: "registry", status: "stable", category: "Forms",
     propsFile: "packages/react/src/Slider/types.ts",

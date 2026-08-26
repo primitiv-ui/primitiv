@@ -27,6 +27,7 @@ import checkboxDocs from "@/docs-data/checkbox.docs.json";
 import fieldDocs from "@/docs-data/field.docs.json";
 import modalDocs from "@/docs-data/modal.docs.json";
 import radioDocs from "@/docs-data/radio.docs.json";
+import segmentedControlDocs from "@/docs-data/segmented-control.docs.json";
 import selectDocs from "@/docs-data/select.docs.json";
 import sliderDocs from "@/docs-data/slider.docs.json";
 import switchDocs from "@/docs-data/switch.docs.json";
@@ -200,6 +201,7 @@ const DOCS = {
   field: fieldDocs as unknown as ComponentDocs,
   modal: modalDocs as unknown as ComponentDocs,
   radio: radioDocs as unknown as ComponentDocs,
+  "segmented-control": segmentedControlDocs as unknown as ComponentDocs,
   select: selectDocs as unknown as ComponentDocs,
   slider: sliderDocs as unknown as ComponentDocs,
   switch: switchDocs as unknown as ComponentDocs,

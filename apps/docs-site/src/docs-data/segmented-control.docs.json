@@ -1,0 +1,308 @@
+{
+  "id": "segmented-control",
+  "displayName": "SegmentedControl",
+  "kind": "registry",
+  "status": "stable",
+  "category": "Forms",
+  "description": "A single-select segmented control — a linear strip of segments where exactly one is selected. The selected segment is brand-filled; the rest are secondary.",
+  "headless": {
+    "package": "@primitiv-ui/react",
+    "importPath": "@primitiv-ui/react",
+    "subComponents": [
+      {
+        "name": "SegmentedControl.Root",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "When `true`, Root delegates rendering to a single consumer-supplied\nelement via the {@link Slot } pattern instead of the default `<div>`;\n`role=\"radiogroup\"`, `aria-orientation`, `data-orientation`,\n`data-disabled`, `dir`, and remaining props are merged onto it."
+          },
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": false,
+            "default": null,
+            "description": "The control's segments — {@link SegmentedControlItemProps`SegmentedControl.Item`}\nelements."
+          },
+          {
+            "name": "defaultValue",
+            "type": "string",
+            "required": false,
+            "default": null,
+            "description": "Value of the segment selected on first render. Omit for nothing\nselected on mount.\nForbidden in controlled mode — use `value` instead."
+          },
+          {
+            "name": "dir",
+            "type": "\"ltr\" | \"rtl\"",
+            "required": false,
+            "default": null,
+            "description": "Reading direction. In `\"rtl\"` the horizontal arrow pair is swapped so\nArrow Left moves forward. When omitted, it is inherited from the\nnearest {@link DirectionProvider }, falling back to `\"ltr\"`."
+          },
+          {
+            "name": "disabled",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Disables the entire control — every segment is non-interactive and\nexcluded from arrow-key navigation, and `data-disabled=\"\"` is set on\nthe root. Individual segments can also be disabled via the Item's own\n`disabled` prop."
+          },
+          {
+            "name": "onValueChange",
+            "type": "(value: string) => void",
+            "required": false,
+            "default": null,
+            "description": "Called with the new value whenever the selection changes. Optional\nin uncontrolled mode.\nCalled with the new value whenever the selection changes. Required\nin controlled mode."
+          },
+          {
+            "name": "orientation",
+            "type": "\"horizontal\" | \"vertical\"",
+            "required": false,
+            "default": "\"horizontal\"",
+            "description": "Which arrow-key pair moves focus and selection through the segments,\nand the visual axis. `\"horizontal\"` binds Arrow Left/Right;\n`\"vertical\"` binds Arrow Up/Down. Reflected as `aria-orientation` and\n`data-orientation` on the root."
+          },
+          {
+            "name": "ref",
+            "type": "Ref<HTMLDivElement>",
+            "required": false,
+            "default": null,
+            "description": "Allows getting a ref to the component instance.\nOnce the component unmounts, React will set `ref.current` to `null`\n(or call the ref with `null` if you passed a callback ref).\nForwarded to the underlying `HTMLDivElement`."
+          },
+          {
+            "name": "value",
+            "type": "string",
+            "required": false,
+            "default": null,
+            "description": "Forbidden in uncontrolled mode — use `defaultValue` instead.\nThe currently selected value. Must be kept in sync by the parent\nvia `onValueChange`."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [
+          {
+            "name": "size",
+            "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
+            "default": "md",
+            "description": "Control size for the whole control; `data-density` scales each size further."
+          },
+          {
+            "name": "justify",
+            "type": "\"content\" | \"justified\"",
+            "default": "justified",
+            "description": "Whether segments share the track width equally or size to their content."
+          }
+        ],
+        "dataAttributes": [
+          {
+            "name": "data-orientation",
+            "value": "horizontal",
+            "when": "horizontal"
+          },
+          {
+            "name": "data-orientation",
+            "value": "vertical",
+            "when": "vertical"
+          },
+          {
+            "name": "data-disabled",
+            "value": "",
+            "when": "the whole control is disabled"
+          }
+        ],
+        "class": "primitiv-segmented-control"
+      },
+      {
+        "name": "SegmentedControl.Item",
+        "extends": "HTMLButtonElement",
+        "props": [
+          {
+            "name": "value",
+            "type": "string",
+            "required": true,
+            "default": null,
+            "description": "Uniquely identifies this segment within the control and is reported to\n`onValueChange` / matched against Root's `value` when selected. Required."
+          },
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "When `true`, renders the single child element via the {@link Slot }\npattern instead of the default `<button>`; ARIA, `data-state`,\n`data-disabled`, `tabIndex`, `onClick`, `onKeyDown`, `disabled`, and\n`ref` are merged onto it. A non-focusable child must be made focusable\nby the consumer."
+          },
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": false,
+            "default": null,
+            "description": "The segment's visible content — typically its text label."
+          },
+          {
+            "name": "disabled",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Disables just this segment: forwards the native `disabled` attribute,\nremoves it from arrow-key navigation and the roving-tabindex home base,\nand sets `data-disabled=\"\"`. The whole control can also be disabled via\nRoot's `disabled` prop."
+          },
+          {
+            "name": "ref",
+            "type": "Ref<HTMLButtonElement>",
+            "required": false,
+            "default": null,
+            "description": "Allows getting a ref to the component instance.\nOnce the component unmounts, React will set `ref.current` to `null`\n(or call the ref with `null` if you passed a callback ref).\nForwarded to the underlying `HTMLButtonElement`."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [
+          {
+            "name": "data-state",
+            "value": "checked",
+            "when": "selected"
+          },
+          {
+            "name": "data-state",
+            "value": "unchecked",
+            "when": "not selected"
+          },
+          {
+            "name": "data-disabled",
+            "value": "",
+            "when": "disabled"
+          }
+        ],
+        "class": "primitiv-segmented-control__item"
+      }
+    ]
+  },
+  "styled": {
+    "installCommand": "primitiv add segmented-control",
+    "rootClass": "primitiv-segmented-control",
+    "customProperties": [
+      {
+        "name": "--primitiv-segmented-control-track-bg",
+        "defaultsTo": "var(--primitiv-color-transparent)"
+      },
+      {
+        "name": "--primitiv-segmented-control-track-border-color",
+        "defaultsTo": "var(--primitiv-border-subtle)"
+      },
+      {
+        "name": "--primitiv-segmented-control-track-border-width",
+        "defaultsTo": "var(--primitiv-framed-control-border-width)"
+      },
+      {
+        "name": "--primitiv-segmented-control-track-padding",
+        "defaultsTo": "var(--primitiv-space-space-4)"
+      },
+      {
+        "name": "--primitiv-segmented-control-track-gap",
+        "defaultsTo": "var(--primitiv-space-space-4)"
+      },
+      {
+        "name": "--primitiv-segmented-control-item-radius",
+        "defaultsTo": "var(--primitiv-framed-control-md-radius)"
+      },
+      {
+        "name": "--primitiv-segmented-control-radius",
+        "defaultsTo": "calc(var(--primitiv-segmented-control-item-radius) + var(--primitiv-segmented-control-track-padding))"
+      },
+      {
+        "name": "--primitiv-segmented-control-item-height",
+        "defaultsTo": "var(--primitiv-framed-control-md-height)"
+      },
+      {
+        "name": "--primitiv-segmented-control-item-padding-inline",
+        "defaultsTo": "var(--primitiv-framed-control-md-padding-inline)"
+      },
+      {
+        "name": "--primitiv-segmented-control-item-gap",
+        "defaultsTo": "var(--primitiv-framed-control-md-gap)"
+      },
+      {
+        "name": "--primitiv-segmented-control-item-icon-size",
+        "defaultsTo": "var(--primitiv-framed-control-md-icon-size)"
+      },
+      {
+        "name": "--primitiv-segmented-control-item-border-width",
+        "defaultsTo": "var(--primitiv-framed-control-border-width)"
+      },
+      {
+        "name": "--primitiv-segmented-control-item-bg",
+        "defaultsTo": "var(--primitiv-action-secondary-default)"
+      },
+      {
+        "name": "--primitiv-segmented-control-item-fg",
+        "defaultsTo": "var(--primitiv-action-secondary-foreground-default)"
+      },
+      {
+        "name": "--primitiv-segmented-control-item-border-color",
+        "defaultsTo": "var(--primitiv-action-secondary-border-default)"
+      },
+      {
+        "name": "--primitiv-segmented-control-item-bg-selected",
+        "defaultsTo": "var(--primitiv-action-primary-default)"
+      },
+      {
+        "name": "--primitiv-segmented-control-item-fg-selected",
+        "defaultsTo": "var(--primitiv-action-primary-foreground-default)"
+      },
+      {
+        "name": "--primitiv-segmented-control-item-border-color-selected",
+        "defaultsTo": "var(--primitiv-action-primary-border-default)"
+      },
+      {
+        "name": "--primitiv-segmented-control-item-font-family",
+        "defaultsTo": "var(--primitiv-label-md-font-family)"
+      },
+      {
+        "name": "--primitiv-segmented-control-item-font-size",
+        "defaultsTo": "var(--primitiv-label-md-font-size)"
+      },
+      {
+        "name": "--primitiv-segmented-control-item-font-weight",
+        "defaultsTo": "var(--primitiv-label-md-font-weight)"
+      },
+      {
+        "name": "--primitiv-segmented-control-item-line-height",
+        "defaultsTo": "var(--primitiv-label-md-line-height)"
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-orientation",
+        "value": "horizontal",
+        "when": "horizontal"
+      },
+      {
+        "name": "data-orientation",
+        "value": "vertical",
+        "when": "vertical"
+      },
+      {
+        "name": "data-disabled",
+        "value": "",
+        "when": "the whole control is disabled"
+      },
+      {
+        "name": "data-state",
+        "value": "checked",
+        "when": "selected"
+      },
+      {
+        "name": "data-state",
+        "value": "unchecked",
+        "when": "not selected"
+      },
+      {
+        "name": "data-disabled",
+        "value": "",
+        "when": "disabled"
+      }
+    ]
+  },
+  "figma": {
+    "componentSetKey": "1216:44224"
+  }
+}

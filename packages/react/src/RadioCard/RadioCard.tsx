@@ -157,8 +157,10 @@ RadioCardRoot.displayName = "RadioCardRoot";
  * excludes the Item from arrow-key navigation and the roving-tabindex
  * home base.
  *
- * **Styling hook.** `data-state="checked" | "unchecked"` mirrors the
- * selection state for CSS targeting.
+ * **Styling hooks.** `data-state="checked" | "unchecked"` mirrors the
+ * selection state, and `data-disabled=""` is present while disabled — the
+ * same pair `CheckboxCard.Root` publishes, so one stylesheet can dress
+ * both.
  *
  * **`asChild` prop.** Pass `asChild` to render any consumer element with
  * the Item's ARIA, data-state, tabIndex, onClick, onKeyDown, disabled, and
@@ -223,6 +225,7 @@ export function RadioCardItem({
     role: "radio" as const,
     "aria-checked": isChecked,
     "data-state": isChecked ? ("checked" as const) : ("unchecked" as const),
+    "data-disabled": disabled ? "" : undefined,
     tabIndex: isTabStop ? 0 : -1,
     disabled,
     onClick: composeEventHandlers(onClick, () => select(value)),

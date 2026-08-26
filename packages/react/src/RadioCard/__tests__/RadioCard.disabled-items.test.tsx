@@ -18,6 +18,29 @@ describe("RadioCard disabled items", () => {
     expect(screen.getByRole("radio", { name: "Starter" })).toBeDisabled();
   });
 
+  /*
+   * The styling hook, not just the native attribute. `[data-disabled]` is what
+   * the registry stylesheet keys the dimmed look off — the same hook
+   * `CheckboxCard.Root` already publishes — so without it the shipped disabled
+   * treatment silently never applies (found by measuring: a disabled RadioCard
+   * rendered at opacity 1 while a disabled CheckboxCard correctly dimmed).
+   */
+  it('sets data-disabled="" on a disabled item, and omits it otherwise', () => {
+    // Arrange & Act
+    render(
+      <RadioCard.Root aria-label="Plan">
+        <RadioCard.Item value="starter" disabled>
+          Starter
+        </RadioCard.Item>
+        <RadioCard.Item value="pro">Pro</RadioCard.Item>
+      </RadioCard.Root>,
+    );
+
+    // Assert
+    expect(screen.getByRole("radio", { name: "Starter" })).toHaveAttribute("data-disabled", "");
+    expect(screen.getByRole("radio", { name: "Pro" })).not.toHaveAttribute("data-disabled");
+  });
+
   it("does not change selection when a disabled item is clicked", async () => {
     // Arrange
     const user = userEvent.setup();

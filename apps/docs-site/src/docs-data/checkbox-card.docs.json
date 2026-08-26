@@ -169,7 +169,11 @@
       },
       {
         "name": "--primitiv-checkbox-card-gap",
-        "defaultsTo": "var(--primitiv-choice-control-md-gap)"
+        "defaultsTo": "var(--primitiv-choice-card-md-gap, var(--primitiv-space-space-10))"
+      },
+      {
+        "name": "--primitiv-checkbox-card-content-gap",
+        "defaultsTo": "var(--primitiv-choice-card-md-content-gap, var(--primitiv-space-space-20))"
       },
       {
         "name": "--primitiv-checkbox-card-shadow-hover",
@@ -182,10 +186,6 @@
       {
         "name": "--primitiv-checkbox-card-indicator-radius",
         "defaultsTo": "var(--primitiv-checkbox-md-box-radius)"
-      },
-      {
-        "name": "--primitiv-checkbox-card-indicator-offset-top",
-        "defaultsTo": "var(--primitiv-choice-card-md-indicator-offset-top)"
       },
       {
         "name": "--primitiv-checkbox-card-indicator-bg",

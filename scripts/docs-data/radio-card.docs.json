@@ -217,7 +217,11 @@
       },
       {
         "name": "--primitiv-radio-card-gap",
-        "defaultsTo": "var(--primitiv-choice-control-md-gap)"
+        "defaultsTo": "var(--primitiv-choice-card-md-gap, var(--primitiv-space-space-10))"
+      },
+      {
+        "name": "--primitiv-radio-card-content-gap",
+        "defaultsTo": "var(--primitiv-choice-card-md-content-gap, var(--primitiv-space-space-20))"
       },
       {
         "name": "--primitiv-radio-card-shadow-hover",
@@ -226,10 +230,6 @@
       {
         "name": "--primitiv-radio-card-indicator-size",
         "defaultsTo": "var(--primitiv-radio-md-box-size)"
-      },
-      {
-        "name": "--primitiv-radio-card-indicator-offset-top",
-        "defaultsTo": "var(--primitiv-choice-card-md-indicator-offset-top)"
       },
       {
         "name": "--primitiv-radio-card-indicator-bg",

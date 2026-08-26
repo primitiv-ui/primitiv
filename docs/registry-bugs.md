@@ -641,6 +641,45 @@ content does not outweigh the mobile reasoning already recorded in the sheet.
 
 ---
 
+## 12. `input-group` — a search field renders two clear buttons — FIXED
+
+**Symptom.** Type into an `<Input type="search">` inside an `InputGroup` whose
+trailing slot holds a Clear button, and a **second** X appears beside it. Spotted
+on the rendered playground, not in review.
+
+**Cause.** WebKit and Blink draw `::-webkit-search-cancel-button` on a
+`type="search"` input as soon as it has a value (`appearance: auto`). It is a UA
+**pseudo-element**, so there is nothing in the DOM to see — measured: one real
+`<button>` in the group, one trailing slot, and the pseudo-element sitting at
+`display: block`. Any review that reads markup passes it, and it only appears
+once a value exists, so an empty-state screenshot passes too.
+
+**Fix (landed).** `registry/components/input-group/styles.css` suppresses
+`::-webkit-search-cancel-button` and `::-webkit-search-decoration` — but **only**
+under `.primitiv-input-group:has(.primitiv-input-group__trailing)`. The `:has()`
+guard is the substance of the fix: an unguarded rule would strip the native clear
+from a search field that supplies no replacement, which is a worse outcome than
+the duplicate. Mirrored into `styles.scss` and both app copies.
+
+**Latent elsewhere.** The kitchen-sink's Input Group demo is the same
+composition, so it had the same duplicate — it just needed someone to type into
+it. The stylesheet fix reaches it through the copied sheet.
+
+**Verification gotcha, worth keeping.** `getComputedStyle(input,
+"::-webkit-search-cancel-button")` **lies** here: it reported `display: block` /
+`appearance: auto` both before and after the fix, i.e. the UA default regardless
+of the author rule. Confirming the fix took reading the rule out of
+`document.styleSheets`, checking the group matched the `:has()`, and then a
+cropped screenshot. For a UA pseudo-element, measure the picture, not the
+computed style.
+
+**Worth remembering as a class.** This is the second finding this session that
+only a *rendered, interacted-with* page could produce (the first being Slider's
+unnamed thumbs). Neither reading the code nor a static screenshot would have
+found either.
+
+---
+
 ## 11. `Field.Label` renders a dangling `htmlFor` for most controls — OPEN
 
 The generalisation of §10, found by measuring rather than reading: `Field.Label`

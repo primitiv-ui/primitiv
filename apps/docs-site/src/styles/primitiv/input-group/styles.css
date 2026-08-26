@@ -88,6 +88,25 @@
     inline-size: var(--primitiv-input-group-icon-size);
     block-size: var(--primitiv-input-group-icon-size);
   }
+
+  /* An `<input type="search">` grows its OWN clear button once it has a value
+     (`::-webkit-search-cancel-button`, `appearance: auto`), which sits beside
+     whatever the trailing slot holds — so a group with its own Clear control
+     renders two X's the moment you type. Nothing in the DOM shows it: it is a UA
+     pseudo-element, so it survives every review that reads markup.
+
+     Suppressed only when the group actually supplies a trailing adornment. That
+     `:has()` guard is the whole point — an unguarded rule would strip the native
+     clear from a search field that offers no replacement, which is a worse
+     outcome than the duplicate. `-webkit-search-decoration` goes with it (Safari
+     draws its own inset beside the control). */
+  .primitiv-input-group:has(.primitiv-input-group__trailing)
+    input[type="search"]::-webkit-search-cancel-button,
+  .primitiv-input-group:has(.primitiv-input-group__trailing)
+    input[type="search"]::-webkit-search-decoration {
+    appearance: none;
+    display: none;
+  }
 }
 
 @layer primitiv.variants {

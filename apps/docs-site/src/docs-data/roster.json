@@ -423,8 +423,8 @@
     "id": "toggle-group",
     "displayName": "Toggle Group",
     "category": "Navigation",
-    "description": "A segmented control — a recessed pill track holding borderless items; single- or multi-select. Pressed items lift into a raised thumb.",
-    "documented": false
+    "description": "A set of independent on/off buttons in a shared track — any number can be pressed, including none. Framed like a Button: a pressed item is action/primary, an unpressed one action/secondary, inside a transparent bordered track whose radius is concentric with the items.",
+    "documented": true
   },
   {
     "id": "tooltip",

@@ -17,6 +17,7 @@ import { sliderSpec } from "./slider";
 import { switchSpec } from "./switch";
 import { textareaSpec } from "./textarea";
 import { tabsSpec } from "./tabs";
+import { toggleGroupSpec } from "./toggle-group";
 import type { ComponentSpec } from "./types";
 
 /**
@@ -40,6 +41,7 @@ export const SPECS: Record<ComponentId, ComponentSpec> = {
   switch: switchSpec,
   textarea: textareaSpec,
   tabs: tabsSpec,
+  "toggle-group": toggleGroupSpec,
 };
 
 export type { ComponentSpec };

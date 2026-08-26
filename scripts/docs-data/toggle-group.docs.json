@@ -1,0 +1,287 @@
+{
+  "id": "toggle-group",
+  "displayName": "ToggleGroup",
+  "kind": "registry",
+  "status": "stable",
+  "category": "Navigation",
+  "description": "A set of independent on/off buttons in a shared track — any number can be pressed, including none. Framed like a Button: a pressed item is action/primary, an unpressed one action/secondary, inside a transparent bordered track whose radius is concentric with the items.",
+  "headless": {
+    "package": "@primitiv-ui/react",
+    "importPath": "@primitiv-ui/react",
+    "subComponents": [
+      {
+        "name": "ToggleGroup.Root",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "type",
+            "type": "\"single\" | \"multiple\"",
+            "required": true,
+            "default": null,
+            "description": "Selects single-selection semantics: at most one item pressed at a time,\nand pressing the active item again clears the selection.\nSelects multiple-selection semantics: any number of items can be pressed\nsimultaneously and each toggles independently."
+          },
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Render a single consumer-supplied element in place of the native\n`<div>`, with the group's `role=\"group\"`, `data-orientation`, and `ref`\nmerged onto it via the {@link Slot } pattern."
+          },
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": false,
+            "default": null,
+            "description": "The {@link ToggleGroupItemProps`ToggleGroup.Item`} elements that make\nup the segmented control."
+          },
+          {
+            "name": "defaultValue",
+            "type": "string | string[]",
+            "required": false,
+            "default": null,
+            "description": "Value of the item pressed on first render. Omit to start with nothing\npressed.\nForbidden in controlled mode — use `value`.\nValues of the items pressed on first render. Omit to start with nothing\npressed."
+          },
+          {
+            "name": "dir",
+            "type": "\"ltr\" | \"rtl\"",
+            "required": false,
+            "default": null,
+            "description": "Reading direction. In `\"rtl\"` the horizontal arrow keys are mirrored so\nfocus follows the visual order. Inherited from the nearest\n{@link DirectionProvider } when omitted, falling back to `\"ltr\"`."
+          },
+          {
+            "name": "onValueChange",
+            "type": "((value: string | undefined) => void) | ((value: string[]) => void)",
+            "required": false,
+            "default": null,
+            "description": "Forbidden in uncontrolled mode.\nCalled with the requested next value — the pressed item's value, or\n`undefined` when the active item is pressed again to deselect it.\nCalled with the complete next array of pressed values whenever the user\ntoggles any item."
+          },
+          {
+            "name": "orientation",
+            "type": "\"horizontal\" | \"vertical\"",
+            "required": false,
+            "default": "\"horizontal\"",
+            "description": "Layout axis for keyboard navigation. `\"horizontal\"` binds\nArrowLeft/ArrowRight; `\"vertical\"` binds ArrowUp/ArrowDown. Surfaces as\n`data-orientation` on the root for styling; it does not itself apply any\nflex/grid layout."
+          },
+          {
+            "name": "ref",
+            "type": "Ref<HTMLDivElement>",
+            "required": false,
+            "default": null,
+            "description": "Forwarded to the underlying `HTMLDivElement`."
+          },
+          {
+            "name": "value",
+            "type": "string | string[]",
+            "required": false,
+            "default": null,
+            "description": "Forbidden in uncontrolled mode — use `defaultValue`.\nThe currently pressed item's value, or `undefined` when none is pressed.\nMust be kept in sync by the caller via `onValueChange`.\nThe full set of currently pressed item values. Must be kept in sync by\nthe caller via `onValueChange`."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [
+          {
+            "name": "size",
+            "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
+            "default": "md",
+            "description": "Control size for the whole widget; `data-density` scales each size further."
+          },
+          {
+            "name": "justify",
+            "type": "\"content\" | \"justified\"",
+            "default": "content",
+            "description": "Whether items size to their content or share the track width equally."
+          }
+        ],
+        "dataAttributes": [
+          {
+            "name": "data-orientation",
+            "value": "horizontal",
+            "when": "horizontal"
+          },
+          {
+            "name": "data-orientation",
+            "value": "vertical",
+            "when": "vertical"
+          }
+        ],
+        "class": "primitiv-toggle-group"
+      },
+      {
+        "name": "ToggleGroup.Item",
+        "extends": "HTMLButtonElement",
+        "props": [
+          {
+            "name": "value",
+            "type": "string",
+            "required": true,
+            "default": null,
+            "description": "Identifies this item within the group. It is this string — not the\nvisible label — that is compared against the group's pressed\n`value` / `defaultValue`; use `children` for the label."
+          },
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Render a single consumer-supplied element in place of the native\n`<button>`, with the item's `aria-pressed`, `data-state`, `tabIndex`, and\nevent handlers merged onto it via the {@link Slot } pattern."
+          },
+          {
+            "name": "disabled",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Forwards the native `disabled` attribute and removes the item from the\nroving tab order so arrow-key navigation skips it. Also sets\n`data-disabled=\"\"` for CSS targeting."
+          },
+          {
+            "name": "ref",
+            "type": "Ref<HTMLButtonElement>",
+            "required": false,
+            "default": null,
+            "description": "Forwarded to the underlying `HTMLButtonElement`."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [
+          {
+            "name": "data-state",
+            "value": "on",
+            "when": "pressed"
+          },
+          {
+            "name": "data-state",
+            "value": "off",
+            "when": "not pressed"
+          },
+          {
+            "name": "data-disabled",
+            "value": "",
+            "when": "disabled"
+          }
+        ],
+        "class": "primitiv-toggle-group__item"
+      }
+    ]
+  },
+  "styled": {
+    "installCommand": "primitiv add toggle-group",
+    "rootClass": "primitiv-toggle-group",
+    "customProperties": [
+      {
+        "name": "--primitiv-toggle-group-item-height",
+        "defaultsTo": "var(--primitiv-framed-control-md-height)"
+      },
+      {
+        "name": "--primitiv-toggle-group-item-padding-inline",
+        "defaultsTo": "var(--primitiv-framed-control-md-padding-inline)"
+      },
+      {
+        "name": "--primitiv-toggle-group-item-gap",
+        "defaultsTo": "var(--primitiv-framed-control-md-gap)"
+      },
+      {
+        "name": "--primitiv-toggle-group-item-icon-size",
+        "defaultsTo": "var(--primitiv-framed-control-md-icon-size)"
+      },
+      {
+        "name": "--primitiv-toggle-group-item-border-width",
+        "defaultsTo": "var(--primitiv-framed-control-border-width)"
+      },
+      {
+        "name": "--primitiv-toggle-group-track-inset",
+        "defaultsTo": "var(--primitiv-toggle-group-track-padding)"
+      },
+      {
+        "name": "--primitiv-toggle-group-item-radius",
+        "defaultsTo": "var(--primitiv-framed-control-md-radius)"
+      },
+      {
+        "name": "--primitiv-toggle-group-radius",
+        "defaultsTo": "calc( var(--primitiv-toggle-group-item-radius) + var(--primitiv-toggle-group-track-inset) )"
+      },
+      {
+        "name": "--primitiv-toggle-group-track-bg",
+        "defaultsTo": "var(--primitiv-color-transparent)"
+      },
+      {
+        "name": "--primitiv-toggle-group-track-border-color",
+        "defaultsTo": "var(--primitiv-border-subtle)"
+      },
+      {
+        "name": "--primitiv-toggle-group-track-border-width",
+        "defaultsTo": "var(--primitiv-framed-control-border-width)"
+      },
+      {
+        "name": "--primitiv-toggle-group-item-bg",
+        "defaultsTo": "var(--primitiv-action-secondary-default)"
+      },
+      {
+        "name": "--primitiv-toggle-group-item-fg",
+        "defaultsTo": "var(--primitiv-action-secondary-foreground-default)"
+      },
+      {
+        "name": "--primitiv-toggle-group-item-border-color",
+        "defaultsTo": "var(--primitiv-action-secondary-border-default)"
+      },
+      {
+        "name": "--primitiv-toggle-group-item-bg-on",
+        "defaultsTo": "var(--primitiv-action-primary-default)"
+      },
+      {
+        "name": "--primitiv-toggle-group-item-fg-on",
+        "defaultsTo": "var(--primitiv-action-primary-foreground-default)"
+      },
+      {
+        "name": "--primitiv-toggle-group-item-border-color-on",
+        "defaultsTo": "var(--primitiv-action-primary-border-default)"
+      },
+      {
+        "name": "--primitiv-toggle-group-item-font-family",
+        "defaultsTo": "var(--primitiv-label-md-font-family)"
+      },
+      {
+        "name": "--primitiv-toggle-group-item-font-size",
+        "defaultsTo": "var(--primitiv-label-md-font-size)"
+      },
+      {
+        "name": "--primitiv-toggle-group-item-font-weight",
+        "defaultsTo": "var(--primitiv-label-md-font-weight)"
+      },
+      {
+        "name": "--primitiv-toggle-group-item-line-height",
+        "defaultsTo": "var(--primitiv-label-md-line-height)"
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-orientation",
+        "value": "horizontal",
+        "when": "horizontal"
+      },
+      {
+        "name": "data-orientation",
+        "value": "vertical",
+        "when": "vertical"
+      },
+      {
+        "name": "data-state",
+        "value": "on",
+        "when": "pressed"
+      },
+      {
+        "name": "data-state",
+        "value": "off",
+        "when": "not pressed"
+      },
+      {
+        "name": "data-disabled",
+        "value": "",
+        "when": "disabled"
+      }
+    ]
+  },
+  "figma": {
+    "componentSetKey": "2045:1395"
+  }
+}

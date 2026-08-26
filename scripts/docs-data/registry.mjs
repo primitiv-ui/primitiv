@@ -194,6 +194,19 @@ export const REGISTRY = {
      */
     importPath: "@primitiv-ui/react",
   },
+  "toggle-group": {
+    displayName: "ToggleGroup", kind: "registry", status: "stable", category: "Navigation",
+    propsFile: "packages/react/src/ToggleGroup/types.ts",
+    subComponents: [
+      { name: "ToggleGroup.Root", propsType: "ToggleGroupRootProps", element: "div", component: "Root" },
+      { name: "ToggleGroup.Item", propsType: "ToggleGroupItemProps", element: "button", component: "Item" },
+    ],
+    contract: "registry/components/toggle-group/contract.json",
+    /* The composed track set, built 2026-08-26; `733:239` is the Item it
+       composes. Both were redesigned onto the framed-control anatomy — see the
+       page "Toggle Group — exploration". */
+    figmaComponentSetKey: "2045:1395", importPath: "@primitiv-ui/react",
+  },
   radio: {
     displayName: "Radio", kind: "registry", status: "stable", category: "Forms",
     propsFile: "packages/react/src/Radio/types.ts",

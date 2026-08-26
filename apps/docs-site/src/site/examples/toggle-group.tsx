@@ -50,7 +50,9 @@ const toolbarLines = (mode: Mode, { attrs = "" }: { attrs?: string } = {}) => {
 const ToolbarExample = () => {
   const [value, setValue] = useState<string[]>(["bold"]);
   return (
-    <Stack gap="sm">
+    /* align="start": Stack stretches by default, which let the caption's own
+       width drive the track's and made it jump as items were pressed. */
+    <Stack gap="sm" align="start">
       <ToggleGroup type="multiple" value={value} onValueChange={setValue} aria-label="Text formatting">
         {FORMATS.map(({ value: v, glyph, label }) => (
           <ToggleGroupItem key={v} value={v} aria-label={label}>
@@ -69,7 +71,7 @@ const ToolbarExample = () => {
 const SingleExample = () => {
   const [value, setValue] = useState<string | undefined>("grid");
   return (
-    <Stack gap="sm">
+    <Stack gap="sm" align="start">
       <ToggleGroup type="single" value={value} onValueChange={setValue} aria-label="View">
         <ToggleGroupItem value="list">List</ToggleGroupItem>
         <ToggleGroupItem value="grid">Grid</ToggleGroupItem>
@@ -100,7 +102,6 @@ const SingleExample = () => {
 export const toggleGroupSpec: ComponentSpec = {
   playground: {
     component: "ToggleGroup",
-    fill: true,
     /* Hand-written: `size`/`justify` are the ROOT's, but the items below are what
        a reader needs to see, and the generated `toJsx` prints a childless
        `<ToggleGroup size="md" justify="content" />`. */
@@ -236,7 +237,7 @@ export const toggleGroupSpec: ComponentSpec = {
       title: "Sizing the track (justify)",
       render: () => (
         <InteractiveExample
-          caption="`justify=&quot;content&quot;` (the default) sizes each item to its own content — right for an icon toolbar, where equal widths would stretch the glyphs apart. `justified` makes them share the track equally, which suits word labels of uneven length."
+          caption="`justify=&quot;content&quot;` (the default) sizes each item to its own content — right for an icon toolbar, where equal widths would stretch the glyphs apart. `justified` makes them share the track equally, which suits word labels of uneven length. **The difference only appears when the track has room to distribute**: a group that hugs its own contents renders the two identically, so both rows below are given the full column width."
           code={(_density, mode) =>
             [
               imports(mode),
@@ -246,7 +247,7 @@ export const toggleGroupSpec: ComponentSpec = {
                 return [
                   `<${p("Root")} type="single"${contractAttr({ mode, prop: "justify", value: j })} aria-label="Period">`,
                   `  <${p("Item")} value="day">Day</${p("Item")}>`,
-                  `  <${p("Item")} value="quarter">This quarter</${p("Item")}>`,
+                  `  <${p("Item")} value="quarter">Quarter</${p("Item")}>`,
                   `</${p("Root")}>`,
                 ];
               }),
@@ -254,15 +255,20 @@ export const toggleGroupSpec: ComponentSpec = {
           }
         >
           {() => (
-            <Stack gap="md">
+            /* NOT a bare Stack: Stack's width is content-driven, so with only
+               groups inside it hugs them and `justified` has nothing to
+               distribute — the two rows then render identically, which is what
+               this example looked like until it was measured.
+               `.docs-example-stack` is inline-size: 100%. */
+            <div className="docs-example-stack">
               {(["content", "justified"] as const).map((j) => (
                 <ToggleGroup key={j} type="single" justify={j} defaultValue="day" aria-label={`Period, ${j}`}>
                   <ToggleGroupItem value="day">Day</ToggleGroupItem>
                   <ToggleGroupItem value="week">Week</ToggleGroupItem>
-                  <ToggleGroupItem value="quarter">This quarter</ToggleGroupItem>
+                  <ToggleGroupItem value="quarter">Quarter</ToggleGroupItem>
                 </ToggleGroup>
               ))}
-            </Stack>
+            </div>
           )}
         </InteractiveExample>
       ),

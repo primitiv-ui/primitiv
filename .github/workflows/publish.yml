@@ -181,8 +181,19 @@ jobs:
       # generated build artefact directory, not a source package with its own
       # publishConfig, the same reasoning that has the CLI platform packages
       # above use raw `npm publish` rather than pnpm's recursive publish.
+      # One-time bootstrap: this is the first-ever publish of
+      # @primitiv-ui/harmoni-wasm, so npm Trusted Publishing has nothing to
+      # attach to yet (TP must be configured per package name, and the
+      # package doesn't exist until this step runs) — every other publish
+      # step in this job is tokenless via TP/OIDC, but this one needs an
+      # explicit token just once. After this succeeds, configure Trusted
+      # Publisher for @primitiv-ui/harmoni-wasm on npmjs.com, then remove
+      # this env block and the NPM_TOKEN secret. See RELEASING.md §5.
       - name: Publish harmoni-wasm to npm
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
+          echo "//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}" >> ~/.npmrc
           cd crates/harmoni-wasm/pkg
           npm pkg set name="@primitiv-ui/harmoni-wasm"
           npm publish --access public --provenance

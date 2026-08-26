@@ -164,21 +164,27 @@ export const radioCardSpec: ComponentSpec = {
           }`,
         }),
       ].join("\n"),
+    /* Same reason as CheckboxCard's: the Items are `<button>`s that
+       shrink-to-fit, so toggling `showDescription` resized the preview.
+       `.docs-example-stack` gives the group a stable full width to stretch
+       into. */
     render: (values) => (
-      <RadioCard defaultValue="pro" aria-label="Plan">
-        <Stack gap="sm">
-          {PLANS.map((p) => (
-            <RadioCardItem
-              key={p.value}
-              size={values.size as Size}
-              value={p.value}
-              title={p.title}
-              description={p.description}
-              showDescription={values.showDescription === "true"}
-            />
-          ))}
-        </Stack>
-      </RadioCard>
+      <div className="docs-example-stack">
+        <RadioCard defaultValue="pro" aria-label="Plan">
+          <Stack gap="sm">
+            {PLANS.map((p) => (
+              <RadioCardItem
+                key={p.value}
+                size={values.size as Size}
+                value={p.value}
+                title={p.title}
+                description={p.description}
+                showDescription={values.showDescription === "true"}
+              />
+            ))}
+          </Stack>
+        </RadioCard>
+      </div>
     ),
   },
 

@@ -163,14 +163,21 @@ export const checkboxCardSpec: ComponentSpec = {
           },
         ),
       ].join("\n"),
+    /* The wrapper is not decoration: the card is a `<button>`, so it
+       shrink-to-fits, and toggling `showDescription` visibly resized the
+       preview. `.docs-example-stack` is a full-width flex column, so the card
+       stretches to a stable width instead. Every example below gets this for
+       free from its `Stack`. */
     render: (values) => (
-      <CheckboxCard
-        size={values.size as Size}
-        title="Analytics"
-        description="Page views, referrers and conversion funnels."
-        showDescription={values.showDescription === "true"}
-        defaultChecked
-      />
+      <div className="docs-example-stack">
+        <CheckboxCard
+          size={values.size as Size}
+          title="Analytics"
+          description="Page views, referrers and conversion funnels."
+          showDescription={values.showDescription === "true"}
+          defaultChecked
+        />
+      </div>
     ),
   },
 

@@ -26,7 +26,18 @@ import { useMode, type Mode } from "@/site/preferences";
 
 import "./playground.css";
 
-const titleCase = (s: string) => s[0].toUpperCase() + s.slice(1);
+/*
+ * Prop name -> control label. Splits camelCase, because a control's name IS the
+ * prop name and a spec-declared one is often multi-word: `showDescription`
+ * printed as "ShowDescription", which reads as a typo rather than a label. The
+ * contract-derived names (`size`, `variant`, `tone`) are single words and come
+ * through unchanged.
+ */
+const titleCase = (s: string) =>
+  s
+    .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
+    .replace(/^./, (c) => c.toUpperCase())
+    .replace(/ ([A-Z])(?=[a-z])/g, (_, c: string) => ` ${c.toLowerCase()}`);
 
 /**
  * A labelled control column.

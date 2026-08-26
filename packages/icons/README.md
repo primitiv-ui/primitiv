@@ -46,6 +46,7 @@ All other [SVG element attributes](https://developer.mozilla.org/en-US/docs/Web/
 | [ArrowLeft](src/icons/ArrowLeft.tsx) | `import { ArrowLeft } from "@primitiv-ui/icons"` |
 | [ArrowRight](src/icons/ArrowRight.tsx) | `import { ArrowRight } from "@primitiv-ui/icons"` |
 | [Bell](src/icons/Bell.tsx) | `import { Bell } from "@primitiv-ui/icons"` |
+| [Bold](src/icons/Bold.tsx) | `import { Bold } from "@primitiv-ui/icons"` |
 | [Calendar](src/icons/Calendar.tsx) | `import { Calendar } from "@primitiv-ui/icons"` |
 | [Check](src/icons/Check.tsx) | `import { Check } from "@primitiv-ui/icons"` |
 | [ChevronDown](src/icons/ChevronDown.tsx) | `import { ChevronDown } from "@primitiv-ui/icons"` |
@@ -68,6 +69,7 @@ All other [SVG element attributes](https://developer.mozilla.org/en-US/docs/Web/
 | [Home](src/icons/Home.tsx) | `import { Home } from "@primitiv-ui/icons"` |
 | [Image](src/icons/Image.tsx) | `import { Image } from "@primitiv-ui/icons"` |
 | [Info](src/icons/Info.tsx) | `import { Info } from "@primitiv-ui/icons"` |
+| [Italic](src/icons/Italic.tsx) | `import { Italic } from "@primitiv-ui/icons"` |
 | [Link](src/icons/Link.tsx) | `import { Link } from "@primitiv-ui/icons"` |
 | [List](src/icons/List.tsx) | `import { List } from "@primitiv-ui/icons"` |
 | [Mail](src/icons/Mail.tsx) | `import { Mail } from "@primitiv-ui/icons"` |
@@ -85,6 +87,7 @@ All other [SVG element attributes](https://developer.mozilla.org/en-US/docs/Web/
 | [Sort](src/icons/Sort.tsx) | `import { Sort } from "@primitiv-ui/icons"` |
 | [Success](src/icons/Success.tsx) | `import { Success } from "@primitiv-ui/icons"` |
 | [Sun](src/icons/Sun.tsx) | `import { Sun } from "@primitiv-ui/icons"` |
+| [Underline](src/icons/Underline.tsx) | `import { Underline } from "@primitiv-ui/icons"` |
 | [Upload](src/icons/Upload.tsx) | `import { Upload } from "@primitiv-ui/icons"` |
 | [User](src/icons/User.tsx) | `import { User } from "@primitiv-ui/icons"` |
 | [Warning](src/icons/Warning.tsx) | `import { Warning } from "@primitiv-ui/icons"` |

@@ -235,9 +235,13 @@ export const ComponentDocsPage = ({ id }: { id: ComponentId }) => {
           title="Props"
           meta={
             <>
+              {/* Says "styled", matching the From column and the mode switch.
+                  It still names `contract.json` as the source, which is useful
+                  — but as the file a row comes FROM, not as the word for the
+                  half of the API it belongs to. */}
               Generated from source — headless rows from each{" "}
               <InlineCode size="sm">*Props</InlineCode> type&rsquo;s JSDoc,
-              contract rows from{" "}
+              styled rows from{" "}
               <InlineCode size="sm">contract.json</InlineCode>. Never
               hand-maintained.
             </>

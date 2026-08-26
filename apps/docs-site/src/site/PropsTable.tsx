@@ -132,7 +132,13 @@ export const PropsTable = ({
             </TableHead>
             <TableBody>
               <PropRows rows={headless} from="headless" />
-              <PropRows rows={contract} from="contract" />
+              {/* "styled", not "contract". The value is read by a person, and
+                  the site's own vocabulary for the two halves is Styled /
+                  Headless — the label on the mode switch, the code-block tabs and
+                  the Installation panel. "contract" is the name of the FILE the
+                  row is generated from (`contract.json`), which is a maintainer's
+                  word: a reader has no reason to connect it to the Styled tab. */}
+              <PropRows rows={contract} from="styled" />
             </TableBody>
           </Table>
         </TableScrollArea>

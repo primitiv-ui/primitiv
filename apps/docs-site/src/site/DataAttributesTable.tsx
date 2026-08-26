@@ -137,10 +137,20 @@ export const DataAttributesTable = ({
                   table below via aria-labelledby, so each table is announced as
                   its part rather than as the fourth unnamed table on the page.
                   The id is keyed on the part rather than the heading text, so it
-                  survives a mode switch. */}
+                  survives a mode switch.
+
+                  The MODE is in the id because `ModeTabs` mounts one panel per
+                  mode, so a part-only id rendered every DUPLICATE id on the page
+                  — measured, two of each on every component page that has data
+                  attributes, and Select had four. Duplicate ids make
+                  `aria-labelledby` resolve to whichever copy comes first in the
+                  document, so the hidden panel's heading was naming the visible
+                  panel's table. Nothing links to these ids (the TOC targets the
+                  section's own `#data-attributes`), so per-panel uniqueness
+                  costs nothing. */}
               <h3
                 className="docs-example-title"
-                id={`data-attributes-${group.part}`}
+                id={`data-attributes-${group.part}-${mode}`}
               >
                 {partName(group, mode)}
               </h3>
@@ -161,7 +171,7 @@ export const DataAttributesTable = ({
               <TableScrollArea>
                 <Table
                   size="sm"
-                  aria-labelledby={`data-attributes-${group.part}`}
+                  aria-labelledby={`data-attributes-${group.part}-${mode}`}
                 >
                   <TableHead>
                     <TableRow>

@@ -5,7 +5,7 @@ import { useState } from "react";
 import { Close, Search } from "@primitiv-ui/icons";
 
 import { Button } from "@/components/button";
-import { Field, FieldDescription, FieldLabel } from "@/components/field";
+import { Field, FieldDescription, FieldErrorText, FieldLabel } from "@/components/field";
 import { Input } from "@/components/input";
 import {
   InputGroup,
@@ -44,7 +44,12 @@ const imports = (mode: Mode) =>
 const inputImports = (mode: Mode) => importBlock({ mode, component: "Input", componentId: "input" });
 const buttonImports = (mode: Mode) => importBlock({ mode, component: "Button", componentId: "button" });
 const fieldImports = (mode: Mode) =>
-  importBlock({ mode, component: "Field", componentId: "field", parts: ["Label", "Description"] });
+  importBlock({
+    mode,
+    component: "Field",
+    componentId: "field",
+    parts: ["Label", "Description", "ErrorText"],
+  });
 
 /** Glyphs come from `@primitiv-ui/icons` in every mode — not part of the switch. */
 const iconImports = (icons: readonly string[]) => `import { ${icons.join(", ")} } from "@primitiv-ui/icons";`;
@@ -338,6 +343,67 @@ export const inputGroupSpec: ComponentSpec = {
           }}
         >
           {() => <LabelledSearchField />}
+        </InteractiveExample>
+      ),
+    },
+    {
+      id: "states",
+      title: "Invalid and disabled",
+      render: () => (
+        <InteractiveExample
+          caption="**The frame carries the state, and no prop on the group says so.** Its stylesheet reads the wrapped control directly — `:has(input[aria-invalid=&quot;true&quot;])` reddens the border, `:has(input:disabled)` dims the whole frame — which is the same trick `:focus-within` uses for the ring. So a `Field` cascading `invalid` or `disabled` reaches the *input*, and the frame follows on its own: three components agreeing with no prop threaded between them. Note where the colour lands — on the frame, not as a second red box around the inner control."
+          code={(_density, mode) => {
+            const f = partNamer(mode, "Field");
+            const p = partNamer(mode, "InputGroup");
+            return [
+              iconImports(["Search"]),
+              fieldImports(mode),
+              imports(mode),
+              inputImports(mode),
+              ``,
+              `// the Field sets it on the Input; the frame reads it off the Input`,
+              `<${f("Root")} invalid>`,
+              `  <${f("Label")}>Search the docs</${f("Label")}>`,
+              `  <${p("Root")}>`,
+              `    <${p("LeadingAdornment")}><Search aria-hidden="true" /></${p("LeadingAdornment")}>`,
+              `    <Input type="search" defaultValue="???" />`,
+              `  </${p("Root")}>`,
+              `  <${f("ErrorText")}>No results for that query.</${f("ErrorText")}>`,
+              `</${f("Root")}>`,
+              ``,
+              `<${f("Root")} disabled>`,
+              `  <${f("Label")}>Search (unavailable)</${f("Label")}>`,
+              `  <${p("Root")}>`,
+              `    <${p("LeadingAdornment")}><Search aria-hidden="true" /></${p("LeadingAdornment")}>`,
+              `    <Input type="search" />`,
+              `  </${p("Root")}>`,
+              `</${f("Root")}>`,
+            ].join("\n");
+          }}
+        >
+          {() => (
+            <div className="docs-example-stack">
+              <Field invalid>
+                <FieldLabel>Search the docs</FieldLabel>
+                <InputGroup>
+                  <InputGroupLeadingAdornment>
+                    <Search aria-hidden="true" />
+                  </InputGroupLeadingAdornment>
+                  <Input type="search" defaultValue="???" />
+                </InputGroup>
+                <FieldErrorText>No results for that query.</FieldErrorText>
+              </Field>
+              <Field disabled>
+                <FieldLabel>Search (unavailable)</FieldLabel>
+                <InputGroup>
+                  <InputGroupLeadingAdornment>
+                    <Search aria-hidden="true" />
+                  </InputGroupLeadingAdornment>
+                  <Input type="search" placeholder="Search..." />
+                </InputGroup>
+              </Field>
+            </div>
+          )}
         </InteractiveExample>
       ),
     },

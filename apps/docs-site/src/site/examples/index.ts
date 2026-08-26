@@ -11,6 +11,7 @@ import { fieldSpec } from "./field";
 import { modalSpec } from "./modal";
 import { radioSpec } from "./radio";
 import { selectSpec } from "./select";
+import { sliderSpec } from "./slider";
 import { switchSpec } from "./switch";
 import { textareaSpec } from "./textarea";
 import { tabsSpec } from "./tabs";
@@ -31,6 +32,7 @@ export const SPECS: Record<ComponentId, ComponentSpec> = {
   modal: modalSpec,
   radio: radioSpec,
   select: selectSpec,
+  slider: sliderSpec,
   switch: switchSpec,
   textarea: textareaSpec,
   tabs: tabsSpec,

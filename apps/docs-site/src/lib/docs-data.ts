@@ -28,6 +28,7 @@ import fieldDocs from "@/docs-data/field.docs.json";
 import modalDocs from "@/docs-data/modal.docs.json";
 import radioDocs from "@/docs-data/radio.docs.json";
 import selectDocs from "@/docs-data/select.docs.json";
+import sliderDocs from "@/docs-data/slider.docs.json";
 import switchDocs from "@/docs-data/switch.docs.json";
 import textareaDocs from "@/docs-data/textarea.docs.json";
 import tabsDocs from "@/docs-data/tabs.docs.json";
@@ -200,6 +201,7 @@ const DOCS = {
   modal: modalDocs as unknown as ComponentDocs,
   radio: radioDocs as unknown as ComponentDocs,
   select: selectDocs as unknown as ComponentDocs,
+  slider: sliderDocs as unknown as ComponentDocs,
   switch: switchDocs as unknown as ComponentDocs,
   textarea: textareaDocs as unknown as ComponentDocs,
   tabs: tabsDocs as unknown as ComponentDocs,

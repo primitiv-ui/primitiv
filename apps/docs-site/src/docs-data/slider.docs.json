@@ -1,0 +1,363 @@
+{
+  "id": "slider",
+  "displayName": "Slider",
+  "kind": "registry",
+  "status": "stable",
+  "category": "Forms",
+  "description": "A draggable, keyboard-accessible control for selecting one value (or a range) along a track.",
+  "headless": {
+    "package": "@primitiv-ui/react",
+    "importPath": "@primitiv-ui/react",
+    "subComponents": [
+      {
+        "name": "Slider.Root",
+        "extends": "HTMLSpanElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Render the child element in place of the default `<span>` via the\n{@link Slot } pattern, merging `Slider.Root`'s `dir`, `data-*` hooks,\npointer handler, and ref onto it."
+          },
+          {
+            "name": "defaultValue",
+            "type": "number[]",
+            "required": false,
+            "default": null,
+            "description": "The value array on first render — one number per\n{@link SliderThumb `Slider.Thumb`}, in order (`[value]` for a single\nthumb, `[low, high]` for a range). After mount the component owns the\nvalue. Defaults to `[min]` when omitted.\nForbidden in controlled mode — use `value` instead."
+          },
+          {
+            "name": "dir",
+            "type": "\"ltr\" | \"rtl\"",
+            "required": false,
+            "default": null,
+            "description": "Reading direction of a horizontal slider; see {@link SliderDirection}.\nAffects which end is the minimum, the arrow-key direction, pointer\nmapping, and the inline positioning styles. When omitted, it is inherited\nfrom the nearest {@link DirectionProvider }, falling back to `\"ltr\"` when\nthere is no provider; an explicit prop always wins."
+          },
+          {
+            "name": "disabled",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Disable all interaction. Every part receives `data-disabled=\"\"`, thumbs\nleave the tab order and gain `aria-disabled=\"true\"`, and both keyboard and\npointer handlers become no-ops."
+          },
+          {
+            "name": "inverted",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Reverse the direction the value increases along the axis. Combines with\n{@link SliderRootSharedProps.orientation`orientation`} and\n{@link SliderRootSharedProps.dir`dir`} to flip the pointer mapping,\narrow keys, and the edge the thumb/range offset is anchored to."
+          },
+          {
+            "name": "max",
+            "type": "number",
+            "required": false,
+            "default": "100",
+            "description": "Highest value the slider can take — the value at the track's end edge.\nMust be strictly greater than {@link SliderRootSharedProps.min`min`};\n`Slider.Root` throws during render otherwise."
+          },
+          {
+            "name": "min",
+            "type": "number",
+            "required": false,
+            "default": "0",
+            "description": "Lowest value the slider can take — the value at the track's start edge.\nMust be strictly less than {@link SliderRootSharedProps.max`max`};\n`Slider.Root` throws during render otherwise."
+          },
+          {
+            "name": "minStepsBetweenThumbs",
+            "type": "number",
+            "required": false,
+            "default": "0",
+            "description": "Minimum gap, expressed **in steps**, enforced between adjacent thumbs on a\nmulti-thumb slider. The gap in value units is `minStepsBetweenThumbs *\nstep`. A thumb is clamped so it can never come closer than this to its\nneighbours (and can never cross them). Has no effect on a single-thumb\nslider."
+          },
+          {
+            "name": "name",
+            "type": "string",
+            "required": false,
+            "default": null,
+            "description": "When set, `Slider.Root` renders one hidden `<input>` per thumb carrying\nthat thumb's value so the slider posts with a surrounding `<form>`. A\nmulti-thumb slider suffixes the name with `[]` (e.g. `name=\"range\"` →\n`range[]`); a single-thumb slider uses the bare name. When omitted, no\nhidden inputs are rendered."
+          },
+          {
+            "name": "onValueChange",
+            "type": "(value: number[]) => void",
+            "required": false,
+            "default": null,
+            "description": "Called with the full next value array on every change (each arrow-key\npress and every pointer increment during a drag). Optional in\nuncontrolled mode.\nCalled with the full next value array on every change (each arrow-key\npress and every pointer increment during a drag). Update `value` from it\nto keep the slider in sync."
+          },
+          {
+            "name": "onValueCommit",
+            "type": "(value: number[]) => void",
+            "required": false,
+            "default": null,
+            "description": "Called **once** with the settled value array when an interaction ends — a\npointer release, or a completed keyboard press. Use it to persist only the\nfinal value rather than every intermediate step."
+          },
+          {
+            "name": "orientation",
+            "type": "\"horizontal\" | \"vertical\"",
+            "required": false,
+            "default": "\"horizontal\"",
+            "description": "Layout axis of the track; see {@link SliderOrientation}. Sets\n`data-orientation` and each thumb's `aria-orientation`, and selects which\npointer axis and arrow keys drive the value."
+          },
+          {
+            "name": "step",
+            "type": "number",
+            "required": false,
+            "default": "1",
+            "description": "Granularity of the value: every thumb value snaps to a multiple of `step`\nanchored at `min`, and each arrow-key press moves by one `step` (Page\nUp/Down move by ten). Fractional steps (e.g. `0.1`) are snapped to the\nstep's decimal precision. Must be greater than `0`; `Slider.Root` throws\nduring render otherwise."
+          },
+          {
+            "name": "value",
+            "type": "number[]",
+            "required": false,
+            "default": null,
+            "description": "Forbidden in uncontrolled mode — use `defaultValue` instead.\nThe current value array — one number per\n{@link SliderThumb `Slider.Thumb`}, in order (`[value]` for a single\nthumb, `[low, high]` for a range). Must be kept in sync by the parent via\n`onValueChange`."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [
+          {
+            "name": "size",
+            "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
+            "default": "md",
+            "description": "Track thickness + thumb size; `data-density` scales each size further."
+          }
+        ],
+        "dataAttributes": [
+          {
+            "name": "data-orientation",
+            "value": "horizontal",
+            "when": "horizontal"
+          },
+          {
+            "name": "data-orientation",
+            "value": "vertical",
+            "when": "vertical"
+          },
+          {
+            "name": "data-disabled",
+            "value": "",
+            "when": "disabled"
+          }
+        ],
+        "class": "primitiv-slider"
+      },
+      {
+        "name": "Slider.Track",
+        "extends": "HTMLSpanElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Render the child element in place of the default `<span>` via the\n{@link Slot } pattern, merging the `data-orientation` / `data-disabled`\nhooks onto it."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [
+          {
+            "name": "data-orientation",
+            "value": "horizontal",
+            "when": "horizontal"
+          },
+          {
+            "name": "data-orientation",
+            "value": "vertical",
+            "when": "vertical"
+          },
+          {
+            "name": "data-disabled",
+            "value": "",
+            "when": "disabled"
+          }
+        ],
+        "class": "primitiv-slider__track"
+      },
+      {
+        "name": "Slider.Range",
+        "extends": "HTMLSpanElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Render the child element in place of the default `<span>` via the\n{@link Slot } pattern, merging the `data-orientation` / `data-disabled`\nhooks and the computed inline positioning `style` onto it."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [
+          {
+            "name": "data-orientation",
+            "value": "horizontal",
+            "when": "horizontal"
+          },
+          {
+            "name": "data-orientation",
+            "value": "vertical",
+            "when": "vertical"
+          },
+          {
+            "name": "data-disabled",
+            "value": "",
+            "when": "disabled"
+          }
+        ],
+        "class": "primitiv-slider__range"
+      },
+      {
+        "name": "Slider.Thumb",
+        "extends": "HTMLSpanElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Render the child element in place of the default `<span>` via the\n{@link Slot } pattern, merging the `role=\"slider\"` semantics, `aria-value*`\nattributes, keyboard handler, positioning `style`, and ref onto it."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [
+          {
+            "name": "data-orientation",
+            "value": "horizontal",
+            "when": "horizontal"
+          },
+          {
+            "name": "data-orientation",
+            "value": "vertical",
+            "when": "vertical"
+          },
+          {
+            "name": "data-disabled",
+            "value": "",
+            "when": "disabled"
+          }
+        ],
+        "class": "primitiv-slider__thumb"
+      }
+    ]
+  },
+  "styled": {
+    "installCommand": "primitiv add slider",
+    "rootClass": "primitiv-slider",
+    "customProperties": [
+      {
+        "name": "--primitiv-slider-track-thickness",
+        "defaultsTo": "var(--primitiv-slider-md-track-thickness)"
+      },
+      {
+        "name": "--primitiv-slider-track-bg",
+        "defaultsTo": "var(--primitiv-action-secondary-border-default)"
+      },
+      {
+        "name": "--primitiv-slider-range-bg",
+        "defaultsTo": "var(--primitiv-action-primary-default)"
+      },
+      {
+        "name": "--primitiv-slider-thumb-size",
+        "defaultsTo": "var(--primitiv-slider-md-thumb-size)"
+      },
+      {
+        "name": "--primitiv-slider-thumb-bg",
+        "defaultsTo": "var(--primitiv-surface-default)"
+      },
+      {
+        "name": "--primitiv-slider-thumb-border-color",
+        "defaultsTo": "var(--primitiv-action-secondary-border-default)"
+      },
+      {
+        "name": "--primitiv-slider-thumb-border-width",
+        "defaultsTo": "var(--primitiv-framed-control-border-width)"
+      },
+      {
+        "name": "--primitiv-slider-thumb-ring-gap-size",
+        "defaultsTo": "var(--primitiv-slider-md-thumb-ring-gap-size)"
+      },
+      {
+        "name": "--primitiv-slider-thumb-ring-size",
+        "defaultsTo": "var(--primitiv-slider-md-thumb-ring-size)"
+      },
+      {
+        "name": "--primitiv-slider-thumb-glow-color",
+        "defaultsTo": "var(--primitiv-action-primary-default)"
+      },
+      {
+        "name": "--primitiv-slider-thumb-glow-opacity",
+        "defaultsTo": "var(--primitiv-opacity-20)"
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-orientation",
+        "value": "horizontal",
+        "when": "horizontal"
+      },
+      {
+        "name": "data-orientation",
+        "value": "vertical",
+        "when": "vertical"
+      },
+      {
+        "name": "data-disabled",
+        "value": "",
+        "when": "disabled"
+      },
+      {
+        "name": "data-orientation",
+        "value": "horizontal",
+        "when": "horizontal"
+      },
+      {
+        "name": "data-orientation",
+        "value": "vertical",
+        "when": "vertical"
+      },
+      {
+        "name": "data-disabled",
+        "value": "",
+        "when": "disabled"
+      },
+      {
+        "name": "data-orientation",
+        "value": "horizontal",
+        "when": "horizontal"
+      },
+      {
+        "name": "data-orientation",
+        "value": "vertical",
+        "when": "vertical"
+      },
+      {
+        "name": "data-disabled",
+        "value": "",
+        "when": "disabled"
+      },
+      {
+        "name": "data-orientation",
+        "value": "horizontal",
+        "when": "horizontal"
+      },
+      {
+        "name": "data-orientation",
+        "value": "vertical",
+        "when": "vertical"
+      },
+      {
+        "name": "data-disabled",
+        "value": "",
+        "when": "disabled"
+      }
+    ]
+  },
+  "figma": {
+    "componentSetKey": "392:5196"
+  }
+}

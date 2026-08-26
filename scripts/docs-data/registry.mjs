@@ -185,6 +185,18 @@ export const REGISTRY = {
     contract: "registry/components/radio/contract.json",
     figmaComponentSetKey: "401:17958", importPath: "@primitiv-ui/react",
   },
+  slider: {
+    displayName: "Slider", kind: "registry", status: "stable", category: "Forms",
+    propsFile: "packages/react/src/Slider/types.ts",
+    subComponents: [
+      { name: "Slider.Root", propsType: "SliderRootProps", element: "span", component: "Root" },
+      { name: "Slider.Track", propsType: "SliderTrackProps", element: "span", component: "Track" },
+      { name: "Slider.Range", propsType: "SliderRangeProps", element: "span", component: "Range" },
+      { name: "Slider.Thumb", propsType: "SliderThumbProps", element: "span", component: "Thumb" },
+    ],
+    contract: "registry/components/slider/contract.json",
+    figmaComponentSetKey: "392:5196", importPath: "@primitiv-ui/react",
+  },
   textarea: {
     displayName: "Textarea", kind: "registry", status: "stable", category: "Forms",
     propsFile: "packages/react/src/Textarea/types.ts",

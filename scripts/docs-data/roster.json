@@ -354,7 +354,7 @@
     "displayName": "Slider",
     "category": "Forms",
     "description": "A draggable, keyboard-accessible control for selecting one value (or a range) along a track.",
-    "documented": false
+    "documented": true
   },
   {
     "id": "spacer",

@@ -2,6 +2,13 @@
 name = "harmoni-wasm"
 version = "0.1.30"
 edition = "2021"
+# wasm-pack maps these into the generated package.json (repository → the
+# `repository.url` npm's --provenance check cross-references against the
+# GitHub Actions OIDC claim; a missing field emits repository.url as "",
+# which is what failed v0.1.30's first-ever npm publish attempt).
+repository = "https://github.com/primitiv-ui/primitiv.git"
+license = "MIT"
+description = "Public wasm-pack build of harmoni-core, the Primitiv palette engine."
 
 [lib]
 crate-type = ["cdylib"]

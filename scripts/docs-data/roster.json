@@ -242,7 +242,7 @@
     "displayName": "Input Group",
     "category": "Forms",
     "description": "A framed control with leading / trailing adornment slots — wraps an Input for icons, prefixes, clear buttons, and reveal toggles.",
-    "documented": false
+    "documented": true
   },
   {
     "id": "kbd",

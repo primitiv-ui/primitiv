@@ -1,0 +1,223 @@
+{
+  "id": "input-group",
+  "displayName": "InputGroup",
+  "kind": "registry",
+  "status": "stable",
+  "category": "Forms",
+  "description": "A framed control with leading / trailing adornment slots — wraps an Input for icons, prefixes, clear buttons, and reveal toggles.",
+  "headless": {
+    "package": "@primitiv-ui/react",
+    "importPath": "@primitiv-ui/react",
+    "subComponents": [
+      {
+        "name": "InputGroup.Root",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Render the consumer's element instead of `<div>` via the\n{@link Slot } pattern — e.g. a `<label>` so the whole frame is\nclickable. The `data-input-group` hook is preserved."
+          },
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": false,
+            "default": null,
+            "description": "The wrapped control and its optional leading / trailing\nadornments."
+          },
+          {
+            "name": "ref",
+            "type": "Ref<HTMLDivElement>",
+            "required": false,
+            "default": null,
+            "description": "Allows getting a ref to the component instance.\nOnce the component unmounts, React will set `ref.current` to `null`\n(or call the ref with `null` if you passed a callback ref).\nForwarded to the underlying `HTMLDivElement` (or the `asChild`\nelement)."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [
+          {
+            "name": "size",
+            "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
+            "default": "md",
+            "description": "Frame size; `data-density` scales each size further. Match the wrapped control's size."
+          }
+        ],
+        "dataAttributes": [
+          {
+            "name": "data-input-group",
+            "value": "",
+            "when": "always"
+          }
+        ],
+        "class": "primitiv-input-group"
+      },
+      {
+        "name": "InputGroup.LeadingAdornment",
+        "extends": "HTMLSpanElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Render the consumer's element instead of `<span>` via the\n{@link Slot } pattern — e.g. an interactive `<button>`. Event\nhandlers compose (child runs first) and the `data-input-group-adornment`\nhook is preserved."
+          },
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": false,
+            "default": null,
+            "description": "The adornment content — a decorative icon (mark it\n`aria-hidden=\"true\"`), suffix text, or an interactive control with an\naccessible name."
+          },
+          {
+            "name": "ref",
+            "type": "Ref<HTMLSpanElement>",
+            "required": false,
+            "default": null,
+            "description": "Allows getting a ref to the component instance.\nOnce the component unmounts, React will set `ref.current` to `null`\n(or call the ref with `null` if you passed a callback ref).\nForwarded to the underlying `HTMLSpanElement` (or the `asChild`\nelement)."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [
+          {
+            "name": "data-input-group-adornment",
+            "value": "leading",
+            "when": "always — it is how the stylesheet tells the two adornment slots apart"
+          }
+        ],
+        "class": "primitiv-input-group__leading"
+      },
+      {
+        "name": "InputGroup.TrailingAdornment",
+        "extends": "HTMLSpanElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Render the consumer's element instead of `<span>` via the\n{@link Slot } pattern — e.g. an interactive `<button>`. Event\nhandlers compose (child runs first) and the `data-input-group-adornment`\nhook is preserved."
+          },
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": false,
+            "default": null,
+            "description": "The adornment content — a decorative icon (mark it\n`aria-hidden=\"true\"`), suffix text, or an interactive control with an\naccessible name."
+          },
+          {
+            "name": "ref",
+            "type": "Ref<HTMLSpanElement>",
+            "required": false,
+            "default": null,
+            "description": "Allows getting a ref to the component instance.\nOnce the component unmounts, React will set `ref.current` to `null`\n(or call the ref with `null` if you passed a callback ref).\nForwarded to the underlying `HTMLSpanElement` (or the `asChild`\nelement)."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [
+          {
+            "name": "data-input-group-adornment",
+            "value": "trailing",
+            "when": "always — it is how the stylesheet tells the two adornment slots apart"
+          }
+        ],
+        "class": "primitiv-input-group__trailing"
+      }
+    ]
+  },
+  "styled": {
+    "installCommand": "primitiv add input-group",
+    "rootClass": "primitiv-input-group",
+    "customProperties": [
+      {
+        "name": "--primitiv-input-group-bg",
+        "defaultsTo": "var(--primitiv-surface-default)"
+      },
+      {
+        "name": "--primitiv-input-group-fg",
+        "defaultsTo": "var(--primitiv-content-primary)"
+      },
+      {
+        "name": "--primitiv-input-group-adornment-color",
+        "defaultsTo": "var(--primitiv-content-muted)"
+      },
+      {
+        "name": "--primitiv-input-group-border-color",
+        "defaultsTo": "var(--primitiv-border-default)"
+      },
+      {
+        "name": "--primitiv-input-group-border-color-focus",
+        "defaultsTo": "var(--primitiv-border-focus)"
+      },
+      {
+        "name": "--primitiv-input-group-border-color-invalid",
+        "defaultsTo": "var(--primitiv-border-invalid)"
+      },
+      {
+        "name": "--primitiv-input-group-border-width",
+        "defaultsTo": "var(--primitiv-framed-control-border-width)"
+      },
+      {
+        "name": "--primitiv-input-group-radius",
+        "defaultsTo": "var(--primitiv-framed-control-md-radius)"
+      },
+      {
+        "name": "--primitiv-input-group-height",
+        "defaultsTo": "var(--primitiv-framed-control-md-height)"
+      },
+      {
+        "name": "--primitiv-input-group-padding-inline",
+        "defaultsTo": "var(--primitiv-framed-control-md-padding-inline)"
+      },
+      {
+        "name": "--primitiv-input-group-gap",
+        "defaultsTo": "var(--primitiv-framed-control-md-gap)"
+      },
+      {
+        "name": "--primitiv-input-group-icon-size",
+        "defaultsTo": "var(--primitiv-framed-control-md-icon-size)"
+      },
+      {
+        "name": "--primitiv-input-group-font-family",
+        "defaultsTo": "var(--primitiv-body-md-font-family)"
+      },
+      {
+        "name": "--primitiv-input-group-font-size",
+        "defaultsTo": "var(--primitiv-body-md-font-size)"
+      },
+      {
+        "name": "--primitiv-input-group-font-weight",
+        "defaultsTo": "var(--primitiv-body-md-font-weight)"
+      },
+      {
+        "name": "--primitiv-input-group-line-height",
+        "defaultsTo": "var(--primitiv-body-md-line-height)"
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-input-group",
+        "value": "",
+        "when": "always"
+      },
+      {
+        "name": "data-input-group-adornment",
+        "value": "leading",
+        "when": "always — it is how the stylesheet tells the two adornment slots apart"
+      },
+      {
+        "name": "data-input-group-adornment",
+        "value": "trailing",
+        "when": "always — it is how the stylesheet tells the two adornment slots apart"
+      }
+    ]
+  },
+  "figma": {}
+}

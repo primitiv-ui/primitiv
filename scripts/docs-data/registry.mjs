@@ -171,6 +171,29 @@ export const REGISTRY = {
     contract: "registry/components/field/contract.json",
     figmaComponentSetKey: "394:7449", importPath: "@primitiv-ui/react",
   },
+  "input-group": {
+    displayName: "InputGroup", kind: "registry", status: "stable", category: "Forms",
+    propsFile: "packages/react/src/InputGroup/types.ts",
+    subComponents: [
+      { name: "InputGroup.Root", propsType: "InputGroupRootProps", element: "div", component: "Root" },
+      /* Both slots share ONE props type — they differ only in which side they
+         sit on, so the extractor prints the same table twice. That is honest
+         rather than a mistake: there is genuinely no prop that distinguishes
+         them. */
+      { name: "InputGroup.LeadingAdornment", propsType: "InputGroupAdornmentProps", element: "span", component: "LeadingAdornment" },
+      { name: "InputGroup.TrailingAdornment", propsType: "InputGroupAdornmentProps", element: "span", component: "TrailingAdornment" },
+    ],
+    contract: "registry/components/input-group/contract.json",
+    /*
+     * No `figmaComponentSetKey`: the Figma file has no InputGroup set. Its
+     * adornment case is a note on Input's own entry ("pairs with InputGroup for
+     * the leading colour-swatch slot"), not a component of its own. Pointing the
+     * Design link at Input would land a designer on a different component, so
+     * the header omits the link and the Installation panel says the component is
+     * not in the Figma library yet.
+     */
+    importPath: "@primitiv-ui/react",
+  },
   radio: {
     displayName: "Radio", kind: "registry", status: "stable", category: "Forms",
     propsFile: "packages/react/src/Radio/types.ts",

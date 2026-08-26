@@ -8,6 +8,7 @@ import { inputSpec } from "./input";
 import { accordionSpec } from "./accordion";
 import { checkboxSpec } from "./checkbox";
 import { fieldSpec } from "./field";
+import { inputGroupSpec } from "./input-group";
 import { modalSpec } from "./modal";
 import { radioSpec } from "./radio";
 import { segmentedControlSpec } from "./segmented-control";
@@ -30,6 +31,7 @@ export const SPECS: Record<ComponentId, ComponentSpec> = {
   accordion: accordionSpec,
   checkbox: checkboxSpec,
   field: fieldSpec,
+  "input-group": inputGroupSpec,
   modal: modalSpec,
   radio: radioSpec,
   "segmented-control": segmentedControlSpec,

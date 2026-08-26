@@ -224,9 +224,26 @@ jobs:
             npm publish --access public --provenance
           fi
 
-      # pnpm -r publish skips packages with "private": true automatically.
+      # Filtered to exactly these three by name, not `pnpm -r publish` —
+      # `crates/harmoni-wasm/pkg` is also a pnpm workspace member (so
+      # apps/workbench can link it) and carries no "private" field once
+      # wasm-pack generates its real package.json, so a recursive publish
+      # sweeps it up too and fails re-publishing the version the dedicated
+      # step just published above (this is what failed v0.1.30's first
+      # attempt at this step — the comment this replaced assumed pnpm would
+      # skip it, which was never actually true for wasm-pack's output).
+      # Existence-guarded per package, same reasoning as the npm steps above.
       - name: Publish libraries to npm
-        run: pnpm -r publish --access public --no-git-checks --provenance
+        run: |
+          for pkg in react icons tokens; do
+            name="@primitiv-ui/$pkg"
+            version=$(node -p "require('./packages/$pkg/package.json').version")
+            if npm view "$name@$version" version >/dev/null 2>&1; then
+              echo "  $name@$version already published — skipping"
+            else
+              pnpm --filter "$name" publish --access public --no-git-checks --provenance
+            fi
+          done
 
       # JSR authenticates via OIDC automatically inside GitHub Actions.
       - name: Publish libraries to JSR

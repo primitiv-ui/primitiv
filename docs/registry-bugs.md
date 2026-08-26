@@ -641,6 +641,48 @@ content does not outweigh the mobile reasoning already recorded in the sheet.
 
 ---
 
+## 10. `Slider` — the Root's `aria-label` is announced nowhere — FIXED (docs)
+
+Found while building the Slider docs page: measuring the rendered DOM showed
+every thumb on the page carrying `role="slider"` with **no accessible name at
+all**, while the label sat on the Root.
+
+**Cause.** The Thumb is the `role="slider"` — it carries `aria-valuenow` /
+`aria-valuemin` / `aria-valuemax`. The Root renders a plain `<span>` with
+**`role=null`**, so an `aria-label` there is attached to nothing. It is a silent
+failure: the slider looks and behaves correctly, and nothing warns.
+
+**Why it spread.** The library documented it both ways. `Slider.Thumb`'s JSDoc
+says "provide an accessible name with `aria-label` / `aria-labelledby`" and its
+example is right — but `Slider.Root`'s JSDoc example, and the README's opening
+and range examples, all put `aria-label` on the Root. Following the most visible
+example produced an unnamed control.
+
+**Second finding, same area.** A `Field` label does not reach the thumb either.
+`Slider` does not read `FieldContext` (unlike `Input`, `Textarea` and `Switch`),
+and a `<label htmlFor>` cannot associate with a `<span role="slider">` anyway. So
+`<Field><Field.Label>Volume</Field.Label><Slider …/></Field>` — the obvious
+composition, and the one the other form pages teach — leaves the thumb unnamed.
+The working pattern is an id on the label plus `aria-labelledby` on each thumb.
+
+**Fixed (docs only, no behaviour change).** The Root's JSDoc example, both README
+examples, and a new README "Labelling" section now put the name on the Thumb and
+state the `FieldContext` gap; the docs page teaches the same and names every
+thumb in every example. 85 Slider tests unaffected.
+
+**Not done, and worth a decision.** Two options would make the right thing the
+default rather than the documented thing:
+
+- **Have `Slider.Root` consume `FieldContext`** and pass an `aria-labelledby`
+  down to its thumbs. It would make the Field composition work as every reader
+  expects — but "one label, N thumbs" is ambiguous on a range, where the correct
+  answer is two *different* names.
+- **Warn in development** when a Thumb mounts with no accessible name, the way a
+  missing `alt` is flagged. Cheap, catches the case at the moment it is written,
+  and does not have to resolve the range ambiguity.
+
+---
+
 ## 9. Not a registry bug: the docs column is 632px where the frame says 920
 
 Recorded here because it was measured during the same pass and affects how every

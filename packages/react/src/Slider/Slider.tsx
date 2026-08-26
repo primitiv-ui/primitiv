@@ -330,18 +330,24 @@ export type TSliderCompound = typeof SliderRoot & {
  * - {@link SliderRange | `Slider.Range`} — the filled portion of the track.
  * - {@link SliderThumb | `Slider.Thumb`} — a draggable handle; one per value.
  *
+ * The accessible name belongs on the **Thumb**, which is the `role="slider"`.
+ * The Root renders a plain `<span>` with no role, so an `aria-label` there is
+ * attached to nothing and announced nowhere — a silent failure, because the
+ * slider still looks and behaves correctly. This example used to put it on the
+ * Root.
+ *
  * @example
  * ```tsx
  * import { Slider } from "@primitiv-ui/react";
  *
- * <Slider.Root defaultValue={[40]} aria-label="Volume">
+ * <Slider.Root defaultValue={[40]}>
  *   <Slider.Track><Slider.Range /></Slider.Track>
- *   <Slider.Thumb />
+ *   <Slider.Thumb aria-label="Volume" />
  * </Slider.Root>
  * ```
  *
  * @see {@link SliderRoot} for state modes, form submission, and validation.
- * @see {@link SliderThumb} for keyboard interaction.
+ * @see {@link SliderThumb} for keyboard interaction and labelling.
  */
 const SliderCompound: TSliderCompound = Object.assign(SliderRoot, {
   Root: SliderRoot,

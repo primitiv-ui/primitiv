@@ -10,11 +10,11 @@ styles ship.
 ```tsx
 import { Slider } from "@primitiv-ui/react";
 
-<Slider.Root defaultValue={[40]} aria-label="Volume">
+<Slider.Root defaultValue={[40]}>
   <Slider.Track>
     <Slider.Range />
   </Slider.Track>
-  <Slider.Thumb />
+  <Slider.Thumb aria-label="Volume" />
 </Slider.Root>
 ```
 
@@ -56,12 +56,12 @@ Pass `defaultValue` (or omit it for a single thumb seeded at `min`). The
 component owns the value internally.
 
 ```tsx
-<Slider.Root defaultValue={[25, 75]} aria-label="Price range">
+<Slider.Root defaultValue={[25, 75]}>
   <Slider.Track>
     <Slider.Range />
   </Slider.Track>
-  <Slider.Thumb />
-  <Slider.Thumb />
+  <Slider.Thumb aria-label="Minimum" />
+  <Slider.Thumb aria-label="Maximum" />
 </Slider.Root>
 ```
 
@@ -95,6 +95,36 @@ only the final value.
   ...
 </Slider.Root>
 ```
+
+## Labelling
+
+**The accessible name goes on the `Thumb`, not the Root.** The Thumb is the
+`role="slider"`; the Root renders a plain `<span>` with no role, so an
+`aria-label` there is attached to nothing and announced nowhere. It is a silent
+failure — the slider still looks and behaves correctly — and the examples in this
+file used to model it.
+
+```tsx
+<Slider.Thumb aria-label="Volume" />
+```
+
+For a **visible** label, give it an id and point the thumb at it. A
+`<label htmlFor>` cannot associate with a `<span role="slider">`, and `Slider`
+does not read `FieldContext` the way `Input`, `Textarea` and `Switch` do — so a
+`Field.Label` does not reach the thumb on its own:
+
+```tsx
+<Field.Root>
+  <Field.Label id="volume-label">Volume</Field.Label>
+  <Slider.Root defaultValue={[40]}>
+    <Slider.Track><Slider.Range /></Slider.Track>
+    <Slider.Thumb aria-labelledby="volume-label" />
+  </Slider.Root>
+</Field.Root>
+```
+
+On a range, name each thumb separately — two thumbs sharing one label are
+announced identically, so you cannot tell by ear which end you are on.
 
 ## Keyboard interaction
 

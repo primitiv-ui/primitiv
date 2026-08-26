@@ -172,7 +172,12 @@ export const REGISTRY = {
      */
     propsFile: "registry/components/checkbox-card/checkbox-card.tsx",
     subComponents: [
-      { name: "CheckboxCard", propsType: "CheckboxCardProps", element: "button", component: "CheckboxCard" },
+      /* Dotted, and `component: "Root"`. `partName` only mode-switches a part
+         whose name contains a dot, so a bare "CheckboxCard" printed as
+         "CheckboxCard" under Headless too, where it should read
+         "CheckboxCard.Root". `partNamer` special-cases "Root" and prints the
+         bare component name back for Styled. */
+      { name: "CheckboxCard.Root", propsType: "CheckboxCardProps", element: "button", component: "Root" },
       /*
        * Headless-only, and it needs its own propsFile because this entry's is
        * the registry file. The copied surface renders the mark itself, so

@@ -10,7 +10,7 @@
     "importPath": "@primitiv-ui/react",
     "subComponents": [
       {
-        "name": "CheckboxCard",
+        "name": "CheckboxCard.Root",
         "extends": "HTMLButtonElement",
         "props": [
           {
@@ -123,11 +123,27 @@
             "description": "Keep the indicator mounted while the card is **unchecked** so a CSS exit\nanimation can play against `data-state=\"unchecked\"`. By default the\nindicator unmounts as soon as the card is unchecked."
           }
         ],
-        "styledOnly": true,
+        "styledOnly": false,
         "headlessOnly": true,
         "contractProps": [],
-        "dataAttributes": [],
-        "class": null
+        "dataAttributes": [
+          {
+            "name": "data-state",
+            "value": "checked",
+            "when": "the card's checked state"
+          },
+          {
+            "name": "data-state",
+            "value": "unchecked",
+            "when": "the card's checked state"
+          },
+          {
+            "name": "data-state",
+            "value": "indeterminate",
+            "when": "the card's checked state"
+          }
+        ],
+        "class": "primitiv-checkbox-card__mark"
       }
     ]
   },
@@ -276,6 +292,21 @@
         "name": "data-disabled",
         "value": "",
         "when": "disabled"
+      },
+      {
+        "name": "data-state",
+        "value": "checked",
+        "when": "the card's checked state"
+      },
+      {
+        "name": "data-state",
+        "value": "unchecked",
+        "when": "the card's checked state"
+      },
+      {
+        "name": "data-state",
+        "value": "indeterminate",
+        "when": "the card's checked state"
       }
     ]
   },

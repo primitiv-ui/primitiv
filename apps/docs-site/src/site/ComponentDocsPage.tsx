@@ -59,6 +59,7 @@ export const ComponentDocsPage = ({ id }: { id: ComponentId }) => {
     .map((sub) => ({
       part: sub.name,
       className: sub.class,
+      headlessOnly: sub.headlessOnly,
       rows: sub.dataAttributes,
     }));
 

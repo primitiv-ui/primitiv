@@ -171,11 +171,22 @@
             "description": "When `true`, keeps the indicator mounted while unchecked so a CSS exit\nanimation can play against `data-state=\"unchecked\"`. Consumers who set\nit own the exit lifecycle."
           }
         ],
-        "styledOnly": true,
+        "styledOnly": false,
         "headlessOnly": true,
         "contractProps": [],
-        "dataAttributes": [],
-        "class": null
+        "dataAttributes": [
+          {
+            "name": "data-state",
+            "value": "checked",
+            "when": "the item's selected state"
+          },
+          {
+            "name": "data-state",
+            "value": "unchecked",
+            "when": "the item's selected state"
+          }
+        ],
+        "class": "primitiv-radio-card__dot"
       }
     ]
   },
@@ -311,6 +322,16 @@
         "name": "data-disabled",
         "value": "",
         "when": "disabled"
+      },
+      {
+        "name": "data-state",
+        "value": "checked",
+        "when": "the item's selected state"
+      },
+      {
+        "name": "data-state",
+        "value": "unchecked",
+        "when": "the item's selected state"
       }
     ]
   },

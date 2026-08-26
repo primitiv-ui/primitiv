@@ -310,7 +310,16 @@ function extractSub(sc) {
    * `Header`/`Body`/`Footer`. Derived rather than hand-flagged, so it cannot
    * drift: the props file IS the evidence.
    */
-  const styledOnly = Boolean(sc.propsFile && sc.propsFile !== cfg.propsFile);
+  /*
+   * The evidence is WHERE the props file is, not merely that it differs from the
+   * component's. "Differs" is wrong whenever a component's own `propsFile` is
+   * already the registry file — the primitive-less-style entries, where a part
+   * that overrides it points the OTHER way, into `packages/react`. CheckboxCard
+   * and RadioCard hit exactly that: their `Indicator` reads its props from
+   * `packages/react/.../types.ts`, so "differs" flagged the one part that is
+   * unambiguously in the package as styled-only.
+   */
+  const styledOnly = Boolean(sc.propsFile && sc.propsFile.startsWith("registry/"));
   /* The inverse: a headless part the copied file does not export. Only asserted
      when the registry file was found AND exports something, so a component
      without one cannot silently flag every part. */

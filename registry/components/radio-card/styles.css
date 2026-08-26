@@ -50,8 +50,8 @@
     --primitiv-radio-card-border-width: var(--primitiv-framed-control-border-width);
     --primitiv-radio-card-radius: var(--primitiv-framed-control-md-radius);
     --primitiv-radio-card-padding: var(--primitiv-choice-card-md-padding);
-    --primitiv-radio-card-gap: var(--primitiv-choice-card-md-gap, var(--primitiv-space-space-10));
-    --primitiv-radio-card-content-gap: var(--primitiv-choice-card-md-content-gap, var(--primitiv-space-space-20));
+    --primitiv-radio-card-gap: var(--primitiv-choice-card-md-gap);
+    --primitiv-radio-card-content-gap: var(--primitiv-choice-card-md-content-gap);
     --primitiv-radio-card-shadow-hover: var(--primitiv-elevation-raised);
     --primitiv-radio-card-indicator-size: var(--primitiv-radio-md-box-size);
     --primitiv-radio-card-indicator-bg: var(--primitiv-surface-default);
@@ -219,8 +219,8 @@
   .primitiv-radio-card--xs {
     --primitiv-radio-card-radius: var(--primitiv-framed-control-xs-radius);
     --primitiv-radio-card-padding: var(--primitiv-choice-card-xs-padding);
-    --primitiv-radio-card-gap: var(--primitiv-choice-card-xs-gap, var(--primitiv-space-space-6));
-    --primitiv-radio-card-content-gap: var(--primitiv-choice-card-xs-content-gap, var(--primitiv-space-space-14));
+    --primitiv-radio-card-gap: var(--primitiv-choice-card-xs-gap);
+    --primitiv-radio-card-content-gap: var(--primitiv-choice-card-xs-content-gap);
     --primitiv-radio-card-indicator-size: var(--primitiv-radio-xs-box-size);
     --primitiv-radio-card-title-font-family: var(--primitiv-label-xs-font-family);
     --primitiv-radio-card-title-font-size: var(--primitiv-label-xs-font-size);
@@ -234,8 +234,8 @@
   .primitiv-radio-card--sm {
     --primitiv-radio-card-radius: var(--primitiv-framed-control-sm-radius);
     --primitiv-radio-card-padding: var(--primitiv-choice-card-sm-padding);
-    --primitiv-radio-card-gap: var(--primitiv-choice-card-sm-gap, var(--primitiv-space-space-10));
-    --primitiv-radio-card-content-gap: var(--primitiv-choice-card-sm-content-gap, var(--primitiv-space-space-16));
+    --primitiv-radio-card-gap: var(--primitiv-choice-card-sm-gap);
+    --primitiv-radio-card-content-gap: var(--primitiv-choice-card-sm-content-gap);
     --primitiv-radio-card-indicator-size: var(--primitiv-radio-sm-box-size);
     --primitiv-radio-card-title-font-family: var(--primitiv-label-sm-font-family);
     --primitiv-radio-card-title-font-size: var(--primitiv-label-sm-font-size);
@@ -249,8 +249,8 @@
   .primitiv-radio-card--md {
     --primitiv-radio-card-radius: var(--primitiv-framed-control-md-radius);
     --primitiv-radio-card-padding: var(--primitiv-choice-card-md-padding);
-    --primitiv-radio-card-gap: var(--primitiv-choice-card-md-gap, var(--primitiv-space-space-10));
-    --primitiv-radio-card-content-gap: var(--primitiv-choice-card-md-content-gap, var(--primitiv-space-space-20));
+    --primitiv-radio-card-gap: var(--primitiv-choice-card-md-gap);
+    --primitiv-radio-card-content-gap: var(--primitiv-choice-card-md-content-gap);
     --primitiv-radio-card-indicator-size: var(--primitiv-radio-md-box-size);
     --primitiv-radio-card-title-font-family: var(--primitiv-label-md-font-family);
     --primitiv-radio-card-title-font-size: var(--primitiv-label-md-font-size);
@@ -264,8 +264,8 @@
   .primitiv-radio-card--lg {
     --primitiv-radio-card-radius: var(--primitiv-framed-control-lg-radius);
     --primitiv-radio-card-padding: var(--primitiv-choice-card-lg-padding);
-    --primitiv-radio-card-gap: var(--primitiv-choice-card-lg-gap, var(--primitiv-space-space-12));
-    --primitiv-radio-card-content-gap: var(--primitiv-choice-card-lg-content-gap, var(--primitiv-space-space-24));
+    --primitiv-radio-card-gap: var(--primitiv-choice-card-lg-gap);
+    --primitiv-radio-card-content-gap: var(--primitiv-choice-card-lg-content-gap);
     --primitiv-radio-card-indicator-size: var(--primitiv-radio-lg-box-size);
     --primitiv-radio-card-title-font-family: var(--primitiv-label-lg-font-family);
     --primitiv-radio-card-title-font-size: var(--primitiv-label-lg-font-size);
@@ -279,8 +279,8 @@
   .primitiv-radio-card--xl {
     --primitiv-radio-card-radius: var(--primitiv-framed-control-xl-radius);
     --primitiv-radio-card-padding: var(--primitiv-choice-card-xl-padding);
-    --primitiv-radio-card-gap: var(--primitiv-choice-card-xl-gap, var(--primitiv-space-space-14));
-    --primitiv-radio-card-content-gap: var(--primitiv-choice-card-xl-content-gap, var(--primitiv-space-space-28));
+    --primitiv-radio-card-gap: var(--primitiv-choice-card-xl-gap);
+    --primitiv-radio-card-content-gap: var(--primitiv-choice-card-xl-content-gap);
     --primitiv-radio-card-indicator-size: var(--primitiv-radio-xl-box-size);
     --primitiv-radio-card-title-font-family: var(--primitiv-label-xl-font-family);
     --primitiv-radio-card-title-font-size: var(--primitiv-label-xl-font-size);

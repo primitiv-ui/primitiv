@@ -51,8 +51,8 @@
     --primitiv-checkbox-card-border-width: var(--primitiv-framed-control-border-width);
     --primitiv-checkbox-card-radius: var(--primitiv-framed-control-md-radius);
     --primitiv-checkbox-card-padding: var(--primitiv-choice-card-md-padding);
-    --primitiv-checkbox-card-gap: var(--primitiv-choice-card-md-gap, var(--primitiv-space-space-10));
-    --primitiv-checkbox-card-content-gap: var(--primitiv-choice-card-md-content-gap, var(--primitiv-space-space-20));
+    --primitiv-checkbox-card-gap: var(--primitiv-choice-card-md-gap);
+    --primitiv-checkbox-card-content-gap: var(--primitiv-choice-card-md-content-gap);
     --primitiv-checkbox-card-shadow-hover: var(--primitiv-elevation-raised);
     --primitiv-checkbox-card-indicator-size: var(--primitiv-checkbox-md-box-size);
     --primitiv-checkbox-card-indicator-radius: var(--primitiv-checkbox-md-box-radius);
@@ -222,8 +222,8 @@
   .primitiv-checkbox-card--xs {
     --primitiv-checkbox-card-radius: var(--primitiv-framed-control-xs-radius);
     --primitiv-checkbox-card-padding: var(--primitiv-choice-card-xs-padding);
-    --primitiv-checkbox-card-gap: var(--primitiv-choice-card-xs-gap, var(--primitiv-space-space-6));
-    --primitiv-checkbox-card-content-gap: var(--primitiv-choice-card-xs-content-gap, var(--primitiv-space-space-14));
+    --primitiv-checkbox-card-gap: var(--primitiv-choice-card-xs-gap);
+    --primitiv-checkbox-card-content-gap: var(--primitiv-choice-card-xs-content-gap);
     --primitiv-checkbox-card-indicator-size: var(--primitiv-checkbox-xs-box-size);
     --primitiv-checkbox-card-indicator-radius: var(--primitiv-checkbox-xs-box-radius);
     --primitiv-checkbox-card-indicator-mark-size: var(--primitiv-checkbox-xs-mark-size);
@@ -239,8 +239,8 @@
   .primitiv-checkbox-card--sm {
     --primitiv-checkbox-card-radius: var(--primitiv-framed-control-sm-radius);
     --primitiv-checkbox-card-padding: var(--primitiv-choice-card-sm-padding);
-    --primitiv-checkbox-card-gap: var(--primitiv-choice-card-sm-gap, var(--primitiv-space-space-10));
-    --primitiv-checkbox-card-content-gap: var(--primitiv-choice-card-sm-content-gap, var(--primitiv-space-space-16));
+    --primitiv-checkbox-card-gap: var(--primitiv-choice-card-sm-gap);
+    --primitiv-checkbox-card-content-gap: var(--primitiv-choice-card-sm-content-gap);
     --primitiv-checkbox-card-indicator-size: var(--primitiv-checkbox-sm-box-size);
     --primitiv-checkbox-card-indicator-radius: var(--primitiv-checkbox-sm-box-radius);
     --primitiv-checkbox-card-indicator-mark-size: var(--primitiv-checkbox-sm-mark-size);
@@ -256,8 +256,8 @@
   .primitiv-checkbox-card--md {
     --primitiv-checkbox-card-radius: var(--primitiv-framed-control-md-radius);
     --primitiv-checkbox-card-padding: var(--primitiv-choice-card-md-padding);
-    --primitiv-checkbox-card-gap: var(--primitiv-choice-card-md-gap, var(--primitiv-space-space-10));
-    --primitiv-checkbox-card-content-gap: var(--primitiv-choice-card-md-content-gap, var(--primitiv-space-space-20));
+    --primitiv-checkbox-card-gap: var(--primitiv-choice-card-md-gap);
+    --primitiv-checkbox-card-content-gap: var(--primitiv-choice-card-md-content-gap);
     --primitiv-checkbox-card-indicator-size: var(--primitiv-checkbox-md-box-size);
     --primitiv-checkbox-card-indicator-radius: var(--primitiv-checkbox-md-box-radius);
     --primitiv-checkbox-card-indicator-mark-size: var(--primitiv-checkbox-md-mark-size);
@@ -273,8 +273,8 @@
   .primitiv-checkbox-card--lg {
     --primitiv-checkbox-card-radius: var(--primitiv-framed-control-lg-radius);
     --primitiv-checkbox-card-padding: var(--primitiv-choice-card-lg-padding);
-    --primitiv-checkbox-card-gap: var(--primitiv-choice-card-lg-gap, var(--primitiv-space-space-12));
-    --primitiv-checkbox-card-content-gap: var(--primitiv-choice-card-lg-content-gap, var(--primitiv-space-space-24));
+    --primitiv-checkbox-card-gap: var(--primitiv-choice-card-lg-gap);
+    --primitiv-checkbox-card-content-gap: var(--primitiv-choice-card-lg-content-gap);
     --primitiv-checkbox-card-indicator-size: var(--primitiv-checkbox-lg-box-size);
     --primitiv-checkbox-card-indicator-radius: var(--primitiv-checkbox-lg-box-radius);
     --primitiv-checkbox-card-indicator-mark-size: var(--primitiv-checkbox-lg-mark-size);
@@ -290,8 +290,8 @@
   .primitiv-checkbox-card--xl {
     --primitiv-checkbox-card-radius: var(--primitiv-framed-control-xl-radius);
     --primitiv-checkbox-card-padding: var(--primitiv-choice-card-xl-padding);
-    --primitiv-checkbox-card-gap: var(--primitiv-choice-card-xl-gap, var(--primitiv-space-space-14));
-    --primitiv-checkbox-card-content-gap: var(--primitiv-choice-card-xl-content-gap, var(--primitiv-space-space-28));
+    --primitiv-checkbox-card-gap: var(--primitiv-choice-card-xl-gap);
+    --primitiv-checkbox-card-content-gap: var(--primitiv-choice-card-xl-content-gap);
     --primitiv-checkbox-card-indicator-size: var(--primitiv-checkbox-xl-box-size);
     --primitiv-checkbox-card-indicator-radius: var(--primitiv-checkbox-xl-box-radius);
     --primitiv-checkbox-card-indicator-mark-size: var(--primitiv-checkbox-xl-mark-size);

@@ -9,6 +9,18 @@
     "class": "primitiv-radio-card",
     "component": "Item"
   },
+  "subcomponents": [
+    {
+      "name": "dot",
+      "component": "Indicator",
+      "element": "span",
+      "class": "primitiv-radio-card__dot",
+      "dataAttributes": [
+        { "name": "data-state", "value": "checked", "when": "the item's selected state", "source": "auto" },
+        { "name": "data-state", "value": "unchecked", "when": "the item's selected state", "source": "auto" }
+      ]
+    }
+  ],
   "dataAttributes": [
     { "name": "data-state", "value": "checked", "when": "checked", "source": "auto" },
     { "name": "data-state", "value": "unchecked", "when": "unchecked", "source": "auto" },
@@ -37,8 +49,8 @@
     { "name": "--primitiv-radio-card-border-width", "defaultsTo": "var(--primitiv-framed-control-border-width)" },
     { "name": "--primitiv-radio-card-radius", "defaultsTo": "var(--primitiv-framed-control-md-radius)" },
     { "name": "--primitiv-radio-card-padding", "defaultsTo": "var(--primitiv-choice-card-md-padding)" },
-    { "name": "--primitiv-radio-card-gap", "defaultsTo": "var(--primitiv-choice-card-md-gap, var(--primitiv-space-space-10))" },
-    { "name": "--primitiv-radio-card-content-gap", "defaultsTo": "var(--primitiv-choice-card-md-content-gap, var(--primitiv-space-space-20))" },
+    { "name": "--primitiv-radio-card-gap", "defaultsTo": "var(--primitiv-choice-card-md-gap)" },
+    { "name": "--primitiv-radio-card-content-gap", "defaultsTo": "var(--primitiv-choice-card-md-content-gap)" },
     { "name": "--primitiv-radio-card-shadow-hover", "defaultsTo": "var(--primitiv-elevation-raised)" },
     { "name": "--primitiv-radio-card-indicator-size", "defaultsTo": "var(--primitiv-radio-md-box-size)" },
     { "name": "--primitiv-radio-card-indicator-bg", "defaultsTo": "var(--primitiv-surface-default)" },

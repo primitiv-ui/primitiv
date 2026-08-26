@@ -185,11 +185,11 @@
       },
       {
         "name": "--primitiv-checkbox-card-gap",
-        "defaultsTo": "var(--primitiv-choice-card-md-gap, var(--primitiv-space-space-10))"
+        "defaultsTo": "var(--primitiv-choice-card-md-gap)"
       },
       {
         "name": "--primitiv-checkbox-card-content-gap",
-        "defaultsTo": "var(--primitiv-choice-card-md-content-gap, var(--primitiv-space-space-20))"
+        "defaultsTo": "var(--primitiv-choice-card-md-content-gap)"
       },
       {
         "name": "--primitiv-checkbox-card-shadow-hover",

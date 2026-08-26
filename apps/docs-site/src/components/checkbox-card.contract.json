@@ -8,6 +8,19 @@
     "element": "button",
     "class": "primitiv-checkbox-card"
   },
+  "subcomponents": [
+    {
+      "name": "mark",
+      "component": "Indicator",
+      "element": "span",
+      "class": "primitiv-checkbox-card__mark",
+      "dataAttributes": [
+        { "name": "data-state", "value": "checked", "when": "the card's checked state", "source": "auto" },
+        { "name": "data-state", "value": "unchecked", "when": "the card's checked state", "source": "auto" },
+        { "name": "data-state", "value": "indeterminate", "when": "the card's checked state", "source": "auto" }
+      ]
+    }
+  ],
   "dataAttributes": [
     { "name": "data-state", "value": "checked", "when": "checked", "source": "auto" },
     { "name": "data-state", "value": "unchecked", "when": "unchecked", "source": "auto" },
@@ -37,8 +50,8 @@
     { "name": "--primitiv-checkbox-card-border-width", "defaultsTo": "var(--primitiv-framed-control-border-width)" },
     { "name": "--primitiv-checkbox-card-radius", "defaultsTo": "var(--primitiv-framed-control-md-radius)" },
     { "name": "--primitiv-checkbox-card-padding", "defaultsTo": "var(--primitiv-choice-card-md-padding)" },
-    { "name": "--primitiv-checkbox-card-gap", "defaultsTo": "var(--primitiv-choice-card-md-gap, var(--primitiv-space-space-10))" },
-    { "name": "--primitiv-checkbox-card-content-gap", "defaultsTo": "var(--primitiv-choice-card-md-content-gap, var(--primitiv-space-space-20))" },
+    { "name": "--primitiv-checkbox-card-gap", "defaultsTo": "var(--primitiv-choice-card-md-gap)" },
+    { "name": "--primitiv-checkbox-card-content-gap", "defaultsTo": "var(--primitiv-choice-card-md-content-gap)" },
     { "name": "--primitiv-checkbox-card-shadow-hover", "defaultsTo": "var(--primitiv-elevation-raised)" },
     { "name": "--primitiv-checkbox-card-indicator-size", "defaultsTo": "var(--primitiv-checkbox-md-box-size)" },
     { "name": "--primitiv-checkbox-card-indicator-radius", "defaultsTo": "var(--primitiv-checkbox-md-box-radius)" },

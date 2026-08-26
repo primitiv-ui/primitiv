@@ -228,11 +228,11 @@
       },
       {
         "name": "--primitiv-radio-card-gap",
-        "defaultsTo": "var(--primitiv-choice-card-md-gap, var(--primitiv-space-space-10))"
+        "defaultsTo": "var(--primitiv-choice-card-md-gap)"
       },
       {
         "name": "--primitiv-radio-card-content-gap",
-        "defaultsTo": "var(--primitiv-choice-card-md-content-gap, var(--primitiv-space-space-20))"
+        "defaultsTo": "var(--primitiv-choice-card-md-content-gap)"
       },
       {
         "name": "--primitiv-radio-card-shadow-hover",

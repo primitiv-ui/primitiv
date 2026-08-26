@@ -8,17 +8,39 @@
  * custom properties), not these values (RFC 0006 Principle 2 — names are
  * stable, values are not).
  *
- * The redesign — "inset track + floating thumb" (replacing the welded
- * button-group strip): the root is a RECESSED PILL TRACK (surface-sunken) that
- * carries plain labels; a pressed item becomes a raised pill (surface-selected +
- * shadow-1, with the content-on-selected label) inset from the track by the track
- * padding. surface-selected / content-on-selected are light-in-both-themes so the
- * thumb lifts off the (dark-in-dark) track and its label stays legible. No segment borders, no
- * dividers, no primary-fill block. Single-select shows one thumb; multiple-select
- * shows a thumb per pressed item. The slide between positions is a motion
- * nicety handled by the transition — the selected look itself is pure per-item
- * state (data-state="on"), so there is no shared indicator element and no
- * headless API change.
+ * REDESIGNED 2026-08-26. The record is the Figma page "Toggle Group —
+ * exploration"; this is the summary a reader of the stylesheet needs.
+ *
+ * It was an "inset track + floating thumb": a recessed surface-sunken PILL
+ * (radii-full) holding borderless labels, where a pressed item became a raised
+ * surface-selected pill with a shadow-1 lift. That was the only control in
+ * Primitiv drawn that way — an Apple-style idiom appearing nowhere else, while
+ * every comparable control (Button, SegmentedControl, Input, every framed
+ * control) used framed-control/{size}/radius and the action/* fill language.
+ *
+ * It is now the framed-control anatomy with SegmentedControl's paint recipe,
+ * state for state: an off item is action/secondary (fill + border), a pressed
+ * item is action/primary, hover deepens each toward its own intent's hover
+ * token, and the track is a transparent bordered container rather than a ground.
+ * No shadow, no thumb.
+ *
+ * THIS MAKES IT LOOK LIKE A SEGMENTED CONTROL, DELIBERATELY. The two are
+ * semantically different — this is role=group with aria-pressed (any number on,
+ * including none, and multi-select), SegmentedControl is role=radiogroup with
+ * aria-checked (exactly one, never empty) — and that difference is now carried
+ * by the API and the docs, not by the look. The trade was made with the
+ * evidence in view (exploration §6): one fill language across every control was
+ * judged more valuable than a visual tell. Two consequences worth knowing:
+ * adjacent pressed items read as two primary actions rather than one control
+ * with two things on (§3), and nothing on screen distinguishes the two
+ * components, so choosing between them is a semantics question only.
+ *
+ * The track radius is CONCENTRIC — the item radius plus the track inset — so the
+ * outer curve runs parallel to the inner one at every size, and it re-derives
+ * itself when a size modifier re-points the item radius. Figma cannot express
+ * that sum, so its canvas carries literal toggle-group/{size}/radius variables
+ * instead; the same split already puts segmented-control/{size}/radius in Figma
+ * but not in packages/tokens. Nothing new was needed in the DTCG source.
  *
  * Structure follows RFC 0008: per-component API tokens + the resting look live
  * in primitiv.base, the size/justify modifiers in primitiv.variants, the
@@ -28,10 +50,10 @@
  *
  * Horizontal orientation is the v1 target; vertical (data-orientation="vertical")
  * is a deferred fast-follow. Requires the token layer (`primitiv tokens`) for the
- * --primitiv-surface-*, --primitiv-content-*, --primitiv-framed-control-*,
- * --primitiv-toggle-group-track-padding, --primitiv-focus-ring-*, --primitiv-radii-*,
- * --primitiv-shadow-*, --primitiv-opacity-*, --primitiv-label-* and
- * --primitiv-motion-* custom properties it resolves.
+ * --primitiv-action-*, --primitiv-border-*, --primitiv-framed-control-*,
+ * --primitiv-toggle-group-track-padding, --primitiv-focus-ring-*,
+ * --primitiv-opacity-*, --primitiv-label-* and --primitiv-motion-* custom
+ * properties it resolves.
  */
 
 /* Declare the sublayer order up front so this sheet is safe to load ahead of
@@ -44,53 +66,62 @@
   .primitiv-toggle-group {
     /* Per-component API — the themable knobs, defaulting to the md size and the
        resting (off) item. Size modifiers re-point the sizing knobs; the states
-       layer re-points the colour/shadow knobs. They inherit to the item below,
-       so consumers can override any one on the root without touching a rule. */
+       layer re-points the colour knobs. They inherit to the item below, so
+       consumers can override any one on the root without touching a rule. */
     --primitiv-toggle-group-item-height: var(--primitiv-framed-control-md-height);
     --primitiv-toggle-group-item-padding-inline: var(--primitiv-framed-control-md-padding-inline);
     --primitiv-toggle-group-item-gap: var(--primitiv-framed-control-md-gap);
     --primitiv-toggle-group-item-icon-size: var(--primitiv-framed-control-md-icon-size);
-    /* Pill everywhere — density- and size-invariant, so the thumb nests inside
-       the track without a derived radius. */
-    --primitiv-toggle-group-radius: var(--primitiv-radii-full);
-    /* The inset that separates each pill from the track edge AND from its
+    --primitiv-toggle-group-item-border-width: var(--primitiv-framed-control-border-width);
+    /* The inset that separates each item from the track edge AND from its
        neighbours (used as both padding and gap so the spacing reads uniform).
        Density-scaled via the toggle-group/track-padding Context token. */
     --primitiv-toggle-group-track-inset: var(--primitiv-toggle-group-track-padding);
-    --primitiv-toggle-group-track-bg: var(--primitiv-surface-sunken);
-    --primitiv-toggle-group-item-bg: transparent;
-    --primitiv-toggle-group-item-fg: var(--primitiv-content-secondary);
-    /* On-state targets, re-pointed by the states layer. */
-    --primitiv-toggle-group-item-bg-on: var(--primitiv-surface-selected);
-    --primitiv-toggle-group-item-fg-on: var(--primitiv-content-on-selected);
-    --primitiv-toggle-group-item-fg-hover: var(--primitiv-content-primary);
-    /* A transparent placeholder shadow (not `none`) so the item can always carry
-       a valid box-shadow layer that the on-state and the focus ring compose with. */
-    --primitiv-toggle-group-item-shadow: 0 0 0 0 transparent;
-    --primitiv-toggle-group-item-shadow-on: var(--primitiv-shadow-1);
+    --primitiv-toggle-group-item-radius: var(--primitiv-framed-control-md-radius);
+    /* CONCENTRIC with the items: the item radius plus the inset, so the outer
+       curve runs parallel to the inner one. Re-derives automatically when a size
+       modifier re-points the item radius — which is why this is a calc() here
+       and a literal per-size variable on the Figma side. */
+    --primitiv-toggle-group-radius: calc(
+      var(--primitiv-toggle-group-item-radius) + var(--primitiv-toggle-group-track-inset)
+    );
+    /* The track is a frame, not a ground: transparent, so the control sits on
+       any surface (card, toolbar, coloured hero) the way SegmentedControl does. */
+    --primitiv-toggle-group-track-bg: var(--primitiv-color-transparent);
+    --primitiv-toggle-group-track-border-color: var(--primitiv-border-subtle);
+    --primitiv-toggle-group-track-border-width: var(--primitiv-framed-control-border-width);
+    /* Resting (off) item — secondary. */
+    --primitiv-toggle-group-item-bg: var(--primitiv-action-secondary-default);
+    --primitiv-toggle-group-item-fg: var(--primitiv-action-secondary-foreground-default);
+    --primitiv-toggle-group-item-border-color: var(--primitiv-action-secondary-border-default);
+    /* On-state targets, re-pointed by the states layer — primary (brand). */
+    --primitiv-toggle-group-item-bg-on: var(--primitiv-action-primary-default);
+    --primitiv-toggle-group-item-fg-on: var(--primitiv-action-primary-foreground-default);
+    --primitiv-toggle-group-item-border-color-on: var(--primitiv-action-primary-border-default);
     --primitiv-toggle-group-item-font-family: var(--primitiv-label-md-font-family);
     --primitiv-toggle-group-item-font-size: var(--primitiv-label-md-font-size);
     --primitiv-toggle-group-item-font-weight: var(--primitiv-label-md-font-weight);
     --primitiv-toggle-group-item-line-height: var(--primitiv-label-md-line-height);
 
-    /* The track — a recessed pill. `overflow` stays VISIBLE so the focus ring
-       (an outset box-shadow on the item) isn't cropped to the track. */
+    /* The track — a transparent, bordered frame. `overflow` stays VISIBLE so the
+       focus ring (an outset box-shadow on the item) isn't cropped to the track. */
     display: inline-flex;
     flex-direction: row;
     gap: var(--primitiv-toggle-group-track-inset);
     padding: var(--primitiv-toggle-group-track-inset);
     background: var(--primitiv-toggle-group-track-bg);
+    border: var(--primitiv-toggle-group-track-border-width) solid
+      var(--primitiv-toggle-group-track-border-color);
     border-radius: var(--primitiv-toggle-group-radius);
   }
 
-  /* Vertical orientation stacks the items; the pill/track model is identical.
+  /* Vertical orientation stacks the items; the framed model is identical.
      (v1 targets horizontal; this keeps the axis honest for the deferred case.) */
   .primitiv-toggle-group[data-orientation="vertical"] {
     flex-direction: column;
   }
 
-  /* An item — a borderless, transparent pill by default, off (secondary). It
-     rounds to the full pill so the on-state background reads as an inset thumb. */
+  /* An item — a framed button, secondary by default (off). */
   .primitiv-toggle-group__item {
     display: inline-flex;
     align-items: center;
@@ -98,11 +129,11 @@
     gap: var(--primitiv-toggle-group-item-gap);
     block-size: var(--primitiv-toggle-group-item-height);
     padding-inline: var(--primitiv-toggle-group-item-padding-inline);
-    border: none;
+    border: var(--primitiv-toggle-group-item-border-width) solid
+      var(--primitiv-toggle-group-item-border-color);
     background: var(--primitiv-toggle-group-item-bg);
     color: var(--primitiv-toggle-group-item-fg);
-    border-radius: var(--primitiv-toggle-group-radius);
-    box-shadow: var(--primitiv-toggle-group-item-shadow);
+    border-radius: var(--primitiv-toggle-group-item-radius);
     font-family: var(--primitiv-toggle-group-item-font-family);
     font-size: var(--primitiv-toggle-group-item-font-size);
     font-weight: var(--primitiv-toggle-group-item-font-weight);
@@ -116,8 +147,8 @@
     -webkit-touch-callout: none;
     transition:
       background-color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default),
-      color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default),
-      box-shadow var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
+      border-color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default),
+      color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
   }
 
   .primitiv-toggle-group__item svg {
@@ -136,21 +167,23 @@
 }
 
 @layer primitiv.variants {
-  /* Justified — items share the track width equally (a true segmented control,
-     e.g. Day / Week / Month). Omitted, items are content-width (e.g. a B / I / U
-     formatting toolbar). */
+  /* Justified — items share the track width equally (Day / Week / Month).
+     Omitted, items are content-width (a B / I / U formatting toolbar). */
   .primitiv-toggle-group--justified .primitiv-toggle-group__item {
     flex: 1 1 0;
   }
 
   /* Size — re-points the framed-control + typography knobs to the chosen slot.
-     The pill radius is invariant, so it doesn't re-point here. Density stays
-     ambient via [data-density] on the token values themselves (RFC 0009). */
+     The ITEM RADIUS re-points here too, and the track radius follows it through
+     the calc() above; under the old pill design the radius was size-invariant
+     and did not appear in these blocks. Density stays ambient via [data-density]
+     on the token values themselves (RFC 0009). */
   .primitiv-toggle-group--xs {
     --primitiv-toggle-group-item-height: var(--primitiv-framed-control-xs-height);
     --primitiv-toggle-group-item-padding-inline: var(--primitiv-framed-control-xs-padding-inline);
     --primitiv-toggle-group-item-gap: var(--primitiv-framed-control-xs-gap);
     --primitiv-toggle-group-item-icon-size: var(--primitiv-framed-control-xs-icon-size);
+    --primitiv-toggle-group-item-radius: var(--primitiv-framed-control-xs-radius);
     --primitiv-toggle-group-item-font-family: var(--primitiv-label-xs-font-family);
     --primitiv-toggle-group-item-font-size: var(--primitiv-label-xs-font-size);
     --primitiv-toggle-group-item-font-weight: var(--primitiv-label-xs-font-weight);
@@ -161,6 +194,7 @@
     --primitiv-toggle-group-item-padding-inline: var(--primitiv-framed-control-sm-padding-inline);
     --primitiv-toggle-group-item-gap: var(--primitiv-framed-control-sm-gap);
     --primitiv-toggle-group-item-icon-size: var(--primitiv-framed-control-sm-icon-size);
+    --primitiv-toggle-group-item-radius: var(--primitiv-framed-control-sm-radius);
     --primitiv-toggle-group-item-font-family: var(--primitiv-label-sm-font-family);
     --primitiv-toggle-group-item-font-size: var(--primitiv-label-sm-font-size);
     --primitiv-toggle-group-item-font-weight: var(--primitiv-label-sm-font-weight);
@@ -171,6 +205,7 @@
     --primitiv-toggle-group-item-padding-inline: var(--primitiv-framed-control-md-padding-inline);
     --primitiv-toggle-group-item-gap: var(--primitiv-framed-control-md-gap);
     --primitiv-toggle-group-item-icon-size: var(--primitiv-framed-control-md-icon-size);
+    --primitiv-toggle-group-item-radius: var(--primitiv-framed-control-md-radius);
     --primitiv-toggle-group-item-font-family: var(--primitiv-label-md-font-family);
     --primitiv-toggle-group-item-font-size: var(--primitiv-label-md-font-size);
     --primitiv-toggle-group-item-font-weight: var(--primitiv-label-md-font-weight);
@@ -181,6 +216,7 @@
     --primitiv-toggle-group-item-padding-inline: var(--primitiv-framed-control-lg-padding-inline);
     --primitiv-toggle-group-item-gap: var(--primitiv-framed-control-lg-gap);
     --primitiv-toggle-group-item-icon-size: var(--primitiv-framed-control-lg-icon-size);
+    --primitiv-toggle-group-item-radius: var(--primitiv-framed-control-lg-radius);
     --primitiv-toggle-group-item-font-family: var(--primitiv-label-lg-font-family);
     --primitiv-toggle-group-item-font-size: var(--primitiv-label-lg-font-size);
     --primitiv-toggle-group-item-font-weight: var(--primitiv-label-lg-font-weight);
@@ -191,6 +227,7 @@
     --primitiv-toggle-group-item-padding-inline: var(--primitiv-framed-control-xl-padding-inline);
     --primitiv-toggle-group-item-gap: var(--primitiv-framed-control-xl-gap);
     --primitiv-toggle-group-item-icon-size: var(--primitiv-framed-control-xl-icon-size);
+    --primitiv-toggle-group-item-radius: var(--primitiv-framed-control-xl-radius);
     --primitiv-toggle-group-item-font-family: var(--primitiv-label-xl-font-family);
     --primitiv-toggle-group-item-font-size: var(--primitiv-label-xl-font-size);
     --primitiv-toggle-group-item-font-weight: var(--primitiv-label-xl-font-weight);
@@ -199,41 +236,48 @@
 }
 
 @layer primitiv.states {
-  /* On — the pressed item becomes the raised thumb: a surface-selected pill,
-     content-on-selected label, and the shadow-1 lift. The states layer sits above
-     base + variants, so it always wins (RFC 0008 §2.3). */
+  /* On — the pressed item becomes the brand-filled primary button. The states
+     layer sits above base + variants, so it always wins (RFC 0008 §2.3).
+     `data-state` is on/off here, not checked/unchecked: that is the headless
+     contract for aria-pressed and it did not change with the redesign. */
   .primitiv-toggle-group__item[data-state="on"] {
     --primitiv-toggle-group-item-bg: var(--primitiv-toggle-group-item-bg-on);
     --primitiv-toggle-group-item-fg: var(--primitiv-toggle-group-item-fg-on);
-    --primitiv-toggle-group-item-shadow: var(--primitiv-toggle-group-item-shadow-on);
+    --primitiv-toggle-group-item-border-color: var(--primitiv-toggle-group-item-border-color-on);
   }
 
-  /* Hover — only lifts the label of an OFF item toward primary; the thumb stays
-     put. No background change, so the track stays the sole ground. Gated behind
+  /* Hover — each state deepens toward its own intent's hover token. Gated behind
      (hover: hover): a touchscreen simulates :hover on tap and it "sticks" until
-     the next tap elsewhere, which would otherwise leave a just-tapped item
-     showing its hover colour instead of its resting one. */
+     the next tap elsewhere (there is no real pointer to leave), which would
+     otherwise leave a just-tapped item showing its hover shade instead of its
+     resting one. Guarding the whole rule means a real mouse still gets the
+     hover feedback, unaffected. */
   @media (hover: hover) {
     .primitiv-toggle-group__item[data-state="off"]:hover {
-      --primitiv-toggle-group-item-fg: var(--primitiv-toggle-group-item-fg-hover);
+      --primitiv-toggle-group-item-bg: var(--primitiv-action-secondary-hover);
+      --primitiv-toggle-group-item-border-color: var(--primitiv-action-secondary-border-hover);
+    }
+    .primitiv-toggle-group__item[data-state="on"]:hover {
+      --primitiv-toggle-group-item-bg: var(--primitiv-action-primary-hover);
+      --primitiv-toggle-group-item-border-color: var(--primitiv-action-primary-border-hover);
     }
   }
 
-  /* Focus — the shared two-layer ring, composed with the item's own shadow so a
-     focused thumb keeps its lift. The gap layer uses the TRACK colour (not the
-     page surface) so the ring reads cleanly against the recessed track. It is
-     OUTSET (the track keeps overflow: visible) and the focused item lifts above
-     its neighbours so the ring isn't overdrawn. :focus-visible keeps it to
+  /* Focus — the shared two-layer ring, following the item's own radius so it
+     stays concentric at every size. The gap band uses the PAGE surface, not the
+     track: under the old design the track was a solid sunken ground and the ring
+     had to read against it, but a transparent track has no colour to match. It
+     is OUTSET (the track keeps overflow: visible) and the focused item lifts
+     above its neighbours so the ring isn't overdrawn. :focus-visible keeps it to
      keyboard focus; restyle via the global --primitiv-focus-ring* tokens. */
   .primitiv-toggle-group__item:focus-visible {
     position: relative;
     z-index: 1;
     outline: none;
     box-shadow:
-      0 0 0 var(--primitiv-focus-ring-offset) var(--primitiv-toggle-group-track-bg),
+      0 0 0 var(--primitiv-focus-ring-offset) var(--primitiv-surface-default),
       0 0 0 calc(var(--primitiv-focus-ring-offset) + var(--primitiv-focus-ring-width))
-        var(--primitiv-focus-ring),
-      var(--primitiv-toggle-group-item-shadow);
+        var(--primitiv-focus-ring);
   }
 
   /* Forced colours (Windows High Contrast) discards box-shadow, so the ring

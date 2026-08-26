@@ -641,6 +641,63 @@ content does not outweigh the mobile reasoning already recorded in the sheet.
 
 ---
 
+## 11. `Field.Label` renders a dangling `htmlFor` for most controls — OPEN
+
+The generalisation of §10, found by measuring rather than reading: `Field.Label`
+**always** emits `htmlFor={field.id}` (`Field.tsx`, `const labelProps = { ...rest,
+htmlFor: id }` — unconditionally, `asChild` included), but only **three**
+components adopt that id by reading `FieldContext`:
+
+| Reads `FieldContext` | Does not |
+|---|---|
+| `Input`, `Textarea`, `Select` | `Switch`, `Checkbox`, `Radio`, `Slider`, `SegmentedControl`, … |
+
+For everything in the right-hand column the label points at an element that does
+not exist. It is not a mis-association — it is a **reference to nothing**, so the
+control has no accessible name from it and the label names nothing.
+
+**Measured**, on the docs site while building these pages: four dangling
+`htmlFor` references across four component pages, each from the obvious
+composition (`<Field><Field.Label>…</Field.Label><Control /></Field>`) that the
+Input and Textarea pages legitimately teach. Nothing warns — it renders, it looks
+right, and only reading the DOM finds it.
+
+**Why it is easy to hit.** The composition is the same one that works perfectly
+for `Input`; the difference is invisible at the call site. Worse, the choice
+controls make it look harmless: `Switch`, `Checkbox` and `Radio` render their own
+`<label>` around their text child, so they *do* have a name — just not from the
+Field, which leaves the Field's own label dangling beside a correctly-named
+control.
+
+**Worked around on the docs site** (each page now teaches the pattern that is
+correct today):
+
+- a group of radios → `Field asChild` onto a real `<fieldset>` with
+  `Field.Label asChild` onto its `<legend>`, which names the group natively and
+  needs no id;
+- `Slider` / `SegmentedControl` → a plain element with an id, referenced by
+  `aria-labelledby` on the thumb (Slider) or the Root (SegmentedControl, which
+  *is* the radiogroup);
+- `Switch` / `Checkbox` → pass the label as the control's own child.
+
+**Options, needing a decision.**
+
+1. **Only emit `htmlFor` when something claims the id.** The Root already
+   provides the context, so it could track whether a context-aware control
+   registered and have the Label omit `htmlFor` otherwise. Correct in every case
+   and invisible to consumers, but it adds registration to a component whose
+   selling point is that it has almost no behaviour.
+2. **Have more controls read `FieldContext`.** Right for `SegmentedControl` (its
+   Root is a `radiogroup` that could take `aria-labelledby`), awkward for
+   `Slider` (one label, N thumbs — a range wants two *different* names), and
+   wrong for the choice controls, which already own their label.
+3. **Document it and leave it.** Cheapest, and what the docs site does now — but
+   every consumer rediscovers it, and the failure is silent.
+
+Option 1 is the only one that fixes the whole column at once.
+
+---
+
 ## 10. `Slider` — the Root's `aria-label` is announced nowhere — FIXED (docs)
 
 Found while building the Slider docs page: measuring the rendered DOM showed
@@ -659,7 +716,7 @@ and range examples, all put `aria-label` on the Root. Following the most visible
 example produced an unnamed control.
 
 **Second finding, same area.** A `Field` label does not reach the thumb either.
-`Slider` does not read `FieldContext` (unlike `Input`, `Textarea` and `Switch`),
+`Slider` does not read `FieldContext` (only `Input`, `Textarea` and `Select` do),
 and a `<label htmlFor>` cannot associate with a `<span role="slider">` anyway. So
 `<Field><Field.Label>Volume</Field.Label><Slider …/></Field>` — the obvious
 composition, and the one the other form pages teach — leaves the thumb unnamed.

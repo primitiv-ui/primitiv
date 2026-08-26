@@ -6,7 +6,7 @@ import { Field, FieldDescription, FieldErrorText, FieldLabel } from "@/component
 import { Input } from "@/components/input";
 import { Radio } from "@/components/radio";
 import { Stack } from "@/components/stack";
-import { Switch } from "@/components/switch";
+import { Textarea } from "@/components/textarea";
 import { contractAttr, importBlock, partNamer } from "@/lib/playground";
 import { InteractiveExample } from "@/site/InteractiveExample";
 import type { Mode } from "@/site/preferences";
@@ -211,30 +211,31 @@ export const fieldSpec: ComponentSpec = {
     },
     {
       id: "any-control",
-      title: "Any control, not just Input",
+      title: "Which controls the cascade reaches",
       render: () => (
         <InteractiveExample
-          caption="The cascade reaches whatever context-aware control you put inside — `Input`, `Textarea`, `Select`, `Switch`, `Checkbox`. A control that reads `FieldContext` inherits the id, the describedby chain, `aria-invalid`, `disabled` and `required` without being told about the field at all."
+          caption="**Three controls read `FieldContext`: `Input`, `Textarea` and `Select`.** Those inherit the id, the `aria-describedby` chain, `aria-invalid`, `disabled` and `required` without being told about the field at all — `Textarea` below is given nothing but `rows`. Everything else is only *inside* the field, not wired to it: `Switch`, `Checkbox` and `Radio` bring their own `<label>`, and `Slider` and `SegmentedControl` need `aria-labelledby` pointing at a label you give an id. For those, `Field.Label`'s `htmlFor` has nothing to attach to — see the note under Accessibility."
           code={(_density, mode) => {
             const p = partNamer(mode, "Field");
             return [
               imports(mode),
-              importBlock({ mode, component: "Switch", componentId: "switch" }),
+              importBlock({ mode, component: "Textarea", componentId: "textarea" }),
               ``,
-              `<${p("Root")}>`,
-              `  <${p("Label")}>Email notifications</${p("Label")}>`,
-              `  <Switch />`,
-              `  <${p("Description")}>Sent at most once a day.</${p("Description")}>`,
+              `<${p("Root")} required>`,
+              `  <${p("Label")}>What went wrong?</${p("Label")}>`,
+              `  {/* no id, no aria-*, no required — all inherited */}`,
+              `  <Textarea rows={3} />`,
+              `  <${p("Description")}>Include the steps you took.</${p("Description")}>`,
               `</${p("Root")}>`,
             ].join("\n");
           }}
         >
           {() => (
             <div className="docs-example-stack">
-              <Field>
-                <FieldLabel>Email notifications</FieldLabel>
-                <Switch />
-                <FieldDescription>Sent at most once a day.</FieldDescription>
+              <Field required>
+                <FieldLabel>What went wrong?</FieldLabel>
+                <Textarea rows={3} placeholder="Tell us what happened..." />
+                <FieldDescription>Include the steps you took.</FieldDescription>
               </Field>
             </div>
           )}
@@ -329,5 +330,6 @@ export const fieldSpec: ComponentSpec = {
     "For a group of controls — radios, related checkboxes — use `asChild` to render a real `<fieldset>` with the label as its `<legend>`. A `<div>` with text above it does not tell assistive technology that the options belong together.",
     "`disabled` on the field cascades the **native** attribute to the control, so it leaves the tab order. If the field needs to stay discoverable while unavailable, keep it enabled and explain the constraint in the description rather than disabling the group.",
     "Field owns no keyboard behaviour. Whatever you put inside keeps its own — which is the point: the wrapper never intercepts focus or keys.",
+    "**`Field.Label` always renders `htmlFor`, even when nothing can claim it.** Only `Input`, `Textarea` and `Select` adopt the field's id, so with any other control the label points at an element that does not exist — a dangling reference, and the label associates with nothing. Until that is fixed at source, give a non-context-aware control its name directly: `aria-labelledby` pointing at the label for `Slider` and `SegmentedControl`, a real `<fieldset>` / `<legend>` for a group of radios, or nothing at all for `Switch` and `Checkbox`, which render their own `<label>` around the text you pass them.",
   ],
 };

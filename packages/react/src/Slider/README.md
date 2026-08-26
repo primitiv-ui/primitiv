@@ -110,7 +110,7 @@ file used to model it.
 
 For a **visible** label, give it an id and point the thumb at it. A
 `<label htmlFor>` cannot associate with a `<span role="slider">`, and `Slider`
-does not read `FieldContext` the way `Input`, `Textarea` and `Switch` do — so a
+does not read `FieldContext` (only `Input`, `Textarea` and `Select` do) — so a
 `Field.Label` does not reach the thumb on its own:
 
 ```tsx

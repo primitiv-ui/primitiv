@@ -168,37 +168,43 @@ export const radioSpec: ComponentSpec = {
       title: "Labelling the group",
       render: () => (
         <InteractiveExample
-          caption="Each radio labels itself, but the **set** needs a name too — otherwise the options are announced with no idea what they are choosing between. A `Field` gives the group a label and a description, and the radios sit inside it; for a bare group, a `<fieldset>` with a `<legend>` is the native equivalent."
+          caption="Each radio labels itself, but the **set** needs a name too — otherwise the options are announced with no idea what they are choosing between. The native answer is a `<fieldset>` whose `<legend>` names the group, which `asChild` gets you from `Field` without losing its layout or description. Note what this example deliberately does **not** do: a plain `Field.Label` beside radios renders a `<label htmlFor>` pointing at an id no radio claims — `Radio` does not read `FieldContext` — so the label would associate with nothing. A `<legend>` names its fieldset directly and needs no id at all."
           code={(_density, mode) =>
             [
               fieldImports(mode),
               imports(mode),
               stackImports(mode),
               ``,
-              `<Field>`,
-              `  <${fieldPart(mode)("Label")}>Plan</${fieldPart(mode)("Label")}>`,
-              `  <Stack gap="sm">`,
+              `<Field asChild>`,
+              `  <fieldset>`,
+              `    <${fieldPart(mode)("Label")} asChild><legend>Plan</legend></${fieldPart(mode)("Label")}>`,
+              `    <Stack gap="sm">`,
               ...PLANS.flatMap((p) =>
-                radioLines(mode, p.label, { attrs: ` name="tier" value="${p.value}"`, indent: "    " }),
+                radioLines(mode, p.label, { attrs: ` name="tier" value="${p.value}"`, indent: "      " }),
               ),
-              `  </Stack>`,
-              `  <${fieldPart(mode)("Description")}>You can change this at any time.</${fieldPart(mode)("Description")}>`,
+              `    </Stack>`,
+              `    <${fieldPart(mode)("Description")}>You can change this at any time.</${fieldPart(mode)("Description")}>`,
+              `  </fieldset>`,
               `</Field>`,
             ].join("\n")
           }
         >
           {() => (
             <div className="docs-example-stack">
-              <Field>
-                <FieldLabel>Plan</FieldLabel>
-                <Stack gap="sm">
-                  {PLANS.map((p) => (
-                    <Radio key={p.value} name="tier" value={p.value}>
-                      {p.label}
-                    </Radio>
-                  ))}
-                </Stack>
-                <FieldDescription>You can change this at any time.</FieldDescription>
+              <Field asChild>
+                <fieldset>
+                  <FieldLabel asChild>
+                    <legend>Plan</legend>
+                  </FieldLabel>
+                  <Stack gap="sm">
+                    {PLANS.map((p) => (
+                      <Radio key={p.value} name="tier" value={p.value}>
+                        {p.label}
+                      </Radio>
+                    ))}
+                  </Stack>
+                  <FieldDescription>You can change this at any time.</FieldDescription>
+                </fieldset>
               </Field>
             </div>
           )}

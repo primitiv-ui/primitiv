@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 
-import { Field, FieldLabel } from "@/components/field";
 import { Slider, SliderRange, SliderThumb, SliderTrack } from "@/components/slider";
 import { Stack } from "@/components/stack";
 import { contractAttr, importBlock, partNamer } from "@/lib/playground";
@@ -267,23 +266,18 @@ export const sliderSpec: ComponentSpec = {
       title: "Labelling",
       render: () => (
         <InteractiveExample
-          caption="**The name goes on the `Thumb`, not the Root.** The Thumb is the `role=&quot;slider&quot;` — it carries `aria-valuenow` and announces the position — while the Root is a plain `<span>` with no role, so an `aria-label` there is announced nowhere at all. A visible label needs an id and `aria-labelledby` on the thumb: a `Field` label does not reach it, because `Slider` does not read `FieldContext` the way `Input` and `Switch` do. On a range, label each thumb separately or both announce the same thing."
+          caption="**The name goes on the `Thumb`, not the Root.** The Thumb is the `role=&quot;slider&quot;` — it carries `aria-valuenow` and announces the position — while the Root is a plain `<span>` with no role, so an `aria-label` there is announced nowhere at all. A visible label needs an id with `aria-labelledby` on the thumb; `Field` does not do this for you, because only `Input`, `Textarea` and `Select` read `FieldContext`, so a `Field.Label` beside a slider points at an id nothing claims. On a range, label each thumb separately or both announce the same thing."
           code={(_density, mode) => {
             const p = partNamer(mode, "Slider");
             return [
-              importBlock({ mode, component: "Field", componentId: "field", parts: ["Label"] }),
               imports(mode),
               ``,
-              `<Field>`,
-              `  <${partNamer(mode, "Field")("Label")} id="volume-label">Volume</${partNamer(mode, "Field")("Label")}>`,
-              // The label is wired by hand, because the Field cascade stops short
-              // of the thumb — which is the point of this example.
+              `// a visible label needs an id, and the THUMB points at it`,
+              `<span id="volume-label">Volume</span>`,
               ...sliderLines(mode, {
                 attrs: ` defaultValue={[40]}`,
                 thumbAttrs: [` aria-labelledby="volume-label"`],
-                indent: "  ",
               }),
-              `</Field>`,
               ``,
               `// no visible label? name the thumb directly`,
               `<${p("Thumb")} aria-label="Volume" />`,
@@ -292,15 +286,19 @@ export const sliderSpec: ComponentSpec = {
         >
           {() => (
             <div className="docs-example-stack">
-              <Field>
-                <FieldLabel id="volume-label">Volume</FieldLabel>
-                <Slider defaultValue={[40]}>
-                  <SliderTrack>
-                    <SliderRange />
-                  </SliderTrack>
-                  <SliderThumb aria-labelledby="volume-label" />
-                </Slider>
-              </Field>
+              {/* Deliberately NOT `Field` + `Field.Label`: that renders a
+                  `<label htmlFor>` pointing at an id no part of the slider
+                  claims, so it would associate with nothing. A plain element
+                  with an id, referenced by the thumb, is correct today. */}
+              <span id="volume-label" className="docs-example-title">
+                Volume
+              </span>
+              <Slider defaultValue={[40]}>
+                <SliderTrack>
+                  <SliderRange />
+                </SliderTrack>
+                <SliderThumb aria-labelledby="volume-label" />
+              </Slider>
             </div>
           )}
         </InteractiveExample>
@@ -346,7 +344,7 @@ export const sliderSpec: ComponentSpec = {
   accessibility: [
     "Every thumb is a `role=\"slider\"` carrying `aria-valuenow`, `aria-valuemin` and `aria-valuemax`, so the position is announced without any work from you. What is **not** automatic is the name — the control announces \"40\" and nothing else unless you label it.",
     "**Label the `Thumb`, never the Root.** The Root renders a plain `<span>` with no role, so an `aria-label` on it is attached to nothing and announced nowhere — a silent failure, since the slider still looks and behaves correctly. `Slider.Root`'s own JSDoc example shows `aria-label` on the Root, which is misleading; the Thumb's example has it right.",
-    "A `Field` label does **not** reach the thumb. `Slider` does not read `FieldContext` (unlike `Input`, `Textarea` and `Switch`), and a `<label htmlFor>` cannot associate with a `<span role=\"slider\">` anyway. Give the label an id and point `aria-labelledby` at it from each thumb.",
+    "A `Field` label does **not** reach the thumb. Only `Input`, `Textarea` and `Select` read `FieldContext`, and a `<label htmlFor>` cannot associate with a `<span role=\"slider\">` anyway — so `Field.Label` beside a slider renders a reference to an id nothing claims. Give the label an id and point `aria-labelledby` at it from each thumb.",
     "On a range, label the thumbs separately. Two thumbs sharing one label are announced identically, which makes it impossible to tell by ear which end you are on — `aria-label=\"Minimum\"` and `\"Maximum\"` is the smallest fix.",
     "A slider is a poor fit for a value that has to be exact. Pair it with a number input when precision matters, and keep the two in sync — the slider for the rough gesture, the field for the specific figure.",
     "`onValueCommit` is the accessible place for expensive work, not a debounce. A keyboard user pressing an arrow key commits immediately on that press, so a debounce keyed to pointer movement makes the keyboard path feel broken while the mouse path feels fine.",

@@ -1160,11 +1160,11 @@
       "xl": { "radius-inset": { "$type": "number", "$value": "{radii.12}" } }
     },
     "choice-card": {
-      "xs": { "padding": { "$type": "number", "$value": "{space.space-12}" }, "indicator-offset-top": { "$type": "number", "$value": "{space.space-3}" } },
-      "sm": { "padding": { "$type": "number", "$value": "{space.space-14}" }, "indicator-offset-top": { "$type": "number", "$value": "{space.space-3}" } },
-      "md": { "padding": { "$type": "number", "$value": "{space.space-16}" }, "indicator-offset-top": { "$type": "number", "$value": "{space.space-4}" } },
-      "lg": { "padding": { "$type": "number", "$value": "{space.space-20}" }, "indicator-offset-top": { "$type": "number", "$value": "{space.space-4}" } },
-      "xl": { "padding": { "$type": "number", "$value": "{space.space-24}" }, "indicator-offset-top": { "$type": "number", "$value": "{space.space-6}" } }
+      "xs": { "padding": { "$type": "number", "$value": "{space.space-12}" }, "gap": { "$type": "number", "$value": "{space.space-6}" }, "content-gap": { "$type": "number", "$value": "{space.space-14}" } },
+      "sm": { "padding": { "$type": "number", "$value": "{space.space-14}" }, "gap": { "$type": "number", "$value": "{space.space-10}" }, "content-gap": { "$type": "number", "$value": "{space.space-16}" } },
+      "md": { "padding": { "$type": "number", "$value": "{space.space-16}" }, "gap": { "$type": "number", "$value": "{space.space-10}" }, "content-gap": { "$type": "number", "$value": "{space.space-20}" } },
+      "lg": { "padding": { "$type": "number", "$value": "{space.space-20}" }, "gap": { "$type": "number", "$value": "{space.space-12}" }, "content-gap": { "$type": "number", "$value": "{space.space-24}" } },
+      "xl": { "padding": { "$type": "number", "$value": "{space.space-24}" }, "gap": { "$type": "number", "$value": "{space.space-14}" }, "content-gap": { "$type": "number", "$value": "{space.space-28}" } }
     },
     "label-control": {
       "xs": {
@@ -4577,11 +4577,11 @@
       "xl": { "radius-inset": { "$type": "number", "$value": "{radii.10}" } }
     },
     "choice-card": {
-      "xs": { "padding": { "$type": "number", "$value": "{space.space-10}" }, "indicator-offset-top": { "$type": "number", "$value": "{space.space-2}" } },
-      "sm": { "padding": { "$type": "number", "$value": "{space.space-12}" }, "indicator-offset-top": { "$type": "number", "$value": "{space.space-2}" } },
-      "md": { "padding": { "$type": "number", "$value": "{space.space-14}" }, "indicator-offset-top": { "$type": "number", "$value": "{space.space-3}" } },
-      "lg": { "padding": { "$type": "number", "$value": "{space.space-16}" }, "indicator-offset-top": { "$type": "number", "$value": "{space.space-4}" } },
-      "xl": { "padding": { "$type": "number", "$value": "{space.space-20}" }, "indicator-offset-top": { "$type": "number", "$value": "{space.space-4}" } }
+      "xs": { "padding": { "$type": "number", "$value": "{space.space-10}" }, "gap": { "$type": "number", "$value": "{space.space-4}" }, "content-gap": { "$type": "number", "$value": "{space.space-12}" } },
+      "sm": { "padding": { "$type": "number", "$value": "{space.space-12}" }, "gap": { "$type": "number", "$value": "{space.space-8}" }, "content-gap": { "$type": "number", "$value": "{space.space-16}" } },
+      "md": { "padding": { "$type": "number", "$value": "{space.space-14}" }, "gap": { "$type": "number", "$value": "{space.space-8}" }, "content-gap": { "$type": "number", "$value": "{space.space-16}" } },
+      "lg": { "padding": { "$type": "number", "$value": "{space.space-16}" }, "gap": { "$type": "number", "$value": "{space.space-10}" }, "content-gap": { "$type": "number", "$value": "{space.space-20}" } },
+      "xl": { "padding": { "$type": "number", "$value": "{space.space-20}" }, "gap": { "$type": "number", "$value": "{space.space-12}" }, "content-gap": { "$type": "number", "$value": "{space.space-24}" } }
     },
     "label-control": {
       "xs": {
@@ -7994,11 +7994,11 @@
       "xl": { "radius-inset": { "$type": "number", "$value": "{radii.16}" } }
     },
     "choice-card": {
-      "xs": { "padding": { "$type": "number", "$value": "{space.space-14}" }, "indicator-offset-top": { "$type": "number", "$value": "{space.space-2}" } },
-      "sm": { "padding": { "$type": "number", "$value": "{space.space-16}" }, "indicator-offset-top": { "$type": "number", "$value": "{space.space-4}" } },
-      "md": { "padding": { "$type": "number", "$value": "{space.space-20}" }, "indicator-offset-top": { "$type": "number", "$value": "{space.space-4}" } },
-      "lg": { "padding": { "$type": "number", "$value": "{space.space-24}" }, "indicator-offset-top": { "$type": "number", "$value": "{space.space-6}" } },
-      "xl": { "padding": { "$type": "number", "$value": "{space.space-28}" }, "indicator-offset-top": { "$type": "number", "$value": "{space.space-6}" } }
+      "xs": { "padding": { "$type": "number", "$value": "{space.space-14}" }, "gap": { "$type": "number", "$value": "{space.space-8}" }, "content-gap": { "$type": "number", "$value": "{space.space-16}" } },
+      "sm": { "padding": { "$type": "number", "$value": "{space.space-16}" }, "gap": { "$type": "number", "$value": "{space.space-12}" }, "content-gap": { "$type": "number", "$value": "{space.space-20}" } },
+      "md": { "padding": { "$type": "number", "$value": "{space.space-20}" }, "gap": { "$type": "number", "$value": "{space.space-12}" }, "content-gap": { "$type": "number", "$value": "{space.space-24}" } },
+      "lg": { "padding": { "$type": "number", "$value": "{space.space-24}" }, "gap": { "$type": "number", "$value": "{space.space-16}" }, "content-gap": { "$type": "number", "$value": "{space.space-28}" } },
+      "xl": { "padding": { "$type": "number", "$value": "{space.space-28}" }, "gap": { "$type": "number", "$value": "{space.space-20}" }, "content-gap": { "$type": "number", "$value": "{space.space-28}" } }
     },
     "label-control": {
       "xs": {
@@ -11411,11 +11411,11 @@
       "xl": { "radius-inset": { "$type": "number", "$value": "{radii.8}" } }
     },
     "choice-card": {
-      "xs": { "padding": { "$type": "number", "$value": "{space.space-8}" }, "indicator-offset-top": { "$type": "number", "$value": "{space.space-1}" } },
-      "sm": { "padding": { "$type": "number", "$value": "{space.space-10}" }, "indicator-offset-top": { "$type": "number", "$value": "{space.space-1}" } },
-      "md": { "padding": { "$type": "number", "$value": "{space.space-12}" }, "indicator-offset-top": { "$type": "number", "$value": "{space.space-2}" } },
-      "lg": { "padding": { "$type": "number", "$value": "{space.space-14}" }, "indicator-offset-top": { "$type": "number", "$value": "{space.space-1}" } },
-      "xl": { "padding": { "$type": "number", "$value": "{space.space-16}" }, "indicator-offset-top": { "$type": "number", "$value": "{space.space-2}" } }
+      "xs": { "padding": { "$type": "number", "$value": "{space.space-8}" }, "gap": { "$type": "number", "$value": "{space.space-4}" }, "content-gap": { "$type": "number", "$value": "{space.space-10}" } },
+      "sm": { "padding": { "$type": "number", "$value": "{space.space-10}" }, "gap": { "$type": "number", "$value": "{space.space-6}" }, "content-gap": { "$type": "number", "$value": "{space.space-10}" } },
+      "md": { "padding": { "$type": "number", "$value": "{space.space-12}" }, "gap": { "$type": "number", "$value": "{space.space-8}" }, "content-gap": { "$type": "number", "$value": "{space.space-12}" } },
+      "lg": { "padding": { "$type": "number", "$value": "{space.space-14}" }, "gap": { "$type": "number", "$value": "{space.space-8}" }, "content-gap": { "$type": "number", "$value": "{space.space-12}" } },
+      "xl": { "padding": { "$type": "number", "$value": "{space.space-16}" }, "gap": { "$type": "number", "$value": "{space.space-10}" }, "content-gap": { "$type": "number", "$value": "{space.space-16}" } }
     },
     "label-control": {
       "xs": {

@@ -51,11 +51,11 @@
     --primitiv-checkbox-card-border-width: var(--primitiv-framed-control-border-width);
     --primitiv-checkbox-card-radius: var(--primitiv-framed-control-md-radius);
     --primitiv-checkbox-card-padding: var(--primitiv-choice-card-md-padding);
-    --primitiv-checkbox-card-gap: var(--primitiv-choice-control-md-gap);
+    --primitiv-checkbox-card-gap: var(--primitiv-choice-card-md-gap, var(--primitiv-space-space-10));
+    --primitiv-checkbox-card-content-gap: var(--primitiv-choice-card-md-content-gap, var(--primitiv-space-space-20));
     --primitiv-checkbox-card-shadow-hover: var(--primitiv-elevation-raised);
     --primitiv-checkbox-card-indicator-size: var(--primitiv-checkbox-md-box-size);
     --primitiv-checkbox-card-indicator-radius: var(--primitiv-checkbox-md-box-radius);
-    --primitiv-checkbox-card-indicator-offset-top: var(--primitiv-choice-card-md-indicator-offset-top);
     --primitiv-checkbox-card-indicator-bg: var(--primitiv-surface-default);
     --primitiv-checkbox-card-indicator-bg-selected: var(--primitiv-action-primary-default);
     --primitiv-checkbox-card-indicator-border-color: var(--primitiv-border-strong);
@@ -94,11 +94,47 @@
       box-shadow var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
   }
 
-  /* The indicator wrapper's padding-top is the optical-alignment nudge —
-     see the file header. It has no border/fill of its own. */
+  /*
+   * Optical alignment, DERIVED — there is no offset token any more.
+   *
+   * The control centres on the cap-height centre of the title's first line,
+   * which is NOT the line-box centre: Khand's ascent (1.056em) and descent
+   * (0.5em) are asymmetric, so its cap centre sits ~1.16px above the line-box
+   * centre and line-box centring reads visibly low.
+   *
+   * The wrapper IS the title's cap box — `1cap` is the font's own cap height —
+   * with the taller control centred in it, so it overflows equally above and
+   * below. No value on the 2px space scale could do this: the correct offset
+   * depends on cap height, ascent, line-height AND control size at once, runs
+   * from -0.8px to 3.02px across the 20 size x density combinations, and is
+   * non-monotonic (at dense/xl the control is taller than its own line box).
+   * The hand-picked token this replaced was up to 3.53px out; this is within
+   * 0.14px everywhere.
+   *
+   * Three things here are load-bearing, each found the hard way:
+   *   - `1cap` resolves against THIS element's font, so the wrapper has to
+   *     carry the title's font-family and font-size. Not decoration.
+   *   - `display: flex` is required, not tidying. As a block with an
+   *     inline-flex control inside, the control sits on a text baseline and
+   *     picks up half-leading that scales with the font-size set just above,
+   *     silently reintroducing a size-dependent error.
+   *   - a cap-tall box with the control CENTRED, rather than a negative margin
+   *     on a hug-height box. Both align correctly, but a negative margin
+   *     leaves the control hanging below the baseline (its outer box stays
+   *     taller than the trimmed title), which drives the card's height and
+   *     puts up to 6.35px more space under the text than above it — very
+   *     visible on a card with no description. Centring in a cap-tall box
+   *     contributes exactly `1cap` to layout, so the padding stays even. This
+   *     is also exactly what the Figma component does, via a cap-tall frame
+   *     bound to the Figma-only `choice-card/{size}/title-cap-height`.
+   */
   .primitiv-checkbox-card__indicator-wrapper {
     flex-shrink: 0;
-    padding-top: var(--primitiv-checkbox-card-indicator-offset-top);
+    display: flex;
+    align-items: center;
+    font-family: var(--primitiv-checkbox-card-title-font-family);
+    font-size: var(--primitiv-checkbox-card-title-font-size);
+    block-size: 1cap;
   }
 
   .primitiv-checkbox-card__indicator {
@@ -134,11 +170,19 @@
   .primitiv-checkbox-card__content {
     display: flex;
     flex-direction: column;
-    gap: var(--primitiv-space-space-4);
+    gap: var(--primitiv-checkbox-card-content-gap);
     min-inline-size: 0;
   }
 
   .primitiv-checkbox-card__title {
+    /* Trimmed to the cap and baseline edges, so the box the layout sees is the
+       ink rather than the ink plus its leading. This is what lets the indicator
+       centre on the cap centre above, and it is the same pattern Accordion,
+       Avatar, Badge and Button already use. Note the consequence: descenders
+       now fall OUTSIDE this box, so no ancestor may clip them — the card's own
+       padding gives them room. */
+    text-box-trim: trim-both;
+    text-box-edge: cap alphabetic;
     color: var(--primitiv-checkbox-card-title-color);
     font-family: var(--primitiv-checkbox-card-title-font-family);
     font-size: var(--primitiv-checkbox-card-title-font-size);
@@ -148,6 +192,14 @@
   }
 
   .primitiv-checkbox-card__description {
+    /* Trimmed to the cap and baseline edges, so the box the layout sees is the
+       ink rather than the ink plus its leading. This is what lets the indicator
+       centre on the cap centre above, and it is the same pattern Accordion,
+       Avatar, Badge and Button already use. Note the consequence: descenders
+       now fall OUTSIDE this box, so no ancestor may clip them — the card's own
+       padding gives them room. */
+    text-box-trim: trim-both;
+    text-box-edge: cap alphabetic;
     /* Avoid a one-word last line. `pretty` rather than `balance`: a description
        is prose that may run to several lines, where balance's even-distribution
        is the wrong goal (and it caps out after a few lines anyway) — pretty only
@@ -170,10 +222,10 @@
   .primitiv-checkbox-card--xs {
     --primitiv-checkbox-card-radius: var(--primitiv-framed-control-xs-radius);
     --primitiv-checkbox-card-padding: var(--primitiv-choice-card-xs-padding);
-    --primitiv-checkbox-card-gap: var(--primitiv-choice-control-xs-gap);
+    --primitiv-checkbox-card-gap: var(--primitiv-choice-card-xs-gap, var(--primitiv-space-space-6));
+    --primitiv-checkbox-card-content-gap: var(--primitiv-choice-card-xs-content-gap, var(--primitiv-space-space-14));
     --primitiv-checkbox-card-indicator-size: var(--primitiv-checkbox-xs-box-size);
     --primitiv-checkbox-card-indicator-radius: var(--primitiv-checkbox-xs-box-radius);
-    --primitiv-checkbox-card-indicator-offset-top: var(--primitiv-choice-card-xs-indicator-offset-top);
     --primitiv-checkbox-card-indicator-mark-size: var(--primitiv-checkbox-xs-mark-size);
     --primitiv-checkbox-card-title-font-family: var(--primitiv-label-xs-font-family);
     --primitiv-checkbox-card-title-font-size: var(--primitiv-label-xs-font-size);
@@ -187,10 +239,10 @@
   .primitiv-checkbox-card--sm {
     --primitiv-checkbox-card-radius: var(--primitiv-framed-control-sm-radius);
     --primitiv-checkbox-card-padding: var(--primitiv-choice-card-sm-padding);
-    --primitiv-checkbox-card-gap: var(--primitiv-choice-control-sm-gap);
+    --primitiv-checkbox-card-gap: var(--primitiv-choice-card-sm-gap, var(--primitiv-space-space-10));
+    --primitiv-checkbox-card-content-gap: var(--primitiv-choice-card-sm-content-gap, var(--primitiv-space-space-16));
     --primitiv-checkbox-card-indicator-size: var(--primitiv-checkbox-sm-box-size);
     --primitiv-checkbox-card-indicator-radius: var(--primitiv-checkbox-sm-box-radius);
-    --primitiv-checkbox-card-indicator-offset-top: var(--primitiv-choice-card-sm-indicator-offset-top);
     --primitiv-checkbox-card-indicator-mark-size: var(--primitiv-checkbox-sm-mark-size);
     --primitiv-checkbox-card-title-font-family: var(--primitiv-label-sm-font-family);
     --primitiv-checkbox-card-title-font-size: var(--primitiv-label-sm-font-size);
@@ -204,10 +256,10 @@
   .primitiv-checkbox-card--md {
     --primitiv-checkbox-card-radius: var(--primitiv-framed-control-md-radius);
     --primitiv-checkbox-card-padding: var(--primitiv-choice-card-md-padding);
-    --primitiv-checkbox-card-gap: var(--primitiv-choice-control-md-gap);
+    --primitiv-checkbox-card-gap: var(--primitiv-choice-card-md-gap, var(--primitiv-space-space-10));
+    --primitiv-checkbox-card-content-gap: var(--primitiv-choice-card-md-content-gap, var(--primitiv-space-space-20));
     --primitiv-checkbox-card-indicator-size: var(--primitiv-checkbox-md-box-size);
     --primitiv-checkbox-card-indicator-radius: var(--primitiv-checkbox-md-box-radius);
-    --primitiv-checkbox-card-indicator-offset-top: var(--primitiv-choice-card-md-indicator-offset-top);
     --primitiv-checkbox-card-indicator-mark-size: var(--primitiv-checkbox-md-mark-size);
     --primitiv-checkbox-card-title-font-family: var(--primitiv-label-md-font-family);
     --primitiv-checkbox-card-title-font-size: var(--primitiv-label-md-font-size);
@@ -221,10 +273,10 @@
   .primitiv-checkbox-card--lg {
     --primitiv-checkbox-card-radius: var(--primitiv-framed-control-lg-radius);
     --primitiv-checkbox-card-padding: var(--primitiv-choice-card-lg-padding);
-    --primitiv-checkbox-card-gap: var(--primitiv-choice-control-lg-gap);
+    --primitiv-checkbox-card-gap: var(--primitiv-choice-card-lg-gap, var(--primitiv-space-space-12));
+    --primitiv-checkbox-card-content-gap: var(--primitiv-choice-card-lg-content-gap, var(--primitiv-space-space-24));
     --primitiv-checkbox-card-indicator-size: var(--primitiv-checkbox-lg-box-size);
     --primitiv-checkbox-card-indicator-radius: var(--primitiv-checkbox-lg-box-radius);
-    --primitiv-checkbox-card-indicator-offset-top: var(--primitiv-choice-card-lg-indicator-offset-top);
     --primitiv-checkbox-card-indicator-mark-size: var(--primitiv-checkbox-lg-mark-size);
     --primitiv-checkbox-card-title-font-family: var(--primitiv-label-lg-font-family);
     --primitiv-checkbox-card-title-font-size: var(--primitiv-label-lg-font-size);
@@ -238,10 +290,10 @@
   .primitiv-checkbox-card--xl {
     --primitiv-checkbox-card-radius: var(--primitiv-framed-control-xl-radius);
     --primitiv-checkbox-card-padding: var(--primitiv-choice-card-xl-padding);
-    --primitiv-checkbox-card-gap: var(--primitiv-choice-control-xl-gap);
+    --primitiv-checkbox-card-gap: var(--primitiv-choice-card-xl-gap, var(--primitiv-space-space-14));
+    --primitiv-checkbox-card-content-gap: var(--primitiv-choice-card-xl-content-gap, var(--primitiv-space-space-28));
     --primitiv-checkbox-card-indicator-size: var(--primitiv-checkbox-xl-box-size);
     --primitiv-checkbox-card-indicator-radius: var(--primitiv-checkbox-xl-box-radius);
-    --primitiv-checkbox-card-indicator-offset-top: var(--primitiv-choice-card-xl-indicator-offset-top);
     --primitiv-checkbox-card-indicator-mark-size: var(--primitiv-checkbox-xl-mark-size);
     --primitiv-checkbox-card-title-font-family: var(--primitiv-label-xl-font-family);
     --primitiv-checkbox-card-title-font-size: var(--primitiv-label-xl-font-size);

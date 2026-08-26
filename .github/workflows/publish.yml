@@ -161,18 +161,39 @@ jobs:
 
       # Platform packages must land before the wrapper (which lists them as
       # optionalDependencies), so npm can resolve them on install.
+      #
+      # Guarded by an existence check: npm versions are immutable, and a
+      # workflow dispatch always restarts this job from the top, so a retry
+      # after a *later* step fails (as happened publishing v0.1.30 — the
+      # harmoni-wasm auth bootstrap failed after these had already gone out)
+      # would otherwise abort immediately trying to republish an already-live
+      # version. Skipping what's already there makes every publish step in
+      # this job safe to retry.
       - name: Publish CLI platform packages
         run: |
           for pkg in cli-darwin-arm64 cli-darwin-x64 cli-linux-x64-gnu cli-linux-arm64-gnu cli-win32-x64; do
             echo "::group::publish @primitiv-ui/$pkg"
-            (cd "npm/$pkg" && npm publish --access public --provenance)
+            name="@primitiv-ui/$pkg"
+            version=$(node -p "require('./npm/$pkg/package.json').version")
+            if npm view "$name@$version" version >/dev/null 2>&1; then
+              echo "  $name@$version already published — skipping"
+            else
+              (cd "npm/$pkg" && npm publish --access public --provenance)
+            fi
             echo "::endgroup::"
           done
 
       - name: Publish CLI wrapper and scaffold
         run: |
-          (cd npm/cli-wrapper      && npm publish --access public --provenance)
-          (cd npm/create-primitiv-ui && npm publish --access public --provenance)
+          for dir in npm/cli-wrapper npm/create-primitiv-ui; do
+            name=$(node -p "require('./$dir/package.json').name")
+            version=$(node -p "require('./$dir/package.json').version")
+            if npm view "$name@$version" version >/dev/null 2>&1; then
+              echo "  $name@$version already published — skipping"
+            else
+              (cd "$dir" && npm publish --access public --provenance)
+            fi
+          done
 
       # Re-scope the same pkg/ dir `pnpm install` just resolved as unscoped
       # "harmoni-wasm" (comment above) — nothing after this point re-reads
@@ -196,7 +217,12 @@ jobs:
           echo "//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}" >> ~/.npmrc
           cd crates/harmoni-wasm/pkg
           npm pkg set name="@primitiv-ui/harmoni-wasm"
-          npm publish --access public --provenance
+          version=$(node -p "require('./package.json').version")
+          if npm view "@primitiv-ui/harmoni-wasm@$version" version >/dev/null 2>&1; then
+            echo "  @primitiv-ui/harmoni-wasm@$version already published — skipping"
+          else
+            npm publish --access public --provenance
+          fi
 
       # pnpm -r publish skips packages with "private": true automatically.
       - name: Publish libraries to npm

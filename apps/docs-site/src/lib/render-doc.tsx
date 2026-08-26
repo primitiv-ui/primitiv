@@ -14,15 +14,21 @@ type Size = "xs" | "sm" | "md" | "lg" | "xl";
  *
  * Deliberately NOT a markdown renderer, and deliberately not
  * `dangerouslySetInnerHTML`: doc comments are authored prose, not trusted
- * markup, so this splits on the two forms that actually occur and builds
+ * markup, so this splits on the three forms that actually occur and builds
  * elements from the pieces. Anything it does not recognise stays plain text.
+ *
+ * `**bold**` is one of those three because doc comments genuinely use it —
+ * source JSDoc, `contract.json` descriptions and every hand-authored spec string
+ * on this site do — and without it a reader sees the asterisks. It was missing
+ * for as long as the site has existed, which is exactly the failure mode this
+ * function is for: authoring markup printed as punctuation.
  *
  * `size` should match the surrounding type — `InlineCode` inherits nothing about
  * size from its context, so a chip in a 20px lede and a chip in a 14px table
  * cell have to be told separately or one of them looks wrong.
  */
 export const renderDoc = (text: string, size: Size = "md"): ReactNode[] => {
-  const parts = text.split(/(`[^`]+`|\{@link\s+[^}]+\})/g);
+  const parts = text.split(/(`[^`]+`|\{@link\s+[^}]+\}|\*\*[^*]+\*\*)/g);
 
   return parts.map((part, i) => {
     if (part.length > 1 && part.startsWith("`") && part.endsWith("`")) {
@@ -31,6 +37,16 @@ export const renderDoc = (text: string, size: Size = "md"): ReactNode[] => {
           {part.slice(1, -1)}
         </InlineCode>
       );
+    }
+    /*
+     * Bold. The code-span alternative is FIRST in the pattern above, so a
+     * backticked span is always captured before this can claim it; the inner
+     * text is run back through `renderDoc` so a code span inside bold still
+     * becomes a chip rather than raw backticks. (No string does that today —
+     * checked — but the recursion costs nothing and removes the trap.)
+     */
+    if (part.length > 4 && part.startsWith("**") && part.endsWith("**")) {
+      return <strong key={i}>{renderDoc(part.slice(2, -2), size)}</strong>;
     }
     // `{@link Target | label}` — take the target, drop any display label.
     const link = part.match(/^\{@link\s+([^}\s|]+)/);

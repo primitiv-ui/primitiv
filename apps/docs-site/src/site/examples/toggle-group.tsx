@@ -237,7 +237,7 @@ export const toggleGroupSpec: ComponentSpec = {
       title: "Sizing the track (justify)",
       render: () => (
         <InteractiveExample
-          caption="`justify=&quot;content&quot;` (the default) sizes each item to its own content — right for an icon toolbar, where equal widths would stretch the glyphs apart. `justified` makes them share the track equally, which suits word labels of uneven length. **The difference only appears when the track has room to distribute**: a group that hugs its own contents renders the two identically, so both rows below are given the full column width."
+          caption="`justify=&quot;content&quot;` (the default) sizes each item to its own content, so the whole control hugs — right for an icon toolbar, where equal widths would stretch the glyphs apart. `justified` shares the track's width equally between the items, which suits word labels of uneven length. The two rows below are drawn in **different containers on purpose**, because that is the difference: the first sizes itself, the second fills the column it is given. `justified` in a container that hugs has nothing to distribute and comes out identical to `content`."
           code={(_density, mode) =>
             [
               imports(mode),
@@ -255,19 +255,47 @@ export const toggleGroupSpec: ComponentSpec = {
           }
         >
           {() => (
-            /* NOT a bare Stack: Stack's width is content-driven, so with only
-               groups inside it hugs them and `justified` has nothing to
-               distribute — the two rows then render identically, which is what
-               this example looked like until it was measured.
-               `.docs-example-stack` is inline-size: 100%. */
+            /*
+             * The two rows deliberately get DIFFERENT containers, because that
+             * is the actual behaviour rather than a presentation choice.
+             *
+             * `content` hugs, so it is left to size itself — wrapping it in a
+             * full-width box gave a 590px track around 209px of items, which
+             * reads as broken. `justified` distributes whatever width it is
+             * given, so it needs a box to fill; in a hugging container it has
+             * nothing to share out and renders identically to `content`, which
+             * is how this example started.
+             */
+            /*
+             * The OUTER box must be full width. An `align="start"` Stack shrinks
+             * to its content, and a percentage width inside a shrunken box
+             * resolves against that shrunken width — so wrapping this in one
+             * silently took `justified` back to hugging and made the two rows
+             * identical again. `.docs-example-stack` is inline-size: 100%.
+             */
             <div className="docs-example-stack">
-              {(["content", "justified"] as const).map((j) => (
-                <ToggleGroup key={j} type="single" justify={j} defaultValue="day" aria-label={`Period, ${j}`}>
+              {/* align="start" so this row hugs, which is what `content` does */}
+              <Stack gap="xs" align="start">
+                <ToggleGroup type="single" justify="content" defaultValue="day" aria-label="Period, content">
                   <ToggleGroupItem value="day">Day</ToggleGroupItem>
                   <ToggleGroupItem value="week">Week</ToggleGroupItem>
                   <ToggleGroupItem value="quarter">Quarter</ToggleGroupItem>
                 </ToggleGroup>
-              ))}
+                <p className="docs-example-caption">
+                  <code>content</code> — the control sizes itself to its items
+                </p>
+              </Stack>
+              {/* stretches, so `justified` has a width to share out */}
+              <Stack gap="xs">
+                <ToggleGroup type="single" justify="justified" defaultValue="day" aria-label="Period, justified">
+                  <ToggleGroupItem value="day">Day</ToggleGroupItem>
+                  <ToggleGroupItem value="week">Week</ToggleGroupItem>
+                  <ToggleGroupItem value="quarter">Quarter</ToggleGroupItem>
+                </ToggleGroup>
+                <p className="docs-example-caption">
+                  <code>justified</code> — the items share the container equally
+                </p>
+              </Stack>
             </div>
           )}
         </InteractiveExample>

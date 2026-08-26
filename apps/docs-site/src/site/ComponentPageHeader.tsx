@@ -84,14 +84,19 @@ export const ComponentPageHeader = ({ docs }: { docs: ComponentDocs }) => (
       >
         Source <ExternalLink size={14} />
       </a>
-      <a
-        className="docs-meta-link"
-        href={`https://www.figma.com/design/${FIGMA_FILE}/?node-id=${docs.figma.componentSetKey.replace(":", "-")}`}
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        Figma <ExternalLink size={14} />
-      </a>
+      {/* Omitted when the component has no Figma set of its own — `input-group`
+          is the first. A link to the nearest other component would be worse
+          than none: it lands a designer on something that is not this. */}
+      {docs.figma.componentSetKey && (
+        <a
+          className="docs-meta-link"
+          href={`https://www.figma.com/design/${FIGMA_FILE}/?node-id=${docs.figma.componentSetKey.replace(":", "-")}`}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Figma <ExternalLink size={14} />
+        </a>
+      )}
     </Stack>
 
     {/* Generated JSDoc, so it carries backticks — Button's own description ends

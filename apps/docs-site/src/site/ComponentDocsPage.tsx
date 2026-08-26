@@ -146,11 +146,22 @@ export const ComponentDocsPage = ({ id }: { id: ComponentId }) => {
                * Figma is the exception, and honestly so: there is no import. It
                * shows the library → component path instead, in the same slot,
                * with the label changed rather than a fake import invented.
+               *
+               * And when the component has no Figma set at all, it says so
+               * rather than naming a path that would not resolve — the same call
+               * the header makes about the Figma link. `input-group` is the
+               * first: it exists in code and in the kitchen-sink, but the Figma
+               * file draws its adornment case as a note on Input rather than as
+               * a set of its own.
                */}
               {mode === "figma" ? (
                 /* Not code, so not a code chip: a library → component path,
                    which syntax highlighting would misrepresent. */
-                <InlineCode size="sm">{`Primitiv / ${docs.displayName}`}</InlineCode>
+                <InlineCode size="sm">
+                  {docs.figma.componentSetKey
+                    ? `Primitiv / ${docs.displayName}`
+                    : "Not in the Figma library yet"}
+                </InlineCode>
               ) : (
                 /* CodeBlock's inline variant: the chip shape this slot had all
                    along, now with the highlighting it was missing. Highlighting

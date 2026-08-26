@@ -25,6 +25,7 @@ import inputDocs from "@/docs-data/input.docs.json";
 import accordionDocs from "@/docs-data/accordion.docs.json";
 import checkboxDocs from "@/docs-data/checkbox.docs.json";
 import fieldDocs from "@/docs-data/field.docs.json";
+import inputGroupDocs from "@/docs-data/input-group.docs.json";
 import modalDocs from "@/docs-data/modal.docs.json";
 import radioDocs from "@/docs-data/radio.docs.json";
 import segmentedControlDocs from "@/docs-data/segmented-control.docs.json";
@@ -188,8 +189,16 @@ export type ComponentDocs = {
     readonly customProperties: readonly DocsCustomProperty[];
     readonly dataAttributes: readonly DocsDataAttribute[];
   };
-  /** Figma node id, so the page can deep-link to the component set. */
-  readonly figma: { readonly componentSetKey: string };
+  /**
+   * Figma node id, so the page can deep-link to the component set.
+   *
+   * **Optional, because not every component has a set.** `input-group` is the
+   * first: the Figma file draws Input's adornment case as a note on Input's own
+   * entry rather than as a component set of its own. Pointing the link at Input
+   * instead would land a designer on a different component — a wrong link is
+   * worse than no link — so the header omits the Figma link when this is absent.
+   */
+  readonly figma: { readonly componentSetKey?: string };
 };
 
 const DOCS = {
@@ -199,6 +208,7 @@ const DOCS = {
   accordion: accordionDocs as unknown as ComponentDocs,
   checkbox: checkboxDocs as unknown as ComponentDocs,
   field: fieldDocs as unknown as ComponentDocs,
+  "input-group": inputGroupDocs as unknown as ComponentDocs,
   modal: modalDocs as unknown as ComponentDocs,
   radio: radioDocs as unknown as ComponentDocs,
   "segmented-control": segmentedControlDocs as unknown as ComponentDocs,

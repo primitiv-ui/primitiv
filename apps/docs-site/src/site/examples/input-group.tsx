@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+
 import { Close, Search } from "@primitiv-ui/icons";
 
 import { Button } from "@/components/button";
@@ -33,40 +35,72 @@ const buttonImports = (mode: Mode) => importBlock({ mode, component: "Button", c
 const iconImports = (icons: readonly string[]) => `import { ${icons.join(", ")} } from "@primitiv-ui/icons";`;
 
 /**
- * The search-field composition, per mode. Both surfaces have the same shape, so
- * this only varies the naming.
+ * The search-field composition, per mode — with the state that makes Clear do
+ * something. Both surfaces have the same shape, so this only varies the naming.
+ *
+ * The Clear button is only rendered once there is something to clear, which is
+ * also what keeps it from being a permanently-present control that does nothing.
  */
 const searchLines = (mode: Mode, { attrs = "" }: { attrs?: string } = {}) => {
   const p = partNamer(mode, "InputGroup");
   return [
+    `const [query, setQuery] = useState("");`,
+    ``,
     `<${p("Root")}${attrs}>`,
     `  <${p("LeadingAdornment")}>`,
     `    <Search aria-hidden="true" />`,
     `  </${p("LeadingAdornment")}>`,
-    `  <Input aria-label="Search" type="search" placeholder="Search..." />`,
-    `  <${p("TrailingAdornment")} asChild>`,
-    `    <Button variant="ghost" size="xs" aria-label="Clear">`,
-    `      <Close aria-hidden="true" />`,
-    `    </Button>`,
-    `  </${p("TrailingAdornment")}>`,
+    `  <Input`,
+    `    aria-label="Search"`,
+    `    type="search"`,
+    `    placeholder="Search..."`,
+    `    value={query}`,
+    `    onChange={(e) => setQuery(e.target.value)}`,
+    `  />`,
+    `  {query && (`,
+    `    <${p("TrailingAdornment")} asChild>`,
+    `      <Button variant="ghost" size="xs" aria-label="Clear" onClick={() => setQuery("")}>`,
+    `        <Close aria-hidden="true" />`,
+    `      </Button>`,
+    `    </${p("TrailingAdornment")}>`,
+    `  )}`,
     `</${p("Root")}>`,
   ];
 };
 
-/** The reference composition, reused across examples. */
-const SearchField = ({ size }: { size?: Size }) => (
-  <InputGroup size={size}>
-    <InputGroupLeadingAdornment>
-      <Search aria-hidden="true" />
-    </InputGroupLeadingAdornment>
-    <Input aria-label="Search" type="search" placeholder="Search..." />
-    <InputGroupTrailingAdornment asChild>
-      <Button variant="ghost" size="xs" aria-label="Clear">
-        <Close aria-hidden="true" />
-      </Button>
-    </InputGroupTrailingAdornment>
-  </InputGroup>
-);
+/**
+ * The reference composition, reused across examples — a real search field.
+ *
+ * Clear genuinely clears, because a control that does nothing teaches the wrong
+ * thing about which slot to put a control in. It also only appears when there is
+ * a value, which is the conventional behaviour and means the trailing slot is
+ * empty (and the frame unchanged) on an empty field.
+ */
+const SearchField = ({ size }: { size?: Size }) => {
+  const [query, setQuery] = useState("");
+
+  return (
+    <InputGroup size={size}>
+      <InputGroupLeadingAdornment>
+        <Search aria-hidden="true" />
+      </InputGroupLeadingAdornment>
+      <Input
+        aria-label="Search"
+        type="search"
+        placeholder="Search..."
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+      />
+      {query && (
+        <InputGroupTrailingAdornment asChild>
+          <Button variant="ghost" size="xs" aria-label="Clear" onClick={() => setQuery("")}>
+            <Close aria-hidden="true" />
+          </Button>
+        </InputGroupTrailingAdornment>
+      )}
+    </InputGroup>
+  );
+};
 
 /**
  * InputGroup's page content.
@@ -92,6 +126,7 @@ export const inputGroupSpec: ComponentSpec = {
     fill: true,
     snippet: (values, mode) =>
       [
+        `import { useState } from "react";`,
         iconImports(["Close", "Search"]),
         imports(mode),
         inputImports(mode),
@@ -121,6 +156,7 @@ export const inputGroupSpec: ComponentSpec = {
           caption="This is the decision the API cannot make for you, and both adornments below get it right in opposite ways. The leading `Search` glyph is **decorative** — it repeats what the placeholder already says, so it is `aria-hidden` and reaches no one twice. The trailing Clear is **interactive**: it does something, so it is a real `Button` (via `asChild`, which merges the slot's positioning onto it), it is focusable, and it carries its own `aria-label` because an icon-only control has no text to be named by. Get this backwards and you either hide a control from assistive technology or announce a picture."
           code={(_density, mode) =>
             [
+              `import { useState } from "react";`,
               iconImports(["Close", "Search"]),
               imports(mode),
               inputImports(mode),
@@ -251,5 +287,6 @@ export const inputGroupSpec: ComponentSpec = {
     "Mind the tab order. A trailing control comes **after** the input in the DOM, which is what a keyboard user expects — type, then Tab to Clear. Putting an interactive control in the *leading* slot puts it before the field, so reach for that only when the action genuinely precedes typing.",
     "The focus ring is drawn on the frame but focus is on the input, via `:focus-within`. That is deliberate: the visible ring matches the frame the user sees while the real focus target stays the control, so screen-reader focus and visible focus never disagree.",
     "A unit or currency adornment describes the expected format, so it belongs in the accessible name or a `Field` description too — a glyph outside the input is not read as part of it.",
+    "**`type=\"search\"` grows its own clear button**, and it used to collide with this one: WebKit and Blink draw `::-webkit-search-cancel-button` as soon as the field has a value, so a group with its own Clear rendered **two** X's the moment you typed. Nothing in the DOM shows it — it is a UA pseudo-element, so it survives any review that reads markup. The stylesheet now suppresses it, but only when the group actually supplies a trailing adornment: stripping the native control from a search field that offers no replacement would be worse than the duplicate.",
   ],
 };

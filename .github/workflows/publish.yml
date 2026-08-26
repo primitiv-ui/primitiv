@@ -5,6 +5,11 @@ name: Publish packages
 #   2. Publishes @primitiv-ui/cli-<target> platform packages.
 #   3. Publishes the `primitiv-ui` wrapper and `create-primitiv-ui` scaffold.
 #   4. Publishes @primitiv-ui/{react,icons,tokens} libraries to npm and JSR.
+#   5. Publishes @primitiv-ui/harmoni-wasm (the wasm-pack build of
+#      crates/harmoni-wasm) to npm, public and MIT like the engine crate it
+#      wraps — the harmoni Figma plugin (private repo) consumes it as a
+#      published dependency, since crates/harmoni-wasm/pkg/ is gitignored and
+#      generated, so a git dependency is impossible.
 #
 # Steps 2–3 must complete before 4 because npm resolves optionalDependencies
 # at install time; the platform packages must already exist.
@@ -102,6 +107,11 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       - uses: jetli/wasm-pack-action@v0.4.0
 
+      # Unscoped name ("harmoni-wasm"), matching what pnpm-workspace.yaml and
+      # apps/workbench's `"harmoni-wasm": "workspace:*"` expect — this build's
+      # sole purpose here is letting `pnpm install` resolve that workspace
+      # member; it is not what gets published (see "Publish harmoni-wasm to
+      # npm" below, which renames and republishes from the same pkg/ dir).
       - name: Build harmoni-wasm
         run: wasm-pack build crates/harmoni-wasm --target web
 
@@ -163,6 +173,19 @@ jobs:
         run: |
           (cd npm/cli-wrapper      && npm publish --access public --provenance)
           (cd npm/create-primitiv-ui && npm publish --access public --provenance)
+
+      # Re-scope the same pkg/ dir `pnpm install` just resolved as unscoped
+      # "harmoni-wasm" (comment above) — nothing after this point re-reads
+      # pnpm's workspace resolution, so renaming in place is safe. Publishing
+      # directly with npm, not `pnpm -r publish`: crates/harmoni-wasm/pkg is a
+      # generated build artefact directory, not a source package with its own
+      # publishConfig, the same reasoning that has the CLI platform packages
+      # above use raw `npm publish` rather than pnpm's recursive publish.
+      - name: Publish harmoni-wasm to npm
+        run: |
+          cd crates/harmoni-wasm/pkg
+          npm pkg set name="@primitiv-ui/harmoni-wasm"
+          npm publish --access public --provenance
 
       # pnpm -r publish skips packages with "private": true automatically.
       - name: Publish libraries to npm

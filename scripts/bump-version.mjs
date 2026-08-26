@@ -6,6 +6,8 @@
  *   - 10 package.json "version" fields
  *   - 3 jsr.json "version" fields
  *   - 5 optionalDependencies in npm/cli-wrapper/package.json
+ *   - crates/harmoni-wasm/Cargo.toml "version" (wasm-pack reads this into the
+ *     published @primitiv-ui/harmoni-wasm package.json at publish time)
  *
  * Usage:
  *   node scripts/bump-version.mjs 0.1.8
@@ -69,6 +71,21 @@ function bump(rel, mutate) {
   console.log(`  ${rel}: ${prev} → ${json.version}`);
 }
 
+const CARGO_TOML_PATH = "crates/harmoni-wasm/Cargo.toml";
+
+function bumpCargoToml(rel, version) {
+  const abs = resolve(root, rel);
+  const text = readFileSync(abs, "utf8");
+  const match = text.match(/^version = "([^"]+)"/m);
+  if (!match) {
+    console.error(`Error: no top-level "version" field found in ${rel}`);
+    process.exit(1);
+  }
+  const prev = match[1];
+  writeFileSync(abs, text.replace(/^version = "[^"]+"/m, `version = "${version}"`));
+  console.log(`  ${rel}: ${prev} → ${version}`);
+}
+
 console.log(`\nBumping all packages to ${version}\n`);
 
 for (const p of PACKAGE_JSON_PATHS) {
@@ -78,6 +95,8 @@ for (const p of PACKAGE_JSON_PATHS) {
 for (const p of JSR_JSON_PATHS) {
   bump(p, (j) => { j.version = version; });
 }
+
+bumpCargoToml(CARGO_TOML_PATH, version);
 
 // optionalDependencies in the wrapper must match the platform package versions
 const wrapperPath = "npm/cli-wrapper/package.json";
@@ -94,4 +113,4 @@ const changed = CLI_OPTIONAL_DEP_NAMES.filter(
 ).length;
 console.log(`  ${wrapperPath}: optionalDependencies (${changed} entries) → ${version}`);
 
-console.log(`\nDone. ${PACKAGE_JSON_PATHS.length + JSR_JSON_PATHS.length} version fields + ${CLI_OPTIONAL_DEP_NAMES.length} optionalDependencies updated.\n`);
+console.log(`\nDone. ${PACKAGE_JSON_PATHS.length + JSR_JSON_PATHS.length + 1} version fields + ${CLI_OPTIONAL_DEP_NAMES.length} optionalDependencies updated.\n`);

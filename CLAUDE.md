@@ -196,6 +196,21 @@ source of truth for when a skill applies.
   --dry-run`). Publishing mechanics, the no-slow-types rules, and the
   lockstep-version-bump gotcha live in `RELEASING.md` (§5–6); the live checklist
   is `docs/transfer-and-next-steps.md`.
+- **The engine is published as `@primitiv-ui/harmoni-wasm`** (RFC 0028 §6.5
+  step 2, in `primitiv-ui/harmoni`'s docs) — public and MIT like
+  `crates/harmoni-*`, since it's just a wasm-pack build of that crate.
+  `crates/harmoni-wasm/pkg/` is gitignored and generated, so this is the only
+  way the private harmoni plugin repo can consume the engine; there is no
+  git-dependency path. `publish.yml` builds it once, unscoped
+  (`harmoni-wasm`), so `pnpm install` resolves the `apps/workbench` →
+  `crates/harmoni-wasm/pkg` workspace link exactly as before, then re-scopes
+  that same `pkg/` dir to `@primitiv-ui/harmoni-wasm` via `npm pkg set` right
+  before publishing it — after `pnpm install`, so the rename never touches
+  local workspace resolution. Its version now bumps in
+  lockstep with the other ten publishable packages via
+  `scripts/bump-version.mjs` (which patches `crates/harmoni-wasm/Cargo.toml`
+  directly — wasm-pack reads that `version` into the published package.json).
+  Published with `--access public --provenance`, same as every other package.
 - **RFC 0010 (OKLCH colour picker) — Phases 1–3 landed.** The Rust/wasm gamut
   API (`max_in_gamut_chroma`, `paint_lc_plane`, `paint_hue_strip`, plus the
   `parse_color` / `describe_oklch` colour bridge) and the controlled workbench
@@ -1412,7 +1427,7 @@ pnpm --filter @primitiv-ui/react qa:units            # React tests + coverage
 pnpm --filter @primitiv-ui/react exec vitest run src/X    # scoped, during a cycle
 pnpm run build:wasm                               # rebuild wasm pkg
 pnpm run dev                                      # workbench dev server
-node scripts/bump-version.mjs 0.x.y              # bump all 13 version fields atomically
+node scripts/bump-version.mjs 0.x.y              # bump all 14 version fields atomically
 ```
 
 ## Releasing

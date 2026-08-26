@@ -5,6 +5,7 @@ import { useState } from "react";
 import { Close, Search } from "@primitiv-ui/icons";
 
 import { Button } from "@/components/button";
+import { Field, FieldDescription, FieldLabel } from "@/components/field";
 import { Input } from "@/components/input";
 import {
   InputGroup,
@@ -20,6 +21,18 @@ type Size = "xs" | "sm" | "md" | "lg" | "xl";
 
 const SIZES: readonly Size[] = ["xs", "sm", "md", "lg", "xl"];
 
+/*
+ * The demo fields start with a value.
+ *
+ * Clear only renders when there is something to clear — the right behaviour, and
+ * the reason the field is seeded: an empty demo showed no trailing adornment,
+ * so the example meant to contrast a decorative glyph with an interactive
+ * control displayed only the glyph. Every snippet prints this same seed, so the
+ * code still describes exactly what sits beside it. Press Clear and the field
+ * empties and the button goes — which demonstrates the conditional too.
+ */
+const SEED = "design tokens";
+
 const imports = (mode: Mode) =>
   importBlock({
     mode,
@@ -30,6 +43,8 @@ const imports = (mode: Mode) =>
 
 const inputImports = (mode: Mode) => importBlock({ mode, component: "Input", componentId: "input" });
 const buttonImports = (mode: Mode) => importBlock({ mode, component: "Button", componentId: "button" });
+const fieldImports = (mode: Mode) =>
+  importBlock({ mode, component: "Field", componentId: "field", parts: ["Label", "Description"] });
 
 /** Glyphs come from `@primitiv-ui/icons` in every mode — not part of the switch. */
 const iconImports = (icons: readonly string[]) => `import { ${icons.join(", ")} } from "@primitiv-ui/icons";`;
@@ -44,7 +59,10 @@ const iconImports = (icons: readonly string[]) => `import { ${icons.join(", ")} 
 const searchLines = (mode: Mode, { attrs = "" }: { attrs?: string } = {}) => {
   const p = partNamer(mode, "InputGroup");
   return [
-    `const [query, setQuery] = useState("");`,
+    // Seeded, not empty — and the demo beside this is seeded identically. A
+    // conditional Clear on an empty field renders nothing, which left the
+    // page's headline example showing no interactive adornment at all.
+    `const [query, setQuery] = useState("${SEED}");`,
     ``,
     `<${p("Root")}${attrs}>`,
     `  <${p("LeadingAdornment")}>`,
@@ -77,7 +95,7 @@ const searchLines = (mode: Mode, { attrs = "" }: { attrs?: string } = {}) => {
  * empty (and the frame unchanged) on an empty field.
  */
 const SearchField = ({ size }: { size?: Size }) => {
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(SEED);
 
   return (
     <InputGroup size={size}>
@@ -99,6 +117,40 @@ const SearchField = ({ size }: { size?: Size }) => {
         </InputGroupTrailingAdornment>
       )}
     </InputGroup>
+  );
+};
+
+/**
+ * The same field inside a `Field`, with a visible label.
+ *
+ * Worth its own example because the composition genuinely works, which is not
+ * true of `Field` + every control (see the Field page): the thing that reads
+ * `FieldContext` here is the ordinary `Input` in the middle, so it takes the
+ * field's generated id and `Field.Label`'s `htmlFor` finds it — two levels down,
+ * through a wrapper that knows nothing about fields.
+ */
+const LabelledSearchField = () => {
+  const [query, setQuery] = useState(SEED);
+
+  return (
+    <Field>
+      <FieldLabel>Search the docs</FieldLabel>
+      <InputGroup>
+        <InputGroupLeadingAdornment>
+          <Search aria-hidden="true" />
+        </InputGroupLeadingAdornment>
+        {/* No `aria-label` and no `id`: the Field supplies both. */}
+        <Input type="search" value={query} onChange={(e) => setQuery(e.target.value)} />
+        {query && (
+          <InputGroupTrailingAdornment asChild>
+            <Button variant="ghost" size="xs" aria-label="Clear" onClick={() => setQuery("")}>
+              <Close aria-hidden="true" />
+            </Button>
+          </InputGroupTrailingAdornment>
+        )}
+      </InputGroup>
+      <FieldDescription>Components, tokens and guides.</FieldDescription>
+    </Field>
   );
 };
 
@@ -242,6 +294,50 @@ export const inputGroupSpec: ComponentSpec = {
               </InputGroup>
             </div>
           )}
+        </InteractiveExample>
+      ),
+    },
+    {
+      id: "in-a-field",
+      title: "With a visible label (Field)",
+      render: () => (
+        <InteractiveExample
+          caption="This composition **works**, and it is worth saying why, because the equivalent does not for every control. `Field` cascades its generated id to whatever reads `FieldContext` — and the control inside a group is an ordinary `Input`, which does. So `Field.Label`'s `htmlFor` lands on the real input even though it is nested two levels down, and clicking the label focuses the field. The group itself reads no context and needs none; it is only the frame."
+          code={(_density, mode) => {
+            const f = partNamer(mode, "Field");
+            const p = partNamer(mode, "InputGroup");
+            return [
+              `import { useState } from "react";`,
+              iconImports(["Close", "Search"]),
+              fieldImports(mode),
+              imports(mode),
+              inputImports(mode),
+              buttonImports(mode),
+              ``,
+              `const [query, setQuery] = useState("${SEED}");`,
+              ``,
+              `<${f("Root")}>`,
+              `  <${f("Label")}>Search the docs</${f("Label")}>`,
+              `  <${p("Root")}>`,
+              `    <${p("LeadingAdornment")}>`,
+              `      <Search aria-hidden="true" />`,
+              `    </${p("LeadingAdornment")}>`,
+              `    {/* no id needed — Input reads FieldContext and takes the field's */}`,
+              `    <Input type="search" value={query} onChange={(e) => setQuery(e.target.value)} />`,
+              `    {query && (`,
+              `      <${p("TrailingAdornment")} asChild>`,
+              `        <Button variant="ghost" size="xs" aria-label="Clear" onClick={() => setQuery("")}>`,
+              `          <Close aria-hidden="true" />`,
+              `        </Button>`,
+              `      </${p("TrailingAdornment")}>`,
+              `    )}`,
+              `  </${p("Root")}>`,
+              `  <${f("Description")}>Components, tokens and guides.</${f("Description")}>`,
+              `</${f("Root")}>`,
+            ].join("\n");
+          }}
+        >
+          {() => <LabelledSearchField />}
         </InteractiveExample>
       ),
     },

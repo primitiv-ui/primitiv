@@ -375,7 +375,7 @@
     "displayName": "Stack",
     "category": "Layout",
     "description": "A Flexbox stack — `direction` picks the axis, `gap` the spacing (a density-scaled Context token per step), `wrap` whether the row may break onto additional lines, and `align`/`justify` the alignment, all as modifier classes. No inline styles: the alignment props are curated presets, not raw CSS keywords.",
-    "documented": false
+    "documented": true
   },
   {
     "id": "stepper",

@@ -1,0 +1,77 @@
+{
+  "id": "stack",
+  "displayName": "Stack",
+  "kind": "registry-only",
+  "status": "stable",
+  "category": "Layout",
+  "description": "A Flexbox stack — `direction` picks the axis, `gap` the spacing (a density-scaled Context token per step), `wrap` whether the row may break onto additional lines, and `align`/`justify` the alignment, all as modifier classes. No inline styles: the alignment props are curated presets, not raw CSS keywords.",
+  "headless": {
+    "package": "@primitiv-ui/react",
+    "importPath": "@/components/ui/stack",
+    "subComponents": [
+      {
+        "name": "Stack",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": null,
+            "description": "Render the single child element instead of a wrapping <div>, merging\nthe stack classes onto it — e.g. `<Stack asChild><ul>...</ul></Stack>`."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [
+          {
+            "name": "direction",
+            "type": "\"column\" | \"row\" | \"column-reverse\" | \"row-reverse\"",
+            "default": "column",
+            "description": "Flex axis, and its resting or reversed order — the four `flex-direction` keywords directly."
+          },
+          {
+            "name": "gap",
+            "type": "\"none\" | \"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
+            "default": "md",
+            "description": "Space between children; each step (except none) is a density-scaled Context token."
+          },
+          {
+            "name": "align",
+            "type": "\"start\" | \"center\" | \"end\" | \"stretch\" | \"baseline\"",
+            "default": "stretch",
+            "description": "Cross-axis alignment (`align-items`), as a preset set rather than a raw CSS passthrough."
+          },
+          {
+            "name": "wrap",
+            "type": "\"nowrap\" | \"wrap\"",
+            "default": "nowrap",
+            "description": "Whether children may wrap onto additional lines when the main axis runs out of room (`flex-wrap`)."
+          },
+          {
+            "name": "justify",
+            "type": "\"start\" | \"center\" | \"end\" | \"between\" | \"around\" | \"evenly\"",
+            "default": "start",
+            "description": "Main-axis distribution (`justify-content`), as a preset set rather than a raw CSS passthrough."
+          }
+        ],
+        "dataAttributes": [],
+        "class": "primitiv-stack"
+      }
+    ]
+  },
+  "styled": {
+    "installCommand": "primitiv add stack",
+    "rootClass": "primitiv-stack",
+    "customProperties": [
+      {
+        "name": "--primitiv-stack-gap",
+        "defaultsTo": "var(--primitiv-stack-gap-md)"
+      }
+    ],
+    "dataAttributes": []
+  },
+  "figma": {
+    "componentSetKey": "1815:59414"
+  }
+}

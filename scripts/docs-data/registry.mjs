@@ -363,6 +363,19 @@ export const REGISTRY = {
     contract: "registry/components/box/contract.json",
     figmaComponentSetKey: "1815:59408", importPath: "@/components/ui/box",
   },
+  stack: {
+    displayName: "Stack", kind: "registry-only", status: "stable", category: "Layout",
+    /* Registry-only, like Box — a hand-written flex layout primitive with no
+       headless counterpart (it imports only `Slot`). Its five modifiers
+       (direction/gap/align/justify/wrap) are the contract's, so the playground
+       derives its controls from them with no spec-declared knobs. */
+    propsFile: "registry/components/stack/stack.tsx",
+    subComponents: [
+      { name: "Stack", propsType: "StackProps", element: "div", component: "Stack" },
+    ],
+    contract: "registry/components/stack/contract.json",
+    figmaComponentSetKey: "1815:59414", importPath: "@/components/ui/stack",
+  },
   divider: {
     displayName: "Divider", kind: "registry", status: "stable", category: "Layout",
     propsFile: "packages/react/src/Divider/types.ts",

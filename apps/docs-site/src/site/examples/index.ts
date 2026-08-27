@@ -25,6 +25,7 @@ import { tabsSpec } from "./tabs";
 import { toggleGroupSpec } from "./toggle-group";
 import { dividerSpec } from "./divider";
 import { boxSpec } from "./box";
+import { stackSpec } from "./stack";
 import type { ComponentSpec } from "./types";
 
 /**
@@ -56,6 +57,7 @@ export const SPECS: Record<ComponentId, ComponentSpec> = {
   "toggle-group": toggleGroupSpec,
   divider: dividerSpec,
   box: boxSpec,
+  stack: stackSpec,
 };
 
 export type { ComponentSpec };

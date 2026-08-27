@@ -129,6 +129,24 @@ type is `body/{size}/*` (Asta Sans Regular).
   button's top edge outside the alert. Those components centre a 20px indicator
   on a 12px cap and just fit. Alert's leading icon is already within 1px of the
   first line's cap centre, so it needs no trim.
+
+- **Figma composes an `Icon Button` instance; this composes `Button`.** The
+  Figma set nests a real `Icon Button` (ghost, size-matched) per the house
+  convention that a top-level component is built from subcomponents. The
+  registry has no `icon-button`, so it uses `button` forced square instead —
+  functionally the same control, different name on each surface.
+
+  Figma also cannot express these insets the way CSS does. `inset-inline-end`
+  is edge-relative by construction; Figma stores a literal `x`, and because the
+  button's width is variable-bound it scales with the Context mode while `x`
+  does not — the `MAX` constraint only re-anchors when the *parent* resizes.
+  A first pass did exactly that and overflowed the frame by up to 5px in
+  spacious. The fix there is a full-width wrapper pinned `STRETCH` whose
+  **padding** carries the offsets, since padding accepts a variable and so
+  resolves per mode. That needed three Figma-only variable families
+  (`alert/{size}/dismiss-{inset-inline,inset-block,reserve-inline}`), which are
+  deliberately absent from `packages/tokens` because the CSS computes the same
+  expressions in `calc()`. Same precedent as `segmented-control/{size}/radius`.
 - **The dismiss button is same-sized, not stepped down.** Unlike Modal's
   close button (one size step below the dialog, since it sits next to a
   separate Title), Alert's dismiss uses the same `size` as the alert itself

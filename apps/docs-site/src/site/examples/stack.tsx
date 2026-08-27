@@ -12,7 +12,6 @@ type Direction = "column" | "row" | "column-reverse" | "row-reverse";
 type Gap = "none" | "xs" | "sm" | "md" | "lg" | "xl";
 type Align = "start" | "center" | "end" | "stretch" | "baseline";
 type Justify = "start" | "center" | "end" | "between" | "around" | "evenly";
-type Wrap = "nowrap" | "wrap";
 
 /**
  * Stack is registry-only (RFC 0022), so `registryOnly` makes the import the
@@ -39,6 +38,14 @@ const Cell = ({ children }: { children: ReactNode }) => (
   <div style={cell}>{children}</div>
 );
 
+/* A fixed preview height so the CROSS axis has slack in a row (for `align`) and
+   the MAIN axis has slack in a column (for `justify`) — without it the Stack
+   hugs its content on whichever axis is being tuned and the control looks dead.
+   The cells are deliberately UNEVEN in both width and height (the middle one
+   wraps to two lines) so `align` has something to move against on either
+   axis. */
+const playgroundBox: CSSProperties = { minBlockSize: "13rem" };
+
 /**
  * Stack's page content.
  *
@@ -51,11 +58,13 @@ export const stackSpec: ComponentSpec = {
   playground: {
     component: "Stack",
     fill: true,
-    /* The five controls come from the contract's modifiers via
-       `contractControls` — direction, gap, align, wrap, justify. A custom
-       snippet only because the generated `toJsx` would need placeholder
-       children, which reads better written out than threaded through
-       `snippetChildren`. */
+    /* `wrap` is dropped: it only shows an effect when the children overflow the
+       main axis, which fights `justify` (free space) in the same fixed preview,
+       so no cell-set demonstrates both. It has its own example below. The other
+       four come from the contract's modifiers via `contractControls`. */
+    excludeControls: ["wrap"],
+    /* A custom snippet only because the generated `toJsx` would need placeholder
+       children, which read better written out. */
     snippet: (values, mode) =>
       [
         imports(mode),
@@ -65,7 +74,6 @@ export const stackSpec: ComponentSpec = {
         `  gap="${values.gap}"`,
         `  align="${values.align}"`,
         `  justify="${values.justify}"`,
-        `  wrap="${values.wrap}"`,
         `>`,
         `  <div>One</div>`,
         `  <div>Two</div>`,
@@ -78,10 +86,17 @@ export const stackSpec: ComponentSpec = {
         gap={values.gap as Gap}
         align={values.align as Align}
         justify={values.justify as Justify}
-        wrap={values.wrap as Wrap}
+        style={playgroundBox}
       >
         <Cell>One</Cell>
-        <Cell>Two</Cell>
+        {/* Two lines + a longer label, so this cell is both taller and wider
+            than its neighbours — that is what makes `align` visible on whichever
+            axis is the cross axis. */}
+        <div style={cell}>
+          Two
+          <br />
+          lines
+        </div>
         <Cell>Three</Cell>
       </Stack>
     ),

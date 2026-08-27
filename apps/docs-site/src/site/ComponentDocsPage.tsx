@@ -46,8 +46,14 @@ export const ComponentDocsPage = ({ id }: { id: ComponentId }) => {
   const spec = SPECS[id];
   const subs = docs.headless.subComponents;
   /* Contract modifiers first, then anything the spec adds for a headless prop
-     the contract cannot know about (see ComponentSpec.playground.controls). */
-  const controls = [...contractControls(subs), ...(spec.playground.controls ?? [])];
+     the contract cannot know about (see ComponentSpec.playground.controls) —
+     minus any the spec drops as undemonstrable in a small preview
+     (ComponentSpec.playground.excludeControls). */
+  const excluded = spec.playground.excludeControls ?? [];
+  const controls = [
+    ...contractControls(subs),
+    ...(spec.playground.controls ?? []),
+  ].filter((c) => !excluded.includes(c.name));
   const [rawMode] = useMode();
 
   const cssVars = docs.styled.customProperties;

@@ -264,7 +264,7 @@ dependencies = [
 
 [[package]]
 name = "harmoni-wasm"
-version = "0.1.30"
+version = "0.1.31"
 dependencies = [
  "harmoni-core",
  "js-sys",

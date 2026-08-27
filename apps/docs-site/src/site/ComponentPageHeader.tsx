@@ -18,6 +18,7 @@ import type { ComponentDocs } from "@/lib/docs-data";
 import { renderDoc } from "@/lib/render-doc";
 
 import "./component-page-header.css";
+import { humanName } from "@/lib/human-name";
 
 const FIGMA_FILE = "1Nh5ffky0lYEw0MzXoqQVy";
 const REPO = "https://github.com/primitiv-ui/primitiv";
@@ -61,13 +62,13 @@ export const ComponentPageHeader = ({ docs }: { docs: ComponentDocs }) => (
         <BreadcrumbItem>
           {/* The current page is a BreadcrumbPage, not a link — it carries
               aria-current="page" and is deliberately not clickable. */}
-          <BreadcrumbPage>{docs.displayName}</BreadcrumbPage>
+          <BreadcrumbPage>{humanName(docs.displayName)}</BreadcrumbPage>
         </BreadcrumbItem>
       </BreadcrumbList>
     </Breadcrumb>
 
     <Stack direction="row" gap="sm" align="center">
-      <h1 className="docs-component-title">{docs.displayName}</h1>
+      <h1 className="docs-component-title">{humanName(docs.displayName)}</h1>
       <Badge tone="success" size="sm">
         {docs.status}
       </Badge>

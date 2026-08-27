@@ -36,6 +36,7 @@ import { useCompactIndex } from "./use-compact-index";
 import { CARD_MARKS, MARK_GRID, PLACEHOLDER_MARK, type MarkRole } from "./card-marks";
 
 import "./components-index.css";
+import { humanName } from "@/lib/human-name";
 
 /**
  * A component's mark, or the stand-in when it has not been drawn yet.
@@ -138,7 +139,7 @@ const CardBody = ({ entry }: { entry: RosterEntry }) => (
     {/* Header inside Content — Content owns all the padding. */}
     <CardContent>
       <CardHeader>
-        <CardTitle>{entry.displayName}</CardTitle>
+        <CardTitle>{humanName(entry.displayName)}</CardTitle>
         {entry.documented ? (
           /* Badge ships no neutral tone (success|warning|info|danger only), so
              "stable" reads as success — accurate here. */

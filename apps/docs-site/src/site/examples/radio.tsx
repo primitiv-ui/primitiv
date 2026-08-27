@@ -5,7 +5,7 @@ import { useState } from "react";
 import { Field, FieldDescription, FieldLabel } from "@/components/field";
 import { Radio } from "@/components/radio";
 import { Stack } from "@/components/stack";
-import { contractAttr, importBlock, partNamer } from "@/lib/playground";
+import { contractAttr, importBlock, partNamer, stackImports } from "@/lib/playground";
 import { InteractiveExample } from "@/site/InteractiveExample";
 import type { Mode } from "@/site/preferences";
 import type { ComponentSpec } from "./types";
@@ -21,7 +21,6 @@ const PLANS = [
 ];
 
 const imports = (mode: Mode) => importBlock({ mode, component: "Radio", componentId: "radio" });
-const stackImports = (mode: Mode) => importBlock({ mode, component: "Stack", componentId: "stack" });
 
 const fieldPart = (mode: Mode) => partNamer(mode, "Field");
 const fieldImports = (mode: Mode) =>

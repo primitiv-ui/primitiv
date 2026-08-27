@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 
 import { Progress, ProgressIndicator } from "@/components/progress";
 import { Stack } from "@/components/stack";
-import { contractAttr, importBlock, partNamer } from "@/lib/playground";
+import { contractAttr, importBlock, partNamer, stackImports } from "@/lib/playground";
 import { InteractiveExample } from "@/site/InteractiveExample";
 import type { Mode } from "@/site/preferences";
 import type { ComponentSpec } from "./types";
@@ -17,7 +17,6 @@ const INTENTS: readonly Intent[] = ["primary", "secondary", "danger"];
 
 const imports = (mode: Mode) =>
   importBlock({ mode, component: "Progress", componentId: "progress", parts: ["Indicator"] });
-const stackImports = (mode: Mode) => importBlock({ mode, component: "Stack", componentId: "stack" });
 
 /**
  * The bar's tree, per mode.

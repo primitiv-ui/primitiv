@@ -4,7 +4,7 @@ import { useState } from "react";
 
 import { Alert } from "@/components/alert";
 import { Stack } from "@/components/stack";
-import { contractAttr, importBlock } from "@/lib/playground";
+import { contractAttr, importBlock, stackImports } from "@/lib/playground";
 import { InteractiveExample } from "@/site/InteractiveExample";
 import type { Mode } from "@/site/preferences";
 import type { ComponentSpec } from "./types";
@@ -31,7 +31,6 @@ const TONES: readonly { tone: Tone; title: string; body: string }[] = [
 const toneContent = (tone: string) => TONES.find((t) => t.tone === tone) ?? TONES[0];
 
 const imports = (mode: Mode) => importBlock({ mode, component: "Alert", componentId: "alert" });
-const stackImports = (mode: Mode) => importBlock({ mode, component: "Stack", componentId: "stack" });
 
 /**
  * One alert, per mode.

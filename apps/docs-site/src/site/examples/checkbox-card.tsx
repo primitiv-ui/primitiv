@@ -4,7 +4,7 @@ import { useState } from "react";
 
 import { CheckboxCard } from "@/components/checkbox-card";
 import { Stack } from "@/components/stack";
-import { contractAttr, importBlock, partNamer } from "@/lib/playground";
+import { contractAttr, importBlock, partNamer, stackImports } from "@/lib/playground";
 import { InteractiveExample } from "@/site/InteractiveExample";
 import type { Mode } from "@/site/preferences";
 import type { ComponentSpec } from "./types";
@@ -20,7 +20,6 @@ const FEATURES = [
 ];
 
 const imports = (mode: Mode) => importBlock({ mode, component: "CheckboxCard", componentId: "checkbox-card" });
-const stackImports = (mode: Mode) => importBlock({ mode, component: "Stack", componentId: "stack" });
 
 /**
  * One card, in the shape of the current mode.

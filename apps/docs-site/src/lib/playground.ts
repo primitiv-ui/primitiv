@@ -65,6 +65,7 @@ export const importBlock = ({
   componentId,
   parts = [],
   icons = [],
+  registryOnly = false,
 }: {
   mode: Mode;
   /** The exported root name, e.g. `"Select"`. */
@@ -74,10 +75,22 @@ export const importBlock = ({
   /** Part names used by the snippet, e.g. `["Trigger", "Content"]`. */
   parts?: readonly string[];
   icons?: readonly string[];
+  /**
+   * The component has NO headless counterpart, so its import is the copied path
+   * in both modes and `mode` is ignored.
+   *
+   * `Stack` is the case that forced this, and it was wrong on eight pages at
+   * once: it is a registry-only layout primitive, `@primitiv-ui/react` exports
+   * nothing called `Stack`, yet every example that used one for layout printed
+   * `import { Stack } from "@primitiv-ui/react"` under Headless — an import a
+   * reader cannot resolve. Anything whose roster `kind` is `registry-only`
+   * belongs here.
+   */
+  registryOnly?: boolean;
 }): string => {
   const lines: string[] = [];
 
-  if (mode === "styled") {
+  if (mode === "styled" || registryOnly) {
     const named = [component, ...parts.map((p) => `${component}${p}`)];
     lines.push(
       `import { ${named.join(", ")} } from "@/components/ui/${componentId}";`,
@@ -312,3 +325,13 @@ export const toJsx = ({
     `</${component}>`,
   ].join("\n");
 };
+
+/**
+ * The `Stack` import, for examples that use one purely as layout.
+ *
+ * Shared rather than redeclared per spec, which is what let it be wrong in eight
+ * places at once: `Stack` is registry-only, so its import is the copied path in
+ * both modes. One definition, one place to be right.
+ */
+export const stackImports = (mode: Mode): string =>
+  importBlock({ mode, component: "Stack", componentId: "stack", registryOnly: true });

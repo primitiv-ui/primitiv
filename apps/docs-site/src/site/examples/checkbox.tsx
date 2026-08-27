@@ -6,7 +6,7 @@ import { Button } from "@/components/button";
 import { Checkbox } from "@/components/checkbox";
 import { Field, FieldDescription } from "@/components/field";
 import { Stack } from "@/components/stack";
-import { contractAttr, importBlock, partNamer } from "@/lib/playground";
+import { contractAttr, importBlock, partNamer, stackImports } from "@/lib/playground";
 import { InteractiveExample } from "@/site/InteractiveExample";
 import type { Mode } from "@/site/preferences";
 import type { ComponentSpec } from "./types";
@@ -20,8 +20,6 @@ const imports = (mode: Mode) =>
 
 /** Stack and Button appear in the examples that compose them, so their import
  *  lines have to appear too — a snippet that omits them does not run. */
-const stackImports = (mode: Mode) =>
-  importBlock({ mode, component: "Stack", componentId: "stack" });
 
 const buttonImports = (mode: Mode) =>
   importBlock({ mode, component: "Button", componentId: "button" });

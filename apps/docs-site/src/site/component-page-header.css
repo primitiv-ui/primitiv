@@ -46,36 +46,6 @@
   border-radius: var(--primitiv-radii-4);
 }
 
-/* Registry-only callout: a component with no headless primitive. A quiet
-   bordered note under the lede, led by a pill so it reads as a status about the
-   page rather than another paragraph of prose. */
-.docs-registry-only-note {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: var(--primitiv-stack-gap-xs) var(--primitiv-stack-gap-sm);
-  margin: 0;
-  padding: var(--primitiv-space-space-12) var(--primitiv-space-space-16);
-  border: var(--primitiv-border-width-1) solid var(--primitiv-border-subtle);
-  border-radius: var(--primitiv-radii-8);
-  background: var(--primitiv-surface-raised);
-  font-family: var(--primitiv-body-sm-font-family);
-  font-size: var(--primitiv-body-sm-font-size);
-  line-height: var(--primitiv-body-sm-line-height);
-  color: var(--primitiv-content-secondary);
-}
-
-.docs-registry-only-note__tag {
-  flex: none;
-  padding: var(--primitiv-space-space-2) var(--primitiv-space-space-8);
-  border-radius: var(--primitiv-radii-full);
-  background: var(--primitiv-feedback-info-soft-background);
-  color: var(--primitiv-feedback-info-soft-foreground);
-  font-size: var(--primitiv-body-xs-font-size);
-  font-weight: var(--primitiv-font-weight-semibold);
-  text-transform: uppercase;
-}
-
 /* Below md the links wrap under the heading rather than squeezing it. */
 @media (max-width: 47.9375rem) {
   .docs-component-title {

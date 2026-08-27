@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 
+import { Alert } from "@/components/alert";
 import { Badge } from "@/components/badge";
 import { InlineCode } from "@/components/inline-code";
 import {
@@ -108,15 +109,17 @@ export const ComponentPageHeader = ({ docs }: { docs: ComponentDocs }) => (
     {/* Registry-only: no `@primitiv-ui/react` primitive, so no Headless mode.
         Stated at the top because it changes what the rest of the page shows —
         the code blocks carry only a Styled tab and the props table drops its
-        "From" column. */}
+        "From" column. Composes the registry `Alert` (info tone) rather than a
+        bespoke callout — it is exactly the styled surface for a page-level
+        notice. Non-dismissible: `onDismiss` is omitted, so it is persistent
+        context, not something to clear. */}
     {docs.kind === "registry-only" && (
-      <p className="docs-registry-only-note">
-        <span className="docs-registry-only-note__tag">Registry-only</span>
+      <Alert tone="info" title="Registry-only" size="sm">
         No headless primitive — this component ships only as a copied styled
         file, so there is no Headless mode.{" "}
         <InlineCode size="sm">primitiv add {docs.id}</InlineCode> installs it
         whichever mode you are reading.
-      </p>
+      </Alert>
     )}
   </Stack>
 );

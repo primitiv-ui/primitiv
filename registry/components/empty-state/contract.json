@@ -9,6 +9,12 @@
     "class": "primitiv-empty-state"
   },
   "dataAttributes": [],
+  "subcomponents": [
+    { "name": "media", "component": "Media", "element": "div", "class": "primitiv-empty-state__media" },
+    { "name": "title", "component": "Title", "element": "p", "class": "primitiv-empty-state__title" },
+    { "name": "description", "component": "Description", "element": "p", "class": "primitiv-empty-state__description" },
+    { "name": "actions", "component": "Actions", "element": "div", "class": "primitiv-empty-state__actions" }
+  ],
   "modifiers": [
     {
       "name": "orientation",

@@ -5,8 +5,9 @@ use palette::Oklch;
 use crate::color::input::{ColorInput, ColorInputError};
 use crate::palette::easing::{lightness_curve, CurvePreset};
 use crate::palette::generator::{
-    generate_dark_palette, generate_palette_with_scale, resample, Palette, MAX_STEPS, MIN_STEPS,
-    TARGET_CHROMA_SCALE, TARGET_LIGHTNESS, TARGET_LIGHTNESS_DARK, validate_lightness_curve,
+    generate_dark_palette, generate_palette_with_scale, resample, Palette, DEFAULT_STEPS,
+    MAX_STEPS, MIN_STEPS, TARGET_CHROMA_SCALE, TARGET_LIGHTNESS, TARGET_LIGHTNESS_DARK,
+    validate_lightness_curve,
 };
 
 // What each step of the ramp a colour would seed asks for, against what the
@@ -46,10 +47,6 @@ impl std::fmt::Display for GenerateError {
         }
     }
 }
-
-/// The ramp length this engine has always produced, and what a caller gets
-/// without asking for anything else.
-pub const DEFAULT_STEPS: usize = 10;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct GenerateOptions {

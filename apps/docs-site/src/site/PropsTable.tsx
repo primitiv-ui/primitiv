@@ -24,9 +24,12 @@ import "./props-table.css";
 const PropRows = ({
   rows,
   from,
+  showFrom,
 }: {
   rows: readonly (DocsProp | DocsContractProp)[];
   from: string;
+  /** Registry-only components have a single source, so the column is dropped. */
+  showFrom: boolean;
 }) =>
   rows.map((prop) => {
     const required = "required" in prop && prop.required;
@@ -64,7 +67,7 @@ const PropRows = ({
             <InlineCode size="sm">{prop.default}</InlineCode>
           )}
         </TableCell>
-        <TableCell>{from}</TableCell>
+        {showFrom && <TableCell>{from}</TableCell>}
         <TableCell>
           <span className="docs-prop-description">
             {renderDoc(prop.description, "sm")}
@@ -77,9 +80,18 @@ const PropRows = ({
 export const PropsTable = ({
   sub,
   headingId,
+  showFrom = true,
 }: {
   sub: DocsSubComponent;
   headingId: string;
+  /**
+   * Show the "From" column (headless vs styled). Dropped for a registry-only
+   * component: it has no headless surface, so every prop comes from the one
+   * copied file and the column would say "styled" on every row — noise, and a
+   * cell reading "headless" for a component that has no headless mode is simply
+   * wrong.
+   */
+  showFrom?: boolean;
 }) => {
   const headless = sub.props ?? [];
   const contract = sub.contractProps ?? [];
@@ -126,19 +138,19 @@ export const PropsTable = ({
                 <TableHeader scope="col">Prop</TableHeader>
                 <TableHeader scope="col">Type</TableHeader>
                 <TableHeader scope="col">Default</TableHeader>
-                <TableHeader scope="col">From</TableHeader>
+                {showFrom && <TableHeader scope="col">From</TableHeader>}
                 <TableHeader scope="col">Description</TableHeader>
               </TableRow>
             </TableHead>
             <TableBody>
-              <PropRows rows={headless} from="headless" />
+              <PropRows rows={headless} from="headless" showFrom={showFrom} />
               {/* "styled", not "contract". The value is read by a person, and
                   the site's own vocabulary for the two halves is Styled /
                   Headless — the label on the mode switch, the code-block tabs and
                   the Installation panel. "contract" is the name of the FILE the
                   row is generated from (`contract.json`), which is a maintainer's
                   word: a reader has no reason to connect it to the Styled tab. */}
-              <PropRows rows={contract} from="styled" />
+              <PropRows rows={contract} from="styled" showFrom={showFrom} />
             </TableBody>
           </Table>
         </TableScrollArea>

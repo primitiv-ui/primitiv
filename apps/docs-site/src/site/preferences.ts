@@ -1,5 +1,7 @@
 "use client";
 
+import { createContext, useContext } from "react";
+
 import { useLocalStorage } from "@primitiv-ui/react";
 
 /*
@@ -55,6 +57,25 @@ export const useMode = () => useLocalStorage<Mode>(MODE_KEY, "styled");
 
 export const useFramework = () =>
   useLocalStorage<Framework>(FRAMEWORK_KEY, "react");
+
+/**
+ * Whether the current page HAS a headless mode.
+ *
+ * Registry-only components (RFC 0022 primitives like `Box`, and the
+ * primitive-less leaves like `Badge`) have no `@primitiv-ui/react` counterpart,
+ * so "Headless" is not a mode they can be consumed in. A component page sets
+ * this to `false`, and the mode-aware code blocks then show only the Styled tab
+ * rather than offering a Headless one that could only ever print the copied
+ * file's own import.
+ *
+ * A context rather than a prop because the code blocks are rendered deep inside
+ * the example specs (`InteractiveExample` → `ModeCodeBlock`), with no prop path
+ * from the page. Defaults to `true`, so anything rendered outside a provider —
+ * the landing page's install block — keeps both modes.
+ */
+const HeadlessAvailableContext = createContext(true);
+export const HeadlessAvailableProvider = HeadlessAvailableContext.Provider;
+export const useHeadlessAvailable = () => useContext(HeadlessAvailableContext);
 
 /** The install command a given mode implies, shown on component pages. */
 export const installCommand = (mode: Mode, component: string) =>

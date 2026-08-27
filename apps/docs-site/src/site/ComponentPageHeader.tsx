@@ -3,6 +3,7 @@
 import Link from "next/link";
 
 import { Badge } from "@/components/badge";
+import { InlineCode } from "@/components/inline-code";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -103,5 +104,19 @@ export const ComponentPageHeader = ({ docs }: { docs: ComponentDocs }) => (
     {/* Generated JSDoc, so it carries backticks — Button's own description ends
         "...via `asChild`." `lg` matches the lede's own 20px type. */}
     <p className="docs-component-lede">{renderDoc(docs.description, "lg")}</p>
+
+    {/* Registry-only: no `@primitiv-ui/react` primitive, so no Headless mode.
+        Stated at the top because it changes what the rest of the page shows —
+        the code blocks carry only a Styled tab and the props table drops its
+        "From" column. */}
+    {docs.kind === "registry-only" && (
+      <p className="docs-registry-only-note">
+        <span className="docs-registry-only-note__tag">Registry-only</span>
+        No headless primitive — this component ships only as a copied styled
+        file, so there is no Headless mode.{" "}
+        <InlineCode size="sm">primitiv add {docs.id}</InlineCode> installs it
+        whichever mode you are reading.
+      </p>
+    )}
   </Stack>
 );

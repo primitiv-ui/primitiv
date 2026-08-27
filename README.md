@@ -40,7 +40,7 @@ ones), sync design tokens from Figma, and install it all with one command.
   framework-agnostic hooks, built on the
   [WAI-ARIA authoring patterns](https://www.w3.org/WAI/ARIA/apg/patterns/) —
   full keyboard support, focus management, and `asChild` composition.
-- **62 styled, copy-in registry components** — framed controls, prose, and
+- **63 styled, copy-in registry components** — framed controls, prose, and
   full composites — ready to drop into your project with the CLI.
 - **Zero styles ship by default.** Style with whatever you use — CSS,
   Tailwind, CSS-in-JS, or the generated token layer.

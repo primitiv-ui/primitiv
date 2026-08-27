@@ -31,8 +31,14 @@ const Section = ({
   const [open, setOpen] = useState(() => sectionContains(section, pathname));
   const listId = `docs-nav-${slug(section.title)}`;
 
+  // The one section whose list can outgrow the rail is the grouped one
+  // (Components). When it is open it becomes the rail's flexible, scrolling
+  // region — see `.docs-nav-section--fill` in side-nav.css. A plain or closed
+  // section stays natural height and never scrolls.
+  const fill = open && Boolean(section.groups);
+
   return (
-    <List.Item>
+    <List.Item className={fill ? "docs-nav-section--fill" : undefined}>
       <div className="docs-nav-section-header">
         {section.href ? (
           <Link
@@ -56,7 +62,12 @@ const Section = ({
           aria-label={`${open ? "Collapse" : "Expand"} ${section.title}`}
           onClick={() => setOpen((o) => !o)}
         >
-          <ChevronRight className="docs-nav-chevron" />
+          {/* size="100%" fills the disclosure button rather than rendering at
+              the icon's 24px default, which is 4px WIDER than the 20px button
+              and poked 2px past the rail's edge — enough to trip the rail's
+              overflow-x into a stray horizontal scrollbar. Same fill-the-wrapper
+              pattern the Collapsible trigger icon uses. */}
+          <ChevronRight className="docs-nav-chevron" size="100%" />
         </button>
       </div>
 

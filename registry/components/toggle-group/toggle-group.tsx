@@ -12,7 +12,7 @@ import { toggleGroup, toggleGroupItem } from "./toggle-group.recipe";
 type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K> : never;
 
 /**
- * A segmented control — a recessed pill track holding borderless items; single- or multi-select. Pressed items lift into a raised thumb.
+ * A set of independent on/off buttons in a shared track — any number can be pressed, including none. Framed like a Button: a pressed item is action/primary, an unpressed one action/secondary, inside a transparent bordered track whose radius is concentric with the items.
  *
  * @see https://primitiv-ui.dev/docs/components/toggle-group
  */

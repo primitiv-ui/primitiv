@@ -326,14 +326,54 @@ page structure is always id'd.
 
 ---
 
+### Registry-only pages have no Headless mode (2026-08-28)
+
+A `kind: "registry-only"` component (Box, Badge — and every remaining **Layout**
+primitive: Stack, Grid, Container, Center, Spacer, Aspect Ratio all import only
+`Slot`, so they are registry-only too; Divider is the one Layout exception, a
+real headless primitive) has no `@primitiv-ui/react` counterpart, so "Headless"
+is not a consumption mode it has. The template now handles this from the `kind`
+alone — set it in `registry.mjs` and the rest follows:
+
+- **`preferences.ts` `HeadlessAvailable` context** (default `true`).
+  `ComponentDocsPage` provides `value={!registryOnly}`; `ModeCodeBlock` and
+  `ModeTabs` consume it and render **only the Styled tab**, forcing
+  `active="styled"`. A context, not a prop, because the code blocks sit deep
+  inside the example specs with no prop path.
+- **The page redirects an effective `headless → styled` mode** for its own
+  mode-dependent copy (Installation, the Examples meta) — but **leaves Figma
+  intact**, because a registry-only component can still have a Figma set (Box,
+  Badge do) and its Figma-library panel must survive.
+- **`PropsTable` drops the "From" column** (`showFrom={!registryOnly}`): one
+  source, so the column is noise, and a cell reading `headless` for a component
+  with no headless mode was wrong.
+- **A top-of-page callout** (`.docs-registry-only-note` in
+  `ComponentPageHeader`) states it, since it changes what the rest of the page
+  shows. The global 3-mode header switch is deliberately left alone (it is
+  shared with the landing pages); the page forces styled and the banner explains
+  the mismatch if someone is globally in Headless.
+
+### Mode-aware snippets: styled MAY use registry components, headless must NOT
+
+Refinement of the earlier "no Stack in snippets" note. A **styled** code block
+may compose registry components (`Stack`, `Grid`, …) — a consumer who ran
+`primitiv add` has them. A **headless** code block must not: there is no registry
+`Stack` to import from `@primitiv-ui/react`. So layout scaffolding in an example
+is mode-branched — `<Stack …>` under Styled, plain flex on a `<div>` under
+Headless (Divider's `wrapOpen`/`wrapClose`/`wrapExtraImports` helpers are the
+reference). The component being documented stays the subject; only the wrapper
+changes with the mode, exactly like the import line.
+
 ## Outstanding
 
 1. **Mobile drawer menu** — both header segmented controls hide below `48rem`
    awaiting it, and the sidebar/TOC rails are hidden below `64rem` with no
    replacement. (The `/components` index itself now has a compact shape — see
    Mobile below — but the shell around it does not.)
-0. **55 components still have no page.** Eight are done; the roster shows the
-   rest. Nothing blocks them but the per-page work above.
+0. **40 components still have no page.** 23 are done (Box + Divider landed
+   2026-08-27/28, opening the Layout category — 2/8, six registry-only Layout
+   primitives to go); the roster shows the rest. Nothing blocks them but the
+   per-page work above.
 2. **Accessibility pass** — deferred by the user until after the first build;
    they want excellent scores.
 3. **Figma mode shows JSX.** Every code block falls back to the headless dot form

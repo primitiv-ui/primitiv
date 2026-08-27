@@ -213,8 +213,12 @@
   letter-spacing: var(--primitiv-letter-spacing-wide);
   margin-block: 0 var(--primitiv-stack-gap-sm);
   font-family: var(--primitiv-overline-font-family);
-  font-size: var(--primitiv-overline-font-size);
-  font-weight: var(--primitiv-overline-font-weight);
+  /* One step up from the overline defaults (12px / medium): these rail headings
+     label whole runs of links, so they earn a touch more presence than a caption
+     overline. `font-size-14` + `semibold` rather than the overline's own size and
+     weight tokens. Kept in lockstep with `.docs-toc-heading`. */
+  font-size: var(--primitiv-font-size-14);
+  font-weight: var(--primitiv-font-weight-semibold);
   line-height: var(--primitiv-overline-line-height);
   text-transform: uppercase;
   /* content/primary, not muted: at overline size these are labels for whole runs

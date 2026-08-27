@@ -12,7 +12,7 @@ pub mod gamut;
 pub mod generate;
 pub mod neutral;
 
-pub use alpha::generate_alpha_ramp;
+pub use alpha::{generate_alpha_ramp, generate_alpha_ramp_with_steps};
 pub use audit::{
     assess_ramp, audit_contrast, grade, readable_step, ContrastUse, ForegroundCoverage, Grade,
     Level, RampQuality, ReadableStep,

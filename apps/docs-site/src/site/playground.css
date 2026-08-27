@@ -164,21 +164,57 @@
  * exists for.
  */
 .docs-empty-state-region {
-  /* Not tokens: these are the size of an example's scaffolding, which is a page
-     layout decision and has no design-system meaning. `--docs-*` is the
-     convention the token check allows for exactly that. */
-  --docs-empty-state-height: 15rem;
+  /* Off the space scale even though this is only an example's scaffolding —
+     `--docs-*` may hold a bare length, but a token is preferable and these snap
+     to the scale exactly. Reach for a token first, a rem only if nothing fits. */
+  --docs-empty-state-height: var(--primitiv-space-space-240);
 
   inline-size: 100%;
   min-block-size: var(--docs-empty-state-height);
-  display: flex;
+  /*
+   * `grid`, NOT `flex` — and this is the whole point of the region.
+   *
+   * EmptyState carries no padding and centres itself in the box it is given, so
+   * it has to BE given one. As a flex item it shrink-wrapped its own content and
+   * sat at the start, which left every example on this page top-left aligned and
+   * flatly contradicted the component's documented behaviour. A lone grid item
+   * stretches on both axes by default, so the component gets the full region and
+   * its own centring becomes visible.
+   */
+  display: grid;
   border: var(--primitiv-border-width-1) dashed var(--primitiv-border-subtle);
   border-radius: var(--primitiv-radii-8);
   padding: var(--primitiv-space-space-24);
 }
 
 .docs-empty-state-region--short {
-  --docs-empty-state-height: 8rem;
+  --docs-empty-state-height: var(--primitiv-space-space-140);
+}
+
+/*
+ * A row of regions, for comparing sizes side by side. Five stacked full-width
+ * regions made that section about 40rem tall and the sizes near-impossible to
+ * compare; laid out in a row the ramp reads at a glance. Wraps rather than
+ * scrolls, so a narrow viewport gets two rows instead of a clipped one.
+ */
+.docs-empty-state-row {
+  inline-size: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--primitiv-stack-gap-md);
+}
+
+.docs-empty-state-row > .docs-empty-state-region {
+  /* Sized for a FULL empty state — media, title, description and an actions
+     button — so the ramp is compared on the whole anatomy rather than on an
+     icon and a word. That needs real width, so these wrap two-up at the content
+     width instead of five across; adjacent sizes still sit side by side, which
+     is what makes a ramp legible. */
+  --docs-empty-state-height: var(--primitiv-space-space-200);
+  --docs-empty-state-row-min: var(--primitiv-space-space-240);
+
+  flex: 1 1 var(--docs-empty-state-row-min);
+  padding: var(--primitiv-space-space-16);
 }
 
 /*

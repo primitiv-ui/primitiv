@@ -17,13 +17,16 @@ type Size = "xs" | "sm" | "md" | "lg" | "xl";
 
 const SIZES: readonly Size[] = ["xs", "sm", "md", "lg", "xl"];
 
-const imports = (mode: Mode) =>
-  importBlock({
-    mode,
-    component: "EmptyState",
-    componentId: "empty-state",
-    parts: ["Media", "Title", "Description", "Actions"],
-  });
+/*
+ * Imports for the parts an example ACTUALLY renders.
+ *
+ * Not a fixed list: four of the five examples used to import `Media` and
+ * `Actions` they never rendered, which is the one thing a snippet beside a live
+ * example must never do — a reader copying it pulls in symbols the code does not
+ * use, and the block stops being a readout of what is on screen.
+ */
+const imports = (mode: Mode, parts: readonly string[] = ["Media", "Title", "Description", "Actions"]) =>
+  importBlock({ mode, component: "EmptyState", componentId: "empty-state", parts: [...parts] });
 const buttonImports = (mode: Mode) => importBlock({ mode, component: "Button", componentId: "button" });
 
 /** A magnifying glass, inlined so the examples pull in no icon package. */
@@ -147,7 +150,7 @@ export const emptyStateSpec: ComponentSpec = {
           caption="The Root is `role=&quot;status&quot;` — a **polite** live region, so when it replaces content that has just vanished (a search that returned nothing, a filter that excluded everything) a screen reader announces it once the user is idle rather than interrupting. That is the case it is built for. It is the wrong behaviour when the empty state was on the page at load: there is no change to announce, and a live region that arrives already-populated is unreliable anyway. Pass `role={undefined}` to opt out — the primitive's own JSDoc documents this, and it is why `role` is a plain forwarded attribute rather than something the component locks down."
           code={(_density, mode) =>
             [
-              imports(mode),
+              imports(mode, ["Media", "Title", "Description", "Actions"]),
               buttonImports(mode),
               ``,
               `{/* Replaced content that vanished — announce it. */}`,
@@ -197,7 +200,7 @@ export const emptyStateSpec: ComponentSpec = {
           code={(_density, mode) => {
             const p = partNamer(mode, "EmptyState");
             return [
-              imports(mode),
+              imports(mode, ["Title", "Description"]),
               ``,
               `<${p("Root")} role={undefined}>`,
               `  <${p("Title")} asChild>`,
@@ -226,12 +229,18 @@ export const emptyStateSpec: ComponentSpec = {
       title: "Orientation",
       render: () => (
         <InteractiveExample
-          caption="`vertical` stacks the media above centred text — the canonical full-region empty state. `horizontal` puts the media beside inline-start-aligned text, which is the shape that fits an inline or compact region: a narrow panel, a card, a table's empty body. Note that the text alignment changes with it, not just the axis; a horizontal state with centred text reads as a mistake, so the two travel together."
+          caption="`vertical` stacks the media above centred text — the canonical full-region empty state. `horizontal` puts the media beside inline-start-aligned text, which is the shape that fits an inline or compact region: a narrow panel, a card, a table's empty body. Note that the text alignment changes with it, not just the axis; a horizontal state with centred text reads as a mistake, so the two travel together. Both are shown here because the difference is the point."
           code={(_density, mode) =>
             [
-              imports(mode),
-              buttonImports(mode),
+              imports(mode, ["Media", "Title", "Description"]),
               ``,
+              `{/* vertical (the default) — media above centred text */}`,
+              ...treeLines(mode, {
+                attrs: contractAttr({ mode, prop: "orientation", value: "vertical" }),
+                actions: false,
+              }),
+              ``,
+              `{/* horizontal — media beside inline-start-aligned text */}`,
               ...treeLines(mode, {
                 attrs: contractAttr({ mode, prop: "orientation", value: "horizontal" }),
                 actions: false,
@@ -241,6 +250,21 @@ export const emptyStateSpec: ComponentSpec = {
         >
           {() => (
             <div className="docs-example-stack">
+              <p className="docs-example-caption">
+                <code>vertical</code>
+              </p>
+              <div className="docs-empty-state-region">
+                <EmptyState orientation="vertical">
+                  <EmptyStateMedia>
+                    <SearchGlyph />
+                  </EmptyStateMedia>
+                  <EmptyStateTitle>No results found</EmptyStateTitle>
+                  <EmptyStateDescription>Try adjusting your filters.</EmptyStateDescription>
+                </EmptyState>
+              </div>
+              <p className="docs-example-caption">
+                <code>horizontal</code>
+              </p>
               <div className="docs-empty-state-region docs-empty-state-region--short">
                 <EmptyState orientation="horizontal">
                   <EmptyStateMedia>
@@ -263,23 +287,39 @@ export const emptyStateSpec: ComponentSpec = {
           caption="Every part below the Root is optional, so the same component covers a full illustrated region and a single line of text. Two judgement calls worth making deliberately. Drop the Media when the region is too short to give an icon room — a glyph squeezed into 40px of height reads as a bug, not as art. And drop the Actions when there is genuinely nothing to recover to: an empty state whose only button reloads the page is worse than one that simply says what happened."
           code={(_density, mode) =>
             [
-              imports(mode),
+              imports(mode, ["Media", "Title", "Description", "Actions"]),
+              buttonImports(mode),
               ``,
-              `{/* Text only — no media, no actions. */}`,
-              ...treeLines(mode, {
-                media: false,
-                actions: false,
-                title: "No results found",
-              }),
+              `{/* everything — a full illustrated region */}`,
+              ...treeLines(mode),
+              ``,
+              `{/* text only — no media, no actions */}`,
+              ...treeLines(mode, { media: false, actions: false }),
             ].join("\n")
           }
         >
           {() => (
-            <div className="docs-empty-state-region docs-empty-state-region--short">
-              <EmptyState>
-                <EmptyStateTitle>No results found</EmptyStateTitle>
-                <EmptyStateDescription>Try adjusting your filters.</EmptyStateDescription>
-              </EmptyState>
+            <div className="docs-example-stack">
+              <p className="docs-example-caption">everything</p>
+              <div className="docs-empty-state-region">
+                <EmptyState>
+                  <EmptyStateMedia>
+                    <SearchGlyph />
+                  </EmptyStateMedia>
+                  <EmptyStateTitle>No results found</EmptyStateTitle>
+                  <EmptyStateDescription>Try adjusting your filters.</EmptyStateDescription>
+                  <EmptyStateActions>
+                    <Button variant="secondary">Clear filters</Button>
+                  </EmptyStateActions>
+                </EmptyState>
+              </div>
+              <p className="docs-example-caption">title and description only</p>
+              <div className="docs-empty-state-region docs-empty-state-region--short">
+                <EmptyState>
+                  <EmptyStateTitle>No results found</EmptyStateTitle>
+                  <EmptyStateDescription>Try adjusting your filters.</EmptyStateDescription>
+                </EmptyState>
+              </div>
             </div>
           )}
         </InteractiveExample>
@@ -294,13 +334,12 @@ export const emptyStateSpec: ComponentSpec = {
           code={(density, mode) =>
             [
               imports(mode),
+              buttonImports(mode),
               ``,
               `<div data-density="${density}">`,
               ...SIZES.flatMap((s) =>
                 treeLines(mode, {
                   attrs: contractAttr({ mode, prop: "size", value: s }),
-                  actions: false,
-                  description: false,
                   title: s.toUpperCase(),
                   indent: "  ",
                 }),
@@ -309,18 +348,32 @@ export const emptyStateSpec: ComponentSpec = {
             ].join("\n")
           }
         >
-          {() =>
-            SIZES.map((size) => (
-              <div className="docs-empty-state-region docs-empty-state-region--short" key={size}>
-                <EmptyState size={size}>
-                  <EmptyStateMedia>
-                    <SearchGlyph />
-                  </EmptyStateMedia>
-                  <EmptyStateTitle>{size.toUpperCase()}</EmptyStateTitle>
-                </EmptyState>
-              </div>
-            ))
-          }
+          {() => (
+            /* A ROW, not five stacked full-width regions: stacked, this section
+               ran to about 40rem and put every size a screen apart, which is the
+               one comparison the example exists to make. */
+            <div className="docs-empty-state-row">
+              {SIZES.map((size) => (
+                <div className="docs-empty-state-region" key={size}>
+                  {/* The FULL anatomy at every size — the media, both type ramps
+                      and the actions button all move, so a ramp shown as icon +
+                      one word hides most of what `size` does. */}
+                  <EmptyState size={size}>
+                    <EmptyStateMedia>
+                      <SearchGlyph />
+                    </EmptyStateMedia>
+                    <EmptyStateTitle>{size.toUpperCase()}</EmptyStateTitle>
+                    <EmptyStateDescription>Try adjusting your filters.</EmptyStateDescription>
+                    <EmptyStateActions>
+                      <Button size={size} variant="secondary">
+                        Clear filters
+                      </Button>
+                    </EmptyStateActions>
+                  </EmptyState>
+                </div>
+              ))}
+            </div>
+          )}
         </InteractiveExample>
       ),
     },

@@ -2,15 +2,18 @@
 
 import type { ComponentId } from "@/lib/docs-data";
 
+import { alertSpec } from "./alert";
 import { badgeSpec } from "./badge";
 import { buttonSpec } from "./button";
 import { inputSpec } from "./input";
 import { accordionSpec } from "./accordion";
 import { checkboxCardSpec } from "./checkbox-card";
 import { checkboxSpec } from "./checkbox";
+import { emptyStateSpec } from "./empty-state";
 import { fieldSpec } from "./field";
 import { inputGroupSpec } from "./input-group";
 import { modalSpec } from "./modal";
+import { progressSpec } from "./progress";
 import { radioCardSpec } from "./radio-card";
 import { radioSpec } from "./radio";
 import { segmentedControlSpec } from "./segmented-control";
@@ -28,15 +31,18 @@ import type { ComponentSpec } from "./types";
  * a spec, add one line here.
  */
 export const SPECS: Record<ComponentId, ComponentSpec> = {
+  alert: alertSpec,
   badge: badgeSpec,
   button: buttonSpec,
   input: inputSpec,
   accordion: accordionSpec,
   checkbox: checkboxSpec,
   "checkbox-card": checkboxCardSpec,
+  "empty-state": emptyStateSpec,
   field: fieldSpec,
   "input-group": inputGroupSpec,
   modal: modalSpec,
+  progress: progressSpec,
   radio: radioSpec,
   "radio-card": radioCardSpec,
   "segmented-control": segmentedControlSpec,

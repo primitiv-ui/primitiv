@@ -152,3 +152,57 @@
   line-height: var(--primitiv-body-md-line-height);
   color: var(--primitiv-content-secondary);
 }
+
+/*
+ * A bordered region for an EmptyState to fill.
+ *
+ * The component deliberately carries no padding and centres itself in whatever
+ * box it is given, so it collapses to nothing in a box with no height — which
+ * makes a container the example's job, exactly as it is the consumer's. Dashed
+ * so it reads as the page's scaffolding rather than as part of the component,
+ * and the `--short` variant is the compact/inline case `orientation="horizontal"`
+ * exists for.
+ */
+.docs-empty-state-region {
+  /* Not tokens: these are the size of an example's scaffolding, which is a page
+     layout decision and has no design-system meaning. `--docs-*` is the
+     convention the token check allows for exactly that. */
+  --docs-empty-state-height: 15rem;
+
+  inline-size: 100%;
+  min-block-size: var(--docs-empty-state-height);
+  display: flex;
+  border: var(--primitiv-border-width-1) dashed var(--primitiv-border-subtle);
+  border-radius: var(--primitiv-radii-8);
+  padding: var(--primitiv-space-space-24);
+}
+
+.docs-empty-state-region--short {
+  --docs-empty-state-height: 8rem;
+}
+
+/*
+ * A text button that reads as a link — for an example that has to undo itself
+ * (Alert's dismiss demo, which unmounts the thing you just interacted with).
+ * A real Button would read as part of the demo rather than as the page offering
+ * to reset it.
+ */
+.docs-example-reset {
+  border: 0;
+  padding: 0;
+  background: none;
+  font: inherit;
+  color: var(--primitiv-action-link-foreground-default);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.docs-example-reset:hover {
+  color: var(--primitiv-action-link-foreground-hover);
+}
+
+.docs-example-reset:focus-visible {
+  outline: var(--primitiv-focus-ring-width) solid var(--primitiv-focus-ring);
+  outline-offset: var(--primitiv-focus-ring-offset);
+  border-radius: var(--primitiv-radii-2);
+}

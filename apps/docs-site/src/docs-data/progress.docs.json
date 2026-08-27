@@ -1,0 +1,197 @@
+{
+  "id": "progress",
+  "displayName": "Progress",
+  "kind": "registry",
+  "status": "stable",
+  "category": "Feedback & Status",
+  "description": "A progress bar — a track with a fill that reports completion, or an animated indeterminate state when the ratio is unknown. `intent` picks the fill colour (primary/secondary/danger), matching the Figma set; the track stays neutral in every intent.",
+  "headless": {
+    "package": "@primitiv-ui/react",
+    "importPath": "@primitiv-ui/react",
+    "subComponents": [
+      {
+        "name": "Progress.Root",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Render the consumer's own element instead of the native `<div>`, merging\nthe ARIA and `data-*` hooks onto it via {@link Slot }."
+          },
+          {
+            "name": "getValueLabel",
+            "type": "(value: number, max: number) => string",
+            "required": false,
+            "default": "(value, max) => `${Math.round((value / max) * 100)}%`",
+            "description": "Produces the human-readable `aria-valuetext`. Receives the resolved\n`value` and `max`. Defaults to a rounded percentage (e.g. `\"42%\"`).\nNot called while indeterminate."
+          },
+          {
+            "name": "max",
+            "type": "number",
+            "required": false,
+            "default": "100",
+            "description": "Upper bound of `value`. Must be a positive, finite number, or Root throws\nduring render."
+          },
+          {
+            "name": "value",
+            "type": "number | null",
+            "required": false,
+            "default": "null",
+            "description": "Current progress, between `0` and `max`. Pass `null` (or omit) for an\nindeterminate progress bar whose completion ratio is unknown. Drives the\nresolved {@link ProgressState} and the `aria-valuenow` / `data-value`\nhooks. A non-`null` value outside `0..max` throws."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [
+          {
+            "name": "size",
+            "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
+            "default": "md",
+            "description": "Track height; `data-density` scales each size further."
+          },
+          {
+            "name": "intent",
+            "type": "\"primary\" | \"secondary\" | \"danger\"",
+            "default": "primary",
+            "description": "Fill colour, matching Figma's `Intent` axis. The track is neutral in every intent — only the fill changes."
+          }
+        ],
+        "dataAttributes": [
+          {
+            "name": "data-value",
+            "value": "<number>",
+            "when": "the current `value` — readable from CSS without a custom property"
+          },
+          {
+            "name": "data-max",
+            "value": "<number>",
+            "when": "the `max` the value is measured against"
+          },
+          {
+            "name": "data-state",
+            "value": "indeterminate",
+            "when": "indeterminate"
+          },
+          {
+            "name": "data-state",
+            "value": "loading",
+            "when": "loading"
+          },
+          {
+            "name": "data-state",
+            "value": "complete",
+            "when": "complete"
+          }
+        ],
+        "class": "primitiv-progress"
+      },
+      {
+        "name": "Progress.Indicator",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Render the consumer's own element instead of the native `<div>`, merging\nthe `data-*` hooks onto it via {@link Slot }."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [
+          {
+            "name": "data-state",
+            "value": "indeterminate",
+            "when": "indeterminate"
+          },
+          {
+            "name": "data-state",
+            "value": "loading",
+            "when": "loading"
+          },
+          {
+            "name": "data-state",
+            "value": "complete",
+            "when": "complete"
+          }
+        ],
+        "class": "primitiv-progress__indicator"
+      }
+    ]
+  },
+  "styled": {
+    "installCommand": "primitiv add progress",
+    "rootClass": "primitiv-progress",
+    "customProperties": [
+      {
+        "name": "--primitiv-progress-height",
+        "defaultsTo": "var(--primitiv-progress-md-height)"
+      },
+      {
+        "name": "--primitiv-progress-radius",
+        "defaultsTo": "var(--primitiv-radii-full)"
+      },
+      {
+        "name": "--primitiv-progress-track-bg",
+        "defaultsTo": "var(--primitiv-action-secondary-default)"
+      },
+      {
+        "name": "--primitiv-progress-fill-bg",
+        "defaultsTo": "var(--primitiv-action-primary-default)"
+      },
+      {
+        "name": "--primitiv-progress-max",
+        "defaultsTo": "100"
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-value",
+        "value": "<number>",
+        "when": "the current `value` — readable from CSS without a custom property"
+      },
+      {
+        "name": "data-max",
+        "value": "<number>",
+        "when": "the `max` the value is measured against"
+      },
+      {
+        "name": "data-state",
+        "value": "indeterminate",
+        "when": "indeterminate"
+      },
+      {
+        "name": "data-state",
+        "value": "loading",
+        "when": "loading"
+      },
+      {
+        "name": "data-state",
+        "value": "complete",
+        "when": "complete"
+      },
+      {
+        "name": "data-state",
+        "value": "indeterminate",
+        "when": "indeterminate"
+      },
+      {
+        "name": "data-state",
+        "value": "loading",
+        "when": "loading"
+      },
+      {
+        "name": "data-state",
+        "value": "complete",
+        "when": "complete"
+      }
+    ]
+  },
+  "figma": {
+    "componentSetKey": "1219:45786"
+  }
+}

@@ -1,0 +1,163 @@
+{
+  "id": "alert",
+  "displayName": "Alert",
+  "kind": "registry",
+  "status": "stable",
+  "category": "Feedback & Status",
+  "description": "An assertive banner for high-priority, time-sensitive messages — a tone-matched icon, an optional title, a description, and an optional dismiss button. Composes the headless Alert primitive (role=\"alert\") for the message and the registry Button (ghost variant) for the dismiss affordance. Sized xs–xl; `data-density` scales each size further.",
+  "headless": {
+    "package": "@primitiv-ui/react",
+    "importPath": "@primitiv-ui/react",
+    "subComponents": [
+      {
+        "name": "Alert",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": true,
+            "default": null,
+            "description": "The alert's message. Always present — the required content."
+          },
+          {
+            "name": "dismissLabel",
+            "type": "string",
+            "required": false,
+            "default": "\"Dismiss\"",
+            "description": "`aria-label` for the dismiss button."
+          },
+          {
+            "name": "icon",
+            "type": "ReactNode",
+            "required": false,
+            "default": null,
+            "description": "Overrides the tone's default leading icon (info circle / success\ncheck / warning triangle / danger x-circle)."
+          },
+          {
+            "name": "onDismiss",
+            "type": "() => void",
+            "required": false,
+            "default": null,
+            "description": "Called when the dismiss button is activated. The dismiss button only\nrenders when this is provided; omit it for a non-dismissible alert."
+          },
+          {
+            "name": "title",
+            "type": "string & ReactElement<unknown, string | JSXElementConstructor<any>> | string & Iterable<ReactNode> | string & ReactPortal | string & Promise<AwaitedReactNode>",
+            "required": false,
+            "default": null,
+            "description": "The alert's heading, shown above the description. Omit for a\nsingle-message alert — the headless Alert's own simplest usage\n(`<Alert>{error}</Alert>`)."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [
+          {
+            "name": "tone",
+            "type": "\"info\" | \"success\" | \"warning\" | \"danger\"",
+            "default": "info",
+            "description": "Semantic colour; also selects the default leading icon."
+          },
+          {
+            "name": "size",
+            "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
+            "default": "md",
+            "description": "Alert size; `data-density` scales each size further."
+          }
+        ],
+        "dataAttributes": [],
+        "class": "primitiv-alert"
+      }
+    ]
+  },
+  "styled": {
+    "installCommand": "primitiv add alert",
+    "rootClass": "primitiv-alert",
+    "customProperties": [
+      {
+        "name": "--primitiv-alert-background",
+        "defaultsTo": "var(--primitiv-feedback-info-soft-background)"
+      },
+      {
+        "name": "--primitiv-alert-foreground",
+        "defaultsTo": "var(--primitiv-feedback-info-soft-foreground)"
+      },
+      {
+        "name": "--primitiv-alert-border-color",
+        "defaultsTo": "var(--primitiv-feedback-info-soft-border)"
+      },
+      {
+        "name": "--primitiv-alert-border-width",
+        "defaultsTo": "var(--primitiv-framed-control-border-width)"
+      },
+      {
+        "name": "--primitiv-alert-padding-inline",
+        "defaultsTo": "var(--primitiv-framed-control-md-padding-inline)"
+      },
+      {
+        "name": "--primitiv-alert-padding-block",
+        "defaultsTo": "var(--primitiv-alert-md-padding-block)"
+      },
+      {
+        "name": "--primitiv-alert-gap",
+        "defaultsTo": "var(--primitiv-framed-control-md-gap)"
+      },
+      {
+        "name": "--primitiv-alert-icon-size",
+        "defaultsTo": "var(--primitiv-framed-control-md-icon-size)"
+      },
+      {
+        "name": "--primitiv-alert-icon-offset-top",
+        "defaultsTo": "var(--primitiv-alert-md-icon-offset-top)"
+      },
+      {
+        "name": "--primitiv-alert-radius",
+        "defaultsTo": "var(--primitiv-framed-control-md-radius)"
+      },
+      {
+        "name": "--primitiv-alert-title-font-family",
+        "defaultsTo": "var(--primitiv-label-md-font-family)"
+      },
+      {
+        "name": "--primitiv-alert-title-font-size",
+        "defaultsTo": "var(--primitiv-label-md-font-size)"
+      },
+      {
+        "name": "--primitiv-alert-title-font-weight",
+        "defaultsTo": "var(--primitiv-label-md-font-weight)"
+      },
+      {
+        "name": "--primitiv-alert-title-line-height",
+        "defaultsTo": "var(--primitiv-label-md-line-height)"
+      },
+      {
+        "name": "--primitiv-alert-description-font-family",
+        "defaultsTo": "var(--primitiv-body-md-font-family)"
+      },
+      {
+        "name": "--primitiv-alert-description-font-size",
+        "defaultsTo": "var(--primitiv-body-md-font-size)"
+      },
+      {
+        "name": "--primitiv-alert-description-font-weight",
+        "defaultsTo": "var(--primitiv-body-md-font-weight)"
+      },
+      {
+        "name": "--primitiv-alert-description-line-height",
+        "defaultsTo": "var(--primitiv-body-md-line-height)"
+      },
+      {
+        "name": "--primitiv-alert-dismiss-hover-background",
+        "defaultsTo": "var(--primitiv-feedback-info-soft-hover)"
+      },
+      {
+        "name": "--primitiv-alert-dismiss-active-background",
+        "defaultsTo": "var(--primitiv-feedback-info-soft-active)"
+      }
+    ],
+    "dataAttributes": []
+  },
+  "figma": {
+    "componentSetKey": "1114:40295"
+  }
+}

@@ -19,15 +19,18 @@
  * list, so the mutual exclusivity has to be stated in prose on the page.
  */
 
+import alertDocs from "@/docs-data/alert.docs.json";
 import badgeDocs from "@/docs-data/badge.docs.json";
 import buttonDocs from "@/docs-data/button.docs.json";
 import inputDocs from "@/docs-data/input.docs.json";
 import accordionDocs from "@/docs-data/accordion.docs.json";
 import checkboxCardDocs from "@/docs-data/checkbox-card.docs.json";
 import checkboxDocs from "@/docs-data/checkbox.docs.json";
+import emptyStateDocs from "@/docs-data/empty-state.docs.json";
 import fieldDocs from "@/docs-data/field.docs.json";
 import inputGroupDocs from "@/docs-data/input-group.docs.json";
 import modalDocs from "@/docs-data/modal.docs.json";
+import progressDocs from "@/docs-data/progress.docs.json";
 import radioCardDocs from "@/docs-data/radio-card.docs.json";
 import radioDocs from "@/docs-data/radio.docs.json";
 import segmentedControlDocs from "@/docs-data/segmented-control.docs.json";
@@ -205,15 +208,18 @@ export type ComponentDocs = {
 };
 
 const DOCS = {
+  alert: alertDocs as unknown as ComponentDocs,
   badge: badgeDocs as unknown as ComponentDocs,
   button: buttonDocs as unknown as ComponentDocs,
   input: inputDocs as unknown as ComponentDocs,
   accordion: accordionDocs as unknown as ComponentDocs,
   checkbox: checkboxDocs as unknown as ComponentDocs,
   "checkbox-card": checkboxCardDocs as unknown as ComponentDocs,
+  "empty-state": emptyStateDocs as unknown as ComponentDocs,
   field: fieldDocs as unknown as ComponentDocs,
   "input-group": inputGroupDocs as unknown as ComponentDocs,
   modal: modalDocs as unknown as ComponentDocs,
+  progress: progressDocs as unknown as ComponentDocs,
   radio: radioDocs as unknown as ComponentDocs,
   "radio-card": radioCardDocs as unknown as ComponentDocs,
   "segmented-control": segmentedControlDocs as unknown as ComponentDocs,

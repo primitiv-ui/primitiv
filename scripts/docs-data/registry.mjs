@@ -212,6 +212,51 @@ export const REGISTRY = {
     contract: "registry/components/radio-card/contract.json",
     figmaComponentSetKey: "1417:35178", importPath: "@primitiv-ui/react",
   },
+  alert: {
+    displayName: "Alert", kind: "registry", status: "stable", category: "Feedback & Status",
+    /*
+     * The REGISTRY file. The headless `Alert` is a bare `<div role="alert">`
+     * taking only `asChild` + `children`; every prop worth documenting —
+     * `tone`, `title`, `icon`, `onDismiss`, `dismissLabel` — belongs to the
+     * copied surface. Same call as the cards'.
+     */
+    propsFile: "registry/components/alert/alert.tsx",
+    subComponents: [
+      /*
+       * NOT dotted, and that is correct: both surfaces export a single `Alert`.
+       * The headless one is not a compound, so there is no `Alert.Root` for
+       * Headless mode to switch to.
+       */
+      { name: "Alert", propsType: "AlertProps", element: "div", component: "Alert" },
+    ],
+    contract: "registry/components/alert/contract.json",
+    figmaComponentSetKey: "1114:40295", importPath: "@primitiv-ui/react",
+  },
+  progress: {
+    displayName: "Progress", kind: "registry", status: "stable", category: "Feedback & Status",
+    propsFile: "packages/react/src/Progress/types.ts",
+    subComponents: [
+      { name: "Progress.Root", propsType: "ProgressRootProps", element: "div", component: "Root" },
+      { name: "Progress.Indicator", propsType: "ProgressIndicatorProps", element: "div", component: "Indicator" },
+    ],
+    contract: "registry/components/progress/contract.json",
+    figmaComponentSetKey: "1219:45786", importPath: "@primitiv-ui/react",
+  },
+  "empty-state": {
+    displayName: "EmptyState", kind: "registry", status: "stable", category: "Feedback & Status",
+    propsFile: "packages/react/src/EmptyState/types.ts",
+    subComponents: [
+      /* Root's own propsFile is the registry file: `orientation` and `size` are
+         the copied surface's, and the headless Root has neither. */
+      { name: "EmptyState.Root", propsType: "EmptyStateProps", propsFile: "registry/components/empty-state/empty-state.tsx", element: "div", component: "Root" },
+      { name: "EmptyState.Media", propsType: "EmptyStateMediaProps", element: "div", component: "Media" },
+      { name: "EmptyState.Title", propsType: "EmptyStateTitleProps", element: "p", component: "Title" },
+      { name: "EmptyState.Description", propsType: "EmptyStateDescriptionProps", element: "p", component: "Description" },
+      { name: "EmptyState.Actions", propsType: "EmptyStateActionsProps", element: "div", component: "Actions" },
+    ],
+    contract: "registry/components/empty-state/contract.json",
+    figmaComponentSetKey: "1502:47398", importPath: "@primitiv-ui/react",
+  },
   field: {
     displayName: "Field", kind: "registry", status: "stable", category: "Forms",
     propsFile: "packages/react/src/Field/types.ts",

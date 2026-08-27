@@ -11,7 +11,7 @@
     "displayName": "Alert",
     "category": "Feedback & Status",
     "description": "An assertive banner for high-priority, time-sensitive messages — a tone-matched icon, an optional title, a description, and an optional dismiss button. Composes the headless Alert primitive (role=\"alert\") for the message and the registry Button (ghost variant) for the dismiss affordance. Sized xs–xl; `data-density` scales each size further.",
-    "documented": false
+    "documented": true
   },
   {
     "id": "aspect-ratio",
@@ -200,7 +200,7 @@
     "displayName": "EmptyState",
     "category": "Feedback & Status",
     "description": "The placeholder shown when a collection, search, or view has no content — a decorative media slot, a headline, supporting copy, and recovery actions, centred in the space it fills. Composes the headless EmptyState primitive (role=\"status\", a polite live region). Sized xs–xl; `data-density` scales each size further.",
-    "documented": false
+    "documented": true
   },
   {
     "id": "field",
@@ -305,7 +305,7 @@
     "displayName": "Progress",
     "category": "Feedback & Status",
     "description": "A progress bar — a track with a fill that reports completion, or an animated indeterminate state when the ratio is unknown. `intent` picks the fill colour (primary/secondary/danger), matching the Figma set; the track stays neutral in every intent.",
-    "documented": false
+    "documented": true
   },
   {
     "id": "prose",

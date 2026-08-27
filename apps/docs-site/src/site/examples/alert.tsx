@@ -21,6 +21,15 @@ const TONES: readonly { tone: Tone; title: string; body: string }[] = [
   { tone: "danger", title: "Payment failed", body: "Your card was declined. Try a different payment method." },
 ];
 
+/**
+ * The message for a tone, for the playground.
+ *
+ * Falls back to `info` rather than throwing: `values.tone` arrives as a plain
+ * string from the control, so a contract change that renamed a tone would
+ * otherwise crash the preview instead of showing the wrong copy.
+ */
+const toneContent = (tone: string) => TONES.find((t) => t.tone === tone) ?? TONES[0];
+
 const imports = (mode: Mode) => importBlock({ mode, component: "Alert", componentId: "alert" });
 const stackImports = (mode: Mode) => importBlock({ mode, component: "Stack", componentId: "stack" });
 
@@ -89,18 +98,29 @@ export const alertSpec: ComponentSpec = {
       {
         name: "dismissible",
         options: ["false", "true"],
-        defaultValue: "false",
+        /* On by default: the dismiss button is the part of the anatomy a reader
+           is most likely to be here to see, and switching it off is the
+           self-evident half. */
+        defaultValue: "true",
         description:
           "Renders the dismiss button. It exists only when `onDismiss` is supplied — there is no separate boolean.",
       },
     ],
-    snippet: (values, mode) =>
-      [
+    /*
+     * Content follows `tone`, from the SAME `TONES` table the Tones example
+     * reads. A single message across all four made the control look decorative —
+     * switching to `success` while the text still read "Payment failed" was the
+     * one combination guaranteed to confuse — and because both halves below
+     * resolve it from `values.tone`, the snippet cannot drift from the preview.
+     */
+    snippet: (values, mode) => {
+      const t = toneContent(values.tone);
+      return [
         imports(mode),
         ``,
         ...alertLines(
           mode,
-          { title: "Payment failed", body: "Your card was declined. Try a different payment method." },
+          { title: t.title, body: t.body },
           {
             attrs:
               `${contractAttr({ mode, prop: "tone", value: values.tone })}` +
@@ -108,19 +128,23 @@ export const alertSpec: ComponentSpec = {
               `${values.dismissible === "true" ? " onDismiss={() => setShown(false)}" : ""}`,
           },
         ),
-      ].join("\n"),
-    render: (values) => (
-      <div className="docs-example-stack">
-        <Alert
-          tone={values.tone as Tone}
-          size={values.size as Size}
-          title="Payment failed"
-          {...(values.dismissible === "true" ? { onDismiss: () => undefined } : {})}
-        >
-          Your card was declined. Try a different payment method.
-        </Alert>
-      </div>
-    ),
+      ].join("\n");
+    },
+    render: (values) => {
+      const t = toneContent(values.tone);
+      return (
+        <div className="docs-example-stack">
+          <Alert
+            tone={values.tone as Tone}
+            size={values.size as Size}
+            title={t.title}
+            {...(values.dismissible === "true" ? { onDismiss: () => undefined } : {})}
+          >
+            {t.body}
+          </Alert>
+        </div>
+      );
+    },
   },
 
   anatomyMeta:

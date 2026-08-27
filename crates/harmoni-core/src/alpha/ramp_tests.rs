@@ -1,9 +1,17 @@
-use super::ramp::{generate_alpha_ramp, ALPHA_CURVE};
+use super::ramp::{generate_alpha_ramp, generate_alpha_ramp_with_steps, ALPHA_CURVE};
 use crate::color::output::format_oklch_alpha;
+use crate::palette::generator::step_labels;
 use palette::Oklch;
 
 fn anchor() -> Oklch {
     Oklch::new(0.2, 0.03, 260.0)
+}
+
+#[test]
+fn generate_alpha_ramp_with_steps_labels_its_steps_like_a_solid_ramp_of_the_same_length() {
+    let ramp = generate_alpha_ramp_with_steps(anchor(), 7);
+    let steps: Vec<u16> = ramp.iter().map(|s| s.step).collect();
+    assert_eq!(steps, step_labels(7));
 }
 
 #[test]

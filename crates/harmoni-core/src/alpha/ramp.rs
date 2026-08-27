@@ -2,6 +2,7 @@ use palette::Oklch;
 use serde::{Deserialize, Serialize};
 
 use crate::color::output::format_oklch_alpha;
+use crate::palette::generator::{resample, step_labels, DEFAULT_STEPS};
 
 /// The opacity curve shared by every alpha ramp (Path A). Dense at the subtle
 /// end — hover, ghost and overlay state layers live in the low steps — and
@@ -9,7 +10,34 @@ use crate::color::output::format_oklch_alpha;
 /// emitted tokens, and the Figma plugin.
 pub const ALPHA_CURVE: [f32; 10] = [0.03, 0.06, 0.1, 0.14, 0.2, 0.3, 0.42, 0.55, 0.72, 0.92];
 
-const STEPS: [u16; 10] = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900];
+
+/// Builds an alpha ramp of `steps` steps, reading [`ALPHA_CURVE`] at whatever
+/// resolution is asked for.
+///
+/// A ramp's length is a user knob and an alpha ramp has to follow its solid
+/// companion, or the two families stop being parallel: a seven-step `accent`
+/// beside a ten-step `accent-alpha` carries two different label sets for the
+/// same ramp. Labels come from [`step_labels`] and opacities from
+/// [`resample`], so both halves answer to the same length.
+///
+/// `steps` must be within `MIN_STEPS..=MAX_STEPS`; `resample` divides by
+/// `steps - 1` and has no interval to work with below two. The `api` layer is
+/// what guarantees that for every caller, the same arrangement
+/// `generate_palette_with_steps` uses.
+pub fn generate_alpha_ramp_with_steps(anchor: Oklch, steps: usize) -> Vec<AlphaSwatch> {
+    step_labels(steps)
+        .into_iter()
+        .zip(resample(&ALPHA_CURVE, steps))
+        .map(|(step, alpha)| AlphaSwatch {
+            l: anchor.l,
+            c: anchor.chroma,
+            h: anchor.hue.into_degrees(),
+            alpha,
+            step,
+            oklch: format_oklch_alpha(anchor, alpha),
+        })
+        .collect()
+}
 
 /// One step of an alpha ramp: a single anchor colour shown at one opacity.
 /// Unlike `Swatch`, an alpha swatch carries no contrast/foreground data — its
@@ -30,16 +58,5 @@ pub struct AlphaSwatch {
 /// Neutral ramps pass their veil colour (soft-black in light, soft-white in
 /// dark); brand ramps pass the brand's identity swatch.
 pub fn generate_alpha_ramp(anchor: Oklch) -> Vec<AlphaSwatch> {
-    STEPS
-        .iter()
-        .zip(ALPHA_CURVE)
-        .map(|(&step, alpha)| AlphaSwatch {
-            l: anchor.l,
-            c: anchor.chroma,
-            h: anchor.hue.into_degrees(),
-            alpha,
-            step,
-            oklch: format_oklch_alpha(anchor, alpha),
-        })
-        .collect()
+    generate_alpha_ramp_with_steps(anchor, DEFAULT_STEPS)
 }

@@ -118,6 +118,14 @@ pub const TARGET_LIGHTNESS: [f32; 10] =
 pub const TARGET_CHROMA_SCALE: [f32; 10] =
     [0.12, 0.35, 0.65, 0.80, 0.92, 1.0, 0.92, 0.80, 0.65, 0.50];
 
+/// The ramp length this engine has always produced, and what a caller gets
+/// without asking for anything else.
+///
+/// Lives here beside `MIN_STEPS` / `MAX_STEPS` rather than in `api`, so the
+/// modules below `api` — `alpha`, which has to default to the same length —
+/// can read it without reaching up a layer.
+pub const DEFAULT_STEPS: usize = 10;
+
 /// The shortest ramp the model supports: a light end, the brand, a dark end.
 pub const MIN_STEPS: usize = 3;
 

@@ -1126,6 +1126,33 @@ source of truth for when a skill applies.
     — an out-of-range lightness curve used to be reported as
     `ColorInputError::InvalidCss("Lightness at index 3 out of range: 1.5")`,
     telling the caller their colour was bad when their curve was.
+  - **Alpha ramps follow their solid ramp's length too (2026-08-27).**
+    `ALPHA_CURVE` and its labels were fixed `[_; 10]` arrays while solid ramps
+    already took 3–32, so switching alpha on for a seven-step ramp produced
+    `accent/*` and `accent-alpha/*` with **different label sets** — §22.2's
+    orphaning, reached through a new door. `generate_alpha_ramp_with_steps`
+    (core, `api`, and wasm) resamples `ALPHA_CURVE` through the same
+    `resample` + `step_labels` pair generation uses, so ten steps stay
+    **byte-identical** — proved by the four original alpha tests now running
+    through the new path, and by `primitiv-emit`'s 365 goldens passing
+    untouched. `DEFAULT_STEPS` moved from `api::generate` down to
+    `palette::generator` beside `MIN_STEPS`/`MAX_STEPS`, so `alpha` can read
+    it without reaching up into `api` (public path `api::DEFAULT_STEPS` is
+    unchanged). Two engine facts the plugin design depends on, verified
+    against the committed `palette.json` rather than the prose: **`brand-alpha`
+    is mode-independent** (light and dark values identical) while
+    **`neutral-alpha` inverts** (`#121418` light / `#e5ecf6` dark), and the
+    anchor rule differs by ramp kind — chromatic ramps anchor on their **500**,
+    neutral on its **veil** (step 900). So the plugin needs one switch and no
+    options.
+  - **`JsError::new` panics on non-wasm targets** — *"cannot call wasm-bindgen
+    imported functions on non-wasm targets"* — so **every `map_err(to_js_error)`
+    path in `harmoni-wasm` is unreachable from a native test**, and an error
+    assertion there fails rather than passing. Test the rejection in
+    `harmoni-core` where the decision is made; the wasm layer is a thin
+    `map`/`map_err`. An unused `NONSENSE: &str = "not-a-colour"` const sat in
+    that test module for exactly this reason — a previous attempt's fossil,
+    now removed so it stops reading as an invitation.
   - **The picker's test harness was half-dead and nobody knew.** Six of fourteen
     `OklchPicker` test files could not resolve `harmoni-wasm` — `vi.mock` needs
     Vite to resolve the specifier *first*, and the sandbox stub had a manifest

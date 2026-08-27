@@ -319,6 +319,21 @@ pub fn generate_alpha_ramp(anchor: &str) -> Result<types::AlphaRamp, JsError> {
         .map_err(to_js_error)
 }
 
+/// Builds an alpha ramp of `steps` steps, so an alpha ramp can match the
+/// length of the solid ramp it accompanies — a seven-step ramp and a ten-step
+/// alpha companion would otherwise carry two different label sets for one
+/// ramp. `steps` outside the range `supported_step_range` reports is rejected
+/// rather than clamped.
+#[wasm_bindgen]
+pub fn generate_alpha_ramp_with_steps(
+    anchor: &str,
+    steps: usize,
+) -> Result<types::AlphaRamp, JsError> {
+    api::generate_alpha_ramp_with_steps(ColorInput::Css(anchor.to_string()), steps)
+        .map(Into::into)
+        .map_err(to_js_error)
+}
+
 #[wasm_bindgen]
 pub fn derive_soft_neutrals(
     brand: &str,
@@ -624,7 +639,6 @@ mod tests {
     }
 
     const BRAND: &str = "#3b82f6";
-    const NONSENSE: &str = "not-a-colour";
 
     #[test]
     fn black_on_white_is_the_maximum_contrast_the_standard_defines() {
@@ -656,6 +670,20 @@ mod tests {
             assert!(pair[1] > pair[0], "alpha ramp is not ascending: {alphas:?}");
         }
     }
+
+    #[test]
+    fn an_alpha_ramp_can_match_the_length_of_the_ramp_it_accompanies() {
+        let ramp = generate_alpha_ramp_with_steps("#121418", 7).unwrap();
+        assert_eq!(ramp.swatches.len(), 7);
+    }
+
+    // No test asserts a rejected length here, and none can: `JsError::new`
+    // panics with "cannot call wasm-bindgen imported functions on non-wasm
+    // targets", so every `map_err(to_js_error)` path in this crate is
+    // unreachable off-target. The rejection itself is covered where the
+    // decision is actually made — `api::alpha_tests`. The unused `NONSENSE`
+    // const that used to sit above was the fossil of an earlier attempt at
+    // this same test; it has been removed rather than left as an invitation.
 
     #[test]
     fn soft_neutrals_stay_the_right_way_round() {

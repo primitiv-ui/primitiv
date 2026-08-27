@@ -114,7 +114,12 @@ export const ComponentPageHeader = ({ docs }: { docs: ComponentDocs }) => (
         notice. Non-dismissible: `onDismiss` is omitted, so it is persistent
         context, not something to clear. */}
     {docs.kind === "registry-only" && (
-      <Alert tone="info" title="Registry-only" size="sm">
+      <Alert
+        className="docs-registry-only-alert"
+        tone="info"
+        title="Registry-only"
+        size="sm"
+      >
         No headless primitive — this component ships only as a copied styled
         file, so there is no Headless mode.{" "}
         <InlineCode size="sm">primitiv add {docs.id}</InlineCode> installs it

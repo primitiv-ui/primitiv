@@ -83,15 +83,21 @@
      * back to the start. It also left the bar fully off-track at each end, so
      * there were two moments per cycle with nothing to look at.
      *
-     * The sweep is a MASK rather than a second colour, which keeps the fill
-     * exactly `--primitiv-progress-fill-bg` at every intent — no highlight
-     * colour to define per intent, and nothing to drift when a fill changes.
+     * The sweep is a gradient between the two colours the component ALREADY
+     * owns — `--primitiv-progress-fill-bg` at the peak, `--primitiv-progress-
+     * track-bg` in the troughs — so the trough literally reads as the track
+     * showing through, and the sheet stays fully token-driven with no colour
+     * literal. Both are per-component tokens (the fill is per intent, the track
+     * is shared), so no highlight colour is invented and nothing drifts when a
+     * fill changes. (An earlier version did this with a `mask-image` whose stops
+     * were `rgb(0 0 0 / <token>)` — the alpha was a token but the `0 0 0` was a
+     * raw colour literal, which this removes.)
      *
      * Seamless by construction: the tile is 50% of the track and the animation
-     * translates by exactly one tile (`mask-position-x` 0% -> 100% resolves to
-     * container-minus-image, which for a half-width image is one tile), so the
-     * final frame is pixel-identical to the first. There is no wrap
-     * discontinuity to hide and a highlight is always on screen.
+     * translates by exactly one tile (`background-position` 0% -> 100% resolves
+     * to container-minus-image, which for a half-width image is one tile), so
+     * the final frame is pixel-identical to the first. A highlight is always on
+     * screen and there is no wrap discontinuity to hide.
      *
      * `linear`, deliberately — see above. 2s is a slow decorative loop, a
      * different category from the four short one-shot
@@ -100,38 +106,35 @@
      */
     inline-size: 100%;
     transform: none;
-    mask-image: repeating-linear-gradient(
+    background: repeating-linear-gradient(
       to right,
-      rgb(0 0 0 / var(--primitiv-opacity-30)) 0%,
-      rgb(0 0 0 / var(--primitiv-opacity-100)) 50%,
-      rgb(0 0 0 / var(--primitiv-opacity-30)) 100%
+      var(--primitiv-progress-track-bg) 0%,
+      var(--primitiv-progress-fill-bg) 50%,
+      var(--primitiv-progress-track-bg) 100%
     );
-    mask-size: 50% 100%;
-    mask-repeat: repeat;
+    background-size: 50% 100%;
+    background-repeat: repeat;
     animation: primitiv-progress-indeterminate 2s linear infinite;
   }
 
   @media (prefers-reduced-motion: reduce) {
-    /* The same picture minus the sweep, which is the point of choosing a
-       full-width fill: the reduced-motion state is no longer a different design
-       from the animated one. */
+    /* The same picture minus the sweep: a flat fill, no travelling highlight. */
     .primitiv-progress[data-state="indeterminate"] .primitiv-progress__indicator {
       animation: none;
-      mask-image: none;
+      background: var(--primitiv-progress-fill-bg);
       inline-size: 100%;
       opacity: var(--primitiv-opacity-50);
     }
   }
 
-  /* The SHORTHAND, not `mask-position-x`: the longhand is not animatable here,
-     so the keyframes were inert and the sweep never moved — the mask rendered
-     but sat still. Verified by sampling the computed value across a cycle. */
+  /* `background-position`, the animatable shorthand — the mask version had to
+     avoid `mask-position-x` (inert here), and the gradient has no such trap. */
   @keyframes primitiv-progress-indeterminate {
     from {
-      mask-position: 0% 0%;
+      background-position: 0% 0%;
     }
     to {
-      mask-position: 100% 0%;
+      background-position: 100% 0%;
     }
   }
 }

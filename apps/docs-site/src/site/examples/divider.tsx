@@ -189,19 +189,25 @@ export const dividerSpec: ComponentSpec = {
       title: "Spacing belongs to the container",
       render: () => (
         <InteractiveExample
-          caption="`Divider` ships **no margin** by default — separation is the container's job. A gap-based container already spaces its children, and a margin baked into the rule would double that, could never reach `0`, and could not track `data-density`. For a plain block-flow context that has no gap of its own, reach for the escape hatch: set `--primitiv-divider-spacing` to reserve margin along the rule's axis."
-          code={(_density, mode) =>
-            [
+          caption="`Divider` ships **no margin** by default — separation is the container's job. A gap-based container already spaces its children, and a margin baked into the rule would double that, could never reach `0`, and could not track `data-density`. When a plain block-flow context has no gap of its own, give the rule its own margin: the styled surface exposes `--primitiv-divider-spacing` for exactly this, and in headless — where no styles ship at all — you set the margin directly."
+          code={(_density, mode) => {
+            /* Styled resolves the registry custom property (and a token behind
+               it); headless has neither the stylesheet nor the token layer, so
+               it sets a plain margin. */
+            const styled = mode !== "headless";
+            return [
               imports(mode),
               ``,
               `{/* Plain block flow — no container gap, so the rule reserves its own. */}`,
               `<article>`,
               `  <p>{/* ... */}</p>`,
-              `  <Divider style={{ "--primitiv-divider-spacing": "var(--primitiv-space-space-16)" }} />`,
+              styled
+                ? `  <Divider style={{ "--primitiv-divider-spacing": "var(--primitiv-space-space-16)" }} />`
+                : `  <Divider style={{ marginBlock: "1rem" }} />`,
               `  <p>{/* ... */}</p>`,
               `</article>`,
-            ].join("\n")
-          }
+            ].join("\n");
+          }}
         >
           {/* Full-width block flow, no container gap — the only separation is
               the rule's own reserved margin, which is the point. */}

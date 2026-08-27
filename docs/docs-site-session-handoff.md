@@ -364,6 +364,16 @@ Headless (Divider's `wrapOpen`/`wrapClose`/`wrapExtraImports` helpers are the
 reference). The component being documented stays the subject; only the wrapper
 changes with the mode, exactly like the import line.
 
+The same rule applies to **design tokens and registry custom properties**: a
+headless consumer has neither the token layer nor the copied stylesheet, so a
+headless snippet must not reference `var(--primitiv-*)` or a registry custom
+property like `--primitiv-divider-spacing` — use **arbitrary CSS values**
+(`marginBlock: "1rem"`) instead. Divider's "Spacing belongs to the container"
+example is the reference: styled shows `--primitiv-divider-spacing` resolving a
+token, headless sets a plain `rem` margin. (Registry-only components sidestep
+this entirely — they have no Headless tab, so their token references only ever
+render in Styled mode. Box's token-scoping example is fine for that reason.)
+
 ## Outstanding
 
 1. **Mobile drawer menu** — both header segmented controls hide below `48rem`

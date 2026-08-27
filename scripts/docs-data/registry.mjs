@@ -351,6 +351,18 @@ export const REGISTRY = {
     contract: "registry/components/textarea/contract.json",
     figmaComponentSetKey: "439:14511", importPath: "@primitiv-ui/react",
   },
+  divider: {
+    displayName: "Divider", kind: "registry", status: "stable", category: "Layout",
+    propsFile: "packages/react/src/Divider/types.ts",
+    subComponents: [
+      /* Single part. `orientation` is a headless prop (it sets `aria-orientation`
+         and picks the axis), not a contract modifier, so the contract carries no
+         modifiers and the playground's one knob is spec-declared. */
+      { name: "Divider", propsType: "DividerProps", element: "span", component: "Divider" },
+    ],
+    contract: "registry/components/divider/contract.json",
+    figmaComponentSetKey: "401:18380", importPath: "@primitiv-ui/react",
+  },
 };
 
 /*

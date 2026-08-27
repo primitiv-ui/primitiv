@@ -179,7 +179,7 @@
     "displayName": "Divider",
     "category": "Layout",
     "description": "A separator between content sections — a `<span role=\"separator\">` whose `aria-orientation` drives a horizontal or vertical rule.",
-    "documented": false
+    "documented": true
   },
   {
     "id": "drawer",

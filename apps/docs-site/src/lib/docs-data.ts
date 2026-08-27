@@ -40,6 +40,7 @@ import switchDocs from "@/docs-data/switch.docs.json";
 import textareaDocs from "@/docs-data/textarea.docs.json";
 import tabsDocs from "@/docs-data/tabs.docs.json";
 import toggleGroupDocs from "@/docs-data/toggle-group.docs.json";
+import dividerDocs from "@/docs-data/divider.docs.json";
 import rosterData from "@/docs-data/roster.json";
 
 export type DocsProp = {
@@ -229,6 +230,7 @@ const DOCS = {
   textarea: textareaDocs as unknown as ComponentDocs,
   tabs: tabsDocs as unknown as ComponentDocs,
   "toggle-group": toggleGroupDocs as unknown as ComponentDocs,
+  divider: dividerDocs as unknown as ComponentDocs,
 } as const;
 
 export type ComponentId = keyof typeof DOCS;

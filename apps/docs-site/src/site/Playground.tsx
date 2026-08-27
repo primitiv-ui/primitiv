@@ -8,10 +8,7 @@ import { Divider } from "@/components/divider";
 
 import { DensityRadios } from "./DensityRadios";
 import { ModeCodeBlock } from "./ModeCodeBlock";
-import {
-  SegmentedControl,
-  SegmentedControlItem,
-} from "@/components/segmented-control";
+import { Radio } from "@/components/radio";
 import { Stack } from "@/components/stack";
 import { Switch } from "@/components/switch";
 import {
@@ -42,10 +39,12 @@ const titleCase = (s: string) =>
 /**
  * A labelled control column.
  *
- * Not `Field` + `FieldLabel`: those wire a `<label for>` to a form control's id,
- * but `SegmentedControl` renders `role="radiogroup"`, which is labelled BY
- * REFERENCE (`aria-labelledby`) rather than by a wrapping/pointing label. A
- * `<label>` aimed at a radiogroup names nothing.
+ * A radio group — a `<fieldset>` + `<legend>` with one `Radio` per option,
+ * matching `DensityRadios` exactly, so the density control and the prop controls
+ * are the same control. It replaced a `SegmentedControl`: a six-option modifier
+ * (Stack's `gap`, `justify`) made the segments wrap their labels on a narrow
+ * viewport, and segments stop reading as a picker once they wrap. Radios wrap
+ * per-item instead and never truncate a label.
  */
 /**
  * True for a control whose only options are the two booleans.
@@ -71,13 +70,14 @@ const ControlGroup = ({
   value: string;
   onChange: (next: string) => void;
 }) => {
-  const labelId = `${useId()}-label`;
+  /* Per-instance so several controls on one page cannot share a native radio
+     group — the same guarantee `DensityRadios` makes. */
+  const name = `${useId()}-control`;
 
   /*
-   * A boolean gets a Switch, not a two-segment control. A segmented control
-   * asks the reader to pick between two labels reading "false" and "true",
-   * which is a worse way to express an on/off than the component the library
-   * already ships for exactly that.
+   * A boolean gets a Switch, not a two-option radio group. Asking the reader to
+   * pick between two radios reading "false" and "true" is a worse way to express
+   * an on/off than the component the library already ships for exactly that.
    *
    * The value stays a STRING either way, so nothing downstream changes: the
    * snippet builders and previews all read `values[name]` as before.
@@ -97,23 +97,27 @@ const ControlGroup = ({
   }
 
   return (
-    <div className="docs-playground-control">
-      <span className="docs-control-label" id={labelId}>
-        {label}
-      </span>
-      <SegmentedControl
-        size="sm"
-        value={value}
-        onValueChange={onChange}
-        aria-labelledby={labelId}
-      >
+    <fieldset className="docs-fieldset">
+      {/* The legend names the group to assistive tech — the same
+          fieldset/legend shape as DensityRadios, not an aria-labelledby span. */}
+      <legend className="docs-control-label">{label}</legend>
+      <div className="docs-radio-row">
         {options.map((option) => (
-          <SegmentedControlItem key={option} value={option}>
+          <Radio
+            key={option}
+            size="sm"
+            name={name}
+            value={option}
+            checked={value === option}
+            onCheckedChange={(checked) => {
+              if (checked) onChange(option);
+            }}
+          >
             {option}
-          </SegmentedControlItem>
+          </Radio>
         ))}
-      </SegmentedControl>
-    </div>
+      </div>
+    </fieldset>
   );
 };
 

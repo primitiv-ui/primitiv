@@ -78,6 +78,9 @@
   margin: 0;
   padding: 0;
   border: none;
+  /* A fieldset carries an intrinsic min-width; zero it so a prop control sitting
+     in `.docs-control-grid` cannot push its auto-fit track wider than 1fr. */
+  min-inline-size: 0;
 }
 
 /*

@@ -53,7 +53,7 @@
     "displayName": "Box",
     "category": "Layout",
     "description": "The escape hatch — a bare polymorphic element with no visual opinion. Exists so a consumer has something to attach a custom property or a one-off style to without reaching for a raw <div>.",
-    "documented": false
+    "documented": true
   },
   {
     "id": "breadcrumb",

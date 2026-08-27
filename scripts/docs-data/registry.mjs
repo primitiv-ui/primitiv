@@ -351,6 +351,18 @@ export const REGISTRY = {
     contract: "registry/components/textarea/contract.json",
     figmaComponentSetKey: "439:14511", importPath: "@primitiv-ui/react",
   },
+  box: {
+    displayName: "Box", kind: "registry-only", status: "stable", category: "Layout",
+    /* Hand-written and primitive-less (RFC 0022): the props live in the copied
+       file, not packages/react. Its whole API is `asChild` + native div attrs —
+       no modifiers, no custom properties, by design (it is the escape hatch). */
+    propsFile: "registry/components/box/box.tsx",
+    subComponents: [
+      { name: "Box", propsType: "BoxProps", element: "div", component: "Box" },
+    ],
+    contract: "registry/components/box/contract.json",
+    figmaComponentSetKey: "1815:59408", importPath: "@/components/ui/box",
+  },
   divider: {
     displayName: "Divider", kind: "registry", status: "stable", category: "Layout",
     propsFile: "packages/react/src/Divider/types.ts",

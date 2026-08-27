@@ -24,6 +24,7 @@ import { textareaSpec } from "./textarea";
 import { tabsSpec } from "./tabs";
 import { toggleGroupSpec } from "./toggle-group";
 import { dividerSpec } from "./divider";
+import { boxSpec } from "./box";
 import type { ComponentSpec } from "./types";
 
 /**
@@ -54,6 +55,7 @@ export const SPECS: Record<ComponentId, ComponentSpec> = {
   tabs: tabsSpec,
   "toggle-group": toggleGroupSpec,
   divider: dividerSpec,
+  box: boxSpec,
 };
 
 export type { ComponentSpec };

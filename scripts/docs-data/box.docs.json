@@ -1,0 +1,41 @@
+{
+  "id": "box",
+  "displayName": "Box",
+  "kind": "registry-only",
+  "status": "stable",
+  "category": "Layout",
+  "description": "The escape hatch — a bare polymorphic element with no visual opinion. Exists so a consumer has something to attach a custom property or a one-off style to without reaching for a raw <div>.",
+  "headless": {
+    "package": "@primitiv-ui/react",
+    "importPath": "@/components/ui/box",
+    "subComponents": [
+      {
+        "name": "Box",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": null,
+            "description": "Render the single child element instead of a wrapping <div>, merging the\nbox class onto it — e.g. `<Box asChild><section>...</section></Box>`."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-box"
+      }
+    ]
+  },
+  "styled": {
+    "installCommand": "primitiv add box",
+    "rootClass": "primitiv-box",
+    "customProperties": [],
+    "dataAttributes": []
+  },
+  "figma": {
+    "componentSetKey": "1815:59408"
+  }
+}

@@ -73,25 +73,65 @@
      so it stays literal, same as the motion-literal exceptions already
      documented in registry-stylesheet-conventions. */
   .primitiv-progress[data-state="indeterminate"] .primitiv-progress__indicator {
-    inline-size: 30%;
+    /*
+     * Indeterminate is a full-width fill with a highlight sweeping across it,
+     * not a short bar travelling the track.
+     *
+     * The previous version slid a 30%-wide bar with
+     * `--primitiv-motion-easing-default`, and an ease on a LOOPING animation is
+     * the wrong shape by construction: it accelerates, decelerates, then snaps
+     * back to the start. It also left the bar fully off-track at each end, so
+     * there were two moments per cycle with nothing to look at.
+     *
+     * The sweep is a MASK rather than a second colour, which keeps the fill
+     * exactly `--primitiv-progress-fill-bg` at every intent — no highlight
+     * colour to define per intent, and nothing to drift when a fill changes.
+     *
+     * Seamless by construction: the tile is 50% of the track and the animation
+     * translates by exactly one tile (`mask-position-x` 0% -> 100% resolves to
+     * container-minus-image, which for a half-width image is one tile), so the
+     * final frame is pixel-identical to the first. There is no wrap
+     * discontinuity to hide and a highlight is always on screen.
+     *
+     * `linear`, deliberately — see above. 2s is a slow decorative loop, a
+     * different category from the four short one-shot
+     * `--primitiv-motion-duration-*` tokens (75-300ms), so it stays literal for
+     * the reason registry-stylesheet-conventions already documents.
+     */
+    inline-size: 100%;
     transform: none;
-    animation: primitiv-progress-indeterminate 1.4s var(--primitiv-motion-easing-default) infinite;
+    mask-image: repeating-linear-gradient(
+      to right,
+      rgb(0 0 0 / var(--primitiv-opacity-30)) 0%,
+      rgb(0 0 0 / var(--primitiv-opacity-100)) 50%,
+      rgb(0 0 0 / var(--primitiv-opacity-30)) 100%
+    );
+    mask-size: 50% 100%;
+    mask-repeat: repeat;
+    animation: primitiv-progress-indeterminate 2s linear infinite;
   }
 
   @media (prefers-reduced-motion: reduce) {
+    /* The same picture minus the sweep, which is the point of choosing a
+       full-width fill: the reduced-motion state is no longer a different design
+       from the animated one. */
     .primitiv-progress[data-state="indeterminate"] .primitiv-progress__indicator {
       animation: none;
+      mask-image: none;
       inline-size: 100%;
       opacity: var(--primitiv-opacity-50);
     }
   }
 
+  /* The SHORTHAND, not `mask-position-x`: the longhand is not animatable here,
+     so the keyframes were inert and the sweep never moved — the mask rendered
+     but sat still. Verified by sampling the computed value across a cycle. */
   @keyframes primitiv-progress-indeterminate {
     from {
-      transform: translateX(-100%);
+      mask-position: 0% 0%;
     }
     to {
-      transform: translateX(250%);
+      mask-position: 100% 0%;
     }
   }
 }

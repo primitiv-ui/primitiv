@@ -196,7 +196,7 @@ export const emptyStateSpec: ComponentSpec = {
       title: "Promoting the title to a heading",
       render: () => (
         <InteractiveExample
-          caption="`EmptyState.Title` renders a `<p>`. That is right for a live region — the whole state is announced as a status, and a heading inside one adds an outline entry for something transient — but wrong when the empty state IS the page's main content, where it should be a real `<h1>`/`<h2>` so heading navigation reaches it. `asChild` swaps the element and keeps the styling, which is the single most useful thing it does here, and the reason this is a compound of parts rather than a `title` prop: a prop could set the text but never the tag. Pair it with `role={undefined}` — if the state is the page's main content, it was there on load and has nothing to announce."
+          caption="`EmptyState.Title` renders a `<p>`. That is right for a live region — the whole state is announced as a status, and a heading inside one adds an outline entry for something transient — but wrong when the empty state IS the page's main content, where it should be a real heading so heading navigation reaches it. `asChild` swaps the element and keeps the styling, which is the single most useful thing it does here, and the reason this is a compound of parts rather than a `title` prop: a prop could set the text but never the tag. Pick the LEVEL from the surrounding outline rather than reaching for `<h1>` — the demo below uses `<h4>` because it sits under this page's `<h3>`; an empty state filling a whole route would be `<h1>` or `<h2>`. Pair it with `role={undefined}` — if the state is the page's main content, it was there on load and has nothing to announce."
           code={(_density, mode) => {
             const p = partNamer(mode, "EmptyState");
             return [
@@ -204,7 +204,7 @@ export const emptyStateSpec: ComponentSpec = {
               ``,
               `<${p("Root")} role={undefined}>`,
               `  <${p("Title")} asChild>`,
-              `    <h2>No projects yet</h2>`,
+              `    <h4>No projects yet</h4>`,
               `  </${p("Title")}>`,
               `  <${p("Description")}>Create one to get started.</${p("Description")}>`,
               `</${p("Root")}>`,
@@ -215,7 +215,7 @@ export const emptyStateSpec: ComponentSpec = {
             <div className="docs-empty-state-region">
               <EmptyState role={undefined}>
                 <EmptyStateTitle asChild>
-                  <h2>No projects yet</h2>
+                  <h4>No projects yet</h4>
                 </EmptyStateTitle>
                 <EmptyStateDescription>Create one to get started.</EmptyStateDescription>
               </EmptyState>
@@ -382,7 +382,7 @@ export const emptyStateSpec: ComponentSpec = {
   accessibility: [
     "The Root is `role=\"status\"` — a **polite** live region, announced when the user is idle rather than interrupting. That suits an empty state that replaces content which just disappeared. Compare `Alert`, which is assertive and interrupts: if the message is urgent, that is the component, not this one.",
     "**Opt out with `role={undefined}` when the state was there on load.** There is no change to announce, and a live region rendered already-populated is unreliably announced anyway — so the role buys nothing and risks a stray announcement. This is the one prop most empty states should be passing and almost none do.",
-    "`EmptyState.Title` is a `<p>`, not a heading, so it adds nothing to the document outline. Deliberate inside a live region; wrong when the empty state is the page's main content. Promote it with `asChild` and a real `<h1>`/`<h2>` in that case, and drop the role at the same time.",
+    "`EmptyState.Title` is a `<p>`, not a heading, so it adds nothing to the document outline. Deliberate inside a live region; wrong when the empty state is the page's main content. Promote it with `asChild` in that case, and drop the role at the same time. Choose the level from the outline it lands in, not from the component: a heading that skips a level is as much of a problem for heading navigation as no heading at all.",
     "`EmptyState.Media` is decorative. Whatever you put inside should be `aria-hidden` (or an `<svg>` with no accessible name) — the message is the Title and Description, and an icon that announces \"magnifying glass\" before them just delays it.",
     "Actions are ordinary focusable controls in document order, so they are reached by Tab like anything else. Put the primary recovery first: it is both the reading order and the tab order, and a screen-reader user hears the announcement then tabs straight into it.",
     "Say what happened and what to do. \"No results found\" plus \"Try adjusting your filters\" is two sentences doing two jobs; a bare \"Nothing here\" leaves a user who cannot see the surrounding UI with no idea whether something failed or they simply have no data yet.",

@@ -258,6 +258,32 @@ right — JSX is not the artifact a designer wants. See Outstanding.
   that did are deleted.
 
 
+### Live demos put real headings in the page's outline (2026-08-27)
+
+A demo renders real components, so a component that renders a heading puts one
+in the docs page's own outline. This is not hypothetical and not confined to one
+page: **Accordion's page carries 17 demo `<h3>`s**, because `Accordion.Header`
+renders an `h3` by default.
+
+There is no clean fix. The only mechanism that removes a heading from the
+outline is `role="presentation"`, and using it would misrepresent the semantics
+the page exists to teach. So treat it as inherent, with one rule that costs
+nothing:
+
+- **Pick a demo heading's level so it NESTS under the example's own `h3`** —
+  i.e. `h4`. EmptyState's `asChild` demo originally used `<h2>`, which landed it
+  among the page's own section headings (Playground / Installation / Anatomy /
+  …), where a heading-navigation user cannot tell demo content from page
+  structure. As an `h4` it reads as a subsection of its example, and the outline
+  has no level skips.
+- Keep the snippet and the render on the same tag, per the parity rule. That
+  means the guidance in the prose has to be about CHOOSING a level from the
+  surrounding outline rather than always reaching for `h1`/`h2` — which is more
+  accurate advice anyway.
+
+Check with: every heading in `<main>` that has no `id` is demo content, since
+page structure is always id'd.
+
 ### Traps found on 2026-08-25
 
 - **Unlayered docs CSS beats every `@layer primitiv.*` rule, whatever the

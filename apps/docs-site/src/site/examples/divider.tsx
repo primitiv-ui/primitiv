@@ -3,7 +3,7 @@
 import type { CSSProperties } from "react";
 
 import { Divider } from "@/components/divider";
-import { importBlock } from "@/lib/playground";
+import { importBlock, stackImports } from "@/lib/playground";
 import { InteractiveExample } from "@/site/InteractiveExample";
 import type { Mode } from "@/site/preferences";
 import type { ComponentSpec } from "./types";
@@ -15,15 +15,30 @@ import type { ComponentSpec } from "./types";
  * only the specifier changes (`@primitiv-ui/react` vs the copied
  * `@/components/ui/divider`). `orientation` is a real prop of the primitive in
  * BOTH modes, so it needs none of `contractAttr`'s styled-vs-headless handling.
- *
- * The layout scaffolding in these examples is plain flex on a `<div>`, NOT a
- * `Stack`: `Stack` is a registry-only styled surface, so naming it in a snippet
- * a headless consumer reads points at an import they do not have. Divider is the
- * subject here, so the surrounding box stays mode-neutral — the only thing that
- * changes between modes is the Divider import line.
  */
 const imports = (mode: Mode) =>
   importBlock({ mode, component: "Divider", componentId: "divider" });
+
+/**
+ * The layout scaffolding is mode-aware. In STYLED mode a snippet may compose a
+ * registry `Stack` — a consumer who ran `primitiv add` has it — so the styled
+ * code reads the idiomatic way. In HEADLESS mode there is no `Stack` to import,
+ * so the same layout is plain flex on a `<div>`. Divider is the subject either
+ * way; only the surrounding box changes with the switch, exactly like the
+ * import line does.
+ */
+const wrapExtraImports = (mode: Mode): readonly string[] =>
+  mode === "headless" ? [] : [stackImports(mode)];
+const wrapOpen = (mode: Mode, row: boolean): string =>
+  mode === "headless"
+    ? row
+      ? `<div style={{ display: "flex", gap: "1rem" }}>`
+      : `<div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>`
+    : row
+      ? `<Stack direction="row" gap="md">`
+      : `<Stack gap="lg">`;
+const wrapClose = (mode: Mode): string =>
+  mode === "headless" ? `</div>` : `</Stack>`;
 
 /* Shared demo scaffolding. Kept as constants so the live render and the snippet
    string below it stay in exact parity — the snippet shows the same inline
@@ -111,12 +126,13 @@ export const dividerSpec: ComponentSpec = {
           code={(_density, mode) =>
             [
               imports(mode),
+              ...wrapExtraImports(mode),
               ``,
-              `<div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>`,
+              wrapOpen(mode, false),
               `  <section>{/* ... */}</section>`,
               `  <Divider />`,
               `  <section>{/* ... */}</section>`,
-              `</div>`,
+              wrapClose(mode),
             ].join("\n")
           }
         >
@@ -144,14 +160,15 @@ export const dividerSpec: ComponentSpec = {
           code={(_density, mode) =>
             [
               imports(mode),
+              ...wrapExtraImports(mode),
               ``,
-              `<div style={{ display: "flex", gap: "1rem" }}>`,
+              wrapOpen(mode, true),
               `  <span>Overview</span>`,
               `  <Divider orientation="vertical" />`,
               `  <span>Pricing</span>`,
               `  <Divider orientation="vertical" />`,
               `  <span>Docs</span>`,
-              `</div>`,
+              wrapClose(mode),
             ].join("\n")
           }
         >

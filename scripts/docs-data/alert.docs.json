@@ -111,6 +111,18 @@
         "defaultsTo": "var(--primitiv-alert-md-icon-offset-top)"
       },
       {
+        "name": "--primitiv-alert-dismiss-size",
+        "defaultsTo": "var(--primitiv-framed-control-md-height)"
+      },
+      {
+        "name": "--primitiv-alert-dismiss-inset-inline",
+        "defaultsTo": "derived: padding-inline - (dismiss-size - icon-size) / 2"
+      },
+      {
+        "name": "--primitiv-alert-dismiss-inset-block",
+        "defaultsTo": "derived: padding-block + icon-offset-top + (icon-size - dismiss-size) / 2"
+      },
+      {
         "name": "--primitiv-alert-radius",
         "defaultsTo": "var(--primitiv-framed-control-md-radius)"
       },

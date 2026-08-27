@@ -49,6 +49,34 @@
     --primitiv-alert-gap: var(--primitiv-framed-control-md-gap);
     --primitiv-alert-icon-size: var(--primitiv-framed-control-md-icon-size);
     --primitiv-alert-icon-offset-top: var(--primitiv-alert-md-icon-offset-top);
+    /* The dismiss Button's own height at this size — it is a `Button` instance,
+       so this must track `framed-control/{size}/height` or the absolute
+       centring below drifts. */
+    --primitiv-alert-dismiss-size: var(--primitiv-framed-control-md-height);
+    /*
+     * Where the dismiss sits, DERIVED — both insets mirror the leading icon so
+     * the two controls flank the first line symmetrically.
+     *
+     * The button's box is much bigger than the glyph inside it (a touch target
+     * around a 16px icon at md), so insetting the BOX by the padding puts the
+     * glyph another half-difference further in — 28px from the right border
+     * against the leading icon's 24px from the left. Subtracting that half
+     * difference lines the two glyph centres up at the same distance from their
+     * respective edges. Same correction vertically, against the icon's own
+     * optical offset.
+     *
+     * Declared once rather than per size: every input is re-pointed by the size
+     * modifiers below and a custom property resolves at use time, so these
+     * follow automatically. Override either to move the button.
+     */
+    --primitiv-alert-dismiss-inset-inline: calc(
+      var(--primitiv-alert-padding-inline) -
+        (var(--primitiv-alert-dismiss-size) - var(--primitiv-alert-icon-size)) / 2
+    );
+    --primitiv-alert-dismiss-inset-block: calc(
+      var(--primitiv-alert-padding-block) + var(--primitiv-alert-icon-offset-top) +
+        (var(--primitiv-alert-icon-size) - var(--primitiv-alert-dismiss-size)) / 2
+    );
     --primitiv-alert-radius: var(--primitiv-framed-control-md-radius);
     --primitiv-alert-title-font-family: var(--primitiv-label-md-font-family);
     --primitiv-alert-title-font-size: var(--primitiv-label-md-font-size);
@@ -70,6 +98,24 @@
     border-radius: var(--primitiv-alert-radius);
     background-color: var(--primitiv-alert-background);
     color: var(--primitiv-alert-foreground);
+  }
+
+  /*
+   * The dismiss is absolutely positioned (see below), so the root is its
+   * containing block and has to reserve the inline space it no longer occupies
+   * in flow — otherwise long text runs underneath it. `:has()` rather than a
+   * modifier class because the button's existence is decided by whether
+   * `onDismiss` was passed, which the class list does not know.
+   */
+  .primitiv-alert {
+    position: relative;
+  }
+
+  .primitiv-alert:has(.primitiv-alert__dismiss) {
+    padding-inline-end: calc(
+      var(--primitiv-alert-dismiss-inset-inline) + var(--primitiv-alert-dismiss-size) +
+        var(--primitiv-alert-gap)
+    );
   }
 
   .primitiv-alert__icon-wrapper {
@@ -115,8 +161,37 @@
      .primitiv-button--ghost` — layout only here (flex-shrink); its colour
      custom properties are re-pointed in primitiv.states below, not here —
      see that rule for why. */
+  /*
+   * Pinned to the top-right, OUT OF FLOW — and that is a bug fix, not a
+   * styling preference.
+   *
+   * As a flex item its height is `framed-control/{size}/height` (a touch
+   * target) while the content is one or two lines of text, so the button always
+   * set the row height and grew the alert: measured at +4px to +40px depending
+   * on size and density (+16px at comfortable/md). A one-line alert was half
+   * again as tall as it needed to be.
+   *
+   * The vertical anchor is the LEADING ICON's centre line, so the two controls
+   * read as a matched pair flanking the first line. It is derived rather than
+   * nudged — `padding-block` puts us at the content's top edge,
+   * `icon-offset-top` is the icon's own optical alignment, and the last term
+   * re-centres a button that is taller than the icon it aligns with. No new
+   * token and nothing hand-picked; change the icon's alignment and the dismiss
+   * follows it.
+   *
+   * Cap-trimming the text (the technique `checkbox-card` and `radio-card` use)
+   * was considered and rejected HERE: trimming lifts the content ~7px, which
+   * would put a 40px button's top edge at -1.8px — outside the alert. Those
+   * components centre a 20px indicator on a 12px cap and just fit; a
+   * touch-target-sized button does not. Untrimmed, this anchor lands at
+   * +4px to +6px across xs..xl.
+   */
   .primitiv-alert__dismiss {
-    flex-shrink: 0;
+    position: absolute;
+    inset-inline-end: var(--primitiv-alert-dismiss-inset-inline);
+    inset-block-start: var(--primitiv-alert-dismiss-inset-block);
+    /* Made SQUARE in primitiv.states below — it cannot be done from here, see
+       the note there. */
   }
 }
 
@@ -165,6 +240,7 @@
     --primitiv-alert-gap: var(--primitiv-framed-control-xs-gap);
     --primitiv-alert-icon-size: var(--primitiv-framed-control-xs-icon-size);
     --primitiv-alert-icon-offset-top: var(--primitiv-alert-xs-icon-offset-top);
+    --primitiv-alert-dismiss-size: var(--primitiv-framed-control-xs-height);
     --primitiv-alert-radius: var(--primitiv-framed-control-xs-radius);
     --primitiv-alert-title-font-family: var(--primitiv-label-xs-font-family);
     --primitiv-alert-title-font-size: var(--primitiv-label-xs-font-size);
@@ -181,6 +257,7 @@
     --primitiv-alert-gap: var(--primitiv-framed-control-sm-gap);
     --primitiv-alert-icon-size: var(--primitiv-framed-control-sm-icon-size);
     --primitiv-alert-icon-offset-top: var(--primitiv-alert-sm-icon-offset-top);
+    --primitiv-alert-dismiss-size: var(--primitiv-framed-control-sm-height);
     --primitiv-alert-radius: var(--primitiv-framed-control-sm-radius);
     --primitiv-alert-title-font-family: var(--primitiv-label-sm-font-family);
     --primitiv-alert-title-font-size: var(--primitiv-label-sm-font-size);
@@ -197,6 +274,10 @@
     --primitiv-alert-gap: var(--primitiv-framed-control-md-gap);
     --primitiv-alert-icon-size: var(--primitiv-framed-control-md-icon-size);
     --primitiv-alert-icon-offset-top: var(--primitiv-alert-md-icon-offset-top);
+    /* The dismiss Button's own height at this size — it is a `Button` instance,
+       so this must track `framed-control/{size}/height` or the absolute
+       centring below drifts. */
+    --primitiv-alert-dismiss-size: var(--primitiv-framed-control-md-height);
     --primitiv-alert-radius: var(--primitiv-framed-control-md-radius);
     --primitiv-alert-title-font-family: var(--primitiv-label-md-font-family);
     --primitiv-alert-title-font-size: var(--primitiv-label-md-font-size);
@@ -213,6 +294,7 @@
     --primitiv-alert-gap: var(--primitiv-framed-control-lg-gap);
     --primitiv-alert-icon-size: var(--primitiv-framed-control-lg-icon-size);
     --primitiv-alert-icon-offset-top: var(--primitiv-alert-lg-icon-offset-top);
+    --primitiv-alert-dismiss-size: var(--primitiv-framed-control-lg-height);
     --primitiv-alert-radius: var(--primitiv-framed-control-lg-radius);
     --primitiv-alert-title-font-family: var(--primitiv-label-lg-font-family);
     --primitiv-alert-title-font-size: var(--primitiv-label-lg-font-size);
@@ -229,6 +311,7 @@
     --primitiv-alert-gap: var(--primitiv-framed-control-xl-gap);
     --primitiv-alert-icon-size: var(--primitiv-framed-control-xl-icon-size);
     --primitiv-alert-icon-offset-top: var(--primitiv-alert-xl-icon-offset-top);
+    --primitiv-alert-dismiss-size: var(--primitiv-framed-control-xl-height);
     --primitiv-alert-radius: var(--primitiv-framed-control-xl-radius);
     --primitiv-alert-title-font-family: var(--primitiv-label-xl-font-family);
     --primitiv-alert-title-font-size: var(--primitiv-label-xl-font-size);
@@ -253,7 +336,26 @@
      Resting background matches --primitiv-alert-background (reads as
      transparent against the alert surface it sits on) rather than a bare
      `transparent` literal, so it stays tied to the tone family. */
+  /*
+   * SQUARE, which the dismiss is not by default — and this has to live in
+   * primitiv.states for exactly the reason the note above gives.
+   *
+   * `Button` sizes its width from its content plus `padding-inline`, so an
+   * icon-only instance came out 50x40 at md. That made the two derived insets
+   * wrong (they mirror one `dismiss-size`), left the reserved padding short
+   * enough for long text to overlap the button, and disagreed with Figma, whose
+   * Dismiss frame has always been square.
+   *
+   * `padding-inline` is zeroed rather than only setting `inline-size`, because
+   * `box-sizing: border-box` cannot shrink a box below its own padding plus
+   * border: at spacious/lg the padding alone was 56px, so a 56px `inline-size`
+   * still used 58px. Both declarations are needed, and both from here — an
+   * earlier pass put them in primitiv.base and Button's per-size
+   * `--primitiv-button-padding-inline` in primitiv.variants silently won.
+   */
   .primitiv-alert__dismiss {
+    --primitiv-button-padding-inline: 0;
+    inline-size: var(--primitiv-alert-dismiss-size);
     --primitiv-button-fg: var(--primitiv-alert-foreground);
     --primitiv-button-bg: var(--primitiv-alert-background);
   }
@@ -283,6 +385,9 @@ $primitiv-alert-padding-block: var(--primitiv-alert-padding-block);
 $primitiv-alert-gap: var(--primitiv-alert-gap);
 $primitiv-alert-icon-size: var(--primitiv-alert-icon-size);
 $primitiv-alert-icon-offset-top: var(--primitiv-alert-icon-offset-top);
+$primitiv-alert-dismiss-size: var(--primitiv-alert-dismiss-size);
+$primitiv-alert-dismiss-inset-inline: var(--primitiv-alert-dismiss-inset-inline);
+$primitiv-alert-dismiss-inset-block: var(--primitiv-alert-dismiss-inset-block);
 $primitiv-alert-radius: var(--primitiv-alert-radius);
 $primitiv-alert-title-font-family: var(--primitiv-alert-title-font-family);
 $primitiv-alert-title-font-size: var(--primitiv-alert-title-font-size);
@@ -294,5 +399,6 @@ $primitiv-alert-description-font-weight: var(--primitiv-alert-description-font-w
 $primitiv-alert-description-line-height: var(--primitiv-alert-description-line-height);
 $primitiv-alert-dismiss-hover-background: var(--primitiv-alert-dismiss-hover-background);
 $primitiv-alert-dismiss-active-background: var(--primitiv-alert-dismiss-active-background);
+$primitiv-button-padding-inline: var(--primitiv-button-padding-inline);
 $primitiv-button-fg: var(--primitiv-button-fg);
 $primitiv-button-bg: var(--primitiv-button-bg);

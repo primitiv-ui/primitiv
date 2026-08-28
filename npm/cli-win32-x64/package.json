@@ -1,6 +1,6 @@
 {
   "name": "@primitiv-ui/cli-win32-x64",
-  "version": "0.1.31",
+  "version": "0.1.32",
   "description": "The primitiv CLI binary for Windows x64",
   "os": [
     "win32"

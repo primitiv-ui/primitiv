@@ -1,0 +1,96 @@
+/*
+ * The mobile burger + drawer menu. The burger sits in the header and only shows
+ * below 64rem, where the sidebar rail is gone; the drawer it opens carries the
+ * consumption-mode switches and the full documentation nav.
+ */
+
+.docs-mobile-menu-trigger {
+  --docs-mobile-menu-trigger-size: 2rem;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: var(--docs-mobile-menu-trigger-size);
+  block-size: var(--docs-mobile-menu-trigger-size);
+  padding: var(--primitiv-space-space-0);
+  border: none;
+  border-radius: var(--primitiv-radii-8);
+  background-color: transparent;
+  color: var(--primitiv-content-secondary);
+  cursor: pointer;
+  transition:
+    background-color var(--primitiv-motion-duration-control)
+      var(--primitiv-motion-easing-default),
+    color var(--primitiv-motion-duration-control)
+      var(--primitiv-motion-easing-default);
+}
+
+.docs-mobile-menu-trigger:hover {
+  background-color: var(--primitiv-action-ghost-hover);
+  color: var(--primitiv-content-primary);
+}
+
+.docs-mobile-menu-trigger:active {
+  background-color: var(--primitiv-action-ghost-active);
+}
+
+.docs-mobile-menu-trigger:focus-visible {
+  outline: var(--primitiv-border-width-2) solid var(--primitiv-focus-ring);
+  outline-offset: var(--primitiv-space-space-2);
+}
+
+/* At and above 64rem the sidebar rail is back, so the burger goes. */
+@media (min-width: 64rem) {
+  .docs-mobile-menu-trigger {
+    display: none;
+  }
+}
+
+/*
+ * Inside the drawer the two switches stack full-width rather than sitting in the
+ * header's flex row — a drawer is a column, and a full-width segmented control
+ * is easier to hit on a phone.
+ */
+.docs-mobile-drawer-controls {
+  display: flex;
+  flex-direction: column;
+  gap: var(--primitiv-stack-gap-sm);
+  padding-block-end: var(--primitiv-space-space-16);
+  margin-block-end: var(--primitiv-space-space-16);
+  border-block-end: var(--primitiv-border-width-1) solid
+    var(--primitiv-border-subtle);
+}
+
+.docs-mobile-drawer-controls .docs-header-control,
+.docs-mobile-drawer-controls .primitiv-segmented-control {
+  inline-size: 100%;
+}
+
+/*
+ * The nav inside the drawer is the same `SideNav` the rail renders, but here it
+ * is one plain scrolling column: the drawer body owns the scroll, so the rail's
+ * fill/scroll behaviour (Components scrolling within a bounded rail) is switched
+ * off — otherwise the list would scroll inside a box inside the already-scrolling
+ * drawer. Natural height, and the drawer body handles overflow.
+ */
+.docs-mobile-drawer .docs-side-nav {
+  flex: none;
+  min-block-size: auto;
+}
+
+.docs-mobile-drawer .docs-nav-sections {
+  flex: none;
+  min-block-size: auto;
+}
+
+.docs-mobile-drawer .docs-nav-section--fill,
+.docs-mobile-drawer .docs-nav-section--fill .docs-nav-collapsible,
+.docs-mobile-drawer .docs-nav-section--fill .docs-nav-content {
+  flex: none;
+  min-block-size: auto;
+}
+
+.docs-mobile-drawer .docs-nav-section--fill .docs-nav-groups {
+  flex: none;
+  overflow-y: visible;
+}

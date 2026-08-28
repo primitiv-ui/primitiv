@@ -4,16 +4,13 @@ import Link from "next/link";
 
 import { Container } from "@/components/container";
 import { Input } from "@/components/input";
-import {
-  SegmentedControl,
-  SegmentedControlItem,
-} from "@/components/segmented-control";
 import { Stack } from "@/components/stack";
 import { VisuallyHidden } from "@primitiv-ui/react";
 
 import { BrandLockup } from "./Brand";
+import { HeaderModeControls } from "./HeaderModeControls";
+import { MobileMenu } from "./MobileMenu";
 import { ThemeToggle } from "./ThemeToggle";
-import { FRAMEWORKS, MODES, label, useFramework, useMode } from "./preferences";
 
 import "./site-header.css";
 
@@ -30,9 +27,6 @@ import "./site-header.css";
  * shared with anything else reading the same key.
  */
 export const SiteHeader = () => {
-  const [mode, setMode] = useMode();
-  const [framework, setFramework] = useFramework();
-
   return (
     <header className="docs-site-header">
       <Container size="xl">
@@ -63,45 +57,9 @@ export const SiteHeader = () => {
           </nav>
 
           <div className="docs-header-controls">
-            <div className="docs-header-control">
-              <VisuallyHidden id="docs-framework-label">
-                Framework
-              </VisuallyHidden>
-              <SegmentedControl
-                size="xs"
-                value={framework}
-                onValueChange={(v) => setFramework(v as typeof framework)}
-                aria-labelledby="docs-framework-label"
-              >
-                {FRAMEWORKS.map((f) => (
-                  <SegmentedControlItem
-                    key={f}
-                    value={f}
-                    disabled={f === "vue" || f === "svelte"}
-                  >
-                    {label(f)}
-                  </SegmentedControlItem>
-                ))}
-              </SegmentedControl>
-            </div>
-
-            <div className="docs-header-control">
-              <VisuallyHidden id="docs-mode-label">
-                Consumption mode
-              </VisuallyHidden>
-              <SegmentedControl
-                size="xs"
-                value={mode}
-                onValueChange={(v) => setMode(v as typeof mode)}
-                aria-labelledby="docs-mode-label"
-              >
-                {MODES.map((m) => (
-                  <SegmentedControlItem key={m} value={m}>
-                    {label(m)}
-                  </SegmentedControlItem>
-                ))}
-              </SegmentedControl>
-            </div>
+            {/* The two switches — hidden below 48rem, where they move into the
+                mobile drawer (which renders this same component). */}
+            <HeaderModeControls />
 
             {/* type="search" gives the native clear affordance and the right
                 on-screen keyboard; the label is hidden because the placeholder
@@ -119,6 +77,10 @@ export const SiteHeader = () => {
             </div>
 
             <ThemeToggle />
+
+            {/* The burger — only visible below 64rem, where the sidebar is
+                gone. Opens a drawer with the switches above plus the full nav. */}
+            <MobileMenu />
           </div>
         </Stack>
       </Container>

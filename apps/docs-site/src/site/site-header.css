@@ -107,17 +107,20 @@
    brand + mode + theme, which fits 390px. All of it belongs in the mobile menu
    that is still to be built. */
 @media (max-width: 63.9375rem) {
-  .docs-header-nav,
-  .docs-header-search {
+  .docs-site-header .docs-header-nav,
+  .docs-site-header .docs-header-search {
     display: none;
   }
 }
 
 @media (max-width: 47.9375rem) {
   /* Both switches go: framework AND consumption mode. Neither belongs crushed
-     into a 390px bar, and both are moving into the drawer menu. That leaves
-     brand + theme toggle, which fits comfortably. */
-  .docs-header-control {
+     into a 390px bar, and both are in the drawer menu now. That leaves brand +
+     theme toggle + burger, which fits comfortably.
+
+     Scoped to `.docs-site-header` so the SAME controls, rendered inside the
+     mobile drawer (which portals OUTSIDE the header), stay visible there. */
+  .docs-site-header .docs-header-control {
     display: none;
   }
 }

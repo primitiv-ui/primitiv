@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 
 import { ChevronRight } from "@primitiv-ui/icons";
+import { Collapsible } from "@primitiv-ui/react";
 
 import { List } from "@/components/list";
 
@@ -17,8 +18,6 @@ const sectionContains = (section: NavSection, pathname: string): boolean =>
   (section.href !== undefined && samePath(section.href, pathname)) ||
   section.children.some((c) => samePage(c.href, pathname));
 
-const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-");
-
 const Section = ({
   section,
   pathname,
@@ -28,8 +27,9 @@ const Section = ({
 }) => {
   // Sections containing the current page start open; everything else starts
   // closed, so a 50-component list doesn't dump every entry on arrival.
+  // Controlled, so the chevron's label can read the open state and the fill
+  // class below can key off it.
   const [open, setOpen] = useState(() => sectionContains(section, pathname));
-  const listId = `docs-nav-${slug(section.title)}`;
 
   // The one section whose list can outgrow the rail is the grouped one
   // (Components). When it is open it becomes the rail's flexible, scrolling
@@ -37,88 +37,83 @@ const Section = ({
   // section stays natural height and never scrolls.
   const fill = open && Boolean(section.groups);
 
-  return (
-    <List.Item className={fill ? "docs-nav-section--fill" : undefined}>
-      <div className="docs-nav-section-header">
-        {section.href ? (
+  const links = (items: readonly { title: string; href: string }[]) => (
+    <List marker={false} size="sm" className="docs-nav-links">
+      {items.map((child) => (
+        <List.Item key={child.href}>
           <Link
-            className="docs-nav-section-title"
-            href={section.href}
-            aria-current={samePath(section.href, pathname) ? "page" : undefined}
+            className="docs-nav-link"
+            href={child.href}
+            aria-current={samePath(child.href, pathname) ? "page" : undefined}
           >
-            {section.title}
+            {child.title}
           </Link>
-        ) : (
-          <span className="docs-nav-section-title">{section.title}</span>
-        )}
+        </List.Item>
+      ))}
+    </List>
+  );
 
-        <button
-          type="button"
-          className="docs-nav-disclosure"
-          aria-expanded={open}
-          aria-controls={listId}
-          /* The label must name the section: a page with five identical
-             "Expand" buttons is unusable from a screen reader's element list. */
-          aria-label={`${open ? "Collapse" : "Expand"} ${section.title}`}
-          onClick={() => setOpen((o) => !o)}
-        >
-          {/* size="100%" fills the disclosure button rather than rendering at
-              the icon's 24px default, which is 4px WIDER than the 20px button
-              and poked 2px past the rail's edge — enough to trip the rail's
-              overflow-x into a stray horizontal scrollbar. Same fill-the-wrapper
-              pattern the Collapsible trigger icon uses. */}
-          <ChevronRight className="docs-nav-chevron" size="100%" />
-        </button>
-      </div>
+  return (
+    <li className={fill ? "docs-nav-section docs-nav-section--fill" : "docs-nav-section"}>
+      <Collapsible.Root
+        className="docs-nav-collapsible"
+        open={open}
+        onOpenChange={setOpen}
+      >
+        <div className="docs-nav-section-header">
+          {section.href ? (
+            <Link
+              className="docs-nav-section-title"
+              href={section.href}
+              aria-current={samePath(section.href, pathname) ? "page" : undefined}
+            >
+              {section.title}
+            </Link>
+          ) : (
+            <span className="docs-nav-section-title">{section.title}</span>
+          )}
 
-      {open &&
-        (section.groups ? (
-          /* Grouped by category — the same grouping the /components index uses,
-             so a reader who learns one learns the other. Each category is its
-             own list under its own heading rather than one long run: five pages
-             today, sixty-three eventually, and by then a flat alphabetical list
-             says nothing about what sits near what. */
-          <div className="docs-nav-groups" id={listId}>
-            {section.groups.map((group) => (
-              <div className="docs-nav-group" key={group.title}>
-                {/* A real heading, not a styled span: it names the list under
-                    it, so the group is announced rather than being an indent a
-                    screen-reader user cannot see. */}
-                <h3 className="docs-nav-group-title">{group.title}</h3>
-                <List marker={false} size="sm" className="docs-nav-links">
-                  {group.links.map((child) => (
-                    <List.Item key={child.href}>
-                      <Link
-                        className="docs-nav-link"
-                        href={child.href}
-                        aria-current={
-                          samePath(child.href, pathname) ? "page" : undefined
-                        }
-                      >
-                        {child.title}
-                      </Link>
-                    </List.Item>
-                  ))}
-                </List>
+          {/* A real button (aria-expanded/aria-controls wired by Collapsible),
+              separate from the section link: the label navigates, the chevron
+              toggles. Just the glyph — the section is already named by the link
+              or span beside it, so the aria-label carries the section name for
+              the icon-only control. */}
+          <Collapsible.Trigger
+            className="docs-nav-disclosure"
+            aria-label={`${open ? "Collapse" : "Expand"} ${section.title}`}
+          >
+            <ChevronRight
+              className="docs-nav-chevron"
+              size="100%"
+              aria-hidden="true"
+            />
+          </Collapsible.Trigger>
+        </div>
+
+        {/* forceMount so the panel is always in the DOM and can animate its
+            grid-row collapse (side-nav.css). Closed + force-mounted, Collapsible
+            sets aria-hidden, so a collapsed section's links stay out of the
+            accessibility tree. The inner clip is the `overflow: hidden` grid
+            item the row track collapses; the Components scroll region lives
+            inside it. */}
+        <Collapsible.Content forceMount className="docs-nav-content">
+          <div className="docs-nav-content-inner">
+            {section.groups ? (
+              <div className="docs-nav-groups">
+                {section.groups.map((group) => (
+                  <div className="docs-nav-group" key={group.title}>
+                    <h3 className="docs-nav-group-title">{group.title}</h3>
+                    {links(group.links)}
+                  </div>
+                ))}
               </div>
-            ))}
+            ) : (
+              links(section.children)
+            )}
           </div>
-        ) : (
-          <List marker={false} size="sm" className="docs-nav-links" id={listId}>
-            {section.children.map((child) => (
-              <List.Item key={child.href}>
-                <Link
-                  className="docs-nav-link"
-                  href={child.href}
-                  aria-current={samePath(child.href, pathname) ? "page" : undefined}
-                >
-                  {child.title}
-                </Link>
-              </List.Item>
-            ))}
-          </List>
-        ))}
-    </List.Item>
+        </Collapsible.Content>
+      </Collapsible.Root>
+    </li>
   );
 };
 
@@ -127,14 +122,15 @@ export const SideNav = () => {
 
   return (
     <nav className="docs-side-nav" aria-label="Documentation">
-      {/* Registry List, like the TOC and footer. `indent={false}` because the
-          sections are flush to the rail; the nested link lists keep the default
-          indent (re-pointed to 20px in CSS). */}
-      <List marker={false} indent={false} size="sm" className="docs-nav-sections">
+      {/* A plain list of sections — each section is a headless Collapsible, so
+          the disclosure animates and carries its own ARIA. Not a registry
+          `List`: the fill/scroll region (Components) needs the section `<li>` to
+          be a flex column, which fought `List.Item`'s flex-row anatomy. */}
+      <ul className="docs-nav-sections">
         {NAV.map((section) => (
           <Section key={section.title} section={section} pathname={pathname} />
         ))}
-      </List>
+      </ul>
     </nav>
   );
 };

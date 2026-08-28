@@ -34,10 +34,40 @@
   flex-direction: column;
 }
 
-/* The sections list carries the bound down to the open section. It is already a
-   flex column (`.primitiv-list`); this just lets it fill and shrink. */
+/*
+ * The sections list carries the bound down to the open section. A plain `<ul>`
+ * (not a registry `List`): the fill/scroll region below needs the section `<li>`
+ * to be a flex column, which fought `List.Item`'s flex-row anatomy. A 20px
+ * `--primitiv-list-indent` still inherits down to the nested link `List`s, where
+ * it actually applies.
+ */
 .docs-nav-sections {
   flex: 1;
+  min-block-size: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--primitiv-space-space-16);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  --primitiv-list-indent: var(--primitiv-space-space-20);
+}
+
+/* Each section, and its Collapsible root, is a flex column so a bounded height
+   can pass down to the one scroll region. A section is natural-height and does
+   NOT shrink — only the fill section (below) grows and shrinks to absorb the
+   rail's bound. Without `flex: 0 0 auto` an open non-fill section shares the
+   shrink with the fill section and is squeezed below its own content, which then
+   overflows its `<li>` and paints over the section beneath it. */
+.docs-nav-section {
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 auto;
+}
+
+.docs-nav-collapsible {
+  display: flex;
+  flex-direction: column;
   min-block-size: 0;
 }
 
@@ -47,26 +77,18 @@
  * list scrolls within that. The class is only present when that section is
  * open, so a closed nav is plain natural-height rows with no scroll anywhere.
  *
- * `.primitiv-list__item` is a flex ROW (`[marker][content]`). Left as a row, its
- * cross-axis line is sized to the content (the full list), so the content
- * overflows the li's outer-constrained height instead of being bound by it —
- * measured at 876px inside a 423px li. Switching the fill li to a flex COLUMN
- * makes its content wrapper the main-axis item, which grows to exactly the li's
- * bounded height and passes the bound down to the groups list. (The marker is
- * off here, so there is no row to preserve.)
+ * The chain threads the flex bound through the Collapsible root and the animated
+ * grid panel: li → root → `.docs-nav-content` (the grid, itself a flex item
+ * here) → its inner clip → the groups scroller.
  */
-.docs-nav-section--fill {
+.docs-nav-section--fill,
+.docs-nav-section--fill .docs-nav-collapsible,
+.docs-nav-section--fill .docs-nav-content {
   flex: 1 1 auto;
   min-block-size: 0;
-  flex-direction: column;
-  /* `.primitiv-list__item` aligns its row to `baseline` (marker↔text). Once the
-     axis is vertical that becomes a CROSS-axis rule, so the content wrapper
-     shrink-wraps to its text width (measured 154px in a 260px rail) instead of
-     filling. `stretch` restores full width. */
-  align-items: stretch;
 }
 
-.docs-nav-section--fill > .primitiv-list__item-content {
+.docs-nav-section--fill .docs-nav-content-inner {
   display: flex;
   flex-direction: column;
   min-block-size: 0;
@@ -80,15 +102,34 @@
 }
 
 /*
- * The `List` knobs re-pointed to this nav's rhythm rather than the prose
- * defaults: 16px between sections, and a 20px indent on the nested link lists
- * (List defaults to 8px and 28px). `--primitiv-list-indent` inherits down to the
- * nested lists, which is where it actually applies — the outer list is
- * `indent={false}`.
+ * The disclosure panel's open/close animation — the same grid-row collapse
+ * (`0fr`↔`1fr`) Accordion and the registry Collapsible use, replicated here
+ * because the sidebar drives the headless primitive with its own compact
+ * styling rather than the registry dressing. `forceMount` keeps the panel in the
+ * DOM so there is something to transition; the inner clip is the
+ * `overflow: hidden` grid item the track collapses over.
  */
-.docs-nav-sections {
-  --primitiv-list-item-gap: var(--primitiv-space-space-16);
-  --primitiv-list-indent: var(--primitiv-space-space-20);
+.docs-nav-content {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows var(--primitiv-motion-duration-expand)
+    var(--primitiv-motion-easing-default);
+}
+
+.docs-nav-content[data-state="open"] {
+  grid-template-rows: 1fr;
+}
+
+.docs-nav-content-inner {
+  min-block-size: 0;
+  overflow: hidden;
+}
+
+/* Respect a reduced-motion preference — snap open/closed rather than animate. */
+@media (prefers-reduced-motion: reduce) {
+  .docs-nav-content {
+    transition: none;
+  }
 }
 
 .docs-nav-section-header {

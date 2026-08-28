@@ -487,7 +487,7 @@ source of truth for when a skill applies.
     unpublished headless work can be exercised, so a docs redeploy surfaces
     them (build with `pnpm exec vite build`, not `pnpm build` — the
     `composite` tsconfig rejects the aliased out-of-tree source with TS6307,
-    which is why `deploy-docs.yml` calls vite directly). Only the registry
+    which is why `deploy-docs-site.yml` calls vite directly). Only the registry
     half carries the embedded-registry gotcha (CLI rebuild before `primitiv
     add select` serves it). Two pre-existing Figma↔registry drifts were
     flagged but deliberately not changed (focused-trigger border colour;
@@ -888,7 +888,13 @@ source of truth for when a skill applies.
   visual playground is Chromium-verified to actually illustrate its controls;
   where one can't (Stack's `wrap`, Container's `size` — a page-width cap can't
   show in a ~590px preview) the spec's `excludeControls` drops it and an example
-  carries it instead.
+  carries it instead. **Deployed to GitHub Pages** at
+  `primitiv-ui.github.io/primitiv/` via the manual `deploy-docs-site.yml`
+  workflow (Actions → "Deploy docs site" → Run) — it is now the main Pages site,
+  replacing the old VitePress `apps/docs`; the kitchen-sink stays at
+  `/primitiv/kitchen-sink/` for phone QA. The static export is base-path-aware
+  (`DOCS_SITE_BASE_PATH=/primitiv` → `next.config` `basePath`/`assetPrefix`), and
+  `.nojekyll` is required so Pages keeps Next's `_next/` dir.
   **Load the `docs-site-component-page` skill and read
   `docs/docs-site-session-handoff.md` before touching it** — between them they
   carry the per-page procedure, the mode-aware snippet rules, and the traps. Three things that bite hardest and are written up

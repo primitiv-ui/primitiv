@@ -1,0 +1,109 @@
+name: Deploy docs site
+
+# Manual only — never publishes on push. Trigger from the GitHub UI
+# (Actions → "Deploy docs site" → Run workflow) or by asking Claude to run it.
+#
+# Publishes the Next.js docs site (apps/docs-site) as the main GitHub Pages site
+# at primitiv-ui.github.io/primitiv/, with the kitchen-sink kept at
+# /primitiv/kitchen-sink/ for phone QA. (Replaces the old VitePress deploy.)
+on:
+  workflow_dispatch:
+
+# One concurrent Pages deployment; let an in-progress run finish.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      # Rust + wasm are NOT used by the docs site itself. They are needed only so
+      # the root `pnpm install` can resolve the `harmoni-wasm` workspace package
+      # that apps/workbench depends on — without the generated
+      # crates/harmoni-wasm/pkg the install fails with
+      # ERR_PNPM_WORKSPACE_PKG_NOT_FOUND. Generating it is the cheapest reliable
+      # fix; the workbench is not otherwise built here.
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Rust build
+        uses: Swatinem/rust-cache@v2
+
+      - name: Install wasm-pack
+        uses: jetli/wasm-pack-action@v0.4.0
+
+      - name: Build harmoni-wasm (unblocks the workspace install)
+        run: wasm-pack build crates/harmoni-wasm --target web
+
+      - name: Install dependencies
+        run: pnpm install --no-frozen-lockfile
+
+      # Static export under the /primitiv/ sub-path (GitHub Pages project site).
+      # DOCS_SITE_BASE_PATH drives next.config's basePath + assetPrefix; the
+      # export lands in apps/docs-site/out.
+      - name: Build docs site
+        env:
+          DOCS_SITE_BASE_PATH: /primitiv
+        run: pnpm --filter @primitiv-ui/docs-site build
+
+      # The kitchen-sink is a standalone consumer (its own lockfile, excluded
+      # from the pnpm workspace), kept at /primitiv/kitchen-sink/ for phone QA.
+      # Its Vite/tsconfig dev-alias @primitiv-ui/react + /icons to the workspace
+      # SOURCE, so this build exercises the current branch's headless code. Run
+      # `vite build` directly (not the package's `tsc -b && vite build`): the
+      # aliased source is outside the composite tsconfig's include (TS6307), and
+      # the real type gates run on packages/react anyway.
+      - name: Install kitchen-sink dependencies
+        run: pnpm install --ignore-workspace --no-frozen-lockfile
+        working-directory: apps/kitchen-sink
+
+      - name: Build kitchen-sink
+        env:
+          KITCHEN_SINK_BASE: /primitiv/kitchen-sink/
+        run: pnpm exec vite build
+        working-directory: apps/kitchen-sink
+
+      # Assemble: the docs site is the root; the kitchen-sink is a sub-path (its
+      # own SPA / HTML document, so no CSS interaction with the docs site).
+      # .nojekyll is REQUIRED — Next emits a `_next/` dir, and GitHub Pages'
+      # Jekyll would otherwise drop every underscore-prefixed path.
+      - name: Assemble site
+        run: |
+          cp -r apps/kitchen-sink/dist apps/docs-site/out/kitchen-sink
+          touch apps/docs-site/out/.nojekyll
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: apps/docs-site/out
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

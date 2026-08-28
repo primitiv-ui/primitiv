@@ -391,29 +391,34 @@ token, headless sets a plain `rem` margin. (Registry-only components sidestep
 this entirely — they have no Headless tab, so their token references only ever
 render in Styled mode. Box's token-scoping example is fine for that reason.)
 
-### SideNav → Collapsible (agreed 2026-08-28, not yet built)
+### SideNav → Collapsible (landed 2026-08-28)
 
-The sidebar (`src/site/SideNav.tsx`) hand-rolls a disclosure (`open && …`
-unmounts the content), so it has **no open/close animation**. Agreed fix: adopt
-a registry component for the grid-collapse animation and dogfood the system —
-but **`Collapsible`, not `Accordion`**. The sections are independent disclosures
-(several open at once, each toggling on its own), which is the Disclosure
-pattern; `Accordion` would drag in roving-tabindex arrow navigation, a mandatory
-heading around every trigger (the sidebar already uses `h3` for the *group*
-titles inside Components), and single-open-by-default semantics. `Collapsible`
-gives the same animation with none of that.
+The sidebar (`src/site/SideNav.tsx`) hand-rolled a disclosure (`open && …`
+unmounted the content), so it had **no open/close animation**. Now each section
+is a **headless `Collapsible`** (`@primitiv-ui/react`) with a force-mounted panel
+and the grid-row collapse (`0fr↔1fr`) Accordion uses, styled by `side-nav.css`.
 
-**Keep the link/toggle split — do NOT put navigation on the trigger.** A linked
-section (Components → `/components/`) renders a `<Link>` (navigates) *beside* a
-separate disclosure `<button>` (toggles) today, deliberately: a control that
-both navigates and toggles is ambiguous to a screen reader. Move that same split
-inside `Collapsible.Root` — `<Link>` + `Collapsible.Trigger` in the header row,
-`Collapsible.Content` as the animated panel. Non-link sections make the whole
-header the Trigger. **Wrinkle:** the Components section becomes a scrolling
-flex-fill region when open (`docs-nav-section--fill`); the grid-collapse
-animation (`0fr↔1fr`, `overflow: hidden`, `min-height: 0`) can fight a
-scrolling+`flex-grow` panel — solvable (scroll only matters once open, the
-animation only runs on the transition) but needs care.
+- **Headless, not the registry Collapsible**, and **not Accordion.** The registry
+  Collapsible's framed-control trigger, content padding and fade overlay don't
+  fit a compact rail; Accordion would drag in roving-tabindex, a mandatory
+  heading around every trigger (the sidebar already uses `h3` for the *group*
+  titles), and single-open semantics. The headless primitive ships no CSS, so the
+  rail owns all styling and just adds the animation.
+- **The link/toggle split is preserved.** A linked section (Components →
+  `/components/`) renders a `<Link>` (navigates) beside a separate chevron
+  `Collapsible.Trigger` (toggles) — a control that both navigates and toggles is
+  ambiguous to a screen reader. Both sit inside `Collapsible.Root`;
+  `Collapsible.Content forceMount` is the animated panel.
+- **The fill/scroll wrinkle, and the trap it hid.** The open Components section is
+  a bounded scroll region (`docs-nav-section--fill`), and the flex chain must
+  thread the bound through the Collapsible root and the grid panel (li → root →
+  `.docs-nav-content` grid → inner clip → groups scroller). The non-obvious fix:
+  a non-fill section must be **`flex: 0 0 auto`** — otherwise it shares the shrink
+  with the fill section, gets squeezed below its own content (whose grid has
+  `min-block-size: auto`, so it won't shrink with it), and **overflows its `<li>`
+  onto the section beneath**. Only a rendered, two-sections-open screenshot showed
+  it; the a11y/structure checks all passed. `flex: 0 0 auto` on `.docs-nav-section`
+  + `flex: 1 1 auto; min-block-size: 0` on the fill section is the model.
 
 ## Outstanding
 
@@ -424,9 +429,9 @@ animation only runs on the transition) but needs care.
 0. **34 components still have no page.** 29 are done — the **Layout category is
    complete (8/8)**: Box, Stack, Grid, Container, Center, Spacer, Aspect Ratio,
    Divider (landed 2026-08-27/28). The roster shows the rest. Nothing blocks them
-   but the per-page work above. **Next agreed piece: the sidebar `Collapsible`
-   swap** (see the SideNav note below), which the user deferred until the Layout
-   pages were done.
+   but the per-page work above. The sidebar `Collapsible` swap is **done** (see
+   the SideNav note below). Typography (0/9) and Overlays (1/7) are the
+   next-largest category gaps.
 2. **Accessibility pass** — deferred by the user until after the first build;
    they want excellent scores.
 3. **Figma mode shows JSX.** Every code block falls back to the headless dot form

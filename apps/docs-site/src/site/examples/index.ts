@@ -26,6 +26,11 @@ import { toggleGroupSpec } from "./toggle-group";
 import { dividerSpec } from "./divider";
 import { boxSpec } from "./box";
 import { stackSpec } from "./stack";
+import { gridSpec } from "./grid";
+import { containerSpec } from "./container";
+import { centerSpec } from "./center";
+import { spacerSpec } from "./spacer";
+import { aspectRatioSpec } from "./aspect-ratio";
 import type { ComponentSpec } from "./types";
 
 /**
@@ -58,6 +63,11 @@ export const SPECS: Record<ComponentId, ComponentSpec> = {
   divider: dividerSpec,
   box: boxSpec,
   stack: stackSpec,
+  grid: gridSpec,
+  container: containerSpec,
+  center: centerSpec,
+  spacer: spacerSpec,
+  "aspect-ratio": aspectRatioSpec,
 };
 
 export type { ComponentSpec };

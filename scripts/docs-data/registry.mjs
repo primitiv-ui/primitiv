@@ -376,6 +376,51 @@ export const REGISTRY = {
     contract: "registry/components/stack/contract.json",
     figmaComponentSetKey: "1815:59414", importPath: "@/components/ui/stack",
   },
+  grid: {
+    displayName: "Grid", kind: "registry-only", status: "stable", category: "Layout",
+    propsFile: "registry/components/grid/grid.tsx",
+    subComponents: [
+      { name: "Grid", propsType: "GridProps", element: "div", component: "Grid" },
+    ],
+    contract: "registry/components/grid/contract.json",
+    figmaComponentSetKey: "1815:59457", importPath: "@/components/ui/grid",
+  },
+  container: {
+    displayName: "Container", kind: "registry-only", status: "stable", category: "Layout",
+    propsFile: "registry/components/container/container.tsx",
+    subComponents: [
+      { name: "Container", propsType: "ContainerProps", element: "div", component: "Container" },
+    ],
+    contract: "registry/components/container/contract.json",
+    figmaComponentSetKey: "1765:41081", importPath: "@/components/ui/container",
+  },
+  center: {
+    displayName: "Center", kind: "registry-only", status: "stable", category: "Layout",
+    propsFile: "registry/components/center/center.tsx",
+    subComponents: [
+      { name: "Center", propsType: "CenterProps", element: "div", component: "Center" },
+    ],
+    contract: "registry/components/center/contract.json",
+    figmaComponentSetKey: "1815:59439", importPath: "@/components/ui/center",
+  },
+  spacer: {
+    displayName: "Spacer", kind: "registry-only", status: "stable", category: "Layout",
+    propsFile: "registry/components/spacer/spacer.tsx",
+    subComponents: [
+      { name: "Spacer", propsType: "SpacerProps", element: "div", component: "Spacer" },
+    ],
+    contract: "registry/components/spacer/contract.json",
+    figmaComponentSetKey: "1815:59415", importPath: "@/components/ui/spacer",
+  },
+  "aspect-ratio": {
+    displayName: "AspectRatio", kind: "registry-only", status: "stable", category: "Layout",
+    propsFile: "registry/components/aspect-ratio/aspect-ratio.tsx",
+    subComponents: [
+      { name: "AspectRatio", propsType: "AspectRatioProps", element: "div", component: "AspectRatio" },
+    ],
+    contract: "registry/components/aspect-ratio/contract.json",
+    figmaComponentSetKey: "1815:59456", importPath: "@/components/ui/aspect-ratio",
+  },
   divider: {
     displayName: "Divider", kind: "registry", status: "stable", category: "Layout",
     propsFile: "packages/react/src/Divider/types.ts",

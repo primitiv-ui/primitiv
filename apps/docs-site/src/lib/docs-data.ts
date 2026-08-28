@@ -43,6 +43,11 @@ import toggleGroupDocs from "@/docs-data/toggle-group.docs.json";
 import dividerDocs from "@/docs-data/divider.docs.json";
 import boxDocs from "@/docs-data/box.docs.json";
 import stackDocs from "@/docs-data/stack.docs.json";
+import gridDocs from "@/docs-data/grid.docs.json";
+import containerDocs from "@/docs-data/container.docs.json";
+import centerDocs from "@/docs-data/center.docs.json";
+import spacerDocs from "@/docs-data/spacer.docs.json";
+import aspectRatioDocs from "@/docs-data/aspect-ratio.docs.json";
 import rosterData from "@/docs-data/roster.json";
 
 export type DocsProp = {
@@ -235,6 +240,11 @@ const DOCS = {
   divider: dividerDocs as unknown as ComponentDocs,
   box: boxDocs as unknown as ComponentDocs,
   stack: stackDocs as unknown as ComponentDocs,
+  grid: gridDocs as unknown as ComponentDocs,
+  container: containerDocs as unknown as ComponentDocs,
+  center: centerDocs as unknown as ComponentDocs,
+  spacer: spacerDocs as unknown as ComponentDocs,
+  "aspect-ratio": aspectRatioDocs as unknown as ComponentDocs,
 } as const;
 
 export type ComponentId = keyof typeof DOCS;

@@ -1,0 +1,33 @@
+{
+  "id": "spacer",
+  "displayName": "Spacer",
+  "kind": "registry-only",
+  "status": "stable",
+  "category": "Layout",
+  "description": "A flex: 1 0 0 blank element for pushing flex siblings apart — toolbar left/right groups, card footers, nav bars.",
+  "headless": {
+    "package": "@primitiv-ui/react",
+    "importPath": "@/components/ui/spacer",
+    "subComponents": [
+      {
+        "name": "Spacer",
+        "extends": "HTMLDivElement",
+        "props": [],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-spacer"
+      }
+    ]
+  },
+  "styled": {
+    "installCommand": "primitiv add spacer",
+    "rootClass": "primitiv-spacer",
+    "customProperties": [],
+    "dataAttributes": []
+  },
+  "figma": {
+    "componentSetKey": "1815:59415"
+  }
+}

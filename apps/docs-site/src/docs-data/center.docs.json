@@ -1,0 +1,48 @@
+{
+  "id": "center",
+  "displayName": "Center",
+  "kind": "registry-only",
+  "status": "stable",
+  "category": "Layout",
+  "description": "A single- or both-axis Flexbox centring box.",
+  "headless": {
+    "package": "@primitiv-ui/react",
+    "importPath": "@/components/ui/center",
+    "subComponents": [
+      {
+        "name": "Center",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": null,
+            "description": "Render the single child element instead of a wrapping <div>, merging\nthe center classes onto it — e.g. `<Center asChild><section>...</section></Center>`."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [
+          {
+            "name": "axis",
+            "type": "\"both\" | \"horizontal\" | \"vertical\"",
+            "default": "both",
+            "description": "Which axis (or axes) to centre content along."
+          }
+        ],
+        "dataAttributes": [],
+        "class": "primitiv-center"
+      }
+    ]
+  },
+  "styled": {
+    "installCommand": "primitiv add center",
+    "rootClass": "primitiv-center",
+    "customProperties": [],
+    "dataAttributes": []
+  },
+  "figma": {
+    "componentSetKey": "1815:59439"
+  }
+}

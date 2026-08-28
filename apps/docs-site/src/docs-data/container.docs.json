@@ -1,0 +1,63 @@
+{
+  "id": "container",
+  "displayName": "Container",
+  "kind": "registry-only",
+  "status": "stable",
+  "category": "Layout",
+  "description": "A centred, max-width content column with token-bound inline gutters. `size` caps the width against the breakpoint scale and `gutter` sets the inline padding — `responsive` (the default) escalates it at the md and lg breakpoints, the fixed steps pin one value at every width. No inline styles: both props are curated presets.",
+  "headless": {
+    "package": "@primitiv-ui/react",
+    "importPath": "@/components/ui/container",
+    "subComponents": [
+      {
+        "name": "Container",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": null,
+            "description": "Render the single child element instead of a wrapping <div>, merging the\ncontainer classes onto it — e.g. `<Container asChild><main>...</main></Container>`."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [
+          {
+            "name": "size",
+            "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\" | \"2xl\" | \"full\"",
+            "default": "lg",
+            "description": "The width the content column stops growing at, resolved against the breakpoint scale so `size=\"lg\"` caps exactly where the `lg` breakpoint begins."
+          },
+          {
+            "name": "gutter",
+            "type": "\"responsive\" | \"none\" | \"sm\" | \"md\" | \"lg\"",
+            "default": "responsive",
+            "description": "Inline padding between the content column and its edges. Each step is a density-scaled Context token."
+          }
+        ],
+        "dataAttributes": [],
+        "class": "primitiv-container"
+      }
+    ]
+  },
+  "styled": {
+    "installCommand": "primitiv add container",
+    "rootClass": "primitiv-container",
+    "customProperties": [
+      {
+        "name": "--primitiv-container-max-width",
+        "defaultsTo": "var(--primitiv-breakpoint-lg)"
+      },
+      {
+        "name": "--primitiv-container-gutter",
+        "defaultsTo": "var(--primitiv-container-gutter-sm)"
+      }
+    ],
+    "dataAttributes": []
+  },
+  "figma": {
+    "componentSetKey": "1765:41081"
+  }
+}

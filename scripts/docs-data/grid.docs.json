@@ -1,0 +1,75 @@
+{
+  "id": "grid",
+  "displayName": "Grid",
+  "kind": "registry-only",
+  "status": "stable",
+  "category": "Layout",
+  "description": "A CSS Grid container. `columns` takes a count or a mobile-first per-breakpoint map, `gap` the spacing (a density-scaled Context token per step), and `align`/`justify` how each item sits within its cell. No inline styles: the per-breakpoint column counts resolve to modifier classes, so the responsive behaviour is correct in server-rendered markup on the first paint.",
+  "headless": {
+    "package": "@primitiv-ui/react",
+    "importPath": "@/components/ui/grid",
+    "subComponents": [
+      {
+        "name": "Grid",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": null,
+            "description": "Render the single child element instead of a wrapping <div>, merging the\ngrid classes onto it — e.g. `<Grid asChild><ul>...</ul></Grid>`."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [
+          {
+            "name": "columns",
+            "type": "\"1\" | \"2\" | \"3\" | \"4\" | \"5\" | \"6\"",
+            "default": "1",
+            "description": "The column count. The options below are the base tier, applied at every width. Each is also available per breakpoint as `primitiv-grid--{tier}-cols-{n}`, where tier is one of xs|sm|md|lg|xl|2xl — e.g. `primitiv-grid--md-cols-2`. Tiers are mobile-first floors, not ranges, and the stylesheet orders them ascending so the widest matching tier wins. A count outside 1–6, or a tier outside this scale, is a media query of your own against `--primitiv-grid-columns`."
+          },
+          {
+            "name": "gap",
+            "type": "\"none\" | \"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
+            "default": "md",
+            "description": "Space between tracks; each step (except none) is a density-scaled Context token, mirroring Stack's gap ramp step for step."
+          },
+          {
+            "name": "align",
+            "type": "\"start\" | \"center\" | \"end\" | \"stretch\" | \"baseline\"",
+            "default": "stretch",
+            "description": "How each item sits within its cell on the block axis (`align-items`), as a preset set rather than a raw CSS passthrough."
+          },
+          {
+            "name": "justify",
+            "type": "\"start\" | \"center\" | \"end\" | \"stretch\"",
+            "default": "stretch",
+            "description": "The inline-axis equivalent (`justify-items`). Grid distributes tracks itself, so there is no between/around/evenly here the way there is on Stack's flex justify-content."
+          }
+        ],
+        "dataAttributes": [],
+        "class": "primitiv-grid"
+      }
+    ]
+  },
+  "styled": {
+    "installCommand": "primitiv add grid",
+    "rootClass": "primitiv-grid",
+    "customProperties": [
+      {
+        "name": "--primitiv-grid-columns",
+        "defaultsTo": "1"
+      },
+      {
+        "name": "--primitiv-grid-gap",
+        "defaultsTo": "var(--primitiv-grid-gap-md)"
+      }
+    ],
+    "dataAttributes": []
+  },
+  "figma": {
+    "componentSetKey": "1815:59457"
+  }
+}

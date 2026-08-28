@@ -1,0 +1,45 @@
+{
+  "id": "aspect-ratio",
+  "displayName": "AspectRatio",
+  "kind": "registry-only",
+  "status": "stable",
+  "category": "Layout",
+  "description": "A box that constrains its content to a width-to-height ratio via CSS `aspect-ratio`. `ratio` is a curated preset set of modifier classes (1/1, 4/3, 3/2, 16/9, 21/9 and their portrait inverses); a bespoke ratio comes from overriding --primitiv-aspect-ratio in a stylesheet.",
+  "headless": {
+    "package": "@primitiv-ui/react",
+    "importPath": "@/components/ui/aspect-ratio",
+    "subComponents": [
+      {
+        "name": "AspectRatio",
+        "extends": "HTMLDivElement",
+        "props": [],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [
+          {
+            "name": "ratio",
+            "type": "\"1/1\" | \"4/3\" | \"3/2\" | \"16/9\" | \"21/9\" | \"3/4\" | \"2/3\" | \"9/16\"",
+            "default": "1/1",
+            "description": "Width-to-height ratio, from a curated preset set. A bespoke ratio is set by overriding the `--primitiv-aspect-ratio` custom property in your own stylesheet — the component writes no inline styles."
+          }
+        ],
+        "dataAttributes": [],
+        "class": "primitiv-aspect-ratio"
+      }
+    ]
+  },
+  "styled": {
+    "installCommand": "primitiv add aspect-ratio",
+    "rootClass": "primitiv-aspect-ratio",
+    "customProperties": [
+      {
+        "name": "--primitiv-aspect-ratio",
+        "defaultsTo": "1"
+      }
+    ],
+    "dataAttributes": []
+  },
+  "figma": {
+    "componentSetKey": "1815:59456"
+  }
+}

@@ -18,7 +18,7 @@
     "displayName": "Aspect Ratio",
     "category": "Layout",
     "description": "A box that constrains its content to a width-to-height ratio via CSS `aspect-ratio`. `ratio` is a curated preset set of modifier classes (1/1, 4/3, 3/2, 16/9, 21/9 and their portrait inverses); a bespoke ratio comes from overriding --primitiv-aspect-ratio in a stylesheet.",
-    "documented": false
+    "documented": true
   },
   {
     "id": "avatar",
@@ -95,7 +95,7 @@
     "displayName": "Center",
     "category": "Layout",
     "description": "A single- or both-axis Flexbox centring box.",
-    "documented": false
+    "documented": true
   },
   {
     "id": "checkbox",
@@ -151,7 +151,7 @@
     "displayName": "Container",
     "category": "Layout",
     "description": "A centred, max-width content column with token-bound inline gutters. `size` caps the width against the breakpoint scale and `gutter` sets the inline padding — `responsive` (the default) escalates it at the md and lg breakpoints, the fixed steps pin one value at every width. No inline styles: both props are curated presets.",
-    "documented": false
+    "documented": true
   },
   {
     "id": "context-menu",
@@ -221,7 +221,7 @@
     "displayName": "Grid",
     "category": "Layout",
     "description": "A CSS Grid container. `columns` takes a count or a mobile-first per-breakpoint map, `gap` the spacing (a density-scaled Context token per step), and `align`/`justify` how each item sits within its cell. No inline styles: the per-breakpoint column counts resolve to modifier classes, so the responsive behaviour is correct in server-rendered markup on the first paint.",
-    "documented": false
+    "documented": true
   },
   {
     "id": "inline-code",
@@ -361,7 +361,7 @@
     "displayName": "Spacer",
     "category": "Layout",
     "description": "A flex: 1 0 0 blank element for pushing flex siblings apart — toolbar left/right groups, card footers, nav bars.",
-    "documented": false
+    "documented": true
   },
   {
     "id": "split-button",

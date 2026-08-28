@@ -426,12 +426,20 @@ and the grid-row collapse (`0fr↔1fr`) Accordion uses, styled by `side-nav.css`
    awaiting it, and the sidebar/TOC rails are hidden below `64rem` with no
    replacement. (The `/components` index itself now has a compact shape — see
    Mobile below — but the shell around it does not.)
-0. **34 components still have no page.** 29 are done — the **Layout category is
-   complete (8/8)**: Box, Stack, Grid, Container, Center, Spacer, Aspect Ratio,
-   Divider (landed 2026-08-27/28). The roster shows the rest. Nothing blocks them
-   but the per-page work above. The sidebar `Collapsible` swap is **done** (see
-   the SideNav note below). Typography (0/9) and Overlays (1/7) are the
-   next-largest category gaps.
+0. **25 components still have no page.** 38 are done — **Layout (8/8)** and
+   **Typography (9/9)** are complete (Typography: Kbd, InlineCode, Blockquote,
+   PullQuote, Prose, List, DescriptionList, Figure, CodeBlock, landed 2026-08-28).
+   Overlays (1/7), Data Display (1/8) and Disclosure (2/8) are the next-largest
+   gaps. The sidebar `Collapsible` swap, the GitHub Pages deploy, the mobile
+   burger/drawer menu and sidebar-scroll persistence all landed too.
+   **Three Typography tooling fixes worth knowing** (all in the extractor / a
+   contract): `EL_IFACE` gained the prose/quote/list elements
+   (kbd/code/blockquote/dl/dt/dd/figure) so their props tables say "Extends …"
+   not "extends null"; a `prism-react-renderer` `paths` mapping (pointed at the
+   docs-site's node_modules) so CodeBlock's props table resolves instead of
+   silently emptying; and `registry/components/prose/contract.json`'s modifier
+   was malformed (named after its CSS class, no options) — fixed to a proper
+   `measure` boolean.
 2. **Accessibility pass** — deferred by the user until after the first build;
    they want excellent scores.
 3. **Figma mode shows JSX.** Every code block falls back to the headless dot form

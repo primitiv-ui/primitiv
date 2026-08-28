@@ -878,10 +878,15 @@ source of truth for when a skill applies.
     *left* of the child row's own left edge at every size, so rails never fall
     on indent boundaries and cannot be auto-layout columns. Its `connectors`
     frame is child 0 so a hovered/selected row's fill covers the rail.
-- **Docs site (`apps/docs-site`) — 29 of 63 component pages live (2026-08-28);
-  34 to go.** (The roster: `apps/docs-site/src/site/examples/index.ts`.) The
-  **Layout category is complete (8/8)** — Box, Stack, Grid, Container, Center,
-  Spacer, Aspect Ratio and Divider. All but Divider are **registry-only**, so
+- **Docs site (`apps/docs-site`) — 38 of 63 component pages live (2026-08-28);
+  25 to go.** (The roster: `apps/docs-site/src/site/examples/index.ts`.)
+  **Deployed to GitHub Pages** at `primitiv-ui.github.io/primitiv/` via the
+  manual `deploy-docs-site.yml` workflow (docs-site is standalone / excluded from
+  the pnpm workspace, so it builds with `--ignore-workspace`; kitchen-sink kept
+  at `/primitiv/kitchen-sink/` for phone QA). The **Layout (8/8) and Typography
+  (9/9) categories are complete** — Layout: Box, Stack, Grid, Container, Center,
+  Spacer, Aspect Ratio, Divider; Typography: Kbd, InlineCode, Blockquote,
+  PullQuote, Prose, List, DescriptionList, Figure, CodeBlock. All but Divider are **registry-only**, so
   their pages have no Headless mode — the template handles that from `kind` alone
   (a Styled-only code-block tab, no props "From" column, a top-of-page `Alert`
   callout; see the handoff's "Registry-only pages have no Headless mode"). Every

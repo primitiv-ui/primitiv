@@ -8,6 +8,26 @@ fn anchor() -> Oklch {
 }
 
 #[test]
+fn generate_alpha_ramp_carries_the_anchor_srgb_channels_on_every_step() {
+    let anchor = anchor();
+    let expected = crate::color::output::oklch_to_rgb(anchor);
+    let ramp = generate_alpha_ramp(anchor);
+    for swatch in &ramp {
+        assert_eq!(swatch.rgb, expected);
+    }
+}
+
+#[test]
+fn generate_alpha_ramp_renders_an_eight_digit_hex_carrying_the_step_opacity() {
+    let ramp = generate_alpha_ramp(anchor());
+    // #rrggbb from the anchor, plus the step's opacity quantised to a byte.
+    assert_eq!(ramp[0].hex.len(), 9);
+    assert!(ramp[0].hex.starts_with(&crate::color::output::oklch_to_hex(anchor())));
+    assert_eq!(&ramp[0].hex[7..], "08"); // 0.03 * 255 = 7.65 -> 8
+    assert_eq!(&ramp[9].hex[7..], "eb"); // 0.92 * 255 = 234.6 -> 235
+}
+
+#[test]
 fn generate_alpha_ramp_with_steps_labels_its_steps_like_a_solid_ramp_of_the_same_length() {
     let ramp = generate_alpha_ramp_with_steps(anchor(), 7);
     let steps: Vec<u16> = ramp.iter().map(|s| s.step).collect();

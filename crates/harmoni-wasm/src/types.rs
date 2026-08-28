@@ -432,6 +432,8 @@ pub struct AlphaSwatch {
     pub alpha: f32,
     pub step: u16,
     pub oklch: String,
+    pub hex: String,
+    pub rgb: Rgb,
 }
 
 impl From<core::AlphaSwatch> for AlphaSwatch {
@@ -443,6 +445,8 @@ impl From<core::AlphaSwatch> for AlphaSwatch {
             alpha: value.alpha,
             step: value.step,
             oklch: value.oklch,
+            hex: value.hex,
+            rgb: value.rgb.into(),
         }
     }
 }
@@ -772,6 +776,10 @@ mod tests {
         assert_eq!(wasm_swatch.alpha, core_swatch.alpha);
         assert_eq!(wasm_swatch.step, core_swatch.step);
         assert_eq!(wasm_swatch.oklch, core_swatch.oklch);
+        assert_eq!(wasm_swatch.hex, core_swatch.hex);
+        assert_eq!(wasm_swatch.rgb.r, core_swatch.rgb.r);
+        assert_eq!(wasm_swatch.rgb.g, core_swatch.rgb.g);
+        assert_eq!(wasm_swatch.rgb.b, core_swatch.rgb.b);
     }
 
     #[test]

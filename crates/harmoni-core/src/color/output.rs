@@ -39,6 +39,18 @@ pub fn oklch_to_hex(color: Oklch) -> String {
     )
 }
 
+/// Converts an OkLCH colour and an opacity to a `#rrggbbaa` sRGB hex string.
+///
+/// Eight digits rather than six, because that is what an alpha step *is* —
+/// and what the shipped token layer holds for every `*-alpha` family
+/// (`#236ce108` … `#236ce1eb`). The alpha byte is quantised the same way the
+/// colour channels are, so a round-trip through this string reproduces the
+/// value the emitter writes.
+pub fn oklch_to_hex_alpha(color: Oklch, alpha: f32) -> String {
+    let quantise = |channel: f32| (channel * 255.0).round() as u8;
+    format!("{}{:02x}", oklch_to_hex(color), quantise(alpha))
+}
+
 /// Hue as a positive angle in `0..360`.
 ///
 /// `palette` carries hue as `-180..180`, so every blue renders negative. That is

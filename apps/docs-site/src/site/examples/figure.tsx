@@ -10,6 +10,7 @@ import type { ComponentSpec } from "./types";
 
 type CaptionPosition = "below" | "above" | "overlay";
 type Size = "xs" | "sm" | "md" | "lg" | "xl";
+type Align = "start" | "center" | "end";
 
 const imports = (mode: Mode) =>
   importBlock({ mode, component: "Figure", componentId: "figure", registryOnly: true });
@@ -47,19 +48,21 @@ export const figureSpec: ComponentSpec = {
         `  <Figure.Media>`,
         `    <img src="/chart.png" alt="Quarterly growth" />`,
         `  </Figure.Media>`,
-        `  <Figure.Caption>Figure 1. Quarterly growth.</Figure.Caption>`,
+        `  <Figure.Caption align="${values.align}">Figure 1. Quarterly growth.</Figure.Caption>`,
         `</Figure>`,
       ].join("\n"),
     render: (values) => (
       <Figure
         captionPosition={values.captionPosition as CaptionPosition}
         size={values.size as Size}
-        style={{ width: "100%", maxWidth: "22rem" }}
+        style={{ width: "100%", maxWidth: "22rem", marginInline: "auto" }}
       >
         <Figure.Media>
           <Media />
         </Figure.Media>
-        <Figure.Caption>Figure 1. A placeholder image.</Figure.Caption>
+        <Figure.Caption align={values.align as Align}>
+          Figure 1. A placeholder image.
+        </Figure.Caption>
       </Figure>
     ),
   },
@@ -85,7 +88,14 @@ export const figureSpec: ComponentSpec = {
           }
         >
           {() => (
-            <div style={{ display: "flex", gap: "1.5rem", flexWrap: "wrap" }}>
+            <div
+              style={{
+                display: "flex",
+                gap: "1.5rem",
+                flexWrap: "wrap",
+                justifyContent: "center",
+              }}
+            >
               {(["below", "overlay"] as const).map((pos) => (
                 <Figure
                   key={pos}

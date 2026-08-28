@@ -1210,6 +1210,18 @@ debugging cycle; none is discoverable from the API surface.
    *paint* keeps a literal `color`/`opacity` snapshot the bind does not fill
    in. Treat every `setBoundVariableFor*` return value as needing its
    non-colour fields re-set.
+   **The re-set has to be a SECOND assignment, not a spread in the first
+   one** (2026-08-28, the alpha-ramp strips). `fills = [{ ...bound, opacity }]`
+   silently drops the opacity — every swatch read back `opacity: 1` and ten
+   translucent steps rendered as ten identical solid blocks. Assign the bound
+   paint, read `node.fills[0]` back, *then*
+   `fills = [Object.assign({}, f, { opacity })]`; the binding survives and the
+   opacity sticks. Sibling finding worth knowing: **a fix applied to a
+   master's slot content after an instance has already captured that content
+   does not propagate** — the light twin kept `opacity: 1` while the master
+   was correct, so the twin needed the identical fix applied directly. Its
+   *colour binding* had propagated and inverted correctly, which is what makes
+   the stale opacity easy to miss.
 4. **`clone()` drops `componentPropertyReferences` — assume it, always repair.**
    Now **four** occurrences (Dropdown/CheckboxItem, the Button ghost variants,
    `Tree / Item` + `Branch Control`, and 2026-08-14 the `List` set's Marker
@@ -1442,8 +1454,18 @@ debugging cycle; none is discoverable from the API surface.
    Related: `Harmoni LCH Input` is a full Field composition (label + Input +
    helper row), not a bare number field — using it beside your own label renders
    the value twice.
-
-## Useful commands
+28. **Draw repeating texture as ONE `VECTOR` with many subpaths, never N
+   nodes.** A 332x36 checkerboard at 6px tiles is 168 rectangles; building two
+   of them in a single `figma_execute` call disconnected the bridge three
+   times, and the partial-apply hazard (5) then makes every retry an audit
+   first. The same checker as one vector — `M x y L … Z` per tile in a single
+   `vectorPaths` entry — renders identically, binds one paint, and completes
+   instantly. Build the path from `(0,0)` so its bbox origin is the frame
+   origin and `x = y = 0` is honest (gotcha 26). Retrofitting two existing
+   strips removed 336 nodes. The general rule: per-node `async` work inside a
+   loop is what kills these calls — hoist every
+   `getVariableByIdAsync` / `setBoundVariableForPaint` above the loop and reuse
+   the returned paint.
 
 ```sh
 cargo test --workspace                            # all Rust tests

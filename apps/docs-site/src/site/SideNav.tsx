@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
 import { ChevronRight } from "@primitiv-ui/icons";
 import { Collapsible } from "@primitiv-ui/react";
@@ -13,6 +13,36 @@ import { NAV, type NavSection } from "@/lib/nav";
 import { samePage, samePath } from "@/lib/path";
 
 import "./side-nav.css";
+
+/* `useLayoutEffect` on the client (no scroll flicker), `useEffect` on the server
+   pass so Next doesn't warn during the static prerender. */
+const useIsoLayoutEffect =
+  typeof window !== "undefined" ? useLayoutEffect : useEffect;
+
+const NAV_SCROLL_KEY = "primitiv-docs-nav-scroll";
+
+/**
+ * Persists a scroll container's position across navigations.
+ *
+ * Each page renders its own `Shell` → `SideNav`, so a client-side navigation
+ * re-mounts the nav and the Components list would otherwise jump back to the
+ * top. Saving the scrollTop to `sessionStorage` on scroll and restoring it on
+ * mount keeps the reader's place. Restored in a layout effect so the position is
+ * set before paint — no visible jump.
+ */
+const usePersistentScroll = (key: string, enabled: boolean) => {
+  const ref = useRef<HTMLDivElement>(null);
+  useIsoLayoutEffect(() => {
+    const el = ref.current;
+    if (!el || !enabled) return;
+    const saved = sessionStorage.getItem(key);
+    if (saved) el.scrollTop = Number(saved);
+    const onScroll = () => sessionStorage.setItem(key, String(el.scrollTop));
+    el.addEventListener("scroll", onScroll, { passive: true });
+    return () => el.removeEventListener("scroll", onScroll);
+  }, [key, enabled]);
+  return ref;
+};
 
 const sectionContains = (section: NavSection, pathname: string): boolean =>
   (section.href !== undefined && samePath(section.href, pathname)) ||
@@ -36,6 +66,10 @@ const Section = ({
   // region — see `.docs-nav-section--fill` in side-nav.css. A plain or closed
   // section stays natural height and never scrolls.
   const fill = open && Boolean(section.groups);
+
+  // The grouped section is the only scroll container, so it is the only one
+  // whose position is worth persisting across navigations.
+  const groupsRef = usePersistentScroll(NAV_SCROLL_KEY, Boolean(section.groups));
 
   const links = (items: readonly { title: string; href: string }[]) => (
     <List marker={false} size="sm" className="docs-nav-links">
@@ -99,7 +133,7 @@ const Section = ({
         <Collapsible.Content forceMount className="docs-nav-content">
           <div className="docs-nav-content-inner">
             {section.groups ? (
-              <div className="docs-nav-groups">
+              <div className="docs-nav-groups" ref={groupsRef}>
                 {section.groups.map((group) => (
                   <div className="docs-nav-group" key={group.title}>
                     <h3 className="docs-nav-group-title">{group.title}</h3>

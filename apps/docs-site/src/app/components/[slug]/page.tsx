@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 
 import { ALL_DOCS, getDocs, type ComponentId } from "@/lib/docs-data";
 import { ComponentDocsPage } from "@/site/ComponentDocsPage";
+import { humanName } from "@/lib/human-name";
 
 /*
  * One route for every component, rather than a folder each.
@@ -41,7 +42,7 @@ export async function generateMetadata({
   if (!isComponentId(slug)) return {};
   const docs = getDocs(slug);
   return {
-    title: docs.displayName,
+    title: humanName(docs.displayName),
     // First sentence only — a meta description is a summary, not the full prose.
     description: docs.description.split(/(?<=\.)\s/)[0],
   };

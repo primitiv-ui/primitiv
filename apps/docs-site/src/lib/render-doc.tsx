@@ -28,7 +28,9 @@ type Size = "xs" | "sm" | "md" | "lg" | "xl";
  * cell have to be told separately or one of them looks wrong.
  */
 export const renderDoc = (text: string, size: Size = "md"): ReactNode[] => {
-  const parts = text.split(/(`[^`]+`|\{@link\s+[^}]+\}|\*\*[^*]+\*\*)/g);
+  const parts = text.split(
+    /(`[^`]+`|\{@link\s+[^}]+\}|\*\*[^*]+\*\*|\*[^*\s][^*]*\*)/g,
+  );
 
   return parts.map((part, i) => {
     if (part.length > 1 && part.startsWith("`") && part.endsWith("`")) {
@@ -47,6 +49,15 @@ export const renderDoc = (text: string, size: Size = "md"): ReactNode[] => {
      */
     if (part.length > 4 && part.startsWith("**") && part.endsWith("**")) {
       return <strong key={i}>{renderDoc(part.slice(2, -2), size)}</strong>;
+    }
+    /*
+     * Italic. `**` is matched BEFORE this in the pattern above, so bold is never
+     * mistaken for two italics; the `[^*\s]` after the opening star is what
+     * keeps a lone `*` in prose from opening a run. Same recursion as bold, for
+     * the same reason.
+     */
+    if (part.length > 2 && part.startsWith("*") && part.endsWith("*")) {
+      return <em key={i}>{renderDoc(part.slice(1, -1), size)}</em>;
     }
     // `{@link Target | label}` — take the target, drop any display label.
     const link = part.match(/^\{@link\s+([^}\s|]+)/);

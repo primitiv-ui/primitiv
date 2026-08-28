@@ -16,6 +16,67 @@
 .docs-side-nav {
   --docs-nav-row-height: 1.75rem;
   --docs-nav-chevron-size: 1.25rem;
+
+  /*
+   * The rail (`.docs-sidebar`) is capped to the viewport and is a flex column
+   * (shell.css). This nav fills it, so the flex chain can carry a bounded height
+   * down to the one region that needs to scroll — the Components list.
+   *
+   * `min-block-size: 0` at every link in the chain is load-bearing: a flex item
+   * defaults to a minimum size of its content, which would let the nav grow to
+   * fit the whole list and push the rail past its cap instead of handing the
+   * overflow to the scroll region. Zeroing it lets each item shrink and pass the
+   * bound down to `.docs-nav-groups`.
+   */
+  flex: 1;
+  min-block-size: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* The sections list carries the bound down to the open section. It is already a
+   flex column (`.primitiv-list`); this just lets it fill and shrink. */
+.docs-nav-sections {
+  flex: 1;
+  min-block-size: 0;
+}
+
+/*
+ * The open Components section becomes the rail's flexible region: it grows to
+ * take the height the fixed section headers (above and below it) leave, and its
+ * list scrolls within that. The class is only present when that section is
+ * open, so a closed nav is plain natural-height rows with no scroll anywhere.
+ *
+ * `.primitiv-list__item` is a flex ROW (`[marker][content]`). Left as a row, its
+ * cross-axis line is sized to the content (the full list), so the content
+ * overflows the li's outer-constrained height instead of being bound by it —
+ * measured at 876px inside a 423px li. Switching the fill li to a flex COLUMN
+ * makes its content wrapper the main-axis item, which grows to exactly the li's
+ * bounded height and passes the bound down to the groups list. (The marker is
+ * off here, so there is no row to preserve.)
+ */
+.docs-nav-section--fill {
+  flex: 1 1 auto;
+  min-block-size: 0;
+  flex-direction: column;
+  /* `.primitiv-list__item` aligns its row to `baseline` (marker↔text). Once the
+     axis is vertical that becomes a CROSS-axis rule, so the content wrapper
+     shrink-wraps to its text width (measured 154px in a 260px rail) instead of
+     filling. `stretch` restores full width. */
+  align-items: stretch;
+}
+
+.docs-nav-section--fill > .primitiv-list__item-content {
+  display: flex;
+  flex-direction: column;
+  min-block-size: 0;
+}
+
+.docs-nav-section--fill .docs-nav-groups {
+  flex: 1 1 auto;
+  min-block-size: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 /*
@@ -152,8 +213,12 @@
   letter-spacing: var(--primitiv-letter-spacing-wide);
   margin-block: 0 var(--primitiv-stack-gap-sm);
   font-family: var(--primitiv-overline-font-family);
-  font-size: var(--primitiv-overline-font-size);
-  font-weight: var(--primitiv-overline-font-weight);
+  /* One step up from the overline defaults (12px / medium): these rail headings
+     label whole runs of links, so they earn a touch more presence than a caption
+     overline. `font-size-14` + `semibold` rather than the overline's own size and
+     weight tokens. Kept in lockstep with `.docs-toc-heading`. */
+  font-size: var(--primitiv-font-size-14);
+  font-weight: var(--primitiv-font-weight-semibold);
   line-height: var(--primitiv-overline-line-height);
   text-transform: uppercase;
   /* content/primary, not muted: at overline size these are labels for whole runs

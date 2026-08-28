@@ -33,8 +33,11 @@
   /* The overline family is unsized (no -sm/-md/-lg) and carries no
      letter-spacing token — the face handles caps tracking itself. */
   font-family: var(--primitiv-overline-font-family);
-  font-size: var(--primitiv-overline-font-size);
-  font-weight: var(--primitiv-overline-font-weight);
+  /* One step up from the overline defaults (12px / medium): "On this page" is
+     the rail's own heading, so it earns a touch more presence than a caption
+     overline. Kept in lockstep with `.docs-nav-group-title`. */
+  font-size: var(--primitiv-font-size-14);
+  font-weight: var(--primitiv-font-weight-semibold);
   line-height: var(--primitiv-overline-line-height);
   text-transform: uppercase;
   /* content/primary, not muted: at overline size these are labels for whole runs

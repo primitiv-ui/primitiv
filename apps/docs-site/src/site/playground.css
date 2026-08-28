@@ -78,6 +78,9 @@
   margin: 0;
   padding: 0;
   border: none;
+  /* A fieldset carries an intrinsic min-width; zero it so a prop control sitting
+     in `.docs-control-grid` cannot push its auto-fit track wider than 1fr. */
+  min-inline-size: 0;
 }
 
 /*
@@ -132,10 +135,113 @@
   gap: var(--primitiv-stack-gap-lg);
 }
 
+/*
+ * Indents a nested group inside an example — CheckboxCard's select-all pattern
+ * is the case, where the children have to READ as children of the parent card.
+ *
+ * Deliberately the page's own CSS and not the component's: the primitive's
+ * JSDoc says the parent-plus-children hierarchy is not baked in, so an indent
+ * shipped in `checkbox-card`'s stylesheet would contradict that. The example's
+ * caption says as much, so a reader does not copy an indent that does not exist.
+ */
+.docs-example-indent {
+  padding-inline-start: var(--primitiv-space-space-32);
+}
+
 .docs-example-caption {
   margin: 0;
   font-family: var(--primitiv-body-md-font-family);
   font-size: var(--primitiv-body-md-font-size);
   line-height: var(--primitiv-body-md-line-height);
   color: var(--primitiv-content-secondary);
+}
+
+/*
+ * A bordered region for an EmptyState to fill.
+ *
+ * The component deliberately carries no padding and centres itself in whatever
+ * box it is given, so it collapses to nothing in a box with no height — which
+ * makes a container the example's job, exactly as it is the consumer's. Dashed
+ * so it reads as the page's scaffolding rather than as part of the component,
+ * and the `--short` variant is the compact/inline case `orientation="horizontal"`
+ * exists for.
+ */
+.docs-empty-state-region {
+  /* Off the space scale even though this is only an example's scaffolding —
+     `--docs-*` may hold a bare length, but a token is preferable and these snap
+     to the scale exactly. Reach for a token first, a rem only if nothing fits. */
+  --docs-empty-state-height: var(--primitiv-space-space-240);
+
+  inline-size: 100%;
+  min-block-size: var(--docs-empty-state-height);
+  /*
+   * `grid`, NOT `flex` — and this is the whole point of the region.
+   *
+   * EmptyState carries no padding and centres itself in the box it is given, so
+   * it has to BE given one. As a flex item it shrink-wrapped its own content and
+   * sat at the start, which left every example on this page top-left aligned and
+   * flatly contradicted the component's documented behaviour. A lone grid item
+   * stretches on both axes by default, so the component gets the full region and
+   * its own centring becomes visible.
+   */
+  display: grid;
+  border: var(--primitiv-border-width-1) dashed var(--primitiv-border-subtle);
+  border-radius: var(--primitiv-radii-8);
+  padding: var(--primitiv-space-space-24);
+}
+
+.docs-empty-state-region--short {
+  --docs-empty-state-height: var(--primitiv-space-space-140);
+}
+
+/*
+ * A row of regions, for comparing sizes side by side. Five stacked full-width
+ * regions made that section about 40rem tall and the sizes near-impossible to
+ * compare; laid out in a row the ramp reads at a glance. Wraps rather than
+ * scrolls, so a narrow viewport gets two rows instead of a clipped one.
+ */
+.docs-empty-state-row {
+  inline-size: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--primitiv-stack-gap-md);
+}
+
+.docs-empty-state-row > .docs-empty-state-region {
+  /* Sized for a FULL empty state — media, title, description and an actions
+     button — so the ramp is compared on the whole anatomy rather than on an
+     icon and a word. That needs real width, so these wrap two-up at the content
+     width instead of five across; adjacent sizes still sit side by side, which
+     is what makes a ramp legible. */
+  --docs-empty-state-height: var(--primitiv-space-space-200);
+  --docs-empty-state-row-min: var(--primitiv-space-space-240);
+
+  flex: 1 1 var(--docs-empty-state-row-min);
+  padding: var(--primitiv-space-space-16);
+}
+
+/*
+ * A text button that reads as a link — for an example that has to undo itself
+ * (Alert's dismiss demo, which unmounts the thing you just interacted with).
+ * A real Button would read as part of the demo rather than as the page offering
+ * to reset it.
+ */
+.docs-example-reset {
+  border: 0;
+  padding: 0;
+  background: none;
+  font: inherit;
+  color: var(--primitiv-action-link-foreground-default);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.docs-example-reset:hover {
+  color: var(--primitiv-action-link-foreground-hover);
+}
+
+.docs-example-reset:focus-visible {
+  outline: var(--primitiv-focus-ring-width) solid var(--primitiv-focus-ring);
+  outline-offset: var(--primitiv-focus-ring-offset);
+  border-radius: var(--primitiv-radii-2);
 }

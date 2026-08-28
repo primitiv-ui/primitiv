@@ -57,13 +57,35 @@
      light-themed page on a dark-mode OS gets black scrollbar tracks (and a dark
      page on a light OS gets glaring white ones). Binding color-scheme to the same
      attribute keeps that chrome in step with the theme the page is actually
-     rendering. In the lowest layer, so a consumer can still override it. */
+     rendering. In the lowest layer, so a consumer can still override it.
+
+     The scrollbar itself is tuned in the same place and for the same reason — it
+     is theme-dependent chrome. `thin` — the slimmest width the cross-browser
+     standard offers — goes on the universal selector, NOT `:root`, because unlike
+     `scrollbar-color`, `scrollbar-width` does NOT inherit: on `:root` it would
+     slim only the page scrollbar and leave every nested scroller (a code block,
+     a scrolling panel or menu) on the chunky UA default. `scrollbar-color` does
+     inherit, so it rides the `[data-theme]` blocks and cascades down from there.
+     The thumb is a light grey a few steps in from the extreme, tuned per theme —
+     `neutral-300` in light, `neutral-700` in dark (pure white read too bright) —
+     over a transparent track with no inset, which reads as sleek on either
+     surface. Each colour is set in its own block rather than through one token
+     because the neutral ramp inverts between themes, so the two ends that look
+     alike carry different step numbers. A component that wants no scrollbar (a
+     carousel viewport, say) sets `scrollbar-width: none` on itself and wins — a
+     class in a higher layer over `*` in the reset. */
+  * {
+    scrollbar-width: thin;
+  }
+
   [data-theme="light"] {
     color-scheme: light;
+    scrollbar-color: var(--primitiv-color-neutral-300) transparent;
   }
 
   [data-theme="dark"] {
     color-scheme: dark;
+    scrollbar-color: var(--primitiv-color-neutral-700) transparent;
   }
 
   /* ===== Inline / text-level marks ===== */

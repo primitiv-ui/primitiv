@@ -878,11 +878,16 @@ source of truth for when a skill applies.
     *left* of the child row's own left edge at every size, so rails never fall
     on indent boundaries and cannot be auto-layout columns. Its `connectors`
     frame is child 0 so a hovered/selected row's fill covers the rail.
-- **Docs site (`apps/docs-site`) — eight component pages live (2026-08-25):**
-  Accordion, Badge, Button, Checkbox, Input, Modal, Select, Tabs; 55 to go.
-  **Read `docs/docs-site-session-handoff.md` before touching it** — it carries
-  the six-step per-page procedure, the mode-aware snippet rules, and the traps,
-  and it is kept current. Three things that bite hardest and are written up
+- **Docs site (`apps/docs-site`) — 23 of 63 component pages live (2026-08-28);
+  40 to go.** (The roster: `apps/docs-site/src/site/examples/index.ts`.) The
+  Layout category is under way (Box, Divider); every remaining Layout primitive
+  (Stack, Grid, Container, Center, Spacer, Aspect Ratio) is **registry-only**, so
+  its page has no Headless mode — the template handles that from `kind` alone
+  (a Styled-only code-block tab, no props "From" column, a top-of-page callout;
+  see the handoff's "Registry-only pages have no Headless mode").
+  **Load the `docs-site-component-page` skill and read
+  `docs/docs-site-session-handoff.md` before touching it** — between them they
+  carry the per-page procedure, the mode-aware snippet rules, and the traps. Three things that bite hardest and are written up
   there: the two surfaces do **not** have the same parts (Modal's Header/Body/
   Footer are registry-only, Checkbox's Indicator is headless-only, and the
   extractor derives both), a code block must show what the example beside it

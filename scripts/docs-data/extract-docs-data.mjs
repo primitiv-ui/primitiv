@@ -81,7 +81,7 @@ const rootFiles = [
  * failing. A silently empty props table is the worst possible outcome here, so
  * the resolution is fixed rather than the symptom tolerated.
  */
-const program = ts.createProgram(rootFiles, {
+const compilerOptions = {
   ...parsed.options,
   noEmit: true,
   baseUrl: ROOT,
@@ -100,7 +100,50 @@ const program = ts.createProgram(rootFiles, {
       "packages/react/node_modules/class-variance-authority",
     ],
   },
-});
+};
+
+/*
+ * Registry files import their SIBLINGS by the name those files will have in the
+ * consumer's project, not by where they live here.
+ *
+ * `primitiv add alert` copies `alert.tsx` and `button.tsx` into one directory,
+ * so `alert.tsx` says `from "./button"`. In THIS repo they are one level apart —
+ * `registry/components/alert/` and `registry/components/button/` — so the
+ * specifier does not resolve, and because an unresolved import is fatal here
+ * (rightly: it silently empties a props table) the extractor could not read any
+ * of the nine registry files that compose a sibling: alert, avatar-group,
+ * breadcrumb-overflow, code-block, confirm-dialog, data-table, pagination,
+ * split-button, tree.
+ *
+ * `paths` cannot fix it — TypeScript applies path mapping only to non-relative
+ * specifiers. So resolution is overridden instead, and only as a FALLBACK: the
+ * standard resolver runs first, and this maps `./x` to
+ * `registry/components/x/x.tsx` only when that fails and the importer is itself
+ * a registry file. A same-directory import (`./alert.recipe`) resolves normally
+ * and never reaches this.
+ */
+const host = ts.createCompilerHost(compilerOptions, true);
+const SIBLING = /^\.\/([a-z0-9-]+)$/;
+host.resolveModuleNames = (moduleNames, containingFile) =>
+  moduleNames.map((name) => {
+    const std = ts.resolveModuleName(name, containingFile, compilerOptions, host)
+      .resolvedModule;
+    if (std) return std;
+    const m = SIBLING.exec(name);
+    if (m && containingFile.includes("/registry/components/")) {
+      const target = join(ROOT, `registry/components/${m[1]}/${m[1]}.tsx`);
+      if (existsSync(target)) {
+        return {
+          resolvedFileName: target,
+          extension: ts.Extension.Tsx,
+          isExternalLibraryImport: false,
+        };
+      }
+    }
+    return undefined;
+  });
+
+const program = ts.createProgram(rootFiles, compilerOptions, host);
 const checker = program.getTypeChecker();
 const FMT = ts.TypeFormatFlags.NoTruncation | ts.TypeFormatFlags.UseAliasDefinedOutsideCurrentScope;
 const partsToString = (parts) => Array.isArray(parts) ? parts.map((p) => p.text).join("") : String(parts ?? "");
@@ -310,7 +353,16 @@ function extractSub(sc) {
    * `Header`/`Body`/`Footer`. Derived rather than hand-flagged, so it cannot
    * drift: the props file IS the evidence.
    */
-  const styledOnly = Boolean(sc.propsFile && sc.propsFile !== cfg.propsFile);
+  /*
+   * The evidence is WHERE the props file is, not merely that it differs from the
+   * component's. "Differs" is wrong whenever a component's own `propsFile` is
+   * already the registry file — the primitive-less-style entries, where a part
+   * that overrides it points the OTHER way, into `packages/react`. CheckboxCard
+   * and RadioCard hit exactly that: their `Indicator` reads its props from
+   * `packages/react/.../types.ts`, so "differs" flagged the one part that is
+   * unambiguously in the package as styled-only.
+   */
+  const styledOnly = Boolean(sc.propsFile && sc.propsFile.startsWith("registry/"));
   /* The inverse: a headless part the copied file does not export. Only asserted
      when the registry file was found AND exports something, so a component
      without one cannot silently flag every part. */

@@ -3,7 +3,7 @@
 import type { ReactNode } from "react";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/tabs";
-import { type Mode, useMode } from "@/site/preferences";
+import { type Mode, useHeadlessAvailable, useMode } from "@/site/preferences";
 
 import "./mode-tabs.css";
 
@@ -51,7 +51,10 @@ export const ModeTabs = ({
   children: (mode: Mode) => ReactNode;
 }) => {
   const [mode, setMode] = useMode();
-  const active = mode === "headless" ? "headless" : "styled";
+  const headlessAvailable = useHeadlessAvailable();
+  /* One tab when the page has no Headless mode — see `ModeCodeBlock`. */
+  const tabs = headlessAvailable ? TABS : [TABS[0]];
+  const active = headlessAvailable && mode === "headless" ? "headless" : "styled";
 
   return (
     <Tabs
@@ -61,14 +64,14 @@ export const ModeTabs = ({
       onValueChange={(next) => setMode(next as Mode)}
     >
       <TabsList label={label}>
-        {TABS.map((t) => (
+        {tabs.map((t) => (
           <TabsTrigger key={t.value} value={t.value}>
             {t.label}
           </TabsTrigger>
         ))}
       </TabsList>
 
-      {TABS.map((t) => (
+      {tabs.map((t) => (
         <TabsContent key={t.value} value={t.value}>
           {children(t.value)}
         </TabsContent>

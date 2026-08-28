@@ -5,7 +5,7 @@
 // each carried a `tabs/styles.css` import. `code-block.tsx` now declares the
 // dependency itself (`import "./tabs"`), so both workarounds are gone.
 import { CodeBlock } from "@/components/code-block";
-import { type Mode, useMode } from "@/site/preferences";
+import { type Mode, useHeadlessAvailable, useMode } from "@/site/preferences";
 
 /**
  * Styled FIRST, then Headless. Styled is the copy-and-go path and the default
@@ -54,7 +54,12 @@ export const ModeCodeBlock = ({
   wrap?: boolean;
 }) => {
   const [mode, setMode] = useMode();
-  const active = mode === "headless" ? "headless" : "styled";
+  const headlessAvailable = useHeadlessAvailable();
+  /* Registry-only components have no Headless mode, so their code blocks show
+     just the Styled tab — offering Headless would only ever print the copied
+     file's own import, the same line Styled already shows. */
+  const tabs = headlessAvailable ? TABS : [TABS[0]];
+  const active = headlessAvailable && mode === "headless" ? "headless" : "styled";
 
   return (
     <CodeBlock.Tabs
@@ -67,7 +72,7 @@ export const ModeCodeBlock = ({
         {/* `label`, not `ariaLabelledBy`: the nearest heading names the section
             (an example title, or "Playground"), not what these tabs switch. */}
         <CodeBlock.List label="Consumption mode">
-          {TABS.map((t) => (
+          {tabs.map((t) => (
             <CodeBlock.Trigger key={t.value} value={t.value}>
               {t.label}
             </CodeBlock.Trigger>
@@ -76,7 +81,7 @@ export const ModeCodeBlock = ({
         <CodeBlock.Copy />
       </CodeBlock.Header>
 
-      {TABS.map((t) => (
+      {tabs.map((t) => (
         <CodeBlock.Content
           key={t.value}
           value={t.value}

@@ -36,11 +36,11 @@ ones), sync design tokens from Figma, and install it all with one command.
 
 ## Why Primitiv
 
-- **45 headless, accessible components**, plus a small set of
+- **41 headless, accessible components**, plus a small set of
   framework-agnostic hooks, built on the
   [WAI-ARIA authoring patterns](https://www.w3.org/WAI/ARIA/apg/patterns/) —
   full keyboard support, focus management, and `asChild` composition.
-- **62 styled, copy-in registry components** — framed controls, prose, and
+- **63 styled, copy-in registry components** — framed controls, prose, and
   full composites — ready to drop into your project with the CLI.
 - **Zero styles ship by default.** Style with whatever you use — CSS,
   Tailwind, CSS-in-JS, or the generated token layer.
@@ -99,8 +99,8 @@ export function Save() {
 
 ## Components
 
-`@primitiv-ui/react` exports 45 headless components and 2 hooks
-(`useMediaQuery`, `usePagination`) built on the WAI-ARIA authoring patterns.
+`@primitiv-ui/react` exports 41 headless components and 3 hooks
+(`useLocalStorage`, `useMediaQuery`, `usePagination`) built on the WAI-ARIA authoring patterns.
 See the [**component index**](packages/react/README.md) for the full list
 and per-component docs.
 

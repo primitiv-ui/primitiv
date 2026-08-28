@@ -52,10 +52,13 @@ wrappers, D53). `radio-card.tsx` is type-checked in CI by
 ## Tokens
 
 `radio-card` reuses the whole `choice-card/*` token family `checkbox-card`
-established — `choice-card/{size}/padding`, `choice-card/{size}/
-indicator-offset-top` (the same optical-alignment nudge Alert's icon and
-CheckboxCard's indicator both use), and `choice-card/selected/
-{background,border}` for the checked card treatment. Only the indicator
+established — `choice-card/{size}/padding`, `choice-card/{size}/gap` (the
+indicator↔content gap, deliberately one step above the shared
+`choice-control/{size}/gap` that Checkbox/Radio/Switch keep),
+`choice-card/{size}/content-gap` (title↔description), and
+`choice-card/selected/{background,border}` for the checked card treatment.
+There is deliberately **no** indicator-offset token — see "Optical
+alignment" below. Only the indicator
 itself differs from `checkbox-card`: it reuses Radio's own `radio/{size}/
 box-size` sizing and its "light box + centred dot" convention (the box
 stays `surface/default` even when checked — the border and a dot,

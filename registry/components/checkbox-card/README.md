@@ -64,21 +64,87 @@ with `radio-card`, decoupled from ToggleGroup's `surface/selected`):
 - **`choice-card/{size}/padding`** — the card's own padding (`framed-
   control`'s padding-inline is sized for compact single-row controls, too
   small for a multi-line card).
-- **`choice-card/{size}/indicator-offset-top`** — the same optical-
-  alignment nudge `alert`'s icon uses, aligning the indicator's visual top
-  with the title's cap-height (a function of the shared `label/*` type
-  scale, independent of the indicator's own size).
+- **`choice-card/{size}/gap`** — the indicator↔content gap. Deliberately
+  one step above the shared `choice-control/{size}/gap`, which
+  `checkbox`/`radio`/`switch` keep: a card needs more room than an inline
+  control.
+- **`choice-card/{size}/content-gap`** — the title↔description gap.
+  Explicit because both texts are cap-trimmed, so no leading contributes to
+  the rhythm.
+
+There is deliberately **no** indicator-offset token — see "Optical
+alignment" below.
 - **`choice-card/selected/{background,border}`** — the checked/
   indeterminate card treatment.
 
 Everything else reuses existing families directly: the indicator box
 reuses Checkbox's own `checkbox/{size}/{box-size,box-radius,mark-size}`
 sizing and its tick-mark `clip-path` polygon (re-clipped to a bar for
-indeterminate); `choice-control/{size}/gap` for the indicator↔content gap;
+indeterminate);
 `framed-control/{size}/radius` for the card radius; `label/{size}/*` /
 `body/{size}/*` for title/description type; the shared
 `--primitiv-focus-ring*` two-layer ring; `elevation/raised` for the hover
 lift (matching Button's own hover lift).
+
+## Optical alignment (no token, on purpose)
+
+The indicator has to centre on the **cap-height centre of the title's first
+line** — not on its line box. Those are different: the cap centre sits about
+1.16px above the line-box centre in Khand, whose ascent (1.056em) and descent
+(0.5em) are asymmetric, so line-box centring reads visibly low.
+
+This used to be a per-size `choice-card/{size}/indicator-offset-top` token.
+It was deleted (2026-08-26) because **no value on the 2px space scale can be
+right**: the correct offset depends on cap height, ascent, line-height *and*
+indicator size simultaneously, it ranges from -0.8px to 3.02px across the 20
+size x density combinations, and it is non-monotonic (at `dense`/`xl` the
+control is taller than its own line box). The shipped values were up to
+3.53px out at the large end — measured in a browser, not estimated.
+
+The replacement derives it from the font:
+
+```css
+.primitiv-checkbox-card__title,
+.primitiv-checkbox-card__description {
+  text-box-trim: trim-both;
+  text-box-edge: cap alphabetic;
+}
+.primitiv-checkbox-card__indicator-wrapper {
+  display: flex;
+  align-items: center;
+  font-family: var(--primitiv-checkbox-card-title-font-family);
+  font-size: var(--primitiv-checkbox-card-title-font-size);
+  block-size: 1cap;
+}
+```
+
+Worst-case error across all 20 combinations: **0.14px**, versus 9.92px before.
+
+Three things are load-bearing if you edit this:
+
+- **`1cap` resolves against the wrapper's own font**, so the wrapper must
+  carry the title's `font-family` and `font-size`. They are not decoration.
+- **`display: flex` is required.** As a block containing an `inline-flex`
+  indicator, the indicator sits on a text baseline and picks up half-leading
+  that scales with the font-size just set above — which silently
+  reintroduces a size-dependent error.
+- **A cap-tall box with the control centred**, rather than a negative margin
+  on a hug-height box. Both align correctly, but a negative margin leaves the
+  control hanging below the baseline — its outer box stays taller than the
+  trimmed title — which drives the card's height and puts up to 6.35px more
+  space under the text than above it. Very visible on a card with no
+  description. Centring in a cap-tall box contributes exactly `1cap` to
+  layout, so the padding stays even.
+
+Cap-trimming moves descenders **outside** the text box, so no ancestor may
+clip the content column, or they are cut off. The card's own padding gives
+them room.
+
+Figma expresses the same model with `leadingTrim: CAP_HEIGHT` plus a cap-tall
+Indicator Wrapper bound to a **Figma-only** `choice-card/{size}/title-cap-height`
+variable, because Figma has neither negative margins nor a way to compute a
+font metric into layout. That variable is deliberately absent from
+`packages/tokens` — the same split as `segmented-control/{size}/radius`.
 
 ## Notes
 

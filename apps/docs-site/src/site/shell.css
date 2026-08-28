@@ -75,40 +75,48 @@
   max-inline-size: var(--primitiv-breakpoint-xl);
   margin-inline: auto;
   padding-inline: var(--primitiv-container-gutter-lg);
+  /*
+   * A bottom gap before the footer, and it is load-bearing beyond decoration.
+   * The sticky rails are bounded by this grid's content box, so this padding is
+   * what stops a rail whose content reaches the bottom from sitting flush
+   * against the footer — the gap the last nav row ("Design in Figma") and the
+   * last TOC row now keep. `padding-block-end` here rather than
+   * `margin-block-start` on the footer so the spacing is owned by the layout the
+   * rails live in, which is the box that bounds them.
+   */
+  padding-block-end: var(--primitiv-flow-region);
   display: grid;
   grid-template-columns: 1fr;
   align-items: start;
   gap: var(--primitiv-grid-gap-xl);
 }
 
-/* Both rails hold still while the centre column scrolls. */
+/*
+ * Both rails hold still while the centre column scrolls, and both cap their
+ * height to the viewport so nothing runs off the bottom of the screen.
+ *
+ * `100dvh - nav - 48`: the sticky top offset is `nav + 24`, and the matching 24
+ * at the far end keeps the rail's own bottom off the viewport edge, so the cap
+ * spans the visible area between the header and a 24px breath at the bottom.
+ *
+ * What SCROLLS past that cap differs by rail, on purpose. The TOC is a flat list
+ * with no sub-region to anchor, so the whole rail scrolls. The side nav does
+ * NOT scroll as a whole — its section headers stay put and only its Components
+ * list (the one part that grows without bound) scrolls, which needs the rail to
+ * be a flex column so that list can fill the leftover height. See side-nav.css.
+ */
 .docs-rail {
   position: sticky;
   inset-block-start: calc(
     var(--docs-nav-height) + var(--primitiv-space-space-24)
   );
-}
-
-/*
- * Only the TOC gets the max-block-size + overflow pair, and only it needs one:
- * Select's TOC is already 21 rows (nine sub-components under Props) and grows
- * with the component, so without this its tail is unreachable.
- *
- * The SIDE NAV deliberately does NOT have it. `lib/nav.ts` is 5 sections and 12
- * children — 17 rows if every one were open at once — and `SideNav` opens only
- * the section containing the current page, so the realistic maximum is ~10 rows.
- * It cannot approach viewport height, and the pair was not free: `overflow-y:
- * auto` makes the element a scroll container, which per spec also forces
- * `overflow-x` from `visible` to `auto`, so the rail clipped on both axes and
- * offered a scrollbar it never had a use for.
- *
- * Put it back the day the Components section lists all 50+ components inline
- * rather than linking out — which `SideNav`'s own comment anticipates.
- */
-.docs-toc {
   max-block-size: calc(
     100dvh - var(--docs-nav-height) - var(--primitiv-space-space-48)
   );
+}
+
+/* The TOC scrolls as one; the cap above bounds it. */
+.docs-toc {
   overflow-y: auto;
   overscroll-behavior: contain;
 }
@@ -120,9 +128,10 @@
 
 .docs-main {
   /* Lets long code blocks and props tables scroll inside themselves instead of
-     stretching the grid column. */
+     stretching the grid column. The bottom gap before the footer is the grid's
+     `padding-block-end`, shared with the rails, so this is a start-only pad. */
   min-inline-size: 0;
-  padding-block: var(--primitiv-flow-region);
+  padding-block-start: var(--primitiv-flow-region);
 }
 
 /* Desktop: the full three-column shell. Below this the rails are hidden and the
@@ -135,8 +144,15 @@
       var(--docs-toc-width);
   }
 
-  .docs-sidebar,
   .docs-toc {
     display: block;
+  }
+
+  /* Flex column, not block: the side nav's Components list fills the rail's
+     capped height and scrolls, while the section headers hold their place
+     (side-nav.css owns the rest of that chain). */
+  .docs-sidebar {
+    display: flex;
+    flex-direction: column;
   }
 }

@@ -2,7 +2,9 @@
 
 import Link from "next/link";
 
+import { Alert } from "@/components/alert";
 import { Badge } from "@/components/badge";
+import { InlineCode } from "@/components/inline-code";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -18,6 +20,7 @@ import type { ComponentDocs } from "@/lib/docs-data";
 import { renderDoc } from "@/lib/render-doc";
 
 import "./component-page-header.css";
+import { humanName } from "@/lib/human-name";
 
 const FIGMA_FILE = "1Nh5ffky0lYEw0MzXoqQVy";
 const REPO = "https://github.com/primitiv-ui/primitiv";
@@ -61,13 +64,13 @@ export const ComponentPageHeader = ({ docs }: { docs: ComponentDocs }) => (
         <BreadcrumbItem>
           {/* The current page is a BreadcrumbPage, not a link — it carries
               aria-current="page" and is deliberately not clickable. */}
-          <BreadcrumbPage>{docs.displayName}</BreadcrumbPage>
+          <BreadcrumbPage>{humanName(docs.displayName)}</BreadcrumbPage>
         </BreadcrumbItem>
       </BreadcrumbList>
     </Breadcrumb>
 
     <Stack direction="row" gap="sm" align="center">
-      <h1 className="docs-component-title">{docs.displayName}</h1>
+      <h1 className="docs-component-title">{humanName(docs.displayName)}</h1>
       <Badge tone="success" size="sm">
         {docs.status}
       </Badge>
@@ -102,5 +105,26 @@ export const ComponentPageHeader = ({ docs }: { docs: ComponentDocs }) => (
     {/* Generated JSDoc, so it carries backticks — Button's own description ends
         "...via `asChild`." `lg` matches the lede's own 20px type. */}
     <p className="docs-component-lede">{renderDoc(docs.description, "lg")}</p>
+
+    {/* Registry-only: no `@primitiv-ui/react` primitive, so no Headless mode.
+        Stated at the top because it changes what the rest of the page shows —
+        the code blocks carry only a Styled tab and the props table drops its
+        "From" column. Composes the registry `Alert` (info tone) rather than a
+        bespoke callout — it is exactly the styled surface for a page-level
+        notice. Non-dismissible: `onDismiss` is omitted, so it is persistent
+        context, not something to clear. */}
+    {docs.kind === "registry-only" && (
+      <Alert
+        className="docs-registry-only-alert"
+        tone="info"
+        title="Registry-only"
+        size="sm"
+      >
+        No headless primitive — this component ships only as a copied styled
+        file, so there is no Headless mode.{" "}
+        <InlineCode size="sm">primitiv add {docs.id}</InlineCode> installs it
+        whichever mode you are reading.
+      </Alert>
+    )}
   </Stack>
 );

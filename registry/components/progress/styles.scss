@@ -73,25 +73,68 @@
      so it stays literal, same as the motion-literal exceptions already
      documented in registry-stylesheet-conventions. */
   .primitiv-progress[data-state="indeterminate"] .primitiv-progress__indicator {
-    inline-size: 30%;
+    /*
+     * Indeterminate is a full-width fill with a highlight sweeping across it,
+     * not a short bar travelling the track.
+     *
+     * The previous version slid a 30%-wide bar with
+     * `--primitiv-motion-easing-default`, and an ease on a LOOPING animation is
+     * the wrong shape by construction: it accelerates, decelerates, then snaps
+     * back to the start. It also left the bar fully off-track at each end, so
+     * there were two moments per cycle with nothing to look at.
+     *
+     * The sweep is a gradient between the two colours the component ALREADY
+     * owns — `--primitiv-progress-fill-bg` at the peak, `--primitiv-progress-
+     * track-bg` in the troughs — so the trough literally reads as the track
+     * showing through, and the sheet stays fully token-driven with no colour
+     * literal. Both are per-component tokens (the fill is per intent, the track
+     * is shared), so no highlight colour is invented and nothing drifts when a
+     * fill changes. (An earlier version did this with a `mask-image` whose stops
+     * were `rgb(0 0 0 / <token>)` — the alpha was a token but the `0 0 0` was a
+     * raw colour literal, which this removes.)
+     *
+     * Seamless by construction: the tile is 50% of the track and the animation
+     * translates by exactly one tile (`background-position` 0% -> 100% resolves
+     * to container-minus-image, which for a half-width image is one tile), so
+     * the final frame is pixel-identical to the first. A highlight is always on
+     * screen and there is no wrap discontinuity to hide.
+     *
+     * `linear`, deliberately — see above. 2s is a slow decorative loop, a
+     * different category from the four short one-shot
+     * `--primitiv-motion-duration-*` tokens (75-300ms), so it stays literal for
+     * the reason registry-stylesheet-conventions already documents.
+     */
+    inline-size: 100%;
     transform: none;
-    animation: primitiv-progress-indeterminate 1.4s var(--primitiv-motion-easing-default) infinite;
+    background: repeating-linear-gradient(
+      to right,
+      var(--primitiv-progress-track-bg) 0%,
+      var(--primitiv-progress-fill-bg) 50%,
+      var(--primitiv-progress-track-bg) 100%
+    );
+    background-size: 50% 100%;
+    background-repeat: repeat;
+    animation: primitiv-progress-indeterminate 2s linear infinite;
   }
 
   @media (prefers-reduced-motion: reduce) {
+    /* The same picture minus the sweep: a flat fill, no travelling highlight. */
     .primitiv-progress[data-state="indeterminate"] .primitiv-progress__indicator {
       animation: none;
+      background: var(--primitiv-progress-fill-bg);
       inline-size: 100%;
       opacity: var(--primitiv-opacity-50);
     }
   }
 
+  /* `background-position`, the animatable shorthand — the mask version had to
+     avoid `mask-position-x` (inert here), and the gradient has no such trap. */
   @keyframes primitiv-progress-indeterminate {
     from {
-      transform: translateX(-100%);
+      background-position: 0% 0%;
     }
     to {
-      transform: translateX(250%);
+      background-position: 100% 0%;
     }
   }
 }

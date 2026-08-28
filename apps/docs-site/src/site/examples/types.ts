@@ -77,6 +77,19 @@ export type ComponentSpec = {
     readonly controls?: readonly PlaygroundControl[];
 
     /**
+     * Contract-derived controls to drop from the playground by name.
+     *
+     * A modifier can be real but undemonstrable in a small live preview. Stack's
+     * `wrap` is the case: it only does anything when the children OVERFLOW the
+     * main axis, which is the exact opposite of what `justify` needs (free
+     * space) — so no single cell-set shows both, and a `wrap` toggle that never
+     * moves anything reads as broken. It is covered by its own example instead.
+     * Excluded here rather than filtered in the spec's own control list because
+     * these come from `contractControls`, which the spec does not assemble.
+     */
+    readonly excludeControls?: readonly string[];
+
+    /**
      * Stretch the preview to the full width of its container instead of
      * centring it at its natural size.
      *

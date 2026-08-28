@@ -46,6 +46,12 @@
   border-radius: var(--primitiv-radii-4);
 }
 
+/* The registry-only notice is a callout, not another line of the header, so it
+   wants more separation from the lede than the header's own `sm` row gap. */
+.docs-registry-only-alert {
+  margin-block-start: var(--primitiv-space-space-12);
+}
+
 /* Below md the links wrap under the heading rather than squeezing it. */
 @media (max-width: 47.9375rem) {
   .docs-component-title {

@@ -94,6 +94,59 @@ type is `body/{size}/*` (Asta Sans Regular).
   Modal's canonical close button composes a ghost `Button` around a `Close`
   icon — Alert just does the composition internally instead of leaving it to
   the consumer, since `onDismiss` is a prop on `Alert` itself.
+
+  Two consequences of it being a real Button, both of which had to be
+  corrected (2026-08-27) and both of which will bite again if this is
+  restructured:
+
+  - **It is absolutely positioned, not a flow item.** Its height is
+    `framed-control/{size}/height` — a touch target — while the content is one
+    or two lines of text, so as a flow item it always set the row height and
+    grew the alert: measured at +4px to +40px across size and density, +16px at
+    comfortable/md, which made a one-line alert half again as tall as it needed
+    to be.
+  - **It has to be forced square, from `@layer primitiv.states`.** Button sizes
+    its width from content plus `padding-inline`, so an icon-only instance was
+    50x40 at md. Zeroing `--primitiv-button-padding-inline` from
+    `primitiv.base` silently loses to Button's own per-size declaration in
+    `primitiv.variants` — the same layer trap the dismiss colours already
+    document. And `inline-size` alone is not enough: `box-sizing: border-box`
+    cannot shrink a box below its own padding plus border, so at spacious/lg a
+    56px `inline-size` still used 58px.
+
+- **The dismiss insets mirror the leading icon, and are derived.**
+  `--primitiv-alert-dismiss-inset-block` and `-inset-inline` are computed from
+  `padding-block`/`padding-inline`, `icon-offset-top`, `icon-size` and
+  `dismiss-size`, so the dismiss glyph shares the leading icon's centre line
+  and sits the same distance from its edge — both measured at 0.00px across all
+  20 size x density combinations. They are declared once rather than per size:
+  every input is re-pointed by the size modifiers and a custom property
+  resolves at use time, so they follow automatically. Override either to move
+  the button; there is no magic number to chase.
+
+  Cap-trimming the text (`checkbox-card`/`radio-card`'s technique) does NOT
+  transfer here: trimming lifts the content ~7px, which would put a 40px
+  button's top edge outside the alert. Those components centre a 20px indicator
+  on a 12px cap and just fit. Alert's leading icon is already within 1px of the
+  first line's cap centre, so it needs no trim.
+
+- **Figma composes an `Icon Button` instance; this composes `Button`.** The
+  Figma set nests a real `Icon Button` (ghost, size-matched) per the house
+  convention that a top-level component is built from subcomponents. The
+  registry has no `icon-button`, so it uses `button` forced square instead —
+  functionally the same control, different name on each surface.
+
+  Figma also cannot express these insets the way CSS does. `inset-inline-end`
+  is edge-relative by construction; Figma stores a literal `x`, and because the
+  button's width is variable-bound it scales with the Context mode while `x`
+  does not — the `MAX` constraint only re-anchors when the *parent* resizes.
+  A first pass did exactly that and overflowed the frame by up to 5px in
+  spacious. The fix there is a full-width wrapper pinned `STRETCH` whose
+  **padding** carries the offsets, since padding accepts a variable and so
+  resolves per mode. That needed three Figma-only variable families
+  (`alert/{size}/dismiss-{inset-inline,inset-block,reserve-inline}`), which are
+  deliberately absent from `packages/tokens` because the CSS computes the same
+  expressions in `calc()`. Same precedent as `segmented-control/{size}/radius`.
 - **The dismiss button is same-sized, not stepped down.** Unlike Modal's
   close button (one size step below the dialog, since it sits next to a
   separate Title), Alert's dismiss uses the same `size` as the alert itself

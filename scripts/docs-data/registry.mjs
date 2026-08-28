@@ -159,6 +159,104 @@ export const REGISTRY = {
     contract: "registry/components/switch/contract.json",
     figmaComponentSetKey: "315:5884", importPath: "@primitiv-ui/react",
   },
+  "checkbox-card": {
+    displayName: "CheckboxCard", kind: "registry", status: "stable", category: "Forms",
+    /*
+     * The REGISTRY file, not packages/react — deliberately. The copied surface
+     * takes `title` / `description` / `showDescription` INSTEAD of children (it
+     * composes the card's anatomy itself), and those are its primary API. The
+     * headless `CheckboxCardRootProps` knows nothing about them, so pointing at
+     * it would leave the props a reader actually types undocumented. The
+     * intersection still carries the headless state API through
+     * `ComponentPropsWithRef<typeof CheckboxCard.Root>`.
+     */
+    propsFile: "registry/components/checkbox-card/checkbox-card.tsx",
+    subComponents: [
+      /* Dotted, and `component: "Root"`. `partName` only mode-switches a part
+         whose name contains a dot, so a bare "CheckboxCard" printed as
+         "CheckboxCard" under Headless too, where it should read
+         "CheckboxCard.Root". `partNamer` special-cases "Root" and prints the
+         bare component name back for Styled. */
+      { name: "CheckboxCard.Root", propsType: "CheckboxCardProps", element: "button", component: "Root" },
+      /*
+       * Headless-only, and it needs its own propsFile because this entry's is
+       * the registry file. The copied surface renders the mark itself, so
+       * `CheckboxCardIndicator` exists nowhere in the styled path — a headless
+       * consumer, who composes Root + Indicator + their own content, does need it.
+       */
+      { name: "CheckboxCard.Indicator", propsType: "CheckboxCardIndicatorProps", element: "span",
+        component: "Indicator", propsFile: "packages/react/src/CheckboxCard/types.ts" },
+    ],
+    contract: "registry/components/checkbox-card/contract.json",
+    figmaComponentSetKey: "1417:34712", importPath: "@primitiv-ui/react",
+  },
+  "radio-card": {
+    displayName: "RadioCard", kind: "registry", status: "stable", category: "Forms",
+    /* The registry file, for the reason checkbox-card gives above: `title` /
+       `description` / `showDescription` are the Item's primary API and the
+       headless type has never heard of them. */
+    propsFile: "registry/components/radio-card/radio-card.tsx",
+    subComponents: [
+      /*
+       * The group has NO contract entry, and that is correct rather than a typo:
+       * `RadioCard.Root` is a plain `<div role="radiogroup">` with no styling of
+       * its own — the copied wrapper is a pure pass-through, and the contract's
+       * root describes the CARD (element button, class primitiv-radio-card),
+       * which is the Item below.
+       */
+      { name: "RadioCard.Root", propsType: "RadioCardProps", element: "div", component: "Root" },
+      { name: "RadioCard.Item", propsType: "RadioCardItemProps", element: "button", component: "Item" },
+      { name: "RadioCard.Indicator", propsType: "RadioCardIndicatorProps", element: "span",
+        component: "Indicator", propsFile: "packages/react/src/RadioCard/types.ts" },
+    ],
+    contract: "registry/components/radio-card/contract.json",
+    figmaComponentSetKey: "1417:35178", importPath: "@primitiv-ui/react",
+  },
+  alert: {
+    displayName: "Alert", kind: "registry", status: "stable", category: "Feedback & Status",
+    /*
+     * The REGISTRY file. The headless `Alert` is a bare `<div role="alert">`
+     * taking only `asChild` + `children`; every prop worth documenting —
+     * `tone`, `title`, `icon`, `onDismiss`, `dismissLabel` — belongs to the
+     * copied surface. Same call as the cards'.
+     */
+    propsFile: "registry/components/alert/alert.tsx",
+    subComponents: [
+      /*
+       * NOT dotted, and that is correct: both surfaces export a single `Alert`.
+       * The headless one is not a compound, so there is no `Alert.Root` for
+       * Headless mode to switch to.
+       */
+      { name: "Alert", propsType: "AlertProps", element: "div", component: "Alert" },
+    ],
+    contract: "registry/components/alert/contract.json",
+    figmaComponentSetKey: "1114:40295", importPath: "@primitiv-ui/react",
+  },
+  progress: {
+    displayName: "Progress", kind: "registry", status: "stable", category: "Feedback & Status",
+    propsFile: "packages/react/src/Progress/types.ts",
+    subComponents: [
+      { name: "Progress.Root", propsType: "ProgressRootProps", element: "div", component: "Root" },
+      { name: "Progress.Indicator", propsType: "ProgressIndicatorProps", element: "div", component: "Indicator" },
+    ],
+    contract: "registry/components/progress/contract.json",
+    figmaComponentSetKey: "1219:45786", importPath: "@primitiv-ui/react",
+  },
+  "empty-state": {
+    displayName: "EmptyState", kind: "registry", status: "stable", category: "Feedback & Status",
+    propsFile: "packages/react/src/EmptyState/types.ts",
+    subComponents: [
+      /* Root's own propsFile is the registry file: `orientation` and `size` are
+         the copied surface's, and the headless Root has neither. */
+      { name: "EmptyState.Root", propsType: "EmptyStateProps", propsFile: "registry/components/empty-state/empty-state.tsx", element: "div", component: "Root" },
+      { name: "EmptyState.Media", propsType: "EmptyStateMediaProps", element: "div", component: "Media" },
+      { name: "EmptyState.Title", propsType: "EmptyStateTitleProps", element: "p", component: "Title" },
+      { name: "EmptyState.Description", propsType: "EmptyStateDescriptionProps", element: "p", component: "Description" },
+      { name: "EmptyState.Actions", propsType: "EmptyStateActionsProps", element: "div", component: "Actions" },
+    ],
+    contract: "registry/components/empty-state/contract.json",
+    figmaComponentSetKey: "1502:47398", importPath: "@primitiv-ui/react",
+  },
   field: {
     displayName: "Field", kind: "registry", status: "stable", category: "Forms",
     propsFile: "packages/react/src/Field/types.ts",
@@ -193,6 +291,19 @@ export const REGISTRY = {
      * not in the Figma library yet.
      */
     importPath: "@primitiv-ui/react",
+  },
+  "toggle-group": {
+    displayName: "ToggleGroup", kind: "registry", status: "stable", category: "Navigation",
+    propsFile: "packages/react/src/ToggleGroup/types.ts",
+    subComponents: [
+      { name: "ToggleGroup.Root", propsType: "ToggleGroupRootProps", element: "div", component: "Root" },
+      { name: "ToggleGroup.Item", propsType: "ToggleGroupItemProps", element: "button", component: "Item" },
+    ],
+    contract: "registry/components/toggle-group/contract.json",
+    /* The composed track set, built 2026-08-26; `733:239` is the Item it
+       composes. Both were redesigned onto the framed-control anatomy — see the
+       page "Toggle Group — exploration". */
+    figmaComponentSetKey: "2045:1395", importPath: "@primitiv-ui/react",
   },
   radio: {
     displayName: "Radio", kind: "registry", status: "stable", category: "Forms",
@@ -239,6 +350,43 @@ export const REGISTRY = {
     ],
     contract: "registry/components/textarea/contract.json",
     figmaComponentSetKey: "439:14511", importPath: "@primitiv-ui/react",
+  },
+  box: {
+    displayName: "Box", kind: "registry-only", status: "stable", category: "Layout",
+    /* Hand-written and primitive-less (RFC 0022): the props live in the copied
+       file, not packages/react. Its whole API is `asChild` + native div attrs —
+       no modifiers, no custom properties, by design (it is the escape hatch). */
+    propsFile: "registry/components/box/box.tsx",
+    subComponents: [
+      { name: "Box", propsType: "BoxProps", element: "div", component: "Box" },
+    ],
+    contract: "registry/components/box/contract.json",
+    figmaComponentSetKey: "1815:59408", importPath: "@/components/ui/box",
+  },
+  stack: {
+    displayName: "Stack", kind: "registry-only", status: "stable", category: "Layout",
+    /* Registry-only, like Box — a hand-written flex layout primitive with no
+       headless counterpart (it imports only `Slot`). Its five modifiers
+       (direction/gap/align/justify/wrap) are the contract's, so the playground
+       derives its controls from them with no spec-declared knobs. */
+    propsFile: "registry/components/stack/stack.tsx",
+    subComponents: [
+      { name: "Stack", propsType: "StackProps", element: "div", component: "Stack" },
+    ],
+    contract: "registry/components/stack/contract.json",
+    figmaComponentSetKey: "1815:59414", importPath: "@/components/ui/stack",
+  },
+  divider: {
+    displayName: "Divider", kind: "registry", status: "stable", category: "Layout",
+    propsFile: "packages/react/src/Divider/types.ts",
+    subComponents: [
+      /* Single part. `orientation` is a headless prop (it sets `aria-orientation`
+         and picks the axis), not a contract modifier, so the contract carries no
+         modifiers and the playground's one knob is spec-declared. */
+      { name: "Divider", propsType: "DividerProps", element: "span", component: "Divider" },
+    ],
+    contract: "registry/components/divider/contract.json",
+    figmaComponentSetKey: "401:18380", importPath: "@primitiv-ui/react",
   },
 };
 

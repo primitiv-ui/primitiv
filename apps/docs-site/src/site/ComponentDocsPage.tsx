@@ -19,7 +19,12 @@ import { Playground } from "@/site/Playground";
 import { PropsTable } from "@/site/PropsTable";
 import { Shell } from "@/site/Shell";
 import { StylingContract } from "@/site/StylingContract";
-import { installCommand, label, useMode } from "@/site/preferences";
+import {
+  HeadlessAvailableProvider,
+  installCommand,
+  label,
+  useMode,
+} from "@/site/preferences";
 import type { TocEntry } from "@/site/PageToc";
 
 import "./component-page.css";
@@ -41,9 +46,15 @@ export const ComponentDocsPage = ({ id }: { id: ComponentId }) => {
   const spec = SPECS[id];
   const subs = docs.headless.subComponents;
   /* Contract modifiers first, then anything the spec adds for a headless prop
-     the contract cannot know about (see ComponentSpec.playground.controls). */
-  const controls = [...contractControls(subs), ...(spec.playground.controls ?? [])];
-  const [mode] = useMode();
+     the contract cannot know about (see ComponentSpec.playground.controls) —
+     minus any the spec drops as undemonstrable in a small preview
+     (ComponentSpec.playground.excludeControls). */
+  const excluded = spec.playground.excludeControls ?? [];
+  const controls = [
+    ...contractControls(subs),
+    ...(spec.playground.controls ?? []),
+  ].filter((c) => !excluded.includes(c.name));
+  const [rawMode] = useMode();
 
   const cssVars = docs.styled.customProperties;
   /* One group per part that actually emits something — Button and Select have a
@@ -53,12 +64,19 @@ export const ComponentDocsPage = ({ id }: { id: ComponentId }) => {
   /* No headless primitive at all: the mode switch cannot change how you install
      or import it, so Installation stops pretending it can. */
   const registryOnly = docs.kind === "registry-only";
+  /* Headless is not a mode a registry-only component has, so redirect it to
+     Styled for the page's own mode-dependent copy (Installation, the Examples
+     meta). Figma is left alone — a registry-only component can still have a
+     Figma set (Box, Badge do), so its Figma-library panel must survive. The
+     code blocks drop the Headless *tab* separately, through the context below. */
+  const mode = registryOnly && rawMode === "headless" ? "styled" : rawMode;
 
   const dataAttrGroups = subs
     .filter((sub) => sub.dataAttributes.length > 0)
     .map((sub) => ({
       part: sub.name,
       className: sub.class,
+      headlessOnly: sub.headlessOnly,
       rows: sub.dataAttributes,
     }));
 
@@ -99,8 +117,11 @@ export const ComponentDocsPage = ({ id }: { id: ComponentId }) => {
   return (
     <Shell toc={toc}>
       {/* The page column is one Stack, so the 48px section rhythm is declared
-          once rather than as a margin on every section. */}
-      <Stack gap="none" className="docs-page-column">
+          once rather than as a margin on every section. The provider tells every
+          code block on the page whether a Headless tab belongs — registry-only
+          components have no headless mode, so they show Styled alone. */}
+      <HeadlessAvailableProvider value={!registryOnly}>
+        <Stack gap="none" className="docs-page-column">
         <ComponentPageHeader docs={docs} />
 
         <DocsSection id="playground" title="Playground">
@@ -205,11 +226,16 @@ export const ComponentDocsPage = ({ id }: { id: ComponentId }) => {
                   </>
                 )}
               </p>
-              <p className="docs-install-hint">
-                {mode === "styled"
-                  ? `Headless mode installs the npm package instead: ${docs.headless.package}`
-                  : `Styled mode copies the surface instead: ${installCommand("styled", docs.id)}`}
-              </p>
+              {/* The cross-mode hint only makes sense when there IS another mode.
+                  A registry-only component has no headless install to point at,
+                  so it would read as a promise the component cannot keep. */}
+              {!registryOnly && (
+                <p className="docs-install-hint">
+                  {mode === "styled"
+                    ? `Headless mode installs the npm package instead: ${docs.headless.package}`
+                    : `Styled mode copies the surface instead: ${installCommand("styled", docs.id)}`}
+                </p>
+              )}
             </Stack>
           </div>
         </DocsSection>
@@ -234,17 +260,27 @@ export const ComponentDocsPage = ({ id }: { id: ComponentId }) => {
           id="props"
           title="Props"
           meta={
-            <>
-              {/* Says "styled", matching the From column and the mode switch.
-                  It still names `contract.json` as the source, which is useful
-                  — but as the file a row comes FROM, not as the word for the
-                  half of the API it belongs to. */}
-              Generated from source — headless rows from each{" "}
-              <InlineCode size="sm">*Props</InlineCode> type&rsquo;s JSDoc,
-              styled rows from{" "}
-              <InlineCode size="sm">contract.json</InlineCode>. Never
-              hand-maintained.
-            </>
+            registryOnly ? (
+              /* No headless surface, so no "From" column and no split to explain:
+                 every prop comes from the one copied file. */
+              <>
+                Generated from the copied file&rsquo;s props type and{" "}
+                <InlineCode size="sm">contract.json</InlineCode>. Never
+                hand-maintained.
+              </>
+            ) : (
+              <>
+                {/* Says "styled", matching the From column and the mode switch.
+                    It still names `contract.json` as the source, which is useful
+                    — but as the file a row comes FROM, not as the word for the
+                    half of the API it belongs to. */}
+                Generated from source — headless rows from each{" "}
+                <InlineCode size="sm">*Props</InlineCode> type&rsquo;s JSDoc,
+                styled rows from{" "}
+                <InlineCode size="sm">contract.json</InlineCode>. Never
+                hand-maintained.
+              </>
+            )
           }
         >
           {subs.map((sub) => (
@@ -252,6 +288,7 @@ export const ComponentDocsPage = ({ id }: { id: ComponentId }) => {
               key={sub.name}
               sub={sub}
               headingId={propsHeadingId(sub.name)}
+              showFrom={!registryOnly}
             />
           ))}
         </DocsSection>
@@ -326,7 +363,8 @@ export const ComponentDocsPage = ({ id }: { id: ComponentId }) => {
             ))}
           </Stack>
         </DocsSection>
-      </Stack>
+        </Stack>
+      </HeadlessAvailableProvider>
     </Shell>
   );
 };

@@ -11,7 +11,7 @@
     "displayName": "Alert",
     "category": "Feedback & Status",
     "description": "An assertive banner for high-priority, time-sensitive messages — a tone-matched icon, an optional title, a description, and an optional dismiss button. Composes the headless Alert primitive (role=\"alert\") for the message and the registry Button (ghost variant) for the dismiss affordance. Sized xs–xl; `data-density` scales each size further.",
-    "documented": false
+    "documented": true
   },
   {
     "id": "aspect-ratio",
@@ -53,7 +53,7 @@
     "displayName": "Box",
     "category": "Layout",
     "description": "The escape hatch — a bare polymorphic element with no visual opinion. Exists so a consumer has something to attach a custom property or a one-off style to without reaching for a raw <div>.",
-    "documented": false
+    "documented": true
   },
   {
     "id": "breadcrumb",
@@ -109,7 +109,7 @@
     "displayName": "CheckboxCard",
     "category": "Forms",
     "description": "A card/tile-shaped checkbox — the whole bordered surface is the interactive element, not a small control plus a separate label. Composes the headless CheckboxCard primitive (role=\"checkbox\", tri-state unchecked/checked/indeterminate). Sized xs–xl; `data-density` scales each size further.",
-    "documented": false
+    "documented": true
   },
   {
     "id": "chip",
@@ -179,7 +179,7 @@
     "displayName": "Divider",
     "category": "Layout",
     "description": "A separator between content sections — a `<span role=\"separator\">` whose `aria-orientation` drives a horizontal or vertical rule.",
-    "documented": false
+    "documented": true
   },
   {
     "id": "drawer",
@@ -200,7 +200,7 @@
     "displayName": "EmptyState",
     "category": "Feedback & Status",
     "description": "The placeholder shown when a collection, search, or view has no content — a decorative media slot, a headline, supporting copy, and recovery actions, centred in the space it fills. Composes the headless EmptyState primitive (role=\"status\", a polite live region). Sized xs–xl; `data-density` scales each size further.",
-    "documented": false
+    "documented": true
   },
   {
     "id": "field",
@@ -305,7 +305,7 @@
     "displayName": "Progress",
     "category": "Feedback & Status",
     "description": "A progress bar — a track with a fill that reports completion, or an animated indeterminate state when the ratio is unknown. `intent` picks the fill colour (primary/secondary/danger), matching the Figma set; the track stays neutral in every intent.",
-    "documented": false
+    "documented": true
   },
   {
     "id": "prose",
@@ -333,7 +333,7 @@
     "displayName": "RadioCard",
     "category": "Forms",
     "description": "A card/tile-shaped radio item — the whole bordered surface is the interactive element, not a small control plus a separate label. Composes the headless RadioCard primitive (RadioCard.Root is role=\"radiogroup\" with no visual anatomy of its own; RadioCard.Item is role=\"radio\"). Sized xs–xl; `data-density` scales each size further.",
-    "documented": false
+    "documented": true
   },
   {
     "id": "segmented-control",
@@ -375,7 +375,7 @@
     "displayName": "Stack",
     "category": "Layout",
     "description": "A Flexbox stack — `direction` picks the axis, `gap` the spacing (a density-scaled Context token per step), `wrap` whether the row may break onto additional lines, and `align`/`justify` the alignment, all as modifier classes. No inline styles: the alignment props are curated presets, not raw CSS keywords.",
-    "documented": false
+    "documented": true
   },
   {
     "id": "stepper",
@@ -423,8 +423,8 @@
     "id": "toggle-group",
     "displayName": "Toggle Group",
     "category": "Navigation",
-    "description": "A segmented control — a recessed pill track holding borderless items; single- or multi-select. Pressed items lift into a raised thumb.",
-    "documented": false
+    "description": "A set of independent on/off buttons in a shared track — any number can be pressed, including none. Framed like a Button: a pressed item is action/primary, an unpressed one action/secondary, inside a transparent bordered track whose radius is concentric with the items.",
+    "documented": true
   },
   {
     "id": "tooltip",

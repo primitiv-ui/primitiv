@@ -7,7 +7,7 @@ import { Input } from "@/components/input";
 import { Radio } from "@/components/radio";
 import { Stack } from "@/components/stack";
 import { Textarea } from "@/components/textarea";
-import { contractAttr, importBlock, partNamer } from "@/lib/playground";
+import { contractAttr, importBlock, partNamer, stackImports } from "@/lib/playground";
 import { InteractiveExample } from "@/site/InteractiveExample";
 import type { Mode } from "@/site/preferences";
 import type { ComponentSpec } from "./types";
@@ -24,7 +24,6 @@ const imports = (mode: Mode) =>
 
 const inputImports = (mode: Mode) => importBlock({ mode, component: "Input", componentId: "input" });
 const radioImports = (mode: Mode) => importBlock({ mode, component: "Radio", componentId: "radio" });
-const stackImports = (mode: Mode) => importBlock({ mode, component: "Stack", componentId: "stack" });
 
 /** The live half of the validation example — `invalid` toggling in real time. */
 const ValidationExample = () => {

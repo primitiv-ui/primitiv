@@ -1,0 +1,54 @@
+{
+  "id": "divider",
+  "displayName": "Divider",
+  "kind": "registry",
+  "status": "stable",
+  "category": "Layout",
+  "description": "A separator between content sections — a `<span role=\"separator\">` whose `aria-orientation` drives a horizontal or vertical rule.",
+  "headless": {
+    "package": "@primitiv-ui/react",
+    "importPath": "@primitiv-ui/react",
+    "subComponents": [
+      {
+        "name": "Divider",
+        "extends": "HTMLSpanElement",
+        "props": [
+          {
+            "name": "orientation",
+            "type": "\"horizontal\" | \"vertical\"",
+            "required": false,
+            "default": "\"horizontal\"",
+            "description": "Axis the separator runs along. Sets `aria-orientation` on the rendered\n`<span role=\"separator\">` so screen readers announce the correct\norientation. Use `\"horizontal\"` for row-dividing rules and\n`\"vertical\"` for column-dividing rules."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-divider"
+      }
+    ]
+  },
+  "styled": {
+    "installCommand": "primitiv add divider",
+    "rootClass": "primitiv-divider",
+    "customProperties": [
+      {
+        "name": "--primitiv-divider-color",
+        "defaultsTo": "var(--primitiv-border-subtle)"
+      },
+      {
+        "name": "--primitiv-divider-thickness",
+        "defaultsTo": "var(--primitiv-border-width-1)"
+      },
+      {
+        "name": "--primitiv-divider-spacing",
+        "defaultsTo": "var(--primitiv-space-space-0)"
+      }
+    ],
+    "dataAttributes": []
+  },
+  "figma": {
+    "componentSetKey": "401:18380"
+  }
+}

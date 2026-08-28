@@ -69,6 +69,16 @@ export type DataAttributeGroup = {
   readonly part: string;
   /** That part's registry class, for the styled tab. Null when it has none. */
   readonly className: string | null;
+  /**
+   * True when `@primitiv-ui/react` exports this part but the COPIED file does
+   * not — it renders it internally, so in styled mode there is no symbol to
+   * import and the part is reachable only by its class.
+   *
+   * CheckboxCard's mark is the case: `partNamer` would print
+   * `CheckboxCardIndicator`, naming an export the copied file does not have.
+   * Derived by the extractor from the registry file's real exports.
+   */
+  readonly headlessOnly?: boolean;
   readonly rows: readonly DocsDataAttribute[];
 };
 
@@ -114,6 +124,19 @@ const mergeByName = (rows: readonly DocsDataAttribute[]): MergedRow[] => {
 
 const partName = (group: DataAttributeGroup, mode: Mode): string => {
   const [base, part] = group.part.split(".");
+  /*
+   * A part the copied file renders ITSELF keeps its canonical name in BOTH
+   * modes, because there is no styled spelling to switch to — `partNamer` would
+   * print `CheckboxCardIndicator`, naming an import that does not exist. The
+   * note below says so, and the className line says what to select instead.
+   *
+   * This mirrors the Props section, which already had the convention: it heads
+   * every part with `sub.name` and explains the mode mismatch in prose rather
+   * than renaming the part. Two other spellings were tried here first — the bare
+   * class (reads as a snippet, not a label, set in the display face) and the
+   * contract's own part name ("Mark", which sits oddly beside "CheckboxCard").
+   */
+  if (group.headlessOnly) return group.part;
   return part ? partNamer(mode, base)(part) : base;
 };
 export const DataAttributesTable = ({
@@ -137,13 +160,35 @@ export const DataAttributesTable = ({
                   table below via aria-labelledby, so each table is announced as
                   its part rather than as the fourth unnamed table on the page.
                   The id is keyed on the part rather than the heading text, so it
-                  survives a mode switch. */}
+                  survives a mode switch.
+
+                  The MODE is in the id because `ModeTabs` mounts one panel per
+                  mode, so a part-only id rendered every DUPLICATE id on the page
+                  — measured, two of each on every component page that has data
+                  attributes, and Select had four. Duplicate ids make
+                  `aria-labelledby` resolve to whichever copy comes first in the
+                  document, so the hidden panel's heading was naming the visible
+                  panel's table. Nothing links to these ids (the TOC targets the
+                  section's own `#data-attributes`), so per-panel uniqueness
+                  costs nothing. */}
               <h3
                 className="docs-example-title"
-                id={`data-attributes-${group.part}`}
+                id={`data-attributes-${group.part}-${mode}`}
               >
                 {partName(group, mode)}
               </h3>
+
+
+              {/* Same wording as the Props section's, deliberately: it is the
+                  same fact about the same part, and two phrasings would read as
+                  two different caveats. */}
+              {mode !== "headless" && group.headlessOnly && (
+                <p className="docs-prop-extends">
+                  Headless only — the copied file renders this part for you and
+                  exports no separate component, so there is nothing to import
+                  under Styled. Target it with the class below.
+                </p>
+              )}
 
               {/* The selector a styled-mode reader writes to reach this part —
                   shown IN ADDITION to the part name, not instead of it: the name
@@ -161,7 +206,7 @@ export const DataAttributesTable = ({
               <TableScrollArea>
                 <Table
                   size="sm"
-                  aria-labelledby={`data-attributes-${group.part}`}
+                  aria-labelledby={`data-attributes-${group.part}-${mode}`}
                 >
                   <TableHead>
                     <TableRow>

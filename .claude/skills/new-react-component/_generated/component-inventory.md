@@ -21,6 +21,7 @@ non-visual primitive.
 | Checkbox | Compound, controllable | yes | CheckboxContext | 8 | Supports indeterminate, custom indicator child. |
 | CheckboxCard | Compound, controllable | yes | CheckboxCardContext | 8 | Card-surfaced checkbox — the whole card is the control; mirrors Checkbox's state model. |
 | Collapsible | Compound, disclosure | yes | CollapsibleContext | 8 | Supports forceMount on Content, triggerIcon. |
+| Combobox | Compound, complex | yes | ComboboxContext | 10 | Editable text field filtering a listbox in a top-layer Popover-API panel (light dismiss, self-wired anchor positioning). Shares its row language — `Listbox.Option`, with a cursor state — with Listbox. See `docs/combobox-future-work.md`. |
 | ContextMenu | Compound, very complex (menu) | no | ContextMenuContext + Content/Group/ItemIndicator/RadioGroup/Sub contexts | 15 | Right-click menu; sub-menus, checkbox/radio items, typeahead. Sibling of Dropdown — shares the menu machinery, differs on the trigger. |
 | DirectionProvider | Simple utility | no | DirectionContext | 1 | Supplies LTR/RTL direction to descendants via context. |
 | Divider | Simple element | no | none | 2 | Horizontal / vertical separator. |
@@ -31,6 +32,7 @@ non-visual primitive.
 | Fieldset | Simple element | no | none | 2 | `<fieldset>`/`<legend>` grouping for related controls. |
 | Input | Simple element | no | none | 5 | Single-line text entry; neutral styling, no intent axis. |
 | InputGroup | Simple element | no | none | 3 | Composes leading/trailing addons (icons, buttons, text) around an Input. |
+| Listbox | Compound, complex | yes | ListboxContext, ListboxGroupContext | 20 | Standalone selection listbox — the only row in the library with a cursor state distinct from selection, shared with Combobox. Single / multiple select, groups, typeahead. |
 | MillerColumns | Compound, roving tabindex | yes | MillerColumnsContext, MillerColumnsColumnContext, MillerColumnsItemContext | 16 | Miller columns / cascading lists. Recursive composition (no data prop); child columns portal-projected into the Root strip; single tree-wide roving tabstop; `partitionItemChildren` splits an Item's cell from its nested Column. |
 | Modal | Compound, disclosure | yes | ModalContext | 14 | Uses native `<dialog>` with a polyfill (`dialog-polyfill.ts`); nested modals, click-outside, escape-hatches. |
 | NavigationMenu | Compound, disclosure + keymap | yes | NavigationMenuContext, NavigationMenuItemContext, NavigationMenuPanelContext | 14 | Desktop dropdown site nav (ARIA APG Disclosure Navigation Menu). Single-open `value` where `""` = closed; hover-intent open with instant sibling switching and a nav-wide close grace; uses `useRovingTabindex` for its keymap only — no `tabIndex` manipulation, every entry stays tabbable. Optional `Viewport` panels portal into (MillerColumns-style projection) and an `Indicator` publishing measured geometry as custom properties. Copy this for a widget that needs an axis keymap *without* a roving tabstop. |
@@ -40,10 +42,12 @@ non-visual primitive.
 | Radio | Compound, controllable | yes | RadioContext | 7 | Single radio control with an optional inline label. |
 | RadioCard | Compound, controllable | yes | RadioCardContext, RadioCardItemContext | 10 | Card-surfaced radio group — the whole card is the control; item context per card. |
 | RadioGroup | Compound, roving tabindex | yes | RadioGroupContext, RadioGroupItemContext | 13 | `orientation: "both"`, pre-filters disabled; arrow does nothing while focus is on a disabled radio. |
-| Select | Simple element | no | none | 7 | Native `<select>` wrapper; no intent axis. Rich Select / Combobox tracked in `docs/select-future-work.md`. |
+| SegmentedControl | Compound, controllable | yes | SegmentedControlContext | 12 | RadioGroup semantics rendered as a segmented control (a Tabs-model track + item pair); items mirror Button's primary/secondary. Not ToggleGroup. |
+| Select | Compound, controllable | yes | SelectContext, SelectItemIndicatorContext | 20 | Two render paths behind one API via `native`: a rich Popover-API listbox (Trigger/Value/Content/Item/Group/Separator, self-wired anchor positioning) or a native `<select>`. Consumes FieldContext. See `docs/select-future-work.md`. |
 | SkipNav | Simple utility | no | none | 2 | Skip-to-content link revealed on focus. |
 | Slider | Compound, complex | yes | SliderContext | 14 | Draggable thumb(s); keyboard steps, min/max/step, orientation, ARIA valuetext. |
 | Slot | Internal utility | no | none | 2 | The asChild composition primitive. Also exports `composeEventHandlers`. Used by every component that supports asChild. |
+| SplitButton | Compound, complex | no | SplitButtonContext (composes Dropdown) | 8 | A primary action beside a Dropdown menu trigger sharing one `useId`-derived anchor-name; composes Dropdown for the menu. |
 | Status | Simple element | no | none | 1 | `role="status"` polite live region. No JS behaviour — kept for ARIA semantics. |
 | Switch | Compound, controllable | yes | SwitchContext | 11 | On/off toggle; controllable, custom thumb. |
 | Table | Sub-component family | no | none | 10 | Compound but stateless — Root, Header, Body, Footer, Caption, Row, Cell, Head, ScrollArea. |

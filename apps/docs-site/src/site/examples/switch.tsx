@@ -5,7 +5,7 @@ import { useState } from "react";
 import { Button } from "@/components/button";
 import { Stack } from "@/components/stack";
 import { Switch } from "@/components/switch";
-import { contractAttr, importBlock, partNamer } from "@/lib/playground";
+import { contractAttr, importBlock, partNamer, stackImports } from "@/lib/playground";
 import { InteractiveExample } from "@/site/InteractiveExample";
 import type { Mode } from "@/site/preferences";
 import type { ComponentSpec } from "./types";
@@ -17,7 +17,6 @@ const SIZES: readonly Size[] = ["xs", "sm", "md", "lg", "xl"];
 const imports = (mode: Mode) => importBlock({ mode, component: "Switch", componentId: "switch" });
 
 /** Composed into two examples, so their snippets must import them too. */
-const stackImports = (mode: Mode) => importBlock({ mode, component: "Stack", componentId: "stack" });
 const buttonImports = (mode: Mode) =>
   importBlock({ mode, component: "Button", componentId: "button" });
 

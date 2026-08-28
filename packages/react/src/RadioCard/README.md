@@ -27,7 +27,7 @@ import { RadioCard } from "@primitiv-ui/react";
 | Export | Element | ARIA / data hooks | `asChild` |
 |--------|---------|------------------|-----------|
 | `RadioCard.Root` | `<div>` | `role="radiogroup"` | yes |
-| `RadioCard.Item` | `<button>` | `role="radio"`, `aria-checked`, `data-state`, `tabIndex` | yes |
+| `RadioCard.Item` | `<button>` | `role="radio"`, `aria-checked`, `data-state`, `data-disabled`, `tabIndex` | yes |
 | `RadioCard.Indicator` | `<span>` | `aria-hidden="true"`, `data-state` | yes |
 
 ## State modes
@@ -131,3 +131,4 @@ to keep it in the DOM — `data-state="unchecked"` lets a CSS exit animation pla
 | Attribute | Values | Set on |
 |-----------|--------|--------|
 | `data-state` | `"checked"` \| `"unchecked"` | `RadioCard.Item`, `RadioCard.Indicator` |
+| `data-disabled` | `""` (present only while disabled) | `RadioCard.Item` |

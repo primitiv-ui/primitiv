@@ -189,9 +189,33 @@
     text-align: center;
   }
 
+  /*
+   * The media is taken OUT of flow into a reserved inline-start gutter, with the
+   * optical nudge applied as `inset-block-start` (see the header note for why
+   * this beats a two-column grid).
+   *
+   * `align-self: center` is what makes that safe, and it is not cosmetic. The
+   * base rule centres the in-flow column with `justify-content: center`, so when
+   * the component is given MORE height than its content — its documented job,
+   * "centred in the space it fills" — the text centred while the out-of-flow
+   * media stayed pinned to the root's top edge, and the two came apart by half
+   * the free space. Measured in a 15rem region at comfortable/md: media at 3px,
+   * title at 33px. Hugging the content and centring the whole root instead
+   * keeps the media's anchor and the text in the same box, and the result is
+   * still vertically centred. In a non-flex/grid parent it is simply ignored and
+   * the root hugs anyway, which is the same outcome.
+   *
+   * A two-column grid was tried here and is a trap worth recording:
+   * `grid-row: 1 / -1` does NOT span implicit rows, because `-1` resolves
+   * against the EXPLICIT grid — with no `grid-template-rows` it collapses to row
+   * 1, so the 48px media inflated the title's row to 51px and pushed the
+   * title/description seam from 4px to 19px. That is exactly the inflation the
+   * out-of-flow media exists to prevent.
+   */
   .primitiv-empty-state--horizontal {
     position: relative;
     align-items: flex-start;
+    align-self: center;
     text-align: start;
   }
 
@@ -204,8 +228,6 @@
     min-block-size: var(--primitiv-empty-state-media-size);
   }
 
-  /* Out of flow, into the gutter. `inset-block-start` is the optical nudge that
-     aligns the media with the title's cap-height rather than its line-box top. */
   .primitiv-empty-state--horizontal > .primitiv-empty-state__media {
     position: absolute;
     inset-inline-start: 0;

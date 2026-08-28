@@ -9,6 +9,7 @@
  */
 
 import { CATEGORY_ORDER, ROSTER } from "@/lib/docs-data";
+import { humanName } from "@/lib/human-name";
 
 export type NavLink = {
   readonly title: string;
@@ -55,7 +56,7 @@ export type NavSection = {
 export const COMPONENT_PAGES: readonly NavLink[] = ROSTER.filter(
   (entry) => entry.documented,
 ).map((entry) => ({
-  title: entry.displayName,
+  title: humanName(entry.displayName),
   href: `/components/${entry.id}/`,
 }));
 
@@ -64,7 +65,7 @@ export const COMPONENT_GROUPS: readonly NavGroup[] = CATEGORY_ORDER.map(
   (category) => ({
     title: category,
     links: ROSTER.filter((e) => e.documented && e.category === category).map(
-      (e) => ({ title: e.displayName, href: `/components/${e.id}/` }),
+      (e) => ({ title: humanName(e.displayName), href: `/components/${e.id}/` }),
     ),
   }),
 ).filter((group) => group.links.length > 0);

@@ -1,7 +1,7 @@
 use palette::Oklch;
 use serde::{Deserialize, Serialize};
 
-use crate::color::output::format_oklch_alpha;
+use crate::color::output::{format_oklch_alpha, oklch_to_hex_alpha, oklch_to_rgb, Rgb};
 use crate::palette::generator::{resample, step_labels, DEFAULT_STEPS};
 
 /// The opacity curve shared by every alpha ramp (Path A). Dense at the subtle
@@ -35,6 +35,8 @@ pub fn generate_alpha_ramp_with_steps(anchor: Oklch, steps: usize) -> Vec<AlphaS
             alpha,
             step,
             oklch: format_oklch_alpha(anchor, alpha),
+            hex: oklch_to_hex_alpha(anchor, alpha),
+            rgb: oklch_to_rgb(anchor),
         })
         .collect()
 }
@@ -51,6 +53,13 @@ pub struct AlphaSwatch {
     pub step: u16,
     /// The anchor colour at this step's opacity, as `oklch(L C H / a)`.
     pub oklch: String,
+    /// The anchor as a `#rrggbbaa` sRGB hex string — eight digits, because the
+    /// opacity is part of the value. What the token layer ships.
+    pub hex: String,
+    /// The anchor as gamma-encoded sRGB, channels in `0.0..=1.0`. The opacity
+    /// stays in `alpha`, so a consumer building an RGBA paint (Figma's
+    /// `{ r, g, b, a }`) reads both rather than parsing `oklch` or `hex`.
+    pub rgb: Rgb,
 }
 
 /// Builds an alpha ramp from a single anchor colour (Path A): the colour is

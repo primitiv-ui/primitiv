@@ -1,0 +1,93 @@
+{
+  "id": "kbd",
+  "displayName": "Kbd",
+  "kind": "registry-only",
+  "status": "stable",
+  "category": "Typography",
+  "description": "A `<kbd>` fragment set in the mono face on a raised, bordered key cap — the physical-keycap sibling of Inline Code. Sized xs–xl so a shortcut tracks the surrounding text; `data-density` scales each size further.",
+  "headless": {
+    "package": "@primitiv-ui/react",
+    "importPath": "@/components/ui/kbd",
+    "subComponents": [
+      {
+        "name": "Kbd",
+        "extends": "HTMLElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": null,
+            "description": "Render the single child element instead of a wrapping <kbd>, merging\nthe kbd classes onto it — e.g. `<Kbd asChild><span>...</span></Kbd>`."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [
+          {
+            "name": "size",
+            "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
+            "default": "md",
+            "description": "Key-cap size; `data-density` scales each size further."
+          }
+        ],
+        "dataAttributes": [],
+        "class": "primitiv-kbd"
+      }
+    ]
+  },
+  "styled": {
+    "installCommand": "primitiv add kbd",
+    "rootClass": "primitiv-kbd",
+    "customProperties": [
+      {
+        "name": "--primitiv-kbd-font-family",
+        "defaultsTo": "var(--primitiv-font-family-mono)"
+      },
+      {
+        "name": "--primitiv-kbd-font-size",
+        "defaultsTo": "var(--primitiv-body-md-font-size)"
+      },
+      {
+        "name": "--primitiv-kbd-font-weight",
+        "defaultsTo": "var(--primitiv-body-md-font-weight)"
+      },
+      {
+        "name": "--primitiv-kbd-line-height",
+        "defaultsTo": "var(--primitiv-code-md-line-height)"
+      },
+      {
+        "name": "--primitiv-kbd-color",
+        "defaultsTo": "var(--primitiv-content-primary)"
+      },
+      {
+        "name": "--primitiv-kbd-background",
+        "defaultsTo": "var(--primitiv-surface-raised)"
+      },
+      {
+        "name": "--primitiv-kbd-border-color",
+        "defaultsTo": "var(--primitiv-border-default)"
+      },
+      {
+        "name": "--primitiv-kbd-border-width",
+        "defaultsTo": "var(--primitiv-border-width-1)"
+      },
+      {
+        "name": "--primitiv-kbd-radius",
+        "defaultsTo": "var(--primitiv-radii-4)"
+      },
+      {
+        "name": "--primitiv-kbd-padding-inline",
+        "defaultsTo": "var(--primitiv-code-inline-padding-inline)"
+      },
+      {
+        "name": "--primitiv-kbd-padding-block",
+        "defaultsTo": "var(--primitiv-code-inline-padding-block)"
+      }
+    ],
+    "dataAttributes": []
+  },
+  "figma": {
+    "componentSetKey": "612:35198"
+  }
+}

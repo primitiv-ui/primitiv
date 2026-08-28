@@ -31,6 +31,15 @@ import { containerSpec } from "./container";
 import { centerSpec } from "./center";
 import { spacerSpec } from "./spacer";
 import { aspectRatioSpec } from "./aspect-ratio";
+import { kbdSpec } from "./kbd";
+import { inlineCodeSpec } from "./inline-code";
+import { blockquoteSpec } from "./blockquote";
+import { pullQuoteSpec } from "./pull-quote";
+import { proseSpec } from "./prose";
+import { listSpec } from "./list";
+import { descriptionListSpec } from "./description-list";
+import { figureSpec } from "./figure";
+import { codeBlockSpec } from "./code-block";
 import type { ComponentSpec } from "./types";
 
 /**
@@ -68,6 +77,15 @@ export const SPECS: Record<ComponentId, ComponentSpec> = {
   center: centerSpec,
   spacer: spacerSpec,
   "aspect-ratio": aspectRatioSpec,
+  kbd: kbdSpec,
+  "inline-code": inlineCodeSpec,
+  blockquote: blockquoteSpec,
+  "pull-quote": pullQuoteSpec,
+  prose: proseSpec,
+  list: listSpec,
+  "description-list": descriptionListSpec,
+  figure: figureSpec,
+  "code-block": codeBlockSpec,
 };
 
 export type { ComponentSpec };

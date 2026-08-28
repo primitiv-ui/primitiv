@@ -1,0 +1,95 @@
+{
+  "id": "blockquote",
+  "displayName": "Blockquote",
+  "kind": "registry-only",
+  "status": "stable",
+  "category": "Typography",
+  "description": "A <blockquote> with a left-stroke accent bar and an optional attribution line. `tone` picks the bar colour (default | accent); `size` scales the quote and citation type together.",
+  "headless": {
+    "package": "@primitiv-ui/react",
+    "importPath": "@/components/ui/blockquote",
+    "subComponents": [
+      {
+        "name": "Blockquote",
+        "extends": "HTMLQuoteElement",
+        "props": [
+          {
+            "name": "cite",
+            "type": "ReactNode",
+            "required": false,
+            "default": null,
+            "description": "The attribution line, rendered in a `<cite>` beneath the quote. Omitted\nwhen not provided.\n\nNarrows the native `<blockquote cite>` attribute (a source URL) to a\ndisplay string — the RFC 0023 sketch's own shape for this component,\nmirroring the `Omit`-narrowing already used elsewhere in the registry\n(e.g. `NavigationMenu.Item.value` over `<li value>`)."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [
+          {
+            "name": "tone",
+            "type": "\"default\" | \"accent\"",
+            "default": "default",
+            "description": "Accent-bar colour."
+          },
+          {
+            "name": "size",
+            "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
+            "default": "md",
+            "description": "Quote + citation size; `data-density` scales each size further."
+          }
+        ],
+        "dataAttributes": [],
+        "class": "primitiv-blockquote"
+      }
+    ]
+  },
+  "styled": {
+    "installCommand": "primitiv add blockquote",
+    "rootClass": "primitiv-blockquote",
+    "customProperties": [
+      {
+        "name": "--primitiv-blockquote-border-color",
+        "defaultsTo": "var(--primitiv-border-strong)"
+      },
+      {
+        "name": "--primitiv-blockquote-border-width",
+        "defaultsTo": "var(--primitiv-border-width-3)"
+      },
+      {
+        "name": "--primitiv-blockquote-padding-inline",
+        "defaultsTo": "var(--primitiv-quote-padding-inline)"
+      },
+      {
+        "name": "--primitiv-blockquote-gap",
+        "defaultsTo": "var(--primitiv-quote-body-gap-md)"
+      },
+      {
+        "name": "--primitiv-blockquote-quote-color",
+        "defaultsTo": "var(--primitiv-content-secondary)"
+      },
+      {
+        "name": "--primitiv-blockquote-citation-color",
+        "defaultsTo": "var(--primitiv-content-muted)"
+      },
+      {
+        "name": "--primitiv-blockquote-font-family",
+        "defaultsTo": "var(--primitiv-body-md-font-family)"
+      },
+      {
+        "name": "--primitiv-blockquote-font-size",
+        "defaultsTo": "var(--primitiv-body-md-font-size)"
+      },
+      {
+        "name": "--primitiv-blockquote-font-weight",
+        "defaultsTo": "var(--primitiv-body-md-font-weight)"
+      },
+      {
+        "name": "--primitiv-blockquote-line-height",
+        "defaultsTo": "var(--primitiv-body-md-line-height)"
+      }
+    ],
+    "dataAttributes": []
+  },
+  "figma": {
+    "componentSetKey": "586:8579"
+  }
+}

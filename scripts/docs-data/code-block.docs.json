@@ -1,0 +1,414 @@
+{
+  "id": "code-block",
+  "displayName": "CodeBlock",
+  "kind": "registry-only",
+  "status": "stable",
+  "category": "Typography",
+  "description": "A block of source code — a bordered, tinted surface with mono type, an optional filename/copy header, an optional line-number gutter, and Prism syntax highlighting themed from tokens. Sized xs–xl; `data-density` scales the padding. Compound subcomponents (CodeBlock.Tabs/Header/List/Trigger/Content/Copy) add a tabbed variant that composes the headless Tabs primitive and reuses the tabs component's classes.",
+  "headless": {
+    "package": "@primitiv-ui/react",
+    "importPath": "@/components/ui/code-block",
+    "subComponents": [
+      {
+        "name": "CodeBlock",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "code",
+            "type": "string",
+            "required": true,
+            "default": null,
+            "description": "The source to render."
+          },
+          {
+            "name": "filename",
+            "type": "string",
+            "required": false,
+            "default": null,
+            "description": "Filename shown in the header; its presence shows the header + copy control."
+          },
+          {
+            "name": "language",
+            "type": "string",
+            "required": false,
+            "default": null,
+            "description": "Prism language id (e.g. `tsx`, `css`, `bash`). Defaults to `tsx`."
+          },
+          {
+            "name": "showHeader",
+            "type": "boolean",
+            "required": false,
+            "default": null,
+            "description": "Force the header (with the copy control) even without a filename."
+          },
+          {
+            "name": "showLineNumbers",
+            "type": "boolean",
+            "required": false,
+            "default": null,
+            "description": "Show a line-number gutter. Ignored under `variant=\"inline\"`."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [
+          {
+            "name": "variant",
+            "type": "\"block\" | \"inline\"",
+            "default": "block",
+            "description": "Presentation. `block` is the standalone code surface; `inline` is a chip that sits in a line of prose or beside a label — same highlighting, same syntax palette, no header or gutter."
+          },
+          {
+            "name": "size",
+            "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
+            "default": "md",
+            "description": "Type size; `data-density` scales the padding further."
+          },
+          {
+            "name": "wrap",
+            "type": "\"true\" | \"false\"",
+            "default": "true",
+            "description": "Whether long lines reflow to the container. Wrapping is the default because a horizontal scrollbar reads worse on a narrow viewport. Turn it off for content whose column alignment IS the content — a tree with aligned trailing `//` annotations, a table of values — where reflowing a line drops its annotation onto the next row and makes it read as belonging to the row below. The block then scrolls inside its own box."
+          }
+        ],
+        "dataAttributes": [
+          {
+            "name": "data-line-numbers",
+            "value": "",
+            "when": "the line-number gutter is shown"
+          }
+        ],
+        "class": "primitiv-code-block"
+      },
+      {
+        "name": "CodeBlock.Tabs",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "activationMode",
+            "type": "\"manual\" | \"automatic\"",
+            "required": false,
+            "default": "\"automatic\"",
+            "description": "When a focused trigger becomes active; see {@link TabsActivationMode}."
+          },
+          {
+            "name": "defaultValue",
+            "type": "string",
+            "required": false,
+            "default": null,
+            "description": "Value of the tab active on first render."
+          },
+          {
+            "name": "dir",
+            "type": "\"ltr\" | \"rtl\"",
+            "required": false,
+            "default": null,
+            "description": "Reading direction; see {@link TabsReadingDirection}. Inherited from the\nnearest `DirectionProvider` when omitted, falling back to `\"ltr\"`."
+          },
+          {
+            "name": "lazyMount",
+            "type": "boolean",
+            "required": false,
+            "default": null,
+            "description": "When `true`, a panel's children are not rendered until that tab is first\nactivated. Once mounted they remain in the DOM across subsequent tab\nswitches (lazy mount, not unmount-on-hide). Useful for panels that own\nexpensive initialisation — e.g. a scroll-snap carousel whose initial\nscroll position must be set while the panel is visible."
+          },
+          {
+            "name": "onChange",
+            "type": "({ index, name }: TabMetadata) => void",
+            "required": false,
+            "default": null,
+            "description": "Fired on every user-driven activation with the activated tab's metadata."
+          },
+          {
+            "name": "onValueChange",
+            "type": "(value: string) => void",
+            "required": false,
+            "default": null,
+            "description": "Called with the requested value when the user activates a tab."
+          },
+          {
+            "name": "orientation",
+            "type": "\"horizontal\" | \"vertical\"",
+            "required": false,
+            "default": "\"horizontal\"",
+            "description": "Layout axis; see {@link TabsOrientation}."
+          },
+          {
+            "name": "size",
+            "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
+            "required": false,
+            "default": "\"md\"",
+            "description": "Type size for the block; `data-density` scales the padding."
+          },
+          {
+            "name": "value",
+            "type": "string",
+            "required": false,
+            "default": null,
+            "description": "Value of the currently active tab."
+          },
+          {
+            "name": "wrap",
+            "type": "boolean",
+            "required": false,
+            "default": "true",
+            "description": "Whether long lines reflow to the panel. Turn it off for content whose column\nalignment is the content; the panel then scrolls horizontally."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": true,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": null
+      },
+      {
+        "name": "CodeBlock.Header",
+        "extends": "HTMLDivElement",
+        "props": [],
+        "styledOnly": false,
+        "headlessOnly": true,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": null
+      },
+      {
+        "name": "CodeBlock.List",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "ariaLabelledBy",
+            "type": "string",
+            "required": false,
+            "default": null,
+            "description": "Id of an existing element to use as the tablist's accessible name,\nset as `aria-labelledby`. Mutually exclusive with `label`."
+          },
+          {
+            "name": "label",
+            "type": "string",
+            "required": false,
+            "default": null,
+            "description": "Accessible name for the tablist, announced as `aria-label`. Pick a\nshort, human-readable description of the set (e.g. `\"Account\nsections\"`, not `\"Tabs\"`). Mutually exclusive with `ariaLabelledBy`."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": true,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": null
+      },
+      {
+        "name": "CodeBlock.Trigger",
+        "extends": "HTMLButtonElement",
+        "props": [
+          {
+            "name": "value",
+            "type": "string",
+            "required": true,
+            "default": null,
+            "description": "Identifies this trigger, linking it to the `Tabs.Content` of the same\nvalue. Not the visible label — use `children` for that."
+          },
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": null,
+            "description": "Render the child element instead of the default `<button>`. All tab\nARIA attributes and event handlers are merged onto the child. The child\nmust accept a `ref`. Useful for routing links that need tab semantics."
+          },
+          {
+            "name": "disabled",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Removes the trigger from the roving tab order and marks it\n`aria-disabled`/`data-disabled`; arrow-key navigation skips it."
+          },
+          {
+            "name": "ref",
+            "type": "Ref<HTMLElement>",
+            "required": false,
+            "default": null,
+            "description": "Ref to the rendered element. Defaults to `HTMLButtonElement`; when using\n`asChild`, specify the child's element type (e.g. `HTMLAnchorElement`)."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": true,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": null
+      },
+      {
+        "name": "CodeBlock.Content",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "code",
+            "type": "string",
+            "required": true,
+            "default": null,
+            "description": "The source for this panel."
+          },
+          {
+            "name": "value",
+            "type": "string",
+            "required": true,
+            "default": null,
+            "description": "Value of the trigger this panel belongs to."
+          },
+          {
+            "name": "language",
+            "type": "string",
+            "required": false,
+            "default": null,
+            "description": "Prism language id (e.g. `tsx`, `css`, `bash`). Defaults to `tsx`."
+          },
+          {
+            "name": "showLineNumbers",
+            "type": "boolean",
+            "required": false,
+            "default": null,
+            "description": "Show a line-number gutter."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": true,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": null
+      },
+      {
+        "name": "CodeBlock.Copy",
+        "extends": "HTMLButtonElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Renders the child element instead of a native `<button>`, merging all\nprops — aria-*, data-*, event handlers, ref — onto it via\n{@link Slot }. `type` is not forwarded in this mode; the child owns its\nown type semantics. See the `asChild` example on {@link Button }."
+          },
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": false,
+            "default": null,
+            "description": "Button content. Defaults to the copy/check icon (swapping on success); pass\ntext (e.g. `Copy`) for the text form."
+          },
+          {
+            "name": "ref",
+            "type": "Ref<HTMLButtonElement>",
+            "required": false,
+            "default": null,
+            "description": "Allows getting a ref to the component instance.\nOnce the component unmounts, React will set `ref.current` to `null`\n(or call the ref with `null` if you passed a callback ref).\nForwarded to the underlying `HTMLButtonElement`, or — under\n`asChild` — merged onto the rendered child via {@link Slot }."
+          },
+          {
+            "name": "type",
+            "type": "\"button\" | \"submit\" | \"reset\"",
+            "required": false,
+            "default": "\"button\"",
+            "description": "The button's native `type` attribute, restricted to the three valid\nvalues. Defaults to `\"button\"` (not the DOM's own default of\n`\"submit\"`), so a `Button` placed inside a `<form>` never triggers an\naccidental submit unless set explicitly."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": true,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": null
+      }
+    ]
+  },
+  "styled": {
+    "installCommand": "primitiv add code-block",
+    "rootClass": "primitiv-code-block",
+    "customProperties": [
+      {
+        "name": "--primitiv-code-block-background",
+        "defaultsTo": "var(--primitiv-surface-subtle)"
+      },
+      {
+        "name": "--primitiv-code-block-color",
+        "defaultsTo": "var(--primitiv-content-primary)"
+      },
+      {
+        "name": "--primitiv-code-block-border-color",
+        "defaultsTo": "var(--primitiv-border-subtle)"
+      },
+      {
+        "name": "--primitiv-code-block-border-width",
+        "defaultsTo": "var(--primitiv-border-width-1)"
+      },
+      {
+        "name": "--primitiv-code-block-radius",
+        "defaultsTo": "var(--primitiv-radii-8)"
+      },
+      {
+        "name": "--primitiv-code-block-padding",
+        "defaultsTo": "var(--primitiv-code-padding)"
+      },
+      {
+        "name": "--primitiv-code-block-header-padding-block",
+        "defaultsTo": "var(--primitiv-space-space-8)"
+      },
+      {
+        "name": "--primitiv-code-block-font-family",
+        "defaultsTo": "var(--primitiv-font-family-mono)"
+      },
+      {
+        "name": "--primitiv-code-block-font-size",
+        "defaultsTo": "var(--primitiv-body-md-font-size)"
+      },
+      {
+        "name": "--primitiv-code-block-line-height",
+        "defaultsTo": "var(--primitiv-body-md-line-height)"
+      },
+      {
+        "name": "--primitiv-code-block-gutter-color",
+        "defaultsTo": "var(--primitiv-content-muted)"
+      },
+      {
+        "name": "--primitiv-code-block-filename-color",
+        "defaultsTo": "var(--primitiv-content-secondary)"
+      },
+      {
+        "name": "--primitiv-code-block-tabs-header-padding",
+        "defaultsTo": "var(--primitiv-space-space-12)"
+      },
+      {
+        "name": "--primitiv-code-syntax-keyword",
+        "defaultsTo": "oklch(0.5 0.19 305)"
+      },
+      {
+        "name": "--primitiv-code-syntax-function",
+        "defaultsTo": "oklch(0.52 0.17 258)"
+      },
+      {
+        "name": "--primitiv-code-syntax-string",
+        "defaultsTo": "oklch(0.5 0.12 150)"
+      },
+      {
+        "name": "--primitiv-code-syntax-property",
+        "defaultsTo": "oklch(0.54 0.16 25)"
+      },
+      {
+        "name": "--primitiv-code-syntax-number",
+        "defaultsTo": "oklch(0.52 0.13 65)"
+      },
+      {
+        "name": "--primitiv-code-syntax-comment",
+        "defaultsTo": "oklch(0.62 0.015 260)"
+      },
+      {
+        "name": "--primitiv-code-syntax-punctuation",
+        "defaultsTo": "oklch(0.46 0.02 260)"
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-line-numbers",
+        "value": "",
+        "when": "the line-number gutter is shown"
+      }
+    ]
+  },
+  "figma": {
+    "componentSetKey": "601:9607"
+  }
+}

@@ -421,6 +421,100 @@ export const REGISTRY = {
     contract: "registry/components/aspect-ratio/contract.json",
     figmaComponentSetKey: "1815:59456", importPath: "@/components/ui/aspect-ratio",
   },
+  kbd: {
+    displayName: "Kbd", kind: "registry-only", status: "stable", category: "Typography",
+    propsFile: "registry/components/kbd/kbd.tsx",
+    subComponents: [
+      { name: "Kbd", propsType: "KbdProps", element: "kbd", component: "Kbd" },
+    ],
+    contract: "registry/components/kbd/contract.json",
+    figmaComponentSetKey: "612:35198", importPath: "@/components/ui/kbd",
+  },
+  "inline-code": {
+    displayName: "InlineCode", kind: "registry-only", status: "stable", category: "Typography",
+    propsFile: "registry/components/inline-code/inline-code.tsx",
+    subComponents: [
+      { name: "InlineCode", propsType: "InlineCodeProps", element: "code", component: "InlineCode" },
+    ],
+    contract: "registry/components/inline-code/contract.json",
+    figmaComponentSetKey: "601:9492", importPath: "@/components/ui/inline-code",
+  },
+  blockquote: {
+    displayName: "Blockquote", kind: "registry-only", status: "stable", category: "Typography",
+    propsFile: "registry/components/blockquote/blockquote.tsx",
+    subComponents: [
+      { name: "Blockquote", propsType: "BlockquoteProps", element: "blockquote", component: "Blockquote" },
+    ],
+    contract: "registry/components/blockquote/contract.json",
+    figmaComponentSetKey: "586:8579", importPath: "@/components/ui/blockquote",
+  },
+  "pull-quote": {
+    displayName: "PullQuote", kind: "registry-only", status: "stable", category: "Typography",
+    propsFile: "registry/components/pull-quote/pull-quote.tsx",
+    subComponents: [
+      { name: "PullQuote", propsType: "PullQuoteProps", element: "blockquote", component: "PullQuote" },
+    ],
+    contract: "registry/components/pull-quote/contract.json",
+    figmaComponentSetKey: "588:8752", importPath: "@/components/ui/pull-quote",
+  },
+  prose: {
+    displayName: "Prose", kind: "registry-only", status: "stable", category: "Typography",
+    propsFile: "registry/components/prose/prose.tsx",
+    subComponents: [
+      { name: "Prose", propsType: "ProseProps", element: "div", component: "Prose" },
+    ],
+    contract: "registry/components/prose/contract.json",
+    /* Prose is a flow-rhythm wrapper with no Figma component set of its own —
+       like input-group, the header omits the Design link. */
+    importPath: "@/components/ui/prose",
+  },
+  list: {
+    displayName: "List", kind: "registry-only", status: "stable", category: "Typography",
+    propsFile: "registry/components/list/list.tsx",
+    subComponents: [
+      { name: "List", propsType: "ListProps", element: "ul", component: "List" },
+      { name: "List.Item", propsType: "ListItemProps", element: "li", component: "Item" },
+    ],
+    contract: "registry/components/list/contract.json",
+    figmaComponentSetKey: "586:7300", importPath: "@/components/ui/list",
+  },
+  "description-list": {
+    displayName: "DescriptionList", kind: "registry-only", status: "stable", category: "Typography",
+    propsFile: "registry/components/description-list/description-list.tsx",
+    subComponents: [
+      { name: "DescriptionList", propsType: "DescriptionListProps", element: "dl", component: "Root" },
+      { name: "DescriptionList.Term", propsType: "DescriptionListTermProps", element: "dt", component: "Term" },
+      { name: "DescriptionList.Details", propsType: "DescriptionListDetailsProps", element: "dd", component: "Details" },
+    ],
+    contract: "registry/components/description-list/contract.json",
+    figmaComponentSetKey: "585:6947", importPath: "@/components/ui/description-list",
+  },
+  figure: {
+    displayName: "Figure", kind: "registry-only", status: "stable", category: "Typography",
+    propsFile: "registry/components/figure/figure.tsx",
+    subComponents: [
+      { name: "Figure", propsType: "FigureProps", element: "figure", component: "Root" },
+      { name: "Figure.Media", propsType: "FigureMediaProps", element: "div", component: "Media" },
+      { name: "Figure.Caption", propsType: "FigureCaptionProps", element: "figcaption", component: "Caption" },
+    ],
+    contract: "registry/components/figure/contract.json",
+    figmaComponentSetKey: "607:32844", importPath: "@/components/ui/figure",
+  },
+  "code-block": {
+    displayName: "CodeBlock", kind: "registry-only", status: "stable", category: "Typography",
+    propsFile: "registry/components/code-block/code-block.tsx",
+    subComponents: [
+      { name: "CodeBlock", propsType: "CodeBlockProps", element: "div", component: "CodeBlock" },
+      { name: "CodeBlock.Tabs", propsType: "CodeBlockTabsProps", element: "div", component: "Tabs" },
+      { name: "CodeBlock.Header", propsType: "CodeBlockHeaderProps", element: "div", component: "Header" },
+      { name: "CodeBlock.List", propsType: "CodeBlockListProps", element: "div", component: "List" },
+      { name: "CodeBlock.Trigger", propsType: "CodeBlockTriggerProps", element: "button", component: "Trigger" },
+      { name: "CodeBlock.Content", propsType: "CodeBlockContentProps", element: "div", component: "Content" },
+      { name: "CodeBlock.Copy", propsType: "CodeBlockCopyProps", element: "button", component: "Copy" },
+    ],
+    contract: "registry/components/code-block/contract.json",
+    figmaComponentSetKey: "601:9607", importPath: "@/components/ui/code-block",
+  },
   divider: {
     displayName: "Divider", kind: "registry", status: "stable", category: "Layout",
     propsFile: "packages/react/src/Divider/types.ts",

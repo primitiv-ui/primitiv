@@ -1,0 +1,103 @@
+{
+  "id": "description-list",
+  "displayName": "DescriptionList",
+  "kind": "registry-only",
+  "status": "stable",
+  "category": "Typography",
+  "description": "A <dl> compound — one <dt> (fixed SemiBold) + one <dd> per pair. `layout` picks `stacked` (dt above dd, dd indented) or `inline` (dt : dd side by side in a two-column grid), matching the two layouts in the Figma component set. Consumers compose multiple Term/Details pairs to form a full description list. row-gap/column-gap/details-indent are density-scaled Context tokens; inline's pair-to-pair gap reuses List's item-gap directly, matching the Figma binding.",
+  "headless": {
+    "package": "@primitiv-ui/react",
+    "importPath": "@/components/ui/description-list",
+    "subComponents": [
+      {
+        "name": "DescriptionList",
+        "extends": "HTMLDListElement",
+        "props": [],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [
+          {
+            "name": "size",
+            "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
+            "default": "md",
+            "description": "Term + details text size; `data-density` scales each size further."
+          },
+          {
+            "name": "layout",
+            "type": "\"stacked\" | \"inline\"",
+            "default": "stacked",
+            "description": "Pair arrangement, matching Figma's `Layout` axis."
+          }
+        ],
+        "dataAttributes": [],
+        "class": "primitiv-description-list"
+      },
+      {
+        "name": "DescriptionList.Term",
+        "extends": "HTMLElement",
+        "props": [],
+        "styledOnly": false,
+        "headlessOnly": true,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-description-list__term"
+      },
+      {
+        "name": "DescriptionList.Details",
+        "extends": "HTMLElement",
+        "props": [],
+        "styledOnly": false,
+        "headlessOnly": true,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-description-list__details"
+      }
+    ]
+  },
+  "styled": {
+    "installCommand": "primitiv add description-list",
+    "rootClass": "primitiv-description-list",
+    "customProperties": [
+      {
+        "name": "--primitiv-description-list-row-gap",
+        "defaultsTo": "var(--primitiv-space-space-2)"
+      },
+      {
+        "name": "--primitiv-description-list-column-gap",
+        "defaultsTo": "var(--primitiv-space-space-24)"
+      },
+      {
+        "name": "--primitiv-description-list-pair-gap",
+        "defaultsTo": "var(--primitiv-list-item-gap)"
+      },
+      {
+        "name": "--primitiv-description-list-details-indent",
+        "defaultsTo": "var(--primitiv-space-space-16)"
+      },
+      {
+        "name": "--primitiv-description-list-color",
+        "defaultsTo": "var(--primitiv-content-primary)"
+      },
+      {
+        "name": "--primitiv-description-list-font-family",
+        "defaultsTo": "var(--primitiv-body-md-font-family)"
+      },
+      {
+        "name": "--primitiv-description-list-font-size",
+        "defaultsTo": "var(--primitiv-body-md-font-size)"
+      },
+      {
+        "name": "--primitiv-description-list-font-weight",
+        "defaultsTo": "var(--primitiv-body-md-font-weight)"
+      },
+      {
+        "name": "--primitiv-description-list-line-height",
+        "defaultsTo": "var(--primitiv-body-md-line-height)"
+      }
+    ],
+    "dataAttributes": []
+  },
+  "figma": {
+    "componentSetKey": "585:6947"
+  }
+}

@@ -1,0 +1,89 @@
+{
+  "id": "inline-code",
+  "displayName": "InlineCode",
+  "kind": "registry-only",
+  "status": "stable",
+  "category": "Typography",
+  "description": "Inline code — a `<code>` fragment set in the mono face on a tinted, hairline-bordered chip. Sized xs–xl so a snippet tracks the surrounding text; `data-density` scales each size further.",
+  "headless": {
+    "package": "@primitiv-ui/react",
+    "importPath": "@/components/ui/inline-code",
+    "subComponents": [
+      {
+        "name": "InlineCode",
+        "extends": "HTMLElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": null,
+            "description": "Render the single child element instead of a wrapping <code>, merging the\ninline-code classes onto it — e.g. `<InlineCode asChild><kbd>...</kbd></InlineCode>`."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [
+          {
+            "name": "size",
+            "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
+            "default": "md",
+            "description": "Snippet size; `data-density` scales each size further."
+          }
+        ],
+        "dataAttributes": [],
+        "class": "primitiv-inline-code"
+      }
+    ]
+  },
+  "styled": {
+    "installCommand": "primitiv add inline-code",
+    "rootClass": "primitiv-inline-code",
+    "customProperties": [
+      {
+        "name": "--primitiv-inline-code-font-family",
+        "defaultsTo": "var(--primitiv-font-family-mono)"
+      },
+      {
+        "name": "--primitiv-inline-code-font-size",
+        "defaultsTo": "var(--primitiv-code-md-font-size)"
+      },
+      {
+        "name": "--primitiv-inline-code-line-height",
+        "defaultsTo": "var(--primitiv-code-md-line-height)"
+      },
+      {
+        "name": "--primitiv-inline-code-color",
+        "defaultsTo": "var(--primitiv-content-primary)"
+      },
+      {
+        "name": "--primitiv-inline-code-background",
+        "defaultsTo": "var(--primitiv-surface-subtle)"
+      },
+      {
+        "name": "--primitiv-inline-code-border-color",
+        "defaultsTo": "var(--primitiv-border-subtle)"
+      },
+      {
+        "name": "--primitiv-inline-code-border-width",
+        "defaultsTo": "var(--primitiv-border-width-1)"
+      },
+      {
+        "name": "--primitiv-inline-code-radius",
+        "defaultsTo": "var(--primitiv-radii-4)"
+      },
+      {
+        "name": "--primitiv-inline-code-padding-inline",
+        "defaultsTo": "var(--primitiv-code-inline-padding-inline)"
+      },
+      {
+        "name": "--primitiv-inline-code-padding-block",
+        "defaultsTo": "var(--primitiv-code-inline-padding-block)"
+      }
+    ],
+    "dataAttributes": []
+  },
+  "figma": {
+    "componentSetKey": "601:9492"
+  }
+}

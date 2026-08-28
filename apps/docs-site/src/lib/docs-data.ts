@@ -48,6 +48,15 @@ import containerDocs from "@/docs-data/container.docs.json";
 import centerDocs from "@/docs-data/center.docs.json";
 import spacerDocs from "@/docs-data/spacer.docs.json";
 import aspectRatioDocs from "@/docs-data/aspect-ratio.docs.json";
+import kbdDocs from "@/docs-data/kbd.docs.json";
+import inlineCodeDocs from "@/docs-data/inline-code.docs.json";
+import blockquoteDocs from "@/docs-data/blockquote.docs.json";
+import pullQuoteDocs from "@/docs-data/pull-quote.docs.json";
+import proseDocs from "@/docs-data/prose.docs.json";
+import listDocs from "@/docs-data/list.docs.json";
+import descriptionListDocs from "@/docs-data/description-list.docs.json";
+import figureDocs from "@/docs-data/figure.docs.json";
+import codeBlockDocs from "@/docs-data/code-block.docs.json";
 import rosterData from "@/docs-data/roster.json";
 
 export type DocsProp = {
@@ -245,6 +254,15 @@ const DOCS = {
   center: centerDocs as unknown as ComponentDocs,
   spacer: spacerDocs as unknown as ComponentDocs,
   "aspect-ratio": aspectRatioDocs as unknown as ComponentDocs,
+  kbd: kbdDocs as unknown as ComponentDocs,
+  "inline-code": inlineCodeDocs as unknown as ComponentDocs,
+  blockquote: blockquoteDocs as unknown as ComponentDocs,
+  "pull-quote": pullQuoteDocs as unknown as ComponentDocs,
+  prose: proseDocs as unknown as ComponentDocs,
+  list: listDocs as unknown as ComponentDocs,
+  "description-list": descriptionListDocs as unknown as ComponentDocs,
+  figure: figureDocs as unknown as ComponentDocs,
+  "code-block": codeBlockDocs as unknown as ComponentDocs,
 } as const;
 
 export type ComponentId = keyof typeof DOCS;

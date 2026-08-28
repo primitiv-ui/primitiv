@@ -1,0 +1,133 @@
+{
+  "id": "list",
+  "displayName": "List",
+  "kind": "registry-only",
+  "status": "stable",
+  "category": "Typography",
+  "description": "A <ul>/<ol> with custom, token-coloured markers and a controllable item gap, marker gap and indent — the styled counterpart to the bare list styles in primitiv.reset.",
+  "headless": {
+    "package": "@primitiv-ui/react",
+    "importPath": "@/components/ui/list",
+    "subComponents": [
+      {
+        "name": "List",
+        "extends": "HTMLUListElement",
+        "props": [
+          {
+            "name": "ref",
+            "type": "Ref<HTMLUListElement | HTMLOListElement>",
+            "required": false,
+            "default": null,
+            "description": "`List` renders either a `<ul>` or an `<ol>` depending on `type`, so its\nref can resolve to either element."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [
+          {
+            "name": "type",
+            "type": "\"unordered\" | \"ordered\"",
+            "default": "unordered",
+            "description": "Marker style."
+          },
+          {
+            "name": "marker",
+            "type": "\"true\" | \"false\"",
+            "default": "true",
+            "description": "Whether each item draws its leading bullet/number. `false` is the equivalent of `list-style: none` — the marker's box and its gap both go, so rows sit flush — for prose and landing-page lists where bullets read as noise. Independent of `indent`; combine both `false` for a fully flush list. Mirrors the Figma `List` set's `Marker` axis and `ListItem`'s `Show marker` boolean."
+          },
+          {
+            "name": "indent",
+            "type": "\"true\" | \"false\"",
+            "default": "true",
+            "description": "Whether the list applies its own left indent, or sits flush for inline/nested contexts where a parent already supplies it."
+          },
+          {
+            "name": "size",
+            "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
+            "default": "md",
+            "description": "Item text size; `data-density` scales each size further."
+          }
+        ],
+        "dataAttributes": [],
+        "class": "primitiv-list"
+      },
+      {
+        "name": "List.Item",
+        "extends": "HTMLLIElement",
+        "props": [
+          {
+            "name": "disabled",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Dims the row to mark the entry as unavailable, matching the Figma\n`ListItem` set's `State=disabled` variant (RFC 0012 D9 — 50% opacity over\nthe whole row, marker included).\n\nPresentational only. An `<li>` isn't interactive, so this publishes the\n`data-disabled` styling hook and nothing else — it does not remove\nanything focusable inside the row from the tab order, which stays the\nconsumer's job."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": true,
+        "contractProps": [],
+        "dataAttributes": [
+          {
+            "name": "data-disabled",
+            "value": "",
+            "when": "disabled"
+          }
+        ],
+        "class": "primitiv-list__item"
+      }
+    ]
+  },
+  "styled": {
+    "installCommand": "primitiv add list",
+    "rootClass": "primitiv-list",
+    "customProperties": [
+      {
+        "name": "--primitiv-list-item-gap",
+        "defaultsTo": "var(--primitiv-space-space-8)"
+      },
+      {
+        "name": "--primitiv-list-marker-gap",
+        "defaultsTo": "var(--primitiv-space-space-8)"
+      },
+      {
+        "name": "--primitiv-list-indent",
+        "defaultsTo": "var(--primitiv-space-space-28)"
+      },
+      {
+        "name": "--primitiv-list-marker-color",
+        "defaultsTo": "var(--primitiv-list-marker-foreground)"
+      },
+      {
+        "name": "--primitiv-list-item-disabled-opacity",
+        "defaultsTo": "var(--primitiv-opacity-50)"
+      },
+      {
+        "name": "--primitiv-list-item-color",
+        "defaultsTo": "var(--primitiv-content-primary)"
+      },
+      {
+        "name": "--primitiv-list-font-family",
+        "defaultsTo": "var(--primitiv-body-md-font-family)"
+      },
+      {
+        "name": "--primitiv-list-font-size",
+        "defaultsTo": "var(--primitiv-body-md-font-size)"
+      },
+      {
+        "name": "--primitiv-list-line-height",
+        "defaultsTo": "var(--primitiv-body-md-line-height)"
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-disabled",
+        "value": "",
+        "when": "disabled"
+      }
+    ]
+  },
+  "figma": {
+    "componentSetKey": "586:7300"
+  }
+}

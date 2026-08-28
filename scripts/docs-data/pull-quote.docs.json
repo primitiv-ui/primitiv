@@ -1,0 +1,93 @@
+{
+  "id": "pull-quote",
+  "displayName": "PullQuote",
+  "kind": "registry-only",
+  "status": "stable",
+  "category": "Typography",
+  "description": "A large, centred editorial quote — no accent bar, no attribution, distinct from Blockquote. Rides the existing heading/* type scale; an optional decorative open-quote mark.",
+  "headless": {
+    "package": "@primitiv-ui/react",
+    "importPath": "@/components/ui/pull-quote",
+    "subComponents": [
+      {
+        "name": "PullQuote",
+        "extends": "HTMLQuoteElement",
+        "props": [
+          {
+            "name": "marks",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Show the decorative open-quote mark above the text."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [
+          {
+            "name": "size",
+            "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
+            "default": "md",
+            "description": "Quote size, mapped to the heading/* scale (xs→h5 ... xl→h1); `data-density` scales each size further."
+          }
+        ],
+        "dataAttributes": [
+          {
+            "name": "data-marks",
+            "value": "",
+            "when": "marks is true"
+          }
+        ],
+        "class": "primitiv-pull-quote"
+      }
+    ]
+  },
+  "styled": {
+    "installCommand": "primitiv add pull-quote",
+    "rootClass": "primitiv-pull-quote",
+    "customProperties": [
+      {
+        "name": "--primitiv-pull-quote-font-family",
+        "defaultsTo": "var(--primitiv-heading-h3-font-family)"
+      },
+      {
+        "name": "--primitiv-pull-quote-font-size",
+        "defaultsTo": "var(--primitiv-heading-h3-font-size)"
+      },
+      {
+        "name": "--primitiv-pull-quote-line-height",
+        "defaultsTo": "var(--primitiv-heading-h3-line-height)"
+      },
+      {
+        "name": "--primitiv-pull-quote-font-weight",
+        "defaultsTo": "var(--primitiv-heading-h3-font-weight)"
+      },
+      {
+        "name": "--primitiv-pull-quote-color",
+        "defaultsTo": "var(--primitiv-content-primary)"
+      },
+      {
+        "name": "--primitiv-pull-quote-mark-color",
+        "defaultsTo": "var(--primitiv-content-muted)"
+      },
+      {
+        "name": "--primitiv-pull-quote-mark-gap",
+        "defaultsTo": "var(--primitiv-space-space-12)"
+      },
+      {
+        "name": "--primitiv-pull-quote-mark-height",
+        "defaultsTo": "0.875em"
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-marks",
+        "value": "",
+        "when": "marks is true"
+      }
+    ]
+  },
+  "figma": {
+    "componentSetKey": "588:8752"
+  }
+}

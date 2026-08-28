@@ -1,0 +1,67 @@
+{
+  "id": "prose",
+  "displayName": "Prose",
+  "kind": "registry-only",
+  "status": "stable",
+  "category": "Typography",
+  "description": "A flow-rhythm container — applies the `.primitiv-flow` context so every direct child gets density-scoped vertical spacing via a one-directional owl. Zero behaviour; renders a semantic element, composing the consumer's own element via `asChild`.",
+  "headless": {
+    "package": "@primitiv-ui/react",
+    "importPath": "@/components/ui/prose",
+    "subComponents": [
+      {
+        "name": "Prose",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": null,
+            "description": "Render the single child element instead of a wrapping <div>, merging the\nflow class onto it — e.g. `<Prose asChild><article>...</article></Prose>`."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [
+          {
+            "name": "measure",
+            "type": "\"false\" | \"true\"",
+            "default": "false",
+            "description": "Caps the column at a comfortable reading line length (~68 characters) via `--primitiv-prose-measure`. Opt-in: a flow context is often a whole region containing grids and media, which a reading-width cap would break."
+          }
+        ],
+        "dataAttributes": [],
+        "class": "primitiv-flow"
+      }
+    ]
+  },
+  "styled": {
+    "installCommand": "primitiv add prose",
+    "rootClass": "primitiv-flow",
+    "customProperties": [
+      {
+        "name": "--primitiv-prose-measure",
+        "defaultsTo": "51ch"
+      },
+      {
+        "name": "--primitiv-flow-tight",
+        "defaultsTo": "var(--primitiv-space-space-12)"
+      },
+      {
+        "name": "--primitiv-flow-normal",
+        "defaultsTo": "var(--primitiv-space-space-20)"
+      },
+      {
+        "name": "--primitiv-flow-section",
+        "defaultsTo": "var(--primitiv-space-space-32)"
+      },
+      {
+        "name": "--primitiv-flow-region",
+        "defaultsTo": "var(--primitiv-space-space-48)"
+      }
+    ],
+    "dataAttributes": []
+  },
+  "figma": {}
+}

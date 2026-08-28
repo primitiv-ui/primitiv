@@ -46,7 +46,7 @@
     "displayName": "Blockquote",
     "category": "Typography",
     "description": "A <blockquote> with a left-stroke accent bar and an optional attribution line. `tone` picks the bar colour (default | accent); `size` scales the quote and citation type together.",
-    "documented": false
+    "documented": true
   },
   {
     "id": "box",
@@ -123,7 +123,7 @@
     "displayName": "Code Block",
     "category": "Typography",
     "description": "A block of source code — a bordered, tinted surface with mono type, an optional filename/copy header, an optional line-number gutter, and Prism syntax highlighting themed from tokens. Sized xs–xl; `data-density` scales the padding. Compound subcomponents (CodeBlock.Tabs/Header/List/Trigger/Content/Copy) add a tabbed variant that composes the headless Tabs primitive and reuses the tabs component's classes.",
-    "documented": false
+    "documented": true
   },
   {
     "id": "collapsible",
@@ -172,7 +172,7 @@
     "displayName": "Description List",
     "category": "Typography",
     "description": "A <dl> compound — one <dt> (fixed SemiBold) + one <dd> per pair. `layout` picks `stacked` (dt above dd, dd indented) or `inline` (dt : dd side by side in a two-column grid), matching the two layouts in the Figma component set. Consumers compose multiple Term/Details pairs to form a full description list. row-gap/column-gap/details-indent are density-scaled Context tokens; inline's pair-to-pair gap reuses List's item-gap directly, matching the Figma binding.",
-    "documented": false
+    "documented": true
   },
   {
     "id": "divider",
@@ -214,7 +214,7 @@
     "displayName": "Figure",
     "category": "Typography",
     "description": "A <figure>/<figcaption> pairing that wraps self-contained content (an image, illustration, chart, code listing, table) with an optional caption in one of three positions — below (default), above, or overlaid on the media. `size` scales the caption's type off the body/{size} ramp (the media is size-independent, as in Figma); the caption's own `align` matches Figma's Figcaption Align axis.",
-    "documented": false
+    "documented": true
   },
   {
     "id": "grid",
@@ -228,7 +228,7 @@
     "displayName": "Inline Code",
     "category": "Typography",
     "description": "Inline code — a `<code>` fragment set in the mono face on a tinted, hairline-bordered chip. Sized xs–xl so a snippet tracks the surrounding text; `data-density` scales each size further.",
-    "documented": false
+    "documented": true
   },
   {
     "id": "input",
@@ -249,14 +249,14 @@
     "displayName": "Kbd",
     "category": "Typography",
     "description": "A `<kbd>` fragment set in the mono face on a raised, bordered key cap — the physical-keycap sibling of Inline Code. Sized xs–xl so a shortcut tracks the surrounding text; `data-density` scales each size further.",
-    "documented": false
+    "documented": true
   },
   {
     "id": "list",
     "displayName": "List",
     "category": "Typography",
     "description": "A <ul>/<ol> with custom, token-coloured markers and a controllable item gap, marker gap and indent — the styled counterpart to the bare list styles in primitiv.reset.",
-    "documented": false
+    "documented": true
   },
   {
     "id": "listbox",
@@ -312,14 +312,14 @@
     "displayName": "Prose",
     "category": "Typography",
     "description": "A flow-rhythm container — applies the `.primitiv-flow` context so every direct child gets density-scoped vertical spacing via a one-directional owl. Zero behaviour; renders a semantic element, composing the consumer's own element via `asChild`.",
-    "documented": false
+    "documented": true
   },
   {
     "id": "pull-quote",
     "displayName": "Pull Quote",
     "category": "Typography",
     "description": "A large, centred editorial quote — no accent bar, no attribution, distinct from Blockquote. Rides the existing heading/* type scale; an optional decorative open-quote mark.",
-    "documented": false
+    "documented": true
   },
   {
     "id": "radio",

@@ -38,6 +38,12 @@ const EL_IFACE = {
   li: "HTMLLIElement", label: "HTMLLabelElement", select: "HTMLSelectElement",
   textarea: "HTMLTextAreaElement", p: "HTMLParagraphElement", nav: "HTMLElement",
   dialog: "HTMLDialogElement", h2: "HTMLHeadingElement", h3: "HTMLHeadingElement",
+  // Prose / typography elements. `blockquote` and `dl` have their own
+  // interfaces; `kbd`, `code`, `dt`, `dd`, `figure`, `figcaption` are plain
+  // HTMLElement, but naming them is still more honest than "extends null".
+  blockquote: "HTMLQuoteElement", dl: "HTMLDListElement", kbd: "HTMLElement",
+  code: "HTMLElement", dt: "HTMLElement", dd: "HTMLElement",
+  figure: "HTMLElement", figcaption: "HTMLElement",
 };
 
 const name = process.argv[2] || "button";
@@ -98,6 +104,13 @@ const compilerOptions = {
        this first reported "0 headless props" with no diagnostic to explain it. */
     "class-variance-authority": [
       "packages/react/node_modules/class-variance-authority",
+    ],
+    /* code-block's syntax highlighter. Only the docs-site installs it (its
+       node_modules), and registry/components/code-block/ has no node_modules
+       above it, so without this the import is unresolved and the whole
+       code-block props table would silently empty. */
+    "prism-react-renderer": [
+      "apps/docs-site/node_modules/prism-react-renderer/dist/index.d.ts",
     ],
   },
 };

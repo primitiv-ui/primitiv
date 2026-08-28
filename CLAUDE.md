@@ -878,13 +878,17 @@ source of truth for when a skill applies.
     *left* of the child row's own left edge at every size, so rails never fall
     on indent boundaries and cannot be auto-layout columns. Its `connectors`
     frame is child 0 so a hovered/selected row's fill covers the rail.
-- **Docs site (`apps/docs-site`) — 23 of 63 component pages live (2026-08-28);
-  40 to go.** (The roster: `apps/docs-site/src/site/examples/index.ts`.) The
-  Layout category is under way (Box, Divider); every remaining Layout primitive
-  (Stack, Grid, Container, Center, Spacer, Aspect Ratio) is **registry-only**, so
-  its page has no Headless mode — the template handles that from `kind` alone
-  (a Styled-only code-block tab, no props "From" column, a top-of-page callout;
-  see the handoff's "Registry-only pages have no Headless mode").
+- **Docs site (`apps/docs-site`) — 29 of 63 component pages live (2026-08-28);
+  34 to go.** (The roster: `apps/docs-site/src/site/examples/index.ts`.) The
+  **Layout category is complete (8/8)** — Box, Stack, Grid, Container, Center,
+  Spacer, Aspect Ratio and Divider. All but Divider are **registry-only**, so
+  their pages have no Headless mode — the template handles that from `kind` alone
+  (a Styled-only code-block tab, no props "From" column, a top-of-page `Alert`
+  callout; see the handoff's "Registry-only pages have no Headless mode"). Every
+  visual playground is Chromium-verified to actually illustrate its controls;
+  where one can't (Stack's `wrap`, Container's `size` — a page-width cap can't
+  show in a ~590px preview) the spec's `excludeControls` drops it and an example
+  carries it instead.
   **Load the `docs-site-component-page` skill and read
   `docs/docs-site-session-handoff.md` before touching it** — between them they
   carry the per-page procedure, the mode-aware snippet rules, and the traps. Three things that bite hardest and are written up

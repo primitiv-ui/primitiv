@@ -91,6 +91,23 @@ control as an attribute on the named component.
 `false`/`true` rather than off where the control came from — so a contract
 modifier like Stepper's `compact` gets it too.
 
+**Prop controls are radios now, not segmented controls (2026-08-28).** A
+six-option modifier (Stack's `gap`/`justify`) wrapped its segment labels on a
+narrow viewport, and a segmented control stops reading as a picker once it wraps.
+`ControlGroup` now renders a `<fieldset>`+`<legend>` radio group per control,
+identical to `DensityRadios`, so the density and prop controls are one control;
+booleans still get a `Switch`.
+
+**`ComponentSpec.playground.excludeControls` drops a contract-derived control by
+name (2026-08-28).** For a modifier that is real but undemonstrable in a small
+live preview — Stack's `wrap` (only shows on overflow, the opposite of what
+`justify` needs) and Container's `size` (its 360–1536px caps can't show in a
+~590px preview) — so a dead-looking toggle doesn't ship. The feature is covered
+by a dedicated example instead. **Verify every visual playground in Chromium**
+(drive each control, measure the preview changes) the way the Stack/Grid/Center/
+AspectRatio pages were — a control that changes nothing is the failure mode this
+guards against, and it is invisible from the code.
+
 ---
 
 ## Method (this mattered more than anything else)
@@ -374,16 +391,42 @@ token, headless sets a plain `rem` margin. (Registry-only components sidestep
 this entirely — they have no Headless tab, so their token references only ever
 render in Styled mode. Box's token-scoping example is fine for that reason.)
 
+### SideNav → Collapsible (agreed 2026-08-28, not yet built)
+
+The sidebar (`src/site/SideNav.tsx`) hand-rolls a disclosure (`open && …`
+unmounts the content), so it has **no open/close animation**. Agreed fix: adopt
+a registry component for the grid-collapse animation and dogfood the system —
+but **`Collapsible`, not `Accordion`**. The sections are independent disclosures
+(several open at once, each toggling on its own), which is the Disclosure
+pattern; `Accordion` would drag in roving-tabindex arrow navigation, a mandatory
+heading around every trigger (the sidebar already uses `h3` for the *group*
+titles inside Components), and single-open-by-default semantics. `Collapsible`
+gives the same animation with none of that.
+
+**Keep the link/toggle split — do NOT put navigation on the trigger.** A linked
+section (Components → `/components/`) renders a `<Link>` (navigates) *beside* a
+separate disclosure `<button>` (toggles) today, deliberately: a control that
+both navigates and toggles is ambiguous to a screen reader. Move that same split
+inside `Collapsible.Root` — `<Link>` + `Collapsible.Trigger` in the header row,
+`Collapsible.Content` as the animated panel. Non-link sections make the whole
+header the Trigger. **Wrinkle:** the Components section becomes a scrolling
+flex-fill region when open (`docs-nav-section--fill`); the grid-collapse
+animation (`0fr↔1fr`, `overflow: hidden`, `min-height: 0`) can fight a
+scrolling+`flex-grow` panel — solvable (scroll only matters once open, the
+animation only runs on the transition) but needs care.
+
 ## Outstanding
 
 1. **Mobile drawer menu** — both header segmented controls hide below `48rem`
    awaiting it, and the sidebar/TOC rails are hidden below `64rem` with no
    replacement. (The `/components` index itself now has a compact shape — see
    Mobile below — but the shell around it does not.)
-0. **40 components still have no page.** 23 are done (Box + Divider landed
-   2026-08-27/28, opening the Layout category — 2/8, six registry-only Layout
-   primitives to go); the roster shows the rest. Nothing blocks them but the
-   per-page work above.
+0. **34 components still have no page.** 29 are done — the **Layout category is
+   complete (8/8)**: Box, Stack, Grid, Container, Center, Spacer, Aspect Ratio,
+   Divider (landed 2026-08-27/28). The roster shows the rest. Nothing blocks them
+   but the per-page work above. **Next agreed piece: the sidebar `Collapsible`
+   swap** (see the SideNav note below), which the user deferred until the Layout
+   pages were done.
 2. **Accessibility pass** — deferred by the user until after the first build;
    they want excellent scores.
 3. **Figma mode shows JSX.** Every code block falls back to the headless dot form

@@ -1471,6 +1471,16 @@ debugging cycle; none is discoverable from the API surface.
    loop is what kills these calls — hoist every
    `getVariableByIdAsync` / `setBoundVariableForPaint` above the loop and reuse
    the returned paint.
+   **`figma.createVector()` ships with a DEFAULT STROKE, and setting only
+   `fills` leaves it there.** Every 6px checker square came out outlined, so
+   the texture read as a lattice of lines rather than squares — worst in light
+   mode, and invisible in a structural read-back because `fills` and
+   `vectorPaths` are both exactly right. `strokes.length === 1` is the tell;
+   `node.strokes = []` is the fix. Assume it for any `create*` shape you only
+   meant to fill (`createRectangle` / `createEllipse` behave the same way).
+   Caught by a human eye on a render, not by any check — when a generated
+   texture looks subtly wrong, screenshot the node **alone at scale 4** with
+   the content above it hidden, which is what isolated the stroke here.
 
 ```sh
 cargo test --workspace                            # all Rust tests

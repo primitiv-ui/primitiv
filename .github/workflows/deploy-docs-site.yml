@@ -37,42 +37,32 @@ jobs:
           node-version-file: .nvmrc
           cache: pnpm
 
-      # Rust + wasm are NOT used by the docs site itself. They are needed only so
-      # the root `pnpm install` can resolve the `harmoni-wasm` workspace package
-      # that apps/workbench depends on — without the generated
-      # crates/harmoni-wasm/pkg the install fails with
-      # ERR_PNPM_WORKSPACE_PKG_NOT_FOUND. Generating it is the cheapest reliable
-      # fix; the workbench is not otherwise built here.
-      - name: Setup Rust
-        uses: dtolnay/rust-toolchain@stable
-
-      - name: Cache Rust build
-        uses: Swatinem/rust-cache@v2
-
-      - name: Install wasm-pack
-        uses: jetli/wasm-pack-action@v0.4.0
-
-      - name: Build harmoni-wasm (unblocks the workspace install)
-        run: wasm-pack build crates/harmoni-wasm --target web
-
-      - name: Install dependencies
-        run: pnpm install --no-frozen-lockfile
+      # Both apps/docs-site and apps/kitchen-sink are EXCLUDED from the pnpm
+      # workspace (pnpm-workspace.yaml) — they are standalone consumers with
+      # their own lockfiles, so each installs with --ignore-workspace and there
+      # is no root install (and no wasm) to do. @primitiv-ui/react is a `link:`
+      # to packages/react's SOURCE (zero runtime deps, transpiled by Next), so
+      # the build exercises the current branch's headless code; @primitiv-ui/icons
+      # is the published package.
+      - name: Install docs-site dependencies
+        run: pnpm install --ignore-workspace --no-frozen-lockfile
+        working-directory: apps/docs-site
 
       # Static export under the /primitiv/ sub-path (GitHub Pages project site).
-      # DOCS_SITE_BASE_PATH drives next.config's basePath + assetPrefix; the
-      # export lands in apps/docs-site/out.
+      # DOCS_SITE_BASE_PATH drives next.config's basePath + assetPrefix;
+      # `output: "export"` lands the result in apps/docs-site/out.
       - name: Build docs site
         env:
           DOCS_SITE_BASE_PATH: /primitiv
-        run: pnpm --filter @primitiv-ui/docs-site build
+        run: pnpm build
+        working-directory: apps/docs-site
 
-      # The kitchen-sink is a standalone consumer (its own lockfile, excluded
-      # from the pnpm workspace), kept at /primitiv/kitchen-sink/ for phone QA.
-      # Its Vite/tsconfig dev-alias @primitiv-ui/react + /icons to the workspace
-      # SOURCE, so this build exercises the current branch's headless code. Run
-      # `vite build` directly (not the package's `tsc -b && vite build`): the
-      # aliased source is outside the composite tsconfig's include (TS6307), and
-      # the real type gates run on packages/react anyway.
+      # The kitchen-sink is kept at /primitiv/kitchen-sink/ for phone QA. Its
+      # Vite/tsconfig dev-alias @primitiv-ui/react + /icons to the workspace
+      # SOURCE, so this exercises the current branch too. Run `vite build`
+      # directly (not the package's `tsc -b && vite build`): the aliased source
+      # is outside the composite tsconfig's include (TS6307), and the real type
+      # gates run on packages/react anyway.
       - name: Install kitchen-sink dependencies
         run: pnpm install --ignore-workspace --no-frozen-lockfile
         working-directory: apps/kitchen-sink

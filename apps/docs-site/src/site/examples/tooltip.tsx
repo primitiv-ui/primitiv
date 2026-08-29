@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  useEffect,
-  useId,
-  useState,
-  type CSSProperties,
-  type ReactNode,
-} from "react";
+import { useId, type CSSProperties, type ReactNode } from "react";
 
 import {
   Tooltip,
@@ -46,9 +40,10 @@ const positionAnchorStyle = (n: string) => ({ positionAnchor: n }) as CSSPropert
 /**
  * A docs tooltip that wires the anchor pair the Tooltip requires — a unique
  * `anchor-name` on the trigger and a matching `position-anchor` on the content,
- * per instance — and can be pinned open for the page. The Tooltip leaves this
- * wiring to the consumer (CSS anchor positioning), so without it the bubble
- * lands at the top-left of the viewport.
+ * per instance. The Tooltip leaves this wiring to the consumer (CSS anchor
+ * positioning), so without it the bubble lands at the top-left of the viewport.
+ * Genuinely interactive — it opens on hover / focus of the trigger, as a real
+ * tooltip does.
  */
 const DocsTooltip = ({
   buttonLabel,
@@ -57,7 +52,6 @@ const DocsTooltip = ({
   size,
   placement,
   buttonSize,
-  pinned = false,
 }: {
   buttonLabel: ReactNode;
   label: ReactNode;
@@ -65,18 +59,10 @@ const DocsTooltip = ({
   size?: Size;
   placement?: Placement;
   buttonSize?: "xs" | "sm" | "md" | "lg" | "xl";
-  pinned?: boolean;
 }) => {
   const anchor = toAnchorName(useId());
-  // Open AFTER mount so the static prerender never renders the portal (an open
-  // tooltip renders `createPortal(document.body)`, which throws on the server).
-  const [open, setOpen] = useState(false);
-  useEffect(() => {
-    if (pinned) setOpen(true);
-  }, [pinned]);
-
   return (
-    <Tooltip {...(pinned ? { open, onOpenChange: () => {} } : {})}>
+    <Tooltip>
       <TooltipTrigger asChild>
         <Button variant="secondary" size={buttonSize} style={anchorNameStyle(anchor)}>
           {buttonLabel}
@@ -100,11 +86,12 @@ const DocsTooltip = ({
 /**
  * Tooltip's page content.
  *
- * A deferred, non-modal label anchored to a trigger (hover / focus). The
- * playground pins the tooltip open so `tone`/`size` are visible without
- * hovering, and the trigger scales with `size`; `placement` (13 values) is
- * excluded and shown in its own example. Snippets are mode-aware and include the
- * required anchor-name / position-anchor wiring.
+ * A deferred, non-modal label anchored to a trigger. Every tooltip here is
+ * genuinely interactive — hover or focus the trigger to open it — because a
+ * pinned-open tooltip misrepresents the component. The playground trigger scales
+ * with `size`; `placement` (13 values) is excluded and shown in its own example.
+ * Snippets are mode-aware and include the required anchor-name / position-anchor
+ * wiring.
  */
 export const tooltipSpec: ComponentSpec = {
   playground: {
@@ -136,7 +123,6 @@ export const tooltipSpec: ComponentSpec = {
     render: (values) => (
       <TooltipProvider>
         <DocsTooltip
-          pinned
           buttonLabel="Hover me"
           label="Save your changes"
           tone={values.tone as Tone}
@@ -220,7 +206,7 @@ export const tooltipSpec: ComponentSpec = {
       title: "Placement",
       render: () => (
         <InteractiveExample
-          caption="`placement` sets where the content sits relative to the trigger — `top`/`right`/`bottom`/`left` plus `-start`/`-end` alignments (13 in all). The arrow follows. It is a preference: if there is not room on that side, the tooltip flips to the opposite edge automatically."
+          caption="`placement` sets where the content sits relative to the trigger — `top`/`right`/`bottom`/`left` plus `-start`/`-end` alignments (13 in all). The arrow follows. It is a preference: if there is not room on that side, the tooltip flips to the opposite edge automatically. **Hover or focus** each trigger to see it."
           code={(_density, mode) => {
             const p = partNamer(mode, "Tooltip");
             return [
@@ -246,7 +232,6 @@ export const tooltipSpec: ComponentSpec = {
                 {(["top", "right", "bottom", "left"] as const).map((pl) => (
                   <DocsTooltip
                     key={pl}
-                    pinned
                     buttonSize="sm"
                     buttonLabel={pl}
                     label={pl}
@@ -264,7 +249,7 @@ export const tooltipSpec: ComponentSpec = {
       title: "Tones",
       render: () => (
         <InteractiveExample
-          caption="Two tones: `default` is a surface-coloured bubble that sits quietly against the page, `inverted` is a high-contrast dark chip for when the tooltip needs to read over busy or image content. Both carry the arrow."
+          caption="Two tones: `default` is a surface-coloured bubble that sits quietly against the page, `inverted` is a high-contrast dark chip for when the tooltip needs to read over busy or image content. Both carry the arrow. **Hover or focus** a trigger to see the tooltip."
           code={(_density, mode) => {
             const p = partNamer(mode, "Tooltip");
             return [
@@ -282,7 +267,6 @@ export const tooltipSpec: ComponentSpec = {
                 {(["default", "inverted"] as const).map((tone) => (
                   <DocsTooltip
                     key={tone}
-                    pinned
                     buttonSize="sm"
                     buttonLabel={tone}
                     label={tone}

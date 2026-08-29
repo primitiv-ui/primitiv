@@ -43,6 +43,7 @@ import { codeBlockSpec } from "./code-block";
 import { tooltipSpec } from "./tooltip";
 import { popoverSpec } from "./popover";
 import { drawerSpec } from "./drawer";
+import { dropdownSpec } from "./dropdown";
 import type { ComponentSpec } from "./types";
 
 /**
@@ -92,6 +93,7 @@ export const SPECS: Record<ComponentId, ComponentSpec> = {
   tooltip: tooltipSpec,
   popover: popoverSpec,
   drawer: drawerSpec,
+  dropdown: dropdownSpec,
 };
 
 export type { ComponentSpec };

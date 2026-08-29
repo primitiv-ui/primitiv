@@ -1,0 +1,818 @@
+{
+  "id": "dropdown",
+  "displayName": "Dropdown",
+  "kind": "registry",
+  "status": "stable",
+  "category": "Overlays",
+  "description": "A menu-button dropdown built on the native HTML Popover API — a bordered, shadow-defined panel of selectable rows (plain items, checkbox/radio items, submenus), grouped with labels and separators. Positioned with CSS anchor positioning; keyboard, typeahead, and focus are owned by the headless primitive.",
+  "headless": {
+    "package": "@primitiv-ui/react",
+    "importPath": "@primitiv-ui/react",
+    "subComponents": [
+      {
+        "name": "Dropdown.Root",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": false,
+            "default": null,
+            "description": "The menu's sub-components — typically a single {@link DropdownTriggerProps}   * `Dropdown.Trigger`} followed by a {@link DropdownContentProps}   * `Dropdown.Content`}. Root renders no DOM of its own; it only provides\ncontext to these descendants."
+          },
+          {
+            "name": "defaultOpen",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Open state on first render. Omit to start closed. The component owns\nthe state thereafter.\nForbidden in controlled mode — use `open` instead."
+          },
+          {
+            "name": "dir",
+            "type": "\"ltr\" | \"rtl\"",
+            "required": false,
+            "default": null,
+            "description": "Reading direction for the menu. Affects which arrow key opens / closes\na submenu — `ArrowRight` opens in `\"ltr\"`, `ArrowLeft` opens in\n`\"rtl\"`. Falls back to the inherited {@link DirectionProvider } value,\nor to `\"ltr\"` if no provider is present."
+          },
+          {
+            "name": "onOpenChange",
+            "type": "(open: boolean) => void",
+            "required": false,
+            "default": null,
+            "description": "Called whenever a user-driven transition opens or closes the menu\n(trigger click, Escape, outside click, selection). Optional in\nuncontrolled mode.\nCalled whenever a user-driven transition would open or close the menu.\nThe parent is responsible for reflecting the new value back into\n`open`. Required in controlled mode."
+          },
+          {
+            "name": "open",
+            "type": "boolean",
+            "required": false,
+            "default": null,
+            "description": "Forbidden in uncontrolled mode — use `defaultOpen` instead.\nThe current open state. Must be kept in sync by the parent via\n`onOpenChange`; the component never mutates it internally."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": null
+      },
+      {
+        "name": "Dropdown.Trigger",
+        "extends": "HTMLButtonElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Render the composed child element instead of the default\n`<button type=\"button\">`. The trigger's ARIA contract\n(`aria-haspopup`, `aria-expanded`, `aria-controls`) and its click\nhandler are merged onto the child via the {@link Slot } pattern."
+          },
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": false,
+            "default": null,
+            "description": "The trigger's visible label (or an element, with `asChild`)."
+          },
+          {
+            "name": "ref",
+            "type": "Ref<HTMLButtonElement>",
+            "required": false,
+            "default": null,
+            "description": "Allows getting a ref to the component instance.\nOnce the component unmounts, React will set `ref.current` to `null`\n(or call the ref with `null` if you passed a callback ref).\nForwarded to the underlying `HTMLButtonElement`."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": null
+      },
+      {
+        "name": "Dropdown.Content",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Render the composed child element (with menu semantics) instead of the\ndefault `<menu role=\"menu\" popover=\"auto\">`. The managed `role`,\n`popover`, and `id` attributes and the keyboard handler are merged onto\nthe child via the {@link Slot } pattern."
+          },
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": false,
+            "default": null,
+            "description": "The menu items — any mix of {@link DropdownItemProps`Dropdown.Item`},\n{@link DropdownCheckboxItemProps`Dropdown.CheckboxItem`},\n{@link DropdownRadioGroupProps`Dropdown.RadioGroup`},\n{@link DropdownGroupProps`Dropdown.Group`},\n{@link DropdownSeparatorProps`Dropdown.Separator`}, and\n{@link DropdownSubProps`Dropdown.Sub`}."
+          },
+          {
+            "name": "ref",
+            "type": "Ref<HTMLMenuElement>",
+            "required": false,
+            "default": null,
+            "description": "Forwarded to the underlying `HTMLMenuElement`."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [
+          {
+            "name": "size",
+            "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
+            "default": "md",
+            "description": "Panel + row scale; `data-density` scales the sizing within each size. Re-points every child sizing knob (item height/padding/gap/radius/font, panel radius/padding, label, separator)."
+          },
+          {
+            "name": "placement",
+            "type": "\"bottom-start\" | \"bottom-end\" | \"top-start\" | \"top-end\" | \"submenu\"",
+            "default": "bottom-start",
+            "description": "Which side of the trigger the panel opens on, via CSS `position-area`. Requires the consumer to wire `anchor-name` (on the trigger) + `position-anchor` (on Content). Submenus use the `submenu` value, which opens to the inline-end side."
+          }
+        ],
+        "dataAttributes": [
+          {
+            "name": "data-state",
+            "value": "open",
+            "when": "open"
+          },
+          {
+            "name": "data-state",
+            "value": "closed",
+            "when": "closed"
+          }
+        ],
+        "class": "primitiv-dropdown"
+      },
+      {
+        "name": "Dropdown.Item",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Render the composed child element (with menuitem semantics) instead of\nthe default `<li role=\"menuitem\">`."
+          },
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": false,
+            "default": null,
+            "description": "The item's visible content (or an element, with `asChild`)."
+          },
+          {
+            "name": "disabled",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Mark the item non-interactive. Sets `aria-disabled=\"true\"` and skips\nthe item during arrow navigation, typeahead, and activation."
+          },
+          {
+            "name": "onSelect",
+            "type": "(event: Event) => void",
+            "required": false,
+            "default": null,
+            "description": "Fires when the item is activated (click, Enter, or Space). Called\nwith a cancellable event whose `preventDefault()` skips the auto-close\nthat Dropdown performs after selection."
+          },
+          {
+            "name": "ref",
+            "type": "Ref<HTMLLIElement>",
+            "required": false,
+            "default": null,
+            "description": "Allows getting a ref to the component instance.\nOnce the component unmounts, React will set `ref.current` to `null`\n(or call the ref with `null` if you passed a callback ref).\nForwarded to the underlying `HTMLLIElement`."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [
+          {
+            "name": "data-highlighted",
+            "value": "",
+            "when": "the cursor is on this row — set on pointer-enter and by keyboard navigation alike"
+          }
+        ],
+        "class": "primitiv-dropdown__item"
+      },
+      {
+        "name": "Dropdown.ItemLeading",
+        "extends": "HTMLSpanElement",
+        "props": [],
+        "styledOnly": true,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-dropdown__item-leading"
+      },
+      {
+        "name": "Dropdown.ItemLabel",
+        "extends": "HTMLSpanElement",
+        "props": [],
+        "styledOnly": true,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-dropdown__item-label"
+      },
+      {
+        "name": "Dropdown.ItemTrailing",
+        "extends": "HTMLSpanElement",
+        "props": [],
+        "styledOnly": true,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-dropdown__item-trailing"
+      },
+      {
+        "name": "Dropdown.CheckboxItem",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Render the composed child element (with `role=\"menuitemcheckbox\"`)\ninstead of the default `<li role=\"menuitemcheckbox\">`."
+          },
+          {
+            "name": "checked",
+            "type": "CheckedState",
+            "required": false,
+            "default": null,
+            "description": "Forbidden in uncontrolled mode — use `defaultChecked` instead.\nThe current checked state — `true`, `false`, or `\"indeterminate\"`.\nMust be kept in sync by the parent via `onCheckedChange`. An\nindeterminate value resolves to `true` on the next activation."
+          },
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": false,
+            "default": null,
+            "description": "The item's content — typically a {@link DropdownItemIndicatorProps}   * `Dropdown.ItemIndicator`} plus a text label."
+          },
+          {
+            "name": "defaultChecked",
+            "type": "CheckedState",
+            "required": false,
+            "default": "false",
+            "description": "Checked state on first render — `true`, `false`, or `\"indeterminate\"`\n(rendered as `aria-checked=\"mixed\"`). Omit to start unchecked.\nForbidden in controlled mode — use `checked` instead."
+          },
+          {
+            "name": "disabled",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Mark the item non-interactive. Sets `aria-disabled=\"true\"`; activation\nis a no-op."
+          },
+          {
+            "name": "onCheckedChange",
+            "type": "(checked: boolean) => void",
+            "required": false,
+            "default": null,
+            "description": "Called with the new boolean checked state whenever the user toggles\nthe item. Optional in uncontrolled mode.\nCalled with the new boolean checked state whenever the user toggles\nthe item. Required in controlled mode."
+          },
+          {
+            "name": "onSelect",
+            "type": "(event: Event) => void",
+            "required": false,
+            "default": null,
+            "description": "Fires after activation toggles the checked state, with a cancellable\nevent. Call `event.preventDefault()` to keep the menu open after\ntoggling — useful for flipping several checkboxes in a row."
+          },
+          {
+            "name": "ref",
+            "type": "Ref<HTMLLIElement>",
+            "required": false,
+            "default": null,
+            "description": "Allows getting a ref to the component instance.\nOnce the component unmounts, React will set `ref.current` to `null`\n(or call the ref with `null` if you passed a callback ref).\nForwarded to the underlying `HTMLLIElement`."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-dropdown__checkbox-item"
+      },
+      {
+        "name": "Dropdown.RadioGroup",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Render the composed child element (with `role=\"group\"`) instead of the\ndefault `<li role=\"group\">` wrapping `<ul role=\"none\">`."
+          },
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": false,
+            "default": null,
+            "description": "The radio choices — a set of {@link DropdownRadioItemProps}   * `Dropdown.RadioItem`} elements."
+          },
+          {
+            "name": "defaultValue",
+            "type": "string",
+            "required": false,
+            "default": null,
+            "description": "The item `value` selected on first render. Omit for no initial\nselection.\nForbidden in controlled mode — use `value` instead."
+          },
+          {
+            "name": "onValueChange",
+            "type": "(value: string) => void",
+            "required": false,
+            "default": null,
+            "description": "Called with the newly selected item `value` whenever the user picks a\ndifferent radio item. Optional in uncontrolled mode.\nCalled with the newly selected item `value` whenever the user picks a\ndifferent radio item. Required in controlled mode."
+          },
+          {
+            "name": "ref",
+            "type": "Ref<HTMLLIElement>",
+            "required": false,
+            "default": null,
+            "description": "Allows getting a ref to the component instance.\nOnce the component unmounts, React will set `ref.current` to `null`\n(or call the ref with `null` if you passed a callback ref).\nForwarded to the underlying `HTMLLIElement`."
+          },
+          {
+            "name": "value",
+            "type": "string",
+            "required": false,
+            "default": null,
+            "description": "Forbidden in uncontrolled mode — use `defaultValue` instead.\nThe `value` of the currently selected {@link DropdownRadioItemProps}   * `Dropdown.RadioItem`}. Must be kept in sync by the parent via\n`onValueChange`."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-dropdown__radio-group"
+      },
+      {
+        "name": "Dropdown.RadioItem",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "value",
+            "type": "string",
+            "required": true,
+            "default": null,
+            "description": "This item's identifier within the enclosing\n{@link DropdownRadioGroupProps`Dropdown.RadioGroup`}. When it matches\nthe group's active value the item is checked. Required."
+          },
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Render the composed child element (with `role=\"menuitemradio\"`) instead\nof the default `<li role=\"menuitemradio\">`."
+          },
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": false,
+            "default": null,
+            "description": "The item's content — typically a {@link DropdownItemIndicatorProps}   * `Dropdown.ItemIndicator`} plus a text label."
+          },
+          {
+            "name": "disabled",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Mark the item non-interactive. Sets `aria-disabled=\"true\"`; activation\nis a no-op."
+          },
+          {
+            "name": "onSelect",
+            "type": "(event: Event) => void",
+            "required": false,
+            "default": null,
+            "description": "Fires after activation selects this item, with a cancellable event.\nCall `event.preventDefault()` to keep the menu open after selecting."
+          },
+          {
+            "name": "ref",
+            "type": "Ref<HTMLLIElement>",
+            "required": false,
+            "default": null,
+            "description": "Allows getting a ref to the component instance.\nOnce the component unmounts, React will set `ref.current` to `null`\n(or call the ref with `null` if you passed a callback ref).\nForwarded to the underlying `HTMLLIElement`."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-dropdown__radio-item"
+      },
+      {
+        "name": "Dropdown.ItemIndicator",
+        "extends": "HTMLSpanElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Render the composed child element instead of the default `<span>`."
+          },
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": false,
+            "default": null,
+            "description": "The mark to render — commonly an SVG check or bullet icon."
+          },
+          {
+            "name": "forceMount",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Render the indicator even when its parent item is unchecked. The\n`data-state` attribute still reflects the live state (`\"checked\"` /\n`\"unchecked\"` / `\"indeterminate\"`), so consumers can animate the\nindicator in and out instead of mounting / unmounting it."
+          },
+          {
+            "name": "ref",
+            "type": "Ref<HTMLSpanElement>",
+            "required": false,
+            "default": null,
+            "description": "Allows getting a ref to the component instance.\nOnce the component unmounts, React will set `ref.current` to `null`\n(or call the ref with `null` if you passed a callback ref).\nForwarded to the underlying `HTMLSpanElement`."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-dropdown__item-indicator"
+      },
+      {
+        "name": "Dropdown.Label",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Render the composed child element instead of the default `<li>`."
+          },
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": false,
+            "default": null,
+            "description": "The label text."
+          },
+          {
+            "name": "ref",
+            "type": "Ref<HTMLLIElement>",
+            "required": false,
+            "default": null,
+            "description": "Allows getting a ref to the component instance.\nOnce the component unmounts, React will set `ref.current` to `null`\n(or call the ref with `null` if you passed a callback ref).\nForwarded to the underlying `HTMLLIElement`."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-dropdown__label"
+      },
+      {
+        "name": "Dropdown.Separator",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Render the composed child element (with separator semantics) instead of\nthe default `<li role=\"separator\">`."
+          },
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": false,
+            "default": null,
+            "description": "Optional content; separators are usually empty."
+          },
+          {
+            "name": "ref",
+            "type": "Ref<HTMLLIElement>",
+            "required": false,
+            "default": null,
+            "description": "Allows getting a ref to the component instance.\nOnce the component unmounts, React will set `ref.current` to `null`\n(or call the ref with `null` if you passed a callback ref).\nForwarded to the underlying `HTMLLIElement`."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-dropdown__separator"
+      },
+      {
+        "name": "Dropdown.Group",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Render the composed child element (with `role=\"group\"`) instead of the\ndefault `<li role=\"group\">` wrapping `<ul role=\"none\">`."
+          },
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": false,
+            "default": null,
+            "description": "The grouped items, optionally led by a {@link DropdownLabelProps}   * `Dropdown.Label`} that names the group."
+          },
+          {
+            "name": "ref",
+            "type": "Ref<HTMLLIElement>",
+            "required": false,
+            "default": null,
+            "description": "Allows getting a ref to the component instance.\nOnce the component unmounts, React will set `ref.current` to `null`\n(or call the ref with `null` if you passed a callback ref).\nForwarded to the underlying `HTMLLIElement`."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-dropdown__group"
+      },
+      {
+        "name": "Dropdown.Sub",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": false,
+            "default": null,
+            "description": "The submenu boundary's content — a {@link DropdownSubTriggerProps}   * `Dropdown.SubTrigger`} and its sibling {@link DropdownSubContentProps}   * `Dropdown.SubContent`}."
+          },
+          {
+            "name": "defaultOpen",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Submenu open state on first render. Omit to start closed.\nForbidden in controlled mode — use `open` instead."
+          },
+          {
+            "name": "onOpenChange",
+            "type": "(open: boolean) => void",
+            "required": false,
+            "default": null,
+            "description": "Called whenever the submenu opens or closes. Optional in uncontrolled\nmode.\nCalled whenever the submenu would open or close. The parent reflects\nthe new value back into `open`. Required in controlled mode."
+          },
+          {
+            "name": "open",
+            "type": "boolean",
+            "required": false,
+            "default": null,
+            "description": "Forbidden in uncontrolled mode — use `defaultOpen` instead.\nThe current submenu open state. Must be kept in sync by the parent via\n`onOpenChange`."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": null
+      },
+      {
+        "name": "Dropdown.SubTrigger",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Render the composed child element (with menuitem + submenu-trigger\nsemantics) instead of the default `<li role=\"menuitem\">`."
+          },
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": false,
+            "default": null,
+            "description": "The trigger's visible label (or an element, with `asChild`)."
+          },
+          {
+            "name": "disabled",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Mark the trigger non-interactive. Sets `aria-disabled=\"true\"` and\nignores both click and the open arrow key."
+          },
+          {
+            "name": "ref",
+            "type": "Ref<HTMLLIElement>",
+            "required": false,
+            "default": null,
+            "description": "Allows getting a ref to the component instance.\nOnce the component unmounts, React will set `ref.current` to `null`\n(or call the ref with `null` if you passed a callback ref).\nForwarded to the underlying `HTMLLIElement`."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-dropdown__sub-trigger"
+      },
+      {
+        "name": "Dropdown.SubContent",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Render the composed child element (with menu semantics) instead of the\ndefault `<menu role=\"menu\" popover=\"auto\">`."
+          },
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": false,
+            "default": null,
+            "description": "The submenu's items."
+          },
+          {
+            "name": "ref",
+            "type": "Ref<HTMLMenuElement>",
+            "required": false,
+            "default": null,
+            "description": "Forwarded to the underlying `HTMLMenuElement`."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": null
+      }
+    ]
+  },
+  "styled": {
+    "installCommand": "primitiv add dropdown",
+    "rootClass": "primitiv-dropdown",
+    "customProperties": [
+      {
+        "name": "--primitiv-dropdown-surface",
+        "defaultsTo": "var(--primitiv-surface-default)"
+      },
+      {
+        "name": "--primitiv-dropdown-fg",
+        "defaultsTo": "var(--primitiv-content-primary)"
+      },
+      {
+        "name": "--primitiv-dropdown-border-width",
+        "defaultsTo": "var(--primitiv-border-width-1)"
+      },
+      {
+        "name": "--primitiv-dropdown-border-color",
+        "defaultsTo": "var(--primitiv-border-default)"
+      },
+      {
+        "name": "--primitiv-dropdown-shadow",
+        "defaultsTo": "var(--primitiv-elevation-overlay)"
+      },
+      {
+        "name": "--primitiv-dropdown-radius",
+        "defaultsTo": "var(--primitiv-dropdown-md-panel-radius)"
+      },
+      {
+        "name": "--primitiv-dropdown-padding-block",
+        "defaultsTo": "var(--primitiv-dropdown-md-panel-padding-block)"
+      },
+      {
+        "name": "--primitiv-dropdown-padding-inline",
+        "defaultsTo": "var(--primitiv-space-space-4)"
+      },
+      {
+        "name": "--primitiv-dropdown-min-inline-size",
+        "defaultsTo": "12rem"
+      },
+      {
+        "name": "--primitiv-dropdown-offset",
+        "defaultsTo": "var(--primitiv-space-space-4)"
+      },
+      {
+        "name": "--primitiv-dropdown-item-height",
+        "defaultsTo": "var(--primitiv-dropdown-md-item-height)"
+      },
+      {
+        "name": "--primitiv-dropdown-item-padding-inline",
+        "defaultsTo": "var(--primitiv-dropdown-md-item-padding-inline)"
+      },
+      {
+        "name": "--primitiv-dropdown-item-gap",
+        "defaultsTo": "var(--primitiv-dropdown-md-item-gap)"
+      },
+      {
+        "name": "--primitiv-dropdown-item-radius",
+        "defaultsTo": "var(--primitiv-dropdown-md-item-radius)"
+      },
+      {
+        "name": "--primitiv-dropdown-item-font-size",
+        "defaultsTo": "var(--primitiv-dropdown-md-item-font-size)"
+      },
+      {
+        "name": "--primitiv-dropdown-item-line-height",
+        "defaultsTo": "var(--primitiv-dropdown-md-item-line-height)"
+      },
+      {
+        "name": "--primitiv-dropdown-item-icon-size",
+        "defaultsTo": "var(--primitiv-dropdown-md-item-icon-size)"
+      },
+      {
+        "name": "--primitiv-dropdown-item-font-family",
+        "defaultsTo": "var(--primitiv-body-sm-font-family)"
+      },
+      {
+        "name": "--primitiv-dropdown-item-font-weight",
+        "defaultsTo": "var(--primitiv-body-sm-font-weight)"
+      },
+      {
+        "name": "--primitiv-dropdown-item-color",
+        "defaultsTo": "var(--primitiv-content-primary)"
+      },
+      {
+        "name": "--primitiv-dropdown-item-bg",
+        "defaultsTo": "var(--primitiv-color-transparent)"
+      },
+      {
+        "name": "--primitiv-dropdown-item-bg-highlighted",
+        "defaultsTo": "var(--primitiv-action-secondary-default)"
+      },
+      {
+        "name": "--primitiv-dropdown-row-inset",
+        "defaultsTo": "var(--primitiv-dropdown-item-padding-inline)"
+      },
+      {
+        "name": "--primitiv-dropdown-label-height",
+        "defaultsTo": "var(--primitiv-dropdown-md-label-height)"
+      },
+      {
+        "name": "--primitiv-dropdown-label-padding-inline",
+        "defaultsTo": "var(--primitiv-dropdown-md-label-padding-inline)"
+      },
+      {
+        "name": "--primitiv-dropdown-label-color",
+        "defaultsTo": "var(--primitiv-content-muted)"
+      },
+      {
+        "name": "--primitiv-dropdown-label-font-family",
+        "defaultsTo": "var(--primitiv-label-xs-font-family)"
+      },
+      {
+        "name": "--primitiv-dropdown-label-font-size",
+        "defaultsTo": "var(--primitiv-label-xs-font-size)"
+      },
+      {
+        "name": "--primitiv-dropdown-label-font-weight",
+        "defaultsTo": "var(--primitiv-label-xs-font-weight)"
+      },
+      {
+        "name": "--primitiv-dropdown-label-line-height",
+        "defaultsTo": "var(--primitiv-label-xs-line-height)"
+      },
+      {
+        "name": "--primitiv-dropdown-label-letter-spacing",
+        "defaultsTo": "var(--primitiv-letter-spacing-wide)"
+      },
+      {
+        "name": "--primitiv-dropdown-separator-spacing",
+        "defaultsTo": "var(--primitiv-dropdown-md-separator-spacing)"
+      },
+      {
+        "name": "--primitiv-dropdown-separator-color",
+        "defaultsTo": "var(--primitiv-border-subtle)"
+      },
+      {
+        "name": "--primitiv-dropdown-separator-thickness",
+        "defaultsTo": "var(--primitiv-border-width-1)"
+      },
+      {
+        "name": "--primitiv-dropdown-max-block-size",
+        "defaultsTo": "none"
+      },
+      {
+        "name": "--primitiv-dropdown-viewport-margin",
+        "defaultsTo": "var(--primitiv-space-space-8)"
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-state",
+        "value": "open",
+        "when": "open"
+      },
+      {
+        "name": "data-state",
+        "value": "closed",
+        "when": "closed"
+      },
+      {
+        "name": "data-highlighted",
+        "value": "",
+        "when": "the cursor is on this row — set on pointer-enter and by keyboard navigation alike"
+      }
+    ]
+  },
+  "figma": {
+    "componentSetKey": "669:43383"
+  }
+}

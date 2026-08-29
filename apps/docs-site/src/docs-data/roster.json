@@ -193,7 +193,7 @@
     "displayName": "Dropdown",
     "category": "Overlays",
     "description": "A menu-button dropdown built on the native HTML Popover API — a bordered, shadow-defined panel of selectable rows (plain items, checkbox/radio items, submenus), grouped with labels and separators. Positioned with CSS anchor positioning; keyboard, typeahead, and focus are owned by the headless primitive.",
-    "documented": false
+    "documented": true
   },
   {
     "id": "empty-state",

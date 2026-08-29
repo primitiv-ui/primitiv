@@ -60,6 +60,7 @@ import codeBlockDocs from "@/docs-data/code-block.docs.json";
 import tooltipDocs from "@/docs-data/tooltip.docs.json";
 import popoverDocs from "@/docs-data/popover.docs.json";
 import drawerDocs from "@/docs-data/drawer.docs.json";
+import dropdownDocs from "@/docs-data/dropdown.docs.json";
 import rosterData from "@/docs-data/roster.json";
 
 export type DocsProp = {
@@ -269,6 +270,7 @@ const DOCS = {
   tooltip: tooltipDocs as unknown as ComponentDocs,
   popover: popoverDocs as unknown as ComponentDocs,
   drawer: drawerDocs as unknown as ComponentDocs,
+  dropdown: dropdownDocs as unknown as ComponentDocs,
 } as const;
 
 export type ComponentId = keyof typeof DOCS;

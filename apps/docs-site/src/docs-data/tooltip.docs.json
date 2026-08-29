@@ -1,0 +1,298 @@
+{
+  "id": "tooltip",
+  "displayName": "Tooltip",
+  "kind": "registry",
+  "status": "stable",
+  "category": "Overlays",
+  "description": "A deferred, non-modal label anchored to a trigger (hover / focus). A flat bubble with a pointer arrow, in two tones — a high-contrast dark bubble (default) or a surface-coloured one (inverted).",
+  "headless": {
+    "package": "@primitiv-ui/react",
+    "importPath": "@primitiv-ui/react",
+    "subComponents": [
+      {
+        "name": "Tooltip.Provider",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": false,
+            "default": null,
+            "description": "The tooltips (and other markup) that share this Provider's timings."
+          },
+          {
+            "name": "delayDuration",
+            "type": "number",
+            "required": false,
+            "default": "700",
+            "description": "How long, in milliseconds, a pointer must rest on a trigger before the\ntooltip opens on hover. Focus always opens immediately regardless of this.\nOverridable per tooltip via {@link TooltipRootProps.delayDuration}."
+          },
+          {
+            "name": "skipDelayDuration",
+            "type": "number",
+            "required": false,
+            "default": "300",
+            "description": "The grace window, in milliseconds, after a tooltip in this group closes\nduring which hovering *another* trigger in the same Provider opens it\ninstantly (no `delayDuration` wait). Rest longer than this and the next\nhover pays the full delay again."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": null
+      },
+      {
+        "name": "Tooltip.Root",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": false,
+            "default": null,
+            "description": "The tooltip's {@link TooltipTriggerProps`Tooltip.Trigger`},\n{@link TooltipContentProps`Tooltip.Content`} (usually inside a\n{@link TooltipPortalProps`Tooltip.Portal`}), and optional\n{@link TooltipArrowProps`Tooltip.Arrow`}."
+          },
+          {
+            "name": "defaultOpen",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Whether the tooltip is open on first render. The component owns the flag\nfrom then on (hover/focus/blur/Escape drive it internally).\nForbidden in controlled mode — use `open` instead."
+          },
+          {
+            "name": "delayDuration",
+            "type": "number",
+            "required": false,
+            "default": null,
+            "description": "Overrides {@link TooltipProviderProps.delayDuration} for this tooltip only\n— the hover open delay in milliseconds. Falls back to the Provider's value\nwhen omitted."
+          },
+          {
+            "name": "disableHoverableContent",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "When `true`, removes the pointer-leave grace period: the tooltip closes the\ninstant the pointer leaves the trigger, so the user cannot move into the\ncontent. Leave `false` for tooltips whose content is meant to be hovered."
+          },
+          {
+            "name": "onOpenChange",
+            "type": "(open: boolean) => void",
+            "required": false,
+            "default": null,
+            "description": "Called with the new open state after every transition. Optional in\nuncontrolled mode; use it to observe (not drive) open/close.\nCalled with the requested open state whenever the tooltip wants to open\nor close. Optional even in controlled mode."
+          },
+          {
+            "name": "open",
+            "type": "boolean",
+            "required": false,
+            "default": null,
+            "description": "Forbidden in uncontrolled mode — use `defaultOpen` instead.\nThe current open state. The delay and grace timers still run and call\n`onOpenChange`, but the tooltip only moves when the parent updates this."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": null
+      },
+      {
+        "name": "Tooltip.Trigger",
+        "extends": "HTMLButtonElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Render the single child element (a link, icon button, etc.) instead of the\ndefault `<button>`, merging the trigger's ARIA and event handlers onto it\nvia the {@link Slot } pattern."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": null
+      },
+      {
+        "name": "Tooltip.Portal",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": false,
+            "default": null,
+            "description": "The content to portal — typically a single\n{@link TooltipContentProps`Tooltip.Content`}."
+          },
+          {
+            "name": "container",
+            "type": "HTMLElement",
+            "required": false,
+            "default": "document.body",
+            "description": "The element to portal the content into."
+          },
+          {
+            "name": "forceMount",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Keep the content mounted while the tooltip is closed (instead of removing\nit), so a CSS exit animation on `data-state=\"closed\"` can play."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": null
+      },
+      {
+        "name": "Tooltip.Content",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "forceMount",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Keep the content mounted while the tooltip is closed (instead of removing\nit), so a CSS exit animation on `data-state=\"closed\"` can play."
+          },
+          {
+            "name": "onEscapeKeyDown",
+            "type": "(event: KeyboardEvent) => void",
+            "required": false,
+            "default": null,
+            "description": "Fires when `Escape` is pressed while the tooltip is open. Call\n`event.preventDefault()` to keep the tooltip open; otherwise it closes."
+          },
+          {
+            "name": "onPointerDownOutside",
+            "type": "(event: PointerEvent) => void",
+            "required": false,
+            "default": null,
+            "description": "Fires on a pointer-down outside the content. Call `event.preventDefault()`\nto keep the tooltip open; otherwise it closes."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [
+          {
+            "name": "tone",
+            "type": "\"default\" | \"inverted\"",
+            "default": "default",
+            "description": "The bubble's colour treatment. `default` is a high-contrast dark bubble (inverts with the theme); `inverted` is a surface-coloured bubble for use on dark backgrounds."
+          },
+          {
+            "name": "size",
+            "type": "\"sm\" | \"md\" | \"lg\" | \"xl\"",
+            "default": "md",
+            "description": "Bubble size; `data-density` scales the padding within each size."
+          },
+          {
+            "name": "placement",
+            "type": "\"top\" | \"top-start\" | \"top-end\" | \"right\" | \"right-start\" | \"right-end\" | \"bottom\" | \"bottom-start\" | \"bottom-end\" | \"left\" | \"left-start\" | \"left-end\"",
+            "default": "top",
+            "description": "Which side of the anchor the bubble sits on, and how it aligns — sets the CSS `position-area` and points the arrow at the anchor. Wire `anchor-name` on the trigger and a matching `position-anchor` on this bubble."
+          }
+        ],
+        "dataAttributes": [
+          {
+            "name": "data-state",
+            "value": "open",
+            "when": "open"
+          },
+          {
+            "name": "data-state",
+            "value": "closed",
+            "when": "closed"
+          }
+        ],
+        "class": "primitiv-tooltip"
+      },
+      {
+        "name": "Tooltip.Arrow",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Render the single child element (e.g. an `<svg>`) instead of the default\n`<span>` via the {@link Slot } pattern."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-tooltip__arrow"
+      }
+    ]
+  },
+  "styled": {
+    "installCommand": "primitiv add tooltip",
+    "rootClass": "primitiv-tooltip",
+    "customProperties": [
+      {
+        "name": "--primitiv-tooltip-surface",
+        "defaultsTo": "var(--primitiv-content-primary)"
+      },
+      {
+        "name": "--primitiv-tooltip-fg",
+        "defaultsTo": "var(--primitiv-content-inverse)"
+      },
+      {
+        "name": "--primitiv-tooltip-radius",
+        "defaultsTo": "var(--primitiv-tooltip-md-radius)"
+      },
+      {
+        "name": "--primitiv-tooltip-padding-inline",
+        "defaultsTo": "var(--primitiv-tooltip-md-padding-inline)"
+      },
+      {
+        "name": "--primitiv-tooltip-padding-block",
+        "defaultsTo": "var(--primitiv-tooltip-md-padding-block)"
+      },
+      {
+        "name": "--primitiv-tooltip-arrow-size",
+        "defaultsTo": "var(--primitiv-tooltip-md-arrow-size)"
+      },
+      {
+        "name": "--primitiv-tooltip-offset",
+        "defaultsTo": "var(--primitiv-tooltip-arrow-size)"
+      },
+      {
+        "name": "--primitiv-tooltip-max-inline-size",
+        "defaultsTo": "var(--primitiv-size-size-240)"
+      },
+      {
+        "name": "--primitiv-tooltip-font-family",
+        "defaultsTo": "var(--primitiv-body-md-font-family)"
+      },
+      {
+        "name": "--primitiv-tooltip-font-size",
+        "defaultsTo": "var(--primitiv-body-md-font-size)"
+      },
+      {
+        "name": "--primitiv-tooltip-font-weight",
+        "defaultsTo": "var(--primitiv-body-md-font-weight)"
+      },
+      {
+        "name": "--primitiv-tooltip-line-height",
+        "defaultsTo": "var(--primitiv-body-md-line-height)"
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-state",
+        "value": "open",
+        "when": "open"
+      },
+      {
+        "name": "data-state",
+        "value": "closed",
+        "when": "closed"
+      }
+    ]
+  },
+  "figma": {
+    "componentSetKey": "1168:35600"
+  }
+}

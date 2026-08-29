@@ -431,7 +431,7 @@
     "displayName": "Tooltip",
     "category": "Overlays",
     "description": "A deferred, non-modal label anchored to a trigger (hover / focus). A flat bubble with a pointer arrow, in two tones — a high-contrast dark bubble (default) or a surface-coloured one (inverted).",
-    "documented": false
+    "documented": true
   },
   {
     "id": "tree",

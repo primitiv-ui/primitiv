@@ -515,6 +515,20 @@ export const REGISTRY = {
     contract: "registry/components/code-block/contract.json",
     figmaComponentSetKey: "601:9607", importPath: "@/components/ui/code-block",
   },
+  tooltip: {
+    displayName: "Tooltip", kind: "registry", status: "stable", category: "Overlays",
+    propsFile: "packages/react/src/Tooltip/types.ts",
+    subComponents: [
+      { name: "Tooltip.Provider", propsType: "TooltipProviderProps", element: "div", component: "Provider" },
+      { name: "Tooltip.Root", propsType: "TooltipRootProps", element: "div", component: "Root" },
+      { name: "Tooltip.Trigger", propsType: "TooltipTriggerProps", element: "button", component: "Trigger" },
+      { name: "Tooltip.Portal", propsType: "TooltipPortalProps", element: "div", component: "Portal" },
+      { name: "Tooltip.Content", propsType: "TooltipContentProps", element: "div", component: "Content" },
+      { name: "Tooltip.Arrow", propsType: "TooltipArrowProps", element: "div", component: "Arrow" },
+    ],
+    contract: "registry/components/tooltip/contract.json",
+    figmaComponentSetKey: "1168:35600", importPath: "@primitiv-ui/react",
+  },
   divider: {
     displayName: "Divider", kind: "registry", status: "stable", category: "Layout",
     propsFile: "packages/react/src/Divider/types.ts",

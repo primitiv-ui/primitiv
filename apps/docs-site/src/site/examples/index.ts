@@ -40,6 +40,7 @@ import { listSpec } from "./list";
 import { descriptionListSpec } from "./description-list";
 import { figureSpec } from "./figure";
 import { codeBlockSpec } from "./code-block";
+import { tooltipSpec } from "./tooltip";
 import type { ComponentSpec } from "./types";
 
 /**
@@ -86,6 +87,7 @@ export const SPECS: Record<ComponentId, ComponentSpec> = {
   "description-list": descriptionListSpec,
   figure: figureSpec,
   "code-block": codeBlockSpec,
+  tooltip: tooltipSpec,
 };
 
 export type { ComponentSpec };

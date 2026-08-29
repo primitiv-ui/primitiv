@@ -1,0 +1,446 @@
+{
+  "id": "drawer",
+  "displayName": "Drawer",
+  "kind": "registry",
+  "status": "stable",
+  "category": "Overlays",
+  "description": "An accessible drawer — a Modal dialog built on the native `<dialog>` element that slides in from a screen edge (top, right, bottom, or left).",
+  "headless": {
+    "package": "@primitiv-ui/react",
+    "importPath": "@primitiv-ui/react",
+    "subComponents": [
+      {
+        "name": "Drawer.Root",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": false,
+            "default": null,
+            "description": "The modal's sub-components (Trigger, Portal, Overlay, Content, ...)."
+          },
+          {
+            "name": "defaultOpen",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Whether the modal is open on first render. The component owns the flag\nfrom then on. Omit for closed-on-mount.\nForbidden in controlled mode — use `open` instead."
+          },
+          {
+            "name": "onOpenChange",
+            "type": "(open: boolean) => void",
+            "required": false,
+            "default": null,
+            "description": "Called with the new open state whenever it changes (open or close).\nOptional in uncontrolled mode — useful purely to observe transitions.\nCalled with the requested open state whenever the modal wants to open or\nclose (trigger click, Close button, Esc, click-outside, imperative API).\nRequired in controlled mode."
+          },
+          {
+            "name": "open",
+            "type": "boolean",
+            "required": false,
+            "default": null,
+            "description": "Forbidden in uncontrolled mode — use `defaultOpen` instead.\nThe current open state. Must be kept in sync by the parent via `onOpenChange`."
+          },
+          {
+            "name": "ref",
+            "type": "Ref<ModalImperativeApi>",
+            "required": false,
+            "default": null,
+            "description": "Ref receiving the imperative {@link ModalImperativeApiopen/close handle}."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": null
+      },
+      {
+        "name": "Drawer.Trigger",
+        "extends": "HTMLButtonElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Render into the consumer's own element (e.g. a router `<Link>`) instead\nof the default `<button>`, merging the trigger's ARIA wiring, composed\nevent handlers, and ref onto it via the Slot pattern."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": null
+      },
+      {
+        "name": "Drawer.Portal",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": false,
+            "default": null,
+            "description": "The dialog subtree to portal — typically `Modal.Overlay` + `Modal.Content`."
+          },
+          {
+            "name": "container",
+            "type": "HTMLElement",
+            "required": false,
+            "default": "document.body",
+            "description": "Target element to portal into."
+          },
+          {
+            "name": "forceMount",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Keep the portalled subtree mounted after `open` flips false, so a CSS\nexit animation keyed off `data-state=\"closed\"` can play. Without it the\nportal unmounts as soon as the modal closes."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": null
+      },
+      {
+        "name": "Drawer.Overlay",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Render into the consumer's own element (e.g. a motion wrapper) instead of\nthe default `<div>`, merging the overlay's `aria-hidden` and `data-state`\nonto it via the Slot pattern."
+          },
+          {
+            "name": "forceMount",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Keep the overlay mounted after `open` flips false so a CSS fade-out can\nplay. Without it the overlay unmounts as soon as the modal closes."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [
+          {
+            "name": "data-state",
+            "value": "open",
+            "when": "open"
+          },
+          {
+            "name": "data-state",
+            "value": "closed",
+            "when": "closed"
+          }
+        ],
+        "class": "primitiv-drawer__overlay"
+      },
+      {
+        "name": "Drawer.Content",
+        "extends": "HTMLDialogElement",
+        "props": [
+          {
+            "name": "onEscapeKeyDown",
+            "type": "(event: Event) => void",
+            "required": false,
+            "default": null,
+            "description": "Fires on the dialog's native `cancel` event when the user presses\nEscape. Call `event.preventDefault()` to veto closing and keep the\nmodal open (e.g. to confirm unsaved changes first)."
+          },
+          {
+            "name": "onPointerDownOutside",
+            "type": "(event: PointerEvent) => void",
+            "required": false,
+            "default": null,
+            "description": "Fires on a `pointerdown` whose coordinates land outside the dialog's\nbounding rect — i.e. on the browser-painted `::backdrop`. Call\n`event.preventDefault()` to veto closing and keep the modal open."
+          },
+          {
+            "name": "ref",
+            "type": "Ref<HTMLDialogElement>",
+            "required": false,
+            "default": null,
+            "description": "Allows getting a ref to the component instance.\nOnce the component unmounts, React will set `ref.current` to `null`\n(or call the ref with `null` if you passed a callback ref).\nRef to the underlying native `<dialog>` element."
+          },
+          {
+            "name": "side",
+            "type": "\"top\" | \"right\" | \"bottom\" | \"left\"",
+            "required": false,
+            "default": "\"right\"",
+            "description": "Which edge the drawer slides in from. Emitted verbatim as `data-side`\non the `<dialog>`, which the styled layer keys off to position and\nanimate the panel against that edge. Purely presentational — it does\nnot change any behaviour, focus, or ARIA."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [
+          {
+            "name": "width",
+            "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
+            "default": "md",
+            "description": "The drawer's cross-axis extent — width for a left/right drawer, height for a top/bottom sheet — stepped off the size/* scale. The long axis always fills the viewport; padding stays density-driven, independent of width."
+          }
+        ],
+        "dataAttributes": [
+          {
+            "name": "data-state",
+            "value": "open",
+            "when": "open"
+          },
+          {
+            "name": "data-state",
+            "value": "closed",
+            "when": "closed"
+          },
+          {
+            "name": "data-side",
+            "value": "top",
+            "when": "side=top"
+          },
+          {
+            "name": "data-side",
+            "value": "right",
+            "when": "side=right"
+          },
+          {
+            "name": "data-side",
+            "value": "bottom",
+            "when": "side=bottom"
+          },
+          {
+            "name": "data-side",
+            "value": "left",
+            "when": "side=left"
+          }
+        ],
+        "class": "primitiv-drawer"
+      },
+      {
+        "name": "Drawer.Header",
+        "extends": "HTMLDivElement",
+        "props": [],
+        "styledOnly": true,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-drawer__header"
+      },
+      {
+        "name": "Drawer.Body",
+        "extends": "HTMLDivElement",
+        "props": [],
+        "styledOnly": true,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-drawer__body"
+      },
+      {
+        "name": "Drawer.Footer",
+        "extends": "HTMLDivElement",
+        "props": [],
+        "styledOnly": true,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-drawer__footer"
+      },
+      {
+        "name": "Drawer.Title",
+        "extends": "HTMLHeadingElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Render into the consumer's own heading element (e.g. an `<h3>` for a\nnested dialog) instead of the default `<h2>`; the generated id is still\nregistered for `aria-labelledby`."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-drawer__title"
+      },
+      {
+        "name": "Drawer.Description",
+        "extends": "HTMLParagraphElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Render into the consumer's own element instead of the default `<p>`; the\ngenerated id is still registered for `aria-describedby`."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-drawer__description"
+      },
+      {
+        "name": "Drawer.Close",
+        "extends": "HTMLButtonElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Render into the consumer's own element (e.g. an icon-only button)\ninstead of the default `<button>`, merging the close behaviour in. The\nconsumer's `onClick` runs first and can `event.preventDefault()` to veto."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-drawer__close"
+      }
+    ]
+  },
+  "styled": {
+    "installCommand": "primitiv add drawer",
+    "rootClass": "primitiv-drawer",
+    "customProperties": [
+      {
+        "name": "--primitiv-drawer-surface",
+        "defaultsTo": "var(--primitiv-surface-default)"
+      },
+      {
+        "name": "--primitiv-drawer-fg",
+        "defaultsTo": "var(--primitiv-content-primary)"
+      },
+      {
+        "name": "--primitiv-drawer-shadow",
+        "defaultsTo": "var(--primitiv-elevation-modal)"
+      },
+      {
+        "name": "--primitiv-drawer-scrim",
+        "defaultsTo": "var(--primitiv-scrim)"
+      },
+      {
+        "name": "--primitiv-drawer-radius",
+        "defaultsTo": "var(--primitiv-modal-md-radius)"
+      },
+      {
+        "name": "--primitiv-drawer-padding-inline",
+        "defaultsTo": "var(--primitiv-modal-md-padding-inline)"
+      },
+      {
+        "name": "--primitiv-drawer-padding-block",
+        "defaultsTo": "var(--primitiv-modal-md-padding-block)"
+      },
+      {
+        "name": "--primitiv-drawer-gap",
+        "defaultsTo": "var(--primitiv-modal-md-gap)"
+      },
+      {
+        "name": "--primitiv-drawer-size",
+        "defaultsTo": "var(--primitiv-size-size-240)"
+      },
+      {
+        "name": "--primitiv-drawer-border-width",
+        "defaultsTo": "var(--primitiv-border-width-1)"
+      },
+      {
+        "name": "--primitiv-drawer-border-color",
+        "defaultsTo": "var(--primitiv-border-default)"
+      },
+      {
+        "name": "--primitiv-drawer-divider-color",
+        "defaultsTo": "var(--primitiv-border-subtle)"
+      },
+      {
+        "name": "--primitiv-drawer-title-color",
+        "defaultsTo": "var(--primitiv-content-primary)"
+      },
+      {
+        "name": "--primitiv-drawer-title-font-family",
+        "defaultsTo": "var(--primitiv-label-md-font-family)"
+      },
+      {
+        "name": "--primitiv-drawer-title-font-size",
+        "defaultsTo": "var(--primitiv-label-md-font-size)"
+      },
+      {
+        "name": "--primitiv-drawer-title-font-weight",
+        "defaultsTo": "var(--primitiv-label-md-font-weight)"
+      },
+      {
+        "name": "--primitiv-drawer-title-line-height",
+        "defaultsTo": "var(--primitiv-label-md-line-height)"
+      },
+      {
+        "name": "--primitiv-drawer-description-color",
+        "defaultsTo": "var(--primitiv-content-secondary)"
+      },
+      {
+        "name": "--primitiv-drawer-description-font-family",
+        "defaultsTo": "var(--primitiv-body-sm-font-family)"
+      },
+      {
+        "name": "--primitiv-drawer-description-font-size",
+        "defaultsTo": "var(--primitiv-body-sm-font-size)"
+      },
+      {
+        "name": "--primitiv-drawer-description-font-weight",
+        "defaultsTo": "var(--primitiv-body-sm-font-weight)"
+      },
+      {
+        "name": "--primitiv-drawer-description-line-height",
+        "defaultsTo": "var(--primitiv-body-sm-line-height)"
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-state",
+        "value": "open",
+        "when": "open"
+      },
+      {
+        "name": "data-state",
+        "value": "closed",
+        "when": "closed"
+      },
+      {
+        "name": "data-side",
+        "value": "top",
+        "when": "side=top"
+      },
+      {
+        "name": "data-side",
+        "value": "right",
+        "when": "side=right"
+      },
+      {
+        "name": "data-side",
+        "value": "bottom",
+        "when": "side=bottom"
+      },
+      {
+        "name": "data-side",
+        "value": "left",
+        "when": "side=left"
+      },
+      {
+        "name": "data-state",
+        "value": "open",
+        "when": "open"
+      },
+      {
+        "name": "data-state",
+        "value": "closed",
+        "when": "closed"
+      }
+    ]
+  },
+  "figma": {
+    "componentSetKey": "1142:26332"
+  }
+}

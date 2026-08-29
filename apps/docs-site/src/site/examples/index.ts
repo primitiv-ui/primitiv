@@ -42,6 +42,7 @@ import { figureSpec } from "./figure";
 import { codeBlockSpec } from "./code-block";
 import { tooltipSpec } from "./tooltip";
 import { popoverSpec } from "./popover";
+import { drawerSpec } from "./drawer";
 import type { ComponentSpec } from "./types";
 
 /**
@@ -90,6 +91,7 @@ export const SPECS: Record<ComponentId, ComponentSpec> = {
   "code-block": codeBlockSpec,
   tooltip: tooltipSpec,
   popover: popoverSpec,
+  drawer: drawerSpec,
 };
 
 export type { ComponentSpec };

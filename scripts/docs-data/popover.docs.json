@@ -1,0 +1,342 @@
+{
+  "id": "popover",
+  "displayName": "Popover",
+  "kind": "registry",
+  "status": "stable",
+  "category": "Overlays",
+  "description": "A non-modal floating panel anchored to a trigger, built on the native HTML Popover API — a borderless, shadow-defined surface with a pointer arrow, positioned with CSS anchor positioning across all twelve placements.",
+  "headless": {
+    "package": "@primitiv-ui/react",
+    "importPath": "@primitiv-ui/react",
+    "subComponents": [
+      {
+        "name": "Popover.Root",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": false,
+            "default": null,
+            "description": "The Popover sub-components — typically a {@link PopoverTriggerProps`Popover.Trigger`}\nand a {@link PopoverContentProps`Popover.Content`}, optionally a\n{@link PopoverAnchorProps`Popover.Anchor`}."
+          },
+          {
+            "name": "defaultOpen",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Whether the popover is open on first render. The component owns the flag\nfrom then on (trigger toggles, `Popover.Close`, Escape, and light-dismiss\nall mutate it internally).\nForbidden in controlled mode — use `open` instead."
+          },
+          {
+            "name": "onOpenChange",
+            "type": "(open: boolean) => void",
+            "required": false,
+            "default": null,
+            "description": "Called with the new open state after every transition. Optional in\nuncontrolled mode; use it to observe (not drive) open/close.\nCalled with the requested open state whenever the popover wants to open\nor close (trigger click, `Popover.Close`, Escape, outside dismiss).\nRequired in controlled mode — the popover will not move unless the parent\nupdates `open`."
+          },
+          {
+            "name": "open",
+            "type": "boolean",
+            "required": false,
+            "default": null,
+            "description": "Forbidden in uncontrolled mode — use `defaultOpen` instead.\nThe current open state. Must be kept in sync by the parent via\n`onOpenChange`."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": null
+      },
+      {
+        "name": "Popover.Trigger",
+        "extends": "HTMLButtonElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Render the single child element instead of the default `<button>`,\nmerging the trigger's ARIA, composed event handlers, and ref onto it via\nthe {@link Slot } pattern."
+          },
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": false,
+            "default": null,
+            "description": "Trigger content (label, icon, etc.)."
+          },
+          {
+            "name": "ref",
+            "type": "Ref<T>",
+            "required": false,
+            "default": null,
+            "description": "Ref to the rendered element, composed with Root's internal trigger ref\n(used for focus return on close). Defaults to `HTMLButtonElement`; with\n`asChild`, set the generic to the child's element type\n(e.g. `HTMLAnchorElement`)."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": null
+      },
+      {
+        "name": "Popover.Anchor",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Render the single child element instead of the default `<div>`, projecting\nthe anchor onto an existing element via the {@link Slot } pattern."
+          },
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": false,
+            "default": null,
+            "description": "Anchor content — the element(s) the popover should be positioned against."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": null
+      },
+      {
+        "name": "Popover.Content",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Render the single child element (e.g. a `<section>` or motion wrapper)\ninstead of the default `<div>`, merging the dialog props and internal ref\nonto it via the {@link Slot } pattern."
+          },
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": false,
+            "default": null,
+            "description": "Panel content — typically {@link PopoverTitleProps`Popover.Title`},\nbody markup, and a {@link PopoverCloseProps`Popover.Close`}."
+          },
+          {
+            "name": "ref",
+            "type": "Ref<HTMLDivElement>",
+            "required": false,
+            "default": null,
+            "description": "Allows getting a ref to the component instance.\nOnce the component unmounts, React will set `ref.current` to `null`\n(or call the ref with `null` if you passed a callback ref).\nRef to the rendered element, composed with Root's internal content ref so\nopen/close and focus management keep working."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [
+          {
+            "name": "size",
+            "type": "\"sm\" | \"md\" | \"lg\" | \"xl\"",
+            "default": "md",
+            "description": "Panel size; `data-density` scales the padding within each size."
+          },
+          {
+            "name": "placement",
+            "type": "\"top\" | \"top-start\" | \"top-end\" | \"right\" | \"right-start\" | \"right-end\" | \"bottom\" | \"bottom-start\" | \"bottom-end\" | \"left\" | \"left-start\" | \"left-end\"",
+            "default": "bottom",
+            "description": "Which side of the anchor the panel sits on, and how it aligns — sets the CSS `position-area` and points the arrow at the anchor. Requires the consumer to wire `anchor-name` (on the trigger or Popover.Anchor) + `position-anchor` (on Content)."
+          }
+        ],
+        "dataAttributes": [
+          {
+            "name": "data-state",
+            "value": "open",
+            "when": "open"
+          },
+          {
+            "name": "data-state",
+            "value": "closed",
+            "when": "closed"
+          }
+        ],
+        "class": "primitiv-popover"
+      },
+      {
+        "name": "Popover.Title",
+        "extends": "HTMLHeadingElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Render the single child element (e.g. an `<h3>`) instead of the default\n`<h2>` via the {@link Slot } pattern; the generated `id` is still applied\nand registered."
+          },
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": false,
+            "default": null,
+            "description": "Title content, rendered as the popover's accessible name."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-popover__title"
+      },
+      {
+        "name": "Popover.Description",
+        "extends": "HTMLParagraphElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Render the single child element instead of the default `<p>` via the\n{@link Slot } pattern; the generated `id` is still applied and registered."
+          },
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": false,
+            "default": null,
+            "description": "Description content, exposed as the popover's accessible description."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-popover__description"
+      },
+      {
+        "name": "Popover.Close",
+        "extends": "HTMLButtonElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Render the single child element (e.g. a text link or icon button) instead\nof the default `<button>`, merging the close behaviour onto it via the\n{@link Slot } pattern."
+          },
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": false,
+            "default": null,
+            "description": "Close-button content (label, icon, etc.)."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-popover__close"
+      }
+    ]
+  },
+  "styled": {
+    "installCommand": "primitiv add popover",
+    "rootClass": "primitiv-popover",
+    "customProperties": [
+      {
+        "name": "--primitiv-popover-surface",
+        "defaultsTo": "var(--primitiv-surface-floating)"
+      },
+      {
+        "name": "--primitiv-popover-fg",
+        "defaultsTo": "var(--primitiv-content-primary)"
+      },
+      {
+        "name": "--primitiv-popover-shadow",
+        "defaultsTo": "drop-shadow(0 var(--primitiv-space-space-2) var(--primitiv-space-space-4) var(--primitiv-shadow-color-strong)) drop-shadow(0 var(--primitiv-space-space-4) var(--primitiv-space-space-8) var(--primitiv-shadow-color-medium)) drop-shadow(0 var(--primitiv-space-space-8) var(--primitiv-space-space-16) var(--primitiv-shadow-color-soft))"
+      },
+      {
+        "name": "--primitiv-popover-radius",
+        "defaultsTo": "var(--primitiv-popover-md-radius)"
+      },
+      {
+        "name": "--primitiv-popover-padding-inline",
+        "defaultsTo": "var(--primitiv-popover-md-padding-inline)"
+      },
+      {
+        "name": "--primitiv-popover-padding-block",
+        "defaultsTo": "var(--primitiv-popover-md-padding-block)"
+      },
+      {
+        "name": "--primitiv-popover-gap",
+        "defaultsTo": "var(--primitiv-popover-md-gap)"
+      },
+      {
+        "name": "--primitiv-popover-arrow-size",
+        "defaultsTo": "var(--primitiv-popover-md-arrow-size)"
+      },
+      {
+        "name": "--primitiv-popover-offset",
+        "defaultsTo": "var(--primitiv-popover-arrow-size)"
+      },
+      {
+        "name": "--primitiv-popover-max-inline-size",
+        "defaultsTo": "20rem"
+      },
+      {
+        "name": "--primitiv-popover-title-color",
+        "defaultsTo": "var(--primitiv-content-primary)"
+      },
+      {
+        "name": "--primitiv-popover-title-font-family",
+        "defaultsTo": "var(--primitiv-label-md-font-family)"
+      },
+      {
+        "name": "--primitiv-popover-title-font-size",
+        "defaultsTo": "var(--primitiv-label-md-font-size)"
+      },
+      {
+        "name": "--primitiv-popover-title-font-weight",
+        "defaultsTo": "var(--primitiv-label-md-font-weight)"
+      },
+      {
+        "name": "--primitiv-popover-title-line-height",
+        "defaultsTo": "var(--primitiv-label-md-line-height)"
+      },
+      {
+        "name": "--primitiv-popover-description-color",
+        "defaultsTo": "var(--primitiv-content-secondary)"
+      },
+      {
+        "name": "--primitiv-popover-description-font-family",
+        "defaultsTo": "var(--primitiv-body-sm-font-family)"
+      },
+      {
+        "name": "--primitiv-popover-description-font-size",
+        "defaultsTo": "var(--primitiv-body-sm-font-size)"
+      },
+      {
+        "name": "--primitiv-popover-description-font-weight",
+        "defaultsTo": "var(--primitiv-body-sm-font-weight)"
+      },
+      {
+        "name": "--primitiv-popover-description-line-height",
+        "defaultsTo": "var(--primitiv-body-sm-line-height)"
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-state",
+        "value": "open",
+        "when": "open"
+      },
+      {
+        "name": "data-state",
+        "value": "closed",
+        "when": "closed"
+      }
+    ]
+  },
+  "figma": {
+    "componentSetKey": "1168:36142"
+  }
+}

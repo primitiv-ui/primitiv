@@ -529,6 +529,21 @@ export const REGISTRY = {
     contract: "registry/components/tooltip/contract.json",
     figmaComponentSetKey: "1168:35600", importPath: "@primitiv-ui/react",
   },
+  popover: {
+    displayName: "Popover", kind: "registry", status: "stable", category: "Overlays",
+    propsFile: "packages/react/src/Popover/types.ts",
+    subComponents: [
+      { name: "Popover.Root", propsType: "PopoverRootProps", element: "div", component: "Root" },
+      { name: "Popover.Trigger", propsType: "PopoverTriggerProps", element: "button", component: "Trigger" },
+      { name: "Popover.Anchor", propsType: "PopoverAnchorProps", element: "div", component: "Anchor" },
+      { name: "Popover.Content", propsType: "PopoverContentProps", element: "div", component: "Content" },
+      { name: "Popover.Title", propsType: "PopoverTitleProps", element: "h2", component: "Title" },
+      { name: "Popover.Description", propsType: "PopoverDescriptionProps", element: "p", component: "Description" },
+      { name: "Popover.Close", propsType: "PopoverCloseProps", element: "button", component: "Close" },
+    ],
+    contract: "registry/components/popover/contract.json",
+    figmaComponentSetKey: "1168:36142", importPath: "@primitiv-ui/react",
+  },
   divider: {
     displayName: "Divider", kind: "registry", status: "stable", category: "Layout",
     propsFile: "packages/react/src/Divider/types.ts",

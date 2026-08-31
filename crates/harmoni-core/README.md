@@ -30,6 +30,8 @@ api::generate_with_lightness(ColorInput, [f32; 10], GenerateOptions)
 // Neutral / greyscale ramps
 api::generate_neutral_ramp(white: ColorInput, black: ColorInput, TintMode,
     RampOptions) -> Result<Palette, ColorInputError>
+api::generate_neutral_ramp_with_steps(white: ColorInput, black: ColorInput,
+    TintMode, RampOptions, steps: usize) -> Result<Palette, GenerateError>
 api::derive_soft_neutrals(brand: ColorInput, softness: f32)
     -> Result<SoftNeutrals, ColorInputError>
 api::tint_neutrals(white: ColorInput, black: ColorInput,
@@ -44,17 +46,24 @@ api::audit_contrast(ColorInput, ColorInput)
     -> Result<ContrastResult, ColorInputError>
 ```
 
-A `Palette` is a struct — ten `Swatch`es plus the `lightness_curve` and
-padding / `note` metadata used to build them.
+A `Palette` is a struct — its `Swatch`es plus the `lightness_curve` and
+padding / `note` metadata used to build them. Ramps default to ten steps;
+the `*_with_steps` entry points build any length the model supports.
 
 `GenerateOptions` carries `light_padding` / `dark_padding` plus optional
 `soft_white` / `soft_black` overrides — when set, those replace pure
 black/white as foreground-audit candidates.
 
 The neutral surface builds greyscale ramps. `generate_neutral_ramp`
-interpolates a 10-step ramp between a soft white and soft black along the
+interpolates a ramp between a soft white and soft black along the
 perceptual lightness curve; `TintMode` is `Inherit` (mid-steps inherit the
 endpoints' chroma) or `Achromatic` (chroma forced to zero).
+`generate_neutral_ramp_with_steps` is the same maths at a chosen length —
+a neutral ramp sits beside brand/danger/… in one collection, so it has to
+be able to match their length, and its labels come from the same ladder so
+the families line up step for step. The fixed form delegates to it at
+`DEFAULT_STEPS`, and a length outside `MIN_STEPS..=MAX_STEPS` is rejected
+rather than clamped.
 `derive_soft_neutrals` produces soft black/white primitives from a brand
 colour, and `tint_neutrals` layers a brand hue onto already-chosen
 white/black while preserving their lightness.

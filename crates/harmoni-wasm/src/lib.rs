@@ -308,6 +308,37 @@ pub fn generate_neutral_ramp(
     palette_to_js(palette_data)
 }
 
+/// Builds a neutral ramp of `steps` steps, so the neutral ramp can match the
+/// length of the solid ramps it sits beside — a ten-step neutral against a
+/// seven-step brand would otherwise carry two different label sets for one
+/// palette. Labels come from the same ladder `generate_palette_with_steps`
+/// walks. `steps` outside the range `supported_step_range` reports is rejected
+/// rather than clamped.
+///
+/// Like every `palette_to_js` entry point, this has no native test:
+/// `serde_wasm_bindgen::to_value` needs a JS runtime, so the whole function is
+/// unreachable off-target. The step-count and label decisions it forwards are
+/// covered where they are actually made — `api::neutral_tests`.
+#[wasm_bindgen]
+pub fn generate_neutral_ramp_with_steps(
+    white: &str,
+    black: &str,
+    tint: types::TintMode,
+    bow: f32,
+    steps: usize,
+) -> Result<Palette, JsError> {
+    let palette_data = api::generate_neutral_ramp_with_steps(
+        ColorInput::Css(white.to_string()),
+        ColorInput::Css(black.to_string()),
+        tint.into(),
+        harmoni_core::RampOptions { bow },
+        steps,
+    )
+    .map_err(to_js_error)?;
+
+    palette_to_js(palette_data)
+}
+
 /// Builds an alpha ramp from a single anchor colour (Path A): the anchor held
 /// constant across ten steps while opacity climbs the shared curve. Neutral
 /// ramps pass their veil colour (soft-black in light, soft-white in dark);

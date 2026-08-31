@@ -53,6 +53,45 @@ fn should_return_ten_labelled_swatches_with_endpoints_pinned_to_soft_white_and_s
 }
 
 #[test]
+fn should_read_the_perceptual_curve_at_whatever_resolution_is_asked_for() {
+    use crate::palette::generator::{resample, TARGET_LIGHTNESS};
+
+    let soft_white = Oklch::new(0.975, 0.006, 240.0);
+    let soft_black = Oklch::new(0.10, 0.00375, 240.0);
+
+    // Both ends of the supported range: a ramp coarser than the authored curve
+    // and one finer than it. The finer case is also what catches reading the
+    // curve by index — there is no `TARGET_LIGHTNESS[31]`.
+    for count in [7usize, 32] {
+        let palette = generate_neutral_ramp_with_steps(
+            soft_white,
+            soft_black,
+            TintMode::Inherit,
+            RampOptions::default(),
+            count,
+        );
+
+        // The authored curve describes a shape at ten samples; a ramp of any
+        // length reads that shape at its own resolution rather than truncating
+        // the curve to its first `count` entries.
+        let curve = resample(&TARGET_LIGHTNESS, count);
+        let span = curve[0] - curve[count - 1];
+        for i in 0..count {
+            let fraction = (curve[0] - curve[i]) / span;
+            let expected = soft_white.l + (soft_black.l - soft_white.l) * fraction;
+            assert!(
+                (palette.swatches[i].l - expected).abs() < 1e-5,
+                "at {} steps, index {} has l={} but expected {}",
+                count,
+                i,
+                palette.swatches[i].l,
+                expected
+            );
+        }
+    }
+}
+
+#[test]
 fn should_space_lightness_along_the_normalised_perceptual_curve() {
     use crate::palette::generator::TARGET_LIGHTNESS;
 

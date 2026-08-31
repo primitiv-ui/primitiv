@@ -3,7 +3,8 @@ use palette::Oklch;
 use crate::audit::contrast::get_contrast_rating_for_step;
 use crate::audit::foreground::get_best_foreground;
 use crate::palette::generator::{
-    step_labels, Palette, Swatch, SwatchLabel, SwatchStep, DEFAULT_STEPS, TARGET_LIGHTNESS,
+    resample, step_labels, Palette, Swatch, SwatchLabel, SwatchStep, DEFAULT_STEPS,
+    TARGET_LIGHTNESS,
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Default)]
@@ -58,7 +59,11 @@ pub fn generate_neutral_ramp_with_steps(
     let black_hue = soft_black.hue.into_degrees();
     let labels = step_labels(steps);
     let last = labels.len() - 1;
-    let curve_span = TARGET_LIGHTNESS[0] - TARGET_LIGHTNESS[last];
+    // The authored curve is a *shape* sampled at ten points; read it at this
+    // ramp's own resolution so one curve serves every length. At ten steps
+    // `resample` returns the curve's own points, so nothing moves.
+    let curve = resample(&TARGET_LIGHTNESS, steps);
+    let curve_span = curve[0] - curve[last];
     let apply_tint = |c: f32| match tint {
         TintMode::Inherit => c,
         TintMode::Achromatic => 0.0,
@@ -72,7 +77,7 @@ pub fn generate_neutral_ramp_with_steps(
             } else if i == last {
                 SwatchStep::from_label(soft_black.l, apply_tint(soft_black.chroma), black_hue, step)
             } else {
-                let fraction = (TARGET_LIGHTNESS[0] - TARGET_LIGHTNESS[i]) / curve_span;
+                let fraction = (curve[0] - curve[i]) / curve_span;
                 let l = soft_white.l + (soft_black.l - soft_white.l) * fraction;
                 let linear_c =
                     soft_white.chroma + (soft_black.chroma - soft_white.chroma) * fraction;

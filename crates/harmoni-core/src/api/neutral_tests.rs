@@ -22,6 +22,27 @@ fn soft_black() -> ColorInput {
 }
 
 #[test]
+fn a_stepped_neutral_ramp_rejects_a_length_the_model_cannot_express() {
+    use crate::api::generate::GenerateError;
+    use crate::palette::generator::{MAX_STEPS, MIN_STEPS};
+
+    // Rejected rather than clamped, so a caller finds out it asked for
+    // something the model cannot express — the same contract the solid and
+    // alpha stepped ramps hold to.
+    for count in [MIN_STEPS - 1, MAX_STEPS + 1] {
+        let result = generate_neutral_ramp_with_steps(
+            soft_white(),
+            soft_black(),
+            TintMode::Inherit,
+            RampOptions::default(),
+            count,
+        );
+
+        assert_eq!(result, Err(GenerateError::UnsupportedStepCount(count)));
+    }
+}
+
+#[test]
 fn a_stepped_neutral_ramp_carries_the_same_labels_as_a_solid_ramp_of_that_length() {
     use crate::api::generate::{generate_with_options, GenerateOptions};
 

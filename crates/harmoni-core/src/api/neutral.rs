@@ -3,12 +3,18 @@ use crate::color::input::{ColorInput, ColorInputError};
 use crate::neutral::derive::{self, SoftNeutrals};
 use crate::neutral::ramp::{self, RampOptions, TintMode};
 use crate::neutral::tint;
-use crate::palette::generator::Palette;
+use crate::palette::generator::{Palette, MAX_STEPS, MIN_STEPS};
 
 /// Builds a neutral ramp of `steps` steps between the two soft anchors, so a
 /// neutral ramp can match the length of the solid ramps it sits beside — the
 /// labels come from the same ladder, and the two families line up step for
 /// step.
+///
+/// The length is checked here rather than in `neutral::ramp`, which is what
+/// lets that module resample without a guard — the same arrangement
+/// `generate_alpha_ramp_with_steps` and `curves_for` use. `steps` outside
+/// `MIN_STEPS..=MAX_STEPS` is rejected rather than clamped, so a caller finds
+/// out it asked for something the model cannot express.
 pub fn generate_neutral_ramp_with_steps(
     white: ColorInput,
     black: ColorInput,
@@ -16,6 +22,10 @@ pub fn generate_neutral_ramp_with_steps(
     options: RampOptions,
     steps: usize,
 ) -> Result<Palette, GenerateError> {
+    if !(MIN_STEPS..=MAX_STEPS).contains(&steps) {
+        return Err(GenerateError::UnsupportedStepCount(steps));
+    }
+
     let soft_white = white.to_oklch()?;
     let soft_black = black.to_oklch()?;
     Ok(ramp::generate_neutral_ramp_with_steps(

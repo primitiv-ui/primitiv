@@ -22,6 +22,40 @@ fn soft_black() -> ColorInput {
 }
 
 #[test]
+fn a_stepped_neutral_ramp_propagates_an_invalid_white_input() {
+    use crate::api::generate::GenerateError;
+
+    let result = generate_neutral_ramp_with_steps(
+        invalid(),
+        valid(),
+        TintMode::Inherit,
+        RampOptions::default(),
+        7,
+    );
+
+    assert_eq!(
+        result,
+        Err(GenerateError::InvalidColor(invalid_error())),
+        "a bad colour must be reported as a bad colour, not as a bad length"
+    );
+}
+
+#[test]
+fn a_stepped_neutral_ramp_propagates_an_invalid_black_input_when_white_is_valid() {
+    use crate::api::generate::GenerateError;
+
+    let result = generate_neutral_ramp_with_steps(
+        valid(),
+        invalid(),
+        TintMode::Inherit,
+        RampOptions::default(),
+        7,
+    );
+
+    assert_eq!(result, Err(GenerateError::InvalidColor(invalid_error())));
+}
+
+#[test]
 fn a_stepped_neutral_ramp_rejects_a_length_the_model_cannot_express() {
     use crate::api::generate::GenerateError;
     use crate::palette::generator::{MAX_STEPS, MIN_STEPS};

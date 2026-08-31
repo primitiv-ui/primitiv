@@ -92,6 +92,36 @@ fn should_read_the_perceptual_curve_at_whatever_resolution_is_asked_for() {
 }
 
 #[test]
+fn should_report_a_lightness_curve_as_long_as_the_ramp() {
+    let soft_white = Oklch::new(0.975, 0.006, 240.0);
+    let soft_black = Oklch::new(0.10, 0.00375, 240.0);
+
+    for count in [3usize, 7, 32] {
+        let palette = generate_neutral_ramp_with_steps(
+            soft_white,
+            soft_black,
+            TintMode::Inherit,
+            RampOptions::default(),
+            count,
+        );
+
+        // The curve describes the ramp it is returned with, so a consumer
+        // reading both cannot find them disagreeing about the ramp's length.
+        assert_eq!(
+            palette.lightness_curve.len(),
+            count,
+            "a {}-step ramp reported a {}-entry lightness curve",
+            count,
+            palette.lightness_curve.len()
+        );
+        assert_eq!(palette.lightness_curve[count - 1], soft_black.l);
+        for value in &palette.lightness_curve[..count - 1] {
+            assert_eq!(*value, soft_white.l);
+        }
+    }
+}
+
+#[test]
 fn should_space_lightness_along_the_normalised_perceptual_curve() {
     use crate::palette::generator::TARGET_LIGHTNESS;
 

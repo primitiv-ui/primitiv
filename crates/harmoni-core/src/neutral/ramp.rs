@@ -140,22 +140,14 @@ pub fn generate_neutral_ramp_with_steps(
         })
         .collect();
 
-    let lightness_curve = [
-        soft_white.l,
-        soft_white.l,
-        soft_white.l,
-        soft_white.l,
-        soft_white.l,
-        soft_white.l,
-        soft_white.l,
-        soft_white.l,
-        soft_white.l,
-        soft_black.l,
-    ];
+    // Held at soft-white until the final step drops to soft-black — the shape
+    // this ramp has always reported, now as long as the ramp itself.
+    let mut lightness_curve = vec![soft_white.l; steps];
+    lightness_curve[last] = soft_black.l;
 
     Palette {
         swatches,
-        lightness_curve: lightness_curve.to_vec(),
+        lightness_curve,
         max_recommended_light_padding: 0.0,
         max_recommended_dark_padding: 0.0,
         note: String::new(),

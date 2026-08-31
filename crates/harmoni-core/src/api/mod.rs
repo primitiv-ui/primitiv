@@ -32,7 +32,8 @@ pub use crate::palette::easing::{
 };
 pub use crate::palette::generator::{DEFAULT_STEPS, MAX_STEPS, MIN_STEPS};
 pub use neutral::{
-    derive_soft_neutrals, generate_neutral_ramp, tint_neutrals, tint_neutrals_duotone,
+    derive_soft_neutrals, generate_neutral_ramp, generate_neutral_ramp_with_steps, tint_neutrals,
+    tint_neutrals_duotone,
 };
 
 #[cfg(test)]

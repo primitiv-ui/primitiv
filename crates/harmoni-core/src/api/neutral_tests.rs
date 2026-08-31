@@ -1,8 +1,62 @@
 use crate::api::neutral::{
-    derive_soft_neutrals, generate_neutral_ramp, tint_neutrals, tint_neutrals_duotone,
+    derive_soft_neutrals, generate_neutral_ramp, generate_neutral_ramp_with_steps, tint_neutrals,
+    tint_neutrals_duotone,
 };
 use crate::color::input::{ColorInput, ColorInputError};
 use crate::neutral::ramp::{RampOptions, TintMode};
+
+fn soft_white() -> ColorInput {
+    ColorInput::Oklch {
+        l: 0.95,
+        c: 0.02,
+        h: 240.0,
+    }
+}
+
+fn soft_black() -> ColorInput {
+    ColorInput::Oklch {
+        l: 0.10,
+        c: 0.005,
+        h: 240.0,
+    }
+}
+
+#[test]
+fn a_stepped_neutral_ramp_carries_the_same_labels_as_a_solid_ramp_of_that_length() {
+    use crate::api::generate::{generate_with_options, GenerateOptions};
+
+    // A neutral ramp sits beside brand/danger/... in one collection, so the two
+    // families have to line up step for step at every supported length.
+    for count in [3usize, 7, 10, 32] {
+        let neutral = generate_neutral_ramp_with_steps(
+            soft_white(),
+            soft_black(),
+            TintMode::Inherit,
+            RampOptions::default(),
+            count,
+        )
+        .expect("a supported length should produce a neutral ramp");
+
+        let solid = generate_with_options(
+            ColorInput::Css("#3b82f6".to_string()),
+            GenerateOptions {
+                steps: count,
+                ..GenerateOptions::default()
+            },
+        )
+        .expect("a supported length should produce a solid ramp");
+
+        let neutral_labels: Vec<_> = neutral.swatches.iter().map(|s| s.label.clone()).collect();
+        let solid_labels: Vec<_> = solid.swatches.iter().map(|s| s.label.clone()).collect();
+
+        assert_eq!(neutral.swatches.len(), count);
+        assert_eq!(
+            neutral_labels, solid_labels,
+            "a {}-step neutral ramp does not line up with its solid companions",
+            count
+        );
+    }
+}
 
 fn invalid() -> ColorInput {
     ColorInput::Css("not-a-color".to_string())

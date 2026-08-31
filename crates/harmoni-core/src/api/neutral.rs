@@ -1,8 +1,27 @@
+use crate::api::generate::GenerateError;
 use crate::color::input::{ColorInput, ColorInputError};
 use crate::neutral::derive::{self, SoftNeutrals};
 use crate::neutral::ramp::{self, RampOptions, TintMode};
 use crate::neutral::tint;
 use crate::palette::generator::Palette;
+
+/// Builds a neutral ramp of `steps` steps between the two soft anchors, so a
+/// neutral ramp can match the length of the solid ramps it sits beside — the
+/// labels come from the same ladder, and the two families line up step for
+/// step.
+pub fn generate_neutral_ramp_with_steps(
+    white: ColorInput,
+    black: ColorInput,
+    tint: TintMode,
+    options: RampOptions,
+    steps: usize,
+) -> Result<Palette, GenerateError> {
+    let soft_white = white.to_oklch()?;
+    let soft_black = black.to_oklch()?;
+    Ok(ramp::generate_neutral_ramp_with_steps(
+        soft_white, soft_black, tint, options, steps,
+    ))
+}
 
 pub fn generate_neutral_ramp(
     white: ColorInput,

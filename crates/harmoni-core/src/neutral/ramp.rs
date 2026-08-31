@@ -2,7 +2,9 @@ use palette::Oklch;
 
 use crate::audit::contrast::get_contrast_rating_for_step;
 use crate::audit::foreground::get_best_foreground;
-use crate::palette::generator::{Palette, Swatch, SwatchLabel, SwatchStep, TARGET_LIGHTNESS};
+use crate::palette::generator::{
+    step_labels, Palette, Swatch, SwatchLabel, SwatchStep, DEFAULT_STEPS, TARGET_LIGHTNESS,
+};
 
 #[derive(Debug, Clone, Copy, PartialEq, Default)]
 pub enum TintMode {
@@ -22,8 +24,6 @@ pub struct RampOptions {
     pub bow: f32,
 }
 
-const STEPS: [u16; 10] = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900];
-
 /// Interpolate a hue from `from` to `to` along the **shortest arc** in degrees.
 /// Crossing the 0°/360° seam (e.g. 350° → 10°) rotates the short way (+20°
 /// through 0°) rather than the long way (−340° through 180°).
@@ -34,23 +34,36 @@ fn lerp_hue_shortest(from: f32, to: f32, t: f32) -> f32 {
     ((from + delta * t + 180.0).rem_euclid(360.0)) - 180.0
 }
 
-pub fn generate_neutral_ramp(
+/// Builds a neutral ramp of `steps` steps between the two soft anchors.
+///
+/// A ramp's length is a user knob, and a neutral ramp has to be able to follow
+/// its solid companions: it sits beside brand/danger/... in one collection, so
+/// a ten-step neutral against a seven-step brand would carry two different
+/// label sets for one palette. Labels come from [`step_labels`], the same
+/// ladder every solid ramp walks.
+///
+/// `steps` must be within `MIN_STEPS..=MAX_STEPS`. The `api` layer is what
+/// guarantees that for every caller — the same arrangement
+/// `generate_alpha_ramp_with_steps` uses.
+pub fn generate_neutral_ramp_with_steps(
     soft_white: Oklch,
     soft_black: Oklch,
     tint: TintMode,
     options: RampOptions,
+    steps: usize,
 ) -> Palette {
     let bow = options.bow.clamp(0.0, 1.0);
     let peak = soft_white.chroma.max(soft_black.chroma);
     let white_hue = soft_white.hue.into_degrees();
     let black_hue = soft_black.hue.into_degrees();
-    let last = STEPS.len() - 1;
+    let labels = step_labels(steps);
+    let last = labels.len() - 1;
     let curve_span = TARGET_LIGHTNESS[0] - TARGET_LIGHTNESS[last];
     let apply_tint = |c: f32| match tint {
         TintMode::Inherit => c,
         TintMode::Achromatic => 0.0,
     };
-    let backgrounds: Vec<SwatchStep> = STEPS
+    let backgrounds: Vec<SwatchStep> = labels
         .iter()
         .enumerate()
         .map(|(i, &step)| {
@@ -142,4 +155,16 @@ pub fn generate_neutral_ramp(
         max_recommended_dark_padding: 0.0,
         note: String::new(),
     }
+}
+
+/// Builds a neutral ramp at the engine's default length — what a caller gets
+/// without asking for anything else. One implementation, so the fixed and
+/// stepped forms cannot drift.
+pub fn generate_neutral_ramp(
+    soft_white: Oklch,
+    soft_black: Oklch,
+    tint: TintMode,
+    options: RampOptions,
+) -> Palette {
+    generate_neutral_ramp_with_steps(soft_white, soft_black, tint, options, DEFAULT_STEPS)
 }

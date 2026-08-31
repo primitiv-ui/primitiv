@@ -1,6 +1,31 @@
-use crate::neutral::ramp::{generate_neutral_ramp, RampOptions, TintMode};
+use crate::neutral::ramp::{generate_neutral_ramp, generate_neutral_ramp_with_steps, RampOptions, TintMode};
 use crate::palette::generator::SwatchLabel;
 use palette::Oklch;
+
+#[test]
+fn should_label_a_stepped_ramp_from_the_shared_step_ladder() {
+    use crate::palette::generator::step_labels;
+
+    let soft_white = Oklch::new(0.975, 0.006, 240.0);
+    let soft_black = Oklch::new(0.10, 0.00375, 240.0);
+
+    let palette = generate_neutral_ramp_with_steps(
+        soft_white,
+        soft_black,
+        TintMode::Inherit,
+        RampOptions::default(),
+        7,
+    );
+
+    assert_eq!(palette.swatches.len(), 7);
+
+    // A neutral ramp sits beside brand/danger/... in one collection, so its
+    // labels have to come from the same ladder the solid ramps walk rather
+    // than a fixed 50...900 list of its own.
+    let labels: Vec<SwatchLabel> = palette.swatches.iter().map(|s| s.label.clone()).collect();
+    let expected: Vec<SwatchLabel> = step_labels(7).into_iter().map(SwatchLabel::Number).collect();
+    assert_eq!(labels, expected);
+}
 
 #[test]
 fn should_return_ten_labelled_swatches_with_endpoints_pinned_to_soft_white_and_soft_black() {

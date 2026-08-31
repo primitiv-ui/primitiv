@@ -105,13 +105,14 @@ const compilerOptions = {
     "class-variance-authority": [
       "packages/react/node_modules/class-variance-authority",
     ],
-    /* code-block's syntax highlighter. Only the docs-site installs it (its
-       node_modules), and registry/components/code-block/ has no node_modules
-       above it, so without this the import is unresolved and the whole
-       code-block props table would silently empty. */
-    "prism-react-renderer": [
-      "apps/docs-site/node_modules/prism-react-renderer/dist/index.d.ts",
-    ],
+    /* code-block's syntax highlighter, as a committed stub rather than the
+       real package. This used to resolve through
+       `apps/docs-site/node_modules`, which only exists on a machine that has
+       installed that app — it is excluded from the pnpm workspace, so a root
+       install never creates it and CI failed here while local runs passed.
+       Nothing prism-typed reaches a public API, so a stub is enough; see the
+       file's own header. Shared with scripts/check-registry-types.mjs. */
+    "prism-react-renderer": ["scripts/stubs/prism-react-renderer.d.ts"],
   },
 };
 

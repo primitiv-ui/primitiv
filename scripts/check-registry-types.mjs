@@ -60,25 +60,14 @@ try {
   );
 
   // `code-block` highlights with prism-react-renderer. Stub its surface (not
-  // what we're checking) so the wrapper resolves — precise prop types, no broad
-  // index signature, so the JSX prop spreads still type-check.
-  writeFileSync(
+  // what we're checking) so the wrapper resolves. The stub is a committed file
+  // shared with scripts/docs-data/extract-docs-data.mjs rather than a string
+  // built here, so a change to it cannot fix one caller and leave the other
+  // behind — which is exactly what happened while this script stubbed and the
+  // extractor resolved through apps/docs-site/node_modules instead.
+  cpSync(
+    join(repoRoot, "scripts", "stubs", "prism-react-renderer.d.ts"),
     join(workDir, "prism-stub.d.ts"),
-    `declare module "prism-react-renderer" {\n` +
-      `  import { CSSProperties, ReactElement, ReactNode } from "react";\n` +
-      `  export interface PrismTheme { plain: object; styles: unknown[]; }\n` +
-      `  export interface Token { types: string[]; content: string; }\n` +
-      `  export interface LineOutputProps { style?: CSSProperties; className?: string; }\n` +
-      `  export interface TokenOutputProps { style?: CSSProperties; className?: string; children?: ReactNode; }\n` +
-      `  export interface RenderProps {\n` +
-      `    className: string;\n` +
-      `    style: CSSProperties;\n` +
-      `    tokens: Token[][];\n` +
-      `    getLineProps: (input: { line: Token[]; className?: string }) => LineOutputProps;\n` +
-      `    getTokenProps: (input: { token: Token }) => TokenOutputProps;\n` +
-      `  }\n` +
-      `  export function Highlight(props: { theme?: PrismTheme; code: string; language: string; children: (props: RenderProps) => ReactNode }): ReactElement;\n` +
-      `}\n`,
   );
 
   writeFileSync(

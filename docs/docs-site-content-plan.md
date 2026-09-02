@@ -6,6 +6,8 @@
 > owns the site's architecture (the mode switch, the docs-data pipeline,
 > the page template). [`voice-and-tone.md`](./voice-and-tone.md) owns how
 > the sentences are written. This doc owns what they say.
+> Page-by-page copy lands in its own file as it is written — the first
+> is [`docs-site-home-copy.md`](./docs-site-home-copy.md).
 
 ---
 
@@ -43,6 +45,7 @@ The result, as of this plan:
 | D4 | **Concepts is five pages, not one** | Each carries its own diagram and its own TOC |
 | D5 | **Hero leads on accessible-by-construction** | See §2.1, with the three alternates recorded |
 | D6 | **A voice spec exists and is binding** | `voice-and-tone.md`, and a new axis in `character-brief.md` |
+| D7 | **Every page's copy carries its illustration briefs inline, in position** | The artwork is made by a design model from these briefs, so a brief must be executable without reading the repo. Schema in `docs-site-home-copy.md` |
 
 ### 1.1 The competitive position the copy has to hold
 
@@ -443,9 +446,9 @@ valuable thing we can add. A short pair at the top of every page:
 > **Reach for something else when** — you want a plain label with no
 > status (that is `Tag`), or something clickable (that is `Chip`).
 
-63 short items. Hand-authored, so it belongs in `ComponentSpec`
-(`apps/docs-site/src/site/examples/types.ts`) beside `accessibility` and
-`keyboard`, which are hand-authored for the same reason.
+63 short items. They live in **`contract.json`**, not in the docs-site
+spec file — see §4.4 for why, and for the small amount that has to be
+built to carry them.
 
 **Why it earns its place:** it is the only block that tells a reader
 *not* to use the component. It is also where the near-miss pairs get
@@ -475,7 +478,101 @@ Collections, then Disclosure, then the three singletons.
 
 ---
 
-## 5. Figma design work this creates
+### 4.4 How the generator picks all of this up
+
+The finding that makes D2 cheap: **the lede pipeline already exists and
+is already guarded.** Nothing needs building for the 63 rewrites.
+
+```
+registry/components/<id>/contract.json  ·  .description
+        │
+        ├─ extract-docs-data.mjs:524 ──→ scripts/docs-data/<id>.docs.json ──→ the page lede
+        └─ sync-docs-data.mjs:131  ───→ scripts/docs-data/roster.json     ──→ the /components card
+                                                    │
+                                    both also copied to apps/docs-site/src/docs-data/
+```
+
+One edit, one command, and CI catches staleness:
+
+```sh
+node scripts/docs-data/sync-docs-data.mjs   # regenerate + copy both destinations
+pnpm qa:docs-data                           # --check; fails if a committed file is behind
+```
+
+`stripInternalRefs` runs on the way through, so an RFC citation left in
+a description is removed before it reaches a reader — no second,
+reader-facing copy of the sentence is needed.
+
+**Adding the "When to use this" field is safe.** Verified rather than
+assumed: `crates/primitiv-emit/src/contract.rs:11` declares `Contract`
+as a plain `#[derive(Debug, Deserialize)]` with **no
+`#[serde(deny_unknown_fields)]`**, so serde ignores keys it does not
+know. A new field in `contract.json` cannot break the CLI, the wrapper
+generator, or the embedded registry.
+
+That settles open question §7.4 in favour of `contract.json` over
+`ComponentSpec`, on four counts:
+
+1. **One edit per component, in one file.** The lede rewrite and the
+   use/don't-use pair are the same act of thinking about a component.
+   Splitting them across two files makes a 63-item pass materially more
+   expensive.
+2. **It rides the existing pipeline**, including the CI staleness guard.
+   A `ComponentSpec` field has no guard at all.
+3. **The CLI and any agent reading the registry get it too** — which is
+   the §1.22 goal of making the docs agent-consumable, at no extra cost.
+4. **It matches D2's logic**, which decided the same question the same
+   way for the lede.
+
+**What has to be built** — small, and all in one pass:
+
+| Where | Change |
+| --- | --- |
+| `registry/components/*/contract.json` | New optional `"whenToUse": { "use": [...], "insteadOf": [...] }` |
+| `scripts/docs-data/extract-docs-data.mjs` | Carry it onto `out`, through `stripInternalRefs` as `description` already is |
+| `apps/docs-site/src/lib/docs-data.ts` | Add to the `ComponentDocs` type |
+| `apps/docs-site/src/site/ComponentDocsPage.tsx` | Render beneath the header, above the Playground |
+| `crates/primitiv-emit/src/contract.rs` | **Nothing.** Serde ignores it |
+
+Keep the field **optional**, so it can land component by component
+rather than as one 63-file commit, and so the 21 undocumented components
+can gain a page before they gain the block.
+
+## 5. Illustration and Figma work this creates
+
+### 5.0 How the artwork gets made (D7)
+
+The creative work is done by a design model (Fable 5.1) working from
+written briefs, under two constraints: it builds from the real design
+system assets, and it produces screenshots, diagrams and animations that
+illustrate how the components and Harmoni actually behave.
+
+That only works if the briefs are good. So **every page's copy document
+carries its illustration briefs inline, at the exact point in the flow
+where the artwork appears** — never collected in an appendix, because an
+image's job is set by the sentence above it.
+
+The brief schema is defined once, in
+[`docs-site-home-copy.md`](./docs-site-home-copy.md), and every later
+page reuses it. Fifteen fields, of which four do most of the work:
+
+- **`rhetorical-job`** — the argument the image carries. Every other
+  decision serves it, and a maker who has this can make good choices the
+  brief did not anticipate.
+- **`must-not`** — the failure modes. Negative constraints prevent more
+  bad output than positive ones produce good output.
+- **`craft-notes`** — what separates competent from outstanding. Usually
+  one or two details that reward a second look.
+- **`tokens`** — real token names, so nothing is approximated. Verified
+  against `packages/tokens/src/*.json`; inventing a token name is a bug.
+
+The home page has **ten briefs**, four of them live or animated. Expect a
+similar density on the concept pages, which are the ones that most need
+diagrams.
+
+### 5.1 Figma frames
+
+
 
 The existing landing wireframe (`Landing (desktop) — system build v2`,
 node `1830:10331`) covers Hero, the three path cards, the Documentation
@@ -523,18 +620,26 @@ to 70+ pages.
 
 | Step | Work | Why here |
 | --- | --- | --- |
-| 1 | `voice-and-tone.md` + character-brief axis | ✅ done — everything downstream depends on it |
-| 2 | This plan | ✅ done |
-| 3 | Home page copy, written and reviewed as text | Cheapest place to confirm the voice is right |
-| 4 | Figma: prose page template + the eight new landing sections | Rule 9. The template unblocks step 6 |
-| 5 | Build the home page | |
-| 6 | The nine content pages | Voice already settled and proven |
-| 7 | Remove the Guides + Changelog nav entries | Do it with step 6 so no link is ever dead |
-| 8 | Rewrite 63 `contract.json` ledes + mirror to Figma | Independent of the site build; can run in parallel from step 3 |
-| 9 | Add "When to use this" to the 42 existing pages | |
-| 10 | The 21 missing component pages | Largest chunk, and the least blocked |
+| 1 | `voice-and-tone.md` + character-brief axis | ✅ **done** — everything downstream depends on it |
+| 2 | This plan | ✅ **done** |
+| 3 | Home page copy + its ten illustration briefs | ✅ **done** — `docs-site-home-copy.md`. Cheapest place to confirm the voice, and it sets the brief schema |
+| 4 | Review the home copy and settle §7.1 (live demos) | Blocks 5 and 6, and changes two briefs materially |
+| 5 | Fable produces the home page artwork from the briefs | Needs step 4's answer first |
+| 6 | Figma: the prose page template | Rule 9. Unblocks step 8, and nine pages get invented ad hoc without it |
+| 7 | Build the home page | |
+| 8 | The nine content pages — copy + briefs first, then artwork, then build | Voice and brief schema already proven |
+| 9 | Remove the Guides + Changelog nav entries | Do it with step 8 so no link is ever dead |
+| 10 | Rewrite 63 `contract.json` ledes + mirror to the Figma descriptions | No tooling needed (§4.4). Runs in parallel from step 4 |
+| 11 | Build the `whenToUse` field (§4.4) and add it to the 42 existing pages | Small build, then a 42-item authoring pass |
+| 12 | The 21 missing component pages | Largest chunk, least blocked |
 
-Steps 8–10 are independent of 3–7 and can run alongside them.
+Steps 10–12 are independent of 4–9 and can run alongside them.
+
+**The one hard ordering constraint:** copy and its briefs are written
+*before* any artwork, and the prose page template exists *before* the
+nine content pages. Both exist because the expensive mistake in a
+project this size is producing work that then has to be redone for
+consistency.
 
 ---
 
@@ -549,11 +654,8 @@ Steps 8–10 are independent of 3–7 and can run alongside them.
 3. **Who verifies the proof-strip numbers before publishing**, and does a
    check get wired into CI the way `qa:docs-data` guards the generated
    data?
-4. **Does the "When to use this" block belong in `contract.json` too?**
-   It is arguably as useful to an agent reading the registry as to a
-   human reading the page. Kept in `ComponentSpec` for now because it is
-   docs-shaped prose, not contract data — but the same argument was made
-   about the lede, and D2 went the other way.
+4. ~~Does the "When to use this" block belong in `contract.json` too?~~
+   **Settled 2026-09-02 — yes, it does.** See §4.4.
 5. **`/figma/harmoni` and the private repo.** The public page needs
    product copy that the private repo's `CLAUDE.md` rules do not forbid.
    Worth confirming what may be shown before it is written.

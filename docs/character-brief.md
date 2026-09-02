@@ -65,6 +65,7 @@ yet) · ⬜ gap (not started).
 | Radius / shape | Derived `r = k·height`, **k = 0.1875** (3/16); small, never sharp/pill; intrinsic-round excepted | ✅ decided |
 | Elevation / shadow | Borders-first; multi-layer neutral shadows only where hierarchy demands | ✅ position (build TBD) |
 | Expressive typography | Tracking + casing as tokens; Khand for display / heading / label / overline only | ✅ decided |
+| Voice / verbal identity | Plain English, benefit-first, one idea per sentence | ✅ decided |
 | Chroma / primary | In active exploration via Harmoni — synced but volatile | 🔬 exploring |
 | Focus / interaction | Ring colour undecided: brand vs blue vs black; gap-band geometry kept | 🔬 exploring |
 | Motion | duration + easing signature | ⬜ gap |
@@ -162,6 +163,30 @@ and these are now positions, not proposals:
   landing pages, heroes; distinct from `heading/*` in product UI.
 - **Khand never drops to body sizes** — protecting the display↔body
   contrast ratio is the identity gesture.
+
+### Voice / verbal identity
+
+**Plain English, benefit-first, one idea per sentence.** The full spec
+lives in [`docs/voice-and-tone.md`](./voice-and-tone.md) — three readers,
+eight testable rules, a banned-patterns list, and the tone shift per
+surface.
+
+The position in one line:
+
+> Say what a thing is *for* before what it is, address the reader as
+> "you", and never let a formula repeat across pages.
+
+This axis was a gap until 2026-09-02, and its absence had a measurable
+cost: 52 of 63 component descriptions leaned on an em-dash, and 12
+carried a byte-identical closing sentence. Identity is not only visual —
+a system that reads as though nobody wrote it does not read as
+Primitiv.
+
+**What encodes the opinion**, in the spirit of this brief's own rule
+that an axis needs something concrete behind it: the reader-facing
+description on each `registry/components/*/contract.json`, which is the
+single source the docs site, the CLI and the Figma component
+descriptions all draw from.
 
 ### Elevation / shadow (position decided, build TBD)
 

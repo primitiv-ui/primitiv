@@ -1,5 +1,12 @@
 # Primitiv Docs Site — Planning Doc
 
+> **Companion doc (added 2026-09-02):** this doc owns how the site
+> *works* — the mode switch, the docs-data pipeline, the page template.
+> What each page *says* is planned in
+> [`docs-site-content-plan.md`](./docs-site-content-plan.md), and how the
+> sentences are written is [`voice-and-tone.md`](./voice-and-tone.md).
+> §3 below defers site content by omission; the content plan closes that.
+
 > **Status:** Working draft (planning stage — no implementation started)
 > **Date:** 2026-07-19
 > **Scope:** The public-facing, professional docs website for Primitiv.

@@ -63,7 +63,8 @@ Three things nobody in that set has, and they are the spine of the whole
 site:
 
 1. **Harmoni** — colour generated to be accessible by construction
-2. **Density as one global dial** — four modes, the whole UI reflows
+2. **Density as one global dial** — four modes, so one system covers a
+   dense enterprise dashboard and an editorial marketing page alike
 3. **Figma and code built from the same tokens** — and the Figma library
    genuinely exists, at 60+ component sets
 
@@ -72,8 +73,15 @@ site:
 ## 2. The home page
 
 Ten sections. Each makes exactly one argument, and each names who it is
-really for. Sections 4, 5 and 7 want **live demos** — they are the three
-claims that are dull as prose and undeniable as widgets.
+really for.
+
+**Order changed 2026-09-02: density moved ahead of colour.** Density
+answers *will this fit what we build?*; colour answers *is it any good?*.
+Fit is the more fundamental adoption question, and it lands better
+straight after the problem section.
+
+Three sections carry moving artwork: **§2.4 is a live demo**, **§2.7 and
+§2.9 are animations**. §2.5 is deliberately static — see below.
 
 ### 2.1 Hero — the promise
 
@@ -162,7 +170,47 @@ This is where the deferred time-and-cost claim lands, in its last line:
 *building the layer that fixes all four takes a team the better part of
 a year. This is that layer.*
 
-### 2.4 Every swatch already knows what text colour goes on it
+### 2.4 The same components, from dense dashboard to editorial page
+
+**For:** everyone. **Moved ahead of colour 2026-09-02**, because it
+answers a more fundamental adoption question: *will this fit what we
+build?* comes before *is it any good?*. It also lands right after the
+problem section, where a reader is most receptive to "here is a system
+that covers your case".
+
+**The claim is RANGE, not adjustability.** This is the distinction the
+section turns on. "Spacing is configurable" is what a `size` prop does
+and impresses nobody. What Primitiv actually offers is that one system
+covers products as different as a **busy enterprise dashboard** and a
+**large editorial section on a marketing site**, with no fork, no theme
+and nothing to fight.
+
+**Live demo — confirmed, and it ships (§7.1 closed).** Four radios above
+a stage split into **two regions**: a data-dense operations region
+(toolbar, table, badges) on the left, and an editorial region (heading,
+prose, quote, button) on the right. Both driven by one dial. At Dense
+the whole composition reads like an admin tool; at Spacious it reads
+like a marketing page. Nothing in the markup changed.
+
+The two regions are the design. A single scene at four densities says
+*the spacing is adjustable*; two very different scenes on one control
+says *this fits whatever you build* — which is the claim being made.
+
+Three blocks of copy follow the demo:
+
+1. **The mechanism** — one `data-density` attribute on an ancestor, and
+   everything beneath responds: spacing, height, corner radius, type.
+2. **It is not all-or-nothing** — density is inherited, so a dense table
+   inside a roomy article is one attribute on the table's container.
+   This is the flexibility claim at its strongest and the first draft
+   missed it entirely.
+3. **Why it holds together** — radius is *derived* from height
+   (`radius = height × 0.1875`), so it follows density for free rather
+   than being a fourth hand-maintained table. `DENSITY-02` draws it.
+
+Deep link to `/concepts/density`.
+
+### 2.5 Every swatch already knows what text colour goes on it
 
 **For:** everyone. The single most differentiated section on the page.
 
@@ -214,27 +262,6 @@ caption extending the guard to it would be false.
 attributes the palette to it and points at its own site. Full copy and
 both illustration briefs are in
 [`docs-site-home-copy.md`](./docs-site-home-copy.md) §4.
-
-### 2.5 One dial changes the whole interface
-
-**For:** everyone. The second differentiator, and the best demo on the
-site.
-
-**Live demo.** Four radio buttons — Dense, Compact, Comfortable,
-Spacious — above a small, realistic UI (a form, a table, some buttons).
-Change the mode; every control on the page reflows. No code changes, no
-rebuild.
-
-> Some products need to fit as much on screen as possible. Some need
-> room to breathe. Most need both, in different places. Primitiv makes
-> that one setting rather than a redesign.
-
-Then the mechanism: it is one `data-density` attribute on an ancestor,
-and everything below it responds — spacing, control height, corner
-radius, even type. Radius is *derived* from height, so it follows for
-free.
-
-Deep link to `/concepts/density`.
 
 ### 2.6 Design and code from the same source
 
@@ -614,8 +641,8 @@ map and the component block. Against §2, that is **two of ten sections**.
 | --- | --- |
 | §2.2 Proof strip | New. A figures row |
 | §2.3 The problem | New. Four-item editorial block, no components exist for this shape |
-| §2.4 Colour proof sheet | New. Now the EASIEST of the new sections to design, since it is static and its anatomy is already tokenised (`swatch/*`). Build it from the real palette in both themes |
-| §2.5 Density section | New. An interactive demo has no Figma equivalent, so the frame specifies layout and the four states only |
+| §2.4 Density section | New. An interactive demo has no Figma equivalent, so the frame specifies the two-region layout and draws all four density states |
+| §2.5 Colour proof sheet | New. The EASIEST of the new sections to design: static, and its anatomy is already tokenised (`swatch/*`). Build it from the real palette in both themes |
 | §2.6 Figma ↔ code | New. Side-by-side comparison |
 | §2.7 You own the code | New. Terminal + resulting file |
 | §2.9 Accessibility | New. Commitments list |
@@ -655,8 +682,8 @@ to 70+ pages.
 | 1 | `voice-and-tone.md` + character-brief axis | ✅ **done** — everything downstream depends on it |
 | 2 | This plan | ✅ **done** |
 | 3 | Home page copy + its ten illustration briefs | ✅ **done** — `docs-site-home-copy.md`. Cheapest place to confirm the voice, and it sets the brief schema |
-| 4 | Review the home copy and settle §7.1 (live demos) | Blocks 5 and 6, and changes two briefs materially |
-| 5 | Fable produces the home page artwork from the briefs | Needs step 4's answer first |
+| 4 | Review the home copy | §7.1 is closed, so this is a read-through rather than a decision gate |
+| 5 | Fable produces the home page artwork from the briefs | |
 | 6 | Figma: the prose page template | Rule 9. Unblocks step 8, and nine pages get invented ad hoc without it |
 | 7 | Build the home page | |
 | 8 | The nine content pages — copy + briefs first, then artwork, then build | Voice and brief schema already proven |
@@ -677,13 +704,11 @@ consistency.
 
 ## 7. Open questions
 
-1. ~~Do the live demos in §2.4 and §2.5 ship with v1?~~ **Halved
-   2026-09-02.** §2.4 is now a static proof sheet by design, not by
-   compromise. What remains is **only §2.5's density dial**, which is a
-   much cheaper question: it needs no engine in the browser, just one
-   `data-density` attribute and the token layer that already ships. The
-   fallback — four stills at four densities — is notably weaker, and the
-   cost of saying yes is now low enough that it probably should be yes.
+1. ~~Do the live demos ship with v1?~~ **Closed 2026-09-02.** The
+   colour section became a static proof sheet by design (§2.5), and the
+   **density dial ships live** (§2.4) — it needs no engine in the
+   browser, only one `data-density` attribute over the token layer that
+   already ships. Both halves settled; nothing left open here.
 2. **Does the home page name competitors?** §1.1 assumes not — it answers
    their questions without naming them. A comparison table converts well
    and ages badly.

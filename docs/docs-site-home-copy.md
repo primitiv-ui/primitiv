@@ -331,7 +331,242 @@ craft-notes:
 
 ---
 
-# Section 4 — Colour
+# Section 4 — Density
+
+**Overline:** `Density`
+
+**Heading** — `heading/h2`:
+
+> The same components, from dense dashboard to editorial page.
+
+**Body** — `body/lg`:
+
+> Most component libraries are tuned for one kind of product. Use them
+> for something denser and everything feels bloated. Use them for
+> something roomier and it feels cramped.
+
+> Primitiv has four density modes: Dense, Compact, Comfortable and
+> Spacious. Changing one attribute reflows everything beneath it —
+> spacing, control height, corner radius, even type size. An operations
+> tool and a marketing page can run the same components and both look
+> like they were designed for the job.
+
+```yaml
+id: DENSITY-01
+type: live demo
+placement: >
+  Immediately after the two opening paragraphs, full content width. It
+  arrives early in the page on purpose - this is the section that
+  answers "will this fit what we build?", and a reader who is not sure
+  of that has no reason to care about anything below it.
+
+rhetorical-job: >
+  Demonstrate a capability nobody else in the category has, in a form
+  where the reader does the work. But the point is NOT "spacing can
+  change" - a size prop does that. The point is RANGE: that one system
+  covers products as different as an enterprise dashboard and an
+  editorial page, without forking, theming or fighting it. The demo has
+  to make a reader think "that would work for us" whichever of those two
+  they build.
+
+composition:
+  - A Card at surface/raised, split into a control strip and a stage.
+  - Control strip along the top - four radios in a row, plus the live
+    attribute readout on the right of the same strip.
+  - A Divider between the strip and the stage.
+  - The stage is split into TWO regions side by side, and this is the
+    whole design of the demo. Left - a data-dense region. Right - an
+    editorial region. Both are driven by the same dial.
+  - At Dense the composition reads like an operations tool. At Spacious
+    it reads like a marketing page. Nothing about the markup changed.
+  - The stage keeps a FIXED height across all four modes, so content
+    breathes within a constant frame rather than the panel resizing.
+    A resizing panel makes the page jump and hides the effect.
+
+contents:
+  - "Control strip - a radio group, options Dense / Compact /
+    Comfortable / Spacious. Comfortable selected on load. Fieldset with
+    a visually hidden legend reading 'Density'."
+  - "Control strip, right - a mono readout: data-density=\"comfortable\",
+    updating live."
+  - "Stage, LEFT region (the dense case) - a toolbar with a
+    SegmentedControl (All / Active / Archived) and a small secondary
+    Button; beneath it a Table, header plus six body rows, four columns
+    (Name / Owner / Updated / Status), Status holding real Badges."
+  - "Stage, RIGHT region (the editorial case) - an overline, a
+    heading/h3, two short paragraphs of body text, a Blockquote, and a
+    primary Button reading 'Read more'."
+  - "A thin Divider between the two regions."
+  - "Small labels above each region, in overline: 'OPERATIONS' and
+    'EDITORIAL'. They stay put; only the content between them reflows."
+  - Everything in both regions reflows together when the mode changes.
+
+assets:
+  - Registry components only - segmented-control, button, table, badge,
+    radio, divider, blockquote, prose.
+  - The real Context token modes. Nothing hardcoded per mode: the panel
+    sets data-density on the stage and lets the cascade do the work.
+    If any element needs a manual adjustment per mode, that is a token
+    gap and a finding worth recording, not something to patch in the demo.
+
+tokens:
+  panel: surface/raised, elevation/raised, border/subtle
+  stage: surface/default
+  region-divider: border/subtle
+  region-labels: overline, content/muted
+  readout: the mono face at font-size/12, content/muted
+  control-strip-padding: space/space-16
+  region-gap: space/space-32
+
+frame:
+  ratio: roughly 16:9
+  width: full content width
+  below-64rem: >
+    Stack the two regions vertically, operations above editorial. Keep
+    both present - dropping one destroys the range argument, which is
+    the entire point of the demo.
+  below-36rem: >
+    Reduce the table to three columns (drop Updated) and the editorial
+    region to one paragraph. Keep all four radios on one row; the
+    comparison depends on seeing the four options together.
+
+themes:
+  light: as described
+  dark: identical composition, dark surfaces
+
+motion: >
+  Transition between densities over 200ms with the system's standard
+  easing, so the reader can see WHAT moved rather than only that
+  something did. No autoplay and no cycling - the demo is convincing
+  enough on direct interaction, and auto-cycling would remove the agency
+  that makes it land.
+
+reduced-motion: >
+  Densities swap instantly, no transition. Everything else unchanged and
+  fully interactive.
+
+alt: >
+  An interactive panel with four density settings. Choosing one reflows
+  both halves of the stage at once - a data table and toolbar on the
+  left, an editorial column on the right.
+
+must-not:
+  - Show a component gallery. A row of buttons at four sizes proves
+    nothing a size prop could not do. It must be two scenes.
+  - Drop the editorial region to save space at any breakpoint above
+    36rem. One region alone demonstrates spacing; two demonstrate range.
+  - Let the panel change height between modes. Fixed stage height.
+  - Hardcode anything per mode.
+  - Animate for longer than about 200ms. Slower reads as a toy.
+
+craft-notes:
+  - The two regions are the design. A single scene at four densities
+    says "the spacing is adjustable"; two very different scenes driven
+    by one control says "this system fits whatever you build", which is
+    the claim the section is actually making.
+  - Choose content so all four modes are genuinely usable in BOTH
+    regions. Dense editorial text should look tight but readable, not
+    broken - Dense is a legitimate choice and must look like a
+    deliberate one. If Spacious makes the table look padded and silly,
+    that is worth surfacing as a real finding rather than hiding by
+    picking easier content.
+  - The live data-density readout is the detail that converts a
+    developer. It says "this is one attribute" more efficiently than a
+    paragraph could.
+  - Watch the table's row height between Dense and Spacious. It is the
+    clearest single signal in the panel, and the composition should keep
+    it on screen at all times.
+```
+
+**Second block — mix it within one page** — `body/md`:
+
+> It is not an all-or-nothing setting. Density is inherited, so you set
+> it once for the whole application, or on any part of a page that needs
+> to be different. A dense table inside a roomy article is one attribute
+> on the table's container.
+
+**Third block — why it holds together** — `body/md`:
+
+> Corner radius is worth singling out, because it shows how the system
+> thinks. It is not a value someone assigns per size. It is a fraction
+> of the control's height, so when density changes the height, the
+> radius follows on its own and stays in proportion.
+
+```yaml
+id: DENSITY-02
+type: diagram
+placement: >
+  Beside the corner-radius paragraph, right-hand half of a two-column
+  layout.
+
+rhetorical-job: >
+  Show that the system derives rather than assigns. Without this, a
+  sceptical reader files density under "they made four size scales",
+  which is maintenance debt rather than design. The formula is the
+  evidence that it is one rule, not four tables.
+
+composition:
+  - Four buttons in a horizontal row, one per density mode, at their
+    TRUE relative heights so the size difference is real.
+  - Baseline-aligned along their bottom edge, so height reads as growth
+    upward.
+  - Beneath each, its height and its resulting radius, as figures.
+  - Beneath the row, the formula, once, centred, in the mono face.
+  - A faint radius arc on one corner of each button, showing the curve
+    growing with the button.
+
+contents:
+  - "Four primary Buttons, all labelled 'Continue', at md size under
+    Dense, Compact, Comfortable and Spacious respectively."
+  - "Under each - the mode name, then its height and radius as real
+    figures from the token layer."
+  - "Beneath the row, the formula: radius = height x 0.1875"
+  - "One quiet line beneath: 'Nobody assigns these. They fall out.'"
+
+assets:
+  - button (registry), primary, size md, rendered under each of the four
+    Context modes.
+
+tokens:
+  figures: the mono face at font-size/12, content/muted
+  mode-labels: label/sm, content/secondary
+  formula: the mono face at font-size/14, content/primary
+  arc: border/strong at 1px
+  closing-line: body/sm, content/muted
+
+frame:
+  ratio: "4:3"
+  width: half the content width
+  below-48rem: full width beneath the prose, buttons still on one row
+
+themes:
+  light: as described
+  dark: same, dark values
+
+alt: >
+  The same button at four density modes, each with its height and its
+  derived corner radius, above the formula radius equals height times
+  0.1875.
+
+must-not:
+  - Scale the buttons artificially. The heights must be the real token
+    values for each mode, or the diagram lies about the thing it
+    documents.
+  - Draw the radius arcs heavily. They are annotation, not feature.
+  - Round the figures to make them tidier. Real values, awkward ones
+    included.
+
+craft-notes:
+  - 0.1875 is Primitiv's roundness coefficient and appears nowhere else
+    on the site. Showing it plainly is a small act of confidence - it
+    says the system has opinions specific enough to have a number.
+```
+
+**Link** — `How density works →` → `/concepts/density`
+
+---
+
+# Section 5 — Colour
 
 **Overline:** `Colour`
 
@@ -589,211 +824,6 @@ craft-notes:
 > 100 generated swatches. Every one has a foreground that clears its
 > contrast minimum, every ramp holds its hue, and no two steps collapse
 > onto the same colour — all checked on every change.
-
----
-
-# Section 5 — Density
-
-**Overline:** `Proportional control`
-
-**Heading** — `heading/h2`:
-
-> One dial changes the whole interface.
-
-**Body** — `body/lg`:
-
-> Some products need to fit as much on screen as possible. Some need
-> room to breathe. Most need both, in different places. Primitiv makes
-> that a setting rather than a redesign.
-
-> There are four modes: Dense, Compact, Comfortable and Spacious.
-> Changing one attribute reflows every control beneath it — spacing,
-> height, corner radius, even type size. No rebuild, no second
-> stylesheet, no component rewritten.
-
-```yaml
-id: DENSITY-01
-type: live demo
-placement: >
-  Directly after the two opening paragraphs, full content width.
-
-rhetorical-job: >
-  Demonstrate a capability nobody else in the category has, in a form
-  where the reader does the work. Reading "four density modes" produces
-  a shrug; moving the control and watching a real interface reproportion
-  itself produces the reaction this section exists for.
-
-composition:
-  - A Card at surface/raised, split into a control strip and a stage.
-  - Control strip along the top - four radios in a row, plus the live
-    attribute readout on the right of the same strip.
-  - A Divider between the strip and the stage.
-  - The stage holds a realistic slice of product UI, NOT a component
-    gallery. It must look like a screen someone uses.
-  - The stage keeps a fixed height across all four modes, so the reader
-    sees the content breathe within a constant frame rather than the
-    whole panel resizing. This is important - a resizing panel makes the
-    page jump and hides the effect.
-
-contents:
-  - "Control strip - a radio group, options Dense / Compact /
-    Comfortable / Spacious. Comfortable selected on load. Fieldset with
-    a visually hidden legend reading 'Density'."
-  - "Control strip, right - a mono readout: data-density=\"comfortable\",
-    updating live as the selection changes."
-  - "Stage, upper left - a small form: two Fields ('Project name',
-    'Owner') and a primary Button labelled 'Create project'."
-  - "Stage, upper right - a toolbar: a SegmentedControl with three
-    options (All / Active / Archived), and a secondary Button
-    'Filter'."
-  - "Stage, lower - a Table, header plus five body rows, four columns:
-    Name / Owner / Updated / Status. Status holds real Badges."
-  - Everything reflows together when the mode changes.
-
-assets:
-  - field, input, button, segmented-control, table, badge, radio - all
-    registry components.
-  - The real Context token modes. Nothing hardcoded per mode; the panel
-    sets data-density and lets the cascade do the work. If any element
-    needs a manual adjustment per mode, that is a token gap and a finding.
-
-tokens:
-  panel: surface/raised, elevation/raised, border/subtle
-  stage: surface/default
-  readout: the mono face at font-size/12, content/muted
-  divider: border/subtle
-  control-strip-padding: space/space-16
-
-frame:
-  ratio: roughly 16:9
-  width: full content width
-  below-48rem: >
-    Stack the form and toolbar vertically inside the stage. Keep all
-    four radios on one row - the comparison depends on seeing the four
-    options together.
-  below-36rem: >
-    Reduce the table to three columns (drop Updated). Do not reduce the
-    row count; the vertical rhythm change is most of what density does
-    to a table.
-
-themes:
-  light: as described
-  dark: identical composition, dark surfaces
-
-motion: >
-  Transition between densities over 200ms with the system's standard
-  easing, so the reader can see WHAT moved rather than just that
-  something did. No autoplay and no cycling - this demo is convincing
-  enough on direct interaction, and an auto-cycling one would deny the
-  reader the agency that makes it land.
-
-reduced-motion: >
-  Densities swap instantly, no transition. Everything else is unchanged
-  and fully interactive.
-
-alt: >
-  An interactive panel with four density settings. Choosing one reflows
-  a form, a toolbar and a table to match.
-
-must-not:
-  - Show a component gallery. A row of buttons at four sizes proves
-    nothing a size prop could not do. It must be a scene.
-  - Let the panel change height between modes. Fixed stage height.
-  - Animate for longer than about 200ms. Slower reads as a toy.
-  - Hardcode anything per mode.
-
-craft-notes:
-  - The live data-density readout is the detail that converts a
-    developer. It says "this is one attribute" more efficiently than a
-    paragraph could.
-  - Choose the stage content so all four modes are genuinely usable.
-    If Dense looks cramped and broken, the demo argues against itself -
-    Dense is a legitimate choice for dense products, and must look like
-    a deliberate one.
-  - Watch the table's row height between Dense and Spacious. That is the
-    single clearest signal in the whole panel, and the composition should
-    make sure it is on screen at all times.
-```
-
-**Second block** — `body/md`:
-
-> Corner radius is worth singling out, because it shows how the system
-> thinks. It is not a value someone assigns per size. It is a fraction
-> of the control's height, so when density changes the height, the
-> radius follows on its own and stays in proportion.
-
-```yaml
-id: DENSITY-02
-type: diagram
-placement: >
-  Beside the corner-radius paragraph, right-hand half of a two-column
-  layout.
-
-rhetorical-job: >
-  Show that the system derives rather than assigns. This is the clearest
-  small example of the "mathematical proportion as a through-line"
-  principle, and it is what separates Primitiv from a library with a
-  size prop.
-
-composition:
-  - Four buttons in a horizontal row, one per density mode, at their
-    true relative heights so the size difference is real.
-  - Beneath each, its height and its resulting radius, as figures.
-  - Beneath the row, the formula, once, centred, in the mono face.
-  - The four buttons are baseline-aligned along their bottom edge so
-    the height difference reads as growth upward.
-
-contents:
-  - "Four primary Buttons, all labelled 'Continue', at md size in
-    Dense, Compact, Comfortable and Spacious respectively."
-  - "Under each - the mode name, then 'height 32px' / 'radius 6px'
-    style figures, with the real values for each mode."
-  - "Beneath the row, the formula: radius = height x 0.1875"
-  - "A single quiet line beneath: 'Nobody assigns these. They fall out.'"
-  - A faint radius arc drawn on one corner of each button, showing the
-    curve growing with the button.
-
-assets:
-  - button (registry), primary, size md, rendered under each of the four
-    Context modes.
-
-tokens:
-  figures: the mono face at font-size/12, content/muted
-  mode-labels: label/sm, content/secondary
-  formula: the mono face at font-size/14, content/primary
-  arc: border/strong at 1px
-  closing-line: body/sm, content/muted
-
-frame:
-  ratio: "4:3"
-  width: half the content width
-  below-48rem: full width beneath the prose, buttons still on one row
-
-themes:
-  light: as described
-  dark: same, dark values
-
-alt: >
-  The same button at four density modes, each with its height and its
-  derived corner radius, above the formula radius equals height times
-  0.1875.
-
-must-not:
-  - Scale the buttons artificially. The heights must be the real token
-    values for each mode or the diagram is a lie about the thing it
-    is documenting.
-  - Draw the radius arcs heavily. They are an annotation, not a feature.
-  - Round the figures to make them tidier. Real values, including
-    awkward ones.
-
-craft-notes:
-  - The constant 0.1875 is Primitiv's roundness coefficient and appears
-    nowhere else on the site. Showing it here, plainly, is a small act
-    of confidence - it says the system has opinions specific enough to
-    have a number.
-```
-
-**Link** — `How density works →` → `/concepts/density`
 
 ---
 
@@ -1313,21 +1343,28 @@ the CTA the whole frame.
    "contract" never appear.** `voice-and-tone.md` §3 permits the jargon
    once introduced, and the home page is where introduction happens —
    but none of these earns its place here.
-4. **Ten illustrations, of which three are live or animated** —
+4. **Density now comes before colour** (reordered 2026-09-02). Density
+   answers *"will this fit what we build?"*; colour answers *"is it any
+   good?"*. Fit is the more fundamental adoption question, so it goes
+   first — and it lands immediately after the problem section, which is
+   where a reader is most receptive to "here is a system that covers
+   your case". Brief ids are unchanged, since they were never positional.
+5. **The density dial ships live** — confirmed, and §7.1 is closed. It
+   needs no engine in the browser, only one `data-density` attribute and
+   the token layer that already ships.
+6. **Ten illustrations, of which three are live or animated** —
    `DENSITY-01` (live), `CODE-01` and `A11Y-01` (animations). The
-   colour section is now entirely static, which removes its dependency
-   on the engine running in the browser and makes §7.1 a much smaller
-   question than it was.
-5. **`HARMONI-01`/`-02` were renamed `COLOUR-01`/`-02` on 2026-09-02**,
+   colour section is entirely static by design.
+7. **`HARMONI-01`/`-02` were renamed `COLOUR-01`/`-02` on 2026-09-02**,
    the one deliberate exception to the never-renumber rule in the schema
    above. Nothing had been built from them, and the old names implied
    the section was about the plugin — which is exactly the confusion
    this rewrite exists to remove. Recorded rather than done silently.
-6. **Harmoni is a separate commercial product with its own site.** This
+8. **Harmoni is a separate commercial product with its own site.** This
    page names it as the source of the palette and links out. It does not
    demonstrate the plugin, show its interface, or explain how to use it.
    Keep it that way — the section's subject is the result, not the tool.
-7. **Every figure in section 2 is unverified in this draft.** They come
+9. **Every figure in section 2 is unverified in this draft.** They come
    from repository notes, not from a measurement taken today. The
    100-swatch figure in section 4 IS verified — it is stated in
    `crates/harmoni-core/tests/ramp_regression.rs` and follows from the

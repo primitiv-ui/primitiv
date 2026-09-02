@@ -162,26 +162,58 @@ This is where the deferred time-and-cost claim lands, in its last line:
 *building the layer that fixes all four takes a team the better part of
 a year. This is that layer.*
 
-### 2.4 Colour that cannot fail a contrast check
+### 2.4 Every swatch already knows what text colour goes on it
 
 **For:** everyone. The single most differentiated section on the page.
 
-**Live demo.** A colour input. Change the brand colour, watch the full
-ramp regenerate, with the contrast figure shown against each surface and
-never dropping below the floor.
+**Revised 2026-09-02, and the revision made it stronger.** The section
+was drafted as an interactive Harmoni demo — change a brand colour,
+watch the ramp regenerate. That was wrong on two counts. **Harmoni is a
+separate commercial product with its own site**, so demonstrating the
+plugin here sends a reader toward something this page is not selling.
+And a demo of a tool is weaker evidence than the tool's actual output.
+
+**What the section shows instead: the real shipped palette as a proof
+sheet.** Six ramps, ten steps each, with `Ag` on every swatch painted
+in the foreground the engine paired with it, and the step number
+beneath. This is the same specimen the plugin produces today, and it is
+the thing itself rather than a demonstration of the thing.
+
+Three consequences worth having:
+
+1. **It is static.** No wasm in the browser, no engine dependency, no
+   interaction to build. It removes the colour half of §7.1 entirely.
+2. **The `swatch/*` Context tokens already exist** — `box`,
+   `sample-size`, `sample-caption-size`, `radius`, `panel-cap` — authored
+   for exactly this specimen and, so far, consumed by no code. The docs
+   site would be their first consumer, which is dogfooding rather than
+   new work.
+3. **The claim is already gated in CI, and honestly phrased.**
+   `crates/harmoni-core/tests/ramp_regression.rs` carries
+   `every_ramp_keeps_an_accessible_foreground_on_every_step` (*"True
+   today across all 100 shipped swatches"*), `no_ramp_greys_out`,
+   `every_ramp_holds_its_hue_by_construction` and
+   `no_ramp_collapses_two_steps_onto_one_colour`. The copy states what
+   those tests assert and nothing more.
 
 **Claim-and-proof pair**, per `voice-and-tone.md` §5:
 
-> Your colours cannot fail a contrast check. Primitiv generates every
-> shade from one brand colour and checks the contrast as it goes, so the
-> palette is correct before anyone opens it.
+> The letters on each colour below are not a design flourish. They are
+> the actual text colour the engine chose for that swatch, and every one
+> of them clears its contrast minimum.
 
-Then the mechanism, for the developer: the engine works in OKLCH, so
-equal steps look equal to the eye rather than merely measuring equal;
-chroma is capped at constant lightness and hue, so hues hold across the
-ramp instead of drifting as they clip.
+**The precision point, so nobody quietly overclaims:** the 100-swatch
+guarantee covers the **five generated ramps** (brand, success, warning,
+danger, info) across both themes — `packages/tokens/harmoni-seeds.json`
+is the manifest. **Neutral is not in it**; it comes from a different
+part of the engine and is deliberately excluded. Showing neutral in the
+sheet is right, since it is where most interface colour comes from. Any
+caption extending the guard to it would be false.
 
-Deep link to `/concepts/tokens` and to the Harmoni page.
+**Harmoni is named, linked, and not demonstrated.** One short block
+attributes the palette to it and points at its own site. Full copy and
+both illustration briefs are in
+[`docs-site-home-copy.md`](./docs-site-home-copy.md) §4.
 
 ### 2.5 One dial changes the whole interface
 
@@ -582,8 +614,8 @@ map and the component block. Against §2, that is **two of ten sections**.
 | --- | --- |
 | §2.2 Proof strip | New. A figures row |
 | §2.3 The problem | New. Four-item editorial block, no components exist for this shape |
-| §2.4 Harmoni section | New, and the hardest — an interactive colour demo has no Figma equivalent, so the frame specifies layout and states only |
-| §2.5 Density section | New. Same caveat |
+| §2.4 Colour proof sheet | New. Now the EASIEST of the new sections to design, since it is static and its anatomy is already tokenised (`swatch/*`). Build it from the real palette in both themes |
+| §2.5 Density section | New. An interactive demo has no Figma equivalent, so the frame specifies layout and the four states only |
 | §2.6 Figma ↔ code | New. Side-by-side comparison |
 | §2.7 You own the code | New. Terminal + resulting file |
 | §2.9 Accessibility | New. Commitments list |
@@ -645,9 +677,13 @@ consistency.
 
 ## 7. Open questions
 
-1. **Do the live demos in §2.4 and §2.5 ship with v1?** They are the two
-   best arguments on the page and the two most expensive things in it.
-   A static screenshot is a real fallback, and a much weaker one.
+1. ~~Do the live demos in §2.4 and §2.5 ship with v1?~~ **Halved
+   2026-09-02.** §2.4 is now a static proof sheet by design, not by
+   compromise. What remains is **only §2.5's density dial**, which is a
+   much cheaper question: it needs no engine in the browser, just one
+   `data-density` attribute and the token layer that already ships. The
+   fallback — four stills at four densities — is notably weaker, and the
+   cost of saying yes is now low enough that it probably should be yes.
 2. **Does the home page name competitors?** §1.1 assumes not — it answers
    their questions without naming them. A comparison table converts well
    and ages badly.

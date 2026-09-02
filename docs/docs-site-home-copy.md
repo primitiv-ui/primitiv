@@ -333,229 +333,262 @@ craft-notes:
 
 # Section 4 — Colour
 
-**Overline:** `Harmoni`
+**Overline:** `Colour`
 
 **Heading** — `heading/h2`:
 
-> Your colours cannot fail a contrast check.
+> Every swatch already knows what text colour goes on it.
 
 **Body** — `body/lg`:
 
-> Primitiv generates every shade from one brand colour, and checks the
-> contrast as it builds. The palette is correct before anyone opens it.
+> The letters on each colour below are not a design flourish. They are
+> the actual text colour the engine chose for that swatch, and every one
+> of them clears its contrast minimum.
 
-> Most systems work the other way round. Someone picks the shades by
-> eye, and contrast gets audited later. That is why accessibility work
-> so often arrives late, and expensive.
+> That is not a promise we check occasionally. It is a test that runs on
+> every change, across all 100 generated colours in both themes. If a
+> single pairing dropped below the line, the build would stop.
 
 ```yaml
-id: HARMONI-01
-type: live demo
+id: COLOUR-01
+type: screenshot
 placement: >
   Immediately after the two opening paragraphs, full content width. It
-  is the centrepiece of the section and the single most persuasive
-  object on the page. Everything after it is explanation.
+  is the centrepiece of the section and the largest single object on the
+  page. Everything after it is explanation of what the reader is
+  looking at.
 
 rhetorical-job: >
-  Let the reader try to break the claim. The sentence above says the
-  colours cannot fail a contrast check; this hands them the controls and
-  invites them to prove otherwise. A claim a reader tests themselves is
-  worth ten they are asked to accept.
+  Prove the claim by showing the real thing rather than a demonstration
+  of it. This is the actual shipped palette, and the "Ag" on every
+  swatch is the actual foreground the engine paired with it. A reader
+  can scan a hundred swatches in three seconds and see that not one of
+  them is hard to read - which is a far stronger argument than any
+  sentence, and it needs no interaction to make it.
 
 composition:
-  - Two columns on a Card at surface/raised. Left column roughly one
-    third, right two thirds.
-  - Left - the colour input and the theme toggle. Small, calm, obviously
-    the controls.
-  - Right - the generated ramp and, beneath it, the resolved roles.
-  - Vertical rhythm follows the flow tokens, so the panel reads as page
-    content rather than as an embedded app.
+  - Six ramps stacked as six rows, each row ten swatches wide, flush,
+    with no gaps between swatches within a row so each ramp reads as one
+    continuous scale.
+  - A ramp name sits to the left of each row, vertically centred,
+    outside the swatches.
+  - Small gaps between rows so the six ramps stay distinct from each
+    other.
+  - The whole block sits on a Card so it reads as a specimen sheet
+    rather than as page decoration.
+  - The eye should travel left-to-right along a ramp and then down. The
+    dark-to-light progression within each row is what makes that natural.
 
 contents:
-  - "Left column, top - a colour swatch showing the current brand
-    colour, large enough to read properly (roughly 96px square), with
-    its hex beneath in the mono face."
-  - "Left column, middle - the OKLCH controls: three labelled sliders
-    for lightness, chroma and hue, each with a numeric field. The
-    workbench OklchPicker is the reference implementation."
-  - "Left column, bottom - a light/dark SegmentedControl."
-  - "Right column, top - the full ramp as ten swatches in a row, steps
-    50 through 900, each labelled with its step number."
-  - "On each swatch, its contrast ratio against the current page
-    surface, shown to one decimal place. These update live."
-  - "Right column, bottom - four resolved semantic roles as labelled
-    rows: body text, muted text, border, link. Each row shows the role
-    name, the step it landed on, a small live sample of the role in use,
-    and its contrast figure."
-  - "A quiet status line beneath: 'Every role above meets its contrast
-    minimum.' It never changes, because it never can."
+  - "Six rows, in this order - Neutral, Brand, Success, Warning, Danger,
+    Info."
+  - "Ten swatches per row, steps 50 through 900, left to right."
+  - "On every swatch, centred - the letters 'Ag' at swatch/md/sample-size,
+    painted in that swatch's own best_foreground from the engine. Not
+    a hardcoded black or white choice, and not one colour used across a
+    whole row."
+  - "Beneath the 'Ag' on each swatch - the step number (50, 100, ... 900)
+    at swatch/md/sample-caption-size, in the same best_foreground."
+  - "Ramp names at the left of each row, in label/sm, content/secondary."
+  - "Nothing else. No hex values, no contrast figures, no legend, no
+    annotations on the sheet itself."
 
 assets:
-  - The real Harmoni engine, via @primitiv-ui/harmoni-wasm. Not
-    pre-rendered images, not a JS reimplementation.
-  - apps/workbench/src/OklchPicker is the working reference for the
-    input, including its arrow-key nudging and clamping.
-  - card, segmented-control, slider, input (all registry).
+  - The REAL shipped palette from packages/tokens/src/palette.json.
+    Not a regenerated one, not an approximation, not a sample.
+  - The foreground on each swatch is the engine's own best_foreground
+    for that swatch. If the value is not available in the emitted token
+    layer, take it from the engine rather than choosing by eye - a
+    hand-picked foreground here would make the image a lie about the
+    exact thing it is claiming.
+  - The swatch/* Context token family already exists and defines this
+    anatomy - box, sample-size, sample-caption-size, radius,
+    padding-inline, padding-block, gap. Use it. It was authored for
+    exactly this specimen and the docs site would be its first code
+    consumer.
 
 tokens:
-  panel: surface/raised, elevation/raised, border/subtle
-  swatch-labels: label/xs, content/muted
-  contrast-figures: the mono face at font-size/11
-  role-names: label/sm, content/secondary
-  status-line: body/sm, content/muted
-  column-gap: space/space-40
+  swatch-box: swatch/md/box
+  ag-size: swatch/md/sample-size
+  step-caption-size: swatch/md/sample-caption-size
+  swatch-radius: swatch/md/radius
+  swatch-gap: swatch/md/gap
+  row-gap: space/space-16
+  ramp-labels: label/sm, content/secondary
+  card: surface/raised, elevation/raised, border/subtle
+  card-padding: space/space-32
 
 frame:
-  ratio: roughly 5:2
+  ratio: roughly 5:3
   width: full content width
   below-48rem: >
-    Stack to one column - controls above, ramp below. The ramp stays a
-    single row and scrolls horizontally rather than wrapping, because a
-    wrapped ramp stops reading as a ramp.
+    Keep all ten steps in a row and let the swatches shrink. A ramp that
+    wraps stops reading as a ramp, which destroys the whole image.
+  below-36rem: >
+    Drop the step captions and keep the 'Ag'. The foreground pairing is
+    the argument; the step numbers are reference.
 
 themes:
-  light: ramp generated for light mode, contrast measured against the light surface
-  dark: same, dark mode. Switching the site theme regenerates both.
-
-motion: >
-  No autoplay. The demo responds only to the reader.
-  If untouched for 8 seconds after entering the viewport, nudge exactly
-  once - cycle the brand colour through three presets, 2s each, with a
-  600ms ease between them, then stop permanently. The nudge never
-  repeats, on any scroll.
-
-reduced-motion: >
-  The nudge is suppressed entirely and swatch transitions are instant.
-  The demo remains fully interactive - only the unrequested motion goes.
+  light: the light palette, on a light card
+  dark: the dark palette, on a dark card. These are genuinely different
+        colour values, not the same sheet dimmed - and a reader toggling
+        the site theme seeing both hold is itself part of the proof.
 
 alt: >
-  An interactive colour tool. Changing the brand colour regenerates the
-  full palette, with contrast figures that stay above the accessible
-  minimum.
+  The full Primitiv colour palette - six ramps of ten steps each - with
+  the letters "Ag" on every swatch in the text colour the engine paired
+  with it, and the step number beneath.
 
 must-not:
-  - Pre-render the ramps. If the engine is not driving it, the claim is
-    a picture of a claim and the section is dishonest.
-  - Hide the contrast figures behind a hover. They are the proof; they
-    are always visible.
-  - Let a reader reach a state where a role fails and the panel says so
-    quietly. If a genuine failure is reachable, that is a bug to raise,
-    not a state to design for.
-  - Autoplay or loop. A ramp animating on its own reads as a screensaver.
+  - Use a hardcoded black-or-white foreground rule. The engine picks a
+    real colour per swatch and the whole point is that it did the
+    choosing. A naive threshold would produce a visually similar sheet
+    that is dishonest.
+  - Add contrast ratios to the swatches. They would clutter a sheet whose
+    power is that it is scannable at a glance, and the numbers belong in
+    the proof line below the image.
+  - Space the swatches within a row. Flush is what makes it a scale.
+  - Include the alpha ramps, white, black or transparent. They are real
+    parts of the palette and they would confuse a sheet that is making
+    one specific point about foreground pairing.
+  - Imply that the neutral ramp is covered by the same guarantee - see
+    craft-notes.
 
 craft-notes:
-  - The resolved roles matter more than the ramp. A ramp is pretty; a
-    ramp that has already decided what your body text colour should be
-    is the product.
-  - Show the contrast figures to one decimal. Whole numbers read as
-    rounded and therefore as approximate, which undercuts the point.
-  - The status line should be quiet, almost throwaway. Confidence is
-    conveyed by how little emphasis it needs.
+  - "Ag" is the right specimen string and it is worth keeping exactly.
+    The ascender and the descender together show the full vertical
+    extent of the type, which is what makes legibility judgeable rather
+    than merely assertable.
+  - The most persuasive part of this sheet is the point in each ramp
+    where the foreground FLIPS from dark to light. It happens at a
+    different step in different ramps, because the engine decided per
+    swatch rather than at a fixed midpoint. Do not tidy this into a
+    straight line - the ragged flip point is the evidence that something
+    is actually thinking.
+  - A precision point, and the one place this image could quietly
+    overclaim - the 100-swatch guarantee covers the five GENERATED ramps
+    (brand, success, warning, danger, info) across both themes. Neutral
+    comes from a different part of the engine and is not in that seed
+    manifest. Showing neutral in the sheet is correct, because it is
+    part of the shipped palette and it is where most interface colour
+    comes from. Just never write a caption that extends the guard to it.
 ```
 
-**Second block — the mechanism, for the developer** — `body/md`:
+**Second block — harmonious, not just legible** — `body/md`:
 
-> The engine reasons in OKLCH, so equal steps look equal to the eye
-> rather than merely measuring equal. When a colour would fall outside
-> what a screen can show, its chroma is capped while lightness and hue
-> stay fixed. That is why the hue holds all the way along the ramp
-> instead of sliding as it clips.
+> Legible is the low bar. The harder problem is that a colour scale
+> should look like one family, and most do not. Ramps tend to drift in
+> hue as they get lighter, so the pale end of your blue arrives slightly
+> purple. Or they lose their colour and fade toward grey.
 
-**Third block — what you get** — `body/md`:
-
-> Give it one brand colour. You get a full light and dark palette, with
-> every semantic role already assigned: text, borders, surfaces, links,
-> hover states. Each one picked by contrast, not by hand.
+> Neither happens here, and neither is left to judgement. The hue is
+> held fixed by construction, the steps are checked to stay visibly
+> distinct from one another, and a ramp that started greying out would
+> fail its test rather than ship.
 
 ```yaml
-id: HARMONI-02
+id: COLOUR-02
 type: diagram
 placement: >
-  Beside the "what you get" block, right-hand half of a two-column
-  layout. The prose is on the left.
+  Beside the "harmonious" paragraphs, right-hand half of a two-column
+  layout. The prose sits on the left.
 
 rhetorical-job: >
-  Explain why a rebrand is cheap here. The reader has just been told one
-  colour produces everything; this shows the fan-out so the claim becomes
-  structural rather than assertive.
+  Show what "harmonious" means, because it is the one claim in this
+  section a reader cannot verify by looking at COLOUR-01. Drift is
+  invisible unless you see the alternative beside it. This is the only
+  place on the page where a deliberately WRONG example is useful, and it
+  works because the wrong version is what most systems actually ship.
 
 composition:
-  - Strictly top to bottom, three tiers, generous vertical spacing.
-  - Tier 1 - one swatch, centred, labelled.
-  - Tier 2 - the ten-step ramp as a single horizontal bar, divided into
-    ten segments, directly beneath.
-  - Tier 3 - five labelled roles, fanning down and outward from
-    specific segments of the ramp.
-  - Tier 4 - beneath each role label, one small real component showing
-    that colour doing its actual job.
-  - Connector lines are thin, quiet, and follow the icon stroke weight
-    so the diagram belongs to the family rather than looking imported.
+  - Two rows, one above the other, same width, same ten steps.
+  - Upper row labelled "drifting", lower row labelled "held".
+  - Beneath each row, a small hue readout - a thin horizontal track with
+    a marker per step showing where that step's hue sits.
+  - On the drifting row the markers scatter across the track. On the
+    held row they stack on one point.
+  - The hue track is what makes the invisible visible, and it is the
+    part of this diagram that has to be right.
 
 contents:
-  - "Tier 1 - one swatch, roughly 64px, labelled 'your brand colour'."
-  - "Tier 2 - the ramp bar, steps 50 to 900, each segment labelled with
-    its number in small type beneath the bar."
-  - "Tier 3, five roles, each connected by a line to the step it comes
-    from: 'button background' from 500, 'link text' from 600, 'body
-    text' from 900, 'border' from 300, 'surface' from 50."
-  - "Tier 4, one small real component under each role - a primary
-    Button, a text link in a line of prose, a line of body text, a
-    bordered Input, and a Card on the tinted surface."
-  - No arrowheads on the connectors. Direction is already clear from
-    the vertical flow, and arrowheads add visual noise at this line weight.
+  - "Upper row - a ten-step blue ramp with realistic hue drift, roughly
+    30 degrees across the scale, so the light end reads faintly purple
+    and the dark end faintly green. Label: 'drifting'."
+  - "Lower row - Primitiv's real brand ramp, same ten steps. Label:
+    'held'."
+  - "Under each row - a hue track spanning the same width, with ten small
+    markers. Scattered on the upper, coincident on the lower."
+  - "One quiet line beneath both: 'The same ten steps. One of them is a
+    family.'"
+  - No degree figures on the diagram. The scatter is the argument and a
+    number would invite arithmetic instead of looking.
 
 assets:
-  - button, input, card (registry) for tier 4.
-  - Type and spacing from the system throughout.
+  - The lower row is the REAL brand ramp from palette.json.
+  - The upper row is a constructed counter-example. It must look
+    plausible - this is what a hand-built ramp really looks like, not a
+    caricature.
 
 tokens:
-  connector-lines: border/default at 1px
-  step-labels: label/xs, content/muted
-  role-labels: label/sm, content/secondary
-  tier-gap: space/space-32
-  ramp-bar-height: space/space-24
+  row-labels: label/sm, content/secondary
+  hue-track: border/subtle at 1px, markers in content/muted
+  closing-line: body/sm, content/muted
+  row-gap: space/space-24
 
 frame:
   ratio: "4:3"
-  width: half the content width, beside the prose
-  below-48rem: >
-    Move below the prose at full content width. Keep the vertical
-    structure - it is what the diagram is.
+  width: half the content width
+  below-48rem: full width beneath the prose, rows still stacked
 
 themes:
-  light: lines border/default, labels content/secondary, on surface/default
-  dark: identical structure with dark-mode values. The ramp itself
-        differs between modes, which is correct and worth seeing.
+  light: as described
+  dark: same structure, dark values, real dark brand ramp on the lower row
 
 alt: >
-  A diagram showing one brand colour generating a ten-step ramp, which
-  supplies five semantic roles - button background, link text, body
-  text, border and surface - each shown on a real component.
+  Two ten-step blue ramps compared. The upper one drifts in hue across
+  the scale, shown by scattered markers on a hue track beneath it. The
+  lower one, Primitiv's own, holds a single hue, its markers stacked on
+  one point.
 
 must-not:
-  - Draw the ramp as ten separate detached swatches. One continuous
-    divided bar is what shows it is a single derived scale.
-  - Add a legend. If a label is needed, put it on the thing.
-  - Use arrowheads, dashes, or curved connectors.
-  - Show more than five roles. There are many more; five is the number
-    that stays legible and the point is the fan-out, not the inventory.
+  - Caricature the drifting ramp. If it looks obviously broken the
+    comparison proves nothing, because no reader believes they would
+    ship that. Drift of roughly 30 degrees is realistic and was
+    measured on real ramps before this was fixed.
+  - Label the upper row as any competitor, or as any named product.
+  - Add degree figures, arrows, or a "before and after" frame.
+  - Use the same ramp for both rows with one recoloured. Build the
+    counter-example honestly.
 
 craft-notes:
-  - The connectors landing on SPECIFIC ramp steps is the whole diagram.
-    If they land vaguely on the bar, it says "colours come from colours"
-    and teaches nothing.
-  - Tier 4 is what stops this being an abstract graphic. Each component
-    must be recognisably the real one, at a size where it is readable.
+  - The hue track underneath is doing all the work. Without it this is
+    two blue ramps that look broadly similar and the reader shrugs. With
+    it, the difference is instant and unarguable.
+  - Keep the counter-example subtle enough that a reader has to look at
+    the track to be sure. That moment of "actually, yes" is worth more
+    than an obvious difference.
 ```
 
+**Third block — where the colour comes from** — `body/md`:
+
+> The palette is generated rather than picked. A colour engine called
+> Harmoni takes one seed colour per ramp and builds the ten steps
+> around it, deciding the foreground pairings as it goes. Primitiv
+> ships the result, so you get an accessible palette without running
+> anything.
+
+> Harmoni is a Figma plugin and a product in its own right, for teams
+> who want to generate their own palettes this way. You do not need it
+> to use Primitiv.
+
+**Link** — `Harmoni →` → the Harmoni site (external)
 **Link** — `How tokens and theming work →` → `/concepts/tokens`
 
-> **If the live demo does not make v1** (content plan §7.1), the
-> fallback is `HARMONI-01-STATIC`: three brand colours as three columns,
-> each with its generated ramp and contrast figures, chosen to include
-> one genuinely awkward colour (a mid-yellow). It makes the same
-> argument and is markedly less convincing, because the reader cannot
-> test it.
+> **Proof line**, small, beneath the links, `body/sm` in `content/muted`:
+>
+> 100 generated swatches. Every one has a foreground that clears its
+> contrast minimum, every ramp holds its hue, and no two steps collapse
+> onto the same colour — all checked on every change.
 
 ---
 
@@ -1280,9 +1313,22 @@ the CTA the whole frame.
    "contract" never appear.** `voice-and-tone.md` §3 permits the jargon
    once introduced, and the home page is where introduction happens —
    but none of these earns its place here.
-4. **Ten illustrations, of which four are live or animated.** If §7.1
-   settles against live demos, `HARMONI-01` and `DENSITY-01` fall back
-   to stills and the page loses most of its distinctiveness. That
-   decision is worth taking on its own merits rather than by default.
-5. **Every figure in section 2 is unverified in this draft.** They come
-   from repository notes, not from a measurement taken today.
+4. **Ten illustrations, of which three are live or animated** —
+   `DENSITY-01` (live), `CODE-01` and `A11Y-01` (animations). The
+   colour section is now entirely static, which removes its dependency
+   on the engine running in the browser and makes §7.1 a much smaller
+   question than it was.
+5. **`HARMONI-01`/`-02` were renamed `COLOUR-01`/`-02` on 2026-09-02**,
+   the one deliberate exception to the never-renumber rule in the schema
+   above. Nothing had been built from them, and the old names implied
+   the section was about the plugin — which is exactly the confusion
+   this rewrite exists to remove. Recorded rather than done silently.
+6. **Harmoni is a separate commercial product with its own site.** This
+   page names it as the source of the palette and links out. It does not
+   demonstrate the plugin, show its interface, or explain how to use it.
+   Keep it that way — the section's subject is the result, not the tool.
+7. **Every figure in section 2 is unverified in this draft.** They come
+   from repository notes, not from a measurement taken today. The
+   100-swatch figure in section 4 IS verified — it is stated in
+   `crates/harmoni-core/tests/ramp_regression.rs` and follows from the
+   five-seed manifest.

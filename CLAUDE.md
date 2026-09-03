@@ -273,20 +273,35 @@ source of truth for when a skill applies.
   variables had something to alias — only primitives carry raw values;
   everything else is a reference token. Details + the scrim/shadow.color
   revisit caveat in `docs/transfer-and-next-steps.md`.
-  **Superseded 2026-09-03 — read this before touching dark-mode colour.**
-  That mirror family existed because dark frames pinned `Intent=Dark` while
-  leaving `Primitives / Palette` on Light, so a dark Intent variable could
-  only reach the *light* ramp. Dark frames now pin **both** collections, and
-  the 102 dark Intent aliases use the **same palette step the code uses** —
-  so Figma renders the shipped dark theme by construction, verified at 60/60
-  roles. Two consequences: the old warning "never override Palette to Dark or
-  the whole theme double-inverts" is **no longer true and must not be
-  reinstated** (it described the inverted aliases, which are gone); and
-  `neutral-alpha-inverse` is now **redundant** — nothing in Intent references
-  it. **Any new dark frame must pin `Palette=Dark` as well as `Intent=Dark`,
-  or its colours resolve against the light ramp.** Full account, including the
-  contrast failures that surfaced it (`content/muted` at 2.66:1, link active
-  at 1.06:1) in `docs/dark-intent-figma-drift.md`.
+  **The 2026-09-03 reconciliation DID NOT PERSIST — re-verified 2026-09-03,
+  later the same day. Read this before touching dark-mode colour.**
+  The plan was to make dark frames pin **both** collections and to re-alias
+  the dark Intent variables to the same palette steps the code uses. The
+  script ran and verified 60/60 at the time, but the file no longer carries
+  any of it: a document-wide scan finds **134 nodes pinning `Intent=Dark`,
+  2 pinning `Palette=Dark`, and 0 pinning both**, and `content/primary`
+  (dark) still aliases `color/neutral/50`, not the code's `neutral/900`. A
+  Figma undo is the only explanation that fits. `scripts/figma/
+  reconcile-dark-intent.js` is still in the repo and is re-runnable.
+  **So the ORIGINAL rule stands and must be obeyed: pin `Intent=Dark` and
+  LEAVE `Primitives / Palette` ON LIGHT.** Pinning `Palette=Dark` on a dark
+  frame today renders `content/primary` at `#121418` on a `#141414` surface —
+  invisible text. Measured, on the docs-site home frames, and reverted.
+  `neutral-alpha-inverse` is therefore still load-bearing, not redundant.
+  **What the light-ramp-at-inverted-steps scheme actually costs**, measured
+  across all 103 dark Intent colour roles against the emitted `tokens.css`:
+  47 render *exactly* right, 30 are within a hair, and **26 diverge grossly**.
+  Ten of those 26 are one coherent family and matter most —
+  `action/{primary,danger}/{hover,active}` and their `border/*` twins run the
+  **wrong direction**: the code darkens a primary button on hover
+  (`#236ce1 → #053a8a → #032967`), Figma lightens it
+  (`#236ce1 → #86b3fb → #aac9fc`), and `action/danger/disabled` is inverted
+  the other way. A designer mocking an interaction state in Figma gets the
+  opposite of what ships. The rest are one-step-lighter aliases on the
+  `feedback/*/soft/*` foregrounds and borders plus `content/secondary`.
+  Full account, including the contrast failures that first surfaced this
+  (`content/muted` at 2.66:1, link active at 1.06:1), in
+  `docs/dark-intent-figma-drift.md`.
 - **RFC 0017 (elevation / shadow tokens) — landed (web + Figma).** A
   two-tier system mirroring motion: a primitive `shadow.*` ramp (multi-layered
   box-shadows, smoothshadows method, + 3 shared `shadow.color.*` alphas) and a

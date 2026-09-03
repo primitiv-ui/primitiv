@@ -200,17 +200,29 @@ craft-notes:
 > theme. Pushing the offset far enough to show the rear's whole button row
 > fixed the read but abandoned the 8% the brief specifies.
 >
-> What replaced it: a **straight-on wall of real components**, packed into
-> five uniform 280px columns, bled past every edge of the frame, with a
-> **radial vignette over the top** closing it down at the edges and a linear
-> foot handing off to the section below. No rotation. The `must-not` on "a
-> gradient wash" above is deliberately overridden — the wash is now the
-> treatment itself rather than decoration behind the subject.
+> What replaced it, in two more passes. First a **straight-on wall of real
+> components** bled past every edge with a **radial vignette over the top**.
+> Right structure, wrong contents: a stack of unrelated controls proves the
+> parts exist, not that they compose. So the wall is now built from **six
+> composed vignettes** — a sign-up form, a notification settings panel, a
+> member card, a release table, an install panel and a file tree — each a real
+> screen fragment on its own panel. That is the version that reads as *a
+> product built from Primitiv* rather than as a component library, and it
+> keeps the original brief's best detail: the release table's Status column
+> holds real Badges.
 >
-> The build is a re-runnable script:
-> `scripts/figma/build-hero-01-component-wall.js`. **Still being iterated** —
-> how much of the wall should stay legible, and whether it should escape the
-> 1200 container to bleed the full viewport width, are open.
+> Three things make it read as a wall rather than a grid: the columns are
+> **staggered** (aligned tops look like a table), each column is **cross-seeded
+> with clones of the other columns'** vignettes so no two neighbours run the
+> same sequence, and the whole thing is **full-bleed to the viewport** — the
+> hero section's horizontal padding moved onto its content column so a
+> full-width child can reach the frame edges while the text stays put.
+>
+> The `must-not` on "a gradient wash" above is deliberately overridden: the
+> wash is the treatment itself now, over the top rather than behind.
+>
+> The build is one re-runnable script covering both breakpoints:
+> `scripts/figma/build-hero-01-component-wall.js`.
 
 ---
 

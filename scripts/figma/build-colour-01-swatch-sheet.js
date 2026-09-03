@@ -31,13 +31,26 @@
  * foreground and only 12 need the fallback.
  *
  * ── FOUR DECISIONS THAT LOOK ARBITRARY AND ARE NOT ────────────────────────
- * • LIGHT TO DARK, left to right. In the DARK palette step 900 is the lightest
- *   and 50 the darkest, so each row runs 900 -> 50. The visual progression is
- *   the conventional one and every swatch still carries its true step number.
+ * • THE LIGHT PALETTE, 50 -> 900 ascending. That is the one arrangement where
+ *   "light to dark" and "steps ascending" are the same direction; the dark
+ *   palette runs the other way and forces a choice between them. The page is
+ *   dark-pinned, so this is a deliberate departure from the brief's
+ *   theme-follows-page rule — revisit if the section ever gains a theme toggle.
+ * • THE CAPTION NAMES THE FOREGROUND'S STEP, NOT THE SWATCH'S. The swatch's
+ *   own step is in the column header. This was the single biggest source of
+ *   confusion in review: with the swatch's step under the "Ag", readers
+ *   repeatedly took it to be naming the ink — "the 500 swatch uses the 400
+ *   foreground". Naming the foreground instead makes the sheet state its
+ *   actual claim: the ink is a named step OF THE SAME RAMP.
  * • FIVE RAMPS, not ten. An earlier pass added violet/teal/lime/amber/magenta
  *   to show the engine across the wheel; it read as a swatch dump and buried
  *   the point. brand · success · warning · danger · info, in that order.
- * • FLUSH SWATCHES. Any gap inside a row stops it reading as one scale.
+ * • SEPARATED, ROUNDED TILES — a deliberate reversal of the brief. It says
+ *   flush, on the theory that any gap stops a row reading as one scale. Built
+ *   both ways: with ten steps and a step header above the columns the scale
+ *   still reads, and the tiles let each swatch be looked AT rather than
+ *   scanned past. `swatch/md/radius` rounds them; the gap between them is
+ *   `space/space-16`, the same value as the gap between rows.
  * • THE RAGGED FLIP IS THE EVIDENCE — do not tidy it. The foreground flips
  *   from light to dark at a different step in different ramps (brand, success
  *   and danger at 600; warning at 400; info at 500) because the engine decided
@@ -53,18 +66,20 @@
 const GAP_ID = '2180:91944';
 const LABEL_W = 76, SW_H = 68;
 
-// [step, swatch hex, the engine's best_foreground for that swatch]
+// [swatch hex, the engine's foreground for it, WHICH STEP that foreground is]
 const DATA = {
-  brand:[["50","#121922","#e1ecfe"],["100","#0e2140","#e1ecfe"],["200","#032967","#e1ecfe"],["300","#053a8a","#e1ecfe"],["400","#1452b5","#e1ecfe"],["500","#236ce1","#ffffff"],["600","#5291f9","#121922"],["700","#8bb6fb","#121922"],["800","#bed6fd","#121922"],["900","#e1ecfe","#121922"]],
-  success:[["50","#131b12","#c9fbc6"],["100","#0d290c","#c9fbc6"],["200","#043906","#c9fbc6"],["300","#084f0c","#c9fbc6"],["400","#0f6c14","#c9fbc6"],["500","#008c11","#000000"],["600","#4dab4c","#131b12"],["700","#7ccc78","#131b12"],["800","#a7e8a4","#131b12"],["900","#c9fbc6","#131b12"]],
-  warning:[["50","#1e170f","#fee7d0"],["100","#382105","#fee7d0"],["200","#533105","#fee7d0"],["300","#79490b","#fee7d0"],["400","#ad6c14","#000000"],["500","#e88e00","#1e170f"],["600","#f5a54b","#1e170f"],["700","#fdbe7e","#1e170f"],["800","#fdd7b0","#1e170f"],["900","#fee7d0","#1e170f"]],
-  danger:[["50","#231412","#fee4e1"],["100","#3e110e","#fee4e1"],["200","#5d0607","#fee4e1"],["300","#7f0b0d","#fee4e1"],["400","#ad1316","#fee4e1"],["500","#db2424","#ffffff"],["600","#f65e53","#231412"],["700","#fc988c","#231412"],["800","#fdc6bf","#231412"],["900","#fee4e1","#231412"]],
-  info:[["50","#121a1b","#c7f5fc"],["100","#0c272b","#c7f5fc"],["200","#05383e","#c7f5fc"],["300","#094e57","#c7f5fc"],["400","#116d78","#c7f5fc"],["500","#008e9d","#121a1b"],["600","#4fabb8","#121a1b"],["700","#7cc8d4","#121a1b"],["800","#a6e3ec","#121a1b"],["900","#c7f5fc","#121a1b"]],
+  brand:[["#f0f5ff","#000923","900"],["#d2e3fe","#000923","900"],["#aac9fc","#000923","900"],["#86b3fb","#000923","900"],["#5794fa","#000923","900"],["#236ce1","#ffffff","White"],["#104fb2","#f0f5ff","50"],["#032e71","#f0f5ff","50"],["#011841","#f0f5ff","50"],["#000923","#f0f5ff","50"]],
+  success:[["#edf9ec","#001001","900"],["#caedc8","#001001","900"],["#9bdb98","#001001","900"],["#79c976","#001001","900"],["#50af4f","#001001","900"],["#008c11","#000000","Black"],["#0e6913","#edf9ec","50"],["#053f08","#edf9ec","50"],["#022202","#edf9ec","50"],["#001001","#edf9ec","50"]],
+  warning:[["#fef3e9","#140800","900"],["#fee5cc","#140800","900"],["#fdd1a5","#140800","900"],["#fdbf7f","#140800","900"],["#f8a84e","#140800","900"],["#e88e00","#140800","900"],["#aa6a14","#000000","Black"],["#643c07","#fef3e9","50"],["#321c02","#fef3e9","50"],["#140800","#fef3e9","50"]],
+  danger:[["#fff2f0","#1e0101","900"],["#fed8d3","#1e0101","900"],["#fdb5ac","#1e0101","900"],["#fc9487","#1e0101","900"],["#f96156","#1e0101","900"],["#db2424","#ffffff","White"],["#a91215","#fff2f0","50"],["#680709","#fff2f0","50"],["#3b0203","#fff2f0","50"],["#1e0101","#fff2f0","50"]],
+  info:[["#edf7f9","#000e10","900"],["#caeaef","#000e10","900"],["#9bd8e1","#000e10","900"],["#7ac6d1","#000e10","900"],["#52aebb","#000e10","900"],["#008e9d","#000e10","900"],["#106a75","#edf7f9","50"],["#063f46","#edf7f9","50"],["#022125","#edf7f9","50"],["#000e10","#edf7f9","50"]],
 };
+const STEPS = ['50','100','200','300','400','500','600','700','800','900'];
 
 const vars = await figma.variables.getLocalVariablesAsync();
 const V = {}; for (const v of vars) V[v.name] = v;
 await figma.loadFontAsync({ family: 'Asta Sans', style: 'Regular' });
+const CORNERS = ['topLeftRadius', 'topRightRadius', 'bottomLeftRadius', 'bottomRightRadius'];
 
 const gap = await figma.getNodeByIdAsync(GAP_ID);
 for (const c of [...gap.children]) c.remove();
@@ -88,7 +103,7 @@ for (const p of ['paddingTop','paddingBottom','paddingLeft','paddingRight']) car
 card.fills = [figma.variables.setBoundVariableForPaint(figma.util.solidPaint('#ffffff'), 'color', V['surface/raised'])];
 card.strokes = [figma.variables.setBoundVariableForPaint(figma.util.solidPaint('#000000'), 'color', V['border/subtle'])];
 card.strokeAlign = 'INSIDE'; card.strokeWeight = 1; card.setBoundVariable('strokeWeight', V['border-width/1']);
-for (const c of ['topLeftRadius','topRightRadius','bottomLeftRadius','bottomRightRadius']) card.setBoundVariable(c, V['card/lg/radius']);
+for (const c of CORNERS) card.setBoundVariable(c, V['card/lg/radius']);
 const raised = (await figma.getLocalEffectStylesAsync()).find(s => s.name === 'elevation/raised');
 await card.setEffectStyleIdAsync(raised.id);
 gap.layoutSizingHorizontal = 'FILL';
@@ -100,55 +115,87 @@ const text = (parent, chars, size, lh, fill, bindTo) => {
   t.fontName = { family: 'Asta Sans', style: 'Regular' };
   t.characters = chars;
   t.fontSize = size; t.lineHeight = { unit: 'PIXELS', value: lh };
-  t.fills = bindTo
-    ? [figma.variables.setBoundVariableForPaint(figma.util.solidPaint('#000000'), 'color', bindTo)]
-    : [figma.util.solidPaint(fill)];
+  t.fills = bindTo ? [figma.variables.setBoundVariableForPaint(figma.util.solidPaint('#000000'), 'color', bindTo)]
+                   : [figma.util.solidPaint(fill)];
   t.textAlignHorizontal = 'CENTER';
-  t.textAutoResize = 'HEIGHT';
+  // WIDTH_AND_HEIGHT, not HEIGHT: HEIGHT keeps whatever width the node had at
+  // creation, so capitalising "white" to "White" made it wrap to two lines.
+  t.textAutoResize = 'WIDTH_AND_HEIGHT';
   return t;
 };
-
-for (const [name, steps] of Object.entries(DATA)) {
+const rowShell = (name) => {
   const row = figma.createFrame();
   card.appendChild(row);
-  row.name = 'ramp — ' + name;
+  row.name = name;
   row.layoutMode = 'HORIZONTAL'; row.counterAxisAlignItems = 'CENTER';
   row.primaryAxisSizingMode = 'FIXED'; row.counterAxisSizingMode = 'AUTO';
   row.itemSpacing = 12; row.fills = [];
   row.layoutSizingHorizontal = 'FILL';
+  return row;
+};
+const stripShell = (row, name) => {
+  const strip = figma.createFrame();
+  row.appendChild(strip);
+  strip.name = name;
+  strip.layoutMode = 'HORIZONTAL';
+  // The column gap MATCHES THE ROW GAP. `swatch/md/gap` (8) is the component's
+  // own inner spacing and reads as five strips sitting near each other; one
+  // shared value makes the sheet a single even grid.
+  strip.itemSpacing = 16;
+  strip.setBoundVariable('itemSpacing', V['space/space-16']);
+  strip.counterAxisSizingMode = 'AUTO'; strip.primaryAxisSizingMode = 'FIXED';
+  strip.fills = []; strip.clipsContent = false;
+  strip.layoutSizingHorizontal = 'FILL';
+  return strip;
+};
 
+// ── the step header, once, above the columns ───────────────────────────────
+const head = rowShell('step header');
+const gutter = figma.createFrame();
+head.appendChild(gutter);
+gutter.name = 'gutter'; gutter.fills = [];
+gutter.resize(LABEL_W, 16);                              // a 1px spacer pins the row and clips the numbers
+gutter.layoutSizingHorizontal = 'FIXED'; gutter.layoutSizingVertical = 'FIXED';
+const headStrip = stripShell(head, 'steps');
+for (const step of STEPS) {
+  const cell = figma.createFrame();
+  headStrip.appendChild(cell);
+  cell.name = 'step ' + step;
+  cell.layoutMode = 'VERTICAL';
+  cell.primaryAxisAlignItems = 'CENTER'; cell.counterAxisAlignItems = 'CENTER';
+  cell.counterAxisSizingMode = 'FIXED'; cell.primaryAxisSizingMode = 'AUTO';
+  cell.resize(100, 1); cell.fills = []; cell.layoutSizingHorizontal = 'FILL';
+  text(cell, step, 11, 16, null, V['content/secondary']);
+}
+
+// ── the ramps ──────────────────────────────────────────────────────────────
+for (const [name, steps] of Object.entries(DATA)) {
+  const row = rowShell('ramp — ' + name);
   const label = text(row, name, 13, 20, null, V['content/secondary']);
-  label.name = 'ramp name';
-  label.textAlignHorizontal = 'LEFT';
+  label.name = 'ramp name'; label.textAlignHorizontal = 'LEFT';
+  label.textAutoResize = 'HEIGHT';
   label.resize(LABEL_W, label.height);
   label.layoutSizingHorizontal = 'FIXED';
 
-  const strip = figma.createFrame();
-  row.appendChild(strip);
-  strip.name = 'ramp';
-  strip.layoutMode = 'HORIZONTAL'; strip.itemSpacing = 0;  // flush, or it stops reading as a scale
-  strip.counterAxisSizingMode = 'AUTO'; strip.primaryAxisSizingMode = 'FIXED';
-  strip.fills = []; strip.clipsContent = true;
-  strip.layoutSizingHorizontal = 'FILL';
-  for (const c of ['topLeftRadius','topRightRadius','bottomLeftRadius','bottomRightRadius']) strip.setBoundVariable(c, V['swatch/md/radius']);
-
-  for (const [step, hex, fg] of [...steps].reverse()) {    // light -> dark
+  const strip = stripShell(row, 'ramp');
+  steps.forEach(([hex, fg, source], i) => {
     const sw = figma.createFrame();
     strip.appendChild(sw);
-    sw.name = name + '/' + step;
+    sw.name = name + '/' + STEPS[i];
     sw.layoutMode = 'VERTICAL';
     sw.primaryAxisAlignItems = 'CENTER'; sw.counterAxisAlignItems = 'CENTER';
     sw.counterAxisSizingMode = 'FIXED'; sw.primaryAxisSizingMode = 'FIXED';
-    sw.resize(100, SW_H); sw.itemSpacing = 2;
+    sw.resize(100, SW_H); sw.itemSpacing = 1;
     sw.fills = [figma.util.solidPaint(hex)];
-    sw.strokes = [];                                      // create* ships a default stroke (gotcha 28)
+    sw.strokes = [];                                     // create* ships a default stroke (gotcha 28)
     sw.layoutSizingHorizontal = 'FILL';
+    for (const c of CORNERS) sw.setBoundVariable(c, V['swatch/md/radius']);
     // "Ag": the ascender and descender together are what make legibility
     // judgeable rather than merely assertable.
     text(sw, 'Ag', 18, 22, fg);
-    const cap = text(sw, step, 10, 13, fg);
-    cap.opacity = 0.7;
-  }
+    const cap = text(sw, source, 12, 16, fg);
+    cap.opacity = 0.8;
+  });
 }
 return { card: { w: Math.round(card.width), h: Math.round(card.height) },
-         order: card.children.map(c => c.name.replace('ramp — ', '')) };
+         rows: card.children.map(c => c.name) };

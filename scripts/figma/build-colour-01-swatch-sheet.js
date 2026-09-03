@@ -50,7 +50,7 @@
  *   both ways: with ten steps and a step header above the columns the scale
  *   still reads, and the tiles let each swatch be looked AT rather than
  *   scanned past. `swatch/md/radius` rounds them; the gap between them is
- *   `space/space-16`, the same value as the gap between rows.
+ *   `space/space-12`, the same value as the gap between rows.
  * • THE RAGGED FLIP IS THE EVIDENCE — do not tidy it. The foreground flips
  *   from light to dark at a different step in different ramps (brand, success
  *   and danger at 600; warning at 400; info at 500) because the engine decided
@@ -64,7 +64,12 @@
  * guarantee to it.
  */
 const GAP_ID = '2180:91944';
-const LABEL_W = 76, SW_H = 68;
+// The tile is landscape (98 x 68). Ten tiles plus a ramp-name gutter inside a
+// 1200 column is a hard cap: every pixel of width comes off the card padding,
+// the gutter, or the gaps. Going meaningfully wider needs the sheet to bleed
+// past the content column, which it cannot do while it sits mid-flow between
+// the section's paragraphs.
+const LABEL_W = 56, SW_H = 68, GAP = 12, CARD_PAD_X = 24;
 
 // [swatch hex, the engine's foreground for it, WHICH STEP that foreground is]
 const DATA = {
@@ -96,10 +101,12 @@ card.layoutMode = 'VERTICAL';
 card.counterAxisSizingMode = 'FIXED';
 card.resize(1200, 100);
 card.primaryAxisSizingMode = 'AUTO';                     // re-assert after resize (gotcha 7)
-card.itemSpacing = 16;
-card.setBoundVariable('itemSpacing', V['space/space-16']);
-card.paddingTop = card.paddingBottom = card.paddingLeft = card.paddingRight = 32;
-for (const p of ['paddingTop','paddingBottom','paddingLeft','paddingRight']) card.setBoundVariable(p, V['space/space-32']);
+card.itemSpacing = GAP;
+card.setBoundVariable('itemSpacing', V['space/space-12']);
+card.paddingTop = card.paddingBottom = 32;
+card.paddingLeft = card.paddingRight = CARD_PAD_X;
+for (const p of ['paddingTop','paddingBottom']) card.setBoundVariable(p, V['space/space-32']);
+for (const p of ['paddingLeft','paddingRight']) card.setBoundVariable(p, V['space/space-24']);
 card.fills = [figma.variables.setBoundVariableForPaint(figma.util.solidPaint('#ffffff'), 'color', V['surface/raised'])];
 card.strokes = [figma.variables.setBoundVariableForPaint(figma.util.solidPaint('#000000'), 'color', V['border/subtle'])];
 card.strokeAlign = 'INSIDE'; card.strokeWeight = 1; card.setBoundVariable('strokeWeight', V['border-width/1']);
@@ -129,7 +136,9 @@ const rowShell = (name) => {
   row.name = name;
   row.layoutMode = 'HORIZONTAL'; row.counterAxisAlignItems = 'CENTER';
   row.primaryAxisSizingMode = 'FIXED'; row.counterAxisSizingMode = 'AUTO';
-  row.itemSpacing = 12; row.fills = [];
+  row.itemSpacing = 8;
+  row.setBoundVariable('itemSpacing', V['space/space-8']);
+  row.fills = [];
   row.layoutSizingHorizontal = 'FILL';
   return row;
 };
@@ -141,8 +150,8 @@ const stripShell = (row, name) => {
   // The column gap MATCHES THE ROW GAP. `swatch/md/gap` (8) is the component's
   // own inner spacing and reads as five strips sitting near each other; one
   // shared value makes the sheet a single even grid.
-  strip.itemSpacing = 16;
-  strip.setBoundVariable('itemSpacing', V['space/space-16']);
+  strip.itemSpacing = GAP;
+  strip.setBoundVariable('itemSpacing', V['space/space-12']);
   strip.counterAxisSizingMode = 'AUTO'; strip.primaryAxisSizingMode = 'FIXED';
   strip.fills = []; strip.clipsContent = false;
   strip.layoutSizingHorizontal = 'FILL';

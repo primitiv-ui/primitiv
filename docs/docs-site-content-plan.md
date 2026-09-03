@@ -6,8 +6,14 @@
 > owns the site's architecture (the mode switch, the docs-data pipeline,
 > the page template). [`voice-and-tone.md`](./voice-and-tone.md) owns how
 > the sentences are written. This doc owns what they say.
-> Page-by-page copy lands in its own file as it is written — the first
-> is [`docs-site-home-copy.md`](./docs-site-home-copy.md).
+> Page-by-page copy lands in its own file as it is written:
+> [`docs-site-home-copy.md`](./docs-site-home-copy.md) ·
+> [`docs-site-start-here-copy.md`](./docs-site-start-here-copy.md) ·
+> [`docs-site-concepts-copy.md`](./docs-site-concepts-copy.md) ·
+> [`docs-site-registry-cli-copy.md`](./docs-site-registry-cli-copy.md) ·
+> [`docs-site-figma-copy.md`](./docs-site-figma-copy.md).
+> Harmoni (`/figma/harmoni`) is the one page still unwritten — its
+> scope needs agreeing first (§7.5).
 
 ---
 
@@ -686,7 +692,9 @@ to 70+ pages.
 | 5 | Fable produces the home page artwork from the briefs | |
 | 6 | Figma: the prose page template | Rule 9. Unblocks step 8, and nine pages get invented ad hoc without it |
 | 7 | Build the home page | |
-| 8 | The nine content pages — copy + briefs first, then artwork, then build | Voice and brief schema already proven |
+| 8a | Copy + briefs for eight of the nine content pages | ✅ **done** — Start Here, the five Concepts pages, Registry & CLI, Figma |
+| 8b | Harmoni page copy | Blocked on §7.5 — what a public page may say about a commercial product in a private repo |
+| 8c | Artwork for the ten content-page briefs, then build the pages | After the home page proves the pipeline |
 | 9 | Remove the Guides + Changelog nav entries | Do it with step 8 so no link is ever dead |
 | 10 | Rewrite 63 `contract.json` ledes + mirror to the Figma descriptions | No tooling needed (§4.4). Runs in parallel from step 4 |
 | 11 | Build the `whenToUse` field (§4.4) and add it to the 42 existing pages | Small build, then a 42-item authoring pass |
@@ -699,6 +707,20 @@ Steps 10–12 are independent of 4–9 and can run alongside them.
 nine content pages. Both exist because the expensive mistake in a
 project this size is producing work that then has to be redone for
 consistency.
+
+---
+
+## 6.1 A finding logged while verifying copy
+
+**`README.md` has drifted from the repository it describes.** Verifying
+figures for the Start Here page turned up two stale numbers: it says
+**62** registry components in two places where `registry.json` and
+`roster.json` both say **63**, and **48** icons where
+`packages/icons/src/icons/` holds **50**.
+
+Not urgent, and not this plan's job to fix — but it is exactly the class
+of drift §2.2's proof-strip warning exists for, and it is a reminder that
+any figure reaching a reader wants regenerating rather than copying.
 
 ---
 
@@ -717,6 +739,7 @@ consistency.
    data?
 4. ~~Does the "When to use this" block belong in `contract.json` too?~~
    **Settled 2026-09-02 — yes, it does.** See §4.4.
-5. **`/figma/harmoni` and the private repo.** The public page needs
+5. **`/figma/harmoni` and the private repo — now the one thing blocking
+   step 8b.** The public page needs
    product copy that the private repo's `CLAUDE.md` rules do not forbid.
    Worth confirming what may be shown before it is written.

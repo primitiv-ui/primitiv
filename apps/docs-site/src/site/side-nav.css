@@ -253,14 +253,14 @@
 .docs-nav-group-title {
   letter-spacing: var(--primitiv-letter-spacing-wide);
   margin-block: 0 var(--primitiv-stack-gap-sm);
-  font-family: var(--primitiv-overline-font-family);
-  font-size: var(--primitiv-overline-font-size);
+  font-family: var(--primitiv-overline-sm-font-family);
+  font-size: var(--primitiv-overline-sm-font-size);
   /* Semibold, not the overline's medium: these rail headings label whole runs
      of links, so they earn the extra weight. Size comes from the preset now —
      it used to hardcode `font-size-14` because the preset sat a step lower.
      Kept in lockstep with `.docs-toc-heading`. */
   font-weight: var(--primitiv-font-weight-semibold);
-  line-height: var(--primitiv-overline-line-height);
+  line-height: var(--primitiv-overline-sm-line-height);
   text-transform: uppercase;
   /* content/primary, not muted: at overline size these are labels for whole runs
      of links, and muted put them quieter than the links they introduce. Both

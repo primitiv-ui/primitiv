@@ -25,10 +25,10 @@
      reads as "ONTHISPAGE". `wide` restores the gaps. */
   letter-spacing: var(--primitiv-letter-spacing-wide);
   margin: 0;
-  font-family: var(--primitiv-overline-font-family);
-  font-size: var(--primitiv-overline-font-size);
-  font-weight: var(--primitiv-overline-font-weight);
-  line-height: var(--primitiv-overline-line-height);
+  font-family: var(--primitiv-overline-sm-font-family);
+  font-size: var(--primitiv-overline-sm-font-size);
+  font-weight: var(--primitiv-overline-sm-font-weight);
+  line-height: var(--primitiv-overline-sm-line-height);
   text-transform: uppercase;
   color: var(--primitiv-content-muted);
 }

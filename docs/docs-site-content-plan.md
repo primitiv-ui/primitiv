@@ -896,6 +896,49 @@ The three §2.8 cards had a hand-drawn `command` frame — a mono line on a
   as a command that does not work. Its `Design in Figma →` link stays — the
   button opens the library file, the link goes to the docs page.
 
+### 6.0.3 `overline` gained the size scale every other type family had (2026-09-03)
+
+The eyebrows read too small, and the reason was structural: **`overline` was
+the only type family in the system with no size slots.** `body/*`, `label/*`
+and `heading/*` all run xs–xl; `overline` was a single unsized preset serving a
+card eyebrow, a section eyebrow and a nav-rail heading alike — and its values
+were *exactly* `body/xs`, the smallest rung on the ladder.
+
+The codebase had already noticed twice. Both `.docs-toc-heading` and
+`.docs-nav-group-title` hardcoded `font-size-14` under the comment *"One step
+up from the overline defaults (12px / medium)"* — two rules reaching past the
+preset for the same escape. Rather than add a third, the family now carries
+**xs–xl in all four densities**, mirroring the `body` ladder exactly (it always
+did, at one fixed rung) and differing only in family and weight:
+
+| slot | dense | compact | comfortable | spacious |
+| --- | --- | --- | --- | --- |
+| xs | 10/12 | 12/16 | 12/16 | 12/20 |
+| **sm** | 11/14 | 14/20 | **14/20** | 14/24 |
+| md | 12/16 | 16/24 | 16/24 | 16/28 |
+| lg | 13/16 | 18/28 | 20/32 | 22/36 |
+| xl | 14/20 | 20/32 | 22/36 | 24/40 |
+
+**The unsized tokens survive, as an alias of `sm`, and that is deliberate.**
+146 Figma nodes across four pages bind them — including specimen pages and the
+Harmoni plugin views, which are not this change's to rewrite. So
+`overline/font-size` now aliases `overline/sm/font-size` on both sides:
+one source of truth, no rewrite, and every existing binding keeps working.
+Intra-context aliasing was already established (`{body.xl.font-size}` inside
+the `dropdown/*` family), so this needed no emitter change — it emits as
+`--primitiv-overline-font-size: var(--primitiv-overline-sm-font-size)` and
+resolves through the cascade.
+
+Every docs-site rule now names a slot rather than the unsized default, and the
+two workarounds are gone. One place kept 12px on purpose — `.docs-install-hint`,
+whose comment says *"The 12px muted trailing hint"* — and was only borrowing the
+overline's size by coincidence; it names `body/xs` now so it cannot drift again.
+
+Verified end to end: Figma resolves 5 slots × 4 modes identically to the
+emitted CSS, and `check-tokens` passes over 21 stylesheets.
+
+---
+
 **The swap made the row overflow, and the fix is the one §5.2 already
 recorded.** The cards grew from 314 to 370 while the row stayed pinned at
 314, so both docs links were clipped and the `PATHS-01` gap painted over

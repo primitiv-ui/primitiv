@@ -937,13 +937,22 @@ overline's size by coincidence; it names `body/xs` now so it cannot drift again.
 Verified end to end: Figma resolves 5 slots × 4 modes identically to the
 emitted CSS, and `check-tokens` passes over 21 stylesheets.
 
-**The home page then took `md` for its section eyebrows** (16/24 comfortable),
-in Figma and in `.docs-section-overline` together — 14 text nodes across the
-two frames, plus the one CSS rule. **The three card eyebrows stayed at `sm`**:
-a section eyebrow sits above a display heading and needs presence to survive
-next to it, while a card is a smaller context and reads correctly at 14. That
-distinction is the reason the slots exist — before this, both were the same
-token and neither could move without the other.
+**The home page then took `lg` for every eyebrow** (20/32 comfortable) — all
+20 text nodes across the two frames, plus `.docs-section-overline`. A two-tier
+split was tried first (sections at `md`, cards one rung down at `sm`) on the
+theory that a card is a smaller context than a section; on the page it read as
+an inconsistency rather than a hierarchy, so both went to `lg`. The slots are
+still what made the question askable — before this, one token served both and
+neither could move without the other.
+
+**Growing the eyebrow broke the card row, silently.** At `lg` the two install
+cards need 386px and the row was still pinned at the 370 measured before the
+bump, so card one filled 369 of 370 — one pixel from clipping, and the
+overflow audit passed because the `body/md` child is `FILL` and absorbed the
+squeeze on the parent's behalf. **A FILL child can hide an overflow as well as
+cause one.** The reliable measurement is to set every FILL child to `HUG`,
+read the card's natural height, then restore: 386 · 386 · 326. The row is now
+386 by construction rather than by a stale measurement.
 
 ---
 

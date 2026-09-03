@@ -25,13 +25,14 @@
      reads as "ONTHISPAGE". `wide` restores the gaps. */
   letter-spacing: var(--primitiv-letter-spacing-wide);
   margin: 0;
-  /* `md`, not `sm`: a section eyebrow sits above a display heading and needs
-     the presence to survive next to it. The card eyebrows on the same page
-     stay at `sm` — a card is a smaller context than a section. */
-  font-family: var(--primitiv-overline-md-font-family);
-  font-size: var(--primitiv-overline-md-font-size);
-  font-weight: var(--primitiv-overline-md-font-weight);
-  line-height: var(--primitiv-overline-md-line-height);
+  /* `lg`: an eyebrow sits above a display heading and needs real presence to
+     survive next to it. The home page runs `lg` for every eyebrow, section
+     and card alike — the two-tier split tried first read as an inconsistency
+     rather than a hierarchy. */
+  font-family: var(--primitiv-overline-lg-font-family);
+  font-size: var(--primitiv-overline-lg-font-size);
+  font-weight: var(--primitiv-overline-lg-font-weight);
+  line-height: var(--primitiv-overline-lg-line-height);
   text-transform: uppercase;
   color: var(--primitiv-content-muted);
 }

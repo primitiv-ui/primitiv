@@ -937,6 +937,14 @@ overline's size by coincidence; it names `body/xs` now so it cannot drift again.
 Verified end to end: Figma resolves 5 slots × 4 modes identically to the
 emitted CSS, and `check-tokens` passes over 21 stylesheets.
 
+**The home page then took `md` for its section eyebrows** (16/24 comfortable),
+in Figma and in `.docs-section-overline` together — 14 text nodes across the
+two frames, plus the one CSS rule. **The three card eyebrows stayed at `sm`**:
+a section eyebrow sits above a display heading and needs presence to survive
+next to it, while a card is a smaller context and reads correctly at 14. That
+distinction is the reason the slots exist — before this, both were the same
+token and neither could move without the other.
+
 ---
 
 **The swap made the row overflow, and the fix is the one §5.2 already

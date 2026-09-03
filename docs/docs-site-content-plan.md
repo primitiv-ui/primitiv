@@ -808,6 +808,14 @@ bound inline to the Context variables like every other text node there.
    clone-and-restack transform is right for prose sections and wrong for
    anything whose geometry was authored per-breakpoint.
 
+**Dark-mode colour drift, found and partly fixed 2026-09-03.**
+`content/muted` was rendering at 2.66:1 and the link family bottomed out
+at 1.06:1, because Figma's dark Intent aliases the *light* palette ramp
+and several roles pointed at the wrong half of it. Six aliases fixed;
+about forty cosmetic divergences remain and cannot be re-aliased exactly.
+Full account, including the durable mirror-family fix, in
+[`dark-intent-figma-drift.md`](./dark-intent-figma-drift.md).
+
 **Still open on the Figma side:** the cloned header's mode switch reads
 *Headless* where §1.1 settled *Styled* (fix at the source frame, not the
 clone); the mobile footer runs 957px as a full sitemap, **reviewed and kept

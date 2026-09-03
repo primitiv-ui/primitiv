@@ -656,6 +656,62 @@ map and the component block. Against §2, that is **two of ten sections**.
 | §2.1 Hero | Exists; headline and sub change |
 | §2.8 Three ways | Exists; card copy changes |
 
+### 5.2 Landed: the home page design, with the gaps left open (2026-09-03)
+
+Built on a new Figma page, **"Docs Site — Home (v3)"** — a separate page
+from `Landing Page`, which keeps the superseded four-section v2 as a
+reference rather than overwriting it.
+
+One 1440 x 11,089 frame, `Intent=Dark` with `Palette` left on Light,
+`Context=Comfortable`, ten section bands in the settled order with
+alternating `surface/default` / `surface/subtle` grounds. A **Build
+notes** panel sits beside it carrying the conventions, so the next
+person needs no repo context.
+
+**The ten briefs are in place as deliberate gaps.** Each is a dashed
+frame named `⟦ ILLUSTRATION GAP · <ID> ⟧`, already at the aspect ratio
+its brief specifies, showing its id, pixel size and rhetorical job:
+
+| Gap | Size | Gap | Size |
+| --- | --- | --- | --- |
+| HERO-01 | 1200x750 | FIGMA-01 | 1200x600 |
+| PROBLEM-01 | 1200x400 | CODE-01 | 1200x750 |
+| DENSITY-01 | 1200x675 | PATHS-01 | 1200x480 |
+| DENSITY-02 | 560x420 | A11Y-01 | 560x420 |
+| COLOUR-01 | 1200x720 | COLOUR-02 | 560x420 |
+
+Keep the id in the layer name — it is how finished artwork gets matched
+back to its brief.
+
+**Three build findings worth keeping.**
+
+1. **On a HORIZONTAL frame, `primaryAxisSizingMode = "AUTO"` silently
+   cancels a `layoutSizingHorizontal = "FILL"` set immediately before**,
+   because the primary axis *is* the horizontal one. A wrap frame hugged
+   to 2368px and overflowed the 1200 column; nothing errored. Use
+   `layoutSizingHorizontal` / `layoutSizingVertical` and do not touch
+   `primary`/`counterAxisSizingMode` afterwards. Same family as the
+   `resize()` trap in `CLAUDE.md` gotcha 7.
+2. **`counterAxisAlignItems` does not accept `"STRETCH"`** — it takes
+   `MIN | MAX | CENTER | BASELINE`. To equalise card heights, fix the
+   row's height and set each child to `layoutSizingVertical = "FILL"`.
+3. **`figma.currentPage = page` throws under `documentAccess:
+   dynamic-page`** — use `figma.setCurrentPageAsync(page)`. It threw as
+   the last statement of an otherwise-successful script, so everything
+   before it had already applied: the partial-apply hazard, reached
+   through a new door.
+
+**One deliberate deviation, recorded rather than hidden.** The section
+bands and their content columns are **plain auto-layout frames**, not
+`Box` / `Container` / `Stack` instances. All *content* uses real
+components. §1.23 set a zero-anonymous-frames goal, and this trades it
+away knowingly: scaffolding ten sections out of slot-bearing primitives
+stacks four to five slot levels per section, and slot staleness
+(gotchas 13, 21) is the most destructive failure mode in this file.
+The drift risk §1.23 was guarding against is also lower here — these
+bands are bespoke page furniture, not reusable components. Converting
+later is mechanical, and worth doing once the layout is settled.
+
 **Also needed, and not a landing frame:** a **prose page template**.
 Nine content pages are about to be built and there is no wireframe for a
 non-component content page anywhere in the file. The app shell exists
@@ -689,18 +745,19 @@ to 70+ pages.
 | 2 | This plan | ✅ **done** |
 | 3 | Home page copy + its ten illustration briefs | ✅ **done** — `docs-site-home-copy.md`. Cheapest place to confirm the voice, and it sets the brief schema |
 | 4 | Review the home copy | §7.1 is closed, so this is a read-through rather than a decision gate |
-| 5 | Fable produces the home page artwork from the briefs | |
-| 6 | Figma: the prose page template | Rule 9. Unblocks step 8, and nine pages get invented ad hoc without it |
-| 7 | Build the home page | |
-| 8a | Copy + briefs for eight of the nine content pages | ✅ **done** — Start Here, the five Concepts pages, Registry & CLI, Figma |
-| 8b | Harmoni page copy | Blocked on §7.5 — what a public page may say about a commercial product in a private repo |
-| 8c | Artwork for the ten content-page briefs, then build the pages | After the home page proves the pipeline |
-| 9 | Remove the Guides + Changelog nav entries | Do it with step 8 so no link is ever dead |
-| 10 | Rewrite 63 `contract.json` ledes + mirror to the Figma descriptions | No tooling needed (§4.4). Runs in parallel from step 4 |
-| 11 | Build the `whenToUse` field (§4.4) and add it to the 42 existing pages | Small build, then a 42-item authoring pass |
-| 12 | The 21 missing component pages | Largest chunk, least blocked |
+| 5 | **Figma: the home page design, with the ten briefs as deliberate gaps** | ✅ **done 2026-09-03** — page "Docs Site — Home (v3)". See §5.2 |
+| 6 | Fable fills the ten gaps from the briefs | The gaps are already sized and labelled in place |
+| 7 | Figma: the prose page template | Rule 9. Unblocks step 8, and nine pages get invented ad hoc without it |
+| 8 | Build the home page in code | |
+| 9a | Copy + briefs for eight of the nine content pages | ✅ **done** — Start Here, the five Concepts pages, Registry & CLI, Figma |
+| 9b | Harmoni page copy | Blocked on §7.5 — what a public page may say about a commercial product in a private repo |
+| 9c | Artwork for the ten content-page briefs, then build the pages | After the home page proves the pipeline |
+| 10 | Remove the Guides + Changelog nav entries | Do it with step 8 so no link is ever dead |
+| 11 | Rewrite 63 `contract.json` ledes + mirror to the Figma descriptions | No tooling needed (§4.4). Runs in parallel from step 4 |
+| 12 | Build the `whenToUse` field (§4.4) and add it to the 42 existing pages | Small build, then a 42-item authoring pass |
+| 13 | The 21 missing component pages | Largest chunk, least blocked |
 
-Steps 10–12 are independent of 4–9 and can run alongside them.
+Steps 11–13 are independent of 4–10 and can run alongside them.
 
 **The one hard ordering constraint:** copy and its briefs are written
 *before* any artwork, and the prose page template exists *before* the

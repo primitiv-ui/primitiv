@@ -816,12 +816,62 @@ about forty cosmetic divergences remain and cannot be re-aliased exactly.
 Full account, including the durable mirror-family fix, in
 [`dark-intent-figma-drift.md`](./dark-intent-figma-drift.md).
 
-**Still open on the Figma side:** the cloned header's mode switch reads
-*Headless* where §1.1 settled *Styled* (fix at the source frame, not the
-clone); the mobile footer runs 957px as a full sitemap, **reviewed and kept
-flat** (an accordion is not needed at this size); and the nav has no
-mobile treatment — the burger/drawer frames on the landing page are the
-reference.
+**Still open on the Figma side:** nothing from the list above. The mobile
+footer runs 957px as a full sitemap and was **reviewed and kept flat** (an
+accordion is not needed at this size).
+
+### 6.0.1 Mobile nav and the layout audit (2026-09-03, later the same day)
+
+**The mode switch is fixed, on both frames.** The landing frame read
+*Headless* where §1.1 settled *Styled*. Fixing the source did **not** reach
+the home page's cloned header — `followedSource` came back `false`, because a
+clone captures its overrides at clone time. Both now read `React` / `Styled`.
+Treat every cloned instance as a separate edit until proven otherwise.
+
+**The mobile nav is a logo and a burger, and nothing else.** A full drawer was
+built first — scrim, `Drawer` instance at `Side=left`, the two segmented
+controls, a five-section `SideNav` — and then removed on the call that the
+nav is not what this page is for. What ships is a native 390-wide header frame:
+`Lockup` (`Brand=Primitiv, Layout=Horizontal, Theme=Dark` — *Dark* is the
+white-ink mark, for dark grounds) on the left, a 32px burger on the right
+carrying the `menu` glyph at `content/secondary` on a `radii/8` corner, both
+inside a `surface/default` bar with a `border/subtle` hairline under it. That
+is `mobile-menu.css` read literally.
+
+It replaces the cloned desktop header, which was a `Container xl` at 1280px
+squeezed into a 390px frame. **Do not clone the desktop header onto a phone
+frame** — the same lesson the mobile footer taught, now recorded twice.
+
+**Then a layout audit over both frames, which found four real defects.** All
+four were invisible to a structural read — every node reported plausible
+numbers — and only showed up in a render or in an explicit overflow check:
+
+1. **Ten mobile illustration gaps had captions wider than their own box.**
+   The caption text nodes were `FIXED` at the frame's full 342px inside a
+   frame with 40–48px of horizontal padding, so every caption ran under the
+   dashed border. Padding is now 20px all round and every caption is `FILL`.
+   The desktop gaps were already correct.
+2. **Three stacked two-column rows under-measured their own height.** Their
+   second child was `layoutSizingVertical = "FILL"` inside a parent with
+   `primaryAxisSizingMode = "AUTO"`. That pair is a contradiction, and Figma
+   resolves it by **not counting the FILL child at all**: the parent hugged to
+   its first child and the illustration gap hung 250px past the bottom edge.
+   Nothing errors, and the parent's reported height is a plausible number —
+   which is what makes it hard to see. A FILL child needs a fixed-height
+   parent; in a hugging parent it must be HUG.
+3. **The same pairing clipped the three path cards' body copy** on mobile,
+   and the cards' headings and bodies were `FIXED` at 330px inside a 294px
+   content box, so every card lost its right-hand words mid-sentence.
+4. **An 80px gutter became an 80px hole.** The four rows that are two columns
+   on desktop keep their gutter as vertical spacing once stacked, which reads
+   as an accidental void rather than a break. Now 32px, and the frames are
+   named `two-column row (stacked)` so the next person can see what they are.
+
+Both frames now pass an overflow audit — no child of any auto-layout frame
+extends past its parent's padding box, horizontally or vertically. **Run that
+audit after any layout change**; it is a dozen lines and it catches the whole
+family of FILL/HUG contradictions above, which no amount of reading node
+properties will.
 
 ---
 

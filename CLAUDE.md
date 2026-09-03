@@ -1509,6 +1509,23 @@ debugging cycle; none is discoverable from the API surface.
    Caught by a human eye on a render, not by any check — when a generated
    texture looks subtly wrong, screenshot the node **alone at scale 4** with
    the content above it hidden, which is what isolated the stroke here.
+29. **A `FILL` child inside a hugging parent is silently NOT COUNTED.** Set
+   `layoutSizingVertical = 'FILL'` on a child of a frame whose
+   `primaryAxisSizingMode` is `AUTO` and Figma resolves the contradiction by
+   ignoring the child's contribution entirely: the parent hugs to its *other*
+   children and the FILL child hangs past the padding box. Nothing errors, and
+   the parent reports a plausible height — a three-section page had an
+   illustration frame overhanging by 250px while every node read correctly. The
+   pairing rule is simple and worth applying without thinking: **FILL needs a
+   fixed parent; a hugging parent needs HUG children.** The horizontal twin is
+   already logged in `docs/docs-site-content-plan.md` §5.2 finding 1.
+   **The audit that catches this whole family** — including a text node left
+   `FIXED` at a wider breakpoint's measure — is a dozen lines: walk every
+   auto-layout frame, and flag any child where `c.x + c.width > n.width -
+   n.paddingRight` or `c.y + c.height > n.height - n.paddingBottom`. Run it
+   after any layout change. It found four distinct defects on the docs-site
+   home page that reading node properties had missed, and it is the only cheap
+   substitute for a render.
 
 ```sh
 cargo test --workspace                            # all Rust tests

@@ -271,24 +271,28 @@ mgap.resize(mgap.width, 520);
 const mw = wall.clone();
 mgap.appendChild(mw);
 mw.name = 'HERO-01 · component wall';
-// THREE columns on a phone, full-bleed: the middle one reads in full at 300px
-// with 45px to spare either side, and its neighbours bleed off both frame
-// edges as slivers, so the wall still says "there is more of this". Two
-// columns showed neither completely; one column revealed a panel but read as
-// an isolated card rather than as part of a system.
-for (const c of mw.children.slice(3)) c.remove();
+// FOUR columns, ZOOMED OUT. At full size a 390px frame fits one 300px panel
+// and two slivers, which reveals a card rather than a system. `rescale()` is
+// the scale tool — the whole illustration shrinks proportionally instead of
+// reflowing — so the phone gets the same wall seen from further back, with
+// real content running off both edges.
+//
+// Rescaling a real UI would be wrong; these panels are a PICTURE of the
+// system, not the system, so the type landing off the scale is fine here and
+// nowhere else. It also bakes literal sizes over the bound padding/radius
+// variables in this clone, which is why the desktop wall is built first and
+// cloned second — never rescale the source.
+for (const c of mw.children.slice(4)) c.remove();
+mw.rescale(0.62);
 mw.x = Math.round((mgap.width - mw.width) / 2);
-mw.y = 8;                                               // the lead panel starts inside the frame
-// No radial vignette here — it crushed the top of the very panel this is meant
-// to reveal. Shallow side fades instead, because the flanking columns are
-// meant to be seen, not hidden.
-const HX = [[1, 0, 0], [0, 1, 0]];
-veil(mgap, 'veil — left',  { type: 'GRADIENT_LINEAR', gradientTransform: HX,
-  gradientStops: [stop(0, 0.85), stop(0.14, 0)] });
-veil(mgap, 'veil — right', { type: 'GRADIENT_LINEAR', gradientTransform: HX,
-  gradientStops: [stop(0.86, 0), stop(1, 0.85)] });
+mw.y = 8;
+// The same light-from-above as desktop, retuned: the source has to reach
+// nearly the full width at 390px or it pinches the columns the reader follows.
+veil(mgap, 'veil — vignette', { type: 'GRADIENT_RADIAL',
+  gradientTransform: [[1.05, 0, -0.025], [0, 0.9, 0.194]],
+  gradientStops: [stop(0, 0), stop(0.50, 0.04), stop(0.82, 0.5), stop(1, 0.95)] });
 veil(mgap, 'veil — foot', { type: 'GRADIENT_LINEAR', gradientTransform: [[0, 1, 0], [-1, 0, 1]],
-  gradientStops: [stop(0, 0), stop(0.55, 0), stop(1, 1)] });
+  gradientStops: [stop(0, 0), stop(0.58, 0), stop(1, 1)] });
 
 return {
   desktop: { wall: { w: Math.round(wall.width), h: Math.round(wall.height) }, columns: cols.length },

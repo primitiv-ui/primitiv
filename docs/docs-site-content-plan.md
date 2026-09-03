@@ -767,6 +767,55 @@ consistency.
 
 ---
 
+## 6.0 Figma build status (2026-09-03)
+
+The home page exists in Figma on page **"Docs Site — Home (v3)"** — not
+built from this plan's script, but by an earlier pass working from the
+same copy doc. This session added the three things its own build notes
+listed as missing.
+
+| Artefact | State |
+| --- | --- |
+| `Home — desktop (v3)` | 12 sections: header, the ten content sections, footer |
+| `Home — mobile (v3)` | 390 wide, transformed from the desktop clone |
+| `Build notes` | Updated in-canvas with what this pass changed |
+
+**The header is cloned, not rebuilt**, from `Landing (desktop) — system
+build v2`. Edit it there; a change made on the home page makes the two
+drift, which is the thing cloning exists to prevent. It picked up
+`Intent=Dark` automatically, because both frames set the same mode.
+
+**The footer is new** and absorbs the old Documentation map section
+(§2.11). Four link columns, real `Divider` and `Lockup` instances, type
+bound inline to the Context variables like every other text node there.
+
+**Three findings worth keeping:**
+
+1. **Section frames are transparent; the root frame carries the dark
+   fill.** Exporting a single section in isolation renders it against
+   white and reads as broken — pale text on white, and a dark-theme
+   lockup that vanishes entirely. Screenshot in canvas context
+   (`get_screenshot`), not via `exportAsync` on the node.
+2. **`mainComponent` returns null on the async plugin API**, so a
+   variant-name check silently matches nothing. Four vertical `Divider`
+   instances survived a first cleanup pass because of it, each stretched
+   to full width as a grey slab. Match on the node's own name instead,
+   or use `getMainComponentAsync()`.
+3. **A cloned footer cannot be repaired into a mobile footer.** It
+   carries desktop heights that clip its own columns once stacked, and
+   three rounds of forcing `primaryAxisSizingMode` did not clear it.
+   Rebuilding it natively at 390 worked first time. The generic
+   clone-and-restack transform is right for prose sections and wrong for
+   anything whose geometry was authored per-breakpoint.
+
+**Still open on the Figma side:** the cloned header's mode switch reads
+*Headless* where §1.1 settled *Styled* (fix at the source frame, not the
+clone); the mobile footer runs 957px as a full sitemap and probably
+wants an accordion; and the nav has no mobile treatment — the
+burger/drawer frames on the landing page are the reference.
+
+---
+
 ## 6.1 A finding logged while verifying copy
 
 **`README.md` has drifted from the repository it describes.** Verifying

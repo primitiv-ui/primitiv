@@ -7,15 +7,28 @@
  * ── WHERE THE DATA COMES FROM, AND WHY IT MATTERS ─────────────────────────
  * The sheet's entire claim is that THE ENGINE chose each foreground. So the
  * hexes below are not picked by eye and not derived from a light/dark
- * threshold — they are dumped straight out of harmoni-core:
+ * threshold. The pipeline, end to end:
  *
- *   cargo run -p harmoni-core --features swatch-sheet --example swatch-sheet
+ *   1. Each ramp's step-500 is read out of the Figma `Primitives / Palette`
+ *      collection into `docs/generated/colour-01-seeds.json`. The DESIGN FILE
+ *      is the source, so the sheet illustrates what the file actually holds.
+ *   2. `cargo run -p harmoni-core --features swatch-sheet --example swatch-sheet`
+ *      runs the engine on those seeds and writes
+ *      `docs/generated/colour-01-swatch-sheet.json` — every swatch with the
+ *      foreground the engine paired to it, its `foregroundSource`, and its
+ *      contrast ratio, in both themes.
+ *   3. The dark rows are pasted below.
  *
- * which writes `docs/generated/colour-01-swatch-sheet.json` (both themes, plus
- * each pairing's `foregroundSource` and contrast ratio). Regenerate that and
- * re-paste below whenever the palette moves. A hand-picked foreground here
- * would produce a visually similar image that is a lie about the exact thing
- * the section asserts.
+ * Step 2 also CROSS-CHECKS the captured 500s against
+ * `packages/tokens/harmoni-seeds.json` and fails if they disagree — a
+ * divergence means the design file and the committed palette have drifted, and
+ * the sheet would otherwise keep illustrating the old one. Verified to bite.
+ *
+ * A hand-picked foreground here would produce a visually similar image that is
+ * a lie about the exact thing the section asserts. The engine only ever picks
+ * the ramp's own step 900, its own step 50, or pure white/black as a last
+ * resort — 188 of 200 swatches across both themes get a HARMONIOUS in-family
+ * foreground and only 12 need the fallback.
  *
  * ── FOUR DECISIONS THAT LOOK ARBITRARY AND ARE NOT ────────────────────────
  * • LIGHT TO DARK, left to right. In the DARK palette step 900 is the lightest

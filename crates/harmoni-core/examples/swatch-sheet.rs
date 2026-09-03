@@ -6,15 +6,21 @@
 //! visually similar image that is a lie about the exact thing it asserts, so
 //! the illustration is built from this output rather than from anyone's eye.
 //!
-//! It generates from `packages/tokens/harmoni-seeds.json` — the same seeds the
-//! shipped palette regenerates from — plus a few extra hues, so the sheet can
-//! show a RANGE of ramps rather than only the five the product happens to ship.
-//! The extras are marked `shipped: false` so the illustration can order or
-//! caption them honestly.
+//! It generates from `docs/generated/colour-01-seeds.json` — the step-500 of
+//! each ramp READ OUT OF THE FIGMA `Primitives / Palette` collection — so the
+//! sheet illustrates what the design file actually holds. It then CHECKS those
+//! against `packages/tokens/harmoni-seeds.json` and fails if the two disagree,
+//! because a divergence means the design file and the committed palette have
+//! drifted apart and the sheet would quietly keep showing the old one.
+//!
+//! A few extra hues are appended so the sheet CAN show a range beyond the five
+//! the product ships. They are marked `shipped: false`; the illustration
+//! currently uses only the five.
 //!
 //! Neutral is deliberately absent: it comes from the `neutral` module, not
-//! `generate_brand_pair`, and is not in the seed manifest. See that file's
-//! `$notScoped.neutral`.
+//! `generate_brand_pair`, so feeding its 500 through here would produce a
+//! plausible ramp that is not the shipped neutral. Its own 500 also differs
+//! between light and dark, where every chromatic ramp shares one seed.
 //!
 //! Run:  cargo run -p harmoni-core --features swatch-sheet --example swatch-sheet
 
@@ -35,22 +41,43 @@ const EXTRA_SEEDS: &[(&str, &str)] = &[
 
 fn main() {
     let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../..");
-    let seeds_path = root.join("packages/tokens/harmoni-seeds.json");
-    let seeds: serde_json::Value =
-        serde_json::from_str(&std::fs::read_to_string(&seeds_path).expect("the seed manifest"))
-            .expect("valid JSON");
+    let read = |rel: &str| -> serde_json::Value {
+        let path = root.join(rel);
+        serde_json::from_str(
+            &std::fs::read_to_string(&path).unwrap_or_else(|e| panic!("reading {rel}: {e}")),
+        )
+        .unwrap_or_else(|e| panic!("parsing {rel}: {e}"))
+    };
+    let pairs = |v: &serde_json::Value| -> Vec<(String, String)> {
+        v["seeds"]
+            .as_array()
+            .expect("a seeds array")
+            .iter()
+            .map(|e| {
+                (
+                    e["ramp"].as_str().expect("a ramp name").to_string(),
+                    e["seed"].as_str().expect("a seed colour").to_lowercase(),
+                )
+            })
+            .collect()
+    };
 
-    let mut ramps: Vec<(String, String, bool)> = seeds["seeds"]
-        .as_array()
-        .expect("a seeds array")
-        .iter()
-        .map(|e| {
-            (
-                e["ramp"].as_str().expect("a ramp name").to_string(),
-                e["seed"].as_str().expect("a seed colour").to_string(),
-                true,
-            )
-        })
+    // The design file is the source; the manifest is the cross-check.
+    let from_figma = pairs(&read("docs/generated/colour-01-seeds.json"));
+    let mut from_manifest = pairs(&read("packages/tokens/harmoni-seeds.json"));
+    let mut sorted = from_figma.clone();
+    sorted.sort();
+    from_manifest.sort();
+    assert_eq!(
+        sorted, from_manifest,
+        "the 500s captured from Figma and the committed seed manifest disagree — \
+         the design file and the shipped palette have drifted, and the swatch \
+         sheet would illustrate the wrong one. Reconcile before regenerating."
+    );
+
+    let mut ramps: Vec<(String, String, bool)> = from_figma
+        .into_iter()
+        .map(|(ramp, seed)| (ramp, seed, true))
         .collect();
     ramps.extend(
         EXTRA_SEEDS

@@ -1,0 +1,59 @@
+{
+  "$comment": [
+    "The step-500 of every ramp, READ FROM THE FIGMA `Primitives / Palette`",
+    "collection rather than from packages/tokens/harmoni-seeds.json.",
+    "",
+    "Why both exist: the manifest records what the palette was generated from;",
+    "this file records what the design file currently HOLDS. They agreed when",
+    "this was captured, and that agreement is worth being able to re-check",
+    "rather than assume \u2014 a Figma edit to a 500 would silently make the",
+    "committed palette and the design file disagree, and the swatch sheet would",
+    "keep illustrating the old one.",
+    "",
+    "Re-capture by reading color/<ramp>/500 out of the Palette collection.",
+    "Then: cargo run -p harmoni-core --features swatch-sheet --example swatch-sheet"
+  ],
+  "capturedFrom": "Figma \u00b7 Primitives / Palette \u00b7 VariableCollectionId:345:4376",
+  "capturedOn": "2026-09-03",
+  "seeds": [
+    {
+      "ramp": "brand",
+      "seed": "#236ce1"
+    },
+    {
+      "ramp": "success",
+      "seed": "#008c11"
+    },
+    {
+      "ramp": "warning",
+      "seed": "#e88e00"
+    },
+    {
+      "ramp": "danger",
+      "seed": "#db2424"
+    },
+    {
+      "ramp": "info",
+      "seed": "#008e9d"
+    }
+  ],
+  "$notGenerated": {
+    "neutral": {
+      "500": {
+        "light": "#6f747b",
+        "dark": "#747980"
+      },
+      "why": [
+        "Neutral is NOT produced by generate_brand_pair \u2014 it comes from the",
+        "neutral module, which takes a different input shape including the",
+        "hue-tint mode. Its 500 also differs between light and dark, where every",
+        "chromatic ramp shares one seed across both. Feeding it through the brand",
+        "generator would produce a plausible ramp that is NOT the shipped neutral,",
+        "so it is excluded here explicitly rather than omitted quietly."
+      ]
+    },
+    "brand-alpha": "The seed at the alpha curve's opacities, not a generated ramp.",
+    "neutral-alpha": "As above, anchored on the neutral veil.",
+    "neutral-alpha-inverse": "The opposite theme's veil; a Figma-only mirror family."
+  }
+}

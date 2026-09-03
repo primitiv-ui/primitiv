@@ -27,6 +27,10 @@
  *   adopts that variable's own alpha (CLAUDE.md gotcha 3 / the Card scrim), and
  *   this fade needs alpha 0 -> 1 of one colour. The stops carry `#141414`
  *   literally — `surface/default` in dark, the only mode these frames pin.
+ * • THE OVERFLOW AUDIT WILL FLAG THIS FRAME, CORRECTLY AND HARMLESSLY. The wall
+ *   is deliberately larger than the frame that clips it — that is what "bleed"
+ *   means — so the usual "no child extends past its parent's padding box" check
+ *   reports it. Do not "fix" it by shrinking the wall.
  * • THE STOPS ARE FRAME-WIDTH SPECIFIC. The desktop radius swallows the whole
  *   wall at 390px, so the mobile veil carries its own, wider, stops. Retune
  *   both if either frame's width changes.
@@ -121,7 +125,18 @@ put(c2, 'Switch', 'Size=md, State=checked, Interaction=default',   { 'Label#881:
 put(c2, 'Switch', 'Size=md, State=unchecked, Interaction=default', { 'Label#881:265': 'Product updates', 'Show label#881:306': true });
 put(c2, 'Switch', 'Size=md, State=checked, Interaction=default',   { 'Label#881:265': 'Security alerts', 'Show label#881:306': true });
 put(c2, 'Divider', 'Orientation=horizontal', null, true);
-put(c2, 'Segmented Control', 'Size=sm, Count=3', null, true);
+const seg = put(c2, 'Segmented Control', 'Size=sm, Count=3', null, true);
+// The set exposes only Size and Count — the labels live on the nested
+// `Segmented Control / Item` instances, which default to "Segment". Set them
+// per item, and FILL each one or they hug their text and leave the control
+// short of its own width.
+if (seg) {
+  const SEGMENTS = ['Daily', 'Weekly', 'Never'];
+  seg.children.forEach((item, i) => {
+    try { item.setProperties({ 'Label#1216:207': SEGMENTS[i % SEGMENTS.length] }); } catch (e) {}
+    try { item.layoutSizingHorizontal = 'FILL'; } catch (e) {}
+  });
+}
 put(c2, 'Slider', 'Orientation=Horizontal, Variant=Single, Size=md, State=default', null, true);
 put(c2, 'Button', 'Variant=secondary, Size=sm, State=default', { 'Label#347:3401': 'Save changes' }, true);
 
@@ -208,14 +223,16 @@ for (let i = 0; i < leads.length; i++) {
 for (let i = 0; i < leads.length; i++) cols[i].appendChild(leads[i]);
 // a different order per column, so no two neighbours run the same sequence
 const ORDER = [[3,1,5,2],[5,3,0,4],[1,4,2,0],[0,5,3,1],[2,0,4,5],[4,2,1,3]];
-const STAGGER = [0, 70, 24, 110, 40, 90];               // masonry offset; aligned tops read as a grid, not a wall
+// Masonry aligns every column's TOP and lets differing panel heights do the
+// work. An earlier pass staggered the starts instead; on the page that read as
+// six lists nudged out of true rather than as one wall.
 for (let i = 0; i < cols.length; i++) {
-  cols[i].paddingTop = STAGGER[i];
   let n = 0;
   while (cols[i].height < 1120 && n < ORDER[i].length * 3) { cols[i].appendChild(leads[ORDER[i][n % ORDER[i].length]].clone()); n++; }
 }
+wall.counterAxisAlignItems = 'MIN';
 wall.x = Math.round((gap.width - wall.width) / 2);
-wall.y = -190;
+wall.y = -150;
 
 // ── the treatment ──────────────────────────────────────────────────────────
 const stop = (position, a) => ({ position, color: { ...GROUND, a } });
@@ -239,18 +256,28 @@ mgap.name = 'HERO-01 · component wall';
 mgap.layoutMode = 'NONE'; mgap.clipsContent = true;
 mgap.fills = []; mgap.strokes = []; mgap.dashPattern = [];
 mgap.layoutSizingHorizontal = 'FILL';
-mgap.resize(mgap.width, 460);
+mgap.resize(mgap.width, 520);
 const mw = wall.clone();
 mgap.appendChild(mw);
 mw.name = 'HERO-01 · component wall';
-for (const c of mw.children.slice(2)) c.remove();       // two columns; more is mush on a phone
+// THREE columns on a phone, full-bleed: the middle one reads in full at 300px
+// with 45px to spare either side, and its neighbours bleed off both frame
+// edges as slivers, so the wall still says "there is more of this". Two
+// columns showed neither completely; one column revealed a panel but read as
+// an isolated card rather than as part of a system.
+for (const c of mw.children.slice(3)) c.remove();
 mw.x = Math.round((mgap.width - mw.width) / 2);
-mw.y = -190;
-veil(mgap, 'veil — vignette', { type: 'GRADIENT_RADIAL',
-  gradientTransform: [[1.7, 0, -0.35], [0, 1.25, -0.125]],
-  gradientStops: [stop(0, 0), stop(0.72, 0), stop(0.93, 0.55), stop(1, 0.92)] });
+mw.y = 8;                                               // the lead panel starts inside the frame
+// No radial vignette here — it crushed the top of the very panel this is meant
+// to reveal. Shallow side fades instead, because the flanking columns are
+// meant to be seen, not hidden.
+const HX = [[1, 0, 0], [0, 1, 0]];
+veil(mgap, 'veil — left',  { type: 'GRADIENT_LINEAR', gradientTransform: HX,
+  gradientStops: [stop(0, 0.85), stop(0.14, 0)] });
+veil(mgap, 'veil — right', { type: 'GRADIENT_LINEAR', gradientTransform: HX,
+  gradientStops: [stop(0.86, 0), stop(1, 0.85)] });
 veil(mgap, 'veil — foot', { type: 'GRADIENT_LINEAR', gradientTransform: [[0, 1, 0], [-1, 0, 1]],
-  gradientStops: [stop(0, 0), stop(0.70, 0), stop(1, 1)] });
+  gradientStops: [stop(0, 0), stop(0.55, 0), stop(1, 1)] });
 
 return {
   desktop: { wall: { w: Math.round(wall.width), h: Math.round(wall.height) }, columns: cols.length },

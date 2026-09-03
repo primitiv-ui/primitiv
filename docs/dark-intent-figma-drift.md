@@ -65,45 +65,55 @@ almost certainly unintended. Figma now uses `brand/500` instead, so the
 two files deliberately disagree on that one role until the code is
 fixed.
 
-## 4. What remains, and why it cannot be re-aliased
+## 4. The real fix, applied
 
-A full reconciliation was attempted and is **not possible through
-aliases alone**. Of 103 dark roles, **56 have no exact equivalent
-anywhere in the light ramp** — the dark ramps are genuinely different
-colours, not mirror images. Of the 80 roles checkable against the code,
-**48 diverge**. They fall into three classes:
+§4 originally said a full reconciliation was impossible through aliases,
+because 56 of 103 dark roles had no equivalent in the light ramp. That was
+true **only while dark frames left the Palette collection on Light**. The
+constraint was self-imposed.
 
-**A · Near-misses — cosmetic, not worth churning.** ~20 roles sit 1–3%
-off, imperceptible: `content/disabled` `#6f747b` vs `#747980`,
-`border/default` the same, `content/secondary` `#bcc2cb` vs `#b4b9c2`,
-`surface/subtle` `#202328` vs `#1e2126`, `border/subtle`,
-`surface/inverse`, and most of `action/secondary/*`.
+**What changed.** Dark frames now pin **both** `Intent=Dark` *and*
+`Palette=Dark`, and the dark Intent aliases use the **same palette step the
+code uses** — no more inverted step numbers picked by eye. `neutral/600`
+then resolves against the dark ramp and gives `#8f949c`, exactly as the code
+intends. Figma matches by construction rather than by approximation.
 
-**B · Wrong direction, but nothing currently reads as broken.**
-`action/primary/hover` and `/active` *lighten* in Figma (`#86b3fb`)
-where the code *darkens* (`#053a8a`); `action/danger/*` does the same;
-the `feedback/*/soft/*` families all sit a step or two off. Worth a
-deliberate decision rather than a silent fix — on a dark surface,
-lightening on hover is arguably the better behaviour, in which case the
-**code** is what should change.
+| | |
+| --- | --- |
+| Aliases rewritten | **60** (42 were already right) |
+| Nodes given a `Palette=Dark` pin | **129** |
+| Nodes scanned / skipped | 42,575 / **0** |
+| Roles diverging afterwards | **0** (was 48) |
 
-**C · Fixed above** — the four that genuinely failed contrast.
+Both phases ran in one pass. This had to be a **flag day**: between them a
+dark frame resolves the code's step numbers against the *light* ramp and
+looks worse than before, so `scripts/figma/reconcile-dark-intent.js`
+collects every node *before* writing anything and does both or neither.
 
-### The durable fix
+### Two consequences
 
-Mirror families, following the precedent `color.neutral-alpha-inverse.*`
-already sets: a `*-inverse` family per ramp whose Light mode carries the
-dark theme's values, so dark Intent variables can alias an exact value
-instead of hunting for a near-miss in the light ramp.
+1. **`color.neutral-alpha-inverse.*` is now redundant.** Seven aliases moved
+   off it onto plain `neutral-alpha/*`. It exists solely to work around the
+   problem this fixed. Retire it once nothing else references it — note
+   `docs/carousel-development-log.md` still cites it for the Carousel dots.
+2. **Every new dark frame must pin `Palette=Dark` as well as `Intent=Dark`.**
+   This is the one rule that replaces the old "never override Palette"
+   warning. A dark frame with only the Intent pin renders against the light
+   ramp and will look subtly wrong rather than obviously broken, which is the
+   worst failure mode.
 
-That is a real piece of work — six ramps × ten steps — and it is the
-only route to true parity. Until it exists, Figma's dark mode is an
-approximation of the shipped dark theme, close everywhere and exact in
-about half the roles.
+### Still worth a decision
 
-**Do not** "fix" this by setting the Palette collection to Dark mode on
-dark frames. The root `CLAUDE.md` is explicit: the whole theme
-double-inverts.
+The reconciliation adopted the code wholesale, including two things worth a
+second look now that Figma agrees with them:
+
+- **`action/link/foreground/disabled` equals `…/default`** in the code, so a
+  disabled link renders identically to an active one. Almost certainly
+  unintended; fix it in `intent.json` and re-run the script.
+- **`action/primary/hover` darkens on dark** (`#053a8a`). Figma previously
+  lightened it, which is arguably the better behaviour on a dark surface.
+  The reconciliation made Figma follow the code; if the code is wrong here,
+  change it there and re-run.
 
 ## 5. Verifying
 

@@ -268,12 +268,25 @@ source of truth for when a skill applies.
   `intent.json` aliasing its low steps, and the registry Button ghost variant
   (plus the Modal close, which composes it) bound to the new roles. Figma has
   the matching Palette + Intent variables and rebound Button / Icon Button
-  ghost variants. Because the file resolves the Palette collection through
-  Light mode on dark frames, a **mirror family `color.neutral-alpha-inverse.*`**
-  (each mode = the opposite theme's veil) exists for Figma's dark Intent
-  variables to alias — only primitives carry raw values; everything else is a
-  reference token. Details + the scrim/shadow.color revisit caveat in
-  `docs/transfer-and-next-steps.md`.
+  ghost variants. A **mirror family `color.neutral-alpha-inverse.*`** (each
+  mode = the opposite theme's veil) was added so Figma's dark Intent
+  variables had something to alias — only primitives carry raw values;
+  everything else is a reference token. Details + the scrim/shadow.color
+  revisit caveat in `docs/transfer-and-next-steps.md`.
+  **Superseded 2026-09-03 — read this before touching dark-mode colour.**
+  That mirror family existed because dark frames pinned `Intent=Dark` while
+  leaving `Primitives / Palette` on Light, so a dark Intent variable could
+  only reach the *light* ramp. Dark frames now pin **both** collections, and
+  the 102 dark Intent aliases use the **same palette step the code uses** —
+  so Figma renders the shipped dark theme by construction, verified at 60/60
+  roles. Two consequences: the old warning "never override Palette to Dark or
+  the whole theme double-inverts" is **no longer true and must not be
+  reinstated** (it described the inverted aliases, which are gone); and
+  `neutral-alpha-inverse` is now **redundant** — nothing in Intent references
+  it. **Any new dark frame must pin `Palette=Dark` as well as `Intent=Dark`,
+  or its colours resolve against the light ramp.** Full account, including the
+  contrast failures that surfaced it (`content/muted` at 2.66:1, link active
+  at 1.06:1) in `docs/dark-intent-figma-drift.md`.
 - **RFC 0017 (elevation / shadow tokens) — landed (web + Figma).** A
   two-tier system mirroring motion: a primitive `shadow.*` ramp (multi-layered
   box-shadows, smoothshadows method, + 3 shared `shadow.color.*` alphas) and a

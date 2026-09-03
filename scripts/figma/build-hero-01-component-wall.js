@@ -243,11 +243,22 @@ const veil = (parent, name, fill) => {
   r.constraints = { horizontal: 'STRETCH', vertical: 'STRETCH' };
   r.fills = [fill];
 };
+// A light SOURCE, not an even vignette. The brightest point sits at (0.50,
+// 0.34) — high, centred, below the headline — so the wall reads as lit by the
+// copy above it and falls away in every direction. Two earlier settings were
+// wrong in instructive ways: an evenly centred vignette read as a dimmer
+// rather than as lighting, and a source at 0.18 put the brightest area exactly
+// on the cut edge of the top panel row, which advertised the crop.
+// For a Figma radial: centre_x = (0.5 - tx) / sx, centre_y = (0.5 - ty) / sy.
 veil(gap, 'veil — vignette', { type: 'GRADIENT_RADIAL',
-  gradientTransform: [[1.35, 0, -0.175], [0, 1.05, -0.025]],
-  gradientStops: [stop(0, 0), stop(0.62, 0), stop(0.88, 0.62), stop(1, 0.96)] });
+  gradientTransform: [[1.2, 0, -0.1], [0, 0.9, 0.194]],
+  gradientStops: [stop(0, 0), stop(0.46, 0.04), stop(0.78, 0.55), stop(1, 0.97)] });
 veil(gap, 'veil — foot', { type: 'GRADIENT_LINEAR', gradientTransform: [[0, 1, 0], [-1, 0, 1]],
-  gradientStops: [stop(0, 0), stop(0.62, 0), stop(1, 1)] });
+  gradientStops: [stop(0, 0), stop(0.60, 0), stop(1, 1)] });
+// Buries the cut edge the bleed creates along the frame's top, so the wall
+// emerges out of the ground rather than starting at a line.
+veil(gap, 'veil — top', { type: 'GRADIENT_LINEAR', gradientTransform: [[0, 1, 0], [-1, 0, 1]],
+  gradientStops: [stop(0, 0.98), stop(0.11, 0.45), stop(0.24, 0)] });
 
 // ── mobile: the same wall, two columns, its own wider stops ────────────────
 const mgap = await figma.getNodeByIdAsync(MOBILE_GAP);

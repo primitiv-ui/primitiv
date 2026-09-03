@@ -64,12 +64,16 @@
  * guarantee to it.
  */
 const GAP_ID = '2180:91944';
-// The tile is landscape (98 x 68). Ten tiles plus a ramp-name gutter inside a
-// 1200 column is a hard cap: every pixel of width comes off the card padding,
-// the gutter, or the gaps. Going meaningfully wider needs the sheet to bleed
-// past the content column, which it cannot do while it sits mid-flow between
-// the section's paragraphs.
-const LABEL_W = 56, SW_H = 68, GAP = 12, CARD_PAD_X = 24;
+// The tile is landscape at 98 x 54 (1.81:1), and the RATIO IS SET BY THE
+// HEIGHT, not the width. Ten tiles plus a ramp-name gutter inside a 1200
+// column caps the width near 100 — every extra pixel comes off the card
+// padding, the gutter or the gaps, and the sheet cannot bleed past the content
+// column because it sits mid-flow between the section's paragraphs. Shortening
+// the tile gets the same landscape read for free.
+//
+// The floor is about 48: the tile holds "Ag" (22) + 1 + the caption (16) = 39
+// of content, and below ~48 it is cramped rather than wide. 54 leaves 15.
+const LABEL_W = 56, SW_H = 54, GAP = 12, CARD_PAD_X = 24;
 
 // [swatch hex, the engine's foreground for it, WHICH STEP that foreground is]
 const DATA = {

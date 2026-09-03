@@ -1077,22 +1077,34 @@ it; the description is `body/md`.
 > **You have a design system already, and want the behaviour.**
 > Accessible behaviour, keyboard handling and props. No styling at all,
 > so nothing fights what you have.
-> `npm install @primitiv-ui/react`
+> [tabbed `Code Block`] npm · pnpm · yarn · bun — `$ npm i @primitiv-ui/react`
 > `Headless docs →`
 
 > `STYLED`
 > **You want components that already look finished.**
 > The behaviour plus the design — copied into your project as files you
 > own and can change.
-> `npx primitiv add button`
+> [tabbed `Code Block`] npm · pnpm · yarn · bun — `$ npx primitiv add button`
 > `Styled docs →`
 
 > `FIGMA`
 > **You are designing, not building yet.**
 > The full component library in Figma, built from the same tokens as the
 > code, with Harmoni generating the colour.
-> `Open the Figma library`
+> [secondary `Button`, trailing `external-link` icon] **Open the Figma library**
 > `Design in Figma →`
+
+**The command slot is a real component, and the third card is not a
+command.** Cards one and two carry a tabbed `Code Block` (`Type=tabbed`,
+`Size=sm`) offering the same four package managers, so a reader copies the
+line for the tool they actually use rather than translating npm in their
+head. The Figma card has nothing to type — it has somewhere to go — so it
+gets a secondary `Button` with a trailing `external-link` icon instead. A
+sentence set in a monospace chip beside two real shell commands reads as a
+command that does not work.
+
+Its `Design in Figma →` link stays: the button opens the library file, the
+link goes to the docs page, matching the other two cards' `... docs →`.
 
 ```yaml
 id: PATHS-01

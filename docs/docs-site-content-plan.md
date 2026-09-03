@@ -873,6 +873,37 @@ audit after any layout change**; it is a dozen lines and it catches the whole
 family of FILL/HUG contradictions above, which no amount of reading node
 properties will.
 
+**Defect 2 was the one that was actually visible.** `DENSITY-02` hung 289px
+out of section 04 and landed on section 05's *heading* — reported from the
+canvas as "an image behind the section heading". It now ends 58px inside its
+own section. Worth remembering as the tell: **a FILL/HUG contradiction shows
+up one section later**, so the section that looks broken is not the one that
+is.
+
+### 6.0.2 The path cards carry real components now (2026-09-03)
+
+The three §2.8 cards had a hand-drawn `command` frame — a mono line on a
+`surface/subtle` box. All six (desktop and mobile) now hold real instances:
+
+- **HEADLESS and STYLED** get a **`Code Block`** at `Type=tabbed, Size=sm`,
+  tabs npm · pnpm · yarn · bun, code `$ npm i @primitiv-ui/react` and
+  `$ npx primitiv add button`. The tab labels needed no editing — the
+  component's own defaults are already the four package managers, which
+  avoided the one risky part (a nested-instance `Label` override).
+- **FIGMA** gets a **secondary `Button`** with a trailing `external-link`
+  icon, labelled *Open the Figma library*. **That card is not a command**,
+  and a sentence in a monospace chip beside two working shell commands reads
+  as a command that does not work. Its `Design in Figma →` link stays — the
+  button opens the library file, the link goes to the docs page.
+
+**The swap made the row overflow, and the fix is the one §5.2 already
+recorded.** The cards grew from 314 to 370 while the row stayed pinned at
+314, so both docs links were clipped and the `PATHS-01` gap painted over
+them. Resize the row to its tallest child, keep it `FIXED`, then set every
+card to `layoutSizingVertical = "FILL"` — that is the counter-axis case, and
+it is the *opposite* of the primary-axis trap above. Equal-height cards need
+a fixed row; a hugging row cannot give them one.
+
 ---
 
 ## 6.1 A finding logged while verifying copy

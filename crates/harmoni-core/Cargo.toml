@@ -35,6 +35,9 @@ ramp-audit = []
 # maintenance tool, not part of the engine, and `cargo test --workspace` should
 # not build it.
 regen-palette = []
+# The swatch-sheet dumper backs the docs-site COLOUR-01 illustration. Gated for
+# the same reason as the other two: a maintenance tool, not part of the engine.
+swatch-sheet = []
 
 [[example]]
 name = "ramp-audit"
@@ -43,3 +46,7 @@ required-features = ["ramp-audit"]
 [[example]]
 name = "regen-palette"
 required-features = ["regen-palette"]
+
+[[example]]
+name = "swatch-sheet"
+required-features = ["swatch-sheet"]

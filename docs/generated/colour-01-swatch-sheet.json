@@ -1,0 +1,1564 @@
+{
+  "ramps": [
+    {
+      "ramp": "brand",
+      "seed": "#236ce1",
+      "shipped": true,
+      "steps": [
+        {
+          "contrast": 18.100000381469727,
+          "foreground": "#000923",
+          "foregroundSource": "Step900",
+          "hex": "#f0f5ff",
+          "step": "50"
+        },
+        {
+          "contrast": 15.149999618530273,
+          "foreground": "#000923",
+          "foregroundSource": "Step900",
+          "hex": "#d2e3fe",
+          "step": "100"
+        },
+        {
+          "contrast": 11.75,
+          "foreground": "#000923",
+          "foregroundSource": "Step900",
+          "hex": "#aac9fc",
+          "step": "200"
+        },
+        {
+          "contrast": 9.25,
+          "foreground": "#000923",
+          "foregroundSource": "Step900",
+          "hex": "#86b3fb",
+          "step": "300"
+        },
+        {
+          "contrast": 6.610000133514404,
+          "foreground": "#000923",
+          "foregroundSource": "Step900",
+          "hex": "#5794fa",
+          "step": "400"
+        },
+        {
+          "contrast": 4.880000114440918,
+          "foreground": "#ffffff",
+          "foregroundSource": "PureWhite",
+          "hex": "#236ce1",
+          "step": "500"
+        },
+        {
+          "contrast": 6.900000095367432,
+          "foreground": "#f0f5ff",
+          "foregroundSource": "Step50",
+          "hex": "#104fb2",
+          "step": "600"
+        },
+        {
+          "contrast": 11.760000228881836,
+          "foreground": "#f0f5ff",
+          "foregroundSource": "Step50",
+          "hex": "#032e71",
+          "step": "700"
+        },
+        {
+          "contrast": 15.979999542236328,
+          "foreground": "#f0f5ff",
+          "foregroundSource": "Step50",
+          "hex": "#011841",
+          "step": "800"
+        },
+        {
+          "contrast": 18.100000381469727,
+          "foreground": "#f0f5ff",
+          "foregroundSource": "Step50",
+          "hex": "#000923",
+          "step": "900"
+        }
+      ],
+      "theme": "light"
+    },
+    {
+      "ramp": "brand",
+      "seed": "#236ce1",
+      "shipped": true,
+      "steps": [
+        {
+          "contrast": 14.869999885559082,
+          "foreground": "#e1ecfe",
+          "foregroundSource": "Step900",
+          "hex": "#121922",
+          "step": "50"
+        },
+        {
+          "contrast": 13.460000038146973,
+          "foreground": "#e1ecfe",
+          "foregroundSource": "Step900",
+          "hex": "#0e2140",
+          "step": "100"
+        },
+        {
+          "contrast": 11.579999923706055,
+          "foreground": "#e1ecfe",
+          "foregroundSource": "Step900",
+          "hex": "#032967",
+          "step": "200"
+        },
+        {
+          "contrast": 8.880000114440918,
+          "foreground": "#e1ecfe",
+          "foregroundSource": "Step900",
+          "hex": "#053a8a",
+          "step": "300"
+        },
+        {
+          "contrast": 6.039999961853027,
+          "foreground": "#e1ecfe",
+          "foregroundSource": "Step900",
+          "hex": "#1452b5",
+          "step": "400"
+        },
+        {
+          "contrast": 4.880000114440918,
+          "foreground": "#ffffff",
+          "foregroundSource": "PureWhite",
+          "hex": "#236ce1",
+          "step": "500"
+        },
+        {
+          "contrast": 5.699999809265137,
+          "foreground": "#121922",
+          "foregroundSource": "Step50",
+          "hex": "#5291f9",
+          "step": "600"
+        },
+        {
+          "contrast": 8.600000381469727,
+          "foreground": "#121922",
+          "foregroundSource": "Step50",
+          "hex": "#8bb6fb",
+          "step": "700"
+        },
+        {
+          "contrast": 12.0,
+          "foreground": "#121922",
+          "foregroundSource": "Step50",
+          "hex": "#bed6fd",
+          "step": "800"
+        },
+        {
+          "contrast": 14.869999885559082,
+          "foreground": "#121922",
+          "foregroundSource": "Step50",
+          "hex": "#e1ecfe",
+          "step": "900"
+        }
+      ],
+      "theme": "dark"
+    },
+    {
+      "ramp": "danger",
+      "seed": "#db2424",
+      "shipped": true,
+      "steps": [
+        {
+          "contrast": 18.110000610351562,
+          "foreground": "#1e0101",
+          "foregroundSource": "Step900",
+          "hex": "#fff2f0",
+          "step": "50"
+        },
+        {
+          "contrast": 15.130000114440918,
+          "foreground": "#1e0101",
+          "foregroundSource": "Step900",
+          "hex": "#fed8d3",
+          "step": "100"
+        },
+        {
+          "contrast": 11.6899995803833,
+          "foreground": "#1e0101",
+          "foregroundSource": "Step900",
+          "hex": "#fdb5ac",
+          "step": "200"
+        },
+        {
+          "contrast": 9.15999984741211,
+          "foreground": "#1e0101",
+          "foregroundSource": "Step900",
+          "hex": "#fc9487",
+          "step": "300"
+        },
+        {
+          "contrast": 6.5,
+          "foreground": "#1e0101",
+          "foregroundSource": "Step900",
+          "hex": "#f96156",
+          "step": "400"
+        },
+        {
+          "contrast": 4.889999866485596,
+          "foreground": "#ffffff",
+          "foregroundSource": "PureWhite",
+          "hex": "#db2424",
+          "step": "500"
+        },
+        {
+          "contrast": 6.909999847412109,
+          "foreground": "#fff2f0",
+          "foregroundSource": "Step50",
+          "hex": "#a91215",
+          "step": "600"
+        },
+        {
+          "contrast": 11.8100004196167,
+          "foreground": "#fff2f0",
+          "foregroundSource": "Step50",
+          "hex": "#680709",
+          "step": "700"
+        },
+        {
+          "contrast": 16.040000915527344,
+          "foreground": "#fff2f0",
+          "foregroundSource": "Step50",
+          "hex": "#3b0203",
+          "step": "800"
+        },
+        {
+          "contrast": 18.110000610351562,
+          "foreground": "#fff2f0",
+          "foregroundSource": "Step50",
+          "hex": "#1e0101",
+          "step": "900"
+        }
+      ],
+      "theme": "light"
+    },
+    {
+      "ramp": "danger",
+      "seed": "#db2424",
+      "shipped": true,
+      "steps": [
+        {
+          "contrast": 14.8100004196167,
+          "foreground": "#fee4e1",
+          "foregroundSource": "Step900",
+          "hex": "#231412",
+          "step": "50"
+        },
+        {
+          "contrast": 13.5,
+          "foreground": "#fee4e1",
+          "foregroundSource": "Step900",
+          "hex": "#3e110e",
+          "step": "100"
+        },
+        {
+          "contrast": 11.649999618530273,
+          "foreground": "#fee4e1",
+          "foregroundSource": "Step900",
+          "hex": "#5d0607",
+          "step": "200"
+        },
+        {
+          "contrast": 8.899999618530273,
+          "foreground": "#fee4e1",
+          "foregroundSource": "Step900",
+          "hex": "#7f0b0d",
+          "step": "300"
+        },
+        {
+          "contrast": 6.039999961853027,
+          "foreground": "#fee4e1",
+          "foregroundSource": "Step900",
+          "hex": "#ad1316",
+          "step": "400"
+        },
+        {
+          "contrast": 4.889999866485596,
+          "foreground": "#ffffff",
+          "foregroundSource": "PureWhite",
+          "hex": "#db2424",
+          "step": "500"
+        },
+        {
+          "contrast": 5.619999885559082,
+          "foreground": "#231412",
+          "foregroundSource": "Step50",
+          "hex": "#f65e53",
+          "step": "600"
+        },
+        {
+          "contrast": 8.5,
+          "foreground": "#231412",
+          "foregroundSource": "Step50",
+          "hex": "#fc988c",
+          "step": "700"
+        },
+        {
+          "contrast": 11.930000305175781,
+          "foreground": "#231412",
+          "foregroundSource": "Step50",
+          "hex": "#fdc6bf",
+          "step": "800"
+        },
+        {
+          "contrast": 14.8100004196167,
+          "foreground": "#231412",
+          "foregroundSource": "Step50",
+          "hex": "#fee4e1",
+          "step": "900"
+        }
+      ],
+      "theme": "dark"
+    },
+    {
+      "ramp": "warning",
+      "seed": "#e88e00",
+      "shipped": true,
+      "steps": [
+        {
+          "contrast": 18.040000915527344,
+          "foreground": "#140800",
+          "foregroundSource": "Step900",
+          "hex": "#fef3e9",
+          "step": "50"
+        },
+        {
+          "contrast": 16.190000534057617,
+          "foreground": "#140800",
+          "foregroundSource": "Step900",
+          "hex": "#fee5cc",
+          "step": "100"
+        },
+        {
+          "contrast": 13.930000305175781,
+          "foreground": "#140800",
+          "foregroundSource": "Step900",
+          "hex": "#fdd1a5",
+          "step": "200"
+        },
+        {
+          "contrast": 12.140000343322754,
+          "foreground": "#140800",
+          "foregroundSource": "Step900",
+          "hex": "#fdbf7f",
+          "step": "300"
+        },
+        {
+          "contrast": 10.079999923706055,
+          "foreground": "#140800",
+          "foregroundSource": "Step900",
+          "hex": "#f8a84e",
+          "step": "400"
+        },
+        {
+          "contrast": 7.789999961853027,
+          "foreground": "#140800",
+          "foregroundSource": "Step900",
+          "hex": "#e88e00",
+          "step": "500"
+        },
+        {
+          "contrast": 4.769999980926514,
+          "foreground": "#000000",
+          "foregroundSource": "PureBlack",
+          "hex": "#aa6a14",
+          "step": "600"
+        },
+        {
+          "contrast": 8.819999694824219,
+          "foreground": "#fef3e9",
+          "foregroundSource": "Step50",
+          "hex": "#643c07",
+          "step": "700"
+        },
+        {
+          "contrast": 14.75,
+          "foreground": "#fef3e9",
+          "foregroundSource": "Step50",
+          "hex": "#321c02",
+          "step": "800"
+        },
+        {
+          "contrast": 18.040000915527344,
+          "foreground": "#fef3e9",
+          "foregroundSource": "Step50",
+          "hex": "#140800",
+          "step": "900"
+        }
+      ],
+      "theme": "light"
+    },
+    {
+      "ramp": "warning",
+      "seed": "#e88e00",
+      "shipped": true,
+      "steps": [
+        {
+          "contrast": 14.8100004196167,
+          "foreground": "#fee7d0",
+          "foregroundSource": "Step900",
+          "hex": "#1e170f",
+          "step": "50"
+        },
+        {
+          "contrast": 12.670000076293945,
+          "foreground": "#fee7d0",
+          "foregroundSource": "Step900",
+          "hex": "#382105",
+          "step": "100"
+        },
+        {
+          "contrast": 9.739999771118164,
+          "foreground": "#fee7d0",
+          "foregroundSource": "Step900",
+          "hex": "#533105",
+          "step": "200"
+        },
+        {
+          "contrast": 6.300000190734863,
+          "foreground": "#fee7d0",
+          "foregroundSource": "Step900",
+          "hex": "#79490b",
+          "step": "300"
+        },
+        {
+          "contrast": 4.920000076293945,
+          "foreground": "#000000",
+          "foregroundSource": "PureBlack",
+          "hex": "#ad6c14",
+          "step": "400"
+        },
+        {
+          "contrast": 7.019999980926514,
+          "foreground": "#1e170f",
+          "foregroundSource": "Step50",
+          "hex": "#e88e00",
+          "step": "500"
+        },
+        {
+          "contrast": 8.779999732971191,
+          "foreground": "#1e170f",
+          "foregroundSource": "Step50",
+          "hex": "#f5a54b",
+          "step": "600"
+        },
+        {
+          "contrast": 10.880000114440918,
+          "foreground": "#1e170f",
+          "foregroundSource": "Step50",
+          "hex": "#fdbe7e",
+          "step": "700"
+        },
+        {
+          "contrast": 13.100000381469727,
+          "foreground": "#1e170f",
+          "foregroundSource": "Step50",
+          "hex": "#fdd7b0",
+          "step": "800"
+        },
+        {
+          "contrast": 14.8100004196167,
+          "foreground": "#1e170f",
+          "foregroundSource": "Step50",
+          "hex": "#fee7d0",
+          "step": "900"
+        }
+      ],
+      "theme": "dark"
+    },
+    {
+      "ramp": "success",
+      "seed": "#008c11",
+      "shipped": true,
+      "steps": [
+        {
+          "contrast": 18.049999237060547,
+          "foreground": "#001001",
+          "foregroundSource": "Step900",
+          "hex": "#edf9ec",
+          "step": "50"
+        },
+        {
+          "contrast": 15.300000190734863,
+          "foreground": "#001001",
+          "foregroundSource": "Step900",
+          "hex": "#caedc8",
+          "step": "100"
+        },
+        {
+          "contrast": 12.109999656677246,
+          "foreground": "#001001",
+          "foregroundSource": "Step900",
+          "hex": "#9bdb98",
+          "step": "200"
+        },
+        {
+          "contrast": 9.65999984741211,
+          "foreground": "#001001",
+          "foregroundSource": "Step900",
+          "hex": "#79c976",
+          "step": "300"
+        },
+        {
+          "contrast": 7.039999961853027,
+          "foreground": "#001001",
+          "foregroundSource": "Step900",
+          "hex": "#50af4f",
+          "step": "400"
+        },
+        {
+          "contrast": 4.760000228881836,
+          "foreground": "#000000",
+          "foregroundSource": "PureBlack",
+          "hex": "#008c11",
+          "step": "500"
+        },
+        {
+          "contrast": 6.360000133514404,
+          "foreground": "#edf9ec",
+          "foregroundSource": "Step50",
+          "hex": "#0e6913",
+          "step": "600"
+        },
+        {
+          "contrast": 11.1899995803833,
+          "foreground": "#edf9ec",
+          "foregroundSource": "Step50",
+          "hex": "#053f08",
+          "step": "700"
+        },
+        {
+          "contrast": 15.680000305175781,
+          "foreground": "#edf9ec",
+          "foregroundSource": "Step50",
+          "hex": "#022202",
+          "step": "800"
+        },
+        {
+          "contrast": 18.049999237060547,
+          "foreground": "#edf9ec",
+          "foregroundSource": "Step50",
+          "hex": "#001001",
+          "step": "900"
+        }
+      ],
+      "theme": "light"
+    },
+    {
+      "ramp": "success",
+      "seed": "#008c11",
+      "shipped": true,
+      "steps": [
+        {
+          "contrast": 15.199999809265137,
+          "foreground": "#c9fbc6",
+          "foregroundSource": "Step900",
+          "hex": "#131b12",
+          "step": "50"
+        },
+        {
+          "contrast": 13.529999732971191,
+          "foreground": "#c9fbc6",
+          "foregroundSource": "Step900",
+          "hex": "#0d290c",
+          "step": "100"
+        },
+        {
+          "contrast": 11.319999694824219,
+          "foreground": "#c9fbc6",
+          "foregroundSource": "Step900",
+          "hex": "#043906",
+          "step": "200"
+        },
+        {
+          "contrast": 8.5,
+          "foreground": "#c9fbc6",
+          "foregroundSource": "Step900",
+          "hex": "#084f0c",
+          "step": "300"
+        },
+        {
+          "contrast": 5.690000057220459,
+          "foreground": "#c9fbc6",
+          "foregroundSource": "Step900",
+          "hex": "#0f6c14",
+          "step": "400"
+        },
+        {
+          "contrast": 4.760000228881836,
+          "foreground": "#000000",
+          "foregroundSource": "PureBlack",
+          "hex": "#008c11",
+          "step": "500"
+        },
+        {
+          "contrast": 6.110000133514404,
+          "foreground": "#131b12",
+          "foregroundSource": "Step50",
+          "hex": "#4dab4c",
+          "step": "600"
+        },
+        {
+          "contrast": 9.010000228881836,
+          "foreground": "#131b12",
+          "foregroundSource": "Step50",
+          "hex": "#7ccc78",
+          "step": "700"
+        },
+        {
+          "contrast": 12.390000343322754,
+          "foreground": "#131b12",
+          "foregroundSource": "Step50",
+          "hex": "#a7e8a4",
+          "step": "800"
+        },
+        {
+          "contrast": 15.199999809265137,
+          "foreground": "#131b12",
+          "foregroundSource": "Step50",
+          "hex": "#c9fbc6",
+          "step": "900"
+        }
+      ],
+      "theme": "dark"
+    },
+    {
+      "ramp": "info",
+      "seed": "#008e9d",
+      "shipped": true,
+      "steps": [
+        {
+          "contrast": 18.040000915527344,
+          "foreground": "#000e10",
+          "foregroundSource": "Step900",
+          "hex": "#edf7f9",
+          "step": "50"
+        },
+        {
+          "contrast": 15.449999809265137,
+          "foreground": "#000e10",
+          "foregroundSource": "Step900",
+          "hex": "#caeaef",
+          "step": "100"
+        },
+        {
+          "contrast": 12.420000076293945,
+          "foreground": "#000e10",
+          "foregroundSource": "Step900",
+          "hex": "#9bd8e1",
+          "step": "200"
+        },
+        {
+          "contrast": 10.100000381469727,
+          "foreground": "#000e10",
+          "foregroundSource": "Step900",
+          "hex": "#7ac6d1",
+          "step": "300"
+        },
+        {
+          "contrast": 7.579999923706055,
+          "foreground": "#000e10",
+          "foregroundSource": "Step900",
+          "hex": "#52aebb",
+          "step": "400"
+        },
+        {
+          "contrast": 5.0,
+          "foreground": "#000e10",
+          "foregroundSource": "Step900",
+          "hex": "#008e9d",
+          "step": "500"
+        },
+        {
+          "contrast": 5.789999961853027,
+          "foreground": "#edf7f9",
+          "foregroundSource": "Step50",
+          "hex": "#106a75",
+          "step": "600"
+        },
+        {
+          "contrast": 10.6899995803833,
+          "foreground": "#edf7f9",
+          "foregroundSource": "Step50",
+          "hex": "#063f46",
+          "step": "700"
+        },
+        {
+          "contrast": 15.5,
+          "foreground": "#edf7f9",
+          "foregroundSource": "Step50",
+          "hex": "#022125",
+          "step": "800"
+        },
+        {
+          "contrast": 18.040000915527344,
+          "foreground": "#edf7f9",
+          "foregroundSource": "Step50",
+          "hex": "#000e10",
+          "step": "900"
+        }
+      ],
+      "theme": "light"
+    },
+    {
+      "ramp": "info",
+      "seed": "#008e9d",
+      "shipped": true,
+      "steps": [
+        {
+          "contrast": 15.050000190734863,
+          "foreground": "#c7f5fc",
+          "foregroundSource": "Step900",
+          "hex": "#121a1b",
+          "step": "50"
+        },
+        {
+          "contrast": 13.300000190734863,
+          "foreground": "#c7f5fc",
+          "foregroundSource": "Step900",
+          "hex": "#0c272b",
+          "step": "100"
+        },
+        {
+          "contrast": 10.960000038146973,
+          "foreground": "#c7f5fc",
+          "foregroundSource": "Step900",
+          "hex": "#05383e",
+          "step": "200"
+        },
+        {
+          "contrast": 7.980000019073486,
+          "foreground": "#c7f5fc",
+          "foregroundSource": "Step900",
+          "hex": "#094e57",
+          "step": "300"
+        },
+        {
+          "contrast": 5.139999866485596,
+          "foreground": "#c7f5fc",
+          "foregroundSource": "Step900",
+          "hex": "#116d78",
+          "step": "400"
+        },
+        {
+          "contrast": 4.510000228881836,
+          "foreground": "#121a1b",
+          "foregroundSource": "Step50",
+          "hex": "#008e9d",
+          "step": "500"
+        },
+        {
+          "contrast": 6.579999923706055,
+          "foreground": "#121a1b",
+          "foregroundSource": "Step50",
+          "hex": "#4fabb8",
+          "step": "600"
+        },
+        {
+          "contrast": 9.329999923706055,
+          "foreground": "#121a1b",
+          "foregroundSource": "Step50",
+          "hex": "#7cc8d4",
+          "step": "700"
+        },
+        {
+          "contrast": 12.460000038146973,
+          "foreground": "#121a1b",
+          "foregroundSource": "Step50",
+          "hex": "#a6e3ec",
+          "step": "800"
+        },
+        {
+          "contrast": 15.050000190734863,
+          "foreground": "#121a1b",
+          "foregroundSource": "Step50",
+          "hex": "#c7f5fc",
+          "step": "900"
+        }
+      ],
+      "theme": "dark"
+    },
+    {
+      "ramp": "violet",
+      "seed": "#7c3aed",
+      "shipped": false,
+      "steps": [
+        {
+          "contrast": 18.209999084472656,
+          "foreground": "#0f0128",
+          "foregroundSource": "Step900",
+          "hex": "#f5f3ff",
+          "step": "50"
+        },
+        {
+          "contrast": 15.039999961853027,
+          "foreground": "#0f0128",
+          "foregroundSource": "Step900",
+          "hex": "#e1dcfe",
+          "step": "100"
+        },
+        {
+          "contrast": 11.430000305175781,
+          "foreground": "#0f0128",
+          "foregroundSource": "Step900",
+          "hex": "#c8bcfc",
+          "step": "200"
+        },
+        {
+          "contrast": 8.800000190734863,
+          "foreground": "#0f0128",
+          "foregroundSource": "Step900",
+          "hex": "#b39ffb",
+          "step": "300"
+        },
+        {
+          "contrast": 6.070000171661377,
+          "foreground": "#0f0128",
+          "foregroundSource": "Step900",
+          "hex": "#9a77fa",
+          "step": "400"
+        },
+        {
+          "contrast": 5.210000038146973,
+          "foreground": "#f5f3ff",
+          "foregroundSource": "Step50",
+          "hex": "#7c3aed",
+          "step": "500"
+        },
+        {
+          "contrast": 7.840000152587891,
+          "foreground": "#f5f3ff",
+          "foregroundSource": "Step50",
+          "hex": "#5f23bc",
+          "step": "600"
+        },
+        {
+          "contrast": 12.710000038146973,
+          "foreground": "#f5f3ff",
+          "foregroundSource": "Step50",
+          "hex": "#3b087c",
+          "step": "700"
+        },
+        {
+          "contrast": 16.440000534057617,
+          "foreground": "#f5f3ff",
+          "foregroundSource": "Step50",
+          "hex": "#200349",
+          "step": "800"
+        },
+        {
+          "contrast": 18.209999084472656,
+          "foreground": "#f5f3ff",
+          "foregroundSource": "Step50",
+          "hex": "#0f0128",
+          "step": "900"
+        }
+      ],
+      "theme": "light"
+    },
+    {
+      "ramp": "violet",
+      "seed": "#7c3aed",
+      "shipped": false,
+      "steps": [
+        {
+          "contrast": 14.84000015258789,
+          "foreground": "#ebe8fe",
+          "foregroundSource": "Step900",
+          "hex": "#191624",
+          "step": "50"
+        },
+        {
+          "contrast": 13.6899995803833,
+          "foreground": "#ebe8fe",
+          "foregroundSource": "Step900",
+          "hex": "#241744",
+          "step": "100"
+        },
+        {
+          "contrast": 12.239999771118164,
+          "foreground": "#ebe8fe",
+          "foregroundSource": "Step900",
+          "hex": "#350b70",
+          "step": "200"
+        },
+        {
+          "contrast": 9.729999542236328,
+          "foreground": "#ebe8fe",
+          "foregroundSource": "Step900",
+          "hex": "#491295",
+          "step": "300"
+        },
+        {
+          "contrast": 6.840000152587891,
+          "foreground": "#ebe8fe",
+          "foregroundSource": "Step900",
+          "hex": "#6127bf",
+          "step": "400"
+        },
+        {
+          "contrast": 4.75,
+          "foreground": "#ebe8fe",
+          "foregroundSource": "Step900",
+          "hex": "#7c3aed",
+          "step": "500"
+        },
+        {
+          "contrast": 5.190000057220459,
+          "foreground": "#191624",
+          "foregroundSource": "Step50",
+          "hex": "#9872fa",
+          "step": "600"
+        },
+        {
+          "contrast": 8.180000305175781,
+          "foreground": "#191624",
+          "foregroundSource": "Step50",
+          "hex": "#b6a3fb",
+          "step": "700"
+        },
+        {
+          "contrast": 11.770000457763672,
+          "foreground": "#191624",
+          "foregroundSource": "Step50",
+          "hex": "#d5ccfd",
+          "step": "800"
+        },
+        {
+          "contrast": 14.84000015258789,
+          "foreground": "#191624",
+          "foregroundSource": "Step50",
+          "hex": "#ebe8fe",
+          "step": "900"
+        }
+      ],
+      "theme": "dark"
+    },
+    {
+      "ramp": "magenta",
+      "seed": "#c026d3",
+      "shipped": false,
+      "steps": [
+        {
+          "contrast": 18.100000381469727,
+          "foreground": "#17011b",
+          "foregroundSource": "Step900",
+          "hex": "#fdf0ff",
+          "step": "50"
+        },
+        {
+          "contrast": 15.140000343322754,
+          "foreground": "#17011b",
+          "foregroundSource": "Step900",
+          "hex": "#fad5fe",
+          "step": "100"
+        },
+        {
+          "contrast": 11.729999542236328,
+          "foreground": "#17011b",
+          "foregroundSource": "Step900",
+          "hex": "#f4affd",
+          "step": "200"
+        },
+        {
+          "contrast": 9.199999809265137,
+          "foreground": "#17011b",
+          "foregroundSource": "Step900",
+          "hex": "#ef8afc",
+          "step": "300"
+        },
+        {
+          "contrast": 6.679999828338623,
+          "foreground": "#17011b",
+          "foregroundSource": "Step900",
+          "hex": "#dd62ed",
+          "step": "400"
+        },
+        {
+          "contrast": 4.710000038146973,
+          "foreground": "#ffffff",
+          "foregroundSource": "PureWhite",
+          "hex": "#c026d3",
+          "step": "500"
+        },
+        {
+          "contrast": 6.710000038146973,
+          "foreground": "#fdf0ff",
+          "foregroundSource": "Step50",
+          "hex": "#9313a2",
+          "step": "600"
+        },
+        {
+          "contrast": 11.65999984741211,
+          "foreground": "#fdf0ff",
+          "foregroundSource": "Step50",
+          "hex": "#590763",
+          "step": "700"
+        },
+        {
+          "contrast": 15.989999771118164,
+          "foreground": "#fdf0ff",
+          "foregroundSource": "Step50",
+          "hex": "#310237",
+          "step": "800"
+        },
+        {
+          "contrast": 18.100000381469727,
+          "foreground": "#fdf0ff",
+          "foregroundSource": "Step50",
+          "hex": "#17011b",
+          "step": "900"
+        }
+      ],
+      "theme": "light"
+    },
+    {
+      "ramp": "magenta",
+      "seed": "#c026d3",
+      "shipped": false,
+      "steps": [
+        {
+          "contrast": 14.739999771118164,
+          "foreground": "#fbe1fe",
+          "foregroundSource": "Step900",
+          "hex": "#1f1420",
+          "step": "50"
+        },
+        {
+          "contrast": 13.430000305175781,
+          "foreground": "#fbe1fe",
+          "foregroundSource": "Step900",
+          "hex": "#35103a",
+          "step": "100"
+        },
+        {
+          "contrast": 11.5600004196167,
+          "foreground": "#fbe1fe",
+          "foregroundSource": "Step900",
+          "hex": "#4f0658",
+          "step": "200"
+        },
+        {
+          "contrast": 8.75,
+          "foreground": "#fbe1fe",
+          "foregroundSource": "Step900",
+          "hex": "#6d0b79",
+          "step": "300"
+        },
+        {
+          "contrast": 5.860000133514404,
+          "foreground": "#fbe1fe",
+          "foregroundSource": "Step900",
+          "hex": "#9714a6",
+          "step": "400"
+        },
+        {
+          "contrast": 4.710000038146973,
+          "foreground": "#ffffff",
+          "foregroundSource": "PureWhite",
+          "hex": "#c026d3",
+          "step": "500"
+        },
+        {
+          "contrast": 5.769999980926514,
+          "foreground": "#1f1420",
+          "foregroundSource": "Step50",
+          "hex": "#da5fea",
+          "step": "600"
+        },
+        {
+          "contrast": 8.510000228881836,
+          "foreground": "#1f1420",
+          "foregroundSource": "Step50",
+          "hex": "#ef8ffc",
+          "step": "700"
+        },
+        {
+          "contrast": 11.890000343322754,
+          "foreground": "#1f1420",
+          "foregroundSource": "Step50",
+          "hex": "#f7c1fd",
+          "step": "800"
+        },
+        {
+          "contrast": 14.739999771118164,
+          "foreground": "#1f1420",
+          "foregroundSource": "Step50",
+          "hex": "#fbe1fe",
+          "step": "900"
+        }
+      ],
+      "theme": "dark"
+    },
+    {
+      "ramp": "lime",
+      "seed": "#65a30d",
+      "shipped": false,
+      "steps": [
+        {
+          "contrast": 18.059999465942383,
+          "foreground": "#050e00",
+          "foregroundSource": "Step900",
+          "hex": "#f0f8ea",
+          "step": "50"
+        },
+        {
+          "contrast": 15.90999984741211,
+          "foreground": "#050e00",
+          "foregroundSource": "Step900",
+          "hex": "#d8efc7",
+          "step": "100"
+        },
+        {
+          "contrast": 13.3100004196167,
+          "foreground": "#050e00",
+          "foregroundSource": "Step900",
+          "hex": "#b8e196",
+          "step": "200"
+        },
+        {
+          "contrast": 11.229999542236328,
+          "foreground": "#050e00",
+          "foregroundSource": "Step900",
+          "hex": "#a1d375",
+          "step": "300"
+        },
+        {
+          "contrast": 8.890000343322754,
+          "foreground": "#050e00",
+          "foregroundSource": "Step900",
+          "hex": "#86be50",
+          "step": "400"
+        },
+        {
+          "contrast": 6.340000152587891,
+          "foreground": "#050e00",
+          "foregroundSource": "Step900",
+          "hex": "#65a30d",
+          "step": "500"
+        },
+        {
+          "contrast": 4.78000020980835,
+          "foreground": "#f0f8ea",
+          "foregroundSource": "Step50",
+          "hex": "#4b7910",
+          "step": "600"
+        },
+        {
+          "contrast": 9.649999618530273,
+          "foreground": "#f0f8ea",
+          "foregroundSource": "Step50",
+          "hex": "#2a4706",
+          "step": "700"
+        },
+        {
+          "contrast": 15.079999923706055,
+          "foreground": "#f0f8ea",
+          "foregroundSource": "Step50",
+          "hex": "#132402",
+          "step": "800"
+        },
+        {
+          "contrast": 18.059999465942383,
+          "foreground": "#f0f8ea",
+          "foregroundSource": "Step50",
+          "hex": "#050e00",
+          "step": "900"
+        }
+      ],
+      "theme": "light"
+    },
+    {
+      "ramp": "lime",
+      "seed": "#65a30d",
+      "shipped": false,
+      "steps": [
+        {
+          "contrast": 15.130000114440918,
+          "foreground": "#d7f8be",
+          "foregroundSource": "Step900",
+          "hex": "#151a11",
+          "step": "50"
+        },
+        {
+          "contrast": 13.069999694824219,
+          "foreground": "#d7f8be",
+          "foregroundSource": "Step900",
+          "hex": "#1a2a09",
+          "step": "100"
+        },
+        {
+          "contrast": 10.369999885559082,
+          "foreground": "#d7f8be",
+          "foregroundSource": "Step900",
+          "hex": "#233d04",
+          "step": "200"
+        },
+        {
+          "contrast": 7.110000133514404,
+          "foreground": "#d7f8be",
+          "foregroundSource": "Step900",
+          "hex": "#355709",
+          "step": "300"
+        },
+        {
+          "contrast": 5.0,
+          "foreground": "#ffffff",
+          "foregroundSource": "PureWhite",
+          "hex": "#4d7c11",
+          "step": "400"
+        },
+        {
+          "contrast": 5.710000038146973,
+          "foreground": "#151a11",
+          "foregroundSource": "Step50",
+          "hex": "#65a30d",
+          "step": "500"
+        },
+        {
+          "contrast": 7.730000019073486,
+          "foreground": "#151a11",
+          "foregroundSource": "Step50",
+          "hex": "#84bb4d",
+          "step": "600"
+        },
+        {
+          "contrast": 10.239999771118164,
+          "foreground": "#151a11",
+          "foregroundSource": "Step50",
+          "hex": "#a2d476",
+          "step": "700"
+        },
+        {
+          "contrast": 12.970000267028809,
+          "foreground": "#151a11",
+          "foregroundSource": "Step50",
+          "hex": "#c0e99e",
+          "step": "800"
+        },
+        {
+          "contrast": 15.130000114440918,
+          "foreground": "#151a11",
+          "foregroundSource": "Step50",
+          "hex": "#d7f8be",
+          "step": "900"
+        }
+      ],
+      "theme": "dark"
+    },
+    {
+      "ramp": "amber",
+      "seed": "#d97706",
+      "shipped": false,
+      "steps": [
+        {
+          "contrast": 18.040000915527344,
+          "foreground": "#150700",
+          "foregroundSource": "Step900",
+          "hex": "#fff3ea",
+          "step": "50"
+        },
+        {
+          "contrast": 15.760000228881836,
+          "foreground": "#150700",
+          "foregroundSource": "Step900",
+          "hex": "#fee0cb",
+          "step": "100"
+        },
+        {
+          "contrast": 13.039999961853027,
+          "foreground": "#150700",
+          "foregroundSource": "Step900",
+          "hex": "#fdc79f",
+          "step": "200"
+        },
+        {
+          "contrast": 10.930000305175781,
+          "foreground": "#150700",
+          "foregroundSource": "Step900",
+          "hex": "#fcb074",
+          "step": "300"
+        },
+        {
+          "contrast": 8.649999618530273,
+          "foreground": "#150700",
+          "foregroundSource": "Step900",
+          "hex": "#ef974e",
+          "step": "400"
+        },
+        {
+          "contrast": 6.199999809265137,
+          "foreground": "#150700",
+          "foregroundSource": "Step900",
+          "hex": "#d97706",
+          "step": "500"
+        },
+        {
+          "contrast": 4.869999885559082,
+          "foreground": "#fff3ea",
+          "foregroundSource": "Step50",
+          "hex": "#a15911",
+          "step": "600"
+        },
+        {
+          "contrast": 9.8100004196167,
+          "foreground": "#fff3ea",
+          "foregroundSource": "Step50",
+          "hex": "#5f3206",
+          "step": "700"
+        },
+        {
+          "contrast": 15.1899995803833,
+          "foreground": "#fff3ea",
+          "foregroundSource": "Step50",
+          "hex": "#321802",
+          "step": "800"
+        },
+        {
+          "contrast": 18.040000915527344,
+          "foreground": "#fff3ea",
+          "foregroundSource": "Step50",
+          "hex": "#150700",
+          "step": "900"
+        }
+      ],
+      "theme": "light"
+    },
+    {
+      "ramp": "amber",
+      "seed": "#d97706",
+      "shipped": false,
+      "steps": [
+        {
+          "contrast": 14.800000190734863,
+          "foreground": "#fee6d5",
+          "foregroundSource": "Step900",
+          "hex": "#1f1610",
+          "step": "50"
+        },
+        {
+          "contrast": 12.960000038146973,
+          "foreground": "#fee6d5",
+          "foregroundSource": "Step900",
+          "hex": "#371e07",
+          "step": "100"
+        },
+        {
+          "contrast": 10.380000114440918,
+          "foreground": "#fee6d5",
+          "foregroundSource": "Step900",
+          "hex": "#512a04",
+          "step": "200"
+        },
+        {
+          "contrast": 7.130000114440918,
+          "foreground": "#fee6d5",
+          "foregroundSource": "Step900",
+          "hex": "#743f09",
+          "step": "300"
+        },
+        {
+          "contrast": 5.150000095367432,
+          "foreground": "#ffffff",
+          "foregroundSource": "PureWhite",
+          "hex": "#a45b11",
+          "step": "400"
+        },
+        {
+          "contrast": 5.579999923706055,
+          "foreground": "#1f1610",
+          "foregroundSource": "Step50",
+          "hex": "#d97706",
+          "step": "500"
+        },
+        {
+          "contrast": 7.519999980926514,
+          "foreground": "#1f1610",
+          "foregroundSource": "Step50",
+          "hex": "#eb944a",
+          "step": "600"
+        },
+        {
+          "contrast": 9.930000305175781,
+          "foreground": "#1f1610",
+          "foregroundSource": "Step50",
+          "hex": "#fcb177",
+          "step": "700"
+        },
+        {
+          "contrast": 12.640000343322754,
+          "foreground": "#1f1610",
+          "foregroundSource": "Step50",
+          "hex": "#fdd1b0",
+          "step": "800"
+        },
+        {
+          "contrast": 14.800000190734863,
+          "foreground": "#1f1610",
+          "foregroundSource": "Step50",
+          "hex": "#fee6d5",
+          "step": "900"
+        }
+      ],
+      "theme": "dark"
+    },
+    {
+      "ramp": "teal",
+      "seed": "#0d9488",
+      "shipped": false,
+      "steps": [
+        {
+          "contrast": 18.040000915527344,
+          "foreground": "#000f0c",
+          "foregroundSource": "Step900",
+          "hex": "#edf8f6",
+          "step": "50"
+        },
+        {
+          "contrast": 15.529999732971191,
+          "foreground": "#000f0c",
+          "foregroundSource": "Step900",
+          "hex": "#cbece6",
+          "step": "100"
+        },
+        {
+          "contrast": 12.59000015258789,
+          "foreground": "#000f0c",
+          "foregroundSource": "Step900",
+          "hex": "#9ddbd2",
+          "step": "200"
+        },
+        {
+          "contrast": 10.3100004196167,
+          "foreground": "#000f0c",
+          "foregroundSource": "Step900",
+          "hex": "#7ccabf",
+          "step": "300"
+        },
+        {
+          "contrast": 7.820000171661377,
+          "foreground": "#000f0c",
+          "foregroundSource": "Step900",
+          "hex": "#55b3a7",
+          "step": "400"
+        },
+        {
+          "contrast": 5.230000019073486,
+          "foreground": "#000f0c",
+          "foregroundSource": "Step900",
+          "hex": "#0d9488",
+          "step": "500"
+        },
+        {
+          "contrast": 5.579999923706055,
+          "foreground": "#edf8f6",
+          "foregroundSource": "Step50",
+          "hex": "#116f66",
+          "step": "600"
+        },
+        {
+          "contrast": 10.479999542236328,
+          "foreground": "#edf8f6",
+          "foregroundSource": "Step50",
+          "hex": "#06423c",
+          "step": "700"
+        },
+        {
+          "contrast": 15.40999984741211,
+          "foreground": "#edf8f6",
+          "foregroundSource": "Step50",
+          "hex": "#02221f",
+          "step": "800"
+        },
+        {
+          "contrast": 18.040000915527344,
+          "foreground": "#edf8f6",
+          "foregroundSource": "Step50",
+          "hex": "#000f0c",
+          "step": "900"
+        }
+      ],
+      "theme": "light"
+    },
+    {
+      "ramp": "teal",
+      "seed": "#0d9488",
+      "shipped": false,
+      "steps": [
+        {
+          "contrast": 15.09000015258789,
+          "foreground": "#c7f7ef",
+          "foregroundSource": "Step900",
+          "hex": "#121a19",
+          "step": "50"
+        },
+        {
+          "contrast": 13.270000457763672,
+          "foreground": "#c7f7ef",
+          "foregroundSource": "Step900",
+          "hex": "#0c2825",
+          "step": "100"
+        },
+        {
+          "contrast": 10.850000381469727,
+          "foreground": "#c7f7ef",
+          "foregroundSource": "Step900",
+          "hex": "#053a34",
+          "step": "200"
+        },
+        {
+          "contrast": 7.809999942779541,
+          "foreground": "#c7f7ef",
+          "foregroundSource": "Step900",
+          "hex": "#09514a",
+          "step": "300"
+        },
+        {
+          "contrast": 4.96999979019165,
+          "foreground": "#c7f7ef",
+          "foregroundSource": "Step900",
+          "hex": "#117268",
+          "step": "400"
+        },
+        {
+          "contrast": 4.71999979019165,
+          "foreground": "#121a19",
+          "foregroundSource": "Step50",
+          "hex": "#0d9488",
+          "step": "500"
+        },
+        {
+          "contrast": 6.789999961853027,
+          "foreground": "#121a19",
+          "foregroundSource": "Step50",
+          "hex": "#52b0a4",
+          "step": "600"
+        },
+        {
+          "contrast": 9.510000228881836,
+          "foreground": "#121a19",
+          "foregroundSource": "Step50",
+          "hex": "#7eccc1",
+          "step": "700"
+        },
+        {
+          "contrast": 12.579999923706055,
+          "foreground": "#121a19",
+          "foregroundSource": "Step50",
+          "hex": "#a7e6dc",
+          "step": "800"
+        },
+        {
+          "contrast": 15.09000015258789,
+          "foreground": "#121a19",
+          "foregroundSource": "Step50",
+          "hex": "#c7f7ef",
+          "step": "900"
+        }
+      ],
+      "theme": "dark"
+    }
+  ]
+}

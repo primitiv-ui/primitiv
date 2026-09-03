@@ -891,10 +891,18 @@ The three §2.8 cards had a hand-drawn `command` frame — a mono line on a
   component's own defaults are already the four package managers, which
   avoided the one risky part (a nested-instance `Label` override).
 - **FIGMA** gets a **secondary `Button`** with a trailing `external-link`
-  icon, labelled *Open the Figma library*. **That card is not a command**,
-  and a sentence in a monospace chip beside two working shell commands reads
-  as a command that does not work. Its `Design in Figma →` link stays — the
-  button opens the library file, the link goes to the docs page.
+  icon, labelled *Open the Figma library*, **centred, with no trailing link**.
+  That card is not a command, and a sentence in a monospace chip beside two
+  working shell commands reads as a command that does not work. The other two
+  cards keep `... docs →` because a code block is something you copy rather
+  than somewhere you go, so the link is their only way out; the Figma button
+  *is* the way out, and a link beneath it would be two controls competing for
+  one click.
+
+  **Centring one child needs a wrapper.** `layoutAlign = "CENTER"` on the
+  child silently reverts to `INHERIT` — cross-axis alignment belongs to the
+  parent now, so it is all children or none. The button sits in a fill-width,
+  hug-height `button row` frame whose `primaryAxisAlignItems` is `CENTER`.
 
 ### 6.0.3 `overline` gained the size scale every other type family had (2026-09-03)
 

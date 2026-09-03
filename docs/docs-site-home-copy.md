@@ -1091,8 +1091,7 @@ it; the description is `body/md`.
 > **You are designing, not building yet.**
 > The full component library in Figma, built from the same tokens as the
 > code, with Harmoni generating the colour.
-> [secondary `Button`, trailing `external-link` icon] **Open the Figma library**
-> `Design in Figma →`
+> [secondary `Button`, trailing `external-link` icon, centred] **Open the Figma library**
 
 **The command slot is a real component, and the third card is not a
 command.** Cards one and two carry a tabbed `Code Block` (`Type=tabbed`,
@@ -1103,8 +1102,13 @@ gets a secondary `Button` with a trailing `external-link` icon instead. A
 sentence set in a monospace chip beside two real shell commands reads as a
 command that does not work.
 
-Its `Design in Figma →` link stays: the button opens the library file, the
-link goes to the docs page, matching the other two cards' `... docs →`.
+**The Figma card has no trailing link, and that asymmetry is the point.**
+Cards one and two end with `... docs →` because their code block is something
+you copy, not somewhere you go — the link is the only way out of the card. The
+Figma button *is* the way out, so a link under it would be two controls
+competing for one click. With the link gone the button centres in its own
+full-width row, which reads as deliberate rather than as a short line left
+hanging.
 
 ```yaml
 id: PATHS-01

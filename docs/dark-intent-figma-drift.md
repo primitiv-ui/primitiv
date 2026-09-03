@@ -107,9 +107,17 @@ collects every node *before* writing anything and does both or neither.
 The reconciliation adopted the code wholesale, including two things worth a
 second look now that Figma agrees with them:
 
-- **`action/link/foreground/disabled` equals `…/default`** in the code, so a
-  disabled link renders identically to an active one. Almost certainly
-  unintended; fix it in `intent.json` and re-run the script.
+- ~~`action/link/foreground/disabled` equals `…/default`~~ **Fixed
+  2026-09-03, both sides.** It aliased the same step as `default` in *both*
+  modes (`brand.500` light, `brand.600` dark), so a disabled link rendered
+  identically to an active one — no cue at all that it was unavailable. It
+  now follows the house convention every other action family already used: a
+  disabled foreground drops its colour identity and goes muted neutral
+  (`neutral.400` light, `neutral.500` dark). Guarded by two new tests in
+  `packages/tokens/src/dark-mode-content.test.ts` — one asserting a disabled
+  link is *quieter* than a resting one, and one asserting no disabled
+  foreground in any of the four families reuses its own resting colour. The
+  second is the invariant that would have caught this anywhere.
 - **`action/primary/hover` darkens on dark** (`#053a8a`). Figma previously
   lightened it, which is arguably the better behaviour on a dark surface.
   The reconciliation made Figma follow the code; if the code is wrong here,

@@ -169,7 +169,7 @@
           },
           "disabled": {
             "$type": "color",
-            "$value": "{color.brand.500}"
+            "$value": "{color.neutral.400}"
           },
           "visited": {
             "$type": "color",
@@ -669,7 +669,7 @@
           },
           "disabled": {
             "$type": "color",
-            "$value": "{color.brand.600}"
+            "$value": "{color.neutral.500}"
           },
           "visited": {
             "$type": "color",

@@ -270,3 +270,43 @@ describe('action/link/foreground interactive states', () => {
     },
   )
 })
+
+/*
+ * The sibling property the block above does not cover: a disabled link must be
+ * QUIETER than a resting one.
+ *
+ * Both modes shipped `disabled` aliasing the exact step `default` does
+ * (`brand.500` light, `brand.600` dark), so a disabled link rendered
+ * identically to an active one — indistinguishable to everyone, and to a
+ * keyboard user the only cue that it is unavailable. The states block could
+ * not see it: it only ever compared hover and active.
+ *
+ * Two assertions, because they fail for different reasons. The contrast one is
+ * meaningful only for `link`, whose foreground genuinely sits on the page
+ * surface; `primary`/`secondary`/`danger` foregrounds sit on their own disabled
+ * backgrounds, so measuring them against `surface/default` would assert
+ * nothing true. The equality one needs no such care and so covers all four —
+ * it is the invariant that would have caught this on any of them.
+ */
+describe('disabled action foregrounds', () => {
+  it.each(['light', 'dark'] as const)(
+    '%s mode: a disabled link is quieter than a resting one',
+    (mode) => {
+      const bg = intentColor(mode, 'surface/default')
+      const at = (state: string) =>
+        contrastRatio(intentColor(mode, `action/link/foreground/${state}`), bg)
+      expect(at('disabled')).toBeLessThan(at('default'))
+    },
+  )
+
+  it.each(['light', 'dark'] as const)(
+    '%s mode: no disabled foreground reuses its own resting colour',
+    (mode) => {
+      for (const family of ['primary', 'secondary', 'danger', 'link']) {
+        const resting = intentColor(mode, `action/${family}/foreground/default`)
+        const disabled = intentColor(mode, `action/${family}/foreground/disabled`)
+        expect(disabled, `action/${family}/foreground`).not.toBe(resting)
+      }
+    },
+  )
+})

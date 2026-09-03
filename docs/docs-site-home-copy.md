@@ -187,6 +187,31 @@ craft-notes:
 > typographic hero beats a cluttered visual one, and this is the one
 > section where restraint is a legitimate answer.
 
+> **Direction changed 2026-09-03, after building the brief above and looking
+> at it.** The two tilted specimen boards were built in full — real Button /
+> Field / Badge / Tag / Table instances, the Status column carrying real
+> Badges, the rear board in the opposite theme — and rejected on sight. Two
+> things did not survive contact with the render. **The tilt read as wonky
+> rather than as a physical artefact**: 2.5° over a 1040px board drops the far
+> edge 45px, which turns every table rule into a slope and makes the whole
+> thing look misaligned rather than placed. And **an 8% offset on a same-size
+> rear board only ever shows a thin L of it** — at hero scale that was a strip
+> of half-cut buttons, which reads as a rendering fault, not as a second
+> theme. Pushing the offset far enough to show the rear's whole button row
+> fixed the read but abandoned the 8% the brief specifies.
+>
+> What replaced it: a **straight-on wall of real components**, packed into
+> five uniform 280px columns, bled past every edge of the frame, with a
+> **radial vignette over the top** closing it down at the edges and a linear
+> foot handing off to the section below. No rotation. The `must-not` on "a
+> gradient wash" above is deliberately overridden — the wash is now the
+> treatment itself rather than decoration behind the subject.
+>
+> The build is a re-runnable script:
+> `scripts/figma/build-hero-01-component-wall.js`. **Still being iterated** —
+> how much of the wall should stay legible, and whether it should escape the
+> 1200 container to bleed the full viewport width, are open.
+
 ---
 
 # Section 2 — Proof strip

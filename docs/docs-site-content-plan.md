@@ -810,9 +810,10 @@ bound inline to the Context variables like every other text node there.
 
 **Still open on the Figma side:** the cloned header's mode switch reads
 *Headless* where §1.1 settled *Styled* (fix at the source frame, not the
-clone); the mobile footer runs 957px as a full sitemap and probably
-wants an accordion; and the nav has no mobile treatment — the
-burger/drawer frames on the landing page are the reference.
+clone); the mobile footer runs 957px as a full sitemap, **reviewed and kept
+flat** (an accordion is not needed at this size); and the nav has no
+mobile treatment — the burger/drawer frames on the landing page are the
+reference.
 
 ---
 

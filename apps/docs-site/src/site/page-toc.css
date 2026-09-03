@@ -30,13 +30,14 @@
      reads as "ONTHISPAGE". `wide` restores the gaps. */
   letter-spacing: var(--primitiv-letter-spacing-wide);
   margin-block: 0 var(--primitiv-stack-gap-sm);
-  /* The overline family is unsized (no -sm/-md/-lg) and carries no
+  /* The overline family is a single unsized preset and carries no
      letter-spacing token — the face handles caps tracking itself. */
   font-family: var(--primitiv-overline-font-family);
-  /* One step up from the overline defaults (12px / medium): "On this page" is
-     the rail's own heading, so it earns a touch more presence than a caption
-     overline. Kept in lockstep with `.docs-nav-group-title`. */
-  font-size: var(--primitiv-font-size-14);
+  font-size: var(--primitiv-overline-font-size);
+  /* Semibold, not the overline's medium: "On this page" is the rail's own
+     heading, so it earns the extra weight. Size and line-height come from the
+     preset now — they used to hardcode `font-size-14` because the preset sat a
+     step lower. Kept in lockstep with `.docs-nav-group-title`. */
   font-weight: var(--primitiv-font-weight-semibold);
   line-height: var(--primitiv-overline-line-height);
   text-transform: uppercase;

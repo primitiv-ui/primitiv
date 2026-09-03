@@ -69,11 +69,13 @@
   color: var(--primitiv-content-secondary);
 }
 
-/* The 12px muted trailing hint — "Headless mode installs ...", "... 14 total". */
+/* The 12px muted trailing hint — "Headless mode installs ...", "... 14 total".
+   It borrowed the overline's size until that preset moved up a step; 12px is
+   the point here, so it names `body/xs` rather than tracking the overline. */
 .docs-install-hint {
   margin: 0;
   font-family: var(--primitiv-body-sm-font-family);
-  font-size: var(--primitiv-overline-font-size);
+  font-size: var(--primitiv-body-xs-font-size);
   line-height: var(--primitiv-body-sm-line-height);
   color: var(--primitiv-content-muted);
 }

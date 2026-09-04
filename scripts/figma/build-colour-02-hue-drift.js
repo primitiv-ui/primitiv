@@ -13,19 +13,34 @@
  *   cargo run -p harmoni-core --features swatch-sheet --example swatch-sheet
  *   -> docs/generated/colour-02-hue-drift.json
  *
- * THE FIRST MECHANISM WAS WRONG AND THE DATA SAID SO. Mixing the seed toward
- * pure white and pure black in sRGB — the obvious guess at "how a ramp gets
- * built by hand" — drifted 3.2 degrees. Mixing toward a NEUTRAL holds hue
- * almost perfectly. What actually drifts a ramp is mixing toward a TINTED
- * white and a TINTED black: the cool paper white and warm rich black already
- * in your palette. That measures 35.7 degrees against the real ramp's 0.0,
- * with the ends flying out and the middle clustering — which is what drift
- * looks like in the wild.
+ * THREE MECHANISMS WERE TRIED. The first two look right on paper and fail:
+ *   1. Mix toward pure white and black in sRGB — 3.2 degrees. Mixing toward a
+ *      NEUTRAL holds hue almost perfectly.
+ *   2. Mix toward a TINTED white and black — 35.7 degrees, but ALL of it in
+ *      the two end steps, leaving eight of ten swatches identical to the real
+ *      ramp. A RANGE IS NOT A DRIFT, and the number hid that.
+ *   3. Interpolate in sRGB between two hand-picked ends — worse, 24.5, because
+ *      blending a pale end into a saturated seed snaps hue to the saturated one.
+ * What ships: the real ramp's LIGHTNESS AND CHROMA with only the HUE drifted,
+ * steadily, +16 to -15 degrees and pinned to the seed at 500. That is what
+ * picking each step by eye produces, it measures 31.0 against the real ramp's
+ * 0.0, and it is the only construction that isolates the one variable the
+ * diagram is about — so the comparison cannot be accused of smuggling in a
+ * lightness or saturation difference.
  *
  * ── FOUR THINGS THAT MAKE THE DIAGRAM WORK ────────────────────────────────
  * • ONE SHARED HUE DOMAIN for both tracks (243-289). Scaling each track to its
  *   own data would rig the comparison — the held row's ten identical hues
  *   would spread across the full width and prove the opposite.
+ * • THE TRACK IS A PAINTED SPECTRUM, not a rule. A plain rule sitting under
+ *   the tiles at the same width invites the eye to map marker position to the
+ *   TILE ABOVE IT, which is a different quantity: the held row's marker sits
+ *   at hue 260 and lands under the 300 tile, so the diagram reads as broken.
+ *   Painting the actual hue sweep removes the ambiguity — nobody reads a
+ *   spectrum as a row of steps. Reported from review, and the fix is the
+ *   axis explaining itself rather than a caption explaining the axis.
+ * • MARKERS ARE RINGS, not dots. They sit ON colour now, so they have to stay
+ *   legible over any hue while letting it show through.
  * • MARKERS AT 0.4 OPACITY so coincident ones ACCUMULATE. Ten stacked dots at
  *   full opacity look like one dot; semi-opaque, the held row's single point
  *   reads dense and the drifting row's isolated ones read sparse. The density
@@ -46,8 +61,10 @@ const TILE_H = 28;
 const HUE_MIN = 243, HUE_MAX = 289;
 
 // [step, hex, hue in degrees] — from docs/generated/colour-02-hue-drift.json
-const DRIFT = [["50","#f8f4fe",283.9],["100","#dae0fb",270.4],["200","#b3c7f5",263.6],["300","#8bacef",261.6],["400","#5a8de8",260.3],["500","#236ce1",259.8],["600","#1d55a9",259.9],["700","#173e71",259.2],["800","#12253a",257.6],["900","#10161a",248.2]];
-const HELD  = [["50","#f0f5ff",260.2],["100","#d2e3fe",260.2],["200","#aac9fc",260.2],["300","#86b3fb",260.2],["400","#5794fa",260.2],["500","#236ce1",260.2],["600","#104fb2",260.2],["700","#032e71",260.2],["800","#011841",260.2],["900","#000923",260.2]];
+const DRIFT = [["50","#f2f5fe",275.8999938964844],["100","#d8e0fe",272.70001220703125],["200","#b3c6fd",269.5],["300","#90b0fc",266.29998779296875],["400","#5f92fa",263.1000061035156],["500","#236ce1",259.8999938964844],["600","#0052b1",256.1000061035156],["700","#003270",252.39999389648438],["800","#001b40",248.60000610351562],["900","#000c21",244.89999389648438]];
+const HELD  = [["50","#f0f5ff",259.8999938964844],["100","#d2e3fe",259.8999938964844],["200","#aac9fc",259.8999938964844],["300","#86b3fb",259.8999938964844],["400","#5794fa",259.8999938964844],["500","#236ce1",259.8999938964844],["600","#104fb2",259.8999938964844],["700","#032e71",259.8999938964844],["800","#011841",259.8999938964844],["900","#000923",259.8999938964844]];
+// The track's own background: a hue sweep at the seed's L and C.
+const SWEEP = ["#0078d9","#0077da","#0076db","#0074dd","#0073de","#0071df","#0070df","#0a6ee0","#1d6de1","#296be1","#326ae2","#3a68e2","#4167e2","#4765e2","#4d64e2","#5262e1","#5761e1","#5c5fe0","#605edf","#645cdf","#695bde","#6d59dd","#7058db","#7456da"];
 
 const vars = await figma.variables.getLocalVariablesAsync();
 const V = {}; for (const v of vars) V[v.name] = v;
@@ -119,22 +136,28 @@ const block = (label, rows) => {
   // The hue track. Without it these are two blue ramps that look broadly
   // similar and a reader shrugs; with it the difference is instant.
   const track = figma.createFrame(); b.appendChild(track);
-  track.name = 'hue track'; track.layoutMode = 'NONE';
+  track.name = 'hue scale'; track.layoutMode = 'NONE';
   track.resize(100, 18); track.fills = []; track.clipsContent = false;
   track.layoutSizingHorizontal = 'FILL';
-  const rule = figma.createRectangle(); track.appendChild(rule);
-  rule.name = 'rule'; rule.x = 0; rule.y = 8; rule.resize(track.width, 1);
-  rule.strokes = [];                                      // create* ships a default stroke (gotcha 28)
-  rule.fills = [bound('border/subtle')];
-  rule.constraints = { horizontal: 'STRETCH', vertical: 'MIN' };
+  const band = figma.createRectangle(); track.appendChild(band);
+  band.name = 'spectrum'; band.x = 0; band.y = 6; band.resize(track.width, 8);
+  band.strokes = [];                                      // create* ships a default stroke (gotcha 28)
+  band.cornerRadius = 4;
+  band.constraints = { horizontal: 'STRETCH', vertical: 'MIN' };
+  band.fills = [{ type: 'GRADIENT_LINEAR', gradientTransform: [[1, 0, 0], [0, 1, 0]],
+    gradientStops: SWEEP.map((hex, i) => ({
+      position: i / (SWEEP.length - 1),
+      color: { ...figma.util.solidPaint(hex).color, a: 1 },
+    })) }];
   for (const [, , hue] of rows) {
     const m = figma.createEllipse(); track.appendChild(m);
-    m.name = 'marker'; m.resize(7, 7);
-    m.x = ((hue - HUE_MIN) / (HUE_MAX - HUE_MIN)) * (track.width - 7);
+    m.name = 'marker'; m.resize(10, 10);
+    m.x = ((hue - HUE_MIN) / (HUE_MAX - HUE_MIN)) * (track.width - 10);
     m.y = 5;
-    m.strokes = [];
-    m.fills = [bound('content/muted')];
-    m.opacity = 0.4;                                      // coincident markers accumulate
+    m.fills = [];                                         // a ring: it sits ON the spectrum
+    m.strokes = [bound('content/primary')];
+    m.strokeWeight = 2; m.strokeAlign = 'CENTER';
+    m.opacity = 0.55;                                     // coincident rings accumulate
     m.constraints = { horizontal: 'SCALE', vertical: 'MIN' };
   }
   return b;

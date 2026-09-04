@@ -844,26 +844,46 @@ craft-notes:
 > **Built 2026-09-04.** `scripts/figma/build-colour-02-hue-drift.js`, from
 > `docs/generated/colour-02-hue-drift.json`.
 >
-> **The counter-example is measured, not drawn — and the first mechanism was
-> wrong.** Mixing the seed toward pure white and pure black in sRGB, the
-> obvious guess at "how a ramp gets built by hand", drifts **3.2°**. Mixing
-> toward a *neutral* holds hue almost perfectly, so that is not where
-> hand-built ramps go wrong. What does it is mixing toward a **tinted** white
-> and a **tinted** black — the cool paper white and warm rich black already in
-> your palette. That measures **35.7°** against the real ramp's **0.0°**, with
-> the ends flying out (284° at the light end, 248° at the dark) and the middle
-> clustering, which is what drift looks like in the wild. The brief's "roughly
-> 30 degrees" turned out to be a good description of a real mechanism rather
-> than a number to hit.
+> **The counter-example is measured, not drawn, and three mechanisms were
+> tried.** Two of them look right on paper and fail:
 >
-> Two build decisions the diagram depends on. **Both tracks share one hue
+> 1. Mixing toward pure white and black in sRGB — the obvious guess at "built
+>    by hand" — drifts **3.2°**. Mixing toward a *neutral* holds hue almost
+>    perfectly, so that is not where hand-built ramps go wrong.
+> 2. Mixing toward a *tinted* white and black measures **35.7°**, which sounds
+>    right and looks wrong: the mix factor is tiny mid-ramp, so all of that span
+>    sits in the two end steps while six of the middle eight stay within 2.4°.
+>    Eight of ten swatches were visually identical to the real ramp — reported
+>    from review as "the drift ramp seems exactly the same in colours", and
+>    correctly. **A range is not a drift, and the headline number hid that.**
+> 3. Interpolating in sRGB between two hand-picked ends is worse still (24.5°,
+>    middle seven within 3.7°): blending a pale end into a saturated seed snaps
+>    the hue to the saturated one almost immediately.
+>
+> What ships is the real ramp's **lightness and chroma with only the hue
+> drifted**, steadily, +16° to −15° and pinned to the seed at 500. That is what
+> picking each step by eye actually produces; it measures **31.0°** against the
+> real ramp's **0.0°**, spread evenly (3.2–3.8° between adjacent steps); and it
+> is the only construction that isolates the one variable the diagram is about,
+> so the comparison cannot be accused of smuggling in a lightness or saturation
+> difference.
+>
+> Three build decisions the diagram depends on. **Both tracks share one hue
 > domain** (243–289): scaling each to its own data would rig the comparison,
 > spreading the held row's ten identical hues across the full width and proving
-> the opposite. And **markers sit at 0.4 opacity so coincident ones
-> accumulate** — ten stacked dots at full opacity look like one dot, but
-> semi-opaque the held row's single point reads dense and the drifting row's
-> isolated ones read sparse. That is how the diagram states its case without
-> the degree figures the brief forbids.
+> the opposite. **Markers are semi-opaque rings so coincident ones accumulate**
+> — ten stacked at full opacity look like one, but at 0.55 the held row's
+> single point reads dense and the drifting row's spread reads sparse, which is
+> how the diagram states its case without the degree figures the brief forbids.
+>
+> And **the track is a painted hue spectrum, not a rule.** A plain rule under
+> the tiles at matching width invites the eye to map marker position to the
+> *tile above it* — a different quantity entirely. The held row's marker sits
+> at hue 260°, which lands under the 300 tile, so the diagram read as broken;
+> the drifting row's markers read as "under 800, 500, 400, 400, 300…", which is
+> meaningless. Also caught in review. Painting the actual sweep fixes it by
+> making the axis explain itself rather than adding a caption to explain the
+> axis.
 
 **Third block — where the colour comes from** — `body/md`:
 

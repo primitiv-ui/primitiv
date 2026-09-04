@@ -1706,6 +1706,75 @@ craft-notes:
     holding is a genuine claim rather than a decorative choice.
 ```
 
+> **BUILT 2026-09-04 — in the browser, not in Figma**, by
+> `tools/a11y-recorder/` (`node tools/a11y-recorder/scripts/record.mjs
+> [--theme dark]`). Light and dark both recorded, 1680x1260 (3x), ~8.9s,
+> MP4 + WebM + a matching still.
+>
+> **The pivot is the point.** An earlier pass built this as a keyframed Figma
+> timeline (21 opacity tracks, 11s) and it worked — but a Figma timeline is a
+> *drawing* of a focus ring, choreographed by whoever drew it, and this is the
+> one illustration on the page whose whole job is to show rather than assert.
+> Two hours of that build went on fighting the ring's geometry, which is the
+> tell: the ring was being reconstructed instead of rendered. What the recorder
+> produces is the source code running — the headless behaviour from
+> `packages/react`, the styled surface as `primitiv add` copies it, the token
+> layer as `primitiv tokens` emits it, and rings that are wherever the
+> components put them. Theme, density and resolution then come free, and the
+> reduced-motion still is the video's own last frame rather than a second
+> drawing that can drift from it.
+>
+> **The Select does not open on ArrowDown, and the recording says so.** Probed
+> directly: `SelectTrigger` is a plain `<button>` whose only opener is
+> `onClick`, so native Enter/Space activation opens it and ArrowDown leaves
+> `aria-expanded="false"`. The brief above assumed ArrowDown; the APG's
+> listbox-button pattern agrees with the brief, so **this is a real gap in
+> `@primitiv-ui/react`'s Select**, logged here rather than fixed in passing
+> (it is a behaviour change, and behaviour changes here come with a test, JSDoc
+> and a README). The sequence records Enter instead. An illustration whose
+> subject is keyboard support is exactly the wrong place to paper over one.
+>
+> Two smaller findings from the same probe, both improvements on the brief:
+> once open, focus moves onto the **option itself**, so a row's highlight is a
+> genuine `:focus-visible` ring rather than the painted `cursor` state the
+> Figma brief specified; and choosing an option refocuses the trigger, so the
+> next Tab continues correctly with no help from the driver.
+>
+> **The sequence is longer than the brief's nine seconds, deliberately.** It
+> now types a real value into the Input and toggles a real Switch as well as
+> the Checkbox, so the frame shows text entry, a disclosure, a binary and a
+> toggle — four different keyboard models rather than one repeated. Nothing was
+> shortened to compensate: "do not speed it up" is the constraint that survives.
+>
+> **Three countries, and the count is load-bearing.** Rows are 40px at
+> md/comfortable and the panel opens under a trigger whose bottom edge is at
+> y=206, so a fourth row puts the panel's bottom at 400 — over the key cap at
+> y=375, hiding the one element that says which key caused the movement.
+>
+> **The card must never be allowed to shrink.** `.stage` is a column flexbox
+> and Card carries `overflow: hidden`, so a shrinking card silently **clips its
+> own last row** — the first build lost the bottom of the "Create account"
+> button that way, and the geometry read back as if nothing were wrong (a
+> 328px card around 344px of content). `flex: 0 0 auto` on the card is what
+> makes a scene that stops fitting show it rather than hide it.
+>
+> **Capture notes, both non-obvious.** `Page.startScreencast` ignores
+> Playwright's viewport emulation and captures the real compositor surface, so
+> `{ viewport: 560x420, deviceScaleFactor: 3 }` casts **560x333** frames —
+> untouched window, 1x, wrong aspect. Resolution has to come from the window
+> (`--force-device-scale-factor` + `--window-size`, then converge
+> `innerWidth`/`innerHeight` via `Browser.setWindowBounds`).
+> `recordVideo` is not the alternative: it captures at the viewport's CSS size
+> and cannot exceed 1x at all. And the frame stream is variable-rate — Chromium
+> emits a frame only when something paints — so each frame's own duration goes
+> into an ffmpeg concat list and the encoder resamples; assume a fixed rate and
+> the whole sequence runs fast and unevenly.
+>
+> **Still outstanding:** dropping the result into the page frames
+> (`2180:92025` desktop, `2183:92374` mobile) and deciding how the docs site
+> serves it (`<video>` with the still as `poster`, `autoplay muted loop
+> playsinline`, swapped for the still under `prefers-reduced-motion`).
+
 **Second block — the proof** — `body/md`:
 
 > The behaviour layer is tested to full coverage and mutation-tested,

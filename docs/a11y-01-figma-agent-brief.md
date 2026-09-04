@@ -339,3 +339,28 @@ timeline in Figma to confirm the feel.
   `2183:92374` (mobile) — the mobile one needs a 342×257 recomposition, not a
   scale.
 - The "Full name" input still reads the component's default `Placeholder`.
+
+---
+
+## Superseded 2026-09-04 — the shipping A11Y-01 is a browser recording
+
+The Figma build described above exists and works (page `A11Y-01 — build`, frame
+`2204:6`, 11s timeline, 21 `OPACITY` tracks). It is **not** what ships.
+
+A Figma timeline is a *drawing* of a focus ring, choreographed by whoever drew
+it — and this is the one illustration on the page whose entire job is to show
+rather than assert. Most of the build effort went on getting the ring's geometry
+right, which is the tell: the ring was being reconstructed rather than rendered.
+(The load-bearing finding from that effort still stands and is worth keeping:
+**focus rings do not survive an instance resize** — they are absolutely
+positioned children, the API reports the new width while the ring keeps the old
+one, and `relative-transform` cannot be overridden in an instance to repair it.
+Build the card at a width where every control sits at its native size.)
+
+`tools/a11y-recorder/` replaces it: the real components, in a real browser,
+driven by real key events, captured at 3x. See that directory's `README.md` and
+the **BUILT** record under A11Y-01 in `docs/docs-site-home-copy.md`.
+
+Keep this document for two reasons: the motion-API feasibility record in §0 is
+still accurate and still the only place it is written down, and the Figma frames
+remain a usable fallback if the recording route is ever abandoned.

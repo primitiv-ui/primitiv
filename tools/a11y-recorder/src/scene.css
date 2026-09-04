@@ -1,0 +1,79 @@
+/*
+ * Scene chrome only — the 560x420 stage, the form's own spacing, and the key
+ * cap. Deliberately nothing that reaches inside a component.
+ *
+ * This sheet is UNLAYERED, so every rule here outranks every `@layer primitiv.*`
+ * rule regardless of specificity (the trap `docs-site-session-handoff.md`
+ * records: a stray `display` silently disabled Card's own layout). Keep it to
+ * the wrapper elements this file itself introduces.
+ */
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--primitiv-surface-subtle);
+}
+
+/* The illustration frame, exact. The recorder sizes the viewport to match, so
+   these numbers are the capture's own edges — no cropping afterwards. */
+.stage {
+  box-sizing: border-box;
+  width: 560px;
+  height: 420px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--primitiv-space-space-12);
+  padding: var(--primitiv-space-space-12);
+  background: var(--primitiv-surface-subtle);
+  font-family: var(--primitiv-font-family-text), system-ui, sans-serif;
+}
+
+.scene-card {
+  width: 100%;
+  /* The stage is a column flexbox and the card carries `overflow: hidden`, so
+     a shrinking card silently CLIPS its own last row — the first build lost the
+     bottom of the "Create account" button that way, and the geometry read back
+     as if nothing were wrong (card 328 tall around 344 of content). Never let
+     it shrink: if the scene stops fitting, that should show, not hide. */
+  flex: 0 0 auto;
+}
+
+/* CardContent owns all of a card's padding (registry rule), so this only sets
+   the flow between rows — `space/space-20`, the gap the brief names. */
+.scene-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--primitiv-space-space-20);
+  align-items: stretch;
+}
+
+/* The key-cap indicator. It sits outside the card, lower-left, and holds its
+   line height whether or not a key is down so the card never shifts. */
+.scene-cap {
+  margin: 0;
+  flex: 0 0 auto;
+  min-height: 28px;
+  display: flex;
+  align-items: center;
+}
+
+.scene-cap__key {
+  animation: scene-cap-press 380ms ease-out;
+}
+
+@keyframes scene-cap-press {
+  0% {
+    transform: translateY(-2px);
+    opacity: 0.35;
+  }
+  30% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}

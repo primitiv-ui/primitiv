@@ -1,0 +1,6 @@
+# The vendored faces (2.8MB of woff2) are reproducible from
+# `scripts/vendor-fonts.mjs`, so they are fetched rather than committed.
+public/fonts/
+dist/
+out/
+node_modules/

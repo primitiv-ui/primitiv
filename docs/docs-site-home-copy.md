@@ -639,6 +639,47 @@ craft-notes:
     says the system has opinions specific enough to have a number.
 ```
 
+> **BUILT 2026-09-04**, both breakpoints, by
+> `scripts/figma/build-density-02-radius.js` (re-runnable; flip `MOBILE`).
+> Desktop 560×420, mobile 342×294.
+>
+> **THE BRIEF'S FORMULA REFUTES ITSELF AND HAD TO CHANGE.** Printed as a single
+> line beside real figures, `radius = height × 0.1875` invites the arithmetic
+> that breaks it: 8 ÷ 40 is 0.20, 4 ÷ 24 is 0.167, and only height 32 lands on
+> 0.1875 exactly. The reader who checks is exactly the reader this section is
+> written for.
+>
+> The coefficient is real; the brief was incomplete. Checked across all **20
+> `framed-control` mode × size pairs** in `context.json`: **radius is a pure
+> function of height** (nine distinct heights, and the same height never gets
+> two different radii — `height 40` is `dense/xl`, `compact/lg`,
+> `comfortable/md` and `spacious/sm`, and all four ship radius 8), and **every
+> one of the 20 equals `snap(height × 3/16)`** onto the rungs the family uses
+> (2/4/6/8/10/12), ties down, no exceptions. So the diagram states the
+> derivation in **two steps** — the formula, then "snapped to the nearest step
+> on the radius scale" — because the second line is what makes the first true.
+>
+> This also **corrected `docs/character-brief.md`**, which justified adopting
+> the coefficient on the grounds that today's radii float "with no pattern".
+> The float is real; the no-pattern is not, and adopting `k` turns out to be a
+> no-op on the shipped numbers rather than a change to them.
+>
+> **Comfortable and Spacious both ship radius 8** — two of the four buttons have
+> identical corners on visibly different heights. It looks like a mistake and is
+> the most informative thing in the frame: it is the snap, visible. Do not pick
+> four modes that avoid it.
+>
+> **The radius arc was dropped.** Over a primary-blue fill a `border/strong` arc
+> is low-contrast, and outside the corner it competes with the figures directly
+> below. The buttons' own corners already read at these sizes, and the brief's
+> own must-not warns against drawing the arcs heavily.
+>
+> **Nothing is scaled by hand.** Each button is one `Button` instance at
+> `Size=md` in a well pinning a different Context mode, so its height is
+> whatever the token layer says: 24 / 32 / 40 / 48. On mobile only the LABEL
+> shortens ("Continue" needs 326px across the four, the card has 302); every
+> figure is identical to desktop.
+
 **Link** — `How density works →` → `/concepts/density`
 
 ---

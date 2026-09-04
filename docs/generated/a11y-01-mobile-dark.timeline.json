@@ -1,0 +1,80 @@
+{
+  "frame": "mobile",
+  "theme": "dark",
+  "density": "comfortable",
+  "scale": 4,
+  "fps": 30,
+  "width": 1368,
+  "height": 1028,
+  "frames": 183,
+  "seconds": 7.232,
+  "steps": [
+    {
+      "action": "hold",
+      "note": "idle — nothing focused, no pointer",
+      "at": 0,
+      "focus": "(none)"
+    },
+    {
+      "action": "key",
+      "key": "Tab",
+      "note": "focus: Full name",
+      "at": 0.907,
+      "focus": "input \"Full name\""
+    },
+    {
+      "action": "type",
+      "text": "Ada Lovelace",
+      "at": 1.47,
+      "focus": "input \"Full name\""
+    },
+    {
+      "action": "key",
+      "key": "Tab",
+      "note": "focus: Country",
+      "at": 3.092,
+      "focus": "button \"Country\""
+    },
+    {
+      "action": "key",
+      "key": "Enter",
+      "note": "opens the listbox",
+      "at": 3.703,
+      "focus": "div \"Australia\""
+    },
+    {
+      "action": "key",
+      "key": "ArrowDown",
+      "at": 4.336,
+      "focus": "div \"Brazil\""
+    },
+    {
+      "action": "key",
+      "key": "Enter",
+      "note": "chooses it, closes, refocuses trigger",
+      "at": 4.825,
+      "focus": "button \"Country\""
+    },
+    {
+      "action": "key",
+      "key": "Tab",
+      "note": "focus: switch",
+      "at": 5.616,
+      "focus": "input \"Make my profile public\""
+    },
+    {
+      "action": "key",
+      "key": " ",
+      "note": "turns it on",
+      "at": 6.147,
+      "focus": "input \"Make my profile public\""
+    },
+    {
+      "action": "key",
+      "key": "Tab",
+      "note": "focus: Create account — stop",
+      "at": 6.855,
+      "focus": "button \"Create account\""
+    }
+  ]
+}

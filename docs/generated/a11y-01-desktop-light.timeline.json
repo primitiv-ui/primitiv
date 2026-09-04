@@ -1,98 +1,99 @@
 {
+  "frame": "desktop",
   "theme": "light",
   "density": "comfortable",
   "scale": 3,
   "fps": 30,
   "width": 1680,
   "height": 1260,
-  "frames": 214,
-  "seconds": 8.9,
+  "frames": 213,
+  "seconds": 8.847,
   "steps": [
     {
       "action": "hold",
       "note": "idle — nothing focused, no pointer",
-      "at": 0,
+      "at": 0.001,
       "focus": "(none)"
     },
     {
       "action": "key",
       "key": "Tab",
       "note": "focus: Full name",
-      "at": 0.904,
+      "at": 0.905,
       "focus": "input \"Full name\""
     },
     {
       "action": "type",
       "text": "Ada Lovelace",
-      "at": 1.472,
+      "at": 1.468,
       "focus": "input \"Full name\""
     },
     {
       "action": "key",
       "key": "Tab",
       "note": "focus: Country",
-      "at": 3.14,
+      "at": 3.098,
       "focus": "button \"Country\""
     },
     {
       "action": "key",
       "key": "Enter",
       "note": "opens the listbox",
-      "at": 3.749,
+      "at": 3.707,
       "focus": "div \"Australia\""
     },
     {
       "action": "key",
       "key": "ArrowDown",
-      "at": 4.382,
+      "at": 4.34,
       "focus": "div \"Brazil\""
     },
     {
       "action": "key",
       "key": "ArrowDown",
-      "at": 4.822,
+      "at": 4.779,
       "focus": "div \"Canada\""
     },
     {
       "action": "key",
       "key": "Enter",
       "note": "chooses Canada, closes, refocuses trigger",
-      "at": 5.31,
+      "at": 5.266,
       "focus": "button \"Country\""
     },
     {
       "action": "key",
       "key": "Tab",
       "note": "focus: checkbox",
-      "at": 6.105,
+      "at": 6.057,
       "focus": "input \"Email me about releases\""
     },
     {
       "action": "key",
       "key": " ",
       "note": "checks it",
-      "at": 6.64,
+      "at": 6.586,
       "focus": "input \"Email me about releases\""
     },
     {
       "action": "key",
       "key": "Tab",
       "note": "focus: switch",
-      "at": 7.288,
+      "at": 7.235,
       "focus": "input \"Make my profile public\""
     },
     {
       "action": "key",
       "key": " ",
       "note": "turns it on",
-      "at": 7.817,
+      "at": 7.764,
       "focus": "input \"Make my profile public\""
     },
     {
       "action": "key",
       "key": "Tab",
       "note": "focus: Create account — stop",
-      "at": 8.524,
+      "at": 8.471,
       "focus": "button \"Create account\""
     }
   ]

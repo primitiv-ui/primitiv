@@ -17,17 +17,40 @@ focus ring that is wherever the component puts it.
 # once — fetches the three faces so the capture never waits on a font
 node tools/a11y-recorder/scripts/vendor-fonts.mjs
 
-node tools/a11y-recorder/scripts/record.mjs                 # light, comfortable
+node tools/a11y-recorder/scripts/record.mjs                    # desktop, light
 node tools/a11y-recorder/scripts/record.mjs --theme dark
-node tools/a11y-recorder/scripts/record.mjs --density compact --scale 4
+node tools/a11y-recorder/scripts/record.mjs --frame mobile --theme dark
 ```
 
-Each run writes `out/a11y-01-<theme>-<density>.{mp4,webm}` plus a
-`-still.png` at the same resolution, which is the `prefers-reduced-motion`
-fallback: the frame the sequence ends on, so the still and the video agree.
+Each run writes `out/a11y-01-<frame>-<theme>-<density>.{mp4,webm}`, a
+`-still.png` at the same resolution — the `prefers-reduced-motion` fallback, and
+the frame the sequence ends on, so the still and the video cannot disagree — and
+a `.timeline.json` giving each step's offset from the start of capture.
 
-Flags: `--theme` · `--density` · `--scale` (device pixel ratio, default 3) ·
-`--fps` (default 30) · `--out` · `--keep-frames`.
+Flags: `--frame` (desktop | mobile) · `--theme` · `--density` · `--scale`
+(device pixel ratio, default 3) · `--fps` (default 30) · `--out` ·
+`--keep-frames`.
+
+## `frames.mjs` is the single source of truth
+
+The scene, the key sequence and the recorder all read it, so they cannot
+disagree about what is on screen: it carries each frame's pixel size, its
+control size, which rows appear, and how many options the Select lists. Adding a
+frame is one entry there.
+
+Mobile is a **recomposition, not a scale** — 342/257 and 560/420 are the same
+4:3 aspect to within a quarter of a percent, which is exactly what makes a
+downscale look possible. It is not: at 342 wide the desktop composition renders
+its 14px labels at 8.5px, and this illustration exists to make focus rings
+visible. The reasoning behind each mobile choice (why `sm` and not `xs`, why the
+checkbox is the row dropped, why two countries) is in `frames.mjs` beside the
+values it justifies.
+
+One sequence detail that follows from it: the cursor presses are derived as
+`options - 1`, never fixed. Roving focus **wraps**, so two ArrowDowns in a
+two-item list return to the top and Enter then chooses the row the cursor
+started on. The first mobile take did that — appearing to move twice while
+selecting the first option — and it was visible only in the finished video.
 
 ## How it is wired
 
@@ -55,7 +78,12 @@ Flags: `--theme` · `--density` · `--scale` (device pixel ratio, default 3) ·
    a property of the browser build, not something to hardcode).
    `recordVideo` is not the alternative — it captures at the viewport's CSS size
    and cannot exceed 1x at all.
-2. **The frame stream is variable-rate.** Chromium only emits a screencast frame
+2. **h264 will not encode an odd dimension.** The mobile frame is 257 tall, so
+   3x is 771 and ffmpeg refuses. Padding to even adds a black hairline and
+   scaling to even stretches the frame by a pixel, so the recorder raises the
+   capture to the next scale that comes out even (4x, 1368x1028) and reports it.
+   It is the one adjustment that changes nothing about the image.
+3. **The frame stream is variable-rate.** Chromium only emits a screencast frame
    when something paints, so a still hold produces no frames. Each frame's own
    duration goes into an ffmpeg concat list and the encoder resamples to a
    constant rate; that is what keeps the recorded timing identical to the timing

@@ -55,7 +55,20 @@ function capFor(key: string): string {
   return key;
 }
 
-export function Scene() {
+/**
+ * The frame decides both the control scale and which rows appear — see
+ * `frames.mjs`, which is also what the recorder and the key sequence read, so
+ * the three cannot disagree about what is on screen.
+ */
+type SceneProps = {
+  size: "xs" | "sm" | "md" | "lg" | "xl";
+  controls: readonly string[];
+  /** How many of COUNTRIES to list — the panel has to fit below the trigger. */
+  options: number;
+};
+
+export function Scene({ size, controls, options }: SceneProps) {
+  const shows = (control: string) => controls.includes(control);
   const [country, setCountry] = useState("");
   // `seq` only exists to give the cap a changing React key, so repeating the
   // same key still restarts the press animation.
@@ -74,19 +87,19 @@ export function Scene() {
     <div className="stage">
       <Card className="scene-card">
         <CardContent className="scene-form">
-          <Field>
+          <Field size={size}>
             <FieldLabel>Full name</FieldLabel>
-            <Input name="name" autoComplete="off" placeholder="Ada Lovelace" />
+            <Input size={size} name="name" autoComplete="off" placeholder="Ada Lovelace" />
           </Field>
 
-          <Field>
+          <Field size={size}>
             <FieldLabel>Country</FieldLabel>
             <Select value={country} onValueChange={setCountry} name="country">
-              <SelectTrigger aria-label="Country">
+              <SelectTrigger size={size} aria-label="Country">
                 <SelectValue placeholder="Choose a country" />
               </SelectTrigger>
-              <SelectContent>
-                {COUNTRIES.map(({ value, label }) => (
+              <SelectContent size={size}>
+                {COUNTRIES.slice(0, options).map(({ value, label }) => (
                   <SelectItem key={value} value={value}>
                     <SelectItemIndicator>
                       <Check aria-hidden="true" />
@@ -98,16 +111,24 @@ export function Scene() {
             </Select>
           </Field>
 
-          <Checkbox name="releases">Email me about releases</Checkbox>
-          <Switch name="public">Make my profile public</Switch>
+          {shows("checkbox") && (
+            <Checkbox size={size} name="releases">
+              Email me about releases
+            </Checkbox>
+          )}
+          {shows("switch") && (
+            <Switch size={size} name="public">
+              Make my profile public
+            </Switch>
+          )}
 
-          <Button variant="primary">Create account</Button>
+          <Button size={size} variant="primary">Create account</Button>
         </CardContent>
       </Card>
 
       <p className="scene-cap" aria-hidden="true">
         {pressed && (
-          <Kbd key={pressed.seq} className="scene-cap__key">
+          <Kbd size={size} key={pressed.seq} className="scene-cap__key">
             {pressed.cap}
           </Kbd>
         )}

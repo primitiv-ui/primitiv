@@ -1787,9 +1787,9 @@ craft-notes:
 > MP4 and the WebM stays a local convenience.
 >
 > **Assets live at `apps/docs-site/public/illustrations/`**:
-> `a11y-01-{light,dark}.mp4` (1680x1260, ~350KB each) and
-> `a11y-01-{light,dark}.png` (the matching stills, which are each video's own
-> last frame). 812KB for the set.
+> `a11y-01-{desktop,mobile}-{light,dark}.mp4` and a matching `.png` still for
+> each (every still is that video's own last frame). Desktop 1680x1260,
+> mobile 1368x1028; 1.4MB for all eight.
 >
 > **How the page should serve it.** A client component, because none of this is
 > expressible in CSS: `<source media>` for colour scheme is not supported, and
@@ -1807,10 +1807,46 @@ craft-notes:
 > that independently or the two will disagree on first paint; extract the
 > derivation into a shared `useDocsTheme()` hook and have both call it.
 >
-> **Still outstanding:** dropping the result into the page frames
-> (`2180:92025` desktop, `2183:92374` mobile), and the mobile frame is a
-> recomposition rather than a scale — 342x257 is a different aspect from 4:3,
-> so it needs its own `FRAME` and a re-record, not a downscaled crop.
+> **The mobile frame (342x257) is built too, and it is a recomposition, not a
+> scale.** Correcting an earlier note here: 342/257 and 560/420 are the *same*
+> 4:3 aspect, differing by a quarter of a percent — which is what makes a
+> downscale look possible. It is not: at 342 wide the desktop composition puts
+> its 14px labels at 8.5px, and this frame's stated job is that moving to full
+> content width makes the focus rings **easier** to see. Four decisions, each
+> made against a render rather than arithmetic:
+>
+> - **`sm`, not `xs`.** 257px will not hold five `md` rows at their real
+>   heights — measured, it overflows by 47px. At `xs` all five *do* fit (content
+>   bottom 253 of 257) but the labels land at 11px, which trades the ring away
+>   to keep a row. `sm` keeps the ring legible and gives a row up instead.
+> - **The checkbox is the row dropped, not the switch.** Space toggles both, so
+>   the keyboard model on show is identical either way — and at 342px a sliding
+>   thumb with a colour change reads at a glance where a 16px tick does not.
+>   What survives is one of each kind: text entry, a disclosure, a toggle, and
+>   the button focus lands on last.
+> - **Two countries, not three.** With three, the panel does not fit below the
+>   trigger and `position-try-fallbacks: flip-block` flips it **above** — real
+>   behaviour, and it lands squarely over the name just typed, losing the
+>   reader's place at the worst moment. Two fit downward and the flip never
+>   fires.
+> - **The cursor presses are derived from the list length** (`options - 1`), not
+>   fixed at two. Roving focus **wraps**, so two presses in a two-item list
+>   return to the top and Enter chooses the row the cursor started on. The first
+>   mobile take did exactly that and silently selected Australia while appearing
+>   to move twice — visible only in the finished video.
+>
+> Mobile runs 7.2s to desktop's 8.9s, the difference being the dropped checkbox
+> and the one fewer arrow press. Both themes are frame-aligned at both frames:
+> worst divergence 54ms desktop, 10ms mobile.
+>
+> **h264 will not encode an odd dimension**, and 257 x 3 = 771. Padding would add
+> a black hairline and scaling would stretch the frame by a pixel, so the
+> recorder raises the capture to the next scale that comes out even (4x here,
+> 1368x1028) and says so. It is the one adjustment that changes nothing about
+> the image.
+>
+> **Still outstanding:** dropping the results into the page frames
+> (`2180:92025` desktop, `2183:92374` mobile).
 
 **Second block — the proof** — `body/md`:
 

@@ -49,7 +49,11 @@
  *   spectrum as a row of steps. Reported from review, and the fix is the
  *   axis explaining itself rather than a caption explaining the axis.
  * • MARKERS ARE RINGS, not dots. They sit ON colour now, so they have to stay
- *   legible over any hue while letting it show through.
+ *   legible over any hue while letting it show through. The HELD row's is the
+ *   exception: solid, and success-green, because it is a verdict rather than a
+ *   sample. It reads as an annotation and not as a hue value precisely because
+ *   green is nowhere on this blue scale — the one place an off-scale colour
+ *   helps rather than confuses.
  * • MARKERS AT 0.4 OPACITY so coincident ones ACCUMULATE. Ten stacked dots at
  *   full opacity look like one dot; semi-opaque, the held row's single point
  *   reads dense and the drifting row's isolated ones read sparse. The density
@@ -163,10 +167,19 @@ const block = (label, rows) => {
     m.name = 'marker'; m.resize(10, 10);
     m.x = ((hue - HUE_MIN) / (HUE_MAX - HUE_MIN)) * (track.width - 10);
     m.y = 5;
-    m.fills = [];                                         // a ring: it sits ON the spectrum
     m.strokes = [bound('content/primary')];
     m.strokeWeight = 2; m.strokeAlign = 'CENTER';
-    m.opacity = 0.55;                                     // coincident rings accumulate
+    if (label === 'held') {
+      // Solid, and green. The held marker is not a sample on the scale, it is
+      // a verdict about the row: ten coincident rings already say "all in one
+      // place", and the fill says why that is the good outcome — without a
+      // legend, which the brief's no-annotation rule rules out. Full opacity,
+      // because there is no density to encode when every step lands together.
+      m.fills = [bound('feedback/success/solid/background')];
+    } else {
+      m.fills = [];                                       // hollow: it sits ON the spectrum
+      m.opacity = 0.55;                                   // coincident rings accumulate
+    }
     m.constraints = { horizontal: 'SCALE', vertical: 'MIN' };
   }
   return b;

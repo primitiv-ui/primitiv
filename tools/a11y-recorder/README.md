@@ -41,16 +41,28 @@ frame is one entry there.
 Mobile is a **recomposition, not a scale** — 342/257 and 560/420 are the same
 4:3 aspect to within a quarter of a percent, which is exactly what makes a
 downscale look possible. It is not: at 342 wide the desktop composition renders
-its 14px labels at 8.5px, and this illustration exists to make focus rings
-visible. The reasoning behind each mobile choice (why `sm` and not `xs`, why the
-checkbox is the row dropped, why two countries) is in `frames.mjs` beside the
-values it justifies.
+its 14px labels at 8.5px. Mobile is `xs` and otherwise identical: same form,
+same five controls, same 13-step sequence.
 
-One sequence detail that follows from it: the cursor presses are derived as
-`options - 1`, never fixed. Roving focus **wraps**, so two ArrowDowns in a
-two-item list return to the top and Enter then chooses the row the cursor
-started on. The first mobile take did that — appearing to move twice while
-selecting the first option — and it was visible only in the finished video.
+**`rowGap` is the number that decides whether the card looks designed.** A
+Field's own label-to-control gap is 8 at md and 4 at xs; the gap between rows
+has to clearly beat it, or the form stops reading as a set of labelled groups
+and becomes one undifferentiated stack. Both frames run a ratio of 2.5 — 20
+against 8, and 10 against 4. An earlier mobile build ran 6 against 6 and looked
+exactly as flat as that sounds. The reasoning behind every mobile value is in
+`frames.mjs` beside the value it justifies.
+
+Two component behaviours worth knowing before changing any of it, both found the
+hard way:
+
+- **The Select panel flips.** When it does not fit below the trigger,
+  `position-try-fallbacks: flip-block` puts it above — which, in a build with
+  larger controls, landed it over the name that had just been typed.
+- **Roving focus wraps.** Two ArrowDowns in a two-item list return to the top,
+  so Enter chooses the row the cursor started on. A take did exactly that —
+  appearing to move twice while silently selecting the first option, visible
+  only in the finished video. Cursor presses are derived as `options - 1`,
+  never fixed.
 
 ## How it is wired
 

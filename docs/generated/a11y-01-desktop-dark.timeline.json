@@ -7,7 +7,7 @@
   "width": 1680,
   "height": 1260,
   "frames": 212,
-  "seconds": 8.897,
+  "seconds": 8.864,
   "steps": [
     {
       "action": "hold",
@@ -25,75 +25,75 @@
     {
       "action": "type",
       "text": "Ada Lovelace",
-      "at": 1.469,
+      "at": 1.468,
       "focus": "input \"Full name\""
     },
     {
       "action": "key",
       "key": "Tab",
       "note": "focus: Country",
-      "at": 3.136,
+      "at": 3.094,
       "focus": "button \"Country\""
     },
     {
       "action": "key",
       "key": "Enter",
       "note": "opens the listbox",
-      "at": 3.746,
+      "at": 3.704,
       "focus": "div \"Australia\""
     },
     {
       "action": "key",
       "key": "ArrowDown",
-      "at": 4.379,
+      "at": 4.338,
       "focus": "div \"Brazil\""
     },
     {
       "action": "key",
       "key": "ArrowDown",
-      "at": 4.819,
+      "at": 4.776,
       "focus": "div \"Canada\""
     },
     {
       "action": "key",
       "key": "Enter",
-      "note": "chooses Canada, closes, refocuses trigger",
-      "at": 5.316,
+      "note": "chooses it, closes, refocuses trigger",
+      "at": 5.274,
       "focus": "button \"Country\""
     },
     {
       "action": "key",
       "key": "Tab",
       "note": "focus: checkbox",
-      "at": 6.108,
+      "at": 6.066,
       "focus": "input \"Email me about releases\""
     },
     {
       "action": "key",
       "key": " ",
       "note": "checks it",
-      "at": 6.64,
+      "at": 6.596,
       "focus": "input \"Email me about releases\""
     },
     {
       "action": "key",
       "key": "Tab",
       "note": "focus: switch",
-      "at": 7.289,
+      "at": 7.253,
       "focus": "input \"Make my profile public\""
     },
     {
       "action": "key",
       "key": " ",
       "note": "turns it on",
-      "at": 7.818,
+      "at": 7.782,
       "focus": "input \"Make my profile public\""
     },
     {
       "action": "key",
       "key": "Tab",
       "note": "focus: Create account — stop",
-      "at": 8.525,
+      "at": 8.489,
       "focus": "button \"Create account\""
     }
   ]

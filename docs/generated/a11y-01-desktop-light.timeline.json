@@ -6,8 +6,8 @@
   "fps": 30,
   "width": 1680,
   "height": 1260,
-  "frames": 213,
-  "seconds": 8.847,
+  "frames": 210,
+  "seconds": 8.851,
   "steps": [
     {
       "action": "hold",
@@ -19,27 +19,27 @@
       "action": "key",
       "key": "Tab",
       "note": "focus: Full name",
-      "at": 0.905,
+      "at": 0.904,
       "focus": "input \"Full name\""
     },
     {
       "action": "type",
       "text": "Ada Lovelace",
-      "at": 1.468,
+      "at": 1.467,
       "focus": "input \"Full name\""
     },
     {
       "action": "key",
       "key": "Tab",
       "note": "focus: Country",
-      "at": 3.098,
+      "at": 3.097,
       "focus": "button \"Country\""
     },
     {
       "action": "key",
       "key": "Enter",
       "note": "opens the listbox",
-      "at": 3.707,
+      "at": 3.706,
       "focus": "div \"Australia\""
     },
     {
@@ -51,13 +51,13 @@
     {
       "action": "key",
       "key": "ArrowDown",
-      "at": 4.779,
+      "at": 4.778,
       "focus": "div \"Canada\""
     },
     {
       "action": "key",
       "key": "Enter",
-      "note": "chooses Canada, closes, refocuses trigger",
+      "note": "chooses it, closes, refocuses trigger",
       "at": 5.266,
       "focus": "button \"Country\""
     },
@@ -65,14 +65,14 @@
       "action": "key",
       "key": "Tab",
       "note": "focus: checkbox",
-      "at": 6.057,
+      "at": 6.058,
       "focus": "input \"Email me about releases\""
     },
     {
       "action": "key",
       "key": " ",
       "note": "checks it",
-      "at": 6.586,
+      "at": 6.587,
       "focus": "input \"Email me about releases\""
     },
     {
@@ -86,7 +86,7 @@
       "action": "key",
       "key": " ",
       "note": "turns it on",
-      "at": 7.764,
+      "at": 7.763,
       "focus": "input \"Make my profile public\""
     },
     {

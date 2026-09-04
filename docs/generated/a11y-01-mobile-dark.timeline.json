@@ -6,33 +6,33 @@
   "fps": 30,
   "width": 1368,
   "height": 1028,
-  "frames": 183,
-  "seconds": 7.232,
+  "frames": 218,
+  "seconds": 8.862,
   "steps": [
     {
       "action": "hold",
       "note": "idle — nothing focused, no pointer",
-      "at": 0,
+      "at": 0.001,
       "focus": "(none)"
     },
     {
       "action": "key",
       "key": "Tab",
       "note": "focus: Full name",
-      "at": 0.907,
+      "at": 0.905,
       "focus": "input \"Full name\""
     },
     {
       "action": "type",
       "text": "Ada Lovelace",
-      "at": 1.47,
+      "at": 1.469,
       "focus": "input \"Full name\""
     },
     {
       "action": "key",
       "key": "Tab",
       "note": "focus: Country",
-      "at": 3.092,
+      "at": 3.093,
       "focus": "button \"Country\""
     },
     {
@@ -45,35 +45,55 @@
     {
       "action": "key",
       "key": "ArrowDown",
-      "at": 4.336,
+      "at": 4.338,
       "focus": "div \"Brazil\""
+    },
+    {
+      "action": "key",
+      "key": "ArrowDown",
+      "at": 4.779,
+      "focus": "div \"Canada\""
     },
     {
       "action": "key",
       "key": "Enter",
       "note": "chooses it, closes, refocuses trigger",
-      "at": 4.825,
+      "at": 5.269,
       "focus": "button \"Country\""
     },
     {
       "action": "key",
       "key": "Tab",
+      "note": "focus: checkbox",
+      "at": 6.063,
+      "focus": "input \"Email me about releases\""
+    },
+    {
+      "action": "key",
+      "key": " ",
+      "note": "checks it",
+      "at": 6.592,
+      "focus": "input \"Email me about releases\""
+    },
+    {
+      "action": "key",
+      "key": "Tab",
       "note": "focus: switch",
-      "at": 5.616,
+      "at": 7.241,
       "focus": "input \"Make my profile public\""
     },
     {
       "action": "key",
       "key": " ",
       "note": "turns it on",
-      "at": 6.147,
+      "at": 7.77,
       "focus": "input \"Make my profile public\""
     },
     {
       "action": "key",
       "key": "Tab",
       "note": "focus: Create account — stop",
-      "at": 6.855,
+      "at": 8.478,
       "focus": "button \"Create account\""
     }
   ]

@@ -1789,7 +1789,7 @@ craft-notes:
 > **Assets live at `apps/docs-site/public/illustrations/`**:
 > `a11y-01-{desktop,mobile}-{light,dark}.mp4` and a matching `.png` still for
 > each (every still is that video's own last frame). Desktop 1680x1260,
-> mobile 1368x1028; 1.4MB for all eight.
+> mobile 1368x1028; 1.6MB for all eight.
 >
 > **How the page should serve it.** A client component, because none of this is
 > expressible in CSS: `<source media>` for colour scheme is not supported, and
@@ -1811,39 +1811,52 @@ craft-notes:
 > scale.** Correcting an earlier note here: 342/257 and 560/420 are the *same*
 > 4:3 aspect, differing by a quarter of a percent — which is what makes a
 > downscale look possible. It is not: at 342 wide the desktop composition puts
-> its 14px labels at 8.5px, and this frame's stated job is that moving to full
-> content width makes the focus rings **easier** to see. Four decisions, each
-> made against a render rather than arithmetic:
+> its 14px labels at 8.5px. **Mobile is `xs`, and carries the identical form,
+> the identical five controls and the identical 13-step sequence** — so the two
+> frames are the same illustration at two sizes, not two different ones.
 >
-> - **`sm`, not `xs`.** 257px will not hold five `md` rows at their real
->   heights — measured, it overflows by 47px. At `xs` all five *do* fit (content
->   bottom 253 of 257) but the labels land at 11px, which trades the ring away
->   to keep a row. `sm` keeps the ring legible and gives a row up instead.
-> - **The checkbox is the row dropped, not the switch.** Space toggles both, so
->   the keyboard model on show is identical either way — and at 342px a sliding
->   thumb with a colour change reads at a glance where a 16px tick does not.
->   What survives is one of each kind: text entry, a disclosure, a toggle, and
->   the button focus lands on last.
-> - **Two countries, not three.** With three, the panel does not fit below the
->   trigger and `position-try-fallbacks: flip-block` flips it **above** — real
->   behaviour, and it lands squarely over the name just typed, losing the
->   reader's place at the worst moment. Two fit downward and the flip never
->   fires.
-> - **The cursor presses are derived from the list length** (`options - 1`), not
->   fixed at two. Roving focus **wraps**, so two presses in a two-item list
->   return to the top and Enter chooses the row the cursor started on. The first
->   mobile take did exactly that and silently selected Australia while appearing
->   to move twice — visible only in the finished video.
+> **The row gap is the number that decides whether the card looks designed, and
+> the first mobile build got it wrong.** A Field's label-to-control gap is 8 at
+> md and 4 at xs; the gap BETWEEN rows has to clearly beat it or the form stops
+> reading as a set of labelled groups and becomes one undifferentiated stack.
+> Desktop runs 20 against 8 — a ratio of 2.5. The first mobile build ran
+> **6 against 6**, a ratio of 1.0, which is no grouping at all, and it looked
+> it. `--scene-row-gap` is now the frame's own value: 10 against 4 on mobile,
+> the same 2.5.
 >
-> Mobile runs 7.2s to desktop's 8.9s, the difference being the dropped checkbox
-> and the one fewer arrow press. Both themes are frame-aligned at both frames:
-> worst divergence 54ms desktop, 10ms mobile.
+> **That build's stated reason for `sm` over `xs` was wrong, and measuring is
+> what showed it.** It claimed `xs` would shrink the focus ring — the one thing
+> this illustration exists to show — so it dropped the checkbox to buy the row
+> back. The ring is **fixed geometry**: `box-shadow: 0 0 0 2px, 0 0 0 4px`, a
+> 2px gap band and a 2px ring, identical on a 40px md control and a 24px xs one.
+> Nothing about it scales with size. What `sm` actually cost was the row gap:
+> four `sm` rows leave room for a gap of 8 against an internal 6. `xs` fits all
+> **five** rows and a gap of 10, and keeps three countries in the list rather
+> than two.
+>
+> Two findings from that discarded build are worth keeping, because both are
+> real component behaviour and both will bite again:
+>
+> - **The Select panel flips.** When it does not fit below the trigger,
+>   `position-try-fallbacks: flip-block` puts it **above** — which at `sm` landed
+>   it squarely over the name just typed. At `xs` the panel fits below and the
+>   flip never fires.
+> - **Roving focus wraps.** Two ArrowDowns in a two-item list return to the top,
+>   so Enter chooses the row the cursor started on. A take did exactly that —
+>   appearing to move twice while silently selecting the first option, visible
+>   only in the finished video. The cursor presses are now derived as
+>   `options - 1` rather than fixed, so the cursor lands on the last row at any
+>   list length.
 >
 > **h264 will not encode an odd dimension**, and 257 x 3 = 771. Padding would add
 > a black hairline and scaling would stretch the frame by a pixel, so the
 > recorder raises the capture to the next scale that comes out even (4x here,
 > 1368x1028) and says so. It is the one adjustment that changes nothing about
 > the image.
+>
+> All four takes now run the same 13 steps in 8.85s, and every pair is
+> frame-aligned: worst light/dark divergence 19ms desktop, 18ms mobile, focus
+> path identical at every step.
 >
 > **Still outstanding:** dropping the results into the page frames
 > (`2180:92025` desktop, `2183:92374` mobile).

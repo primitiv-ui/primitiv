@@ -52,15 +52,15 @@ body {
 
 /* CardContent owns all of a card's padding (registry rule), so this only sets
    the flow between rows — `space/space-20`, the gap the brief names. */
+/* The row gap is the frame's to choose (`frames.mjs` → `--scene-row-gap`),
+   because it is the lever that pays for everything else in a fixed-height
+   frame. It must beat the Field's own label-to-control gap by a clear margin —
+   at md that is 20 against 8. */
 .scene-form {
   display: flex;
   flex-direction: column;
-  gap: var(--primitiv-space-space-20);
+  gap: var(--scene-row-gap);
   align-items: stretch;
-}
-
-[data-frame="mobile"] .scene-form {
-  gap: var(--primitiv-space-space-6);
 }
 
 /* The key-cap indicator. It sits outside the card, lower-left, and holds its

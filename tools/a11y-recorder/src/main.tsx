@@ -32,7 +32,8 @@ root.dataset.density = params.get("density") ?? "comfortable";
 const frame = (params.get("frame") ?? "desktop") as keyof typeof FRAMES;
 root.dataset.frame = frame;
 
-const { size, controls, options } = FRAMES[frame];
+const { size, controls, options, rowGap } = FRAMES[frame];
+root.style.setProperty("--scene-row-gap", `var(--primitiv-space-space-${rowGap})`);
 
 createRoot(document.getElementById("root")!).render(
   <Scene size={size} controls={controls} options={options} />,

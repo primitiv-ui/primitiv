@@ -47,6 +47,16 @@
  * is visibly tighter than Spacious), and the brief's own must-not warns against
  * drawing the arcs heavily.
  *
+ * ── MOBILE IS A STAIRCASE, NOT A NARROWER ROW ────────────────────────────
+ * Built as four equal columns first and rejected on sight. With centred buttons
+ * of unequal widths, each gap is `(colW - w1)/2 + (colW - w2)/2`, so at 342px
+ * they came out **31 / 18 / 7px** — the row visibly crowds to the right, and no
+ * amount of alignment fixes it because the widths themselves are the cause.
+ * Stacked, the four buttons share a LEFT edge and both dimensions grow down the
+ * list; the figures then line up in a readable column instead of being squeezed
+ * under a 75px button. The well is fixed at 96 — clear of the widest button
+ * (Spacious at 90) — so the left edges stay put if a label ever changes length.
+ *
  * ── TWO THINGS THAT WILL BITE ─────────────────────────────────────────────
  * • `well.resize(10, 48)` PINS THE WELL'S WIDTH TO 10 (gotcha 7 — resize flips
  *   sizing modes), which squashes every button into a 10px sliver. Re-assert
@@ -101,10 +111,12 @@ const text = (parent, chars, o) => {
 const W       = MOBILE ? 342 : 560;
 const PAD_X   = MOBILE ? 20 : 32,  PAD_X_VAR = MOBILE ? 'space/space-20' : 'space/space-32';
 const PAD_Y   = MOBILE ? 24 : 32,  PAD_Y_VAR = MOBILE ? 'space/space-24' : 'space/space-32';
-// "Continue" at md needs 326px across the four; the mobile card has 302. Only
-// the LABEL shortens — every height and radius figure is identical.
-const LABEL   = MOBILE ? 'Next' : 'Continue';
-const NAME_SZ = MOBILE ? 12 : 14, FIG_SZ = MOBILE ? 10 : 11, BODY_SZ = MOBILE ? 13 : 14;
+// A generic label, not a realistic one ("Continue"). The frame is a specimen of
+// geometry, and a long word makes the Dense button so wide it stops reading as
+// the tightest of the four.
+const LABEL   = 'Button';   // both breakpoints — see the docstring
+const NAME_SZ = MOBILE ? 13 : 14, FIG_SZ = MOBILE ? 11 : 11, BODY_SZ = MOBILE ? 13 : 14;
+const WELL_W  = 96;   // mobile only: clears the widest button (Spacious, 90)
 
 const gap = await figma.getNodeByIdAsync(MOBILE ? MOBILE_GAP : DESKTOP_GAP);
 for (const c of [...gap.children]) c.remove();
@@ -134,43 +146,70 @@ card.strokeAlign = 'INSIDE'; card.strokeWeight = 1; card.setBoundVariable('strok
 for (const c of CORNERS) card.setBoundVariable(c, V[MOBILE ? 'card/md/radius' : 'card/lg/radius']);
 card.layoutSizingHorizontal = 'FILL';
 
-// ── the row of four, bottom-aligned so height reads as growth upward ──────
-const row = frame(card, 'four densities', 'HORIZONTAL');
-row.layoutSizingHorizontal = 'FILL';
-row.primaryAxisAlignItems = 'MIN';
-row.counterAxisAlignItems = 'MIN';
+// ── the four densities ───────────────────────────────────────────────────
+// DESKTOP is a ROW, bottom-aligned so height reads as growth upward.
+// MOBILE is a STAIRCASE, and that is not a stylistic preference. Four equal
+// columns with centred buttons of unequal widths put each gap at
+// `(colW - w1)/2 + (colW - w2)/2`, which at 342px came out 31 / 18 / 7px —
+// visibly crowding to the right. Stacked, the buttons share a LEFT edge and
+// both dimensions grow down the list, so there is no distribution to get
+// wrong, and the figures line up in a readable column.
 const cols = [];
-for (const [name, modeId, h, r] of MODES) {
-  const col = frame(row, 'column — ' + name, 'VERTICAL', 'flow/tight');
-  col.counterAxisAlignItems = 'CENTER';
+const list = frame(card, 'four densities', MOBILE ? 'VERTICAL' : 'HORIZONTAL');
+list.layoutSizingHorizontal = 'FILL';
+// SPACE_AROUND on desktop, not MIN and not equal-width columns. Fixed columns
+// of 123 with centred buttons gave gaps of 57 / 40 / 25px; equal space AROUND
+// four HUG columns of near-equal width gives 57 / 51 / 52.
+list.primaryAxisAlignItems = MOBILE ? 'MIN' : 'SPACE_AROUND';
+list.counterAxisAlignItems = 'MIN';
+if (MOBILE) { list.itemSpacing = 20; list.setBoundVariable('itemSpacing', V['space/space-20']); }
 
-  const well = figma.createFrame(); col.appendChild(well);
-  well.name = 'well'; well.fills = []; well.layoutMode = 'VERTICAL';
-  well.resize(10, TALLEST);
-  well.layoutSizingHorizontal = 'HUG';        // resize() pinned it FIXED at 10 (gotcha 7)
-  well.layoutSizingVertical = 'FIXED';
-  well.primaryAxisAlignItems = 'MAX';         // shared bottom edge across all four
+for (const [name, modeId, h, r] of MODES) {
+  const cell = MOBILE ? frame(list, 'row — ' + name, 'HORIZONTAL')
+                      : frame(list, 'column — ' + name, 'VERTICAL', 'flow/tight');
+  if (MOBILE) {
+    cell.itemSpacing = 16; cell.setBoundVariable('itemSpacing', V['space/space-16']);
+    cell.counterAxisAlignItems = 'CENTER';
+  } else {
+    cell.counterAxisAlignItems = 'CENTER';
+  }
+
+  const well = figma.createFrame(); cell.appendChild(well);
+  well.name = 'well'; well.fills = [];
+  if (MOBILE) {
+    // 96 clears the widest button (Spacious at 90) with a little slack, so the
+    // four left edges line up and nothing shifts when a label changes length.
+    well.layoutMode = 'HORIZONTAL';
+    well.resize(WELL_W, 10);
+    well.layoutSizingHorizontal = 'FIXED';
+    well.layoutSizingVertical = 'HUG';        // resize() pinned it FIXED (gotcha 7)
+    well.primaryAxisAlignItems = 'MIN';       // shared LEFT edge
+  } else {
+    well.layoutMode = 'VERTICAL';
+    well.resize(10, TALLEST);
+    well.layoutSizingHorizontal = 'HUG';      // resize() pinned it FIXED at 10 (gotcha 7)
+    well.layoutSizingVertical = 'FIXED';
+    well.primaryAxisAlignItems = 'MAX';       // shared BOTTOM edge across all four
+  }
   well.counterAxisAlignItems = 'CENTER';
   well.setExplicitVariableModeForCollection(ctxCollection, modeId);
   const b = sets['Button'].children.find(c => c.name === 'Variant=primary, Size=md, State=default').createInstance();
   well.appendChild(b);
   b.setProperties({ 'Label#347:3401': LABEL });
 
-  const caps = frame(col, 'figures', 'VERTICAL');
-  caps.itemSpacing = 2; caps.counterAxisAlignItems = 'CENTER';
-  text(caps, name, { size: NAME_SZ, lh: NAME_SZ + 4, weight: 'Medium', colour: 'content/secondary', align: 'CENTER' });
-  text(caps, 'height ' + h, { size: FIG_SZ, lh: FIG_SZ + 4, mono: true, colour: 'content/muted', align: 'CENTER' });
-  text(caps, 'radius ' + r, { size: FIG_SZ, lh: FIG_SZ + 4, mono: true, colour: 'content/muted', align: 'CENTER' });
-  cols.push(col);
+  const caps = frame(cell, 'figures', 'VERTICAL');
+  caps.itemSpacing = 2;
+  caps.counterAxisAlignItems = MOBILE ? 'MIN' : 'CENTER';
+  const align = MOBILE ? 'LEFT' : 'CENTER';
+  text(caps, name, { size: NAME_SZ, lh: NAME_SZ + 4, weight: 'Medium', colour: 'content/secondary', align });
+  if (MOBILE) {
+    text(caps, 'height ' + h + ' · radius ' + r, { size: FIG_SZ, lh: FIG_SZ + 4, mono: true, colour: 'content/muted', align });
+  } else {
+    text(caps, 'height ' + h, { size: FIG_SZ, lh: FIG_SZ + 4, mono: true, colour: 'content/muted', align });
+    text(caps, 'radius ' + r, { size: FIG_SZ, lh: FIG_SZ + 4, mono: true, colour: 'content/muted', align });
+  }
+  cols.push(cell);
 }
-// equal columns, FLOORED — round() overflows the row by 2px at 494/4
-const CW = Math.floor(row.width / 4);
-for (const col of cols) {
-  col.layoutSizingHorizontal = 'FIXED';
-  col.resize(CW, col.height);
-  col.layoutSizingVertical = 'HUG';
-}
-
 // ── the derivation, in two steps: the snap is what makes step one true ────
 const formula = frame(card, 'formula', 'VERTICAL', 'flow/tight');
 formula.counterAxisAlignItems = 'CENTER';
@@ -186,7 +225,6 @@ text(card, 'Nobody assigns these. They fall out.',
 
 return {
   card: { id: card.id, w: Math.round(card.width), h: Math.round(card.height) },
-  colW: CW,
   buttons: cols.map(c => { const b = c.children[0].children[0];
                            return Math.round(b.width) + '×' + Math.round(b.height); }),
 };

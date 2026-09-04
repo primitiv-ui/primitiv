@@ -57,9 +57,9 @@ const MOBILE_SECTION  = '2183:92259';
 const CTX = 'VariableCollectionId:369:31958';
 const MODES = [['Dense','369:8'],['Compact','369:9'],['Comfortable','369:10'],['Spacious','369:11']];
 const SIZES = MOBILE ? ['sm','md','lg'] : ['xs','sm','md','lg','xl'];
-const COLW  = MOBILE ? [59, 75, 94]     : [44, 59, 75, 94, 105];
 const COLGAP = MOBILE ? 16 : 48;
 const LABELW = 96;
+const LABEL = 'Button';   // change here; column widths re-derive from it
 
 const sets = {};
 for (const p of figma.root.children) {
@@ -81,6 +81,30 @@ let h4font = null;
     find(c, d + 1);
   } })(probeSec, 0);
 await figma.loadFontAsync(h4font);
+
+// ── column widths are PROBED, never hardcoded ────────────────────────────
+// Button width varies with BOTH axes and with the label, so a column has to be
+// as wide as its widest cell (spacious, always). An earlier version baked the
+// widths for the label "Save"; changing the label to "Button" then clipped
+// cells on both breakpoints with nothing erroring. Measuring at build time is
+// what makes the label a safe thing to change.
+const probe = figma.createFrame();
+figma.currentPage.appendChild(probe);
+probe.layoutMode = 'VERTICAL'; probe.x = -9000; probe.y = -9000;
+for (const [, id] of MODES) {
+  const strip = figma.createFrame(); probe.appendChild(strip);
+  strip.layoutMode = 'HORIZONTAL'; strip.itemSpacing = 8;
+  strip.primaryAxisSizingMode = 'AUTO'; strip.counterAxisSizingMode = 'AUTO';
+  strip.setExplicitVariableModeForCollection(ctxCollection, id);
+  for (const sz of SIZES) {
+    const m = sets['Button'].children.find(c => c.name === 'Variant=primary, Size=' + sz + ', State=default');
+    const b = m.createInstance(); strip.appendChild(b);
+    b.setProperties({ 'Label#347:3401': LABEL, 'Leading Icon#347:3389': false, 'Trailing Icon#347:3395': false });
+  }
+}
+const measured = probe.children.map(st => st.children.map(b => Math.round(b.width)));
+const COLW = SIZES.map((_, i) => Math.max(...measured.map(r => r[i])));
+probe.remove();
 
 const sec = await figma.getNodeByIdAsync(MOBILE ? MOBILE_SECTION : DESKTOP_SECTION);
 const content = sec.children.find(c => c.name === 'content');
@@ -172,7 +196,7 @@ const addStrip = (parent, modeId) => {
     const cell = sizedCell(strip, 'cell ' + s, COLW[i], 10);
     const m = sets['Button'].children.find(c => c.name === 'Variant=primary, Size=' + s + ', State=default');
     const b = m.createInstance(); cell.appendChild(b);
-    b.setProperties({ 'Label#347:3401': 'Save',
+    b.setProperties({ 'Label#347:3401': LABEL,
                       'Leading Icon#347:3389': false, 'Trailing Icon#347:3395': false });
   });
   return strip;

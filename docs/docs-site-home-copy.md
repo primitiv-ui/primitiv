@@ -693,10 +693,19 @@ must-not:
 > is naming, so Dense's label renders smaller than Spacious's. It reads as a
 > mistake and quietly undermines the axis being demonstrated.
 >
-> **Column widths are measured, not guessed.** Button width varies with both
-> axes, so a column must be as wide as its widest cell (spacious, always). The
-> script builds a throwaway probe strip per density offscreen, reads the real
-> widths, takes the per-column max, then discards it: `[44, 59, 75, 94, 105]`.
+> **Column widths are probed at build time, never hardcoded — and this bit.**
+> Button width varies with BOTH axes AND with the label text, so a column must
+> be as wide as its widest cell (spacious, always). The script builds a
+> throwaway probe strip per density offscreen, reads the real widths, takes the
+> per-column max, then discards it.
+>
+> The first build baked the widths measured for the label "Save"
+> (`[44, 59, 75, 94, 105]`). Changing the label to "Button" then clipped cells
+> on both breakpoints **silently** — a fixed-width cell simply crops its child,
+> nothing errors, and the audit does not catch it because the cell is not
+> overflowing its parent, its child is overflowing the cell. Probing is what
+> makes the label a safe constant to edit; at "Button" the columns come out
+> `[55, 73, 90, 111, 124]`.
 >
 > **Mobile shows sm/md/lg, and the choice is not arbitrary.** Five columns do
 > not fit at 342px. The extremes (xs/md/xl) would show more range but leave

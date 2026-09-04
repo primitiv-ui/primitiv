@@ -621,6 +621,96 @@ craft-notes:
 > directly from the brief's own must-not — a stage that resizes makes the page
 > jump, which hides the effect — so neither is a defect to design away.
 
+**Second block — density and size are different questions** — `heading/h4`
+then two `body/md` paragraphs:
+
+> Density and size are different questions
+
+> Density is set once, for a product or a region - how tight everything
+> is. Size is set per component - how prominent that one thing should
+> be. They are independent, and they compose. Below is every size at
+> every density, out of one set of tokens.
+
+> Read across a row and the controls grow within one density. Read down
+> a column and the density changes at one size. Equal heights then run
+> diagonally - a large control in a dense product is the same 40px as a
+> small one in a spacious product.
+
+```yaml
+id: DENSITY-03
+type: screenshot
+placement: >
+  After DENSITY-01 and before the corner-radius block, full content
+  width. It has to precede the radius argument, because that argument is
+  about what height DETERMINES and this is what determines height.
+
+rhetorical-job: >
+  The section argued density and never mentioned size, so a reader could
+  reasonably conclude density IS the size control. Show the whole space
+  instead of asserting independence: every size at every density, real
+  components at real token heights.
+
+composition:
+  - A 5x4 grid. Size across (xs-xl), density down (Dense-Spacious),
+    labelled on both edges.
+  - Every button LEFT-aligned within its column and TOP-aligned within
+    its row, so growth reads down-and-right and either axis can be
+    traced by eye.
+  - No annotation. The diagonal is left to be noticed.
+
+assets:
+  - button (registry), primary, one instance per cell at its own size
+    slot, inside a strip pinning its own Context density mode. Nothing
+    is scaled.
+
+must-not:
+  - Scale anything. The heights must be the real token values or the
+    grid lies about the thing it documents.
+  - Draw the equal-height diagonal. This page does not annotate.
+  - Centre the buttons in their cells - it spreads the growth
+    symmetrically and makes the columns impossible to follow.
+```
+
+> **BUILT 2026-09-04**, both breakpoints, by
+> `scripts/figma/build-density-03-size-matrix.js`. Desktop 1200x374 (5x4);
+> mobile 342x400 (3x4).
+>
+> **The heights are the argument and they are real.** Every button is a real
+> instance at its own size slot inside a strip pinning its own density mode:
+>
+>                     xs   sm   md   lg   xl
+>         dense       16   20   24   32   40
+>         compact     20   28   32   40   48
+>         comfortable 24   32   40   48   56
+>         spacious    28   40   48   56   68
+>
+> **Equal heights run diagonally**, which is the point made visible rather
+> than claimed: `dense/xl`, `compact/lg`, `comfortable/md` and `spacious/sm`
+> are all 40px - four routes to the same physical control.
+>
+> **The density pin goes on the cell strip, never the row.** A row also holds
+> the density's own NAME; pin the row and that label scales with the mode it
+> is naming, so Dense's label renders smaller than Spacious's. It reads as a
+> mistake and quietly undermines the axis being demonstrated.
+>
+> **Column widths are measured, not guessed.** Button width varies with both
+> axes, so a column must be as wide as its widest cell (spacious, always). The
+> script builds a throwaway probe strip per density offscreen, reads the real
+> widths, takes the per-column max, then discards it: `[44, 59, 75, 94, 105]`.
+>
+> **Mobile shows sm/md/lg, and the choice is not arbitrary.** Five columns do
+> not fit at 342px. The extremes (xs/md/xl) would show more range but leave
+> only TWO cells on the 40px diagonal; sm/md/lg keeps THREE, so the diagonal
+> the copy points at stays legible. This is also why the copy says "equal
+> heights run diagonally" rather than "four of these" - a literal count is
+> true on desktop and false on mobile.
+>
+> **Alignment was corrected twice in review, and both corrections were
+> right.** The first build centred each button in its cell, which spread the
+> growth symmetrically and made the columns impossible to follow; left-aligning
+> them fixed it. The second pass top-aligned each row as well, so growth reads
+> consistently down-and-right rather than radiating from a centre.
+
 **Second block — mix it within one page** — `body/md`:
 
 > It is not an all-or-nothing setting. Density is inherited, so you set

@@ -1622,7 +1622,7 @@ too (`> * + *`). They agree; the mechanism differs.
 
 ### The hero lockup
 
-`Lockup [Brand=Primitiv, Layout=Stacked, Theme=Dark]` at **100.2 × 120** on
+`Lockup [Brand=Primitiv, Layout=Stacked, Theme=Dark]` at **116.9 × 140** on
 desktop and **80.1 × 96** on mobile. Two things fixed here on 2026-09-04 and
 worth not undoing:
 
@@ -1631,13 +1631,23 @@ worth not undoing:
   927% aspect error — by a pass that forced `FILL` on it. Anything that sets
   sizing on hero children must leave this instance alone. The check is
   mechanical: compare an instance's `width/height` to its main component's.
-- **The height is a chosen ratio, not a round number.** At its natural 157.6
-  it stood exactly as tall as the entire two-line headline (152px), so it
-  shared billing with the words rather than introducing them. Desktop settled
-  at 120 — **1.58× one headline line** (76px at `display/xl` 68), 0.79 of the
-  full headline. 96 was tried first and read too reticent for the brand's own
-  home page; the wordmark also gains real legibility between 96 and 120,
-  which is the practical floor for a stacked mark whose lower half is type.
+- **The height is a chosen ratio, not a round number.** Rendered at 96, 120
+  and 140 against the real headline before settling. Desktop is **140** —
+  **1.84× one headline line** (76px at `display/xl` 68), **0.92 of the full
+  two-line headline**. 96 (1.26×) read too reticent for the brand's own home
+  page and 120 (1.58×) was still short.
+
+  0.92 sounds like parity and is not, because *height is the wrong measure
+  here*: the headline is two full lines of heavy display type spanning the
+  1200px column, so it out-weighs a 117px-wide mark comfortably even at
+  matched height. What broke at the natural 157.6 was not the ratio crossing
+  1.0 — it was the mark growing past the point where the eye reads it before
+  the words. **140 is the practical ceiling**; do not restore the natural size
+  on the theory that a logo cannot be too big on its own site.
+
+  A second, non-aesthetic reason the floor is around 120: the lower half of a
+  stacked mark is type, and the wordmark only becomes comfortably legible
+  above that.
 
 Mobile stays at 96, where the headline is 56/64 over five lines: that is 1.5×
 a line but only **0.30 of the whole headline**, so it reads less dominant than

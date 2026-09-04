@@ -750,9 +750,9 @@ craft-notes:
 
 > Legible is the low bar. The harder problem is that a colour scale
 > should look like one family, and most do not. Ramps tend to wander in
-> hue from one step to the next, a little at a time - easy to miss on
-> any single swatch, and plain once you lay the whole scale out. Others
-> simply lose their colour and fade toward grey.
+> hue from one step to the next, a little at a time, which is easy to
+> miss on any single swatch and plain once you lay the whole scale out.
+> Or they lose their colour and fade toward grey.
 
 > Neither happens here, and neither is left to judgement. The hue is
 > held fixed by construction, the steps are checked to stay visibly

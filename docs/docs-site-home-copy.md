@@ -1532,6 +1532,85 @@ the CTA the whole frame.
 
 ---
 
+## How this page maps to components when it is built
+
+Recorded 2026-09-04, after auditing the Figma frames against what the
+registry actually renders. **The Figma auto-layout gaps are the spec, and
+they are the values the code produces on its own** — every gap below comes
+out of `Stack` or `Prose` automatically, so the build should not be
+hand-setting margins to reproduce them.
+
+### Container
+
+The section geometry is already exactly `Container`, at both breakpoints:
+
+| | element | gutter | content box |
+|---|---|---|---|
+| desktop 1440 | 1248, centred (margins 96) | `md` = 24 | **1200**, at x 120–1320 |
+| mobile 390 | 390 | `md` = 24 | **342**, at x 24–366 |
+
+Mobile is stock. Desktop needs one custom value — `--primitiv-container-max-width: 1248px` — because the breakpoint ladder is
+360/640/768/1024/1280/1536 and there is no 1248 rung. That is the
+component's own documented knob (`registry/components/container/styles.css`
+declares it in `primitiv.base`, and RFC 0006 Principle 2 makes values
+consumer-owned), so this is using the API rather than working around it.
+**Do not "fix" 1248 to 1280** — that would move every illustration off its
+1200 width for the sake of landing on a rung.
+
+### Stack
+
+A section's content frame is `<Stack gap="xl">` (32) holding prose runs and
+illustrations as siblings. Settled deliberately over one-Prose-per-section:
+under that, a 675px panel sits 20px off the paragraph above it and carries
+the same weight as a paragraph break.
+
+### Prose
+
+Every run of text is a `<Prose>`, and its internal spacing is the owl's,
+not anything the page sets. At Comfortable:
+
+| pair | token | value |
+|---|---|---|
+| `* + *` | `flow/normal` | 20 |
+| `* + h1,h2` | `flow/region` | 48 |
+| `* + h3,h4` | `flow/section` | 32 |
+| `h1..h4 + *` | `flow/tight` | 12 |
+
+**Figma cannot express this in one frame** — auto-layout has one
+`itemSpacing` per frame and the owl has a rule per sibling pair. So the
+frames carry a right-nested chain of `flow · <rung>` wrappers, built by
+`scripts/figma/apply-flow-rhythm.js`, which reproduces the sequence exactly
+rather than approximating it:
+
+```
+flow · region  [48]
+  overline
+  flow · tight  [12]
+    heading/h2
+    flow · normal  [20]
+      body/lg
+      body/md
+```
+
+**Those wrappers are a Figma artefact and must NOT be built as real
+elements.** In code the whole run is one `<Prose>` with flat children; the
+owl produces 48/12/20 by itself. A developer translating the frames
+literally would emit four nested divs and get the same result by accident,
+which is exactly the maintenance debt this page is arguing against.
+
+The one place the frames and the render legitimately differ: Figma has no
+margin collapse and no first-child suppression, so a `flow · *` wrapper's
+gap only ever appears *between* its children — which is what the owl does
+too (`> * + *`). They agree; the mechanism differs.
+
+### What the illustrations own
+
+Anything named `<NAME>-0N · …` or `⟦ ILLUSTRATION GAP · … ⟧` owns its
+internal spacing and is opaque to all of the above. Page prose never
+reaches inside one.
+
+---
+
 ## Notes for review
 
 1. **Section 3 opens on a negative, deliberately.** It is the only

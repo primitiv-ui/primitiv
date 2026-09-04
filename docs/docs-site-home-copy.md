@@ -1770,10 +1770,47 @@ craft-notes:
 > into an ffmpeg concat list and the encoder resamples; assume a fixed rate and
 > the whole sequence runs fast and unevenly.
 >
+> **Both themes are recorded, and they are frame-aligned — measured, not
+> assumed.** `record.mjs` writes a `.timeline.json` sidecar giving each step's
+> offset from the start of the capture, so the two takes can be compared rather
+> than reasoned about. Worst divergence across all 13 steps is **43 ms (1.3
+> frames at 30fps)**, and the focus path is identical at every step. That is the
+> precondition for the mode-responsive treatment below: a viewer who flips the
+> theme mid-playback can be carried across at the same `currentTime` without
+> seeing a jump. The comparison is
+> `docs/generated/a11y-01-{light,dark}.timeline.json`.
+>
+> **Ship MP4 only.** The recorder writes WebM too, but here VP9 came out
+> *larger* than h264 (660KB against 340KB for the same nine seconds), and h264
+> needs no fallback anywhere including Safari. A second format that is bigger
+> and less compatible is not a fallback, it is ballast — so the site serves the
+> MP4 and the WebM stays a local convenience.
+>
+> **Assets live at `apps/docs-site/public/illustrations/`**:
+> `a11y-01-{light,dark}.mp4` (1680x1260, ~350KB each) and
+> `a11y-01-{light,dark}.png` (the matching stills, which are each video's own
+> last frame). 812KB for the set.
+>
+> **How the page should serve it.** A client component, because none of this is
+> expressible in CSS: `<source media>` for colour scheme is not supported, and
+> two `<video>` elements swapped by a CSS rule would download both and drift
+> apart in playback. So — one `<video autoplay muted loop playsinline>` with the
+> matching `poster`, its `src` chosen by theme, and `currentTime` carried across
+> a theme change so the swap is invisible. `prefers-reduced-motion: reduce`
+> renders the `<img>` still instead of the video, not a paused video, so nothing
+> downloads that will not play.
+>
+> One wiring note: the docs site has **no theme context** — `ThemeToggle` owns
+> the value locally (`useLocalStorage(THEME_KEY)` + `useMediaQuery`, dark by
+> default, an explicit OS *light* preference the only opt-out) and writes
+> `data-theme` on `<html>` in an effect. A video component must not re-derive
+> that independently or the two will disagree on first paint; extract the
+> derivation into a shared `useDocsTheme()` hook and have both call it.
+>
 > **Still outstanding:** dropping the result into the page frames
-> (`2180:92025` desktop, `2183:92374` mobile) and deciding how the docs site
-> serves it (`<video>` with the still as `poster`, `autoplay muted loop
-> playsinline`, swapped for the still under `prefers-reduced-motion`).
+> (`2180:92025` desktop, `2183:92374` mobile), and the mobile frame is a
+> recomposition rather than a scale — 342x257 is a different aspect from 4:3,
+> so it needs its own `FRAME` and a re-record, not a downscaled crop.
 
 **Second block — the proof** — `body/md`:
 

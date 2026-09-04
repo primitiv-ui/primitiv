@@ -183,8 +183,10 @@ await client.send("Page.startScreencast", {
   everyNthFrame: 1,
 });
 
+const started = Date.now();
 const log = [];
 for (const step of SEQUENCE) {
+  const at = (Date.now() - started) / 1000;
   if (step.action === "key") await page.keyboard.press(pressName(step.key));
   if (step.action === "type") {
     for (const ch of step.text) {
@@ -193,6 +195,7 @@ for (const step of SEQUENCE) {
     }
   }
   await page.waitForTimeout(step.hold);
+  step.at = at;
   // Recorded per step so the run itself proves the sequence did what it says:
   // a take where Tab landed somewhere unexpected shows up in the table rather
   // than in the video.
@@ -265,9 +268,40 @@ await ffmpeg([
 
 if (!args["keep-frames"]) await rm(framesDir, { recursive: true, force: true });
 
+/* A sidecar timeline, so the takes are verifiable rather than assumed. Two
+   takes of the same sequence have to agree frame-for-frame before a theme swap
+   can carry `currentTime` across without the viewer seeing a jump — and the
+   only honest way to know that is to compare the recorded offsets, not to
+   reason about the timers. It also gives whatever eventually embeds this a real
+   cue list (when the listbox opens, when the switch flips). */
 const seconds = frames.at(-1).t - frames[0].t;
+await writeFile(
+  join(outDir, `${name}.timeline.json`),
+  JSON.stringify(
+    {
+      theme,
+      density,
+      scale,
+      fps,
+      width: FRAME.width * scale,
+      height: FRAME.height * scale,
+      frames: frames.length,
+      seconds: +seconds.toFixed(3),
+      steps: log.map(({ action, key, text, note, at, focus }) => ({
+        action,
+        ...(key ? { key } : {}),
+        ...(text ? { text } : {}),
+        ...(note ? { note } : {}),
+        at: +at.toFixed(3),
+        focus,
+      })),
+    },
+    null,
+    2,
+  ) + "\n",
+);
 console.log(
   `${name}: ${frames.length} frames over ${seconds.toFixed(2)}s ` +
     `at ${FRAME.width * scale}x${FRAME.height * scale}\n  ${mp4}\n  ${webm}`,
 );
-console.table(log.map(({ action, key, text, note, focus }) => ({ action, key, text, note, focus })));
+console.table(log.map(({ action, key, text, note, at, focus }) => ({ action, key, text, note, at, focus })));

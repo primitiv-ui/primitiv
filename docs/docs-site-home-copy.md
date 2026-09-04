@@ -1540,6 +1540,46 @@ craft-notes:
     diagram. It is the thing the section is actually about.
 ```
 
+> **BUILT 2026-09-04**, both breakpoints, by
+> `scripts/figma/build-paths-01-three-paths.js`. Desktop 1200×480 (blocks rise
+> from a full-width bar); mobile 342×520 (rotated — length encodes
+> completeness, the bar sits beneath).
+>
+> **The seam is structural, not measured.** The craft note says the shared
+> portion of Styled aligning with the top of Headless is what makes "layers,
+> not options" legible without a word. So Styled is **two slabs stacked**, the
+> lower one exactly Headless's height and fill — and because both blocks are
+> bottom-aligned on the bar, the seam lands on Headless's top edge by
+> construction rather than by arithmetic. It stays correct if the heights are
+> ever retuned. Verified: `headless.y === shared.y === 100`.
+>
+> **The bottom edge is open; the left edge is closed.** Desktop slabs carry
+> `strokeBottomWeight = 0`, so each block rises *from* the bar rather than
+> sitting on it behind its own border — which also reduces the Styled seam from
+> a 2px double line to the single hairline of the shared slab's top edge. On
+> mobile the same trick is wrong: the bar is beneath the stack rather than to
+> the left, so an open left edge just reads as cropped by the frame. Mobile
+> slabs are closed and rounded on a common left edge.
+>
+> **`surface/subtle` is this section's own ground, so the brief's fill could
+> not be used.** It asks for the Figma block in `surface/subtle` "to sit
+> slightly apart", but in dark that token is `#202328` — exactly section 08's
+> fill — so the block rendered as an unfilled outline. Empty reads as *less*,
+> which trips the must-not "keep the fills equally attractive". It ships in
+> `surface/default` (`#141414`), a real if quiet difference against the pair's
+> `surface/raised` (`#121418`), with the 56px gap doing most of the separating.
+> `surface/floating` (`#1e2126`) was checked and is too close to the ground.
+>
+> **Figma is taller than Headless on purpose.** Height is completeness, not
+> quality, and the must-not is explicit that the tallest block must not look
+> best — Headless is the right answer for many readers. Only one dimension
+> varies per breakpoint (height on desktop, length on mobile) so nothing else
+> can be read as ranking.
+>
+> **Mobile's uniform slab height is 112, and it was measured.** Styled's
+> sub-line wraps to two lines at 138px of inner width and overflowed a 96px
+> slab by 15px.
+
 ---
 
 # Section 9 — Accessibility

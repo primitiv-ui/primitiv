@@ -1620,6 +1620,25 @@ margin collapse and no first-child suppression, so a `flow · *` wrapper's
 gap only ever appears *between* its children — which is what the owl does
 too (`> * + *`). They agree; the mechanism differs.
 
+### The hero lockup
+
+`Lockup [Brand=Primitiv, Layout=Stacked, Theme=Dark]` at **80.1 × 96**, both
+breakpoints. Two things fixed here on 2026-09-04 and worth not undoing:
+
+- **Its aspect is load-bearing.** The master is 131.6 × 157.6 (0.835, a
+  portrait mark over a wordmark). It had been stretched to 1200 × 140 — a
+  927% aspect error — by a pass that forced `FILL` on it. Anything that sets
+  sizing on hero children must leave this instance alone. The check is
+  mechanical: compare an instance's `width/height` to its main component's.
+- **96 is a chosen ratio, not a round number.** At its natural 157.6 it stood
+  exactly as tall as the entire two-line headline (152px), so it shared
+  billing with the words rather than introducing them. 96 is **1.26× one
+  headline line** (76px at `display/xl` 68).
+
+On mobile the same 96 works out at 1.5× a line (64px at 56) but only 0.30 of
+the five-line headline, so it reads less dominant there, not more. If the two
+breakpoints should hold the *same* relationship to a line, mobile drops to 80.
+
 ### What the illustrations own
 
 Anything named `<NAME>-0N · …` or `⟦ ILLUSTRATION GAP · … ⟧` owns its

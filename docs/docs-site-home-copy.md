@@ -243,8 +243,25 @@ Figures are `display/lg`; the qualifiers are `body/sm` in
 > ⚠️ **Every figure re-verified against the repo immediately before
 > publishing.** Do not copy these from this document. Content plan §7.3.
 
-**No illustration.** The figures are the visual, and adding marks to
-them would dilute a row whose whole power is that it is unadorned.
+**One glyph per figure** — *reversed 2026-09-04, on request.* This brief
+originally read "No illustration. The figures are the visual, and adding
+marks to them would dilute a row whose whole power is that it is
+unadorned." Built both ways; the marks won. At 175px per tile the row was
+five numbers floating in a band with nothing to anchor the eye between the
+dividers, and a single quiet `content/secondary` glyph above each figure
+gives the column a top edge without competing with the number.
+
+Glyphs, from the `Icon` set, chosen to name the *thing counted* rather than
+to decorate: `grid` (components) · `list` (density rows) · `file` (token
+formats) · `success` (coverage) · `copy` (MIT — "copy the code into your
+repo and own it", the page's own words for it elsewhere).
+
+Structurally the glyph is **not** a prose block. The tile is
+`flow · tight` holding `[stat, caption]`, where `stat` is a
+`stack/gap/sm` (8) unit of `[glyph, figure]` — so the mark binds to its
+number the way an icon binds to a label, and the figure-to-caption gap
+stays the heading-asymmetry rung. Dropping the glyph in as a sibling of
+the figure would instead have made it `* + h2` and put 48px between them.
 
 ---
 

@@ -66,6 +66,20 @@
  * • REPARENTING DROPS FILL SIZING. Every block moved into a new wrapper needs
  *   `layoutSizingHorizontal = 'FILL'` re-asserted, wrappers included, or the
  *   text hugs and the measure collapses.
+ * • DO NOT FORCE `FILL` ON A STACK ITEM. Only blocks moved into a NEW wrapper
+ *   need their sizing re-asserted; a Stack item is merely reordered inside the
+ *   frame it already lives in. An early version FILLed them anyway and
+ *   stretched the hero `Lockup` instance — a 132x158 portrait mark — to
+ *   1200x140, a 927% aspect error. Nothing errors and the layout still looks
+ *   plausible; only the artwork is wrong. The check that finds it: walk every
+ *   INSTANCE, compare `width/height` against its main component's, and flag
+ *   any deviation over a few percent. Dividers, Buttons and code blocks
+ *   legitimately deviate; aspect-locked artwork does not.
+ * • A HUGGING TILE PLUS FILL CHILDREN COLLAPSES TO THE ONE INTRINSIC CHILD.
+ *   Adding a 32px icon to the proof-strip tiles pulled every tile down to
+ *   32px wide, because the tile hugs and every other descendant is FILL, so
+ *   none of them is counted (CLAUDE.md gotcha 29). Give the tiles a definite
+ *   width (FILL inside a FILL strip) before adding an intrinsic child.
  * • GROWING THE GAPS OVERFLOWS ANY FIXED-HEIGHT CARD. The three path cards
  *   were pinned to a row height and their footer link fell 19px out the
  *   bottom. After running this, re-equalise such rows: HUG every card, read
@@ -141,7 +155,10 @@ const restructure = (frame, isStack) => {
   if (isStack) { frame.itemSpacing = 32; frame.setBoundVariable('itemSpacing', V['stack/gap/xl']); }
   let idx = 0;
   for (const g of groups) {
-    if (g.item) { frame.insertChild(idx, g.item); try { g.item.layoutSizingHorizontal = 'FILL'; } catch (e) {} }
+    // NEVER touch a Stack item's sizing. insertChild into the SAME parent is a
+    // reorder, not a reparent, so nothing is lost — and forcing FILL here
+    // stretched the hero Lockup (a 132x158 portrait instance) to 1200x140.
+    if (g.item) { frame.insertChild(idx, g.item); }
     else buildRun(frame, g.prose, idx);
     idx++;
   }

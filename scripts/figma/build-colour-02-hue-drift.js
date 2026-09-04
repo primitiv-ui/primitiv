@@ -35,12 +35,20 @@
  *   Centring it on nothing in particular was nearly as bad: the held stack
  *   landed at 37% and read as misplaced. Centred on the seed it sits at
  *   exactly 50%, with the drifting row scattering symmetrically around it.
- * • A CONSTANT DRIFT PER STEP (3.2 degrees). An earlier version ran +16 to 0
- *   across five steps and 0 to -15 across four, to pin the seed at 500. That
- *   made every gap in the dark half wider than every gap in the light half,
- *   visible on the track as rings that are not evenly spread. The constant is
- *   worth more than the pinned 500, which is invisible here anyway — the two
- *   ramps' 500s now differ by 1.6 degrees, which no eye can see.
+ * • ~3.2 DEGREES OF DRIFT PER STEP, PLUS A WOBBLE. Two corrections got here.
+ *   First: an early version ran +16 to 0 across five steps and 0 to -15 across
+ *   four, to pin the seed at 500 — which made every gap in the dark half wider
+ *   than every gap in the light half, visible as rings that were not evenly
+ *   spread. The constant is worth more than the pin, which is invisible here
+ *   (the two 500s now differ by ~2 degrees, which no eye can see). Second: a
+ *   PERFECTLY constant drift spaces the rings perfectly evenly, and that reads
+ *   as systematic — as though a different rule had been applied, rather than
+ *   as though nobody was in control. A small fixed wobble puts the gaps in a
+ *   5.8-10.2% band instead of a flat 8.0%.
+ *
+ *   THE WOBBLE IS THE ONE STYLISED NUMBER IN THIS ILLUSTRATION. Everything
+ *   else is measured out of the engine; this is chosen, deterministic, and
+ *   labelled as such in the example so nobody later mistakes it for data.
  * • THE TRACK IS A PAINTED SPECTRUM, not a rule. A plain rule sitting under
  *   the tiles at the same width invites the eye to map marker position to the
  *   TILE ABOVE IT, which is a different quantity: the held row's marker sits
@@ -74,7 +82,7 @@ const TILE_H = 28;
 const HUE_MIN = 239.9, HUE_MAX = 279.9;
 
 // [step, hex, hue in degrees] — from docs/generated/colour-02-hue-drift.json
-const DRIFT = [["50","#f2f5ff",274.3],["100","#d7e1fe",271.1],["200","#b1c7fd",267.9],["300","#8db1fc",264.7],["400","#5b93fa",261.5],["500","#186de1",258.3],["600","#0053b0",255.1],["700","#003270",251.9],["800","#001b40",248.7],["900","#000c21",245.5]];
+const DRIFT = [["50","#f2f5ff",274.3],["100","#d8e1fe",271.9],["200","#b3c6fd",269.0],["300","#8eb0fc",265.1],["400","#5a94fa",261.0],["500","#0f6ee0",257.4],["600","#0053b0",254.7],["700","#003270",252.4],["800","#001a40",249.7],["900","#000b22",245.8]];
 const HELD  = [["50","#f0f5ff",259.9],["100","#d2e3fe",259.9],["200","#aac9fc",259.9],["300","#86b3fb",259.9],["400","#5794fa",259.9],["500","#236ce1",259.9],["600","#104fb2",259.9],["700","#032e71",259.9],["800","#011841",259.9],["900","#000923",259.9]];
 // The track's own background: a hue sweep at the seed's L and C.
 const SWEEP = ["#007bd6","#0079d7","#0078d9","#0077da","#0076db","#0074dc","#0073dd","#0072de","#0071df","#006fe0","#0e6ee0","#1d6de1","#286be1","#306ae1","#3769e2","#3d67e2","#4366e2","#4865e2","#4d63e2","#5262e1","#5661e1","#5a60e0","#5e5ee0","#625ddf"];

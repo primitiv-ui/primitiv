@@ -166,6 +166,22 @@ fn write_hue_drift(root: &PathBuf) {
     // degrees, which no eye can see, and the rings space evenly.
     const DRIFT_PER_STEP: f32 = 3.2;
     const STEPS: usize = 10;
+    // THE ONE STYLISED NUMBER IN THIS FILE, and it is flagged as such because
+    // everything else here is measured. A perfectly constant drift spaces the
+    // markers perfectly evenly, which reads as SYSTEMATIC — as though a
+    // different rule had been applied rather than as though nobody was in
+    // control. Picking each step by eye does not produce a constant; it
+    // produces a wander. So each step carries a small fixed wobble on top of
+    // the drift. Deterministic, not random, so the sheet is reproducible.
+    //
+    // Every value is smaller than DRIFT_PER_STEP, so the hues stay monotonic
+    // and the ramp still reads as a progression rather than a shuffle.
+    // The values WANDER rather than alternate. A gap is 3.2 + w[i] - w[i+1], so
+    // a sign flip between neighbours doubles into the gap: a first attempt at
+    // +/-1.5 alternating produced gaps from 2.0% to 14.25% of the track, which
+    // reads as noise rather than as a hand. Consecutive values differ by at
+    // most 0.9, which keeps every gap inside 2.3-4.1 degrees.
+    const WOBBLE: [f32; STEPS] = [0.0, 0.8, 1.1, 0.4, -0.5, -0.9, -0.4, 0.5, 1.0, 0.3];
     // Half the domain, in degrees either side of the seed. Centred on the seed
     // so the HELD row's stack lands dead centre of the scale and the drifting
     // row scatters symmetrically around it. Centring on nothing in particular
@@ -181,7 +197,7 @@ fn write_hue_drift(root: &PathBuf) {
 
     // Hue offset per step: one constant wander, symmetric about the seed.
     let centre = (STEPS - 1) as f32 / 2.0;
-    let offset = |i: usize| -> f32 { (centre - i as f32) * DRIFT_PER_STEP };
+    let offset = |i: usize| -> f32 { (centre - i as f32) * DRIFT_PER_STEP + WOBBLE[i] };
     let drifting: Vec<serde_json::Value> = real
         .iter()
         .enumerate()
@@ -246,7 +262,7 @@ fn write_hue_drift(root: &PathBuf) {
         &dest,
         serde_json::to_string_pretty(&serde_json::json!({
             "seed": SEED,
-            "drifting": { "how": "the real ramp's lightness and chroma with a constant 3.2 degrees of hue drift per step, symmetric about the seed — what picking each step by eye produces, and the only construction that isolates hue",
+            "drifting": { "how": "the real ramp's lightness and chroma with ~3.2 degrees of hue drift per step plus a small fixed wobble, symmetric about the seed — what picking each step by eye produces, and the only construction that isolates hue. The wobble is the one stylised value here; everything else is measured.",
                           "hueSpanDegrees": span(&drifting), "steps": drifting },
             "held": { "how": "harmoni-core generate_brand_pair, light palette",
                       "hueSpanDegrees": span(&held), "steps": held },

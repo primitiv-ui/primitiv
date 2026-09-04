@@ -1,7 +1,7 @@
 {
   "drifting": {
-    "how": "the real ramp's lightness and chroma with a constant 3.2 degrees of hue drift per step, symmetric about the seed — what picking each step by eye produces, and the only construction that isolates hue",
-    "hueSpanDegrees": 28.799999237060547,
+    "how": "the real ramp's lightness and chroma with ~3.2 degrees of hue drift per step plus a small fixed wobble, symmetric about the seed — what picking each step by eye produces, and the only construction that isolates hue. The wobble is the one stylised value here; everything else is measured.",
+    "hueSpanDegrees": 28.5,
     "steps": [
       {
         "hex": "#f2f5ff",
@@ -9,48 +9,48 @@
         "step": "50"
       },
       {
-        "hex": "#d7e1fe",
-        "hue": 271.1000061035156,
+        "hex": "#d8e1fe",
+        "hue": 271.8999938964844,
         "step": "100"
       },
       {
-        "hex": "#b1c7fd",
-        "hue": 267.8999938964844,
+        "hex": "#b3c6fd",
+        "hue": 269.0,
         "step": "200"
       },
       {
-        "hex": "#8db1fc",
-        "hue": 264.70001220703125,
+        "hex": "#8eb0fc",
+        "hue": 265.1000061035156,
         "step": "300"
       },
       {
-        "hex": "#5b93fa",
-        "hue": 261.5,
+        "hex": "#5a94fa",
+        "hue": 261.0,
         "step": "400"
       },
       {
-        "hex": "#186de1",
-        "hue": 258.29998779296875,
+        "hex": "#0f6ee0",
+        "hue": 257.3999938964844,
         "step": "500"
       },
       {
         "hex": "#0053b0",
-        "hue": 255.10000610351562,
+        "hue": 254.6999969482422,
         "step": "600"
       },
       {
         "hex": "#003270",
-        "hue": 251.89999389648438,
+        "hue": 252.39999389648438,
         "step": "700"
       },
       {
-        "hex": "#001b40",
-        "hue": 248.6999969482422,
+        "hex": "#001a40",
+        "hue": 249.6999969482422,
         "step": "800"
       },
       {
-        "hex": "#000c21",
-        "hue": 245.5,
+        "hex": "#000b22",
+        "hue": 245.8000030517578,
         "step": "900"
       }
     ]

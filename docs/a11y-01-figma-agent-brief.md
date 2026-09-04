@@ -259,3 +259,83 @@ These are from `CLAUDE.md` and cost real debugging time in this file:
 - [ ] No pointer in any frame
 - [ ] Reduced-motion still exportable as a single frame
 - [ ] Node ids of everything created returned
+
+---
+
+## 10. Build log — what actually happened (2026-09-04)
+
+The animation was built through this brief via `use_figma` + `figma-use-motion`.
+**Motion works.** What follows is what the build discovered, so the next pass
+does not rediscover it.
+
+### Result
+
+- Page **`A11Y-01 — build`**, frame **`2204:6`** (`560 × 420`), timeline **11s**
+  (9s sequence + 2s pause), 21 keyframe tracks.
+- **`A11Y-01 · reduced motion still`** (`2217:67201`) — the same composition
+  pinned to the open-listbox beat, keyframes stripped.
+- Structural verification passed beat for beat: nothing visible at rest, the
+  right set of layers on at every sample time, nothing stuck on after reset.
+
+### HOLD easing is the whole technique
+
+This sequence is nine **discrete** state changes, not motion. Every track is
+`OPACITY` with `easing: { type: 'HOLD' }`, so states snap the way real focus
+does. Each control gets a stack of real instances (default / focus / checked /
+filled) at the same coordinates, and the sequence is a set of non-overlapping
+opacity windows. Nothing tweens, nothing is drawn by hand.
+
+### THE ONE THAT COST THE MOST: focus rings do not survive an instance resize
+
+`focus-ring` and `focus-ring-gap` are **absolutely-positioned children** of the
+component. Resizing an instance to fit a wider column resizes the *box* but
+leaves the rings at their master's width — so a 392px-wide trigger renders a
+248px ring, cropped and visibly wrong, while the API cheerfully reports
+`width: 392`. Worse, you cannot repair it: an instance sublayer rejects position
+overrides with
+
+```
+in set_x: This property cannot be overridden in an instance: relative-transform
+```
+
+**So: use framed controls at their NATIVE width.** The card was rebuilt at 288
+(240 inner + 24 padding) so every control sits at its native 240 and the ring is
+correct by construction. This is the single most important constraint for any
+Figma composition that shows a focus state.
+
+Only a render caught it — the structural read said 392.
+
+### Four smaller traps
+
+1. **`setProperties` drops a size override.** It re-lays-out the instance, so a
+   `resize()` before it is discarded. Set properties first, size last — the
+   reverse of the placement order that feels natural.
+2. **`Mark#1569:574` on `Listbox / Option` is an `INSTANCE_SWAP`, not a boolean.**
+   Passing `false` throws *"Property value is incompatible with component
+   property type"*. Only `Show leading` / `Show trailing` are booleans.
+3. **`SLOT` nodes throw on `.manualKeyframeTracks`** (*"no such property"*), so
+   any traversal looking for animated nodes must guard the read in a try/catch.
+4. **`figma.createPage()` and `clone()` both work fine here**, and cloning the
+   stage then stripping `manualKeyframeTracks` is the cheapest way to produce
+   the reduced-motion still from the same source.
+
+### Verification limit in this environment
+
+`export_video` renders fine and returns a signed URL, but **the agent sandbox's
+network policy blocks `www.figma.com`** (`403 to CONNECT`), so the MP4 cannot be
+downloaded and frame-sampled here. `ffmpeg` is available via
+`imageio-ffmpeg`; the blocker is the proxy, not the tooling.
+
+Verification therefore ran two ways instead: the storyboard was **evaluated
+structurally** (read every `OPACITY` track back, step-evaluate it at each beat,
+assert the visible set), and each risky composition was **pinned into a static
+clone and screenshotted**. That combination caught the focus-ring bug. Scrub the
+timeline in Figma to confirm the feel.
+
+### Still open
+
+- The **light twin** (same frames with `Intent = Light`).
+- Placing the result into the page frames `2180:92025` (desktop) and
+  `2183:92374` (mobile) — the mobile one needs a 342×257 recomposition, not a
+  scale.
+- The "Full name" input still reads the component's default `Placeholder`.

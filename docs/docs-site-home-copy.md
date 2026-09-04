@@ -515,6 +515,46 @@ craft-notes:
     it on screen at all times.
 ```
 
+> **BUILT 2026-09-04**, both breakpoints, by
+> `scripts/figma/build-density-01-panel.js` (re-runnable; flip its `MOBILE`
+> constant). Desktop 1200×675 exactly 16:9; mobile 342×902. The still ships at
+> **Comfortable**, the load state — Figma cannot hold the dial, so the frame is
+> the panel's DESIGN and the site implements the switch over it.
+>
+> **The claim was verified, not assumed.** The `stage` frame pins the Context
+> collection and every descendant — geometry AND type — resolves through the
+> token layer, so re-pinning that one frame re-renders the whole panel. Both
+> extremes were rendered: Dense reads as an operations tool, Spacious as a
+> marketing page, with identical markup. Natural stage heights measured
+> **Dense 298 · Compact 432 · Comfortable 460 · Spacious 588**, which is where
+> the fixed 620 comes from.
+>
+> **A density change does NOT reflow inside the same `figma_execute` call.**
+> Set the mode, return, measure in the next call. Measuring in the same call
+> returns the previous mode's geometry, and all four modes reported an
+> identical 472 here before this was understood — which looks exactly like
+> "density does nothing" and cost a full wrong diagnosis.
+>
+> **Type is genuinely density-scaled, and hand-set sizes silently opt out.**
+> `heading/h3/font-size` runs 16 / 26 / 32 / 52 across Dense→Spacious. The
+> first pass created the editorial text with literal `fontSize: 32`, so the
+> whole right-hand column would have sat frozen while the left one reflowed —
+> in the one image whose entire job is to show both moving together. Every
+> text node now binds `fontSize` and `lineHeight` to the Context variables.
+>
+> **Two deliberate departures from the brief above.** EIGHT body rows, not six:
+> six left ~160px of dead stage below the table at Comfortable, which reads as
+> a layout fault rather than as headroom. And on mobile all four radios do stay
+> on one row as the brief demands, but only at `Size=xs` with 8px gaps
+> (measured 266px of 316 available); the readout then moves to its own line
+> beneath them rather than being dropped.
+>
+> **One honest consequence, worth stating rather than hiding.** A fixed stage
+> plus identical content means the SITE's stage must scroll internally at
+> Spacious, and that Dense leaves real empty space below the table. Both follow
+> directly from the brief's own must-not — a stage that resizes makes the page
+> jump, which hides the effect — so neither is a defect to design away.
+
 **Second block — mix it within one page** — `body/md`:
 
 > It is not an all-or-nothing setting. Density is inherited, so you set

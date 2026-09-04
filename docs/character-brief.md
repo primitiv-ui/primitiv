@@ -118,9 +118,25 @@ k = 0.1875  (3/16)
 A floor of ~2 guarantees "never sharp"; any `k` well under 0.5
 guarantees "never pill" by construction. `k` is the single roundness
 knob for the whole framed-control family — *Primitiv's roundness
-coefficient*. (Today's radii float between r/h 0.125 and 0.214 with no
-pattern — they were snapped to `radii/*` by hand. Adopting one `k`
-regularises that.)
+coefficient*.
+
+**Corrected 2026-09-04 — the rule is already what ships.** This section used
+to say today's radii "float between r/h 0.125 and 0.214 with no pattern".
+The float is real; the "no pattern" is not, and it was the stated
+justification for adopting `k`. Checked against `context.json` across all
+**20 mode × size pairs** of `framed-control`:
+
+- **Radius is a pure function of height.** Nine distinct heights, and the
+  same height never gets two different radii — across different density
+  modes AND different size slots. `height 40` is `dense/xl`, `compact/lg`,
+  `comfortable/md` and `spacious/sm`, and all four ship radius 8.
+- **Every one of the 20 equals `snap(height × 3/16)`** onto the rungs the
+  family uses (2/4/6/8/10/12), ties resolved downward. No exceptions.
+
+So the raw ratio scatters only because of the SNAP, not because anyone
+assigned by hand, and adopting `k` is a no-op on the shipped numbers rather
+than a change to them — it needs only the tie rule written down. Anything
+that quotes the drift as evidence of hand-assignment should be reworded.
 
 **Three tiers — not everything is a framed control:**
 

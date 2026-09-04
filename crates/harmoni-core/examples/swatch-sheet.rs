@@ -26,7 +26,7 @@
 
 use harmoni_core::api::generate_brand_pair;
 use harmoni_core::{oklch_to_hex, ColorInput};
-use palette::Oklch;
+use palette::{IntoColor, Oklch, Srgb};
 use std::path::PathBuf;
 
 /// Extra hues, so the sheet shows the engine's behaviour across the wheel
@@ -120,4 +120,96 @@ fn main() {
     )
     .expect("writing the sheet");
     println!("wrote {} ramp/theme rows to {}", ramps.len() * 2, dest.display());
+
+    write_hue_drift(&root);
+}
+
+/// The COLOUR-02 counter-example: the same seed built the way a ramp gets built
+/// by hand, so the drift is MEASURED rather than drawn.
+///
+/// The brief asks for "realistic hue drift, roughly 30 degrees", and warns
+/// against caricature — if the wrong ramp looks obviously broken it proves
+/// nothing, because no reader believes they would ship it. So the drift is
+/// MEASURED out of a real mechanism rather than drawn to a target.
+///
+/// The first attempt mixed the seed toward pure white and pure black in sRGB
+/// and drifted **3.2 degrees** — nothing. Mixing toward a neutral holds hue
+/// almost perfectly, so that is not where hand-built ramps go wrong.
+///
+/// What does it: mixing toward a TINTED white and a TINTED black. Reach for
+/// the "off-white" and the "rich black" already in your palette — a cool paper
+/// white, a near-black with some warmth in it — and every step inherits a
+/// little of that cast, more at the ends than the middle. It is exactly what
+/// building a ramp out of colours you already have looks like, and the hue
+/// span falls out of the arithmetic rather than being chosen.
+fn write_hue_drift(root: &PathBuf) {
+    const SEED: &str = "#236ce1";
+    // Mix factors toward white (light half) and black (dark half). Chosen to
+    // land near the shipped ramp's lightness spacing so the two rows compare
+    // like for like — the difference on show has to be hue, not lightness.
+    const TOWARD_WHITE: [(&str, f32); 5] =
+        [("50", 0.94), ("100", 0.82), ("200", 0.64), ("300", 0.46), ("400", 0.24)];
+    const TOWARD_BLACK: [(&str, f32); 4] =
+        [("600", 0.26), ("700", 0.52), ("800", 0.74), ("900", 0.88)];
+
+    // The two ends a designer reaches for: a cool paper white and a warm rich
+    // black. Neither is neutral, and that is the whole mechanism.
+    let paper: Srgb<f32> = Srgb::<u8>::new(0xfb, 0xf7, 0xff).into_format();
+    let rich: Srgb<f32> = Srgb::<u8>::new(0x14, 0x10, 0x06).into_format();
+    let seed_rgb: Srgb<f32> = Srgb::<u8>::new(0x23, 0x6c, 0xe1).into_format();
+    let mix = |target: Srgb<f32>, t: f32| Srgb::new(
+        seed_rgb.red + (target.red - seed_rgb.red) * t,
+        seed_rgb.green + (target.green - seed_rgb.green) * t,
+        seed_rgb.blue + (target.blue - seed_rgb.blue) * t,
+    );
+    let describe = |rgb: Srgb<f32>, step: &str| {
+        let oklch: Oklch = rgb.into_color();
+        serde_json::json!({
+            "step": step,
+            "hex": oklch_to_hex(oklch).to_lowercase(),
+            "hue": (oklch.hue.into_positive_degrees() * 10.0).round() / 10.0,
+        })
+    };
+
+    let mut drifting = Vec::new();
+    for (step, t) in TOWARD_WHITE {
+        drifting.push(describe(mix(paper, t), step));
+    }
+    drifting.push(describe(seed_rgb, "500"));
+    for (step, t) in TOWARD_BLACK {
+        drifting.push(describe(mix(rich, t), step));
+    }
+
+    let pair = generate_brand_pair(ColorInput::Css(SEED.to_string())).expect("the brand seed");
+    let held: Vec<serde_json::Value> = pair
+        .light
+        .swatches
+        .iter()
+        .map(|s| serde_json::json!({
+            "step": s.label.to_string(),
+            "hex": s.hex.to_lowercase(),
+            // Swatch.h is signed (-180..180); normalise so the two rows compare.
+            "hue": (((s.h % 360.0) + 360.0) % 360.0 * 10.0).round() / 10.0,
+        }))
+        .collect();
+
+    let span = |rows: &[serde_json::Value]| {
+        let hues: Vec<f32> = rows.iter().map(|r| r["hue"].as_f64().expect("a hue") as f32).collect();
+        let (lo, hi) = hues.iter().fold((f32::MAX, f32::MIN), |(l, h), v| (l.min(*v), h.max(*v)));
+        ((hi - lo) * 10.0).round() / 10.0
+    };
+    let dest = root.join("docs/generated/colour-02-hue-drift.json");
+    std::fs::write(
+        &dest,
+        serde_json::to_string_pretty(&serde_json::json!({
+            "seed": SEED,
+            "drifting": { "how": "seed mixed in sRGB toward a cool paper white (#fbf7ff) and a warm rich black (#141006) — building a ramp from colours you already have",
+                          "hueSpanDegrees": span(&drifting), "steps": drifting },
+            "held": { "how": "harmoni-core generate_brand_pair, light palette",
+                      "hueSpanDegrees": span(&held), "steps": held },
+        }))
+        .expect("serialisable") + "\n",
+    )
+    .expect("writing the drift comparison");
+    println!("wrote the COLOUR-02 comparison to {}", dest.display());
 }

@@ -1,0 +1,115 @@
+{
+  "drifting": {
+    "how": "seed mixed in sRGB toward a cool paper white (#fbf7ff) and a warm rich black (#141006) — building a ramp from colours you already have",
+    "hueSpanDegrees": 35.70000076293945,
+    "steps": [
+      {
+        "hex": "#eeeffd",
+        "hue": 284.1000061035156,
+        "step": "50"
+      },
+      {
+        "hex": "#d4defa",
+        "hue": 270.0,
+        "step": "100"
+      },
+      {
+        "hex": "#adc5f4",
+        "hue": 264.0,
+        "step": "200"
+      },
+      {
+        "hex": "#86acef",
+        "hue": 261.6000061035156,
+        "step": "300"
+      },
+      {
+        "hex": "#578de8",
+        "hue": 260.1000061035156,
+        "step": "400"
+      },
+      {
+        "hex": "#236ce1",
+        "hue": 259.8999938964844,
+        "step": "500"
+      },
+      {
+        "hex": "#1f54a8",
+        "hue": 259.5,
+        "step": "600"
+      },
+      {
+        "hex": "#1b3c6f",
+        "hue": 258.8999938964844,
+        "step": "700"
+      },
+      {
+        "hex": "#18283f",
+        "hue": 257.5,
+        "step": "800"
+      },
+      {
+        "hex": "#161b20",
+        "hue": 248.39999389648438,
+        "step": "900"
+      }
+    ]
+  },
+  "held": {
+    "how": "harmoni-core generate_brand_pair, light palette",
+    "hueSpanDegrees": 0.0,
+    "steps": [
+      {
+        "hex": "#f0f5ff",
+        "hue": 259.8999938964844,
+        "step": "50"
+      },
+      {
+        "hex": "#d2e3fe",
+        "hue": 259.8999938964844,
+        "step": "100"
+      },
+      {
+        "hex": "#aac9fc",
+        "hue": 259.8999938964844,
+        "step": "200"
+      },
+      {
+        "hex": "#86b3fb",
+        "hue": 259.8999938964844,
+        "step": "300"
+      },
+      {
+        "hex": "#5794fa",
+        "hue": 259.8999938964844,
+        "step": "400"
+      },
+      {
+        "hex": "#236ce1",
+        "hue": 259.8999938964844,
+        "step": "500"
+      },
+      {
+        "hex": "#104fb2",
+        "hue": 259.8999938964844,
+        "step": "600"
+      },
+      {
+        "hex": "#032e71",
+        "hue": 259.8999938964844,
+        "step": "700"
+      },
+      {
+        "hex": "#011841",
+        "hue": 259.8999938964844,
+        "step": "800"
+      },
+      {
+        "hex": "#000923",
+        "hue": 259.8999938964844,
+        "step": "900"
+      }
+    ]
+  },
+  "seed": "#236ce1"
+}

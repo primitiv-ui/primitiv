@@ -841,6 +841,30 @@ craft-notes:
     than an obvious difference.
 ```
 
+> **Built 2026-09-04.** `scripts/figma/build-colour-02-hue-drift.js`, from
+> `docs/generated/colour-02-hue-drift.json`.
+>
+> **The counter-example is measured, not drawn — and the first mechanism was
+> wrong.** Mixing the seed toward pure white and pure black in sRGB, the
+> obvious guess at "how a ramp gets built by hand", drifts **3.2°**. Mixing
+> toward a *neutral* holds hue almost perfectly, so that is not where
+> hand-built ramps go wrong. What does it is mixing toward a **tinted** white
+> and a **tinted** black — the cool paper white and warm rich black already in
+> your palette. That measures **35.7°** against the real ramp's **0.0°**, with
+> the ends flying out (284° at the light end, 248° at the dark) and the middle
+> clustering, which is what drift looks like in the wild. The brief's "roughly
+> 30 degrees" turned out to be a good description of a real mechanism rather
+> than a number to hit.
+>
+> Two build decisions the diagram depends on. **Both tracks share one hue
+> domain** (243–289): scaling each to its own data would rig the comparison,
+> spreading the held row's ten identical hues across the full width and proving
+> the opposite. And **markers sit at 0.4 opacity so coincident ones
+> accumulate** — ten stacked dots at full opacity look like one dot, but
+> semi-opaque the held row's single point reads dense and the drifting row's
+> isolated ones read sparse. That is how the diagram states its case without
+> the degree figures the brief forbids.
+
 **Third block — where the colour comes from** — `body/md`:
 
 > The palette is generated rather than picked. A colour engine called

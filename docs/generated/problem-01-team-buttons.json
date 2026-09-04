@@ -1,0 +1,67 @@
+{
+  "$comment": [
+    "PROBLEM-01 — three teams' buttons, deliberately drifted.",
+    "Generated: cargo run -p harmoni-core --features swatch-sheet --example swatch-sheet",
+    "Never hand-edit. The colours are placed in OkLCH off the brand seed and",
+    "rendered by the engine; oklabDeltaE is what makes 'edge of perceptible' a",
+    "measured claim (target band 0.02-0.04). None of the three is the brand.",
+    "Geometry is deltas off framed-control/md comfortable: height 40, radius 8,",
+    "padding-inline 16."
+  ],
+  "brandSeed": "#236ce1",
+  "buttons": [
+    {
+      "height": 40.0,
+      "hex": "#176fdd",
+      "labelWeight": "Medium",
+      "oklch": {
+        "c": 0.18649999797344208,
+        "h": 257.3800048828125,
+        "l": 0.5557000041007996
+      },
+      "paddingInline": 16.0,
+      "radius": 4.0,
+      "team": "Billing"
+    },
+    {
+      "height": 42.0,
+      "hex": "#2c6ce7",
+      "labelWeight": "Medium",
+      "oklch": {
+        "c": 0.1979999989271164,
+        "h": 261.8800048828125,
+        "l": 0.5616999864578247
+      },
+      "paddingInline": 20.0,
+      "radius": 6.0,
+      "team": "Onboarding"
+    },
+    {
+      "height": 45.0,
+      "hex": "#3966de",
+      "labelWeight": "SemiBold",
+      "oklch": {
+        "c": 0.18940000236034393,
+        "h": 264.8800048828125,
+        "l": 0.5486999750137329
+      },
+      "paddingInline": 16.0,
+      "radius": 10.0,
+      "team": "Settings"
+    }
+  ],
+  "pairwise": [
+    {
+      "oklabDeltaE": 0.019899999722838402,
+      "pair": "Billing vs Onboarding"
+    },
+    {
+      "oklabDeltaE": 0.025699999183416367,
+      "pair": "Billing vs Settings"
+    },
+    {
+      "oklabDeltaE": 0.01860000006854534,
+      "pair": "Onboarding vs Settings"
+    }
+  ]
+}

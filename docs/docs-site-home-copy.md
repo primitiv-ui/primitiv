@@ -383,6 +383,55 @@ craft-notes:
     the reader should notice something is off before they can say what.
 ```
 
+> **BUILT 2026-09-04**, both breakpoints, by
+> `scripts/figma/build-problem-01-team-buttons.js`. Desktop 1200×400, three on
+> one line; mobile 342×424, stacked.
+>
+> **THE SUBTLETY IS A MEASURED NUMBER, NOT A JUDGEMENT.** "Edge of perceptible"
+> cannot be honoured by picking three hexes, because the whole question is how
+> far apart they are. The colours come from
+> `crates/harmoni-core/examples/swatch-sheet.rs` (`write_team_buttons`), which
+> places each blue in OkLCH by an explicit hue and chroma offset from the brand
+> seed and reports the pairwise **Oklab dE** — near-perceptually-uniform, so
+> the number reads as a threshold:
+>
+>     Billing #176fdd · Onboarding #2c6ce7 · Settings #3966de
+>     dE 0.0199 · 0.0257 · 0.0186     (target band 0.02-0.04)
+>
+> **The first pass failed the brief and the numbers caught it.** Roughly double
+> those offsets gave dE 0.036-0.049, where `#0371d9` read cyan-ish against
+> `#4661da` violet-ish — exactly the "no team would ship that" collapse the
+> must-not warns about. Halving the spread fixed it. This is the same lesson
+> COLOUR-02 taught from the other side, where a 14° hue shift moved no channel
+> by more than 2/255: **intuition about colour distance is unreliable in both
+> directions, so measure it.**
+>
+> **None of the three is the brand blue**, deliberately. Primitiv is the fix
+> this section sets up, not one of the three teams — a real brand blue among
+> them would quietly frame one button as already correct, which is the same
+> mistake as the must-not about a "correct fourth button".
+>
+> **The buttons share one centreline, not one box.** Each sits in a fixed 52px
+> well with centre alignment, so the height difference (40/42/45) reads
+> symmetrically above and below rather than as a step, and the captions still
+> land on a single baseline. Every difference is a literal inline override —
+> `fills`, `cornerRadius`, padding, a `resize()`, a `fontName` swap — because
+> these are other teams' buttons and binding them to tokens would defeat the
+> image. One gotcha: **Button's label is SemiBold by default**, so it is the
+> first two that drop to Medium rather than the third that rises.
+>
+> **Placement differs slightly from this brief.** It reads "directly beneath
+> the first block", but the four symptoms are laid out as a 2×2 grid rather
+> than sequential blocks, so there is no "first block" to sit under. It sits
+> after the opening paragraph and before the grid, where it introduces the
+> whole problem rather than illustrating one symptom of it.
+>
+> **One brief conflict to resolve.** COLOUR-02's rhetorical-job claims it is
+> "the only place on the page where a deliberately WRONG example is useful".
+> This image is also a deliberately wrong example. Both earn their place; the
+> COLOUR-02 wording should be narrowed to *the only place a wrong version of
+> Primitiv's own output is useful*.
+
 ---
 
 # Section 4 — Density

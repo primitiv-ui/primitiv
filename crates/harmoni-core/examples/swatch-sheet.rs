@@ -122,6 +122,7 @@ fn main() {
     println!("wrote {} ramp/theme rows to {}", ramps.len() * 2, dest.display());
 
     write_hue_drift(&root);
+    write_team_buttons(&root);
 }
 
 /// The COLOUR-02 counter-example: a ramp built the way ramps get built by
@@ -293,4 +294,128 @@ fn write_hue_drift(root: &PathBuf) {
     )
     .expect("writing the drift comparison");
     println!("wrote the COLOUR-02 comparison to {}", dest.display());
+}
+
+/// PROBLEM-01 — three teams' "Save changes" buttons, subtly wrong.
+///
+/// ── THE COLOURS ARE COMPUTED SO THAT THEIR SUBTLETY IS MEASURED ──────────
+/// The brief asks for "three points near the brand hue but NOT from the ramp —
+/// the point is that these were guessed, not derived", and its hardest
+/// instruction is that "getting the differences to sit right at the edge of
+/// perceptible is the entire craft of this image. If in doubt, make them MORE
+/// similar, not less."
+///
+/// Eyeballing three hexes cannot honour that, because the whole question is
+/// *how far apart* they are — and COLOUR-02 already proved that intuition is
+/// unreliable here in the other direction (a 14 degree hue shift there moved no
+/// channel by more than 2/255). So each blue is placed in OkLCH by an explicit
+/// hue and chroma offset from the brand seed, and this writer reports the
+/// pairwise **Oklab dE** between them. Oklab is near-perceptually-uniform, so
+/// dE is readable as a threshold: ~0.01 is around the just-noticeable mark for
+/// large flat areas, and the target band here is **0.02 to 0.04** — findable
+/// when the eye compares two buttons directly, deniable when it does not.
+///
+/// None of the three is the brand colour. Primitiv is the fix this section
+/// sets up, not one of the three teams, so putting the real brand blue among
+/// them would quietly frame one of the buttons as already correct — which the
+/// brief forbids ("Frame it as a comparison against a 'correct' fourth
+/// button" is a must-not, and a correct FIRST button is the same mistake).
+///
+/// The geometry rides along in the same file for one source of truth: the
+/// radius, height, padding and label weight per team. They are deltas off the
+/// real `framed-control/md` comfortable values (height 40, radius 8,
+/// padding-inline 16), not invented numbers.
+fn write_team_buttons(root: &PathBuf) {
+    const SEED: &str = "#236ce1";
+    // (team, hue offset in degrees, chroma factor, lightness offset)
+    // Tuned against the reported dE, not by eye. The first pass ran -5/+4/+9.5
+    // degrees with chroma factors 0.94/1.06/0.97 and landed at dE 0.036-0.049 —
+    // far enough that #0371d9 read cyan-ish against #4661da violet-ish, which
+    // is the "no team would ship that" failure the brief warns about. Halving
+    // the spread puts all three pairs inside the band.
+    const TEAMS: &[(&str, f32, f32, f32)] = &[
+        ("Billing", -2.5, 0.97, 0.000),
+        ("Onboarding", 2.0, 1.03, 0.006),
+        ("Settings", 5.0, 0.985, -0.007),
+    ];
+    // Deltas off the real framed-control/md comfortable geometry.
+    const GEOMETRY: &[(&str, f32, f32, f32, &str)] = &[
+        // team, height, radius, padding-inline, label weight
+        ("Billing", 40.0, 4.0, 16.0, "Medium"),
+        ("Onboarding", 42.0, 6.0, 20.0, "Medium"),
+        ("Settings", 45.0, 10.0, 16.0, "SemiBold"),
+    ];
+
+    let seed_rgb: Srgb<f32> = Srgb::<u8>::new(0x23, 0x6c, 0xe1).into_format();
+    let seed: Oklch = seed_rgb.into_color();
+    let seed_hue = seed.hue.into_positive_degrees();
+
+    let placed: Vec<(String, Oklch, String)> = TEAMS
+        .iter()
+        .map(|(team, dh, cf, dl)| {
+            let c = Oklch::new(
+                (seed.l + dl).clamp(0.0, 1.0),
+                seed.chroma * cf,
+                seed_hue + *dh,
+            );
+            (team.to_string(), c, oklch_to_hex(c))
+        })
+        .collect();
+
+    // Oklab dE between every pair, so the "edge of perceptible" claim is a
+    // number rather than an opinion.
+    let lab = |c: Oklch| -> (f32, f32, f32) {
+        let h = c.hue.into_degrees().to_radians();
+        (c.l, c.chroma * h.cos(), c.chroma * h.sin())
+    };
+    let mut deltas = Vec::new();
+    for i in 0..placed.len() {
+        for j in (i + 1)..placed.len() {
+            let (l1, a1, b1) = lab(placed[i].1);
+            let (l2, a2, b2) = lab(placed[j].1);
+            let de = ((l1 - l2).powi(2) + (a1 - a2).powi(2) + (b1 - b2).powi(2)).sqrt();
+            deltas.push(serde_json::json!({
+                "pair": format!("{} vs {}", placed[i].0, placed[j].0),
+                "oklabDeltaE": (de * 10000.0).round() / 10000.0,
+            }));
+        }
+    }
+
+    let buttons: Vec<serde_json::Value> = placed
+        .iter()
+        .zip(GEOMETRY.iter())
+        .map(|((team, c, hex), (_, h, r, pad, weight))| {
+            serde_json::json!({
+                "team": team,
+                "hex": hex,
+                "oklch": { "l": (c.l * 10000.0).round() / 10000.0,
+                           "c": (c.chroma * 10000.0).round() / 10000.0,
+                           "h": (c.hue.into_positive_degrees() * 100.0).round() / 100.0 },
+                "height": h, "radius": r, "paddingInline": pad, "labelWeight": weight,
+            })
+        })
+        .collect();
+
+    let dest = root.join("docs/generated/problem-01-team-buttons.json");
+    std::fs::write(
+        &dest,
+        serde_json::to_string_pretty(&serde_json::json!({
+            "$comment": [
+                "PROBLEM-01 — three teams' buttons, deliberately drifted.",
+                "Generated: cargo run -p harmoni-core --features swatch-sheet --example swatch-sheet",
+                "Never hand-edit. The colours are placed in OkLCH off the brand seed and",
+                "rendered by the engine; oklabDeltaE is what makes 'edge of perceptible' a",
+                "measured claim (target band 0.02-0.04). None of the three is the brand.",
+                "Geometry is deltas off framed-control/md comfortable: height 40, radius 8,",
+                "padding-inline 16."
+            ],
+            "brandSeed": SEED,
+            "buttons": buttons,
+            "pairwise": deltas,
+        }))
+        .expect("serialisable")
+            + "\n",
+    )
+    .expect("writing the team buttons");
+    println!("wrote the PROBLEM-01 buttons to {}", dest.display());
 }

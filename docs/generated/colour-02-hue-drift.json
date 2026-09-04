@@ -1,56 +1,56 @@
 {
   "drifting": {
-    "how": "the real ramp's lightness and chroma with a steady hue drift of +16 to -15 degrees, pinned to the seed at 500 — what picking each step by eye produces, and the only construction that isolates hue",
-    "hueSpanDegrees": 31.0,
+    "how": "the real ramp's lightness and chroma with a constant 3.2 degrees of hue drift per step, symmetric about the seed — what picking each step by eye produces, and the only construction that isolates hue",
+    "hueSpanDegrees": 28.799999237060547,
     "steps": [
       {
-        "hex": "#f2f5fe",
-        "hue": 275.8999938964844,
+        "hex": "#f2f5ff",
+        "hue": 274.29998779296875,
         "step": "50"
       },
       {
-        "hex": "#d8e0fe",
-        "hue": 272.70001220703125,
+        "hex": "#d7e1fe",
+        "hue": 271.1000061035156,
         "step": "100"
       },
       {
-        "hex": "#b3c6fd",
-        "hue": 269.5,
+        "hex": "#b1c7fd",
+        "hue": 267.8999938964844,
         "step": "200"
       },
       {
-        "hex": "#90b0fc",
-        "hue": 266.29998779296875,
+        "hex": "#8db1fc",
+        "hue": 264.70001220703125,
         "step": "300"
       },
       {
-        "hex": "#5f92fa",
-        "hue": 263.1000061035156,
+        "hex": "#5b93fa",
+        "hue": 261.5,
         "step": "400"
       },
       {
-        "hex": "#236ce1",
-        "hue": 259.8999938964844,
+        "hex": "#186de1",
+        "hue": 258.29998779296875,
         "step": "500"
       },
       {
-        "hex": "#0052b1",
-        "hue": 256.1000061035156,
+        "hex": "#0053b0",
+        "hue": 255.10000610351562,
         "step": "600"
       },
       {
         "hex": "#003270",
-        "hue": 252.39999389648438,
+        "hue": 251.89999389648438,
         "step": "700"
       },
       {
         "hex": "#001b40",
-        "hue": 248.60000610351562,
+        "hue": 248.6999969482422,
         "step": "800"
       },
       {
         "hex": "#000c21",
-        "hue": 244.89999389648438,
+        "hue": 245.5,
         "step": "900"
       }
     ]
@@ -114,104 +114,104 @@
   "seed": "#236ce1",
   "track": {
     "how": "hue sweep at the seed's own L and C — the background of the hue scale",
-    "hueMax": 289.0,
-    "hueMin": 243.0,
+    "hueMax": 279.8999938964844,
+    "hueMin": 239.89999389648438,
     "samples": [
       {
+        "hex": "#007bd6",
+        "hue": 239.89999389648438
+      },
+      {
+        "hex": "#0079d7",
+        "hue": 241.60000610351562
+      },
+      {
         "hex": "#0078d9",
-        "hue": 243.0
+        "hue": 243.39999389648438
       },
       {
         "hex": "#0077da",
-        "hue": 245.0
+        "hue": 245.10000610351562
       },
       {
         "hex": "#0076db",
-        "hue": 247.0
+        "hue": 246.8000030517578
       },
       {
-        "hex": "#0074dd",
-        "hue": 249.0
+        "hex": "#0074dc",
+        "hue": 248.60000610351562
       },
       {
-        "hex": "#0073de",
-        "hue": 251.0
+        "hex": "#0073dd",
+        "hue": 250.3000030517578
+      },
+      {
+        "hex": "#0072de",
+        "hue": 252.10000610351562
       },
       {
         "hex": "#0071df",
-        "hue": 253.0
+        "hue": 253.8000030517578
       },
       {
-        "hex": "#0070df",
-        "hue": 255.0
+        "hex": "#006fe0",
+        "hue": 255.5
       },
       {
-        "hex": "#0a6ee0",
-        "hue": 257.0
+        "hex": "#0e6ee0",
+        "hue": 257.29998779296875
       },
       {
         "hex": "#1d6de1",
         "hue": 259.0
       },
       {
-        "hex": "#296be1",
-        "hue": 261.0
+        "hex": "#286be1",
+        "hue": 260.70001220703125
       },
       {
-        "hex": "#326ae2",
-        "hue": 263.0
+        "hex": "#306ae1",
+        "hue": 262.5
       },
       {
-        "hex": "#3a68e2",
-        "hue": 265.0
+        "hex": "#3769e2",
+        "hue": 264.20001220703125
       },
       {
-        "hex": "#4167e2",
-        "hue": 267.0
+        "hex": "#3d67e2",
+        "hue": 266.0
       },
       {
-        "hex": "#4765e2",
-        "hue": 269.0
+        "hex": "#4366e2",
+        "hue": 267.70001220703125
       },
       {
-        "hex": "#4d64e2",
-        "hue": 271.0
+        "hex": "#4865e2",
+        "hue": 269.3999938964844
+      },
+      {
+        "hex": "#4d63e2",
+        "hue": 271.20001220703125
       },
       {
         "hex": "#5262e1",
-        "hue": 273.0
+        "hue": 272.8999938964844
       },
       {
-        "hex": "#5761e1",
-        "hue": 275.0
+        "hex": "#5661e1",
+        "hue": 274.70001220703125
       },
       {
-        "hex": "#5c5fe0",
-        "hue": 277.0
+        "hex": "#5a60e0",
+        "hue": 276.3999938964844
       },
       {
-        "hex": "#605edf",
-        "hue": 279.0
+        "hex": "#5e5ee0",
+        "hue": 278.1000061035156
       },
       {
-        "hex": "#645cdf",
-        "hue": 281.0
-      },
-      {
-        "hex": "#695bde",
-        "hue": 283.0
-      },
-      {
-        "hex": "#6d59dd",
-        "hue": 285.0
-      },
-      {
-        "hex": "#7058db",
-        "hue": 287.0
-      },
-      {
-        "hex": "#7456da",
-        "hue": 289.0
+        "hex": "#625ddf",
+        "hue": 279.8999938964844
       }
     ]
   }

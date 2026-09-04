@@ -29,9 +29,18 @@
  * lightness or saturation difference.
  *
  * ── FOUR THINGS THAT MAKE THE DIAGRAM WORK ────────────────────────────────
- * • ONE SHARED HUE DOMAIN for both tracks (243-289). Scaling each track to its
- *   own data would rig the comparison — the held row's ten identical hues
- *   would spread across the full width and prove the opposite.
+ * • ONE SHARED HUE DOMAIN for both tracks, CENTRED ON THE SEED. Scaling each
+ *   track to its own data would rig the comparison — the held row's ten
+ *   identical hues would spread across the full width and prove the opposite.
+ *   Centring it on nothing in particular was nearly as bad: the held stack
+ *   landed at 37% and read as misplaced. Centred on the seed it sits at
+ *   exactly 50%, with the drifting row scattering symmetrically around it.
+ * • A CONSTANT DRIFT PER STEP (3.2 degrees). An earlier version ran +16 to 0
+ *   across five steps and 0 to -15 across four, to pin the seed at 500. That
+ *   made every gap in the dark half wider than every gap in the light half,
+ *   visible on the track as rings that are not evenly spread. The constant is
+ *   worth more than the pinned 500, which is invisible here anyway — the two
+ *   ramps' 500s now differ by 1.6 degrees, which no eye can see.
  * • THE TRACK IS A PAINTED SPECTRUM, not a rule. A plain rule sitting under
  *   the tiles at the same width invites the eye to map marker position to the
  *   TILE ABOVE IT, which is a different quantity: the held row's marker sits
@@ -58,13 +67,13 @@
 const GAP_ID = '2180:91953';
 const TILE_H = 28;
 // One shared domain, or the comparison is rigged.
-const HUE_MIN = 243, HUE_MAX = 289;
+const HUE_MIN = 239.9, HUE_MAX = 279.9;
 
 // [step, hex, hue in degrees] — from docs/generated/colour-02-hue-drift.json
-const DRIFT = [["50","#f2f5fe",275.8999938964844],["100","#d8e0fe",272.70001220703125],["200","#b3c6fd",269.5],["300","#90b0fc",266.29998779296875],["400","#5f92fa",263.1000061035156],["500","#236ce1",259.8999938964844],["600","#0052b1",256.1000061035156],["700","#003270",252.39999389648438],["800","#001b40",248.60000610351562],["900","#000c21",244.89999389648438]];
-const HELD  = [["50","#f0f5ff",259.8999938964844],["100","#d2e3fe",259.8999938964844],["200","#aac9fc",259.8999938964844],["300","#86b3fb",259.8999938964844],["400","#5794fa",259.8999938964844],["500","#236ce1",259.8999938964844],["600","#104fb2",259.8999938964844],["700","#032e71",259.8999938964844],["800","#011841",259.8999938964844],["900","#000923",259.8999938964844]];
+const DRIFT = [["50","#f2f5ff",274.3],["100","#d7e1fe",271.1],["200","#b1c7fd",267.9],["300","#8db1fc",264.7],["400","#5b93fa",261.5],["500","#186de1",258.3],["600","#0053b0",255.1],["700","#003270",251.9],["800","#001b40",248.7],["900","#000c21",245.5]];
+const HELD  = [["50","#f0f5ff",259.9],["100","#d2e3fe",259.9],["200","#aac9fc",259.9],["300","#86b3fb",259.9],["400","#5794fa",259.9],["500","#236ce1",259.9],["600","#104fb2",259.9],["700","#032e71",259.9],["800","#011841",259.9],["900","#000923",259.9]];
 // The track's own background: a hue sweep at the seed's L and C.
-const SWEEP = ["#0078d9","#0077da","#0076db","#0074dd","#0073de","#0071df","#0070df","#0a6ee0","#1d6de1","#296be1","#326ae2","#3a68e2","#4167e2","#4765e2","#4d64e2","#5262e1","#5761e1","#5c5fe0","#605edf","#645cdf","#695bde","#6d59dd","#7058db","#7456da"];
+const SWEEP = ["#007bd6","#0079d7","#0078d9","#0077da","#0076db","#0074dc","#0073dd","#0072de","#0071df","#006fe0","#0e6ee0","#1d6de1","#286be1","#306ae1","#3769e2","#3d67e2","#4366e2","#4865e2","#4d63e2","#5262e1","#5661e1","#5a60e0","#5e5ee0","#625ddf"];
 
 const vars = await figma.variables.getLocalVariablesAsync();
 const V = {}; for (const v of vars) V[v.name] = v;

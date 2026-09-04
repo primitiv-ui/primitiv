@@ -157,14 +157,20 @@ fn main() {
 /// as the real ones do.
 fn write_hue_drift(root: &PathBuf) {
     const SEED: &str = "#236ce1";
-    // ONE shared domain for both tracks. Scaling each track to its own data
-    // would rig the comparison: the held row's ten identical hues would spread
-    // across the full width and prove the opposite of the point.
-    const HUE_MIN: f32 = 243.0;
-    const HUE_MAX: f32 = 289.0;
-    // Where the hand-picked ends land, in degrees off the seed's hue.
-    const LIGHT_END_OFFSET: f32 = 16.0;
-    const DARK_END_OFFSET: f32 = -15.0;
+    // A CONSTANT drift per step, symmetric about the seed. An earlier version
+    // ran +16 to 0 across five steps and 0 to -15 across four, which pinned the
+    // seed at 500 but made every gap in the dark half wider than every gap in
+    // the light half — visible on the track as rings that are not evenly
+    // spread. One constant is worth more here than the pinned 500, which is
+    // invisible in the diagram anyway: the two ramps' 500s now differ by 1.6
+    // degrees, which no eye can see, and the rings space evenly.
+    const DRIFT_PER_STEP: f32 = 3.2;
+    const STEPS: usize = 10;
+    // Half the domain, in degrees either side of the seed. Centred on the seed
+    // so the HELD row's stack lands dead centre of the scale and the drifting
+    // row scatters symmetrically around it. Centring on nothing in particular
+    // put the held stack at 37% and made it look misplaced.
+    const HUE_HALF_SPAN: f32 = 20.0;
 
     let seed_rgb: Srgb<f32> = Srgb::<u8>::new(0x23, 0x6c, 0xe1).into_format();
     let seed_oklch: Oklch = seed_rgb.into_color();
@@ -173,15 +179,9 @@ fn write_hue_drift(root: &PathBuf) {
     let pair = generate_brand_pair(ColorInput::Css(SEED.to_string())).expect("the brand seed");
     let real = &pair.light.swatches;
 
-    // Hue offset per step: a steady wander, pinned to 0 at 500 so both ramps
-    // share the seed. +16 at the light end, -15 at the dark end.
-    let offset = |i: usize| -> f32 {
-        if i <= 5 {
-            LIGHT_END_OFFSET * (1.0 - i as f32 / 5.0)
-        } else {
-            DARK_END_OFFSET * ((i - 5) as f32 / 4.0)
-        }
-    };
+    // Hue offset per step: one constant wander, symmetric about the seed.
+    let centre = (STEPS - 1) as f32 / 2.0;
+    let offset = |i: usize| -> f32 { (centre - i as f32) * DRIFT_PER_STEP };
     let drifting: Vec<serde_json::Value> = real
         .iter()
         .enumerate()
@@ -229,9 +229,11 @@ fn write_hue_drift(root: &PathBuf) {
     // Painting the actual spectrum removes the ambiguity — nobody reads a
     // spectrum as a row of steps. Sampled at the SEED's own lightness and
     // chroma so the band is the blue family the diagram is about.
+    let hue_min = seed_hue - HUE_HALF_SPAN;
+    let hue_max = seed_hue + HUE_HALF_SPAN;
     let sweep: Vec<serde_json::Value> = (0..=23)
         .map(|i| {
-            let hue = HUE_MIN + (HUE_MAX - HUE_MIN) * (i as f32 / 23.0);
+            let hue = hue_min + (hue_max - hue_min) * (i as f32 / 23.0);
             serde_json::json!({
                 "hue": (hue * 10.0).round() / 10.0,
                 "hex": oklch_to_hex(Oklch::new(seed_oklch.l, seed_oklch.chroma, hue)).to_lowercase(),
@@ -244,12 +246,14 @@ fn write_hue_drift(root: &PathBuf) {
         &dest,
         serde_json::to_string_pretty(&serde_json::json!({
             "seed": SEED,
-            "drifting": { "how": "the real ramp's lightness and chroma with a steady hue drift of +16 to -15 degrees, pinned to the seed at 500 — what picking each step by eye produces, and the only construction that isolates hue",
+            "drifting": { "how": "the real ramp's lightness and chroma with a constant 3.2 degrees of hue drift per step, symmetric about the seed — what picking each step by eye produces, and the only construction that isolates hue",
                           "hueSpanDegrees": span(&drifting), "steps": drifting },
             "held": { "how": "harmoni-core generate_brand_pair, light palette",
                       "hueSpanDegrees": span(&held), "steps": held },
             "track": { "how": "hue sweep at the seed's own L and C — the background of the hue scale",
-                       "hueMin": HUE_MIN, "hueMax": HUE_MAX, "samples": sweep },
+                       "hueMin": (hue_min * 10.0).round() / 10.0,
+                       "hueMax": (hue_max * 10.0).round() / 10.0,
+                       "samples": sweep },
         }))
         .expect("serialisable") + "\n",
     )

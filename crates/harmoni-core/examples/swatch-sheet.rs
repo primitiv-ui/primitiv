@@ -144,6 +144,11 @@ fn main() {
 /// span falls out of the arithmetic rather than being chosen.
 fn write_hue_drift(root: &PathBuf) {
     const SEED: &str = "#236ce1";
+    // ONE shared domain for both tracks. Scaling each track to its own data
+    // would rig the comparison: the held row's ten identical hues would spread
+    // across the full width and prove the opposite of the point.
+    const HUE_MIN: f32 = 243.0;
+    const HUE_MAX: f32 = 289.0;
     // Mix factors toward white (light half) and black (dark half). Chosen to
     // land near the shipped ramp's lightness spacing so the two rows compare
     // like for like — the difference on show has to be hue, not lightness.
@@ -198,6 +203,26 @@ fn write_hue_drift(root: &PathBuf) {
         let (lo, hi) = hues.iter().fold((f32::MAX, f32::MIN), |(l, h), v| (l.min(*v), h.max(*v)));
         ((hi - lo) * 10.0).round() / 10.0
     };
+    // A HUE SWEEP for the track's background. The track has to read as a hue
+    // SCALE, not as a step axis: sitting under the tiles at the same width, a
+    // plain rule invites the eye to map marker position to the tile above it,
+    // which is a different quantity entirely and makes the diagram look broken.
+    // Painting the actual spectrum removes the ambiguity — nobody reads a
+    // spectrum as a row of steps.
+    //
+    // Sampled at the SEED's own lightness and chroma so the band is the same
+    // blue family the diagram is about, not a generic rainbow.
+    let seed_oklch: Oklch = seed_rgb.into_color();
+    let sweep: Vec<serde_json::Value> = (0..=23)
+        .map(|i| {
+            let hue = HUE_MIN + (HUE_MAX - HUE_MIN) * (i as f32 / 23.0);
+            serde_json::json!({
+                "hue": (hue * 10.0).round() / 10.0,
+                "hex": oklch_to_hex(Oklch::new(seed_oklch.l, seed_oklch.chroma, hue)).to_lowercase(),
+            })
+        })
+        .collect();
+
     let dest = root.join("docs/generated/colour-02-hue-drift.json");
     std::fs::write(
         &dest,
@@ -207,6 +232,8 @@ fn write_hue_drift(root: &PathBuf) {
                           "hueSpanDegrees": span(&drifting), "steps": drifting },
             "held": { "how": "harmoni-core generate_brand_pair, light palette",
                       "hueSpanDegrees": span(&held), "steps": held },
+            "track": { "how": "hue sweep at the seed's own L and C — the background of the hue scale",
+                       "hueMin": HUE_MIN, "hueMax": HUE_MAX, "samples": sweep },
         }))
         .expect("serialisable") + "\n",
     )

@@ -124,24 +124,37 @@ fn main() {
     write_hue_drift(&root);
 }
 
-/// The COLOUR-02 counter-example: the same seed built the way a ramp gets built
-/// by hand, so the drift is MEASURED rather than drawn.
+/// The COLOUR-02 counter-example: a ramp built the way ramps get built by
+/// hand, so the drift is MEASURED rather than drawn.
 ///
-/// The brief asks for "realistic hue drift, roughly 30 degrees", and warns
-/// against caricature — if the wrong ramp looks obviously broken it proves
-/// nothing, because no reader believes they would ship it. So the drift is
-/// MEASURED out of a real mechanism rather than drawn to a target.
+/// The brief asks for "realistic hue drift, roughly 30 degrees" and forbids
+/// caricature — if the wrong ramp looks obviously broken it proves nothing,
+/// because no reader believes they would ship it. THREE MECHANISMS WERE TRIED;
+/// the first two are recorded because both look right on paper and fail:
 ///
-/// The first attempt mixed the seed toward pure white and pure black in sRGB
-/// and drifted **3.2 degrees** — nothing. Mixing toward a neutral holds hue
-/// almost perfectly, so that is not where hand-built ramps go wrong.
+///  1. Mix the seed toward pure white and pure black in sRGB — the obvious
+///     guess at "built by hand". Drifts **3.2 degrees**. Mixing toward a
+///     NEUTRAL holds hue almost perfectly, so this is not where ramps go wrong.
+///  2. Mix toward a TINTED white and black. Drifts 35.7 degrees, which sounds
+///     right and looks wrong: the mix factor is tiny mid-ramp, so ALL of that
+///     span sits in the two end steps (24 and 12 degrees) while six of the
+///     middle eight stay within 2.4. Eight of ten swatches were visually
+///     identical to the held ramp. **A range is not a drift.**
+///  3. Interpolate in sRGB between two hand-picked ends through the seed.
+///     Worse: 24.5 degrees, middle seven within 3.7. Blending a pale end into
+///     a saturated seed snaps the hue to the saturated one almost at once.
 ///
-/// What does it: mixing toward a TINTED white and a TINTED black. Reach for
-/// the "off-white" and the "rich black" already in your palette — a cool paper
-/// white, a near-black with some warmth in it — and every step inherits a
-/// little of that cast, more at the ends than the middle. It is exactly what
-/// building a ramp out of colours you already have looks like, and the hue
-/// span falls out of the arithmetic rather than being chosen.
+/// What is used: TAKE THE REAL RAMP'S LIGHTNESS AND CHROMA, AND DRIFT ONLY THE
+/// HUE, steadily, step by step. That is what picking each step by eye in a
+/// colour picker actually produces — the designer matches the lightness they
+/// want and lets the hue wander — and it is the only construction that isolates
+/// the one variable this diagram is about. Both rows then differ in hue and
+/// nothing else, so the comparison cannot be accused of smuggling in a
+/// lightness or saturation difference, and the drift spreads evenly across the
+/// hue track instead of hiding in two outliers.
+///
+/// The offset is pinned to 0 at step 500 so both ramps share the seed exactly,
+/// as the real ones do.
 fn write_hue_drift(root: &PathBuf) {
     const SEED: &str = "#236ce1";
     // ONE shared domain for both tracks. Scaling each track to its own data
@@ -149,70 +162,73 @@ fn write_hue_drift(root: &PathBuf) {
     // across the full width and prove the opposite of the point.
     const HUE_MIN: f32 = 243.0;
     const HUE_MAX: f32 = 289.0;
-    // Mix factors toward white (light half) and black (dark half). Chosen to
-    // land near the shipped ramp's lightness spacing so the two rows compare
-    // like for like — the difference on show has to be hue, not lightness.
-    const TOWARD_WHITE: [(&str, f32); 5] =
-        [("50", 0.94), ("100", 0.82), ("200", 0.64), ("300", 0.46), ("400", 0.24)];
-    const TOWARD_BLACK: [(&str, f32); 4] =
-        [("600", 0.26), ("700", 0.52), ("800", 0.74), ("900", 0.88)];
+    // Where the hand-picked ends land, in degrees off the seed's hue.
+    const LIGHT_END_OFFSET: f32 = 16.0;
+    const DARK_END_OFFSET: f32 = -15.0;
 
-    // The two ends a designer reaches for: a cool paper white and a warm rich
-    // black. Neither is neutral, and that is the whole mechanism.
-    let paper: Srgb<f32> = Srgb::<u8>::new(0xfb, 0xf7, 0xff).into_format();
-    let rich: Srgb<f32> = Srgb::<u8>::new(0x14, 0x10, 0x06).into_format();
     let seed_rgb: Srgb<f32> = Srgb::<u8>::new(0x23, 0x6c, 0xe1).into_format();
-    let mix = |target: Srgb<f32>, t: f32| Srgb::new(
-        seed_rgb.red + (target.red - seed_rgb.red) * t,
-        seed_rgb.green + (target.green - seed_rgb.green) * t,
-        seed_rgb.blue + (target.blue - seed_rgb.blue) * t,
-    );
-    let describe = |rgb: Srgb<f32>, step: &str| {
-        let oklch: Oklch = rgb.into_color();
-        serde_json::json!({
-            "step": step,
-            "hex": oklch_to_hex(oklch).to_lowercase(),
-            "hue": (oklch.hue.into_positive_degrees() * 10.0).round() / 10.0,
-        })
-    };
+    let seed_oklch: Oklch = seed_rgb.into_color();
+    let seed_hue = seed_oklch.hue.into_positive_degrees();
 
-    let mut drifting = Vec::new();
-    for (step, t) in TOWARD_WHITE {
-        drifting.push(describe(mix(paper, t), step));
-    }
-    drifting.push(describe(seed_rgb, "500"));
-    for (step, t) in TOWARD_BLACK {
-        drifting.push(describe(mix(rich, t), step));
-    }
+    let pair = generate_brand_pair(ColorInput::Css(SEED.to_string())).expect("the brand seed");
+    let real = &pair.light.swatches;
+
+    // Hue offset per step: a steady wander, pinned to 0 at 500 so both ramps
+    // share the seed. +16 at the light end, -15 at the dark end.
+    let offset = |i: usize| -> f32 {
+        if i <= 5 {
+            LIGHT_END_OFFSET * (1.0 - i as f32 / 5.0)
+        } else {
+            DARK_END_OFFSET * ((i - 5) as f32 / 4.0)
+        }
+    };
+    let drifting: Vec<serde_json::Value> = real
+        .iter()
+        .enumerate()
+        .map(|(i, sw)| {
+            // Same L, same C, drifted H. One variable.
+            let drifted = Oklch::new(sw.l, sw.c, seed_hue + offset(i));
+            serde_json::json!({
+                "step": sw.label.to_string(),
+                "hex": oklch_to_hex(drifted).to_lowercase(),
+                "hue": ((seed_hue + offset(i)) * 10.0).round() / 10.0,
+            })
+        })
+        .collect();
 
     let pair = generate_brand_pair(ColorInput::Css(SEED.to_string())).expect("the brand seed");
     let held: Vec<serde_json::Value> = pair
         .light
         .swatches
         .iter()
-        .map(|s| serde_json::json!({
-            "step": s.label.to_string(),
-            "hex": s.hex.to_lowercase(),
-            // Swatch.h is signed (-180..180); normalise so the two rows compare.
-            "hue": (((s.h % 360.0) + 360.0) % 360.0 * 10.0).round() / 10.0,
-        }))
+        .map(|s| {
+            serde_json::json!({
+                "step": s.label.to_string(),
+                "hex": s.hex.to_lowercase(),
+                // Swatch.h is signed (-180..180); normalise so the two rows compare.
+                "hue": (((s.h % 360.0) + 360.0) % 360.0 * 10.0).round() / 10.0,
+            })
+        })
         .collect();
 
     let span = |rows: &[serde_json::Value]| {
-        let hues: Vec<f32> = rows.iter().map(|r| r["hue"].as_f64().expect("a hue") as f32).collect();
-        let (lo, hi) = hues.iter().fold((f32::MAX, f32::MIN), |(l, h), v| (l.min(*v), h.max(*v)));
+        let hues: Vec<f32> = rows
+            .iter()
+            .map(|r| r["hue"].as_f64().expect("a hue") as f32)
+            .collect();
+        let (lo, hi) = hues
+            .iter()
+            .fold((f32::MAX, f32::MIN), |(l, h), v| (l.min(*v), h.max(*v)));
         ((hi - lo) * 10.0).round() / 10.0
     };
+
     // A HUE SWEEP for the track's background. The track has to read as a hue
     // SCALE, not as a step axis: sitting under the tiles at the same width, a
     // plain rule invites the eye to map marker position to the tile above it,
     // which is a different quantity entirely and makes the diagram look broken.
     // Painting the actual spectrum removes the ambiguity — nobody reads a
-    // spectrum as a row of steps.
-    //
-    // Sampled at the SEED's own lightness and chroma so the band is the same
-    // blue family the diagram is about, not a generic rainbow.
-    let seed_oklch: Oklch = seed_rgb.into_color();
+    // spectrum as a row of steps. Sampled at the SEED's own lightness and
+    // chroma so the band is the blue family the diagram is about.
     let sweep: Vec<serde_json::Value> = (0..=23)
         .map(|i| {
             let hue = HUE_MIN + (HUE_MAX - HUE_MIN) * (i as f32 / 23.0);
@@ -228,7 +244,7 @@ fn write_hue_drift(root: &PathBuf) {
         &dest,
         serde_json::to_string_pretty(&serde_json::json!({
             "seed": SEED,
-            "drifting": { "how": "seed mixed in sRGB toward a cool paper white (#fbf7ff) and a warm rich black (#141006) — building a ramp from colours you already have",
+            "drifting": { "how": "the real ramp's lightness and chroma with a steady hue drift of +16 to -15 degrees, pinned to the seed at 500 — what picking each step by eye produces, and the only construction that isolates hue",
                           "hueSpanDegrees": span(&drifting), "steps": drifting },
             "held": { "how": "harmoni-core generate_brand_pair, light palette",
                       "hueSpanDegrees": span(&held), "steps": held },

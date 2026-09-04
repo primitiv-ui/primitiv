@@ -1,31 +1,31 @@
 {
   "drifting": {
-    "how": "seed mixed in sRGB toward a cool paper white (#fbf7ff) and a warm rich black (#141006) — building a ramp from colours you already have",
-    "hueSpanDegrees": 35.70000076293945,
+    "how": "the real ramp's lightness and chroma with a steady hue drift of +16 to -15 degrees, pinned to the seed at 500 — what picking each step by eye produces, and the only construction that isolates hue",
+    "hueSpanDegrees": 31.0,
     "steps": [
       {
-        "hex": "#eeeffd",
-        "hue": 284.1000061035156,
+        "hex": "#f2f5fe",
+        "hue": 275.8999938964844,
         "step": "50"
       },
       {
-        "hex": "#d4defa",
-        "hue": 270.0,
+        "hex": "#d8e0fe",
+        "hue": 272.70001220703125,
         "step": "100"
       },
       {
-        "hex": "#adc5f4",
-        "hue": 264.0,
+        "hex": "#b3c6fd",
+        "hue": 269.5,
         "step": "200"
       },
       {
-        "hex": "#86acef",
-        "hue": 261.6000061035156,
+        "hex": "#90b0fc",
+        "hue": 266.29998779296875,
         "step": "300"
       },
       {
-        "hex": "#578de8",
-        "hue": 260.1000061035156,
+        "hex": "#5f92fa",
+        "hue": 263.1000061035156,
         "step": "400"
       },
       {
@@ -34,23 +34,23 @@
         "step": "500"
       },
       {
-        "hex": "#1f54a8",
-        "hue": 259.5,
+        "hex": "#0052b1",
+        "hue": 256.1000061035156,
         "step": "600"
       },
       {
-        "hex": "#1b3c6f",
-        "hue": 258.8999938964844,
+        "hex": "#003270",
+        "hue": 252.39999389648438,
         "step": "700"
       },
       {
-        "hex": "#18283f",
-        "hue": 257.5,
+        "hex": "#001b40",
+        "hue": 248.60000610351562,
         "step": "800"
       },
       {
-        "hex": "#161b20",
-        "hue": 248.39999389648438,
+        "hex": "#000c21",
+        "hue": 244.89999389648438,
         "step": "900"
       }
     ]

@@ -143,5 +143,27 @@ block('drifting', DRIFT);
 block('held', HELD);
 text(card, 'The same ten steps. One of them is a family.', 13, 20, 'content/muted').name = 'closing line';
 
-return { card: { w: Math.round(card.width), h: Math.round(card.height) },
+// ── mobile: the same card, reflowed ────────────────────────────────────────
+// No bleed and no veil, unlike COLOUR-01. The brief's below-48rem rule is
+// "full width beneath the prose, rows still stacked", and this card is
+// self-contained: its tiles just get narrower (24px) and the hue track scales
+// with them, which is the one thing that has to survive. Cloning and
+// reflowing beats rescaling, which would drop the labels below real type size.
+const MOBILE_GAP = '2183:92294';
+const mgap = await figma.getNodeByIdAsync(MOBILE_GAP);
+for (const c of [...mgap.children]) c.remove();
+mgap.name = 'COLOUR-02 · drifting vs held';
+mgap.strokes = []; mgap.dashPattern = []; mgap.fills = [];
+mgap.layoutMode = 'VERTICAL'; mgap.primaryAxisSizingMode = 'AUTO';
+mgap.counterAxisAlignItems = 'CENTER'; mgap.clipsContent = false;
+mgap.paddingTop = mgap.paddingBottom = mgap.paddingLeft = mgap.paddingRight = 0;
+mgap.layoutSizingHorizontal = 'FILL';
+const mcard = card.clone();
+mgap.appendChild(mcard);
+mcard.name = 'drift comparison';
+mcard.layoutSizingHorizontal = 'FILL';
+mcard.primaryAxisSizingMode = 'AUTO';
+
+return { desktop: { w: Math.round(card.width), h: Math.round(card.height) },
+         mobile: { w: Math.round(mcard.width), h: Math.round(mcard.height) },
          rows: card.children.map(c => c.name) };

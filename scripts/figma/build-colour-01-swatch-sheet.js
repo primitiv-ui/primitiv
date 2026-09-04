@@ -210,5 +210,48 @@ for (const [name, steps] of Object.entries(DATA)) {
     cap.opacity = 0.8;
   });
 }
-return { card: { w: Math.round(card.width), h: Math.round(card.height) },
+// ── mobile: the same sheet, cropped around the 500 column ──────────────────
+// Not a rebuild and not a rescale — the SAME card, clipped and centred, with
+// the hero's lighting over it. Shrinking ten tiles to fit 342px would make
+// them unreadable; showing three at full size and letting the rest run off
+// both edges says "this continues" without saying it.
+const MOBILE_GAP = '2183:92285';
+const TILE_500_CENTRE = CARD_PAD_X + LABEL_W + 8 + 5 * (98 + GAP) + 49;
+const mgap = await figma.getNodeByIdAsync(MOBILE_GAP);
+for (const c of [...mgap.children]) c.remove();
+mgap.name = 'COLOUR-01 · foreground pairing sheet';
+mgap.strokes = []; mgap.dashPattern = []; mgap.fills = [];
+mgap.layoutMode = 'NONE'; mgap.clipsContent = true;
+mgap.layoutSizingHorizontal = 'FILL';
+mgap.resize(mgap.width, 424);
+
+const mcard = card.clone();
+mgap.appendChild(mcard);
+mcard.name = 'specimen sheet';
+// Centre the 500 COLUMN, not the card: 500 is the seed, the one step every
+// ramp shares, so it is the honest thing to put under the reader's thumb.
+mcard.x = Math.round(mgap.width / 2 - TILE_500_CENTRE);
+mcard.y = Math.round((mgap.height - mcard.height) / 2);
+
+const GROUND = { r: 0x14 / 255, g: 0x14 / 255, b: 0x14 / 255 };
+const stop = (position, a) => ({ position, color: { ...GROUND, a } });
+const veil = (name, fill) => {
+  const r = figma.createRectangle(); mgap.appendChild(r);
+  r.name = name; r.x = 0; r.y = 0; r.resize(mgap.width, mgap.height);
+  r.strokes = [];                                        // create* ships a default stroke (gotcha 28)
+  r.constraints = { horizontal: 'STRETCH', vertical: 'STRETCH' };
+  r.fills = [fill];
+};
+// ELLIPTICAL, wide vertically. The crop here is horizontal — columns run off
+// both sides — so the falloff belongs on the sides. A circular vignette tuned
+// to hide that also swallowed the bottom ramp, losing a whole row of the
+// argument. centre_x = (0.5 - tx) / sx, centre_y = (0.5 - ty) / sy.
+veil('veil — vignette', { type: 'GRADIENT_RADIAL',
+  gradientTransform: [[1.25, 0, -0.125], [0, 0.6, 0.2]],
+  gradientStops: [stop(0, 0), stop(0.52, 0), stop(0.82, 0.45), stop(1, 0.94)] });
+veil('veil — foot', { type: 'GRADIENT_LINEAR', gradientTransform: [[0, 1, 0], [-1, 0, 1]],
+  gradientStops: [stop(0, 0), stop(0.88, 0), stop(1, 0.85)] });
+
+return { desktop: { w: Math.round(card.width), h: Math.round(card.height) },
+         mobile: { gapH: Math.round(mgap.height), cardX: mcard.x, where500Lands: mcard.x + TILE_500_CENTRE },
          rows: card.children.map(c => c.name) };

@@ -876,6 +876,26 @@ craft-notes:
 > single point reads dense and the drifting row's spread reads sparse, which is
 > how the diagram states its case without the degree figures the brief forbids.
 >
+> **The swatches stay subtle on purpose, and the attempt to change that is
+> worth recording.** Reviewed as "should the drifting swatches be visibly
+> different?" — a fair question, because the two rows sit very close. They
+> cannot be pushed apart with hue: at step 50 the real ramp's chroma is near
+> zero, so a 14° shift moves no channel by more than **2/255**, and 900 is the
+> same. **Hue is invisible at both ends of a ten-step ramp.** Lifting chroma on
+> the light half to compensate does separate them — and makes the drifting row
+> MORE VIVID: at a 3.5× lift its 400 reads `#1485ff` against the real `#5794fa`,
+> punchier rather than broken. A counter-example that looks better than the
+> real thing argues the wrong case, so the lift was reverted.
+>
+> That invisibility is not a weakness of the diagram, it is the phenomenon:
+> drift goes unnoticed in real products precisely because it hides at the ends,
+> where chroma cannot show it. It is also why the hue track has to exist at
+> all. One consequence for the prose beside it: "the pale end of your blue
+> arrives slightly purple" describes something this image cannot show, because
+> a *hand-picked* pale tint carries more chroma than an engine-computed one.
+> Either soften that line or accept that the track, not the swatches, is what
+> proves it.
+>
 > And **the track is a painted hue spectrum, not a rule.** A plain rule under
 > the tiles at matching width invites the eye to map marker position to the
 > *tile above it* — a different quantity entirely. The held row's marker sits

@@ -182,6 +182,24 @@ fn write_hue_drift(root: &PathBuf) {
     // reads as noise rather than as a hand. Consecutive values differ by at
     // most 0.9, which keeps every gap inside 2.3-4.1 degrees.
     const WOBBLE: [f32; STEPS] = [0.0, 0.8, 1.1, 0.4, -0.5, -0.9, -0.4, 0.5, 1.0, 0.3];
+    // NO CHROMA LIFT, and the attempt is recorded because it looked obviously
+    // right and was obviously wrong once rendered.
+    //
+    // The two rows sit very close together, and the temptation is to push them
+    // apart. You cannot do it with hue: at step 50 the real ramp's chroma is
+    // near zero, so a 14-degree shift moves no channel by more than 2/255, and
+    // the same is true at 900. Hue is INVISIBLE at both ends of a ten-step
+    // ramp. Lifting chroma on the light half to compensate does make the rows
+    // differ — and makes the drifting one MORE VIVID, i.e. more attractive.
+    // At a 3.5 lift its 400 reads #1485ff against the real #5794fa: punchier,
+    // not broken. A counter-example that looks better than the real thing
+    // argues the wrong case.
+    //
+    // So the swatches stay subtle and the hue track carries the argument. That
+    // is the brief's own instruction ("subtle enough that a reader has to look
+    // at the track to be sure"), and it is also the honest position: drift
+    // going unnoticed in real products is exactly BECAUSE it hides at the ends
+    // where chroma cannot show it.
     // Half the domain, in degrees either side of the seed. Centred on the seed
     // so the HELD row's stack lands dead centre of the scale and the drifting
     // row scatters symmetrically around it. Centring on nothing in particular

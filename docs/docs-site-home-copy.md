@@ -1622,22 +1622,27 @@ too (`> * + *`). They agree; the mechanism differs.
 
 ### The hero lockup
 
-`Lockup [Brand=Primitiv, Layout=Stacked, Theme=Dark]` at **80.1 × 96**, both
-breakpoints. Two things fixed here on 2026-09-04 and worth not undoing:
+`Lockup [Brand=Primitiv, Layout=Stacked, Theme=Dark]` at **100.2 × 120** on
+desktop and **80.1 × 96** on mobile. Two things fixed here on 2026-09-04 and
+worth not undoing:
 
 - **Its aspect is load-bearing.** The master is 131.6 × 157.6 (0.835, a
   portrait mark over a wordmark). It had been stretched to 1200 × 140 — a
   927% aspect error — by a pass that forced `FILL` on it. Anything that sets
   sizing on hero children must leave this instance alone. The check is
   mechanical: compare an instance's `width/height` to its main component's.
-- **96 is a chosen ratio, not a round number.** At its natural 157.6 it stood
-  exactly as tall as the entire two-line headline (152px), so it shared
-  billing with the words rather than introducing them. 96 is **1.26× one
-  headline line** (76px at `display/xl` 68).
+- **The height is a chosen ratio, not a round number.** At its natural 157.6
+  it stood exactly as tall as the entire two-line headline (152px), so it
+  shared billing with the words rather than introducing them. Desktop settled
+  at 120 — **1.58× one headline line** (76px at `display/xl` 68), 0.79 of the
+  full headline. 96 was tried first and read too reticent for the brand's own
+  home page; the wordmark also gains real legibility between 96 and 120,
+  which is the practical floor for a stacked mark whose lower half is type.
 
-On mobile the same 96 works out at 1.5× a line (64px at 56) but only 0.30 of
-the five-line headline, so it reads less dominant there, not more. If the two
-breakpoints should hold the *same* relationship to a line, mobile drops to 80.
+Mobile stays at 96, where the headline is 56/64 over five lines: that is 1.5×
+a line but only **0.30 of the whole headline**, so it reads less dominant than
+desktop's 0.79 rather than more. The two breakpoints deliberately do not hold
+the same ratio — a five-line headline can carry a proportionally smaller mark.
 
 ### What the illustrations own
 

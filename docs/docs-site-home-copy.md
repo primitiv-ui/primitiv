@@ -749,9 +749,10 @@ craft-notes:
 **Second block — harmonious, not just legible** — `body/md`:
 
 > Legible is the low bar. The harder problem is that a colour scale
-> should look like one family, and most do not. Ramps tend to drift in
-> hue as they get lighter, so the pale end of your blue arrives slightly
-> purple. Or they lose their colour and fade toward grey.
+> should look like one family, and most do not. Ramps tend to wander in
+> hue from one step to the next, a little at a time - easy to miss on
+> any single swatch, and plain once you lay the whole scale out. Others
+> simply lose their colour and fade toward grey.
 
 > Neither happens here, and neither is left to judgement. The hue is
 > held fixed by construction, the steps are checked to stay visibly
@@ -890,11 +891,13 @@ craft-notes:
 > That invisibility is not a weakness of the diagram, it is the phenomenon:
 > drift goes unnoticed in real products precisely because it hides at the ends,
 > where chroma cannot show it. It is also why the hue track has to exist at
-> all. One consequence for the prose beside it: "the pale end of your blue
-> arrives slightly purple" describes something this image cannot show, because
-> a *hand-picked* pale tint carries more chroma than an engine-computed one.
-> Either soften that line or accept that the track, not the swatches, is what
-> proves it.
+> all. One consequence for the prose beside it: the paragraph used to promise
+> that "the pale end of your blue arrives slightly purple", which is something
+> this image cannot show, because a *hand-picked* pale tint carries more chroma
+> than an engine-computed one. **The line was softened to claim what the
+> diagram actually proves** - that the wander is easy to miss on any single
+> swatch and only plain across the whole scale. The track, not the swatches, is
+> what proves it, and the copy now says so.
 >
 > And **the track is a painted hue spectrum, not a rule.** A plain rule under
 > the tiles at matching width invites the eye to map marker position to the

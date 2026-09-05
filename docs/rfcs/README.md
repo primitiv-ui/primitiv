@@ -155,6 +155,7 @@ surface and applies once those are read.
 |---|---|---|
 | [0010](0010-oklch-color-picker.md) | OKLCH colour picker | Draft |
 | [0011](0011-duotone-neutral-ramps.md) | Duotone neutral ramps | Implemented (engine + workbench UI) |
+| [0029](0029-storybook-as-the-component-workbench.md) | Storybook as the component workbench | Draft — accepted in principle; build not started |
 
 - **0010** — the OKLCH-first, oklch.com-style colour picker that replaces the
   hex input: paint-backed Lightness×Chroma and Hue charts with a live gamut
@@ -167,6 +168,17 @@ surface and applies once those are read.
   single-hue neutral tint (which becomes the equal-hue, zero-bow special case).
   Adopts Leonardo's perceptual key-colour interpolation, constrained to the
   two-anchor neutral case.
+- **0029** — Storybook replaces `apps/workbench` outright and
+  `apps/kitchen-sink` eventually, taking the surface count from three down to
+  two (public docs site + internal workbench). Its load-bearing decision is
+  that examples are **not** shared with the docs site — `Alert` proves the
+  headless and styled surfaces are different APIs, not one component with
+  different imports, so no story can be parameterised over consumption mode.
+  What *is* shared is the generated `scripts/docs-data/*.docs.json`, which
+  feeds Storybook's `argTypes` and the docs site's prop tables from one
+  gated source. Two things the kitchen-sink does that Storybook cannot
+  absorb — proving the *published* distribution works, and eight real-browser
+  QA specs — get explicit replacements before it is deleted.
 
 ## Figma library
 

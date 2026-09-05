@@ -1233,6 +1233,25 @@ source of truth for when a skill applies.
   - **Anything gating payment belongs in the private repo only** — licence
     verification, server endpoints, keys.
 
+- **Storybook will replace the workbench, then the kitchen-sink — RFC 0029,
+  decided 2026-09-05, build NOT started.** Read
+  `docs/rfcs/0029-storybook-as-the-component-workbench.md` before adding an
+  example to *any* surface, or before touching `apps/workbench` /
+  `apps/kitchen-sink`. Two things it settles that are easy to get wrong.
+  **Examples are deliberately NOT shared with the docs site**: `Alert` proves
+  the headless and styled surfaces are different APIs (headless `Alert` is a
+  bare `<div role="alert">`; `tone`/`title`/dismiss belong to the copied
+  file), so no story can be parameterised over consumption mode — harvest
+  stories from the workbench and kitchen-sink's raw JSX, never from the
+  docs-site specs. What **is** shared is `scripts/docs-data/*.docs.json`,
+  which feeds Storybook's `argTypes` and the docs site's prop tables from one
+  already-gated source. And the kitchen-sink does two jobs Storybook cannot
+  absorb — it is the only proof the *published* distribution works (its own
+  lockfile, published packages, `primitiv add --all`), and it hosts eight
+  real-browser QA specs — both of which need explicit replacements before it
+  is deleted. Until Phase 3 lands, the definition of done above is unchanged:
+  new components still get a kitchen-sink example.
+
 ## Figma plugin-API gotchas (scripting via `figma_execute`)
 
 Traps that fail *silently* or point at the wrong culprit. Each cost a real

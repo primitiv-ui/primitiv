@@ -190,6 +190,92 @@ already models:
 the generated JSON — never hand-written, so a prop rename propagates from
 JSDoc through `pnpm docs-data` to both surfaces.
 
+### 4.1 Density and size are not the same kind of thing
+
+This is the question that most shapes the day-to-day feel of the Storybook,
+and the two axes pull in opposite directions. Verified against the tree:
+
+| | **Density** | **Size** |
+|---|---|---|
+| What it is | An inherited DOM attribute (`data-density`) on an ancestor — RFC 0009 | A per-instance prop / contract modifier on the component |
+| Set by | The consumer's page or subtree | Each instance, individually |
+| Component's awareness | **None.** RFC 0009 Principle 1: tokens emit under density-neutral names and the scope swaps the values | It *is* the component's own API |
+| How many components | All of them, unconditionally | `size` is a contract modifier on **52 of 63**; a React prop on more (§4.4) |
+| Values | dense / compact / comfortable / spacious (default **comfortable**) | xs / sm / md / lg / xl |
+| **Storybook home** | **Global toolbar** | **Per-story arg, in Controls** |
+
+**Density is global because no component takes it.** A grep across
+`packages/react/src` finds zero components accepting a density prop — the
+only three hits are prose in a JSDoc example. Modelling density as a story
+arg would assert an API that does not exist and quietly teach every reader
+the wrong architecture. It is environmental, exactly like theme, and it
+belongs in the same place as theme.
+
+**Size is per-story because it is a prop.** It varies per instance on any
+real page — a toolbar of `xs` buttons beside an `md` input is normal, not a
+mistake — and `argTypes` can source its values straight from the generated
+docs-data (§3.1). A global size toggle would both misrepresent the API and
+make the mixed-size compositions that matter impossible to build.
+
+### 4.2 Density still needs a per-story override
+
+The split above is not "density is only ever global". Scoping a *subtree* to
+a different density is the whole point of RFC 0009's inheritance model, so
+some stories exist precisely to show it. The decorator therefore reads:
+
+1. `parameters.primitiv.density` if the story pins one, else
+2. the toolbar global.
+
+Used by the matrix story below, and by any story demonstrating nested
+scoping. The toolbar stays the default for everything else.
+
+### 4.3 The size × density matrix is the flagship story
+
+The two axes are **not independent**: density scales the size ramp. A
+`framed-control/{size}/height` at `md` resolves to 24 / 32 / 40 / 48 px
+across dense / compact / comfortable / spacious. So `size="md"` renders four
+materially different controls, and *nothing in the project shows that
+today* — the docs site pairs one density control with one component at a
+time, and a Figma frame pins a single density mode, so seeing all twenty
+cells means opening four frames.
+
+A **20-cell `SizeDensityMatrix` story** (5 sizes × 4 densities, one frame,
+each column a `data-density` scope) is therefore the single most valuable
+story in a component's set, and the clearest answer to "a very detailed look
+at each component". It is only buildable because density is a scope rather
+than a prop — each column is a wrapper div with one attribute.
+
+### 4.4 Three traps in wiring these up
+
+1. **Put the mode attributes on the preview iframe's `<html>`, never on a
+   wrapper `<div>`.** `Portal` defaults to `createPortal(children,
+   document.body)` (`packages/react/src/Portal/Portal.tsx`), so every
+   portalled surface — Modal, Drawer, Popover, Dropdown, Tooltip, rich
+   Select, Combobox, ContextMenu, the NavigationMenu viewport — renders
+   *outside* a wrapper div and would silently inherit the root default
+   instead of the story's density and theme. Custom properties inherit
+   through the DOM tree, so a fixed-position panel still inside the React
+   tree is fine; a portalled one is not. This applies identically to
+   `data-theme`.
+2. **`size` is not always on the React root.** Select's `contract.json`
+   declares `size`/`mode`/`placement` as root modifiers, but its contract
+   root is `{ element: "button", component: "Trigger" }` — the docs-data
+   correctly attributes all three to `Select.Trigger`. A generator that
+   spreads args onto the named root emits `<Select size="md">`, three props
+   the root does not accept. Map args via docs-data's per-sub-component
+   attribution, not by assuming the root. (The docs site hit this and needed
+   a whole-snippet escape hatch; see the comment in
+   `apps/docs-site/src/site/examples/types.ts`.)
+3. **Contract modifiers are not the same set as React props.**
+   `confirm-dialog` and `drawer` both take a real `size` prop
+   (ConfirmDialog defaults to `"sm"` and forwards to `ModalContent`) while
+   declaring no `size` modifier in `contract.json`, because their visual
+   declarations belong to Modal. So the story template must key off the
+   docs-data props, not the contract modifier list — and must tolerate the
+   11 components that genuinely have no size axis at all: `aspect-ratio`,
+   `box`, `breadcrumb-overflow`, `center`, `confirm-dialog`, `divider`,
+   `drawer`, `grid`, `prose`, `spacer`, `stack`.
+
 ## 5. What "a detailed look" means — the bar for a story set
 
 The request was "a place for a very detailed look at each component". That
@@ -200,6 +286,8 @@ stops. A component's story set is **done** when it has:
 2. **A matrix story per contract axis** — every `variant`, every `size`,
    every `tone`, rendered together in one frame so they can be compared
    rather than clicked between. This is the thing no existing surface does.
+   Where the component has a size axis, this includes the 20-cell
+   **size × density** matrix of §4.3.
 3. **Every interactive state made reachable** — hover, active, focus-visible,
    disabled, invalid, loading. Where a state cannot be triggered by the
    addon, a static story that forces it via the data attribute or class.
@@ -374,3 +462,12 @@ Recorded so the next session does not re-derive them.
   workbench's own vitest suite.
 - `pnpm-workspace.yaml` excludes `apps/kitchen-sink` and `apps/docs-site`
   only; every other app is a member.
+- No component in `packages/react/src` accepts a `density` prop; density is
+  purely the inherited `data-density` attribute (RFC 0009), default
+  **comfortable**.
+- `size` is a contract modifier on 52 of 63 registry components, always
+  declared at the contract root — but Select's contract root *is*
+  `Select.Trigger`, and `confirm-dialog` / `drawer` carry a `size` React prop
+  with no contract modifier.
+- `packages/react/src/Portal/Portal.tsx` portals to `document.body` by
+  default, which is what makes §4.4's wrapper-div trap real.

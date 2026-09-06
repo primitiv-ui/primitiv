@@ -28,7 +28,9 @@ What Storybook uniquely buys, that nothing in the repo does today:
 
 - **Exhaustive variant matrices** rendered in isolation — Button's 25
   size×variant cells, Card's six media layouts, Tree's connector states.
-- **The a11y addon**, run per story.
+- **The a11y addon**, run per story — over a styled surface that currently
+  has no tests of any kind (§4.5, which is the strongest single argument in
+  this document).
 - **A visual-regression hook** (Chromatic, or Playwright snapshots against
   built story URLs). Nothing in the repo has baselines today.
 
@@ -276,6 +278,76 @@ than a prop — each column is a wrapper div with one attribute.
    `box`, `breadcrumb-overflow`, `center`, `confirm-dialog`, `divider`,
    `drawer`, `grid`, `prose`, `spacer`, `stack`.
 
+### 4.5 Accessibility — the strongest argument for the whole project
+
+Two separable jobs, and Storybook does both, but the leverage is very
+uneven.
+
+**The gap it fills: the registry surface is tested by nothing.** There are
+**zero** test files anywhere under `registry/` — `qa:registry-types`
+type-checks the wrappers and `qa:stylesheets` parses the CSS, but nothing
+renders a styled component. Meanwhile `packages/react` sits at 100%
+lines/branches/functions/statements with mutation testing on an allowlist,
+so the headless keyboard models and ARIA wiring are already exhaustively
+covered by RTL + `userEvent`. **Play functions duplicating that would be
+waste.** The uncovered half is precisely where visual accessibility lives:
+focus rings, contrast, disabled treatment, forced-colors behaviour — all in
+the copied styled files, none of it reachable from jsdom.
+
+**The precedent that makes this concrete.** `docs/interface-audit.md`
+records a HIGH finding, caught by hand: every registry stylesheet wrote
+`:focus-visible { outline: none; box-shadow: <two-layer ring> }`, and
+**zero** of the 62 carried a `forced-colors` block. Browsers strip
+`box-shadow` in forced-colors mode while the `outline: none` survives — so
+every keyboard user in Windows High Contrast had **no visible focus
+indicator anywhere in the system**, on every button, input, tab, tree row
+and menu item. It was fixed in `768b0f35`. Nothing currently stops it
+regressing, and no test in the repo could see it.
+
+That same audit found real contrast failures — dark `content/muted`, link
+active, `border-subtle` at 1.79:1 — and CLAUDE.md separately records a whole
+family of defects that **only a real browser surfaced**: Combobox's three
+failed attempts at the top layer, BreadcrumbOverflow's menu pinned to the
+page corner, unlayered docs CSS silently beating Card's own layout. This is
+the class of bug Storybook + a real engine catches and the current test
+estate structurally cannot.
+
+**Forced-colors and reduced-motion are Playwright concerns, not toolbar
+globals.** A page cannot fake its own `forced-colors` or
+`prefers-reduced-motion` state, so these cannot be decorators. They are
+browser-context options (`forcedColors: "active"`, `reducedMotion:
+"reduce"`, `colorScheme`), which means the accessibility matrix runs through
+the **Storybook test-runner / Playwright** as additional projects. That is
+the only mechanism that can gate the focus-ring regression above, and it is
+a good reason to wire the test-runner in Phase 4 rather than treating visual
+regression as the only browser-side job.
+
+**axe composes with the §4.3 matrix, which is the multiplier.** The a11y
+addon runs axe per story; a 20-cell size × density matrix therefore yields
+20 contrast checks from one story, and 40 across the theme global. Every
+component, every size, both themes, all four densities — from story sets
+that already have to exist for other reasons.
+
+**Be honest about the limits, and budget for exemptions.** Automated rules
+catch a minority of WCAG issues and can say nothing about focus *order*,
+whether Escape closes a surface, or whether a tab sequence is the right one.
+Expect false positives on deliberate choices: `NavigationMenu` implements
+the ARIA APG **disclosure navigation** pattern, not a menubar, and
+deliberately keeps every top-level entry tabbable — CLAUDE.md's explicit
+warning is "don't 'fix' this into a roving tabstop". Chasing a clean score
+would break it. §5's bar therefore asks for a documented exemption in the
+story's `parameters`, not a green tick.
+
+**The demonstrate half — five primitives with nowhere else to live.**
+`VisuallyHidden` (invisible by definition), `SkipNav` (only renders on
+focus), `Status` (a live region — you have to watch it announce),
+`AccessibleIcon`, and `DirectionProvider` (RTL, already a toolbar global per
+§4). None of these can be shown in a static screenshot or a prop table, and
+Storybook is the natural home. Do **not** duplicate keyboard *maps*: the
+docs site already renders those from generated data via `KeyboardTable`, and
+27 specs carry keyboard entries today. Storybook's job is to let someone
+press the keys, not to re-list them.
+
 ## 5. What "a detailed look" means — the bar for a story set
 
 The request was "a place for a very detailed look at each component". That
@@ -295,7 +367,8 @@ stops. A component's story set is **done** when it has:
    per prop permutation (Select rich vs native; Card's six media layouts;
    Dropdown's nested submenu).
 5. **The a11y addon passing**, or a documented exemption in the story's
-   `parameters`.
+   `parameters` — see §4.5 on why an exemption is sometimes the *correct*
+   outcome rather than a concession.
 6. **`argTypes` sourced from docs-data**, not hand-authored.
 
 Items 2 and 3 are the reason this is worth building; items 1 and 6 are
@@ -471,3 +544,8 @@ Recorded so the next session does not re-derive them.
   with no contract modifier.
 - `packages/react/src/Portal/Portal.tsx` portals to `document.body` by
   default, which is what makes §4.4's wrapper-div trap real.
+- There are **zero** test files under `registry/` — the styled surface is
+  rendered by no test in the repo.
+- `docs/interface-audit.md` records the forced-colors focus-ring finding
+  (all 62 stylesheets, no `forced-colors` block, fixed in `768b0f35`) and
+  several contrast failures; both classes are ungated today.

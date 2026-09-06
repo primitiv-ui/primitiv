@@ -95,3 +95,155 @@ body {
     opacity: 1;
   }
 }
+
+/* ─────────────────────────────────────────────────────────────────────────
+   CODE-01 — the two panes, the corner preview and the caption.
+
+   Only the chrome this file introduces, as above: the panes carry
+   `.primitiv-code-block` so the registry stylesheet owns the mono type, the
+   surface and every syntax colour, and nothing here reaches into that.
+   ───────────────────────────────────────────────────────────────────────── */
+
+.code-stage {
+  width: 1200px;
+  height: 750px;
+  gap: var(--primitiv-space-space-16);
+  padding: var(--primitiv-space-space-24);
+}
+
+.code-panes {
+  flex: 1 1 auto;
+  display: grid;
+  /* 45 / 55, per the brief. The editor is the wider pane because it is the one
+     being read. */
+  grid-template-columns: 45fr 55fr;
+  gap: var(--primitiv-space-space-16);
+  /* The editor slides in from beyond its own edge, so the seam has to clip. */
+  overflow: hidden;
+  min-height: 0;
+}
+
+.code-pane {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+  border: var(--primitiv-border-width-1) solid var(--primitiv-border-subtle);
+  border-radius: var(--primitiv-radii-12);
+  background: var(--primitiv-surface-sunken);
+}
+
+.code-pane__header {
+  display: flex;
+  align-items: center;
+  padding: var(--primitiv-space-space-8) var(--primitiv-space-space-16);
+  border-bottom: var(--primitiv-border-width-1) solid var(--primitiv-border-subtle);
+}
+
+.code-pane__name {
+  font-family: var(--primitiv-font-family-mono), ui-monospace, monospace;
+  font-size: var(--primitiv-font-size-12);
+  color: var(--primitiv-content-muted);
+}
+
+.code-pane__body {
+  flex: 1 1 auto;
+  margin: 0;
+  padding: var(--primitiv-space-space-16);
+  overflow: hidden;
+  font-family: var(--primitiv-font-family-mono), ui-monospace, monospace;
+  font-size: var(--primitiv-font-size-13);
+  line-height: var(--primitiv-line-height-20);
+  color: var(--primitiv-content-primary);
+  white-space: pre-wrap;
+}
+
+.code-pane__body--file {
+  position: relative;
+  padding-block-end: var(--primitiv-space-space-68);
+}
+
+.code-pane__body--file pre {
+  margin: 0;
+  white-space: pre;
+}
+
+.code-prompt {
+  color: var(--primitiv-content-muted);
+}
+
+.code-line {
+  display: flex;
+  gap: var(--primitiv-space-space-12);
+  white-space: pre;
+}
+
+.code-gutter {
+  flex: none;
+  width: 2ch;
+  text-align: right;
+  color: var(--primitiv-content-muted);
+  user-select: none;
+}
+
+/* The line under the caret. Tinted rather than outlined, so it reads as "the
+   cursor is here" without competing with the focus-ring language elsewhere on
+   the page. */
+.code-line--active {
+  background: var(--primitiv-surface-selected);
+}
+
+.code-selection {
+  background: var(--primitiv-action-primary-default);
+  color: var(--primitiv-action-primary-foreground-default);
+}
+
+.code-caret {
+  display: inline-block;
+  width: var(--primitiv-border-width-2);
+  height: 1.05em;
+  margin-inline-start: 1px;
+  vertical-align: text-bottom;
+  background: var(--primitiv-content-primary);
+  animation: code-caret-blink 1s steps(1) infinite;
+}
+
+/* The terminal's caret is a block, as a shell's is. */
+.code-caret--block {
+  width: 0.6em;
+}
+
+@keyframes code-caret-blink {
+  0%,
+  50% {
+    opacity: 1;
+  }
+  50.01%,
+  100% {
+    opacity: 0;
+  }
+}
+
+/* The preview sits inside the editor pane, lower-right, over the code. It has
+   to be in the same frame as the edit — a cutaway would break the only link
+   between the value and the result. */
+.code-preview {
+  position: absolute;
+  right: var(--primitiv-space-space-16);
+  bottom: var(--primitiv-space-space-16);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: var(--primitiv-space-space-12);
+  border: var(--primitiv-border-width-1) solid var(--primitiv-border-subtle);
+  border-radius: var(--primitiv-radii-8);
+  background: var(--primitiv-surface-default);
+  box-shadow: var(--primitiv-elevation-overlay);
+}
+
+.code-caption {
+  flex: 0 0 auto;
+  margin: 0;
+  font-size: var(--primitiv-font-size-14);
+  color: var(--primitiv-content-muted);
+}

@@ -11,7 +11,7 @@
  * demonstrates, and a denser mobile frame would introduce a second variable
  * into an illustration whose subject is neither density nor size.
  */
-export const FRAMES = {
+const A11Y_FRAMES = {
   desktop: {
     width: 560,
     height: 420,
@@ -57,3 +57,36 @@ export const FRAMES = {
     rowGap: "10",
   },
 };
+
+/*
+ * CODE-01 — one frame, 16:10 at the full content width. It has no responsive
+ * twin: the brief's below-48rem answer is "show the editor pane only, starting
+ * at beat 3", which is a still rather than a second recording.
+ *
+ * Unlike A11Y-01, nothing here is driven by key events. The scene owns its own
+ * timeline (the beat table lives in `CodeOne.tsx`, next to what it animates) and
+ * the recorder just starts it and waits, which is what `drive: "timeline"`
+ * selects.
+ */
+const CODE_FRAMES = {
+  desktop: { width: 1200, height: 750, scene: "code-01" },
+};
+
+/** CODE-01 is dark only. Decided 2026-09-06 — a terminal and an editor are dark
+ *  surfaces in nearly every real setup, and a light-mode IDE reads as a
+ *  screenshot of a configuration almost nobody uses. */
+export const CODE_THEMES = ["dark"];
+
+/**
+ * Every illustration this tool records, keyed by its id in
+ * `docs/docs-site-home-copy.md`. `drive` says how the recorder makes the scene
+ * happen: `keys` performs the key sequence, `timeline` waits out a scene that
+ * animates itself.
+ */
+export const SCENES = {
+  "a11y-01": { drive: "keys", frames: A11Y_FRAMES },
+  "code-01": { drive: "timeline", durationMs: 7600, frames: CODE_FRAMES },
+};
+
+/** A11Y-01's frames, still exported by name — the sequence module reads them. */
+export const FRAMES = A11Y_FRAMES;

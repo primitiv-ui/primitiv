@@ -29,7 +29,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium } from "/home/user/primitiv/node_modules/.pnpm/playwright@1.46.1/node_modules/playwright/index.mjs";
 import { sequenceFor, pressName } from "./sequence.mjs";
-import { FRAMES } from "../src/frames.mjs";
+import { SCENES } from "../src/frames.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(HERE, "..");
@@ -46,11 +46,18 @@ const args = Object.fromEntries(
 );
 const theme = args.theme ?? "light";
 const density = args.density ?? "comfortable";
+const sceneName = args.scene ?? "a11y-01";
 const frameName = args.frame ?? "desktop";
+const scene = SCENES[sceneName];
+if (!scene) throw new Error(`unknown scene "${sceneName}" — try ${Object.keys(SCENES).join(" | ")}`);
 /* The illustration frame, exactly — `.stage` is sized to match, so the capture
    needs no crop and the focus rings sit where the layout puts them. */
-const FRAME = FRAMES[frameName];
-if (!FRAME) throw new Error(`unknown frame "${frameName}" — try ${Object.keys(FRAMES).join(" | ")}`);
+const FRAME = scene.frames[frameName];
+if (!FRAME) {
+  throw new Error(
+    `${sceneName} has no "${frameName}" frame — try ${Object.keys(scene.frames).join(" | ")}`,
+  );
+}
 const requestedScale = Number(args.scale ?? 3);
 /* h264 will not encode an odd dimension, and the mobile frame is 257 tall — at
    3x that is 771 and ffmpeg refuses with "height not divisible by 2". Padding
@@ -67,7 +74,7 @@ if (scale !== requestedScale) {
 }
 const fps = Number(args.fps ?? 30);
 const outDir = args.out ?? join(ROOT, "out");
-const name = `a11y-01-${frameName}-${theme}-${density}`;
+const name = `${sceneName}-${frameName}-${theme}-${density}`;
 
 const run = (cmd, argv, opts = {}) => spawn(cmd, argv, { stdio: "pipe", ...opts });
 
@@ -117,7 +124,7 @@ const preview = run(
   ["preview", "--config", join(ROOT, "vite.config.mjs"), "--port", "5198", "--strictPort"],
   { cwd: ROOT },
 );
-const url = `http://127.0.0.1:5198/?frame=${frameName}&theme=${theme}&density=${density}`;
+const url = `http://127.0.0.1:5198/?scene=${sceneName}&frame=${frameName}&theme=${theme}&density=${density}`;
 await waitForServer("http://127.0.0.1:5198/");
 
 /* --------------------------------------------------------------- record ---- */
@@ -200,7 +207,15 @@ await client.send("Page.startScreencast", {
 
 const started = Date.now();
 const log = [];
-for (const step of sequenceFor(frameName)) {
+/* A scene that animates itself is not driven, only waited out — the recorder
+   reloads it so the timeline starts with the screencast already running, then
+   holds for its full duration plus a beat so the final frame is captured. */
+const steps = scene.drive === "timeline" ? [] : sequenceFor(frameName);
+if (scene.drive === "timeline") {
+  await page.reload({ waitUntil: "networkidle" });
+  await page.waitForTimeout(scene.durationMs);
+}
+for (const step of steps) {
   const at = (Date.now() - started) / 1000;
   if (step.action === "key") await page.keyboard.press(pressName(step.key));
   if (step.action === "type") {
@@ -294,6 +309,7 @@ await writeFile(
   join(outDir, `${name}.timeline.json`),
   JSON.stringify(
     {
+      scene: sceneName,
       frame: frameName,
       theme,
       density,

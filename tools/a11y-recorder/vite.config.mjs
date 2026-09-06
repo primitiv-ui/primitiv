@@ -30,6 +30,7 @@ export default {
       "@primitiv-ui/react": at("../../packages/react/src/index.ts"),
       "@primitiv-ui/icons": at("../../packages/icons/src/index.ts"),
       "@registry": at("../../registry/components"),
+      "prism-react-renderer": at("./node_modules/prism-react-renderer"),
       "@tokens": at("../../apps/docs-site/src/styles/primitiv"),
       react: at("../../packages/react/node_modules/react"),
       "react-dom": at("../../packages/react/node_modules/react-dom"),

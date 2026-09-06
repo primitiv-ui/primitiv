@@ -16,25 +16,33 @@ import "@registry/checkbox/styles.css";
 import "@registry/switch/styles.css";
 import "@registry/button/styles.css";
 import "@registry/kbd/styles.css";
+import "@registry/code-block/styles.css";
 import "./scene.css";
-import { FRAMES } from "./frames.mjs";
+import { SCENES } from "./frames.mjs";
 import { Scene } from "./Scene";
+import { CodeOne } from "./CodeOne";
 
-// Frame, theme and density come off the query string so one build records every
-// variant — `?theme=dark` is the fourth commitment's proof, `?frame=mobile` is
-// the below-48rem composition, and `?density=` exists because the same sequence
-// at another density is a free second image.
+// Scene, frame, theme and density all come off the query string so one build
+// records every variant — `?theme=dark` is A11Y-01's fourth-commitment proof,
+// `?frame=mobile` is its below-48rem composition, and `?scene=` picks which
+// illustration is on screen.
 const params = new URLSearchParams(window.location.search);
 const root = document.documentElement;
 root.dataset.theme = params.get("theme") ?? "light";
 root.dataset.density = params.get("density") ?? "comfortable";
 
-const frame = (params.get("frame") ?? "desktop") as keyof typeof FRAMES;
+const scene = (params.get("scene") ?? "a11y-01") as keyof typeof SCENES;
+const frame = params.get("frame") ?? "desktop";
+root.dataset.scene = scene;
 root.dataset.frame = frame;
 
-const { size, controls, options, rowGap } = FRAMES[frame];
-root.style.setProperty("--scene-row-gap", `var(--primitiv-space-space-${rowGap})`);
+const config = SCENES[scene].frames[frame as keyof (typeof SCENES)[typeof scene]["frames"]];
 
-createRoot(document.getElementById("root")!).render(
-  <Scene size={size} controls={controls} options={options} />,
-);
+const app = document.getElementById("root")!;
+if (scene === "code-01") {
+  createRoot(app).render(<CodeOne />);
+} else {
+  const { size, controls, options, rowGap } = config;
+  root.style.setProperty("--scene-row-gap", `var(--primitiv-space-space-${rowGap})`);
+  createRoot(app).render(<Scene size={size} controls={controls} options={options} />);
+}

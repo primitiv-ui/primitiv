@@ -6,6 +6,10 @@
 > [`docs-site-content-plan.md`](./docs-site-content-plan.md), and how the
 > sentences are written is [`voice-and-tone.md`](./voice-and-tone.md).
 > §3 below defers site content by omission; the content plan closes that.
+> **Companion doc (added 2026-09-06):** SEO — sitemap/robots, meta titles,
+> structured data, canonical tags, OG images — is planned in
+> [`docs-site-seo-plan.md`](./docs-site-seo-plan.md), checked against what's
+> actually implemented rather than assumed.
 
 > **Status:** Working draft (planning stage — no implementation started)
 > **Date:** 2026-07-19

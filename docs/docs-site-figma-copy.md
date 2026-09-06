@@ -297,6 +297,14 @@ craft-notes:
 > page. Keep it to two paragraphs. The product page is written
 > separately, and its scope is still to be agreed.
 
+> **Open question:** whether the planned standard ramps
+> (`docs-site-concepts-copy.md` note 7) appear in the Figma file at all.
+> They exist for chart series, tags and illustration — none of which the
+> component library draws — so shipping twenty more variable ramps a
+> designer never binds a component to may be clutter rather than parity.
+> Decide before this page publishes, because "the same tokens as the
+> code" is a claim this page makes.
+
 ---
 
 ## Notes for review

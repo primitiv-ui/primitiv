@@ -386,6 +386,14 @@ mode swap rather than a second stylesheet.
 
 Then: the three output formats, and how to change a token.
 
+Also on this page once it ships: **the standard ramps** — a wider set of
+fixed scales, generated the same way, that no semantic role points at,
+for colour the six semantic scales were never going to cover (chart
+series, tags, illustration). Opt-in, and untouched by
+`primitiv theme --brand`. Copy is drafted and marked PENDING in
+`docs-site-concepts-copy.md` Page 2 §5; the decisions behind it are that
+file's note 7.
+
 **Needs a diagram** — the three tiers with an arrow from one Palette
 value out to the places it lands.
 

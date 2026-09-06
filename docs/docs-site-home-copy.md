@@ -953,7 +953,7 @@ themes:
         the site theme seeing both hold is itself part of the proof.
 
 alt: >
-  The full Primitiv colour palette - six ramps of ten steps each - with
+  The Primitiv colour palette - six ramps of ten steps each - with
   the letters "Ag" on every swatch in the text colour the engine paired
   with it, and the step number beneath.
 
@@ -1160,7 +1160,12 @@ craft-notes:
 > Harmoni takes one seed colour per ramp and builds the ten steps
 > around it, deciding the foreground pairings as it goes. Primitiv
 > ships the result, so you get an accessible palette without running
-> anything.
+> anything. The same engine produces the standard ramps, for the colour
+> a semantic role was never going to cover.
+>
+> *(That last sentence is PENDING — the standard ramps are planned, not
+> shipped. Cut it if this section publishes first; the paragraph reads
+> correctly without it. Decisions in `docs-site-concepts-copy.md` note 7.)*
 
 > Harmoni is a Figma plugin and a product in its own right, for teams
 > who want to generate their own palettes this way. You do not need it
@@ -2029,16 +2034,23 @@ reaches inside one.
 6. **Ten illustrations, of which three are live or animated** —
    `DENSITY-01` (live), `CODE-01` and `A11Y-01` (animations). The
    colour section is entirely static by design.
-7. **`HARMONI-01`/`-02` were renamed `COLOUR-01`/`-02` on 2026-09-02**,
+7. **The proof sheet stays at six ramps, even once the standard palette
+   lands.** COLOUR-01's argument is that the scales the interface is
+   *built from* are legible and harmonious; twenty more ramps that no
+   semantic role points at would swamp the sheet and dilute exactly that
+   claim. The standard ramps are named in the prose (third block) and
+   shown nowhere on this page. The decisions behind them are recorded in
+   `docs-site-concepts-copy.md` note 7, not duplicated here.
+8. **`HARMONI-01`/`-02` were renamed `COLOUR-01`/`-02` on 2026-09-02**,
    the one deliberate exception to the never-renumber rule in the schema
    above. Nothing had been built from them, and the old names implied
    the section was about the plugin — which is exactly the confusion
    this rewrite exists to remove. Recorded rather than done silently.
-8. **Harmoni is a separate commercial product with its own site.** This
+9. **Harmoni is a separate commercial product with its own site.** This
    page names it as the source of the palette and links out. It does not
    demonstrate the plugin, show its interface, or explain how to use it.
    Keep it that way — the section's subject is the result, not the tool.
-9. **Every figure in section 2 is unverified in this draft.** They come
+10. **Every figure in section 2 is unverified in this draft.** They come
    from repository notes, not from a measurement taken today. The
    100-swatch figure in section 4 IS verified — it is stated in
    `crates/harmoni-core/tests/ramp_regression.rs` and follows from the

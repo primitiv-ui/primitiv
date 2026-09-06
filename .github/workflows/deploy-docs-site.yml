@@ -4,8 +4,9 @@ name: Deploy docs site
 # (Actions → "Deploy docs site" → Run workflow) or by asking Claude to run it.
 #
 # Publishes the Next.js docs site (apps/docs-site) as the main GitHub Pages site
-# at primitiv-ui.github.io/primitiv/, with the kitchen-sink kept at
-# /primitiv/kitchen-sink/ for phone QA. (Replaces the old VitePress deploy.)
+# at the primitiv-ui.dev custom domain root (via apps/docs-site/public/CNAME),
+# with the kitchen-sink kept at /kitchen-sink/ for phone QA. (Replaces the old
+# VitePress deploy.)
 on:
   workflow_dispatch:
 
@@ -48,16 +49,16 @@ jobs:
         run: pnpm install --ignore-workspace --no-frozen-lockfile
         working-directory: apps/docs-site
 
-      # Static export under the /primitiv/ sub-path (GitHub Pages project site).
-      # DOCS_SITE_BASE_PATH drives next.config's basePath + assetPrefix;
-      # `output: "export"` lands the result in apps/docs-site/out.
+      # Static export at the domain root — primitiv-ui.dev is a custom domain
+      # on this project's GitHub Pages site (apps/docs-site/public/CNAME pins
+      # it), so DOCS_SITE_BASE_PATH is left unset and next.config's
+      # basePath/assetPrefix stay off, same as local dev. `output: "export"`
+      # lands the result in apps/docs-site/out.
       - name: Build docs site
-        env:
-          DOCS_SITE_BASE_PATH: /primitiv
         run: pnpm build
         working-directory: apps/docs-site
 
-      # The kitchen-sink is kept at /primitiv/kitchen-sink/ for phone QA. Its
+      # The kitchen-sink is kept at /kitchen-sink/ for phone QA. Its
       # Vite/tsconfig dev-alias @primitiv-ui/react + /icons to the workspace
       # SOURCE, so this exercises the current branch too. Run `vite build`
       # directly (not the package's `tsc -b && vite build`): the aliased source
@@ -69,14 +70,17 @@ jobs:
 
       - name: Build kitchen-sink
         env:
-          KITCHEN_SINK_BASE: /primitiv/kitchen-sink/
+          KITCHEN_SINK_BASE: /kitchen-sink/
         run: pnpm exec vite build
         working-directory: apps/kitchen-sink
 
       # Assemble: the docs site is the root; the kitchen-sink is a sub-path (its
       # own SPA / HTML document, so no CSS interaction with the docs site).
       # .nojekyll is REQUIRED — Next emits a `_next/` dir, and GitHub Pages'
-      # Jekyll would otherwise drop every underscore-prefixed path.
+      # Jekyll would otherwise drop every underscore-prefixed path. CNAME (from
+      # apps/docs-site/public/) rides along in `out/` automatically since it's
+      # a public asset, which is what keeps the custom domain pinned across
+      # every redeploy.
       - name: Assemble site
         run: |
           cp -r apps/kitchen-sink/dist apps/docs-site/out/kitchen-sink

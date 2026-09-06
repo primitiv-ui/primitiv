@@ -23,7 +23,7 @@ single expression — wrap it in `(() => { ... })()`.
 ```sh
 # against the deployed kitchen-sink
 node scripts/figma-qa/cdp.mjs \
-  https://primitiv-ui.github.io/primitiv/kitchen-sink/ /tmp/expr.js 7000
+  https://primitiv-ui.dev/kitchen-sink/ /tmp/expr.js 7000
 ```
 
 Injecting a candidate stylesheet into the live page and re-measuring is the

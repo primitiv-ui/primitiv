@@ -908,10 +908,10 @@ source of truth for when a skill applies.
     frame is child 0 so a hovered/selected row's fill covers the rail.
 - **Docs site (`apps/docs-site`) — 38 of 63 component pages live (2026-08-28);
   25 to go.** (The roster: `apps/docs-site/src/site/examples/index.ts`.)
-  **Deployed to GitHub Pages** at `primitiv-ui.github.io/primitiv/` via the
+  **Deployed to GitHub Pages** at the `primitiv-ui.dev` custom domain via the
   manual `deploy-docs-site.yml` workflow (docs-site is standalone / excluded from
   the pnpm workspace, so it builds with `--ignore-workspace`; kitchen-sink kept
-  at `/primitiv/kitchen-sink/` for phone QA). The **Layout (8/8) and Typography
+  at `/kitchen-sink/` for phone QA). The **Layout (8/8) and Typography
   (9/9) categories are complete** — Layout: Box, Stack, Grid, Container, Center,
   Spacer, Aspect Ratio, Divider; Typography: Kbd, InlineCode, Blockquote,
   PullQuote, Prose, List, DescriptionList, Figure, CodeBlock. All but Divider are **registry-only**, so
@@ -921,12 +921,15 @@ source of truth for when a skill applies.
   visual playground is Chromium-verified to actually illustrate its controls;
   where one can't (Stack's `wrap`, Container's `size` — a page-width cap can't
   show in a ~590px preview) the spec's `excludeControls` drops it and an example
-  carries it instead. **Deployed to GitHub Pages** at
-  `primitiv-ui.github.io/primitiv/` via the manual `deploy-docs-site.yml`
+  carries it instead. **Deployed to GitHub Pages** at the
+  `primitiv-ui.dev` custom domain via the manual `deploy-docs-site.yml`
   workflow (Actions → "Deploy docs site" → Run) — it is now the main Pages site,
   replacing the old VitePress `apps/docs`; the kitchen-sink stays at
-  `/primitiv/kitchen-sink/` for phone QA. The static export is base-path-aware
-  (`DOCS_SITE_BASE_PATH=/primitiv` → `next.config` `basePath`/`assetPrefix`), and
+  `/kitchen-sink/` for phone QA. The domain is pinned by
+  `apps/docs-site/public/CNAME`, which rides along in the static export as a
+  public asset. The site builds at the domain root (`DOCS_SITE_BASE_PATH`
+  unset, same as local dev) — that env var still exists in `next.config` for
+  any future sub-path deploy, but the docs-site workflow no longer sets it.
   `.nojekyll` is required so Pages keeps Next's `_next/` dir.
   **Load the `docs-site-component-page` skill and read
   `docs/docs-site-session-handoff.md` before touching it** — between them they

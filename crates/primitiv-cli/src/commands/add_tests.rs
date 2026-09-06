@@ -782,6 +782,7 @@ fn installs_the_packages_with_the_detected_manager() {
                 "add".to_string(),
                 "@primitiv-ui/icons".to_string(),
                 "@primitiv-ui/react".to_string(),
+                "--silent".to_string(),
             ],
             Path::new("project").to_path_buf(),
         )]
@@ -818,7 +819,11 @@ fn installs_the_pinned_version_when_a_component_declares_one() {
         runner.calls(),
         vec![(
             "pnpm".to_string(),
-            vec!["add".to_string(), "@primitiv-ui/react@^0.1.0".to_string()],
+            vec![
+                "add".to_string(),
+                "@primitiv-ui/react@^0.1.0".to_string(),
+                "--silent".to_string(),
+            ],
             Path::new("project").to_path_buf(),
         )]
     );
@@ -3808,4 +3813,145 @@ fn barrel_write_failure_surfaces_as_io_error() {
     .unwrap_err();
 
     assert!(matches!(err, CliError::Io(_)));
+}
+
+/// A real `add` reports what it wrote. Without this the command's whole pitch —
+/// the code lands in YOUR repository — is unverifiable from the terminal: the
+/// file list existed only under `--dry-run`, so the run that actually wrote the
+/// files was the one that said nothing about them.
+#[test]
+fn reports_the_files_it_wrote() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("primitiv.json"), CONFIG).unwrap();
+    let registry = InMemoryRegistry::new(WITH_REACT_SURFACE)
+        .with_file("button", "styles.css", b".primitiv-button {}")
+        .with_file("button", "button.recipe.ts", b"export const button = 1;")
+        .with_file("button", "button.tsx", b"export function Button() {}");
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
+
+    add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["button"]),
+            ..Default::default()
+        },
+    )
+    .unwrap();
+
+    let out = String::from_utf8(output.captured()).unwrap();
+    assert!(out.contains("\nWrote:\n"), "missing written section:\n{out}");
+    for path in [
+        "src/styles/primitiv/button/styles.css",
+        "src/components/button.recipe.ts",
+        "src/components/button.tsx",
+    ] {
+        assert!(out.contains(path), "{path} missing from the report:\n{out}");
+    }
+}
+
+/// The report distinguishes the three things that can happen to a destination.
+/// `new` and `updated` both mean bytes were written, but only one of them is a
+/// file the consumer did not have — and `kept` is the one that matters most,
+/// because it is the run quietly declining to overwrite an edit.
+#[test]
+fn the_written_report_labels_new_updated_and_kept_files() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("primitiv.json"), CONFIG).unwrap();
+
+    // stylesheet — on disk and untouched since it was recorded → updated
+    let stylesheet = Path::new("src/styles/primitiv/button/styles.css");
+    let stylesheet_bytes = b".primitiv-button {}";
+    fs.write(stylesheet, stylesheet_bytes).unwrap();
+
+    // wrapper — on disk but edited → kept. The lock records DIFFERENT bytes,
+    // which is what makes it read as consumer-edited.
+    let wrapper = Path::new("src/components/button.tsx");
+    fs.write(wrapper, b"consumer edited").unwrap();
+
+    // recipe — absent → new
+
+    let mut lock = Lock::default();
+    lock.record("src/styles/primitiv/button/styles.css", stylesheet_bytes);
+    lock.record("src/components/button.tsx", b"original wrapper");
+    lock.write(&fs, Path::new("primitiv.lock")).unwrap();
+
+    let registry = InMemoryRegistry::new(WITH_REACT_SURFACE)
+        .with_file("button", "styles.css", stylesheet_bytes)
+        .with_file("button", "button.recipe.ts", b"export const button = 1;")
+        .with_file("button", "button.tsx", b"export function Button() {}");
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
+
+    add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["button"]),
+            ..Default::default()
+        },
+    )
+    .unwrap();
+
+    let out = String::from_utf8(output.captured()).unwrap();
+    let row = |path: &str| {
+        out.lines()
+            .find(|line| line.trim_start().starts_with(path))
+            .unwrap_or_else(|| panic!("no row for {path} in:\n{out}"))
+            .to_string()
+    };
+    assert!(row("src/components/button.recipe.ts").ends_with("new"));
+    assert!(row("src/styles/primitiv/button/styles.css").ends_with("updated"));
+    assert!(row("src/components/button.tsx").ends_with("kept"));
+    // The consumer's edit really did survive — the label is not just a string.
+    assert_eq!(fs.read(wrapper).unwrap(), b"consumer edited");
+}
+
+/// `--json` already describes the run as data, so the human table would be
+/// noise inside it — and, appended after the closing brace, invalid JSON.
+#[test]
+fn the_written_report_is_suppressed_under_json() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("primitiv.json"), CONFIG).unwrap();
+    let registry = InMemoryRegistry::new(WITH_REACT_SURFACE)
+        .with_file("button", "styles.css", b".primitiv-button {}")
+        .with_file("button", "button.recipe.ts", b"export const button = 1;")
+        .with_file("button", "button.tsx", b"export function Button() {}");
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
+
+    add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["button"]),
+            json: true,
+            ..Default::default()
+        },
+    )
+    .unwrap();
+
+    let out = String::from_utf8(output.captured()).unwrap();
+    assert!(!out.contains("Wrote:"), "json run emitted the human table:\n{out}");
+    // Deliberately not asserting the whole stream parses as JSON: it does not
+    // today, because `ensure_tokens` prints a human notice after the object.
+    // That is a pre-existing defect in the --json contract, worth its own fix
+    // rather than being smuggled into this one.
+    assert!(out.trim_start().starts_with('{'), "json run should still lead with the object:\n{out}");
 }

@@ -57,6 +57,12 @@ impl PackageManager {
         };
         let mut args = vec![subcommand.to_string()];
         args.extend(packages.iter().map(|package| package.to_string()));
+        // `--silent` is understood by all four managers and is what keeps the
+        // install from burying `add`'s own report: npm alone prints an audit
+        // summary, a funding notice and a blank line per invocation, twice per
+        // run. It suppresses progress only — errors still reach stderr, and a
+        // non-zero exit still becomes `CliError::Install`.
+        args.push("--silent".to_string());
         args
     }
 }

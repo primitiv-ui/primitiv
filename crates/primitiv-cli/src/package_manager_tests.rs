@@ -90,6 +90,7 @@ fn builds_an_add_argument_list_for_pnpm() {
             "add".to_string(),
             "@primitiv-ui/react".to_string(),
             "@primitiv-ui/icons".to_string(),
+            "--silent".to_string(),
         ]
     );
 }
@@ -98,6 +99,35 @@ fn builds_an_add_argument_list_for_pnpm() {
 fn builds_an_install_argument_list_for_npm() {
     assert_eq!(
         PackageManager::Npm.install_args(&["@primitiv-ui/react"]),
-        vec!["install".to_string(), "@primitiv-ui/react".to_string()]
+        vec![
+            "install".to_string(),
+            "@primitiv-ui/react".to_string(),
+            "--silent".to_string(),
+        ]
     );
+}
+
+/// Every manager is asked to install quietly. `add` prints its own account of
+/// what it did — the resolve plan and the "Wrote:" table — and a package
+/// manager's progress chatter buries that under a dozen lines about audits and
+/// funding. Errors are unaffected: they go to stderr and the non-zero exit
+/// still becomes a `CliError::Install`.
+#[test]
+fn installs_quietly_whichever_manager_is_detected() {
+    for manager in [
+        PackageManager::Npm,
+        PackageManager::Pnpm,
+        PackageManager::Yarn,
+        PackageManager::Bun,
+    ] {
+        let args = manager.install_args(&["@primitiv-ui/react"]);
+        assert!(
+            args.contains(&"--silent".to_string()),
+            "{} should install quietly, got {args:?}",
+            manager.program(),
+        );
+        // The flag goes last so it can never be read as the subcommand or as a
+        // package name.
+        assert_eq!(args.last().unwrap(), "--silent");
+    }
 }

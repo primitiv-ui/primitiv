@@ -238,7 +238,7 @@ pub fn add(
             let effective_format: Format = (*format)
                 .or_else(|| project_config.as_ref().map(|c| c.styles.format))
                 .unwrap_or(Format::Css);
-            copy_styled_surface(
+            let written = copy_styled_surface(
                 fs,
                 registry,
                 prompt,
@@ -251,6 +251,11 @@ pub fn add(
                 *force,
                 project_config.as_ref(),
             )?;
+            // JSON already describes the plan as data; this section is for the
+            // human run, which until now finished without ever naming a file.
+            if !*json && !written.is_empty() {
+                output.write_stdout(render_written(&written).as_bytes())?;
+            }
             if effective_format == Format::Tailwind {
                 offer_wiring(output, prompt, fs, interactive, *no_wiring, *json, &dir)?;
             }
@@ -450,25 +455,32 @@ fn copy_styled_surface(
     path: Option<&str>,
     force: bool,
     config: Option<&Config>,
-) -> Result<(), CliError> {
+) -> Result<Vec<(String, &'static str)>, CliError> {
     let lock_path = dir.join(lock::FILE_NAME);
     let mut lock = Lock::read(fs, &lock_path)?;
     let components_dir = detect::components_path(fs, dir)?
         .unwrap_or_else(|| DEFAULT_COMPONENTS_DIR.to_string());
     let files = planned_files(index, resolved, format, path, config, &components_dir);
     if files.is_empty() {
-        return Ok(());
+        return Ok(vec![]);
     }
     // Mark each resolved component (the requests plus their transitive deps,
     // whose surfaces also land) installed, so `list` can flag it (RFC 0005 §2.5).
     for name in resolved {
         lock.record_component(name);
     }
+    let mut written = Vec::with_capacity(files.len());
     for pf in &files {
-        copy_file(fs, registry, prompt, interactive, &mut lock, pf, force)?;
+        let label = copy_file(fs, registry, prompt, interactive, &mut lock, pf, force)?;
+        written.push((pf.dest.to_string_lossy().into_owned(), label));
     }
-    update_barrel(fs, &lock, Path::new(&components_dir))?;
-    lock.write(fs, &lock_path)
+    // The barrel is a file this command writes too, so a report that omits it
+    // is not a report of what was written.
+    if let Some(barrel) = update_barrel(fs, &lock, Path::new(&components_dir))? {
+        written.push((barrel, "updated"));
+    }
+    lock.write(fs, &lock_path)?;
+    Ok(written)
 }
 
 /// Enumerate every destination file the real copy would process — the same set
@@ -577,6 +589,17 @@ fn render_refresh_plan(files: &[(String, &str)]) -> String {
     out
 }
 
+/// Render the "Wrote:" section a real run ends on — the same column layout as
+/// the dry-run plan, so the two read as the same table before and after.
+fn render_written(files: &[(String, &str)]) -> String {
+    let width = files.iter().map(|(p, _)| p.len()).max().unwrap_or(0);
+    let mut out = "\nWrote:\n".to_string();
+    for (path, status) in files {
+        out.push_str(&format!("  {path:<width$}  {status}\n"));
+    }
+    out
+}
+
 /// Fetch one registry file and write it to `dest` — but only when the refresh
 /// rules say so (RFC 0005 §4.2). `force` always writes; otherwise a new or
 /// untouched file is written and its hash recorded, and a consumer-edited file is
@@ -591,7 +614,7 @@ fn copy_file(
     lock: &mut Lock,
     pf: &PlannedFile,
     force: bool,
-) -> Result<(), CliError> {
+) -> Result<&'static str, CliError> {
     let PlannedFile {
         name,
         file,
@@ -602,10 +625,14 @@ fn copy_file(
     let bytes = registry
         .file(name, file)
         .map_err(|error| CliError::Registry(error.to_string()))?;
+    // The classification is read BEFORE the write, because afterwards every
+    // file is `Unchanged` and the report would say "updated" about a file it
+    // had just created.
+    let refresh = lock.classify(fs, dest)?;
     let write = if force {
         true
     } else {
-        match lock.classify(fs, dest)? {
+        match refresh {
             Refresh::New | Refresh::Unchanged => true,
             Refresh::Edited if interactive => {
                 matches!(
@@ -628,7 +655,19 @@ fn copy_file(
         fs.write(dest, &final_bytes)?;
         lock.record(&dest.to_string_lossy(), &final_bytes);
     }
-    Ok(())
+    Ok(written_label(&refresh, write))
+}
+
+/// What happened to one destination, for the post-copy report. Past tense, and
+/// deliberately not the dry-run's labels: "refresh"/"overwrite"/"keep" describe
+/// what *would* happen, and a report of a completed run that reads like a plan
+/// is the thing this report exists to stop.
+fn written_label(refresh: &Refresh, wrote: bool) -> &'static str {
+    match (refresh, wrote) {
+        (Refresh::New, _) => "new",
+        (_, true) => "updated",
+        (_, false) => "kept",
+    }
 }
 
 /// Install the resolved components' headless package(s) with the project's
@@ -823,7 +862,7 @@ fn update_barrel(
     fs: &impl FileSystem,
     lock: &Lock,
     components_dir: &Path,
-) -> Result<(), CliError> {
+) -> Result<Option<String>, CliError> {
     let dir_prefix = format!(
         "{}/",
         components_dir.to_string_lossy().replace('\\', "/").trim_end_matches('/')
@@ -843,7 +882,7 @@ fn update_barrel(
         })
         .collect();
     if stems.is_empty() {
-        return Ok(());
+        return Ok(None);
     }
     stems.sort();
     stems.dedup();
@@ -851,6 +890,7 @@ fn update_barrel(
         .iter()
         .map(|stem| format!("export * from \"./{stem}\";\n"))
         .collect();
-    fs.write(&components_dir.join("index.ts"), content.as_bytes())
-        .map_err(CliError::Io)
+    let dest = components_dir.join("index.ts");
+    fs.write(&dest, content.as_bytes()).map_err(CliError::Io)?;
+    Ok(Some(dest.to_string_lossy().into_owned()))
 }

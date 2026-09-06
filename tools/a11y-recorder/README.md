@@ -102,6 +102,44 @@ hard way:
    the driver performed. Dropping the durations and assuming a fixed rate makes
    the whole sequence run fast and unevenly.
 
+## CODE-01 is recorded inside a real VS Code
+
+`scripts/record-code-01.mjs` drives an actual VS Code (code-server) over an
+actual project. The integrated terminal runs the real `primitiv add button`,
+which really writes the files on camera; the file that opens is the one the
+command just wrote; the edit is a real edit, saved to disk; and the preview
+beside it is a page linked to *that* file, so the button grows because the
+declaration changed. Nothing is staged except the decision to type.
+
+It needs `code-server` installed (npm, `--ignore-scripts`, then
+`npm install --omit=dev --ignore-scripts` inside `lib/vscode`, then a
+`node-gyp rebuild` of `@vscode/spdlog` and a symlink of the system `rg` into
+`@vscode/ripgrep/bin/`). The paths are at the top of the script.
+
+Five things cost a take each, and all five are invisible from the exception
+they produce:
+
+1. **A stale code-server holds its port**, and the browser then connects to
+   *that* instance — a different workspace, a different user-data-dir, and a
+   workbench that never matches what the script expects. The port is now
+   ephemeral so the collision cannot happen.
+2. **The terminal swallows Ctrl+P.** While the integrated terminal has focus VS
+   Code forwards it to the shell (bash reads it as previous-history), so
+   quick-open never opened. Ctrl+Shift+P is *not* forwarded, which is why the
+   palette still reaches VS Code from inside a terminal.
+3. **Quick-open needs ripgrep.** `@vscode/ripgrep`'s postinstall downloads its
+   binary from GitHub releases, which this environment blocks, so file search
+   silently returned nothing and Enter did nothing at all.
+4. **A webview eats keystrokes.** The Simple Browser is an iframe; while it has
+   focus the edit types into the preview page. Focus is claimed by keybinding
+   before each burst, and the preview is opened only after the terminal beat.
+5. **The obvious line to edit is the wrong one.** The base `.primitiv-button`
+   rule declares the padding, and the default `md` size class re-declares it
+   further down and wins. A take that edited the base rule looked perfect and
+   moved the button by exactly zero pixels — 262px wide before and after,
+   measured. The script now finds the declaration inside `.primitiv-button--md`
+   by search rather than by line number.
+
 ## What the recording found
 
 **The Select does not open on ArrowDown.** `SelectTrigger` is a plain

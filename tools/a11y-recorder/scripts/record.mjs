@@ -40,9 +40,14 @@ const FFMPEG =
 const VITE = join(ROOT, "..", "..", "packages", "react", "node_modules", ".bin", "vite");
 
 const args = Object.fromEntries(
-  process.argv.slice(2).flatMap((a, i, all) =>
-    a.startsWith("--") ? [[a.slice(2), all[i + 1]?.startsWith("--") ? true : all[i + 1]]] : [],
-  ),
+  process.argv.slice(2).flatMap((a, i, all) => {
+    if (!a.startsWith("--")) return [];
+    // A flag with nothing after it, or with another flag after it, is `true` —
+    // without the first case `--debug` at the end of the line parsed as
+    // `undefined` and silently did nothing.
+    const next = all[i + 1];
+    return [[a.slice(2), next === undefined || next.startsWith("--") ? true : next]];
+  }),
 );
 const theme = args.theme ?? "light";
 const density = args.density ?? "comfortable";

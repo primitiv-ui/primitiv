@@ -21,6 +21,7 @@ import "./scene.css";
 import { SCENES } from "./frames.mjs";
 import { Scene } from "./Scene";
 import { CodeOne } from "./CodeOne";
+import { CodePreview } from "./CodePreview";
 
 // Scene, frame, theme and density all come off the query string so one build
 // records every variant — `?theme=dark` is A11Y-01's fourth-commitment proof,
@@ -36,10 +37,14 @@ const frame = params.get("frame") ?? "desktop";
 root.dataset.scene = scene;
 root.dataset.frame = frame;
 
-const config = SCENES[scene].frames[frame as keyof (typeof SCENES)[typeof scene]["frames"]];
+const config = SCENES[scene]?.frames?.[frame as never];
 
 const app = document.getElementById("root")!;
-if (scene === "code-01") {
+if (scene === "code-01-preview") {
+  // Opened inside VS Code's Simple Browser during the CODE-01 recording, not
+  // recorded on its own.
+  createRoot(app).render(<CodePreview />);
+} else if (scene === "code-01") {
   createRoot(app).render(<CodeOne />);
 } else {
   const { size, controls, options, rowGap } = config;

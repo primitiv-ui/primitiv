@@ -247,3 +247,14 @@ body {
   font-size: var(--primitiv-font-size-14);
   color: var(--primitiv-content-muted);
 }
+
+/* The Simple Browser pane. Nothing but a centred stage — the surrounding chrome
+   is VS Code's, and this page is only ever seen inside it. */
+.preview-stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: var(--primitiv-space-space-24);
+  background: var(--primitiv-surface-default);
+}

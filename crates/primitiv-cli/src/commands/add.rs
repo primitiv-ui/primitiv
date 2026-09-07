@@ -479,8 +479,11 @@ fn copy_styled_surface(
     if let Some(barrel) = update_barrel(fs, &lock, Path::new(&components_dir))? {
         written.push((barrel, "updated"));
     }
-    lock.write(fs, &lock_path)?;
-    Ok(written)
+    // Deliberately a tail expression rather than `lock.write(...)?; Ok(written)`.
+    // The `?` form introduces an error region nothing exercises — this failure
+    // path had no region of its own before the report was added, and inventing
+    // an untested one to carry the same behaviour is how a 100% gate rots.
+    lock.write(fs, &lock_path).map(|()| written)
 }
 
 /// Enumerate every destination file the real copy would process — the same set

@@ -2891,8 +2891,10 @@ fn interactive_tailwind_stdout_error_on_not_found_snippet_surfaces_as_io() {
     let registry =
         InMemoryRegistry::new(WITH_TAILWIND_STYLES).with_file("button", "styles.css", b".p{}");
     let output = InMemoryOutput::new();
-    // Plan output is the first write; snippet is the second — fail the second
-    output.fail_stdout_after(1);
+    // Writes in order: the plan, the "Wrote:" table, then the snippet. Fail the
+    // third — these indices move whenever `add` gains a write, which is exactly
+    // what happened when the "Wrote:" table was added.
+    output.fail_stdout_after(2);
     let runner = InMemoryProcessRunner::new();
     let prompt = InMemoryPrompt::new(Decision::Keep);
 
@@ -2978,14 +2980,14 @@ fn interactive_tailwind_json_mode_skips_patch_when_entry_css_found() {
 #[test]
 fn interactive_tailwind_decline_stdout_error_surfaces_as_io() {
     // Drives the ? error path on write_stdout in patch_wiring's decline (else) branch.
-    // fail_stdout_after(1) lets the plan write succeed; the snippet write fails.
+    // The plan and the "Wrote:" table succeed; the snippet write is the third.
     let fs = InMemoryFs::new();
     fs.write(Path::new("primitiv.json"), CONFIG_TAILWIND).unwrap();
     fs.write(Path::new("src/index.css"), b"@import \"tailwindcss\";\n").unwrap();
     let registry =
         InMemoryRegistry::new(WITH_TAILWIND_STYLES).with_file("button", "styles.css", b".p{}");
     let output = InMemoryOutput::new();
-    output.fail_stdout_after(1);
+    output.fail_stdout_after(2);
     let runner = InMemoryProcessRunner::new();
     let prompt = InMemoryPrompt::new(Decision::Keep);
     prompt.deny_confirm();
@@ -3009,15 +3011,14 @@ fn interactive_tailwind_decline_stdout_error_surfaces_as_io() {
 
 #[test]
 fn no_wiring_stdout_error_surfaces_as_io() {
-    // Drives the error path of the write_stdout ? on line 218 in offer_wiring:
-    // no_wiring=true + json=false means the snippet write is the second write;
-    // fail_stdout_after(1) makes it fail.
+    // Drives the error path of the write_stdout ? in offer_wiring: no_wiring=true
+    // + json=false puts the snippet third, after the plan and the "Wrote:" table.
     let fs = InMemoryFs::new();
     fs.write(Path::new("primitiv.json"), CONFIG_TAILWIND).unwrap();
     let registry =
         InMemoryRegistry::new(WITH_TAILWIND_STYLES).with_file("button", "styles.css", b".p{}");
     let output = InMemoryOutput::new();
-    output.fail_stdout_after(1);
+    output.fail_stdout_after(2);
     let runner = InMemoryProcessRunner::new();
     let prompt = InMemoryPrompt::new(Decision::Keep);
 
@@ -3231,8 +3232,12 @@ fn add_surfaces_a_stdout_failure_when_generating_token_notice() {
     let registry =
         InMemoryRegistry::new(WITH_STYLES).with_file("button", "styles.css", b".primitiv-button{}");
     let output = InMemoryOutput::new();
-    // The plan write succeeds; the token notice write is the second write — fail it.
-    output.fail_stdout_after(1);
+    // The plan and the "Wrote:" table succeed; the token notice is the third
+    // write. This index is why the coverage gate caught the "Wrote:" table
+    // landing ahead of it: the injected failure hit the new write instead, the
+    // test still passed (both are Io errors), and `ensure_tokens`'s own ? went
+    // uncovered.
+    output.fail_stdout_after(2);
     let runner = InMemoryProcessRunner::new();
     let prompt = InMemoryPrompt::new(Decision::Keep);
 
@@ -3954,4 +3959,38 @@ fn the_written_report_is_suppressed_under_json() {
     // That is a pre-existing defect in the --json contract, worth its own fix
     // rather than being smuggled into this one.
     assert!(out.trim_start().starts_with('{'), "json run should still lead with the object:\n{out}");
+}
+
+/// The "Wrote:" report writes to stdout like every other section, so it has the
+/// same failure to answer for. Every sibling `write_stdout` in `add` — the plan,
+/// the refresh plan, the wiring snippet, the token notice — carries a test for
+/// its `?`; without this one the report's would be the only error path in the
+/// command with no test behind it.
+#[test]
+fn add_surfaces_a_stdout_failure_writing_the_written_report() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("primitiv.json"), CONFIG).unwrap();
+    let registry =
+        InMemoryRegistry::new(WITH_STYLES).with_file("button", "styles.css", b".primitiv-button{}");
+    let output = InMemoryOutput::new();
+    // The plan write succeeds; the report is the second write.
+    output.fail_stdout_after(1);
+    let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
+
+    let err = add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["button"]),
+            ..Default::default()
+        },
+    )
+    .unwrap_err();
+
+    assert!(matches!(err, CliError::Io(_)), "expected an Io error, got {err:?}");
 }

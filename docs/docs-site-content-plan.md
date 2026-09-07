@@ -755,11 +755,11 @@ to 70+ pages.
 | 4 | Review the home copy | §7.1 is closed, so this is a read-through rather than a decision gate |
 | 5 | **Figma: the home page design, with the ten briefs as deliberate gaps** | ✅ **done 2026-09-03** — page "Docs Site — Home (v3)". See §5.2 |
 | 6 | Fable fills the ten gaps from the briefs | The gaps are already sized and labelled in place |
-| 7 | Figma: the prose page template | Rule 9. Unblocks step 8, and nine pages get invented ad hoc without it |
+| 7 | Figma: the prose page template | ✅ **done 2026-09-07** — settled as the shared shell of the eight content pages rather than a separate specimen frame (§6.0.4), so the template and its first use are the same artefact and cannot drift apart |
 | 8 | Build the home page in code | |
 | 9a | Copy + briefs for eight of the nine content pages | ✅ **done** — Start Here, the five Concepts pages, Registry & CLI, Figma |
 | 9b | Harmoni page copy | Blocked on §7.5 — what a public page may say about a commercial product in a private repo |
-| 9c | Artwork for the ten content-page briefs, then build the pages | After the home page proves the pipeline |
+| 9c | Artwork for the ten content-page briefs, then build the pages | **Pages built 2026-09-07** — all eight, both breakpoints, with the ten briefs in place as gaps (§6.0.4). The artwork itself is the remaining half |
 | 10 | Remove the Guides + Changelog nav entries | Do it with step 8 so no link is ever dead |
 | 11 | Rewrite 63 `contract.json` ledes + mirror to the Figma descriptions | No tooling needed (§4.4). Runs in parallel from step 4 |
 | 12 | Build the `whenToUse` field (§4.4) and add it to the 42 existing pages | Small build, then a 42-item authoring pass |
@@ -979,6 +979,108 @@ them. Resize the row to its tallest child, keep it `FIXED`, then set every
 card to `layoutSizingVertical = "FILL"` — that is the counter-axis case, and
 it is the *opposite* of the primary-axis trap above. Equal-height cards need
 a fixed row; a hugging row cannot give them one.
+
+---
+
+### 6.0.4 The eight content pages, both breakpoints (2026-09-07)
+
+Built on a new Figma page, **"Docs Site — Content pages (v3)"** — sixteen
+frames in eight rows, mobile (390) at `x=0` and desktop (1440) at `x=480`,
+with a **Build notes** panel at `x=2000` carrying the conventions in canvas.
+
+| Page | Route | Gaps |
+| --- | --- | --- |
+| Start Here | `/start-here` | START-01 |
+| What Primitiv is | `/concepts/what-primitiv-is` | FAMILY-01 |
+| Tokens and theming | `/concepts/tokens` | TOKENS-01 |
+| Density | `/concepts/density` | DENSITY-C01, DENSITY-C02 |
+| Composition | `/concepts/composition` | COMPOSE-01 |
+| Accessibility | `/concepts/accessibility` | A11Y-C01 |
+| The registry and CLI | `/registry-cli` | CLI-01 |
+| Design in Figma | `/figma` | FIGMA-P01, FIGMA-P02 |
+
+**A page is data.** `scripts/figma/docs-content-pages.js` holds a `PAGES`
+object — eyebrow, title, lede, and a list of sections whose blocks are short
+tuples (`['p', text, inlineCodeFragments?]`, `['code', …]`, `['alert', tone,
+…]`, `['gap', id, …]`, `['defs', …]`) — and a renderer that turns any of it
+into both breakpoints. Adding or editing a page means editing its entry, not
+the renderer: `build(['tokens'])` rebuilds one page, `build(ALL)` rebuilds
+every one, and `sizeGaps()` / `layout()` / `overflowAudit()` finish the job.
+
+**The data is checked against the canvas rather than trusted.**
+`scripts/figma/verify-docs-content-pages.mjs` reduces both sides to a
+whitespace-stripped fingerprint per page and diffs them — necessary because a
+paragraph with inline code is one string in the spec and a run of per-word text
+nodes on the canvas, so they cannot be compared directly. It found two
+divergences on its first run: one artefact of the checker itself, and one real
+— the three token formats read as lowercase sentence fragments (`custom
+properties. The default…`), because the copy doc writes them as em-dash
+continuations on one line and this layout puts the term on its own line. The
+canvas now capitalises them and all eight pages match.
+
+**Mobile first, desktop derived — and that ordering is load-bearing.** Each
+desktop frame clones its mobile sections into the docs shell, so the copy
+cannot diverge between breakpoints; rebuilding a page means rebuilding its
+mobile frame and re-deriving. It also sidesteps the failure §6.0 recorded in
+the other direction: a desktop footer cloned down to 390 kept heights that
+clipped its own columns, and three rounds of forcing `primaryAxisSizingMode`
+did not clear it.
+
+**These are docs pages, not landing pages, and the geometry says so.** The home
+page is one column with 120px gutters and alternating section grounds. A
+content page uses the shell `apps/docs-site/src/site/shell.css` already
+implements: a 1280 container in 1440, 32px gutters, **260 / 632 / 260**, one
+continuous `surface/default` ground. Mobile is that column at 24px gutters with
+no rails — which is `shell.css` again, since it hides both below 64rem. What
+*is* carried over from the home page is everything that makes them one site:
+the cloned header and footer, the type roles, the Intent/Context binding
+discipline, the `flow · *` rhythm frames and the dashed gap frames.
+
+**Inline code is a real `Inline Code` instance, and getting there needed a
+technique.** A Figma text node cannot contain a component, so a paragraph with
+inline code became a wrapping horizontal auto-layout of word nodes with chips
+among them. Two details cost a rebuild. An auto-width text node **trims its
+trailing space**, so a first pass rendered "Yougetthekeyboardhandling" — spacing
+has to be `itemSpacing`, set to the *measured* space advance of `body/md`
+rather than a guess. And uniform `itemSpacing` then puts a gap between a chip
+and the full stop after it, so atoms with no space between them share one
+zero-gap group, which is a single flex item. The source string is stored on the
+frame's `pluginData`, so a paragraph can be rebuilt without retyping it.
+
+**Code blocks sit in a centred well on desktop** (`space/space-48` either
+side), settled with the human after three readings of "centred" were measured
+and rejected — the block's internal padding was intact and the main column was
+already page-centred. Inside a half-width paired column they step to `Size=xs`,
+or the line wraps.
+
+**Three briefs specify half the content width beside their prose**
+(DENSITY-C02, COMPOSE-01, FIGMA-P02). On desktop the gap and the blocks above
+it are wrapped into a two-column row; on mobile they stay stacked, which is
+what those briefs' `below-48rem` notes ask for.
+
+**Two publication gates are drawn into the pages, not left in a doc.**
+Accessibility carries a warning `Alert` at the top (it must not ship before the
+deferred accessibility pass runs), and Tokens and theming carries one on the
+standard-ramps block (planned, not shipped). Design in Figma carries a third on
+§6's open question — whether the standard ramps belong in the Figma file at
+all — because "the same tokens as the code" is a claim that page makes.
+
+**One shared master was repaired on the way.** `Alert`'s **`Show dismiss`
+boolean was wired to nothing on all 20 variants** — the property existed, the
+panel accepted a value, and the dismiss control rendered regardless. The
+`Dismiss` frame now carries the `visible` reference on every variant, verified
+20/20. Same family as `CLAUDE.md` gotcha 4, except this one had never been
+wired rather than losing its refs to a clone, so it affected every Alert in the
+file.
+
+**Two traps worth keeping.** A gap re-parented into a wider column **does not
+reflow within the same `figma_execute` call**, so its first resize lands
+against the old content height — size it in a second call (the same
+measure-in-the-next-call rule the density panel hit in §6.0). And a **hidden
+node keeps its master width**: a Code Block header hidden by `Show Header`
+still reads 440 wide inside a 632 instance, which is a benign hit in any
+overflow audit, so that audit must skip invisible children. The overflow audit
+across all sixteen frames returns zero.
 
 ---
 

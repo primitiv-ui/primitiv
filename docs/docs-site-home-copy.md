@@ -1283,6 +1283,82 @@ craft-notes:
     Frame the crop to keep it.
 ```
 
+> **BUILT 2026-09-07**, both themes, 3600x1800 (3x), at
+> `apps/docs-site/public/illustrations/figma-01-{light,dark}.png`. The composite
+> is a real page — `tools/a11y-recorder/src/FigmaOne.tsx`, scene
+> `figma-01-composite` — so the token band is set in the real mono face at real
+> token colours, and the right-hand half is not an image at all but the live
+> registry Button.
+>
+> **Only the Figma half needs a human, and that is a hard limit.** Both bridge
+> screenshot tools (`figma_capture_screenshot`, `get_screenshot`) export canvas
+> NODES through `exportAsync`: they render the design, never the application. No
+> properties panel, no layers panel, no selection outline, no toolbar. Since the
+> brief's most convincing detail lives in the properties panel, that half can
+> only come from a screenshot taken on a real machine. Budget for it in any
+> future image of this kind.
+>
+> **Four md/default Buttons, and a specimen was built to hold them.** The
+> component set arranges variants ~1,167px apart on the x axis, so no crop of it
+> shows four together, and the existing `section-Variants` row in
+> `Button Examples - Light` is a 562x67 strip that will not compose into a tall
+> zone. `FIGMA-01 specimen — Light` (`2222:24532`) and `— Dark` (`2222:24559`)
+> on page **Button** are the answer: real instances, real bindings, 170x272,
+> Context pinned Comfortable and — on the dark twin — Intent pinned Dark with
+> **Primitives/Palette left on Light**, per the file's standing rule.
+>
+> **`link` is deliberately not one of the four.** It is the one variant that is
+> not a framed control — measured, `Size=md, State=default` is 74x28 where the
+> others are 106x40 — with no fill, no border and no radius. Two of the band's
+> three tokens are `framed-control/md/height` and the radius, and a hairline
+> claiming those over a strip containing a 28px-tall exception argues against
+> itself. Parity holds for `link` too; it would just be harder to read.
+>
+> **The parity was verified before anything was composited, and it holds
+> exactly**: `action/primary/default` `#236ce1` on both sides,
+> `action/secondary/default` `#e5ecf6`, `action/danger/default` `#db2424`,
+> height 40px / `2.5rem`, radius 8px / `0.5rem`. Worth doing in that order — had
+> they disagreed, the honest move would have been to fix the file rather than
+> publish the image.
+>
+> **Dark is safe here only because the buttons are in their DEFAULT state.**
+> `action/primary/default` aliases `color/brand/500`, which is pinned to the seed
+> and therefore identical in both themes. `docs/dark-intent-figma-drift.md`
+> records that Figma's dark `action/primary/hover` runs the OPPOSITE direction
+> from the code (`#86b3fb` against `#053a8a`); a hover state in the dark variant
+> would make the two halves genuinely disagree. Never add one.
+>
+> **The screenshots arrive as Display P3 and must be converted, or the image
+> refutes itself.** A macOS screenshot is P3-tagged, so the `#236ce1` the file
+> stores comes out of the PNG as `(57, 107, 217)` — pasted beside an sRGB render
+> it is visibly a different blue, in the one image whose whole claim is that the
+> two cannot disagree about a colour. Worse, it would read as token drift.
+> `tools/a11y-recorder/scripts/p3-to-srgb.py` does the conversion and
+> self-checks: `--expect 236ce1` asserts the button lands back within one unit,
+> so a wrong profile guess fails loudly instead of shifting everything slightly.
+>
+> **Scale is arithmetic, not judgement — and it is measured on the output.** The
+> shot was taken at 163% zoom on a 2x display, which put the 40px button at 129
+> device px (found by locating the brand-blue region, not by eye). The crop is
+> scaled `SIZE / 129` and the live half by `SIZE / 40`, and both halves are
+> placed so their primary buttons share a baseline rather than being centred
+> independently. In the delivered 3x files the primary button measures
+> **263x99 at y=582 on the Figma side and 266x98 at y=582 on the browser side** —
+> same size, same baseline. `SIZE` itself is bounded: at 38 the panel's `H 40`
+> field fell off the crop's right edge, and that field is the proof for one of
+> the three tokens the band names.
+>
+> **The band is 40/20/40, not 45/10/45.** The equal outer zones are the
+> load-bearing half of the brief's proportions; the band's 10% is not. At 120px
+> it cannot hold `framed-control/md/height` in 12px mono and still leave room
+> for the hairlines that make it read as a spine rather than a caption.
+>
+> **Open, and the one thing worth a second shot:** the dark variant shows
+> Figma's LIGHT application UI (a pale slab on a dark page) because the app's
+> theme is independent of the design's. It is honest — it is what a designer
+> actually sees — but it costs the dark composite its symmetry. Re-shooting the
+> dark half with Figma's own UI set to dark would fix it.
+
 **Second block — the honest caveat** — `body/md`:
 
 > Two things the design file cannot match exactly, and it is better to

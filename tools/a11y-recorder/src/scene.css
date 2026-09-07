@@ -258,3 +258,15 @@ body {
   padding: var(--primitiv-space-space-24);
   background: var(--primitiv-surface-default);
 }
+
+/* FIGMA-01's browser half. These numbers mirror the Figma specimen frame
+   exactly — 32px padding, 16px gap, hugging both axes — because the parity
+   claim is checked by laying the two renders side by side. */
+.parity-stage {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--primitiv-space-space-16);
+  padding: var(--primitiv-space-space-32);
+  background: var(--primitiv-surface-default);
+}

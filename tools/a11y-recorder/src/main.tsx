@@ -22,6 +22,7 @@ import { SCENES } from "./frames.mjs";
 import { Scene } from "./Scene";
 import { CodeOne } from "./CodeOne";
 import { CodePreview } from "./CodePreview";
+import { FigmaParity } from "./FigmaParity";
 
 // Scene, frame, theme and density all come off the query string so one build
 // records every variant — `?theme=dark` is A11Y-01's fourth-commitment proof,
@@ -40,7 +41,9 @@ root.dataset.frame = frame;
 const config = SCENES[scene]?.frames?.[frame as never];
 
 const app = document.getElementById("root")!;
-if (scene === "code-01-preview") {
+if (scene === "figma-01") {
+  createRoot(app).render(<FigmaParity />);
+} else if (scene === "code-01-preview") {
   // Opened inside VS Code's Simple Browser during the CODE-01 recording, not
   // recorded on its own.
   createRoot(app).render(<CodePreview />);

@@ -1226,6 +1226,37 @@ concept, not a specimen sheet. FIGMA-P02's variable swatch is bound to
 `action/primary/default` rather than filled with a literal, so the chip shows
 the colour the token actually resolves to.
 
+**TOKENS-01's palette row is labelled `dark theme`, and the reason is worth
+keeping.** The dark ramp runs **deep → pale** — the opposite of the
+conventional 50–900 reading — which looks like a mistake until you see why:
+
+```
+brand  light   50 #f0f5ff   500 #236ce1   900 #000923
+brand  dark    50 #121922   500 #236ce1   900 #e1ecfe
+```
+
+`dark.content.primary` points at `{color.neutral.900}`, exactly as the light
+theme does. **Body text is step 900 in both modes; the ramp inverts underneath
+it.** That inversion is what lets one Intent name serve both themes — without
+it every role would need a different step per mode and "same name, two modes"
+collapses, which is the precise property this diagram exists to teach. So the
+surprise is the point, and it only reads as an error while unlabelled.
+
+**Consequence for shipping: the light twin will run the other way**, and that
+is correct rather than a bug to reconcile. The brief anticipated this — its
+craft note calls the dark version resolving to different values "the clearest
+possible demonstration of why the middle tier exists" — but assumed both
+versions would be seen. Only the dark one exists today because the Figma
+content pages are dark-only.
+
+**A gap this surfaces, logged rather than fixed:** the docs site has a theme
+toggle, and the home-page illustrations already ship as light/dark pairs
+(`a11y-01-*-light.mp4` / `-dark.mp4`, `figma-01-light.png` / `-dark.png`).
+**All ten content-page illustrations will need light twins before they ship.**
+TOKENS-01 is the one where the twin is not a recolour — its palette row has to
+be regenerated against the light ramp, which is exactly what the brief asked
+for.
+
 **One inconsistency left deliberately.** COMPOSE-01 uses `href="/x"` (its
 brief's string) while the code block beside it on the page uses
 `href="/pricing"` (the page copy's string), so the same example reads with two

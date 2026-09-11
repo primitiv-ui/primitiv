@@ -74,11 +74,17 @@ status, summary, and decision record; this page is the index.
   and rendered, the way hue already was. Step 4 then capped chroma **in OkLCH at
   constant lightness and hue** instead of letting per-channel clipping absorb it,
   which collapsed rendered hue drift from 33.4°/31.2° to under 6° on every ramp
-  and unlocked a hue-span gate the RFC could not write. **Step 5 (regenerate) is
-  blocked**: the fix unmasked a second defect — the light palette *shifts* its
-  lightness curve where the dark palette *anchors* it, so any seed lighter than
-  ~0.60 collides steps at the 0.99 ceiling (`warning` renders three identical
-  near-whites). See the RFC's §11 and §12.
+  and unlocked a hue-span gate the RFC could not write. That fix first unmasked a
+  second defect — the light palette *shifted* its lightness curve where the dark
+  palette *anchored* it, so any seed lighter than ~0.60 collided steps at the
+  0.99 ceiling (`warning` rendered three identical near-whites) — now closed by
+  a shared `anchored_lightness` helper serving both halves. **Step 5 is
+  done**: `palette.json`, all three emitted token layers and the Figma
+  `Primitives / Palette` variables are in lockstep, 83 of 100 steps changed and
+  the same split on both sides (§12.4). Step 6 added
+  `readable_step` and pinned the three hand-picked Intent roles to it (§13);
+  step 7 put `RampFeedback` under the brand picker (§14). Only §7's
+  Intent-layer consumption remains open. See the RFC's §11–§14.
 
 - **0031** — OkLCH-first token output: colour leaves the token layer as CSS
   `oklch()` rather than hex, in the sources as well as the emitted output,

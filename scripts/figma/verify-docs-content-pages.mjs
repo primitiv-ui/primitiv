@@ -51,7 +51,10 @@ const stringsFor = (spec) => {
       else if (kind === 'block') strings.push(b[1], b[2]);
       else if (kind === 'code') strings.push(b[1]);
       else if (kind === 'alert') strings.push(b[2]);
-      else if (kind === 'gap') strings.push(b[1], b[3], b[4]);
+      // A gap is either still a placeholder or already replaced by its
+      // illustration; either way its text is not prose. Skipped on the
+      // canvas side too — see `fingerprint`'s IS_ILLUSTRATION.
+      else if (kind === 'gap') continue;
       else if (kind === 'defs' || kind === 'doors') for (const [t, d] of b[1]) strings.push(t, d);
       else if (kind === 'flags') {
         strings.push('Useful flags:');

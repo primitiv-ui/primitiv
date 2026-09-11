@@ -1020,9 +1020,14 @@ async function fingerprint() {
   const page = await figma.getNodeByIdAsync(PAGE_ID);
   await page.loadAsync();
   const out = {};
+  // A placed illustration replaces its gap frame, so both carry text the other
+  // side of the comparison does not — the fingerprint is about prose. Matches
+  // `⟦ ILLUSTRATION GAP · X ⟧` and the bare `START-01` / `A11Y-C01` ids.
+  const IS_ILLUSTRATION = /^(?:⟦ ILLUSTRATION GAP|[A-Z0-9]+(?:-[A-Z0-9]+)+$)/;
   for (const root of page.children.filter((c) => / — mobile$/.test(c.name))) {
     const strings = [];
     const walk = (n) => {
+      if (IS_ILLUSTRATION.test(n.name)) return;
       if (n.type === 'INSTANCE') {
         const cp = n.componentProperties || {};
         if (cp['Code#612:474']) { strings.push(cp['Code#612:474'].value); return; }

@@ -1137,6 +1137,33 @@ immediately — it caught the closing sentence sitting on top of "Updates
 normally." on the mobile frame, which reading node properties had missed and
 which I would otherwise have shipped.
 
+**FAMILY-01 and TOKENS-01 followed (same day).** Four of ten placed; START-01,
+DENSITY-C01, DENSITY-C02, COMPOSE-01, FIGMA-P01 and FIGMA-P02 remain.
+
+**TOKENS-01 pins `Primitives / Palette` to Dark on one frame, and that
+contradicts the house rule on purpose.** The rule exists because an Intent
+alias resolved through the dark ramp renders near-black text on a near-black
+surface. It does not apply to a node bound *directly* to `color/brand/*` with
+no Intent-coloured text inside it — which is exactly what the swatch row is,
+and why it is its own frame with the pin on it and every label outside. The
+payoff is that the ramp shown is the one dark mode actually renders: `500`
+holds at `#236ce1` because it is the pinned seed, and every other step
+inverts. The brief called that "the clearest possible demonstration of why the
+middle tier exists", and showing the light ramp on a dark page would have made
+the diagram quietly untrue.
+
+Two more deviations, both recorded rather than hidden:
+
+- **TOKENS-01 mobile drops the Context leader.** Stacked, Context moves to its
+  own row beneath the palette, so a leader to the button's geometry would run
+  the height of the diagram past everything it is not about. The row keeps its
+  `CONTEXT` label; the line goes.
+- **Both TOKENS-01 breakpoints draw two connectors but highlight one.** The
+  brief's `must-not` forbids highlighting more than one path, while its
+  `contents` asks for a second connector from `content/on-action`. Those are
+  reconcilable and the craft note says so: the second path is drawn quiet. It
+  is what makes "a component is a set of roles" concrete.
+
 **A placed illustration carries no fill of its own.** The build-page source
 keeps a `surface/default` fill so it reads in isolation; the clones on the
 pages have it cleared, so a section that later sits on a tinted band does not

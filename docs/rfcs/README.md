@@ -20,6 +20,7 @@ status, summary, and decision record; this page is the index.
 | [0017](0017-elevation-and-shadow-tokens.md) | Elevation & shadow tokens | Draft — in progress |
 | [0025](0025-responsive-breakpoints.md) | Responsive breakpoints | Web landed; Figma sync pending |
 | [0027](0027-ramp-quality-and-generation-feedback.md) | Ramp quality metrics & generation feedback | Steps 1–3 landed; 4–7 open |
+| [0031](0031-oklch-first-token-output.md) | OkLCH-first token output | Accepted — not yet built |
 
 - **0001** — the six-pattern layered token stack (primitives → intent → role →
   anatomy → interaction → component), the contexts model, and the Button worked
@@ -78,6 +79,23 @@ status, summary, and decision record; this page is the index.
   lightness curve where the dark palette *anchors* it, so any seed lighter than
   ~0.60 collides steps at the 0.99 ceiling (`warning` renders three identical
   near-whites). See the RFC's §11 and §12.
+
+- **0031** — OkLCH-first token output: colour leaves the token layer as CSS
+  `oklch()` rather than hex, in the sources as well as the emitted output,
+  because hex is a lossy render of what the engine already computed in L, C and
+  H. Three things are already true and stop it looking like a rewrite —
+  `ColorInput::Css` parses `oklch()` today (so `theme --brand "oklch(...)"`
+  works), `format_oklch` already fixes the notation, and the emitter never
+  parses colour at all (its own tests use an `oklch()` fixture). Measured blast
+  radius is 190 generated values in `palette.json`, 5 hand-held ones across
+  `intent.json`/`elevation.json`, and 5 of 26 goldens; everything else is an
+  alias and follows for free. One real casualty: `dark-mode-content.test.ts`
+  parses hex byte-wise, and needs re-pointing at `L` — which is simpler than
+  the sRGB luminance maths it replaces, and does not reintroduce a second
+  contrast implementation (the floors stay in Rust, per 0027 §6). Flags the
+  achromatic-hue wart to settle first (`#ffffff` → `oklch(1 0 90)`, a
+  meaningless hue on every neutral end) and the Figma cross-check losing
+  string comparability once the repo holds OkLCH and Figma holds RGB.
 
 ## Consumption layer
 

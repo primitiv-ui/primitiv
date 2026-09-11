@@ -1266,6 +1266,44 @@ being scannable. Worth a look if it reads as two examples rather than one.
 
 ---
 
+### 6.0.7 Two findings from preparing DENSITY-C01 (2026-09-11)
+
+DENSITY-C01 prints "the md control height and the resulting corner radius,
+real values from the token layer" beneath each of its four columns, so those
+values were read from the source before drawing anything. Both findings come
+from that read.
+
+**1. The radius formula the Density page states is not what ships.** §4 "Why
+radius follows" gives `radius = height × 0.1875` and says "that fraction is
+fixed across the whole system". Against `context.json`:
+
+| mode | md height | radius shipped | height × 0.1875 |
+| --- | --- | --- | --- |
+| Dense | 24 | 4 | 4.5 |
+| Compact | 32 | 6 | **6.0 — exact** |
+| Comfortable | 40 | 8 | 7.5 |
+| Spacious | 48 | **8** | 9.0 |
+
+The derivation is real, but the result is **snapped to the radii scale**, which
+runs `… 4, 6, 8, 10 …` with no 9. Dense and Comfortable round to a neighbouring
+step; Spacious lands exactly between 8 and 10 and the tie breaks downward, so
+it ships the *same* radius as Comfortable despite being 8px taller.
+
+This matters because **DENSITY-C01 puts both numbers side by side directly
+beneath the prose that states the formula**, so a reader who does the
+arithmetic finds 48 × 0.1875 = 9 and reads 8. The copy needs one qualifying
+clause — the fraction snapped to the nearest step on the radius scale — rather
+than the diagram hiding the numbers. Not changed here: the copy doc owns its
+own words.
+
+**2. Spacious and Comfortable are visually identical at the corner.** Whether
+that is intended or a gap in the scale is a token question, not a copy one.
+Worth a look before the density page publishes, because a reader comparing the
+two columns in this very diagram will see two different heights and one
+radius.
+
+---
+
 ## 6.1 A finding logged while verifying copy
 
 **`README.md` has drifted from the repository it describes.** Verifying

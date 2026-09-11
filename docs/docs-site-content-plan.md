@@ -467,14 +467,12 @@ footer's DESIGN column, and a `Harmoni →` link closing §6 of
 `/figma` — and a link to a page that will not exist is the exact defect
 D3's reasoning exists to prevent.
 
-**Removed from the page spec; NOT YET removed from the Figma frames.** The
-bridge dropped before that pass ran, so the spec and the canvas disagree by
-exactly these strings and `verify-docs-content-pages.mjs` will report
-`Design in Figma` as divergent until it lands. The canvas work is: the
-sidebar entry on the eight desktop frames, the `Harmoni →` link on both
-`/figma` frames, and the footer's DESIGN-column entry — which is eighteen
-edits, because the footer is cloned onto every content frame and both home
-frames.
+**Gone from the page spec and from the Figma frames** — 28 nodes in total,
+which is more than it sounds: the sidebar entry on each of the eight desktop
+frames, the `Harmoni →` closing §6 on both `/figma` frames, and the footer's
+DESIGN-column entry on all sixteen content frames *plus* both home frames,
+because the footer is cloned rather than shared. `verify-docs-content-pages.mjs`
+is green across all eight pages.
 
 **Naming the engine in prose stays, and has to.** `/concepts/what-primitiv-is`
 introduces Harmoni as one of the four parts, `/figma` §6 explains that the

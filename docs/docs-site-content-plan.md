@@ -1408,6 +1408,113 @@ radius.
 
 ---
 
+### 6.0.8 The last three illustrations, and four scripting traps (2026-09-11)
+
+**All ten illustrations are placed, both breakpoints each. Zero gaps remain**
+on `Docs Site — Content pages (v3)`, and the overflow audit over all sixteen
+content frames returns 32 flags of exactly one kind — `Tabs / Trigger >
+indicator`, the tab underline sitting on its parent's bottom edge outside the
+padding box, which is by design. Nothing else escapes a padding box anywhere.
+
+**The Harmoni canvas removal was already done.** It had been carried as an
+outstanding item since the bridge died two sessions ago, and it was stale: a
+scan of every text node in the file found the docs-site pages carry Harmoni
+only as prose naming the engine (the four-parts list on
+`/concepts/what-primitiv-is`, the palette-scales line on `/concepts/tokens`,
+and `/figma` §6's two paragraphs), which stays. The sidebar reads `DESIGN IN
+FIGMA › The library` and the footer's DESIGN column reads `Figma library ·
+Card marks`; there is no `Harmoni →` link closing §6. The eight pages were
+built *after* the spec change, so they came out correct and never needed
+retro-editing.
+
+**START-01** (632×164 · 342×408) — three parallel routes, each a question
+resolving to a path name and one command: *Already styled? → Headless → `npm i
+@primitiv-ui/react`*, *Want it to look finished? → Styled → `primitiv add
+button`*, *Designing, not building? → Figma → Open the Figma library*. The
+third route's chip carries **prose, not mono, deliberately**: that route has
+no terminal command, and changing the type tells the truth about the
+difference rather than inventing a command to keep the columns matching.
+
+**FIGMA-P01** (632×396 · 342×267) — a genuine screenshot, supplied by the
+human, of the Button set as its full variant grid with the layers panel left
+and variant properties right. Two things worth keeping:
+- **Its natural ratio is 1.95:1, not the 16:10 the brief assumed**, so the
+  desktop frame is 632×396 rather than 632×395 — which lands on the brief's
+  height by coincidence once the caption is included. Cropping a genuine
+  screenshot to hit a number written before the content existed would have
+  been the wrong trade; same finding as §6.0.6.
+- The caption states **125 Button variants from three axes**, and that was
+  *counted* off the live component set (Variant 5 × Size 5 × State 5 = 125),
+  not assumed. A caption that quotes a number has to be checked.
+- **Figma's upload endpoint is unreachable from the sandbox** — `mcp.figma.com`
+  returns 403 at CONNECT under the network policy, so `upload_assets` cannot
+  be used. The alternatives are a human dragging the file in (what happened)
+  or emitting ~150,000 characters of base64 through the bridge. Assume image
+  work needs a human hand.
+
+**DENSITY-C01** (632×358 · 342×592) — the same panel at all four densities,
+four columns on desktop and 2×2 on mobile, each column stating its own
+measured geometry (`24px · r4` / `32px · r6` / `40px · r8` / `48px · r8`).
+The columns are top-aligned so their differing heights are themselves the
+message. Values were resolved from the Context collection per mode rather
+than assumed, which extends §6.0.7's table:
+
+| mode | fc height | fc radius | fc padding-inline | body font-size | body line-height | cell padding-block |
+| --- | --- | --- | --- | --- | --- | --- |
+| Dense | 24 | 4 | 8 | 12 | 16 | 4 |
+| Compact | 32 | 6 | 12 | 16 | 24 | 8 |
+| Comfortable | 40 | 8 | 16 | 16 | 24 | 12 |
+| Spacious | 48 | 8 | 20 | 16 | 28 | 16 |
+
+**`body/md/font-size` is 16 in three of the four modes — only Dense drops to
+12.** Density is carried by *spacing and line-height*, not by body type size;
+`label/md/font-size` is the family that really scales (12/16/18/20). That is
+worth knowing before writing any copy that claims text gets bigger, and it
+is why the illustration's columns deliberately share one label size: identical
+content, geometry alone changing, is the honest reading of the system.
+
+**COMPOSE-01's `<a>` labels were not centred** — caught by the human on a
+render, not by any check. The DOM-tree pills and their code labels are flat
+siblings, not parent and child, so nothing enforced the relationship and the
+labels were placed with an eyeballed `+5` offset. Fixed by giving each label
+a box the size of the row it occupies and `textAlignVertical: 'CENTER'`, so
+centring is derived rather than guessed; the `<button>` box gets only the band
+above its nested pill. Applied to all four copies — both sources and both
+placements.
+
+#### Four scripting traps this cost, all silent
+
+1. **A text node's height does not settle inside the call that set its
+   `characters`.** Reading `height` immediately afterwards returns the old
+   value, so anything positioned beneath it lands against a stale
+   measurement — START-01's first question wrapped to two lines and
+   overlapped its heading while the node still reported 18px. Set the
+   characters in one call, measure and re-flow in the next. Same family as
+   the re-parented-frame trap.
+2. **`resize()` silently clears `textAutoResize`.** Arming auto-height
+   *before* resizing loses it, which is what let the overflow above go
+   unmeasured. Arm it *after* the resize — the text-node sibling of the
+   known `primaryAxisSizingMode` trap.
+3. **`setBoundVariableForPaint` does not recompute the paint's literal
+   colour.** Whatever literal you hand it is what renders; the binding is
+   metadata. A helper that passed black every time rendered every node black
+   on a dark frame and every freshly-created frame white on the first pass.
+   Resolve the variable for the active modes — walking the alias chain, with
+   Intent pinned Dark and Palette left on Light per the house rule — and set
+   the literal to the resolved value. This sharpens gotcha 3 from "re-set the
+   non-colour fields" to "re-set the colour too".
+4. **A cloned text template carries its `rotation` and both alignments.**
+   All four DENSITY-C01 mode names came through rotated 90° and hanging above
+   the frame, because the `overline/xs` node cloned was a vertical label in
+   A11Y-C01. Reset `rotation`, `textAlignHorizontal` and `textAlignVertical`
+   on every clone before positioning it.
+
+And one pairing bug worth naming: **matching nodes by `characters` grabs the
+same node twice** when a diagram repeats a tag. COMPOSE-01 has two `<a>`
+pills, both matched the first `<a>` text, and one pill ended up with two
+labels while the other had none. Claim each candidate once.
+
+---
 ## 6.1 A finding logged while verifying copy
 
 **`README.md` has drifted from the repository it describes.** Verifying

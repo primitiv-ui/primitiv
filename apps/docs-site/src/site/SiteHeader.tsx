@@ -49,7 +49,7 @@ export const SiteHeader = () => {
                 </Link>
               </li>
               <li>
-                <Link className="docs-header-link" href="/#harmoni">
+                <Link className="docs-header-link" href="/figma/">
                   Design in Figma
                 </Link>
               </li>

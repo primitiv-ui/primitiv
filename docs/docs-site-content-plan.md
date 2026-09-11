@@ -710,6 +710,35 @@ is the kind of call that belongs in the Figma pass rather than in prose.
 block so the builder places it from the spec like every other block.
 ---
 
+### 4.6 Harmoni is off the site, and the whole nav is dead anchors (2026-09-11)
+
+Per the decision to leave Harmoni off the site until it has its own, the four
+live surfaces that linked to it are done: the sidebar's *Design in Figma*
+child (`lib/nav.ts`), the landing page's Figma path card and documentation-map
+row (`LandingSections.tsx`), the header nav (`SiteHeader.tsx`) and the
+footer's DESIGN column (`SiteFooter.tsx`). Each now points at `/figma/` — the
+`/figma` content page — and the standalone `Harmoni` rows are gone. Prose
+naming the engine stays: the Figma path card still reads "powered by
+Harmoni", which is the fact, not a link to a product that has nowhere to go.
+The matching Figma canvas removal is tracked in §6.0 as its own item.
+
+**Found while doing it, and larger than the Harmoni question:** every
+in-page anchor in the site's navigation is dead. Only three section ids exist
+on the landing page — `choose-your-path`, `component-block` and
+`documentation-map` — while the nav, header, footer and documentation map
+between them link to `/#what-primitiv-is`, `/#tokens`, `/#density`,
+`/#composition`, `/#accessibility`, `/#cli`, `/#cli-add`, `/#cli-tokens`,
+`/#recipes`, `/#changelog` and `/#icons`. All eleven resolve to nothing.
+That is not a bug to patch anchor-by-anchor: nine of them are the content
+pages §3 specifies, which have no routes yet (`src/app` holds exactly three
+`page.tsx` files). **The fix is building those routes**, at which point the
+anchors become real paths — so this is a reason to schedule §3's pages, not a
+separate defect. `/#recipes` and `/#changelog` are the two with no page
+behind them in any plan, and need a decision: drop them from the map, or
+commit to the pages.
+
+---
+
 ## 5. Illustration and Figma work this creates
 
 ### 5.0 How the artwork gets made (D7)

@@ -103,7 +103,7 @@ export const NAV: readonly NavSection[] = [
   },
   {
     title: "Design in Figma",
-    children: [{ title: "Harmoni", href: "/#harmoni" }],
+    children: [{ title: "The library", href: "/figma/" }],
   },
 ];
 

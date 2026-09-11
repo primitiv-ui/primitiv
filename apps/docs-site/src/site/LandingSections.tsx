@@ -54,7 +54,7 @@ const PATHS = [
     description:
       "Spec and redline content — the design library for building in Figma, powered by Harmoni.",
     cta: "Open the Figma library",
-    link: { title: "Design in Figma", href: "/#harmoni" },
+    link: { title: "Design in Figma", href: "/figma/" },
   },
 ] as const;
 
@@ -120,8 +120,7 @@ const MAP_LEFT = [
 ] as const;
 
 const MAP_RIGHT = [
-  { title: "Design in Figma", href: "/#harmoni" },
-  { title: "Harmoni", href: "/#harmoni" },
+  { title: "Design in Figma", href: "/figma/" },
   { title: "Recipes / Guides", href: "/#recipes" },
   { title: "Changelog / Releases", href: "/#changelog" },
 ] as const;

@@ -39,8 +39,7 @@ const COLUMNS = [
   {
     heading: "Design",
     links: [
-      { title: "Design in Figma", href: "/#harmoni" },
-      { title: "Harmoni", href: "/#harmoni" },
+      { title: "Design in Figma", href: "/figma/" },
       { title: "Tokens", href: "/#tokens" },
       { title: "Icons", href: "/#icons" },
     ],

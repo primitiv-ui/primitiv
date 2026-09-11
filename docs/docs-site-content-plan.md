@@ -1535,14 +1535,20 @@ for free — 203 of 206 Intent values are aliases, and the components bind to
 those — but **the illustrations are the exception, and it is worth knowing
 exactly why.**
 
-**A bound paint carries a frozen literal.** Gotcha 3 in the root `CLAUDE.md`:
-a paint written through `setBoundVariableForPaint` holds both the binding and
-a literal `color` snapshot, and the snapshot is what the plugin API reads back
-— it is the reason a helper that passed black rendered an entire frame black
-while every binding read as correct. So every colour in a scripted
-illustration is a value frozen at authoring time, against today's palette.
+**A bound paint's literal matters only at WRITE time — corrected 2026-09-11
+after measuring it.** The first version of this section claimed every scripted
+colour was frozen against today's palette and that the illustrations would not
+follow a regeneration. That was an over-reading of gotcha 3, and it is wrong.
+`setBoundVariableForPaint` does not *compute* the literal for you, so a helper
+that passes black writes black — but once written, **Figma keeps the literal in
+sync with the variable**. Both halves were measured: flipping a frame's Intent
+pin re-resolved all 17 paints in a cloned illustration, and changing
+`color/neutral/900` moved a bound literal `#121418 → #ff0080` and back on
+restore. So a palette regeneration *does* reach the illustrations, and an audit
+across all twenty frames found **575 bound paints, zero unbound, zero drifted**
+— they are swap-ready as they stand.
 
-**So the illustrations need a tool, not trust.**
+**The tool is a safety net and an audit, not the mechanism.**
 `scripts/figma/resync-illustration-literals.js` walks every illustration on
 the three docs pages, reads each paint's bound variable, re-resolves it
 against that frame's own pinned modes, and rewrites the literal. Three
@@ -1581,6 +1587,12 @@ to do it this way:
 **The landing-page artwork already ships as light/dark pairs**, so it has the
 same exposure and the script covers `Docs Site — Home (v3)` for that reason.
 
+**The one thing that genuinely will not follow: FIGMA-P01.** It is a raster
+screenshot of the Figma UI, so its Button variants are pixels of today's brand
+blue. After a palette swap it must be **retaken**, not resynced — it is the
+only illustration with that exposure, and the audit shows it as the lone image
+fill among 575 bound paints.
+
 **One limit worth stating.** The script fixes *values*, not *composition*. A
 regenerated palette that changes a ramp's character — a brand hue far from
 today's blue, or a warning ramp that stops reading as amber — may make an
@@ -1588,6 +1600,68 @@ illustration's colour choices wrong even with every literal correct. TOKENS-01
 is the one to re-review by eye after a swap, since its subject *is* the ramp.
 
 ---
+### 6.0.10 The light twins, and the density illustrations rebuilt from real components (2026-09-11)
+
+**Twenty light twins landed**, one per illustration per breakpoint, on the
+illustrations page at x=3400 (desktop) / x=4100 (mobile). Built as **clones
+with the Intent pin flipped**, per §6.0.9 — not second drawings. Audit after:
+575 bound paints on each side, zero unbound, zero drifted.
+
+**TOKENS-01's twin needed the special case §6.0.9 predicted**, and the first
+attempt silently failed to apply it. The clone pass guarded the pin change on
+`n.clearExplicitVariableModes ? n.setExplicitVariableModeForCollection(...) :
+null` — a method that does not exist on a `FRAME`, so the ternary took the
+null branch and **nothing was written, while the script still reported
+success**. Only the render exposed it: the light twin showed the dark ramp.
+Re-applied unconditionally and read back. Its caption now says "light theme"
+and the row is renamed `swatch row (Palette=Light)`. **Never report a write you
+have not read back.**
+
+**A real contrast defect the light twin exposed.** TOKENS-01's swatches carry
+no stroke, so on a white surface `absolute/white` sits at **1.00:1** —
+literally invisible — and `brand/50` at 1.09:1. The dark twin has the same flaw
+at its own end (`brand/50` 1.04:1 on `#141414`). Fixed with a `border/default`
+hairline on all 11 swatches in all four frames: 3.91:1 on dark, 3.05:1 on
+light, and every chip now reads as a chip.
+
+#### The density illustrations are built from real components now
+
+Both were schematic — hand-drawn frames at hardcoded heights with bars
+standing in for content. A drawing of density is not a demonstration of it, so
+both were rebuilt from **real `Field` and `Button` instances** over a `stage`
+frame that pins `Context`, plus **real lorem-ipsum prose** so the line-height
+change is visible in actual text rather than implied by bar spacing.
+
+Nothing in either illustration knows which density it is drawing. The measured
+result, read back off the instances themselves rather than from the token
+table, is an independent confirmation of §6.0.8's numbers:
+
+| mode | Button + Input height | radius | prose font-size / line-height |
+| --- | --- | --- | --- |
+| Dense | 24 | 4 | 12 / 16 |
+| Compact | 32 | 6 | 16 / 24 |
+| Comfortable | 40 | 8 | 16 / 24 |
+| Spacious | 48 | 8 | 16 / 28 |
+
+The captions now quote the **instance's own** measured height and radius, so
+they cannot drift from what is drawn above them. DENSITY-C02 became a genuine
+nested demo — a `Context=Spacious` region containing a `Context=Dense` one,
+each with a real Field — and the nesting proves itself: outer input 48px,
+inner 24px, under the unchanged closing line "The nearest setting wins."
+
+**A shared-master defect found on the way, NOT fixed — it needs a decision.**
+`Input`'s `value` text node is `textAutoResize: HEIGHT` with `textTruncation:
+DISABLED`, so it **wraps** instead of truncating. A placeholder of
+`you@company.com` spilled out of the input frame at three of the four
+densities. The shipped registry Input is single-line ending-truncated (settled
+during the Select work), so Figma disagrees with the code. The illustrations
+dodge it with a shorter string (`hi@acme.io`), because an instance sublayer
+cannot be edited (gotcha 14) — the fix has to happen on the shared master
+(`textTruncation = 'ENDING'`, `maxLines = 1`), which touches 50 variants and
+every Input instance in the file. Worth doing; too broad to do unasked.
+
+---
+
 ## 6.1 A finding logged while verifying copy
 
 **`README.md` has drifted from the repository it describes.** Verifying

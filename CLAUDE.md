@@ -1268,15 +1268,22 @@ debugging cycle; none is discoverable from the API surface.
    paint, read `node.fills[0]` back, *then*
    `fills = [Object.assign({}, f, { opacity })]`; the binding survives and the
    opacity sticks.
-   **And the same is true of the COLOUR itself (2026-09-11).** The bind is
-   metadata: whatever literal `color` you hand in is what renders. A helper
-   that passed `{r:0,g:0,b:0}` every time rendered every node black on a dark
-   frame, and a freshly-`createFrame()`d node kept its white default. Resolve
-   the variable yourself — walk the alias chain, taking each collection's mode
+   **The colour literal matters too, but ONLY at write time (2026-09-11,
+   corrected same day).** `setBoundVariableForPaint` does not compute the
+   literal for you: whatever `color` you hand in is what renders until
+   something invalidates it. A helper that passed `{r:0,g:0,b:0}` every time
+   rendered every node black on a dark frame, and a freshly-`createFrame()`d
+   node kept its white default. So when you write a bound paint, resolve the
+   variable yourself — walk the alias chain, taking each collection's mode
    from the frame's pins (Intent=Dark, Palette left on Light per the rule
-   above) or its `defaultModeId` — and pass the resolved value as the literal.
-   Cloned nodes hide this, because their literal is already the snapshot of
-   whatever context they came from. Sibling finding worth knowing: **a fix
+   above) or its `defaultModeId` — and pass the resolved value.
+   **Do NOT over-read this into "bindings are inert".** Once written, Figma
+   keeps the literal in sync: flipping a frame's Intent pin re-resolved all 17
+   paints in a cloned illustration, and changing a Palette variable's value
+   moved a bound literal `#121418 → #ff0080` and back on restore (measured,
+   reversibly). The binding is live; only the initial write is yours to get
+   right. Cloned nodes hide the write-time hazard entirely, because their
+   literal is already a correct snapshot. Sibling finding worth knowing: **a fix
    applied to a master's slot content after an instance has already captured
    that content does not propagate** — the light twin kept `opacity: 1` while the master
    was correct, so the twin needed the identical fix applied directly. Its
@@ -1561,6 +1568,10 @@ debugging cycle; none is discoverable from the API surface.
    after any layout change. It found four distinct defects on the docs-site
    home page that reading node properties had missed, and it is the only cheap
    substitute for a render.
+   **One false-positive class to filter: a ROTATED node reports its
+   *unrotated* width/height**, so a 90°-rotated spine label always reads as
+   overflowing its parent. Skip `rotation !== 0`, or check it before calling a
+   flag real — two deliberate vertical labels tripped this audit.
 
 30. **A cloned text node carries its `rotation` and both alignments — reset
    them.** All four mode labels in a new illustration came through rotated 90°

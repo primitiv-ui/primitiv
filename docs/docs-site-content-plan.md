@@ -1108,6 +1108,42 @@ across all sixteen frames returns zero.
 
 ---
 
+### 6.0.5 The first two illustrations (2026-09-11)
+
+**A11Y-C01 and CLI-01 are built and placed**, both breakpoints each, on the
+Figma page **"Docs Site — Content illustrations"** and cloned into their gap
+frames on the content pages. Eight of the ten briefs remain.
+
+Two deviations from the briefs, both deliberate:
+
+- **A11Y-C01 came out 2.63:1, not the brief's 3:1.** Six items on the right at
+  `body/sm` with `space/space-24` padding is 240px tall at 632 wide; 211 meant
+  either 10px padding or type below what the brief's own `tokens` block
+  specifies. The ratios in these briefs were written before the content
+  existed, so the content wins and the deviation is recorded rather than
+  crammed away. CLI-01 is exactly 2:1 as briefed.
+- **CLI-01 mobile points its connector at the repository zone, not at
+  `button.tsx`.** Stacked, an arrow reaching the first file would run the full
+  height of the list past four files it has nothing to do with. The one-way
+  relationship — the thing the brief exists to establish — survives; the
+  precision does not.
+
+**These are absolutely-positioned frames, not spec-driven like the pages.** A
+connector that starts at one node and lands on another cannot be expressed in
+auto-layout, so CLI-01 places every element by computed coordinate. That makes
+the auto-layout overflow audit useless on it, so the build carries **a second
+audit: any two painted siblings whose boxes intersect.** It earned its place
+immediately — it caught the closing sentence sitting on top of "Updates
+normally." on the mobile frame, which reading node properties had missed and
+which I would otherwise have shipped.
+
+**A placed illustration carries no fill of its own.** The build-page source
+keeps a `surface/default` fill so it reads in isolation; the clones on the
+pages have it cleared, so a section that later sits on a tinted band does not
+show a rectangle of the wrong colour.
+
+---
+
 ## 6.1 A finding logged while verifying copy
 
 **`README.md` has drifted from the repository it describes.** Verifying

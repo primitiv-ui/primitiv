@@ -1178,6 +1178,63 @@ show a rectangle of the wrong colour.
 
 ---
 
+### 6.0.6 The three half-width diagrams (2026-09-11)
+
+**DENSITY-C02, COMPOSE-01 and FIGMA-P02 are built and placed**, both
+breakpoints each. Seven of ten done; START-01, DENSITY-C01 and FIGMA-P01
+remain.
+
+**None of the three fits its own `contents` into the 4:3 its brief asks for,
+and that is a finding about the briefs rather than the drawings.** "Half the
+content width" is 300px on desktop, so 4:3 means a 225px-tall box. Measured
+against what each brief actually asks to be drawn:
+
+| id | Built | Ratio | 4:3 would need |
+| --- | --- | --- | --- |
+| DENSITY-C02 | 300×238 | 1.26 | 225 — closest of the three |
+| FIGMA-P02 | 300×296 | 1.01 | 225 |
+| COMPOSE-01 | 300×424 | 0.71 | 225 |
+
+Every ratio in these briefs was written before the content existed, so the
+content wins and the deviation is recorded. The same call was already made for
+A11Y-C01 (§6.0.5). **Width is the constraint that is real** — it comes from the
+two-column row — so all three hold 300 exactly and vary only in height. All
+three still sit shorter than the prose column beside them (392/238, 492/424,
+308/296), so no row grows to accommodate them.
+
+**COMPOSE-01 stacks JSX above DOM instead of placing them side by side, and
+this was forced.** Its brief asks for "the JSX on the left and the resulting
+DOM on the right". A first pass built exactly that and the code silently
+overflowed its column into the connector — `  <Link href="/x">Go</Link>` is
+178px at `code/xs`, against a JSX column of 152px. Widening the code column
+starves the DOM column, which then cannot hold `class="primitiv-button"` on one
+line; every split of 268px fails one side or the other. Stacking within each
+row keeps both legible and keeps what the brief is actually for: **two boxes
+above, one box below**. The craft note's "make the upper one visibly taller" is
+satisfied by the boxes themselves (52 vs 24), which is what the eye compares.
+
+**Auto-width text does not wrap, it overflows.** That is what hid the collision
+until a render: every code line reported a sensible width and sat outside its
+column. Measure the longest line and size the column from it, or set an
+explicit width and let it wrap — never assume a character width. The frames
+carry an intersection audit for exactly this class of defect, since an
+absolutely-positioned diagram is invisible to the auto-layout overflow audit.
+
+**Two smaller notes.** DENSITY-C02 exaggerates the loose/tight contrast past
+what the real tokens give, as its own craft note directs — it is a diagram of a
+concept, not a specimen sheet. FIGMA-P02's variable swatch is bound to
+`action/primary/default` rather than filled with a literal, so the chip shows
+the colour the token actually resolves to.
+
+**One inconsistency left deliberately.** COMPOSE-01 uses `href="/x"` (its
+brief's string) while the code block beside it on the page uses
+`href="/pricing"` (the page copy's string), so the same example reads with two
+different hrefs. `/pricing` was not adopted because
+`<Link href="/pricing">See pricing</Link>` wraps at 268px and the diagram stops
+being scannable. Worth a look if it reads as two examples rather than one.
+
+---
+
 ## 6.1 A finding logged while verifying copy
 
 **`README.md` has drifted from the repository it describes.** Verifying

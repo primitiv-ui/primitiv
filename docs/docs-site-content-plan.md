@@ -1152,6 +1152,13 @@ inverts. The brief called that "the clearest possible demonstration of why the
 middle tier exists", and showing the light ramp on a dark page would have made
 the diagram quietly untrue.
 
+**TOKENS-01 states its palette value in OkLCH, not hex** — `oklch(0.5557
+0.1923 259.8783)`, taken verbatim from the engine's own
+`color::output::format_oklch` rather than computed here. That follows
+[RFC 0031](./rfcs/0031-oklch-first-token-output.md): once `palette.json` holds
+OkLCH, `#236ce1` will not exist in the source at all, so the hex label would
+have been showing a value the token layer no longer has.
+
 Two more deviations, both recorded rather than hidden:
 
 - **TOKENS-01 mobile drops the Context leader.** Stacked, Context moves to its

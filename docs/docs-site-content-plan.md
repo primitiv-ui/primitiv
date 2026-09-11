@@ -1395,7 +1395,7 @@ it ships the *same* radius as Comfortable despite being 8px taller.
 
 This matters because **DENSITY-C01 puts both numbers side by side directly
 beneath the prose that states the formula**, so a reader who does the
-arithmetic finds 48 × 0.1875 = 9 and reads 8. The copy needs one qualifying
+arithmetic finds 48 × 0.1875 = 9 and reads 8. The copy needed one qualifying
 clause — the fraction snapped to the nearest step on the radius scale — rather
 than the diagram hiding the numbers. Not changed here: the copy doc owns its
 own words.
@@ -1407,6 +1407,16 @@ two columns in this very diagram will see two different heights and one
 radius.
 
 ---
+
+**Fixed 2026-09-11, once DENSITY-C01 made it unmissable.** The illustration
+prints `40px · r8` and `48px · r8` two sections above the claim, so §4's
+closing line now reads "That fraction is fixed across the whole system, and
+the result snaps to the nearest step on the radius scale — which is why
+Comfortable and Spacious, 8px apart in height, share a radius of 8." Changed
+in `PAGES` and on both Density frames together, and the fingerprint check
+passes on all eight pages. **Whether Spacious *should* share Comfortable's
+radius is still open** — this makes the page honest about what ships, it does
+not settle the design question.
 
 ### 6.0.8 The last three illustrations, and four scripting traps (2026-09-11)
 

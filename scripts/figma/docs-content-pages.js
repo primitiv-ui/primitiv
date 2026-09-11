@@ -240,7 +240,7 @@ const PAGES = {
         ['h2', 'Why radius follows'],
         ['p', "Corner radius is not a value assigned per size. It is a fraction of the control's height, so when density changes the height, the radius follows on its own:"],
         ['code', 'radius = height × 0.1875'],
-        ['p', 'That fraction is fixed across the whole system. It is why controls stay in proportion at every density without a fourth table of values for someone to keep in step.'],
+        ['p', 'That fraction is fixed across the whole system, and the result snaps to the nearest step on the radius scale \u2014 which is why Comfortable and Spacious, 8px apart in height, share a radius of 8. Controls stay in proportion at every density without a fourth table of values for someone to keep in step.'],
       ]},
       { name: '05 — What density does not change', blocks: [
         ['h2', 'What density does not change'],

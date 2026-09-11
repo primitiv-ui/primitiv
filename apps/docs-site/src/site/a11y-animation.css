@@ -1,0 +1,16 @@
+/*
+ * The A11Y-01 animation.
+ *
+ * Unlayered like the rest of the docs CSS, so it outranks every
+ * `@layer primitiv.*` rule — keep it to this one class and do not reach for
+ * element selectors here (a stray `display` once silently disabled Card's
+ * own layout).
+ */
+.docs-a11y-animation {
+  display: block;
+  inline-size: 100%;
+  block-size: auto;
+  border-radius: var(--primitiv-radii-12);
+  border: var(--primitiv-border-width-1) solid var(--primitiv-border-subtle);
+  background: var(--primitiv-surface-raised);
+}

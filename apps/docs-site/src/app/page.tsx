@@ -11,6 +11,7 @@
 
 import { Hero } from "@/site/Hero";
 import {
+  AccessibleByDefault,
   ChooseYourPath,
   ComponentBlock,
   DocumentationMap,
@@ -22,6 +23,7 @@ export default function HomePage() {
     <LandingShell>
       <Hero />
       <ChooseYourPath />
+      <AccessibleByDefault />
       <DocumentationMap />
       <ComponentBlock />
     </LandingShell>

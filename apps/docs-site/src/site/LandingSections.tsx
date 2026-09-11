@@ -30,6 +30,8 @@ import { InstallTabs } from "./InstallTabs";
 import { LandingSection } from "./LandingSection";
 import { label, useMode } from "./preferences";
 
+import { A11yAnimation } from "@/site/A11yAnimation";
+
 import "./landing-sections.css";
 
 /* ── Choose your path ─────────────────────────────────────────────────────── */
@@ -97,6 +99,62 @@ export const ChooseYourPath = () => (
         </Card>
       ))}
     </Grid>
+  </LandingSection>
+);
+
+
+/* ── Section 9 — Accessibility ─────────────────────────────────────────────── */
+
+/* Copy is verbatim from the settled record (docs-site-home-copy.md §9); the
+   four commitments are deliberately concrete claims rather than a badge. */
+const COMMITMENTS = [
+  {
+    title: "Every interactive component follows its WAI-ARIA pattern.",
+    note: "Not an approximation of it.",
+  },
+  {
+    title: "Keyboard support is part of the component.",
+    note: "Arrow keys, Home and End, Escape, type-ahead. Not something you add afterwards.",
+  },
+  {
+    title: "Contrast is guaranteed by the engine that generates the colour.",
+    note: "Not spot-checked once the palette is chosen.",
+  },
+  {
+    title: "Focus is always visible.",
+    note: "On every control, in both themes.",
+  },
+] as const;
+
+export const AccessibleByDefault = () => (
+  <LandingSection
+    id="accessibility"
+    overline="Built in"
+    heading="Accessible by default, not by audit."
+    band
+  >
+    <Stack gap="xl">
+      <p className="docs-lede">
+        Accessibility is not a pass someone does at the end here. It is a
+        property of the components, checked continuously.
+      </p>
+
+      {/* The animation sits beside the commitments on desktop and beneath them
+          on narrow screens, where a 4:3 video next to text would leave neither
+          readable. */}
+      <Grid columns={{ base: 1, md: 2 }} gap="xl">
+        <Stack gap="lg">
+          {COMMITMENTS.map((commitment) => (
+            <Stack gap="xs" key={commitment.title}>
+              <h3 className="docs-commitment-title">{commitment.title}</h3>
+              <p className="docs-commitment-note">{commitment.note}</p>
+            </Stack>
+          ))}
+        </Stack>
+
+        <A11yAnimation />
+      </Grid>
+    </Stack>
   </LandingSection>
 );
 

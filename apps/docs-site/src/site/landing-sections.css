@@ -65,6 +65,32 @@
   color: var(--primitiv-content-muted);
 }
 
+/* ── Section 9 — Accessibility ─────────────────────────────────────────────── */
+
+.docs-lede {
+  margin: 0;
+  font-family: var(--primitiv-body-lg-font-family);
+  font-size: var(--primitiv-body-lg-font-size);
+  line-height: var(--primitiv-body-lg-line-height);
+  color: var(--primitiv-content-secondary);
+}
+
+.docs-commitment-title {
+  margin: 0;
+  font-family: var(--primitiv-heading-h4-font-family);
+  font-size: var(--primitiv-heading-h4-font-size);
+  line-height: var(--primitiv-heading-h4-line-height);
+  color: var(--primitiv-content-primary);
+}
+
+.docs-commitment-note {
+  margin: 0;
+  font-family: var(--primitiv-body-md-font-family);
+  font-size: var(--primitiv-body-md-font-size);
+  line-height: var(--primitiv-body-md-line-height);
+  color: var(--primitiv-content-secondary);
+}
+
 /* ── Reflow ───────────────────────────────────────────────────────────────── */
 
 /* Below md the three-up card row and both two-up grids collapse to one column.

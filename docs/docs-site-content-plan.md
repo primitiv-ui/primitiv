@@ -1525,6 +1525,69 @@ pills, both matched the first `<a>` text, and one pill ended up with two
 labels while the other had none. Claim each candidate once.
 
 ---
+### 6.0.9 Making the illustrations survive a palette regeneration (2026-09-11)
+
+Flagged before the light-twin build: the **brand seed, the neutral anchors
+(soft white / soft black) and all four feedback ramps (info / warning /
+success / danger) are not settled**. Fresh palettes will be generated once the
+Harmoni plugin is finished, and the codebase synced. Most of the site follows
+for free — 203 of 206 Intent values are aliases, and the components bind to
+those — but **the illustrations are the exception, and it is worth knowing
+exactly why.**
+
+**A bound paint carries a frozen literal.** Gotcha 3 in the root `CLAUDE.md`:
+a paint written through `setBoundVariableForPaint` holds both the binding and
+a literal `color` snapshot, and the snapshot is what the plugin API reads back
+— it is the reason a helper that passed black rendered an entire frame black
+while every binding read as correct. So every colour in a scripted
+illustration is a value frozen at authoring time, against today's palette.
+
+**So the illustrations need a tool, not trust.**
+`scripts/figma/resync-illustration-literals.js` walks every illustration on
+the three docs pages, reads each paint's bound variable, re-resolves it
+against that frame's own pinned modes, and rewrites the literal. Three
+properties make it the right shape for a palette swap:
+
+- **Idempotent.** A run against an unchanged palette reports zero writes, so
+  it doubles as a drift audit — run it *before* a swap to see what has already
+  moved, and *after* to land the new values.
+- **It reproduces what Figma renders**, rather than imposing a second
+  opinion: modes come from each frame's own `explicitVariableModes`, inherited
+  down the tree, falling back to a collection's `defaultModeId`. The house
+  rule holds unchanged — a dark frame pins `Intent = Dark` and leaves
+  `Primitives / Palette` on Light.
+- **It reports what it cannot fix.** A paint with no binding at all is listed
+  as `unbound`, and every one is a hazard: a raw hex silently keeps the old
+  brand colour through a swap. The fix is to *bind* it, never to hand-edit the
+  hex. `dryRun: true` audits without writing.
+
+**What this means for how the light twins get built.** They are **clones of
+the dark frames with the Intent pin flipped, then resynced** — not
+hand-authored second drawings. Three payoffs, and they are the whole reason
+to do it this way:
+
+1. One source of truth for geometry. A layout fix lands on the dark twin and
+   the light twin is re-cloned, rather than two drawings drifting apart.
+2. Every colour still comes from the same variable, so both twins move
+   together on one resync run.
+3. **TOKENS-01's twin stops being a special case.** Its palette row binds
+   directly to `color/brand/*` with `Primitives / Palette` pinned Dark — the
+   one deliberate exception to the house rule (§6.0.5), because the row's
+   whole point is showing the ramp dark mode actually renders. Re-pinning that
+   sub-frame to Light and resyncing regenerates the row against the light ramp
+   automatically, which is what the earlier note meant by "its twin is not a
+   recolour".
+
+**The landing-page artwork already ships as light/dark pairs**, so it has the
+same exposure and the script covers `Docs Site — Home (v3)` for that reason.
+
+**One limit worth stating.** The script fixes *values*, not *composition*. A
+regenerated palette that changes a ramp's character — a brand hue far from
+today's blue, or a warning ramp that stops reading as amber — may make an
+illustration's colour choices wrong even with every literal correct. TOKENS-01
+is the one to re-review by eye after a swap, since its subject *is* the ramp.
+
+---
 ## 6.1 A finding logged while verifying copy
 
 **`README.md` has drifted from the repository it describes.** Verifying

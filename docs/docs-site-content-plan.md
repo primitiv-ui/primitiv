@@ -635,6 +635,81 @@ Keep the field **optional**, so it can land component by component
 rather than as one 63-file commit, and so the 21 undocumented components
 can gain a page before they gain the block.
 
+### 4.5 The page-action Split Button — every page, content and component (2026-09-11)
+
+Requested this session, with the Rive CLI docs as the reference: a Split
+Button sitting directly under the lede, on **every** page — the nine content
+pages and all 63 component pages. Its default half performs the common
+action; its chevron half opens a menu of the variants.
+
+**This is not a new product goal — it is the concrete shape of one already
+committed.** `docs/docs-site-planning.md` §1.22 (raised 2026-08-09) adopted
+"the docs site must be built for AI agents, not just human readers" as a
+product goal and named this exact pattern as the prompt for it, then
+deferred every build decision to the docs-site build phase. That phase is
+now here, so this settles §1.22's **goal 2** (an agent that has already
+chosen Primitiv can load the full API quickly). §1.22's goal 1 — proactive
+discovery via a thin MCP server over the registry — is untouched and still
+open; it is a different mechanism and does not belong in this control.
+
+**The rows, from the reference.** Each is a leading mark, a title, and a
+one-line description beneath it:
+
+| Row | Title | Description |
+| --- | --- | --- |
+| 1 | Copy page | Copy page as Markdown for LLMs |
+| 2 | View as Markdown ↗ | View this page as plain text |
+| 3 | Open in ChatGPT ↗ | Ask questions about this page |
+| 4 | Open in Claude ↗ | Ask questions about this page |
+
+Row 1 is also the default half's action, so the action label reads
+**"Copy page"** with a copy glyph — the same doubling the reference uses, and
+the right one: the menu documents what the button already does rather than
+hiding it.
+
+**The markdown mirror is the blocking dependency, not the control.** Three
+of the four rows need a `.md` route per page to point at, and the fourth
+needs one to fetch. §1.22 already planned that mirror (`llms.txt` /
+`llms-full.txt` + a markdown route alongside each page's HTML) and called it
+framework-level and cheap. Build it first; the Split Button is a thin skin
+over it. Until it exists the control has nothing to do, so **do not ship the
+control ahead of the routes** — a "Copy page" button that copies rendered
+HTML would be worse than no button.
+
+**Four things this surfaces that are genuinely new work.**
+
+1. **`Dropdown / Item` has no description line.** The registry stylesheet
+   ships `__item-leading` / `__item-label` / `__item-trailing` (added for
+   the Select composition-depth work) and the label is one string. A
+   two-line title-over-description row does not exist anywhere in the
+   library. Decide deliberately: extend the shared Dropdown row with an
+   optional description part (it would benefit every menu), or compose this
+   one bespoke in the docs site the way `breadcrumb-overflow` draws its own
+   trigger. The first is the better system answer and the reason to check
+   before building the second.
+2. **Two of the four marks are third-party logos.** The ChatGPT and Claude
+   marks are brand assets, not system glyphs — they must **not** enter
+   `@primitiv-ui/icons`, which is Primitiv's own icon set. Inline them in
+   the docs site as local SVG assets.
+3. **The deep-link URL formats are not settled.** "Open in ChatGPT" and
+   "Open in Claude" pass the page's markdown URL as a prompt parameter; the
+   exact query shape for each is an external contract to look up and record
+   here, not to invent.
+4. **`split-button` is one of the 21 component pages that do not exist**
+   (§4.3). So the control ships on a page whose own documentation page is
+   still missing — worth landing that page early in §4.3's order rather than
+   leaving the site using a component it cannot yet document.
+
+**Figma.** Both breakpoints of both page families need it: the content pages
+(page `2229:25998`, sixteen frames) get it in the head region between the
+lede and the first section, and the component-page frames get it under the
+lede in the same place. The mobile treatment needs a decision — at 390px the
+menu is nearly full-bleed and the description lines may need to drop, which
+is the kind of call that belongs in the Figma pass rather than in prose.
+`scripts/figma/docs-content-pages.js` needs a new `['pageAction']` head
+block so the builder places it from the spec like every other block.
+---
+
 ## 5. Illustration and Figma work this creates
 
 ### 5.0 How the artwork gets made (D7)

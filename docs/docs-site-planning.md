@@ -738,6 +738,14 @@ source would need the same discipline or read live from source instead of
 a baked-in copy), and where `llms.txt` generation plugs into the Next.js
 build. See the corresponding open question below.
 
+**Goal 2 is now specified (2026-09-11).** The "Copy page" control this
+section was prompted by has a concrete spec — a Split Button under the lede
+on every content and component page, with a four-row menu (Copy page · View
+as Markdown · Open in ChatGPT · Open in Claude) over a per-page markdown
+route. See `docs/docs-site-content-plan.md` §4.5 for the rows, the blocking
+dependency on the markdown mirror, and the four pieces of new work it
+surfaces. The MCP-server half (goal 1) is unchanged and still open.
+
 ### 1.23 Landed: the landing page rebuilt from the design system, and what that exposed
 
 The v2 landing wireframe was rebuilt in Figma **using only components,

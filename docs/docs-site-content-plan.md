@@ -12,8 +12,8 @@
 > [`docs-site-concepts-copy.md`](./docs-site-concepts-copy.md) ·
 > [`docs-site-registry-cli-copy.md`](./docs-site-registry-cli-copy.md) ·
 > [`docs-site-figma-copy.md`](./docs-site-figma-copy.md).
-> Harmoni (`/figma/harmoni`) is the one page still unwritten — its
-> scope needs agreeing first (§7.5).
+> Harmoni (`/figma/harmoni`) is **not being built** — decided 2026-09-07,
+> it gets its own website instead (§3.9).
 
 ---
 
@@ -47,7 +47,7 @@ The result, as of this plan:
 | --- | --- | --- |
 | D1 | **Audience: the Radix / shadcn / Chakra crowd — designers and developers equally — plus a team lead or PM on the home page** | The home page works at two altitudes in one column: benefit claim, then the mechanism beneath it |
 | D2 | **Component ledes: rewrite the shared `contract.json` description** | One source of truth stays one. 63 contracts to rewrite; the Figma component descriptions should follow |
-| D3 | **Nine new pages this round; Guides and Changelog deferred** | Their two nav entries come out rather than pointing nowhere |
+| D3 | **Nine new pages this round; Guides and Changelog deferred** | Their two nav entries come out rather than pointing nowhere. Amended 2026-09-07: eight, not nine — Harmoni is dropped too (§3.9), so three entries come out |
 | D4 | **Concepts is five pages, not one** | Each carries its own diagram and its own TOC |
 | D5 | **Hero leads on accessible-by-construction** | See §2.1, with the three alternates recorded |
 | D6 | **A voice spec exists and is binding** | `voice-and-tone.md`, and a new axis in `character-brief.md` |
@@ -454,15 +454,41 @@ What is in it. How it stays in step with the code. The two known
 divergences (Grid, Aspect Ratio) stated plainly, because a designer who
 finds them alone trusts the rest less.
 
-### 3.9 `/figma/harmoni`
+### 3.9 `/figma/harmoni` — **dropped (2026-09-07)**
 
-**Argument:** the colour engine, as a thing a designer can use in Figma.
+**Harmoni is getting its own website, so it does not get a page here.**
+That closes §7.5 by removing the question rather than answering it: there
+is no longer any need to decide what a public Primitiv page may say about
+a commercial product in a private repo.
 
-**Care needed.** Harmoni's plugin lives in the private
-`primitiv-ui/harmoni` repo and is a commercial product. This page is
-public-facing product copy only — what it does and who it is for. No
-implementation detail, no file layout, nothing licence-related. The
-engine itself is MIT and public; the plugin is not.
+**The consequence is a link removal, not just a page that never appears.**
+Three surfaces pointed at it — the sidebar's *Design in Figma* group, the
+footer's DESIGN column, and a `Harmoni →` link closing §6 of
+`/figma` — and a link to a page that will not exist is the exact defect
+D3's reasoning exists to prevent.
+
+**Removed from the page spec; NOT YET removed from the Figma frames.** The
+bridge dropped before that pass ran, so the spec and the canvas disagree by
+exactly these strings and `verify-docs-content-pages.mjs` will report
+`Design in Figma` as divergent until it lands. The canvas work is: the
+sidebar entry on the eight desktop frames, the `Harmoni →` link on both
+`/figma` frames, and the footer's DESIGN-column entry — which is eighteen
+edits, because the footer is cloned onto every content frame and both home
+frames.
+
+**Naming the engine in prose stays, and has to.** `/concepts/what-primitiv-is`
+introduces Harmoni as one of the four parts, `/figma` §6 explains that the
+palette is generated rather than picked, and the home page's colour section
+rests on it. None of that is a link, and none of it is a claim about a
+product page. When the Harmoni site is live, the nav entry comes back as an
+external link.
+
+> **Original scope, kept because it still governs anything written about
+> Harmoni here.** Its plugin lives in the private `primitiv-ui/harmoni`
+> repo and is a commercial product: public-facing product copy only — what
+> it does and who it is for. No implementation detail, no file layout,
+> nothing licence-related. The engine itself is MIT and public; the plugin
+> is not.
 
 ---
 
@@ -758,9 +784,9 @@ to 70+ pages.
 | 7 | Figma: the prose page template | ✅ **done 2026-09-07** — settled as the shared shell of the eight content pages rather than a separate specimen frame (§6.0.4), so the template and its first use are the same artefact and cannot drift apart |
 | 8 | Build the home page in code | |
 | 9a | Copy + briefs for eight of the nine content pages | ✅ **done** — Start Here, the five Concepts pages, Registry & CLI, Figma |
-| 9b | Harmoni page copy | Blocked on §7.5 — what a public page may say about a commercial product in a private repo |
+| 9b | ~~Harmoni page copy~~ | **Dropped 2026-09-07** — Harmoni gets its own website (§3.9). Its links come out with step 10 |
 | 9c | Artwork for the ten content-page briefs, then build the pages | **Pages built 2026-09-07** — all eight, both breakpoints, with the ten briefs in place as gaps (§6.0.4). The artwork itself is the remaining half |
-| 10 | Remove the Guides + Changelog nav entries | Do it with step 8 so no link is ever dead |
+| 10 | Remove the Guides + Changelog + Harmoni nav entries | Do it with step 8 so no link is ever dead. Done on the Figma frames already; `src/lib/nav.ts` still carries all three |
 | 11 | Rewrite 63 `contract.json` ledes + mirror to the Figma descriptions | No tooling needed (§4.4). Runs in parallel from step 4 |
 | 12 | Build the `whenToUse` field (§4.4) and add it to the 42 existing pages | Small build, then a 42-item authoring pass |
 | 13 | The 21 missing component pages | Largest chunk, least blocked |
@@ -1113,7 +1139,8 @@ any figure reaching a reader wants regenerating rather than copying.
    data?
 4. ~~Does the "When to use this" block belong in `contract.json` too?~~
    **Settled 2026-09-02 — yes, it does.** See §4.4.
-5. **`/figma/harmoni` and the private repo — now the one thing blocking
-   step 8b.** The public page needs
-   product copy that the private repo's `CLAUDE.md` rules do not forbid.
-   Worth confirming what may be shown before it is written.
+5. ~~**`/figma/harmoni` and the private repo.**~~ **Closed 2026-09-07 by
+   dropping the page** — Harmoni gets its own website, so no Primitiv page
+   has to decide what may be said about it. See §3.9 for what that costs
+   (three link removals) and what it does not (the prose naming the engine,
+   which stays).

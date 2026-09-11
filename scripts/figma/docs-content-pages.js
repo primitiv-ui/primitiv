@@ -463,7 +463,6 @@ const PAGES = {
         ['h2', 'Where the colour comes from'],
         ['p', 'The palette in the file is generated rather than picked. A colour engine called Harmoni builds each scale from one seed colour, choosing the text colour that pairs with every step and checking contrast as it goes.'],
         ['p', 'Harmoni is also a Figma plugin, for teams who want to generate their own palettes this way. You do not need it to use the library — the palette it produced is already in the file.'],
-        ['links', ['Harmoni →']],
         ['alert', 'warning', 'OPEN QUESTION, decide before this page publishes — whether the planned standard ramps appear in the Figma file at all. "The same tokens as the code" is a claim this page makes, and twenty ramps no component binds to may be clutter rather than parity.'],
       ]},
     ],
@@ -776,13 +775,18 @@ async function buildMobile(key, x, y) {
 }
 
 /* The settled nav. Not `src/lib/nav.ts`, which still carries the dead anchors
-   this round of pages replaces — see content-plan §3. */
+   this round of pages replaces — see content-plan §3.
+
+   No Harmoni entry: the page is deliberately not built (2026-09-07), because
+   Harmoni is getting its own website. Naming the engine in prose is fine and
+   several pages do it; what must not exist is a link to a page that does not.
+   Add the entry back as an external link when that site is live. */
 const NAV = [
   ['Start Here', ['Introduction', 'Install it', 'Your first component']],
   ['Concepts', ['What Primitiv is', 'Tokens & theming', 'Density', 'Composition', 'Accessibility']],
   ['Components', ['Overview', 'Layout', 'Typography', 'Forms', 'Navigation', '… 63 total']],
   ['Registry & CLI', ['primitiv add', 'primitiv tokens', 'primitiv theme', 'primitiv list']],
-  ['Design in Figma', ['The library', 'Harmoni']],
+  ['Design in Figma', ['The library']],
 ];
 
 /* Wrap a gap and the `count` blocks above it into a two-column desktop row. */

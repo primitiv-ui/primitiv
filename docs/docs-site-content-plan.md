@@ -1649,16 +1649,36 @@ nested demo — a `Context=Spacious` region containing a `Context=Dense` one,
 each with a real Field — and the nesting proves itself: outer input 48px,
 inner 24px, under the unchanged closing line "The nearest setting wins."
 
-**A shared-master defect found on the way, NOT fixed — it needs a decision.**
-`Input`'s `value` text node is `textAutoResize: HEIGHT` with `textTruncation:
-DISABLED`, so it **wraps** instead of truncating. A placeholder of
-`you@company.com` spilled out of the input frame at three of the four
-densities. The shipped registry Input is single-line ending-truncated (settled
-during the Select work), so Figma disagrees with the code. The illustrations
-dodge it with a shorter string (`hi@acme.io`), because an instance sublayer
-cannot be edited (gotcha 14) — the fix has to happen on the shared master
-(`textTruncation = 'ENDING'`, `maxLines = 1`), which touches 50 variants and
-every Input instance in the file. Worth doing; too broad to do unasked.
+**A shared-master defect found on the way — FIXED 2026-09-11 across all 50
+`Input` variants.** The `value` text node was `textAutoResize: HEIGHT` with
+`textTruncation: DISABLED`, so a long value **wrapped to a second line and
+spilled out of the input frame** — impossible for a real `<input>`, which is
+inherently single-line. Now `maxLines = 1` + `textTruncation = 'ENDING'`,
+verified by reading all 50 back and confirmed to propagate into `Field`'s 15
+variants.
+
+Three things that came out of doing it, none of them guessable:
+
+1. **I had the shipped behaviour wrong, and checked before acting.** I claimed
+   the registry Input was "single-line ending-truncated, settled during the
+   Select work" — that was *Select's trigger value*.
+   `registry/components/input/styles.css` carries **no truncation rules at
+   all**, and correctly so: a native `<input>` cannot wrap and needs no CSS to
+   get that. So the bug was never "Figma forgot the ellipsis", it was "Figma
+   allows something the platform cannot do".
+2. **Figma couples `maxLines` to `textTruncation`, so the ellipsis is
+   mandatory, not chosen.** Setting `textTruncation = 'DISABLED'` to get a
+   clip-without-ellipsis (which is what a browser actually does) **silently
+   cleared `maxLines` on all 50** and the wrapping came straight back — caught
+   by the read-back, which reported every variant as not-landed and measured
+   the value height back at two lines. There is no "one line, no ellipsis"
+   state. Wrapping is the worse defect, so `ENDING` stays, recorded in the
+   component description as a deliberate Figma↔CSS divergence in the same
+   category as Card's three.
+3. **The artwork avoids ever showing it.** The ellipsis was disliked on sight,
+   and the fix is the placeholder rather than the component: `hi@acme.io` fits
+   at all four densities, so no illustration renders an ellipsis. Verified —
+   zero wrapped value nodes and zero overflow across all eight density frames.
 
 ---
 

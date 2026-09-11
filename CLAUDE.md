@@ -1592,6 +1592,15 @@ debugging cycle; none is discoverable from the API surface.
    Assume image work needs a human hand, and ask early rather than burning the
    context on base64.
 
+32. **`maxLines` and `textTruncation` are COUPLED on a text node — you cannot
+   have one line without an ellipsis.** Setting `textTruncation = 'DISABLED'`
+   silently clears `maxLines` back to null, and an auto-height node then wraps
+   again. Found fixing `Input`, whose `value` wrapped to a second line and
+   spilled out of the frame (impossible for a real `<input>`): `maxLines = 1` +
+   `textTruncation = 'ENDING'` is the only state that holds one line, so the
+   ellipsis is a platform constraint rather than a design choice. Only the
+   read-back exposed the clearing — the write reported success.
+
 ```sh
 cargo test --workspace                            # all Rust tests
 # CLI-crate coverage gate — the exact check CI runs (lines+regions+functions):

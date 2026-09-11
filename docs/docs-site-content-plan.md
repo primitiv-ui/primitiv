@@ -1682,6 +1682,64 @@ Three things that came out of doing it, none of them guessable:
 
 ---
 
+### 6.0.11 The v3 home sections start landing in code (2026-09-11)
+
+**Scope correction first.** "Wire the staged illustrations into the home page"
+turned out to be the wrong description of the work. The code home page was
+still the **v1 landing** — Hero, ChooseYourPath, DocumentationMap,
+ComponentBlock — while the v3 home is designed in Figma at 12,055px across ten
+sections. The ten assets sitting unused in `public/illustrations/` since 4-7
+September had **no host sections**. So the remaining home work is *building the
+v3 sections*, and the assets follow for free.
+
+Two are now built, both verified in real Chromium (the handoff's own rule --
+render-time React errors never appear in `next build`):
+
+- **Section 9, Accessibility** (`AccessibleByDefault`) with the A11Y-01
+  animation. Four states checked, each with zero page errors and zero failed
+  requests: desktop dark/light and mobile dark all serve the matching `.mp4`,
+  and `prefers-reduced-motion: reduce` serves the `<img>` still -- carrying
+  `alt` rather than `aria-label`, which is the right swap.
+- **Section 6, Figma and code** (`DesignAndBuild`) with FIGMA-01 full content
+  width.
+
+**`useDocsTheme()` was extracted, and the home-copy record is why.** The site
+has no theme context -- `ThemeToggle` derived the value inline -- so any
+illustration picking its own `src` by theme would re-derive it independently
+and the two could disagree on first paint, flashing a light video on a dark
+page. One hook, one answer; `ThemeToggle` keeps sole ownership of the
+`data-theme` side effect so it does not run once per consumer.
+
+**The render caught a duplicate caption.** The spec gives FIGMA-01 a caption
+("The same three tokens, on both sides.") and the built asset has it **baked
+into the composite**, so composing `Figure.Caption` around it printed it twice.
+The image now renders bare, with the caption folded into its `alt`.
+
+**Gap found, not closed: FIGMA-01 has no mobile recomposition.** Its spec asks
+for one explicitly -- *"below-48rem: stack vertically, Figma above, browser
+below, token names as a horizontal band between them"* -- but only
+`figma-01-{light,dark}.png` was ever built, unlike A11Y-01 which has proper
+`{desktop,mobile}` variants. At 390px the 2:1 composite renders 358x179 and the
+token names and Figma chrome are an illegible smear. It ships that way for now
+because the fix is an asset, not code: it needs the `a11y-recorder` scene plus
+a fresh human Figma screenshot at the stacked composition. **Anything reading
+the parity claim on a phone currently cannot check it.**
+
+**One thing to settle when the remaining sections land: banding.** Sections
+alternate tinted/untinted, and with only three of ten built the alternation is
+guesswork -- `DesignAndBuild` and `AccessibleByDefault` are both banded with
+`ChooseYourPath` between them. Correct against the Figma frame once the run is
+complete rather than guessing section by section.
+
+**The docs site has no test framework** -- no vitest, no test files;
+devDependencies are TypeScript and types only. Strict TDD was therefore not
+available for this work, and the gate followed instead was the site's own
+(`pnpm qa` = `check:css` + `typecheck`, both passing, 1,339 tokens resolving)
+plus the real-browser render. Adding a runner to docs-site is a real decision
+worth taking deliberately rather than slipping in mid-task.
+
+---
+
 ## 6.1 A finding logged while verifying copy
 
 **`README.md` has drifted from the repository it describes.** Verifying

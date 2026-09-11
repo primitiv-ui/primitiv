@@ -31,6 +31,7 @@ import { LandingSection } from "./LandingSection";
 import { label, useMode } from "./preferences";
 
 import { A11yAnimation } from "@/site/A11yAnimation";
+import { ThemedImage } from "@/site/ThemedImage";
 
 import "./landing-sections.css";
 
@@ -102,6 +103,60 @@ export const ChooseYourPath = () => (
   </LandingSection>
 );
 
+
+
+/* ── Section 6 — Figma and code ────────────────────────────────────────────── */
+
+/* Copy verbatim from docs-site-home-copy.md §6. The image is full content
+   width rather than a two-column split: its own composition is already a
+   Figma half, a token spine and a browser half, so putting it beside text
+   would halve the thing the section exists to let you compare. */
+export const DesignAndBuild = () => (
+  <LandingSection
+    id="design-and-build"
+    overline="Design and build"
+    heading="Your design file and your code are built from the same tokens."
+    band
+  >
+    <Stack gap="xl">
+      <Stack gap="md">
+        <p className="docs-lede">
+          The Figma library is not a drawing of the components. Both are built
+          from one set of tokens, so they cannot quietly disagree about a colour
+          or a spacing value.
+        </p>
+        <p className="docs-lede">
+          Designers work with the real component sets, at every size and
+          density. Developers get the same components in code. When a token
+          changes, both move.
+        </p>
+      </Stack>
+
+      {/* No Figure.Caption: the asset already carries "The same three tokens,
+          on both sides." baked into the composite, and adding the spec's
+          caption here rendered it twice. The alt text carries the description
+          for anyone who cannot see it. */}
+      <ThemedImage
+        base="/illustrations/figma-01"
+        ratio="2 / 1"
+        alt="The Button component set open in Figma beside the same buttons rendered in a browser, with the three shared token names listed between them. The same three tokens, on both sides."
+      />
+
+      <Stack gap="sm">
+        <p className="docs-commitment-note">
+          Two things the design file cannot match exactly, and it is better to
+          know now. Figma cannot express CSS grid inside a component slot, so
+          the Grid component is approximated with wrapping. And Aspect Ratio is
+          fixed-pixel in Figma rather than fluid. Everything else is the same on
+          both sides.
+        </p>
+        <Link className="docs-path-link" href="/figma/">
+          Design in Figma →
+        </Link>
+      </Stack>
+    </Stack>
+  </LandingSection>
+);
 
 /* ── Section 9 — Accessibility ─────────────────────────────────────────────── */
 

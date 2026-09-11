@@ -19,7 +19,7 @@ status, summary, and decision record; this page is the index.
 | [0003](0003-dynamic-foreground-wiring.md) | Dynamic foreground wiring | Implemented (engine + sync-plugin + DTCG) |
 | [0017](0017-elevation-and-shadow-tokens.md) | Elevation & shadow tokens | Draft — in progress |
 | [0025](0025-responsive-breakpoints.md) | Responsive breakpoints | Web landed; Figma sync pending |
-| [0027](0027-ramp-quality-and-generation-feedback.md) | Ramp quality metrics & generation feedback | Steps 1–3 landed; 4–7 open |
+| [0027](0027-ramp-quality-and-generation-feedback.md) | Ramp quality metrics & generation feedback | Steps 1–7 landed; §7's Intent-layer consumption open |
 | [0031](0031-oklch-first-token-output.md) | OkLCH-first token output | Accepted — not yet built |
 
 - **0001** — the six-pattern layered token stack (primitives → intent → role →

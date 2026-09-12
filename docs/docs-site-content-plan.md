@@ -2192,3 +2192,83 @@ component pages are still to come. `overflow-wrap: break-word` only breaks a
 word that cannot fit a line on its own, so ordinary prose is untouched;
 `.docs-section-meta` got it too, being the same kind of text from the same
 source.
+
+### 6.0.19 The illustration drop-in, and why the export needs a human (2026-09-12)
+
+The forty PNGs are the last thing standing between the eight content pages and
+a deploy. Everything on the code side is now built and **verified against
+stand-in files**, so landing the art is one command.
+
+**Getting pixels out of Figma is blocked at the network policy, and re-pairing
+the Desktop Bridge does not change it.** Measured, not assumed:
+`get_screenshot` works and returns a short-lived URL on `www.figma.com`, and
+the egress proxy answers **403 at CONNECT** for that host — the same wall
+`upload_assets` hits (gotcha 31), reached from the other direction.
+`download_assets` serves from the same origin. The distinction worth keeping:
+the plugin relay is a *different* host and is fine, so **scripting the canvas
+works and reading rendered pixels does not**. The only bridge route for pixels
+is `exportAsync` → base64 through `figma_execute`, at roughly 150,000
+characters an image; forty of those is millions of characters of context for
+2.4MB of files. So the export is a human's job, and this is a property of the
+sandbox rather than of Figma.
+
+**Rebuilding the ten as HTML scenes was considered and rejected.** The
+machinery exists — `tools/a11y-recorder` is a vite app whose scenes are picked
+by query string and captured by a local Chromium at an exact size and DPR, and
+it is how A11Y-01, CODE-01 and FIGMA-01 were made. The tempting argument for it
+is palette survivability, and **that argument is wrong**: §6.0.9 already
+measured that the Figma illustrations follow a regeneration (575 bound paints,
+zero unbound, zero drifted) and `resync-illustration-literals.js` lands the new
+values. The only thing that does not follow is an exported raster, and
+re-exporting after a resync is the same work as exporting the first time.
+Rebuilding ten settled Figma diagrams in HTML to avoid a future re-export is a
+bad trade. FIGMA-P01 remains the one that must be *retaken* rather than
+resynced, exactly as §6.0.9 says.
+
+**What to export.** Forty files into
+`apps/docs-site/public/illustrations/`, named
+`<id>-<desktop|mobile>-<light|dark>.png`, lowercased — matching the home page's
+`a11y-01-*` convention. `pnpm illustrations` prints the full list of what is
+missing, so the names never have to be typed from memory. The light twins are at
+x=3400 (desktop) / x=4100 (mobile) on `Docs Site — Content illustrations`
+(§6.0.10). Scale does not matter: the site sizes these to the column and only
+uses the aspect, so 1x or 2x both work — 2x is the better choice for a HiDPI
+screen.
+
+**The geometry is measured, never declared.** `scripts/gen-illustrations.mjs`
+reads each PNG's own IHDR — no dependency, the header is a fixed signature then
+a length, `IHDR`, and two big-endian integers. This is deliberate: every one of
+these ten has a brief stating a ratio and **three were built at a different
+size**, the briefs' ratios having been written before the content existed
+(§6.0.5, §6.0.6, §6.0.8). A number typed into the site would have been the
+fourth opinion about each image's shape. The generator also **fails** when a
+light and dark twin disagree on size, since the twins are clones of one frame
+and a mismatch means a stale frame or a different export scale.
+
+**An id renders only when all four of its files are present.** A half-landed
+illustration shows nothing rather than a broken theme or a broken breakpoint,
+and a paired row (DENSITY-C02, COMPOSE-01, FIGMA-P02) stays one column until
+its illustration arrives.
+
+**`<picture>` for the breakpoint, the hook for the theme, and that split is
+forced.** `<source media>` cannot key on `prefers-color-scheme` or on the
+toggle's `data-theme`, while doing the theme swap in CSS downloads both files.
+So the media query picks the composition at the shell's own 64rem boundary —
+where both rails drop and every brief asks for its stacked version — and
+`useDocsTheme` picks the twin. Exactly one image is fetched. Each source
+carries its **own** measured aspect ratio, because the mobile version is a
+recomposition and not a scaled copy.
+
+**The alt text is authored, all ten, and it is brief-derived.** A brief says
+what to draw; alt says what a reader who cannot see it needs to know, so it
+cannot be generated. Each string is written from that illustration's brief and
+its build notes — which means **each wants one look against the landed export**
+before publication, and that check belongs with the export rather than here.
+
+**Verified before the art exists, in both directions.** Two illustrations were
+faked from the A11Y-01 assets (START-01, and COMPOSE-01 for the paired case) and
+the render confirmed: desktop serves `-desktop-`, mobile serves `-mobile-`, dark
+serves `-dark-` and light `-light-`, the paired row goes `300px 300px` at 1280
+and one `326px` column at 390, and alt reaches the DOM. The stand-ins were then
+removed and both pages re-checked clean at 0/10. `pnpm check:illustrations`
+guards the manifest against the folder.

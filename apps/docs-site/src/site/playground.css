@@ -13,7 +13,18 @@
   --docs-preview-min-height: 6rem;
 
   display: grid;
+  /*
+   * One column that can never exceed the preview. A bare implicit column is
+   * sized `auto`, which for a centred item means max-content — so a demo with a
+   * fixed width (AspectRatio's 16rem frame) grew the track to 256px inside a
+   * 214px preview, and its own `max-inline-size: 100%` then resolved against
+   * that 256 and let it through. A percentage cap is only as good as the track
+   * it measures. `minmax(0, max-content)` keeps the item at its natural width
+   * while capping the track at the container, so `100%` means what it says.
+   */
+  grid-template-columns: minmax(0, max-content);
   place-items: center;
+  justify-content: center;
   min-block-size: var(--docs-preview-min-height);
 }
 
@@ -28,6 +39,9 @@
  */
 .docs-playground-preview--fill {
   justify-items: stretch;
+  /* The fill variant wants the whole column, so the track grows with it rather
+     than hugging its content. */
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .docs-playground-controls {

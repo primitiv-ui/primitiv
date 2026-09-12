@@ -63,9 +63,20 @@
   margin-block-start: var(--primitiv-space-space-12);
 }
 
-/* Below md the links wrap under the heading rather than squeezing it. */
+/*
+ * Below md the links wrap under the heading rather than squeezing it — which is
+ * what this comment claimed for a while against CSS that only shrank the
+ * heading. The row was `nowrap`, so at 320 it needed 275px in 256 and every
+ * flexible item gave way instead: the status Badge went from 48px to 20 (its
+ * label crushed) and both links lost a third of their width. Measured, and it
+ * was already borderline at the 390 baseline.
+ */
 @media (max-width: 47.9375rem) {
   .docs-component-title {
     font-size: var(--primitiv-heading-h2-font-size);
+  }
+
+  .docs-component-title-row {
+    flex-wrap: wrap;
   }
 }

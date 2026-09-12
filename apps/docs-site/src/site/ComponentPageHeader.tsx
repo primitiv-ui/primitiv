@@ -69,7 +69,7 @@ export const ComponentPageHeader = ({ docs }: { docs: ComponentDocs }) => (
       </BreadcrumbList>
     </Breadcrumb>
 
-    <Stack direction="row" gap="sm" align="center">
+    <Stack className="docs-component-title-row" direction="row" gap="sm" align="center">
       <h1 className="docs-component-title">{humanName(docs.displayName)}</h1>
       <Badge tone="success" size="sm">
         {docs.status}

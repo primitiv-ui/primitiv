@@ -1,0 +1,46 @@
+/*
+ * PROBLEM-01 — three teams' buttons. Geometry from the brief in
+ * docs/docs-site-home-copy.md §3.
+ *
+ * "Wide, quiet margins. The image is mostly empty. The three objects are small
+ * in the frame, which is what makes the comparison feel forensic rather than
+ * decorative." So there is no card, no frame and no container here — the
+ * buttons sit on the page ground, and the emptiness is the composition.
+ */
+
+.docs-team-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  /* Centred on their own centres, not their tops: the heights differ by 2px and
+     3px, and centring reveals that on both edges at once. Aligning tops would
+     show it only at the bottom. */
+  align-items: center;
+  justify-content: center;
+  gap: var(--primitiv-space-space-56);
+  padding-block: var(--primitiv-space-space-56);
+}
+
+.docs-team-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--primitiv-space-space-12);
+}
+
+.docs-team-caption {
+  font-family: var(--primitiv-label-sm-font-family);
+  font-size: var(--primitiv-label-sm-font-size);
+  font-weight: var(--primitiv-label-sm-font-weight);
+  line-height: var(--primitiv-label-sm-line-height);
+  color: var(--primitiv-content-muted);
+}
+
+/* Below 36rem the row stacks, captions still directly beneath their button —
+   the brief's own `below-36rem`. The gap tightens because a 56px rhythm down a
+   phone screen separates them past the point of being compared. */
+@media (width < 36rem) {
+  .docs-team-buttons {
+    flex-direction: column;
+    gap: var(--primitiv-space-space-32);
+  }
+}

@@ -13,11 +13,11 @@
     "check:content": "node scripts/gen-content-pages.mjs --check",
     "gen:illustrations": "node scripts/gen-illustrations.mjs",
     "check:illustrations": "node scripts/gen-illustrations.mjs --check",
-    "gen:palette-sheet": "node scripts/gen-palette-sheet.mjs",
-    "check:palette-sheet": "node scripts/gen-palette-sheet.mjs --check",
+    "gen:engine-data": "node scripts/gen-engine-data.mjs",
+    "check:engine-data": "node scripts/gen-engine-data.mjs --check",
     "illustrations": "node scripts/gen-illustrations.mjs --report",
     "gates": "node scripts/gates.mjs",
-    "qa": "pnpm check:css && pnpm check:content && pnpm check:illustrations && pnpm check:palette-sheet && pnpm typecheck",
+    "qa": "pnpm check:css && pnpm check:content && pnpm check:illustrations && pnpm check:engine-data && pnpm typecheck",
     "primitiv": "primitiv"
   },
   "dependencies": {

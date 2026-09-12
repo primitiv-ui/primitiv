@@ -20,6 +20,7 @@ import {
 import { CloseSection } from "@/site/CloseSection";
 import { ColourSection } from "@/site/ColourSection";
 import { LandingShell } from "@/site/LandingShell";
+import { ProblemSection } from "@/site/ProblemSection";
 import { ProofStrip } from "@/site/ProofStrip";
 
 export default function HomePage() {
@@ -27,8 +28,10 @@ export default function HomePage() {
     <LandingShell>
       <Hero />
       <ProofStrip />
-      {/* Section 5 sits before "design and code from the same source", per the
-          v3 order in docs-site-content-plan.md §2. */}
+      {/* Sections 3 and 5, in the v3 order of docs-site-content-plan.md §2.
+          Section 4 (the live density demo) belongs between them and is not
+          built yet. */}
+      <ProblemSection />
       <ColourSection />
       <DesignAndBuild />
       <ChooseYourPath />

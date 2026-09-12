@@ -1,0 +1,50 @@
+/*
+ * Home section 3's prose. The buttons' own anatomy is in team-buttons.css.
+ */
+
+.docs-problem-symptom,
+.docs-problem-note,
+.docs-problem-close {
+  /* Body text across a full `xl` container is unreadable; a named constant
+     rather than a literal at the use site, following `--docs-hero-lede-measure`.
+     There is no token for a text measure and inventing one would put a
+     typographic judgement in the design system for one page's benefit. */
+  --docs-problem-measure: 42rem;
+}
+
+/* 12px from each lead-in to its line — `flow/tight`, the same pairing the
+   commitments in section 9 use. */
+.docs-problem-symptom {
+  gap: var(--primitiv-flow-tight);
+}
+
+.docs-problem-title {
+  margin: 0;
+  font-family: var(--primitiv-heading-h4-font-family);
+  font-size: var(--primitiv-heading-h4-font-size);
+  font-weight: var(--primitiv-heading-h4-font-weight);
+  line-height: var(--primitiv-heading-h4-line-height);
+  letter-spacing: var(--primitiv-heading-h4-letter-spacing);
+  color: var(--primitiv-content-primary);
+  max-inline-size: var(--docs-problem-measure);
+}
+
+.docs-problem-note {
+  margin: 0;
+  font-family: var(--primitiv-body-md-font-family);
+  font-size: var(--primitiv-body-md-font-size);
+  line-height: var(--primitiv-body-md-line-height);
+  color: var(--primitiv-content-secondary);
+  max-inline-size: var(--docs-problem-measure);
+}
+
+/* The closing line carries the section's argument, so it is `body/lg` in
+   content/primary rather than another muted note — the copy's own call. */
+.docs-problem-close {
+  margin: 0;
+  font-family: var(--primitiv-body-lg-font-family);
+  font-size: var(--primitiv-body-lg-font-size);
+  line-height: var(--primitiv-body-lg-line-height);
+  color: var(--primitiv-content-primary);
+  max-inline-size: var(--docs-problem-measure);
+}

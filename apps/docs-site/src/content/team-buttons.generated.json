@@ -1,0 +1,29 @@
+{
+  "buttons": [
+    {
+      "team": "Billing",
+      "hex": "#176fdd",
+      "height": 40,
+      "radius": 4,
+      "paddingInline": 16,
+      "labelWeight": "Medium"
+    },
+    {
+      "team": "Onboarding",
+      "hex": "#2c6ce7",
+      "height": 42,
+      "radius": 6,
+      "paddingInline": 20,
+      "labelWeight": "Medium"
+    },
+    {
+      "team": "Settings",
+      "hex": "#3966de",
+      "height": 45,
+      "radius": 10,
+      "paddingInline": 16,
+      "labelWeight": "SemiBold"
+    }
+  ],
+  "widestDeltaE": 0.0257
+}

@@ -420,18 +420,60 @@ and the grid-row collapse (`0fr↔1fr`) Accordion uses, styled by `side-nav.css`
   it; the a11y/structure checks all passed. `flex: 0 0 auto` on `.docs-nav-section`
   + `flex: 1 1 auto; min-block-size: 0` on the fill section is the model.
 
+### Interactive overlays — read before adding one (2026-08-29)
+
+Overlays (Tooltip, Popover, Drawer, Dropdown landed; Context Menu, Confirm
+Dialog remain) are interactive, so a static "just render it" page is wrong. Five
+things, each of which cost a real debugging round or user correction:
+
+- **Show them interactively, NEVER pinned open.** A first pass pinned tooltips
+  open so `tone`/`size` showed without hovering; the user (rightly) called it out
+  — a permanently-visible tooltip misrepresents the component. Tooltips open on
+  **hover/focus**, Popover/Dropdown/Drawer on **click**. Let the reader interact;
+  the trigger label ("Hover me", "Open drawer") is the hint.
+- **Anchor-positioned overlays need explicit anchor wiring, per instance.**
+  Tooltip, Popover, Dropdown and Context Menu leave `anchor-name` (on the
+  trigger) ↔ `position-anchor` (on the content) to the consumer — wire a unique
+  pair from `useId()` (hyphenate the colons: `id.replace(/[^a-zA-Z0-9_-]/g,"-")`)
+  or the panel lands **top-left**. Popover's "native popovertarget gives an
+  implicit anchor" does NOT apply here: the primitives open via JS
+  (`showPopover()`), not the invoker attribute, so there is no implicit anchor.
+  The snippets SHOULD show the wiring — it is genuinely required to use them.
+  (Drawer is the exception — it is Modal-based, docks to an edge, no anchor.)
+- **The static prerender has no `document`.** Forcing an overlay open during SSR
+  renders its portal, and `createPortal(document.body)` throws
+  `document is not defined` at build time (invisible in dev). Keep overlays
+  **closed by default** (open on interaction), or if you must show one, open it
+  in a `useEffect` (after mount) — never via a bare `open` prop at first render.
+- **`contractControls` flattens modifiers across ALL parts.** A modifier declared
+  on a sub-part (Tooltip/Popover `size`+`placement` live on `Content`; Figure's
+  `align` on `Caption`) shows up as a playground control, but the render only
+  applies what you wire — an unwired sub-part control looks dead. Wire every
+  control the playground surfaces, or `excludeControls` it. `placement` (13
+  values) is excluded from the playgrounds and shown in an example instead.
+- **Modal-based dialogs (Modal, Drawer, and Confirm Dialog next) reuse Modal's
+  page pattern:** a `display:contents` `PortalHost` so the dialog stays under the
+  density-scoped preview wrapper (`container` prop aims the portal there), and a
+  `region(mode, part)` helper that renders styled-only Header/Body/Footer as
+  plain `<div>`s under the Headless tab (the primitive has no such part). Copy
+  `examples/modal.tsx` / `examples/drawer.tsx` for a new one.
+
 ## Outstanding
 
 1. **Mobile drawer menu** — both header segmented controls hide below `48rem`
    awaiting it, and the sidebar/TOC rails are hidden below `64rem` with no
    replacement. (The `/components` index itself now has a compact shape — see
    Mobile below — but the shell around it does not.)
-0. **25 components still have no page.** 38 are done — **Layout (8/8)** and
-   **Typography (9/9)** are complete (Typography: Kbd, InlineCode, Blockquote,
-   PullQuote, Prose, List, DescriptionList, Figure, CodeBlock, landed 2026-08-28).
-   Overlays (1/7), Data Display (1/8) and Disclosure (2/8) are the next-largest
-   gaps. The sidebar `Collapsible` swap, the GitHub Pages deploy, the mobile
-   burger/drawer menu and sidebar-scroll persistence all landed too.
+0. **21 components still have no page** (42 of 63 done). **Layout (8/8)** and
+   **Typography (9/9)** are complete, and **Overlays is 5/7** (Modal, Tooltip,
+   Popover, Drawer, Dropdown — landed 2026-08-28/29). Remaining, by category:
+   **Data Display (7)** avatar, avatar-group, card, chip, data-table, table, tag ·
+   **Disclosure (6)** breadcrumb, breadcrumb-overflow, carousel, collapsible,
+   pagination, stepper · **Collections & Selection (4)** combobox, listbox,
+   miller-columns, tree · **Overlays (2)** confirm-dialog, context-menu ·
+   **Navigation (1)** navigation-menu · **Buttons (1)** split-button. The sidebar
+   `Collapsible` swap, the GitHub Pages deploy, the mobile burger/drawer menu and
+   sidebar-scroll persistence all landed too.
    **Three Typography tooling fixes worth knowing** (all in the extractor / a
    contract): `EL_IFACE` gained the prose/quote/list elements
    (kbd/code/blockquote/dl/dt/dd/figure) so their props tables say "Extends …"

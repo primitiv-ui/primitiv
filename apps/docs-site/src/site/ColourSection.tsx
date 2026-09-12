@@ -2,9 +2,11 @@
 
 import Link from "next/link";
 
+import { Grid } from "@/components/grid";
 import { Stack } from "@/components/stack";
 
 import { ColourProof } from "./ColourProof";
+import { HueDrift } from "./HueDrift";
 import { LandingSection } from "./LandingSection";
 
 import "./colour-section.css";
@@ -29,9 +31,10 @@ import "./colour-section.css";
  * - **Harmoni is named, not linked.** The copy asks for a `Harmoni →` link to
  *   its own site; that site does not exist yet (§3.9), and a dead link is worse
  *   than a missing one — the same call the footer and the documentation map got.
- * - **COLOUR-02, the hue-drift diagram, is not here yet.** It is the one claim
- *   in this section a reader cannot verify from the sheet, so the "harmonious"
- *   paragraphs ship with their argument stated and CI-gated but not yet drawn.
+ * - **COLOUR-02 sits BESIDE the "harmonious" paragraphs**, per its own brief:
+ *   the prose on the left, the diagram on the right half, stacked below 48rem.
+ *   It is the one claim in this section a reader cannot verify from the sheet,
+ *   which is why it is placed against that prose rather than after it.
  */
 export const ColourSection = () => (
   <LandingSection
@@ -57,22 +60,29 @@ export const ColourSection = () => (
           after it is explanation of what the reader is looking at. */}
       <ColourProof />
 
-      <Stack gap="md">
-        <h3 className="docs-colour-subheading">Harmonious, not just legible</h3>
-        <p className="docs-colour-body">
-          Legible is the low bar. The harder problem is that a colour scale
-          should look like one family, and most do not. Ramps tend to wander in
-          hue from one step to the next, a little at a time, which is easy to
-          miss on any single swatch and plain once you lay the whole scale out.
-          Or they lose their colour and fade toward grey.
-        </p>
-        <p className="docs-colour-body">
-          Neither happens here, and neither is left to judgement. The hue is held
-          fixed by construction, the steps are checked to stay visibly distinct
-          from one another, and a ramp that started greying out would fail its
-          test rather than ship.
-        </p>
-      </Stack>
+      {/* The brief's own placement: prose left, diagram in the right-hand half,
+          full width beneath the prose below 48rem. The diagram is the evidence
+          for these two paragraphs specifically, so it sits against them. */}
+      <Grid columns={{ base: 1, md: 2 }} gap="xl" align="center">
+        <Stack gap="md">
+          <h3 className="docs-colour-subheading">Harmonious, not just legible</h3>
+          <p className="docs-colour-body">
+            Legible is the low bar. The harder problem is that a colour scale
+            should look like one family, and most do not. Ramps tend to wander in
+            hue from one step to the next, a little at a time, which is easy to
+            miss on any single swatch and plain once you lay the whole scale out.
+            Or they lose their colour and fade toward grey.
+          </p>
+          <p className="docs-colour-body">
+            Neither happens here, and neither is left to judgement. The hue is
+            held fixed by construction, the steps are checked to stay visibly
+            distinct from one another, and a ramp that started greying out would
+            fail its test rather than ship.
+          </p>
+        </Stack>
+
+        <HueDrift />
+      </Grid>
 
       <Stack gap="md">
         <h3 className="docs-colour-subheading">Where the colour comes from</h3>

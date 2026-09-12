@@ -1,0 +1,78 @@
+/*
+ * COLOUR-02 — the hue-drift comparison. Tokens from the brief in
+ * docs/docs-site-home-copy.md §5.
+ */
+
+.docs-hue-drift {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--primitiv-space-space-24);
+}
+
+.docs-hue-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--primitiv-space-space-8);
+}
+
+.docs-hue-label {
+  font-family: var(--primitiv-label-sm-font-family);
+  font-size: var(--primitiv-label-sm-font-size);
+  font-weight: var(--primitiv-label-sm-font-weight);
+  line-height: var(--primitiv-label-sm-line-height);
+  color: var(--primitiv-content-secondary);
+}
+
+/* Ten equal tracks, `minmax(0, 1fr)` so the swatches compress on a narrow
+   column instead of the row overflowing — the same reason as the proof sheet. */
+.docs-hue-ramp {
+  display: grid;
+  grid-template-columns: repeat(10, minmax(0, 1fr));
+  block-size: var(--primitiv-size-size-32);
+  border-radius: var(--primitiv-radii-4);
+  /* The radius belongs to the scale, not each step. */
+  overflow: hidden;
+}
+
+.docs-hue-swatch {
+  min-inline-size: 0;
+}
+
+/*
+ * The painted hue sweep. NOT a rule: a plain line under the tiles invites the
+ * eye to read a marker against the tile above it, which is a different quantity
+ * — see the note in HueDrift.tsx. The gradient is the engine's own samples at
+ * the seed's lightness and chroma, so the axis is made of the same colours the
+ * ramps are drawn from, and it explains itself without a caption.
+ */
+.docs-hue-track {
+  position: relative;
+  block-size: var(--primitiv-size-size-12);
+  border-radius: var(--primitiv-radii-full);
+}
+
+/*
+ * Semi-opaque rings, so coincident markers ACCUMULATE. Ten stacked at full
+ * opacity look like one; at 0.55 the held row's single point reads dense and
+ * the drifting row's spread reads sparse, which is how the diagram makes its
+ * case without degree figures.
+ */
+.docs-hue-marker {
+  position: absolute;
+  inset-block: 50%;
+  inset-inline-start: var(--docs-hue-at);
+  inline-size: var(--primitiv-size-size-12);
+  block-size: var(--primitiv-size-size-12);
+  translate: -50% -50%;
+  border: var(--primitiv-border-width-2) solid var(--primitiv-content-primary);
+  border-radius: var(--primitiv-radii-full);
+  opacity: 0.55;
+}
+
+.docs-hue-caption {
+  font-family: var(--primitiv-body-sm-font-family);
+  font-size: var(--primitiv-body-sm-font-size);
+  line-height: var(--primitiv-body-sm-line-height);
+  color: var(--primitiv-content-muted);
+}

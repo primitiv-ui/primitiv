@@ -112,9 +112,93 @@ const teamButtons = () => {
   };
 };
 
+
+/* ── The hue-drift comparison (§2.5, brief COLOUR-02) ─────────────────────── */
+
+/**
+ * Two ten-step blue ramps — one drifting in hue, one holding — each over a
+ * painted hue track that shows where every step's hue actually sits.
+ *
+ * Three things travel with the data because the diagram's case depends on them,
+ * and each was learned the hard way during the Figma build (home copy §5's
+ * build note):
+ *
+ * - **One shared hue domain for both tracks.** Scaling each row to its own data
+ *   would rig the comparison — the held row's ten identical hues would spread
+ *   across the full width and prove the opposite of the point. The engine emits
+ *   one `track` and both rows are plotted against it.
+ * - **The track is a painted hue SWEEP, not a rule.** A plain rule under the
+ *   tiles invites the eye to map a marker to the tile above it, which is a
+ *   different quantity entirely: the held row's single marker sits at 260° and
+ *   lands under the 300 tile, so the diagram read as broken. The sweep makes the
+ *   axis explain itself instead of needing a caption to explain the axis.
+ * - **The drifting row is the real ramp's lightness and chroma with ONLY hue
+ *   moved.** That is the only construction that isolates the one variable the
+ *   diagram is about, so the comparison cannot be accused of smuggling in a
+ *   lightness or saturation difference. Three other constructions were tried and
+ *   rejected; the note records why.
+ *
+ * Guarded, because a regeneration could quietly destroy the argument: the held
+ * ramp must hold its hue exactly, the drifting one must actually drift, and the
+ * drift must be spread rather than dumped in the end steps — "a range is not a
+ * drift, and the headline number hid that" was a real review finding, where
+ * eight of ten swatches came out visually identical to the real ramp.
+ */
+const hueDrift = () => {
+  const dump = read("colour-02-hue-drift.json");
+  const { drifting, held, track } = dump;
+
+  if (held.hueSpanDegrees !== 0) {
+    throw new Error(
+      `The held ramp spans ${held.hueSpanDegrees}° — it is the row that proves hue ` +
+        `is held by construction, so anything but 0 breaks the diagram.`,
+    );
+  }
+  if (drifting.hueSpanDegrees < 20) {
+    throw new Error(
+      `The drifting ramp spans only ${drifting.hueSpanDegrees}° — too little to read ` +
+        `against the held row, and the brief asks for roughly 30.`,
+    );
+  }
+  /* Evenly spread, not dumped at the ends: the widest adjacent gap must not be
+     more than twice the mean, or most of the row is visually identical to the
+     real ramp and only the two end steps carry the span. */
+  const gaps = drifting.steps
+    .slice(1)
+    .map((s, i) => Math.abs(s.hue - drifting.steps[i].hue));
+  const mean = gaps.reduce((a, b) => a + b, 0) / gaps.length;
+  const widest = Math.max(...gaps);
+  if (widest > mean * 2) {
+    throw new Error(
+      `The drift is uneven — the widest step-to-step gap is ${widest.toFixed(1)}° ` +
+        `against a ${mean.toFixed(1)}° mean, so the span sits in a couple of steps ` +
+        `rather than across the scale. A range is not a drift.`,
+    );
+  }
+
+  const row = (r) => ({
+    hueSpan: Math.round(r.hueSpanDegrees * 10) / 10,
+    steps: r.steps.map((s) => ({ step: s.step, hex: s.hex, hue: s.hue })),
+  });
+
+  return {
+    drifting: row(drifting),
+    held: row(held),
+    track: {
+      hueMin: track.hueMin,
+      hueMax: track.hueMax,
+      /* The sweep, as the stops of a gradient — the engine's own samples at the
+         seed's lightness and chroma, so the axis is made of the same colours the
+         ramps are drawn from. */
+      samples: track.samples.map((s) => s.hex),
+    },
+  };
+};
+
 const OUTPUTS = [
   ["palette-sheet.generated.json", paletteSheet],
   ["team-buttons.generated.json", teamButtons],
+  ["hue-drift.generated.json", hueDrift],
 ];
 
 const built = OUTPUTS.map(([name, build]) => [name, `${JSON.stringify(build(), null, 2)}\n`]);

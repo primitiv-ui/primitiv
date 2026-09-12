@@ -2564,3 +2564,78 @@ artwork), FIGMA-01's rebuild (its dark screenshot is genuinely dark-themed Figma
 — what is light is the **canvas background**, a per-page setting, so tightening
 the crop past it may fix the composite with no re-take) and section 7's CODE-01
 (an unreviewed recording in the recorder's gitignored `out/`).
+
+### 6.0.25 Home section 4 — the density demo is live (2026-09-12)
+
+Built and on the page, ahead of colour per §2.4's own reordering: *will this fit
+what we build?* comes before *is it any good?*. It needed no artwork at all —
+Figma could never hold the dial, so the frame was always the panel's **design**
+and the site was always going to implement the switch over it.
+
+**The claim it makes is RANGE, and the two regions are what make it.** A single
+scene at four densities says "the spacing is adjustable", which a `size` prop
+already does. Two very different scenes on one dial says "this fits whatever you
+build". Operations on the left — segmented control, button, an eight-row table
+with real Badges; editorial on the right — overline, heading, prose, blockquote,
+CTA.
+
+**Nothing is hardcoded per mode, and the brief said that was the test:** "if any
+element needs a manual adjustment per mode, that is a token gap and a finding
+worth recording, not something to patch in the demo." **None needed one.** The
+stage sets `data-density` and the cascade does the rest.
+
+**Measured across all four modes rather than asserted:**
+
+| mode | table row | button h | button radius | h3 | body line-height |
+| --- | --- | --- | --- | --- | --- |
+| dense | 25 | 20 | 4 | 16 | 16 |
+| compact | 38 | 28 | 6 | 26 | 24 |
+| comfortable | 46 | 32 | 6 | 32 | 24 |
+| spacious | 57 | 40 | 8 | 52 | 28 |
+
+Four things fall out of that table, and each is a claim the section makes:
+
+- **Both regions move together.** The table row travels 25→57 while the
+  editorial heading travels 16→52, from one attribute.
+- **Type is genuinely density-scaled.** The 16/26/32/52 ramp is an independent
+  confirmation of the `heading/h3/font-size` figures the Figma build recorded —
+  measured here from the browser, there from the canvas.
+- **Radius follows height**, which is the third copy block's whole claim: 20→4,
+  28→6, 32→6, 40→8, matching `context.json` exactly. Checked further while
+  writing that block: **every height in the token set maps to exactly one
+  radius** — h=40 gives r=8 whether it arrives as dense-xl, compact-lg,
+  comfortable-md or spacious-sm. Radius is a function of height alone, not of
+  mode or size, so the copy is sound as written.
+- **The stage holds 608px in every mode**, which the brief requires: a stage
+  that resized would make the page jump and hide the effect. Its two accepted
+  consequences hold too — Spacious scrolls internally, Dense leaves real space
+  below the table.
+
+**One defect a render caught and no measurement would have.** The editorial CTA
+stretched the full column, because the region is a flex column and a direct
+child stretches by default — it read as a full-width form submit rather than an
+article's "read more". Fixed with `align-self: start` scoped to direct children,
+so the toolbar's nested Export button keeps its own cross-axis alignment and the
+Table still fills its column (verified: CTA 65px at dense and 100px at spacious,
+table 543px in both).
+
+**Two smaller decisions worth keeping.** The region labels (OPERATIONS /
+EDITORIAL) are deliberately *outside* the density type scale — they are chrome
+naming the two halves, and a label that shrank with the dial would read as
+content. And the transition goes through the **semantic** motion tier
+(`motion/duration-expand`, `motion/easing-default`) rather than raw primitives;
+the brief's "the system's standard easing" names a role, and the role is what
+the system publishes — there is no `--primitiv-easing-standard`.
+
+**A shared helper came out of it.** `.docs-visually-hidden` (the demo's hidden
+`<legend>` needs it, and the components index already had a copy) moved to the
+global `document.css`. Two copies of an sr-only clip is exactly the kind of
+thing that drifts, and a wrong copy is silently inaccessible.
+
+**Section 4's two remaining diagrams**, both renderable live and neither needing
+artwork: **DENSITY-03** (every size at every density — the matrix whose
+diagonals show equal heights, and "a large control in a dense product is the
+same 40px as a small one in a spacious product" is verified true against the
+tokens: dense-xl and spacious-sm are both 40) and **DENSITY-02** (the radius
+derivation, beside the third block). Both blocks ship with their argument stated
+meanwhile.

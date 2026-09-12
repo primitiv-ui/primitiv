@@ -37,6 +37,9 @@ import { fileURLToPath } from "node:url";
 const here = dirname(fileURLToPath(import.meta.url));
 const BUILDER = resolve(here, "../../../scripts/figma/docs-content-pages.js");
 const OUT = resolve(here, "../src/content/pages.generated.json");
+/* Gates live in their own file that NO component imports — see the note on
+   GATE_MARKERS for why they must not reach a bundle. */
+const GATES_OUT = resolve(here, "../src/content/gates.generated.json");
 
 /** Route for each page key — the order is the order they appear in the nav. */
 const PAGE_ROUTES = {
@@ -119,6 +122,32 @@ const detectLanguage = (code) => {
   return "text";
 };
 
+/**
+ * Markers that make an alert a GATE rather than content.
+ *
+ * §6.0.4 put two publication gates into the Figma frames on purpose — "drawn
+ * into the pages, not left in a doc" — and a third followed. They are addressed
+ * to whoever builds the page, not to a reader: "do not ship this page before
+ * the deferred accessibility pass has run" is an instruction to us, and printing
+ * it on a public page is worse than printing nothing.
+ *
+ * So a gate does not reach the site's data at all — not even unrendered. A first
+ * pass kept gates as a block kind the renderer skipped, and the whole page object
+ * is handed to a client component, so "do not ship this page" was sitting in the
+ * serialized payload of the public HTML: invisible, but there in view-source.
+ * Gates are therefore collected into their own file that no component imports,
+ * and `pnpm gates` is the only thing that reads it.
+ *
+ * Matched on the opening marker rather than the tone: `warning` is a legitimate
+ * tone for real reader content, and an alert is a gate because of what it says.
+ */
+const GATE_MARKERS = ["PUBLICATION GATE", "PENDING", "OPEN QUESTION"];
+
+const gateMarker = (text) => GATE_MARKERS.find((m) => text.startsWith(m)) ?? null;
+
+/** Filled as pages convert; written to GATES_OUT, never to the site's data. */
+const gates = [];
+
 /* Blocks pass through as-is apart from the two that need resolving: link labels
    become { label, href } pairs, and a `gap` keeps only what the site uses. */
 const convert = (block) => {
@@ -133,7 +162,24 @@ const convert = (block) => {
     };
   }
   if (kind === "gap") return { kind, id: block[1], job: block[4] };
-  if (kind === "group") return { kind, gap: block[1], blocks: block[2].map(convert) };
+  if (kind === "group") {
+    const before = gates.length;
+    const blocks = block[2].map(convert).filter((b) => b !== null);
+    /*
+     * A gate inside a group GATES THAT GROUP, so the whole group is dropped. The
+     * tokens page is why: its "standard ramps" group documents work that is
+     * planned and not shipped, and its gate says "Do not publish it". Dropping
+     * only the notice would publish the claim without its caveat — the exact
+     * opposite of what the gate asks. A gate outside a group (the accessibility
+     * page's, in `head`) has no mechanically derivable scope, so it withholds
+     * nothing; `pnpm gates` reports both kinds, and says which withheld what.
+     */
+    if (gates.length > before) {
+      gates[before].withheld = blocks.length;
+      return null;
+    }
+    return { kind, gap: block[1], blocks };
+  }
   if (kind === "p") return { kind, text: block[1], code: block[2] ?? [] };
   if (kind === "block") {
     return { kind, heading: block[1], text: block[2], code: block[3] ?? [] };
@@ -150,7 +196,12 @@ const convert = (block) => {
       lineNumbers: o.lineNumbers === true,
     };
   }
-  if (kind === "alert") return { kind, tone: block[1], text: block[2] };
+  if (kind === "alert") {
+    const marker = gateMarker(block[2]);
+    if (!marker) return { kind, tone: block[1], text: block[2] };
+    gates.push({ page: currentPage, marker, text: block[2] });
+    return null;
+  }
   if (kind === "defs") {
     return { kind, defs: block[1].map(([term, description]) => ({ term, description })) };
   }
@@ -161,7 +212,12 @@ const convert = (block) => {
   throw new Error(`Unknown block kind ${JSON.stringify(kind)}`);
 };
 
+/* Which page is converting, so a gate can name it without threading an argument
+   through every block form. Set by `convertPage`, read by the `alert` branch. */
+let currentPage = null;
+
 const convertPage = (key, page) => {
+  currentPage = key;
   const sections = page.sections.map((section, i) => {
     const [heading] = section.blocks;
     if (heading[0] !== "h2") {
@@ -178,7 +234,7 @@ const convertPage = (key, page) => {
       title: heading[1],
       /* The h2 becomes the section's own heading element, so it is dropped from
          the block list rather than rendered twice. */
-      blocks: section.blocks.slice(1).map(convert),
+      blocks: section.blocks.slice(1).map(convert).filter((b) => b !== null),
     };
   });
 
@@ -189,7 +245,7 @@ const convertPage = (key, page) => {
     eyebrow: page.eyebrow,
     title: page.title,
     lede: page.lede,
-    head: (page.head ?? []).map(convert),
+    head: (page.head ?? []).map(convert).filter((b) => b !== null),
     sections,
     /* Desktop-only two-column rows: an illustration beside the `count` blocks
        above it. Carried through so the site can make the same pairing. */
@@ -204,23 +260,34 @@ const build = () => {
     throw new Error(`No route for page(s) ${missing.join(", ")} — add them to PAGE_ROUTES.`);
   }
   const ordered = Object.keys(PAGE_ROUTES).map((key) => convertPage(key, pages[key]));
-  return `${JSON.stringify(ordered, null, 2)}\n`;
+  return [
+    [OUT, `${JSON.stringify(ordered, null, 2)}\n`],
+    [GATES_OUT, `${JSON.stringify(gates, null, 2)}\n`],
+  ];
 };
 
-const json = build();
+const outputs = build();
+const digest = (s) => createHash("sha256").update(s).digest("hex").slice(0, 12);
 
 if (process.argv.includes("--check")) {
-  const committed = readFileSync(OUT, "utf8");
-  if (committed !== json) {
-    const digest = (s) => createHash("sha256").update(s).digest("hex").slice(0, 12);
-    console.error(
-      `src/content/pages.generated.json is stale (committed ${digest(committed)}, ` +
-        `generated ${digest(json)}).\nRun: pnpm gen:content`,
-    );
+  let stale = false;
+  for (const [file, json] of outputs) {
+    const committed = readFileSync(file, "utf8");
+    if (committed !== json) {
+      stale = true;
+      console.error(
+        `${file} is stale (committed ${digest(committed)}, generated ${digest(json)}).`,
+      );
+    }
+  }
+  if (stale) {
+    console.error("Run: pnpm gen:content");
     process.exit(1);
   }
   console.log("content pages up to date");
 } else {
-  writeFileSync(OUT, json);
-  console.log(`wrote ${OUT}`);
+  for (const [file, json] of outputs) {
+    writeFileSync(file, json);
+    console.log(`wrote ${file}`);
+  }
 }

@@ -426,50 +426,6 @@
             "code": []
           },
           {
-            "kind": "group",
-            "gap": "flow/normal",
-            "blocks": [
-              {
-                "kind": "h3",
-                "text": "The standard ramps"
-              },
-              {
-                "kind": "p",
-                "text": "The six palette scales exist to be pointed at. Every one of them has a job in the Intent tier — a surface, a border, a status — and that is why there are six rather than twenty.",
-                "code": []
-              },
-              {
-                "kind": "p",
-                "text": "Plenty of colour has no job like that. A chart with nine series, a set of project tags, an illustration: none of it is a surface or a status, and none of it should be your brand colour stretched to cover a shortage. For that there is a standard palette — a wider set of fixed ramps, generated the same way and holding the same contrast, that no semantic role points at.",
-                "code": []
-              },
-              {
-                "kind": "p",
-                "text": "It is off by default. Switch it on in primitiv.json:",
-                "code": [
-                  "primitiv.json"
-                ]
-              },
-              {
-                "kind": "code",
-                "code": "{ \"palette\": { \"standard\": true } }",
-                "language": "json",
-                "header": false,
-                "lineNumbers": false
-              },
-              {
-                "kind": "p",
-                "text": "Two things follow from it being fixed. Regenerating your theme does not change it, so a chart keeps its colours when your brand colour moves. And nothing in the components uses it, so leaving it off costs you nothing.",
-                "code": []
-              },
-              {
-                "kind": "alert",
-                "tone": "warning",
-                "text": "PENDING — this block describes work that is planned, not shipped. Do not publish it until the standard ramps are in packages/tokens and the primitiv.json key exists. The config key above is a placeholder and must be checked against config::resolve first."
-              }
-            ]
-          },
-          {
             "kind": "links",
             "links": [
               {
@@ -824,11 +780,6 @@
     "title": "Accessibility",
     "lede": "Accessibility is not a pass someone does at the end here. It is a property of the components, checked continuously.",
     "head": [
-      {
-        "kind": "alert",
-        "tone": "warning",
-        "text": "PUBLICATION GATE — do not ship this page before the deferred accessibility pass has run. Every commitment below is believed true and none has been audited end to end. Verify each, then publish. An accessibility page that overclaims is worse than no page."
-      },
       {
         "kind": "p",
         "text": "That claim is worth being precise about, because \"accessible\" is claimed by nearly every component library and means different things. Here is what we guarantee, and what remains yours.",
@@ -1389,11 +1340,6 @@
             "kind": "p",
             "text": "Harmoni is also a Figma plugin, for teams who want to generate their own palettes this way. You do not need it to use the library — the palette it produced is already in the file.",
             "code": []
-          },
-          {
-            "kind": "alert",
-            "tone": "warning",
-            "text": "OPEN QUESTION, decide before this page publishes — whether the planned standard ramps appear in the Figma file at all. \"The same tokens as the code\" is a claim this page makes, and twenty ramps no component binds to may be clutter rather than parity."
           }
         ]
       }

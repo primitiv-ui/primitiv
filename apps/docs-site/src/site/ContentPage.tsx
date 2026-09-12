@@ -207,6 +207,7 @@ const Block = ({ block }: { block: ContentBlock }) => {
 
     case "gap":
       return <ContentIllustration id={block.id} />;
+
   }
 };
 

@@ -1,0 +1,18 @@
+[
+  {
+    "page": "tokens",
+    "marker": "PENDING",
+    "text": "PENDING — this block describes work that is planned, not shipped. Do not publish it until the standard ramps are in packages/tokens and the primitiv.json key exists. The config key above is a placeholder and must be checked against config::resolve first.",
+    "withheld": 6
+  },
+  {
+    "page": "accessibility",
+    "marker": "PUBLICATION GATE",
+    "text": "PUBLICATION GATE — do not ship this page before the deferred accessibility pass has run. Every commitment below is believed true and none has been audited end to end. Verify each, then publish. An accessibility page that overclaims is worse than no page."
+  },
+  {
+    "page": "figma",
+    "marker": "OPEN QUESTION",
+    "text": "OPEN QUESTION, decide before this page publishes — whether the planned standard ramps appear in the Figma file at all. \"The same tokens as the code\" is a claim this page makes, and twenty ramps no component binds to may be clutter rather than parity."
+  }
+]

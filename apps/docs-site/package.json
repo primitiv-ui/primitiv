@@ -11,6 +11,7 @@
     "check:css": "node scripts/check-tokens.mjs",
     "gen:content": "node scripts/gen-content-pages.mjs",
     "check:content": "node scripts/gen-content-pages.mjs --check",
+    "gates": "node scripts/gates.mjs",
     "qa": "pnpm check:css && pnpm check:content && pnpm typecheck",
     "primitiv": "primitiv"
   },

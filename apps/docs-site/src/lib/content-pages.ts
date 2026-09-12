@@ -16,6 +16,13 @@
  *
  * `pnpm check:content` fails if the committed JSON is stale, so the two cannot
  * quietly disagree.
+ *
+ * Publication gates are NOT here. The Figma frames carry three (§6.0.4) and they
+ * are addressed to whoever builds the page, so the generator diverts them into
+ * `src/content/gates.generated.json` — a file no component imports, because the
+ * whole page object reaches a client component and an unrendered gate would
+ * still ship in the serialized payload of the public HTML. `pnpm gates` lists
+ * them; a gate inside a group withholds that group's content with it.
  */
 
 import pages from "@/content/pages.generated.json";

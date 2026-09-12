@@ -2452,3 +2452,58 @@ alongside the other visual QA.
 
 Also corrected: the `render-check.mjs` comment that claimed the overflow scan
 covered both axes. §6.0.20 records why it cannot.
+
+### 6.0.23 Home section 3, and a pattern for the engine-backed diagrams (2026-09-12)
+
+Section 3 ("You are already paying for a design system") is built and on the
+page, between the proof strip and section 5. Section 4, the live density demo,
+belongs between them and is still to come.
+
+**PROBLEM-01 is rendered, not exported — and that is the better version of the
+brief rather than a workaround.** Its own `assets` block asks for "button
+(registry), primary variant, size md, deliberately mis-configured per instance
+via inline overrides", and in code that is literally what it is: three real
+`Button`s re-pointing their own contract knobs (`--primitiv-button-bg`,
+`-height`, `-radius`, `-padding-inline`, `-font-weight`), which is exactly how
+this happens in a real codebase — nobody forks the button, they tweak it in
+place until it looks right on their screen. Verified the overrides land rather
+than trusting the render: `#176fdd/#2c6ce7/#3966de`, heights 40/42/45, radii
+4/6/10, the third label at 600 where the others are 500.
+
+**The subtlety is gated, not judged.** The brief's craft note wants the
+differences "right at the edge of perceptible" and its `must-not` forbids
+exaggerating them ("a reader who thinks 'no team would ship that' has stopped
+believing the section"). The engine places each colour in OkLCH off the brand
+seed and reports the pairwise Oklab ΔE; the widest pair is **0.0257**, inside
+the brief's 0.02–0.04 band, and **the generator throws above 0.04**. So a future
+regeneration cannot quietly make the diagram argue the wrong case.
+
+**This is now the pattern for the engine-backed sections**, and COLOUR-01 in
+§6.0.20 was the first: where the engine already dumps the data, the home page
+renders it live rather than shipping a raster. Three consequences worth having —
+it needs no Figma export (the one thing this sandbox cannot do, §6.0.19), it
+follows a palette regeneration by re-running one command, and it is the real
+components rather than a picture of them. **What it does not replace** is
+artwork that is genuinely an image: FIGMA-01 is a screenshot of the Figma UI and
+CODE-01 is a screen recording of a real VS Code, and neither has a code-side
+equivalent.
+
+**The four per-dataset generators became one.** `gen-palette-sheet.mjs` is
+replaced by `gen-engine-data.mjs`, which emits every `docs/generated/*` derived
+file behind one `pnpm gen:engine-data` and one `check:engine-data`; the third
+dataset (COLOUR-02's hue drift) is already committed and waiting. They share a
+source directory, a staleness question, and the rule that nothing here computes
+a colour, so one script is right.
+
+#### Illustration state, precisely
+
+| Item | State |
+| --- | --- |
+| The ten content-page briefs | **0 of 10.** Code side done and verified (§6.0.19); blocked on the 40-PNG export, which needs a human — `pnpm illustrations` prints the names |
+| A11Y-01 (§2.9) | Landed — video, still, both breakpoints, both themes |
+| COLOUR-01 (§2.5) | Landed, **live** |
+| PROBLEM-01 (§2.3) | Landed, **live** |
+| COLOUR-02 (§2.5) | Not built. Data committed (`colour-02-hue-drift.json`) — two ramps, their hues, and a hue-sweep track. Buildable live, unblocked |
+| Section 4's density demo | Not built. Interactive, **no artwork at all**. Unblocked |
+| FIGMA-01 (§2.6) | On the page but **needs a rebuild** — the dark composite carries a light Figma canvas and there is no mobile recomposition (§6.0.14). Needs Figma |
+| CODE-01 (§2.7) | Section not built. A real VS Code recording from an earlier session sits in the recorder's gitignored `out/` (769KB mp4 + still) — **unreviewed**, so not committed |

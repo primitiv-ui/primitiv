@@ -1,0 +1,266 @@
+/*
+ * The eight prose pages' chrome.
+ *
+ * Geometry read off the sixteen Figma frames on "Docs Site — Content pages (v3)"
+ * rather than invented (docs-site-content-plan.md §6.0.4). The column itself is
+ * the shell's — 632px between the two rails, 24px gutters with no rails below
+ * 64rem — so nothing here sets a width; what it sets is the rhythm:
+ *
+ *   page head        padding-block-start 40 · flow/section (32) between parts
+ *   section          padding-block-start 48 · flow/section (32) between blocks
+ *   title ↔ lede     flow/tight (12)
+ *   a `block`        flow/tight (12) between its h4 and paragraph
+ *
+ * Every gap is a `flow/*` token, so the whole page tightens under
+ * `data-density` the same way the canvas does — that is the point of the flow
+ * tier existing, and it is why there is no second set of breakpoints here.
+ */
+
+.docs-content-page {
+  display: flex;
+  flex-direction: column;
+}
+
+/* 40 at the top of the head, 48 above every section — the canvas's own
+   asymmetry: the header above is already separation, a section boundary is not. */
+.docs-content-head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--primitiv-flow-section);
+  padding-block-start: var(--primitiv-space-space-40);
+}
+
+.docs-content-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--primitiv-flow-section);
+  padding-block-start: var(--primitiv-space-space-48);
+}
+
+.docs-content-section:last-child {
+  padding-block-end: var(--primitiv-space-space-56);
+}
+
+/* The 12px pairing used for title/lede and for every `block`'s heading and
+   paragraph. A flex column rather than margins so it nests inside the section's
+   own gap without doubling up. */
+.docs-content-tight {
+  display: flex;
+  flex-direction: column;
+  gap: var(--primitiv-flow-tight);
+}
+
+/* A `group`'s gap comes from its own entry in the page data (`flow/section`,
+   `flow/tight`), applied inline — the token varies per group, the layout does not. */
+.docs-content-group {
+  display: flex;
+  flex-direction: column;
+}
+
+/* The page eyebrow — "GET STARTED", "CONCEPTS". Same treatment as the section
+   overlines on the landing and component pages, so the site has one voice: the
+   overline family ships no letter-spacing token and uppercase Khand is
+   condensed enough to swallow its word spaces, so `wide` restores them. The
+   strings are already uppercase in the page data; `text-transform` is what
+   makes that a rule rather than a typing habit. */
+.docs-content-eyebrow {
+  margin: 0;
+  font-family: var(--primitiv-overline-sm-font-family);
+  font-size: var(--primitiv-overline-sm-font-size);
+  font-weight: var(--primitiv-overline-sm-font-weight);
+  line-height: var(--primitiv-overline-sm-line-height);
+  letter-spacing: var(--primitiv-letter-spacing-wide);
+  text-transform: uppercase;
+  color: var(--primitiv-content-muted);
+}
+
+.docs-content-title {
+  margin: 0;
+  font-family: var(--primitiv-heading-h1-font-family);
+  font-size: var(--primitiv-heading-h1-font-size);
+  font-weight: var(--primitiv-heading-h1-font-weight);
+  line-height: var(--primitiv-heading-h1-line-height);
+  letter-spacing: var(--primitiv-heading-h1-letter-spacing);
+  color: var(--primitiv-content-primary);
+}
+
+.docs-content-lede {
+  margin: 0;
+  font-family: var(--primitiv-body-lg-font-family);
+  font-size: var(--primitiv-body-lg-font-size);
+  line-height: var(--primitiv-body-lg-line-height);
+  color: var(--primitiv-content-secondary);
+}
+
+.docs-content-h2,
+.docs-content-h3,
+.docs-content-h4 {
+  margin: 0;
+  color: var(--primitiv-content-primary);
+  /* The header is sticky, so an anchored heading would land behind it. */
+  scroll-margin-block-start: var(--primitiv-space-space-96);
+}
+
+.docs-content-h2 {
+  font-family: var(--primitiv-heading-h2-font-family);
+  font-size: var(--primitiv-heading-h2-font-size);
+  font-weight: var(--primitiv-heading-h2-font-weight);
+  line-height: var(--primitiv-heading-h2-line-height);
+  letter-spacing: var(--primitiv-heading-h2-letter-spacing);
+}
+
+.docs-content-h3 {
+  font-family: var(--primitiv-heading-h3-font-family);
+  font-size: var(--primitiv-heading-h3-font-size);
+  font-weight: var(--primitiv-heading-h3-font-weight);
+  line-height: var(--primitiv-heading-h3-line-height);
+  letter-spacing: var(--primitiv-heading-h3-letter-spacing);
+}
+
+.docs-content-h4 {
+  font-family: var(--primitiv-heading-h4-font-family);
+  font-size: var(--primitiv-heading-h4-font-size);
+  font-weight: var(--primitiv-heading-h4-font-weight);
+  line-height: var(--primitiv-heading-h4-line-height);
+  letter-spacing: var(--primitiv-heading-h4-letter-spacing);
+}
+
+.docs-content-p {
+  margin: 0;
+  font-family: var(--primitiv-body-md-font-family);
+  font-size: var(--primitiv-body-md-font-size);
+  line-height: var(--primitiv-body-md-line-height);
+  color: var(--primitiv-content-secondary);
+}
+
+/*
+ * The page's definition lists carry a two-tier rhythm the component does not:
+ * 2px inside a pair, `flow/tight` between pairs. The registry `stacked` layout
+ * is deliberately uniform (RFC 0012 D10 — the Figma DescriptionView component
+ * really is flat 2px), but the content frames hand-build their `defs` with the
+ * two tiers, so the pages re-point the gap rather than the component change.
+ */
+.docs-content-defs > dt {
+  margin-block-end: var(--primitiv-space-space-2);
+}
+
+.docs-content-defs > dd {
+  margin-block-end: var(--primitiv-flow-tight);
+}
+
+.docs-content-defs > :last-child {
+  margin-block-end: 0;
+}
+
+/*
+ * A code block sits in a centred well on desktop — `space/space-48` either
+ * side, settled with the human after three readings of "centred" (§6.0.4).
+ * Below the rails' breakpoint the column is already the whole width.
+ *
+ * Narrowed by `inline-size`, NOT by a margin, and that is forced: the component
+ * sets `inline-size: 100%` deliberately (a flex item that is itself a flex
+ * container with `overflow: hidden` does not reliably resolve `width: auto`
+ * through its parent's stretch, so the 100% makes the width definite). A
+ * `margin-inline` therefore does not shrink it — it shifts a full-width box
+ * sideways, which overflowed every section by exactly 48px. Overriding the
+ * `inline-size` back to `auto` would walk into the bug that 100% exists to
+ * prevent, so the width is re-stated as the same definite value minus the well.
+ */
+.docs-content-code {
+  inline-size: calc(100% - var(--primitiv-space-space-96));
+  margin-inline: auto;
+}
+
+@media (width < 64rem) {
+  .docs-content-code {
+    inline-size: 100%;
+  }
+}
+
+.docs-content-links {
+  /* The rows are link-sized, not paragraph-sized: `flow/tight` between them
+     rather than the list component's own item gap. */
+  --primitiv-list-item-gap: var(--primitiv-flow-tight);
+}
+
+.docs-content-link,
+.docs-content-door {
+  color: var(--primitiv-action-link-foreground-default);
+  text-decoration: none;
+}
+
+.docs-content-link:hover,
+.docs-content-door:hover .docs-content-door-label {
+  color: var(--primitiv-action-link-foreground-hover);
+  text-decoration: underline;
+}
+
+.docs-content-link:focus-visible,
+.docs-content-door:focus-visible {
+  outline: var(--primitiv-border-width-2) solid var(--primitiv-focus-ring);
+  outline-offset: var(--primitiv-space-space-2);
+  border-radius: var(--primitiv-radii-4);
+}
+
+/* The arrow is drawn, not typed: in the page data the label reads "Design in
+   Figma →", and a literal arrow is announced ("right arrow") on every single
+   next-step link. The generator strips it and this puts it back visually. */
+.docs-content-link::after {
+  content: " →";
+}
+
+/* The "where to go next" table. The whole row is one link — label above
+   description — so there is exactly one target per destination. */
+.docs-content-doors {
+  display: flex;
+  flex-direction: column;
+}
+
+.docs-content-door {
+  display: flex;
+  flex-direction: column;
+  gap: var(--primitiv-flow-tight);
+  padding-block: var(--primitiv-space-space-16);
+}
+
+.docs-content-door-label {
+  font-family: var(--primitiv-label-md-font-family);
+  font-size: var(--primitiv-label-md-font-size);
+  font-weight: var(--primitiv-label-md-font-weight);
+  line-height: var(--primitiv-label-md-line-height);
+}
+
+.docs-content-door-description {
+  font-family: var(--primitiv-body-md-font-family);
+  font-size: var(--primitiv-body-md-font-size);
+  line-height: var(--primitiv-body-md-line-height);
+  color: var(--primitiv-content-secondary);
+}
+
+/*
+ * Three briefs ask for half the content width beside their prose. Two equal
+ * columns above 64rem, one below — the same breakpoint the shell drops its
+ * rails at, and what those briefs' own `below-48rem` notes ask for.
+ */
+.docs-content-pair {
+  display: grid;
+  gap: var(--primitiv-flow-section);
+}
+
+.docs-content-pair-prose {
+  display: flex;
+  flex-direction: column;
+  gap: var(--primitiv-flow-section);
+}
+
+@media (width >= 64rem) {
+  .docs-content-pair {
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+  }
+
+  /* Inside a half-width column a code block has no room for the well. */
+  .docs-content-pair .docs-content-code {
+    inline-size: 100%;
+  }
+}

@@ -1,0 +1,1408 @@
+[
+  {
+    "key": "start-here",
+    "route": "/start-here/",
+    "name": "Start Here",
+    "eyebrow": "GET STARTED",
+    "title": "Start here",
+    "lede": "Primitiv is a design system you can take in three different ways: as accessible behaviour with no styling, as finished components copied into your project, or as a Figma library. All three are built from one set of design tokens, so they agree with each other.",
+    "head": [
+      {
+        "kind": "p",
+        "text": "There are 63 components. Every interactive one follows its WAI-ARIA pattern, with full keyboard support. The colour palette is generated rather than picked, so its contrast is correct by construction. And the whole system scales between four density settings, which is what lets one set of components suit a dense dashboard and a roomy marketing page.",
+        "code": []
+      }
+    ],
+    "sections": [
+      {
+        "id": "which-path-is-yours",
+        "title": "Which path is yours",
+        "blocks": [
+          {
+            "kind": "p",
+            "text": "Three ways in. You are not locked into the one you pick, and most teams end up using two.",
+            "code": []
+          },
+          {
+            "kind": "group",
+            "gap": "flow/section",
+            "blocks": [
+              {
+                "kind": "block",
+                "heading": "You already have a design system, and want the behaviour.",
+                "text": "Install @primitiv-ui/react. You get the keyboard handling, focus management and ARIA, with no styling to override. Your existing look stays exactly as it is.",
+                "code": [
+                  "@primitiv-ui/react"
+                ]
+              },
+              {
+                "kind": "block",
+                "heading": "You want components that already look finished.",
+                "text": "Use the CLI. primitiv add button copies a styled component into your project as a file you own and can edit. This is the path most people want, and it is the default the docs assume.",
+                "code": [
+                  "primitiv add button"
+                ]
+              },
+              {
+                "kind": "block",
+                "heading": "You are designing rather than building.",
+                "text": "Open the Figma library. It has the same components, built from the same tokens as the code, so what you draw is what gets built.",
+                "code": []
+              }
+            ]
+          },
+          {
+            "kind": "gap",
+            "id": "START-01",
+            "job": "Three parallel routes, each opening with a question and resolving to a path name and one command. Not a flowchart. Closing line: you can change your mind."
+          }
+        ]
+      },
+      {
+        "id": "install-it",
+        "title": "Install it",
+        "blocks": [
+          {
+            "kind": "p",
+            "text": "The fastest way in is a new project with everything already wired up:",
+            "code": []
+          },
+          {
+            "kind": "code",
+            "code": "$ npm create primitiv-ui@latest",
+            "language": "bash",
+            "header": true,
+            "lineNumbers": false
+          },
+          {
+            "kind": "p",
+            "text": "To add it to an app you already have:",
+            "code": []
+          },
+          {
+            "kind": "code",
+            "code": "$ npm i -D primitiv-ui\n$ npx primitiv add button",
+            "language": "bash",
+            "header": true,
+            "lineNumbers": false
+          },
+          {
+            "kind": "p",
+            "text": "That second command does the whole setup the first time you run it. It installs what it needs, writes a primitiv.json config, generates your token layer, and copies the Button component into your project.",
+            "code": [
+              "primitiv.json"
+            ]
+          },
+          {
+            "kind": "p",
+            "text": "If you only want the headless components, skip the CLI:",
+            "code": []
+          },
+          {
+            "kind": "code",
+            "code": "$ npm i @primitiv-ui/react",
+            "language": "bash",
+            "header": true,
+            "lineNumbers": false
+          },
+          {
+            "kind": "alert",
+            "tone": "info",
+            "text": "The CLI runs a small native binary, so it will not work in StackBlitz or other in-browser Node environments. Use a local machine, a Codespace, or Docker."
+          }
+        ]
+      },
+      {
+        "id": "your-first-component",
+        "title": "Your first component",
+        "blocks": [
+          {
+            "kind": "p",
+            "text": "After primitiv add button, you have a real file at src/components/button.tsx. Import it like anything else you wrote:",
+            "code": [
+              "primitiv add button",
+              "src/components/button.tsx"
+            ]
+          },
+          {
+            "kind": "code",
+            "code": "import { Button } from \"@/components/button\";\n\nexport function Save() {\n  return <Button onClick={save}>Save changes</Button>;\n}",
+            "language": "tsx",
+            "header": false,
+            "lineNumbers": true
+          },
+          {
+            "kind": "p",
+            "text": "Open that file. It is ordinary code, and it is yours. Change the padding, add a variant, delete a prop you will never use. Nothing upstream will overwrite it.",
+            "code": []
+          },
+          {
+            "kind": "p",
+            "text": "The headless version is the same component without the styling:",
+            "code": []
+          },
+          {
+            "kind": "code",
+            "code": "import { Button } from \"@primitiv-ui/react\";",
+            "language": "tsx",
+            "header": false,
+            "lineNumbers": false
+          },
+          {
+            "kind": "p",
+            "text": "Same behaviour, same accessibility, no CSS. You bring the look.",
+            "code": []
+          }
+        ]
+      },
+      {
+        "id": "where-to-go-next",
+        "title": "Where to go next",
+        "blocks": [
+          {
+            "kind": "doors",
+            "doors": [
+              {
+                "label": "Components",
+                "href": "/components/",
+                "description": "All 63, with live examples and props."
+              },
+              {
+                "label": "Tokens and theming",
+                "href": "/concepts/tokens/",
+                "description": "How to change colours, spacing and type."
+              },
+              {
+                "label": "Density",
+                "href": "/concepts/density/",
+                "description": "The four modes, and how to scope them."
+              },
+              {
+                "label": "Composition",
+                "href": "/concepts/composition/",
+                "description": "The handful of patterns every component shares."
+              },
+              {
+                "label": "Accessibility",
+                "href": "/concepts/accessibility/",
+                "description": "What we guarantee, and what stays yours."
+              },
+              {
+                "label": "The registry and CLI",
+                "href": "/registry-cli/",
+                "description": "Every command, and why it works this way."
+              },
+              {
+                "label": "Design in Figma",
+                "href": "/figma/",
+                "description": "The library, and how it stays in step."
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "pairs": []
+  },
+  {
+    "key": "what-primitiv-is",
+    "route": "/concepts/what-primitiv-is/",
+    "name": "What Primitiv is",
+    "eyebrow": "CONCEPTS",
+    "title": "What Primitiv is",
+    "lede": "Primitiv is four things that share one name, built on one set of design tokens. Most people only ever need two of them.",
+    "head": [],
+    "sections": [
+      {
+        "id": "the-four-parts",
+        "title": "The four parts",
+        "blocks": [
+          {
+            "kind": "group",
+            "gap": "flow/section",
+            "blocks": [
+              {
+                "kind": "block",
+                "heading": "Primitiv — the design system.",
+                "text": "The components themselves, and the tokens underneath them. When someone says \"we use Primitiv\", this is what they mean.",
+                "code": []
+              },
+              {
+                "kind": "block",
+                "heading": "Harmoni — the colour engine.",
+                "text": "It generates every colour in the system. Give it one colour and it builds a full scale around it, choosing the text colour for each step and checking the contrast as it goes. It is also a Figma plugin you can buy separately, but you do not need it: Primitiv ships the palettes it produced.",
+                "code": []
+              },
+              {
+                "kind": "block",
+                "heading": "The registry and the CLI — how you get the code.",
+                "text": "primitiv add button copies a component into your project. Not a dependency, a file. The registry is the catalogue it copies from.",
+                "code": [
+                  "primitiv add button"
+                ]
+              },
+              {
+                "kind": "block",
+                "heading": "The Figma library — the same components, to design with.",
+                "text": "Built from the same tokens as the code, so a mockup and a build cannot quietly disagree about a colour or a spacing value.",
+                "code": []
+              }
+            ]
+          },
+          {
+            "kind": "gap",
+            "id": "FAMILY-01",
+            "job": "Three surface blocks over one full-width token band, with Harmoni feeding the band from the side. Caption names what is open source and what is paid."
+          }
+        ]
+      },
+      {
+        "id": "what-you-actually-need",
+        "title": "What you actually need",
+        "blocks": [
+          {
+            "kind": "p",
+            "text": "Most teams use two parts: the Figma library to design with, and the registry to build with. Everything else is optional.",
+            "code": []
+          },
+          {
+            "kind": "p",
+            "text": "You do not need Harmoni to use Primitiv. The palette it generated already ships with the system. You would only want the plugin if you intend to generate your own palettes from your own brand colour.",
+            "code": []
+          },
+          {
+            "kind": "links",
+            "links": [
+              {
+                "label": "Tokens and theming",
+                "href": "/concepts/tokens/"
+              },
+              {
+                "label": "The registry and CLI",
+                "href": "/registry-cli/"
+              },
+              {
+                "label": "Design in Figma",
+                "href": "/figma/"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "pairs": []
+  },
+  {
+    "key": "tokens",
+    "route": "/concepts/tokens/",
+    "name": "Tokens and theming",
+    "eyebrow": "CONCEPTS",
+    "title": "Tokens and theming",
+    "lede": "A token is a named design decision. Instead of writing a colour into forty stylesheets, you name it once and point at the name.",
+    "head": [
+      {
+        "kind": "p",
+        "text": "That sounds like a variable, and technically it is one. What makes tokens worth a page of their own is how they are layered. Primitiv has three tiers, and each one only ever points at the tier below it.",
+        "code": []
+      }
+    ],
+    "sections": [
+      {
+        "id": "the-three-tiers",
+        "title": "The three tiers",
+        "blocks": [
+          {
+            "kind": "group",
+            "gap": "flow/section",
+            "blocks": [
+              {
+                "kind": "block",
+                "heading": "Palette — the raw colours.",
+                "text": "Six scales of ten steps: neutral, brand, success, warning, danger and info. This is the only tier that holds an actual colour value. Harmoni generates it. A larger set of standard ramps is available too, for colour the semantic roles do not own — see below.",
+                "code": []
+              },
+              {
+                "kind": "block",
+                "heading": "Intent — what a colour is for.",
+                "text": "surface/default is the page background. content/primary is body text. border/subtle is a hairline. None of them holds a value. Each points at a Palette step. Light and dark are two modes of this tier, which is why switching theme is a mode swap rather than a second stylesheet.",
+                "code": [
+                  "surface/default",
+                  "content/primary",
+                  "border/subtle"
+                ]
+              },
+              {
+                "kind": "block",
+                "heading": "Context — how big things are.",
+                "text": "Control heights, padding, gaps, corner radius, type size. This tier has four modes, one per density setting. That is the whole density system.",
+                "code": []
+              }
+            ]
+          },
+          {
+            "kind": "gap",
+            "id": "TOKENS-01",
+            "job": "Trace one primary-button background up from a raw palette colour, through the intent role pointing at it, to the rendered component. Only the palette tier holds a value."
+          }
+        ]
+      },
+      {
+        "id": "why-the-layering-matters",
+        "title": "Why the layering matters",
+        "blocks": [
+          {
+            "kind": "p",
+            "text": "Because only the bottom tier holds a value, a rebrand is a change to one tier. Every role above it keeps pointing where it pointed, and the new colour arrives everywhere at once.",
+            "code": []
+          },
+          {
+            "kind": "p",
+            "text": "The same rule gives you dark mode. surface/default means \"the page background\" in both themes and resolves to a different palette step in each, so a theme is a set of values rather than a set of overrides.",
+            "code": [
+              "surface/default"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "changing-your-tokens",
+        "title": "Changing your tokens",
+        "blocks": [
+          {
+            "kind": "p",
+            "text": "To change the brand colour, regenerate the theme:",
+            "code": []
+          },
+          {
+            "kind": "code",
+            "code": "$ npx primitiv theme --brand \"#0a7755\"",
+            "language": "bash",
+            "header": true,
+            "lineNumbers": false
+          },
+          {
+            "kind": "p",
+            "text": "That produces a full light and dark palette from your colour, with every semantic role reassigned by contrast. It writes into its own layer, so it beats the base tokens without you editing them. The standard ramps are fixed and are not touched by this.",
+            "code": []
+          },
+          {
+            "kind": "p",
+            "text": "To change something the generator does not own, such as a spacing value or a font, override the custom property in your own stylesheet. Token names are the contract, and they do not change under you.",
+            "code": []
+          },
+          {
+            "kind": "p",
+            "text": "Tokens emit in three formats. Set it once in primitiv.json:",
+            "code": [
+              "primitiv.json"
+            ]
+          },
+          {
+            "kind": "defs",
+            "defs": [
+              {
+                "term": "CSS",
+                "description": "Custom properties. The default, and what the rest of the docs assume."
+              },
+              {
+                "term": "SCSS",
+                "description": "The same values as SCSS variables."
+              },
+              {
+                "term": "Tailwind",
+                "description": "A theme extension."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "what-is-in-the-token-layer",
+        "title": "What is in the token layer",
+        "blocks": [
+          {
+            "kind": "p",
+            "text": "Colour is the tier most people meet first, but it is not the only one. The system also tokenises spacing, type, corner radius, shadows, motion, breakpoints and interaction states. All of it emits together.",
+            "code": []
+          },
+          {
+            "kind": "group",
+            "gap": "flow/normal",
+            "blocks": [
+              {
+                "kind": "h3",
+                "text": "The standard ramps"
+              },
+              {
+                "kind": "p",
+                "text": "The six palette scales exist to be pointed at. Every one of them has a job in the Intent tier — a surface, a border, a status — and that is why there are six rather than twenty.",
+                "code": []
+              },
+              {
+                "kind": "p",
+                "text": "Plenty of colour has no job like that. A chart with nine series, a set of project tags, an illustration: none of it is a surface or a status, and none of it should be your brand colour stretched to cover a shortage. For that there is a standard palette — a wider set of fixed ramps, generated the same way and holding the same contrast, that no semantic role points at.",
+                "code": []
+              },
+              {
+                "kind": "p",
+                "text": "It is off by default. Switch it on in primitiv.json:",
+                "code": [
+                  "primitiv.json"
+                ]
+              },
+              {
+                "kind": "code",
+                "code": "{ \"palette\": { \"standard\": true } }",
+                "language": "json",
+                "header": false,
+                "lineNumbers": false
+              },
+              {
+                "kind": "p",
+                "text": "Two things follow from it being fixed. Regenerating your theme does not change it, so a chart keeps its colours when your brand colour moves. And nothing in the components uses it, so leaving it off costs you nothing.",
+                "code": []
+              },
+              {
+                "kind": "alert",
+                "tone": "warning",
+                "text": "PENDING — this block describes work that is planned, not shipped. Do not publish it until the standard ramps are in packages/tokens and the primitiv.json key exists. The config key above is a placeholder and must be checked against config::resolve first."
+              }
+            ]
+          },
+          {
+            "kind": "links",
+            "links": [
+              {
+                "label": "Density and the Context tier",
+                "href": "/concepts/density/"
+              },
+              {
+                "label": "Design in Figma",
+                "href": "/figma/"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "pairs": []
+  },
+  {
+    "key": "density",
+    "route": "/concepts/density/",
+    "name": "Density",
+    "eyebrow": "CONCEPTS",
+    "title": "Density",
+    "lede": "Density is how tightly the interface is packed. Primitiv has four settings, and changing one attribute reflows everything beneath it.",
+    "head": [
+      {
+        "kind": "p",
+        "text": "Most component libraries are tuned for one kind of product. Use them for something denser and everything feels bloated. Use them for something roomier and it feels cramped. Four settings is a statement that proportional control is a feature rather than an afterthought.",
+        "code": []
+      }
+    ],
+    "sections": [
+      {
+        "id": "the-four-modes",
+        "title": "The four modes",
+        "blocks": [
+          {
+            "kind": "defs",
+            "defs": [
+              {
+                "term": "Dense",
+                "description": "For data-heavy screens where fitting more on screen is the point: admin tables, trading screens, dashboards."
+              },
+              {
+                "term": "Compact",
+                "description": "For productive application UI."
+              },
+              {
+                "term": "Comfortable",
+                "description": "The default, and suits most product interfaces."
+              },
+              {
+                "term": "Spacious",
+                "description": "For marketing pages and editorial content, where room to breathe is the point."
+              }
+            ]
+          },
+          {
+            "kind": "gap",
+            "id": "DENSITY-C01",
+            "job": "The same panel rendered at all four densities side by side, identical content, with the measured control height under each column."
+          }
+        ]
+      },
+      {
+        "id": "how-to-set-it",
+        "title": "How to set it",
+        "blocks": [
+          {
+            "kind": "p",
+            "text": "Density is one attribute, and it is inherited. Set it high up for the whole application:",
+            "code": []
+          },
+          {
+            "kind": "code",
+            "code": "<body data-density=\"comfortable\">",
+            "language": "html",
+            "header": false,
+            "lineNumbers": false
+          },
+          {
+            "kind": "p",
+            "text": "Or set it on any part of a page that needs to be different:",
+            "code": []
+          },
+          {
+            "kind": "code",
+            "code": "<div data-density=\"dense\">\n  <!-- a packed table inside an otherwise roomy page -->\n</div>",
+            "language": "html",
+            "header": false,
+            "lineNumbers": false
+          },
+          {
+            "kind": "p",
+            "text": "Anything inside picks it up. That is the whole API.",
+            "code": []
+          },
+          {
+            "kind": "gap",
+            "id": "DENSITY-C02",
+            "job": "Nested page boxes showing density scoped by containment: a dense region inside an otherwise comfortable page."
+          }
+        ]
+      },
+      {
+        "id": "why-radius-follows",
+        "title": "Why radius follows",
+        "blocks": [
+          {
+            "kind": "p",
+            "text": "Corner radius is not a value assigned per size. It is a fraction of the control's height, so when density changes the height, the radius follows on its own:",
+            "code": []
+          },
+          {
+            "kind": "code",
+            "code": "radius = height × 0.1875",
+            "language": "text",
+            "header": false,
+            "lineNumbers": false
+          },
+          {
+            "kind": "p",
+            "text": "That fraction is fixed across the whole system, and the result snaps to the nearest step on the radius scale — which is why Comfortable and Spacious, 8px apart in height, share a radius of 8. Controls stay in proportion at every density without a fourth table of values for someone to keep in step.",
+            "code": []
+          }
+        ]
+      },
+      {
+        "id": "what-density-does-not-change",
+        "title": "What density does not change",
+        "blocks": [
+          {
+            "kind": "p",
+            "text": "Density changes proportion, not identity. Colours do not move. Font families do not change. Component behaviour is untouched, so a keyboard shortcut works the same at every setting.",
+            "code": []
+          },
+          {
+            "kind": "p",
+            "text": "It is also separate from a component's own size prop. Size picks which slot on the scale a component uses. Density scales the whole scale. A medium button in Dense is smaller than a medium button in Spacious, and both are still medium.",
+            "code": [
+              "size"
+            ]
+          },
+          {
+            "kind": "links",
+            "links": [
+              {
+                "label": "Tokens and theming",
+                "href": "/concepts/tokens/"
+              },
+              {
+                "label": "Browse components",
+                "href": "/components/"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "pairs": [
+      {
+        "id": "DENSITY-C02",
+        "count": 5
+      }
+    ]
+  },
+  {
+    "key": "composition",
+    "route": "/concepts/composition/",
+    "name": "Composition",
+    "eyebrow": "CONCEPTS",
+    "title": "Composition",
+    "lede": "Four patterns turn up in nearly every Primitiv component. Learning them once means every component page afterwards reads faster.",
+    "head": [],
+    "sections": [
+      {
+        "id": "rendering-as-something-else",
+        "title": "Rendering as something else",
+        "blocks": [
+          {
+            "kind": "p",
+            "text": "Sometimes you want a button that is really a link. Not a link that looks like a button, an actual <a> that carries the button’s styling and behaviour. Every component takes asChild for this:",
+            "code": [
+              "<a>",
+              "asChild"
+            ]
+          },
+          {
+            "kind": "code",
+            "code": "<Button asChild>\n  <Link href=\"/pricing\">See pricing</Link>\n</Button>",
+            "language": "tsx",
+            "header": false,
+            "lineNumbers": false
+          },
+          {
+            "kind": "p",
+            "text": "The Button renders nothing of its own. It hands its props, classes and behaviour to the child you gave it, and that child is what appears in the page.",
+            "code": []
+          },
+          {
+            "kind": "p",
+            "text": "This matters more than it looks. It is what lets Primitiv work with your router, your analytics wrapper, or any component you already have, without the library needing to know they exist.",
+            "code": []
+          },
+          {
+            "kind": "gap",
+            "id": "COMPOSE-01",
+            "job": "Two DOM columns: without asChild a button wrapping a link (valid JSX, invalid HTML), with asChild a single anchor carrying the button’s props. Make the upper column visibly taller."
+          }
+        ]
+      },
+      {
+        "id": "who-holds-the-value",
+        "title": "Who holds the value",
+        "blocks": [
+          {
+            "kind": "p",
+            "text": "Any component with a value can work two ways, and you pick per instance.",
+            "code": []
+          },
+          {
+            "kind": "p",
+            "text": "Let the component hold it. Pass defaultValue and forget about it. The component tracks its own state and tells you when it changes.",
+            "code": [
+              "defaultValue"
+            ]
+          },
+          {
+            "kind": "code",
+            "code": "<Tabs defaultValue=\"account\" />",
+            "language": "tsx",
+            "header": false,
+            "lineNumbers": false
+          },
+          {
+            "kind": "p",
+            "text": "Hold it yourself. Pass value and onValueChange, and the component renders whatever you give it.",
+            "code": [
+              "value",
+              "onValueChange"
+            ]
+          },
+          {
+            "kind": "code",
+            "code": "<Tabs value={tab} onValueChange={setTab} />",
+            "language": "tsx",
+            "header": false,
+            "lineNumbers": false
+          },
+          {
+            "kind": "p",
+            "text": "Use the first unless you need the second. You need the second when something outside the component has to change the value, or when the value belongs in a URL or a form you already manage.",
+            "code": []
+          },
+          {
+            "kind": "alert",
+            "tone": "info",
+            "text": "Pass one or the other, not both. defaultValue is the starting value for a component managing itself; value is a value you are managing. Supplying both is contradictory, and the props tables cannot show that constraint because it flattens into a plain list."
+          }
+        ]
+      },
+      {
+        "id": "components-made-of-parts",
+        "title": "Components made of parts",
+        "blocks": [
+          {
+            "kind": "p",
+            "text": "Simple components are one element. Anything with structure is several, and you assemble them:",
+            "code": []
+          },
+          {
+            "kind": "code",
+            "code": "<Tabs.Root defaultValue=\"account\">\n  <Tabs.List>\n    <Tabs.Trigger value=\"account\">Account</Tabs.Trigger>\n    <Tabs.Trigger value=\"billing\">Billing</Tabs.Trigger>\n  </Tabs.List>\n  <Tabs.Content value=\"account\">...</Tabs.Content>\n</Tabs.Root>",
+            "language": "tsx",
+            "header": false,
+            "lineNumbers": true
+          },
+          {
+            "kind": "p",
+            "text": "That is more typing than a single component taking an array of tabs, and it is deliberate. You can put anything between the parts, style each one, and reorder them, without the library having anticipated it.",
+            "code": []
+          },
+          {
+            "kind": "p",
+            "text": "The parts share state through React context, so Tabs.Trigger knows which tab is open without you passing anything down.",
+            "code": [
+              "Tabs.Trigger"
+            ]
+          },
+          {
+            "kind": "p",
+            "text": "Part names differ slightly between the two paths, and the docs follow whichever you are reading. Headless gives you one export with parts hanging off it (Tabs.Trigger). The copied styled file gives you flat exports (TabsTrigger).",
+            "code": [
+              "Tabs.Trigger",
+              "TabsTrigger"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "styling-against-state",
+        "title": "Styling against state",
+        "blocks": [
+          {
+            "kind": "p",
+            "text": "Components describe their own state in the DOM, as data attributes. An open panel carries data-state=\"open\". A disabled control carries data-disabled. You style against those:",
+            "code": [
+              "data-state=\"open\"",
+              "data-disabled"
+            ]
+          },
+          {
+            "kind": "code",
+            "code": ".my-trigger[data-state=\"open\"] .chevron {\n  transform: rotate(180deg);\n}",
+            "language": "css",
+            "header": false,
+            "lineNumbers": false
+          },
+          {
+            "kind": "p",
+            "text": "This is why the styled layer needs no JavaScript to know what to look like, and why you can restyle any component without touching its behaviour. Every component page lists the attributes it publishes.",
+            "code": []
+          },
+          {
+            "kind": "links",
+            "links": [
+              {
+                "label": "Browse components",
+                "href": "/components/"
+              },
+              {
+                "label": "Accessibility",
+                "href": "/concepts/accessibility/"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "pairs": [
+      {
+        "id": "COMPOSE-01",
+        "count": 4
+      }
+    ]
+  },
+  {
+    "key": "accessibility",
+    "route": "/concepts/accessibility/",
+    "name": "Accessibility",
+    "eyebrow": "CONCEPTS",
+    "title": "Accessibility",
+    "lede": "Accessibility is not a pass someone does at the end here. It is a property of the components, checked continuously.",
+    "head": [
+      {
+        "kind": "alert",
+        "tone": "warning",
+        "text": "PUBLICATION GATE — do not ship this page before the deferred accessibility pass has run. Every commitment below is believed true and none has been audited end to end. Verify each, then publish. An accessibility page that overclaims is worse than no page."
+      },
+      {
+        "kind": "p",
+        "text": "That claim is worth being precise about, because \"accessible\" is claimed by nearly every component library and means different things. Here is what we guarantee, and what remains yours.",
+        "code": []
+      }
+    ],
+    "sections": [
+      {
+        "id": "what-we-guarantee",
+        "title": "What we guarantee",
+        "blocks": [
+          {
+            "kind": "group",
+            "gap": "flow/section",
+            "blocks": [
+              {
+                "kind": "block",
+                "heading": "Every interactive component follows its WAI-ARIA pattern.",
+                "text": "Not an approximation. Tabs behave like the tabs pattern, a tree like the tree view, a combobox like a combobox. Roles, states and properties are set for you.",
+                "code": []
+              },
+              {
+                "kind": "block",
+                "heading": "Keyboard support is built in.",
+                "text": "Arrow keys, Home and End, Escape, type-ahead, and correct focus movement when things open and close. It is part of the component, not something you add.",
+                "code": []
+              },
+              {
+                "kind": "block",
+                "heading": "Contrast is guaranteed by the engine that generates the colour.",
+                "text": "Every step of every generated scale has a text colour that clears its minimum, and the semantic roles are derived by contrast rather than chosen by eye.",
+                "code": []
+              },
+              {
+                "kind": "block",
+                "heading": "Focus is always visible.",
+                "text": "On every control, in both themes.",
+                "code": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "what-stays-yours",
+        "title": "What stays yours",
+        "blocks": [
+          {
+            "kind": "p",
+            "text": "A component library cannot make a product accessible on its own. These are yours, and no library can do them for you:",
+            "code": []
+          },
+          {
+            "kind": "defs",
+            "defs": [
+              {
+                "term": "Labels",
+                "description": "We cannot know what your field is called. An input with no label is inaccessible however good the input is."
+              },
+              {
+                "term": "Reading order and headings",
+                "description": "The structure of your page, and picking heading levels that nest properly."
+              },
+              {
+                "term": "Alternative text",
+                "description": "For your images and icons."
+              },
+              {
+                "term": "Colour choice",
+                "description": "The generated palette holds its contrast, but you can still put text on a background it was never paired with."
+              },
+              {
+                "term": "Content",
+                "description": "Plain language, sensible link text, error messages that say what to do."
+              }
+            ]
+          },
+          {
+            "kind": "gap",
+            "id": "A11Y-C01",
+            "job": "Two regions of equal weight either side of a line: what the component handles, what you handle. No ticks and crosses — both sides are required work."
+          }
+        ]
+      },
+      {
+        "id": "how-the-guarantees-are-kept",
+        "title": "How the guarantees are kept",
+        "blocks": [
+          {
+            "kind": "p",
+            "text": "The behaviour layer is tested to full coverage, and then mutation-tested. Mutation testing changes the code deliberately and checks that a test fails. It is the difference between a keyboard model that is merely covered and one that is actually asserted on.",
+            "code": []
+          },
+          {
+            "kind": "p",
+            "text": "Colour is checked at the source. The contrast floors live in the engine that generates the palette, and the semantic roles are pinned to what that engine derives, so they cannot drift quietly.",
+            "code": []
+          }
+        ]
+      },
+      {
+        "id": "checking-your-own-work",
+        "title": "Checking your own work",
+        "blocks": [
+          {
+            "kind": "p",
+            "text": "Three checks catch most of what matters, and none needs a specialist:",
+            "code": []
+          },
+          {
+            "kind": "defs",
+            "defs": [
+              {
+                "term": "Unplug your mouse",
+                "description": "Tab through the page. If you cannot reach something, or you lose track of where you are, that is a real bug."
+              },
+              {
+                "term": "Zoom to 200%",
+                "description": "Text should reflow rather than clip."
+              },
+              {
+                "term": "Read your labels aloud",
+                "description": "If a link says \"click here\", it says nothing useful out of context."
+              }
+            ]
+          },
+          {
+            "kind": "links",
+            "links": [
+              {
+                "label": "Composition",
+                "href": "/concepts/composition/"
+              },
+              {
+                "label": "Browse components",
+                "href": "/components/"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "pairs": []
+  },
+  {
+    "key": "registry-cli",
+    "route": "/registry-cli/",
+    "name": "The registry and CLI",
+    "eyebrow": "BUILD",
+    "title": "The registry and CLI",
+    "lede": "Styled components are not installed. They are copied into your project as files you own, edit and commit. The registry is the catalogue they are copied from, and the CLI does the copying.",
+    "head": [
+      {
+        "kind": "p",
+        "text": "This is a deliberate trade. A package is easier to update and harder to change. A copied file is the reverse: nothing upstream will overwrite it, and nothing upstream will fix it for you either. For the styling layer that is the right way round, because styling is the part you most want to change and least want changed under you.",
+        "code": []
+      },
+      {
+        "kind": "p",
+        "text": "Behaviour goes the other way. That still comes from @primitiv-ui/react as a normal dependency, so you get fixes to keyboard handling and accessibility without merging anything. You own the appearance. You do not have to own the hard part.",
+        "code": [
+          "@primitiv-ui/react"
+        ]
+      },
+      {
+        "kind": "gap",
+        "id": "CLI-01",
+        "job": "Two zones: your repository (the copied files, primitiv.json, primitiv.lock) and installed from npm (one package), with a single one-way connector labelled behaviour, keyboard, ARIA."
+      }
+    ],
+    "sections": [
+      {
+        "id": "the-commands",
+        "title": "The commands",
+        "blocks": [
+          {
+            "kind": "p",
+            "text": "Five commands. Most days you only use one.",
+            "code": []
+          },
+          {
+            "kind": "group",
+            "gap": "flow/section",
+            "blocks": [
+              {
+                "kind": "h4",
+                "text": "primitiv add"
+              },
+              {
+                "kind": "p",
+                "text": "Copies one or more components into your project.",
+                "code": []
+              },
+              {
+                "kind": "code",
+                "code": "$ npx primitiv add button\n$ npx primitiv add button select modal",
+                "language": "bash",
+                "header": false,
+                "lineNumbers": false
+              },
+              {
+                "kind": "flags",
+                "flags": [
+                  {
+                    "flag": "--force",
+                    "description": "overwrites files you have changed, without asking."
+                  },
+                  {
+                    "flag": "--styles-only",
+                    "description": "copies the stylesheet and skips the React file."
+                  },
+                  {
+                    "flag": "--no-wiring",
+                    "description": "skips the project wiring, if you prefer to do it yourself."
+                  },
+                  {
+                    "flag": "--dry-run",
+                    "description": "shows what would happen and writes nothing."
+                  }
+                ]
+              },
+              {
+                "kind": "p",
+                "text": "On its first run in a project it also does the setup: installs what it needs, writes primitiv.json, generates your token layer, and wires the stylesheet import. That is intentional, so a new project is one command rather than four.",
+                "code": [
+                  "primitiv.json"
+                ]
+              },
+              {
+                "kind": "h4",
+                "text": "primitiv init"
+              },
+              {
+                "kind": "p",
+                "text": "Sets a project up without adding a component. It asks a few questions, or takes --yes to accept the defaults, and finishes by generating the token layer.",
+                "code": [
+                  "--yes"
+                ]
+              },
+              {
+                "kind": "code",
+                "code": "$ npx primitiv init\n$ npx primitiv init --yes",
+                "language": "bash",
+                "header": false,
+                "lineNumbers": false
+              },
+              {
+                "kind": "h4",
+                "text": "primitiv tokens"
+              },
+              {
+                "kind": "p",
+                "text": "Regenerates your token layer in the format your config asks for.",
+                "code": []
+              },
+              {
+                "kind": "code",
+                "code": "$ npx primitiv tokens\n$ npx primitiv tokens --format scss",
+                "language": "bash",
+                "header": false,
+                "lineNumbers": false
+              },
+              {
+                "kind": "h4",
+                "text": "primitiv theme"
+              },
+              {
+                "kind": "p",
+                "text": "Generates a full light and dark palette from one brand colour, with every semantic role assigned by contrast. It writes into its own layer, so it beats the base tokens without editing them.",
+                "code": []
+              },
+              {
+                "kind": "code",
+                "code": "$ npx primitiv theme --brand \"#0a7755\"",
+                "language": "bash",
+                "header": false,
+                "lineNumbers": false
+              },
+              {
+                "kind": "h4",
+                "text": "primitiv list"
+              },
+              {
+                "kind": "p",
+                "text": "Shows what is installable, and what you already have.",
+                "code": []
+              },
+              {
+                "kind": "code",
+                "code": "$ npx primitiv list\n$ npx primitiv list --json",
+                "language": "bash",
+                "header": false,
+                "lineNumbers": false
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "the-two-files",
+        "title": "The two files",
+        "blocks": [
+          {
+            "kind": "p",
+            "text": "The CLI keeps two files in your project. Both are meant to be committed.",
+            "code": []
+          },
+          {
+            "kind": "p",
+            "text": "primitiv.json — your settings.",
+            "code": [
+              "primitiv.json"
+            ]
+          },
+          {
+            "kind": "code",
+            "code": "{\n  \"version\": 1,\n  \"framework\": \"react\",\n  \"styles\": { \"enabled\": true, \"format\": \"css\",\n              \"path\": \"src/styles/primitiv\" },\n  \"tokens\": { \"format\": \"css\",\n              \"path\": \"src/styles/primitiv/tokens.css\" },\n  \"theme\": { \"brand\": \"#0a7755\" },\n  \"aliases\": {},\n  \"registry\": { \"version\": \"0.1.0\" }\n}",
+            "language": "json",
+            "header": false,
+            "lineNumbers": true
+          },
+          {
+            "kind": "p",
+            "text": "Edit it freely. It decides where files land, which format your tokens emit in, and which registry version you are pulling from.",
+            "code": []
+          },
+          {
+            "kind": "p",
+            "text": "primitiv.lock — what you have.",
+            "code": [
+              "primitiv.lock"
+            ]
+          },
+          {
+            "kind": "p",
+            "text": "A list of the components you have added and a hash of every file. The CLI uses it to tell whether you have edited a copied file, so it can ask before overwriting your work rather than assuming.",
+            "code": []
+          },
+          {
+            "kind": "alert",
+            "tone": "info",
+            "text": "If you edit a copied component and later run add for it again, the CLI notices and asks. Answering \"keep\" leaves your version alone. This is the whole reason the lock file exists."
+          }
+        ]
+      },
+      {
+        "id": "where-components-come-from",
+        "title": "Where components come from",
+        "blocks": [
+          {
+            "kind": "p",
+            "text": "By default the CLI carries the registry inside itself, so add works with no network call and no version drift between the tool and the catalogue.",
+            "code": [
+              "add"
+            ]
+          },
+          {
+            "kind": "p",
+            "text": "You can point it somewhere else. --registry takes a local path, for a private registry of your own components, or a URL, to pull a specific published version.",
+            "code": [
+              "--registry"
+            ]
+          },
+          {
+            "kind": "code",
+            "code": "$ npx primitiv add button --registry ./my-registry\n$ npx primitiv add button --registry 0.1.0",
+            "language": "bash",
+            "header": false,
+            "lineNumbers": false
+          },
+          {
+            "kind": "p",
+            "text": "One consequence worth knowing: because the registry is baked into the binary, a change to a component reaches you when a new CLI version is published, not before. If a component looks out of date, update the CLI.",
+            "code": []
+          }
+        ]
+      },
+      {
+        "id": "why-a-registry-rather-than-a-package",
+        "title": "Why a registry rather than a package",
+        "blocks": [
+          {
+            "kind": "p",
+            "text": "The honest answer is that it depends what you are optimising for, and this model optimises for change.",
+            "code": []
+          },
+          {
+            "kind": "p",
+            "text": "A styled component is where your product's personality lives. You will want to adjust its padding, add a variant your designer invented, or strip a prop you never use. In a package, each of those is a configuration API someone has to design, or an override that fights the library. As a file, each is an edit.",
+            "code": []
+          },
+          {
+            "kind": "p",
+            "text": "If you want the styling to update automatically and you never intend to change it, a package would serve you better, and it is fair to say so. Primitiv's answer for that case is the headless package plus your own stylesheet, which updates normally and never surprises you.",
+            "code": []
+          },
+          {
+            "kind": "links",
+            "links": [
+              {
+                "label": "Composition",
+                "href": "/concepts/composition/"
+              },
+              {
+                "label": "Tokens and theming",
+                "href": "/concepts/tokens/"
+              },
+              {
+                "label": "Browse components",
+                "href": "/components/"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "pairs": []
+  },
+  {
+    "key": "figma",
+    "route": "/figma/",
+    "name": "Design in Figma",
+    "eyebrow": "DESIGN",
+    "title": "Design in Figma",
+    "lede": "The Figma library holds the same components as the code, built from the same tokens. What you draw is what gets built.",
+    "head": [
+      {
+        "kind": "p",
+        "text": "That is a stronger claim than most design systems can make, so it is worth saying what it rests on. The colours, spacing, type sizes and corner radii in the file are not values someone typed in. They are Figma variables generated from the same source as the CSS. When a token changes, both sides move together.",
+        "code": []
+      }
+    ],
+    "sections": [
+      {
+        "id": "what-is-in-the-library",
+        "title": "What is in the library",
+        "blocks": [
+          {
+            "kind": "p",
+            "text": "Component sets covering the same ground as the code: framed controls like Button, Input and Select; content components like Table, Blockquote and List; and full compositions like Card, Navigation Menu and Confirm Dialog.",
+            "code": []
+          },
+          {
+            "kind": "p",
+            "text": "Every set carries the axes you would expect. Size runs xs to xl. Variants cover the states a component genuinely has, and interaction states are drawn rather than implied. Layout primitives are there too, so a page can be built from real components rather than anonymous frames.",
+            "code": [
+              "xs",
+              "xl"
+            ]
+          },
+          {
+            "kind": "p",
+            "text": "The variables come in modes. Colour has Light and Dark. Sizing has the four density modes, so you can switch a frame from Comfortable to Dense and watch it reproportion, exactly as the code does.",
+            "code": []
+          },
+          {
+            "kind": "gap",
+            "id": "FIGMA-P01",
+            "job": "GENUINE screenshot, never a recreation: the Button component set as its full variant grid with the generated row and column labels, layers panel left, variant properties right."
+          }
+        ]
+      },
+      {
+        "id": "how-it-stays-in-step",
+        "title": "How it stays in step",
+        "blocks": [
+          {
+            "kind": "p",
+            "text": "The token values are the shared source. They live in one place, emit to CSS for the code, and sync to Figma variables for the file. Neither side is copied from the other by hand.",
+            "code": []
+          },
+          {
+            "kind": "p",
+            "text": "That is what keeps a colour honest. A designer picking action/primary/default in Figma and a developer writing --primitiv-action-primary-default in CSS are naming the same value, not two values that were once the same.",
+            "code": [
+              "action/primary/default",
+              "--primitiv-action-primary-default"
+            ]
+          },
+          {
+            "kind": "gap",
+            "id": "FIGMA-P02",
+            "job": "One source at the top, two arms of identical weight: Figma variables on one side, CSS custom properties on the other, each showing the same token name. No arrow between the two outputs."
+          }
+        ]
+      },
+      {
+        "id": "two-things-the-file-cannot-match",
+        "title": "Two things the file cannot match",
+        "blocks": [
+          {
+            "kind": "p",
+            "text": "Two components genuinely differ between Figma and the browser, and it is better to know now than to find out during handoff.",
+            "code": []
+          },
+          {
+            "kind": "defs",
+            "defs": [
+              {
+                "term": "Grid is an approximation",
+                "description": "Figma cannot apply CSS grid layout inside a component slot, so the Grid component is built with wrapping instead. It looks right in most layouts and it will not behave identically to the real thing in every case."
+              },
+              {
+                "term": "Aspect Ratio is fixed, not fluid",
+                "description": "In the browser the component holds a ratio at any width. In Figma it holds specific pixel dimensions."
+              }
+            ]
+          },
+          {
+            "kind": "p",
+            "text": "Everything else matches. Both limits are Figma's rather than choices, and both are recorded in the components' own descriptions in the file, so a designer who never reads this page still finds out.",
+            "code": []
+          }
+        ]
+      },
+      {
+        "id": "working-with-a-developer",
+        "title": "Working with a developer",
+        "blocks": [
+          {
+            "kind": "p",
+            "text": "Handoff is lighter than usual here, because most of what you would normally write down is already shared.",
+            "code": []
+          },
+          {
+            "kind": "defs",
+            "defs": [
+              {
+                "term": "Name components as they are named",
+                "description": "If you used Select, say Select. The developer has a component with that name and the same variants."
+              },
+              {
+                "term": "Say the token, not the value",
+                "description": "\"Surface, subtle\" survives a theme change and a dark mode. #f4f4f5 does not."
+              },
+              {
+                "term": "Say which density",
+                "description": "It is a real setting on their side, and it changes every measurement you might otherwise be asked for."
+              },
+              {
+                "term": "Do not redline spacing",
+                "description": "The spacing is a token. Naming it is enough, and measuring it invites a number that will drift."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "where-the-colour-comes-from",
+        "title": "Where the colour comes from",
+        "blocks": [
+          {
+            "kind": "p",
+            "text": "The palette in the file is generated rather than picked. A colour engine called Harmoni builds each scale from one seed colour, choosing the text colour that pairs with every step and checking contrast as it goes.",
+            "code": []
+          },
+          {
+            "kind": "p",
+            "text": "Harmoni is also a Figma plugin, for teams who want to generate their own palettes this way. You do not need it to use the library — the palette it produced is already in the file.",
+            "code": []
+          },
+          {
+            "kind": "alert",
+            "tone": "warning",
+            "text": "OPEN QUESTION, decide before this page publishes — whether the planned standard ramps appear in the Figma file at all. \"The same tokens as the code\" is a claim this page makes, and twenty ramps no component binds to may be clutter rather than parity."
+          }
+        ]
+      }
+    ],
+    "pairs": [
+      {
+        "id": "FIGMA-P02",
+        "count": 2
+      }
+    ]
+  }
+]

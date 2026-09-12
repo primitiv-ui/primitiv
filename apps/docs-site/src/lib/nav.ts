@@ -8,6 +8,7 @@
  * single-sourced even though the two presentations render different wrappers.
  */
 
+import { getContentPage } from "@/lib/content-pages";
 import { CATEGORY_ORDER, ROSTER } from "@/lib/docs-data";
 import { humanName } from "@/lib/human-name";
 
@@ -70,22 +71,45 @@ export const COMPONENT_GROUPS: readonly NavGroup[] = CATEGORY_ORDER.map(
   }),
 ).filter((group) => group.links.length > 0);
 
+/**
+ * Links derived from the content pages themselves, so the nav lists the
+ * sections a page actually has.
+ *
+ * Every entry here used to be a dead `/#anchor` — the pages did not exist, and
+ * the anchors pointed at nothing on the home page either (§4.6 of
+ * docs-site-content-plan.md). Now that the eight routes are real, a section's
+ * children are its page plus its own headings, taken from the generated data
+ * rather than restated: a heading renamed in the page data renames its nav entry.
+ */
+const pageLinks = (key: string): readonly NavLink[] => {
+  const page = getContentPage(key);
+  return [
+    { title: "Overview", href: page.route },
+    ...page.sections.map((s) => ({ title: s.title, href: `${page.route}#${s.id}` })),
+  ];
+};
+
+/*
+ * Guides and Changelog are deliberately absent, and so is Harmoni.
+ *
+ * Guides and Changelog are deferred (docs-site-content-plan.md D3) and Harmoni
+ * gets its own site (§3.9), so all three would be dead entries. A missing entry
+ * is honest; a dead one is not.
+ */
 export const NAV: readonly NavSection[] = [
   {
     title: "Start Here",
-    children: [
-      { title: "Introduction", href: "/" },
-      { title: "Installation", href: "/#installation" },
-    ],
+    href: "/start-here/",
+    children: pageLinks("start-here"),
   },
   {
     title: "Concepts",
     children: [
-      { title: "What Primitiv is", href: "/#what-primitiv-is" },
-      { title: "Tokens & theming", href: "/#tokens" },
-      { title: "Density & Context", href: "/#density" },
-      { title: "Composition patterns", href: "/#composition" },
-      { title: "Accessibility", href: "/#accessibility" },
+      { title: "What Primitiv is", href: "/concepts/what-primitiv-is/" },
+      { title: "Tokens & theming", href: "/concepts/tokens/" },
+      { title: "Density & Context", href: "/concepts/density/" },
+      { title: "Composition patterns", href: "/concepts/composition/" },
+      { title: "Accessibility", href: "/concepts/accessibility/" },
     ],
   },
   {
@@ -96,14 +120,13 @@ export const NAV: readonly NavSection[] = [
   },
   {
     title: "Registry & CLI",
-    children: [
-      { title: "primitiv add", href: "/#cli-add" },
-      { title: "Tokens & theme", href: "/#cli-tokens" },
-    ],
+    href: "/registry-cli/",
+    children: pageLinks("registry-cli"),
   },
   {
     title: "Design in Figma",
-    children: [{ title: "The library", href: "/figma/" }],
+    href: "/figma/",
+    children: pageLinks("figma"),
   },
 ];
 

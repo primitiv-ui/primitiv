@@ -9,7 +9,9 @@
     "start": "next start --port 4100",
     "typecheck": "tsc --noEmit",
     "check:css": "node scripts/check-tokens.mjs",
-    "qa": "pnpm check:css && pnpm typecheck",
+    "gen:content": "node scripts/gen-content-pages.mjs",
+    "check:content": "node scripts/gen-content-pages.mjs --check",
+    "qa": "pnpm check:css && pnpm check:content && pnpm typecheck",
     "primitiv": "primitiv"
   },
   "dependencies": {

@@ -2139,3 +2139,56 @@ a 284 column), on all 42 pages.
 (§6.0.15) · the deferred Split Button (§4.5) · and the deploy, which is a
 deliberate act: read `pnpm gates` first, and decide the accessibility page's
 gate before publishing it.
+
+### 6.0.18 Mobile overflow across all 42 component pages (2026-09-12)
+
+Every component page overflowed its viewport at 390. Fixed, and the whole
+roster now passes `render-check.mjs` at 390, 768 and 1280.
+
+**The playground, and it was not flex-wrap.** `.docs-control-grid` used
+`repeat(auto-fit, minmax(26rem, 1fr))`, and **`minmax()`'s first argument is a
+hard floor**: once the container is narrower than one track, auto-fit still
+lays out a 416px column and the grid overflows by the difference rather than
+shrinking. 416 in a 284px column, on all 42 pages, and it was the page's
+horizontal scroll. The fix is `minmax(min(26rem, 100%), 1fr)` — cap the floor
+at the container. The radio row inside it already had `flex-wrap: wrap` and
+was never the problem; nothing could wrap while the track refused to shrink.
+
+**The render check had to be hardened first, and this is the part worth
+remembering.** It flagged the grid correctly, but also six false hits per page
+from Code Block's `wrap={false}` `<pre>` — which scrolls on purpose, an
+anatomy tree's aligned trailing `//` annotations being its content — and one
+per Slider thumb. A tool that cries wolf gets ignored, so it gained three
+filters:
+
+- **A user-scrollable ancestor takes responsibility.** `overflow-x: auto` or
+  `scroll` is an author saying "scroll this if it does not fit", so anything
+  inside is intended.
+- **`hidden` does NOT count, and that distinction is the whole thing.** A
+  first pass excused any non-`visible` ancestor and **went green on the very
+  bug it had just caught** — the control grid sits inside a `Card`, whose
+  `overflow: hidden` clips media to the corner radius, so "someone above
+  handles it" was false. `hidden` clips, which means content is being silently
+  cut off: exactly what the check exists to find. Verified in both directions
+  afterwards — reverted CSS fails, fixed CSS passes — and that round-trip is
+  worth repeating on any future filter.
+- **An element with no children and no text has nothing to clip.** Slider's
+  18px thumb measures 22 (its 2px borders), on every thumb.
+
+**Five pages had their own causes, all separate defects:**
+
+| Page | Cause | Fix |
+| --- | --- | --- |
+| `aspect-ratio` | Demo frames at fixed `20rem`/`22rem`, and a non-wrapping row of three `7rem` frames | `maxInlineSize: 100%` on `frameBase`; `flexWrap` on the comparison row |
+| `radio-card` | The orientation example's `Stack direction="row"` ran 443px of cards into 284 | `wrap="wrap"` — a wrapped row is still a row-direction Stack, so the example still demonstrates `orientation` |
+| `spacer` | The three-group navbar needs ~327px and **cannot wrap and stay a demo** — `Spacer` distributes the leftover space of ONE row | `overflowX: auto` on the bar, so it scrolls in its own box |
+| `checkbox-card` | Lede carries `unchecked/checked/indeterminate).` — 336px in a 326px column | `overflow-wrap: break-word` |
+| `code-block` | Lede carries `(CodeBlock.Tabs/Header/List/Trigger/Content/Copy)` — 492px | as above |
+
+**The two lede cases are structural, not one-offs.** That prose is *generated*
+from source JSDoc, and slashes and dots are not line-break opportunities — so
+any identifier-heavy lede pushes the whole page wider than the viewport, and 21
+component pages are still to come. `overflow-wrap: break-word` only breaks a
+word that cannot fit a line on its own, so ordinary prose is untouched;
+`.docs-section-meta` got it too, being the same kind of text from the same
+source.

@@ -2,11 +2,6 @@
 
 import { Fragment } from "react";
 
-/* `Grid`, not `GridIcon`: the workspace source has renamed this glyph to
-   GridIcon so it cannot collide with the Grid *layout* component, but that
-   rename is not published — @primitiv-ui/icons@0.1.29 still exports `Grid`,
-   and the docs site consumes the published package, not the workspace. It is
-   aliased here so the collision the rename exists to prevent stays prevented. */
 import { Copy, File, Grid as GridGlyph, List, Success } from "@primitiv-ui/icons";
 
 import { Box } from "@/components/box";
@@ -16,28 +11,46 @@ import { Divider } from "@/components/divider";
 import "./proof-strip.css";
 
 /*
- * Every figure here is re-verified against the repository, never copied from
- * the copy document — that is the brief's own standing instruction, and the
- * numbers below were checked on 2026-09-11:
+ * Read off the Figma frame `02 — Proof strip` on `Home — desktop (v3)`, not
+ * from the copy record — and the frame corrected the split at its root.
  *
- *   63 components   registry/registry.json                     → 63 entries
- *   4 density modes packages/tokens/src/context.json           → comfortable,
- *                                                                compact,
- *                                                                spacious, dense
- *   3 formats       primitiv --format                          → css|scss|tailwind
- *   100% coverage   packages/react/vite.config.ts              → lines, branches,
- *                                                                functions and
- *                                                                statements all 100
- *   MIT             LICENSE                                    → MIT License
+ * THE FIGURE IS THE NUMBER ALONE. The copy record writes each row as
+ * "**63 components** — in code and in Figma", and the bold there reads as the
+ * figure; it is not. The frame puts only "63" at display/lg and moves the noun
+ * into the caption: "components — in code and in Figma". That is why 56px
+ * fits a 175px column, and why an earlier build that promoted the whole phrase
+ * to the figure overflowed into the divider and had to be shrunk to 40px —
+ * solving a problem it had created.
  *
+ * Every figure is re-verified against the repository rather than copied from
+ * any document, which the brief demands in bold. Checked 2026-09-12:
+ *
+ *   63   registry/registry.json            → 63 entries
+ *   4    packages/tokens/src/context.json  → comfortable, compact, spacious, dense
+ *   3    primitiv --format                 → css | scss | tailwind
+ *   100% packages/react/vite.config.ts     → lines, branches, functions,
+ *                                            statements all 100
+ *   MIT  LICENSE                           → MIT License
+ *
+ * The captions are the frame's own wording, which tightens the record's in two
+ * places ("changes all" for "changes all of them"; "lines, branches,
+ * functions" for "...and functions") — demonstrably what fits 175px.
+ *
+ * `Grid`, not `GridIcon`: @primitiv-ui/icons@0.1.29 still exports `Grid`. The
+ * workspace source has renamed it GridIcon so it cannot collide with the Grid
+ * *layout* component, but that rename is unpublished and the docs site
+ * consumes the published package. Aliased so the collision stays prevented.
  */
 const PROOF = [
-  { Glyph: GridGlyph, figure: "63 components", caption: "in code and in Figma" },
-  { Glyph: List, figure: "4 density modes", caption: "one attribute changes all of them" },
-  { Glyph: File, figure: "CSS, SCSS or Tailwind", caption: "the tokens emit to all three" },
-  { Glyph: Success, figure: "100% test coverage", caption: "lines, branches and functions" },
+  { Glyph: GridGlyph, figure: "63", caption: "components — in code and in Figma" },
+  { Glyph: List, figure: "4", caption: "density modes — one attribute changes all" },
+  { Glyph: File, figure: "3", caption: "token formats — CSS, SCSS, Tailwind" },
+  { Glyph: Success, figure: "100%", caption: "test coverage — lines, branches, functions" },
   { Glyph: Copy, figure: "MIT", caption: "engine and components both" },
 ] as const;
+
+/** The Icon set's `lg` size, which is what the frame's instances carry. */
+const GLYPH_SIZE = 32;
 
 /**
  * The band directly beneath the hero — cheap credibility before the argument
@@ -45,15 +58,12 @@ const PROOF = [
  *
  * **One glyph per figure, and that was a reversal.** The brief originally read
  * "no illustration — the figures are the visual". Built both ways, the marks
- * won: at this tile width the row was five numbers floating in a band with
+ * won: at 175px per tile the row was five numbers floating in a band with
  * nothing to anchor the eye between the dividers. Each glyph names the thing
  * counted rather than decorating it.
  *
- * **The glyph binds to its number, not to the tile.** The tile is
- * `[stat, caption]` where `stat` is itself `[glyph, figure]` at the `sm` gap,
- * so the mark reads as part of the figure the way an icon binds to a label.
- * Dropping the glyph in as a sibling of the figure would make it `* + h2` and
- * put the heading-asymmetry gap between them instead.
+ * **The glyph sits above its figure**, in a centred column at the `sm` gap, so
+ * it gives the tile a top edge without competing with the number.
  */
 export const ProofStrip = () => (
   <Box asChild className="docs-proof-strip">
@@ -67,8 +77,8 @@ export const ProofStrip = () => (
               )}
               <div className="docs-proof-tile">
                 <div className="docs-proof-stat">
-                  {/* Decorative: the figure beside it is the accessible text. */}
-                  <Glyph size={20} />
+                  {/* Decorative: the figure and caption carry the meaning. */}
+                  <Glyph size={GLYPH_SIZE} />
                   <p className="docs-proof-figure">{figure}</p>
                 </div>
                 <p className="docs-proof-caption">{caption}</p>

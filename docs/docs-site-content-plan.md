@@ -1803,6 +1803,42 @@ illustration** — after nine sections of images, an unillustrated ending reads
 as confidence and gives the call to action the frame. Five of ten v3 sections
 now exist in code.
 
+**Then the frame settled it, and corrected the build at its root
+(2026-09-12).** After three review rounds on this one section — glyph
+placement, then stacking, then alignment — reading
+`02 — Proof strip` on `Home — desktop (v3)` showed the real mistake was
+upstream of all three: **the figure is the number alone.**
+
+The copy record writes each row as `**63 components** — in code and in Figma`,
+and that bolding reads as the figure. It is not. The frame puts only `63` at
+`display/lg` and moves the noun into the caption:
+
+| figure (56px) | caption (body/sm) | glyph |
+| --- | --- | --- |
+| 63 | components — in code and in Figma | grid |
+| 4 | density modes — one attribute changes all | list |
+| 3 | token formats — CSS, SCSS, Tailwind | file |
+| 100% | test coverage — lines, branches, functions | success |
+| MIT | engine and components both | copy |
+
+So `display/lg` was right all along. The step down to `heading/h2` in §6.0.12
+was solving a problem the build had created by promoting the whole phrase to
+the figure — **that deviation is reverted**, and the note recording it is
+superseded by this one. The third tile also changes claim: not
+"CSS, SCSS or Tailwind" but "**3** token formats", which is the more useful
+number and still verified (css \| scss \| tailwind).
+
+Exact geometry, now matched and verified in Chromium: tile **175px fixed**,
+row gap **40**, divider **1x56 centred** (not a full-height edge), glyph
+**32px** (`Icon` at `lg`), `stat` gap **8**, stat-to-caption gap **12**.
+Mobile is the frame's own second layout: **vertical, gap 32, tiles full
+width, zero dividers.**
+
+**The lesson is worth more than the section.** Every one of the four
+corrections here was readable off the frame before any code was written, and
+prose describing a design is not the design. Read the frame first for any
+section that has one.
+
 **The proof-strip tiles centre their contents.** Left-aligning glyph, figure
 and qualifier made each tile read as a paragraph start rather than as one of
 five even columns in a band — caught on review after the glyph fix below.

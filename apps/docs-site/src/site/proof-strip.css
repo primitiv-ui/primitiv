@@ -2,43 +2,43 @@
  * The proof strip — a band, not page content, so it carries `surface/subtle`
  * across the full bleed while its contents stay in the xl container.
  *
+ * Geometry read off the Figma frame `02 — Proof strip`:
+ *   tile 175 fixed · row gap 40 · divider 1x56 · stat gap 8 · flow gap 12
+ *   mobile: VERTICAL, gap 32, tiles full width, NO dividers
+ *
  * Unlayered like the rest of the docs CSS; keep every selector docs-prefixed.
  */
 .docs-proof-strip {
-  /* Five tiles fit on one line above ~64rem; below that the row wraps rather
-     than shrinking the figures past legibility. */
-  --docs-proof-tile-min: 10rem;
+  --docs-proof-tile: 175px;
+  --docs-proof-divider-height: 56px;
   background: var(--primitiv-surface-subtle);
-  padding-block: var(--primitiv-space-space-32);
+  padding-block: var(--primitiv-space-space-40);
 }
 
 .docs-proof-row {
   display: flex;
-  flex-wrap: wrap;
-  align-items: stretch;
+  align-items: center;
   justify-content: center;
-  gap: var(--primitiv-space-space-24);
+  gap: var(--primitiv-space-space-40);
 }
 
 .docs-proof-tile {
   display: flex;
   flex-direction: column;
   /* Everything in a tile centres on the column's axis — glyph, figure and
-     qualifier. Left-aligning them made each tile read as a paragraph start
-     rather than as one of five even columns in a band. */
+     qualifier. The frame's `stat` and caption are both counterAxis CENTER. */
   align-items: center;
   text-align: center;
-  /* The figure-to-caption gap is the heading-asymmetry rung, not a stack gap. */
-  gap: var(--primitiv-flow-tight);
-  flex: 1 1 var(--docs-proof-tile-min);
-  min-inline-size: var(--docs-proof-tile-min);
+  gap: var(--primitiv-space-space-12);
+  /* Fixed, not fluid: the frame's tiles are 175 and the figure is sized to
+     that measure. Letting them grow would leave the numbers marooned. */
+  flex: none;
+  inline-size: var(--docs-proof-tile);
 }
 
-/* The glyph sits ABOVE its figure, not beside it — the copy record's words are
-   "a single quiet glyph above each figure gives the column a top edge without
-   competing with the number". A first build read the spec's `stack/gap/sm` as
-   a row and put the mark alongside, which made a two-line figure wrap around
-   it and cost the column the top edge the mark exists to give it. */
+/* The glyph sits ABOVE its figure — the frame's `stat` frame is a vertical
+   stack at gap 8, and the copy record's words are "a single quiet glyph above
+   each figure gives the column a top edge without competing with the number". */
 .docs-proof-stat {
   display: flex;
   flex-direction: column;
@@ -47,62 +47,43 @@
   color: var(--primitiv-content-secondary);
 }
 
-.docs-proof-stat > svg {
-  flex: none;
-}
-
-/*
- * DELIBERATE DEVIATION from the copy record, which specifies `display/lg`.
- *
- * `display/lg` is 56px and the tiles resolve to ~218px on a 1216 container.
- * "components" alone needs ~245px at that size, so the figure overflowed its
- * tile and collided with the divider — measured in Chromium, not guessed. The
- * brief assumed "five numbers"; three of the five figures are phrases
- * ("CSS, SCSS or Tailwind", "100% test coverage", "MIT"), which is what the
- * specified size cannot absorb.
- *
- * `heading/h2` (40px) is the largest step on the scale that fits, so the
- * figures stay emphatic. Revisit against the Figma frame — if the design
- * really is 56px, the tiles need to be wider or the row needs fewer than five.
- */
 .docs-proof-figure {
   margin: 0;
-  font-family: var(--primitiv-heading-h2-font-family);
-  font-size: var(--primitiv-heading-h2-font-size);
-  line-height: var(--primitiv-heading-h2-line-height);
+  font-family: var(--primitiv-display-lg-font-family);
+  font-size: var(--primitiv-display-lg-font-size);
+  line-height: var(--primitiv-display-lg-line-height);
   color: var(--primitiv-content-primary);
 }
 
 .docs-proof-caption {
   margin: 0;
-  /* Tiles stretch to a common height, so pinning the caption to the bottom
-     puts every qualifier on one baseline however many lines its figure takes. */
-  margin-block-start: auto;
-  padding-block-start: var(--primitiv-space-space-8);
   font-family: var(--primitiv-body-sm-font-family);
   font-size: var(--primitiv-body-sm-font-size);
   line-height: var(--primitiv-body-sm-line-height);
   color: var(--primitiv-content-muted);
 }
 
+/* A short rule between tiles, centred on the row — not a full-height edge. */
 .docs-proof-divider {
-  align-self: stretch;
+  flex: none;
+  align-self: center;
+  block-size: var(--docs-proof-divider-height);
   color: var(--primitiv-border-subtle);
 }
 
-/* A vertical rule only separates tiles that share a line. Below the width
-   where five fit, the row stacks and each rule would hang beside a gap — so
-   they go. The comment claiming this previously sat above CSS that did not
-   do it; the mobile render is what caught that. */
+/* The frame's mobile strip is one column: vertical, gap 32, tiles full width,
+   and no dividers at all. */
 @media (width < 64rem) {
-  .docs-proof-divider {
-    display: none;
+  .docs-proof-row {
+    flex-direction: column;
+    gap: var(--primitiv-space-space-32);
   }
 
-  /* One tile per row below the width where five fit. Letting them pack
-     two-up left an orphan on the last line and put two different figures
-     on one baseline, which reads as a grid rather than as a strip. */
   .docs-proof-tile {
-    flex-basis: 100%;
+    inline-size: 100%;
+  }
+
+  .docs-proof-divider {
+    display: none;
   }
 }

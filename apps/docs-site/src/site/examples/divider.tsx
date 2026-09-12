@@ -48,7 +48,16 @@ const columnStyle: CSSProperties = {
   flexDirection: "column",
   gap: "1rem",
 };
-const rowStyle: CSSProperties = { display: "flex", gap: "1rem" };
+/* `wrap`, because three labels and two 16px gaps measure 220px and the preview
+   is 214 at a 320 viewport — 6px, but enough for the card to clip "Docs". A
+   wrapped row still shows a vertical rule between items, which is the whole
+   demo; the rules just take the height of whichever line they land on. */
+const rowStyle: CSSProperties = {
+  display: "flex",
+  flexWrap: "wrap",
+  alignItems: "center",
+  gap: "1rem",
+};
 
 /** Reserve space through the knob for the block-flow example, via a real token. */
 const reservedSpacing = {

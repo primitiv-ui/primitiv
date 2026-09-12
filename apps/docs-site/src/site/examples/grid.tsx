@@ -126,7 +126,7 @@ export const gridSpec: ComponentSpec = {
             [
               imports(mode),
               ``,
-              `<Grid columns={3} gap="md" justify="center" align="center">`,
+              `<Grid columns={{ base: 2, md: 3 }} gap="md" justify="center" align="center">`,
               `  <div>One</div>`,
               `  <div>Two</div>`,
               `  <div>Three</div>`,
@@ -135,8 +135,15 @@ export const gridSpec: ComponentSpec = {
           }
         >
           {() => (
+            /* Two columns below md, three above. The cells are `nowrap` by
+               design — they carry deliberate line breaks — so at a 320 viewport
+               three padded cells need 68px in a 60px track and the widest was
+               cut off. Saying so with the breakpoint map is better
+               documentation than implying three fit: that map is this
+               component's headline feature. The demo still shows what it is
+               for, since `align` reads against the two-line cell either way. */
             <Grid
-              columns={3}
+              columns={{ base: 2, md: 3 }}
               gap="md"
               justify="center"
               align="center"

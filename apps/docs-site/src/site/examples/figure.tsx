@@ -101,7 +101,10 @@ export const figureSpec: ComponentSpec = {
                   key={pos}
                   captionPosition={pos}
                   size="sm"
-                  style={{ width: "14rem" }}
+                  /* `maxWidth` so the pair caps at the preview rather than the
+                     viewport: at 320 the row is 214px and a 14rem figure was
+                     clipped by the card. */
+                  style={{ width: "14rem", maxWidth: "100%" }}
                 >
                   <Figure.Media>
                     <Media />

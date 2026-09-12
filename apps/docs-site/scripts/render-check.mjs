@@ -159,6 +159,31 @@ for (const width of widths) {
       .map((el) => `${el.tagName.toLowerCase()}.${el.className || "(no class)"}`.slice(0, 70));
   }, section);
 
+  /*
+   * WCAG 2.1 SC 1.4.10 Reflow (AA), tested directly: content must reflow without
+   * requiring scrolling in TWO dimensions at a width equivalent to 320 CSS
+   * pixels — the width a 1280px viewport reaches at 400% zoom, which is why 320
+   * is the number and why it is a conformance floor rather than a nice-to-have.
+   *
+   * This is the criterion itself, and it is stricter and far less ambiguous than
+   * the element scan above: a page can have elements overflowing their boxes
+   * while the document does not scroll (an ancestor clips them — a different
+   * defect, content cut off), and a page can scroll horizontally with no single
+   * element flagged. So both run.
+   *
+   * The SC's exception is "parts of the content which require two-dimensional
+   * layout for usage or meaning" — a data table, a diagram, a toolbar. The
+   * accepted technique for those is an internal scroll container, which keeps
+   * the PAGE one-dimensional, so this assertion is the right one to hold
+   * unconditionally.
+   */
+  const reflow = await page.evaluate(() => {
+    const d = document.documentElement;
+    return d.scrollWidth > d.clientWidth + 1
+      ? { over: d.scrollWidth - d.clientWidth, width: d.clientWidth }
+      : null;
+  });
+
   if (out) {
     fs.mkdirSync(out, { recursive: true });
     const file = path.join(out, `${section ?? "page"}-${scheme}-${width}.png`);
@@ -166,10 +191,16 @@ for (const width of widths) {
     console.log(`  shot ${file}`);
   }
 
-  const ok = !errors.length && !broken.length && !overflowing.length;
+  const ok = !errors.length && !broken.length && !overflowing.length && !reflow;
   console.log(`${ok ? "✓" : "✗"} ${width}px ${scheme}${motion === "reduce" ? " reduced-motion" : ""}`);
   for (const e of errors) console.log(`    error    ${e}`);
   for (const b of broken) console.log(`    request  ${b}`);
+  if (reflow) {
+    console.log(
+      `    reflow   WCAG 1.4.10: the page scrolls horizontally — ` +
+        `${reflow.width}px viewport needs ${reflow.width + reflow.over}px`,
+    );
+  }
   for (const o of overflowing) console.log(`    overflow ${o}`);
   if (!ok) failed = true;
 

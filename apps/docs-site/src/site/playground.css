@@ -145,6 +145,134 @@
 }
 
 /*
+ * A demo REFLOWS to its preview rather than being clipped by it. No scrollbar
+ * is introduced here — the demo gets narrower and its own content wraps.
+ *
+ * A flex item's default `min-width: auto` is its MIN-CONTENT width, so a demo
+ * refuses to shrink however narrow the row gets. Measured at a 320 viewport,
+ * where this row is 214px: the List demo floored at 270, Stack at 237, the
+ * Segmented Control rows at 227 and 231, and the Grid at 218 — every one of
+ * them silently cut off by the card, since the card clips rather than letting
+ * the page scroll. `min-inline-size: 0` is what lets them give way.
+ *
+ * `max-inline-size: 100%` covers the other half: a demo sized in absolute units
+ * (Figure's 14rem media frame) is capped against the row rather than against
+ * the viewport. That one stays on direct children, where the demo root is —
+ * pushing it through every descendant would fight a component's own nested
+ * sizing.
+ *
+ * The min-content release goes all the way down, because the floor is often
+ * deeper than the demo root: Stack's `Short / A taller cell / End` row needed
+ * 237px, and what has to give is the CELL, so its text wraps to two lines. The
+ * alternative — wrapping the row — would break the very thing that demo shows
+ * (cross-axis alignment across one row). Inside an example preview nothing
+ * should hold a min-content floor: the preview exists to show a component at
+ * the reader's width, and `min-inline-size: 0` only PERMITS shrinking, so a
+ * flex or grid item still takes its natural size whenever there is room.
+ */
+.docs-example-row > *,
+.docs-example-stack > * {
+  max-inline-size: 100%;
+}
+
+.docs-example-row *,
+.docs-example-stack * {
+  min-inline-size: 0;
+}
+
+/*
+ * Once the containers give way, the last thing that cannot is a word. Demo prose
+ * — a list item, a grid cell — has no break opportunity inside a long token, so
+ * it kept overflowing a 60px cell. `break-word` only breaks a word that cannot
+ * fit a line on its own, so ordinary demo copy is untouched.
+ */
+.docs-example-row,
+.docs-example-stack {
+  overflow-wrap: break-word;
+}
+
+/*
+ * Two control strips are the exception, and they are the case for an internal
+ * scroller rather than reflow: a tab list and a segmented control are each ONE
+ * control whose options sit in a row, and their labels are the content. Wrapping
+ * a segmented control into two rows stops it reading as a single control, and
+ * truncating "This quarter" to "This qu…" loses the option's meaning — which is
+ * exactly what WCAG 2.1 SC 1.4.10 excepts as content requiring two-dimensional
+ * layout, with a scroll container as the accepted technique.
+ *
+ * Scrolling stays INSIDE the strip, so the page itself never scrolls sideways.
+ * The scrollbar is hidden because these strips sit on a coloured track whose
+ * height is part of the control's anatomy; the row still scrolls by drag, wheel
+ * and keyboard, and focusing a trigger scrolls it into view.
+ *
+ * Their ITEMS then have to opt back OUT of the min-content release above, and
+ * this is not belt-and-braces — it was a real defect. With the release applied
+ * a Code Block tab label ("npm", 12px of text) was squeezed into an 8px box and
+ * clipped to nothing, because the strip could scroll and the label could shrink,
+ * so the label lost. A strip's options keep their natural width and the strip
+ * scrolls; that is the whole point of making it a scroller.
+ */
+.docs-playground-preview .primitiv-tabs__list,
+.docs-playground-preview .primitiv-segmented-control,
+.docs-playground-preview .primitiv-toggle-group,
+.docs-example-row .primitiv-tabs__list,
+.docs-example-row .primitiv-segmented-control,
+.docs-example-row .primitiv-toggle-group,
+.docs-example-stack .primitiv-tabs__list,
+.docs-example-stack .primitiv-segmented-control,
+.docs-example-stack .primitiv-toggle-group {
+  /*
+   * Capped as well as scrollable, and the cap is what was missing: a
+   * content-sized strip inside a Stack takes its max-content width, so
+   * `overflow-x: auto` alone never engaged — the strip just grew (227px and
+   * 242px measured, in a 214px column) and the card clipped it. The
+   * `max-inline-size: 100%` on direct children above cannot reach these,
+   * because a demo usually nests them a Stack deep.
+   */
+  max-inline-size: 100%;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+/*
+ * Controls opt back OUT of the min-content release: a control's LABEL is its
+ * content, and squeezing it loses the thing the reader needs. Measured:
+ * Tooltip's `default` trigger was cut to 34px of a 47px label, and a Code Block
+ * tab reading "npm" was squeezed into 8px. What gives way instead is the row
+ * around them — it wraps — or, for a single control whose options sit in one
+ * row, the control scrolls inside itself.
+ */
+.docs-playground-preview .primitiv-tabs__list > *,
+.docs-playground-preview .primitiv-segmented-control > *,
+.docs-example-row .primitiv-tabs__list > *,
+.docs-example-row .primitiv-segmented-control > *,
+.docs-example-stack .primitiv-tabs__list > *,
+.docs-example-stack .primitiv-segmented-control > *,
+.docs-playground-preview .primitiv-toggle-group > *,
+.docs-example-row .primitiv-toggle-group > *,
+.docs-example-stack .primitiv-toggle-group > *,
+.docs-example-row .primitiv-button,
+.docs-example-row .primitiv-button *,
+.docs-example-stack .primitiv-button,
+.docs-example-stack .primitiv-button *,
+.docs-playground-preview .primitiv-button,
+.docs-playground-preview .primitiv-button * {
+  min-inline-size: auto;
+}
+
+.docs-playground-preview .primitiv-tabs__list::-webkit-scrollbar,
+.docs-playground-preview .primitiv-segmented-control::-webkit-scrollbar,
+.docs-playground-preview .primitiv-toggle-group::-webkit-scrollbar,
+.docs-example-row .primitiv-toggle-group::-webkit-scrollbar,
+.docs-example-stack .primitiv-toggle-group::-webkit-scrollbar,
+.docs-example-row .primitiv-tabs__list::-webkit-scrollbar,
+.docs-example-row .primitiv-segmented-control::-webkit-scrollbar,
+.docs-example-stack .primitiv-tabs__list::-webkit-scrollbar,
+.docs-example-stack .primitiv-segmented-control::-webkit-scrollbar {
+  display: none;
+}
+
+/*
  * For an example whose demo is a full-width WIDGET rather than a row of
  * controls — a tab set, a table, a card. `.docs-example-row` above is a centred
  * flex row, which is right for five buttons and wrong for two stacked tab sets:

@@ -50,6 +50,17 @@
   align-items: start;
 }
 
+/*
+ * Docs prose in a registry `List` — the accessibility notes, the data-attribute
+ * rundowns — carries API identifiers with no break opportunity inside them:
+ * `Dropdown.CheckboxItem and Dropdown.RadioItem` overflowed a 240px item at a
+ * 320 viewport, because a dot is not a break point. Same treatment, and same
+ * reason, as the generated lede in component-page-header.css.
+ */
+.docs-main .primitiv-list__item-content {
+  overflow-wrap: break-word;
+}
+
 /* Section-level overline, e.g. "IMPORT PATH". Same treatment as the landing's
    section overlines, so the two pages share one voice. */
 .docs-overline {

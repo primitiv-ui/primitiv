@@ -2272,3 +2272,117 @@ serves `-dark-` and light `-light-`, the paired row goes `300px 300px` at 1280
 and one `326px` column at 390, and alt reaches the DOM. The stand-ins were then
 removed and both pages re-checked clean at 0/10. `pnpm check:illustrations`
 guards the manifest against the folder.
+
+### 6.0.20 Home section 5 — the colour proof sheet, live (2026-09-12)
+
+Section 5 is built and on the page, ahead of §2.6. It needed **no artwork**,
+which is what made it the right next section: §2.5's revision away from an
+interactive Harmoni demo to "the real shipped palette as a proof sheet" left
+something that is a rendered DOM specimen rather than an image.
+
+**Every colour comes from the engine, and that is enforced end to end.**
+`harmoni-core`'s `swatch-sheet` example already dumped the five generated ramps
+with each swatch's `best_foreground`; this session **added the neutral row**,
+which the dumper deliberately could not produce (neutral comes from the
+`neutral` module, its 500 differs by theme where every chromatic ramp shares one
+seed, and it is not reproducible from `harmoni-seeds.json`). Its swatches are
+read out of the shipped `palette.json` and paired through
+`get_best_foreground` — the same primitive the generator and the neutral module
+call — with that ramp's own 900 and 50 as the harmonious candidates and the
+shipped soft white/black (`color.white` / `color.black`) as the customs, which
+is `neutral::ramp`'s own argument list.
+
+**And the example proves the method before trusting it.** The same code path is
+run over the five generated ramps, whose pairings are already known, and every
+one must agree: **100 of 100 re-paired identically, 0 skipped.** That also
+corrected an assumption — CLAUDE.md notes `info` is "not reproducible from its
+seed", which is about chroma against the seed's intent, not about the committed
+hexes disagreeing with a fresh generate. They agree exactly. A swatch whose hex
+had drifted would be skipped and counted, and the assertion fails below 80 of
+100 rather than quietly testing nothing.
+
+**`generated` rides in the data, per ramp.** The 100-swatch CI guard covers the
+five generated ramps; neutral is shipped but outside it. Showing neutral is
+correct — it is where most interface colour comes from — so the flag is in the
+JSON and the prose states the scope, rather than a caption being trusted to
+remember.
+
+**First code consumer of the `swatch/*` Context family**, which was authored for
+exactly this specimen and had nothing reading it: `box`, `gap`, `panel-cap`,
+`radius`, `sample-size`, `sample-caption-size` and `padding-block` all come from
+it, so the sheet scales with density like everything else.
+
+**Two composition decisions worth keeping.** The radius belongs to the SCALE,
+not the swatch — rounding each chip would put ten corners back into a row that
+must read as one continuous ramp, so it is clipped at the row. And the ten
+tracks are `minmax(0, 1fr)`, not `1fr`: a track's `auto` minimum is its
+content's min-content width, so the "Ag" would floor each track and the row
+would overflow on a phone instead of compressing. A ramp that wraps stops being
+a ramp, which is the brief's own instruction.
+
+**`box` is a FLOOR, not a height — a real defect.** `sample-size` (32) plus
+`sample-caption-size` (13) is 44px of content in the 40px `box`, so the step
+number under every "Ag" was sliced off by the row's clip. Height is intrinsic
+now, with the family's own `padding-block`. **The screenshot found it; the
+render check could not**, which is its own finding below.
+
+**Three departures from the copy document, all deliberate.** The "standard
+ramps" sentence is cut — the copy marks it PENDING and says to cut it if this
+section publishes first, which it does. Harmoni is **named but not linked**: the
+copy asks for a link to its own site, which does not exist yet (§3.9), and the
+footer and documentation map got the same call. And **COLOUR-02, the hue-drift
+diagram, is not here** — it is the one claim in the section a reader cannot
+verify from the sheet, so those paragraphs ship stated and CI-gated but not yet
+drawn. Its data is already generated (`colour-02-hue-drift.json`).
+
+#### The render check is horizontal-only, and that is now a conclusion
+
+Extending it to the vertical axis looked obvious — its own comment claimed both
+axes — and was **reverted the same hour**. `scrollHeight` exceeds
+`clientHeight` on essentially every piece of trimmed type here, because the
+registry uses `text-box-trim`: measured on the home page, the hero heading reads
+**24px over a 112px box** and a proof figure 11 over 64, both correct on screen.
+The magnitudes scale with font-size, so they are *larger* than real defects —
+the clipped swatch was 4px — and no threshold separates them. A precise clipping
+detector (a child whose rect leaves a `hidden` ancestor's rect) was also tried:
+very quiet, but it **missed that same swatch**, because the clipper was the
+grandparent. A vertical clip needs the screenshot the script can already take.
+
+---
+
+### 6.0.21 The site holds from 320 to 1600 (2026-09-12)
+
+Seven more overflow defects, every one at a width nobody had checked. The
+lesson across all of them: **the breakpoint has to be measured, not estimated.**
+Two guesses at the proof strip's threshold (64rem, then 70rem) each shipped an
+overflow before measuring showed the row needs **1216px** of content, which only
+an `xl` container at 1280 provides.
+
+| Defect | Cause | Fix |
+| --- | --- | --- |
+| Proof row broke out of its section at 1024 and 1120 | Five 175px tiles + four dividers + eight 40px gaps need 1199px | Row above 80rem, stacked below — no intermediate state |
+| Path cards' install tabs overflowed their card header on every tablet | `columns={3}` fixed at every width; three ~188px cards at 768 | `{ base: 1, lg: 2, xl: 3 }` |
+| `/components` and a component page overflowed at 320 | `minmax()` hard floor, twice more | `min(X, 100%)` |
+| Install tab strip overflowed by 3px at 340 | Four triggers measure 213px and none can shrink | `min-inline-size: 0` + `overflow-x: auto` on the strip |
+| Index card titles collapsed to ONE LETTER PER LINE at 320 | Header is `[title][status pill]`; the pill is a fixed ~90px | `flex-wrap: wrap` on the header |
+| The component-page header crushed its status Badge 48px → 20 on **21 of 42 pages** | The row was `nowrap` **against a comment claiming it wrapped** | `flex-wrap: wrap` below md |
+| A fixed-width playground demo escaped its preview at 320 | The preview's implicit column is `auto` = max-content, so the demo grew the track and its own `max-inline-size: 100%` measured *that* | `grid-template-columns: minmax(0, max-content)` |
+
+Two of these are worth internalising. **A percentage cap is only as good as the
+track it measures** — `max-inline-size: 100%` was set on that demo and did
+nothing. And **a crushed column wraps, it does not overflow**, which is why the
+card titles and the squeezed Badge sat there unflagged: the index card titles
+were already wrapping to two lines at the 390 baseline.
+
+**State: the home page, the components index, all eight content pages and all
+42 component pages are clean at 320, 390, 768, 1024, 1280 and 1600**, in both
+schemes.
+
+**Still open, and deliberately bounded:** eight component pages have per-example
+overflow at **320 only** — `code-block`, `divider`, `dropdown`, `figure`,
+`grid`, `list`, `segmented-control`, `stack`. Every systemic cause is fixed;
+what remains is individual demos whose content is genuinely wider than 320
+(a five-segment control, a multi-column grid), and each needs the same
+per-case judgement the `spacer` navbar got — wrap, scroll, or shrink, depending
+on what the example is *for*. 320 is below the 390 baseline the site is designed
+against, so this is a known edge rather than a regression.

@@ -92,9 +92,21 @@ for (const width of widths) {
   }
 
   /* Overflow is the defect class a screenshot catches and properties do not:
-     any element whose text is wider or taller than the box it sits in.
+     any element whose content is wider than the box it sits in.
      `overflow: visible` is the first filter — an element that scrolls or clips
      is doing so deliberately.
+
+     HORIZONTAL ONLY, and that is a conclusion rather than an oversight — it was
+     extended to the vertical axis and reverted the same hour. `scrollHeight`
+     exceeds `clientHeight` on essentially every piece of trimmed type in this
+     codebase, because the registry uses `text-box-trim`: measured on the home
+     page, the hero heading reads 24px over a 112px box and a proof figure 11
+     over 64, both correct on screen. The magnitudes scale with font-size, so
+     they are LARGER than real defects — the colour sheet's clipped swatch was
+     4px — and no threshold separates them. A precise clipping detector (a child
+     whose rect leaves a `hidden` ancestor's rect) was also tried: quiet, but it
+     missed that same swatch, because the clipper was the grandparent. A vertical
+     clip needs the screenshot this script can already take.
 
      The second filter is an ancestor the USER CAN SCROLL, and without it this
      cried wolf on real designs: a Code Block with `wrap={false}` scrolls at its

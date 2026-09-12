@@ -25,7 +25,8 @@
 //! Run:  cargo run -p harmoni-core --features swatch-sheet --example swatch-sheet
 
 use harmoni_core::api::generate_brand_pair;
-use harmoni_core::{oklch_to_hex, ColorInput};
+use harmoni_core::audit::foreground::get_best_foreground;
+use harmoni_core::{oklch_to_hex, ColorInput, SwatchLabel, SwatchStep};
 use palette::{IntoColor, Oklch, Srgb};
 use std::path::PathBuf;
 
@@ -106,10 +107,18 @@ fn main() {
                 })
                 .collect();
             out.push(serde_json::json!({
-                "ramp": ramp, "theme": theme, "seed": seed, "shipped": shipped, "steps": steps,
+                "ramp": ramp, "theme": theme, "seed": seed, "shipped": shipped,
+                // The 100-swatch guard covers the GENERATED ramps only. Neutral is
+                // shipped but comes from the `neutral` module, so it is appended
+                // below with `generated: false` — the caption's precision point,
+                // carried in the data so a consumer cannot overclaim by accident.
+                "generated": true,
+                "steps": steps,
             }));
         }
     }
+
+    out.extend(shipped_neutral_rows(&read("packages/tokens/src/palette.json"), &out));
 
     let dest = root.join("docs/generated/colour-01-swatch-sheet.json");
     std::fs::create_dir_all(dest.parent().expect("a parent")).expect("the output directory");
@@ -418,4 +427,166 @@ fn write_team_buttons(root: &PathBuf) {
     )
     .expect("writing the team buttons");
     println!("wrote the PROBLEM-01 buttons to {}", dest.display());
+}
+
+/// Hex → a `SwatchStep` the engine's own pairing primitive can take.
+fn step(hex: &str, label: &str) -> SwatchStep {
+    let bytes = u32::from_str_radix(hex.trim_start_matches('#'), 16)
+        .unwrap_or_else(|e| panic!("{hex} should be a hex colour: {e}"));
+    let rgb: Srgb<f32> = Srgb::<u8>::new(
+        ((bytes >> 16) & 0xff) as u8,
+        ((bytes >> 8) & 0xff) as u8,
+        (bytes & 0xff) as u8,
+    )
+    .into_format();
+    let oklch: Oklch = rgb.into_color();
+    SwatchStep::from_label(
+        oklch.l,
+        oklch.chroma,
+        oklch.hue.into_degrees(),
+        SwatchLabel::Name(label.to_string()),
+    )
+}
+
+/// The ten steps of one ramp, in scale order, read out of `palette.json`.
+fn ramp_steps(palette: &serde_json::Value, theme: &str, ramp: &str) -> Vec<(String, SwatchStep)> {
+    const LABELS: [&str; 10] = [
+        "50", "100", "200", "300", "400", "500", "600", "700", "800", "900",
+    ];
+    LABELS
+        .iter()
+        .map(|label| {
+            let hex = palette["color"][ramp][label]["$value"]
+                .as_str()
+                .unwrap_or_else(|| panic!("{theme}.color.{ramp}.{label} should be a colour"));
+            (label.to_string(), step(hex, label))
+        })
+        .collect()
+}
+
+/// The NEUTRAL rows of the sheet, and the check that earns the right to emit
+/// them.
+///
+/// Neutral is the one ramp the brief asks to show that this dumper cannot get
+/// from `generate_brand_pair`: it comes from the `neutral` module, its 500
+/// differs between themes where every chromatic ramp shares one seed, and it is
+/// **not reproducible from `harmoni-seeds.json`** — so its swatches have to be
+/// read out of the shipped `palette.json` and their foregrounds computed.
+///
+/// Computing a foreground is exactly what must not be done by eye or by a
+/// threshold: the sheet's whole claim is that the engine chose. So this calls
+/// `get_best_foreground` — the same primitive both the generator and the neutral
+/// module call — with that ramp's own 900 and 50 as the harmonious candidates
+/// and the shipped soft white/black (`color.white` / `color.black`) as the
+/// customs, which is the argument list `neutral::ramp` itself uses.
+///
+/// **And it proves the method before trusting it.** The same code path is run
+/// over the five generated ramps, whose answers are already known from
+/// `generate_brand_pair` above, and every pairing must agree. A swatch whose
+/// palette hex has drifted from what the engine now generates is skipped and
+/// counted rather than compared — `info`'s light end is a real instance, and has
+/// been for some time — so the check reports its own coverage instead of
+/// quietly testing nothing. If the agreement ever breaks, the neutral row is
+/// wrong in a way no render would show, and this panics rather than shipping it.
+fn shipped_neutral_rows(
+    palette: &serde_json::Value,
+    generated: &[serde_json::Value],
+) -> Vec<serde_json::Value> {
+    let mut compared = 0usize;
+    let mut skipped = 0usize;
+
+    for row in generated {
+        let theme = row["theme"].as_str().expect("a theme");
+        let ramp = row["ramp"].as_str().expect("a ramp name");
+        if !row["shipped"].as_bool().unwrap_or(false) {
+            continue; // the extra hues are not in palette.json
+        }
+        let shipped = ramp_steps(&palette[theme], theme, ramp);
+        for (i, expected) in row["steps"].as_array().expect("steps").iter().enumerate() {
+            let (_, background) = &shipped[i];
+            if background.hex.to_lowercase() != expected["hex"].as_str().expect("a hex") {
+                skipped += 1;
+                continue;
+            }
+            let got = pair_foreground(&shipped, i, palette, theme);
+            assert_eq!(
+                got.0,
+                expected["foreground"].as_str().expect("a foreground"),
+                "{theme} {ramp} {}: the shipped palette re-paired to a different \
+                 foreground than the engine generated. The neutral row is computed \
+                 this way, so it cannot be trusted while this disagrees.",
+                expected["step"].as_str().unwrap_or("?")
+            );
+            compared += 1;
+        }
+    }
+
+    assert!(
+        compared >= 80,
+        "only {compared} of 100 generated swatches could be re-paired ({skipped} had \
+         drifted hexes) — too few to call the neutral row's method verified"
+    );
+    println!("re-paired {compared} generated swatches identically ({skipped} skipped as drifted)");
+
+    ["light", "dark"]
+        .iter()
+        .map(|theme| {
+            let shipped = ramp_steps(&palette[theme], theme, "neutral");
+            let steps: Vec<serde_json::Value> = (0..shipped.len())
+                .map(|i| {
+                    let (label, background) = &shipped[i];
+                    let (foreground, source, ratio) = pair_foreground(&shipped, i, palette, theme);
+                    serde_json::json!({
+                        "step": label.clone(),
+                        "hex": background.hex.to_lowercase(),
+                        "foreground": foreground,
+                        "foregroundSource": source,
+                        "contrast": (ratio * 100.0).round() / 100.0,
+                    })
+                })
+                .collect();
+            serde_json::json!({
+                "ramp": "neutral",
+                "theme": theme,
+                // Neutral has no single seed — its 500 differs by theme — so the
+                // field that every other row uses for its seed says so.
+                "seed": serde_json::Value::Null,
+                "shipped": true,
+                "generated": false,
+                "steps": steps,
+            })
+        })
+        .collect()
+}
+
+/// One swatch's engine-chosen foreground: `(hex, source, ratio)`.
+fn pair_foreground(
+    ramp: &[(String, SwatchStep)],
+    index: usize,
+    palette: &serde_json::Value,
+    theme: &str,
+) -> (String, String, f32) {
+    let soft = |name: &str| {
+        step(
+            palette[theme]["color"][name]["$value"]
+                .as_str()
+                .unwrap_or_else(|| panic!("{theme}.color.{name} should be a colour")),
+            name,
+        )
+    };
+    let white = soft("white");
+    let black = soft("black");
+    let recommendation = get_best_foreground(
+        &ramp[index].1,
+        &ramp[ramp.len() - 1].1, // this ramp's own 900
+        &ramp[0].1,              // this ramp's own 50
+        Some(&white),
+        Some(&black),
+    );
+    let fg = &recommendation.color;
+    (
+        oklch_to_hex(Oklch::new(fg.l, fg.c, fg.h)).to_lowercase(),
+        format!("{:?}", recommendation.source),
+        recommendation.contrast_ratio,
+    )
 }

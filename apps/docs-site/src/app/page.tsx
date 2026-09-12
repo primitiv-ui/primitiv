@@ -18,6 +18,7 @@ import {
   DocumentationMap,
 } from "@/site/LandingSections";
 import { CloseSection } from "@/site/CloseSection";
+import { ColourSection } from "@/site/ColourSection";
 import { LandingShell } from "@/site/LandingShell";
 import { ProofStrip } from "@/site/ProofStrip";
 
@@ -26,6 +27,9 @@ export default function HomePage() {
     <LandingShell>
       <Hero />
       <ProofStrip />
+      {/* Section 5 sits before "design and code from the same source", per the
+          v3 order in docs-site-content-plan.md §2. */}
+      <ColourSection />
       <DesignAndBuild />
       <ChooseYourPath />
       <AccessibleByDefault />

@@ -1,6 +1,7 @@
 {
   "ramps": [
     {
+      "generated": true,
       "ramp": "brand",
       "seed": "#236ce1",
       "shipped": true,
@@ -79,6 +80,7 @@
       "theme": "light"
     },
     {
+      "generated": true,
       "ramp": "brand",
       "seed": "#236ce1",
       "shipped": true,
@@ -157,6 +159,7 @@
       "theme": "dark"
     },
     {
+      "generated": true,
       "ramp": "success",
       "seed": "#008c11",
       "shipped": true,
@@ -235,6 +238,7 @@
       "theme": "light"
     },
     {
+      "generated": true,
       "ramp": "success",
       "seed": "#008c11",
       "shipped": true,
@@ -313,6 +317,7 @@
       "theme": "dark"
     },
     {
+      "generated": true,
       "ramp": "warning",
       "seed": "#e88e00",
       "shipped": true,
@@ -391,6 +396,7 @@
       "theme": "light"
     },
     {
+      "generated": true,
       "ramp": "warning",
       "seed": "#e88e00",
       "shipped": true,
@@ -469,6 +475,7 @@
       "theme": "dark"
     },
     {
+      "generated": true,
       "ramp": "danger",
       "seed": "#db2424",
       "shipped": true,
@@ -547,6 +554,7 @@
       "theme": "light"
     },
     {
+      "generated": true,
       "ramp": "danger",
       "seed": "#db2424",
       "shipped": true,
@@ -625,6 +633,7 @@
       "theme": "dark"
     },
     {
+      "generated": true,
       "ramp": "info",
       "seed": "#008e9d",
       "shipped": true,
@@ -703,6 +712,7 @@
       "theme": "light"
     },
     {
+      "generated": true,
       "ramp": "info",
       "seed": "#008e9d",
       "shipped": true,
@@ -781,6 +791,7 @@
       "theme": "dark"
     },
     {
+      "generated": true,
       "ramp": "violet",
       "seed": "#7c3aed",
       "shipped": false,
@@ -859,6 +870,7 @@
       "theme": "light"
     },
     {
+      "generated": true,
       "ramp": "violet",
       "seed": "#7c3aed",
       "shipped": false,
@@ -937,6 +949,7 @@
       "theme": "dark"
     },
     {
+      "generated": true,
       "ramp": "magenta",
       "seed": "#c026d3",
       "shipped": false,
@@ -1015,6 +1028,7 @@
       "theme": "light"
     },
     {
+      "generated": true,
       "ramp": "magenta",
       "seed": "#c026d3",
       "shipped": false,
@@ -1093,6 +1107,7 @@
       "theme": "dark"
     },
     {
+      "generated": true,
       "ramp": "lime",
       "seed": "#65a30d",
       "shipped": false,
@@ -1171,6 +1186,7 @@
       "theme": "light"
     },
     {
+      "generated": true,
       "ramp": "lime",
       "seed": "#65a30d",
       "shipped": false,
@@ -1249,6 +1265,7 @@
       "theme": "dark"
     },
     {
+      "generated": true,
       "ramp": "amber",
       "seed": "#d97706",
       "shipped": false,
@@ -1327,6 +1344,7 @@
       "theme": "light"
     },
     {
+      "generated": true,
       "ramp": "amber",
       "seed": "#d97706",
       "shipped": false,
@@ -1405,6 +1423,7 @@
       "theme": "dark"
     },
     {
+      "generated": true,
       "ramp": "teal",
       "seed": "#0d9488",
       "shipped": false,
@@ -1483,6 +1502,7 @@
       "theme": "light"
     },
     {
+      "generated": true,
       "ramp": "teal",
       "seed": "#0d9488",
       "shipped": false,
@@ -1555,6 +1575,164 @@
           "foreground": "#121a19",
           "foregroundSource": "Step50",
           "hex": "#c7f7ef",
+          "step": "900"
+        }
+      ],
+      "theme": "dark"
+    },
+    {
+      "generated": false,
+      "ramp": "neutral",
+      "seed": null,
+      "shipped": true,
+      "steps": [
+        {
+          "contrast": 15.510000228881836,
+          "foreground": "#121418",
+          "foregroundSource": "Step900",
+          "hex": "#e5ecf6",
+          "step": "50"
+        },
+        {
+          "contrast": 13.09000015258789,
+          "foreground": "#121418",
+          "foregroundSource": "Step900",
+          "hex": "#d3dae3",
+          "step": "100"
+        },
+        {
+          "contrast": 10.289999961853027,
+          "foreground": "#121418",
+          "foregroundSource": "Step900",
+          "hex": "#bcc2cb",
+          "step": "200"
+        },
+        {
+          "contrast": 8.25,
+          "foreground": "#121418",
+          "foregroundSource": "Step900",
+          "hex": "#a8aeb6",
+          "step": "300"
+        },
+        {
+          "contrast": 6.039999961853027,
+          "foreground": "#121418",
+          "foregroundSource": "Step900",
+          "hex": "#8f949c",
+          "step": "400"
+        },
+        {
+          "contrast": 4.710000038146973,
+          "foreground": "#ffffff",
+          "foregroundSource": "PureWhite",
+          "hex": "#6f747b",
+          "step": "500"
+        },
+        {
+          "contrast": 5.829999923706055,
+          "foreground": "#e5ecf6",
+          "foregroundSource": "Step50",
+          "hex": "#565a60",
+          "step": "600"
+        },
+        {
+          "contrast": 9.630000114440918,
+          "foreground": "#e5ecf6",
+          "foregroundSource": "Step50",
+          "hex": "#363a3f",
+          "step": "700"
+        },
+        {
+          "contrast": 13.25,
+          "foreground": "#e5ecf6",
+          "foregroundSource": "Step50",
+          "hex": "#202328",
+          "step": "800"
+        },
+        {
+          "contrast": 15.510000228881836,
+          "foreground": "#e5ecf6",
+          "foregroundSource": "Step50",
+          "hex": "#121418",
+          "step": "900"
+        }
+      ],
+      "theme": "light"
+    },
+    {
+      "generated": false,
+      "ramp": "neutral",
+      "seed": null,
+      "shipped": true,
+      "steps": [
+        {
+          "contrast": 15.510000228881836,
+          "foreground": "#e5ecf6",
+          "foregroundSource": "Step900",
+          "hex": "#121418",
+          "step": "50"
+        },
+        {
+          "contrast": 13.579999923706055,
+          "foreground": "#e5ecf6",
+          "foregroundSource": "Step900",
+          "hex": "#1e2126",
+          "step": "100"
+        },
+        {
+          "contrast": 10.6899995803833,
+          "foreground": "#e5ecf6",
+          "foregroundSource": "Step900",
+          "hex": "#2f3338",
+          "step": "200"
+        },
+        {
+          "contrast": 8.34000015258789,
+          "foreground": "#e5ecf6",
+          "foregroundSource": "Step900",
+          "hex": "#404349",
+          "step": "300"
+        },
+        {
+          "contrast": 5.829999923706055,
+          "foreground": "#e5ecf6",
+          "foregroundSource": "Step900",
+          "hex": "#565a60",
+          "step": "400"
+        },
+        {
+          "contrast": 4.789999961853027,
+          "foreground": "#000000",
+          "foregroundSource": "PureBlack",
+          "hex": "#747980",
+          "step": "500"
+        },
+        {
+          "contrast": 6.039999961853027,
+          "foreground": "#121418",
+          "foregroundSource": "Step50",
+          "hex": "#8f949c",
+          "step": "600"
+        },
+        {
+          "contrast": 9.359999656677246,
+          "foreground": "#121418",
+          "foregroundSource": "Step50",
+          "hex": "#b4b9c2",
+          "step": "700"
+        },
+        {
+          "contrast": 12.739999771118164,
+          "foreground": "#121418",
+          "foregroundSource": "Step50",
+          "hex": "#d1d7e0",
+          "step": "800"
+        },
+        {
+          "contrast": 15.510000228881836,
+          "foreground": "#121418",
+          "foregroundSource": "Step50",
+          "hex": "#e5ecf6",
           "step": "900"
         }
       ],

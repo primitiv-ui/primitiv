@@ -1,0 +1,73 @@
+/*
+ * Home section 5's prose. The sheet's own anatomy is in colour-proof.css.
+ */
+
+.docs-colour-body,
+.docs-colour-proof-line {
+  /* A landing section runs the full `xl` container and body text at that
+     measure is unreadable. A named constant rather than a literal at the use
+     site, following `--docs-hero-lede-measure` — there is no token for a text
+     measure, and inventing one would put a typographic judgement in the design
+     system for a single page's benefit. */
+  --docs-colour-measure: 42rem;
+}
+
+.docs-colour-body {
+  margin: 0;
+  font-family: var(--primitiv-body-md-font-family);
+  font-size: var(--primitiv-body-md-font-size);
+  line-height: var(--primitiv-body-md-line-height);
+  color: var(--primitiv-content-secondary);
+  max-inline-size: var(--docs-colour-measure);
+}
+
+.docs-colour-subheading {
+  margin: 0;
+  font-family: var(--primitiv-heading-h4-font-family);
+  font-size: var(--primitiv-heading-h4-font-size);
+  font-weight: var(--primitiv-heading-h4-font-weight);
+  line-height: var(--primitiv-heading-h4-line-height);
+  letter-spacing: var(--primitiv-heading-h4-letter-spacing);
+  color: var(--primitiv-content-primary);
+}
+
+.docs-colour-links {
+  margin: 0;
+}
+
+.docs-colour-link {
+  font-family: var(--primitiv-label-md-font-family);
+  font-size: var(--primitiv-label-md-font-size);
+  font-weight: var(--primitiv-label-md-font-weight);
+  line-height: var(--primitiv-label-md-line-height);
+  color: var(--primitiv-action-link-foreground-default);
+  text-decoration: none;
+}
+
+.docs-colour-link::after {
+  /* Drawn, not typed — a literal arrow in the label is announced as "right
+     arrow" by a screen reader on every link. Same treatment as the content
+     pages' next-step links. */
+  content: " →";
+}
+
+.docs-colour-link:hover {
+  color: var(--primitiv-action-link-foreground-hover);
+  text-decoration: underline;
+}
+
+.docs-colour-link:focus-visible {
+  outline: var(--primitiv-border-width-2) solid var(--primitiv-focus-ring);
+  outline-offset: var(--primitiv-space-space-2);
+  border-radius: var(--primitiv-radii-4);
+}
+
+/* Small, quiet, and it carries the exact scope of the CI guarantee. */
+.docs-colour-proof-line {
+  margin: 0;
+  font-family: var(--primitiv-body-sm-font-family);
+  font-size: var(--primitiv-body-sm-font-size);
+  line-height: var(--primitiv-body-sm-line-height);
+  color: var(--primitiv-content-muted);
+  max-inline-size: var(--docs-colour-measure);
+}

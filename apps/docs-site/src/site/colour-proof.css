@@ -1,0 +1,131 @@
+/*
+ * The colour proof sheet (home copy §5, brief COLOUR-01).
+ *
+ * First consumer of the `swatch/*` Context family, which was authored for
+ * exactly this specimen and had no code reading it until now — `box`,
+ * `sample-size`, `sample-caption-size`, `radius` and `gap` all come straight
+ * from it, so the sheet scales with density like everything else.
+ */
+
+.docs-colour-proof {
+  /* The card is the specimen mount: it is what makes this read as a sheet
+     rather than as page decoration. */
+  box-shadow: var(--primitiv-elevation-raised);
+}
+
+.docs-colour-sheet {
+  display: flex;
+  flex-direction: column;
+  /* Small gaps BETWEEN rows so the six ramps stay distinct, while the swatches
+     within a row stay flush. The contrast between the two is the whole
+     composition. */
+  gap: var(--primitiv-space-space-16);
+}
+
+.docs-colour-row {
+  display: flex;
+  align-items: center;
+  gap: var(--primitiv-swatch-md-gap);
+}
+
+/* Outside the swatches, vertically centred against the row. `panel-cap` is the
+   swatch family's own label column width, so the ten scales start on one line. */
+.docs-colour-ramp-name {
+  flex: 0 0 auto;
+  inline-size: var(--primitiv-swatch-md-panel-cap);
+  font-family: var(--primitiv-label-sm-font-family);
+  font-size: var(--primitiv-label-sm-font-size);
+  font-weight: var(--primitiv-label-sm-font-weight);
+  line-height: var(--primitiv-label-sm-line-height);
+  color: var(--primitiv-content-secondary);
+  text-transform: capitalize;
+}
+
+/*
+ * Ten equal tracks, and a grid rather than a flex row on purpose: `1fr` tracks
+ * divide the available width exactly, which is what lets the swatches SHRINK
+ * below 48rem instead of wrapping. A ramp that wraps stops reading as a ramp,
+ * which destroys the image — the brief's own instruction.
+ *
+ * `minmax(0, 1fr)`, not `1fr`: a track's default `auto` minimum is its
+ * content's min-content width, so the "Ag" would floor each track and the row
+ * would overflow on a phone rather than compress. Same trap the playground grid
+ * hit from the other direction.
+ */
+.docs-colour-steps {
+  display: grid;
+  grid-template-columns: repeat(10, minmax(0, 1fr));
+  flex: 1 1 auto;
+  min-inline-size: 0;
+  border-radius: var(--primitiv-swatch-md-radius);
+  /* The radius belongs to the SCALE, not to each swatch: rounding every chip
+     would put ten gaps' worth of corner back into a row that is meant to read
+     as continuous. Clipped here so only the two outer ends are rounded. */
+  overflow: hidden;
+}
+
+.docs-colour-swatch {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  /*
+   * `box` (40) is the FLOOR, not the height, and the difference was a real
+   * defect: the sample is `sample-size` (32) and the caption
+   * `sample-caption-size` (13), which is 44px of content in a 40px box, so the
+   * step number under every "Ag" was sliced off by the row's own clip. The
+   * screenshot showed it; the render check could not, since it reads horizontal
+   * overflow only (see the note in render-check.mjs).
+   *
+   * Height is intrinsic with `padding-block` from the same family, so the row
+   * fits its content at any density instead of being pinned to one number.
+   */
+  min-block-size: var(--primitiv-swatch-md-box);
+  padding-block: var(--primitiv-swatch-md-padding-block);
+  min-inline-size: 0;
+}
+
+.docs-colour-sample {
+  font-family: var(--primitiv-body-md-font-family);
+  /* "Ag" is the specimen string, and the ascender plus descender together show
+     the type's full vertical extent — which is what makes legibility judgeable
+     rather than merely asserted. */
+  font-size: var(--primitiv-swatch-md-sample-size);
+  line-height: 1;
+}
+
+.docs-colour-step {
+  font-family: var(--primitiv-body-md-font-family);
+  font-size: var(--primitiv-swatch-md-sample-caption-size);
+  line-height: 1;
+}
+
+/*
+ * Below 48rem the swatches shrink (the grid already does that) and the sample
+ * steps down with them, so "Ag" still fits inside a much narrower track.
+ */
+@media (width < 48rem) {
+  .docs-colour-row {
+    /* The name moves above its scale: a `panel-cap`-wide label column would eat
+       a third of a phone's width and leave the ramp unreadable. */
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--primitiv-space-space-4);
+  }
+
+  .docs-colour-sample {
+    font-size: var(--primitiv-body-md-font-size);
+  }
+
+  .docs-colour-swatch {
+    min-block-size: var(--primitiv-size-size-32);
+  }
+}
+
+/* Below 36rem the step captions go and the "Ag" stays: the foreground pairing
+   is the argument, the step numbers are reference. The brief's own call. */
+@media (width < 36rem) {
+  .docs-colour-step {
+    display: none;
+  }
+}

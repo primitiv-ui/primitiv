@@ -2386,3 +2386,69 @@ what remains is individual demos whose content is genuinely wider than 320
 per-case judgement the `spacer` navbar got — wrap, scroll, or shrink, depending
 on what the example is *for*. 320 is below the 390 baseline the site is designed
 against, so this is a known edge rather than a regression.
+
+### 6.0.22 320px is a conformance floor, not an edge (2026-09-12)
+
+Corrected from §6.0.21, which called 320 "a known edge rather than a
+regression". It is neither: **WCAG 2.1 SC 1.4.10 Reflow (Level AA)** requires
+content to reflow without scrolling in two dimensions at a width equivalent to
+**320 CSS pixels** — the width a 1280px viewport reaches at 400% zoom, which is
+where the number comes from. The eight pages left open were an AA gap.
+
+**The gate now asserts the criterion itself.** `render-check.mjs` tests
+`documentElement.scrollWidth > clientWidth` — does the page scroll sideways —
+which is stricter and far less ambiguous than the element scan beside it. Both
+run, because they catch different things: a page can have elements overflowing
+their boxes while the document does not scroll (an ancestor clips them, so
+content is silently cut off), and a page could scroll with no single element
+flagged. **Verified: not one page on the site scrolls horizontally at 320** —
+the home page, the components index, all eight content pages and all 42
+component pages. That was already true before this increment; what was wrong
+was content being *clipped* inside cards.
+
+**The rule that resolved it: layout gives way, controls do not.**
+
+- **Layout containers release their min-content floor.** A flex or grid item
+  defaults to `min-width: auto`, i.e. its min-content width, so a demo refuses
+  to shrink however narrow the preview gets. Measured at 320, where an example
+  row is 214px: List floored at 270, Stack at 237, Segmented Control at 227 and
+  231, Grid at 218. `min-inline-size: 0` throughout a preview lets them reflow —
+  it only *permits* shrinking, so a demo still takes its natural size whenever
+  there is room. It has to go all the way down, not just to the demo root:
+  Stack's `Short / A taller cell / End` row needs the CELL to give way so its
+  text wraps, because wrapping the row would destroy the very thing that demo
+  shows (alignment across one row).
+- **Controls opt back out, because a label is content.** This was a defect the
+  release itself created: Tooltip's `default` trigger was cut to 34px of a 47px
+  label, and a Code Block tab reading "npm" was squeezed into an **8px** box.
+  Buttons, tab triggers, segment and toggle items keep their natural width.
+- **A single strip of options scrolls inside itself.** A tab list, a segmented
+  control and a toggle group are each one control whose options sit in a row;
+  wrapping one into two rows stops it reading as a single control, and
+  truncating "This quarter" loses the option's meaning. That is precisely what
+  1.4.10 excepts as content requiring two-dimensional layout, with a scroll
+  container as the accepted technique — and the scroll stays *inside* the strip,
+  so the page never scrolls. The **cap** was the missing half: a content-sized
+  strip inside a Stack takes its max-content width, so `overflow-x: auto` alone
+  never engaged and the strip just grew.
+
+**Three demos needed their own answer**, since a blanket rule cannot decide what
+an example is for: Divider's nav strip wraps (a vertical rule still reads on
+whichever line it lands on), Figure's 14rem media frame caps at the preview, and
+Grid's alignment demo moves to `columns={{ base: 2, md: 3 }}` in **both** the
+render and its code block — three `nowrap` padded cells need 68px in a 60px
+track at 320, and saying so with the breakpoint map is better documentation than
+implying three fit, that map being the component's headline feature.
+
+**One measurement nearly sent this the wrong way, and the lesson is the check.**
+Arrowing to an off-screen segment focused it without scrolling it into view,
+which read as a stranded-focus defect serious enough to abandon the scrollers.
+Before acting I reproduced it on a **minimal** page — a plain
+`overflow-x: auto` flex row of four buttons — and it behaves identically, so it
+is a headless-Chromium artifact, not anything in this CSS. Real browsers scroll
+a focused element into view. **That cannot be verified in this sandbox**, so it
+is stated as unverified rather than claimed: worth one look in a real browser
+alongside the other visual QA.
+
+Also corrected: the `render-check.mjs` comment that claimed the overflow scan
+covered both axes. §6.0.20 records why it cannot.

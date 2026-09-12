@@ -18,11 +18,13 @@ import {
   DocumentationMap,
 } from "@/site/LandingSections";
 import { LandingShell } from "@/site/LandingShell";
+import { ProofStrip } from "@/site/ProofStrip";
 
 export default function HomePage() {
   return (
     <LandingShell>
       <Hero />
+      <ProofStrip />
       <DesignAndBuild />
       <ChooseYourPath />
       <AccessibleByDefault />

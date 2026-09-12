@@ -1,0 +1,96 @@
+/*
+ * The proof strip — a band, not page content, so it carries `surface/subtle`
+ * across the full bleed while its contents stay in the xl container.
+ *
+ * Unlayered like the rest of the docs CSS; keep every selector docs-prefixed.
+ */
+.docs-proof-strip {
+  /* Five tiles fit on one line above ~64rem; below that the row wraps rather
+     than shrinking the figures past legibility. */
+  --docs-proof-tile-min: 10rem;
+  --docs-proof-glyph-nudge: 0.75rem;
+  background: var(--primitiv-surface-subtle);
+  padding-block: var(--primitiv-space-space-32);
+}
+
+.docs-proof-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  justify-content: center;
+  gap: var(--primitiv-space-space-24);
+}
+
+.docs-proof-tile {
+  display: flex;
+  flex-direction: column;
+  /* The figure-to-caption gap is the heading-asymmetry rung, not a stack gap. */
+  gap: var(--primitiv-flow-tight);
+  flex: 1 1 var(--docs-proof-tile-min);
+  min-inline-size: var(--docs-proof-tile-min);
+}
+
+.docs-proof-stat {
+  display: flex;
+  /* The glyph rides the FIRST line of the figure. Centring it vertically put
+     the mark halfway down a two- or three-line figure, reading as a stray
+     mark rather than as part of the number. */
+  align-items: flex-start;
+  gap: var(--primitiv-space-space-8);
+  color: var(--primitiv-content-secondary);
+}
+
+/* Optical: the glyph's box is taller than the cap height it sits beside. */
+.docs-proof-stat > svg {
+  flex: none;
+  margin-block-start: var(--docs-proof-glyph-nudge);
+}
+
+/*
+ * DELIBERATE DEVIATION from the copy record, which specifies `display/lg`.
+ *
+ * `display/lg` is 56px and the tiles resolve to ~218px on a 1216 container.
+ * "components" alone needs ~245px at that size, so the figure overflowed its
+ * tile and collided with the divider — measured in Chromium, not guessed. The
+ * brief assumed "five numbers"; three of the five figures are phrases
+ * ("CSS, SCSS or Tailwind", "100% test coverage", "MIT"), which is what the
+ * specified size cannot absorb.
+ *
+ * `heading/h2` (40px) is the largest step on the scale that fits, so the
+ * figures stay emphatic. Revisit against the Figma frame — if the design
+ * really is 56px, the tiles need to be wider or the row needs fewer than five.
+ */
+.docs-proof-figure {
+  margin: 0;
+  font-family: var(--primitiv-heading-h2-font-family);
+  font-size: var(--primitiv-heading-h2-font-size);
+  line-height: var(--primitiv-heading-h2-line-height);
+  color: var(--primitiv-content-primary);
+}
+
+.docs-proof-caption {
+  margin: 0;
+  /* Tiles stretch to a common height, so pinning the caption to the bottom
+     puts every qualifier on one baseline however many lines its figure takes. */
+  margin-block-start: auto;
+  padding-block-start: var(--primitiv-space-space-8);
+  font-family: var(--primitiv-body-sm-font-family);
+  font-size: var(--primitiv-body-sm-font-size);
+  line-height: var(--primitiv-body-sm-line-height);
+  color: var(--primitiv-content-muted);
+}
+
+.docs-proof-divider {
+  align-self: stretch;
+  color: var(--primitiv-border-subtle);
+}
+
+/* A vertical rule only separates tiles that share a line. Below the width
+   where five fit, the row stacks and each rule would hang beside a gap — so
+   they go. The comment claiming this previously sat above CSS that did not
+   do it; the mobile render is what caught that. */
+@media (width < 64rem) {
+  .docs-proof-divider {
+    display: none;
+  }
+}

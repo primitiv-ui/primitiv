@@ -1740,6 +1740,57 @@ worth taking deliberately rather than slipping in mid-task.
 
 ---
 
+### 6.0.12 Section 2, the proof strip (2026-09-12)
+
+Built, verified in Chromium at 1280 and 390. The five figures were
+**re-verified against the repository**, which the brief demands in bold and
+which is the only reason this section can claim anything:
+
+| figure | checked against | result |
+| --- | --- | --- |
+| 63 components | `registry/registry.json` | 63 entries |
+| 4 density modes | `packages/tokens/src/context.json` | comfortable, compact, spacious, dense |
+| CSS, SCSS or Tailwind | `primitiv --format` | css \| scss \| tailwind |
+| 100% test coverage | `packages/react/vite.config.ts` | lines, branches, functions, statements all 100 |
+| MIT | `LICENSE` | MIT License |
+
+**The published icon package and the workspace source disagree on one name.**
+The glyph is `Grid` in `@primitiv-ui/icons@0.1.29`, which the docs site
+consumes, but the workspace source has since renamed it `GridIcon` so it
+cannot collide with the Grid *layout* component — and that rename is not
+published. Importing `GridIcon` fails to typecheck here. It is aliased
+(`Grid as GridGlyph`) so the collision the rename exists to prevent stays
+prevented. **Anyone reading the source and writing `GridIcon` in a
+published-package consumer will hit this until the next release.**
+
+**Three defects the render caught, one of them mine twice over.**
+
+1. **The glyph was centring against the whole figure.** With a two- or
+   three-line figure the mark floated halfway down the tile and read as a
+   stray. It now rides the first line (`align-items: flex-start` plus an
+   optical nudge, since the glyph box is taller than the cap height beside it).
+2. **The captions sat at five different baselines.** Tiles stretch to a common
+   height, so `margin-block-start: auto` on the caption pins every qualifier to
+   one line regardless of how many lines its figure took.
+3. **A comment claimed behaviour the CSS did not have.** It said the vertical
+   rules "go" once the row wraps; nothing implemented that, and the mobile
+   render showed four rules hanging beside stacked tiles. Now actually gated
+   below 64rem — and worth the general lesson: **a comment describing
+   behaviour is not evidence the behaviour exists.**
+
+**One deliberate deviation from the copy record, forced and measured.** The
+brief specifies `display/lg` for the figures. That is 56px, and the tiles
+resolve to ~218px on a 1216 container — "components" alone needs ~245px, so
+the figure overflowed its tile and collided with the divider. The brief
+assumed "five numbers"; three of the five figures are phrases
+("CSS, SCSS or Tailwind", "100% test coverage", "MIT"), which is exactly what
+56px cannot absorb. Stepped to `heading/h2` (40px), the largest step on the
+scale that fits. **Revisit against the Figma frame** — if the design really is
+56px then the tiles need to be wider or the row needs fewer than five, and
+that is a design decision rather than a CSS one.
+
+---
+
 ## 6.1 A finding logged while verifying copy
 
 **`README.md` has drifted from the repository it describes.** Verifying

@@ -1803,6 +1803,10 @@ illustration** — after nine sections of images, an unillustrated ending reads
 as confidence and gives the call to action the frame. Five of ten v3 sections
 now exist in code.
 
+**The proof-strip tiles centre their contents.** Left-aligning glyph, figure
+and qualifier made each tile read as a paragraph start rather than as one of
+five even columns in a band — caught on review after the glyph fix below.
+
 **The proof-strip glyph was beside the figure; it belongs above it.** Caught
 on review, and the copy record says so in as many words: *"a single quiet
 `content/secondary` glyph **above** each figure gives the column a top edge

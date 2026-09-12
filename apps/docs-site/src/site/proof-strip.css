@@ -23,6 +23,11 @@
 .docs-proof-tile {
   display: flex;
   flex-direction: column;
+  /* Everything in a tile centres on the column's axis — glyph, figure and
+     qualifier. Left-aligning them made each tile read as a paragraph start
+     rather than as one of five even columns in a band. */
+  align-items: center;
+  text-align: center;
   /* The figure-to-caption gap is the heading-asymmetry rung, not a stack gap. */
   gap: var(--primitiv-flow-tight);
   flex: 1 1 var(--docs-proof-tile-min);
@@ -37,7 +42,7 @@
 .docs-proof-stat {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
   gap: var(--primitiv-space-space-8);
   color: var(--primitiv-content-secondary);
 }

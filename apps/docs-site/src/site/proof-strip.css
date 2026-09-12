@@ -8,7 +8,6 @@
   /* Five tiles fit on one line above ~64rem; below that the row wraps rather
      than shrinking the figures past legibility. */
   --docs-proof-tile-min: 10rem;
-  --docs-proof-glyph-nudge: 0.75rem;
   background: var(--primitiv-surface-subtle);
   padding-block: var(--primitiv-space-space-32);
 }
@@ -30,20 +29,21 @@
   min-inline-size: var(--docs-proof-tile-min);
 }
 
+/* The glyph sits ABOVE its figure, not beside it — the copy record's words are
+   "a single quiet glyph above each figure gives the column a top edge without
+   competing with the number". A first build read the spec's `stack/gap/sm` as
+   a row and put the mark alongside, which made a two-line figure wrap around
+   it and cost the column the top edge the mark exists to give it. */
 .docs-proof-stat {
   display: flex;
-  /* The glyph rides the FIRST line of the figure. Centring it vertically put
-     the mark halfway down a two- or three-line figure, reading as a stray
-     mark rather than as part of the number. */
+  flex-direction: column;
   align-items: flex-start;
   gap: var(--primitiv-space-space-8);
   color: var(--primitiv-content-secondary);
 }
 
-/* Optical: the glyph's box is taller than the cap height it sits beside. */
 .docs-proof-stat > svg {
   flex: none;
-  margin-block-start: var(--docs-proof-glyph-nudge);
 }
 
 /*
@@ -92,5 +92,12 @@
 @media (width < 64rem) {
   .docs-proof-divider {
     display: none;
+  }
+
+  /* One tile per row below the width where five fit. Letting them pack
+     two-up left an orphan on the last line and put two different figures
+     on one baseline, which reads as a grid rather than as a strip. */
+  .docs-proof-tile {
+    flex-basis: 100%;
   }
 }

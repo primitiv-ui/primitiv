@@ -17,6 +17,7 @@ import {
   ComponentBlock,
   DocumentationMap,
 } from "@/site/LandingSections";
+import { CloseSection } from "@/site/CloseSection";
 import { LandingShell } from "@/site/LandingShell";
 import { ProofStrip } from "@/site/ProofStrip";
 
@@ -30,6 +31,7 @@ export default function HomePage() {
       <AccessibleByDefault />
       <DocumentationMap />
       <ComponentBlock />
+      <CloseSection />
     </LandingShell>
   );
 }

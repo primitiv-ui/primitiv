@@ -1791,6 +1791,51 @@ that is a design decision rather than a CSS one.
 
 ---
 
+### 6.0.13 Section 10, and two corrections to the proof strip (2026-09-12)
+
+**Section 10, the close** (`CloseSection`) — centred heading, a 50ch-capped
+lede and the two `lg` buttons, verified in Chromium at 1280 and 390 with zero
+errors. Deliberately **not** a `LandingSection`: it has no overline and is
+centred, so reusing that shell would mean bolting an optional overline and an
+alignment switch onto a component whose whole value is that every section
+looks the same. The copy record is explicit that the close carries **no
+illustration** — after nine sections of images, an unillustrated ending reads
+as confidence and gives the call to action the frame. Five of ten v3 sections
+now exist in code.
+
+**The proof-strip glyph was beside the figure; it belongs above it.** Caught
+on review, and the copy record says so in as many words: *"a single quiet
+`content/secondary` glyph **above** each figure gives the column a top edge
+without competing with the number"*. The spec's `stack/gap/sm` unit of
+`[glyph, figure]` was built as a row, which is also why a two-line figure
+wrapped around the mark and the column lost the top edge the glyph exists to
+give it. Now a column, and **tiles stack one-per-row below 64rem** rather than
+packing two-up — two figures sharing a baseline read as a grid rather than a
+strip, and the last line was left with an orphan.
+
+### 6.0.14 Two things FIGMA-01 needs, and they are one job (2026-09-12)
+
+Flagged on review: **`figma-01-dark.png` does not look right.** Two separate
+problems, both fixable only by rebuilding the asset, so they should be done
+together:
+
+1. **The dark composite has a light Figma canvas.** The left-hand half renders
+   a white canvas with only the properties panel dark, so it reads as light
+   Figma chrome around a dark specimen. The copy record's own `themes` key
+   asks for *"dark: dark Figma canvas beside a dark browser render"*.
+2. **There is no mobile recomposition** (§6.0.11). The spec asks for one
+   explicitly — stack vertically, Figma above, browser below, token names as a
+   horizontal band — but only `figma-01-{light,dark}.png` was built. At 390px
+   the 2:1 composite renders 358x179 and the token names are illegible, so the
+   parity claim cannot be checked on a phone.
+
+Both need the `a11y-recorder` scene (`tools/a11y-recorder/src/FigmaOne.tsx`,
+scene `figma-01-composite`) plus a fresh Figma screenshot from a real machine
+— the bridge's screenshot tools export canvas *nodes*, never the application,
+so the panels can only come from a human capture. Budget one pass for both.
+
+---
+
 ## 6.1 A finding logged while verifying copy
 
 **`README.md` has drifted from the repository it describes.** Verifying

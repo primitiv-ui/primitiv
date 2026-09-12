@@ -2584,6 +2584,9 @@ element needs a manual adjustment per mode, that is a token gap and a finding
 worth recording, not something to patch in the demo." **None needed one.** The
 stage sets `data-density` and the cascade does the rest.
 
+> **Correction, same day — that test was necessary but not sufficient, and the
+> first build passed it while still being wrong.** See §6.0.26.
+
 **Measured across all four modes rather than asserted:**
 
 | mode | table row | button h | button radius | h3 | body line-height |
@@ -2612,12 +2615,13 @@ Four things fall out of that table, and each is a claim the section makes:
   below the table.
 
 **One defect a render caught and no measurement would have.** The editorial CTA
-stretched the full column, because the region is a flex column and a direct
+stretched the full column, because the region was a flex column and a direct
 child stretches by default — it read as a full-width form submit rather than an
-article's "read more". Fixed with `align-self: start` scoped to direct children,
-so the toolbar's nested Export button keeps its own cross-axis alignment and the
-Table still fills its column (verified: CTA 65px at dense and 100px at spacious,
-table 543px in both).
+article's "read more". Fixed at the time with `align-self: start` scoped to
+direct children (verified: CTA 65px at dense and 100px at spacious, table 543px
+in both). §6.0.26 then removed the flex column entirely and the rule with it;
+the CTA now sizes to its label in ordinary block flow, and the same two widths
+re-measure at 65 and 100.
 
 **Two smaller decisions worth keeping.** The region labels (OPERATIONS /
 EDITORIAL) are deliberately *outside* the density type scale — they are chrome
@@ -2639,3 +2643,85 @@ same 40px as a small one in a spacious product" is verified true against the
 tokens: dense-xl and spacious-sm are both 40) and **DENSITY-02** (the radius
 derivation, beside the third block). Both blocks ship with their argument stated
 meanwhile.
+
+### 6.0.26 The density demo's rhythm was frozen — Prose fixes it (2026-09-12)
+
+Asked directly: *is the density demo wrapped in a `Prose` component so the
+spacing between the text scales as well?* It was not, and it was a real defect.
+
+**§6.0.25's test was necessary but not sufficient.** "No element needs a manual
+adjustment per mode" was true of the first build and is still true — and it
+passed while the demo was visibly wrong, because there is a second way to freeze
+something that has nothing to do with per-mode overrides: resolve a **primitive**
+token. Each region was spaced with `gap: var(--primitiv-space-space-12)`. A
+primitive is the same value in every mode by definition, so the type scaled
+16 → 52 and the control heights scaled with it while the space *between the
+blocks* sat at 12px — in the one demo on the site whose entire job is to show
+them moving together. The toolbar's `space-8` gap was the same defect in
+miniature.
+
+**The rule the brief implies but never states, worth having explicitly: inside a
+density scope, every spacing value must resolve through the Context tier.** Not
+"no per-mode overrides" — that catches the obvious failure and misses this one.
+Two tiers down, `space-12` *is* what `flow/tight` happens to equal at
+Comfortable, which is exactly why the first build looked right in the default
+mode and only broke when the dial moved.
+
+**The fix is the system's own component, not a token swap.** Both regions are now
+`<Prose asChild>`, so RFC 0016's `.primitiv-flow` owl spaces their children off
+the density-scaled `flow/*` family. Measured, all four modes:
+
+| mode | `flow/tight` | `flow/normal` | `flow/section` |
+| --- | --- | --- | --- |
+| dense | 8 | 12 | 16 |
+| compact | 10 | 16 | 24 |
+| comfortable | 12 | 20 | 32 |
+| spacious | 16 | 28 | 40 |
+
+Re-pointing the gap at `flow/normal` would have scaled it too, and been worse.
+Prose brings **heading asymmetry** with it, which a single gap cannot express:
+the editorial `h4` gets `flow/section` above and `flow/tight` below, so at
+Spacious it sits 40px under the overline and 16px above its own first paragraph.
+That asymmetry is *itself* density-scaled, so the binding between heading and
+body holds at Dense (16/8) as well as at Spacious. A flat gap gives the same
+number on both sides at every density and the heading floats.
+
+**Three things it forced, each worth knowing.**
+
+- **The unlayered-docs-CSS trap, in its most quiet form yet.** The four type
+  classes each carried a `margin: 0`. This file is unlayered, so that outranks
+  every `@layer primitiv.base` rule — including the owl's `margin-block-start`.
+  Applying `Prose` with those resets in place would have changed nothing at all,
+  silently. They were also redundant from the start: `primitiv.reset` already
+  zeroes the UA margins on `p`/`h4`, and the base layer re-applies what it wants
+  in a higher layer. Deleted. **The general form: a `margin: 0` reset in docs CSS
+  is not neutral — it is a veto over the flow rhythm.**
+- **The flex column had to go, and the CTA fix went with it.** The owl works fine
+  on flex items, but `gap: 0` beside a flow context is two spacing mechanisms
+  where one will do. Dropping `display: flex` also retired §6.0.25's
+  `align-self: start` rule: in block flow the Button is `inline-flex` and sizes
+  to its label unaided. Re-measured 65px at Dense and 100px at Spacious —
+  identical to the flex version, with one rule fewer.
+- **`margin` joined the transition list.** The reflow is now carried by margins
+  rather than a gap, so without it the rhythm would have snapped while
+  everything around it eased.
+
+**The stage's own frame stays primitive, deliberately** — its padding and the gap
+between the two columns. It is the enclosure, not the content: scaling it would
+narrow both columns at Spacious and change what is being compared, on top of the
+fixed 608px height the brief already requires. Verified the height still holds in
+every mode, with Spacious the only one scrolling internally (675 of 608) exactly
+as before.
+
+**Elsewhere on the page this was already right, by accident of using `Stack`.**
+Section 4's own copy is spaced by `Stack gap="xl"`/`gap="md"`, and `stack/gap-*`
+is a density-scaled Context family — so it would track a `data-density` on the
+page. Nothing on the site uses `Prose`, which is the more interesting finding:
+the section's hand-rolled `Stack gap="md"` around subheading + paragraph is a
+one-off reconstruction of the heading asymmetry Prose ships. Not changed here —
+outside the dial, so not a defect — but **`Prose` is the right default for any
+new run of prose blocks on this site**, and the existing sections are worth a
+pass when one is next touched.
+
+Verified: `check:css`, `check:content`, `typecheck`, and `render-check` at
+320/390/1280 dark, 320/1280 light, and 1280 reduced-motion.

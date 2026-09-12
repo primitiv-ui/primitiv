@@ -48,6 +48,11 @@
  * resized would make the page jump on every change and hide the effect. Its
  * two accepted consequences are stated in the brief and neither is a defect —
  * Spacious scrolls internally, Dense leaves real space below the table.
+ *
+ * Its own padding and column gap are PRIMITIVES on purpose, the one place in
+ * the demo where that is right: they are the enclosure, not the content, and
+ * scaling them would narrow both columns at Spacious and change what is being
+ * compared. Everything the columns contain scales — see .docs-density-region.
  */
 .docs-density-stage {
   --docs-stage-height: 38rem;
@@ -62,12 +67,19 @@
   padding: var(--primitiv-space-space-16);
 }
 
+/*
+ * The region owns NO spacing of its own. Both regions are `<Prose asChild>`, so
+ * the blocks inside them are spaced by the `.primitiv-flow` owl — the
+ * density-scaled `flow/*` family — and not by a gap here. A gap here is the
+ * trap: `space-12` is a PRIMITIVE, identical in all four modes, so the rhythm
+ * froze while everything around it reflowed.
+ *
+ * Which also means these regions must NOT re-zero their children's margins:
+ * this file is unlayered, so a `margin: 0` here outranks every
+ * `@layer primitiv.base` rule and would silently cancel the owl. The reset
+ * layer already zeroes the UA margins, so there is nothing to re-zero.
+ */
 .docs-density-region {
-  display: flex;
-  flex-direction: column;
-  /* The one gap the stage itself owns. Everything inside the regions is the
-     components' own density-scaled spacing. */
-  gap: var(--primitiv-space-space-12);
   min-inline-size: 0;
 }
 
@@ -75,7 +87,6 @@
    NOT inside the density scope's type scale — they are chrome that names the two
    halves, and a label that shrank with the dial would read as content. */
 .docs-density-region-label {
-  margin: 0;
   font-family: var(--primitiv-overline-sm-font-family);
   font-size: var(--primitiv-overline-sm-font-size);
   font-weight: var(--primitiv-overline-sm-font-weight);
@@ -85,24 +96,16 @@
   color: var(--primitiv-content-muted);
 }
 
-/*
- * The editorial CTA sizes to its label. The region is a flex column, so a
- * direct-child button stretched the full column and read as a full-width form
- * submit rather than an article's "read more" — caught on a render at both
- * extremes. Scoped to DIRECT children so the toolbar's Export button, which is
- * nested a row deep, keeps its own cross-axis alignment; and the Table above it
- * still fills the column, which it must.
- */
-.docs-density-region > .primitiv-button {
-  align-self: start;
-}
-
+/* Inside the stage, so its gap scales too — `stack/gap-sm` is the density-scaled
+   family (4/6/8/10 across the modes), not the frozen `space-8` primitive. It
+   only shows once the row wraps, but a frozen value there is the same defect in
+   miniature. */
 .docs-density-toolbar {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: var(--primitiv-space-space-8);
+  gap: var(--primitiv-stack-gap-sm);
 }
 
 /* The editorial column's own type, all of it bound to the density-scaled
@@ -110,7 +113,6 @@
    these literally and froze the right-hand column while the left one reflowed,
    in the one image whose job is to show both moving together. */
 .docs-density-overline {
-  margin: 0;
   font-family: var(--primitiv-overline-sm-font-family);
   font-size: var(--primitiv-overline-sm-font-size);
   font-weight: var(--primitiv-overline-sm-font-weight);
@@ -121,7 +123,6 @@
 }
 
 .docs-density-heading {
-  margin: 0;
   font-family: var(--primitiv-heading-h3-font-family);
   font-size: var(--primitiv-heading-h3-font-size);
   font-weight: var(--primitiv-heading-h3-font-weight);
@@ -131,7 +132,6 @@
 }
 
 .docs-density-body {
-  margin: 0;
   font-family: var(--primitiv-body-md-font-family);
   font-size: var(--primitiv-body-md-font-size);
   line-height: var(--primitiv-body-md-line-height);
@@ -151,6 +151,7 @@
 .docs-density-stage * {
   transition:
     padding var(--primitiv-motion-duration-expand) var(--primitiv-motion-easing-default),
+    margin var(--primitiv-motion-duration-expand) var(--primitiv-motion-easing-default),
     gap var(--primitiv-motion-duration-expand) var(--primitiv-motion-easing-default),
     block-size var(--primitiv-motion-duration-expand) var(--primitiv-motion-easing-default),
     border-radius var(--primitiv-motion-duration-expand) var(--primitiv-motion-easing-default),

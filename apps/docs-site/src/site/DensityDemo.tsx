@@ -7,6 +7,7 @@ import { Blockquote } from "@/components/blockquote";
 import { Button } from "@/components/button";
 import { Card, CardContent } from "@/components/card";
 import { Divider } from "@/components/divider";
+import { Prose } from "@/components/prose";
 import { Radio } from "@/components/radio";
 import { SegmentedControl, SegmentedControlItem } from "@/components/segmented-control";
 import {
@@ -30,11 +31,27 @@ import "./density-demo.css";
  * makes. At Dense the composition reads like an operations tool; at Spacious it
  * reads like a marketing page; nothing about the markup changes.
  *
- * **Nothing is hardcoded per mode.** The stage sets `data-density` and the
- * cascade does the rest — geometry *and* type, since the Context tier scales
- * `heading/h3/font-size` from 16 to 52 across the four modes. The brief is
- * explicit that an element needing a manual adjustment per mode is a token gap
- * worth recording rather than something to patch here, and none needed one.
+ * **Nothing is hardcoded per mode** — and, just as important, nothing inside the
+ * stage resolves a PRIMITIVE spacing token either. The stage sets `data-density`
+ * and the cascade does the rest: geometry, type *and* rhythm. The two are
+ * different failures and only the first is obvious. A first pass had no per-mode
+ * override anywhere (correct) but spaced each region with
+ * `gap: var(--primitiv-space-space-12)` — a primitive, so 12px in every mode.
+ * Type scaled 16 → 52 and control heights scaled with it while the space between
+ * the blocks sat still, in the one demo whose entire job is to show them moving
+ * together. The rule the brief implies but does not say: **inside a density
+ * scope, every spacing value must resolve through the Context tier.** Both
+ * regions are `<Prose asChild>` for exactly that reason — the `.primitiv-flow`
+ * owl publishes the density-scaled `flow/*` family (`normal` 12/16/20/28,
+ * `section` 16/24/32/40, `tight` 8/10/12/16) with RFC 0016's heading asymmetry
+ * on top, so the h4 binds tighter to its own paragraph than to the overline
+ * above it at every density. Measured across all four modes.
+ *
+ * The one deliberate exception is the stage's OWN frame — its padding and the
+ * gap between the two columns are primitives, and stay put. They are the
+ * enclosure, not the content: scaling them would narrow both columns at
+ * Spacious and change what is being compared, on top of the stage's own fixed
+ * height. Everything the columns contain scales.
  *
  * **The stage height is fixed across all four modes**, which the brief requires
  * and whose consequences it also accepts: Spacious must scroll internally and
@@ -113,68 +130,85 @@ export const DensityDemo = () => {
          * which is what lets a reader see that only the content moved.
          */}
         <div className="docs-density-stage" data-density={mode}>
-          <section className="docs-density-region" aria-label="Operations">
-            <p className="docs-density-region-label">Operations</p>
-            <div className="docs-density-toolbar">
-              <SegmentedControl size="sm" defaultValue="all" aria-label="Filter">
-                <SegmentedControlItem value="all">All</SegmentedControlItem>
-                <SegmentedControlItem value="active">Active</SegmentedControlItem>
-                <SegmentedControlItem value="archived">Archived</SegmentedControlItem>
-              </SegmentedControl>
-              <Button size="sm" variant="secondary">
-                Export
-              </Button>
-            </div>
+          {/*
+           * `Prose` — i.e. the `.primitiv-flow` context — is what spaces the
+           * blocks inside each region, NOT a gap on the region itself. A first
+           * pass used `gap: space-12`, a PRIMITIVE token, so it was 12px in every
+           * mode: the type and the control geometry reflowed while the rhythm
+           * between them sat still, in the one demo whose whole job is to show
+           * them moving together. The `flow/*` family is the density-scaled one
+           * (`flow/normal` runs 12/16/20/28 across the four modes) and Prose is
+           * how the system publishes it — heading asymmetry included, which is
+           * why the h4 binds tighter to its first paragraph than to the overline
+           * above it, at every density.
+           */}
+          <Prose asChild>
+            <section className="docs-density-region" aria-label="Operations">
+              <p className="docs-density-region-label">Operations</p>
 
-            <Table size="sm">
-              <TableHead>
-                <TableRow>
-                  <TableHeader>Name</TableHeader>
-                  <TableHeader>Owner</TableHeader>
-                  {/* Dropped below 36rem by the stylesheet — the brief's own
-                      three-column reduction, done in CSS so the markup stays
-                      one thing at every width. */}
-                  <TableHeader className="docs-density-col-updated">Updated</TableHeader>
-                  <TableHeader>Status</TableHeader>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {ROWS.map((row) => (
-                  <TableRow key={row.name}>
-                    <TableCell>{row.name}</TableCell>
-                    <TableCell>{row.owner}</TableCell>
-                    <TableCell className="docs-density-col-updated">{row.updated}</TableCell>
-                    <TableCell>
-                      <Badge size="sm" tone={TONES[row.status]}>
-                        {row.status}
-                      </Badge>
-                    </TableCell>
+              <div className="docs-density-toolbar">
+                <SegmentedControl size="sm" defaultValue="all" aria-label="Filter">
+                  <SegmentedControlItem value="all">All</SegmentedControlItem>
+                  <SegmentedControlItem value="active">Active</SegmentedControlItem>
+                  <SegmentedControlItem value="archived">Archived</SegmentedControlItem>
+                </SegmentedControl>
+                <Button size="sm" variant="secondary">
+                  Export
+                </Button>
+              </div>
+
+              <Table size="sm">
+                <TableHead>
+                  <TableRow>
+                    <TableHeader>Name</TableHeader>
+                    <TableHeader>Owner</TableHeader>
+                    {/* Dropped below 36rem by the stylesheet — the brief's own
+                        three-column reduction, done in CSS so the markup stays
+                        one thing at every width. */}
+                    <TableHeader className="docs-density-col-updated">Updated</TableHeader>
+                    <TableHeader>Status</TableHeader>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </section>
+                </TableHead>
+                <TableBody>
+                  {ROWS.map((row) => (
+                    <TableRow key={row.name}>
+                      <TableCell>{row.name}</TableCell>
+                      <TableCell>{row.owner}</TableCell>
+                      <TableCell className="docs-density-col-updated">{row.updated}</TableCell>
+                      <TableCell>
+                        <Badge size="sm" tone={TONES[row.status]}>
+                          {row.status}
+                        </Badge>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </section>
+          </Prose>
 
           <Divider orientation="vertical" className="docs-density-seam" />
 
-          <section className="docs-density-region" aria-label="Editorial">
-            <p className="docs-density-region-label">Editorial</p>
-            <p className="docs-density-overline">Field notes</p>
-            <h4 className="docs-density-heading">What a quarter of drift costs</h4>
-            <p className="docs-density-body">
-              The team shipped four variants of the same control in a single
-              release, each correct against a different mockup. None of them was
-              wrong on the day it was written.
-            </p>
-            <p className="docs-density-body docs-density-second-para">
-              What it cost was not the building. It was the six weeks afterwards,
-              spent deciding which one was right.
-            </p>
-            <Blockquote size="sm">
-              Consistency is cheaper to keep than to recover.
-            </Blockquote>
-            <Button size="sm">Read more</Button>
-          </section>
+          <Prose asChild>
+            <section className="docs-density-region" aria-label="Editorial">
+              <p className="docs-density-region-label">Editorial</p>
+              <p className="docs-density-overline">Field notes</p>
+              <h4 className="docs-density-heading">What a quarter of drift costs</h4>
+              <p className="docs-density-body">
+                The team shipped four variants of the same control in a single
+                release, each correct against a different mockup. None of them
+                was wrong on the day it was written.
+              </p>
+              <p className="docs-density-body docs-density-second-para">
+                What it cost was not the building. It was the six weeks
+                afterwards, spent deciding which one was right.
+              </p>
+              <Blockquote size="sm">
+                Consistency is cheaper to keep than to recover.
+              </Blockquote>
+              <Button size="sm">Read more</Button>
+            </section>
+          </Prose>
         </div>
       </CardContent>
     </Card>

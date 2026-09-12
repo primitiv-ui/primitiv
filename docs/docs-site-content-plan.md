@@ -2829,3 +2829,99 @@ Verified: `check:css`, `check:content`, `typecheck`, `render-check` across all
 eight routes at 320/390/1280 dark plus 320/1280 light, and the four density modes
 measured from the browser (`h2` → sentence 8/10/12/16, paragraph → `h4`
 16/24/32/40, section gap 20/24/32/40).
+
+### 6.0.28 The forty PNGs landed — and one bug only the art could expose (2026-09-12)
+
+All ten content illustrations are live, 10/10, both breakpoints and both themes.
+`pnpm qa` is green across `check:css`, `check:content`, `check:illustrations`,
+`check:engine-data` and `typecheck`, and `render-check` passes all eight routes
+at 320/390/1280 dark plus 320/1280 light.
+
+**The export was made a single human action rather than forty.** Figma names an
+exported file after its **layer**, and the export dialog offers a suffix field
+but no rename — so the only way to get `start-01-desktop-light.png` out of Figma
+is for the frame to be called `start-01-desktop-light`. So the canvas was
+prepped through the bridge (`scripts/figma/rename-illustration-frames.js`):
+all 40 frames renamed to their target filenames, `PNG @2x` export settings set
+on each, the 40 selected and the page activated, so the panel already read
+"Export 40 layers" — then a human clicked once. The descriptive names were
+restored afterwards from `illustration-export-names.json`, which matches on
+**frame id, not name**, so the restore works whichever direction the names are
+in. The export settings were deliberately left in place: a future re-export
+needs no setup. Selection rather than file-wide export settings, because the
+page also holds two strays (the source screenshot RECTANGLE and a loose
+`body/xs` TEXT) that must not export.
+
+The alternative — exporting `START-01 — desktop light.png` and renaming forty
+files by hand — is forty chances to put a light twin where a dark one goes, and
+**the site renders a mismatched pair perfectly happily.** Nothing downstream
+would have caught it.
+
+Worth keeping from the prep: the first script threw on `figma.currentPage = page`
+(dynamic-page access needs `setCurrentPageAsync`) *after* the renames had
+already applied — gotcha 5's partial apply. The script is idempotent because of
+it: `target()` accepts either name form, so a retry cannot come back reporting
+zero. Every clone-free canvas write in this repo should be written that way.
+
+**Verified by measurement, not by looking.** 40/40 canvas names cross-checked
+against `gen-illustrations.mjs`'s own `IDS × breakpoints × themes` — nothing
+missing, nothing extra — and all 20 light/dark twins measured size-identical
+before the export, so the generator's twin-mismatch guard could not trip. Every
+file came back at exactly 2x (1264 = 632x2, 684 = 342x2).
+
+#### The one real defect: a style on a `<source>` does nothing
+
+`ContentIllustration` carried each composition's shape as
+`style={{ aspectRatio }}` on its `<source>` — and **a `<source>` is not a
+rendered element, so it has no box for CSS to shape.** Only the `<img>` renders,
+and the `<img>` carried the *desktop* ratio. So every mobile composition was
+laid out at the desktop aspect: `start-01-mobile` is 684x816 and was painted
+into a 326x85 box, squashed by **4.6x**. `density-c01-mobile` (684x1448) got
+326x228.
+
+Four things about this are worth remembering, because they are why it survived:
+
+- **The right file was always fetched.** `<picture>` art direction worked
+  perfectly; only the *shape* was wrong. A check that asserts which `src` won —
+  which is exactly what §6.0.19's stand-in verification asserted — passes.
+- **The DOM looks correct.** The `<source>` carries a plausible
+  `style="aspect-ratio: 684 / 816"` that reads as doing the job.
+- **It could not surface before the art landed.** The stand-ins were two copies
+  of one A11Y-01 file, so desktop and mobile shared a ratio and there was
+  nothing to skew. This is the class of defect that only real content exposes.
+- **Only one measurement sees it:** `naturalWidth/naturalHeight` against the
+  rendered rect. Added as a gate — every image on all eight routes, both
+  breakpoints, must match its own file's ratio within 1%.
+
+**The fix is the platform's own art-direction mechanism**: `width`/`height`
+**attributes** on the `<source>` and on the `<img>`. The selected source's pair
+becomes the `<img>`'s intrinsic aspect ratio, so the box is still reserved
+before load *and* each composition keeps its own shape — no CSS media query
+duplicating the `64rem` breakpoint, and no second opinion about the geometry
+(the attributes are the same measured IHDR integers the manifest already held,
+just in pixel form rather than ratio form). The stylesheet's
+`inline-size: 100%` + `block-size: auto` scales it to the column; **do not add
+a CSS `aspect-ratio` back** — it would override whichever source won, which is
+the bug again by a different route. Measured after: 20 images, 0 skewed, worst
+residual 0.9% (the 1px border on the box).
+
+#### Reviewed against the landed art
+
+The two passes §6.0.19 deferred to the export, done:
+
+- **The ten alt strings all hold.** Each was written from its brief and each
+  describes what is actually drawn. One small gap worth noting rather than
+  silently rewriting: **TOKENS-01's alt describes the colour trace** (palette →
+  intent → rendered button) and does not mention the **CONTEXT** column the
+  illustration also draws (`framed-control/md/height 40`,
+  `/padding-inline 16`). Defensible — Context is geometry, not colour, and the
+  colour trace is the point — but it is the one string a copy owner might want
+  to extend.
+- **TOKENS-01 by eye**, the one flagged because its subject *is* the ramp: the
+  swatches are the current post-RFC-0027 palette, step 500 is boxed and traced
+  up, and §6.0.10's `border/default` hairline is present on every chip. Nothing
+  to redo.
+
+**Still open, and unchanged by this:** the home page's FIGMA-01 has two items
+(§6.0.14) — a light Figma canvas in the dark composite, and no mobile
+recomposition. Both need a fresh human capture plus an `a11y-recorder` pass.

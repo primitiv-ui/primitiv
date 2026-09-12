@@ -220,28 +220,33 @@ export const AccessibleByDefault = () => (
 
 /* ── Documentation map ────────────────────────────────────────────────────── */
 
+/*
+ * The map's own entries, now that the eight content routes exist.
+ *
+ * Every href here was a `/#anchor` pointing at nothing — not a section of this
+ * page, not a page anywhere (docs-site-content-plan.md §4.6), which is exactly
+ * what a documentation *map* must not do. Recipes/Guides and Changelog/Releases
+ * came out instead of being re-pointed: both are deferred (D3) and neither has a
+ * page in any plan, so the right-hand column is Design in Figma alone.
+ */
 const MAP_LEFT = [
-  { title: "Start Here", href: "/" },
+  { title: "Start Here", href: "/start-here/" },
   {
     title: "Concepts",
-    href: "/#what-primitiv-is",
+    href: "/concepts/what-primitiv-is/",
     children: [
-      { title: "What Primitiv is", href: "/#what-primitiv-is" },
-      { title: "Tokens & theming model", href: "/#tokens" },
-      { title: "Density & the Context system", href: "/#density" },
-      { title: "Composition patterns", href: "/#composition" },
-      { title: "Accessibility commitments", href: "/#accessibility" },
+      { title: "What Primitiv is", href: "/concepts/what-primitiv-is/" },
+      { title: "Tokens & theming model", href: "/concepts/tokens/" },
+      { title: "Density & the Context system", href: "/concepts/density/" },
+      { title: "Composition patterns", href: "/concepts/composition/" },
+      { title: "Accessibility commitments", href: "/concepts/accessibility/" },
     ],
   },
   { title: "Components", href: "/components/", modeScoped: true },
-  { title: "Registry & CLI", href: "/#cli" },
+  { title: "Registry & CLI", href: "/registry-cli/" },
 ] as const;
 
-const MAP_RIGHT = [
-  { title: "Design in Figma", href: "/figma/" },
-  { title: "Recipes / Guides", href: "/#recipes" },
-  { title: "Changelog / Releases", href: "/#changelog" },
-] as const;
+const MAP_RIGHT = [{ title: "Design in Figma", href: "/figma/" }] as const;
 
 type MapEntry = {
   title: string;

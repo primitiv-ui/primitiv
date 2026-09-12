@@ -59,8 +59,10 @@ export const Hero = () => (
              * with its own children wrapped (registry-bugs §5), so a plain label
              * is correct again.
              */}
+            {/* Both CTAs pointed at /components/ while /start-here/ was still a
+                dead anchor — so the primary button did not go where it said. */}
             <Button asChild>
-              <Link href="/components/">Start Here</Link>
+              <Link href="/start-here/">Start Here</Link>
             </Button>
             <Button asChild variant="secondary">
               <Link href="/components/">Browse Components</Link>

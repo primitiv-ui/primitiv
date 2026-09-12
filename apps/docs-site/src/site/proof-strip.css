@@ -73,7 +73,19 @@
 
 /* The frame's mobile strip is one column: vertical, gap 32, tiles full width,
    and no dividers at all. */
-@media (width < 64rem) {
+/*
+ * The row only appears once it FITS, and the threshold is MEASURED rather than
+ * estimated — two guesses (64rem, then 70rem) both shipped an overflow. Five
+ * tiles at the frame's 175px, four hairline dividers and eight 40px gaps need
+ * 1199px of content, and only an `xl` container at a 1280 viewport offers that
+ * (1216). At 1120 it has 1056 and the row broke out of its own section.
+ *
+ * So: the measured row above 80rem, the stacked composition below it. No
+ * intermediate state with a tightened gap — every gap on the scale that fits at
+ * 1024 is too cramped to draw a divider against, and the stacked layout is
+ * already designed and verified rather than being a fallback.
+ */
+@media (width < 80rem) {
   .docs-proof-row {
     flex-direction: column;
     gap: var(--primitiv-space-space-32);

@@ -1,0 +1,30 @@
+/*
+ * The package-manager tab strip's one narrow-viewport concession.
+ *
+ * Its four triggers measure 52 + 60 + 53 + 48 = 213px and none of them can
+ * shrink — they are single words at the code block's own type size. With the
+ * copy control and the header's padding beside them the header needs 275px, so
+ * below about 360 it overflowed: 3px at 340, which is the classic narrow-phone
+ * floor and still a real device.
+ *
+ * A flex item defaults to `min-width: auto` (its content), so the strip could
+ * not give way; `min-inline-size: 0` lets it, and `overflow-x: auto` then lets
+ * the tabs scroll inside the header rather than out of it. At 360 and above
+ * nothing scrolls, because nothing has to.
+ *
+ * Scoped to this block rather than fixed in the registry `code-block`: the
+ * component's header is shared anatomy and a change there is a registry
+ * release, an SCSS mirror and a stylesheet-drift check. Worth doing on its own
+ * terms, not as a side effect of a docs-site pass.
+ */
+.docs-install-tabs-list {
+  min-inline-size: 0;
+  overflow-x: auto;
+  /* Firefox/Chromium paint a scrollbar gutter that would sit under the tabs'
+     own bottom rule; `none` keeps the header's height honest. */
+  scrollbar-width: none;
+}
+
+.docs-install-tabs-list::-webkit-scrollbar {
+  display: none;
+}

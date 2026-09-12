@@ -37,9 +37,14 @@
   --docs-install-min: 18rem;
 
   display: grid;
+    /* `min(..., 100%)` caps the floor at the container: a bare `minmax(Xrem,
+       1fr)` makes X a HARD minimum, so once the container is narrower than one
+       track auto-fit still lays out an X-wide column and the grid overflows
+       instead of shrinking. Same bug the playground's control grid shipped —
+       see the note in playground.css. */
   grid-template-columns: repeat(
     auto-fit,
-    minmax(var(--docs-install-min), 1fr)
+    minmax(min(var(--docs-install-min), 100%), 1fr)
   );
   gap: var(--primitiv-grid-gap-lg);
   align-items: start;

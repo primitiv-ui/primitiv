@@ -67,7 +67,13 @@ export const ChooseYourPath = () => (
     overline="Choose your path"
     heading="How you consume Primitiv"
   >
-    <Grid columns={3} gap="lg">
+    {/* `columns={3}` was a fixed three at every width. At 768 that gave three
+        ~188px cards, and each holds an install block whose four package-manager
+        tabs need 213px on their own — so the tab strip overflowed its own card
+        header on every tablet. Three columns need the full `xl` container to
+        give each card room for that block; at `lg` two still do, and below that
+        they stack. Same class of bug as the footer's `columns={4}`. */}
+    <Grid columns={{ base: 1, lg: 2, xl: 3 }} gap="lg">
       {PATHS.map((path) => (
         <Card key={path.title} className="docs-path-card">
           {/* CardHeader goes INSIDE CardContent: `.primitiv-card__content` owns

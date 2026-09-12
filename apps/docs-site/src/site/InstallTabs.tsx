@@ -6,6 +6,8 @@
 // declares that dependency itself (`import "./tabs"`), so the workaround is gone.
 import { CodeBlock } from "@/components/code-block";
 
+import "./install-tabs.css";
+
 const MANAGERS = [
   { value: "npm", run: "npm i", exec: "npx" },
   { value: "pnpm", run: "pnpm add", exec: "pnpm dlx" },
@@ -37,7 +39,7 @@ export const InstallTabs = ({
     <CodeBlock.Header>
       {/* A tablist must be named — CodeBlock.List enforces `label` XOR
           `ariaLabelledBy` in its type, so this cannot be forgotten. */}
-      <CodeBlock.List label="Package manager">
+      <CodeBlock.List className="docs-install-tabs-list" label="Package manager">
         {MANAGERS.map((m) => (
           <CodeBlock.Trigger key={m.value} value={m.value}>
             {m.value}

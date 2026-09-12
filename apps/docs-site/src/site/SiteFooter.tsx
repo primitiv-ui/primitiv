@@ -15,24 +15,28 @@ import "./site-footer.css";
 /*
  * Four columns, per the Figma landing v2 footer: brand + tagline, then Docs,
  * Build, Design. A Grid rather than the design's Stack row, because a row of
- * four fixed columns has nowhere to go on a narrow viewport — the grid reflows.
+ * four fixed columns has nowhere to go on a narrow viewport.
+ *
+ * Every link here pointed at a `/#anchor` that did not exist — not a section of
+ * the home page, not a page anywhere (docs-site-content-plan.md §4.6). Now that
+ * the eight content routes are real, each one names its page. Three entries came
+ * out rather than being re-pointed: Recipes and Icons have no page in any plan,
+ * and Changelog is deferred (D3). A missing entry is honest; a dead one is not.
  */
 const COLUMNS = [
   {
     heading: "Docs",
     links: [
-      { title: "Start Here", href: "/" },
-      { title: "Concepts", href: "/#what-primitiv-is" },
+      { title: "Start Here", href: "/start-here/" },
+      { title: "What Primitiv is", href: "/concepts/what-primitiv-is/" },
       { title: "Components", href: "/components/" },
-      { title: "Registry & CLI", href: "/#cli" },
     ],
   },
   {
     heading: "Build",
     links: [
-      { title: "Registry & CLI", href: "/#cli" },
-      { title: "Recipes", href: "/#recipes" },
-      { title: "Changelog", href: "/#changelog" },
+      { title: "Registry & CLI", href: "/registry-cli/" },
+      { title: "Tokens & theming", href: "/concepts/tokens/" },
       { title: "GitHub", href: "https://github.com/primitiv-ui/primitiv" },
     ],
   },
@@ -40,8 +44,8 @@ const COLUMNS = [
     heading: "Design",
     links: [
       { title: "Design in Figma", href: "/figma/" },
-      { title: "Tokens", href: "/#tokens" },
-      { title: "Icons", href: "/#icons" },
+      { title: "Density", href: "/concepts/density/" },
+      { title: "Accessibility", href: "/concepts/accessibility/" },
     ],
   },
 ] as const;
@@ -52,7 +56,12 @@ export const SiteFooter = () => (
   <Box asChild className="docs-site-footer">
     <footer>
       <Container size="xl">
-        <Grid columns={4} gap="xl">
+        {/* `columns={4}` was a fixed four at every width, not the reflow the
+            note above claimed: at 390 it made four 66px columns and every
+            single link overflowed its own cell. `Grid` takes a mobile-first
+            map, so this is the component's own responsive prop rather than a
+            docs media query. */}
+        <Grid columns={{ base: 1, sm: 2, lg: 4 }} gap="xl">
           <Stack gap="sm">
             <BrandLockup height={24} />
             <p className="docs-footer-tagline">

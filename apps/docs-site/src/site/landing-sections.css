@@ -75,6 +75,10 @@
   color: var(--primitiv-content-secondary);
 }
 
+.docs-commitment {
+  gap: var(--primitiv-flow-tight);
+}
+
 .docs-commitment-title {
   margin: 0;
   font-family: var(--primitiv-heading-h4-font-family);

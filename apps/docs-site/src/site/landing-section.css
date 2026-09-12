@@ -1,13 +1,32 @@
 /*
  * Landing section chrome — the band fill and the overline/heading pair.
  *
- * Every value below is read off the Figma landing v2 frame: section
- * padding-block 80 (= space-80), overline 12px Khand Medium in content/muted,
+ * Values were originally read off the Figma landing **v2** wireframe; they are
+ * now calibrated to the **v3 home** frame (`Home — desktop (v3)`), which is
+ * the design the page is being built to. Measured there: section
+ * padding-block-start 96, overline -> heading 48 (`flow/region`), heading ->
+ * lede 12 (`flow/tight`), block -> illustration 32 (`flow/section`). The gaps
+ * are the flow tokens rather than Stack's gap scale, which tops out at 32 and
+ * has no 48 rung — that is the rhythm system working as designed, not a
+ * workaround.
+ *
+ * overline 20px Khand Medium in content/muted (`overline/lg`),
  * heading 40px Khand SemiBold in content/primary (= heading/h2 at comfortable).
  */
 
 .docs-landing-section {
-  padding-block: var(--primitiv-space-space-80);
+  padding-block: var(--primitiv-space-space-96);
+}
+
+/* The overline sits a full region rung above its heading in v3 — not the 4px
+   an `xs` Stack gap gave it, which read as one clamped unit. */
+.docs-section-heading-block {
+  gap: var(--primitiv-flow-region);
+}
+
+/* Heading + lede read as one unit. */
+.docs-section-title-group {
+  gap: var(--primitiv-flow-tight);
 }
 
 /*

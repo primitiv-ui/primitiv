@@ -1876,6 +1876,71 @@ so the panels can only come from a human capture. Budget one pass for both.
 
 ---
 
+### 6.0.15 The v3 section recipe, measured off the frame (2026-09-12)
+
+With the bridge up, the remaining sections' geometry was read rather than
+inferred — and it corrected the two sections already built. **One recipe holds
+across every section measured (03, 06, 09), and its gaps are exactly the
+`flow/*` tokens**, which is the rhythm system working as designed rather than
+a coincidence:
+
+```
+section                       padding-block-start 96
+  overline (overline/lg, 20px)
+  ↕ 48   flow/region
+  heading/h2 (40px)
+  ↕ 12   flow/tight
+  body/lg lede (20px)
+  ↕ 32   flow/section
+  [illustration or next block]
+```
+
+Within a block: `heading/h4` → `body/md` is **12** (`flow/tight`), and
+consecutive h4 blocks are **16** apart in §09 (32 in §03, which has more room).
+
+**`LandingSection` was calibrated to the v2 landing wireframe, not the v3
+home** — its own header comment said so, and that is where the drift came
+from. Recalibrated, and verified in Chromium against the frame's numbers:
+
+| | was | frame | now |
+| --- | --- | --- | --- |
+| section padding-block | 80 | 96 | 96 |
+| overline → heading | 4 (`xs`) | 48 | 48 |
+| heading → lede | 32 | 12 | 12 |
+| h4 → note | 4 (`xs`) | 12 | 12 |
+| between commitments | 24 (`lg`) | 16 | 16 |
+
+**The heading → lede gap needed a structural change, not a number.** It was 32
+because the lede sat in `children`, a whole `flow/section` below the heading
+block. The frame nests heading and lede together in one `flow/tight` group, so
+`LandingSection` gained a **`lede` prop** rendered inside a
+`.docs-section-title-group`. Passing a lede through `children` will always
+land it 32 away and read as a separate block rather than as the heading's own
+sentence.
+
+**Two of these gaps are off Stack's scale.** Stack tops out at `xl` = 32 and
+has no 48 rung, so the region and tight gaps are set in CSS from
+`--primitiv-flow-region` / `--primitiv-flow-tight`. Reaching for the flow
+tokens is correct here; inventing a Stack size would not be.
+
+#### Banked for the unbuilt sections
+
+Recorded so the next pass needs no pairing. Each already has its illustration
+gap frame sized on the canvas:
+
+| section | h | illustration gaps (w×h) | notes |
+| --- | --- | --- | --- |
+| 03 The problem | 1148 | PROBLEM-01 1200×400 | then a 2×2 of four h4+body/md "symptoms" at gap 32, closing body/lg |
+| 04 Density | 2225 | DENSITY-01 1200×675 · DENSITY-03 1200×374 · DENSITY-02 560×420 | the largest section; DENSITY-01 is the live demo, DENSITY-02 sits in a 1200 row at gap 80 beside an h4 block |
+| 05 Colour | 1374 | COLOUR-01 1200×412 · COLOUR-02 560×294 | same 1200-row-at-gap-80 pairing as §04's tail |
+| 07 Ownership | 1258 | CODE-01 1200×750 (16:10) | animation, ~7s, plays once |
+
+**Every one of these is still blocked on artwork**, which is why they are
+banked rather than built — but the layout, copy structure and gap sizes are
+now known without the bridge.
+
+---
+
 ## 6.1 A finding logged while verifying copy
 
 **`README.md` has drifted from the repository it describes.** Verifying

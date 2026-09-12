@@ -116,15 +116,17 @@ export const DesignAndBuild = () => (
     id="design-and-build"
     overline="Design and build"
     heading="Your design file and your code are built from the same tokens."
+    lede={
+      <p className="docs-lede">
+        The Figma library is not a drawing of the components. Both are built
+        from one set of tokens, so they cannot quietly disagree about a colour
+        or a spacing value.
+      </p>
+    }
     band
   >
     <Stack gap="xl">
       <Stack gap="md">
-        <p className="docs-lede">
-          The Figma library is not a drawing of the components. Both are built
-          from one set of tokens, so they cannot quietly disagree about a colour
-          or a spacing value.
-        </p>
         <p className="docs-lede">
           Designers work with the real component sets, at every size and
           density. Developers get the same components in code. When a token
@@ -186,21 +188,24 @@ export const AccessibleByDefault = () => (
     id="accessibility"
     overline="Built in"
     heading="Accessible by default, not by audit."
-    band
-  >
-    <Stack gap="xl">
+    lede={
       <p className="docs-lede">
         Accessibility is not a pass someone does at the end here. It is a
         property of the components, checked continuously.
       </p>
-
+    }
+    band
+  >
+    <Stack gap="xl">
       {/* The animation sits beside the commitments on desktop and beneath them
           on narrow screens, where a 4:3 video next to text would leave neither
           readable. */}
       <Grid columns={{ base: 1, md: 2 }} gap="xl">
-        <Stack gap="lg">
+        {/* Measured on the v3 frame: 16 between commitments, 12 from each
+            h4 to its note (`flow/tight`). */}
+        <Stack gap="md">
           {COMMITMENTS.map((commitment) => (
-            <Stack gap="xs" key={commitment.title}>
+            <Stack className="docs-commitment" key={commitment.title}>
               <h3 className="docs-commitment-title">{commitment.title}</h3>
               <p className="docs-commitment-note">{commitment.note}</p>
             </Stack>

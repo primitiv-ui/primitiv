@@ -9,6 +9,7 @@ import { DescriptionList } from "@/components/description-list";
 import { Divider } from "@/components/divider";
 import { InlineCode } from "@/components/inline-code";
 import { List } from "@/components/list";
+import { Prose } from "@/components/prose";
 
 import type { ContentBlock, ContentPage as Page } from "@/lib/content-pages";
 import { ContentIllustration, hasIllustration } from "./ContentIllustration";
@@ -25,15 +26,36 @@ import "./content-page.css";
  * components, `defs` is a real `<dl>`, and the copy control on a shell block is
  * a working button rather than an icon.
  *
- * The rhythm matches the Figma frames: a section is a `flow/section` (32px)
- * column, a `block` and a `defs` row are `flow/tight` (12px), and each `group`
- * carries whichever flow token its entry names. Those are the same
- * density-scaled tokens the canvas binds, which is why the page tightens with
- * `data-density` rather than needing a second set of breakpoints.
+ * **The rhythm is `Prose`, not a reconstruction of it.** The builder encodes
+ * spacing as a right-nested chain of `flow · region` / `· section` / `· tight`
+ * auto-layout frames, and it has to: Figma has ONE `itemSpacing` per frame,
+ * while the rhythm the design system actually ships is a rule per sibling PAIR
+ * (RFC 0016's owl, `registry/components/prose/styles.css`). That nesting is a
+ * faithful transcription of the owl *into a tool that cannot express it* — so
+ * transcribing it back into CSS flex gaps, which is what this file did first,
+ * reproduces the workaround instead of the thing it was working around. The
+ * visible cost was flat rhythm: a section's `h2` sat the same 32px from its own
+ * first sentence as two paragraphs sat from each other, so every heading
+ * floated between its neighbours instead of binding to the body it introduces.
+ * `scripts/figma/apply-flow-rhythm.js` fixed exactly this on the home frames
+ * and was never run over the content-page frames.
+ *
+ * So a run of blocks is wrapped in one `<Prose>` and the owl decides every gap.
+ * It reproduces the builder's `flow/section` groups *identically* — `p + h4` is
+ * `flow/section`, `h4 + p` is `flow/tight`, which is what those wrappers were
+ * hand-building — and improves its `flow/normal` groups, where a real `h3` was
+ * flattened into paragraph rhythm and now gets its asymmetry back.
+ *
+ * **Illustrations stay OUTSIDE the flow**, which is the Stack/Prose split
+ * settled in `apply-flow-rhythm.js`: a section is a stack holding Prose runs
+ * and illustrations as siblings, never one Prose containing the artwork. Under
+ * a single Prose a 460px panel would sit `flow/normal` off the paragraph above
+ * it, carrying the same weight as a paragraph break. So a `gap` breaks the run
+ * and takes `stack/gap-xl` instead.
+ *
+ * Both families are density-scaled Context tokens, so the page still tightens
+ * with `data-density` rather than needing a second set of breakpoints.
  */
-
-/** `flow/tight` → `--primitiv-flow-tight`. The builder names them Figma-style. */
-const flowVar = (token: string) => `var(--primitiv-${token.replace("/", "-")})`;
 
 /**
  * Turns the code fragments listed alongside a paragraph into real chips.
@@ -60,36 +82,94 @@ const renderText = (text: string, fragments: readonly string[]): ReactNode => {
     );
 };
 
-const Blocks = ({ blocks }: { blocks: readonly ContentBlock[] }) => (
-  <>
-    {blocks.map((block, i) => (
-      <Block key={i} block={block} />
-    ))}
-  </>
-);
+/**
+ * The block forms that survive flattening — everything the owl spaces directly.
+ *
+ * `group` and `block` are the builder's two *grouping* forms, and both exist
+ * only because Figma needed a frame to hold a gap. Neither reaches the DOM:
+ * `flatten` expands them, so the owl sees one flat run of real elements and
+ * derives the same rhythm from the element types themselves.
+ */
+type FlatBlock = Exclude<ContentBlock, { kind: "group" } | { kind: "block" }>;
 
-const Block = ({ block }: { block: ContentBlock }) => {
+const flatten = (blocks: readonly ContentBlock[]): FlatBlock[] =>
+  blocks.flatMap((b): FlatBlock[] =>
+    b.kind === "group"
+      ? flatten(b.blocks)
+      : b.kind === "block"
+        ? [
+            { kind: "h4", text: b.heading },
+            { kind: "p", text: b.text, code: b.code },
+          ]
+        : [b],
+  );
+
+/**
+ * An illustration is out of flow (see the Stack/Prose split above) — but only
+ * once it EXISTS. `ContentIllustration` renders nothing for an id whose four
+ * PNGs have not been exported yet, and a break around nothing would still cost
+ * a `stack/gap-xl` where the owl wanted `flow/normal`: an invisible node
+ * silently widening a real gap. All ten ids are unexported today, so this is
+ * the live path rather than a hedge.
+ */
+const breaksFlow = (block: FlatBlock) => block.kind === "gap" && hasIllustration(block.id);
+
+/**
+ * A section body as the stack actually renders: alternating `Prose` runs and
+ * out-of-flow blocks, in source order.
+ *
+ * `lead` is the section's own `h2`, which the generator hoists out of the block
+ * list. It has to be rendered INSIDE the first Prose rather than above it: the
+ * owl only spaces siblings, so a heading in its own container has no
+ * relationship to the sentence it introduces and falls back to the section
+ * stack's gap — which is the flat rhythm this whole change is undoing. When the
+ * body opens with an illustration (or has no blocks at all) the lead still gets
+ * a run of its own, so the heading is never dropped.
+ */
+const Flow = ({ blocks, lead }: { blocks: readonly ContentBlock[]; lead?: ReactNode }) => {
+  const runs: { flow: boolean; blocks: FlatBlock[] }[] = [];
+  for (const block of flatten(blocks)) {
+    const flow = !breaksFlow(block);
+    const open = runs[runs.length - 1];
+    if (open && open.flow && flow) open.blocks.push(block);
+    else runs.push({ flow, blocks: [block] });
+  }
+  if (lead && !runs[0]?.flow) runs.unshift({ flow: true, blocks: [] });
+
+  return (
+    <>
+      {runs.map((run, i) =>
+        run.flow ? (
+          <Prose key={i}>
+            {i === 0 ? lead : null}
+            {run.blocks.map((block, j) => (
+              <Block key={j} block={block} />
+            ))}
+          </Prose>
+        ) : (
+          run.blocks.map((block, j) => <Block key={`${i}-${j}`} block={block} />)
+        ),
+      )}
+    </>
+  );
+};
+
+const Block = ({ block }: { block: FlatBlock }) => {
   switch (block.kind) {
     case "h2":
       return <h2 className="docs-content-h2">{block.text}</h2>;
     case "h3":
       return <h3 className="docs-content-h3">{block.text}</h3>;
+
+    /* The builder's `block` form lands here after flattening: a real heading,
+       not a bolded line. These are the sub-arguments of a section and a reader
+       skimming the page should find them in the outline. The owl gives it
+       `flow/section` above and `flow/tight` below with no wrapper. */
     case "h4":
       return <h4 className="docs-content-h4">{block.text}</h4>;
 
     case "p":
       return <p className="docs-content-p">{renderText(block.text, block.code)}</p>;
-
-    /* An h4 and its paragraph, tight — the builder's `block` form. A real
-       heading, not a bolded line: these are the sub-arguments of a section and
-       a reader skimming the page should find them in the outline. */
-    case "block":
-      return (
-        <div className="docs-content-tight">
-          <h4 className="docs-content-h4">{block.heading}</h4>
-          <p className="docs-content-p">{renderText(block.text, block.code)}</p>
-        </div>
-      );
 
     /* `header` is Figma's `Show Header` boolean, which on the canvas is a
        decorated top bar and here is what carries the copy control — so the
@@ -145,7 +225,13 @@ const Block = ({ block }: { block: ContentBlock }) => {
 
     /* CLI flags. A `<dl>` again rather than the builder's run of paragraphs:
        the flag is the term and the sentence describes it, and on the web the
-       flag itself should be a code chip. */
+       flag itself should be a code chip.
+
+       The ONE grouping wrapper kept, deliberately: "Useful flags:" is a lead-in
+       that belongs to the list, and the owl has no `p + dl` binding rule to
+       express that with — `flow/tight` here is the same judgement the builder's
+       own `flags` frame made. A nested container also stops the rhythm leaking,
+       so the `<dl>`'s own two-tier row spacing stands. */
     case "flags":
       return (
         <div className="docs-content-tight">
@@ -198,16 +284,8 @@ const Block = ({ block }: { block: ContentBlock }) => {
         </div>
       );
 
-    case "group":
-      return (
-        <div className="docs-content-group" style={{ gap: flowVar(block.gap) }}>
-          <Blocks blocks={block.blocks} />
-        </div>
-      );
-
     case "gap":
       return <ContentIllustration id={block.id} />;
-
   }
 };
 
@@ -217,8 +295,10 @@ const Block = ({ block }: { block: ContentBlock }) => {
  * `pairs` names an illustration and how many of the blocks immediately above it
  * belong beside it. On all three pages that use one the pair is the whole
  * section body, but the data expresses it as "the last N", so that is what this
- * implements. Below 64rem the row is one column (content-page.css), matching
- * both the mobile Figma frames and the briefs' own notes.
+ * implements — and the count is over the BUILDER's blocks, so the split has to
+ * happen before `flatten` expands the grouping forms. Below 64rem the row is one
+ * column (content-page.css), matching both the mobile Figma frames and the
+ * briefs' own notes.
  *
  * A pair whose illustration has not been exported yet renders as the plain
  * stack — a two-column row with one empty column would be worse than no row.
@@ -226,22 +306,24 @@ const Block = ({ block }: { block: ContentBlock }) => {
 const SectionBody = ({
   blocks,
   pairs,
+  lead,
 }: {
   blocks: readonly ContentBlock[];
   pairs: Page["pairs"];
+  lead: ReactNode;
 }) => {
   const last = blocks[blocks.length - 1];
   const pair = last?.kind === "gap" ? pairs.find((p) => p.id === last.id) : undefined;
 
-  if (!pair || !hasIllustration(pair.id)) return <Blocks blocks={blocks} />;
+  if (!pair || !hasIllustration(pair.id)) return <Flow blocks={blocks} lead={lead} />;
 
   const split = blocks.length - 1 - pair.count;
   return (
     <>
-      <Blocks blocks={blocks.slice(0, split)} />
+      <Flow blocks={blocks.slice(0, split)} lead={lead} />
       <div className="docs-content-pair">
         <div className="docs-content-pair-prose">
-          <Blocks blocks={blocks.slice(split, blocks.length - 1)} />
+          <Flow blocks={blocks.slice(split, blocks.length - 1)} />
         </div>
         <ContentIllustration id={pair.id} />
       </div>
@@ -251,13 +333,21 @@ const SectionBody = ({
 
 export const ContentPage = ({ page }: { page: Page }) => (
   <div className="docs-content-page">
+    {/*
+     * The masthead is NOT a flow run, and that is a decision rather than an
+     * oversight: eyebrow / title / lede is a fixed three-part header whose
+     * geometry was read off the canvas, and the owl would put `flow/region`
+     * (48) between the eyebrow and the h1 — right for an overline introducing a
+     * section on a long page, far too much air inside a page title. The `head`
+     * blocks below it ARE prose and get the owl.
+     */}
     <header className="docs-content-head">
       <p className="docs-content-eyebrow">{page.eyebrow}</p>
       <div className="docs-content-tight">
         <h1 className="docs-content-title">{page.title}</h1>
         <p className="docs-content-lede">{page.lede}</p>
       </div>
-      <Blocks blocks={page.head} />
+      <Flow blocks={page.head} />
     </header>
 
     {page.sections.map((section) => (
@@ -266,10 +356,15 @@ export const ContentPage = ({ page }: { page: Page }) => (
         key={section.id}
         aria-labelledby={section.id}
       >
-        <h2 className="docs-content-h2" id={section.id}>
-          {section.title}
-        </h2>
-        <SectionBody blocks={section.blocks} pairs={page.pairs} />
+        <SectionBody
+          blocks={section.blocks}
+          pairs={page.pairs}
+          lead={
+            <h2 className="docs-content-h2" id={section.id}>
+              {section.title}
+            </h2>
+          }
+        />
       </section>
     ))}
   </div>

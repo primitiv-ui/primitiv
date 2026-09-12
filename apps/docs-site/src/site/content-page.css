@@ -4,16 +4,26 @@
  * Geometry read off the sixteen Figma frames on "Docs Site — Content pages (v3)"
  * rather than invented (docs-site-content-plan.md §6.0.4). The column itself is
  * the shell's — 632px between the two rails, 24px gutters with no rails below
- * 64rem — so nothing here sets a width; what it sets is the rhythm:
+ * 64rem — so nothing here sets a width.
+ *
+ * IT ALSO NO LONGER SETS THE PROSE RHYTHM. Every gap between two text blocks is
+ * `Prose`'s now (ContentPage.tsx, RFC 0016's owl); this file owns only what sits
+ * BETWEEN prose runs and around them:
  *
  *   page head        padding-block-start 40 · flow/section (32) between parts
- *   section          padding-block-start 48 · flow/section (32) between blocks
- *   title ↔ lede     flow/tight (12)
- *   a `block`        flow/tight (12) between its h4 and paragraph
+ *   section          padding-block-start 48 · stack/gap-xl (32) around runs
+ *   title ↔ lede     flow/tight (12) — the masthead, deliberately not a run
  *
- * Every gap is a `flow/*` token, so the whole page tightens under
- * `data-density` the same way the canvas does — that is the point of the flow
- * tier existing, and it is why there is no second set of breakpoints here.
+ * The section gap is `stack/gap-xl` rather than `flow/section` on purpose: what
+ * it spaces is a Prose run against an illustration, and the Stack/Prose split in
+ * `scripts/figma/apply-flow-rhythm.js` settled that an illustration is a stack
+ * sibling, not a paragraph. Both families are density-scaled, so the page still
+ * tightens under `data-density` with no second set of breakpoints.
+ *
+ * DO NOT re-add a `margin: 0` to the type classes below. This file is unlayered,
+ * so it outranks every `@layer primitiv.base` rule — including the owl's
+ * `margin-block-start` — and a reset here silently flattens the whole page. The
+ * reset layer already zeroes the UA margins; there is nothing to re-zero.
  */
 
 .docs-content-page {
@@ -33,7 +43,7 @@
 .docs-content-section {
   display: flex;
   flex-direction: column;
-  gap: var(--primitiv-flow-section);
+  gap: var(--primitiv-stack-gap-xl);
   padding-block-start: var(--primitiv-space-space-48);
 }
 
@@ -41,20 +51,14 @@
   padding-block-end: var(--primitiv-space-space-56);
 }
 
-/* The 12px pairing used for title/lede and for every `block`'s heading and
-   paragraph. A flex column rather than margins so it nests inside the section's
-   own gap without doubling up. */
+/* The 12px pairing, now used in exactly two places: the masthead's title/lede,
+   and the `flags` lead-in over its list. Everywhere else the owl derives it from
+   the element types (`h1..h4 + *` is `flow/tight`), which is why the `block`
+   form no longer has a wrapper at all. */
 .docs-content-tight {
   display: flex;
   flex-direction: column;
   gap: var(--primitiv-flow-tight);
-}
-
-/* A `group`'s gap comes from its own entry in the page data (`flow/section`,
-   `flow/tight`), applied inline — the token varies per group, the layout does not. */
-.docs-content-group {
-  display: flex;
-  flex-direction: column;
 }
 
 /* The page eyebrow — "GET STARTED", "CONCEPTS". Same treatment as the section
@@ -64,7 +68,6 @@
    strings are already uppercase in the page data; `text-transform` is what
    makes that a rule rather than a typing habit. */
 .docs-content-eyebrow {
-  margin: 0;
   font-family: var(--primitiv-overline-sm-font-family);
   font-size: var(--primitiv-overline-sm-font-size);
   font-weight: var(--primitiv-overline-sm-font-weight);
@@ -75,7 +78,6 @@
 }
 
 .docs-content-title {
-  margin: 0;
   font-family: var(--primitiv-heading-h1-font-family);
   font-size: var(--primitiv-heading-h1-font-size);
   font-weight: var(--primitiv-heading-h1-font-weight);
@@ -85,7 +87,6 @@
 }
 
 .docs-content-lede {
-  margin: 0;
   font-family: var(--primitiv-body-lg-font-family);
   font-size: var(--primitiv-body-lg-font-size);
   line-height: var(--primitiv-body-lg-line-height);
@@ -95,7 +96,6 @@
 .docs-content-h2,
 .docs-content-h3,
 .docs-content-h4 {
-  margin: 0;
   color: var(--primitiv-content-primary);
   /* The header is sticky, so an anchored heading would land behind it. */
   scroll-margin-block-start: var(--primitiv-space-space-96);
@@ -126,7 +126,6 @@
 }
 
 .docs-content-p {
-  margin: 0;
   font-family: var(--primitiv-body-md-font-family);
   font-size: var(--primitiv-body-md-font-size);
   line-height: var(--primitiv-body-md-line-height);
@@ -250,7 +249,7 @@
 .docs-content-pair-prose {
   display: flex;
   flex-direction: column;
-  gap: var(--primitiv-flow-section);
+  gap: var(--primitiv-stack-gap-xl);
 }
 
 @media (width >= 64rem) {

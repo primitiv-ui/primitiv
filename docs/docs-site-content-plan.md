@@ -2725,3 +2725,107 @@ pass when one is next touched.
 
 Verified: `check:css`, `check:content`, `typecheck`, and `render-check` at
 320/390/1280 dark, 320/1280 light, and 1280 reduced-motion.
+
+### 6.0.27 The content pages use Prose now, not a transcription of it (2026-09-12)
+
+Raised directly: *we should be using Prose on the content pages really — I'm
+sure we documented that when we were doing the design in Figma.* Both halves
+were right. `scripts/figma/apply-flow-rhythm.js` records the decision in its own
+header — **"the page will be built with `Container` / `Stack` / `Prose`, so the
+design has to encode what those actually render"** — and the content-page
+builder is full of `flow · region` / `· section` / `· tight` frames because of
+it. The site was not.
+
+**This is NOT §6.0.26's defect.** Every gap on these pages already resolved a
+`flow/*` token, so they were density-correct from the start; the eight pages
+tighten under `data-density` and always have. The problem is a different one and
+easy to miss because the token names looked right.
+
+**What went wrong: the Figma workaround was transcribed back into CSS.** Figma
+has ONE `itemSpacing` per frame; the owl is a rule per sibling PAIR. `apply-flow-
+rhythm.js` solves that with a right-nested chain of wrapper frames and says so
+plainly — *"it is not an approximation of the owl, it is the owl."* But that
+chain is the owl **expressed in a tool that cannot express it**. Reading it back
+off the canvas as flat flex gaps — `.docs-content-section { gap: flow/section }`
+plus a `.docs-content-tight` wrapper per pair — reproduces the workaround rather
+than the thing being worked around, and flattens exactly the variation the flow
+tier exists to provide.
+
+**Measured, comfortable, before → after:**
+
+| pair | was | now | why |
+| --- | --- | --- | --- |
+| section `h2` → its first sentence | 32 | **12** | `h1..h4 + *` is `flow/tight` |
+| paragraph → paragraph | 32 | **20** | `* + *` is `flow/normal` |
+| paragraph → `code`/`alert`/`dl`/`ul` | 32 | **20** | same rule |
+| paragraph → `h4` | 32 | 32 | unchanged — `* + h3,h4` |
+| `h4` → its paragraph | 12 | 12 | unchanged |
+| illustration ↔ prose run | 32 | 32 | now `stack/gap-xl`, see below |
+
+Every heading was getting the same air below it as between two paragraphs, so it
+floated between its neighbours instead of binding to the body it introduces.
+That is the identical error `apply-flow-rhythm.js` was written to fix on the
+home frames — *"the heading was getting HALF the air above it and TWICE the air
+below it that the built page will give"* — and that script was **only ever run
+against `Home — desktop (v3)` and `Home — mobile (v3)`**. The content-page frames
+still carry the pre-fix flat structure, so the canvas and the site agreed with
+each other and both were wrong. **Open: run the same pass over the sixteen
+content-page frames.** It needs the bridge, so it is a paired-session job; the
+script is idempotent and already treats `⟦ ILLUSTRATION GAP · … ⟧` as opaque.
+
+**Four things the switch needed, each worth keeping.**
+
+- **The two grouping forms had to be flattened, not wrapped.** `group` and
+  `block` exist only because Figma needed a frame to hold a gap; neither reaches
+  the DOM now. `flatten` expands them so the owl sees one run of real elements
+  and derives the rhythm from the element types. This reproduces the builder's
+  `flow/section` groups **identically** (`p + h4` = section, `h4 + p` = tight is
+  precisely what those wrappers hand-built) and *improves* its `flow/normal`
+  groups, where a real `h3` was flattened into paragraph rhythm and now gets its
+  asymmetry back. A `block` wrapped in its own container would have been worse
+  than the flat gap: the owl would see a `<div>` and give it `flow/normal`.
+- **The `h2` had to move INSIDE the first Prose.** The generator hoists it out
+  of the block list, so it was rendered as a sibling of the body — and the owl
+  only spaces siblings, so a heading in its own container has no relationship to
+  the sentence it introduces. `Flow` takes a `lead` node and renders it as the
+  first child of the first run; when a section opens with an illustration the
+  lead still gets a run of its own, so it is never dropped.
+- **`margin: 0` on the type classes was a silent veto.** Five classes carried it.
+  This file is unlayered, so it outranks every `@layer primitiv.base` rule —
+  including the owl's `margin-block-start` — and applying Prose with those resets
+  in place would have changed *nothing at all*, with no error. They were
+  redundant from the start (`primitiv.reset` already zeroes the UA margins). The
+  stylesheet header now says DO NOT re-add them. Second occurrence in two
+  changes; the general form is worth stating once: **a `margin: 0` reset in docs
+  CSS is not neutral, it is a veto over the flow rhythm.**
+- **Illustrations stay out of the flow, and the section gap moved off `flow/*`.**
+  `apply-flow-rhythm.js` settled this too: *"a section is `<Stack gap="xl">`
+  holding `<Prose>` runs and illustrations as siblings — NOT one giant Prose
+  containing the images"*, because a 460px panel at `flow/normal` carries the
+  same weight as a paragraph break. So a `gap` block breaks the run and the
+  section's own gap is now `stack/gap-xl` (20/24/32/40) rather than
+  `flow/section` (16/24/32/40) — same at comfortable, and honest about what it
+  spaces. **But only once the artwork exists:** `ContentIllustration` renders
+  nothing for an unexported id, and breaking the run around nothing would widen
+  a real gap from 20 to 32 with no visible node to explain it. `breaksFlow`
+  therefore checks `hasIllustration`, which is the live path today — all ten ids
+  are still unexported.
+
+**The masthead is deliberately NOT a flow run.** Eyebrow / title / lede is a
+fixed three-part header whose geometry was read off the canvas, and the owl would
+put `flow/region` (48) between the eyebrow and the `h1` — right for an overline
+introducing a section on a long page, far too much air inside a page title. It
+keeps its `flow/section` column and the one `.docs-content-tight` pair. The
+`head` blocks below it *are* prose and get the owl.
+
+**One rhythm worth watching rather than special-casing.** On Tokens, the section
+`h2` is immediately followed by an `h4`, and the owl's heading-asymmetry rule
+fires on `h2 + h4` — 12px, tighter than the 32 a paragraph would have got.
+Checked on a render and kept: the first sub-head *is* the heading's content, and
+the alternative is teaching this page to disagree with the system. The whole
+point of the change is that these pages now inherit whatever RFC 0016 decides.
+
+Verified: `check:css`, `check:content`, `typecheck`, `render-check` across all
+eight routes at 320/390/1280 dark plus 320/1280 light, and the four density modes
+measured from the browser (`h2` → sentence 8/10/12/16, paragraph → `h4`
+16/24/32/40, section gap 20/24/32/40).

@@ -2507,3 +2507,60 @@ a colour, so one script is right.
 | Section 4's density demo | Not built. Interactive, **no artwork at all**. Unblocked |
 | FIGMA-01 (§2.6) | On the page but **needs a rebuild** — the dark composite carries a light Figma canvas and there is no mobile recomposition (§6.0.14). Needs Figma |
 | CODE-01 (§2.7) | Section not built. A real VS Code recording from an earlier session sits in the recorder's gitignored `out/` (769KB mp4 + still) — **unreviewed**, so not committed |
+
+### 6.0.24 COLOUR-02 is live, and section 5 is complete (2026-09-12)
+
+The hue-drift comparison is built and sits **beside** the "harmonious"
+paragraphs, per its own brief — prose left, diagram right, stacked below 48rem.
+That placement is the point: it is the one claim in section 5 a reader cannot
+verify from the proof sheet, so it belongs against that prose rather than after
+it. Section 5 now carries every part its copy specifies.
+
+Rendered live from `colour-02-hue-drift.json`, the third dataset through
+`gen-engine-data.mjs`. **Nothing in the page computes a colour or a hue.**
+
+**Three build decisions were carried over from the Figma version rather than
+rediscovered**, and each is the difference between a diagram that argues and one
+that does not:
+
+- **Both rows share ONE hue domain.** Scaling each row to its own data would rig
+  the comparison — the held row's ten identical hues would spread across the
+  full width and prove the opposite. Verified in the render: both tracks are the
+  same width.
+- **The track is a painted hue SWEEP, not a rule.** A plain rule under the tiles
+  invites the eye to read a marker against the tile above it, a different
+  quantity entirely: the held row's marker sits at 260°, which lands under the
+  300 tile, and the diagram read as broken. The sweep is the engine's own samples
+  at the seed's lightness and chroma, so the axis is made of the same colours the
+  ramps are drawn from and explains itself without a caption.
+- **The markers are semi-opaque, so coincident ones accumulate.** Ten stacked at
+  full opacity look like one; at 0.55 the held row's single point reads dense and
+  the drifting row's spread reads sparse. That is how the diagram makes its case
+  without the degree figures the brief forbids.
+
+**The two swatch rows look near-identical, and that is correct.** The build note
+records the attempt to push them apart and why it was reverted: hue is invisible
+at both ends of a ten-step ramp (at step 50 the real ramp's chroma is near zero,
+so a 14° shift moves no channel by more than 2/255), and lifting chroma to
+compensate made the drifting row *more vivid* than the real one — a
+counter-example that looks better argues the wrong case. The invisibility is the
+phenomenon, which is why the track has to exist at all.
+
+**The argument is asserted numerically, not eyeballed.** In the render the
+drifting row puts ten markers at ten distinct positions spanning **71.3%** of
+the track; the held row puts ten markers at **one** position, dead centre. Dead
+centre is itself a consequence of the shared domain being centred on the seed.
+
+**Guarded against a regeneration.** The generator throws if the held ramp's hue
+span is anything but 0, if the drifting span falls below 20°, or if the drift is
+**unevenly spread** — the widest step-to-step gap may not exceed twice the mean.
+That last one encodes a real review finding: two earlier constructions measured a
+large span while eight of ten swatches stayed visually identical to the real
+ramp, because the whole range sat in the two end steps. *A range is not a drift,
+and the headline number hid that.*
+
+**Remaining home-page work:** section 4's live density demo (unblocked, no
+artwork), FIGMA-01's rebuild (its dark screenshot is genuinely dark-themed Figma
+— what is light is the **canvas background**, a per-page setting, so tightening
+the crop past it may fix the composite with no re-take) and section 7's CODE-01
+(an unreviewed recording in the recorder's gitignored `out/`).

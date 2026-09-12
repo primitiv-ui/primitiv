@@ -1941,6 +1941,41 @@ now known without the bridge.
 
 ---
 
+### 6.0.16 A render check, because nothing else sees these defects (2026-09-12)
+
+`apps/docs-site/scripts/render-check.mjs` — renders a page in real Chromium
+and reports what a browser actually sees. Written after hand-rolling the same
+throwaway script six times in two days.
+
+**It exists because neither existing gate can see this defect class.**
+`next build` does not surface render-time React errors, and jsdom never loads
+a stylesheet, so `toBeVisible()` passes on an element painted underneath
+another. Every docs-site defect found on 2026-09-11/12 was caught by looking
+at a render: a caption baked into an asset and printed twice, a glyph centring
+against a three-line figure, a figure overflowing into a divider, four
+dividers hanging beside stacked tiles, and a comment asserting behaviour its
+CSS did not have.
+
+It reports page errors, any request that 404s, and **elements whose text is
+wider than the box it sits in** — the overflow class that properties alone
+never reveal. Scope it with `--section <aria id>`, take two widths in one run
+(`--width 1280 --width 390`), and switch `--scheme` / `--motion` to exercise
+the theme and reduced-motion paths.
+
+**It exits non-zero, so it is a gate rather than an eyeball** — verified in
+both directions: a missing section exits 1, a good one exits 0. (Checking that
+needed care: `$?` after a pipe reports `tail`, not node, which made the first
+red test look like a pass.)
+
+Two environment notes baked into it, both of which cost time to find: it must
+run **from the repo root** because `@playwright/test` resolves there and not
+in `apps/docs-site`; and it points at
+`chromium_headless_shell-1194`, because the pinned Playwright passes
+`--headless=old`, which current Chrome has removed — launching the normal
+`chrome` binary fails with a message about the old headless mode.
+
+---
+
 ## 6.1 A finding logged while verifying copy
 
 **`README.md` has drifted from the repository it describes.** Verifying

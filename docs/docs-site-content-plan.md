@@ -2010,3 +2010,132 @@ any figure reaching a reader wants regenerating rather than copying.
    has to decide what may be said about it. See §3.9 for what that costs
    (three link removals) and what it does not (the prose naming the engine,
    which stays).
+
+### 6.0.17 The eight content pages, in code (2026-09-12)
+
+All eight routes are live and prerendered: `/start-here`, the five
+`/concepts/*` pages, `/registry-cli`, `/figma`. Build-order step 9c's
+second half, and step 10 with it.
+
+**The copy is generated, not retyped — and that is the whole shape of
+this increment.** `scripts/figma/docs-content-pages.js` already holds
+every page as a `PAGES` object of block tuples, and
+`verify-docs-content-pages.mjs` already proves that object matches the
+sixteen settled frames. So `apps/docs-site/scripts/gen-content-pages.mjs`
+reads the `PAGES` literal (a text slice between `const PAGES` and
+`const ALL`, evaluated on its own — the rest of that file touches the
+`figma` global) and writes `src/content/pages.generated.json`. Retyping 85
+paragraphs into TSX would have made a third copy of the copy, free to drift
+from both the canvas and the markdown. `pnpm check:content` fails if the
+committed JSON is stale, so the two cannot quietly disagree.
+
+Two things the generator resolves so the renderer stays dumb:
+
+- **Link labels become real hrefs.** The Figma data carries only "Design in
+  Figma →", because a canvas link goes nowhere. `ROUTES` maps every one and
+  an unmapped label **throws** — a new next-step link fails the generator
+  rather than rendering a dead link.
+- **Headings get ids.** Every section's first block is its `h2` and its text
+  is the matching `toc` entry — asserted for all eight pages, and it held
+  first run. So the anchor, the `aria-labelledby` and the TOC all come from
+  one string, and the TOC is derived (`tocFor`) rather than authored.
+
+Language for each code block is detected, not carried: a shell transcript
+prefixes every line with `$ `, JSX opens with a capital tag where HTML opens
+with a lowercase one, and the one block that is not source at all
+(`radius = height × 0.1875`) gets `text` so highlighting does not colour an
+equation. All 22 classify correctly; an explicit `language` in the block's
+options wins for anything a future page adds.
+
+**Every block form renders through the real component**, not an
+approximation of one: `alert`, `code-block`, a real `<dl>` for `defs` and
+`flags`, `List` for the next-step links. Figma's `tabbed` is its Code Block
+`Show Header` boolean, which here is what carries the **copy control** — so
+the shell transcripts a reader is meant to run have a copy button and the
+illustrative snippets do not.
+
+#### Publication gates must not reach the site at all
+
+§6.0.4 drew three gates into the frames on purpose. They are addressed to
+whoever builds the page — "do not ship this page before the deferred
+accessibility pass has run" — and they must not be published.
+
+**A first pass kept them as a block kind the renderer skipped, and that
+leaked.** The whole page object is handed to a client component, so the gate
+text sat in the serialized RSC payload of the public HTML: invisible on
+screen, plainly there in view-source of the page it forbids. Gates are now
+diverted into `src/content/gates.generated.json`, a file **no component
+imports**; `pnpm gates` is the only reader. Verified zero matches in both the
+dev HTML and the static export.
+
+**A gate inside a `group` withholds that group.** The tokens page is why: its
+"standard ramps" group documents work that is planned and not shipped, and
+its gate says "Do not publish it". Dropping only the notice would have
+published a `primitiv.json` config key that does not exist, without its
+caveat. Six blocks withheld. A gate outside a group (the accessibility
+page's, in `head`) has no mechanically derivable scope, so it withholds
+nothing — `pnpm gates` reports which did which.
+
+**Two sentences now dangle, and they need a copy decision.** With the
+standard-ramps group withheld, §02's Palette block still says "A larger set
+of standard ramps is available too … **see below**" and §04 still says "The
+standard ramps are fixed and are not touched by this." Both are in
+`PAGES`, so fixing them edits the Figma builder and puts the fingerprint
+checker out of step with the canvas until the frames are rebuilt. The gate
+resolves it either way: ship the ramps, or cut the claim from all three
+places. Documenting a config key that does not exist was the worse of the
+two, so the group is withheld and the dangling references stand.
+
+#### Illustrations
+
+The ten content-page briefs are still gaps. `ContentIllustration` reads a
+manifest that is **empty** — an id absent from it renders nothing rather than
+a placeholder box, which is the honest state (the prose reads on its own),
+and a paired row collapses to one column when its illustration has not
+landed. Exporting needs a human hand (gotcha 31). Alt text is authored in
+that manifest, per illustration: the brief says what to draw, alt says what a
+reader who cannot see it needs to know, and the two are not the same string.
+
+#### Three dead-link families came out with the routes
+
+Step 10, done properly rather than only in the nav:
+
+- **`src/lib/nav.ts`** — Start Here / Registry & CLI / Design in Figma now
+  derive their children from the page data (`pageLinks`), so a renamed
+  heading renames its nav entry. Guides, Changelog and Harmoni are absent,
+  not dead.
+- **The footer** — every link was a `/#anchor` pointing at nothing. Recipes,
+  Icons and Changelog came out (no page in any plan; Changelog deferred);
+  the rest name their page. Its `columns={4}` was also a fixed four at every
+  width despite a comment claiming it reflowed: at 390 that made four 66px
+  cells and **every link overflowed its own cell, on every page of the
+  site**. `Grid` takes a mobile-first map, so it is `{ base: 1, sm: 2, lg: 4 }`
+  — the component's own prop, not a docs media query.
+- **The home page** — the documentation map was entirely dead anchors, and
+  the hero's primary "Start Here" button went to `/components/`.
+
+#### The well is a width, not a margin
+
+A code block sits inset by `space/space-48` on desktop (§6.0.4). Applying
+that as `margin-inline` overflowed every section by exactly 48px: the
+component sets `inline-size: 100%` **deliberately** (a flex item that is
+itself a flex container with `overflow: hidden` does not reliably resolve
+`width: auto` through its parent's stretch), so a margin shifts a full-width
+box sideways instead of shrinking it. Overriding `inline-size` back to `auto`
+would walk into the bug the 100% exists to prevent, so the well is
+`calc(100% - space-96)` with `margin-inline: auto`.
+
+#### Verification
+
+`render-check.mjs` at 1280 and 390, dark and light: all eight content pages
+clean, plus `/`, `/components/` and a component page re-checked for the
+footer change. One pre-existing defect found and **not** fixed, since it
+belongs to the component-page surface and its own handoff:
+`/components/*`'s playground **`docs-control-grid` overflows at 390** (416 in
+a 284 column), on all 42 pages.
+
+**Still open on this increment:** the 40 illustration exports · the
+`FIGMA-01` rebuild (§6.0.14) · the six remaining v3 home sections
+(§6.0.15) · the deferred Split Button (§4.5) · and the deploy, which is a
+deliberate act: read `pnpm gates` first, and decide the accessibility page's
+gate before publishing it.

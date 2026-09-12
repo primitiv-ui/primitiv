@@ -256,7 +256,12 @@ export const radioCardSpec: ComponentSpec = {
           {() => (
             <div className="docs-example-stack">
               <RadioCard defaultValue="pro" orientation="horizontal" aria-label="Plan">
-                <Stack direction="row" gap="sm">
+                {/* `wrap`, or the three cards run straight off the preview on a
+                    phone — 443px of cards in a 284px column. The example is
+                    about `orientation` following the layout, and a wrapped row
+                    is still a row-direction Stack, so nothing it demonstrates
+                    is lost. */}
+                <Stack direction="row" gap="sm" wrap="wrap">
                   {PLANS.map((p) => (
                     <RadioCardItem key={p.value} value={p.value} title={p.title} description={p.description} />
                   ))}

@@ -40,12 +40,24 @@
  * As many control columns as fit, then wrap. The min is set so a five-segment
  * control at `sm` is never squeezed to the point of truncating a label like
  * "secondary" — below that width it takes a row of its own instead.
+ *
+ * The `min()` around that floor is not decoration. A bare
+ * `minmax(26rem, 1fr)` makes 26rem a HARD minimum: once the container is
+ * narrower than one track, auto-fit still lays out a 416px column and the grid
+ * overflows by the difference rather than shrinking. At 390px that overflowed
+ * every playground on every component page — 416 in a 284 column — and it was
+ * the whole page's horizontal scroll. Capping the floor at 100% lets the single
+ * track shrink to the container, and the controls inside already wrap
+ * (`.docs-radio-row`), so the row reflows instead of being clipped.
  */
 .docs-control-grid {
   --docs-control-min: 26rem;
 
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(var(--docs-control-min), 1fr));
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(min(var(--docs-control-min), 100%), 1fr)
+  );
   gap: var(--primitiv-grid-gap-lg);
 }
 

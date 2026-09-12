@@ -15,9 +15,13 @@ const imports = (mode: Mode) =>
 
 /* A filled, labelled box so the ratio is legible on its own — normally the child
    is an <img>/<video> that fills the frame. A fixed width so the HEIGHT is what
-   the ratio changes; the box is centred in the preview. */
+   the ratio changes; the box is centred in the preview.
+   `maxInlineSize` caps that fixed width at the column: the preview is ~284px on
+   a phone, so 16rem fits but the 20rem and 22rem overrides below did not, and
+   the demo overflowed its card. Capping changes nothing on desktop. */
 const frameBase: CSSProperties = {
   inlineSize: "16rem",
+  maxInlineSize: "100%",
   display: "grid",
   /* `place-content`, not `place-items`: the box's single implicit row is
      auto-sized, so it sits at the top unless the TRACK is centred in the box. */
@@ -112,7 +116,17 @@ export const aspectRatioSpec: ComponentSpec = {
           }
         >
           {() => (
-            <div style={{ display: "flex", gap: "1rem", alignItems: "flex-start" }}>
+            /* `flexWrap`, or the three 7rem frames run 368px wide in a 284px
+               preview. They are being compared side by side, and a wrapped row
+               still compares them. */
+            <div
+              style={{
+                display: "flex",
+                flexWrap: "wrap",
+                gap: "1rem",
+                alignItems: "flex-start",
+              }}
+            >
               {(["1/1", "4/3", "9/16"] as const).map((r) => (
                 <AspectRatio
                   key={r}

@@ -92,14 +92,57 @@ for (const width of widths) {
   }
 
   /* Overflow is the defect class a screenshot catches and properties do not:
-     any element whose text is wider or taller than the box it sits in. */
+     any element whose text is wider or taller than the box it sits in.
+     `overflow: visible` is the first filter — an element that scrolls or clips
+     is doing so deliberately.
+
+     The second filter is an ancestor the USER CAN SCROLL, and without it this
+     cried wolf on real designs: a Code Block with `wrap={false}` scrolls at its
+     `<pre>` on purpose (an anatomy tree's aligned trailing `//` annotations ARE
+     its content), and the `<code>` and every `token-line` inside that `<pre>`
+     are then wider than their box with visible overflow — six flags per page
+     for one intended scroller. `Table`'s scroll area is the same.
+
+     `auto`/`scroll` ONLY, never `hidden`, and that distinction is the whole
+     thing: `hidden` clips, so content is being silently cut off, which is the
+     defect this check exists to find. A first pass excused any non-visible
+     ancestor and went green on the very bug it had just caught — the playground
+     control grid sits inside a `Card`, whose `overflow: hidden` clips media to
+     the corner radius, so "someone above handles it" was false. Verified in
+     both directions afterwards: reverted CSS fails, fixed CSS passes.
+
+     A scrollable ancestor counts whether or not IT currently measures as
+     overflowing. `overflow-x: auto` is an author saying "scroll this if it does
+     not fit", so anything inside is intended; requiring the ancestor to overflow
+     too left a Code Block's own `<code>` flagged under a `<pre>` that was
+     already handling it.
+
+     The third filter is an element with NO CHILDREN AND NO TEXT: it has nothing
+     that can be clipped, so a few pixels of difference there is the box model,
+     not content. `Slider`'s 18px thumb measured 22 — its 2px border each side —
+     and reported on every thumb on the page. */
   const overflowing = await page.evaluate((sel) => {
     const root = sel
       ? document.querySelector(`section[aria-labelledby="${sel}"], section[aria-label="${sel}"]`)
       : document.body;
     if (!root) return [];
+    const insideScroller = (el) => {
+      for (let p = el.parentElement; p && p !== root; p = p.parentElement) {
+        const { overflowX } = getComputedStyle(p);
+        if (overflowX === "auto" || overflowX === "scroll") return true;
+      }
+      return false;
+    };
+    /* Nothing inside to clip — see the note above on Slider's thumb. */
+    const empty = (el) => el.children.length === 0 && el.textContent.trim() === "";
     return [...root.querySelectorAll("*")]
-      .filter((el) => el.scrollWidth > el.clientWidth + 1 && getComputedStyle(el).overflow === "visible")
+      .filter(
+        (el) =>
+          el.scrollWidth > el.clientWidth + 1 &&
+          getComputedStyle(el).overflow === "visible" &&
+          !insideScroller(el) &&
+          !empty(el),
+      )
       .slice(0, 8)
       .map((el) => `${el.tagName.toLowerCase()}.${el.className || "(no class)"}`.slice(0, 70));
   }, section);

@@ -24,6 +24,8 @@
    from source") that a reader is meant to read, not skim past. */
 .docs-section-meta {
   margin: 0;
+  /* Generated prose too — same unbreakable-identifier risk as the lede. */
+  overflow-wrap: break-word;
   font-family: var(--primitiv-body-md-font-family);
   font-size: var(--primitiv-body-md-font-size);
   line-height: var(--primitiv-body-md-line-height);

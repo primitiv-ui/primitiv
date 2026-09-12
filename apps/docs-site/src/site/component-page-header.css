@@ -16,6 +16,17 @@
 
 .docs-component-lede {
   margin: 0;
+  /*
+   * This prose is GENERATED from source JSDoc, so it contains tokens no line
+   * break can fall inside: CheckboxCard's lede carries
+   * `unchecked/checked/indeterminate).` at 336px and CodeBlock's carries
+   * `(CodeBlock.Tabs/Header/List/Trigger/Content/Copy)` at 492px, against a
+   * 326px column — slashes and dots are not break opportunities. Each pushed the
+   * whole page wider than the viewport on a phone. `break-word` only breaks a
+   * word that cannot fit a line on its own, so ordinary prose is untouched, and
+   * it covers the next long identifier rather than waiting for it.
+   */
+  overflow-wrap: break-word;
   font-family: var(--primitiv-body-lg-font-family);
   font-size: var(--primitiv-body-lg-font-size);
   line-height: var(--primitiv-body-lg-line-height);

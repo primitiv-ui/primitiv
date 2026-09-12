@@ -12,12 +12,17 @@ const imports = (mode: Mode) =>
   importBlock({ mode, component: "Spacer", componentId: "spacer", registryOnly: true });
 
 /* A bordered flex row so the Spacer's effect — pushing its siblings to the two
-   ends — is legible. Demo chrome; the snippets show a plain flex `<div>`. */
+   ends — is legible. Demo chrome; the snippets show a plain flex `<div>`.
+   `overflowX: auto` because this demo cannot wrap and stay a demo: `Spacer`
+   distributes the leftover space of ONE row, so a wrapped bar shows nothing.
+   The three-group version needs ~327px and the preview is ~284px on a phone, so
+   the bar scrolls inside its own box rather than pushing the page. */
 const bar: CSSProperties = {
   display: "flex",
   alignItems: "center",
   gap: "0.5rem",
   width: "100%",
+  overflowX: "auto",
   padding: "var(--primitiv-space-space-8) var(--primitiv-space-space-12)",
   border: "var(--primitiv-border-width-1) solid var(--primitiv-border-subtle)",
   borderRadius: "var(--primitiv-radii-8)",

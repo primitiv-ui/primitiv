@@ -1,0 +1,203 @@
+/*
+ * DENSITY-01 — the live density demo. Tokens from the brief in
+ * docs/docs-site-home-copy.md §4.
+ */
+
+.docs-density-panel {
+  box-shadow: var(--primitiv-elevation-raised);
+}
+
+.docs-density-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--primitiv-space-space-16);
+}
+
+/* The control strip: radios at the start, the live readout at the end. It sits
+   OUTSIDE the stage, so it does not reflow with the dial — a strip that moved
+   while the content moved would make it hard to see which did what. */
+.docs-density-strip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--primitiv-space-space-16);
+}
+
+.docs-density-fieldset {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--primitiv-space-space-16);
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.docs-density-readout {
+  font-family: var(--primitiv-font-family-mono);
+  font-size: var(--primitiv-font-size-12);
+  color: var(--primitiv-content-muted);
+}
+
+/*
+ * The stage. `data-density` lands here and everything below resolves through
+ * the Context tier — geometry and type alike.
+ *
+ * FIXED height across all four modes, which the brief requires: a stage that
+ * resized would make the page jump on every change and hide the effect. Its
+ * two accepted consequences are stated in the brief and neither is a defect —
+ * Spacious scrolls internally, Dense leaves real space below the table.
+ */
+.docs-density-stage {
+  --docs-stage-height: 38rem;
+
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  gap: var(--primitiv-space-space-32);
+  block-size: var(--docs-stage-height);
+  overflow-y: auto;
+  background: var(--primitiv-surface-default);
+  border-radius: var(--primitiv-radii-8);
+  padding: var(--primitiv-space-space-16);
+}
+
+.docs-density-region {
+  display: flex;
+  flex-direction: column;
+  /* The one gap the stage itself owns. Everything inside the regions is the
+     components' own density-scaled spacing. */
+  gap: var(--primitiv-space-space-12);
+  min-inline-size: 0;
+}
+
+/* The region labels stay put; only the content between them reflows. Deliberately
+   NOT inside the density scope's type scale — they are chrome that names the two
+   halves, and a label that shrank with the dial would read as content. */
+.docs-density-region-label {
+  margin: 0;
+  font-family: var(--primitiv-overline-sm-font-family);
+  font-size: var(--primitiv-overline-sm-font-size);
+  font-weight: var(--primitiv-overline-sm-font-weight);
+  line-height: var(--primitiv-overline-sm-line-height);
+  letter-spacing: var(--primitiv-letter-spacing-wide);
+  text-transform: uppercase;
+  color: var(--primitiv-content-muted);
+}
+
+/*
+ * The editorial CTA sizes to its label. The region is a flex column, so a
+ * direct-child button stretched the full column and read as a full-width form
+ * submit rather than an article's "read more" — caught on a render at both
+ * extremes. Scoped to DIRECT children so the toolbar's Export button, which is
+ * nested a row deep, keeps its own cross-axis alignment; and the Table above it
+ * still fills the column, which it must.
+ */
+.docs-density-region > .primitiv-button {
+  align-self: start;
+}
+
+.docs-density-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--primitiv-space-space-8);
+}
+
+/* The editorial column's own type, all of it bound to the density-scaled
+   Context roles rather than to a fixed size — the Figma build's first pass set
+   these literally and froze the right-hand column while the left one reflowed,
+   in the one image whose job is to show both moving together. */
+.docs-density-overline {
+  margin: 0;
+  font-family: var(--primitiv-overline-sm-font-family);
+  font-size: var(--primitiv-overline-sm-font-size);
+  font-weight: var(--primitiv-overline-sm-font-weight);
+  line-height: var(--primitiv-overline-sm-line-height);
+  letter-spacing: var(--primitiv-letter-spacing-wide);
+  text-transform: uppercase;
+  color: var(--primitiv-action-link-foreground-default);
+}
+
+.docs-density-heading {
+  margin: 0;
+  font-family: var(--primitiv-heading-h3-font-family);
+  font-size: var(--primitiv-heading-h3-font-size);
+  font-weight: var(--primitiv-heading-h3-font-weight);
+  line-height: var(--primitiv-heading-h3-line-height);
+  letter-spacing: var(--primitiv-heading-h3-letter-spacing);
+  color: var(--primitiv-content-primary);
+}
+
+.docs-density-body {
+  margin: 0;
+  font-family: var(--primitiv-body-md-font-family);
+  font-size: var(--primitiv-body-md-font-size);
+  line-height: var(--primitiv-body-md-line-height);
+  color: var(--primitiv-content-secondary);
+}
+
+/*
+ * 200ms on the properties the dial actually moves, so a reader sees WHAT moved
+ * rather than only that something did. The brief caps it there — slower reads
+ * as a toy — and forbids autoplay, so there is no cycling.
+ *
+ * Through the SEMANTIC motion tier (`motion/duration-expand` is 200ms,
+ * `motion/easing-default`) rather than the raw primitives — the brief's
+ * "standard easing" names a role, and the role is what the system publishes.
+ */
+.docs-density-stage,
+.docs-density-stage * {
+  transition:
+    padding var(--primitiv-motion-duration-expand) var(--primitiv-motion-easing-default),
+    gap var(--primitiv-motion-duration-expand) var(--primitiv-motion-easing-default),
+    block-size var(--primitiv-motion-duration-expand) var(--primitiv-motion-easing-default),
+    border-radius var(--primitiv-motion-duration-expand) var(--primitiv-motion-easing-default),
+    font-size var(--primitiv-motion-duration-expand) var(--primitiv-motion-easing-default),
+    line-height var(--primitiv-motion-duration-expand) var(--primitiv-motion-easing-default);
+}
+
+/* Densities swap instantly; everything else unchanged and fully interactive —
+   the brief's own reduced-motion clause. */
+@media (prefers-reduced-motion: reduce) {
+  .docs-density-stage,
+  .docs-density-stage * {
+    transition: none;
+  }
+}
+
+/*
+ * Below 64rem the two regions stack, operations above editorial. BOTH stay:
+ * dropping one destroys the range argument, which is the entire point of the
+ * demo, and the brief forbids it above 36rem.
+ */
+@media (width < 64rem) {
+  .docs-density-stage {
+    grid-template-columns: minmax(0, 1fr);
+    block-size: auto;
+    max-block-size: var(--docs-stage-height);
+  }
+
+  /* A vertical rule between stacked regions would run the wrong way. */
+  .docs-density-seam {
+    display: none;
+  }
+}
+
+/* Below 36rem the table drops to three columns and the editorial region to one
+   paragraph — the brief's own reductions. All four radios stay on one row,
+   because the comparison depends on seeing the four options together. */
+@media (width < 36rem) {
+  .docs-density-col-updated {
+    display: none;
+  }
+
+  .docs-density-second-para {
+    display: none;
+  }
+
+  .docs-density-fieldset {
+    gap: var(--primitiv-space-space-8);
+  }
+}

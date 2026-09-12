@@ -1,0 +1,56 @@
+/*
+ * Home section 4's prose. The demo's own anatomy is in density-demo.css.
+ */
+
+.docs-density-para,
+.docs-density-links {
+  /* A named constant rather than a literal at the use site, following
+     `--docs-hero-lede-measure`: body text across a full `xl` container is
+     unreadable, and there is no token for a text measure. */
+  --docs-density-measure: 42rem;
+
+  margin: 0;
+  max-inline-size: var(--docs-density-measure);
+}
+
+.docs-density-para {
+  font-family: var(--primitiv-body-md-font-family);
+  font-size: var(--primitiv-body-md-font-size);
+  line-height: var(--primitiv-body-md-line-height);
+  color: var(--primitiv-content-secondary);
+}
+
+.docs-density-subheading {
+  margin: 0;
+  font-family: var(--primitiv-heading-h4-font-family);
+  font-size: var(--primitiv-heading-h4-font-size);
+  font-weight: var(--primitiv-heading-h4-font-weight);
+  line-height: var(--primitiv-heading-h4-line-height);
+  letter-spacing: var(--primitiv-heading-h4-letter-spacing);
+  color: var(--primitiv-content-primary);
+}
+
+.docs-density-link {
+  font-family: var(--primitiv-label-md-font-family);
+  font-size: var(--primitiv-label-md-font-size);
+  font-weight: var(--primitiv-label-md-font-weight);
+  line-height: var(--primitiv-label-md-line-height);
+  color: var(--primitiv-action-link-foreground-default);
+  text-decoration: none;
+}
+
+/* Drawn, not typed — a literal arrow is announced as "right arrow". */
+.docs-density-link::after {
+  content: " →";
+}
+
+.docs-density-link:hover {
+  color: var(--primitiv-action-link-foreground-hover);
+  text-decoration: underline;
+}
+
+.docs-density-link:focus-visible {
+  outline: var(--primitiv-border-width-2) solid var(--primitiv-focus-ring);
+  outline-offset: var(--primitiv-space-space-2);
+  border-radius: var(--primitiv-radii-4);
+}

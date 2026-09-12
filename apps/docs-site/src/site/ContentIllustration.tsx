@@ -86,6 +86,18 @@ const SIZES: Record<string, { desktop: string; mobile: string }> = manifest;
 
 export const hasIllustration = (id: string): boolean => id in SIZES && id in ALT;
 
+/**
+ * `"1264 / 328"` → `{ width: 1264, height: 328 }`.
+ *
+ * The manifest stores each measured size in `aspect-ratio` syntax, which is
+ * what it was first consumed as. The real pixel pair is what the DOM needs, and
+ * it is still the measured IHDR — the same two integers, not a derived ratio.
+ */
+const dimensions = (ratio: string) => {
+  const [width, height] = ratio.split("/").map((n) => Number(n.trim()));
+  return { width, height };
+};
+
 export const ContentIllustration = ({ id }: { id: string }) => {
   const [theme] = useDocsTheme();
   const size = SIZES[id];
@@ -94,6 +106,9 @@ export const ContentIllustration = ({ id }: { id: string }) => {
 
   const src = (breakpoint: "desktop" | "mobile") =>
     `/illustrations/${id.toLowerCase()}-${breakpoint}-${theme}.png`;
+
+  const desktop = dimensions(size.desktop);
+  const mobile = dimensions(size.mobile);
 
   /*
    * `<picture>` for the breakpoint, the theme in `src`, and that division is
@@ -106,21 +121,38 @@ export const ContentIllustration = ({ id }: { id: string }) => {
    * column becomes the full width, which is the point at which every one of
    * these briefs asks for its stacked composition.
    *
-   * `aspect-ratio` per source, from the measured file, so the box is reserved
-   * before the image loads and the two compositions do not share one shape —
-   * the mobile recomposition is a different drawing, not a scaled one.
+   * **The two shapes are carried as `width`/`height` ATTRIBUTES, per source,
+   * and that is not interchangeable with a style.** An earlier version put
+   * `style={{ aspectRatio }}` on the `<source>`, which does nothing at all: a
+   * `<source>` is not a rendered element, so it has no box for CSS to shape.
+   * Only the `<img>` renders, so every mobile composition was laid out at the
+   * DESKTOP ratio — `start-01-mobile` is 684x816 and painted into a 326x85 box,
+   * squashed by 4.6x. Nothing errors, the right FILE is fetched, and the
+   * `<source>` carries a plausible-looking aspect-ratio in the DOM, which is
+   * what made it survive review; it took measuring `naturalWidth/naturalHeight`
+   * against the rendered rect to see it. It also could not surface before the
+   * art landed, because the stand-ins were two copies of one file.
+   *
+   * `width`/`height` on a `<source>` are the platform's own art-direction
+   * mechanism: the selected source's pair becomes the `<img>`'s intrinsic
+   * aspect ratio, so the box is reserved before load AND each composition keeps
+   * its own shape. The stylesheet's `inline-size: 100%` + `block-size: auto` is
+   * what lets that ratio scale to the column — do not add a CSS `aspect-ratio`
+   * back, it would override the source that won.
    */
   return (
     <picture>
       <source
         media="(width < 64rem)"
         srcSet={src("mobile")}
-        style={{ aspectRatio: size.mobile }}
+        width={mobile.width}
+        height={mobile.height}
       />
       <img
         className="docs-themed-image"
-        style={{ aspectRatio: size.desktop }}
         src={src("desktop")}
+        width={desktop.width}
+        height={desktop.height}
         alt={alt}
       />
     </picture>

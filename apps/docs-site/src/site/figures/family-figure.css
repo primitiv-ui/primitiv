@@ -1,0 +1,95 @@
+/*
+ * FAMILY-01 — the parts, and the tokens they all rest on.
+ *
+ * EVERY value resolves a `--primitiv-*` token. `scripts/check-tokens.mjs`
+ * enforces that and forbids inline styling in this folder.
+ */
+
+.docs-family {
+  gap: var(--primitiv-stack-gap-md);
+}
+
+/*
+ * Two shared rows — boxes, then notes — via `subgrid`, so every box is the same
+ * height and every note starts on the same line however long the text wraps.
+ * A flex column per part cannot do this: each part would be equal in TOTAL
+ * height, and the one whose note wraps to two lines would silently get a
+ * shorter box. Measured: the middle box came out 41px shorter than its
+ * neighbours before this.
+ */
+.docs-family__row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: 1fr auto;
+  gap: var(--primitiv-stack-gap-md) var(--primitiv-stack-gap-md);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.docs-family__part {
+  display: grid;
+  grid-row: span 2;
+  grid-template-rows: subgrid;
+  gap: var(--primitiv-flow-tight);
+  min-inline-size: 0;
+}
+
+/*
+ * The three part boxes are equal height and centred, so the row reads as three
+ * peers. `flex: 1` on the box rather than the item, so the note below each one
+ * sits at a common baseline however long the name wraps.
+ */
+.docs-family__box {
+  justify-content: center;
+  text-align: center;
+  font-family: var(--primitiv-label-md-font-family);
+  font-size: var(--primitiv-label-md-font-size);
+  font-weight: var(--primitiv-label-md-font-weight);
+  line-height: var(--primitiv-label-md-line-height);
+  color: var(--primitiv-content-primary);
+}
+
+.docs-family__gives {
+  text-align: center;
+}
+
+/* Full width under all three — the layout IS the argument that the tokens are
+   the foundation rather than a fourth sibling. */
+.docs-family__band {
+  align-items: center;
+  text-align: center;
+  font-family: var(--primitiv-heading-h4-font-family);
+  font-size: var(--primitiv-heading-h4-font-size);
+  font-weight: var(--primitiv-heading-h4-font-weight);
+  line-height: var(--primitiv-heading-h4-line-height);
+  color: var(--primitiv-content-primary);
+}
+
+/*
+ * Harmoni feeds the band from below and from the left, not from the centre:
+ * it is one input to the tokens, not their container. The arrow points UP,
+ * which is the direction the dependency runs.
+ */
+.docs-family__feed {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  inline-size: fit-content;
+}
+
+.docs-family__engine {
+  align-items: center;
+  text-align: center;
+}
+
+@media (width < 48rem) {
+  .docs-family__row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* Centred once stacked, so the up-arrow still lands under the band. */
+  .docs-family__feed {
+    align-self: center;
+  }
+}

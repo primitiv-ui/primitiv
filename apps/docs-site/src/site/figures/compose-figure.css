@@ -1,0 +1,74 @@
+/*
+ * COMPOSE-01 — the DOM with and without `asChild`.
+ *
+ * EVERY value resolves a `--primitiv-*` token. `scripts/check-tokens.mjs`
+ * enforces that and forbids inline styling in this folder.
+ */
+
+.docs-compose {
+  gap: var(--primitiv-flow-region);
+}
+
+/*
+ * Both cases are drawn identically — same code, same arrow, same box — so the
+ * only visible difference is the nesting. Any styling that distinguished the
+ * two halves would do the comparison's work for the reader and weaken it.
+ */
+.docs-compose__case {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  gap: var(--primitiv-flow-tight);
+}
+
+/*
+ * Stripped back to bare text. `primitiv-base.css` styles a bare `<pre>` as a
+ * prose code block — surface, padding, radius — which is right on a page and
+ * wrong inside a diagram: it gave the snippet the same filled-box treatment as
+ * the DOM result below it, so the two read as a pair of equal boxes rather than
+ * as "this code produces that DOM".
+ */
+.docs-compose__code {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-family: var(--primitiv-font-family-mono);
+  font-size: var(--primitiv-font-size-12);
+  line-height: var(--primitiv-body-sm-line-height);
+  color: var(--primitiv-content-secondary);
+  overflow-x: auto;
+  max-inline-size: 100%;
+  scrollbar-width: none;
+}
+
+/* The arrow is centred on the box below it rather than on the code above,
+   because it points AT the result. */
+.docs-compose__case .docs-figure__arrow {
+  align-self: center;
+}
+
+.docs-compose__dom {
+  inline-size: 100%;
+  gap: var(--primitiv-space-space-8);
+}
+
+.docs-compose__tag {
+  margin: 0;
+  font-family: var(--primitiv-font-family-mono);
+  font-size: var(--primitiv-font-size-12);
+  line-height: var(--primitiv-body-sm-line-height);
+  color: var(--primitiv-content-primary);
+}
+
+/*
+ * The nested tag is drawn as a box INSIDE the box, which is the whole content
+ * of the invalid case — an indent alone would read as formatting rather than
+ * as containment.
+ */
+.docs-compose__tag--nested {
+  border: var(--primitiv-border-width-1) solid var(--primitiv-border-default);
+  border-radius: var(--primitiv-radii-8);
+  padding: var(--primitiv-space-space-8) var(--primitiv-space-space-12);
+  background: var(--primitiv-surface-default);
+}

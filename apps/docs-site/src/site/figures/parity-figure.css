@@ -1,0 +1,118 @@
+/*
+ * FIGMA-P02 — one source, two arms of identical weight.
+ *
+ * EVERY value resolves a `--primitiv-*` token. `scripts/check-tokens.mjs`
+ * enforces that and forbids inline styling in this folder.
+ */
+
+.docs-parity {
+  gap: 0;
+  align-items: center;
+}
+
+.docs-parity__source {
+  align-items: center;
+  text-align: center;
+  inline-size: 100%;
+}
+
+/*
+ * The fork. `preserveAspectRatio: none` lets one path stretch to whatever width
+ * the two arms end up at, and `vector-effect` keeps the stroke a true hairline
+ * while it does — so the shoulders always meet the arms without a second asset
+ * or a measured width.
+ */
+.docs-parity__fork {
+  inline-size: 100%;
+  block-size: var(--primitiv-space-space-32);
+  color: var(--primitiv-border-default);
+}
+
+/*
+ * Two arms, equal by construction. Unequal columns would say one of them is the
+ * source — which is exactly the misreading this figure exists to prevent.
+ */
+/*
+ * Two shared rows via `subgrid` — box, then token name — so both boxes are the
+ * same height and both names start on the same line. The same defect FAMILY-01
+ * hit: a flex column per arm makes the arms equal in TOTAL height, so whichever
+ * name wraps further silently shortens its own box, and "identical weight" —
+ * the entire claim of this figure — stops being true.
+ */
+.docs-parity__arms {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: 1fr auto;
+  gap: var(--primitiv-stack-gap-md);
+  inline-size: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.docs-parity__arm {
+  display: grid;
+  grid-row: span 2;
+  grid-template-rows: subgrid;
+  /* The arm's OWN column must be constrained too. `min-inline-size: 0` keeps
+     the arm inside its track, but its implicit column defaults to `auto`, so
+     the children laid out at max-content (180px inside a 142px arm) and spilled
+     — visible only inside the narrow paired column on /figma/. */
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--primitiv-space-space-8);
+  min-inline-size: 0;
+}
+
+.docs-parity__box {
+  justify-content: center;
+  text-align: center;
+  font-family: var(--primitiv-body-md-font-family);
+  font-size: var(--primitiv-body-md-font-size);
+  line-height: var(--primitiv-body-md-line-height);
+  color: var(--primitiv-content-primary);
+}
+
+/*
+ * The token names wrap rather than scroll: they are being read, not copied, and
+ * a truncated token name is unreadable in a way a wrapped one is not.
+ *
+ * `break-word`, NOT `anywhere`: `anywhere` broke `action/primary/default` as
+ * `action/primar` + `y/default`, splitting a path segment mid-word. `break-word`
+ * takes the slash and hyphen break opportunities first and only splits a word
+ * when there is no alternative.
+ */
+.docs-parity__token {
+  /*
+   * BLOCK, overriding the chip's own `inline-flex`. An inline-flex box sizes to
+   * max-content, so as a grid item it ignored its `minmax(0, 1fr)` track and
+   * the left token name ran underneath the right-hand column. A block box
+   * wraps its text to the track, and the swatch rides along as an inline-block
+   * — which is also why the swatch is not a flex child any more.
+   */
+  display: block;
+  overflow-wrap: break-word;
+}
+
+.docs-parity__token .docs-parity__swatch {
+  display: inline-block;
+  margin-inline-end: var(--primitiv-space-space-8);
+  /* Sits on the text's own baseline rather than the line box's, so it tracks
+     the mono type if that scale ever moves. */
+  vertical-align: baseline;
+}
+
+/*
+ * A real token-coloured square, so it follows a palette regeneration like every
+ * other colour on the page — a picture of a swatch would not.
+ */
+.docs-parity__swatch {
+  flex: none;
+  inline-size: var(--primitiv-space-space-12);
+  block-size: var(--primitiv-space-space-12);
+  border-radius: var(--primitiv-radii-2);
+  background: var(--primitiv-action-primary-default);
+}
+
+.docs-parity .docs-figure__caption {
+  margin-block-start: var(--primitiv-flow-normal);
+}

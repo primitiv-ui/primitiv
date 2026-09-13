@@ -68,3 +68,90 @@
   line-height: var(--primitiv-body-sm-line-height);
   color: var(--primitiv-content-muted);
 }
+
+/*
+ * ── The shared diagram vocabulary ─────────────────────────────────────────
+ *
+ * Four of the ten frames draw the same three things: a filled panel (a part of
+ * the system), a bordered mono chip (a name you would type or see), and a
+ * connector between them. They are here rather than repeated per figure so the
+ * set reads as one diagram language — a reader who has learnt "filled box = a
+ * part, outlined mono box = a name" on Start Here carries it to every other
+ * page.
+ */
+
+.docs-figure__panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--primitiv-flow-tight);
+  border: var(--primitiv-border-width-1) solid var(--primitiv-border-default);
+  border-radius: var(--primitiv-radii-12);
+  padding: var(--primitiv-space-space-20);
+  background: var(--primitiv-surface-subtle);
+  min-inline-size: 0;
+}
+
+/*
+ * The emphasised panel — the tokens tier, the one thing everything else rests
+ * on.
+ *
+ * `action/primary/soft` (a brand-alpha step), NOT `feedback/info/soft`. The
+ * first pass reached for the info role because "a tinted panel carrying
+ * information" reads right in prose — but `info` is a TEAL ramp in this
+ * palette, so the band rendered cyan against a frame that draws it brand-blue.
+ * The role has to be picked by what the colour means here (this is the brand's
+ * own foundation) rather than by which role name sounds apt.
+ */
+.docs-figure__panel--accent {
+  background: var(--primitiv-action-primary-soft);
+  /* Borderless, as the frames draw it — the tint alone carries the emphasis,
+     and a brand-strength stroke around it competed with the panels above.
+     `transparent` rather than `border: none` so the box keeps the same metrics
+     as every other panel and the row stays aligned. */
+  border-color: transparent;
+}
+
+/*
+ * A name you would type or read: a package, a command, a token, a tag. Outlined
+ * on the page surface so it reads as a label ON a panel rather than as another
+ * panel — the distinction the whole vocabulary rests on.
+ */
+.docs-figure__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--primitiv-space-space-8);
+  border: var(--primitiv-border-width-1) solid var(--primitiv-border-default);
+  border-radius: var(--primitiv-radii-8);
+  padding: var(--primitiv-space-space-8) var(--primitiv-space-space-12);
+  background: var(--primitiv-surface-default);
+  font-family: var(--primitiv-font-family-mono);
+  font-size: var(--primitiv-font-size-12);
+  line-height: var(--primitiv-body-sm-line-height);
+  color: var(--primitiv-content-primary);
+}
+
+/* A connector. One asset, pointing down; `--up` turns it. Colour comes from the
+   cascade (`stroke="currentColor"`), so one SVG serves both themes. */
+.docs-figure__arrow {
+  block-size: var(--primitiv-space-space-32);
+  inline-size: auto;
+  color: var(--primitiv-content-muted);
+}
+
+.docs-figure__arrow--up {
+  rotate: 180deg;
+}
+
+/* A note under a panel — what the part above it gives you. */
+.docs-figure__note {
+  margin: 0;
+  font-family: var(--primitiv-body-sm-font-family);
+  font-size: var(--primitiv-body-sm-font-size);
+  line-height: var(--primitiv-body-sm-line-height);
+  color: var(--primitiv-content-muted);
+}
+
+/* The one place a figure carries a warning colour: COMPOSE-01's invalid DOM. */
+.docs-figure__note--warning {
+  color: var(--primitiv-feedback-warning-soft-foreground);
+}

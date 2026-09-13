@@ -2,8 +2,12 @@ import type { ComponentType } from "react";
 
 import { A11yC01 } from "./A11yC01";
 import { Cli01 } from "./Cli01";
+import { Compose01 } from "./Compose01";
 import { DensityC01 } from "./DensityC01";
 import { DensityC02 } from "./DensityC02";
+import { Family01 } from "./Family01";
+import { FigmaP02 } from "./FigmaP02";
+import { Start01 } from "./Start01";
 
 /**
  * The content-page figures, keyed by the brief id the Figma frames carry.
@@ -34,8 +38,12 @@ import { DensityC02 } from "./DensityC02";
 export const FIGURES: Record<string, ComponentType> = {
   "A11Y-C01": A11yC01,
   "CLI-01": Cli01,
+  "COMPOSE-01": Compose01,
   "DENSITY-C01": DensityC01,
   "DENSITY-C02": DensityC02,
+  "FAMILY-01": Family01,
+  "FIGMA-P02": FigmaP02,
+  "START-01": Start01,
 };
 
 export const hasFigure = (id: string): boolean => id in FIGURES;

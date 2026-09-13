@@ -3167,14 +3167,19 @@ pair of equal boxes rather than as "this code produces that DOM". Stripped back.
 
 #### Open
 
+*(All three closed or corrected by §6.0.31, later the same day — the first two
+done, the third re-counted.)*
+
 - **TOKENS-01** is not built, pending which note was meant (§6.0.29's first open
-  question).
+  question). — *Built; the three decisions are in §6.0.31.*
 - **The sweep is not done.** The 32 PNGs for the eight migrated ids are still
   committed and still in the manifest — `check:illustrations` requires all four
   files per id, so they come out together once TOKENS-01 lands, leaving
   `gen-illustrations.mjs`, the manifest and `<picture>` serving FIGMA-P01 alone.
+  — *Done: 36 files, 1.5 MB.*
 - **`src/site/examples/`'s 26 inline styles** remain, and the gate remains
-  scoped away from them.
+  scoped away from them. — *26 was a narrow filter; the real count is 45 JSX
+  styles across 21 files, plus 32 inside displayed code strings.*
 
 ### 6.0.31 TOKENS-01 lands and the raster path comes down (2026-09-13)
 

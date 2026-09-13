@@ -10,7 +10,7 @@ import {
   TableRow,
   TableScrollArea,
 } from "@/components/table";
-import { importBlock, partNamer } from "@/lib/playground";
+import { contractAttr, importBlock, partNamer } from "@/lib/playground";
 import { InteractiveExample } from "@/site/InteractiveExample";
 import type { Mode } from "@/site/preferences";
 import type { ComponentSpec } from "./types";
@@ -62,7 +62,9 @@ const tableLines = (
   { attrs = "", alignCommits = false, caption }: { attrs?: string; alignCommits?: boolean; caption?: string } = {},
 ): string[] => {
   const t = partNamer(mode, "Table");
-  const a = alignCommits ? ' align="end"' : "";
+  // `align` is a styled-layer prop (headless has only the native deprecated
+  // attribute), so it drops under Headless like size/rows.
+  const a = alignCommits ? contractAttr({ mode, prop: "align", value: "end" }) : "";
   return [
     `<${t("Root")}${attrs}>`,
     ...(caption ? [`  <${t("Caption")}>${caption}</${t("Caption")}>`] : []),
@@ -110,7 +112,17 @@ export const tableSpec: ComponentSpec = {
     excludeControls: ["align"],
     fill: true,
     snippet: (values, mode) =>
-      [imports(mode), ``, ...tableLines(mode, { attrs: ` size="${values.size}" rows="${values.rows}"` })].join("\n"),
+      [
+        imports(mode),
+        ``,
+        ...tableLines(mode, {
+          attrs: `${contractAttr({ mode, prop: "size", value: values.size })}${contractAttr({
+            mode,
+            prop: "rows",
+            value: values.rows,
+          })}`,
+        }),
+      ].join("\n"),
     render: (values) => <DataTable size={values.size as Size} rows={values.rows as Rows} />,
   },
 
@@ -183,7 +195,9 @@ export const tableSpec: ComponentSpec = {
         <InteractiveExample
           caption="`rows=&quot;striped&quot;` on the root shades alternate body rows, which helps the eye track across a wide or dense table. It is purely visual — the stripes carry no meaning and are not announced — so reach for it when scanning is hard, not as decoration on a three-row table."
           code={(_density, mode) =>
-            [imports(mode), ``, ...tableLines(mode, { attrs: ` rows="striped"` })].join("\n")
+            [imports(mode), ``, ...tableLines(mode, { attrs: contractAttr({ mode, prop: "rows", value: "striped" }) })].join(
+              "\n",
+            )
           }
         >
           {() => <DataTable rows="striped" />}

@@ -5,6 +5,7 @@
 // each carried a `tabs/styles.css` import. `code-block.tsx` now declares the
 // dependency itself (`import "./tabs"`), so both workarounds are gone.
 import { CodeBlock } from "@/components/code-block";
+import { mergeImports } from "@/lib/playground";
 import { type Mode, useHeadlessAvailable, useMode } from "@/site/preferences";
 
 /**
@@ -86,7 +87,7 @@ export const ModeCodeBlock = ({
           key={t.value}
           value={t.value}
           language="tsx"
-          code={code(t.value)}
+          code={mergeImports(code(t.value))}
         />
       ))}
     </CodeBlock.Tabs>

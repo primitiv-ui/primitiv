@@ -335,3 +335,54 @@ export const toJsx = ({
  */
 export const stackImports = (mode: Mode): string =>
   importBlock({ mode, component: "Stack", componentId: "stack", registryOnly: true });
+
+/**
+ * Collapse `import { … } from "X"` statements that share a module into one.
+ *
+ * A snippet composing two headless components calls `importBlock` once per
+ * component, so it emits `import { Field } from "@primitiv-ui/react"` AND
+ * `import { RadioCard } from "@primitiv-ui/react"` — two statements from a single
+ * package that no one would ever hand-write. This merges same-source named
+ * imports, keeping the first-seen order of both the modules and the symbols
+ * within each, and leaves every other line (comments, blanks, the body,
+ * default/namespace/side-effect imports) exactly where it is.
+ *
+ * Applied once, centrally, in `ModeCodeBlock` — the choke point every page's
+ * code blocks flow through — so no spec has to think about it.
+ */
+export const mergeImports = (code: string): string => {
+  const named = /^import\s*\{([^}]*)\}\s*from\s*"([^"]+)";?\s*$/;
+  const homeIndex = new Map<string, number>();
+  const symbols = new Map<string, string[]>();
+  const drop = new Set<number>();
+  const lines = code.split("\n");
+
+  lines.forEach((line, i) => {
+    const m = line.match(named);
+    if (!m) return;
+    const [, group, source] = m;
+    if (!homeIndex.has(source)) {
+      homeIndex.set(source, i);
+      symbols.set(source, []);
+    } else {
+      // A later statement from a module already given a home line — fold its
+      // symbols into that line and remove this one.
+      drop.add(i);
+    }
+    const list = symbols.get(source)!;
+    for (const sym of group.split(",").map((s) => s.trim()).filter(Boolean)) {
+      if (!list.includes(sym)) list.push(sym);
+    }
+  });
+
+  return lines
+    .flatMap((line, i) => {
+      if (drop.has(i)) return [];
+      const m = line.match(named);
+      if (m && homeIndex.get(m[2]) === i) {
+        return [`import { ${symbols.get(m[2])!.join(", ")} } from "${m[2]}";`];
+      }
+      return [line];
+    })
+    .join("\n");
+};

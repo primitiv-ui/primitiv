@@ -81,6 +81,17 @@ export const REGISTRY = {
     contract: "registry/components/tag/contract.json",
     figmaComponentSetKey: "1390:32648", importPath: "@/components/ui/tag",
   },
+  chip: {
+    displayName: "Chip", kind: "registry-only", status: "stable", category: "Data Display",
+    /* Hand-authored and interactive (the remove button), but still primitive-less
+       — props in the copied file. */
+    propsFile: "registry/components/chip/chip.tsx",
+    subComponents: [
+      { name: "Chip", propsType: "ChipProps", element: "span", component: "Chip" },
+    ],
+    contract: "registry/components/chip/contract.json",
+    figmaComponentSetKey: "1390:32827", importPath: "@/components/ui/chip",
+  },
   button: {
     displayName: "Button", kind: "registry", status: "stable", category: "Buttons",
     propsFile: "packages/react/src/Button/types.ts",

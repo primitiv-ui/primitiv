@@ -6,6 +6,7 @@ import { alertSpec } from "./alert";
 import { avatarSpec } from "./avatar";
 import { avatarGroupSpec } from "./avatar-group";
 import { badgeSpec } from "./badge";
+import { chipSpec } from "./chip";
 import { tagSpec } from "./tag";
 import { buttonSpec } from "./button";
 import { inputSpec } from "./input";
@@ -59,6 +60,7 @@ export const SPECS: Record<ComponentId, ComponentSpec> = {
   avatar: avatarSpec,
   "avatar-group": avatarGroupSpec,
   badge: badgeSpec,
+  chip: chipSpec,
   tag: tagSpec,
   button: buttonSpec,
   input: inputSpec,

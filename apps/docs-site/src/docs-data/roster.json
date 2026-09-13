@@ -116,7 +116,7 @@
     "displayName": "Chip",
     "category": "Data Display",
     "description": "An interactive, removable label chip — filter bars, multi-select fields, inputs. The trailing remove button is core to the anatomy, not optional; an optional leading icon or avatar may precede the label. Sized xs–xl; `data-density` scales each size further.",
-    "documented": false
+    "documented": true
   },
   {
     "id": "code-block",

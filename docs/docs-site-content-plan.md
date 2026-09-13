@@ -3055,3 +3055,123 @@ discipline the component work already uses.
 - **Whether to ship before the rebuild.** The 40 frames still carry their export
   settings, so flipping them to 4x is one bridge call and one more click — worth
   it only if the deploy cannot wait, otherwise it is throwaway work.
+
+### 6.0.30 Eight of the nine figures are DOM now (2026-09-13)
+
+§6.0.29's decision, built. `src/site/figures/` holds **DENSITY-C01**,
+**DENSITY-C02**, **A11Y-C01**, **CLI-01**, **START-01**, **FAMILY-01**,
+**FIGMA-P02** and **COMPOSE-01**; TOKENS-01 is held on an open question and
+FIGMA-P01 stays raster for good. `qa` is green and `render-check` passes all
+eight content routes at 320/390/768/1280 in both schemes.
+
+**The renderer swap was the whole integration**, exactly as §6.0.29 predicted.
+`ContentIllustration` looks up `FIGURES[id]` and falls back to the PNGs when
+there is none, so each id migrated on its own with no state where a page had a
+hole. Nothing in `docs-content-pages.js`, the generated JSON, the verifier, the
+paired-row logic or the Prose/Stack split was touched.
+
+#### The inline-style gate, and why it is scoped
+
+`scripts/check-tokens.mjs` gained **rule 4**: inside `src/site/figures/`, the
+only inline style permitted is one whose every key declares a **custom
+property**. That admits the legitimate case — engine or measured data reaching
+CSS through a named property, as `HueDrift` already does — and rejects the rest,
+so every real declaration lives in a stylesheet where rules 1–3 can see it.
+Verified in both directions before being trusted.
+
+**Deliberately scoped to `figures/`, not the app.** `src/site/examples/` carries
+**26 bare-length inline styles across 15 files** (measured) and is the surface
+under active development by the component-page work; widening the gate today
+would fail the build on work in flight rather than on anything the rule exists
+to prevent. It is also why the rule is *custom-properties-only* rather than a
+bare-length check: no regex over source text can reliably tell a real
+`style={{ … }}` from the identical characters inside a code sample a page is
+**displaying**, and the examples folder is full of the latter.
+
+#### One diagram vocabulary, in `figure-chrome.css`
+
+Four frames independently drew the same three things, so they are shared rather
+than repeated: a **panel** (a part of the system; `--accent` for the tokens
+tier), an outlined **mono chip** (a name you would type or see), and one
+**connector** SVG on `currentColor`. A reader who learns "filled box = a part,
+outlined mono box = a name" on Start Here carries it everywhere, and there is
+one arrow asset instead of eight PNG variants of one.
+
+#### Nine defects that only a render caught
+
+Not one was visible to `typecheck`, the token gate, or reading the code. Worth
+keeping as a set, because the pattern is the point:
+
+1. **`data-density` on the wrong element.** Put on the column rather than an
+   inner wrapper, it scaled the mode labels and captions too (`overline/*` is
+   density-scaled): "DENSE" rendered smaller than "SPACIOUS". The frame has them
+   constant. **The comment claimed they were outside the scope while the markup
+   put them inside** — prose and code disagreed and only pixels arbitrated.
+2. **A 1px rule column.** A11Y-C01's rotated "the line" label overflowed its own
+   1px-wide column and painted over three rows of the right-hand list. Fixed by
+   drawing the line as a centred *background*, so the column sizes to the label.
+3. **`1fr auto 1fr` gave the arrow column too much**, squeezing CLI-01's repo
+   zone until every file chip overflowed it and both headings wrapped.
+4. **A rotated arrow pointing sideways.** `rotate: 180deg` on a left-pointing
+   arrow is a RIGHT-pointing arrow; the comment said "must point DOWN". `-90deg`
+   is the quarter turn — and it needs a box sized to the rotated extent, because
+   `rotate` does not change the layout box.
+5. **…and then the wrong element ordered.** Ordering only the repo zone left the
+   arrow stranded *above* the npm zone, pointing into its own source.
+6. **A semantic role picked by its name.** `feedback/info/soft/background` reads
+   right in prose for "a tinted panel carrying information" — but `info` is a
+   **teal** ramp in this palette, so the token band rendered cyan against a
+   brand-blue frame. **Pick the role by what the colour means here**, not by
+   which name sounds apt. (`action/primary/soft`.)
+7. **Unequal boxes from a flex column.** A flex column per item makes items equal
+   in TOTAL height, so the one whose note wraps to two lines silently gets a
+   shorter box — 41px shorter, measured. Hit FAMILY-01 and then FIGMA-P02, where
+   it broke the figure's entire claim, since "two arms of identical weight" is
+   false if one box is shorter. `subgrid` is the fix in both.
+8. **A fork drawn wider than what it forks into.** Shoulders at 10%/90% of the
+   viewBox instead of 25%/75% — the arm centres.
+9. **`inline-flex` ignoring its grid track.** An inline-flex chip sizes to
+   max-content, so it ran under the neighbouring column — and `min-inline-size: 0`
+   on the arm was not enough, because the arm's own **implicit** grid column
+   defaults to `auto`. Both had to be constrained. Visible only inside the narrow
+   paired column on `/figma/`.
+
+Plus one that is not a defect but a trap worth naming: **`primitiv-base.css`
+styles a bare `<pre>`** as a prose code block, which gave COMPOSE-01's snippet
+the same filled-box treatment as the DOM result below it — so the two read as a
+pair of equal boxes rather than as "this code produces that DOM". Stripped back.
+
+#### Two things the DOM does that the raster could not
+
+- **DENSITY-C01's captions are measured.** `useControlMetrics` reads
+  `getComputedStyle` off the rendered input, so each column reports
+  `24px · r4 / 32px · r6 / 40px · r8 / 48px · r8` — identical to the frame, but
+  *derived*. Printing those as literals would assert the token scale; reading
+  them off the control demonstrates it, and cannot drift when
+  `framed-control/{size}/height` moves. Same rule §6.0.10 settled for the Figma
+  captions and `gen-illustrations.mjs` for the PNG dimensions.
+- **A11Y-C01 is eleven real list items in two named lists.** On the accessibility
+  page specifically, a screen-reader user gets "list, 5 items" and can navigate
+  it, where the PNG offered one sentence of alt text for the lot. Every figure's
+  headings are `<p>` with the region `aria-labelledby` them, so the relationship
+  a heading would give exists without putting one into the page outline.
+
+#### Deliberate divergences from the frames
+
+- **START-01's longest command wraps to two lines** where the frame keeps it on
+  one. Left wrapping rather than given a scroll container: a command a reader is
+  meant to *read* is worse truncated than wrapped.
+- **The accent panel is borderless**, as the frames draw it —
+  `border-color: transparent` rather than `border: none`, so it keeps the same
+  metrics as every other panel and rows stay aligned.
+
+#### Open
+
+- **TOKENS-01** is not built, pending which note was meant (§6.0.29's first open
+  question).
+- **The sweep is not done.** The 32 PNGs for the eight migrated ids are still
+  committed and still in the manifest — `check:illustrations` requires all four
+  files per id, so they come out together once TOKENS-01 lands, leaving
+  `gen-illustrations.mjs`, the manifest and `<picture>` serving FIGMA-P01 alone.
+- **`src/site/examples/`'s 26 inline styles** remain, and the gate remains
+  scoped away from them.

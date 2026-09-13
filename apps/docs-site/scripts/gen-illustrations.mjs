@@ -1,18 +1,30 @@
 /*
- * Measures the content-page illustrations and writes their manifest.
+ * Measures the one remaining raster content-page illustration and writes its
+ * manifest.
  *
  *   node scripts/gen-illustrations.mjs           # write
  *   node scripts/gen-illustrations.mjs --check   # fail if the committed file is stale
  *   node scripts/gen-illustrations.mjs --report  # what is present, what is missing
  *
- * Why measured rather than declared: every one of these ten has a brief that
- * states a ratio, and three of them were built at a different size — the briefs'
- * ratios were written before the content existed and the content won (§6.0.5,
- * §6.0.6, §6.0.8 of docs/docs-site-content-plan.md). A number typed in here
- * would be the fourth opinion about each image's shape. The PNG's own IHDR is
- * the only one that cannot be wrong, and reading it needs no dependency: the
- * header is a fixed 8-byte signature then a length, "IHDR", and two big-endian
- * 32-bit integers.
+ * **This used to cover all ten, and now covers one** (plan §6.0.31). Nine were
+ * rebuilt as DOM figures under `src/site/figures/` and their thirty-six exports
+ * deleted: a PNG of mostly-small-text reads soft beside the browser-rendered
+ * text next to it at any export scale, and nine of the ten were drawings of
+ * things the design system renders natively. FIGMA-P01 stays raster for good —
+ * it is a screenshot of the Figma UI, which the DOM cannot reproduce and
+ * should not try to.
+ *
+ * The file is kept whole rather than inlined into one constant because the one
+ * that remains still needs exactly what it does, and because a second genuine
+ * screenshot (the home page's FIGMA-01 retake) would join it here.
+ *
+ * Why measured rather than declared: every one of these had a brief that stated
+ * a ratio, and three were built at a different size — the briefs' ratios were
+ * written before the content existed and the content won (§6.0.5, §6.0.6,
+ * §6.0.8). A number typed in here would be another opinion about the image's
+ * shape. The PNG's own IHDR is the only one that cannot be wrong, and reading
+ * it needs no dependency: the header is a fixed 8-byte signature then a length,
+ * "IHDR", and two big-endian 32-bit integers.
  *
  * The ratio is scale-independent, so it does not matter whether the export is
  * 1x or 2x — which is deliberate, because the site sizes these to the column
@@ -33,24 +45,18 @@ const ART = resolve(here, "../public/illustrations");
 const OUT = resolve(here, "../src/content/illustrations.generated.json");
 
 /**
- * The ten content-page illustrations, in page order.
+ * The content-page illustrations that are still rasters.
  *
- * The ids are the brief ids the Figma frames carry, so a file name and a canvas
+ * The id is the brief id the Figma frame carries, so a file name and a canvas
  * frame can be matched by eye. Lowercased for the file name, matching the
  * home page's `a11y-01-*` and `figma-01-*` assets.
+ *
+ * Adding an id back here is a regression, not a feature: a diagram built in
+ * Figma and exported cannot follow the theme, the density, or a palette
+ * regeneration, and its type never matches the page's. Build it under
+ * `src/site/figures/` instead. Only a genuine screenshot belongs here.
  */
-export const IDS = [
-  "START-01",
-  "FAMILY-01",
-  "TOKENS-01",
-  "DENSITY-C01",
-  "DENSITY-C02",
-  "COMPOSE-01",
-  "A11Y-C01",
-  "CLI-01",
-  "FIGMA-P01",
-  "FIGMA-P02",
-];
+export const IDS = ["FIGMA-P01"];
 
 const BREAKPOINTS = ["desktop", "mobile"];
 const THEMES = ["light", "dark"];

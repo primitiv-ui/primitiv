@@ -1,42 +1,6 @@
 {
-  "START-01": {
-    "desktop": "1264 / 328",
-    "mobile": "684 / 816"
-  },
-  "FAMILY-01": {
-    "desktop": "1264 / 842",
-    "mobile": "684 / 1100"
-  },
-  "TOKENS-01": {
-    "desktop": "1264 / 948",
-    "mobile": "684 / 1152"
-  },
-  "DENSITY-C01": {
-    "desktop": "1264 / 884",
-    "mobile": "684 / 1448"
-  },
-  "DENSITY-C02": {
-    "desktop": "600 / 616",
-    "mobile": "684 / 616"
-  },
-  "COMPOSE-01": {
-    "desktop": "600 / 848",
-    "mobile": "684 / 808"
-  },
-  "A11Y-C01": {
-    "desktop": "1264 / 480",
-    "mobile": "684 / 920"
-  },
-  "CLI-01": {
-    "desktop": "1264 / 632",
-    "mobile": "684 / 1132"
-  },
   "FIGMA-P01": {
     "desktop": "1264 / 792",
     "mobile": "684 / 534"
-  },
-  "FIGMA-P02": {
-    "desktop": "600 / 592",
-    "mobile": "684 / 592"
   }
 }

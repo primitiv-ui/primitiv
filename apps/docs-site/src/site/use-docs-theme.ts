@@ -1,6 +1,6 @@
 "use client";
 
-import { useLocalStorage, useMediaQuery } from "@primitiv-ui/react";
+import { useLocalStorage } from "@primitiv-ui/react";
 
 export const THEME_KEY = "primitiv-docs-theme";
 
@@ -12,23 +12,27 @@ export type Theme = "light" | "dark";
  * **This exists so that two components cannot disagree about the theme.** The
  * site has no theme context — `ThemeToggle` originally derived the value
  * inline — and anything else that needs to know (the A11Y-01 animation picks
- * its own `src` by theme) would otherwise re-derive it independently. Two
- * independent derivations read `useLocalStorage` and `useMediaQuery` at
- * slightly different moments and can disagree on first paint, which shows up
- * as a light video on a dark page for one frame. One hook, one answer.
+ * its own `src` by theme) would otherwise re-derive it independently. One hook,
+ * one answer.
  *
- * **Dark is the default and an OS *light* preference is the only opt-out.**
+ * **Dark is the default; the toggle is the only opt-out, and it persists.**
  * The Figma landing frame pins `Intent=Dark`, so dark is the designed
- * presentation rather than a variant. A stored choice always wins;
- * `useLocalStorage` returning `null` until something is written is what keeps
- * "no preference expressed" distinguishable from "explicitly chose dark".
+ * presentation. We deliberately do NOT auto-follow `prefers-color-scheme`:
+ * browsers report `(prefers-color-scheme: light)` as true for BOTH an OS
+ * explicitly set to light AND no preference at all — the two are
+ * indistinguishable — so honouring it renders the site light for most visitors,
+ * the opposite of the intended default. A visitor who specifically wants light
+ * expresses that through the toggle, whose choice `useLocalStorage` remembers;
+ * that stored value is the reliable "I chose light" signal an OS media query
+ * cannot give. `null` until something is written keeps "never chosen" (→ dark)
+ * distinguishable from "chose dark".
  *
- * Deliberately does **not** write `data-theme` on `<html>`. That is a single
- * side effect with a single owner (`ThemeToggle`); doing it here would run it
- * once per consumer for no benefit.
+ * Must stay in lockstep with the pre-paint inline script in `layout.tsx`, which
+ * applies the same `stored ?? "dark"` rule to `<html data-theme>` before first
+ * paint so there is no flash. `ThemeToggle` owns the post-hydration
+ * `data-theme` side effect.
  */
 export const useDocsTheme = (): [Theme, (next: Theme) => void] => {
   const [stored, setStored] = useLocalStorage<Theme | null>(THEME_KEY, null);
-  const prefersLight = useMediaQuery("(prefers-color-scheme: light)");
-  return [stored ?? (prefersLight ? "light" : "dark"), setStored];
+  return [stored ?? "dark", setStored];
 };

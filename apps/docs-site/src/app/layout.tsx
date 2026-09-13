@@ -47,6 +47,16 @@ const jetBrainsMono = JetBrains_Mono({
   variable: "--docs-font-mono",
 });
 
+/*
+ * Applied to <html> before first paint, so the page never flashes light on its
+ * way to the default dark (the static HTML carries no data-theme, and the CSS
+ * :root default is light). Reads the SAME key useDocsTheme/ThemeToggle write —
+ * a JSON-encoded "light"/"dark" — and falls back to dark for anything else
+ * (no choice stored, parse error). Keep this rule identical to useDocsTheme's
+ * `stored ?? "dark"`; the two must not disagree.
+ */
+const THEME_INIT_SCRIPT = `try{var t=JSON.parse(localStorage.getItem("primitiv-docs-theme"));document.documentElement.dataset.theme=(t==="light"||t==="dark")?t:"dark"}catch(e){document.documentElement.dataset.theme="dark"}`;
+
 export const metadata: Metadata = {
   title: {
     default: "Primitiv",
@@ -68,9 +78,21 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     // paint order but still inherits custom properties through the DOM tree.
     <html
       lang="en"
+      // The pre-paint script sets data-theme on <html> before hydration, so the
+      // server HTML (no data-theme) and the client (data-theme set) differ on
+      // this element by design — suppress the mismatch warning for it only.
+      suppressHydrationWarning
       className={`${astaSans.variable} ${khand.variable} ${jetBrainsMono.variable}`}
     >
-      <body>{children}</body>
+      <body>
+        {/* Runs synchronously as the body is parsed — before the first paint —
+            so the page never flashes light on its way to the default dark. It
+            must be a raw inline <script> for that timing guarantee: next/script
+            beforeInteractive is emitted as a deferred __next_s loader entry that
+            can run after the first paint, reintroducing the flash. */}
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+        {children}
+      </body>
     </html>
   );
 }

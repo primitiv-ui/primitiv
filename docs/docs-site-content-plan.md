@@ -3175,3 +3175,113 @@ pair of equal boxes rather than as "this code produces that DOM". Stripped back.
   `gen-illustrations.mjs`, the manifest and `<picture>` serving FIGMA-P01 alone.
 - **`src/site/examples/`'s 26 inline styles** remain, and the gate remains
   scoped away from them.
+
+### 6.0.31 TOKENS-01 lands and the raster path comes down (2026-09-13)
+
+The ninth figure, and the sweep §6.0.30 left open. `src/site/figures/` now
+covers nine of the ten ids; **FIGMA-P01 is the only raster left**, and stays
+one for good — it is a screenshot of the Figma UI, which the DOM cannot
+reproduce and should not imitate.
+
+#### The three decisions TOKENS-01 was waiting on
+
+Settled by asking directly, since all three were visible in the frame and none
+was answerable from it:
+
+1. **The two greyed-out Intent roles are dropped.** The frame shows
+   `surface/default` and `border/subtle` dimmed with no connector leaving them.
+   In a drawing that reads as "and there are others"; in the DOM a label with no
+   arrow reads as unfinished work. Every role the figure now shows is one it
+   actually traces.
+2. **CONTEXT stays off to the side**, feeding the component horizontally rather
+   than joining the vertical descent — which is truthful, because geometry does
+   not resolve through the colour tiers. Its connector is the one arrow in the
+   figure that does not point down.
+3. **The ramp and the value are live.** This is the figure whose subject *is*
+   the palette, so it is the one that must never disagree with it.
+
+#### Three live values, three different sources, each forced
+
+This is the figure that separated the three mechanisms cleanly, and the split
+generalises to any figure that has to show a token rather than merely use one:
+
+- **The eleven swatches are pure CSS.** Each cell carries its step as
+  `data-step` and the stylesheet resolves `--primitiv-color-brand-<step>` for
+  it. No JavaScript, so nothing to go stale; it follows the theme for free
+  (verified — light and dark invert, and 500 is identical in both because it is
+  pinned to the seed); and, unlike a value read in JS, **`check-tokens.mjs` can
+  see every one of them**, so a mistyped step fails the build instead of
+  rendering transparent.
+- **The geometry figures are read off the element** (`useTokenValues`), because
+  they are printed as TEXT and CSS cannot put a token's value into the document.
+  This is the one place the rebuild departs from the frame: the rows read
+  `2.5rem` / `1rem` where the frame prints `40` / `16`. Same measurement — but
+  the label names a token, so the value beside it has to be that token's own
+  value. Measuring the button instead would make the row assert something its
+  label does not say. The density captions measure px for the opposite reason:
+  their claim is about the control's size, not about a token.
+- **The OkLCH string comes from the engine**, through
+  `palette-sheet.generated.json`. OkLCH is not in the token layer, and
+  converting the hex in the browser would be the frontend computing a colour
+  value — a second opinion about the exact thing this figure asserts.
+
+**That last one found a real engine bug.** Adding a per-step `oklch` to
+`crates/harmoni-core/examples/swatch-sheet.rs` printed brand 500's hue as
+`-100.12` where the settled design says `259.8783` — the same angle, because
+`SwatchStep.h` is the renderer's `-180..180` form. Normalised in Rust, not in
+the browser, so every consumer of the sheet gets the positive-degrees form.
+A second, smaller trap in the same line: rounding the `f32` and letting serde
+widen it prints the storage noise (`0.5557` came out `0.5557000041007996`), so
+each channel is cast to `f64` *before* rounding.
+
+#### Two more defects only the render exposed
+
+Continuing §6.0.30's count, which now stands at eleven:
+
+- **The first pass had no arrows at all.** Three tiers stacked with a region gap
+  between them, under a caption reading "Everything above it points." Nothing
+  pointed. The frame's connectors had been read as decoration rather than as the
+  argument. Fixed with the shared `Arrow` — two down the spine, plus the
+  side-feeding one for CONTEXT, which needs a box sized to its **rotated**
+  extent (`rotate` does not change the layout box — the trap CLI-01 already
+  documents) and a quarter turn, not a half, to point left rather than right.
+- **The white anchor's label clipped at 390px.** Eleven cells in a ~320px
+  measure is ~24px each, which fits `900` and not `white`; the swatch itself was
+  cut in half at the edge. The ramp wraps to **six then five** below `48rem`
+  rather than scrolling — every step stays visible and it still reads as one
+  continuing scale.
+
+Also fixed while rendering: the CONTEXT rows stretched to the full measure, so
+name and value sat at opposite ends of a very long line. They are a two-column
+grid now, hugging, with the values right-aligned so the units stack — and the
+row `<div>`s are `display: contents`, which is what lets the `<dl>` keep the
+grouping HTML wants while its `<dt>`/`<dd>` pairs participate in the grid.
+
+#### The sweep
+
+Thirty-six PNGs deleted — **1.5 MB**, from 3.8 MB to 2.3 MB of committed
+illustration assets. `gen-illustrations.mjs`'s `IDS` is now `["FIGMA-P01"]`,
+the manifest holds one entry, and `ContentIllustration`'s authored `ALT` holds
+one string. The script is kept whole rather than inlined into a constant,
+because the one that remains still needs exactly what it does and a second
+genuine screenshot (the home page's FIGMA-01 retake) would join it there.
+
+**Adding an id back to `IDS` is a regression, not a feature**, and the script
+says so: an exported diagram cannot follow the theme, the density or a palette
+regeneration, and its type never matches the page's. Only a screenshot belongs
+there.
+
+Verified after the sweep: all eight content routes return 200 at 390 and 1280,
+ten figures render across them, no horizontal overflow, no page errors, and
+FIGMA-P01's `<picture>` still selects `figma-p01-mobile-*` at 390 and
+`figma-p01-desktop-*` at 1280 at their own intrinsic sizes.
+
+#### Open
+
+- **FIGMA-P01 wants a higher-resolution retake** — a human capture, ideally
+  taken together with the home page's FIGMA-01 open items (§6.0.14).
+- **`src/site/examples/`'s inline styles** remain, and the gate remains scoped
+  away from them. The real count is **45 JSX styles across 21 files** (plus 32
+  more inside displayed code strings, which are content and must stay); 38 of
+  the 45 convert to the registry `Stack`, a token value, or a named `--docs-*`
+  constant. Waiting on the examples build finishing, to avoid collision.

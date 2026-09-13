@@ -1,0 +1,177 @@
+/*
+ * DENSITY-C01 and DENSITY-C02 — the first two content-page figures built in the
+ * DOM rather than exported as PNGs (plan §6.0.29).
+ *
+ * EVERY value here resolves a `--primitiv-*` token. Where the system genuinely
+ * has none, the value is named once as a `--docs-*` constant at the top of its
+ * rule and reused — never repeated as a literal. `scripts/check-tokens.mjs`
+ * enforces both, plus rule 4: a figure carries no inline styling beyond setting
+ * a custom property from data.
+ *
+ * The whole point of these two is that nothing inside a density scope is stated
+ * here at all. The columns set `data-density` and the Context tier resolves the
+ * control heights, padding, radii and type sizes on its own — so this file
+ * styles the SCAFFOLD (the row, the labels, the captions) and deliberately says
+ * nothing about the components inside it.
+ */
+
+/* ── Shared figure chrome ─────────────────────────────────────────────────── */
+
+.docs-figure {
+  display: flex;
+  flex-direction: column;
+  gap: var(--primitiv-flow-normal);
+  margin: 0;
+}
+
+.docs-figure__caption {
+  margin: 0;
+  font-family: var(--primitiv-body-md-font-family);
+  font-size: var(--primitiv-body-md-font-size);
+  line-height: var(--primitiv-body-md-line-height);
+  color: var(--primitiv-content-muted);
+}
+
+/* ── DENSITY-C01 · four densities side by side ────────────────────────────── */
+
+/*
+ * Four columns while the comparison needs them, a 2x2 when it cannot have
+ * them — the brief's own "two columns of two on mobile". Never one column:
+ * a single density on screen is not a comparison, and the whole argument is
+ * that these sit beside each other.
+ */
+.docs-density-figure__row {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--primitiv-stack-gap-lg);
+  align-items: start;
+}
+
+@media (width < 48rem) {
+  .docs-density-figure__row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    row-gap: var(--primitiv-stack-gap-xl);
+  }
+}
+
+/*
+ * The column is the CHROME — label, specimen, caption — and is not inside any
+ * density scope, so its own gap does not move. The specimen inside it is.
+ */
+.docs-density-figure__column {
+  display: flex;
+  flex-direction: column;
+  gap: var(--primitiv-stack-gap-md);
+  min-inline-size: 0;
+}
+
+/*
+ * The scope. `data-density` lands here rather than on the column, so the label
+ * above and the caption below keep the page's own density and stay one size
+ * across all four — which is what makes the four specimens comparable.
+ *
+ * Its gap is `flow/normal`, so the rhythm reflows with the dial like everything
+ * inside it. A primitive here would freeze the spacing while the type and the
+ * controls moved: the exact defect §6.0.26 found in the home page's density
+ * demo, and the one place it would be most visible.
+ */
+.docs-density-figure__scope {
+  display: flex;
+  flex-direction: column;
+  gap: var(--primitiv-flow-normal);
+  min-inline-size: 0;
+}
+
+/*
+ * The mode label names the column, so it must NOT scale with the specimen it
+ * names — which is why the scope is an inner wrapper. `overline/*` is itself
+ * density-scaled, so this reads one size only because of where it sits.
+ */
+.docs-density-figure__mode {
+  margin: 0;
+  font-family: var(--primitiv-overline-sm-font-family);
+  font-size: var(--primitiv-overline-sm-font-size);
+  font-weight: var(--primitiv-overline-sm-font-weight);
+  line-height: var(--primitiv-overline-sm-line-height);
+  letter-spacing: var(--primitiv-letter-spacing-wide);
+  text-transform: uppercase;
+  color: var(--primitiv-content-muted);
+}
+
+/* Inside the scope, so it scales — that is half of what the figure shows. */
+.docs-density-figure__body {
+  margin: 0;
+  font-family: var(--primitiv-body-md-font-family);
+  font-size: var(--primitiv-body-md-font-size);
+  line-height: var(--primitiv-body-md-line-height);
+  color: var(--primitiv-content-secondary);
+}
+
+/*
+ * The measured caption. `min-block-size` holds its line box open before the
+ * effect has run, so the number arrives without moving the column — the static
+ * export has no layout and therefore no honest value to prerender.
+ */
+.docs-density-figure__metric {
+  margin: 0;
+  min-block-size: var(--primitiv-body-sm-line-height);
+  font-family: var(--primitiv-font-family-mono);
+  font-size: var(--primitiv-font-size-12);
+  line-height: var(--primitiv-body-sm-line-height);
+  color: var(--primitiv-content-muted);
+}
+
+/* ── DENSITY-C02 · density scoped by containment ──────────────────────────── */
+
+.docs-density-nest__outer,
+.docs-density-nest__inner {
+  display: flex;
+  flex-direction: column;
+  gap: var(--primitiv-flow-normal);
+  border: var(--primitiv-border-width-1) solid var(--primitiv-border-default);
+  border-radius: var(--primitiv-radii-12);
+  padding: var(--primitiv-space-space-24);
+}
+
+/*
+ * The inner region is filled rather than merely outlined, so containment reads
+ * as containment at a glance. `surface/subtle` against the outer
+ * `surface/default` is the system's own one-step recess.
+ */
+.docs-density-nest__outer {
+  background: var(--primitiv-surface-default);
+}
+
+.docs-density-nest__inner {
+  background: var(--primitiv-surface-subtle);
+  border-color: var(--primitiv-border-subtle);
+}
+
+/*
+ * The attribute labels. Mono because they are markup, muted because they name
+ * the box rather than being its content — and with no chip background, since
+ * an `InlineCode` chip reads as code *within a sentence* and these are labels
+ * on a region.
+ */
+.docs-density-nest__attr {
+  margin: 0;
+  font-family: var(--primitiv-font-family-mono);
+  font-size: var(--primitiv-font-size-12);
+  line-height: var(--primitiv-body-sm-line-height);
+  color: var(--primitiv-content-muted);
+}
+
+/*
+ * Not an `<h*>`: this is specimen content inside a figure, and a real heading
+ * here would enter the page outline between two section headings and imply a
+ * structure the page does not have.
+ */
+.docs-density-nest__heading {
+  margin: 0;
+  font-family: var(--primitiv-heading-h4-font-family);
+  font-size: var(--primitiv-heading-h4-font-size);
+  font-weight: var(--primitiv-heading-h4-font-weight);
+  line-height: var(--primitiv-heading-h4-line-height);
+  letter-spacing: var(--primitiv-heading-h4-letter-spacing);
+  color: var(--primitiv-content-primary);
+}

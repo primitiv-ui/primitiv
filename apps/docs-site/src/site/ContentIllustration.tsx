@@ -2,6 +2,7 @@
 
 import manifest from "@/content/illustrations.generated.json";
 
+import { FIGURES, hasFigure } from "./figures";
 import { useDocsTheme } from "./use-docs-theme";
 
 import "./themed-image.css";
@@ -34,6 +35,15 @@ import "./themed-image.css";
  * An id with no manifest entry renders nothing rather than a placeholder box.
  * That is the honest state — the prose reads on its own — and it is why a paired
  * row collapses to one column while its illustration is still outstanding.
+ *
+ * **A raster is now the FALLBACK, not the plan.** Nine of the ten are being
+ * rebuilt as DOM figures (plan §6.0.29): a PNG of mostly-small-text reads soft
+ * beside the browser-rendered text next to it at any export scale, and several
+ * of these are drawings of things the design system does natively. `src/site/
+ * figures/` holds the rebuilt ones keyed by the same brief id, so the migration
+ * is one id at a time with no intermediate state where a page has a hole.
+ * FIGMA-P01 is the one that stays raster for good — it is a real screenshot of
+ * the Figma UI, not a diagram.
  */
 const ALT: Record<string, string> = {
   "START-01":
@@ -84,7 +94,8 @@ const ALT: Record<string, string> = {
 
 const SIZES: Record<string, { desktop: string; mobile: string }> = manifest;
 
-export const hasIllustration = (id: string): boolean => id in SIZES && id in ALT;
+export const hasIllustration = (id: string): boolean =>
+  hasFigure(id) || (id in SIZES && id in ALT);
 
 /**
  * `"1264 / 328"` → `{ width: 1264, height: 328 }`.
@@ -100,6 +111,13 @@ const dimensions = (ratio: string) => {
 
 export const ContentIllustration = ({ id }: { id: string }) => {
   const [theme] = useDocsTheme();
+
+  /* A rebuilt figure wins over the exported PNGs, and needs none of the machinery
+     below: no manifest, no twin files, no `<picture>`, and no authored alt —
+     its content is real text in the page. */
+  const Figure = FIGURES[id];
+  if (Figure) return <Figure />;
+
   const size = SIZES[id];
   const alt = ALT[id];
   if (!size || alt === undefined) return null;

@@ -18,6 +18,14 @@
  *    prefix is the only thing preventing it, so it is enforced rather than
  *    trusted.
  *
+ * 4. No inline styling in a FIGURE. Rules 1-3 only ever walked `.css`, so an
+ *    inline `style={{ padding: "12px" }}` in a `.tsx` slipped past all three —
+ *    and a diagram is exactly where that tempts you, to nudge a connector or
+ *    size a column. A figure may set a CUSTOM PROPERTY inline (that is how
+ *    engine or measured data reaches CSS, e.g. `--docs-hue-at`), and nothing
+ *    else: every real declaration belongs in a stylesheet where rules 1-3 can
+ *    see it. Scoped to `src/site/figures/` — see FIGURES below.
+ *
  * Run: node scripts/check-tokens.mjs
  */
 import { readFileSync, readdirSync, statSync } from "node:fs";
@@ -53,6 +61,18 @@ const GLOBAL_SHEETS = new Set(["src/app/document.css", "src/app/fonts.css"]);
  * nothing in it can out-rank a component rule.
  */
 const RESET_SHEET = "src/app/reset.css";
+
+/**
+ * Rule 4's scope, and deliberately narrow.
+ *
+ * The rule is right for the whole app, but `src/site/examples/` currently
+ * carries 26 bare-length inline styles across 15 files (measured), and those
+ * files are the component-page surface under active development. Widening the
+ * scope today would fail the build on work in flight rather than on anything
+ * this rule was written to prevent. Figures are new, so they start clean and
+ * stay clean; bringing the examples up to it is its own pass.
+ */
+const FIGURES = "src/site/figures/";
 
 const defined = new Set();
 for (const f of ["tokens.css", "primitiv-base.css"]) {
@@ -132,6 +152,50 @@ for (const sheet of sheets) {
   });
 }
 
+/*
+ * Rule 4. Deliberately a narrow rule rather than a parser: the ONLY inline
+ * style a figure may carry is one whose every key declares a custom property.
+ * That admits the legitimate case (data the engine produced or the layout
+ * measured, handed to CSS through a named property) and rejects the rest,
+ * without having to tell a real `style={{ … }}` from the same characters
+ * appearing inside a code sample a page is displaying — which the examples
+ * folder is full of, and which no regex over source text can do reliably.
+ */
+const figures = [];
+const walkTsx = (dir) => {
+  let entries;
+  try {
+    entries = readdirSync(dir);
+  } catch {
+    return; // the folder need not exist yet
+  }
+  for (const entry of entries) {
+    const p = join(dir, entry);
+    if (statSync(p).isDirectory()) walkTsx(p);
+    else if (entry.endsWith(".tsx")) figures.push(p);
+  }
+};
+walkTsx(join(ROOT, FIGURES));
+
+for (const file of figures) {
+  const rel = relative(ROOT, file).split(sep).join("/");
+  readFileSync(file, "utf8")
+    .split("\n")
+    .forEach((line, i) => {
+      for (const m of line.matchAll(/style=\{\{([^}]*)\}/g)) {
+        const keys = m[1].matchAll(/(?:^|,)\s*(?:"([^"]+)"|'([^']+)'|([\w$]+))\s*:/g);
+        for (const k of keys) {
+          const key = k[1] ?? k[2] ?? k[3];
+          if (key.startsWith("--")) continue;
+          problems.push(
+            `${rel}:${i + 1}  inline style "${key}" — a figure styles in CSS; ` +
+              `inline is only for setting a --custom-property from data`,
+          );
+        }
+      }
+    });
+}
+
 if (problems.length) {
   console.error(`✗ ${problems.length} problem(s):\n`);
   for (const p of problems) console.error("  " + p);
@@ -140,5 +204,6 @@ if (problems.length) {
 console.log(
   `✓ ${sheets.length} stylesheet(s): every --primitiv-* reference resolves ` +
     `(of ${defined.size} defined), no bare lengths outside --docs-* constants, ` +
-    `every selector docs-prefixed.`,
+    `every selector docs-prefixed.\n` +
+    `✓ ${figures.length} figure(s): no inline styling outside custom properties.`,
 );

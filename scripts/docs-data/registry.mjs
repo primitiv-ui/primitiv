@@ -45,6 +45,24 @@ export const REGISTRY = {
     contract: "registry/components/avatar-group/contract.json",
     figmaComponentSetKey: "1480:44052", importPath: "@/components/ui/avatar-group",
   },
+  card: {
+    displayName: "Card", kind: "registry-only", status: "stable", category: "Data Display",
+    /* Hand-authored 7-part composite, primitive-less — props in the copied file.
+       The root modifiers (layout/size/elevation/scrim) live on `Card`; the other
+       six parts carry no contract modifiers of their own. */
+    propsFile: "registry/components/card/card.tsx",
+    subComponents: [
+      { name: "Card", propsType: "CardProps", element: "div", component: "Card" },
+      { name: "CardMedia", propsType: "CardMediaProps", element: "div", component: "CardMedia" },
+      { name: "CardContent", propsType: "CardContentProps", element: "div", component: "CardContent" },
+      { name: "CardHeader", propsType: "CardHeaderProps", element: "div", component: "CardHeader" },
+      { name: "CardTitle", propsType: "CardTitleProps", element: "h3", component: "CardTitle" },
+      { name: "CardDescription", propsType: "CardDescriptionProps", element: "p", component: "CardDescription" },
+      { name: "CardFooter", propsType: "CardFooterProps", element: "div", component: "CardFooter" },
+    ],
+    contract: "registry/components/card/contract.json",
+    figmaComponentSetKey: "1444:37322", importPath: "@/components/ui/card",
+  },
   accordion: {
     displayName: "Accordion", kind: "registry", status: "stable", category: "Disclosure",
     propsFile: "packages/react/src/Accordion/types.ts",

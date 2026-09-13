@@ -81,7 +81,7 @@
     "displayName": "Card",
     "category": "Data Display",
     "description": "A content container — an optional media region plus a padded content block holding a header, description and footer. `layout` picks the arrangement: `vertical` (media above), `horizontal` (media beside), or `cover` (media behind the content, under a legibility scrim). Sized xs–xl; `data-density` scales each size further.",
-    "documented": false
+    "documented": true
   },
   {
     "id": "carousel",

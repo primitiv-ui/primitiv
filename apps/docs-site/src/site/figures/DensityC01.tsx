@@ -6,6 +6,7 @@ import { Input } from "@/components/input";
 
 import { useControlMetrics } from "./useControlMetrics";
 
+import "./figure-chrome.css";
 import "./density-figures.css";
 
 /**

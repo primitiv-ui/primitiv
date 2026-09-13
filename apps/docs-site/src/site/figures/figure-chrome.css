@@ -1,0 +1,70 @@
+/*
+ * Chrome shared by every content-page figure (plan §6.0.29).
+ *
+ * A figure is a `<figure>` holding its content and one `<figcaption>`. The
+ * caption is the closing line each brief specifies — "Same components. Same
+ * markup. One attribute.", "Both halves are required." — which is part of the
+ * argument rather than a label, so it is real text a reader can select and a
+ * screen reader announces with the figure.
+ *
+ * EVERY value resolves a `--primitiv-*` token; `scripts/check-tokens.mjs`
+ * enforces that and forbids inline styling in `src/site/figures/`.
+ */
+
+.docs-figure {
+  display: flex;
+  flex-direction: column;
+  gap: var(--primitiv-flow-normal);
+  margin: 0;
+}
+
+.docs-figure__caption {
+  margin: 0;
+  font-family: var(--primitiv-body-md-font-family);
+  font-size: var(--primitiv-body-md-font-size);
+  line-height: var(--primitiv-body-md-line-height);
+  color: var(--primitiv-content-muted);
+}
+
+/*
+ * Centred where the frame centres it. A11Y-C01 and CLI-01 close with a
+ * centred line under a two-zone composition; the density figures close with a
+ * left-aligned one under a left-aligned column. Read the frame, not a default.
+ */
+.docs-figure__caption--center {
+  text-align: center;
+}
+
+/*
+ * A figure's own headings are `<p>`, not `<h*>`, and every figure follows this.
+ * These sit between two real section headings, so a heading element here would
+ * enter the page outline and imply a structure the page does not have. The
+ * relationship a heading would have given is made explicit instead, with the
+ * list or region `aria-labelledby` the paragraph — which is the part a screen
+ * reader actually needs.
+ */
+.docs-figure__heading {
+  margin: 0;
+  font-family: var(--primitiv-heading-h4-font-family);
+  font-size: var(--primitiv-heading-h4-font-size);
+  font-weight: var(--primitiv-heading-h4-font-weight);
+  line-height: var(--primitiv-heading-h4-line-height);
+  letter-spacing: var(--primitiv-heading-h4-letter-spacing);
+  color: var(--primitiv-content-primary);
+}
+
+/* A plain run of body text inside a figure — a list row, a note. */
+.docs-figure__item {
+  font-family: var(--primitiv-body-md-font-family);
+  font-size: var(--primitiv-body-md-font-size);
+  line-height: var(--primitiv-body-md-line-height);
+  color: var(--primitiv-content-secondary);
+}
+
+/* Mono chrome: a file name, a package name, an attribute label. */
+.docs-figure__mono {
+  font-family: var(--primitiv-font-family-mono);
+  font-size: var(--primitiv-font-size-12);
+  line-height: var(--primitiv-body-sm-line-height);
+  color: var(--primitiv-content-muted);
+}

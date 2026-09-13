@@ -3,6 +3,7 @@
 import { Field, FieldLabel } from "@/components/field";
 import { Input } from "@/components/input";
 
+import "./figure-chrome.css";
 import "./density-figures.css";
 
 /**
@@ -25,7 +26,7 @@ export const DensityC02 = () => (
   <figure className="docs-figure docs-density-nest">
     <div className="docs-density-nest__outer" data-density="spacious">
       <p className="docs-density-nest__attr">data-density=&quot;spacious&quot;</p>
-      <p className="docs-density-nest__heading">Workspace</p>
+      <p className="docs-figure__heading">Workspace</p>
       <Input placeholder="Acme" aria-label="Workspace name" />
 
       <div className="docs-density-nest__inner" data-density="dense">

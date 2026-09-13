@@ -1,0 +1,161 @@
+/*
+ * CLI-01 — what you own against what you depend on.
+ *
+ * EVERY value resolves a `--primitiv-*` token, or names a `--docs-*` constant
+ * once where the system has none. `scripts/check-tokens.mjs` enforces both.
+ */
+
+/*
+ * The repository zone is wider than the npm zone because it holds five files to
+ * the other's one — this is the one figure where the two sides are deliberately
+ * NOT equal, unlike A11Y-C01. The asymmetry is the content, not a layout
+ * accident: almost everything ends up in your repo.
+ */
+.docs-cli__row {
+  /* Measured off the frame: the repository zone takes ~57% of the width, the
+     arrow column ~13%, the npm zone ~30%. Named because the ratio is the
+     content — five files against one package — and a reader should be able to
+     see why it is not 50/50. */
+  --docs-cli-repo-share: 53fr;
+  --docs-cli-npm-share: 34fr;
+  --docs-cli-arrow-width: 4.5rem;
+
+  display: grid;
+  grid-template-columns:
+    minmax(0, var(--docs-cli-repo-share))
+    var(--docs-cli-arrow-width)
+    minmax(0, var(--docs-cli-npm-share));
+  gap: var(--primitiv-stack-gap-md);
+  align-items: start;
+}
+
+.docs-cli__zone {
+  display: flex;
+  flex-direction: column;
+  gap: var(--primitiv-flow-normal);
+  min-inline-size: 0;
+}
+
+/*
+ * Only the repository zone is filled. The tint is what makes "inside your
+ * project" read as a place rather than as a column of text, and it is the same
+ * one-step recess `surface/subtle` gives everywhere else.
+ */
+.docs-cli__zone--repo {
+  background: var(--primitiv-surface-subtle);
+  border-radius: var(--primitiv-radii-12);
+  padding: var(--primitiv-space-space-24);
+}
+
+.docs-cli__files {
+  display: flex;
+  flex-direction: column;
+  gap: var(--primitiv-space-space-8);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/*
+ * A file chip. Bordered rather than filled, so it reads as a file sitting IN
+ * the tinted zone rather than as another surface — and the same chip shape
+ * serves the npm package on the other side, which is what says the two things
+ * are the same kind of thing arriving by different routes.
+ */
+.docs-cli__file {
+  border: var(--primitiv-border-width-1) solid var(--primitiv-border-default);
+  border-radius: var(--primitiv-radii-8);
+  padding: var(--primitiv-space-space-8) var(--primitiv-space-space-16);
+  background: var(--primitiv-surface-default);
+  color: var(--primitiv-content-primary);
+  /* A path is one token to a reader; breaking it across lines turns it into
+     two. The zone is sized to hold the longest name, so this never clips —
+     and if a longer one is ever added it scrolls rather than reflowing the
+     whole figure. */
+  overflow-x: auto;
+  white-space: nowrap;
+  scrollbar-width: none;
+}
+
+/* The arrow column, sized to its own label. */
+.docs-cli__flow {
+  display: flex;
+  flex-direction: column;
+  gap: var(--primitiv-space-space-8);
+  align-items: center;
+  /* Lands the arrow on the first file chip, which is what it points at. */
+  padding-block-start: var(--primitiv-space-space-48);
+  color: var(--primitiv-content-muted);
+  min-inline-size: 0;
+}
+
+.docs-cli__flow-label {
+  margin: 0;
+  text-align: center;
+  font-family: var(--primitiv-body-sm-font-family);
+  font-size: var(--primitiv-body-sm-font-size);
+  line-height: var(--primitiv-body-sm-line-height);
+  color: var(--primitiv-content-muted);
+}
+
+/*
+ * The arrow takes its colour from the cascade, so one SVG serves both themes.
+ * `vector-effect: non-scaling-stroke` in the markup keeps the line a true
+ * hairline at any rendered width, which is why the viewBox can be scaled freely
+ * by the column rather than needing a fixed size.
+ */
+.docs-cli__arrow-box {
+  display: grid;
+  place-items: center;
+  inline-size: 100%;
+}
+
+.docs-cli__arrow {
+  inline-size: 100%;
+  block-size: auto;
+}
+
+/*
+ * Stacked, the arrow must point DOWN rather than left — a left-pointing arrow
+ * between vertically stacked zones points at nothing. A first pass rotated it
+ * 180deg, which produces a RIGHT-pointing arrow: the comment said down, the
+ * code did sideways, and only the render disagreed with both.
+ *
+ * `-90deg` is the quarter turn that actually points down. The box has to be
+ * sized to the ROTATED extent, because `rotate` does not change the layout box:
+ * a 96px-wide arrow turned on its side still reserves 96 x 10, so without a
+ * tall box it would paint straight over the zone beneath it. Hence the wrapper.
+ */
+@media (width < 48rem) {
+  .docs-cli__row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--primitiv-stack-gap-lg);
+  }
+
+  .docs-cli__flow {
+    padding-block-start: 0;
+  }
+
+  .docs-cli__arrow-box {
+    block-size: var(--primitiv-space-space-96);
+  }
+
+  .docs-cli__arrow {
+    inline-size: var(--primitiv-space-space-96);
+    rotate: -90deg;
+  }
+
+  /*
+   * npm, then the arrow, then the repository — so the one-way arrow sits
+   * BETWEEN the two things it connects and still reads source → destination
+   * down the page. Ordering only the repo left the arrow stranded above the
+   * npm zone, pointing into its own source.
+   */
+  .docs-cli__flow {
+    order: 1;
+  }
+
+  .docs-cli__zone--repo {
+    order: 2;
+  }
+}

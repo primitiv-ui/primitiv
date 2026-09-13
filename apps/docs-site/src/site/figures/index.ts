@@ -1,5 +1,7 @@
 import type { ComponentType } from "react";
 
+import { A11yC01 } from "./A11yC01";
+import { Cli01 } from "./Cli01";
 import { DensityC01 } from "./DensityC01";
 import { DensityC02 } from "./DensityC02";
 
@@ -30,6 +32,8 @@ import { DensityC02 } from "./DensityC02";
  * inline styling here beyond setting a custom property from data.
  */
 export const FIGURES: Record<string, ComponentType> = {
+  "A11Y-C01": A11yC01,
+  "CLI-01": Cli01,
   "DENSITY-C01": DensityC01,
   "DENSITY-C02": DensityC02,
 };

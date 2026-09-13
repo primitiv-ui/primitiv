@@ -1,0 +1,95 @@
+/*
+ * A11Y-C01 — two regions of equal weight either side of a dividing line.
+ *
+ * EVERY value resolves a `--primitiv-*` token, or names a `--docs-*` constant
+ * once where the system has none. `scripts/check-tokens.mjs` enforces both.
+ */
+
+/*
+ * `1fr auto 1fr` — the two halves are equal by construction, which is the
+ * argument the figure makes. Do not let one side grow to fit its content: the
+ * left list is five items and the right is six, and a layout that sized to
+ * that would say one side is bigger than the other.
+ */
+.docs-split__row {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: var(--primitiv-stack-gap-xl);
+  align-items: stretch;
+}
+
+.docs-split__half {
+  display: flex;
+  flex-direction: column;
+  gap: var(--primitiv-flow-section);
+  min-inline-size: 0;
+}
+
+/*
+ * No marker and no indent: these are named inventories, not enumerations, and
+ * a bullet would add visual weight the two-column comparison does not want.
+ * They stay real `<ul>`/`<li>` so a screen reader still announces the count —
+ * on the accessibility page of all places.
+ */
+.docs-split__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/*
+ * The rule, with its label breaking it.
+ *
+ * The line is a centred BACKGROUND, not the element's own width — and that is
+ * the fix for a real defect, not a flourish. Drawing it as a 1px-wide box put
+ * the rotated label (far wider than 1px) outside its own column, painting it
+ * over the first three rows of the right-hand list. Only the render showed it;
+ * every value read correctly.
+ *
+ * As a background the column sizes to the label, the line stays exactly
+ * centred in it, and the label's own surface fill breaks the line by exactly
+ * its own height — so the gap can never drift as the type scale moves.
+ */
+.docs-split__rule {
+  display: grid;
+  place-items: center;
+  background: linear-gradient(
+      var(--primitiv-border-default),
+      var(--primitiv-border-default)
+    )
+    no-repeat center / var(--primitiv-border-width-1) 100%;
+}
+
+.docs-split__rule-label {
+  writing-mode: vertical-rl;
+  rotate: 180deg;
+  padding-block: var(--primitiv-space-space-8);
+  background: var(--primitiv-surface-default);
+  font-family: var(--primitiv-body-sm-font-family);
+  font-size: var(--primitiv-body-sm-font-size);
+  line-height: var(--primitiv-body-sm-line-height);
+  color: var(--primitiv-content-muted);
+}
+
+/*
+ * Below the shell's own breakpoint the two halves stack and the rule turns
+ * horizontal — a vertical rule between stacked regions would run the wrong way.
+ * Both halves stay: dropping one destroys the equal-weight argument entirely.
+ */
+@media (width < 48rem) {
+  .docs-split__row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--primitiv-stack-gap-lg);
+  }
+
+  .docs-split__rule {
+    background-size: 100% var(--primitiv-border-width-1);
+  }
+
+  .docs-split__rule-label {
+    writing-mode: horizontal-tb;
+    rotate: none;
+    padding-block: 0;
+    padding-inline: var(--primitiv-space-space-8);
+  }
+}

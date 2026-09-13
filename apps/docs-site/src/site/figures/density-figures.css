@@ -15,23 +15,6 @@
  * nothing about the components inside it.
  */
 
-/* ── Shared figure chrome ─────────────────────────────────────────────────── */
-
-.docs-figure {
-  display: flex;
-  flex-direction: column;
-  gap: var(--primitiv-flow-normal);
-  margin: 0;
-}
-
-.docs-figure__caption {
-  margin: 0;
-  font-family: var(--primitiv-body-md-font-family);
-  font-size: var(--primitiv-body-md-font-size);
-  line-height: var(--primitiv-body-md-line-height);
-  color: var(--primitiv-content-muted);
-}
-
 /* ── DENSITY-C01 · four densities side by side ────────────────────────────── */
 
 /*
@@ -159,19 +142,4 @@
   font-size: var(--primitiv-font-size-12);
   line-height: var(--primitiv-body-sm-line-height);
   color: var(--primitiv-content-muted);
-}
-
-/*
- * Not an `<h*>`: this is specimen content inside a figure, and a real heading
- * here would enter the page outline between two section headings and imply a
- * structure the page does not have.
- */
-.docs-density-nest__heading {
-  margin: 0;
-  font-family: var(--primitiv-heading-h4-font-family);
-  font-size: var(--primitiv-heading-h4-font-size);
-  font-weight: var(--primitiv-heading-h4-font-weight);
-  line-height: var(--primitiv-heading-h4-line-height);
-  letter-spacing: var(--primitiv-heading-h4-letter-spacing);
-  color: var(--primitiv-content-primary);
 }

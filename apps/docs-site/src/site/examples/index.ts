@@ -6,6 +6,7 @@ import { alertSpec } from "./alert";
 import { avatarSpec } from "./avatar";
 import { avatarGroupSpec } from "./avatar-group";
 import { badgeSpec } from "./badge";
+import { tagSpec } from "./tag";
 import { buttonSpec } from "./button";
 import { inputSpec } from "./input";
 import { accordionSpec } from "./accordion";
@@ -58,6 +59,7 @@ export const SPECS: Record<ComponentId, ComponentSpec> = {
   avatar: avatarSpec,
   "avatar-group": avatarGroupSpec,
   badge: badgeSpec,
+  tag: tagSpec,
   button: buttonSpec,
   input: inputSpec,
   accordion: accordionSpec,

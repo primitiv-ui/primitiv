@@ -410,7 +410,7 @@
     "displayName": "Tag",
     "category": "Data Display",
     "description": "A small label chip that tags content by category, topic, or status — typically shown in a group. Read-only, never interactive. Five tones (a plain neutral treatment plus four semantic tones), sized xs–xl; `data-density` scales each size further.",
-    "documented": false
+    "documented": true
   },
   {
     "id": "textarea",

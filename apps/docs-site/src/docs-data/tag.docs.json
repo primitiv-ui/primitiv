@@ -1,0 +1,91 @@
+{
+  "id": "tag",
+  "displayName": "Tag",
+  "kind": "registry-only",
+  "status": "stable",
+  "category": "Data Display",
+  "description": "A small label chip that tags content by category, topic, or status — typically shown in a group. Read-only, never interactive. Five tones (a plain neutral treatment plus four semantic tones), sized xs–xl; `data-density` scales each size further.",
+  "headless": {
+    "package": "@primitiv-ui/react",
+    "importPath": "@/components/ui/tag",
+    "subComponents": [
+      {
+        "name": "Tag",
+        "extends": "HTMLSpanElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": null,
+            "description": "Render the single child element instead of a wrapping <span>, merging\nthe tag classes onto it — e.g. `<Tag asChild><a>...</a></Tag>`."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [
+          {
+            "name": "tone",
+            "type": "\"neutral\" | \"success\" | \"warning\" | \"info\" | \"danger\"",
+            "default": "neutral",
+            "description": "Semantic colour. `neutral` is the plain grey default; the other four are reserved for status."
+          },
+          {
+            "name": "size",
+            "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
+            "default": "md",
+            "description": "Tag size; `data-density` scales each size further."
+          }
+        ],
+        "dataAttributes": [],
+        "class": "primitiv-tag"
+      }
+    ]
+  },
+  "styled": {
+    "installCommand": "primitiv add tag",
+    "rootClass": "primitiv-tag",
+    "customProperties": [
+      {
+        "name": "--primitiv-tag-background",
+        "defaultsTo": "var(--primitiv-feedback-neutral-soft-background)"
+      },
+      {
+        "name": "--primitiv-tag-foreground",
+        "defaultsTo": "var(--primitiv-feedback-neutral-soft-foreground)"
+      },
+      {
+        "name": "--primitiv-tag-height",
+        "defaultsTo": "var(--primitiv-tag-md-height)"
+      },
+      {
+        "name": "--primitiv-tag-padding-inline",
+        "defaultsTo": "var(--primitiv-tag-md-padding-inline)"
+      },
+      {
+        "name": "--primitiv-tag-font-family",
+        "defaultsTo": "var(--primitiv-body-md-font-family)"
+      },
+      {
+        "name": "--primitiv-tag-font-size",
+        "defaultsTo": "var(--primitiv-tag-md-font-size)"
+      },
+      {
+        "name": "--primitiv-tag-font-weight",
+        "defaultsTo": "var(--primitiv-body-md-font-weight)"
+      },
+      {
+        "name": "--primitiv-tag-line-height",
+        "defaultsTo": "var(--primitiv-tag-md-line-height)"
+      },
+      {
+        "name": "--primitiv-tag-radius",
+        "defaultsTo": "var(--primitiv-radii-full)"
+      }
+    ],
+    "dataAttributes": []
+  },
+  "figma": {
+    "componentSetKey": "1390:32648"
+  }
+}

@@ -71,6 +71,16 @@ export const REGISTRY = {
     contract: "registry/components/badge/contract.json",
     figmaComponentSetKey: "1387:32589", importPath: "@/components/ui/badge",
   },
+  tag: {
+    displayName: "Tag", kind: "registry-only", status: "stable", category: "Data Display",
+    /* Badge's twin — primitive-less, props in the copied file. */
+    propsFile: "registry/components/tag/tag.tsx",
+    subComponents: [
+      { name: "Tag", propsType: "TagProps", element: "span", component: "Tag" },
+    ],
+    contract: "registry/components/tag/contract.json",
+    figmaComponentSetKey: "1390:32648", importPath: "@/components/ui/tag",
+  },
   button: {
     displayName: "Button", kind: "registry", status: "stable", category: "Buttons",
     propsFile: "packages/react/src/Button/types.ts",

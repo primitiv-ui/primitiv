@@ -396,7 +396,7 @@
     "displayName": "Table",
     "category": "Data Display",
     "description": "An accessible data table — a compound of standard HTML table elements (`<table>`, `<thead>`, `<tbody>`, `<tr>`, `<th>`, `<td>`, `<caption>`) with a tokenised default theme.",
-    "documented": false
+    "documented": true
   },
   {
     "id": "tabs",

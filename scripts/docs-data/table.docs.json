@@ -1,0 +1,261 @@
+{
+  "id": "table",
+  "displayName": "Table",
+  "kind": "registry",
+  "status": "stable",
+  "category": "Data Display",
+  "description": "An accessible data table — a compound of standard HTML table elements (`<table>`, `<thead>`, `<tbody>`, `<tr>`, `<th>`, `<td>`, `<caption>`) with a tokenised default theme.",
+  "headless": {
+    "package": "@primitiv-ui/react",
+    "importPath": "@primitiv-ui/react",
+    "subComponents": [
+      {
+        "name": "Table.Root",
+        "extends": "HTMLTableElement",
+        "props": [],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [
+          {
+            "name": "size",
+            "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
+            "default": "md",
+            "description": "Type scale for the whole table; `data-density` scales cell padding further."
+          },
+          {
+            "name": "rows",
+            "type": "\"plain\" | \"striped\"",
+            "default": "plain",
+            "description": "Whether body rows alternate a subtle stripe for readability."
+          }
+        ],
+        "dataAttributes": [],
+        "class": "primitiv-table"
+      },
+      {
+        "name": "Table.Head",
+        "extends": "HTMLTableSectionElement",
+        "props": [],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-table__head"
+      },
+      {
+        "name": "Table.Body",
+        "extends": "HTMLTableSectionElement",
+        "props": [],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-table__body"
+      },
+      {
+        "name": "Table.Footer",
+        "extends": "HTMLTableSectionElement",
+        "props": [],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-table__footer"
+      },
+      {
+        "name": "Table.Row",
+        "extends": "HTMLTableRowElement",
+        "props": [],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [
+          {
+            "name": "data-state",
+            "value": "expanded",
+            "when": "whether this row's detail row is open"
+          },
+          {
+            "name": "data-state",
+            "value": "collapsed",
+            "when": "whether this row's detail row is open"
+          }
+        ],
+        "class": "primitiv-table__row"
+      },
+      {
+        "name": "Table.Header",
+        "extends": "HTMLTableCellElement",
+        "props": [],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [
+          {
+            "name": "align",
+            "type": "\"start\" | \"center\" | \"end\"",
+            "default": "start",
+            "description": "Column text alignment, matching Figma's Table / Header Cell `Align` axis. Set it to match the column's cells — `end` for numeric columns. Direction-aware — `start`/`end` follow the reading direction, flipping under RTL."
+          }
+        ],
+        "dataAttributes": [],
+        "class": "primitiv-table__header"
+      },
+      {
+        "name": "Table.Cell",
+        "extends": "HTMLTableCellElement",
+        "props": [],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [
+          {
+            "name": "align",
+            "type": "\"start\" | \"center\" | \"end\"",
+            "default": "start",
+            "description": "Cell text alignment, matching Figma's Table / Cell `Align` axis. CSS cannot align a whole column (`text-align` does not apply to `<col>`), so set this on every cell in the column. Direction-aware — `start`/`end` follow the reading direction, flipping under RTL."
+          }
+        ],
+        "dataAttributes": [],
+        "class": "primitiv-table__cell"
+      },
+      {
+        "name": "Table.ScrollArea",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": true,
+            "default": null,
+            "description": "The table (typically a single {@link TableRoot `Table.Root`}) to\nwrap in the horizontally-scrolling container."
+          },
+          {
+            "name": "style",
+            "type": "CSSProperties",
+            "required": false,
+            "default": null,
+            "description": "Merged with (and taking priority over) the base scroll styles\n(`display: block`, `overflow-x: auto`, `max-width: 100%`), so\nadditional styles can be layered on without repeating the scroll\ndeclarations. See {@link TableScrollArea }'s custom-styles example."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-table__scroll-area"
+      },
+      {
+        "name": "Table.Caption",
+        "extends": "HTMLTableCaptionElement",
+        "props": [
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": true,
+            "default": null,
+            "description": "The visible, accessible label for the table. Preferred over\n`aria-label`/`aria-labelledby` on the table itself — the browser\nprogrammatically associates a `<caption>` with its `<table>`."
+          },
+          {
+            "name": "captionSide",
+            "type": "\"top\" | \"bottom\"",
+            "required": false,
+            "default": "\"bottom\"",
+            "description": "Controls the CSS `caption-side` property, positioning the caption\nabove or below the table. See {@link TableCaption }'s placement\nexamples.\n- `\"bottom\"` — caption appears below the table.\n- `\"top\"` — caption appears above the table."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-table__caption"
+      }
+    ]
+  },
+  "styled": {
+    "installCommand": "primitiv add table",
+    "rootClass": "primitiv-table",
+    "customProperties": [
+      {
+        "name": "--primitiv-table-font-family",
+        "defaultsTo": "var(--primitiv-body-md-font-family)"
+      },
+      {
+        "name": "--primitiv-table-font-size",
+        "defaultsTo": "var(--primitiv-body-md-font-size)"
+      },
+      {
+        "name": "--primitiv-table-font-weight",
+        "defaultsTo": "var(--primitiv-body-md-font-weight)"
+      },
+      {
+        "name": "--primitiv-table-line-height",
+        "defaultsTo": "var(--primitiv-body-md-line-height)"
+      },
+      {
+        "name": "--primitiv-table-foreground",
+        "defaultsTo": "var(--primitiv-content-primary)"
+      },
+      {
+        "name": "--primitiv-table-rule-color",
+        "defaultsTo": "var(--primitiv-border-subtle)"
+      },
+      {
+        "name": "--primitiv-table-header-foreground",
+        "defaultsTo": "var(--primitiv-content-primary)"
+      },
+      {
+        "name": "--primitiv-table-header-weight",
+        "defaultsTo": "var(--primitiv-font-weight-semibold)"
+      },
+      {
+        "name": "--primitiv-table-header-rule-color",
+        "defaultsTo": "var(--primitiv-border-strong)"
+      },
+      {
+        "name": "--primitiv-table-footer-rule-color",
+        "defaultsTo": "var(--primitiv-border-strong)"
+      },
+      {
+        "name": "--primitiv-table-caption-font-family",
+        "defaultsTo": "var(--primitiv-body-sm-font-family)"
+      },
+      {
+        "name": "--primitiv-table-caption-font-size",
+        "defaultsTo": "var(--primitiv-body-sm-font-size)"
+      },
+      {
+        "name": "--primitiv-table-caption-font-weight",
+        "defaultsTo": "var(--primitiv-body-sm-font-weight)"
+      },
+      {
+        "name": "--primitiv-table-caption-line-height",
+        "defaultsTo": "var(--primitiv-body-sm-line-height)"
+      },
+      {
+        "name": "--primitiv-table-caption-foreground",
+        "defaultsTo": "var(--primitiv-content-muted)"
+      },
+      {
+        "name": "--primitiv-table-transition-duration",
+        "defaultsTo": "var(--primitiv-motion-duration-control)"
+      },
+      {
+        "name": "--primitiv-table-transition-easing",
+        "defaultsTo": "var(--primitiv-motion-easing-default)"
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-state",
+        "value": "expanded",
+        "when": "whether this row's detail row is open"
+      },
+      {
+        "name": "data-state",
+        "value": "collapsed",
+        "when": "whether this row's detail row is open"
+      }
+    ]
+  },
+  "figma": {
+    "componentSetKey": "605:13524"
+  }
+}

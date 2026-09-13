@@ -63,6 +63,28 @@ export const REGISTRY = {
     contract: "registry/components/card/contract.json",
     figmaComponentSetKey: "1444:37322", importPath: "@/components/ui/card",
   },
+  table: {
+    displayName: "Table", kind: "registry", status: "stable", category: "Data Display",
+    /* Registry file: the styled surface re-documents `align` on Header/Cell and
+       adds `size`/`rows` on the root; the base parts otherwise pass through. The
+       headless-only expandable-row parts (Table.Expandable / .ExpandTrigger /
+       .DetailRow) are intentionally out of scope for this page — the styled
+       registry surface does not carry them, and it is what the page documents. */
+    propsFile: "registry/components/table/table.tsx",
+    subComponents: [
+      { name: "Table.Root", propsType: "TableProps", element: "table", component: "Root" },
+      { name: "Table.Head", propsType: "TableHeadProps", element: "thead", component: "Head" },
+      { name: "Table.Body", propsType: "TableBodyProps", element: "tbody", component: "Body" },
+      { name: "Table.Footer", propsType: "TableFooterProps", element: "tfoot", component: "Footer" },
+      { name: "Table.Row", propsType: "TableRowProps", element: "tr", component: "Row" },
+      { name: "Table.Header", propsType: "TableHeaderProps", element: "th", component: "Header" },
+      { name: "Table.Cell", propsType: "TableCellProps", element: "td", component: "Cell" },
+      { name: "Table.ScrollArea", propsType: "TableScrollAreaProps", element: "div", component: "ScrollArea" },
+      { name: "Table.Caption", propsType: "TableCaptionProps", element: "caption", component: "Caption" },
+    ],
+    contract: "registry/components/table/contract.json",
+    figmaComponentSetKey: "605:13524", importPath: "@primitiv-ui/react",
+  },
   accordion: {
     displayName: "Accordion", kind: "registry", status: "stable", category: "Disclosure",
     propsFile: "packages/react/src/Accordion/types.ts",

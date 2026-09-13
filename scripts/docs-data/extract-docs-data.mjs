@@ -44,6 +44,7 @@ const EL_IFACE = {
   blockquote: "HTMLQuoteElement", dl: "HTMLDListElement", kbd: "HTMLElement",
   code: "HTMLElement", dt: "HTMLElement", dd: "HTMLElement",
   figure: "HTMLElement", figcaption: "HTMLElement",
+  img: "HTMLImageElement",
 };
 
 const name = process.argv[2] || "button";

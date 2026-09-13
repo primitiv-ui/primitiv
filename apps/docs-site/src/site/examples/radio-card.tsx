@@ -248,6 +248,12 @@ export const radioCardSpec: ComponentSpec = {
               ``,
               ...groupLines(mode, {
                 attrs: ` defaultValue="pro" orientation="horizontal" aria-label="Plan"`,
+                /* Title-only cards for the row: a card with a description is
+                   ~300px wide, so two of them exceed the ~590px preview and
+                   `wrap` collapses the "row" back into a column — the exact
+                   opposite of what this example teaches. Compact cards are also
+                   the realistic shape for a horizontal row. */
+                items: PLANS.map((p) => ({ value: p.value, title: p.title })),
                 stack: "row",
               }),
             ].join("\n")
@@ -256,14 +262,12 @@ export const radioCardSpec: ComponentSpec = {
           {() => (
             <div className="docs-example-stack">
               <RadioCard defaultValue="pro" orientation="horizontal" aria-label="Plan">
-                {/* `wrap`, or the three cards run straight off the preview on a
-                    phone — 443px of cards in a 284px column. The example is
-                    about `orientation` following the layout, and a wrapped row
-                    is still a row-direction Stack, so nothing it demonstrates
-                    is lost. */}
+                {/* `wrap` is kept as a phone-width safety net, but with
+                    title-only cards the three genuinely sit in a row at the
+                    preview width — the whole point of the example. */}
                 <Stack direction="row" gap="sm" wrap="wrap">
                   {PLANS.map((p) => (
-                    <RadioCardItem key={p.value} value={p.value} title={p.title} description={p.description} />
+                    <RadioCardItem key={p.value} value={p.value} title={p.title} />
                   ))}
                 </Stack>
               </RadioCard>

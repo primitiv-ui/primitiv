@@ -2925,3 +2925,133 @@ The two passes §6.0.19 deferred to the export, done:
 **Still open, and unchanged by this:** the home page's FIGMA-01 has two items
 (§6.0.14) — a light Figma canvas in the dark composite, and no mobile
 recomposition. Both need a fresh human capture plus an `a11y-recorder` pass.
+
+### 6.0.29 The content illustrations move to the DOM (decision, 2026-09-13)
+
+First look at the landed art returned two notes: **too blurry and low-res**, and
+**a lot of these could have been made directly in the DOM**. The designs
+themselves are approved, bar one outstanding note on TOKENS-01.
+
+Those are one note, not two. This section records the decision and the plan; no
+code has moved yet.
+
+#### Why it reads blurry, and why a bigger export is not the fix
+
+The files are not under-exported: every one measured at exactly 2x its CSS box
+(1264 → 632, 684 → 326), so on a 2x display they are 1:1 device pixels.
+
+The likely cause is that **these illustrations are mostly small text**, and a
+rasterised glyph sits directly beside browser-rendered glyphs on the same page.
+The page's own text is hinted and antialiased by the engine at the exact size;
+the PNG's text was rasterised by Figma at a different size and then resampled.
+Raising the export to 4x narrows that gap and never closes it — and what makes
+it read as blur is precisely the **contrast with the live text next to it**.
+Stated as a hypothesis rather than a measurement: it is settled cheaply by
+rebuilding one figure and putting it beside its PNG, which is step 1 below.
+
+#### §6.0.19 rejected the DOM rebuild, and reasoned about the wrong axis
+
+That rejection stands as written but does not support the conclusion. It weighed
+exactly one argument — **palette survivability** — and correctly found it weak,
+since §6.0.9 measured that the Figma illustrations *do* follow a regeneration
+(575 bound paints, zero drifted). It never weighed resolution, text rendering,
+file weight, or the fact that several of these are *drawings of things the
+design system does natively*. Those are the deciding factors and they point the
+other way.
+
+The evidence was already in the repo and was not consulted: **home sections 3, 4
+and 5 are live DOM** — `ProblemSection`, `DensityDemo`, `ColourProof`,
+`TeamButtons`, `HueDrift` — and they are the sharpest, most truthful things on
+the site. The content pages went raster only because they were designed first.
+
+#### Nine of ten move; one cannot
+
+| id | verdict |
+| --- | --- |
+| **DENSITY-C01** four density columns | **Native.** Four `data-density` scopes around real Field/Button/prose. The PNG is a drawing of what the cascade does for free. |
+| **DENSITY-C02** nested regions | **Native.** Two nested `data-density` divs. |
+| **TOKENS-01** palette → intent → component trace | **Strictly better as DOM** — the ramp reads the live token layer, so it cannot drift from the palette. |
+| START-01 · FAMILY-01 · COMPOSE-01 · A11Y-C01 · CLI-01 · FIGMA-P02 | Boxes, labels, code blocks, one or two connectors in inline SVG. |
+| **FIGMA-P01** | **Stays raster.** A genuine screenshot of the Figma UI. Needs a higher-res retake. |
+
+#### The content pipeline does not change
+
+Worth stating plainly, because it is what makes this affordable. The builder
+already emits `['gap', 'START-01', …]` and `ContentPage` already treats a `gap`
+as an out-of-flow stack sibling (§6.0.27). **Only the renderer swaps**:
+`ContentIllustration` (manifest + `<picture>`) becomes a figure registry keyed
+by the same brief id. Untouched: `docs-content-pages.js`, the generated page
+JSON, `verify-docs-content-pages.mjs`, the paired-row logic, the Prose/Stack
+split, the 64rem breakpoint.
+
+What falls out for free: **theme** (tokens, not a second file), **density**,
+and the **mobile recomposition** (a container query rather than a second Figma
+frame). ~36 PNGs and 2.4MB leave the repo along with the human-in-the-loop
+export, and `gen-illustrations.mjs` + the manifest + the aspect-ratio gate retire
+with them — kept only for FIGMA-P01.
+
+#### Hard constraint: tokens only, via CSS custom properties
+
+Every value in a rebuilt figure resolves a `--primitiv-*` custom property. No
+hex, no bare length, no literal radius or duration. Where the system genuinely
+has no token, the value is named once as a `--docs-*` constant and reused — the
+existing convention (`--docs-density-measure`, `--docs-stage-height`).
+
+**This is already enforced**, and `scripts/check-tokens.mjs` is the gate: it
+fails on a phantom `var(--primitiv-…)` (the dangerous one — an unresolved token
+silently drops the declaration), on any bare length outside a `--docs-*`
+declaration, and on any unprefixed selector.
+
+**But it walks `.css` only, so an inline `style={{}}` in TSX bypasses all three
+checks** — and diagrams are exactly where inline styles tempt you, for
+positioning a connector or sizing a column. That hole must be closed before the
+rebuild, not after. The eight inline styles in `src/site/*.tsx` today are all
+the one legitimate category: **engine or measured data** (`s.hex` off the
+palette engine, a computed hue position, a measured aspect ratio) — values that
+are data rather than design decisions and so have no token by definition. The
+extension should allow exactly that and reject the rest.
+
+#### Accessibility: semantic, not `role="img"`
+
+Prefer real DOM — headings, lists, live components — so a screen-reader user
+gets the content rather than a summary. Reserve `role="img"` + `aria-label` for
+the genuinely pictorial parts (connector arrows), reusing the authored alt
+string. This is a **change in kind** from the ten alt strings, which describe a
+picture; it needs sign-off before the first rebuild rather than after the ninth.
+
+#### Sequencing
+
+**Do not run this alongside the component-page work.** The overlap is small but
+real — `ContentPage.tsx`, `content-page.css`, the docs-site `package.json`
+scripts — and with everything going straight to `main` there is no branch to
+absorb a collision.
+
+1. **DENSITY-C01 + DENSITY-C02.** Highest value, lowest effort, and they settle
+   the blur hypothesis beside their own PNGs before anything else is committed to.
+2. **TOKENS-01** — carries the outstanding design note, and live tokens make it
+   more truthful than the drawing.
+3. The remaining six.
+4. **FIGMA-P01** retake at higher resolution, in the same pass as the home page's
+   FIGMA-01, which already needs a human capture for its two open items (§6.0.14).
+
+Honest sizing: nine figures at roughly 60–150 lines of TSX plus CSS each, plus
+the renderer swap and the inline-style gate — **two sessions**, not one.
+
+**The drift risk is real and is the one thing this trades for.** The Figma
+frames stop being the shipped asset and become the design record — the same
+relationship component sets already have to registry components. Each rebuild is
+checked against its frame, reading the frame rather than the prose, which is the
+discipline the component work already uses.
+
+#### Open, needed before step 1
+
+- **Which TOKENS-01 note.** Recorded so far: its alt text describes the colour
+  trace (palette → intent → rendered button) and omits the **CONTEXT** column the
+  illustration also draws (`framed-control/md/height 40`, `/padding-inline 16`).
+  There is also a publication gate on the Tokens page about standard ramps. If
+  the note is a third thing about the design itself, it belongs in the rebuild
+  spec.
+- **Sign-off on semantic markup over `role="img"`** (above).
+- **Whether to ship before the rebuild.** The 40 frames still carry their export
+  settings, so flipping them to 4x is one bridge call and one more click — worth
+  it only if the deploy cannot wait, otherwise it is throwaway work.

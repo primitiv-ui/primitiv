@@ -103,7 +103,11 @@ export const NAV: readonly NavSection[] = [
     children: pageLinks("start-here"),
   },
   {
+    // No `/concepts/` index route exists, so the section title navigates to its
+    // first page — the reader's expectation for a titled section, and the same
+    // shape as Start Here (whose href and first child both resolve to one page).
     title: "Concepts",
+    href: "/concepts/what-primitiv-is/",
     children: [
       { title: "What Primitiv is", href: "/concepts/what-primitiv-is/" },
       { title: "Tokens & theming", href: "/concepts/tokens/" },

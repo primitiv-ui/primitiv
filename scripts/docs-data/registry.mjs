@@ -18,6 +18,21 @@
  * `node scripts/docs-data/sync-docs-data.mjs`.
  */
 export const REGISTRY = {
+  avatar: {
+    displayName: "Avatar", kind: "registry", status: "stable", category: "Data Display",
+    /* Headless types, not the registry file (the accordion convention, not the
+       radio-card one): avatar's only styled additions are `size`/`shape`, which
+       are contract modifiers — there is no styled-only prop the copied file adds
+       that the contract does not already carry. */
+    propsFile: "packages/react/src/Avatar/types.ts",
+    subComponents: [
+      { name: "Avatar.Root", propsType: "AvatarRootProps", element: "span", component: "Root" },
+      { name: "Avatar.Image", propsType: "AvatarImageProps", element: "img", component: "Image" },
+      { name: "Avatar.Fallback", propsType: "AvatarFallbackProps", element: "span", component: "Fallback" },
+    ],
+    contract: "registry/components/avatar/contract.json",
+    figmaComponentSetKey: "433:7944", importPath: "@primitiv-ui/react",
+  },
   accordion: {
     displayName: "Accordion", kind: "registry", status: "stable", category: "Disclosure",
     propsFile: "packages/react/src/Accordion/types.ts",

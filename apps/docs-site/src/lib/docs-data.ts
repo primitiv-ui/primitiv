@@ -21,6 +21,7 @@
 
 import alertDocs from "@/docs-data/alert.docs.json";
 import avatarDocs from "@/docs-data/avatar.docs.json";
+import avatarGroupDocs from "@/docs-data/avatar-group.docs.json";
 import badgeDocs from "@/docs-data/badge.docs.json";
 import buttonDocs from "@/docs-data/button.docs.json";
 import inputDocs from "@/docs-data/input.docs.json";
@@ -232,6 +233,7 @@ export type ComponentDocs = {
 const DOCS = {
   alert: alertDocs as unknown as ComponentDocs,
   avatar: avatarDocs as unknown as ComponentDocs,
+  "avatar-group": avatarGroupDocs as unknown as ComponentDocs,
   badge: badgeDocs as unknown as ComponentDocs,
   button: buttonDocs as unknown as ComponentDocs,
   input: inputDocs as unknown as ComponentDocs,

@@ -29,10 +29,10 @@
   },
   {
     "id": "avatar-group",
-    "displayName": "Avatar Group",
+    "displayName": "AvatarGroup",
     "category": "Data Display",
     "description": "An overlapping row of Avatars with an optional \"+N\" overflow counter — the collaborators/attendees pattern. Composes the registry `avatar` component; the counter is itself an Avatar, not a Badge. Sized xs–xl; `data-density` scales each size further.",
-    "documented": false
+    "documented": true
   },
   {
     "id": "badge",

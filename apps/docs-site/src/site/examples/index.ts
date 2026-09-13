@@ -4,6 +4,7 @@ import type { ComponentId } from "@/lib/docs-data";
 
 import { alertSpec } from "./alert";
 import { avatarSpec } from "./avatar";
+import { avatarGroupSpec } from "./avatar-group";
 import { badgeSpec } from "./badge";
 import { buttonSpec } from "./button";
 import { inputSpec } from "./input";
@@ -55,6 +56,7 @@ import type { ComponentSpec } from "./types";
 export const SPECS: Record<ComponentId, ComponentSpec> = {
   alert: alertSpec,
   avatar: avatarSpec,
+  "avatar-group": avatarGroupSpec,
   badge: badgeSpec,
   button: buttonSpec,
   input: inputSpec,

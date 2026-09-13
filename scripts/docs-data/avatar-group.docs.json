@@ -1,0 +1,81 @@
+{
+  "id": "avatar-group",
+  "displayName": "AvatarGroup",
+  "kind": "registry-only",
+  "status": "stable",
+  "category": "Data Display",
+  "description": "An overlapping row of Avatars with an optional \"+N\" overflow counter — the collaborators/attendees pattern. Composes the registry `avatar` component; the counter is itself an Avatar, not a Badge. Sized xs–xl; `data-density` scales each size further.",
+  "headless": {
+    "package": "@primitiv-ui/react",
+    "importPath": "@/components/ui/avatar-group",
+    "subComponents": [
+      {
+        "name": "AvatarGroup",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": false,
+            "default": null,
+            "description": "The `Avatar` elements."
+          },
+          {
+            "name": "max",
+            "type": "number",
+            "required": false,
+            "default": null,
+            "description": "Show at most this many faces, replacing the remainder with a `+N`\ncounter. Omit to show every child and no counter."
+          },
+          {
+            "name": "overflowLabel",
+            "type": "(count: number) => string",
+            "required": false,
+            "default": "(n) => `${n} more`",
+            "description": "Accessible label for the overflow counter, given the count. The counter\nis decorative-by-default otherwise."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [
+          {
+            "name": "size",
+            "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
+            "default": "md",
+            "description": "Matches the nested Avatars' size; `data-density` scales each size further."
+          },
+          {
+            "name": "direction",
+            "type": "\"ltr\" | \"rtl\"",
+            "default": "ltr",
+            "description": "Which way the stack advances. Decides which end the counter lands on."
+          }
+        ],
+        "dataAttributes": [],
+        "class": "primitiv-avatar-group"
+      }
+    ]
+  },
+  "styled": {
+    "installCommand": "primitiv add avatar-group",
+    "rootClass": "primitiv-avatar-group",
+    "customProperties": [
+      {
+        "name": "--primitiv-avatar-group-overlap",
+        "defaultsTo": "var(--primitiv-avatar-group-md-overlap)"
+      },
+      {
+        "name": "--primitiv-avatar-group-ring-width",
+        "defaultsTo": "var(--primitiv-avatar-group-md-ring-width)"
+      },
+      {
+        "name": "--primitiv-avatar-group-ring-color",
+        "defaultsTo": "var(--primitiv-surface-default)"
+      }
+    ],
+    "dataAttributes": []
+  },
+  "figma": {
+    "componentSetKey": "1480:44052"
+  }
+}

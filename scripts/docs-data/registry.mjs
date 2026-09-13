@@ -33,6 +33,18 @@ export const REGISTRY = {
     contract: "registry/components/avatar/contract.json",
     figmaComponentSetKey: "433:7944", importPath: "@primitiv-ui/react",
   },
+  "avatar-group": {
+    displayName: "AvatarGroup", kind: "registry-only", status: "stable", category: "Data Display",
+    /* Registry-only and primitive-less: it owns only the truncation arithmetic,
+       so its props (`max`, `overflowLabel` beside the `size`/`direction`
+       contract modifiers) live in the copied file, not packages/react. */
+    propsFile: "registry/components/avatar-group/avatar-group.tsx",
+    subComponents: [
+      { name: "AvatarGroup", propsType: "AvatarGroupProps", element: "div", component: "AvatarGroup" },
+    ],
+    contract: "registry/components/avatar-group/contract.json",
+    figmaComponentSetKey: "1480:44052", importPath: "@/components/ui/avatar-group",
+  },
   accordion: {
     displayName: "Accordion", kind: "registry", status: "stable", category: "Disclosure",
     propsFile: "packages/react/src/Accordion/types.ts",
@@ -680,6 +692,7 @@ export const CATEGORIES = {
  * should call it what you would type.
  */
 export const DISPLAY_NAME_OVERRIDES = {
+  "avatar-group": "AvatarGroup",
   "checkbox-card": "CheckboxCard",
   "radio-card": "RadioCard",
   "empty-state": "EmptyState",

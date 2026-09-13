@@ -11,6 +11,11 @@
           "foreground": "#000923",
           "foregroundSource": "Step900",
           "hex": "#f0f5ff",
+          "oklch": {
+            "c": 0.0135,
+            "h": 259.8783,
+            "l": 0.97
+          },
           "step": "50"
         },
         {
@@ -18,6 +23,11 @@
           "foreground": "#000923",
           "foregroundSource": "Step900",
           "hex": "#d2e3fe",
+          "oklch": {
+            "c": 0.041,
+            "h": 259.8783,
+            "l": 0.9108
+          },
           "step": "100"
         },
         {
@@ -25,6 +35,11 @@
           "foreground": "#000923",
           "foregroundSource": "Step900",
           "hex": "#aac9fc",
+          "oklch": {
+            "c": 0.0796,
+            "h": 259.8783,
+            "l": 0.8319
+          },
           "step": "200"
         },
         {
@@ -32,6 +47,11 @@
           "foreground": "#000923",
           "foregroundSource": "Step900",
           "hex": "#86b3fb",
+          "oklch": {
+            "c": 0.1154,
+            "h": 259.8783,
+            "l": 0.7628
+          },
           "step": "300"
         },
         {
@@ -39,6 +59,11 @@
           "foreground": "#000923",
           "foregroundSource": "Step900",
           "hex": "#5794fa",
+          "oklch": {
+            "c": 0.1642,
+            "h": 259.8783,
+            "l": 0.6741
+          },
           "step": "400"
         },
         {
@@ -46,6 +71,11 @@
           "foreground": "#ffffff",
           "foregroundSource": "PureWhite",
           "hex": "#236ce1",
+          "oklch": {
+            "c": 0.1923,
+            "h": 259.8783,
+            "l": 0.5557
+          },
           "step": "500"
         },
         {
@@ -53,6 +83,11 @@
           "foreground": "#f0f5ff",
           "foregroundSource": "Step50",
           "hex": "#104fb2",
+          "oklch": {
+            "c": 0.168,
+            "h": 259.8783,
+            "l": 0.4543
+          },
           "step": "600"
         },
         {
@@ -60,6 +95,11 @@
           "foreground": "#f0f5ff",
           "foregroundSource": "Step50",
           "hex": "#032e71",
+          "oklch": {
+            "c": 0.1242,
+            "h": 259.8783,
+            "l": 0.3224
+          },
           "step": "700"
         },
         {
@@ -67,6 +107,11 @@
           "foreground": "#f0f5ff",
           "foregroundSource": "Step50",
           "hex": "#011841",
+          "oklch": {
+            "c": 0.0852,
+            "h": 259.8783,
+            "l": 0.221
+          },
           "step": "800"
         },
         {
@@ -74,6 +119,11 @@
           "foreground": "#f0f5ff",
           "foregroundSource": "Step50",
           "hex": "#000923",
+          "oklch": {
+            "c": 0.058,
+            "h": 259.8783,
+            "l": 0.15
+          },
           "step": "900"
         }
       ],
@@ -90,6 +140,11 @@
           "foreground": "#e1ecfe",
           "foregroundSource": "Step900",
           "hex": "#121922",
+          "oklch": {
+            "c": 0.0219,
+            "h": 259.8783,
+            "l": 0.21
+          },
           "step": "50"
         },
         {
@@ -97,6 +152,11 @@
           "foreground": "#e1ecfe",
           "foregroundSource": "Step900",
           "hex": "#0e2140",
+          "oklch": {
+            "c": 0.0639,
+            "h": 259.8783,
+            "l": 0.2507
+          },
           "step": "100"
         },
         {
@@ -104,6 +164,11 @@
           "foreground": "#e1ecfe",
           "foregroundSource": "Step900",
           "hex": "#032967",
+          "oklch": {
+            "c": 0.1161,
+            "h": 259.8783,
+            "l": 0.3015
+          },
           "step": "200"
         },
         {
@@ -111,6 +176,11 @@
           "foreground": "#e1ecfe",
           "foregroundSource": "Step900",
           "hex": "#053a8a",
+          "oklch": {
+            "c": 0.1435,
+            "h": 259.8783,
+            "l": 0.3727
+          },
           "step": "300"
         },
         {
@@ -118,6 +188,11 @@
           "foreground": "#e1ecfe",
           "foregroundSource": "Step900",
           "hex": "#1452b5",
+          "oklch": {
+            "c": 0.168,
+            "h": 259.8783,
+            "l": 0.4642
+          },
           "step": "400"
         },
         {
@@ -125,6 +200,11 @@
           "foreground": "#ffffff",
           "foregroundSource": "PureWhite",
           "hex": "#236ce1",
+          "oklch": {
+            "c": 0.1923,
+            "h": 259.8783,
+            "l": 0.5557
+          },
           "step": "500"
         },
         {
@@ -132,6 +212,11 @@
           "foreground": "#121922",
           "foregroundSource": "Step50",
           "hex": "#5291f9",
+          "oklch": {
+            "c": 0.168,
+            "h": 259.8783,
+            "l": 0.6641
+          },
           "step": "600"
         },
         {
@@ -139,6 +224,11 @@
           "foreground": "#121922",
           "foregroundSource": "Step50",
           "hex": "#8bb6fb",
+          "oklch": {
+            "c": 0.1103,
+            "h": 259.8783,
+            "l": 0.7725
+          },
           "step": "700"
         },
         {
@@ -146,6 +236,11 @@
           "foreground": "#121922",
           "foregroundSource": "Step50",
           "hex": "#bed6fd",
+          "oklch": {
+            "c": 0.0602,
+            "h": 259.8783,
+            "l": 0.871
+          },
           "step": "800"
         },
         {
@@ -153,6 +248,11 @@
           "foreground": "#121922",
           "foregroundSource": "Step50",
           "hex": "#e1ecfe",
+          "oklch": {
+            "c": 0.0272,
+            "h": 259.8783,
+            "l": 0.94
+          },
           "step": "900"
         }
       ],
@@ -169,6 +269,11 @@
           "foreground": "#001001",
           "foregroundSource": "Step900",
           "hex": "#edf9ec",
+          "oklch": {
+            "c": 0.021,
+            "h": 143.2808,
+            "l": 0.97
+          },
           "step": "50"
         },
         {
@@ -176,6 +281,11 @@
           "foreground": "#001001",
           "foregroundSource": "Step900",
           "hex": "#caedc8",
+          "oklch": {
+            "c": 0.0612,
+            "h": 143.2808,
+            "l": 0.9107
+          },
           "step": "100"
         },
         {
@@ -183,6 +293,11 @@
           "foreground": "#001001",
           "foregroundSource": "Step900",
           "hex": "#9bdb98",
+          "oklch": {
+            "c": 0.1137,
+            "h": 143.2808,
+            "l": 0.8317
+          },
           "step": "200"
         },
         {
@@ -190,6 +305,11 @@
           "foreground": "#001001",
           "foregroundSource": "Step900",
           "hex": "#79c976",
+          "oklch": {
+            "c": 0.1399,
+            "h": 143.2808,
+            "l": 0.7626
+          },
           "step": "300"
         },
         {
@@ -197,6 +317,11 @@
           "foreground": "#001001",
           "foregroundSource": "Step900",
           "hex": "#50af4f",
+          "oklch": {
+            "c": 0.1609,
+            "h": 143.2808,
+            "l": 0.6737
+          },
           "step": "400"
         },
         {
@@ -204,6 +329,11 @@
           "foreground": "#000000",
           "foregroundSource": "PureBlack",
           "hex": "#008c11",
+          "oklch": {
+            "c": 0.1841,
+            "h": 143.2808,
+            "l": 0.5551
+          },
           "step": "500"
         },
         {
@@ -211,6 +341,11 @@
           "foreground": "#edf9ec",
           "foregroundSource": "Step50",
           "hex": "#0e6913",
+          "oklch": {
+            "c": 0.143,
+            "h": 143.2808,
+            "l": 0.4539
+          },
           "step": "600"
         },
         {
@@ -218,6 +353,11 @@
           "foreground": "#edf9ec",
           "foregroundSource": "Step50",
           "hex": "#053f08",
+          "oklch": {
+            "c": 0.1015,
+            "h": 143.2808,
+            "l": 0.3222
+          },
           "step": "700"
         },
         {
@@ -225,6 +365,11 @@
           "foreground": "#edf9ec",
           "foregroundSource": "Step50",
           "hex": "#022202",
+          "oklch": {
+            "c": 0.0697,
+            "h": 143.2808,
+            "l": 0.2209
+          },
           "step": "800"
         },
         {
@@ -232,6 +377,11 @@
           "foreground": "#edf9ec",
           "foregroundSource": "Step50",
           "hex": "#001001",
+          "oklch": {
+            "c": 0.0474,
+            "h": 143.2808,
+            "l": 0.15
+          },
           "step": "900"
         }
       ],
@@ -248,6 +398,11 @@
           "foreground": "#c9fbc6",
           "foregroundSource": "Step900",
           "hex": "#131b12",
+          "oklch": {
+            "c": 0.021,
+            "h": 143.2808,
+            "l": 0.21
+          },
           "step": "50"
         },
         {
@@ -255,6 +410,11 @@
           "foreground": "#c9fbc6",
           "foregroundSource": "Step900",
           "hex": "#0d290c",
+          "oklch": {
+            "c": 0.0612,
+            "h": 143.2808,
+            "l": 0.2506
+          },
           "step": "100"
         },
         {
@@ -262,6 +422,11 @@
           "foreground": "#c9fbc6",
           "foregroundSource": "Step900",
           "hex": "#043906",
+          "oklch": {
+            "c": 0.095,
+            "h": 143.2808,
+            "l": 0.3014
+          },
           "step": "200"
         },
         {
@@ -269,6 +434,11 @@
           "foreground": "#c9fbc6",
           "foregroundSource": "Step900",
           "hex": "#084f0c",
+          "oklch": {
+            "c": 0.1174,
+            "h": 143.2808,
+            "l": 0.3724
+          },
           "step": "300"
         },
         {
@@ -276,6 +446,11 @@
           "foreground": "#c9fbc6",
           "foregroundSource": "Step900",
           "hex": "#0f6c14",
+          "oklch": {
+            "c": 0.1461,
+            "h": 143.2808,
+            "l": 0.4638
+          },
           "step": "400"
         },
         {
@@ -283,6 +458,11 @@
           "foreground": "#000000",
           "foregroundSource": "PureBlack",
           "hex": "#008c11",
+          "oklch": {
+            "c": 0.1841,
+            "h": 143.2808,
+            "l": 0.5551
+          },
           "step": "500"
         },
         {
@@ -290,6 +470,11 @@
           "foreground": "#131b12",
           "foregroundSource": "Step50",
           "hex": "#4dab4c",
+          "oklch": {
+            "c": 0.1609,
+            "h": 143.2808,
+            "l": 0.6637
+          },
           "step": "600"
         },
         {
@@ -297,6 +482,11 @@
           "foreground": "#131b12",
           "foregroundSource": "Step50",
           "hex": "#7ccc78",
+          "oklch": {
+            "c": 0.1399,
+            "h": 143.2808,
+            "l": 0.7722
+          },
           "step": "700"
         },
         {
@@ -304,6 +494,11 @@
           "foreground": "#131b12",
           "foregroundSource": "Step50",
           "hex": "#a7e8a4",
+          "oklch": {
+            "c": 0.1137,
+            "h": 143.2808,
+            "l": 0.8709
+          },
           "step": "800"
         },
         {
@@ -311,6 +506,11 @@
           "foreground": "#131b12",
           "foregroundSource": "Step50",
           "hex": "#c9fbc6",
+          "oklch": {
+            "c": 0.0875,
+            "h": 143.2808,
+            "l": 0.94
+          },
           "step": "900"
         }
       ],
@@ -327,6 +527,11 @@
           "foreground": "#140800",
           "foregroundSource": "Step900",
           "hex": "#fef3e9",
+          "oklch": {
+            "c": 0.0183,
+            "h": 66.3556,
+            "l": 0.97
+          },
           "step": "50"
         },
         {
@@ -334,6 +539,11 @@
           "foreground": "#140800",
           "foregroundSource": "Step900",
           "hex": "#fee5cc",
+          "oklch": {
+            "c": 0.0429,
+            "h": 66.3556,
+            "l": 0.9349
+          },
           "step": "100"
         },
         {
@@ -341,6 +551,11 @@
           "foreground": "#140800",
           "foregroundSource": "Step900",
           "hex": "#fdd1a5",
+          "oklch": {
+            "c": 0.0761,
+            "h": 66.3556,
+            "l": 0.8881
+          },
           "step": "200"
         },
         {
@@ -348,6 +563,11 @@
           "foreground": "#140800",
           "foregroundSource": "Step900",
           "hex": "#fdbf7f",
+          "oklch": {
+            "c": 0.1071,
+            "h": 66.3556,
+            "l": 0.8472
+          },
           "step": "300"
         },
         {
@@ -355,6 +575,11 @@
           "foreground": "#140800",
           "foregroundSource": "Step900",
           "hex": "#f8a84e",
+          "oklch": {
+            "c": 0.1406,
+            "h": 66.3556,
+            "l": 0.7945
+          },
           "step": "400"
         },
         {
@@ -362,6 +587,11 @@
           "foreground": "#140800",
           "foregroundSource": "Step900",
           "hex": "#e88e00",
+          "oklch": {
+            "c": 0.1608,
+            "h": 66.3556,
+            "l": 0.7244
+          },
           "step": "500"
         },
         {
@@ -369,6 +599,11 @@
           "foreground": "#000000",
           "foregroundSource": "PureBlack",
           "hex": "#aa6a14",
+          "oklch": {
+            "c": 0.1225,
+            "h": 66.3556,
+            "l": 0.5808
+          },
           "step": "600"
         },
         {
@@ -376,6 +611,11 @@
           "foreground": "#fef3e9",
           "foregroundSource": "Step50",
           "hex": "#643c07",
+          "oklch": {
+            "c": 0.0832,
+            "h": 66.3556,
+            "l": 0.3941
+          },
           "step": "700"
         },
         {
@@ -383,6 +623,11 @@
           "foreground": "#fef3e9",
           "foregroundSource": "Step50",
           "hex": "#321c02",
+          "oklch": {
+            "c": 0.0529,
+            "h": 66.3556,
+            "l": 0.2505
+          },
           "step": "800"
         },
         {
@@ -390,6 +635,11 @@
           "foreground": "#fef3e9",
           "foregroundSource": "Step50",
           "hex": "#140800",
+          "oklch": {
+            "c": 0.0318,
+            "h": 66.3556,
+            "l": 0.15
+          },
           "step": "900"
         }
       ],
@@ -406,6 +656,11 @@
           "foreground": "#fee7d0",
           "foregroundSource": "Step900",
           "hex": "#1e170f",
+          "oklch": {
+            "c": 0.0183,
+            "h": 66.3556,
+            "l": 0.21
+          },
           "step": "50"
         },
         {
@@ -413,6 +668,11 @@
           "foreground": "#fee7d0",
           "foregroundSource": "Step900",
           "hex": "#382105",
+          "oklch": {
+            "c": 0.0535,
+            "h": 66.3556,
+            "l": 0.2705
+          },
           "step": "100"
         },
         {
@@ -420,6 +680,11 @@
           "foreground": "#fee7d0",
           "foregroundSource": "Step900",
           "hex": "#533105",
+          "oklch": {
+            "c": 0.073,
+            "h": 66.3556,
+            "l": 0.3462
+          },
           "step": "200"
         },
         {
@@ -427,6 +692,11 @@
           "foreground": "#fee7d0",
           "foregroundSource": "Step900",
           "hex": "#79490b",
+          "oklch": {
+            "c": 0.0954,
+            "h": 66.3556,
+            "l": 0.4521
+          },
           "step": "300"
         },
         {
@@ -434,6 +704,11 @@
           "foreground": "#000000",
           "foregroundSource": "PureBlack",
           "hex": "#ad6c14",
+          "oklch": {
+            "c": 0.1241,
+            "h": 66.3556,
+            "l": 0.5882
+          },
           "step": "400"
         },
         {
@@ -441,6 +716,11 @@
           "foreground": "#1e170f",
           "foregroundSource": "Step50",
           "hex": "#e88e00",
+          "oklch": {
+            "c": 0.1608,
+            "h": 66.3556,
+            "l": 0.7244
+          },
           "step": "500"
         },
         {
@@ -448,6 +728,11 @@
           "foreground": "#1e170f",
           "foregroundSource": "Step50",
           "hex": "#f5a54b",
+          "oklch": {
+            "c": 0.1406,
+            "h": 66.3556,
+            "l": 0.7852
+          },
           "step": "600"
         },
         {
@@ -455,6 +740,11 @@
           "foreground": "#1e170f",
           "foregroundSource": "Step50",
           "hex": "#fdbe7e",
+          "oklch": {
+            "c": 0.108,
+            "h": 66.3556,
+            "l": 0.846
+          },
           "step": "700"
         },
         {
@@ -462,6 +752,11 @@
           "foreground": "#1e170f",
           "foregroundSource": "Step50",
           "hex": "#fdd7b0",
+          "oklch": {
+            "c": 0.0665,
+            "h": 66.3556,
+            "l": 0.9013
+          },
           "step": "800"
         },
         {
@@ -469,6 +764,11 @@
           "foreground": "#1e170f",
           "foregroundSource": "Step50",
           "hex": "#fee7d0",
+          "oklch": {
+            "c": 0.0394,
+            "h": 66.3556,
+            "l": 0.94
+          },
           "step": "900"
         }
       ],
@@ -485,6 +785,11 @@
           "foreground": "#1e0101",
           "foregroundSource": "Step900",
           "hex": "#fff2f0",
+          "oklch": {
+            "c": 0.014,
+            "h": 27.4579,
+            "l": 0.97
+          },
           "step": "50"
         },
         {
@@ -492,6 +797,11 @@
           "foreground": "#1e0101",
           "foregroundSource": "Step900",
           "hex": "#fed8d3",
+          "oklch": {
+            "c": 0.0423,
+            "h": 27.4579,
+            "l": 0.9134
+          },
           "step": "100"
         },
         {
@@ -499,6 +809,11 @@
           "foreground": "#1e0101",
           "foregroundSource": "Step900",
           "hex": "#fdb5ac",
+          "oklch": {
+            "c": 0.0849,
+            "h": 27.4579,
+            "l": 0.838
+          },
           "step": "200"
         },
         {
@@ -506,6 +821,11 @@
           "foreground": "#1e0101",
           "foregroundSource": "Step900",
           "hex": "#fc9487",
+          "oklch": {
+            "c": 0.1276,
+            "h": 27.4579,
+            "l": 0.772
+          },
           "step": "300"
         },
         {
@@ -513,6 +833,11 @@
           "foreground": "#1e0101",
           "foregroundSource": "Step900",
           "hex": "#f96156",
+          "oklch": {
+            "c": 0.1884,
+            "h": 27.4579,
+            "l": 0.6871
+          },
           "step": "400"
         },
         {
@@ -520,6 +845,11 @@
           "foreground": "#ffffff",
           "foregroundSource": "PureWhite",
           "hex": "#db2424",
+          "oklch": {
+            "c": 0.2156,
+            "h": 27.4579,
+            "l": 0.5739
+          },
           "step": "500"
         },
         {
@@ -527,6 +857,11 @@
           "foreground": "#fff2f0",
           "foregroundSource": "Step50",
           "hex": "#a91215",
+          "oklch": {
+            "c": 0.1814,
+            "h": 27.4579,
+            "l": 0.4679
+          },
           "step": "600"
         },
         {
@@ -534,6 +869,11 @@
           "foreground": "#fff2f0",
           "foregroundSource": "Step50",
           "hex": "#680709",
+          "oklch": {
+            "c": 0.128,
+            "h": 27.4579,
+            "l": 0.3302
+          },
           "step": "700"
         },
         {
@@ -541,6 +881,11 @@
           "foreground": "#fff2f0",
           "foregroundSource": "Step50",
           "hex": "#3b0203",
+          "oklch": {
+            "c": 0.087,
+            "h": 27.4579,
+            "l": 0.2242
+          },
           "step": "800"
         },
         {
@@ -548,6 +893,11 @@
           "foreground": "#fff2f0",
           "foregroundSource": "Step50",
           "hex": "#1e0101",
+          "oklch": {
+            "c": 0.0583,
+            "h": 27.4579,
+            "l": 0.15
+          },
           "step": "900"
         }
       ],
@@ -564,6 +914,11 @@
           "foreground": "#fee4e1",
           "foregroundSource": "Step900",
           "hex": "#231412",
+          "oklch": {
+            "c": 0.0246,
+            "h": 27.4579,
+            "l": 0.21
+          },
           "step": "50"
         },
         {
@@ -571,6 +926,11 @@
           "foreground": "#fee4e1",
           "foregroundSource": "Step900",
           "hex": "#3e110e",
+          "oklch": {
+            "c": 0.0717,
+            "h": 27.4579,
+            "l": 0.2528
+          },
           "step": "100"
         },
         {
@@ -578,6 +938,11 @@
           "foreground": "#fee4e1",
           "foregroundSource": "Step900",
           "hex": "#5d0607",
+          "oklch": {
+            "c": 0.1188,
+            "h": 27.4579,
+            "l": 0.3063
+          },
           "step": "200"
         },
         {
@@ -585,6 +950,11 @@
           "foreground": "#fee4e1",
           "foregroundSource": "Step900",
           "hex": "#7f0b0d",
+          "oklch": {
+            "c": 0.1478,
+            "h": 27.4579,
+            "l": 0.3813
+          },
           "step": "300"
         },
         {
@@ -592,6 +962,11 @@
           "foreground": "#fee4e1",
           "foregroundSource": "Step900",
           "hex": "#ad1316",
+          "oklch": {
+            "c": 0.1852,
+            "h": 27.4579,
+            "l": 0.4776
+          },
           "step": "400"
         },
         {
@@ -599,6 +974,11 @@
           "foreground": "#ffffff",
           "foregroundSource": "PureWhite",
           "hex": "#db2424",
+          "oklch": {
+            "c": 0.2156,
+            "h": 27.4579,
+            "l": 0.5739
+          },
           "step": "500"
         },
         {
@@ -606,6 +986,11 @@
           "foreground": "#231412",
           "foregroundSource": "Step50",
           "hex": "#f65e53",
+          "oklch": {
+            "c": 0.1884,
+            "h": 27.4579,
+            "l": 0.6772
+          },
           "step": "600"
         },
         {
@@ -613,6 +998,11 @@
           "foreground": "#231412",
           "foregroundSource": "Step50",
           "hex": "#fc988c",
+          "oklch": {
+            "c": 0.1218,
+            "h": 27.4579,
+            "l": 0.7804
+          },
           "step": "700"
         },
         {
@@ -620,6 +1010,11 @@
           "foreground": "#231412",
           "foregroundSource": "Step50",
           "hex": "#fdc6bf",
+          "oklch": {
+            "c": 0.0636,
+            "h": 27.4579,
+            "l": 0.8743
+          },
           "step": "800"
         },
         {
@@ -627,6 +1022,11 @@
           "foreground": "#231412",
           "foregroundSource": "Step50",
           "hex": "#fee4e1",
+          "oklch": {
+            "c": 0.0287,
+            "h": 27.4579,
+            "l": 0.94
+          },
           "step": "900"
         }
       ],
@@ -643,6 +1043,11 @@
           "foreground": "#000e10",
           "foregroundSource": "Step900",
           "hex": "#edf7f9",
+          "oklch": {
+            "c": 0.0116,
+            "h": 207.8596,
+            "l": 0.97
+          },
           "step": "50"
         },
         {
@@ -650,6 +1055,11 @@
           "foreground": "#000e10",
           "foregroundSource": "Step900",
           "hex": "#caeaef",
+          "oklch": {
+            "c": 0.0338,
+            "h": 207.8596,
+            "l": 0.9159
+          },
           "step": "100"
         },
         {
@@ -657,6 +1067,11 @@
           "foreground": "#000e10",
           "foregroundSource": "Step900",
           "hex": "#9bd8e1",
+          "oklch": {
+            "c": 0.0628,
+            "h": 207.8596,
+            "l": 0.8438
+          },
           "step": "200"
         },
         {
@@ -664,6 +1079,11 @@
           "foreground": "#000e10",
           "foregroundSource": "Step900",
           "hex": "#7ac6d1",
+          "oklch": {
+            "c": 0.0772,
+            "h": 207.8596,
+            "l": 0.7807
+          },
           "step": "300"
         },
         {
@@ -671,6 +1091,11 @@
           "foreground": "#000e10",
           "foregroundSource": "Step900",
           "hex": "#52aebb",
+          "oklch": {
+            "c": 0.0888,
+            "h": 207.8596,
+            "l": 0.6996
+          },
           "step": "400"
         },
         {
@@ -678,6 +1103,11 @@
           "foreground": "#000e10",
           "foregroundSource": "Step900",
           "hex": "#008e9d",
+          "oklch": {
+            "c": 0.1016,
+            "h": 207.8596,
+            "l": 0.5915
+          },
           "step": "500"
         },
         {
@@ -685,6 +1115,11 @@
           "foreground": "#edf7f9",
           "foregroundSource": "Step50",
           "hex": "#106a75",
+          "oklch": {
+            "c": 0.0785,
+            "h": 207.8596,
+            "l": 0.4811
+          },
           "step": "600"
         },
         {
@@ -692,6 +1127,11 @@
           "foreground": "#edf7f9",
           "foregroundSource": "Step50",
           "hex": "#063f46",
+          "oklch": {
+            "c": 0.0551,
+            "h": 207.8596,
+            "l": 0.3376
+          },
           "step": "700"
         },
         {
@@ -699,6 +1139,11 @@
           "foreground": "#edf7f9",
           "foregroundSource": "Step50",
           "hex": "#022125",
+          "oklch": {
+            "c": 0.0371,
+            "h": 207.8596,
+            "l": 0.2273
+          },
           "step": "800"
         },
         {
@@ -706,6 +1151,11 @@
           "foreground": "#edf7f9",
           "foregroundSource": "Step50",
           "hex": "#000e10",
+          "oklch": {
+            "c": 0.0246,
+            "h": 207.8596,
+            "l": 0.15
+          },
           "step": "900"
         }
       ],
@@ -722,6 +1172,11 @@
           "foreground": "#c7f5fc",
           "foregroundSource": "Step900",
           "hex": "#121a1b",
+          "oklch": {
+            "c": 0.0116,
+            "h": 207.8596,
+            "l": 0.21
+          },
           "step": "50"
         },
         {
@@ -729,6 +1184,11 @@
           "foreground": "#c7f5fc",
           "foregroundSource": "Step900",
           "hex": "#0c272b",
+          "oklch": {
+            "c": 0.0338,
+            "h": 207.8596,
+            "l": 0.2549
+          },
           "step": "100"
         },
         {
@@ -736,6 +1196,11 @@
           "foreground": "#c7f5fc",
           "foregroundSource": "Step900",
           "hex": "#05383e",
+          "oklch": {
+            "c": 0.0508,
+            "h": 207.8596,
+            "l": 0.311
+          },
           "step": "200"
         },
         {
@@ -743,6 +1208,11 @@
           "foreground": "#c7f5fc",
           "foregroundSource": "Step900",
           "hex": "#094e57",
+          "oklch": {
+            "c": 0.0636,
+            "h": 207.8596,
+            "l": 0.3895
+          },
           "step": "300"
         },
         {
@@ -750,6 +1220,11 @@
           "foreground": "#c7f5fc",
           "foregroundSource": "Step900",
           "hex": "#116d78",
+          "oklch": {
+            "c": 0.0801,
+            "h": 207.8596,
+            "l": 0.4905
+          },
           "step": "400"
         },
         {
@@ -757,6 +1232,11 @@
           "foreground": "#121a1b",
           "foregroundSource": "Step50",
           "hex": "#008e9d",
+          "oklch": {
+            "c": 0.1016,
+            "h": 207.8596,
+            "l": 0.5915
+          },
           "step": "500"
         },
         {
@@ -764,6 +1244,11 @@
           "foreground": "#121a1b",
           "foregroundSource": "Step50",
           "hex": "#4fabb8",
+          "oklch": {
+            "c": 0.0888,
+            "h": 207.8596,
+            "l": 0.6898
+          },
           "step": "600"
         },
         {
@@ -771,6 +1256,11 @@
           "foreground": "#121a1b",
           "foregroundSource": "Step50",
           "hex": "#7cc8d4",
+          "oklch": {
+            "c": 0.0772,
+            "h": 207.8596,
+            "l": 0.7881
+          },
           "step": "700"
         },
         {
@@ -778,6 +1268,11 @@
           "foreground": "#121a1b",
           "foregroundSource": "Step50",
           "hex": "#a6e3ec",
+          "oklch": {
+            "c": 0.0628,
+            "h": 207.8596,
+            "l": 0.8774
+          },
           "step": "800"
         },
         {
@@ -785,6 +1280,11 @@
           "foreground": "#121a1b",
           "foregroundSource": "Step50",
           "hex": "#c7f5fc",
+          "oklch": {
+            "c": 0.0483,
+            "h": 207.8596,
+            "l": 0.94
+          },
           "step": "900"
         }
       ],
@@ -801,6 +1301,11 @@
           "foreground": "#0f0128",
           "foregroundSource": "Step900",
           "hex": "#f5f3ff",
+          "oklch": {
+            "c": 0.0147,
+            "h": 293.009,
+            "l": 0.97
+          },
           "step": "50"
         },
         {
@@ -808,6 +1313,11 @@
           "foreground": "#0f0128",
           "foregroundSource": "Step900",
           "hex": "#e1dcfe",
+          "oklch": {
+            "c": 0.046,
+            "h": 293.009,
+            "l": 0.9088
+          },
           "step": "100"
         },
         {
@@ -815,6 +1325,11 @@
           "foreground": "#0f0128",
           "foregroundSource": "Step900",
           "hex": "#c8bcfc",
+          "oklch": {
+            "c": 0.0901,
+            "h": 293.009,
+            "l": 0.8271
+          },
           "step": "200"
         },
         {
@@ -822,6 +1337,11 @@
           "foreground": "#0f0128",
           "foregroundSource": "Step900",
           "hex": "#b39ffb",
+          "oklch": {
+            "c": 0.1312,
+            "h": 293.009,
+            "l": 0.7557
+          },
           "step": "300"
         },
         {
@@ -829,6 +1349,11 @@
           "foreground": "#0f0128",
           "foregroundSource": "Step900",
           "hex": "#9a77fa",
+          "oklch": {
+            "c": 0.1875,
+            "h": 293.009,
+            "l": 0.6638
+          },
           "step": "400"
         },
         {
@@ -836,6 +1361,11 @@
           "foreground": "#f5f3ff",
           "foregroundSource": "Step50",
           "hex": "#7c3aed",
+          "oklch": {
+            "c": 0.2466,
+            "h": 293.009,
+            "l": 0.5413
+          },
           "step": "500"
         },
         {
@@ -843,6 +1373,11 @@
           "foreground": "#f5f3ff",
           "foregroundSource": "Step50",
           "hex": "#5f23bc",
+          "oklch": {
+            "c": 0.2155,
+            "h": 293.009,
+            "l": 0.4435
+          },
           "step": "600"
         },
         {
@@ -850,6 +1385,11 @@
           "foreground": "#f5f3ff",
           "foregroundSource": "Step50",
           "hex": "#3b087c",
+          "oklch": {
+            "c": 0.167,
+            "h": 293.009,
+            "l": 0.3163
+          },
           "step": "700"
         },
         {
@@ -857,6 +1397,11 @@
           "foreground": "#f5f3ff",
           "foregroundSource": "Step50",
           "hex": "#200349",
+          "oklch": {
+            "c": 0.1154,
+            "h": 293.009,
+            "l": 0.2185
+          },
           "step": "800"
         },
         {
@@ -864,6 +1409,11 @@
           "foreground": "#f5f3ff",
           "foregroundSource": "Step50",
           "hex": "#0f0128",
+          "oklch": {
+            "c": 0.0793,
+            "h": 293.009,
+            "l": 0.15
+          },
           "step": "900"
         }
       ],
@@ -880,6 +1430,11 @@
           "foreground": "#ebe8fe",
           "foregroundSource": "Step900",
           "hex": "#191624",
+          "oklch": {
+            "c": 0.0281,
+            "h": 293.009,
+            "l": 0.21
+          },
           "step": "50"
         },
         {
@@ -887,6 +1442,11 @@
           "foreground": "#ebe8fe",
           "foregroundSource": "Step900",
           "hex": "#241744",
+          "oklch": {
+            "c": 0.082,
+            "h": 293.009,
+            "l": 0.249
+          },
           "step": "100"
         },
         {
@@ -894,6 +1454,11 @@
           "foreground": "#ebe8fe",
           "foregroundSource": "Step900",
           "hex": "#350b70",
+          "oklch": {
+            "c": 0.1523,
+            "h": 293.009,
+            "l": 0.2977
+          },
           "step": "200"
         },
         {
@@ -901,6 +1466,11 @@
           "foreground": "#ebe8fe",
           "foregroundSource": "Step900",
           "hex": "#491295",
+          "oklch": {
+            "c": 0.1874,
+            "h": 293.009,
+            "l": 0.3659
+          },
           "step": "300"
         },
         {
@@ -908,6 +1478,11 @@
           "foreground": "#ebe8fe",
           "foregroundSource": "Step900",
           "hex": "#6127bf",
+          "oklch": {
+            "c": 0.2155,
+            "h": 293.009,
+            "l": 0.4536
+          },
           "step": "400"
         },
         {
@@ -915,6 +1490,11 @@
           "foreground": "#ebe8fe",
           "foregroundSource": "Step900",
           "hex": "#7c3aed",
+          "oklch": {
+            "c": 0.2466,
+            "h": 293.009,
+            "l": 0.5413
+          },
           "step": "500"
         },
         {
@@ -922,6 +1502,11 @@
           "foreground": "#191624",
           "foregroundSource": "Step50",
           "hex": "#9872fa",
+          "oklch": {
+            "c": 0.1939,
+            "h": 293.009,
+            "l": 0.6538
+          },
           "step": "600"
         },
         {
@@ -929,6 +1514,11 @@
           "foreground": "#191624",
           "foregroundSource": "Step50",
           "hex": "#b6a3fb",
+          "oklch": {
+            "c": 0.125,
+            "h": 293.009,
+            "l": 0.7662
+          },
           "step": "700"
         },
         {
@@ -936,6 +1526,11 @@
           "foreground": "#191624",
           "foregroundSource": "Step50",
           "hex": "#d5ccfd",
+          "oklch": {
+            "c": 0.0674,
+            "h": 293.009,
+            "l": 0.8684
+          },
           "step": "800"
         },
         {
@@ -943,6 +1538,11 @@
           "foreground": "#191624",
           "foregroundSource": "Step50",
           "hex": "#ebe8fe",
+          "oklch": {
+            "c": 0.0298,
+            "h": 293.009,
+            "l": 0.94
+          },
           "step": "900"
         }
       ],
@@ -959,6 +1559,11 @@
           "foreground": "#17011b",
           "foregroundSource": "Step900",
           "hex": "#fdf0ff",
+          "oklch": {
+            "c": 0.0233,
+            "h": 322.8961,
+            "l": 0.97
+          },
           "step": "50"
         },
         {
@@ -966,6 +1571,11 @@
           "foreground": "#17011b",
           "foregroundSource": "Step900",
           "hex": "#fad5fe",
+          "oklch": {
+            "c": 0.0669,
+            "h": 322.8961,
+            "l": 0.9159
+          },
           "step": "100"
         },
         {
@@ -973,6 +1583,11 @@
           "foreground": "#17011b",
           "foregroundSource": "Step900",
           "hex": "#f4affd",
+          "oklch": {
+            "c": 0.1285,
+            "h": 322.8961,
+            "l": 0.8438
+          },
           "step": "200"
         },
         {
@@ -980,6 +1595,11 @@
           "foreground": "#17011b",
           "foregroundSource": "Step900",
           "hex": "#ef8afc",
+          "oklch": {
+            "c": 0.1857,
+            "h": 322.8961,
+            "l": 0.7807
+          },
           "step": "300"
         },
         {
@@ -987,6 +1607,11 @@
           "foreground": "#17011b",
           "foregroundSource": "Step900",
           "hex": "#dd62ed",
+          "oklch": {
+            "c": 0.2245,
+            "h": 322.8961,
+            "l": 0.6996
+          },
           "step": "400"
         },
         {
@@ -994,6 +1619,11 @@
           "foreground": "#ffffff",
           "foregroundSource": "PureWhite",
           "hex": "#c026d3",
+          "oklch": {
+            "c": 0.2569,
+            "h": 322.8961,
+            "l": 0.5915
+          },
           "step": "500"
         },
         {
@@ -1001,6 +1631,11 @@
           "foreground": "#fdf0ff",
           "foregroundSource": "Step50",
           "hex": "#9313a2",
+          "oklch": {
+            "c": 0.2161,
+            "h": 322.8961,
+            "l": 0.4811
+          },
           "step": "600"
         },
         {
@@ -1008,6 +1643,11 @@
           "foreground": "#fdf0ff",
           "foregroundSource": "Step50",
           "hex": "#590763",
+          "oklch": {
+            "c": 0.1516,
+            "h": 322.8961,
+            "l": 0.3376
+          },
           "step": "700"
         },
         {
@@ -1015,6 +1655,11 @@
           "foreground": "#fdf0ff",
           "foregroundSource": "Step50",
           "hex": "#310237",
+          "oklch": {
+            "c": 0.1021,
+            "h": 322.8961,
+            "l": 0.2273
+          },
           "step": "800"
         },
         {
@@ -1022,6 +1667,11 @@
           "foreground": "#fdf0ff",
           "foregroundSource": "Step50",
           "hex": "#17011b",
+          "oklch": {
+            "c": 0.0675,
+            "h": 322.8961,
+            "l": 0.15
+          },
           "step": "900"
         }
       ],
@@ -1038,6 +1688,11 @@
           "foreground": "#fbe1fe",
           "foregroundSource": "Step900",
           "hex": "#1f1420",
+          "oklch": {
+            "c": 0.0293,
+            "h": 322.8961,
+            "l": 0.21
+          },
           "step": "50"
         },
         {
@@ -1045,6 +1700,11 @@
           "foreground": "#fbe1fe",
           "foregroundSource": "Step900",
           "hex": "#35103a",
+          "oklch": {
+            "c": 0.0854,
+            "h": 322.8961,
+            "l": 0.2549
+          },
           "step": "100"
         },
         {
@@ -1052,6 +1712,11 @@
           "foreground": "#fbe1fe",
           "foregroundSource": "Step900",
           "hex": "#4f0658",
+          "oklch": {
+            "c": 0.1397,
+            "h": 322.8961,
+            "l": 0.311
+          },
           "step": "200"
         },
         {
@@ -1059,6 +1724,11 @@
           "foreground": "#fbe1fe",
           "foregroundSource": "Step900",
           "hex": "#6d0b79",
+          "oklch": {
+            "c": 0.1749,
+            "h": 322.8961,
+            "l": 0.3895
+          },
           "step": "300"
         },
         {
@@ -1066,6 +1736,11 @@
           "foreground": "#fbe1fe",
           "foregroundSource": "Step900",
           "hex": "#9714a6",
+          "oklch": {
+            "c": 0.2203,
+            "h": 322.8961,
+            "l": 0.4905
+          },
           "step": "400"
         },
         {
@@ -1073,6 +1748,11 @@
           "foreground": "#ffffff",
           "foregroundSource": "PureWhite",
           "hex": "#c026d3",
+          "oklch": {
+            "c": 0.2569,
+            "h": 322.8961,
+            "l": 0.5915
+          },
           "step": "500"
         },
         {
@@ -1080,6 +1760,11 @@
           "foreground": "#1f1420",
           "foregroundSource": "Step50",
           "hex": "#da5fea",
+          "oklch": {
+            "c": 0.2245,
+            "h": 322.8961,
+            "l": 0.6898
+          },
           "step": "600"
         },
         {
@@ -1087,6 +1772,11 @@
           "foreground": "#1f1420",
           "foregroundSource": "Step50",
           "hex": "#ef8ffc",
+          "oklch": {
+            "c": 0.1789,
+            "h": 322.8961,
+            "l": 0.7881
+          },
           "step": "700"
         },
         {
@@ -1094,6 +1784,11 @@
           "foreground": "#1f1420",
           "foregroundSource": "Step50",
           "hex": "#f7c1fd",
+          "oklch": {
+            "c": 0.0993,
+            "h": 322.8961,
+            "l": 0.8774
+          },
           "step": "800"
         },
         {
@@ -1101,6 +1796,11 @@
           "foreground": "#1f1420",
           "foregroundSource": "Step50",
           "hex": "#fbe1fe",
+          "oklch": {
+            "c": 0.0472,
+            "h": 322.8961,
+            "l": 0.94
+          },
           "step": "900"
         }
       ],
@@ -1117,6 +1817,11 @@
           "foreground": "#050e00",
           "foregroundSource": "Step900",
           "hex": "#f0f8ea",
+          "oklch": {
+            "c": 0.02,
+            "h": 131.6839,
+            "l": 0.97
+          },
           "step": "50"
         },
         {
@@ -1124,6 +1829,11 @@
           "foreground": "#050e00",
           "foregroundSource": "Step900",
           "hex": "#d8efc7",
+          "oklch": {
+            "c": 0.0583,
+            "h": 131.6839,
+            "l": 0.924
+          },
           "step": "100"
         },
         {
@@ -1131,6 +1841,11 @@
           "foreground": "#050e00",
           "foregroundSource": "Step900",
           "hex": "#b8e196",
+          "oklch": {
+            "c": 0.1083,
+            "h": 131.6839,
+            "l": 0.8627
+          },
           "step": "200"
         },
         {
@@ -1138,6 +1853,11 @@
           "foreground": "#050e00",
           "foregroundSource": "Step900",
           "hex": "#a1d375",
+          "oklch": {
+            "c": 0.1333,
+            "h": 131.6839,
+            "l": 0.8091
+          },
           "step": "300"
         },
         {
@@ -1145,6 +1865,11 @@
           "foreground": "#050e00",
           "foregroundSource": "Step900",
           "hex": "#86be50",
+          "oklch": {
+            "c": 0.1533,
+            "h": 131.6839,
+            "l": 0.7401
+          },
           "step": "400"
         },
         {
@@ -1152,6 +1877,11 @@
           "foreground": "#050e00",
           "foregroundSource": "Step900",
           "hex": "#65a30d",
+          "oklch": {
+            "c": 0.1754,
+            "h": 131.6839,
+            "l": 0.6482
+          },
           "step": "500"
         },
         {
@@ -1159,6 +1889,11 @@
           "foreground": "#f0f8ea",
           "foregroundSource": "Step50",
           "hex": "#4b7910",
+          "oklch": {
+            "c": 0.1374,
+            "h": 131.6839,
+            "l": 0.5236
+          },
           "step": "600"
         },
         {
@@ -1166,6 +1901,11 @@
           "foreground": "#f0f8ea",
           "foregroundSource": "Step50",
           "hex": "#2a4706",
+          "oklch": {
+            "c": 0.0949,
+            "h": 131.6839,
+            "l": 0.3617
+          },
           "step": "700"
         },
         {
@@ -1173,6 +1913,11 @@
           "foreground": "#f0f8ea",
           "foregroundSource": "Step50",
           "hex": "#132402",
+          "oklch": {
+            "c": 0.0623,
+            "h": 131.6839,
+            "l": 0.2372
+          },
           "step": "800"
         },
         {
@@ -1180,6 +1925,11 @@
           "foreground": "#f0f8ea",
           "foregroundSource": "Step50",
           "hex": "#050e00",
+          "oklch": {
+            "c": 0.0395,
+            "h": 131.6839,
+            "l": 0.15
+          },
           "step": "900"
         }
       ],
@@ -1196,6 +1946,11 @@
           "foreground": "#d7f8be",
           "foregroundSource": "Step900",
           "hex": "#151a11",
+          "oklch": {
+            "c": 0.02,
+            "h": 131.6839,
+            "l": 0.21
+          },
           "step": "50"
         },
         {
@@ -1203,6 +1958,11 @@
           "foreground": "#d7f8be",
           "foregroundSource": "Step900",
           "hex": "#1a2a09",
+          "oklch": {
+            "c": 0.0583,
+            "h": 131.6839,
+            "l": 0.2615
+          },
           "step": "100"
         },
         {
@@ -1210,6 +1970,11 @@
           "foreground": "#d7f8be",
           "foregroundSource": "Step900",
           "hex": "#233d04",
+          "oklch": {
+            "c": 0.0856,
+            "h": 131.6839,
+            "l": 0.326
+          },
           "step": "200"
         },
         {
@@ -1217,6 +1982,11 @@
           "foreground": "#d7f8be",
           "foregroundSource": "Step900",
           "hex": "#355709",
+          "oklch": {
+            "c": 0.1092,
+            "h": 131.6839,
+            "l": 0.4162
+          },
           "step": "300"
         },
         {
@@ -1224,6 +1994,11 @@
           "foreground": "#ffffff",
           "foregroundSource": "PureWhite",
           "hex": "#4d7c11",
+          "oklch": {
+            "c": 0.1397,
+            "h": 131.6839,
+            "l": 0.5322
+          },
           "step": "400"
         },
         {
@@ -1231,6 +2006,11 @@
           "foreground": "#151a11",
           "foregroundSource": "Step50",
           "hex": "#65a30d",
+          "oklch": {
+            "c": 0.1754,
+            "h": 131.6839,
+            "l": 0.6482
+          },
           "step": "500"
         },
         {
@@ -1238,6 +2018,11 @@
           "foreground": "#151a11",
           "foregroundSource": "Step50",
           "hex": "#84bb4d",
+          "oklch": {
+            "c": 0.1533,
+            "h": 131.6839,
+            "l": 0.7305
+          },
           "step": "600"
         },
         {
@@ -1245,6 +2030,11 @@
           "foreground": "#151a11",
           "foregroundSource": "Step50",
           "hex": "#a2d476",
+          "oklch": {
+            "c": 0.1333,
+            "h": 131.6839,
+            "l": 0.8128
+          },
           "step": "700"
         },
         {
@@ -1252,6 +2042,11 @@
           "foreground": "#151a11",
           "foregroundSource": "Step50",
           "hex": "#c0e99e",
+          "oklch": {
+            "c": 0.1083,
+            "h": 131.6839,
+            "l": 0.8876
+          },
           "step": "800"
         },
         {
@@ -1259,6 +2054,11 @@
           "foreground": "#151a11",
           "foregroundSource": "Step50",
           "hex": "#d7f8be",
+          "oklch": {
+            "c": 0.0833,
+            "h": 131.6839,
+            "l": 0.94
+          },
           "step": "900"
         }
       ],
@@ -1275,6 +2075,11 @@
           "foreground": "#150700",
           "foregroundSource": "Step900",
           "hex": "#fff3ea",
+          "oklch": {
+            "c": 0.0172,
+            "h": 58.3184,
+            "l": 0.97
+          },
           "step": "50"
         },
         {
@@ -1282,6 +2087,11 @@
           "foreground": "#150700",
           "foregroundSource": "Step900",
           "hex": "#fee0cb",
+          "oklch": {
+            "c": 0.0434,
+            "h": 58.3184,
+            "l": 0.9265
+          },
           "step": "100"
         },
         {
@@ -1289,6 +2099,11 @@
           "foreground": "#150700",
           "foregroundSource": "Step900",
           "hex": "#fdc79f",
+          "oklch": {
+            "c": 0.0811,
+            "h": 58.3184,
+            "l": 0.8686
+          },
           "step": "200"
         },
         {
@@ -1296,6 +2111,11 @@
           "foreground": "#150700",
           "foregroundSource": "Step900",
           "hex": "#fcb074",
+          "oklch": {
+            "c": 0.1172,
+            "h": 58.3184,
+            "l": 0.8179
+          },
           "step": "300"
         },
         {
@@ -1303,6 +2123,11 @@
           "foreground": "#150700",
           "foregroundSource": "Step900",
           "hex": "#ef974e",
+          "oklch": {
+            "c": 0.1376,
+            "h": 58.3184,
+            "l": 0.7527
+          },
           "step": "400"
         },
         {
@@ -1310,6 +2135,11 @@
           "foreground": "#150700",
           "foregroundSource": "Step900",
           "hex": "#d97706",
+          "oklch": {
+            "c": 0.1574,
+            "h": 58.3184,
+            "l": 0.6658
+          },
           "step": "500"
         },
         {
@@ -1317,6 +2147,11 @@
           "foreground": "#fff3ea",
           "foregroundSource": "Step50",
           "hex": "#a15911",
+          "oklch": {
+            "c": 0.1217,
+            "h": 58.3184,
+            "l": 0.5369
+          },
           "step": "600"
         },
         {
@@ -1324,6 +2159,11 @@
           "foreground": "#fff3ea",
           "foregroundSource": "Step50",
           "hex": "#5f3206",
+          "oklch": {
+            "c": 0.0837,
+            "h": 58.3184,
+            "l": 0.3692
+          },
           "step": "700"
         },
         {
@@ -1331,6 +2171,11 @@
           "foreground": "#fff3ea",
           "foregroundSource": "Step50",
           "hex": "#321802",
+          "oklch": {
+            "c": 0.0545,
+            "h": 58.3184,
+            "l": 0.2403
+          },
           "step": "800"
         },
         {
@@ -1338,6 +2183,11 @@
           "foreground": "#fff3ea",
           "foregroundSource": "Step50",
           "hex": "#150700",
+          "oklch": {
+            "c": 0.0341,
+            "h": 58.3184,
+            "l": 0.15
+          },
           "step": "900"
         }
       ],
@@ -1354,6 +2204,11 @@
           "foreground": "#fee6d5",
           "foregroundSource": "Step900",
           "hex": "#1f1610",
+          "oklch": {
+            "c": 0.0179,
+            "h": 58.3184,
+            "l": 0.21
+          },
           "step": "50"
         },
         {
@@ -1361,6 +2216,11 @@
           "foreground": "#fee6d5",
           "foregroundSource": "Step900",
           "hex": "#371e07",
+          "oklch": {
+            "c": 0.0523,
+            "h": 58.3184,
+            "l": 0.2636
+          },
           "step": "100"
         },
         {
@@ -1368,6 +2228,11 @@
           "foreground": "#fee6d5",
           "foregroundSource": "Step900",
           "hex": "#512a04",
+          "oklch": {
+            "c": 0.075,
+            "h": 58.3184,
+            "l": 0.3307
+          },
           "step": "200"
         },
         {
@@ -1375,6 +2240,11 @@
           "foreground": "#fee6d5",
           "foregroundSource": "Step900",
           "hex": "#743f09",
+          "oklch": {
+            "c": 0.0962,
+            "h": 58.3184,
+            "l": 0.4245
+          },
           "step": "300"
         },
         {
@@ -1382,6 +2252,11 @@
           "foreground": "#ffffff",
           "foregroundSource": "PureWhite",
           "hex": "#a45b11",
+          "oklch": {
+            "c": 0.1236,
+            "h": 58.3184,
+            "l": 0.5452
+          },
           "step": "400"
         },
         {
@@ -1389,6 +2264,11 @@
           "foreground": "#1f1610",
           "foregroundSource": "Step50",
           "hex": "#d97706",
+          "oklch": {
+            "c": 0.1574,
+            "h": 58.3184,
+            "l": 0.6658
+          },
           "step": "500"
         },
         {
@@ -1396,6 +2276,11 @@
           "foreground": "#1f1610",
           "foregroundSource": "Step50",
           "hex": "#eb944a",
+          "oklch": {
+            "c": 0.1376,
+            "h": 58.3184,
+            "l": 0.7432
+          },
           "step": "600"
         },
         {
@@ -1403,6 +2288,11 @@
           "foreground": "#1f1610",
           "foregroundSource": "Step50",
           "hex": "#fcb177",
+          "oklch": {
+            "c": 0.1153,
+            "h": 58.3184,
+            "l": 0.8205
+          },
           "step": "700"
         },
         {
@@ -1410,6 +2300,11 @@
           "foreground": "#1f1610",
           "foregroundSource": "Step50",
           "hex": "#fdd1b0",
+          "oklch": {
+            "c": 0.0663,
+            "h": 58.3184,
+            "l": 0.8908
+          },
           "step": "800"
         },
         {
@@ -1417,6 +2312,11 @@
           "foreground": "#1f1610",
           "foregroundSource": "Step50",
           "hex": "#fee6d5",
+          "oklch": {
+            "c": 0.0351,
+            "h": 58.3184,
+            "l": 0.94
+          },
           "step": "900"
         }
       ],
@@ -1433,6 +2333,11 @@
           "foreground": "#000f0c",
           "foregroundSource": "Step900",
           "hex": "#edf8f6",
+          "oklch": {
+            "c": 0.0118,
+            "h": 184.704,
+            "l": 0.97
+          },
           "step": "50"
         },
         {
@@ -1440,6 +2345,11 @@
           "foreground": "#000f0c",
           "foregroundSource": "Step900",
           "hex": "#cbece6",
+          "oklch": {
+            "c": 0.0345,
+            "h": 184.704,
+            "l": 0.9172
+          },
           "step": "100"
         },
         {
@@ -1447,6 +2357,11 @@
           "foreground": "#000f0c",
           "foregroundSource": "Step900",
           "hex": "#9ddbd2",
+          "oklch": {
+            "c": 0.0641,
+            "h": 184.704,
+            "l": 0.8467
+          },
           "step": "200"
         },
         {
@@ -1454,6 +2369,11 @@
           "foreground": "#000f0c",
           "foregroundSource": "Step900",
           "hex": "#7ccabf",
+          "oklch": {
+            "c": 0.0789,
+            "h": 184.704,
+            "l": 0.7851
+          },
           "step": "300"
         },
         {
@@ -1461,6 +2381,11 @@
           "foreground": "#000f0c",
           "foregroundSource": "Step900",
           "hex": "#55b3a7",
+          "oklch": {
+            "c": 0.0908,
+            "h": 184.704,
+            "l": 0.7059
+          },
           "step": "400"
         },
         {
@@ -1468,6 +2393,11 @@
           "foreground": "#000f0c",
           "foregroundSource": "Step900",
           "hex": "#0d9488",
+          "oklch": {
+            "c": 0.1038,
+            "h": 184.704,
+            "l": 0.6002
+          },
           "step": "500"
         },
         {
@@ -1475,6 +2405,11 @@
           "foreground": "#edf8f6",
           "foregroundSource": "Step50",
           "hex": "#116f66",
+          "oklch": {
+            "c": 0.0818,
+            "h": 184.704,
+            "l": 0.4877
+          },
           "step": "600"
         },
         {
@@ -1482,6 +2417,11 @@
           "foreground": "#edf8f6",
           "foregroundSource": "Step50",
           "hex": "#06423c",
+          "oklch": {
+            "c": 0.0572,
+            "h": 184.704,
+            "l": 0.3413
+          },
           "step": "700"
         },
         {
@@ -1489,6 +2429,11 @@
           "foreground": "#edf8f6",
           "foregroundSource": "Step50",
           "hex": "#02221f",
+          "oklch": {
+            "c": 0.0384,
+            "h": 184.704,
+            "l": 0.2288
+          },
           "step": "800"
         },
         {
@@ -1496,6 +2441,11 @@
           "foreground": "#edf8f6",
           "foregroundSource": "Step50",
           "hex": "#000f0c",
+          "oklch": {
+            "c": 0.0252,
+            "h": 184.704,
+            "l": 0.15
+          },
           "step": "900"
         }
       ],
@@ -1512,6 +2462,11 @@
           "foreground": "#c7f7ef",
           "foregroundSource": "Step900",
           "hex": "#121a19",
+          "oklch": {
+            "c": 0.0118,
+            "h": 184.704,
+            "l": 0.21
+          },
           "step": "50"
         },
         {
@@ -1519,6 +2474,11 @@
           "foreground": "#c7f7ef",
           "foregroundSource": "Step900",
           "hex": "#0c2825",
+          "oklch": {
+            "c": 0.0345,
+            "h": 184.704,
+            "l": 0.2559
+          },
           "step": "100"
         },
         {
@@ -1526,6 +2486,11 @@
           "foreground": "#c7f7ef",
           "foregroundSource": "Step900",
           "hex": "#053a34",
+          "oklch": {
+            "c": 0.0525,
+            "h": 184.704,
+            "l": 0.3133
+          },
           "step": "200"
         },
         {
@@ -1533,6 +2498,11 @@
           "foreground": "#c7f7ef",
           "foregroundSource": "Step900",
           "hex": "#09514a",
+          "oklch": {
+            "c": 0.066,
+            "h": 184.704,
+            "l": 0.3936
+          },
           "step": "300"
         },
         {
@@ -1540,6 +2510,11 @@
           "foreground": "#c7f7ef",
           "foregroundSource": "Step900",
           "hex": "#117268",
+          "oklch": {
+            "c": 0.0833,
+            "h": 184.704,
+            "l": 0.4969
+          },
           "step": "400"
         },
         {
@@ -1547,6 +2522,11 @@
           "foreground": "#121a19",
           "foregroundSource": "Step50",
           "hex": "#0d9488",
+          "oklch": {
+            "c": 0.1038,
+            "h": 184.704,
+            "l": 0.6002
+          },
           "step": "500"
         },
         {
@@ -1554,6 +2534,11 @@
           "foreground": "#121a19",
           "foregroundSource": "Step50",
           "hex": "#52b0a4",
+          "oklch": {
+            "c": 0.0908,
+            "h": 184.704,
+            "l": 0.6961
+          },
           "step": "600"
         },
         {
@@ -1561,6 +2546,11 @@
           "foreground": "#121a19",
           "foregroundSource": "Step50",
           "hex": "#7eccc1",
+          "oklch": {
+            "c": 0.0789,
+            "h": 184.704,
+            "l": 0.7919
+          },
           "step": "700"
         },
         {
@@ -1568,6 +2558,11 @@
           "foreground": "#121a19",
           "foregroundSource": "Step50",
           "hex": "#a7e6dc",
+          "oklch": {
+            "c": 0.0641,
+            "h": 184.704,
+            "l": 0.879
+          },
           "step": "800"
         },
         {
@@ -1575,6 +2570,11 @@
           "foreground": "#121a19",
           "foregroundSource": "Step50",
           "hex": "#c7f7ef",
+          "oklch": {
+            "c": 0.0493,
+            "h": 184.704,
+            "l": 0.94
+          },
           "step": "900"
         }
       ],

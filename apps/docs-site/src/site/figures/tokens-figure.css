@@ -1,0 +1,263 @@
+/*
+ * TOKENS-01 — a button's background traced through the three tiers.
+ *
+ * EVERY value resolves a `--primitiv-*` token. `scripts/check-tokens.mjs`
+ * enforces that and forbids inline styling in this folder — which is exactly
+ * why the eleven swatches are filled from here off each cell's `data-step`
+ * rather than from JavaScript: done in CSS the gate can see them, and a
+ * mistyped step name fails the build instead of rendering transparent.
+ */
+
+/*
+ * The descent does the spacing, so the figure's own gap is the ordinary one.
+ * A region gap here would stack on top of every arrow and leave the tiers
+ * floating unconnected — which is what the first pass rendered, with no arrows
+ * at all and the caption ("Everything above it points") pointing at nothing.
+ */
+.docs-tokens {
+  gap: var(--primitiv-flow-normal);
+}
+
+/*
+ * Component and Context sit side by side: geometry feeds the button from the
+ * side, it does not descend through the colour tiers.
+ *
+ * Labels are separate grid children from the content they name, so the feed
+ * arrow can be centred on the BUTTON row rather than on a block that includes
+ * its own label — the alternative was a hand-tuned top offset that would drift
+ * the moment the label's type scale changed.
+ */
+.docs-tokens__top {
+  display: grid;
+  grid-template-columns: auto auto auto;
+  justify-content: start;
+  align-items: center;
+  column-gap: var(--primitiv-stack-gap-md);
+  row-gap: var(--primitiv-flow-tight);
+}
+
+.docs-tokens__label--component {
+  grid-area: 1 / 1;
+}
+
+.docs-tokens__label--context {
+  grid-area: 1 / 3;
+}
+
+.docs-tokens__component {
+  grid-area: 2 / 1;
+}
+
+.docs-tokens__feed {
+  grid-area: 2 / 2;
+  display: grid;
+  place-items: center;
+  /* Sized to the arrow's ROTATED extent. `rotate` leaves the layout box alone,
+     so a box only as wide as the upright glyph would let the turned arrow paint
+     straight over the column beside it. */
+  inline-size: var(--primitiv-space-space-48);
+  block-size: var(--primitiv-space-space-48);
+  color: var(--primitiv-content-muted);
+}
+
+/* A quarter turn clockwise points the shared down-arrow LEFT — into the button
+   it feeds. 180deg would give a right-pointing arrow, the trap CLI-01 hit. */
+.docs-tokens__feed-arrow {
+  rotate: 90deg;
+}
+
+/* The vertical descent, one arrow per tier boundary. Left-aligned so the three
+   tiers read down a single spine rather than wandering across the figure. */
+.docs-tokens__descend {
+  align-self: start;
+}
+
+.docs-tokens__tier {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  gap: var(--primitiv-flow-tight);
+  min-inline-size: 0;
+}
+
+.docs-tokens__label {
+  margin: 0;
+  font-family: var(--primitiv-overline-sm-font-family);
+  font-size: var(--primitiv-overline-sm-font-size);
+  font-weight: var(--primitiv-overline-sm-font-weight);
+  line-height: var(--primitiv-overline-sm-line-height);
+  letter-spacing: var(--primitiv-letter-spacing-wide);
+  text-transform: uppercase;
+  color: var(--primitiv-content-muted);
+}
+
+.docs-tokens__theme {
+  text-transform: none;
+  letter-spacing: normal;
+  color: var(--primitiv-content-secondary);
+}
+
+/*
+ * Two columns, so the two values line up under each other however long their
+ * names are. The row `<div>`s are `display: contents` — they are the `<dl>`
+ * grouping HTML wants, not boxes, and removing their boxes is what lets the
+ * `<dt>`/`<dd>` pairs participate in this grid directly.
+ */
+.docs-tokens__geometry {
+  grid-area: 2 / 3;
+  display: grid;
+  grid-template-columns: auto auto;
+  column-gap: var(--primitiv-space-space-24);
+  row-gap: var(--primitiv-space-space-4);
+  margin: 0;
+}
+
+.docs-tokens__geometry-row {
+  display: contents;
+}
+
+/* Right-aligned so the units stack, which is what makes the pair read as one
+   scale rather than as two unrelated numbers. */
+.docs-tokens__geometry-value {
+  justify-self: end;
+  color: var(--primitiv-content-primary);
+}
+
+.docs-tokens__roles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--primitiv-space-space-24);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.docs-tokens__role {
+  color: var(--primitiv-content-primary);
+}
+
+/*
+ * Eleven equal cells — ten steps and the white anchor. Equal so the ramp reads
+ * as a scale rather than as eleven unrelated chips.
+ */
+.docs-tokens__ramp {
+  display: grid;
+  grid-template-columns: repeat(11, minmax(0, 1fr));
+  gap: var(--primitiv-space-space-8);
+  inline-size: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.docs-tokens__swatch-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--primitiv-space-space-4);
+  min-inline-size: 0;
+}
+
+/*
+ * A hairline on every swatch, which is NOT decoration: without it the 50 step
+ * sits at 1.00:1 against a white surface and the white anchor is invisible
+ * outright. §6.0.10 found and fixed exactly this on the Figma twins; the same
+ * defect is available here for the same reason.
+ */
+.docs-tokens__swatch {
+  inline-size: 100%;
+  aspect-ratio: 1;
+  border: var(--primitiv-border-width-1) solid var(--primitiv-border-default);
+  border-radius: var(--primitiv-radii-8);
+}
+
+.docs-tokens__step {
+  color: var(--primitiv-content-muted);
+}
+
+/* The traced step and the anchor it pairs with, marked rather than merely
+   mentioned — the figure's whole job is to point at one of these. */
+.docs-tokens__swatch-cell[data-traced] .docs-tokens__swatch {
+  border-color: var(--primitiv-action-primary-default);
+  border-width: var(--primitiv-border-width-2);
+}
+
+.docs-tokens__swatch-cell[data-traced] .docs-tokens__step {
+  color: var(--primitiv-content-primary);
+  font-weight: var(--primitiv-font-weight-bold);
+}
+
+/* The ramp itself. One rule per step, resolving that step's own token. */
+.docs-tokens__swatch-cell[data-step="50"] .docs-tokens__swatch { background: var(--primitiv-color-brand-50); }
+.docs-tokens__swatch-cell[data-step="100"] .docs-tokens__swatch { background: var(--primitiv-color-brand-100); }
+.docs-tokens__swatch-cell[data-step="200"] .docs-tokens__swatch { background: var(--primitiv-color-brand-200); }
+.docs-tokens__swatch-cell[data-step="300"] .docs-tokens__swatch { background: var(--primitiv-color-brand-300); }
+.docs-tokens__swatch-cell[data-step="400"] .docs-tokens__swatch { background: var(--primitiv-color-brand-400); }
+.docs-tokens__swatch-cell[data-step="500"] .docs-tokens__swatch { background: var(--primitiv-color-brand-500); }
+.docs-tokens__swatch-cell[data-step="600"] .docs-tokens__swatch { background: var(--primitiv-color-brand-600); }
+.docs-tokens__swatch-cell[data-step="700"] .docs-tokens__swatch { background: var(--primitiv-color-brand-700); }
+.docs-tokens__swatch-cell[data-step="800"] .docs-tokens__swatch { background: var(--primitiv-color-brand-800); }
+.docs-tokens__swatch-cell[data-step="900"] .docs-tokens__swatch { background: var(--primitiv-color-brand-900); }
+.docs-tokens__swatch-cell[data-step="white"] .docs-tokens__swatch { background: var(--primitiv-color-absolute-white); }
+
+.docs-tokens__value {
+  margin: 0;
+  align-self: center;
+  color: var(--primitiv-content-primary);
+}
+
+@media (width < 48rem) {
+  /*
+   * Stacked, Context comes FIRST and the feed arrow turns back downward, so the
+   * one-way arrow still sits between the two things it connects and still reads
+   * source → destination down the page. Keeping Component on top would leave
+   * the arrow pointing from the button into its own input. Same fix, same
+   * reason, as CLI-01's npm → arrow → repository order.
+   */
+  .docs-tokens__top {
+    grid-template-columns: minmax(0, 1fr);
+    justify-content: stretch;
+    justify-items: start;
+  }
+
+  .docs-tokens__label--context {
+    grid-area: 1 / 1;
+  }
+
+  .docs-tokens__geometry {
+    grid-area: 2 / 1;
+    inline-size: 100%;
+  }
+
+  /* Upright again, so it needs no box beyond its own glyph — and losing the
+     rotated-extent box is what lands it on the same left spine as the two
+     descent arrows instead of indented half a box in from them. */
+  .docs-tokens__feed {
+    grid-area: 3 / 1;
+    inline-size: auto;
+    block-size: auto;
+  }
+
+  .docs-tokens__label--component {
+    grid-area: 4 / 1;
+  }
+
+  .docs-tokens__component {
+    grid-area: 5 / 1;
+  }
+
+  .docs-tokens__feed-arrow {
+    rotate: none;
+  }
+
+  /*
+   * Six across, then five — not a scroller. Eleven cells in a 320px measure
+   * leaves ~24px each, which clips the one label that is a word rather than a
+   * number: the white anchor rendered as "whit" with its swatch cut in half.
+   * Wrapping keeps every step visible and still reads as one continuing scale.
+   */
+  .docs-tokens__ramp {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    row-gap: var(--primitiv-space-space-16);
+  }
+}

@@ -8,6 +8,7 @@ import { DensityC02 } from "./DensityC02";
 import { Family01 } from "./Family01";
 import { FigmaP02 } from "./FigmaP02";
 import { Start01 } from "./Start01";
+import { Tokens01 } from "./Tokens01";
 
 /**
  * The content-page figures, keyed by the brief id the Figma frames carry.
@@ -44,6 +45,7 @@ export const FIGURES: Record<string, ComponentType> = {
   "FAMILY-01": Family01,
   "FIGMA-P02": FigmaP02,
   "START-01": Start01,
+  "TOKENS-01": Tokens01,
 };
 
 export const hasFigure = (id: string): boolean => id in FIGURES;

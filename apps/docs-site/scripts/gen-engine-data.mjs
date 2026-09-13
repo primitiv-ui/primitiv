@@ -57,13 +57,20 @@ const paletteSheet = () => {
            correct; a caption extending the guard to it would be false, so the
            scope rides in the data rather than in anyone's memory. */
         generated: row.generated,
-        /* Hex and foreground only — no contrast figures. They would clutter a
-           sheet whose power is being scannable, and the numbers belong in the
-           prose below it. */
+        /* Hex, foreground and the step's own OkLCH — no contrast figures. Those
+           would clutter a sheet whose power is being scannable, and the numbers
+           belong in the prose below it.
+
+           `oklch` is carried for TOKENS-01, which prints the traced step's value
+           to make "only the bottom tier holds a value" concrete. It comes from
+           the engine rather than being converted from the hex in the browser:
+           the engine owns every colour value, and a second conversion in the
+           frontend is a second opinion about the thing the figure is asserting. */
         steps: row.steps.map((s) => ({
           step: s.step,
           hex: s.hex,
           foreground: s.foreground,
+          oklch: s.oklch,
         })),
       };
     });

@@ -99,6 +99,26 @@ fn main() {
                     serde_json::json!({
                         "step": s.label.to_string(),
                         "hex": s.hex.to_lowercase(),
+                        // The value the step actually IS, in the space the engine
+                        // works in. The docs site's TOKENS-01 figure shows this
+                        // under the step it traces, to make "only the bottom tier
+                        // holds a value" concrete — so it has to come from the
+                        // engine rather than be typed beside it or converted from
+                        // the hex by a frontend.
+                        "oklch": {
+                            // Rounded as f64. Rounding the f32 and letting serde
+                            // widen it prints the storage noise instead of the
+                            // number — 0.5557 came out as 0.5557000041007996.
+                            "l": ((s.l as f64) * 10000.0).round() / 10000.0,
+                            "c": ((s.c as f64) * 10000.0).round() / 10000.0,
+                            // `SwatchStep.h` is the renderer's -180..180 form;
+                            // normalise to positive degrees, which is how OkLCH
+                            // is written everywhere a human reads it. Caught by
+                            // the brand 500 coming out as -100.12 where the
+                            // settled design says 259.8783 (the same value).
+                            "h": (((s.h as f64) % 360.0 + 360.0) % 360.0 * 10000.0).round()
+                                / 10000.0,
+                        },
                         // The engine's pairing, rendered the same way the swatch is.
                         "foreground": oklch_to_hex(Oklch::new(fg.l, fg.c, fg.h)).to_lowercase(),
                         "foregroundSource": format!("{:?}", s.foreground_source),

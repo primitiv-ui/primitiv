@@ -45,6 +45,11 @@ const EL_IFACE = {
   code: "HTMLElement", dt: "HTMLElement", dd: "HTMLElement",
   figure: "HTMLElement", figcaption: "HTMLElement",
   img: "HTMLImageElement",
+  // Table elements.
+  table: "HTMLTableElement", thead: "HTMLTableSectionElement",
+  tbody: "HTMLTableSectionElement", tfoot: "HTMLTableSectionElement",
+  tr: "HTMLTableRowElement", th: "HTMLTableCellElement",
+  td: "HTMLTableCellElement", caption: "HTMLTableCaptionElement",
 };
 
 const name = process.argv[2] || "button";

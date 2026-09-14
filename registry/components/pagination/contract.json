@@ -13,19 +13,23 @@
   "modifiers": [
     {
       "name": "size",
-      "classes": [
-        "primitiv-pagination--xs",
-        "primitiv-pagination--sm",
-        "primitiv-pagination--md",
-        "primitiv-pagination--lg",
-        "primitiv-pagination--xl"
+      "default": "md",
+      "description": "Control size; `data-density` scales each size further.",
+      "options": [
+        { "name": "xs", "class": "primitiv-pagination--xs", "description": "Extra small." },
+        { "name": "sm", "class": "primitiv-pagination--sm", "description": "Small." },
+        { "name": "md", "class": "primitiv-pagination--md", "description": "Medium (the default)." },
+        { "name": "lg", "class": "primitiv-pagination--lg", "description": "Large." },
+        { "name": "xl", "class": "primitiv-pagination--xl", "description": "Extra large." }
       ]
     },
     {
       "name": "variant",
-      "classes": [
-        "primitiv-pagination--numbered",
-        "primitiv-pagination--compact"
+      "default": "numbered",
+      "description": "Numbered page cells, or a compact `Page X of Y` readout for narrow containers.",
+      "options": [
+        { "name": "numbered", "class": "primitiv-pagination--numbered", "description": "A row of page cells between prev/next chevrons (the default)." },
+        { "name": "compact", "class": "primitiv-pagination--compact", "description": "Just prev/next around a `PaginationStatus` readout." }
       ]
     }
   ],

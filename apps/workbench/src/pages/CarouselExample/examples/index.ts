@@ -1,5 +1,4 @@
 export * from "./AutoPlay";
-export * from "./CoverFlow";
 export * from "./MultiSlideCrossfade";
 export * from "./MultiSlideScroll";
 export * from "./MultiStepSlideCrossfade";

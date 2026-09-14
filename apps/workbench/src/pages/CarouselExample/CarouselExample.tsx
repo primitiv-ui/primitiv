@@ -4,7 +4,6 @@ import { Tabs } from "@primitiv-ui/react";
 
 import {
   AutoPlay,
-  CoverFlow,
   MultiSlideCrossfade,
   MultiSlideScroll,
   MultiStepSlideCrossfade,
@@ -70,11 +69,6 @@ const TABS: ExampleTab[] = [
     value: "programmatic",
     label: "Programmatic",
     render: () => <Programmatic />,
-  },
-  {
-    value: "cover-flow",
-    label: "Cover Flow",
-    render: () => <CoverFlow />,
   },
   {
     value: "autoplay",

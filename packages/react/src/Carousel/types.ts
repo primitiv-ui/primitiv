@@ -150,8 +150,8 @@ export type CarouselLoopMode = "none" | "wrap" | "infinite";
  * - `"center"` — scrolls so the first slide of the target page is
  *   **centred** in the Viewport. The target is offset inward by
  *   `(viewportWidth − slideWidth) / 2`. Use this with
- *   `scroll-snap-align: center` in consumer CSS (e.g. Cover Flow
- *   layouts where slides are narrower than the Viewport).
+ *   `scroll-snap-align: center` in consumer CSS (e.g. a peek
+ *   layout where slides are narrower than the Viewport).
  * - `"end"` — scrolls so the first slide of the target page's
  *   **trailing** edge aligns with the Viewport's trailing edge. The
  *   target is offset inward by the full `viewportWidth − slideWidth`.
@@ -373,7 +373,7 @@ export type CarouselRootProps = Omit<
     /** Scroll-snap alignment the Viewport targets when programmatically
      * scrolling to a page — see {@link CarouselSnapAlign}.
      * Defaults to `"start"`. Set to `"center"` when consumer CSS uses
-     * `scroll-snap-align: center` on slides (e.g. Cover Flow layouts
+     * `scroll-snap-align: center` on slides (e.g. a peek layout
      * where slides are narrower than the Viewport). */
     snapAlign?: CarouselSnapAlign;
     /** Axis the carousel scrolls and paginates along — see

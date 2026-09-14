@@ -291,7 +291,7 @@
     "displayName": "Pagination",
     "category": "Disclosure",
     "description": "Page navigation for a paged collection — a row of square page cells with prev/next chevrons, or a compact \"Page X of Y\" readout. Truncated ranges collapse behind an ellipsis that opens a menu of the hidden pages.",
-    "documented": false
+    "documented": true
   },
   {
     "id": "popover",

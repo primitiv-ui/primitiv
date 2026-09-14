@@ -1,0 +1,363 @@
+{
+  "id": "pagination",
+  "displayName": "Pagination",
+  "kind": "registry-only",
+  "status": "stable",
+  "category": "Disclosure",
+  "description": "Page navigation for a paged collection — a row of square page cells with prev/next chevrons, or a compact \"Page X of Y\" readout. Truncated ranges collapse behind an ellipsis that opens a menu of the hidden pages.",
+  "headless": {
+    "package": "@primitiv-ui/react",
+    "importPath": "@/components/ui/pagination",
+    "subComponents": [
+      {
+        "name": "Pagination",
+        "extends": "HTMLElement",
+        "props": [
+          {
+            "name": "label",
+            "type": "string",
+            "required": false,
+            "default": "\"Pagination\"",
+            "description": "Accessible name for the navigation landmark. **Give each Pagination on a\npage a distinct one** — two identically named landmarks are\nindistinguishable in a landmark list."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [
+          {
+            "name": "size",
+            "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
+            "default": "md",
+            "description": "Control size; `data-density` scales each size further."
+          },
+          {
+            "name": "variant",
+            "type": "\"numbered\" | \"compact\"",
+            "default": "numbered",
+            "description": "Numbered page cells, or a compact `Page X of Y` readout for narrow containers."
+          }
+        ],
+        "dataAttributes": [],
+        "class": "primitiv-pagination"
+      },
+      {
+        "name": "PaginationSummary",
+        "extends": "HTMLSpanElement",
+        "props": [],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": null
+      },
+      {
+        "name": "PaginationList",
+        "extends": "HTMLUListElement",
+        "props": [],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": null
+      },
+      {
+        "name": "PaginationItem",
+        "extends": "HTMLLIElement",
+        "props": [],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": null
+      },
+      {
+        "name": "PaginationLink",
+        "extends": "HTMLButtonElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Renders the child element instead of a native `<button>`, merging all\nprops — aria-*, data-*, event handlers, ref — onto it via\n{@link Slot }. `type` is not forwarded in this mode; the child owns its\nown type semantics. See the `asChild` example on {@link Button }."
+          },
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": false,
+            "default": null,
+            "description": "Button content. Under `asChild`, becomes the single child element `Slot` merges props onto."
+          },
+          {
+            "name": "isActive",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Marks this cell as the current page: renders `primary` rather than\n`secondary`, and sets `aria-current=\"page\"`."
+          },
+          {
+            "name": "ref",
+            "type": "Ref<HTMLButtonElement>",
+            "required": false,
+            "default": null,
+            "description": "Allows getting a ref to the component instance.\nOnce the component unmounts, React will set `ref.current` to `null`\n(or call the ref with `null` if you passed a callback ref).\nForwarded to the underlying `HTMLButtonElement`, or — under\n`asChild` — merged onto the rendered child via {@link Slot }."
+          },
+          {
+            "name": "type",
+            "type": "\"button\" | \"submit\" | \"reset\"",
+            "required": false,
+            "default": "\"button\"",
+            "description": "The button's native `type` attribute, restricted to the three valid\nvalues. Defaults to `\"button\"` (not the DOM's own default of\n`\"submit\"`), so a `Button` placed inside a `<form>` never triggers an\naccidental submit unless set explicitly."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": null
+      },
+      {
+        "name": "PaginationPrevious",
+        "extends": "HTMLButtonElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Renders the child element instead of a native `<button>`, merging all\nprops — aria-*, data-*, event handlers, ref — onto it via\n{@link Slot }. `type` is not forwarded in this mode; the child owns its\nown type semantics. See the `asChild` example on {@link Button }."
+          },
+          {
+            "name": "label",
+            "type": "string",
+            "required": false,
+            "default": "\"Go to previous page\"",
+            "description": ""
+          },
+          {
+            "name": "ref",
+            "type": "Ref<HTMLButtonElement>",
+            "required": false,
+            "default": null,
+            "description": "Allows getting a ref to the component instance.\nOnce the component unmounts, React will set `ref.current` to `null`\n(or call the ref with `null` if you passed a callback ref).\nForwarded to the underlying `HTMLButtonElement`, or — under\n`asChild` — merged onto the rendered child via {@link Slot }."
+          },
+          {
+            "name": "type",
+            "type": "\"button\" | \"submit\" | \"reset\"",
+            "required": false,
+            "default": "\"button\"",
+            "description": "The button's native `type` attribute, restricted to the three valid\nvalues. Defaults to `\"button\"` (not the DOM's own default of\n`\"submit\"`), so a `Button` placed inside a `<form>` never triggers an\naccidental submit unless set explicitly."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": null
+      },
+      {
+        "name": "PaginationNext",
+        "extends": "HTMLButtonElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Renders the child element instead of a native `<button>`, merging all\nprops — aria-*, data-*, event handlers, ref — onto it via\n{@link Slot }. `type` is not forwarded in this mode; the child owns its\nown type semantics. See the `asChild` example on {@link Button }."
+          },
+          {
+            "name": "label",
+            "type": "string",
+            "required": false,
+            "default": "\"Go to previous page\"",
+            "description": ""
+          },
+          {
+            "name": "ref",
+            "type": "Ref<HTMLButtonElement>",
+            "required": false,
+            "default": null,
+            "description": "Allows getting a ref to the component instance.\nOnce the component unmounts, React will set `ref.current` to `null`\n(or call the ref with `null` if you passed a callback ref).\nForwarded to the underlying `HTMLButtonElement`, or — under\n`asChild` — merged onto the rendered child via {@link Slot }."
+          },
+          {
+            "name": "type",
+            "type": "\"button\" | \"submit\" | \"reset\"",
+            "required": false,
+            "default": "\"button\"",
+            "description": "The button's native `type` attribute, restricted to the three valid\nvalues. Defaults to `\"button\"` (not the DOM's own default of\n`\"submit\"`), so a `Button` placed inside a `<form>` never triggers an\naccidental submit unless set explicitly."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": null
+      },
+      {
+        "name": "PaginationEllipsis",
+        "extends": "HTMLButtonElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Renders the child element instead of a native `<button>`, merging all\nprops — aria-*, data-*, event handlers, ref — onto it via\n{@link Slot }. `type` is not forwarded in this mode; the child owns its\nown type semantics. See the `asChild` example on {@link Button }."
+          },
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": false,
+            "default": null,
+            "description": "The hidden pages, as `PaginationMenuItem` children."
+          },
+          {
+            "name": "label",
+            "type": "string",
+            "required": false,
+            "default": "\"Show more pages\"",
+            "description": ""
+          },
+          {
+            "name": "ref",
+            "type": "Ref<HTMLButtonElement>",
+            "required": false,
+            "default": null,
+            "description": "Allows getting a ref to the component instance.\nOnce the component unmounts, React will set `ref.current` to `null`\n(or call the ref with `null` if you passed a callback ref).\nForwarded to the underlying `HTMLButtonElement`, or — under\n`asChild` — merged onto the rendered child via {@link Slot }."
+          },
+          {
+            "name": "type",
+            "type": "\"button\" | \"submit\" | \"reset\"",
+            "required": false,
+            "default": "\"button\"",
+            "description": "The button's native `type` attribute, restricted to the three valid\nvalues. Defaults to `\"button\"` (not the DOM's own default of\n`\"submit\"`), so a `Button` placed inside a `<form>` never triggers an\naccidental submit unless set explicitly."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": null
+      },
+      {
+        "name": "PaginationMenuItem",
+        "extends": "HTMLButtonElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Render the composed child element (with menuitem semantics) instead of\nthe default `<li role=\"menuitem\">`."
+          },
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": false,
+            "default": null,
+            "description": "The item's visible content (or an element, with `asChild`)."
+          },
+          {
+            "name": "disabled",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Mark the item non-interactive. Sets `aria-disabled=\"true\"` and skips\nthe item during arrow navigation, typeahead, and activation."
+          },
+          {
+            "name": "onSelect",
+            "type": "(event: Event) => void",
+            "required": false,
+            "default": null,
+            "description": "Fires when the item is activated (click, Enter, or Space). Called\nwith a cancellable event whose `preventDefault()` skips the auto-close\nthat Dropdown performs after selection."
+          },
+          {
+            "name": "ref",
+            "type": "Ref<HTMLLIElement>",
+            "required": false,
+            "default": null,
+            "description": "Allows getting a ref to the component instance.\nOnce the component unmounts, React will set `ref.current` to `null`\n(or call the ref with `null` if you passed a callback ref).\nForwarded to the underlying `HTMLLIElement`."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": null
+      },
+      {
+        "name": "PaginationStatus",
+        "extends": "HTMLSpanElement",
+        "props": [],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": null
+      },
+      {
+        "name": "PaginationTrailing",
+        "extends": "HTMLSpanElement",
+        "props": [],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": null
+      }
+    ]
+  },
+  "styled": {
+    "installCommand": "primitiv add pagination",
+    "rootClass": "primitiv-pagination",
+    "customProperties": [
+      {
+        "name": "--primitiv-pagination-gap",
+        "defaultsTo": "var(--primitiv-pagination-md-gap)"
+      },
+      {
+        "name": "--primitiv-pagination-item-min-inline-size",
+        "defaultsTo": "var(--primitiv-pagination-md-item-min-width)"
+      },
+      {
+        "name": "--primitiv-pagination-group-gap",
+        "defaultsTo": "var(--primitiv-pagination-md-group-gap)"
+      },
+      {
+        "name": "--primitiv-pagination-control-gap",
+        "defaultsTo": "var(--primitiv-framed-control-md-gap)"
+      },
+      {
+        "name": "--primitiv-pagination-icon-size",
+        "defaultsTo": "var(--primitiv-framed-control-md-icon-size)"
+      },
+      {
+        "name": "--primitiv-pagination-menu-min-inline-size",
+        "defaultsTo": "var(--primitiv-pagination-md-item-min-width)"
+      },
+      {
+        "name": "--primitiv-pagination-menu-max-block-size",
+        "defaultsTo": "var(--primitiv-size-size-288)"
+      },
+      {
+        "name": "--primitiv-pagination-font-family",
+        "defaultsTo": "var(--primitiv-body-md-font-family)"
+      },
+      {
+        "name": "--primitiv-pagination-font-size",
+        "defaultsTo": "var(--primitiv-body-md-font-size)"
+      },
+      {
+        "name": "--primitiv-pagination-font-weight",
+        "defaultsTo": "var(--primitiv-body-md-font-weight)"
+      },
+      {
+        "name": "--primitiv-pagination-line-height",
+        "defaultsTo": "var(--primitiv-body-md-line-height)"
+      }
+    ],
+    "dataAttributes": []
+  },
+  "figma": {}
+}

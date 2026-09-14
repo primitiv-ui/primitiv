@@ -6,6 +6,7 @@ import { alertSpec } from "./alert";
 import { avatarSpec } from "./avatar";
 import { avatarGroupSpec } from "./avatar-group";
 import { badgeSpec } from "./badge";
+import { paginationSpec } from "./pagination";
 import { cardSpec } from "./card";
 import { chipSpec } from "./chip";
 import { dataTableSpec } from "./data-table";
@@ -63,6 +64,7 @@ export const SPECS: Record<ComponentId, ComponentSpec> = {
   avatar: avatarSpec,
   "avatar-group": avatarGroupSpec,
   badge: badgeSpec,
+  pagination: paginationSpec,
   card: cardSpec,
   chip: chipSpec,
   "data-table": dataTableSpec,

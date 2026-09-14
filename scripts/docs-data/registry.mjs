@@ -85,6 +85,27 @@ export const REGISTRY = {
     contract: "registry/components/table/contract.json",
     figmaComponentSetKey: "605:13524", importPath: "@primitiv-ui/react",
   },
+  pagination: {
+    displayName: "Pagination", kind: "registry-only", status: "stable", category: "Disclosure",
+    /* Hand-authored compound (composes button + dropdown, uses usePagination) —
+       props in the copied file. No Figma set recorded. */
+    propsFile: "registry/components/pagination/pagination.tsx",
+    subComponents: [
+      { name: "Pagination", propsType: "PaginationProps", element: "nav", component: "Pagination" },
+      { name: "PaginationSummary", propsType: "PaginationSummaryProps", element: "span", component: "PaginationSummary" },
+      { name: "PaginationList", propsType: "PaginationListProps", element: "ul", component: "PaginationList" },
+      { name: "PaginationItem", propsType: "PaginationItemProps", element: "li", component: "PaginationItem" },
+      { name: "PaginationLink", propsType: "PaginationLinkProps", element: "button", component: "PaginationLink" },
+      { name: "PaginationPrevious", propsType: "PaginationPreviousProps", element: "button", component: "PaginationPrevious" },
+      { name: "PaginationNext", propsType: "PaginationNextProps", element: "button", component: "PaginationNext" },
+      { name: "PaginationEllipsis", propsType: "PaginationEllipsisProps", element: "button", component: "PaginationEllipsis" },
+      { name: "PaginationMenuItem", propsType: "PaginationMenuItemProps", element: "button", component: "PaginationMenuItem" },
+      { name: "PaginationStatus", propsType: "PaginationStatusProps", element: "span", component: "PaginationStatus" },
+      { name: "PaginationTrailing", propsType: "PaginationTrailingProps", element: "span", component: "PaginationTrailing" },
+    ],
+    contract: "registry/components/pagination/contract.json",
+    importPath: "@/components/ui/pagination",
+  },
   "data-table": {
     displayName: "DataTable", kind: "registry-only", status: "stable", category: "Data Display",
     /* Hand-authored composite shell, primitive-less — props in the copied file.

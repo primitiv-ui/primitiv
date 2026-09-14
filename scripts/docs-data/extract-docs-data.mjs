@@ -35,6 +35,7 @@ import { stripInternalRefs } from "./strip-internal-refs.mjs";
 const EL_IFACE = {
   a: "HTMLAnchorElement", button: "HTMLButtonElement", div: "HTMLDivElement",
   input: "HTMLInputElement", span: "HTMLSpanElement", ul: "HTMLUListElement",
+  ol: "HTMLOListElement",
   li: "HTMLLIElement", label: "HTMLLabelElement", select: "HTMLSelectElement",
   textarea: "HTMLTextAreaElement", p: "HTMLParagraphElement", nav: "HTMLElement",
   dialog: "HTMLDialogElement", h2: "HTMLHeadingElement", h3: "HTMLHeadingElement",

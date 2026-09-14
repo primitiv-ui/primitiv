@@ -254,6 +254,75 @@ function SelectableTable() {
   );
 }
 
+/* ---- Pagination, isolated ---- */
+
+function PaginatedTable() {
+  const PAGE = 3;
+  const [page, setPage] = useState(0);
+  const pageCount = Math.ceil(ROWS.length / PAGE);
+  const pageIndex = Math.min(page, pageCount - 1);
+  const start = pageIndex * PAGE;
+  const pageRows = ROWS.slice(start, start + PAGE);
+
+  return (
+    <DataTable size="sm">
+      <TableScrollArea>
+        {/* aria-rowcount is the FULL count, so AT doesn't announce the page's
+            rows as the whole table's. */}
+        <Table size="sm" aria-rowcount={ROWS.length}>
+          <TableHead>
+            <TableRow>
+              <TableHeader>Deployment</TableHeader>
+              <TableHeader>Environment</TableHeader>
+              <TableHeader>Status</TableHeader>
+              <TableHeader align="end">Duration</TableHeader>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {pageRows.map((row) => (
+              <TableRow key={row.id}>
+                <TableCell>{row.name}</TableCell>
+                <TableCell>{row.env}</TableCell>
+                <TableCell>{row.status}</TableCell>
+                <TableCell align="end">{row.duration}ms</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableScrollArea>
+      <DataTableFooter>
+        <DataTableRegion align="start">
+          <span className="docs-example-caption">
+            Showing {start + 1}–{start + pageRows.length} of {ROWS.length}
+          </span>
+        </DataTableRegion>
+        <DataTableRegion align="end">
+          <Pagination label="Deployment pages" size="sm">
+            <PaginationList>
+              <PaginationItem>
+                <PaginationPrevious disabled={pageIndex === 0} onClick={() => setPage((p) => Math.max(0, p - 1))} />
+              </PaginationItem>
+              {Array.from({ length: pageCount }, (_, i) => (
+                <PaginationItem key={i}>
+                  <PaginationLink isActive={i === pageIndex} onClick={() => setPage(i)}>
+                    {i + 1}
+                  </PaginationLink>
+                </PaginationItem>
+              ))}
+              <PaginationItem>
+                <PaginationNext
+                  disabled={pageIndex >= pageCount - 1}
+                  onClick={() => setPage((p) => Math.min(pageCount - 1, p + 1))}
+                />
+              </PaginationItem>
+            </PaginationList>
+          </Pagination>
+        </DataTableRegion>
+      </DataTableFooter>
+    </DataTable>
+  );
+}
+
 /* ---- Expandable rows ---- */
 
 function ExpandableTable() {
@@ -511,6 +580,53 @@ export const dataTableSpec: ComponentSpec = {
           {() => (
             <div style={{ inlineSize: "100%" }}>
               <SelectableTable />
+            </div>
+          )}
+        </InteractiveExample>
+      ),
+    },
+    {
+      id: "pagination",
+      title: "Pagination",
+      render: () => (
+        <InteractiveExample
+          caption="Paging lives in the `DataTableFooter` — a `DataTableRegion` for a “showing X–Y of N” summary, and another holding the `Pagination` component. The shell owns **no** page state: you slice your own rows and drive `Pagination` from your `page` value. One accessibility must: set `aria-rowcount` on the `Table` to the **full** row count, or assistive technology announces the current page's rows as the whole table."
+          code={() =>
+            [
+              imports(),
+              `import { Pagination, PaginationList, PaginationItem, PaginationLink, PaginationPrevious, PaginationNext } from "@/components/ui/pagination";`,
+              ``,
+              `<DataTable>`,
+              `  <TableScrollArea>`,
+              `    <Table aria-rowcount={total}>{/* just this page's rows */}</Table>`,
+              `  </TableScrollArea>`,
+              `  <DataTableFooter>`,
+              `    <DataTableRegion align="start">Showing {start}–{end} of {total}</DataTableRegion>`,
+              `    <DataTableRegion align="end">`,
+              `      <Pagination label="Pages" size="sm">`,
+              `        <PaginationList>`,
+              `          <PaginationItem>`,
+              `            <PaginationPrevious disabled={page === 0} onClick={() => setPage(page - 1)} />`,
+              `          </PaginationItem>`,
+              `          {pages.map((i) => (`,
+              `            <PaginationItem key={i}>`,
+              `              <PaginationLink isActive={i === page} onClick={() => setPage(i)}>{i + 1}</PaginationLink>`,
+              `            </PaginationItem>`,
+              `          ))}`,
+              `          <PaginationItem>`,
+              `            <PaginationNext disabled={page === last} onClick={() => setPage(page + 1)} />`,
+              `          </PaginationItem>`,
+              `        </PaginationList>`,
+              `      </Pagination>`,
+              `    </DataTableRegion>`,
+              `  </DataTableFooter>`,
+              `</DataTable>`,
+            ].join("\n")
+          }
+        >
+          {() => (
+            <div style={{ inlineSize: "100%" }}>
+              <PaginatedTable />
             </div>
           )}
         </InteractiveExample>

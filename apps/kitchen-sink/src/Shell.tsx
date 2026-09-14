@@ -25,7 +25,6 @@ import {
   CarouselVariableWidth,
   CarouselProgress,
   CarouselSlideshow,
-  CarouselCoverFlow,
   CarouselLoop,
 } from "./pages/CarouselPage";
 import "./Shell.css";
@@ -88,7 +87,6 @@ export function Shell() {
           <Route path="variable-width" element={<CarouselVariableWidth />} />
           <Route path="progress" element={<CarouselProgress />} />
           <Route path="slideshow" element={<CarouselSlideshow />} />
-          <Route path="coverflow" element={<CarouselCoverFlow />} />
           <Route path="loop" element={<CarouselLoop />} />
         </Route>
       </Routes>

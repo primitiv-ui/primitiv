@@ -27,7 +27,6 @@ const EXAMPLES: { to: string; label: string }[] = [
   { to: "variable-width", label: "Variable width" },
   { to: "progress", label: "Scroll progress" },
   { to: "slideshow", label: "Slideshow (parallax)" },
-  { to: "coverflow", label: "Cover Flow" },
   { to: "loop", label: "Loop" },
 ];
 

@@ -3,7 +3,6 @@ import {
   useEffect,
   useRef,
   useState,
-  type CSSProperties,
   type ReactNode,
 } from "react";
 
@@ -129,7 +128,7 @@ type Surface = "none" | "subtle";
 type Indicators = "dots" | "thumbnails";
 type SlideContent = "gradient" | "pictures";
 type Transition = "slide" | "fade";
-type Effect = "none" | "parallax" | "coverflow";
+type Effect = "none" | "parallax";
 type Loop = "none" | "wrap" | "infinite";
 type Glide = "fast" | "medium" | "slow";
 
@@ -159,14 +158,6 @@ interface BuilderConfig {
   effect: Effect;
   loop: Loop;
   glide: Glide;
-  // Cover Flow tuning — applied as inline CSS custom properties on the live
-  // instance (not Carousel props), only when effect="coverflow": the inward
-  // overlap crowd (--coverflow-spread, % of a slide) and the edge tilt angle
-  // (--coverflow-rotate, deg). Builder-only knobs, so they're not echoed in
-  // describe().
-  coverflowSpread: number;
-  coverflowRotate: number;
-  coverflowCardWidth: number;
   // Builder-only — not a real Carousel prop (like `content`), so it's never
   // echoed in describe()'s JSX. Overlays the continuous scroll-progress
   // signal (--carousel-progress / --slide-progress) on the live instance so
@@ -203,9 +194,6 @@ const DEFAULT_CONFIG: BuilderConfig = {
   effect: "none",
   loop: "none",
   glide: "medium",
-  coverflowSpread: 40,
-  coverflowRotate: 55,
-  coverflowCardWidth: 60,
   showProgress: false,
 };
 
@@ -570,15 +558,6 @@ function LiveCarousel({
         glide={config.glide}
         slidesPerPage={effectiveSlidesPerPage(config)}
         allowMouseDrag={config.allowMouseDrag}
-        style={
-          config.effect === "coverflow"
-            ? ({
-                "--primitiv-carousel-coverflow-spread": `${config.coverflowSpread}%`,
-                "--primitiv-carousel-coverflow-rotate": `${config.coverflowRotate}deg`,
-                "--primitiv-carousel-coverflow-card-width": `${config.coverflowCardWidth}%`,
-              } as CSSProperties)
-            : undefined
-        }
       >
         <CarouselViewport>
           {config.slideWidth === "content"
@@ -617,11 +596,7 @@ function LiveCarousel({
                 // pans without exposing an edge; the gradient case has no media, so
                 // the backdrop stays on the Slide and only a small marker rides the
                 // drifting layer (a bare non-media layer isn't oversized).
-                // Cover Flow, by contrast, tilts the whole card and lets it escape
-                // the slide (overflow: visible), so the gradient rides the tilting
-                // content layer itself, not the flat slide behind it.
                 const isParallax = config.effect === "parallax";
-                const isCoverflow = config.effect === "coverflow";
                 return (
                   <CarouselSlide
                     key={index}
@@ -631,27 +606,16 @@ function LiveCarousel({
                         ? "carousel-builder__slide--progress"
                         : undefined
                     }
-                    style={
-                      usePictures || isCoverflow ? undefined : { background }
-                    }
+                    style={usePictures ? undefined : { background }}
                   >
                     {usePictures ? (
-                      isParallax || isCoverflow ? (
+                      isParallax ? (
                         <CarouselSlideContent>
                           <img src={pictures[index % pictures.length]} alt="" />
                         </CarouselSlideContent>
                       ) : (
                         <img src={pictures[index % pictures.length]} alt="" />
                       )
-                    ) : isCoverflow ? (
-                      <CarouselSlideContent
-                        className="carousel-builder__slide-content--coverflow"
-                        style={{ background }}
-                      >
-                        <span className="carousel-builder__slide-marker">
-                          {index + 1}
-                        </span>
-                      </CarouselSlideContent>
                     ) : isParallax ? (
                       <CarouselSlideContent className="carousel-builder__slide-content--parallax">
                         <span className="carousel-builder__slide-marker">
@@ -971,42 +935,13 @@ export function CarouselBuilder() {
               legend="effect"
               name="effect"
               value={config.effect}
-              options={["none", "parallax", "coverflow"] as const}
+              options={["none", "parallax"] as const}
               onChange={(value) => set("effect", value)}
               hint={
                 config.effect === "parallax"
                   ? "scroll-driven, zero-JS drift on each slide's content layer (a native view-timeline; falls back to --slide-progress where unsupported) — most visible mid-drag or on a slow scroll"
-                  : config.effect === "coverflow"
-                    ? "scroll-driven 3D tilt on each slide's content layer (rotateY + scale off a per-slide perspective) — the iTunes Cover Flow look; best with peek + snapAlign=\"center\""
-                    : undefined
+                  : undefined
               }
-            />
-            <RangeField
-              label="Cover Flow overlap"
-              min={0}
-              max={100}
-              value={config.coverflowSpread}
-              onChange={(value) => set("coverflowSpread", value)}
-              disabled={config.effect !== "coverflow"}
-              note="coverflow only"
-            />
-            <RangeField
-              label="Cover Flow angle"
-              min={0}
-              max={90}
-              value={config.coverflowRotate}
-              onChange={(value) => set("coverflowRotate", value)}
-              disabled={config.effect !== "coverflow"}
-              note="coverflow only"
-            />
-            <RangeField
-              label="Cover Flow card width"
-              min={20}
-              max={100}
-              value={config.coverflowCardWidth}
-              onChange={(value) => set("coverflowCardWidth", value)}
-              disabled={config.effect !== "coverflow"}
-              note="coverflow only — smaller shows more neighbours"
             />
           </Section>
 

@@ -29,6 +29,7 @@ import chipDocs from "@/docs-data/chip.docs.json";
 import dataTableDocs from "@/docs-data/data-table.docs.json";
 import tableDocs from "@/docs-data/table.docs.json";
 import tagDocs from "@/docs-data/tag.docs.json";
+import breadcrumbDocs from "@/docs-data/breadcrumb.docs.json";
 import buttonDocs from "@/docs-data/button.docs.json";
 import inputDocs from "@/docs-data/input.docs.json";
 import accordionDocs from "@/docs-data/accordion.docs.json";
@@ -247,6 +248,7 @@ const DOCS = {
   "data-table": dataTableDocs as unknown as ComponentDocs,
   table: tableDocs as unknown as ComponentDocs,
   tag: tagDocs as unknown as ComponentDocs,
+  breadcrumb: breadcrumbDocs as unknown as ComponentDocs,
   button: buttonDocs as unknown as ComponentDocs,
   input: inputDocs as unknown as ComponentDocs,
   accordion: accordionDocs as unknown as ComponentDocs,

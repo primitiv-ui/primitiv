@@ -60,7 +60,7 @@
     "displayName": "Breadcrumb",
     "category": "Disclosure",
     "description": "A WAI-ARIA breadcrumb trail — a nav landmark wrapping an ordered list of ancestor-page links, ending with the current page.",
-    "documented": false
+    "documented": true
   },
   {
     "id": "breadcrumb-overflow",

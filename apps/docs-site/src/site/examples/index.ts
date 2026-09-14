@@ -12,6 +12,7 @@ import { chipSpec } from "./chip";
 import { dataTableSpec } from "./data-table";
 import { tableSpec } from "./table";
 import { tagSpec } from "./tag";
+import { breadcrumbSpec } from "./breadcrumb";
 import { buttonSpec } from "./button";
 import { inputSpec } from "./input";
 import { accordionSpec } from "./accordion";
@@ -70,6 +71,7 @@ export const SPECS: Record<ComponentId, ComponentSpec> = {
   "data-table": dataTableSpec,
   table: tableSpec,
   tag: tagSpec,
+  breadcrumb: breadcrumbSpec,
   button: buttonSpec,
   input: inputSpec,
   accordion: accordionSpec,

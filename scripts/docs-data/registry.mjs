@@ -85,6 +85,21 @@ export const REGISTRY = {
     contract: "registry/components/table/contract.json",
     figmaComponentSetKey: "605:13524", importPath: "@primitiv-ui/react",
   },
+  breadcrumb: {
+    displayName: "Breadcrumb", kind: "registry", status: "stable", category: "Disclosure",
+    propsFile: "registry/components/breadcrumb/breadcrumb.tsx",
+    subComponents: [
+      { name: "Breadcrumb.Root", propsType: "BreadcrumbProps", element: "nav", component: "Root" },
+      { name: "Breadcrumb.List", propsType: "BreadcrumbListProps", element: "ol", component: "List" },
+      { name: "Breadcrumb.Item", propsType: "BreadcrumbItemProps", element: "li", component: "Item" },
+      { name: "Breadcrumb.Link", propsType: "BreadcrumbLinkProps", element: "a", component: "Link" },
+      { name: "Breadcrumb.Page", propsType: "BreadcrumbPageProps", element: "span", component: "Page" },
+      { name: "Breadcrumb.Separator", propsType: "BreadcrumbSeparatorProps", element: "li", component: "Separator" },
+      { name: "Breadcrumb.Ellipsis", propsType: "BreadcrumbEllipsisProps", element: "span", component: "Ellipsis" },
+    ],
+    contract: "registry/components/breadcrumb/contract.json",
+    figmaComponentSetKey: "436:12911", importPath: "@primitiv-ui/react",
+  },
   pagination: {
     displayName: "Pagination", kind: "registry-only", status: "stable", category: "Disclosure",
     /* Hand-authored compound (composes button + dropdown, uses usePagination) —

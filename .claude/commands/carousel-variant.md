@@ -1,6 +1,6 @@
 ---
 description: Develop one Carousel variant end-to-end in the kitchen-sink registry surface — read the design, build the example route + evolve the registry styles (regenerate + drift-test), TDD any headless gap, run the gates, update the log, push to main, then stop for human QA. Figma variable lockstep stays after QA.
-argument-hint: <variant, e.g. "overlay" | "external-flank" | "multi-slide" | "thumbnails" | "vertical" | "loop" | "mouse-drag" | "autoplay" | "cover-flow">
+argument-hint: <variant, e.g. "overlay" | "external-flank" | "multi-slide" | "thumbnails" | "vertical" | "loop" | "mouse-drag" | "autoplay">
 ---
 
 You are developing the Carousel variant: **$ARGUMENTS** (if empty, take the top

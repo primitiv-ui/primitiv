@@ -614,7 +614,9 @@ plus our own transition variants. Status of each Blossom example
 
 **Advanced**
 
-- [x] Cover Flow — CoverFlow (with the live `--cf-*` playground)
+- [ ] Cover Flow — ⬜ built and then **removed** 2026-09-14; deferred to a
+      dedicated Cover Flow component rather than a carousel `effect`
+      (see the carousel dev log's removal entry)
 - [ ] Slideshow — ⬜ parallax slide movement
 - [ ] Stories — ⬜ 3D transitions with overscroll behaviour
 - [ ] Smart Stack — ⬜ iOS-style stacked cards animated on scroll

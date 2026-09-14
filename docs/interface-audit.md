@@ -430,10 +430,10 @@ engineering and would be easy to erode by accident later.
 - **Transition only what changes.** 112 transition declarations across the
   registry; **zero** instances of `transition: all` or
   `transition-property: all`. Every one names its properties.
-- **Interruptible animations.** Only 10 `@keyframes` in 62 components, all
+- **Interruptible animations.** Only 8 `@keyframes` in 63 components, all
   correctly scoped: one-shot directional panel enters (navigation-menu,
-  stepper), an infinite loader (progress), and scroll-driven `linear both`
-  effects (carousel parallax, cover-flow). Interactive state changes all use
+  stepper), an infinite loader (progress), and the scroll-driven `linear both`
+  carousel parallax effect. Interactive state changes all use
   transitions. Every animation carries a `prefers-reduced-motion` guard.
 - **Sparing `will-change`.** No declarations at all; the only match in the
   registry is a carousel comment explaining its deliberate absence.

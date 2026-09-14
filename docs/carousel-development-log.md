@@ -5353,3 +5353,61 @@ the Builder (coverflow-gated `RangeField`, `coverflowCardWidth` default 60). Reg
 knob + contract + README updated; scss regenerated + synced; `cargo test -p
 primitiv-emit` + `check-registry-types` green. Vertical card-narrowing deliberately
 left out (matches the ratio-fix scoping) pending a vertical pass. Awaiting human QA.
+
+### Cover Flow REMOVED — deferred to a dedicated component (2026-09-14)
+
+Human decision, taken while the docs-site component pages were being built:
+**remove all Cover Flow code and functionality from the carousel and leave the
+rest intact.** The carousel had gone well right up to the point Cover Flow was
+added, and the QA rounds above are the record of it not settling — the ratio
+fix, the card-width lever, the infinite-loop tuning pass that never happened.
+Rather than keep iterating on it inside `effect`, Cover Flow becomes **its own
+component at a later stage**, once the carousel is established and demonstrable
+on its docs-site page.
+
+**What went.** Three commits, one per layer:
+
+- `6eb0ad6` — the registry surface: the `effect="coverflow"` option (the union
+  in `carousel.tsx`, the `cva` variant line, the `contract.json` option and
+  description), the five `--primitiv-carousel-coverflow-*` custom properties,
+  the ~215-line CSS block (slide `perspective`, the content-layer card, the
+  `@supports` view-timeline branch, the `--slide-progress` fallback, the RTL
+  and `loop="infinite"` overrides, both `@keyframes`, the reduced-motion
+  cancel), the README bullet, and the regenerated `styles.scss`. The
+  kitchen-sink and docs-site installed copies were re-synced in the same
+  commit.
+- `6cad2a0` — the kitchen-sink: the `/carousel/coverflow` route, `Shell.tsx`
+  wiring, the sidebar entry, `CoverFlowSingle` + `CarouselCoverFlow` and their
+  CSS, and the Builder's `effect` option, three gated tuning sliders, config
+  fields, slide-rendering branch and CSS.
+- `d5ddd41` — the workbench example (`examples/CoverFlow.tsx` +
+  `coverFlow.css`, the older hand-rolled consumer-CSS cover flow that predates
+  the registry effect) and the "Cover Flow (scroll-driven 3D)" recipe section
+  from the headless README and its `apps/docs` mirror.
+
+**What deliberately stayed.**
+
+- **The headless primitive is untouched.** It never had any Cover Flow code —
+  `snapAlign`, `--slide-progress` and `<CarouselSlideContent>` are general
+  features that parallax and consumers use. Only two JSDoc examples on
+  `snapAlign` named Cover Flow; they now say "a peek layout". All 427 Carousel
+  tests pass unchanged, which is the proof.
+- **`effect="parallax"` and its whole scaffold.** Coverflow reused parallax's
+  view-timeline / fallback / RTL / infinite / reduced-motion machinery, but it
+  reused it — nothing shared was removed.
+- **Two generic prose mentions** in the headless README ("e.g. a cover flow",
+  "a cover-flow-style scale/rotate") describing a *kind* of layout the
+  continuous scroll-progress signal can drive. They stay true and useful after
+  the removal, and both are about the headless signal's generality rather than
+  any Primitiv feature.
+
+**For the future dedicated component**, the prior art is all in git, not lost:
+the registry 3D technique at `registry/components/carousel/styles.css` as of
+`6eb0ad6^`, and the older standalone recipe (two timelines, one for the
+rotate/translate band and a second full-scrollport one driving an animatable
+`z-index` so the most-centred card wins the stack) at
+`apps/workbench/src/pages/CarouselExample/examples/coverFlow.css` plus the
+README section, both as of `d5ddd41^`.
+
+**Roadmap.** The Advanced "Cover Flow" item is unticked again with the
+deferral noted, so the Blossom-parity list stays honest.

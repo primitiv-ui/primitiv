@@ -80,7 +80,6 @@ export const carousel = cva("primitiv-carousel", {
     effect: {
       none: "primitiv-carousel--effect-none",
       parallax: "primitiv-carousel--effect-parallax",
-      coverflow: "primitiv-carousel--effect-coverflow",
     },
     glide: {
       fast: "primitiv-carousel--glide-fast",

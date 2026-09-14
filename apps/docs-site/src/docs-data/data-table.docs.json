@@ -1,0 +1,373 @@
+{
+  "id": "data-table",
+  "displayName": "DataTable",
+  "kind": "registry-only",
+  "status": "stable",
+  "category": "Data Display",
+  "description": "A framed data-table shell — a toolbar, a table and a footer that read as one object, plus the anatomy sorting, selection and expandable rows need. Owns no state: sorting, selection, expansion, filtering and pagination all arrive as props, so an external table engine (TanStack Table) can drive it.",
+  "headless": {
+    "package": "@primitiv-ui/react",
+    "importPath": "@/components/ui/data-table",
+    "subComponents": [
+      {
+        "name": "DataTable",
+        "extends": "HTMLDivElement",
+        "props": [],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [
+          {
+            "name": "size",
+            "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
+            "default": "md",
+            "description": "Type scale for the table and its bars; `data-density` scales padding further."
+          },
+          {
+            "name": "frame",
+            "type": "\"framed\" | \"bare\"",
+            "default": "framed",
+            "description": "Whether the shell draws its own surface, hairline and radius."
+          },
+          {
+            "name": "sticky",
+            "type": "\"false\" | \"true\"",
+            "default": "false",
+            "description": "Pins the header row while the body scrolls. Adds an opaque header background, which the base Table deliberately does not have."
+          }
+        ],
+        "dataAttributes": [],
+        "class": "primitiv-data-table"
+      },
+      {
+        "name": "DataTableToolbar",
+        "extends": "HTMLDivElement",
+        "props": [],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-data-table__toolbar"
+      },
+      {
+        "name": "DataTableFooter",
+        "extends": "HTMLDivElement",
+        "props": [],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-data-table__footer"
+      },
+      {
+        "name": "DataTableRegion",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "align",
+            "type": "\"start\" | \"center\" | \"end\"",
+            "required": false,
+            "default": "\"start\"",
+            "description": "Which of the bar's three regions this is. Every control is independently\nplaceable, so the filter can sit at the start, the centre or the end, and\nso can the field menu.\n\nThe bar is a `minmax(0, 1fr) auto minmax(0, 1fr)` grid: equal fractional\nflanks are the only thing that holds a centre still when the two sides hold\ndifferent amounts."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-data-table__region"
+      },
+      {
+        "name": "DataTableControlCell",
+        "extends": "HTMLTableCellElement",
+        "props": [
+          {
+            "name": "align",
+            "type": "\"start\" | \"center\" | \"end\"",
+            "required": false,
+            "default": null,
+            "description": "Cell text alignment. A control cell centres its content by default via its\nown class, so this is only for overriding that."
+          },
+          {
+            "name": "header",
+            "type": "boolean",
+            "required": false,
+            "default": null,
+            "description": "Render a `<th>` instead of a `<td>` — for the select-all cell in the head."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-data-table__control-cell"
+      },
+      {
+        "name": "DataTableSortHeader",
+        "extends": "HTMLTableCellElement",
+        "props": [
+          {
+            "name": "align",
+            "type": "\"start\" | \"center\" | \"end\"",
+            "required": false,
+            "default": null,
+            "description": "Match the column's text alignment — `end` for numeric columns. Forwarded to\nthe `<th>` as well as the sort button, so the header and its cells agree."
+          },
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": false,
+            "default": null,
+            "description": "The visible column label."
+          },
+          {
+            "name": "direction",
+            "type": "\"none\" | \"asc\" | \"desc\"",
+            "required": false,
+            "default": null,
+            "description": "The column's current sort state, mirrored onto the `<th>`'s `aria-sort`."
+          },
+          {
+            "name": "onSort",
+            "type": "() => void",
+            "required": false,
+            "default": null,
+            "description": "Fires when the header is activated — hand it the engine's sort toggler."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": null
+      },
+      {
+        "name": "DataTableSortButton",
+        "extends": "HTMLButtonElement",
+        "props": [
+          {
+            "name": "align",
+            "type": "\"start\" | \"center\" | \"end\"",
+            "required": false,
+            "default": "\"start\"",
+            "description": "Match the column's text alignment — `end` for numeric columns."
+          },
+          {
+            "name": "direction",
+            "type": "\"none\" | \"asc\" | \"desc\"",
+            "required": false,
+            "default": "\"none\"",
+            "description": "The column's current sort state. `none` still reserves space for the glyph,\nso the label does not shift when sorting starts."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-data-table__sort"
+      },
+      {
+        "name": "DataTableExpandTrigger",
+        "extends": "HTMLButtonElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Render a consumer-supplied control instead of the native `<button>`, with\nthis part's `aria-expanded`, `aria-controls`, `data-state` and click\nhandling merged onto it via the {@link Slot } pattern.\n\nThis is how a styled layer composes a real Button rather than re-creating\none: the registry `data-table` renders a ghost Button through it, matching\nthe Figma set, whose Expand Trigger is an Icon Button instance rather than a\ndrawn glyph. The child must be a single element that accepts a `ref`, and it\nshould be a `<button>` — the wiring assumes a control."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [
+          {
+            "name": "data-state",
+            "value": "open | closed",
+            "when": "the row's detail panel is revealed or hidden"
+          }
+        ],
+        "class": "primitiv-data-table__expand"
+      },
+      {
+        "name": "DataTableDetailRow",
+        "extends": "HTMLTableRowElement",
+        "props": [
+          {
+            "name": "colSpan",
+            "type": "number",
+            "required": true,
+            "default": null,
+            "description": "How many columns the panel spans — **every** column the table renders,\ncontrol columns included.\n\nDeliberately a required prop rather than a value counted from context:\ncounting would mean the table registering its own columns, and an\nexternal table engine already knows the number (TanStack Table:\n`table.getVisibleLeafColumns().length`)."
+          },
+          {
+            "name": "cellProps",
+            "type": "TdHTMLAttributes<HTMLTableCellElement>",
+            "required": false,
+            "default": null,
+            "description": "Passed through to the `<td>` that spans the row, for styling the cell\nitself rather than the row."
+          },
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": false,
+            "default": null,
+            "description": "The detail panel's content."
+          },
+          {
+            "name": "forceMount",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Keep the row mounted while collapsed so a CSS transition can run.\n\nOff by default, and that default matters more here than it does on a\n`<div>`-based disclosure: a mounted row is still a **row**, so assistive\ntechnology counts it, and a table of 24 rows with 24 force-mounted\ndetail rows announces 48. Opt in only when you are animating, and note\nthat the collapsed row remains in the accessibility tree while you do."
+          },
+          {
+            "name": "gutter",
+            "type": "number",
+            "required": false,
+            "default": "0",
+            "description": "How many leading columns to leave empty before the panel starts — the\ncontrol columns (select, expand) a row renders in front of its data.\n\nThe panel then spans the columns that remain, so `colSpan` keeps its\nmeaning: the table's full column count, gutter included.\n\nThis is how a panel aligns with the first **data** column instead of the\ntable's edge (a panel starting under the checkbox reads as a new section of\nthe table rather than an opened row). Alignment by empty cell rather than by\na CSS indent is deliberate: the browser's own table layout resolves the\nwidth, so it stays exact across every size, density and control-column set\nwith nothing measured and no arithmetic to drift."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [
+          {
+            "name": "data-state",
+            "value": "open | closed",
+            "when": "the panel is revealed or hidden"
+          }
+        ],
+        "class": "primitiv-data-table__detail-row"
+      }
+    ]
+  },
+  "styled": {
+    "installCommand": "primitiv add data-table",
+    "rootClass": "primitiv-data-table",
+    "customProperties": [
+      {
+        "name": "--primitiv-data-table-background",
+        "defaultsTo": "var(--primitiv-surface-default)"
+      },
+      {
+        "name": "--primitiv-data-table-border-color",
+        "defaultsTo": "var(--primitiv-border-default)"
+      },
+      {
+        "name": "--primitiv-data-table-border-width",
+        "defaultsTo": "var(--primitiv-border-width-1)"
+      },
+      {
+        "name": "--primitiv-data-table-radius",
+        "defaultsTo": "var(--primitiv-surface-md-radius)"
+      },
+      {
+        "name": "--primitiv-data-table-rule-color",
+        "defaultsTo": "var(--primitiv-border-subtle)"
+      },
+      {
+        "name": "--primitiv-data-table-header-background",
+        "defaultsTo": "var(--primitiv-surface-default)"
+      },
+      {
+        "name": "--primitiv-data-table-bar-padding-inline",
+        "defaultsTo": "var(--primitiv-table-cell-padding-inline)"
+      },
+      {
+        "name": "--primitiv-data-table-bar-padding-block",
+        "defaultsTo": "var(--primitiv-table-cell-padding-block)"
+      },
+      {
+        "name": "--primitiv-data-table-bar-gap",
+        "defaultsTo": "var(--primitiv-table-cell-padding-block)"
+      },
+      {
+        "name": "--primitiv-data-table-control-padding-inline",
+        "defaultsTo": "var(--primitiv-table-cell-padding-block)"
+      },
+      {
+        "name": "--primitiv-data-table-visible-rows",
+        "defaultsTo": "8"
+      },
+      {
+        "name": "--primitiv-data-table-row-block-size",
+        "defaultsTo": "calc(2 * var(--primitiv-table-cell-padding-block) + var(--primitiv-body-md-line-height) + var(--primitiv-data-table-border-width))"
+      },
+      {
+        "name": "--primitiv-data-table-header-block-size",
+        "defaultsTo": "calc(2 * var(--primitiv-table-cell-padding-block) + var(--primitiv-body-md-line-height))"
+      },
+      {
+        "name": "--primitiv-data-table-font-family",
+        "defaultsTo": "var(--primitiv-body-md-font-family)"
+      },
+      {
+        "name": "--primitiv-data-table-font-size",
+        "defaultsTo": "var(--primitiv-body-md-font-size)"
+      },
+      {
+        "name": "--primitiv-data-table-font-weight",
+        "defaultsTo": "var(--primitiv-body-md-font-weight)"
+      },
+      {
+        "name": "--primitiv-data-table-line-height",
+        "defaultsTo": "var(--primitiv-body-md-line-height)"
+      },
+      {
+        "name": "--primitiv-data-table-icon-size",
+        "defaultsTo": "var(--primitiv-framed-control-sm-icon-size)"
+      },
+      {
+        "name": "--primitiv-data-table-sort-gap",
+        "defaultsTo": "var(--primitiv-space-space-4)"
+      },
+      {
+        "name": "--primitiv-data-table-sort-hover-background",
+        "defaultsTo": "var(--primitiv-table-row-hover)"
+      },
+      {
+        "name": "--primitiv-data-table-sort-idle-color",
+        "defaultsTo": "var(--primitiv-content-muted)"
+      },
+      {
+        "name": "--primitiv-data-table-detail-padding-inline",
+        "defaultsTo": "var(--primitiv-table-cell-padding-inline)"
+      },
+      {
+        "name": "--primitiv-data-table-detail-padding-block",
+        "defaultsTo": "var(--primitiv-table-cell-padding-block)"
+      },
+      {
+        "name": "--primitiv-data-table-transition-duration",
+        "defaultsTo": "var(--primitiv-motion-duration-expand)"
+      },
+      {
+        "name": "--primitiv-data-table-transition-easing",
+        "defaultsTo": "var(--primitiv-motion-easing-default)"
+      },
+      {
+        "name": "--primitiv-data-table-focus-ring-color",
+        "defaultsTo": "var(--primitiv-border-focus)"
+      },
+      {
+        "name": "--primitiv-data-table-focus-ring-width",
+        "defaultsTo": "var(--primitiv-border-width-2)"
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-state",
+        "value": "open | closed",
+        "when": "the row's detail panel is revealed or hidden"
+      },
+      {
+        "name": "data-state",
+        "value": "open | closed",
+        "when": "the panel is revealed or hidden"
+      }
+    ]
+  },
+  "figma": {}
+}

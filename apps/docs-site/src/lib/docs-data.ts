@@ -25,6 +25,7 @@ import avatarGroupDocs from "@/docs-data/avatar-group.docs.json";
 import badgeDocs from "@/docs-data/badge.docs.json";
 import cardDocs from "@/docs-data/card.docs.json";
 import chipDocs from "@/docs-data/chip.docs.json";
+import dataTableDocs from "@/docs-data/data-table.docs.json";
 import tableDocs from "@/docs-data/table.docs.json";
 import tagDocs from "@/docs-data/tag.docs.json";
 import buttonDocs from "@/docs-data/button.docs.json";
@@ -241,6 +242,7 @@ const DOCS = {
   badge: badgeDocs as unknown as ComponentDocs,
   card: cardDocs as unknown as ComponentDocs,
   chip: chipDocs as unknown as ComponentDocs,
+  "data-table": dataTableDocs as unknown as ComponentDocs,
   table: tableDocs as unknown as ComponentDocs,
   tag: tagDocs as unknown as ComponentDocs,
   button: buttonDocs as unknown as ComponentDocs,

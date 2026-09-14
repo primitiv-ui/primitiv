@@ -8,6 +8,7 @@ import { avatarGroupSpec } from "./avatar-group";
 import { badgeSpec } from "./badge";
 import { cardSpec } from "./card";
 import { chipSpec } from "./chip";
+import { dataTableSpec } from "./data-table";
 import { tableSpec } from "./table";
 import { tagSpec } from "./tag";
 import { buttonSpec } from "./button";
@@ -64,6 +65,7 @@ export const SPECS: Record<ComponentId, ComponentSpec> = {
   badge: badgeSpec,
   card: cardSpec,
   chip: chipSpec,
+  "data-table": dataTableSpec,
   table: tableSpec,
   tag: tagSpec,
   button: buttonSpec,

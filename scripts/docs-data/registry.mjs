@@ -85,6 +85,26 @@ export const REGISTRY = {
     contract: "registry/components/table/contract.json",
     figmaComponentSetKey: "605:13524", importPath: "@primitiv-ui/react",
   },
+  "data-table": {
+    displayName: "DataTable", kind: "registry-only", status: "stable", category: "Data Display",
+    /* Hand-authored composite shell, primitive-less — props in the copied file.
+       No Figma set (code-first composite). `DataTableSortHeader` composes
+       SortButton + TableHeader, so it has no contract entry of its own. */
+    propsFile: "registry/components/data-table/data-table.tsx",
+    subComponents: [
+      { name: "DataTable", propsType: "DataTableProps", element: "div", component: "DataTable" },
+      { name: "DataTableToolbar", propsType: "DataTableToolbarProps", element: "div", component: "DataTableToolbar" },
+      { name: "DataTableFooter", propsType: "DataTableFooterProps", element: "div", component: "DataTableFooter" },
+      { name: "DataTableRegion", propsType: "DataTableRegionProps", element: "div", component: "DataTableRegion" },
+      { name: "DataTableControlCell", propsType: "DataTableControlCellProps", element: "td", component: "DataTableControlCell" },
+      { name: "DataTableSortHeader", propsType: "DataTableSortHeaderProps", element: "th", component: "DataTableSortHeader" },
+      { name: "DataTableSortButton", propsType: "DataTableSortButtonProps", element: "button", component: "DataTableSortButton" },
+      { name: "DataTableExpandTrigger", propsType: "DataTableExpandTriggerProps", element: "button", component: "DataTableExpandTrigger" },
+      { name: "DataTableDetailRow", propsType: "DataTableDetailRowProps", element: "tr", component: "DataTableDetailRow" },
+    ],
+    contract: "registry/components/data-table/contract.json",
+    importPath: "@/components/ui/data-table",
+  },
   accordion: {
     displayName: "Accordion", kind: "registry", status: "stable", category: "Disclosure",
     propsFile: "packages/react/src/Accordion/types.ts",
@@ -754,6 +774,7 @@ export const CATEGORIES = {
  */
 export const DISPLAY_NAME_OVERRIDES = {
   "avatar-group": "AvatarGroup",
+  "data-table": "DataTable",
   "checkbox-card": "CheckboxCard",
   "radio-card": "RadioCard",
   "empty-state": "EmptyState",

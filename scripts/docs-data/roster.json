@@ -162,10 +162,10 @@
   },
   {
     "id": "data-table",
-    "displayName": "Data Table",
+    "displayName": "DataTable",
     "category": "Data Display",
     "description": "A framed data-table shell — a toolbar, a table and a footer that read as one object, plus the anatomy sorting, selection and expandable rows need. Owns no state: sorting, selection, expansion, filtering and pagination all arrive as props, so an external table engine (TanStack Table) can drive it.",
-    "documented": false
+    "documented": true
   },
   {
     "id": "description-list",

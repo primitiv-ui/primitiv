@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { InlineCode } from "@/components/inline-code";
@@ -23,13 +24,18 @@ type Size = "xs" | "sm" | "md" | "lg" | "xl";
  * for as long as the site has existed, which is exactly the failure mode this
  * function is for: authoring markup printed as punctuation.
  *
+ * Markdown links `[label](href)` are supported too — for hand-authored cross-links
+ * between doc pages (e.g. Breadcrumb → BreadcrumbOverflow). An internal `/…` href
+ * routes through `next/link`; an `http(s)` one is a plain external `<a>`. Bare
+ * `<a>` styling comes from `primitiv-base.css`, so no class is needed.
+ *
  * `size` should match the surrounding type — `InlineCode` inherits nothing about
  * size from its context, so a chip in a 20px lede and a chip in a 14px table
  * cell have to be told separately or one of them looks wrong.
  */
 export const renderDoc = (text: string, size: Size = "md"): ReactNode[] => {
   const parts = text.split(
-    /(`[^`]+`|\{@link\s+[^}]+\}|\*\*[^*]+\*\*|\*[^*\s][^*]*\*)/g,
+    /(`[^`]+`|\[[^\]]+\]\([^)]+\)|\{@link\s+[^}]+\}|\*\*[^*]+\*\*|\*[^*\s][^*]*\*)/g,
   );
 
   return parts.map((part, i) => {
@@ -58,6 +64,22 @@ export const renderDoc = (text: string, size: Size = "md"): ReactNode[] => {
      */
     if (part.length > 2 && part.startsWith("*") && part.endsWith("*")) {
       return <em key={i}>{renderDoc(part.slice(1, -1), size)}</em>;
+    }
+    // Markdown link `[label](href)`. Internal `/…` routes via next/link;
+    // external `http(s)` is a plain <a>. Code span is matched first, so a link
+    // inside backticks stays a chip.
+    const md = part.match(/^\[([^\]]+)\]\(([^)]+)\)$/);
+    if (md) {
+      const [, label, href] = md;
+      return /^https?:/.test(href) ? (
+        <a key={i} href={href} target="_blank" rel="noreferrer">
+          {renderDoc(label, size)}
+        </a>
+      ) : (
+        <Link key={i} href={href}>
+          {renderDoc(label, size)}
+        </Link>
+      );
     }
     // `{@link Target | label}` — take the target, drop any display label.
     const link = part.match(/^\{@link\s+([^}\s|]+)/);

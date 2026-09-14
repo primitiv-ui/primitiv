@@ -153,7 +153,7 @@ export const breadcrumbSpec: ComponentSpec = {
       title: "Collapsing a long trail",
       render: () => (
         <InteractiveExample
-          caption="A deep trail can collapse its middle behind a `Breadcrumb.Ellipsis` — a presentational `…` in place of the hidden crumbs. This one is **static**: it just shows the ellipsis. For an ellipsis that actually opens a menu of the hidden pages (and decides how many to keep at each end), reach for `BreadcrumbOverflow`, which composes this with a `Dropdown`."
+          caption="A deep trail can collapse its middle behind a `Breadcrumb.Ellipsis` — a presentational `…` in place of the hidden crumbs. This one is **static**: it just shows the ellipsis. For an ellipsis that actually opens a menu of the hidden pages (and decides how many to keep at each end), reach for [BreadcrumbOverflow](/components/breadcrumb-overflow/), which composes this with a `Dropdown`."
           code={(_density, mode) => {
             const p = partNamer(mode, "Breadcrumb");
             return [
@@ -262,6 +262,6 @@ export const breadcrumbSpec: ComponentSpec = {
     "**The current page is a `Breadcrumb.Page`, not a link.** It is a `<span>` with `aria-current=\"page\"`, which is how assistive technology announces “you are here”. Making the last crumb a link that points at the current URL is the common mistake — you can't navigate to where you already are.",
     "**Separators are decorative and hidden.** `Breadcrumb.Separator` is `role=\"presentation\"` / `aria-hidden`, so the trail is announced as a clean list of pages without “slash” between each. Whatever glyph you pass stays hidden — no extra ARIA needed.",
     "**The list is ordered.** `Breadcrumb.List` is an `<ol>`, because a trail has a meaningful sequence (root → current); assistive technology conveys the order and position from the real list markup.",
-    "**Collapsed crumbs must stay reachable.** A static `Breadcrumb.Ellipsis` hides pages from sight *and* from the keyboard. If the hidden crumbs need to be navigable, use `BreadcrumbOverflow`, whose ellipsis opens a real menu, rather than dropping them behind a bare glyph.",
+    "**Collapsed crumbs must stay reachable.** A static `Breadcrumb.Ellipsis` hides pages from sight *and* from the keyboard. If the hidden crumbs need to be navigable, use [BreadcrumbOverflow](/components/breadcrumb-overflow/), whose ellipsis opens a real menu, rather than dropping them behind a bare glyph.",
   ],
 };

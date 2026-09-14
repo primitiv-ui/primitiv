@@ -13,6 +13,7 @@ import { dataTableSpec } from "./data-table";
 import { tableSpec } from "./table";
 import { tagSpec } from "./tag";
 import { breadcrumbSpec } from "./breadcrumb";
+import { breadcrumbOverflowSpec } from "./breadcrumb-overflow";
 import { buttonSpec } from "./button";
 import { inputSpec } from "./input";
 import { accordionSpec } from "./accordion";
@@ -72,6 +73,7 @@ export const SPECS: Record<ComponentId, ComponentSpec> = {
   table: tableSpec,
   tag: tagSpec,
   breadcrumb: breadcrumbSpec,
+  "breadcrumb-overflow": breadcrumbOverflowSpec,
   button: buttonSpec,
   input: inputSpec,
   accordion: accordionSpec,

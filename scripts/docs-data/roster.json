@@ -64,10 +64,10 @@
   },
   {
     "id": "breadcrumb-overflow",
-    "displayName": "Breadcrumb Overflow",
+    "displayName": "BreadcrumbOverflow",
     "category": "Disclosure",
     "description": "A Breadcrumb trail that collapses its middle entries behind an overflow menu once the trail exceeds keepStart + keepEnd items.",
-    "documented": false
+    "documented": true
   },
   {
     "id": "button",

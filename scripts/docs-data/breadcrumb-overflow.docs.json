@@ -1,0 +1,78 @@
+{
+  "id": "breadcrumb-overflow",
+  "displayName": "BreadcrumbOverflow",
+  "kind": "registry-only",
+  "status": "stable",
+  "category": "Disclosure",
+  "description": "A Breadcrumb trail that collapses its middle entries behind an overflow menu once the trail exceeds keepStart + keepEnd items.",
+  "headless": {
+    "package": "@primitiv-ui/react",
+    "importPath": "@/components/ui/breadcrumb-overflow",
+    "subComponents": [
+      {
+        "name": "BreadcrumbOverflow",
+        "extends": "HTMLElement",
+        "props": [
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": false,
+            "default": null,
+            "description": "The trail's `BreadcrumbLink` / `BreadcrumbPage` elements, in order."
+          },
+          {
+            "name": "keepEnd",
+            "type": "number",
+            "required": false,
+            "default": "1",
+            "description": "How many crumbs to always show at the end of the trail (typically\nincluding the current page) after the overflow menu."
+          },
+          {
+            "name": "keepStart",
+            "type": "number",
+            "required": false,
+            "default": "1",
+            "description": "How many crumbs to always show at the start of the trail before the\noverflow menu."
+          },
+          {
+            "name": "menuLabel",
+            "type": "string",
+            "required": false,
+            "default": "\"Show hidden pages\"",
+            "description": "Accessible label for the overflow trigger button."
+          },
+          {
+            "name": "size",
+            "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
+            "required": false,
+            "default": "\"md\"",
+            "description": "Matches `Breadcrumb`'s own size; also sizes the overflow trigger button\nand the menu it opens."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-breadcrumb-overflow"
+      }
+    ]
+  },
+  "styled": {
+    "installCommand": "primitiv add breadcrumb-overflow",
+    "rootClass": "primitiv-breadcrumb-overflow",
+    "customProperties": [
+      {
+        "name": "--primitiv-breadcrumb-overflow-trigger-hover-background",
+        "defaultsTo": "var(--primitiv-action-ghost-hover)"
+      },
+      {
+        "name": "--primitiv-breadcrumb-overflow-trigger-active-background",
+        "defaultsTo": "var(--primitiv-action-ghost-active)"
+      }
+    ],
+    "dataAttributes": []
+  },
+  "figma": {
+    "componentSetKey": "436:12911"
+  }
+}

@@ -85,6 +85,17 @@ export const REGISTRY = {
     contract: "registry/components/table/contract.json",
     figmaComponentSetKey: "605:13524", importPath: "@primitiv-ui/react",
   },
+  "breadcrumb-overflow": {
+    displayName: "BreadcrumbOverflow", kind: "registry-only", status: "stable", category: "Disclosure",
+    /* Hand-authored composite (composes breadcrumb + dropdown), no headless
+       primitive and no subcomponents — one component with props. */
+    propsFile: "registry/components/breadcrumb-overflow/breadcrumb-overflow.tsx",
+    subComponents: [
+      { name: "BreadcrumbOverflow", propsType: "BreadcrumbOverflowProps", element: "nav", component: "BreadcrumbOverflow" },
+    ],
+    contract: "registry/components/breadcrumb-overflow/contract.json",
+    figmaComponentSetKey: "436:12911", importPath: "@/components/ui/breadcrumb-overflow",
+  },
   breadcrumb: {
     displayName: "Breadcrumb", kind: "registry", status: "stable", category: "Disclosure",
     propsFile: "registry/components/breadcrumb/breadcrumb.tsx",
@@ -810,6 +821,7 @@ export const CATEGORIES = {
  */
 export const DISPLAY_NAME_OVERRIDES = {
   "avatar-group": "AvatarGroup",
+  "breadcrumb-overflow": "BreadcrumbOverflow",
   "data-table": "DataTable",
   "checkbox-card": "CheckboxCard",
   "radio-card": "RadioCard",

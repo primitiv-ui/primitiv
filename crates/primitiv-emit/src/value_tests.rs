@@ -83,11 +83,17 @@ fn formats_shadow_layers_as_a_comma_joined_box_shadow() {
 fn formats_an_empty_shadow_as_none() {
     assert_eq!(format_shadow(&[]), "none");
 }
+
 mod format_color {
     use crate::value::format_color;
 
     #[test]
     fn renders_a_colour_as_oklch() {
         assert_eq!(format_color("#236ce1"), "oklch(0.5557 0.1923 259.8783)");
+    }
+
+    #[test]
+    fn leaves_an_alias_untouched_for_link_aliases_to_resolve() {
+        assert_eq!(format_color("{color.brand.500}"), "{color.brand.500}");
     }
 }

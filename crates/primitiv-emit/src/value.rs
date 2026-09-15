@@ -102,7 +102,9 @@ fn trim(value: f64) -> String {
 /// conversion happens here, on the way out.
 ///
 /// The conversion itself is the engine's ([`to_css_oklch`]); what belongs to the
-/// emitter is the policy of which values to convert.
+/// emitter is the policy of which values to convert. An **alias**
+/// (`{color.brand.500}`) is not a colour yet — `link_aliases` resolves it to a
+/// `var()` reference later — so it passes through untouched.
 pub fn format_color(value: &str) -> String {
-    to_css_oklch(value).expect("a DTCG color value should be a parseable colour")
+    to_css_oklch(value).unwrap_or_else(|_| value.to_string())
 }

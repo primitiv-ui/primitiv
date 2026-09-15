@@ -9,32 +9,15 @@
     "class": "primitiv-stepper"
   },
   "dataAttributes": [
-    {
-      "name": "data-state",
-      "description": "Set by Tabs on each step: `active` for the current step, `inactive` otherwise.",
-      "values": ["active", "inactive"]
-    },
-    {
-      "name": "data-step-state",
-      "description": "Set by `StepperStep` for the progress a step carries in its own right, independently of which step is current. A failed step keeps `error` while you stand on a later one.",
-      "values": ["upcoming", "complete", "error"]
-    },
-    {
-      "name": "data-orientation",
-      "description": "Set by Tabs on the root, list and panels.",
-      "values": ["horizontal", "vertical"]
-    }
+    { "name": "data-state", "value": "active", "when": "the current step (set by Tabs)", "source": "auto" },
+    { "name": "data-state", "value": "inactive", "when": "any step that is not current (set by Tabs)", "source": "auto" },
+    { "name": "data-step-state", "value": "upcoming", "when": "the step is not yet done — the default", "source": "wrapper" },
+    { "name": "data-step-state", "value": "complete", "when": "the step is done — the marker becomes a tick", "source": "wrapper" },
+    { "name": "data-step-state", "value": "error", "when": "the step failed validation — the marker becomes a warning glyph, kept even while a later step is current", "source": "wrapper" },
+    { "name": "data-orientation", "value": "horizontal", "when": "the rail runs horizontally — the default (set by Tabs)", "source": "auto" },
+    { "name": "data-orientation", "value": "vertical", "when": "the rail runs vertically (set by Tabs)", "source": "auto" }
   ],
   "modifiers": [
-    {
-      "name": "compact",
-      "default": "false",
-      "description": "Collapses the rail into a progress bar — the same steps, drawn as segments with their markers and labels hidden. For narrow containers, where a labelled rail cannot fit. The steps stay in the DOM, so each panel keeps the `aria-labelledby` pointing at its trigger; swapping the rail out for a hand-rolled bar would break that. Drive it from the consumer side (e.g. `useMediaQuery`), and pair it with your own \"Step N of M\" line — Stepper owns no step data model.",
-      "options": [
-        { "name": "false", "class": "", "description": "The full rail with markers and labels (the default)." },
-        { "name": "true", "class": "primitiv-stepper__list--compact", "description": "Segmented progress bar." }
-      ]
-    },
     {
       "name": "size",
       "default": "md",
@@ -45,6 +28,25 @@
         { "name": "md", "class": "primitiv-stepper--md", "description": "Medium (the default)." },
         { "name": "lg", "class": "primitiv-stepper--lg", "description": "Large." },
         { "name": "xl", "class": "primitiv-stepper--xl", "description": "Extra large." }
+      ]
+    }
+  ],
+  "subcomponents": [
+    {
+      "name": "list",
+      "component": "StepperList",
+      "element": "div",
+      "class": "primitiv-stepper__list",
+      "modifiers": [
+        {
+          "name": "compact",
+          "default": "false",
+          "description": "Collapses the rail into a progress bar — the same steps, drawn as segments with their markers and labels hidden. For narrow containers, where a labelled rail cannot fit. The steps stay in the DOM, so each panel keeps the `aria-labelledby` pointing at its trigger; swapping the rail out for a hand-rolled bar would break that. Drive it from the consumer side (e.g. `useMediaQuery`), and pair it with your own \"Step N of M\" line — Stepper owns no step data model.",
+          "options": [
+            { "name": "false", "class": "", "description": "The full rail with markers and labels (the default)." },
+            { "name": "true", "class": "primitiv-stepper__list--compact", "description": "Segmented progress bar." }
+          ]
+        }
       ]
     }
   ],

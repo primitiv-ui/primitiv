@@ -53,18 +53,26 @@ import "./tokens-figure.css";
  *   as `-100.12` where the settled design says `259.8783`. Normalised in the
  *   engine, not here.
  *
- *   **The original reason was "OkLCH is not in the token layer", and that is no
- *   longer true** — since 2026-09-15 the emitter renders every DTCG colour leaf
- *   as `oklch(...)`, so `--primitiv-color-brand-500` now literally holds this
- *   string. Reading it from there instead looked strictly better, and was tried.
- *   **It does not work, and only a render shows why: a colour custom property
- *   does not round-trip through `getComputedStyle`.** Chromium resolves it and
- *   serialises it in another space, so the hook returns
- *   `lab(46.564% 12.2373 -67.1156)` — a colour space this figure does not
- *   document, with none of the numbers the design record states. The swatches
- *   are unaffected because they never leave CSS; it is specifically reading a
- *   colour token back **as text** that the platform will not do. So the engine
- *   stays the source, now for a sharper reason than the one first written here.
+ *   **The reason has been wrong twice; this is the third and measured one.**
+ *   It first read "OkLCH is not in the token layer", which stopped being true on
+ *   2026-09-15 when the emitter began rendering every colour leaf as `oklch()`.
+ *   Reading `--primitiv-color-brand-500` instead was then tried, came back as
+ *   `lab(46.564% 12.2373 -67.1156)`, and was recorded as "a colour custom
+ *   property does not round-trip through `getComputedStyle`". **That was also
+ *   wrong** — the `lab()` was Lightning CSS downlevelling every colour for a
+ *   too-old browser target, fixed by the docs site's `browserslist` (`c22fdbc`).
+ *   It does round-trip.
+ *
+ *   **What is actually true, measured with that fix in place:** the hook returns
+ *   the declared text faithfully — and the declared text is *minified*. This
+ *   file's value is authored `oklch(0.5557 0.1923 259.8783)` and served
+ *   `oklch(55.57% .1923 259.878)`: percentage lightness, stripped leading zero,
+ *   hue truncated to three decimals. The same colour, spelled differently and a
+ *   digit shorter. For a length that is harmless (`2.5rem` survives); here the
+ *   spelling *is* the claim, since the figure states the value the design record
+ *   states. So the engine stays the source — not because the platform refuses,
+ *   but because the token layer's **text** is the build tool's to reformat even
+ *   when its **value** is exact.
  */
 const STEPS = ["50", "100", "200", "300", "400", "500", "600", "700", "800", "900"] as const;
 

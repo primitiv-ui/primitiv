@@ -3308,29 +3308,62 @@ itself argues: one source, follows the theme, no dependency on generated engine
 data, and closer to the standing "only use Primitiv tokens via CSS variables"
 rule. So it was changed.
 
-**It does not work, and only a render showed why.** A colour custom property
-does **not** round-trip through `getComputedStyle`: Chromium resolves it and
-serialises it in another space, so the hook came back with
+**It did not work, and the render showed it:** the hook came back with
 `lab(46.564% 12.2373 -67.1156)`. The figure would have printed a colour space
 it does not document, with none of the numbers the design record states —
 under a caption asserting that this tier is where the real value lives. It
 typechecked, the token gate passed, and the value was plausibly colour-shaped.
+Reverted.
 
-Reverted. The engine stays the source, now for a sharper reason than the one
-first written: it is not that the token layer lacks the value, it is that the
-platform will not hand a colour token back **as text**. Recorded in
-`useTokenValues`' own docstring as a hard "do not point this at a colour
-token", because the hook is the thing a future session would reach for.
+**The reason recorded here was then wrong, and is corrected below.** This
+section first concluded "a colour custom property does not round-trip through
+`getComputedStyle` — Chromium resolves it and serialises it in another space".
+That is not what was happening. **Lightning CSS was downlevelling every colour
+for a too-old browser target**, lowering it to a hex base plus a `lab()` tier
+and dropping `oklch` entirely; `getComputedStyle` was faithfully reporting what
+the stylesheet actually said. The docs site's `browserslist` fixed it
+(`c22fdbc`, a separate workstream). A colour custom property round-trips fine.
+
+**What is true, re-measured with that fix in place**, reading the rule text out
+of `document.styleSheets` alongside the hook so the two could be compared:
+
+| | |
+|---|---|
+| authored in `tokens.css` | `oklch(0.5557 0.1923 259.8783)` |
+| declared in the served sheet | `oklch(55.57% .1923 259.878)` |
+| returned by `getComputedStyle` | `oklch(55.57% .1923 259.878)` |
+| printed by the figure | `oklch(0.5557 0.1923 259.8783)` |
+
+The hook is faithful; the *declared text* is minified — percentage lightness,
+stripped leading zero, hue truncated from four decimals to three. The same
+colour, spelled differently and a digit shorter.
+
+So the engine stays the source, for a third reason that is neither of the first
+two: **the token layer's text is the build tool's to reformat even when its
+value is exact.** Harmless for a length (`2.5rem` survives intact), wrong here,
+because this figure's whole claim is the value the design record states.
+`useTokenValues`' docstring carries the rule in that form — read a colour
+through it only when the exact spelling is not the point.
 
 Two things worth keeping from it:
 
 - **The swatches were never at risk**, and that asymmetry is the lesson. They
   resolve `--primitiv-color-brand-<step>` in CSS and never pass through
-  JavaScript, so the serialisation is irrelevant to them — the same token is
-  reliable as *paint* and unusable as *prose*. §6.0.31's "three live values,
-  three different sources" split turns out to be forced by the platform, not
+  JavaScript, so neither the downlevelling nor the minification could reach
+  them — a downlevelled colour still paints correctly. The same token is
+  reliable as *paint* and unreliable as *prose*, which is what makes §6.0.31's
+  "three live values, three different sources" split structural rather than
   merely tidy.
-- **A stale premise can survive a correct conclusion.** The engine path was
-  right all along; the sentence explaining it had gone wrong underneath. Worth
+- **A stale premise can survive a correct conclusion — twice over.** The engine
+  path was right all along, and the sentence explaining it went wrong *twice*:
+  once when an upstream change falsified it, once when I replaced it with a
+  plausible reading of a symptom I had not traced to its cause. Worth
   re-reading the *reasons* in a figure's JSDoc when an upstream change touches
-  its subject, not just checking that it still renders.
+  its subject, and worth distrusting a mechanism you inferred from one
+  observation rather than isolated.
+- **A build tool sits between the token layer and the browser, and it rewrites
+  colour.** Nothing in this repo's gates sees that: `check:css` reads the
+  authored stylesheets, the drift guard compares emitted files, and both were
+  green through the whole episode. The only way to know what a token actually
+  says at runtime is to read it out of `document.styleSheets` in a real
+  browser, which is what finally settled it.

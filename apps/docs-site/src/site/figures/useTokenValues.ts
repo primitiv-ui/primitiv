@@ -18,14 +18,20 @@ import { useEffect, useRef, useState } from "react";
  * moves. Returns `null` until the effect has run — the static export has no
  * cascade, so there is no honest value to prerender.
  *
- * **Do not point this at a COLOUR token.** A length or a number comes back as
- * authored, but a colour does not round-trip: Chromium resolves it and
- * serialises it in another space, so a token holding
- * `oklch(0.5557 0.1923 259.8783)` reads back as
- * `lab(46.564% 12.2373 -67.1156)`. TOKENS-01 tried exactly this once the
- * emitter began writing colours as OkLCH; its JSDoc records the finding. A
- * colour belongs in CSS, where it never passes through JavaScript at all — and
- * where a figure needs one as *text*, it comes from the engine.
+ * **What comes back is the DECLARED text, after the build has had it** — which
+ * is the thing to watch. `getComputedStyle` on a custom property returns the
+ * token stream verbatim, colours included, but the CSS pipeline minifies that
+ * stream first: `oklch(0.5557 0.1923 259.8783)` is authored in
+ * `tokens.css` and *served* as `oklch(55.57% .1923 259.878)` — percentage
+ * lightness, stripped leading zero, hue truncated from four decimals to three.
+ * The same colour, differently written. Fine for a length (`2.5rem` survives
+ * intact); wrong for anything whose exact spelling is the point.
+ *
+ * So **do not read a COLOUR token through here when the string itself is the
+ * claim** — TOKENS-01 needs the form its design record states, so it takes the
+ * value from the engine instead; its JSDoc records the whole history. A colour
+ * used as *paint* belongs in CSS, where it never passes through JavaScript and
+ * none of this applies.
  */
 export const useTokenValues = <T extends HTMLElement>(tokens: readonly string[]) => {
   const ref = useRef<T>(null);

@@ -1,0 +1,569 @@
+{
+  "id": "navigation-menu",
+  "displayName": "NavigationMenu",
+  "kind": "registry",
+  "status": "stable",
+  "category": "Navigation",
+  "description": "The desktop dropdown site nav — a transparent bar of top-level entries, each either a plain link or a trigger that discloses a panel, with one panel open at a time. Panels project into a shared Viewport so the open one morphs into the next, and an Indicator (arrow or underline) tracks the open trigger. Implements the ARIA APG Disclosure Navigation Menu pattern, not a menubar: keyboard, hover-intent and focus are owned by the headless primitive.",
+  "headless": {
+    "package": "@primitiv-ui/react",
+    "importPath": "@primitiv-ui/react",
+    "subComponents": [
+      {
+        "name": "NavigationMenu.Root",
+        "extends": "HTMLElement",
+        "props": [
+          {
+            "name": "closeDelay",
+            "type": "number",
+            "required": false,
+            "default": "150",
+            "description": "Milliseconds the open panel survives after the pointer leaves the\n`<nav>`, so a pointer that clips the edge of a panel on its way back\ndoesn't dismiss it. Returning to the nav within the window cancels the\nclose."
+          },
+          {
+            "name": "defaultValue",
+            "type": "string",
+            "required": false,
+            "default": null,
+            "description": "Value of the entry whose panel is open on first render. Omit (or pass\n`\"\"`) to start with everything closed."
+          },
+          {
+            "name": "delayDuration",
+            "type": "number",
+            "required": false,
+            "default": "200",
+            "description": "Milliseconds a trigger must be hovered before its panel opens — the\nhover-intent delay that stops a panel flashing open as the pointer\ncrosses the nav on its way somewhere else. `0` opens immediately.\nIgnored once a panel is already open: moving between triggers always\nswitches without delay. Ignored entirely when\n{@link NavigationMenuRootProps.openOnHover`openOnHover`} is `false`."
+          },
+          {
+            "name": "dir",
+            "type": "\"ltr\" | \"rtl\"",
+            "required": false,
+            "default": null,
+            "description": "Reading direction; see {@link NavigationMenuReadingDirection}. Inherited\nfrom the nearest `DirectionProvider` when omitted, falling back to\n`\"ltr\"`."
+          },
+          {
+            "name": "onValueChange",
+            "type": "(value: string) => void",
+            "required": false,
+            "default": null,
+            "description": "Called with the requested open value — the entry's value to open it, or\n`\"\"` to close whatever is open."
+          },
+          {
+            "name": "openOnHover",
+            "type": "boolean",
+            "required": false,
+            "default": "true",
+            "description": "Whether hovering a trigger opens its panel. Set `false` for a\nclick-only nav — hover-to-open is the desktop convention, but it has no\ntouch equivalent and some products prefer to opt out."
+          },
+          {
+            "name": "orientation",
+            "type": "\"horizontal\" | \"vertical\"",
+            "required": false,
+            "default": "\"horizontal\"",
+            "description": "Layout axis; see {@link NavigationMenuOrientation}."
+          },
+          {
+            "name": "value",
+            "type": "string",
+            "required": false,
+            "default": null,
+            "description": "Value of the entry whose panel is open. `\"\"` means every panel is\nclosed."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [
+          {
+            "name": "size",
+            "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
+            "default": "md",
+            "description": "Entry + panel scale; `data-density` scales the sizing within each size. Re-points every child sizing knob (entry height/padding/gap/icon, panel radius/padding/offset, row padding and text gap)."
+          }
+        ],
+        "dataAttributes": [
+          {
+            "name": "data-orientation",
+            "value": "horizontal",
+            "when": "horizontal"
+          },
+          {
+            "name": "data-orientation",
+            "value": "vertical",
+            "when": "vertical"
+          },
+          {
+            "name": "data-state",
+            "value": "open",
+            "when": "open"
+          },
+          {
+            "name": "data-state",
+            "value": "closed",
+            "when": "closed"
+          },
+          {
+            "name": "data-active",
+            "value": "",
+            "when": "the link is the current page"
+          },
+          {
+            "name": "data-motion",
+            "value": "from-start | from-end | to-start | to-end",
+            "when": "the open entry changes and this panel is the one entering or leaving"
+          }
+        ],
+        "class": "primitiv-navigation-menu"
+      },
+      {
+        "name": "NavigationMenu.List",
+        "extends": "HTMLUListElement",
+        "props": [],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-navigation-menu__list"
+      },
+      {
+        "name": "NavigationMenu.Item",
+        "extends": "HTMLLIElement",
+        "props": [
+          {
+            "name": "value",
+            "type": "string",
+            "required": false,
+            "default": null,
+            "description": "Identifies the entry's panel. Required for an entry that has a\n`NavigationMenu.Trigger`; omit it for a plain link entry."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-navigation-menu__item"
+      },
+      {
+        "name": "NavigationMenu.Trigger",
+        "extends": "HTMLButtonElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Renders the child element instead of the default `<button>`. All\ndisclosure ARIA attributes, the hover-intent and keyboard handlers, and\nthe internal ref are merged onto the child via {@link Slot }. The child\nmust be a single React element that accepts a `ref`."
+          },
+          {
+            "name": "ref",
+            "type": "Ref<T>",
+            "required": false,
+            "default": null,
+            "description": "Ref to the rendered element. Defaults to `HTMLButtonElement`; when using\n`asChild`, specify the child's element type."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-navigation-menu__trigger"
+      },
+      {
+        "name": "NavigationMenu.TriggerLabel",
+        "extends": "HTMLSpanElement",
+        "props": [],
+        "styledOnly": true,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-navigation-menu__trigger-label"
+      },
+      {
+        "name": "NavigationMenu.TriggerIcon",
+        "extends": "HTMLSpanElement",
+        "props": [],
+        "styledOnly": true,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-navigation-menu__trigger-icon"
+      },
+      {
+        "name": "NavigationMenu.Content",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "forceMount",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Keeps the closed panel out of the `hidden` state so CSS can animate it\nin and out, marking it `aria-hidden` instead so assistive technology\nstill ignores it. Without this the panel is `hidden` when closed, which no\ntransition can animate away from."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-navigation-menu__content"
+      },
+      {
+        "name": "NavigationMenu.Viewport",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "forceMount",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Keeps the viewport unhidden while nothing is open so CSS can animate the\nbox collapsing and expanding. Mirrors\n{@link NavigationMenuContentProps.forceMount`Content`'s `forceMount`}."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [
+          {
+            "name": "data-value",
+            "value": "<item value>",
+            "when": "the open item's `value`, so a panel or marker can be styled per entry"
+          },
+          {
+            "name": "data-navigation-menu-viewport-clip",
+            "value": "",
+            "when": "always, on the wrapper that clips the morphing panel — the hook its own animation needs"
+          }
+        ],
+        "class": "primitiv-navigation-menu__viewport"
+      },
+      {
+        "name": "NavigationMenu.Indicator",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Renders the child element instead of the default `<div>`, merging the\n`data-*` state hooks and the geometry custom properties onto it via\n{@link Slot }. Use it to make the marker an icon — an `<svg>` arrow, a\n`<Chevron />` component — rather than a styled box. The child must be a\nsingle React element that accepts a `ref`."
+          },
+          {
+            "name": "forceMount",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Keeps the indicator unhidden while nothing is open so CSS can animate it\nout rather than having it vanish."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [
+          {
+            "name": "data-value",
+            "value": "<item value>",
+            "when": "the open item's `value`, so a panel or marker can be styled per entry"
+          }
+        ],
+        "class": "primitiv-navigation-menu__indicator"
+      },
+      {
+        "name": "NavigationMenu.Link",
+        "extends": "HTMLAnchorElement",
+        "props": [
+          {
+            "name": "active",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Marks this link as the page the user is currently on, setting\n`aria-current=\"page\"` and the `data-active` styling hook. The component\ndoes no route matching of its own — the consumer owns the router, so it\nowns the comparison."
+          },
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Renders the child element instead of a native `<a>`, merging all of\n`NavigationMenu.Link`'s props — `aria-current`, `data-active`, the\npanel-dismissing click handler, `ref` — onto it via {@link Slot }. Use for\nrouting-library link components."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-navigation-menu__link"
+      },
+      {
+        "name": "NavigationMenu.LinkText",
+        "extends": "HTMLSpanElement",
+        "props": [],
+        "styledOnly": true,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-navigation-menu__link-text"
+      },
+      {
+        "name": "NavigationMenu.LinkTitle",
+        "extends": "HTMLSpanElement",
+        "props": [],
+        "styledOnly": true,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-navigation-menu__link-title"
+      },
+      {
+        "name": "NavigationMenu.LinkDescription",
+        "extends": "HTMLSpanElement",
+        "props": [],
+        "styledOnly": true,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-navigation-menu__link-description"
+      },
+      {
+        "name": "NavigationMenu.LinkLeading",
+        "extends": "HTMLSpanElement",
+        "props": [],
+        "styledOnly": true,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-navigation-menu__link-leading"
+      },
+      {
+        "name": "NavigationMenu.LinkTrailing",
+        "extends": "HTMLSpanElement",
+        "props": [],
+        "styledOnly": true,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-navigation-menu__link-trailing"
+      }
+    ]
+  },
+  "styled": {
+    "installCommand": "primitiv add navigation-menu",
+    "rootClass": "primitiv-navigation-menu",
+    "customProperties": [
+      {
+        "name": "--primitiv-navigation-menu-entry-height",
+        "defaultsTo": "var(--primitiv-nav-item-md-height)"
+      },
+      {
+        "name": "--primitiv-navigation-menu-entry-padding-inline",
+        "defaultsTo": "var(--primitiv-nav-item-md-padding-inline)"
+      },
+      {
+        "name": "--primitiv-navigation-menu-entry-gap",
+        "defaultsTo": "var(--primitiv-nav-item-md-gap)"
+      },
+      {
+        "name": "--primitiv-navigation-menu-entry-radius",
+        "defaultsTo": "var(--primitiv-framed-control-md-radius)"
+      },
+      {
+        "name": "--primitiv-navigation-menu-entry-fg",
+        "defaultsTo": "var(--primitiv-content-secondary)"
+      },
+      {
+        "name": "--primitiv-navigation-menu-entry-fg-hover",
+        "defaultsTo": "var(--primitiv-content-primary)"
+      },
+      {
+        "name": "--primitiv-navigation-menu-entry-fg-active",
+        "defaultsTo": "var(--primitiv-action-primary-default)"
+      },
+      {
+        "name": "--primitiv-navigation-menu-entry-fg-disabled",
+        "defaultsTo": "var(--primitiv-content-disabled)"
+      },
+      {
+        "name": "--primitiv-navigation-menu-entry-bg",
+        "defaultsTo": "var(--primitiv-color-transparent)"
+      },
+      {
+        "name": "--primitiv-navigation-menu-entry-bg-hover",
+        "defaultsTo": "var(--primitiv-action-ghost-hover)"
+      },
+      {
+        "name": "--primitiv-navigation-menu-entry-bg-active",
+        "defaultsTo": "var(--primitiv-action-ghost-active)"
+      },
+      {
+        "name": "--primitiv-navigation-menu-entry-font-family",
+        "defaultsTo": "var(--primitiv-label-md-font-family)"
+      },
+      {
+        "name": "--primitiv-navigation-menu-entry-font-size",
+        "defaultsTo": "var(--primitiv-label-md-font-size)"
+      },
+      {
+        "name": "--primitiv-navigation-menu-entry-font-weight",
+        "defaultsTo": "var(--primitiv-label-md-font-weight)"
+      },
+      {
+        "name": "--primitiv-navigation-menu-entry-line-height",
+        "defaultsTo": "var(--primitiv-label-md-line-height)"
+      },
+      {
+        "name": "--primitiv-navigation-menu-icon-size",
+        "defaultsTo": "var(--primitiv-nav-item-md-icon-size)"
+      },
+      {
+        "name": "--primitiv-navigation-menu-disabled-opacity",
+        "defaultsTo": "var(--primitiv-opacity-50)"
+      },
+      {
+        "name": "--primitiv-navigation-menu-surface",
+        "defaultsTo": "var(--primitiv-surface-floating)"
+      },
+      {
+        "name": "--primitiv-navigation-menu-panel-radius",
+        "defaultsTo": "var(--primitiv-dropdown-md-panel-radius)"
+      },
+      {
+        "name": "--primitiv-navigation-menu-panel-padding-block",
+        "defaultsTo": "var(--primitiv-dropdown-md-panel-padding-block)"
+      },
+      {
+        "name": "--primitiv-navigation-menu-panel-padding-inline",
+        "defaultsTo": "var(--primitiv-space-space-4)"
+      },
+      {
+        "name": "--primitiv-navigation-menu-panel-offset",
+        "defaultsTo": "var(--primitiv-nav-item-md-panel-offset)"
+      },
+      {
+        "name": "--primitiv-navigation-menu-safe-area",
+        "defaultsTo": "var(--primitiv-space-space-8)"
+      },
+      {
+        "name": "--primitiv-navigation-menu-panel-shadow",
+        "defaultsTo": "a three-layer drop-shadow() chain matching elevation/overlay"
+      },
+      {
+        "name": "--primitiv-navigation-menu-content-gap",
+        "defaultsTo": "var(--primitiv-space-space-16)"
+      },
+      {
+        "name": "--primitiv-navigation-menu-content-columns",
+        "defaultsTo": "1fr"
+      },
+      {
+        "name": "--primitiv-navigation-menu-panel-slide",
+        "defaultsTo": "var(--primitiv-space-space-68)"
+      },
+      {
+        "name": "--primitiv-navigation-menu-row-padding-inline",
+        "defaultsTo": "var(--primitiv-nav-item-md-padding-inline)"
+      },
+      {
+        "name": "--primitiv-navigation-menu-row-padding-block",
+        "defaultsTo": "var(--primitiv-nav-item-md-padding-block)"
+      },
+      {
+        "name": "--primitiv-navigation-menu-row-text-gap",
+        "defaultsTo": "var(--primitiv-nav-item-md-text-gap)"
+      },
+      {
+        "name": "--primitiv-navigation-menu-row-bg-hover",
+        "defaultsTo": "var(--primitiv-color-neutral-alpha-100)"
+      },
+      {
+        "name": "--primitiv-navigation-menu-row-title-color",
+        "defaultsTo": "var(--primitiv-content-primary)"
+      },
+      {
+        "name": "--primitiv-navigation-menu-row-description-color",
+        "defaultsTo": "var(--primitiv-content-secondary)"
+      },
+      {
+        "name": "--primitiv-navigation-menu-row-description-font-family",
+        "defaultsTo": "var(--primitiv-body-sm-font-family)"
+      },
+      {
+        "name": "--primitiv-navigation-menu-row-description-font-size",
+        "defaultsTo": "var(--primitiv-body-sm-font-size)"
+      },
+      {
+        "name": "--primitiv-navigation-menu-row-description-font-weight",
+        "defaultsTo": "var(--primitiv-body-sm-font-weight)"
+      },
+      {
+        "name": "--primitiv-navigation-menu-row-description-line-height",
+        "defaultsTo": "var(--primitiv-body-sm-line-height)"
+      },
+      {
+        "name": "--primitiv-navigation-menu-indicator-thickness",
+        "defaultsTo": "var(--primitiv-border-width-2)"
+      },
+      {
+        "name": "--primitiv-navigation-menu-indicator-color",
+        "defaultsTo": "var(--primitiv-action-primary-default)"
+      },
+      {
+        "name": "--primitiv-navigation-menu-indicator-arrow-size",
+        "defaultsTo": "var(--primitiv-space-space-8)"
+      },
+      {
+        "name": "--primitiv-navigation-menu-transition-duration",
+        "defaultsTo": "var(--primitiv-motion-duration-overlay)"
+      },
+      {
+        "name": "--primitiv-navigation-menu-transition-easing",
+        "defaultsTo": "var(--primitiv-motion-easing-default)"
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-orientation",
+        "value": "horizontal",
+        "when": "horizontal"
+      },
+      {
+        "name": "data-orientation",
+        "value": "vertical",
+        "when": "vertical"
+      },
+      {
+        "name": "data-state",
+        "value": "open",
+        "when": "open"
+      },
+      {
+        "name": "data-state",
+        "value": "closed",
+        "when": "closed"
+      },
+      {
+        "name": "data-active",
+        "value": "",
+        "when": "the link is the current page"
+      },
+      {
+        "name": "data-motion",
+        "value": "from-start | from-end | to-start | to-end",
+        "when": "the open entry changes and this panel is the one entering or leaving"
+      },
+      {
+        "name": "data-value",
+        "value": "<item value>",
+        "when": "the open item's `value`, so a panel or marker can be styled per entry"
+      },
+      {
+        "name": "data-navigation-menu-viewport-clip",
+        "value": "",
+        "when": "always, on the wrapper that clips the morphing panel — the hook its own animation needs"
+      },
+      {
+        "name": "data-value",
+        "value": "<item value>",
+        "when": "the open item's `value`, so a panel or marker can be styled per entry"
+      }
+    ]
+  },
+  "figma": {
+    "componentSetKey": "1334:51944"
+  }
+}

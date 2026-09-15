@@ -284,7 +284,7 @@
     "displayName": "Navigation Menu",
     "category": "Navigation",
     "description": "The desktop dropdown site nav — a transparent bar of top-level entries, each either a plain link or a trigger that discloses a panel, with one panel open at a time. Panels project into a shared Viewport so the open one morphs into the next, and an Indicator (arrow or underline) tracks the open trigger. Implements the ARIA APG Disclosure Navigation Menu pattern, not a menubar: keyboard, hover-intent and focus are owned by the headless primitive.",
-    "documented": false
+    "documented": true
   },
   {
     "id": "pagination",

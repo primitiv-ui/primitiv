@@ -62,6 +62,7 @@ import { popoverSpec } from "./popover";
 import { drawerSpec } from "./drawer";
 import { dropdownSpec } from "./dropdown";
 import { confirmDialogSpec } from "./confirm-dialog";
+import { navigationMenuSpec } from "./navigation-menu";
 import type { ComponentSpec } from "./types";
 
 /**
@@ -130,6 +131,7 @@ export const SPECS: Record<ComponentId, ComponentSpec> = {
   drawer: drawerSpec,
   dropdown: dropdownSpec,
   "confirm-dialog": confirmDialogSpec,
+  "navigation-menu": navigationMenuSpec,
 };
 
 export type { ComponentSpec };

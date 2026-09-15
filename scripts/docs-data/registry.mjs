@@ -918,6 +918,34 @@ export const REGISTRY = {
        it when absent, as pagination/miller-columns do). */
     importPath: "@/components/ui/confirm-dialog",
   },
+  "navigation-menu": {
+    displayName: "NavigationMenu", kind: "registry", status: "stable", category: "Navigation",
+    /* Dual-surface, split like Modal/Listbox: the headless compound is Root / List
+       / Item / Trigger / Content / Viewport / Indicator / Link; the presentational
+       slots the copied file adds — TriggerLabel / TriggerIcon and the panel-row
+       parts LinkText / LinkTitle / LinkDescription / LinkLeading / LinkTrailing —
+       are STYLED-ONLY, so they carry their own `propsFile`. */
+    propsFile: "packages/react/src/NavigationMenu/types.ts",
+    subComponents: [
+      { name: "NavigationMenu.Root", propsType: "NavigationMenuRootProps", element: "nav", component: "Root" },
+      { name: "NavigationMenu.List", propsType: "NavigationMenuListProps", element: "ul", component: "List" },
+      { name: "NavigationMenu.Item", propsType: "NavigationMenuItemProps", element: "li", component: "Item" },
+      { name: "NavigationMenu.Trigger", propsType: "NavigationMenuTriggerProps", element: "button", component: "Trigger" },
+      { name: "NavigationMenu.TriggerLabel", propsType: "NavigationMenuTriggerLabelProps", propsFile: "registry/components/navigation-menu/navigation-menu.tsx", element: "span", component: "TriggerLabel" },
+      { name: "NavigationMenu.TriggerIcon", propsType: "NavigationMenuTriggerIconProps", propsFile: "registry/components/navigation-menu/navigation-menu.tsx", element: "span", component: "TriggerIcon" },
+      { name: "NavigationMenu.Content", propsType: "NavigationMenuContentProps", element: "div", component: "Content" },
+      { name: "NavigationMenu.Viewport", propsType: "NavigationMenuViewportProps", element: "div", component: "Viewport" },
+      { name: "NavigationMenu.Indicator", propsType: "NavigationMenuIndicatorProps", element: "div", component: "Indicator" },
+      { name: "NavigationMenu.Link", propsType: "NavigationMenuLinkProps", element: "a", component: "Link" },
+      { name: "NavigationMenu.LinkText", propsType: "NavigationMenuLinkTextProps", propsFile: "registry/components/navigation-menu/navigation-menu.tsx", element: "span", component: "LinkText" },
+      { name: "NavigationMenu.LinkTitle", propsType: "NavigationMenuLinkTitleProps", propsFile: "registry/components/navigation-menu/navigation-menu.tsx", element: "span", component: "LinkTitle" },
+      { name: "NavigationMenu.LinkDescription", propsType: "NavigationMenuLinkDescriptionProps", propsFile: "registry/components/navigation-menu/navigation-menu.tsx", element: "span", component: "LinkDescription" },
+      { name: "NavigationMenu.LinkLeading", propsType: "NavigationMenuLinkLeadingProps", propsFile: "registry/components/navigation-menu/navigation-menu.tsx", element: "span", component: "LinkLeading" },
+      { name: "NavigationMenu.LinkTrailing", propsType: "NavigationMenuLinkTrailingProps", propsFile: "registry/components/navigation-menu/navigation-menu.tsx", element: "span", component: "LinkTrailing" },
+    ],
+    contract: "registry/components/navigation-menu/contract.json",
+    figmaComponentSetKey: "1334:51944", importPath: "@primitiv-ui/react",
+  },
   divider: {
     displayName: "Divider", kind: "registry", status: "stable", category: "Layout",
     propsFile: "packages/react/src/Divider/types.ts",

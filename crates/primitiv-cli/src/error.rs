@@ -78,12 +78,11 @@ impl fmt::Display for CliError {
     }
 }
 
-impl From<ColorInputError> for CliError {
-    fn from(error: ColorInputError) -> Self {
-        CliError::InvalidColor(error)
-    }
-}
-
+/// Every colour the CLI takes reaches it through the generator, so this is the one
+/// conversion into [`CliError::InvalidColor`] — there is deliberately no
+/// `From<ColorInputError>`, which would be a second door onto the same variant with
+/// nothing walking through it.
+///
 /// A generation failure splits by whose mistake it was: a colour the consumer
 /// typed is [`CliError::InvalidColor`], while a step count or lightness curve
 /// outside what the engine supports is a [`CliError::Usage`] carrying the

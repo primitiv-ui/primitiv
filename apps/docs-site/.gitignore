@@ -5,3 +5,11 @@
 
 # Incremental TypeScript build cache.
 *.tsbuildinfo
+
+# Next's generated ambient types. `next dev` and `next build` each rewrite this
+# file to point at their OWN type directory (`.next/dev/types` vs `.next/types`),
+# so whichever ran last dirties the tree for the other — it churned through a
+# whole session of alternating dev servers and builds before being untracked
+# (a7b714e). Untracking it alone leaves it reappearing as an UNTRACKED file on
+# the next run, so the ignore rule is the half that makes that stick.
+next-env.d.ts

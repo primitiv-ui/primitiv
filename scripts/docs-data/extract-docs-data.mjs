@@ -326,7 +326,14 @@ function simplifyType(type) {
 function findAlias(typeName, file = sf) {
   let sym;
   ts.forEachChild(file, (node) => {
-    if (ts.isTypeAliasDeclaration(node) && node.name.text === typeName) sym = checker.getSymbolAtLocation(node.name);
+    // A props surface can be a `type` alias or an `interface` — Combobox is the
+    // first to use `interface`. `getDeclaredTypeOfSymbol` + `getPropertiesOfType`
+    // resolve an interface's members (inherited `extends` included) the same way.
+    if (
+      (ts.isTypeAliasDeclaration(node) || ts.isInterfaceDeclaration(node)) &&
+      node.name.text === typeName
+    )
+      sym = checker.getSymbolAtLocation(node.name);
   });
   return sym;
 }

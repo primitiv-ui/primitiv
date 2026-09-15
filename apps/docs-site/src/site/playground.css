@@ -134,6 +134,35 @@
   color: var(--primitiv-content-secondary);
 }
 
+/*
+ * Density transition — the same effect the home page's density stage uses, so
+ * flipping the DensityRadios on a playground or an example glides the controls
+ * to their new size rather than snapping. Scoped to the exact properties the
+ * density ramp moves (NOT `transition: all`, which would also animate colour,
+ * transforms and every interactive state, and fight the components' own
+ * motion). Runs through the semantic `motion/duration-expand` (200ms) tier, the
+ * same one the density stage uses. `data-density` lives on `.docs-example-row` /
+ * `.docs-playground-preview`, so the descendants are what re-size.
+ */
+.docs-example-row *,
+.docs-playground-preview * {
+  transition:
+    padding var(--primitiv-motion-duration-expand) var(--primitiv-motion-easing-default),
+    margin var(--primitiv-motion-duration-expand) var(--primitiv-motion-easing-default),
+    gap var(--primitiv-motion-duration-expand) var(--primitiv-motion-easing-default),
+    block-size var(--primitiv-motion-duration-expand) var(--primitiv-motion-easing-default),
+    border-radius var(--primitiv-motion-duration-expand) var(--primitiv-motion-easing-default),
+    font-size var(--primitiv-motion-duration-expand) var(--primitiv-motion-easing-default),
+    line-height var(--primitiv-motion-duration-expand) var(--primitiv-motion-easing-default);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .docs-example-row *,
+  .docs-playground-preview * {
+    transition: none;
+  }
+}
+
 /* ── Example strips ───────────────────────────────────────────────────────── */
 
 .docs-example-row {

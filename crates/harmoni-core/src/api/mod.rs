@@ -8,6 +8,7 @@
 
 pub mod alpha;
 pub mod audit;
+pub mod css;
 pub mod gamut;
 pub mod generate;
 pub mod neutral;
@@ -40,6 +41,8 @@ pub use neutral::{
 mod alpha_tests;
 #[cfg(test)]
 mod audit_tests;
+#[cfg(test)]
+mod css_tests;
 #[cfg(test)]
 mod gamut_tests;
 #[cfg(test)]

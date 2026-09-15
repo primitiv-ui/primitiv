@@ -3345,7 +3345,7 @@ because this figure's whole claim is the value the design record states.
 `useTokenValues`' docstring carries the rule in that form — read a colour
 through it only when the exact spelling is not the point.
 
-Two things worth keeping from it:
+Three things worth keeping from it:
 
 - **The swatches were never at risk**, and that asymmetry is the lesson. They
   resolve `--primitiv-color-brand-<step>` in CSS and never pass through

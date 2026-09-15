@@ -1,7 +1,7 @@
 use std::path::Path;
 
 use pretty_assertions::assert_eq;
-use primitiv_emit::emit_theme_brand_css;
+use primitiv_emit::emit_theme_ramps_css;
 
 use crate::error::CliError;
 use crate::ports::fs::{FileSystem, InMemoryFs};
@@ -35,7 +35,7 @@ fn dispatches_the_theme_command_and_writes_the_file() {
     let written = fs.read(Path::new("out.css")).unwrap();
     assert_eq!(
         written,
-        emit_theme_brand_css("#0a7755").unwrap().into_bytes()
+        emit_theme_ramps_css(&[("brand", "#0a7755")]).unwrap().into_bytes()
     );
 }
 

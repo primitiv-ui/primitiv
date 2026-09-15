@@ -1,7 +1,7 @@
 use std::collections::BTreeMap;
 
 use harmoni_core::api::generate_brand_pair;
-use harmoni_core::{ColorInput, ColorInputError, Palette};
+use harmoni_core::{ColorInput, ColorInputError};
 use serde_json::Value;
 
 use crate::alias::link_aliases;
@@ -68,51 +68,56 @@ pub fn emit_theme_overrides_css(documents: &[Value]) -> String {
     emit_theme_css(&axis_scopes(&Axis::Theme, documents))
 }
 
-/// Emit `primitiv theme --brand <hex>` overrides (RFC 0005 §2.4, RFC 0006 §5.1):
-/// link `harmoni-core` to derive a contrast-checked paired light + dark palette
-/// from the brand, map each side's ramp to `--primitiv-color-brand-*` tokens,
-/// and serialise them into the `primitiv.theme` layer — light sharing `:root`,
-/// dark in `[data-theme="dark"]`. The emitted structure is the stable contract
-/// (D48); the hex values track `harmoni-core` and evolve non-breakingly.
-pub fn emit_theme_brand_css(brand: &str) -> Result<String, ColorInputError> {
-    Ok(emit_theme_css(&brand_scopes(brand)?))
+/// Emit `primitiv theme` ramp overrides as CSS (RFC 0005 §2.4, RFC 0006
+/// §4.2/§5): generate each seeded family's paired light + dark ramps through the
+/// Harmoni-backed emitter, and serialise both modes as `primitiv.theme` scopes.
+///
+/// `seeds` pairs a palette family with the colour it generates from —
+/// `[("brand", "#0a7755"), ("danger", "#db2424")]` — so a project re-seeds as
+/// many of its ramps as it has colours for, in one file. Every family lands in
+/// the same two scopes, because a stylesheet wants one `[data-theme]` block per
+/// mode rather than one per ramp.
+pub fn emit_theme_ramps_css(seeds: &[(&str, &str)]) -> Result<String, ColorInputError> {
+    Ok(emit_theme_css(&ramp_scopes(seeds)?))
 }
 
-/// Emit `primitiv theme --brand <hex>` overrides as SCSS (RFC 0005 §2.4,
-/// RFC 0006 §4.2/§5): the same paired light + dark brand scopes as
-/// [`emit_theme_brand_css`], serialised through the SCSS adapter so the
-/// `primitiv.theme` CSS is followed by the resolving `$primitiv-*` variables.
-pub fn emit_theme_brand_scss(brand: &str) -> Result<String, ColorInputError> {
-    Ok(emit_theme_scss(&brand_scopes(brand)?))
+/// Emit `primitiv theme` ramp overrides as SCSS (RFC 0005 §2.4, RFC 0006
+/// §4.2/§5): the same paired scopes as [`emit_theme_ramps_css`], serialised
+/// through the SCSS adapter so the `primitiv.theme` CSS is followed by the
+/// resolving `$primitiv-*` variables.
+pub fn emit_theme_ramps_scss(seeds: &[(&str, &str)]) -> Result<String, ColorInputError> {
+    Ok(emit_theme_scss(&ramp_scopes(seeds)?))
 }
 
-/// Emit `primitiv theme --brand <hex>` overrides as Tailwind (RFC 0005 §2.4,
-/// RFC 0006 §4.2/§5): the same paired light + dark brand scopes as
-/// [`emit_theme_brand_css`], serialised through the Tailwind adapter so the
-/// `primitiv.theme` custom properties are followed by the `@theme` preset.
-pub fn emit_theme_brand_tailwind(brand: &str) -> Result<String, ColorInputError> {
-    Ok(emit_theme_tailwind(&brand_scopes(brand)?))
+/// Emit `primitiv theme` ramp overrides as Tailwind (RFC 0005 §2.4, RFC 0006
+/// §4.2/§5): the same paired scopes as [`emit_theme_ramps_css`], serialised
+/// through the Tailwind adapter so the `primitiv.theme` custom properties are
+/// followed by the `@theme` preset.
+pub fn emit_theme_ramps_tailwind(seeds: &[(&str, &str)]) -> Result<String, ColorInputError> {
+    Ok(emit_theme_tailwind(&ramp_scopes(seeds)?))
 }
 
-/// Derive the paired light + dark brand-ramp scopes from a brand colour: link
-/// `harmoni-core` for a contrast-checked pair, then map each side to its
-/// `--primitiv-color-brand-*` theme-axis scope. Shared by every theme-brand
-/// serialiser so the formats stay byte-identical in structure.
-fn brand_scopes(brand: &str) -> Result<Vec<Scope>, ColorInputError> {
-    let set = generate_brand_pair(ColorInput::Css(brand.to_string()))?;
-    Ok(vec![
-        brand_scope("light", &set.light),
-        brand_scope("dark", &set.dark),
-    ])
+/// Derive the paired light + dark theme scopes for every seeded ramp: link
+/// `harmoni-core` for each family's contrast-checked pair, then collect all the
+/// families' `--primitiv-color-<family>-*` tokens into one scope per mode.
+/// Shared by every serialiser so the formats stay byte-identical in structure.
+fn ramp_scopes(seeds: &[(&str, &str)]) -> Result<Vec<Scope>, ColorInputError> {
+    let mut light = Vec::new();
+    let mut dark = Vec::new();
+    for (family, seed) in seeds {
+        let set = generate_brand_pair(ColorInput::Css((*seed).to_string()))?;
+        light.extend(ramp_tokens(family, &set.light));
+        dark.extend(ramp_tokens(family, &set.dark));
+    }
+    Ok(vec![theme_scope("light", light), theme_scope("dark", dark)])
 }
 
-/// One theme-axis scope of brand-ramp overrides for a mode: the mode's
-/// `[data-theme]` selectors (the default mode also sharing `:root`) carrying the
-/// palette's `--primitiv-color-brand-*` tokens.
-fn brand_scope(mode: &str, palette: &Palette) -> Scope {
+/// One theme-axis scope for a mode: the mode's `[data-theme]` selectors (the
+/// default mode also sharing `:root`) carrying the already-collected tokens.
+fn theme_scope(mode: &str, tokens: Vec<Token>) -> Scope {
     Scope {
         selectors: scope_selectors(&Axis::Theme, mode),
-        tokens: ramp_tokens("brand", palette),
+        tokens,
     }
 }
 

@@ -1,6 +1,6 @@
 use std::path::Path;
 
-use primitiv_emit::{emit_theme_brand_css, emit_theme_brand_scss, emit_theme_brand_tailwind};
+use primitiv_emit::{emit_theme_ramps_css, emit_theme_ramps_scss, emit_theme_ramps_tailwind};
 
 use crate::error::CliError;
 use crate::format::Format;
@@ -12,10 +12,11 @@ use crate::ports::fs::FileSystem;
 /// write them to `out` through the filesystem port. CSS is canonical; SCSS is
 /// the thinnest adapter over it (the TS / Tailwind serialisers land next).
 pub fn theme(fs: &impl FileSystem, brand: &str, out: &Path, format: Format) -> Result<(), CliError> {
+    let seeds = [("brand", brand)];
     let overrides = match format {
-        Format::Css => emit_theme_brand_css(brand)?,
-        Format::Scss => emit_theme_brand_scss(brand)?,
-        Format::Tailwind => emit_theme_brand_tailwind(brand)?,
+        Format::Css => emit_theme_ramps_css(&seeds)?,
+        Format::Scss => emit_theme_ramps_scss(&seeds)?,
+        Format::Tailwind => emit_theme_ramps_tailwind(&seeds)?,
     };
     fs.write(out, overrides.as_bytes())?;
     Ok(())

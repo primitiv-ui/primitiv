@@ -1,7 +1,7 @@
 use std::path::Path;
 
 use pretty_assertions::assert_eq;
-use primitiv_emit::{emit_theme_brand_css, emit_theme_brand_scss, emit_theme_brand_tailwind};
+use primitiv_emit::{emit_theme_ramps_css, emit_theme_ramps_scss, emit_theme_ramps_tailwind};
 
 use crate::commands::theme::theme;
 use crate::error::CliError;
@@ -16,7 +16,7 @@ fn writes_the_brand_theme_css_to_the_out_path() {
     theme(&fs, "#0a7755", out, Format::Css).unwrap();
 
     let written = fs.read(out).unwrap();
-    let expected = emit_theme_brand_css("#0a7755").unwrap();
+    let expected = emit_theme_ramps_css(&[("brand", "#0a7755")]).unwrap();
     assert_eq!(written, expected.into_bytes());
 }
 
@@ -28,7 +28,7 @@ fn writes_the_brand_theme_scss_when_the_format_is_scss() {
     theme(&fs, "#0a7755", out, Format::Scss).unwrap();
 
     let written = fs.read(out).unwrap();
-    let expected = emit_theme_brand_scss("#0a7755").unwrap();
+    let expected = emit_theme_ramps_scss(&[("brand", "#0a7755")]).unwrap();
     assert_eq!(written, expected.into_bytes());
 }
 
@@ -40,7 +40,7 @@ fn writes_the_brand_theme_tailwind_when_the_format_is_tailwind() {
     theme(&fs, "#0a7755", out, Format::Tailwind).unwrap();
 
     let written = fs.read(out).unwrap();
-    let expected = emit_theme_brand_tailwind("#0a7755").unwrap();
+    let expected = emit_theme_ramps_tailwind(&[("brand", "#0a7755")]).unwrap();
     assert_eq!(written, expected.into_bytes());
 }
 

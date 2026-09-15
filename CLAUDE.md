@@ -201,6 +201,25 @@ source of truth for when a skill applies.
   `danger`/`warning`/`success`/`info` on their ten-step ramps and their roles
   untouched. **The registry stylesheets are written against ten steps**, so a
   project on another length owns the consequences for its own component styling.
+  **`init` now applies the brand it records (2026-09-15).** Three things were wrong
+  and are fixed together. Its `DEFAULT_BRAND` was `#0a7755` — the green the RFC 0005
+  §3.1 *examples* use — while the shipped palette seeds `#236ce1`, so every flag-less
+  `init` wrote a config naming a brand the token layer did not have; the default is
+  now pinned to `packages/tokens/harmoni-seeds.json` by a test, so the two cannot
+  drift again. A brand that *was* given was recorded and never applied, so a project
+  that answered the prompt still shipped Primitiv's ramps; `init` now emits the theme
+  layer too, but **only when the brand differs from the shipped default** (overriding
+  the shipped brand with itself is a no-op file that reads as "this palette is
+  customised"). And nothing imported that file — `primitiv theme --out` has always
+  written a stylesheet no cascade referenced — so `tokens` now prepends
+  `@import "./primitiv.theme.css"`, which is where the line has to live because
+  re-running `primitiv tokens` rewrites the whole file and would drop it.
+  **The import keys off the file existing, NOT the config's seeds**: the first
+  attempt tested the seeds and emitted a phantom import on every default `init`
+  (the config records a brand, no override file is written), which is a build error
+  in every bundler — caught by running the binary, not by the suite. `Format::extension`
+  is now the one place the css/scss/tailwind file suffix is decided, shared by all
+  three commands.
   The registry has three
   adapters behind one port — embedded (baked in), `LocalRegistry`
   (`--registry <path>`) and `HttpsRegistry` (`--registry <url|version>`, a

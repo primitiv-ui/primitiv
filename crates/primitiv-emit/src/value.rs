@@ -1,4 +1,5 @@
-use harmoni_core::api::css::to_css_oklch;
+use harmoni_core::api::css::oklch_with_alpha;
+use harmoni_core::color::input::parse_css_with_alpha;
 
 /// Token-path categories (the first path segment) whose numeric values are
 /// CSS lengths, emitted in `rem` against a 16px base.
@@ -101,10 +102,18 @@ fn trim(value: f64) -> String {
 /// token sync both speak, neither of which has an OkLCH type — so the
 /// conversion happens here, on the way out.
 ///
-/// The conversion itself is the engine's ([`to_css_oklch`]); what belongs to the
-/// emitter is the policy of which values to convert. An **alias**
-/// (`{color.brand.500}`) is not a colour yet — `link_aliases` resolves it to a
-/// `var()` reference later — so it passes through untouched.
+/// The conversion itself is the engine's; what belongs to the emitter is the
+/// policy of which values to convert, and two pass through exactly as written:
+///
+/// - **an alias** (`{color.brand.500}`) is not a colour yet — `link_aliases`
+///   resolves it to a `var()` reference later; and
+/// - **a fully transparent colour** has no hue or lightness worth stating.
+///   `#00000000` reads as intent where `oklch(0 0 0 / 0)` reads as a colour that
+///   merely happens to be invisible.
 pub fn format_color(value: &str) -> String {
-    to_css_oklch(value).unwrap_or_else(|_| value.to_string())
+    match parse_css_with_alpha(value) {
+        Ok((_, alpha)) if alpha == 0.0 => value.to_string(),
+        Ok((color, alpha)) => oklch_with_alpha(color, alpha),
+        Err(_) => value.to_string(),
+    }
 }

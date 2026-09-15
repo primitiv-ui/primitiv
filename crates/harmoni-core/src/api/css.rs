@@ -8,6 +8,8 @@
 //! — into that form. Doing it here keeps the conversion in the engine, so no
 //! adapter grows a second opinion about what a colour is.
 
+use palette::Oklch;
+
 use crate::color::input::parse_css_with_alpha;
 use crate::color::output::{format_oklch, format_oklch_alpha};
 use crate::ColorInputError;
@@ -21,9 +23,18 @@ use crate::ColorInputError;
 /// expected in its input, and that policy belongs with the caller.
 pub fn to_css_oklch(input: &str) -> Result<String, ColorInputError> {
     let (color, alpha) = parse_css_with_alpha(input)?;
-    Ok(if alpha >= 1.0 {
+    Ok(oklch_with_alpha(color, alpha))
+}
+
+/// Render an already-parsed colour and alpha as its CSS `oklch()` form.
+///
+/// The opaque-versus-translucent choice lives here, once, so a caller that has
+/// already parsed a colour (to ask something about it first) renders it exactly
+/// as [`to_css_oklch`] would rather than re-deciding for itself.
+pub fn oklch_with_alpha(color: Oklch, alpha: f32) -> String {
+    if alpha >= 1.0 {
         format_oklch(color)
     } else {
         format_oklch_alpha(color, alpha)
-    })
+    }
 }

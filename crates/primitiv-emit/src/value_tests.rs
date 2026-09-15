@@ -96,4 +96,9 @@ mod format_color {
     fn leaves_an_alias_untouched_for_link_aliases_to_resolve() {
         assert_eq!(format_color("{color.brand.500}"), "{color.brand.500}");
     }
+
+    #[test]
+    fn leaves_a_fully_transparent_colour_as_it_was_written() {
+        assert_eq!(format_color("#00000000"), "#00000000");
+    }
 }

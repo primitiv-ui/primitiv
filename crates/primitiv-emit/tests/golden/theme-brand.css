@@ -1,27 +1,27 @@
 @layer primitiv.theme {
   :root,
   [data-theme="light"] {
-    --primitiv-color-brand-50: #eef8f3;
-    --primitiv-color-brand-100: #cbe7d9;
-    --primitiv-color-brand-200: #9cd0b8;
-    --primitiv-color-brand-300: #79ba9d;
-    --primitiv-color-brand-400: #519d7d;
-    --primitiv-color-brand-500: #0a7755;
-    --primitiv-color-brand-600: #0b5a40;
-    --primitiv-color-brand-700: #043726;
-    --primitiv-color-brand-800: #011f14;
-    --primitiv-color-brand-900: #000f08;
+    --primitiv-color-brand-50: oklch(0.97 0.0119 164.4939);
+    --primitiv-color-brand-100: oklch(0.9036 0.0347 164.4939);
+    --primitiv-color-brand-200: oklch(0.8151 0.0644 164.4939);
+    --primitiv-color-brand-300: oklch(0.7377 0.0793 164.4939);
+    --primitiv-color-brand-400: oklch(0.6381 0.0912 164.4939);
+    --primitiv-color-brand-500: oklch(0.5054 0.1043 164.4939);
+    --primitiv-color-brand-600: oklch(0.4165 0.0838 164.4939);
+    --primitiv-color-brand-700: oklch(0.301 0.0606 164.4939);
+    --primitiv-color-brand-800: oklch(0.2122 0.0427 164.4939);
+    --primitiv-color-brand-900: oklch(0.15 0.0303 164.4939);
   }
   [data-theme="dark"] {
-    --primitiv-color-brand-50: #131a17;
-    --primitiv-color-brand-100: #0f261c;
-    --primitiv-color-brand-200: #043423;
-    --primitiv-color-brand-300: #074531;
-    --primitiv-color-brand-400: #0c5d43;
-    --primitiv-color-brand-500: #0a7755;
-    --primitiv-color-brand-600: #4d9a7a;
-    --primitiv-color-brand-700: #7dbea1;
-    --primitiv-color-brand-800: #abe0c7;
-    --primitiv-color-brand-900: #cef6e3;
+    --primitiv-color-brand-50: oklch(0.21 0.0119 164.4939);
+    --primitiv-color-brand-100: oklch(0.2448 0.0347 164.4939);
+    --primitiv-color-brand-200: oklch(0.2882 0.058 164.4939);
+    --primitiv-color-brand-300: oklch(0.349 0.0702 164.4939);
+    --primitiv-color-brand-400: oklch(0.4272 0.0859 164.4939);
+    --primitiv-color-brand-500: oklch(0.5054 0.1043 164.4939);
+    --primitiv-color-brand-600: oklch(0.628 0.0912 164.4939);
+    --primitiv-color-brand-700: oklch(0.7506 0.0793 164.4939);
+    --primitiv-color-brand-800: oklch(0.862 0.0644 164.4939);
+    --primitiv-color-brand-900: oklch(0.94 0.0496 164.4939);
   }
 }

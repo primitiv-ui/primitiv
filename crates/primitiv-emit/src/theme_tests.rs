@@ -13,7 +13,9 @@ fn maps_each_swatch_to_a_namespaced_brand_token() {
     assert_eq!(tokens.len(), 10);
     assert_eq!(tokens[0].path, vec!["color", "brand", "50"]);
     assert_eq!(tokens[9].path, vec!["color", "brand", "900"]);
-    // Each token carries the swatch's sRGB hex as its value.
-    assert_eq!(tokens[5].value, palette.swatches[5].hex);
-    assert!(tokens[0].value.starts_with('#'));
+    // Each token carries the swatch's own OkLCH, as the engine rendered it —
+    // not a conversion of its hex, which would be an 8-bit round trip of a
+    // value the engine already holds exactly.
+    assert_eq!(tokens[5].value, palette.swatches[5].oklch);
+    assert!(tokens[0].value.starts_with("oklch("));
 }

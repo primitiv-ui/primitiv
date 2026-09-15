@@ -337,7 +337,7 @@ fn parses_the_theme_command_with_brand_and_out() {
     assert_eq!(
         command,
         Command::Theme {
-            brand: "#0a7755".to_string(),
+            seeds: vec![("brand".to_string(), "#0a7755".to_string())],
             out: "x.css".to_string(),
             format: Format::Css,
         }
@@ -353,7 +353,7 @@ fn parses_an_explicit_scss_format() {
     assert_eq!(
         command,
         Command::Theme {
-            brand: "#0a7755".to_string(),
+            seeds: vec![("brand".to_string(), "#0a7755".to_string())],
             out: "x.scss".to_string(),
             format: Format::Scss,
         }
@@ -369,7 +369,7 @@ fn parses_an_explicit_css_format() {
     assert_eq!(
         command,
         Command::Theme {
-            brand: "#0a7755".to_string(),
+            seeds: vec![("brand".to_string(), "#0a7755".to_string())],
             out: "x.css".to_string(),
             format: Format::Css,
         }
@@ -385,7 +385,7 @@ fn parses_an_explicit_tailwind_format() {
     assert_eq!(
         command,
         Command::Theme {
-            brand: "#0a7755".to_string(),
+            seeds: vec![("brand".to_string(), "#0a7755".to_string())],
             out: "x.css".to_string(),
             format: Format::Tailwind,
         }
@@ -501,11 +501,49 @@ fn rejects_a_flag_with_no_value() {
 }
 
 #[test]
-fn rejects_theme_missing_brand() {
+fn rejects_theme_with_no_ramp_seeded_at_all() {
     assert!(matches!(
         parse(&args(&["theme", "--out", "x.css"])).unwrap_err(),
         CliError::Usage(_)
     ));
+}
+
+#[test]
+fn rejects_a_bare_argument_to_theme_that_names_no_flag_at_all() {
+    assert!(matches!(
+        parse(&args(&["theme", "brand", "--out", "x.css"])).unwrap_err(),
+        CliError::Usage(_)
+    ));
+}
+
+#[test]
+fn rejects_a_flag_to_theme_that_names_no_ramp_family() {
+    assert!(matches!(
+        parse(&args(&["theme", "--accent", "#123456", "--out", "x.css"])).unwrap_err(),
+        CliError::Usage(_)
+    ));
+}
+
+#[test]
+fn rejects_a_ramp_flag_that_ends_the_arguments_with_no_colour() {
+    assert!(matches!(
+        parse(&args(&["theme", "--out", "x.css", "--danger"])).unwrap_err(),
+        CliError::Usage(_)
+    ));
+}
+
+#[test]
+fn rejects_seeding_the_neutral_ramp_by_name_rather_than_as_a_typo() {
+    let message = match parse(&args(&["theme", "--neutral", "#888888", "--out", "x.css"])) {
+        Err(CliError::Usage(message)) => message,
+        other => panic!("expected a usage error, got {other:?}"),
+    };
+
+    // Not "unexpected argument": the neutral ramp is generated from a different
+    // model, and saying so is the difference between a mistyped flag and a
+    // capability the CLI has not surfaced.
+    assert!(message.contains("neutral"), "{message}");
+    assert!(message.contains("hue-tint"), "{message}");
 }
 
 #[test]
@@ -514,4 +552,36 @@ fn rejects_theme_missing_out() {
         parse(&args(&["theme", "--brand", "#0a7755"])).unwrap_err(),
         CliError::Usage(_)
     ));
+}
+
+#[test]
+fn parses_a_seed_for_every_ramp_family_in_canonical_order() {
+    let command = parse(&args(&[
+        "theme",
+        "--info",
+        "#008e9d",
+        "--brand",
+        "#0a7755",
+        "--danger",
+        "#db2424",
+        "--out",
+        "x.css",
+    ]))
+    .unwrap();
+
+    // Flags are order-free, but the emitted seeds are not: they come out in the
+    // palette's own family order so the override file reads the same however the
+    // command was typed.
+    assert_eq!(
+        command,
+        Command::Theme {
+            seeds: vec![
+                ("brand".to_string(), "#0a7755".to_string()),
+                ("danger".to_string(), "#db2424".to_string()),
+                ("info".to_string(), "#008e9d".to_string()),
+            ],
+            out: "x.css".to_string(),
+            format: Format::Css,
+        }
+    );
 }

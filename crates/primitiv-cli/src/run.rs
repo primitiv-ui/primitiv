@@ -33,7 +33,7 @@ pub fn run(
         Command::Init(options) => init(fs, output, prompt, interactive, &options),
         Command::Add(options) => add(fs, registry, output, runner, prompt, interactive, &options),
         Command::List { json } => list(fs, registry, output, json),
-        Command::Theme { brand, out, format } => theme(fs, &brand, Path::new(&out), format),
+        Command::Theme { seeds, out, format } => theme(fs, &seeds, Path::new(&out), format),
         Command::Tokens { out, format } => {
             tokens(fs, output, format, out.as_deref().map(Path::new))
         }

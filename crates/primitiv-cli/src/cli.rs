@@ -14,7 +14,9 @@ pub enum Command {
         json: bool,
     },
     Theme {
-        brand: String,
+        /// The ramp seeds to emit, as `(family, colour)` in [`RAMP_FAMILIES`]
+        /// order — flags are order-free, the output is not.
+        seeds: Vec<(String, String)>,
         out: String,
         format: Format,
     },
@@ -23,6 +25,18 @@ pub enum Command {
         format: Option<Format>,
     },
 }
+
+/// The palette families a `theme` seed can re-skin, in the order they are
+/// emitted. One list drives the `--<family>` flags, the `primitiv.json`
+/// `theme` block and the config merge, so adding a family is one entry here.
+///
+/// `neutral` is deliberately absent: it does not come from
+/// `generate_brand_pair` at all but from the engine's `neutral` module, which
+/// takes a different input shape (soft-neutral anchors plus a hue-tint mode).
+/// `parse_theme` rejects `--neutral` by name rather than letting it read as an
+/// unknown flag, because "this needs a model we have not surfaced yet" is a
+/// different answer from "you typed that wrong".
+pub const RAMP_FAMILIES: &[&str] = &["brand", "danger", "warning", "success", "info"];
 
 /// Parse the argument list (the process args **without** the binary name) into
 /// a [`Command`]. A hand-rolled parser keeps every branch under test and out of
@@ -191,26 +205,67 @@ fn parse_tokens(args: &[String]) -> Result<Command, CliError> {
     Ok(Command::Tokens { out, format })
 }
 
-/// Parse `theme --brand <hex> --out <path> [--format <fmt>]` — `--brand` and
-/// `--out` required, `--format` optional (defaults to CSS), all order-free.
+/// Parse `theme [--<family> <colour>]... --out <path> [--format <fmt>]` — one
+/// optional seed per palette family in [`RAMP_FAMILIES`], `--out` required,
+/// `--format` optional (defaults to CSS), all order-free.
+///
+/// A seed may be **any** CSS colour, not just hex — the engine's `parse_color`
+/// accepts `oklch()`, `rgb()`, `hsl()` and named colours too, so a project that
+/// keeps its brand in OkLCH can hand it over unchanged.
+///
+/// At least one seed is required. That will relax once the command reads the
+/// nearest `primitiv.json`'s `theme` block as its fallback — the check belongs
+/// at run time, where the config is in hand — but until then an empty seed list
+/// would write a valid, empty override file, which is worse than a usage error.
 fn parse_theme(args: &[String]) -> Result<Command, CliError> {
-    let mut brand = None;
+    let mut seeds: Vec<Option<String>> = vec![None; RAMP_FAMILIES.len()];
     let mut out = None;
     let mut format = Format::Css;
     let mut rest = args.iter();
     while let Some(flag) = rest.next() {
         match flag.as_str() {
-            "--brand" => brand = Some(take_value(&mut rest, "--brand")?),
             "--out" => out = Some(take_value(&mut rest, "--out")?),
             "--format" => format = parse_format(&take_value(&mut rest, "--format")?)?,
-            other => return Err(usage(format!("unexpected argument '{other}'"))),
+            "--neutral" => {
+                return Err(usage(
+                    "theme cannot seed the neutral ramp: it is generated from soft-neutral \
+                     anchors and a hue-tint rule rather than a single colour, which the CLI \
+                     does not surface yet",
+                ))
+            }
+            flag => match family_index(flag) {
+                Some(index) => seeds[index] = Some(take_value(&mut rest, flag)?),
+                None => return Err(usage(format!("unexpected argument '{flag}'"))),
+            },
         }
     }
+    let seeds: Vec<(String, String)> = RAMP_FAMILIES
+        .iter()
+        .zip(seeds)
+        .filter_map(|(family, seed)| seed.map(|seed| ((*family).to_string(), seed)))
+        .collect();
+    if seeds.is_empty() {
+        return Err(usage(format!(
+            "theme requires at least one ramp seed: {}",
+            RAMP_FAMILIES
+                .iter()
+                .map(|family| format!("--{family} <colour>"))
+                .collect::<Vec<_>>()
+                .join(", ")
+        )));
+    }
     Ok(Command::Theme {
-        brand: brand.ok_or_else(|| usage("theme requires --brand <hex>"))?,
+        seeds,
         out: out.ok_or_else(|| usage("theme requires --out <path>"))?,
         format,
     })
+}
+
+/// The [`RAMP_FAMILIES`] index a `--<family>` flag names, or `None` for any
+/// other argument.
+fn family_index(flag: &str) -> Option<usize> {
+    let name = flag.strip_prefix("--")?;
+    RAMP_FAMILIES.iter().position(|family| *family == name)
 }
 
 /// Map a `--format` value to a [`Format`], erroring on an unrecognised one.

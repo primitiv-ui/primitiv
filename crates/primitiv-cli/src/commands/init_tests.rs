@@ -516,3 +516,70 @@ fn the_default_brand_is_the_seed_the_shipped_palette_was_generated_from() {
 
     assert_eq!(brand["seed"].as_str(), Some(crate::commands::init::DEFAULT_BRAND));
 }
+
+#[test]
+fn init_emits_theme_overrides_for_a_brand_it_was_given() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("package.json"), b"{}").unwrap();
+
+    init(
+        &fs,
+        &InMemoryOutput::new(),
+        &silent_prompt(),
+        false,
+        &InitOptions {
+            brand: Some("#ff6600".to_string()),
+            ..default_options()
+        },
+    )
+    .unwrap();
+
+    // The brand was recorded in `primitiv.json` and nothing applied it, so a project
+    // that answered the brand prompt still shipped Primitiv's own ramps. The seed has
+    // to reach the cascade in the same run that records it.
+    let theme = Path::new("src/styles/primitiv/primitiv.theme.css");
+    assert!(fs.exists(theme), "theme overrides should be written");
+    let content = String::from_utf8(fs.read(theme).unwrap()).unwrap();
+    assert!(content.contains("@layer primitiv.theme"), "{content}");
+    // #ff6600's own ramp, not the shipped blue — step 500 is pinned to the seed.
+    assert!(content.contains("--primitiv-color-brand-500: oklch(0.6958 0.2043 43.491)"), "{content}");
+}
+
+#[test]
+fn init_writes_no_theme_overrides_when_the_brand_is_the_shipped_default() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("package.json"), b"{}").unwrap();
+
+    init(&fs, &InMemoryOutput::new(), &silent_prompt(), false, &default_options()).unwrap();
+
+    // Overriding the shipped brand with the shipped brand is a no-op file, and an
+    // override file present by default would read as "this project has customised
+    // its palette" when it has not.
+    assert!(
+        !fs.exists(Path::new("src/styles/primitiv/primitiv.theme.css")),
+        "the default brand needs no override"
+    );
+}
+
+#[test]
+fn init_surfaces_a_theme_overrides_write_failure() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("package.json"), b"{}").unwrap();
+    fs.fail_writes_to(Path::new("src/styles/primitiv/primitiv.theme.css"));
+
+    let err = init(
+        &fs,
+        &InMemoryOutput::new(),
+        &silent_prompt(),
+        false,
+        &InitOptions {
+            brand: Some("#ff6600".to_string()),
+            ..default_options()
+        },
+    )
+    .unwrap_err();
+
+    // The seed is the point of the run, so a theme layer that could not be written
+    // stops `init` rather than leaving a config promising a brand no file applies.
+    assert!(matches!(err, CliError::Io(_)), "{err:?}");
+}

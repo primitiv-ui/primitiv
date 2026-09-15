@@ -6,7 +6,7 @@ use primitiv_emit::{
 };
 
 use crate::commands::theme;
-use crate::config::{try_resolve, Config};
+use crate::config::try_resolve;
 use crate::error::CliError;
 use crate::format::Format;
 use crate::ports::fs::FileSystem;
@@ -33,12 +33,11 @@ pub fn tokens(
     format: Option<Format>,
     out: Option<&Path>,
 ) -> Result<(), CliError> {
-    // Resolved unconditionally, not just when a flag is missing: whether the project
-    // seeded its own ramps decides what the token layer imports, so the config is
-    // always relevant to the output. This also makes "a malformed config always
-    // errors" hold for every invocation, matching `resolve_seeds` — silently
-    // ignoring a file the consumer wrote is worse than stopping.
-    let config = try_resolve(fs, &fs.current_dir()?)?;
+    let config = if format.is_none() || out.is_none() {
+        try_resolve(fs, &fs.current_dir()?)?
+    } else {
+        None
+    };
     let format = format
         .or_else(|| config.as_ref().map(|config| config.tokens.format))
         .unwrap_or(Format::Css);
@@ -73,7 +72,7 @@ pub fn tokens(
         // import leads the file — CSS requires `@import` before any other rule.
         Some(path) => {
             fs.write(&path.with_file_name(base_name), base_styles.as_bytes())?;
-            let imported = format!("{}{rendered}", leading_imports(base_name, format, &config));
+            let imported = format!("{}{rendered}", leading_imports(fs, &path, base_name, format));
             fs.write(&path, imported.as_bytes())?;
             // A JS-consumable sibling for consumers that need a real value outside
             // the CSS cascade — e.g. useMediaQuery's matchMedia() (RFC 0025 §5).
@@ -106,21 +105,21 @@ fn base_companion(format: Format) -> (&'static str, &'static str) {
 /// emitted layer statement, so what matters is only that both precede the first
 /// rule (CSS requires `@import` before anything else).
 ///
-/// The theme line appears only for a project whose `primitiv.json` carries ramp
-/// seeds, because that is the project that has a theme file to import; importing
-/// one that does not exist is a build error in every bundler.
-fn leading_imports(base_name: &str, format: Format, config: &Option<Config>) -> String {
-    let seeded = config
-        .as_ref()
-        .is_some_and(|config| !config.theme.seeds.is_empty());
-    let theme = if seeded {
-        format!(
-            "@import \"./{}.{}\";\n",
-            theme::FILE_STEM,
-            format.extension()
-        )
-    } else {
-        String::new()
-    };
-    format!("@import \"./{base_name}\";\n{theme}\n")
+/// The theme line appears only when that file is actually **there**, beside the token
+/// layer. The predicate has to be the file rather than the config's seeds: a default
+/// `init` records the shipped brand and deliberately writes no override for it, so
+/// keying off the config emitted an import of a stylesheet that does not exist — a
+/// build error in every bundler. Tracking the file also self-corrects, whoever wrote
+/// or deleted it.
+fn leading_imports(
+    fs: &impl FileSystem,
+    token_path: &Path,
+    base_name: &str,
+    format: Format,
+) -> String {
+    let theme_name = format!("{}.{}", theme::FILE_STEM, format.extension());
+    if fs.exists(&token_path.with_file_name(&theme_name)) {
+        return format!("@import \"./{base_name}\";\n@import \"./{theme_name}\";\n\n");
+    }
+    format!("@import \"./{base_name}\";\n\n")
 }

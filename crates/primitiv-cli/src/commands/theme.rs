@@ -52,6 +52,11 @@ pub fn theme(
     Ok(())
 }
 
+/// The palette family a single seed names — `init` records one brand, and the
+/// vocabulary lives in [`RAMP_FAMILIES`](crate::cli::RAMP_FAMILIES), so this points
+/// at its first entry rather than spelling the string a second time.
+pub const BRAND: &str = crate::cli::RAMP_FAMILIES[0];
+
 /// The theme overrides file's basename, without an extension — shared so whoever
 /// writes the file and whoever imports it cannot disagree on its name.
 pub const FILE_STEM: &str = "primitiv.theme";

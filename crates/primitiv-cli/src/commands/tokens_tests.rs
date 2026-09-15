@@ -288,10 +288,14 @@ fn surfaces_a_write_failure() {
 }
 
 #[test]
-fn imports_the_theme_overrides_when_the_config_carries_seeds() {
+fn imports_the_theme_overrides_when_that_file_is_there() {
     let fs = InMemoryFs::new();
-    fs.write(Path::new("primitiv.json"), CONFIG).unwrap();
     let out = Path::new("src/styles/primitiv/tokens.css");
+    fs.write(
+        Path::new("src/styles/primitiv/primitiv.theme.css"),
+        b"@layer primitiv.theme { :root { --primitiv-color-brand-500: red; } }",
+    )
+    .unwrap();
 
     tokens(&fs, &InMemoryOutput::new(), Some(Format::Css), Some(out)).unwrap();
 
@@ -318,6 +322,24 @@ fn does_not_import_theme_overrides_when_no_config_exists() {
     // file that does not exist is a build error in every bundler. Checked as the
     // import line, not the bare name: the layer-order statement names the
     // `primitiv.theme` *layer* in every token file, seeded or not.
+    let main = String::from_utf8(fs.read(out).unwrap()).unwrap();
+    assert!(!main.contains("@import \"./primitiv.theme"), "{main}");
+}
+
+#[test]
+fn does_not_import_theme_overrides_that_do_not_exist() {
+    let fs = InMemoryFs::new();
+    // A config carrying a seed but no theme file beside the token layer — exactly
+    // what a default `init` leaves, since it records the shipped brand and writes no
+    // override for it.
+    fs.write(Path::new("primitiv.json"), CONFIG).unwrap();
+    let out = Path::new("src/styles/primitiv/tokens.css");
+
+    tokens(&fs, &InMemoryOutput::new(), Some(Format::Css), Some(out)).unwrap();
+
+    // The import has to track the file, not the config: importing a stylesheet that
+    // is not there fails the build in every bundler, and "the config names a seed" is
+    // not the same question as "an override file exists".
     let main = String::from_utf8(fs.read(out).unwrap()).unwrap();
     assert!(!main.contains("@import \"./primitiv.theme"), "{main}");
 }

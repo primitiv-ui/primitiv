@@ -4,6 +4,9 @@ use crate::error::CliError;
 use crate::format::Format;
 use crate::ports::fs::FileSystem;
 use crate::ports::output::Output;
+use harmoni_core::api::DEFAULT_STEPS;
+
+use crate::commands::theme;
 use crate::ports::prompt::Prompt;
 
 /// The system default brand colour `init` records when none is given — the seed
@@ -110,6 +113,20 @@ pub fn init(
         let token_dir = dir.join(&resolved.path);
         let token_out = token_dir.join(format!("tokens.{}", resolved.format.extension()));
         fs.create_dir_all(&token_dir)?;
+        // The theme layer first: `tokens` decides what to import by reading the config
+        // just written, so the file has to exist before the layer that references it.
+        // Only for a brand the consumer actually chose — overriding the shipped brand
+        // with itself writes a no-op file that reads as "this palette is customised".
+        if resolved.brand != DEFAULT_BRAND {
+            let seeds = [(theme::BRAND.to_string(), resolved.brand.clone())];
+            theme::theme(
+                fs,
+                &seeds,
+                &token_dir.join(format!("{}.{}", theme::FILE_STEM, resolved.format.extension())),
+                resolved.format,
+                DEFAULT_STEPS,
+            )?;
+        }
         crate::commands::tokens::tokens(fs, output, Some(resolved.format), Some(&token_out))?;
     }
     Ok(())

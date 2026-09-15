@@ -3,15 +3,15 @@
     "color": {
       "strong": {
         "$type": "color",
-        "$value": "#00000014"
+        "$value": "oklch(0 0 0 / 0.0784)"
       },
       "medium": {
         "$type": "color",
-        "$value": "#0000000f"
+        "$value": "oklch(0 0 0 / 0.0588)"
       },
       "soft": {
         "$type": "color",
-        "$value": "#0000000a"
+        "$value": "oklch(0 0 0 / 0.0392)"
       }
     },
     "1": {

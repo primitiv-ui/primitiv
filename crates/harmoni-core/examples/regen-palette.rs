@@ -1,6 +1,14 @@
 //! Regenerates the committed brand ramps in `packages/tokens/src/palette.json`
 //! from `packages/tokens/harmoni-seeds.json`.
 //!
+//! Each step is written as the engine's own **`oklch()`**, not its hex, because
+//! the token source is OkLCH-first. That is not cosmetic: the engine holds a
+//! ramp's hue constant (RFC 0027 step 4) and 8-bit hex cannot carry it, so a
+//! stored hex moved `brand/light/50` 4.6 degrees off its ramp's hue — on 90 of
+//! the 100 steps. Converting back for Figma is safe by construction:
+//! `format_oklch` renders a string that reproduces its own hex, gated by
+//! `tests/ramp_regression.rs`.
+//!
 //! Until this existed the palette was not reproducible: the seeds were entered
 //! interactively in the Harmoni Figma plugin and only the OUTPUT was ever
 //! committed, so an engine fix could not be flowed into the shipped tokens
@@ -46,7 +54,7 @@ fn targets(seeds: &serde_json::Value) -> Vec<((String, String, String), String)>
             for swatch in &palette.swatches {
                 out.push((
                     (theme.to_string(), ramp.to_string(), swatch.label.to_string()),
-                    swatch.hex.to_lowercase(),
+                    swatch.oklch.clone(),
                 ));
             }
         }

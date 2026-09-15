@@ -376,7 +376,7 @@
     },
     "scrim": {
       "$type": "color",
-      "$value": "#00000080"
+      "$value": "oklch(0 0 0 / 0.502)"
     },
     "content": {
       "primary": {
@@ -876,7 +876,7 @@
     },
     "scrim": {
       "$type": "color",
-      "$value": "#00000080"
+      "$value": "oklch(0 0 0 / 0.502)"
     },
     "content": {
       "primary": {

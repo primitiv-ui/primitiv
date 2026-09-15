@@ -39,7 +39,7 @@ fn should_parse_a_full_primitiv_json_document() {
                 path: "src/styles/primitiv/tokens.css".into(),
             },
             theme: Theme {
-                brand: "#0a7755".into(),
+                seeds: BTreeMap::from([("brand".into(), "#0a7755".into())]),
             },
             aliases: BTreeMap::from([("components".into(), "@/components".into())]),
             registry: Registry {
@@ -63,7 +63,7 @@ fn should_resolve_a_config_in_the_starting_directory() {
 
     let config = resolve(&fs, Path::new("project")).unwrap();
 
-    assert_eq!(config.theme.brand, "#0a7755");
+    assert_eq!(config.theme.seeds.get("brand").map(String::as_str), Some("#0a7755"));
 }
 
 #[test]
@@ -108,7 +108,10 @@ fn try_resolve_returns_the_config_when_one_is_found() {
 
     let config = try_resolve(&fs, Path::new("project/app")).unwrap();
 
-    assert_eq!(config.unwrap().theme.brand, "#0a7755");
+    assert_eq!(
+        config.unwrap().theme.seeds.get("brand").map(String::as_str),
+        Some("#0a7755")
+    );
 }
 
 #[test]
@@ -140,4 +143,25 @@ fn try_resolve_propagates_a_read_error_other_than_not_found() {
     let error = try_resolve(&fs, Path::new("project")).unwrap_err();
 
     assert_eq!(error.exit_code(), 4);
+}
+
+#[test]
+fn should_carry_a_seed_for_every_ramp_family_the_theme_block_names() {
+    let config = Config::parse(
+        br##"{
+          "version": 1,
+          "framework": "react",
+          "styles": { "enabled": true, "format": "css", "path": "src/styles/primitiv" },
+          "tokens": { "format": "css", "path": "src/styles/primitiv/tokens.css" },
+          "theme": { "brand": "#0a7755", "danger": "#db2424" },
+          "aliases": {},
+          "registry": { "version": "0.1.0" }
+        }"##,
+    )
+    .unwrap();
+
+    // Keyed by family rather than a field per colour, so `RAMP_FAMILIES` stays the
+    // one place the vocabulary lives — the flags and the config cannot disagree.
+    assert_eq!(config.theme.seeds.get("brand").map(String::as_str), Some("#0a7755"));
+    assert_eq!(config.theme.seeds.get("danger").map(String::as_str), Some("#db2424"));
 }

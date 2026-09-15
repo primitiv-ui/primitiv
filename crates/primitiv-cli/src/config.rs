@@ -42,10 +42,17 @@ pub struct Tokens {
     pub path: String,
 }
 
-/// The brand colour the theme overrides are derived from (RFC 0005 §3.1).
-#[derive(Debug, Deserialize, PartialEq)]
+/// The ramp seeds the theme overrides are derived from (RFC 0005 §3.1) — one
+/// colour per palette family, e.g. `{ "brand": "#0a7755", "danger": "#db2424" }`.
+///
+/// Keyed by family rather than a field per colour, so
+/// [`RAMP_FAMILIES`](crate::cli::RAMP_FAMILIES) stays the single place the
+/// vocabulary lives and the flags cannot drift from the config. A family the CLI
+/// does not generate is rejected when the seeds are read, not silently kept.
+#[derive(Debug, Deserialize, PartialEq, Default)]
 pub struct Theme {
-    pub brand: String,
+    #[serde(flatten)]
+    pub seeds: BTreeMap<String, String>,
 }
 
 /// The registry pin that makes `add` deterministic (RFC 0005 §3.1 / §6.4).

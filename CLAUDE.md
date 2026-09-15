@@ -1214,6 +1214,31 @@ source of truth for when a skill applies.
     **`cargo llvm-cov clean --workspace`** before trusting any coverage number
     that follows a code switch.
 
+- **The token layer emits OkLCH now, not hex (2026-09-15).** Primitiv is
+  OkLCH-first like the engine: every `color` token reaches a stylesheet as
+  `oklch(L C H)`, alpha ramps as `oklch(L C H / a)`. Four things worth knowing.
+  **The DTCG source stays hex, deliberately** — conversion is *emit-time*
+  (`value.rs::format_color`, gated on the leaf's own `$type`), because hex is the
+  interchange form Figma and the token sync both speak and **Figma has no OkLCH
+  variable type**; authoring OkLCH in `palette.json` would be silently reverted
+  to hex by the next sync backup (`packages/tokens/src/dtcg.ts` converts Figma
+  RGBA → hex). **Two values pass through untouched:** an alias (not a colour yet
+  — `link_aliases` resolves it later) and a **fully transparent** colour, which
+  has no hue or lightness worth stating (`#00000000` reads as intent where
+  `oklch(0 0 0 / 0)` reads as a colour that merely happens to be invisible).
+  **The gate is the leaf's own `$type`, never an inherited one** — all 399 colour
+  leaves declare their own and no group declares `$type` at all, and a one-word
+  font family (`Tomato`) parses perfectly well as a named colour, so a blanket
+  string conversion would corrupt it. **`theme --brand` reads `swatch.oklch`, not
+  `swatch.hex`** — the engine holds the colour exactly and renders both, so
+  converting the hex back would put an 8-bit round trip in front of a correct
+  value; verified the two paths agree byte-for-byte at the seed
+  (`#0a7755` → `oklch(0.5054 0.1043 164.4939)` from both). The conversion itself
+  lives in the engine (`api::css::to_css_oklch` / `oklch_with_alpha`); only the
+  *policy* of which values to convert is the emitter's. 194 tokens moved in the
+  committed layer for all three apps; `primitiv-base.css` and `breakpoints.ts`
+  are byte-identical.
+
 - **The Harmoni plugin lives in `primitiv-ui/harmoni` — a PRIVATE repo (moved
   2026-08-25).** It is a licensed, commercial product; this repo keeps the
   engine (`crates/harmoni-*`), which stays public and MIT. Its design record,

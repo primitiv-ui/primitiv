@@ -382,7 +382,7 @@
     "displayName": "Stepper",
     "category": "Disclosure",
     "description": "A step rail for a multi-step form — numbered markers joined by connectors, over the headless Tabs. Each marker is a real tab: activation, `aria-selected`, the roving tabindex, Home/End and `disabled` all come from Tabs, restyled as a circle. `orientation` picks the rail direction; sized xs–xl, and `data-density` scales each size further.",
-    "documented": false
+    "documented": true
   },
   {
     "id": "switch",

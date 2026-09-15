@@ -111,6 +111,27 @@ export const REGISTRY = {
     contract: "registry/components/breadcrumb/contract.json",
     figmaComponentSetKey: "436:12911", importPath: "@primitiv-ui/react",
   },
+  stepper: {
+    displayName: "Stepper", kind: "registry-only", status: "stable", category: "Disclosure",
+    /* Hand-authored 7-part compound over the headless Tabs — no `packages/react`
+       primitive, so its props (the `Tabs.*` surface plus `size`/`compact`/`state`)
+       live in the copied file. `size` is the root's contract modifier; `compact`
+       is StepperList's (attributed to it in contract.json's subcomponents). */
+    propsFile: "registry/components/stepper/stepper.tsx",
+    subComponents: [
+      { name: "Stepper", propsType: "StepperProps", element: "div", component: "Stepper" },
+      { name: "StepperList", propsType: "StepperListProps", element: "div", component: "StepperList" },
+      { name: "StepperStep", propsType: "StepperStepProps", element: "button", component: "StepperStep" },
+      { name: "StepperMarker", propsType: "StepperMarkerProps", element: "span", component: "StepperMarker" },
+      { name: "StepperLabel", propsType: "StepperLabelProps", element: "span", component: "StepperLabel" },
+      { name: "StepperDescription", propsType: "StepperDescriptionProps", element: "span", component: "StepperDescription" },
+      { name: "StepperPanel", propsType: "StepperPanelProps", element: "div", component: "StepperPanel" },
+    ],
+    contract: "registry/components/stepper/contract.json",
+    /* The composed `Stepper` set (its `Stepper / Step` + `Stepper / Segment`
+       twins are the marker/progress-bar landing points). */
+    figmaComponentSetKey: "1788:45166", importPath: "@/components/ui/stepper",
+  },
   pagination: {
     displayName: "Pagination", kind: "registry-only", status: "stable", category: "Disclosure",
     /* Hand-authored compound (composes button + dropdown, uses usePagination) —

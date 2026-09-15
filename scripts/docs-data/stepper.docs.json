@@ -1,0 +1,456 @@
+{
+  "id": "stepper",
+  "displayName": "Stepper",
+  "kind": "registry-only",
+  "status": "stable",
+  "category": "Disclosure",
+  "description": "A step rail for a multi-step form — numbered markers joined by connectors, over the headless Tabs. Each marker is a real tab: activation, `aria-selected`, the roving tabindex, Home/End and `disabled` all come from Tabs, restyled as a circle. `orientation` picks the rail direction; sized xs–xl, and `data-density` scales each size further.",
+  "headless": {
+    "package": "@primitiv-ui/react",
+    "importPath": "@/components/ui/stepper",
+    "subComponents": [
+      {
+        "name": "Stepper",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "activationMode",
+            "type": "\"automatic\" | \"manual\"",
+            "required": false,
+            "default": "\"automatic\"",
+            "description": "When a focused trigger becomes active; see {@link TabsActivationMode}."
+          },
+          {
+            "name": "defaultValue",
+            "type": "string",
+            "required": false,
+            "default": null,
+            "description": "Value of the tab active on first render."
+          },
+          {
+            "name": "dir",
+            "type": "\"ltr\" | \"rtl\"",
+            "required": false,
+            "default": null,
+            "description": "Reading direction; see {@link TabsReadingDirection}. Inherited from the\nnearest `DirectionProvider` when omitted, falling back to `\"ltr\"`."
+          },
+          {
+            "name": "lazyMount",
+            "type": "boolean",
+            "required": false,
+            "default": null,
+            "description": "When `true`, a panel's children are not rendered until that tab is first\nactivated. Once mounted they remain in the DOM across subsequent tab\nswitches (lazy mount, not unmount-on-hide). Useful for panels that own\nexpensive initialisation — e.g. a scroll-snap carousel whose initial\nscroll position must be set while the panel is visible."
+          },
+          {
+            "name": "onChange",
+            "type": "({ index, name }: TabMetadata) => void",
+            "required": false,
+            "default": null,
+            "description": "Fired on every user-driven activation with the activated tab's metadata."
+          },
+          {
+            "name": "onValueChange",
+            "type": "(value: string) => void",
+            "required": false,
+            "default": null,
+            "description": "Called with the requested value when the user activates a tab."
+          },
+          {
+            "name": "orientation",
+            "type": "\"horizontal\" | \"vertical\"",
+            "required": false,
+            "default": "\"horizontal\"",
+            "description": "Layout axis; see {@link TabsOrientation}."
+          },
+          {
+            "name": "value",
+            "type": "string",
+            "required": false,
+            "default": null,
+            "description": "Value of the currently active tab."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [
+          {
+            "name": "size",
+            "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
+            "default": "md",
+            "description": "Rail size; `data-density` scales each size further."
+          }
+        ],
+        "dataAttributes": [
+          {
+            "name": "data-state",
+            "value": "active",
+            "when": "the current step (set by Tabs)"
+          },
+          {
+            "name": "data-state",
+            "value": "inactive",
+            "when": "any step that is not current (set by Tabs)"
+          },
+          {
+            "name": "data-step-state",
+            "value": "upcoming",
+            "when": "the step is not yet done — the default"
+          },
+          {
+            "name": "data-step-state",
+            "value": "complete",
+            "when": "the step is done — the marker becomes a tick"
+          },
+          {
+            "name": "data-step-state",
+            "value": "error",
+            "when": "the step failed validation — the marker becomes a warning glyph, kept even while a later step is current"
+          },
+          {
+            "name": "data-orientation",
+            "value": "horizontal",
+            "when": "the rail runs horizontally — the default (set by Tabs)"
+          },
+          {
+            "name": "data-orientation",
+            "value": "vertical",
+            "when": "the rail runs vertically (set by Tabs)"
+          }
+        ],
+        "class": "primitiv-stepper"
+      },
+      {
+        "name": "StepperList",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "ariaLabelledBy",
+            "type": "string",
+            "required": false,
+            "default": null,
+            "description": "Id of an existing element to use as the tablist's accessible name,\nset as `aria-labelledby`. Mutually exclusive with `label`."
+          },
+          {
+            "name": "label",
+            "type": "string",
+            "required": false,
+            "default": null,
+            "description": "Accessible name for the tablist, announced as `aria-label`. Pick a\nshort, human-readable description of the set (e.g. `\"Account\nsections\"`, not `\"Tabs\"`). Mutually exclusive with `ariaLabelledBy`."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [
+          {
+            "name": "compact",
+            "type": "\"false\" | \"true\"",
+            "default": "false",
+            "description": "Collapses the rail into a progress bar — the same steps, drawn as segments with their markers and labels hidden. For narrow containers, where a labelled rail cannot fit. The steps stay in the DOM, so each panel keeps the `aria-labelledby` pointing at its trigger; swapping the rail out for a hand-rolled bar would break that. Drive it from the consumer side (e.g. `useMediaQuery`), and pair it with your own \"Step N of M\" line — Stepper owns no step data model."
+          }
+        ],
+        "dataAttributes": [],
+        "class": "primitiv-stepper__list"
+      },
+      {
+        "name": "StepperStep",
+        "extends": "HTMLButtonElement",
+        "props": [
+          {
+            "name": "value",
+            "type": "string",
+            "required": true,
+            "default": null,
+            "description": "Identifies this trigger, linking it to the `Tabs.Content` of the same\nvalue. Not the visible label — use `children` for that."
+          },
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": null,
+            "description": "Render the child element instead of the default `<button>`. All tab\nARIA attributes and event handlers are merged onto the child. The child\nmust accept a `ref`. Useful for routing links that need tab semantics."
+          },
+          {
+            "name": "disabled",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Removes the trigger from the roving tab order and marks it\n`aria-disabled`/`data-disabled`; arrow-key navigation skips it."
+          },
+          {
+            "name": "ref",
+            "type": "Ref<HTMLElement>",
+            "required": false,
+            "default": null,
+            "description": "Ref to the rendered element. Defaults to `HTMLButtonElement`; when using\n`asChild`, specify the child's element type (e.g. `HTMLAnchorElement`)."
+          },
+          {
+            "name": "state",
+            "type": "\"upcoming\" | \"complete\" | \"error\"",
+            "required": false,
+            "default": "\"upcoming\"",
+            "description": "The progress this step carries in its own right, published as\n`data-step-state`. Deliberately independent of which step is *current* —\nthat is `data-state=\"active\"`, owned by {@link Stepper}'s value — so a\nfailed step keeps its error marker while the user stands on a later one.\n\n{@link StepperMarker} reads this to decide whether to render its children\n(the step number), a tick, or a warning glyph.\n- `upcoming` — Not yet done (the default).\n- `complete` — Done; the marker becomes a tick.\n- `error` — Failed validation; the marker becomes a warning glyph."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": null
+      },
+      {
+        "name": "StepperMarker",
+        "extends": "HTMLSpanElement",
+        "props": [],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": null
+      },
+      {
+        "name": "StepperLabel",
+        "extends": "HTMLSpanElement",
+        "props": [],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": null
+      },
+      {
+        "name": "StepperDescription",
+        "extends": "HTMLSpanElement",
+        "props": [],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": null
+      },
+      {
+        "name": "StepperPanel",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "value",
+            "type": "string",
+            "required": true,
+            "default": null,
+            "description": "Value of the trigger this panel belongs to."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": null
+      }
+    ]
+  },
+  "styled": {
+    "installCommand": "primitiv add stepper",
+    "rootClass": "primitiv-stepper",
+    "customProperties": [
+      {
+        "name": "--primitiv-stepper-marker-size",
+        "defaultsTo": "var(--primitiv-stepper-md-marker-size)"
+      },
+      {
+        "name": "--primitiv-stepper-label-gap",
+        "defaultsTo": "var(--primitiv-stepper-md-label-gap)"
+      },
+      {
+        "name": "--primitiv-stepper-row-gap",
+        "defaultsTo": "var(--primitiv-stepper-md-row-gap)"
+      },
+      {
+        "name": "--primitiv-stepper-halo-outset",
+        "defaultsTo": "var(--primitiv-stepper-md-halo-outset)"
+      },
+      {
+        "name": "--primitiv-stepper-connector-size",
+        "defaultsTo": "var(--primitiv-stepper-connector-thickness)"
+      },
+      {
+        "name": "--primitiv-stepper-connector-color",
+        "defaultsTo": "var(--primitiv-border-default)"
+      },
+      {
+        "name": "--primitiv-stepper-connector-color-reached",
+        "defaultsTo": "var(--primitiv-action-primary-default)"
+      },
+      {
+        "name": "--primitiv-stepper-connector-gap",
+        "defaultsTo": "var(--primitiv-space-space-12)"
+      },
+      {
+        "name": "--primitiv-stepper-connector-inset",
+        "defaultsTo": "var(--primitiv-space-space-4)"
+      },
+      {
+        "name": "--primitiv-stepper-compact-segment-height",
+        "defaultsTo": "var(--primitiv-size-size-4)"
+      },
+      {
+        "name": "--primitiv-stepper-compact-gap",
+        "defaultsTo": "var(--primitiv-space-space-6)"
+      },
+      {
+        "name": "--primitiv-stepper-marker-background",
+        "defaultsTo": "var(--primitiv-surface-default)"
+      },
+      {
+        "name": "--primitiv-stepper-marker-border-color",
+        "defaultsTo": "var(--primitiv-border-default)"
+      },
+      {
+        "name": "--primitiv-stepper-marker-border-width",
+        "defaultsTo": "var(--primitiv-framed-control-border-width)"
+      },
+      {
+        "name": "--primitiv-stepper-marker-fg",
+        "defaultsTo": "var(--primitiv-content-muted)"
+      },
+      {
+        "name": "--primitiv-stepper-marker-icon-size",
+        "defaultsTo": "var(--primitiv-framed-control-md-icon-size)"
+      },
+      {
+        "name": "--primitiv-stepper-mark-size",
+        "defaultsTo": "var(--primitiv-checkbox-md-mark-size)"
+      },
+      {
+        "name": "--primitiv-stepper-halo-color",
+        "defaultsTo": "var(--primitiv-action-primary-soft)"
+      },
+      {
+        "name": "--primitiv-stepper-halo-scale",
+        "defaultsTo": "0"
+      },
+      {
+        "name": "--primitiv-stepper-label-color",
+        "defaultsTo": "var(--primitiv-content-muted)"
+      },
+      {
+        "name": "--primitiv-stepper-label-font-family",
+        "defaultsTo": "var(--primitiv-label-md-font-family)"
+      },
+      {
+        "name": "--primitiv-stepper-label-font-size",
+        "defaultsTo": "var(--primitiv-label-md-font-size)"
+      },
+      {
+        "name": "--primitiv-stepper-label-font-weight",
+        "defaultsTo": "var(--primitiv-label-md-font-weight)"
+      },
+      {
+        "name": "--primitiv-stepper-label-line-height",
+        "defaultsTo": "var(--primitiv-label-md-line-height)"
+      },
+      {
+        "name": "--primitiv-stepper-description-color",
+        "defaultsTo": "var(--primitiv-content-muted)"
+      },
+      {
+        "name": "--primitiv-stepper-description-font-family",
+        "defaultsTo": "var(--primitiv-body-sm-font-family)"
+      },
+      {
+        "name": "--primitiv-stepper-description-font-size",
+        "defaultsTo": "var(--primitiv-body-sm-font-size)"
+      },
+      {
+        "name": "--primitiv-stepper-description-font-weight",
+        "defaultsTo": "var(--primitiv-body-sm-font-weight)"
+      },
+      {
+        "name": "--primitiv-stepper-description-line-height",
+        "defaultsTo": "var(--primitiv-body-sm-line-height)"
+      },
+      {
+        "name": "--primitiv-stepper-panel-padding-block",
+        "defaultsTo": "var(--primitiv-panel-padding-block)"
+      },
+      {
+        "name": "--primitiv-stepper-panel-padding-inline",
+        "defaultsTo": "var(--primitiv-panel-padding-inline)"
+      },
+      {
+        "name": "--primitiv-stepper-panel-fg",
+        "defaultsTo": "var(--primitiv-content-primary)"
+      },
+      {
+        "name": "--primitiv-stepper-panel-font-family",
+        "defaultsTo": "var(--primitiv-body-md-font-family)"
+      },
+      {
+        "name": "--primitiv-stepper-panel-font-size",
+        "defaultsTo": "var(--primitiv-body-md-font-size)"
+      },
+      {
+        "name": "--primitiv-stepper-panel-font-weight",
+        "defaultsTo": "var(--primitiv-body-md-font-weight)"
+      },
+      {
+        "name": "--primitiv-stepper-panel-line-height",
+        "defaultsTo": "var(--primitiv-body-md-line-height)"
+      },
+      {
+        "name": "--primitiv-stepper-tap-target",
+        "defaultsTo": "var(--primitiv-size-size-48)"
+      },
+      {
+        "name": "--primitiv-stepper-transition-duration",
+        "defaultsTo": "var(--primitiv-motion-duration-control)"
+      },
+      {
+        "name": "--primitiv-stepper-connector-duration",
+        "defaultsTo": "var(--primitiv-motion-duration-expand)"
+      },
+      {
+        "name": "--primitiv-stepper-transition-easing",
+        "defaultsTo": "var(--primitiv-motion-easing-default)"
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-state",
+        "value": "active",
+        "when": "the current step (set by Tabs)"
+      },
+      {
+        "name": "data-state",
+        "value": "inactive",
+        "when": "any step that is not current (set by Tabs)"
+      },
+      {
+        "name": "data-step-state",
+        "value": "upcoming",
+        "when": "the step is not yet done — the default"
+      },
+      {
+        "name": "data-step-state",
+        "value": "complete",
+        "when": "the step is done — the marker becomes a tick"
+      },
+      {
+        "name": "data-step-state",
+        "value": "error",
+        "when": "the step failed validation — the marker becomes a warning glyph, kept even while a later step is current"
+      },
+      {
+        "name": "data-orientation",
+        "value": "horizontal",
+        "when": "the rail runs horizontally — the default (set by Tabs)"
+      },
+      {
+        "name": "data-orientation",
+        "value": "vertical",
+        "when": "the rail runs vertically (set by Tabs)"
+      }
+    ]
+  },
+  "figma": {
+    "componentSetKey": "1788:45166"
+  }
+}

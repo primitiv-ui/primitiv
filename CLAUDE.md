@@ -186,6 +186,21 @@ source of truth for when a skill applies.
   **hex**: the route out of the CLI and into a design tool, since a consumer
   seeding their palette in code has no Primitiv plugin to read a bespoke
   payload with. See the OkLCH entry below for why hex here loses nothing.
+  **`theme` and `dtcg` also take `--steps <n>`** (3-32, the engine's range — it
+  words the bound, the CLI does not restate it). Away from the default ten, the
+  `theme` file carries a **re-derived Intent block** as well as the ramps:
+  `crates/primitiv-emit/src/steps.rs` re-points every role whose step that length
+  dropped to the nearest label the ramp does have, ties going to the higher step
+  (more contrast in both modes). Measured against the shipped `intent.json`, **10,
+  18 and 26 are the only lengths carrying all nine decades**, so only those need no
+  re-pointing; every other length between 3 and 32 moves 21-73 roles and the count
+  does **not** fall as the ramp grows (12 steps moves 59 where 6 moves 21) — what
+  matters is which decades the rounding lands on. No length in that range produces
+  two identical labels, so `nearest_label` always has exactly one answer. Only
+  seeded families are touched, so a project re-seeding `brand` alone leaves
+  `danger`/`warning`/`success`/`info` on their ten-step ramps and their roles
+  untouched. **The registry stylesheets are written against ten steps**, so a
+  project on another length owns the consequences for its own component styling.
   The registry has three
   adapters behind one port — embedded (baked in), `LocalRegistry`
   (`--registry <path>`) and `HttpsRegistry` (`--registry <url|version>`, a

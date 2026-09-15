@@ -2587,7 +2587,7 @@
       "shipped": true,
       "steps": [
         {
-          "contrast": 15.510000228881836,
+          "contrast": 15.5,
           "foreground": "#121418",
           "foregroundSource": "Step900",
           "hex": "#e5ecf6",
@@ -2650,7 +2650,7 @@
           "step": "800"
         },
         {
-          "contrast": 15.510000228881836,
+          "contrast": 15.5,
           "foreground": "#e5ecf6",
           "foregroundSource": "Step50",
           "hex": "#121418",
@@ -2666,7 +2666,7 @@
       "shipped": true,
       "steps": [
         {
-          "contrast": 15.510000228881836,
+          "contrast": 15.5,
           "foreground": "#e5ecf6",
           "foregroundSource": "Step900",
           "hex": "#121418",
@@ -2729,7 +2729,7 @@
           "step": "800"
         },
         {
-          "contrast": 15.510000228881836,
+          "contrast": 15.5,
           "foreground": "#121418",
           "foregroundSource": "Step50",
           "hex": "#e5ecf6",

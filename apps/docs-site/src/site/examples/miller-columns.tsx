@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 
 import { useMillerColumnsSelection } from "@primitiv-ui/react";
 
@@ -19,7 +19,21 @@ import type { ComponentSpec } from "./types";
 
 type Size = "xs" | "sm" | "md" | "lg" | "xl";
 
-type FileNode = { id: string; label: string; meta?: string; children?: FileNode[] };
+type FileNode = { id: string; label: string; meta?: string; image?: string; children?: FileNode[] };
+
+/** An inline SVG "photo", so an image preview needs no asset and works offline. */
+const photo = (top: string, bottom: string, sun: string, hill: string) =>
+  `data:image/svg+xml,${encodeURIComponent(
+    `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 320 200'><defs><linearGradient id='g' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='${top}'/><stop offset='1' stop-color='${bottom}'/></linearGradient></defs><rect width='320' height='200' fill='url(#g)'/><circle cx='250' cy='58' r='30' fill='${sun}'/><path d='M0 200 L95 120 L165 165 L245 110 L320 175 L320 200 Z' fill='${hill}'/></svg>`,
+  )}`;
+
+const PHOTOS = {
+  beach: photo("#38bdf8", "#bae6fd", "#fde68a", "#166534"),
+  sunset: photo("#f59e0b", "#7c2d12", "#fef3c7", "#3f1d0b"),
+  logo: photo("#7c3aed", "#ec4899", "#f5d0fe", "#4c1d95"),
+  cover: photo("#0ea5e9", "#6366f1", "#e0f2fe", "#1e3a8a"),
+  wallpaper: photo("#16a34a", "#065f46", "#bbf7d0", "#052e16"),
+};
 
 const TREE: FileNode[] = [
   {
@@ -46,7 +60,15 @@ const TREE: FileNode[] = [
     id: "pictures",
     label: "Pictures",
     children: [
-      { id: "logo", label: "logo.png", meta: "Image · 88 KB" },
+      {
+        id: "vacation",
+        label: "Vacation",
+        children: [
+          { id: "beach", label: "beach.jpg", meta: "JPEG image · 1.8 MB", image: PHOTOS.beach },
+          { id: "sunset", label: "sunset.jpg", meta: "JPEG image · 2.1 MB", image: PHOTOS.sunset },
+        ],
+      },
+      { id: "logo", label: "logo.png", meta: "PNG image · 88 KB", image: PHOTOS.logo },
       // A branch with no children — selecting it opens an empty column.
       { id: "archive", label: "Archive", children: [] },
     ],
@@ -56,6 +78,8 @@ const TREE: FileNode[] = [
     label: "Music",
     children: [{ id: "playlist", label: "playlist.m3u", meta: "Playlist · 2 KB" }],
   },
+  { id: "cover", label: "cover.jpg", meta: "JPEG image · 1.4 MB", image: PHOTOS.cover },
+  { id: "wallpaper", label: "wallpaper.png", meta: "PNG image · 3.2 MB", image: PHOTOS.wallpaper },
   { id: "readme", label: "README.md", meta: "Markdown · 6 KB" },
 ];
 
@@ -95,13 +119,21 @@ const Node = ({ node }: { node: FileNode }) => (
   </MillerColumnsItem>
 );
 
-/** Reads the selection itself — the pane only mounts for a selected leaf. */
+/** Reads the selection itself — the pane only mounts for a selected leaf, and
+ *  shows the file's image when it has one (the pane is content-agnostic). */
 const FilePreview = () => {
   const { selectedValue } = useMillerColumnsSelection();
   const node = selectedValue ? INDEX.get(selectedValue) : undefined;
   if (!node) return null;
   return (
-    <div style={{ display: "grid", gap: "0.25rem", textAlign: "center" }}>
+    <div style={{ display: "grid", gap: "0.5rem", justifyItems: "center", textAlign: "center" }}>
+      {node.image && (
+        <img
+          src={node.image}
+          alt=""
+          style={{ inlineSize: "100%", maxInlineSize: "12rem", borderRadius: "0.5rem", display: "block" }}
+        />
+      )}
       <strong>{node.label}</strong>
       {node.meta && <span className="docs-prop-description">{node.meta}</span>}
     </div>
@@ -151,16 +183,67 @@ const compositionLines = (
   ];
 };
 
-/** The controlled example's live half — owns the selection path and shows it. */
-const ControlledExample = () => {
-  const [path, setPath] = useState<string[]>(["documents", "work"]);
-  const trail = useMemo(
-    () => path.map((id) => INDEX.get(id)?.label ?? id).join(" › "),
-    [path],
-  );
+/** The `FilePreview` snippet — mode-independent consumer code, shared by the
+ *  playground and the Preview pane example. It shows the file's image when it
+ *  has one; the pane is content-agnostic, so this is entirely yours. */
+const filePreviewLines = () => [
+  `// nodeById: your own Map<id, node>, built from the tree data you render.`,
+  `function FilePreview() {`,
+  `  const { selectedValue } = useMillerColumnsSelection();`,
+  `  const node = selectedValue ? nodeById.get(selectedValue) : undefined;`,
+  `  if (!node) return null;`,
+  `  return (`,
+  `    <div>`,
+  `      {node.image && <img src={node.image} alt="" />}`,
+  `      <strong>{node.label}</strong>`,
+  `      <span>{node.meta}</span>`,
+  `    </div>`,
+  `  );`,
+  `}`,
+];
+
+/**
+ * The selection-path example's live half. The selection IS the path, so a
+ * controlled `value` gives you the full root-to-leaf trail directly — rendered
+ * here as a breadcrumb whose crumbs navigate back up when clicked.
+ */
+const SelectionPathExample = () => {
+  const [path, setPath] = useState<string[]>(["documents", "work", "report"]);
   return (
     <div className="docs-example-stack" style={{ inlineSize: "100%" }}>
-      <p className="docs-prop-description">Path: {trail || "nothing selected"}</p>
+      <nav
+        aria-label="File path"
+        style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "0.375rem" }}
+      >
+        {path.length === 0 ? (
+          <span className="docs-prop-description">Nothing selected</span>
+        ) : (
+          path.map((id, i) => (
+            <span key={id} style={{ display: "inline-flex", alignItems: "center", gap: "0.375rem" }}>
+              {i > 0 && (
+                <span aria-hidden="true" className="docs-prop-description">
+                  ›
+                </span>
+              )}
+              <button
+                type="button"
+                onClick={() => setPath(path.slice(0, i + 1))}
+                style={{
+                  background: "none",
+                  border: "none",
+                  padding: 0,
+                  font: "inherit",
+                  cursor: "pointer",
+                  color: "inherit",
+                  fontWeight: i === path.length - 1 ? 600 : 400,
+                }}
+              >
+                {INDEX.get(id)?.label ?? id}
+              </button>
+            </span>
+          ))
+        )}
+      </nav>
       <MillerColumns aria-label="Files" value={path} onValueChange={setPath}>
         <MillerColumnsColumn>
           <MillerColumnsResizeHandle aria-label="Resize column" minWidth={140} maxWidth={320} />
@@ -188,9 +271,15 @@ export const millerColumnsSpec: ComponentSpec = {
     snippet: (values, mode) => {
       const size = contractAttr({ mode, prop: "size", value: values.size });
       return [
-        imports(mode),
+        imports(mode, [...PARTS, "PreviewPanel"]),
+        `import { useMillerColumnsSelection } from "@primitiv-ui/react";`,
         ``,
-        ...compositionLines(mode, { rootAttrs: `${size} defaultValue={["documents", "work"]}` }),
+        ...filePreviewLines(),
+        ``,
+        ...compositionLines(mode, {
+          rootAttrs: `${size} defaultValue={["cover"]}`,
+          preview: true,
+        }),
       ].join("\n");
     },
     fill: true,
@@ -199,7 +288,7 @@ export const millerColumnsSpec: ComponentSpec = {
         <MillerColumns
           size={values.size as Size}
           aria-label="Files"
-          defaultValue={["documents", "work"]}
+          defaultValue={["cover"]}
         >
           <MillerColumnsColumn>
             <MillerColumnsResizeHandle aria-label="Resize column" minWidth={140} maxWidth={320} />
@@ -207,6 +296,9 @@ export const millerColumnsSpec: ComponentSpec = {
               <Node key={node.id} node={node} />
             ))}
           </MillerColumnsColumn>
+          <MillerColumnsPreviewPanel>
+            <FilePreview />
+          </MillerColumnsPreviewPanel>
         </MillerColumns>
       </div>
     ),
@@ -290,27 +382,24 @@ export const millerColumnsSpec: ComponentSpec = {
       title: "With a preview pane",
       render: () => (
         <InteractiveExample
-          caption={"Add a `MillerColumns.PreviewPanel` after the columns and it fills the strip's remaining width — Finder's rightmost pane. It is content-agnostic: read the current selection with `useMillerColumnsSelection` (from the headless package — the registry surface does not re-export it) and render whatever the selection warrants. The pane mounts for a selected leaf, so drill into a file to see it. Select `Documents › Work › report.pdf`."}
-          code={(_density, mode) => {
-            const p = partNamer(mode, "MillerColumns");
-            return [
+          caption={"Add a `MillerColumns.PreviewPanel` after the columns and it fills the strip's remaining width — Finder's rightmost pane. It is content-agnostic: read the current selection with `useMillerColumnsSelection` (from the headless package — the registry surface does not re-export it) and render whatever the selection warrants — here a thumbnail for an image file. The pane mounts for a selected leaf; pick another file or drill into a folder to see it update (a document shows just its details)."}
+          code={(_density, mode) =>
+            [
               imports(mode, ["Column", "Item", "ItemIndicator", "ResizeHandle", "PreviewPanel"]),
               `import { useMillerColumnsSelection } from "@primitiv-ui/react";`,
               ``,
-              `function FilePreview() {`,
-              `  const { selectedValue } = useMillerColumnsSelection();`,
-              `  const node = selectedValue ? lookup(selectedValue) : undefined;`,
-              `  if (!node) return null;`,
-              `  return <FileCard node={node} />;`,
-              `}`,
+              ...filePreviewLines(),
               ``,
-              ...compositionLines(mode, { rootAttrs: ` defaultValue={["documents", "work"]}`, preview: true }),
-            ].join("\n");
-          }}
+              ...compositionLines(mode, {
+                rootAttrs: ` defaultValue={["wallpaper"]}`,
+                preview: true,
+              }),
+            ].join("\n")
+          }
         >
           {() => (
             <div style={{ inlineSize: "100%" }}>
-              <MillerColumns aria-label="Files" defaultValue={["documents", "work"]}>
+              <MillerColumns aria-label="Files" defaultValue={["wallpaper"]}>
                 <MillerColumnsColumn>
                   <MillerColumnsResizeHandle aria-label="Resize column" minWidth={140} maxWidth={320} />
                   {TREE.map((node) => (
@@ -327,18 +416,28 @@ export const millerColumnsSpec: ComponentSpec = {
       ),
     },
     {
-      id: "controlled",
-      title: "Controlled",
+      id: "selection-path",
+      title: "Selection path",
       render: () => (
         <InteractiveExample
-          caption="Pass `value` and `onValueChange` and the parent owns the selection **path** (an array of ids, root first) — needed to drive a breadcrumb elsewhere, deep-link into a folder, or persist where the user was. `onValueChange` fires with the full new path on every change. Omit `value` (or pass `defaultValue`) for the uncontrolled form. There is no multi-select: the selection is the path, so a column can have only one chosen item."
+          caption="The selection **is** the path — an array of ids, root first — so a controlled `value` hands you the full root-to-leaf trail directly (or read it from `useMillerColumnsSelection().path` in an uncontrolled strip). That is what you render as a breadcrumb of where the user is; here each crumb navigates back up when clicked. `onValueChange` fires with the whole new path on every change. There is no multi-select: the selection is the path, so a column can have only one chosen item."
           code={(_density, mode) => {
             const p = partNamer(mode, "MillerColumns");
             return [
               imports(mode),
               `import { useState } from "react";`,
               ``,
-              `const [path, setPath] = useState(["documents", "work"]);`,
+              `const [path, setPath] = useState(["documents", "work", "report"]);`,
+              `// nodeById: your own Map<id, node>, built from the tree data you render.`,
+              ``,
+              `{/* the path is the value — render it as a breadcrumb */}`,
+              `<nav aria-label="File path">`,
+              `  {path.map((id, i) => (`,
+              `    <button key={id} onClick={() => setPath(path.slice(0, i + 1))}>`,
+              `      {nodeById.get(id).label}`,
+              `    </button>`,
+              `  ))}`,
+              `</nav>`,
               ``,
               `<${p("Root")} aria-label="Files" value={path} onValueChange={setPath}>`,
               `  <${p("Column")}>`,
@@ -349,7 +448,7 @@ export const millerColumnsSpec: ComponentSpec = {
             ].join("\n");
           }}
         >
-          {() => <ControlledExample />}
+          {() => <SelectionPathExample />}
         </InteractiveExample>
       ),
     },

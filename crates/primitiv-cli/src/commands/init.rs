@@ -6,9 +6,15 @@ use crate::ports::fs::FileSystem;
 use crate::ports::output::Output;
 use crate::ports::prompt::Prompt;
 
-/// The system default brand colour `init` records when none is given — the same
-/// hex the `primitiv.json` schema and examples use (RFC 0005 §3.1).
-pub const DEFAULT_BRAND: &str = "#0a7755";
+/// The system default brand colour `init` records when none is given — the seed
+/// the shipped palette is generated from (`packages/tokens/harmoni-seeds.json`),
+/// pinned to that manifest by a test.
+///
+/// It has to be that colour and not a documentation example: `init` records a brand
+/// for every project, so a default that disagrees with the emitted token layer
+/// writes a config stating a brand the project does not have. This was `#0a7755`
+/// — the green the RFC 0005 §3.1 examples use — while the palette shipped blue.
+pub const DEFAULT_BRAND: &str = "#236ce1";
 
 /// Where copied component styles land by default (RFC 0005 §3.1).
 pub const DEFAULT_STYLES_PATH: &str = "src/styles/primitiv";

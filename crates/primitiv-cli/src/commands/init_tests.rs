@@ -29,7 +29,7 @@ const EXPECTED_DEFAULT: &str = r##"{
   "framework": "react",
   "styles": { "enabled": true, "format": "css", "path": "src/styles/primitiv" },
   "tokens": { "format": "css", "path": "src/styles/primitiv/tokens.css" },
-  "theme": { "brand": "#0a7755" },
+  "theme": { "brand": "#236ce1" },
   "aliases": {},
   "registry": { "version": "0.1.0" }
 }
@@ -58,7 +58,7 @@ const EXPECTED_TAILWIND: &str = r##"{
   "framework": "react",
   "styles": { "enabled": true, "format": "tailwind", "path": "src/styles/primitiv" },
   "tokens": { "format": "tailwind", "path": "src/styles/primitiv/tokens.css" },
-  "theme": { "brand": "#0a7755" },
+  "theme": { "brand": "#236ce1" },
   "aliases": {},
   "registry": { "version": "0.1.0" }
 }
@@ -73,7 +73,7 @@ const EXPECTED_DETECTED_ALIAS: &str = r##"{
   "framework": "react",
   "styles": { "enabled": true, "format": "css", "path": "src/styles/primitiv" },
   "tokens": { "format": "css", "path": "src/styles/primitiv/tokens.css" },
-  "theme": { "brand": "#0a7755" },
+  "theme": { "brand": "#236ce1" },
   "aliases": { "components": "@/components" },
   "registry": { "version": "0.1.0" }
 }
@@ -493,4 +493,26 @@ fn init_surfaces_a_token_dir_creation_failure() {
     let err = init(&fs, &output, &silent_prompt(), false, &default_options()).unwrap_err();
 
     assert!(matches!(err, CliError::Io(_)));
+}
+
+#[test]
+fn the_default_brand_is_the_seed_the_shipped_palette_was_generated_from() {
+    // `init` records a brand for every project, so the default has to be the colour
+    // the emitted token layer actually carries — otherwise a flag-less `init` writes
+    // a config stating a brand the project does not have. Pinned to the manifest
+    // rather than duplicated, so the two cannot drift apart again: the default was
+    // an RFC *example* hex (`#0a7755`, a green) while the palette shipped blue.
+    const SEEDS: &str = include_str!(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../packages/tokens/harmoni-seeds.json"
+    ));
+    let manifest: serde_json::Value = serde_json::from_str(SEEDS).unwrap();
+    let brand = manifest["seeds"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|entry| entry["ramp"] == "brand")
+        .expect("the manifest seeds a brand ramp");
+
+    assert_eq!(brand["seed"].as_str(), Some(crate::commands::init::DEFAULT_BRAND));
 }

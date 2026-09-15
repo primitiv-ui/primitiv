@@ -77,7 +77,7 @@ fn init_writes_a_primitiv_json_into_the_working_directory() {
     config.assert(predicate::str::contains(
         "\"$schema\": \"https://primitiv-ui.dev/schema/primitiv.json\"",
     ));
-    config.assert(predicate::str::contains("\"brand\": \"#0a7755\""));
+    config.assert(predicate::str::contains("\"brand\": \"#236ce1\""));
 }
 
 #[test]

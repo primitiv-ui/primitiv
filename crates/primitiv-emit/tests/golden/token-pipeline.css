@@ -8,11 +8,11 @@
   }
   :root,
   [data-theme="light"] {
-    --primitiv-color-brand-500: #0a7755;
+    --primitiv-color-brand-500: oklch(0.5054 0.1043 164.4939);
     --primitiv-action-primary: var(--primitiv-color-brand-500);
   }
   [data-theme="dark"] {
-    --primitiv-color-brand-500: #5fd3a8;
+    --primitiv-color-brand-500: oklch(0.788 0.1233 166.2009);
     --primitiv-action-primary: var(--primitiv-color-brand-500);
   }
   :root,

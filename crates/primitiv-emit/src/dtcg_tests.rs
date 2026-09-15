@@ -16,8 +16,14 @@ fn splits_a_multi_mode_document_into_per_mode_token_groups() {
     assert_eq!(
         modes,
         vec![
-            ("dark".to_string(), vec![Token::new(&["color", "bg"], "#111")]),
-            ("light".to_string(), vec![Token::new(&["color", "bg"], "#fff")]),
+            (
+                "dark".to_string(),
+                vec![Token::new(&["color", "bg"], "oklch(0.1776 0 180)")],
+            ),
+            (
+                "light".to_string(),
+                vec![Token::new(&["color", "bg"], "oklch(1 0 90)")],
+            ),
         ]
     );
 }
@@ -206,4 +212,19 @@ fn skips_scalar_entries_that_are_neither_a_leaf_nor_a_group() {
     let tokens = tokens_from_dtcg(&dtcg);
 
     assert_eq!(tokens, vec![Token::new(&["color", "primary"], "oklch(0.55 0.13 162)")]);
+}
+
+#[test]
+fn renders_a_colour_leaf_as_oklch() {
+    let dtcg = json!({
+        "color": { "brand": { "$type": "color", "$value": "#236ce1" } }
+    });
+
+    assert_eq!(
+        tokens_from_dtcg(&dtcg),
+        vec![Token::new(
+            &["color", "brand"],
+            "oklch(0.5557 0.1923 259.8783)"
+        )]
+    );
 }

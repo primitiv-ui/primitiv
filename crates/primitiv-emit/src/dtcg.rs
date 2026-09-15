@@ -1,12 +1,13 @@
 use serde_json::{Map, Value};
 
 use crate::token::Token;
-use crate::value::{format_cubic_bezier, format_number, format_shadow, ShadowLayer};
+use crate::value::{format_color, format_cubic_bezier, format_number, format_shadow, ShadowLayer};
 
 /// Flatten a DTCG token tree into resolved [`Token`]s (RFC 0006 §3–4).
 ///
 /// A node carrying a `$value` is a leaf — its nesting path becomes the token
-/// path. String values (colours, aliases) are taken verbatim; numeric values
+/// path. A `color` leaf's string is rendered as `oklch()` (`format_color`);
+/// every other string value is taken verbatim; numeric values
 /// are formatted by category (`format_number`); a `cubicBezier` leaf's
 /// four-point array becomes a CSS `cubic-bezier()` function. Group nodes
 /// recurse; `$`-prefixed metadata keys (`$type`, `$description`) are skipped.
@@ -50,7 +51,11 @@ fn collect(map: &Map<String, Value>, path: &mut Vec<String>, out: &mut Vec<Token
             if let Some(text) = value.as_str() {
                 out.push(Token {
                     path: path.clone(),
-                    value: text.to_string(),
+                    value: if is_color(child) {
+                        format_color(text)
+                    } else {
+                        text.to_string()
+                    },
                 });
             } else if let Some(number) = value.as_f64() {
                 out.push(Token {
@@ -73,6 +78,16 @@ fn collect(map: &Map<String, Value>, path: &mut Vec<String>, out: &mut Vec<Token
         }
         path.pop();
     }
+}
+
+/// Whether a leaf is a `color`, so its string `$value` is rendered as `oklch()`
+/// rather than taken verbatim. Gated on the leaf's own `$type` rather than an
+/// inherited one: every colour leaf in this design system declares its own, and
+/// no group declares `$type` at all, so reading the leaf is exact here — and a
+/// non-colour string is never mistaken for a colour, which matters because a
+/// one-word font family (`Tomato`) parses perfectly well as a named colour.
+fn is_color(leaf: &Value) -> bool {
+    leaf.get("$type").and_then(Value::as_str) == Some("color")
 }
 
 /// The four numeric control points of a `cubicBezier` leaf, or `None` for any

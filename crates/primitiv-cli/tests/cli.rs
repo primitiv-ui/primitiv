@@ -440,7 +440,7 @@ fn tokens_emits_the_elevation_layer() {
         .assert()
         .success()
         .stdout(predicate::str::contains(
-            "--primitiv-shadow-color-strong: #00000014;",
+            "--primitiv-shadow-color-strong: oklch(0 0 0 / 0.0784);",
         ))
         .stdout(predicate::str::contains(
             "--primitiv-shadow-1: var(--primitiv-space-space-0) var(--primitiv-space-space-1) \

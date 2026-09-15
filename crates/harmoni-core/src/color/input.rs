@@ -31,9 +31,20 @@ impl ColorInput {
 }
 
 fn parse_css(s: &str) -> Result<Oklch, ColorInputError> {
+    parse_css_with_alpha(s).map(|(color, _)| color)
+}
+
+/// Parse any CSS-parseable colour string to OkLCH **and its alpha channel**.
+///
+/// [`ColorInput::to_oklch`] deliberately drops alpha — harmoni generates opaque
+/// colours, so every generation path wants the triple alone. Emitting a colour
+/// to a stylesheet is the case that does not: an alpha ramp's step is the anchor
+/// at some opacity, and losing the opacity would render ten translucent steps as
+/// ten identical solid ones.
+pub fn parse_css_with_alpha(s: &str) -> Result<(Oklch, f32), ColorInputError> {
     let color = csscolorparser::parse(s).map_err(|_| ColorInputError::InvalidCss(s.to_string()))?;
     let srgb = Srgb::new(color.r as f32, color.g as f32, color.b as f32);
-    Ok(srgb.into_color())
+    Ok((srgb.into_color(), color.a as f32))
 }
 
 fn rgb_to_oklch(r: u8, g: u8, b: u8) -> Oklch {

@@ -8,18 +8,22 @@
 //! — into that form. Doing it here keeps the conversion in the engine, so no
 //! adapter grows a second opinion about what a colour is.
 
-use crate::color::input::ColorInput;
-use crate::color::output::format_oklch;
+use crate::color::input::parse_css_with_alpha;
+use crate::color::output::{format_oklch, format_oklch_alpha};
 use crate::ColorInputError;
 
 /// Convert any CSS-parseable colour string to its `oklch(L C H)` form.
 ///
 /// The input is whatever CSS accepts — hex, `rgb()`, `hsl()`, a named colour,
-/// or an `oklch()` string already. An unparseable input is an error rather than
+/// or an `oklch()` string already; a colour carrying alpha renders in the
+/// `oklch(L C H / a)` slash-alpha form. An unparseable input is an error rather than
 /// a pass-through: the caller knows whether a non-colour (a DTCG alias, say) is
 /// expected in its input, and that policy belongs with the caller.
 pub fn to_css_oklch(input: &str) -> Result<String, ColorInputError> {
-    Ok(format_oklch(
-        ColorInput::Css(input.to_string()).to_oklch()?,
-    ))
+    let (color, alpha) = parse_css_with_alpha(input)?;
+    Ok(if alpha >= 1.0 {
+        format_oklch(color)
+    } else {
+        format_oklch_alpha(color, alpha)
+    })
 }

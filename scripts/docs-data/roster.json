@@ -144,7 +144,7 @@
     "displayName": "Confirm Dialog",
     "category": "Overlays",
     "description": "A pre-arranged Modal for confirming or cancelling a single action — title, body slot, and a Cancel/Confirm footer, with the Confirm button's tone following the action (primary, or danger for a destructive one). Composes the registry `modal` and `button` components directly rather than introducing new dialog anatomy.",
-    "documented": false
+    "documented": true
   },
   {
     "id": "container",

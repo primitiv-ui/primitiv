@@ -1,0 +1,195 @@
+{
+  "id": "confirm-dialog",
+  "displayName": "ConfirmDialog",
+  "kind": "registry-only",
+  "status": "stable",
+  "category": "Overlays",
+  "description": "A pre-arranged Modal for confirming or cancelling a single action — title, body slot, and a Cancel/Confirm footer, with the Confirm button's tone following the action (primary, or danger for a destructive one). Composes the registry `modal` and `button` components directly rather than introducing new dialog anatomy.",
+  "headless": {
+    "package": "@primitiv-ui/react",
+    "importPath": "@/components/ui/confirm-dialog",
+    "subComponents": [
+      {
+        "name": "ConfirmDialog",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": false,
+            "default": null,
+            "description": "The modal's sub-components (Trigger, Portal, Overlay, Content, ...)."
+          },
+          {
+            "name": "defaultOpen",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Whether the modal is open on first render. The component owns the flag\nfrom then on. Omit for closed-on-mount.\nForbidden in controlled mode — use `open` instead."
+          },
+          {
+            "name": "onOpenChange",
+            "type": "(open: boolean) => void",
+            "required": false,
+            "default": null,
+            "description": "Called with the new open state whenever it changes (open or close).\nOptional in uncontrolled mode — useful purely to observe transitions.\nCalled with the requested open state whenever the modal wants to open or\nclose (trigger click, Close button, Esc, click-outside, imperative API).\nRequired in controlled mode."
+          },
+          {
+            "name": "open",
+            "type": "boolean",
+            "required": false,
+            "default": null,
+            "description": "Forbidden in uncontrolled mode — use `defaultOpen` instead.\nThe current open state. Must be kept in sync by the parent via `onOpenChange`."
+          },
+          {
+            "name": "ref",
+            "type": "Ref<ModalImperativeApi>",
+            "required": false,
+            "default": null,
+            "description": "Ref receiving the imperative {@link ModalImperativeApiopen/close handle}."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": null
+      },
+      {
+        "name": "ConfirmDialogTrigger",
+        "extends": "HTMLButtonElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Render into the consumer's own element (e.g. a router `<Link>`) instead\nof the default `<button>`, merging the trigger's ARIA wiring, composed\nevent handlers, and ref onto it via the Slot pattern."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": null
+      },
+      {
+        "name": "ConfirmDialogContent",
+        "extends": "HTMLDialogElement",
+        "props": [
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": true,
+            "default": null,
+            "description": "The dialog's body — the confirmation message, or any richer content.\nRendered inside {@link ModalBody`ModalBody`}'s own slot."
+          },
+          {
+            "name": "onConfirm",
+            "type": "() => void",
+            "required": true,
+            "default": null,
+            "description": "Called when the Confirm button is activated. Does **not** close the\ndialog itself — drive `open`/`onOpenChange` (or the imperative\n`close()` API) from this callback if confirming should dismiss it."
+          },
+          {
+            "name": "title",
+            "type": "string & ReactElement<unknown, string | JSXElementConstructor<any>> | string & Iterable<ReactNode> | string & ReactPortal | string & Promise<AwaitedReactNode> | undefined",
+            "required": true,
+            "default": null,
+            "description": "The dialog's title, shown in the header next to the optional close button."
+          },
+          {
+            "name": "cancelLabel",
+            "type": "string",
+            "required": false,
+            "default": "\"Cancel\"",
+            "description": "Cancel button label. The Cancel button always closes the dialog (it is\nwrapped in `ModalClose asChild`) — there is no separate `onCancel` prop."
+          },
+          {
+            "name": "confirmLabel",
+            "type": "string",
+            "required": false,
+            "default": "\"Confirm\"",
+            "description": "Confirm button label."
+          },
+          {
+            "name": "onEscapeKeyDown",
+            "type": "(event: Event) => void",
+            "required": false,
+            "default": null,
+            "description": "Fires on the dialog's native `cancel` event when the user presses\nEscape. Call `event.preventDefault()` to veto closing and keep the\nmodal open (e.g. to confirm unsaved changes first)."
+          },
+          {
+            "name": "onPointerDownOutside",
+            "type": "(event: PointerEvent) => void",
+            "required": false,
+            "default": null,
+            "description": "Fires on a `pointerdown` whose coordinates land outside the dialog's\nbounding rect — i.e. on the browser-painted `::backdrop`. Call\n`event.preventDefault()` to veto closing and keep the modal open."
+          },
+          {
+            "name": "ref",
+            "type": "Ref<HTMLDialogElement>",
+            "required": false,
+            "default": null,
+            "description": "Allows getting a ref to the component instance.\nOnce the component unmounts, React will set `ref.current` to `null`\n(or call the ref with `null` if you passed a callback ref)."
+          },
+          {
+            "name": "showClose",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Shows a close (×) button in the header, in addition to the Cancel/\nConfirm footer actions. Off by default — the exploration found the\nfooter's Cancel action already covers the \"back out\" affordance for a\nshort confirmation, and a redundant close reads as noise."
+          },
+          {
+            "name": "size",
+            "type": "\"sm\" | \"md\" | \"lg\" | \"xl\"",
+            "required": false,
+            "default": "\"sm\"",
+            "description": "Dialog width, forwarded to `ModalContent`'s own `size`; `data-density`\nscales the padding within each size. Defaults smaller than a plain\nModal — a confirmation is a short, low-content surface."
+          },
+          {
+            "name": "tone",
+            "type": "\"default\" | \"danger\"",
+            "required": false,
+            "default": "\"default\"",
+            "description": "Selects the Confirm button's variant — `default` → `primary`, `danger` →\n`danger` — so the action's own tone drives the dialog, not a separate\ncolour scheme for the dialog itself."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [
+          {
+            "name": "data-state",
+            "value": "open",
+            "when": "open"
+          },
+          {
+            "name": "data-state",
+            "value": "closed",
+            "when": "closed"
+          }
+        ],
+        "class": "primitiv-confirm-dialog"
+      }
+    ]
+  },
+  "styled": {
+    "installCommand": "primitiv add confirm-dialog",
+    "rootClass": "primitiv-confirm-dialog",
+    "customProperties": [],
+    "dataAttributes": [
+      {
+        "name": "data-state",
+        "value": "open",
+        "when": "open"
+      },
+      {
+        "name": "data-state",
+        "value": "closed",
+        "when": "closed"
+      }
+    ]
+  },
+  "figma": {}
+}

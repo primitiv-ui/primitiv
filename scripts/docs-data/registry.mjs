@@ -898,6 +898,26 @@ export const REGISTRY = {
     contract: "registry/components/dropdown/contract.json",
     figmaComponentSetKey: "669:43383", importPath: "@primitiv-ui/react",
   },
+  "confirm-dialog": {
+    displayName: "ConfirmDialog", kind: "registry-only", status: "stable", category: "Overlays",
+    /* Hand-authored composite, primitive-less: a pre-arranged Modal that composes
+       the registry `modal` + `button` (like `alert` composes `button`), so there
+       is no headless `@primitiv-ui/react` primitive — the props live in the copied
+       file. Three exports: `ConfirmDialog` / `ConfirmDialogTrigger` forward Modal's
+       Root/Trigger; `ConfirmDialogContent` carries the whole prop surface and is
+       the contract root (`component: "Content"`). */
+    propsFile: "registry/components/confirm-dialog/confirm-dialog.tsx",
+    subComponents: [
+      { name: "ConfirmDialog", propsType: "ConfirmDialogProps", element: "div", component: "Root" },
+      { name: "ConfirmDialogTrigger", propsType: "ConfirmDialogTriggerProps", element: "button", component: "Trigger" },
+      { name: "ConfirmDialogContent", propsType: "ConfirmDialogContentProps", element: "dialog", component: "Content" },
+    ],
+    contract: "registry/components/confirm-dialog/contract.json",
+    /* No `figmaComponentSetKey`: the ConfirmDialog set's node id is not recorded
+       in this repo, and a wrong Design link is worse than none (the header omits
+       it when absent, as pagination/miller-columns do). */
+    importPath: "@/components/ui/confirm-dialog",
+  },
   divider: {
     displayName: "Divider", kind: "registry", status: "stable", category: "Layout",
     propsFile: "packages/react/src/Divider/types.ts",

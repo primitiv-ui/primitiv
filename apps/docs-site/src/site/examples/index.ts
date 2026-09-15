@@ -17,6 +17,7 @@ import { breadcrumbOverflowSpec } from "./breadcrumb-overflow";
 import { buttonSpec } from "./button";
 import { inputSpec } from "./input";
 import { accordionSpec } from "./accordion";
+import { collapsibleSpec } from "./collapsible";
 import { checkboxCardSpec } from "./checkbox-card";
 import { checkboxSpec } from "./checkbox";
 import { emptyStateSpec } from "./empty-state";
@@ -77,6 +78,7 @@ export const SPECS: Record<ComponentId, ComponentSpec> = {
   button: buttonSpec,
   input: inputSpec,
   accordion: accordionSpec,
+  collapsible: collapsibleSpec,
   checkbox: checkboxSpec,
   "checkbox-card": checkboxCardSpec,
   "empty-state": emptyStateSpec,

@@ -168,6 +168,23 @@ export const REGISTRY = {
        the trigger, which is the more useful of the two landing points. */
     figmaComponentSetKey: "416:6729", importPath: "@primitiv-ui/react",
   },
+  collapsible: {
+    displayName: "Collapsible", kind: "registry", status: "stable", category: "Disclosure",
+    /* Headless types (the accordion convention): the copied file adds no
+       styled-only prop — it only omits `forceMount` on Content — so the headless
+       surface is the one to document. */
+    propsFile: "packages/react/src/Collapsible/types.ts",
+    subComponents: [
+      { name: "Collapsible.Root", propsType: "CollapsibleRootProps", element: "div", component: "Root" },
+      { name: "Collapsible.Trigger", propsType: "CollapsibleTriggerProps", element: "button", component: "Trigger" },
+      { name: "Collapsible.Content", propsType: "CollapsibleContentProps", element: "div", component: "Content" },
+      { name: "Collapsible.TriggerIcon", propsType: "CollapsibleTriggerIconProps", element: "span", component: "TriggerIcon" },
+    ],
+    contract: "registry/components/collapsible/contract.json",
+    /* The composed `Collapsible` set (its `Collapsible / Trigger` twin is the
+       trigger-only landing point). */
+    figmaComponentSetKey: "1207:43244", importPath: "@primitiv-ui/react",
+  },
   badge: {
     displayName: "Badge", kind: "registry-only", status: "stable", category: "Data Display",
     /* Primitive-less: the props live in the copied file, not packages/react. */

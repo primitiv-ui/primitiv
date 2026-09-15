@@ -1,0 +1,427 @@
+{
+  "id": "collapsible",
+  "displayName": "Collapsible",
+  "kind": "registry",
+  "status": "stable",
+  "category": "Disclosure",
+  "description": "A single disclosure widget pairing a trigger with a panel that expands and collapses — the single-item analogue of Accordion.",
+  "headless": {
+    "package": "@primitiv-ui/react",
+    "importPath": "@primitiv-ui/react",
+    "subComponents": [
+      {
+        "name": "Collapsible.Root",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "defaultOpen",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Initial open state on first render. The component owns the value\nthereafter.\nForbidden in controlled mode — use `open` instead."
+          },
+          {
+            "name": "disabled",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "When `true`, disables the widget: the {@link CollapsibleTriggerProps}   * Trigger} renders `aria-disabled=\"true\"` (staying focusable) and both\nclick and keyboard activation are short-circuited. Mirrored as\n`data-disabled` onto Root, Trigger, and Content."
+          },
+          {
+            "name": "onOpenChange",
+            "type": "(open: boolean) => void",
+            "required": false,
+            "default": null,
+            "description": "Called with the new open state on every toggle. Optional in\nuncontrolled mode (Collapsible fires it in both modes).\nCalled with the requested open state on every toggle. Required in\ncontrolled mode."
+          },
+          {
+            "name": "open",
+            "type": "boolean",
+            "required": false,
+            "default": null,
+            "description": "Forbidden in uncontrolled mode — use `defaultOpen` instead.\nThe controlled open state. Must be kept in sync by the parent via\n`onOpenChange`."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [
+          {
+            "name": "variant",
+            "type": "\"plain\" | \"card\" | \"inline\"",
+            "default": "plain",
+            "description": "Visual style of the widget."
+          },
+          {
+            "name": "size",
+            "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
+            "default": "md",
+            "description": "Control size for the whole widget; `data-density` scales each size further."
+          }
+        ],
+        "dataAttributes": [
+          {
+            "name": "data-state",
+            "value": "open",
+            "when": "open"
+          },
+          {
+            "name": "data-state",
+            "value": "closed",
+            "when": "closed"
+          },
+          {
+            "name": "data-disabled",
+            "value": "true",
+            "when": "disabled"
+          },
+          {
+            "name": "data-disabled",
+            "value": "false",
+            "when": "not disabled"
+          }
+        ],
+        "class": "primitiv-collapsible"
+      },
+      {
+        "name": "Collapsible.Trigger",
+        "extends": "HTMLButtonElement",
+        "props": [
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": true,
+            "default": null,
+            "description": "Trigger content (label, and optionally a\n{@link CollapsibleTriggerIconPropsTriggerIcon})."
+          },
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Render a single consumer-supplied child element instead of the default\n`<button>`, merging the Trigger's ARIA, handlers, and ref onto it via\nthe {@link Slot } pattern. When `asChild` and the Root is `disabled`,\n`role=\"button\"` is injected so `aria-disabled` is semantically valid."
+          },
+          {
+            "name": "ref",
+            "type": "Ref<T>",
+            "required": false,
+            "default": null,
+            "description": "Forwarded to the rendered element. Defaults to `HTMLButtonElement`;\nwhen using `asChild`, specify the child's element type (e.g.\n`HTMLAnchorElement`). Composed with the library's internal ref."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [
+          {
+            "name": "data-state",
+            "value": "open",
+            "when": "open"
+          },
+          {
+            "name": "data-state",
+            "value": "closed",
+            "when": "closed"
+          },
+          {
+            "name": "data-disabled",
+            "value": "true",
+            "when": "disabled"
+          },
+          {
+            "name": "data-disabled",
+            "value": "false",
+            "when": "not disabled"
+          }
+        ],
+        "class": "primitiv-collapsible__trigger"
+      },
+      {
+        "name": "Collapsible.Content",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": true,
+            "default": null,
+            "description": "Panel content."
+          },
+          {
+            "name": "collapsedHeight",
+            "type": "string | number",
+            "required": false,
+            "default": null,
+            "description": "Show a **clamped preview** of the panel while closed instead of hiding it\nentirely — the \"collapsed height\" / read-more pattern. A `number` is taken\nas pixels; a string is used verbatim as a CSS length (e.g. `\"4rem\"`,\n`\"20cqi\"`). When set:\n\n- the panel is always mounted and never gets the `hidden` attribute or\n  `aria-hidden` (the preview is real, readable content), so `forceMount` is\n  implied;\n- the value is emitted as the `--primitiv-collapsible-collapsed-height`\n  custom property on the panel, which the styling layer clamps the closed\n  height to (e.g. `max-block-size`) and anchors a bottom fade-shadow to,\n  keyed off `data-state=\"closed\"`.\n\nLeave unset for the default fully-hidden / grid-collapse behaviour."
+          },
+          {
+            "name": "forceMount",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Keep the panel mounted (and in the DOM) even when closed, so open/close\ntransitions can be CSS-driven. When closed under `forceMount`, the panel\ngets `aria-hidden=\"true\"` instead of the `hidden` attribute. Consumers\nmay override `aria-hidden` explicitly."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [
+          {
+            "name": "data-state",
+            "value": "open",
+            "when": "open"
+          },
+          {
+            "name": "data-state",
+            "value": "closed",
+            "when": "closed"
+          },
+          {
+            "name": "data-disabled",
+            "value": "true",
+            "when": "disabled"
+          },
+          {
+            "name": "data-disabled",
+            "value": "false",
+            "when": "not disabled"
+          },
+          {
+            "name": "data-clamped",
+            "value": "true",
+            "when": "collapsedHeight is set"
+          },
+          {
+            "name": "data-clamped",
+            "value": "false",
+            "when": "collapsedHeight is unset"
+          }
+        ],
+        "class": "primitiv-collapsible__content"
+      },
+      {
+        "name": "Collapsible.TriggerIcon",
+        "extends": "HTMLSpanElement",
+        "props": [
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": true,
+            "default": null,
+            "description": "The icon to render (inline SVG or an icon component)."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [
+          {
+            "name": "data-state",
+            "value": "open",
+            "when": "open"
+          },
+          {
+            "name": "data-state",
+            "value": "closed",
+            "when": "closed"
+          }
+        ],
+        "class": "primitiv-collapsible__trigger-icon"
+      }
+    ]
+  },
+  "styled": {
+    "installCommand": "primitiv add collapsible",
+    "rootClass": "primitiv-collapsible",
+    "customProperties": [
+      {
+        "name": "--primitiv-collapsible-border-color",
+        "defaultsTo": "var(--primitiv-border-default)"
+      },
+      {
+        "name": "--primitiv-collapsible-border-width",
+        "defaultsTo": "var(--primitiv-framed-control-border-width)"
+      },
+      {
+        "name": "--primitiv-collapsible-seam-color",
+        "defaultsTo": "var(--primitiv-border-subtle)"
+      },
+      {
+        "name": "--primitiv-collapsible-radius",
+        "defaultsTo": "var(--primitiv-framed-control-md-radius)"
+      },
+      {
+        "name": "--primitiv-collapsible-bg",
+        "defaultsTo": "var(--primitiv-color-transparent)"
+      },
+      {
+        "name": "--primitiv-collapsible-gap",
+        "defaultsTo": "var(--primitiv-space-space-8)"
+      },
+      {
+        "name": "--primitiv-collapsible-trigger-padding-inline",
+        "defaultsTo": "var(--primitiv-framed-control-md-padding-inline)"
+      },
+      {
+        "name": "--primitiv-collapsible-trigger-gap",
+        "defaultsTo": "var(--primitiv-framed-control-md-gap)"
+      },
+      {
+        "name": "--primitiv-collapsible-trigger-icon-size",
+        "defaultsTo": "var(--primitiv-framed-control-md-icon-size)"
+      },
+      {
+        "name": "--primitiv-collapsible-trigger-icon-rotation",
+        "defaultsTo": "0deg"
+      },
+      {
+        "name": "--primitiv-collapsible-trigger-fg",
+        "defaultsTo": "var(--primitiv-content-primary)"
+      },
+      {
+        "name": "--primitiv-collapsible-trigger-font-family",
+        "defaultsTo": "var(--primitiv-label-md-font-family)"
+      },
+      {
+        "name": "--primitiv-collapsible-trigger-font-size",
+        "defaultsTo": "var(--primitiv-label-md-font-size)"
+      },
+      {
+        "name": "--primitiv-collapsible-trigger-font-weight",
+        "defaultsTo": "var(--primitiv-label-md-font-weight)"
+      },
+      {
+        "name": "--primitiv-collapsible-trigger-line-height",
+        "defaultsTo": "var(--primitiv-label-md-line-height)"
+      },
+      {
+        "name": "--primitiv-collapsible-content-fg",
+        "defaultsTo": "var(--primitiv-content-secondary)"
+      },
+      {
+        "name": "--primitiv-collapsible-content-font-family",
+        "defaultsTo": "var(--primitiv-body-md-font-family)"
+      },
+      {
+        "name": "--primitiv-collapsible-content-font-size",
+        "defaultsTo": "var(--primitiv-body-md-font-size)"
+      },
+      {
+        "name": "--primitiv-collapsible-content-font-weight",
+        "defaultsTo": "var(--primitiv-body-md-font-weight)"
+      },
+      {
+        "name": "--primitiv-collapsible-content-line-height",
+        "defaultsTo": "var(--primitiv-body-md-line-height)"
+      },
+      {
+        "name": "--primitiv-collapsible-content-padding-block",
+        "defaultsTo": "var(--primitiv-panel-padding-block)"
+      },
+      {
+        "name": "--primitiv-collapsible-content-padding-inline",
+        "defaultsTo": "var(--primitiv-panel-padding-inline)"
+      },
+      {
+        "name": "--primitiv-collapsible-content-transition-duration",
+        "defaultsTo": "var(--primitiv-motion-duration-control)"
+      },
+      {
+        "name": "--primitiv-collapsible-content-transition-easing",
+        "defaultsTo": "var(--primitiv-motion-easing-default)"
+      },
+      {
+        "name": "--primitiv-collapsible-fade-color",
+        "defaultsTo": "var(--primitiv-surface-default)"
+      },
+      {
+        "name": "--primitiv-collapsible-fade-height",
+        "defaultsTo": "var(--primitiv-space-space-32)"
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-state",
+        "value": "open",
+        "when": "open"
+      },
+      {
+        "name": "data-state",
+        "value": "closed",
+        "when": "closed"
+      },
+      {
+        "name": "data-disabled",
+        "value": "true",
+        "when": "disabled"
+      },
+      {
+        "name": "data-disabled",
+        "value": "false",
+        "when": "not disabled"
+      },
+      {
+        "name": "data-state",
+        "value": "open",
+        "when": "open"
+      },
+      {
+        "name": "data-state",
+        "value": "closed",
+        "when": "closed"
+      },
+      {
+        "name": "data-disabled",
+        "value": "true",
+        "when": "disabled"
+      },
+      {
+        "name": "data-disabled",
+        "value": "false",
+        "when": "not disabled"
+      },
+      {
+        "name": "data-state",
+        "value": "open",
+        "when": "open"
+      },
+      {
+        "name": "data-state",
+        "value": "closed",
+        "when": "closed"
+      },
+      {
+        "name": "data-disabled",
+        "value": "true",
+        "when": "disabled"
+      },
+      {
+        "name": "data-disabled",
+        "value": "false",
+        "when": "not disabled"
+      },
+      {
+        "name": "data-clamped",
+        "value": "true",
+        "when": "collapsedHeight is set"
+      },
+      {
+        "name": "data-clamped",
+        "value": "false",
+        "when": "collapsedHeight is unset"
+      },
+      {
+        "name": "data-state",
+        "value": "open",
+        "when": "open"
+      },
+      {
+        "name": "data-state",
+        "value": "closed",
+        "when": "closed"
+      }
+    ]
+  },
+  "figma": {
+    "componentSetKey": "1207:43244"
+  }
+}

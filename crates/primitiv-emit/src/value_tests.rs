@@ -101,4 +101,15 @@ mod format_color {
     fn leaves_a_fully_transparent_colour_as_it_was_written() {
         assert_eq!(format_color("#00000000"), "#00000000");
     }
+
+    #[test]
+    fn passes_a_value_already_written_in_oklch_through_untouched() {
+        // Re-rendering would round trip through sRGB and perturb the authored
+        // value: 264.4996 comes back as 264.4993, and a bare 250 as 249.9999.
+        assert_eq!(
+            format_color("oklch(0.9693 0.0144 264.4996)"),
+            "oklch(0.9693 0.0144 264.4996)"
+        );
+        assert_eq!(format_color("oklch(0.5 0.1 250)"), "oklch(0.5 0.1 250)");
+    }
 }

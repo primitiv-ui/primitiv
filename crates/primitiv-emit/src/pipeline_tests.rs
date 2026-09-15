@@ -3,7 +3,8 @@ use serde_json::{json, Value};
 
 use crate::pipeline::{
     emit_component_tokens_css, emit_tailwind_tokens, emit_theme_overrides_css,
-    emit_theme_ramps_css, emit_theme_ramps_scss, emit_theme_ramps_tailwind, emit_tokens_css,
+    emit_dtcg_ramps, emit_theme_ramps_css, emit_theme_ramps_scss, emit_theme_ramps_tailwind,
+    emit_tokens_css,
     emit_tokens_scss,
     TokenSources,
 };
@@ -194,4 +195,16 @@ fn emits_every_seeded_ramp_family_into_each_theme_scope() {
     // either one re-skins from the same file.
     assert_eq!(css.matches("--primitiv-color-brand-500:").count(), 2);
     assert_eq!(css.matches("--primitiv-color-danger-500:").count(), 2);
+}
+
+#[test]
+fn emits_seeded_ramps_as_a_dtcg_document_in_hex() {
+    let document = emit_dtcg_ramps(&[("brand", "#0a7755")]).expect("valid seed");
+
+    // Mode-keyed like the committed source, and in hex, so an importer that reads
+    // DTCG can consume it without knowing anything about Primitiv.
+    assert!(document.starts_with("{\n  \"light\": {"), "{document}");
+    assert!(document.contains("\"$value\": \"#0a7755\""), "{document}");
+    assert!(document.contains("\"dark\": {"), "{document}");
+    assert!(!document.contains("oklch("), "{document}");
 }

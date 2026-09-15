@@ -26,14 +26,14 @@ pub use dtcg::{flatten_modes, tokens_from_dtcg};
 pub use js::emit_breakpoints_ts;
 pub use mode::{scope_selectors, Axis};
 pub use pipeline::{
-    emit_component_tokens_css, emit_tailwind_tokens, emit_theme_overrides_css,
+    emit_component_tokens_css, emit_dtcg_ramps, emit_tailwind_tokens, emit_theme_overrides_css,
     emit_theme_ramps_css, emit_theme_ramps_scss, emit_theme_ramps_tailwind, emit_tokens_css,
     emit_tokens_scss,
     TokenSources,
 };
 pub use scss::{emit_component_scss, emit_scss, emit_theme_scss};
 pub use tailwind::{emit_tailwind, emit_theme_tailwind};
-pub use theme::ramp_tokens;
+pub use theme::{ramp_tokens, ColorForm};
 pub use token::Token;
 pub use value::{format_color, format_number};
 

@@ -7,11 +7,11 @@ use serde_json::Value;
 use crate::alias::link_aliases;
 use crate::component::{emit_component_css, Component};
 use crate::css::{emit_css, emit_theme_css, Scope};
-use crate::dtcg::{flatten_modes, tokens_from_dtcg};
+use crate::dtcg::{dtcg_document, flatten_modes, tokens_from_dtcg};
 use crate::mode::{scope_selectors, Axis};
 use crate::scss::{emit_scss, emit_theme_scss};
 use crate::tailwind::{emit_tailwind, emit_theme_tailwind};
-use crate::theme::ramp_tokens;
+use crate::theme::{ramp_tokens, ColorForm};
 use crate::token::Token;
 
 /// The routed DTCG documents for a token emit. Routing comes from the CLI (the
@@ -97,6 +97,35 @@ pub fn emit_theme_ramps_tailwind(seeds: &[(&str, &str)]) -> Result<String, Color
     Ok(emit_theme_tailwind(&ramp_scopes(seeds)?))
 }
 
+/// Emit the seeded ramps as a **DTCG document** (RFC 0009 §2.2's shape), mode
+/// keyed, with every colour in hex.
+///
+/// This is the route from a CLI-seeded palette into a design tool. A consumer who
+/// seeds their ramps in code and later wants them as Figma variables has no
+/// Primitiv plugin to import a bespoke payload with — `primitiv-sync-figma-plugin`
+/// is private to this repo — so the file is **standard DTCG**, which the token
+/// ecosystem already reads.
+///
+/// Hex rather than `oklch()` for the same reason: it is the form those importers
+/// understand, and the form Figma's variables panel shows. Nothing is lost by it,
+/// because the engine's rendered OkLCH reproduces its own hex exactly
+/// (`harmoni-core`'s `tests/ramp_regression.rs` gates that), so the two forms
+/// describe the same colour.
+pub fn emit_dtcg_ramps(seeds: &[(&str, &str)]) -> Result<String, ColorInputError> {
+    let mut light = Vec::new();
+    let mut dark = Vec::new();
+    for (family, seed) in seeds {
+        let set = generate_brand_pair(ColorInput::Css((*seed).to_string()))?;
+        light.extend(ramp_tokens(family, &set.light, ColorForm::Hex));
+        dark.extend(ramp_tokens(family, &set.dark, ColorForm::Hex));
+    }
+
+    Ok(dtcg_document(&[
+        ("light".to_string(), light),
+        ("dark".to_string(), dark),
+    ]))
+}
+
 /// Derive the paired light + dark theme scopes for every seeded ramp: link
 /// `harmoni-core` for each family's contrast-checked pair, then collect all the
 /// families' `--primitiv-color-<family>-*` tokens into one scope per mode.
@@ -106,8 +135,8 @@ fn ramp_scopes(seeds: &[(&str, &str)]) -> Result<Vec<Scope>, ColorInputError> {
     let mut dark = Vec::new();
     for (family, seed) in seeds {
         let set = generate_brand_pair(ColorInput::Css((*seed).to_string()))?;
-        light.extend(ramp_tokens(family, &set.light));
-        dark.extend(ramp_tokens(family, &set.dark));
+        light.extend(ramp_tokens(family, &set.light, ColorForm::Oklch));
+        dark.extend(ramp_tokens(family, &set.dark, ColorForm::Oklch));
     }
     Ok(vec![theme_scope("light", light), theme_scope("dark", dark)])
 }

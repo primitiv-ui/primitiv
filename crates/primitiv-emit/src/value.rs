@@ -1,3 +1,5 @@
+use harmoni_core::api::css::to_css_oklch;
+
 /// Token-path categories (the first path segment) whose numeric values are
 /// CSS lengths, emitted in `rem` against a 16px base.
 const LENGTH_CATEGORIES: &[&str] = &[
@@ -89,4 +91,18 @@ fn trim(value: f64) -> String {
         .trim_end_matches('0')
         .trim_end_matches('.')
         .to_string()
+}
+
+/// Format a DTCG `color` value as the CSS it should carry.
+///
+/// Harmoni is OkLCH-first and so is the token layer it emits: a colour reaches a
+/// stylesheet as `oklch(L C H)`, not as the hex the DTCG source stores. The
+/// source stays hex deliberately — it is the interchange form Figma and the
+/// token sync both speak, neither of which has an OkLCH type — so the
+/// conversion happens here, on the way out.
+///
+/// The conversion itself is the engine's ([`to_css_oklch`]); what belongs to the
+/// emitter is the policy of which values to convert.
+pub fn format_color(value: &str) -> String {
+    to_css_oklch(value).expect("a DTCG color value should be a parseable colour")
 }

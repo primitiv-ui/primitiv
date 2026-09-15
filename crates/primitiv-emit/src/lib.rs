@@ -35,7 +35,7 @@ pub use scss::{emit_component_scss, emit_scss, emit_theme_scss};
 pub use tailwind::{emit_tailwind, emit_theme_tailwind};
 pub use theme::ramp_tokens;
 pub use token::Token;
-pub use value::format_number;
+pub use value::{format_color, format_number};
 
 #[cfg(test)]
 mod alias_tests;

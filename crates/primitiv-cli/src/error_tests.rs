@@ -1,6 +1,7 @@
 use std::io;
 
 use harmoni_core::ColorInputError;
+use harmoni_core::api::GenerateError;
 use pretty_assertions::assert_eq;
 
 use crate::error::CliError;
@@ -19,7 +20,10 @@ fn maps_each_variant_to_a_stable_exit_code() {
     assert_eq!(CliError::Config("missing".to_string()).exit_code(), 5);
     assert_eq!(CliError::Conflict("exists".to_string()).exit_code(), 6);
     assert_eq!(CliError::Registry("offline".to_string()).exit_code(), 7);
-    assert_eq!(CliError::Project("no package.json".to_string()).exit_code(), 8);
+    assert_eq!(
+        CliError::Project("no package.json".to_string()).exit_code(),
+        8
+    );
     assert_eq!(
         CliError::NotFound("no such component".to_string()).exit_code(),
         9
@@ -83,10 +87,7 @@ fn renders_a_project_message_verbatim() {
 fn renders_a_not_found_message_verbatim() {
     let error = CliError::NotFound("component 'nope' is not in the registry".to_string());
 
-    assert_eq!(
-        error.to_string(),
-        "component 'nope' is not in the registry"
-    );
+    assert_eq!(error.to_string(), "component 'nope' is not in the registry");
 }
 
 #[test]
@@ -96,5 +97,30 @@ fn renders_an_install_message_verbatim() {
     assert_eq!(
         error.to_string(),
         "failed to install @primitiv-ui/react with pnpm"
+    );
+}
+
+#[test]
+fn keeps_a_bad_colour_from_the_generator_as_an_invalid_colour() {
+    // The generator's own error unions a bad colour with a bad step count, and the
+    // two are different failures to the consumer: one is the colour they typed,
+    // and only that one should report exit code 3.
+    let error: CliError =
+        GenerateError::InvalidColor(ColorInputError::InvalidCss("nope".to_string())).into();
+
+    assert_eq!(error.exit_code(), 3);
+    assert_eq!(error.to_string(), "invalid colour 'nope'");
+}
+
+#[test]
+fn reports_an_unsupported_step_count_as_a_usage_error_in_the_engines_words() {
+    // The engine owns the supported range, so it words the bound — repeating "3 to
+    // 32" here would be a second copy free to disagree with it.
+    let error: CliError = GenerateError::UnsupportedStepCount(2).into();
+
+    assert_eq!(error.exit_code(), 2);
+    assert_eq!(
+        error.to_string(),
+        "Step count must be between 3 and 32, got 2"
     );
 }

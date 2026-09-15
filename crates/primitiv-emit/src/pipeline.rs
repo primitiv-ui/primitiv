@@ -1,17 +1,21 @@
 use std::collections::BTreeMap;
 
-use harmoni_core::api::generate_brand_pair;
-use harmoni_core::{ColorInput, ColorInputError};
+use harmoni_core::ColorInput;
+use harmoni_core::api::{
+    GenerateError, GenerateOptions, PaletteSet, generate_brand_pair_with_options,
+};
+use harmoni_core::palette::generator::step_labels;
 use serde_json::Value;
 
 use crate::alias::link_aliases;
-use crate::component::{emit_component_css, Component};
-use crate::css::{emit_css, emit_theme_css, Scope};
+use crate::component::{Component, emit_component_css};
+use crate::css::{Scope, emit_css, emit_theme_css};
 use crate::dtcg::{dtcg_document, flatten_modes, tokens_from_dtcg};
-use crate::mode::{scope_selectors, Axis};
+use crate::mode::{Axis, scope_selectors};
 use crate::scss::{emit_scss, emit_theme_scss};
+use crate::steps::realias;
 use crate::tailwind::{emit_tailwind, emit_theme_tailwind};
-use crate::theme::{ramp_tokens, ColorForm};
+use crate::theme::{ColorForm, ramp_tokens};
 use crate::token::Token;
 
 /// The routed DTCG documents for a token emit. Routing comes from the CLI (the
@@ -68,33 +72,49 @@ pub fn emit_theme_overrides_css(documents: &[Value]) -> String {
     emit_theme_css(&axis_scopes(&Axis::Theme, documents))
 }
 
+/// What a `theme` emit generates from.
+pub struct ThemeRamps<'a> {
+    /// `(family, seed)` pairs — `[("brand", "#0a7755"), ("danger", "#db2424")]` —
+    /// so a project re-seeds as many of its ramps as it has colours for.
+    pub seeds: &'a [(&'a str, &'a str)],
+    /// How many steps each ramp carries, within the engine's supported range.
+    pub steps: usize,
+    /// The Intent document, so roles aliasing a step a shortened ramp no longer
+    /// has can be re-pointed at one it does. Consulted only where a step actually
+    /// moved, so at the default length it contributes nothing.
+    pub intent: &'a serde_json::Value,
+}
+
 /// Emit `primitiv theme` ramp overrides as CSS (RFC 0005 §2.4, RFC 0006
 /// §4.2/§5): generate each seeded family's paired light + dark ramps through the
 /// Harmoni-backed emitter, and serialise both modes as `primitiv.theme` scopes.
 ///
-/// `seeds` pairs a palette family with the colour it generates from —
-/// `[("brand", "#0a7755"), ("danger", "#db2424")]` — so a project re-seeds as
-/// many of its ramps as it has colours for, in one file. Every family lands in
-/// the same two scopes, because a stylesheet wants one `[data-theme]` block per
-/// mode rather than one per ramp.
-pub fn emit_theme_ramps_css(seeds: &[(&str, &str)]) -> Result<String, ColorInputError> {
-    Ok(emit_theme_css(&ramp_scopes(seeds)?))
+/// Every family lands in the same two scopes, because a stylesheet wants one
+/// `[data-theme]` block per mode rather than one per ramp.
+///
+/// **A non-default step count also re-points the semantic layer.** Only 10, 18 and
+/// 26 steps label all nine decades; every other supported length drops some of
+/// them — nine and eleven each lose three — so without this those roles point at
+/// custom properties that no longer exist and silently keep whatever the base
+/// layer had. See [`crate::steps`].
+pub fn emit_theme_ramps_css(ramps: &ThemeRamps) -> Result<String, GenerateError> {
+    Ok(emit_theme_css(&ramp_scopes(ramps)?))
 }
 
 /// Emit `primitiv theme` ramp overrides as SCSS (RFC 0005 §2.4, RFC 0006
 /// §4.2/§5): the same paired scopes as [`emit_theme_ramps_css`], serialised
 /// through the SCSS adapter so the `primitiv.theme` CSS is followed by the
 /// resolving `$primitiv-*` variables.
-pub fn emit_theme_ramps_scss(seeds: &[(&str, &str)]) -> Result<String, ColorInputError> {
-    Ok(emit_theme_scss(&ramp_scopes(seeds)?))
+pub fn emit_theme_ramps_scss(ramps: &ThemeRamps) -> Result<String, GenerateError> {
+    Ok(emit_theme_scss(&ramp_scopes(ramps)?))
 }
 
 /// Emit `primitiv theme` ramp overrides as Tailwind (RFC 0005 §2.4, RFC 0006
 /// §4.2/§5): the same paired scopes as [`emit_theme_ramps_css`], serialised
 /// through the Tailwind adapter so the `primitiv.theme` custom properties are
 /// followed by the `@theme` preset.
-pub fn emit_theme_ramps_tailwind(seeds: &[(&str, &str)]) -> Result<String, ColorInputError> {
-    Ok(emit_theme_tailwind(&ramp_scopes(seeds)?))
+pub fn emit_theme_ramps_tailwind(ramps: &ThemeRamps) -> Result<String, GenerateError> {
+    Ok(emit_theme_tailwind(&ramp_scopes(ramps)?))
 }
 
 /// Emit the seeded ramps as a **DTCG document** (RFC 0009 §2.2's shape), mode
@@ -111,11 +131,11 @@ pub fn emit_theme_ramps_tailwind(seeds: &[(&str, &str)]) -> Result<String, Color
 /// because the engine's rendered OkLCH reproduces its own hex exactly
 /// (`harmoni-core`'s `tests/ramp_regression.rs` gates that), so the two forms
 /// describe the same colour.
-pub fn emit_dtcg_ramps(seeds: &[(&str, &str)]) -> Result<String, ColorInputError> {
+pub fn emit_dtcg_ramps(seeds: &[(&str, &str)], steps: usize) -> Result<String, GenerateError> {
     let mut light = Vec::new();
     let mut dark = Vec::new();
     for (family, seed) in seeds {
-        let set = generate_brand_pair(ColorInput::Css((*seed).to_string()))?;
+        let set = generate_pair(seed, steps)?;
         light.extend(ramp_tokens(family, &set.light, ColorForm::Hex));
         dark.extend(ramp_tokens(family, &set.dark, ColorForm::Hex));
     }
@@ -126,18 +146,44 @@ pub fn emit_dtcg_ramps(seeds: &[(&str, &str)]) -> Result<String, ColorInputError
     ]))
 }
 
+/// One family's contrast-checked light + dark pair at the requested length.
+///
+/// Shared by the stylesheet and DTCG paths so a ramp cannot come out one length in
+/// one format and another length in the other.
+fn generate_pair(seed: &str, steps: usize) -> Result<PaletteSet, GenerateError> {
+    generate_brand_pair_with_options(
+        ColorInput::Css(seed.to_string()),
+        GenerateOptions {
+            steps,
+            ..GenerateOptions::default()
+        },
+    )
+}
+
 /// Derive the paired light + dark theme scopes for every seeded ramp: link
-/// `harmoni-core` for each family's contrast-checked pair, then collect all the
-/// families' `--primitiv-color-<family>-*` tokens into one scope per mode.
+/// `harmoni-core` for each family's contrast-checked pair at the requested
+/// length, collect all the families' `--primitiv-color-<family>-*` tokens into one
+/// scope per mode, and append whichever Intent roles that length has moved.
 /// Shared by every serialiser so the formats stay byte-identical in structure.
-fn ramp_scopes(seeds: &[(&str, &str)]) -> Result<Vec<Scope>, ColorInputError> {
+fn ramp_scopes(ramps: &ThemeRamps) -> Result<Vec<Scope>, GenerateError> {
     let mut light = Vec::new();
     let mut dark = Vec::new();
-    for (family, seed) in seeds {
-        let set = generate_brand_pair(ColorInput::Css((*seed).to_string()))?;
+    for (family, seed) in ramps.seeds {
+        let set = generate_pair(seed, ramps.steps)?;
         light.extend(ramp_tokens(family, &set.light, ColorForm::Oklch));
         dark.extend(ramp_tokens(family, &set.dark, ColorForm::Oklch));
     }
+
+    let families: Vec<&str> = ramps.seeds.iter().map(|(family, _)| *family).collect();
+    let labels = step_labels(ramps.steps);
+    for (mode, tokens) in [("light", &mut light), ("dark", &mut dark)] {
+        tokens.extend(link_aliases(realias(
+            &ramps.intent[mode],
+            &families,
+            &labels,
+        )));
+    }
+
     Ok(vec![theme_scope("light", light), theme_scope("dark", dark)])
 }
 

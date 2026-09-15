@@ -18,25 +18,24 @@ pub mod wrapper;
 
 pub use alias::link_aliases;
 pub use base::{BASE_CSS, BASE_SCSS};
-pub use component::{emit_component_css, Component};
+pub use component::{Component, emit_component_css};
 pub use contract::Contract;
 pub use css::{emit_css, emit_theme_css};
-pub use recipe::emit_recipe;
-pub use wrapper::emit_wrapper;
 pub use dtcg::{flatten_modes, tokens_from_dtcg};
 pub use js::emit_breakpoints_ts;
-pub use mode::{scope_selectors, Axis};
+pub use mode::{Axis, scope_selectors};
 pub use pipeline::{
-    emit_component_tokens_css, emit_dtcg_ramps, emit_tailwind_tokens, emit_theme_overrides_css,
-    emit_theme_ramps_css, emit_theme_ramps_scss, emit_theme_ramps_tailwind, emit_tokens_css,
-    emit_tokens_scss,
-    TokenSources,
+    ThemeRamps, TokenSources, emit_component_tokens_css, emit_dtcg_ramps, emit_tailwind_tokens,
+    emit_theme_overrides_css, emit_theme_ramps_css, emit_theme_ramps_scss,
+    emit_theme_ramps_tailwind, emit_tokens_css, emit_tokens_scss,
 };
+pub use recipe::emit_recipe;
 pub use scss::{emit_component_scss, emit_scss, emit_theme_scss};
 pub use tailwind::{emit_tailwind, emit_theme_tailwind};
-pub use theme::{ramp_tokens, ColorForm};
+pub use theme::{ColorForm, ramp_tokens};
 pub use token::Token;
 pub use value::{format_color, format_number};
+pub use wrapper::emit_wrapper;
 
 #[cfg(test)]
 mod alias_tests;
@@ -51,10 +50,6 @@ mod contract_tests;
 #[cfg(test)]
 mod css_tests;
 #[cfg(test)]
-mod recipe_tests;
-#[cfg(test)]
-mod wrapper_tests;
-#[cfg(test)]
 mod dtcg_tests;
 #[cfg(test)]
 mod js_tests;
@@ -62,6 +57,8 @@ mod js_tests;
 mod mode_tests;
 #[cfg(test)]
 mod pipeline_tests;
+#[cfg(test)]
+mod recipe_tests;
 #[cfg(test)]
 mod scss_tests;
 #[cfg(test)]
@@ -72,3 +69,5 @@ mod tailwind_tests;
 mod theme_tests;
 #[cfg(test)]
 mod value_tests;
+#[cfg(test)]
+mod wrapper_tests;

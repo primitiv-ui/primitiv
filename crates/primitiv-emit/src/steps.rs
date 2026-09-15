@@ -4,11 +4,17 @@
 //! it: `action/primary/hover` aliases `{color.brand.600}`, `disabled` aliases
 //! `{color.brand.200}`, and so on. Ask the engine for a ramp of any other length
 //! and those steps stop existing — a seven-step ramp labels
-//! `50, 100, 300, 500, 630, 770, 900`, so `var(--primitiv-color-brand-600)`
+//! `50, 100, 230, 370, 500, 700, 900`, so `var(--primitiv-color-brand-600)`
 //! resolves to nothing and the role silently keeps whatever the base layer had.
 //!
-//! Ten is in fact the **only** length at which the shipped Intent layer resolves
-//! completely. Even nine and eleven lose 600, 700 and 800.
+//! Measured against the shipped `intent.json` across every supported length:
+//! **10, 18 and 26** are the only ones whose labels carry all nine decades, so
+//! they need no re-pointing at all. Every other length between 3 and 32 moves
+//! between 21 and 73 roles, and the count does not fall as the ramp grows — 12
+//! steps moves 59 where 6 moves 21 — because what matters is which decades the
+//! rounding happens to land on, not how many steps there are. No length in that
+//! range produces two identical labels, so there is always exactly one nearest
+//! step to move a role to.
 
 use crate::token::Token;
 

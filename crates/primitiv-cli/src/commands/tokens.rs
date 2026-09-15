@@ -1,51 +1,18 @@
 use std::path::{Path, PathBuf};
 
 use primitiv_emit::{
-    emit_breakpoints_ts, emit_tailwind_tokens, emit_tokens_css, emit_tokens_scss,
-    tokens_from_dtcg, TokenSources, BASE_CSS, BASE_SCSS,
+    BASE_CSS, BASE_SCSS, TokenSources, emit_breakpoints_ts, emit_tailwind_tokens, emit_tokens_css,
+    emit_tokens_scss, tokens_from_dtcg,
 };
-use serde_json::Value;
 
 use crate::config::try_resolve;
 use crate::error::CliError;
 use crate::format::Format;
 use crate::ports::fs::FileSystem;
 use crate::ports::output::Output;
-
-// The design system's own DTCG token documents, embedded into the binary so
-// `tokens` can emit the base layer with no project input. Routing mirrors the
-// figma-token-sync collection table (RFC 0006 §4): the single-mode `primitives`
-// and `interaction` form the mode-independent base; `palette` and `intent`
-// carry the theme axis; `context` carries the density axis. `motion` is also a
-// mode-independent base document, but unlike the others it is **code-only** — it
-// has no Figma collection (easing curves have no Figma variable type), so it
-// sits outside the token sync's five-file write-set and is never overwritten.
-// `elevation` is also a mode-independent base document (RFC 0017): its three
-// `shadow.color.*` primitives back a Figma `Elevation` COLOR collection, while
-// the layered `shadow.*` box-shadows and the semantic `elevation.*` roles are
-// code-only composites (Figma has no shadow variable type — effect styles are
-// their Figma form).
-// `breakpoint` is also a mode-independent base document (RFC 0025): a flat
-// `xs`/`sm`/`md`/`lg`/`xl`/`2xl` scale, code-only like `motion` (no Figma
-// variable backs a viewport breakpoint). `sm`-`2xl` deliberately match
-// Tailwind v4's own built-in defaults, so `emit_tailwind` (RFC 0025 D2)
-// omits redeclaring those five and emits only the additive `xs`.
-const PRIMITIVES: &str =
-    include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/../../packages/tokens/src/primitives.json"));
-const INTERACTION: &str =
-    include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/../../packages/tokens/src/interaction.json"));
-const MOTION: &str =
-    include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/../../packages/tokens/src/motion.json"));
-const ELEVATION: &str =
-    include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/../../packages/tokens/src/elevation.json"));
-const BREAKPOINT: &str =
-    include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/../../packages/tokens/src/breakpoint.json"));
-const PALETTE: &str =
-    include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/../../packages/tokens/src/palette.json"));
-const INTENT: &str =
-    include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/../../packages/tokens/src/intent.json"));
-const CONTEXT: &str =
-    include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/../../packages/tokens/src/context.json"));
+use crate::token_source::{
+    BREAKPOINT, CONTEXT, ELEVATION, INTENT, INTERACTION, MOTION, PALETTE, PRIMITIVES, parse,
+};
 
 /// The `primitiv tokens [--out <path>] [--format <fmt>]` command (RFC 0005 §2.3):
 /// route the embedded design-system DTCG into the emitter, serialise the shared
@@ -93,9 +60,11 @@ pub fn tokens(
         Format::Tailwind => emit_tailwind_tokens(&sources),
     };
     let (base_name, base_styles) = base_companion(format);
-    let target = out
-        .map(Path::to_path_buf)
-        .or_else(|| config.as_ref().map(|config| PathBuf::from(&config.tokens.path)));
+    let target = out.map(Path::to_path_buf).or_else(|| {
+        config
+            .as_ref()
+            .map(|config| PathBuf::from(&config.tokens.path))
+    });
     match target {
         // A file destination: the base element styles ship as a sibling the token
         // layer imports, so the foundation is one `@import` away (RFC 0008 §7). The
@@ -108,7 +77,10 @@ pub fn tokens(
             // the CSS cascade — e.g. useMediaQuery's matchMedia() (RFC 0025 §5).
             let breakpoint_tokens = tokens_from_dtcg(&parse(BREAKPOINT));
             let breakpoints_ts = emit_breakpoints_ts(&breakpoint_tokens);
-            fs.write(&path.with_file_name("breakpoints.ts"), breakpoints_ts.as_bytes())?;
+            fs.write(
+                &path.with_file_name("breakpoints.ts"),
+                breakpoints_ts.as_bytes(),
+            )?;
         }
         // No file to host a sibling: inline the base layer after the tokens so the
         // streamed foundation stays self-contained.
@@ -125,11 +97,4 @@ fn base_companion(format: Format) -> (&'static str, &'static str) {
         Format::Css | Format::Tailwind => ("primitiv-base.css", BASE_CSS),
         Format::Scss => ("primitiv-base.scss", BASE_SCSS),
     }
-}
-
-/// Parse one embedded DTCG document. The input is compiled into the binary and
-/// asserted by the `tokens` tests, so a parse failure is a build-time programmer
-/// error, not a runtime condition — hence the panic rather than a [`CliError`].
-fn parse(document: &str) -> Value {
-    serde_json::from_str(document).expect("embedded DTCG document is valid JSON")
 }

@@ -1,12 +1,10 @@
 use pretty_assertions::assert_eq;
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 
 use crate::pipeline::{
-    emit_component_tokens_css, emit_tailwind_tokens, emit_theme_overrides_css,
-    emit_dtcg_ramps, emit_theme_ramps_css, emit_theme_ramps_scss, emit_theme_ramps_tailwind,
-    emit_tokens_css,
-    emit_tokens_scss,
-    TokenSources,
+    ThemeRamps, TokenSources, emit_component_tokens_css, emit_dtcg_ramps, emit_tailwind_tokens,
+    emit_theme_overrides_css, emit_theme_ramps_css, emit_theme_ramps_scss,
+    emit_theme_ramps_tailwind, emit_tokens_css, emit_tokens_scss,
 };
 
 /// Shared, pure-data fixture: routed DTCG documents exercising every axis — a
@@ -44,6 +42,16 @@ fn documents() -> Documents {
         base: vec![primitives, interaction],
         theme: vec![palette, intent],
         density: vec![context],
+    }
+}
+
+/// Seeds at the default length with no Intent document — the shape most of these
+/// cases want, where no role is re-pointed.
+fn at_default_length<'a>(seeds: &'a [(&'a str, &'a str)]) -> ThemeRamps<'a> {
+    ThemeRamps {
+        seeds,
+        steps: 10,
+        intent: &Value::Null,
     }
 }
 
@@ -123,7 +131,8 @@ fn emits_paired_light_dark_brand_overrides_in_the_theme_layer() {
 
 #[test]
 fn emits_a_brand_palette_as_paired_theme_overrides() {
-    let css = emit_theme_ramps_css(&[("brand", "#0a7755")]).expect("valid brand");
+    let css =
+        emit_theme_ramps_css(&at_default_length(&[("brand", "#0a7755")])).expect("valid brand");
 
     assert_eq!(
         css,
@@ -136,7 +145,8 @@ fn emits_a_brand_palette_as_paired_theme_overrides() {
 
 #[test]
 fn emits_a_brand_palette_as_paired_theme_overrides_in_scss() {
-    let scss = emit_theme_ramps_scss(&[("brand", "#0a7755")]).expect("valid brand");
+    let scss =
+        emit_theme_ramps_scss(&at_default_length(&[("brand", "#0a7755")])).expect("valid brand");
 
     assert_eq!(
         scss,
@@ -149,7 +159,8 @@ fn emits_a_brand_palette_as_paired_theme_overrides_in_scss() {
 
 #[test]
 fn emits_a_brand_palette_as_paired_theme_overrides_in_tailwind() {
-    let tailwind = emit_theme_ramps_tailwind(&[("brand", "#0a7755")]).expect("valid brand");
+    let tailwind = emit_theme_ramps_tailwind(&at_default_length(&[("brand", "#0a7755")]))
+        .expect("valid brand");
 
     assert_eq!(
         tailwind,
@@ -162,10 +173,10 @@ fn emits_a_brand_palette_as_paired_theme_overrides_in_tailwind() {
 
 #[test]
 fn rejects_an_unparseable_brand_colour() {
-    assert!(emit_dtcg_ramps(&[("brand", "not-a-colour")]).is_err());
-    assert!(emit_theme_ramps_css(&[("brand", "not-a-colour")]).is_err());
-    assert!(emit_theme_ramps_scss(&[("brand", "not-a-colour")]).is_err());
-    assert!(emit_theme_ramps_tailwind(&[("brand", "not-a-colour")]).is_err());
+    assert!(emit_dtcg_ramps(&[("brand", "not-a-colour")], 10).is_err());
+    assert!(emit_theme_ramps_css(&at_default_length(&[("brand", "not-a-colour")])).is_err());
+    assert!(emit_theme_ramps_scss(&at_default_length(&[("brand", "not-a-colour")])).is_err());
+    assert!(emit_theme_ramps_tailwind(&at_default_length(&[("brand", "not-a-colour")])).is_err());
 }
 
 #[test]
@@ -189,8 +200,11 @@ fn maps_the_shared_surface_into_a_tailwind_preset_once_per_name() {
 
 #[test]
 fn emits_every_seeded_ramp_family_into_each_theme_scope() {
-    let css = emit_theme_ramps_css(&[("brand", "#0a7755"), ("danger", "#db2424")])
-        .expect("valid seeds");
+    let css = emit_theme_ramps_css(&at_default_length(&[
+        ("brand", "#0a7755"),
+        ("danger", "#db2424"),
+    ]))
+    .expect("valid seeds");
 
     // One scope per mode, each carrying both families — a role that references
     // either one re-skins from the same file.
@@ -200,7 +214,7 @@ fn emits_every_seeded_ramp_family_into_each_theme_scope() {
 
 #[test]
 fn emits_seeded_ramps_as_a_dtcg_document_in_hex() {
-    let document = emit_dtcg_ramps(&[("brand", "#0a7755")]).expect("valid seed");
+    let document = emit_dtcg_ramps(&[("brand", "#0a7755")], 10).expect("valid seed");
 
     // Mode-keyed like the committed source, and in hex, so an importer that reads
     // DTCG can consume it without knowing anything about Primitiv.
@@ -208,4 +222,78 @@ fn emits_seeded_ramps_as_a_dtcg_document_in_hex() {
     assert!(document.contains("\"$value\": \"#0a7755\""), "{document}");
     assert!(document.contains("\"dark\": {"), "{document}");
     assert!(!document.contains("oklch("), "{document}");
+}
+
+#[test]
+fn re_points_intent_roles_when_the_ramp_is_not_the_default_length() {
+    let intent = json!({
+        "light": { "action": { "primary": {
+            "default": { "$type": "color", "$value": "{color.brand.500}" },
+            "hover":   { "$type": "color", "$value": "{color.brand.600}" }
+        }}},
+        "dark": { "action": { "primary": {
+            "hover": { "$type": "color", "$value": "{color.brand.600}" }
+        }}}
+    });
+
+    let css = emit_theme_ramps_css(&ThemeRamps {
+        seeds: &[("brand", "#0a7755")],
+        steps: 7,
+        intent: &intent,
+    })
+    .expect("valid seed");
+
+    // A seven-step ramp labels 50, 100, 230, 370, 500, 700, 900 — there is no 600,
+    // and 500 and 700 are equidistant, so the tie goes to the higher step. Without
+    // this the declaration resolves to nothing and the role silently keeps whatever
+    // the base layer had.
+    assert!(
+        css.contains("--primitiv-action-primary-hover: var(--primitiv-color-brand-700)"),
+        "{css}"
+    );
+    // 500 survives every length, so `default` is not re-emitted at all.
+    assert!(!css.contains("--primitiv-action-primary-default"), "{css}");
+}
+
+#[test]
+fn emits_no_intent_block_at_the_default_length() {
+    let intent = json!({
+        "light": { "action": { "primary": {
+            "hover": { "$type": "color", "$value": "{color.brand.600}" }
+        }}}
+    });
+
+    let css = emit_theme_ramps_css(&ThemeRamps {
+        seeds: &[("brand", "#0a7755")],
+        steps: 10,
+        intent: &intent,
+    })
+    .expect("valid seed");
+
+    assert!(!css.contains("--primitiv-action-primary-hover"), "{css}");
+}
+
+#[test]
+fn exports_a_dtcg_ramp_at_the_requested_length() {
+    let document = emit_dtcg_ramps(&[("brand", "#0a7755")], 5).expect("valid seed");
+
+    // Five steps label 50, 100, 300, 500, 900 — so the document says 300 and has no
+    // 200 at all, rather than quietly exporting the default ten.
+    assert!(document.contains("\"300\""), "{document}");
+    assert!(!document.contains("\"200\""), "{document}");
+}
+
+#[test]
+fn rejects_a_step_count_outside_the_engines_supported_range() {
+    // The count is the engine's to bound, and both formats defer to it rather than
+    // clamping — a consumer who asked for 99 steps gets told, not silently given 32.
+    assert!(emit_dtcg_ramps(&[("brand", "#0a7755")], 99).is_err());
+    assert!(
+        emit_theme_ramps_css(&ThemeRamps {
+            seeds: &[("brand", "#0a7755")],
+            steps: 2,
+            intent: &Value::Null,
+        })
+        .is_err()
+    );
 }

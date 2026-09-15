@@ -12,6 +12,7 @@ pub mod run;
 pub mod seeds;
 #[cfg(test)]
 mod seeds_tests;
+pub mod token_source;
 pub mod wiring;
 
 #[cfg(test)]

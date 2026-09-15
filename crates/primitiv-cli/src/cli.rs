@@ -1,3 +1,5 @@
+use harmoni_core::api::DEFAULT_STEPS;
+
 use crate::commands::add::AddOptions;
 use crate::commands::init::InitOptions;
 use crate::error::CliError;
@@ -19,6 +21,10 @@ pub enum Command {
         seeds: Vec<(String, String)>,
         out: String,
         format: Format,
+        /// How many steps each ramp carries. The engine owns the supported range,
+        /// so an out-of-range count is rejected where generation happens rather
+        /// than second-guessed here.
+        steps: usize,
     },
     Tokens {
         out: Option<String>,
@@ -29,6 +35,7 @@ pub enum Command {
         /// order — the same seeds `theme` takes.
         seeds: Vec<(String, String)>,
         out: String,
+        steps: usize,
     },
 }
 
@@ -106,7 +113,7 @@ fn parse_add(args: &[String]) -> Result<Command, CliError> {
             "--no-wiring" => no_wiring = true,
             "--registry" => registry = Some(take_value(&mut rest, "--registry")?),
             other if other.starts_with("--") => {
-                return Err(usage(format!("unexpected argument '{other}'")))
+                return Err(usage(format!("unexpected argument '{other}'")));
             }
             other => components.push(other.to_string()),
         }
@@ -120,9 +127,7 @@ fn parse_add(args: &[String]) -> Result<Command, CliError> {
         ));
     }
     if styles_only && no_styles {
-        return Err(usage(
-            "add cannot combine --styles-only and --no-styles",
-        ));
+        return Err(usage("add cannot combine --styles-only and --no-styles"));
     }
     Ok(Command::Add(AddOptions {
         components,
@@ -212,29 +217,31 @@ fn parse_tokens(args: &[String]) -> Result<Command, CliError> {
     Ok(Command::Tokens { out, format })
 }
 
-/// Parse `theme [--<family> <colour>]... --out <path> [--format <fmt>]` — one
-/// optional seed per palette family in [`RAMP_FAMILIES`], `--out` required,
-/// `--format` optional (defaults to CSS), all order-free.
+/// Parse `theme [--<family> <colour>]... --out <path> [--format <fmt>] [--steps <n>]`
+/// — one optional seed per palette family in [`RAMP_FAMILIES`], `--out` required,
+/// `--format` (defaults to CSS) and `--steps` (defaults to the engine's ten)
+/// optional, all order-free.
 ///
 /// A seed may be **any** CSS colour, not just hex — the engine's `parse_color`
 /// accepts `oklch()`, `rgb()`, `hsl()` and named colours too, so a project that
 /// keeps its brand in OkLCH can hand it over unchanged.
 ///
-/// At least one seed is required. That will relax once the command reads the
-/// nearest `primitiv.json`'s `theme` block as its fallback — the check belongs
-/// at run time, where the config is in hand — but until then an empty seed list
-/// would write a valid, empty override file, which is worse than a usage error.
+/// No seed flag is required here: the command falls back to the nearest
+/// `primitiv.json`'s `theme` block, so whether a seed exists at all is a run-time
+/// question the parser cannot answer — `resolve_seeds` asks it with the config in
+/// hand.
 fn parse_theme(args: &[String]) -> Result<Command, CliError> {
     let seeded = parse_seeded(args, "theme", true)?;
     Ok(Command::Theme {
         seeds: seeded.seeds,
         out: seeded.out,
         format: seeded.format,
+        steps: seeded.steps,
     })
 }
 
-/// Parse `dtcg [--<family> <colour>]... --out <path>` — the same ramp seeds as
-/// `theme`, written as a DTCG document instead of a stylesheet.
+/// Parse `dtcg [--<family> <colour>]... --out <path> [--steps <n>]` — the same ramp
+/// seeds and length as `theme`, written as a DTCG document instead of a stylesheet.
 ///
 /// No `--format`: DTCG is one serialisation, so offering a choice would only
 /// invite a wrong one.
@@ -243,6 +250,7 @@ fn parse_dtcg(args: &[String]) -> Result<Command, CliError> {
     Ok(Command::Dtcg {
         seeds: seeded.seeds,
         out: seeded.out,
+        steps: seeded.steps,
     })
 }
 
@@ -251,6 +259,7 @@ struct Seeded {
     seeds: Vec<(String, String)>,
     out: String,
     format: Format,
+    steps: usize,
 }
 
 /// Parse the seed flags, `--out` and (where the command takes one) `--format`.
@@ -262,6 +271,7 @@ fn parse_seeded(args: &[String], command: &str, accepts_format: bool) -> Result<
     let mut seeds: Vec<Option<String>> = vec![None; RAMP_FAMILIES.len()];
     let mut out = None;
     let mut format = Format::Css;
+    let mut steps = DEFAULT_STEPS;
     let mut rest = args.iter();
     while let Some(flag) = rest.next() {
         match flag.as_str() {
@@ -269,6 +279,7 @@ fn parse_seeded(args: &[String], command: &str, accepts_format: bool) -> Result<
             "--format" if accepts_format => {
                 format = parse_format(&take_value(&mut rest, "--format")?)?
             }
+            "--steps" => steps = parse_steps(&take_value(&mut rest, "--steps")?)?,
             "--neutral" => return Err(neutral_unsupported(command)),
             flag => match family_index(flag) {
                 Some(index) => seeds[index] = Some(take_value(&mut rest, flag)?),
@@ -285,7 +296,19 @@ fn parse_seeded(args: &[String], command: &str, accepts_format: bool) -> Result<
         seeds,
         out: out.ok_or_else(|| usage(format!("{command} requires --out <path>")))?,
         format,
+        steps,
     })
+}
+
+/// Read a `--steps` value as a count, erroring on anything that is not a number.
+///
+/// Whether the number is *supported* is the engine's call, not this parser's —
+/// `harmoni-core` owns `MIN_STEPS`/`MAX_STEPS` and words the bound itself, so
+/// re-checking it here would be a second copy free to disagree.
+fn parse_steps(value: &str) -> Result<usize, CliError> {
+    value
+        .parse()
+        .map_err(|_| usage(format!("--steps expects a number, got '{value}'")))
 }
 
 /// Why the CLI will not take a neutral seed, worded the same way wherever one is
@@ -315,8 +338,11 @@ fn family_index(flag: &str) -> Option<usize> {
 
 /// Map a `--format` value to a [`Format`], erroring on an unrecognised one.
 fn parse_format(value: &str) -> Result<Format, CliError> {
-    Format::parse(value)
-        .ok_or_else(|| usage(format!("unknown format '{value}'; expected: css, scss, tailwind")))
+    Format::parse(value).ok_or_else(|| {
+        usage(format!(
+            "unknown format '{value}'; expected: css, scss, tailwind"
+        ))
+    })
 }
 
 /// Consume the value following a flag, erroring if the flag ends the args.

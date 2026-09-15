@@ -2,6 +2,7 @@ use std::fmt;
 use std::io;
 
 use harmoni_core::ColorInputError;
+use harmoni_core::api::GenerateError;
 
 /// The error type every command returns. It unifies the two failure sources a
 /// command touches — an invalid colour from the Harmoni-backed emitter and an
@@ -80,6 +81,20 @@ impl fmt::Display for CliError {
 impl From<ColorInputError> for CliError {
     fn from(error: ColorInputError) -> Self {
         CliError::InvalidColor(error)
+    }
+}
+
+/// A generation failure splits by whose mistake it was: a colour the consumer
+/// typed is [`CliError::InvalidColor`], while a step count or lightness curve
+/// outside what the engine supports is a [`CliError::Usage`] carrying the
+/// engine's own wording — it owns the bound, so restating it here would be a
+/// second copy free to disagree.
+impl From<GenerateError> for CliError {
+    fn from(error: GenerateError) -> Self {
+        match error {
+            GenerateError::InvalidColor(error) => CliError::InvalidColor(error),
+            other => CliError::Usage(other.to_string()),
+        }
     }
 }
 

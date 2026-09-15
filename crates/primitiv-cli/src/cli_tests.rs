@@ -1,6 +1,7 @@
+use harmoni_core::api::DEFAULT_STEPS;
 use pretty_assertions::assert_eq;
 
-use crate::cli::{parse, Command};
+use crate::cli::{Command, parse};
 use crate::commands::add::AddOptions;
 use crate::commands::init::InitOptions;
 use crate::error::CliError;
@@ -55,7 +56,10 @@ fn parses_explicit_styles_re_enabling_a_prior_no_styles() {
 
     assert!(matches!(
         command,
-        Command::Init(InitOptions { styles_enabled: Some(true), .. })
+        Command::Init(InitOptions {
+            styles_enabled: Some(true),
+            ..
+        })
     ));
 }
 
@@ -340,15 +344,17 @@ fn parses_the_theme_command_with_brand_and_out() {
             seeds: vec![("brand".to_string(), "#0a7755".to_string())],
             out: "x.css".to_string(),
             format: Format::Css,
+            steps: DEFAULT_STEPS,
         }
     );
 }
 
 #[test]
 fn parses_an_explicit_scss_format() {
-    let command =
-        parse(&args(&["theme", "--brand", "#0a7755", "--out", "x.scss", "--format", "scss"]))
-            .unwrap();
+    let command = parse(&args(&[
+        "theme", "--brand", "#0a7755", "--out", "x.scss", "--format", "scss",
+    ]))
+    .unwrap();
 
     assert_eq!(
         command,
@@ -356,15 +362,17 @@ fn parses_an_explicit_scss_format() {
             seeds: vec![("brand".to_string(), "#0a7755".to_string())],
             out: "x.scss".to_string(),
             format: Format::Scss,
+            steps: DEFAULT_STEPS,
         }
     );
 }
 
 #[test]
 fn parses_an_explicit_css_format() {
-    let command =
-        parse(&args(&["theme", "--brand", "#0a7755", "--out", "x.css", "--format", "css"]))
-            .unwrap();
+    let command = parse(&args(&[
+        "theme", "--brand", "#0a7755", "--out", "x.css", "--format", "css",
+    ]))
+    .unwrap();
 
     assert_eq!(
         command,
@@ -372,15 +380,17 @@ fn parses_an_explicit_css_format() {
             seeds: vec![("brand".to_string(), "#0a7755".to_string())],
             out: "x.css".to_string(),
             format: Format::Css,
+            steps: DEFAULT_STEPS,
         }
     );
 }
 
 #[test]
 fn parses_an_explicit_tailwind_format() {
-    let command =
-        parse(&args(&["theme", "--brand", "#0a7755", "--out", "x.css", "--format", "tailwind"]))
-            .unwrap();
+    let command = parse(&args(&[
+        "theme", "--brand", "#0a7755", "--out", "x.css", "--format", "tailwind",
+    ]))
+    .unwrap();
 
     assert_eq!(
         command,
@@ -388,6 +398,7 @@ fn parses_an_explicit_tailwind_format() {
             seeds: vec![("brand".to_string(), "#0a7755".to_string())],
             out: "x.css".to_string(),
             format: Format::Tailwind,
+            steps: DEFAULT_STEPS,
         }
     );
 }
@@ -395,8 +406,10 @@ fn parses_an_explicit_tailwind_format() {
 #[test]
 fn rejects_an_unknown_format() {
     assert!(matches!(
-        parse(&args(&["theme", "--brand", "#0a7755", "--out", "x", "--format", "toml"]))
-            .unwrap_err(),
+        parse(&args(&[
+            "theme", "--brand", "#0a7755", "--out", "x", "--format", "toml"
+        ]))
+        .unwrap_err(),
         CliError::Usage(_)
     ));
 }
@@ -416,8 +429,7 @@ fn parses_the_tokens_command_with_out() {
 
 #[test]
 fn parses_the_tokens_command_with_an_explicit_scss_format() {
-    let command =
-        parse(&args(&["tokens", "--out", "x.scss", "--format", "scss"])).unwrap();
+    let command = parse(&args(&["tokens", "--out", "x.scss", "--format", "scss"])).unwrap();
 
     assert_eq!(
         command,
@@ -471,7 +483,10 @@ fn rejects_an_unknown_command() {
 
 #[test]
 fn rejects_an_unexpected_argument_to_theme() {
-    let err = parse(&args(&["theme", "--brand", "#0a7755", "--out", "x.css", "--extra"])).unwrap_err();
+    let err = parse(&args(&[
+        "theme", "--brand", "#0a7755", "--out", "x.css", "--extra",
+    ]))
+    .unwrap_err();
 
     assert!(matches!(err, CliError::Usage(_)));
 }
@@ -512,6 +527,7 @@ fn accepts_theme_with_no_seed_flag_and_defers_to_the_config() {
             seeds: Vec::new(),
             out: "x.css".to_string(),
             format: Format::Css,
+            steps: DEFAULT_STEPS,
         }
     );
 }
@@ -565,15 +581,7 @@ fn rejects_theme_missing_out() {
 #[test]
 fn parses_a_seed_for_every_ramp_family_in_canonical_order() {
     let command = parse(&args(&[
-        "theme",
-        "--info",
-        "#008e9d",
-        "--brand",
-        "#0a7755",
-        "--danger",
-        "#db2424",
-        "--out",
-        "x.css",
+        "theme", "--info", "#008e9d", "--brand", "#0a7755", "--danger", "#db2424", "--out", "x.css",
     ]))
     .unwrap();
 
@@ -590,6 +598,7 @@ fn parses_a_seed_for_every_ramp_family_in_canonical_order() {
             ],
             out: "x.css".to_string(),
             format: Format::Css,
+            steps: DEFAULT_STEPS,
         }
     );
 }
@@ -615,6 +624,7 @@ fn parses_a_dtcg_export_with_the_same_ramp_seeds_as_theme() {
                 ("danger".to_string(), "#db2424".to_string()),
             ],
             out: "palette.json".to_string(),
+            steps: DEFAULT_STEPS,
         }
     );
 }
@@ -624,8 +634,63 @@ fn rejects_a_format_on_the_dtcg_export() {
     // DTCG is one serialisation, so `--format` is not a choice this command has —
     // and it reads as an unknown flag rather than being quietly ignored.
     assert!(matches!(
-        parse(&args(&["dtcg", "--brand", "#0a7755", "--format", "css", "--out", "x.json"]))
-            .unwrap_err(),
+        parse(&args(&[
+            "dtcg", "--brand", "#0a7755", "--format", "css", "--out", "x.json"
+        ]))
+        .unwrap_err(),
+        CliError::Usage(_)
+    ));
+}
+
+#[test]
+fn parses_an_explicit_step_count_for_a_theme_ramp() {
+    let command = parse(&args(&[
+        "theme", "--brand", "#0a7755", "--out", "x.css", "--steps", "7",
+    ]))
+    .unwrap();
+
+    assert_eq!(
+        command,
+        Command::Theme {
+            seeds: vec![("brand".to_string(), "#0a7755".to_string())],
+            out: "x.css".to_string(),
+            format: Format::Css,
+            steps: 7,
+        }
+    );
+}
+
+#[test]
+fn parses_an_explicit_step_count_for_a_dtcg_export() {
+    // The same knob on both commands: a ramp's length is a property of generating
+    // it, not of how it is serialised afterwards.
+    let command = parse(&args(&[
+        "dtcg", "--brand", "#0a7755", "--out", "x.json", "--steps", "24",
+    ]))
+    .unwrap();
+
+    assert_eq!(
+        command,
+        Command::Dtcg {
+            seeds: vec![("brand".to_string(), "#0a7755".to_string())],
+            out: "x.json".to_string(),
+            steps: 24,
+        }
+    );
+}
+
+#[test]
+fn rejects_a_step_count_that_is_not_a_number() {
+    assert!(matches!(
+        parse(&args(&["theme", "--out", "x.css", "--steps", "lots"])).unwrap_err(),
+        CliError::Usage(_)
+    ));
+}
+
+#[test]
+fn rejects_a_step_count_flag_with_no_value() {
+    assert!(matches!(
+        parse(&args(&["theme", "--out", "x.css", "--steps"])).unwrap_err(),
         CliError::Usage(_)
     ));
 }

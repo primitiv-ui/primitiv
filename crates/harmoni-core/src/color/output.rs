@@ -66,29 +66,74 @@ fn positive_hue(color: Oklch) -> f32 {
     }
 }
 
-/// Renders an OkLCH colour as a CSS `oklch(L C H)` string, with each
-/// component rounded to four decimal places.
+/// Decimal places a rendered component prefers.
+const TIDY_PLACES: f32 = 10_000.0;
+
+/// One component rounded to [`TIDY_PLACES`].
+///
+/// Safe to compute by multiplying: a hue of 360 scaled by ten thousand stays well
+/// inside the range where an `f32` represents consecutive integers (2^24), which
+/// the same trick at a million would not.
+fn tidy(value: f32) -> f32 {
+    (value * TIDY_PLACES).round() / TIDY_PLACES
+}
+
+/// Renders an OkLCH colour as a CSS `oklch(L C H)` string.
+///
+/// **Rounded to four decimal places where that reproduces the colour's own hex,
+/// and rendered exactly where it would not.** Both halves of that matter:
+///
+/// - The rendered string has to reproduce its hex, because the token source is
+///   authored in OkLCH and a consumer that cannot store it (Figma stores RGBA)
+///   receives the hex this converts back to. At four places three of the hundred
+///   shipped steps crossed an 8-bit rounding boundary and came back a unit out,
+///   which would drift code and design apart invisibly.
+///   `tests/ramp_regression.rs` gates the round trip.
+/// - Rendering *everything* exactly was the first fix and reads badly: an `f32`'s
+///   shortest exact form turns white's conversion noise into
+///   `oklch(1 0.000000059604645 90)`, which lands in a published stylesheet as
+///   `--primitiv-color-absolute-white`. Rounding further is worse again —
+///   `(value * 1e6).round() / 1e6` breaks outright at that precision, and `{:.6}`
+///   renders an honest `259.9` as `259.899994`.
+///
+/// So the tidy form wins unless it would move the colour, which is true of only
+/// three shipped steps.
 pub fn format_oklch(color: Oklch) -> String {
-    let round = |value: f32| (value * 10_000.0).round() / 10_000.0;
+    // The hue stays a plain `f32` throughout: `Oklch` normalises its hue to
+    // -180..180, so round-tripping a positive angle through it renders every blue
+    // negative again — the very thing `positive_hue` exists to prevent.
+    let (l, c, h) = (tidy(color.l), tidy(color.chroma), tidy(positive_hue(color)));
+    if oklch_to_hex(Oklch::new(l, c, h)) == oklch_to_hex(color) {
+        return format!("oklch({l} {c} {h})");
+    }
     format!(
         "oklch({} {} {})",
-        round(color.l),
-        round(color.chroma),
-        round(positive_hue(color))
+        color.l,
+        color.chroma,
+        positive_hue(color)
     )
 }
 
-/// Renders an OkLCH colour with an alpha channel as a CSS
-/// `oklch(L C H / a)` string, every component (alpha included) rounded to
-/// four decimal places. The `/ a` slash-alpha form is how alpha ramps carry
-/// their opacity into a stylesheet.
+/// Renders an OkLCH colour with an alpha channel as a CSS `oklch(L C H / a)`
+/// string, under the same round-to-tidy-unless-it-moves rule as
+/// [`format_oklch`] — with alpha part of both the rounding and the comparison,
+/// since it is an 8-bit channel in the hex too. The `/ a` slash-alpha form is how
+/// alpha ramps carry their opacity into a stylesheet.
 pub fn format_oklch_alpha(color: Oklch, alpha: f32) -> String {
-    let round = |value: f32| (value * 10_000.0).round() / 10_000.0;
+    let (l, c, h, a) = (
+        tidy(color.l),
+        tidy(color.chroma),
+        tidy(positive_hue(color)),
+        tidy(alpha),
+    );
+    if oklch_to_hex_alpha(Oklch::new(l, c, h), a) == oklch_to_hex_alpha(color, alpha) {
+        return format!("oklch({l} {c} {h} / {a})");
+    }
     format!(
         "oklch({} {} {} / {})",
-        round(color.l),
-        round(color.chroma),
-        round(positive_hue(color)),
-        round(alpha)
+        color.l,
+        color.chroma,
+        positive_hue(color),
+        alpha
     )
 }

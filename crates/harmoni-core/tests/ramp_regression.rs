@@ -21,7 +21,7 @@ use harmoni_core::api::{
     assess_ramp, generate_brand_pair, generate_brand_pair_with_options, Gamut, GenerateOptions,
     RampQuality, DEFAULT_STEPS, MAX_STEPS, MIN_STEPS,
 };
-use harmoni_core::ColorInput;
+use harmoni_core::{oklch_to_hex, ColorInput};
 
 /// Below this mean utilisation a ramp is being greyed rather than refined. The
 /// shipped ramps currently sit between 0.75 and 1.00, so the floor leaves real
@@ -253,6 +253,40 @@ fn every_shipped_ramp_holds_its_guarantees_at_every_supported_length() {
                 assert!(
                     tightest >= floor,
                     "{label}: two steps sit {tightest:.4} apart, under the {floor:.4} bar",
+                );
+            }
+        }
+    }
+}
+
+/// Every step's rendered `oklch()` must reproduce that step's own hex.
+///
+/// This is what makes the OkLCH-authored token source safe to convert back for a
+/// consumer that cannot store OkLCH — Figma stores RGBA, and its variables are
+/// written as the hex this reproduces. At four decimal places three of the
+/// hundred shipped steps came back one 8-bit unit out (`success/200` as `#9bdb97`
+/// rather than `#9bdb98`), because a value sitting near a rounding boundary
+/// crosses it. A source of truth that cannot reproduce its own hex is a silent
+/// drift generator between the two platforms, so the rendered precision has to
+/// carry the round trip.
+#[test]
+fn every_rendered_step_reproduces_its_own_hex() {
+    for (name, seed) in shipped_seeds() {
+        let pair = generate_brand_pair(ColorInput::Css(seed.clone()))
+            .unwrap_or_else(|e| panic!("{name} ({seed}) should generate: {e:?}"));
+
+        for (mode, palette) in [("light", &pair.light), ("dark", &pair.dark)] {
+            for swatch in &palette.swatches {
+                let reparsed = ColorInput::Css(swatch.oklch.clone())
+                    .to_oklch()
+                    .unwrap_or_else(|e| panic!("{} should parse: {e:?}", swatch.oklch));
+
+                assert_eq!(
+                    oklch_to_hex(reparsed).to_lowercase(),
+                    swatch.hex.to_lowercase(),
+                    "{name} {mode} {}: {} does not reproduce its own hex",
+                    swatch.label,
+                    swatch.oklch
                 );
             }
         }

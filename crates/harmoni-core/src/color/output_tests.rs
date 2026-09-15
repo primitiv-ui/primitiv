@@ -99,10 +99,22 @@ fn format_oklch_alpha_reports_hue_as_a_positive_angle() {
 }
 
 #[test]
-fn format_oklch_rounds_components_to_four_decimal_places() {
+fn format_oklch_prefers_the_tidy_four_decimal_form() {
     assert_eq!(
         format_oklch(Oklch::new(0.6279012, 0.2577891, 29.234567)),
         "oklch(0.6279 0.2578 29.2346)"
+    );
+}
+
+#[test]
+fn format_oklch_renders_exactly_when_rounding_would_move_the_colour() {
+    // `danger/300` of the shipped light ramp. Rounded it renders
+    // `oklch(0.772 0.1276 27.4579)`, which converts back to #fc9487 rather than
+    // the #fc9488 it was generated as — one 8-bit unit, and enough to drift the
+    // token layer from the hex a consumer writes into Figma.
+    assert_eq!(
+        format_oklch(Oklch::new(0.771962, 0.12764539, 27.45792)),
+        "oklch(0.771962 0.12764539 27.45792)"
     );
 }
 
@@ -115,7 +127,7 @@ fn format_oklch_alpha_appends_the_alpha_channel() {
 }
 
 #[test]
-fn format_oklch_alpha_rounds_every_component_including_alpha() {
+fn format_oklch_alpha_prefers_the_tidy_form_for_every_component() {
     assert_eq!(
         format_oklch_alpha(Oklch::new(0.6279012, 0.2577891, 29.234567), 0.123456),
         "oklch(0.6279 0.2578 29.2346 / 0.1235)"

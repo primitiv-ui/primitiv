@@ -108,7 +108,7 @@ pub fn init(
     fs.write(&path, render(&resolved).as_bytes())?;
     if resolved.styles_enabled {
         let token_dir = dir.join(&resolved.path);
-        let token_out = token_dir.join(format!("tokens.{}", token_extension(resolved.format)));
+        let token_out = token_dir.join(format!("tokens.{}", resolved.format.extension()));
         fs.create_dir_all(&token_dir)?;
         crate::commands::tokens::tokens(fs, output, Some(resolved.format), Some(&token_out))?;
     }
@@ -201,17 +201,8 @@ fn render(resolved: &ResolvedInit) -> String {
         enabled = resolved.styles_enabled,
         format = resolved.format.as_str(),
         path = resolved.path,
-        ext = token_extension(resolved.format),
+        ext = resolved.format.extension(),
         brand = resolved.brand,
         aliases = aliases,
     )
-}
-
-/// The file extension for the token layer in a given format — Tailwind emits a
-/// CSS `@theme` preset, so it shares CSS's extension.
-fn token_extension(format: Format) -> &'static str {
-    match format {
-        Format::Css | Format::Tailwind => "css",
-        Format::Scss => "scss",
-    }
 }

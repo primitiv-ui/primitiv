@@ -286,3 +286,38 @@ fn surfaces_a_write_failure() {
 
     assert!(matches!(err, CliError::Io(_)));
 }
+
+#[test]
+fn imports_the_theme_overrides_when_the_config_carries_seeds() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("primitiv.json"), CONFIG).unwrap();
+    let out = Path::new("src/styles/primitiv/tokens.css");
+
+    tokens(&fs, &InMemoryOutput::new(), Some(Format::Css), Some(out)).unwrap();
+
+    // A project that seeded its own ramps has a theme file beside the token layer,
+    // and nothing else imports it — so the token layer has to, or the seeds are
+    // written and never loaded. `tokens` owns this file's imports, which is why the
+    // line is added here rather than by whoever wrote the theme file: re-running
+    // `primitiv tokens` rewrites the whole file and would drop it.
+    let main = String::from_utf8(fs.read(out).unwrap()).unwrap();
+    assert!(main.contains("@import \"./primitiv.theme.css\";"), "{main}");
+    // Both imports lead the file — CSS requires @import before any other rule.
+    let first_rule = main.find("@layer").unwrap();
+    assert!(main.find("primitiv.theme.css").unwrap() < first_rule, "{main}");
+}
+
+#[test]
+fn does_not_import_theme_overrides_when_no_config_exists() {
+    let fs = InMemoryFs::new();
+    let out = Path::new("tokens.css");
+
+    tokens(&fs, &InMemoryOutput::new(), Some(Format::Css), Some(out)).unwrap();
+
+    // No config means no seeds, so there is no theme file to import — an import of a
+    // file that does not exist is a build error in every bundler. Checked as the
+    // import line, not the bare name: the layer-order statement names the
+    // `primitiv.theme` *layer* in every token file, seeded or not.
+    let main = String::from_utf8(fs.read(out).unwrap()).unwrap();
+    assert!(!main.contains("@import \"./primitiv.theme"), "{main}");
+}

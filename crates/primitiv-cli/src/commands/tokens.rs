@@ -5,7 +5,8 @@ use primitiv_emit::{
     emit_tokens_scss, tokens_from_dtcg,
 };
 
-use crate::config::try_resolve;
+use crate::commands::theme;
+use crate::config::{try_resolve, Config};
 use crate::error::CliError;
 use crate::format::Format;
 use crate::ports::fs::FileSystem;
@@ -32,11 +33,12 @@ pub fn tokens(
     format: Option<Format>,
     out: Option<&Path>,
 ) -> Result<(), CliError> {
-    let config = if format.is_none() || out.is_none() {
-        try_resolve(fs, &fs.current_dir()?)?
-    } else {
-        None
-    };
+    // Resolved unconditionally, not just when a flag is missing: whether the project
+    // seeded its own ramps decides what the token layer imports, so the config is
+    // always relevant to the output. This also makes "a malformed config always
+    // errors" hold for every invocation, matching `resolve_seeds` — silently
+    // ignoring a file the consumer wrote is worse than stopping.
+    let config = try_resolve(fs, &fs.current_dir()?)?;
     let format = format
         .or_else(|| config.as_ref().map(|config| config.tokens.format))
         .unwrap_or(Format::Css);
@@ -71,7 +73,7 @@ pub fn tokens(
         // import leads the file — CSS requires `@import` before any other rule.
         Some(path) => {
             fs.write(&path.with_file_name(base_name), base_styles.as_bytes())?;
-            let imported = format!("@import \"./{base_name}\";\n\n{rendered}");
+            let imported = format!("{}{rendered}", leading_imports(base_name, format, &config));
             fs.write(&path, imported.as_bytes())?;
             // A JS-consumable sibling for consumers that need a real value outside
             // the CSS cascade — e.g. useMediaQuery's matchMedia() (RFC 0025 §5).
@@ -97,4 +99,28 @@ fn base_companion(format: Format) -> (&'static str, &'static str) {
         Format::Css | Format::Tailwind => ("primitiv-base.css", BASE_CSS),
         Format::Scss => ("primitiv-base.scss", BASE_SCSS),
     }
+}
+
+/// The `@import` lines the token layer leads with, in cascade-irrelevant order —
+/// `primitiv.theme` outranks `primitiv.tokens` by layer, declared up front in the
+/// emitted layer statement, so what matters is only that both precede the first
+/// rule (CSS requires `@import` before anything else).
+///
+/// The theme line appears only for a project whose `primitiv.json` carries ramp
+/// seeds, because that is the project that has a theme file to import; importing
+/// one that does not exist is a build error in every bundler.
+fn leading_imports(base_name: &str, format: Format, config: &Option<Config>) -> String {
+    let seeded = config
+        .as_ref()
+        .is_some_and(|config| !config.theme.seeds.is_empty());
+    let theme = if seeded {
+        format!(
+            "@import \"./{}.{}\";\n",
+            theme::FILE_STEM,
+            format.extension()
+        )
+    } else {
+        String::new()
+    };
+    format!("@import \"./{base_name}\";\n{theme}\n")
 }

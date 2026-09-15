@@ -51,3 +51,7 @@ pub fn theme(
     fs.write(out, overrides.as_bytes())?;
     Ok(())
 }
+
+/// The theme overrides file's basename, without an extension — shared so whoever
+/// writes the file and whoever imports it cannot disagree on its name.
+pub const FILE_STEM: &str = "primitiv.theme";

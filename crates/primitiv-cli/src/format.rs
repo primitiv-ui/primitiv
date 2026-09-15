@@ -23,6 +23,19 @@ impl Format {
         }
     }
 
+    /// The file extension a stylesheet in this format takes — Tailwind emits a CSS
+    /// `@theme` preset, so it shares CSS's extension.
+    ///
+    /// Lives here rather than beside any one command because three of them name the
+    /// same files: `init` builds the token path, `tokens` writes the base companion
+    /// and imports the theme layer, and `theme` writes that layer.
+    pub fn extension(self) -> &'static str {
+        match self {
+            Format::Css | Format::Tailwind => "css",
+            Format::Scss => "scss",
+        }
+    }
+
     /// The lowercase name of this format — the inverse of [`parse`](Format::parse)
     /// and the value written into a `primitiv.json` `format` field.
     pub fn as_str(self) -> &'static str {

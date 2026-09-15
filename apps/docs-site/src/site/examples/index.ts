@@ -20,6 +20,7 @@ import { accordionSpec } from "./accordion";
 import { collapsibleSpec } from "./collapsible";
 import { stepperSpec } from "./stepper";
 import { carouselSpec } from "./carousel";
+import { treeSpec } from "./tree";
 import { checkboxCardSpec } from "./checkbox-card";
 import { checkboxSpec } from "./checkbox";
 import { emptyStateSpec } from "./empty-state";
@@ -83,6 +84,7 @@ export const SPECS: Record<ComponentId, ComponentSpec> = {
   collapsible: collapsibleSpec,
   stepper: stepperSpec,
   carousel: carouselSpec,
+  tree: treeSpec,
   checkbox: checkboxSpec,
   "checkbox-card": checkboxCardSpec,
   "empty-state": emptyStateSpec,

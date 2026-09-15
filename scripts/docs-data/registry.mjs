@@ -161,6 +161,28 @@ export const REGISTRY = {
        Viewport is the core visual, so it is the landing point. */
     figmaComponentSetKey: "1028:24921", importPath: "@primitiv-ui/react",
   },
+  tree: {
+    displayName: "Tree", kind: "registry", status: "stable", category: "Collections & Selection",
+    /* Dual-surface; every part is on both surfaces (accordion convention →
+       headless types). `Tree.Root`'s props are a big discriminated union
+       (expansion controlled/uncontrolled × selection single/multiple ×
+       controlled/uncontrolled) that FLATTENS in the extractor — the mutual
+       exclusivity is stated in prose on the Controlled example, like Select. */
+    propsFile: "packages/react/src/Tree/types.ts",
+    subComponents: [
+      { name: "Tree.Root", propsType: "TreeRootProps", element: "div", component: "Root" },
+      { name: "Tree.Item", propsType: "TreeItemProps", element: "div", component: "Item" },
+      { name: "Tree.Branch", propsType: "TreeBranchProps", element: "div", component: "Branch" },
+      { name: "Tree.BranchControl", propsType: "TreeBranchControlProps", element: "div", component: "BranchControl" },
+      { name: "Tree.BranchContent", propsType: "TreeBranchContentProps", element: "div", component: "BranchContent" },
+      { name: "Tree.BranchIndicator", propsType: "TreeBranchIndicatorProps", element: "span", component: "BranchIndicator" },
+      { name: "Tree.SelectionPath", propsType: "TreeSelectionPathProps", element: "div", component: "SelectionPath" },
+    ],
+    contract: "registry/components/tree/contract.json",
+    /* The composed `Tree` specimen (its part sets — Item, Branch Control,
+       Connector, Selection Path — are the per-part landing points). */
+    figmaComponentSetKey: "1733:1790", importPath: "@primitiv-ui/react",
+  },
   pagination: {
     displayName: "Pagination", kind: "registry-only", status: "stable", category: "Disclosure",
     /* Hand-authored compound (composes button + dropdown, uses usePagination) —

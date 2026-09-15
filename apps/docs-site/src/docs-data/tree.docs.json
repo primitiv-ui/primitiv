@@ -1,0 +1,628 @@
+{
+  "id": "tree",
+  "displayName": "Tree",
+  "kind": "registry",
+  "status": "stable",
+  "category": "Collections & Selection",
+  "description": "A hierarchical list of expandable branches and selectable leaves — the WAI-ARIA tree view, with connector guide lines and an optional breadcrumb of the selected node's ancestry.",
+  "headless": {
+    "package": "@primitiv-ui/react",
+    "importPath": "@primitiv-ui/react",
+    "subComponents": [
+      {
+        "name": "Tree.Root",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": true,
+            "default": null,
+            "description": ""
+          },
+          {
+            "name": "defaultExpandedValues",
+            "type": "string[]",
+            "required": false,
+            "default": null,
+            "description": "Branch values expanded on first render when uncontrolled. Omit for a\nfully-collapsed tree."
+          },
+          {
+            "name": "defaultSelectedValue",
+            "type": "string | null",
+            "required": false,
+            "default": null,
+            "description": "The value selected on first render when uncontrolled. `null` selects\nnothing."
+          },
+          {
+            "name": "defaultSelectedValues",
+            "type": "string[]",
+            "required": false,
+            "default": null,
+            "description": "The values selected on first render when uncontrolled."
+          },
+          {
+            "name": "expandedValues",
+            "type": "string[]",
+            "required": false,
+            "default": null,
+            "description": "The set of expanded branch values, owned by the consumer. Keep in\nsync via `onExpandedChange`."
+          },
+          {
+            "name": "onExpandedChange",
+            "type": "(values: string[]) => void",
+            "required": false,
+            "default": null,
+            "description": "Called with the full set of expanded branch values whenever a branch\nis toggled. Optional in uncontrolled mode.\nCalled with the full set of expanded branch values the user requested\non each toggle. Required in controlled mode."
+          },
+          {
+            "name": "onSelectedValueChange",
+            "type": "(value: string | null) => void",
+            "required": false,
+            "default": null,
+            "description": "Called with the newly-selected value (or `null` when cleared) on each\nuser selection. Optional in uncontrolled mode.\nCalled with the value the user requested to select (or `null` when\ncleared). Required in controlled mode."
+          },
+          {
+            "name": "onSelectedValuesChange",
+            "type": "(values: string[]) => void",
+            "required": false,
+            "default": null,
+            "description": "Called with the full selected set (in selection order) on each\nchange. Optional in uncontrolled mode.\nCalled with the full selected set (in selection order) the user\nrequested. Required in controlled mode."
+          },
+          {
+            "name": "selectedValue",
+            "type": "string | null",
+            "required": false,
+            "default": null,
+            "description": "The selected value, owned by the consumer (or `null` for no\nselection). Keep it in sync via `onSelectedValueChange`."
+          },
+          {
+            "name": "selectedValues",
+            "type": "string[]",
+            "required": false,
+            "default": null,
+            "description": "The selected values, owned by the consumer. Keep in sync via\n`onSelectedValuesChange`."
+          },
+          {
+            "name": "selectionMode",
+            "type": "\"single\" | \"multiple\"",
+            "required": false,
+            "default": "\"single\"",
+            "description": "At most one node may be selected; see {@link SelectionMode}.\nMany nodes may be selected via `Ctrl`/`Cmd`+click and `Shift`+click\nranges; see {@link SelectionMode}."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [
+          {
+            "name": "size",
+            "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
+            "default": "md",
+            "description": "Row size for the whole tree; `data-density` scales each size further."
+          },
+          {
+            "name": "connectors",
+            "type": "\"lines\" | \"none\"",
+            "default": "lines",
+            "description": "Whether nested rows are joined to their parent by hairline guide lines."
+          }
+        ],
+        "dataAttributes": [
+          {
+            "name": "data-selection-mode",
+            "value": "single",
+            "when": "selectionMode is single"
+          },
+          {
+            "name": "data-selection-mode",
+            "value": "multiple",
+            "when": "selectionMode is multiple"
+          }
+        ],
+        "class": "primitiv-tree"
+      },
+      {
+        "name": "Tree.Item",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": true,
+            "default": null,
+            "description": ""
+          },
+          {
+            "name": "value",
+            "type": "string",
+            "required": true,
+            "default": null,
+            "description": "Stable identifier for this item, unique within the tree. Links the\nitem to selection / expansion state and to its\n{@link TreePathSegment} in a resolved path."
+          },
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Render the item as the supplied child element instead of `<div>`,\nmerging the treeitem behaviour onto it via the {@link Slot } pattern.\nThe child must accept a `ref`."
+          },
+          {
+            "name": "disabled",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Disable selection and remove the item from roving navigation\n(`Home`/`End` still skip past it to a non-disabled neighbour)."
+          },
+          {
+            "name": "label",
+            "type": "string",
+            "required": false,
+            "default": null,
+            "description": "Optional display label for this item. Stored alongside the value\nin the tree's node registry so {@link useTreePath } and\n`Tree.SelectionPath` can surface it without an external lookup.\nHas no effect on what `Tree.Item` renders."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [
+          {
+            "name": "data-leaf",
+            "value": "",
+            "when": "always"
+          },
+          {
+            "name": "data-depth",
+            "value": "{n}",
+            "when": "always"
+          },
+          {
+            "name": "data-selected",
+            "value": "",
+            "when": "selected"
+          },
+          {
+            "name": "data-disabled",
+            "value": "",
+            "when": "disabled"
+          }
+        ],
+        "class": "primitiv-tree__item"
+      },
+      {
+        "name": "Tree.Branch",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": true,
+            "default": null,
+            "description": ""
+          },
+          {
+            "name": "value",
+            "type": "string",
+            "required": true,
+            "default": null,
+            "description": "Stable identifier for this branch, unique within the tree. Also seeds\nthe `parentValue` of its {@link TreeBranchContent }'s children and the\nderived `aria-labelledby` control id."
+          },
+          {
+            "name": "disabled",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Disable selection, expansion-toggling, and roving navigation for\nthis branch. The branch and its current content remain rendered."
+          },
+          {
+            "name": "label",
+            "type": "string",
+            "required": false,
+            "default": null,
+            "description": "Optional display label for this branch. Stored alongside the value\nin the tree's node registry so {@link useTreePath } and\n`Tree.SelectionPath` can surface it without an external lookup.\nHas no effect on what `Tree.Branch` renders."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [
+          {
+            "name": "data-branch",
+            "value": "",
+            "when": "always"
+          },
+          {
+            "name": "data-depth",
+            "value": "{n}",
+            "when": "always"
+          },
+          {
+            "name": "data-state",
+            "value": "open",
+            "when": "expanded"
+          },
+          {
+            "name": "data-state",
+            "value": "closed",
+            "when": "collapsed"
+          },
+          {
+            "name": "data-selected",
+            "value": "",
+            "when": "selected"
+          },
+          {
+            "name": "data-disabled",
+            "value": "",
+            "when": "disabled"
+          }
+        ],
+        "class": "primitiv-tree__branch"
+      },
+      {
+        "name": "Tree.BranchControl",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": true,
+            "default": null,
+            "description": ""
+          },
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Render the control as the supplied child element instead of `<div>`,\nmerging its props (including the `aria-labelledby` id) onto the child\nvia the {@link Slot } pattern. The child must accept a `ref`."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-tree__branch-control"
+      },
+      {
+        "name": "Tree.BranchContent",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": true,
+            "default": null,
+            "description": ""
+          },
+          {
+            "name": "forceMount",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Keep the content mounted while the branch is collapsed so CSS can\nanimate it in and out. When collapsed it is hidden from assistive\ntechnology with `aria-hidden` and carries `data-state=\"closed\"`."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [
+          {
+            "name": "data-depth",
+            "value": "{n}",
+            "when": "always"
+          },
+          {
+            "name": "data-state",
+            "value": "open",
+            "when": "expanded"
+          },
+          {
+            "name": "data-state",
+            "value": "closed",
+            "when": "collapsed"
+          }
+        ],
+        "class": "primitiv-tree__branch-content"
+      },
+      {
+        "name": "Tree.BranchIndicator",
+        "extends": "HTMLSpanElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Render as the supplied child element instead of `<span>`, merging\n`aria-hidden` and `data-state` onto it via the {@link Slot } pattern\n(e.g. an icon that rotates on `data-state=\"open\"`)."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [
+          {
+            "name": "data-state",
+            "value": "open",
+            "when": "expanded"
+          },
+          {
+            "name": "data-state",
+            "value": "closed",
+            "when": "collapsed"
+          }
+        ],
+        "class": "primitiv-tree__branch-indicator"
+      },
+      {
+        "name": "Tree.SelectionPath",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "children",
+            "type": "ReactNode | ((args: TreeSelectionPathRenderProps) => ReactNode)",
+            "required": false,
+            "default": null,
+            "description": "Either standard React children (ignored — the subcomponent does its\nown rendering) or a render-prop receiving the resolved selection\npaths so consumers can lay out custom markup."
+          },
+          {
+            "name": "separator",
+            "type": "ReactNode",
+            "required": false,
+            "default": null,
+            "description": "Node passed to each `Breadcrumb.Separator` in the default rendering.\nDefaults to Breadcrumb's built-in `\"/\"` glyph."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [
+          {
+            "name": "data-tree-selection-segment",
+            "value": "",
+            "when": "always, on each crumb of the path — how the row is found without depending on Breadcrumb's classes"
+          },
+          {
+            "name": "data-value",
+            "value": "<node value>",
+            "when": "the node that crumb points at"
+          },
+          {
+            "name": "data-tree-selection-path",
+            "value": "",
+            "when": "always"
+          },
+          {
+            "name": "data-empty",
+            "value": "",
+            "when": "nothing is selected"
+          }
+        ],
+        "class": "primitiv-tree__selection-path"
+      }
+    ]
+  },
+  "styled": {
+    "installCommand": "primitiv add tree",
+    "rootClass": "primitiv-tree",
+    "customProperties": [
+      {
+        "name": "--primitiv-tree-indent",
+        "defaultsTo": "var(--primitiv-tree-md-indent)"
+      },
+      {
+        "name": "--primitiv-tree-item-height",
+        "defaultsTo": "var(--primitiv-tree-md-item-height)"
+      },
+      {
+        "name": "--primitiv-tree-item-padding-inline",
+        "defaultsTo": "var(--primitiv-tree-md-item-padding-inline)"
+      },
+      {
+        "name": "--primitiv-tree-item-gap",
+        "defaultsTo": "var(--primitiv-tree-md-item-gap)"
+      },
+      {
+        "name": "--primitiv-tree-item-radius",
+        "defaultsTo": "var(--primitiv-tree-md-item-radius)"
+      },
+      {
+        "name": "--primitiv-tree-item-icon-size",
+        "defaultsTo": "var(--primitiv-tree-md-item-icon-size)"
+      },
+      {
+        "name": "--primitiv-tree-item-font-family",
+        "defaultsTo": "var(--primitiv-body-sm-font-family)"
+      },
+      {
+        "name": "--primitiv-tree-item-font-size",
+        "defaultsTo": "var(--primitiv-body-sm-font-size)"
+      },
+      {
+        "name": "--primitiv-tree-item-font-weight",
+        "defaultsTo": "var(--primitiv-body-sm-font-weight)"
+      },
+      {
+        "name": "--primitiv-tree-item-line-height",
+        "defaultsTo": "var(--primitiv-body-sm-line-height)"
+      },
+      {
+        "name": "--primitiv-tree-item-color",
+        "defaultsTo": "var(--primitiv-content-primary)"
+      },
+      {
+        "name": "--primitiv-tree-item-bg",
+        "defaultsTo": "var(--primitiv-color-transparent)"
+      },
+      {
+        "name": "--primitiv-tree-item-bg-hover",
+        "defaultsTo": "var(--primitiv-tree-row-hover)"
+      },
+      {
+        "name": "--primitiv-tree-item-bg-selected",
+        "defaultsTo": "var(--primitiv-tree-row-selected)"
+      },
+      {
+        "name": "--primitiv-tree-focus-ring-radius",
+        "defaultsTo": "var(--primitiv-tree-md-item-focus-ring-radius)"
+      },
+      {
+        "name": "--primitiv-tree-indicator-rotation",
+        "defaultsTo": "0deg"
+      },
+      {
+        "name": "--primitiv-tree-connector-color",
+        "defaultsTo": "var(--primitiv-border-subtle)"
+      },
+      {
+        "name": "--primitiv-tree-connector-thickness",
+        "defaultsTo": "var(--primitiv-border-width-1)"
+      },
+      {
+        "name": "--primitiv-tree-connector-elbow-height",
+        "defaultsTo": "var(--primitiv-tree-md-connector-elbow-height)"
+      },
+      {
+        "name": "--primitiv-tree-connector-stub-width",
+        "defaultsTo": "var(--primitiv-tree-md-connector-stub-width)"
+      },
+      {
+        "name": "--primitiv-tree-connector-stub-width-leaf",
+        "defaultsTo": "var(--primitiv-tree-md-connector-stub-width-leaf)"
+      },
+      {
+        "name": "--primitiv-tree-connector-rail-offset",
+        "defaultsTo": "calc(var(--primitiv-tree-item-padding-inline) + var(--primitiv-tree-item-icon-size) / 2)"
+      },
+      {
+        "name": "--primitiv-tree-transition-duration",
+        "defaultsTo": "var(--primitiv-motion-duration-control)"
+      },
+      {
+        "name": "--primitiv-tree-transition-easing",
+        "defaultsTo": "var(--primitiv-motion-easing-default)"
+      },
+      {
+        "name": "--primitiv-tree-selection-path-gap",
+        "defaultsTo": "var(--primitiv-space-space-4)"
+      },
+      {
+        "name": "--primitiv-tree-selection-path-current-font-weight",
+        "defaultsTo": "var(--primitiv-font-weight-semibold)"
+      },
+      {
+        "name": "--primitiv-tree-label-ink-slack",
+        "defaultsTo": "var(--primitiv-space-space-1)"
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-selection-mode",
+        "value": "single",
+        "when": "selectionMode is single"
+      },
+      {
+        "name": "data-selection-mode",
+        "value": "multiple",
+        "when": "selectionMode is multiple"
+      },
+      {
+        "name": "data-leaf",
+        "value": "",
+        "when": "always"
+      },
+      {
+        "name": "data-depth",
+        "value": "{n}",
+        "when": "always"
+      },
+      {
+        "name": "data-selected",
+        "value": "",
+        "when": "selected"
+      },
+      {
+        "name": "data-disabled",
+        "value": "",
+        "when": "disabled"
+      },
+      {
+        "name": "data-branch",
+        "value": "",
+        "when": "always"
+      },
+      {
+        "name": "data-depth",
+        "value": "{n}",
+        "when": "always"
+      },
+      {
+        "name": "data-state",
+        "value": "open",
+        "when": "expanded"
+      },
+      {
+        "name": "data-state",
+        "value": "closed",
+        "when": "collapsed"
+      },
+      {
+        "name": "data-selected",
+        "value": "",
+        "when": "selected"
+      },
+      {
+        "name": "data-disabled",
+        "value": "",
+        "when": "disabled"
+      },
+      {
+        "name": "data-depth",
+        "value": "{n}",
+        "when": "always"
+      },
+      {
+        "name": "data-state",
+        "value": "open",
+        "when": "expanded"
+      },
+      {
+        "name": "data-state",
+        "value": "closed",
+        "when": "collapsed"
+      },
+      {
+        "name": "data-state",
+        "value": "open",
+        "when": "expanded"
+      },
+      {
+        "name": "data-state",
+        "value": "closed",
+        "when": "collapsed"
+      },
+      {
+        "name": "data-tree-selection-segment",
+        "value": "",
+        "when": "always, on each crumb of the path — how the row is found without depending on Breadcrumb's classes"
+      },
+      {
+        "name": "data-value",
+        "value": "<node value>",
+        "when": "the node that crumb points at"
+      },
+      {
+        "name": "data-tree-selection-path",
+        "value": "",
+        "when": "always"
+      },
+      {
+        "name": "data-empty",
+        "value": "",
+        "when": "nothing is selected"
+      }
+    ]
+  },
+  "figma": {
+    "componentSetKey": "1733:1790"
+  }
+}

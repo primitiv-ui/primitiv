@@ -319,8 +319,13 @@ export function useCarouselViewport() {
 
   // Read prefers-reduced-motion once on mount; choose scrollTo
   // behavior accordingly so we don't fight the OS-level setting.
+  // `useMemo` runs during render, so this must be SSR-safe: on the server
+  // there is no `window`, and reading it unguarded threw. Default to "smooth"
+  // there — the first client scroll re-reads it anyway (nothing scrolls on the
+  // server), so the resolved behaviour is never actually server-rendered.
   const scrollBehavior = useMemo<ScrollBehavior>(
     () =>
+      typeof window !== "undefined" &&
       window.matchMedia?.("(prefers-reduced-motion: reduce)").matches
         ? "instant"
         : "smooth",

@@ -46,12 +46,25 @@ import "./tokens-figure.css";
  *   does not say. The density figures measure px for the opposite reason: their
  *   claim is about the control's size, not about a token.
  * - **The OkLCH string: from the engine**, via `palette-sheet.generated.json`,
- *   which the Rust `swatch-sheet` example writes. OkLCH is not in the token
- *   layer, and converting the hex in the browser would be the frontend
- *   computing a colour value — a second opinion about the exact thing this
- *   figure asserts. Adding it there surfaced a real bug: `SwatchStep.h` is the
- *   renderer's -180..180 form, so brand 500 came out as `-100.12` where the
- *   settled design says `259.8783`. Normalised in the engine, not here.
+ *   which the Rust `swatch-sheet` example writes. Converting the hex in the
+ *   browser would be the frontend computing a colour value — a second opinion
+ *   about the exact thing this figure asserts. Adding it there surfaced a real
+ *   bug: `SwatchStep.h` is the renderer's -180..180 form, so brand 500 came out
+ *   as `-100.12` where the settled design says `259.8783`. Normalised in the
+ *   engine, not here.
+ *
+ *   **The original reason was "OkLCH is not in the token layer", and that is no
+ *   longer true** — since 2026-09-15 the emitter renders every DTCG colour leaf
+ *   as `oklch(...)`, so `--primitiv-color-brand-500` now literally holds this
+ *   string. Reading it from there instead looked strictly better, and was tried.
+ *   **It does not work, and only a render shows why: a colour custom property
+ *   does not round-trip through `getComputedStyle`.** Chromium resolves it and
+ *   serialises it in another space, so the hook returns
+ *   `lab(46.564% 12.2373 -67.1156)` — a colour space this figure does not
+ *   document, with none of the numbers the design record states. The swatches
+ *   are unaffected because they never leave CSS; it is specifically reading a
+ *   colour token back **as text** that the platform will not do. So the engine
+ *   stays the source, now for a sharper reason than the one first written here.
  */
 const STEPS = ["50", "100", "200", "300", "400", "500", "600", "700", "800", "900"] as const;
 

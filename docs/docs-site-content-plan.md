@@ -3290,3 +3290,47 @@ FIGMA-P01's `<picture>` still selects `figma-p01-mobile-*` at 390 and
   more inside displayed code strings, which are content and must stay); 38 of
   the 45 convert to the registry `Stack`, a token value, or a named `--docs-*`
   constant. Waiting on the examples build finishing, to avoid collision.
+
+### 6.0.32 A colour token cannot be read back as text (2026-09-15)
+
+The emitter began rendering every DTCG colour leaf as `oklch(...)` rather than
+hex (a separate workstream, landed today), which invalidated the stated reason
+for one of TOKENS-01's three live values. §6.0.31 recorded:
+
+> **The OkLCH string comes from the engine.** OkLCH is not in the token layer,
+> and converting the hex in the browser would be the frontend computing a
+> colour value.
+
+The first clause is now false — `--primitiv-color-brand-500` *literally holds*
+`oklch(0.5557 0.1923 259.8783)`, the exact string the figure prints. Reading it
+from the token layer instead looked strictly better on every axis the figure
+itself argues: one source, follows the theme, no dependency on generated engine
+data, and closer to the standing "only use Primitiv tokens via CSS variables"
+rule. So it was changed.
+
+**It does not work, and only a render showed why.** A colour custom property
+does **not** round-trip through `getComputedStyle`: Chromium resolves it and
+serialises it in another space, so the hook came back with
+`lab(46.564% 12.2373 -67.1156)`. The figure would have printed a colour space
+it does not document, with none of the numbers the design record states —
+under a caption asserting that this tier is where the real value lives. It
+typechecked, the token gate passed, and the value was plausibly colour-shaped.
+
+Reverted. The engine stays the source, now for a sharper reason than the one
+first written: it is not that the token layer lacks the value, it is that the
+platform will not hand a colour token back **as text**. Recorded in
+`useTokenValues`' own docstring as a hard "do not point this at a colour
+token", because the hook is the thing a future session would reach for.
+
+Two things worth keeping from it:
+
+- **The swatches were never at risk**, and that asymmetry is the lesson. They
+  resolve `--primitiv-color-brand-<step>` in CSS and never pass through
+  JavaScript, so the serialisation is irrelevant to them — the same token is
+  reliable as *paint* and unusable as *prose*. §6.0.31's "three live values,
+  three different sources" split turns out to be forced by the platform, not
+  merely tidy.
+- **A stale premise can survive a correct conclusion.** The engine path was
+  right all along; the sentence explaining it had gone wrong underneath. Worth
+  re-reading the *reasons* in a figure's JSDoc when an upstream change touches
+  its subject, not just checking that it still renders.

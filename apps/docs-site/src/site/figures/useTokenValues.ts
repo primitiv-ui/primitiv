@@ -17,6 +17,15 @@ import { useEffect, useRef, useState } from "react";
  * `framed-control/md/height` demonstrates it and cannot drift when the token
  * moves. Returns `null` until the effect has run — the static export has no
  * cascade, so there is no honest value to prerender.
+ *
+ * **Do not point this at a COLOUR token.** A length or a number comes back as
+ * authored, but a colour does not round-trip: Chromium resolves it and
+ * serialises it in another space, so a token holding
+ * `oklch(0.5557 0.1923 259.8783)` reads back as
+ * `lab(46.564% 12.2373 -67.1156)`. TOKENS-01 tried exactly this once the
+ * emitter began writing colours as OkLCH; its JSDoc records the finding. A
+ * colour belongs in CSS, where it never passes through JavaScript at all — and
+ * where a figure needs one as *text*, it comes from the engine.
  */
 export const useTokenValues = <T extends HTMLElement>(tokens: readonly string[]) => {
   const ref = useRef<T>(null);

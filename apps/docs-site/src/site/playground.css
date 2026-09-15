@@ -260,6 +260,27 @@
   min-inline-size: auto;
 }
 
+/*
+ * Carousel indicator dots opt out too, and unlike the controls above they need
+ * their EXPLICIT hit area restored rather than `auto`. The visible dot is an
+ * absolutely-positioned `::before`, so the button itself has no content and
+ * `min-inline-size: auto` (min-content) resolves to 0 — collapsing the 24px WCAG
+ * hit area. In a space-constrained cluster (the joined `__controls` bar, the
+ * overlay pill) the dot buttons then shrink to ~12px while the active `::before`
+ * pill stays 24px, so it overflows its button and overlaps the next dot.
+ * `revert-layer` drops this unlayered release and restores the registry's own
+ * layered hit-area (`@layer primitiv.base`) — no token reference, which the
+ * phantom-token check would reject for a component-scoped custom property.
+ */
+.docs-example-row .primitiv-carousel__indicator,
+.docs-example-row .primitiv-carousel__indicator-group > button,
+.docs-example-stack .primitiv-carousel__indicator,
+.docs-example-stack .primitiv-carousel__indicator-group > button,
+.docs-playground-preview .primitiv-carousel__indicator,
+.docs-playground-preview .primitiv-carousel__indicator-group > button {
+  min-inline-size: revert-layer;
+}
+
 .docs-playground-preview .primitiv-tabs__list::-webkit-scrollbar,
 .docs-playground-preview .primitiv-segmented-control::-webkit-scrollbar,
 .docs-playground-preview .primitiv-toggle-group::-webkit-scrollbar,

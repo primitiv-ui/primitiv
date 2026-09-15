@@ -38,6 +38,7 @@ const EL_IFACE = {
   ol: "HTMLOListElement",
   li: "HTMLLIElement", label: "HTMLLabelElement", select: "HTMLSelectElement",
   textarea: "HTMLTextAreaElement", p: "HTMLParagraphElement", nav: "HTMLElement",
+  section: "HTMLElement",
   dialog: "HTMLDialogElement", h2: "HTMLHeadingElement", h3: "HTMLHeadingElement",
   // Prose / typography elements. `blockquote` and `dl` have their own
   // interfaces; `kbd`, `code`, `dt`, `dd`, `figure`, `figcaption` are plain

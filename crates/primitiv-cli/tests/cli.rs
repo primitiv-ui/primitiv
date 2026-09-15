@@ -26,6 +26,42 @@ fn writes_the_brand_theme_and_exits_zero() {
 }
 
 #[test]
+fn writes_a_dtcg_export_of_every_seeded_ramp_and_exits_zero() {
+    let dir = assert_fs::TempDir::new().unwrap();
+    let out = dir.child("palette.json");
+
+    Command::cargo_bin("primitiv")
+        .unwrap()
+        .args([
+            "dtcg", "--brand", "#0a7755", "--danger", "#db2424", "--out",
+        ])
+        .arg(out.path())
+        .assert()
+        .success();
+
+    // Mode keyed, both families, step 500 pinned to the seed, and hex rather than
+    // oklch — the form a DTCG importer reads.
+    out.assert(predicate::str::contains("\"light\": {"));
+    out.assert(predicate::str::contains("\"dark\": {"));
+    out.assert(predicate::str::contains("\"danger\": {"));
+    out.assert(predicate::str::contains("\"$value\": \"#0a7755\""));
+    out.assert(predicate::str::contains("oklch(").not());
+}
+
+#[test]
+fn refuses_a_dtcg_export_with_no_ramp_seeded() {
+    let dir = assert_fs::TempDir::new().unwrap();
+
+    Command::cargo_bin("primitiv")
+        .unwrap()
+        .args(["dtcg", "--out"])
+        .arg(dir.child("palette.json").path())
+        .assert()
+        .failure()
+        .stderr(predicate::str::contains("at least one ramp seed"));
+}
+
+#[test]
 fn init_writes_a_primitiv_json_into_the_working_directory() {
     let dir = assert_fs::TempDir::new().unwrap();
     dir.child("package.json").write_str("{}").unwrap();

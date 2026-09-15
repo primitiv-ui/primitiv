@@ -4,6 +4,7 @@ use crate::cli::{Command, parse};
 use crate::commands::add::add;
 use crate::commands::init::init;
 use crate::commands::list::list;
+use crate::commands::dtcg::dtcg;
 use crate::commands::theme::theme;
 use crate::commands::tokens::tokens;
 use crate::error::CliError;
@@ -34,6 +35,7 @@ pub fn run(
         Command::Add(options) => add(fs, registry, output, runner, prompt, interactive, &options),
         Command::List { json } => list(fs, registry, output, json),
         Command::Theme { seeds, out, format } => theme(fs, &seeds, Path::new(&out), format),
+        Command::Dtcg { seeds, out } => dtcg(fs, &seeds, Path::new(&out)),
         Command::Tokens { out, format } => {
             tokens(fs, output, format, out.as_deref().map(Path::new))
         }

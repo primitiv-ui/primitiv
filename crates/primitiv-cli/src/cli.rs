@@ -24,6 +24,12 @@ pub enum Command {
         out: Option<String>,
         format: Option<Format>,
     },
+    Dtcg {
+        /// The ramp seeds to export, as `(family, colour)` in [`RAMP_FAMILIES`]
+        /// order — the same seeds `theme` takes.
+        seeds: Vec<(String, String)>,
+        out: String,
+    },
 }
 
 /// The palette families a `theme` seed can re-skin, in the order they are
@@ -45,15 +51,16 @@ pub const RAMP_FAMILIES: &[&str] = &["brand", "danger", "warning", "success", "i
 pub fn parse(args: &[String]) -> Result<Command, CliError> {
     let (name, rest) = args
         .split_first()
-        .ok_or_else(|| usage("no command given; expected: init, add, list, theme, tokens"))?;
+        .ok_or_else(|| usage("no command given; expected: init, add, list, theme, tokens, dtcg"))?;
     match name.as_str() {
         "init" => parse_init(rest),
         "add" => parse_add(rest),
         "list" => parse_list(rest),
         "theme" => parse_theme(rest),
         "tokens" => parse_tokens(rest),
+        "dtcg" => parse_dtcg(rest),
         other => Err(usage(format!(
-            "unknown command '{other}'; expected: init, add, list, theme, tokens"
+            "unknown command '{other}'; expected: init, add, list, theme, tokens, dtcg"
         ))),
     }
 }
@@ -218,6 +225,40 @@ fn parse_tokens(args: &[String]) -> Result<Command, CliError> {
 /// at run time, where the config is in hand — but until then an empty seed list
 /// would write a valid, empty override file, which is worse than a usage error.
 fn parse_theme(args: &[String]) -> Result<Command, CliError> {
+    let seeded = parse_seeded(args, "theme", true)?;
+    Ok(Command::Theme {
+        seeds: seeded.seeds,
+        out: seeded.out,
+        format: seeded.format,
+    })
+}
+
+/// Parse `dtcg [--<family> <colour>]... --out <path>` — the same ramp seeds as
+/// `theme`, written as a DTCG document instead of a stylesheet.
+///
+/// No `--format`: DTCG is one serialisation, so offering a choice would only
+/// invite a wrong one.
+fn parse_dtcg(args: &[String]) -> Result<Command, CliError> {
+    let seeded = parse_seeded(args, "dtcg", false)?;
+    Ok(Command::Dtcg {
+        seeds: seeded.seeds,
+        out: seeded.out,
+    })
+}
+
+/// The ramp seeds and destination shared by `theme` and `dtcg`.
+struct Seeded {
+    seeds: Vec<(String, String)>,
+    out: String,
+    format: Format,
+}
+
+/// Parse the seed flags, `--out` and (where the command takes one) `--format`.
+///
+/// Shared so the two commands cannot drift apart on which families they accept or
+/// on what they say about the neutral ramp — the seeds are the same question, only
+/// the serialisation differs.
+fn parse_seeded(args: &[String], command: &str, accepts_format: bool) -> Result<Seeded, CliError> {
     let mut seeds: Vec<Option<String>> = vec![None; RAMP_FAMILIES.len()];
     let mut out = None;
     let mut format = Format::Css;
@@ -225,13 +266,15 @@ fn parse_theme(args: &[String]) -> Result<Command, CliError> {
     while let Some(flag) = rest.next() {
         match flag.as_str() {
             "--out" => out = Some(take_value(&mut rest, "--out")?),
-            "--format" => format = parse_format(&take_value(&mut rest, "--format")?)?,
+            "--format" if accepts_format => {
+                format = parse_format(&take_value(&mut rest, "--format")?)?
+            }
             "--neutral" => {
-                return Err(usage(
-                    "theme cannot seed the neutral ramp: it is generated from soft-neutral \
+                return Err(usage(format!(
+                    "{command} cannot seed the neutral ramp: it is generated from soft-neutral \
                      anchors and a hue-tint rule rather than a single colour, which the CLI \
-                     does not surface yet",
-                ))
+                     does not surface yet"
+                )))
             }
             flag => match family_index(flag) {
                 Some(index) => seeds[index] = Some(take_value(&mut rest, flag)?),
@@ -246,7 +289,7 @@ fn parse_theme(args: &[String]) -> Result<Command, CliError> {
         .collect();
     if seeds.is_empty() {
         return Err(usage(format!(
-            "theme requires at least one ramp seed: {}",
+            "{command} requires at least one ramp seed: {}",
             RAMP_FAMILIES
                 .iter()
                 .map(|family| format!("--{family} <colour>"))
@@ -254,9 +297,9 @@ fn parse_theme(args: &[String]) -> Result<Command, CliError> {
                 .join(", ")
         )));
     }
-    Ok(Command::Theme {
+    Ok(Seeded {
         seeds,
-        out: out.ok_or_else(|| usage("theme requires --out <path>"))?,
+        out: out.ok_or_else(|| usage(format!("{command} requires --out <path>")))?,
         format,
     })
 }

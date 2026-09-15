@@ -585,3 +585,39 @@ fn parses_a_seed_for_every_ramp_family_in_canonical_order() {
         }
     );
 }
+
+#[test]
+fn parses_a_dtcg_export_with_the_same_ramp_seeds_as_theme() {
+    let command = parse(&args(&[
+        "dtcg",
+        "--brand",
+        "#0a7755",
+        "--danger",
+        "#db2424",
+        "--out",
+        "palette.json",
+    ]))
+    .unwrap();
+
+    assert_eq!(
+        command,
+        Command::Dtcg {
+            seeds: vec![
+                ("brand".to_string(), "#0a7755".to_string()),
+                ("danger".to_string(), "#db2424".to_string()),
+            ],
+            out: "palette.json".to_string(),
+        }
+    );
+}
+
+#[test]
+fn rejects_a_format_on_the_dtcg_export() {
+    // DTCG is one serialisation, so `--format` is not a choice this command has —
+    // and it reads as an unknown flag rather than being quietly ignored.
+    assert!(matches!(
+        parse(&args(&["dtcg", "--brand", "#0a7755", "--format", "css", "--out", "x.json"]))
+            .unwrap_err(),
+        CliError::Usage(_)
+    ));
+}

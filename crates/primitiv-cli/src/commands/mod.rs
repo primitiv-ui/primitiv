@@ -1,4 +1,5 @@
 pub mod add;
+pub mod dtcg;
 pub mod init;
 pub mod list;
 pub mod theme;
@@ -10,6 +11,8 @@ mod add_tests;
 mod init_tests;
 #[cfg(test)]
 mod list_tests;
+#[cfg(test)]
+mod dtcg_tests;
 #[cfg(test)]
 mod theme_tests;
 #[cfg(test)]

@@ -186,6 +186,24 @@ export const REGISTRY = {
     contract: "registry/components/combobox/contract.json",
     figmaComponentSetKey: "1816:61259", importPath: "@primitiv-ui/react",
   },
+  "miller-columns": {
+    displayName: "MillerColumns", kind: "registry", status: "stable", category: "Collections & Selection",
+    /* Dual-surface, every part on both surfaces (accordion convention → headless
+       types). Authored by recursive composition — no `data` prop. `Root`'s props
+       are a controlled/uncontrolled union (the selection PATH is a `string[]`)
+       that flattens in the extractor. No Figma set recorded, so no landing key. */
+    propsFile: "packages/react/src/MillerColumns/types.ts",
+    subComponents: [
+      { name: "MillerColumns.Root", propsType: "MillerColumnsRootProps", element: "div", component: "Root" },
+      { name: "MillerColumns.Column", propsType: "MillerColumnsColumnProps", element: "div", component: "Column" },
+      { name: "MillerColumns.Item", propsType: "MillerColumnsItemProps", element: "div", component: "Item" },
+      { name: "MillerColumns.ItemIndicator", propsType: "MillerColumnsItemIndicatorProps", element: "span", component: "ItemIndicator" },
+      { name: "MillerColumns.ResizeHandle", propsType: "MillerColumnsResizeHandleProps", element: "div", component: "ResizeHandle" },
+      { name: "MillerColumns.PreviewPanel", propsType: "MillerColumnsPreviewPanelProps", element: "div", component: "PreviewPanel" },
+    ],
+    contract: "registry/components/miller-columns/contract.json",
+    importPath: "@primitiv-ui/react",
+  },
   listbox: {
     displayName: "Listbox", kind: "registry", status: "stable", category: "Collections & Selection",
     /* Dual-surface, split like Modal: the headless compound is only Root / Option
@@ -959,6 +977,7 @@ export const CATEGORIES = {
 export const DISPLAY_NAME_OVERRIDES = {
   "avatar-group": "AvatarGroup",
   "breadcrumb-overflow": "BreadcrumbOverflow",
+  "miller-columns": "MillerColumns",
   "data-table": "DataTable",
   "checkbox-card": "CheckboxCard",
   "radio-card": "RadioCard",

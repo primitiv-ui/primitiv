@@ -23,6 +23,7 @@ import { carouselSpec } from "./carousel";
 import { treeSpec } from "./tree";
 import { listboxSpec } from "./listbox";
 import { comboboxSpec } from "./combobox";
+import { millerColumnsSpec } from "./miller-columns";
 import { checkboxCardSpec } from "./checkbox-card";
 import { checkboxSpec } from "./checkbox";
 import { emptyStateSpec } from "./empty-state";
@@ -89,6 +90,7 @@ export const SPECS: Record<ComponentId, ComponentSpec> = {
   tree: treeSpec,
   listbox: listboxSpec,
   combobox: comboboxSpec,
+  "miller-columns": millerColumnsSpec,
   checkbox: checkboxSpec,
   "checkbox-card": checkboxCardSpec,
   "empty-state": emptyStateSpec,

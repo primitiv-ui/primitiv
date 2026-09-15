@@ -1,0 +1,542 @@
+{
+  "id": "miller-columns",
+  "displayName": "MillerColumns",
+  "kind": "registry",
+  "status": "stable",
+  "category": "Collections & Selection",
+  "description": "A horizontal strip of vertical lists where selecting a node reveals its children in the next column — the macOS Finder column view, with drag/keyboard-resizable columns and an optional preview pane.",
+  "headless": {
+    "package": "@primitiv-ui/react",
+    "importPath": "@primitiv-ui/react",
+    "subComponents": [
+      {
+        "name": "MillerColumns.Root",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": true,
+            "default": null,
+            "description": "The strip's tree, authored recursively: root\n{@link MillerColumnsColumnPropsColumn(s)} whose branch\n{@link MillerColumnsItemPropsItems} nest further Columns, plus an\noptional trailing {@link MillerColumnsPreviewPanelPropsPreviewPanel}.\nThere is no `items` data prop — the JSX *is* the data."
+          },
+          {
+            "name": "defaultValue",
+            "type": "string[]",
+            "required": false,
+            "default": null,
+            "description": "Initial selection path on first render, root column first (e.g.\n`[\"docs\", \"guides\"]`). The component owns the path thereafter.\nForbidden in controlled mode — use `value` instead."
+          },
+          {
+            "name": "dir",
+            "type": "\"ltr\" | \"rtl\"",
+            "required": false,
+            "default": "\"ltr\"",
+            "description": "Reading direction. Under `\"rtl\"` the horizontal arrow pair is\nmirrored — ArrowLeft steps *into* a branch's child column and\nArrowRight walks back out — so navigation follows the visual order.\nInherited from a `DirectionProvider` ancestor when omitted."
+          },
+          {
+            "name": "onValueChange",
+            "type": "(path: string[]) => void",
+            "required": false,
+            "default": null,
+            "description": "Forbidden in uncontrolled mode — pass `value` + `onValueChange` to\ncontrol the component.\nCalled with the new selection path whenever the selection changes.\nRequired in controlled mode."
+          },
+          {
+            "name": "value",
+            "type": "string[]",
+            "required": false,
+            "default": null,
+            "description": "Forbidden in uncontrolled mode — use `defaultValue` instead.\nThe controlled selection path, root column first. Must be kept in sync\nby the parent via `onValueChange`."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [
+          {
+            "name": "size",
+            "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
+            "default": "md",
+            "description": "Row and column size for the whole strip; `data-density` scales each size further."
+          }
+        ],
+        "dataAttributes": [
+          {
+            "name": "data-miller-columns-strip",
+            "value": "",
+            "when": "always — a structural hook the component's own CSS uses to find this part, and yours may too"
+          },
+          {
+            "name": "data-miller-columns-slot",
+            "value": "",
+            "when": "always — a structural hook the component's own CSS uses to find this part, and yours may too"
+          },
+          {
+            "name": "data-orientation",
+            "value": "horizontal",
+            "when": "always"
+          }
+        ],
+        "class": "primitiv-miller-columns"
+      },
+      {
+        "name": "MillerColumns.Column",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": false,
+            "default": null,
+            "description": "The column's {@link MillerColumnsItemPropsItems} and, optionally, a\n{@link MillerColumnsResizeHandlePropsResizeHandle}. Optional: a\nchildless branch legitimately opens an empty column, which carries\n`data-empty` for the styling layer."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [
+          {
+            "name": "data-miller-columns-column",
+            "value": "",
+            "when": "always — a structural hook the component's own CSS uses to find this part, and yours may too"
+          },
+          {
+            "name": "data-depth",
+            "value": "{n}",
+            "when": "always"
+          },
+          {
+            "name": "data-empty",
+            "value": "",
+            "when": "the column holds no items"
+          }
+        ],
+        "class": "primitiv-miller-columns__column"
+      },
+      {
+        "name": "MillerColumns.Item",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": true,
+            "default": null,
+            "description": "The cell content and, for a branch item, a single nested\n`<MillerColumns.Column>` (split out by `partitionItemChildren`)."
+          },
+          {
+            "name": "value",
+            "type": "string",
+            "required": true,
+            "default": null,
+            "description": "Stable identifier used to match this item against the selection path.\nThe item is selected when the path entry at its depth equals `value`."
+          },
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Render the cell as a single consumer-supplied child element (e.g. an\n`<a>`) instead of the default `<div>`, merging the treeitem ARIA,\nhandlers, and ref onto it via the {@link Slot } pattern. Any nested\n`<MillerColumns.Column>` remains a sibling of the cell element."
+          },
+          {
+            "name": "disabled",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "When `true`, the item renders `aria-disabled` / `data-disabled` and is\nskipped by roving navigation — it cannot be selected, focused, or\nactivated."
+          },
+          {
+            "name": "ref",
+            "type": "Ref<T>",
+            "required": false,
+            "default": null,
+            "description": "Forwarded to the rendered element. Defaults to `HTMLDivElement`; when\nusing `asChild`, specify the child's element type. Composed with the\nlibrary's internal ref."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [
+          {
+            "name": "data-state",
+            "value": "selected",
+            "when": "on the active path"
+          },
+          {
+            "name": "data-state",
+            "value": "unselected",
+            "when": "not on the active path"
+          },
+          {
+            "name": "data-terminal",
+            "value": "",
+            "when": "the deepest selected item"
+          },
+          {
+            "name": "data-depth",
+            "value": "{n}",
+            "when": "always"
+          },
+          {
+            "name": "data-has-children",
+            "value": "",
+            "when": "the item is a branch"
+          },
+          {
+            "name": "data-disabled",
+            "value": "",
+            "when": "disabled"
+          }
+        ],
+        "class": "primitiv-miller-columns__item"
+      },
+      {
+        "name": "MillerColumns.ItemIndicator",
+        "extends": "HTMLSpanElement",
+        "props": [
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": false,
+            "default": null,
+            "description": "The glyph to render (e.g. `▸`). Optional."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [
+          {
+            "name": "data-state",
+            "value": "selected",
+            "when": "the parent item is selected"
+          },
+          {
+            "name": "data-has-children",
+            "value": "",
+            "when": "always"
+          }
+        ],
+        "class": "primitiv-miller-columns__item-indicator"
+      },
+      {
+        "name": "MillerColumns.ResizeHandle",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "maxWidth",
+            "type": "number",
+            "required": false,
+            "default": "Infinity",
+            "description": "Largest width the column can be dragged or stepped to, in pixels.\nPublished as `aria-valuemax` when finite; left unbounded by default,\nin which case the attribute is omitted."
+          },
+          {
+            "name": "minWidth",
+            "type": "number",
+            "required": false,
+            "default": "0",
+            "description": "Smallest width the column can be dragged or stepped to, in pixels.\nAlso published as `aria-valuemin`."
+          },
+          {
+            "name": "step",
+            "type": "number",
+            "required": false,
+            "default": "10",
+            "description": "Pixels moved per arrow-key press."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [
+          {
+            "name": "data-miller-columns-resize-handle",
+            "value": "",
+            "when": "always — a structural hook the component's own CSS uses to find this part, and yours may too"
+          },
+          {
+            "name": "data-dragging",
+            "value": "",
+            "when": "a pointer drag is in progress"
+          }
+        ],
+        "class": "primitiv-miller-columns__resize-handle"
+      },
+      {
+        "name": "MillerColumns.PreviewPanel",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": false,
+            "default": null,
+            "description": "The preview content for the current selection (typically driven by\n{@link useMillerColumnsSelection })."
+          },
+          {
+            "name": "forceMount",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Keep the panel mounted regardless of the selection, instead of following\nFinder's rule (a preview only where a selected *leaf* would open a child\ncolumn). Use it for a persistent inspector, or to animate the panel in\nand out."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [
+          {
+            "name": "data-miller-columns-preview",
+            "value": "",
+            "when": "always — a structural hook the component's own CSS uses to find this part, and yours may too"
+          },
+          {
+            "name": "data-empty",
+            "value": "",
+            "when": "nothing is selected"
+          }
+        ],
+        "class": "primitiv-miller-columns__preview"
+      }
+    ]
+  },
+  "styled": {
+    "installCommand": "primitiv add miller-columns",
+    "rootClass": "primitiv-miller-columns",
+    "customProperties": [
+      {
+        "name": "--primitiv-miller-columns-item-height",
+        "defaultsTo": "var(--primitiv-miller-columns-md-item-height)"
+      },
+      {
+        "name": "--primitiv-miller-columns-item-padding-inline",
+        "defaultsTo": "var(--primitiv-miller-columns-md-item-padding-inline)"
+      },
+      {
+        "name": "--primitiv-miller-columns-item-gap",
+        "defaultsTo": "var(--primitiv-miller-columns-md-item-gap)"
+      },
+      {
+        "name": "--primitiv-miller-columns-item-icon-size",
+        "defaultsTo": "var(--primitiv-miller-columns-md-item-icon-size)"
+      },
+      {
+        "name": "--primitiv-miller-columns-item-focus-ring-radius",
+        "defaultsTo": "var(--primitiv-miller-columns-md-item-focus-ring-radius)"
+      },
+      {
+        "name": "--primitiv-miller-columns-column-width",
+        "defaultsTo": "var(--primitiv-miller-columns-md-column-width)"
+      },
+      {
+        "name": "--primitiv-miller-columns-column-min-width",
+        "defaultsTo": "var(--primitiv-miller-columns-md-column-min-width)"
+      },
+      {
+        "name": "--primitiv-miller-columns-preview-width",
+        "defaultsTo": "var(--primitiv-miller-columns-md-preview-width)"
+      },
+      {
+        "name": "--primitiv-miller-columns-preview-padding",
+        "defaultsTo": "var(--primitiv-miller-columns-md-preview-padding)"
+      },
+      {
+        "name": "--primitiv-miller-columns-resize-handle-width",
+        "defaultsTo": "var(--primitiv-miller-columns-md-resize-handle-width)"
+      },
+      {
+        "name": "--primitiv-miller-columns-strip-radius",
+        "defaultsTo": "var(--primitiv-miller-columns-md-strip-radius)"
+      },
+      {
+        "name": "--primitiv-miller-columns-height",
+        "defaultsTo": "var(--primitiv-miller-columns-md-height)"
+      },
+      {
+        "name": "--primitiv-miller-columns-font-size",
+        "defaultsTo": "var(--primitiv-body-sm-font-size)"
+      },
+      {
+        "name": "--primitiv-miller-columns-line-height",
+        "defaultsTo": "var(--primitiv-body-sm-line-height)"
+      },
+      {
+        "name": "--primitiv-miller-columns-background",
+        "defaultsTo": "var(--primitiv-surface-default)"
+      },
+      {
+        "name": "--primitiv-miller-columns-border-color",
+        "defaultsTo": "var(--primitiv-border-default)"
+      },
+      {
+        "name": "--primitiv-miller-columns-border-width",
+        "defaultsTo": "var(--primitiv-border-width-1)"
+      },
+      {
+        "name": "--primitiv-miller-columns-seam-color",
+        "defaultsTo": "var(--primitiv-border-subtle)"
+      },
+      {
+        "name": "--primitiv-miller-columns-foreground",
+        "defaultsTo": "var(--primitiv-content-primary)"
+      },
+      {
+        "name": "--primitiv-miller-columns-muted-foreground",
+        "defaultsTo": "var(--primitiv-content-muted)"
+      },
+      {
+        "name": "--primitiv-miller-columns-disabled-foreground",
+        "defaultsTo": "var(--primitiv-content-disabled)"
+      },
+      {
+        "name": "--primitiv-miller-columns-item-bg-hover",
+        "defaultsTo": "var(--primitiv-miller-columns-row-hover)"
+      },
+      {
+        "name": "--primitiv-miller-columns-item-bg-ancestor",
+        "defaultsTo": "var(--primitiv-miller-columns-row-ancestor)"
+      },
+      {
+        "name": "--primitiv-miller-columns-item-bg-terminal",
+        "defaultsTo": "var(--primitiv-miller-columns-row-terminal)"
+      },
+      {
+        "name": "--primitiv-miller-columns-resize-ink-width",
+        "defaultsTo": "var(--primitiv-border-width-0)"
+      },
+      {
+        "name": "--primitiv-miller-columns-resize-ink-width-active",
+        "defaultsTo": "var(--primitiv-border-width-2)"
+      },
+      {
+        "name": "--primitiv-miller-columns-resize-ink-color",
+        "defaultsTo": "var(--primitiv-border-subtle)"
+      },
+      {
+        "name": "--primitiv-miller-columns-resize-ink-color-hover",
+        "defaultsTo": "var(--primitiv-border-strong)"
+      },
+      {
+        "name": "--primitiv-miller-columns-resize-ink-color-dragging",
+        "defaultsTo": "var(--primitiv-focus-ring)"
+      },
+      {
+        "name": "--primitiv-miller-columns-resize-cursor",
+        "defaultsTo": "col-resize"
+      },
+      {
+        "name": "--primitiv-miller-columns-item-inset",
+        "defaultsTo": "0px"
+      },
+      {
+        "name": "--primitiv-miller-columns-transition-duration",
+        "defaultsTo": "var(--primitiv-motion-duration-control)"
+      },
+      {
+        "name": "--primitiv-miller-columns-transition-easing",
+        "defaultsTo": "var(--primitiv-motion-easing-default)"
+      },
+      {
+        "name": "--primitiv-miller-columns-label-ink-slack",
+        "defaultsTo": "var(--primitiv-space-space-1)"
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-miller-columns-strip",
+        "value": "",
+        "when": "always — a structural hook the component's own CSS uses to find this part, and yours may too"
+      },
+      {
+        "name": "data-miller-columns-slot",
+        "value": "",
+        "when": "always — a structural hook the component's own CSS uses to find this part, and yours may too"
+      },
+      {
+        "name": "data-orientation",
+        "value": "horizontal",
+        "when": "always"
+      },
+      {
+        "name": "data-miller-columns-tree",
+        "value": "",
+        "when": "always — a structural hook the component's own CSS uses to find this part, and yours may too"
+      },
+      {
+        "name": "data-miller-columns-column",
+        "value": "",
+        "when": "always — a structural hook the component's own CSS uses to find this part, and yours may too"
+      },
+      {
+        "name": "data-depth",
+        "value": "{n}",
+        "when": "always"
+      },
+      {
+        "name": "data-empty",
+        "value": "",
+        "when": "the column holds no items"
+      },
+      {
+        "name": "data-state",
+        "value": "selected",
+        "when": "on the active path"
+      },
+      {
+        "name": "data-state",
+        "value": "unselected",
+        "when": "not on the active path"
+      },
+      {
+        "name": "data-terminal",
+        "value": "",
+        "when": "the deepest selected item"
+      },
+      {
+        "name": "data-depth",
+        "value": "{n}",
+        "when": "always"
+      },
+      {
+        "name": "data-has-children",
+        "value": "",
+        "when": "the item is a branch"
+      },
+      {
+        "name": "data-disabled",
+        "value": "",
+        "when": "disabled"
+      },
+      {
+        "name": "data-state",
+        "value": "selected",
+        "when": "the parent item is selected"
+      },
+      {
+        "name": "data-has-children",
+        "value": "",
+        "when": "always"
+      },
+      {
+        "name": "data-miller-columns-resize-handle",
+        "value": "",
+        "when": "always — a structural hook the component's own CSS uses to find this part, and yours may too"
+      },
+      {
+        "name": "data-dragging",
+        "value": "",
+        "when": "a pointer drag is in progress"
+      },
+      {
+        "name": "data-miller-columns-preview",
+        "value": "",
+        "when": "always — a structural hook the component's own CSS uses to find this part, and yours may too"
+      },
+      {
+        "name": "data-empty",
+        "value": "",
+        "when": "nothing is selected"
+      }
+    ]
+  },
+  "figma": {}
+}

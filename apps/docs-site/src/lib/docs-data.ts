@@ -40,6 +40,7 @@ import carouselDocs from "@/docs-data/carousel.docs.json";
 import treeDocs from "@/docs-data/tree.docs.json";
 import listboxDocs from "@/docs-data/listbox.docs.json";
 import comboboxDocs from "@/docs-data/combobox.docs.json";
+import millerColumnsDocs from "@/docs-data/miller-columns.docs.json";
 import checkboxCardDocs from "@/docs-data/checkbox-card.docs.json";
 import checkboxDocs from "@/docs-data/checkbox.docs.json";
 import emptyStateDocs from "@/docs-data/empty-state.docs.json";
@@ -266,6 +267,7 @@ const DOCS = {
   tree: treeDocs as unknown as ComponentDocs,
   listbox: listboxDocs as unknown as ComponentDocs,
   combobox: comboboxDocs as unknown as ComponentDocs,
+  "miller-columns": millerColumnsDocs as unknown as ComponentDocs,
   checkbox: checkboxDocs as unknown as ComponentDocs,
   "checkbox-card": checkboxCardDocs as unknown as ComponentDocs,
   "empty-state": emptyStateDocs as unknown as ComponentDocs,

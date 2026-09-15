@@ -1,0 +1,503 @@
+{
+  "id": "combobox",
+  "displayName": "Combobox",
+  "kind": "registry",
+  "status": "stable",
+  "category": "Collections & Selection",
+  "description": "An editable text field with a filtered popup listbox, implementing the WAI-ARIA APG combobox pattern. The control is Input verbatim — same `framed-control/{size}/*` geometry, same states — wrapped so a trailing chevron can sit beside the field, and the popup is a floating panel at `elevation/overlay` whose rows resolve the shared dropdown tokens, so a combobox listbox and a menu are the same surface. Filtering is consumer-owned: there is no `filter` prop. Keyboard, virtual-focus cursor, the query/value split and the open state all belong to the headless primitive.",
+  "headless": {
+    "package": "@primitiv-ui/react",
+    "importPath": "@primitiv-ui/react",
+    "subComponents": [
+      {
+        "name": "Combobox.Root",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Render the consumer's own element instead of the default one, merging\nbehaviour onto it."
+          },
+          {
+            "name": "defaultOpen",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Whether the popup is open on first render, for the uncontrolled case."
+          },
+          {
+            "name": "defaultValue",
+            "type": "string",
+            "required": false,
+            "default": "\"\"",
+            "description": "The selected value on first render, for the uncontrolled case."
+          },
+          {
+            "name": "onOpenChange",
+            "type": "(open: boolean) => void",
+            "required": false,
+            "default": "undefined",
+            "description": "Called when the combobox wants the popup opened or closed. Under a\ncontrolled {@link ComboboxRootProps.open`open`} the combobox only asks —\nthe parent decides."
+          },
+          {
+            "name": "onQueryChange",
+            "type": "(query: string) => void",
+            "required": false,
+            "default": "undefined",
+            "description": "Called with the input's text on every keystroke. Filtering is\n**consumer-owned** — narrow the options you render in response. The\ncomponent deliberately ships no `filter` prop."
+          },
+          {
+            "name": "onValueChange",
+            "type": "(value: string) => void",
+            "required": false,
+            "default": "undefined",
+            "description": "Called with the newly selected value when the user commits a choice,\nwhether by click or by Enter."
+          },
+          {
+            "name": "open",
+            "type": "boolean",
+            "required": false,
+            "default": "undefined",
+            "description": "Whether the popup is open, for the controlled case. Pair with\n{@link ComboboxRootProps.onOpenChange`onOpenChange`} or it can never\nchange."
+          },
+          {
+            "name": "value",
+            "type": "string",
+            "required": false,
+            "default": "undefined",
+            "description": "The selected value, for the controlled case. Pair with\n{@link ComboboxRootProps.onValueChange`onValueChange`}."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [
+          {
+            "name": "size",
+            "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
+            "default": "md",
+            "description": "Control + panel + row scale, set once on the root and inherited by every part; `data-density` scales the sizing within each size. Re-points the control's framed-control knobs, the panel's dropdown geometry and every row knob plus the typography."
+          }
+        ],
+        "dataAttributes": [
+          {
+            "name": "aria-expanded",
+            "value": "true",
+            "when": "the popup is open"
+          },
+          {
+            "name": "aria-expanded",
+            "value": "false",
+            "when": "the popup is closed"
+          },
+          {
+            "name": "aria-activedescendant",
+            "value": "<item id>",
+            "when": "the cursor sits on an item"
+          },
+          {
+            "name": "aria-selected",
+            "value": "true",
+            "when": "the committed item"
+          },
+          {
+            "name": "aria-selected",
+            "value": "false",
+            "when": "an uncommitted item"
+          },
+          {
+            "name": "data-highlighted",
+            "value": "",
+            "when": "the cursor sits on this item"
+          },
+          {
+            "name": "aria-invalid",
+            "value": "true",
+            "when": "invalid — set it on the input yourself, or cascade it from a Field.Root; there is no `invalid` prop"
+          }
+        ],
+        "class": "primitiv-combobox"
+      },
+      {
+        "name": "Combobox.Control",
+        "extends": "HTMLDivElement",
+        "props": [],
+        "styledOnly": true,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-combobox__control"
+      },
+      {
+        "name": "Combobox.Leading",
+        "extends": "HTMLSpanElement",
+        "props": [],
+        "styledOnly": true,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-combobox__leading"
+      },
+      {
+        "name": "Combobox.Input",
+        "extends": "HTMLInputElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Render the consumer's own element instead of the default one, merging\nbehaviour onto it."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-combobox__input"
+      },
+      {
+        "name": "Combobox.Icon",
+        "extends": "HTMLSpanElement",
+        "props": [],
+        "styledOnly": true,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-combobox__icon"
+      },
+      {
+        "name": "Combobox.Content",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Render the consumer's own element instead of the default one, merging\nbehaviour onto it."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-combobox__content"
+      },
+      {
+        "name": "Combobox.Item",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "value",
+            "type": "string",
+            "required": true,
+            "default": null,
+            "description": "The value committed when this item is chosen. This narrows the native\n`value` attribute, so `value` is `Omit`-ted from the base props above —\nwithout that the two resolve to an intersection artifact that leaks into\nconsumer types and the generated prop tables."
+          },
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Render the consumer's own element instead of the default one, merging\nbehaviour onto it."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-combobox__item"
+      },
+      {
+        "name": "Combobox.ItemIndicator",
+        "extends": "HTMLSpanElement",
+        "props": [],
+        "styledOnly": true,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-combobox__item-indicator"
+      },
+      {
+        "name": "Combobox.ItemLeading",
+        "extends": "HTMLSpanElement",
+        "props": [],
+        "styledOnly": true,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-combobox__item-leading"
+      },
+      {
+        "name": "Combobox.ItemLabel",
+        "extends": "HTMLSpanElement",
+        "props": [],
+        "styledOnly": true,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-combobox__item-label"
+      },
+      {
+        "name": "Combobox.ItemTrailing",
+        "extends": "HTMLSpanElement",
+        "props": [],
+        "styledOnly": true,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-combobox__item-trailing"
+      },
+      {
+        "name": "Combobox.Empty",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Render the consumer's own element instead of the default one, merging\nbehaviour onto it."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-combobox__empty"
+      }
+    ]
+  },
+  "styled": {
+    "installCommand": "primitiv add combobox",
+    "rootClass": "primitiv-combobox",
+    "customProperties": [
+      {
+        "name": "--primitiv-combobox-bg",
+        "defaultsTo": "var(--primitiv-surface-default)"
+      },
+      {
+        "name": "--primitiv-combobox-fg",
+        "defaultsTo": "var(--primitiv-content-primary)"
+      },
+      {
+        "name": "--primitiv-combobox-placeholder-color",
+        "defaultsTo": "var(--primitiv-content-muted)"
+      },
+      {
+        "name": "--primitiv-combobox-border-color",
+        "defaultsTo": "var(--primitiv-border-default)"
+      },
+      {
+        "name": "--primitiv-combobox-border-color-focus",
+        "defaultsTo": "var(--primitiv-border-focus)"
+      },
+      {
+        "name": "--primitiv-combobox-border-color-invalid",
+        "defaultsTo": "var(--primitiv-border-invalid)"
+      },
+      {
+        "name": "--primitiv-combobox-border-width",
+        "defaultsTo": "var(--primitiv-framed-control-border-width)"
+      },
+      {
+        "name": "--primitiv-combobox-radius",
+        "defaultsTo": "var(--primitiv-framed-control-md-radius)"
+      },
+      {
+        "name": "--primitiv-combobox-height",
+        "defaultsTo": "var(--primitiv-framed-control-md-height)"
+      },
+      {
+        "name": "--primitiv-combobox-padding-inline",
+        "defaultsTo": "var(--primitiv-framed-control-md-padding-inline)"
+      },
+      {
+        "name": "--primitiv-combobox-gap",
+        "defaultsTo": "var(--primitiv-framed-control-md-gap)"
+      },
+      {
+        "name": "--primitiv-combobox-icon-size",
+        "defaultsTo": "var(--primitiv-framed-control-md-icon-size)"
+      },
+      {
+        "name": "--primitiv-combobox-icon-color",
+        "defaultsTo": "var(--primitiv-content-muted)"
+      },
+      {
+        "name": "--primitiv-combobox-font-family",
+        "defaultsTo": "var(--primitiv-body-md-font-family)"
+      },
+      {
+        "name": "--primitiv-combobox-font-size",
+        "defaultsTo": "var(--primitiv-body-md-font-size)"
+      },
+      {
+        "name": "--primitiv-combobox-font-weight",
+        "defaultsTo": "var(--primitiv-body-md-font-weight)"
+      },
+      {
+        "name": "--primitiv-combobox-line-height",
+        "defaultsTo": "var(--primitiv-body-md-line-height)"
+      },
+      {
+        "name": "--primitiv-combobox-label-ink-slack",
+        "defaultsTo": "var(--primitiv-space-space-1)"
+      },
+      {
+        "name": "--primitiv-combobox-content-surface",
+        "defaultsTo": "var(--primitiv-surface-default)"
+      },
+      {
+        "name": "--primitiv-combobox-content-fg",
+        "defaultsTo": "var(--primitiv-content-primary)"
+      },
+      {
+        "name": "--primitiv-combobox-content-border-width",
+        "defaultsTo": "var(--primitiv-border-width-1)"
+      },
+      {
+        "name": "--primitiv-combobox-content-border-color",
+        "defaultsTo": "var(--primitiv-border-subtle)"
+      },
+      {
+        "name": "--primitiv-combobox-content-shadow",
+        "defaultsTo": "var(--primitiv-elevation-overlay)"
+      },
+      {
+        "name": "--primitiv-combobox-content-radius",
+        "defaultsTo": "var(--primitiv-dropdown-md-panel-radius)"
+      },
+      {
+        "name": "--primitiv-combobox-content-padding-block",
+        "defaultsTo": "var(--primitiv-dropdown-md-panel-padding-block)"
+      },
+      {
+        "name": "--primitiv-combobox-content-padding-inline",
+        "defaultsTo": "var(--primitiv-space-space-4)"
+      },
+      {
+        "name": "--primitiv-combobox-content-min-inline-size",
+        "defaultsTo": "anchor-size(width)"
+      },
+      {
+        "name": "--primitiv-combobox-content-max-block-size",
+        "defaultsTo": "18rem"
+      },
+      {
+        "name": "--primitiv-combobox-offset",
+        "defaultsTo": "var(--primitiv-dropdown-md-panel-offset)"
+      },
+      {
+        "name": "--primitiv-combobox-item-height",
+        "defaultsTo": "var(--primitiv-dropdown-md-item-height)"
+      },
+      {
+        "name": "--primitiv-combobox-item-padding-inline",
+        "defaultsTo": "var(--primitiv-dropdown-md-item-padding-inline)"
+      },
+      {
+        "name": "--primitiv-combobox-item-gap",
+        "defaultsTo": "var(--primitiv-dropdown-md-item-gap)"
+      },
+      {
+        "name": "--primitiv-combobox-item-radius",
+        "defaultsTo": "var(--primitiv-dropdown-md-item-radius)"
+      },
+      {
+        "name": "--primitiv-combobox-item-icon-size",
+        "defaultsTo": "var(--primitiv-dropdown-md-item-icon-size)"
+      },
+      {
+        "name": "--primitiv-combobox-item-font-family",
+        "defaultsTo": "var(--primitiv-body-sm-font-family)"
+      },
+      {
+        "name": "--primitiv-combobox-item-font-size",
+        "defaultsTo": "var(--primitiv-dropdown-md-item-font-size)"
+      },
+      {
+        "name": "--primitiv-combobox-item-font-weight",
+        "defaultsTo": "var(--primitiv-body-sm-font-weight)"
+      },
+      {
+        "name": "--primitiv-combobox-item-line-height",
+        "defaultsTo": "var(--primitiv-dropdown-md-item-line-height)"
+      },
+      {
+        "name": "--primitiv-combobox-item-color",
+        "defaultsTo": "var(--primitiv-content-primary)"
+      },
+      {
+        "name": "--primitiv-combobox-item-bg",
+        "defaultsTo": "var(--primitiv-color-transparent)"
+      },
+      {
+        "name": "--primitiv-combobox-item-bg-hover",
+        "defaultsTo": "var(--primitiv-action-ghost-hover)"
+      },
+      {
+        "name": "--primitiv-combobox-item-bg-highlighted",
+        "defaultsTo": "var(--primitiv-action-secondary-default)"
+      },
+      {
+        "name": "--primitiv-combobox-item-spacing",
+        "defaultsTo": "calc(var(--primitiv-combobox-item-gap) / 2)"
+      },
+      {
+        "name": "--primitiv-combobox-indicator-color",
+        "defaultsTo": "var(--primitiv-content-primary)"
+      },
+      {
+        "name": "--primitiv-combobox-empty-color",
+        "defaultsTo": "var(--primitiv-content-muted)"
+      },
+      {
+        "name": "--primitiv-combobox-empty-min-block-size",
+        "defaultsTo": "calc(var(--primitiv-combobox-item-height) * 2)"
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "aria-expanded",
+        "value": "true",
+        "when": "the popup is open"
+      },
+      {
+        "name": "aria-expanded",
+        "value": "false",
+        "when": "the popup is closed"
+      },
+      {
+        "name": "aria-activedescendant",
+        "value": "<item id>",
+        "when": "the cursor sits on an item"
+      },
+      {
+        "name": "aria-selected",
+        "value": "true",
+        "when": "the committed item"
+      },
+      {
+        "name": "aria-selected",
+        "value": "false",
+        "when": "an uncommitted item"
+      },
+      {
+        "name": "data-highlighted",
+        "value": "",
+        "when": "the cursor sits on this item"
+      },
+      {
+        "name": "aria-invalid",
+        "value": "true",
+        "when": "invalid — set it on the input yourself, or cascade it from a Field.Root; there is no `invalid` prop"
+      }
+    ]
+  },
+  "figma": {
+    "componentSetKey": "1816:61259"
+  }
+}

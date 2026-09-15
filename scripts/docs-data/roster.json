@@ -137,7 +137,7 @@
     "displayName": "Combobox",
     "category": "Collections & Selection",
     "description": "An editable text field with a filtered popup listbox, implementing the WAI-ARIA APG combobox pattern. The control is Input verbatim — same `framed-control/{size}/*` geometry, same states — wrapped so a trailing chevron can sit beside the field, and the popup is a floating panel at `elevation/overlay` whose rows resolve the shared dropdown tokens, so a combobox listbox and a menu are the same surface. Filtering is consumer-owned: there is no `filter` prop. Keyboard, virtual-focus cursor, the query/value split and the open state all belong to the headless primitive.",
-    "documented": false
+    "documented": true
   },
   {
     "id": "confirm-dialog",

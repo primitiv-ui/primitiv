@@ -161,6 +161,31 @@ export const REGISTRY = {
        Viewport is the core visual, so it is the landing point. */
     figmaComponentSetKey: "1028:24921", importPath: "@primitiv-ui/react",
   },
+  combobox: {
+    displayName: "Combobox", kind: "registry", status: "stable", category: "Collections & Selection",
+    /* Dual-surface, split like Modal/Listbox: the headless compound is only Root
+       / Input / Content / Item / Empty; the framed-control chrome (Control /
+       Leading / Icon) and the row-anatomy parts (ItemIndicator / ItemLeading /
+       ItemLabel / ItemTrailing) are STYLED-ONLY, so they carry their own
+       `propsFile`. */
+    propsFile: "packages/react/src/Combobox/types.ts",
+    subComponents: [
+      { name: "Combobox.Root", propsType: "ComboboxRootProps", element: "div", component: "Combobox" },
+      { name: "Combobox.Control", propsType: "ComboboxControlProps", propsFile: "registry/components/combobox/combobox.tsx", element: "div", component: "Control" },
+      { name: "Combobox.Leading", propsType: "ComboboxLeadingProps", propsFile: "registry/components/combobox/combobox.tsx", element: "span", component: "Leading" },
+      { name: "Combobox.Input", propsType: "ComboboxInputProps", element: "input", component: "Input" },
+      { name: "Combobox.Icon", propsType: "ComboboxIconProps", propsFile: "registry/components/combobox/combobox.tsx", element: "span", component: "Icon" },
+      { name: "Combobox.Content", propsType: "ComboboxContentProps", element: "div", component: "Content" },
+      { name: "Combobox.Item", propsType: "ComboboxItemProps", element: "div", component: "Item" },
+      { name: "Combobox.ItemIndicator", propsType: "ComboboxItemIndicatorProps", propsFile: "registry/components/combobox/combobox.tsx", element: "span", component: "ItemIndicator" },
+      { name: "Combobox.ItemLeading", propsType: "ComboboxItemLeadingProps", propsFile: "registry/components/combobox/combobox.tsx", element: "span", component: "ItemLeading" },
+      { name: "Combobox.ItemLabel", propsType: "ComboboxItemLabelProps", propsFile: "registry/components/combobox/combobox.tsx", element: "span", component: "ItemLabel" },
+      { name: "Combobox.ItemTrailing", propsType: "ComboboxItemTrailingProps", propsFile: "registry/components/combobox/combobox.tsx", element: "span", component: "ItemTrailing" },
+      { name: "Combobox.Empty", propsType: "ComboboxEmptyProps", element: "div", component: "Empty" },
+    ],
+    contract: "registry/components/combobox/contract.json",
+    figmaComponentSetKey: "1816:61259", importPath: "@primitiv-ui/react",
+  },
   listbox: {
     displayName: "Listbox", kind: "registry", status: "stable", category: "Collections & Selection",
     /* Dual-surface, split like Modal: the headless compound is only Root / Option

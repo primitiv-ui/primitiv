@@ -22,6 +22,7 @@ import { stepperSpec } from "./stepper";
 import { carouselSpec } from "./carousel";
 import { treeSpec } from "./tree";
 import { listboxSpec } from "./listbox";
+import { comboboxSpec } from "./combobox";
 import { checkboxCardSpec } from "./checkbox-card";
 import { checkboxSpec } from "./checkbox";
 import { emptyStateSpec } from "./empty-state";
@@ -87,6 +88,7 @@ export const SPECS: Record<ComponentId, ComponentSpec> = {
   carousel: carouselSpec,
   tree: treeSpec,
   listbox: listboxSpec,
+  combobox: comboboxSpec,
   checkbox: checkboxSpec,
   "checkbox-card": checkboxCardSpec,
   "empty-state": emptyStateSpec,

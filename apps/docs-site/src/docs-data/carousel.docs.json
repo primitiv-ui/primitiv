@@ -1,0 +1,1032 @@
+{
+  "id": "carousel",
+  "displayName": "Carousel",
+  "kind": "registry",
+  "status": "stable",
+  "category": "Disclosure",
+  "description": "A responsive, accessible carousel — a scroll-snap viewport of slides with prev/next controls and indicator dots (WAI-ARIA Carousel pattern). Adapts to its container by default.",
+  "headless": {
+    "package": "@primitiv-ui/react",
+    "importPath": "@primitiv-ui/react",
+    "subComponents": [
+      {
+        "name": "Carousel.Root",
+        "extends": "HTMLElement",
+        "props": [
+          {
+            "name": "allowMouseDrag",
+            "type": "boolean",
+            "required": false,
+            "default": null,
+            "description": "Whether the Viewport supports mouse click-and-drag scrolling —\nthe pointer tracks 1:1 into `scrollLeft`/`scrollTop` (no momentum)\nonce past a small movement threshold, release lets the existing\n`scroll-snap-type` settle. Defaults to `false`: an unconditionally-on\ndrag can conflict with a consumer's own drag-sensitive slide content\n(a nested carousel, a draggable card, a canvas), so it's opt-in.\nTouch/pen scrolling is unaffected either way — that's native,\nindependent of this prop."
+          },
+          {
+            "name": "ariaLabel",
+            "type": "string",
+            "required": false,
+            "default": null,
+            "description": "Accessible name for the carousel region, announced as\n`aria-label`. Prefer a short, human-readable description (e.g.\n`\"Featured products\"`). Mutually exclusive with `ariaLabelledBy`."
+          },
+          {
+            "name": "ariaLabelledBy",
+            "type": "string",
+            "required": false,
+            "default": null,
+            "description": "Id of an existing element to name the carousel region, set as\n`aria-labelledby`. Use when a visible heading already labels the\ncarousel. Mutually exclusive with `ariaLabel`."
+          },
+          {
+            "name": "autoplay",
+            "type": "CarouselAutoplay",
+            "required": false,
+            "default": null,
+            "description": "Autoplay configuration — see {@link CarouselAutoplay}."
+          },
+          {
+            "name": "defaultPage",
+            "type": "number",
+            "required": false,
+            "default": null,
+            "description": "Uncontrolled active page index. Defaults to `0`."
+          },
+          {
+            "name": "defaultPlaying",
+            "type": "boolean",
+            "required": false,
+            "default": null,
+            "description": "Uncontrolled initial playing flag. Defaults to `false`."
+          },
+          {
+            "name": "ids",
+            "type": "CarouselIds",
+            "required": false,
+            "default": null,
+            "description": "Pin DOM `id`s on the rendered sub-components — see\n{@link CarouselIds}. Useful for SSR hydration stability and\nexternal `aria-controls` linkage."
+          },
+          {
+            "name": "inViewThreshold",
+            "type": "number | number[]",
+            "required": false,
+            "default": null,
+            "description": "Visibility threshold(s) the `isInView` fallback's\n`IntersectionObserver` uses — both as the observer's own `threshold`\noption and (for an array, the highest value) the cutoff a slide's\n`intersectionRatio` must clear to count as \"in view\". Matches Ark\nUI's `inViewThreshold` shape. Defaults to `0.6`."
+          },
+          {
+            "name": "loop",
+            "type": "boolean | \"wrap\" | \"infinite\"",
+            "required": false,
+            "default": null,
+            "description": "Wrap-around navigation mode — see {@link CarouselLoopMode}.\nDefaults to `false` (`\"none\"`). Accepts a boolean for ergonomics or a\nnamed mode:\n\n- `false` / omitted → `\"none\"` (clamp at the ends).\n- `true` / `\"wrap\"` → `\"wrap\"` (semantic wrap: Next/Previous and\n autoplay wrap past the ends and the triggers never disable, but the\n wrap last→first smooth-scrolls the track back — a visible rewind).\n- `\"infinite\"` → continuous infinite: the same wrap page model plus a\n cloned edge buffer and native-scroll recentre so the wrap is a\n continuous glide with no rewind.\n\nAll wrapping requires more than one page — a single-page carousel has\nno wrap target, so the triggers stay disabled regardless. The resolved\nmode is published as `data-loop=\"none\" | \"wrap\" | \"infinite\"` on the\nRoot."
+          },
+          {
+            "name": "onAutoplayStatusChange",
+            "type": "(status: CarouselAutoplayStatus) => void",
+            "required": false,
+            "default": null,
+            "description": "Fires on every autoplay status transition — see\n{@link CarouselAutoplayStatus}. Matches Ark UI's\n`onAutoplayStatusChange`. Fires on every tick, not just play/pause\ntoggles — useful for analytics. No-op unless `autoplay` is enabled."
+          },
+          {
+            "name": "onDragStatusChange",
+            "type": "(status: CarouselDragStatus) => void",
+            "required": false,
+            "default": null,
+            "description": "Fires on every mouse-drag status transition — see\n{@link CarouselDragStatus}. Matches Ark UI's `onDragStatusChange`.\nNo-op unless `allowMouseDrag` is `true` (a drag can't start\notherwise)."
+          },
+          {
+            "name": "onOverscrollStatusChange",
+            "type": "(status: CarouselOverscrollStatus) => void",
+            "required": false,
+            "default": null,
+            "description": "Fires whenever the user pushes against a boundary with nowhere\nfurther to go, from the keyboard, wheel, or a mouse drag — see\n{@link CarouselOverscrollStatus}."
+          },
+          {
+            "name": "onPageChange",
+            "type": "(page: number) => void",
+            "required": false,
+            "default": null,
+            "description": "Callback invoked when the active page should change (e.g. when the\nuser clicks `Carousel.NextTrigger` or `Carousel.PreviousTrigger`).\nThe callback is responsible for re-rendering with the new `page`."
+          },
+          {
+            "name": "onPlayingChange",
+            "type": "(playing: boolean) => void",
+            "required": false,
+            "default": null,
+            "description": "Callback invoked when the playing flag should toggle. The callback\nis responsible for re-rendering with the new `playing` value."
+          },
+          {
+            "name": "orientation",
+            "type": "\"horizontal\" | \"vertical\"",
+            "required": false,
+            "default": null,
+            "description": "Axis the carousel scrolls and paginates along — see\n{@link CarouselOrientation}. Defaults to `\"horizontal\"`. Switches\nthe viewport scroll axis, the arrow-key bindings, and the\n`data-orientation` styling hook on the Root."
+          },
+          {
+            "name": "page",
+            "type": "number",
+            "required": false,
+            "default": null,
+            "description": "Controlled active page index."
+          },
+          {
+            "name": "playing",
+            "type": "boolean",
+            "required": false,
+            "default": null,
+            "description": "Controlled playing flag."
+          },
+          {
+            "name": "slidesPerMove",
+            "type": "number | \"auto\"",
+            "required": false,
+            "default": null,
+            "description": "Number of slides advanced by `Carousel.NextTrigger` /\n`Carousel.PreviousTrigger`. `\"auto\"` (default) advances one full page\nat a time (= `slidesPerPage`); a number advances exactly that many\nslides per click and pages are windowed so the visible window always\nstays full. A numeric move is coerced to an integer in\n`[1, slidesPerPage]` — it can neither drop below one nor skip past a\npage (which would orphan the slides in the gap) — and the **last page\nis end-aligned to the track end**, so every slide stays reachable even\nwhen the move doesn't divide the slide count evenly (e.g. 6 slides,\n`slidesPerPage={3}`, `slidesPerMove={2}` yields pages\n`[0,1,2] [2,3,4] [3,4,5]`)."
+          },
+          {
+            "name": "slidesPerPage",
+            "type": "number",
+            "required": false,
+            "default": null,
+            "description": "Number of slides visible per page. Defaults to `1`. With values\ngreater than `1`, slides are grouped into pages of that size for\nnavigation purposes: indicators auto-render per page, boundary\nclamp moves to the last page, and `Carousel.NextTrigger` /\n`Carousel.PreviousTrigger` advance one page at a time. The **last\npage always end-aligns** (its window is full, flush with the track\nend) rather than leaving a partial page — a partial page's leading\nslide can't align to the viewport start, which desyncs the active\npage against the scroll. So 7 slides at `slidesPerPage={3}` are 3\npages — `[0,1,2] [3,4,5] [4,5,6]` — the last shifted back by one to\nstay full. Coerced to an integer ≥ 1 — `0`, negative, fractional,\nand non-finite values are clamped (e.g. `2.5 → 2`, `0 → 1`) so the\npage maths never divides by zero."
+          },
+          {
+            "name": "snapAlign",
+            "type": "\"center\" | \"start\" | \"end\"",
+            "required": false,
+            "default": null,
+            "description": "Scroll-snap alignment the Viewport targets when programmatically\nscrolling to a page — see {@link CarouselSnapAlign}.\nDefaults to `\"start\"`. Set to `\"center\"` when consumer CSS uses\n`scroll-snap-align: center` on slides (e.g. a peek layout\nwhere slides are narrower than the Viewport)."
+          },
+          {
+            "name": "snapType",
+            "type": "\"mandatory\" | \"proximity\"",
+            "required": false,
+            "default": null,
+            "description": "`scroll-snap-type` strictness — see {@link CarouselSnapType}.\nDefaults to `\"mandatory\"`."
+          },
+          {
+            "name": "transition",
+            "type": "\"slide\" | \"fade\" | \"none\"",
+            "required": false,
+            "default": null,
+            "description": "Visual transition mode — see {@link CarouselTransition}.\nDefaults to `\"slide\"`."
+          },
+          {
+            "name": "translations",
+            "type": "CarouselTranslations",
+            "required": false,
+            "default": null,
+            "description": "Override the default user-visible strings the component owns —\nsee {@link CarouselTranslations}. Useful for i18n."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [
+          {
+            "name": "peek",
+            "type": "\"none\" | \"sm\" | \"md\" | \"lg\"",
+            "default": "none",
+            "description": "Reveal a sliver of the adjacent slides on either side of the active one. Works in both orientations (inline edges when horizontal, block edges when vertical)."
+          },
+          {
+            "name": "gap",
+            "type": "\"none\" | \"sm\" | \"md\" | \"lg\"",
+            "default": "md",
+            "description": "The spacing between slides. A t-shirt scale re-pointing --primitiv-carousel-gap to a spacing token; `md` is the default. Works in both orientations (the gap runs on the scroll axis) and composes with every other variant. Note: the `padding` modifier couples the gap to its inset for a clean framed track, so it overrides this within a padded track."
+          },
+          {
+            "name": "padding",
+            "type": "\"none\" | \"sm\" | \"md\" | \"lg\"",
+            "default": "none",
+            "description": "Make the viewport a padded, framed track: pad the slides inward from the viewport edges and draw the track outline (border + rounded corners). The gap is coupled to the padding so the resting track doesn't itself reveal a neighbour; add `peek` for a deliberate reveal within the track. The background fill is opt-in via the `surface` modifier — padding alone renders an outlined track."
+          },
+          {
+            "name": "surface",
+            "type": "\"none\" | \"subtle\"",
+            "default": "none",
+            "description": "Opt into the viewport track's background fill. Off by default (a framed track is just an outline); pairs with `padding` to render a filled, framed track."
+          },
+          {
+            "name": "radius",
+            "type": "\"none\" | \"md\"",
+            "default": "none",
+            "description": "Opt into rounding the container (the viewport track around the slides), independent of the `padding` frame. Off by default (a square track); `md` rounds it to the shared, size/density-scaled carousel radius, so the track corners match the slide corners. (Distinct from the per-slide `radius` modifier, which rounds each slide; this rounds the track that clips them.)"
+          },
+          {
+            "name": "placement",
+            "type": "\"external\" | \"overlay\"",
+            "default": "external",
+            "description": "Where the controls sit relative to the imagery — the one axis that is off-vs-on the slide. `external` (the default) keeps the controls off the imagery, in the space around the viewport. `overlay` insets them on the slide for edge-to-edge imagery. How the controls are *arranged* (one bar vs prev/next flanking the edges) is the orthogonal `cluster` axis; `side` / `distribution` / `align` / `orientation` then compose on top of both."
+          },
+          {
+            "name": "side",
+            "type": "\"after\" | \"before\"",
+            "default": "after",
+            "description": "Which cross-axis edge the indicator cluster (or the joined bar) sits on, relative to the scroll direction. `after` is the trailing edge (below the viewport when horizontal, the inline-end/right side when vertical); `before` is the leading edge (above / inline-start). Orientation-relative and RTL-safe — it composes with `orientation` to reach all four physical edges. Read by both placements and both clusters."
+          },
+          {
+            "name": "distribution",
+            "type": "\"group\" | \"stretch\"",
+            "default": "group",
+            "description": "How the controls spread along their edge. For `joined` it drives the whole prev/indicators/next bar — `group` (the default) bunches them, `stretch` pushes prev/next to the extremes with the indicators centred (space-between). For `split` it governs the indicator cluster (prev/next stay flanking the viewport edges) — `group` bunches the dots, `stretch` spreads them across the full edge. Applies to both placements."
+          },
+          {
+            "name": "align",
+            "type": "\"start\" | \"center\" | \"end\"",
+            "default": "center",
+            "description": "Where the grouped controls sit along their edge (only read under `distribution=group`; `stretch` fills the edge, so alignment is moot). `center` is the default; `start` / `end` pin the cluster to the leading / trailing end — the whole bar for `joined`, the indicator cluster for `split`. Applies to both placements. Logical, so it mirrors under RTL and follows the scroll axis when vertical."
+          },
+          {
+            "name": "cluster",
+            "type": "\"split\" | \"joined\"",
+            "default": "split",
+            "description": "How the controls are arranged — the orthogonal companion to `placement`, read by both `external` and `overlay`. `split` (the default) sends prev/next to the viewport's two scroll-axis edges (flanking it — left/right when horizontal, top/bottom when vertical) and leaves the indicators as a separate cluster positioned by `side` / `distribution` / `align`. `joined` bundles prev + indicators + next into one `<CarouselControls>` bar that travels together, positioned as a unit by `side` / `distribution` / `align`. Compose the parts inside `<CarouselControls>` for `joined`, as direct children of the root for `split`. Together with `placement` this is the full 2×2 — external/overlay × split/joined."
+          },
+          {
+            "name": "indicators",
+            "type": "\"dots\" | \"thumbnails\"",
+            "default": "dots",
+            "description": "What the indicators look like. `dots` (the default) is the compact dot row; `thumbnails` swaps each indicator for a rounded-rect image thumbnail — the active one ringed in the primary colour, the classic gallery pattern. Supply the thumbnail content as children of each `<CarouselIndicator>` (an `<img>` or a background element)."
+          },
+          {
+            "name": "size",
+            "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
+            "default": "md",
+            "description": "Scale of the control chrome — the prev/next controls, indicator dots and thumbnails — on a t-shirt ramp, so a carousel matches the density of the UI around it. The viewport and slides stay container-driven (they fill their space); only the controls scale. Composes with the ambient `data-density` (which shifts every slot): `size` picks the slot, density shifts it. The prev/next controls track the shared framed-control ramp, so they match a same-size Button."
+          },
+          {
+            "name": "ratio",
+            "type": "\"square\" | \"standard\" | \"wide\" | \"ultrawide\"",
+            "default": "wide",
+            "description": "The carousel's aspect ratio, applied uniformly to every slide (and tracked by the thumbnail indicators). Re-points --primitiv-carousel-slide-aspect-ratio at the root; the vertical viewport's shape defaults to the same knob, so `ratio` shapes the slides in both orientations (square vertical slides, a widescreen vertical scroller, ...). Override the knob directly for a bespoke value. (Per-slide ratios are a later revisit.)"
+          },
+          {
+            "name": "slideWidth",
+            "type": "\"equal\" | \"content\"",
+            "default": "equal",
+            "description": "How each slide's width (block size when vertical) is determined. `equal` (the default) shares the viewport's content box evenly across `slidesPerPage` slides, each holding its shape via the `ratio` aspect-ratio. `content` lets each slide size to its own content instead — an intrinsically-sized image, an explicit width on the slide, or any content with a natural size — so slides in one track can have genuinely different widths (Ark UI's `autoSize`). Scoped to `slidesPerPage=1`: the multi-slide windowing math assumes equal shares, which content-driven widths break."
+          },
+          {
+            "name": "effect",
+            "type": "\"none\" | \"parallax\"",
+            "default": "none",
+            "description": "An opt-in scroll-driven visual effect for the slide content, layered on top of scroll-snap paging. `none` (the default) renders slides plain. `parallax` gives each slide's <CarouselSlideContent> a native, zero-JavaScript drift as the slide crosses the viewport (Blossom Carousel's Slideshow example) — a CSS view-timeline scoped to the slide drives the content's transform via animation-range: cover, following the scroll axis (inline horizontal, block vertical). The effect requires wrapping the slide's media in <CarouselSlideContent>; browsers without animation-timeline: view() support fall back to reading the headless --slide-progress signal instead (an equivalent, continuously-updated transform with no extra JavaScript of our own), and it disables entirely under prefers-reduced-motion."
+          },
+          {
+            "name": "glide",
+            "type": "\"fast\" | \"medium\" | \"slow\"",
+            "default": "medium",
+            "description": "How fast the infinite loop glides between pages (loop=\"infinite\" only — every other mode uses native scroll). A preset re-points --primitiv-carousel-glide-duration to a motion duration token; the engine reads it, with --primitiv-carousel-glide-easing, off the track and drives the transform transition. `medium` is the default. For a duration or easing outside the presets, re-point either custom property directly."
+          }
+        ],
+        "dataAttributes": [
+          {
+            "name": "data-orientation",
+            "value": "horizontal",
+            "when": "horizontal"
+          },
+          {
+            "name": "data-orientation",
+            "value": "vertical",
+            "when": "vertical"
+          },
+          {
+            "name": "data-transition",
+            "value": "slide",
+            "when": "slide"
+          },
+          {
+            "name": "data-transition",
+            "value": "fade",
+            "when": "fade"
+          },
+          {
+            "name": "data-transition",
+            "value": "none",
+            "when": "none"
+          },
+          {
+            "name": "data-loop",
+            "value": "none",
+            "when": "loop disabled (default)"
+          },
+          {
+            "name": "data-loop",
+            "value": "wrap",
+            "when": "loop / loop=\"wrap\" (semantic wrap)"
+          },
+          {
+            "name": "data-loop",
+            "value": "infinite",
+            "when": "loop=\"infinite\" (continuous infinite)"
+          }
+        ],
+        "class": "primitiv-carousel"
+      },
+      {
+        "name": "Carousel.Viewport",
+        "extends": "HTMLDivElement",
+        "props": [],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [
+          {
+            "name": "data-carousel-viewport",
+            "value": "",
+            "when": "always — a structural hook the component's own CSS uses to find this part, and yours may too"
+          },
+          {
+            "name": "data-carousel-track",
+            "value": "",
+            "when": "always — a structural hook the component's own CSS uses to find this part, and yours may too"
+          },
+          {
+            "name": "data-snap-type",
+            "value": "mandatory | proximity",
+            "when": "the `snap` prop, mirrored so the scroll-snap CSS can read it"
+          },
+          {
+            "name": "data-slides-per-page",
+            "value": "<number>",
+            "when": "how many slides share the viewport — the slide width is computed from it"
+          },
+          {
+            "name": "data-mouse-drag",
+            "value": "",
+            "when": "`mouseDrag` is enabled, so pointer drag is bound as well as touch"
+          },
+          {
+            "name": "data-carousel-clones",
+            "value": "<number>",
+            "when": "how many cloned slides pad each end under infinite loop"
+          },
+          {
+            "name": "data-dragging",
+            "value": "",
+            "when": "a drag is in progress — the hook for suppressing snap and transitions mid-gesture"
+          },
+          {
+            "name": "data-overscroll",
+            "value": "start | end",
+            "when": "a drag has pulled past the first or last slide"
+          }
+        ],
+        "class": "primitiv-carousel__viewport"
+      },
+      {
+        "name": "Carousel.Slide",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "ariaLabel",
+            "type": "string",
+            "required": false,
+            "default": null,
+            "description": "Override the auto-generated `\"N of M\"` `aria-label`. Use this when\nthe slide has a more meaningful description than its position\n(e.g. `\"Hand-picked for you\"`). When omitted, slides are labelled\nwith their live index and total in registration order."
+          },
+          {
+            "name": "snapAlign",
+            "type": "\"center\" | \"start\" | \"end\"",
+            "required": false,
+            "default": null,
+            "description": "Override the root's {@link CarouselRootProps.snapAlign`snapAlign`}\nfor this slide only — e.g. a variable-width layout where only some\nslides should centre or end-align. Only takes effect on a slide\nthat's a valid scroll-snap resting position (a page's leading\nslide); an interior slide of a multi-slide page never snaps,\nregardless of this prop. Matches Ark UI's per-`Item` `snapAlign`."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [
+          {
+            "name": "radius",
+            "type": "\"md\" | \"none\"",
+            "default": "md",
+            "description": "Corner rounding of the slide."
+          },
+          {
+            "name": "fit",
+            "type": "\"cover\" | \"contain\"",
+            "default": "cover",
+            "description": "How a media child (an img / picture / video) conforms to the slide box. The slide box is always sized by the layout; this decides how a real image — which has its own intrinsic size and ratio — fills it."
+          },
+          {
+            "name": "surface",
+            "type": "\"none\" | \"subtle\"",
+            "default": "none",
+            "description": "Optional slide backdrop — the fill behind the media. Off by default (transparent), so a cover image or a slide with its own background is unaffected; opt in to give a `contain` letterbox (or a transparent image) a surface behind it. Mirrors the root `surface` modifier and uses the same token."
+          }
+        ],
+        "dataAttributes": [
+          {
+            "name": "data-carousel-slide",
+            "value": "",
+            "when": "always — a structural hook the component's own CSS uses to find this part, and yours may too"
+          },
+          {
+            "name": "data-carousel-clone",
+            "value": "",
+            "when": "this slide is one of the loop clones rather than a real one — exclude it from counts and a11y"
+          },
+          {
+            "name": "data-index",
+            "value": "<number>",
+            "when": "this slide's zero-based position"
+          },
+          {
+            "name": "data-total",
+            "value": "<number>",
+            "when": "how many real slides there are"
+          },
+          {
+            "name": "data-snap-align",
+            "value": "start | center | end",
+            "when": "the `align` prop, mirrored so each slide's scroll-snap-align can read it"
+          },
+          {
+            "name": "data-state",
+            "value": "active",
+            "when": "active"
+          },
+          {
+            "name": "data-state",
+            "value": "inactive",
+            "when": "inactive"
+          }
+        ],
+        "class": "primitiv-carousel__slide"
+      },
+      {
+        "name": "Carousel.SlideContent",
+        "extends": "HTMLDivElement",
+        "props": [],
+        "styledOnly": true,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-carousel__slide-content"
+      },
+      {
+        "name": "Carousel.PreviousTrigger",
+        "extends": "HTMLButtonElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": null,
+            "description": "See `CarouselNextTriggerProps.asChild`."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-carousel__prev"
+      },
+      {
+        "name": "Carousel.NextTrigger",
+        "extends": "HTMLButtonElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": null,
+            "description": "Render the child element instead of the default `<button>`. All\ntrigger props (onClick, disabled, ids.nextTrigger, ...) are merged\nonto the child via `Slot`. The child must accept a `ref`."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-carousel__next"
+      },
+      {
+        "name": "Carousel.Indicators",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "ariaLabelledBy",
+            "type": "string",
+            "required": false,
+            "default": null,
+            "description": "Id of an existing element to name the indicator group, set as\n`aria-labelledby`. Mutually exclusive with `label`."
+          },
+          {
+            "name": "label",
+            "type": "string",
+            "required": false,
+            "default": null,
+            "description": "Accessible name for the indicator group, announced as\n`aria-label` (e.g. `\"Choose slide\"`). Mutually exclusive with\n`ariaLabelledBy`."
+          },
+          {
+            "name": "readOnly",
+            "type": "boolean",
+            "required": false,
+            "default": null,
+            "description": "Forwarded to every generated `Carousel.Indicator`. See\n`CarouselIndicatorProps.readOnly`. Default `false`."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-carousel__indicator-group"
+      },
+      {
+        "name": "Carousel.IndicatorGroup",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "ariaLabelledBy",
+            "type": "string",
+            "required": false,
+            "default": null,
+            "description": "Id of an existing element to name the indicator group, set as\n`aria-labelledby`. Mutually exclusive with `label`."
+          },
+          {
+            "name": "label",
+            "type": "string",
+            "required": false,
+            "default": null,
+            "description": "Accessible name for the indicator group, announced as\n`aria-label` (e.g. `\"Choose slide\"`). Mutually exclusive with\n`ariaLabelledBy`."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-carousel__indicator-group"
+      },
+      {
+        "name": "Carousel.Indicator",
+        "extends": "HTMLButtonElement",
+        "props": [
+          {
+            "name": "index",
+            "type": "number",
+            "required": true,
+            "default": null,
+            "description": "Zero-based page this indicator targets. Clicking jumps to it."
+          },
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": null,
+            "description": "Render the child element instead of the default `<button>`.\nTrigger props (onClick, aria-label, aria-disabled, data-state)\nare merged onto the child via `Slot`. The child must accept a\n`ref`."
+          },
+          {
+            "name": "readOnly",
+            "type": "boolean",
+            "required": false,
+            "default": null,
+            "description": "Renders a presentational-only `<span>` instead of a `<button>`:\n`aria-hidden=\"true\"`, and clicking no longer calls `goTo`. Use for a\nprogress display when navigation happens some other way (e.g. a\ncarousel driven solely by `allowMouseDrag`). The consumer's own\n`onClick`, if passed, still fires. Default `false`."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [
+          {
+            "name": "data-carousel-indicator",
+            "value": "",
+            "when": "always — a structural hook the component's own CSS uses to find this part, and yours may too"
+          },
+          {
+            "name": "data-state",
+            "value": "active",
+            "when": "active"
+          },
+          {
+            "name": "data-state",
+            "value": "inactive",
+            "when": "inactive"
+          }
+        ],
+        "class": "primitiv-carousel__indicator"
+      },
+      {
+        "name": "Carousel.PlayPauseTrigger",
+        "extends": "HTMLButtonElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": null,
+            "description": "Render the child element instead of the default `<button>`.\nThe child must accept a `ref`. The render-prop form of `children`\nis not supported under `asChild`; pass a single element instead."
+          },
+          {
+            "name": "children",
+            "type": "CarouselPlayPauseTriggerChildren",
+            "required": false,
+            "default": null,
+            "description": ""
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": true,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": null
+      },
+      {
+        "name": "Carousel.ProgressText",
+        "extends": "HTMLSpanElement",
+        "props": [],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-carousel__progress-text"
+      },
+      {
+        "name": "Carousel.Controls",
+        "extends": "HTMLDivElement",
+        "props": [],
+        "styledOnly": true,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-carousel__controls"
+      }
+    ]
+  },
+  "styled": {
+    "installCommand": "primitiv add carousel",
+    "rootClass": "primitiv-carousel",
+    "customProperties": [
+      {
+        "name": "--primitiv-carousel-gap",
+        "defaultsTo": "var(--primitiv-space-space-16)"
+      },
+      {
+        "name": "--primitiv-carousel-peek",
+        "defaultsTo": "var(--primitiv-space-space-0)"
+      },
+      {
+        "name": "--primitiv-carousel-viewport-padding",
+        "defaultsTo": "var(--primitiv-space-space-0)"
+      },
+      {
+        "name": "--primitiv-carousel-content-space-1",
+        "defaultsTo": "var(--primitiv-carousel-md-content-space-1)"
+      },
+      {
+        "name": "--primitiv-carousel-content-space-2",
+        "defaultsTo": "var(--primitiv-carousel-md-content-space-2)"
+      },
+      {
+        "name": "--primitiv-carousel-content-space-3",
+        "defaultsTo": "var(--primitiv-carousel-md-content-space-3)"
+      },
+      {
+        "name": "--primitiv-carousel-content-space-4",
+        "defaultsTo": "var(--primitiv-carousel-md-content-space-4)"
+      },
+      {
+        "name": "--primitiv-carousel-viewport-surface",
+        "defaultsTo": "transparent"
+      },
+      {
+        "name": "--primitiv-carousel-viewport-border-width",
+        "defaultsTo": "var(--primitiv-border-width-0)"
+      },
+      {
+        "name": "--primitiv-carousel-viewport-border-color",
+        "defaultsTo": "transparent"
+      },
+      {
+        "name": "--primitiv-carousel-viewport-radius",
+        "defaultsTo": "var(--primitiv-radii-0)"
+      },
+      {
+        "name": "--primitiv-carousel-slides-per-page",
+        "defaultsTo": "1"
+      },
+      {
+        "name": "--primitiv-carousel-slide-aspect-ratio",
+        "defaultsTo": "16 / 9"
+      },
+      {
+        "name": "--primitiv-carousel-vertical-aspect-ratio",
+        "defaultsTo": "var(--primitiv-carousel-slide-aspect-ratio)"
+      },
+      {
+        "name": "--primitiv-carousel-radius",
+        "defaultsTo": "var(--primitiv-carousel-md-radius)"
+      },
+      {
+        "name": "--primitiv-carousel-slide-radius",
+        "defaultsTo": "var(--primitiv-carousel-radius)"
+      },
+      {
+        "name": "--primitiv-carousel-slide-object-fit",
+        "defaultsTo": "cover"
+      },
+      {
+        "name": "--primitiv-carousel-slide-object-position",
+        "defaultsTo": "center"
+      },
+      {
+        "name": "--primitiv-carousel-slide-surface",
+        "defaultsTo": "transparent"
+      },
+      {
+        "name": "--primitiv-carousel-block-gap",
+        "defaultsTo": "var(--primitiv-carousel-md-chrome-gap)"
+      },
+      {
+        "name": "--primitiv-carousel-controls-gap",
+        "defaultsTo": "var(--primitiv-carousel-md-chrome-gap)"
+      },
+      {
+        "name": "--primitiv-carousel-control-size",
+        "defaultsTo": "var(--primitiv-framed-control-md-height)"
+      },
+      {
+        "name": "--primitiv-carousel-control-radius",
+        "defaultsTo": "50%"
+      },
+      {
+        "name": "--primitiv-carousel-control-bg",
+        "defaultsTo": "var(--primitiv-action-secondary-default)"
+      },
+      {
+        "name": "--primitiv-carousel-control-bg-hover",
+        "defaultsTo": "var(--primitiv-action-secondary-hover)"
+      },
+      {
+        "name": "--primitiv-carousel-control-bg-active",
+        "defaultsTo": "var(--primitiv-action-secondary-active)"
+      },
+      {
+        "name": "--primitiv-carousel-control-fg",
+        "defaultsTo": "var(--primitiv-action-secondary-foreground-default)"
+      },
+      {
+        "name": "--primitiv-carousel-control-icon-size",
+        "defaultsTo": "var(--primitiv-framed-control-md-icon-size)"
+      },
+      {
+        "name": "--primitiv-carousel-indicator-gap",
+        "defaultsTo": "var(--primitiv-space-space-0)"
+      },
+      {
+        "name": "--primitiv-carousel-indicator-hit-area",
+        "defaultsTo": "var(--primitiv-carousel-md-dot-hit-area)"
+      },
+      {
+        "name": "--primitiv-carousel-indicator-size",
+        "defaultsTo": "var(--primitiv-carousel-md-dot-size)"
+      },
+      {
+        "name": "--primitiv-carousel-indicator-size-active",
+        "defaultsTo": "var(--primitiv-carousel-md-active-pill)"
+      },
+      {
+        "name": "--primitiv-carousel-indicator-color",
+        "defaultsTo": "var(--primitiv-border-strong)"
+      },
+      {
+        "name": "--primitiv-carousel-indicator-color-active",
+        "defaultsTo": "var(--primitiv-action-primary-default)"
+      },
+      {
+        "name": "--primitiv-carousel-progress-text-color",
+        "defaultsTo": "var(--primitiv-content-secondary)"
+      },
+      {
+        "name": "--primitiv-carousel-progress-text-font-size",
+        "defaultsTo": "var(--primitiv-body-sm-font-size)"
+      },
+      {
+        "name": "--primitiv-carousel-thumbnail-inline-size",
+        "defaultsTo": "var(--primitiv-carousel-md-thumbnail-size)"
+      },
+      {
+        "name": "--primitiv-carousel-thumbnail-aspect-ratio",
+        "defaultsTo": "var(--primitiv-carousel-slide-aspect-ratio)"
+      },
+      {
+        "name": "--primitiv-carousel-thumbnail-gap",
+        "defaultsTo": "var(--primitiv-space-space-8)"
+      },
+      {
+        "name": "--primitiv-carousel-thumbnail-radius",
+        "defaultsTo": "var(--primitiv-radii-8)"
+      },
+      {
+        "name": "--primitiv-carousel-thumbnail-ring-width",
+        "defaultsTo": "var(--primitiv-border-width-2)"
+      },
+      {
+        "name": "--primitiv-carousel-thumbnail-ring-color",
+        "defaultsTo": "var(--primitiv-action-primary-default)"
+      },
+      {
+        "name": "--primitiv-carousel-thumbnail-inactive-opacity",
+        "defaultsTo": "var(--primitiv-opacity-60)"
+      },
+      {
+        "name": "--primitiv-carousel-overlay-control-inset",
+        "defaultsTo": "var(--primitiv-space-space-8)"
+      },
+      {
+        "name": "--primitiv-carousel-overlay-control-bg",
+        "defaultsTo": "var(--primitiv-color-neutral-alpha-500)"
+      },
+      {
+        "name": "--primitiv-carousel-overlay-control-bg-hover",
+        "defaultsTo": "var(--primitiv-color-neutral-alpha-600)"
+      },
+      {
+        "name": "--primitiv-carousel-overlay-control-bg-active",
+        "defaultsTo": "var(--primitiv-color-neutral-alpha-700)"
+      },
+      {
+        "name": "--primitiv-carousel-overlay-control-fg",
+        "defaultsTo": "var(--primitiv-content-inverse)"
+      },
+      {
+        "name": "--primitiv-carousel-overlay-indicator-inset",
+        "defaultsTo": "var(--primitiv-space-space-8)"
+      },
+      {
+        "name": "--primitiv-carousel-overlay-indicator-color",
+        "defaultsTo": "var(--primitiv-color-neutral-alpha-inverse-500)"
+      },
+      {
+        "name": "--primitiv-carousel-overlay-indicator-color-active",
+        "defaultsTo": "var(--primitiv-content-inverse)"
+      },
+      {
+        "name": "--primitiv-carousel-overlay-pill-bg",
+        "defaultsTo": "var(--primitiv-color-neutral-alpha-500)"
+      },
+      {
+        "name": "--primitiv-carousel-overlay-pill-padding-inline",
+        "defaultsTo": "var(--primitiv-carousel-md-pill-padding-inline)"
+      },
+      {
+        "name": "--primitiv-carousel-overlay-pill-padding-block",
+        "defaultsTo": "var(--primitiv-carousel-md-pill-padding-block)"
+      },
+      {
+        "name": "--primitiv-carousel-fade-duration",
+        "defaultsTo": "var(--primitiv-motion-duration-overlay)"
+      },
+      {
+        "name": "--primitiv-carousel-fade-easing",
+        "defaultsTo": "var(--primitiv-motion-easing-default)"
+      },
+      {
+        "name": "--primitiv-carousel-glide-duration",
+        "defaultsTo": "var(--primitiv-duration-500)"
+      },
+      {
+        "name": "--primitiv-carousel-glide-easing",
+        "defaultsTo": "var(--primitiv-motion-easing-enter)"
+      },
+      {
+        "name": "--primitiv-carousel-parallax-scale",
+        "defaultsTo": "1.3"
+      },
+      {
+        "name": "--primitiv-carousel-parallax-amount",
+        "defaultsTo": "calc((var(--primitiv-carousel-parallax-scale) - 1) / 2 * 100%)"
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-orientation",
+        "value": "horizontal",
+        "when": "horizontal"
+      },
+      {
+        "name": "data-orientation",
+        "value": "vertical",
+        "when": "vertical"
+      },
+      {
+        "name": "data-transition",
+        "value": "slide",
+        "when": "slide"
+      },
+      {
+        "name": "data-transition",
+        "value": "fade",
+        "when": "fade"
+      },
+      {
+        "name": "data-transition",
+        "value": "none",
+        "when": "none"
+      },
+      {
+        "name": "data-loop",
+        "value": "none",
+        "when": "loop disabled (default)"
+      },
+      {
+        "name": "data-loop",
+        "value": "wrap",
+        "when": "loop / loop=\"wrap\" (semantic wrap)"
+      },
+      {
+        "name": "data-loop",
+        "value": "infinite",
+        "when": "loop=\"infinite\" (continuous infinite)"
+      },
+      {
+        "name": "data-carousel-viewport",
+        "value": "",
+        "when": "always — a structural hook the component's own CSS uses to find this part, and yours may too"
+      },
+      {
+        "name": "data-carousel-track",
+        "value": "",
+        "when": "always — a structural hook the component's own CSS uses to find this part, and yours may too"
+      },
+      {
+        "name": "data-snap-type",
+        "value": "mandatory | proximity",
+        "when": "the `snap` prop, mirrored so the scroll-snap CSS can read it"
+      },
+      {
+        "name": "data-slides-per-page",
+        "value": "<number>",
+        "when": "how many slides share the viewport — the slide width is computed from it"
+      },
+      {
+        "name": "data-mouse-drag",
+        "value": "",
+        "when": "`mouseDrag` is enabled, so pointer drag is bound as well as touch"
+      },
+      {
+        "name": "data-carousel-clones",
+        "value": "<number>",
+        "when": "how many cloned slides pad each end under infinite loop"
+      },
+      {
+        "name": "data-dragging",
+        "value": "",
+        "when": "a drag is in progress — the hook for suppressing snap and transitions mid-gesture"
+      },
+      {
+        "name": "data-overscroll",
+        "value": "start | end",
+        "when": "a drag has pulled past the first or last slide"
+      },
+      {
+        "name": "data-carousel-slide",
+        "value": "",
+        "when": "always — a structural hook the component's own CSS uses to find this part, and yours may too"
+      },
+      {
+        "name": "data-carousel-clone",
+        "value": "",
+        "when": "this slide is one of the loop clones rather than a real one — exclude it from counts and a11y"
+      },
+      {
+        "name": "data-index",
+        "value": "<number>",
+        "when": "this slide's zero-based position"
+      },
+      {
+        "name": "data-total",
+        "value": "<number>",
+        "when": "how many real slides there are"
+      },
+      {
+        "name": "data-snap-align",
+        "value": "start | center | end",
+        "when": "the `align` prop, mirrored so each slide's scroll-snap-align can read it"
+      },
+      {
+        "name": "data-state",
+        "value": "active",
+        "when": "active"
+      },
+      {
+        "name": "data-state",
+        "value": "inactive",
+        "when": "inactive"
+      },
+      {
+        "name": "data-carousel-indicator",
+        "value": "",
+        "when": "always — a structural hook the component's own CSS uses to find this part, and yours may too"
+      },
+      {
+        "name": "data-state",
+        "value": "active",
+        "when": "active"
+      },
+      {
+        "name": "data-state",
+        "value": "inactive",
+        "when": "inactive"
+      }
+    ]
+  },
+  "figma": {
+    "componentSetKey": "1028:24921"
+  }
+}

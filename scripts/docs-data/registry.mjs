@@ -132,6 +132,35 @@ export const REGISTRY = {
        twins are the marker/progress-bar landing points). */
     figmaComponentSetKey: "1788:45166", importPath: "@/components/ui/stepper",
   },
+  carousel: {
+    displayName: "Carousel", kind: "registry", status: "stable", category: "Disclosure",
+    /* Dual-surface, and the split goes BOTH ways (like Modal + Checkbox):
+       `SlideContent` and `Controls` are styled-only (the copied file adds them,
+       the headless compound has neither), so they carry their own `propsFile`;
+       `PlayPauseTrigger` is headless-only (the copied file does not export it).
+       Everything else is a headless compound part, documented from the primitive
+       types (the accordion convention). */
+    propsFile: "packages/react/src/Carousel/types.ts",
+    subComponents: [
+      { name: "Carousel.Root", propsType: "CarouselRootProps", element: "section", component: "Root" },
+      { name: "Carousel.Viewport", propsType: "CarouselViewportProps", element: "div", component: "Viewport" },
+      { name: "Carousel.Slide", propsType: "CarouselSlideProps", element: "div", component: "Slide" },
+      { name: "Carousel.SlideContent", propsType: "CarouselSlideContentProps", propsFile: "registry/components/carousel/carousel.tsx", element: "div", component: "SlideContent" },
+      { name: "Carousel.PreviousTrigger", propsType: "CarouselPreviousTriggerProps", element: "button", component: "PreviousTrigger" },
+      { name: "Carousel.NextTrigger", propsType: "CarouselNextTriggerProps", element: "button", component: "NextTrigger" },
+      { name: "Carousel.Indicators", propsType: "CarouselIndicatorsProps", element: "div", component: "Indicators" },
+      { name: "Carousel.IndicatorGroup", propsType: "CarouselIndicatorGroupProps", element: "div", component: "IndicatorGroup" },
+      { name: "Carousel.Indicator", propsType: "CarouselIndicatorProps", element: "button", component: "Indicator" },
+      { name: "Carousel.PlayPauseTrigger", propsType: "CarouselPlayPauseTriggerProps", element: "button", component: "PlayPauseTrigger" },
+      { name: "Carousel.ProgressText", propsType: "CarouselProgressTextProps", element: "span", component: "ProgressText" },
+      { name: "Carousel.Controls", propsType: "CarouselControlsProps", propsFile: "registry/components/carousel/carousel.tsx", element: "div", component: "Controls" },
+    ],
+    contract: "registry/components/carousel/contract.json",
+    /* No single composed Carousel set in Figma — the parts are their own sets
+       (Viewport, Slide, Control, Indicator(s), Thumbnail, AutoplayButton). The
+       Viewport is the core visual, so it is the landing point. */
+    figmaComponentSetKey: "1028:24921", importPath: "@primitiv-ui/react",
+  },
   pagination: {
     displayName: "Pagination", kind: "registry-only", status: "stable", category: "Disclosure",
     /* Hand-authored compound (composes button + dropdown, uses usePagination) —

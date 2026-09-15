@@ -88,7 +88,7 @@
     "displayName": "Carousel",
     "category": "Disclosure",
     "description": "A responsive, accessible carousel — a scroll-snap viewport of slides with prev/next controls and indicator dots (WAI-ARIA Carousel pattern). Adapts to its container by default.",
-    "documented": false
+    "documented": true
   },
   {
     "id": "center",

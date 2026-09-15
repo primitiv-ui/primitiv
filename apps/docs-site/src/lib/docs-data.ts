@@ -36,6 +36,7 @@ import inputDocs from "@/docs-data/input.docs.json";
 import accordionDocs from "@/docs-data/accordion.docs.json";
 import collapsibleDocs from "@/docs-data/collapsible.docs.json";
 import stepperDocs from "@/docs-data/stepper.docs.json";
+import carouselDocs from "@/docs-data/carousel.docs.json";
 import checkboxCardDocs from "@/docs-data/checkbox-card.docs.json";
 import checkboxDocs from "@/docs-data/checkbox.docs.json";
 import emptyStateDocs from "@/docs-data/empty-state.docs.json";
@@ -258,6 +259,7 @@ const DOCS = {
   accordion: accordionDocs as unknown as ComponentDocs,
   collapsible: collapsibleDocs as unknown as ComponentDocs,
   stepper: stepperDocs as unknown as ComponentDocs,
+  carousel: carouselDocs as unknown as ComponentDocs,
   checkbox: checkboxDocs as unknown as ComponentDocs,
   "checkbox-card": checkboxCardDocs as unknown as ComponentDocs,
   "empty-state": emptyStateDocs as unknown as ComponentDocs,

@@ -179,8 +179,14 @@ source of truth for when a skill applies.
   `contract.json` → `primitiv.lock` refresh / `--force` / interactive
   overwrite-keep → project wiring → auto-generates token layer when absent →
   **prepends a `import "./styles...css"` line to the tsx wrapper** so the
-  component self-imports its stylesheet), `tokens`, `theme`, and `list` (with
-  the lock-backed installed column). The registry has three
+  component self-imports its stylesheet), `tokens`, `theme`, `list` (with
+  the lock-backed installed column) and — added 2026-09-15 — **`dtcg`**
+  (`primitiv dtcg [--<family> <colour>]... --out <path>`), which writes each
+  seeded family's paired light + dark ramps as a standard DTCG document in
+  **hex**: the route out of the CLI and into a design tool, since a consumer
+  seeding their palette in code has no Primitiv plugin to read a bespoke
+  payload with. See the OkLCH entry below for why hex here loses nothing.
+  The registry has three
   adapters behind one port — embedded (baked in), `LocalRegistry`
   (`--registry <path>`) and `HttpsRegistry` (`--registry <url|version>`, a
   blocking `ureq`/rustls fetch from GitHub-raw) — chosen at run time as a
@@ -1228,7 +1234,12 @@ source of truth for when a skill applies.
   Figma RGBA → hex, so **running a sync backup would revert the source from
   OkLCH to hex** — losing the authored precision, which is the point of
   authoring it there (hex is 8-bit). Treat a backup run as a thing to check
-  after, not a routine no-op. It would not *break* anything: the colour-reading
+  after, not a routine no-op. **Getting colour *out* to a design tool is a
+  separate, sanctioned path now: `primitiv dtcg` (above) exports in hex on
+  purpose**, and hex costs nothing there because the engine's rendered OkLCH
+  reproduces its own hex exactly — which is what the `c2e7d8b` rendering fix
+  was for. So hex is an *export format*, not a shape the source has to take.
+  It would not *break* anything: the colour-reading
   guards moved to Rust (`crates/harmoni-core/tests/token_source_colours.rs`) and
   read through `ColorInput::Css`, which takes hex or `oklch()` indifferently —
   which is exactly why the source's form could change at all. **Two values pass

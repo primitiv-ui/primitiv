@@ -56,7 +56,7 @@
   "subcomponents": [
     {
       "name": "tree",
-      "component": "Root",
+      "component": null,
       "element": "div",
       "description": "The inner role=\"tree\" widget the Root renders around its columns. A tree may own only treeitem and group, so the preview panel sits outside it. The headless component owns this element outright, so it is targeted by its data attribute rather than a class a consumer could set.",
       "dataAttributes": [

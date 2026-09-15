@@ -1217,12 +1217,22 @@ source of truth for when a skill applies.
 - **The token layer emits OkLCH now, not hex (2026-09-15).** Primitiv is
   OkLCH-first like the engine: every `color` token reaches a stylesheet as
   `oklch(L C H)`, alpha ramps as `oklch(L C H / a)`. Four things worth knowing.
-  **The DTCG source stays hex, deliberately** — conversion is *emit-time*
-  (`value.rs::format_color`, gated on the leaf's own `$type`), because hex is the
-  interchange form Figma and the token sync both speak and **Figma has no OkLCH
-  variable type**; authoring OkLCH in `palette.json` would be silently reverted
-  to hex by the next sync backup (`packages/tokens/src/dtcg.ts` converts Figma
-  RGBA → hex). **Two values pass through untouched:** an alias (not a colour yet
+  **The DTCG source is authored in OkLCH too, as of later the same day**
+  (`7578ad3`) — this entry first said it "stays hex, deliberately", and that is
+  no longer the case: `palette.json` now holds `oklch(0.9407 0.0155 257.198)`
+  and the emitter passes an already-OkLCH value through untouched (`dfb7e87`),
+  so the conversion in `value.rs::format_color` is idempotent and still gated on
+  the leaf's own `$type`. **The Figma hazard that reasoning rested on is still
+  real, only its consequence has inverted.** Figma has no OkLCH variable type
+  and `packages/tokens/src/dtcg.ts` (`rgbaToHex`, line ~279) still converts
+  Figma RGBA → hex, so **running a sync backup would revert the source from
+  OkLCH to hex** — losing the authored precision, which is the point of
+  authoring it there (hex is 8-bit). Treat a backup run as a thing to check
+  after, not a routine no-op. It would not *break* anything: the colour-reading
+  guards moved to Rust (`crates/harmoni-core/tests/token_source_colours.rs`) and
+  read through `ColorInput::Css`, which takes hex or `oklch()` indifferently —
+  which is exactly why the source's form could change at all. **Two values pass
+  through untouched:** an alias (not a colour yet
   — `link_aliases` resolves it later) and a **fully transparent** colour, which
   has no hue or lightness worth stating (`#00000000` reads as intent where
   `oklch(0 0 0 / 0)` reads as a colour that merely happens to be invisible).

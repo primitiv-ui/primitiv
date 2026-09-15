@@ -449,17 +449,18 @@ fn write_team_buttons(root: &PathBuf) {
     println!("wrote the PROBLEM-01 buttons to {}", dest.display());
 }
 
-/// Hex → a `SwatchStep` the engine's own pairing primitive can take.
-fn step(hex: &str, label: &str) -> SwatchStep {
-    let bytes = u32::from_str_radix(hex.trim_start_matches('#'), 16)
-        .unwrap_or_else(|e| panic!("{hex} should be a hex colour: {e}"));
-    let rgb: Srgb<f32> = Srgb::<u8>::new(
-        ((bytes >> 16) & 0xff) as u8,
-        ((bytes >> 8) & 0xff) as u8,
-        (bytes & 0xff) as u8,
-    )
-    .into_format();
-    let oklch: Oklch = rgb.into_color();
+/// Any CSS colour → a `SwatchStep` the engine's own pairing primitive can take.
+///
+/// Parsed through `ColorInput`, not by hand: the token source is authored in
+/// OkLCH, so a hand-rolled hex reader here would panic on every value it was
+/// given. Taking the engine's parser makes this format-agnostic — hex, `oklch()`
+/// or anything else CSS accepts — which is the same reason
+/// `tests/intent_roles.rs` reads the palette the same way.
+fn step(color: &str, label: &str) -> SwatchStep {
+    let oklch = ColorInput::Css(color.to_string())
+        .to_oklch()
+        .unwrap_or_else(|e| panic!("{color} should be a CSS colour: {e:?}"));
+
     SwatchStep::from_label(
         oklch.l,
         oklch.chroma,

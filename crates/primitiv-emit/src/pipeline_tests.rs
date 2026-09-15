@@ -162,6 +162,7 @@ fn emits_a_brand_palette_as_paired_theme_overrides_in_tailwind() {
 
 #[test]
 fn rejects_an_unparseable_brand_colour() {
+    assert!(emit_dtcg_ramps(&[("brand", "not-a-colour")]).is_err());
     assert!(emit_theme_ramps_css(&[("brand", "not-a-colour")]).is_err());
     assert!(emit_theme_ramps_scss(&[("brand", "not-a-colour")]).is_err());
     assert!(emit_theme_ramps_tailwind(&[("brand", "not-a-colour")]).is_err());

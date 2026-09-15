@@ -150,33 +150,35 @@ enum Node {
     Leaf(String),
 }
 
-impl Node {
-    /// Places `value` at `path`, creating the groups along the way and reusing any
-    /// that a previous token already opened.
-    fn insert(&mut self, path: &[String], value: &str) {
-        let Node::Group(children) = self else {
-            return;
-        };
-        let Some((key, rest)) = path.split_first() else {
-            return;
-        };
-
-        if rest.is_empty() {
-            children.push((key.clone(), Node::Leaf(value.to_string())));
-            return;
-        }
-
-        if !children.iter().any(|(name, _)| name == key) {
-            children.push((key.clone(), Node::Group(Vec::new())));
-        }
-        let child = children
-            .iter_mut()
-            .find(|(name, _)| name == key)
-            .map(|(_, child)| child)
-            .expect("the group was just ensured to exist");
-        child.insert(rest, value);
+/// Places `value` under `key`, then `rest`, within `children` — creating the
+/// groups along the way and reusing any that an earlier token already opened.
+///
+/// The head of the path is taken as its own argument rather than split off a
+/// slice, so there is no empty-path case to handle: every call names at least one
+/// key by construction. It also takes the children rather than a [`Node`], so
+/// there is no "is this a group?" check either — descending only ever reaches a
+/// group.
+fn insert(children: &mut Vec<(String, Node)>, key: &str, rest: &[String], value: &str) {
+    if rest.is_empty() {
+        children.push((key.to_string(), Node::Leaf(value.to_string())));
+        return;
     }
 
+    if !children.iter().any(|(name, _)| name == key) {
+        children.push((key.to_string(), Node::Group(Vec::new())));
+    }
+    let group = children
+        .iter_mut()
+        .find_map(|(name, child)| match child {
+            Node::Group(group) if name == key => Some(group),
+            _ => None,
+        })
+        .expect("the group was just ensured to exist");
+
+    insert(group, &rest[0], &rest[1..], value);
+}
+
+impl Node {
     /// Renders this node at `depth`, two spaces per level to match the committed
     /// DTCG documents so a generated file diffs against them directly.
     fn render(&self, depth: usize, out: &mut String) {
@@ -213,17 +215,20 @@ impl Node {
 /// payload would only be readable by tooling we also ship, which is no use to a
 /// consumer who has the CLI and no plugin.
 pub fn dtcg_document(modes: &[(String, Vec<Token>)]) -> String {
-    let mut root = Node::Group(Vec::new());
+    let mut root = Vec::new();
     for (mode, tokens) in modes {
         for token in tokens {
-            let mut path = vec![mode.clone()];
-            path.extend(token.path.clone());
-            root.insert(&path, &token.value);
+            // A token with no path names nothing, so there is nowhere to put it.
+            // Writing it against the mode key would make the mode itself a colour.
+            if token.path.is_empty() {
+                continue;
+            }
+            insert(&mut root, mode, &token.path, &token.value);
         }
     }
 
     let mut out = String::new();
-    root.render(0, &mut out);
+    Node::Group(root).render(0, &mut out);
     out.push('\n');
     out
 }

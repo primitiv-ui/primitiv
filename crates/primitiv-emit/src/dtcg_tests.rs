@@ -278,4 +278,20 @@ mod writing {
             "{document}"
         );
     }
+
+    #[test]
+    fn skips_a_token_that_names_no_path() {
+        let document = dtcg_document(&[(
+            "light".to_string(),
+            vec![
+                Token::new(&[], "#000000"),
+                Token::new(&["color", "brand", "500"], "#236ce1"),
+            ],
+        )]);
+
+        // The mode must stay a group: a pathless token written against it would
+        // make `light` itself a colour leaf.
+        assert!(document.contains("\"light\": {"), "{document}");
+        assert!(!document.contains("#000000"), "{document}");
+    }
 }

@@ -80,6 +80,7 @@ import drawerDocs from "@/docs-data/drawer.docs.json";
 import dropdownDocs from "@/docs-data/dropdown.docs.json";
 import confirmDialogDocs from "@/docs-data/confirm-dialog.docs.json";
 import navigationMenuDocs from "@/docs-data/navigation-menu.docs.json";
+import splitButtonDocs from "@/docs-data/split-button.docs.json";
 import rosterData from "@/docs-data/roster.json";
 
 export type DocsProp = {
@@ -309,6 +310,7 @@ const DOCS = {
   dropdown: dropdownDocs as unknown as ComponentDocs,
   "confirm-dialog": confirmDialogDocs as unknown as ComponentDocs,
   "navigation-menu": navigationMenuDocs as unknown as ComponentDocs,
+  "split-button": splitButtonDocs as unknown as ComponentDocs,
 } as const;
 
 export type ComponentId = keyof typeof DOCS;

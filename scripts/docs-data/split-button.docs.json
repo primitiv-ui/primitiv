@@ -1,0 +1,391 @@
+{
+  "id": "split-button",
+  "displayName": "SplitButton",
+  "kind": "registry",
+  "status": "stable",
+  "category": "Buttons",
+  "description": "One primary action welded to a chevron trigger that opens a menu of related alternatives, bound into a single role=\"group\" widget.",
+  "headless": {
+    "package": "@primitiv-ui/react",
+    "importPath": "@primitiv-ui/react",
+    "subComponents": [
+      {
+        "name": "SplitButton.Root",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "When `true`, Root delegates rendering to a single consumer-supplied\nelement via the {@link Slot } pattern instead of the default `<div>`;\n`role=\"group\"`, `data-state`, `data-disabled` and the remaining props are\nmerged onto it."
+          },
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": false,
+            "default": null,
+            "description": "The widget's parts — typically one\n{@link SplitButtonActionProps`SplitButton.Action`}, one\n{@link SplitButtonTriggerProps`SplitButton.Trigger`}, and one\n{@link SplitButtonMenuProps`SplitButton.Menu`}."
+          },
+          {
+            "name": "defaultOpen",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Whether the menu is open on first render. Omit to start closed. The\ncomponent owns the state thereafter.\nForbidden in controlled mode — use `open` instead."
+          },
+          {
+            "name": "dir",
+            "type": "\"ltr\" | \"rtl\"",
+            "required": false,
+            "default": null,
+            "description": "Reading direction for the menu. Only affects which arrow key opens or\ncloses a submenu composed from `Dropdown.Sub` — `ArrowRight` opens in\n`\"ltr\"`, `ArrowLeft` in `\"rtl\"`. When omitted it is inherited from the\nnearest {@link DirectionProvider }, falling back to `\"ltr\"`."
+          },
+          {
+            "name": "disabled",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Disables the whole widget — both the primary action and the menu trigger\nbecome non-interactive, and `data-disabled=\"\"` is set on the group. OR-ed\nwith each half's own `disabled`, so a disabled group can never be\noverridden back to enabled by a part."
+          },
+          {
+            "name": "onOpenChange",
+            "type": "(open: boolean) => void",
+            "required": false,
+            "default": null,
+            "description": "Called whenever a user-driven transition opens or closes the menu\n(trigger click, `ArrowDown` on the action, Escape, outside click,\nselection). Optional in uncontrolled mode.\nCalled whenever a user-driven transition would open or close the menu. The\nparent is responsible for reflecting the new value back into `open`.\nRequired in controlled mode."
+          },
+          {
+            "name": "open",
+            "type": "boolean",
+            "required": false,
+            "default": null,
+            "description": "Forbidden in uncontrolled mode — use `defaultOpen` instead.\nWhether the menu is currently open. Must be kept in sync by the parent via\n`onOpenChange`; the component never mutates it internally."
+          },
+          {
+            "name": "ref",
+            "type": "Ref<HTMLDivElement>",
+            "required": false,
+            "default": null,
+            "description": "Allows getting a ref to the component instance.\nOnce the component unmounts, React will set `ref.current` to `null`\n(or call the ref with `null` if you passed a callback ref).\nForwarded to the underlying `HTMLDivElement` (or to the `asChild`\nelement)."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [
+          {
+            "name": "variant",
+            "type": "\"primary\" | \"secondary\" | \"danger\"",
+            "default": "primary",
+            "description": "Visual intent, applied to both halves. Ghost and link are deliberately unavailable — neither has a box at rest for the seam to divide."
+          },
+          {
+            "name": "size",
+            "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
+            "default": "md",
+            "description": "Control size, applied to both halves and the menu; `data-density` scales each size further."
+          }
+        ],
+        "dataAttributes": [
+          {
+            "name": "data-split-button",
+            "value": "",
+            "when": "always, on the frame — the hook that joins the action and the trigger into one control"
+          },
+          {
+            "name": "data-state",
+            "value": "open",
+            "when": "whether the menu is open"
+          },
+          {
+            "name": "data-state",
+            "value": "closed",
+            "when": "whether the menu is open"
+          },
+          {
+            "name": "data-disabled",
+            "value": "",
+            "when": "the whole control is disabled"
+          }
+        ],
+        "class": "primitiv-split-button"
+      },
+      {
+        "name": "SplitButton.Action",
+        "extends": "HTMLButtonElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "When `true`, renders the consumer's element instead of `<button>` via the\n{@link Slot } pattern. `type=\"button\"` is **not** forwarded in this mode —\nthe child owns its own type semantics."
+          },
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": false,
+            "default": null,
+            "description": "The action's visible label. Keep it real text — the menu trigger borrows\nit for its own accessible name."
+          },
+          {
+            "name": "ref",
+            "type": "Ref<HTMLButtonElement>",
+            "required": false,
+            "default": null,
+            "description": "Allows getting a ref to the component instance.\nOnce the component unmounts, React will set `ref.current` to `null`\n(or call the ref with `null` if you passed a callback ref).\nForwarded to the underlying `HTMLButtonElement` (or to the `asChild`\nelement)."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [
+          {
+            "name": "data-split-button-action",
+            "value": "",
+            "when": "always — the hook that tells the two halves apart"
+          },
+          {
+            "name": "data-disabled",
+            "value": "",
+            "when": "the action half is disabled"
+          }
+        ],
+        "class": "primitiv-split-button__action"
+      },
+      {
+        "name": "SplitButton.Trigger",
+        "extends": "HTMLButtonElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Render the composed child element instead of the default\n`<button type=\"button\">`. The trigger's ARIA contract\n(`aria-haspopup`, `aria-expanded`, `aria-controls`) and its click\nhandler are merged onto the child via the {@link Slot } pattern."
+          },
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": false,
+            "default": null,
+            "description": "The trigger's visible label (or an element, with `asChild`)."
+          },
+          {
+            "name": "ref",
+            "type": "Ref<HTMLButtonElement>",
+            "required": false,
+            "default": null,
+            "description": "Allows getting a ref to the component instance.\nOnce the component unmounts, React will set `ref.current` to `null`\n(or call the ref with `null` if you passed a callback ref).\nForwarded to the underlying `HTMLButtonElement`."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [
+          {
+            "name": "data-split-button-trigger",
+            "value": "",
+            "when": "always — the hook that tells the two halves apart"
+          },
+          {
+            "name": "data-disabled",
+            "value": "",
+            "when": "the menu half is disabled"
+          }
+        ],
+        "class": "primitiv-split-button__trigger"
+      },
+      {
+        "name": "SplitButton.Menu",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Render the composed child element (with menu semantics) instead of the\ndefault `<menu role=\"menu\" popover=\"auto\">`. The managed `role`,\n`popover`, and `id` attributes and the keyboard handler are merged onto\nthe child via the {@link Slot } pattern."
+          },
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": false,
+            "default": null,
+            "description": "The menu items — any mix of {@link DropdownItemProps`Dropdown.Item`},\n{@link DropdownCheckboxItemProps`Dropdown.CheckboxItem`},\n{@link DropdownRadioGroupProps`Dropdown.RadioGroup`},\n{@link DropdownGroupProps`Dropdown.Group`},\n{@link DropdownSeparatorProps`Dropdown.Separator`}, and\n{@link DropdownSubProps`Dropdown.Sub`}."
+          },
+          {
+            "name": "ref",
+            "type": "Ref<HTMLMenuElement>",
+            "required": false,
+            "default": null,
+            "description": "Forwarded to the underlying `HTMLMenuElement`."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [
+          {
+            "name": "data-split-button-menu",
+            "value": "",
+            "when": "always — marks the panel as this control's menu rather than a bare Dropdown"
+          }
+        ],
+        "class": "primitiv-split-button__menu"
+      },
+      {
+        "name": "SplitButton.Item",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Render the composed child element (with menuitem semantics) instead of\nthe default `<li role=\"menuitem\">`."
+          },
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": false,
+            "default": null,
+            "description": "The item's visible content (or an element, with `asChild`)."
+          },
+          {
+            "name": "disabled",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Mark the item non-interactive. Sets `aria-disabled=\"true\"` and skips\nthe item during arrow navigation, typeahead, and activation."
+          },
+          {
+            "name": "onSelect",
+            "type": "(event: Event) => void",
+            "required": false,
+            "default": null,
+            "description": "Fires when the item is activated (click, Enter, or Space). Called\nwith a cancellable event whose `preventDefault()` skips the auto-close\nthat Dropdown performs after selection."
+          },
+          {
+            "name": "ref",
+            "type": "Ref<HTMLLIElement>",
+            "required": false,
+            "default": null,
+            "description": "Allows getting a ref to the component instance.\nOnce the component unmounts, React will set `ref.current` to `null`\n(or call the ref with `null` if you passed a callback ref).\nForwarded to the underlying `HTMLLIElement`."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": null
+      },
+      {
+        "name": "SplitButton.Separator",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Render the composed child element (with separator semantics) instead of\nthe default `<li role=\"separator\">`."
+          },
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": false,
+            "default": null,
+            "description": "Optional content; separators are usually empty."
+          },
+          {
+            "name": "ref",
+            "type": "Ref<HTMLLIElement>",
+            "required": false,
+            "default": null,
+            "description": "Allows getting a ref to the component instance.\nOnce the component unmounts, React will set `ref.current` to `null`\n(or call the ref with `null` if you passed a callback ref).\nForwarded to the underlying `HTMLLIElement`."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": null
+      }
+    ]
+  },
+  "styled": {
+    "installCommand": "primitiv add split-button",
+    "rootClass": "primitiv-split-button",
+    "customProperties": [
+      {
+        "name": "--primitiv-split-button-seam",
+        "defaultsTo": "var(--primitiv-action-primary-active)"
+      },
+      {
+        "name": "--primitiv-split-button-trigger-inline-size",
+        "defaultsTo": "var(--primitiv-framed-control-md-height)"
+      },
+      {
+        "name": "--primitiv-split-button-ring-outset",
+        "defaultsTo": "calc(var(--primitiv-focus-ring-offset) + var(--primitiv-focus-ring-width))"
+      },
+      {
+        "name": "--primitiv-split-button-ring-radius",
+        "defaultsTo": "calc(var(--primitiv-button-radius) + var(--primitiv-split-button-ring-outset))"
+      },
+      {
+        "name": "--primitiv-dropdown-min-inline-size",
+        "defaultsTo": "anchor-size(width)"
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-split-button",
+        "value": "",
+        "when": "always, on the frame — the hook that joins the action and the trigger into one control"
+      },
+      {
+        "name": "data-state",
+        "value": "open",
+        "when": "whether the menu is open"
+      },
+      {
+        "name": "data-state",
+        "value": "closed",
+        "when": "whether the menu is open"
+      },
+      {
+        "name": "data-disabled",
+        "value": "",
+        "when": "the whole control is disabled"
+      },
+      {
+        "name": "data-split-button-action",
+        "value": "",
+        "when": "always — the hook that tells the two halves apart"
+      },
+      {
+        "name": "data-disabled",
+        "value": "",
+        "when": "the action half is disabled"
+      },
+      {
+        "name": "data-split-button-trigger",
+        "value": "",
+        "when": "always — the hook that tells the two halves apart"
+      },
+      {
+        "name": "data-disabled",
+        "value": "",
+        "when": "the menu half is disabled"
+      },
+      {
+        "name": "data-split-button-menu",
+        "value": "",
+        "when": "always — marks the panel as this control's menu rather than a bare Dropdown"
+      }
+    ]
+  },
+  "figma": {}
+}

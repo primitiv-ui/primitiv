@@ -946,6 +946,29 @@ export const REGISTRY = {
     contract: "registry/components/navigation-menu/contract.json",
     figmaComponentSetKey: "1334:51944", importPath: "@primitiv-ui/react",
   },
+  "split-button": {
+    displayName: "SplitButton", kind: "registry", status: "stable", category: "Buttons",
+    /* Dual-surface, every part on both surfaces (accordion convention → headless
+       types). `variant`/`size` are the copied file's contract modifiers on the
+       root, so they arrive as contractProps, not headless props. `Root`'s
+       contract component key is `"SplitButton"` (not `"Root"`), so its `component`
+       matches that. `Item`/`Separator` resolve Dropdown's row/divider styles and
+       have no contract entry of their own — the "no contract entry" warning on
+       extract is expected there. */
+    propsFile: "packages/react/src/SplitButton/types.ts",
+    subComponents: [
+      { name: "SplitButton.Root", propsType: "SplitButtonRootProps", element: "div", component: "SplitButton" },
+      { name: "SplitButton.Action", propsType: "SplitButtonActionProps", element: "button", component: "Action" },
+      { name: "SplitButton.Trigger", propsType: "SplitButtonTriggerProps", element: "button", component: "Trigger" },
+      { name: "SplitButton.Menu", propsType: "SplitButtonMenuProps", element: "div", component: "Menu" },
+      { name: "SplitButton.Item", propsType: "SplitButtonItemProps", element: "div", component: "Item" },
+      { name: "SplitButton.Separator", propsType: "SplitButtonSeparatorProps", element: "div", component: "Separator" },
+    ],
+    contract: "registry/components/split-button/contract.json",
+    /* No `figmaComponentSetKey`: the SplitButton set's node id is not recorded in
+       this repo (a wrong Design link is worse than none — the header omits it). */
+    importPath: "@primitiv-ui/react",
+  },
   divider: {
     displayName: "Divider", kind: "registry", status: "stable", category: "Layout",
     propsFile: "packages/react/src/Divider/types.ts",

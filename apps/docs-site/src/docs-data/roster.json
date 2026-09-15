@@ -368,7 +368,7 @@
     "displayName": "Split Button",
     "category": "Buttons",
     "description": "One primary action welded to a chevron trigger that opens a menu of related alternatives, bound into a single role=\"group\" widget.",
-    "documented": false
+    "documented": true
   },
   {
     "id": "stack",

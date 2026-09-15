@@ -228,3 +228,54 @@ fn renders_a_colour_leaf_as_oklch() {
         )]
     );
 }
+
+mod writing {
+    use pretty_assertions::assert_eq;
+
+    use crate::dtcg::dtcg_document;
+    use crate::token::Token;
+
+    #[test]
+    fn writes_a_mode_keyed_document_with_a_leaf_per_token() {
+        let document = dtcg_document(&[(
+            "light".to_string(),
+            vec![Token::new(&["color", "brand", "500"], "#236ce1")],
+        )]);
+
+        assert_eq!(
+            document,
+            r##"{
+  "light": {
+    "color": {
+      "brand": {
+        "500": {
+          "$type": "color",
+          "$value": "#236ce1"
+        }
+      }
+    }
+  }
+}
+"##
+        );
+    }
+
+    #[test]
+    fn nests_sibling_tokens_under_one_group_in_the_order_given() {
+        let document = dtcg_document(&[(
+            "light".to_string(),
+            vec![
+                Token::new(&["color", "brand", "50"], "#f0f5ff"),
+                Token::new(&["color", "brand", "100"], "#d2e3fe"),
+            ],
+        )]);
+
+        // One `brand` group, and `50` before `100` — sorted keys would invert a
+        // ramp, since "100" sorts before "50" as a string.
+        assert_eq!(document.matches("\"brand\"").count(), 1);
+        assert!(
+            document.find("\"50\"") < document.find("\"100\""),
+            "{document}"
+        );
+    }
+}

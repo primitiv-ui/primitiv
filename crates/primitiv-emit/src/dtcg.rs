@@ -136,3 +136,94 @@ fn shadow_layer(layer: &Value) -> Option<ShadowLayer> {
         color: parts[4].clone(),
     })
 }
+
+/// One node of a document being written: a group of named children **in
+/// insertion order**, or a leaf colour.
+///
+/// Ordered by construction rather than by `serde_json`, which sorts its keys — and
+/// sorting them as strings puts `"100"` before `"50"`, so a palette ramp would
+/// read out of scale order. `serde_json`'s `preserve_order` feature is not an
+/// option either: Cargo unifies features across the workspace, and turning it on
+/// flips this crate's own token ordering and breaks five goldens.
+enum Node {
+    Group(Vec<(String, Node)>),
+    Leaf(String),
+}
+
+impl Node {
+    /// Places `value` at `path`, creating the groups along the way and reusing any
+    /// that a previous token already opened.
+    fn insert(&mut self, path: &[String], value: &str) {
+        let Node::Group(children) = self else {
+            return;
+        };
+        let Some((key, rest)) = path.split_first() else {
+            return;
+        };
+
+        if rest.is_empty() {
+            children.push((key.clone(), Node::Leaf(value.to_string())));
+            return;
+        }
+
+        if !children.iter().any(|(name, _)| name == key) {
+            children.push((key.clone(), Node::Group(Vec::new())));
+        }
+        let child = children
+            .iter_mut()
+            .find(|(name, _)| name == key)
+            .map(|(_, child)| child)
+            .expect("the group was just ensured to exist");
+        child.insert(rest, value);
+    }
+
+    /// Renders this node at `depth`, two spaces per level to match the committed
+    /// DTCG documents so a generated file diffs against them directly.
+    fn render(&self, depth: usize, out: &mut String) {
+        let pad = "  ".repeat(depth);
+        match self {
+            Node::Leaf(value) => {
+                out.push_str(&format!(
+                    "{{\n{pad}  \"$type\": \"color\",\n{pad}  \"$value\": \"{value}\"\n{pad}}}"
+                ));
+            }
+            Node::Group(children) => {
+                out.push_str("{\n");
+                for (index, (name, child)) in children.iter().enumerate() {
+                    out.push_str(&format!("{pad}  \"{name}\": "));
+                    child.render(depth + 1, out);
+                    if index + 1 < children.len() {
+                        out.push(',');
+                    }
+                    out.push('\n');
+                }
+                out.push_str(&format!("{pad}}}"));
+            }
+        }
+    }
+}
+
+/// Serialise per-mode token lists as a DTCG document (RFC 0009 §2.2's shape,
+/// read back by [`flatten_modes`]): the **mode** is the top-level key, and each
+/// token's path nests beneath it.
+///
+/// This is the inverse of [`tokens_from_dtcg`], and it exists so a palette
+/// generated from seeds can be handed to a tool that consumes DTCG rather than
+/// CSS — Figma's importers among them. Standard DTCG on purpose: a bespoke
+/// payload would only be readable by tooling we also ship, which is no use to a
+/// consumer who has the CLI and no plugin.
+pub fn dtcg_document(modes: &[(String, Vec<Token>)]) -> String {
+    let mut root = Node::Group(Vec::new());
+    for (mode, tokens) in modes {
+        for token in tokens {
+            let mut path = vec![mode.clone()];
+            path.extend(token.path.clone());
+            root.insert(&path, &token.value);
+        }
+    }
+
+    let mut out = String::new();
+    root.render(0, &mut out);
+    out.push('\n');
+    out
+}

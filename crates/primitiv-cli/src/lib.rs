@@ -9,6 +9,9 @@ pub mod package_manager;
 pub mod ports;
 pub mod registry;
 pub mod run;
+pub mod seeds;
+#[cfg(test)]
+mod seeds_tests;
 pub mod wiring;
 
 #[cfg(test)]

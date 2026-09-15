@@ -92,3 +92,77 @@ fn surfaces_a_write_failure() {
 
     assert!(matches!(err, CliError::Io(_)));
 }
+
+#[test]
+fn falls_back_to_the_configs_theme_seeds_when_no_flag_names_one() {
+    let fs = InMemoryFs::new();
+    fs.write(
+        Path::new("primitiv.json"),
+        br##"{
+          "version": 1,
+          "framework": "react",
+          "styles": { "enabled": true, "format": "css", "path": "s" },
+          "tokens": { "format": "css", "path": "t.css" },
+          "theme": { "brand": "#0a7755", "danger": "#db2424" },
+          "aliases": {},
+          "registry": { "version": "0.1.0" }
+        }"##,
+    )
+    .unwrap();
+    let out = Path::new("primitiv.theme.css");
+
+    theme(&fs, &[], out, Format::Css).unwrap();
+
+    // This is what makes the brand `init` records load-bearing: it was parsed and
+    // never read by any command before.
+    let written = String::from_utf8(fs.read(out).unwrap()).unwrap();
+    assert!(written.contains("--primitiv-color-brand-500"), "{written}");
+    assert!(written.contains("--primitiv-color-danger-500"), "{written}");
+}
+
+#[test]
+fn refuses_to_run_with_no_seed_from_either_a_flag_or_the_config() {
+    let fs = InMemoryFs::new();
+
+    let err = theme(&fs, &[], Path::new("primitiv.theme.css"), Format::Css).unwrap_err();
+
+    match err {
+        CliError::Usage(message) => {
+            assert!(message.contains("--brand <colour>"), "{message}");
+            assert!(message.contains("primitiv.json"), "{message}");
+        }
+        other => panic!("expected a usage error, got {other:?}"),
+    }
+}
+
+#[test]
+fn prefers_a_flag_over_the_configs_seed_for_that_family_only() {
+    let fs = InMemoryFs::new();
+    fs.write(
+        Path::new("primitiv.json"),
+        br##"{
+          "version": 1,
+          "framework": "react",
+          "styles": { "enabled": true, "format": "css", "path": "s" },
+          "tokens": { "format": "css", "path": "t.css" },
+          "theme": { "brand": "#0a7755", "danger": "#db2424" },
+          "aliases": {},
+          "registry": { "version": "0.1.0" }
+        }"##,
+    )
+    .unwrap();
+    let out = Path::new("primitiv.theme.css");
+
+    theme(
+        &fs,
+        &[("brand".to_string(), "#ff0066".to_string())],
+        out,
+        Format::Css,
+    )
+    .unwrap();
+
+    // The flag replaces brand, and danger still comes from the config — a flag
+    // re-seeds one family, it does not discard the rest.
+    let expected = emit_theme_ramps_css(&[("brand", "#ff0066"), ("danger", "#db2424")]).unwrap();
+    assert_eq!(fs.read(out).unwrap(), expected.into_bytes());
+}

@@ -501,11 +501,19 @@ fn rejects_a_flag_with_no_value() {
 }
 
 #[test]
-fn rejects_theme_with_no_ramp_seeded_at_all() {
-    assert!(matches!(
-        parse(&args(&["theme", "--out", "x.css"])).unwrap_err(),
-        CliError::Usage(_)
-    ));
+fn accepts_theme_with_no_seed_flag_and_defers_to_the_config() {
+    // Whether a seed exists at all is a run-time question: the answer is in
+    // `primitiv.json`, which the parser has not read.
+    let command = parse(&args(&["theme", "--out", "x.css"])).unwrap();
+
+    assert_eq!(
+        command,
+        Command::Theme {
+            seeds: Vec::new(),
+            out: "x.css".to_string(),
+            format: Format::Css,
+        }
+    );
 }
 
 #[test]

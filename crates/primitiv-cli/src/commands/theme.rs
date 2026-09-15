@@ -5,6 +5,7 @@ use primitiv_emit::{emit_theme_ramps_css, emit_theme_ramps_scss, emit_theme_ramp
 use crate::error::CliError;
 use crate::format::Format;
 use crate::ports::fs::FileSystem;
+use crate::seeds::{as_pairs, resolve_seeds};
 
 /// The `primitiv theme [--<family> <colour>]... --out <path> [--format <fmt>]`
 /// command (RFC 0005 §2.4): derive each seeded family's paired light + dark ramp
@@ -14,16 +15,17 @@ use crate::ports::fs::FileSystem;
 /// Overriding a palette family re-skins every semantic role built on it with no
 /// further work, because the emitted Intent layer references the families by
 /// name (`action/danger/*` is already `var(--primitiv-color-danger-*)`).
+///
+/// A family no flag names falls back to `primitiv.json`'s `theme` block, so the
+/// seeds a project recorded once are what it re-emits from.
 pub fn theme(
     fs: &impl FileSystem,
     seeds: &[(String, String)],
     out: &Path,
     format: Format,
 ) -> Result<(), CliError> {
-    let seeds: Vec<(&str, &str)> = seeds
-        .iter()
-        .map(|(family, seed)| (family.as_str(), seed.as_str()))
-        .collect();
+    let resolved = resolve_seeds(fs, seeds, "theme")?;
+    let seeds = as_pairs(&resolved);
     let overrides = match format {
         Format::Css => emit_theme_ramps_css(&seeds)?,
         Format::Scss => emit_theme_ramps_scss(&seeds)?,

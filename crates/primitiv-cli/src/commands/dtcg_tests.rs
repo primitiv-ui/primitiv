@@ -49,3 +49,12 @@ fn surfaces_a_write_failure() {
 
     assert!(matches!(err, CliError::Io(_)));
 }
+
+#[test]
+fn refuses_to_run_with_no_seed_from_either_a_flag_or_the_config() {
+    let fs = InMemoryFs::new();
+
+    let err = dtcg(&fs, &[], Path::new("palette.json")).unwrap_err();
+
+    assert!(matches!(err, CliError::Usage(_)));
+}

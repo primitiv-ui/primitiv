@@ -269,13 +269,7 @@ fn parse_seeded(args: &[String], command: &str, accepts_format: bool) -> Result<
             "--format" if accepts_format => {
                 format = parse_format(&take_value(&mut rest, "--format")?)?
             }
-            "--neutral" => {
-                return Err(usage(format!(
-                    "{command} cannot seed the neutral ramp: it is generated from soft-neutral \
-                     anchors and a hue-tint rule rather than a single colour, which the CLI \
-                     does not surface yet"
-                )))
-            }
+            "--neutral" => return Err(neutral_unsupported(command)),
             flag => match family_index(flag) {
                 Some(index) => seeds[index] = Some(take_value(&mut rest, flag)?),
                 None => return Err(usage(format!("unexpected argument '{flag}'"))),
@@ -287,21 +281,29 @@ fn parse_seeded(args: &[String], command: &str, accepts_format: bool) -> Result<
         .zip(seeds)
         .filter_map(|(family, seed)| seed.map(|seed| ((*family).to_string(), seed)))
         .collect();
-    if seeds.is_empty() {
-        return Err(usage(format!(
-            "{command} requires at least one ramp seed: {}",
-            RAMP_FAMILIES
-                .iter()
-                .map(|family| format!("--{family} <colour>"))
-                .collect::<Vec<_>>()
-                .join(", ")
-        )));
-    }
     Ok(Seeded {
         seeds,
         out: out.ok_or_else(|| usage(format!("{command} requires --out <path>")))?,
         format,
     })
+}
+
+/// Why the CLI will not take a neutral seed, worded the same way wherever one is
+/// offered — a flag or a config key — so the two cannot drift.
+pub fn neutral_unsupported(source: &str) -> CliError {
+    usage(format!(
+        "{source} cannot seed the neutral ramp: it is generated from soft-neutral \
+         anchors and a hue-tint rule rather than a single colour, which the CLI \
+         does not surface yet"
+    ))
+}
+
+/// A family the CLI does not generate, named where it was found.
+pub fn unknown_family(source: &str, family: &str) -> CliError {
+    usage(format!(
+        "{source} names no ramp family '{family}'; expected: {}",
+        RAMP_FAMILIES.join(", ")
+    ))
 }
 
 /// The [`RAMP_FAMILIES`] index a `--<family>` flag names, or `None` for any

@@ -161,6 +161,29 @@ export const REGISTRY = {
        Viewport is the core visual, so it is the landing point. */
     figmaComponentSetKey: "1028:24921", importPath: "@primitiv-ui/react",
   },
+  listbox: {
+    displayName: "Listbox", kind: "registry", status: "stable", category: "Collections & Selection",
+    /* Dual-surface, split like Modal: the headless compound is only Root / Option
+       / Group / GroupLabel; the row-anatomy parts (OptionIndicator / Checkbox /
+       Leading / Label / Trailing) and Empty are STYLED-ONLY, so they carry their
+       own `propsFile`. Root's props are a discriminated union (single/multiple ×
+       controlled/uncontrolled) that flattens in the extractor. */
+    propsFile: "packages/react/src/Listbox/types.ts",
+    subComponents: [
+      { name: "Listbox.Root", propsType: "ListboxRootProps", element: "div", component: "Listbox" },
+      { name: "Listbox.Option", propsType: "ListboxOptionProps", element: "div", component: "Option" },
+      { name: "Listbox.OptionIndicator", propsType: "ListboxOptionIndicatorProps", propsFile: "registry/components/listbox/listbox.tsx", element: "span", component: "OptionIndicator" },
+      { name: "Listbox.OptionCheckbox", propsType: "ListboxOptionCheckboxProps", propsFile: "registry/components/listbox/listbox.tsx", element: "span", component: "OptionCheckbox" },
+      { name: "Listbox.OptionLeading", propsType: "ListboxOptionLeadingProps", propsFile: "registry/components/listbox/listbox.tsx", element: "span", component: "OptionLeading" },
+      { name: "Listbox.OptionLabel", propsType: "ListboxOptionLabelProps", propsFile: "registry/components/listbox/listbox.tsx", element: "span", component: "OptionLabel" },
+      { name: "Listbox.OptionTrailing", propsType: "ListboxOptionTrailingProps", propsFile: "registry/components/listbox/listbox.tsx", element: "span", component: "OptionTrailing" },
+      { name: "Listbox.Group", propsType: "ListboxGroupProps", element: "div", component: "Group" },
+      { name: "Listbox.GroupLabel", propsType: "ListboxGroupLabelProps", element: "div", component: "GroupLabel" },
+      { name: "Listbox.Empty", propsType: "ListboxEmptyProps", propsFile: "registry/components/listbox/listbox.tsx", element: "div", component: "Empty" },
+    ],
+    contract: "registry/components/listbox/contract.json",
+    figmaComponentSetKey: "1569:4829", importPath: "@primitiv-ui/react",
+  },
   tree: {
     displayName: "Tree", kind: "registry", status: "stable", category: "Collections & Selection",
     /* Dual-surface; every part is on both surfaces (accordion convention →

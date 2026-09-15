@@ -1,0 +1,542 @@
+{
+  "id": "listbox",
+  "displayName": "Listbox",
+  "kind": "registry",
+  "status": "stable",
+  "category": "Collections & Selection",
+  "description": "A persistently-visible list of selectable options implementing the WAI-ARIA APG listbox pattern. Unlike `select`, this list is always on screen with no trigger and no popup, and its cursor is a virtual-focus position (`aria-activedescendant` on the root, `data-highlighted` on the option) rather than DOM focus — which is what lets a separate control, such as a search input or a command palette's text field, hold focus and drive the list at the same time. Framed like a form control on Input's geometry, with rows resolving the shared dropdown tokens so a listbox and a menu are the same surface. Keyboard, typeahead, cursor and selection are owned by the headless primitive.",
+  "headless": {
+    "package": "@primitiv-ui/react",
+    "importPath": "@primitiv-ui/react",
+    "subComponents": [
+      {
+        "name": "Listbox.Root",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "type",
+            "type": "\"single\" | \"multiple\"",
+            "required": true,
+            "default": null,
+            "description": "Selects single-selection semantics: at most one option selected at a\ntime, and re-selecting the current option is a no-op rather than a\ndeselect.\nSelects multiple-selection semantics: any number of options can be\nselected and each toggles independently. Sets `aria-multiselectable` on\nthe root."
+          },
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Render a single consumer-supplied element in place of the native `<div>`,\nwith the listbox's `role`, `tabIndex`, ARIA state, `data-orientation`, ref\nand keyboard handlers merged onto it via the {@link Slot } pattern."
+          },
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": false,
+            "default": null,
+            "description": "The {@link ListboxOptionProps`Listbox.Option`} and\n{@link ListboxGroupProps`Listbox.Group`} elements that make up the\nlist."
+          },
+          {
+            "name": "defaultValue",
+            "type": "string | string[]",
+            "required": false,
+            "default": null,
+            "description": "Value of the option selected on first render. Omit to start with nothing\nselected.\nForbidden in controlled mode — use\n{@link ListboxSingleControlledProps.value}.\nValues of the options selected on first render. Omit to start with\nnothing selected.\nForbidden in controlled mode — use\n{@link ListboxMultipleControlledProps.value}."
+          },
+          {
+            "name": "dir",
+            "type": "\"ltr\" | \"rtl\"",
+            "required": false,
+            "default": null,
+            "description": "Reading direction. In `\"rtl\"` the horizontal arrow pair is mirrored so\nthe cursor follows visual order — meaningful only when\n{@link ListboxRootBaseProps.orientation} is `\"horizontal\"`. Inherited from\nthe nearest {@link DirectionProvider } when omitted, falling back to\n`\"ltr\"`."
+          },
+          {
+            "name": "onValueChange",
+            "type": "((value: string) => void) | ((value: string[]) => void)",
+            "required": false,
+            "default": null,
+            "description": "Called with the newly selected option's value whenever the user commits a\nchoice.\nCalled with the value the user is asking to select.\nCalled with the complete next set of selected values whenever the user\ntoggles any option."
+          },
+          {
+            "name": "orientation",
+            "type": "\"horizontal\" | \"vertical\"",
+            "required": false,
+            "default": "\"vertical\"",
+            "description": "Layout axis for cursor navigation. `\"vertical\"` binds ArrowUp/ArrowDown;\n`\"horizontal\"` binds ArrowLeft/ArrowRight and additionally emits\n`aria-orientation=\"horizontal\"` (vertical is the ARIA default, so it is\nleft implicit). Surfaces as `data-orientation` for styling; it does not\nitself apply any layout."
+          },
+          {
+            "name": "ref",
+            "type": "Ref<HTMLDivElement>",
+            "required": false,
+            "default": null,
+            "description": "Forwarded to the underlying `HTMLDivElement`."
+          },
+          {
+            "name": "selectionFollowsFocus",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "When `true`, moving the cursor with the arrow / Home / End keys or via\ntypeahead also selects the option it lands on — the behaviour of APG's\nsingle-select listbox example. Left `false`, arrowing only moves the\nhighlight and the user commits with Enter or Space, which is what a\ncommand palette or search-suggestion list needs."
+          },
+          {
+            "name": "value",
+            "type": "string | string[]",
+            "required": false,
+            "default": null,
+            "description": "Forbidden in uncontrolled mode — use\n{@link ListboxSingleUncontrolledProps.defaultValue}.\nThe currently selected option's value. Must be kept in sync by the caller\nvia {@link ListboxSingleControlledProps.onValueChange}.\nForbidden in uncontrolled mode — use\n{@link ListboxMultipleUncontrolledProps.defaultValue}.\nThe full set of currently selected values. Must be kept in sync by the\ncaller via {@link ListboxMultipleControlledProps.onValueChange}."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [
+          {
+            "name": "size",
+            "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
+            "default": "md",
+            "description": "Frame + row scale; `data-density` scales the sizing within each size. Re-points the frame (radius, padding, focus-ring geometry) and every row knob (height/padding/gap/radius/icon) plus the typography."
+          }
+        ],
+        "dataAttributes": [
+          {
+            "name": "data-orientation",
+            "value": "vertical",
+            "when": "vertical (the default)"
+          },
+          {
+            "name": "data-orientation",
+            "value": "horizontal",
+            "when": "horizontal"
+          },
+          {
+            "name": "aria-invalid",
+            "value": "true",
+            "when": "invalid — set it yourself; there is no `invalid` prop"
+          },
+          {
+            "name": "aria-activedescendant",
+            "value": "<option id>",
+            "when": "the cursor is on an option"
+          },
+          {
+            "name": "aria-selected",
+            "value": "true",
+            "when": "selected option"
+          },
+          {
+            "name": "aria-selected",
+            "value": "false",
+            "when": "unselected option"
+          },
+          {
+            "name": "data-highlighted",
+            "value": "",
+            "when": "the cursor is on this option"
+          },
+          {
+            "name": "data-disabled",
+            "value": "",
+            "when": "disabled option"
+          }
+        ],
+        "class": "primitiv-listbox"
+      },
+      {
+        "name": "Listbox.Option",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "value",
+            "type": "string",
+            "required": true,
+            "default": null,
+            "description": "Identifies this option within the listbox. It is this string — not the\nvisible label — that is compared against the root's selected `value` /\n`defaultValue`; use `children` for the label."
+          },
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Render a single consumer-supplied element in place of the native `<div>`,\nwith the option's `role`, `id`, `aria-selected`, `data-highlighted` and\nclick handler merged onto it via the {@link Slot } pattern. The child must\naccept a `ref`."
+          },
+          {
+            "name": "disabled",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Removes the option from cursor navigation, focus seeding and typeahead,\nand makes it unselectable by click or key. The option stays in the DOM and\nin the accessibility tree, marked `aria-disabled`. Also sets\n`data-disabled=\"\"` for CSS targeting."
+          },
+          {
+            "name": "ref",
+            "type": "Ref<HTMLDivElement>",
+            "required": false,
+            "default": null,
+            "description": "Forwarded to the underlying `HTMLDivElement`."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-listbox__option"
+      },
+      {
+        "name": "Listbox.OptionIndicator",
+        "extends": "HTMLSpanElement",
+        "props": [],
+        "styledOnly": true,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-listbox__option-indicator"
+      },
+      {
+        "name": "Listbox.OptionCheckbox",
+        "extends": "HTMLSpanElement",
+        "props": [],
+        "styledOnly": true,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-listbox__option-checkbox"
+      },
+      {
+        "name": "Listbox.OptionLeading",
+        "extends": "HTMLSpanElement",
+        "props": [],
+        "styledOnly": true,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-listbox__option-leading"
+      },
+      {
+        "name": "Listbox.OptionLabel",
+        "extends": "HTMLSpanElement",
+        "props": [],
+        "styledOnly": true,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-listbox__option-label"
+      },
+      {
+        "name": "Listbox.OptionTrailing",
+        "extends": "HTMLSpanElement",
+        "props": [],
+        "styledOnly": true,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-listbox__option-trailing"
+      },
+      {
+        "name": "Listbox.Group",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Render a single consumer-supplied element in place of the native `<div>`,\nwith the group's `role` and `aria-label` merged onto it via the\n{@link Slot } pattern."
+          },
+          {
+            "name": "label",
+            "type": "string",
+            "required": false,
+            "default": null,
+            "description": "Accessible name for the group, applied as `aria-label`. APG requires\nevery option group to carry a name — supply it either with this prop (an\ninvisible name) or by rendering a\n{@link ListboxGroupLabelProps`Listbox.GroupLabel`} heading inside the\ngroup, which names it via `aria-labelledby` instead. A rendered\n`GroupLabel` takes precedence."
+          },
+          {
+            "name": "ref",
+            "type": "Ref<HTMLDivElement>",
+            "required": false,
+            "default": null,
+            "description": "Forwarded to the underlying `HTMLDivElement`."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-listbox__group"
+      },
+      {
+        "name": "Listbox.GroupLabel",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Render a single consumer-supplied element in place of the native\n`<div>`, with the heading's `id` and `role=\"presentation\"` merged onto it\nvia the {@link Slot } pattern."
+          },
+          {
+            "name": "ref",
+            "type": "Ref<HTMLDivElement>",
+            "required": false,
+            "default": null,
+            "description": "Forwarded to the underlying `HTMLDivElement`."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-listbox__group-label"
+      },
+      {
+        "name": "Listbox.Empty",
+        "extends": "HTMLDivElement",
+        "props": [],
+        "styledOnly": true,
+        "headlessOnly": false,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-listbox__empty"
+      }
+    ]
+  },
+  "styled": {
+    "installCommand": "primitiv add listbox",
+    "rootClass": "primitiv-listbox",
+    "customProperties": [
+      {
+        "name": "--primitiv-listbox-surface",
+        "defaultsTo": "var(--primitiv-surface-default)"
+      },
+      {
+        "name": "--primitiv-listbox-fg",
+        "defaultsTo": "var(--primitiv-content-primary)"
+      },
+      {
+        "name": "--primitiv-listbox-border-width",
+        "defaultsTo": "var(--primitiv-border-width-1)"
+      },
+      {
+        "name": "--primitiv-listbox-border-color",
+        "defaultsTo": "var(--primitiv-border-default)"
+      },
+      {
+        "name": "--primitiv-listbox-border-color-invalid",
+        "defaultsTo": "var(--primitiv-border-invalid)"
+      },
+      {
+        "name": "--primitiv-listbox-radius",
+        "defaultsTo": "var(--primitiv-framed-control-md-radius)"
+      },
+      {
+        "name": "--primitiv-listbox-padding-block",
+        "defaultsTo": "var(--primitiv-dropdown-md-panel-padding-block)"
+      },
+      {
+        "name": "--primitiv-listbox-padding-inline",
+        "defaultsTo": "var(--primitiv-space-space-4)"
+      },
+      {
+        "name": "--primitiv-listbox-max-block-size",
+        "defaultsTo": "18rem"
+      },
+      {
+        "name": "--primitiv-listbox-ring-color",
+        "defaultsTo": "var(--primitiv-border-focus)"
+      },
+      {
+        "name": "--primitiv-listbox-ring-width",
+        "defaultsTo": "var(--primitiv-focus-ring-width)"
+      },
+      {
+        "name": "--primitiv-listbox-ring-offset",
+        "defaultsTo": "var(--primitiv-focus-ring-offset)"
+      },
+      {
+        "name": "--primitiv-listbox-option-height",
+        "defaultsTo": "var(--primitiv-dropdown-md-item-height)"
+      },
+      {
+        "name": "--primitiv-listbox-option-padding-inline",
+        "defaultsTo": "var(--primitiv-dropdown-md-item-padding-inline)"
+      },
+      {
+        "name": "--primitiv-listbox-option-gap",
+        "defaultsTo": "var(--primitiv-dropdown-md-item-gap)"
+      },
+      {
+        "name": "--primitiv-listbox-option-radius",
+        "defaultsTo": "var(--primitiv-dropdown-md-item-radius)"
+      },
+      {
+        "name": "--primitiv-listbox-option-icon-size",
+        "defaultsTo": "var(--primitiv-dropdown-md-item-icon-size)"
+      },
+      {
+        "name": "--primitiv-listbox-option-font-family",
+        "defaultsTo": "var(--primitiv-body-sm-font-family)"
+      },
+      {
+        "name": "--primitiv-listbox-option-font-size",
+        "defaultsTo": "var(--primitiv-dropdown-md-item-font-size)"
+      },
+      {
+        "name": "--primitiv-listbox-option-font-weight",
+        "defaultsTo": "var(--primitiv-body-sm-font-weight)"
+      },
+      {
+        "name": "--primitiv-listbox-option-line-height",
+        "defaultsTo": "var(--primitiv-dropdown-md-item-line-height)"
+      },
+      {
+        "name": "--primitiv-listbox-option-color",
+        "defaultsTo": "var(--primitiv-content-primary)"
+      },
+      {
+        "name": "--primitiv-listbox-option-color-disabled",
+        "defaultsTo": "var(--primitiv-content-disabled)"
+      },
+      {
+        "name": "--primitiv-listbox-option-bg",
+        "defaultsTo": "var(--primitiv-color-transparent)"
+      },
+      {
+        "name": "--primitiv-listbox-option-bg-hover",
+        "defaultsTo": "var(--primitiv-action-ghost-hover)"
+      },
+      {
+        "name": "--primitiv-listbox-option-bg-highlighted",
+        "defaultsTo": "var(--primitiv-action-secondary-default)"
+      },
+      {
+        "name": "--primitiv-listbox-option-spacing",
+        "defaultsTo": "calc(var(--primitiv-listbox-option-gap) / 2)"
+      },
+      {
+        "name": "--primitiv-listbox-indicator-color",
+        "defaultsTo": "var(--primitiv-content-primary)"
+      },
+      {
+        "name": "--primitiv-listbox-checkbox-size",
+        "defaultsTo": "var(--primitiv-checkbox-md-box-size)"
+      },
+      {
+        "name": "--primitiv-listbox-checkbox-radius",
+        "defaultsTo": "var(--primitiv-checkbox-md-box-radius)"
+      },
+      {
+        "name": "--primitiv-listbox-checkbox-mark-size",
+        "defaultsTo": "var(--primitiv-checkbox-md-mark-size)"
+      },
+      {
+        "name": "--primitiv-listbox-checkbox-bg",
+        "defaultsTo": "var(--primitiv-surface-default)"
+      },
+      {
+        "name": "--primitiv-listbox-checkbox-bg-selected",
+        "defaultsTo": "var(--primitiv-action-primary-default)"
+      },
+      {
+        "name": "--primitiv-listbox-checkbox-border-width",
+        "defaultsTo": "var(--primitiv-border-width-1)"
+      },
+      {
+        "name": "--primitiv-listbox-checkbox-border-color",
+        "defaultsTo": "var(--primitiv-border-strong)"
+      },
+      {
+        "name": "--primitiv-listbox-checkbox-border-color-selected",
+        "defaultsTo": "var(--primitiv-action-primary-default)"
+      },
+      {
+        "name": "--primitiv-listbox-checkbox-mark-color",
+        "defaultsTo": "var(--primitiv-action-primary-foreground-default)"
+      },
+      {
+        "name": "--primitiv-listbox-group-label-height",
+        "defaultsTo": "var(--primitiv-dropdown-md-label-height)"
+      },
+      {
+        "name": "--primitiv-listbox-group-label-padding-inline",
+        "defaultsTo": "var(--primitiv-dropdown-md-label-padding-inline)"
+      },
+      {
+        "name": "--primitiv-listbox-group-label-color",
+        "defaultsTo": "var(--primitiv-content-muted)"
+      },
+      {
+        "name": "--primitiv-listbox-group-label-font-family",
+        "defaultsTo": "var(--primitiv-label-xs-font-family)"
+      },
+      {
+        "name": "--primitiv-listbox-group-label-font-size",
+        "defaultsTo": "var(--primitiv-label-xs-font-size)"
+      },
+      {
+        "name": "--primitiv-listbox-group-label-font-weight",
+        "defaultsTo": "var(--primitiv-label-xs-font-weight)"
+      },
+      {
+        "name": "--primitiv-listbox-group-label-line-height",
+        "defaultsTo": "var(--primitiv-label-xs-line-height)"
+      },
+      {
+        "name": "--primitiv-listbox-group-label-letter-spacing",
+        "defaultsTo": "var(--primitiv-letter-spacing-wide)"
+      },
+      {
+        "name": "--primitiv-listbox-empty-color",
+        "defaultsTo": "var(--primitiv-content-muted)"
+      },
+      {
+        "name": "--primitiv-listbox-empty-min-block-size",
+        "defaultsTo": "calc(var(--primitiv-listbox-option-height) * 2)"
+      },
+      {
+        "name": "--primitiv-listbox-label-ink-slack",
+        "defaultsTo": "var(--primitiv-space-space-1)"
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-orientation",
+        "value": "vertical",
+        "when": "vertical (the default)"
+      },
+      {
+        "name": "data-orientation",
+        "value": "horizontal",
+        "when": "horizontal"
+      },
+      {
+        "name": "aria-invalid",
+        "value": "true",
+        "when": "invalid — set it yourself; there is no `invalid` prop"
+      },
+      {
+        "name": "aria-activedescendant",
+        "value": "<option id>",
+        "when": "the cursor is on an option"
+      },
+      {
+        "name": "aria-selected",
+        "value": "true",
+        "when": "selected option"
+      },
+      {
+        "name": "aria-selected",
+        "value": "false",
+        "when": "unselected option"
+      },
+      {
+        "name": "data-highlighted",
+        "value": "",
+        "when": "the cursor is on this option"
+      },
+      {
+        "name": "data-disabled",
+        "value": "",
+        "when": "disabled option"
+      }
+    ]
+  },
+  "figma": {
+    "componentSetKey": "1569:4829"
+  }
+}

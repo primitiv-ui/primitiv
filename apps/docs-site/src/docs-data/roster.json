@@ -263,7 +263,7 @@
     "displayName": "Listbox",
     "category": "Collections & Selection",
     "description": "A persistently-visible list of selectable options implementing the WAI-ARIA APG listbox pattern. Unlike `select`, this list is always on screen with no trigger and no popup, and its cursor is a virtual-focus position (`aria-activedescendant` on the root, `data-highlighted` on the option) rather than DOM focus — which is what lets a separate control, such as a search input or a command palette's text field, hold focus and drive the list at the same time. Framed like a form control on Input's geometry, with rows resolving the shared dropdown tokens so a listbox and a menu are the same surface. Keyboard, typeahead, cursor and selection are owned by the headless primitive.",
-    "documented": false
+    "documented": true
   },
   {
     "id": "miller-columns",

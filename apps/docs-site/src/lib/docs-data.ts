@@ -38,6 +38,7 @@ import collapsibleDocs from "@/docs-data/collapsible.docs.json";
 import stepperDocs from "@/docs-data/stepper.docs.json";
 import carouselDocs from "@/docs-data/carousel.docs.json";
 import treeDocs from "@/docs-data/tree.docs.json";
+import listboxDocs from "@/docs-data/listbox.docs.json";
 import checkboxCardDocs from "@/docs-data/checkbox-card.docs.json";
 import checkboxDocs from "@/docs-data/checkbox.docs.json";
 import emptyStateDocs from "@/docs-data/empty-state.docs.json";
@@ -262,6 +263,7 @@ const DOCS = {
   stepper: stepperDocs as unknown as ComponentDocs,
   carousel: carouselDocs as unknown as ComponentDocs,
   tree: treeDocs as unknown as ComponentDocs,
+  listbox: listboxDocs as unknown as ComponentDocs,
   checkbox: checkboxDocs as unknown as ComponentDocs,
   "checkbox-card": checkboxCardDocs as unknown as ComponentDocs,
   "empty-state": emptyStateDocs as unknown as ComponentDocs,

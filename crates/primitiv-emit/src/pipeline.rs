@@ -11,7 +11,7 @@ use crate::dtcg::{flatten_modes, tokens_from_dtcg};
 use crate::mode::{scope_selectors, Axis};
 use crate::scss::{emit_scss, emit_theme_scss};
 use crate::tailwind::{emit_tailwind, emit_theme_tailwind};
-use crate::theme::brand_tokens;
+use crate::theme::ramp_tokens;
 use crate::token::Token;
 
 /// The routed DTCG documents for a token emit. Routing comes from the CLI (the
@@ -112,7 +112,7 @@ fn brand_scopes(brand: &str) -> Result<Vec<Scope>, ColorInputError> {
 fn brand_scope(mode: &str, palette: &Palette) -> Scope {
     Scope {
         selectors: scope_selectors(&Axis::Theme, mode),
-        tokens: brand_tokens(palette),
+        tokens: ramp_tokens("brand", palette),
     }
 }
 

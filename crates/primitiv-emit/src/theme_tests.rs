@@ -2,13 +2,13 @@ use harmoni_core::api::generate;
 use harmoni_core::ColorInput;
 use pretty_assertions::assert_eq;
 
-use crate::theme::brand_tokens;
+use crate::theme::ramp_tokens;
 
 #[test]
 fn maps_each_swatch_to_a_namespaced_brand_token() {
     let palette = generate(ColorInput::Css("#0a7755".to_string())).expect("valid brand");
 
-    let tokens = brand_tokens(&palette);
+    let tokens = ramp_tokens("brand", &palette);
 
     assert_eq!(tokens.len(), 10);
     assert_eq!(tokens[0].path, vec!["color", "brand", "50"]);
@@ -18,4 +18,14 @@ fn maps_each_swatch_to_a_namespaced_brand_token() {
     // value the engine already holds exactly.
     assert_eq!(tokens[5].value, palette.swatches[5].oklch);
     assert!(tokens[0].value.starts_with("oklch("));
+}
+
+#[test]
+fn namespaces_the_tokens_under_whichever_ramp_family_is_asked_for() {
+    let palette = generate(ColorInput::Css("#db2424".to_string())).expect("valid seed");
+
+    let tokens = ramp_tokens("danger", &palette);
+
+    assert_eq!(tokens[0].path, vec!["color", "danger", "50"]);
+    assert_eq!(tokens[5].path, vec!["color", "danger", "500"]);
 }

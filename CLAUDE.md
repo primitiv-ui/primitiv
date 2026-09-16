@@ -1691,7 +1691,7 @@ pnpm --filter @primitiv-ui/react qa:units            # React tests + coverage
 pnpm --filter @primitiv-ui/react exec vitest run src/X    # scoped, during a cycle
 pnpm run build:wasm                               # rebuild wasm pkg
 pnpm run dev                                      # workbench dev server
-node scripts/bump-version.mjs 0.x.y              # bump all 14 version fields atomically
+node scripts/bump-version.mjs 0.x.y              # bump all 15 version fields atomically
 ```
 
 ## Releasing

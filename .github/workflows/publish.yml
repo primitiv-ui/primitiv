@@ -22,10 +22,15 @@ name: Publish packages
 #   - JSR  uses its built-in GitHub Actions OIDC (id-token: write).
 #
 # PREREQUISITES — see RELEASING.md.
-# For the very first publish of a new package, if Trusted Publishing is not
-# yet configured on npmjs.com, uncomment the NODE_AUTH_TOKEN env blocks
-# and add an NPM_TOKEN repo secret as a one-time bootstrap, then remove it
-# once TP is confirmed.
+# For the very first publish of a new package, Trusted Publishing has no
+# configuration to authenticate against, so that publish fails `ENEEDAUTH`.
+# Either configure TP on npmjs.com before releasing the new name, or add a
+# `NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}` env block to its publish step
+# plus an NPM_TOKEN repo secret as a one-time bootstrap, then remove both
+# once TP is confirmed. (Earlier wording said to *uncomment* those blocks —
+# none remain in this file; they were deleted after v0.1.30's bootstrap.)
+# Every new package's publish step belongs LAST for this reason — see the
+# note on the primitiv-emit-wasm step.
 
 on:
   workflow_dispatch:
@@ -223,20 +228,6 @@ jobs:
             npm publish --access public --provenance
           fi
 
-      # No `npm pkg set name` here — `--scope primitiv-ui` at build time already
-      # wrote `@primitiv-ui/primitiv-emit-wasm`. Existence-guarded like every step
-      # above, so a re-run after a partial publish is safe.
-      - name: Publish primitiv-emit-wasm to npm
-        run: |
-          cd crates/primitiv-emit-wasm/pkg
-          name=$(node -p "require('./package.json').name")
-          version=$(node -p "require('./package.json').version")
-          if npm view "$name@$version" version >/dev/null 2>&1; then
-            echo "  $name@$version already published — skipping"
-          else
-            npm publish --access public --provenance
-          fi
-
       # Filtered to exactly these three by name, not `pnpm -r publish` —
       # `crates/harmoni-wasm/pkg` is also a pnpm workspace member (so
       # apps/workbench can link it) and carries no "private" field once
@@ -266,3 +257,28 @@ jobs:
             (cd "$pkg" && npx jsr publish)
             echo "::endgroup::"
           done
+      # LAST, deliberately, and this position is load-bearing. Trusted Publishing
+      # cannot authenticate a package name npmjs.com has never seen, so the FIRST
+      # publish of any new package fails `ENEEDAUTH` (see the header note). When
+      # this step sat before the libraries it took them down with it: v0.1.35's
+      # first attempt shipped the CLI and harmoni-wasm, failed here, and SKIPPED
+      # react/icons/tokens on both npm and JSR — the same shape as v0.1.30, where
+      # harmoni-wasm's own bootstrap failed after the CLI had gone out.
+      # A new package is the one step expected to fail, so it goes where failing
+      # costs nothing: everything established ships first, the run still goes red,
+      # and the re-run after the bootstrap has only this left to do.
+      #
+      # No `npm pkg set name` — `--scope primitiv-ui` at build time already wrote
+      # `@primitiv-ui/primitiv-emit-wasm`. Existence-guarded like every step above,
+      # so a re-run after a partial publish is safe.
+      - name: Publish primitiv-emit-wasm to npm
+        run: |
+          cd crates/primitiv-emit-wasm/pkg
+          name=$(node -p "require('./package.json').name")
+          version=$(node -p "require('./package.json').version")
+          if npm view "$name@$version" version >/dev/null 2>&1; then
+            echo "  $name@$version already published — skipping"
+          else
+            npm publish --access public --provenance
+          fi
+

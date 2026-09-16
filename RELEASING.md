@@ -301,16 +301,26 @@ factors, surfaced by `deno doc --lint <entrypoint>`:
 - **Runtime compatibility** — mark which runtimes each package supports in
   the jsr.io package settings; an unset list costs score.
 
-Lockstep version bumps are **required**, not just tidy: `publish.yml` publishes
-the `@primitiv-ui/cli-*` platform packages, the wrapper, the scaffold, and
-`@primitiv-ui/harmoni-wasm` with plain `npm publish`, which **errors on an
-already-published version**. (Only the library step uses `pnpm -r publish`,
-which skips versions already on the registry.) So a release that bumps only
-the libraries fails at the CLI (or harmoni-wasm) publish step — bump all
-eleven publishable packages (and the wrapper's `optionalDependencies`)
-together. `scripts/bump-version.mjs` covers all eleven, including
-`crates/harmoni-wasm/Cargo.toml` (wasm-pack reads its `version` into the
-published package.json at publish time).
+Lockstep version bumps are **required**, not just tidy — and the reason is not
+the one you would guess. `publish.yml` publishes the `@primitiv-ui/cli-*`
+platform packages, the wrapper, the scaffold, `@primitiv-ui/harmoni-wasm` and
+`@primitiv-ui/primitiv-emit-wasm` with plain `npm publish`, which does error on
+an already-published version — **but every one of those steps is
+existence-guarded** (`npm view "$name@$version" ... || npm publish`), so a
+package left at its old version is **silently skipped, not failed**. That is
+worse than a hard error: the release goes green and the package simply never
+ships. (Only the library step uses `pnpm -r publish`, which skips already-
+published versions for the same reason.)
+
+So nothing will tell you about a missed bump. Bump all **twelve** publishable
+packages (and the wrapper's `optionalDependencies`) together.
+`scripts/bump-version.mjs` covers all twelve — the ten tracked by a
+`package.json`, plus **both** wasm crates' `Cargo.toml` (`harmoni-wasm` and
+`primitiv-emit-wasm`; wasm-pack reads each `version` into its generated
+package.json at publish time). Adding a publishable package means adding it
+there **and** to the `git add` list in `release.yml`, which stages paths
+explicitly — a bumped file left unstaged ships the old version under the new
+tag.
 
 ---
 

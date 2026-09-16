@@ -247,9 +247,12 @@ source of truth for when a skill applies.
   that same `pkg/` dir to `@primitiv-ui/harmoni-wasm` via `npm pkg set` right
   before publishing it — after `pnpm install`, so the rename never touches
   local workspace resolution. Its version now bumps in
-  lockstep with the other ten publishable packages via
+  lockstep with the other eleven publishable packages via
   `scripts/bump-version.mjs` (which patches `crates/harmoni-wasm/Cargo.toml`
   directly — wasm-pack reads that `version` into the published package.json).
+  `crates/primitiv-emit-wasm` joined it as a second wasm crate on the same
+  path, so that script now takes a LIST of Cargo.toml paths — and every one
+  of them also has to appear in `release.yml`'s explicit `git add`.
   Published with `--access public --provenance`, same as every other package.
 - **RFC 0010 (OKLCH colour picker) — Phases 1–3 landed.** The Rust/wasm gamut
   API (`max_in_gamut_chroma`, `paint_lc_plane`, `paint_hue_strip`, plus the

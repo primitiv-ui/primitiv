@@ -42,6 +42,9 @@ pub fn theme(
         seeds: &seeds,
         steps,
         intent: &intent,
+        // Not wired to the config yet — the neutral model needs more than a seed,
+        // so it lands with the config shape that can carry it.
+        neutral: None,
     };
     let overrides = match format {
         Format::Css => emit_theme_ramps_css(&ramps)?,

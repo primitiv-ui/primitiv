@@ -2,7 +2,7 @@ use pretty_assertions::assert_eq;
 use serde_json::{Value, json};
 
 use crate::pipeline::{
-    ThemeRamps, TokenSources, emit_component_tokens_css, emit_dtcg_ramps, emit_tailwind_tokens,
+    NeutralRamp, ThemeRamps, TokenSources, emit_component_tokens_css, emit_dtcg_ramps, emit_tailwind_tokens,
     emit_theme_overrides_css, emit_theme_ramps_css, emit_theme_ramps_scss,
     emit_theme_ramps_tailwind, emit_tokens_css, emit_tokens_scss,
 };
@@ -52,6 +52,7 @@ fn at_default_length<'a>(seeds: &'a [(&'a str, &'a str)]) -> ThemeRamps<'a> {
         seeds,
         steps: 10,
         intent: &Value::Null,
+        neutral: None,
     }
 }
 
@@ -240,6 +241,7 @@ fn re_points_intent_roles_when_the_ramp_is_not_the_default_length() {
         seeds: &[("brand", "#0a7755")],
         steps: 7,
         intent: &intent,
+        neutral: None,
     })
     .expect("valid seed");
 
@@ -267,6 +269,7 @@ fn emits_no_intent_block_at_the_default_length() {
         seeds: &[("brand", "#0a7755")],
         steps: 10,
         intent: &intent,
+        neutral: None,
     })
     .expect("valid seed");
 
@@ -293,7 +296,62 @@ fn rejects_a_step_count_outside_the_engines_supported_range() {
             seeds: &[("brand", "#0a7755")],
             steps: 2,
             intent: &Value::Null,
+            neutral: None,
         })
         .is_err()
     );
+}
+
+#[test]
+fn emits_a_neutral_ramp_into_both_theme_scopes() {
+    use harmoni_core::api::NeutralTint;
+    use harmoni_core::ColorInput;
+
+    let css = emit_theme_ramps_css(&ThemeRamps {
+        seeds: &[("brand", "#0a7755")],
+        steps: 10,
+        intent: &Value::Null,
+        neutral: Some(NeutralRamp {
+            white: ColorInput::Oklch { l: 0.95, c: 0.02, h: 240.0 },
+            black: ColorInput::Oklch { l: 0.10, c: 0.005, h: 240.0 },
+            tint: Some(NeutralTint {
+                source: ColorInput::Css("#0a7755".to_string()),
+                strength: 0.5,
+                spread: 0.0,
+                bow: 0.0,
+            }),
+        }),
+    })
+    .expect("valid seeds");
+
+    // The neutral ramp is the one a project cannot express as a seed, so before
+    // this a consumer who tuned their greys in the plugin got Primitiv's stock
+    // ones back and no warning. It lands in the same two scopes as the seeded
+    // families, under its own family name.
+    assert_eq!(css.matches("--primitiv-color-neutral-500:").count(), 2);
+    // Light and dark are the same anchors run opposite ways, so the ramp's ends
+    // swap between the modes rather than repeating.
+    let light_50 = css.find("--primitiv-color-neutral-50:").unwrap();
+    assert!(css[light_50..].contains("oklch("), "{css}");
+}
+
+#[test]
+fn rejects_a_neutral_anchor_the_engine_cannot_parse() {
+    use harmoni_core::ColorInput;
+
+    // The anchors are consumer input like any seed, so a bad one is reported
+    // rather than swallowed — and it has its own path, because a neutral ramp is
+    // generated from a different call than the seeded families beside it.
+    let result = emit_theme_ramps_css(&ThemeRamps {
+        seeds: &[("brand", "#0a7755")],
+        steps: 10,
+        intent: &Value::Null,
+        neutral: Some(NeutralRamp {
+            white: ColorInput::Css("not-a-colour".to_string()),
+            black: ColorInput::Oklch { l: 0.10, c: 0.005, h: 240.0 },
+            tint: None,
+        }),
+    });
+
+    assert!(result.is_err());
 }

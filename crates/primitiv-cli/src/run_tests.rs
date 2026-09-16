@@ -39,6 +39,7 @@ fn dispatches_the_theme_command_and_writes_the_file() {
             seeds: &[("brand", "#0a7755")],
             steps: 10,
             intent: &serde_json::Value::Null,
+            neutral: None,
         })
         .unwrap()
         .into_bytes()

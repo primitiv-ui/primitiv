@@ -25,7 +25,7 @@ pub use dtcg::{flatten_modes, tokens_from_dtcg};
 pub use js::emit_breakpoints_ts;
 pub use mode::{Axis, scope_selectors};
 pub use pipeline::{
-    ThemeRamps, TokenSources, emit_component_tokens_css, emit_dtcg_ramps, emit_tailwind_tokens,
+    NeutralRamp, ThemeRamps, TokenSources, emit_component_tokens_css, emit_dtcg_ramps, emit_tailwind_tokens,
     emit_theme_overrides_css, emit_theme_ramps_css, emit_theme_ramps_scss,
     emit_theme_ramps_tailwind, emit_tokens_css, emit_tokens_scss,
 };

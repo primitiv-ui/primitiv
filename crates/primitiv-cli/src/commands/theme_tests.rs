@@ -23,6 +23,7 @@ fn at_default_length<'a>(seeds: &'a [(&'a str, &'a str)]) -> ThemeRamps<'a> {
         seeds,
         steps: 10,
         intent: &serde_json::Value::Null,
+        neutral: None,
     }
 }
 

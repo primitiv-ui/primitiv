@@ -17,6 +17,8 @@ fn main() {
         seeds: &seeds,
         steps: 10,
         intent: &serde_json::Value::Null,
+        // The goldens are the shipped scale, which has no neutral override.
+        neutral: None,
     };
     fs::write(
         dir.join("theme-brand.css"),

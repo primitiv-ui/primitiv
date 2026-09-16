@@ -2,7 +2,8 @@ use std::collections::BTreeMap;
 
 use harmoni_core::ColorInput;
 use harmoni_core::api::{
-    GenerateError, GenerateOptions, PaletteSet, generate_brand_pair_with_options,
+    GenerateError, GenerateOptions, NeutralTint, PaletteSet, generate_brand_pair_with_options,
+    generate_tinted_neutral_pair,
 };
 use harmoni_core::palette::generator::step_labels;
 use serde_json::Value;
@@ -72,6 +73,22 @@ pub fn emit_theme_overrides_css(documents: &[Value]) -> String {
     emit_theme_css(&axis_scopes(&Axis::Theme, documents))
 }
 
+/// A project's neutral ramp — the one ramp that is generated *between* two
+/// anchors rather than from a seed, which is why it has never had a `--neutral`
+/// flag: it takes a different model, not a different colour.
+///
+/// The vocabulary is the engine's own ([`NeutralTint`]) rather than a parallel
+/// copy, so there is one description of a tint in the workspace and the emitter
+/// cannot drift from what the generator accepts.
+pub struct NeutralRamp {
+    /// The light anchor the ramp runs from.
+    pub white: ColorInput,
+    /// The dark anchor it runs to.
+    pub black: ColorInput,
+    /// The tint laid over both anchors, or `None` for an untinted grey.
+    pub tint: Option<NeutralTint>,
+}
+
 /// What a `theme` emit generates from.
 pub struct ThemeRamps<'a> {
     /// `(family, seed)` pairs — `[("brand", "#0a7755"), ("danger", "#db2424")]` —
@@ -83,6 +100,8 @@ pub struct ThemeRamps<'a> {
     /// has can be re-pointed at one it does. Consulted only where a step actually
     /// moved, so at the default length it contributes nothing.
     pub intent: &'a serde_json::Value,
+    /// The project's neutral ramp, when it has one to override.
+    pub neutral: Option<NeutralRamp>,
 }
 
 /// Emit `primitiv theme` ramp overrides as CSS (RFC 0005 §2.4, RFC 0006
@@ -146,6 +165,11 @@ pub fn emit_dtcg_ramps(seeds: &[(&str, &str)], steps: usize) -> Result<String, G
     ]))
 }
 
+/// The family name a neutral ramp's tokens carry. Not in
+/// [`RAMP_FAMILIES`](../../primitiv-cli/src/cli.rs) because it is not seedable,
+/// but it is the same `--primitiv-color-<family>-<step>` override surface.
+const NEUTRAL_FAMILY: &str = "neutral";
+
 /// One family's contrast-checked light + dark pair at the requested length.
 ///
 /// Shared by the stylesheet and DTCG paths so a ramp cannot come out one length in
@@ -172,6 +196,17 @@ fn ramp_scopes(ramps: &ThemeRamps) -> Result<Vec<Scope>, GenerateError> {
         let set = generate_pair(seed, ramps.steps)?;
         light.extend(ramp_tokens(family, &set.light, ColorForm::Oklch));
         dark.extend(ramp_tokens(family, &set.dark, ColorForm::Oklch));
+    }
+
+    if let Some(neutral) = &ramps.neutral {
+        let set = generate_tinted_neutral_pair(
+            neutral.white.clone(),
+            neutral.black.clone(),
+            neutral.tint.clone(),
+            ramps.steps,
+        )?;
+        light.extend(ramp_tokens(NEUTRAL_FAMILY, &set.light, ColorForm::Oklch));
+        dark.extend(ramp_tokens(NEUTRAL_FAMILY, &set.dark, ColorForm::Oklch));
     }
 
     let families: Vec<&str> = ramps.seeds.iter().map(|(family, _)| *family).collect();

@@ -264,7 +264,7 @@ dependencies = [
 
 [[package]]
 name = "harmoni-wasm"
-version = "0.1.34"
+version = "0.1.35"
 dependencies = [
  "harmoni-core",
  "js-sys",
@@ -559,7 +559,7 @@ dependencies = [
 
 [[package]]
 name = "primitiv-emit-wasm"
-version = "0.1.34"
+version = "0.1.35"
 dependencies = [
  "primitiv-emit",
  "serde-wasm-bindgen",

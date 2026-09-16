@@ -53,7 +53,73 @@ pub struct Tokens {
 pub struct Theme {
     #[serde(flatten)]
     pub seeds: BTreeMap<String, String>,
+    /// The neutral ramp, which is not a seed and so is not in the map above.
+    ///
+    /// A neutral ramp is generated *between* two anchors rather than from one
+    /// colour, so it cannot be a `"neutral": "#888888"` entry — that is the whole
+    /// reason `--neutral` has always been refused. Naming the field also keeps it
+    /// out of the flattened map, which every family key still falls into.
+    pub neutral: Option<NeutralEntry>,
 }
+
+/// What the `neutral` key holds. A ramp block is the real form; a bare string is
+/// accepted only so the mistake can be answered properly.
+///
+/// `"neutral": "#888888"` is the natural thing to try, because every other family
+/// takes a colour there. Letting serde reject it by type would say "expected
+/// struct Neutral" and stop — [`resolve_neutral`](crate::seeds::resolve_neutral)
+/// answers it with what to write instead.
+#[derive(Debug, Deserialize, PartialEq)]
+#[serde(untagged)]
+pub enum NeutralEntry {
+    /// The mistake: one colour, as the seeded families take.
+    Seed(String),
+    /// The ramp, generated between two anchors.
+    Ramp(Neutral),
+}
+
+/// The neutral ramp's shape, mirroring the model the engine generates from.
+///
+/// Both anchors are optional and default to the pair the Harmoni plugin's own
+/// default project uses, so a consumer who wants their brand's tint over ordinary
+/// greys writes only the tint.
+#[derive(Debug, Deserialize, PartialEq, Default)]
+pub struct Neutral {
+    /// The light anchor. Defaults to [`DEFAULT_WHITE`].
+    pub white: Option<String>,
+    /// The dark anchor. Defaults to [`DEFAULT_BLACK`].
+    pub black: Option<String>,
+    /// The tint laid over both anchors. Absent leaves an untinted grey.
+    pub tint: Option<Tint>,
+}
+
+/// The tint over a neutral ramp's anchors — one source and an angle, never two
+/// colours (the engine's [`NeutralTint`](harmoni_core::api::NeutralTint) says why).
+#[derive(Debug, Deserialize, PartialEq)]
+pub struct Tint {
+    /// A ramp family whose seed tints the anchors (`"brand"`), or a colour.
+    ///
+    /// Naming a family is the point rather than a convenience: the tint exists so
+    /// the neutral relates to the brand and **follows it when the brand moves**.
+    /// Copying the brand's colour in here would freeze that relationship at the
+    /// moment it was written.
+    pub source: String,
+    /// How far the anchors take the source colour, 0..1.
+    pub strength: f32,
+    /// Hue divergence between the anchors, in degrees. 0 is a single source.
+    #[serde(default)]
+    pub spread: f32,
+    /// How far chroma crests through the mid-tones, 0..1.
+    #[serde(default)]
+    pub bow: f32,
+}
+
+/// The anchors a neutral ramp runs between when the config names none — the pair
+/// the plugin's default project carries, so the two sides agree on "the default
+/// neutral" without either restating it.
+pub const DEFAULT_WHITE: &str = "oklch(0.99 0 0)";
+/// The dark companion to [`DEFAULT_WHITE`].
+pub const DEFAULT_BLACK: &str = "oklch(0.02 0 0)";
 
 /// The registry pin that makes `add` deterministic (RFC 0005 §3.1 / §6.4).
 #[derive(Debug, Deserialize, PartialEq)]

@@ -253,3 +253,56 @@ fn refuses_a_step_count_the_engine_does_not_support() {
     assert!(matches!(err, CliError::Usage(_)), "{err:?}");
     assert!(err.to_string().contains("between 3 and 32"), "{err}");
 }
+
+#[test]
+fn writes_the_projects_neutral_ramp_from_the_config() {
+    let fs = InMemoryFs::new();
+    fs.write(
+        Path::new("primitiv.json"),
+        br##"{
+          "version": 1,
+          "framework": "react",
+          "styles": { "enabled": true, "format": "css", "path": "s" },
+          "tokens": { "format": "css", "path": "t.css" },
+          "theme": {
+            "brand": "#0a7755",
+            "neutral": { "tint": { "source": "brand", "strength": 0.5 } }
+          },
+          "aliases": {},
+          "registry": { "version": "0.1.0" }
+        }"##,
+    )
+    .unwrap();
+    let out = Path::new("primitiv.theme.css");
+
+    theme(&fs, &[], out, Format::Css, DEFAULT_STEPS).unwrap();
+
+    // The ramp a seed cannot express now reaches the stylesheet, tinted by the
+    // brand it was told to follow.
+    let written = String::from_utf8(fs.read(out).unwrap()).unwrap();
+    assert_eq!(written.matches("--primitiv-color-neutral-500:").count(), 2, "{written}");
+    // Tinted, not grey: the brand's own hue reaches the anchors.
+    assert!(written.contains("--primitiv-color-neutral-50: oklch(0.99 0."), "{written}");
+}
+
+#[test]
+fn surfaces_a_malformed_neutral_block_rather_than_ignoring_it() {
+    let fs = InMemoryFs::new();
+    fs.write(
+        Path::new("primitiv.json"),
+        br##"{
+          "version": 1, "framework": "react",
+          "styles": { "enabled": true, "format": "css", "path": "s" },
+          "tokens": { "format": "css", "path": "t.css" },
+          "theme": { "brand": "#0a7755", "neutral": "#888888" },
+          "aliases": {}, "registry": { "version": "0.1.0" }
+        }"##,
+    )
+    .unwrap();
+
+    let err = theme(&fs, &[], Path::new("x.css"), Format::Css, DEFAULT_STEPS).unwrap_err();
+
+    // The command stops rather than writing a file whose greys silently came from
+    // somewhere other than the config the consumer wrote.
+    assert!(matches!(err, CliError::Usage(_)), "{err:?}");
+}

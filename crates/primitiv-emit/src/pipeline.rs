@@ -80,6 +80,7 @@ pub fn emit_theme_overrides_css(documents: &[Value]) -> String {
 /// The vocabulary is the engine's own ([`NeutralTint`]) rather than a parallel
 /// copy, so there is one description of a tint in the workspace and the emitter
 /// cannot drift from what the generator accepts.
+#[derive(Debug, Clone, PartialEq)]
 pub struct NeutralRamp {
     /// The light anchor the ramp runs from.
     pub white: ColorInput,

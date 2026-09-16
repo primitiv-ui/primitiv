@@ -7,7 +7,7 @@ use primitiv_emit::{
 use crate::error::CliError;
 use crate::format::Format;
 use crate::ports::fs::FileSystem;
-use crate::seeds::{as_pairs, resolve_seeds};
+use crate::seeds::{as_pairs, resolve_neutral, resolve_seeds};
 use crate::token_source::{INTENT, parse};
 
 /// The `primitiv theme [--<family> <colour>]... --out <path> [--format <fmt>]`
@@ -37,14 +37,13 @@ pub fn theme(
 ) -> Result<(), CliError> {
     let resolved = resolve_seeds(fs, seeds, "theme")?;
     let seeds = as_pairs(&resolved);
+    let neutral = resolve_neutral(fs, &resolved)?;
     let intent = parse(INTENT);
     let ramps = ThemeRamps {
         seeds: &seeds,
         steps,
         intent: &intent,
-        // Not wired to the config yet — the neutral model needs more than a seed,
-        // so it lands with the config shape that can carry it.
-        neutral: None,
+        neutral,
     };
     let overrides = match format {
         Format::Css => emit_theme_ramps_css(&ramps)?,

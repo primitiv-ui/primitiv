@@ -314,12 +314,16 @@ fn parse_steps(value: &str) -> Result<usize, CliError> {
 /// Why the CLI will not take a neutral seed, worded the same way wherever one is
 /// offered — a flag or a config key — so the two cannot drift.
 pub fn neutral_unsupported(source: &str) -> CliError {
-    usage(format!(
-        "{source} cannot seed the neutral ramp: it is generated from soft-neutral \
-         anchors and a hue-tint rule rather than a single colour, which the CLI \
-         does not surface yet"
-    ))
+    usage(format!("{source} cannot seed the neutral ramp: {NEUTRAL_TAKES_A_BLOCK}"))
 }
+
+/// Why one colour is the wrong shape for a neutral ramp, and what to write
+/// instead — shared so the flag and the config cannot answer it differently.
+///
+/// It used to end "which the CLI does not surface yet". That is no longer true:
+/// the model is surfaced, as a block in `primitiv.json`'s theme, so the answer is
+/// a shape rather than a refusal.
+pub const NEUTRAL_TAKES_A_BLOCK: &str = "it is generated between two anchors rather      than from a single colour, so it goes in primitiv.json's theme block as      \"neutral\": { \"tint\": { \"source\": \"brand\", \"strength\": 0.2 } }      (both anchors optional)";
 
 /// A family the CLI does not generate, named where it was found.
 pub fn unknown_family(source: &str, family: &str) -> CliError {

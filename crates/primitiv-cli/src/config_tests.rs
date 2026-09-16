@@ -3,7 +3,7 @@ use std::path::Path;
 
 use pretty_assertions::assert_eq;
 
-use crate::config::{resolve, try_resolve, Config, Registry, Styles, Theme, Tokens};
+use crate::config::{resolve, try_resolve, Config, NeutralEntry, Registry, Styles, Theme, Tokens};
 use crate::format::Format;
 use crate::ports::fs::{FileSystem, InMemoryFs};
 
@@ -40,6 +40,7 @@ fn should_parse_a_full_primitiv_json_document() {
             },
             theme: Theme {
                 seeds: BTreeMap::from([("brand".into(), "#0a7755".into())]),
+                neutral: None,
             },
             aliases: BTreeMap::from([("components".into(), "@/components".into())]),
             registry: Registry {
@@ -164,4 +165,39 @@ fn should_carry_a_seed_for_every_ramp_family_the_theme_block_names() {
     // one place the vocabulary lives — the flags and the config cannot disagree.
     assert_eq!(config.theme.seeds.get("brand").map(String::as_str), Some("#0a7755"));
     assert_eq!(config.theme.seeds.get("danger").map(String::as_str), Some("#db2424"));
+}
+
+#[test]
+fn should_parse_a_neutral_block_beside_the_family_seeds() {
+    let config = Config::parse(
+        br##"{
+          "version": 1,
+          "framework": "react",
+          "styles": { "enabled": true, "format": "css", "path": "s" },
+          "tokens": { "format": "css", "path": "t.css" },
+          "theme": {
+            "brand": "#236ce1",
+            "neutral": {
+              "tint": { "source": "brand", "strength": 0.2, "spread": 0, "bow": 0.1 }
+            }
+          },
+          "aliases": {},
+          "registry": { "version": "0.1.0" }
+        }"##,
+    )
+    .unwrap();
+
+    // `neutral` is structured where a seed is a single string, so it is a named
+    // field rather than another entry in the flattened map — and naming it keeps
+    // it out of `seeds`, which every family key still falls into.
+    assert_eq!(config.theme.seeds.get("brand").map(String::as_str), Some("#236ce1"));
+    assert_eq!(config.theme.seeds.get("neutral"), None);
+    let neutral = match config.theme.neutral.expect("a neutral block") {
+        NeutralEntry::Ramp(neutral) => neutral,
+        other => panic!("expected a ramp block, got {other:?}"),
+    };
+    let tint = neutral.tint.expect("a tint");
+    assert_eq!(tint.source, "brand");
+    assert_eq!(tint.strength, 0.2);
+    assert_eq!(tint.bow, 0.1);
 }

@@ -564,10 +564,12 @@ fn rejects_seeding_the_neutral_ramp_by_name_rather_than_as_a_typo() {
     };
 
     // Not "unexpected argument": the neutral ramp is generated from a different
-    // model, and saying so is the difference between a mistyped flag and a
-    // capability the CLI has not surfaced.
+    // model, and saying so is the difference between a mistyped flag and the wrong
+    // shape. The CLI does generate neutral ramps now, so the message names the
+    // block to write rather than reporting a gap.
     assert!(message.contains("neutral"), "{message}");
-    assert!(message.contains("hue-tint"), "{message}");
+    assert!(message.contains("between two anchors"), "{message}");
+    assert!(message.contains("primitiv.json"), "{message}");
 }
 
 #[test]

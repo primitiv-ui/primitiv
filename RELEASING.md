@@ -86,11 +86,24 @@ placeholders at v0.1.0+.
    - Repository: `primitiv-ui/primitiv`
    - Workflow: `publish.yml`
 
-For `@primitiv-ui/cli-*` packages that don't exist yet: configure TP before
-the first publish (npmjs.com supports this for new packages). If TP rejects
-a new package, do a one-time bootstrap with `NPM_TOKEN` (uncomment the env
-blocks in `publish.yml`, add the secret, publish once, then switch to TP and
-remove the secret).
+For any package that doesn't exist on npm yet: configure TP before the first
+publish (npmjs.com supports this for new packages). **If you don't, that
+publish fails `ENEEDAUTH`** — Trusted Publishing has no configuration to
+authenticate a name npmjs.com has never seen. To bootstrap instead, add a
+`NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}` env block to that step and an
+`NPM_TOKEN` repo secret (granular, automation, publish scope), publish once,
+then remove both. **Write that block — do not go looking for one to
+uncomment**; the commented-out blocks this document used to point at were
+deleted after v0.1.30's bootstrap.
+
+**A new package's publish step goes LAST in `publish.yml`, and that position
+is load-bearing.** It is the one step expected to fail, so it belongs where
+failing costs nothing. Twice now it has not been: in v0.1.30 harmoni-wasm's
+bootstrap failed after the CLI had shipped, and in v0.1.35 the
+`primitiv-emit-wasm` step sat *before* the library step, failed `ENEEDAUTH`,
+and **skipped `react`/`icons`/`tokens` on both npm and JSR** — a release that
+had already bumped every version and tagged. Put the new step after
+everything established and a first-publish failure costs only a re-run.
 
 **musl fast-follow** — when needed, add two more entries to the matrix and
 two more platform packages (`cli-linux-x64-musl`, `cli-linux-arm64-musl`),
@@ -138,10 +151,11 @@ For **each** package (`@primitiv-ui/react`, `/icons`, `/tokens`):
    - Workflow: `publish.yml`
 3. After that, CI publishes with **no token** and attaches provenance.
 
-> If tokenless publishing isn't working for your npm/pnpm versions yet,
-> uncomment the `NODE_AUTH_TOKEN` env block in `publish.yml` and add an
-> `NPM_TOKEN` repo secret (granular, automation, publish scope) as a
-> fallback. Remove it once trusted publishing is confirmed.
+> If tokenless publishing isn't working for your npm/pnpm versions yet, add a
+> `NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}` env block to the affected step
+> and an `NPM_TOKEN` repo secret (granular, automation, publish scope) as a
+> fallback, then remove both once trusted publishing is confirmed. There is no
+> block to uncomment — see the bootstrap note in §2.
 
 **JSR — link the package to the repo**
 

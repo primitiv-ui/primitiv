@@ -1,6 +1,6 @@
 name: Release
 
-# Bumps all 14 version fields in lockstep, commits, tags, and creates a
+# Bumps all 15 version fields in lockstep, commits, tags, and creates a
 # GitHub Release.
 #
 # After this workflow succeeds, manually trigger publish.yml
@@ -55,8 +55,11 @@ jobs:
       - name: Bump all version fields
         run: node scripts/bump-version.mjs ${{ inputs.version }}
 
-      # bump-version.mjs edits crates/harmoni-wasm/Cargo.toml's version field
-      # by hand, which Cargo.lock's own harmoni-wasm entry does not track.
+      # bump-version.mjs edits each wasm crate's Cargo.toml version field by
+      # hand, which Cargo.lock's own entries do not track. Every one of those
+      # paths must also appear in the `git add` below: a bumped file left
+      # unstaged both ships the old version under the new tag AND leaves the
+      # tree dirty, which is what the dry-run note below aborts on.
       # Left alone, publish.yml's `wasm-pack build` step silently re-resolves
       # and dirties Cargo.lock right before the JSR slow-types dry-run, which
       # aborts on any uncommitted diff (this is exactly how the v0.1.30
@@ -76,7 +79,7 @@ jobs:
             npm/cli-darwin-x64/package.json npm/cli-linux-arm64-gnu/package.json \
             npm/cli-linux-x64-gnu/package.json npm/cli-win32-x64/package.json \
             npm/create-primitiv-ui/package.json \
-            crates/harmoni-wasm/Cargo.toml Cargo.lock
+            crates/harmoni-wasm/Cargo.toml crates/primitiv-emit-wasm/Cargo.toml Cargo.lock
           git diff --cached --quiet || git commit -m "chore: release v${{ inputs.version }}"
           git tag "v${{ inputs.version }}"
           git push origin HEAD

@@ -32,7 +32,14 @@
       "which takes a different input shape including the hue-tint mode. It is",
       "deliberately left out of this manifest rather than guessed at.",
       "Adding it means reading that module's signature and extending both this",
-      "file and the ramp-audit example."
+      "file and the ramp-audit example.",
+      "",
+      "As of 2026-09-16 that signature is settled: api::generate_tinted_neutral_pair",
+      "takes (white, black, Option<NeutralTint>, steps). Fed the two veils",
+      "(#e5ecf6 / #121418) and a brand tint at strength 1.0, it reproduces 7 of the",
+      "10 committed light steps exactly and the other 3 within one bit. See",
+      "docs/neutral-tint-flattening.md section 4 for the recipe and what adopting",
+      "it would cost."
     ]
   }
 }

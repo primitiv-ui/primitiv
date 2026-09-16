@@ -151,14 +151,12 @@ pub fn emit_theme_ramps_tailwind(ramps: &ThemeRamps) -> Result<String, GenerateE
 /// because the engine's rendered OkLCH reproduces its own hex exactly
 /// (`harmoni-core`'s `tests/ramp_regression.rs` gates that), so the two forms
 /// describe the same colour.
-pub fn emit_dtcg_ramps(seeds: &[(&str, &str)], steps: usize) -> Result<String, GenerateError> {
-    let mut light = Vec::new();
-    let mut dark = Vec::new();
-    for (family, seed) in seeds {
-        let set = generate_pair(seed, steps)?;
-        light.extend(ramp_tokens(family, &set.light, ColorForm::Hex));
-        dark.extend(ramp_tokens(family, &set.dark, ColorForm::Hex));
-    }
+pub fn emit_dtcg_ramps(
+    seeds: &[(&str, &str)],
+    steps: usize,
+    neutral: Option<NeutralRamp>,
+) -> Result<String, GenerateError> {
+    let (light, dark) = palette_tokens(seeds, steps, neutral.as_ref(), ColorForm::Hex)?;
 
     Ok(dtcg_document(&[
         ("light".to_string(), light),
@@ -185,30 +183,55 @@ fn generate_pair(seed: &str, steps: usize) -> Result<PaletteSet, GenerateError> 
     )
 }
 
+/// Every palette family's light + dark tokens: each seeded ramp, then the neutral if
+/// the project has one.
+///
+/// Shared by the stylesheet and DTCG paths, and that sharing is the point — they
+/// each had their own copy of this loop, and the copies disagreed: `dtcg` emitted no
+/// neutral at all, so the one route out of a project and into a design tool handed
+/// over a palette with no greys. One function means a family cannot reach one format
+/// and miss the other. Only `form` differs between callers, because who reads the
+/// output differs (a stylesheet wants `oklch()`, an importer wants hex).
+fn palette_tokens(
+    seeds: &[(&str, &str)],
+    steps: usize,
+    neutral: Option<&NeutralRamp>,
+    form: ColorForm,
+) -> Result<(Vec<Token>, Vec<Token>), GenerateError> {
+    let mut light = Vec::new();
+    let mut dark = Vec::new();
+    for (family, seed) in seeds {
+        let set = generate_pair(seed, steps)?;
+        light.extend(ramp_tokens(family, &set.light, form));
+        dark.extend(ramp_tokens(family, &set.dark, form));
+    }
+    // The neutral cannot ride in `seeds`: it is generated between two anchors rather
+    // than from a step 500, so it takes the engine's other entry point.
+    if let Some(neutral) = neutral {
+        let set = generate_tinted_neutral_pair(
+            neutral.white.clone(),
+            neutral.black.clone(),
+            neutral.tint.clone(),
+            steps,
+        )?;
+        light.extend(ramp_tokens(NEUTRAL_FAMILY, &set.light, form));
+        dark.extend(ramp_tokens(NEUTRAL_FAMILY, &set.dark, form));
+    }
+    Ok((light, dark))
+}
+
 /// Derive the paired light + dark theme scopes for every seeded ramp: link
 /// `harmoni-core` for each family's contrast-checked pair at the requested
 /// length, collect all the families' `--primitiv-color-<family>-*` tokens into one
 /// scope per mode, and append whichever Intent roles that length has moved.
 /// Shared by every serialiser so the formats stay byte-identical in structure.
 fn ramp_scopes(ramps: &ThemeRamps) -> Result<Vec<Scope>, GenerateError> {
-    let mut light = Vec::new();
-    let mut dark = Vec::new();
-    for (family, seed) in ramps.seeds {
-        let set = generate_pair(seed, ramps.steps)?;
-        light.extend(ramp_tokens(family, &set.light, ColorForm::Oklch));
-        dark.extend(ramp_tokens(family, &set.dark, ColorForm::Oklch));
-    }
-
-    if let Some(neutral) = &ramps.neutral {
-        let set = generate_tinted_neutral_pair(
-            neutral.white.clone(),
-            neutral.black.clone(),
-            neutral.tint.clone(),
-            ramps.steps,
-        )?;
-        light.extend(ramp_tokens(NEUTRAL_FAMILY, &set.light, ColorForm::Oklch));
-        dark.extend(ramp_tokens(NEUTRAL_FAMILY, &set.dark, ColorForm::Oklch));
-    }
+    let (mut light, mut dark) = palette_tokens(
+        ramps.seeds,
+        ramps.steps,
+        ramps.neutral.as_ref(),
+        ColorForm::Oklch,
+    )?;
 
     let families: Vec<&str> = ramps.seeds.iter().map(|(family, _)| *family).collect();
     let labels = step_labels(ramps.steps);

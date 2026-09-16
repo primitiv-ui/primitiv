@@ -174,7 +174,7 @@ fn emits_a_brand_palette_as_paired_theme_overrides_in_tailwind() {
 
 #[test]
 fn rejects_an_unparseable_brand_colour() {
-    assert!(emit_dtcg_ramps(&[("brand", "not-a-colour")], 10).is_err());
+    assert!(emit_dtcg_ramps(&[("brand", "not-a-colour")], 10, None).is_err());
     assert!(emit_theme_ramps_css(&at_default_length(&[("brand", "not-a-colour")])).is_err());
     assert!(emit_theme_ramps_scss(&at_default_length(&[("brand", "not-a-colour")])).is_err());
     assert!(emit_theme_ramps_tailwind(&at_default_length(&[("brand", "not-a-colour")])).is_err());
@@ -215,7 +215,7 @@ fn emits_every_seeded_ramp_family_into_each_theme_scope() {
 
 #[test]
 fn emits_seeded_ramps_as_a_dtcg_document_in_hex() {
-    let document = emit_dtcg_ramps(&[("brand", "#0a7755")], 10).expect("valid seed");
+    let document = emit_dtcg_ramps(&[("brand", "#0a7755")], 10, None).expect("valid seed");
 
     // Mode-keyed like the committed source, and in hex, so an importer that reads
     // DTCG can consume it without knowing anything about Primitiv.
@@ -278,7 +278,7 @@ fn emits_no_intent_block_at_the_default_length() {
 
 #[test]
 fn exports_a_dtcg_ramp_at_the_requested_length() {
-    let document = emit_dtcg_ramps(&[("brand", "#0a7755")], 5).expect("valid seed");
+    let document = emit_dtcg_ramps(&[("brand", "#0a7755")], 5, None).expect("valid seed");
 
     // Five steps label 50, 100, 300, 500, 900 — so the document says 300 and has no
     // 200 at all, rather than quietly exporting the default ten.
@@ -290,7 +290,7 @@ fn exports_a_dtcg_ramp_at_the_requested_length() {
 fn rejects_a_step_count_outside_the_engines_supported_range() {
     // The count is the engine's to bound, and both formats defer to it rather than
     // clamping — a consumer who asked for 99 steps gets told, not silently given 32.
-    assert!(emit_dtcg_ramps(&[("brand", "#0a7755")], 99).is_err());
+    assert!(emit_dtcg_ramps(&[("brand", "#0a7755")], 99, None).is_err());
     assert!(
         emit_theme_ramps_css(&ThemeRamps {
             seeds: &[("brand", "#0a7755")],
@@ -354,4 +354,45 @@ fn rejects_a_neutral_anchor_the_engine_cannot_parse() {
     });
 
     assert!(result.is_err());
+}
+
+/// A DTCG export must carry the project's neutral ramp, not just its seeded
+/// families. The neutral is generated between two anchors rather than from a
+/// seed, so it cannot ride in `seeds` — and a document that silently omits it
+/// hands a design tool a palette with no greys, which is the one family every
+/// interface uses most.
+#[test]
+fn a_dtcg_document_carries_the_neutral_ramp_when_the_project_has_one() {
+    use harmoni_core::api::NeutralTint;
+    use harmoni_core::ColorInput;
+
+    let document = emit_dtcg_ramps(
+        &[("brand", "#0a7755")],
+        10,
+        Some(NeutralRamp {
+            white: ColorInput::Css("#e5ecf6".to_string()),
+            black: ColorInput::Css("#121418".to_string()),
+            tint: Some(NeutralTint {
+                source: ColorInput::Css("#236ce1".to_string()),
+                strength: 1.0,
+                spread: 0.0,
+                bow: 0.0,
+            }),
+        }),
+    )
+    .expect("the ramps are valid colours");
+
+    let parsed: Value = serde_json::from_str(&document).expect("emit writes valid JSON");
+    for mode in ["light", "dark"] {
+        let neutral = &parsed[mode]["color"]["neutral"];
+        assert!(
+            neutral.is_object(),
+            "{mode} mode is missing color.neutral entirely: {document}"
+        );
+        assert!(
+            neutral["500"]["$value"].as_str().is_some_and(|hex| hex.starts_with('#')),
+            "{mode} neutral/500 should be a hex colour, got {:?}",
+            neutral["500"]
+        );
+    }
 }

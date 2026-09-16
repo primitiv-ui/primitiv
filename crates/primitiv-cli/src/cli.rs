@@ -46,9 +46,11 @@ pub enum Command {
 /// `neutral` is deliberately absent: it does not come from
 /// `generate_brand_pair` at all but from the engine's `neutral` module, which
 /// takes a different input shape (soft-neutral anchors plus a hue-tint mode).
-/// `parse_theme` rejects `--neutral` by name rather than letting it read as an
-/// unknown flag, because "this needs a model we have not surfaced yet" is a
-/// different answer from "you typed that wrong".
+/// `parse_seeded` — shared by `theme` and `dtcg` — rejects `--neutral` by name
+/// rather than letting it read as an unknown flag, because "this belongs in the
+/// config, in a different shape" is a different answer from "you typed that
+/// wrong". Both commands resolve that block (`resolve_neutral`), so the guidance
+/// the rejection prints is true of whichever one printed it.
 pub const RAMP_FAMILIES: &[&str] = &["brand", "danger", "warning", "success", "info"];
 
 /// Parse the argument list (the process args **without** the binary name) into

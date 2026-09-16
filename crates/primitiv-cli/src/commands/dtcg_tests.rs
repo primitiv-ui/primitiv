@@ -25,6 +25,7 @@ fn writes_the_dtcg_document_to_the_out_path() {
     let expected = emit_dtcg_ramps(
         &[("brand", "#0a7755"), ("danger", "#db2424")],
         DEFAULT_STEPS,
+        None,
     )
     .unwrap();
     assert_eq!(fs.read(out).unwrap(), expected.into_bytes());
@@ -94,4 +95,67 @@ fn refuses_a_step_count_the_engine_does_not_support() {
     // The engine's bound, in the engine's words — not a second copy here.
     assert!(matches!(err, CliError::Usage(_)), "{err:?}");
     assert!(err.to_string().contains("32"), "{err}");
+}
+
+/// `theme` honours `primitiv.json`'s `neutral` block; `dtcg` must too, or the one
+/// route out of the CLI and into a design tool hands over a palette with no greys.
+/// The two commands read the same config, so they cannot be allowed to disagree
+/// about what a project's palette contains.
+#[test]
+fn writes_the_projects_neutral_ramp_from_the_config() {
+    let fs = InMemoryFs::new();
+    fs.write(
+        Path::new("primitiv.json"),
+        br##"{
+          "version": 1,
+          "framework": "react",
+          "styles": { "enabled": true, "format": "css", "path": "s" },
+          "tokens": { "format": "css", "path": "t.css" },
+          "theme": {
+            "brand": "#0a7755",
+            "neutral": { "tint": { "source": "brand", "strength": 0.5 } }
+          },
+          "aliases": {},
+          "registry": { "version": "0.1.0" }
+        }"##,
+    )
+    .unwrap();
+    let out = Path::new("tokens/palette.json");
+
+    dtcg(&fs, &[], out, DEFAULT_STEPS).unwrap();
+
+    let written = String::from_utf8(fs.read(out).unwrap()).unwrap();
+    let parsed: serde_json::Value = serde_json::from_str(&written).unwrap();
+    for mode in ["light", "dark"] {
+        assert!(
+            parsed[mode]["color"]["neutral"]["500"]["$value"].is_string(),
+            "{mode} mode carries no neutral ramp: {written}"
+        );
+    }
+}
+
+/// The config's neutral block is resolved here too, so its errors have to reach the
+/// caller rather than being swallowed into a document with no greys. `theme` holds
+/// the same line; both commands read the same block, so both owe the same answer.
+#[test]
+fn surfaces_a_malformed_neutral_block_rather_than_ignoring_it() {
+    let fs = InMemoryFs::new();
+    fs.write(
+        Path::new("primitiv.json"),
+        br##"{
+          "version": 1, "framework": "react",
+          "styles": { "enabled": true, "format": "css", "path": "s" },
+          "tokens": { "format": "css", "path": "t.css" },
+          "theme": { "brand": "#0a7755", "neutral": "#888888" },
+          "aliases": {}, "registry": { "version": "0.1.0" }
+        }"##,
+    )
+    .unwrap();
+
+    let err = dtcg(&fs, &[], Path::new("palette.json"), DEFAULT_STEPS).unwrap_err();
+
+    assert!(matches!(err, CliError::Usage(_)), "{err:?}");
+    // A single colour is the wrong shape for a ramp grown between two anchors, and
+    // the message says where the block goes instead of only that it is wrong.
+    assert!(err.to_string().contains("two anchors"), "{err}");
 }

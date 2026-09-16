@@ -14,7 +14,7 @@ use crate::css::{Scope, emit_css, emit_theme_css};
 use crate::dtcg::{dtcg_document, flatten_modes, tokens_from_dtcg};
 use crate::mode::{Axis, scope_selectors};
 use crate::scss::{emit_scss, emit_theme_scss};
-use crate::steps::realias;
+use crate::steps::{realias, resolve_roles};
 use crate::tailwind::{emit_tailwind, emit_theme_tailwind};
 use crate::theme::{ColorForm, ramp_tokens};
 use crate::token::Token;
@@ -103,6 +103,15 @@ pub struct ThemeRamps<'a> {
     pub intent: &'a serde_json::Value,
     /// The project's neutral ramp, when it has one to override.
     pub neutral: Option<NeutralRamp>,
+    /// A caller's **own** semantic roles, every one of which is emitted.
+    ///
+    /// Distinct from `intent`, and the distinction is the point. `intent` answers
+    /// "which of Primitiv's shipped roles did this ramp length break?", so it
+    /// contributes nothing at the default length. This answers "here are my roles,
+    /// emit them" — which is what a consumer with a semantic layer of its own needs,
+    /// at any length. Same document shape, so the same `realias` + `link_aliases`
+    /// path serialises both and a caller's roles cannot come out in a second form.
+    pub roles: Option<&'a serde_json::Value>,
 }
 
 /// Emit `primitiv theme` ramp overrides as CSS (RFC 0005 §2.4, RFC 0006
@@ -241,6 +250,16 @@ fn ramp_scopes(ramps: &ThemeRamps) -> Result<Vec<Scope>, GenerateError> {
             &families,
             &labels,
         )));
+        // A caller's own roles go through the identical `link_aliases` tail, so they
+        // land as `var(--primitiv-color-<family>-<step>)` references exactly as the
+        // shipped ones do. `resolve_roles` rather than `realias`, and the difference
+        // is the whole point: `realias` emits only what a shortened ramp broke, which
+        // at the default length is nothing. Nobody else declares these roles, so all
+        // of them have to be written — re-pointed where the length dropped the step
+        // they name.
+        if let Some(roles) = ramps.roles {
+            tokens.extend(link_aliases(resolve_roles(&roles[mode], &families, &labels)));
+        }
     }
 
     Ok(vec![theme_scope("light", light), theme_scope("dark", dark)])

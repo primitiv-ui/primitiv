@@ -53,6 +53,7 @@ fn at_default_length<'a>(seeds: &'a [(&'a str, &'a str)]) -> ThemeRamps<'a> {
         steps: 10,
         intent: &Value::Null,
         neutral: None,
+        roles: None,
     }
 }
 
@@ -242,6 +243,7 @@ fn re_points_intent_roles_when_the_ramp_is_not_the_default_length() {
         steps: 7,
         intent: &intent,
         neutral: None,
+        roles: None,
     })
     .expect("valid seed");
 
@@ -270,6 +272,7 @@ fn emits_no_intent_block_at_the_default_length() {
         steps: 10,
         intent: &intent,
         neutral: None,
+        roles: None,
     })
     .expect("valid seed");
 
@@ -297,6 +300,7 @@ fn rejects_a_step_count_outside_the_engines_supported_range() {
             steps: 2,
             intent: &Value::Null,
             neutral: None,
+            roles: None,
         })
         .is_err()
     );
@@ -321,6 +325,7 @@ fn emits_a_neutral_ramp_into_both_theme_scopes() {
                 bow: 0.0,
             }),
         }),
+        roles: None,
     })
     .expect("valid seeds");
 
@@ -351,6 +356,7 @@ fn rejects_a_neutral_anchor_the_engine_cannot_parse() {
             black: ColorInput::Oklch { l: 0.10, c: 0.005, h: 240.0 },
             tint: None,
         }),
+        roles: None,
     });
 
     assert!(result.is_err());
@@ -395,4 +401,39 @@ fn a_dtcg_document_carries_the_neutral_ramp_when_the_project_has_one() {
             neutral["500"]
         );
     }
+}
+
+/// A caller with its OWN roles — the plugin's semantic layer, not Primitiv's
+/// shipped Intent — needs every one of them emitted, at any ramp length.
+///
+/// `intent` cannot serve: it exists to re-point the shipped roles a *shortened*
+/// ramp broke, so at ten steps it emits nothing at all. These two are different
+/// questions, which is why they are different fields.
+#[test]
+fn emits_a_callers_own_roles_as_reference_tokens_at_the_default_length() {
+    let roles = json!({
+        "light": { "action": { "primary": { "$type": "color", "$value": "{color.brand.600}" } } },
+        "dark":  { "action": { "primary": { "$type": "color", "$value": "{color.brand.400}" } } }
+    });
+
+    let css = emit_theme_ramps_css(&ThemeRamps {
+        seeds: &[("brand", "#236ce1")],
+        steps: 10,
+        intent: &Value::Null,
+        neutral: None,
+        roles: Some(&roles),
+    })
+    .expect("the seed is a valid colour");
+
+    // A reference token, not a literal: one [data-theme] block then re-points every
+    // role, which is the whole reason the palette layer is referenced rather than
+    // inlined.
+    assert!(
+        css.contains("--primitiv-action-primary: var(--primitiv-color-brand-600)"),
+        "light role missing or inlined: {css}"
+    );
+    assert!(
+        css.contains("--primitiv-action-primary: var(--primitiv-color-brand-400)"),
+        "dark role missing or inlined: {css}"
+    );
 }

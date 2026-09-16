@@ -51,8 +51,32 @@ pub fn nearest_label(wanted: u16, available: &[u16]) -> u16 {
 /// custom property is called.
 pub fn realias(intent: &serde_json::Value, families: &[&str], labels: &[u16]) -> Vec<Token> {
     let mut moved = Vec::new();
-    collect_roles(intent, &mut Vec::new(), families, labels, &mut moved);
+    collect_roles(intent, &mut Vec::new(), families, labels, Emit::Moved, &mut moved);
     moved
+}
+
+/// **Every** role in the document, re-pointed where this ramp length dropped the
+/// step it names.
+///
+/// The counterpart to [`realias`], for a caller emitting its OWN semantic layer
+/// rather than patching Primitiv's shipped one. There the whole point is that
+/// nothing is emitted unless it moved; here the whole point is that everything is,
+/// because nothing else is going to declare these roles.
+///
+/// A role whose `$value` is not an alias is skipped, as it is there — this walks
+/// aliases. That costs nothing for a resolved role, which always names a ramp and
+/// a step by construction.
+pub fn resolve_roles(roles: &serde_json::Value, families: &[&str], labels: &[u16]) -> Vec<Token> {
+    let mut all = Vec::new();
+    collect_roles(roles, &mut Vec::new(), families, labels, Emit::All, &mut all);
+    all
+}
+
+/// Which roles a walk keeps: the ones a shortened ramp broke, or all of them.
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum Emit {
+    Moved,
+    All,
 }
 
 /// Walks the Intent tree, rewriting each alias that names a missing step.
@@ -61,6 +85,7 @@ fn collect_roles(
     path: &mut Vec<String>,
     families: &[&str],
     labels: &[u16],
+    emit: Emit,
     out: &mut Vec<Token>,
 ) {
     let Some(map) = node.as_object() else {
@@ -69,11 +94,14 @@ fn collect_roles(
 
     if let Some(value) = map.get("$value").and_then(serde_json::Value::as_str) {
         if let Some((family, step)) = aliased_step(value) {
-            if families.contains(&family.as_str()) && !labels.contains(&step) {
-                let nearest = nearest_label(step, labels);
+            // A step only needs moving when this length dropped it from a family the
+            // caller is actually regenerating; anything else still resolves as written.
+            let moved = families.contains(&family.as_str()) && !labels.contains(&step);
+            if moved || emit == Emit::All {
+                let step = if moved { nearest_label(step, labels) } else { step };
                 out.push(Token::new(
                     &path.iter().map(String::as_str).collect::<Vec<_>>(),
-                    &format!("{{color.{family}.{nearest}}}"),
+                    &format!("{{color.{family}.{step}}}"),
                 ));
             }
         }
@@ -85,7 +113,7 @@ fn collect_roles(
             continue;
         }
         path.push(key.clone());
-        collect_roles(child, path, families, labels, out);
+        collect_roles(child, path, families, labels, emit, out);
         path.pop();
     }
 }

@@ -19,6 +19,8 @@ fn main() {
         intent: &serde_json::Value::Null,
         // The goldens are the shipped scale, which has no neutral override.
         neutral: None,
+        // Nor any roles of its own: the shipped Intent layer is emitted by `tokens`.
+        roles: None,
     };
     fs::write(
         dir.join("theme-brand.css"),

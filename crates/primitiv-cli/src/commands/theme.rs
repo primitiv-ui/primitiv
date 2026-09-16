@@ -44,6 +44,7 @@ pub fn theme(
         steps,
         intent: &intent,
         neutral,
+        roles: None,
     };
     let overrides = match format {
         Format::Css => emit_theme_ramps_css(&ramps)?,

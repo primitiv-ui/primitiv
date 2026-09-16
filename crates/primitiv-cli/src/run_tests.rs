@@ -40,6 +40,7 @@ fn dispatches_the_theme_command_and_writes_the_file() {
             steps: 10,
             intent: &serde_json::Value::Null,
             neutral: None,
+            roles: None,
         })
         .unwrap()
         .into_bytes()

@@ -34,6 +34,21 @@
 @layer primitiv.reset, primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;
 
 @layer primitiv.reset {
+  /* ===== Box model ===== */
+
+  /* Border-box everywhere. Without it, any element given both an explicit size
+     and padding/border resolves LARGER than the token says — controls sit a hair
+     off their declared height, and a box sized from a measurement clips its own
+     padding. This is the long-standing web default. Kept in the lowest layer, so
+     a consumer — or a component that genuinely needs content-box, e.g. a box
+     sized from a measured *content* dimension — can opt back out at near-zero
+     cost. Extends RFC 0008 §7's deliberate-global-reset stance to the box model. */
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
   /* ===== Font smoothing ===== */
 
   /* macOS renders text heavier than the design intends without these, and they

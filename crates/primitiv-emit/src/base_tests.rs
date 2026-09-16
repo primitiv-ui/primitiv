@@ -30,6 +30,27 @@ fn base_scss_declares_the_layer_order_before_any_block() {
     assert!(order_at < first_block, "the order statement must precede the first layer block");
 }
 
+/// Border-box is the global default (RFC 0008 §7, extended to the box model).
+/// Without it, any element given an explicit size plus padding/border resolves
+/// LARGER than its token says, and a box sized from a measured *content*
+/// dimension — NavigationMenu's morphing panel — clips its own padding. It lives
+/// in the lowest layer so a consumer, or a component that genuinely needs
+/// content-box, can opt back out at near-zero cost (the panel viewport does).
+/// The SCSS mirror is covered by the byte-identical test below.
+#[test]
+fn base_css_resets_box_sizing_to_border_box() {
+    let reset_at = BASE_CSS
+        .find("@layer primitiv.reset {")
+        .expect("base.css opens the reset layer");
+    let rule_at = BASE_CSS
+        .find("box-sizing: border-box;")
+        .expect("base.css resets box-sizing");
+    assert!(rule_at > reset_at, "the box-sizing reset must live inside the reset layer");
+    // The universal selector, including generated boxes — not a single element.
+    assert!(BASE_CSS.contains("*::before,"), "the reset must target ::before");
+    assert!(BASE_CSS.contains("*::after {"), "the reset must target ::after");
+}
+
 /// The two assets are hand-authored and hand-synced — nothing generates the SCSS
 /// from the CSS the way `emit_component_scss` does for a component sheet — so
 /// without this they drift the first time an edit lands in one and not the other.

@@ -336,9 +336,33 @@ npx primitiv theme --brand "#0a7755"
 > layer, so it beats the base tokens without you editing them. The
 > standard ramps are fixed and are not touched by this.
 
+> You can seed the status ramps the same way, with `--danger`,
+> `--warning`, `--success` and `--info`. Record them once in
+> `primitiv.json` and later runs pick them up.
+
 > To change something the generator does not own, such as a spacing value
 > or a font, override the custom property in your own stylesheet. Token
 > names are the contract, and they do not change under you.
+
+**Third block — ramp length** — `heading/h3` plus `body/md`:
+
+> **Ramp length**
+
+> Ten steps per ramp suits most projects. If you want finer gradations,
+> or a smaller set, ask for a different length:
+
+```
+npx primitiv theme --brand "#0a7755" --steps 16
+```
+
+> Anything from 3 to 32 works. The semantic roles keep up: a sixteen-step
+> ramp has no 600, so any role that pointed at one moves to the nearest
+> step that exists, written into the same file.
+
+> The components do not keep up. Their stylesheets are written against
+> ten steps, so at any other length the styling is yours to maintain. If
+> you want a different length without that cost, 18 and 26 also carry
+> every step the components ask for.
 
 **Second block:**
 

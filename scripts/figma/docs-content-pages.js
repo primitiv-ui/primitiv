@@ -180,7 +180,15 @@ const PAGES = {
         ['p', 'To change the brand colour, regenerate the theme:'],
         ['code', '$ npx primitiv theme --brand "#0a7755"', { tabbed: true }],
         ['p', 'That produces a full light and dark palette from your colour, with every semantic role reassigned by contrast. It writes into its own layer, so it beats the base tokens without you editing them. The standard ramps are fixed and are not touched by this.'],
+        ['p', 'You can seed the status ramps the same way, with --danger, --warning, --success and --info. Record them once in primitiv.json and later runs pick them up.', ['primitiv.json']],
         ['p', 'To change something the generator does not own, such as a spacing value or a font, override the custom property in your own stylesheet. Token names are the contract, and they do not change under you.'],
+        ['group', 'flow/normal', [
+          ['h3', 'Ramp length'],
+          ['p', 'Ten steps per ramp suits most projects. If you want finer gradations, or a smaller set, ask for a different length:'],
+          ['code', '$ npx primitiv theme --brand "#0a7755" --steps 16', { tabbed: true }],
+          ['p', 'Anything from 3 to 32 works. The semantic roles keep up: a sixteen-step ramp has no 600, so any role that pointed at one moves to the nearest step that exists, written into the same file.'],
+          ['p', 'The components do not keep up. Their stylesheets are written against ten steps, so at any other length the styling is yours to maintain. If you want a different length without that cost, 18 and 26 also carry every step the components ask for.'],
+        ]],
         ['p', 'Tokens emit in three formats. Set it once in primitiv.json:', ['primitiv.json']],
         ['defs', [
           ['CSS', 'Custom properties. The default, and what the rest of the docs assume.'],
@@ -362,7 +370,7 @@ const PAGES = {
     sections: [
       { name: '02 — The commands', blocks: [
         ['h2', 'The commands'],
-        ['p', 'Five commands. Most days you only use one.'],
+        ['p', 'Six commands. Most days you only use one.'],
         ['group', 'flow/section', [
           ['h4', 'primitiv add'],
           ['p', 'Copies one or more components into your project.'],
@@ -382,7 +390,12 @@ const PAGES = {
           ['code', '$ npx primitiv tokens\n$ npx primitiv tokens --format scss'],
           ['h4', 'primitiv theme'],
           ['p', 'Generates a full light and dark palette from one brand colour, with every semantic role assigned by contrast. It writes into its own layer, so it beats the base tokens without editing them.'],
-          ['code', '$ npx primitiv theme --brand "#0a7755"'],
+          ['code', '$ npx primitiv theme --brand "#0a7755"\n$ npx primitiv theme --brand "#0a7755" --steps 16'],
+          ['p', 'The status ramps take the same treatment: --danger, --warning, --success and --info. Ramps are ten steps unless you ask for another length, from 3 to 32. What that costs you is on the Tokens and theming page.'],
+          ['h4', 'primitiv dtcg'],
+          ['p', 'Writes your ramps out as a design-token file, for when you want them somewhere other than a stylesheet.'],
+          ['code', '$ npx primitiv dtcg --brand "#0a7755" --out palette.json'],
+          ['p', 'The format is standard DTCG in hex, which is what design tools import. Use it to get a palette you generated in code into Figma.'],
           ['h4', 'primitiv list'],
           ['p', 'Shows what is installable, and what you already have.'],
           ['code', '$ npx primitiv list\n$ npx primitiv list --json'],

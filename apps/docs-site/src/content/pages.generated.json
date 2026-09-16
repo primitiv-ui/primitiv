@@ -387,8 +387,47 @@
           },
           {
             "kind": "p",
+            "text": "You can seed the status ramps the same way, with --danger, --warning, --success and --info. Record them once in primitiv.json and later runs pick them up.",
+            "code": [
+              "primitiv.json"
+            ]
+          },
+          {
+            "kind": "p",
             "text": "To change something the generator does not own, such as a spacing value or a font, override the custom property in your own stylesheet. Token names are the contract, and they do not change under you.",
             "code": []
+          },
+          {
+            "kind": "group",
+            "gap": "flow/normal",
+            "blocks": [
+              {
+                "kind": "h3",
+                "text": "Ramp length"
+              },
+              {
+                "kind": "p",
+                "text": "Ten steps per ramp suits most projects. If you want finer gradations, or a smaller set, ask for a different length:",
+                "code": []
+              },
+              {
+                "kind": "code",
+                "code": "$ npx primitiv theme --brand \"#0a7755\" --steps 16",
+                "language": "bash",
+                "header": true,
+                "lineNumbers": false
+              },
+              {
+                "kind": "p",
+                "text": "Anything from 3 to 32 works. The semantic roles keep up: a sixteen-step ramp has no 600, so any role that pointed at one moves to the nearest step that exists, written into the same file.",
+                "code": []
+              },
+              {
+                "kind": "p",
+                "text": "The components do not keep up. Their stylesheets are written against ten steps, so at any other length the styling is yours to maintain. If you want a different length without that cost, 18 and 26 also carry every step the components ask for.",
+                "code": []
+              }
+            ]
           },
           {
             "kind": "p",
@@ -957,7 +996,7 @@
         "blocks": [
           {
             "kind": "p",
-            "text": "Five commands. Most days you only use one.",
+            "text": "Six commands. Most days you only use one.",
             "code": []
           },
           {
@@ -1053,10 +1092,36 @@
               },
               {
                 "kind": "code",
-                "code": "$ npx primitiv theme --brand \"#0a7755\"",
+                "code": "$ npx primitiv theme --brand \"#0a7755\"\n$ npx primitiv theme --brand \"#0a7755\" --steps 16",
                 "language": "bash",
                 "header": false,
                 "lineNumbers": false
+              },
+              {
+                "kind": "p",
+                "text": "The status ramps take the same treatment: --danger, --warning, --success and --info. Ramps are ten steps unless you ask for another length, from 3 to 32. What that costs you is on the Tokens and theming page.",
+                "code": []
+              },
+              {
+                "kind": "h4",
+                "text": "primitiv dtcg"
+              },
+              {
+                "kind": "p",
+                "text": "Writes your ramps out as a design-token file, for when you want them somewhere other than a stylesheet.",
+                "code": []
+              },
+              {
+                "kind": "code",
+                "code": "$ npx primitiv dtcg --brand \"#0a7755\" --out palette.json",
+                "language": "bash",
+                "header": false,
+                "lineNumbers": false
+              },
+              {
+                "kind": "p",
+                "text": "The format is standard DTCG in hex, which is what design tools import. Use it to get a palette you generated in code into Figma.",
+                "code": []
               },
               {
                 "kind": "h4",

@@ -134,7 +134,7 @@ craft-notes:
 
 **Body** — `body/md`:
 
-> Five commands. Most days you only use one.
+> Six commands. Most days you only use one.
 
 ### `primitiv add`
 
@@ -183,10 +183,27 @@ npx primitiv tokens --format scss
 
 ```
 npx primitiv theme --brand "#0a7755"
+npx primitiv theme --brand "#0a7755" --steps 16
 ```
 
 > It writes into its own layer, so it beats the base tokens without
-> editing them.
+> editing them. The status ramps take the same treatment: `--danger`,
+> `--warning`, `--success` and `--info`.
+
+> Ramps are ten steps unless you ask for another length, from 3 to 32.
+> What that costs you is on the Tokens and theming page.
+
+### `primitiv dtcg`
+
+> Writes your ramps out as a design-token file, for when you want them
+> somewhere other than a stylesheet.
+
+```
+npx primitiv dtcg --brand "#0a7755" --out palette.json
+```
+
+> The format is standard DTCG in hex, which is what design tools import.
+> Use it to get a palette you generated in code into Figma.
 
 ### `primitiv list`
 

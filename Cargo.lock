@@ -558,6 +558,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "primitiv-emit-wasm"
+version = "0.1.34"
+dependencies = [
+ "primitiv-emit",
+ "serde-wasm-bindgen",
+ "wasm-bindgen",
+]
+
+[[package]]
 name = "proc-macro2"
 version = "1.0.106"
 source = "registry+https://github.com/rust-lang/crates.io-index"

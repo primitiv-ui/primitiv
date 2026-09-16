@@ -6,8 +6,9 @@
  *   - 10 package.json "version" fields
  *   - 3 jsr.json "version" fields
  *   - 5 optionalDependencies in npm/cli-wrapper/package.json
- *   - crates/harmoni-wasm/Cargo.toml "version" (wasm-pack reads this into the
- *     published @primitiv-ui/harmoni-wasm package.json at publish time)
+ *   - 2 crates/*-wasm/Cargo.toml "version" fields (wasm-pack reads these into the
+ *     published @primitiv-ui/{harmoni,primitiv-emit}-wasm package.json at publish
+ *     time)
  *
  * Usage:
  *   node scripts/bump-version.mjs 0.1.8
@@ -71,7 +72,13 @@ function bump(rel, mutate) {
   console.log(`  ${rel}: ${prev} → ${json.version}`);
 }
 
-const CARGO_TOML_PATH = "crates/harmoni-wasm/Cargo.toml";
+// Every crate wasm-pack publishes: its Cargo.toml "version" is what lands in the
+// generated package.json, so a crate missing from this list publishes at whatever
+// version it was last left at while everything else moves.
+const CARGO_TOML_PATHS = [
+  "crates/harmoni-wasm/Cargo.toml",
+  "crates/primitiv-emit-wasm/Cargo.toml",
+];
 
 function bumpCargoToml(rel, version) {
   const abs = resolve(root, rel);
@@ -96,7 +103,9 @@ for (const p of JSR_JSON_PATHS) {
   bump(p, (j) => { j.version = version; });
 }
 
-bumpCargoToml(CARGO_TOML_PATH, version);
+for (const p of CARGO_TOML_PATHS) {
+  bumpCargoToml(p, version);
+}
 
 // optionalDependencies in the wrapper must match the platform package versions
 const wrapperPath = "npm/cli-wrapper/package.json";
@@ -113,4 +122,4 @@ const changed = CLI_OPTIONAL_DEP_NAMES.filter(
 ).length;
 console.log(`  ${wrapperPath}: optionalDependencies (${changed} entries) → ${version}`);
 
-console.log(`\nDone. ${PACKAGE_JSON_PATHS.length + JSR_JSON_PATHS.length + 1} version fields + ${CLI_OPTIONAL_DEP_NAMES.length} optionalDependencies updated.\n`);
+console.log(`\nDone. ${PACKAGE_JSON_PATHS.length + JSR_JSON_PATHS.length + CARGO_TOML_PATHS.length} version fields + ${CLI_OPTIONAL_DEP_NAMES.length} optionalDependencies updated.\n`);

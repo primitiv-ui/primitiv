@@ -5,7 +5,10 @@ name: Publish packages
 #   2. Publishes @primitiv-ui/cli-<target> platform packages.
 #   3. Publishes the `primitiv-ui` wrapper and `create-primitiv-ui` scaffold.
 #   4. Publishes @primitiv-ui/{react,icons,tokens} libraries to npm and JSR.
-#   5. Publishes @primitiv-ui/harmoni-wasm (the wasm-pack build of
+#   5. Publishes @primitiv-ui/primitiv-emit-wasm (the wasm-pack build of
+#      crates/primitiv-emit-wasm — the token emitter, so a licensed consumer can
+#      emit CSS/SCSS/Tailwind/DTCG without a second serialiser of its own).
+#   6. Publishes @primitiv-ui/harmoni-wasm (the wasm-pack build of
 #      crates/harmoni-wasm) to npm, public and MIT like the engine crate it
 #      wraps — the harmoni Figma plugin (private repo) consumes it as a
 #      published dependency, since crates/harmoni-wasm/pkg/ is gitignored and
@@ -115,6 +118,13 @@ jobs:
       - name: Build harmoni-wasm
         run: wasm-pack build crates/harmoni-wasm --target web
 
+      # Scoped at build time, unlike harmoni-wasm above, because nothing in this
+      # repo consumes it: there is no workspace member to satisfy with an unscoped
+      # name, so no rename-before-publish dance is needed. Its consumer is the
+      # private Harmoni plugin, which can only reach it as a published package.
+      - name: Build primitiv-emit-wasm
+        run: wasm-pack build crates/primitiv-emit-wasm --target web --scope primitiv-ui
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
@@ -209,6 +219,20 @@ jobs:
           version=$(node -p "require('./package.json').version")
           if npm view "@primitiv-ui/harmoni-wasm@$version" version >/dev/null 2>&1; then
             echo "  @primitiv-ui/harmoni-wasm@$version already published — skipping"
+          else
+            npm publish --access public --provenance
+          fi
+
+      # No `npm pkg set name` here — `--scope primitiv-ui` at build time already
+      # wrote `@primitiv-ui/primitiv-emit-wasm`. Existence-guarded like every step
+      # above, so a re-run after a partial publish is safe.
+      - name: Publish primitiv-emit-wasm to npm
+        run: |
+          cd crates/primitiv-emit-wasm/pkg
+          name=$(node -p "require('./package.json').name")
+          version=$(node -p "require('./package.json').version")
+          if npm view "$name@$version" version >/dev/null 2>&1; then
+            echo "  $name@$version already published — skipping"
           else
             npm publish --access public --provenance
           fi

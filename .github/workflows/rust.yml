@@ -6,9 +6,14 @@ name: Rust
 #     harmoni-wasm, and the CLI crates), so the whole workspace is enforced.
 #   - `cargo llvm-cov` gates the CLI workspace (primitiv-emit + primitiv-cli)
 #     at 100% across lines, regions, AND functions — lines alone let an
-#     untested branch slip through (RFC 0007 §7). The harmoni crates are
-#     excluded from the gate (their discipline is already established);
-#     excluding by name means new CLI crates fall under the gate automatically.
+#     untested branch slip through (RFC 0007 §7). Two kinds of crate are
+#     excluded by name. The harmoni crates, whose discipline is established
+#     elsewhere; and the `*-wasm` bindings, which are `cdylib` — they have no
+#     test target at all, and `JsError::new` panics off-wasm, so there is
+#     nothing `cargo test` can reach. Every decision those crates might have
+#     made lives in the gated crate underneath instead.
+#     Excluding by name means a new CLI crate falls under the gate
+#     automatically — but so does a new wasm binding, wrongly, so add it here.
 
 on:
   push:
@@ -56,15 +61,16 @@ jobs:
         run: cargo test --workspace
 
       # Gate the CLI workspace at 100% on lines, regions, and functions.
-      # Regions catch the branch a lines-only gate would miss. Excluding the
-      # harmoni crates by name keeps future CLI crates (e.g. primitiv-emit)
-      # covered without editing this list. The bin shell (primitiv-cli's
+      # Regions catch the branch a lines-only gate would miss. Excluding by name
+      # keeps a future CLI crate covered without editing this list — but a new
+      # `*-wasm` binding has to be added, being a cdylib with no test target (see
+      # the header note). The bin shell (primitiv-cli's
       # main.rs + the OsFs adapter) is NOT exempted: the tests/cli.rs e2e layer
       # runs the real binary and cargo-llvm-cov merges the subprocess's
       # coverage, so the shell hits 100% with no --ignore-filename-regex
       # carve-out (RFC 0007 §7, "glue not exempted").
       - name: Coverage gate (CLI crates, 100%)
-        run: cargo llvm-cov --workspace --exclude harmoni-core --exclude harmoni-wasm --fail-under-lines 100 --fail-under-regions 100 --fail-under-functions 100
+        run: cargo llvm-cov --workspace --exclude harmoni-core --exclude harmoni-wasm --exclude primitiv-emit-wasm --fail-under-lines 100 --fail-under-regions 100 --fail-under-functions 100
 
       # harmoni-core-only report (harmoni-wasm excluded) so the README's
       # Harmoni core coverage badge shows a real, moving number instead of

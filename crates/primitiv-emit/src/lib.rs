@@ -4,6 +4,7 @@ pub mod component;
 pub mod contract;
 pub mod css;
 pub mod dtcg;
+pub mod export;
 pub mod js;
 pub mod mode;
 pub mod pipeline;
@@ -51,6 +52,8 @@ mod contract_tests;
 mod css_tests;
 #[cfg(test)]
 mod dtcg_tests;
+#[cfg(test)]
+mod export_tests;
 #[cfg(test)]
 mod js_tests;
 #[cfg(test)]

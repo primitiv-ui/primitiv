@@ -1685,6 +1685,7 @@ debugging cycle; none is discoverable from the API surface.
 cargo test --workspace                            # all Rust tests
 # CLI-crate coverage gate — the exact check CI runs (lines+regions+functions):
 cargo llvm-cov --workspace --exclude harmoni-core --exclude harmoni-wasm \
+  --exclude primitiv-emit-wasm \
   --fail-under-lines 100 --fail-under-regions 100 --fail-under-functions 100
 pnpm --filter @primitiv-ui/react qa:units            # React tests + coverage
 pnpm --filter @primitiv-ui/react exec vitest run src/X    # scoped, during a cycle

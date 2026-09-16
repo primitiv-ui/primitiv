@@ -339,6 +339,69 @@ pub fn generate_neutral_ramp_with_steps(
     palette_to_js(palette_data)
 }
 
+/// A neutral ramp in **both modes**, with its tint applied — the plugin's whole
+/// neutral generation in one call.
+///
+/// This exists to take work away from TypeScript. The plugin's adapter was
+/// choosing between `tint_neutrals` and `tint_neutrals_duotone`, splitting the
+/// source hue by the spread, zeroing `bow` when untinted, and calling the
+/// generator twice with the anchors swapped. Every one of those is a colour
+/// decision, and colour decisions belong to the engine — the adapter's job is to
+/// marshal input in and results out, nothing else.
+///
+/// `tint_source` of `None` is an untinted grey, which is what `tint === null` has
+/// always meant on the plugin side. `strength`, `spread` and `bow` are ignored in
+/// that case rather than shaping nothing.
+#[wasm_bindgen]
+pub fn generate_tinted_neutral_pair(
+    white: &str,
+    black: &str,
+    tint_source: Option<String>,
+    strength: f32,
+    spread: f32,
+    bow: f32,
+    steps: usize,
+) -> Result<types::PaletteSet, JsError> {
+    api::generate_tinted_neutral_pair(
+        ColorInput::Css(white.to_string()),
+        ColorInput::Css(black.to_string()),
+        tint_source.map(|source| api::NeutralTint {
+            source: ColorInput::Css(source),
+            strength,
+            spread,
+            bow,
+        }),
+        steps,
+    )
+    .map(Into::into)
+    .map_err(to_js_error)
+}
+
+/// A neutral ramp in both modes from anchors that are **already** tinted, for a
+/// caller that did its own tinting (or wants none).
+///
+/// [`generate_tinted_neutral_pair`] is the one to reach for. This is the seam
+/// underneath it, kept public because the anchors are a legitimate thing to hold
+/// directly — the Harmoni project stores its own `SoftNeutrals`.
+#[wasm_bindgen]
+pub fn generate_neutral_pair(
+    white: &str,
+    black: &str,
+    tint: types::TintMode,
+    bow: f32,
+    steps: usize,
+) -> Result<types::PaletteSet, JsError> {
+    api::generate_neutral_pair(
+        ColorInput::Css(white.to_string()),
+        ColorInput::Css(black.to_string()),
+        tint.into(),
+        harmoni_core::RampOptions { bow },
+        steps,
+    )
+    .map(Into::into)
+    .map_err(to_js_error)
+}
+
 /// Builds an alpha ramp from a single anchor colour (Path A): the anchor held
 /// constant across ten steps while opacity climbs the shared curve. Neutral
 /// ramps pass their veil colour (soft-black in light, soft-white in dark);
@@ -715,6 +778,41 @@ mod tests {
     // decision is actually made — `api::alpha_tests`. The unused `NONSENSE`
     // const that used to sit above was the fossil of an earlier attempt at
     // this same test; it has been removed rather than left as an invitation.
+
+    #[test]
+    fn a_tinted_neutral_pair_reaches_the_plugin_as_one_call() {
+        // The plugin used to compose this itself — pick the tint call, split the
+        // hue by the spread, zero the bow when untinted — which put colour
+        // decisions in TypeScript. One entry point is what lets that go.
+        let pair = generate_tinted_neutral_pair(
+            "oklch(0.99 0 0)",
+            "oklch(0.02 0 0)",
+            Some("#0a7755".to_string()),
+            0.5,
+            0.0,
+            0.0,
+            10,
+        )
+        .unwrap();
+
+        // Light runs white -> black and dark is the same anchors the other way, so
+        // the ends swap between the two halves.
+        let light = &pair.light.swatches;
+        let dark = &pair.dark.swatches;
+        assert!(light[0].l > light[light.len() - 1].l);
+        assert!(dark[0].l < dark[dark.len() - 1].l);
+    }
+
+    #[test]
+    fn an_untinted_neutral_pair_keeps_its_anchors_grey() {
+        let pair =
+            generate_tinted_neutral_pair("oklch(0.99 0 0)", "oklch(0.02 0 0)", None, 0.0, 0.0, 0.0, 10)
+                .unwrap();
+
+        // No tint source means no chroma is laid over the anchors at all, which is
+        // what `null` has always meant on the plugin side.
+        assert!(pair.light.swatches.iter().all(|s| s.c.abs() < 1e-6));
+    }
 
     #[test]
     fn soft_neutrals_stay_the_right_way_round() {

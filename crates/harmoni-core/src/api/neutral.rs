@@ -3,6 +3,7 @@ use crate::color::input::{ColorInput, ColorInputError};
 use crate::neutral::derive::{self, SoftNeutrals};
 use crate::neutral::ramp::{self, RampOptions, TintMode};
 use crate::neutral::tint;
+use palette::Oklch as PaletteOklch;
 use crate::api::generate::PaletteSet;
 use crate::palette::generator::{Palette, MAX_STEPS, MIN_STEPS};
 
@@ -32,6 +33,87 @@ pub fn generate_neutral_ramp_with_steps(
     Ok(ramp::generate_neutral_ramp_with_steps(
         soft_white, soft_black, tint, options, steps,
     ))
+}
+
+/// How a neutral ramp's grey anchors are tinted before it is generated.
+///
+/// One source plus an angle, never two colour pickers (Harmoni build notes §11
+/// decision 1): `spread` of 0 lays a single source over both anchors, and a
+/// non-zero spread splits them into a duotone with the highlight at the source
+/// hue **+** spread and the shadow at hue **−** spread.
+#[derive(Debug, Clone, PartialEq)]
+pub struct NeutralTint {
+    /// The colour laid over the anchors, overwriting their chroma and hue while
+    /// keeping their lightness.
+    pub source: ColorInput,
+    /// How far the anchors take the source colour, 0..1.
+    pub strength: f32,
+    /// Hue divergence between the two anchors, in degrees. 0 is a single source.
+    pub spread: f32,
+    /// How far chroma crests through the mid-tones, 0..1.
+    pub bow: f32,
+}
+
+/// A neutral ramp in both modes, with the tint applied to its anchors first.
+///
+/// Composition the callers were each doing for themselves: which of the two tint
+/// calls to make, the ±spread hue split, and the rule that **`bow` means nothing
+/// without a tint**. Bow crests chroma through the mid-tones, and an untinted
+/// ramp has no chroma to crest — so `None` carries no bow at all rather than
+/// accepting one and quietly shaping nothing.
+pub fn generate_tinted_neutral_pair(
+    white: ColorInput,
+    black: ColorInput,
+    tint: Option<NeutralTint>,
+    steps: usize,
+) -> Result<PaletteSet, GenerateError> {
+    let Some(tint) = tint else {
+        return generate_neutral_pair(
+            white,
+            black,
+            TintMode::Inherit,
+            RampOptions { bow: 0.0 },
+            steps,
+        );
+    };
+
+    let white = white.to_oklch()?;
+    let black = black.to_oklch()?;
+    let source = tint.source.to_oklch()?;
+    let soft = if tint.spread == 0.0 {
+        tint::tint_neutrals(white, black, source, tint.strength)
+    } else {
+        tint::tint_neutrals_duotone(
+            white,
+            black,
+            shift_hue(source, tint.spread),
+            shift_hue(source, -tint.spread),
+            tint.strength,
+        )
+    };
+
+    generate_neutral_pair(
+        as_input(soft.white),
+        as_input(soft.black),
+        TintMode::Inherit,
+        RampOptions { bow: tint.bow },
+        steps,
+    )
+}
+
+/// A generated anchor back as an input, so the tinted pair feeds straight into
+/// generation without a hex round trip in between.
+fn as_input(color: PaletteOklch) -> ColorInput {
+    ColorInput::Oklch {
+        l: color.l,
+        c: color.chroma,
+        h: color.hue.into_degrees(),
+    }
+}
+
+/// The same colour with its hue rotated by `degrees`.
+fn shift_hue(color: PaletteOklch, degrees: f32) -> PaletteOklch {
+    PaletteOklch::new(color.l, color.chroma, color.hue.into_degrees() + degrees)
 }
 
 /// A neutral ramp in both modes, from one pair of soft anchors.

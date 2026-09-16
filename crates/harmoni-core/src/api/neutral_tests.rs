@@ -378,3 +378,36 @@ fn a_neutral_pair_generates_its_dark_half_from_the_anchors_swapped() {
         "the dark half is a reversal, not a re-generation: {dark:?}"
     );
 }
+
+#[test]
+fn a_duotone_neutral_splits_the_source_hue_by_the_spread() {
+    use crate::api::neutral::{generate_tinted_neutral_pair, NeutralTint};
+
+    let source = ColorInput::Oklch { l: 0.55, c: 0.19, h: 260.0 };
+    let single = generate_tinted_neutral_pair(
+        soft_white(),
+        soft_black(),
+        Some(NeutralTint { source: source.clone(), strength: 0.5, spread: 0.0, bow: 0.0 }),
+        10,
+    )
+    .unwrap();
+    let duo = generate_tinted_neutral_pair(
+        soft_white(),
+        soft_black(),
+        Some(NeutralTint { source, strength: 0.5, spread: 20.0, bow: 0.0 }),
+        10,
+    )
+    .unwrap();
+
+    // One source plus an angle, not two colour pickers: the highlight takes the
+    // source hue + spread and the shadow hue - spread, so the ramp's two ends
+    // diverge in hue while a spread of 0 leaves them sharing one.
+    let ends = |p: &crate::api::generate::PaletteSet| {
+        let s = &p.light.swatches;
+        (s[0].h, s[s.len() - 1].h)
+    };
+    let (sw, sb) = ends(&single);
+    let (dw, db) = ends(&duo);
+    assert!((sw - sb).abs() < 1e-3, "single-source ends should share a hue: {sw} vs {sb}");
+    assert!((dw - db).abs() > 1.0, "duotone ends should diverge: {dw} vs {db}");
+}

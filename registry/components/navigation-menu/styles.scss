@@ -232,6 +232,14 @@
      default; when the headless publishes measured viewport dimensions the two
      custom properties below take over and the box morphs between panels. */
   .primitiv-navigation-menu__viewport {
+    /* Content-box on purpose. The headless publishes the open panel's CONTENT
+       size in the two custom properties below, so this box must add its padding
+       OUTSIDE that value. Under a global `box-sizing: border-box` reset — which
+       the docs site sets and many consumer apps do too — a border-box would
+       instead subtract this padding from the measured size, shrinking the clip
+       and cutting off the last panel row. Stated explicitly so the panel is
+       correct whatever the surrounding reset. */
+    box-sizing: content-box;
     position: absolute;
     /* The nav-start-anchored default, and the fallback for browsers without
        anchor-positioning support (see the @supports block below, which

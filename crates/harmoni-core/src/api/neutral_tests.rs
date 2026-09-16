@@ -347,3 +347,34 @@ fn tint_neutrals_duotone_propagates_an_invalid_shadow_input_when_the_rest_are_va
 
     assert_eq!(result.unwrap_err(), invalid_error());
 }
+
+#[test]
+fn a_neutral_pair_generates_its_dark_half_from_the_anchors_swapped() {
+    use crate::api::neutral::generate_neutral_pair;
+
+    let pair = generate_neutral_pair(
+        soft_white(),
+        soft_black(),
+        TintMode::Inherit,
+        RampOptions::default(),
+        10,
+    )
+    .expect("valid anchors");
+
+    // The dark half is the SAME two anchors run the other way, which is not the
+    // same thing as reversing the light half: the ends coincide because they are
+    // the same anchors, while the mid-tones differ because the curve is walked in
+    // the opposite direction. Reversing the array would give every step a new
+    // semantic role, which is the one thing a dark ramp must not do.
+    let light: Vec<f32> = pair.light.swatches.iter().map(|s| s.l).collect();
+    let dark: Vec<f32> = pair.dark.swatches.iter().map(|s| s.l).collect();
+
+    assert!((dark[0] - light[light.len() - 1]).abs() < 1e-6, "{dark:?}");
+    assert!((dark[dark.len() - 1] - light[0]).abs() < 1e-6, "{dark:?}");
+    let reversed: Vec<f32> = light.iter().rev().copied().collect();
+    let mid = dark.len() / 2;
+    assert!(
+        (dark[mid] - reversed[mid]).abs() > 1e-3,
+        "the dark half is a reversal, not a re-generation: {dark:?}"
+    );
+}

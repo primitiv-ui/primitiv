@@ -3,6 +3,7 @@ use crate::color::input::{ColorInput, ColorInputError};
 use crate::neutral::derive::{self, SoftNeutrals};
 use crate::neutral::ramp::{self, RampOptions, TintMode};
 use crate::neutral::tint;
+use crate::api::generate::PaletteSet;
 use crate::palette::generator::{Palette, MAX_STEPS, MIN_STEPS};
 
 /// Builds a neutral ramp of `steps` steps between the two soft anchors, so a
@@ -31,6 +32,43 @@ pub fn generate_neutral_ramp_with_steps(
     Ok(ramp::generate_neutral_ramp_with_steps(
         soft_white, soft_black, tint, options, steps,
     ))
+}
+
+/// A neutral ramp in both modes, from one pair of soft anchors.
+///
+/// The dark half is the SAME two anchors **swapped**, not the light half
+/// reversed. Those are different things and only one of them is right: every step
+/// of a ramp holds a fixed semantic role (background → component bg → border →
+/// solid → text), so reversing the array would hand every step a new job. Running
+/// the generator the other way between the same endpoints keeps each step's role
+/// and re-derives the curve for a dark substrate — the ends coincide, the
+/// mid-tones do not.
+///
+/// This rule already existed, in the Harmoni plugin's own wasm adapter, which is
+/// the problem it solves: a colour decision living in a TypeScript caller is a
+/// second source of truth, and the CLI needed the same rule. It lives here now so
+/// both callers share one implementation.
+///
+/// Tinting is deliberately NOT done here. The anchors arrive already tinted (via
+/// [`tint_neutrals`] or [`tint_neutrals_duotone`]), because the tint source is a
+/// colour the caller has resolved — a ramp step, in the plugin's case — and
+/// resolving it is not this function's business.
+pub fn generate_neutral_pair(
+    white: ColorInput,
+    black: ColorInput,
+    tint: TintMode,
+    options: RampOptions,
+    steps: usize,
+) -> Result<PaletteSet, GenerateError> {
+    let light = generate_neutral_ramp_with_steps(
+        white.clone(),
+        black.clone(),
+        tint,
+        options,
+        steps,
+    )?;
+    let dark = generate_neutral_ramp_with_steps(black, white, tint, options, steps)?;
+    Ok(PaletteSet { light, dark })
 }
 
 pub fn generate_neutral_ramp(

@@ -2,7 +2,7 @@ use std::path::{Path, PathBuf};
 
 use crate::config::Config;
 use crate::error::CliError;
-use crate::palette::{locate, parse, record};
+use crate::palette::{locate, parse, ramps_only, record};
 use crate::ports::fs::{FileSystem, InMemoryFs};
 
 /// The identity block (RFC 0032 D13) sits at the document root beside the modes,
@@ -20,6 +20,7 @@ fn drops_the_documents_own_metadata_so_it_is_never_read_as_a_mode() {
     )
     .unwrap();
 
+    let document = document.document();
     let modes: Vec<&String> = document.as_object().unwrap().keys().collect();
     assert_eq!(modes, ["light"]);
 }
@@ -301,4 +302,27 @@ fn records_into_a_theme_block_that_nests_a_neutral_ramp() {
         config.theme.neutral.is_some(),
         "the nested neutral ramp should survive, got: {written}"
     );
+}
+
+/// A palette as Harmoni exports one (RFC 0032 D3): the ramps under `color`, and
+/// the roles the designer solved against them at the mode's root, exactly where
+/// Primitiv's own Intent document puts them.
+const RAMPS_AND_ROLES: &[u8] = br##"{
+  "light": {
+    "color": { "brand": { "500": { "$type": "color", "$value": "#0a7755" } } },
+    "action": { "primary": { "$type": "color", "$value": "{color.brand.500}" } }
+  }
+}"##;
+
+/// §7 q4: the choice belongs to the consumer's build, not the designer. Keeping
+/// the ramps and dropping the roles is what lets a project take a palette's
+/// colours while keeping Primitiv's own semantics.
+#[test]
+fn ramps_only_keeps_the_ramps_and_drops_the_roles() {
+    let document = ramps_only(parse(RAMPS_AND_ROLES, Path::new("p.json")).unwrap()).document();
+
+    let light = document["light"].as_object().unwrap();
+    let keys: Vec<&String> = light.keys().collect();
+    assert_eq!(keys, ["color"]);
+    assert_eq!(light["color"]["brand"]["500"]["$value"], "#0a7755");
 }

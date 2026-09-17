@@ -4,6 +4,7 @@ use pretty_assertions::assert_eq;
 use crate::cli::{Command, parse};
 use crate::commands::add::AddOptions;
 use crate::commands::init::InitOptions;
+use crate::commands::tokens::TokensOptions;
 use crate::error::CliError;
 use crate::format::Format;
 
@@ -449,11 +450,10 @@ fn parses_the_tokens_command_with_out() {
 
     assert_eq!(
         command,
-        Command::Tokens {
-            out: Some("src/styles/tokens.css".to_string()),
-            format: None,
-            from: None,
-        }
+        Command::Tokens(TokensOptions {
+            out: Some("src/styles/tokens.css".into()),
+            ..Default::default()
+        })
     );
 }
 
@@ -463,11 +463,11 @@ fn parses_the_tokens_command_with_an_explicit_scss_format() {
 
     assert_eq!(
         command,
-        Command::Tokens {
-            out: Some("x.scss".to_string()),
+        Command::Tokens(TokensOptions {
+            out: Some("x.scss".into()),
             format: Some(Format::Scss),
-            from: None,
-        }
+            ..Default::default()
+        })
     );
 }
 
@@ -475,14 +475,7 @@ fn parses_the_tokens_command_with_an_explicit_scss_format() {
 fn parses_bare_tokens_with_no_flags() {
     let command = parse(&args(&["tokens"])).unwrap();
 
-    assert_eq!(
-        command,
-        Command::Tokens {
-            out: None,
-            format: None,
-            from: None,
-        }
-    );
+    assert_eq!(command, Command::Tokens(TokensOptions::default()));
 }
 
 #[test]
@@ -742,11 +735,10 @@ fn parses_the_tokens_command_with_a_palette_to_apply() {
 
     assert_eq!(
         command,
-        Command::Tokens {
-            out: None,
-            format: None,
-            from: Some("primitiv.palette.json".to_string()),
-        }
+        Command::Tokens(TokensOptions {
+            from: Some("primitiv.palette.json".into()),
+            ..Default::default()
+        })
     );
 }
 
@@ -758,4 +750,19 @@ fn rejects_a_palette_flag_with_no_value() {
         parse(&args(&["tokens", "--from"])).unwrap_err(),
         CliError::Usage(message) if message.contains("--from")
     ));
+}
+
+/// `--ramps-only` is a switch, not a value (RFC 0032 §7 q4).
+#[test]
+fn parses_the_tokens_command_with_ramps_only() {
+    let command = parse(&args(&["tokens", "--from", "p.json", "--ramps-only"])).unwrap();
+
+    assert_eq!(
+        command,
+        Command::Tokens(TokensOptions {
+            from: Some("p.json".into()),
+            ramps_only: true,
+            ..Default::default()
+        })
+    );
 }

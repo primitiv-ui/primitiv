@@ -1,7 +1,8 @@
 use std::ops::Range;
 use std::path::{Path, PathBuf};
 
-use serde_json::Value;
+use primitiv_emit::tokens_from_dtcg;
+use serde_json::{Map, Value};
 
 use crate::config::Config;
 use crate::error::CliError;
@@ -22,6 +23,38 @@ pub fn locate(from: Option<&Path>, config: Option<&Config>) -> Option<PathBuf> {
             .map(PathBuf::from)
     })
 }
+
+/// The document with only its ramps kept — every mode's `color` subtree, and
+/// nothing else (RFC 0032 §7 q4's `--ramps-only`).
+///
+/// The palette a designer hands over always carries both halves (D3, one file
+/// format); whether the roles are *applied* is the consuming project's call, not
+/// the designer's, because only the developer knows whether their build wants
+/// Primitiv's shipped semantics or the ones Harmoni solved. Dropping them here
+/// rather than at export is what keeps that a build-time switch.
+///
+/// `color` is the whole test because that is where both documents put their
+/// ramps and neither puts a role: Primitiv's own Intent layer names `action`,
+/// `content`, `surface` and the rest at the mode's root.
+pub fn ramps_only(palette: Palette) -> Palette {
+    Palette(
+        palette
+            .0
+            .into_iter()
+            .map(|(mode, tokens)| {
+                let ramps = match tokens.get(RAMPS) {
+                    Some(ramps) => serde_json::json!({ RAMPS: ramps }),
+                    None => Value::Object(Map::new()),
+                };
+                (mode, ramps)
+            })
+            .collect(),
+    )
+}
+
+/// The group every ramp lives under, in a Harmoni export and in Primitiv's own
+/// palette document alike.
+const RAMPS: &str = "color";
 
 /// Record the palette reference in `primitiv.json`'s theme block (RFC 0032 D10),
 /// so the handoff is one command rather than a command plus a hand-edited key.
@@ -130,13 +163,13 @@ fn replace(text: &str, span: Range<usize>, replacement: &str) -> String {
 /// consumer asked otherwise, the roles solved against them (D3). That is exactly
 /// the shape [`emit_theme_overrides_css`](primitiv_emit::emit_theme_overrides_css)
 /// already reads, which is why the handoff needed a reader rather than a format.
-pub fn parse(bytes: &[u8], path: &Path) -> Result<Value, CliError> {
+pub fn parse(bytes: &[u8], path: &Path) -> Result<Palette, CliError> {
     let document: Value =
         serde_json::from_slice(bytes).map_err(|error| malformed(path, &error.to_string()))?;
     let modes = document
         .as_object()
         .ok_or_else(|| malformed(path, "expected an object keyed by mode"))?;
-    Ok(Value::Object(
+    Ok(Palette(
         modes
             .iter()
             // `$`-prefixed keys are DTCG's own metadata, not modes. The identity
@@ -146,6 +179,36 @@ pub fn parse(bytes: &[u8], path: &Path) -> Result<Value, CliError> {
             .map(|(mode, tokens)| (mode.clone(), tokens.clone()))
             .collect(),
     ))
+}
+
+/// A palette document's per-mode token subtrees, the `$`-prefixed metadata
+/// already removed.
+///
+/// A type rather than a bare [`Value`] so "these are modes" holds by
+/// construction: every later step — dropping the roles, reading which step labels
+/// the ramps carry, handing the whole thing to the emitter — would otherwise have
+/// to re-answer "is this an object?" on a document that has already been checked.
+#[derive(Debug, PartialEq)]
+pub struct Palette(Map<String, Value>);
+
+impl Palette {
+    /// How many tokens the document carries, across every mode.
+    ///
+    /// Counted through the emitter's own `tokens_from_dtcg` rather than a second
+    /// walk of the tree, so "a token" means here exactly what it means when the
+    /// document is emitted.
+    pub fn token_count(&self) -> usize {
+        self.0
+            .values()
+            .map(|tokens| tokens_from_dtcg(tokens).len())
+            .sum()
+    }
+
+    /// The document as the emitter's values path reads it
+    /// ([`emit_theme_overrides_css`](primitiv_emit::emit_theme_overrides_css)).
+    pub fn document(self) -> Value {
+        Value::Object(self.0)
+    }
 }
 
 /// A palette document the CLI could not read, named where it was found.

@@ -17,7 +17,24 @@ use crate::token_source::{
     BREAKPOINT, CONTEXT, ELEVATION, INTENT, INTERACTION, MOTION, PALETTE, PRIMITIVES, parse,
 };
 
-/// The `primitiv tokens [--out <path>] [--format <fmt>]` command (RFC 0005 §2.3):
+/// What a `tokens` run was asked for — grouped rather than passed positionally,
+/// the same shape [`AddOptions`](crate::commands::add::AddOptions) and
+/// [`InitOptions`](crate::commands::init::InitOptions) already take, so a call
+/// site reads as names instead of a row of `Some`/`None`/`false`.
+#[derive(Debug, Default, PartialEq)]
+pub struct TokensOptions {
+    /// `None` falls back to the config's `tokens.format`, then CSS.
+    pub format: Option<Format>,
+    /// `None` falls back to the config's `tokens.path`, then stdout.
+    pub out: Option<PathBuf>,
+    /// The palette to apply; `None` falls back to the config's `theme.palette`.
+    pub from: Option<PathBuf>,
+    /// Apply the palette's ramps and leave Primitiv's own roles standing.
+    pub ramps_only: bool,
+}
+
+/// The `primitiv tokens [--out <path>] [--format <fmt>] [--from <palette>]
+/// [--ramps-only]` command (RFC 0005 §2.3):
 /// route the embedded design-system DTCG into the emitter, serialise the shared
 /// token layer in the resolved `format`, and write it through the filesystem
 /// port. CSS is canonical; SCSS is the canonical CSS plus resolving
@@ -33,13 +50,21 @@ use crate::token_source::{
 /// `from` names a palette document to apply (RFC 0032 D14). Omitted, the config's
 /// `theme.palette` is used; given, it is also **recorded** there (D10), so the
 /// flag is typed once and every later run re-applies the same palette.
+/// `ramps_only` applies its colours and leaves Primitiv's own semantics standing
+/// (§7 q4) — the consuming build's call, not the designer's.
 pub fn tokens(
     fs: &impl FileSystem,
     output: &impl Output,
-    format: Option<Format>,
-    out: Option<&Path>,
-    from: Option<&Path>,
+    options: &TokensOptions,
 ) -> Result<(), CliError> {
+    let TokensOptions {
+        format,
+        out,
+        from,
+        ramps_only,
+    } = options;
+    let (format, ramps_only) = (*format, *ramps_only);
+    let (out, from) = (out.as_deref(), from.as_deref());
     // Unconditional now, where it used to be gated on a missing flag. The palette
     // makes the config load-bearing whatever the flags say: without `--from` it is
     // where the reference is read (D2), and with `--from` it is where the reference
@@ -83,7 +108,7 @@ pub fn tokens(
             // to emit the theme `@import` by asking whether that file is there, so
             // the overrides have to land first or the very run that wrote them
             // emits a layer that does not reference them.
-            write_overrides(fs, &path, format, from, config)?;
+            write_overrides(fs, output, &path, format, from, config, ramps_only)?;
             // D10: the reference is recorded so the flag is typed once. Only what
             // `--from` named — a palette that came from the config is already
             // there, and a project with no config has nowhere to record it.
@@ -119,16 +144,38 @@ pub fn tokens(
 /// points and nowhere else.
 fn write_overrides(
     fs: &impl FileSystem,
+    output: &impl Output,
     token_path: &Path,
     format: Format,
     from: Option<&Path>,
     config: Option<&Config>,
+    ramps_only: bool,
 ) -> Result<(), CliError> {
     let Some(source) = palette::locate(from, config) else {
         return Ok(());
     };
-    let document = palette::parse(&fs.read(&source)?, &source)?;
-    let documents = [document];
+    let palette = palette::parse(&fs.read(&source)?, &source)?;
+    let palette = if ramps_only {
+        let carried = palette.token_count();
+        let kept = palette::ramps_only(palette);
+        // Warned rather than refused (D8), and still written: an override layer
+        // that silently does nothing is indistinguishable from one that worked.
+        if kept.token_count() == 0 && carried > 0 {
+            output.write_stderr(
+                format!(
+                    "primitiv: warning: --ramps-only discarded all {carried} tokens in {}\n  \
+                     the palette carries no colour ramps, only roles\n  \
+                     the theme layer is written with no overrides\n",
+                    source.display()
+                )
+                .as_bytes(),
+            )?;
+        }
+        kept
+    } else {
+        palette
+    };
+    let documents = [palette.document()];
     let overrides = match format {
         Format::Css => emit_theme_overrides_css(&documents),
         Format::Scss => emit_theme_overrides_scss(&documents),

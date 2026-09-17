@@ -131,15 +131,17 @@ pub fn init(
                 DEFAULT_STEPS,
             )?;
         }
+        // No palette: `init` writes the config it is deriving from, so there is
+        // no recorded reference yet — a project is handed one later, by
+        // `tokens --from`.
         crate::commands::tokens::tokens(
             fs,
             output,
-            Some(resolved.format),
-            Some(&token_out),
-            // `init` writes the config it is deriving from, so there is no
-            // recorded palette yet and nothing to pass: a project is handed one
-            // later, by `tokens --from`.
-            None,
+            &crate::commands::tokens::TokensOptions {
+                format: Some(resolved.format),
+                out: Some(token_out.clone()),
+                ..Default::default()
+            },
         )?;
     }
     Ok(())

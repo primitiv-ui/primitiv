@@ -330,9 +330,11 @@ fn ensure_tokens(
     crate::commands::tokens::tokens(
         fs,
         output,
-        Some(config.tokens.format),
-        Some(&token_path),
-        None,
+        &crate::commands::tokens::TokensOptions {
+            format: Some(config.tokens.format),
+            out: Some(token_path.clone()),
+            ..Default::default()
+        },
     )
 }
 

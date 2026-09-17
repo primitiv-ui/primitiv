@@ -621,3 +621,28 @@ fn reports_a_usage_error_on_stderr_and_exits_two() {
             "primitiv: unknown command 'bogus'",
         ));
 }
+
+/// A warning reaches the real process stderr, not stdout — a config-less
+/// `primitiv tokens > tokens.css` streams the stylesheet to stdout, so a
+/// diagnostic written there would be pasted into the consumer's CSS.
+#[test]
+fn warns_on_stderr_and_still_exits_zero() {
+    let dir = assert_fs::TempDir::new().unwrap();
+    let palette = dir.child("primitiv.palette.json");
+    palette
+        .write_str(
+            r##"{ "light": { "action": { "a": { "$type": "color", "$value": "#0a7755" } } } }"##,
+        )
+        .unwrap();
+
+    Command::cargo_bin("primitiv")
+        .unwrap()
+        .current_dir(dir.path())
+        .args(["tokens", "--ramps-only", "--out"])
+        .arg(dir.child("tokens.css").path())
+        .arg("--from")
+        .arg(palette.path())
+        .assert()
+        .success()
+        .stderr(predicate::str::contains("--ramps-only discarded"));
+}

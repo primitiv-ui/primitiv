@@ -41,12 +41,6 @@ pub fn run(
             steps,
         } => theme(fs, &seeds, out.as_deref().map(Path::new), format, steps),
         Command::Dtcg { seeds, out, steps } => dtcg(fs, &seeds, Path::new(&out), steps),
-        Command::Tokens { out, format, from } => tokens(
-            fs,
-            output,
-            format,
-            out.as_deref().map(Path::new),
-            from.as_deref().map(Path::new),
-        ),
+        Command::Tokens(options) => tokens(fs, output, &options),
     }
 }

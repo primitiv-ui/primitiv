@@ -1,7 +1,10 @@
+use std::path::PathBuf;
+
 use harmoni_core::api::DEFAULT_STEPS;
 
 use crate::commands::add::AddOptions;
 use crate::commands::init::InitOptions;
+use crate::commands::tokens::TokensOptions;
 use crate::error::CliError;
 use crate::format::Format;
 
@@ -31,13 +34,7 @@ pub enum Command {
         /// than second-guessed here.
         steps: usize,
     },
-    Tokens {
-        out: Option<String>,
-        format: Option<Format>,
-        /// The palette document to apply (RFC 0032 D14). `None` falls back to the
-        /// config's `theme.palette`, and then to no palette at all.
-        from: Option<String>,
-    },
+    Tokens(TokensOptions),
     Dtcg {
         /// The ramp seeds to export, as `(family, colour)` in [`RAMP_FAMILIES`]
         /// order — the same seeds `theme` takes.
@@ -210,23 +207,31 @@ fn parse_init(args: &[String]) -> Result<Command, CliError> {
     }))
 }
 
-/// Parse `tokens [--out <path>] [--format <fmt>]` — both optional, order-free.
+/// Parse `tokens [--out <path>] [--format <fmt>] [--from <palette>] [--ramps-only]`
+/// — all optional, order-free.
 /// An omitted flag is left `None` so the command can fall back to the
 /// `primitiv.json` defaults at run time (RFC 0005 §2.3 / §3.2).
 fn parse_tokens(args: &[String]) -> Result<Command, CliError> {
-    let mut out = None;
+    let mut out: Option<String> = None;
     let mut format = None;
-    let mut from = None;
+    let mut from: Option<String> = None;
+    let mut ramps_only = false;
     let mut rest = args.iter();
     while let Some(flag) = rest.next() {
         match flag.as_str() {
             "--out" => out = Some(take_value(&mut rest, "--out")?),
             "--format" => format = Some(parse_format(&take_value(&mut rest, "--format")?)?),
             "--from" => from = Some(take_value(&mut rest, "--from")?),
+            "--ramps-only" => ramps_only = true,
             other => return Err(usage(format!("unexpected argument '{other}'"))),
         }
     }
-    Ok(Command::Tokens { out, format, from })
+    Ok(Command::Tokens(TokensOptions {
+        format,
+        out: out.map(PathBuf::from),
+        from: from.map(PathBuf::from),
+        ramps_only,
+    }))
 }
 
 /// Parse `theme [--<family> <colour>]... --out <path> [--format <fmt>] [--steps <n>]`

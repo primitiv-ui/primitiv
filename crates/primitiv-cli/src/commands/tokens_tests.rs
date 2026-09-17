@@ -1,6 +1,6 @@
 use std::path::Path;
 
-use crate::commands::tokens::tokens;
+use crate::commands::tokens::{TokensOptions, tokens};
 use crate::error::CliError;
 use crate::format::Format;
 use crate::ports::fs::{FileSystem, InMemoryFs};
@@ -36,7 +36,17 @@ fn writes_the_design_system_token_layer_as_css() {
     let stdout = InMemoryOutput::new();
     let out = Path::new("src/styles/primitiv/tokens.css");
 
-    tokens(&fs, &stdout, Some(Format::Css), Some(out), None).unwrap();
+    tokens(
+        &fs,
+        &stdout,
+        &TokensOptions {
+            format: Some(Format::Css),
+            out: Some(out.into()),
+            from: None,
+            ramps_only: false,
+        },
+    )
+    .unwrap();
 
     let written = String::from_utf8(fs.read(out).unwrap()).unwrap();
     // The cascade-layer declaration (RFC 0008) heads the file.
@@ -56,7 +66,17 @@ fn writes_the_token_layer_as_scss_when_the_format_is_scss() {
     let stdout = InMemoryOutput::new();
     let out = Path::new("src/styles/primitiv/tokens.scss");
 
-    tokens(&fs, &stdout, Some(Format::Scss), Some(out), None).unwrap();
+    tokens(
+        &fs,
+        &stdout,
+        &TokensOptions {
+            format: Some(Format::Scss),
+            out: Some(out.into()),
+            from: None,
+            ramps_only: false,
+        },
+    )
+    .unwrap();
 
     let written = String::from_utf8(fs.read(out).unwrap()).unwrap();
     // The SCSS surface is the canonical CSS plus resolving $primitiv-* variables.
@@ -70,7 +90,17 @@ fn writes_the_token_layer_as_a_tailwind_preset_when_the_format_is_tailwind() {
     let stdout = InMemoryOutput::new();
     let out = Path::new("src/styles/primitiv/tokens.css");
 
-    tokens(&fs, &stdout, Some(Format::Tailwind), Some(out), None).unwrap();
+    tokens(
+        &fs,
+        &stdout,
+        &TokensOptions {
+            format: Some(Format::Tailwind),
+            out: Some(out.into()),
+            from: None,
+            ramps_only: false,
+        },
+    )
+    .unwrap();
 
     let written = String::from_utf8(fs.read(out).unwrap()).unwrap();
     // The Tailwind v4 @theme preset maps names onto Tailwind namespaces.
@@ -84,7 +114,17 @@ fn writes_a_companion_base_stylesheet_imported_by_the_token_layer() {
     let stdout = InMemoryOutput::new();
     let out = Path::new("src/styles/primitiv/tokens.css");
 
-    tokens(&fs, &stdout, Some(Format::Css), Some(out), None).unwrap();
+    tokens(
+        &fs,
+        &stdout,
+        &TokensOptions {
+            format: Some(Format::Css),
+            out: Some(out.into()),
+            from: None,
+            ramps_only: false,
+        },
+    )
+    .unwrap();
 
     // The base element styles ship as a sibling file the token layer imports, so
     // the foundation is one @import away (RFC 0008 §7).
@@ -105,7 +145,17 @@ fn writes_the_base_companion_as_scss_for_the_scss_format() {
     let stdout = InMemoryOutput::new();
     let out = Path::new("src/styles/primitiv/tokens.scss");
 
-    tokens(&fs, &stdout, Some(Format::Scss), Some(out), None).unwrap();
+    tokens(
+        &fs,
+        &stdout,
+        &TokensOptions {
+            format: Some(Format::Scss),
+            out: Some(out.into()),
+            from: None,
+            ramps_only: false,
+        },
+    )
+    .unwrap();
 
     // SCSS gets the .scss mirror so a Sass pipeline imports a partial.
     assert!(fs.exists(Path::new("src/styles/primitiv/primitiv-base.scss")));
@@ -119,7 +169,17 @@ fn writes_the_css_base_companion_for_the_tailwind_format() {
     let stdout = InMemoryOutput::new();
     let out = Path::new("src/styles/primitiv/tokens.css");
 
-    tokens(&fs, &stdout, Some(Format::Tailwind), Some(out), None).unwrap();
+    tokens(
+        &fs,
+        &stdout,
+        &TokensOptions {
+            format: Some(Format::Tailwind),
+            out: Some(out.into()),
+            from: None,
+            ramps_only: false,
+        },
+    )
+    .unwrap();
 
     // Tailwind shares the canonical CSS sheet; the import precedes the @theme block.
     assert!(fs.exists(Path::new("src/styles/primitiv/primitiv-base.css")));
@@ -134,7 +194,17 @@ fn inlines_the_base_layer_when_streaming_to_stdout() {
     fs.set_current_dir(Path::new("project"));
 
     // No file to host a sibling, so the streamed foundation carries the base inline.
-    tokens(&fs, &stdout, Some(Format::Css), None, None).unwrap();
+    tokens(
+        &fs,
+        &stdout,
+        &TokensOptions {
+            format: Some(Format::Css),
+            out: None,
+            from: None,
+            ramps_only: false,
+        },
+    )
+    .unwrap();
 
     let streamed = String::from_utf8(stdout.captured()).unwrap();
     assert!(streamed.contains("transform: skewX(-10deg)"));
@@ -147,7 +217,17 @@ fn surfaces_a_base_companion_write_failure() {
     let out = Path::new("src/styles/primitiv/tokens.css");
     fs.fail_writes_to(Path::new("src/styles/primitiv/primitiv-base.css"));
 
-    let err = tokens(&fs, &stdout, Some(Format::Css), Some(out), None).unwrap_err();
+    let err = tokens(
+        &fs,
+        &stdout,
+        &TokensOptions {
+            format: Some(Format::Css),
+            out: Some(out.into()),
+            from: None,
+            ramps_only: false,
+        },
+    )
+    .unwrap_err();
 
     assert!(matches!(err, CliError::Io(_)));
 }
@@ -159,7 +239,17 @@ fn surfaces_a_breakpoints_companion_write_failure() {
     let out = Path::new("src/styles/primitiv/tokens.css");
     fs.fail_writes_to(Path::new("src/styles/primitiv/breakpoints.ts"));
 
-    let err = tokens(&fs, &stdout, Some(Format::Css), Some(out), None).unwrap_err();
+    let err = tokens(
+        &fs,
+        &stdout,
+        &TokensOptions {
+            format: Some(Format::Css),
+            out: Some(out.into()),
+            from: None,
+            ramps_only: false,
+        },
+    )
+    .unwrap_err();
 
     assert!(matches!(err, CliError::Io(_)));
 }
@@ -172,7 +262,17 @@ fn falls_back_to_the_config_path_when_out_is_omitted() {
     fs.write(Path::new("project/primitiv.json"), CONFIG)
         .unwrap();
 
-    tokens(&fs, &stdout, Some(Format::Css), None, None).unwrap();
+    tokens(
+        &fs,
+        &stdout,
+        &TokensOptions {
+            format: Some(Format::Css),
+            out: None,
+            from: None,
+            ramps_only: false,
+        },
+    )
+    .unwrap();
 
     // Written to the config's tokens.path, resolved by walking up from the cwd.
     let written =
@@ -189,7 +289,17 @@ fn defaults_the_format_from_the_config_when_it_is_omitted() {
         .unwrap();
 
     // Neither flag given: both the format (scss) and the path come from config.
-    tokens(&fs, &stdout, None, None, None).unwrap();
+    tokens(
+        &fs,
+        &stdout,
+        &TokensOptions {
+            format: None,
+            out: None,
+            from: None,
+            ramps_only: false,
+        },
+    )
+    .unwrap();
 
     let written =
         String::from_utf8(fs.read(Path::new("src/styles/from-config.scss")).unwrap()).unwrap();
@@ -204,7 +314,17 @@ fn defaults_the_format_to_css_when_omitted_and_no_config_exists() {
     let out = Path::new("tokens.css");
 
     // --out given, --format omitted, no config: CSS is the canonical fallback.
-    tokens(&fs, &stdout, None, Some(out), None).unwrap();
+    tokens(
+        &fs,
+        &stdout,
+        &TokensOptions {
+            format: None,
+            out: Some(out.into()),
+            from: None,
+            ramps_only: false,
+        },
+    )
+    .unwrap();
 
     let written = String::from_utf8(fs.read(out).unwrap()).unwrap();
     assert!(written.contains("@layer primitiv.reset"));
@@ -218,7 +338,17 @@ fn streams_to_stdout_when_neither_out_nor_a_config_is_present() {
     fs.set_current_dir(Path::new("project"));
 
     // Principle 4: a fully config-less `tokens --format css` writes to stdout.
-    tokens(&fs, &stdout, Some(Format::Css), None, None).unwrap();
+    tokens(
+        &fs,
+        &stdout,
+        &TokensOptions {
+            format: Some(Format::Css),
+            out: None,
+            from: None,
+            ramps_only: false,
+        },
+    )
+    .unwrap();
 
     let streamed = String::from_utf8(stdout.captured()).unwrap();
     assert!(streamed.contains("@layer primitiv.reset"));
@@ -237,7 +367,17 @@ fn surfaces_a_write_failure_to_the_config_path() {
     fs.fail_writes_to(Path::new("src/styles/from-config.css"));
 
     // --out omitted, config present: the write targets the config's tokens.path.
-    let err = tokens(&fs, &stdout, Some(Format::Css), None, None).unwrap_err();
+    let err = tokens(
+        &fs,
+        &stdout,
+        &TokensOptions {
+            format: Some(Format::Css),
+            out: None,
+            from: None,
+            ramps_only: false,
+        },
+    )
+    .unwrap_err();
 
     assert!(matches!(err, CliError::Io(_)));
 }
@@ -250,7 +390,17 @@ fn surfaces_a_stdout_write_failure() {
     stdout.fail_stdout();
 
     // Config-less, so the layer routes to stdout — a broken stream surfaces as I/O.
-    let err = tokens(&fs, &stdout, Some(Format::Css), None, None).unwrap_err();
+    let err = tokens(
+        &fs,
+        &stdout,
+        &TokensOptions {
+            format: Some(Format::Css),
+            out: None,
+            from: None,
+            ramps_only: false,
+        },
+    )
+    .unwrap_err();
 
     assert!(matches!(err, CliError::Io(_)));
 }
@@ -264,7 +414,17 @@ fn errors_on_a_malformed_config_even_when_out_is_given() {
         .unwrap();
 
     // --format omitted forces a config read; a broken file is never ignored.
-    let err = tokens(&fs, &stdout, None, Some(Path::new("tokens.css")), None).unwrap_err();
+    let err = tokens(
+        &fs,
+        &stdout,
+        &TokensOptions {
+            format: None,
+            out: Some("tokens.css".into()),
+            from: None,
+            ramps_only: false,
+        },
+    )
+    .unwrap_err();
 
     assert!(matches!(err, CliError::Config(_)));
 }
@@ -275,7 +435,17 @@ fn errors_when_out_is_omitted_and_the_working_directory_is_unavailable() {
     let stdout = InMemoryOutput::new();
     fs.fail_current_dir();
 
-    let err = tokens(&fs, &stdout, Some(Format::Css), None, None).unwrap_err();
+    let err = tokens(
+        &fs,
+        &stdout,
+        &TokensOptions {
+            format: Some(Format::Css),
+            out: None,
+            from: None,
+            ramps_only: false,
+        },
+    )
+    .unwrap_err();
 
     assert!(matches!(err, CliError::Io(_)));
 }
@@ -287,7 +457,17 @@ fn surfaces_a_write_failure() {
     let out = Path::new("tokens.css");
     fs.fail_writes_to(out);
 
-    let err = tokens(&fs, &stdout, Some(Format::Css), Some(out), None).unwrap_err();
+    let err = tokens(
+        &fs,
+        &stdout,
+        &TokensOptions {
+            format: Some(Format::Css),
+            out: Some(out.into()),
+            from: None,
+            ramps_only: false,
+        },
+    )
+    .unwrap_err();
 
     assert!(matches!(err, CliError::Io(_)));
 }
@@ -305,9 +485,12 @@ fn imports_the_theme_overrides_when_that_file_is_there() {
     tokens(
         &fs,
         &InMemoryOutput::new(),
-        Some(Format::Css),
-        Some(out),
-        None,
+        &TokensOptions {
+            format: Some(Format::Css),
+            out: Some(out.into()),
+            from: None,
+            ramps_only: false,
+        },
     )
     .unwrap();
 
@@ -334,9 +517,12 @@ fn does_not_import_theme_overrides_when_no_config_exists() {
     tokens(
         &fs,
         &InMemoryOutput::new(),
-        Some(Format::Css),
-        Some(out),
-        None,
+        &TokensOptions {
+            format: Some(Format::Css),
+            out: Some(out.into()),
+            from: None,
+            ramps_only: false,
+        },
     )
     .unwrap();
 
@@ -360,9 +546,12 @@ fn does_not_import_theme_overrides_that_do_not_exist() {
     tokens(
         &fs,
         &InMemoryOutput::new(),
-        Some(Format::Css),
-        Some(out),
-        None,
+        &TokensOptions {
+            format: Some(Format::Css),
+            out: Some(out.into()),
+            from: None,
+            ramps_only: false,
+        },
     )
     .unwrap();
 
@@ -394,9 +583,12 @@ fn writes_the_palettes_overrides_beside_the_token_layer_and_imports_them() {
     tokens(
         &fs,
         &stdout,
-        Some(Format::Css),
-        Some(out),
-        Some(Path::new("primitiv.palette.json")),
+        &TokensOptions {
+            format: Some(Format::Css),
+            out: Some(out.into()),
+            from: Some("primitiv.palette.json".into()),
+            ramps_only: false,
+        },
     )
     .unwrap();
 
@@ -433,9 +625,12 @@ fn names_the_override_file_after_the_formats_own_extension() {
         tokens(
             &fs,
             &InMemoryOutput::new(),
-            Some(format),
-            Some(&out),
-            Some(Path::new("primitiv.palette.json")),
+            &TokensOptions {
+                format: Some(format),
+                out: Some(out.into()),
+                from: Some("primitiv.palette.json".into()),
+                ramps_only: false,
+            },
         )
         .unwrap();
 
@@ -459,9 +654,12 @@ fn errors_when_the_reference_names_a_palette_that_is_not_there() {
     let err = tokens(
         &fs,
         &InMemoryOutput::new(),
-        Some(Format::Css),
-        Some(Path::new("tokens.css")),
-        Some(Path::new("gone.json")),
+        &TokensOptions {
+            format: Some(Format::Css),
+            out: Some("tokens.css".into()),
+            from: Some("gone.json".into()),
+            ramps_only: false,
+        },
     )
     .unwrap_err();
 
@@ -480,9 +678,12 @@ fn surfaces_a_malformed_palette_document() {
     let err = tokens(
         &fs,
         &InMemoryOutput::new(),
-        Some(Format::Css),
-        Some(Path::new("tokens.css")),
-        Some(Path::new("primitiv.palette.json")),
+        &TokensOptions {
+            format: Some(Format::Css),
+            out: Some("tokens.css".into()),
+            from: Some("primitiv.palette.json".into()),
+            ramps_only: false,
+        },
     )
     .unwrap_err();
 
@@ -505,9 +706,12 @@ fn surfaces_an_override_write_failure() {
     let err = tokens(
         &fs,
         &InMemoryOutput::new(),
-        Some(Format::Css),
-        Some(Path::new("tokens.css")),
-        Some(Path::new("primitiv.palette.json")),
+        &TokensOptions {
+            format: Some(Format::Css),
+            out: Some("tokens.css".into()),
+            from: Some("primitiv.palette.json".into()),
+            ramps_only: false,
+        },
     )
     .unwrap_err();
 
@@ -528,9 +732,12 @@ fn records_the_palette_it_was_handed_in_the_project_config() {
     tokens(
         &fs,
         &InMemoryOutput::new(),
-        Some(Format::Css),
-        Some(Path::new("tokens.css")),
-        Some(Path::new("project/primitiv.palette.json")),
+        &TokensOptions {
+            format: Some(Format::Css),
+            out: Some("tokens.css".into()),
+            from: Some("project/primitiv.palette.json".into()),
+            ramps_only: false,
+        },
     )
     .unwrap();
 
@@ -557,9 +764,146 @@ fn surfaces_a_failure_to_record_the_reference() {
     let err = tokens(
         &fs,
         &InMemoryOutput::new(),
-        Some(Format::Css),
-        Some(Path::new("tokens.css")),
-        Some(Path::new("project/primitiv.palette.json")),
+        &TokensOptions {
+            format: Some(Format::Css),
+            out: Some("tokens.css".into()),
+            from: Some("project/primitiv.palette.json".into()),
+            ramps_only: false,
+        },
+    )
+    .unwrap_err();
+
+    assert!(matches!(err, CliError::Io(_)), "got: {err}");
+}
+
+/// A palette carrying both halves (RFC 0032 D3), as Harmoni exports one.
+const PALETTE_WITH_ROLES: &[u8] = br##"{
+  "light": {
+    "color": { "brand": { "500": { "$type": "color", "$value": "#0a7755" } } },
+    "action": { "primary": { "$type": "color", "$value": "{color.brand.500}" } }
+  }
+}"##;
+
+/// §7 q4: `--ramps-only` takes the designer's colours and keeps Primitiv's own
+/// semantics, so the roles must not reach the override layer — if they did they
+/// would outrank the shipped Intent by layer order, which is the whole thing the
+/// flag exists to prevent.
+#[test]
+fn ramps_only_applies_the_ramps_and_leaves_primitivs_own_roles_standing() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("p.json"), PALETTE_WITH_ROLES).unwrap();
+
+    tokens(
+        &fs,
+        &InMemoryOutput::new(),
+        &TokensOptions {
+            format: Some(Format::Css),
+            out: Some("tokens.css".into()),
+            from: Some("p.json".into()),
+            ramps_only: true,
+        },
+    )
+    .unwrap();
+
+    let overrides = String::from_utf8(fs.read(Path::new("primitiv.theme.css")).unwrap()).unwrap();
+    assert!(
+        overrides.contains("--primitiv-color-brand-500:"),
+        "the ramps should still be applied, got: {overrides}"
+    );
+    assert!(
+        !overrides.contains("--primitiv-action-primary:"),
+        "the designer's roles should not be applied, got: {overrides}"
+    );
+}
+
+/// Without the flag, both halves land — D3's default, and what makes the handoff
+/// carry what Harmoni solved rather than only its colours.
+#[test]
+fn applies_the_designers_roles_alongside_the_ramps_by_default() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("p.json"), PALETTE_WITH_ROLES).unwrap();
+
+    tokens(
+        &fs,
+        &InMemoryOutput::new(),
+        &TokensOptions {
+            format: Some(Format::Css),
+            out: Some("tokens.css".into()),
+            from: Some("p.json".into()),
+            ramps_only: false,
+        },
+    )
+    .unwrap();
+
+    let overrides = String::from_utf8(fs.read(Path::new("primitiv.theme.css")).unwrap()).unwrap();
+    assert!(
+        overrides.contains("--primitiv-action-primary: var(--primitiv-color-brand-500)"),
+        "the designer's role should resolve to a var() reference, got: {overrides}"
+    );
+}
+
+/// §7 q4, decided: `--ramps-only` over a palette that carries no ramps discards
+/// everything. D8's warn-and-continue holds — the build stays green — but the
+/// developer is told, because an override layer that silently does nothing is
+/// indistinguishable from one that worked.
+#[test]
+fn warns_when_ramps_only_discards_a_palette_that_carries_no_ramps() {
+    let fs = InMemoryFs::new();
+    let output = InMemoryOutput::new();
+    fs.write(
+        Path::new("p.json"),
+        br##"{ "light": { "action": { "primary": { "$type": "color", "$value": "#0a7755" } } } }"##,
+    )
+    .unwrap();
+
+    tokens(
+        &fs,
+        &output,
+        &TokensOptions {
+            format: Some(Format::Css),
+            out: Some("tokens.css".into()),
+            from: Some("p.json".into()),
+            ramps_only: true,
+        },
+    )
+    .unwrap();
+
+    let warning = String::from_utf8(output.captured_stderr()).unwrap();
+    assert!(warning.contains("--ramps-only"), "got: {warning}");
+    assert!(warning.contains("p.json"), "got: {warning}");
+    assert!(
+        warning.contains("no colour ramps"),
+        "the warning should say why nothing was applied, got: {warning}"
+    );
+    assert!(
+        fs.exists(Path::new("primitiv.theme.css")),
+        "the override layer is still written, so the import stays honest"
+    );
+}
+
+/// A diagnostic that cannot be written is still a failed write. Swallowing it
+/// would leave the one case where the developer most needs to be told — a
+/// palette that applied nothing — the one case that says nothing.
+#[test]
+fn surfaces_a_failure_to_write_the_warning() {
+    let fs = InMemoryFs::new();
+    let output = InMemoryOutput::new();
+    output.fail_stderr();
+    fs.write(
+        Path::new("p.json"),
+        br##"{ "light": { "action": { "a": { "$type": "color", "$value": "#0a7755" } } } }"##,
+    )
+    .unwrap();
+
+    let err = tokens(
+        &fs,
+        &output,
+        &TokensOptions {
+            format: Some(Format::Css),
+            out: Some("tokens.css".into()),
+            from: Some("p.json".into()),
+            ramps_only: true,
+        },
     )
     .unwrap_err();
 

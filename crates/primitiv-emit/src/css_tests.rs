@@ -1,6 +1,6 @@
 use pretty_assertions::assert_eq;
 
-use crate::css::{emit_css, emit_theme_css, Scope};
+use crate::css::{Scope, emit_css, emit_theme_css};
 use crate::token::Token;
 
 /// Shared, pure-data fixture: a trimmed slice of the theme-token surface (one
@@ -19,7 +19,10 @@ fn emits_the_shared_theme_token_surface_as_canonical_css() {
 
     assert_eq!(
         css,
-        include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/tests/golden/tokens.css"))
+        include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/tests/golden/tokens.css"
+        ))
     );
 }
 
@@ -38,7 +41,10 @@ fn emits_one_block_per_mode_scope_with_the_default_sharing_root() {
 
     assert_eq!(
         css,
-        include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/tests/golden/theme-modes.css"))
+        include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/tests/golden/theme-modes.css"
+        ))
     );
 }
 
@@ -57,6 +63,9 @@ fn emits_brand_overrides_into_the_theme_layer_without_the_sublayer_declaration()
 
     assert_eq!(
         css,
-        include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/tests/golden/theme-overrides.css"))
+        include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/tests/golden/theme-overrides.css"
+        ))
     );
 }

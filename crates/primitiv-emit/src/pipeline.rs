@@ -281,7 +281,11 @@ fn ramp_scopes(ramps: &ThemeRamps) -> Result<Vec<Scope>, GenerateError> {
         // of them have to be written — re-pointed where the length dropped the step
         // they name.
         if let Some(roles) = ramps.roles {
-            tokens.extend(link_aliases(resolve_roles(&roles[mode], &families, &labels)));
+            tokens.extend(link_aliases(resolve_roles(
+                &roles[mode],
+                &families,
+                &labels,
+            )));
         }
     }
 

@@ -14,20 +14,30 @@ const ORDER: &str = "@layer primitiv.reset, primitiv.tokens, primitiv.theme, \
 /// .primitiv-flow rhythm (RFC 0008 §7).
 #[test]
 fn base_css_declares_the_layer_order_before_any_block() {
-    let order_at = BASE_CSS.find(ORDER).expect("base.css declares the @layer order");
+    let order_at = BASE_CSS
+        .find(ORDER)
+        .expect("base.css declares the @layer order");
     let first_block = BASE_CSS
         .find("@layer primitiv.reset {")
         .expect("base.css opens a layer block");
-    assert!(order_at < first_block, "the order statement must precede the first layer block");
+    assert!(
+        order_at < first_block,
+        "the order statement must precede the first layer block"
+    );
 }
 
 #[test]
 fn base_scss_declares_the_layer_order_before_any_block() {
-    let order_at = BASE_SCSS.find(ORDER).expect("base.scss declares the @layer order");
+    let order_at = BASE_SCSS
+        .find(ORDER)
+        .expect("base.scss declares the @layer order");
     let first_block = BASE_SCSS
         .find("@layer primitiv.reset {")
         .expect("base.scss opens a layer block");
-    assert!(order_at < first_block, "the order statement must precede the first layer block");
+    assert!(
+        order_at < first_block,
+        "the order statement must precede the first layer block"
+    );
 }
 
 /// Border-box is the global default (RFC 0008 §7, extended to the box model).
@@ -45,10 +55,19 @@ fn base_css_resets_box_sizing_to_border_box() {
     let rule_at = BASE_CSS
         .find("box-sizing: border-box;")
         .expect("base.css resets box-sizing");
-    assert!(rule_at > reset_at, "the box-sizing reset must live inside the reset layer");
+    assert!(
+        rule_at > reset_at,
+        "the box-sizing reset must live inside the reset layer"
+    );
     // The universal selector, including generated boxes — not a single element.
-    assert!(BASE_CSS.contains("*::before,"), "the reset must target ::before");
-    assert!(BASE_CSS.contains("*::after {"), "the reset must target ::after");
+    assert!(
+        BASE_CSS.contains("*::before,"),
+        "the reset must target ::before"
+    );
+    assert!(
+        BASE_CSS.contains("*::after {"),
+        "the reset must target ::after"
+    );
 }
 
 /// The two assets are hand-authored and hand-synced — nothing generates the SCSS
@@ -58,7 +77,10 @@ fn base_css_resets_box_sizing_to_border_box() {
 /// committed app copies at different times.)
 #[test]
 fn the_scss_mirror_is_byte_identical_to_the_css() {
-    assert_eq!(BASE_CSS, BASE_SCSS, "assets/base.scss must mirror assets/base.css byte for byte");
+    assert_eq!(
+        BASE_CSS, BASE_SCSS,
+        "assets/base.scss must mirror assets/base.css byte for byte"
+    );
 }
 
 /// The premise the identity above rests on: the mirror contract only adds
@@ -88,7 +110,10 @@ fn list_item_rhythm_is_scoped_to_the_flow_context() {
             .map(|(i, line)| (i + 1, line.trim()))
             .filter(|(_, line)| line.contains("li + li"))
             .collect();
-        assert!(!matches.is_empty(), "{name}: the `li + li` rule has vanished, not been scoped");
+        assert!(
+            !matches.is_empty(),
+            "{name}: the `li + li` rule has vanished, not been scoped"
+        );
         for (line_no, line) in matches {
             assert!(
                 line.starts_with(".primitiv-flow "),
@@ -106,5 +131,8 @@ fn the_base_layer_declares_no_custom_properties() {
         .map(str::trim)
         .filter(|line| line.starts_with("--primitiv-"))
         .collect();
-    assert!(declared.is_empty(), "base.css declares custom properties: {declared:?}");
+    assert!(
+        declared.is_empty(),
+        "base.css declares custom properties: {declared:?}"
+    );
 }

@@ -3,7 +3,7 @@
 //! the contract's modifier classes; the styling lives in the copied stylesheet.
 
 use crate::contract::{
-    pascal_case, recipe_binding, subcomponent_binding, subcomponent_pascal, Contract, ModifierGroup,
+    Contract, ModifierGroup, pascal_case, recipe_binding, subcomponent_binding, subcomponent_pascal,
 };
 
 /// Generate a component's `cva` recipe(s) from its contract. A single-element or

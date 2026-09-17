@@ -1,6 +1,6 @@
 use pretty_assertions::assert_eq;
 
-use crate::contract::{recipe_binding, Contract};
+use crate::contract::{Contract, recipe_binding};
 use crate::contract_fixtures::DEMO_VIEW;
 
 #[test]

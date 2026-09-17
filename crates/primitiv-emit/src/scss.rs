@@ -2,7 +2,7 @@
 
 use std::collections::HashSet;
 
-use crate::css::{emit_css, emit_theme_css, Scope};
+use crate::css::{Scope, emit_css, emit_theme_css};
 
 /// Emit the shared theme-token surface as SCSS (RFC 0006 §4.2): the canonical
 /// CSS custom-property contract verbatim — SCSS is a superset of CSS — followed

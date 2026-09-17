@@ -6,7 +6,7 @@
 //! plus the variant props — same API, same `ref`, plus the conveniences (D59).
 
 use crate::contract::{
-    pascal_case, recipe_binding, subcomponent_binding, subcomponent_pascal, Contract, ModifierGroup,
+    Contract, ModifierGroup, pascal_case, recipe_binding, subcomponent_binding, subcomponent_pascal,
 };
 
 /// Generate a component's styled wrapper from its contract. Three shapes:
@@ -34,7 +34,10 @@ pub fn emit_wrapper(contract: &Contract) -> String {
     } else {
         out.push_str("import { type ComponentPropsWithRef } from \"react\";\n");
     }
-    out.push_str(&format!("import {{ {binding} }} from \"./{}.recipe\";\n\n", contract.name));
+    out.push_str(&format!(
+        "import {{ {binding} }} from \"./{}.recipe\";\n\n",
+        contract.name
+    ));
 
     emit_distributive_omit_helper(&mut out, contract);
 
@@ -133,7 +136,10 @@ fn emit_structural_wrapper(contract: &Contract) -> String {
     let root_component = contract.root.component.as_deref().unwrap_or("Root");
     // Text-child label-wrapping can also be opted into per structural subcomponent
     // (ToggleGroup.Item), independent of the single-element-only `wrap_text_children`.
-    let any_wrap_text = contract.subcomponents.iter().any(|sub| sub.wrap_text_children);
+    let any_wrap_text = contract
+        .subcomponents
+        .iter()
+        .any(|sub| sub.wrap_text_children);
 
     let mut out = header(&contract.name, &pascal);
 
@@ -168,7 +174,10 @@ fn emit_structural_wrapper(contract: &Contract) -> String {
         )
         .collect::<Vec<_>>()
         .join(", ");
-    out.push_str(&format!("import {{ {bindings} }} from \"./{}.recipe\";\n\n", contract.name));
+    out.push_str(&format!(
+        "import {{ {bindings} }} from \"./{}.recipe\";\n\n",
+        contract.name
+    ));
 
     emit_distributive_omit_helper(&mut out, contract);
 
@@ -209,7 +218,10 @@ fn emit_structural_wrapper(contract: &Contract) -> String {
             ),
             None => {
                 let element = sub.element.as_deref().unwrap_or("div");
-                (format!("ComponentPropsWithRef<\"{element}\">"), element.to_string())
+                (
+                    format!("ComponentPropsWithRef<\"{element}\">"),
+                    element.to_string(),
+                )
             }
         };
         emit_props(
@@ -244,8 +256,11 @@ fn emit_structural_wrapper(contract: &Contract) -> String {
 fn emit_structural_root(out: &mut String, contract: &Contract, pascal: &str, tag: &str) {
     let binding = recipe_binding(&contract.name);
     let mod_props: Vec<&str> = contract.modifiers.iter().map(|g| g.prop()).collect();
-    let style_props: Vec<&str> =
-        contract.style_props.iter().map(|sp| sp.prop.as_str()).collect();
+    let style_props: Vec<&str> = contract
+        .style_props
+        .iter()
+        .map(|sp| sp.prop.as_str())
+        .collect();
 
     let mut destructure: Vec<String> = Vec::new();
     destructure.extend(mod_props.iter().map(|p| p.to_string()));
@@ -349,7 +364,9 @@ fn emit_wrap_text_fn(out: &mut String, fn_name: &str, label_class: &str) {
     out.push_str(&format!(
         "function {fn_name}(children: ReactNode, asChild?: boolean): ReactNode {{\n"
     ));
-    out.push_str("  // Under `asChild` the child is the CONSUMER's element (a routing <Link>, an\n");
+    out.push_str(
+        "  // Under `asChild` the child is the CONSUMER's element (a routing <Link>, an\n",
+    );
     out.push_str("  // <a>), so its text sits one level deeper than `Children.map` reaches and\n");
     out.push_str("  // nothing would wrap it — losing the label span's text-box-trim and\n");
     out.push_str("  // nowrap. One level only: it covers the real cases and stays predictable.\n");
@@ -420,7 +437,10 @@ fn emit_props(
         out.push_str("  /**\n");
         out.push_str(&format!("   * {}\n", group.description));
         for option in &group.options {
-            out.push_str(&format!("   * - `{}` — {}\n", option.name, option.description));
+            out.push_str(&format!(
+                "   * - `{}` — {}\n",
+                option.name, option.description
+            ));
         }
         out.push_str(&format!("   * @default \"{}\"\n", group.default));
         if let Some(url) = docs {

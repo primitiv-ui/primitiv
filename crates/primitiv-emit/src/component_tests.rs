@@ -1,6 +1,6 @@
 use pretty_assertions::assert_eq;
 
-use crate::component::{emit_component_css, Component};
+use crate::component::{Component, emit_component_css};
 use crate::token::Token;
 
 /// Shared, pure-data fixture: Button's per-component API tokens, already linked

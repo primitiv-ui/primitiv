@@ -26,8 +26,10 @@ fn to_js_error(e: impl std::fmt::Debug) -> JsError {
 
 /// Emit a whole palette as `css`, `scss`, `tailwind` or `dtcg`.
 ///
-/// `request` is an `ExportInput`: `{ seeds: [{ family, seed }], steps, neutral?,
-/// roles? }`, every colour a CSS string. Returns the file's contents.
+/// `request` is an `ExportInput`: `{ ramps: [{ family, light: [{ step, value }],
+/// dark: [...] }], roles?, identity? }` — the palette as **values** the caller has
+/// already rendered (RFC 0032 D1), every colour a CSS string. Returns the file's
+/// contents.
 ///
 /// An unknown format name is an error rather than a fallback — writing a stylesheet
 /// when the caller asked for a token file would be worse than refusing.
@@ -37,5 +39,8 @@ pub fn emit_export(request: JsValue, format: &str) -> Result<String, JsError> {
     let format = ExportFormat::parse(format)
         .ok_or_else(|| JsError::new(&format!("Unknown export format: {format}")))?;
     let request: ExportRequest = input.into();
-    primitiv_emit::export::emit_export(&request, format).map_err(to_js_error)
+    // Infallible now the palette crosses as values: nothing is generated here, so
+    // there is no colour for the engine to reject. The only failure left is a
+    // format name nobody ships, refused above.
+    Ok(primitiv_emit::export::emit_export(&request, format))
 }

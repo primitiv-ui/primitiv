@@ -131,5 +131,8 @@ pub fn format_color(value: &str) -> String {
 /// emit the authored text untouched, and anything malformed is caught by the
 /// gamut guard over the DTCG source rather than silently re-rendered here.
 fn is_oklch(value: &str) -> bool {
-    value.trim_start().to_ascii_lowercase().starts_with("oklch(")
+    value
+        .trim_start()
+        .to_ascii_lowercase()
+        .starts_with("oklch(")
 }

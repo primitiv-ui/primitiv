@@ -1,124 +1,248 @@
-use harmoni_core::api::NeutralTint;
-use harmoni_core::ColorInput;
 use serde_json::json;
 
-use crate::export::{ExportFormat, ExportRequest, emit_export};
-use crate::pipeline::NeutralRamp;
+use crate::export::{
+    ExportFormat, ExportIdentity, ExportInput, ExportRamp, ExportRequest, ExportStep, emit_export,
+};
 
-/// A whole palette in one request — the shape a consumer outside this workspace
-/// hands over, owning its strings because it cannot lend them across a boundary.
+/// One ramp's rendered steps in a mode, as the engine handed them over.
+fn steps(values: &[(&str, &str)]) -> Vec<ExportStep> {
+    values
+        .iter()
+        .map(|(step, value)| ExportStep {
+            step: (*step).to_string(),
+            value: (*value).to_string(),
+        })
+        .collect()
+}
+
+/// A whole palette as **values** (RFC 0032 D1): the per-step colours the plugin
+/// already rendered, not a recipe to re-derive them from. `accent` is here on
+/// purpose — on the values path a family is just a name, so the seed-based
+/// path's five-family limit is gone with it.
 fn request() -> ExportRequest {
     ExportRequest {
-        seeds: vec![("brand".to_string(), "#236ce1".to_string())],
-        steps: 10,
-        neutral: Some(NeutralRamp {
-            white: ColorInput::Css("#e5ecf6".to_string()),
-            black: ColorInput::Css("#121418".to_string()),
-            tint: Some(NeutralTint {
-                source: ColorInput::Css("#236ce1".to_string()),
-                strength: 1.0,
-                spread: 0.0,
-                bow: 0.0,
-            }),
-        }),
+        ramps: vec![
+            ExportRamp {
+                family: "brand".to_string(),
+                light: steps(&[("50", "#eef8f3"), ("500", "#0a7755")]),
+                dark: steps(&[("50", "#131a17"), ("500", "#0a7755")]),
+            },
+            ExportRamp {
+                family: "accent".to_string(),
+                light: steps(&[("500", "#db2424")]),
+                dark: steps(&[("500", "#db2424")]),
+            },
+        ],
         roles: Some(json!({
-            "light": { "action": { "primary": { "$type": "color", "$value": "{color.brand.600}" } } },
-            "dark":  { "action": { "primary": { "$type": "color", "$value": "{color.brand.400}" } } }
+            "light": { "action": { "primary": { "$type": "color", "$value": "{color.brand.500}" } } },
+            "dark":  { "action": { "primary": { "$type": "color", "$value": "{color.brand.50}" } } }
         })),
+        identity: None,
     }
 }
 
 #[test]
-fn a_stylesheet_export_carries_the_seeds_the_neutral_and_the_roles() {
-    let css = emit_export(&request(), ExportFormat::Css).expect("every colour is valid");
+fn a_stylesheet_export_carries_every_ramp_and_the_roles() {
+    let css = emit_export(&request(), ExportFormat::Css);
 
-    assert!(css.contains("--primitiv-color-brand-500:"), "no seeded ramp: {css}");
-    assert!(css.contains("--primitiv-color-neutral-500:"), "no neutral ramp: {css}");
     assert!(
-        css.contains("--primitiv-action-primary: var(--primitiv-color-brand-600)"),
+        css.contains("--primitiv-color-brand-500:"),
+        "no brand ramp: {css}"
+    );
+    // The family whitelist problem disappears on the values path: `accent` needs
+    // no seed flag, because nothing here is re-derived from a seed.
+    assert!(
+        css.contains("--primitiv-color-accent-500:"),
+        "no accent ramp: {css}"
+    );
+    assert!(
+        css.contains("--primitiv-action-primary: var(--primitiv-color-brand-500)"),
         "no roles: {css}"
+    );
+    assert!(
+        css.contains("[data-theme=\"dark\"]"),
+        "no dark scope: {css}"
     );
 }
 
 #[test]
+fn a_stylesheet_export_renders_the_values_as_oklch() {
+    let css = emit_export(&request(), ExportFormat::Css);
+
+    // The handed-over hex reaches a stylesheet as `oklch()`, the form the token
+    // layer is written in — the colour form follows the format, not the caller.
+    assert!(
+        css.contains("--primitiv-color-brand-500: oklch("),
+        "got: {css}"
+    );
+    assert!(
+        !css.contains("#0a7755"),
+        "hex should not reach a stylesheet: {css}"
+    );
+}
+
+#[test]
+fn a_dtcg_export_keeps_the_values_as_handed_over() {
+    let dtcg = emit_export(&request(), ExportFormat::Dtcg);
+
+    assert!(dtcg.contains("\"$value\": \"#0a7755\""), "got: {dtcg}");
+    assert!(
+        !dtcg.contains("oklch("),
+        "a DTCG document stays hex: {dtcg}"
+    );
+}
+
+/// The steps come out in the order they were handed over, not sorted as strings
+/// — `"100"` sorts before `"50"`, which would read a ramp out of scale order.
+#[test]
+fn a_dtcg_export_keeps_the_ramp_in_scale_order() {
+    let request = ExportRequest {
+        ramps: vec![ExportRamp {
+            family: "brand".to_string(),
+            light: steps(&[("50", "#1"), ("100", "#2"), ("500", "#3")]),
+            dark: steps(&[("50", "#4"), ("100", "#5"), ("500", "#6")]),
+        }],
+        roles: None,
+        identity: None,
+    };
+
+    let dtcg = emit_export(&request, ExportFormat::Dtcg);
+    let order: Vec<usize> = ["\"50\"", "\"100\"", "\"500\""]
+        .iter()
+        .map(|step| dtcg.find(step).expect("every step"))
+        .collect();
+
+    assert!(
+        order[0] < order[1] && order[1] < order[2],
+        "out of scale order: {dtcg}"
+    );
+}
+
+/// D3: the roles ride in the same file, whichever format it is. A DTCG handoff
+/// that dropped them would make the designer's solved semantics unreachable to
+/// the CLI, which reads roles out of exactly this document.
+#[test]
+fn a_dtcg_export_carries_the_roles_too() {
+    let dtcg = emit_export(&request(), ExportFormat::Dtcg);
+
+    assert!(dtcg.contains("\"action\""), "got: {dtcg}");
+    assert!(dtcg.contains("{color.brand.500}"), "got: {dtcg}");
+}
+
+/// D13: "where did these come from, and are they current" needs an answer that
+/// travels with the file.
+#[test]
+fn a_dtcg_export_carries_the_identity_of_the_project_it_came_from() {
+    let request = ExportRequest {
+        identity: Some(ExportIdentity {
+            project: "p-7f3".to_string(),
+            name: "Kestrel".to_string(),
+            engine: "0.1.0".to_string(),
+            exported_at: "2026-09-17T10:00:00Z".to_string(),
+        }),
+        ..request()
+    };
+
+    let dtcg = emit_export(&request, ExportFormat::Dtcg);
+
+    assert!(dtcg.contains("\"$extensions\""), "got: {dtcg}");
+    assert!(dtcg.contains("\"p-7f3\""), "got: {dtcg}");
+    assert!(dtcg.contains("\"Kestrel\""), "got: {dtcg}");
+    assert!(dtcg.contains("\"2026-09-17T10:00:00Z\""), "got: {dtcg}");
+}
+
+/// The identity is metadata about the file, not a token in it, so it must not
+/// reach a stylesheet as a custom property.
+#[test]
+fn a_stylesheet_export_leaves_the_identity_out() {
+    let request = ExportRequest {
+        identity: Some(ExportIdentity {
+            project: "p-7f3".to_string(),
+            name: "Kestrel".to_string(),
+            engine: "0.1.0".to_string(),
+            exported_at: "2026-09-17T10:00:00Z".to_string(),
+        }),
+        ..request()
+    };
+
+    let css = emit_export(&request, ExportFormat::Css);
+
+    assert!(!css.contains("Kestrel"), "got: {css}");
+    assert!(!css.contains("$extensions"), "got: {css}");
+}
+
+#[test]
 fn each_format_serialises_the_same_palette_its_own_way() {
-    let scss = emit_export(&request(), ExportFormat::Scss).expect("valid");
-    let tailwind = emit_export(&request(), ExportFormat::Tailwind).expect("valid");
-    let dtcg = emit_export(&request(), ExportFormat::Dtcg).expect("valid");
+    let request = request();
+    let css = emit_export(&request, ExportFormat::Css);
+    let scss = emit_export(&request, ExportFormat::Scss);
+    let tailwind = emit_export(&request, ExportFormat::Tailwind);
 
-    // SCSS follows its CSS with resolving `$primitiv-*` variables; Tailwind adds the
-    // `@theme` preset; DTCG is a JSON document, not a stylesheet at all.
-    assert!(scss.contains("$primitiv-"), "no SCSS variables: {scss}");
-    assert!(tailwind.contains("@theme"), "no Tailwind preset: {tailwind}");
-    assert!(dtcg.trim_start().starts_with('{'), "DTCG is not JSON: {dtcg}");
+    assert!(scss.starts_with(&css), "SCSS is the CSS plus its variables");
+    assert!(
+        scss.contains("$primitiv-color-brand-500:"),
+        "no SCSS variables: {scss}"
+    );
+    assert!(
+        tailwind.starts_with(&css),
+        "Tailwind is the CSS plus its preset"
+    );
+    assert!(
+        tailwind.contains("@theme"),
+        "no Tailwind preset: {tailwind}"
+    );
 }
 
-/// DTCG is hex for design-tool importers, where a stylesheet is OkLCH for the
-/// cascade — the one request has to serve both without the caller choosing a
-/// colour form.
-#[test]
-fn a_dtcg_export_is_hex_where_a_stylesheet_is_oklch() {
-    let css = emit_export(&request(), ExportFormat::Css).expect("valid");
-    let dtcg = emit_export(&request(), ExportFormat::Dtcg).expect("valid");
-
-    assert!(css.contains("oklch("), "stylesheet is not OkLCH: {css}");
-    assert!(!dtcg.contains("oklch("), "DTCG should be hex: {dtcg}");
-    assert!(dtcg.contains("\"#"), "DTCG carries no hex value: {dtcg}");
-}
-
-#[test]
-fn surfaces_an_unparseable_seed_rather_than_emitting_a_broken_file() {
-    let mut bad = request();
-    bad.seeds = vec![("brand".to_string(), "not-a-colour".to_string())];
-
-    assert!(emit_export(&bad, ExportFormat::Css).is_err());
-    assert!(emit_export(&bad, ExportFormat::Dtcg).is_err());
-}
-
-/// The JS-facing shape, deserialised from what a consumer sends over a language
-/// boundary. It exists in this crate rather than in the binding so the conversion
-/// is reachable by a native test: a `cdylib` cannot be tested at all.
 #[test]
 fn an_export_input_deserialises_into_a_request() {
-    let input: crate::export::ExportInput = serde_json::from_str(
-        r##"{
-          "seeds": [{ "family": "brand", "seed": "#236ce1" }],
-          "steps": 10,
-          "neutral": {
-            "white": "#e5ecf6",
-            "black": "#121418",
-            "tint": { "source": "#236ce1", "strength": 1.0 }
-          },
-          "roles": {
-            "light": { "action": { "primary": { "$type": "color", "$value": "{color.brand.600}" } } },
-            "dark":  { "action": { "primary": { "$type": "color", "$value": "{color.brand.400}" } } }
-          }
-        }"##,
-    )
-    .expect("the payload is well formed");
+    let input: ExportInput = serde_json::from_value(json!({
+        "ramps": [{
+            "family": "brand",
+            "light": [{ "step": "500", "value": "#0a7755" }],
+            "dark":  [{ "step": "500", "value": "#0a7755" }]
+        }],
+        "roles": { "light": {}, "dark": {} },
+        "identity": {
+            "project": "p-7f3",
+            "name": "Kestrel",
+            "engine": "0.1.0",
+            "exportedAt": "2026-09-17T10:00:00Z"
+        }
+    }))
+    .expect("the wire shape");
 
     let request: ExportRequest = input.into();
 
-    assert_eq!(request.seeds, vec![("brand".to_string(), "#236ce1".to_string())]);
-    assert_eq!(request.steps, 10);
-    // `spread` and `bow` default to zero, so a single-source tint at full strength
-    // needs only the two fields a consumer actually chose.
-    let tint = request.neutral.as_ref().and_then(|n| n.tint.as_ref()).expect("a tint");
-    assert_eq!(tint.spread, 0.0);
-    assert_eq!(tint.bow, 0.0);
-    // And it emits: the conversion is only worth anything if the result works.
-    let css = emit_export(&request, ExportFormat::Css).expect("valid");
-    assert!(css.contains("--primitiv-color-neutral-500:"), "{css}");
+    assert_eq!(request.ramps.len(), 1);
+    assert_eq!(request.ramps[0].family, "brand");
+    assert_eq!(request.ramps[0].light[0].value, "#0a7755");
+    assert_eq!(request.identity.unwrap().name, "Kestrel");
 }
 
-/// A consumer picks its format from a control, so the name arrives as a string and
-/// an unknown one must be refused rather than silently defaulting to CSS.
+/// The two optional halves really are optional: a palette with no roles and no
+/// identity is a complete request, which is what `--ramps-only`'s counterpart on
+/// the plugin side and an un-named project both produce.
+#[test]
+fn an_export_input_needs_neither_roles_nor_identity() {
+    let input: ExportInput = serde_json::from_value(json!({
+        "ramps": [{ "family": "brand", "light": [], "dark": [] }]
+    }))
+    .expect("the wire shape");
+
+    let request: ExportRequest = input.into();
+
+    assert_eq!(request.roles, None);
+    assert_eq!(request.identity, None);
+}
+
 #[test]
 fn a_format_parses_from_its_name_and_rejects_anything_else() {
     assert_eq!(ExportFormat::parse("css"), Some(ExportFormat::Css));
     assert_eq!(ExportFormat::parse("scss"), Some(ExportFormat::Scss));
-    assert_eq!(ExportFormat::parse("tailwind"), Some(ExportFormat::Tailwind));
+    assert_eq!(
+        ExportFormat::parse("tailwind"),
+        Some(ExportFormat::Tailwind)
+    );
     assert_eq!(ExportFormat::parse("dtcg"), Some(ExportFormat::Dtcg));
     assert_eq!(ExportFormat::parse("json"), None);
-    assert_eq!(ExportFormat::parse("CSS"), None);
 }

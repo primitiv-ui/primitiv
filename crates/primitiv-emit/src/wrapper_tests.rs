@@ -297,8 +297,11 @@ fn wraps_text_children_in_a_label_span_when_the_contract_opts_in() {
     assert!(wrapper.contains(
         "import { Children, cloneElement, isValidElement, type ComponentPropsWithRef, type ReactNode } from \"react\";",
     ));
-    assert!(wrapper
-        .contains("function wrapTextNodes(children: ReactNode, asChild?: boolean): ReactNode {"));
+    assert!(
+        wrapper.contains(
+            "function wrapTextNodes(children: ReactNode, asChild?: boolean): ReactNode {"
+        )
+    );
     assert!(wrapper.contains("<span className=\"primitiv-button__label\">{child}</span>"));
     assert!(wrapper.contains("{wrapTextNodes(children, props.asChild)}"));
     assert!(wrapper.contains("className, children, ...props"));
@@ -321,9 +324,12 @@ fn wraps_the_text_inside_an_as_child_element_too() {
     }"#;
     let wrapper = emit_wrapper(&Contract::parse(json).unwrap());
 
-    assert!(wrapper.contains("if (asChild && isValidElement<{ children?: ReactNode }>(children)) {"));
-    assert!(wrapper
-        .contains("return cloneElement(children, undefined, wrapTextNodes(children.props.children));"));
+    assert!(
+        wrapper.contains("if (asChild && isValidElement<{ children?: ReactNode }>(children)) {")
+    );
+    assert!(wrapper.contains(
+        "return cloneElement(children, undefined, wrapTextNodes(children.props.children));"
+    ));
 }
 
 /// The clone is gated on `asChild`, not on "the single child is an element" —
@@ -353,7 +359,9 @@ fn wraps_the_text_inside_an_as_child_element_for_a_structural_subcomponent_too()
     let contract = Contract::parse(DEMO_STRIP.as_bytes()).unwrap();
     let wrapper = emit_wrapper(&contract);
 
-    assert!(wrapper.contains("if (asChild && isValidElement<{ children?: ReactNode }>(children)) {"));
+    assert!(
+        wrapper.contains("if (asChild && isValidElement<{ children?: ReactNode }>(children)) {")
+    );
     assert!(wrapper.contains(
         "return cloneElement(children, undefined, wrapDemoStripItemTextNodes(children.props.children));",
     ));
@@ -377,8 +385,10 @@ fn unwraps_a_single_mapped_child_instead_of_returning_a_length_one_array() {
     let wrapper = emit_wrapper(&Contract::parse(json).unwrap());
 
     assert!(wrapper.contains("const mapped = Children.map(children, (child) =>"));
-    assert!(wrapper
-        .contains("return Array.isArray(mapped) && mapped.length === 1 ? mapped[0] : mapped;"));
+    assert!(
+        wrapper
+            .contains("return Array.isArray(mapped) && mapped.length === 1 ? mapped[0] : mapped;")
+    );
 }
 
 /// The same single-child unwrap applies to a structural subcomponent's own
@@ -391,8 +401,10 @@ fn unwraps_a_single_mapped_child_for_a_structural_subcomponent_too() {
     let wrapper = emit_wrapper(&contract);
 
     assert!(wrapper.contains("const mapped = Children.map(children, (child) =>"));
-    assert!(wrapper
-        .contains("return Array.isArray(mapped) && mapped.length === 1 ? mapped[0] : mapped;"));
+    assert!(
+        wrapper
+            .contains("return Array.isArray(mapped) && mapped.length === 1 ? mapped[0] : mapped;")
+    );
 }
 
 /// Without the opt-in, a single-element wrapper stays self-closing with no helper.
@@ -431,9 +443,9 @@ fn wraps_text_children_in_a_label_span_for_a_structural_subcomponent_when_it_opt
     ));
     assert!(wrapper.contains("{wrapDemoStripItemTextNodes(children, props.asChild)}"));
     // The root part has no opt-in, so it stays self-closing with no `children`.
-    assert!(wrapper.contains(
-        "export function DemoStrip({ className, ...props }: DemoStripProps) {",
-    ));
+    assert!(
+        wrapper.contains("export function DemoStrip({ className, ...props }: DemoStripProps) {",)
+    );
     assert!(wrapper.contains("{...props} />;"));
 }
 
@@ -447,9 +459,9 @@ fn generates_a_presentational_subcomponent_that_renders_its_host_element() {
     let contract = Contract::parse(DEMO_GROUPED.as_bytes()).unwrap();
     let wrapper = emit_wrapper(&contract);
 
-    assert!(wrapper.contains(
-        "export type DemoGroupedControlsProps = ComponentPropsWithRef<\"div\">;",
-    ));
+    assert!(
+        wrapper.contains("export type DemoGroupedControlsProps = ComponentPropsWithRef<\"div\">;",)
+    );
     assert!(wrapper.contains(
         "export function DemoGroupedControls({ className, ...props }: DemoGroupedControlsProps) {",
     ));
@@ -473,9 +485,10 @@ fn generates_a_structural_root_that_drives_a_css_custom_property_from_a_prop() {
     let wrapper = emit_wrapper(&contract);
 
     // The CSSProperties cast type is imported alongside the prop-type import.
-    assert!(wrapper.contains(
-        "import { type ComponentPropsWithRef, type CSSProperties } from \"react\";",
-    ));
+    assert!(
+        wrapper
+            .contains("import { type ComponentPropsWithRef, type CSSProperties } from \"react\";",)
+    );
     // No modifiers → the props type is a plain alias; the style-prop stays in it
     // (it flows from the headless component and is re-forwarded).
     assert!(wrapper.contains(
@@ -486,9 +499,7 @@ fn generates_a_structural_root_that_drives_a_css_custom_property_from_a_prop() {
     assert!(wrapper.contains(
         "export function DemoStyled({ columns, className, style, ...props }: DemoStyledProps) {",
     ));
-    assert!(wrapper.contains(
-        "className={[demoStyled(), className].filter(Boolean).join(\" \")}",
-    ));
+    assert!(wrapper.contains("className={[demoStyled(), className].filter(Boolean).join(\" \")}",));
     assert!(wrapper.contains(
         "style={{ ...style, ...(columns === undefined ? {} : { \"--primitiv-demo-styled-columns\": columns }) } as CSSProperties}",
     ));

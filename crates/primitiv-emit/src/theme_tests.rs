@@ -1,8 +1,8 @@
-use harmoni_core::api::generate;
 use harmoni_core::ColorInput;
+use harmoni_core::api::generate;
 use pretty_assertions::assert_eq;
 
-use crate::theme::{ramp_tokens, ColorForm};
+use crate::theme::{ColorForm, ramp_tokens};
 
 #[test]
 fn maps_each_swatch_to_a_namespaced_brand_token() {

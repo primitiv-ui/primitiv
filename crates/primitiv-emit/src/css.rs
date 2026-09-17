@@ -5,8 +5,7 @@ use crate::token::Token;
 /// variants → states` is fixed regardless of later import order (RFC 0008 §2.1).
 /// `reset` is the lowest sublayer — the opt-in base element styles live there so
 /// a consumer (and Primitiv's own component classes) override them at will.
-const SUBLAYER_DECLARATION: &str =
-    "@layer primitiv.reset, primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;";
+const SUBLAYER_DECLARATION: &str = "@layer primitiv.reset, primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;";
 
 /// A block of theme tokens under one or more selectors — a single mode scope in
 /// the `primitiv.tokens` layer (RFC 0009 §2.2). The default mode shares the
@@ -20,7 +19,10 @@ pub struct Scope {
 impl Scope {
     pub fn new(selectors: &[&str], tokens: Vec<Token>) -> Self {
         Self {
-            selectors: selectors.iter().map(|selector| selector.to_string()).collect(),
+            selectors: selectors
+                .iter()
+                .map(|selector| selector.to_string())
+                .collect(),
             tokens,
         }
     }

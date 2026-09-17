@@ -29,7 +29,10 @@ fn link_value(value: &str) -> String {
         let after = &rest[open + 1..];
         match after.find('}') {
             Some(close) => {
-                out.push_str(&format!("var(--primitiv-{})", after[..close].replace('.', "-")));
+                out.push_str(&format!(
+                    "var(--primitiv-{})",
+                    after[..close].replace('.', "-")
+                ));
                 rest = &after[close + 1..];
             }
             None => {

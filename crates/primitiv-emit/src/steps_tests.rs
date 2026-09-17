@@ -53,7 +53,10 @@ mod realias {
         // on a seven-step ramp, so `hover` moves to the step beside it.
         assert_eq!(
             tokens,
-            vec![Token::new(&["action", "primary", "hover"], "{color.brand.630}")]
+            vec![Token::new(
+                &["action", "primary", "hover"],
+                "{color.brand.630}"
+            )]
         );
     }
 

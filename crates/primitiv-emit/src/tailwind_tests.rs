@@ -38,7 +38,10 @@ fn maps_tokens_into_a_theme_block_of_var_references() {
 
     assert_eq!(
         tailwind,
-        include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/tests/golden/tailwind.css"))
+        include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/tests/golden/tailwind.css"
+        ))
     );
 }
 

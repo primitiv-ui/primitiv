@@ -20,7 +20,10 @@ fn emits_the_canonical_css_then_a_scss_variable_per_token() {
 
     assert_eq!(
         scss,
-        include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/tests/golden/tokens.scss"))
+        include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/tests/golden/tokens.scss"
+        ))
     );
 }
 
@@ -39,7 +42,10 @@ fn emits_one_scss_variable_for_a_token_shared_across_mode_scopes() {
 
     assert_eq!(
         scss,
-        include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/tests/golden/theme-modes.scss"))
+        include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/tests/golden/theme-modes.scss"
+        ))
     );
 }
 
@@ -99,7 +105,9 @@ fn does_not_alias_a_custom_property_shaped_fragment_inside_a_comment() {
 
     assert_eq!(
         scss,
-        format!("{COMPONENT_CSS_WITH_COMMENT_LOOKALIKE}\n$primitiv-demo-gap: var(--primitiv-demo-gap);\n")
+        format!(
+            "{COMPONENT_CSS_WITH_COMMENT_LOOKALIKE}\n$primitiv-demo-gap: var(--primitiv-demo-gap);\n"
+        )
     );
 }
 
@@ -116,7 +124,10 @@ fn treats_an_unterminated_comment_as_extending_to_the_end_of_the_input() {
 
     let scss = emit_component_scss(css);
 
-    assert_eq!(scss, format!("{css}\n$primitiv-demo-gap: var(--primitiv-demo-gap);\n"));
+    assert_eq!(
+        scss,
+        format!("{css}\n$primitiv-demo-gap: var(--primitiv-demo-gap);\n")
+    );
 }
 
 /// Drift guard: the committed `registry/components/button/styles.scss` is exactly the

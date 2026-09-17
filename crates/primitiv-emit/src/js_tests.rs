@@ -14,6 +14,9 @@ fn emits_a_ts_const_object_of_breakpoint_values() {
 
     assert_eq!(
         ts,
-        include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/tests/golden/breakpoints.ts"))
+        include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/tests/golden/breakpoints.ts"
+        ))
     );
 }

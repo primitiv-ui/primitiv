@@ -51,7 +51,14 @@ pub fn nearest_label(wanted: u16, available: &[u16]) -> u16 {
 /// custom property is called.
 pub fn realias(intent: &serde_json::Value, families: &[&str], labels: &[u16]) -> Vec<Token> {
     let mut moved = Vec::new();
-    collect_roles(intent, &mut Vec::new(), families, labels, Emit::Moved, &mut moved);
+    collect_roles(
+        intent,
+        &mut Vec::new(),
+        families,
+        labels,
+        Emit::Moved,
+        &mut moved,
+    );
     moved
 }
 
@@ -68,7 +75,14 @@ pub fn realias(intent: &serde_json::Value, families: &[&str], labels: &[u16]) ->
 /// a step by construction.
 pub fn resolve_roles(roles: &serde_json::Value, families: &[&str], labels: &[u16]) -> Vec<Token> {
     let mut all = Vec::new();
-    collect_roles(roles, &mut Vec::new(), families, labels, Emit::All, &mut all);
+    collect_roles(
+        roles,
+        &mut Vec::new(),
+        families,
+        labels,
+        Emit::All,
+        &mut all,
+    );
     all
 }
 
@@ -98,7 +112,11 @@ fn collect_roles(
             // caller is actually regenerating; anything else still resolves as written.
             let moved = families.contains(&family.as_str()) && !labels.contains(&step);
             if moved || emit == Emit::All {
-                let step = if moved { nearest_label(step, labels) } else { step };
+                let step = if moved {
+                    nearest_label(step, labels)
+                } else {
+                    step
+                };
                 out.push(Token::new(
                     &path.iter().map(String::as_str).collect::<Vec<_>>(),
                     &format!("{{color.{family}.{step}}}"),

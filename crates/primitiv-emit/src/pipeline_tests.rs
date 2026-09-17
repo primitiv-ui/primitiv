@@ -2,9 +2,9 @@ use pretty_assertions::assert_eq;
 use serde_json::{Value, json};
 
 use crate::pipeline::{
-    NeutralRamp, ThemeRamps, TokenSources, emit_component_tokens_css, emit_dtcg_ramps, emit_tailwind_tokens,
-    emit_theme_overrides_css, emit_theme_overrides_scss, emit_theme_overrides_tailwind,
-    emit_theme_ramps_css, emit_theme_ramps_scss,
+    NeutralRamp, ThemeRamps, TokenSources, emit_component_tokens_css, emit_dtcg_ramps,
+    emit_tailwind_tokens, emit_theme_overrides_css, emit_theme_overrides_scss,
+    emit_theme_overrides_tailwind, emit_theme_ramps_css, emit_theme_ramps_scss,
     emit_theme_ramps_tailwind, emit_tokens_css, emit_tokens_scss,
 };
 
@@ -360,16 +360,24 @@ fn rejects_a_step_count_outside_the_engines_supported_range() {
 
 #[test]
 fn emits_a_neutral_ramp_into_both_theme_scopes() {
-    use harmoni_core::api::NeutralTint;
     use harmoni_core::ColorInput;
+    use harmoni_core::api::NeutralTint;
 
     let css = emit_theme_ramps_css(&ThemeRamps {
         seeds: &[("brand", "#0a7755")],
         steps: 10,
         intent: &Value::Null,
         neutral: Some(NeutralRamp {
-            white: ColorInput::Oklch { l: 0.95, c: 0.02, h: 240.0 },
-            black: ColorInput::Oklch { l: 0.10, c: 0.005, h: 240.0 },
+            white: ColorInput::Oklch {
+                l: 0.95,
+                c: 0.02,
+                h: 240.0,
+            },
+            black: ColorInput::Oklch {
+                l: 0.10,
+                c: 0.005,
+                h: 240.0,
+            },
             tint: Some(NeutralTint {
                 source: ColorInput::Css("#0a7755".to_string()),
                 strength: 0.5,
@@ -405,7 +413,11 @@ fn rejects_a_neutral_anchor_the_engine_cannot_parse() {
         intent: &Value::Null,
         neutral: Some(NeutralRamp {
             white: ColorInput::Css("not-a-colour".to_string()),
-            black: ColorInput::Oklch { l: 0.10, c: 0.005, h: 240.0 },
+            black: ColorInput::Oklch {
+                l: 0.10,
+                c: 0.005,
+                h: 240.0,
+            },
             tint: None,
         }),
         roles: None,
@@ -421,8 +433,8 @@ fn rejects_a_neutral_anchor_the_engine_cannot_parse() {
 /// interface uses most.
 #[test]
 fn a_dtcg_document_carries_the_neutral_ramp_when_the_project_has_one() {
-    use harmoni_core::api::NeutralTint;
     use harmoni_core::ColorInput;
+    use harmoni_core::api::NeutralTint;
 
     let document = emit_dtcg_ramps(
         &[("brand", "#0a7755")],
@@ -448,7 +460,9 @@ fn a_dtcg_document_carries_the_neutral_ramp_when_the_project_has_one() {
             "{mode} mode is missing color.neutral entirely: {document}"
         );
         assert!(
-            neutral["500"]["$value"].as_str().is_some_and(|hex| hex.starts_with('#')),
+            neutral["500"]["$value"]
+                .as_str()
+                .is_some_and(|hex| hex.starts_with('#')),
             "{mode} neutral/500 should be a hex colour, got {:?}",
             neutral["500"]
         );

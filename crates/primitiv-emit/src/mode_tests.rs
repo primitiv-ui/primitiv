@@ -1,6 +1,6 @@
 use pretty_assertions::assert_eq;
 
-use crate::mode::{scope_selectors, Axis};
+use crate::mode::{Axis, scope_selectors};
 
 #[test]
 fn theme_default_mode_shares_root() {
@@ -22,7 +22,10 @@ fn theme_non_default_mode_is_its_own_scope() {
 fn density_default_mode_shares_root() {
     assert_eq!(
         scope_selectors(&Axis::Density, "comfortable"),
-        vec![":root".to_string(), "[data-density=\"comfortable\"]".to_string()]
+        vec![
+            ":root".to_string(),
+            "[data-density=\"comfortable\"]".to_string()
+        ]
     );
 }
 

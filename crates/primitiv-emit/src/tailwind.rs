@@ -3,7 +3,7 @@
 
 use std::collections::HashSet;
 
-use crate::css::{emit_theme_css, Scope};
+use crate::css::{Scope, emit_theme_css};
 use crate::token::Token;
 
 /// Emit the theme-token surface as a Tailwind v4 `@theme` preset (RFC 0006 §4.2,

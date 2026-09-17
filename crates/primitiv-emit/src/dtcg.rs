@@ -1,7 +1,7 @@
 use serde_json::{Map, Value};
 
 use crate::token::Token;
-use crate::value::{format_color, format_cubic_bezier, format_number, format_shadow, ShadowLayer};
+use crate::value::{ShadowLayer, format_color, format_cubic_bezier, format_number, format_shadow};
 
 /// Flatten a DTCG token tree into resolved [`Token`]s (RFC 0006 §3–4).
 ///
@@ -148,6 +148,10 @@ fn shadow_layer(layer: &Value) -> Option<ShadowLayer> {
 enum Node {
     Group(Vec<(String, Node)>),
     Leaf(String),
+    /// A plain string, for the document's own metadata rather than a token —
+    /// `$extensions` (RFC 0032 D13), whose entries are facts about where the file
+    /// came from and carry no `$type`/`$value` pair.
+    Text(String),
 }
 
 /// Places `value` under `key`, then `rest`, within `children` — creating the
@@ -158,9 +162,9 @@ enum Node {
 /// key by construction. It also takes the children rather than a [`Node`], so
 /// there is no "is this a group?" check either — descending only ever reaches a
 /// group.
-fn insert(children: &mut Vec<(String, Node)>, key: &str, rest: &[String], value: &str) {
+fn insert(children: &mut Vec<(String, Node)>, key: &str, rest: &[String], leaf: Node) {
     if rest.is_empty() {
-        children.push((key.to_string(), Node::Leaf(value.to_string())));
+        children.push((key.to_string(), leaf));
         return;
     }
 
@@ -175,7 +179,7 @@ fn insert(children: &mut Vec<(String, Node)>, key: &str, rest: &[String], value:
         })
         .expect("the group was just ensured to exist");
 
-    insert(group, &rest[0], &rest[1..], value);
+    insert(group, &rest[0], &rest[1..], leaf);
 }
 
 impl Node {
@@ -189,6 +193,7 @@ impl Node {
                     "{{\n{pad}  \"$type\": \"color\",\n{pad}  \"$value\": \"{value}\"\n{pad}}}"
                 ));
             }
+            Node::Text(value) => out.push_str(&format!("\"{value}\"")),
             Node::Group(children) => {
                 out.push_str("{\n");
                 for (index, (name, child)) in children.iter().enumerate() {
@@ -215,6 +220,29 @@ impl Node {
 /// payload would only be readable by tooling we also ship, which is no use to a
 /// consumer who has the CLI and no plugin.
 pub fn dtcg_document(modes: &[(String, Vec<Token>)]) -> String {
+    dtcg_document_with(modes, &[])
+}
+
+/// Where DTCG puts a document's own metadata.
+const EXTENSIONS: &str = "$extensions";
+
+/// [`dtcg_document`], plus the document's own `$extensions` metadata (RFC 0032
+/// D13).
+///
+/// `extensions` is `(path-beneath-$extensions, value)` pairs whose leaves are
+/// plain strings rather than `$type`/`$value` token leaves, because they describe
+/// the FILE rather than naming a colour in it. They are written after the modes,
+/// so the identity reads at the foot of the document rather than in front of the
+/// palette.
+///
+/// The `$extensions` key is supplied here rather than being the head of each
+/// caller's path — the same reason [`insert`] takes its head separately: it is
+/// the only place DTCG puts metadata, and naming it here leaves no empty-path
+/// case for either side to handle.
+pub fn dtcg_document_with(
+    modes: &[(String, Vec<Token>)],
+    extensions: &[(Vec<String>, String)],
+) -> String {
     let mut root = Vec::new();
     for (mode, tokens) in modes {
         for token in tokens {
@@ -223,8 +251,16 @@ pub fn dtcg_document(modes: &[(String, Vec<Token>)]) -> String {
             if token.path.is_empty() {
                 continue;
             }
-            insert(&mut root, mode, &token.path, &token.value);
+            insert(
+                &mut root,
+                mode,
+                &token.path,
+                Node::Leaf(token.value.clone()),
+            );
         }
+    }
+    for (path, value) in extensions {
+        insert(&mut root, EXTENSIONS, path, Node::Text(value.clone()));
     }
 
     let mut out = String::new();

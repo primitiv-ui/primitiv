@@ -30,7 +30,10 @@ fn splits_a_multi_mode_document_into_per_mode_token_groups() {
 
 #[test]
 fn yields_no_modes_when_the_document_is_not_a_group() {
-    assert_eq!(flatten_modes(&json!(42)), Vec::<(String, Vec<Token>)>::new());
+    assert_eq!(
+        flatten_modes(&json!(42)),
+        Vec::<(String, Vec<Token>)>::new()
+    );
 }
 
 #[test]
@@ -90,7 +93,10 @@ fn flattens_a_cubic_bezier_leaf_into_a_css_easing_function() {
 
     assert_eq!(
         tokens,
-        vec![Token::new(&["easing", "in-out"], "cubic-bezier(0.4, 0, 0.2, 1)")]
+        vec![Token::new(
+            &["easing", "in-out"],
+            "cubic-bezier(0.4, 0, 0.2, 1)"
+        )]
     );
 }
 
@@ -211,7 +217,10 @@ fn skips_scalar_entries_that_are_neither_a_leaf_nor_a_group() {
 
     let tokens = tokens_from_dtcg(&dtcg);
 
-    assert_eq!(tokens, vec![Token::new(&["color", "primary"], "oklch(0.55 0.13 162)")]);
+    assert_eq!(
+        tokens,
+        vec![Token::new(&["color", "primary"], "oklch(0.55 0.13 162)")]
+    );
 }
 
 #[test]

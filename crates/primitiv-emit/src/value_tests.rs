@@ -1,4 +1,4 @@
-use crate::value::{format_cubic_bezier, format_number, format_shadow, ShadowLayer};
+use crate::value::{ShadowLayer, format_cubic_bezier, format_number, format_shadow};
 
 #[test]
 fn emits_length_categories_as_rem_against_a_16px_base() {
@@ -26,7 +26,10 @@ fn emits_trees_off_ladder_connector_widths_as_rem() {
 #[test]
 fn rounds_letter_spacing_float_noise_to_clean_rem() {
     // Figma exports carry float noise; -2.4 / 16 must land on -0.15rem.
-    assert_eq!(format_number("letter-spacing", -2.4000000953674316), "-0.15rem");
+    assert_eq!(
+        format_number("letter-spacing", -2.4000000953674316),
+        "-0.15rem"
+    );
 }
 
 #[test]

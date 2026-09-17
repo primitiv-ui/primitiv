@@ -7,7 +7,7 @@ use primitiv_emit::{
 };
 
 use crate::commands::theme;
-use crate::config::try_resolve;
+use crate::config::{Config, try_resolve_at};
 use crate::error::CliError;
 use crate::format::Format;
 use crate::palette;
@@ -29,6 +29,10 @@ use crate::token_source::{
 /// layer streams to **stdout** (the fully config-less `tokens --format css`).
 /// `format`, when omitted, falls back to the config's `tokens.format` and then
 /// to CSS. A missing config is fine; a *malformed* config always errors.
+///
+/// `from` names a palette document to apply (RFC 0032 D14). Omitted, the config's
+/// `theme.palette` is used; given, it is also **recorded** there (D10), so the
+/// flag is typed once and every later run re-applies the same palette.
 pub fn tokens(
     fs: &impl FileSystem,
     output: &impl Output,
@@ -36,16 +40,15 @@ pub fn tokens(
     out: Option<&Path>,
     from: Option<&Path>,
 ) -> Result<(), CliError> {
-    // `from` joins the two flags that force a config read, because the palette
-    // reference is recorded there (D2): a bare `primitiv tokens` is exactly the
-    // run that has to pick it up.
-    let config = if format.is_none() || out.is_none() || from.is_none() {
-        try_resolve(fs, &fs.current_dir()?)?
-    } else {
-        None
-    };
+    // Unconditional now, where it used to be gated on a missing flag. The palette
+    // makes the config load-bearing whatever the flags say: without `--from` it is
+    // where the reference is read (D2), and with `--from` it is where the reference
+    // is written (D10). "A malformed config always errors" is therefore literally
+    // true rather than true-unless-both-flags-were-given.
+    let located = try_resolve_at(fs, &fs.current_dir()?)?;
+    let config = located.as_ref().map(|(_, config)| config);
     let format = format
-        .or_else(|| config.as_ref().map(|config| config.tokens.format))
+        .or_else(|| config.map(|config| config.tokens.format))
         .unwrap_or(Format::Css);
     let base = [
         parse(PRIMITIVES),
@@ -67,11 +70,9 @@ pub fn tokens(
         Format::Tailwind => emit_tailwind_tokens(&sources),
     };
     let (base_name, base_styles) = base_companion(format);
-    let target = out.map(Path::to_path_buf).or_else(|| {
-        config
-            .as_ref()
-            .map(|config| PathBuf::from(&config.tokens.path))
-    });
+    let target = out
+        .map(Path::to_path_buf)
+        .or_else(|| config.map(|config| PathBuf::from(&config.tokens.path)));
     match target {
         // A file destination: the base element styles ship as a sibling the token
         // layer imports, so the foundation is one `@import` away (RFC 0008 §7). The
@@ -82,7 +83,13 @@ pub fn tokens(
             // to emit the theme `@import` by asking whether that file is there, so
             // the overrides have to land first or the very run that wrote them
             // emits a layer that does not reference them.
-            write_overrides(fs, &path, format, from, config.as_ref())?;
+            write_overrides(fs, &path, format, from, config)?;
+            // D10: the reference is recorded so the flag is typed once. Only what
+            // `--from` named — a palette that came from the config is already
+            // there, and a project with no config has nowhere to record it.
+            if let (Some(from), Some((config_path, _))) = (from, located.as_ref()) {
+                palette::record(fs, config_path, from)?;
+            }
             let imported = format!(
                 "{}{rendered}",
                 leading_imports(fs, &path, base_name, format)
@@ -115,7 +122,7 @@ fn write_overrides(
     token_path: &Path,
     format: Format,
     from: Option<&Path>,
-    config: Option<&crate::config::Config>,
+    config: Option<&Config>,
 ) -> Result<(), CliError> {
     let Some(source) = palette::locate(from, config) else {
         return Ok(());

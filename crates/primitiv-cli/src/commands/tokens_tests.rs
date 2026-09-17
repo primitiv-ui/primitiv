@@ -513,3 +513,55 @@ fn surfaces_an_override_write_failure() {
 
     assert!(matches!(err, CliError::Io(_)), "got: {err}");
 }
+
+/// D10: the flag is typed once. After `tokens --from`, the project's config names
+/// the palette, so every later bare `primitiv tokens` re-applies it.
+#[test]
+fn records_the_palette_it_was_handed_in_the_project_config() {
+    let fs = InMemoryFs::new();
+    fs.set_current_dir(Path::new("project"));
+    fs.write(Path::new("project/primitiv.json"), CONFIG)
+        .unwrap();
+    fs.write(Path::new("project/primitiv.palette.json"), PALETTE)
+        .unwrap();
+
+    tokens(
+        &fs,
+        &InMemoryOutput::new(),
+        Some(Format::Css),
+        Some(Path::new("tokens.css")),
+        Some(Path::new("project/primitiv.palette.json")),
+    )
+    .unwrap();
+
+    let written = String::from_utf8(fs.read(Path::new("project/primitiv.json")).unwrap()).unwrap();
+    assert!(
+        written.contains(r##""palette": "project/primitiv.palette.json""##),
+        "the reference should be recorded, got: {written}"
+    );
+}
+
+/// Recording is part of the run, not a courtesy afterwards: a config that cannot
+/// be written back fails the command, rather than leaving a project whose token
+/// layer was re-skinned by a palette its config does not name.
+#[test]
+fn surfaces_a_failure_to_record_the_reference() {
+    let fs = InMemoryFs::new();
+    fs.set_current_dir(Path::new("project"));
+    fs.write(Path::new("project/primitiv.json"), CONFIG)
+        .unwrap();
+    fs.write(Path::new("project/primitiv.palette.json"), PALETTE)
+        .unwrap();
+    fs.fail_writes_to(Path::new("project/primitiv.json"));
+
+    let err = tokens(
+        &fs,
+        &InMemoryOutput::new(),
+        Some(Format::Css),
+        Some(Path::new("tokens.css")),
+        Some(Path::new("project/primitiv.palette.json")),
+    )
+    .unwrap_err();
+
+    assert!(matches!(err, CliError::Io(_)), "got: {err}");
+}

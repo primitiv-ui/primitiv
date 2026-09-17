@@ -1,6 +1,6 @@
 use std::collections::BTreeMap;
 use std::io;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use serde::Deserialize;
 
@@ -150,7 +150,7 @@ impl Config {
 /// that need the config (the file path can only come from it).
 pub fn resolve(fs: &impl FileSystem, start: &Path) -> Result<Config, CliError> {
     match read_nearest(fs, start)? {
-        Some(bytes) => Config::parse(&bytes),
+        Some((_, bytes)) => Config::parse(&bytes),
         None => Err(CliError::Config(format!(
             "no {FILE_NAME} found in {} or any parent directory",
             start.display()
@@ -163,21 +163,37 @@ pub fn resolve(fs: &impl FileSystem, start: &Path) -> Result<Config, CliError> {
 /// fall back when it is missing. A **malformed** config still errors, so a
 /// broken file is never silently ignored.
 pub fn try_resolve(fs: &impl FileSystem, start: &Path) -> Result<Option<Config>, CliError> {
+    Ok(try_resolve_at(fs, start)?.map(|(_, config)| config))
+}
+
+/// Like [`try_resolve`], but also reporting **where** the config was found — for
+/// the one caller that writes back to it (RFC 0032 D10's palette reference).
+///
+/// The path comes from the same walk rather than a second one, so the file a
+/// command reads and the file it records into cannot be different ones.
+pub fn try_resolve_at(
+    fs: &impl FileSystem,
+    start: &Path,
+) -> Result<Option<(PathBuf, Config)>, CliError> {
     match read_nearest(fs, start)? {
-        Some(bytes) => Config::parse(&bytes).map(Some),
+        Some((path, bytes)) => Config::parse(&bytes).map(|config| Some((path, config))),
         None => Ok(None),
     }
 }
 
-/// Read the bytes of the nearest `primitiv.json`, walking up from `start`
+/// Read the nearest `primitiv.json` — its path and its bytes — walking up from `start`
 /// through the [`FileSystem`] port (RFC 0005 §3.2). `NotFound` at a level
 /// ascends to the parent; any other read error is a hard I/O failure;
 /// exhausting the ancestors yields `Ok(None)`.
-fn read_nearest(fs: &impl FileSystem, start: &Path) -> Result<Option<Vec<u8>>, CliError> {
+fn read_nearest(
+    fs: &impl FileSystem,
+    start: &Path,
+) -> Result<Option<(PathBuf, Vec<u8>)>, CliError> {
     let mut dir = Some(start);
     while let Some(current) = dir {
-        match fs.read(&current.join(FILE_NAME)) {
-            Ok(bytes) => return Ok(Some(bytes)),
+        let path = current.join(FILE_NAME);
+        match fs.read(&path) {
+            Ok(bytes) => return Ok(Some((path, bytes))),
             Err(error) if error.kind() == io::ErrorKind::NotFound => {}
             Err(error) => return Err(CliError::Io(error)),
         }

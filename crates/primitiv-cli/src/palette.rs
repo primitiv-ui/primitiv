@@ -1,9 +1,11 @@
+use std::ops::Range;
 use std::path::{Path, PathBuf};
 
 use serde_json::Value;
 
 use crate::config::Config;
 use crate::error::CliError;
+use crate::ports::fs::FileSystem;
 
 /// Where the palette document is, or `None` where this project has none.
 ///
@@ -19,6 +21,105 @@ pub fn locate(from: Option<&Path>, config: Option<&Config>) -> Option<PathBuf> {
             .and_then(|config| config.theme.palette.as_deref())
             .map(PathBuf::from)
     })
+}
+
+/// Record the palette reference in `primitiv.json`'s theme block (RFC 0032 D10),
+/// so the handoff is one command rather than a command plus a hand-edited key.
+///
+/// The edit is **textual**, and that is forced rather than lazy. `serde_json`'s
+/// `preserve_order` is a workspace-wide hazard — adding it anywhere in the build
+/// graph flips `primitiv-emit`'s token ordering from sorted to insertion order and
+/// breaks its goldens — so parsing this file and re-serialising it would
+/// alphabetise every key and rewrite a document the consumer owns, `$schema` line,
+/// formatting and all, including any key the CLI does not model.
+///
+/// A reference that is already recorded and already correct is left alone, so a
+/// bare re-run writes nothing. A *different* one replaces it: `--from` naming a
+/// new document and the project continuing to load the old one is the same silent
+/// wrong-colour failure as not recording it at all.
+pub fn record(fs: &impl FileSystem, config_path: &Path, reference: &Path) -> Result<(), CliError> {
+    let text = String::from_utf8(fs.read(config_path)?)
+        .map_err(|error| malformed(config_path, &error.to_string()))?;
+    let reference = reference.display().to_string();
+    let Some(theme) = theme_block(&text) else {
+        return Err(malformed(
+            config_path,
+            "no theme block to record the palette in",
+        ));
+    };
+    let entry = format!("\"palette\": \"{reference}\"");
+    let updated = match key_span(&text[theme.clone()]) {
+        Some(existing) => {
+            let existing = (theme.start + existing.start)..(theme.start + existing.end);
+            if text[existing.clone()] == entry {
+                return Ok(());
+            }
+            replace(&text, existing, &entry)
+        }
+        // Appended after what is already there, not prepended: a key inserted
+        // straight after the `{` lands before the block's own leading space and
+        // reads as a different hand wrote it.
+        None => {
+            let block = &text[theme.clone()];
+            let end = theme.start + block.trim_end().len();
+            let insert = if block.trim().is_empty() {
+                format!(" {entry} ")
+            } else {
+                format!(", {entry}")
+            };
+            replace(&text, end..end, &insert)
+        }
+    };
+    fs.write(config_path, updated.as_bytes())?;
+    Ok(())
+}
+
+/// The span **inside** the theme block's braces, or `None` where the document has
+/// no `"theme"` object to record into.
+///
+/// A brace scan rather than a regex: the block legitimately contains nested
+/// objects (`neutral`, and its `tint` inside that), so matching to the first `}`
+/// would stop in the middle of one.
+fn theme_block(text: &str) -> Option<Range<usize>> {
+    let key = text.find("\"theme\"")?;
+    let open = key + text[key..].find('{')?;
+    let mut depth = 0usize;
+    for (offset, character) in text[open..].char_indices() {
+        match character {
+            '{' => depth += 1,
+            '}' => {
+                depth -= 1;
+                if depth == 0 {
+                    return Some((open + 1)..(open + offset));
+                }
+            }
+            _ => {}
+        }
+    }
+    None
+}
+
+/// The span of an existing `"palette"` entry within `block`, or `None`.
+///
+/// Bounded by the comma that ends the entry, or by the block's last non-space
+/// character where it is the final key — rather than by scanning for the value's
+/// own quotes, which needed four separate ways to fail on text that has already
+/// parsed as JSON.
+fn key_span(block: &str) -> Option<Range<usize>> {
+    let key = block.find("\"palette\"")?;
+    let rest = &block[key..];
+    let end = key + rest.find(',').unwrap_or_else(|| rest.trim_end().len());
+    Some(key..end)
+}
+
+/// `text` with `span` swapped for `replacement` — the one place the edit is
+/// applied, so an insert (an empty span) and a replacement cannot diverge.
+fn replace(text: &str, span: Range<usize>, replacement: &str) -> String {
+    let mut updated = String::with_capacity(text.len() + replacement.len());
+    updated.push_str(&text[..span.start]);
+    updated.push_str(replacement);
+    updated.push_str(&text[span.end..]);
+    updated
 }
 
 /// A palette document's per-mode token subtrees, ready for the emitter's values

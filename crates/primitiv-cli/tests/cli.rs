@@ -646,3 +646,89 @@ fn warns_on_stderr_and_still_exits_zero() {
         .success()
         .stderr(predicate::str::contains("--ramps-only discarded"));
 }
+
+/// The selector the emitted theme layer opens its dark scope with.
+const DARK_SCOPE: &str = "[data-theme=\"dark\"]";
+
+/// RFC 0032 D20: `primitiv dtcg` and the palette import are a symmetric pair,
+/// and this is the gate on it — the document one writes is the document the
+/// other reads, with nothing lost in between.
+///
+/// What "identical" can mean here is bounded by a real asymmetry: `dtcg` writes
+/// **hex** on purpose (it is the route into a design tool, and no design tool has
+/// an OkLCH type) while the token layer emits `oklch()`. So the two commands'
+/// text cannot be compared. What is asserted instead is the symmetry that
+/// actually matters, in three parts: every colour the document carries reaches
+/// the override layer, each emitted colour renders back to exactly the hex the
+/// document holds, and importing twice is byte-identical.
+#[test]
+fn a_dtcg_export_re_imports_to_the_same_palette() {
+    use harmoni_core::ColorInput;
+    use harmoni_core::color::output::oklch_to_hex;
+
+    let dir = assert_fs::TempDir::new().unwrap();
+    let palette = dir.child("primitiv.palette.json");
+
+    Command::cargo_bin("primitiv")
+        .unwrap()
+        .args(["dtcg", "--brand", "#0a7755", "--danger", "#db2424", "--out"])
+        .arg(palette.path())
+        .assert()
+        .success();
+
+    let import = || {
+        Command::cargo_bin("primitiv")
+            .unwrap()
+            .current_dir(dir.path())
+            .args(["tokens", "--format", "css", "--out"])
+            .arg(dir.child("tokens.css").path())
+            .arg("--from")
+            .arg(palette.path())
+            .assert()
+            .success();
+        std::fs::read_to_string(dir.child("primitiv.theme.css").path()).unwrap()
+    };
+
+    let overrides = import();
+    let document: serde_json::Value =
+        serde_json::from_str(&std::fs::read_to_string(palette.path()).unwrap()).unwrap();
+
+    // The two mode scopes, split apart before anything is looked up: the light
+    // block comes first, so searching the whole file finds a light declaration
+    // for every dark step and the round trip passes against the wrong colour.
+    let (light, dark) = overrides.split_once(DARK_SCOPE).expect("both mode scopes");
+
+    let mut checked = 0;
+    for (mode, families) in document.as_object().unwrap() {
+        let scope = if mode == "dark" { dark } else { light };
+        for (family, steps) in families["color"].as_object().unwrap() {
+            for (step, leaf) in steps.as_object().unwrap() {
+                let hex = leaf["$value"].as_str().unwrap();
+                let declaration = format!("--primitiv-color-{family}-{step}: ");
+                let emitted = scope
+                    .lines()
+                    .find_map(|line| line.trim().strip_prefix(&declaration))
+                    .unwrap_or_else(|| {
+                        panic!("{mode} {family}/{step} never reached the override layer")
+                    })
+                    .trim_end_matches(';');
+
+                // The emitted colour renders back to exactly the hex the document
+                // holds — the engine's OkLCH reproduces its own hex, which is what
+                // makes hex a lossless interchange form here rather than a lossy one.
+                let parsed = ColorInput::Css(emitted.to_string()).to_oklch().unwrap();
+                assert_eq!(
+                    oklch_to_hex(parsed),
+                    hex,
+                    "{mode} {family}/{step} did not survive the round trip"
+                );
+                checked += 1;
+            }
+        }
+    }
+    // Both modes, both families, ten steps each — so a silently empty document
+    // cannot pass this test by having nothing to check.
+    assert_eq!(checked, 40);
+
+    assert_eq!(import(), overrides, "importing twice is not idempotent");
+}

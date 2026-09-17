@@ -21,14 +21,15 @@ name: Publish packages
 #   - npm  uses Trusted Publishing + provenance (id-token: write).
 #   - JSR  uses its built-in GitHub Actions OIDC (id-token: write).
 #
-# PREREQUISITES — see RELEASING.md.
+# PREREQUISITES — see RELEASING.md §2, which has the full sequence.
 # For the very first publish of a new package, Trusted Publishing has no
-# configuration to authenticate against, so that publish fails `ENEEDAUTH`.
-# Either configure TP on npmjs.com before releasing the new name, or add a
-# `NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}` env block to its publish step
-# plus an NPM_TOKEN repo secret as a one-time bootstrap, then remove both
-# once TP is confirmed. (Earlier wording said to *uncomment* those blocks —
-# none remain in this file; they were deleted after v0.1.30's bootstrap.)
+# configuration to authenticate against — TP lives on the package's own npm
+# settings page, which a name npm has never seen does not have — so that
+# publish fails `ENEEDAUTH` and needs a one-time granular-token bootstrap.
+# `NODE_AUTH_TOKEN` alone authenticates nothing here: the `actions/setup-node`
+# step below runs WITHOUT `registry-url`, so no npmrc exists for npm to read it
+# from, and the auth line has to be written into `~/.npmrc` inside the step
+# itself. No such block remains in this file — write one, don't hunt for it.
 # Every new package's publish step belongs LAST for this reason — see the
 # note on the primitiv-emit-wasm step.
 
@@ -271,12 +272,10 @@ jobs:
       # No `npm pkg set name` — `--scope primitiv-ui` at build time already wrote
       # `@primitiv-ui/primitiv-emit-wasm`. Existence-guarded like every step above,
       # so a re-run after a partial publish is safe.
+      # Tokenless from v0.1.36 on: v0.1.35's bootstrap token has been revoked and
+      # Trusted Publishing is configured for this package, so this step is now the
+      # same shape as every other npm step here.
       - name: Publish primitiv-emit-wasm to npm
-        env:
-          # ONE-TIME BOOTSTRAP, remove with the npmrc line below once Trusted
-          # Publishing is configured for this package on npmjs.com. Absent or
-          # empty, this step behaves exactly as it did without it.
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           cd crates/primitiv-emit-wasm/pkg
           name=$(node -p "require('./package.json').name")
@@ -284,13 +283,6 @@ jobs:
           if npm view "$name@$version" version >/dev/null 2>&1; then
             echo "  $name@$version already published — skipping"
             exit 0
-          fi
-          # `actions/setup-node` above runs WITHOUT `registry-url`, so no npmrc is
-          # generated and npm reads no NODE_AUTH_TOKEN — setting that env var alone
-          # authenticates nothing, which is what v0.1.35's second attempt proved.
-          # The auth line therefore has to be written here explicitly.
-          if [ -n "$NPM_TOKEN" ]; then
-            echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
           fi
           npm publish --access public --provenance
 

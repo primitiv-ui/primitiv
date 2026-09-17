@@ -158,7 +158,11 @@ GitHub Actions via OIDC (`id-token: write`, already set in the workflow).
 
 **npm — Trusted Publishing**
 
-For **each** package (`@primitiv-ui/react`, `/icons`, `/tokens`):
+Configured once per package, and **every** npm package `publish.yml` ships needs
+it — the five `@primitiv-ui/cli-*` platform packages, the `primitiv-ui` wrapper,
+`create-primitiv-ui`, `@primitiv-ui/{react,icons,tokens}`, `harmoni-wasm` and
+`primitiv-emit-wasm`. All are configured as of v0.1.35; a new name is the only
+case that needs this doing.
 
 1. **The package must exist on npm first** — TP is configured on the package's
    own settings page, which a nonexistent name does not have. A brand-new
@@ -166,15 +170,21 @@ For **each** package (`@primitiv-ui/react`, `/icons`, `/tokens`):
    TP can be set up at all; §2 has the full sequence.
 2. npmjs.com → the package → **Settings** → **Trusted Publisher** → add a
    GitHub Actions publisher:
-   - Repository: `primitiv-ui/primitiv`
+   - Organization or user: `primitiv-ui`
+   - Repository: `primitiv`
    - Workflow: `publish.yml`
+   - Environment: **leave blank.** The `publish` job declares no
+     `environment:`, so anything here makes the OIDC claim fail to match and
+     the next release fails `ENEEDAUTH` with nothing obviously wrong.
 3. After that, CI publishes with **no token** and attaches provenance.
 
-> If tokenless publishing isn't working for your npm/pnpm versions yet, add a
-> `NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}` env block to the affected step
-> and an `NPM_TOKEN` repo secret (granular, automation, publish scope) as a
-> fallback, then remove both once trusted publishing is confirmed. There is no
-> block to uncomment — see the bootstrap note in §2.
+> Leave npm's token-publishing setting **allowed** until you have seen one green
+> OIDC publish of a newly-bootstrapped package. Revoking the bootstrap token is
+> what removes the risk; disallowing tokens as well is belt-and-braces, and
+> doing it before TP is proven leaves no way back but flipping it off again.
+> Note that the bootstrap token beats OIDC while it exists: the npmrc line the
+> bootstrap step writes is what npm authenticates with, so TP is not exercised
+> at all until the `NPM_TOKEN` secret is deleted.
 
 **JSR — link the package to the repo**
 

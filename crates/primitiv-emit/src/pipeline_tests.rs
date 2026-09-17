@@ -3,7 +3,8 @@ use serde_json::{Value, json};
 
 use crate::pipeline::{
     NeutralRamp, ThemeRamps, TokenSources, emit_component_tokens_css, emit_dtcg_ramps, emit_tailwind_tokens,
-    emit_theme_overrides_css, emit_theme_ramps_css, emit_theme_ramps_scss,
+    emit_theme_overrides_css, emit_theme_overrides_scss, emit_theme_overrides_tailwind,
+    emit_theme_ramps_css, emit_theme_ramps_scss,
     emit_theme_ramps_tailwind, emit_tokens_css, emit_tokens_scss,
 };
 
@@ -129,6 +130,57 @@ fn emits_paired_light_dark_brand_overrides_in_the_theme_layer() {
             "/tests/golden/theme-overrides.css"
         ))
     );
+}
+
+/// The values path has to reach every format the recipe path does. A palette
+/// handed over as a DTCG document (RFC 0032 D1) is the same override surface as
+/// one generated from seeds, so a consumer on SCSS or Tailwind cannot be the one
+/// who gets told "CSS only" — which is what shipped until RFC 0032 §5 step 2.
+fn paired_overrides() -> Value {
+    json!({
+        "light": { "color": { "primary": { "$type": "color", "$value": "oklch(0.55 0.13 162)" } } },
+        "dark":  { "color": { "primary": { "$type": "color", "$value": "oklch(0.72 0.13 162)" } } }
+    })
+}
+
+#[test]
+fn emits_paired_light_dark_overrides_as_scss() {
+    let scss = emit_theme_overrides_scss(&[paired_overrides()]);
+
+    assert_eq!(
+        scss,
+        include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/tests/golden/theme-overrides.scss"
+        ))
+    );
+}
+
+#[test]
+fn emits_paired_light_dark_overrides_as_tailwind() {
+    let tailwind = emit_theme_overrides_tailwind(&[paired_overrides()]);
+
+    assert_eq!(
+        tailwind,
+        include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/tests/golden/theme-overrides.tailwind.css"
+        ))
+    );
+}
+
+#[test]
+fn every_format_of_an_override_carries_the_same_custom_property() {
+    // The three serialisers share one `Scope` list, so a value cannot reach one
+    // format and miss another — asserted rather than assumed, because the whole
+    // point of the values path is that the palette a designer hands over drives
+    // the consumer's real components whichever format they build in.
+    let documents = [paired_overrides()];
+    let declaration = "--primitiv-color-primary: oklch(0.55 0.13 162);";
+
+    assert!(emit_theme_overrides_css(&documents).contains(declaration));
+    assert!(emit_theme_overrides_scss(&documents).contains(declaration));
+    assert!(emit_theme_overrides_tailwind(&documents).contains(declaration));
 }
 
 #[test]

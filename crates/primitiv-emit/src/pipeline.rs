@@ -73,6 +73,29 @@ pub fn emit_theme_overrides_css(documents: &[Value]) -> String {
     emit_theme_css(&axis_scopes(&Axis::Theme, documents))
 }
 
+/// The SCSS twin of [`emit_theme_overrides_css`] — the same theme-axis scopes,
+/// serialised through the SCSS adapter so the `primitiv.theme` CSS is followed by
+/// the resolving `$primitiv-*` variables.
+///
+/// Additive for RFC 0032 §5 step 2, and the gap it closes is the point: the
+/// values path (a palette handed over as a DTCG document, D1) reached CSS only,
+/// while the recipe path (`emit_theme_ramps_*`, generated from seeds) already had
+/// all three. A designer's exported palette and a seeded one are the same override
+/// surface, so which of them you started from must not decide whether your SCSS
+/// build can consume it.
+pub fn emit_theme_overrides_scss(documents: &[Value]) -> String {
+    emit_theme_scss(&axis_scopes(&Axis::Theme, documents))
+}
+
+/// The Tailwind twin of [`emit_theme_overrides_css`] — the same theme-axis
+/// scopes, serialised through the Tailwind adapter so the `primitiv.theme` custom
+/// properties are followed by the `@theme` preset. See
+/// [`emit_theme_overrides_scss`] for why both twins are additive rather than the
+/// CSS one being the only path.
+pub fn emit_theme_overrides_tailwind(documents: &[Value]) -> String {
+    emit_theme_tailwind(&axis_scopes(&Axis::Theme, documents))
+}
+
 /// A project's neutral ramp — the one ramp that is generated *between* two
 /// anchors rather than from a seed, which is why it has never had a `--neutral`
 /// flag: it takes a different model, not a different colour.

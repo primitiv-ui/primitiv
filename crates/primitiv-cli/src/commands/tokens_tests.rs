@@ -1,4 +1,4 @@
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use crate::commands::tokens::{TokensOptions, tokens};
 use crate::error::CliError;
@@ -620,14 +620,14 @@ fn names_the_override_file_after_the_formats_own_extension() {
         let fs = InMemoryFs::new();
         fs.write(Path::new("primitiv.palette.json"), PALETTE)
             .unwrap();
-        let out = Path::new(&format!("tokens.{}", format.extension())).to_path_buf();
+        let out = PathBuf::from(format!("tokens.{}", format.extension()));
 
         tokens(
             &fs,
             &InMemoryOutput::new(),
             &TokensOptions {
                 format: Some(format),
-                out: Some(out.into()),
+                out: Some(out.clone()),
                 from: Some("primitiv.palette.json".into()),
                 ramps_only: false,
             },

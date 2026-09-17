@@ -142,9 +142,11 @@ GitHub Actions via OIDC (`id-token: write`, already set in the workflow).
 
 For **each** package (`@primitiv-ui/react`, `/icons`, `/tokens`):
 
-1. The package must exist on npm first. For a brand-new package, either do
-   one initial manual publish with a granular token, or create the package
-   and configure trusted publishing per npm's current flow.
+1. A package that already exists on npm: configure TP against it directly. A
+   package that does **not** exist yet can still be configured ahead of its
+   first publish — see §2, which is the current guidance and supersedes the
+   "must exist on npm first" this step used to claim. Skipping that step is
+   what fails `ENEEDAUTH`, twice now (v0.1.30, v0.1.35).
 2. npmjs.com → the package → **Settings** → **Trusted Publisher** → add a
    GitHub Actions publisher:
    - Repository: `primitiv-ui/primitiv`

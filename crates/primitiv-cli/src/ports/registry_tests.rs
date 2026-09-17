@@ -110,9 +110,12 @@ fn embedded_registry_serves_the_input_group_files() {
     let css =
         String::from_utf8(EmbeddedRegistry.file("input-group", "styles.css").unwrap()).unwrap();
     assert!(css.contains(".primitiv-input-group__leading"));
-    let wrapper =
-        String::from_utf8(EmbeddedRegistry.file("input-group", "input-group.tsx").unwrap())
-            .unwrap();
+    let wrapper = String::from_utf8(
+        EmbeddedRegistry
+            .file("input-group", "input-group.tsx")
+            .unwrap(),
+    )
+    .unwrap();
     assert!(wrapper.contains("export function InputGroupLeadingAdornment"));
 }
 
@@ -148,7 +151,8 @@ fn embedded_registry_reports_an_unknown_file_as_not_found() {
 
 #[test]
 fn in_memory_registry_serves_a_configured_file() {
-    let registry = InMemoryRegistry::new(b"{}").with_file("button", "styles.css", b".primitiv-button{}");
+    let registry =
+        InMemoryRegistry::new(b"{}").with_file("button", "styles.css", b".primitiv-button{}");
 
     assert_eq!(
         registry.file("button", "styles.css").unwrap(),
@@ -186,8 +190,11 @@ fn in_memory_registry_can_fail() {
 #[test]
 fn local_registry_reads_the_index_from_its_base_directory() {
     let fs = InMemoryFs::new();
-    fs.write(Path::new("vendor/registry/registry.json"), b"{ \"version\": \"0.1.0\" }")
-        .unwrap();
+    fs.write(
+        Path::new("vendor/registry/registry.json"),
+        b"{ \"version\": \"0.1.0\" }",
+    )
+    .unwrap();
     let registry = LocalRegistry::new(&fs, Path::new("vendor/registry"));
 
     assert_eq!(registry.index().unwrap(), b"{ \"version\": \"0.1.0\" }");
@@ -260,6 +267,9 @@ fn every_embedded_component_stylesheet_declares_the_layer_order() {
     let index = RegistryIndex::parse(&EmbeddedRegistry.index().unwrap()).unwrap();
     for name in index.components.keys() {
         let css = String::from_utf8(EmbeddedRegistry.file(name, "styles.css").unwrap()).unwrap();
-        assert!(css.contains(ORDER), "{name}/styles.css must declare the @layer order");
+        assert!(
+            css.contains(ORDER),
+            "{name}/styles.css must declare the @layer order"
+        );
     }
 }

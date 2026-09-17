@@ -36,7 +36,9 @@ impl ProcessRunner for OsProcessRunner {
         if status.success() {
             Ok(())
         } else {
-            Err(io::Error::other(format!("`{program}` exited with {status}")))
+            Err(io::Error::other(format!(
+                "`{program}` exited with {status}"
+            )))
         }
     }
 }

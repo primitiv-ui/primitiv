@@ -38,7 +38,14 @@ fn writes_the_brand_theme_css_to_the_out_path() {
     let fs = InMemoryFs::new();
     let out = Path::new("src/styles/primitiv.theme.css");
 
-    theme(&fs, &brand_seed(), Some(out), Some(Format::Css), DEFAULT_STEPS).unwrap();
+    theme(
+        &fs,
+        &brand_seed(),
+        Some(out),
+        Some(Format::Css),
+        DEFAULT_STEPS,
+    )
+    .unwrap();
 
     let written = fs.read(out).unwrap();
     let expected = emit_theme_ramps_css(&at_default_length(&[("brand", "#0a7755")])).unwrap();
@@ -50,7 +57,14 @@ fn writes_the_brand_theme_scss_when_the_format_is_scss() {
     let fs = InMemoryFs::new();
     let out = Path::new("src/styles/primitiv.theme.scss");
 
-    theme(&fs, &brand_seed(), Some(out), Some(Format::Scss), DEFAULT_STEPS).unwrap();
+    theme(
+        &fs,
+        &brand_seed(),
+        Some(out),
+        Some(Format::Scss),
+        DEFAULT_STEPS,
+    )
+    .unwrap();
 
     let written = fs.read(out).unwrap();
     let expected = emit_theme_ramps_scss(&at_default_length(&[("brand", "#0a7755")])).unwrap();
@@ -62,7 +76,14 @@ fn writes_the_brand_theme_tailwind_when_the_format_is_tailwind() {
     let fs = InMemoryFs::new();
     let out = Path::new("src/styles/primitiv.theme.css");
 
-    theme(&fs, &brand_seed(), Some(out), Some(Format::Tailwind), DEFAULT_STEPS).unwrap();
+    theme(
+        &fs,
+        &brand_seed(),
+        Some(out),
+        Some(Format::Tailwind),
+        DEFAULT_STEPS,
+    )
+    .unwrap();
 
     let written = fs.read(out).unwrap();
     let expected = emit_theme_ramps_tailwind(&at_default_length(&[("brand", "#0a7755")])).unwrap();
@@ -123,7 +144,14 @@ fn surfaces_a_write_failure() {
     let out = Path::new("out.css");
     fs.fail_writes_to(out);
 
-    let err = theme(&fs, &brand_seed(), Some(out), Some(Format::Css), DEFAULT_STEPS).unwrap_err();
+    let err = theme(
+        &fs,
+        &brand_seed(),
+        Some(out),
+        Some(Format::Css),
+        DEFAULT_STEPS,
+    )
+    .unwrap_err();
 
     assert!(matches!(err, CliError::Io(_)));
 }
@@ -237,7 +265,14 @@ fn leaves_the_semantic_layer_alone_at_the_default_length() {
     let fs = InMemoryFs::new();
     let out = Path::new("primitiv.theme.css");
 
-    theme(&fs, &brand_seed(), Some(out), Some(Format::Css), DEFAULT_STEPS).unwrap();
+    theme(
+        &fs,
+        &brand_seed(),
+        Some(out),
+        Some(Format::Css),
+        DEFAULT_STEPS,
+    )
+    .unwrap();
 
     // Ten steps carry every decade the shipped Intent layer names, so a project on
     // the default scale gets ramps and nothing else.
@@ -249,7 +284,14 @@ fn leaves_the_semantic_layer_alone_at_the_default_length() {
 fn refuses_a_step_count_the_engine_does_not_support() {
     let fs = InMemoryFs::new();
 
-    let err = theme(&fs, &brand_seed(), Some(Path::new("x.css")), Some(Format::Css), 2).unwrap_err();
+    let err = theme(
+        &fs,
+        &brand_seed(),
+        Some(Path::new("x.css")),
+        Some(Format::Css),
+        2,
+    )
+    .unwrap_err();
 
     assert!(matches!(err, CliError::Usage(_)), "{err:?}");
     assert!(err.to_string().contains("between 3 and 32"), "{err}");
@@ -281,9 +323,16 @@ fn writes_the_projects_neutral_ramp_from_the_config() {
     // The ramp a seed cannot express now reaches the stylesheet, tinted by the
     // brand it was told to follow.
     let written = String::from_utf8(fs.read(out).unwrap()).unwrap();
-    assert_eq!(written.matches("--primitiv-color-neutral-500:").count(), 2, "{written}");
+    assert_eq!(
+        written.matches("--primitiv-color-neutral-500:").count(),
+        2,
+        "{written}"
+    );
     // Tinted, not grey: the brand's own hue reaches the anchors.
-    assert!(written.contains("--primitiv-color-neutral-50: oklch(0.99 0."), "{written}");
+    assert!(
+        written.contains("--primitiv-color-neutral-50: oklch(0.99 0."),
+        "{written}"
+    );
 }
 
 #[test]
@@ -301,7 +350,14 @@ fn surfaces_a_malformed_neutral_block_rather_than_ignoring_it() {
     )
     .unwrap();
 
-    let err = theme(&fs, &[], Some(Path::new("x.css")), Some(Format::Css), DEFAULT_STEPS).unwrap_err();
+    let err = theme(
+        &fs,
+        &[],
+        Some(Path::new("x.css")),
+        Some(Format::Css),
+        DEFAULT_STEPS,
+    )
+    .unwrap_err();
 
     // The command stops rather than writing a file whose greys silently came from
     // somewhere other than the config the consumer wrote.
@@ -350,7 +406,11 @@ fn takes_the_recorded_token_format_when_no_format_is_given() {
 
     theme(&fs, &brand_seed(), None, None, DEFAULT_STEPS).unwrap();
 
-    let written = String::from_utf8(fs.read(Path::new("src/styles/primitiv.theme.scss")).unwrap()).unwrap();
+    let written = String::from_utf8(
+        fs.read(Path::new("src/styles/primitiv.theme.scss"))
+            .unwrap(),
+    )
+    .unwrap();
     // The SCSS adapter's tell: the canonical CSS followed by resolving variables.
     assert!(written.contains("$primitiv-color-brand-500:"), "{written}");
 }
@@ -360,7 +420,14 @@ fn an_explicit_out_still_wins_over_the_recorded_one() {
     let fs = config_with("css", "src/styles/tokens.css");
     let out = Path::new("somewhere/else.css");
 
-    theme(&fs, &brand_seed(), Some(out), Some(Format::Css), DEFAULT_STEPS).unwrap();
+    theme(
+        &fs,
+        &brand_seed(),
+        Some(out),
+        Some(Format::Css),
+        DEFAULT_STEPS,
+    )
+    .unwrap();
 
     assert!(fs.exists(out));
     assert!(!fs.exists(Path::new("src/styles/primitiv.theme.css")));

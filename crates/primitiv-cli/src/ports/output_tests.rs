@@ -1,4 +1,4 @@
-use crate::ports::output::{InMemoryOutput, Output, OsStdout};
+use crate::ports::output::{InMemoryOutput, OsStdout, Output};
 
 #[test]
 fn in_memory_output_captures_what_was_streamed() {

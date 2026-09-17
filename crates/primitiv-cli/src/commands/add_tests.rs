@@ -5,7 +5,7 @@ use std::thread;
 
 use pretty_assertions::assert_eq;
 
-use crate::commands::add::{add, classify_registry, AddOptions, RegistrySource};
+use crate::commands::add::{AddOptions, RegistrySource, add, classify_registry};
 use crate::error::CliError;
 use crate::format::Format;
 use crate::lock::Lock;
@@ -1269,7 +1269,11 @@ fn copies_the_react_surface_into_the_alias_resolved_components_directory() {
     );
     // The wrapper has a styles import prepended; check it contains the original body.
     let tsx = fs.read(Path::new("src/components/button.tsx")).unwrap();
-    assert!(std::str::from_utf8(&tsx).unwrap().contains("export function Button() {}"));
+    assert!(
+        std::str::from_utf8(&tsx)
+            .unwrap()
+            .contains("export function Button() {}")
+    );
 }
 
 #[test]
@@ -1281,7 +1285,11 @@ fn copies_the_contract_into_the_components_directory() {
     fs.write(Path::new("tsconfig.json"), TSCONFIG).unwrap();
     let registry = InMemoryRegistry::new(WITH_CONTRACT)
         .with_file("button", "styles.css", b".primitiv-button{}")
-        .with_file("button", "button.recipe.ts", b"export const button = cva();")
+        .with_file(
+            "button",
+            "button.recipe.ts",
+            b"export const button = cva();",
+        )
         .with_file("button", "button.tsx", b"export function Button() {}")
         .with_file("button", "contract.json", b"{\"name\":\"button\"}");
     let output = InMemoryOutput::new();
@@ -1306,7 +1314,8 @@ fn copies_the_contract_into_the_components_directory() {
     // co-located with the recipe and wrapper, prefixed with the component name
     // so it can't collide with another component's contract.
     assert_eq!(
-        fs.read(Path::new("src/components/button.contract.json")).unwrap(),
+        fs.read(Path::new("src/components/button.contract.json"))
+            .unwrap(),
         b"{\"name\":\"button\"}"
     );
 }
@@ -1323,11 +1332,19 @@ fn keeps_every_components_contract_distinct_when_adding_several_at_once() {
     fs.write(Path::new("tsconfig.json"), TSCONFIG).unwrap();
     let registry = InMemoryRegistry::new(WITH_TWO_CONTRACTS)
         .with_file("button", "styles.css", b".primitiv-button{}")
-        .with_file("button", "button.recipe.ts", b"export const button = cva();")
+        .with_file(
+            "button",
+            "button.recipe.ts",
+            b"export const button = cva();",
+        )
         .with_file("button", "button.tsx", b"export function Button() {}")
         .with_file("button", "contract.json", b"{\"name\":\"button\"}")
         .with_file("switch", "styles.css", b".primitiv-switch{}")
-        .with_file("switch", "switch.recipe.ts", b"export const switchRecipe = cva();")
+        .with_file(
+            "switch",
+            "switch.recipe.ts",
+            b"export const switchRecipe = cva();",
+        )
         .with_file("switch", "switch.tsx", b"export function Switch() {}")
         .with_file("switch", "contract.json", b"{\"name\":\"switch\"}");
     let output = InMemoryOutput::new();
@@ -1349,11 +1366,13 @@ fn keeps_every_components_contract_distinct_when_adding_several_at_once() {
     .unwrap();
 
     assert_eq!(
-        fs.read(Path::new("src/components/button.contract.json")).unwrap(),
+        fs.read(Path::new("src/components/button.contract.json"))
+            .unwrap(),
         b"{\"name\":\"button\"}"
     );
     assert_eq!(
-        fs.read(Path::new("src/components/switch.contract.json")).unwrap(),
+        fs.read(Path::new("src/components/switch.contract.json"))
+            .unwrap(),
         b"{\"name\":\"switch\"}"
     );
 }
@@ -1519,7 +1538,8 @@ fn the_registry_override_reads_from_a_repo_local_directory() {
     let fs = InMemoryFs::new();
     fs.write(Path::new("primitiv.json"), CONFIG).unwrap();
     // A repo-local registry under vendor/registry: index + the Button stylesheet.
-    fs.write(Path::new("vendor/registry/registry.json"), WITH_STYLES).unwrap();
+    fs.write(Path::new("vendor/registry/registry.json"), WITH_STYLES)
+        .unwrap();
     fs.write(
         Path::new("vendor/registry/components/button/styles.css"),
         b".primitiv-button{ color: local }",
@@ -1563,7 +1583,10 @@ fn the_registry_override_fetches_from_an_http_url() {
             "/registry.json",
             r#"{ "version": "0.1.0", "components": { "button": { "version": "0.1.0", "styles": { "formats": { "css": ["styles.css"] } } } } }"#,
         ),
-        ("/components/button/styles.css", ".primitiv-button{ color: served }"),
+        (
+            "/components/button/styles.css",
+            ".primitiv-button{ color: served }",
+        ),
     ]);
     let fs = InMemoryFs::new();
     fs.write(Path::new("primitiv.json"), CONFIG).unwrap();
@@ -2485,7 +2508,8 @@ fn an_interactive_add_surfaces_a_prompt_failure_as_io() {
 #[test]
 fn no_wiring_flag_prints_the_snippet_after_a_tailwind_copy() {
     let fs = InMemoryFs::new();
-    fs.write(Path::new("primitiv.json"), CONFIG_TAILWIND).unwrap();
+    fs.write(Path::new("primitiv.json"), CONFIG_TAILWIND)
+        .unwrap();
     let registry =
         InMemoryRegistry::new(WITH_TAILWIND_STYLES).with_file("button", "styles.css", b".p{}");
     let output = InMemoryOutput::new();
@@ -2521,7 +2545,8 @@ fn no_wiring_flag_prints_the_snippet_after_a_tailwind_copy() {
 #[test]
 fn non_interactive_tailwind_add_prints_the_snippet() {
     let fs = InMemoryFs::new();
-    fs.write(Path::new("primitiv.json"), CONFIG_TAILWIND).unwrap();
+    fs.write(Path::new("primitiv.json"), CONFIG_TAILWIND)
+        .unwrap();
     let registry =
         InMemoryRegistry::new(WITH_TAILWIND_STYLES).with_file("button", "styles.css", b".p{}");
     let output = InMemoryOutput::new();
@@ -2550,8 +2575,7 @@ fn non_interactive_tailwind_add_prints_the_snippet() {
 fn css_format_add_does_not_print_the_wiring_snippet() {
     let fs = InMemoryFs::new();
     fs.write(Path::new("primitiv.json"), CONFIG).unwrap();
-    let registry =
-        InMemoryRegistry::new(WITH_STYLES).with_file("button", "styles.css", b".p{}");
+    let registry = InMemoryRegistry::new(WITH_STYLES).with_file("button", "styles.css", b".p{}");
     let output = InMemoryOutput::new();
     let runner = InMemoryProcessRunner::new();
     let prompt = InMemoryPrompt::new(Decision::Keep);
@@ -2577,7 +2601,8 @@ fn css_format_add_does_not_print_the_wiring_snippet() {
 #[test]
 fn no_styles_flag_suppresses_the_wiring_snippet() {
     let fs = InMemoryFs::new();
-    fs.write(Path::new("primitiv.json"), CONFIG_TAILWIND).unwrap();
+    fs.write(Path::new("primitiv.json"), CONFIG_TAILWIND)
+        .unwrap();
     let registry = InMemoryRegistry::new(WITH_TAILWIND_STYLES);
     let output = InMemoryOutput::new();
     let runner = InMemoryProcessRunner::new();
@@ -2605,7 +2630,8 @@ fn no_styles_flag_suppresses_the_wiring_snippet() {
 #[test]
 fn dry_run_does_not_print_the_wiring_snippet() {
     let fs = InMemoryFs::new();
-    fs.write(Path::new("primitiv.json"), CONFIG_TAILWIND).unwrap();
+    fs.write(Path::new("primitiv.json"), CONFIG_TAILWIND)
+        .unwrap();
     let registry = InMemoryRegistry::new(WITH_TAILWIND_STYLES);
     let output = InMemoryOutput::new();
     let runner = InMemoryProcessRunner::new();
@@ -2633,7 +2659,8 @@ fn dry_run_does_not_print_the_wiring_snippet() {
 #[test]
 fn json_flag_suppresses_the_wiring_snippet() {
     let fs = InMemoryFs::new();
-    fs.write(Path::new("primitiv.json"), CONFIG_TAILWIND).unwrap();
+    fs.write(Path::new("primitiv.json"), CONFIG_TAILWIND)
+        .unwrap();
     let registry =
         InMemoryRegistry::new(WITH_TAILWIND_STYLES).with_file("button", "styles.css", b".p{}");
     let output = InMemoryOutput::new();
@@ -2665,8 +2692,10 @@ fn json_flag_suppresses_the_wiring_snippet() {
 #[test]
 fn interactive_tailwind_add_patches_entry_css_on_confirm() {
     let fs = InMemoryFs::new();
-    fs.write(Path::new("primitiv.json"), CONFIG_TAILWIND).unwrap();
-    fs.write(Path::new("src/index.css"), b"@import \"tailwindcss\";\n").unwrap();
+    fs.write(Path::new("primitiv.json"), CONFIG_TAILWIND)
+        .unwrap();
+    fs.write(Path::new("src/index.css"), b"@import \"tailwindcss\";\n")
+        .unwrap();
     let registry =
         InMemoryRegistry::new(WITH_TAILWIND_STYLES).with_file("button", "styles.css", b".p{}");
     let output = InMemoryOutput::new();
@@ -2688,18 +2717,29 @@ fn interactive_tailwind_add_patches_entry_css_on_confirm() {
     .unwrap();
 
     let patched = String::from_utf8(fs.read(Path::new("src/index.css")).unwrap()).unwrap();
-    assert!(patched.contains("@custom-variant dark"), "entry CSS was not patched:\n{patched}");
-    assert!(patched.contains("@import \"tailwindcss\""), "original import must be preserved");
+    assert!(
+        patched.contains("@custom-variant dark"),
+        "entry CSS was not patched:\n{patched}"
+    );
+    assert!(
+        patched.contains("@import \"tailwindcss\""),
+        "original import must be preserved"
+    );
     // Snippet was not also printed to stdout (the patch was applied)
     let out = String::from_utf8(output.captured()).unwrap();
-    assert!(!out.contains("@custom-variant dark"), "snippet should not be in stdout when patched");
+    assert!(
+        !out.contains("@custom-variant dark"),
+        "snippet should not be in stdout when patched"
+    );
 }
 
 #[test]
 fn interactive_tailwind_add_prints_snippet_when_consumer_declines() {
     let fs = InMemoryFs::new();
-    fs.write(Path::new("primitiv.json"), CONFIG_TAILWIND).unwrap();
-    fs.write(Path::new("src/index.css"), b"@import \"tailwindcss\";\n").unwrap();
+    fs.write(Path::new("primitiv.json"), CONFIG_TAILWIND)
+        .unwrap();
+    fs.write(Path::new("src/index.css"), b"@import \"tailwindcss\";\n")
+        .unwrap();
     let registry =
         InMemoryRegistry::new(WITH_TAILWIND_STYLES).with_file("button", "styles.css", b".p{}");
     let output = InMemoryOutput::new();
@@ -2733,9 +2773,11 @@ fn interactive_tailwind_add_prints_snippet_when_consumer_declines() {
 fn interactive_tailwind_add_is_a_noop_when_wiring_already_present() {
     use crate::wiring::SNIPPET;
     let fs = InMemoryFs::new();
-    fs.write(Path::new("primitiv.json"), CONFIG_TAILWIND).unwrap();
+    fs.write(Path::new("primitiv.json"), CONFIG_TAILWIND)
+        .unwrap();
     let already_wired = format!("{SNIPPET}\n\n@import \"tailwindcss\";\n");
-    fs.write(Path::new("src/index.css"), already_wired.as_bytes()).unwrap();
+    fs.write(Path::new("src/index.css"), already_wired.as_bytes())
+        .unwrap();
     let registry =
         InMemoryRegistry::new(WITH_TAILWIND_STYLES).with_file("button", "styles.css", b".p{}");
     let output = InMemoryOutput::new();
@@ -2766,7 +2808,8 @@ fn interactive_tailwind_add_is_a_noop_when_wiring_already_present() {
 #[test]
 fn interactive_tailwind_add_prints_snippet_when_entry_css_not_found() {
     let fs = InMemoryFs::new();
-    fs.write(Path::new("primitiv.json"), CONFIG_TAILWIND).unwrap();
+    fs.write(Path::new("primitiv.json"), CONFIG_TAILWIND)
+        .unwrap();
     // No src/index.css or any candidate file present
     let registry =
         InMemoryRegistry::new(WITH_TAILWIND_STYLES).with_file("button", "styles.css", b".p{}");
@@ -2798,8 +2841,10 @@ fn interactive_tailwind_add_prints_snippet_when_entry_css_not_found() {
 #[test]
 fn interactive_tailwind_confirm_error_surfaces_as_io_error() {
     let fs = InMemoryFs::new();
-    fs.write(Path::new("primitiv.json"), CONFIG_TAILWIND).unwrap();
-    fs.write(Path::new("src/index.css"), b"@import \"tailwindcss\";\n").unwrap();
+    fs.write(Path::new("primitiv.json"), CONFIG_TAILWIND)
+        .unwrap();
+    fs.write(Path::new("src/index.css"), b"@import \"tailwindcss\";\n")
+        .unwrap();
     let registry =
         InMemoryRegistry::new(WITH_TAILWIND_STYLES).with_file("button", "styles.css", b".p{}");
     let output = InMemoryOutput::new();
@@ -2827,7 +2872,8 @@ fn interactive_tailwind_confirm_error_surfaces_as_io_error() {
 #[test]
 fn interactive_tailwind_json_mode_skips_snippet_when_no_entry_css() {
     let fs = InMemoryFs::new();
-    fs.write(Path::new("primitiv.json"), CONFIG_TAILWIND).unwrap();
+    fs.write(Path::new("primitiv.json"), CONFIG_TAILWIND)
+        .unwrap();
     // No entry CSS candidate present — json=true means no snippet
     let registry =
         InMemoryRegistry::new(WITH_TAILWIND_STYLES).with_file("button", "styles.css", b".p{}");
@@ -2857,8 +2903,10 @@ fn interactive_tailwind_json_mode_skips_snippet_when_no_entry_css() {
 #[test]
 fn interactive_tailwind_write_failure_surfaces_as_io_error() {
     let fs = InMemoryFs::new();
-    fs.write(Path::new("primitiv.json"), CONFIG_TAILWIND).unwrap();
-    fs.write(Path::new("src/index.css"), b"@import \"tailwindcss\";\n").unwrap();
+    fs.write(Path::new("primitiv.json"), CONFIG_TAILWIND)
+        .unwrap();
+    fs.write(Path::new("src/index.css"), b"@import \"tailwindcss\";\n")
+        .unwrap();
     fs.fail_writes_to(Path::new("src/index.css"));
     let registry =
         InMemoryRegistry::new(WITH_TAILWIND_STYLES).with_file("button", "styles.css", b".p{}");
@@ -2886,7 +2934,8 @@ fn interactive_tailwind_write_failure_surfaces_as_io_error() {
 #[test]
 fn interactive_tailwind_stdout_error_on_not_found_snippet_surfaces_as_io() {
     let fs = InMemoryFs::new();
-    fs.write(Path::new("primitiv.json"), CONFIG_TAILWIND).unwrap();
+    fs.write(Path::new("primitiv.json"), CONFIG_TAILWIND)
+        .unwrap();
     // No entry CSS — not-found branch will try to write snippet to stdout
     let registry =
         InMemoryRegistry::new(WITH_TAILWIND_STYLES).with_file("button", "styles.css", b".p{}");
@@ -2918,8 +2967,10 @@ fn interactive_tailwind_stdout_error_on_not_found_snippet_surfaces_as_io() {
 #[test]
 fn interactive_tailwind_read_error_on_entry_css_surfaces_as_io() {
     let fs = InMemoryFs::new();
-    fs.write(Path::new("primitiv.json"), CONFIG_TAILWIND).unwrap();
-    fs.write(Path::new("src/index.css"), b"@import \"tailwindcss\";\n").unwrap();
+    fs.write(Path::new("primitiv.json"), CONFIG_TAILWIND)
+        .unwrap();
+    fs.write(Path::new("src/index.css"), b"@import \"tailwindcss\";\n")
+        .unwrap();
     fs.fail_reads_to(Path::new("src/index.css"));
     let registry =
         InMemoryRegistry::new(WITH_TAILWIND_STYLES).with_file("button", "styles.css", b".p{}");
@@ -2947,8 +2998,10 @@ fn interactive_tailwind_read_error_on_entry_css_surfaces_as_io() {
 #[test]
 fn interactive_tailwind_json_mode_skips_patch_when_entry_css_found() {
     let fs = InMemoryFs::new();
-    fs.write(Path::new("primitiv.json"), CONFIG_TAILWIND).unwrap();
-    fs.write(Path::new("src/index.css"), b"@import \"tailwindcss\";\n").unwrap();
+    fs.write(Path::new("primitiv.json"), CONFIG_TAILWIND)
+        .unwrap();
+    fs.write(Path::new("src/index.css"), b"@import \"tailwindcss\";\n")
+        .unwrap();
     let registry =
         InMemoryRegistry::new(WITH_TAILWIND_STYLES).with_file("button", "styles.css", b".p{}");
     let output = InMemoryOutput::new();
@@ -2982,8 +3035,10 @@ fn interactive_tailwind_decline_stdout_error_surfaces_as_io() {
     // Drives the ? error path on write_stdout in patch_wiring's decline (else) branch.
     // The plan and the "Wrote:" table succeed; the snippet write is the third.
     let fs = InMemoryFs::new();
-    fs.write(Path::new("primitiv.json"), CONFIG_TAILWIND).unwrap();
-    fs.write(Path::new("src/index.css"), b"@import \"tailwindcss\";\n").unwrap();
+    fs.write(Path::new("primitiv.json"), CONFIG_TAILWIND)
+        .unwrap();
+    fs.write(Path::new("src/index.css"), b"@import \"tailwindcss\";\n")
+        .unwrap();
     let registry =
         InMemoryRegistry::new(WITH_TAILWIND_STYLES).with_file("button", "styles.css", b".p{}");
     let output = InMemoryOutput::new();
@@ -3014,7 +3069,8 @@ fn no_wiring_stdout_error_surfaces_as_io() {
     // Drives the error path of the write_stdout ? in offer_wiring: no_wiring=true
     // + json=false puts the snippet third, after the plan and the "Wrote:" table.
     let fs = InMemoryFs::new();
-    fs.write(Path::new("primitiv.json"), CONFIG_TAILWIND).unwrap();
+    fs.write(Path::new("primitiv.json"), CONFIG_TAILWIND)
+        .unwrap();
     let registry =
         InMemoryRegistry::new(WITH_TAILWIND_STYLES).with_file("button", "styles.css", b".p{}");
     let output = InMemoryOutput::new();
@@ -3076,7 +3132,8 @@ fn add_does_not_overwrite_an_existing_token_file() {
     let fs = InMemoryFs::new();
     fs.write(Path::new("primitiv.json"), CONFIG).unwrap();
     let existing = b"/* existing tokens */";
-    fs.write(Path::new("src/styles/primitiv/tokens.css"), existing).unwrap();
+    fs.write(Path::new("src/styles/primitiv/tokens.css"), existing)
+        .unwrap();
     let registry =
         InMemoryRegistry::new(WITH_STYLES).with_file("button", "styles.css", b".primitiv-button{}");
     let output = InMemoryOutput::new();
@@ -3099,7 +3156,8 @@ fn add_does_not_overwrite_an_existing_token_file() {
     .unwrap();
 
     assert_eq!(
-        fs.read(Path::new("src/styles/primitiv/tokens.css")).unwrap(),
+        fs.read(Path::new("src/styles/primitiv/tokens.css"))
+            .unwrap(),
         existing,
         "existing token file must not be overwritten"
     );
@@ -3200,7 +3258,8 @@ const CONFIG_SEPARATE_TOKEN_DIR: &[u8] = br##"{
 #[test]
 fn add_generates_token_layer_when_path_has_no_directory_component() {
     let fs = InMemoryFs::new();
-    fs.write(Path::new("primitiv.json"), CONFIG_FLAT_TOKENS).unwrap();
+    fs.write(Path::new("primitiv.json"), CONFIG_FLAT_TOKENS)
+        .unwrap();
     let registry =
         InMemoryRegistry::new(WITH_STYLES).with_file("button", "styles.css", b".primitiv-button{}");
     let output = InMemoryOutput::new();
@@ -3222,7 +3281,10 @@ fn add_generates_token_layer_when_path_has_no_directory_component() {
     )
     .unwrap();
 
-    assert!(fs.exists(Path::new("tokens.css")), "token layer should be generated at root");
+    assert!(
+        fs.exists(Path::new("tokens.css")),
+        "token layer should be generated at root"
+    );
 }
 
 #[test]
@@ -3262,7 +3324,8 @@ fn add_surfaces_a_stdout_failure_when_generating_token_notice() {
 #[test]
 fn add_surfaces_a_create_dir_failure_when_generating_the_token_layer() {
     let fs = InMemoryFs::new();
-    fs.write(Path::new("primitiv.json"), CONFIG_SEPARATE_TOKEN_DIR).unwrap();
+    fs.write(Path::new("primitiv.json"), CONFIG_SEPARATE_TOKEN_DIR)
+        .unwrap();
     // Fail create_dir_all for the token's parent dir (different from the styles dir).
     fs.fail_create_dir_to(Path::new("dist/tokens"));
     let registry =
@@ -3332,7 +3395,11 @@ fn add_prepends_styles_import_in_tsx_wrapper() {
     fs.write(Path::new("tsconfig.json"), TSCONFIG).unwrap();
     let registry = InMemoryRegistry::new(WITH_STYLED_SURFACE)
         .with_file("button", "styles.css", b".primitiv-button{}")
-        .with_file("button", "button.recipe.ts", b"export const button = cva();")
+        .with_file(
+            "button",
+            "button.recipe.ts",
+            b"export const button = cva();",
+        )
         .with_file("button", "button.tsx", b"export function Button() {}");
     let output = InMemoryOutput::new();
     let runner = InMemoryProcessRunner::new();
@@ -3368,7 +3435,11 @@ fn add_does_not_prepend_import_in_recipe_file() {
     fs.write(Path::new("tsconfig.json"), TSCONFIG).unwrap();
     let registry = InMemoryRegistry::new(WITH_STYLED_SURFACE)
         .with_file("button", "styles.css", b".primitiv-button{}")
-        .with_file("button", "button.recipe.ts", b"export const button = cva();")
+        .with_file(
+            "button",
+            "button.recipe.ts",
+            b"export const button = cva();",
+        )
         .with_file("button", "button.tsx", b"export function Button() {}");
     let output = InMemoryOutput::new();
     let runner = InMemoryProcessRunner::new();
@@ -3406,7 +3477,11 @@ fn add_omits_styles_import_when_no_styles_flag_is_set() {
     fs.write(Path::new("tsconfig.json"), TSCONFIG).unwrap();
     let registry = InMemoryRegistry::new(WITH_STYLED_SURFACE)
         .with_file("button", "styles.css", b".primitiv-button{}")
-        .with_file("button", "button.recipe.ts", b"export const button = cva();")
+        .with_file(
+            "button",
+            "button.recipe.ts",
+            b"export const button = cva();",
+        )
         .with_file("button", "button.tsx", b"export function Button() {}");
     let output = InMemoryOutput::new();
     let runner = InMemoryProcessRunner::new();
@@ -3455,7 +3530,11 @@ fn add_styles_import_uses_scss_extension_when_format_is_scss() {
     fs.write(Path::new("tsconfig.json"), TSCONFIG).unwrap();
     let registry = InMemoryRegistry::new(WITH_SCSS_SURFACE)
         .with_file("button", "styles.scss", b".primitiv-button{}")
-        .with_file("button", "button.recipe.ts", b"export const button = cva();")
+        .with_file(
+            "button",
+            "button.recipe.ts",
+            b"export const button = cva();",
+        )
         .with_file("button", "button.tsx", b"export function Button() {}");
     let output = InMemoryOutput::new();
     let runner = InMemoryProcessRunner::new();
@@ -3493,7 +3572,11 @@ fn add_styles_import_correct_when_no_alias_detected() {
     // No tsconfig.json — alias detection falls back to `src/components/`
     let registry = InMemoryRegistry::new(WITH_STYLED_SURFACE)
         .with_file("button", "styles.css", b".primitiv-button{}")
-        .with_file("button", "button.recipe.ts", b"export const button = cva();")
+        .with_file(
+            "button",
+            "button.recipe.ts",
+            b"export const button = cva();",
+        )
         .with_file("button", "button.tsx", b"export function Button() {}");
     let output = InMemoryOutput::new();
     let runner = InMemoryProcessRunner::new();
@@ -3528,8 +3611,10 @@ fn installs_style_packages_when_styles_are_enabled() {
     let fs = InMemoryFs::new();
     fs.set_current_dir(Path::new("project"));
     fs.write(Path::new("project/pnpm-lock.yaml"), b"").unwrap();
-    fs.write(Path::new("project/primitiv.json"), CONFIG).unwrap();
-    fs.write(Path::new("project/tsconfig.json"), TSCONFIG).unwrap();
+    fs.write(Path::new("project/primitiv.json"), CONFIG)
+        .unwrap();
+    fs.write(Path::new("project/tsconfig.json"), TSCONFIG)
+        .unwrap();
     let registry = InMemoryRegistry::new(WITH_STYLE_PACKAGES)
         .with_file("button", "styles.css", b".primitiv-button{}")
         .with_file("button", "button.recipe.ts", b"recipe")
@@ -3553,9 +3638,9 @@ fn installs_style_packages_when_styles_are_enabled() {
     .unwrap();
 
     let calls = runner.calls();
-    let style_call = calls.iter().find(|(_, args, _)| {
-        args.contains(&"class-variance-authority".to_string())
-    });
+    let style_call = calls
+        .iter()
+        .find(|(_, args, _)| args.contains(&"class-variance-authority".to_string()));
     assert!(
         style_call.is_some(),
         "expected class-variance-authority to be installed, runner calls: {calls:?}"
@@ -3568,8 +3653,10 @@ fn styles_only_still_installs_style_packages() {
     let fs = InMemoryFs::new();
     fs.set_current_dir(Path::new("project"));
     fs.write(Path::new("project/pnpm-lock.yaml"), b"").unwrap();
-    fs.write(Path::new("project/primitiv.json"), CONFIG).unwrap();
-    fs.write(Path::new("project/tsconfig.json"), TSCONFIG).unwrap();
+    fs.write(Path::new("project/primitiv.json"), CONFIG)
+        .unwrap();
+    fs.write(Path::new("project/tsconfig.json"), TSCONFIG)
+        .unwrap();
     let registry = InMemoryRegistry::new(WITH_STYLE_PACKAGES)
         .with_file("button", "styles.css", b".primitiv-button{}")
         .with_file("button", "button.recipe.ts", b"recipe")
@@ -3594,10 +3681,15 @@ fn styles_only_still_installs_style_packages() {
     .unwrap();
 
     let calls = runner.calls();
-    assert_eq!(calls.len(), 1, "expected exactly one install call (CVA), got: {calls:?}");
+    assert_eq!(
+        calls.len(),
+        1,
+        "expected exactly one install call (CVA), got: {calls:?}"
+    );
     assert!(
         calls[0].1.contains(&"class-variance-authority".to_string()),
-        "expected class-variance-authority install, got: {:?}", calls[0]
+        "expected class-variance-authority install, got: {:?}",
+        calls[0]
     );
 }
 
@@ -3607,9 +3699,13 @@ fn no_styles_skips_style_package_install() {
     let fs = InMemoryFs::new();
     fs.set_current_dir(Path::new("project"));
     fs.write(Path::new("project/pnpm-lock.yaml"), b"").unwrap();
-    fs.write(Path::new("project/primitiv.json"), CONFIG).unwrap();
-    let registry = InMemoryRegistry::new(WITH_STYLE_PACKAGES)
-        .with_file("button", "styles.css", b".primitiv-button{}");
+    fs.write(Path::new("project/primitiv.json"), CONFIG)
+        .unwrap();
+    let registry = InMemoryRegistry::new(WITH_STYLE_PACKAGES).with_file(
+        "button",
+        "styles.css",
+        b".primitiv-button{}",
+    );
     let output = InMemoryOutput::new();
     let runner = InMemoryProcessRunner::new();
     let prompt = InMemoryPrompt::new(Decision::Keep);
@@ -3630,17 +3726,21 @@ fn no_styles_skips_style_package_install() {
     .unwrap();
 
     let calls = runner.calls();
-    let cva_installed = calls.iter().any(|(_, args, _)| {
-        args.contains(&"class-variance-authority".to_string())
-    });
-    assert!(!cva_installed, "expected CVA to be skipped with --no-styles, got: {calls:?}");
+    let cva_installed = calls
+        .iter()
+        .any(|(_, args, _)| args.contains(&"class-variance-authority".to_string()));
+    assert!(
+        !cva_installed,
+        "expected CVA to be skipped with --no-styles, got: {calls:?}"
+    );
 }
 
 #[test]
 fn errors_when_style_package_install_fails() {
     let fs = InMemoryFs::new();
     fs.set_current_dir(Path::new("project"));
-    fs.write(Path::new("project/primitiv.json"), CONFIG).unwrap();
+    fs.write(Path::new("project/primitiv.json"), CONFIG)
+        .unwrap();
     let registry = InMemoryRegistry::new(WITH_STYLE_PACKAGES)
         .with_file("button", "styles.css", b".primitiv-button{}")
         .with_file("button", "button.recipe.ts", b"recipe")
@@ -3699,8 +3799,7 @@ fn add_writes_barrel_file_in_components_dir() {
 
     let barrel = fs.read(Path::new("src/components/index.ts")).unwrap();
     assert_eq!(
-        barrel,
-        b"export * from \"./button\";\n",
+        barrel, b"export * from \"./button\";\n",
         "barrel should export button"
     );
 }
@@ -3851,7 +3950,10 @@ fn reports_the_files_it_wrote() {
     .unwrap();
 
     let out = String::from_utf8(output.captured()).unwrap();
-    assert!(out.contains("\nWrote:\n"), "missing written section:\n{out}");
+    assert!(
+        out.contains("\nWrote:\n"),
+        "missing written section:\n{out}"
+    );
     for path in [
         "src/styles/primitiv/button/styles.css",
         "src/components/button.recipe.ts",
@@ -3953,12 +4055,18 @@ fn the_written_report_is_suppressed_under_json() {
     .unwrap();
 
     let out = String::from_utf8(output.captured()).unwrap();
-    assert!(!out.contains("Wrote:"), "json run emitted the human table:\n{out}");
+    assert!(
+        !out.contains("Wrote:"),
+        "json run emitted the human table:\n{out}"
+    );
     // Deliberately not asserting the whole stream parses as JSON: it does not
     // today, because `ensure_tokens` prints a human notice after the object.
     // That is a pre-existing defect in the --json contract, worth its own fix
     // rather than being smuggled into this one.
-    assert!(out.trim_start().starts_with('{'), "json run should still lead with the object:\n{out}");
+    assert!(
+        out.trim_start().starts_with('{'),
+        "json run should still lead with the object:\n{out}"
+    );
 }
 
 /// The "Wrote:" report writes to stdout like every other section, so it has the
@@ -3992,5 +4100,8 @@ fn add_surfaces_a_stdout_failure_writing_the_written_report() {
     )
     .unwrap_err();
 
-    assert!(matches!(err, CliError::Io(_)), "expected an Io error, got {err:?}");
+    assert!(
+        matches!(err, CliError::Io(_)),
+        "expected an Io error, got {err:?}"
+    );
 }

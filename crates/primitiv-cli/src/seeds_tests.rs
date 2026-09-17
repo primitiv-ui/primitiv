@@ -18,7 +18,8 @@ fn with_theme(theme: &str) -> InMemoryFs {
           "registry": {{ "version": "0.1.0" }}
         }}"#
     );
-    fs.write(Path::new("primitiv.json"), config.as_bytes()).unwrap();
+    fs.write(Path::new("primitiv.json"), config.as_bytes())
+        .unwrap();
     fs
 }
 
@@ -43,8 +44,12 @@ fn takes_the_configs_seeds_in_palette_family_order() {
 fn a_flag_replaces_only_its_own_family() {
     let fs = with_theme(r##"{ "brand": "#0a7755", "danger": "#db2424" }"##);
 
-    let seeds = resolve_seeds(&fs, &[("brand".to_string(), "#ff0066".to_string())], "theme")
-        .unwrap();
+    let seeds = resolve_seeds(
+        &fs,
+        &[("brand".to_string(), "#ff0066".to_string())],
+        "theme",
+    )
+    .unwrap();
 
     assert_eq!(
         seeds,
@@ -59,8 +64,12 @@ fn a_flag_replaces_only_its_own_family() {
 fn works_with_no_config_at_all_from_the_flags_alone() {
     let fs = InMemoryFs::new();
 
-    let seeds = resolve_seeds(&fs, &[("brand".to_string(), "#0a7755".to_string())], "theme")
-        .unwrap();
+    let seeds = resolve_seeds(
+        &fs,
+        &[("brand".to_string(), "#0a7755".to_string())],
+        "theme",
+    )
+    .unwrap();
 
     assert_eq!(seeds, vec![("brand".to_string(), "#0a7755".to_string())]);
 }
@@ -100,7 +109,8 @@ fn refuses_a_family_the_cli_does_not_generate() {
 #[test]
 fn surfaces_a_malformed_config_rather_than_ignoring_it() {
     let fs = InMemoryFs::new();
-    fs.write(Path::new("primitiv.json"), b"{ not json }").unwrap();
+    fs.write(Path::new("primitiv.json"), b"{ not json }")
+        .unwrap();
 
     assert!(resolve_seeds(&fs, &[], "theme").is_err());
 }
@@ -136,7 +146,9 @@ fn resolves_a_tint_source_named_as_a_family_to_that_familys_seed() {
     );
     let seeds = resolve_seeds(&fs, &[], "theme").unwrap();
 
-    let neutral = resolve_neutral(&fs, &seeds).unwrap().expect("a neutral ramp");
+    let neutral = resolve_neutral(&fs, &seeds)
+        .unwrap()
+        .expect("a neutral ramp");
     let tint = neutral.tint.expect("a tint");
 
     // Naming a family resolves to that family's seed, which is its step 500 —
@@ -154,7 +166,9 @@ fn falls_back_to_the_plugins_own_anchors_when_the_config_names_none() {
     let fs = with_theme(r##"{ "brand": "#0a7755", "neutral": {} }"##);
     let seeds = resolve_seeds(&fs, &[], "theme").unwrap();
 
-    let neutral = resolve_neutral(&fs, &seeds).unwrap().expect("a neutral ramp");
+    let neutral = resolve_neutral(&fs, &seeds)
+        .unwrap()
+        .expect("a neutral ramp");
 
     assert_eq!(neutral.white, ColorInput::Css(DEFAULT_WHITE.to_string()));
     assert_eq!(neutral.black, ColorInput::Css(DEFAULT_BLACK.to_string()));
@@ -189,8 +203,14 @@ fn takes_the_anchors_the_config_names_over_the_defaults() {
 
     // A project that wants its greys to stop short of paper-white and true black
     // says so, and the defaults get out of the way.
-    assert_eq!(neutral.white, ColorInput::Css("oklch(0.97 0 0)".to_string()));
-    assert_eq!(neutral.black, ColorInput::Css("oklch(0.08 0 0)".to_string()));
+    assert_eq!(
+        neutral.white,
+        ColorInput::Css("oklch(0.97 0 0)".to_string())
+    );
+    assert_eq!(
+        neutral.black,
+        ColorInput::Css("oklch(0.08 0 0)".to_string())
+    );
 }
 
 #[test]
@@ -200,7 +220,10 @@ fn surfaces_a_failure_to_read_the_working_directory_for_the_neutral() {
     let fs = InMemoryFs::new();
     fs.fail_current_dir();
 
-    assert!(matches!(resolve_neutral(&fs, &[]).unwrap_err(), CliError::Io(_)));
+    assert!(matches!(
+        resolve_neutral(&fs, &[]).unwrap_err(),
+        CliError::Io(_)
+    ));
 }
 
 #[test]
@@ -216,7 +239,9 @@ fn passes_a_tint_source_that_names_no_family_through_as_a_colour() {
     );
     let seeds = resolve_seeds(&fs, &[], "theme").unwrap();
 
-    let neutral = resolve_neutral(&fs, &seeds).unwrap().expect("a neutral ramp");
+    let neutral = resolve_neutral(&fs, &seeds)
+        .unwrap()
+        .expect("a neutral ramp");
     let tint = neutral.tint.expect("a tint");
 
     // Naming a family is the useful case, but a colour is still a colour — a
@@ -230,7 +255,8 @@ fn surfaces_a_malformed_config_when_resolving_the_neutral() {
     use crate::seeds::resolve_neutral;
 
     let fs = InMemoryFs::new();
-    fs.write(Path::new("primitiv.json"), b"{ not json }").unwrap();
+    fs.write(Path::new("primitiv.json"), b"{ not json }")
+        .unwrap();
 
     // `resolve_seeds` happens to run first in the `theme` command and would catch
     // this, but that is the command's ordering rather than a guarantee — asked

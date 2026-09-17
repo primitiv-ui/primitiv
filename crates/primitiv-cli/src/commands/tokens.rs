@@ -1,14 +1,16 @@
 use std::path::{Path, PathBuf};
 
 use primitiv_emit::{
-    BASE_CSS, BASE_SCSS, TokenSources, emit_breakpoints_ts, emit_tailwind_tokens, emit_tokens_css,
-    emit_tokens_scss, tokens_from_dtcg,
+    BASE_CSS, BASE_SCSS, TokenSources, emit_breakpoints_ts, emit_tailwind_tokens,
+    emit_theme_overrides_css, emit_theme_overrides_scss, emit_theme_overrides_tailwind,
+    emit_tokens_css, emit_tokens_scss, tokens_from_dtcg,
 };
 
 use crate::commands::theme;
 use crate::config::try_resolve;
 use crate::error::CliError;
 use crate::format::Format;
+use crate::palette;
 use crate::ports::fs::FileSystem;
 use crate::ports::output::Output;
 use crate::token_source::{
@@ -32,8 +34,12 @@ pub fn tokens(
     output: &impl Output,
     format: Option<Format>,
     out: Option<&Path>,
+    from: Option<&Path>,
 ) -> Result<(), CliError> {
-    let config = if format.is_none() || out.is_none() {
+    // `from` joins the two flags that force a config read, because the palette
+    // reference is recorded there (D2): a bare `primitiv tokens` is exactly the
+    // run that has to pick it up.
+    let config = if format.is_none() || out.is_none() || from.is_none() {
         try_resolve(fs, &fs.current_dir()?)?
     } else {
         None
@@ -72,7 +78,15 @@ pub fn tokens(
         // import leads the file — CSS requires `@import` before any other rule.
         Some(path) => {
             fs.write(&path.with_file_name(base_name), base_styles.as_bytes())?;
-            let imported = format!("{}{rendered}", leading_imports(fs, &path, base_name, format));
+            // Before the token layer, not after: `leading_imports` decides whether
+            // to emit the theme `@import` by asking whether that file is there, so
+            // the overrides have to land first or the very run that wrote them
+            // emits a layer that does not reference them.
+            write_overrides(fs, &path, format, from, config.as_ref())?;
+            let imported = format!(
+                "{}{rendered}",
+                leading_imports(fs, &path, base_name, format)
+            );
             fs.write(&path, imported.as_bytes())?;
             // A JS-consumable sibling for consumers that need a real value outside
             // the CSS cascade — e.g. useMediaQuery's matchMedia() (RFC 0025 §5).
@@ -87,6 +101,34 @@ pub fn tokens(
         // streamed foundation stays self-contained.
         None => output.write_stdout(format!("{rendered}\n{base_styles}").as_bytes())?,
     }
+    Ok(())
+}
+
+/// Write the palette's override layer beside the token layer, where this project
+/// has a palette to write (RFC 0032 D9).
+///
+/// The destination is not a choice: the token layer imports the overrides by name
+/// from its own directory (`leading_imports`), so the file goes where that import
+/// points and nowhere else.
+fn write_overrides(
+    fs: &impl FileSystem,
+    token_path: &Path,
+    format: Format,
+    from: Option<&Path>,
+    config: Option<&crate::config::Config>,
+) -> Result<(), CliError> {
+    let Some(source) = palette::locate(from, config) else {
+        return Ok(());
+    };
+    let document = palette::parse(&fs.read(&source)?, &source)?;
+    let documents = [document];
+    let overrides = match format {
+        Format::Css => emit_theme_overrides_css(&documents),
+        Format::Scss => emit_theme_overrides_scss(&documents),
+        Format::Tailwind => emit_theme_overrides_tailwind(&documents),
+    };
+    let name = format!("{}.{}", theme::FILE_STEM, format.extension());
+    fs.write(&token_path.with_file_name(name), overrides.as_bytes())?;
     Ok(())
 }
 

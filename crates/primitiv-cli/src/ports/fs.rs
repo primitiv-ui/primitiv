@@ -114,7 +114,10 @@ impl InMemoryFs {
 impl FileSystem for InMemoryFs {
     fn read(&self, path: &Path) -> io::Result<Vec<u8>> {
         if self.fail_reads.borrow().as_deref() == Some(path) {
-            return Err(io::Error::new(io::ErrorKind::PermissionDenied, "read blocked"));
+            return Err(io::Error::new(
+                io::ErrorKind::PermissionDenied,
+                "read blocked",
+            ));
         }
         self.files
             .borrow()
@@ -125,9 +128,14 @@ impl FileSystem for InMemoryFs {
 
     fn write(&self, path: &Path, bytes: &[u8]) -> io::Result<()> {
         if self.fail_writes.borrow().as_deref() == Some(path) {
-            return Err(io::Error::new(io::ErrorKind::PermissionDenied, "write blocked"));
+            return Err(io::Error::new(
+                io::ErrorKind::PermissionDenied,
+                "write blocked",
+            ));
         }
-        self.files.borrow_mut().insert(path.to_path_buf(), bytes.to_vec());
+        self.files
+            .borrow_mut()
+            .insert(path.to_path_buf(), bytes.to_vec());
         Ok(())
     }
 
@@ -137,14 +145,20 @@ impl FileSystem for InMemoryFs {
 
     fn create_dir_all(&self, path: &Path) -> io::Result<()> {
         if self.fail_create_dir.borrow().as_deref() == Some(path) {
-            return Err(io::Error::new(io::ErrorKind::PermissionDenied, "mkdir blocked"));
+            return Err(io::Error::new(
+                io::ErrorKind::PermissionDenied,
+                "mkdir blocked",
+            ));
         }
         Ok(())
     }
 
     fn current_dir(&self) -> io::Result<PathBuf> {
         if *self.fail_current_dir.borrow() {
-            return Err(io::Error::new(io::ErrorKind::NotFound, "no working directory"));
+            return Err(io::Error::new(
+                io::ErrorKind::NotFound,
+                "no working directory",
+            ));
         }
         Ok(self.cwd.borrow().clone())
     }

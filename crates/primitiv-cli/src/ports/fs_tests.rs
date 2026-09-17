@@ -71,7 +71,10 @@ fn os_fs_creates_a_nested_directory() {
 fn in_memory_fs_create_dir_all_succeeds() {
     let fs = InMemoryFs::new();
 
-    assert!(fs.create_dir_all(Path::new("styles/primitiv/button")).is_ok());
+    assert!(
+        fs.create_dir_all(Path::new("styles/primitiv/button"))
+            .is_ok()
+    );
 }
 
 #[test]
@@ -95,7 +98,10 @@ fn os_fs_reports_a_missing_path_as_absent() {
 
 #[test]
 fn os_fs_reports_the_process_current_directory() {
-    assert_eq!(OsFs.current_dir().unwrap(), std::env::current_dir().unwrap());
+    assert_eq!(
+        OsFs.current_dir().unwrap(),
+        std::env::current_dir().unwrap()
+    );
 }
 
 #[test]
@@ -103,7 +109,10 @@ fn in_memory_fs_reports_its_configured_current_directory() {
     let fs = InMemoryFs::new();
     fs.set_current_dir(Path::new("project/packages/app"));
 
-    assert_eq!(fs.current_dir().unwrap(), PathBuf::from("project/packages/app"));
+    assert_eq!(
+        fs.current_dir().unwrap(),
+        PathBuf::from("project/packages/app")
+    );
 }
 
 #[test]

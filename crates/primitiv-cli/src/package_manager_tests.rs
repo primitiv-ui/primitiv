@@ -66,7 +66,8 @@ fn defaults_to_npm_when_no_lockfile_is_present() {
 #[test]
 fn prefers_pnpm_over_npm_when_both_lockfiles_exist() {
     let fs = project_with("pnpm-lock.yaml", "project");
-    fs.write(Path::new("project/package-lock.json"), b"").unwrap();
+    fs.write(Path::new("project/package-lock.json"), b"")
+        .unwrap();
 
     assert_eq!(
         PackageManager::detect(&fs, Path::new("project")),

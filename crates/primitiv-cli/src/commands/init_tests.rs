@@ -2,7 +2,7 @@ use std::path::Path;
 
 use pretty_assertions::assert_eq;
 
-use crate::commands::init::{init, InitOptions};
+use crate::commands::init::{InitOptions, init};
 use crate::error::CliError;
 use crate::format::Format;
 use crate::ports::fs::{FileSystem, InMemoryFs};
@@ -90,10 +90,16 @@ fn detects_the_components_alias_from_tsconfig_when_no_flag_is_given() {
     )
     .unwrap();
 
-    init(&fs, &InMemoryOutput::new(), &silent_prompt(), false, &default_options()).unwrap();
+    init(
+        &fs,
+        &InMemoryOutput::new(),
+        &silent_prompt(),
+        false,
+        &default_options(),
+    )
+    .unwrap();
 
-    let written =
-        String::from_utf8(fs.read(Path::new("project/primitiv.json")).unwrap()).unwrap();
+    let written = String::from_utf8(fs.read(Path::new("project/primitiv.json")).unwrap()).unwrap();
     assert_eq!(written, EXPECTED_DETECTED_ALIAS);
 }
 
@@ -122,8 +128,7 @@ fn an_explicit_alias_flag_wins_over_detection() {
     )
     .unwrap();
 
-    let written =
-        String::from_utf8(fs.read(Path::new("project/primitiv.json")).unwrap()).unwrap();
+    let written = String::from_utf8(fs.read(Path::new("project/primitiv.json")).unwrap()).unwrap();
     assert!(written.contains(r#""aliases": { "components": "@/ui" }"#));
 }
 
@@ -134,7 +139,14 @@ fn surfaces_a_failure_to_detect_the_alias() {
     fs.write(Path::new("project/package.json"), b"{}").unwrap();
     fs.fail_reads_to(Path::new("project/tsconfig.json"));
 
-    let err = init(&fs, &InMemoryOutput::new(), &silent_prompt(), false, &default_options()).unwrap_err();
+    let err = init(
+        &fs,
+        &InMemoryOutput::new(),
+        &silent_prompt(),
+        false,
+        &default_options(),
+    )
+    .unwrap_err();
 
     assert!(matches!(err, CliError::Io(_)));
 }
@@ -145,10 +157,16 @@ fn writes_a_default_primitiv_json_to_the_working_directory() {
     fs.set_current_dir(Path::new("project"));
     fs.write(Path::new("project/package.json"), b"{}").unwrap();
 
-    init(&fs, &InMemoryOutput::new(), &silent_prompt(), false, &default_options()).unwrap();
+    init(
+        &fs,
+        &InMemoryOutput::new(),
+        &silent_prompt(),
+        false,
+        &default_options(),
+    )
+    .unwrap();
 
-    let written =
-        String::from_utf8(fs.read(Path::new("project/primitiv.json")).unwrap()).unwrap();
+    let written = String::from_utf8(fs.read(Path::new("project/primitiv.json")).unwrap()).unwrap();
     assert_eq!(written, EXPECTED_DEFAULT);
 }
 
@@ -185,7 +203,14 @@ fn refuses_to_overwrite_an_existing_config() {
     let existing = Path::new("primitiv.json");
     fs.write(existing, b"{ \"hand\": \"edited\" }").unwrap();
 
-    let err = init(&fs, &InMemoryOutput::new(), &silent_prompt(), false, &default_options()).unwrap_err();
+    let err = init(
+        &fs,
+        &InMemoryOutput::new(),
+        &silent_prompt(),
+        false,
+        &default_options(),
+    )
+    .unwrap_err();
 
     assert!(matches!(err, CliError::Conflict(_)));
     // The consumer's file is left exactly as it was (Principle 2).
@@ -221,7 +246,14 @@ fn refuses_to_run_outside_a_node_project() {
     fs.set_current_dir(Path::new("empty"));
 
     // No package.json in the working directory: there is no project to configure.
-    let err = init(&fs, &InMemoryOutput::new(), &silent_prompt(), false, &default_options()).unwrap_err();
+    let err = init(
+        &fs,
+        &InMemoryOutput::new(),
+        &silent_prompt(),
+        false,
+        &default_options(),
+    )
+    .unwrap_err();
 
     assert!(matches!(err, CliError::Project(_)));
     // Nothing is written into a directory that isn't a project (Principle 2).
@@ -233,7 +265,14 @@ fn surfaces_a_failure_to_read_the_working_directory() {
     let fs = InMemoryFs::new();
     fs.fail_current_dir();
 
-    let err = init(&fs, &InMemoryOutput::new(), &silent_prompt(), false, &default_options()).unwrap_err();
+    let err = init(
+        &fs,
+        &InMemoryOutput::new(),
+        &silent_prompt(),
+        false,
+        &default_options(),
+    )
+    .unwrap_err();
 
     assert!(matches!(err, CliError::Io(_)));
 }
@@ -244,7 +283,14 @@ fn surfaces_a_write_failure() {
     fs.write(Path::new("package.json"), b"{}").unwrap();
     fs.fail_writes_to(Path::new("primitiv.json"));
 
-    let err = init(&fs, &InMemoryOutput::new(), &silent_prompt(), false, &default_options()).unwrap_err();
+    let err = init(
+        &fs,
+        &InMemoryOutput::new(),
+        &silent_prompt(),
+        false,
+        &default_options(),
+    )
+    .unwrap_err();
 
     assert!(matches!(err, CliError::Io(_)));
 }
@@ -293,7 +339,14 @@ fn interactive_init_prompts_for_each_omitted_choice() {
     // a [Y/n] confirm, which defaults to yes.
     prompt.queue_answers(&["scss", "#ff0000", "app/styles"]);
 
-    init(&fs, &InMemoryOutput::new(), &prompt, true, &default_options()).unwrap();
+    init(
+        &fs,
+        &InMemoryOutput::new(),
+        &prompt,
+        true,
+        &default_options(),
+    )
+    .unwrap();
 
     let written = String::from_utf8(fs.read(Path::new("primitiv.json")).unwrap()).unwrap();
     assert_eq!(written, EXPECTED_INTERACTIVE);
@@ -323,7 +376,14 @@ fn interactive_init_prompts_for_the_components_alias_pre_filled_with_detection()
     .unwrap();
     let prompt = silent_prompt();
 
-    init(&fs, &InMemoryOutput::new(), &prompt, true, &default_options()).unwrap();
+    init(
+        &fs,
+        &InMemoryOutput::new(),
+        &prompt,
+        true,
+        &default_options(),
+    )
+    .unwrap();
 
     let written = String::from_utf8(fs.read(Path::new("primitiv.json")).unwrap()).unwrap();
     assert_eq!(written, EXPECTED_DETECTED_ALIAS);
@@ -337,7 +397,14 @@ fn interactive_init_surfaces_an_alias_prompt_failure() {
     // styles + format + brand + path succeed (calls 1–4); the alias prompt (5) fails.
     prompt.fail_after(4);
 
-    let err = init(&fs, &InMemoryOutput::new(), &prompt, true, &default_options()).unwrap_err();
+    let err = init(
+        &fs,
+        &InMemoryOutput::new(),
+        &prompt,
+        true,
+        &default_options(),
+    )
+    .unwrap_err();
 
     assert!(matches!(err, CliError::Io(_)));
 }
@@ -351,7 +418,14 @@ fn interactive_init_falls_back_to_css_for_an_unrecognised_format() {
     // their defaults (the queue is exhausted, so `ask` returns each default).
     prompt.queue_answers(&["nonsense"]);
 
-    init(&fs, &InMemoryOutput::new(), &prompt, true, &default_options()).unwrap();
+    init(
+        &fs,
+        &InMemoryOutput::new(),
+        &prompt,
+        true,
+        &default_options(),
+    )
+    .unwrap();
 
     let written = String::from_utf8(fs.read(Path::new("primitiv.json")).unwrap()).unwrap();
     assert_eq!(written, EXPECTED_DEFAULT);
@@ -389,7 +463,14 @@ fn interactive_init_surfaces_a_styles_prompt_failure() {
     let prompt = silent_prompt();
     prompt.fail();
 
-    let err = init(&fs, &InMemoryOutput::new(), &prompt, true, &default_options()).unwrap_err();
+    let err = init(
+        &fs,
+        &InMemoryOutput::new(),
+        &prompt,
+        true,
+        &default_options(),
+    )
+    .unwrap_err();
 
     assert!(matches!(err, CliError::Io(_)));
 }
@@ -402,7 +483,14 @@ fn interactive_init_surfaces_a_format_prompt_failure() {
     // The styles confirm (call 1) succeeds; the format prompt (call 2) fails.
     prompt.fail_after(1);
 
-    let err = init(&fs, &InMemoryOutput::new(), &prompt, true, &default_options()).unwrap_err();
+    let err = init(
+        &fs,
+        &InMemoryOutput::new(),
+        &prompt,
+        true,
+        &default_options(),
+    )
+    .unwrap_err();
 
     assert!(matches!(err, CliError::Io(_)));
 }
@@ -415,7 +503,14 @@ fn interactive_init_surfaces_a_brand_prompt_failure() {
     // styles confirm + format prompt succeed (calls 1–2); the brand prompt (3) fails.
     prompt.fail_after(2);
 
-    let err = init(&fs, &InMemoryOutput::new(), &prompt, true, &default_options()).unwrap_err();
+    let err = init(
+        &fs,
+        &InMemoryOutput::new(),
+        &prompt,
+        true,
+        &default_options(),
+    )
+    .unwrap_err();
 
     assert!(matches!(err, CliError::Io(_)));
 }
@@ -428,7 +523,14 @@ fn interactive_init_surfaces_a_path_prompt_failure() {
     // styles + format + brand succeed (calls 1–3); the path prompt (4) fails.
     prompt.fail_after(3);
 
-    let err = init(&fs, &InMemoryOutput::new(), &prompt, true, &default_options()).unwrap_err();
+    let err = init(
+        &fs,
+        &InMemoryOutput::new(),
+        &prompt,
+        true,
+        &default_options(),
+    )
+    .unwrap_err();
 
     assert!(matches!(err, CliError::Io(_)));
 }
@@ -514,7 +616,10 @@ fn the_default_brand_is_the_seed_the_shipped_palette_was_generated_from() {
         .find(|entry| entry["ramp"] == "brand")
         .expect("the manifest seeds a brand ramp");
 
-    assert_eq!(brand["seed"].as_str(), Some(crate::commands::init::DEFAULT_BRAND));
+    assert_eq!(
+        brand["seed"].as_str(),
+        Some(crate::commands::init::DEFAULT_BRAND)
+    );
 }
 
 #[test]
@@ -542,7 +647,10 @@ fn init_emits_theme_overrides_for_a_brand_it_was_given() {
     let content = String::from_utf8(fs.read(theme).unwrap()).unwrap();
     assert!(content.contains("@layer primitiv.theme"), "{content}");
     // #ff6600's own ramp, not the shipped blue — step 500 is pinned to the seed.
-    assert!(content.contains("--primitiv-color-brand-500: oklch(0.6958 0.2043 43.491)"), "{content}");
+    assert!(
+        content.contains("--primitiv-color-brand-500: oklch(0.6958 0.2043 43.491)"),
+        "{content}"
+    );
 }
 
 #[test]
@@ -550,7 +658,14 @@ fn init_writes_no_theme_overrides_when_the_brand_is_the_shipped_default() {
     let fs = InMemoryFs::new();
     fs.write(Path::new("package.json"), b"{}").unwrap();
 
-    init(&fs, &InMemoryOutput::new(), &silent_prompt(), false, &default_options()).unwrap();
+    init(
+        &fs,
+        &InMemoryOutput::new(),
+        &silent_prompt(),
+        false,
+        &default_options(),
+    )
+    .unwrap();
 
     // Overriding the shipped brand with the shipped brand is a no-op file, and an
     // override file present by default would read as "this project has customised

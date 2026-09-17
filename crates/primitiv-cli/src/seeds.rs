@@ -1,9 +1,9 @@
-use crate::cli::{neutral_unsupported, unknown_family, RAMP_FAMILIES};
-use harmoni_core::api::NeutralTint;
+use crate::cli::{RAMP_FAMILIES, neutral_unsupported, unknown_family};
 use harmoni_core::ColorInput;
+use harmoni_core::api::NeutralTint;
 use primitiv_emit::NeutralRamp;
 
-use crate::config::{try_resolve, NeutralEntry, DEFAULT_BLACK, DEFAULT_WHITE};
+use crate::config::{DEFAULT_BLACK, DEFAULT_WHITE, NeutralEntry, try_resolve};
 use crate::error::CliError;
 use crate::ports::fs::FileSystem;
 
@@ -34,7 +34,10 @@ pub fn resolve_seeds(
             // `neutral` cannot reach here: it is a named field on `Theme`, so serde
             // lifts it out before the flattened map is built. Its own shape error
             // comes from `resolve_neutral`, which can say what to write instead.
-            return Err(unknown_family(&format!("{FILE_LABEL}'s theme block"), family));
+            return Err(unknown_family(
+                &format!("{FILE_LABEL}'s theme block"),
+                family,
+            ));
         }
     }
 

@@ -38,10 +38,7 @@ pub fn parse_decision(answer: &str) -> Decision {
 /// including `y`, `yes`, an empty line (the default), and unrecognised input —
 /// returns `true`, the safe-default yes.
 pub fn parse_confirm(answer: &str) -> bool {
-    !matches!(
-        answer.trim().to_ascii_lowercase().as_str(),
-        "n" | "no"
-    )
+    !matches!(answer.trim().to_ascii_lowercase().as_str(), "n" | "no")
 }
 
 /// Resolve a free-text answer against its `default`: the trimmed input, or the
@@ -95,14 +92,18 @@ impl Prompt for OsPrompt {
         );
         let _ = io::stderr().flush();
         let mut line = String::new();
-        io::stdin().read_line(&mut line).map(|_| parse_decision(&line))
+        io::stdin()
+            .read_line(&mut line)
+            .map(|_| parse_decision(&line))
     }
 
     fn confirm(&self, question: &str) -> io::Result<bool> {
         let _ = write!(io::stderr(), "{question} [Y/n] ");
         let _ = io::stderr().flush();
         let mut line = String::new();
-        io::stdin().read_line(&mut line).map(|_| parse_confirm(&line))
+        io::stdin()
+            .read_line(&mut line)
+            .map(|_| parse_confirm(&line))
     }
 
     fn ask(&self, question: &str, default: &str) -> io::Result<String> {

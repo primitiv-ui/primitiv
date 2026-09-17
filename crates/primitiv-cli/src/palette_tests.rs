@@ -82,10 +82,7 @@ fn falls_back_to_the_reference_the_config_records() {
 
     let located = locate(None, Some(&config));
 
-    assert_eq!(
-        located,
-        Some(PathBuf::from("design/primitiv.palette.json"))
-    );
+    assert_eq!(located, Some(PathBuf::from("design/primitiv.palette.json")));
 }
 
 /// A project that has never been handed a palette is the ordinary case. Guessing

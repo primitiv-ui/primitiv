@@ -13,7 +13,10 @@ fn derives_the_components_alias_from_a_root_src_mapping() {
     // The canonical Vite / shadcn setup: `@/*` resolves to `./src/*`.
     let config = br#"{ "compilerOptions": { "paths": { "@/*": ["./src/*"] } } }"#;
 
-    assert_eq!(parse_components_alias(config), Some("@/components".to_string()));
+    assert_eq!(
+        parse_components_alias(config),
+        Some("@/components".to_string())
+    );
 }
 
 #[test]
@@ -21,14 +24,20 @@ fn honours_a_non_at_prefix() {
     // Whatever the prefix is, the components alias is `<prefix>/components`.
     let config = br#"{ "compilerOptions": { "paths": { "~/*": ["./src/*"] } } }"#;
 
-    assert_eq!(parse_components_alias(config), Some("~/components".to_string()));
+    assert_eq!(
+        parse_components_alias(config),
+        Some("~/components".to_string())
+    );
 }
 
 #[test]
 fn accepts_a_target_without_a_leading_dot_slash() {
     let config = br#"{ "compilerOptions": { "paths": { "@/*": ["src/*"] } } }"#;
 
-    assert_eq!(parse_components_alias(config), Some("@/components".to_string()));
+    assert_eq!(
+        parse_components_alias(config),
+        Some("@/components".to_string())
+    );
 }
 
 #[test]
@@ -36,7 +45,10 @@ fn accepts_a_next_js_root_without_a_src_dir() {
     // Next.js without a `src` dir maps the alias straight at the project root.
     let config = br#"{ "compilerOptions": { "paths": { "@/*": ["./*"] } } }"#;
 
-    assert_eq!(parse_components_alias(config), Some("@/components".to_string()));
+    assert_eq!(
+        parse_components_alias(config),
+        Some("@/components".to_string())
+    );
 }
 
 #[test]
@@ -51,7 +63,10 @@ fn returns_none_when_there_are_no_compiler_options() {
 
 #[test]
 fn returns_none_when_there_are_no_paths() {
-    assert_eq!(parse_components_alias(br#"{ "compilerOptions": {} }"#), None);
+    assert_eq!(
+        parse_components_alias(br#"{ "compilerOptions": {} }"#),
+        None
+    );
 }
 
 #[test]
@@ -83,7 +98,10 @@ fn resolves_a_root_src_mapping_to_the_src_components_directory() {
     // `src/components`, where `add` writes the React surface.
     let config = br#"{ "compilerOptions": { "paths": { "@/*": ["./src/*"] } } }"#;
 
-    assert_eq!(parse_components_path(config), Some("src/components".to_string()));
+    assert_eq!(
+        parse_components_path(config),
+        Some("src/components".to_string())
+    );
 }
 
 #[test]
@@ -92,7 +110,10 @@ fn resolves_a_next_js_root_mapping_to_the_components_directory() {
     // components directory is just `components`.
     let config = br#"{ "compilerOptions": { "paths": { "@/*": ["./*"] } } }"#;
 
-    assert_eq!(parse_components_path(config), Some("components".to_string()));
+    assert_eq!(
+        parse_components_path(config),
+        Some("components".to_string())
+    );
 }
 
 #[test]

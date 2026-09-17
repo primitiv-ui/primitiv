@@ -46,7 +46,10 @@ fn records_installed_component_names_sorted_in_the_lock() {
     lock.record_component("button");
 
     assert_eq!(
-        lock.components.iter().map(String::as_str).collect::<Vec<_>>(),
+        lock.components
+            .iter()
+            .map(String::as_str)
+            .collect::<Vec<_>>(),
         vec!["button", "switch"]
     );
 }
@@ -71,7 +74,10 @@ fn parses_recorded_components_from_a_lock() {
     let lock = Lock::parse(br#"{ "components": ["button", "switch"], "files": {} }"#);
 
     assert_eq!(
-        lock.components.iter().map(String::as_str).collect::<Vec<_>>(),
+        lock.components
+            .iter()
+            .map(String::as_str)
+            .collect::<Vec<_>>(),
         vec!["button", "switch"]
     );
 }

@@ -51,8 +51,9 @@ fn render(index: &RegistryIndex, lock: &Lock) -> String {
         index.components.values().map(|e| e.version.len()),
         VERSION_HEADER,
     );
-    let mut table =
-        format!("{NAME_HEADER:<name_width$}  {VERSION_HEADER:<version_width$}  {INSTALLED_HEADER}\n");
+    let mut table = format!(
+        "{NAME_HEADER:<name_width$}  {VERSION_HEADER:<version_width$}  {INSTALLED_HEADER}\n"
+    );
     for (name, entry) in &index.components {
         let installed = if lock.components.contains(name) {
             "yes"

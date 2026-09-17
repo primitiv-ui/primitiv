@@ -122,12 +122,25 @@ pub fn init(
             theme::theme(
                 fs,
                 &seeds,
-                Some(&token_dir.join(format!("{}.{}", theme::FILE_STEM, resolved.format.extension()))),
+                Some(&token_dir.join(format!(
+                    "{}.{}",
+                    theme::FILE_STEM,
+                    resolved.format.extension()
+                ))),
                 Some(resolved.format),
                 DEFAULT_STEPS,
             )?;
         }
-        crate::commands::tokens::tokens(fs, output, Some(resolved.format), Some(&token_out))?;
+        crate::commands::tokens::tokens(
+            fs,
+            output,
+            Some(resolved.format),
+            Some(&token_out),
+            // `init` writes the config it is deriving from, so there is no
+            // recorded palette yet and nothing to pass: a project is handed one
+            // later, by `tokens --from`.
+            None,
+        )?;
     }
     Ok(())
 }
@@ -155,8 +168,11 @@ fn resolve(
     let format = match options.format {
         Some(value) => value,
         None if ask => {
-            let answer =
-                ask_text(prompt, "Stylesheet format (css, scss, tailwind)", Format::Css.as_str())?;
+            let answer = ask_text(
+                prompt,
+                "Stylesheet format (css, scss, tailwind)",
+                Format::Css.as_str(),
+            )?;
             Format::parse(&answer).unwrap_or(Format::Css)
         }
         None => Format::Css,
@@ -168,7 +184,11 @@ fn resolve(
     };
     let path = match &options.path {
         Some(value) => value.clone(),
-        None if ask => ask_text(prompt, "Where should copied styles land", DEFAULT_STYLES_PATH)?,
+        None if ask => ask_text(
+            prompt,
+            "Where should copied styles land",
+            DEFAULT_STYLES_PATH,
+        )?,
         None => DEFAULT_STYLES_PATH.to_string(),
     };
     let alias_components = match &options.alias_components {

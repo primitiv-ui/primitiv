@@ -40,7 +40,10 @@ fn renders_a_component_table_to_stdout() {
 
     list(&fs, &registry, &output, false).unwrap();
 
-    assert_eq!(String::from_utf8(output.captured()).unwrap(), EXPECTED_TABLE);
+    assert_eq!(
+        String::from_utf8(output.captured()).unwrap(),
+        EXPECTED_TABLE
+    );
 }
 
 #[test]
@@ -48,7 +51,8 @@ fn marks_a_component_installed_from_the_lock() {
     let fs = InMemoryFs::new();
     let mut lock = Lock::default();
     lock.record_component("button");
-    fs.write(Path::new("primitiv.lock"), &lock.to_bytes()).unwrap();
+    fs.write(Path::new("primitiv.lock"), &lock.to_bytes())
+        .unwrap();
     let registry = InMemoryRegistry::new(INDEX);
     let output = InMemoryOutput::new();
 

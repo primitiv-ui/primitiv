@@ -1,6 +1,6 @@
 use pretty_assertions::assert_eq;
 
-use crate::wiring::{contains_wiring, patch, SNIPPET};
+use crate::wiring::{SNIPPET, contains_wiring, patch};
 
 // --- SNIPPET ---
 

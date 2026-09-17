@@ -452,6 +452,7 @@ fn parses_the_tokens_command_with_out() {
         Command::Tokens {
             out: Some("src/styles/tokens.css".to_string()),
             format: None,
+            from: None,
         }
     );
 }
@@ -465,6 +466,7 @@ fn parses_the_tokens_command_with_an_explicit_scss_format() {
         Command::Tokens {
             out: Some("x.scss".to_string()),
             format: Some(Format::Scss),
+            from: None,
         }
     );
 }
@@ -478,6 +480,7 @@ fn parses_bare_tokens_with_no_flags() {
         Command::Tokens {
             out: None,
             format: None,
+            from: None,
         }
     );
 }
@@ -728,5 +731,31 @@ fn rejects_a_step_count_flag_with_no_value() {
     assert!(matches!(
         parse(&args(&["theme", "--out", "x.css", "--steps"])).unwrap_err(),
         CliError::Usage(_)
+    ));
+}
+
+/// `--from` is how a freshly-delivered palette is applied (RFC 0032 D14); the
+/// config records it afterwards, so the flag is typed once.
+#[test]
+fn parses_the_tokens_command_with_a_palette_to_apply() {
+    let command = parse(&args(&["tokens", "--from", "primitiv.palette.json"])).unwrap();
+
+    assert_eq!(
+        command,
+        Command::Tokens {
+            out: None,
+            format: None,
+            from: Some("primitiv.palette.json".to_string()),
+        }
+    );
+}
+
+/// `--from` trailing the argument list is a half-typed command, not a request to
+/// apply nothing — the parser says which flag is short of its value.
+#[test]
+fn rejects_a_palette_flag_with_no_value() {
+    assert!(matches!(
+        parse(&args(&["tokens", "--from"])).unwrap_err(),
+        CliError::Usage(message) if message.contains("--from")
     ));
 }

@@ -34,6 +34,9 @@ pub enum Command {
     Tokens {
         out: Option<String>,
         format: Option<Format>,
+        /// The palette document to apply (RFC 0032 D14). `None` falls back to the
+        /// config's `theme.palette`, and then to no palette at all.
+        from: Option<String>,
     },
     Dtcg {
         /// The ramp seeds to export, as `(family, colour)` in [`RAMP_FAMILIES`]
@@ -213,15 +216,17 @@ fn parse_init(args: &[String]) -> Result<Command, CliError> {
 fn parse_tokens(args: &[String]) -> Result<Command, CliError> {
     let mut out = None;
     let mut format = None;
+    let mut from = None;
     let mut rest = args.iter();
     while let Some(flag) = rest.next() {
         match flag.as_str() {
             "--out" => out = Some(take_value(&mut rest, "--out")?),
             "--format" => format = Some(parse_format(&take_value(&mut rest, "--format")?)?),
+            "--from" => from = Some(take_value(&mut rest, "--from")?),
             other => return Err(usage(format!("unexpected argument '{other}'"))),
         }
     }
-    Ok(Command::Tokens { out, format })
+    Ok(Command::Tokens { out, format, from })
 }
 
 /// Parse `theme [--<family> <colour>]... --out <path> [--format <fmt>] [--steps <n>]`
@@ -329,7 +334,9 @@ fn parse_steps(value: &str) -> Result<usize, CliError> {
 /// Why the CLI will not take a neutral seed, worded the same way wherever one is
 /// offered — a flag or a config key — so the two cannot drift.
 pub fn neutral_unsupported(source: &str) -> CliError {
-    usage(format!("{source} cannot seed the neutral ramp: {NEUTRAL_TAKES_A_BLOCK}"))
+    usage(format!(
+        "{source} cannot seed the neutral ramp: {NEUTRAL_TAKES_A_BLOCK}"
+    ))
 }
 
 /// Why one colour is the wrong shape for a neutral ramp, and what to write

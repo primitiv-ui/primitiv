@@ -38,7 +38,11 @@ fn in_memory_runner_records_each_invocation() {
     let runner = InMemoryProcessRunner::new();
 
     runner
-        .run("pnpm", &["add".to_string(), "react".to_string()], Path::new("app"))
+        .run(
+            "pnpm",
+            &["add".to_string(), "react".to_string()],
+            Path::new("app"),
+        )
         .unwrap();
 
     assert_eq!(

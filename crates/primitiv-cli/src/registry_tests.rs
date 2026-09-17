@@ -175,7 +175,13 @@ fn parses_each_components_per_format_style_files() {
     assert_eq!(button.files(Format::Scss), ["styles.scss"]);
     assert_eq!(button.files(Format::Tailwind), ["styles.css"]);
     // A component with no styles block declares no files for any format.
-    assert!(index.components["icon"].styles.formats.files(Format::Css).is_empty());
+    assert!(
+        index.components["icon"]
+            .styles
+            .formats
+            .files(Format::Css)
+            .is_empty()
+    );
 }
 
 #[test]

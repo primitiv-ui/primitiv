@@ -3,7 +3,7 @@ use std::path::Path;
 use pretty_assertions::assert_eq;
 
 use crate::ports::prompt::{
-    parse_confirm, parse_decision, resolve_answer, Decision, InMemoryPrompt, OsPrompt, Prompt,
+    Decision, InMemoryPrompt, OsPrompt, Prompt, parse_confirm, parse_decision, resolve_answer,
 };
 
 #[test]
@@ -186,7 +186,10 @@ fn in_memory_prompt_scripted_answers_are_consumed_in_order() {
     prompt.queue_answers(&["scss", "app/styles"]);
 
     assert_eq!(prompt.ask("Format?", "css").unwrap(), "scss");
-    assert_eq!(prompt.ask("Path?", "src/styles/primitiv").unwrap(), "app/styles");
+    assert_eq!(
+        prompt.ask("Path?", "src/styles/primitiv").unwrap(),
+        "app/styles"
+    );
 }
 
 #[test]

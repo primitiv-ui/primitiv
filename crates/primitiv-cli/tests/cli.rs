@@ -32,9 +32,7 @@ fn writes_a_dtcg_export_of_every_seeded_ramp_and_exits_zero() {
 
     Command::cargo_bin("primitiv")
         .unwrap()
-        .args([
-            "dtcg", "--brand", "#0a7755", "--danger", "#db2424", "--out",
-        ])
+        .args(["dtcg", "--brand", "#0a7755", "--danger", "#db2424", "--out"])
         .arg(out.path())
         .assert()
         .success();
@@ -383,7 +381,13 @@ fn add_registry_override_copies_from_a_repo_local_directory() {
     Command::cargo_bin("primitiv")
         .unwrap()
         .current_dir(dir.path())
-        .args(["add", "button", "--styles-only", "--registry", "vendor/registry"])
+        .args([
+            "add",
+            "button",
+            "--styles-only",
+            "--registry",
+            "vendor/registry",
+        ])
         .assert()
         .success();
 
@@ -499,12 +503,16 @@ fn tokens_emits_the_full_breakpoint_scale_as_css() {
         .args(["tokens", "--format", "css"])
         .assert()
         .success()
-        .stdout(predicate::str::contains("--primitiv-breakpoint-xs: 22.5rem;"))
+        .stdout(predicate::str::contains(
+            "--primitiv-breakpoint-xs: 22.5rem;",
+        ))
         .stdout(predicate::str::contains("--primitiv-breakpoint-sm: 40rem;"))
         .stdout(predicate::str::contains("--primitiv-breakpoint-md: 48rem;"))
         .stdout(predicate::str::contains("--primitiv-breakpoint-lg: 64rem;"))
         .stdout(predicate::str::contains("--primitiv-breakpoint-xl: 80rem;"))
-        .stdout(predicate::str::contains("--primitiv-breakpoint-2xl: 96rem;"));
+        .stdout(predicate::str::contains(
+            "--primitiv-breakpoint-2xl: 96rem;",
+        ));
 }
 
 #[test]
@@ -609,5 +617,7 @@ fn reports_a_usage_error_on_stderr_and_exits_two() {
         .arg("bogus")
         .assert()
         .code(2)
-        .stderr(predicate::str::contains("primitiv: unknown command 'bogus'"));
+        .stderr(predicate::str::contains(
+            "primitiv: unknown command 'bogus'",
+        ));
 }

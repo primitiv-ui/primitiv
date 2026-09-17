@@ -3,7 +3,7 @@ use std::path::Path;
 
 use pretty_assertions::assert_eq;
 
-use crate::config::{resolve, try_resolve, Config, NeutralEntry, Registry, Styles, Theme, Tokens};
+use crate::config::{Config, NeutralEntry, Registry, Styles, Theme, Tokens, resolve, try_resolve};
 use crate::format::Format;
 use crate::ports::fs::{FileSystem, InMemoryFs};
 
@@ -65,7 +65,10 @@ fn should_resolve_a_config_in_the_starting_directory() {
 
     let config = resolve(&fs, Path::new("project")).unwrap();
 
-    assert_eq!(config.theme.seeds.get("brand").map(String::as_str), Some("#0a7755"));
+    assert_eq!(
+        config.theme.seeds.get("brand").map(String::as_str),
+        Some("#0a7755")
+    );
 }
 
 #[test]
@@ -128,7 +131,8 @@ fn try_resolve_returns_none_when_no_config_exists() {
 #[test]
 fn try_resolve_still_errors_on_a_malformed_config() {
     let fs = InMemoryFs::new();
-    fs.write(Path::new("project/primitiv.json"), b"{ not json }").unwrap();
+    fs.write(Path::new("project/primitiv.json"), b"{ not json }")
+        .unwrap();
 
     let error = try_resolve(&fs, Path::new("project")).unwrap_err();
 
@@ -164,8 +168,14 @@ fn should_carry_a_seed_for_every_ramp_family_the_theme_block_names() {
 
     // Keyed by family rather than a field per colour, so `RAMP_FAMILIES` stays the
     // one place the vocabulary lives — the flags and the config cannot disagree.
-    assert_eq!(config.theme.seeds.get("brand").map(String::as_str), Some("#0a7755"));
-    assert_eq!(config.theme.seeds.get("danger").map(String::as_str), Some("#db2424"));
+    assert_eq!(
+        config.theme.seeds.get("brand").map(String::as_str),
+        Some("#0a7755")
+    );
+    assert_eq!(
+        config.theme.seeds.get("danger").map(String::as_str),
+        Some("#db2424")
+    );
 }
 
 #[test]
@@ -191,7 +201,10 @@ fn should_parse_a_neutral_block_beside_the_family_seeds() {
     // `neutral` is structured where a seed is a single string, so it is a named
     // field rather than another entry in the flattened map — and naming it keeps
     // it out of `seeds`, which every family key still falls into.
-    assert_eq!(config.theme.seeds.get("brand").map(String::as_str), Some("#236ce1"));
+    assert_eq!(
+        config.theme.seeds.get("brand").map(String::as_str),
+        Some("#236ce1")
+    );
     assert_eq!(config.theme.seeds.get("neutral"), None);
     let neutral = match config.theme.neutral.expect("a neutral block") {
         NeutralEntry::Ramp(neutral) => neutral,

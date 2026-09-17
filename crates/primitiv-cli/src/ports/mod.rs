@@ -9,8 +9,8 @@ mod fs_tests;
 #[cfg(test)]
 mod output_tests;
 #[cfg(test)]
-mod prompt_tests;
-#[cfg(test)]
 mod process_tests;
+#[cfg(test)]
+mod prompt_tests;
 #[cfg(test)]
 mod registry_tests;

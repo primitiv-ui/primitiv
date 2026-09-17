@@ -325,7 +325,15 @@ fn ensure_tokens(
     if parent != Path::new("") {
         fs.create_dir_all(parent)?;
     }
-    crate::commands::tokens::tokens(fs, output, Some(config.tokens.format), Some(&token_path))
+    // No `--from`: the palette, if this project has one, is the reference its
+    // config already records, and a layer generated here has to carry it too.
+    crate::commands::tokens::tokens(
+        fs,
+        output,
+        Some(config.tokens.format),
+        Some(&token_path),
+        None,
+    )
 }
 
 /// Whether `value` looks like a registry version tag — an optional `v` then a
@@ -340,7 +348,6 @@ fn is_version(value: &str) -> bool {
 fn github_raw_base(version: &str) -> String {
     format!("https://raw.githubusercontent.com/{REGISTRY_REPO}/{version}/registry")
 }
-
 
 /// Offer the Tailwind project wiring (RFC 0005 §4.3). For non-interactive
 /// sessions or when `--no-wiring` is set, prints the manual snippet so the
@@ -392,19 +399,13 @@ fn patch_wiring(
         }
         return Ok(());
     };
-    let css = String::from_utf8_lossy(
-        &fs.read(&entry_path).map_err(CliError::Io)?,
-    )
-    .into_owned();
+    let css = String::from_utf8_lossy(&fs.read(&entry_path).map_err(CliError::Io)?).into_owned();
     if wiring::contains_wiring(&css) {
         return Ok(());
     }
     let patched = wiring::patch(&css);
     if !json {
-        let question = format!(
-            "Add Tailwind wiring to {}?",
-            entry_path.display()
-        );
+        let question = format!("Add Tailwind wiring to {}?", entry_path.display());
         if prompt.confirm(&question).map_err(CliError::Io)? {
             fs.write(&entry_path, patched.as_bytes())?;
         } else {
@@ -458,8 +459,8 @@ fn copy_styled_surface(
 ) -> Result<Vec<(String, &'static str)>, CliError> {
     let lock_path = dir.join(lock::FILE_NAME);
     let mut lock = Lock::read(fs, &lock_path)?;
-    let components_dir = detect::components_path(fs, dir)?
-        .unwrap_or_else(|| DEFAULT_COMPONENTS_DIR.to_string());
+    let components_dir =
+        detect::components_path(fs, dir)?.unwrap_or_else(|| DEFAULT_COMPONENTS_DIR.to_string());
     let files = planned_files(index, resolved, format, path, config, &components_dir);
     if files.is_empty() {
         return Ok(vec![]);
@@ -868,7 +869,10 @@ fn update_barrel(
 ) -> Result<Option<String>, CliError> {
     let dir_prefix = format!(
         "{}/",
-        components_dir.to_string_lossy().replace('\\', "/").trim_end_matches('/')
+        components_dir
+            .to_string_lossy()
+            .replace('\\', "/")
+            .trim_end_matches('/')
     );
     let mut stems: Vec<String> = lock
         .files

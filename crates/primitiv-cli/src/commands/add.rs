@@ -259,7 +259,7 @@ pub fn add(
             if effective_format == Format::Tailwind {
                 offer_wiring(output, prompt, fs, interactive, *no_wiring, *json, &dir)?;
             }
-            ensure_tokens(fs, output, project_config.as_ref())?;
+            ensure_tokens(fs, output, registry, project_config.as_ref())?;
         }
     }
     Ok(())
@@ -306,6 +306,7 @@ pub(crate) fn classify_registry(reg: Option<&str>) -> RegistrySource {
 fn ensure_tokens(
     fs: &impl FileSystem,
     output: &impl Output,
+    registry: &dyn Registry,
     config: Option<&crate::config::Config>,
 ) -> Result<(), CliError> {
     let Some(config) = config else {
@@ -330,6 +331,7 @@ fn ensure_tokens(
     crate::commands::tokens::tokens(
         fs,
         output,
+        registry,
         &crate::commands::tokens::TokensOptions {
             format: Some(config.tokens.format),
             out: Some(token_path.clone()),

@@ -10,12 +10,16 @@ use crate::commands::theme;
 use crate::config::{Config, try_resolve_at};
 use crate::error::CliError;
 use crate::format::Format;
+use crate::lock::{self, Lock};
 use crate::palette;
 use crate::ports::fs::FileSystem;
 use crate::ports::output::Output;
+use crate::ports::registry::Registry;
+use crate::registry::RegistryIndex;
 use crate::token_source::{
     BREAKPOINT, CONTEXT, ELEVATION, INTENT, INTERACTION, MOTION, PALETTE, PRIMITIVES, parse,
 };
+use crate::validate::{self, Vocabulary};
 
 /// What a `tokens` run was asked for — grouped rather than passed positionally,
 /// the same shape [`AddOptions`](crate::commands::add::AddOptions) and
@@ -55,6 +59,7 @@ pub struct TokensOptions {
 pub fn tokens(
     fs: &impl FileSystem,
     output: &impl Output,
+    registry: &dyn Registry,
     options: &TokensOptions,
 ) -> Result<(), CliError> {
     let TokensOptions {
@@ -70,7 +75,8 @@ pub fn tokens(
     // where the reference is read (D2), and with `--from` it is where the reference
     // is written (D10). "A malformed config always errors" is therefore literally
     // true rather than true-unless-both-flags-were-given.
-    let located = try_resolve_at(fs, &fs.current_dir()?)?;
+    let dir = fs.current_dir()?;
+    let located = try_resolve_at(fs, &dir)?;
     let config = located.as_ref().map(|(_, config)| config);
     let format = format
         .or_else(|| config.map(|config| config.tokens.format))
@@ -108,7 +114,9 @@ pub fn tokens(
             // to emit the theme `@import` by asking whether that file is there, so
             // the overrides have to land first or the very run that wrote them
             // emits a layer that does not reference them.
-            write_overrides(fs, output, &path, format, from, config, ramps_only)?;
+            write_overrides(
+                fs, output, registry, &dir, &path, format, from, config, ramps_only,
+            )?;
             // D10: the reference is recorded so the flag is typed once. Only what
             // `--from` named — a palette that came from the config is already
             // there, and a project with no config has nowhere to record it.
@@ -142,9 +150,12 @@ pub fn tokens(
 /// The destination is not a choice: the token layer imports the overrides by name
 /// from its own directory (`leading_imports`), so the file goes where that import
 /// points and nowhere else.
+#[allow(clippy::too_many_arguments)]
 fn write_overrides(
     fs: &impl FileSystem,
     output: &impl Output,
+    registry: &dyn Registry,
+    dir: &Path,
     token_path: &Path,
     format: Format,
     from: Option<&Path>,
@@ -175,6 +186,7 @@ fn write_overrides(
     } else {
         palette
     };
+    validate(fs, output, registry, dir, &palette, &source, format)?;
     let documents = [palette.document()];
     let overrides = match format {
         Format::Css => emit_theme_overrides_css(&documents),
@@ -183,6 +195,37 @@ fn write_overrides(
     };
     let name = format!("{}.{}", theme::FILE_STEM, format.extension());
     fs.write(&token_path.with_file_name(name), overrides.as_bytes())?;
+    Ok(())
+}
+
+/// Warn about what the palette leaves to Primitiv, and continue (RFC 0032 D4,
+/// D8, D15).
+///
+/// Scoped to the components `primitiv.lock` records as installed, so the report
+/// names what *this* build can render wrong. A project with nothing installed —
+/// scenario 2's developer, with their own styles — has nothing to be told.
+#[allow(clippy::too_many_arguments)]
+fn validate(
+    fs: &impl FileSystem,
+    output: &impl Output,
+    registry: &dyn Registry,
+    dir: &Path,
+    palette: &palette::Palette,
+    source: &Path,
+    format: Format,
+) -> Result<(), CliError> {
+    // The working directory the run already resolved, rather than a second
+    // lookup: one run reads one project.
+    let installed = Lock::read(fs, &dir.join(lock::FILE_NAME))?.components;
+    if installed.is_empty() {
+        return Ok(());
+    }
+    let index = RegistryIndex::parse(&registry.index().map_err(CliError::Io)?)?;
+    let dependencies = validate::dependencies(registry, &index, &installed, format);
+    let gaps = validate::gaps(palette, &dependencies, &Vocabulary::shipped());
+    if let Some(report) = validate::report(source, &gaps, &validate::lengths(palette)) {
+        output.write_stderr(report.as_bytes())?;
+    }
     Ok(())
 }
 

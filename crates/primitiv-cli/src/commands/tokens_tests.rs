@@ -5,6 +5,7 @@ use crate::error::CliError;
 use crate::format::Format;
 use crate::ports::fs::{FileSystem, InMemoryFs};
 use crate::ports::output::InMemoryOutput;
+use crate::ports::registry::{EmbeddedRegistry, InMemoryRegistry};
 
 /// A `primitiv.json` whose `tokens.path` the command falls back to when `--out`
 /// is omitted (RFC 0005 §2.3 / §3.1).
@@ -39,6 +40,7 @@ fn writes_the_design_system_token_layer_as_css() {
     tokens(
         &fs,
         &stdout,
+        &EmbeddedRegistry,
         &TokensOptions {
             format: Some(Format::Css),
             out: Some(out.into()),
@@ -69,6 +71,7 @@ fn writes_the_token_layer_as_scss_when_the_format_is_scss() {
     tokens(
         &fs,
         &stdout,
+        &EmbeddedRegistry,
         &TokensOptions {
             format: Some(Format::Scss),
             out: Some(out.into()),
@@ -93,6 +96,7 @@ fn writes_the_token_layer_as_a_tailwind_preset_when_the_format_is_tailwind() {
     tokens(
         &fs,
         &stdout,
+        &EmbeddedRegistry,
         &TokensOptions {
             format: Some(Format::Tailwind),
             out: Some(out.into()),
@@ -117,6 +121,7 @@ fn writes_a_companion_base_stylesheet_imported_by_the_token_layer() {
     tokens(
         &fs,
         &stdout,
+        &EmbeddedRegistry,
         &TokensOptions {
             format: Some(Format::Css),
             out: Some(out.into()),
@@ -148,6 +153,7 @@ fn writes_the_base_companion_as_scss_for_the_scss_format() {
     tokens(
         &fs,
         &stdout,
+        &EmbeddedRegistry,
         &TokensOptions {
             format: Some(Format::Scss),
             out: Some(out.into()),
@@ -172,6 +178,7 @@ fn writes_the_css_base_companion_for_the_tailwind_format() {
     tokens(
         &fs,
         &stdout,
+        &EmbeddedRegistry,
         &TokensOptions {
             format: Some(Format::Tailwind),
             out: Some(out.into()),
@@ -197,6 +204,7 @@ fn inlines_the_base_layer_when_streaming_to_stdout() {
     tokens(
         &fs,
         &stdout,
+        &EmbeddedRegistry,
         &TokensOptions {
             format: Some(Format::Css),
             out: None,
@@ -220,6 +228,7 @@ fn surfaces_a_base_companion_write_failure() {
     let err = tokens(
         &fs,
         &stdout,
+        &EmbeddedRegistry,
         &TokensOptions {
             format: Some(Format::Css),
             out: Some(out.into()),
@@ -242,6 +251,7 @@ fn surfaces_a_breakpoints_companion_write_failure() {
     let err = tokens(
         &fs,
         &stdout,
+        &EmbeddedRegistry,
         &TokensOptions {
             format: Some(Format::Css),
             out: Some(out.into()),
@@ -265,6 +275,7 @@ fn falls_back_to_the_config_path_when_out_is_omitted() {
     tokens(
         &fs,
         &stdout,
+        &EmbeddedRegistry,
         &TokensOptions {
             format: Some(Format::Css),
             out: None,
@@ -292,6 +303,7 @@ fn defaults_the_format_from_the_config_when_it_is_omitted() {
     tokens(
         &fs,
         &stdout,
+        &EmbeddedRegistry,
         &TokensOptions {
             format: None,
             out: None,
@@ -317,6 +329,7 @@ fn defaults_the_format_to_css_when_omitted_and_no_config_exists() {
     tokens(
         &fs,
         &stdout,
+        &EmbeddedRegistry,
         &TokensOptions {
             format: None,
             out: Some(out.into()),
@@ -341,6 +354,7 @@ fn streams_to_stdout_when_neither_out_nor_a_config_is_present() {
     tokens(
         &fs,
         &stdout,
+        &EmbeddedRegistry,
         &TokensOptions {
             format: Some(Format::Css),
             out: None,
@@ -370,6 +384,7 @@ fn surfaces_a_write_failure_to_the_config_path() {
     let err = tokens(
         &fs,
         &stdout,
+        &EmbeddedRegistry,
         &TokensOptions {
             format: Some(Format::Css),
             out: None,
@@ -393,6 +408,7 @@ fn surfaces_a_stdout_write_failure() {
     let err = tokens(
         &fs,
         &stdout,
+        &EmbeddedRegistry,
         &TokensOptions {
             format: Some(Format::Css),
             out: None,
@@ -417,6 +433,7 @@ fn errors_on_a_malformed_config_even_when_out_is_given() {
     let err = tokens(
         &fs,
         &stdout,
+        &EmbeddedRegistry,
         &TokensOptions {
             format: None,
             out: Some("tokens.css".into()),
@@ -438,6 +455,7 @@ fn errors_when_out_is_omitted_and_the_working_directory_is_unavailable() {
     let err = tokens(
         &fs,
         &stdout,
+        &EmbeddedRegistry,
         &TokensOptions {
             format: Some(Format::Css),
             out: None,
@@ -460,6 +478,7 @@ fn surfaces_a_write_failure() {
     let err = tokens(
         &fs,
         &stdout,
+        &EmbeddedRegistry,
         &TokensOptions {
             format: Some(Format::Css),
             out: Some(out.into()),
@@ -485,6 +504,7 @@ fn imports_the_theme_overrides_when_that_file_is_there() {
     tokens(
         &fs,
         &InMemoryOutput::new(),
+        &EmbeddedRegistry,
         &TokensOptions {
             format: Some(Format::Css),
             out: Some(out.into()),
@@ -517,6 +537,7 @@ fn does_not_import_theme_overrides_when_no_config_exists() {
     tokens(
         &fs,
         &InMemoryOutput::new(),
+        &EmbeddedRegistry,
         &TokensOptions {
             format: Some(Format::Css),
             out: Some(out.into()),
@@ -546,6 +567,7 @@ fn does_not_import_theme_overrides_that_do_not_exist() {
     tokens(
         &fs,
         &InMemoryOutput::new(),
+        &EmbeddedRegistry,
         &TokensOptions {
             format: Some(Format::Css),
             out: Some(out.into()),
@@ -583,6 +605,7 @@ fn writes_the_palettes_overrides_beside_the_token_layer_and_imports_them() {
     tokens(
         &fs,
         &stdout,
+        &EmbeddedRegistry,
         &TokensOptions {
             format: Some(Format::Css),
             out: Some(out.into()),
@@ -625,6 +648,7 @@ fn names_the_override_file_after_the_formats_own_extension() {
         tokens(
             &fs,
             &InMemoryOutput::new(),
+            &EmbeddedRegistry,
             &TokensOptions {
                 format: Some(format),
                 out: Some(out.clone()),
@@ -654,6 +678,7 @@ fn errors_when_the_reference_names_a_palette_that_is_not_there() {
     let err = tokens(
         &fs,
         &InMemoryOutput::new(),
+        &EmbeddedRegistry,
         &TokensOptions {
             format: Some(Format::Css),
             out: Some("tokens.css".into()),
@@ -678,6 +703,7 @@ fn surfaces_a_malformed_palette_document() {
     let err = tokens(
         &fs,
         &InMemoryOutput::new(),
+        &EmbeddedRegistry,
         &TokensOptions {
             format: Some(Format::Css),
             out: Some("tokens.css".into()),
@@ -706,6 +732,7 @@ fn surfaces_an_override_write_failure() {
     let err = tokens(
         &fs,
         &InMemoryOutput::new(),
+        &EmbeddedRegistry,
         &TokensOptions {
             format: Some(Format::Css),
             out: Some("tokens.css".into()),
@@ -732,6 +759,7 @@ fn records_the_palette_it_was_handed_in_the_project_config() {
     tokens(
         &fs,
         &InMemoryOutput::new(),
+        &EmbeddedRegistry,
         &TokensOptions {
             format: Some(Format::Css),
             out: Some("tokens.css".into()),
@@ -764,6 +792,7 @@ fn surfaces_a_failure_to_record_the_reference() {
     let err = tokens(
         &fs,
         &InMemoryOutput::new(),
+        &EmbeddedRegistry,
         &TokensOptions {
             format: Some(Format::Css),
             out: Some("tokens.css".into()),
@@ -796,6 +825,7 @@ fn ramps_only_applies_the_ramps_and_leaves_primitivs_own_roles_standing() {
     tokens(
         &fs,
         &InMemoryOutput::new(),
+        &EmbeddedRegistry,
         &TokensOptions {
             format: Some(Format::Css),
             out: Some("tokens.css".into()),
@@ -826,6 +856,7 @@ fn applies_the_designers_roles_alongside_the_ramps_by_default() {
     tokens(
         &fs,
         &InMemoryOutput::new(),
+        &EmbeddedRegistry,
         &TokensOptions {
             format: Some(Format::Css),
             out: Some("tokens.css".into()),
@@ -859,6 +890,7 @@ fn warns_when_ramps_only_discards_a_palette_that_carries_no_ramps() {
     tokens(
         &fs,
         &output,
+        &EmbeddedRegistry,
         &TokensOptions {
             format: Some(Format::Css),
             out: Some("tokens.css".into()),
@@ -898,6 +930,7 @@ fn surfaces_a_failure_to_write_the_warning() {
     let err = tokens(
         &fs,
         &output,
+        &EmbeddedRegistry,
         &TokensOptions {
             format: Some(Format::Css),
             out: Some("tokens.css".into()),
@@ -908,4 +941,220 @@ fn surfaces_a_failure_to_write_the_warning() {
     .unwrap_err();
 
     assert!(matches!(err, CliError::Io(_)), "got: {err}");
+}
+
+/// D4 end to end: a project with Carousel installed, handed a palette that
+/// overrides `neutral-alpha` but stops short of the step Carousel's overlay
+/// indicator reads. The build still succeeds (D8) and the warning names the
+/// ramp, the step and who is affected.
+#[test]
+fn warns_when_an_overridden_ramp_misses_a_step_an_installed_component_uses() {
+    let fs = InMemoryFs::new();
+    let output = InMemoryOutput::new();
+    fs.write(
+        Path::new("primitiv.lock"),
+        br##"{ "components": ["carousel"], "files": {} }"##,
+    )
+    .unwrap();
+    fs.write(
+        Path::new("p.json"),
+        br##"{ "light": { "color": { "neutral-alpha": {
+            "600": { "$type": "color", "$value": "#0a7755" } } } } }"##,
+    )
+    .unwrap();
+
+    tokens(
+        &fs,
+        &output,
+        &EmbeddedRegistry,
+        &TokensOptions {
+            format: Some(Format::Css),
+            out: Some("tokens.css".into()),
+            from: Some("p.json".into()),
+            ramps_only: false,
+        },
+    )
+    .unwrap();
+
+    let warning = String::from_utf8(output.captured_stderr()).unwrap();
+    assert!(warning.contains("color.neutral-alpha"), "got: {warning}");
+    assert!(warning.contains("carousel"), "got: {warning}");
+    assert!(
+        fs.exists(Path::new("primitiv.theme.css")),
+        "the palette is still applied — D8 warns, it does not refuse"
+    );
+}
+
+/// A project with nothing installed has nothing a palette can leave half-done,
+/// so the common case stays quiet.
+#[test]
+fn says_nothing_when_the_project_has_installed_no_components() {
+    let fs = InMemoryFs::new();
+    let output = InMemoryOutput::new();
+    fs.write(
+        Path::new("p.json"),
+        br##"{ "light": { "color": { "neutral-alpha": {
+            "600": { "$type": "color", "$value": "#0a7755" } } } } }"##,
+    )
+    .unwrap();
+
+    tokens(
+        &fs,
+        &output,
+        &EmbeddedRegistry,
+        &TokensOptions {
+            format: Some(Format::Css),
+            out: Some("tokens.css".into()),
+            from: Some("p.json".into()),
+            ramps_only: false,
+        },
+    )
+    .unwrap();
+
+    assert_eq!(output.captured_stderr(), Vec::<u8>::new());
+}
+
+/// A lock listing installed components alongside the palette, so validation has
+/// something to check against.
+fn project_with_carousel_installed() -> InMemoryFs {
+    let fs = InMemoryFs::new();
+    fs.write(
+        Path::new("primitiv.lock"),
+        br##"{ "components": ["carousel"], "files": {} }"##,
+    )
+    .unwrap();
+    fs.write(
+        Path::new("p.json"),
+        br##"{ "light": { "color": { "neutral-alpha": {
+            "600": { "$type": "color", "$value": "#0a7755" } } } } }"##,
+    )
+    .unwrap();
+    fs
+}
+
+/// The options a validating run is driven with.
+fn applying_the_palette() -> TokensOptions {
+    TokensOptions {
+        format: Some(Format::Css),
+        out: Some("tokens.css".into()),
+        from: Some("p.json".into()),
+        ramps_only: false,
+    }
+}
+
+/// A registry that cannot answer leaves the run unable to say what the palette
+/// covers. Reported rather than passed over silently: "no warning" and "could
+/// not check" are different, and only one of them means the palette is fine.
+#[test]
+fn surfaces_a_registry_that_cannot_be_read_while_validating() {
+    let fs = project_with_carousel_installed();
+
+    let err = tokens(
+        &fs,
+        &InMemoryOutput::new(),
+        &InMemoryRegistry::failing(),
+        &applying_the_palette(),
+    )
+    .unwrap_err();
+
+    assert!(matches!(err, CliError::Io(_)), "got: {err}");
+}
+
+/// A registry index that is not valid JSON fails the same way a malformed one
+/// does anywhere else.
+#[test]
+fn surfaces_a_malformed_registry_index_while_validating() {
+    let fs = project_with_carousel_installed();
+
+    let err = tokens(
+        &fs,
+        &InMemoryOutput::new(),
+        &InMemoryRegistry::new(b"{ not json"),
+        &applying_the_palette(),
+    )
+    .unwrap_err();
+
+    assert!(matches!(err, CliError::Registry(_)), "got: {err}");
+}
+
+/// The validation report goes through the same stderr seam the `--ramps-only`
+/// warning does, so it fails the run the same way when that seam does.
+#[test]
+fn surfaces_a_failure_to_write_the_validation_report() {
+    let fs = project_with_carousel_installed();
+    let output = InMemoryOutput::new();
+    output.fail_stderr();
+
+    let err = tokens(&fs, &output, &EmbeddedRegistry, &applying_the_palette()).unwrap_err();
+
+    assert!(matches!(err, CliError::Io(_)), "got: {err}");
+}
+
+/// Validation reads the lock from the working directory, so a working directory
+/// that cannot be resolved stops the run rather than silently checking nothing.
+#[test]
+fn surfaces_an_unavailable_working_directory_while_validating() {
+    let fs = project_with_carousel_installed();
+    fs.fail_current_dir();
+
+    let err = tokens(
+        &fs,
+        &InMemoryOutput::new(),
+        &EmbeddedRegistry,
+        &applying_the_palette(),
+    )
+    .unwrap_err();
+
+    assert!(matches!(err, CliError::Io(_)), "got: {err}");
+}
+
+/// A lock that cannot be read at all is a hard failure, distinct from a missing
+/// one (which is simply a project that has added nothing).
+#[test]
+fn surfaces_a_lock_that_cannot_be_read_while_validating() {
+    let fs = project_with_carousel_installed();
+    fs.fail_reads_to(Path::new("primitiv.lock"));
+
+    let err = tokens(
+        &fs,
+        &InMemoryOutput::new(),
+        &EmbeddedRegistry,
+        &applying_the_palette(),
+    )
+    .unwrap_err();
+
+    assert!(matches!(err, CliError::Io(_)), "got: {err}");
+}
+
+/// A palette that overrides a ramp none of the installed components read, at the
+/// length everything assumes, has nothing to report — and must say nothing, or
+/// the warning stops being read on the runs that matter.
+#[test]
+fn says_nothing_when_an_installed_project_is_fully_covered() {
+    let fs = InMemoryFs::new();
+    let output = InMemoryOutput::new();
+    fs.write(
+        Path::new("primitiv.lock"),
+        br##"{ "components": ["carousel"], "files": {} }"##,
+    )
+    .unwrap();
+    let steps: Vec<String> = [
+        "50", "100", "200", "300", "400", "500", "600", "700", "800", "900",
+    ]
+    .iter()
+    .map(|step| format!(r##""{step}": {{ "$type": "color", "$value": "#0a7755" }}"##))
+    .collect();
+    fs.write(
+        Path::new("p.json"),
+        format!(
+            r##"{{ "light": {{ "color": {{ "brand": {{ {} }} }} }} }}"##,
+            steps.join(", ")
+        )
+        .as_bytes(),
+    )
+    .unwrap();
+
+    tokens(&fs, &output, &EmbeddedRegistry, &applying_the_palette()).unwrap();
+
+    assert_eq!(output.captured_stderr(), Vec::<u8>::new());
 }

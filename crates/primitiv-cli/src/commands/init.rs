@@ -8,6 +8,7 @@ use harmoni_core::api::DEFAULT_STEPS;
 
 use crate::commands::theme;
 use crate::ports::prompt::Prompt;
+use crate::ports::registry::Registry;
 
 /// The system default brand colour `init` records when none is given — the seed
 /// the shipped palette is generated from (`packages/tokens/harmoni-seeds.json`),
@@ -82,6 +83,7 @@ struct ResolvedInit {
 pub fn init(
     fs: &impl FileSystem,
     output: &impl Output,
+    registry: &dyn Registry,
     prompt: &impl Prompt,
     interactive: bool,
     options: &InitOptions,
@@ -137,6 +139,7 @@ pub fn init(
         crate::commands::tokens::tokens(
             fs,
             output,
+            registry,
             &crate::commands::tokens::TokensOptions {
                 format: Some(resolved.format),
                 out: Some(token_out.clone()),

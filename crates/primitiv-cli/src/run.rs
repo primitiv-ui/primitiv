@@ -31,7 +31,7 @@ pub fn run(
     args: &[String],
 ) -> Result<(), CliError> {
     match parse(args)? {
-        Command::Init(options) => init(fs, output, prompt, interactive, &options),
+        Command::Init(options) => init(fs, output, registry, prompt, interactive, &options),
         Command::Add(options) => add(fs, registry, output, runner, prompt, interactive, &options),
         Command::List { json } => list(fs, registry, output, json),
         Command::Theme {
@@ -41,6 +41,6 @@ pub fn run(
             steps,
         } => theme(fs, &seeds, out.as_deref().map(Path::new), format, steps),
         Command::Dtcg { seeds, out, steps } => dtcg(fs, &seeds, Path::new(&out), steps),
-        Command::Tokens(options) => tokens(fs, output, &options),
+        Command::Tokens(options) => tokens(fs, output, registry, &options),
     }
 }

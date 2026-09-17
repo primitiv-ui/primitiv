@@ -8,6 +8,7 @@ use crate::format::Format;
 use crate::ports::fs::{FileSystem, InMemoryFs};
 use crate::ports::output::InMemoryOutput;
 use crate::ports::prompt::{Decision, InMemoryPrompt};
+use crate::ports::registry::EmbeddedRegistry;
 
 /// The options the parser produces when `init` is run with no flags — every
 /// promptable choice `None`, left for `init` to resolve.
@@ -93,6 +94,7 @@ fn detects_the_components_alias_from_tsconfig_when_no_flag_is_given() {
     init(
         &fs,
         &InMemoryOutput::new(),
+        &EmbeddedRegistry,
         &silent_prompt(),
         false,
         &default_options(),
@@ -119,6 +121,7 @@ fn an_explicit_alias_flag_wins_over_detection() {
     init(
         &fs,
         &InMemoryOutput::new(),
+        &EmbeddedRegistry,
         &silent_prompt(),
         false,
         &InitOptions {
@@ -142,6 +145,7 @@ fn surfaces_a_failure_to_detect_the_alias() {
     let err = init(
         &fs,
         &InMemoryOutput::new(),
+        &EmbeddedRegistry,
         &silent_prompt(),
         false,
         &default_options(),
@@ -160,6 +164,7 @@ fn writes_a_default_primitiv_json_to_the_working_directory() {
     init(
         &fs,
         &InMemoryOutput::new(),
+        &EmbeddedRegistry,
         &silent_prompt(),
         false,
         &default_options(),
@@ -178,6 +183,7 @@ fn reflects_every_overridden_choice_in_the_written_config() {
     init(
         &fs,
         &InMemoryOutput::new(),
+        &EmbeddedRegistry,
         &silent_prompt(),
         false,
         &InitOptions {
@@ -206,6 +212,7 @@ fn refuses_to_overwrite_an_existing_config() {
     let err = init(
         &fs,
         &InMemoryOutput::new(),
+        &EmbeddedRegistry,
         &silent_prompt(),
         false,
         &default_options(),
@@ -227,6 +234,7 @@ fn overwrites_an_existing_config_when_forced() {
     init(
         &fs,
         &InMemoryOutput::new(),
+        &EmbeddedRegistry,
         &silent_prompt(),
         false,
         &InitOptions {
@@ -249,6 +257,7 @@ fn refuses_to_run_outside_a_node_project() {
     let err = init(
         &fs,
         &InMemoryOutput::new(),
+        &EmbeddedRegistry,
         &silent_prompt(),
         false,
         &default_options(),
@@ -268,6 +277,7 @@ fn surfaces_a_failure_to_read_the_working_directory() {
     let err = init(
         &fs,
         &InMemoryOutput::new(),
+        &EmbeddedRegistry,
         &silent_prompt(),
         false,
         &default_options(),
@@ -286,6 +296,7 @@ fn surfaces_a_write_failure() {
     let err = init(
         &fs,
         &InMemoryOutput::new(),
+        &EmbeddedRegistry,
         &silent_prompt(),
         false,
         &default_options(),
@@ -303,6 +314,7 @@ fn keeps_the_css_extension_for_the_tailwind_token_layer() {
     init(
         &fs,
         &InMemoryOutput::new(),
+        &EmbeddedRegistry,
         &silent_prompt(),
         false,
         &InitOptions {
@@ -342,6 +354,7 @@ fn interactive_init_prompts_for_each_omitted_choice() {
     init(
         &fs,
         &InMemoryOutput::new(),
+        &EmbeddedRegistry,
         &prompt,
         true,
         &default_options(),
@@ -379,6 +392,7 @@ fn interactive_init_prompts_for_the_components_alias_pre_filled_with_detection()
     init(
         &fs,
         &InMemoryOutput::new(),
+        &EmbeddedRegistry,
         &prompt,
         true,
         &default_options(),
@@ -400,6 +414,7 @@ fn interactive_init_surfaces_an_alias_prompt_failure() {
     let err = init(
         &fs,
         &InMemoryOutput::new(),
+        &EmbeddedRegistry,
         &prompt,
         true,
         &default_options(),
@@ -421,6 +436,7 @@ fn interactive_init_falls_back_to_css_for_an_unrecognised_format() {
     init(
         &fs,
         &InMemoryOutput::new(),
+        &EmbeddedRegistry,
         &prompt,
         true,
         &default_options(),
@@ -441,6 +457,7 @@ fn the_yes_flag_accepts_the_defaults_without_prompting() {
     init(
         &fs,
         &InMemoryOutput::new(),
+        &EmbeddedRegistry,
         &prompt,
         true,
         &InitOptions {
@@ -466,6 +483,7 @@ fn interactive_init_surfaces_a_styles_prompt_failure() {
     let err = init(
         &fs,
         &InMemoryOutput::new(),
+        &EmbeddedRegistry,
         &prompt,
         true,
         &default_options(),
@@ -486,6 +504,7 @@ fn interactive_init_surfaces_a_format_prompt_failure() {
     let err = init(
         &fs,
         &InMemoryOutput::new(),
+        &EmbeddedRegistry,
         &prompt,
         true,
         &default_options(),
@@ -506,6 +525,7 @@ fn interactive_init_surfaces_a_brand_prompt_failure() {
     let err = init(
         &fs,
         &InMemoryOutput::new(),
+        &EmbeddedRegistry,
         &prompt,
         true,
         &default_options(),
@@ -526,6 +546,7 @@ fn interactive_init_surfaces_a_path_prompt_failure() {
     let err = init(
         &fs,
         &InMemoryOutput::new(),
+        &EmbeddedRegistry,
         &prompt,
         true,
         &default_options(),
@@ -541,7 +562,15 @@ fn init_emits_the_token_layer_when_styles_are_enabled() {
     let output = InMemoryOutput::new();
     fs.write(Path::new("package.json"), b"{}").unwrap();
 
-    init(&fs, &output, &silent_prompt(), false, &default_options()).unwrap();
+    init(
+        &fs,
+        &output,
+        &EmbeddedRegistry,
+        &silent_prompt(),
+        false,
+        &default_options(),
+    )
+    .unwrap();
 
     let token_path = Path::new("src/styles/primitiv/tokens.css");
     assert!(fs.exists(token_path), "token layer should be written");
@@ -558,6 +587,7 @@ fn init_does_not_emit_the_token_layer_when_styles_are_disabled() {
     init(
         &fs,
         &output,
+        &EmbeddedRegistry,
         &silent_prompt(),
         false,
         &InitOptions {
@@ -580,7 +610,15 @@ fn init_surfaces_a_token_layer_write_failure() {
     fs.write(Path::new("package.json"), b"{}").unwrap();
     fs.fail_writes_to(Path::new("src/styles/primitiv/tokens.css"));
 
-    let err = init(&fs, &output, &silent_prompt(), false, &default_options()).unwrap_err();
+    let err = init(
+        &fs,
+        &output,
+        &EmbeddedRegistry,
+        &silent_prompt(),
+        false,
+        &default_options(),
+    )
+    .unwrap_err();
 
     assert!(matches!(err, CliError::Io(_)));
 }
@@ -592,7 +630,15 @@ fn init_surfaces_a_token_dir_creation_failure() {
     fs.write(Path::new("package.json"), b"{}").unwrap();
     fs.fail_create_dir_to(Path::new("src/styles/primitiv"));
 
-    let err = init(&fs, &output, &silent_prompt(), false, &default_options()).unwrap_err();
+    let err = init(
+        &fs,
+        &output,
+        &EmbeddedRegistry,
+        &silent_prompt(),
+        false,
+        &default_options(),
+    )
+    .unwrap_err();
 
     assert!(matches!(err, CliError::Io(_)));
 }
@@ -630,6 +676,7 @@ fn init_emits_theme_overrides_for_a_brand_it_was_given() {
     init(
         &fs,
         &InMemoryOutput::new(),
+        &EmbeddedRegistry,
         &silent_prompt(),
         false,
         &InitOptions {
@@ -661,6 +708,7 @@ fn init_writes_no_theme_overrides_when_the_brand_is_the_shipped_default() {
     init(
         &fs,
         &InMemoryOutput::new(),
+        &EmbeddedRegistry,
         &silent_prompt(),
         false,
         &default_options(),
@@ -685,6 +733,7 @@ fn init_surfaces_a_theme_overrides_write_failure() {
     let err = init(
         &fs,
         &InMemoryOutput::new(),
+        &EmbeddedRegistry,
         &silent_prompt(),
         false,
         &InitOptions {

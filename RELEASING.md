@@ -86,15 +86,33 @@ placeholders at v0.1.0+.
    - Repository: `primitiv-ui/primitiv`
    - Workflow: `publish.yml`
 
-For any package that doesn't exist on npm yet: configure TP before the first
-publish (npmjs.com supports this for new packages). **If you don't, that
-publish fails `ENEEDAUTH`** — Trusted Publishing has no configuration to
-authenticate a name npmjs.com has never seen. To bootstrap instead, add a
-`NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}` env block to that step and an
-`NPM_TOKEN` repo secret (granular, automation, publish scope), publish once,
-then remove both. **Write that block — do not go looking for one to
-uncomment**; the commented-out blocks this document used to point at were
-deleted after v0.1.30's bootstrap.
+**A package that does not exist on npm yet CANNOT be configured for Trusted
+Publishing, so its first publish always needs a token.** TP settings live on
+the package itself — `npmjs.com/package/<name>/access`, i.e. Packages → the
+package → Settings → Trusted publishing — and a name npm has never seen has no
+settings page to configure. An earlier revision of this section claimed
+npmjs.com supports pre-configuring a new name; it does not, and acting on that
+wasted a release cycle in v0.1.35.
+
+So the first publish of a new package is a **token bootstrap, every time**:
+
+1. npmjs.com → Access Tokens → **Granular Access Token**, shortest expiry,
+   **Read and write**, scoped to `@primitiv-ui` (you cannot scope it to a
+   package that does not exist yet). It must be usable without an interactive
+   2FA prompt — CI cannot answer an OTP — which is the capability npm's own
+   `gh.io/npm-gat-bypass2fa-deprecation` notice is restricting. That is a
+   reason to revoke it immediately, not a reason to avoid it here.
+2. GitHub → repo Settings → Secrets and variables → Actions → new secret
+   named **`NPM_TOKEN`**.
+3. Give the step the auth line. **`NODE_AUTH_TOKEN` alone does nothing in this
+   workflow**: `actions/setup-node` runs without `registry-url` (deliberately —
+   see the comment there), so no npmrc exists for npm to read it from. Write
+   `//registry.npmjs.org/:_authToken=$NPM_TOKEN` into `~/.npmrc` inside the
+   step. **Write the block — do not go looking for one to uncomment**; the
+   commented-out blocks this document used to point at were deleted after
+   v0.1.30's bootstrap.
+4. Publish, *then* configure TP on the now-existing package, then delete the
+   secret and revoke the token. Every later release of it is tokenless.
 
 **A new package's publish step goes LAST in `publish.yml`, and that position
 is load-bearing.** It is the one step expected to fail, so it belongs where
@@ -142,11 +160,10 @@ GitHub Actions via OIDC (`id-token: write`, already set in the workflow).
 
 For **each** package (`@primitiv-ui/react`, `/icons`, `/tokens`):
 
-1. A package that already exists on npm: configure TP against it directly. A
-   package that does **not** exist yet can still be configured ahead of its
-   first publish — see §2, which is the current guidance and supersedes the
-   "must exist on npm first" this step used to claim. Skipping that step is
-   what fails `ENEEDAUTH`, twice now (v0.1.30, v0.1.35).
+1. **The package must exist on npm first** — TP is configured on the package's
+   own settings page, which a nonexistent name does not have. A brand-new
+   package therefore needs one bootstrap publish with a granular token before
+   TP can be set up at all; §2 has the full sequence.
 2. npmjs.com → the package → **Settings** → **Trusted Publisher** → add a
    GitHub Actions publisher:
    - Repository: `primitiv-ui/primitiv`

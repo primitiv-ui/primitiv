@@ -40,6 +40,7 @@ fn should_parse_a_full_primitiv_json_document() {
             },
             theme: Theme {
                 seeds: BTreeMap::from([("brand".into(), "#0a7755".into())]),
+                palette: None,
                 neutral: None,
             },
             aliases: BTreeMap::from([("components".into(), "@/components".into())]),

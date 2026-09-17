@@ -1,13 +1,25 @@
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use serde_json::Value;
 
+use crate::config::Config;
 use crate::error::CliError;
 
-/// The handoff artefact's filename (RFC 0032 D14) — the default a project keeps
-/// beside its `primitiv.json`, and the name the flag and the config key both
-/// point at, so the three cannot drift.
-pub const FILE_NAME: &str = "primitiv.palette.json";
+/// Where the palette document is, or `None` where this project has none.
+///
+/// The same shape `tokens` and `theme` resolve a destination through, for the
+/// same reason (RFC 0005 §3.2): the flag always wins, then the nearest
+/// `primitiv.json`. There is no third tier — a project with no palette reference
+/// and no flag is the ordinary case, not a default to guess at, and guessing
+/// would mean a stray `primitiv.palette.json` in a parent directory silently
+/// re-skinning a build that never asked for it.
+pub fn locate(from: Option<&Path>, config: Option<&Config>) -> Option<PathBuf> {
+    from.map(Path::to_path_buf).or_else(|| {
+        config
+            .and_then(|config| config.theme.palette.as_deref())
+            .map(PathBuf::from)
+    })
+}
 
 /// A palette document's per-mode token subtrees, ready for the emitter's values
 /// path (RFC 0032 D1).

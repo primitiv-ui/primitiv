@@ -53,6 +53,14 @@ pub struct Tokens {
 pub struct Theme {
     #[serde(flatten)]
     pub seeds: BTreeMap<String, String>,
+    /// Where this project's palette document lives (RFC 0032 D2/D14), relative
+    /// to the config — the handoff recorded once so every `primitiv tokens` run
+    /// re-applies it, rather than a flag the developer retypes.
+    ///
+    /// Not in the flattened seed map above for the same reason `neutral` is not:
+    /// it is a path, not a colour, and a family called `palette` would be a
+    /// ramp the CLI does not generate.
+    pub palette: Option<String>,
     /// The neutral ramp, which is not a seed and so is not in the map above.
     ///
     /// A neutral ramp is generated *between* two anchors rather than from one

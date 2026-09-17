@@ -14,6 +14,7 @@ pub mod seeds;
 #[cfg(test)]
 mod seeds_tests;
 pub mod token_source;
+pub mod validate;
 pub mod wiring;
 
 #[cfg(test)]
@@ -34,5 +35,7 @@ mod palette_tests;
 mod registry_tests;
 #[cfg(test)]
 mod run_tests;
+#[cfg(test)]
+mod validate_tests;
 #[cfg(test)]
 mod wiring_tests;

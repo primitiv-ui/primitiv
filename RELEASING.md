@@ -114,6 +114,33 @@ So the first publish of a new package is a **token bootstrap, every time**:
 4. Publish, *then* configure TP on the now-existing package, then delete the
    secret and revoke the token. Every later release of it is tokenless.
 
+> **A green publish does not prove TP works, and v0.1.36 is why.** The bootstrap
+> token is still present for the publish that creates the package, so that run
+> succeeds whether or not the TP entry saved — the first *tokenless* publish is
+> the earliest moment anything is proven, and by then the token is gone. This
+> bit exactly once: `primitiv-emit-wasm`'s TP entry was filled in after v0.1.35
+> and **silently did not save**, the token was revoked on the assumption it had,
+> and v0.1.36 failed `ENEEDAUTH` twice before anyone looked at the settings page
+> again.
+>
+> So step 4 has an order and a check, not just a list. After configuring TP,
+> **reload the package's settings page and confirm the entry is listed** before
+> revoking anything. Then treat the next release as the real verification: if it
+> publishes tokenlessly, TP works; until then it is an assumption.
+>
+> The failure mode is unhelpful, so recognise it: `npm error code ENEEDAUTH` on
+> one package while every other package in the same job publishes fine. That is
+> never a workflow problem — the job shares one npm, one OIDC context and one
+> `id-token: write` — it is that package's own TP entry. Four fields, and the two
+> that go wrong are **owner and repository being separate** (`primitiv-ui` and
+> `primitiv`, not `primitiv-ui/primitiv` in either) and **environment, which must
+> be blank** because the `publish` job declares none.
+>
+> One more trap when re-running: every publish step is existence-guarded, so on a
+> re-run the already-published packages skip. A second failure therefore proves
+> less than the first — the other packages did not attempt anything, so their
+> silence is not evidence that OIDC still works.
+
 **A new package's publish step goes LAST in `publish.yml`, and that position
 is load-bearing.** It is the one step expected to fail, so it belongs where
 failing costs nothing. Twice now it has not been: in v0.1.30 harmoni-wasm's

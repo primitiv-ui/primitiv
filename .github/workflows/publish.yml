@@ -272,9 +272,14 @@ jobs:
       # No `npm pkg set name` — `--scope primitiv-ui` at build time already wrote
       # `@primitiv-ui/primitiv-emit-wasm`. Existence-guarded like every step above,
       # so a re-run after a partial publish is safe.
-      # Tokenless from v0.1.36 on: v0.1.35's bootstrap token has been revoked and
-      # Trusted Publishing is configured for this package, so this step is now the
-      # same shape as every other npm step here.
+      # Tokenless since v0.1.36, and verified as such rather than assumed: this
+      # step published with a signed provenance statement and no token on
+      # 2026-09-17. It is worth stating how it got there, because the comment
+      # that used to sit here claimed the same thing one release early and was
+      # wrong. v0.1.35's bootstrap token was revoked on the assumption the TP
+      # entry had saved; it had not, and v0.1.36 failed ENEEDAUTH twice before
+      # the settings page was re-checked. See RELEASING.md §2 — a green publish
+      # while the bootstrap token still exists proves nothing about TP.
       - name: Publish primitiv-emit-wasm to npm
         run: |
           cd crates/primitiv-emit-wasm/pkg

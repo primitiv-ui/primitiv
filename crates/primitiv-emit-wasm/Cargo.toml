@@ -1,6 +1,6 @@
 [package]
 name = "primitiv-emit-wasm"
-version = "0.1.35"
+version = "0.1.36"
 edition = "2021"
 # wasm-pack maps these into the generated package.json; `repository.url` is what
 # npm's --provenance check cross-references against the Actions OIDC claim, and a

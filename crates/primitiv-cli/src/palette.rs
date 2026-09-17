@@ -1,7 +1,7 @@
 use std::ops::Range;
 use std::path::{Path, PathBuf};
 
-use primitiv_emit::tokens_from_dtcg;
+use primitiv_emit::{Token, tokens_from_dtcg};
 use serde_json::{Map, Value};
 
 use crate::config::Config;
@@ -198,10 +198,17 @@ impl Palette {
     /// walk of the tree, so "a token" means here exactly what it means when the
     /// document is emitted.
     pub fn token_count(&self) -> usize {
-        self.0
-            .values()
-            .map(|tokens| tokens_from_dtcg(tokens).len())
-            .sum()
+        self.tokens().len()
+    }
+
+    /// Every token the document carries, across every mode.
+    ///
+    /// Through the emitter's own `tokens_from_dtcg` rather than a second walk of
+    /// the tree, so "a token" means here exactly what it means when the document
+    /// is emitted — which is what lets validation ask "does the palette supply
+    /// this custom property" and get the answer the stylesheet will see.
+    pub fn tokens(&self) -> Vec<Token> {
+        self.0.values().flat_map(tokens_from_dtcg).collect()
     }
 
     /// The document as the emitter's values path reads it

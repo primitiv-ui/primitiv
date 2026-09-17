@@ -39,7 +39,7 @@ pub fn run(
             out,
             format,
             steps,
-        } => theme(fs, &seeds, Path::new(&out), format, steps),
+        } => theme(fs, &seeds, out.as_deref().map(Path::new), format, steps),
         Command::Dtcg { seeds, out, steps } => dtcg(fs, &seeds, Path::new(&out), steps),
         Command::Tokens { out, format } => {
             tokens(fs, output, format, out.as_deref().map(Path::new))

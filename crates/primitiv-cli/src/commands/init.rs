@@ -122,8 +122,8 @@ pub fn init(
             theme::theme(
                 fs,
                 &seeds,
-                &token_dir.join(format!("{}.{}", theme::FILE_STEM, resolved.format.extension())),
-                resolved.format,
+                Some(&token_dir.join(format!("{}.{}", theme::FILE_STEM, resolved.format.extension()))),
+                Some(resolved.format),
                 DEFAULT_STEPS,
             )?;
         }

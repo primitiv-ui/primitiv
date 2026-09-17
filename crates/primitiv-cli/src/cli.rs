@@ -19,8 +19,13 @@ pub enum Command {
         /// The ramp seeds to emit, as `(family, colour)` in [`RAMP_FAMILIES`]
         /// order — flags are order-free, the output is not.
         seeds: Vec<(String, String)>,
-        out: String,
-        format: Format,
+        /// Where to write. `None` falls back to a sibling of the config's
+        /// `tokens.path`, which is where the token layer already looks for it.
+        out: Option<String>,
+        /// `None` falls back to the config's `tokens.format`, then CSS — the same
+        /// three tiers `tokens` resolves through, so a project that recorded a
+        /// format once does not restate it on every theme run.
+        format: Option<Format>,
         /// How many steps each ramp carries. The engine owns the supported range,
         /// so an out-of-range count is rejected where generation happens rather
         /// than second-guessed here.
@@ -251,7 +256,12 @@ fn parse_dtcg(args: &[String]) -> Result<Command, CliError> {
     let seeded = parse_seeded(args, "dtcg", false)?;
     Ok(Command::Dtcg {
         seeds: seeded.seeds,
-        out: seeded.out,
+        // Required here where `theme` makes it optional: a DTCG document is the
+        // route OUT of the project and into a design tool, so `primitiv.json`
+        // records no destination for it to fall back on.
+        out: seeded
+            .out
+            .ok_or_else(|| usage("dtcg requires --out <path>".to_string()))?,
         steps: seeded.steps,
     })
 }
@@ -259,8 +269,10 @@ fn parse_dtcg(args: &[String]) -> Result<Command, CliError> {
 /// The ramp seeds and destination shared by `theme` and `dtcg`.
 struct Seeded {
     seeds: Vec<(String, String)>,
-    out: String,
-    format: Format,
+    /// Absent when no `--out` was given. Whether that is an error is the caller's
+    /// call: `theme` falls back to the config, `dtcg` has nothing to fall back to.
+    out: Option<String>,
+    format: Option<Format>,
     steps: usize,
 }
 
@@ -272,14 +284,14 @@ struct Seeded {
 fn parse_seeded(args: &[String], command: &str, accepts_format: bool) -> Result<Seeded, CliError> {
     let mut seeds: Vec<Option<String>> = vec![None; RAMP_FAMILIES.len()];
     let mut out = None;
-    let mut format = Format::Css;
+    let mut format = None;
     let mut steps = DEFAULT_STEPS;
     let mut rest = args.iter();
     while let Some(flag) = rest.next() {
         match flag.as_str() {
             "--out" => out = Some(take_value(&mut rest, "--out")?),
             "--format" if accepts_format => {
-                format = parse_format(&take_value(&mut rest, "--format")?)?
+                format = Some(parse_format(&take_value(&mut rest, "--format")?)?)
             }
             "--steps" => steps = parse_steps(&take_value(&mut rest, "--steps")?)?,
             "--neutral" => return Err(neutral_unsupported(command)),
@@ -294,9 +306,10 @@ fn parse_seeded(args: &[String], command: &str, accepts_format: bool) -> Result<
         .zip(seeds)
         .filter_map(|(family, seed)| seed.map(|seed| ((*family).to_string(), seed)))
         .collect();
+    let _ = command;
     Ok(Seeded {
         seeds,
-        out: out.ok_or_else(|| usage(format!("{command} requires --out <path>")))?,
+        out,
         format,
         steps,
     })

@@ -342,11 +342,40 @@ fn parses_the_theme_command_with_brand_and_out() {
         command,
         Command::Theme {
             seeds: vec![("brand".to_string(), "#0a7755".to_string())],
-            out: "x.css".to_string(),
-            format: Format::Css,
+            out: Some("x.css".to_string()),
+            format: None,
             steps: DEFAULT_STEPS,
         }
     );
+}
+
+/// The handoff command should carry nothing the project already knows (RFC 0032
+/// §5 step 3). `--out` and `--format` are both recorded in `primitiv.json`, so
+/// requiring them again on every run is the CLI asking a question it can answer.
+#[test]
+fn parses_a_theme_command_that_names_neither_an_out_nor_a_format() {
+    let command = parse(&args(&["theme", "--brand", "#0a7755"])).unwrap();
+
+    assert_eq!(
+        command,
+        Command::Theme {
+            seeds: vec![("brand".to_string(), "#0a7755".to_string())],
+            out: None,
+            format: None,
+            steps: DEFAULT_STEPS,
+        }
+    );
+}
+
+/// `dtcg` keeps requiring one, and the asymmetry is the point: its document is a
+/// route OUT of the project into a design tool, so `primitiv.json` records no
+/// destination for it to fall back on.
+#[test]
+fn still_requires_an_out_for_dtcg() {
+    assert!(matches!(
+        parse(&args(&["dtcg", "--brand", "#0a7755"])).unwrap_err(),
+        CliError::Usage(_)
+    ));
 }
 
 #[test]
@@ -360,8 +389,8 @@ fn parses_an_explicit_scss_format() {
         command,
         Command::Theme {
             seeds: vec![("brand".to_string(), "#0a7755".to_string())],
-            out: "x.scss".to_string(),
-            format: Format::Scss,
+            out: Some("x.scss".to_string()),
+            format: Some(Format::Scss),
             steps: DEFAULT_STEPS,
         }
     );
@@ -378,8 +407,8 @@ fn parses_an_explicit_css_format() {
         command,
         Command::Theme {
             seeds: vec![("brand".to_string(), "#0a7755".to_string())],
-            out: "x.css".to_string(),
-            format: Format::Css,
+            out: Some("x.css".to_string()),
+            format: Some(Format::Css),
             steps: DEFAULT_STEPS,
         }
     );
@@ -396,8 +425,8 @@ fn parses_an_explicit_tailwind_format() {
         command,
         Command::Theme {
             seeds: vec![("brand".to_string(), "#0a7755".to_string())],
-            out: "x.css".to_string(),
-            format: Format::Tailwind,
+            out: Some("x.css".to_string()),
+            format: Some(Format::Tailwind),
             steps: DEFAULT_STEPS,
         }
     );
@@ -525,8 +554,8 @@ fn accepts_theme_with_no_seed_flag_and_defers_to_the_config() {
         command,
         Command::Theme {
             seeds: Vec::new(),
-            out: "x.css".to_string(),
-            format: Format::Css,
+            out: Some("x.css".to_string()),
+            format: None,
             steps: DEFAULT_STEPS,
         }
     );
@@ -572,12 +601,17 @@ fn rejects_seeding_the_neutral_ramp_by_name_rather_than_as_a_typo() {
     assert!(message.contains("primitiv.json"), "{message}");
 }
 
+/// `theme` no longer rejects a missing `--out` at PARSE time (RFC 0032 §5 step 3):
+/// whether there is a destination to fall back on is a run-time question, and the
+/// answer is in `primitiv.json`, which the parser has not read — the same reasoning
+/// that already let a seedless `theme` through. The refusal still exists for the
+/// case where there is genuinely nothing to resolve; it lives in the command, where
+/// the config is in hand (`refuses_to_guess_a_destination_with_no_out_and_no_config`).
 #[test]
-fn rejects_theme_missing_out() {
-    assert!(matches!(
-        parse(&args(&["theme", "--brand", "#0a7755"])).unwrap_err(),
-        CliError::Usage(_)
-    ));
+fn defers_a_missing_out_to_the_command_rather_than_rejecting_it() {
+    let command = parse(&args(&["theme", "--brand", "#0a7755"])).unwrap();
+
+    assert!(matches!(command, Command::Theme { out: None, .. }));
 }
 
 #[test]
@@ -598,8 +632,8 @@ fn parses_a_seed_for_every_ramp_family_in_canonical_order() {
                 ("danger".to_string(), "#db2424".to_string()),
                 ("info".to_string(), "#008e9d".to_string()),
             ],
-            out: "x.css".to_string(),
-            format: Format::Css,
+            out: Some("x.css".to_string()),
+            format: None,
             steps: DEFAULT_STEPS,
         }
     );
@@ -655,8 +689,8 @@ fn parses_an_explicit_step_count_for_a_theme_ramp() {
         command,
         Command::Theme {
             seeds: vec![("brand".to_string(), "#0a7755".to_string())],
-            out: "x.css".to_string(),
-            format: Format::Css,
+            out: Some("x.css".to_string()),
+            format: None,
             steps: 7,
         }
     );

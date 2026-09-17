@@ -6,6 +6,7 @@ pub mod error;
 pub mod format;
 pub mod lock;
 pub mod package_manager;
+pub mod palette;
 pub mod ports;
 pub mod registry;
 pub mod run;
@@ -27,6 +28,8 @@ mod error_tests;
 mod lock_tests;
 #[cfg(test)]
 mod package_manager_tests;
+#[cfg(test)]
+mod palette_tests;
 #[cfg(test)]
 mod registry_tests;
 #[cfg(test)]

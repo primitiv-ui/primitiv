@@ -81,6 +81,11 @@ pub fn tokens(
     let format = format
         .or_else(|| config.map(|config| config.tokens.format))
         .unwrap_or(Format::Css);
+    // The theme file's stem, named after the project (`<slug>.theme`), resolved
+    // once so the file `write_overrides` writes and the `@import` `leading_imports`
+    // emits cannot land on different names. A config with no name falls back to the
+    // `primitiv` default, the naming existing projects already have.
+    let theme_stem = theme::theme_stem(config.map(|config| config.name.as_str()).unwrap_or(""));
     let base = [
         parse(PRIMITIVES),
         parse(INTERACTION),
@@ -115,7 +120,7 @@ pub fn tokens(
             // the overrides have to land first or the very run that wrote them
             // emits a layer that does not reference them.
             write_overrides(
-                fs, output, registry, &dir, &path, format, from, config, ramps_only,
+                fs, output, registry, &dir, &path, format, from, config, ramps_only, &theme_stem,
             )?;
             // D10: the reference is recorded so the flag is typed once. Only what
             // `--from` named — a palette that came from the config is already
@@ -125,7 +130,7 @@ pub fn tokens(
             }
             let imported = format!(
                 "{}{rendered}",
-                leading_imports(fs, &path, base_name, format)
+                leading_imports(fs, &path, base_name, format, &theme_stem)
             );
             fs.write(&path, imported.as_bytes())?;
             // A JS-consumable sibling for consumers that need a real value outside
@@ -161,6 +166,7 @@ fn write_overrides(
     from: Option<&Path>,
     config: Option<&Config>,
     ramps_only: bool,
+    theme_stem: &str,
 ) -> Result<(), CliError> {
     let Some(source) = palette::locate(from, config) else {
         return Ok(());
@@ -193,7 +199,7 @@ fn write_overrides(
         Format::Scss => emit_theme_overrides_scss(&documents),
         Format::Tailwind => emit_theme_overrides_tailwind(&documents),
     };
-    let name = format!("{}.{}", theme::FILE_STEM, format.extension());
+    let name = format!("{theme_stem}.{}", format.extension());
     fs.write(&token_path.with_file_name(name), overrides.as_bytes())?;
     Ok(())
 }
@@ -255,8 +261,9 @@ fn leading_imports(
     token_path: &Path,
     base_name: &str,
     format: Format,
+    theme_stem: &str,
 ) -> String {
-    let theme_name = format!("{}.{}", theme::FILE_STEM, format.extension());
+    let theme_name = format!("{theme_stem}.{}", format.extension());
     if fs.exists(&token_path.with_file_name(&theme_name)) {
         return format!("@import \"./{base_name}\";\n@import \"./{theme_name}\";\n\n");
     }

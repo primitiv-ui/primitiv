@@ -6,7 +6,7 @@ use primitiv_emit::{
     ThemeRamps, emit_theme_ramps_css, emit_theme_ramps_scss, emit_theme_ramps_tailwind,
 };
 
-use crate::commands::theme::theme;
+use crate::commands::theme::{theme, theme_stem};
 use crate::error::CliError;
 use crate::format::Format;
 use crate::ports::fs::{FileSystem, InMemoryFs};
@@ -362,6 +362,44 @@ fn surfaces_a_malformed_neutral_block_rather_than_ignoring_it() {
     // The command stops rather than writing a file whose greys silently came from
     // somewhere other than the config the consumer wrote.
     assert!(matches!(err, CliError::Usage(_)), "{err:?}");
+}
+
+#[test]
+fn theme_stem_names_the_file_after_the_project() {
+    assert_eq!(theme_stem("Acme Brand"), "acme-brand.theme");
+}
+
+#[test]
+fn theme_stem_falls_back_to_primitiv_for_an_unnamed_project() {
+    // A config with no name (or nothing sluggable) keeps the `primitiv.theme` naming
+    // every existing project already has, rather than the plugin's `harmoni` fallback.
+    assert_eq!(theme_stem(""), "primitiv.theme");
+}
+
+#[test]
+fn names_the_theme_file_after_the_configs_project_name() {
+    let fs = InMemoryFs::new();
+    fs.write(
+        Path::new("primitiv.json"),
+        br##"{
+          "version": 1,
+          "name": "Acme Brand",
+          "framework": "react",
+          "styles": { "enabled": true, "format": "css", "path": "s" },
+          "tokens": { "format": "css", "path": "src/styles/tokens.css" },
+          "theme": { "brand": "#0a7755" },
+          "aliases": {},
+          "registry": { "version": "0.1.0" }
+        }"##,
+    )
+    .unwrap();
+
+    theme(&fs, &brand_seed(), None, None, DEFAULT_STEPS).unwrap();
+
+    // Beside the token layer, but under the project's slug rather than `primitiv`,
+    // so it matches the file the plugin exports for the same project.
+    assert!(fs.exists(Path::new("src/styles/acme-brand.theme.css")));
+    assert!(!fs.exists(Path::new("src/styles/primitiv.theme.css")));
 }
 
 /// A `primitiv.json` recording a token layer at `src/styles/tokens.<ext>`.

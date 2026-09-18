@@ -631,6 +631,54 @@ fn writes_the_palettes_overrides_beside_the_token_layer_and_imports_them() {
     );
 }
 
+#[test]
+fn names_the_override_file_and_import_after_the_configs_project_name() {
+    let fs = InMemoryFs::new();
+    fs.write(
+        Path::new("primitiv.json"),
+        br##"{
+          "version": 1,
+          "name": "Acme Brand",
+          "framework": "react",
+          "styles": { "enabled": true, "format": "css", "path": "src/styles/primitiv" },
+          "tokens": { "format": "css", "path": "src/styles/primitiv/tokens.css" },
+          "theme": { "brand": "#0a7755" },
+          "aliases": {},
+          "registry": { "version": "0.1.0" }
+        }"##,
+    )
+    .unwrap();
+    fs.write(Path::new("primitiv.palette.json"), PALETTE)
+        .unwrap();
+    let out = Path::new("src/styles/primitiv/tokens.css");
+
+    tokens(
+        &fs,
+        &InMemoryOutput::new(),
+        &EmbeddedRegistry,
+        &TokensOptions {
+            format: Some(Format::Css),
+            out: Some(out.into()),
+            from: Some("primitiv.palette.json".into()),
+            ramps_only: false,
+        },
+    )
+    .unwrap();
+
+    // The overrides land under the project's slug, and the token layer imports that
+    // same name — so a project named the same way in the plugin is picked up with
+    // nothing renamed.
+    assert!(
+        fs.exists(Path::new("src/styles/primitiv/acme-brand.theme.css")),
+        "the override file should be named after the project"
+    );
+    let layer = String::from_utf8(fs.read(out).unwrap()).unwrap();
+    assert!(
+        layer.contains("@import \"./acme-brand.theme.css\";"),
+        "the token layer should import the project-named overrides, got: {layer}"
+    );
+}
+
 /// The values path reaches all three formats (RFC 0032 §5 step 2), so the
 /// override file has to follow the token layer's own extension — a `.css` theme
 /// beside a `.scss` token layer is a file the `@import` does not name.

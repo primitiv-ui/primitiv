@@ -126,7 +126,9 @@ pub fn init(
                 &seeds,
                 Some(&token_dir.join(format!(
                     "{}.{}",
-                    theme::FILE_STEM,
+                    // Named after the project once `init` captures a name; until then
+                    // the empty name resolves to the `primitiv` default.
+                    theme::theme_stem(""),
                     resolved.format.extension()
                 ))),
                 Some(resolved.format),

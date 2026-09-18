@@ -99,7 +99,7 @@ fn resolve_destination(
                 )
             })?;
             Path::new(&config.tokens.path)
-                .with_file_name(format!("{FILE_STEM}.{}", format.extension()))
+                .with_file_name(format!("{}.{}", theme_stem(&config.name), format.extension()))
         }
     };
     Ok((out, format))
@@ -110,6 +110,27 @@ fn resolve_destination(
 /// at its first entry rather than spelling the string a second time.
 pub const BRAND: &str = crate::cli::RAMP_FAMILIES[0];
 
-/// The theme overrides file's basename, without an extension — shared so whoever
-/// writes the file and whoever imports it cannot disagree on its name.
-pub const FILE_STEM: &str = "primitiv.theme";
+/// The theme overrides file's basename, without an extension — `<slug>.theme`,
+/// named after the project so the file this CLI writes and imports matches the
+/// one the Harmoni plugin exports for the same project. Shared so whoever writes
+/// the file and whoever imports it cannot disagree on its name.
+///
+/// A name with nothing sluggable in it — or no `name` in the config at all —
+/// falls back to [`DEFAULT_STEM`], the CLI's own name, so a `primitiv.json` that
+/// predates the field keeps the `primitiv.theme` naming it already has. The
+/// plugin's own fallback is `harmoni`; the two agree whenever a real name is set.
+pub fn theme_stem(name: &str) -> String {
+    let slug = crate::slug::slug(name);
+    format!(
+        "{}.theme",
+        if slug.is_empty() {
+            DEFAULT_STEM
+        } else {
+            slug.as_str()
+        }
+    )
+}
+
+/// The theme stem's fallback when a project has no usable name — the CLI's own
+/// name, the naming every pre-`name` config already carries.
+pub const DEFAULT_STEM: &str = "primitiv";

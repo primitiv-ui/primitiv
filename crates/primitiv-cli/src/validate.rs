@@ -95,8 +95,19 @@ fn shipped_tokens(document: &str) -> impl Iterator<Item = Token> {
 /// diagnostic that says "carousel use it" reads as a bug in the tool rather than
 /// a finding about the palette.
 fn reads(components: &[String]) -> String {
+    reads_of(components, "it")
+}
+
+/// The same, for a finding that names more than one token — "button uses it" of
+/// twenty-six roles reads as a bug in the tool rather than a finding about the
+/// palette, the way "carousel use it" does.
+fn reads_many(components: &[String]) -> String {
+    reads_of(components, "them")
+}
+
+fn reads_of(components: &[String], object: &str) -> String {
     let verb = if components.len() == 1 { "uses" } else { "use" };
-    format!("{} {verb} it", components.join(", "))
+    format!("{} {verb} {object}", components.join(", "))
 }
 
 /// The ramp a family belongs to, so an alpha companion counts as part of it.
@@ -118,9 +129,14 @@ fn companioned(family: &str) -> &str {
 }
 
 /// The role group a custom-property name belongs to — `action-primary-hover` is
-/// `action` — or `None` for a name with no group segment.
-fn group(name: &str) -> Option<String> {
-    name.split_once('-').map(|(group, _)| group.to_string())
+/// `action`.
+///
+/// Total, not `Option`: every role Primitiv ships has a group segment, so the
+/// empty case was a branch no input could reach, and its callers each carried an
+/// `is_some_and` or a `continue` for it. A name with no dash is its own group,
+/// which is the same rule read literally rather than a fallback.
+fn group(name: &str) -> &str {
+    name.split_once('-').map_or(name, |(group, _)| group)
 }
 
 /// The custom-property name a token is emitted as, without the `--primitiv-`
@@ -245,11 +261,18 @@ pub fn gaps(palette: &Palette, dependencies: &Dependencies, vocabulary: &Vocabul
     // an export supplying one `action` role reported every missing `content`,
     // `surface`, `border` and `focus` role too — groups it had said nothing
     // about, so nothing was half-done, and the real finding was buried.
-    let spoken_for: BTreeSet<String> = supplied
-        .iter()
-        .filter(|name| vocabulary.is_role(name))
-        .filter_map(|name| group(name))
-        .collect();
+    //
+    // The group is taken from the NAME, not from whether the name is one of
+    // Primitiv's own roles. A palette may name a role Primitiv does not have —
+    // Harmoni's default set says `action/link` where Primitiv says
+    // `action/link/foreground/default` — and that name overrides nothing, but it
+    // is still the palette speaking about `action`. Requiring a known role here
+    // meant a group whose names line up with NOTHING was the single case that
+    // reported nothing at all, which is the case that most deserves saying.
+    //
+    // Every ramp name groups under `color`, which no role shares, so ramps still
+    // say nothing about the semantics without a second test for it.
+    let spoken_for: BTreeSet<&str> = supplied.iter().map(|name| group(name)).collect();
 
     dependencies
         .iter()
@@ -267,11 +290,11 @@ pub fn gaps(palette: &Palette, dependencies: &Dependencies, vocabulary: &Vocabul
                             components,
                         })
                 }
-                None => (vocabulary.is_role(name)
-                    && group(name).is_some_and(|group| spoken_for.contains(&group)))
-                .then(|| Gap::Role {
-                    name: name.clone(),
-                    components,
+                None => (vocabulary.is_role(name) && spoken_for.contains(group(name))).then(|| {
+                    Gap::Role {
+                        name: name.clone(),
+                        components,
+                    }
                 }),
             }
         })
@@ -300,21 +323,63 @@ pub fn report(source: &Path, gaps: &[Gap], lengths: &[(String, usize)]) -> Optio
         ));
     }
     for gap in gaps {
-        out.push_str(&match gap {
-            Gap::RampStep {
-                family,
-                step,
-                components,
-                ..
-            } => format!(
+        if let Gap::RampStep {
+            family,
+            step,
+            components,
+            ..
+        } = gap
+        {
+            out.push_str(&format!(
                 "  color.{family} has no {step} — {}, and will take Primitiv's\n",
                 reads(components)
-            ),
-            Gap::Role { name, components } => format!(
-                "  {name} is not supplied — {}, and will take Primitiv's\n",
-                reads(components)
-            ),
+            ));
+        }
+    }
+    for (group, roles) in by_group(gaps) {
+        let components: BTreeSet<&String> = roles.iter().flat_map(|(_, c)| c.iter()).collect();
+        let who = reads_many(&components.into_iter().cloned().collect::<Vec<_>>());
+        out.push_str(&match roles.len() {
+            // Past three the list stops being a list. A palette whose whole
+            // group is named differently from Primitiv's misses every role in it
+            // at once — one story, and 26 lines of it is the wall this
+            // diagnostic exists not to be. The names are Primitiv's own
+            // vocabulary and recoverable; the count and the group are the part
+            // that is news.
+            n if n > NAMED_ROLES => {
+                format!("  {n} {group} roles are not supplied — {who}, and will take Primitiv's\n")
+            }
+            _ => roles
+                .iter()
+                .map(|(name, components)| {
+                    format!(
+                        "  {name} is not supplied — {}, and will take Primitiv's\n",
+                        reads(components)
+                    )
+                })
+                .collect(),
         });
     }
     Some(out)
+}
+
+/// How many missing roles in one group are still worth naming individually.
+const NAMED_ROLES: usize = 3;
+
+/// The role gaps, gathered under the group they belong to, in group order.
+///
+/// Gathered rather than printed as they come, because the gaps arrive in name
+/// order and one group's roles are one finding — which only reads as one finding
+/// if they are counted together.
+fn by_group(gaps: &[Gap]) -> BTreeMap<String, Vec<(&String, &Vec<String>)>> {
+    let mut grouped: BTreeMap<String, Vec<(&String, &Vec<String>)>> = BTreeMap::new();
+    for gap in gaps {
+        if let Gap::Role { name, components } = gap {
+            grouped
+                .entry(group(name).to_string())
+                .or_default()
+                .push((name, components));
+        }
+    }
+    grouped
 }

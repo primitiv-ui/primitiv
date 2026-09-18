@@ -218,6 +218,36 @@ fn reports_a_role_the_palette_leaves_out_while_supplying_others() {
     );
 }
 
+/// A palette can name a role Primitiv does not have — Harmoni's own default set
+/// says `action/link` where Primitiv says `action/link/foreground/default`. That
+/// name overrides nothing, but it IS the palette speaking about `action`, and
+/// the group is then half-covered exactly as if the name had matched. Gating on
+/// "is this one of OUR roles" meant the worst case — a whole group whose names
+/// line up with nothing — was the one case that produced silence.
+#[test]
+fn reports_a_group_the_palette_speaks_to_under_a_name_primitiv_does_not_have() {
+    let palette = palette(
+        r##"{ "light": {
+            "color": { "brand": { "500": { "$type": "color", "$value": "#0a7755" } } },
+            "action": { "link": { "$type": "color", "$value": "#0a7755" } }
+        } }"##,
+    );
+
+    let gaps = gaps(
+        &palette,
+        &dependencies(&[("action-primary-hover", &["button"])]),
+        &Vocabulary::shipped(),
+    );
+
+    assert_eq!(
+        gaps,
+        vec![Gap::Role {
+            name: "action-primary-hover".to_string(),
+            components: vec!["button".to_string()],
+        }]
+    );
+}
+
 /// A palette carrying no roles at all — or one applied with `--ramps-only` — is
 /// keeping Primitiv's semantics wholesale. That is the documented choice (§7
 /// q4), not a gap.
@@ -353,7 +383,63 @@ fn says_nothing_about_a_ramp_that_is_the_assumed_ten_steps() {
 
 /// The report is one warning, not one per finding: a developer scanning build
 /// output should see a single block naming the palette and what it left to
-/// Primitiv, rather than a wall of lines they have to reassemble.
+/// Names line up one-for-one only while there are few of them. A palette whose
+/// whole `action` group is named differently from Primitiv's misses 26 roles at
+/// once — all true, all one story — and printing 26 lines is the wall of text
+/// this diagnostic exists not to be. Past three, the group is counted instead.
+#[test]
+fn counts_a_group_rather_than_listing_every_role_in_it() {
+    let palette = palette(
+        r##"{ "light": { "action": { "link": { "$type": "color", "$value": "#0a7755" } } } }"##,
+    );
+    let report_for = |pairs: &[(&str, &[&str])]| {
+        report(
+            Path::new("p.json"),
+            &gaps(&palette, &dependencies(pairs), &Vocabulary::shipped()),
+            &lengths(&palette),
+        )
+        .unwrap()
+    };
+
+    let many = report_for(&[
+        ("action-primary-hover", &["button"][..]),
+        ("action-primary-active", &["button"][..]),
+        ("action-danger-hover", &["button"][..]),
+        ("action-secondary-hover", &["button", "chip"][..]),
+    ]);
+
+    assert!(
+        many.contains("4 action roles are not supplied"),
+        "expected one counted line, got: {many}"
+    );
+    assert!(
+        !many.contains("action-primary-hover"),
+        "the individual names are the wall this replaces, got: {many}"
+    );
+    assert_eq!(many.lines().count(), 2, "one heading, one finding: {many}");
+    assert!(
+        many.contains("button, chip"),
+        "still says who reads them: {many}"
+    );
+
+    // Counted roles are plural, so the object is too — "button uses it" of 26
+    // roles reads as a bug in the tool rather than a finding about the palette.
+    assert!(
+        many.contains("use them"),
+        "a counted group takes a plural object: {many}"
+    );
+
+    // The other side of the same threshold: three or fewer stays exact, because
+    // a count there would say less than the names do.
+    let few = report_for(&[
+        ("action-primary-hover", &["button"][..]),
+        ("action-primary-active", &["button"][..]),
+    ]);
+
+    assert!(few.contains("action-primary-hover"), "got: {few}");
+    assert!(few.contains("action-primary-active"), "got: {few}");
+}
+
 #[test]
 fn reports_the_gaps_and_the_lengths_as_one_named_block() {
     let palette = palette(

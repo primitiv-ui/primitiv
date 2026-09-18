@@ -1,6 +1,7 @@
 {
   "$schema": "https://primitiv-ui.dev/schema/primitiv.json",
   "version": 1,
+  "name": "docs-site",
   "framework": "react",
   "styles": { "enabled": true, "format": "css", "path": "src/styles/primitiv" },
   "tokens": { "format": "css", "path": "src/styles/primitiv/tokens.css" },

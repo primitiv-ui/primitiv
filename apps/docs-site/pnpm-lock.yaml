@@ -39,6 +39,9 @@ importers:
       '@types/react-dom':
         specifier: 19.2.3
         version: 19.2.3(@types/react@19.2.17)
+      primitiv-ui:
+        specifier: ^0.1.36
+        version: 0.1.36
       typescript:
         specifier: ~6.0.2
         version: 6.0.3
@@ -265,6 +268,31 @@ packages:
     cpu: [x64]
     os: [win32]
 
+  '@primitiv-ui/cli-darwin-arm64@0.1.36':
+    resolution: {integrity: sha512-lprJJJBJxL8NO6G8eEJgWWFVdcCvi31eHmWpFwuoTzKX4e8pH57aQqaAtXyrClHSS1sYeZEUvyOIySx1Oy4SYw==}
+    cpu: [arm64]
+    os: [darwin]
+
+  '@primitiv-ui/cli-darwin-x64@0.1.36':
+    resolution: {integrity: sha512-7DRyjn/vEZ7ci2p8jGCCLUXAGmvfT21knbr61+XX2GdhQKRYaO3NPhsgiCMiF3z8a14e3ZgLLDh0FdNype4+yQ==}
+    cpu: [x64]
+    os: [darwin]
+
+  '@primitiv-ui/cli-linux-arm64-gnu@0.1.36':
+    resolution: {integrity: sha512-RFJywuktBPBgBIsRTQLJvd92hK384sJHsoOt04jcfrjhTwY89S6hjoagqSVM8se/CIO6ZDr45ya2kL2htyhYNw==}
+    cpu: [arm64]
+    os: [linux]
+
+  '@primitiv-ui/cli-linux-x64-gnu@0.1.36':
+    resolution: {integrity: sha512-6YWIx7FYqj2cjkAdCzoTJ4Dgp7xidgvZ3bqtvc8SyeMVyxx6h9KG/vE6kNjgZU9mwsMFRe6cEzJBiXXHtH2SfA==}
+    cpu: [x64]
+    os: [linux]
+
+  '@primitiv-ui/cli-win32-x64@0.1.36':
+    resolution: {integrity: sha512-4Gp0YrTgs3UniM86YFwJJGw73LaU8hOhKoqDlb6A6rtpIHGzLiuQaXuiO/IMMGDYhCKZYvoORgfqN6m4vnCzGg==}
+    cpu: [x64]
+    os: [win32]
+
   '@primitiv-ui/icons@0.1.29':
     resolution: {integrity: sha512-0SqcDyGV+EoZ+LUB0imZfZHkoBOLaepo3451u8oOAki674C33iF6UU7g9LddIgn8sqdhQEdlmQuL9KpGAz7HXQ==}
     peerDependencies:
@@ -345,6 +373,11 @@ packages:
   postcss@8.5.23:
     resolution: {integrity: sha512-g50586zr4bZmwFiTlflMu8E0bDTb5I5gertgwAKmsdUlTQIhZtunzUlD1WSzwcVWPoAVpsrA6vlfCD7oXvRwgg==}
     engines: {node: ^10 || ^12 || >=14}
+
+  primitiv-ui@0.1.36:
+    resolution: {integrity: sha512-3kouGan77kIWKtWd1ivDSgtMTx2o7cK0C56A5Xi7xnsz9u79IDH+kSbjr4UdESHqVOc9jPwD5mwMbv7SAjHbXQ==}
+    engines: {node: '>=18'}
+    hasBin: true
 
   prism-react-renderer@2.4.1:
     resolution: {integrity: sha512-ey8Ls/+Di31eqzUxC46h8MksNuGx/n0AAC8uKpwFau4RPDYLuE3EXTp8N8G2vX2N7UC/+IXeNUnlWBGGcAG+Ig==}
@@ -545,6 +578,21 @@ snapshots:
   '@next/swc-win32-x64-msvc@16.3.1':
     optional: true
 
+  '@primitiv-ui/cli-darwin-arm64@0.1.36':
+    optional: true
+
+  '@primitiv-ui/cli-darwin-x64@0.1.36':
+    optional: true
+
+  '@primitiv-ui/cli-linux-arm64-gnu@0.1.36':
+    optional: true
+
+  '@primitiv-ui/cli-linux-x64-gnu@0.1.36':
+    optional: true
+
+  '@primitiv-ui/cli-win32-x64@0.1.36':
+    optional: true
+
   '@primitiv-ui/icons@0.1.29(@types/react@19.2.17)(react@19.2.8)':
     dependencies:
       '@types/react': 19.2.17
@@ -619,6 +667,14 @@ snapshots:
       nanoid: 3.3.18
       picocolors: 1.1.1
       source-map-js: 1.2.1
+
+  primitiv-ui@0.1.36:
+    optionalDependencies:
+      '@primitiv-ui/cli-darwin-arm64': 0.1.36
+      '@primitiv-ui/cli-darwin-x64': 0.1.36
+      '@primitiv-ui/cli-linux-arm64-gnu': 0.1.36
+      '@primitiv-ui/cli-linux-x64-gnu': 0.1.36
+      '@primitiv-ui/cli-win32-x64': 0.1.36
 
   prism-react-renderer@2.4.1(react@19.2.8):
     dependencies:

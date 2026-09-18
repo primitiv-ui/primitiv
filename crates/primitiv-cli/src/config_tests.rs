@@ -28,6 +28,9 @@ fn should_parse_a_full_primitiv_json_document() {
         config,
         Config {
             version: 1,
+            // Absent in FULL, so it parses to the empty default — the backward-compatible
+            // shape every pre-`name` config still has.
+            name: String::new(),
             framework: "react".into(),
             styles: Styles {
                 enabled: true,
@@ -49,6 +52,27 @@ fn should_parse_a_full_primitiv_json_document() {
             },
         }
     );
+}
+
+#[test]
+fn should_read_the_project_name_when_the_document_records_one() {
+    // A config written since `name` was added carries it, and the theme file stem
+    // is derived from it (`<slug>.theme.<ext>`).
+    let config = Config::parse(
+        br##"{
+          "version": 1,
+          "name": "Acme Brand",
+          "framework": "react",
+          "styles": { "enabled": true, "format": "css", "path": "s" },
+          "tokens": { "format": "css", "path": "t.css" },
+          "theme": { "brand": "#0a7755" },
+          "aliases": {},
+          "registry": { "version": "0.1.0" }
+        }"##,
+    )
+    .unwrap();
+
+    assert_eq!(config.name, "Acme Brand");
 }
 
 #[test]

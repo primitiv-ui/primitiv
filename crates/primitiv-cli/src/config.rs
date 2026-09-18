@@ -19,6 +19,14 @@ pub(crate) const FILE_NAME: &str = "primitiv.json";
 #[derive(Debug, Deserialize, PartialEq)]
 pub struct Config {
     pub version: u32,
+    /// The project's name — the stem its emitted theme file takes
+    /// (`<slug>.theme.<ext>`), so the file the CLI writes and imports matches the
+    /// one the Harmoni plugin exports for the same project. Optional for backward
+    /// compatibility: a `primitiv.json` written before this field parses with an
+    /// empty name, which [`theme_stem`](crate::commands::theme::theme_stem) reads
+    /// as the `primitiv` default — the naming every existing project already has.
+    #[serde(default)]
+    pub name: String,
     pub framework: String,
     pub styles: Styles,
     pub tokens: Tokens,

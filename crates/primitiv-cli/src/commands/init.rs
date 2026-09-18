@@ -37,6 +37,10 @@ const SCHEMA_URL: &str = "https://primitiv-ui.dev/schema/primitiv.json";
 #[derive(Debug, Default, PartialEq)]
 pub struct InitOptions {
     pub format: Option<Format>,
+    /// The project name recorded in `primitiv.json` and used as the theme file's
+    /// stem. `None` defers to `init`, which prompts (pre-filled with the working
+    /// directory's name) or falls back to that directory name.
+    pub name: Option<String>,
     pub brand: Option<String>,
     pub path: Option<String>,
     pub styles_enabled: Option<bool>,
@@ -54,6 +58,7 @@ pub struct InitOptions {
 /// default.
 struct ResolvedInit {
     format: Format,
+    name: String,
     brand: String,
     path: String,
     styles_enabled: bool,
@@ -109,7 +114,15 @@ pub fn init(
         Some(_) => None,
         None => detect::components_alias(fs, &dir)?,
     };
-    let resolved = resolve(options, prompt, interactive, detected_alias)?;
+    // The project name defaults to the working directory's name — what a consumer
+    // would call the project anyway — falling back to the CLI's own name only when
+    // the path has no final component to read (the root).
+    let default_name = dir
+        .file_name()
+        .and_then(|name| name.to_str())
+        .unwrap_or(theme::DEFAULT_STEM)
+        .to_string();
+    let resolved = resolve(options, prompt, interactive, detected_alias, &default_name)?;
     fs.write(&path, render(&resolved).as_bytes())?;
     if resolved.styles_enabled {
         let token_dir = dir.join(&resolved.path);
@@ -126,9 +139,7 @@ pub fn init(
                 &seeds,
                 Some(&token_dir.join(format!(
                     "{}.{}",
-                    // Named after the project once `init` captures a name; until then
-                    // the empty name resolves to the `primitiv` default.
-                    theme::theme_stem(""),
+                    theme::theme_stem(&resolved.name),
                     resolved.format.extension()
                 ))),
                 Some(resolved.format),
@@ -163,6 +174,7 @@ fn resolve(
     prompt: &impl Prompt,
     interactive: bool,
     detected_alias: Option<String>,
+    default_name: &str,
 ) -> Result<ResolvedInit, CliError> {
     let ask = interactive && !options.yes;
     let styles_enabled = match options.styles_enabled {
@@ -210,8 +222,14 @@ fn resolve(
         }
         None => detected_alias,
     };
+    let name = match &options.name {
+        Some(value) => value.clone(),
+        None if ask => ask_text(prompt, "Project name", default_name)?,
+        None => default_name.to_string(),
+    };
     Ok(ResolvedInit {
         format,
+        name,
         brand,
         path,
         styles_enabled,
@@ -235,13 +253,14 @@ fn render(resolved: &ResolvedInit) -> String {
         None => "{}".to_string(),
     };
     format!(
-        "{{\n  \"$schema\": \"{schema}\",\n  \"version\": 1,\n  \"framework\": \"react\",\n  \
+        "{{\n  \"$schema\": \"{schema}\",\n  \"version\": 1,\n  \"name\": \"{name}\",\n  \"framework\": \"react\",\n  \
          \"styles\": {{ \"enabled\": {enabled}, \"format\": \"{format}\", \"path\": \"{path}\" }},\n  \
          \"tokens\": {{ \"format\": \"{format}\", \"path\": \"{path}/tokens.{ext}\" }},\n  \
          \"theme\": {{ \"brand\": \"{brand}\" }},\n  \
          \"aliases\": {aliases},\n  \
          \"registry\": {{ \"version\": \"0.1.0\" }}\n}}\n",
         schema = SCHEMA_URL,
+        name = resolved.name,
         enabled = resolved.styles_enabled,
         format = resolved.format.as_str(),
         path = resolved.path,

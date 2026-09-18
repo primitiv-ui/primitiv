@@ -27,6 +27,22 @@ fn silent_prompt() -> InMemoryPrompt {
 const EXPECTED_DEFAULT: &str = r##"{
   "$schema": "https://primitiv-ui.dev/schema/primitiv.json",
   "version": 1,
+  "name": "primitiv",
+  "framework": "react",
+  "styles": { "enabled": true, "format": "css", "path": "src/styles/primitiv" },
+  "tokens": { "format": "css", "path": "src/styles/primitiv/tokens.css" },
+  "theme": { "brand": "#236ce1" },
+  "aliases": {},
+  "registry": { "version": "0.1.0" }
+}
+"##;
+
+/// The flag-less `init` golden when it runs in a directory named `project`: the
+/// name defaults to that directory, which becomes the theme file's stem.
+const EXPECTED_DEFAULT_IN_PROJECT: &str = r##"{
+  "$schema": "https://primitiv-ui.dev/schema/primitiv.json",
+  "version": 1,
+  "name": "project",
   "framework": "react",
   "styles": { "enabled": true, "format": "css", "path": "src/styles/primitiv" },
   "tokens": { "format": "css", "path": "src/styles/primitiv/tokens.css" },
@@ -42,6 +58,7 @@ const EXPECTED_DEFAULT: &str = r##"{
 const EXPECTED_SCSS: &str = r##"{
   "$schema": "https://primitiv-ui.dev/schema/primitiv.json",
   "version": 1,
+  "name": "primitiv",
   "framework": "react",
   "styles": { "enabled": false, "format": "scss", "path": "app/styles" },
   "tokens": { "format": "scss", "path": "app/styles/tokens.scss" },
@@ -56,6 +73,7 @@ const EXPECTED_SCSS: &str = r##"{
 const EXPECTED_TAILWIND: &str = r##"{
   "$schema": "https://primitiv-ui.dev/schema/primitiv.json",
   "version": 1,
+  "name": "primitiv",
   "framework": "react",
   "styles": { "enabled": true, "format": "tailwind", "path": "src/styles/primitiv" },
   "tokens": { "format": "tailwind", "path": "src/styles/primitiv/tokens.css" },
@@ -71,6 +89,22 @@ const EXPECTED_TAILWIND: &str = r##"{
 const EXPECTED_DETECTED_ALIAS: &str = r##"{
   "$schema": "https://primitiv-ui.dev/schema/primitiv.json",
   "version": 1,
+  "name": "primitiv",
+  "framework": "react",
+  "styles": { "enabled": true, "format": "css", "path": "src/styles/primitiv" },
+  "tokens": { "format": "css", "path": "src/styles/primitiv/tokens.css" },
+  "theme": { "brand": "#236ce1" },
+  "aliases": { "components": "@/components" },
+  "registry": { "version": "0.1.0" }
+}
+"##;
+
+/// As [`EXPECTED_DETECTED_ALIAS`], but for the non-interactive run in a directory
+/// named `project`: the name defaults to that directory.
+const EXPECTED_DETECTED_ALIAS_IN_PROJECT: &str = r##"{
+  "$schema": "https://primitiv-ui.dev/schema/primitiv.json",
+  "version": 1,
+  "name": "project",
   "framework": "react",
   "styles": { "enabled": true, "format": "css", "path": "src/styles/primitiv" },
   "tokens": { "format": "css", "path": "src/styles/primitiv/tokens.css" },
@@ -102,7 +136,7 @@ fn detects_the_components_alias_from_tsconfig_when_no_flag_is_given() {
     .unwrap();
 
     let written = String::from_utf8(fs.read(Path::new("project/primitiv.json")).unwrap()).unwrap();
-    assert_eq!(written, EXPECTED_DETECTED_ALIAS);
+    assert_eq!(written, EXPECTED_DETECTED_ALIAS_IN_PROJECT);
 }
 
 #[test]
@@ -172,7 +206,7 @@ fn writes_a_default_primitiv_json_to_the_working_directory() {
     .unwrap();
 
     let written = String::from_utf8(fs.read(Path::new("project/primitiv.json")).unwrap()).unwrap();
-    assert_eq!(written, EXPECTED_DEFAULT);
+    assert_eq!(written, EXPECTED_DEFAULT_IN_PROJECT);
 }
 
 #[test]
@@ -188,6 +222,9 @@ fn reflects_every_overridden_choice_in_the_written_config() {
         false,
         &InitOptions {
             format: Some(Format::Scss),
+            // Left to default (the empty test dir → the `primitiv` fallback), so the
+            // golden's name stays `primitiv` while the other fields are overridden.
+            name: None,
             brand: Some("#123456".to_string()),
             path: Some("app/styles".to_string()),
             styles_enabled: Some(false),
@@ -333,6 +370,7 @@ fn keeps_the_css_extension_for_the_tailwind_token_layer() {
 const EXPECTED_INTERACTIVE: &str = r##"{
   "$schema": "https://primitiv-ui.dev/schema/primitiv.json",
   "version": 1,
+  "name": "primitiv",
   "framework": "react",
   "styles": { "enabled": true, "format": "scss", "path": "app/styles" },
   "tokens": { "format": "scss", "path": "app/styles/tokens.scss" },
@@ -372,6 +410,7 @@ fn interactive_init_prompts_for_each_omitted_choice() {
             "Brand colour",
             "Where should copied styles land",
             "Components directory (or import alias)",
+            "Project name",
         ]
     );
 }
@@ -554,6 +593,65 @@ fn interactive_init_surfaces_a_path_prompt_failure() {
     .unwrap_err();
 
     assert!(matches!(err, CliError::Io(_)));
+}
+
+#[test]
+fn interactive_init_surfaces_a_name_prompt_failure() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("package.json"), b"{}").unwrap();
+    let prompt = silent_prompt();
+    // styles + format + brand + path + alias succeed (calls 1–5); the name prompt (6) fails.
+    prompt.fail_after(5);
+
+    let err = init(
+        &fs,
+        &InMemoryOutput::new(),
+        &EmbeddedRegistry,
+        &prompt,
+        true,
+        &default_options(),
+    )
+    .unwrap_err();
+
+    assert!(matches!(err, CliError::Io(_)));
+}
+
+#[test]
+fn records_an_explicit_project_name_and_names_the_theme_file_after_it() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("package.json"), b"{}").unwrap();
+
+    init(
+        &fs,
+        &InMemoryOutput::new(),
+        &EmbeddedRegistry,
+        &silent_prompt(),
+        false,
+        &InitOptions {
+            name: Some("Acme Brand".to_string()),
+            brand: Some("#ff6600".to_string()),
+            ..default_options()
+        },
+    )
+    .unwrap();
+
+    let written = String::from_utf8(fs.read(Path::new("primitiv.json")).unwrap()).unwrap();
+    assert!(written.contains(r#""name": "Acme Brand""#), "{written}");
+    // The theme override the given brand triggers is named after the project, and the
+    // token layer imports that same name — the interop the plugin's export lines up with.
+    assert!(
+        fs.exists(Path::new("src/styles/primitiv/acme-brand.theme.css")),
+        "the theme file should be named after the project"
+    );
+    let tokens = String::from_utf8(
+        fs.read(Path::new("src/styles/primitiv/tokens.css"))
+            .unwrap(),
+    )
+    .unwrap();
+    assert!(
+        tokens.contains("@import \"./acme-brand.theme.css\";"),
+        "{tokens}"
+    );
 }
 
 #[test]

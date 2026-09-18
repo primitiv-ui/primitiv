@@ -165,7 +165,7 @@ fn parse_list(args: &[String]) -> Result<Command, CliError> {
     Ok(Command::List { json })
 }
 
-/// Parse `init [--format <fmt>] [--brand <hex>] [--path <dir>]
+/// Parse `init [--format <fmt>] [--name <name>] [--brand <hex>] [--path <dir>]
 /// [--styles | --no-styles] [--alias-components <value>] [--force] [--yes]` —
 /// every option order-free. Each promptable choice is left `None` when its flag
 /// is omitted, so `init` can prompt for it interactively or fall back to the
@@ -174,6 +174,7 @@ fn parse_list(args: &[String]) -> Result<Command, CliError> {
 /// drives a TTY (Principle 3).
 fn parse_init(args: &[String]) -> Result<Command, CliError> {
     let mut format = None;
+    let mut name = None;
     let mut brand = None;
     let mut path = None;
     let mut styles_enabled = None;
@@ -184,6 +185,7 @@ fn parse_init(args: &[String]) -> Result<Command, CliError> {
     while let Some(flag) = rest.next() {
         match flag.as_str() {
             "--format" => format = Some(parse_format(&take_value(&mut rest, "--format")?)?),
+            "--name" => name = Some(take_value(&mut rest, "--name")?),
             "--brand" => brand = Some(take_value(&mut rest, "--brand")?),
             "--path" => path = Some(take_value(&mut rest, "--path")?),
             "--styles" => styles_enabled = Some(true),
@@ -198,6 +200,7 @@ fn parse_init(args: &[String]) -> Result<Command, CliError> {
     }
     Ok(Command::Init(InitOptions {
         format,
+        name,
         brand,
         path,
         styles_enabled,

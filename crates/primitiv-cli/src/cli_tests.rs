@@ -25,6 +25,8 @@ fn parses_every_init_override_flag() {
         "init",
         "--format",
         "scss",
+        "--name",
+        "Acme Brand",
         "--brand",
         "#123456",
         "--path",
@@ -41,6 +43,7 @@ fn parses_every_init_override_flag() {
         command,
         Command::Init(InitOptions {
             format: Some(Format::Scss),
+            name: Some("Acme Brand".to_string()),
             brand: Some("#123456".to_string()),
             path: Some("app/styles".to_string()),
             styles_enabled: Some(false),
@@ -82,7 +85,7 @@ fn rejects_an_unknown_format_for_init() {
 
 #[test]
 fn rejects_init_value_flags_with_no_value() {
-    for flag in ["--format", "--brand", "--path", "--alias-components"] {
+    for flag in ["--format", "--name", "--brand", "--path", "--alias-components"] {
         assert!(matches!(
             parse(&args(&["init", flag])).unwrap_err(),
             CliError::Usage(_)

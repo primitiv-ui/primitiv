@@ -13,6 +13,9 @@ pub mod run;
 pub mod seeds;
 #[cfg(test)]
 mod seeds_tests;
+pub mod slug;
+#[cfg(test)]
+mod slug_tests;
 pub mod token_source;
 pub mod validate;
 pub mod wiring;

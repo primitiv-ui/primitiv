@@ -99,6 +99,24 @@ fn reads(components: &[String]) -> String {
     format!("{} {verb} it", components.join(", "))
 }
 
+/// The ramp a family belongs to, so an alpha companion counts as part of it.
+///
+/// `neutral-alpha` and `neutral-alpha-inverse` are not separate decisions from
+/// `neutral`: the engine derives both from that ramp's veil. Treating them as
+/// their own families made a palette that overrode `neutral` and stopped look
+/// like one that had never mentioned the alpha steps at all — so the registry's
+/// ghost states (§6's 15 uses) silently kept Primitiv's grey, and nothing said
+/// so. Found in a real export, not by a test.
+///
+/// `-alpha-inverse` is stripped before `-alpha`, or the longer suffix would
+/// leave a stray `-inverse` behind.
+fn companioned(family: &str) -> &str {
+    family
+        .strip_suffix("-alpha-inverse")
+        .or_else(|| family.strip_suffix("-alpha"))
+        .unwrap_or(family)
+}
+
 /// The role group a custom-property name belongs to — `action-primary-hover` is
 /// `action` — or `None` for a name with no group segment.
 fn group(name: &str) -> Option<String> {
@@ -219,6 +237,7 @@ pub fn gaps(palette: &Palette, dependencies: &Dependencies, vocabulary: &Vocabul
     let overridden: BTreeSet<String> = supplied
         .iter()
         .filter_map(|name| vocabulary.ramp(name).map(|(family, _)| family))
+        .map(|family| companioned(&family).to_string())
         .collect();
     // Scoped the way the ramps are: a ramp is partial when the palette overrides
     // THAT FAMILY and misses a step, so a role is partial when the palette
@@ -238,12 +257,16 @@ pub fn gaps(palette: &Palette, dependencies: &Dependencies, vocabulary: &Vocabul
         .filter_map(|(name, components)| {
             let components: Vec<String> = components.iter().cloned().collect();
             match vocabulary.ramp(name) {
-                Some((family, step)) => overridden.contains(&family).then(|| Gap::RampStep {
-                    family,
-                    step,
-                    name: name.clone(),
-                    components,
-                }),
+                Some((family, step)) => {
+                    overridden
+                        .contains(companioned(&family))
+                        .then(|| Gap::RampStep {
+                            family,
+                            step,
+                            name: name.clone(),
+                            components,
+                        })
+                }
                 None => (vocabulary.is_role(name)
                     && group(name).is_some_and(|group| spoken_for.contains(&group)))
                 .then(|| Gap::Role {

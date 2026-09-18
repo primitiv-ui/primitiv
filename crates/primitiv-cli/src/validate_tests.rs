@@ -139,6 +139,58 @@ fn says_nothing_about_a_ramp_the_palette_never_overrides() {
     assert_eq!(gaps, vec![]);
 }
 
+/// An alpha companion is not a separate decision from the ramp it companions —
+/// the engine derives it from that ramp's veil. So a palette that overrides
+/// `neutral` and stops has half-covered ONE thing, and the registry's ghost
+/// states (15 uses across `neutral-alpha`'s five steps, §6) quietly keep
+/// Primitiv's grey over the project's own. Found in a real export: a neutral
+/// ramp with alpha switched off produced exactly this, silently.
+#[test]
+fn reports_a_companion_the_palette_leaves_out_of_a_ramp_it_overrides() {
+    let palette = palette(
+        r##"{ "light": { "color": { "neutral": {
+            "900": { "$type": "color", "$value": "#121418" } } } } }"##,
+    );
+
+    let gaps = gaps(
+        &palette,
+        &dependencies(&[("color-neutral-alpha-600", &["button"])]),
+        &Vocabulary::shipped(),
+    );
+
+    assert_eq!(
+        gaps,
+        vec![Gap::RampStep {
+            family: "neutral-alpha".to_string(),
+            step: "600".to_string(),
+            name: "color-neutral-alpha-600".to_string(),
+            components: vec!["button".to_string()],
+        }]
+    );
+}
+
+/// The inverse companion the same way — it is the opposite mode's veil of the
+/// same ramp, so it belongs to that ramp too.
+#[test]
+fn counts_the_inverse_companion_as_part_of_its_ramp() {
+    let palette = palette(
+        r##"{ "light": { "color": { "neutral": {
+            "900": { "$type": "color", "$value": "#121418" } } } } }"##,
+    );
+
+    let gaps = gaps(
+        &palette,
+        &dependencies(&[("color-neutral-alpha-inverse-600", &["alert"])]),
+        &Vocabulary::shipped(),
+    );
+
+    assert_eq!(
+        gaps.len(),
+        1,
+        "expected the inverse companion to be reported: {gaps:?}"
+    );
+}
+
 /// The same rule on the semantics: a palette that solved SOME roles and not
 /// others leaves the components reading the rest on Primitiv's, mixing two sets
 /// of semantics in one build.

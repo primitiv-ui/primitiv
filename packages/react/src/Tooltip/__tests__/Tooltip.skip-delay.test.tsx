@@ -36,8 +36,7 @@ describe("Tooltip.Provider — skip-delay coordination", () => {
     expect(screen.getByText("Second tip")).toBeInTheDocument();
   });
 
-  it("clears a pending skip-delay timer when a tooltip opens again within the skip window", async () => {
-    const user = userEvent.setup();
+  it("clears a pending skip-delay timer when a tooltip opens again within the skip window", () => {
     const clearTimeoutSpy = vi.spyOn(globalThis, "clearTimeout");
     const setTimeoutSpy = vi.spyOn(globalThis, "setTimeout");
 
@@ -51,19 +50,36 @@ describe("Tooltip.Provider — skip-delay coordination", () => {
       </Tooltip.Provider>,
     );
 
-    await user.tab();
+    // Driven with `fireEvent`, not `userEvent`: `delayDuration={0}` makes open and
+    // close synchronous, so focus/blur schedule and clear the skip-delay timer with
+    // no timers to advance — and, crucially, with no dependence on how a higher-level
+    // helper synthesises events. An earlier version tabbed with `userEvent` and then
+    // pinned *the first* skip-delay timer by array position; under CI load a second
+    // close could schedule another before the reopen, so the handle it cleared was
+    // not the one pinned, and the file went flaky.
+    const trigger = screen.getByRole("button", { name: "Hover me" });
+    fireEvent.focus(trigger); // open
     expect(screen.getByRole("tooltip")).toBeInTheDocument();
-    await user.tab();
+    fireEvent.blur(trigger); // close → schedules the skip-delay timer
     expect(screen.queryByRole("tooltip")).toBeNull();
 
-    const skipTimerCallIndex = setTimeoutSpy.mock.calls.findIndex(
-      ([, delay]) => delay === SKIP_DELAY,
-    );
-    const timerId = setTimeoutSpy.mock.results[skipTimerCallIndex].value;
+    const skipTimers = setTimeoutSpy.mock.calls
+      .map((call, i) => ({ delay: call[1], id: setTimeoutSpy.mock.results[i].value }))
+      .filter(({ delay }) => delay === SKIP_DELAY)
+      .map(({ id }) => id);
+    expect(skipTimers.length).toBeGreaterThanOrEqual(1);
 
-    await user.hover(screen.getByRole("button", { name: "Hover me" }));
+    fireEvent.focus(trigger); // reopen within the skip window
 
-    expect(clearTimeoutSpy).toHaveBeenCalledWith(timerId);
+    // Opening again must cancel the pending skip-delay timer. Asserting that *every*
+    // skip-delay timer scheduled is now cleared — rather than pinning one handle by
+    // position — holds however many close events fired: each earlier timer was
+    // cancelled as its replacement was scheduled, and `onOpenGlobally` cancels the
+    // last. The never-clear-on-open variant leaves that last timer pending, which
+    // fails this.
+    for (const timer of skipTimers) {
+      expect(clearTimeoutSpy).toHaveBeenCalledWith(timer);
+    }
 
     clearTimeoutSpy.mockRestore();
     setTimeoutSpy.mockRestore();

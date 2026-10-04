@@ -28,9 +28,8 @@ fn to_js_error(e: impl std::fmt::Debug) -> JsError {
 ///
 /// `request` is an `ExportInput`: `{ ramps: [{ family, light: [{ step, value }],
 /// dark: [...] }], roles?, softNeutrals?: { white, black }, identity? }` — the
-/// palette as **values** the caller has
-/// already rendered (RFC 0032 D1), every colour a CSS string. Returns the file's
-/// contents.
+/// palette as **values** the caller has already rendered (RFC 0032 D1), every
+/// colour a CSS string. Returns the file's contents.
 ///
 /// An unknown format name is an error rather than a fallback — writing a stylesheet
 /// when the caller asked for a token file would be worse than refusing.

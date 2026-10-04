@@ -27,7 +27,8 @@ fn to_js_error(e: impl std::fmt::Debug) -> JsError {
 /// Emit a whole palette as `css`, `scss`, `tailwind` or `dtcg`.
 ///
 /// `request` is an `ExportInput`: `{ ramps: [{ family, light: [{ step, value }],
-/// dark: [...] }], roles?, identity? }` — the palette as **values** the caller has
+/// dark: [...] }], roles?, softNeutrals?: { white, black }, identity? }` — the
+/// palette as **values** the caller has
 /// already rendered (RFC 0032 D1), every colour a CSS string. Returns the file's
 /// contents.
 ///

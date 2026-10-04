@@ -91,8 +91,19 @@ pub struct ExportIdentity {
     pub exported_at: String,
 }
 
+/// A palette's soft white and black — the anchors a neutral ramp is generated
+/// between, and what an Intent layer's `color.white` / `color.black` aliases
+/// read. Step-less, and one value each for both modes, exactly as Primitiv's own
+/// palette holds them.
+#[derive(Debug, Clone, PartialEq)]
+pub struct SoftNeutrals {
+    pub white: String,
+    pub black: String,
+}
+
 /// A whole palette, owned: every ramp's rendered steps, the consumer's own
-/// semantic roles if it solved any, and where the file came from.
+/// semantic roles if it solved any, its soft neutrals if it chose its own, and
+/// where the file came from.
 ///
 /// `roles` is a mode-keyed DTCG document whose leaves alias
 /// `{color.<family>.<step>}` — the resolved form, because resolution is the
@@ -101,6 +112,7 @@ pub struct ExportIdentity {
 pub struct ExportRequest {
     pub ramps: Vec<ExportRamp>,
     pub roles: Option<Value>,
+    pub soft_neutrals: Option<SoftNeutrals>,
     pub identity: Option<ExportIdentity>,
 }
 
@@ -159,7 +171,8 @@ fn scopes(request: &ExportRequest) -> Vec<Scope> {
         .collect()
 }
 
-/// Each mode's tokens: every ramp's steps, then the roles solved against them.
+/// Each mode's tokens: every ramp's steps, the soft neutrals, then the roles
+/// solved against them.
 ///
 /// Roles go through `tokens_from_dtcg` in both forms, which converts a raw colour
 /// leaf to OkLCH even on the DTCG path. That is not a leak: Harmoni solves a role
@@ -167,6 +180,10 @@ fn scopes(request: &ExportRequest) -> Vec<Scope> {
 /// a colour for `format_color` to touch. A caller sending a raw colour there gets
 /// it in the form a stylesheet would take, which is still a valid DTCG value.
 fn modes(request: &ExportRequest, form: Form) -> Vec<(String, Vec<Token>)> {
+    let render = |value: &str| match form {
+        Form::Oklch => format_color(value),
+        Form::AsGiven => value.to_string(),
+    };
     MODES
         .iter()
         .map(|mode| {
@@ -180,14 +197,16 @@ fn modes(request: &ExportRequest, form: Form) -> Vec<(String, Vec<Token>)> {
                         &ramp.light
                     };
                     steps.iter().map(|step| {
-                        let value = match form {
-                            Form::Oklch => format_color(&step.value),
-                            Form::AsGiven => step.value.clone(),
-                        };
-                        Token::new(&[RAMPS, &ramp.family, &step.step], &value)
+                        Token::new(&[RAMPS, &ramp.family, &step.step], &render(&step.value))
                     })
                 })
                 .collect();
+            // Step-less, beside the ramps under `color`, and the same in both
+            // modes — so a consumer's `--ramps-only` keeps them with the palette.
+            if let Some(neutrals) = &request.soft_neutrals {
+                tokens.push(Token::new(&[RAMPS, "white"], &render(&neutrals.white)));
+                tokens.push(Token::new(&[RAMPS, "black"], &render(&neutrals.black)));
+            }
             if let Some(roles) = &request.roles {
                 tokens.extend(tokens_from_dtcg(&roles[mode]));
             }
@@ -221,10 +240,13 @@ fn extensions(request: &ExportRequest) -> Vec<(Vec<String>, String)> {
 /// tested, so a conversion written there would be the one piece of this feature
 /// outside the gate.
 #[derive(Debug, Clone, PartialEq, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct ExportInput {
     pub ramps: Vec<RampInput>,
     #[serde(default)]
     pub roles: Option<Value>,
+    #[serde(default)]
+    pub soft_neutrals: Option<SoftNeutralsInput>,
     #[serde(default)]
     pub identity: Option<IdentityInput>,
 }
@@ -242,6 +264,13 @@ pub struct RampInput {
 pub struct StepInput {
     pub step: String,
     pub value: String,
+}
+
+/// The soft neutrals on the wire.
+#[derive(Debug, Clone, PartialEq, Deserialize)]
+pub struct SoftNeutralsInput {
+    pub white: String,
+    pub black: String,
 }
 
 /// The identity block on the wire, `camelCase` as a JavaScript caller writes it.
@@ -267,6 +296,10 @@ impl From<ExportInput> for ExportRequest {
                 })
                 .collect(),
             roles: input.roles,
+            soft_neutrals: input.soft_neutrals.map(|neutrals| SoftNeutrals {
+                white: neutrals.white,
+                black: neutrals.black,
+            }),
             identity: input.identity.map(|identity| ExportIdentity {
                 project: identity.project,
                 name: identity.name,

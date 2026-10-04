@@ -1,7 +1,8 @@
 use serde_json::json;
 
 use crate::export::{
-    ExportFormat, ExportIdentity, ExportInput, ExportRamp, ExportRequest, ExportStep, emit_export,
+    ExportFormat, ExportIdentity, ExportInput, ExportRamp, ExportRequest, ExportStep, SoftNeutrals,
+    emit_export,
 };
 
 /// One ramp's rendered steps in a mode, as the engine handed them over.
@@ -37,6 +38,7 @@ fn request() -> ExportRequest {
             "light": { "action": { "primary": { "$type": "color", "$value": "{color.brand.500}" } } },
             "dark":  { "action": { "primary": { "$type": "color", "$value": "{color.brand.50}" } } }
         })),
+        soft_neutrals: None,
         identity: None,
     }
 }
@@ -103,6 +105,7 @@ fn a_dtcg_export_keeps_the_ramp_in_scale_order() {
             dark: steps(&[("50", "#4"), ("100", "#5"), ("500", "#6")]),
         }],
         roles: None,
+        soft_neutrals: None,
         identity: None,
     };
 
@@ -127,6 +130,53 @@ fn a_dtcg_export_carries_the_roles_too() {
 
     assert!(dtcg.contains("\"action\""), "got: {dtcg}");
     assert!(dtcg.contains("{color.brand.500}"), "got: {dtcg}");
+}
+
+/// The palette's soft white and black — the anchors a neutral ramp is generated
+/// between, and the `color.white` / `color.black` an Intent layer aliases for
+/// text on a fill. A consumer that picked its own must get them in the file, or
+/// the build keeps the stock pair and every alias onto them reads the old value.
+fn with_soft_neutrals() -> ExportRequest {
+    ExportRequest {
+        soft_neutrals: Some(SoftNeutrals {
+            white: "#ffffff".to_string(),
+            black: "#1a1a1a".to_string(),
+        }),
+        ..request()
+    }
+}
+
+#[test]
+fn a_stylesheet_export_carries_the_soft_neutrals_in_both_themes() {
+    let css = emit_export(&with_soft_neutrals(), ExportFormat::Css);
+
+    // One step-less token each, beside the ramps, rendered like any other value.
+    assert_eq!(
+        css.matches("--primitiv-color-white: oklch(").count(),
+        2,
+        "white in both themes: {css}"
+    );
+    assert_eq!(
+        css.matches("--primitiv-color-black: oklch(").count(),
+        2,
+        "black in both themes: {css}"
+    );
+}
+
+#[test]
+fn a_dtcg_export_carries_the_soft_neutrals_as_handed_over() {
+    let dtcg = emit_export(&with_soft_neutrals(), ExportFormat::Dtcg);
+
+    assert_eq!(
+        dtcg.matches("\"$value\": \"#ffffff\"").count(),
+        2,
+        "white in both modes: {dtcg}"
+    );
+    assert_eq!(
+        dtcg.matches("\"$value\": \"#1a1a1a\"").count(),
+        2,
+        "black in both modes: {dtcg}"
+    );
 }
 
 /// D13: "where did these come from, and are they current" needs an answer that
@@ -202,6 +252,7 @@ fn an_export_input_deserialises_into_a_request() {
             "dark":  [{ "step": "500", "value": "#0a7755" }]
         }],
         "roles": { "light": {}, "dark": {} },
+        "softNeutrals": { "white": "#ffffff", "black": "#1a1a1a" },
         "identity": {
             "project": "p-7f3",
             "name": "Kestrel",
@@ -216,12 +267,19 @@ fn an_export_input_deserialises_into_a_request() {
     assert_eq!(request.ramps.len(), 1);
     assert_eq!(request.ramps[0].family, "brand");
     assert_eq!(request.ramps[0].light[0].value, "#0a7755");
+    assert_eq!(
+        request.soft_neutrals,
+        Some(SoftNeutrals {
+            white: "#ffffff".to_string(),
+            black: "#1a1a1a".to_string(),
+        })
+    );
     assert_eq!(request.identity.unwrap().name, "Kestrel");
 }
 
-/// The two optional halves really are optional: a palette with no roles and no
-/// identity is a complete request, which is what `--ramps-only`'s counterpart on
-/// the plugin side and an un-named project both produce.
+/// The optional parts really are optional: a palette with no roles, no soft
+/// neutrals and no identity is a complete request, which is what `--ramps-only`'s
+/// counterpart on the plugin side and an un-named project both produce.
 #[test]
 fn an_export_input_needs_neither_roles_nor_identity() {
     let input: ExportInput = serde_json::from_value(json!({
@@ -232,6 +290,7 @@ fn an_export_input_needs_neither_roles_nor_identity() {
     let request: ExportRequest = input.into();
 
     assert_eq!(request.roles, None);
+    assert_eq!(request.soft_neutrals, None);
     assert_eq!(request.identity, None);
 }
 

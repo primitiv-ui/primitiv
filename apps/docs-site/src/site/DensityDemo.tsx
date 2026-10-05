@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useId } from "react";
 
 import { Badge } from "@/components/badge";
 import { Blockquote } from "@/components/blockquote";
@@ -18,6 +18,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/table";
+import { useDensityGlide } from "@/site/use-density-glide";
 
 import "./density-demo.css";
 
@@ -86,7 +87,7 @@ const TONES = {
 } as const satisfies Record<string, "success" | "info" | "warning">;
 
 export const DensityDemo = () => {
-  const [mode, setMode] = useState<Mode>("comfortable");
+  const [mode, setMode, gliding] = useDensityGlide<Mode>("comfortable");
   const name = useId();
 
   return (
@@ -129,7 +130,11 @@ export const DensityDemo = () => {
          * stage rather than the panel so the control strip itself stays put,
          * which is what lets a reader see that only the content moved.
          */}
-        <div className="docs-density-stage" data-density={mode}>
+        <div
+          className="docs-density-stage"
+          data-density={mode}
+          data-density-gliding={gliding || undefined}
+        >
           {/*
            * `Prose` — i.e. the `.primitiv-flow` context — is what spaces the
            * blocks inside each region, NOT a gap on the region itself. A first

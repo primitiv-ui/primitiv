@@ -20,6 +20,7 @@ import {
 } from "@/lib/playground";
 
 import { useMode, type Mode } from "@/site/preferences";
+import { useDensityGlide } from "@/site/use-density-glide";
 
 import "./playground.css";
 
@@ -177,7 +178,8 @@ export const Playground = ({
   snippet,
 }: PlaygroundProps) => {
   const [values, setValues] = useState(() => initialValues(controls));
-  const [density, setDensity] = useState<Density>(DEFAULT_DENSITY);
+  const [density, setDensity, gliding] =
+    useDensityGlide<Density>(DEFAULT_DENSITY);
   const [mode, setMode] = useMode();
 
   /* The snippet has to know the mode: a compound's part names differ between
@@ -236,6 +238,7 @@ export const Playground = ({
                     : "docs-playground-preview"
                 }
                 data-density={density}
+                data-density-gliding={gliding || undefined}
               >
                 {children(values)}
               </div>

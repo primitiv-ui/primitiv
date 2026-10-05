@@ -146,25 +146,27 @@
  * Through the SEMANTIC motion tier (`motion/duration-expand` is 200ms,
  * `motion/easing-default`) rather than the raw primitives — the brief's
  * "standard easing" names a role, and the role is what the system publishes.
+ *
+ * Only while `data-density-gliding` is set — for the length of the glide, by
+ * `useDensityGlide`. This rule is unlayered, so it out-ranks every component's
+ * own `transition` and REPLACES it; left on permanently it froze the stage's
+ * Buttons, Radios and Segmented Control on their resting state.
+ *
+ * Under reduced motion there is no glide at all, so densities swap instantly —
+ * the brief's own reduced-motion clause — and everything else is left to the
+ * components' own reduced-motion rules.
  */
-.docs-density-stage,
-.docs-density-stage * {
-  transition:
-    padding var(--primitiv-motion-duration-expand) var(--primitiv-motion-easing-default),
-    margin var(--primitiv-motion-duration-expand) var(--primitiv-motion-easing-default),
-    gap var(--primitiv-motion-duration-expand) var(--primitiv-motion-easing-default),
-    block-size var(--primitiv-motion-duration-expand) var(--primitiv-motion-easing-default),
-    border-radius var(--primitiv-motion-duration-expand) var(--primitiv-motion-easing-default),
-    font-size var(--primitiv-motion-duration-expand) var(--primitiv-motion-easing-default),
-    line-height var(--primitiv-motion-duration-expand) var(--primitiv-motion-easing-default);
-}
-
-/* Densities swap instantly; everything else unchanged and fully interactive —
-   the brief's own reduced-motion clause. */
-@media (prefers-reduced-motion: reduce) {
-  .docs-density-stage,
-  .docs-density-stage * {
-    transition: none;
+@media (prefers-reduced-motion: no-preference) {
+  .docs-density-stage[data-density-gliding],
+  .docs-density-stage[data-density-gliding] * {
+    transition:
+      padding var(--primitiv-motion-duration-expand) var(--primitiv-motion-easing-default),
+      margin var(--primitiv-motion-duration-expand) var(--primitiv-motion-easing-default),
+      gap var(--primitiv-motion-duration-expand) var(--primitiv-motion-easing-default),
+      block-size var(--primitiv-motion-duration-expand) var(--primitiv-motion-easing-default),
+      border-radius var(--primitiv-motion-duration-expand) var(--primitiv-motion-easing-default),
+      font-size var(--primitiv-motion-duration-expand) var(--primitiv-motion-easing-default),
+      line-height var(--primitiv-motion-duration-expand) var(--primitiv-motion-easing-default);
   }
 }
 

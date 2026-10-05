@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { type ReactNode } from "react";
 
 import { Card, CardContent } from "@/components/card";
 import { Stack } from "@/components/stack";
@@ -10,6 +10,7 @@ import { ModeCodeBlock } from "./ModeCodeBlock";
 import { DEFAULT_DENSITY, type Density } from "@/lib/playground";
 import { renderDoc } from "@/lib/render-doc";
 import { type Mode } from "@/site/preferences";
+import { useDensityGlide } from "@/site/use-density-glide";
 
 import "./playground.css";
 
@@ -35,7 +36,8 @@ export const InteractiveExample = ({
   children: (density: Density) => ReactNode;
   code: (density: Density, mode: Mode) => string;
 }) => {
-  const [density, setDensity] = useState<Density>(DEFAULT_DENSITY);
+  const [density, setDensity, gliding] =
+    useDensityGlide<Density>(DEFAULT_DENSITY);
 
   return (
     <Stack gap="md">
@@ -53,7 +55,11 @@ export const InteractiveExample = ({
 
       <Card size="lg">
         <CardContent>
-          <div className="docs-example-row" data-density={density}>
+          <div
+            className="docs-example-row"
+            data-density={density}
+            data-density-gliding={gliding || undefined}
+          >
             {children(density)}
           </div>
         </CardContent>

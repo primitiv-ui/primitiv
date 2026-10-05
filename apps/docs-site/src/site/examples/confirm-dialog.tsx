@@ -51,12 +51,16 @@ const PortalHost = ({ children }: { children: ReactNode }) => {
   );
 };
 
-/** `ModalPortal`, aimed at the enclosing {@link PortalHost}. */
+/**
+ * `ModalPortal`, aimed at the enclosing {@link PortalHost} and force-mounted:
+ * the registry modal's exit animation needs the dialog to stay mounted while
+ * closed, or it unmounts the instant it closes and snaps shut.
+ */
 const Portal = ({ children, ...props }: ComponentProps<typeof ModalPortal>) => {
   const host = useContext(PortalHostContext);
 
   return (
-    <ModalPortal container={host} {...props}>
+    <ModalPortal container={host} forceMount {...props}>
       {children}
     </ModalPortal>
   );
@@ -227,7 +231,7 @@ export const confirmDialogSpec: ComponentSpec = {
         `  <ConfirmDialogTrigger asChild>`,
         `    <Button variant="${danger ? "danger" : "primary"}">${danger ? "Remove member" : "Publish release"}</Button>`,
         `  </ConfirmDialogTrigger>`,
-        `  <ModalPortal>`,
+        `  <ModalPortal forceMount>`,
         `    <ConfirmDialogContent`,
         `      title="${danger ? "Remove member?" : "Publish release?"}"`,
         `      tone="${tone}"`,
@@ -308,7 +312,7 @@ export const confirmDialogSpec: ComponentSpec = {
               `  <ConfirmDialogTrigger asChild>`,
               `    <Button>Publish release</Button>`,
               `  </ConfirmDialogTrigger>`,
-              `  <ModalPortal>`,
+              `  <ModalPortal forceMount>`,
               `    <ConfirmDialogContent`,
               `      title="Publish release?"`,
               `      confirmLabel="Publish"`,
@@ -353,7 +357,7 @@ export const confirmDialogSpec: ComponentSpec = {
               `  <ConfirmDialogTrigger asChild>`,
               `    <Button variant="danger">Remove member</Button>`,
               `  </ConfirmDialogTrigger>`,
-              `  <ModalPortal>`,
+              `  <ModalPortal forceMount>`,
               `    <ConfirmDialogContent`,
               `      title="Remove member?"`,
               `      tone="danger"`,
@@ -399,7 +403,7 @@ export const confirmDialogSpec: ComponentSpec = {
               `  <ConfirmDialogTrigger asChild>`,
               `    <Button variant="danger">Delete project</Button>`,
               `  </ConfirmDialogTrigger>`,
-              `  <ModalPortal>`,
+              `  <ModalPortal forceMount>`,
               `    <ConfirmDialogContent`,
               `      title='Delete "Harmoni"?'`,
               `      tone="danger"`,
@@ -498,7 +502,7 @@ export const confirmDialogSpec: ComponentSpec = {
               `  <ConfirmDialogTrigger asChild>`,
               `    <Button>Leave feedback</Button>`,
               `  </ConfirmDialogTrigger>`,
-              `  <ModalPortal>`,
+              `  <ModalPortal forceMount>`,
               `    <ConfirmDialogContent showClose title="Send feedback?" onConfirm={send}>`,
               `      Your note goes to the team — thank you.`,
               `    </ConfirmDialogContent>`,

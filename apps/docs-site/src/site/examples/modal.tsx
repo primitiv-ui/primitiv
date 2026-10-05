@@ -80,7 +80,11 @@ const PortalHost = ({ children }: { children: ReactNode }) => {
   );
 };
 
-/** `ModalPortal`, aimed at the enclosing {@link PortalHost}. */
+/**
+ * `ModalPortal`, aimed at the enclosing {@link PortalHost} and force-mounted:
+ * the registry modal's exit animation needs the dialog to stay mounted while
+ * closed, or it unmounts the instant it closes and snaps shut.
+ */
 const Portal = ({
   children,
   ...props
@@ -88,7 +92,7 @@ const Portal = ({
   const host = useContext(PortalHostContext);
 
   return (
-    <ModalPortal container={host} {...props}>
+    <ModalPortal container={host} forceMount {...props}>
       {children}
     </ModalPortal>
   );
@@ -365,7 +369,7 @@ export const modalSpec: ComponentSpec = {
         ``,
         `<${p("Root")}>`,
         ...triggerLines(mode, "  ", "Open dialog"),
-        `  <${p("Portal")}>`,
+        `  <${p("Portal")} forceMount>`,
         `    <${p("Content")}${contractAttr({ mode, prop: "size", value: size })}>`,
         `      <${region(mode, "Header")}>`,
         `        <${p("Title")}>Payment details</${p("Title")}>`,
@@ -472,7 +476,7 @@ export const modalSpec: ComponentSpec = {
               ``,
               `<${p("Root")}>`,
               ...triggerLines(mode, "  ", "Edit profile"),
-              `  <${p("Portal")}>`,
+              `  <${p("Portal")} forceMount>`,
               `    <${p("Content")}>`,
               `      <${region(mode, "Header")}>`,
               `        <${p("Title")}>Edit profile</${p("Title")}>`,
@@ -600,7 +604,7 @@ export const modalSpec: ComponentSpec = {
                 : `<Button onClick={() => setOpen(true)}>Publish</Button>`,
               ``,
               `<${p("Root")} open={open} onOpenChange={setOpen}>`,
-              `  <${p("Portal")}>`,
+              `  <${p("Portal")} forceMount>`,
               `    <${p("Content")} size="sm">`,
               `      <${region(mode, "Header")}>`,
               `        <${p("Title")}>Publish release</${p("Title")}>`,

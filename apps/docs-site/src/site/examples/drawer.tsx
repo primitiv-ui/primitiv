@@ -45,10 +45,12 @@ const PortalHost = ({ children }: { children: ReactNode }) => {
     </div>
   );
 };
+/* Force-mounted so the drawer stays mounted while closed — what its slide-out
+   needs; without it the dialog unmounts on close and snaps away. */
 const Portal = ({ children, ...props }: ComponentProps<typeof DrawerPortal>) => {
   const host = useContext(PortalHostContext);
   return (
-    <DrawerPortal container={host} {...props}>
+    <DrawerPortal container={host} forceMount {...props}>
       {children}
     </DrawerPortal>
   );
@@ -139,7 +141,7 @@ export const drawerSpec: ComponentSpec = {
         ...(mode === "headless"
           ? [`  <${p("Trigger")}>Open drawer</${p("Trigger")}>`]
           : [`  <${p("Trigger")} asChild>`, `    <Button>Open drawer</Button>`, `  </${p("Trigger")}>`]),
-        `  <${p("Portal")}>`,
+        `  <${p("Portal")} forceMount>`,
         `    <${p("Overlay")} />`,
         `    <${p("Content")}${width} side="${values.side}">`,
         `      <${region(mode, "Header")}>`,

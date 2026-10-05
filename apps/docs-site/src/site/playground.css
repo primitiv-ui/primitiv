@@ -143,23 +143,25 @@
  * motion). Runs through the semantic `motion/duration-expand` (200ms) tier, the
  * same one the density stage uses. `data-density` lives on `.docs-example-row` /
  * `.docs-playground-preview`, so the descendants are what re-size.
+ *
+ * Only while `data-density-gliding` is set, i.e. for the length of the glide
+ * (`useDensityGlide`). This rule is unlayered, so it out-ranks every
+ * `@layer primitiv.*` rule — and `transition` is one property, so it REPLACES a
+ * component's own list rather than adding to it. Applied permanently it killed
+ * every component's motion in a preview: Accordion's open/close, Modal's
+ * enter/exit, Button's hover fade.
  */
-.docs-example-row *,
-.docs-playground-preview * {
-  transition:
-    padding var(--primitiv-motion-duration-expand) var(--primitiv-motion-easing-default),
-    margin var(--primitiv-motion-duration-expand) var(--primitiv-motion-easing-default),
-    gap var(--primitiv-motion-duration-expand) var(--primitiv-motion-easing-default),
-    block-size var(--primitiv-motion-duration-expand) var(--primitiv-motion-easing-default),
-    border-radius var(--primitiv-motion-duration-expand) var(--primitiv-motion-easing-default),
-    font-size var(--primitiv-motion-duration-expand) var(--primitiv-motion-easing-default),
-    line-height var(--primitiv-motion-duration-expand) var(--primitiv-motion-easing-default);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .docs-example-row *,
-  .docs-playground-preview * {
-    transition: none;
+@media (prefers-reduced-motion: no-preference) {
+  .docs-example-row[data-density-gliding] *,
+  .docs-playground-preview[data-density-gliding] * {
+    transition:
+      padding var(--primitiv-motion-duration-expand) var(--primitiv-motion-easing-default),
+      margin var(--primitiv-motion-duration-expand) var(--primitiv-motion-easing-default),
+      gap var(--primitiv-motion-duration-expand) var(--primitiv-motion-easing-default),
+      block-size var(--primitiv-motion-duration-expand) var(--primitiv-motion-easing-default),
+      border-radius var(--primitiv-motion-duration-expand) var(--primitiv-motion-easing-default),
+      font-size var(--primitiv-motion-duration-expand) var(--primitiv-motion-easing-default),
+      line-height var(--primitiv-motion-duration-expand) var(--primitiv-motion-easing-default);
   }
 }
 

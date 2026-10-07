@@ -68,3 +68,13 @@
 .docs-library-table code {
   white-space: nowrap;
 }
+
+/* The WCAG grade under each swatch's step number: caption-sized like the step,
+   but kept at every width — on a phone the step number is hidden for space and
+   the grade is the more useful of the two. */
+.docs-library-swatch-grade {
+  font-family: var(--primitiv-body-md-font-family);
+  font-size: var(--primitiv-swatch-sm-sample-caption-size);
+  font-weight: var(--primitiv-font-weight-semibold);
+  line-height: 1;
+}

@@ -140,13 +140,13 @@ const Hue = ({ ramp, steps }: { ramp: Ramp; steps: readonly Step[] }) => {
         )}
       </div>
 
-      {/* Each swatch's "Ag" and step number are painted in the text colour the
-          engine paired with it, so the strip is the pairing itself, not a
-          picture of a ramp with the advice somewhere else. */}
+      {/* Each swatch's "Ag", step number and WCAG grade are painted in the text
+          colour the engine paired with it, so the strip is the pairing itself,
+          not a picture of a ramp with the advice somewhere else. */}
       <div
         className="docs-colour-steps"
         role="img"
-        aria-label={`${ramp.ramp}, steps 50 to 900, each labelled in its recommended text colour.`}
+        aria-label={`${ramp.ramp}, steps 50 to 900, each labelled in its recommended text colour with its WCAG grade.`}
       >
         {steps.map((s) => (
           <div
@@ -156,6 +156,7 @@ const Hue = ({ ramp, steps }: { ramp: Ramp; steps: readonly Step[] }) => {
           >
             <span className="docs-colour-sample">Ag</span>
             <span className="docs-colour-step">{s.step}</span>
+            <span className="docs-library-swatch-grade">{s.foreground.grade}</span>
           </div>
         ))}
       </div>

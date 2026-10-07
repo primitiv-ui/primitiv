@@ -71,7 +71,7 @@
   justify-content: center;
   /*
    * `box` (40) is the FLOOR, not the height, and the difference was a real
-   * defect: the sample is `sample-size` (32) and the caption
+   * defect: the sample was `md` `sample-size` (32) and the caption
    * `sample-caption-size` (13), which is 44px of content in a 40px box, so the
    * step number under every "Ag" was sliced off by the row's own clip. The
    * screenshot showed it; the render check could not, since it reads horizontal
@@ -94,14 +94,15 @@
   font-family: var(--primitiv-body-md-font-family);
   /* "Ag" is the specimen string, and the ascender plus descender together show
      the type's full vertical extent — which is what makes legibility judgeable
-     rather than merely asserted. */
-  font-size: var(--primitiv-swatch-md-sample-size);
+     rather than merely asserted. The `sm` tier, one below the swatch box's own
+     `md`: at `md` the sample and caption crowded the swatch. */
+  font-size: var(--primitiv-swatch-sm-sample-size);
   line-height: 1;
 }
 
 .docs-colour-step {
   font-family: var(--primitiv-body-md-font-family);
-  font-size: var(--primitiv-swatch-md-sample-caption-size);
+  font-size: var(--primitiv-swatch-sm-sample-caption-size);
   line-height: 1;
 }
 

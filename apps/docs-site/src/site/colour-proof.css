@@ -82,6 +82,11 @@
    */
   min-block-size: var(--primitiv-swatch-md-box);
   padding-block: var(--primitiv-swatch-md-padding-block);
+  /* Space between "Ag" and its step number. Both sit at `line-height: 1`, so
+     with no gap the descender of the "g" touched the digits beneath it. The
+     family's own block padding, so the breathing room scales with density
+     alongside the rest of the swatch. */
+  gap: var(--primitiv-swatch-md-padding-block);
   min-inline-size: 0;
 }
 

@@ -417,3 +417,14 @@ fn the_committed_slider_recipe_is_the_generated_form_of_its_contract() {
         ))
     );
 }
+
+/// Same banner rule as the wrapper: in a consumer project the recipe is theirs.
+#[test]
+fn the_banner_tells_a_consumer_the_copied_recipe_is_theirs_to_edit() {
+    let contract = Contract::parse(DEMO_BOX.as_bytes()).unwrap();
+
+    let recipe = emit_recipe(&contract);
+
+    assert!(recipe.contains(" * Yours to edit once `primitiv add` copies it into your project"), "{recipe}");
+    assert!(!recipe.contains("Do not edit by hand"), "{recipe}");
+}

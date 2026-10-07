@@ -754,3 +754,15 @@ fn the_committed_slider_wrapper_is_the_generated_form_of_its_contract() {
         ))
     );
 }
+
+/// The banner travels into consumer projects verbatim, where "do not edit"
+/// contradicts the whole point of copy-in components: there it is their code.
+#[test]
+fn the_banner_tells_a_consumer_the_copied_file_is_theirs_to_edit() {
+    let contract = Contract::parse(BARE.as_bytes()).unwrap();
+
+    let wrapper = emit_wrapper(&contract);
+
+    assert!(wrapper.contains(" * Yours to edit once `primitiv add` copies it into your project"), "{wrapper}");
+    assert!(!wrapper.contains("Do not edit by hand"), "{wrapper}");
+}

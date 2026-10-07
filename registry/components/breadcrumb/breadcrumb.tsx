@@ -1,7 +1,9 @@
 /*
  * Breadcrumb — styled wrapper, generated from contract.json.
  *
- * Do not edit by hand: change registry/components/breadcrumb/contract.json and regenerate.
+ * Yours to edit once `primitiv add` copies it into your project — re-running
+ * `add` keeps your changes unless you pass --force. (In the Primitiv repo,
+ * edit registry/components/breadcrumb/contract.json and regenerate instead.)
  * A typed props surface over the headless @primitiv-ui/react component + the
  * generated recipe — the primary DX (RFC 0004 §3.5 / D51).
  */

@@ -1,7 +1,9 @@
 /*
  * Field styled-surface recipe — generated from contract.json.
  *
- * Do not edit by hand: change registry/components/field/contract.json and regenerate.
+ * Yours to edit once `primitiv add` copies it into your project — re-running
+ * `add` keeps your changes unless you pass --force. (In the Primitiv repo,
+ * edit registry/components/field/contract.json and regenerate instead.)
  * Maps the variant props to the contract's modifier classes; the styling lives
  * in the copied stylesheet (RFC 0006 §6.1 / D53).
  */

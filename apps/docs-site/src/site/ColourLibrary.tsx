@@ -207,9 +207,10 @@ export const ColourLibrary = () => {
             <p className="docs-content-p">
               The other twelve sit evenly between those five on the OkLCH hue wheel. Each
               takes its lightness and colourfulness from its two neighbours, so the whole
-              library reads as one family. Every ramp holds its hue from 50 to 900 and has
-              a light and a dark version: the tokens switch with the theme, just like
-              brand.
+              library reads as one family. Yellow and lime are the exception: they sit
+              lighter, because a yellow only looks yellow when it is light. Every ramp
+              holds its hue from 50 to 900 and has a light and a dark version: the tokens
+              switch with the theme, just like brand.
             </p>
           </Prose>
         </section>

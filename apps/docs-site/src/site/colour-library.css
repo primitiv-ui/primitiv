@@ -1,0 +1,70 @@
+/*
+ * The colour library page (/colours/).
+ *
+ * The swatch strip itself is the home page's proof sheet (colour-proof.css) —
+ * the same `swatch/*` geometry, so the two specimens read as one system. This
+ * file only stacks the hues and lays out each one's head and table.
+ */
+
+.docs-library-hues {
+  display: flex;
+  flex-direction: column;
+  gap: var(--primitiv-stack-gap-xl);
+}
+
+.docs-library-hue {
+  display: flex;
+  flex-direction: column;
+  gap: var(--primitiv-stack-gap-sm);
+}
+
+.docs-library-hue-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--primitiv-space-space-8) var(--primitiv-space-space-16);
+}
+
+.docs-library-hue-name {
+  text-transform: capitalize;
+}
+
+.docs-library-same-as {
+  font-family: var(--primitiv-body-sm-font-family);
+  font-size: var(--primitiv-body-sm-font-size);
+  line-height: var(--primitiv-body-sm-line-height);
+  color: var(--primitiv-content-secondary);
+}
+
+.docs-library-step,
+.docs-library-contrast {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* Under the ratio rather than beside it, so the column stays narrow enough
+   for a phone to show all three columns without scrolling. */
+.docs-library-grade {
+  display: block;
+  font-size: var(--primitiv-body-xs-font-size);
+  color: var(--primitiv-content-secondary);
+}
+
+.docs-library-table {
+  display: flex;
+  flex-direction: column;
+  gap: var(--primitiv-space-space-8);
+}
+
+.docs-library-table-note {
+  font-family: var(--primitiv-body-sm-font-family);
+  font-size: var(--primitiv-body-sm-font-size);
+  line-height: var(--primitiv-body-sm-line-height);
+  color: var(--primitiv-content-secondary);
+}
+
+/* A token name is one word to a reader; breaking `violet-900` at its hyphen
+   reads as two tokens. The scroll area takes any overflow instead. */
+.docs-library-table code {
+  white-space: nowrap;
+}

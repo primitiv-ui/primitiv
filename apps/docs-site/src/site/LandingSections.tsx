@@ -243,6 +243,7 @@ const MAP_LEFT = [
     children: [
       { title: "What Primitiv is", href: "/concepts/what-primitiv-is/" },
       { title: "Tokens & theming model", href: "/concepts/tokens/" },
+      { title: "Colour library", href: "/colours/" },
       { title: "Density & the Context system", href: "/concepts/density/" },
       { title: "Composition patterns", href: "/concepts/composition/" },
       { title: "Accessibility commitments", href: "/concepts/accessibility/" },

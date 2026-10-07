@@ -25,7 +25,8 @@
 //! Run:  cargo run -p harmoni-core --features swatch-sheet --example swatch-sheet
 
 use harmoni_core::api::generate_brand_pair;
-use harmoni_core::audit::foreground::get_best_foreground;
+use harmoni_core::audit::foreground::{get_best_foreground, ForegroundSource};
+use harmoni_core::{grade, ContrastUse, Grade};
 use harmoni_core::{oklch_to_hex, ColorInput, SwatchLabel, SwatchStep};
 use palette::{IntoColor, Oklch, Srgb};
 use std::path::PathBuf;
@@ -152,6 +153,110 @@ fn main() {
 
     write_hue_drift(&root);
     write_team_buttons(&root);
+    write_colour_library(&root);
+}
+
+/// The docs-site colour-library page: every library ramp, both themes, each
+/// swatch with the foreground the engine pairs with it.
+///
+/// Paired against the SHIPPED tokens, read out of `palette.json`: the ramp's own
+/// 900 and 50, then `color.white` / `color.black`, then the absolute anchors.
+/// That is what lets the page name the token to set text in — "use
+/// `--primitiv-color-violet-900`" — rather than a hex nobody can reference. The
+/// grade is the engine's `grade` for body text; the page computes nothing.
+fn write_colour_library(root: &PathBuf) {
+    let read = |rel: &str| -> serde_json::Value {
+        serde_json::from_str(
+            &std::fs::read_to_string(root.join(rel)).unwrap_or_else(|e| panic!("reading {rel}: {e}")),
+        )
+        .unwrap_or_else(|e| panic!("parsing {rel}: {e}"))
+    };
+    let manifest = read("packages/tokens/harmoni-seeds.json");
+    let palette = read("packages/tokens/src/palette.json");
+    let library = manifest["library"].as_array().expect("a `library` array in the seed manifest");
+
+    let ramps: Vec<serde_json::Value> = library
+        .iter()
+        .map(|entry| {
+            let ramp = entry["ramp"].as_str().expect("a ramp name");
+            let mut themes = serde_json::Map::new();
+            for theme in ["light", "dark"] {
+                let steps = ramp_steps(&palette[theme], theme, ramp);
+                let rows: Vec<serde_json::Value> = (0..steps.len())
+                    .map(|i| library_step(ramp, &steps, i, &palette, theme))
+                    .collect();
+                themes.insert(theme.to_string(), serde_json::Value::Array(rows));
+            }
+            serde_json::json!({
+                "ramp": ramp,
+                "sameAs": entry["sameAs"],
+                "light": themes["light"],
+                "dark": themes["dark"],
+            })
+        })
+        .collect();
+
+    let dest = root.join("docs/generated/colour-library.json");
+    std::fs::write(
+        &dest,
+        serde_json::to_string_pretty(&serde_json::json!({ "ramps": ramps })).expect("serialisable") + "\n",
+    )
+    .expect("writing the colour library");
+    println!("wrote {} library ramps to {}", ramps.len(), dest.display());
+}
+
+/// One library swatch: its token value, and the token the engine says to set
+/// text in on it, with the contrast that pairing reaches.
+fn library_step(
+    ramp: &str,
+    steps: &[(String, SwatchStep)],
+    index: usize,
+    palette: &serde_json::Value,
+    theme: &str,
+) -> serde_json::Value {
+    let anchor = |name: &str| {
+        step(
+            palette[theme]["color"][name]["$value"]
+                .as_str()
+                .unwrap_or_else(|| panic!("{theme}.color.{name} should be a colour")),
+            name,
+        )
+    };
+    let (label, swatch) = &steps[index];
+    let recommendation = get_best_foreground(
+        swatch,
+        &steps[steps.len() - 1].1,
+        &steps[0].1,
+        Some(&anchor("white")),
+        Some(&anchor("black")),
+    );
+    let token = match recommendation.source {
+        ForegroundSource::Step900 => format!("{ramp}-900"),
+        ForegroundSource::Step50 => format!("{ramp}-50"),
+        ForegroundSource::SoftWhite => "white".to_string(),
+        ForegroundSource::SoftBlack => "black".to_string(),
+        ForegroundSource::PureWhite => "absolute-white".to_string(),
+        ForegroundSource::PureBlack => "absolute-black".to_string(),
+    };
+    let ratio = recommendation.contrast_ratio;
+    let fg = &recommendation.color;
+    serde_json::json!({
+        "step": label,
+        "value": palette[theme]["color"][ramp][label]["$value"],
+        "hex": oklch_to_hex(Oklch::new(swatch.l, swatch.c, swatch.h)).to_lowercase(),
+        "foreground": {
+            "token": token,
+            "hex": oklch_to_hex(Oklch::new(fg.l, fg.c, fg.h)).to_lowercase(),
+            // Rounded as f64, for the same storage-noise reason as above.
+            "contrast": ((ratio as f64) * 100.0).round() / 100.0,
+            "grade": match grade(ratio, ContrastUse::BodyText) {
+                Grade::Aaa => "AAA",
+                Grade::Aa => "AA",
+                Grade::LargeTextOnly => "AA large",
+                Grade::Fail => "fail",
+            },
+        },
+    })
 }
 
 /// The COLOUR-02 counter-example: a ramp built the way ramps get built by

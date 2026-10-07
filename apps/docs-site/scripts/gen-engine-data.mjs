@@ -202,10 +202,56 @@ const hueDrift = () => {
   };
 };
 
+/* ── The colour library page (/colours/) ──────────────────────────────────── */
+
+/**
+ * Seventeen hue ramps, both themes, every swatch with the token the engine
+ * pairs text with on it — the page's whole promise is "you never have to guess
+ * the foreground", so the pairing, its contrast and its grade all come from the
+ * engine (`swatch-sheet`'s `write_colour_library`), paired against the shipped
+ * tokens. Nothing here computes a colour or a ratio; it only checks the claims
+ * the page makes before they can be rendered.
+ */
+const colourLibrary = () => {
+  const dump = read("colour-library.json");
+  const STEPS = ["50", "100", "200", "300", "400", "500", "600", "700", "800", "900"];
+  if (dump.ramps.length !== 17) {
+    throw new Error(`The colour library has ${dump.ramps.length} ramps; the page describes 17.`);
+  }
+  for (const r of dump.ramps) {
+    for (const theme of ["light", "dark"]) {
+      const steps = r[theme];
+      if (steps.map((s) => s.step).join() !== STEPS.join()) {
+        throw new Error(`${r.ramp}/${theme} is not the ten steps 50–900.`);
+      }
+      for (const s of steps) {
+        /* The page tells readers every swatch has readable text. Hold it to that
+           at body-text size, rather than letting a regeneration quietly ship a
+           "large text only" pairing under the same caption. */
+        if (s.foreground.grade !== "AA" && s.foreground.grade !== "AAA") {
+          throw new Error(
+            `${r.ramp}/${theme}/${s.step}: the engine's best foreground grades ` +
+              `"${s.foreground.grade}" (${s.foreground.contrast}:1) — below AA for body text.`,
+          );
+        }
+      }
+    }
+  }
+  return {
+    ramps: dump.ramps.map((r) => ({
+      ramp: r.ramp,
+      sameAs: r.sameAs ?? null,
+      light: r.light,
+      dark: r.dark,
+    })),
+  };
+};
+
 const OUTPUTS = [
   ["palette-sheet.generated.json", paletteSheet],
   ["team-buttons.generated.json", teamButtons],
   ["hue-drift.generated.json", hueDrift],
+  ["colour-library.generated.json", colourLibrary],
 ];
 
 const built = OUTPUTS.map(([name, build]) => [name, `${JSON.stringify(build(), null, 2)}\n`]);

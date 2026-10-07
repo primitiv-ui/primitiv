@@ -1,0 +1,3880 @@
+{
+  "ramps": [
+    {
+      "ramp": "red",
+      "sameAs": "danger",
+      "light": [
+        {
+          "foreground": {
+            "contrast": 18.11,
+            "grade": "AAA",
+            "hex": "#1e0101",
+            "token": "red-900"
+          },
+          "hex": "#fff2f0",
+          "step": "50",
+          "value": "oklch(0.97 0.014 27.4579)"
+        },
+        {
+          "foreground": {
+            "contrast": 15.13,
+            "grade": "AAA",
+            "hex": "#1e0101",
+            "token": "red-900"
+          },
+          "hex": "#fed8d3",
+          "step": "100",
+          "value": "oklch(0.9134 0.0423 27.4579)"
+        },
+        {
+          "foreground": {
+            "contrast": 11.7,
+            "grade": "AAA",
+            "hex": "#1e0101",
+            "token": "red-900"
+          },
+          "hex": "#fdb5ac",
+          "step": "200",
+          "value": "oklch(0.838 0.0849 27.4579)"
+        },
+        {
+          "foreground": {
+            "contrast": 9.16,
+            "grade": "AAA",
+            "hex": "#1e0101",
+            "token": "red-900"
+          },
+          "hex": "#fc9487",
+          "step": "300",
+          "value": "oklch(0.771962 0.12764539 27.45792)"
+        },
+        {
+          "foreground": {
+            "contrast": 6.5,
+            "grade": "AA",
+            "hex": "#1e0101",
+            "token": "red-900"
+          },
+          "hex": "#f96156",
+          "step": "400",
+          "value": "oklch(0.6871 0.1884 27.4579)"
+        },
+        {
+          "foreground": {
+            "contrast": 4.89,
+            "grade": "AA",
+            "hex": "#ffffff",
+            "token": "absolute-white"
+          },
+          "hex": "#db2424",
+          "step": "500",
+          "value": "oklch(0.5739 0.2156 27.4579)"
+        },
+        {
+          "foreground": {
+            "contrast": 6.91,
+            "grade": "AA",
+            "hex": "#fff2f0",
+            "token": "red-50"
+          },
+          "hex": "#a91215",
+          "step": "600",
+          "value": "oklch(0.4679 0.1814 27.4579)"
+        },
+        {
+          "foreground": {
+            "contrast": 11.81,
+            "grade": "AAA",
+            "hex": "#fff2f0",
+            "token": "red-50"
+          },
+          "hex": "#680709",
+          "step": "700",
+          "value": "oklch(0.3302 0.128 27.4579)"
+        },
+        {
+          "foreground": {
+            "contrast": 16.04,
+            "grade": "AAA",
+            "hex": "#fff2f0",
+            "token": "red-50"
+          },
+          "hex": "#3b0203",
+          "step": "800",
+          "value": "oklch(0.2242 0.087 27.4579)"
+        },
+        {
+          "foreground": {
+            "contrast": 18.11,
+            "grade": "AAA",
+            "hex": "#fff2f0",
+            "token": "red-50"
+          },
+          "hex": "#1e0101",
+          "step": "900",
+          "value": "oklch(0.15 0.0583 27.4579)"
+        }
+      ],
+      "dark": [
+        {
+          "foreground": {
+            "contrast": 14.81,
+            "grade": "AAA",
+            "hex": "#fee4e1",
+            "token": "red-900"
+          },
+          "hex": "#231412",
+          "step": "50",
+          "value": "oklch(0.21 0.0246 27.4579)"
+        },
+        {
+          "foreground": {
+            "contrast": 13.5,
+            "grade": "AAA",
+            "hex": "#fee4e1",
+            "token": "red-900"
+          },
+          "hex": "#3e110e",
+          "step": "100",
+          "value": "oklch(0.2528 0.0717 27.4579)"
+        },
+        {
+          "foreground": {
+            "contrast": 11.65,
+            "grade": "AAA",
+            "hex": "#fee4e1",
+            "token": "red-900"
+          },
+          "hex": "#5d0607",
+          "step": "200",
+          "value": "oklch(0.3063 0.1188 27.4579)"
+        },
+        {
+          "foreground": {
+            "contrast": 8.9,
+            "grade": "AAA",
+            "hex": "#fee4e1",
+            "token": "red-900"
+          },
+          "hex": "#7f0b0d",
+          "step": "300",
+          "value": "oklch(0.3813 0.1478 27.4579)"
+        },
+        {
+          "foreground": {
+            "contrast": 6.04,
+            "grade": "AA",
+            "hex": "#fee4e1",
+            "token": "red-900"
+          },
+          "hex": "#ad1316",
+          "step": "400",
+          "value": "oklch(0.4776 0.1852 27.4579)"
+        },
+        {
+          "foreground": {
+            "contrast": 4.89,
+            "grade": "AA",
+            "hex": "#ffffff",
+            "token": "absolute-white"
+          },
+          "hex": "#db2424",
+          "step": "500",
+          "value": "oklch(0.5739 0.2156 27.4579)"
+        },
+        {
+          "foreground": {
+            "contrast": 5.62,
+            "grade": "AA",
+            "hex": "#231412",
+            "token": "red-50"
+          },
+          "hex": "#f65e53",
+          "step": "600",
+          "value": "oklch(0.6772 0.1884 27.4579)"
+        },
+        {
+          "foreground": {
+            "contrast": 8.5,
+            "grade": "AAA",
+            "hex": "#231412",
+            "token": "red-50"
+          },
+          "hex": "#fc988c",
+          "step": "700",
+          "value": "oklch(0.7804 0.1218 27.4579)"
+        },
+        {
+          "foreground": {
+            "contrast": 11.93,
+            "grade": "AAA",
+            "hex": "#231412",
+            "token": "red-50"
+          },
+          "hex": "#fdc6bf",
+          "step": "800",
+          "value": "oklch(0.8743 0.0636 27.4579)"
+        },
+        {
+          "foreground": {
+            "contrast": 14.81,
+            "grade": "AAA",
+            "hex": "#231412",
+            "token": "red-50"
+          },
+          "hex": "#fee4e1",
+          "step": "900",
+          "value": "oklch(0.94 0.0287 27.4579)"
+        }
+      ]
+    },
+    {
+      "ramp": "orange",
+      "sameAs": null,
+      "light": [
+        {
+          "foreground": {
+            "contrast": 18.06,
+            "grade": "AAA",
+            "hex": "#180500",
+            "token": "orange-900"
+          },
+          "hex": "#fff2ed",
+          "step": "50",
+          "value": "oklch(0.97 0.0153 46.9101)"
+        },
+        {
+          "foreground": {
+            "contrast": 15.64,
+            "grade": "AAA",
+            "hex": "#180500",
+            "token": "orange-900"
+          },
+          "hex": "#fedfd0",
+          "step": "100",
+          "value": "oklch(0.9242 0.0401 46.9101)"
+        },
+        {
+          "foreground": {
+            "contrast": 12.78,
+            "grade": "AAA",
+            "hex": "#180500",
+            "token": "orange-900"
+          },
+          "hex": "#fdc3a8",
+          "step": "200",
+          "value": "oklch(0.8631 0.0761 46.9101)"
+        },
+        {
+          "foreground": {
+            "contrast": 10.58,
+            "grade": "AAA",
+            "hex": "#180500",
+            "token": "orange-900"
+          },
+          "hex": "#fcaa82",
+          "step": "300",
+          "value": "oklch(0.8096 0.111 46.9101)"
+        },
+        {
+          "foreground": {
+            "contrast": 8.18,
+            "grade": "AAA",
+            "hex": "#180500",
+            "token": "orange-900"
+          },
+          "hex": "#f78a51",
+          "step": "400",
+          "value": "oklch(0.7409 0.1509 46.9101)"
+        },
+        {
+          "foreground": {
+            "contrast": 5.71,
+            "grade": "AA",
+            "hex": "#180500",
+            "token": "orange-900"
+          },
+          "hex": "#e06615",
+          "step": "500",
+          "value": "oklch(0.6492 0.1727 46.9101)"
+        },
+        {
+          "foreground": {
+            "contrast": 5.22,
+            "grade": "AA",
+            "hex": "#fff2ed",
+            "token": "orange-50"
+          },
+          "hex": "#a84b10",
+          "step": "600",
+          "value": "oklch(0.5244 0.138 46.9101)"
+        },
+        {
+          "foreground": {
+            "contrast": 10.2,
+            "grade": "AAA",
+            "hex": "#fff2ed",
+            "token": "orange-50"
+          },
+          "hex": "#642a05",
+          "step": "700",
+          "value": "oklch(0.3622 0.0953 46.9101)"
+        },
+        {
+          "foreground": {
+            "contrast": 15.37,
+            "grade": "AAA",
+            "hex": "#fff2ed",
+            "token": "orange-50"
+          },
+          "hex": "#351301",
+          "step": "800",
+          "value": "oklch(0.23736 0.062535085 46.91008)"
+        },
+        {
+          "foreground": {
+            "contrast": 18.06,
+            "grade": "AAA",
+            "hex": "#fff2ed",
+            "token": "orange-50"
+          },
+          "hex": "#180500",
+          "step": "900",
+          "value": "oklch(0.15 0.0396 46.9101)"
+        }
+      ],
+      "dark": [
+        {
+          "foreground": {
+            "contrast": 14.8,
+            "grade": "AAA",
+            "hex": "#fee5da",
+            "token": "orange-900"
+          },
+          "hex": "#201611",
+          "step": "50",
+          "value": "oklch(0.21 0.0197 46.9101)"
+        },
+        {
+          "foreground": {
+            "contrast": 13.07,
+            "grade": "AAA",
+            "hex": "#fee5da",
+            "token": "orange-900"
+          },
+          "hex": "#3a1a09",
+          "step": "100",
+          "value": "oklch(0.2617 0.0574 46.9101)"
+        },
+        {
+          "foreground": {
+            "contrast": 10.63,
+            "grade": "AAA",
+            "hex": "#fee5da",
+            "token": "orange-900"
+          },
+          "hex": "#562304",
+          "step": "200",
+          "value": "oklch(0.3263 0.0859 46.9101)"
+        },
+        {
+          "foreground": {
+            "contrast": 7.47,
+            "grade": "AAA",
+            "hex": "#fee5da",
+            "token": "orange-900"
+          },
+          "hex": "#7a3508",
+          "step": "300",
+          "value": "oklch(0.4167 0.1097 46.9101)"
+        },
+        {
+          "foreground": {
+            "contrast": 4.59,
+            "grade": "AA",
+            "hex": "#fee5da",
+            "token": "orange-900"
+          },
+          "hex": "#ab4d10",
+          "step": "400",
+          "value": "oklch(0.5329 0.1403 46.9101)"
+        },
+        {
+          "foreground": {
+            "contrast": 5.14,
+            "grade": "AA",
+            "hex": "#201611",
+            "token": "orange-50"
+          },
+          "hex": "#e06615",
+          "step": "500",
+          "value": "oklch(0.6492 0.1727 46.9101)"
+        },
+        {
+          "foreground": {
+            "contrast": 7.1,
+            "grade": "AAA",
+            "hex": "#201611",
+            "token": "orange-50"
+          },
+          "hex": "#f3874d",
+          "step": "600",
+          "value": "oklch(0.73122054 0.15093966 46.91008)"
+        },
+        {
+          "foreground": {
+            "contrast": 9.64,
+            "grade": "AAA",
+            "hex": "#201611",
+            "token": "orange-50"
+          },
+          "hex": "#fcac85",
+          "step": "700",
+          "value": "oklch(0.8132 0.1085 46.9101)"
+        },
+        {
+          "foreground": {
+            "contrast": 12.5,
+            "grade": "AAA",
+            "hex": "#201611",
+            "token": "orange-50"
+          },
+          "hex": "#fdcfb8",
+          "step": "800",
+          "value": "oklch(0.8878 0.0611 46.9101)"
+        },
+        {
+          "foreground": {
+            "contrast": 14.8,
+            "grade": "AAA",
+            "hex": "#201611",
+            "token": "orange-50"
+          },
+          "hex": "#fee5da",
+          "step": "900",
+          "value": "oklch(0.94 0.0313 46.9101)"
+        }
+      ]
+    },
+    {
+      "ramp": "amber",
+      "sameAs": "warning",
+      "light": [
+        {
+          "foreground": {
+            "contrast": 18.04,
+            "grade": "AAA",
+            "hex": "#140800",
+            "token": "amber-900"
+          },
+          "hex": "#fef3e9",
+          "step": "50",
+          "value": "oklch(0.97 0.0183 66.3556)"
+        },
+        {
+          "foreground": {
+            "contrast": 16.19,
+            "grade": "AAA",
+            "hex": "#140800",
+            "token": "amber-900"
+          },
+          "hex": "#fee5cc",
+          "step": "100",
+          "value": "oklch(0.9349 0.0429 66.3556)"
+        },
+        {
+          "foreground": {
+            "contrast": 13.93,
+            "grade": "AAA",
+            "hex": "#140800",
+            "token": "amber-900"
+          },
+          "hex": "#fdd1a5",
+          "step": "200",
+          "value": "oklch(0.8881 0.0761 66.3556)"
+        },
+        {
+          "foreground": {
+            "contrast": 12.14,
+            "grade": "AAA",
+            "hex": "#140800",
+            "token": "amber-900"
+          },
+          "hex": "#fdbf7f",
+          "step": "300",
+          "value": "oklch(0.8472 0.1071 66.3556)"
+        },
+        {
+          "foreground": {
+            "contrast": 10.08,
+            "grade": "AAA",
+            "hex": "#140800",
+            "token": "amber-900"
+          },
+          "hex": "#f8a84e",
+          "step": "400",
+          "value": "oklch(0.7945 0.1406 66.3556)"
+        },
+        {
+          "foreground": {
+            "contrast": 7.8,
+            "grade": "AAA",
+            "hex": "#140800",
+            "token": "amber-900"
+          },
+          "hex": "#e88e00",
+          "step": "500",
+          "value": "oklch(0.7244 0.1608 66.3556)"
+        },
+        {
+          "foreground": {
+            "contrast": 4.77,
+            "grade": "AA",
+            "hex": "#000000",
+            "token": "absolute-black"
+          },
+          "hex": "#aa6a14",
+          "step": "600",
+          "value": "oklch(0.5808 0.1225 66.3556)"
+        },
+        {
+          "foreground": {
+            "contrast": 8.82,
+            "grade": "AAA",
+            "hex": "#fef3e9",
+            "token": "amber-50"
+          },
+          "hex": "#643c07",
+          "step": "700",
+          "value": "oklch(0.3941 0.0832 66.3556)"
+        },
+        {
+          "foreground": {
+            "contrast": 14.75,
+            "grade": "AAA",
+            "hex": "#fef3e9",
+            "token": "amber-50"
+          },
+          "hex": "#321c02",
+          "step": "800",
+          "value": "oklch(0.2505 0.0529 66.3556)"
+        },
+        {
+          "foreground": {
+            "contrast": 18.04,
+            "grade": "AAA",
+            "hex": "#fef3e9",
+            "token": "amber-50"
+          },
+          "hex": "#140800",
+          "step": "900",
+          "value": "oklch(0.15 0.0318 66.3556)"
+        }
+      ],
+      "dark": [
+        {
+          "foreground": {
+            "contrast": 14.81,
+            "grade": "AAA",
+            "hex": "#fee7d0",
+            "token": "amber-900"
+          },
+          "hex": "#1e170f",
+          "step": "50",
+          "value": "oklch(0.21 0.0183 66.3556)"
+        },
+        {
+          "foreground": {
+            "contrast": 12.67,
+            "grade": "AAA",
+            "hex": "#fee7d0",
+            "token": "amber-900"
+          },
+          "hex": "#382105",
+          "step": "100",
+          "value": "oklch(0.2705 0.0535 66.3556)"
+        },
+        {
+          "foreground": {
+            "contrast": 9.74,
+            "grade": "AAA",
+            "hex": "#fee7d0",
+            "token": "amber-900"
+          },
+          "hex": "#533105",
+          "step": "200",
+          "value": "oklch(0.3462 0.073 66.3556)"
+        },
+        {
+          "foreground": {
+            "contrast": 6.3,
+            "grade": "AA",
+            "hex": "#fee7d0",
+            "token": "amber-900"
+          },
+          "hex": "#79490b",
+          "step": "300",
+          "value": "oklch(0.4521 0.0954 66.3556)"
+        },
+        {
+          "foreground": {
+            "contrast": 4.92,
+            "grade": "AA",
+            "hex": "#000000",
+            "token": "absolute-black"
+          },
+          "hex": "#ad6c14",
+          "step": "400",
+          "value": "oklch(0.5882 0.1241 66.3556)"
+        },
+        {
+          "foreground": {
+            "contrast": 7.02,
+            "grade": "AAA",
+            "hex": "#1e170f",
+            "token": "amber-50"
+          },
+          "hex": "#e88e00",
+          "step": "500",
+          "value": "oklch(0.7244 0.1608 66.3556)"
+        },
+        {
+          "foreground": {
+            "contrast": 8.79,
+            "grade": "AAA",
+            "hex": "#1e170f",
+            "token": "amber-50"
+          },
+          "hex": "#f5a54b",
+          "step": "600",
+          "value": "oklch(0.7852 0.1406 66.3556)"
+        },
+        {
+          "foreground": {
+            "contrast": 10.88,
+            "grade": "AAA",
+            "hex": "#1e170f",
+            "token": "amber-50"
+          },
+          "hex": "#fdbe7e",
+          "step": "700",
+          "value": "oklch(0.846 0.108 66.3556)"
+        },
+        {
+          "foreground": {
+            "contrast": 13.1,
+            "grade": "AAA",
+            "hex": "#1e170f",
+            "token": "amber-50"
+          },
+          "hex": "#fdd7b0",
+          "step": "800",
+          "value": "oklch(0.9013 0.0665 66.3556)"
+        },
+        {
+          "foreground": {
+            "contrast": 14.81,
+            "grade": "AAA",
+            "hex": "#1e170f",
+            "token": "amber-50"
+          },
+          "hex": "#fee7d0",
+          "step": "900",
+          "value": "oklch(0.94 0.0394 66.3556)"
+        }
+      ]
+    },
+    {
+      "ramp": "yellow",
+      "sameAs": null,
+      "light": [
+        {
+          "foreground": {
+            "contrast": 18.05,
+            "grade": "AAA",
+            "hex": "#100b00",
+            "token": "yellow-900"
+          },
+          "hex": "#f9f5ea",
+          "step": "50",
+          "value": "oklch(0.97 0.0153 92)"
+        },
+        {
+          "foreground": {
+            "contrast": 15.88,
+            "grade": "AAA",
+            "hex": "#100b00",
+            "token": "yellow-900"
+          },
+          "hex": "#f1e7c6",
+          "step": "100",
+          "value": "oklch(0.9269 0.0445 92)"
+        },
+        {
+          "foreground": {
+            "contrast": 13.27,
+            "grade": "AAA",
+            "hex": "#100b00",
+            "token": "yellow-900"
+          },
+          "hex": "#e7d395",
+          "step": "200",
+          "value": "oklch(0.8693 0.0827 92)"
+        },
+        {
+          "foreground": {
+            "contrast": 11.24,
+            "grade": "AAA",
+            "hex": "#100b00",
+            "token": "yellow-900"
+          },
+          "hex": "#dbc274",
+          "step": "300",
+          "value": "oklch(0.819 0.1018 92)"
+        },
+        {
+          "foreground": {
+            "contrast": 8.98,
+            "grade": "AAA",
+            "hex": "#100b00",
+            "token": "yellow-900"
+          },
+          "hex": "#caad50",
+          "step": "400",
+          "value": "oklch(0.7543 0.117 92)"
+        },
+        {
+          "foreground": {
+            "contrast": 6.51,
+            "grade": "AA",
+            "hex": "#100b00",
+            "token": "yellow-900"
+          },
+          "hex": "#b2910e",
+          "step": "500",
+          "value": "oklch(0.668 0.1339 92)"
+        },
+        {
+          "foreground": {
+            "contrast": 4.68,
+            "grade": "AA",
+            "hex": "#f9f5ea",
+            "token": "yellow-50"
+          },
+          "hex": "#846c11",
+          "step": "600",
+          "value": "oklch(0.5385 0.1047 92)"
+        },
+        {
+          "foreground": {
+            "contrast": 9.58,
+            "grade": "AAA",
+            "hex": "#f9f5ea",
+            "token": "yellow-50"
+          },
+          "hex": "#4d3e06",
+          "step": "700",
+          "value": "oklch(0.3701 0.072 92)"
+        },
+        {
+          "foreground": {
+            "contrast": 15.08,
+            "grade": "AAA",
+            "hex": "#f9f5ea",
+            "token": "yellow-50"
+          },
+          "hex": "#271e02",
+          "step": "800",
+          "value": "oklch(0.2406 0.0468 92)"
+        },
+        {
+          "foreground": {
+            "contrast": 18.05,
+            "grade": "AAA",
+            "hex": "#f9f5ea",
+            "token": "yellow-50"
+          },
+          "hex": "#100b00",
+          "step": "900",
+          "value": "oklch(0.15 0.0293 92)"
+        }
+      ],
+      "dark": [
+        {
+          "foreground": {
+            "contrast": 14.88,
+            "grade": "AAA",
+            "hex": "#faebbb",
+            "token": "yellow-900"
+          },
+          "hex": "#1b1810",
+          "step": "50",
+          "value": "oklch(0.21 0.0153 92)"
+        },
+        {
+          "foreground": {
+            "contrast": 12.9,
+            "grade": "AAA",
+            "hex": "#faebbb",
+            "token": "yellow-900"
+          },
+          "hex": "#2d2408",
+          "step": "100",
+          "value": "oklch(0.2639 0.0445 92)"
+        },
+        {
+          "foreground": {
+            "contrast": 10.23,
+            "grade": "AAA",
+            "hex": "#faebbb",
+            "token": "yellow-900"
+          },
+          "hex": "#423404",
+          "step": "200",
+          "value": "oklch(0.3312 0.0644 92)"
+        },
+        {
+          "foreground": {
+            "contrast": 6.95,
+            "grade": "AA",
+            "hex": "#faebbb",
+            "token": "yellow-900"
+          },
+          "hex": "#5f4d09",
+          "step": "300",
+          "value": "oklch(0.4255 0.0827 92)"
+        },
+        {
+          "foreground": {
+            "contrast": 4.93,
+            "grade": "AA",
+            "hex": "#ffffff",
+            "token": "absolute-white"
+          },
+          "hex": "#876e12",
+          "step": "400",
+          "value": "oklch(0.5468 0.1063 92)"
+        },
+        {
+          "foreground": {
+            "contrast": 5.86,
+            "grade": "AA",
+            "hex": "#1b1810",
+            "token": "yellow-50"
+          },
+          "hex": "#b2910e",
+          "step": "500",
+          "value": "oklch(0.668 0.1339 92)"
+        },
+        {
+          "foreground": {
+            "contrast": 7.81,
+            "grade": "AAA",
+            "hex": "#1b1810",
+            "token": "yellow-50"
+          },
+          "hex": "#c7aa4d",
+          "step": "600",
+          "value": "oklch(0.7447 0.117 92)"
+        },
+        {
+          "foreground": {
+            "contrast": 10.21,
+            "grade": "AAA",
+            "hex": "#1b1810",
+            "token": "yellow-50"
+          },
+          "hex": "#dcc375",
+          "step": "700",
+          "value": "oklch(0.8214 0.1018 92)"
+        },
+        {
+          "foreground": {
+            "contrast": 12.81,
+            "grade": "AAA",
+            "hex": "#1b1810",
+            "token": "yellow-50"
+          },
+          "hex": "#efda9c",
+          "step": "800",
+          "value": "oklch(0.8912 0.0827 92)"
+        },
+        {
+          "foreground": {
+            "contrast": 14.88,
+            "grade": "AAA",
+            "hex": "#1b1810",
+            "token": "yellow-50"
+          },
+          "hex": "#faebbb",
+          "step": "900",
+          "value": "oklch(0.94 0.0636 92)"
+        }
+      ]
+    },
+    {
+      "ramp": "lime",
+      "sameAs": null,
+      "light": [
+        {
+          "foreground": {
+            "contrast": 18.05,
+            "grade": "AAA",
+            "hex": "#0a0d00",
+            "token": "lime-900"
+          },
+          "hex": "#f4f7eb",
+          "step": "50",
+          "value": "oklch(0.97 0.0158 117.64)"
+        },
+        {
+          "foreground": {
+            "contrast": 15.58,
+            "grade": "AAA",
+            "hex": "#0a0d00",
+            "token": "lime-900"
+          },
+          "hex": "#e1e9c6",
+          "step": "100",
+          "value": "oklch(0.91878575 0.046217512 117.64002)"
+        },
+        {
+          "foreground": {
+            "contrast": 12.65,
+            "grade": "AAA",
+            "hex": "#0a0d00",
+            "token": "lime-900"
+          },
+          "hex": "#c9d696",
+          "step": "200",
+          "value": "oklch(0.8505 0.0858 117.64)"
+        },
+        {
+          "foreground": {
+            "contrast": 10.4,
+            "grade": "AAA",
+            "hex": "#0a0d00",
+            "token": "lime-900"
+          },
+          "hex": "#b5c474",
+          "step": "300",
+          "value": "oklch(0.7908 0.1056 117.64)"
+        },
+        {
+          "foreground": {
+            "contrast": 7.93,
+            "grade": "AAA",
+            "hex": "#0a0d00",
+            "token": "lime-900"
+          },
+          "hex": "#9dad4e",
+          "step": "400",
+          "value": "oklch(0.7139 0.1215 117.64)"
+        },
+        {
+          "foreground": {
+            "contrast": 5.36,
+            "grade": "AA",
+            "hex": "#0a0d00",
+            "token": "lime-900"
+          },
+          "hex": "#7d8e0b",
+          "step": "500",
+          "value": "oklch(0.6115 0.139 117.64)"
+        },
+        {
+          "foreground": {
+            "contrast": 5.48,
+            "grade": "AA",
+            "hex": "#f4f7eb",
+            "token": "lime-50"
+          },
+          "hex": "#5d6a0e",
+          "step": "600",
+          "value": "oklch(0.4961 0.1093 117.64)"
+        },
+        {
+          "foreground": {
+            "contrast": 10.39,
+            "grade": "AAA",
+            "hex": "#f4f7eb",
+            "token": "lime-50"
+          },
+          "hex": "#373e05",
+          "step": "700",
+          "value": "oklch(0.3461375 0.07630254 117.64002)"
+        },
+        {
+          "foreground": {
+            "contrast": 15.4,
+            "grade": "AAA",
+            "hex": "#f4f7eb",
+            "token": "lime-50"
+          },
+          "hex": "#1b2001",
+          "step": "800",
+          "value": "oklch(0.2308 0.0509 117.64)"
+        },
+        {
+          "foreground": {
+            "contrast": 18.05,
+            "grade": "AAA",
+            "hex": "#f4f7eb",
+            "token": "lime-50"
+          },
+          "hex": "#0a0d00",
+          "step": "900",
+          "value": "oklch(0.15 0.0332 117.64)"
+        }
+      ],
+      "dark": [
+        {
+          "foreground": {
+            "contrast": 15.02,
+            "grade": "AAA",
+            "hex": "#e7f2c0",
+            "token": "lime-900"
+          },
+          "hex": "#181911",
+          "step": "50",
+          "value": "oklch(0.21 0.0158 117.64)"
+        },
+        {
+          "foreground": {
+            "contrast": 13.21,
+            "grade": "AAA",
+            "hex": "#e7f2c0",
+            "token": "lime-900"
+          },
+          "hex": "#22260a",
+          "step": "100",
+          "value": "oklch(0.2572 0.0462 117.64)"
+        },
+        {
+          "foreground": {
+            "contrast": 10.78,
+            "grade": "AAA",
+            "hex": "#e7f2c0",
+            "token": "lime-900"
+          },
+          "hex": "#2f3604",
+          "step": "200",
+          "value": "oklch(0.3163 0.0697 117.64)"
+        },
+        {
+          "foreground": {
+            "contrast": 7.71,
+            "grade": "AAA",
+            "hex": "#e7f2c0",
+            "token": "lime-900"
+          },
+          "hex": "#444d08",
+          "step": "300",
+          "value": "oklch(0.3989 0.0879 117.64)"
+        },
+        {
+          "foreground": {
+            "contrast": 4.86,
+            "grade": "AA",
+            "hex": "#e7f2c0",
+            "token": "lime-900"
+          },
+          "hex": "#606c0f",
+          "step": "400",
+          "value": "oklch(0.5052 0.1113 117.64)"
+        },
+        {
+          "foreground": {
+            "contrast": 4.83,
+            "grade": "AA",
+            "hex": "#181911",
+            "token": "lime-50"
+          },
+          "hex": "#7d8e0b",
+          "step": "500",
+          "value": "oklch(0.6115 0.139 117.64)"
+        },
+        {
+          "foreground": {
+            "contrast": 6.89,
+            "grade": "AA",
+            "hex": "#181911",
+            "token": "lime-50"
+          },
+          "hex": "#9aaa4b",
+          "step": "600",
+          "value": "oklch(0.7042 0.1215 117.64)"
+        },
+        {
+          "foreground": {
+            "contrast": 9.56,
+            "grade": "AAA",
+            "hex": "#181911",
+            "token": "lime-50"
+          },
+          "hex": "#b7c676",
+          "step": "700",
+          "value": "oklch(0.7968 0.1056 117.64)"
+        },
+        {
+          "foreground": {
+            "contrast": 12.56,
+            "grade": "AAA",
+            "hex": "#181911",
+            "token": "lime-50"
+          },
+          "hex": "#d3e09f",
+          "step": "800",
+          "value": "oklch(0.881 0.0858 117.64)"
+        },
+        {
+          "foreground": {
+            "contrast": 15.02,
+            "grade": "AAA",
+            "hex": "#181911",
+            "token": "lime-50"
+          },
+          "hex": "#e7f2c0",
+          "step": "900",
+          "value": "oklch(0.94 0.066 117.64)"
+        }
+      ]
+    },
+    {
+      "ramp": "green",
+      "sameAs": "success",
+      "light": [
+        {
+          "foreground": {
+            "contrast": 18.05,
+            "grade": "AAA",
+            "hex": "#001001",
+            "token": "green-900"
+          },
+          "hex": "#edf9ec",
+          "step": "50",
+          "value": "oklch(0.97 0.021 143.2808)"
+        },
+        {
+          "foreground": {
+            "contrast": 15.3,
+            "grade": "AAA",
+            "hex": "#001001",
+            "token": "green-900"
+          },
+          "hex": "#caedc8",
+          "step": "100",
+          "value": "oklch(0.9107 0.0612 143.2808)"
+        },
+        {
+          "foreground": {
+            "contrast": 12.11,
+            "grade": "AAA",
+            "hex": "#001001",
+            "token": "green-900"
+          },
+          "hex": "#9bdb98",
+          "step": "200",
+          "value": "oklch(0.8317154 0.11368598 143.2808)"
+        },
+        {
+          "foreground": {
+            "contrast": 9.66,
+            "grade": "AAA",
+            "hex": "#001001",
+            "token": "green-900"
+          },
+          "hex": "#79c976",
+          "step": "300",
+          "value": "oklch(0.7626 0.1399 143.2808)"
+        },
+        {
+          "foreground": {
+            "contrast": 7.04,
+            "grade": "AAA",
+            "hex": "#001001",
+            "token": "green-900"
+          },
+          "hex": "#50af4f",
+          "step": "400",
+          "value": "oklch(0.6737 0.1609 143.2808)"
+        },
+        {
+          "foreground": {
+            "contrast": 4.76,
+            "grade": "AA",
+            "hex": "#000000",
+            "token": "absolute-black"
+          },
+          "hex": "#008c11",
+          "step": "500",
+          "value": "oklch(0.5551 0.1841 143.2808)"
+        },
+        {
+          "foreground": {
+            "contrast": 6.36,
+            "grade": "AA",
+            "hex": "#edf9ec",
+            "token": "green-50"
+          },
+          "hex": "#0e6913",
+          "step": "600",
+          "value": "oklch(0.4539 0.143 143.2808)"
+        },
+        {
+          "foreground": {
+            "contrast": 11.19,
+            "grade": "AAA",
+            "hex": "#edf9ec",
+            "token": "green-50"
+          },
+          "hex": "#053f08",
+          "step": "700",
+          "value": "oklch(0.3222 0.1015 143.2808)"
+        },
+        {
+          "foreground": {
+            "contrast": 15.68,
+            "grade": "AAA",
+            "hex": "#edf9ec",
+            "token": "green-50"
+          },
+          "hex": "#022202",
+          "step": "800",
+          "value": "oklch(0.2209 0.0697 143.2808)"
+        },
+        {
+          "foreground": {
+            "contrast": 18.05,
+            "grade": "AAA",
+            "hex": "#edf9ec",
+            "token": "green-50"
+          },
+          "hex": "#001001",
+          "step": "900",
+          "value": "oklch(0.15 0.0474 143.2808)"
+        }
+      ],
+      "dark": [
+        {
+          "foreground": {
+            "contrast": 15.2,
+            "grade": "AAA",
+            "hex": "#c9fbc6",
+            "token": "green-900"
+          },
+          "hex": "#131b12",
+          "step": "50",
+          "value": "oklch(0.21 0.021 143.2808)"
+        },
+        {
+          "foreground": {
+            "contrast": 13.53,
+            "grade": "AAA",
+            "hex": "#c9fbc6",
+            "token": "green-900"
+          },
+          "hex": "#0d290c",
+          "step": "100",
+          "value": "oklch(0.2506 0.0612 143.2808)"
+        },
+        {
+          "foreground": {
+            "contrast": 11.32,
+            "grade": "AAA",
+            "hex": "#c9fbc6",
+            "token": "green-900"
+          },
+          "hex": "#043906",
+          "step": "200",
+          "value": "oklch(0.3014 0.095 143.2808)"
+        },
+        {
+          "foreground": {
+            "contrast": 8.5,
+            "grade": "AAA",
+            "hex": "#c9fbc6",
+            "token": "green-900"
+          },
+          "hex": "#084f0c",
+          "step": "300",
+          "value": "oklch(0.3724 0.1174 143.2808)"
+        },
+        {
+          "foreground": {
+            "contrast": 5.69,
+            "grade": "AA",
+            "hex": "#c9fbc6",
+            "token": "green-900"
+          },
+          "hex": "#0f6c14",
+          "step": "400",
+          "value": "oklch(0.4638 0.1461 143.2808)"
+        },
+        {
+          "foreground": {
+            "contrast": 4.76,
+            "grade": "AA",
+            "hex": "#000000",
+            "token": "absolute-black"
+          },
+          "hex": "#008c11",
+          "step": "500",
+          "value": "oklch(0.5551 0.1841 143.2808)"
+        },
+        {
+          "foreground": {
+            "contrast": 6.11,
+            "grade": "AA",
+            "hex": "#131b12",
+            "token": "green-50"
+          },
+          "hex": "#4dab4c",
+          "step": "600",
+          "value": "oklch(0.6637 0.1609 143.2808)"
+        },
+        {
+          "foreground": {
+            "contrast": 9.01,
+            "grade": "AAA",
+            "hex": "#131b12",
+            "token": "green-50"
+          },
+          "hex": "#7ccc78",
+          "step": "700",
+          "value": "oklch(0.7722 0.1399 143.2808)"
+        },
+        {
+          "foreground": {
+            "contrast": 12.39,
+            "grade": "AAA",
+            "hex": "#131b12",
+            "token": "green-50"
+          },
+          "hex": "#a7e8a4",
+          "step": "800",
+          "value": "oklch(0.8709 0.1137 143.2808)"
+        },
+        {
+          "foreground": {
+            "contrast": 15.2,
+            "grade": "AAA",
+            "hex": "#131b12",
+            "token": "green-50"
+          },
+          "hex": "#c9fbc6",
+          "step": "900",
+          "value": "oklch(0.94 0.0875 143.2808)"
+        }
+      ]
+    },
+    {
+      "ramp": "emerald",
+      "sameAs": null,
+      "light": [
+        {
+          "foreground": {
+            "contrast": 18.04,
+            "grade": "AAA",
+            "hex": "#000f08",
+            "token": "emerald-900"
+          },
+          "hex": "#edf8f3",
+          "step": "50",
+          "value": "oklch(0.97 0.0134 164.81)"
+        },
+        {
+          "foreground": {
+            "contrast": 15.33,
+            "grade": "AAA",
+            "hex": "#000f08",
+            "token": "emerald-900"
+          },
+          "hex": "#cbebdc",
+          "step": "100",
+          "value": "oklch(0.9125 0.039 164.81)"
+        },
+        {
+          "foreground": {
+            "contrast": 12.17,
+            "grade": "AAA",
+            "hex": "#000f08",
+            "token": "emerald-900"
+          },
+          "hex": "#9dd9bd",
+          "step": "200",
+          "value": "oklch(0.8357 0.0724 164.81)"
+        },
+        {
+          "foreground": {
+            "contrast": 9.77,
+            "grade": "AAA",
+            "hex": "#000f08",
+            "token": "emerald-900"
+          },
+          "hex": "#7bc6a5",
+          "step": "300",
+          "value": "oklch(0.7686 0.0891 164.81)"
+        },
+        {
+          "foreground": {
+            "contrast": 7.19,
+            "grade": "AAA",
+            "hex": "#000f08",
+            "token": "emerald-900"
+          },
+          "hex": "#54ad89",
+          "step": "400",
+          "value": "oklch(0.6823 0.1024 164.81)"
+        },
+        {
+          "foreground": {
+            "contrast": 4.6,
+            "grade": "AA",
+            "hex": "#000f08",
+            "token": "emerald-900"
+          },
+          "hex": "#0b8c65",
+          "step": "500",
+          "value": "oklch(0.5672 0.1172 164.81)"
+        },
+        {
+          "foreground": {
+            "contrast": 6.17,
+            "grade": "AA",
+            "hex": "#edf8f3",
+            "token": "emerald-50"
+          },
+          "hex": "#0f694b",
+          "step": "600",
+          "value": "oklch(0.4629 0.0927 164.81)"
+        },
+        {
+          "foreground": {
+            "contrast": 11.03,
+            "grade": "AAA",
+            "hex": "#edf8f3",
+            "token": "emerald-50"
+          },
+          "hex": "#053f2c",
+          "step": "700",
+          "value": "oklch(0.3273 0.0656 164.81)"
+        },
+        {
+          "foreground": {
+            "contrast": 15.62,
+            "grade": "AAA",
+            "hex": "#edf8f3",
+            "token": "emerald-50"
+          },
+          "hex": "#022216",
+          "step": "800",
+          "value": "oklch(0.223 0.0447 164.81)"
+        },
+        {
+          "foreground": {
+            "contrast": 18.04,
+            "grade": "AAA",
+            "hex": "#edf8f3",
+            "token": "emerald-50"
+          },
+          "hex": "#000f08",
+          "step": "900",
+          "value": "oklch(0.15 0.030128898 164.80997)"
+        }
+      ],
+      "dark": [
+        {
+          "foreground": {
+            "contrast": 15.12,
+            "grade": "AAA",
+            "hex": "#caf8e2",
+            "token": "emerald-900"
+          },
+          "hex": "#131a17",
+          "step": "50",
+          "value": "oklch(0.21 0.0134 164.81)"
+        },
+        {
+          "foreground": {
+            "contrast": 13.43,
+            "grade": "AAA",
+            "hex": "#caf8e2",
+            "token": "emerald-900"
+          },
+          "hex": "#0d281d",
+          "step": "100",
+          "value": "oklch(0.252 0.039 164.81)"
+        },
+        {
+          "foreground": {
+            "contrast": 11.18,
+            "grade": "AAA",
+            "hex": "#caf8e2",
+            "token": "emerald-900"
+          },
+          "hex": "#043827",
+          "step": "200",
+          "value": "oklch(0.3046 0.061 164.81)"
+        },
+        {
+          "foreground": {
+            "contrast": 8.32,
+            "grade": "AAA",
+            "hex": "#caf8e2",
+            "token": "emerald-900"
+          },
+          "hex": "#084e37",
+          "step": "300",
+          "value": "oklch(0.3781 0.0757 164.81)"
+        },
+        {
+          "foreground": {
+            "contrast": 5.5,
+            "grade": "AA",
+            "hex": "#caf8e2",
+            "token": "emerald-900"
+          },
+          "hex": "#106c4e",
+          "step": "400",
+          "value": "oklch(0.4726 0.0946 164.81)"
+        },
+        {
+          "foreground": {
+            "contrast": 4.93,
+            "grade": "AA",
+            "hex": "#000000",
+            "token": "absolute-black"
+          },
+          "hex": "#0b8c65",
+          "step": "500",
+          "value": "oklch(0.5672 0.1172 164.81)"
+        },
+        {
+          "foreground": {
+            "contrast": 6.24,
+            "grade": "AA",
+            "hex": "#131a17",
+            "token": "emerald-50"
+          },
+          "hex": "#50aa86",
+          "step": "600",
+          "value": "oklch(0.6723 0.1024 164.81)"
+        },
+        {
+          "foreground": {
+            "contrast": 9.08,
+            "grade": "AAA",
+            "hex": "#131a17",
+            "token": "emerald-50"
+          },
+          "hex": "#7ec9a8",
+          "step": "700",
+          "value": "oklch(0.7775 0.0891 164.81)"
+        },
+        {
+          "foreground": {
+            "contrast": 12.38,
+            "grade": "AAA",
+            "hex": "#131a17",
+            "token": "emerald-50"
+          },
+          "hex": "#a9e5c9",
+          "step": "800",
+          "value": "oklch(0.8731 0.0724 164.81)"
+        },
+        {
+          "foreground": {
+            "contrast": 15.12,
+            "grade": "AAA",
+            "hex": "#131a17",
+            "token": "emerald-50"
+          },
+          "hex": "#caf8e2",
+          "step": "900",
+          "value": "oklch(0.94 0.0557 164.81)"
+        }
+      ]
+    },
+    {
+      "ramp": "teal",
+      "sameAs": null,
+      "light": [
+        {
+          "foreground": {
+            "contrast": 18.04,
+            "grade": "AAA",
+            "hex": "#000e0d",
+            "token": "teal-900"
+          },
+          "hex": "#edf8f6",
+          "step": "50",
+          "value": "oklch(0.97 0.0113 186.33)"
+        },
+        {
+          "foreground": {
+            "contrast": 15.38,
+            "grade": "AAA",
+            "hex": "#000e0d",
+            "token": "teal-900"
+          },
+          "hex": "#cbeae6",
+          "step": "100",
+          "value": "oklch(0.9142 0.0331 186.33)"
+        },
+        {
+          "foreground": {
+            "contrast": 12.29,
+            "grade": "AAA",
+            "hex": "#000e0d",
+            "token": "teal-900"
+          },
+          "hex": "#9dd8d1",
+          "step": "200",
+          "value": "oklch(0.8398 0.0614 186.33)"
+        },
+        {
+          "foreground": {
+            "contrast": 9.93,
+            "grade": "AAA",
+            "hex": "#000e0d",
+            "token": "teal-900"
+          },
+          "hex": "#7bc6bd",
+          "step": "300",
+          "value": "oklch(0.7747 0.0755 186.33)"
+        },
+        {
+          "foreground": {
+            "contrast": 7.38,
+            "grade": "AAA",
+            "hex": "#000e0d",
+            "token": "teal-900"
+          },
+          "hex": "#54ada4",
+          "step": "400",
+          "value": "oklch(0.691 0.0869 186.33)"
+        },
+        {
+          "foreground": {
+            "contrast": 4.8,
+            "grade": "AA",
+            "hex": "#000e0d",
+            "token": "teal-900"
+          },
+          "hex": "#0c8d83",
+          "step": "500",
+          "value": "oklch(0.5794 0.0994 186.33)"
+        },
+        {
+          "foreground": {
+            "contrast": 5.98,
+            "grade": "AA",
+            "hex": "#edf8f6",
+            "token": "teal-50"
+          },
+          "hex": "#0f6962",
+          "step": "600",
+          "value": "oklch(0.47205 0.0785425 186.32997)"
+        },
+        {
+          "foreground": {
+            "contrast": 10.85,
+            "grade": "AAA",
+            "hex": "#edf8f6",
+            "token": "teal-50"
+          },
+          "hex": "#063f3a",
+          "step": "700",
+          "value": "oklch(0.3325 0.0553 186.33)"
+        },
+        {
+          "foreground": {
+            "contrast": 15.56,
+            "grade": "AAA",
+            "hex": "#edf8f6",
+            "token": "teal-50"
+          },
+          "hex": "#02211e",
+          "step": "800",
+          "value": "oklch(0.2251 0.0375 186.33)"
+        },
+        {
+          "foreground": {
+            "contrast": 18.04,
+            "grade": "AAA",
+            "hex": "#edf8f6",
+            "token": "teal-50"
+          },
+          "hex": "#000e0d",
+          "step": "900",
+          "value": "oklch(0.15 0.02503397 186.32997)"
+        }
+      ],
+      "dark": [
+        {
+          "foreground": {
+            "contrast": 15.08,
+            "grade": "AAA",
+            "hex": "#c9f6f0",
+            "token": "teal-900"
+          },
+          "hex": "#131a19",
+          "step": "50",
+          "value": "oklch(0.21 0.0113 186.33)"
+        },
+        {
+          "foreground": {
+            "contrast": 13.36,
+            "grade": "AAA",
+            "hex": "#c9f6f0",
+            "token": "teal-900"
+          },
+          "hex": "#0d2825",
+          "step": "100",
+          "value": "oklch(0.2535 0.0331 186.33)"
+        },
+        {
+          "foreground": {
+            "contrast": 11.07,
+            "grade": "AAA",
+            "hex": "#c9f6f0",
+            "token": "teal-900"
+          },
+          "hex": "#043834",
+          "step": "200",
+          "value": "oklch(0.30778238 0.051224347 186.32997)"
+        },
+        {
+          "foreground": {
+            "contrast": 8.14,
+            "grade": "AAA",
+            "hex": "#c9f6f0",
+            "token": "teal-900"
+          },
+          "hex": "#094e49",
+          "step": "300",
+          "value": "oklch(0.3838 0.0639 186.33)"
+        },
+        {
+          "foreground": {
+            "contrast": 5.31,
+            "grade": "AA",
+            "hex": "#c9f6f0",
+            "token": "teal-900"
+          },
+          "hex": "#106c65",
+          "step": "400",
+          "value": "oklch(0.4816 0.0801 186.33)"
+        },
+        {
+          "foreground": {
+            "contrast": 4.51,
+            "grade": "AA",
+            "hex": "#141414",
+            "token": "black"
+          },
+          "hex": "#0c8d83",
+          "step": "500",
+          "value": "oklch(0.5794 0.0994 186.33)"
+        },
+        {
+          "foreground": {
+            "contrast": 6.41,
+            "grade": "AA",
+            "hex": "#131a19",
+            "token": "teal-50"
+          },
+          "hex": "#51aaa1",
+          "step": "600",
+          "value": "oklch(0.6811 0.0869 186.33)"
+        },
+        {
+          "foreground": {
+            "contrast": 9.2,
+            "grade": "AAA",
+            "hex": "#131a19",
+            "token": "teal-50"
+          },
+          "hex": "#7ec8c0",
+          "step": "700",
+          "value": "oklch(0.7828 0.0755 186.33)"
+        },
+        {
+          "foreground": {
+            "contrast": 12.42,
+            "grade": "AAA",
+            "hex": "#131a19",
+            "token": "teal-50"
+          },
+          "hex": "#a8e4dc",
+          "step": "800",
+          "value": "oklch(0.8753 0.0614 186.33)"
+        },
+        {
+          "foreground": {
+            "contrast": 15.08,
+            "grade": "AAA",
+            "hex": "#131a19",
+            "token": "teal-50"
+          },
+          "hex": "#c9f6f0",
+          "step": "900",
+          "value": "oklch(0.94 0.0472 186.33)"
+        }
+      ]
+    },
+    {
+      "ramp": "cyan",
+      "sameAs": "info",
+      "light": [
+        {
+          "foreground": {
+            "contrast": 18.04,
+            "grade": "AAA",
+            "hex": "#000e10",
+            "token": "cyan-900"
+          },
+          "hex": "#edf7f9",
+          "step": "50",
+          "value": "oklch(0.97 0.0116 207.8596)"
+        },
+        {
+          "foreground": {
+            "contrast": 15.45,
+            "grade": "AAA",
+            "hex": "#000e10",
+            "token": "cyan-900"
+          },
+          "hex": "#caeaef",
+          "step": "100",
+          "value": "oklch(0.9159 0.0338 207.8596)"
+        },
+        {
+          "foreground": {
+            "contrast": 12.42,
+            "grade": "AAA",
+            "hex": "#000e10",
+            "token": "cyan-900"
+          },
+          "hex": "#9bd8e1",
+          "step": "200",
+          "value": "oklch(0.8438 0.0628 207.8596)"
+        },
+        {
+          "foreground": {
+            "contrast": 10.09,
+            "grade": "AAA",
+            "hex": "#000e10",
+            "token": "cyan-900"
+          },
+          "hex": "#7ac6d1",
+          "step": "300",
+          "value": "oklch(0.7807 0.0772 207.8596)"
+        },
+        {
+          "foreground": {
+            "contrast": 7.58,
+            "grade": "AAA",
+            "hex": "#000e10",
+            "token": "cyan-900"
+          },
+          "hex": "#52aebb",
+          "step": "400",
+          "value": "oklch(0.6996 0.0888 207.8596)"
+        },
+        {
+          "foreground": {
+            "contrast": 5,
+            "grade": "AA",
+            "hex": "#000e10",
+            "token": "cyan-900"
+          },
+          "hex": "#008e9d",
+          "step": "500",
+          "value": "oklch(0.5915 0.1016 207.8596)"
+        },
+        {
+          "foreground": {
+            "contrast": 5.79,
+            "grade": "AA",
+            "hex": "#edf7f9",
+            "token": "cyan-50"
+          },
+          "hex": "#106a75",
+          "step": "600",
+          "value": "oklch(0.4811 0.0785 207.8596)"
+        },
+        {
+          "foreground": {
+            "contrast": 10.69,
+            "grade": "AAA",
+            "hex": "#edf7f9",
+            "token": "cyan-50"
+          },
+          "hex": "#063f46",
+          "step": "700",
+          "value": "oklch(0.3376 0.0551 207.8596)"
+        },
+        {
+          "foreground": {
+            "contrast": 15.5,
+            "grade": "AAA",
+            "hex": "#edf7f9",
+            "token": "cyan-50"
+          },
+          "hex": "#022125",
+          "step": "800",
+          "value": "oklch(0.2273 0.0371 207.8596)"
+        },
+        {
+          "foreground": {
+            "contrast": 18.04,
+            "grade": "AAA",
+            "hex": "#edf7f9",
+            "token": "cyan-50"
+          },
+          "hex": "#000e10",
+          "step": "900",
+          "value": "oklch(0.15 0.024564669 207.8596)"
+        }
+      ],
+      "dark": [
+        {
+          "foreground": {
+            "contrast": 15.05,
+            "grade": "AAA",
+            "hex": "#c7f5fc",
+            "token": "cyan-900"
+          },
+          "hex": "#121a1b",
+          "step": "50",
+          "value": "oklch(0.21 0.0116 207.8596)"
+        },
+        {
+          "foreground": {
+            "contrast": 13.3,
+            "grade": "AAA",
+            "hex": "#c7f5fc",
+            "token": "cyan-900"
+          },
+          "hex": "#0c272b",
+          "step": "100",
+          "value": "oklch(0.2549 0.0338 207.8596)"
+        },
+        {
+          "foreground": {
+            "contrast": 10.96,
+            "grade": "AAA",
+            "hex": "#c7f5fc",
+            "token": "cyan-900"
+          },
+          "hex": "#05383e",
+          "step": "200",
+          "value": "oklch(0.311 0.0508 207.8596)"
+        },
+        {
+          "foreground": {
+            "contrast": 7.98,
+            "grade": "AAA",
+            "hex": "#c7f5fc",
+            "token": "cyan-900"
+          },
+          "hex": "#094e57",
+          "step": "300",
+          "value": "oklch(0.3895 0.0636 207.8596)"
+        },
+        {
+          "foreground": {
+            "contrast": 5.14,
+            "grade": "AA",
+            "hex": "#c7f5fc",
+            "token": "cyan-900"
+          },
+          "hex": "#116d78",
+          "step": "400",
+          "value": "oklch(0.4905 0.0801 207.8596)"
+        },
+        {
+          "foreground": {
+            "contrast": 4.51,
+            "grade": "AA",
+            "hex": "#121a1b",
+            "token": "cyan-50"
+          },
+          "hex": "#008e9d",
+          "step": "500",
+          "value": "oklch(0.5915 0.1016 207.8596)"
+        },
+        {
+          "foreground": {
+            "contrast": 6.58,
+            "grade": "AA",
+            "hex": "#121a1b",
+            "token": "cyan-50"
+          },
+          "hex": "#4fabb8",
+          "step": "600",
+          "value": "oklch(0.6898 0.0888 207.8596)"
+        },
+        {
+          "foreground": {
+            "contrast": 9.33,
+            "grade": "AAA",
+            "hex": "#121a1b",
+            "token": "cyan-50"
+          },
+          "hex": "#7cc8d4",
+          "step": "700",
+          "value": "oklch(0.7881 0.0772 207.8596)"
+        },
+        {
+          "foreground": {
+            "contrast": 12.46,
+            "grade": "AAA",
+            "hex": "#121a1b",
+            "token": "cyan-50"
+          },
+          "hex": "#a6e3ec",
+          "step": "800",
+          "value": "oklch(0.8774 0.0628 207.8596)"
+        },
+        {
+          "foreground": {
+            "contrast": 15.05,
+            "grade": "AAA",
+            "hex": "#121a1b",
+            "token": "cyan-50"
+          },
+          "hex": "#c7f5fc",
+          "step": "900",
+          "value": "oklch(0.94 0.0483 207.8596)"
+        }
+      ]
+    },
+    {
+      "ramp": "sky",
+      "sameAs": null,
+      "light": [
+        {
+          "foreground": {
+            "contrast": 18.05,
+            "grade": "AAA",
+            "hex": "#000d16",
+            "token": "sky-900"
+          },
+          "hex": "#edf7fc",
+          "step": "50",
+          "value": "oklch(0.97 0.012665387 233.87003)"
+        },
+        {
+          "foreground": {
+            "contrast": 15.29,
+            "grade": "AAA",
+            "hex": "#000d16",
+            "token": "sky-900"
+          },
+          "hex": "#cbe7f8",
+          "step": "100",
+          "value": "oklch(0.9134 0.0369 233.87)"
+        },
+        {
+          "foreground": {
+            "contrast": 12.09,
+            "grade": "AAA",
+            "hex": "#000d16",
+            "token": "sky-900"
+          },
+          "hex": "#9ed2f0",
+          "step": "200",
+          "value": "oklch(0.8379 0.0686 233.87)"
+        },
+        {
+          "foreground": {
+            "contrast": 9.69,
+            "grade": "AAA",
+            "hex": "#000d16",
+            "token": "sky-900"
+          },
+          "hex": "#7dbee3",
+          "step": "300",
+          "value": "oklch(0.7718 0.0844 233.87)"
+        },
+        {
+          "foreground": {
+            "contrast": 7.13,
+            "grade": "AAA",
+            "hex": "#000d16",
+            "token": "sky-900"
+          },
+          "hex": "#57a4cd",
+          "step": "400",
+          "value": "oklch(0.6869 0.0971 233.87)"
+        },
+        {
+          "foreground": {
+            "contrast": 4.56,
+            "grade": "AA",
+            "hex": "#000d16",
+            "token": "sky-900"
+          },
+          "hex": "#1d82b0",
+          "step": "500",
+          "value": "oklch(0.5736 0.1111 233.87)"
+        },
+        {
+          "foreground": {
+            "contrast": 6.22,
+            "grade": "AA",
+            "hex": "#edf7fc",
+            "token": "sky-50"
+          },
+          "hex": "#0e6286",
+          "step": "600",
+          "value": "oklch(0.4677 0.0928 233.87)"
+        },
+        {
+          "foreground": {
+            "contrast": 11.1,
+            "grade": "AAA",
+            "hex": "#edf7fc",
+            "token": "sky-50"
+          },
+          "hex": "#053a52",
+          "step": "700",
+          "value": "oklch(0.33 0.0655 233.87)"
+        },
+        {
+          "foreground": {
+            "contrast": 15.67,
+            "grade": "AAA",
+            "hex": "#edf7fc",
+            "token": "sky-50"
+          },
+          "hex": "#021f2d",
+          "step": "800",
+          "value": "oklch(0.2241 0.0445 233.87)"
+        },
+        {
+          "foreground": {
+            "contrast": 18.05,
+            "grade": "AAA",
+            "hex": "#edf7fc",
+            "token": "sky-50"
+          },
+          "hex": "#000d16",
+          "step": "900",
+          "value": "oklch(0.15 0.0299 233.87)"
+        }
+      ],
+      "dark": [
+        {
+          "foreground": {
+            "contrast": 14.92,
+            "grade": "AAA",
+            "hex": "#d7effe",
+            "token": "sky-900"
+          },
+          "hex": "#13191d",
+          "step": "50",
+          "value": "oklch(0.21 0.0127 233.87)"
+        },
+        {
+          "foreground": {
+            "contrast": 13.32,
+            "grade": "AAA",
+            "hex": "#d7effe",
+            "token": "sky-900"
+          },
+          "hex": "#0e2531",
+          "step": "100",
+          "value": "oklch(0.2528 0.0369 233.87)"
+        },
+        {
+          "foreground": {
+            "contrast": 11.14,
+            "grade": "AAA",
+            "hex": "#d7effe",
+            "token": "sky-900"
+          },
+          "hex": "#043449",
+          "step": "200",
+          "value": "oklch(0.3062 0.0608 233.87)"
+        },
+        {
+          "foreground": {
+            "contrast": 8.29,
+            "grade": "AAA",
+            "hex": "#d7effe",
+            "token": "sky-900"
+          },
+          "hex": "#084965",
+          "step": "300",
+          "value": "oklch(0.3811 0.0757 233.87)"
+        },
+        {
+          "foreground": {
+            "contrast": 5.47,
+            "grade": "AA",
+            "hex": "#d7effe",
+            "token": "sky-900"
+          },
+          "hex": "#0f658a",
+          "step": "400",
+          "value": "oklch(0.4774 0.0948 233.87)"
+        },
+        {
+          "foreground": {
+            "contrast": 4.88,
+            "grade": "AA",
+            "hex": "#000000",
+            "token": "absolute-black"
+          },
+          "hex": "#1d82b0",
+          "step": "500",
+          "value": "oklch(0.5736 0.1111 233.87)"
+        },
+        {
+          "foreground": {
+            "contrast": 6.19,
+            "grade": "AA",
+            "hex": "#13191d",
+            "token": "sky-50"
+          },
+          "hex": "#54a1ca",
+          "step": "600",
+          "value": "oklch(0.6769 0.0971 233.87)"
+        },
+        {
+          "foreground": {
+            "contrast": 8.99,
+            "grade": "AAA",
+            "hex": "#13191d",
+            "token": "sky-50"
+          },
+          "hex": "#80c1e5",
+          "step": "700",
+          "value": "oklch(0.7803 0.0844 233.87)"
+        },
+        {
+          "foreground": {
+            "contrast": 12.25,
+            "grade": "AAA",
+            "hex": "#13191d",
+            "token": "sky-50"
+          },
+          "hex": "#a9defc",
+          "step": "800",
+          "value": "oklch(0.8742 0.0686 233.87)"
+        },
+        {
+          "foreground": {
+            "contrast": 14.92,
+            "grade": "AAA",
+            "hex": "#13191d",
+            "token": "sky-50"
+          },
+          "hex": "#d7effe",
+          "step": "900",
+          "value": "oklch(0.94 0.0325 233.87)"
+        }
+      ]
+    },
+    {
+      "ramp": "blue",
+      "sameAs": "brand",
+      "light": [
+        {
+          "foreground": {
+            "contrast": 18.1,
+            "grade": "AAA",
+            "hex": "#000923",
+            "token": "blue-900"
+          },
+          "hex": "#f0f5ff",
+          "step": "50",
+          "value": "oklch(0.97 0.0135 259.8783)"
+        },
+        {
+          "foreground": {
+            "contrast": 15.15,
+            "grade": "AAA",
+            "hex": "#000923",
+            "token": "blue-900"
+          },
+          "hex": "#d2e3fe",
+          "step": "100",
+          "value": "oklch(0.9108 0.041 259.8783)"
+        },
+        {
+          "foreground": {
+            "contrast": 11.75,
+            "grade": "AAA",
+            "hex": "#000923",
+            "token": "blue-900"
+          },
+          "hex": "#aac9fc",
+          "step": "200",
+          "value": "oklch(0.8319 0.0796 259.8783)"
+        },
+        {
+          "foreground": {
+            "contrast": 9.25,
+            "grade": "AAA",
+            "hex": "#000923",
+            "token": "blue-900"
+          },
+          "hex": "#86b3fb",
+          "step": "300",
+          "value": "oklch(0.7628 0.1154 259.8783)"
+        },
+        {
+          "foreground": {
+            "contrast": 6.61,
+            "grade": "AA",
+            "hex": "#000923",
+            "token": "blue-900"
+          },
+          "hex": "#5794fa",
+          "step": "400",
+          "value": "oklch(0.6741 0.1642 259.8783)"
+        },
+        {
+          "foreground": {
+            "contrast": 4.88,
+            "grade": "AA",
+            "hex": "#ffffff",
+            "token": "absolute-white"
+          },
+          "hex": "#236ce1",
+          "step": "500",
+          "value": "oklch(0.5557 0.1923 259.8783)"
+        },
+        {
+          "foreground": {
+            "contrast": 6.9,
+            "grade": "AA",
+            "hex": "#f0f5ff",
+            "token": "blue-50"
+          },
+          "hex": "#104fb2",
+          "step": "600",
+          "value": "oklch(0.4543 0.168 259.8783)"
+        },
+        {
+          "foreground": {
+            "contrast": 11.76,
+            "grade": "AAA",
+            "hex": "#f0f5ff",
+            "token": "blue-50"
+          },
+          "hex": "#032e71",
+          "step": "700",
+          "value": "oklch(0.3224 0.1242 259.8783)"
+        },
+        {
+          "foreground": {
+            "contrast": 15.98,
+            "grade": "AAA",
+            "hex": "#f0f5ff",
+            "token": "blue-50"
+          },
+          "hex": "#011841",
+          "step": "800",
+          "value": "oklch(0.221 0.0852 259.8783)"
+        },
+        {
+          "foreground": {
+            "contrast": 18.1,
+            "grade": "AAA",
+            "hex": "#f0f5ff",
+            "token": "blue-50"
+          },
+          "hex": "#000923",
+          "step": "900",
+          "value": "oklch(0.15 0.058 259.8783)"
+        }
+      ],
+      "dark": [
+        {
+          "foreground": {
+            "contrast": 14.87,
+            "grade": "AAA",
+            "hex": "#e1ecfe",
+            "token": "blue-900"
+          },
+          "hex": "#121922",
+          "step": "50",
+          "value": "oklch(0.21 0.0219 259.8783)"
+        },
+        {
+          "foreground": {
+            "contrast": 13.45,
+            "grade": "AAA",
+            "hex": "#e1ecfe",
+            "token": "blue-900"
+          },
+          "hex": "#0e2140",
+          "step": "100",
+          "value": "oklch(0.2507 0.0639 259.8783)"
+        },
+        {
+          "foreground": {
+            "contrast": 11.58,
+            "grade": "AAA",
+            "hex": "#e1ecfe",
+            "token": "blue-900"
+          },
+          "hex": "#032967",
+          "step": "200",
+          "value": "oklch(0.3015 0.1161 259.8783)"
+        },
+        {
+          "foreground": {
+            "contrast": 8.88,
+            "grade": "AAA",
+            "hex": "#e1ecfe",
+            "token": "blue-900"
+          },
+          "hex": "#053a8a",
+          "step": "300",
+          "value": "oklch(0.3727 0.1435 259.8783)"
+        },
+        {
+          "foreground": {
+            "contrast": 6.04,
+            "grade": "AA",
+            "hex": "#e1ecfe",
+            "token": "blue-900"
+          },
+          "hex": "#1452b5",
+          "step": "400",
+          "value": "oklch(0.4642 0.168 259.8783)"
+        },
+        {
+          "foreground": {
+            "contrast": 4.88,
+            "grade": "AA",
+            "hex": "#ffffff",
+            "token": "absolute-white"
+          },
+          "hex": "#236ce1",
+          "step": "500",
+          "value": "oklch(0.5557 0.1923 259.8783)"
+        },
+        {
+          "foreground": {
+            "contrast": 5.7,
+            "grade": "AA",
+            "hex": "#121922",
+            "token": "blue-50"
+          },
+          "hex": "#5291f9",
+          "step": "600",
+          "value": "oklch(0.6641 0.168 259.8783)"
+        },
+        {
+          "foreground": {
+            "contrast": 8.6,
+            "grade": "AAA",
+            "hex": "#121922",
+            "token": "blue-50"
+          },
+          "hex": "#8bb6fb",
+          "step": "700",
+          "value": "oklch(0.7725 0.1103 259.8783)"
+        },
+        {
+          "foreground": {
+            "contrast": 12,
+            "grade": "AAA",
+            "hex": "#121922",
+            "token": "blue-50"
+          },
+          "hex": "#bed6fd",
+          "step": "800",
+          "value": "oklch(0.871 0.0602 259.8783)"
+        },
+        {
+          "foreground": {
+            "contrast": 14.87,
+            "grade": "AAA",
+            "hex": "#121922",
+            "token": "blue-50"
+          },
+          "hex": "#e1ecfe",
+          "step": "900",
+          "value": "oklch(0.94 0.0272 259.8783)"
+        }
+      ]
+    },
+    {
+      "ramp": "indigo",
+      "sameAs": null,
+      "light": [
+        {
+          "foreground": {
+            "contrast": 18.24,
+            "grade": "AAA",
+            "hex": "#07012e",
+            "token": "indigo-900"
+          },
+          "hex": "#f3f4ff",
+          "step": "50",
+          "value": "oklch(0.97 0.0136 278.1)"
+        },
+        {
+          "foreground": {
+            "contrast": 15.23,
+            "grade": "AAA",
+            "hex": "#07012e",
+            "token": "indigo-900"
+          },
+          "hex": "#dbe0fe",
+          "step": "100",
+          "value": "oklch(0.9112 0.0411 278.1)"
+        },
+        {
+          "foreground": {
+            "contrast": 11.78,
+            "grade": "AAA",
+            "hex": "#07012e",
+            "token": "indigo-900"
+          },
+          "hex": "#bcc4fc",
+          "step": "200",
+          "value": "oklch(0.8328 0.0798 278.1)"
+        },
+        {
+          "foreground": {
+            "contrast": 9.22,
+            "grade": "AAA",
+            "hex": "#07012e",
+            "token": "indigo-900"
+          },
+          "hex": "#a1abfb",
+          "step": "300",
+          "value": "oklch(0.7641 0.1158 278.1)"
+        },
+        {
+          "foreground": {
+            "contrast": 6.55,
+            "grade": "AA",
+            "hex": "#07012e",
+            "token": "indigo-900"
+          },
+          "hex": "#8189fa",
+          "step": "400",
+          "value": "oklch(0.6759 0.1648 278.1)"
+        },
+        {
+          "foreground": {
+            "contrast": 4.63,
+            "grade": "AA",
+            "hex": "#f3f4ff",
+            "token": "indigo-50"
+          },
+          "hex": "#5e5aec",
+          "step": "500",
+          "value": "oklch(0.5583 0.2137 278.1)"
+        },
+        {
+          "foreground": {
+            "contrast": 7.12,
+            "grade": "AAA",
+            "hex": "#f3f4ff",
+            "token": "indigo-50"
+          },
+          "hex": "#4640bb",
+          "step": "600",
+          "value": "oklch(0.4562 0.1868 278.1)"
+        },
+        {
+          "foreground": {
+            "contrast": 12.21,
+            "grade": "AAA",
+            "hex": "#f3f4ff",
+            "token": "indigo-50"
+          },
+          "hex": "#281b83",
+          "step": "700",
+          "value": "oklch(0.3235 0.1624 278.1)"
+        },
+        {
+          "foreground": {
+            "contrast": 16.37,
+            "grade": "AAA",
+            "hex": "#f3f4ff",
+            "token": "indigo-50"
+          },
+          "hex": "#150354",
+          "step": "800",
+          "value": "oklch(0.2215 0.1291 278.1)"
+        },
+        {
+          "foreground": {
+            "contrast": 18.24,
+            "grade": "AAA",
+            "hex": "#f3f4ff",
+            "token": "indigo-50"
+          },
+          "hex": "#07012e",
+          "step": "900",
+          "value": "oklch(0.15 0.0876 278.1)"
+        }
+      ],
+      "dark": [
+        {
+          "foreground": {
+            "contrast": 14.85,
+            "grade": "AAA",
+            "hex": "#e6eafe",
+            "token": "indigo-900"
+          },
+          "hex": "#161723",
+          "step": "50",
+          "value": "oklch(0.21 0.0244 278.1)"
+        },
+        {
+          "foreground": {
+            "contrast": 13.53,
+            "grade": "AAA",
+            "hex": "#e6eafe",
+            "token": "indigo-900"
+          },
+          "hex": "#1b1d43",
+          "step": "100",
+          "value": "oklch(0.251 0.0711 278.1)"
+        },
+        {
+          "foreground": {
+            "contrast": 11.81,
+            "grade": "AAA",
+            "hex": "#e6eafe",
+            "token": "indigo-900"
+          },
+          "hex": "#241e6e",
+          "step": "200",
+          "value": "oklch(0.3022 0.132 278.1)"
+        },
+        {
+          "foreground": {
+            "contrast": 9.13,
+            "grade": "AAA",
+            "hex": "#e6eafe",
+            "token": "indigo-900"
+          },
+          "hex": "#332c93",
+          "step": "300",
+          "value": "oklch(0.3739 0.1624 278.1)"
+        },
+        {
+          "foreground": {
+            "contrast": 6.23,
+            "grade": "AA",
+            "hex": "#e6eafe",
+            "token": "indigo-900"
+          },
+          "hex": "#4843be",
+          "step": "400",
+          "value": "oklch(0.4661 0.1868 278.1)"
+        },
+        {
+          "foreground": {
+            "contrast": 5.05,
+            "grade": "AA",
+            "hex": "#ffffff",
+            "token": "absolute-white"
+          },
+          "hex": "#5e5aec",
+          "step": "500",
+          "value": "oklch(0.5583 0.2137 278.1)"
+        },
+        {
+          "foreground": {
+            "contrast": 5.6,
+            "grade": "AA",
+            "hex": "#161723",
+            "token": "indigo-50"
+          },
+          "hex": "#7e85fa",
+          "step": "600",
+          "value": "oklch(0.666 0.1706 278.1)"
+        },
+        {
+          "foreground": {
+            "contrast": 8.52,
+            "grade": "AAA",
+            "hex": "#161723",
+            "token": "indigo-50"
+          },
+          "hex": "#a5aefb",
+          "step": "700",
+          "value": "oklch(0.7736 0.1107 278.1)"
+        },
+        {
+          "foreground": {
+            "contrast": 11.95,
+            "grade": "AAA",
+            "hex": "#161723",
+            "token": "indigo-50"
+          },
+          "hex": "#cbd2fd",
+          "step": "800",
+          "value": "oklch(0.8715 0.0604 278.1)"
+        },
+        {
+          "foreground": {
+            "contrast": 14.85,
+            "grade": "AAA",
+            "hex": "#161723",
+            "token": "indigo-50"
+          },
+          "hex": "#e6eafe",
+          "step": "900",
+          "value": "oklch(0.94 0.0274 278.1)"
+        }
+      ]
+    },
+    {
+      "ramp": "violet",
+      "sameAs": null,
+      "light": [
+        {
+          "foreground": {
+            "contrast": 18.2,
+            "grade": "AAA",
+            "hex": "#100127",
+            "token": "violet-900"
+          },
+          "hex": "#f6f3ff",
+          "step": "50",
+          "value": "oklch(0.97 0.0152 296.33)"
+        },
+        {
+          "foreground": {
+            "contrast": 15.16,
+            "grade": "AAA",
+            "hex": "#100127",
+            "token": "violet-900"
+          },
+          "hex": "#e4dcfe",
+          "step": "100",
+          "value": "oklch(0.9116 0.0458 296.33)"
+        },
+        {
+          "foreground": {
+            "contrast": 11.66,
+            "grade": "AAA",
+            "hex": "#100127",
+            "token": "violet-900"
+          },
+          "hex": "#cdbdfc",
+          "step": "200",
+          "value": "oklch(0.8336 0.0891 296.33)"
+        },
+        {
+          "foreground": {
+            "contrast": 9.09,
+            "grade": "AAA",
+            "hex": "#100127",
+            "token": "violet-900"
+          },
+          "hex": "#bba1fb",
+          "step": "300",
+          "value": "oklch(0.7655 0.1293 296.33)"
+        },
+        {
+          "foreground": {
+            "contrast": 6.4,
+            "grade": "AA",
+            "hex": "#100127",
+            "token": "violet-900"
+          },
+          "hex": "#a47afa",
+          "step": "400",
+          "value": "oklch(0.6778 0.1842 296.33)"
+        },
+        {
+          "foreground": {
+            "contrast": 4.78,
+            "grade": "AA",
+            "hex": "#f6f3ff",
+            "token": "violet-50"
+          },
+          "hex": "#8740ee",
+          "step": "500",
+          "value": "oklch(0.5609 0.2418 296.33)"
+        },
+        {
+          "foreground": {
+            "contrast": 7.34,
+            "grade": "AAA",
+            "hex": "#f6f3ff",
+            "token": "violet-50"
+          },
+          "hex": "#6828bc",
+          "step": "600",
+          "value": "oklch(0.4582 0.2113 296.33)"
+        },
+        {
+          "foreground": {
+            "contrast": 12.36,
+            "grade": "AAA",
+            "hex": "#f6f3ff",
+            "token": "violet-50"
+          },
+          "hex": "#40087d",
+          "step": "700",
+          "value": "oklch(0.3246 0.1681 296.33)"
+        },
+        {
+          "foreground": {
+            "contrast": 16.31,
+            "grade": "AAA",
+            "hex": "#f6f3ff",
+            "token": "violet-50"
+          },
+          "hex": "#230348",
+          "step": "800",
+          "value": "oklch(0.2219 0.115 296.33)"
+        },
+        {
+          "foreground": {
+            "contrast": 18.2,
+            "grade": "AAA",
+            "hex": "#f6f3ff",
+            "token": "violet-50"
+          },
+          "hex": "#100127",
+          "step": "900",
+          "value": "oklch(0.15 0.0778 296.33)"
+        }
+      ],
+      "dark": [
+        {
+          "foreground": {
+            "contrast": 14.84,
+            "grade": "AAA",
+            "hex": "#ede7fe",
+            "token": "violet-900"
+          },
+          "hex": "#191624",
+          "step": "50",
+          "value": "oklch(0.21 0.0276 296.33)"
+        },
+        {
+          "foreground": {
+            "contrast": 13.6,
+            "grade": "AAA",
+            "hex": "#ede7fe",
+            "token": "violet-900"
+          },
+          "hex": "#261743",
+          "step": "100",
+          "value": "oklch(0.2513 0.0804 296.33)"
+        },
+        {
+          "foreground": {
+            "contrast": 12.01,
+            "grade": "AAA",
+            "hex": "#ede7fe",
+            "token": "violet-900"
+          },
+          "hex": "#390d6e",
+          "step": "200",
+          "value": "oklch(0.3029 0.1493 296.33)"
+        },
+        {
+          "foreground": {
+            "contrast": 9.36,
+            "grade": "AAA",
+            "hex": "#ede7fe",
+            "token": "violet-900"
+          },
+          "hex": "#4f1694",
+          "step": "300",
+          "value": "oklch(0.3751 0.1838 296.33)"
+        },
+        {
+          "foreground": {
+            "contrast": 6.41,
+            "grade": "AA",
+            "hex": "#ede7fe",
+            "token": "violet-900"
+          },
+          "hex": "#6a2cbf",
+          "step": "400",
+          "value": "oklch(0.468 0.2113 296.33)"
+        },
+        {
+          "foreground": {
+            "contrast": 5.23,
+            "grade": "AA",
+            "hex": "#ffffff",
+            "token": "absolute-white"
+          },
+          "hex": "#8740ee",
+          "step": "500",
+          "value": "oklch(0.5609 0.2418 296.33)"
+        },
+        {
+          "foreground": {
+            "contrast": 5.48,
+            "grade": "AA",
+            "hex": "#191624",
+            "token": "violet-50"
+          },
+          "hex": "#a275fa",
+          "step": "600",
+          "value": "oklch(0.6678 0.1907 296.33)"
+        },
+        {
+          "foreground": {
+            "contrast": 8.42,
+            "grade": "AAA",
+            "hex": "#191624",
+            "token": "violet-50"
+          },
+          "hex": "#bda5fb",
+          "step": "700",
+          "value": "oklch(0.77475125 0.12365466 296.33)"
+        },
+        {
+          "foreground": {
+            "contrast": 11.9,
+            "grade": "AAA",
+            "hex": "#191624",
+            "token": "violet-50"
+          },
+          "hex": "#d8ccfd",
+          "step": "800",
+          "value": "oklch(0.872 0.0675 296.33)"
+        },
+        {
+          "foreground": {
+            "contrast": 14.84,
+            "grade": "AAA",
+            "hex": "#191624",
+            "token": "violet-50"
+          },
+          "hex": "#ede7fe",
+          "step": "900",
+          "value": "oklch(0.94 0.0307 296.33)"
+        }
+      ]
+    },
+    {
+      "ramp": "purple",
+      "sameAs": null,
+      "light": [
+        {
+          "foreground": {
+            "contrast": 18.14,
+            "grade": "AAA",
+            "hex": "#15011f",
+            "token": "purple-900"
+          },
+          "hex": "#faf1ff",
+          "step": "50",
+          "value": "oklch(0.97 0.0195 314.56)"
+        },
+        {
+          "foreground": {
+            "contrast": 15.03,
+            "grade": "AAA",
+            "hex": "#15011f",
+            "token": "purple-900"
+          },
+          "hex": "#f1d7fe",
+          "step": "100",
+          "value": "oklch(0.9119 0.0586 314.56)"
+        },
+        {
+          "foreground": {
+            "contrast": 11.48,
+            "grade": "AAA",
+            "hex": "#15011f",
+            "token": "purple-900"
+          },
+          "hex": "#e4b2fc",
+          "step": "200",
+          "value": "oklch(0.8345 0.114 314.56)"
+        },
+        {
+          "foreground": {
+            "contrast": 8.88,
+            "grade": "AAA",
+            "hex": "#15011f",
+            "token": "purple-900"
+          },
+          "hex": "#da90fb",
+          "step": "300",
+          "value": "oklch(0.7668 0.1655 314.56)"
+        },
+        {
+          "foreground": {
+            "contrast": 6.24,
+            "grade": "AA",
+            "hex": "#15011f",
+            "token": "purple-900"
+          },
+          "hex": "#c865f1",
+          "step": "400",
+          "value": "oklch(0.6796 0.2146 314.56)"
+        },
+        {
+          "foreground": {
+            "contrast": 4.79,
+            "grade": "AA",
+            "hex": "#faf1ff",
+            "token": "purple-50"
+          },
+          "hex": "#a82cd6",
+          "step": "500",
+          "value": "oklch(0.5635 0.2455 314.56)"
+        },
+        {
+          "foreground": {
+            "contrast": 7.35,
+            "grade": "AAA",
+            "hex": "#faf1ff",
+            "token": "purple-50"
+          },
+          "hex": "#8213a8",
+          "step": "600",
+          "value": "oklch(0.4601 0.2146 314.56)"
+        },
+        {
+          "foreground": {
+            "contrast": 12.21,
+            "grade": "AAA",
+            "hex": "#faf1ff",
+            "token": "purple-50"
+          },
+          "hex": "#500768",
+          "step": "700",
+          "value": "oklch(0.3257 0.1528 314.56)"
+        },
+        {
+          "foreground": {
+            "contrast": 16.21,
+            "grade": "AAA",
+            "hex": "#faf1ff",
+            "token": "purple-50"
+          },
+          "hex": "#2c023b",
+          "step": "800",
+          "value": "oklch(0.2224 0.1044 314.56)"
+        },
+        {
+          "foreground": {
+            "contrast": 18.14,
+            "grade": "AAA",
+            "hex": "#faf1ff",
+            "token": "purple-50"
+          },
+          "hex": "#15011f",
+          "step": "900",
+          "value": "oklch(0.15 0.0705 314.56)"
+        }
+      ],
+      "dark": [
+        {
+          "foreground": {
+            "contrast": 14.78,
+            "grade": "AAA",
+            "hex": "#f5e4fe",
+            "token": "purple-900"
+          },
+          "hex": "#1d1421",
+          "step": "50",
+          "value": "oklch(0.21 0.028 314.56)"
+        },
+        {
+          "foreground": {
+            "contrast": 13.57,
+            "grade": "AAA",
+            "hex": "#f5e4fe",
+            "token": "purple-900"
+          },
+          "hex": "#30133c",
+          "step": "100",
+          "value": "oklch(0.2516 0.0816 314.56)"
+        },
+        {
+          "foreground": {
+            "contrast": 11.92,
+            "grade": "AAA",
+            "hex": "#f5e4fe",
+            "token": "purple-900"
+          },
+          "hex": "#48065e",
+          "step": "200",
+          "value": "oklch(0.3036 0.1424 314.56)"
+        },
+        {
+          "foreground": {
+            "contrast": 9.27,
+            "grade": "AAA",
+            "hex": "#f5e4fe",
+            "token": "purple-900"
+          },
+          "hex": "#620b80",
+          "step": "300",
+          "value": "oklch(0.3764 0.1766 314.56)"
+        },
+        {
+          "foreground": {
+            "contrast": 6.4,
+            "grade": "AA",
+            "hex": "#f5e4fe",
+            "token": "purple-900"
+          },
+          "hex": "#8519ab",
+          "step": "400",
+          "value": "oklch(0.4699 0.2146 314.56)"
+        },
+        {
+          "foreground": {
+            "contrast": 5.25,
+            "grade": "AA",
+            "hex": "#ffffff",
+            "token": "absolute-white"
+          },
+          "hex": "#a82cd6",
+          "step": "500",
+          "value": "oklch(0.5635 0.2455 314.56)"
+        },
+        {
+          "foreground": {
+            "contrast": 5.38,
+            "grade": "AA",
+            "hex": "#1d1421",
+            "token": "purple-50"
+          },
+          "hex": "#c462ee",
+          "step": "600",
+          "value": "oklch(0.6697 0.2146 314.56)"
+        },
+        {
+          "foreground": {
+            "contrast": 8.25,
+            "grade": "AAA",
+            "hex": "#1d1421",
+            "token": "purple-50"
+          },
+          "hex": "#db95fb",
+          "step": "700",
+          "value": "oklch(0.77588457 0.15839 314.56003)"
+        },
+        {
+          "foreground": {
+            "contrast": 11.78,
+            "grade": "AAA",
+            "hex": "#1d1421",
+            "token": "purple-50"
+          },
+          "hex": "#eac4fd",
+          "step": "800",
+          "value": "oklch(0.8724 0.0864 314.56)"
+        },
+        {
+          "foreground": {
+            "contrast": 14.78,
+            "grade": "AAA",
+            "hex": "#1d1421",
+            "token": "purple-50"
+          },
+          "hex": "#f5e4fe",
+          "step": "900",
+          "value": "oklch(0.94 0.0394 314.56)"
+        }
+      ]
+    },
+    {
+      "ramp": "fuchsia",
+      "sameAs": null,
+      "light": [
+        {
+          "foreground": {
+            "contrast": 18.09,
+            "grade": "AAA",
+            "hex": "#190116",
+            "token": "fuchsia-900"
+          },
+          "hex": "#fff0fb",
+          "step": "50",
+          "value": "oklch(0.97 0.0214 332.78)"
+        },
+        {
+          "foreground": {
+            "contrast": 14.95,
+            "grade": "AAA",
+            "hex": "#190116",
+            "token": "fuchsia-900"
+          },
+          "hex": "#fed3f5",
+          "step": "100",
+          "value": "oklch(0.9123 0.0659 332.78)"
+        },
+        {
+          "foreground": {
+            "contrast": 11.34,
+            "grade": "AAA",
+            "hex": "#190116",
+            "token": "fuchsia-900"
+          },
+          "hex": "#fda8ef",
+          "step": "200",
+          "value": "oklch(0.8354 0.1334 332.78)"
+        },
+        {
+          "foreground": {
+            "contrast": 8.81,
+            "grade": "AAA",
+            "hex": "#190116",
+            "token": "fuchsia-900"
+          },
+          "hex": "#f286e3",
+          "step": "300",
+          "value": "oklch(0.768 0.1725 332.78)"
+        },
+        {
+          "foreground": {
+            "contrast": 6.29,
+            "grade": "AA",
+            "hex": "#190116",
+            "token": "fuchsia-900"
+          },
+          "hex": "#dd61cd",
+          "step": "400",
+          "value": "oklch(0.6815 0.1984 332.78)"
+        },
+        {
+          "foreground": {
+            "contrast": 4.69,
+            "grade": "AA",
+            "hex": "#fff0fb",
+            "token": "fuchsia-50"
+          },
+          "hex": "#bd28ae",
+          "step": "500",
+          "value": "oklch(0.5661 0.227 332.78)"
+        },
+        {
+          "foreground": {
+            "contrast": 7.2,
+            "grade": "AAA",
+            "hex": "#fff0fb",
+            "token": "fuchsia-50"
+          },
+          "hex": "#921186",
+          "step": "600",
+          "value": "oklch(0.46207497 0.19735628 332.78)"
+        },
+        {
+          "foreground": {
+            "contrast": 12.06,
+            "grade": "AAA",
+            "hex": "#fff0fb",
+            "token": "fuchsia-50"
+          },
+          "hex": "#5a0652",
+          "step": "700",
+          "value": "oklch(0.3268 0.1396 332.78)"
+        },
+        {
+          "foreground": {
+            "contrast": 16.12,
+            "grade": "AAA",
+            "hex": "#fff0fb",
+            "token": "fuchsia-50"
+          },
+          "hex": "#32022e",
+          "step": "800",
+          "value": "oklch(0.2228 0.0952 332.78)"
+        },
+        {
+          "foreground": {
+            "contrast": 18.09,
+            "grade": "AAA",
+            "hex": "#fff0fb",
+            "token": "fuchsia-50"
+          },
+          "hex": "#190116",
+          "step": "900",
+          "value": "oklch(0.15 0.0642 332.78)"
+        }
+      ],
+      "dark": [
+        {
+          "foreground": {
+            "contrast": 14.73,
+            "grade": "AAA",
+            "hex": "#fee1f8",
+            "token": "fuchsia-900"
+          },
+          "hex": "#20141d",
+          "step": "50",
+          "value": "oklch(0.21 0.0259 332.78)"
+        },
+        {
+          "foreground": {
+            "contrast": 13.5,
+            "grade": "AAA",
+            "hex": "#fee1f8",
+            "token": "fuchsia-900"
+          },
+          "hex": "#361131",
+          "step": "100",
+          "value": "oklch(0.2519 0.0755 332.78)"
+        },
+        {
+          "foreground": {
+            "contrast": 11.77,
+            "grade": "AAA",
+            "hex": "#fee1f8",
+            "token": "fuchsia-900"
+          },
+          "hex": "#51054a",
+          "step": "200",
+          "value": "oklch(0.3043 0.13 332.78)"
+        },
+        {
+          "foreground": {
+            "contrast": 9.11,
+            "grade": "AAA",
+            "hex": "#fee1f8",
+            "token": "fuchsia-900"
+          },
+          "hex": "#6f0a65",
+          "step": "300",
+          "value": "oklch(0.3776 0.1613 332.78)"
+        },
+        {
+          "foreground": {
+            "contrast": 6.27,
+            "grade": "AA",
+            "hex": "#fee1f8",
+            "token": "fuchsia-900"
+          },
+          "hex": "#96158a",
+          "step": "400",
+          "value": "oklch(0.4718 0.1984 332.78)"
+        },
+        {
+          "foreground": {
+            "contrast": 5.15,
+            "grade": "AA",
+            "hex": "#ffffff",
+            "token": "absolute-white"
+          },
+          "hex": "#bd28ae",
+          "step": "500",
+          "value": "oklch(0.5661 0.227 332.78)"
+        },
+        {
+          "foreground": {
+            "contrast": 5.43,
+            "grade": "AA",
+            "hex": "#20141d",
+            "token": "fuchsia-50"
+          },
+          "hex": "#d95ec9",
+          "step": "600",
+          "value": "oklch(0.6716 0.1984 332.78)"
+        },
+        {
+          "foreground": {
+            "contrast": 8.17,
+            "grade": "AAA",
+            "hex": "#20141d",
+            "token": "fuchsia-50"
+          },
+          "hex": "#f689e6",
+          "step": "700",
+          "value": "oklch(0.777 0.1725 332.78)"
+        },
+        {
+          "foreground": {
+            "contrast": 11.69,
+            "grade": "AAA",
+            "hex": "#20141d",
+            "token": "fuchsia-50"
+          },
+          "hex": "#fdbdf2",
+          "step": "800",
+          "value": "oklch(0.8729 0.0992 332.78)"
+        },
+        {
+          "foreground": {
+            "contrast": 14.73,
+            "grade": "AAA",
+            "hex": "#20141d",
+            "token": "fuchsia-50"
+          },
+          "hex": "#fee1f8",
+          "step": "900",
+          "value": "oklch(0.94 0.0439 332.78)"
+        }
+      ]
+    },
+    {
+      "ramp": "pink",
+      "sameAs": null,
+      "light": [
+        {
+          "foreground": {
+            "contrast": 18.1,
+            "grade": "AAA",
+            "hex": "#1c010e",
+            "token": "pink-900"
+          },
+          "hex": "#fff1f6",
+          "step": "50",
+          "value": "oklch(0.97 0.0163 351.0101)"
+        },
+        {
+          "foreground": {
+            "contrast": 15.03,
+            "grade": "AAA",
+            "hex": "#1c010e",
+            "token": "pink-900"
+          },
+          "hex": "#fed5e6",
+          "step": "100",
+          "value": "oklch(0.9127 0.0499 351.0101)"
+        },
+        {
+          "foreground": {
+            "contrast": 11.5,
+            "grade": "AAA",
+            "hex": "#1c010e",
+            "token": "pink-900"
+          },
+          "hex": "#fdaed1",
+          "step": "200",
+          "value": "oklch(0.8362 0.1011 351.0101)"
+        },
+        {
+          "foreground": {
+            "contrast": 8.91,
+            "grade": "AAA",
+            "hex": "#1c010e",
+            "token": "pink-900"
+          },
+          "hex": "#fc88c0",
+          "step": "300",
+          "value": "oklch(0.7694 0.1531 351.0101)"
+        },
+        {
+          "foreground": {
+            "contrast": 6.36,
+            "grade": "AA",
+            "hex": "#1c010e",
+            "token": "pink-900"
+          },
+          "hex": "#ea60a7",
+          "step": "400",
+          "value": "oklch(0.6834 0.1863 351.0101)"
+        },
+        {
+          "foreground": {
+            "contrast": 4.6,
+            "grade": "AA",
+            "hex": "#fff1f6",
+            "token": "pink-50"
+          },
+          "hex": "#cb2686",
+          "step": "500",
+          "value": "oklch(0.5687 0.2132 351.0101)"
+        },
+        {
+          "foreground": {
+            "contrast": 7.09,
+            "grade": "AAA",
+            "hex": "#fff1f6",
+            "token": "pink-50"
+          },
+          "hex": "#9d1065",
+          "step": "600",
+          "value": "oklch(0.464 0.1833 351.0101)"
+        },
+        {
+          "foreground": {
+            "contrast": 11.96,
+            "grade": "AAA",
+            "hex": "#fff1f6",
+            "token": "pink-50"
+          },
+          "hex": "#61063d",
+          "step": "700",
+          "value": "oklch(0.3279 0.1296 351.0101)"
+        },
+        {
+          "foreground": {
+            "contrast": 16.09,
+            "grade": "AAA",
+            "hex": "#fff1f6",
+            "token": "pink-50"
+          },
+          "hex": "#370220",
+          "step": "800",
+          "value": "oklch(0.2233 0.0883 351.0101)"
+        },
+        {
+          "foreground": {
+            "contrast": 18.1,
+            "grade": "AAA",
+            "hex": "#fff1f6",
+            "token": "pink-50"
+          },
+          "hex": "#1c010e",
+          "step": "900",
+          "value": "oklch(0.15 0.0594 351.0101)"
+        }
+      ],
+      "dark": [
+        {
+          "foreground": {
+            "contrast": 14.77,
+            "grade": "AAA",
+            "hex": "#fee3ee",
+            "token": "pink-900"
+          },
+          "hex": "#21141a",
+          "step": "50",
+          "value": "oklch(0.21 0.0243 351.0101)"
+        },
+        {
+          "foreground": {
+            "contrast": 13.51,
+            "grade": "AAA",
+            "hex": "#fee3ee",
+            "token": "pink-900"
+          },
+          "hex": "#3a1126",
+          "step": "100",
+          "value": "oklch(0.2522 0.0709 351.0101)"
+        },
+        {
+          "foreground": {
+            "contrast": 11.73,
+            "grade": "AAA",
+            "hex": "#fee3ee",
+            "token": "pink-900"
+          },
+          "hex": "#570536",
+          "step": "200",
+          "value": "oklch(0.305 0.1205 351.0101)"
+        },
+        {
+          "foreground": {
+            "contrast": 9.03,
+            "grade": "AAA",
+            "hex": "#fee3ee",
+            "token": "pink-900"
+          },
+          "hex": "#770a4c",
+          "step": "300",
+          "value": "oklch(0.3788 0.1496 351.0101)"
+        },
+        {
+          "foreground": {
+            "contrast": 6.19,
+            "grade": "AA",
+            "hex": "#fee3ee",
+            "token": "pink-900"
+          },
+          "hex": "#a11268",
+          "step": "400",
+          "value": "oklch(0.4738 0.1863 351.0101)"
+        },
+        {
+          "foreground": {
+            "contrast": 5.05,
+            "grade": "AA",
+            "hex": "#ffffff",
+            "token": "absolute-white"
+          },
+          "hex": "#cb2686",
+          "step": "500",
+          "value": "oklch(0.5687 0.2132 351.0101)"
+        },
+        {
+          "foreground": {
+            "contrast": 5.49,
+            "grade": "AA",
+            "hex": "#21141a",
+            "token": "pink-50"
+          },
+          "hex": "#e75ca4",
+          "step": "600",
+          "value": "oklch(0.6734 0.1863 351.0101)"
+        },
+        {
+          "foreground": {
+            "contrast": 8.29,
+            "grade": "AAA",
+            "hex": "#21141a",
+            "token": "pink-50"
+          },
+          "hex": "#fc8dc2",
+          "step": "700",
+          "value": "oklch(0.7782 0.1458 351.0101)"
+        },
+        {
+          "foreground": {
+            "contrast": 11.8,
+            "grade": "AAA",
+            "hex": "#21141a",
+            "token": "pink-50"
+          },
+          "hex": "#fdc2db",
+          "step": "800",
+          "value": "oklch(0.8734 0.0752 351.0101)"
+        },
+        {
+          "foreground": {
+            "contrast": 14.77,
+            "grade": "AAA",
+            "hex": "#21141a",
+            "token": "pink-50"
+          },
+          "hex": "#fee3ee",
+          "step": "900",
+          "value": "oklch(0.94 0.0335 351.0101)"
+        }
+      ]
+    },
+    {
+      "ramp": "rose",
+      "sameAs": null,
+      "light": [
+        {
+          "foreground": {
+            "contrast": 18.1,
+            "grade": "AAA",
+            "hex": "#1d0106",
+            "token": "rose-900"
+          },
+          "hex": "#fff1f3",
+          "step": "50",
+          "value": "oklch(0.97 0.0143 9.23)"
+        },
+        {
+          "foreground": {
+            "contrast": 15.08,
+            "grade": "AAA",
+            "hex": "#1d0106",
+            "token": "rose-900"
+          },
+          "hex": "#fed7dc",
+          "step": "100",
+          "value": "oklch(0.913 0.0436 9.23)"
+        },
+        {
+          "foreground": {
+            "contrast": 11.6,
+            "grade": "AAA",
+            "hex": "#1d0106",
+            "token": "rose-900"
+          },
+          "hex": "#fdb2bd",
+          "step": "200",
+          "value": "oklch(0.8371 0.0879 9.23)"
+        },
+        {
+          "foreground": {
+            "contrast": 9.05,
+            "grade": "AAA",
+            "hex": "#1d0106",
+            "token": "rose-900"
+          },
+          "hex": "#fc8fa2",
+          "step": "300",
+          "value": "oklch(0.7707 0.1327 9.23)"
+        },
+        {
+          "foreground": {
+            "contrast": 6.43,
+            "grade": "AA",
+            "hex": "#1d0106",
+            "token": "rose-900"
+          },
+          "hex": "#f36082",
+          "step": "400",
+          "value": "oklch(0.6852 0.182 9.23)"
+        },
+        {
+          "foreground": {
+            "contrast": 4.53,
+            "grade": "AA",
+            "hex": "#fff1f3",
+            "token": "rose-50"
+          },
+          "hex": "#d4255d",
+          "step": "500",
+          "value": "oklch(0.5713 0.2082 9.23)"
+        },
+        {
+          "foreground": {
+            "contrast": 6.99,
+            "grade": "AA",
+            "hex": "#fff1f3",
+            "token": "rose-50"
+          },
+          "hex": "#a41144",
+          "step": "600",
+          "value": "oklch(0.466 0.1771 9.23)"
+        },
+        {
+          "foreground": {
+            "contrast": 11.88,
+            "grade": "AAA",
+            "hex": "#fff1f3",
+            "token": "rose-50"
+          },
+          "hex": "#650727",
+          "step": "700",
+          "value": "oklch(0.3291 0.1251 9.23)"
+        },
+        {
+          "foreground": {
+            "contrast": 16.06,
+            "grade": "AAA",
+            "hex": "#fff1f3",
+            "token": "rose-50"
+          },
+          "hex": "#390213",
+          "step": "800",
+          "value": "oklch(0.2237 0.0851 9.23)"
+        },
+        {
+          "foreground": {
+            "contrast": 18.1,
+            "grade": "AAA",
+            "hex": "#fff1f3",
+            "token": "rose-50"
+          },
+          "hex": "#1d0106",
+          "step": "900",
+          "value": "oklch(0.15 0.0572 9.23)"
+        }
+      ],
+      "dark": [
+        {
+          "foreground": {
+            "contrast": 14.79,
+            "grade": "AAA",
+            "hex": "#fee4e7",
+            "token": "rose-900"
+          },
+          "hex": "#221416",
+          "step": "50",
+          "value": "oklch(0.21 0.0237 9.23)"
+        },
+        {
+          "foreground": {
+            "contrast": 13.51,
+            "grade": "AAA",
+            "hex": "#fee4e7",
+            "token": "rose-900"
+          },
+          "hex": "#3c111b",
+          "step": "100",
+          "value": "oklch(0.2525 0.0692 9.23)"
+        },
+        {
+          "foreground": {
+            "contrast": 11.69,
+            "grade": "AAA",
+            "hex": "#fee4e7",
+            "token": "rose-900"
+          },
+          "hex": "#5b0522",
+          "step": "200",
+          "value": "oklch(0.3056 0.1162 9.23)"
+        },
+        {
+          "foreground": {
+            "contrast": 8.96,
+            "grade": "AAA",
+            "hex": "#fee4e7",
+            "token": "rose-900"
+          },
+          "hex": "#7c0a32",
+          "step": "300",
+          "value": "oklch(0.38 0.1445 9.23)"
+        },
+        {
+          "foreground": {
+            "contrast": 6.11,
+            "grade": "AA",
+            "hex": "#fee4e7",
+            "token": "rose-900"
+          },
+          "hex": "#a81246",
+          "step": "400",
+          "value": "oklch(0.4757 0.1808 9.23)"
+        },
+        {
+          "foreground": {
+            "contrast": 4.97,
+            "grade": "AA",
+            "hex": "#ffffff",
+            "token": "absolute-white"
+          },
+          "hex": "#d4255d",
+          "step": "500",
+          "value": "oklch(0.5713 0.2082 9.23)"
+        },
+        {
+          "foreground": {
+            "contrast": 5.56,
+            "grade": "AA",
+            "hex": "#221416",
+            "token": "rose-50"
+          },
+          "hex": "#f05d7f",
+          "step": "600",
+          "value": "oklch(0.6753 0.182 9.23)"
+        },
+        {
+          "foreground": {
+            "contrast": 8.41,
+            "grade": "AAA",
+            "hex": "#221416",
+            "token": "rose-50"
+          },
+          "hex": "#fc94a6",
+          "step": "700",
+          "value": "oklch(0.7793 0.1265 9.23)"
+        },
+        {
+          "foreground": {
+            "contrast": 11.87,
+            "grade": "AAA",
+            "hex": "#221416",
+            "token": "rose-50"
+          },
+          "hex": "#fdc4cc",
+          "step": "800",
+          "value": "oklch(0.8738 0.0656 9.23)"
+        },
+        {
+          "foreground": {
+            "contrast": 14.79,
+            "grade": "AAA",
+            "hex": "#221416",
+            "token": "rose-50"
+          },
+          "hex": "#fee4e7",
+          "step": "900",
+          "value": "oklch(0.94 0.0293 9.23)"
+        }
+      ]
+    }
+  ]
+}

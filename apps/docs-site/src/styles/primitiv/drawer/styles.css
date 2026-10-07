@@ -15,7 +15,7 @@
  * one viewport edge. `data-side` (emitted by the headless from the `side` prop)
  * picks the edge, the radius/border corners, and the slide direction; the `size`
  * modifier sets the panel's *cross-axis* extent (width for left/right, height for
- * top/bottom). To avoid a bespoke token family the padding / gap / radius reuse
+ * top/bottom). To avoid a bespoke token family the padding / gap reuse
  * the density-scaled `modal/*` tokens, so a drawer's inner spacing matches a
  * modal's at every size and density.
  *
@@ -63,13 +63,15 @@
   .primitiv-drawer {
     /* Per-component API — the themable knobs, defaulting to the md size. The size
        modifiers re-point the sizing knobs; consumers can override any one without
-       touching the rule. Padding / gap / radius alias the density-scaled modal/*
-       tokens so a drawer matches a modal at each size + density. */
+       touching the rule. Padding / gap alias the density-scaled modal/* tokens
+       so a drawer matches a modal at each size + density. Corners are square:
+       a panel docked flush to the viewport edge reads as part of the page frame,
+       not a floating card. The radius knob stays for consumers who want one. */
     --primitiv-drawer-surface: var(--primitiv-surface-default);
     --primitiv-drawer-fg: var(--primitiv-content-primary);
     --primitiv-drawer-shadow: var(--primitiv-elevation-modal);
     --primitiv-drawer-scrim: var(--primitiv-scrim);
-    --primitiv-drawer-radius: var(--primitiv-modal-md-radius);
+    --primitiv-drawer-radius: var(--primitiv-radii-0);
     --primitiv-drawer-padding-inline: var(--primitiv-modal-md-padding-inline);
     --primitiv-drawer-padding-block: var(--primitiv-modal-md-padding-block);
     --primitiv-drawer-gap: var(--primitiv-modal-md-gap);
@@ -326,7 +328,7 @@
 @layer primitiv.variants {
   /* Width — the cross-axis extent (width for a left/right drawer, height for a
      top/bottom sheet), stepped xs–xl off the size/* scale. Only the extent scales
-     here: padding / gap / radius stay on the base's modal-md tokens and track
+     here: padding / gap stay on the base's modal-md tokens and track
      density ambiently (RFC 0009), so a drawer's inner spacing is independent of
      how wide it is. */
   .primitiv-drawer--xs {

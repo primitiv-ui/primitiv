@@ -88,9 +88,14 @@ For an arbitrary cross-axis size, override the `--primitiv-drawer-size` custom
 property via `style` (e.g. `style={{ "--primitiv-drawer-size": "32rem" }}`)
 instead of the `width` prop.
 
-Padding, gap, and radius stay density-driven and **independent of `width`** —
+Padding and gap stay density-driven and **independent of `width`** —
 `data-density` on an ancestor scales them (they reuse the `modal/*` tokens, so a
 drawer's inner spacing matches a modal's), whatever width you pick.
+
+Corners are **square** by default: a drawer docks flush to the viewport edge, so
+it reads as part of the page frame rather than a floating card. To round the
+inner edge anyway, set `--primitiv-drawer-radius` (e.g.
+`var(--primitiv-modal-md-radius)` to match a modal).
 
 ## Animation
 

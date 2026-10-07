@@ -326,7 +326,7 @@
       },
       {
         "name": "--primitiv-drawer-radius",
-        "defaultsTo": "var(--primitiv-modal-md-radius)"
+        "defaultsTo": "var(--primitiv-radii-0)"
       },
       {
         "name": "--primitiv-drawer-padding-inline",

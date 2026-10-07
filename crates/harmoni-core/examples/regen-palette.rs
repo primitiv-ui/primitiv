@@ -41,23 +41,106 @@ fn repo_root() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../..")
 }
 
+/// Every ramp to generate, as `(name, seed)`: the semantic `seeds`, then the
+/// colour `library`, whose `sameAs` entries take their twin's seed.
+fn ramp_seeds(seeds: &serde_json::Value) -> Vec<(String, String)> {
+    let semantic: Vec<(String, String)> = seeds["seeds"]
+        .as_array()
+        .expect("a seeds array")
+        .iter()
+        .map(|entry| {
+            (
+                entry["ramp"].as_str().expect("a ramp name").to_string(),
+                entry["seed"].as_str().expect("a seed colour").to_string(),
+            )
+        })
+        .collect();
+    let library = seeds["library"].as_array().into_iter().flatten().map(|entry| {
+        let ramp = entry["ramp"].as_str().expect("a ramp name").to_string();
+        let seed = match (entry["seed"].as_str(), entry["sameAs"].as_str()) {
+            (Some(seed), _) => seed.to_string(),
+            (None, Some(twin)) => semantic
+                .iter()
+                .find(|(name, _)| name == twin)
+                .unwrap_or_else(|| panic!("{ramp}: `sameAs: {twin}` names no seeded ramp"))
+                .1
+                .clone(),
+            (None, None) => panic!("{ramp}: a library entry needs `seed` or `sameAs`"),
+        };
+        (ramp, seed)
+    });
+    semantic.clone().into_iter().chain(library).collect()
+}
+
 /// Every `(theme, ramp, step)` whose colour the regenerated palettes replace.
 fn targets(seeds: &serde_json::Value) -> Vec<((String, String, String), String)> {
     let mut out = Vec::new();
-    for entry in seeds["seeds"].as_array().expect("a seeds array") {
-        let ramp = entry["ramp"].as_str().expect("a ramp name");
-        let seed = entry["seed"].as_str().expect("a seed colour");
-        let pair = generate_brand_pair(ColorInput::Css(seed.to_string()))
+    for (ramp, seed) in ramp_seeds(seeds) {
+        let pair = generate_brand_pair(ColorInput::Css(seed.clone()))
             .unwrap_or_else(|e| panic!("{ramp} ({seed}) should generate: {e:?}"));
 
         for (theme, palette) in [("light", &pair.light), ("dark", &pair.dark)] {
             for swatch in &palette.swatches {
                 out.push((
-                    (theme.to_string(), ramp.to_string(), swatch.label.to_string()),
+                    (theme.to_string(), ramp.clone(), swatch.label.to_string()),
                     swatch.oklch.clone(),
                 ));
             }
         }
+    }
+    out
+}
+
+/// Inserts an empty-valued block for every targeted ramp the document lacks,
+/// just before each theme's `transparent` primitive, so the rewrite pass below
+/// has lines to fill. A ramp joins the palette once and is rewritten in place
+/// from then on, like every other.
+fn insert_missing_ramps(
+    source: &str,
+    wanted: &std::collections::HashMap<(String, String, String), String>,
+    order: &[String],
+) -> String {
+    let mut steps: std::collections::BTreeMap<(String, String), Vec<String>> = Default::default();
+    for (theme, ramp, step) in wanted.keys() {
+        steps.entry((theme.clone(), ramp.clone())).or_default().push(step.clone());
+    }
+    let mut present = std::collections::HashSet::new();
+    let mut theme = String::new();
+    for line in source.lines() {
+        if let Some(key) = opened_key(line, 2) {
+            theme = key.to_string();
+        } else if let Some(key) = opened_key(line, 6) {
+            present.insert((theme.clone(), key.to_string()));
+        }
+    }
+    let mut out = String::with_capacity(source.len());
+    theme.clear();
+    for line in source.lines() {
+        if let Some(key) = opened_key(line, 2) {
+            theme = key.to_string();
+        }
+        if opened_key(line, 6) == Some("transparent") {
+            // In manifest order, so the library reads red → rose.
+            for ramp in order {
+                let key = (theme.clone(), ramp.clone());
+                if present.contains(&key) {
+                    continue;
+                }
+                let Some(labels) = steps.get(&key) else { continue };
+                let mut labels = labels.clone();
+                labels.sort_by_key(|l| l.parse::<u32>().unwrap_or(u32::MAX));
+                out.push_str(&format!("      \"{ramp}\": {{\n"));
+                for (i, label) in labels.iter().enumerate() {
+                    let comma = if i + 1 < labels.len() { "," } else { "" };
+                    out.push_str(&format!(
+                        "        \"{label}\": {{\n          \"$type\": \"color\",\n          \"$value\": \"\"\n        }}{comma}\n"
+                    ));
+                }
+                out.push_str("      },\n");
+            }
+        }
+        out.push_str(line);
+        out.push('\n');
     }
     out
 }
@@ -79,9 +162,20 @@ fn main() {
     let seeds: serde_json::Value =
         serde_json::from_str(&std::fs::read_to_string(&seeds_path).expect("read seeds"))
             .expect("parse seeds");
-    let wanted: std::collections::HashMap<_, _> = targets(&seeds).into_iter().collect();
+    let ordered = targets(&seeds);
+    let mut order: Vec<String> = Vec::new();
+    for ((_, ramp, _), _) in &ordered {
+        if !order.contains(ramp) {
+            order.push(ramp.clone());
+        }
+    }
+    let wanted: std::collections::HashMap<_, _> = ordered.into_iter().collect();
 
-    let source = std::fs::read_to_string(&palette_path).expect("read palette");
+    let source = insert_missing_ramps(
+        &std::fs::read_to_string(&palette_path).expect("read palette"),
+        &wanted,
+        &order,
+    );
     let (mut theme, mut ramp, mut step) = (String::new(), String::new(), String::new());
     let (mut changed, mut written) = (0usize, 0usize);
     let mut out = String::with_capacity(source.len());

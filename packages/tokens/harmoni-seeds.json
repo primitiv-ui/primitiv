@@ -25,6 +25,42 @@
     { "ramp": "success", "seed": "#008c11", "note": "Confirmation states. Holds hue to 2.7 degrees; the control case for ramp quality." },
     { "ramp": "info", "seed": "#008e9d", "note": "Informational states. Measures 22.1 degrees of hue drift." }
   ],
+  "$libraryComment": [
+    "The colour library: seventeen hue ramps shipped beside the semantic ones,",
+    "for consumers to build with (--primitiv-color-violet-500 and so on).",
+    "",
+    "Derived, not picked. The five `sameAs` hues ARE the semantic ramps -- red is",
+    "generated from danger's seed -- so the token layer never carries two",
+    "almost-identical reds. They keep their own values rather than aliasing, so a",
+    "project that re-seeds `danger` with `primitiv theme` does not turn red orange.",
+    "",
+    "The other twelve sit evenly between those five anchor hues on the OkLCH",
+    "wheel. Each one's lightness, and its chroma as a share of what sRGB allows",
+    "at that lightness and hue, are interpolated from its two neighbouring",
+    "anchors. The seeds below are the result, written to five places of OkLCH.",
+    "",
+    "Guarded by crates/harmoni-core/tests/colour_library.rs, and covered by the",
+    "same ramp-quality gates as the semantic ramps (tests/ramp_regression.rs)."
+  ],
+  "library": [
+    { "ramp": "red", "sameAs": "danger" },
+    { "ramp": "orange", "seed": "oklch(0.6492 0.1727 46.91)" },
+    { "ramp": "amber", "sameAs": "warning" },
+    { "ramp": "yellow", "seed": "oklch(0.6680 0.1339 92.00)" },
+    { "ramp": "lime", "seed": "oklch(0.6115 0.1390 117.64)" },
+    { "ramp": "green", "sameAs": "success" },
+    { "ramp": "emerald", "seed": "oklch(0.5672 0.1172 164.81)" },
+    { "ramp": "teal", "seed": "oklch(0.5794 0.0994 186.33)" },
+    { "ramp": "cyan", "sameAs": "info" },
+    { "ramp": "sky", "seed": "oklch(0.5736 0.1111 233.87)" },
+    { "ramp": "blue", "sameAs": "brand" },
+    { "ramp": "indigo", "seed": "oklch(0.5583 0.2137 278.10)" },
+    { "ramp": "violet", "seed": "oklch(0.5609 0.2418 296.33)" },
+    { "ramp": "purple", "seed": "oklch(0.5635 0.2455 314.56)" },
+    { "ramp": "fuchsia", "seed": "oklch(0.5661 0.2270 332.78)" },
+    { "ramp": "pink", "seed": "oklch(0.5687 0.2132 351.01)" },
+    { "ramp": "rose", "seed": "oklch(0.5713 0.2082 9.23)" }
+  ],
   "$notScoped": {
     "neutral": [
       "The neutral ramp is NOT generated through generate_brand_pair — it comes",

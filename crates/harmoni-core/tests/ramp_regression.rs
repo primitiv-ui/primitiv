@@ -56,18 +56,37 @@ const MIN_DELTA_L: f32 = 0.012;
 const HARD_HUE_SEED: &str = "#f5c400";
 
 /// Every ramp the shipped palette is generated from, as `(name, seed)`, read
-/// from the manifest rather than copied so the guards cannot fall behind it.
+/// from the manifest rather than copied so the guards cannot fall behind it:
+/// the semantic `seeds`, then every colour-library hue with a seed of its own.
+/// A `sameAs` library hue is its twin's ramp exactly (`tests/colour_library.rs`
+/// holds it to that), so the twin's guards already cover it.
 fn shipped_seeds() -> Vec<(String, String)> {
+    manifest_seeds(true)
+}
+
+/// The semantic ramps alone — the ones `primitiv theme --steps` can re-seed at
+/// another length. The library only ever ships at ten steps.
+fn semantic_seeds() -> Vec<(String, String)> {
+    manifest_seeds(false)
+}
+
+fn manifest_seeds(with_library: bool) -> Vec<(String, String)> {
     let manifest = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join("../../packages/tokens/harmoni-seeds.json");
     let raw = std::fs::read_to_string(&manifest)
         .unwrap_or_else(|e| panic!("{}: {e}", manifest.display()));
     let doc: serde_json::Value = serde_json::from_str(&raw).expect("the manifest should be JSON");
 
+    let library = doc["library"]
+        .as_array()
+        .into_iter()
+        .flatten()
+        .filter(|e| with_library && e["seed"].is_string());
     doc["seeds"]
         .as_array()
         .expect("the manifest should carry a `seeds` array")
         .iter()
+        .chain(library)
         .map(|entry| {
             (
                 entry["ramp"].as_str().expect("a ramp name").to_string(),
@@ -209,7 +228,13 @@ fn every_shipped_ramp_holds_its_guarantees_at_every_supported_length() {
     // The ramp's length is a user knob, so the properties gated above at ten
     // steps have to survive at three and at thirty-two — most of all the
     // foreground pairing, which is how a step states its accessibility.
-    for (name, seed) in shipped_seeds()
+    //
+    // Only for the ramps that knob reaches: `theme --steps` re-seeds the
+    // semantic families, while the colour library ships at ten steps only and
+    // is gated there by every test above. Recorded because it is real: `lime`
+    // generated at three steps greys out in dark mode (utilisation 0.536). If
+    // the library ever gains a length knob, it needs addressing first.
+    for (name, seed) in semantic_seeds()
         .iter()
         .map(|(n, s)| (n.as_str(), s.as_str()))
         .chain([("hard-hue", HARD_HUE_SEED)])

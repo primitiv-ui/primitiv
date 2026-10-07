@@ -1,0 +1,67 @@
+name: Consumer smoke
+
+# Packs @primitiv-ui/react and @primitiv-ui/icons exactly as npm would serve
+# them, installs them into a fresh `npm create vite` (react-ts) app and a fresh
+# `create-next-app` app with their default settings, and runs each app's own
+# `npm run build` — plus a bundler-free `node` import, which is how Vite SSR
+# and test runners load node_modules. Our workspace apps link `src/` directly, so this is the only
+# check that sees what a new user gets — v0.1.38 failed both starters (331
+# TS1484 errors under Vite's `verbatimModuleSyntax`; "Unknown module type"
+# under Turbopack) while every other workflow was green.
+#
+# Same pre-install sequence as ci.yml: the workspace resolves against
+# crates/harmoni-wasm/pkg, so wasm is built before `pnpm install`.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "packages/react/**"
+      - "packages/icons/**"
+      - "scripts/consumer-smoke.mjs"
+      - "scripts/finalize-dist.mjs"
+      - ".github/workflows/consumer-smoke.yml"
+  pull_request:
+    paths:
+      - "packages/react/**"
+      - "packages/icons/**"
+      - "scripts/consumer-smoke.mjs"
+      - "scripts/finalize-dist.mjs"
+      - ".github/workflows/consumer-smoke.yml"
+  workflow_dispatch:
+
+jobs:
+  smoke:
+    name: consumer smoke (${{ matrix.framework }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        framework: [vite, next, node]
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - uses: jetli/wasm-pack-action@v0.4.0
+
+      - name: Build harmoni-wasm
+        run: wasm-pack build crates/harmoni-wasm --target web
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate icons
+        run: pnpm --filter @primitiv-ui/icons generate
+
+      - name: Build a fresh ${{ matrix.framework }} app against the packed packages
+        run: node scripts/consumer-smoke.mjs ${{ matrix.framework }}

@@ -482,6 +482,14 @@ in an RSC. Granular subpath exports (`@primitiv-ui/react/Slot`) would fix it.
 Recorded here because it is the same class of finding: invisible until a real
 framework consumer exists.
 
+**Resolved for npm consumers 2026-10-07.** The npm build now marks every
+non-barrel module `"use client"` (`scripts/finalize-dist.mjs --client`), so a
+Server Component can import `@primitiv-ui/react` directly — checked by
+`scripts/consumer-smoke.mjs` against a fresh `create-next-app`. Compounds must
+use their flat exports there (`TabsRoot`, not `Tabs.Root`): React cannot dot
+into a client reference from the server. `apps/docs-site` links `src/`, so it
+still needs its own `"use client"` pages.
+
 ---
 
 ## How these were found (method worth reusing)

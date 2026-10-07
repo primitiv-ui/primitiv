@@ -7,11 +7,33 @@ Zero styles ship with this package — style them with whatever system you use
 
 ## Installation
 
-The package is part of the Primitiv monorepo. Within the workspace, import
-directly:
+```sh
+npm i @primitiv-ui/react
+```
 
 ```tsx
 import { Tabs } from "@primitiv-ui/react";
+```
+
+The npm package ships compiled JavaScript with type declarations, so it works
+with any bundler and any `tsconfig` — including the defaults from
+`npm create vite` and `create-next-app` — and loads in plain Node for SSR and
+tests. (JSR serves the TypeScript source.)
+
+### Next.js App Router and Server Components
+
+Every component module is marked `"use client"`, so you can import from
+`@primitiv-ui/react` directly in a Server Component — the client boundary forms
+at the component itself.
+
+One limit comes from React, not Primitiv: a Server Component cannot reach into
+a client component's properties, so the compound form (`Tabs.Root`) only works
+inside a `"use client"` file. In a Server Component, use the flat exports every
+compound also provides:
+
+```tsx
+// app/page.tsx — a Server Component
+import { TabsRoot, TabsList, TabsTrigger, TabsContent } from "@primitiv-ui/react";
 ```
 
 ## Components

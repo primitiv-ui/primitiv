@@ -13,7 +13,7 @@
   },
   "sideEffects": false,
   "files": [
-    "src"
+    "dist"
   ],
   "repository": {
     "type": "git",
@@ -21,6 +21,8 @@
     "directory": "packages/icons"
   },
   "scripts": {
+    "build": "rm -rf dist && tsc -p tsconfig.build.json && node ../../scripts/finalize-dist.mjs dist",
+    "prepack": "pnpm run build",
     "generate": "tsx scripts/generate.ts",
     "qa": "pnpm qa:units",
     "qa:units": "vitest run --coverage",
@@ -46,6 +48,14 @@
     "vitest": "^4.1.4"
   },
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      }
+    }
   }
 }

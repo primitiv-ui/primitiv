@@ -164,11 +164,30 @@ shippable at v0.1.0. Changes made:
 - [x] `"private": true` removed; `"publishConfig": { "access": "public" }` added.
 - [x] Version set to `0.1.0`.
 - [x] `"exports"` maps valid (`{ "types": ..., "default": ... }` shape).
-- [x] **Source-first** (decided for v1): `main`/`types` point at `./src/index.ts`.
-  All modern bundlers (Vite, Next.js, Rollup, webpack 5+) consume TypeScript
-  directly; JSR is source-first by design. No `dist` step added — add one
-  only if a non-bundler consumer (plain Node, Deno without bundler) needs it.
-- [x] `"files": ["src"]` set on all three.
+- [x] ~~**Source-first** (decided for v1)~~ — **reversed 2026-10-07 for
+  `react` and `icons` on npm.** The premise ("all modern bundlers consume
+  TypeScript directly") did not survive a real fresh consumer: v0.1.38 failed
+  `npm run build` in a stock `npm create vite` react-ts app (331 TS1484 errors —
+  the app's own `tsc -b` type-checks our `.ts` source under its
+  `verbatimModuleSyntax`, which `skipLibCheck` does not skip) and in a stock
+  `create-next-app` (Turbopack: "Unknown module type"). Now:
+  - The **repo and workspace apps still consume `src/`** — `main`/`types`/
+    `exports` in `package.json` are unchanged.
+  - **npm gets `dist/`** via `publishConfig` (which `pnpm publish`/`pnpm pack`
+    swap in) and `files: ["dist"]`; `prepack` runs `build`
+    (`tsconfig.build.json`, which rewrites the `.ts` specifiers to `.js`).
+  - The build then runs `scripts/finalize-dist.mjs`, which fully specifies
+    every relative import (`./types` → `./types.js`) so plain Node can load
+    `dist/` too (Vite SSR externalises node_modules), and — for `react`, via
+    `--client` — prepends `"use client"` to every non-barrel module so App
+    Router pages can import it.
+  - **JSR stays source-first** (`jsr.json` → `src/index.ts`; `dist/` is
+    gitignored, so JSR never uploads it).
+  - **Guarded by `scripts/consumer-smoke.mjs`** — `consumer-smoke.yml` on every
+    change, and a preflight in `publish.yml` before any npm publish.
+  `tokens` is still source-first: nothing a consumer's app imports at runtime
+  depends on it today.
+- [x] `"files": ["src"]` set on all three (now `["dist"]` for `react` and `icons`, above).
 - [x] `"repository"` field set to `primitiv-ui/primitiv` (as instructed in
   the org-transfer checklist).
 

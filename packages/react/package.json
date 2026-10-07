@@ -12,7 +12,7 @@
     }
   },
   "files": [
-    "src"
+    "dist"
   ],
   "repository": {
     "type": "git",
@@ -20,6 +20,8 @@
     "directory": "packages/react"
   },
   "scripts": {
+    "build": "rm -rf dist && tsc -p tsconfig.build.json && node ../../scripts/finalize-dist.mjs dist --client",
+    "prepack": "pnpm run build",
     "qa": "pnpm qa:units",
     "qa:units": "vitest run --coverage",
     "qa:units:watch": "vitest --coverage",
@@ -62,6 +64,14 @@
     "vitest": "^4.1.4"
   },
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      }
+    }
   }
 }

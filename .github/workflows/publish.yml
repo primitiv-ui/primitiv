@@ -155,6 +155,13 @@ jobs:
             echo "::endgroup::"
           done
 
+      # Preflight: a fresh Vite app and a fresh Next.js app must build against
+      # the packed react + icons tarballs before anything ships. npm versions
+      # are immutable — v0.1.38 went out unable to build in either starter.
+      # See consumer-smoke.yml.
+      - name: Preflight — consumer smoke (before any npm publish)
+        run: node scripts/consumer-smoke.mjs
+
       - name: Update npm
         run: npm install -g npm@latest
 

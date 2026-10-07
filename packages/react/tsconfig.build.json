@@ -1,0 +1,19 @@
+{
+  // The npm build. The repo, the workspace apps and JSR all consume `src/`
+  // directly; npm consumers get compiled JS + declarations from `dist/`, so a
+  // fresh app's own compiler settings (Vite's `verbatimModuleSyntax`, Next's
+  // Turbopack) never see our source. `rewriteRelativeImportExtensions` turns
+  // the `.ts`/`.tsx` specifiers JSR requires into `.js`.
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "allowImportingTsExtensions": false,
+    "rewriteRelativeImportExtensions": true,
+    "declaration": true,
+    "rootDir": "src",
+    "outDir": "dist",
+    "types": []
+  },
+  "include": ["src"],
+  "exclude": ["src/**/__tests__", "src/**/*.test.ts", "src/**/*.test.tsx", "src/test"]
+}

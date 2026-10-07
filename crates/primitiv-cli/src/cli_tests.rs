@@ -769,3 +769,35 @@ fn parses_the_tokens_command_with_ramps_only() {
         })
     );
 }
+
+#[test]
+fn parses_a_top_level_help_request_in_every_spelling() {
+    for spelling in ["--help", "-h", "help"] {
+        let command = parse(&args(&[spelling])).unwrap();
+
+        assert_eq!(command, Command::Help { command: None }, "{spelling}");
+    }
+}
+
+#[test]
+fn parses_a_help_request_for_one_command_wherever_the_flag_sits() {
+    for invocation in [
+        &["add", "--help"][..],
+        &["add", "button", "-h"][..],
+        &["help", "add"][..],
+    ] {
+        let command = parse(&args(invocation)).unwrap();
+
+        assert_eq!(command, Command::Help { command: Some("add".to_string()) }, "{invocation:?}");
+    }
+}
+
+#[test]
+fn rejects_help_for_an_unknown_command() {
+    let error = parse(&args(&["help", "frob"])).unwrap_err();
+
+    assert_eq!(
+        error.to_string(),
+        "unknown command 'frob'; expected: init, add, list, theme, tokens, dtcg"
+    );
+}

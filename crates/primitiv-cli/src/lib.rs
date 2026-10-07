@@ -4,6 +4,7 @@ pub mod config;
 pub mod detect;
 pub mod error;
 pub mod format;
+pub mod help;
 pub mod lock;
 pub mod package_manager;
 pub mod palette;

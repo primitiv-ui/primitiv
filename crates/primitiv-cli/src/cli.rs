@@ -42,7 +42,16 @@ pub enum Command {
         out: String,
         steps: usize,
     },
+    /// `--help` / `-h` / `help`, optionally for one command (`add --help`,
+    /// `help add`). The command name is already validated against
+    /// [`COMMANDS`], so printing its usage cannot fail.
+    Help {
+        command: Option<String>,
+    },
 }
+
+/// Every command, in the order usage messages list them.
+pub const COMMANDS: &[&str] = &["init", "add", "list", "theme", "tokens", "dtcg"];
 
 /// The palette families a `theme` seed can re-skin, in the order they are
 /// emitted. One list drives the `--<family>` flags, the `primitiv.json`
@@ -66,6 +75,12 @@ pub fn parse(args: &[String]) -> Result<Command, CliError> {
     let (name, rest) = args
         .split_first()
         .ok_or_else(|| usage("no command given; expected: init, add, list, theme, tokens, dtcg"))?;
+    if is_help(name) {
+        return parse_help(rest);
+    }
+    if rest.iter().any(|arg| is_help(arg)) {
+        return parse_help(std::slice::from_ref(name));
+    }
     match name.as_str() {
         "init" => parse_init(rest),
         "add" => parse_add(rest),
@@ -74,6 +89,24 @@ pub fn parse(args: &[String]) -> Result<Command, CliError> {
         "tokens" => parse_tokens(rest),
         "dtcg" => parse_dtcg(rest),
         other => Err(usage(format!(
+            "unknown command '{other}'; expected: init, add, list, theme, tokens, dtcg"
+        ))),
+    }
+}
+
+fn is_help(arg: &str) -> bool {
+    matches!(arg, "--help" | "-h" | "help")
+}
+
+/// Parse what follows a help request: nothing for the overview, or one known
+/// command for its usage. An unknown name gets the same answer as running it.
+fn parse_help(args: &[String]) -> Result<Command, CliError> {
+    match args.first() {
+        None => Ok(Command::Help { command: None }),
+        Some(name) if COMMANDS.contains(&name.as_str()) => Ok(Command::Help {
+            command: Some(name.clone()),
+        }),
+        Some(other) => Err(usage(format!(
             "unknown command '{other}'; expected: init, add, list, theme, tokens, dtcg"
         ))),
     }

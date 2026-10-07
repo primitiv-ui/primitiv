@@ -732,3 +732,13 @@ fn a_dtcg_export_re_imports_to_the_same_palette() {
 
     assert_eq!(import(), overrides, "importing twice is not idempotent");
 }
+
+#[test]
+fn prints_help_and_exits_zero() {
+    Command::cargo_bin("primitiv")
+        .unwrap()
+        .args(["add", "--help"])
+        .assert()
+        .success()
+        .stdout(predicate::str::starts_with("Usage: primitiv add "));
+}

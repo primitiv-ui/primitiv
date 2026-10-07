@@ -8,6 +8,7 @@ use crate::commands::list::list;
 use crate::commands::theme::theme;
 use crate::commands::tokens::tokens;
 use crate::error::CliError;
+use crate::help::help_text;
 use crate::ports::fs::FileSystem;
 use crate::ports::output::Output;
 use crate::ports::process::ProcessRunner;
@@ -42,5 +43,8 @@ pub fn run(
         } => theme(fs, &seeds, out.as_deref().map(Path::new), format, steps),
         Command::Dtcg { seeds, out, steps } => dtcg(fs, &seeds, Path::new(&out), steps),
         Command::Tokens(options) => tokens(fs, output, registry, &options),
+        Command::Help { command } => output
+            .write_stdout(help_text(command.as_deref()).as_bytes())
+            .map_err(CliError::Io),
     }
 }

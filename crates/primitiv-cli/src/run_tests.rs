@@ -152,3 +152,64 @@ fn propagates_a_parse_error() {
 
     assert!(matches!(err, CliError::Usage(_)));
 }
+
+fn help_for(invocation: &[&str]) -> String {
+    let stdout = InMemoryOutput::new();
+    run(
+        &InMemoryFs::new(),
+        &stdout,
+        &EmbeddedRegistry,
+        &InMemoryProcessRunner::new(),
+        &OsPrompt,
+        false,
+        &args(invocation),
+    )
+    .unwrap();
+    String::from_utf8(stdout.captured()).unwrap()
+}
+
+#[test]
+fn prints_an_overview_naming_every_command_for_a_top_level_help_request() {
+    let help = help_for(&["--help"]);
+
+    assert!(help.starts_with("Usage: primitiv <command> [options]\n"), "{help}");
+    for command in crate::cli::COMMANDS {
+        assert!(help.contains(&format!("\n  {command} ")), "{command} missing from:\n{help}");
+    }
+}
+
+#[test]
+fn prints_one_commands_usage_for_a_command_help_request() {
+    let help = help_for(&["add", "--help"]);
+
+    assert!(help.starts_with("Usage: primitiv add <component...> | --all [options]\n"), "{help}");
+    assert!(help.contains("--dry-run"), "{help}");
+}
+
+#[test]
+fn prints_usage_for_every_command() {
+    for command in crate::cli::COMMANDS {
+        let help = help_for(&[command, "--help"]);
+
+        assert!(help.starts_with(&format!("Usage: primitiv {command} ")), "{help}");
+    }
+}
+
+#[test]
+fn reports_a_failed_help_write_as_an_io_error() {
+    let stdout = InMemoryOutput::new();
+    stdout.fail_stdout();
+
+    let error = run(
+        &InMemoryFs::new(),
+        &stdout,
+        &EmbeddedRegistry,
+        &InMemoryProcessRunner::new(),
+        &OsPrompt,
+        false,
+        &args(&["--help"]),
+    )
+    .unwrap_err();
+
+    assert!(matches!(error, CliError::Io(_)), "{error:?}");
+}

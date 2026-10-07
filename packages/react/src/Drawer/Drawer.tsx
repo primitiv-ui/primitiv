@@ -43,7 +43,7 @@ import type {
  * </Drawer.Root>
  * ```
  */
-function DrawerRoot(props: DrawerRootProps): ReactElement {
+export function DrawerRoot(props: DrawerRootProps): ReactElement {
   return <Modal.Root {...props} />;
 }
 
@@ -73,7 +73,7 @@ DrawerRoot.displayName = "DrawerRoot";
  * </Drawer.Trigger>
  * ```
  */
-function DrawerTrigger(props: DrawerTriggerProps): ReactElement {
+export function DrawerTrigger(props: DrawerTriggerProps): ReactElement {
   return <Modal.Trigger {...props} />;
 }
 
@@ -96,7 +96,7 @@ DrawerTrigger.displayName = "DrawerTrigger";
  * </Drawer.Portal>
  * ```
  */
-function DrawerPortal(props: DrawerPortalProps): ReactElement {
+export function DrawerPortal(props: DrawerPortalProps): ReactElement {
   return <Modal.Portal {...props} />;
 }
 
@@ -126,7 +126,7 @@ DrawerPortal.displayName = "DrawerPortal";
  * <Drawer.Overlay />
  * ```
  */
-function DrawerOverlay(props: DrawerOverlayProps): ReactElement {
+export function DrawerOverlay(props: DrawerOverlayProps): ReactElement {
   return <Modal.Overlay {...props} />;
 }
 
@@ -167,7 +167,7 @@ DrawerOverlay.displayName = "DrawerOverlay";
  * <Drawer.Content side="bottom">...</Drawer.Content>
  * ```
  */
-function DrawerContent({
+export function DrawerContent({
   side = "right",
   ...rest
 }: DrawerContentProps): ReactElement {
@@ -194,7 +194,7 @@ DrawerContent.displayName = "DrawerContent";
  * <Drawer.Title>Filters</Drawer.Title>
  * ```
  */
-function DrawerTitle(props: DrawerTitleProps): ReactElement {
+export function DrawerTitle(props: DrawerTitleProps): ReactElement {
   return <Modal.Title {...props} />;
 }
 
@@ -215,7 +215,7 @@ DrawerTitle.displayName = "DrawerTitle";
  * <Drawer.Description>Narrow the results below.</Drawer.Description>
  * ```
  */
-function DrawerDescription(props: DrawerDescriptionProps): ReactElement {
+export function DrawerDescription(props: DrawerDescriptionProps): ReactElement {
   return <Modal.Description {...props} />;
 }
 
@@ -240,7 +240,7 @@ DrawerDescription.displayName = "DrawerDescription";
  * </Drawer.Close>
  * ```
  */
-function DrawerClose(props: DrawerCloseProps): ReactElement {
+export function DrawerClose(props: DrawerCloseProps): ReactElement {
   return <Modal.Close {...props} />;
 }
 

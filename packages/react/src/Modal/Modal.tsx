@@ -68,7 +68,7 @@ import {
  * </Modal.Root>
  * ```
  */
-function ModalRoot({
+export function ModalRoot({
   ref,
   children,
   defaultOpen,
@@ -108,7 +108,7 @@ ModalRoot.displayName = "ModalRoot";
  * </Modal.Trigger>
  * ```
  */
-function ModalTrigger({
+export function ModalTrigger({
   onClick,
   type,
   asChild = false,
@@ -144,7 +144,7 @@ ModalTrigger.displayName = "ModalTrigger";
  * </Modal.Portal>
  * ```
  */
-function ModalPortal({
+export function ModalPortal({
   children,
   container,
   forceMount,
@@ -194,7 +194,7 @@ ModalPortal.displayName = "ModalPortal";
  * </Modal.Overlay>
  * ```
  */
-function ModalOverlay({
+export function ModalOverlay({
   asChild = false,
   forceMount,
   ...rest
@@ -271,7 +271,7 @@ ModalOverlay.displayName = "ModalOverlay";
  * </Modal.Content>
  * ```
  */
-function ModalContent({
+export function ModalContent({
   children,
   id,
   onEscapeKeyDown,
@@ -325,7 +325,7 @@ ModalContent.displayName = "ModalContent";
  * </Modal.Title>
  * ```
  */
-function ModalTitle({
+export function ModalTitle({
   children,
   asChild = false,
   ...rest
@@ -372,7 +372,7 @@ ModalTitle.displayName = "ModalTitle";
  * </Modal.Description>
  * ```
  */
-function ModalDescription({
+export function ModalDescription({
   children,
   asChild = false,
   ...rest
@@ -422,7 +422,7 @@ ModalDescription.displayName = "ModalDescription";
  * </Modal.Close>
  * ```
  */
-function ModalClose({
+export function ModalClose({
   onClick,
   asChild = false,
   ...rest

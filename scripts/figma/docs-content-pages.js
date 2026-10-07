@@ -371,6 +371,8 @@ const PAGES = {
       { name: '02 — The commands', blocks: [
         ['h2', 'The commands'],
         ['p', 'Six commands. Most days you only use one.'],
+        ['p', 'Every command lists its own options with --help. On its own, it shows all six.', ['--help']],
+        ['code', '$ npx primitiv --help\n$ npx primitiv add --help'],
         ['group', 'flow/section', [
           ['h4', 'primitiv add'],
           ['p', 'Copies one or more components into your project.'],

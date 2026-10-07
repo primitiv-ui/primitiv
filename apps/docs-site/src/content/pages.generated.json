@@ -1000,6 +1000,20 @@
             "code": []
           },
           {
+            "kind": "p",
+            "text": "Every command lists its own options with --help. On its own, it shows all six.",
+            "code": [
+              "--help"
+            ]
+          },
+          {
+            "kind": "code",
+            "code": "$ npx primitiv --help\n$ npx primitiv add --help",
+            "language": "bash",
+            "header": false,
+            "lineNumbers": false
+          },
+          {
             "kind": "group",
             "gap": "flow/section",
             "blocks": [

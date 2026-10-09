@@ -153,3 +153,44 @@ test("the home page describes the site and its publisher in JSON-LD", () => {
     assert.equal(ofType(html(path), "WebSite").length, 0, path);
   }
 });
+
+/*
+ * Google wants breadcrumb markup to describe the trail the page visibly shows,
+ * so the expectation is read off the rendered <nav aria-label="Breadcrumb">: a
+ * page with a trail carries a matching BreadcrumbList, a page without carries
+ * none.
+ */
+test("BreadcrumbList JSON-LD mirrors each page's visible breadcrumb trail", () => {
+  let trails = 0;
+  for (const path of pages) {
+    const page = html(path);
+    const nav = page.match(/<nav aria-label="Breadcrumb"[^>]*>(.*?)<\/nav>/)?.[1];
+    const lists = ofType(page, "BreadcrumbList");
+    if (nav === undefined) {
+      assert.equal(lists.length, 0, path);
+      continue;
+    }
+    trails += 1;
+    const crumbs = [
+      ...[...nav.matchAll(/<a [^>]*href="([^"]+)"[^>]*>([^<]+)<\/a>/g)].map((m) => [m[1], m[2]]),
+      [path, nav.match(/aria-current="page"[^>]*>([^<]+)</)[1]],
+    ];
+    assert.deepEqual(
+      lists,
+      [
+        {
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          itemListElement: crumbs.map(([href, name], i) => ({
+            "@type": "ListItem",
+            position: i + 1,
+            name,
+            item: `${ORIGIN}${href}`,
+          })),
+        },
+      ],
+      path,
+    );
+  }
+  assert.ok(trails > 0, "no page rendered a breadcrumb trail");
+});

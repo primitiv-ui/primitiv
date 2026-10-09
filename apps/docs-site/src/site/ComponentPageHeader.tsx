@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { Fragment } from "react";
 
 import { Alert } from "@/components/alert";
 import { Badge } from "@/components/badge";
@@ -16,6 +17,7 @@ import {
 import { Spacer } from "@/components/spacer";
 import { Stack } from "@/components/stack";
 import { ExternalLink } from "@primitiv-ui/icons";
+import { componentTrail } from "@/lib/component-trail";
 import type { ComponentDocs } from "@/lib/docs-data";
 import { renderDoc } from "@/lib/render-doc";
 
@@ -49,23 +51,24 @@ export const ComponentPageHeader = ({ docs }: { docs: ComponentDocs }) => (
   <Stack gap="sm">
     <Breadcrumb size="sm">
       <BreadcrumbList>
-        <BreadcrumbItem>
-          <BreadcrumbLink asChild>
-            <Link href="/">Docs</Link>
-          </BreadcrumbLink>
-        </BreadcrumbItem>
-        <BreadcrumbSeparator />
-        <BreadcrumbItem>
-          <BreadcrumbLink asChild>
-            <Link href="/components/">Components</Link>
-          </BreadcrumbLink>
-        </BreadcrumbItem>
-        <BreadcrumbSeparator />
-        <BreadcrumbItem>
-          {/* The current page is a BreadcrumbPage, not a link — it carries
-              aria-current="page" and is deliberately not clickable. */}
-          <BreadcrumbPage>{humanName(docs.displayName)}</BreadcrumbPage>
-        </BreadcrumbItem>
+        {componentTrail(docs).map((crumb, i, trail) =>
+          i < trail.length - 1 ? (
+            <Fragment key={crumb.href}>
+              <BreadcrumbItem>
+                <BreadcrumbLink asChild>
+                  <Link href={crumb.href}>{crumb.name}</Link>
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+            </Fragment>
+          ) : (
+            <BreadcrumbItem key={crumb.href}>
+              {/* The current page is a BreadcrumbPage, not a link — it carries
+                  aria-current="page" and is deliberately not clickable. */}
+              <BreadcrumbPage>{crumb.name}</BreadcrumbPage>
+            </BreadcrumbItem>
+          ),
+        )}
       </BreadcrumbList>
     </Breadcrumb>
 

@@ -1,10 +1,13 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
+import { componentTrail } from "@/lib/component-trail";
 import { ALL_DOCS, getDocs, type ComponentId } from "@/lib/docs-data";
 import { ComponentDocsPage } from "@/site/ComponentDocsPage";
 import { humanName } from "@/lib/human-name";
 import { pageMetadata } from "@/lib/page-metadata";
+import { SITE_URL } from "@/lib/site";
+import { JsonLd } from "@/site/JsonLd";
 
 /*
  * One route for every component, rather than a folder each.
@@ -59,5 +62,19 @@ export default async function ComponentPage({
 }) {
   const { slug } = await params;
   if (!isComponentId(slug)) notFound();
-  return <ComponentDocsPage id={slug} />;
+  const breadcrumbs = {
+    "@type": "BreadcrumbList",
+    itemListElement: componentTrail(getDocs(slug)).map((crumb, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      name: crumb.name,
+      item: `${SITE_URL}${crumb.href}`,
+    })),
+  };
+  return (
+    <>
+      <JsonLd data={breadcrumbs} />
+      <ComponentDocsPage id={slug} />
+    </>
+  );
 }

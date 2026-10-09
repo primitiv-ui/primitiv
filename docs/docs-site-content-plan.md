@@ -676,6 +676,10 @@ over it. Until it exists the control has nothing to do, so **do not ship the
 control ahead of the routes** — a "Copy page" button that copies rendered
 HTML would be worse than no button.
 
+**Update 2026-10-09: the routes exist.** Each page's Markdown is at
+`<page-url>index.html.md` — see `docs-site-planning.md` §1.22 for the details.
+The control is now unblocked on that side; points 1–4 below still stand.
+
 **Four things this surfaces that are genuinely new work.**
 
 1. **`Dropdown / Item` has no description line.** The registry stylesheet

@@ -746,6 +746,18 @@ route. See `docs/docs-site-content-plan.md` §4.5 for the rows, the blocking
 dependency on the markdown mirror, and the four pieces of new work it
 surfaces. The MCP-server half (goal 1) is unchanged and still open.
 
+**The markdown mirror has landed (2026-10-09)** — the blocking dependency
+above, so the Copy-page Split Button can now be built over it. Every component
+and content page serves its Markdown at the llms.txt convention's address
+(`<page-url>index.html.md`, e.g. `/components/button/index.html.md`), rendered by
+`apps/docs-site/src/lib/markdown.ts` from the same generated docs-data and page
+JSON as the HTML, so the two cannot disagree. `/llms.txt` indexes every mirror
+and `/llms-full.txt` concatenates them; each page's head advertises its mirror
+as a `text/markdown` alternate. Component mirrors carry the API (install, parts,
+props, data attributes, custom properties) but **not yet the examples** — their
+code lives in the client-side TSX specs, which a server route cannot read as
+data. Guarded by `apps/docs-site/scripts/seo.test.mjs`.
+
 ### 1.23 Landed: the landing page rebuilt from the design system, and what that exposed
 
 The v2 landing wireframe was rebuilt in Figma **using only components,

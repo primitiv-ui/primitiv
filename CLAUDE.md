@@ -984,6 +984,12 @@ source of truth for when a skill applies.
   a stray `display: block` silently disabled Card's own layout. Render-time
   React errors do **not** appear in `next build`; they land in
   `apps/docs-site/.next/dev/logs/next-development.log`.
+  **Search and agent metadata landed 2026-10-09** (sitemap, robots, canonicals,
+  Open Graph, JSON-LD, `llms.txt` / `llms-full.txt`, and a Markdown mirror of
+  every page at `<page-url>index.html.md`). Every route's head goes through
+  `src/lib/page-metadata.ts`, and `pnpm build && pnpm test:seo` checks the export
+  — it runs in the deploy workflow, so a new route missing from the sitemap or
+  mirror fails the deploy. See `docs/docs-site-seo-plan.md`.
 - **Component card marks — all 63 drawn (2026-08-25).** `/components` gives every
   registry component a symbolic mark. Geometry lives in
   `apps/docs-site/src/site/card-marks.json` and is read by **both** the site and

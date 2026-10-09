@@ -7,7 +7,8 @@
 > [`docs-site-content-plan.md`](./docs-site-content-plan.md). Don't
 > re-litigate those here — cross-reference instead.
 
-> **Status:** Phase 1 landed (2026-10-09); Phases 2–4 not started
+> **Status:** Phases 1 and 2 landed, plus the §2 agent mirror (2026-10-09);
+> Phases 3–4 not started
 > **Date:** 2026-09-06 (Phase 1 update 2026-10-09)
 > **Trigger:** an external SEO audit (of the docs site plan, not the built
 > site) raised four categories of concern — rendering/discovery, on-page
@@ -39,7 +40,8 @@ is the phased plan for the gaps.
 | Direct-answer intro paragraph | **Done** — already the first content on every component page |
 | Semantic code snippets (`<pre><code>`) | **Done** |
 | Semantic props/API tables (`<table>`) | **Done** |
-| JSON-LD structured data | **Missing** — plan in §3 Phase 2 |
+| JSON-LD structured data | **Done** (2026-10-09) — WebSite + Organization (home), BreadcrumbList (component pages) |
+| `llms.txt` / Markdown mirror | **Done** (2026-10-09) — see §2 |
 | Canonical tags | **Done** (2026-10-09) — every page, bare path, all query params dropped |
 | Open Graph / Twitter text tags | **Done** (2026-10-09) — title, description, url, site name, `summary` card |
 | OG images | **Missing** — plan in §3 Phase 3 |
@@ -157,6 +159,12 @@ is the phased plan for the gaps.
 
 ## 2. Overlap with the AI-agent discoverability goal (§1.22)
 
+> **Landed 2026-10-09, as one extraction pass.** `src/lib/markdown.ts` renders
+> every page's Markdown mirror, `/llms.txt` and `/llms-full.txt` from docs-data
+> and the content-page JSON — the same sources the JSON-LD and the pages read —
+> so §4.5's question resolved itself: there is no second generator to diverge.
+> Details in `docs-site-planning.md` §1.22.
+
 `docs-site-planning.md` §1.22 already commits the site to being agent-legible
 (`llms.txt`/markdown mirrors, a thin MCP server over the registry), and its
 open question 5 (§2.5) defers the concrete scoping. That goal and this one
@@ -212,6 +220,13 @@ building a second, divergent structured-data path.
 
 ### Phase 2 — structured data
 
+- **Landed 2026-10-09, re-scoped:** `WebSite` + `Organization` on the home page
+  and `BreadcrumbList` on component pages, read from one `componentTrail` list
+  that the visible breadcrumb also renders. These are the types Google actually
+  uses (site name, logo, breadcrumb trail in the result). `SoftwareSourceCode`
+  was **not** built — Google shows no rich result for it — and content pages
+  get no `BreadcrumbList` because they show no visible trail, which Google
+  requires the markup to mirror. The original plan follows.
 - **`SoftwareSourceCode` JSON-LD** (schema.org's fit for API/library docs,
   over `TechArticle` — see §4.2 for the scope question) per component page,
   built from data the route already has: `docs.displayName`,
@@ -260,7 +275,8 @@ building a second, divergent structured-data path.
    JSDoc summary) to carry the intent signal instead. Whichever is chosen
    applies to all 63 pages at once, so it's worth a second look before
    landing.
-2. **JSON-LD scope for v1.** `SoftwareSourceCode` alone for component pages,
+2. **Settled 2026-10-09:** see Phase 2 above. (Original question:)
+   **JSON-LD scope for v1.** `SoftwareSourceCode` alone for component pages,
    or also a lighter `TechArticle`/`Article` wrapper for the prose-shaped
    pages (Concepts, Recipes, Start Here) once those exist — a different
    content shape than a component page, not obviously covered by the same
@@ -276,7 +292,8 @@ building a second, divergent structured-data path.
    decision (what happens if a future param is meant to be
    indexable-distinct?), not obviously permanent, so it's worth naming
    explicitly rather than assuming "strip everything" is forever correct.
-5. **Sequencing against §1.22 / open question 5 (AI-agent discovery).**
+5. **Settled 2026-10-09: one shared extraction pass** (§2). (Original question:)
+   **Sequencing against §1.22 / open question 5 (AI-agent discovery).**
    Should the JSON-LD generator and the future `llms.txt`/markdown-mirror
    generator be built as one shared extraction pass now, or should JSON-LD
    land on its own and the shared-extraction question wait for whoever
@@ -287,7 +304,6 @@ building a second, divergent structured-data path.
 
 ## 5. Explicitly not yet started
 
-- No JSON-LD structured data exists anywhere on the site.
 - No OG image generation (static or per-component) exists.
 - No real Core Web Vitals measurement has been run against a production
   build — Phase 4 is contingent on this and shouldn't be assumed necessary.

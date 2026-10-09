@@ -263,3 +263,25 @@ test("every content page has a Markdown mirror carrying its sections and code", 
     }
   }
 });
+
+/*
+ * llms.txt (llmstxt.org): an H1, a one-line blockquote summary, then H2
+ * sections of `- [title](url): description` links. It is the index an agent
+ * reads first, so it must reach every Markdown page and every link must land.
+ */
+const served = (url) => {
+  assert.ok(url.startsWith(`${ORIGIN}/`), url);
+  return existsSync(join(OUT, url.slice(ORIGIN.length)));
+};
+
+test("llms.txt indexes every Markdown page, and every link in it resolves", () => {
+  const llms = readFileSync(join(OUT, "llms.txt"), "utf8");
+  assert.match(llms, /^# Primitiv\n\n> [^\n]+\n/);
+  const links = [...llms.matchAll(/^- \[[^\]]+\]\(([^)]+)\): \S/gm)].map((m) => m[1]);
+  for (const url of links) assert.ok(served(url), `llms.txt links to missing ${url}`);
+  const mirrors = walk(OUT)
+    .filter((file) => file.endsWith(`${sep}index.html.md`))
+    .map((file) => `${ORIGIN}/${relative(OUT, file).split(sep).join("/")}`);
+  assert.ok(mirrors.length > 0);
+  for (const url of mirrors) assert.ok(links.includes(url), `llms.txt omits ${url}`);
+});

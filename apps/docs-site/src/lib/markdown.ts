@@ -1,7 +1,13 @@
-import type { ContentBlock, ContentPage } from "./content-pages";
-import type { ComponentDocs, DocsDataAttribute, DocsSubComponent } from "./docs-data";
+import { CONTENT_PAGES, type ContentBlock, type ContentPage } from "./content-pages";
+import {
+  ALL_DOCS,
+  CATEGORY_ORDER,
+  type ComponentDocs,
+  type DocsDataAttribute,
+  type DocsSubComponent,
+} from "./docs-data";
 import { humanName } from "./human-name";
-import { SITE_URL } from "./site";
+import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "./site";
 
 /*
  * The Markdown mirror of the site — what an agent loads instead of the HTML.
@@ -184,6 +190,47 @@ export const contentMarkdown = (page: ContentPage): string =>
     ...page.sections.flatMap((section) => [`## ${section.title}`, ...section.blocks.map(block)]),
   ]
     .filter(Boolean)
+    .join("\n\n")
+    .concat("\n");
+
+const indexEntry = (title: string, path: string, description: string): string =>
+  `- [${title}](${SITE_URL}${markdownPath(path)}): ${resolveLinks(description)}`;
+
+const firstSentence = (text: string): string => text.split(/(?<=\.)\s/)[0];
+
+/**
+ * `/llms.txt` — the index an agent reads first (llmstxt.org): what Primitiv is,
+ * how to install it, then a link to the Markdown of every page. Built from the
+ * same lists as the sitemap, so a new page is indexed without editing this.
+ */
+export const llmsIndex = (): string =>
+  [
+    `# ${SITE_NAME}`,
+    `> ${SITE_DESCRIPTION}`,
+    "Primitiv ships in two layers over one set of design tokens. The headless " +
+      "components (`npm i @primitiv-ui/react`) provide behaviour and accessibility " +
+      "with no styles. The styled registry components are copied into your project " +
+      "as source files you own, by the `primitiv` CLI: `npm i -D primitiv-ui`, then " +
+      "`npx primitiv add <component>`. Every link below is the Markdown version of a " +
+      "docs page.",
+    // Content ledes are one or two sentences and read as a unit; component
+    // descriptions run long, so those are cut to their first sentence.
+    "## Docs",
+    CONTENT_PAGES.map((page) => indexEntry(page.title, page.route, page.lede)).join("\n"),
+    ...CATEGORY_ORDER.flatMap((category) => {
+      const docs = ALL_DOCS.filter((d) => d.category === category);
+      return docs.length === 0
+        ? []
+        : [
+            `## Components: ${category}`,
+            docs
+              .map((d) =>
+                indexEntry(humanName(d.displayName), `/components/${d.id}/`, firstSentence(d.description)),
+              )
+              .join("\n"),
+          ];
+    }),
+  ]
     .join("\n\n")
     .concat("\n");
 

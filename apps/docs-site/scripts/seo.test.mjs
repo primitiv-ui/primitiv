@@ -87,3 +87,24 @@ test("component pages carry a search-oriented title built from their heading", (
     );
   }
 });
+
+const meta = (page, attr, key) =>
+  page.match(new RegExp(`<meta ${attr}="${key}" content="([^"]*)"`))?.[1];
+
+/*
+ * Link previews (Slack, social, chat apps) read Open Graph, not <title>, and
+ * Next does not derive one from the other — a page with a good title and no
+ * og:title previews as a bare URL.
+ */
+test("every page carries Open Graph and Twitter card tags that match its head", () => {
+  for (const path of pages) {
+    const page = html(path);
+    const title = page.match(/<title>([^<]+)<\/title>/)[1];
+    assert.equal(meta(page, "property", "og:title"), title.replace(/ · Primitiv$/, ""), path);
+    assert.equal(meta(page, "property", "og:description"), meta(page, "name", "description"), path);
+    assert.equal(meta(page, "property", "og:url"), `${ORIGIN}${path}`, path);
+    assert.equal(meta(page, "property", "og:site_name"), "Primitiv", path);
+    assert.equal(meta(page, "property", "og:type"), "website", path);
+    assert.equal(meta(page, "name", "twitter:card"), "summary", path);
+  }
+});

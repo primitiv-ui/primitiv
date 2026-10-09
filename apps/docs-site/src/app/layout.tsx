@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Asta_Sans, JetBrains_Mono, Khand } from "next/font/google";
 import type { ReactNode } from "react";
 
-import { SITE_URL } from "@/lib/site";
+import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/site";
 
 /*
  * The token layer must be the FIRST stylesheet in the document: it declares the
@@ -63,12 +63,10 @@ export const metadata: Metadata = {
   // Resolves every relative URL in page metadata (canonical links, Open Graph).
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "Primitiv",
-    template: "%s · Primitiv",
+    default: SITE_NAME,
+    template: `%s · ${SITE_NAME}`,
   },
-  description:
-    "Headless React components, a styled registry you own, and a token engine — " +
-    "documented across three consumption modes.",
+  description: SITE_DESCRIPTION,
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import type { ContentPage } from "./content-pages";
+import { pageMetadata } from "./page-metadata";
 
 /**
  * A content page's `<head>`.
@@ -10,8 +11,9 @@ import type { ContentPage } from "./content-pages";
  * sentence only, since a description is a summary and the full lede runs long on
  * several pages.
  */
-export const contentMetadata = (page: ContentPage): Metadata => ({
-  title: page.title,
-  description: page.lede.split(/(?<=\.)\s/)[0],
-  alternates: { canonical: page.route },
-});
+export const contentMetadata = (page: ContentPage): Metadata =>
+  pageMetadata({
+    title: page.title,
+    description: page.lede.split(/(?<=\.)\s/)[0],
+    path: page.route,
+  });

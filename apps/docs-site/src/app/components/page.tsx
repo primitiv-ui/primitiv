@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { CATEGORY_ORDER, categorySlug } from "@/lib/docs-data";
+import { pageMetadata } from "@/lib/page-metadata";
 import { ComponentsIndex } from "@/site/ComponentsIndex";
 import { Shell } from "@/site/Shell";
 
@@ -14,13 +15,13 @@ import { Shell } from "@/site/Shell";
  * `@primitiv-ui/react` barrel, which is full of hooks. So route files stay on
  * the server and hold the metadata; the UI lives in a `"use client"` sibling.
  */
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Components",
   description:
     "Every Primitiv component, documented across three consumption modes: " +
     "headless, styled registry, and Figma.",
-  alternates: { canonical: "/components/" },
-};
+  path: "/components/",
+});
 
 export default function ComponentsPage() {
   /*

@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { ALL_DOCS, getDocs, type ComponentId } from "@/lib/docs-data";
 import { ComponentDocsPage } from "@/site/ComponentDocsPage";
 import { humanName } from "@/lib/human-name";
+import { pageMetadata } from "@/lib/page-metadata";
 
 /*
  * One route for every component, rather than a folder each.
@@ -41,14 +42,14 @@ export async function generateMetadata({
   const { slug } = await params;
   if (!isComponentId(slug)) return {};
   const docs = getDocs(slug);
-  return {
+  return pageMetadata({
     // Phrased the way the page is searched for, not just named; the root
     // layout's template still appends " · Primitiv".
     title: `${humanName(docs.displayName)} React component, props & accessibility`,
     // First sentence only — a meta description is a summary, not the full prose.
     description: docs.description.split(/(?<=\.)\s/)[0],
-    alternates: { canonical: `/components/${slug}/` },
-  };
+    path: `/components/${slug}/`,
+  });
 }
 
 export default async function ComponentPage({

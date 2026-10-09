@@ -16,4 +16,5 @@ export const contentMetadata = (page: ContentPage): Metadata =>
     title: page.title,
     description: page.lede.split(/(?<=\.)\s/)[0],
     path: page.route,
+    markdown: true,
   });

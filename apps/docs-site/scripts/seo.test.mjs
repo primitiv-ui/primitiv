@@ -295,3 +295,13 @@ test("llms-full.txt holds every Markdown page verbatim, linked from llms.txt", (
   const llms = readFileSync(join(OUT, "llms.txt"), "utf8");
   assert.match(llms, new RegExp(`^## Optional\\n\\n- \\[[^\\]]+\\]\\(${ORIGIN}/llms-full\\.txt\\): \\S`, "m"));
 });
+
+test("a page with a Markdown mirror points at it from its head", () => {
+  for (const path of pages) {
+    const alternates = [
+      ...html(path).matchAll(/<link rel="alternate" type="text\/markdown" href="([^"]+)"/g),
+    ].map((m) => m[1]);
+    const mirrored = existsSync(join(OUT, path, "index.html.md"));
+    assert.deepEqual(alternates, mirrored ? [`${ORIGIN}${path}index.html.md`] : [], path);
+  }
+});

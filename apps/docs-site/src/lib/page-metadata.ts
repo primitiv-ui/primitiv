@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import { markdownPath } from "./markdown";
 import { SITE_NAME } from "./site";
 
 /*
@@ -25,22 +26,28 @@ const plainText = (markdown: string): string =>
  * " · Primitiv" to `<title>`, while Open Graph carries the site separately as
  * `og:site_name`. Omit it on the landing page, which is titled by the site name
  * alone. `description` may be Markdown. `path` is the served path, trailing
- * slash included.
+ * slash included. `markdown` marks a page that has a Markdown mirror, which the
+ * head then advertises as a `text/markdown` alternate for agents.
  */
 export const pageMetadata = ({
   title,
   description,
   path,
+  markdown = false,
 }: {
   readonly title?: string;
   readonly description: string;
   readonly path: string;
+  readonly markdown?: boolean;
 }): Metadata => {
   const summary = plainText(description);
   return {
     ...(title === undefined ? {} : { title }),
     description: summary,
-    alternates: { canonical: path },
+    alternates: {
+      canonical: path,
+      ...(markdown ? { types: { "text/markdown": markdownPath(path) } } : {}),
+    },
     openGraph: {
       title: title ?? SITE_NAME,
       description: summary,

@@ -52,6 +52,7 @@ export async function generateMetadata({
     // First sentence only — a meta description is a summary, not the full prose.
     description: docs.description.split(/(?<=\.)\s/)[0],
     path: `/components/${slug}/`,
+    markdown: true,
   });
 }
 

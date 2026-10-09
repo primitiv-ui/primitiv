@@ -17,6 +17,7 @@
     "check:engine-data": "node scripts/gen-engine-data.mjs --check",
     "illustrations": "node scripts/gen-illustrations.mjs --report",
     "gates": "node scripts/gates.mjs",
+    "test:seo": "node --test scripts/seo.test.mjs",
     "qa": "pnpm check:css && pnpm check:content && pnpm check:illustrations && pnpm check:engine-data && pnpm typecheck",
     "primitiv": "primitiv"
   },

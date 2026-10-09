@@ -46,3 +46,11 @@ test("the sitemap lists every exported page, and nothing else", () => {
     pages.map((path) => `${ORIGIN}${path}`),
   );
 });
+
+test("robots.txt allows every crawler and points at the sitemap", () => {
+  const robots = readFileSync(join(OUT, "robots.txt"), "utf8");
+  assert.match(robots, /^User-Agent: \*$/m);
+  assert.match(robots, /^Allow: \/$/m);
+  assert.doesNotMatch(robots, /^Disallow:/m);
+  assert.match(robots, new RegExp(`^Sitemap: ${ORIGIN}/sitemap\\.xml$`, "m"));
+});

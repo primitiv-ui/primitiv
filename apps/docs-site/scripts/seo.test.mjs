@@ -194,3 +194,45 @@ test("BreadcrumbList JSON-LD mirrors each page's visible breadcrumb trail", () =
   }
   assert.ok(trails > 0, "no page rendered a breadcrumb trail");
 });
+
+/*
+ * The Markdown mirror, at the llms.txt convention's address: a URL ending in a
+ * slash gets `index.html.md` appended. Agents load these instead of the HTML,
+ * so they carry the page's whole API, not a summary.
+ */
+const markdown = (path) => readFileSync(join(OUT, path, "index.html.md"), "utf8");
+
+const DOCS_DATA = resolve(dirname(fileURLToPath(import.meta.url)), "../src/docs-data");
+
+test("every component page has a Markdown mirror carrying its whole API", () => {
+  const components = pages.filter((path) => /^\/components\/[^/]+\/$/.test(path));
+  for (const path of components) {
+    const id = path.split("/")[2];
+    const docs = JSON.parse(readFileSync(join(DOCS_DATA, `${id}.docs.json`), "utf8"));
+    const md = markdown(path);
+    const heading = html(path).match(/<h1[^>]*>([^<]+)<\/h1>/)[1];
+
+    assert.ok(md.startsWith(`# ${heading}\n`), path);
+    assert.ok(md.includes(`${ORIGIN}${path}`), `${path}: links back to the page`);
+    // `npx primitiv` resolves only once `primitiv-ui` is installed — without it,
+    // npx would fetch an unrelated package called `primitiv`.
+    assert.ok(
+      md.includes(`\nnpm i -D primitiv-ui\nnpx ${docs.styled.installCommand}\n`),
+      `${path}: install command`,
+    );
+    assert.doesNotMatch(md, /\{@link/, path);
+    assert.doesNotMatch(md, /\| `` \|/, `${path}: empty code span`);
+    // A value holding a backtick (a template-literal default) needs CommonMark's
+    // double-backtick delimiters, or the span closes early and the cell garbles.
+    assert.doesNotMatch(md, /\| `[^`|]*`[^`|\s][^|]*` \|/, `${path}: broken code span`);
+    for (const part of docs.headless.subComponents) {
+      assert.ok(md.includes(`\n### ${part.name}\n`), `${path}: ${part.name}`);
+      for (const prop of [...part.props, ...(part.contractProps ?? [])]) {
+        assert.match(md, new RegExp(`^\\| \`${prop.name}\` \\|`, "m"), `${path}: ${part.name}.${prop.name}`);
+      }
+    }
+    for (const property of docs.styled.customProperties) {
+      assert.ok(md.includes(`| \`${property.name}\` |`), `${path}: ${property.name}`);
+    }
+  }
+});

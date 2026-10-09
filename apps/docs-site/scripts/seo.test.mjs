@@ -120,3 +120,36 @@ test("meta descriptions are plain text, not Markdown", () => {
     assert.doesNotMatch(description, /`|\*|\]\(/, path);
   }
 });
+
+/* Every JSON-LD block on a page, parsed. */
+const jsonLd = (page) =>
+  [...page.matchAll(/<script type="application\/ld\+json">([^<]*)<\/script>/g)].map((m) =>
+    JSON.parse(m[1]),
+  );
+
+const ofType = (page, type) => jsonLd(page).filter((block) => block["@type"] === type);
+
+/*
+ * WebSite sets the site name Google prints above a result; Organization ties
+ * the logo and the GitHub org to it. They describe the site, not a page, so they
+ * belong on the home page only.
+ */
+test("the home page describes the site and its publisher in JSON-LD", () => {
+  const home = html("/");
+  assert.deepEqual(ofType(home, "WebSite"), [
+    { "@context": "https://schema.org", "@type": "WebSite", name: "Primitiv", url: `${ORIGIN}/` },
+  ]);
+  assert.deepEqual(ofType(home, "Organization"), [
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      name: "Primitiv",
+      url: `${ORIGIN}/`,
+      logo: `${ORIGIN}/primitiv-logo.svg`,
+      sameAs: ["https://github.com/primitiv-ui"],
+    },
+  ]);
+  for (const path of pages.filter((p) => p !== "/")) {
+    assert.equal(ofType(html(path), "WebSite").length, 0, path);
+  }
+});

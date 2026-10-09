@@ -108,3 +108,15 @@ test("every page carries Open Graph and Twitter card tags that match its head", 
     assert.equal(meta(page, "name", "twitter:card"), "summary", path);
   }
 });
+
+/*
+ * Descriptions come from JSDoc and content-page ledes, which are Markdown. A
+ * search result or link preview shows the source characters, not the
+ * formatting, so a backtick-quoted `<select>` arrives as literal backticks.
+ */
+test("meta descriptions are plain text, not Markdown", () => {
+  for (const path of pages) {
+    const description = meta(html(path), "name", "description");
+    assert.doesNotMatch(description, /`|\*|\]\(/, path);
+  }
+});

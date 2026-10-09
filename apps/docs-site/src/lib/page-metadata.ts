@@ -2,6 +2,17 @@ import type { Metadata } from "next";
 
 import { SITE_NAME } from "./site";
 
+/*
+ * Descriptions are sourced from JSDoc and content-page ledes, both Markdown, and
+ * a search result shows the raw characters — so code spans, emphasis and links
+ * are reduced to their text.
+ */
+const plainText = (markdown: string): string =>
+  markdown
+    .replace(/\[([^\]]+)\]\([^)]*\)/g, "$1")
+    .replace(/`([^`]*)`/g, "$1")
+    .replace(/\*{1,2}([^*]+)\*{1,2}/g, "$1");
+
 /**
  * Every page's `<head>`, from the three things that differ per page.
  *
@@ -13,7 +24,8 @@ import { SITE_NAME } from "./site";
  * `title` is the bare page title — the root layout's template appends
  * " · Primitiv" to `<title>`, while Open Graph carries the site separately as
  * `og:site_name`. Omit it on the landing page, which is titled by the site name
- * alone. `path` is the served path, trailing slash included.
+ * alone. `description` may be Markdown. `path` is the served path, trailing
+ * slash included.
  */
 export const pageMetadata = ({
   title,
@@ -23,16 +35,19 @@ export const pageMetadata = ({
   readonly title?: string;
   readonly description: string;
   readonly path: string;
-}): Metadata => ({
-  ...(title === undefined ? {} : { title }),
-  description,
-  alternates: { canonical: path },
-  openGraph: {
-    title: title ?? SITE_NAME,
-    description,
-    url: path,
-    siteName: SITE_NAME,
-    type: "website",
-  },
-  twitter: { card: "summary" },
-});
+}): Metadata => {
+  const summary = plainText(description);
+  return {
+    ...(title === undefined ? {} : { title }),
+    description: summary,
+    alternates: { canonical: path },
+    openGraph: {
+      title: title ?? SITE_NAME,
+      description: summary,
+      url: path,
+      siteName: SITE_NAME,
+      type: "website",
+    },
+    twitter: { card: "summary" },
+  };
+};

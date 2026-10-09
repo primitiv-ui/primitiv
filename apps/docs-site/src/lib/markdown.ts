@@ -1,3 +1,4 @@
+import type { ContentBlock, ContentPage } from "./content-pages";
 import type { ComponentDocs, DocsDataAttribute, DocsSubComponent } from "./docs-data";
 import { humanName } from "./human-name";
 import { SITE_URL } from "./site";
@@ -118,3 +119,74 @@ export const componentMarkdown = (docs: ComponentDocs): string => {
       : []),
   ].join("\n\n").concat("\n");
 };
+
+/*
+ * Content-page prose carries its inline code as a separate list of fragments
+ * (Figma has no inline markup), so they are wrapped here the way `ContentPage`'s
+ * `renderText` chips them — longest first, so `primitiv add button` is not cut
+ * in half by `button`.
+ */
+const escapeRegExp = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+const withCode = (text: string, fragments: readonly string[]): string =>
+  fragments.length === 0
+    ? text
+    : text.replace(
+        new RegExp(
+          [...fragments].sort((a, b) => b.length - a.length).map(escapeRegExp).join("|"),
+          "g",
+        ),
+        (fragment) => code(fragment),
+      );
+
+const absolute = (href: string): string => (href.startsWith("/") ? `${SITE_URL}${href}` : href);
+
+const block = (b: ContentBlock): string => {
+  switch (b.kind) {
+    case "h2":
+      return `## ${b.text}`;
+    case "h3":
+      return `### ${b.text}`;
+    case "h4":
+      return `#### ${b.text}`;
+    case "p":
+      return withCode(b.text, b.code);
+    // The builder's heading-plus-body pair; the page renders it as an h4 and a p.
+    case "block":
+      return `#### ${b.heading}\n\n${withCode(b.text, b.code)}`;
+    case "code":
+      return `\`\`\`${b.language === "text" ? "" : b.language}\n${b.code}\n\`\`\``;
+    case "alert":
+      return `> ${b.text}`;
+    case "defs":
+      return b.defs.map((d) => `- **${d.term}**: ${d.description}`).join("\n");
+    case "flags":
+      return `Useful flags:\n\n${b.flags.map((f) => `- ${code(f.flag)}: ${f.description}`).join("\n")}`;
+    case "links":
+      return b.links.map((l) => `- [${l.label}](${absolute(l.href)})`).join("\n");
+    case "doors":
+      return b.doors.map((d) => `- [${d.label}](${absolute(d.href)}): ${d.description}`).join("\n");
+    case "group":
+      return b.blocks.map(block).filter(Boolean).join("\n\n");
+    // An illustration slot. The picture carries no text an agent could use.
+    case "gap":
+      return "";
+  }
+};
+
+/** A content page's Markdown: the same blocks the page renders, in order. */
+export const contentMarkdown = (page: ContentPage): string =>
+  [
+    `# ${page.title}`,
+    page.lede,
+    `Documentation: ${SITE_URL}${page.route}`,
+    ...page.head.map(block),
+    ...page.sections.flatMap((section) => [`## ${section.title}`, ...section.blocks.map(block)]),
+  ]
+    .filter(Boolean)
+    .join("\n\n")
+    .concat("\n");
+
+/** A Markdown route's response, typed so a browser shows it as text. */
+export const markdownResponse = (body: string): Response =>
+  new Response(body, { headers: { "Content-Type": "text/markdown; charset=utf-8" } });

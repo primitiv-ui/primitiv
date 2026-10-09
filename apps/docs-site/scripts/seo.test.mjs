@@ -236,3 +236,30 @@ test("every component page has a Markdown mirror carrying its whole API", () => 
     }
   }
 });
+
+const CONTENT = JSON.parse(
+  readFileSync(
+    resolve(dirname(fileURLToPath(import.meta.url)), "../src/content/pages.generated.json"),
+    "utf8",
+  ),
+);
+
+const codeBlocks = (blocks) =>
+  blocks.flatMap((b) => (b.kind === "code" ? [b.code] : b.kind === "group" ? codeBlocks(b.blocks) : []));
+
+test("every content page has a Markdown mirror carrying its sections and code", () => {
+  assert.ok(CONTENT.length > 0);
+  for (const page of CONTENT) {
+    const md = markdown(page.route);
+    const heading = html(page.route).match(/<h1[^>]*>([^<]+)<\/h1>/)[1];
+    assert.ok(md.startsWith(`# ${heading}\n`), page.route);
+    assert.ok(md.includes(page.lede), `${page.route}: lede`);
+    assert.ok(md.includes(`${ORIGIN}${page.route}`), `${page.route}: links back to the page`);
+    for (const section of page.sections) {
+      assert.ok(md.includes(`\n## ${section.title}\n`), `${page.route}: ${section.title}`);
+    }
+    for (const code of codeBlocks([...page.head, ...page.sections.flatMap((s) => s.blocks)])) {
+      assert.ok(md.includes(`\n${code}\n\`\`\``), `${page.route}: code block`);
+    }
+  }
+});

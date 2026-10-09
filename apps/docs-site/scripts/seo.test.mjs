@@ -54,3 +54,21 @@ test("robots.txt allows every crawler and points at the sitemap", () => {
   assert.doesNotMatch(robots, /^Disallow:/m);
   assert.match(robots, new RegExp(`^Sitemap: ${ORIGIN}/sitemap\\.xml$`, "m"));
 });
+
+const html = (path) => readFileSync(join(OUT, path, "index.html"), "utf8");
+
+/*
+ * The mode switch persists as a query param (`?mode=headless`), which makes one
+ * page reachable at several crawlable URLs with different code samples. A
+ * canonical link at the bare path is what collapses them back into one.
+ */
+test("every page declares its own bare URL as canonical", () => {
+  for (const path of pages) {
+    const canonicals = [...html(path).matchAll(/<link rel="canonical" href="([^"]+)"/g)];
+    assert.deepEqual(
+      canonicals.map((m) => m[1]),
+      [`${ORIGIN}${path}`],
+      path,
+    );
+  }
+});

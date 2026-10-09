@@ -13,4 +13,5 @@ import type { ContentPage } from "./content-pages";
 export const contentMetadata = (page: ContentPage): Metadata => ({
   title: page.title,
   description: page.lede.split(/(?<=\.)\s/)[0],
+  alternates: { canonical: page.route },
 });

@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Asta_Sans, JetBrains_Mono, Khand } from "next/font/google";
 import type { ReactNode } from "react";
 
+import { SITE_URL } from "@/lib/site";
+
 /*
  * The token layer must be the FIRST stylesheet in the document: it declares the
  * canonical @layer order (reset → tokens → theme → base → variants → states)
@@ -58,6 +60,8 @@ const jetBrainsMono = JetBrains_Mono({
 const THEME_INIT_SCRIPT = `try{var t=JSON.parse(localStorage.getItem("primitiv-docs-theme"));document.documentElement.dataset.theme=(t==="light"||t==="dark")?t:"dark"}catch(e){document.documentElement.dataset.theme="dark"}`;
 
 export const metadata: Metadata = {
+  // Resolves every relative URL in page metadata (canonical links, Open Graph).
+  metadataBase: new URL(SITE_URL),
   title: {
     default: "Primitiv",
     template: "%s · Primitiv",

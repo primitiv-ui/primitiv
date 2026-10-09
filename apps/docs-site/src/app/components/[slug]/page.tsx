@@ -45,6 +45,7 @@ export async function generateMetadata({
     title: humanName(docs.displayName),
     // First sentence only — a meta description is a summary, not the full prose.
     description: docs.description.split(/(?<=\.)\s/)[0],
+    alternates: { canonical: `/components/${slug}/` },
   };
 }
 

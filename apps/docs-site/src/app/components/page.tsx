@@ -19,6 +19,7 @@ export const metadata: Metadata = {
   description:
     "Every Primitiv component, documented across three consumption modes: " +
     "headless, styled registry, and Figma.",
+  alternates: { canonical: "/components/" },
 };
 
 export default function ComponentsPage() {

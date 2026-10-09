@@ -42,7 +42,9 @@ export async function generateMetadata({
   if (!isComponentId(slug)) return {};
   const docs = getDocs(slug);
   return {
-    title: humanName(docs.displayName),
+    // Phrased the way the page is searched for, not just named; the root
+    // layout's template still appends " · Primitiv".
+    title: `${humanName(docs.displayName)} React component, props & accessibility`,
     // First sentence only — a meta description is a summary, not the full prose.
     description: docs.description.split(/(?<=\.)\s/)[0],
     alternates: { canonical: `/components/${slug}/` },

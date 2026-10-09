@@ -72,3 +72,18 @@ test("every page declares its own bare URL as canonical", () => {
     );
   }
 });
+
+test("component pages carry a search-oriented title built from their heading", () => {
+  const components = pages.filter((path) => /^\/components\/[^/]+\/$/.test(path));
+  assert.ok(components.length > 0);
+  for (const path of components) {
+    const page = html(path);
+    const heading = page.match(/<h1[^>]*>([^<]+)<\/h1>/)[1];
+    const title = page.match(/<title>([^<]+)<\/title>/)[1];
+    assert.equal(
+      title,
+      `${heading} React component, props &amp; accessibility · Primitiv`,
+      path,
+    );
+  }
+});

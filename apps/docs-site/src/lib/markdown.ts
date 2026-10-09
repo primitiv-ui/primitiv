@@ -230,9 +230,24 @@ export const llmsIndex = (): string =>
               .join("\n"),
           ];
     }),
+    "## Optional",
+    `- [Everything above in one file](${SITE_URL}/llms-full.txt): every page's Markdown, concatenated, for loading the whole site at once.`,
   ]
     .join("\n\n")
     .concat("\n");
+
+/**
+ * `/llms-full.txt` — every page's Markdown in one file, in `llms.txt` order, for
+ * an agent that would rather load the whole site once than follow links. Each
+ * page is its mirror verbatim, so the two cannot disagree.
+ */
+export const llmsFull = (): string =>
+  [
+    ...CONTENT_PAGES.map(contentMarkdown),
+    ...CATEGORY_ORDER.flatMap((category) =>
+      ALL_DOCS.filter((d) => d.category === category).map(componentMarkdown),
+    ),
+  ].join("\n---\n\n");
 
 /** A Markdown route's response, typed so a browser shows it as text. */
 export const markdownResponse = (body: string): Response =>

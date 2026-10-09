@@ -285,3 +285,13 @@ test("llms.txt indexes every Markdown page, and every link in it resolves", () =
   assert.ok(mirrors.length > 0);
   for (const url of mirrors) assert.ok(links.includes(url), `llms.txt omits ${url}`);
 });
+
+test("llms-full.txt holds every Markdown page verbatim, linked from llms.txt", () => {
+  const full = readFileSync(join(OUT, "llms-full.txt"), "utf8");
+  const mirrors = walk(OUT).filter((file) => file.endsWith(`${sep}index.html.md`));
+  for (const file of mirrors) {
+    assert.ok(full.includes(readFileSync(file, "utf8")), `llms-full.txt omits ${relative(OUT, file)}`);
+  }
+  const llms = readFileSync(join(OUT, "llms.txt"), "utf8");
+  assert.match(llms, new RegExp(`^## Optional\\n\\n- \\[[^\\]]+\\]\\(${ORIGIN}/llms-full\\.txt\\): \\S`, "m"));
+});

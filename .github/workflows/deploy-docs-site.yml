@@ -58,6 +58,12 @@ jobs:
         run: pnpm build
         working-directory: apps/docs-site
 
+      # Reads the export a crawler will fetch: sitemap and robots, a canonical
+      # and Open Graph tags on every page. A failure here stops the deploy.
+      - name: Check search metadata
+        run: pnpm test:seo
+        working-directory: apps/docs-site
+
       # The kitchen-sink is kept at /kitchen-sink/ for phone QA. Its
       # Vite/tsconfig dev-alias @primitiv-ui/react + /icons to the workspace
       # SOURCE, so this exercises the current branch too. Run `vite build`

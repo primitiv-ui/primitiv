@@ -7,8 +7,8 @@
 > [`docs-site-content-plan.md`](./docs-site-content-plan.md). Don't
 > re-litigate those here — cross-reference instead.
 
-> **Status:** Working draft (planning stage — no implementation started)
-> **Date:** 2026-09-06
+> **Status:** Phase 1 landed (2026-10-09); Phases 2–4 not started
+> **Date:** 2026-09-06 (Phase 1 update 2026-10-09)
 > **Trigger:** an external SEO audit (of the docs site plan, not the built
 > site) raised four categories of concern — rendering/discovery, on-page
 > optimization, structural/semantic quality, and search hygiene/
@@ -34,17 +34,40 @@ is the phased plan for the gaps.
 |---|---|
 | SSG / pre-rendered HTML | **Done** — `output: "export"`, every route static |
 | Clean URLs (no hash routing) | **Done** |
-| Sitemap.xml + robots.txt | **Missing** — plan in §3 Phase 1 |
-| Component meta titles | **Partial** — generic today, needs search-intent framing |
+| Sitemap.xml + robots.txt | **Done** (2026-10-09) — `src/app/sitemap.ts`, `src/app/robots.ts` |
+| Component meta titles | **Done** (2026-10-09) — "Button React component, props & accessibility · Primitiv" |
 | Direct-answer intro paragraph | **Done** — already the first content on every component page |
 | Semantic code snippets (`<pre><code>`) | **Done** |
 | Semantic props/API tables (`<table>`) | **Done** |
 | JSON-LD structured data | **Missing** — plan in §3 Phase 2 |
-| Canonical tags | **Missing**, and there's a real bug-shaped gap (§1.4) |
+| Canonical tags | **Done** (2026-10-09) — every page, bare path, all query params dropped |
+| Open Graph / Twitter text tags | **Done** (2026-10-09) — title, description, url, site name, `summary` card |
 | OG images | **Missing** — plan in §3 Phase 3 |
 | Lazy-loading / Core Web Vitals | **Unmeasured** — needs a real audit before any change (§3 Phase 0/4) |
 
 ---
+
+## 0.1 What Phase 1 landed (2026-10-09)
+
+- **One builder for every page's head:** `src/lib/page-metadata.ts`
+  (`pageMetadata({ title, description, path })`) emits title, description,
+  canonical, Open Graph and the Twitter card together, because Next derives
+  none of them from each other and a child route's `openGraph` *replaces* its
+  parent's rather than merging. Every route goes through it, including
+  `contentMetadata`. It also strips Markdown from the description — JSDoc
+  summaries carry code spans, and a search result shows the raw backticks.
+- **The landing page split into a server route + client `src/site/HomePage.tsx`**
+  so it could export metadata. A canonical in the root layout was rejected: it
+  is inherited by any page that forgets its own, which would then declare
+  itself the home page.
+- **`force-static` is required on `sitemap.ts` and `robots.ts`** — without it
+  the export fails with "Failed to collect page data for /sitemap.xml".
+- **Guarded by `scripts/seo.test.mjs`** (`pnpm build && pnpm test:seo`), which
+  reads `out/` — what a crawler actually fetches — and runs in
+  `deploy-docs-site.yml` after the build. It fails if the sitemap and the
+  exported pages disagree, so a new route can't be left out silently.
+- **Not yet:** Search Console verification of `primitiv-ui.dev` (a human step —
+  DNS record, then submit the sitemap).
 
 ## 1. Audit results, checked against the current implementation
 
@@ -228,7 +251,9 @@ building a second, divergent structured-data path.
 
 ## 4. Open questions to settle before implementation
 
-1. **Exact meta-title format for component pages.** Two directions worth
+1. **Settled 2026-10-09:** "`<Name>` React component, props & accessibility",
+   with the layout template appending " · Primitiv". (Original question:)
+   **Exact meta-title format for component pages.** Two directions worth
    picking between rather than deciding silently: a fuller search-intent
    phrase per the audit ("Button — Props, Accessibility & Examples") vs.
    keeping the current terse form and trusting the meta *description* (the
@@ -243,7 +268,9 @@ building a second, divergent structured-data path.
 3. **OG image content/design.** Blocked on a real visual-design pass, same
    status as the rest of the site's visual design per
    `docs-site-planning.md` §3.
-4. **Canonical query-param stripping: `mode` only, or all query params?**
+4. **Settled 2026-10-09: all query params.** Each page's canonical is its
+   bare path. (Original question:)
+   **Canonical query-param stripping: `mode` only, or all query params?**
    `mode` is the only param that exists today, so stripping everything is
    currently equivalent to stripping just `mode` — but it's a real behavior
    decision (what happens if a future param is meant to be
@@ -260,9 +287,7 @@ building a second, divergent structured-data path.
 
 ## 5. Explicitly not yet started
 
-- No `sitemap.ts`, `robots.ts`, or any metadata-route file exists.
 - No JSON-LD structured data exists anywhere on the site.
-- No canonical tags or `metadataBase` are set.
 - No OG image generation (static or per-component) exists.
 - No real Core Web Vitals measurement has been run against a production
   build — Phase 4 is contingent on this and shouldn't be assumed necessary.

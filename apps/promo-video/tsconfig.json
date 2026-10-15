@@ -1,0 +1,32 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "allowImportingTsExtensions": true,
+    "types": ["vite/client"],
+    "baseUrl": ".",
+    // Mirrors the Vite aliases. The bare-module entries pin files outside this
+    // app (docs-site components, headless source) to THIS app's installs, so
+    // the check never depends on whether the docs site has been installed.
+    "paths": {
+      "@components/*": ["../docs-site/src/components/*"],
+      "@docs-content/*": ["../docs-site/src/content/*"],
+      "@docs-public/*": ["../docs-site/public/*"],
+      "@primitiv-ui/react": ["../../packages/react/src/index.ts"],
+      "@primitiv-ui/icons": ["../../packages/icons/src/index.ts"],
+      "react": ["./node_modules/@types/react"],
+      "react/*": ["./node_modules/@types/react/*"],
+      "react-dom": ["./node_modules/@types/react-dom"],
+      "react-dom/*": ["./node_modules/@types/react-dom/*"],
+      "class-variance-authority": ["./node_modules/class-variance-authority"]
+    }
+  },
+  "include": ["src"]
+}

@@ -1,0 +1,5 @@
+node_modules/
+dist/
+out/
+# Fetched by `pnpm fonts` (scripts/fetch-fonts.mjs) rather than committed.
+public/fonts/

@@ -1,0 +1,12 @@
+# Its OWN pnpm workspace root, excluded from the repo's root workspace (same as
+# apps/docs-site and apps/kitchen-sink): it is a production tool, not a package,
+# and the root workspace's generated `crates/harmoni-wasm/pkg` member would make
+# a root install fail wherever wasm-pack is missing.
+packages: []
+
+# esbuild's postinstall fetches its platform binary, which Vite needs. Both
+# spellings: pnpm 10 reads `onlyBuiltDependencies`, pnpm 11 `allowBuilds`.
+onlyBuiltDependencies:
+  - esbuild
+allowBuilds:
+  esbuild: true

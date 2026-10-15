@@ -1,0 +1,29 @@
+{
+  "name": "promo-video",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "fonts": "node scripts/fetch-fonts.mjs",
+    "dev": "pnpm fonts && vite",
+    "build": "pnpm fonts && vite build",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "stills": "node render.mjs stills",
+    "sheet": "node render.mjs sheet",
+    "render": "pnpm build && node render.mjs video --jobs 4"
+  },
+  "dependencies": {
+    "class-variance-authority": "0.7.1",
+    "react": "19.2.5",
+    "react-dom": "19.2.5"
+  },
+  "devDependencies": {
+    "@types/react": "19.2.14",
+    "@types/react-dom": "19.2.3",
+    "@vitejs/plugin-react": "5.1.2",
+    "playwright-core": "1.56.1",
+    "typescript": "5.9.3",
+    "vite": "7.3.7",
+    "vitest": "3.2.4"
+  }
+}

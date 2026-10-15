@@ -1,0 +1,27 @@
+@layer primitiv.theme {
+  :root,
+  [data-theme="light"] {
+    --primitiv-color-brand-50: oklch(0.97 0.0148223685 2.1676972);
+    --primitiv-color-brand-100: oklch(0.9166 0.0432 2.1677);
+    --primitiv-color-brand-200: oklch(0.8454 0.0859 2.1677);
+    --primitiv-color-brand-300: oklch(0.783 0.1288 2.1677);
+    --primitiv-color-brand-400: oklch(0.70292807 0.19334601 2.1676972);
+    --primitiv-color-brand-500: oklch(0.5961 0.2279 2.1677);
+    --primitiv-color-brand-600: oklch(0.4846 0.1858 2.1677);
+    --primitiv-color-brand-700: oklch(0.3396 0.1302 2.1677);
+    --primitiv-color-brand-800: oklch(0.2281 0.0875 2.1677);
+    --primitiv-color-brand-900: oklch(0.15 0.0577 2.1677);
+  }
+  [data-theme="dark"] {
+    --primitiv-color-brand-50: oklch(0.21 0.026 2.1677);
+    --primitiv-color-brand-100: oklch(0.2554 0.0758 2.1677);
+    --primitiv-color-brand-200: oklch(0.3122 0.1198 2.1677);
+    --primitiv-color-brand-300: oklch(0.3917 0.1502 2.1677);
+    --primitiv-color-brand-400: oklch(0.4939 0.1894 2.1677);
+    --primitiv-color-brand-500: oklch(0.5961 0.2279 2.1677);
+    --primitiv-color-brand-600: oklch(0.6931 0.1992 2.1677);
+    --primitiv-color-brand-700: oklch(0.7901 0.1236 2.1677);
+    --primitiv-color-brand-800: oklch(0.8783 0.0655 2.1677);
+    --primitiv-color-brand-900: oklch(0.94 0.0304 2.1677);
+  }
+}

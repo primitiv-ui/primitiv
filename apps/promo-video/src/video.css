@@ -1,0 +1,321 @@
+/* Every frame is a pure function of t: no wall-clock motion anywhere. */
+*,
+*::before,
+*::after {
+  transition: none !important;
+  animation: none !important;
+  caret-color: transparent !important;
+}
+
+html,
+body {
+  margin: 0;
+  background: #000;
+  -webkit-font-smoothing: antialiased;
+}
+
+#root {
+  width: 540px;
+  height: 675px;
+  overflow: hidden;
+  position: relative;
+}
+
+.v-frame {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background-color: var(--primitiv-surface-subtle);
+  color: var(--primitiv-content-primary);
+  font-family: var(--primitiv-font-family-text);
+}
+
+/* A soft brand glow + dot grid: atmosphere without competing with the UI. */
+.v-backdrop {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(120% 70% at 85% -10%, color-mix(in oklch, var(--primitiv-color-brand-500) 22%, transparent), transparent 60%),
+    radial-gradient(90% 60% at -10% 110%, color-mix(in oklch, var(--primitiv-color-brand-300) 18%, transparent), transparent 60%),
+    radial-gradient(circle at 1px 1px, color-mix(in oklch, var(--primitiv-content-primary) 9%, transparent) 1px, transparent 0) 0 0 / 18px 18px;
+}
+
+.v-layer {
+  position: absolute;
+  inset: 0;
+}
+
+.v-header {
+  position: absolute;
+  left: 32px;
+  right: 32px;
+  top: 34px;
+}
+
+.v-overline {
+  font-family: var(--primitiv-font-family-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--primitiv-action-link-foreground-default);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.v-overline::before {
+  content: "";
+  width: 18px;
+  height: 2px;
+  border-radius: 2px;
+  background: currentColor;
+}
+
+.v-headline {
+  font-family: var(--primitiv-font-family-heading);
+  font-weight: 600;
+  font-size: 46px;
+  line-height: 0.92;
+  letter-spacing: 0.005em;
+  text-transform: uppercase;
+  margin: 0;
+  color: var(--primitiv-content-primary);
+}
+
+.v-sub {
+  margin: 12px 0 0;
+  font-size: 15px;
+  line-height: 1.4;
+  color: var(--primitiv-content-secondary);
+  max-width: 440px;
+  text-wrap: pretty;
+}
+
+.v-line {
+  display: block;
+}
+
+.v-word-mask {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+  /* room for descenders and the Khand cap height */
+  padding: 0.08em 0 0.06em;
+  margin: -0.08em 0 -0.06em;
+}
+
+.v-word {
+  display: inline-block;
+  will-change: transform;
+}
+
+.v-accent {
+  color: var(--primitiv-action-link-foreground-default);
+}
+
+/* The one-attribute readout. */
+.v-code {
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+  font-family: var(--primitiv-font-family-mono);
+  font-size: 15px;
+  padding: 9px 14px;
+  border-radius: 10px;
+  background: var(--primitiv-surface-inverse);
+  color: color-mix(in oklch, var(--primitiv-content-inverse) 70%, transparent);
+  box-shadow: var(--primitiv-elevation-raised);
+  white-space: pre;
+}
+
+.v-code .tag {
+  color: color-mix(in oklch, var(--primitiv-content-inverse) 55%, transparent);
+}
+.v-code .attr {
+  color: var(--primitiv-color-brand-300);
+}
+.v-code .val {
+  color: var(--primitiv-content-inverse);
+}
+.v-code .caret {
+  display: inline-block;
+  width: 2px;
+  height: 1.1em;
+  margin-left: 1px;
+  background: var(--primitiv-color-brand-300);
+  vertical-align: middle;
+}
+
+/* Mode dial: the four densities with a sliding marker. */
+.v-dial {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  padding: 4px;
+  border-radius: 999px;
+  background: color-mix(in oklch, var(--primitiv-surface-default) 80%, transparent);
+  border: 1px solid var(--primitiv-border-subtle);
+  box-shadow: var(--primitiv-elevation-raised);
+}
+
+.v-dial-item {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 7px 0;
+  color: var(--primitiv-content-secondary);
+}
+
+.v-dial-top {
+  position: absolute;
+  inset: -1px;
+  background: none;
+  border-color: transparent;
+  box-shadow: none;
+  z-index: 2;
+}
+
+.v-dial-top .v-dial-item {
+  color: var(--primitiv-content-on-action);
+}
+
+.v-dial-pill {
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  border-radius: 999px;
+  background: var(--primitiv-action-primary-default);
+  box-shadow: 0 4px 14px -4px color-mix(in oklch, var(--primitiv-color-brand-500) 70%, transparent);
+}
+
+.v-footer {
+  position: absolute;
+  left: 32px;
+  right: 32px;
+  bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: var(--primitiv-font-family-mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--primitiv-content-muted);
+}
+
+.v-footer svg {
+  color: var(--primitiv-content-primary);
+}
+
+/* Brand panel (title + outro). */
+.v-panel {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(90% 60% at 80% 0%, #4f8ef5 0%, transparent 60%),
+    radial-gradient(80% 60% at 0% 100%, #0f3f99 0%, transparent 65%),
+    #236ce1;
+  color: #fff;
+  overflow: hidden;
+}
+
+.v-panel-grid {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 1px 1px, rgb(255 255 255 / 0.14) 1px, transparent 0) 0 0 / 18px 18px;
+}
+
+.v-mark-piece {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+}
+
+/* The stage the dashboard lives on: fixed height, fades out at the bottom if
+   a roomy density runs past it (as the docs-site demo does). */
+.v-stage {
+  position: absolute;
+  left: 32px;
+  right: 32px;
+}
+
+.v-clip {
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(#000 calc(100% - 36px), transparent);
+  mask-image: linear-gradient(#000 calc(100% - 36px), transparent);
+  padding: 12px 12px 0;
+  margin: -12px -12px 0;
+}
+
+.v-card {
+  box-shadow: var(--primitiv-elevation-overlay);
+}
+
+/* Layout inside density scopes — every gap through the Context tier. */
+.v-col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--primitiv-card-md-gap);
+}
+
+.v-row {
+  display: flex;
+  align-items: center;
+  gap: var(--primitiv-card-sm-gap);
+}
+
+.v-row-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--primitiv-card-sm-gap);
+}
+
+.v-grow {
+  flex: 1;
+  min-width: 0;
+}
+
+.v-title {
+  margin: 0;
+  font-family: var(--primitiv-heading-h6-font-family);
+  font-size: var(--primitiv-heading-h6-font-size);
+  line-height: var(--primitiv-heading-h6-line-height);
+  font-weight: var(--primitiv-heading-h6-font-weight);
+  letter-spacing: var(--primitiv-heading-h6-letter-spacing);
+  color: var(--primitiv-content-primary);
+}
+
+.v-meta {
+  font-size: var(--primitiv-body-xs-font-size);
+  line-height: var(--primitiv-body-xs-line-height);
+  color: var(--primitiv-content-muted);
+}
+
+.v-mono {
+  font-family: var(--primitiv-font-family-mono);
+}
+
+.v-mode-label {
+  font-family: var(--primitiv-font-family-mono);
+  font-size: 12px;
+  color: var(--primitiv-content-secondary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.v-mode-label b {
+  color: var(--primitiv-action-link-foreground-default);
+  font-weight: 500;
+}
+
+.v-dim {
+  opacity: 0.6;
+}
+
+.v-ok {
+  color: oklch(0.82 0.15 150);
+}

@@ -1,0 +1,27 @@
+@layer primitiv.theme {
+  :root,
+  [data-theme="light"] {
+    --primitiv-color-brand-50: oklch(0.97 0.0118 184.704);
+    --primitiv-color-brand-100: oklch(0.9172 0.0345 184.704);
+    --primitiv-color-brand-200: oklch(0.8467 0.0641 184.704);
+    --primitiv-color-brand-300: oklch(0.7851 0.0789 184.704);
+    --primitiv-color-brand-400: oklch(0.7059 0.0908 184.704);
+    --primitiv-color-brand-500: oklch(0.6002 0.1038 184.704);
+    --primitiv-color-brand-600: oklch(0.4877 0.0818 184.704);
+    --primitiv-color-brand-700: oklch(0.3413 0.0572 184.704);
+    --primitiv-color-brand-800: oklch(0.2288 0.0384 184.704);
+    --primitiv-color-brand-900: oklch(0.15 0.025227852 184.704);
+  }
+  [data-theme="dark"] {
+    --primitiv-color-brand-50: oklch(0.21 0.0118 184.704);
+    --primitiv-color-brand-100: oklch(0.2559 0.0345 184.704);
+    --primitiv-color-brand-200: oklch(0.3133 0.0525 184.704);
+    --primitiv-color-brand-300: oklch(0.3936 0.066 184.704);
+    --primitiv-color-brand-400: oklch(0.49692953 0.08332178 184.704);
+    --primitiv-color-brand-500: oklch(0.6002 0.1038 184.704);
+    --primitiv-color-brand-600: oklch(0.6961 0.0908 184.704);
+    --primitiv-color-brand-700: oklch(0.7919 0.0789 184.704);
+    --primitiv-color-brand-800: oklch(0.879 0.0641 184.704);
+    --primitiv-color-brand-900: oklch(0.94 0.0493 184.704);
+  }
+}

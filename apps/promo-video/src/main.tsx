@@ -1,35 +1,43 @@
 import "@tokens";
-import "./video.css";
+import "@kit/video.css";
 
 import { flushSync } from "react-dom";
 import { createRoot } from "react-dom/client";
 
-import { DURATION, Video } from "./Video";
+import { resolveVideo } from "@lib/registry";
+
+import { DEFAULT_VIDEO, VIDEOS } from "./videos";
 
 declare global {
   interface Window {
     __seek: (t: number) => Promise<void>;
-    __duration: number;
+    __video: { id: string; width: number; height: number; duration: number };
   }
 }
 
-const root = createRoot(document.getElementById("root")!);
-const render = (t: number) => flushSync(() => root.render(<Video t={t} />));
+// ?video=<id> picks the video; ?t=12.5 renders one moment; ?play loops it.
+const params = new URLSearchParams(location.search);
+const { id, video } = resolveVideo(VIDEOS, params.get("video"), DEFAULT_VIDEO);
 
+const el = document.getElementById("root")!;
+el.style.width = `${video.width}px`;
+el.style.height = `${video.height}px`;
+document.title = `${id} · Primitiv video`;
+
+const root = createRoot(el);
+const render = (t: number) => flushSync(() => root.render(<video.Video t={t} />));
 const nextFrame = () => new Promise<void>((r) => requestAnimationFrame(() => r()));
 
-window.__duration = DURATION;
+window.__video = { id, width: video.width, height: video.height, duration: video.duration };
 window.__seek = async (t: number) => {
   render(t);
   await nextFrame();
 };
 
-// Preview: ?t=12.5 renders one moment; ?play loops in real time.
-const params = new URLSearchParams(location.search);
 if (params.has("play")) {
   const start = performance.now() - Number(params.get("from") ?? 0) * 1000;
   const loop = () => {
-    render(((performance.now() - start) / 1000) % DURATION);
+    render(((performance.now() - start) / 1000) % video.duration);
     requestAnimationFrame(loop);
   };
   requestAnimationFrame(loop);

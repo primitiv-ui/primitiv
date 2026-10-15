@@ -9,10 +9,10 @@ import { Kbd } from "@components/kbd";
 import { SegmentedControl, SegmentedControlItem } from "@components/segmented-control";
 import { Switch } from "@components/switch";
 
-import { easeInCubic, easeOutCubic, progress, spring } from "../lib/time";
-import { DensityScope } from "../scopes";
-import { useTime } from "../timeline";
-import { fadeStyle, Header } from "../ui";
+import { easeInCubic, easeOutCubic, progress, spring } from "@lib/time";
+import { DensityScope } from "@kit/scopes";
+import { useTime } from "@kit/timeline";
+import { fadeStyle, Header } from "@kit/ui";
 
 export const A11Y_START = 41.6;
 export const A11Y_END = 46.45;

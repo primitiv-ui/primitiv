@@ -1,7 +1,9 @@
 import type { CSSProperties } from "react";
 
-import { glideAt } from "./lib/glide";
-import { easeInOutCubic, progress } from "./lib/time";
+import type { VideoSpec } from "@kit/spec";
+
+import { glideAt } from "@lib/glide";
+import { easeInOutCubic, progress } from "@lib/time";
 import { Accessible, A11Y_END, A11Y_START } from "./scenes/Accessible";
 import {
   BRAND_GLIDE,
@@ -17,14 +19,14 @@ import { FOUR_END, FOUR_START, FourModes } from "./scenes/FourModes";
 import { Hook, HOOK_END } from "./scenes/Hook";
 import { Nested, NESTED_END, NESTED_START } from "./scenes/Nested";
 import { Outro, OUTRO_START } from "./scenes/Outro";
-import { Title, TITLE_END, TITLE_START } from "./scenes/Panel";
+import { Title, TITLE_END, TITLE_START } from "./scenes/Title";
 import { SIZE_END, SIZE_START, SizeGrid } from "./scenes/SizeGrid";
 import { ThreeWays, WAYS_END, WAYS_START } from "./scenes/ThreeWays";
-import { ThemeScope, type Brand, type Theme } from "./scopes";
-import { Sequence, TimeRoot, useTime } from "./timeline";
-import { Footer } from "./ui";
+import { ThemeScope, type Brand, type Theme } from "@kit/scopes";
+import { Sequence, TimeRoot, useTime } from "@kit/timeline";
+import { Footer } from "@kit/ui";
 
-export const DURATION = 55;
+const DURATION = 55;
 
 const Scenes = () => (
   <>
@@ -71,7 +73,7 @@ const Frame = ({ theme, style }: { theme: Theme; style?: CSSProperties }) => {
   );
 };
 
-export const Video = ({ t }: { t: number }) => {
+const Video = ({ t }: { t: number }) => {
   const reveal = easeInOutCubic(progress(t, REVEAL_AT, REVEAL_AT + REVEAL_DUR));
   return (
     <TimeRoot t={t}>
@@ -89,3 +91,6 @@ export const Video = ({ t }: { t: number }) => {
     </TimeRoot>
   );
 };
+
+/** The 55s LinkedIn launch video: 4:5, rendered at 1080 × 1350. */
+export const linkedinLaunch: VideoSpec = { width: 540, height: 675, duration: DURATION, Video };

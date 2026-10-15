@@ -1,13 +1,13 @@
 import { Button } from "@components/button";
 import { Moon, Sun } from "@primitiv-ui/icons";
 
-import { Dashboard } from "../Dashboard";
+import { Dashboard } from "@kit/Dashboard";
 import sheet from "@docs-content/palette-sheet.generated.json";
-import { contrast } from "../lib/contrast";
-import { easeInOutCubic, easeOutCubic, progress, spring } from "../lib/time";
-import { DensityScope, SEEDS, useTheme, type Brand } from "../scopes";
-import { useTime } from "../timeline";
-import { Caret, fadeStyle, Header, retype } from "../ui";
+import { contrast } from "@lib/contrast";
+import { easeInOutCubic, easeOutCubic, progress, spring } from "@lib/time";
+import { DensityScope, SEEDS, useTheme, type Brand } from "@kit/scopes";
+import { useTime } from "@kit/timeline";
+import { Caret, fadeStyle, Header, retype } from "@kit/ui";
 
 export const COLOUR_START = 28.4;
 export const COLOUR_END = 41.85;

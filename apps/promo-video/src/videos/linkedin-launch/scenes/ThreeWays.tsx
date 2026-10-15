@@ -2,10 +2,10 @@ import type { ReactNode } from "react";
 
 import { Card, CardContent } from "@components/card";
 
-import { progress, spring } from "../lib/time";
-import { DensityScope } from "../scopes";
-import { useTime } from "../timeline";
-import { Caret, Header } from "../ui";
+import { progress, spring } from "@lib/time";
+import { DensityScope } from "@kit/scopes";
+import { useTime } from "@kit/timeline";
+import { Caret, Header } from "@kit/ui";
 
 export const WAYS_START = 46.3;
 export const WAYS_END = 51.6;

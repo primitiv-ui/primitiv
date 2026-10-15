@@ -9,10 +9,10 @@ import {
   TableRow,
 } from "@components/table";
 
-import { easeInOutCubic, easeOutCubic, progress } from "../lib/time";
-import { DensityScope } from "../scopes";
-import { useTime } from "../timeline";
-import { fadeStyle, Header, retype } from "../ui";
+import { easeInOutCubic, easeOutCubic, progress } from "@lib/time";
+import { DensityScope } from "@kit/scopes";
+import { useTime } from "@kit/timeline";
+import { fadeStyle, Header, retype } from "@kit/ui";
 
 export const NESTED_START = 17.6;
 export const NESTED_END = 23.35;

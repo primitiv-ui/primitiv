@@ -20,6 +20,8 @@ export default defineConfig({
   resolve: {
     dedupe: ["react", "react-dom"],
     alias: {
+      "@kit": path("./src/kit"),
+      "@lib": path("./src/lib"),
       "@components": `${DOCS}src/components`,
       "@tokens": `${DOCS}src/styles/primitiv/tokens.css`,
       "@docs-content": `${DOCS}src/content`,

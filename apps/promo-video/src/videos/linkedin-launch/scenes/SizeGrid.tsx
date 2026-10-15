@@ -1,9 +1,9 @@
 import { Button } from "@components/button";
 
-import { easeInCubic, progress, spring } from "../lib/time";
-import { DensityScope, MODES } from "../scopes";
-import { useTime } from "../timeline";
-import { Header } from "../ui";
+import { easeInCubic, progress, spring } from "@lib/time";
+import { DensityScope, MODES } from "@kit/scopes";
+import { useTime } from "@kit/timeline";
+import { Header } from "@kit/ui";
 
 export const SIZE_START = 23.2;
 export const SIZE_END = 28.55;

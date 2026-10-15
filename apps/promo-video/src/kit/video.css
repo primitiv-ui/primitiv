@@ -14,9 +14,8 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* Sized per video by main.tsx from its VideoSpec. */
 #root {
-  width: 540px;
-  height: 675px;
   overflow: hidden;
   position: relative;
 }

@@ -1,6 +1,6 @@
 import type { CSSProperties, ReactNode } from "react";
 
-import { easeInCubic, easeOutCubic, easeOutExpo, progress } from "./lib/time";
+import { easeInCubic, easeOutCubic, easeOutExpo, progress } from "@lib/time";
 import { MODES, type Mode } from "./scopes";
 import { useTime } from "./timeline";
 

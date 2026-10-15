@@ -1,6 +1,6 @@
-import { useTime } from "../timeline";
-import { fadeStyle } from "../ui";
-import { BrandLockup, Panel } from "./Panel";
+import { useTime } from "@kit/timeline";
+import { fadeStyle } from "@kit/ui";
+import { BrandLockup, Panel } from "@kit/panel";
 
 export const OUTRO_START = 50.9;
 

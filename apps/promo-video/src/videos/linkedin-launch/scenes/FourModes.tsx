@@ -3,10 +3,10 @@ import { Button } from "@components/button";
 import { Card, CardContent } from "@components/card";
 import { Switch } from "@components/switch";
 
-import { easeInCubic, progress, spring } from "../lib/time";
-import { DensityScope, MODES } from "../scopes";
-import { useTime } from "../timeline";
-import { Header } from "../ui";
+import { easeInCubic, progress, spring } from "@lib/time";
+import { DensityScope, MODES } from "@kit/scopes";
+import { useTime } from "@kit/timeline";
+import { Header } from "@kit/ui";
 
 export const FOUR_START = 11.55;
 export const FOUR_END = 17.75;

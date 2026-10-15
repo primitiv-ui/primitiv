@@ -16,6 +16,8 @@
     // app (docs-site components, headless source) to THIS app's installs, so
     // the check never depends on whether the docs site has been installed.
     "paths": {
+      "@kit/*": ["./src/kit/*"],
+      "@lib/*": ["./src/lib/*"],
       "@components/*": ["../docs-site/src/components/*"],
       "@docs-content/*": ["../docs-site/src/content/*"],
       "@docs-public/*": ["../docs-site/public/*"],

@@ -8,11 +8,11 @@ import {
   type ReactNode,
 } from "react";
 
-import { blendMaps } from "./lib/blend";
-import violet from "./data/theme-7c3aed.css?raw";
-import pink from "./data/theme-e11d74.css?raw";
-import orange from "./data/theme-ea6c0a.css?raw";
-import teal from "./data/theme-0d9488.css?raw";
+import { blendMaps } from "@lib/blend";
+import violet from "../data/theme-7c3aed.css?raw";
+import pink from "../data/theme-e11d74.css?raw";
+import orange from "../data/theme-ea6c0a.css?raw";
+import teal from "../data/theme-0d9488.css?raw";
 
 export const MODES = ["dense", "compact", "comfortable", "spacious"] as const;
 export type Mode = (typeof MODES)[number];

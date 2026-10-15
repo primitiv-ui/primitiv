@@ -1,9 +1,9 @@
-import { Dashboard } from "../Dashboard";
-import { glideAt } from "../lib/glide";
-import { easeInOutCubic } from "../lib/time";
-import { DensityScope, type Mode } from "../scopes";
-import { useTime } from "../timeline";
-import { blink, Caret, Dial, fadeStyle, Header, retype } from "../ui";
+import { Dashboard } from "@kit/Dashboard";
+import { glideAt } from "@lib/glide";
+import { easeInOutCubic } from "@lib/time";
+import { DensityScope, type Mode } from "@kit/scopes";
+import { useTime } from "@kit/timeline";
+import { blink, Caret, Dial, fadeStyle, Header, retype } from "@kit/ui";
 
 const GLIDE = 0.85;
 const STEPS = [

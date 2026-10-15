@@ -1325,6 +1325,13 @@ source of truth for when a skill applies.
   - **Anything gating payment belongs in the private repo only** — licence
     verification, server endpoints, keys.
 
+- **Promo video (`apps/promo-video`, 2026-10-15).** The 55s LinkedIn video
+  (1080×1350, 60fps), rendered frame-by-frame from a React page with Playwright
+  and ffmpeg (`pnpm render`). It renders the **docs site's** registry components
+  and `tokens.css` (the canonical copies; the kitchen-sink's came first), so it
+  tracks component changes on re-render. Its own pnpm root, excluded from the
+  root workspace like the docs site. How it works: its `README.md`.
+
 ## Figma plugin-API gotchas (scripting via `figma_execute`)
 
 Traps that fail *silently* or point at the wrong culprit. Each cost a real

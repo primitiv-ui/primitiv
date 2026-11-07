@@ -41,9 +41,12 @@ export class TabsController {
     this.#host = host;
   }
 
-  /** Register `element` as the trigger for `value`. */
-  registerTrigger(value: string, element: HTMLElement): void {
-    this.#triggers.set(element, { value, disabled: false });
+  /**
+   * Register `element` as the trigger for `value`. A disabled trigger is still
+   * part of the collection — arrow keys land on it — but is never activated.
+   */
+  registerTrigger(value: string, element: HTMLElement, options: { disabled?: boolean } = {}): void {
+    this.#triggers.set(element, { value, disabled: options.disabled ?? false });
   }
 
   /** Start listening on the root. */
@@ -55,11 +58,19 @@ export class TabsController {
     return [...this.#triggers.values()].map((trigger) => trigger.value);
   }
 
+  #disabled(): Set<string> {
+    const disabled = new Set<string>();
+    for (const trigger of this.#triggers.values()) {
+      if (trigger.disabled) disabled.add(trigger.value);
+    }
+    return disabled;
+  }
+
   #onClick(event: MouseEvent): void {
     const trigger = this.#triggerFor(event.target);
     if (!trigger) return;
     const { active } = this.#host.state();
-    const target = tabsClick({ disabled: new Set(), active }, trigger.value);
+    const target = tabsClick({ disabled: this.#disabled(), active }, trigger.value);
     if (target !== null) this.#host.activate(target, this.#values().indexOf(target));
   }
 

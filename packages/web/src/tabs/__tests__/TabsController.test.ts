@@ -58,5 +58,41 @@ describe("TabsController", () => {
       // Assert
       expect(host.activations).toEqual([["two", 1]]);
     });
+
+    it("ignores a click on a disabled tab", async () => {
+      // Arrange
+      const user = userEvent.setup();
+      const { root, buttons } = mount(["one", "two"]);
+      const host = hostWith();
+      const controller = new TabsController(root, host);
+      controller.registerTrigger("one", buttons[0]);
+      controller.registerTrigger("two", buttons[1], { disabled: true });
+      controller.connect();
+
+      // Act
+      await user.click(buttons[1]);
+
+      // Assert
+      expect(host.activations).toEqual([]);
+    });
+
+    it("ignores a click outside every trigger", async () => {
+      // Arrange
+      const user = userEvent.setup();
+      const { root, buttons } = mount(["one", "two"]);
+      const outside = document.createElement("p");
+      root.append(outside);
+      const host = hostWith();
+      const controller = new TabsController(root, host);
+      controller.registerTrigger("one", buttons[0]);
+      controller.registerTrigger("two", buttons[1]);
+      controller.connect();
+
+      // Act
+      await user.click(outside);
+
+      // Assert
+      expect(host.activations).toEqual([]);
+    });
   });
 });

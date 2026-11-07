@@ -2,14 +2,19 @@
 
 **Status:** Draft — proposed (2026-11-07). Package name and tag prefix settled
 (D16, D17); framework neutrality settled (D19–D23); part model, styling
-decoupling and CLI surface settled (D24–D27). Open: snippet flavour (§9).
+decoupling and CLI surface settled (D24–D27); event naming settled (D29); the
+first increment is Tabs end to end, with `@primitiv-ui/react` Tabs rebuilt on
+the web implementation (D30). Open: the controller/host split (D28, §3.4) and
+snippet flavour (§9).
 **Decision sought:** Ship Primitiv's headless behaviour as standard custom
 elements that work **anywhere a browser runs HTML**: a plain HTML/CSS/JS page,
 any server-rendered stack, React, Vue, Angular, Svelte or anything else. The
 framework-independent logic comes out of `@primitiv-ui/react` into a shared
 package **first**, so every surface runs the same keyboard and state rules. The
-long-term direction (§3.3) is that the elements become the library's base
-implementation and framework packages become thin adapters over them.
+direction (§3.3) is that the web implementation becomes the library's base and
+framework packages become thin adapters over it — delivered **one component at
+a time, starting with Tabs**: in the release that ships it, `@primitiv-ui/react`
+Tabs runs on the web implementation with no change a consumer can observe.
 
 ---
 
@@ -77,10 +82,11 @@ consumer among many here, not a target the design bends towards.
   saves, and a runtime dependency would contradict goal 1.
 - **Wrapping React in custom elements.** That would make every consumer ship
   React.
-- **Rewriting `@primitiv-ui/react` onto the elements now.** That is §3.3's
-  later stage, gated on evidence this experiment produces.
-- **Framework-specific adapter packages in v1.** Typings for each framework
-  ship in `@primitiv-ui/web` (§5.6.4); adapter packages wait for §3.3.
+- **Rebuilding React components other than Tabs in this increment.** Each one
+  follows the same path afterwards, one at a time (§10).
+- **Vue, Angular or Svelte adapter packages in this increment.** Typings for
+  each framework ship in `@primitiv-ui/web` (§5.6.4). The React adapter lives
+  inside `@primitiv-ui/react` itself, so no new React package is needed.
 - **New visual design.** Custom elements add no visual surface. They render the
   same anatomy, so nothing goes to Figma. (The "Figma first" rule in CLAUDE.md
   is about composite *designs*; it does not apply here.)
@@ -179,58 +185,112 @@ Users never install core directly: it reaches them as a dependency of
 whichever surface they chose. Its API is still semver-public, though, because
 both surfaces pin it.
 
-### 3.3 The long-term direction: elements as the base
+### 3.3 The direction: the web implementation as the base, delivered incrementally
 
-The diagram above is **stage 1**: core feeds two sibling surfaces. The
-direction this RFC sets is **stage 2**:
+The diagram above is the starting point: core feeds two sibling surfaces. The
+direction this RFC sets is:
 
 ```text
-@primitiv-ui/core   pure logic (unchanged)
+@primitiv-ui/core   pure logic
         │
-@primitiv-ui/web    the implementation: DOM glue, lifecycle, ARIA
+@primitiv-ui/web    the implementation: DOM behaviour, lifecycle, ARIA
         │
 adapters            @primitiv-ui/react, and later vue / angular / …
-                    typed props, framework events, controlled state,
+                    typed props, framework events, framework state,
                     SSR pre-rendering — no behaviour of their own
 ```
 
-Stage 2 is **not decided by this RFC**. It is decided later, against evidence
-stage 1 produces. What this RFC does is make stage 1's choices so that stage 2
-needs no redesign. The constraints that buys, each already in the design:
+**It is delivered per component, not as a big-bang rewrite (D30).** Tabs goes
+first and goes all the way: core, the web implementation, the elements, *and*
+`@primitiv-ui/react` Tabs rebuilt as an adapter over it. In the release that
+ships it, a React consumer sees no difference in API, behaviour, rendered DOM
+or server-rendered markup. That release is the test that proves the plan: if
+Tabs can move under an unchanged React API, every other component can follow
+the same path, one at a time, and each move is independently shippable.
 
-1. **All behaviour and policy live in core** (§3.1), not in the element
-   classes. An adapter can then compute, at render time, the exact state an
-   element would set.
-2. **Elements accept pre-rendered state and reconcile it** (§5.5). That is the
-   same path a React adapter's server render takes: the adapter uses core to
-   render roles, ARIA and `data-state`, and the element adopts them on upgrade.
-   SSR stays as complete as it is today.
-3. **Elements never restructure the DOM** (§5.6.1), so a framework can own every
-   node an element decorates.
-4. **The element contract equals the React contract**, enforced by the
-   conformance suite (§6.2). When stage 2 lands, that suite is what proves the
-   adapter changed nothing.
+The design choices that make this possible, each enforced elsewhere in the RFC:
 
-What stage 2 has to answer, recorded here so the experiment collects the
-evidence:
+1. **All behaviour and policy live in core** (§3.1). An adapter can compute, at
+   render time, exactly the state the web implementation would set, which is
+   what keeps server-rendered markup unchanged.
+2. **The web implementation never restructures the DOM** (§5.6.1), so React can
+   own every node.
+3. **It can attach to DOM it did not render** (§3.4), so React keeps rendering
+   the same elements it renders today.
+4. **The conformance suite** (§6.2) runs against the elements and against React,
+   so the same contract is proved on both.
 
-- **React 18.** React 19 sets custom-element properties and listens to their
-  events natively. React 18 does neither, so an 18-compatible adapter needs a
-  ref-and-listener wrapper per element. Stage 2 is likely the point where the
-  React package drops 18.
-- **`asChild`, refs and imperative APIs** must map onto the element model
-  (D24 settles the first: interactive parts already decorate a consumer child,
-  which is what an adapter's `asChild` renders).
-- **Context** such as `DirectionProvider` maps to inherited DOM state (`dir`),
-  which elements read through `:dir()`. The adapter has to render that
-  attribute rather than provide context.
-- **Test migration.** The React suites become adapter suites, and their
-  behaviour assertions move into the conformance suite, which already runs
-  against both surfaces.
-- **Cost.** The size and runtime cost of the adapter path against today's
-  React components, measured on Tabs before anything else moves.
+How the questions that move raises are answered for Tabs:
 
-## 4. The extraction (React side)
+| Question | Answer for Tabs |
+|---|---|
+| **React 18** | The adapter renders native elements, attaches with a ref and listens with `addEventListener`, so it needs nothing React 19 added. React 18 support stays. |
+| **`asChild`** | Stays a React feature: `Slot` renders the consumer's element, and the adapter registers whatever `Slot` rendered as the trigger. |
+| **`DirectionProvider`** | The adapter resolves `dir` exactly as today and hands it to the implementation. |
+| **`lazyMount`** | Stays an adapter feature: React simply doesn't render a panel's children until it has been active. The elements surface drops it (D9). |
+| **Imperative API** | `setActiveTab` sets adapter state, as today. |
+| **Events** | The adapter maps `primitiv-tabs-change` onto the existing `onValueChange(value)` and `onChange({ index, name })` (D29). |
+| **Tests** | The 14 existing Tabs test files are the acceptance test and must pass **unmodified** (§6.3). |
+| **Cost** | Bundle size of React Tabs before and after, recorded in the release notes (§7.3). |
+
+### 3.4 Controllers and hosts (D28 — proposed, needs confirmation)
+
+**The problem.** "React Tabs uses the web component", read literally, means
+React renders `<primitiv-tabs>`, `<primitiv-tabs-list>` and so on. That
+cannot satisfy "no difference a consumer can observe":
+
+- **Tag names change.** Consumer CSS or tests targeting `div[role="tablist"]`
+  or `[role="tablist"] > button` stop matching.
+- **Default layout changes.** A custom element is `display: inline` and a `<div>`
+  is `block`. A headless React consumer who ships their own CSS would see the
+  root, list and panels collapse to inline boxes, and an extra box around every
+  trigger. The only fix is a default stylesheet from the implementation, which
+  D25 forbids.
+- **Ref element types widen** from `HTMLDivElement` to the element class.
+
+**The proposal.** Split `@primitiv-ui/web` in two layers:
+
+- A **controller** per component (`TabsController`) holds the entire DOM
+  behaviour: listeners, keyboard (through core), focus, the DOM-ordered
+  collection of parts, ARIA reconciliation, and the lifecycle rules in §5.4. It
+  attaches to **any** elements it is handed. Parts *register* with it, the same
+  shape as `useCollection` today, so it never has to guess which nodes are
+  parts.
+- A **host** decides where the elements come from and who owns the state:
+  - **The custom elements** (`<primitiv-tabs>` …) are a host. A few lines each:
+    create the controller on connect, register parts, keep state in reflected
+    attributes, dispose on disconnect. This is the elements surface.
+  - **The React adapter** is a host. It renders exactly today's DOM (`<div>`,
+    `<button role="tab">`, `<div role="tabpanel">`), creates a
+    `TabsController` on the root in a layout effect, registers each part by
+    ref, and keeps state in React.
+
+Both surfaces then run **the same behavioural code**, not merely the same
+pure functions. That is what "the React package uses the web implementation"
+means in this RFC. Nothing about the elements surface changes: the custom
+elements are still the public face of `@primitiv-ui/web`, and they still
+follow every rule above.
+
+**State ownership.** The controller never owns state. It computes an outcome
+(through core) and asks its host to apply it:
+
+- the elements host writes reflected attributes and dispatches
+  `primitiv-tabs-change`;
+- the React host calls `setState` (or `onValueChange` when controlled), and
+  React renders the new attributes.
+
+Because React also renders every state attribute (it has to, for server
+rendering), the controller writes only what its host does not render, and
+compares before it writes, so the two can never fight.
+
+**The alternative**, if literal custom elements in React's output are a
+requirement: render the elements and relax D25 so the implementation ships a
+lowest-priority default stylesheet (`display: block` for structural parts,
+`display: contents` for wrappers). That still changes tag names and the DOM
+shape, so it would be a breaking change for any consumer whose CSS or tests
+select by element, and it could not ship as "no difference".
+
+## 4. The extraction (React side)## 4. The extraction (React side)
 
 The extraction happens **before** any element is written, and it must leave
 React behaviour unchanged. The proof is that the existing React suites (Tabs
@@ -512,12 +572,34 @@ name. That is the one combination every framework binds without help:
 | Framework | Set the value | Listen for a change |
 |---|---|---|
 | Plain HTML / JS | `value="billing"` or `el.value = "billing"` | `el.addEventListener("primitiv-tabs-change", …)` |
-| React 19 | `<primitiv-tabs value={v}>` | `onprimitiv-tabs-change={…}` |
+| React 19 (raw elements) | `<primitiv-tabs value={v}>` | `onprimitiv-tabs-change={…}` (see below) |
 | Vue 3 | `:value="v"` | `@primitiv-tabs-change="…"` |
 | Angular | `[value]="v"` | `(primitiv-tabs-change)="…"` |
 | Svelte 5 | `value={v}` | `onprimitiv-tabs-change={…}` |
 
 The interop lab (§7.4) verifies the plain, React, Vue and Angular rows.
+
+**Why the React row reads `onprimitiv-tabs-change` (D29).** For a custom
+element, React 19 strips `on` from a function prop and passes the rest to
+`addEventListener` **exactly as written** (verified in `react-dom` 19.2.5's
+`setPropOnCustomElement`): no camelCase-to-kebab conversion and no
+lowercasing. So `onTabsChange` would listen for an event literally named
+`TabsChange`. Naming the DOM event `TabsChange` instead would break every
+listener attached through an HTML attribute, because the HTML parser lowercases
+attribute names (`hx-on:TabsChange` becomes `hx-on:tabschange`, as do Vue and
+Alpine `@…` in in-DOM templates). No single event name reads idiomatically in
+React and also works in HTML, so:
+
+- DOM events stay lowercase kebab-case, prefixed with the component's tag name
+  (`primitiv-tabs-change`, not a shorter `primitiv-change`), so a listener
+  names the component it is for.
+- Idiomatic framework names come from **adapters**, which reuse the existing
+  React prop names (`onValueChange`, `onChange`) rather than inventing new
+  ones like `onTabsChange`. Moving between `@primitiv-ui/react` and the
+  elements therefore never renames a handler.
+- Raw elements inside React remain possible, with the raw event name, as an
+  escape hatch.
+
 Controlled usage in every framework is the same pattern: bind `value`, and in
 the change handler either let the change through or call `preventDefault()`
 and set your own value (D7). Rich data never travels through attributes; it is
@@ -537,6 +619,38 @@ set through properties, so no framework has to serialise it.
 - Opt-in typing entry points for React 19 JSX, Vue `GlobalComponents` and
   Svelte, so `<primitiv-tabs>` type-checks in templates. Angular needs only
   `CUSTOM_ELEMENTS_SCHEMA`, which the README documents.
+
+### 5.7 The React adapter for Tabs
+
+What `@primitiv-ui/react` Tabs becomes, with its public API untouched:
+
+- **Rendering is unchanged.** The same elements, attributes, ids and `data-*`
+  values, on the server and on the client. The adapter computes them through
+  core, exactly as the hooks do today.
+- **Behaviour moves out of the hooks.** `useTabsTrigger`'s keydown and
+  activation handling and `useTabsRoot`'s trigger registry are replaced by a
+  `TabsController` attached to the root. `useRovingTabindex` is no longer used
+  by Tabs; the ten other components that use it are untouched.
+- **Handler ordering is preserved, and the reason is worth knowing.** Today
+  the library's activation runs *before* a consumer's `onClick`, with no
+  `preventDefault` veto (the comment in `useTabsTrigger.ts`). The controller
+  listens natively on the Tabs root, and React's synthetic events are
+  delegated from the React root container *above* it, so a native listener on
+  the Tabs root fires first. The order falls out of the DOM.
+- **A divergence the move surfaces.** Today a consumer `onKeyDown` on
+  `Tabs.Trigger` *replaces* the library's keyboard handler, because `...rest`
+  is spread after `onKeyDown` in `Tabs.tsx`, so passing one disables arrow-key
+  navigation. A native controller listener cannot be replaced that way. This is
+  almost certainly a latent bug rather than a contract, but "no observable
+  difference" means it is decided explicitly, in its own cycle, before the move:
+  either keep it (the adapter suppresses the controller when a consumer
+  `onKeyDown` is present) or fix it in a release of its own first. Recommendation:
+  fix it first, so the move itself changes nothing.
+- **Event mapping.** `primitiv-tabs-change` maps to `onValueChange(value)` and
+  `onChange({ index, name })`, the names Tabs already uses (D29).
+- **Dependencies.** `@primitiv-ui/react` gains `@primitiv-ui/web` and
+  `@primitiv-ui/core` as dependencies, both lockstep-versioned, and its
+  `jsr.json` gains the matching imports.
 
 ## 6. Testing
 
@@ -580,6 +694,25 @@ expected to pass on first run. That doesn't break the "no characterisation
 tests" rule, because React is the reference implementation the suite is
 describing. Any case that fails on React is a real React bug and is fixed in
 its own cycle.
+
+### 6.3 The acceptance test for the React move
+
+The move is proved when, on the same commit:
+
+1. **All 14 existing Tabs test files pass without a single edit.** Any edit
+   to a React Tabs test during the move is, by definition, an observable
+   change, and is either reverted or split out as its own decided change
+   (as with the `onKeyDown` divergence, §5.7).
+2. **Tabs keeps 100% mutation score** on the allowlist (it is on it today).
+3. **The conformance suite passes on both surfaces.**
+4. **Server-rendered markup is byte-identical** before and after.
+
+Point 4 needs a decision. The strict red-green rule forbids a test that passes
+on first run, and a "markup is unchanged" golden captured before the move does
+exactly that. It is still the only direct check of server-rendered output,
+because no existing Tabs test renders to a string. Proposal: allow it as a
+named exception (a refactor guard, written before the refactor, deleted after
+one release), rather than relying on the existing suites to notice.
 
 ## 7. Distribution and integration
 
@@ -755,16 +888,17 @@ Still open:
 
 | Phase | Work | Done when |
 |---|---|---|
-| 0 | This RFC accepted | — |
+| 0 | This RFC accepted, including D28 and §6.3's exception | — |
 | 1 | `@primitiv-ui/core` scaffolded; §4 steps 1–4 landed | React suites unchanged and green; core 100% coverage + 100% mutation |
-| 2 | `@primitiv-ui/web` Tabs | Conformance suite green on both surfaces; web suite 100%; Stryker 100% |
-| 2b | Elements installs for the components with no behaviour (§8.3): registry `surfaces` schema, snippet generation, `--surface` | `primitiv add badge --surface elements` installs into a project with no `package.json`; Rust gate green |
-| 3 | `apps/interop-lab` (html, htmx, react, vue, angular) + Playwright; Tabs stylesheet audit | Shared spec and the ten HTMX cases green in CI; registry CSS renders the elements correctly |
-| 4 | Distribution: entry points, bundle, CEM + framework typings, size gate, lockstep release | Published; `<script type="module">` from jsDelivr works on a blank page |
-| 5 | Elements install for Tabs (package dependency, `display: contents` rule, snippet) | Tabs installs and works in every interop-lab app |
-| 6 | Next components, chosen for core reuse | — |
+| 2 | `@primitiv-ui/web` Tabs: `TabsController` and the element host | Conformance suite green on both surfaces; web suite 100%; Stryker 100% |
+| 3 | The `onKeyDown` divergence decided and, if fixed, released on its own (§5.7) | — |
+| 4 | **`@primitiv-ui/react` Tabs rebuilt as an adapter over `TabsController`** | §6.3's four checks green on one commit |
+| 5 | Distribution: entry points, bundle, CEM + framework typings, size gate, lockstep release with `@primitiv-ui/react` depending on core and web | **The proof release:** published, React Tabs consumers see no change, elements work from jsDelivr on a blank page |
+| 6 | `apps/interop-lab` (html, htmx, react, vue, angular) + Playwright | Shared spec and the ten HTMX cases green in CI |
+| 7 | CLI: `surfaces` registry schema, snippet generation, `--surface`; components with no behaviour first (§8.3), then Tabs | `primitiv add tabs --surface elements` works in every interop-lab app; Rust gate green |
+| 8 | Next components, one at a time, each through phases 2–5 | — |
 
-Phase 6 order, so each step reuses the core the previous one built:
+Phase 8 order, so each step reuses the core the previous one built:
 
 1. RadioGroup, ToggleGroup, SegmentedControl (roving + keymap).
 2. Accordion, Collapsible (`hidden` and the grid-row track pattern, no new
@@ -774,9 +908,10 @@ Phase 6 order, so each step reuses the core the previous one built:
 5. Listbox, Select, Combobox (typeahead core, `ElementInternals` form
    association).
 
-Each one follows the Definition of done in CLAUDE.md: tests, JSDoc, README,
-the components-table row in `packages/web/README.md`, and the conformance
-suite.
+Each one moves its React component onto the web implementation in the same
+increment, under the same §6.3 checks, and follows the Definition of done in
+CLAUDE.md: tests, JSDoc, README, the components-table row in
+`packages/web/README.md`, and the conformance suite.
 
 ## 11. Decision record
 
@@ -804,8 +939,11 @@ suite.
 | D20 | Elements never create, move or remove nodes they did not create, and never write `class` | Frameworks own the nodes they render (§5.6.1) |
 | D21 | Element modules are safe to import without a DOM; `define` is a no-op there | SSR frameworks import modules on the server (§5.6.2) |
 | D22 | State is attribute + property; notifications are lowercase kebab-case DOM events; typings and a Custom Elements Manifest ship with the package | The one combination every framework binds without help (§5.6.3–4) |
-| D23 | Direction: elements become the base implementation and framework packages become adapters (stage 2, §3.3), decided later on stage-1 evidence | Settled as direction 2026-11-07; stage 1 is designed not to block it |
+| D23 | Direction: the web implementation becomes the base and framework packages become adapters (§3.3) | Settled 2026-11-07; delivered per component under D30 |
 | D24 | Structural parts are their element; interactive parts decorate exactly one consumer-written child, replacing `asChild` | Same DOM as React, native button/link semantics, and framework routers work unchanged |
 | D25 | Element code writes no styles of any kind; the `display: contents` wrapper rule ships as CSS in each registry stylesheet and in an opt-in `elements.css` | Styling stays completely decoupled from the implementation (settled 2026-11-07) |
 | D26 | CLI: `surface` config + `--surface` on `init` and `add`; per-surface registry blocks; CDN tag printed when there is no `package.json`; `components/index.css` aggregator | Elements installs without assuming a package manager or a framework |
 | D27 | The vocabulary is `surface: "react" \| "elements"`; `framework` stays readable as an alias | A Vue or plain-HTML project installing elements is not choosing a framework called "html" |
+| D28 | **Proposed:** `@primitiv-ui/web` splits into per-component controllers (all DOM behaviour, attachable to any registered elements, never owning state) and hosts (the custom elements; the React adapter) | The only way React can run the web implementation while rendering today's DOM unchanged (§3.4) |
+| D29 | DOM events are lowercase kebab-case prefixed with the tag name (`primitiv-tabs-change`); adapters map them onto the existing React prop names | HTML attribute names are case-insensitive; React 19 passes custom-element event names through verbatim (§5.6.3) |
+| D30 | Delivered per component; Tabs first, end to end, including `@primitiv-ui/react` Tabs as an adapter, released with no observable change | The release itself is the proof that the plan works (§3.3, §6.3) |

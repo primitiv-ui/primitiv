@@ -174,8 +174,10 @@ live in [`../consumption-design.md`](../consumption-design.md).
   `@primitiv-ui/core` *first*, so every surface shares one copy, and a
   conformance suite run against both surfaces is the drift guard. Tabs is the
   first component, proved in an interop lab (one app per environment, one
-  Playwright spec). Long-term direction: the elements become the base and
-  framework packages become thin adapters.
+  Playwright spec). The web implementation becomes the base and framework
+  packages become thin adapters, one component at a time: the first increment
+  rebuilds `@primitiv-ui/react` Tabs on it, with no change a React consumer
+  can observe.
 
 Read **0004 → 0005 → 0006** in order; each builds on the one before. **0008**
 constrains the *shape* of 0006's emitted CSS (layers + token scoping) and **0009**

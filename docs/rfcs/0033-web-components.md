@@ -1,6 +1,7 @@
-# RFC 0032 — Web components (`@primitiv-ui/web`) and a shared behaviour core (`@primitiv-ui/core`)
+# RFC 0033 — Web components (`@primitiv-ui/web`) and a shared behaviour core (`@primitiv-ui/core`)
 
-**Status:** Draft — proposed (2026-11-07)
+**Status:** Draft — proposed (2026-11-07). Package name and tag prefix settled
+(D16, D17); `asChild` translation and CLI surface under discussion (§9).
 **Decision sought:** Ship Primitiv's headless behaviour as framework-free custom
 elements for server-rendered stacks (plain HTML, HTMX, Thymeleaf, Rails, Django,
 Laravel …), with the framework-independent logic pulled out of
@@ -22,7 +23,7 @@ Custom elements fill that gap without asking the consumer to adopt a client
 framework:
 
 - **They upgrade themselves.** The browser runs `connectedCallback` whenever a
-  `<pv-tabs>` enters the document, however it got there: parsed HTML, an HTMX
+  `<primitiv-tabs>` enters the document, however it got there: parsed HTML, an HTMX
   swap, `innerHTML`, a history restore. There is no hydration step.
 - **They live in the light DOM**, so the existing styling contract (root class,
   modifier classes, `data-*` state, `--primitiv-*` custom properties, RFC 0004
@@ -31,7 +32,7 @@ framework:
   is a few kilobytes of event handling over markup the server already sent.
 
 The opening proposal for this work (an external draft written without access
-to this repo) converted Tabs to an index-based `<pv-tabs>` with its own keyboard
+to this repo) converted Tabs to an index-based `<primitiv-tabs>` with its own keyboard
 code. That would have produced a *second, smaller* Tabs: no `value` pairing, no
 `aria-controls`, no disabled tabs, no manual activation, no RTL. It would also
 have reimplemented in parallel logic that the React package already holds as
@@ -140,7 +141,7 @@ export type TabsState = {
 ```
 
 `useTabsTrigger` then calls `tabsKeydown` and applies the outcome through
-React state. `<pv-tabs>` calls the same function and applies the outcome to
+React state. `<primitiv-tabs>` calls the same function and applies the outcome to
 attributes.
 
 ### 3.2 Package shape
@@ -202,36 +203,40 @@ agent manifests (RFC 0020) can map one-to-one:
 
 | React | Element | Role |
 |---|---|---|
-| `Tabs.Root` | `<pv-tabs>` | state owner |
-| `Tabs.List` | `<pv-tabs-list>` | `tablist` |
-| `Tabs.Trigger` | `<pv-tabs-trigger>` | `tab` |
-| `Tabs.Content` | `<pv-tabs-content>` | `tabpanel` |
+| `Tabs.Root` | `<primitiv-tabs>` | state owner |
+| `Tabs.List` | `<primitiv-tabs-list>` | `tablist` |
+| `Tabs.Trigger` | `<primitiv-tabs-trigger>` | `tab` |
+| `Tabs.Content` | `<primitiv-tabs-content>` | `tabpanel` |
 
 ```html
-<pv-tabs value="overview" class="primitiv-tabs primitiv-tabs--md">
-  <pv-tabs-list label="Account sections" class="primitiv-tabs__list">
-    <pv-tabs-trigger value="overview" class="primitiv-tabs__trigger">
+<primitiv-tabs value="overview" class="primitiv-tabs primitiv-tabs--md">
+  <primitiv-tabs-list label="Account sections" class="primitiv-tabs__list">
+    <primitiv-tabs-trigger value="overview" class="primitiv-tabs__trigger">
       <span class="primitiv-tabs__trigger-label">Overview</span>
-    </pv-tabs-trigger>
-    <pv-tabs-trigger value="billing" disabled class="primitiv-tabs__trigger">
+    </primitiv-tabs-trigger>
+    <primitiv-tabs-trigger value="billing" disabled class="primitiv-tabs__trigger">
       <span class="primitiv-tabs__trigger-label">Billing</span>
-    </pv-tabs-trigger>
-  </pv-tabs-list>
-  <pv-tabs-content value="overview" class="primitiv-tabs__panel">…</pv-tabs-content>
-  <pv-tabs-content value="billing" class="primitiv-tabs__panel" hidden>…</pv-tabs-content>
-</pv-tabs>
+    </primitiv-tabs-trigger>
+  </primitiv-tabs-list>
+  <primitiv-tabs-content value="overview" class="primitiv-tabs__panel">…</primitiv-tabs-content>
+  <primitiv-tabs-content value="billing" class="primitiv-tabs__panel" hidden>…</primitiv-tabs-content>
+</primitiv-tabs>
 ```
 
-**Prefix `pv-`.** It's short enough to type in templates, and it doesn't read
-as the `primitiv-` *class* namespace, which stays the styling contract. The
-headless element applies **no classes and no styles**, exactly like the React
-primitive.
+**Prefix `primitiv-` (D17).** The tag names share the namespace of the
+`primitiv-` *class* contract, which stays the styling contract: a tag is a type
+selector, a class is a class selector, and they never collide in CSS. Markup
+reads `<primitiv-tabs class="primitiv-tabs">`, which is redundant-looking but
+deliberate: the element supplies behaviour and the class opts into the
+registry look, exactly as the React primitive and the styled wrapper stay
+separate. The headless element applies **no classes and no styles**. `define`
+keeps a prefix override (§7.1) for teams running two versions side by side.
 
 ### 5.2 Attribute and property contract
 
 | Attribute (reflected) | Property | Maps to React |
 |---|---|---|
-| `value` on `<pv-tabs>` | `.value` | `value` / `defaultValue` |
+| `value` on `<primitiv-tabs>` | `.value` | `value` / `defaultValue` |
 | `orientation` | `.orientation` | `orientation` |
 | `activation-mode` | `.activationMode` | `activationMode` |
 | `label` / `aria-labelledby` on the list (one required) | — | `label` / `ariaLabelledBy` |
@@ -243,7 +248,7 @@ primitive.
   There's no separate `default-value`: a server-rendered page has no "first
   render" distinct from "now".
 - **Controlled mode becomes a cancelable event.** The element dispatches
-  `pv-tabs-change` (`bubbles: true`, `cancelable: true`,
+  `primitiv-tabs-change` (`bubbles: true`, `cancelable: true`,
   `detail: { value, index }`) *before* applying the change.
   `event.preventDefault()` vetoes it, and the caller can apply its own choice
   by setting `.value`. This replaces `value` + `onValueChange` without a second
@@ -257,8 +262,8 @@ primitive.
   attribute of its own to drift from it.
 - **`lazyMount` is dropped on purpose.** On a server-driven page, lazy panels
   are an HTMX recipe, not a component feature:
-  `<pv-tabs-content value="reports" hx-get="/reports" hx-trigger="pv-tabs-show once">`.
-  The element fires a non-cancelable `pv-tabs-show` on the panel that becomes
+  `<primitiv-tabs-content value="reports" hx-get="/reports" hx-trigger="primitiv-tabs-show once">`.
+  The element fires a non-cancelable `primitiv-tabs-show` on the panel that becomes
   active, so that recipe has an event to hang off.
 - **The imperative API** is the `.value` setter, the equivalent of
   `setActiveTab`.
@@ -294,13 +299,13 @@ Six rules, each one driven by a test:
    reparenting) can therefore never stack handlers.
 2. **Children register with their owner, and the owner never queries once and
    caches.** Each part registers on connect with
-   `this.closest('pv-tabs')` and unregisters on disconnect. The root keeps the
+   `this.closest('primitiv-tabs')` and unregisters on disconnect. The root keeps the
    collection in DOM order (`compareDocumentPosition`, as `useCollection` does
    via its sort). Fragments swapped into the middle of a tab set therefore
    join it.
 3. **The upgrade order doesn't matter.** A part that connects before its root
    is defined registers when the root upgrades: the root adopts parts whose
-   nearest `pv-tabs` is itself. A root that connects before its children are
+   nearest `primitiv-tabs` is itself. A root that connects before its children are
    parsed picks them up as they arrive.
 4. **Ownership is scoped by `closest()`, never by `querySelectorAll`.** Tabs
    nested inside a panel belong to the inner root only.
@@ -413,10 +418,10 @@ records, without gating on it, the React path for comparison:
 middleware stands in for the server's fragment endpoints, and Playwright drives
 it in CI. Each case below is one Playwright test:
 
-1. A full fragment swap (`hx-swap="outerHTML"`) brings in a new `<pv-tabs>`. It
+1. A full fragment swap (`hx-swap="outerHTML"`) brings in a new `<primitiv-tabs>`. It
    upgrades with correct ARIA and no script call.
-2. `innerHTML` swap into one `<pv-tabs-content>` that contains a nested
-   `<pv-tabs>`. The two instances stay independent.
+2. `innerHTML` swap into one `<primitiv-tabs-content>` that contains a nested
+   `<primitiv-tabs>`. The two instances stay independent.
 3. An out-of-band swap appends a new trigger and panel. They join the existing
    set in DOM order and are reachable by keyboard.
 4. An out-of-band swap changes only the root's `value` attribute. The
@@ -425,8 +430,8 @@ it in CI. Each case below is one Playwright test:
    handler.
 6. History restore (`hx-push-url`, back button). The selection restored from
    the snapshot is the one the user left.
-7. The lazy panel recipe (`hx-trigger="pv-tabs-show once"`) loads once.
-8. `hx-trigger="pv-tabs-change"` on the root posts the new value, and
+7. The lazy panel recipe (`hx-trigger="primitiv-tabs-show once"`) loads once.
+8. `hx-trigger="primitiv-tabs-change"` on the root posts the new value, and
    `preventDefault` from an `hx-on` handler vetoes the change.
 9. A swap during a key press, with focus inside the removed fragment, doesn't
    throw and doesn't leave a stuck listener.
@@ -459,7 +464,7 @@ story for web is:
   element is `display: inline` with no UA styles, where `<button>` has a
   focusable box, `cursor`, and `font: inherit` resets. The Tabs audit is part
   of Phase 3 and decides whether those rules go in the stylesheet (which then
-  works for both surfaces) or in a tiny `pv-*` base sheet.
+  works for both surfaces) or in a tiny `primitiv-*` base sheet.
 - **Auto-wrapping.** The React wrapper wraps text nodes in
   `primitiv-tabs__trigger-label`. The HTML snippet writes that span out
   literally. The element does **not** rewrite consumer children.
@@ -472,27 +477,25 @@ exist.
 
 ## 9. Open questions
 
-1. **Core package name.** `@primitiv-ui/core` is the working name. It's
-   unambiguous on npm, but "core" also appears in `harmoni-core`.
-   `@primitiv-ui/behaviors` is the alternative.
-2. **Tag prefix.** `pv-` (proposed) vs `primitiv-`. The second is unambiguous
-   but long in templates, and easy to confuse with the class namespace.
-3. **Links as tabs.** React supports `asChild` + `<Link>`. The candidate web
-   equivalent: if a trigger's single child is an `<a href>`, the element moves
-   the tab role and tabindex onto it. That needs its own decision, since
-   it's the one place the element would touch consumer children.
-4. **Snippet flavour.** Generic HTML only, or Thymeleaf/ERB/Jinja dialects with
-   `th:each`-style loops? This RFC proposes generic only, and making dialects
-   a demand-driven follow-up.
-5. **Is `@primitiv-ui/web` added to the docs-site props extractor?** That
-   would mean JSDoc on element classes to the docgen bar, mirroring
-   `react-component-patterns` §9.
+**Settled 2026-11-07:** the core package is `@primitiv-ui/core` (D16), the tag
+prefix is `primitiv-` (D17), and `@primitiv-ui/web` joins the docs-site props
+extractor **after** the experiment (Phase 6), not before (D18).
+
+Still open:
+
+1. **The `asChild` translation.** §5.3's "the trigger element is the tab" is
+   provisional pending this decision.
+2. **The CLI surface.** §8's `--target html` is provisional; the existing
+   `primitiv.json` `framework` field may be the right hook instead.
+3. **Snippet flavour.** Generic HTML only, or Thymeleaf/ERB/Jinja dialects with
+   `th:each`-style loops? This RFC proposes generic only, and making dialects a
+   demand-driven follow-up.
 
 ## 10. Rollout
 
 | Phase | Work | Done when |
 |---|---|---|
-| 0 | This RFC accepted; open questions §9.1–2 answered | — |
+| 0 | This RFC accepted; open questions §9.1–2 (`asChild`, CLI) answered | — |
 | 1 | `@primitiv-ui/core` scaffolded; §4 steps 1–4 landed | React suites unchanged and green; core 100% coverage + 100% mutation |
 | 2 | `@primitiv-ui/web` Tabs | Conformance suite green on both surfaces; web suite 100%; Stryker 100% |
 | 3 | `apps/htmx-lab` + Playwright §7.4 cases; Tabs stylesheet audit | All ten cases green in CI; registry CSS renders the elements correctly |
@@ -521,15 +524,18 @@ suite.
 | D1 | Native custom elements, no element framework | The behaviour is already pure (core); the glue is small |
 | D2 | Light DOM only | The cascade layers, mode inheritance and consumer CSS must reach the parts |
 | D3 | Pure logic extracted to a published `@primitiv-ui/core` before any element is written | One copy of each keyboard/policy rule, and `tsc` + JSR need a real package boundary |
-| D4 | Element names mirror React part names (`pv-tabs-trigger`, not `pv-tab`) | One contract, one vocabulary across docs, manifests and prop tables |
+| D4 | Element names mirror React part names (`primitiv-tabs-trigger`, not `primitiv-tab`) | One contract, one vocabulary across docs, manifests and prop tables |
 | D5 | Value pairing, never index pairing | Stable under conditional server rendering and partial swaps |
 | D6 | `value` attribute reflected; no `default-value` | HTMX snapshots, `hx-include` and server re-renders see the live state |
-| D7 | Controlled mode becomes a cancelable `pv-tabs-change` | One mode instead of two; reads naturally to HTMX and plain listeners |
+| D7 | Controlled mode becomes a cancelable `primitiv-tabs-change` | One mode instead of two; reads naturally to HTMX and plain listeners |
 | D8 | Direction from `:dir()`, no `dir` attribute | The HTML `dir` attribute is already the inheritable provider |
-| D9 | `lazyMount` dropped; a `pv-tabs-show` event plus an HTMX recipe instead | On a server-driven page, lazy content is a fetch, not a deferred render |
+| D9 | `lazyMount` dropped; a `primitiv-tabs-show` event plus an HTMX recipe instead | On a server-driven page, lazy content is a fetch, not a deferred render |
 | D10 | ARIA as attributes; `ElementInternals` only for form association | Inspectable, testable, server-pre-renderable |
 | D11 | Lifecycle rules §5.4 (AbortController, registration, `closest()` scoping, microtask batch, observed attributes) | Each one fixes a real failure mode under HTMX swaps |
 | D12 | Shared conformance suite run by both surfaces | The only mechanical guard against the two surfaces drifting apart |
 | D13 | HTMX lab in repo; Spring Boot integration out of repo | Prove the behaviour cheaply in CI; keep the JVM out of this repo's toolchain |
 | D14 | Lockstep versioning, npm + JSR, provenance | Same release path as every other package |
-| D15 | Styled layer = `primitiv add --target html` over the unchanged `contract.json` + `styles.css` | The styling contract was framework-neutral all along |
+| D15 | Styled layer = `primitiv add` for HTML over the unchanged `contract.json` + `styles.css` (flag shape open, §9.2) | The styling contract was framework-neutral all along |
+| D16 | Shared package named `@primitiv-ui/core` | Settled 2026-11-07 |
+| D17 | Tag prefix `primitiv-` | Settled 2026-11-07; one namespace across tags, classes and custom properties |
+| D18 | Docs-site props extractor gains `@primitiv-ui/web` after the experiment | It must read every surface package eventually; not needed to prove the behaviour |

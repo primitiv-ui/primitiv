@@ -1,0 +1,44 @@
+{
+  "name": "@primitiv-ui/web",
+  "version": "0.1.40",
+  "private": true,
+  "description": "Primitiv's headless components as standard custom elements: light DOM, no framework, no runtime dependencies. Works in plain HTML, server-rendered stacks, React, Vue, Angular and anything else that renders HTML.",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "sideEffects": false,
+  "files": [
+    "dist"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/primitiv-ui/primitiv.git",
+    "directory": "packages/web"
+  },
+  "scripts": {
+    "qa": "pnpm qa:units",
+    "qa:units": "vitest run --coverage",
+    "qa:units:watch": "vitest --coverage",
+    "mutate": "stryker run",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@primitiv-ui/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@stryker-mutator/core": "9.6.1",
+    "@stryker-mutator/vitest-runner": "9.6.1",
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/user-event": "^14.6.1",
+    "@vitest/coverage-v8": "^4.1.4",
+    "jsdom": "^29.0.2",
+    "typescript": "^6.0.2",
+    "vitest": "^4.1.4"
+  }
+}

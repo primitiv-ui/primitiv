@@ -245,6 +245,25 @@ jobs:
       # attempt at this step — the comment this replaced assumed pnpm would
       # skip it, which was never actually true for wasm-pack's output).
       # Existence-guarded per package, same reasoning as the npm steps above.
+      # The bootstrap token for a brand-new npm package (RELEASING.md §2), and a
+      # no-op unless the NPM_TOKEN secret exists. Trusted Publishing cannot be set
+      # up for a name npm has never seen, so a new package's FIRST publish needs a
+      # token: add the secret before that release and delete it straight after.
+      # It sits here, after the CLI packages, so those keep publishing through
+      # OIDC; from this step on the token wins over OIDC for every npm publish in
+      # the job, which is why a green run with the secret present proves nothing
+      # about Trusted Publishing.
+      - name: Bootstrap token for a new npm package (only when NPM_TOKEN is set)
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          if [ -n "$NPM_TOKEN" ]; then
+            echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" >> ~/.npmrc
+            echo "NPM_TOKEN is set: npm publishes from here on use the bootstrap token."
+          else
+            echo "No NPM_TOKEN secret: publishing through Trusted Publishing (OIDC) only."
+          fi
+
       # core goes FIRST, and that is the opposite of the "new package last" rule
       # in RELEASING.md §2 on purpose. That rule exists so a new package's
       # first-publish ENEEDAUTH cannot block packages that do not need it. react

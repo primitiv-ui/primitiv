@@ -204,6 +204,11 @@ A fourth library, and the first one another library **depends on**:
 - **Its first release needs the §2 token bootstrap in place before the run**,
   on npm, and the package created and linked to this repo on jsr.io, because a
   failure there now blocks `react` rather than costing a re-run of one step.
+  The npmrc line is **already in `publish.yml`** (the "Bootstrap token for a new
+  npm package" step, added 2026-11-07), guarded on the secret, so the bootstrap
+  is now settings only: add the `NPM_TOKEN` repo secret, release, configure
+  Trusted Publishing on the new package, then delete the secret and revoke the
+  token. §2 step 3's "write the block" is done for you.
 - **JSR resolution of `workspace:*` is unverified.** JSR documents
   `package.json` dependencies as a source of bare-specifier resolution but says
   nothing about pnpm's `workspace:` protocol, and `jsr publish --dry-run` cannot

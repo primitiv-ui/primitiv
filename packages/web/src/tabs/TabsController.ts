@@ -54,6 +54,18 @@ export class TabsController {
     this.#triggers.set(element, { value, disabled: options.disabled ?? false });
   }
 
+  /**
+   * Replace the whole collection in one call. A host that re-reads its parts on
+   * every change (the custom elements, the React adapter) hands over what it
+   * has now; a trigger missing from the list is simply no longer registered.
+   */
+  setTriggers(triggers: ReadonlyArray<{ value: string; element: HTMLElement; disabled?: boolean }>): void {
+    this.#triggers.clear();
+    for (const { value, element, disabled } of triggers) {
+      this.registerTrigger(value, element, { disabled });
+    }
+  }
+
   /** Remove `element` from the collection. */
   unregisterTrigger(element: HTMLElement): void {
     this.#triggers.delete(element);

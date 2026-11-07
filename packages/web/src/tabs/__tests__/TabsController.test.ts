@@ -235,6 +235,33 @@ describe("TabsController", () => {
     });
   });
 
+  describe("replacing the collection", () => {
+    it("replaces every registration in one call", async () => {
+      // Arrange
+      const user = userEvent.setup();
+      const { root, buttons } = mount(["one", "two", "three"]);
+      const host = hostWith();
+      const controller = new TabsController(root, host);
+      controller.registerTrigger("one", buttons[0]);
+      controller.registerTrigger("two", buttons[1]);
+      controller.connect();
+
+      // Act
+      controller.setTriggers([
+        { value: "one", element: buttons[0] },
+        { value: "three", element: buttons[2], disabled: true },
+      ]);
+      buttons[0].focus();
+      await user.keyboard("{ArrowRight}");
+      await user.click(buttons[1]);
+      await user.click(buttons[2]);
+
+      // Assert
+      expect(buttons[2]).toBe(document.activeElement);
+      expect(host.activations).toEqual([]);
+    });
+  });
+
   describe("lifecycle", () => {
     it("stops listening once disconnected", async () => {
       // Arrange

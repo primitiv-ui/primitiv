@@ -78,8 +78,6 @@ export class PrimitivTabsElement extends ElementBase {
   #shown: string | undefined;
   #rendered = false;
   readonly #controller = new TabsController(this, this.#host());
-  /** The tab elements currently registered with the controller. */
-  #registered = new Set<HTMLElement>();
 
   /**
    * Watches the subtree for parts arriving, leaving, or changing the attributes
@@ -192,11 +190,13 @@ export class PrimitivTabsElement extends ElementBase {
 
     // Replace the registration wholesale: a removed part, or a trigger whose child
     // a framework re-rendered, simply is not registered again.
-    for (const tab of this.#registered) this.#controller.unregisterTrigger(tab);
-    for (const { trigger, tab, value } of triggers) {
-      this.#controller.registerTrigger(value, tab, { disabled: trigger.hasAttribute("disabled") });
-    }
-    this.#registered = new Set(triggers.map((t) => t.tab));
+    this.#controller.setTriggers(
+      triggers.map(({ trigger, tab, value }) => ({
+        value,
+        element: tab,
+        disabled: trigger.hasAttribute("disabled"),
+      })),
+    );
 
     for (const { trigger, tab, value } of triggers) {
       const panel = panels.get(value);

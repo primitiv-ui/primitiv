@@ -119,6 +119,7 @@ live in [`../consumption-design.md`](../consumption-design.md).
 | [0009](0009-mode-scoping-theme-and-density.md) | Mode scoping: theme & density as inheritable attributes | Draft |
 | [0016](0016-spacing-and-flow-rhythm.md) | Spacing & flow rhythm | Implemented — no default margins; opt-in `.primitiv-flow` / `<Prose>` |
 | [0020](0020-agent-manifest-and-mcp-server.md) | Agent manifest & MCP server | Draft |
+| [0032](0032-web-components.md) | Web components & a shared behaviour core | Draft — proposed |
 
 - **0004** — the foundation: the hybrid model (versioned headless packages +
   opt-in copy-in styles) and the four-part styling contract (root class +
@@ -165,6 +166,16 @@ live in [`../consumption-design.md`](../consumption-design.md).
   `get_tokens` / `add_component` as typed tools. Follows through on the
   "(future) an MCP server" stub in RFC 0005 §6.5. Codemods and any schema
   redesign are explicitly out of scope.
+
+- **0032** — web components: framework-free custom elements
+  (`@primitiv-ui/web`, light DOM, no Lit) for server-rendered stacks such as
+  HTMX and Thymeleaf. The framework-independent keyboard and policy logic is
+  pulled out of `@primitiv-ui/react` into a published `@primitiv-ui/core`
+  *first*, so both surfaces share one copy. A conformance suite run against
+  both is the drift guard. Tabs is the first component, proved in an in-repo
+  HTMX lab under Playwright; the styled layer is
+  `primitiv add --target html` over the unchanged `contract.json` +
+  `styles.css`.
 
 Read **0004 → 0005 → 0006** in order; each builds on the one before. **0008**
 constrains the *shape* of 0006's emitted CSS (layers + token scoping) and **0009**

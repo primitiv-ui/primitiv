@@ -24,7 +24,7 @@ import type {
   PrimitivTabsListElement,
   PrimitivTabsTriggerElement,
 } from "../tabs/elements.ts";
-import type { PrimitivTabsChangeEvent } from "./react.ts";
+import type { PrimitivTabsChangeEvent } from "./events.ts";
 
 /** Svelte's own attributes and events for an element. */
 type Attributes<E extends HTMLElement> = HTMLAttributes<E>;

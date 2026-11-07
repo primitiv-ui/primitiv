@@ -25,14 +25,14 @@ import type {
   PrimitivTabsListElement,
   PrimitivTabsTriggerElement,
 } from "../tabs/elements.ts";
+import type { PrimitivTabsChangeEvent } from "./events.ts";
 
 /** React's own props for an element, plus `class`, which React 19 passes to custom elements. */
 type ElementProps<E extends HTMLElement> = DetailedHTMLProps<HTMLAttributes<E>, E> & {
   class?: string;
 };
 
-/** The `primitiv-tabs-change` event: bubbles, cancelable, fired before the change applies. */
-export type PrimitivTabsChangeEvent = CustomEvent<{ value: string; index: number }>;
+export type { PrimitivTabsChangeEvent };
 
 declare module "react" {
   // eslint-disable-next-line @typescript-eslint/no-namespace

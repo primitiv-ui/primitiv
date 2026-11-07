@@ -20,7 +20,7 @@
  */
 import type { DefineComponent, EmitsOptions } from "vue";
 
-import type { PrimitivTabsChangeEvent } from "./react.ts";
+import type { PrimitivTabsChangeEvent } from "./events.ts";
 
 /** A tag as Vue's template checker sees it: its props, and the events it emits. */
 type Tag<Props, Events extends EmitsOptions = Record<never, never>> = DefineComponent<

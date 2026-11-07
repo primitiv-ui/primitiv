@@ -167,15 +167,15 @@ live in [`../consumption-design.md`](../consumption-design.md).
   "(future) an MCP server" stub in RFC 0005 §6.5. Codemods and any schema
   redesign are explicitly out of scope.
 
-- **0033** — web components: framework-free custom elements
-  (`@primitiv-ui/web`, light DOM, no Lit) for server-rendered stacks such as
-  HTMX and Thymeleaf. The framework-independent keyboard and policy logic is
-  pulled out of `@primitiv-ui/react` into a published `@primitiv-ui/core`
-  *first*, so both surfaces share one copy. A conformance suite run against
-  both is the drift guard. Tabs is the first component, proved in an in-repo
-  HTMX lab under Playwright; the styled layer is
-  `primitiv add --target html` over the unchanged `contract.json` +
-  `styles.css`.
+- **0033** — web components: standard custom elements (`@primitiv-ui/web`,
+  light DOM, no Lit, no runtime deps) usable anywhere — plain HTML, server
+  stacks such as HTMX, React, Vue, Angular. The framework-independent keyboard
+  and policy logic comes out of `@primitiv-ui/react` into a published
+  `@primitiv-ui/core` *first*, so every surface shares one copy, and a
+  conformance suite run against both surfaces is the drift guard. Tabs is the
+  first component, proved in an interop lab (one app per environment, one
+  Playwright spec). Long-term direction: the elements become the base and
+  framework packages become thin adapters.
 
 Read **0004 → 0005 → 0006** in order; each builds on the one before. **0008**
 constrains the *shape* of 0006's emitted CSS (layers + token scoping) and **0009**

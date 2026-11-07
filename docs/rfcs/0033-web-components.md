@@ -1,12 +1,15 @@
 # RFC 0033 — Web components (`@primitiv-ui/web`) and a shared behaviour core (`@primitiv-ui/core`)
 
 **Status:** Draft — proposed (2026-11-07). Package name and tag prefix settled
-(D16, D17); `asChild` translation and CLI surface under discussion (§9).
-**Decision sought:** Ship Primitiv's headless behaviour as framework-free custom
-elements for server-rendered stacks (plain HTML, HTMX, Thymeleaf, Rails, Django,
-Laravel …), with the framework-independent logic pulled out of
-`@primitiv-ui/react` into a shared package **first**, so the two surfaces run the
-same keyboard and state rules instead of two copies that drift apart.
+(D16, D17); framework neutrality settled (D19–D23); `asChild` translation and CLI
+surface under discussion (§9).
+**Decision sought:** Ship Primitiv's headless behaviour as standard custom
+elements that work **anywhere a browser runs HTML**: a plain HTML/CSS/JS page,
+any server-rendered stack, React, Vue, Angular, Svelte or anything else. The
+framework-independent logic comes out of `@primitiv-ui/react` into a shared
+package **first**, so every surface runs the same keyboard and state rules. The
+long-term direction (§3.3) is that the elements become the library's base
+implementation and framework packages become thin adapters over them.
 
 ---
 
@@ -15,44 +18,53 @@ same keyboard and state rules instead of two copies that drift apart.
 Today, using Primitiv means using React. The design system itself (tokens,
 registry stylesheets, the `contract.json` styling contract, Figma) has no React
 dependency at all. Only the behaviour layer does: keyboard models, ARIA wiring,
-roving focus, controlled state. A team rendering HTML on the server and
-swapping fragments with HTMX can already use the token layer and the registry
-CSS. What it cannot get is a tablist that behaves correctly.
+roving focus, controlled state. A team on Vue, Angular, Svelte, a
+server-rendered stack or a hand-written page can already use the token layer
+and the registry CSS. What it cannot get is a tablist that behaves correctly.
 
-Custom elements fill that gap without asking the consumer to adopt a client
-framework:
+Custom elements are the one component model every one of those environments
+already understands, because it is the browser's own:
 
-- **They upgrade themselves.** The browser runs `connectedCallback` whenever a
-  `<primitiv-tabs>` enters the document, however it got there: parsed HTML, an HTMX
-  swap, `innerHTML`, a history restore. There is no hydration step.
+- **They are a platform standard, not a library.** No framework has to know
+  about them, and every major framework can render them, bind their
+  properties, and listen to their events (§5.6).
+- **They upgrade themselves.** The browser runs `connectedCallback` whenever an
+  element enters the document, however it got there: parsed HTML, a framework
+  render, an HTMX swap, `innerHTML`, a history restore. There is no hydration
+  step to wire up.
 - **They live in the light DOM**, so the existing styling contract (root class,
   modifier classes, `data-*` state, `--primitiv-*` custom properties, RFC 0004
   §3) and the `@layer primitiv.*` cascade (RFC 0008) apply unchanged.
 - **They cost almost nothing to ship.** No runtime, no virtual DOM. A component
-  is a few kilobytes of event handling over markup the server already sent.
+  is a few kilobytes of event handling over markup someone else rendered.
 
 The opening proposal for this work (an external draft written without access
-to this repo) converted Tabs to an index-based `<primitiv-tabs>` with its own keyboard
-code. That would have produced a *second, smaller* Tabs: no `value` pairing, no
-`aria-controls`, no disabled tabs, no manual activation, no RTL. It would also
-have reimplemented in parallel logic that the React package already holds as
-pure functions. This RFC keeps that draft's good calls — native custom elements,
-no Lit, light DOM, a `data-*` styling contract, HTMX as the proving ground — and
-replaces the rest.
+to this repo) converted Tabs to an index-based `<pv-tabs>` with its own keyboard
+code, aimed at one server-side stack. That would have produced a *second,
+smaller* Tabs: no `value` pairing, no `aria-controls`, no disabled tabs, no
+manual activation, no RTL. It would also have reimplemented logic the React
+package already holds as pure functions. This RFC keeps that draft's good calls
+— native custom elements, no Lit, light DOM, a `data-*` styling contract — and
+replaces the rest. The stack it named (Spring Boot, Thymeleaf, HTMX) is one
+consumer among many here, not a target the design bends towards.
 
 ## 2. Goals and non-goals
 
 **Goals**
 
-1. One behavioural contract per component, delivered by two surfaces: React
-   (`@primitiv-ui/react`) and custom elements (`@primitiv-ui/web`).
-2. Pure, framework-free logic lives once, in `@primitiv-ui/core`, and both
-   surfaces import it.
-3. The elements work in any server-rendered stack with no build step: one
-   `<script type="module">` and they run.
-4. Correct behaviour under HTMX's whole swap repertoire (§7.4), proved in a real
-   browser.
-5. The existing registry stylesheets style the elements unchanged.
+1. **Usable anywhere, with no technology assumed.** The same elements work in:
+   - a plain HTML/CSS/JS page with no build step (one `<script type="module">`);
+   - any server-rendered or hypermedia stack (HTMX, Hotwire, Rails, Django,
+     Laravel, Spring …);
+   - a React project that prefers elements over `@primitiv-ui/react`;
+   - Vue, Angular, Svelte, Solid or any other framework.
+2. **One behavioural contract per component**, whichever surface delivers it.
+3. **Pure, framework-free logic lives once**, in `@primitiv-ui/core`.
+4. **Framework rendering is safe.** An element never fights the framework that
+   rendered it (§5.6), and it never assumes that framework exists.
+5. **The existing registry stylesheets style the elements unchanged.**
+6. **No dead ends for §3.3.** Every choice in this RFC keeps open the path to
+   elements as the base with framework adapters on top.
 
 **Non-goals (v1)**
 
@@ -61,14 +73,18 @@ replaces the rest.
   DOM is the whole point.
 - **Lit, Stencil, or any element framework.** The core is already pure. The
   per-element glue is small enough that a framework would cost more than it
-  saves.
+  saves, and a runtime dependency would contradict goal 1.
 - **Wrapping React in custom elements.** That would make every consumer ship
-  React, which defeats the purpose.
-- **Using the elements from React.** React consumers keep `@primitiv-ui/react`.
+  React.
+- **Rewriting `@primitiv-ui/react` onto the elements now.** That is §3.3's
+  later stage, gated on evidence this experiment produces.
+- **Framework-specific adapter packages in v1.** Typings for each framework
+  ship in `@primitiv-ui/web` (§5.6.4); adapter packages wait for §3.3.
 - **New visual design.** Custom elements add no visual surface. They render the
   same anatomy, so nothing goes to Figma. (The "Figma first" rule in CLAUDE.md
   is about composite *designs*; it does not apply here.)
-- **A Spring Boot app in this repo.** See §7.5.
+- **Any one consumer's stack in this repo** (a Spring Boot app, an Angular
+  workspace's full toolchain …). See §7.5.
 
 ## 3. Architecture
 
@@ -161,6 +177,56 @@ locally, and pnpm rewrites it to the lockstep version at publish time.
 Users never install core directly: it reaches them as a dependency of
 whichever surface they chose. Its API is still semver-public, though, because
 both surfaces pin it.
+
+### 3.3 The long-term direction: elements as the base
+
+The diagram above is **stage 1**: core feeds two sibling surfaces. The
+direction this RFC sets is **stage 2**:
+
+```text
+@primitiv-ui/core   pure logic (unchanged)
+        │
+@primitiv-ui/web    the implementation: DOM glue, lifecycle, ARIA
+        │
+adapters            @primitiv-ui/react, and later vue / angular / …
+                    typed props, framework events, controlled state,
+                    SSR pre-rendering — no behaviour of their own
+```
+
+Stage 2 is **not decided by this RFC**. It is decided later, against evidence
+stage 1 produces. What this RFC does is make stage 1's choices so that stage 2
+needs no redesign. The constraints that buys, each already in the design:
+
+1. **All behaviour and policy live in core** (§3.1), not in the element
+   classes. An adapter can then compute, at render time, the exact state an
+   element would set.
+2. **Elements accept pre-rendered state and reconcile it** (§5.5). That is the
+   same path a React adapter's server render takes: the adapter uses core to
+   render roles, ARIA and `data-state`, and the element adopts them on upgrade.
+   SSR stays as complete as it is today.
+3. **Elements never restructure the DOM** (§5.6.1), so a framework can own every
+   node an element decorates.
+4. **The element contract equals the React contract**, enforced by the
+   conformance suite (§6.2). When stage 2 lands, that suite is what proves the
+   adapter changed nothing.
+
+What stage 2 has to answer, recorded here so the experiment collects the
+evidence:
+
+- **React 18.** React 19 sets custom-element properties and listens to their
+  events natively. React 18 does neither, so an 18-compatible adapter needs a
+  ref-and-listener wrapper per element. Stage 2 is likely the point where the
+  React package drops 18.
+- **`asChild`, refs and imperative APIs** must map onto the element model
+  (§9.1 settles the first).
+- **Context** such as `DirectionProvider` maps to inherited DOM state (`dir`),
+  which elements read through `:dir()`. The adapter has to render that
+  attribute rather than provide context.
+- **Test migration.** The React suites become adapter suites, and their
+  behaviour assertions move into the conformance suite, which already runs
+  against both surfaces.
+- **Cost.** The size and runtime cost of the adapter path against today's
+  React components, measured on Tabs before anything else moves.
 
 ## 4. The extraction (React side)
 
@@ -331,6 +397,73 @@ shipping. A selector cannot compare a panel's `value` with its root's, so
 before the upgrade every panel shows. The README therefore makes rendering
 `hidden` on inactive panels from the template the rule, not a tip.
 
+### 5.6 Working inside frameworks
+
+These rules make the element safe to render from any framework, and they are
+the same rules a plain HTML page needs.
+
+#### 5.6.1 DOM ownership
+
+**An element never creates, moves or removes nodes it did not create.** It
+only writes attributes on itself and on the parts it owns, and it only writes
+the attributes in its contract (§5.3). Frameworks reconcile the nodes and the
+attributes *they* rendered; an element that also moves children or rewrites
+consumer attributes corrupts that reconciliation (React and Vue both lose
+track of a moved node). Three consequences:
+
+- No rendering, no templating, no wrapping of text nodes (the React wrapper's
+  `primitiv-tabs__trigger-label` span is written by the consumer, §8).
+- No `class` writes. Classes belong to the consumer and, through them, to the
+  registry styling.
+- A consumer-supplied `id` is never replaced (§5.3).
+
+#### 5.6.2 Import and SSR safety
+
+Server renderers (Next.js, Nuxt, Angular SSR, SvelteKit, Astro) import modules
+in a runtime with no DOM. `class X extends HTMLElement` throws there at import
+time. So:
+
+- Element modules evaluate safely without a DOM (the base class falls back
+  when `HTMLElement` is absent), and `define` is a no-op when
+  `customElements` is undefined.
+- Server output is just the light-DOM markup, which §5.5 already makes correct
+  before upgrade.
+
+#### 5.6.3 Binding properties, attributes and events
+
+Every piece of state is reachable as **both** a reflected attribute and a
+property, and every notification is a DOM event with a lowercase kebab-case
+name. That is the one combination every framework binds without help:
+
+| Framework | Set the value | Listen for a change |
+|---|---|---|
+| Plain HTML / JS | `value="billing"` or `el.value = "billing"` | `el.addEventListener("primitiv-tabs-change", …)` |
+| React 19 | `<primitiv-tabs value={v}>` | `onprimitiv-tabs-change={…}` |
+| Vue 3 | `:value="v"` | `@primitiv-tabs-change="…"` |
+| Angular | `[value]="v"` | `(primitiv-tabs-change)="…"` |
+| Svelte 5 | `value={v}` | `onprimitiv-tabs-change={…}` |
+
+The interop lab (§7.4) verifies the plain, React, Vue and Angular rows.
+Controlled usage in every framework is the same pattern: bind `value`, and in
+the change handler either let the change through or call `preventDefault()`
+and set your own value (D7). Rich data never travels through attributes; it is
+set through properties, so no framework has to serialise it.
+
+#### 5.6.4 Types and tooling
+
+`@primitiv-ui/web` ships, with no runtime cost:
+
+- `HTMLElementTagNameMap` declarations, so `document.querySelector
+  ("primitiv-tabs")` is typed in any TypeScript project.
+- A **Custom Elements Manifest** (`custom-elements.json`), the community
+  standard most tooling reads: VS Code HTML completion, Storybook, JetBrains,
+  framework type generators. It is generated from the element classes' JSDoc
+  at build time, which also makes it the natural input for the docs-site props
+  extractor (D18) and for RFC 0020's agent manifest.
+- Opt-in typing entry points for React 19 JSX, Vue `GlobalComponents` and
+  Svelte, so `<primitiv-tabs>` type-checks in templates. Angular needs only
+  `CUSTOM_ELEMENTS_SCHEMA`, which the README documents.
+
 ## 6. Testing
 
 The rules are the same as everywhere else: strict TDD, 100% lines, branches,
@@ -391,7 +524,7 @@ dist/primitiv-web.js        → prebuilt single ESM bundle, core inlined, for no
 - `define` is idempotent (`customElements.get(name) ?? define`). It also
   accepts a prefix override for teams that need to rename the elements to run
   two versions side by side.
-- **No-build consumers** (Spring Boot's `static/`, a CDN via jsDelivr from npm)
+- **No-build consumers** (a static folder, or a CDN via jsDelivr from npm)
   use `<script type="module" src=".../primitiv-web.js">`. The bundle is built
   with the Vite/esbuild that is already in the toolchain. Per-module output
   uses `tsc`, like `packages/react`.
@@ -412,14 +545,34 @@ to be confirmed once the first build exists and then held. The RFC also
 records, without gating on it, the React path for comparison:
 `@primitiv-ui/react` Tabs plus `react` and `react-dom`.
 
-### 7.4 HTMX lab (in repo)
+### 7.4 The interop lab (in repo)
 
-`apps/htmx-lab` is a static HTML + htmx page served by Vite. A tiny Vite
-middleware stands in for the server's fragment endpoints, and Playwright drives
-it in CI. Each case below is one Playwright test:
+`apps/interop-lab/` holds one small app per environment, each rendering the
+same Tabs scenarios and each driven by the **same** Playwright spec:
 
-1. A full fragment swap (`hx-swap="outerHTML"`) brings in a new `<primitiv-tabs>`. It
-   upgrades with correct ARIA and no script call.
+| App | What it proves |
+|---|---|
+| `html` | No build step; the CDN bundle on a blank page |
+| `htmx` | Elements under server-driven fragment swaps (cases below) |
+| `react` | React 19 rendering, property binding, events, StrictMode double-mount |
+| `vue` | Vue 3 templates, `:value` / `@event`, `v-if` mount and unmount |
+| `angular` | `CUSTOM_ELEMENTS_SCHEMA`, `[value]` / `(event)`, change detection |
+
+Each app sits outside the pnpm workspace with its own lockfile, as
+`apps/docs-site` does, so one framework's toolchain never enters another's
+resolution. The lab runs in its own CI workflow, triggered by changes to
+`packages/core` or `packages/web`. Svelte and Solid follow on demand.
+
+The shared scenarios are the Tabs keyboard and ARIA contract (the conformance
+cases, now in a real browser), plus `:dir()` and focus-visible, which jsdom
+cannot prove.
+
+The `htmx` app adds the swap cases, one Playwright test each. They are the
+most demanding test of the §5.4 lifecycle rules, because nothing re-renders the
+elements on HTMX's behalf:
+
+1. A full fragment swap (`hx-swap="outerHTML"`) brings in a new
+   `<primitiv-tabs>`. It upgrades with correct ARIA and no script call.
 2. `innerHTML` swap into one `<primitiv-tabs-content>` that contains a nested
    `<primitiv-tabs>`. The two instances stay independent.
 3. An out-of-band swap appends a new trigger and panel. They join the existing
@@ -437,17 +590,15 @@ it in CI. Each case below is one Playwright test:
    throw and doesn't leave a stuck listener.
 10. RTL: arrow keys flip under `<html dir="rtl">`.
 
-### 7.5 Spring Boot / Thymeleaf
+### 7.5 Real-world stacks live outside this repo
 
-This lives in a **separate repo** (`primitiv-ui/examples-spring`, or a personal
-sandbox), not here. A JVM toolchain in this repo's CI would be a large standing
-cost for one consumer. The package's job is to be stack-agnostic, and
-`apps/htmx-lab` proves the HTMX behaviour without one. The Spring repo consumes
-the published package exactly as a real user would, and records DX notes
-against this RFC: Thymeleaf fragment ergonomics, attribute escaping, and
-`th:attr` with kebab-case attributes.
+A full consumer stack (Spring Boot + Thymeleaf, a Rails app, an Nx Angular
+workspace) is a large standing CI cost for one consumer, and it would tempt the
+design towards that stack. They live in separate example repos, consume the
+published packages exactly as a user would, and record DX notes against this
+RFC. The interop lab is what gates releases.
 
-## 8. The styled layer: registry `--target html`
+## 8. The styled layer: registry `add` for elements
 
 The registry's `contract.json` is already framework-neutral. It names the root
 element, every part's class, the modifiers and the `data-*` hooks. The `.tsx`
@@ -457,7 +608,8 @@ story for web is:
 - **`primitiv add tabs --target html`** copies `styles.css` (unchanged),
   `contract.json`, and a generated **`tabs.html` snippet**. The snippet is the
   §5.1 markup with every contract class applied and the pre-rendered ARIA from
-  §5.5. It's plain HTML, so it pastes into Thymeleaf, ERB, Jinja or Blade.
+  §5.5. It's plain HTML, so it pastes into any template language or framework
+  template (Vue, Angular and Svelte templates take it nearly verbatim).
   `primitiv.json` records the target, so later `add`s follow it.
 - **Audit first.** Each registry stylesheet must be checked for assumptions
   about the element type before its component gets a web target. A custom
@@ -487,9 +639,13 @@ Still open:
    provisional pending this decision.
 2. **The CLI surface.** §8's `--target html` is provisional; the existing
    `primitiv.json` `framework` field may be the right hook instead.
-3. **Snippet flavour.** Generic HTML only, or Thymeleaf/ERB/Jinja dialects with
-   `th:each`-style loops? This RFC proposes generic only, and making dialects a
-   demand-driven follow-up.
+3. **Snippet flavour.** Generic HTML only, or per-environment flavours (JSX for
+   a React project using elements, template-language loops)? This RFC proposes
+   generic HTML only, with flavours a demand-driven follow-up.
+4. **The CLI's `framework` vocabulary.** With elements usable inside React,
+   Vue and Angular, "framework" no longer names the choice `add` makes. The
+   choice is which *surface* to install (React components or elements), and a
+   Vue project choosing elements is not choosing "html".
 
 ## 10. Rollout
 
@@ -498,8 +654,8 @@ Still open:
 | 0 | This RFC accepted; open questions §9.1–2 (`asChild`, CLI) answered | — |
 | 1 | `@primitiv-ui/core` scaffolded; §4 steps 1–4 landed | React suites unchanged and green; core 100% coverage + 100% mutation |
 | 2 | `@primitiv-ui/web` Tabs | Conformance suite green on both surfaces; web suite 100%; Stryker 100% |
-| 3 | `apps/htmx-lab` + Playwright §7.4 cases; Tabs stylesheet audit | All ten cases green in CI; registry CSS renders the elements correctly |
-| 4 | Distribution: entry points, bundle, size gate, lockstep release | Published; `<script type="module">` from jsDelivr works on a blank page |
+| 3 | `apps/interop-lab` (html, htmx, react, vue, angular) + Playwright; Tabs stylesheet audit | Shared spec and the ten HTMX cases green in CI; registry CSS renders the elements correctly |
+| 4 | Distribution: entry points, bundle, CEM + framework typings, size gate, lockstep release | Published; `<script type="module">` from jsDelivr works on a blank page |
 | 5 | `primitiv add --target html` + snippet generation | Rust gate green; Tabs installs into a plain-HTML project |
 | 6 | Next components, chosen for core reuse | — |
 
@@ -533,9 +689,14 @@ suite.
 | D10 | ARIA as attributes; `ElementInternals` only for form association | Inspectable, testable, server-pre-renderable |
 | D11 | Lifecycle rules §5.4 (AbortController, registration, `closest()` scoping, microtask batch, observed attributes) | Each one fixes a real failure mode under HTMX swaps |
 | D12 | Shared conformance suite run by both surfaces | The only mechanical guard against the two surfaces drifting apart |
-| D13 | HTMX lab in repo; Spring Boot integration out of repo | Prove the behaviour cheaply in CI; keep the JVM out of this repo's toolchain |
+| D13 | Interop lab in repo (html, htmx, react, vue, angular); full consumer stacks out of repo | Prove portability in CI without adopting any one consumer's toolchain |
 | D14 | Lockstep versioning, npm + JSR, provenance | Same release path as every other package |
 | D15 | Styled layer = `primitiv add` for HTML over the unchanged `contract.json` + `styles.css` (flag shape open, §9.2) | The styling contract was framework-neutral all along |
 | D16 | Shared package named `@primitiv-ui/core` | Settled 2026-11-07 |
 | D17 | Tag prefix `primitiv-` | Settled 2026-11-07; one namespace across tags, classes and custom properties |
 | D18 | Docs-site props extractor gains `@primitiv-ui/web` after the experiment | It must read every surface package eventually; not needed to prove the behaviour |
+| D19 | Framework neutrality is a goal: plain HTML, server stacks, React, Vue, Angular and others are all first-class | Settled 2026-11-07; the elements must assume no technology |
+| D20 | Elements never create, move or remove nodes they did not create, and never write `class` | Frameworks own the nodes they render (§5.6.1) |
+| D21 | Element modules are safe to import without a DOM; `define` is a no-op there | SSR frameworks import modules on the server (§5.6.2) |
+| D22 | State is attribute + property; notifications are lowercase kebab-case DOM events; typings and a Custom Elements Manifest ship with the package | The one combination every framework binds without help (§5.6.3–4) |
+| D23 | Direction: elements become the base implementation and framework packages become adapters (stage 2, §3.3), decided later on stage-1 evidence | Settled as direction 2026-11-07; stage 1 is designed not to block it |

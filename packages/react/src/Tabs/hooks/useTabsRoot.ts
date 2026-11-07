@@ -4,8 +4,11 @@ import {
   useEffect,
   useImperativeHandle,
   useMemo,
+  useRef,
   Ref,
 } from "react";
+
+import { TabsController } from "@primitiv-ui/web";
 
 import { useCollection, useControllableState } from "../../hooks/index.ts";
 
@@ -168,5 +171,67 @@ export function useTabsRoot(
     ],
   );
 
-  return { contextValue };
+  // ── The adapter (RFC 0033 §3.4, D28) ────────────────────────────────────
+  // Tabs' DOM behaviour — clicks, the keyboard contract, focus — runs in the
+  // web implementation's TabsController, the same code the <primitiv-tabs>
+  // element runs. React keeps rendering exactly the markup it always has and
+  // keeps the state; the controller reads that state through `latest` and asks
+  // for activations through `activate`.
+  const rootRef = useRef<HTMLDivElement>(null);
+  const controllerRef = useRef<TabsController | null>(null);
+  const snapshot = {
+    activeValue,
+    orientation,
+    dir,
+    activationMode,
+    isControlled,
+    setActiveValue,
+    onValueChange,
+    onChange,
+  };
+  const latest = useRef(snapshot);
+  latest.current = snapshot;
+
+  useEffect(() => {
+    const controller = new TabsController(rootRef.current as HTMLDivElement, {
+      state: () => ({
+        active: latest.current.activeValue,
+        orientation: latest.current.orientation,
+        dir: latest.current.dir,
+        activationMode: latest.current.activationMode,
+      }),
+      activate: (newValue, index) => {
+        const current = latest.current;
+        if (current.isControlled) {
+          // Controlled mode requires `onValueChange` (discriminated-union prop
+          // type), so the optional call can never no-op in valid usage.
+          // Stryker disable next-line OptionalChaining: unreachable — controlled requires onValueChange.
+          current.onValueChange?.(newValue);
+        } else {
+          current.setActiveValue(newValue);
+        }
+        current.onChange?.({ index, name: newValue });
+      },
+    });
+    controllerRef.current = controller;
+    controller.connect();
+    return () => controller.disconnect();
+    // Stryker disable next-line ArrayDeclaration: equivalent — any constant dependency list runs this once per mount.
+  }, []);
+
+  // Hand the controller the current collection whenever it changes: it orders
+  // triggers by DOM position itself, and one that has unmounted is simply not
+  // in the list. `triggerValues` is a fresh array on every registration —
+  // including a trigger toggling `disabled` — so it is the only dependency.
+  useEffect(() => {
+    (controllerRef.current as TabsController).setTriggers(
+      [...triggersRef.current].map(([triggerValue, meta]) => ({
+        value: triggerValue,
+        element: meta.element,
+        disabled: meta.disabled,
+      })),
+    );
+  }, [triggerValues, triggersRef]);
+
+  return { contextValue, rootRef };
 }

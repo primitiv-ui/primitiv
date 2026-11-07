@@ -283,6 +283,9 @@ importers:
       '@primitiv-ui/core':
         specifier: workspace:*
         version: link:../core
+      '@primitiv-ui/web':
+        specifier: workspace:*
+        version: link:../web
     devDependencies:
       '@primitiv-ui/conformance':
         specifier: workspace:*

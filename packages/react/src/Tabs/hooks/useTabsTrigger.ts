@@ -1,38 +1,25 @@
-import {
-  useRef,
-  useEffect,
-  useCallback,
-  type KeyboardEvent,
-  type MouseEvent,
-} from "react";
+import { useRef, useEffect } from "react";
 
-import { tabsClick, tabsKeydown, tabsTabStop } from "@primitiv-ui/core";
+import { tabsTabStop } from "@primitiv-ui/core";
 
 import { TabsTriggerProps } from "../types";
 import { getTriggerAndPanelIds } from "../utils";
 
 import { useTabsContext } from "./useTabsContext";
 
+/**
+ * The render half of a trigger: its ids, state and roving tab stop, and its
+ * registration in the root's collection. Clicks and key presses are not handled
+ * here — the root's TabsController (from `@primitiv-ui/web`) owns Tabs' DOM
+ * behaviour for every surface (RFC 0033 §3.4). A consumer `onClick` or
+ * `onKeyDown` is therefore just a prop on the rendered element, and runs after
+ * the controller's native listener on the root.
+ */
 export function useTabsTrigger({
   value,
-  onClick,
   disabled,
-}: Pick<TabsTriggerProps, "value" | "onClick" | "disabled">) {
-  const {
-    orientation,
-    dir,
-    activationMode,
-    activeValue,
-    isControlled,
-    setActiveValue,
-    onValueChange,
-    onChange,
-    tabsId,
-    registerTrigger,
-    triggerValues,
-    disabledTriggerValues,
-    focusTrigger,
-  } = useTabsContext();
+}: Pick<TabsTriggerProps, "value" | "disabled">) {
+  const { orientation, activeValue, tabsId, registerTrigger, triggerValues } = useTabsContext();
   const isActive = activeValue === value;
   const { triggerId, panelId } = getTriggerAndPanelIds(tabsId, value);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -47,61 +34,6 @@ export function useTabsTrigger({
     return () => registerTrigger(value, null);
   }, [value, disabled, registerTrigger]);
 
-  const activateTab = useCallback(
-    // Callers pass only a real change: the core policy never asks to activate
-    // the tab that is already active.
-    (newValue: string, index: number) => {
-      if (isControlled) {
-        // Controlled mode requires `onValueChange` (discriminated-union prop
-        // type), so the optional call can never no-op in valid usage.
-        // Stryker disable next-line OptionalChaining: unreachable — controlled requires onValueChange.
-        onValueChange?.(newValue);
-      } else {
-        setActiveValue(newValue);
-      }
-      onChange?.({ index, name: newValue });
-    },
-    [isControlled, onValueChange, setActiveValue, onChange],
-  );
-
-  // Note: this composition is deliberately bespoke and does NOT use the
-  // shared composeEventHandlers from ../../Slot. It runs the library's
-  // activation BEFORE the consumer's onClick, and offers no preventDefault
-  // veto path — both differ from the shared util's contract. Switching to
-  // composeEventHandlers here would be an observable behaviour change for
-  // consumers (handler ordering and preventDefault semantics).
-  function handleClick(e: MouseEvent<HTMLButtonElement>) {
-    const target = tabsClick({ disabled: disabledTriggerValues, active: activeValue }, value);
-    if (target !== null) {
-      activateTab(target, triggerValues.indexOf(target));
-    }
-    onClick?.(e);
-  }
-
-  // Tabs' keyboard contract (arrows land on a disabled tab without activating
-  // it; manual mode activates only on Enter / Space) is core policy, so the
-  // web implementation follows exactly the same rules.
-  function handleKeyDown(e: KeyboardEvent<HTMLButtonElement>) {
-    const outcome = tabsKeydown(
-      {
-        values: triggerValues,
-        disabled: disabledTriggerValues,
-        active: activeValue,
-        orientation,
-        dir,
-        activationMode,
-      },
-      value,
-      e.key,
-    );
-    if (!outcome) return;
-    e.preventDefault();
-    if (outcome.activate !== null) {
-      activateTab(outcome.activate, triggerValues.indexOf(outcome.activate));
-    }
-    focusTrigger(outcome.focus);
-  }
-
   return {
     buttonRef,
     triggerId,
@@ -110,7 +42,5 @@ export function useTabsTrigger({
     orientation,
     state,
     tabIndex,
-    handleClick,
-    handleKeyDown,
   };
 }

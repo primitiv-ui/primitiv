@@ -25,7 +25,8 @@
     "paths": {
       "@primitiv-ui/react": ["../../packages/react/src/index.ts"],
       "@primitiv-ui/icons": ["../../packages/icons/src/index.ts"],
-      "@primitiv-ui/core": ["../../packages/core/src/index.ts"]
+      "@primitiv-ui/core": ["../../packages/core/src/index.ts"],
+      "@primitiv-ui/web": ["../../packages/web/src/index.ts"]
     },
 
     "isolatedModules": true,

@@ -45,6 +45,9 @@ export default defineConfig({
       '@primitiv-ui/core': fileURLToPath(
         new URL('../../packages/core/src/index.ts', import.meta.url),
       ),
+      '@primitiv-ui/web': fileURLToPath(
+        new URL('../../packages/web/src/index.ts', import.meta.url),
+      ),
     },
   },
 })

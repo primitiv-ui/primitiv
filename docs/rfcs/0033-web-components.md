@@ -6,7 +6,7 @@ decoupling and CLI surface settled (D24–D27); event naming settled (D29); the
 first increment is Tabs end to end, with `@primitiv-ui/react` Tabs rebuilt on
 the web implementation (D30); the controller/host split (D28), the §6.3 golden
 exception and the separate `onKeyDown` fix accepted 2026-11-07. Open: snippet
-flavour (§9). Phases 1 and 2 complete (2026-11-07).
+flavour (§9). Phases 1, 2 and 4 complete (2026-11-07); Phase 3 is PR #274.
 **Decision sought:** Ship Primitiv's headless behaviour as standard custom
 elements that work **anywhere a browser runs HTML**: a plain HTML/CSS/JS page,
 any server-rendered stack, React, Vue, Angular, Svelte or anything else. The
@@ -718,6 +718,27 @@ its own cycle.
 
 ### 6.3 The acceptance test for the React move
 
+> **Result (2026-11-07):** all four checks passed on one commit (`2bcf3795`).
+> Getting Tabs back to 100% mutation added `TabsController.setTriggers` (a
+> wholesale replace both hosts now use) and two new React test files that do
+> not edit the existing ones: a StrictMode test (without `disconnect()` on
+> effect cleanup, two controllers would handle every event twice) and a
+> context test, because `useTabsContext` is public and two of its fields
+> (`focusTrigger`, `disabledTriggerValues`) lost their only internal callers.
+>
+> **One ordering difference no test covers, accepted:** with `asChild`, the
+> child's *own* `onClick` used to run before activation (Slot composes child
+> first, then the trigger's handler). It now runs after, because activation
+> happens in the controller's native listener on the Tabs root, which fires
+> before React's delegated handlers on the root container. A handler that
+> could tell the difference would have to inspect the DOM mid-event; there was
+> never a veto either way.
+>
+> **Release constraint:** `@primitiv-ui/react` now depends on
+> `@primitiv-ui/web`, which is still `private`. Nothing from this work may be
+> released until Phase 5 makes `web` public, or the published React package
+> would depend on a package that does not exist on npm.
+
 The move is proved when, on the same commit:
 
 1. **All 14 existing Tabs test files pass without a single edit.** Any edit
@@ -914,8 +935,8 @@ Still open:
 | 0 | This RFC accepted, including D28 and §6.3's exception | Done 2026-11-07 |
 | 1 | `@primitiv-ui/core` scaffolded; §4 steps 1–4 landed | Done 2026-11-07: React suites unchanged and green (450 files, 2,650 tests, 100% coverage); core and Tabs at 100% mutation |
 | 2 | `@primitiv-ui/web` Tabs: `TabsController` and the element host | Done 2026-11-07: conformance suite (12 cases) green on both surfaces; web 59 tests at 100% coverage and 100% mutation |
-| 3 | The `onKeyDown` divergence decided and, if fixed, released on its own (§5.7) | — |
-| 4 | **`@primitiv-ui/react` Tabs rebuilt as an adapter over `TabsController`** | §6.3's four checks green on one commit |
+| 3 | The `onKeyDown` divergence decided and, if fixed, released on its own (§5.7) | Fixed in PR #274 (2026-11-07), to release before this work; its two tests pass against the adapter unedited |
+| 4 | **`@primitiv-ui/react` Tabs rebuilt as an adapter over `TabsController`** | Done 2026-11-07 on one commit: all 14 existing Tabs files unedited, the 7-case SSR golden byte-identical, conformance green, Tabs at 100% mutation; full React suite 454 files at 100% coverage; consumer smoke (node, vite) green |
 | 5 | Distribution: entry points, bundle, CEM + framework typings, size gate, lockstep release with `@primitiv-ui/react` depending on core and web | **The proof release:** published, React Tabs consumers see no change, elements work from jsDelivr on a blank page |
 | 6 | `apps/interop-lab` (html, htmx, react, vue, angular) + Playwright | Shared spec and the ten HTMX cases green in CI |
 | 7 | CLI: `surfaces` registry schema, snippet generation, `--surface`; components with no behaviour first (§8.3), then Tabs | `primitiv add tabs --surface elements` works in every interop-lab app; Rust gate green |

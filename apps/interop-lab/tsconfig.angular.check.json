@@ -1,0 +1,6 @@
+{
+  // `ngc` over the Angular page: strictTemplates type-checks every template
+  // expression, without emitting (the Vite plugin does the compiling).
+  "extends": "./tsconfig.angular.json",
+  "compilerOptions": { "noEmit": true }
+}

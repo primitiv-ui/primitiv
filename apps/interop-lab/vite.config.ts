@@ -1,5 +1,6 @@
 import { fileURLToPath } from "node:url";
 
+import angular from "@analogjs/vite-plugin-angular";
 import { svelte } from "@sveltejs/vite-plugin-svelte";
 import react from "@vitejs/plugin-react";
 import vue from "@vitejs/plugin-vue";
@@ -31,6 +32,8 @@ export default defineConfig({
     // Vue must leave every primitiv- tag to the browser as a custom element.
     vue({ template: { compilerOptions: { isCustomElement: (tag) => tag.startsWith("primitiv-") } } }),
     svelte(),
+    // Angular's own compiler, ahead of time, over the one program in its tsconfig.
+    angular({ tsconfig: "./tsconfig.angular.json" }),
     htmxFragments(),
   ],
   resolve: {

@@ -597,7 +597,7 @@ name. That is the one combination every framework binds without help:
 | Angular | `[value]="v"` | `(primitiv-tabs-change)="…"` |
 | Svelte 5 | `value={v}` | `onprimitiv-tabs-change={…}` |
 
-The interop lab (§7.4) verifies the plain, React, Vue and Angular rows.
+The interop lab (§7.4) verifies every row.
 
 **Why the React row reads `onprimitiv-tabs-change` (D29).** For a custom
 element, React 19 strips `on` from a function prop and passes the rest to
@@ -808,11 +808,18 @@ same Tabs scenarios and each driven by the **same** Playwright spec:
 | `react` | React 19 rendering, property binding, events, StrictMode double-mount |
 | `vue` | Vue 3 templates, `:value` / `@event`, `v-if` mount and unmount |
 | `angular` | `CUSTOM_ELEMENTS_SCHEMA`, `[value]` / `(event)`, change detection |
+| `svelte` | Svelte 5 runes, `value={v}` / `onprimitiv-tabs-change`, keyed `#each` |
 
 Each app sits outside the pnpm workspace with its own lockfile, as
 `apps/docs-site` does, so one framework's toolchain never enters another's
 resolution. The lab runs in its own CI workflow, triggered by changes to
-`packages/core` or `packages/web`. Svelte and Solid follow on demand.
+`packages/core` or `packages/web`. Solid follows on demand.
+
+As built, the lab is one Vite app with one page per environment rather than
+one app each: every framework compiles through its own Vite plugin, Angular's
+included (`@analogjs/vite-plugin-angular`, ahead of time, zoneless), and the
+whole lab still sits outside the workspace with one lockfile. One dev server
+then serves the one spec, and no framework's packages reach another's pages.
 
 The shared scenarios are the Tabs keyboard and ARIA contract (the conformance
 cases, now in a real browser), plus `:dir()` and focus-visible, which jsdom
@@ -938,7 +945,7 @@ Still open:
 | 3 | The `onKeyDown` divergence decided and, if fixed, released on its own (§5.7) | Fixed in PR #274 (2026-11-07), to release before this work; its two tests pass against the adapter unedited |
 | 4 | **`@primitiv-ui/react` Tabs rebuilt as an adapter over `TabsController`** | Done 2026-11-07 on one commit: all 14 existing Tabs files unedited, the 7-case SSR golden byte-identical, conformance green, Tabs at 100% mutation; full React suite 454 files at 100% coverage; consumer smoke (node, vite) green |
 | 5 | Distribution: entry points, bundle, CEM + framework typings, size gate, lockstep release with `@primitiv-ui/react` depending on core and web | **The proof release:** published, React Tabs consumers see no change, elements work from jsDelivr on a blank page. Built 2026-11-07: `define` entries, the 2.3 KB-gzip bundle under a 3 KB gate (checked in real Chromium, RTL included), the Custom Elements Manifest with a completeness check, the opt-in npm-only tag map, `web` public and in every release loop. React / Vue / Svelte template typings moved to Phase 6, where those frameworks are installed to type-check against. The release itself is yours to run (RELEASING.md §3). |
-| 6 | `apps/interop-lab` (html, htmx, react, vue, svelte, angular) + Playwright | Shared spec and the ten HTMX cases green in CI. **Landed 2026-11-07 for html, htmx, React 19, Vue 3 and Svelte 5:** 48 Playwright cases in real Chromium (the shared Tabs contract on four pages, incl. `:dir()`, `:focus-visible`, StrictMode, controlled use and re-render survival; and all ten HTMX swap cases), plus the opt-in `@primitiv-ui/web/{react,vue,svelte}` template typings type-checked in the lab against real installs (Svelte's by a script over `svelte-check`, since its markup has no expect-error comment). **Still open:** the Angular app. |
+| 6 | `apps/interop-lab` (html, htmx, react, vue, svelte, angular) + Playwright | Shared spec and the ten HTMX cases green in CI. **Landed 2026-11-07 for html, htmx, React 19, Vue 3 and Svelte 5:** 48 Playwright cases in real Chromium (the shared Tabs contract on four pages, incl. `:dir()`, `:focus-visible`, StrictMode, controlled use and re-render survival; and all ten HTMX swap cases), plus the opt-in `@primitiv-ui/web/{react,vue,svelte}` template typings type-checked in the lab against real installs (Svelte's by a script over `svelte-check`, since its markup has no expect-error comment). **Completed 2026-11-07 with Angular 22** (AOT through Vite, zoneless, `OnPush` signals; `ngc` with `strictTemplates` checks its template expressions): 58 cases across five framework pages and the HTMX page. Angular gets no typing entry, since its schema-checked custom elements type `$event` as `Event` whatever is declared. |
 | 7 | CLI: `surfaces` registry schema, snippet generation, `--surface`; components with no behaviour first (§8.3), then Tabs | `primitiv add tabs --surface elements` works in every interop-lab app; Rust gate green |
 | 8 | Next components, one at a time, each through phases 2–5 | — |
 

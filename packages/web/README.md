@@ -63,6 +63,13 @@ written, which is why the prop reads that way; most React projects want
 handler (npm only). Svelte needs no other setup: it renders unknown tags as
 custom elements already.
 
+**Angular** — add `CUSTOM_ELEMENTS_SCHEMA` to the component's `schemas`, bind
+the value as a property (`[value]="value()"`), the other options as attributes
+(`[attr.activation-mode]="mode"`), and listen with
+`(primitiv-tabs-change)="onChange($event)"`. There is no typing entry: Angular
+types a custom element's `$event` as `Event`, so cast it to
+`CustomEvent<{ value: string; index: number }>` in the handler.
+
 **Tooling** — `dist/custom-elements.json` is a Custom Elements Manifest, listed
 as `customElements` in `package.json`, for editor completion and Storybook.
 

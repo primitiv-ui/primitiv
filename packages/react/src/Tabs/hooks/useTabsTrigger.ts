@@ -2,6 +2,7 @@ import {
   useRef,
   useEffect,
   useCallback,
+  type KeyboardEvent,
   MouseEvent,
 } from "react";
 
@@ -15,8 +16,9 @@ import { useTabsContext } from "./useTabsContext";
 export function useTabsTrigger({
   value,
   onClick,
+  onKeyDown,
   disabled,
-}: Pick<TabsTriggerProps, "value" | "onClick" | "disabled">) {
+}: Pick<TabsTriggerProps, "value" | "onClick" | "onKeyDown" | "disabled">) {
   const {
     orientation,
     dir,
@@ -81,7 +83,7 @@ export function useTabsTrigger({
   // *land* on disabled tabs (focus moves there) without activating them —
   // that's the Tabs-specific keyboard contract, distinct from RadioGroup
   // and Accordion which both skip disabled siblings entirely.
-  const { handleKeyDown } = useRovingTabindex<string>({
+  const { handleKeyDown: navigate } = useRovingTabindex<string>({
     orientation,
     dir,
     navigable: triggerValues,
@@ -102,6 +104,14 @@ export function useTabsTrigger({
       focusTrigger(targetValue);
     },
   });
+  // A consumer onKeyDown runs AFTER the built-in navigation and cannot veto it,
+  // the same contract handleClick gives onClick. It used to be spread over this
+  // handler and silently disabled arrow-key navigation.
+  function handleKeyDown(e: KeyboardEvent<HTMLButtonElement>) {
+    navigate(e);
+    onKeyDown?.(e);
+  }
+
   return {
     buttonRef,
     triggerId,

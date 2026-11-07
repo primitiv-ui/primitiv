@@ -4,8 +4,9 @@
 (D16, D17); framework neutrality settled (D19–D23); part model, styling
 decoupling and CLI surface settled (D24–D27); event naming settled (D29); the
 first increment is Tabs end to end, with `@primitiv-ui/react` Tabs rebuilt on
-the web implementation (D30). Open: the controller/host split (D28, §3.4) and
-snippet flavour (§9).
+the web implementation (D30); the controller/host split (D28), the §6.3 golden
+exception and the separate `onKeyDown` fix accepted 2026-11-07. Open: snippet
+flavour (§9). Phase 1 in progress.
 **Decision sought:** Ship Primitiv's headless behaviour as standard custom
 elements that work **anywhere a browser runs HTML**: a plain HTML/CSS/JS page,
 any server-rendered stack, React, Vue, Angular, Svelte or anything else. The
@@ -233,7 +234,7 @@ How the questions that move raises are answered for Tabs:
 | **Tests** | The 14 existing Tabs test files are the acceptance test and must pass **unmodified** (§6.3). |
 | **Cost** | Bundle size of React Tabs before and after, recorded in the release notes (§7.3). |
 
-### 3.4 Controllers and hosts (D28 — proposed, needs confirmation)
+### 3.4 Controllers and hosts (D28)
 
 **The problem.** "React Tabs uses the web component", read literally, means
 React renders `<primitiv-tabs>`, `<primitiv-tabs-list>` and so on. That
@@ -644,8 +645,8 @@ What `@primitiv-ui/react` Tabs becomes, with its public API untouched:
   almost certainly a latent bug rather than a contract, but "no observable
   difference" means it is decided explicitly, in its own cycle, before the move:
   either keep it (the adapter suppresses the controller when a consumer
-  `onKeyDown` is present) or fix it in a release of its own first. Recommendation:
-  fix it first, so the move itself changes nothing.
+  `onKeyDown` is present) or fix it in a release of its own first. Decided 2026-11-07:
+  fix it first, in its own release, so the move itself changes nothing.
 - **Event mapping.** `primitiv-tabs-change` maps to `onValueChange(value)` and
   `onChange({ index, name })`, the names Tabs already uses (D29).
 - **Dependencies.** `@primitiv-ui/react` gains `@primitiv-ui/web` and
@@ -710,7 +711,7 @@ The move is proved when, on the same commit:
 Point 4 needs a decision. The strict red-green rule forbids a test that passes
 on first run, and a "markup is unchanged" golden captured before the move does
 exactly that. It is still the only direct check of server-rendered output,
-because no existing Tabs test renders to a string. Proposal: allow it as a
+because no existing Tabs test renders to a string. Accepted 2026-11-07: it is allowed as a
 named exception (a refactor guard, written before the refactor, deleted after
 one release), rather than relying on the existing suites to notice.
 
@@ -888,7 +889,7 @@ Still open:
 
 | Phase | Work | Done when |
 |---|---|---|
-| 0 | This RFC accepted, including D28 and §6.3's exception | — |
+| 0 | This RFC accepted, including D28 and §6.3's exception | Done 2026-11-07 |
 | 1 | `@primitiv-ui/core` scaffolded; §4 steps 1–4 landed | React suites unchanged and green; core 100% coverage + 100% mutation |
 | 2 | `@primitiv-ui/web` Tabs: `TabsController` and the element host | Conformance suite green on both surfaces; web suite 100%; Stryker 100% |
 | 3 | The `onKeyDown` divergence decided and, if fixed, released on its own (§5.7) | — |
@@ -944,6 +945,6 @@ CLAUDE.md: tests, JSDoc, README, the components-table row in
 | D25 | Element code writes no styles of any kind; the `display: contents` wrapper rule ships as CSS in each registry stylesheet and in an opt-in `elements.css` | Styling stays completely decoupled from the implementation (settled 2026-11-07) |
 | D26 | CLI: `surface` config + `--surface` on `init` and `add`; per-surface registry blocks; CDN tag printed when there is no `package.json`; `components/index.css` aggregator | Elements installs without assuming a package manager or a framework |
 | D27 | The vocabulary is `surface: "react" \| "elements"`; `framework` stays readable as an alias | A Vue or plain-HTML project installing elements is not choosing a framework called "html" |
-| D28 | **Proposed:** `@primitiv-ui/web` splits into per-component controllers (all DOM behaviour, attachable to any registered elements, never owning state) and hosts (the custom elements; the React adapter) | The only way React can run the web implementation while rendering today's DOM unchanged (§3.4) |
+| D28 | `@primitiv-ui/web` splits into per-component controllers (all DOM behaviour, attachable to any registered elements, never owning state) and hosts (the custom elements; the React adapter) | The only way React can run the web implementation while rendering today's DOM unchanged (§3.4) |
 | D29 | DOM events are lowercase kebab-case prefixed with the tag name (`primitiv-tabs-change`); adapters map them onto the existing React prop names | HTML attribute names are case-insensitive; React 19 passes custom-element event names through verbatim (§5.6.3) |
 | D30 | Delivered per component; Tabs first, end to end, including `@primitiv-ui/react` Tabs as an adapter, released with no observable change | The release itself is the proof that the plan works (§3.3, §6.3) |

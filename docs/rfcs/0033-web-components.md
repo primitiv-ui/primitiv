@@ -6,7 +6,7 @@ decoupling and CLI surface settled (D24–D27); event naming settled (D29); the
 first increment is Tabs end to end, with `@primitiv-ui/react` Tabs rebuilt on
 the web implementation (D30); the controller/host split (D28), the §6.3 golden
 exception and the separate `onKeyDown` fix accepted 2026-11-07. Open: snippet
-flavour (§9). Phase 1 in progress.
+flavour (§9). Phase 1 complete (2026-11-07).
 **Decision sought:** Ship Primitiv's headless behaviour as standard custom
 elements that work **anywhere a browser runs HTML**: a plain HTML/CSS/JS page,
 any server-rendered stack, React, Vue, Angular, Svelte or anything else. The
@@ -890,7 +890,7 @@ Still open:
 | Phase | Work | Done when |
 |---|---|---|
 | 0 | This RFC accepted, including D28 and §6.3's exception | Done 2026-11-07 |
-| 1 | `@primitiv-ui/core` scaffolded; §4 steps 1–4 landed | React suites unchanged and green; core 100% coverage + 100% mutation |
+| 1 | `@primitiv-ui/core` scaffolded; §4 steps 1–4 landed | Done 2026-11-07: React suites unchanged and green (450 files, 2,650 tests, 100% coverage); core and Tabs at 100% mutation |
 | 2 | `@primitiv-ui/web` Tabs: `TabsController` and the element host | Conformance suite green on both surfaces; web suite 100%; Stryker 100% |
 | 3 | The `onKeyDown` divergence decided and, if fixed, released on its own (§5.7) | — |
 | 4 | **`@primitiv-ui/react` Tabs rebuilt as an adapter over `TabsController`** | §6.3's four checks green on one commit |

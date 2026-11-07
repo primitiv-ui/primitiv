@@ -8,7 +8,12 @@
     "./define/tabs": "./src/define/tabs.ts"
   },
   "publish": {
-    "exclude": ["src/tags.ts", "src/bundle.ts", "src/**/__tests__", "scripts"]
+    "exclude": [
+      "src/tags.ts",
+      "src/bundle.ts",
+      "src/**/__tests__",
+      "scripts"
+    ]
   },
   "license": "MIT"
 }

@@ -4,7 +4,7 @@ name: Publish packages
 #   1. Builds the `primitiv` Rust binary for each platform in parallel.
 #   2. Publishes @primitiv-ui/cli-<target> platform packages.
 #   3. Publishes the `primitiv-ui` wrapper and `create-primitiv-ui` scaffold.
-#   4. Publishes @primitiv-ui/{core,react,icons,tokens} libraries to npm and JSR.
+#   4. Publishes @primitiv-ui/{core,web,react,icons,tokens} libraries to npm and JSR.
 #   5. Publishes @primitiv-ui/primitiv-emit-wasm (the wasm-pack build of
 #      crates/primitiv-emit-wasm — the token emitter, so a licensed consumer can
 #      emit CSS/SCSS/Tailwind/DTCG without a second serialiser of its own).
@@ -138,7 +138,7 @@ jobs:
         run: pnpm --filter @primitiv-ui/icons generate
 
       - name: Test libraries
-        run: pnpm -r --filter "@primitiv-ui/core" --filter "@primitiv-ui/react" --filter "@primitiv-ui/icons" --filter "@primitiv-ui/tokens" qa:units
+        run: pnpm -r --filter "@primitiv-ui/core" --filter "@primitiv-ui/web" --filter "@primitiv-ui/react" --filter "@primitiv-ui/icons" --filter "@primitiv-ui/tokens" qa:units
 
       # Preflight: validate JSR publishability (slow-types check) for every
       # library BEFORE any npm publish runs. npm versions are immutable, so a
@@ -149,7 +149,7 @@ jobs:
       # the JSR step at 0.1.20 exactly this way.)
       - name: Preflight — JSR slow-types check (before any npm publish)
         run: |
-          for pkg in packages/core packages/react packages/icons packages/tokens; do
+          for pkg in packages/core packages/web packages/react packages/icons packages/tokens; do
             echo "::group::jsr publish --dry-run $pkg"
             (cd "$pkg" && npx jsr publish --dry-run)
             echo "::endgroup::"
@@ -264,16 +264,16 @@ jobs:
             echo "No NPM_TOKEN secret: publishing through Trusted Publishing (OIDC) only."
           fi
 
-      # core goes FIRST, and that is the opposite of the "new package last" rule
-      # in RELEASING.md §2 on purpose. That rule exists so a new package's
+      # core and web go FIRST, and that is the opposite of the "new package last"
+      # rule in RELEASING.md §2 on purpose. That rule exists so a new package's
       # first-publish ENEEDAUTH cannot block packages that do not need it. react
-      # DOES need core (RFC 0033): a react release published without the core it
-      # depends on is uninstallable, which is worse than a red run. So a core
-      # failure must stop react here, and core's first release needs the token
-      # bootstrap in place before it runs.
+      # DOES need both (RFC 0033): web depends on core and react on both, and a
+      # react published without them is uninstallable, which is worse than a red
+      # run. So a core or web failure must stop react here, and their first
+      # release needs the token bootstrap in place before it runs.
       - name: Publish libraries to npm
         run: |
-          for pkg in core react icons tokens; do
+          for pkg in core web react icons tokens; do
             name="@primitiv-ui/$pkg"
             version=$(node -p "require('./packages/$pkg/package.json').version")
             if npm view "$name@$version" version >/dev/null 2>&1; then
@@ -286,7 +286,7 @@ jobs:
       # JSR authenticates via OIDC automatically inside GitHub Actions.
       - name: Publish libraries to JSR
         run: |
-          for pkg in packages/core packages/react packages/icons packages/tokens; do
+          for pkg in packages/core packages/web packages/react packages/icons packages/tokens; do
             echo "::group::jsr publish $pkg"
             (cd "$pkg" && npx jsr publish)
             echo "::endgroup::"

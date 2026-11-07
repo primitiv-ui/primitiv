@@ -218,7 +218,26 @@ A fourth library, and the first one another library **depends on**:
   the first release that includes core. If it fails, the documented fix is a
   `jsr:@primitiv-ui/core@<version>` value for JSR only.
 
-The workflow already runs `qa:units` on all four before publishing, so
+### `@primitiv-ui/web` (added 2026-11-07, RFC 0033 Phase 5)
+
+The custom elements, and the second library `react` depends on (`react` runs
+Tabs on its `TabsController`). Everything above for core applies to it too, and
+both are new in the **same** release, so one bootstrap covers both:
+
+- **One `NPM_TOKEN` secret bootstraps both** — the guarded step writes it once
+  for every npm publish after it. After the green run, configure Trusted
+  Publishing on **both** packages before deleting the secret.
+- **Both need creating and linking on jsr.io.** `web`'s `jsr.json` excludes
+  `src/tags.ts` (a global `HTMLElementTagNameMap` augmentation, which JSR
+  rejects) and the browser bundle entry; JSR consumers simply do not get the
+  opt-in tag map.
+- **Publish order is core → web → react**, in both loops: web depends on core,
+  react on both.
+- **The npm tarball also carries `dist/primitiv-web.js`** (the no-build bundle,
+  served by jsDelivr from npm) and `dist/custom-elements.json`. CI builds both
+  and gates the bundle at 3 KB gzipped.
+
+The workflow already runs `qa:units` on all five before publishing, so
 tests gate the release. `pnpm -r publish` skips `private: true` packages
 (`apps/workbench`, `crates/harmoni-wasm/pkg`) automatically.
 
@@ -303,8 +322,8 @@ these by hand across multiple commits:
 
 | Location | What changes |
 |---|---|
-| `packages/{core,react,icons,tokens}/package.json` | `"version"` |
-| `packages/{core,react,icons,tokens}/jsr.json` | `"version"` |
+| `packages/{core,web,react,icons,tokens}/package.json` | `"version"` |
+| `packages/{core,web,react,icons,tokens}/jsr.json` | `"version"` |
 | `npm/cli-{darwin-arm64,darwin-x64,linux-arm64-gnu,linux-x64-gnu,win32-x64}/package.json` | `"version"` |
 | `npm/cli-wrapper/package.json` | `"version"` **and** all 5 `"optionalDependencies"` entries |
 | `npm/create-primitiv-ui/package.json` | `"version"` |

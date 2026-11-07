@@ -6,7 +6,7 @@ decoupling and CLI surface settled (D24–D27); event naming settled (D29); the
 first increment is Tabs end to end, with `@primitiv-ui/react` Tabs rebuilt on
 the web implementation (D30); the controller/host split (D28), the §6.3 golden
 exception and the separate `onKeyDown` fix accepted 2026-11-07. Open: snippet
-flavour (§9). Phases 1, 2 and 4 complete (2026-11-07); Phase 3 is PR #274.
+flavour (§9). Phases 1, 2 and 4 complete and Phase 5 built (2026-11-07); Phase 3 is PR #274.
 **Decision sought:** Ship Primitiv's headless behaviour as standard custom
 elements that work **anywhere a browser runs HTML**: a plain HTML/CSS/JS page,
 any server-rendered stack, React, Vue, Angular, Svelte or anything else. The
@@ -937,7 +937,7 @@ Still open:
 | 2 | `@primitiv-ui/web` Tabs: `TabsController` and the element host | Done 2026-11-07: conformance suite (12 cases) green on both surfaces; web 59 tests at 100% coverage and 100% mutation |
 | 3 | The `onKeyDown` divergence decided and, if fixed, released on its own (§5.7) | Fixed in PR #274 (2026-11-07), to release before this work; its two tests pass against the adapter unedited |
 | 4 | **`@primitiv-ui/react` Tabs rebuilt as an adapter over `TabsController`** | Done 2026-11-07 on one commit: all 14 existing Tabs files unedited, the 7-case SSR golden byte-identical, conformance green, Tabs at 100% mutation; full React suite 454 files at 100% coverage; consumer smoke (node, vite) green |
-| 5 | Distribution: entry points, bundle, CEM + framework typings, size gate, lockstep release with `@primitiv-ui/react` depending on core and web | **The proof release:** published, React Tabs consumers see no change, elements work from jsDelivr on a blank page |
+| 5 | Distribution: entry points, bundle, CEM + framework typings, size gate, lockstep release with `@primitiv-ui/react` depending on core and web | **The proof release:** published, React Tabs consumers see no change, elements work from jsDelivr on a blank page. Built 2026-11-07: `define` entries, the 2.3 KB-gzip bundle under a 3 KB gate (checked in real Chromium, RTL included), the Custom Elements Manifest with a completeness check, the opt-in npm-only tag map, `web` public and in every release loop. React / Vue / Svelte template typings moved to Phase 6, where those frameworks are installed to type-check against. The release itself is yours to run (RELEASING.md §3). |
 | 6 | `apps/interop-lab` (html, htmx, react, vue, angular) + Playwright | Shared spec and the ten HTMX cases green in CI |
 | 7 | CLI: `surfaces` registry schema, snippet generation, `--surface`; components with no behaviour first (§8.3), then Tabs | `primitiv add tabs --surface elements` works in every interop-lab app; Rust gate green |
 | 8 | Next components, one at a time, each through phases 2–5 | — |

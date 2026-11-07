@@ -90,6 +90,13 @@ jobs:
           pnpm --filter @primitiv-ui/icons typecheck
           pnpm --filter @primitiv-ui/tokens lint
 
+      # The no-build browser bundle must build and stay within its gzip budget
+      # (RFC 0033 §7.3): core is inlined, so a heavy import shows up here.
+      - name: Web bundle size budget
+        run: |
+          pnpm --filter @primitiv-ui/web build
+          pnpm --filter @primitiv-ui/web size
+
       # Guard the §1.16/§1.21 pattern: a custom prop narrowing a same-named
       # native attribute without Omit-ting it first resolves to an intersection
       # artifact (e.g. `string | (readonly string[] & string)`) that TS accepts

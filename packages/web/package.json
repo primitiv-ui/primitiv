@@ -10,9 +10,24 @@
     ".": {
       "types": "./src/index.ts",
       "default": "./src/index.ts"
+    },
+    "./tabs": {
+      "types": "./src/tabs/index.ts",
+      "default": "./src/tabs/index.ts"
+    },
+    "./define": {
+      "types": "./src/define/index.ts",
+      "default": "./src/define/index.ts"
+    },
+    "./define/tabs": {
+      "types": "./src/define/tabs.ts",
+      "default": "./src/define/tabs.ts"
     }
   },
-  "sideEffects": false,
+  "sideEffects": [
+    "./src/define/**",
+    "./dist/define/**"
+  ],
   "files": [
     "dist"
   ],
@@ -52,6 +67,18 @@
       ".": {
         "types": "./dist/index.d.ts",
         "default": "./dist/index.js"
+      },
+      "./tabs": {
+        "types": "./dist/tabs/index.d.ts",
+        "default": "./dist/tabs/index.js"
+      },
+      "./define": {
+        "types": "./dist/define/index.d.ts",
+        "default": "./dist/define/index.js"
+      },
+      "./define/tabs": {
+        "types": "./dist/define/tabs.d.ts",
+        "default": "./dist/define/tabs.js"
       }
     }
   }

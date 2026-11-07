@@ -1,9 +1,6 @@
-export { TabsController, type TabsControllerHost } from "./tabs/TabsController.ts";
-export {
-  defineTabs,
-  PrimitivTabsContentElement,
-  PrimitivTabsElement,
-  PrimitivTabsListElement,
-  PrimitivTabsTriggerElement,
-  type ElementRegistry,
-} from "./tabs/elements.ts";
+/**
+ * `@primitiv-ui/web` — Primitiv's headless components as standard custom
+ * elements. This entry exports classes only and has no side effects; import
+ * `@primitiv-ui/web/define` (or `/define/<component>`) to register the tags.
+ */
+export * from "./tabs/index.ts";

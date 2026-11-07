@@ -53,6 +53,11 @@ React 19 passes a custom element's event prop to `addEventListener` exactly as
 written, which is why the prop reads that way; most React projects want
 `@primitiv-ui/react`, whose `onValueChange` is the idiomatic name.
 
+**Vue 3 templates** — `import type {} from "@primitiv-ui/web/vue"` lets
+`vue-tsc` check each tag's attributes and its `@primitiv-tabs-change` handler
+(npm only). Also tell Vue's compiler the tags are custom elements:
+`compilerOptions.isCustomElement: (tag) => tag.startsWith("primitiv-")`.
+
 **Tooling** — `dist/custom-elements.json` is a Custom Elements Manifest, listed
 as `customElements` in `package.json`, for editor completion and Storybook.
 

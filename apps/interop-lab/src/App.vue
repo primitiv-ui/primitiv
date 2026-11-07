@@ -6,6 +6,9 @@ import { ref } from "vue";
 import { fixtureFromUrl, TABS } from "./fixture";
 
 const fixture = fixtureFromUrl();
+// The URL is untyped; the element's attributes are not.
+const orientation = (fixture.orientation ?? undefined) as "horizontal" | "vertical" | undefined;
+const mode = (fixture.mode ?? undefined) as "automatic" | "manual" | undefined;
 const value = ref(fixture.value ?? "one");
 const renders = ref(0);
 
@@ -19,8 +22,8 @@ function onChange(event: CustomEvent<{ value: string }>) {
   <div :dir="fixture.dir ?? undefined">
     <primitiv-tabs
       :value="value"
-      :orientation="fixture.orientation ?? undefined"
-      :activation-mode="fixture.mode ?? undefined"
+      :orientation="orientation"
+      :activation-mode="mode"
       @primitiv-tabs-change="onChange"
     >
       <primitiv-tabs-list label="Sections">

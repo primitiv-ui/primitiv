@@ -29,6 +29,10 @@
     "./react": {
       "types": "./src/frameworks/react.ts",
       "default": "./src/frameworks/react.ts"
+    },
+    "./vue": {
+      "types": "./src/frameworks/vue.ts",
+      "default": "./src/frameworks/vue.ts"
     }
   },
   "sideEffects": [
@@ -71,7 +75,8 @@
     "esbuild": "^0.28.0",
     "jsdom": "^29.0.2",
     "typescript": "^6.0.2",
-    "vitest": "^4.1.4"
+    "vitest": "^4.1.4",
+    "vue": "^3.5.0"
   },
   "publishConfig": {
     "access": "public",
@@ -101,15 +106,23 @@
       "./react": {
         "types": "./dist/frameworks/react.d.ts",
         "default": "./dist/frameworks/react.js"
+      },
+      "./vue": {
+        "types": "./dist/frameworks/vue.d.ts",
+        "default": "./dist/frameworks/vue.js"
       }
     }
   },
   "customElements": "dist/custom-elements.json",
   "peerDependencies": {
-    "@types/react": "^19.0.0"
+    "@types/react": "^19.0.0",
+    "vue": "^3.3.0"
   },
   "peerDependenciesMeta": {
     "@types/react": {
+      "optional": true
+    },
+    "vue": {
       "optional": true
     }
   }

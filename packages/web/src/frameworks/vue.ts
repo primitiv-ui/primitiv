@@ -1,0 +1,51 @@
+/**
+ * Opt-in Vue 3 template typings for the elements. With this in scope, `vue-tsc`
+ * checks each tag's attributes and its events:
+ *
+ * ```vue
+ * <script setup lang="ts">
+ * import type {} from "@primitiv-ui/web/vue";
+ * </script>
+ * <template>
+ *   <primitiv-tabs :value="value" @primitiv-tabs-change="onChange">…</primitiv-tabs>
+ * </template>
+ * ```
+ *
+ * The compiler must also be told the tags are custom elements, so Vue does not
+ * try to resolve them as components at runtime:
+ * `compilerOptions.isCustomElement: (tag) => tag.startsWith("primitiv-")`.
+ *
+ * npm-only, like `@primitiv-ui/web/tags`: it augments the `vue` module, which
+ * JSR does not allow a published module to do.
+ */
+import type { DefineComponent, EmitsOptions } from "vue";
+
+import type { PrimitivTabsChangeEvent } from "./react.ts";
+
+/** A tag as Vue's template checker sees it: its props, and the events it emits. */
+type Tag<Props, Events extends EmitsOptions = Record<never, never>> = DefineComponent<
+  Props,
+  Record<never, never>,
+  Record<never, never>,
+  Record<never, never>,
+  Record<never, never>,
+  Record<never, never>,
+  Record<never, never>,
+  Events
+>;
+
+declare module "vue" {
+  interface GlobalComponents {
+    "primitiv-tabs": Tag<
+      {
+        value?: string;
+        orientation?: "horizontal" | "vertical";
+        activationMode?: "automatic" | "manual";
+      },
+      { "primitiv-tabs-change": (event: PrimitivTabsChangeEvent) => void }
+    >;
+    "primitiv-tabs-list": Tag<{ label?: string }>;
+    "primitiv-tabs-trigger": Tag<{ value: string; disabled?: boolean | "" }>;
+    "primitiv-tabs-content": Tag<{ value: string }, { "primitiv-tabs-show": (event: CustomEvent) => void }>;
+  }
+}

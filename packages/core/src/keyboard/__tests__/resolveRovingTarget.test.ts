@@ -93,6 +93,14 @@ describe("resolveRovingTarget", () => {
     });
   });
 
+  it("resolves nothing when the key press mapped to no action", () => {
+    // Arrange & Act
+    const result = resolveRovingTarget({ action: undefined, navigable, currentKey: "a" });
+
+    // Assert
+    expect(result).toBeNull();
+  });
+
   describe("an empty list", () => {
     it("resolves nothing for any action", () => {
       // Arrange

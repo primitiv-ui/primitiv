@@ -2,8 +2,12 @@ import type { RovingKeyAction } from "./getKeyToActionMap.ts";
 
 /** Input to {@link resolveRovingTarget}. */
 export type ResolveRovingTargetOptions<K> = {
-  /** The abstract action a key press mapped to (see `getKeyToActionMap`). */
-  action: RovingKeyAction;
+  /**
+   * The abstract action a key press mapped to (see `getKeyToActionMap`), or
+   * `undefined` for a key the map does not cover, which resolves nothing. So a
+   * caller can pass `map[event.key]` straight through.
+   */
+  action: RovingKeyAction | undefined;
   /**
    * The ordered keys navigation walks through. The caller filters it: RadioGroup
    * and Accordion leave disabled items out so arrows skip them, while Tabs keeps
@@ -23,7 +27,7 @@ export type ResolveRovingTargetOptions<K> = {
  *   contract: arrows do nothing while focus sits on a disabled radio.
  * - `"first"` / `"last"` jump to either end, whatever the current key.
  * - `"activate"` targets the current key, so the caller confirms it.
- * - An empty `navigable` resolves nothing, for every action.
+ * - An empty `navigable`, or no action at all, resolves nothing.
  *
  * The result is wrapped as `{ target }`, with `null` for "nothing", because a
  * key can itself be `null` or `undefined` (Combobox navigates `string | null`).
@@ -31,7 +35,7 @@ export type ResolveRovingTargetOptions<K> = {
  * @example
  * ```ts
  * const action = getKeyToActionMap({ orientation: "horizontal" })[event.key];
- * const result = action && resolveRovingTarget({ action, navigable, currentKey });
+ * const result = resolveRovingTarget({ action, navigable, currentKey });
  * if (result) focusItem(result.target);
  * ```
  */
@@ -50,6 +54,8 @@ export function resolveRovingTarget<K>({
       return { target: navigable[0] };
     case "last":
       return { target: navigable[total - 1] };
+    case undefined:
+      return null;
     case "next":
     case "prev": {
       const currentIndex = navigable.indexOf(currentKey);

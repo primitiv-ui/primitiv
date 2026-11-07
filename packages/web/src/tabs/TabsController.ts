@@ -36,6 +36,7 @@ export class TabsController {
   readonly #root: HTMLElement;
   readonly #host: TabsControllerHost;
   readonly #triggers = new Map<HTMLElement, Trigger>();
+  #connection: AbortController | null = null;
 
   constructor(root: HTMLElement, host: TabsControllerHost) {
     this.#root = root;
@@ -45,19 +46,42 @@ export class TabsController {
   /**
    * Register `element` as the trigger for `value`. A disabled trigger is still
    * part of the collection — arrow keys land on it — but is never activated.
+   * Registration order does not matter: the collection follows DOM order, so
+   * parts that arrive in any order (a fragment swap, a framework render) line up.
+   * Registering an element again updates it.
    */
   registerTrigger(value: string, element: HTMLElement, options: { disabled?: boolean } = {}): void {
     this.#triggers.set(element, { value, disabled: options.disabled ?? false });
   }
 
-  /** Start listening on the root. */
-  connect(): void {
-    this.#root.addEventListener("click", (event) => this.#onClick(event));
-    this.#root.addEventListener("keydown", (event) => this.#onKeydown(event));
+  /** Remove `element` from the collection. */
+  unregisterTrigger(element: HTMLElement): void {
+    this.#triggers.delete(element);
   }
 
-  #values(): string[] {
-    return [...this.#triggers.values()].map((trigger) => trigger.value);
+  /**
+   * Start listening on the root. Connecting again while connected does nothing,
+   * so a host whose lifecycle runs twice never stacks a second set of handlers.
+   */
+  connect(): void {
+    if (this.#connection) return;
+    this.#connection = new AbortController();
+    const { signal } = this.#connection;
+    this.#root.addEventListener("click", (event) => this.#onClick(event), { signal });
+    this.#root.addEventListener("keydown", (event) => this.#onKeydown(event), { signal });
+  }
+
+  /** Stop listening. The collection is kept, so a later `connect` resumes. */
+  disconnect(): void {
+    this.#connection?.abort();
+    this.#connection = null;
+  }
+
+  /** Every registered trigger, in DOM order. */
+  #ordered(): Array<[HTMLElement, Trigger]> {
+    return [...this.#triggers].sort(([a], [b]) =>
+      a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1,
+    );
   }
 
   #disabled(): Set<string> {
@@ -73,14 +97,18 @@ export class TabsController {
     if (!trigger) return;
     const { active } = this.#host.state();
     const target = tabsClick({ disabled: this.#disabled(), active }, trigger.value);
-    if (target !== null) this.#host.activate(target, this.#values().indexOf(target));
+    if (target !== null) {
+      const values = this.#ordered().map(([, t]) => t.value);
+      this.#host.activate(target, values.indexOf(target));
+    }
   }
 
   #onKeydown(event: KeyboardEvent): void {
     const trigger = this.#triggerFor(event.target);
     if (!trigger) return;
     const { active, orientation, dir, activationMode } = this.#host.state();
-    const values = this.#values();
+    const ordered = this.#ordered();
+    const values = ordered.map(([, t]) => t.value);
     const outcome = tabsKeydown(
       { values, disabled: this.#disabled(), active, orientation, dir, activationMode },
       trigger.value,
@@ -92,7 +120,7 @@ export class TabsController {
       this.#host.activate(outcome.activate, values.indexOf(outcome.activate));
     }
     // The focus target is always one of `values`, so its index is always valid.
-    [...this.#triggers.keys()][values.indexOf(outcome.focus)].focus();
+    ordered[values.indexOf(outcome.focus)][0].focus();
   }
 
   #triggerFor(target: EventTarget | null): Trigger | undefined {

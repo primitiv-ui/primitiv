@@ -192,4 +192,134 @@ describe("TabsController", () => {
       expect(host.activations).toEqual([]);
     });
   });
+
+  describe("the collection", () => {
+    it("orders triggers by their place in the DOM, not by when they registered", async () => {
+      // Arrange
+      const user = userEvent.setup();
+      const { root, buttons } = mount(["one", "two", "three"]);
+      const host = hostWith();
+      const controller = new TabsController(root, host);
+      controller.registerTrigger("three", buttons[2]);
+      controller.registerTrigger("one", buttons[0]);
+      controller.registerTrigger("two", buttons[1]);
+      controller.connect();
+      buttons[0].focus();
+
+      // Act
+      await user.keyboard("{ArrowRight}");
+
+      // Assert
+      expect(host.activations).toEqual([["two", 1]]);
+      expect(buttons[1]).toBe(document.activeElement);
+    });
+
+    it("forgets a trigger once it unregisters", async () => {
+      // Arrange
+      const user = userEvent.setup();
+      const { root, buttons } = mount(["one", "two", "three"]);
+      const host = hostWith();
+      const controller = new TabsController(root, host);
+      controller.registerTrigger("one", buttons[0]);
+      controller.registerTrigger("two", buttons[1]);
+      controller.registerTrigger("three", buttons[2]);
+      controller.unregisterTrigger(buttons[1]);
+      controller.connect();
+      buttons[0].focus();
+
+      // Act
+      await user.keyboard("{ArrowRight}");
+
+      // Assert
+      expect(host.activations).toEqual([["three", 1]]);
+    });
+  });
+
+  describe("lifecycle", () => {
+    it("stops listening once disconnected", async () => {
+      // Arrange
+      const user = userEvent.setup();
+      const { root, buttons } = mount(["one", "two"]);
+      const host = hostWith();
+      const controller = new TabsController(root, host);
+      controller.registerTrigger("one", buttons[0]);
+      controller.registerTrigger("two", buttons[1]);
+      controller.connect();
+      controller.disconnect();
+
+      // Act
+      await user.click(buttons[1]);
+
+      // Assert
+      expect(host.activations).toEqual([]);
+    });
+
+    it("stops handling key presses once disconnected", () => {
+      // Arrange
+      const { root, buttons } = mount(["one", "two"]);
+      const host = hostWith();
+      const controller = new TabsController(root, host);
+      controller.registerTrigger("one", buttons[0]);
+      controller.registerTrigger("two", buttons[1]);
+      controller.connect();
+      controller.disconnect();
+      const event = new KeyboardEvent("keydown", { key: "End", bubbles: true, cancelable: true });
+
+      // Act
+      buttons[0].dispatchEvent(event);
+
+      // Assert
+      expect(event.defaultPrevented).toBe(false);
+      expect(host.activations).toEqual([]);
+    });
+
+    it("can be disconnected before it was ever connected", () => {
+      // Arrange
+      const { root } = mount([]);
+      const controller = new TabsController(root, hostWith());
+
+      // Act
+      const disconnect = () => controller.disconnect();
+
+      // Assert
+      expect(disconnect).not.toThrow();
+    });
+
+    it("handles each event once however many times it is connected", async () => {
+      // Arrange
+      const user = userEvent.setup();
+      const { root, buttons } = mount(["one", "two"]);
+      const host = hostWith();
+      const controller = new TabsController(root, host);
+      controller.registerTrigger("one", buttons[0]);
+      controller.registerTrigger("two", buttons[1]);
+      controller.connect();
+      controller.connect();
+
+      // Act
+      await user.click(buttons[1]);
+
+      // Assert
+      expect(host.activations).toEqual([["two", 1]]);
+    });
+
+    it("listens again after reconnecting", async () => {
+      // Arrange
+      const user = userEvent.setup();
+      const { root, buttons } = mount(["one", "two"]);
+      const host = hostWith();
+      const controller = new TabsController(root, host);
+      controller.registerTrigger("one", buttons[0]);
+      controller.registerTrigger("two", buttons[1]);
+      controller.connect();
+      controller.disconnect();
+      controller.connect();
+
+      // Act
+      await user.click(buttons[1]);
+
+      // Assert
+      expect(host.activations).toEqual([["two", 1]]);
+    });
+  });
 });

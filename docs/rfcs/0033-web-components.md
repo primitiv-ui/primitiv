@@ -6,7 +6,7 @@ decoupling and CLI surface settled (D24–D27); event naming settled (D29); the
 first increment is Tabs end to end, with `@primitiv-ui/react` Tabs rebuilt on
 the web implementation (D30); the controller/host split (D28), the §6.3 golden
 exception and the separate `onKeyDown` fix accepted 2026-11-07. Open: snippet
-flavour (§9). Phase 1 complete (2026-11-07).
+flavour (§9). Phases 1 and 2 complete (2026-11-07).
 **Decision sought:** Ship Primitiv's headless behaviour as standard custom
 elements that work **anywhere a browser runs HTML**: a plain HTML/CSS/JS page,
 any server-rendered stack, React, Vue, Angular, Svelte or anything else. The
@@ -463,31 +463,50 @@ keeps a prefix override (§7.1) for teams running two versions side by side.
 
 ### 5.4 Lifecycle: the part the draft got wrong
 
-Six rules, each one driven by a test:
+Six rules, each one driven by a test. As built in Phase 2 (2026-11-07), which
+refined rules 2, 3, 5 and 6 from this RFC's first draft; the reasons follow the
+list.
 
 1. **Listeners attach through an `AbortController` per connection.**
    `disconnectedCallback` aborts it. Moving the element (`hx-preserve`, DOM
-   reparenting) can therefore never stack handlers.
-2. **Children register with their owner, and the owner never queries once and
-   caches.** Each part registers on connect with
-   `this.closest('primitiv-tabs')` and unregisters on disconnect. The root keeps the
-   collection in DOM order (`compareDocumentPosition`, as `useCollection` does
-   via its sort). Fragments swapped into the middle of a tab set therefore
-   join it.
-3. **The upgrade order doesn't matter.** A part that connects before its root
-   is defined registers when the root upgrades: the root adopts parts whose
-   nearest `primitiv-tabs` is itself. A root that connects before its children are
-   parsed picks them up as they arrive.
-4. **Ownership is scoped by `closest()`, never by `querySelectorAll`.** Tabs
-   nested inside a panel belong to the inner root only.
-5. **Reconciliation is batched into a microtask.** Ten registrations from one
-   swap cost one pass of ARIA and state writes, not ten.
-6. **Attribute changes from outside apply.** `observedAttributes` covers
-   `value`, `orientation` and `activation-mode` on the root, and `value` and
-   `disabled` on the parts. A server out-of-band swap that changes only
-   attributes must work. Invalid values are ignored, using the same
-   "unknown value → no selection" rule React's uncontrolled mode follows.
-   Selection never moves to the first tab by guesswork.
+   reparenting) can therefore never stack handlers, and connecting twice is a
+   no-op.
+2. **The root finds its parts; it never queries once and caches.** Every
+   reconcile re-reads the parts it owns, and the controller orders triggers by
+   `compareDocumentPosition`, as `useCollection` does via its sort. Fragments
+   swapped into the middle of a tab set therefore join it.
+3. **The upgrade order doesn't matter.** The part elements are thin markers with
+   no lifecycle of their own; only the root acts. Parts present at connect are
+   read then, and parts that arrive later are seen by the observer (rule 5).
+4. **Ownership is scoped by `closest()`.** A scoped `querySelectorAll` filtered
+   by `part.closest("primitiv-tabs") === this`, so tabs nested inside a panel
+   belong to the inner root only.
+5. **One `MutationObserver` is the only trigger after connect.** It watches the
+   subtree for parts arriving and leaving, and for the attributes the root reads
+   (`value`, `disabled`, `label`, `orientation`), on the root and on its parts.
+   The root's own writes (roles, `aria-*`, ids, `data-*`) are outside the filter,
+   so a reconcile never re-triggers itself. The observer already delivers one
+   task's changes as one callback, so there is no separate batching step.
+6. **Attribute changes from outside apply**, through rule 5. `activation-mode`
+   is read live at each key press, so it needs no reconcile at all. An unknown
+   `value` selects nothing, the same rule React's uncontrolled mode follows;
+   selection never moves to the first tab by guesswork.
+
+**Why the draft's rules changed.** The draft had parts register with their root
+on connect and the root use `observedAttributes` plus a microtask batch. Building
+it showed three of those mechanisms were doing one job. The observer already saw
+the root's own `value` changes, which made `attributeChangedCallback` partly
+redundant, and it already batched, which made the microtask guard redundant.
+Mutation testing reported both as surviving mutants, which is how they were
+found. Root-side discovery also removed the upgrade-order problem outright rather
+than handling both orders. The controller stays behaviour-only (D28): the element
+host writes the ARIA, and the React adapter, which renders its own ARIA, never
+shares an attribute with the controller.
+
+**Misuse is reported, not thrown** (D24): a trigger without a `value`, or without
+exactly one element child, logs one `console.error` naming the part and is left
+undecorated. **Pre-rendered markup is adopted as it is**: a test re-inserts fully
+rendered HTML and asserts the root writes no attribute at all (D20).
 
 ### 5.5 Progressive enhancement
 
@@ -671,16 +690,17 @@ statements and functions, and Stryker on the allowlist.
 
 ### 6.2 The conformance suite: what keeps the two surfaces equal
 
-Each component gets one **surface-agnostic** suite in
-`packages/core/conformance/tabs.conformance.ts`. It exports test cases written
+Each component gets one **surface-agnostic** suite in a private, never-published
+workspace package, `packages/conformance` (`@primitiv-ui/conformance`). It cannot
+live in core, which has no DOM by design (§3.1). It exports test cases written
 against Testing Library DOM queries only (`getByRole('tab', { name, selected })`,
 keyboard via `user-event`). Each surface runs it with its own `mount(fixture)`:
 
 ```ts
 // packages/react/src/Tabs/__tests__/Tabs.conformance.test.tsx
-runTabsConformance({ mount: (f) => render(<TabsFromFixture {...f} />) });
+runTabsConformance(async (f) => { /* render <Tabs.Root> from f */ return unmount; });
 // packages/web/src/tabs/__tests__/tabs.conformance.test.ts
-runTabsConformance({ mount: (f) => mountHtml(tabsHtml(f)) });
+runTabsConformance(async (f) => { /* innerHTML from f */ return cleanup; });
 ```
 
 The fixture is pure data: values, labels, disabled set, orientation,
@@ -729,7 +749,9 @@ dist/primitiv-web.js        → prebuilt single ESM bundle, core inlined, for no
 
 - `package.json` lists `"sideEffects": ["./dist/define/**"]`, and every
   `exports` condition puts `"types"` first.
-- `define` is idempotent (`customElements.get(name) ?? define`). It also
+- `define` is idempotent (`registry.get(name) ?? define`) and takes the registry
+  as a parameter, defaulting to the global `customElements` (as built:
+  `defineTabs(registry?)`), ready for scoped registries. It also
   accepts a prefix override for teams that need to rename the elements to run
   two versions side by side.
 - **No-build consumers** (a static folder, or a CDN via jsDelivr from npm)
@@ -891,7 +913,7 @@ Still open:
 |---|---|---|
 | 0 | This RFC accepted, including D28 and §6.3's exception | Done 2026-11-07 |
 | 1 | `@primitiv-ui/core` scaffolded; §4 steps 1–4 landed | Done 2026-11-07: React suites unchanged and green (450 files, 2,650 tests, 100% coverage); core and Tabs at 100% mutation |
-| 2 | `@primitiv-ui/web` Tabs: `TabsController` and the element host | Conformance suite green on both surfaces; web suite 100%; Stryker 100% |
+| 2 | `@primitiv-ui/web` Tabs: `TabsController` and the element host | Done 2026-11-07: conformance suite (12 cases) green on both surfaces; web 59 tests at 100% coverage and 100% mutation |
 | 3 | The `onKeyDown` divergence decided and, if fixed, released on its own (§5.7) | — |
 | 4 | **`@primitiv-ui/react` Tabs rebuilt as an adapter over `TabsController`** | §6.3's four checks green on one commit |
 | 5 | Distribution: entry points, bundle, CEM + framework typings, size gate, lockstep release with `@primitiv-ui/react` depending on core and web | **The proof release:** published, React Tabs consumers see no change, elements work from jsDelivr on a blank page |
@@ -948,3 +970,6 @@ CLAUDE.md: tests, JSDoc, README, the components-table row in
 | D28 | `@primitiv-ui/web` splits into per-component controllers (all DOM behaviour, attachable to any registered elements, never owning state) and hosts (the custom elements; the React adapter) | The only way React can run the web implementation while rendering today's DOM unchanged (§3.4) |
 | D29 | DOM events are lowercase kebab-case prefixed with the tag name (`primitiv-tabs-change`); adapters map them onto the existing React prop names | HTML attribute names are case-insensitive; React 19 passes custom-element event names through verbatim (§5.6.3) |
 | D30 | Delivered per component; Tabs first, end to end, including `@primitiv-ui/react` Tabs as an adapter, released with no observable change | The release itself is the proof that the plan works (§3.3, §6.3) |
+| D31 | Parts are thin markers; the root discovers them on every reconcile, driven by one `MutationObserver` (no `observedAttributes`, no separate batching) | Removes the upgrade-order problem and two redundant mechanisms that mutation testing exposed (§5.4) |
+| D32 | The conformance suites live in a private `packages/conformance`, not in core | Core has no DOM by design; the suites need Testing Library and a DOM |
+| D33 | `defineTabs(registry?)` takes its registry | Testable without the shared global registry, and ready for scoped registries |

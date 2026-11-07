@@ -1,4 +1,11 @@
-import { deriveId, tabsTabStop, type TabsOrientation } from "@primitiv-ui/core";
+import {
+  deriveId,
+  tabsTabStop,
+  type TabsActivationMode,
+  type TabsOrientation,
+} from "@primitiv-ui/core";
+
+import { TabsController, type TabsControllerHost } from "./TabsController.ts";
 
 /**
  * The base class every element extends. It falls back to an empty class where
@@ -41,8 +48,15 @@ export class PrimitivTabsElement extends ElementBase {
 
   #scheduled = false;
   #generatedId: string | undefined;
+  /** The value of the panel last shown, so a change fires primitiv-tabs-show. */
+  #shown: string | undefined;
+  #rendered = false;
+  readonly #controller = new TabsController(this, this.#host());
+  /** The tab elements currently registered with the controller. */
+  #registered = new Set<HTMLElement>();
 
   connectedCallback(): void {
+    this.#controller.connect();
     this.#schedule();
   }
 
@@ -67,6 +81,34 @@ export class PrimitivTabsElement extends ElementBase {
       this.#scheduled = false;
       this.#reconcile();
     });
+  }
+
+  /**
+   * The controller's view of this element. State lives in reflected attributes;
+   * an activation is announced first, as a cancelable event, so a listener can
+   * veto it — the elements' equivalent of React's controlled mode (D7).
+   */
+  #host(): TabsControllerHost {
+    return {
+      state: () => ({
+        active: this.value,
+        orientation: this.#orientation(),
+        dir: this.matches(":dir(rtl)") ? "rtl" : "ltr",
+        activationMode: this.#activationMode(),
+      }),
+      activate: (value, index) => {
+        const change = new CustomEvent("primitiv-tabs-change", {
+          bubbles: true,
+          cancelable: true,
+          detail: { value, index },
+        });
+        if (this.dispatchEvent(change)) this.value = value;
+      },
+    };
+  }
+
+  #activationMode(): TabsActivationMode {
+    return this.getAttribute("activation-mode") === "manual" ? "manual" : "automatic";
   }
 
   #orientation(): TabsOrientation {
@@ -111,6 +153,15 @@ export class PrimitivTabsElement extends ElementBase {
     });
     const stop = tabsTabStop({ values: triggers.map((t) => t.value), active });
 
+    const current = new Set(triggers.map((t) => t.tab));
+    for (const tab of this.#registered) {
+      if (!current.has(tab)) this.#controller.unregisterTrigger(tab);
+    }
+    for (const { trigger, tab, value } of triggers) {
+      this.#controller.registerTrigger(value, tab, { disabled: trigger.hasAttribute("disabled") });
+    }
+    this.#registered = current;
+
     for (const { trigger, tab, value } of triggers) {
       const panel = panels.get(value);
       const selected = value === active;
@@ -136,6 +187,16 @@ export class PrimitivTabsElement extends ElementBase {
       write(panel, "data-state", selected ? "active" : "inactive");
       write(panel, "data-orientation", orientation);
     }
+
+    // A panel that becomes active announces it, so a lazy panel can fetch its
+    // content (`hx-trigger="primitiv-tabs-show once"`, RFC 0033 D9). The first
+    // render shows what the server already rendered, so it announces nothing.
+    const shownPanel = active === undefined ? undefined : panels.get(active);
+    if (this.#rendered && active !== this.#shown && shownPanel) {
+      shownPanel.dispatchEvent(new CustomEvent("primitiv-tabs-show", { bubbles: true }));
+    }
+    this.#shown = active;
+    this.#rendered = true;
   }
 }
 

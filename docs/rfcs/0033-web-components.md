@@ -1,8 +1,8 @@
 # RFC 0033 — Web components (`@primitiv-ui/web`) and a shared behaviour core (`@primitiv-ui/core`)
 
 **Status:** Draft — proposed (2026-11-07). Package name and tag prefix settled
-(D16, D17); framework neutrality settled (D19–D23); `asChild` translation and CLI
-surface under discussion (§9).
+(D16, D17); framework neutrality settled (D19–D23); part model, styling
+decoupling and CLI surface settled (D24–D27). Open: snippet flavour (§9).
 **Decision sought:** Ship Primitiv's headless behaviour as standard custom
 elements that work **anywhere a browser runs HTML**: a plain HTML/CSS/JS page,
 any server-rendered stack, React, Vue, Angular, Svelte or anything else. The
@@ -62,7 +62,8 @@ consumer among many here, not a target the design bends towards.
 3. **Pure, framework-free logic lives once**, in `@primitiv-ui/core`.
 4. **Framework rendering is safe.** An element never fights the framework that
    rendered it (§5.6), and it never assumes that framework exists.
-5. **The existing registry stylesheets style the elements unchanged.**
+5. **The existing registry stylesheets style the elements**, gaining only the
+   one wrapper rule in §5.6.1.
 6. **No dead ends for §3.3.** Every choice in this RFC keeps open the path to
    elements as the base with framework adapters on top.
 
@@ -218,7 +219,8 @@ evidence:
   ref-and-listener wrapper per element. Stage 2 is likely the point where the
   React package drops 18.
 - **`asChild`, refs and imperative APIs** must map onto the element model
-  (§9.1 settles the first).
+  (D24 settles the first: interactive parts already decorate a consumer child,
+  which is what an adapter's `asChild` renders).
 - **Context** such as `DirectionProvider` maps to inherited DOM state (`dir`),
   which elements read through `:dir()`. The adapter has to render that
   attribute rather than provide context.
@@ -271,23 +273,64 @@ agent manifests (RFC 0020) can map one-to-one:
 |---|---|---|
 | `Tabs.Root` | `<primitiv-tabs>` | state owner |
 | `Tabs.List` | `<primitiv-tabs-list>` | `tablist` |
-| `Tabs.Trigger` | `<primitiv-tabs-trigger>` | `tab` |
+| `Tabs.Trigger` | `<primitiv-tabs-trigger>` + your `<button>` / `<a>` | `tab` (on the child) |
 | `Tabs.Content` | `<primitiv-tabs-content>` | `tabpanel` |
 
 ```html
 <primitiv-tabs value="overview" class="primitiv-tabs primitiv-tabs--md">
   <primitiv-tabs-list label="Account sections" class="primitiv-tabs__list">
-    <primitiv-tabs-trigger value="overview" class="primitiv-tabs__trigger">
-      <span class="primitiv-tabs__trigger-label">Overview</span>
+    <primitiv-tabs-trigger value="overview">
+      <button type="button" class="primitiv-tabs__trigger">
+        <span class="primitiv-tabs__trigger-label">Overview</span>
+      </button>
     </primitiv-tabs-trigger>
-    <primitiv-tabs-trigger value="billing" disabled class="primitiv-tabs__trigger">
-      <span class="primitiv-tabs__trigger-label">Billing</span>
+    <primitiv-tabs-trigger value="billing" disabled>
+      <button type="button" class="primitiv-tabs__trigger">
+        <span class="primitiv-tabs__trigger-label">Billing</span>
+      </button>
     </primitiv-tabs-trigger>
   </primitiv-tabs-list>
   <primitiv-tabs-content value="overview" class="primitiv-tabs__panel">…</primitiv-tabs-content>
   <primitiv-tabs-content value="billing" class="primitiv-tabs__panel" hidden>…</primitiv-tabs-content>
 </primitiv-tabs>
 ```
+
+**Two kinds of part (D24).** This is how `asChild` translates:
+
+- **Structural parts** (root, list, content, panel) *are* their element.
+  `role`, ARIA and `data-*` are written on the custom element itself.
+- **Interactive parts** (triggers, items, links, close buttons) *decorate
+  exactly one interactive child* that the consumer writes: a `<button>`, an
+  `<a href>`, or whatever a framework router renders (`<Link>`, `<RouterLink>`,
+  `<a routerLink>`). The part's contract attributes go on that child, so the
+  rendered DOM is the same as React's `<button role="tab">`. The wrapper
+  itself carries only its own inputs (`value`, `disabled`).
+
+There is no default element and no `as-child` switch, because the child is
+*always* the consumer's choice. That is `asChild` with nothing left to opt
+into. React's Slot rules carry over unchanged:
+
+| Slot rule (React) | Element equivalent |
+|---|---|
+| Child handlers run first, then the part's | The browser's bubbling order already does this: the child's listener fires, then the wrapper's |
+| `className` is concatenated | Classes are the consumer's, written on the child; the part never writes `class` (D20) |
+| Part props are the fallback, child props win | Part-owned attributes (`role`, `aria-*`, roving `tabindex`, `data-state`) are written on the child; a consumer `id` is kept |
+| Refs compose | Not applicable: the consumer already holds the child |
+
+Two rules complete it:
+
+- **Native semantics come free.** Because the child is a real `<button>` or
+  `<a>`, Enter/Space activation, focus, `cursor` and the UA resets the registry
+  stylesheets were written against all behave exactly as on the React surface.
+  This removes the stylesheet audit an element-as-button model would need.
+- **Misuse is reported, not thrown.** An interactive part with no element child,
+  or more than one, logs one `console.error` naming the part and does nothing
+  else. React throws for the equivalent misuse, but a server-rendered page has
+  no error boundary to catch a throw.
+
+**Disabled tabs** keep React's contract: the child gets `aria-disabled` and
+`data-disabled`, not the native `disabled` attribute, because arrow keys must
+still land on a disabled tab.
 
 **Prefix `primitiv-` (D17).** The tag names share the namespace of the
 `primitiv-` *class* contract, which stays the styling contract: a tag is a type
@@ -339,9 +382,9 @@ keeps a prefix override (§7.1) for teams running two versions side by side.
 | Element | What it sets |
 |---|---|
 | list | `role="tablist"`; `aria-orientation`; `aria-label` from `label` |
-| trigger | `role="tab"`; `aria-selected`; `aria-controls`; `aria-disabled`; `data-disabled`; roving `tabindex` from `tabsTabStop` |
+| trigger's child | `role="tab"`; `id`; `aria-selected`; `aria-controls`; `aria-disabled`; `data-disabled`; `data-state`; `data-orientation`; roving `tabindex` from `tabsTabStop` |
 | content | `role="tabpanel"`; `aria-labelledby`; `tabindex="0"`; `hidden` when inactive |
-| every element | `data-state` and `data-orientation` |
+| structural parts | `data-state` and `data-orientation` |
 
 - **Ids** are `deriveId(rootId, "trigger"|"panel", value)`. `rootId` is the
   root's own `id` if present, or a generated one otherwise. Ids the server
@@ -351,10 +394,11 @@ keeps a prefix override (§7.1) for teams running two versions side by side.
   pre-render the same output (§5.5). `ElementInternals` comes in only where it
   is the sole mechanism, which is form association (`formAssociated`) for
   Select, Checkbox and Switch later.
-- **The trigger element is the tab.** `role="tab"` overrides the button role
-  anyway, so there's no inner `<button>`. Enter/Space activation comes from the
-  shared keymap (`activate`), the same path manual mode uses in React. The open
-  question in §9.3 covers links-as-tabs (React's `asChild` + `<Link>`).
+- **The trigger's child is the tab** (D24, §5.1). Links as tabs need nothing
+  special: an `<a href>` child is decorated the same way as a `<button>`.
+  Keyboard handling is attached to the wrapper and reaches the child by
+  bubbling, so swapping the child (a framework re-render, an HTMX swap) never
+  leaves a listener behind on the old one.
 
 ### 5.4 Lifecycle: the part the draft got wrong
 
@@ -416,6 +460,36 @@ track of a moved node). Three consequences:
 - No `class` writes. Classes belong to the consumer and, through them, to the
   registry styling.
 - A consumer-supplied `id` is never replaced (§5.3).
+
+**No styles from the implementation, at all (D25).** Element code writes no
+inline `style`, injects no stylesheet, and adopts no constructed stylesheet.
+Behaviour never depends on layout. The one structural rule the wrapper model
+wants, that an interactive part's wrapper takes no box of its own, is a
+stylesheet concern and ships as one:
+
+```css
+@layer primitiv.reset {
+  :where(primitiv-tabs-trigger, primitiv-modal-trigger /* … every interactive part */) {
+    display: contents;
+  }
+}
+```
+
+- **Styled consumers** get it from each component's registry `styles.css`, so it
+  arrives with the component that needs it.
+- **Headless consumers** who load no registry CSS can opt into
+  `@primitiv-ui/web/elements.css`, a separate file that holds only these
+  rules. The JS never imports it.
+- **Without it, everything still works.** The wrapper is an inline box around
+  its child, which may change how a flex or grid parent lays the child out, and
+  which the consumer is free to style as they like.
+- `:where()` keeps the rule at zero specificity, and the `reset` sublayer keeps
+  it beneath every consumer rule (RFC 0008). Being CSS rather than script, it
+  also applies **before** the module loads, so the page lays out correctly
+  before upgrade.
+- `display: contents` historically stripped semantics from the element it is
+  set on. The wrapper has no role, and the child it would affect keeps its own,
+  so that bug does not apply.
 
 #### 5.6.2 Import and SSR safety
 
@@ -598,65 +672,96 @@ design towards that stack. They live in separate example repos, consume the
 published packages exactly as a user would, and record DX notes against this
 RFC. The interop lab is what gates releases.
 
-## 8. The styled layer: registry `add` for elements
+## 8. The styled layer and the CLI
 
 The registry's `contract.json` is already framework-neutral. It names the root
 element, every part's class, the modifiers and the `data-*` hooks. The `.tsx`
-wrapper is the only React-specific file in a registry component. So the styled
-story for web is:
+wrapper and the cva recipe are the only React-specific files in a registry
+component, so an elements install is the same component minus those, plus a
+markup snippet.
 
-- **`primitiv add tabs --target html`** copies `styles.css` (unchanged),
-  `contract.json`, and a generated **`tabs.html` snippet**. The snippet is the
-  §5.1 markup with every contract class applied and the pre-rendered ARIA from
-  §5.5. It's plain HTML, so it pastes into any template language or framework
-  template (Vue, Angular and Svelte templates take it nearly verbatim).
-  `primitiv.json` records the target, so later `add`s follow it.
-- **Audit first.** Each registry stylesheet must be checked for assumptions
-  about the element type before its component gets a web target. A custom
-  element is `display: inline` with no UA styles, where `<button>` has a
-  focusable box, `cursor`, and `font: inherit` resets. The Tabs audit is part
-  of Phase 3 and decides whether those rules go in the stylesheet (which then
-  works for both surfaces) or in a tiny `primitiv-*` base sheet.
-- **Auto-wrapping.** The React wrapper wraps text nodes in
-  `primitiv-tabs__trigger-label`. The HTML snippet writes that span out
-  literally. The element does **not** rewrite consumer children.
+### 8.1 What an elements install copies
 
-Generating the snippet is CLI work in `crates/primitiv-cli`, under the Rust
-rules (RFC 0007, 100% lines, regions and functions). The kitchen-sink and docs
-site stay React. A **"Web" mode in the docs-site consumption switch**
-(`docs/docs-site-planning.md`) is a follow-up, once the first few components
-exist.
+- **`styles.css`** (or `.scss` / Tailwind, per `--format`), unchanged apart from
+  the §5.6.1 `display: contents` rule each component gains.
+- **`contract.json`**, as today.
+- **A `tabs.html` snippet.** The §5.1 markup with every contract class applied
+  and the pre-rendered ARIA from §5.5. It is plain HTML, so it pastes into any
+  template language, and Vue, Angular and Svelte templates take it nearly
+  verbatim. It is **copied into the project as an editable file**, the
+  elements-side equivalent of the tsx wrapper the consumer owns, and is tracked
+  in `primitiv.lock` like every other copied file.
+- **Generated, not hand-written.** Snippets are generated from `contract.json`
+  when the registry is built, committed, and embedded in the CLI, the same way
+  `tabs.tsx` is generated from the contract today. The CLI stays a copier, and
+  every snippet change shows up as a reviewable diff.
+
+### 8.2 CLI changes (D26)
+
+The vocabulary is a **surface**, not a framework (D27): a Vue, Angular or plain
+HTML project installing elements is choosing the elements surface, and calling
+that `framework: "html"` would be wrong for every one of them.
+
+| Area | Change |
+|---|---|
+| **Config** | `primitiv.json` gains `surface: "react" \| "elements"`. `framework` is still **read** as an alias (`framework: "react"` means `surface: "react"`), so every existing config keeps working unchanged; `init` writes `surface` from now on. |
+| **`init`** | `--surface <react\|elements>` plus a prompt. The default is `react` when `package.json` lists a `react` dependency, and `elements` otherwise (Vue, Angular, Svelte, a server-rendered project, or no `package.json` at all). |
+| **`add`** | `--surface` as a per-run override, the way `--format` overrides the config today. A component with no elements surface yet fails clearly: *"modal has no elements surface yet"*. |
+| **Registry schema** | The React-specific keys move under a per-surface block: `surfaces.react: { packages: [@primitiv-ui/react, class-variance-authority], files: [tabs.tsx, tabs.recipe.ts] }` and `surfaces.elements: { packages: [@primitiv-ui/web], files: [tabs.html] }`. `styles.formats` and `contract` stay shared. Components with no behaviour carry an `elements` block with no package (§8.3). `registry.json`'s schema version bumps. |
+| **Package install** | With a `package.json`, `@primitiv-ui/web` installs through the detected package manager. Without one, nothing is installed and the CLI prints a version-pinned `<script type="module" src="https://cdn.jsdelivr.net/npm/@primitiv-ui/web@<version>/dist/primitiv-web.js">`. Copying the bundle into the project (`--vendor <dir>`) is a later addition, because embedding it would tie the Rust build to the JS build. |
+| **Wiring** | The tsx barrel and the stylesheet self-import line are React-only. For elements the CLI keeps `components/index.css`, an `@import` per installed component, so a page needs one `<link>`. It prints the `<link>` and `<script>` lines rather than editing a layout it cannot reliably find. |
+| **Default path** | `src/components` for React, as today; `primitiv/` for elements, overridable with `--path` and recorded in the config. |
+| **`list`** | Gains a column showing which surfaces each component supports. |
+
+All of it is built behind the existing ports and adapters, under the Rust gate
+(RFC 0007: 100% lines, regions and functions), with golden files for the
+snippets.
+
+### 8.3 Components with no behaviour
+
+Button, Badge, Tag, Kbd, Card, Avatar and the prose family need no custom
+element on the elements surface. The class contract on native markup *is* the
+whole component (`<a class="primitiv-button primitiv-button--primary">`), which
+is also React's `asChild` case for them. They get an elements install (styles,
+contract, snippet) with no package dependency. That makes them a cheap early
+milestone: they exercise the whole CLI and snippet pipeline before any element
+code is needed (Phase 2b, §10).
+
+The kitchen-sink and docs site stay React for now. A **"Web" mode in the
+docs-site consumption switch** (`docs/docs-site-planning.md`) is a follow-up,
+fed by the Custom Elements Manifest (§5.6.4, D18).
 
 ## 9. Open questions
 
-**Settled 2026-11-07:** the core package is `@primitiv-ui/core` (D16), the tag
-prefix is `primitiv-` (D17), and `@primitiv-ui/web` joins the docs-site props
-extractor **after** the experiment (Phase 6), not before (D18).
+**Settled 2026-11-07:**
+
+- the core package is `@primitiv-ui/core` (D16);
+- the tag prefix is `primitiv-` (D17);
+- `@primitiv-ui/web` joins the docs-site props extractor after the experiment
+  (D18);
+- framework neutrality and the elements-as-base direction (D19–D23);
+- the part model that replaces `asChild` (D24);
+- no styles from the implementation (D25);
+- the CLI's `surface` vocabulary and changes (D26, D27);
+- snippets are copied into the project as editable files (§8.1).
 
 Still open:
 
-1. **The `asChild` translation.** §5.3's "the trigger element is the tab" is
-   provisional pending this decision.
-2. **The CLI surface.** §8's `--target html` is provisional; the existing
-   `primitiv.json` `framework` field may be the right hook instead.
-3. **Snippet flavour.** Generic HTML only, or per-environment flavours (JSX for
+1. **Snippet flavour.** Generic HTML only, or per-environment flavours (JSX for
    a React project using elements, template-language loops)? This RFC proposes
    generic HTML only, with flavours a demand-driven follow-up.
-4. **The CLI's `framework` vocabulary.** With elements usable inside React,
-   Vue and Angular, "framework" no longer names the choice `add` makes. The
-   choice is which *surface* to install (React components or elements), and a
-   Vue project choosing elements is not choosing "html".
 
 ## 10. Rollout
 
 | Phase | Work | Done when |
 |---|---|---|
-| 0 | This RFC accepted; open questions §9.1–2 (`asChild`, CLI) answered | — |
+| 0 | This RFC accepted | — |
 | 1 | `@primitiv-ui/core` scaffolded; §4 steps 1–4 landed | React suites unchanged and green; core 100% coverage + 100% mutation |
 | 2 | `@primitiv-ui/web` Tabs | Conformance suite green on both surfaces; web suite 100%; Stryker 100% |
+| 2b | Elements installs for the components with no behaviour (§8.3): registry `surfaces` schema, snippet generation, `--surface` | `primitiv add badge --surface elements` installs into a project with no `package.json`; Rust gate green |
 | 3 | `apps/interop-lab` (html, htmx, react, vue, angular) + Playwright; Tabs stylesheet audit | Shared spec and the ten HTMX cases green in CI; registry CSS renders the elements correctly |
 | 4 | Distribution: entry points, bundle, CEM + framework typings, size gate, lockstep release | Published; `<script type="module">` from jsDelivr works on a blank page |
-| 5 | `primitiv add --target html` + snippet generation | Rust gate green; Tabs installs into a plain-HTML project |
+| 5 | Elements install for Tabs (package dependency, `display: contents` rule, snippet) | Tabs installs and works in every interop-lab app |
 | 6 | Next components, chosen for core reuse | — |
 
 Phase 6 order, so each step reuses the core the previous one built:
@@ -691,7 +796,7 @@ suite.
 | D12 | Shared conformance suite run by both surfaces | The only mechanical guard against the two surfaces drifting apart |
 | D13 | Interop lab in repo (html, htmx, react, vue, angular); full consumer stacks out of repo | Prove portability in CI without adopting any one consumer's toolchain |
 | D14 | Lockstep versioning, npm + JSR, provenance | Same release path as every other package |
-| D15 | Styled layer = `primitiv add` for HTML over the unchanged `contract.json` + `styles.css` (flag shape open, §9.2) | The styling contract was framework-neutral all along |
+| D15 | Styled layer = `primitiv add` for elements over the unchanged `contract.json` + `styles.css` | The styling contract was framework-neutral all along |
 | D16 | Shared package named `@primitiv-ui/core` | Settled 2026-11-07 |
 | D17 | Tag prefix `primitiv-` | Settled 2026-11-07; one namespace across tags, classes and custom properties |
 | D18 | Docs-site props extractor gains `@primitiv-ui/web` after the experiment | It must read every surface package eventually; not needed to prove the behaviour |
@@ -700,3 +805,7 @@ suite.
 | D21 | Element modules are safe to import without a DOM; `define` is a no-op there | SSR frameworks import modules on the server (§5.6.2) |
 | D22 | State is attribute + property; notifications are lowercase kebab-case DOM events; typings and a Custom Elements Manifest ship with the package | The one combination every framework binds without help (§5.6.3–4) |
 | D23 | Direction: elements become the base implementation and framework packages become adapters (stage 2, §3.3), decided later on stage-1 evidence | Settled as direction 2026-11-07; stage 1 is designed not to block it |
+| D24 | Structural parts are their element; interactive parts decorate exactly one consumer-written child, replacing `asChild` | Same DOM as React, native button/link semantics, and framework routers work unchanged |
+| D25 | Element code writes no styles of any kind; the `display: contents` wrapper rule ships as CSS in each registry stylesheet and in an opt-in `elements.css` | Styling stays completely decoupled from the implementation (settled 2026-11-07) |
+| D26 | CLI: `surface` config + `--surface` on `init` and `add`; per-surface registry blocks; CDN tag printed when there is no `package.json`; `components/index.css` aggregator | Elements installs without assuming a package manager or a framework |
+| D27 | The vocabulary is `surface: "react" \| "elements"`; `framework` stays readable as an alias | A Vue or plain-HTML project installing elements is not choosing a framework called "html" |

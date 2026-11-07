@@ -45,7 +45,7 @@ jobs:
         run: pnpm --filter @primitiv-ui/icons generate
 
       - name: Test libraries
-        run: pnpm -r --filter "@primitiv-ui/react" --filter "@primitiv-ui/icons" --filter "@primitiv-ui/tokens" qa:units
+        run: pnpm -r --filter "@primitiv-ui/core" --filter "@primitiv-ui/react" --filter "@primitiv-ui/icons" --filter "@primitiv-ui/tokens" qa:units
 
       # Reporting only (README coverage badges) — not a gate. The vitest
       # thresholds above already fail the build on any coverage regression.
@@ -83,6 +83,7 @@ jobs:
       # package already self-checks via its own `lint` script.
       - name: Type-check libraries
         run: |
+          pnpm --filter @primitiv-ui/core typecheck
           pnpm --filter @primitiv-ui/react typecheck
           pnpm --filter @primitiv-ui/icons typecheck
           pnpm --filter @primitiv-ui/tokens lint

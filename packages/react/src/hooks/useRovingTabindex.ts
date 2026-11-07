@@ -1,9 +1,6 @@
 import { useCallback, type KeyboardEvent } from "react";
 
-import {
-  getKeyToActionMap,
-  type RovingKeyAction,
-} from "../utils/getKeyToActionMap";
+import { getKeyToActionMap, type RovingKeyAction } from "@primitiv-ui/core";
 
 type UseRovingTabindexOptions<K> = {
   /**

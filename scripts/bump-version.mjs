@@ -3,8 +3,8 @@
  * Bumps all published package versions in lockstep.
  *
  * Covers every location that must move together:
- *   - 10 package.json "version" fields
- *   - 3 jsr.json "version" fields
+ *   - 11 package.json "version" fields
+ *   - 4 jsr.json "version" fields
  *   - 5 optionalDependencies in npm/cli-wrapper/package.json
  *   - 2 crates/*-wasm/Cargo.toml "version" fields (wasm-pack reads these into the
  *     published @primitiv-ui/{harmoni,primitiv-emit}-wasm package.json at publish
@@ -30,6 +30,7 @@ if (!version || !/^\d+\.\d+\.\d+(-[\w.]+)?$/.test(version)) {
 }
 
 const PACKAGE_JSON_PATHS = [
+  "packages/core/package.json",
   "packages/react/package.json",
   "packages/icons/package.json",
   "packages/tokens/package.json",
@@ -43,6 +44,7 @@ const PACKAGE_JSON_PATHS = [
 ];
 
 const JSR_JSON_PATHS = [
+  "packages/core/jsr.json",
   "packages/react/jsr.json",
   "packages/icons/jsr.json",
   "packages/tokens/jsr.json",

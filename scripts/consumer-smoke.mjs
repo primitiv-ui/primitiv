@@ -21,7 +21,9 @@ import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 
 const root = resolve(import.meta.dirname, "..");
-const packages = ["react", "icons"];
+// core first: the react tarball depends on it, and npm must find it among the
+// packed tarballs rather than on the registry (RFC 0033).
+const packages = ["core", "react", "icons"];
 
 const run = (cmd, args, cwd) =>
   execFileSync(cmd, args, { cwd, stdio: "inherit", env: { ...process.env, CI: "1" } });

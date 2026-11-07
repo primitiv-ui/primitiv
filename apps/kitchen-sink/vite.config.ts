@@ -40,6 +40,11 @@ export default defineConfig({
       '@primitiv-ui/icons': fileURLToPath(
         new URL('../../packages/icons/src/index.ts', import.meta.url),
       ),
+      // The react source imports @primitiv-ui/core (RFC 0033), so it needs the
+      // same source alias or this app would need core published to build.
+      '@primitiv-ui/core': fileURLToPath(
+        new URL('../../packages/core/src/index.ts', import.meta.url),
+      ),
     },
   },
 })

@@ -1,0 +1,50 @@
+{
+  "name": "@primitiv-ui/core",
+  "version": "0.1.40",
+  "description": "The framework-free behaviour core shared by every Primitiv surface — keyboard maps, roving-focus targets, id derivation and per-component policy, as pure functions with no DOM and no dependencies.",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "sideEffects": false,
+  "files": [
+    "dist"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/primitiv-ui/primitiv.git",
+    "directory": "packages/core"
+  },
+  "scripts": {
+    "build": "rm -rf dist && tsc -p tsconfig.build.json && node ../../scripts/finalize-dist.mjs dist",
+    "prepack": "pnpm run build",
+    "qa": "pnpm qa:units",
+    "qa:units": "vitest run --coverage",
+    "qa:units:watch": "vitest --coverage",
+    "mutate": "stryker run",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "devDependencies": {
+    "@stryker-mutator/core": "9.6.1",
+    "@stryker-mutator/vitest-runner": "9.6.1",
+    "@vitest/coverage-v8": "^4.1.4",
+    "typescript": "^6.0.2",
+    "vitest": "^4.1.4"
+  },
+  "publishConfig": {
+    "access": "public",
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      }
+    }
+  }
+}

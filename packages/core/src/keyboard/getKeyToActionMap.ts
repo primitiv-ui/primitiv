@@ -64,7 +64,9 @@ type GetKeyToActionMapOptions = {
  */
 export function getKeyToActionMap({
   orientation,
-  dir = "ltr",
+  // No `= "ltr"` default: only `"rtl"` is ever tested, so an omitted `dir`
+  // already reads as LTR, and a default here is an equivalent mutant.
+  dir,
   homeEnd = false,
   activate = false,
 }: GetKeyToActionMapOptions): Record<string, RovingKeyAction> {

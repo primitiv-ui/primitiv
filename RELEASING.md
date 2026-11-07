@@ -191,7 +191,29 @@ shippable at v0.1.0. Changes made:
 - [x] `"repository"` field set to `primitiv-ui/primitiv` (as instructed in
   the org-transfer checklist).
 
-The workflow already runs `qa:units` on all three before publishing, so
+### `@primitiv-ui/core` (added 2026-11-07, RFC 0033)
+
+A fourth library, and the first one another library **depends on**:
+`@primitiv-ui/react` declares `"@primitiv-ui/core": "workspace:*"`, which
+`pnpm publish` rewrites to the exact lockstep version. Three things follow:
+
+- **It publishes before `react`, not last.** The §2 "new package last" rule
+  protects packages that do not need the new one; `react` does need core, and a
+  `react` published without its core is uninstallable. So the core step is
+  first in both library loops, and a core failure stops `react` deliberately.
+- **Its first release needs the §2 token bootstrap in place before the run**,
+  on npm, and the package created and linked to this repo on jsr.io, because a
+  failure there now blocks `react` rather than costing a re-run of one step.
+- **JSR resolution of `workspace:*` is unverified.** JSR documents
+  `package.json` dependencies as a source of bare-specifier resolution but says
+  nothing about pnpm's `workspace:` protocol, and `jsr publish --dry-run` cannot
+  run in the cloud sandbox. The JSR preflight in `publish.yml` runs before any
+  npm publish, so a failure is safe, but run the publish workflow's preflight
+  (or `npx jsr publish --dry-run` in `packages/react` locally) before cutting
+  the first release that includes core. If it fails, the documented fix is a
+  `jsr:@primitiv-ui/core@<version>` value for JSR only.
+
+The workflow already runs `qa:units` on all four before publishing, so
 tests gate the release. `pnpm -r publish` skips `private: true` packages
 (`apps/workbench`, `crates/harmoni-wasm/pkg`) automatically.
 
@@ -276,8 +298,8 @@ these by hand across multiple commits:
 
 | Location | What changes |
 |---|---|
-| `packages/{react,icons,tokens}/package.json` | `"version"` |
-| `packages/{react,icons,tokens}/jsr.json` | `"version"` |
+| `packages/{core,react,icons,tokens}/package.json` | `"version"` |
+| `packages/{core,react,icons,tokens}/jsr.json` | `"version"` |
 | `npm/cli-{darwin-arm64,darwin-x64,linux-arm64-gnu,linux-x64-gnu,win32-x64}/package.json` | `"version"` |
 | `npm/cli-wrapper/package.json` | `"version"` **and** all 5 `"optionalDependencies"` entries |
 | `npm/create-primitiv-ui/package.json` | `"version"` |

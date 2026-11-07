@@ -1,5 +1,6 @@
 import {
   tabsClick,
+  tabsKeydown,
   type TabsActivationMode,
   type TabsOrientation,
   type TabsReadingDirection,
@@ -52,6 +53,7 @@ export class TabsController {
   /** Start listening on the root. */
   connect(): void {
     this.#root.addEventListener("click", (event) => this.#onClick(event));
+    this.#root.addEventListener("keydown", (event) => this.#onKeydown(event));
   }
 
   #values(): string[] {
@@ -72,6 +74,25 @@ export class TabsController {
     const { active } = this.#host.state();
     const target = tabsClick({ disabled: this.#disabled(), active }, trigger.value);
     if (target !== null) this.#host.activate(target, this.#values().indexOf(target));
+  }
+
+  #onKeydown(event: KeyboardEvent): void {
+    const trigger = this.#triggerFor(event.target);
+    if (!trigger) return;
+    const { active, orientation, dir, activationMode } = this.#host.state();
+    const values = this.#values();
+    const outcome = tabsKeydown(
+      { values, disabled: this.#disabled(), active, orientation, dir, activationMode },
+      trigger.value,
+      event.key,
+    );
+    if (!outcome) return;
+    event.preventDefault();
+    if (outcome.activate !== null) {
+      this.#host.activate(outcome.activate, values.indexOf(outcome.activate));
+    }
+    // The focus target is always one of `values`, so its index is always valid.
+    [...this.#triggers.keys()][values.indexOf(outcome.focus)].focus();
   }
 
   #triggerFor(target: EventTarget | null): Trigger | undefined {

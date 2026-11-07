@@ -3,5 +3,6 @@ packages:
   - '!apps/kitchen-sink'
   - '!apps/docs-site'
   - '!apps/promo-video'
+  - '!apps/interop-lab'
   - 'packages/*'
   - 'crates/harmoni-wasm/pkg'

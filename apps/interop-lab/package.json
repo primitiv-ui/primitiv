@@ -1,0 +1,26 @@
+{
+  "name": "interop-lab",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "description": "Proves @primitiv-ui/web in real browsers and real frameworks: one page per environment, one shared Playwright spec (RFC 0033 §7.4). Outside the pnpm workspace so no framework's toolchain enters another's resolution.",
+  "scripts": {
+    "dev": "vite",
+    "test:e2e": "playwright test"
+  },
+  "dependencies": {
+    "htmx.org": "2.0.10",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5",
+    "vue": "^3.5.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.61.1",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.1",
+    "@vitejs/plugin-vue": "^6.0.0",
+    "typescript": "~6.0.2",
+    "vite": "^8.0.8"
+  }
+}

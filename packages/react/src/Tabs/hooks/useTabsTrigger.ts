@@ -2,10 +2,11 @@ import {
   useRef,
   useEffect,
   useCallback,
-  MouseEvent,
+  type KeyboardEvent,
+  type MouseEvent,
 } from "react";
 
-import { useRovingTabindex } from "../../hooks/index.ts";
+import { tabsClick, tabsKeydown, tabsTabStop } from "@primitiv-ui/core";
 
 import { TabsTriggerProps } from "../types";
 import { getTriggerAndPanelIds } from "../utils";
@@ -36,11 +37,10 @@ export function useTabsTrigger({
   const { triggerId, panelId } = getTriggerAndPanelIds(tabsId, value);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const state = isActive ? "active" : "inactive";
-  // When no tab is active (no defaultValue/value provided), the first registered
-  // trigger acts as the roving-tabindex home base so the tablist stays reachable
-  // via keyboard Tab navigation.
-  const isFirst = triggerValues[0] === value;
-  const tabIndex = isActive || (activeValue === undefined && isFirst) ? 0 : -1;
+  // The roving tab stop is Tabs policy, shared with every surface through
+  // @primitiv-ui/core (RFC 0033 §3.1): the active tab, or the first registered
+  // trigger while none is active, so the tablist stays reachable by keyboard.
+  const tabIndex = tabsTabStop({ values: triggerValues, active: activeValue }) === value ? 0 : -1;
 
   useEffect(() => {
     registerTrigger(value, buttonRef.current, disabled);
@@ -48,8 +48,9 @@ export function useTabsTrigger({
   }, [value, disabled, registerTrigger]);
 
   const activateTab = useCallback(
+    // Callers pass only a real change: the core policy never asks to activate
+    // the tab that is already active.
     (newValue: string, index: number) => {
-      if (activeValue === newValue) return;
       if (isControlled) {
         // Controlled mode requires `onValueChange` (discriminated-union prop
         // type), so the optional call can never no-op in valid usage.
@@ -60,7 +61,7 @@ export function useTabsTrigger({
       }
       onChange?.({ index, name: newValue });
     },
-    [activeValue, isControlled, onValueChange, setActiveValue, onChange],
+    [isControlled, onValueChange, setActiveValue, onChange],
   );
 
   // Note: this composition is deliberately bespoke and does NOT use the
@@ -70,38 +71,37 @@ export function useTabsTrigger({
   // composeEventHandlers here would be an observable behaviour change for
   // consumers (handler ordering and preventDefault semantics).
   function handleClick(e: MouseEvent<HTMLButtonElement>) {
-    const index = triggerValues.indexOf(value);
-    if (!disabled) {
-      activateTab(value, index);
+    const target = tabsClick({ disabled: disabledTriggerValues, active: activeValue }, value);
+    if (target !== null) {
+      activateTab(target, triggerValues.indexOf(target));
     }
     onClick?.(e);
   }
 
-  // Tabs deliberately leaves disabled values in `navigable` so arrow keys
-  // *land* on disabled tabs (focus moves there) without activating them —
-  // that's the Tabs-specific keyboard contract, distinct from RadioGroup
-  // and Accordion which both skip disabled siblings entirely.
-  const { handleKeyDown } = useRovingTabindex<string>({
-    orientation,
-    dir,
-    navigable: triggerValues,
-    currentKey: value,
-    includeHomeEnd: true,
-    includeActivate: true,
-    onNavigate: (targetValue, action) => {
-      const isDisabled = disabledTriggerValues.has(targetValue);
-      // Automatic mode activates on any navigation; manual mode activates only
-      // on an explicit activation key (Enter/Space). Since the mode is always
-      // "automatic" or "manual", `automatic || isActivationKey` captures both.
-      const shouldActivate =
-        !isDisabled &&
-        (activationMode === "automatic" || action === "activate");
-      if (shouldActivate) {
-        activateTab(targetValue, triggerValues.indexOf(targetValue));
-      }
-      focusTrigger(targetValue);
-    },
-  });
+  // Tabs' keyboard contract (arrows land on a disabled tab without activating
+  // it; manual mode activates only on Enter / Space) is core policy, so the
+  // web implementation follows exactly the same rules.
+  function handleKeyDown(e: KeyboardEvent<HTMLButtonElement>) {
+    const outcome = tabsKeydown(
+      {
+        values: triggerValues,
+        disabled: disabledTriggerValues,
+        active: activeValue,
+        orientation,
+        dir,
+        activationMode,
+      },
+      value,
+      e.key,
+    );
+    if (!outcome) return;
+    e.preventDefault();
+    if (outcome.activate !== null) {
+      activateTab(outcome.activate, triggerValues.indexOf(outcome.activate));
+    }
+    focusTrigger(outcome.focus);
+  }
+
   return {
     buttonRef,
     triggerId,

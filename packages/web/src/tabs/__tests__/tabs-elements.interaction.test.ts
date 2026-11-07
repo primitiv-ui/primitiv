@@ -4,15 +4,14 @@ import userEvent from "@testing-library/user-event";
 import { defineTabs, type PrimitivTabsElement } from "../elements";
 import { tabsHtml } from "./tabs.fixtures";
 
-beforeAll(() => {
-  defineTabs();
-});
-
 afterEach(() => {
   document.body.replaceChildren();
 });
 
 async function mount(html: string) {
+  // Defined inside each test rather than in beforeAll: a failure there would
+  // skip the file, and a skipped test kills no mutant.
+  defineTabs();
   document.body.innerHTML = html;
   await settle();
 }

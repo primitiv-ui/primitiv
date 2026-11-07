@@ -16,5 +16,10 @@ export default {
   jsonReporter: { fileName: "reports/mutation/web.json" },
   clearTextReporter: { reportMutants: false },
   mutate: ["src/**/*.ts", "!src/**/*.test.ts", "!src/**/__tests__/**", "!src/**/types.ts", "!src/**/index.ts"],
+  // Static mutants (module-level constants such as the tag names) cannot be
+  // switched at runtime: Vitest caches each module, so the mutated value would
+  // never be evaluated and every one would "survive" without having run. The
+  // values they guard are asserted directly instead (e.g. defineTabs' names).
+  ignoreStatic: true,
   thresholds: { high: 100, low: 100, break: 100 },
 };

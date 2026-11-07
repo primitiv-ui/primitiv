@@ -1,11 +1,7 @@
 import { screen } from "@testing-library/dom";
 
-import { defineTabs } from "../elements";
+import { defineTabs, type ElementRegistry } from "../elements";
 import { tabsHtml } from "./tabs.fixtures";
-
-beforeAll(() => {
-  defineTabs();
-});
 
 afterEach(() => {
   document.body.replaceChildren();
@@ -13,6 +9,9 @@ afterEach(() => {
 
 /** Mount markup and let the root's first reconcile (a microtask) settle. */
 async function mount(html: string) {
+  // Defined inside each test rather than in beforeAll: a failure there would
+  // skip the file, and a skipped test kills no mutant.
+  defineTabs();
   document.body.innerHTML = html;
   await Promise.resolve();
 }
@@ -26,6 +25,23 @@ describe("<primitiv-tabs> rendering", () => {
     for (const name of ["primitiv-tabs", "primitiv-tabs-list", "primitiv-tabs-trigger", "primitiv-tabs-content"]) {
       expect(customElements.get(name)).toBeDefined();
     }
+  });
+
+  it("defines exactly the four tag names on the registry it is given, skipping any already there", () => {
+    // Arrange
+    const defined: string[] = [];
+    const registry: ElementRegistry = {
+      get: (name: string) => (name === "primitiv-tabs-list" ? class {} : undefined) as never,
+      define: (name: string) => {
+        defined.push(name);
+      },
+    };
+
+    // Act
+    defineTabs(registry);
+
+    // Assert
+    expect(defined).toEqual(["primitiv-tabs", "primitiv-tabs-trigger", "primitiv-tabs-content"]);
   });
 
   it("gives the list its tablist role, name and orientation", async () => {
@@ -74,7 +90,9 @@ describe("<primitiv-tabs> rendering", () => {
     expect(panel.textContent).toBe("First panel");
     expect(screen.getByRole("tabpanel", { name: "One" })).toBe(panel);
     expect(panel.getAttribute("tabindex")).toBe("0");
-    expect(document.querySelector('primitiv-tabs-content[value="two"]')?.hasAttribute("hidden")).toBe(true);
+    const inactive = document.querySelector('primitiv-tabs-content[value="two"]');
+    expect(inactive?.getAttribute("hidden")).toBe("");
+    expect(inactive?.getAttribute("data-state")).toBe("inactive");
   });
 
   it("wires each tab to its panel with aria-controls", async () => {
@@ -84,6 +102,26 @@ describe("<primitiv-tabs> rendering", () => {
     // Assert
     const tab = screen.getByRole("tab", { name: "One" });
     expect(document.getElementById(tab.getAttribute("aria-controls") ?? "")?.textContent).toBe("First panel");
+  });
+
+  it("derives predictable ids from the root's own id, so a server can pre-render them", async () => {
+    // Arrange & Act
+    await mount(tabsHtml({ value: "one" }).replace("<primitiv-tabs", '<primitiv-tabs id="account"'));
+
+    // Assert
+    const tab = screen.getByRole("tab", { name: "One" });
+    expect(tab.id).toBe("account-trigger-one");
+    expect(tab.getAttribute("aria-controls")).toBe("account-panel-one");
+  });
+
+  it("gives two tab sets without ids ids that never collide", async () => {
+    // Arrange & Act
+    await mount(tabsHtml({ value: "one" }) + tabsHtml({ value: "one" }));
+
+    // Assert
+    const ids = [...document.querySelectorAll("[id]")].map((element) => element.id);
+    expect(new Set(ids).size).toBe(ids.length);
+    expect(ids).toHaveLength(12);
   });
 
   it("keeps ids the markup already has", async () => {
@@ -120,8 +158,36 @@ describe("<primitiv-tabs> rendering", () => {
     // Assert
     const tab = screen.getByRole("tab", { name: "Two" });
     expect(tab.getAttribute("aria-disabled")).toBe("true");
-    expect(tab.hasAttribute("data-disabled")).toBe(true);
+    expect(tab.getAttribute("data-disabled")).toBe("");
     expect(screen.getByRole("tab", { name: "One" }).hasAttribute("aria-disabled")).toBe(false);
+  });
+
+  it("keeps an aria-label the list was given directly", async () => {
+    // Arrange & Act
+    await mount(tabsHtml({ value: "one" }).replace('label="Sections"', 'aria-label="Own name"'));
+
+    // Assert
+    expect(screen.getByRole("tablist").getAttribute("aria-label")).toBe("Own name");
+  });
+
+  it("writes nothing over markup that is already correct, so pre-rendered HTML is adopted as it is", async () => {
+    // Arrange
+    await mount(tabsHtml({ value: "two", disabled: ["three"] }));
+    const rendered = document.body.innerHTML;
+    document.body.replaceChildren();
+    const writes: string[] = [];
+    const observer = new MutationObserver((records) => {
+      for (const record of records) writes.push(`${record.attributeName} on ${(record.target as Element).tagName}`);
+    });
+    observer.observe(document.body, { subtree: true, attributes: true });
+
+    // Act
+    document.body.innerHTML = rendered;
+    await Promise.resolve();
+    observer.disconnect();
+
+    // Assert
+    expect(writes).toEqual([]);
   });
 
   it("writes no class and no style on anything", async () => {

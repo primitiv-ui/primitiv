@@ -16,12 +16,37 @@ import { TabsController, type TabsControllerHost } from "./TabsController.ts";
 const ElementBase: typeof HTMLElement =
   globalThis.HTMLElement ?? (class {} as unknown as typeof HTMLElement);
 
+// Stryker disable StringLiteral: static — evaluated once at import, so runtime mutant switching never reaches them; the names are pinned by the defineTabs registry test instead.
 const ROOT = "primitiv-tabs";
 const LIST = "primitiv-tabs-list";
 const TRIGGER = "primitiv-tabs-trigger";
 const CONTENT = "primitiv-tabs-content";
+// Stryker restore StringLiteral
 
 let generatedIds = 0;
+
+/** Triggers already reported as misused, so each is reported once, not per reconcile. */
+const reported = new WeakSet<Element>();
+
+/**
+ * An interactive part decorates exactly one element child and needs a `value`.
+ * Anything else is reported once and left undecorated rather than thrown: a
+ * server-rendered page has no error boundary to catch a throw (RFC 0033 D24).
+ */
+function decoratable(trigger: HTMLElement): { tab: HTMLElement; value: string } | null {
+  const value = trigger.getAttribute("value");
+  if (trigger.childElementCount === 1 && value !== null) {
+    return { tab: trigger.firstElementChild as HTMLElement, value };
+  }
+  if (!reported.has(trigger)) {
+    reported.add(trigger);
+    console.error(
+      `<${TRIGGER}> needs a value and exactly one element child (a <button>, an <a href> or a router link) to decorate.`,
+      trigger,
+    );
+  }
+  return null;
+}
 
 /**
  * Write an attribute only when it would change: `null` removes it. The elements
@@ -41,12 +66,13 @@ function write(element: Element, name: string, value: string | null): void {
  * The root finds its own parts, scoped with `closest()` so a tab set nested in a
  * panel keeps its own, and reconciles their ARIA from its reflected state. It
  * never caches the parts, so markup that arrives later is picked up on the next
- * reconcile.
+ * reconcile. One `MutationObserver` is the only trigger after connect: it sees
+ * parts arriving and leaving, and every attribute the root reads, including the
+ * root's own `value` and `orientation`, and it already delivers a task's changes
+ * as one callback, so no further batching is needed. `activation-mode` is read
+ * live at each key press, so a change to it needs no reconcile.
  */
 export class PrimitivTabsElement extends ElementBase {
-  static observedAttributes = ["value", "orientation", "activation-mode"];
-
-  #scheduled = false;
   #generatedId: string | undefined;
   /** The value of the panel last shown, so a change fires primitiv-tabs-show. */
   #shown: string | undefined;
@@ -60,7 +86,7 @@ export class PrimitivTabsElement extends ElementBase {
    * the root reads. The root's own writes (role, aria-*, ids, data-*) are not in
    * the filter, so reconciling never re-triggers itself.
    */
-  readonly #observer = new MutationObserver(() => this.#schedule());
+  readonly #observer = new MutationObserver(() => this.#reconcile());
 
   connectedCallback(): void {
     this.#controller.connect();
@@ -68,9 +94,9 @@ export class PrimitivTabsElement extends ElementBase {
       subtree: true,
       childList: true,
       attributes: true,
-      attributeFilter: ["value", "disabled", "label"],
+      attributeFilter: ["value", "disabled", "label", "orientation"],
     });
-    this.#schedule();
+    this.#reconcile();
   }
 
   /**
@@ -83,10 +109,6 @@ export class PrimitivTabsElement extends ElementBase {
     this.#observer.disconnect();
   }
 
-  attributeChangedCallback(): void {
-    this.#schedule();
-  }
-
   /** The active tab's value, reflected as the `value` attribute. */
   get value(): string | undefined {
     return this.getAttribute("value") ?? undefined;
@@ -94,16 +116,6 @@ export class PrimitivTabsElement extends ElementBase {
 
   set value(next: string) {
     this.setAttribute("value", next);
-  }
-
-  /** Batch every change in one task into a single reconcile. */
-  #schedule(): void {
-    if (this.#scheduled) return;
-    this.#scheduled = true;
-    queueMicrotask(() => {
-      this.#scheduled = false;
-      this.#reconcile();
-    });
   }
 
   /**
@@ -116,6 +128,7 @@ export class PrimitivTabsElement extends ElementBase {
       state: () => ({
         active: this.value,
         orientation: this.#orientation(),
+        // Stryker disable next-line StringLiteral: equivalent — core tests only for "rtl", so any other string reads as left-to-right.
         dir: this.matches(":dir(rtl)") ? "rtl" : "ltr",
         activationMode: this.#activationMode(),
       }),
@@ -131,7 +144,8 @@ export class PrimitivTabsElement extends ElementBase {
   }
 
   #activationMode(): TabsActivationMode {
-    return this.getAttribute("activation-mode") === "manual" ? "manual" : "automatic";
+    const mode = this.getAttribute("activation-mode");
+    return mode === "manual" ? mode : "automatic";
   }
 
   #orientation(): TabsOrientation {
@@ -146,6 +160,7 @@ export class PrimitivTabsElement extends ElementBase {
   }
 
   #rootId(): string {
+    // Stryker disable next-line UpdateOperator: equivalent — counting down yields ids just as unique.
     return this.id || (this.#generatedId ??= `${ROOT}-${++generatedIds}`);
   }
 
@@ -170,20 +185,18 @@ export class PrimitivTabsElement extends ElementBase {
     }
 
     const triggers = this.#parts(TRIGGER).flatMap((trigger) => {
-      const tab = trigger.firstElementChild as HTMLElement | null;
-      const value = trigger.getAttribute("value");
-      return tab && value !== null ? [{ trigger, tab, value }] : [];
+      const part = decoratable(trigger);
+      return part ? [{ trigger, ...part }] : [];
     });
     const stop = tabsTabStop({ values: triggers.map((t) => t.value), active });
 
-    const current = new Set(triggers.map((t) => t.tab));
-    for (const tab of this.#registered) {
-      if (!current.has(tab)) this.#controller.unregisterTrigger(tab);
-    }
+    // Replace the registration wholesale: a removed part, or a trigger whose child
+    // a framework re-rendered, simply is not registered again.
+    for (const tab of this.#registered) this.#controller.unregisterTrigger(tab);
     for (const { trigger, tab, value } of triggers) {
       this.#controller.registerTrigger(value, tab, { disabled: trigger.hasAttribute("disabled") });
     }
-    this.#registered = current;
+    this.#registered = new Set(triggers.map((t) => t.tab));
 
     for (const { trigger, tab, value } of triggers) {
       const panel = panels.get(value);
@@ -214,7 +227,8 @@ export class PrimitivTabsElement extends ElementBase {
     // A panel that becomes active announces it, so a lazy panel can fetch its
     // content (`hx-trigger="primitiv-tabs-show once"`, RFC 0033 D9). The first
     // render shows what the server already rendered, so it announces nothing.
-    const shownPanel = active === undefined ? undefined : panels.get(active);
+    // `Map.get(undefined)` is simply undefined, so no tab active means no panel.
+    const shownPanel = panels.get(active as string);
     if (this.#rendered && active !== this.#shown && shownPanel) {
       shownPanel.dispatchEvent(new CustomEvent("primitiv-tabs-show", { bubbles: true }));
     }
@@ -237,12 +251,17 @@ export class PrimitivTabsTriggerElement extends ElementBase {}
 /** `<primitiv-tabs-content>` — a tab panel. Structural: the root writes its ARIA. */
 export class PrimitivTabsContentElement extends ElementBase {}
 
+/** The two calls `defineTabs` makes on a custom-element registry. */
+export type ElementRegistry = Pick<CustomElementRegistry, "get" | "define">;
+
 /**
- * Define the four Tabs elements. Safe to call more than once, and a no-op where
- * `customElements` does not exist (a server render).
+ * Define the four Tabs elements on `registry` (the global `customElements` by
+ * default, so a scoped registry can be passed when browsers support one). Safe
+ * to call more than once, and a no-op where there is no registry (a server
+ * render).
  */
-export function defineTabs(): void {
-  if (typeof customElements === "undefined") return;
+export function defineTabs(registry: ElementRegistry | undefined = globalThis.customElements): void {
+  if (!registry) return;
   const elements: Array<[string, CustomElementConstructor]> = [
     [ROOT, PrimitivTabsElement],
     [LIST, PrimitivTabsListElement],
@@ -250,6 +269,6 @@ export function defineTabs(): void {
     [CONTENT, PrimitivTabsContentElement],
   ];
   for (const [name, element] of elements) {
-    if (!customElements.get(name)) customElements.define(name, element);
+    if (!registry.get(name)) registry.define(name, element);
   }
 }

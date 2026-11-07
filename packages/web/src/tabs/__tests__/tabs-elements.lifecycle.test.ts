@@ -4,10 +4,6 @@ import userEvent from "@testing-library/user-event";
 import { defineTabs } from "../elements";
 import { tabsHtml } from "./tabs.fixtures";
 
-beforeAll(() => {
-  defineTabs();
-});
-
 afterEach(() => {
   document.body.replaceChildren();
 });
@@ -21,6 +17,9 @@ async function settle() {
 }
 
 async function mount(html: string) {
+  // Defined inside each test rather than in beforeAll: a failure there would
+  // skip the file, and a skipped test kills no mutant.
+  defineTabs();
   document.body.innerHTML = html;
   await settle();
 }
@@ -52,19 +51,85 @@ describe("<primitiv-tabs> lifecycle", () => {
     expect(screen.getByRole("tabpanel", { name: "Four" }).textContent).toBe("Fourth panel");
   });
 
-  it("forgets a tab once it is removed", async () => {
+  it("forgets a tab once it is removed, so Home and End skip it", async () => {
     // Arrange
     const user = userEvent.setup();
-    await mount(tabsHtml({ value: "one" }));
-    document.querySelector('primitiv-tabs-trigger[value="two"]')?.remove();
+    await mount(tabsHtml({ value: "two" }));
+    document.querySelector('primitiv-tabs-trigger[value="three"]')?.remove();
+    document.querySelector('primitiv-tabs-trigger[value="one"]')?.remove();
     await settle();
-    screen.getByRole("tab", { name: "One" }).focus();
+    screen.getByRole("tab", { name: "Two" }).focus();
 
     // Act
-    await user.keyboard("{ArrowRight}");
+    await user.keyboard("{End}");
+    await settle();
+    const afterEnd = root().getAttribute("value");
+    await user.keyboard("{Home}");
+    await settle();
 
     // Assert
-    expect(screen.getByRole("tab", { name: "Three" })).toBe(document.activeElement);
+    expect(afterEnd).toBe("two");
+    expect(root().getAttribute("value")).toBe("two");
+  });
+
+  it("follows a trigger's, a panel's and a list's attributes changing later", async () => {
+    // Arrange
+    await mount(tabsHtml({ value: "one" }));
+
+    // Act
+    document.querySelector('primitiv-tabs-trigger[value="one"]')?.setAttribute("value", "uno");
+    document.querySelector('primitiv-tabs-content[value="one"]')?.setAttribute("value", "uno");
+    document.querySelector("primitiv-tabs-list")?.setAttribute("label", "Renamed");
+    root().setAttribute("value", "uno");
+    await settle();
+
+    // Assert
+    expect(screen.getByRole("tablist", { name: "Renamed" })).toBeDefined();
+    expect(screen.getByRole("tab", { name: "One" }).getAttribute("aria-selected")).toBe("true");
+    expect(screen.getByRole("tabpanel").textContent).toBe("First panel");
+  });
+
+  it("follows a list's label changing on its own", async () => {
+    // Arrange
+    await mount(tabsHtml({ value: "one" }));
+
+    // Act
+    document.querySelector("primitiv-tabs-list")?.setAttribute("label", "Renamed");
+    await settle();
+
+    // Assert
+    expect(screen.getByRole("tablist", { name: "Renamed" })).toBeDefined();
+  });
+
+  it("follows an orientation set later", async () => {
+    // Arrange
+    await mount(tabsHtml({ value: "one" }));
+
+    // Act
+    root().setAttribute("orientation", "vertical");
+    await settle();
+
+    // Assert
+    expect(screen.getByRole("tablist").getAttribute("aria-orientation")).toBe("vertical");
+  });
+
+  it("announces a shown panel once, not again on an unrelated change", async () => {
+    // Arrange
+    const user = userEvent.setup();
+    const shown: string[] = [];
+    document.addEventListener("primitiv-tabs-show", (event) => {
+      shown.push((event.target as HTMLElement).getAttribute("value") ?? "");
+    });
+    await mount(tabsHtml({ value: "one" }));
+    await user.click(screen.getByRole("tab", { name: "Two" }));
+    await settle();
+
+    // Act
+    document.querySelector('primitiv-tabs-trigger[value="three"]')?.setAttribute("disabled", "");
+    await settle();
+
+    // Assert
+    expect(shown).toEqual(["two"]);
   });
 
   it("decorates a trigger's child again when it is replaced", async () => {

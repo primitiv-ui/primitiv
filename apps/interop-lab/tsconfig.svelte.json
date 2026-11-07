@@ -1,0 +1,18 @@
+{
+  // svelte-check over the Svelte page and the @primitiv-ui/web/svelte typing
+  // tests (scripts/check-svelte-types.mjs, since Svelte markup has no
+  // expect-error comment of its own).
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "jsx": "preserve",
+    "paths": {
+      "@primitiv-ui/web": ["../../packages/web/src/index.ts"],
+      "@primitiv-ui/web/svelte": ["../../packages/web/src/frameworks/svelte.ts"],
+      "@primitiv-ui/web/define": ["../../packages/web/src/define/index.ts"],
+      "@primitiv-ui/core": ["../../packages/core/src/index.ts"],
+      "svelte": ["./node_modules/svelte"],
+      "svelte/*": ["./node_modules/svelte/*"]
+    }
+  },
+  "include": ["src/App.svelte", "src/svelte.ts", "src/svelte-types/**/*.svelte", "src/fixture.ts"]
+}

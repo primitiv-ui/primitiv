@@ -33,6 +33,10 @@
     "./vue": {
       "types": "./src/frameworks/vue.ts",
       "default": "./src/frameworks/vue.ts"
+    },
+    "./svelte": {
+      "types": "./src/frameworks/svelte.ts",
+      "default": "./src/frameworks/svelte.ts"
     }
   },
   "sideEffects": [
@@ -74,6 +78,7 @@
     "@vitest/coverage-v8": "^4.1.4",
     "esbuild": "^0.28.0",
     "jsdom": "^29.0.2",
+    "svelte": "^5.46.4",
     "typescript": "^6.0.2",
     "vitest": "^4.1.4",
     "vue": "^3.5.0"
@@ -110,19 +115,27 @@
       "./vue": {
         "types": "./dist/frameworks/vue.d.ts",
         "default": "./dist/frameworks/vue.js"
+      },
+      "./svelte": {
+        "types": "./dist/frameworks/svelte.d.ts",
+        "default": "./dist/frameworks/svelte.js"
       }
     }
   },
   "customElements": "dist/custom-elements.json",
   "peerDependencies": {
     "@types/react": "^19.0.0",
-    "vue": "^3.3.0"
+    "vue": "^3.3.0",
+    "svelte": "^5.0.0"
   },
   "peerDependenciesMeta": {
     "@types/react": {
       "optional": true
     },
     "vue": {
+      "optional": true
+    },
+    "svelte": {
       "optional": true
     }
   }

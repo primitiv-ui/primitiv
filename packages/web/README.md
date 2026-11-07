@@ -58,6 +58,11 @@ written, which is why the prop reads that way; most React projects want
 (npm only). Also tell Vue's compiler the tags are custom elements:
 `compilerOptions.isCustomElement: (tag) => tag.startsWith("primitiv-")`.
 
+**Svelte 5 templates** — `import type {} from "@primitiv-ui/web/svelte"` lets
+`svelte-check` check each tag's attributes and its `onprimitiv-tabs-change`
+handler (npm only). Svelte needs no other setup: it renders unknown tags as
+custom elements already.
+
 **Tooling** — `dist/custom-elements.json` is a Custom Elements Manifest, listed
 as `customElements` in `package.json`, for editor completion and Storybook.
 

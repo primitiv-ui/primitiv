@@ -1,9 +1,9 @@
 // The Tabs contract in a real browser, in every environment that renders the
-// elements: plain HTML, React 19 and Vue 3 (RFC 0033 §7.4). The same cases run
+// elements: plain HTML, React 19, Vue 3 and Svelte 5 (RFC 0033 §7.4). The same cases run
 // against each page; only how the markup got there differs.
 import { expect, test } from "./fixtures";
 
-for (const env of ["html", "react", "vue"] as const) {
+for (const env of ["html", "react", "vue", "svelte"] as const) {
   test.describe(`${env}`, () => {
     const open = (page: import("@playwright/test").Page, query = "") => page.goto(`/${env}.html${query}`);
     const tab = (page: import("@playwright/test").Page, name: string) => page.getByRole("tab", { name, exact: true });

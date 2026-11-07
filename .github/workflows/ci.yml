@@ -85,6 +85,7 @@ jobs:
         run: |
           pnpm --filter @primitiv-ui/core typecheck
           pnpm --filter @primitiv-ui/web typecheck
+          pnpm --filter @primitiv-ui/conformance typecheck
           pnpm --filter @primitiv-ui/react typecheck
           pnpm --filter @primitiv-ui/icons typecheck
           pnpm --filter @primitiv-ui/tokens lint

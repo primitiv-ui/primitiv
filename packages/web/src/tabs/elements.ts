@@ -71,6 +71,13 @@ function write(element: Element, name: string, value: string | null): void {
  * root's own `value` and `orientation`, and it already delivers a task's changes
  * as one callback, so no further batching is needed. `activation-mode` is read
  * live at each key press, so a change to it needs no reconcile.
+ *
+ * @customElement primitiv-tabs
+ * @summary The state owner of a WAI-ARIA tab set.
+ * @attr {string} value - The active tab's value. Reflected: it moves as the user switches tabs, so a server re-render or a history snapshot sees the live selection.
+ * @attr {"horizontal" | "vertical"} orientation - Layout axis, which picks the arrow-key pair. Defaults to `horizontal`.
+ * @attr {"automatic" | "manual"} activation-mode - `automatic` activates a tab as focus arrives; `manual` waits for Enter or Space. Defaults to `automatic`.
+ * @fires {CustomEvent<{ value: string; index: number }>} primitiv-tabs-change - Bubbles, cancelable, fired before a user-driven change is applied. Call `preventDefault()` to veto it.
  */
 export class PrimitivTabsElement extends ElementBase {
   #generatedId: string | undefined;
@@ -237,7 +244,12 @@ export class PrimitivTabsElement extends ElementBase {
   }
 }
 
-/** `<primitiv-tabs-list>` — the tablist. Structural: the root writes its ARIA. */
+/**
+ * `<primitiv-tabs-list>` — the tablist. Structural: the root writes its ARIA.
+ *
+ * @customElement primitiv-tabs-list
+ * @attr {string} label - The tablist's accessible name. Give this or `aria-labelledby`.
+ */
 export class PrimitivTabsListElement extends ElementBase {}
 
 /**
@@ -245,10 +257,20 @@ export class PrimitivTabsListElement extends ElementBase {}
  * child the consumer writes (a `<button>`, an `<a href>`, a router link), which
  * receives the tab role, so the rendered DOM matches React's `<button role="tab">`
  * (RFC 0033 D24).
+ *
+ * @customElement primitiv-tabs-trigger
+ * @attr {string} value - The tab's value, pairing it with the panel of the same value.
+ * @attr {boolean} disabled - Marks the tab disabled: arrow keys still land on it, but it never activates.
  */
 export class PrimitivTabsTriggerElement extends ElementBase {}
 
-/** `<primitiv-tabs-content>` — a tab panel. Structural: the root writes its ARIA. */
+/**
+ * `<primitiv-tabs-content>` — a tab panel. Structural: the root writes its ARIA.
+ *
+ * @customElement primitiv-tabs-content
+ * @attr {string} value - The panel's value, pairing it with the tab of the same value.
+ * @fires {CustomEvent} primitiv-tabs-show - Bubbles from the panel as it becomes active (not on first render), so a lazy panel can fetch its content.
+ */
 export class PrimitivTabsContentElement extends ElementBase {}
 
 /** The two calls `defineTabs` makes on a custom-element registry. */

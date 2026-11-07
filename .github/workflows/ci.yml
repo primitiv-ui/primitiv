@@ -90,12 +90,14 @@ jobs:
           pnpm --filter @primitiv-ui/icons typecheck
           pnpm --filter @primitiv-ui/tokens lint
 
-      # The no-build browser bundle must build and stay within its gzip budget
-      # (RFC 0033 §7.3): core is inlined, so a heavy import shows up here.
-      - name: Web bundle size budget
+      # The web package's build: the no-build browser bundle must stay within its
+      # gzip budget (core is inlined, so a heavy import shows up here), and every
+      # defined tag must reach the Custom Elements Manifest (RFC 0033 §5.6.4, §7.3).
+      - name: Web build — bundle budget and element manifest
         run: |
           pnpm --filter @primitiv-ui/web build
           pnpm --filter @primitiv-ui/web size
+          pnpm --filter @primitiv-ui/web manifest:check
 
       # Guard the §1.16/§1.21 pattern: a custom prop narrowing a same-named
       # native attribute without Omit-ting it first resolves to an intersection

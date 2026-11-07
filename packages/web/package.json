@@ -41,7 +41,7 @@
     "directory": "packages/web"
   },
   "scripts": {
-    "build": "rm -rf dist && tsc -p tsconfig.build.json && node ../../scripts/finalize-dist.mjs dist && pnpm run build:bundle",
+    "build": "rm -rf dist && tsc -p tsconfig.build.json && node ../../scripts/finalize-dist.mjs dist && pnpm run build:bundle && pnpm run build:manifest",
     "prepack": "pnpm run build",
     "qa": "pnpm qa:units",
     "qa:units": "vitest run --coverage",
@@ -49,12 +49,15 @@
     "mutate": "stryker run",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "build:bundle": "esbuild src/bundle.ts --bundle --format=esm --minify --target=es2022 --outfile=dist/primitiv-web.js",
-    "size": "node scripts/check-size.mjs"
+    "size": "node scripts/check-size.mjs",
+    "build:manifest": "cem analyze --globs \"src/**/elements.ts\" --outdir dist",
+    "manifest:check": "node scripts/check-manifest.mjs"
   },
   "dependencies": {
     "@primitiv-ui/core": "workspace:*"
   },
   "devDependencies": {
+    "@custom-elements-manifest/analyzer": "0.11.0",
     "@primitiv-ui/conformance": "workspace:*",
     "@stryker-mutator/core": "9.6.1",
     "@stryker-mutator/vitest-runner": "9.6.1",
@@ -92,5 +95,6 @@
         "default": "./dist/tags.js"
       }
     }
-  }
+  },
+  "customElements": "dist/custom-elements.json"
 }

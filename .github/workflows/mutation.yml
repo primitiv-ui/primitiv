@@ -23,7 +23,6 @@ on:
       - "packages/react/**"
       - "packages/core/**"
       - "packages/web/**"
-      - "packages/web/**"
       - "scripts/mutate.mjs"
       - ".github/workflows/mutation.yml"
 

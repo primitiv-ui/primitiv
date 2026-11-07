@@ -149,18 +149,18 @@ the first time either one is fixed. Core exposes them as plain functions over
 plain data:
 
 ```ts
-// @primitiv-ui/core — tabs/policy.ts (sketch; signatures are settled in TDD)
-export function tabsKeydown(state: TabsState, key: string): TabsKeyOutcome | null;
+// @primitiv-ui/core — tabs/policy.ts
+export function tabsKeydown(state: TabsState, focused: string, key: string): TabsKeyOutcome | null;
 //   → { focus: string; activate: string | null } — or null when the key is not ours
+export function tabsClick(state: TabsState, value: string): string | null;
 export function tabsTabStop(state: TabsState): string | undefined;
 export type TabsState = {
   values: readonly string[];          // DOM order
   disabled: ReadonlySet<string>;
   active: string | undefined;
-  focused: string;
-  orientation: Orientation;
-  dir: ReadingDirection;
-  activationMode: ActivationMode;
+  orientation: TabsOrientation;
+  dir: TabsReadingDirection;
+  activationMode: TabsActivationMode;
 };
 ```
 

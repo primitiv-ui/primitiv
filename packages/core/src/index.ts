@@ -4,3 +4,13 @@ export {
   resolveRovingTarget,
   type ResolveRovingTargetOptions,
 } from "./keyboard/resolveRovingTarget.ts";
+export {
+  tabsClick,
+  tabsKeydown,
+  tabsTabStop,
+  type TabsActivationMode,
+  type TabsKeyOutcome,
+  type TabsOrientation,
+  type TabsReadingDirection,
+  type TabsState,
+} from "./tabs/policy.ts";

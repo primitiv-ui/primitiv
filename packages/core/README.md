@@ -17,7 +17,12 @@ the same functions, so they cannot disagree about how a component behaves. See
 | --- | --- |
 | `getKeyToActionMap(options)` | Builds the key → roving action map (`"next"`, `"prev"`, `"first"`, `"last"`, `"activate"`) for an orientation, reading direction, Home/End and Enter/Space. |
 | `RovingKeyAction` | The action vocabulary those maps return. |
+| `resolveRovingTarget({ action, navigable, currentKey })` | Resolves which item a roving action lands on (wrapping, Home/End, Enter/Space), as `{ target }` or `null`. |
 | `deriveId(rootId, suffix, value)` | Builds the paired ids (`aria-controls`, `aria-labelledby`) a compound component wires between its parts. |
+| `tabsKeydown(state, focused, key)` | Tabs' keyboard contract: which tab to focus and which, if any, to activate. |
+| `tabsClick(state, value)` | The tab a click activates, or `null` when it is disabled or already active. |
+| `tabsTabStop(state)` | The tab that takes part in the page's Tab order. |
+| `TabsState`, `TabsKeyOutcome`, `TabsOrientation`, `TabsReadingDirection`, `TabsActivationMode` | The plain data those functions read and return. |
 
 ## Rules for this package
 

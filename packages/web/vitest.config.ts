@@ -13,9 +13,9 @@ export default defineConfig({
       reporter: ["text", "html", "lcov"],
       thresholds: { lines: 100, branches: 100, functions: 100, statements: 100 },
       include: ["src/**/*.ts"],
-      // bundle.ts (the browser bundle entry) and tags.ts (a type-only global
-      // augmentation) have, like the barrels, nothing of their own to execute.
-      exclude: ["src/**/*.test.ts", "src/**/__tests__/**", "src/**/index.ts", "src/**/types.ts", "src/bundle.ts", "src/tags.ts"],
+      // bundle.ts (the browser bundle entry), tags.ts and frameworks/ (type-only
+      // augmentations) have, like the barrels, nothing of their own to execute.
+      exclude: ["src/**/*.test.ts", "src/**/__tests__/**", "src/**/index.ts", "src/**/types.ts", "src/bundle.ts", "src/tags.ts", "src/frameworks/**"],
     },
   },
 });

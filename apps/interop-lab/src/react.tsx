@@ -2,6 +2,7 @@
 // attribute binding, the raw kebab-case event, and controlled use through
 // preventDefault (RFC 0033 §5.6.3, D7).
 import "@primitiv-ui/web/define";
+import type {} from "@primitiv-ui/web/react";
 
 import { StrictMode, useState } from "react";
 import { createRoot } from "react-dom/client";
@@ -10,15 +11,6 @@ import { fixtureFromUrl, TABS } from "./fixture";
 
 const fixture = fixtureFromUrl();
 
-/* eslint-disable @typescript-eslint/no-namespace */
-declare module "react" {
-  namespace JSX {
-    interface IntrinsicElements {
-      [tag: `primitiv-${string}`]: Record<string, unknown>;
-    }
-  }
-}
-
 function App() {
   const [value, setValue] = useState(fixture.value ?? "one");
   const [renders, setRenders] = useState(0);
@@ -26,8 +18,8 @@ function App() {
     <div dir={fixture.dir ?? undefined}>
       <primitiv-tabs
         value={value}
-        orientation={fixture.orientation ?? undefined}
-        activation-mode={fixture.mode ?? undefined}
+        orientation={(fixture.orientation ?? undefined) as "horizontal" | "vertical" | undefined}
+        activation-mode={(fixture.mode ?? undefined) as "automatic" | "manual" | undefined}
         onprimitiv-tabs-change={(event: CustomEvent<{ value: string }>) => {
           // Controlled: veto the element's own change and apply React's.
           event.preventDefault();

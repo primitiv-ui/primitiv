@@ -3,10 +3,11 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "description": "Proves @primitiv-ui/web in real browsers and real frameworks: one page per environment, one shared Playwright spec (RFC 0033 §7.4). Outside the pnpm workspace so no framework's toolchain enters another's resolution.",
+  "description": "Proves @primitiv-ui/web in real browsers and real frameworks: one page per environment, one shared Playwright spec (RFC 0033 \u00a77.4). Outside the pnpm workspace so no framework's toolchain enters another's resolution.",
   "scripts": {
     "dev": "vite",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "typecheck": "tsc -p tsconfig.json"
   },
   "dependencies": {
     "htmx.org": "2.0.10",

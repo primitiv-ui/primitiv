@@ -47,6 +47,12 @@ on a panel as it becomes active, for lazy loading.
 **TypeScript** — opt into the tag map so DOM queries return the element classes:
 `import type {} from "@primitiv-ui/web/tags"` (npm only).
 
+**React 19 JSX** — `import type {} from "@primitiv-ui/web/react"` types the
+tags, their attributes and the raw `onprimitiv-tabs-change` handler (npm only).
+React 19 passes a custom element's event prop to `addEventListener` exactly as
+written, which is why the prop reads that way; most React projects want
+`@primitiv-ui/react`, whose `onValueChange` is the idiomatic name.
+
 **Tooling** — `dist/custom-elements.json` is a Custom Elements Manifest, listed
 as `customElements` in `package.json`, for editor completion and Storybook.
 

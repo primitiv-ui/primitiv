@@ -47,6 +47,12 @@ jobs:
         env:
           PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
 
+      # The React page and the @primitiv-ui/web/react typing tests: every
+      # @ts-expect-error must still be an error, everything else must compile.
+      - name: Type-check
+        run: pnpm typecheck
+        working-directory: apps/interop-lab
+
       - name: Install Chromium
         run: pnpm exec playwright install --with-deps chromium
         working-directory: apps/interop-lab

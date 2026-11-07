@@ -10,6 +10,7 @@
   "publish": {
     "exclude": [
       "src/tags.ts",
+      "src/frameworks",
       "src/bundle.ts",
       "src/**/__tests__",
       "scripts"

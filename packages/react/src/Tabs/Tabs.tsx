@@ -229,6 +229,11 @@ TabsList.displayName = "TabsList";
  * move focus without switching the panel — `Enter` or `Space` confirms the
  * selection. Use manual mode for panels that are expensive to render.
  *
+ * **Your `onClick` and `onKeyDown`** run *after* the built-in activation and
+ * keyboard navigation, and cannot veto them: by the time your `onKeyDown` sees
+ * a handled key, `event.defaultPrevented` is already `true`. Use them to observe
+ * or to add behaviour, not to replace the tab contract.
+ *
  * **`asChild` prop.** Pass `asChild` to render an arbitrary child element
  * instead of the default `<button>`. All tab ARIA attributes, event handlers,
  * and the roving `tabIndex` are merged onto the child element following the
@@ -274,6 +279,7 @@ export function TabsTrigger<T extends HTMLElement = HTMLButtonElement>({
   className = "",
   value,
   onClick,
+  onKeyDown,
   disabled = false,
   asChild = false,
   ...rest
@@ -288,7 +294,7 @@ export function TabsTrigger<T extends HTMLElement = HTMLButtonElement>({
     tabIndex,
     handleClick,
     handleKeyDown,
-  } = useTabsTrigger({ value, onClick, disabled });
+  } = useTabsTrigger({ value, onClick, onKeyDown, disabled });
 
   // Compose our internal ref with any external ref the consumer passes.
   // The external ref is cast to match the internal ref's element type —

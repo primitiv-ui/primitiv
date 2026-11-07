@@ -55,9 +55,32 @@ export class PrimitivTabsElement extends ElementBase {
   /** The tab elements currently registered with the controller. */
   #registered = new Set<HTMLElement>();
 
+  /**
+   * Watches the subtree for parts arriving, leaving, or changing the attributes
+   * the root reads. The root's own writes (role, aria-*, ids, data-*) are not in
+   * the filter, so reconciling never re-triggers itself.
+   */
+  readonly #observer = new MutationObserver(() => this.#schedule());
+
   connectedCallback(): void {
     this.#controller.connect();
+    this.#observer.observe(this, {
+      subtree: true,
+      childList: true,
+      attributes: true,
+      attributeFilter: ["value", "disabled", "label"],
+    });
     this.#schedule();
+  }
+
+  /**
+   * Leaving the document stops all listening. A move (an `hx-preserve`, a
+   * framework reparenting) is a disconnect followed by a connect, so handlers
+   * never stack.
+   */
+  disconnectedCallback(): void {
+    this.#controller.disconnect();
+    this.#observer.disconnect();
   }
 
   attributeChangedCallback(): void {

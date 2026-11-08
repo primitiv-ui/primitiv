@@ -516,8 +516,8 @@ Two notes on the gates, both cost time this session:
 
 - `check-registry-stylesheets.mjs` lives at the **repo root**, not
   `apps/docs-site/scripts/` (the old line above was wrong).
-- The Playwright measuring script must run from `apps/kitchen-sink` AND
-  `page.evaluate` takes **one** argument — pass an object, or it throws
+- The Playwright measuring script must run from `apps/docs-site` (which has
+  `@playwright/test`) AND `page.evaluate` takes **one** argument — pass an object, or it throws
   *"Too many arguments"*.
 - Copying a registry `.tsx` over an app copy **strips its stylesheet import**
   (the CLI prepends `import "../styles/primitiv/<name>/styles.css"`, the registry

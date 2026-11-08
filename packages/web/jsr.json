@@ -1,6 +1,6 @@
 {
   "name": "@primitiv-ui/web",
-  "version": "0.1.41",
+  "version": "0.1.42",
   "exports": {
     ".": "./src/index.ts",
     "./tabs": "./src/tabs/index.ts",

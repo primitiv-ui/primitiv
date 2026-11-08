@@ -7,6 +7,9 @@
     "./define": "./src/define/index.ts",
     "./define/tabs": "./src/define/tabs.ts"
   },
+  "imports": {
+    "@primitiv-ui/core": "jsr:@primitiv-ui/core@^0.1.42"
+  },
   "publish": {
     "exclude": [
       "src/tags.ts",

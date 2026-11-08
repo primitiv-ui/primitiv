@@ -1,8 +1,8 @@
 name: Publish to JSR (one-shot bootstrap)
 
-# Temporary workflow — delete after JSR publish succeeds.
-# Created because the main publish.yml already pushed packages to npm;
-# re-running it would hit E403 "already published" before reaching the JSR step.
+# For when npm published a release and JSR did not finish: re-running
+# publish.yml would hit E403 "already published" on npm before reaching JSR.
+# Edit the package list to what JSR is missing, then run it from Actions.
 
 on:
   workflow_dispatch:
@@ -38,10 +38,14 @@ jobs:
       - name: Generate icons
         run: pnpm --filter @primitiv-ui/icons generate
 
+      # v0.1.42: npm published everything and JSR stopped after core, on web's
+      # unversioned `workspace:*` dependency (now pinned in jsr.json). This
+      # publishes the rest to JSR, in dependency order, at the version their
+      # jsr.json already carries.
       - name: Publish libraries to JSR
         run: |
-          for pkg in packages/icons packages/tokens; do
+          for pkg in packages/web packages/react packages/icons packages/tokens; do
             echo "::group::jsr publish $pkg"
-            (cd "$pkg" && npx jsr publish --allow-slow-types)
+            (cd "$pkg" && npx jsr publish)
             echo "::endgroup::"
           done

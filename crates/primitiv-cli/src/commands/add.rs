@@ -146,7 +146,7 @@ pub fn add(
         force,
         no_wiring,
         registry: registry_override,
-        surface: _,
+        surface,
     } = options;
     // `--registry <ref>` overrides the registry source (RFC 0005 §6.4): an
     // `http(s)://` URL or a version tag fetches over the network, any other value
@@ -180,6 +180,19 @@ pub fn add(
         components
     };
     let resolved = resolve(&index, requested)?;
+    // `--surface` wins; otherwise the project's own, and React without a config
+    // (every project before RFC 0033 had only that surface).
+    let surface = match surface {
+        Some(surface) => *surface,
+        None => config::try_resolve(fs, &fs.current_dir()?)?.map_or(Surface::React, |config| config.surface),
+    };
+    if surface == Surface::Elements {
+        if let Some(name) = resolved.iter().find(|name| index.components[*name].elements.is_none()) {
+            return Err(CliError::NotFound(format!(
+                "component '{name}' has no elements surface yet"
+            )));
+        }
+    }
     // Compute the per-file classification for the dry-run report. Both the human
     // ("Refresh plan:") and JSON ("files" array) outputs consume it.
     // - `None` when not dry-running (JSON omits the "files" key entirely).

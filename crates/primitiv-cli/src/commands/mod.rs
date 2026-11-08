@@ -8,6 +8,8 @@ pub mod tokens;
 #[cfg(test)]
 mod add_tests;
 #[cfg(test)]
+mod add_elements_tests;
+#[cfg(test)]
 mod dtcg_tests;
 #[cfg(test)]
 mod init_tests;

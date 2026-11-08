@@ -63,6 +63,37 @@ const tree = (
 };
 
 /**
+ * The same tree as Elements markup (RFC 0033): the `@primitiv-ui/web` custom
+ * elements, in the shape `primitiv add tabs --surface elements` prints. Each
+ * trigger element wraps a real `<button>` — the element wires roles, ids and
+ * keys onto it — and attributes are kebab-case (`activation-mode`), since they
+ * are HTML attributes rather than props.
+ */
+const elementsTree = ({
+  size = "md",
+  justify = "start",
+  rootAttrs = "",
+  disabled,
+}: { size?: string; justify?: string; rootAttrs?: string; disabled?: string } = {}) =>
+  [
+    `<primitiv-tabs value="overview"${rootAttrs} class="primitiv-tabs primitiv-tabs--${size}">`,
+    `  <primitiv-tabs-list label="Component docs" class="primitiv-tabs__list primitiv-tabs__list--${justify}">`,
+    ...PANELS.flatMap((panel) => [
+      `    <primitiv-tabs-trigger value="${panel.value}"${panel.value === disabled ? " disabled" : ""}>`,
+      `      <button type="button" class="primitiv-tabs__trigger">`,
+      `        <span class="primitiv-tabs__trigger-label">${panel.label}</span>`,
+      `      </button>`,
+      `    </primitiv-tabs-trigger>`,
+    ]),
+    `  </primitiv-tabs-list>`,
+    ...PANELS.map(
+      (panel, i) =>
+        `  <primitiv-tabs-content value="${panel.value}" class="primitiv-tabs__panel"${i === 0 ? "" : " hidden"}>${panel.body}</primitiv-tabs-content>`,
+    ),
+    `</primitiv-tabs>`,
+  ].join("\n");
+
+/**
  * The live tree, matching `tree()` above.
  *
  * Props are listed explicitly rather than spread from a rest object: `disabled`
@@ -168,7 +199,9 @@ export const tabsSpec: ComponentSpec = {
      * reason (types.ts, `playground.snippet`).
      */
     snippet: (values, mode) =>
-      [
+      mode === "elements"
+        ? elementsTree({ size: values.size, justify: values.justify })
+        : [
         imports(mode),
         ``,
         tree(mode, {
@@ -195,7 +228,7 @@ export const tabsSpec: ComponentSpec = {
   anatomy: [
     {
       label: "Tabs",
-      code: (mode) => tree(mode),
+      code: (mode) => (mode === "elements" ? elementsTree() : tree(mode)),
     },
   ],
 
@@ -233,6 +266,22 @@ export const tabsSpec: ComponentSpec = {
         <InteractiveExample
           caption="Pass `value` with `onValueChange` to own the active tab yourself — for syncing to a URL, or to another control. Pass `defaultValue` instead to let the component own it. The two are mutually exclusive, which is the one thing the generated props table below cannot show you: `Tabs.Root`'s props are a discriminated union and the table flattens it."
           code={(_density, mode) => {
+            if (mode === "elements")
+              return [
+                `<!-- The value attribute is the state: set it to switch tabs,`,
+                `     and listen for the change to follow the user. -->`,
+                `<primitiv-tabs value="props" class="primitiv-tabs primitiv-tabs--md">`,
+                `  <!-- ... the same list and content elements ... -->`,
+                `</primitiv-tabs>`,
+                ``,
+                `<script type="module">`,
+                `  const tabs = document.querySelector("primitiv-tabs");`,
+                `  tabs.addEventListener("primitiv-tabs-change", (event) => {`,
+                `    console.log(event.detail.value); // preventDefault() vetoes it`,
+                `  });`,
+                `  tabs.setAttribute("value", "a11y");`,
+                `</script>`,
+              ].join("\n");
             const p = partNamer(mode, "Tabs");
             return [
               `import { useState } from "react";`,
@@ -257,7 +306,15 @@ export const tabsSpec: ComponentSpec = {
         <InteractiveExample
           caption="`automatic` (the default) activates a tab as the arrow keys reach it, so the panel follows focus. `manual` moves focus only and waits for `Enter` or `Space`. Focus a trigger below and use the arrow keys to feel the difference — automatic is right for cheap panels, manual for a panel that fetches."
           code={(_density, mode) =>
-            [
+            mode === "elements"
+              ? [
+                  `<!-- Automatic — the default; the panel follows the arrow keys. -->`,
+                  elementsTree(),
+                  ``,
+                  `<!-- Manual — arrows move focus, Enter/Space commits. -->`,
+                  elementsTree({ rootAttrs: ` activation-mode="manual"` }),
+                ].join("\n")
+              : [
               imports(mode),
               ``,
               `// Automatic — the default; the panel follows the arrow keys.`,
@@ -289,7 +346,9 @@ export const tabsSpec: ComponentSpec = {
             '`orientation="vertical"` stacks the tablist beside the panel and switches the arrow keys to `ArrowUp`/`ArrowDown`. It is one prop: every part publishes `data-orientation`, and the stylesheet does the rest — the axis is not a separate component.'
           }
           code={(_density, mode) =>
-            [
+            mode === "elements"
+              ? elementsTree({ rootAttrs: ` orientation="vertical"` })
+              : [
               imports(mode),
               ``,
               tree(mode, { rootProps: ` orientation="vertical"` }),
@@ -307,7 +366,9 @@ export const tabsSpec: ComponentSpec = {
         <InteractiveExample
           caption="`disabled` on a `Trigger` sets the native attribute and exposes `data-disabled`. Keyboard navigation never activates it — arrow keys, `Home` and `End` all leave the current panel in place rather than opening a disabled one."
           code={(_density, mode) =>
-            [
+            mode === "elements"
+              ? elementsTree({ disabled: "a11y" })
+              : [
               imports(mode),
               ``,
               tree(mode, { disabled: "a11y" }),

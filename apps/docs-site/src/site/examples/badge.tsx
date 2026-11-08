@@ -2,7 +2,7 @@
 
 import { Badge } from "@/components/badge";
 import { Stack } from "@/components/stack";
-import { importBlock } from "@/lib/playground";
+import { importBlock, indent, markup } from "@/lib/playground";
 import { InteractiveExample } from "@/site/InteractiveExample";
 import type { Mode } from "@/site/preferences";
 import type { ComponentSpec } from "./types";
@@ -35,6 +35,12 @@ const imports = (mode: Mode) =>
  * 0021 is explicit that Badge is read-only — never a button, never a link that
  * announces itself as a badge).
  */
+
+/** One span in Elements mode (RFC 0033): plain markup with the registry's
+ *  classes, which is the whole component — it has no behaviour to load. */
+const html = (children: string, { tone = "success", variant = "label", size = "md" }: { tone?: string; variant?: string; size?: string } = {}) =>
+  markup({ element: "span", rootClass: "primitiv-badge", modifiers: [tone, variant, size], children });
+
 export const badgeSpec: ComponentSpec = {
   playground: {
     component: "Badge",
@@ -55,7 +61,9 @@ export const badgeSpec: ComponentSpec = {
         <InteractiveExample
           caption="Four tones, and the set is deliberately closed: `success`, `warning`, `info` and `danger` all *mean* something, so a badge cannot be used as decoration. There is no neutral tone — if what you want is a plain label with no status attached, that is `Tag`, which carries the neutral the Badge palette leaves out."
           code={(_density, mode) =>
-            [
+            mode === "elements"
+              ? TONES.map((t) => html(`${t[0].toUpperCase()}${t.slice(1)}`, { tone: t })).join("\n")
+              : [
               imports(mode),
               ``,
               ...TONES.map(
@@ -81,7 +89,9 @@ export const badgeSpec: ComponentSpec = {
         <InteractiveExample
           caption="`variant=&quot;counter&quot;` is the number form — a pill sized for one or two digits rather than a word, for unread counts and totals beside a heading or an icon. It is the same component, so a count still carries a tone: an unread count is `info`, a failing-checks count is `danger`."
           code={(_density, mode) =>
-            [
+            mode === "elements"
+              ? [html("8", { tone: "info", variant: "counter" }), html("3", { tone: "danger", variant: "counter" })].join("\n")
+              : [
               imports(mode),
               ``,
               `<Badge variant="counter" tone="info">8</Badge>`,
@@ -109,7 +119,9 @@ export const badgeSpec: ComponentSpec = {
         <InteractiveExample
           caption="Five sizes, and every one rescales again with the nearest `data-density` ancestor — a badge beside a heading wants `lg`, one in a table row wants `xs`. Change the density above and the whole ramp shifts: that is the Context system, not a `Badge` prop."
           code={(density, mode) =>
-            [
+            mode === "elements"
+              ? [`<div data-density="${density}">`, ...SIZES.map((sz) => indent(html("Stable", { size: sz }))), `</div>`].join("\n")
+              : [
               imports(mode),
               ``,
               `<div data-density="${density}">`,
@@ -135,7 +147,9 @@ export const badgeSpec: ComponentSpec = {
         <InteractiveExample
           caption="`asChild` merges the badge's classes onto your own element instead of wrapping a `<span>` — useful for an `<abbr>` or a `<time>` that should read as a badge. It is **not** a way to make a badge clickable: a badge is read-only by design, and a link or button that looks like one should be a `Chip`, which is built to be interactive."
           code={(_density, mode) =>
-            [
+            mode === "elements"
+              ? /* No asChild in markup: the classes go on the element itself. */ `<time class="primitiv-badge primitiv-badge--info primitiv-badge--label primitiv-badge--md" datetime="2026-08-24">Aug 24</time>`
+              : [
               imports(mode),
               ``,
               `<Badge asChild tone="info">`,

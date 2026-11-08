@@ -1,7 +1,7 @@
 "use client";
 
 import { Kbd } from "@/components/kbd";
-import { importBlock } from "@/lib/playground";
+import { importBlock, markup } from "@/lib/playground";
 import { InteractiveExample } from "@/site/InteractiveExample";
 import type { Mode } from "@/site/preferences";
 import type { ComponentSpec } from "./types";
@@ -18,6 +18,12 @@ const imports = (mode: Mode) =>
  * physical-keycap sibling of Inline Code. The examples cover a single key, a
  * combination, and a key inline in prose.
  */
+
+/** One kbd in Elements mode (RFC 0033): plain markup with the registry's
+ *  classes, which is the whole component — it has no behaviour to load. */
+const html = (children: string, { size = "md" }: { size?: string } = {}) =>
+  markup({ element: "kbd", rootClass: "primitiv-kbd", modifiers: [size], children });
+
 export const kbdSpec: ComponentSpec = {
   playground: {
     component: "Kbd",
@@ -34,7 +40,9 @@ export const kbdSpec: ComponentSpec = {
         <InteractiveExample
           caption="A `<kbd>` fragment styled as a raised key cap. Use it for the name of a single key — `Esc`, `Enter`, `Tab` — anywhere you refer to a keystroke in running text or a shortcuts list."
           code={(_density, mode) =>
-            [imports(mode), ``, `<Kbd>Esc</Kbd>`, `<Kbd>Enter</Kbd>`].join("\n")
+            mode === "elements"
+              ? [html("Esc"), html("Enter")].join("\n")
+              : [imports(mode), ``, `<Kbd>Esc</Kbd>`, `<Kbd>Enter</Kbd>`].join("\n")
           }
         >
           {() => (
@@ -54,7 +62,9 @@ export const kbdSpec: ComponentSpec = {
         <InteractiveExample
           caption="A combination is **separate `Kbd`s** joined by a plain `+`, not one `Kbd` with the whole string — each physical key is its own cap, and a screen reader announces them one at a time. Keep the joiner (`+` or a thin space) outside the caps."
           code={(_density, mode) =>
-            [
+            mode === "elements"
+              ? [`<span>`, `  ${html("⌘")} + ${html("K")}`, `</span>`].join("\n")
+              : [
               imports(mode),
               ``,
               `<span>`,
@@ -80,7 +90,9 @@ export const kbdSpec: ComponentSpec = {
         <InteractiveExample
           caption="`Kbd` sizes off the text around it, so a key named mid-sentence sits on the line without disturbing it. Reach for `Kbd` when the thing is a **key to press**; for a literal value or a command, that is `InlineCode`."
           code={(_density, mode) =>
-            [
+            mode === "elements"
+              ? [`<p>`, `  Press ${html("/", { size: "sm" })} to focus the search field.`, `</p>`].join("\n")
+              : [
               imports(mode),
               ``,
               `<p>`,

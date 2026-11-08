@@ -4,7 +4,7 @@ import Link from "next/link";
 import { ArrowRight, Plus } from "@primitiv-ui/icons";
 
 import { Button } from "@/components/button";
-import { contractAttr, contractNote, importBlock } from "@/lib/playground";
+import { contractAttr, contractNote, importBlock, indent, markup } from "@/lib/playground";
 import { InteractiveExample } from "@/site/InteractiveExample";
 import type { Mode } from "@/site/preferences";
 import type { ComponentSpec } from "./types";
@@ -24,8 +24,30 @@ import type { ComponentSpec } from "./types";
 const imports = (mode: Mode, icons: readonly string[] = []) =>
   importBlock({ mode, component: "Button", componentId: "button", icons });
 
+/**
+ * One Button in Elements mode (RFC 0033): a plain `<button>` with the
+ * registry's classes and the label span the React wrapper adds for you.
+ * Button has no behaviour, so this markup is the whole component.
+ */
+const html = (
+  label: string,
+  { variant = "primary", size = "md" }: { variant?: string; size?: string } = {},
+  attrs = "",
+) =>
+  markup({
+    element: "button",
+    rootClass: "primitiv-button",
+    modifiers: [variant, size],
+    children: label,
+    wrapText: true,
+    attrs,
+  });
+
 const SIZES = ["xs", "sm", "md", "lg", "xl"] as const;
 const VARIANTS = ["primary", "secondary", "danger", "ghost", "link"] as const;
+
+const wrap = (density: string, blocks: readonly string[]) =>
+  [`<div data-density="${density}">`, ...blocks.map((b) => indent(b)), `</div>`].join("\n");
 
 /**
  * Button's page content.
@@ -56,7 +78,9 @@ export const buttonSpec: ComponentSpec = {
         <InteractiveExample
           caption="Five intents. `primary` carries the main action on a view; `link` reads as text so it keeps the button's hit area and focus ring."
           code={(density, mode) =>
-            [
+            mode === "elements"
+              ? wrap(density, VARIANTS.map((v) => html(`${v[0].toUpperCase()}${v.slice(1)}`, { variant: v })))
+              : [
               imports(mode),
               ``,
               ...contractNote(mode, "`variant`"),
@@ -86,7 +110,9 @@ export const buttonSpec: ComponentSpec = {
         <InteractiveExample
           caption="Five sizes — and every one rescales again with the nearest `data-density` ancestor. Change the density above and watch the whole ramp shift: that is the Context system, not a `Button` prop."
           code={(density, mode) =>
-            [
+            mode === "elements"
+              ? wrap(density, SIZES.map((sz) => html(`Button ${sz}`, { size: sz })))
+              : [
               imports(mode),
               ``,
               ...contractNote(mode, "`size`"),
@@ -116,7 +142,21 @@ export const buttonSpec: ComponentSpec = {
         <InteractiveExample
           caption="Icons are `children`, not props, so a leading or trailing glyph is just composition — nothing to configure."
           code={(_density, mode) =>
-            [
+            mode === "elements"
+              ? [
+                  /* No icon package in plain markup: an inline <svg> sits
+                     where the React <Plus /> would. */
+                  `<button type="button" class="primitiv-button primitiv-button--primary primitiv-button--md">`,
+                  `  <svg aria-hidden="true"><!-- plus glyph --></svg>`,
+                  `  <span class="primitiv-button__label">Add item</span>`,
+                  `</button>`,
+                  ``,
+                  `<button type="button" class="primitiv-button primitiv-button--secondary primitiv-button--md">`,
+                  `  <span class="primitiv-button__label">Continue</span>`,
+                  `  <svg aria-hidden="true"><!-- arrow-right glyph --></svg>`,
+                  `</button>`,
+                ].join("\n")
+              : [
               imports(mode, ["ArrowRight", "Plus"]),
               ``,
               `<Button>`,
@@ -158,7 +198,15 @@ export const buttonSpec: ComponentSpec = {
             '`asChild` renders your own element instead of a `<button>` — here a Next `<Link>` — merging the button props and styles onto it. The a11y wiring follows, so it stays `role="link"`.'
           }
           code={(_density, mode) =>
-            [
+            mode === "elements"
+              ? [
+                  /* No asChild in markup: the classes go straight on the <a>. */
+                  `<a class="primitiv-button primitiv-button--primary primitiv-button--md" href="/components">`,
+                  `  <span class="primitiv-button__label">View the docs</span>`,
+                  `  <svg aria-hidden="true"><!-- arrow-right glyph --></svg>`,
+                  `</a>`,
+                ].join("\n")
+              : [
               `import Link from "next/link";`,
               imports(mode, ["ArrowRight"]),
               ``,
@@ -198,7 +246,9 @@ export const buttonSpec: ComponentSpec = {
         <InteractiveExample
           caption="`disabled` sets the native attribute and exposes `data-disabled`, so pointer events stop and the focus ring is suppressed — no ARIA needed, because the real attribute is doing the work."
           code={(_density, mode) =>
-            [
+            mode === "elements"
+              ? [html("Save changes", {}, " disabled"), html("Cancel", { variant: "secondary" }, " disabled")].join("\n")
+              : [
               imports(mode),
               ``,
               `<Button disabled>Save changes</Button>`,

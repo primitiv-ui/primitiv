@@ -47,7 +47,14 @@ const REPO = "https://github.com/primitiv-ui/primitiv";
  * explicitly declined a standalone Link primitive, so these are plain anchors
  * with the site's own link class.
  */
-export const ComponentPageHeader = ({ docs }: { docs: ComponentDocs }) => (
+export const ComponentPageHeader = ({
+  docs,
+  elementsFallback = false,
+}: {
+  docs: ComponentDocs;
+  /** The reader is in Elements mode and this component has no elements surface. */
+  elementsFallback?: boolean;
+}) => (
   <Stack gap="sm">
     <Breadcrumb size="sm">
       <BreadcrumbList>
@@ -125,8 +132,23 @@ export const ComponentPageHeader = ({ docs }: { docs: ComponentDocs }) => (
       >
         No headless primitive — this component ships only as a copied styled
         file, so there is no Headless mode.{" "}
-        <InlineCode size="sm">primitiv add {docs.id}</InlineCode> installs it
-        whichever mode you are reading.
+        <InlineCode size="sm">primitiv add {docs.id}</InlineCode> installs it.
+      </Alert>
+    )}
+
+    {/* Elements mode on a component with no elements surface yet (RFC 0033):
+        the navigation hides these in Elements mode, so this is the page a
+        reader reaches by a link or by switching mode while on it. It says why
+        the page reads as Styled rather than quietly showing a mode it lacks. */}
+    {elementsFallback && (
+      <Alert
+        className="docs-registry-only-alert"
+        tone="info"
+        title="No Elements surface yet"
+        size="sm"
+      >
+        {docs.displayName} has no custom element or Elements markup yet, so this
+        page shows Styled. Switch mode to read it another way.
       </Alert>
     )}
   </Stack>

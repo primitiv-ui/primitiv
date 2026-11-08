@@ -1,7 +1,7 @@
 "use client";
 
 import { InlineCode } from "@/components/inline-code";
-import { importBlock } from "@/lib/playground";
+import { importBlock, markup } from "@/lib/playground";
 import { InteractiveExample } from "@/site/InteractiveExample";
 import type { Mode } from "@/site/preferences";
 import type { ComponentSpec } from "./types";
@@ -19,6 +19,12 @@ const imports = (mode: Mode) =>
  * The examples cover the inline case, sizing to the surrounding text, and the
  * `asChild` escape hatch.
  */
+
+/** One code in Elements mode (RFC 0033): plain markup with the registry's
+ *  classes, which is the whole component — it has no behaviour to load. */
+const html = (children: string, { size = "md" }: { size?: string } = {}) =>
+  markup({ element: "code", rootClass: "primitiv-inline-code", modifiers: [size], children });
+
 export const inlineCodeSpec: ComponentSpec = {
   playground: {
     component: "InlineCode",
@@ -37,7 +43,9 @@ export const inlineCodeSpec: ComponentSpec = {
         <InteractiveExample
           caption="A `<code>` fragment for a value, identifier or path named in running text — `useState`, `--primitiv-space-16`, `package.json`. It reads as code without breaking the line. Reach for `Kbd` instead when the thing is a key to press."
           code={(_density, mode) =>
-            [
+            mode === "elements"
+              ? [`<p>`, `  Import it from ${html("@primitiv-ui/react")}.`, `</p>`].join("\n")
+              : [
               imports(mode),
               ``,
               `<p>`,
@@ -63,7 +71,9 @@ export const inlineCodeSpec: ComponentSpec = {
         <InteractiveExample
           caption="`size` tracks the type around the chip — `sm` beside body text, `xs` inside a caption or a table cell — so the code never looms larger than the words it sits among. It inherits nothing from context, so set `size` at each call site."
           code={(_density, mode) =>
-            [
+            mode === "elements"
+              ? (["xs", "sm", "md"] as const).map((sz) => html(sz, { size: sz })).join("\n")
+              : [
               imports(mode),
               ``,
               `<InlineCode size="xs">xs</InlineCode>`,
@@ -91,7 +101,9 @@ export const inlineCodeSpec: ComponentSpec = {
         <InteractiveExample
           caption="`asChild` renders your own element with the code styling merged on — a `<code>` fragment that is also a link to an API reference, say. The chip's look transfers to the element you supply."
           code={(_density, mode) =>
-            [
+            mode === "elements"
+              ? /* No asChild in markup: the classes go on the element itself. */ `<a class="primitiv-inline-code primitiv-inline-code--md" href="/api/use-state">useState</a>`
+              : [
               imports(mode),
               ``,
               `<InlineCode asChild>`,

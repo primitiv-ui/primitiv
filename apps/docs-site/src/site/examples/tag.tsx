@@ -2,7 +2,7 @@
 
 import { Stack } from "@/components/stack";
 import { Tag } from "@/components/tag";
-import { importBlock } from "@/lib/playground";
+import { importBlock, indent, markup } from "@/lib/playground";
 import { InteractiveExample } from "@/site/InteractiveExample";
 import type { Mode } from "@/site/preferences";
 import type { ComponentSpec } from "./types";
@@ -34,6 +34,12 @@ const imports = (mode: Mode) =>
  * No Anatomy (one part), no Keyboard (a `<span>` takes no focus — anything
  * interactive is a `Chip`).
  */
+
+/** One span in Elements mode (RFC 0033): plain markup with the registry's
+ *  classes, which is the whole component — it has no behaviour to load. */
+const html = (children: string, { tone = "neutral", size = "md" }: { tone?: string; size?: string } = {}) =>
+  markup({ element: "span", rootClass: "primitiv-tag", modifiers: [tone, size], children });
+
 export const tagSpec: ComponentSpec = {
   playground: {
     component: "Tag",
@@ -54,7 +60,9 @@ export const tagSpec: ComponentSpec = {
         <InteractiveExample
           caption="Five tones, and `neutral` leads for a reason: a tag usually labels a category or topic, which carries no status, so the plain grey treatment is the default and the workhorse. The four semantic tones (`success`, `warning`, `info`, `danger`) are the exception — reach for one only when the tag genuinely signals state. If you want a status pill that is *meant* to stand out, that is `Badge`, whose palette drops the neutral this one keeps."
           code={(_density, mode) =>
-            [
+            mode === "elements"
+              ? TONES.map((t) => html(`${t[0].toUpperCase()}${t.slice(1)}`, { tone: t })).join("\n")
+              : [
               imports(mode),
               ``,
               ...TONES.map((t) => `<Tag tone="${t}">${t[0].toUpperCase()}${t.slice(1)}</Tag>`),
@@ -80,7 +88,9 @@ export const tagSpec: ComponentSpec = {
         <InteractiveExample
           caption="Tags rarely travel alone — the common shape is a group labelling one thing by several categories at once. The group is your own layout (a row-direction `Stack` that wraps here), and the tags inside it stay `neutral`, since a list of topics is not a list of statuses. Give the group an accessible name if the set of tags means something as a whole."
           code={(_density, mode) =>
-            [
+            mode === "elements"
+              ? [`<div class="primitiv-stack primitiv-stack--row primitiv-stack--gap-sm primitiv-stack--wrap">`, ...TOPICS.map((t) => indent(html(t))), `</div>`].join("\n")
+              : [
               imports(mode),
               `import { Stack } from "@/components/ui/stack";`,
               ``,
@@ -107,7 +117,9 @@ export const tagSpec: ComponentSpec = {
         <InteractiveExample
           caption="Five sizes, each rescaling again with the nearest `data-density` ancestor — a tag in a dense table row wants `xs`, one beside a heading `lg`. Change the density above and the whole ramp shifts: that is the Context system, not a `Tag` prop."
           code={(density, mode) =>
-            [
+            mode === "elements"
+              ? [`<div data-density="${density}">`, ...SIZES.map((sz) => indent(html("Design", { size: sz }))), `</div>`].join("\n")
+              : [
               imports(mode),
               ``,
               `<div data-density="${density}">`,
@@ -135,7 +147,9 @@ export const tagSpec: ComponentSpec = {
         <InteractiveExample
           caption="`asChild` merges the tag's classes onto your own element instead of wrapping a `<span>` — for marking up an `<abbr>` or a list `<li>` that should read as a tag while keeping its own semantics. It is **not** a way to make a tag clickable: a tag is read-only by design, and a filterable, removable, or linked pill is a `Chip`, which is built to be interactive."
           code={(_density, mode) =>
-            [
+            mode === "elements"
+              ? /* No asChild in markup: the classes go on the element itself. */ `<abbr class="primitiv-tag primitiv-tag--info primitiv-tag--md" title="TypeScript">TS</abbr>`
+              : [
               imports(mode),
               ``,
               `<Tag asChild tone="info">`,

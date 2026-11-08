@@ -184,6 +184,9 @@ export type PlaygroundControl = {
   readonly options: readonly string[];
   readonly defaultValue: string;
   readonly description: string;
+  /** Each option's class, from the contract — what the control sets in
+   *  Elements mode. Absent on a control the spec adds for a headless prop. */
+  readonly classes?: Readonly<Record<string, string>>;
 };
 
 /**
@@ -207,6 +210,7 @@ export const toControl = (prop: DocsContractProp): PlaygroundControl | null => {
     options,
     defaultValue: prop.default ?? options[0],
     description: prop.description,
+    classes: prop.classes,
   };
 };
 
@@ -325,6 +329,82 @@ export const toJsx = ({
     `</${component}>`,
   ].join("\n");
 };
+
+/**
+ * A single-element component as Elements-mode markup: the root element with
+ * its identity class and the class each control has selected, the way the
+ * registry generates the example `primitiv add --surface elements` prints
+ * (`primitiv-emit`'s `emit_snippet`). The controls ARE classes here, since
+ * plain markup has no props to pass them as.
+ */
+export const toHtml = ({
+  element,
+  rootClass,
+  values,
+  controls,
+  children,
+  wrapText,
+}: {
+  element: string;
+  rootClass: string;
+  values: Record<string, string>;
+  controls: readonly PlaygroundControl[];
+  children: string;
+  wrapText: boolean;
+}): string => {
+  return markup({
+    element,
+    rootClass,
+    modifiers: controls.flatMap((c) => c.classes?.[values[c.name]] ?? []),
+    children,
+    wrapText,
+  });
+};
+
+/**
+ * One element of Elements-mode markup: the root class, then any modifier
+ * classes, in the shape `primitiv add --surface elements` prints (RFC 0033).
+ *
+ * Modifiers are passed as SUFFIXES (`"primary"` → `primitiv-button--primary`)
+ * or as whole class names; a value already starting with the root class is
+ * taken as written. `attrs` is raw text after the class (` disabled`), with its
+ * leading space. A `<button>` gets `type="button"`, since outside a form it
+ * still defaults to submit.
+ */
+export const markup = ({
+  element,
+  rootClass,
+  modifiers = [],
+  children,
+  wrapText = false,
+  attrs = "",
+}: {
+  element: string;
+  rootClass: string;
+  modifiers?: readonly string[];
+  children: string;
+  wrapText?: boolean;
+  attrs?: string;
+}): string => {
+  const classes = [
+    rootClass,
+    ...modifiers.map((m) =>
+      m.startsWith(rootClass) ? m : `${rootClass}--${m}`,
+    ),
+  ].join(" ");
+  const kind = element === "button" ? ` type="button"` : "";
+  const open = `<${element}${kind} class="${classes}"${attrs}>`;
+  return wrapText
+    ? `${open}\n  <span class="${rootClass}__label">${children}</span>\n</${element}>`
+    : `${open}${children}</${element}>`;
+};
+
+/** Indents every line of a block, for nesting markup inside a wrapper. */
+export const indent = (block: string, by = "  "): string =>
+  block
+    .split("\n")
+    .map((line) => (line ? by + line : line))
+    .join("\n");
 
 /**
  * The `Stack` import, for examples that use one purely as layout.

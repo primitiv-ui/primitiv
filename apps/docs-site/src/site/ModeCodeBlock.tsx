@@ -6,7 +6,12 @@
 // dependency itself (`import "./tabs"`), so both workarounds are gone.
 import { CodeBlock } from "@/components/code-block";
 import { mergeImports } from "@/lib/playground";
-import { type Mode, useHeadlessAvailable, useMode } from "@/site/preferences";
+import {
+  type Mode,
+  useElementsAvailable,
+  useHeadlessAvailable,
+  useMode,
+} from "@/site/preferences";
 
 /**
  * Styled FIRST, then Headless. Styled is the copy-and-go path and the default
@@ -17,8 +22,11 @@ import { type Mode, useHeadlessAvailable, useMode } from "@/site/preferences";
  * the closest thing a Figma-driven handoff produces.
  */
 const TABS = [
-  { value: "styled", label: "Styled" },
-  { value: "headless", label: "Headless" },
+  { value: "styled", label: "Styled", language: "tsx" },
+  { value: "headless", label: "Headless", language: "tsx" },
+  /* Markup, not TSX: the elements surface is plain HTML that pastes into any
+     template language (RFC 0033 §8.1). */
+  { value: "elements", label: "Elements", language: "html" },
 ] as const;
 
 /**
@@ -56,11 +64,17 @@ export const ModeCodeBlock = ({
 }) => {
   const [mode, setMode] = useMode();
   const headlessAvailable = useHeadlessAvailable();
-  /* Registry-only components have no Headless mode, so their code blocks show
-     just the Styled tab — offering Headless would only ever print the copied
-     file's own import, the same line Styled already shows. */
-  const tabs = headlessAvailable ? TABS : [TABS[0]];
-  const active = headlessAvailable && mode === "headless" ? "headless" : "styled";
+  const elementsAvailable = useElementsAvailable();
+  /* Registry-only components have no Headless mode, so their code blocks leave
+     that tab out — offering it would only ever print the copied file's own
+     import, the same line Styled already shows. Elements is the same in
+     reverse: only a component with an elements surface has the tab. */
+  const tabs = TABS.filter(
+    (t) =>
+      (t.value !== "headless" || headlessAvailable) &&
+      (t.value !== "elements" || elementsAvailable),
+  );
+  const active = tabs.some((t) => t.value === mode) ? mode : "styled";
 
   return (
     <CodeBlock.Tabs
@@ -86,7 +100,7 @@ export const ModeCodeBlock = ({
         <CodeBlock.Content
           key={t.value}
           value={t.value}
-          language="tsx"
+          language={t.language}
           code={mergeImports(code(t.value))}
         />
       ))}

@@ -14,6 +14,7 @@ import { Switch } from "@/components/switch";
 import {
   DEFAULT_DENSITY,
   initialValues,
+  toHtml,
   toJsx,
   type Density,
   type PlaygroundControl,
@@ -132,6 +133,12 @@ export type PlaygroundProps = {
   snippet?: (values: Record<string, string>, mode: Mode) => string;
   /** Stretch the preview to its container's width — see `ComponentSpec`. */
   fill?: boolean;
+  /**
+   * What the Elements tab's markup is built from, for a single-element
+   * component (`toHtml`): its root element and class, and whether text sits in
+   * a label span. A compound writes its own `snippet` instead.
+   */
+  elements?: { element: string; rootClass: string; wrapText: boolean };
 };
 
 /**
@@ -176,6 +183,7 @@ export const Playground = ({
   snippetChildren,
   snippetPrefix,
   snippet,
+  elements,
 }: PlaygroundProps) => {
   const [values, setValues] = useState(() => initialValues(controls));
   const [density, setDensity, gliding] =
@@ -206,6 +214,17 @@ export const Playground = ({
        Input's import line twice, and would have done so for every spec that
        supplied the pair. */
     if (snippet) return snippet(values, m);
+
+    /* Elements mode is markup: the controls become the classes they select
+       (`toHtml`), and there is nothing to import. */
+    if (m === "elements" && elements) {
+      return toHtml({
+        ...elements,
+        values,
+        controls,
+        children: snippetChildren ?? component,
+      });
+    }
 
     const jsx = toJsx({
       component,

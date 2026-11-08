@@ -23,6 +23,11 @@ pub const DEFAULT_BRAND: &str = "#236ce1";
 /// Where copied component styles land by default (RFC 0005 §3.1).
 pub const DEFAULT_STYLES_PATH: &str = "src/styles/primitiv";
 
+/// The elements surface's default (RFC 0033 §8.2): one folder at the site root
+/// holding the token layer, each component's stylesheet and snippet, and the
+/// index a page links — a site has no `src/` convention to follow.
+pub const DEFAULT_ELEMENTS_PATH: &str = "primitiv";
+
 /// The `$schema` URL written into every `primitiv.json` so editors can offer
 /// completion against the published schema (RFC 0005 §3.1).
 const SCHEMA_URL: &str = "https://primitiv-ui.dev/schema/primitiv.json";
@@ -215,14 +220,14 @@ fn resolve(
         None if ask => ask_text(prompt, "Brand colour", DEFAULT_BRAND)?,
         None => DEFAULT_BRAND.to_string(),
     };
+    let default_path = match surface {
+        Surface::React => DEFAULT_STYLES_PATH,
+        Surface::Elements => DEFAULT_ELEMENTS_PATH,
+    };
     let path = match &options.path {
         Some(value) => value.clone(),
-        None if ask => ask_text(
-            prompt,
-            "Where should copied styles land",
-            DEFAULT_STYLES_PATH,
-        )?,
-        None => DEFAULT_STYLES_PATH.to_string(),
+        None if ask => ask_text(prompt, "Where should copied styles land", default_path)?,
+        None => default_path.to_string(),
     };
     let alias_components = match &options.alias_components {
         Some(value) => Some(value.clone()),

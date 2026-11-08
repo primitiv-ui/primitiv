@@ -54,3 +54,14 @@ fn configures_a_folder_with_no_package_json_for_the_elements_surface() {
     assert_eq!(init_config(&fs, InitOptions::default()).surface, Surface::Elements);
 }
 
+
+#[test]
+fn defaults_the_elements_styles_path_to_a_primitiv_folder() {
+    // A site has no src/ convention; one folder holds the page's styles and snippets.
+    let fs = InMemoryFs::new();
+
+    let config = init_config(&fs, InitOptions::default());
+
+    assert_eq!(config.styles.path, "primitiv");
+    assert_eq!(config.tokens.path, "primitiv/tokens.css");
+}

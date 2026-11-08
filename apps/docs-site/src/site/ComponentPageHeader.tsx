@@ -50,8 +50,11 @@ const REPO = "https://github.com/primitiv-ui/primitiv";
 export const ComponentPageHeader = ({
   docs,
   notice,
+  description = docs.description,
 }: {
   docs: ComponentDocs;
+  /** The lede, when the page's mode needs other words than the JSDoc's. */
+  description?: string;
   /**
    * Why the page reads differently from the header's switch: Elements was
    * chosen and this component has no elements surface (`no-elements`), or
@@ -118,7 +121,7 @@ export const ComponentPageHeader = ({
 
     {/* Generated JSDoc, so it carries backticks — Button's own description ends
         "...via `asChild`." `lg` matches the lede's own 20px type. */}
-    <p className="docs-component-lede">{renderDoc(docs.description, "lg")}</p>
+    <p className="docs-component-lede">{renderDoc(description, "lg")}</p>
 
     {/* Registry-only: no `@primitiv-ui/react` primitive, so no Headless mode.
         Stated at the top because it changes what the rest of the page shows —

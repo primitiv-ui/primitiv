@@ -108,6 +108,8 @@ export type ComponentSpec = {
     /** Anchor id — also the nested TOC entry's target. */
     readonly id: string;
     readonly title: string;
+    /** The title in Elements mode, where it names something React-only (`asChild`). */
+    readonly elementsTitle?: string;
     readonly render: () => ReactNode;
   }[];
 
@@ -184,4 +186,21 @@ export type ComponentSpec = {
    * rule to remember when adding a component.
    */
   readonly accessibility: readonly string[];
+
+  /**
+   * The page's hand-written prose as an Elements reader needs it (RFC 0033):
+   * the same facts in attribute and event terms (`activation-mode`,
+   * `primitiv-tabs-change`, the `<button>` inside a trigger) rather than React
+   * props. Each field replaces its React counterpart only in Elements mode and
+   * only when given; anything left out reads the same in both. Example captions
+   * have their own `elementsCaption` on `InteractiveExample`.
+   */
+  readonly elements?: {
+    /** Replaces the generated JSDoc description in the page header. */
+    readonly description?: string;
+    readonly anatomyMeta?: string;
+    readonly keyboardMeta?: string;
+    readonly keyboard?: ComponentSpec["keyboard"];
+    readonly accessibility?: readonly string[];
+  };
 };

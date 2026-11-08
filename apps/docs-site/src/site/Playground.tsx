@@ -20,7 +20,7 @@ import {
   type PlaygroundControl,
 } from "@/lib/playground";
 
-import type { Mode } from "@/site/preferences";
+import { type Mode, useView } from "@/site/preferences";
 import { useDensityGlide } from "@/site/use-density-glide";
 
 import "./playground.css";
@@ -186,6 +186,7 @@ export const Playground = ({
   elements,
 }: PlaygroundProps) => {
   const [values, setValues] = useState(() => initialValues(controls));
+  const { reading } = useView();
   const [density, setDensity, gliding, glide] =
     useDensityGlide<Density>(DEFAULT_DENSITY);
   /* The snippet has to know the mode: a compound's part names differ between
@@ -312,7 +313,7 @@ export const Playground = ({
 
       <p className="docs-playground-note">
         Density is set by a <code>data-density</code> ancestor — the Context
-        system, not a {component} prop.
+        system, not {reading === "elements" ? "an attribute or class on the element" : `a ${component} prop`}.
       </p>
     </Stack>
   );

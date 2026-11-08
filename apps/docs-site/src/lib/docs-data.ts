@@ -270,7 +270,20 @@ export type ComponentDocs = {
     /** Whether text sits in a `__label` span inside the root. */
     readonly wrapText: boolean;
     readonly example: string | null;
+    /**
+     * Each custom element's attributes and events, root first, read from the
+     * `@customElement` JSDoc in `packages/web` (the same tags the Custom
+     * Elements Manifest is built from). Empty for a component with no element.
+     */
+    readonly api: readonly DocsElementApi[];
   } | null;
+};
+
+/** One custom element's public API: what Elements mode's reference table lists. */
+export type DocsElementApi = {
+  readonly tag: string;
+  readonly attributes: readonly { name: string; type: string; description: string }[];
+  readonly events: readonly { name: string; type: string; description: string }[];
 };
 
 const DOCS = {

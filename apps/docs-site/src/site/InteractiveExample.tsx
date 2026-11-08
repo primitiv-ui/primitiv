@@ -9,7 +9,7 @@ import { DensityRadios } from "./DensityRadios";
 import { ModeCodeBlock } from "./ModeCodeBlock";
 import { DEFAULT_DENSITY, type Density } from "@/lib/playground";
 import { renderDoc } from "@/lib/render-doc";
-import { type Mode } from "@/site/preferences";
+import { type Mode, useView } from "@/site/preferences";
 import { useDensityGlide } from "@/site/use-density-glide";
 
 import "./playground.css";
@@ -28,16 +28,26 @@ import "./playground.css";
  * picture, which is the failure mode of hand-maintained docs.
  */
 export const InteractiveExample = ({
-  caption,
+  caption: reactCaption,
+  elementsCaption,
   children,
   code,
 }: {
   caption?: ReactNode;
+  /**
+   * The caption in Elements mode, where the React one names props, `asChild`
+   * or hooks that plain markup doesn't have. Omit it when the caption reads
+   * true for both.
+   */
+  elementsCaption?: ReactNode;
   children: (density: Density) => ReactNode;
   code: (density: Density, mode: Mode) => string;
 }) => {
   const [density, setDensity, gliding] =
     useDensityGlide<Density>(DEFAULT_DENSITY);
+  const { reading } = useView();
+  const caption =
+    reading === "elements" && elementsCaption ? elementsCaption : reactCaption;
 
   return (
     <Stack gap="md">

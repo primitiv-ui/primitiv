@@ -79,6 +79,12 @@ export type DataAttributeGroup = {
    * Derived by the extractor from the registry file's real exports.
    */
   readonly headlessOnly?: boolean;
+  /**
+   * The part as an Elements reader writes it (`<primitiv-tabs-list>`, or
+   * `<button> in <primitiv-tabs-trigger>` for a part that decorates a child).
+   * Set only in Elements mode; it replaces the React part name as the heading.
+   */
+  readonly element?: string;
   readonly rows: readonly DocsDataAttribute[];
 };
 
@@ -136,6 +142,7 @@ const partName = (group: DataAttributeGroup, mode: Mode): string => {
    * class (reads as a snippet, not a label, set in the display face) and the
    * contract's own part name ("Mark", which sits oddly beside "CheckboxCard").
    */
+  if (group.element) return group.element;
   if (group.headlessOnly) return group.part;
   return part ? partNamer(mode, base)(part) : base;
 };
@@ -182,7 +189,7 @@ export const DataAttributesTable = ({
               {/* Same wording as the Props section's, deliberately: it is the
                   same fact about the same part, and two phrasings would read as
                   two different caveats. */}
-              {mode !== "headless" && group.headlessOnly && (
+              {mode !== "headless" && group.headlessOnly && !group.element && (
                 <p className="docs-prop-extends">
                   Headless only — the copied file renders this part for you and
                   exports no separate component, so there is nothing to import
@@ -197,7 +204,7 @@ export const DataAttributesTable = ({
               {mode !== "headless" && group.className && (
                 <p className="docs-data-attributes-class">
                   <span className="docs-data-attributes-class-label">
-                    className:
+                    {group.element ? "class:" : "className:"}
                   </span>{" "}
                   <InlineCode size="sm">{`.${group.className}`}</InlineCode>
                 </p>

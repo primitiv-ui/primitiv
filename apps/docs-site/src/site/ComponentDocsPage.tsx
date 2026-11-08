@@ -24,18 +24,48 @@ import { KeyboardTable } from "@/site/KeyboardTable";
 import { Playground } from "@/site/Playground";
 import { PropsTable } from "@/site/PropsTable";
 import { Shell } from "@/site/Shell";
+import {
+  ElementsApiReference,
+  ElementsClassReference,
+  elementHeadingId,
+} from "@/site/ElementsReference";
 import { StylingContract } from "@/site/StylingContract";
 import {
   ElementsSurfaceProvider,
   HeadlessAvailableProvider,
   type Mode,
   installCommand,
+  useFramework,
   label,
   useView,
 } from "@/site/preferences";
 import type { TocEntry } from "@/site/PageToc";
 
 import "./component-page.css";
+
+/**
+ * A React part's name as an Elements reader writes it: `Tabs.List` is
+ * `<primitiv-tabs-list>`. An interactive part (a trigger, a link) decorates the
+ * `<button>` or `<a>` the consumer puts inside it, which is where its state
+ * attributes land, so it is named as that child. Undefined when the component
+ * has no element for the part.
+ */
+const elementLabel = (docs: ComponentDocs, part: string): string | undefined => {
+  const suffix = part.split(".")[1] ?? "Root";
+  const tag =
+    suffix === "Root"
+      ? `primitiv-${docs.id}`
+      : `primitiv-${docs.id}-${suffix.replace(/[A-Z]/g, (c, i) => (i ? "-" : "") + c.toLowerCase())}`;
+  if (!docs.elements?.api.some((e) => e.tag === tag)) {
+    /* No custom element: the root is the plain element the classes go on. */
+    return suffix === "Root" && docs.elements?.element
+      ? `<${docs.elements.element}>`
+      : undefined;
+  }
+  const sub = docs.headless.subComponents.find((s) => s.name === part);
+  const child = sub?.extends?.match(/^HTML(Button|Anchor)Element$/)?.[1];
+  return child ? `<${child === "Button" ? "button" : "a"}> in <${tag}>` : `<${tag}>`;
+};
 
 const propsHeadingId = (subName: string) =>
   `props-${subName.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
@@ -82,20 +112,35 @@ export const ComponentDocsPage = ({ id }: { id: ComponentId }) => {
    * because it is the same expression, so a section cannot appear in the rail
    * without appearing on the page.
    */
+  /* The same test `useView` makes inside the page's providers: Elements is
+     shown only for a component that has an elements surface. */
+  const [framework] = useFramework();
+  const elementsShown = framework !== "react" && elements !== null;
   const toc: readonly TocEntry[] = [
     { id: "playground", title: "Playground" },
     { id: "installation", title: "Installation" },
     ...(spec.anatomy ? [{ id: "anatomy", title: "Anatomy" }] : []),
-    {
-      id: "props",
-      title: "Props",
-      // One nested entry per sub-component — this is why Select's TOC needs two
-      // levels (9 parts) while Button's has one (§1.20).
-      children: subs.map((s) => ({
-        id: propsHeadingId(s.name),
-        title: s.name,
-      })),
-    },
+    elementsShown
+      ? elements.api.length > 0
+        ? {
+            id: "props",
+            title: "Attributes & events",
+            children: elements.api.map((e) => ({
+              id: elementHeadingId(e.tag),
+              title: `<${e.tag}>`,
+            })),
+          }
+        : { id: "props", title: "Classes" }
+      : {
+          id: "props",
+          title: "Props",
+          // One nested entry per sub-component — this is why Select's TOC needs
+          // two levels (9 parts) while Button's has one (§1.20).
+          children: subs.map((s) => ({
+            id: propsHeadingId(s.name),
+            title: s.name,
+          })),
+        },
     { id: "styling", title: "Styling contract" },
     ...(spec.keyboard ? [{ id: "keyboard", title: "Keyboard" }] : []),
     ...(dataAttrGroups.length > 0
@@ -105,7 +150,10 @@ export const ComponentDocsPage = ({ id }: { id: ComponentId }) => {
     {
       id: "examples",
       title: "Examples",
-      children: spec.examples.map((e) => ({ id: e.id, title: e.title })),
+      children: spec.examples.map((e) => ({
+        id: e.id,
+        title: (elementsShown && e.elementsTitle) || e.title,
+      })),
     },
   ];
 
@@ -166,12 +214,15 @@ const ComponentDocsBody = ({
      with no behaviour, its headless form is plain HTML. */
   const noBehaviour = inElements && chosen === "headless" && style === "styled";
   const webPackage = elements?.package ?? null;
+  /* The page's hand-written prose in Elements terms, where the spec gives it. */
+  const prose = inElements ? spec.elements : undefined;
 
   return (
         <Stack gap="none" className="docs-page-column">
         <ComponentPageHeader
           docs={docs}
           notice={fallback ? "no-elements" : noBehaviour ? "no-behaviour" : undefined}
+          description={prose?.description}
         />
 
         <DocsSection id="playground" title="Playground">
@@ -336,48 +387,78 @@ const ComponentDocsBody = ({
           <DocsSection
             id="anatomy"
             title="Anatomy"
-            meta={renderDoc(spec.anatomyMeta ?? "")}
+            meta={renderDoc(prose?.anatomyMeta ?? spec.anatomyMeta ?? "")}
           >
             <Anatomy paths={spec.anatomy} />
           </DocsSection>
         )}
 
+        {inElements ? (
+          elements.api.length > 0 ? (
+            <DocsSection
+              id="props"
+              title="Attributes & events"
+              meta={
+                <>
+                  Generated from each element&rsquo;s{" "}
+                  <InlineCode size="sm">@attr</InlineCode> and{" "}
+                  <InlineCode size="sm">@fires</InlineCode> JSDoc in{" "}
+                  <InlineCode size="sm">{elements.package ?? "@primitiv-ui/web"}</InlineCode>,
+                  the same source as its Custom Elements Manifest. State lives
+                  in attributes, so set them from markup, a server render or{" "}
+                  <InlineCode size="sm">setAttribute</InlineCode>.
+                </>
+              }
+            >
+              <ElementsApiReference api={elements.api} />
+            </DocsSection>
+          ) : (
+            <DocsSection
+              id="props"
+              title="Classes"
+              meta="No element and no behaviour: in plain markup, the registry classes are the whole component. Generated from contract.json."
+            >
+              <ElementsClassReference subs={subs} rootClass={docs.styled.rootClass} />
+            </DocsSection>
+          )
+        ) : (
         <DocsSection
-          id="props"
-          title="Props"
-          meta={
-            registryOnly ? (
-              /* No headless surface, so no "From" column and no split to explain:
-                 every prop comes from the one copied file. */
-              <>
-                Generated from the copied file&rsquo;s props type and{" "}
-                <InlineCode size="sm">contract.json</InlineCode>. Never
-                hand-maintained.
-              </>
-            ) : (
-              <>
-                {/* Says "styled", matching the From column and the mode switch.
-                    It still names `contract.json` as the source, which is useful
-                    — but as the file a row comes FROM, not as the word for the
-                    half of the API it belongs to. */}
-                Generated from source — headless rows from each{" "}
-                <InlineCode size="sm">*Props</InlineCode> type&rsquo;s JSDoc,
-                styled rows from{" "}
-                <InlineCode size="sm">contract.json</InlineCode>. Never
-                hand-maintained.
-              </>
-            )
-          }
-        >
-          {subs.map((sub) => (
-            <PropsTable
-              key={sub.name}
-              sub={sub}
-              headingId={propsHeadingId(sub.name)}
-              showFrom={!registryOnly}
-            />
-          ))}
-        </DocsSection>
+            id="props"
+            title="Props"
+            meta={
+              registryOnly ? (
+                /* No headless surface, so no "From" column and no split to explain:
+                   every prop comes from the one copied file. */
+                <>
+                  Generated from the copied file&rsquo;s props type and{" "}
+                  <InlineCode size="sm">contract.json</InlineCode>. Never
+                  hand-maintained.
+                </>
+              ) : (
+                <>
+                  {/* Says "styled", matching the From column and the mode switch.
+                      It still names `contract.json` as the source, which is useful
+                      — but as the file a row comes FROM, not as the word for the
+                      half of the API it belongs to. */}
+                  Generated from source — headless rows from each{" "}
+                  <InlineCode size="sm">*Props</InlineCode> type&rsquo;s JSDoc,
+                  styled rows from{" "}
+                  <InlineCode size="sm">contract.json</InlineCode>. Never
+                  hand-maintained.
+                </>
+              )
+            }
+          >
+            {subs.map((sub) => (
+              <PropsTable
+                key={sub.name}
+                sub={sub}
+                headingId={propsHeadingId(sub.name)}
+                showFrom={!registryOnly}
+              />
+            ))}
+          </DocsSection>
+        )}
 
         {/*
          * A stack of code chips, clipped with a "show all" — the design shows a
@@ -402,9 +483,9 @@ const ComponentDocsBody = ({
           <DocsSection
             id="keyboard"
             title="Keyboard"
-            meta={renderDoc(spec.keyboardMeta ?? "")}
+            meta={renderDoc(prose?.keyboardMeta ?? spec.keyboardMeta ?? "")}
           >
-            <KeyboardTable rows={spec.keyboard} />
+            <KeyboardTable rows={prose?.keyboard ?? spec.keyboard} />
           </DocsSection>
         )}
 
@@ -419,7 +500,16 @@ const ComponentDocsBody = ({
             title="Data attributes"
             meta={`Emitted automatically by the ${inElements && elements.package ? "element" : "headless primitive"} — style against these rather than adding your own state classes. Grouped by the part that emits them, since most are emitted by more than one.`}
           >
-            <DataAttributesTable groups={dataAttrGroups} />
+            <DataAttributesTable
+              groups={
+                inElements
+                  ? dataAttrGroups.map((group) => ({
+                      ...group,
+                      element: elementLabel(docs, group.part),
+                    }))
+                  : dataAttrGroups
+              }
+            />
           </DocsSection>
         )}
 
@@ -427,7 +517,7 @@ const ComponentDocsBody = ({
             prose, so the bullets and the base layer's reading rhythm are right. */}
         <DocsSection id="accessibility" title="Accessibility">
           <List indent={false}>
-            {spec.accessibility.map((note) => (
+            {(prose?.accessibility ?? spec.accessibility).map((note) => (
               <List.Item key={note}>{renderDoc(note)}</List.Item>
             ))}
           </List>
@@ -442,7 +532,7 @@ const ComponentDocsBody = ({
             {spec.examples.map((example) => (
               <Stack key={example.id} gap="sm">
                 <h3 className="docs-example-title" id={example.id}>
-                  {example.title}
+                  {(inElements && example.elementsTitle) || example.title}
                 </h3>
                 {example.render()}
               </Stack>

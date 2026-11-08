@@ -35,6 +35,30 @@ test("the Controlled example follows primitiv-tabs-change", async ({ page }) => 
   await expect(example.locator("[data-active-value]")).toHaveText("a11y");
 });
 
+test("the Accordion playground and examples are defined <primitiv-accordion> elements", async ({
+  page,
+}) => {
+  await page.goto("/components/accordion/");
+  const accordion = page.locator(".docs-elements-preview primitiv-accordion");
+  await expect(accordion.first()).toBeAttached();
+  const trigger = accordion.first().getByRole("button").first();
+  await expect(trigger).toHaveAttribute("aria-expanded", "true");
+  expect(await page.evaluate(() => !!customElements.get("primitiv-accordion"))).toBe(true);
+  // Styled under Headless too, its closed panels kept out of the a11y tree.
+  await expect(accordion.first()).toHaveAttribute("class", /primitiv-accordion/);
+  await expect(accordion.first().getByRole("region")).toHaveCount(1);
+});
+
+test("the Accordion Controlled example follows primitiv-accordion-change", async ({ page }) => {
+  await page.goto("/components/accordion/");
+  const example = cell(page, "controlled");
+  const trigger = example.getByRole("button", { name: "Can I use the behaviour without the styles?" });
+  // The definition loads on demand: wait for the element to have wired its button.
+  await expect(trigger).toHaveAttribute("aria-expanded", "false");
+  await trigger.click();
+  await expect(example.locator("[data-open-items]")).toHaveText("install, headless");
+});
+
 test("the Button icon examples render real glyphs, not placeholders", async ({
   page,
 }) => {

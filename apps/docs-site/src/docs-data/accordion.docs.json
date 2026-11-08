@@ -405,5 +405,84 @@
   "figma": {
     "componentSetKey": "416:6729"
   },
-  "elements": null
+  "elements": {
+    "package": "@primitiv-ui/web",
+    "version": "0.1.44",
+    "element": "div",
+    "wrapText": false,
+    "example": "<primitiv-accordion value=\"one\" class=\"primitiv-accordion primitiv-accordion--md\">\n  <primitiv-accordion-item value=\"one\" class=\"primitiv-accordion__item\">\n    <h3 class=\"primitiv-accordion__header\">\n      <primitiv-accordion-trigger>\n        <button type=\"button\" class=\"primitiv-accordion__trigger\">\n          <span class=\"primitiv-accordion__trigger-label\">One</span>\n          <primitiv-accordion-trigger-icon class=\"primitiv-accordion__trigger-icon\" data-state=\"open\"><svg viewBox=\"0 0 24 24\" fill=\"currentColor\"><path d=\"M20.06 9 12 17.06 3.94 9 5 7.94l7 7 7-7L20.06 9Z\"/></svg></primitiv-accordion-trigger-icon>\n        </button>\n      </primitiv-accordion-trigger>\n    </h3>\n    <primitiv-accordion-content class=\"primitiv-accordion__content\" data-state=\"open\">\n      <span class=\"primitiv-accordion__content-inner\"><span class=\"primitiv-accordion__content-body\">First panel</span></span>\n    </primitiv-accordion-content>\n  </primitiv-accordion-item>\n  <primitiv-accordion-item value=\"two\" class=\"primitiv-accordion__item\">\n    <h3 class=\"primitiv-accordion__header\">\n      <primitiv-accordion-trigger>\n        <button type=\"button\" class=\"primitiv-accordion__trigger\">\n          <span class=\"primitiv-accordion__trigger-label\">Two</span>\n          <primitiv-accordion-trigger-icon class=\"primitiv-accordion__trigger-icon\"><svg viewBox=\"0 0 24 24\" fill=\"currentColor\"><path d=\"M20.06 9 12 17.06 3.94 9 5 7.94l7 7 7-7L20.06 9Z\"/></svg></primitiv-accordion-trigger-icon>\n        </button>\n      </primitiv-accordion-trigger>\n    </h3>\n    <primitiv-accordion-content class=\"primitiv-accordion__content\" hidden>\n      <span class=\"primitiv-accordion__content-inner\"><span class=\"primitiv-accordion__content-body\">Second panel</span></span>\n    </primitiv-accordion-content>\n  </primitiv-accordion-item>\n  <primitiv-accordion-item value=\"three\" class=\"primitiv-accordion__item\">\n    <h3 class=\"primitiv-accordion__header\">\n      <primitiv-accordion-trigger>\n        <button type=\"button\" class=\"primitiv-accordion__trigger\">\n          <span class=\"primitiv-accordion__trigger-label\">Three</span>\n          <primitiv-accordion-trigger-icon class=\"primitiv-accordion__trigger-icon\"><svg viewBox=\"0 0 24 24\" fill=\"currentColor\"><path d=\"M20.06 9 12 17.06 3.94 9 5 7.94l7 7 7-7L20.06 9Z\"/></svg></primitiv-accordion-trigger-icon>\n        </button>\n      </primitiv-accordion-trigger>\n    </h3>\n    <primitiv-accordion-content class=\"primitiv-accordion__content\" hidden>\n      <span class=\"primitiv-accordion__content-inner\"><span class=\"primitiv-accordion__content-body\">Third panel</span></span>\n    </primitiv-accordion-content>\n  </primitiv-accordion-item>\n</primitiv-accordion>\n",
+    "api": [
+      {
+        "tag": "primitiv-accordion",
+        "attributes": [
+          {
+            "name": "value",
+            "type": "string",
+            "description": "The open items' values, separated by spaces. Reflected: it changes as the user toggles items, so a server re-render or a history snapshot sees what is open. Item values therefore cannot contain whitespace."
+          },
+          {
+            "name": "multiple",
+            "type": "boolean",
+            "description": "Lets more than one item be open at once. Without it, opening an item closes the open one."
+          },
+          {
+            "name": "orientation",
+            "type": "\"vertical\" | \"horizontal\"",
+            "description": "Layout axis, which picks the arrow-key pair. Defaults to `vertical`."
+          }
+        ],
+        "events": [
+          {
+            "name": "primitiv-accordion-change",
+            "type": "CustomEvent<{ value: string[] }>",
+            "description": "Bubbles, cancelable, fired before a user-driven toggle is applied, with every item open afterwards. Call `preventDefault()` to veto it."
+          }
+        ]
+      },
+      {
+        "tag": "primitiv-accordion-item",
+        "attributes": [
+          {
+            "name": "value",
+            "type": "string",
+            "description": "The item's value, listed in the root's `value` while it is open. No whitespace."
+          }
+        ],
+        "events": []
+      },
+      {
+        "tag": "primitiv-accordion-trigger",
+        "attributes": [
+          {
+            "name": "disabled",
+            "type": "boolean",
+            "description": "Marks the item disabled: the button stays focusable but never toggles, and the arrow keys skip it."
+          }
+        ],
+        "events": []
+      },
+      {
+        "tag": "primitiv-accordion-content",
+        "attributes": [
+          {
+            "name": "force-mount",
+            "type": "boolean",
+            "description": "Never sets `hidden`, so styles can animate the panel open and closed. A closed panel always carries `aria-hidden`, so it stays out of the accessibility tree either way."
+          }
+        ],
+        "events": [
+          {
+            "name": "primitiv-accordion-show",
+            "type": "CustomEvent",
+            "description": "Bubbles from the panel as its item opens (not on first render), so a lazy panel can fetch its content."
+          }
+        ]
+      },
+      {
+        "tag": "primitiv-accordion-trigger-icon",
+        "attributes": [],
+        "events": []
+      }
+    ]
+  }
 }

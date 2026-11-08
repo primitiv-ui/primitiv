@@ -253,7 +253,7 @@ fn render(resolved: &ResolvedInit) -> String {
         None => "{}".to_string(),
     };
     format!(
-        "{{\n  \"$schema\": \"{schema}\",\n  \"version\": 1,\n  \"name\": \"{name}\",\n  \"framework\": \"react\",\n  \
+        "{{\n  \"$schema\": \"{schema}\",\n  \"version\": 1,\n  \"name\": \"{name}\",\n  \"surface\": \"react\",\n  \
          \"styles\": {{ \"enabled\": {enabled}, \"format\": \"{format}\", \"path\": \"{path}\" }},\n  \
          \"tokens\": {{ \"format\": \"{format}\", \"path\": \"{path}/tokens.{ext}\" }},\n  \
          \"theme\": {{ \"brand\": \"{brand}\" }},\n  \

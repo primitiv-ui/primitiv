@@ -74,9 +74,17 @@ const elementsTree = ({
   justify = "start",
   rootAttrs = "",
   disabled,
-}: { size?: string; justify?: string; rootAttrs?: string; disabled?: string } = {}) =>
+  value = "overview",
+}: {
+  size?: string;
+  justify?: string;
+  rootAttrs?: string;
+  disabled?: string;
+  /** The active panel's value: it alone is not `hidden`. */
+  value?: string;
+} = {}) =>
   [
-    `<primitiv-tabs value="overview"${rootAttrs} class="primitiv-tabs primitiv-tabs--${size}">`,
+    `<primitiv-tabs value="${value}"${rootAttrs} class="primitiv-tabs primitiv-tabs--${size}">`,
     `  <primitiv-tabs-list label="Component docs" class="primitiv-tabs__list primitiv-tabs__list--${justify}">`,
     ...PANELS.flatMap((panel) => [
       `    <primitiv-tabs-trigger value="${panel.value}"${panel.value === disabled ? " disabled" : ""}>`,
@@ -87,8 +95,8 @@ const elementsTree = ({
     ]),
     `  </primitiv-tabs-list>`,
     ...PANELS.map(
-      (panel, i) =>
-        `  <primitiv-tabs-content value="${panel.value}" class="primitiv-tabs__panel"${i === 0 ? "" : " hidden"}>${panel.body}</primitiv-tabs-content>`,
+      (panel) =>
+        `  <primitiv-tabs-content value="${panel.value}" class="primitiv-tabs__panel"${panel.value === value ? "" : " hidden"}>${panel.body}</primitiv-tabs-content>`,
     ),
     `</primitiv-tabs>`,
   ].join("\n");
@@ -181,6 +189,31 @@ const ControlledDemo = () => {
 };
 
 /**
+ * The Controlled example's Elements preview: the full tree (its code tab elides
+ * the repeated parts) plus the readout, so the DOM a reader inspects is the
+ * real thing.
+ */
+const controlledElementsPreview = () =>
+  [
+    `<div class="docs-example-stack">`,
+    elementsTree({ value: "props" }),
+    `<p class="docs-example-caption">Active value: <code data-active-value>props</code></p>`,
+    `</div>`,
+  ].join("\n");
+
+/** Follows `primitiv-tabs-change` into the readout, as the code tab's listener does. */
+const wireControlled = (root: HTMLElement) => {
+  const tabs = root.querySelector("primitiv-tabs");
+  const readout = root.querySelector("[data-active-value]");
+  if (!tabs || !readout) return;
+  const onChange = (event: Event) => {
+    readout.textContent = (event as CustomEvent<{ value: string }>).detail.value;
+  };
+  tabs.addEventListener("primitiv-tabs-change", onChange);
+  return () => tabs.removeEventListener("primitiv-tabs-change", onChange);
+};
+
+/**
  * Tabs' page content.
  *
  * The examples deliberately cover what the PLAYGROUND cannot: `size` and
@@ -264,6 +297,8 @@ export const tabsSpec: ComponentSpec = {
       title: "Controlled",
       render: () => (
         <InteractiveExample
+          elementsPreview={controlledElementsPreview}
+          wire={wireControlled}
           elementsCaption="The `value` attribute is the state: set it from the server, from markup or with `setAttribute` to switch tabs, and listen for `primitiv-tabs-change` to follow the user. The event fires before the change and is cancelable, so `preventDefault()` keeps the current tab — for unsaved work, say."
           caption="Pass `value` with `onValueChange` to own the active tab yourself — for syncing to a URL, or to another control. Pass `defaultValue` instead to let the component own it. The two are mutually exclusive, which is the one thing the generated props table below cannot show you: `Tabs.Root`'s props are a discriminated union and the table flattens it."
           code={(_density, mode) => {

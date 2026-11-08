@@ -7,6 +7,7 @@ import { CodeBlock } from "@/components/code-block";
 import { Divider } from "@/components/divider";
 
 import { DensityRadios } from "./DensityRadios";
+import { ElementsPreview } from "./ElementsPreview";
 import { ModeCodeBlock } from "./ModeCodeBlock";
 import { Radio } from "@/components/radio";
 import { Stack } from "@/components/stack";
@@ -18,6 +19,7 @@ import {
   toJsx,
   type Density,
   type PlaygroundControl,
+  withoutClasses,
 } from "@/lib/playground";
 
 import { type Mode, useView } from "@/site/preferences";
@@ -186,7 +188,7 @@ export const Playground = ({
   elements,
 }: PlaygroundProps) => {
   const [values, setValues] = useState(() => initialValues(controls));
-  const { reading } = useView();
+  const { reading, style } = useView();
   const [density, setDensity, gliding, glide] =
     useDensityGlide<Density>(DEFAULT_DENSITY);
   /* The snippet has to know the mode: a compound's part names differ between
@@ -257,7 +259,21 @@ export const Playground = ({
                 data-density={density}
                 data-density-gliding={gliding || undefined}
               >
-                {children(values)}
+                {/* Elements mode previews the real custom elements, from the
+                    same string the Elements code tab shows (bare under
+                    Headless), so the DOM a reader inspects is the markup they
+                    are reading. */}
+                {reading === "elements" ? (
+                  <ElementsPreview
+                    html={
+                      style === "headless"
+                        ? withoutClasses(codeFor("elements"))
+                        : codeFor("elements")
+                    }
+                  />
+                ) : (
+                  children(values)
+                )}
               </div>
             </Stack>
 

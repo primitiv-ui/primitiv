@@ -6,8 +6,9 @@ import { Card, CardContent } from "@/components/card";
 import { Stack } from "@/components/stack";
 
 import { DensityRadios } from "./DensityRadios";
+import { ElementsPreview } from "./ElementsPreview";
 import { ModeCodeBlock } from "./ModeCodeBlock";
-import { DEFAULT_DENSITY, type Density } from "@/lib/playground";
+import { DEFAULT_DENSITY, type Density, withoutClasses } from "@/lib/playground";
 import { renderDoc } from "@/lib/render-doc";
 import { type Mode, useView } from "@/site/preferences";
 import { useDensityGlide } from "@/site/use-density-glide";
@@ -30,6 +31,8 @@ import "./playground.css";
 export const InteractiveExample = ({
   caption: reactCaption,
   elementsCaption,
+  elementsPreview,
+  wire,
   children,
   code,
 }: {
@@ -40,12 +43,27 @@ export const InteractiveExample = ({
    * true for both.
    */
   elementsCaption?: ReactNode;
+  /**
+   * The markup the Elements preview renders, when the Elements code tab is not
+   * complete markup on its own (it elides a repeated part, or shows an icon as
+   * a placeholder). Defaults to that code. Written styled; the headless preview
+   * strips the classes, as the code tab does. Receives the Elements code, so an
+   * override can fill in a placeholder rather than restate the markup.
+   */
+  elementsPreview?: (density: Density, code: string) => string;
+  /** Anything the Elements preview needs beyond its markup, e.g. a listener. */
+  wire?: (root: HTMLElement) => (() => void) | void;
   children: (density: Density) => ReactNode;
   code: (density: Density, mode: Mode) => string;
 }) => {
   const [density, setDensity, gliding] =
     useDensityGlide<Density>(DEFAULT_DENSITY);
-  const { reading } = useView();
+  const { reading, style } = useView();
+  const elementsHtml = () => {
+    const markup = code(density, "elements");
+    const html = elementsPreview ? elementsPreview(density, markup) : markup;
+    return style === "headless" ? withoutClasses(html) : html;
+  };
   const caption =
     reading === "elements" && elementsCaption ? elementsCaption : reactCaption;
 
@@ -70,7 +88,13 @@ export const InteractiveExample = ({
             data-density={density}
             data-density-gliding={gliding || undefined}
           >
-            {children(density)}
+            {/* Elements mode renders the real custom elements, from the same
+                markup as the Elements code tab (see ElementsPreview). */}
+            {reading === "elements" ? (
+              <ElementsPreview html={elementsHtml()} wire={wire} />
+            ) : (
+              children(density)
+            )}
           </div>
         </CardContent>
       </Card>

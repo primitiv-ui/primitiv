@@ -14,6 +14,9 @@ importers:
       '@primitiv-ui/react':
         specifier: link:../../packages/react
         version: link:../../packages/react
+      '@primitiv-ui/web':
+        specifier: link:../../packages/web
+        version: link:../../packages/web
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1

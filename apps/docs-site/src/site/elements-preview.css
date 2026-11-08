@@ -1,0 +1,5 @@
+/* The Elements preview's wrapper takes no box, so the markup inside it lays
+   out in the example's row or stack exactly as the React preview's did. */
+.docs-elements-preview {
+  display: contents;
+}

@@ -1,6 +1,6 @@
 ---
 name: docs-site-component-page
-description: End-to-end playbook for adding (or bringing up to standard) a component's page on the public docs site, apps/docs-site — the generated docs-data + roster, the hand-authored ComponentSpec (playground, examples, and the optional Anatomy / Keyboard / Data-attributes sections), the registration points, the gates, and the traps that only a real browser catches. TRIGGER when adding a docs-site page for a component, filling in a stub page, bringing a page up to the Button/Select standard, or editing the shared component-page template (ComponentDocsPage, Playground, PropsTable, the section components). SKIP for the kitchen-sink/workbench example surfaces (see workbench-examples), the registry component itself (see new-registry-component), the headless primitive (see new-react-component), and pure docs-site planning decisions (see docs-site-planning).
+description: End-to-end playbook for adding (or bringing up to standard) a component's page on the public docs site, apps/docs-site — the generated docs-data + roster, the hand-authored ComponentSpec (playground, examples, and the optional Anatomy / Keyboard / Data-attributes sections), the registration points, the gates, and the traps that only a real browser catches. TRIGGER when adding a docs-site page for a component, filling in a stub page, bringing a page up to the Button/Select standard, or editing the shared component-page template (ComponentDocsPage, Playground, PropsTable, the section components). SKIP for the workbench example surface (see workbench-examples), the registry component itself (see new-registry-component), the headless primitive (see new-react-component), and pure docs-site planning decisions (see docs-site-planning).
 ---
 
 # Docs-site component page
@@ -31,9 +31,10 @@ a new one — `src/site/examples/{button,select}.tsx`.
    instances + `componentProperties` + text `fontSize`/`fontName`, and
    `figma_take_screenshot` each section. Building from section names alone gets
    redone.
-2. **Measure, never guess, for anything visual.** `@playwright/test` + a cached
-   Chromium live in **`apps/kitchen-sink`** — the script must run from there and
-   import from `@playwright/test`. This is how you confirm the panel anchors, the
+2. **Measure, never guess, for anything visual.** `@playwright/test` is a
+   dev dependency of **`apps/docs-site`** — run the script from there and import
+   from `@playwright/test` (the sandbox's Chromium at `/opt/pw-browsers` matches
+   its version). Serve the static build with `node e2e/serve.mjs 4180`. This is how you confirm the panel anchors, the
    chevrons render, nothing overflows. Two gotchas that cost time:
    `page.evaluate` takes **one** argument (pass an object, or it throws "Too many
    arguments"); and a fresh profile is **light** theme while the site defaults to

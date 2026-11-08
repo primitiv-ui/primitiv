@@ -37,8 +37,8 @@ split.
    unshared history.
 5. **Leave the workbench app alone** unless mechanically forced (e.g.
    import paths after a rename). It's a legacy iteration surface — new
-   component examples go in the **kitchen-sink** instead (decided
-   2026-07-25), so don't expand the workbench at all.
+   component examples go on the component's **docs-site page** instead, so
+   don't expand the workbench at all.
 6. **Never open PRs unprompted.** "Update the PR description" /
    "create a new PR" are explicit; silence is not.
 7. **GitHub interactions: prefer the MCP tools** (`mcp__github__*`)
@@ -86,15 +86,14 @@ Every behaviour change in `packages/react` ships with:
   - a new row in `packages/react/README.md`'s components table,
     linking to the component's own `src/<Component>/README.md`. The
     component README alone is not the index — the table is.
-  - a **kitchen-sink example** in `apps/kitchen-sink` (see the
-    `new-registry-component` skill). **Examples live in the kitchen-sink
-    now, not the workbench** — decided 2026-07-25. Don't add
-    `apps/workbench/src/pages` examples for new components; the workbench
-    keeps only the pages it already has.
+  - a **docs-site page** with its examples in `apps/docs-site` (see the
+    `docs-site-component-page` skill). **Examples live on the docs site,
+    not the workbench.** Don't add `apps/workbench/src/pages` examples for
+    new components; the workbench keeps only the pages it already has.
   - the component's `ROADMAP.md` checkbox ticked `[x]`.
 
 These (test, JSDoc, README — plus, for a new component, the table
-row, kitchen-sink example, and roadmap tick) are not follow-ups — they
+row, docs-site page, and roadmap tick) are not follow-ups — they
 are part of "done".
 
 ## Working efficiency under TDD
@@ -145,11 +144,17 @@ source of truth for when a skill applies.
 - `packages/react` is the headless component library
   (`@primitiv-ui/react`). Component inventory lives at
   `.claude/skills/new-react-component/_generated/component-inventory.md`.
-- **Registry prose family extended** (kitchen-sink feedback session): the
+- **The kitchen-sink (`apps/kitchen-sink`) is retired (2026-11-08).** The docs
+  site replaced it: examples live on each component's docs page, and the
+  Carousel loop's browser tests moved to `apps/docs-site/e2e` (run by
+  `e2e-carousel.yml` in Chromium and WebKit). No workflow builds, deploys or
+  regenerates it any more. Entries below that mention kitchen-sink demos are
+  history: read them as "the component's docs-site examples" today.
+- **Registry prose family extended**: the
   hand-authored, primitive-less **`inline-code`** and **`code-block`** registry
   components landed (see the `new-registry-component` skill — the end-to-end flow
   for a copied surface: 6 files + `registry.json` + the embedded `FILES` list +
-  the `--all` roster test + the `add`-managed barrel + kitchen-sink hand-sync).
+  the `--all` roster test + the `add`-managed barrel + the docs-site copy).
   `inline-code` gained a dedicated **`code/*/font-size`** ramp (a notch below
   body) and density-scoped **`code/inline/padding-*`** tokens (Figma + `context.json`);
   `code-block` does Prism highlighting via `prism-react-renderer` themed from
@@ -953,8 +958,9 @@ source of truth for when a skill applies.
   25 to go.** (The roster: `apps/docs-site/src/site/examples/index.ts`.)
   **Deployed to GitHub Pages** at the `primitiv-ui.dev` custom domain via the
   manual `deploy-docs-site.yml` workflow (docs-site is standalone / excluded from
-  the pnpm workspace, so it builds with `--ignore-workspace`; kitchen-sink kept
-  at `/kitchen-sink/` for phone QA). The **Layout (8/8) and Typography
+  the pnpm workspace, so it builds with `--ignore-workspace`, after a filtered
+  `pnpm install --filter "@primitiv-ui/react..."` at the root so react's own
+  imports of `@primitiv-ui/web` and `/core` resolve). The **Layout (8/8) and Typography
   (9/9) categories are complete** — Layout: Box, Stack, Grid, Container, Center,
   Spacer, Aspect Ratio, Divider; Typography: Kbd, InlineCode, Blockquote,
   PullQuote, Prose, List, DescriptionList, Figure, CodeBlock. All but Divider are **registry-only**, so
@@ -967,8 +973,7 @@ source of truth for when a skill applies.
   carries it instead. **Deployed to GitHub Pages** at the
   `primitiv-ui.dev` custom domain via the manual `deploy-docs-site.yml`
   workflow (Actions → "Deploy docs site" → Run) — it is now the main Pages site,
-  replacing the old VitePress `apps/docs`; the kitchen-sink stays at
-  `/kitchen-sink/` for phone QA. The domain is pinned by
+  replacing the old VitePress `apps/docs`. The domain is pinned by
   `apps/docs-site/public/CNAME`, which rides along in the static export as a
   public asset. The site builds at the domain root (`DOCS_SITE_BASE_PATH`
   unset, same as local dev) — that env var still exists in `next.config` for
@@ -1127,7 +1132,7 @@ source of truth for when a skill applies.
     to the seed) plus seven already-in-gamut dark steps. **Never hand-edit
     `palette.json`** — `cargo run -p harmoni-core --features regen-palette
     --example regen-palette` rewrites it from the seeds, then re-emit the token
-    layer into **all three** apps (kitchen-sink, workbench, docs-site). The
+    layer into the apps that carry it (workbench, docs-site). The
     docs-site copy was added without a drift guard and went stale immediately;
     `token-drift.yml` now covers it. Figma's `Primitives / Palette` was updated via
     the Desktop Bridge — 83 changed / 17 unchanged, the same split, which is the
@@ -1330,7 +1335,7 @@ source of truth for when a skill applies.
   LinkedIn launch video (`linkedin-launch`, 1080×1350, 60fps). One folder per
   video under `src/videos/`, sharing a kit (density glides, rebrand, dark reveal,
   kinetic type). It renders the **docs site's** registry components and
-  `tokens.css` (the canonical copies; the kitchen-sink's came first), so videos
+  `tokens.css` (the canonical copies), so videos
   track component changes on re-render. Its own pnpm root, excluded from the root
   workspace like the docs site. **Making another video: load the `promo-video`
   skill.**

@@ -1,20 +1,20 @@
 ---
-description: Tweak a registry component's design end-to-end — settle the token values in the DTCG + registry + kitchen-sink first (the fast visual loop), then mirror the same final values into the Figma variables via the Desktop Bridge last. The whole styling loop, code-first with Figma in lockstep.
+description: Tweak a registry component's design end-to-end — settle the token values in the DTCG + registry + docs site first (the fast visual loop), then mirror the same final values into the Figma variables via the Desktop Bridge last. The whole styling loop, code-first with Figma in lockstep.
 argument-hint: [component + change, e.g. "inline-code: make padding density-sensitive"]
 ---
 
 You are **tweaking a registry component's design**: adjusting a token, scale, or
 variable binding and flowing it through the emitted token layer, the registry
 styling, **and** the Figma variables. Figma is the design source of truth for the
-*model*; the kitchen-sink (`apps/kitchen-sink`) is the fast testbed; the human
-verifies it live. (To *build* a new component, use `/scaffold-component` or the
+*model*; the docs site (`apps/docs-site`) is the fast testbed, where the
+component's page shows it; the human verifies it there. (To *build* a new component, use `/scaffold-component` or the
 `new-registry-component` skill instead — this command is for changing one that
 exists.)
 
-**Preferred loop: iterate in code + kitchen-sink first, mirror to Figma last.**
-The kitchen-sink render is the fast visual signal; Figma variable writes need a
+**Preferred loop: iterate in code + docs site first, mirror to Figma last.**
+The docs-site render is the fast visual signal; Figma variable writes need a
 live bridge + human and aren't in git, so redoing them per-iteration is wasteful.
-Settle the values in code, get the human's OK in the kitchen-sink, then push the
+Settle the values in code, get the human's OK on the docs site, then push the
 final numbers into the Figma variables in one bridge pass (lockstep). Only a
 *structural* Figma build (adding a label, new anatomy) leads in Figma — and even
 then, lock the token values in code first.
@@ -33,10 +33,12 @@ then, lock the token values in code first.
 3. **Run the code loop first** (no bridge yet): edit `packages/tokens/src/*.json`
    (surgical text edit, not a full reserialize) → regenerate with `cargo run -q -p
    primitiv-cli -- tokens --format css --out
-   apps/kitchen-sink/src/styles/primitiv/tokens.css` → rebind the registry
-   stylesheet (css + scss + contract `defaultsTo`) → hand-sync the kitchen-sink.
-   Push each visual iteration if the human authorised it, let them eyeball the
-   kitchen-sink, and iterate here until the look is confirmed. Run the gates
+   apps/docs-site/src/styles/primitiv/tokens.css` (and the workbench copy,
+   `apps/workbench/src/primitiv-tokens.css`) → rebind the registry stylesheet
+   (css + scss + contract `defaultsTo`) → hand-sync the docs site → build it and
+   screenshot the component's page. Push each visual iteration if the human
+   authorised it, let them eyeball it, and iterate here until the look is
+   confirmed. Run the gates
    (`cargo test -p primitiv-cli -p primitiv-emit`,
    `node scripts/check-registry-types.mjs`) once at the end.
 
@@ -59,10 +61,10 @@ Keep setup terse — confirm the change, work in code, mirror to Figma last.
 
 ## Fast iteration — push first, full-check once
 
-When the human is verifying live in the kitchen-sink (dev server up) and has
+When the human is verifying the docs site (a local dev server or a deploy) and has
 authorised it for the session, **push each visual iteration straight to `main`
 (or their branch) before running the full test + type-check suite.** The
-kitchen-sink render is the fast signal: push, let the human eyeball it, iterate
+docs-site render is the fast signal: push, let the human eyeball it, iterate
 on the styling from their feedback, and run the heavier gates —
 `cargo test -p primitiv-cli -p primitiv-emit`, `node scripts/check-registry-types.mjs`,
 css/scss parity — **once, after the look is confirmed**, not on every round. It

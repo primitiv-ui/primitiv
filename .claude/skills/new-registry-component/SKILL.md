@@ -1,6 +1,6 @@
 ---
 name: new-registry-component
-description: End-to-end playbook for adding a NEW registry component — the copied styled surface under registry/components/<name>/ that `primitiv add <name>` installs (contract + recipe + tsx + styles.css/.scss + README), plus registering it (registry.json, the embedded FILES list, the --all roster test), the barrel export mechanism, dependsOn wiring, the registry type-check, and the kitchen-sink hand-sync for verification. TRIGGER when adding a registry component (e.g. "add code-block/inline-code to the registry", "new registry component", a component that ships as a copied surface rather than a headless primitive). SKIP for headless packages/react components (see new-react-component), pure stylesheet edits (see registry-stylesheet-conventions), and the Rust engine.
+description: End-to-end playbook for adding a NEW registry component — the copied styled surface under registry/components/<name>/ that `primitiv add <name>` installs (contract + recipe + tsx + styles.css/.scss + README), plus registering it (registry.json, the embedded FILES list, the --all roster test), the barrel export mechanism, dependsOn wiring, the registry type-check, and the docs-site hand-sync for verification. TRIGGER when adding a registry component (e.g. "add code-block/inline-code to the registry", "new registry component", a component that ships as a copied surface rather than a headless primitive). SKIP for headless packages/react components (see new-react-component), pure stylesheet edits (see registry-stylesheet-conventions), and the Rust engine.
 ---
 
 # New registry component
@@ -78,30 +78,33 @@ installed `*.tsx` wrapper, **sorted alphabetically by stem**. A real consumer's
 (`code-block.tsx`) exports its PascalCase symbol (`CodeBlock`) via
 `export * from "./code-block"` — the stem, not the symbol, drives the path.
 
-## Verify in the kitchen-sink (it can't be `add`ed in-sandbox)
+## Verify on the docs site (it can't be `add`ed in-sandbox)
 
-`apps/kitchen-sink` installs the *published* CLI, so a new component only reaches
-it via `add` **after a release** (the embedded-registry gotcha — the registry is
-baked into the binary). To see it now, **hand-sync** exactly what `add` produces:
+`apps/docs-site` carries its own copies of the registry components, laid out as
+`add` would write them, but the embedded registry only reaches a project via
+`add` **after a release** (the registry is baked into the CLI binary). To see a
+new component now, **hand-sync** exactly what `add` produces:
 
-1. Copy `<name>.recipe.ts`, `contract.json` → `src/components/`; `styles.css` →
-   `src/styles/primitiv/<name>/`.
+1. Copy `<name>.recipe.ts`, `contract.json` (as `<name>.contract.json`) →
+   `apps/docs-site/src/components/`; `styles.css` →
+   `apps/docs-site/src/styles/primitiv/<name>/`.
 2. Write `src/components/<name>.tsx` = the registry tsx **with
    `import "../styles/primitiv/<name>/styles.css";` prepended** (add does this).
+   Copying a registry tsx over an existing copy strips that line, which silently
+   unstyles the component; re-add it after any such copy.
 3. Add `export * from "./<name>";` to `src/components/index.ts` **in its sorted
    slot** (replicate `update_barrel`'s sort — verify with a quick script; this is
    the step that broke before).
-4. Add any `dependsOn.packages` to the kitchen-sink `package.json`.
+4. Add any `dependsOn.packages` to the docs-site `package.json`.
 5. **Skip `primitiv.lock`** — its entries are content-hashed with a hash you
-   can't reproduce by hand, and Vite doesn't read it; it self-heals on the next
-   real `add --force` post-release. Don't run `primitiv add` in the kitchen-sink
-   with the *old* CLI, or `update_barrel` will regenerate the barrel from the
-   stale lock and drop your hand-added exports.
+   can't reproduce by hand, and nothing in the build reads it; it self-heals on
+   the next real `add --force` post-release.
 
-Then `pnpm --filter @primitiv-ui/react qa:units`-style checks don't apply; run
-`node scripts/check-registry-types.mjs` and `cargo test -p primitiv-cli -p
-primitiv-emit`. The kitchen-sink itself has no `node_modules` in the sandbox, so
-you can't build it here — the human verifies by pulling `main` and running it.
+Then run `node scripts/check-registry-types.mjs` and `cargo test -p primitiv-cli
+-p primitiv-emit`, and show the component on its docs page (the
+`docs-site-component-page` skill). The docs site builds in the sandbox, so
+verify it there: `pnpm build` in `apps/docs-site`, then look at the page in
+Chromium with Playwright run from that folder.
 
 ## Nothing is live for consumers until republish
 

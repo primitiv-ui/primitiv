@@ -1,6 +1,6 @@
 ---
 name: figma-bridge-token-sync
-description: The live loop for changing a design token (or a component's variable bindings) and keeping the emitted token layer, the registry styling, and the Figma variables in lockstep. Code-first order — edit the DTCG source (packages/tokens/src/*.json), regenerate tokens.css via the local CLI, rebind the registry stylesheet + kitchen-sink and confirm the look there, THEN pair the Desktop Bridge and mirror the same final values into the Figma variables last (figma_execute, async API). TRIGGER when a registry styling change originates in or must sync with Figma variables (e.g. "make X density-sensitive", "add a code/* token", "adjust the scale then update Figma", "sync the Figma variable to the tokens"). SKIP for the sync-PLUGIN backup flow (see figma-token-sync), the variable model itself (see figma-variable-architecture), and pure code-side stylesheet edits (see registry-stylesheet-conventions).
+description: The live loop for changing a design token (or a component's variable bindings) and keeping the emitted token layer, the registry styling, and the Figma variables in lockstep. Code-first order — edit the DTCG source (packages/tokens/src/*.json), regenerate tokens.css via the local CLI, rebind the registry stylesheet + the docs-site copy and confirm the look there, THEN pair the Desktop Bridge and mirror the same final values into the Figma variables last (figma_execute, async API). TRIGGER when a registry styling change originates in or must sync with Figma variables (e.g. "make X density-sensitive", "add a code/* token", "adjust the scale then update Figma", "sync the Figma variable to the tokens"). SKIP for the sync-PLUGIN backup flow (see figma-token-sync), the variable model itself (see figma-variable-architecture), and pure code-side stylesheet edits (see registry-stylesheet-conventions).
 
   This is the bridge-driven *edit* loop, distinct from figma-token-sync (the plugin's DTCG *backup*). Keep Figma and the repo DTCG in lockstep by editing both, so a later plugin backup is a no-op.
 ---
@@ -12,19 +12,19 @@ density-scoped `code/inline/padding-*`, and to grow the choice controls a
 `choice-control/*/gap`: change the values, flow them through the emitted token
 layer and the registry styling, and keep Figma's variables in lockstep.
 
-## 0. Order of operations — code + kitchen-sink first, Figma last
+## 0. Order of operations — code + docs site first, Figma last
 
-**Do the value iteration in code, verify it live in the kitchen-sink, and only
+**Do the value iteration in code, verify it on the docs site, and only
 mirror the final numbers into Figma variables at the end.** This is the fast
 loop, and it's the preferred default:
 
-- The **kitchen-sink render is the fast visual signal.** Editing the DTCG →
-  regenerating `tokens.css` → eyeballing (or pushing) the kitchen-sink is a tight
-  code loop with no bridge in it.
+- The **docs-site render is the fast visual signal.** Editing the DTCG →
+  regenerating `tokens.css` → building the docs site and screenshotting the
+  component's page is a tight code loop with no bridge in it.
 - **Figma variable writes are the slow part** — they need a live paired bridge
   and a human at the keyboard, and they aren't in git, so redoing them on every
-  iteration is wasteful. Lock the values in code first, get the human's OK in the
-  kitchen-sink, *then* push the final values into Figma in **one** bridge pass so
+  iteration is wasteful. Lock the values in code first, get the human's OK on the
+  docs site, *then* push the final values into Figma in **one** bridge pass so
   both sides end up identical (lockstep — a later sync-plugin backup is a no-op).
 
 So the numbered steps below run **1 → 4 in code**, then **5 (Figma) last**. The
@@ -52,26 +52,32 @@ your edit:
 
 ```sh
 cargo run -q -p primitiv-cli -- tokens --format css \
-  --out apps/kitchen-sink/src/styles/primitiv/tokens.css
+  --out apps/docs-site/src/styles/primitiv/tokens.css
+cargo run -q -p primitiv-cli -- tokens --format css \
+  --out apps/workbench/src/primitiv-tokens.css
 ```
+
+Both committed copies are drift-checked (`token-drift.yml`); the "Regenerate
+tokens" workflow rewrites them if you'd rather not by hand.
 
 The diff should be **only** your new/changed `--primitiv-*` lines (check it). The
 emit goldens are **fixture-based** (inline `json!` macros in `*_tests.rs`), so
 adding tokens to `context.json` does **not** break them — no golden churn.
 
-## 3. Rebind the registry stylesheet + kitchen-sink
+## 3. Rebind the registry stylesheet + the docs-site copy
 
 Point the component's knob at the new token (e.g. `--primitiv-inline-code-font-size:
 var(--primitiv-code-md-font-size)`), mirror css↔scss, update `contract.json`'s
-`defaultsTo`, and copy the stylesheet into the kitchen-sink. Follow
+`defaultsTo`, and copy the stylesheet into the docs site. Follow
 `registry-stylesheet-conventions` and the hand-sync steps in
 `new-registry-component`.
 
-## 4. Verify in the kitchen-sink (the fast loop)
+## 4. Verify on the docs site (the fast loop)
 
 Run `cargo test -p primitiv-cli -p primitiv-emit` and `node
-scripts/check-registry-types.mjs`. The kitchen-sink can't be built in-sandbox
-(`sandbox-gotchas`) — the human runs it. When the human is verifying live and has
+scripts/check-registry-types.mjs`. Build the docs site (`pnpm build` in
+`apps/docs-site`) and screenshot the component's page with Playwright from that
+folder, in both themes and a couple of densities. When the human is verifying and has
 authorised it for the session, **push each visual iteration** (to `main` or their
 branch) so they can eyeball it, and iterate on their feedback here — this is
 where the look gets dialled in, *before* any Figma write. Run the heavier gates
@@ -79,7 +85,7 @@ where the look gets dialled in, *before* any Figma write. Run the heavier gates
 
 ## 5. Mirror the final values into Figma (bridge — last)
 
-Once the values are locked and the kitchen-sink look is confirmed, pair the
+Once the values are locked and the docs-site look is confirmed, pair the
 bridge and write the **same** numbers into the Figma variables so the two sides
 stay in lockstep.
 

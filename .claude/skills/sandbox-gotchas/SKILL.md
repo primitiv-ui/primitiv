@@ -84,20 +84,17 @@ The human always manually checks the workbench in a real browser
 afterwards — say so in your summary and leave the visual check to
 them.
 
-## The `apps/kitchen-sink` app can't be built in the sandbox either
+## The docs site is where a registry change is seen
 
-It's an **isolated pnpm workspace** (excluded from the root workspace so it
-resolves the *published* packages, not local source — that's the point of it),
-so it has **no `node_modules`** here and `pnpm install` from inside it needs its
-own `pnpm-workspace.yaml` plus a real registry fetch. Don't try to build or run
-it. Verify kitchen-sink changes by other means — `node scripts/check-registry-types.mjs`
-for the copied wrappers, `cargo test` for the registry, and a quick script to
-confirm the barrel matches `update_barrel`'s sort — then leave the live check to
-the human. A **standalone HTML mock** rendered with Playwright (chromium at
-`/opt/pw-browsers/chromium_headless_shell-1194/chrome-linux/headless_shell`,
-launch with that `executablePath` — the pinned version and old-headless default
-both fail) is the way to eyeball a stylesheet without the app. See the
-`new-registry-component` skill for the full hand-sync + verification flow.
+`apps/docs-site` is excluded from the root workspace and installs on its own
+(`npx -y pnpm@10.34.9 install --ignore-workspace` from inside it), and it builds
+here (`pnpm build`). Its `@primitiv-ui/react` is a link to the workspace
+source, which imports `@primitiv-ui/web` and `/core`: those resolve from
+`packages/react/node_modules`, so a fresh checkout needs
+`pnpm install --filter "@primitiv-ui/react..."` at the root first. Render-time
+errors don't fail the build; they land in `.next/dev/logs`. Measure with
+Playwright from inside `apps/docs-site` (it has `@playwright/test`). See the
+`new-registry-component` skill for the hand-sync + verification flow.
 
 The workbench now also has a **vitest harness** (added for the RFC 0010
 OKLCH picker): `apps/workbench/vitest.config.ts` + `vitest.setup.ts`,

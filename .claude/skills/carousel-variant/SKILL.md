@@ -1,6 +1,6 @@
 ---
 name: carousel-variant
-description: End-to-end playbook for developing one Carousel variant (an example from the backlog — overlay, external-flank, multi-slide, thumbnails, vertical, loop, mouse-drag, autoplay, ...) in the kitchen-sink registry surface, following the settled iteration loop. TRIGGER when building/refining a carousel example or variant, adding a carousel placement/orientation, evolving the carousel registry contract/styles, or when the user runs /carousel-variant. SKIP for non-carousel component work, generic registry-component creation (see new-registry-component), and pure token/Figma-variable edits (see figma-bridge-token-sync).
+description: End-to-end playbook for developing one Carousel variant (an example from the backlog — overlay, external-flank, multi-slide, thumbnails, vertical, loop, mouse-drag, autoplay, ...) as an example on the docs site's Carousel page, following the settled iteration loop. TRIGGER when building/refining a carousel example or variant, adding a carousel placement/orientation, evolving the carousel registry contract/styles, or when the user runs /carousel-variant. SKIP for non-carousel component work, generic registry-component creation (see new-registry-component), and pure token/Figma-variable edits (see figma-bridge-token-sync).
 ---
 
 # Carousel variant development
@@ -30,11 +30,11 @@ variants after it.
    or says "no plugin", issue a *fresh* code and have them toggle Cloud Mode
    off/on). Screenshot the variant's cell + `figma_execute` its control/slide
    nodes for exact `cornerRadius` / bound-variable names.
-3. **Build it in the kitchen-sink.** Add a full-page example route:
-   - a component in `apps/kitchen-sink/src/pages/CarouselPage.tsx` (reuse the
-     `BasicSingle`/`Example` helpers; compose placement in the example CSS),
-   - a `<Route>` in `apps/kitchen-sink/src/Shell.tsx` and a sidebar entry in the
-     `EXAMPLES` list in `pages/CarouselLayout.tsx`.
+3. **Build it on the docs site.** Add an example to the Carousel page:
+   - an entry in `examples` in `apps/docs-site/src/site/examples/carousel.tsx`
+     (reuse the `Slides` / `SplitControls` helpers; an `InteractiveExample` with
+     a caption and a mode-aware `code` snippet — see the
+     `docs-site-component-page` skill for the spec shape).
    - Evolve the **registry surface** reactively for anything the variant needs:
      new `--primitiv-carousel-*` knobs, a modifier group (e.g. control
      `placement`, `orientation`), or a new part class — in
@@ -57,69 +57,52 @@ variants after it.
    windowing, rebase, and drag/fling mechanics have several sharp edges
    already found and fixed once each; re-hitting one from scratch costs a
    full debugging session.
-   ⚠️ **A `packages/react` change is NOT visible to the kitchen-sink by default**
-   — it consumes the *published* `@primitiv-ui/react`, not the workspace source
-   (see the Gotchas). Any variant needing a new headless capability must
-   dev-alias the kitchen-sink (or wait for a publish) or it silently renders the
-   old behaviour. Decide this up front, before building the example.
-6. **Hand-sync the kitchen-sink** copy of the surface (what `add` produces):
+   The docs site links `@primitiv-ui/react` to the workspace source, so a
+   headless change shows on the page as soon as it is built.
+6. **Hand-sync the docs-site** copy of the surface (what `add` produces):
    `registry/components/carousel/{carousel.recipe.ts,contract.json}` →
-   `apps/kitchen-sink/src/components/` (contract as `carousel.contract.json`);
-   `styles.css` → `apps/kitchen-sink/src/styles/primitiv/carousel/`; the tsx with
+   `apps/docs-site/src/components/` (contract as `carousel.contract.json`);
+   `styles.css` → `apps/docs-site/src/styles/primitiv/carousel/`; the tsx with
    `import "../styles/primitiv/carousel/styles.css";` prepended. Barrel already
    exports it. Skip `primitiv.lock`.
 7. **Run the gates once** at the end:
    `cargo test -p primitiv-emit -p primitiv-cli`,
    `node scripts/check-registry-types.mjs`, and (if headless changed)
-   `pnpm --filter @primitiv-ui/react exec vitest run src/Carousel`.
+   `pnpm --filter @primitiv-ui/react exec vitest run src/Carousel`, then in
+   `apps/docs-site`: `node scripts/check-tokens.mjs`, `pnpm build`, and
+   `pnpm test:e2e` (the Carousel loop's real-browser tests, against the build).
 8. **Update the log** — new iteration entry (knobs/modifiers/classes added, gaps
    filled, decisions), tick the backlog, add any open questions.
 9. **Push to `main`** (authorised for this workstream — small commits, one per
    red-green or coherent unit) and **STOP for human QA.** Do **not** do the
    Figma variable lockstep yet — that happens only after the human signs off
-   (Figma-last, plan decision 2 & 6). Tell them how to view it (`/carousel/<slug>`)
-   and what to check.
+   (Figma-last, plan decision 2 & 6). Tell them where to view it
+   (`/components/carousel/#<example-id>`) and what to check.
 
 ## Gotchas (bite every session)
 
-- **The kitchen-sink consumes the PUBLISHED `@primitiv-ui/react`, not the
-  workspace source.** It is deliberately *excluded* from the pnpm workspace
-  (`'!apps/kitchen-sink'` in `pnpm-workspace.yaml`) and pins
-  `@primitiv-ui/react`/`@primitiv-ui/icons` at `^0.1.0` — **it is a real
-  consumer, by design** (that is the whole point of the surface). Consequence: a
-  `packages/react` **headless change does not reach the kitchen-sink** until that
-  package is published to npm. The new prop is silently dropped and its `data-*`
-  hook never appears — the tell is the raw prop leaking onto the DOM (e.g.
-  `orientation="vertical"` on the `<section>` **instead of** `data-orientation`),
-  so any CSS keyed off the hook never matches and the old (e.g. horizontal)
-  layout renders. This bit the **vertical** variant. Iteration 1 dodged it
-  because horizontal shipped in the published 0.1.0. **Catch this before building
-  a variant that fills a headless gap** — a registry-CSS-only variant is
-  unaffected.
-  - **Bridge for QA without publishing:** dev-alias `@primitiv-ui/react` +
-    `@primitiv-ui/icons` to `packages/*/src` in `apps/kitchen-sink/vite.config.ts`
-    **and** `tsconfig.app.json` `paths` (both — Vite for runtime, tsc for the
-    build/editor). **Restart the dev server** — Vite reads its config only at
-    startup, so HMR won't pick up a new alias. **Drop the alias once the change
-    ships to npm** so the surface goes back to exercising the real published
-    package. (Landed 2026-07-08; see the log's decisions.)
-- **The kitchen-sink can't build in the sandbox** (no `node_modules`) — the human
-  verifies live on `main`. So author React/TS carefully: `noUnusedLocals` +
-  `noUnusedParameters` are **strict** — drop every import that a change orphans.
+- **Render-time errors don't fail `next build`** — they land in
+  `apps/docs-site/.next/dev/logs/next-development.log`. Look at the page in a
+  real browser (Playwright from `apps/docs-site`), not just the build result.
+- **The loop needs a real browser.** jsdom lays nothing out, so the infinite
+  loop's settle geometry is only checked by `apps/docs-site/e2e/carousel-*.spec.ts`,
+  which drive the page's "Infinite loop" and "Linked slides" examples. Changing
+  those two examples changes what the tests exercise; keep them single-slide,
+  four slides, `loop="infinite"` + `allowMouseDrag`. CI adds WebKit
+  (`e2e-carousel.yml`).
 - **Never hand-edit** `carousel.recipe.ts` / `carousel.tsx` / `styles.scss` —
   regenerate from the contract (step 4) or the drift tests fail.
 - **Registry changes aren't live for consumers** until a CLI republish (they're
-  `include_str!`'d) — but the kitchen-sink hand-sync shows them immediately.
-- **`App.tsx` has its own density/size/theme header**; the carousel section uses
-  the shared `ChromeControls` (`apps/kitchen-sink/src/chrome.tsx`) — independent
-  state by design. Size is currently inert for the carousel (no size modifier yet).
+  `include_str!`'d) — but the docs-site hand-sync shows them immediately.
+- **Each example has its own density control** (`InteractiveExample`); size is
+  currently inert for the carousel (no size modifier yet).
 - **Slide radius:** default `md` (`--primitiv-radii-12`) + a `radius` modifier
   (`none`). The Figma `CarouselSlide` base is `cornerRadius:0` (a known oversight
   to fix in the Figma-lockstep pass).
 
 ## Definition of done for a variant
 
-Example route + sidebar entry live; registry contract/styles evolved + regenerated
-+ drift-green; headless gap (if any) test-driven at 100%; kitchen-sink hand-synced;
+Docs-page example live; registry contract/styles evolved + regenerated
++ drift-green; headless gap (if any) test-driven at 100%; docs-site hand-synced;
 gates green; component README updated if the consumer surface changed; log entry +
 backlog tick written; pushed; handed to the human for QA (Figma lockstep pending).

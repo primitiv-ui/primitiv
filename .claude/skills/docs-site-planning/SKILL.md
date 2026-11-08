@@ -1,6 +1,6 @@
 ---
 name: docs-site-planning
-description: Continuing the planning for Primitiv's public docs website — the professional, public-facing site distinct from the workbench/kitchen-sink POC surfaces. Covers the consumption-mode switch (headless/styled/Figma), the audience-forked nav structure, and the generated (not hand-maintained) prop-data schema. TRIGGER when picking up docs-site planning work, deciding an open question logged in docs/docs-site-planning.md, designing the docs nav/layout, or building the prop-data extraction pipeline. SKIP for the existing workbench/kitchen-sink example pages (see workbench-examples), and for the underlying distribution/CLI model itself (see docs/consumption-design.md and RFCs 0004-0006, which this planning doc does not replace).
+description: Continuing the planning for Primitiv's public docs website — the professional, public-facing site distinct from the workbench POC surface. Covers the consumption-mode switch (headless/styled/Figma), the audience-forked nav structure, and the generated (not hand-maintained) prop-data schema. TRIGGER when picking up docs-site planning work, deciding an open question logged in docs/docs-site-planning.md, designing the docs nav/layout, or building the prop-data extraction pipeline. SKIP for the existing workbench example pages (see workbench-examples), and for the underlying distribution/CLI model itself (see docs/consumption-design.md and RFCs 0004-0006, which this planning doc does not replace).
 ---
 
 # Primitiv docs site planning
@@ -52,9 +52,9 @@ table. That means:
    already parses `contract.json` (`src/contract.rs`, `src/wrapper.rs`) —
    reuse it for the styled/contract half instead of writing a second
    parser (§1.6), surfaced as a new JSON-emitting subcommand per §1.12.
-4. **Docs examples are their own files (§1.9), not embeds of workbench/
-   kitchen-sink.** Don't touch those apps as part of this work unless a
-   question explicitly requires it — they're a separate POC surface per
+4. **Docs examples are their own files (§1.9), not embeds of the
+   workbench.** Don't touch that app as part of this work unless a
+   question explicitly requires it — it's a separate POC surface per
    the `workbench-examples` skill and the root `CLAUDE.md`.
 5. **This doc doesn't replace `docs/consumption-design.md` or RFCs
    0004–0006.** Those own the distribution/styling-contract model. This

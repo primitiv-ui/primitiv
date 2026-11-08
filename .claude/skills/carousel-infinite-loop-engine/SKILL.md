@@ -113,8 +113,7 @@ rebase, or the windowing that protects it, fired at the wrong moment."
   progress, you need a real browser: `getComputedStyle(el).transform`
   in a real Chromium (via the harness below), polled over time.
 - **The real-browser verification harness** (used for every fix this
-  session, since `apps/kitchen-sink` can't build in this sandbox — see
-  `sandbox-gotchas`): esbuild-bundle the *real* `CarouselBuilder.tsx`
+  session, before the loop tests moved to `apps/docs-site/e2e`): esbuild-bundle the *real* `CarouselBuilder.tsx`
   (`entryPoints: ['entry-builder.tsx']`, aliasing `react`/`react-dom` to
   `packages/react/node_modules/*`, `@primitiv-ui/react` to
   `packages/react/src/index.ts`, `.jpg` to `dataurl`, `prism-react-renderer`

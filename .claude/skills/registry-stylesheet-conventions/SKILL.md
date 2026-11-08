@@ -62,7 +62,7 @@ Dropdown's menu items) sitting in the same rule — **must** also set:
 Mobile WebKit/Chrome apply a translucent grey/black overlay to any tappable
 element on `:active` by default, entirely independent of the component's own
 `:hover`/`:active` styling — so without this, a real device shows a jarring
-flash on tap that never appears in desktop testing or in Storybook/kitchen-sink
+flash on tap that never appears in desktop testing or in docs-site
 screenshots. It is a **CSS mechanic with no token home** (the value must
 literally be `transparent`, like `outline: none`) — leave it as a literal, but
 never omit it from an interactive rule.
@@ -305,8 +305,8 @@ composite's own rule. Alert's dismiss button re-points
 those same two properties in `primitiv.variants`. Re-pointing them from
 `primitiv.base` (where a component's own base rule normally lives) silently
 lost every time — the dismiss button rendered with Button's default neutral
-foreground instead of the tone-tinted one, only caught after a real kitchen-
-sink render, not from reading the source. `primitiv.states` was the fix
+foreground instead of the tone-tinted one, only caught after a real
+browser render, not from reading the source. `primitiv.states` was the fix
 (same as the focus-ring case), and since hover/active states already had to
 live there, the resting-state override joined them in one place instead of
 splitting across two layers.

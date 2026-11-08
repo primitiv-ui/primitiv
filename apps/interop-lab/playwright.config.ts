@@ -10,6 +10,8 @@ const executablePath = existsSync(SANDBOX_CHROMIUM) ? SANDBOX_CHROMIUM : undefin
 
 export default defineConfig({
   testDir: "e2e",
+  // Installs Tabs with the real CLI for the styled page (scripts/install-elements-site.mjs).
+  globalSetup: "./e2e/global-setup.ts",
   fullyParallel: true,
   reporter: process.env.CI ? [["list"], ["html", { open: "never" }]] : "list",
   use: {

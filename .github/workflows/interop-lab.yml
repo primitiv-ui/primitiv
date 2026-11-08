@@ -2,8 +2,11 @@ name: Interop lab
 
 # The custom elements in real browsers and real frameworks (RFC 0033 §7.4):
 # apps/interop-lab renders the same Tabs on a plain HTML, an HTMX, a React 19
-# and a Vue 3 page and drives them all with one Playwright spec. It runs from
-# workspace source, so it gates core and web changes before any release.
+# a Vue 3, a Svelte 5 and an Angular page and drives them all with one
+# Playwright spec. It runs from workspace source, so it gates core and web
+# changes before any release. The styled page is installed by the real CLI
+# (`primitiv add tabs` on the elements surface), so the CLI and registry gate
+# it too.
 
 on:
   workflow_dispatch:
@@ -12,12 +15,18 @@ on:
     paths:
       - "packages/core/**"
       - "packages/web/**"
+      - "crates/primitiv-cli/**"
+      - "crates/primitiv-emit/**"
+      - "registry/**"
       - "apps/interop-lab/**"
       - ".github/workflows/interop-lab.yml"
   pull_request:
     paths:
       - "packages/core/**"
       - "packages/web/**"
+      - "crates/primitiv-cli/**"
+      - "crates/primitiv-emit/**"
+      - "registry/**"
       - "apps/interop-lab/**"
       - ".github/workflows/interop-lab.yml"
 
@@ -38,6 +47,11 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version-file: .nvmrc
+
+      # The styled page is installed by the CLI, built from this checkout.
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
 
       # Outside the pnpm workspace on purpose: no framework's toolchain enters
       # another's resolution. Vite aliases @primitiv-ui/{web,core} to source.

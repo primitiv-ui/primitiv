@@ -135,6 +135,20 @@ impl PackageDep {
             None => self.name.clone(),
         }
     }
+
+    /// `name@version` at the lowest version the declared range allows (`^0.1.40`
+    /// → `0.1.40`), for a CDN URL, which takes one version rather than a range
+    /// (RFC 0033 §8.2). Without a range it is the bare `name`, as in [`spec`](Self::spec).
+    pub fn minimum_spec(&self) -> String {
+        match &self.version {
+            Some(range) => format!(
+                "{}@{}",
+                self.name,
+                range.trim_start_matches(['^', '~', '>', '=', ' '])
+            ),
+            None => self.name.clone(),
+        }
+    }
 }
 
 /// The on-the-wire shape a [`PackageDep`] deserializes from — a bare name string

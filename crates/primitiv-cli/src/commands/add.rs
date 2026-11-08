@@ -251,7 +251,11 @@ pub fn add(
             ensure_packages(fs, runner, &index, &resolved, surface, &dir)?;
         }
         if !*no_styles {
-            ensure_style_packages(fs, runner, &index, &resolved, &dir)?;
+            // The style packages (cva) serve the React recipe, which only the
+            // React surface copies.
+            if surface == Surface::React {
+                ensure_style_packages(fs, runner, &index, &resolved, &dir)?;
+            }
             let project_config = config::try_resolve(fs, &dir)?;
             let effective_format: Format = (*format)
                 .or_else(|| project_config.as_ref().map(|c| c.styles.format))

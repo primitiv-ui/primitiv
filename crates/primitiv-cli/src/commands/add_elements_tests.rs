@@ -146,3 +146,25 @@ fn plans_the_elements_packages_in_place_of_the_react_ones() {
         "Resolved 2 components to add:\n  kbd   0.1.0\n  tabs  0.1.0\n\nPackages to ensure:\n  @primitiv-ui/web@^0.1.0\n"
     );
 }
+
+#[test]
+fn installs_only_the_elements_packages_in_a_project_with_a_package_json() {
+    // cva belongs to the React recipe, which the elements surface does not copy.
+    let fs = InMemoryFs::new();
+    fs.set_current_dir(std::path::Path::new("project"));
+    fs.write(std::path::Path::new("project/package.json"), b"{}").unwrap();
+    fs.write(std::path::Path::new("project/pnpm-lock.yaml"), b"").unwrap();
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+
+    add_elements(&fs, &output, &runner, AddOptions { components: vec!["tabs".into()], ..Default::default() }).unwrap();
+
+    assert_eq!(
+        runner.calls(),
+        vec![(
+            "pnpm".to_string(),
+            vec!["add".to_string(), "@primitiv-ui/web@^0.1.0".to_string(), "--silent".to_string()],
+            std::path::Path::new("project").to_path_buf(),
+        )]
+    );
+}

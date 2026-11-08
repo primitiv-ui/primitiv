@@ -253,3 +253,22 @@ fn parses_a_components_elements_surface_and_defaults_it_to_none() {
     // No block means no elements surface yet.
     assert_eq!(index.components["modal"].elements, None);
 }
+
+#[test]
+fn pins_a_package_to_the_lowest_version_its_range_allows() {
+    // A CDN URL takes one version, not a range: the lowest the range allows is
+    // one that exists and that the component was released against.
+    let pinned = |version: Option<&str>| {
+        PackageDep {
+            name: "@primitiv-ui/web".into(),
+            version: version.map(String::from),
+        }
+        .minimum_spec()
+    };
+
+    assert_eq!(pinned(Some("^0.1.40")), "@primitiv-ui/web@0.1.40");
+    assert_eq!(pinned(Some("~1.2.3")), "@primitiv-ui/web@1.2.3");
+    assert_eq!(pinned(Some(">=2.0.0")), "@primitiv-ui/web@2.0.0");
+    // No range: whatever is latest, as `spec` installs it.
+    assert_eq!(pinned(None), "@primitiv-ui/web");
+}

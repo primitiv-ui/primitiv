@@ -204,9 +204,7 @@
       },
       "contract": "contract.json",
       "elements": {
-        "files": [
-          "badge.html"
-        ]
+        "example": "badge.html"
       }
     },
     "blockquote": {
@@ -377,9 +375,7 @@
       },
       "contract": "contract.json",
       "elements": {
-        "files": [
-          "button.html"
-        ]
+        "example": "button.html"
       }
     },
     "card": {
@@ -1133,9 +1129,7 @@
       },
       "contract": "contract.json",
       "elements": {
-        "files": [
-          "inline-code.html"
-        ]
+        "example": "inline-code.html"
       }
     },
     "input": {
@@ -1242,9 +1236,7 @@
       },
       "contract": "contract.json",
       "elements": {
-        "files": [
-          "kbd.html"
-        ]
+        "example": "kbd.html"
       }
     },
     "list": {
@@ -2020,9 +2012,7 @@
       },
       "contract": "contract.json",
       "elements": {
-        "files": [
-          "tag.html"
-        ]
+        "example": "tag.html"
       }
     },
     "textarea": {

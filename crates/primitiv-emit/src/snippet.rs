@@ -1,12 +1,12 @@
-//! `contract → markup snippet` generator (RFC 0033 §8.1) — the elements
-//! surface's counterpart of the styled wrapper: plain HTML carrying the
-//! contract's classes, copied into a project as an editable file. It pastes
-//! into any template language, so it is the same file for a plain page, a
-//! server-rendered template and a Vue, Angular or Svelte component.
+//! `contract → example markup` generator (RFC 0033 §8.1): plain HTML carrying
+//! the contract's classes, which `primitiv add --surface elements` prints for
+//! the developer to paste. Nothing imports markup, so unlike the React wrapper
+//! it is never copied into a project. It pastes into any template language: a
+//! plain page, a server-rendered template, or a Vue, Angular or Svelte component.
 
-use crate::contract::{Contract, pascal_case};
+use crate::contract::Contract;
 
-/// Generate a component's markup snippet from its contract: the root element
+/// Generate a component's example markup from its contract: the root element
 /// with its identity class and every modifier group's default class, in
 /// authored order — the classes the styled wrapper applies when no prop is set.
 pub fn emit_snippet(contract: &Contract) -> String {
@@ -37,24 +37,9 @@ pub fn emit_snippet(contract: &Contract) -> String {
     } else {
         text
     };
-    let mut out = header(&contract.name);
-    out.push_str(&format!(
+    format!(
         "<{element}{kind} class=\"{}\">{content}</{element}>\n",
         classes.join(" ")
-    ));
-    out
-}
-
-/// The comment every snippet opens with: what generated it and who owns it.
-fn header(name: &str) -> String {
-    format!(
-        "<!--\n  {} — markup snippet, generated from contract.json.\n\n  \
-         Yours to edit once `primitiv add --surface elements` copies it into your\n  \
-         project: re-running `add` keeps your changes unless you pass --force. (In the\n  \
-         Primitiv repo, edit registry/components/{name}/contract.json and regenerate\n  \
-         instead.) Plain HTML with the default classes applied, so it pastes into any\n  \
-         template language.\n-->\n",
-        pascal_case(name)
     )
 }
 

@@ -161,6 +161,7 @@ const FILES: &[(&str, &str, &str)] = &[
     registry_file!("accordion", "accordion.recipe.ts"),
     registry_file!("accordion", "accordion.tsx"),
     registry_file!("accordion", "contract.json"),
+    registry_file!("accordion", "accordion.html"),
     registry_file!("drawer", "styles.css"),
     registry_file!("drawer", "styles.scss"),
     registry_file!("drawer", "drawer.recipe.ts"),

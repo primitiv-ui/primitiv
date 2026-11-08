@@ -74,8 +74,10 @@ fn committed_registry_examples_match_their_contracts() {
                     generated += 1;
                 }
                 None => {
+                    let stylesheet = std::fs::read_to_string(format!("{dir}/styles.css")).unwrap();
                     assert_uses_the_contracts_classes(
                         &contract,
+                        &stylesheet,
                         &committed,
                         &format!("{name}/{file}"),
                     );
@@ -94,10 +96,17 @@ fn committed_registry_examples_match_their_contracts() {
     );
 }
 
-/// Hold hand-written markup to its contract: no class the contract does not
-/// define (a typo or a renamed part), and every part's own class present (a
-/// part the example forgot).
-fn assert_uses_the_contracts_classes(contract: &Contract, markup: &str, file: &str) {
+/// Hold hand-written markup to its contract: no class that neither the contract
+/// nor the component's own stylesheet defines (a typo or a renamed part), and
+/// every part's own class present (a part the example forgot). The stylesheet
+/// counts because a hand-authored wrapper can style structure the contract does
+/// not model — Accordion's content clip and body.
+fn assert_uses_the_contracts_classes(
+    contract: &Contract,
+    stylesheet: &str,
+    markup: &str,
+    file: &str,
+) {
     let label = |class: &str, wraps: bool| wraps.then(|| format!("{class}-label"));
     let mut required = vec![contract.root.class.clone()];
     required.extend(contract.parts.iter().map(|part| part.class.clone()));
@@ -112,6 +121,12 @@ fn assert_uses_the_contracts_classes(contract: &Contract, markup: &str, file: &s
         .chain(contract.subcomponents.iter().flat_map(|sub| &sub.modifiers));
     allowed
         .extend(groups.flat_map(|group| group.options.iter().map(|option| option.class.clone())));
+    allowed.extend(stylesheet.split('.').skip(1).map(|rest| {
+        rest.split(|c: char| !(c.is_ascii_alphanumeric() || c == '-' || c == '_'))
+            .next()
+            .unwrap()
+            .to_string()
+    }));
     let used: std::collections::BTreeSet<String> = markup
         .split("class=\"")
         .skip(1)

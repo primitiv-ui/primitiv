@@ -3,7 +3,7 @@
  * layout's three-column grid. The top bar and footer live in site-header.css /
  * site-footer.css, because both shells (docs and landing) use them.
  *
- * Conventions for every stylesheet in this app, matching apps/kitchen-sink:
+ * Conventions for every stylesheet in this app:
  *
  * - Global CSS with a `docs-` class prefix. The `primitiv-` namespace belongs
  *   to the registry components, whose classes are a PUBLIC contract consumers

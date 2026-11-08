@@ -144,11 +144,11 @@ source of truth for when a skill applies.
 - `packages/react` is the headless component library
   (`@primitiv-ui/react`). Component inventory lives at
   `.claude/skills/new-react-component/_generated/component-inventory.md`.
-- **The kitchen-sink (`apps/kitchen-sink`) is retired (2026-11-08).** The docs
+- **The kitchen-sink (`apps/kitchen-sink`) is deleted (2026-11-08).** The docs
   site replaced it: examples live on each component's docs page, and the
   Carousel loop's browser tests moved to `apps/docs-site/e2e` (run by
-  `e2e-carousel.yml` in Chromium and WebKit). No workflow builds, deploys or
-  regenerates it any more. Entries below that mention kitchen-sink demos are
+  `e2e-carousel.yml` in Chromium and WebKit). Its Carousel Builder and the
+  pairwise audit that drove it (`.github/scripts/carousel-audit/`) went with it. Entries below that mention kitchen-sink demos are
   history: read them as "the component's docs-site examples" today.
 - **Registry prose family extended**: the
   hand-authored, primitive-less **`inline-code`** and **`code-block`** registry

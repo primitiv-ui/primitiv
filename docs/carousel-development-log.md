@@ -1,14 +1,13 @@
 # Carousel development log
 
-> **The kitchen-sink is retired (2026-11-08).** The Carousel work recorded here
+> **The kitchen-sink was deleted (2026-11-08).** The Carousel work recorded here
 > was built and checked in `apps/kitchen-sink`, and this document keeps those
 > references as history. Today the Carousel's examples live on the docs site's
 > Carousel page (`apps/docs-site/src/site/examples/carousel.tsx`), its
 > real-browser loop tests in `apps/docs-site/e2e/carousel-*.spec.ts` (run by
 > `e2e-carousel.yml` in Chromium and WebKit), and new variants follow the
-> `carousel-variant` skill. The Carousel Builder lived only in the
-> kitchen-sink, so the pairwise audit in `.github/scripts/carousel-audit/`,
-> which drives it, has nothing to run against once the kitchen-sink is gone.
+> `carousel-variant` skill. The Carousel Builder and the pairwise audit that
+> drove it (`.github/scripts/carousel-audit/`) were deleted with it.
 
 > **Running journal.** The settled plan and decisions live in
 > [`carousel-development-plan.md`](./carousel-development-plan.md). This

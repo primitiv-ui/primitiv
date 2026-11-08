@@ -1,4 +1,4 @@
-use crate::config;
+use crate::config::{self, Surface};
 use crate::detect;
 use crate::error::CliError;
 use crate::format::Format;
@@ -51,12 +51,16 @@ pub struct InitOptions {
     /// Accept the detected defaults without prompting (the `--yes` flag) — so an
     /// interactive session can still run non-interactively (RFC 0005 §2.1 / §5).
     pub yes: bool,
+    /// The surface the project consumes (RFC 0033 §8.2): React wrappers or the
+    /// custom elements. `None` defers to detection from `package.json`.
+    pub surface: Option<Surface>,
 }
 
 /// The choices resolved into the exact values `render` writes — every `Option`
 /// from [`InitOptions`] collapsed to a concrete value by a flag, a prompt, or a
 /// default.
 struct ResolvedInit {
+    surface: Surface,
     format: Format,
     name: String,
     brand: String,
@@ -228,6 +232,7 @@ fn resolve(
         None => default_name.to_string(),
     };
     Ok(ResolvedInit {
+        surface: options.surface.unwrap_or(Surface::React),
         format,
         name,
         brand,
@@ -253,7 +258,7 @@ fn render(resolved: &ResolvedInit) -> String {
         None => "{}".to_string(),
     };
     format!(
-        "{{\n  \"$schema\": \"{schema}\",\n  \"version\": 1,\n  \"name\": \"{name}\",\n  \"surface\": \"react\",\n  \
+        "{{\n  \"$schema\": \"{schema}\",\n  \"version\": 1,\n  \"name\": \"{name}\",\n  \"surface\": \"{surface}\",\n  \
          \"styles\": {{ \"enabled\": {enabled}, \"format\": \"{format}\", \"path\": \"{path}\" }},\n  \
          \"tokens\": {{ \"format\": \"{format}\", \"path\": \"{path}/tokens.{ext}\" }},\n  \
          \"theme\": {{ \"brand\": \"{brand}\" }},\n  \
@@ -261,6 +266,7 @@ fn render(resolved: &ResolvedInit) -> String {
          \"registry\": {{ \"version\": \"0.1.0\" }}\n}}\n",
         schema = SCHEMA_URL,
         name = resolved.name,
+        surface = resolved.surface.as_str(),
         enabled = resolved.styles_enabled,
         format = resolved.format.as_str(),
         path = resolved.path,

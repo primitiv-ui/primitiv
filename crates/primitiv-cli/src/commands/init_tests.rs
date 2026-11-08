@@ -235,6 +235,7 @@ fn reflects_every_overridden_choice_in_the_written_config() {
             alias_components: Some("@/ui".to_string()),
             force: false,
             yes: false,
+            surface: None,
         },
     )
     .unwrap();

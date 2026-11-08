@@ -202,7 +202,7 @@ fn parse_list(args: &[String]) -> Result<Command, CliError> {
     Ok(Command::List { json })
 }
 
-/// Parse `init [--format <fmt>] [--name <name>] [--brand <hex>] [--path <dir>]
+/// Parse `init [--surface <react|elements>] [--format <fmt>] [--name <name>] [--brand <hex>] [--path <dir>]
 /// [--styles | --no-styles] [--alias-components <value>] [--force] [--yes]` —
 /// every option order-free. Each promptable choice is left `None` when its flag
 /// is omitted, so `init` can prompt for it interactively or fall back to the
@@ -218,9 +218,11 @@ fn parse_init(args: &[String]) -> Result<Command, CliError> {
     let mut alias_components = None;
     let mut force = false;
     let mut yes = false;
+    let mut surface = None;
     let mut rest = args.iter();
     while let Some(flag) = rest.next() {
         match flag.as_str() {
+            "--surface" => surface = Some(parse_surface(&take_value(&mut rest, "--surface")?)?),
             "--format" => format = Some(parse_format(&take_value(&mut rest, "--format")?)?),
             "--name" => name = Some(take_value(&mut rest, "--name")?),
             "--brand" => brand = Some(take_value(&mut rest, "--brand")?),
@@ -244,6 +246,7 @@ fn parse_init(args: &[String]) -> Result<Command, CliError> {
         alias_components,
         force,
         yes,
+        surface,
     }))
 }
 

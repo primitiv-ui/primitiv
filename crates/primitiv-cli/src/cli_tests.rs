@@ -51,6 +51,7 @@ fn parses_every_init_override_flag() {
             alias_components: Some("@/ui".to_string()),
             force: true,
             yes: true,
+            surface: None,
         })
     );
 }
@@ -840,5 +841,18 @@ fn rejects_help_for_an_unknown_command() {
     assert_eq!(
         error.to_string(),
         "unknown command 'frob'; expected: init, add, list, theme, tokens, dtcg"
+    );
+}
+
+#[test]
+fn parses_init_with_a_surface() {
+    let command = parse(&args(&["init", "--surface", "elements"])).unwrap();
+
+    assert_eq!(
+        command,
+        Command::Init(InitOptions {
+            surface: Some(Surface::Elements),
+            ..Default::default()
+        })
     );
 }

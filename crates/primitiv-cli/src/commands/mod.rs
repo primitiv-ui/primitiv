@@ -14,6 +14,8 @@ mod dtcg_tests;
 #[cfg(test)]
 mod init_tests;
 #[cfg(test)]
+mod init_elements_tests;
+#[cfg(test)]
 mod list_tests;
 #[cfg(test)]
 mod theme_tests;

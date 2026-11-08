@@ -39,6 +39,7 @@ Writes primitiv.json and generates the shared token layer. Prompts for any
 choice not given as a flag when run in a terminal.
 
 Options:
+  --surface <react|elements>     React components or custom elements (detected)
   --format <css|scss|tailwind>   Stylesheet format
   --name <name>                  Project name
   --brand <colour>               Brand seed colour (any CSS colour)

@@ -61,6 +61,14 @@ impl Surface {
             _ => None,
         }
     }
+
+    /// The value written into `primitiv.json`: the inverse of [`parse`](Surface::parse).
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Surface::React => "react",
+            Surface::Elements => "elements",
+        }
+    }
 }
 
 /// Where copied component styles land and in what format (RFC 0005 §3.1).

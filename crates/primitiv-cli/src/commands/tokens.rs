@@ -120,7 +120,16 @@ pub fn tokens(
             // the overrides have to land first or the very run that wrote them
             // emits a layer that does not reference them.
             write_overrides(
-                fs, output, registry, &dir, &path, format, from, config, ramps_only, &theme_stem,
+                fs,
+                output,
+                registry,
+                &dir,
+                &path,
+                format,
+                from,
+                config,
+                ramps_only,
+                &theme_stem,
             )?;
             // D10: the reference is recorded so the flag is typed once. Only what
             // `--from` named — a palette that came from the config is already

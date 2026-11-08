@@ -172,9 +172,15 @@ fn help_for(invocation: &[&str]) -> String {
 fn prints_an_overview_naming_every_command_for_a_top_level_help_request() {
     let help = help_for(&["--help"]);
 
-    assert!(help.starts_with("Usage: primitiv <command> [options]\n"), "{help}");
+    assert!(
+        help.starts_with("Usage: primitiv <command> [options]\n"),
+        "{help}"
+    );
     for command in crate::cli::COMMANDS {
-        assert!(help.contains(&format!("\n  {command} ")), "{command} missing from:\n{help}");
+        assert!(
+            help.contains(&format!("\n  {command} ")),
+            "{command} missing from:\n{help}"
+        );
     }
 }
 
@@ -182,7 +188,10 @@ fn prints_an_overview_naming_every_command_for_a_top_level_help_request() {
 fn prints_one_commands_usage_for_a_command_help_request() {
     let help = help_for(&["add", "--help"]);
 
-    assert!(help.starts_with("Usage: primitiv add <component...> | --all [options]\n"), "{help}");
+    assert!(
+        help.starts_with("Usage: primitiv add <component...> | --all [options]\n"),
+        "{help}"
+    );
     assert!(help.contains("--dry-run"), "{help}");
 }
 
@@ -191,7 +200,10 @@ fn prints_usage_for_every_command() {
     for command in crate::cli::COMMANDS {
         let help = help_for(&[command, "--help"]);
 
-        assert!(help.starts_with(&format!("Usage: primitiv {command} ")), "{help}");
+        assert!(
+            help.starts_with(&format!("Usage: primitiv {command} ")),
+            "{help}"
+        );
     }
 }
 

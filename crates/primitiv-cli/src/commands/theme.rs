@@ -98,8 +98,11 @@ fn resolve_destination(
                         .to_string(),
                 )
             })?;
-            Path::new(&config.tokens.path)
-                .with_file_name(format!("{}.{}", theme_stem(&config.name), format.extension()))
+            Path::new(&config.tokens.path).with_file_name(format!(
+                "{}.{}",
+                theme_stem(&config.name),
+                format.extension()
+            ))
         }
     };
     Ok((out, format))

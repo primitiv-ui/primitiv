@@ -217,7 +217,9 @@ fn resolve(
         None if ask => prompt
             .confirm("Include example styles?")
             .map_err(CliError::Io)?,
-        None => true,
+        // Elements are headless unless styling is asked for (RFC 0033): the
+        // behaviour comes from the package, the styling is the opt-in.
+        None => surface == Surface::React,
     };
     let format = match options.format {
         Some(value) => value,

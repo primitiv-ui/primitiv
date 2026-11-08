@@ -169,3 +169,11 @@ fn surfaces_a_package_json_that_cannot_be_read() {
 
     assert!(matches!(error, crate::error::CliError::Io(_)), "{error:?}");
 }
+
+#[test]
+fn records_an_elements_project_as_headless_by_default() {
+    // Styling is the opt-in on the elements surface: `add` then copies nothing.
+    let fs = InMemoryFs::new();
+
+    assert!(!init_config(&fs, InitOptions::default()).styles.enabled);
+}

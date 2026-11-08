@@ -1,0 +1,38 @@
+name: JSR dry run
+
+# `jsr publish --dry-run` for the packages a release would put on JSR, on the
+# pull request rather than only inside the publish job. The publish preflight
+# still runs it too; this exists so a JSR problem (slow types, or how JSR
+# resolves the `workspace:*` dependencies react has on core and web) shows on
+# the PR, without a release, and without anyone running Deno locally.
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "packages/core/**"
+      - "packages/web/**"
+      - "packages/react/**"
+      - ".github/workflows/jsr-dry-run.yml"
+
+concurrency:
+  group: jsr-dry-run-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  dry-run:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        package: [core, web, react]
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+
+      - name: jsr publish --dry-run
+        run: npx --yes jsr publish --dry-run
+        working-directory: packages/${{ matrix.package }}

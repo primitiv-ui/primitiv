@@ -56,3 +56,11 @@ export function defineElements(
     if (!registry.get(name)) registry.define(name, element);
   }
 }
+
+/**
+ * The `selector` parts inside `scope` that belong to it, not to a nested
+ * `owner` — so a component nested in another's panel keeps its own parts.
+ */
+export function owned(scope: Element, selector: string, owner: string): HTMLElement[] {
+  return [...scope.querySelectorAll<HTMLElement>(selector)].filter((part) => part.closest(owner) === scope);
+}

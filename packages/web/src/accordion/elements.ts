@@ -1,6 +1,7 @@
 import { deriveId, type AccordionOrientation } from "@primitiv-ui/core";
 
-import { defineElements, ElementBase, reportOnce, write, type ElementRegistry } from "../internal/element.ts";
+import { defineElements, ElementBase, owned, reportOnce, write, type ElementRegistry } from "../internal/element.ts";
+import { PrimitivRootElement } from "../internal/RootElement.ts";
 import { AccordionController, type AccordionControllerHost } from "./AccordionController.ts";
 
 export type { ElementRegistry };
@@ -12,8 +13,6 @@ const TRIGGER = "primitiv-accordion-trigger";
 const CONTENT = "primitiv-accordion-content";
 const ICON = "primitiv-accordion-trigger-icon";
 // Stryker restore StringLiteral
-
-let generatedIds = 0;
 
 /** Split a space-separated `value` into item values. */
 function tokens(value: string | null): string[] {
@@ -35,12 +34,11 @@ function decoratable(trigger: HTMLElement): HTMLElement | null {
 /**
  * `<primitiv-accordion>` — the state owner of a WAI-ARIA accordion.
  *
- * The root finds its own items, scoped with `closest()` so an accordion nested
- * in a panel keeps its own, and reconciles every part's ARIA from its reflected
- * state. It never caches the parts. One `MutationObserver` is the only trigger
- * after connect: it sees parts arriving and leaving and every attribute the root
- * reads. `multiple` is read live at each toggle, so a change to it needs no
- * reconcile.
+ * The root finds its own items, so an accordion nested in a panel keeps its
+ * own, and reconciles every part's ARIA from its reflected state whenever a part
+ * arrives, leaves, or changes an attribute the root reads (the lifecycle is
+ * `PrimitivRootElement`'s). `multiple` is read live at each toggle, so a change
+ * to it needs no reconcile.
  *
  * Each trigger sits in a heading you write (`<h3>`, at the level the page's
  * outline needs): a real heading element is the header, so there is no element
@@ -53,40 +51,12 @@ function decoratable(trigger: HTMLElement): HTMLElement | null {
  * @attr {"vertical" | "horizontal"} orientation - Layout axis, which picks the arrow-key pair. Defaults to `vertical`.
  * @fires {CustomEvent<{ value: string[] }>} primitiv-accordion-change - Bubbles, cancelable, fired before a user-driven toggle is applied, with every item open afterwards. Call `preventDefault()` to veto it.
  */
-export class PrimitivAccordionElement extends ElementBase {
-  #generatedId: string | undefined;
+export class PrimitivAccordionElement extends PrimitivRootElement {
   /** The items open at the last reconcile, so an item opening fires primitiv-accordion-show. */
   #shown = new Set<string>();
   #rendered = false;
-  readonly #controller = new AccordionController(this, this.#host());
-
-  /**
-   * Watches the subtree for parts arriving, leaving, or changing the attributes
-   * the root reads. The root's own writes (role, aria-*, ids, data-*, hidden)
-   * are not in the filter, so reconciling never re-triggers itself.
-   */
-  readonly #observer = new MutationObserver(() => this.#reconcile());
-
-  connectedCallback(): void {
-    this.#controller.connect();
-    this.#observer.observe(this, {
-      subtree: true,
-      childList: true,
-      attributes: true,
-      attributeFilter: ["value", "disabled", "orientation", "force-mount"],
-    });
-    this.#reconcile();
-  }
-
-  /**
-   * Leaving the document stops all listening. A move (an `hx-preserve`, a
-   * framework reparenting) is a disconnect followed by a connect, so handlers
-   * never stack.
-   */
-  disconnectedCallback(): void {
-    this.#controller.disconnect();
-    this.#observer.disconnect();
-  }
+  protected readonly controller: AccordionController = new AccordionController(this, this.#host());
+  protected readonly reconcileOn: readonly string[] = ["value", "disabled", "orientation", "force-mount"];
 
   /** The open items' values, reflected as the space-separated `value` attribute. */
   get value(): string[] {
@@ -98,27 +68,17 @@ export class PrimitivAccordionElement extends ElementBase {
     this.setAttribute("value", typeof next === "string" ? next : next.join(" "));
   }
 
-  /**
-   * The controller's view of this element. State lives in reflected attributes;
-   * a toggle is announced first, as a cancelable event, so a listener can veto
-   * it — the elements' equivalent of React's controlled mode (D7).
-   */
+  /** The controller's view of this element: state lives in reflected attributes. */
   #host(): AccordionControllerHost {
     return {
       state: () => ({
         expanded: this.value,
         multiple: this.hasAttribute("multiple"),
         orientation: this.#orientation(),
-        // Stryker disable next-line StringLiteral: equivalent — core tests only for "rtl", so any other string reads as left-to-right.
-        dir: this.matches(":dir(rtl)") ? "rtl" : "ltr",
+        dir: this.direction(),
       }),
       change: (value) => {
-        const change = new CustomEvent("primitiv-accordion-change", {
-          bubbles: true,
-          cancelable: true,
-          detail: { value },
-        });
-        if (this.dispatchEvent(change)) this.value = value;
+        if (this.announce("primitiv-accordion-change", { value })) this.value = value;
       },
     };
   }
@@ -127,18 +87,13 @@ export class PrimitivAccordionElement extends ElementBase {
     return this.getAttribute("orientation") === "horizontal" ? "horizontal" : "vertical";
   }
 
-  #rootId(): string {
-    // Stryker disable next-line UpdateOperator: equivalent — counting down yields ids just as unique.
-    return this.id || (this.#generatedId ??= `${ROOT}-${++generatedIds}`);
-  }
-
-  #reconcile(): void {
+  protected reconcile(): void {
     const expanded = new Set(this.value);
-    const rootId = this.#rootId();
+    const rootId = this.rootId();
     write(this, "data-orientation", this.#orientation());
 
     const triggers: Array<{ value: string; element: HTMLElement; disabled: boolean }> = [];
-    for (const item of owned(this, ITEM, ROOT)) {
+    for (const item of this.parts(ITEM)) {
       const value = item.getAttribute("value");
       if (value === null) {
         reportOnce(item, `<${ITEM}> needs a value, which pairs it with the root's value.`);
@@ -190,15 +145,10 @@ export class PrimitivAccordionElement extends ElementBase {
 
     // Replace the registration wholesale: a removed item, or a trigger whose
     // child a framework re-rendered, simply is not registered again.
-    this.#controller.setTriggers(triggers);
+    this.controller.setTriggers(triggers);
     this.#shown = expanded;
     this.#rendered = true;
   }
-}
-
-/** The `selector` parts inside `scope` that belong to it, not to a nested `owner`. */
-function owned(scope: HTMLElement, selector: string, owner: string): HTMLElement[] {
-  return [...scope.querySelectorAll<HTMLElement>(selector)].filter((part) => part.closest(owner) === scope);
 }
 
 /**

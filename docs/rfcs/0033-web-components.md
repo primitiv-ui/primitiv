@@ -5,8 +5,8 @@
 decoupling and CLI surface settled (D24–D27); event naming settled (D29); the
 first increment is Tabs end to end, with `@primitiv-ui/react` Tabs rebuilt on
 the web implementation (D30); the controller/host split (D28), the §6.3 golden
-exception and the separate `onKeyDown` fix accepted 2026-11-07. Open: snippet
-flavour (§9). Phases 1, 2 and 4 complete and Phase 5 built (2026-11-07); Phase 3 is PR #274.
+exception and the separate `onKeyDown` fix accepted 2026-11-07; example markup
+printed rather than copied (D34, 2026-11-08). Open: example flavour (§9). Phases 1, 2 and 4 complete and Phase 5 built (2026-11-07); Phase 3 is PR #274.
 **Decision sought:** Ship Primitiv's headless behaviour as standard custom
 elements that work **anywhere a browser runs HTML**: a plain HTML/CSS/JS page,
 any server-rendered stack, React, Vue, Angular, Svelte or anything else. The
@@ -514,7 +514,7 @@ The server can render the whole post-upgrade state: roles, ARIA, `data-state`,
 and `hidden` on inactive panels. The element then *reconciles* that markup
 rather than building it. The page is correct before the module loads and stays
 correct if it never loads (all panels except the active one stay hidden). The
-registry's HTML snippet (§8) emits the pre-rendered form.
+registry's example markup (§8.1) carries the pre-rendered form.
 
 For hand-written markup that omits it, there is no CSS-only fallback worth
 shipping. A selector cannot compare a panel's `value` with its root's, so
@@ -861,24 +861,35 @@ RFC. The interop lab is what gates releases.
 The registry's `contract.json` is already framework-neutral. It names the root
 element, every part's class, the modifiers and the `data-*` hooks. The `.tsx`
 wrapper and the cva recipe are the only React-specific files in a registry
-component, so an elements install is the same component minus those, plus a
-markup snippet.
+component, so an elements install is the same component minus those. The
+markup to write is printed, not copied (§8.1, D34).
 
-### 8.1 What an elements install copies
+### 8.1 What an elements install copies, and what it prints
+
+Copied into `<styles path>/<component>/`, one folder per component:
 
 - **`styles.css`** (or `.scss` / Tailwind, per `--format`), unchanged apart from
   the §5.6.1 `display: contents` rule each component gains.
-- **`contract.json`**, as today.
-- **A `tabs.html` snippet.** The §5.1 markup with every contract class applied
-  and the pre-rendered ARIA from §5.5. It is plain HTML, so it pastes into any
-  template language, and Vue, Angular and Svelte templates take it nearly
-  verbatim. It is **copied into the project as an editable file**, the
-  elements-side equivalent of the tsx wrapper the consumer owns, and is tracked
-  in `primitiv.lock` like every other copied file.
-- **Generated, not hand-written.** Snippets are generated from `contract.json`
-  when the registry is built, committed, and embedded in the CLI, the same way
-  `tabs.tsx` is generated from the contract today. The CLI stays a copier, and
-  every snippet change shows up as a reviewable diff.
+- **`contract.json`**, as today: the machine-readable record of which classes
+  and modifiers go where.
+
+**Printed, not copied: the example markup (D34).** A real run ends with each
+component's markup, every default class applied, for the developer to paste.
+It is plain HTML, so it pastes into any template language, and Vue, Angular
+and Svelte templates take it nearly verbatim. The first draft of this RFC
+copied it as an editable `tabs.html`, the counterpart of the tsx wrapper. That
+counterpart does not hold. The wrapper is code the app imports, so owning it
+means owning the component. Nothing imports a markup file, so a copy would only
+sit in the repo, change nothing when edited, and go stale. `--json` output
+stays the plan alone.
+
+**Generated, not hand-written.** Each example is generated from `contract.json`
+by `primitiv-emit` (`regen-snippets`), committed under
+`registry/components/<name>/`, embedded in the CLI, and held to its contract by
+a drift guard. Single-element components (§8.3) are generated generically from
+the contract today. Compound markup such as Tabs needs anatomy the contract
+does not record yet (which part nests in which, which repeats per value),
+which the Tabs slice settles.
 
 ### 8.2 CLI changes (D26)
 
@@ -889,17 +900,17 @@ that `framework: "html"` would be wrong for every one of them.
 | Area | Change |
 |---|---|
 | **Config** | `primitiv.json` gains `surface: "react" \| "elements"`. `framework` is still **read** as an alias (`framework: "react"` means `surface: "react"`), so every existing config keeps working unchanged; `init` writes `surface` from now on. |
-| **`init`** | `--surface <react\|elements>` plus a prompt. The default is `react` when `package.json` lists a `react` dependency, and `elements` otherwise (Vue, Angular, Svelte, a server-rendered project, or no `package.json` at all). |
+| **`init`** | `--surface <react\|elements>` plus a prompt, asked first because it decides the rest. The default is `react` when `package.json` lists `react` in any dependency list, and `elements` otherwise (Vue, Angular, Svelte, a server-rendered project, or no `package.json` at all). Only the React surface still requires a `package.json`. |
 | **`add`** | `--surface` as a per-run override, the way `--format` overrides the config today. A component with no elements surface yet fails clearly: *"modal has no elements surface yet"*. |
-| **Registry schema** | The React-specific keys move under a per-surface block: `surfaces.react: { packages: [@primitiv-ui/react, class-variance-authority], files: [tabs.tsx, tabs.recipe.ts] }` and `surfaces.elements: { packages: [@primitiv-ui/web], files: [tabs.html] }`. `styles.formats` and `contract` stay shared. Components with no behaviour carry an `elements` block with no package (§8.3). `registry.json`'s schema version bumps. |
-| **Package install** | With a `package.json`, `@primitiv-ui/web` installs through the detected package manager. Without one, nothing is installed and the CLI prints a version-pinned `<script type="module" src="https://cdn.jsdelivr.net/npm/@primitiv-ui/web@<version>/dist/primitiv-web.js">`. Copying the bundle into the project (`--vendor <dir>`) is a later addition, because embedding it would tie the Rust build to the JS build. |
-| **Wiring** | The tsx barrel and the stylesheet self-import line are React-only. For elements the CLI keeps `components/index.css`, an `@import` per installed component, so a page needs one `<link>`. It prints the `<link>` and `<script>` lines rather than editing a layout it cannot reliably find. |
-| **Default path** | `src/components` for React, as today; `primitiv/` for elements, overridable with `--path` and recorded in the config. |
-| **`list`** | Gains a column showing which surfaces each component supports. |
+| **Registry schema** | As built, additive: a component gains an `elements` block, `{ packages: [@primitiv-ui/web], example: "tabs.html" }`, beside its existing React keys, and having one is what gives it an elements surface. Components with no behaviour carry one with no package (§8.3). The draft moved the React keys under a `surfaces` block and bumped the schema version, but `add --registry <version>` lets an older CLI read a newer registry, and only an additive block keeps that working. |
+| **Package install** | With a `package.json`, `@primitiv-ui/web` installs through the detected package manager, and the React surface's style packages (cva) are not installed. Without one, nothing is installed and the CLI prints a version-pinned `<script type="module" src="https://cdn.jsdelivr.net/npm/@primitiv-ui/web@<version>/dist/primitiv-web.js">`, at the lowest version the components' declared range allows (a CDN URL takes one version, and that one exists and is compatible). Nothing is printed when no component needs the package. Copying the bundle into the project (`--vendor <dir>`) is a later addition, because embedding it would tie the Rust build to the JS build. |
+| **Wiring** | The tsx barrel and the stylesheet self-import line are React-only. For elements the CLI keeps `<styles path>/index.<ext>`, an `@import` per installed component (regenerated from the lock, so it covers every run), so a page needs one `<link>`. For CSS it prints the token-layer and index `<link>` lines, plus the `<script>` above, rather than editing a layout it cannot reliably find. SCSS and Tailwind go through the project's own build, so no `<link>` lines are printed for them. |
+| **Default path** | `src/styles/primitiv` (with components in `src/components`) for React, as today; `primitiv/` for elements, which holds the token layer, each component's folder and the index. Overridable with `--path` and recorded in the config. |
+| **`list`** | Gains a `SURFACES` column: `react`, `elements`, both, or `-`. |
 
 All of it is built behind the existing ports and adapters, under the Rust gate
 (RFC 0007: 100% lines, regions and functions), with golden files for the
-snippets.
+generated markup.
 
 ### 8.3 Components with no behaviour
 
@@ -907,9 +918,11 @@ Button, Badge, Tag, Kbd, Card, Avatar and the prose family need no custom
 element on the elements surface. The class contract on native markup *is* the
 whole component (`<a class="primitiv-button primitiv-button--primary">`), which
 is also React's `asChild` case for them. They get an elements install (styles,
-contract, snippet) with no package dependency. That makes them a cheap early
-milestone: they exercise the whole CLI and snippet pipeline before any element
-code is needed (Phase 2b, §10).
+contract, printed markup) with no package dependency. That makes them a cheap
+early milestone: they exercise the whole CLI and markup pipeline before any
+element code is needed (Phase 2b, §10). Built first: Button, Badge, Tag, Kbd
+and Inline Code. Card, Avatar and the prose family follow; several of them
+compose parts the generic generator cannot express yet.
 
 The kitchen-sink and docs site stay React for now. A **"Web" mode in the
 docs-site consumption switch** (`docs/docs-site-planning.md`) is a follow-up,
@@ -927,11 +940,12 @@ fed by the Custom Elements Manifest (§5.6.4, D18).
 - the part model that replaces `asChild` (D24);
 - no styles from the implementation (D25);
 - the CLI's `surface` vocabulary and changes (D26, D27);
-- snippets are copied into the project as editable files (§8.1).
+- example markup is printed by `add`, not copied (§8.1, D34; settled
+  2026-11-08, reversing the draft's copied snippet).
 
 Still open:
 
-1. **Snippet flavour.** Generic HTML only, or per-environment flavours (JSX for
+1. **Example flavour.** Generic HTML only, or per-environment flavours (JSX for
    a React project using elements, template-language loops)? This RFC proposes
    generic HTML only, with flavours a demand-driven follow-up.
 
@@ -946,7 +960,7 @@ Still open:
 | 4 | **`@primitiv-ui/react` Tabs rebuilt as an adapter over `TabsController`** | Done 2026-11-07 on one commit: all 14 existing Tabs files unedited, the 7-case SSR golden byte-identical, conformance green, Tabs at 100% mutation; full React suite 454 files at 100% coverage; consumer smoke (node, vite) green |
 | 5 | Distribution: entry points, bundle, CEM + framework typings, size gate, lockstep release with `@primitiv-ui/react` depending on core and web | **The proof release:** published, React Tabs consumers see no change, elements work from jsDelivr on a blank page. Built 2026-11-07: `define` entries, the 2.3 KB-gzip bundle under a 3 KB gate (checked in real Chromium, RTL included), the Custom Elements Manifest with a completeness check, the opt-in npm-only tag map, `web` public and in every release loop. React / Vue / Svelte template typings moved to Phase 6, where those frameworks are installed to type-check against. The release itself is yours to run (RELEASING.md §3). |
 | 6 | `apps/interop-lab` (html, htmx, react, vue, svelte, angular) + Playwright | Shared spec and the ten HTMX cases green in CI. **Landed 2026-11-07 for html, htmx, React 19, Vue 3 and Svelte 5:** 48 Playwright cases in real Chromium (the shared Tabs contract on four pages, incl. `:dir()`, `:focus-visible`, StrictMode, controlled use and re-render survival; and all ten HTMX swap cases), plus the opt-in `@primitiv-ui/web/{react,vue,svelte}` template typings type-checked in the lab against real installs (Svelte's by a script over `svelte-check`, since its markup has no expect-error comment). **Completed 2026-11-07 with Angular 22** (AOT through Vite, zoneless, `OnPush` signals; `ngc` with `strictTemplates` checks its template expressions): 58 cases across five framework pages and the HTMX page. Angular gets no typing entry, since its schema-checked custom elements type `$event` as `Event` whatever is declared. |
-| 7 | CLI: `surfaces` registry schema, snippet generation, `--surface`; components with no behaviour first (§8.3), then Tabs | `primitiv add tabs --surface elements` works in every interop-lab app; Rust gate green |
+| 7 | CLI: the `elements` registry block, generated example markup, `--surface`; components with no behaviour first (§8.3), then Tabs | `primitiv add tabs --surface elements` works in every interop-lab app; Rust gate green. **Built 2026-11-08 for the components with no behaviour:** `surface` config with the `framework` alias, `init --surface` with detection and no-`package.json` sites, `add --surface` (copy layout, elements packages or the CDN script, `index.css`, `<link>` lines, printed markup), and `list`'s `SURFACES` column, at 100% lines, regions and functions. **Still open:** Tabs (its compound markup, the `display: contents` rule, its registry block) and the interop-lab proof. |
 | 8 | Next components, one at a time, each through phases 2–5 | — |
 
 Phase 8 order, so each step reuses the core the previous one built:
@@ -1001,3 +1015,4 @@ CLAUDE.md: tests, JSDoc, README, the components-table row in
 | D31 | Parts are thin markers; the root discovers them on every reconcile, driven by one `MutationObserver` (no `observedAttributes`, no separate batching) | Removes the upgrade-order problem and two redundant mechanisms that mutation testing exposed (§5.4) |
 | D32 | The conformance suites live in a private `packages/conformance`, not in core | Core has no DOM by design; the suites need Testing Library and a DOM |
 | D33 | `defineTabs(registry?)` takes its registry | Testable without the shared global registry, and ready for scoped registries |
+| D34 | `add --surface elements` prints each component's example markup and copies only its stylesheet and contract | Nothing imports markup, so a copied file would change nothing when edited and go stale; printing shows it once, where it is pasted from (settled 2026-11-08) |

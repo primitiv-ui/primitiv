@@ -233,7 +233,7 @@ fn prints_a_pinned_cdn_script_instead_of_installing_without_a_package_json() {
     assert!(
         String::from_utf8(output.captured()).unwrap().contains(
             "\nNo package.json here, so nothing was installed. Load the elements with:\n\n  \
-             <script type=\"module\" src=\"https://cdn.jsdelivr.net/npm/@primitiv-ui/web@0.1.0/dist/primitiv-web.js\"></script>\n"
+             <script type=\"module\" src=\"https://cdn.jsdelivr.net/npm/@primitiv-ui/web@0.1.0/dist/cdn/tabs.js\"></script>\n"
         ),
         "{}",
         String::from_utf8(output.captured()).unwrap()

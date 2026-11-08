@@ -1066,20 +1066,25 @@ fn print_cdn_scripts(
     index: &RegistryIndex,
     resolved: &[String],
 ) -> Result<(), CliError> {
-    let specs: BTreeSet<String> = resolved
+    // One script per component, `dist/cdn/<component>.js`, which defines that
+    // component's elements only; what they share is one chunk they import.
+    let scripts: BTreeSet<String> = resolved
         .iter()
-        .flat_map(|name| declared_packages(&index.components[name], Surface::Elements))
-        .filter(|package| package.name == WEB_PACKAGE)
-        .map(PackageDep::minimum_spec)
+        .flat_map(|name| {
+            declared_packages(&index.components[name], Surface::Elements)
+                .into_iter()
+                .filter(|package| package.name == WEB_PACKAGE)
+                .map(move |package| format!("{}/dist/cdn/{name}.js", package.minimum_spec()))
+        })
         .collect();
-    if specs.is_empty() {
+    if scripts.is_empty() {
         return Ok(());
     }
     let mut message =
         "\nNo package.json here, so nothing was installed. Load the elements with:\n\n".to_string();
-    for spec in specs {
+    for script in scripts {
         message.push_str(&format!(
-            "  <script type=\"module\" src=\"https://cdn.jsdelivr.net/npm/{spec}/dist/primitiv-web.js\"></script>\n"
+            "  <script type=\"module\" src=\"https://cdn.jsdelivr.net/npm/{script}\"></script>\n"
         ));
     }
     output.write_stdout(message.as_bytes())?;

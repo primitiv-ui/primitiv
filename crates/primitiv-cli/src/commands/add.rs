@@ -1,7 +1,7 @@
 use std::collections::BTreeSet;
 use std::path::{Path, PathBuf};
 
-use crate::config::{self, Config};
+use crate::config::{self, Config, Surface};
 use crate::detect;
 use crate::error::CliError;
 use crate::format::Format;
@@ -53,6 +53,10 @@ pub struct AddOptions {
     /// `r/<component>/<file>`) for monorepo dogfooding / offline use. When `None`
     /// the binary's embedded registry is used.
     pub registry: Option<String>,
+    /// Override the project's surface for this run (RFC 0033 §8.2): `elements`
+    /// installs the markup snippets over `@primitiv-ui/web` instead of the React
+    /// wrappers. When `None` the config's `surface` is used, else React.
+    pub surface: Option<Surface>,
 }
 
 /// One file the real (non-dry) copy would process — used by both the dry-run
@@ -142,6 +146,7 @@ pub fn add(
         force,
         no_wiring,
         registry: registry_override,
+        surface: _,
     } = options;
     // `--registry <ref>` overrides the registry source (RFC 0005 §6.4): an
     // `http(s)://` URL or a version tag fetches over the network, any other value

@@ -61,6 +61,7 @@ Options:
   --json                         Print the plan as JSON
   --styles-only                  Copy styles without installing the headless package
   --no-styles                    Install the headless package without copying styles
+  --surface <react|elements>     Override the configured surface
   --format <css|scss|tailwind>   Override the configured stylesheet format
   --path <dir>                   Override the configured styles path
   --force                        Overwrite files even if you have edited them

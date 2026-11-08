@@ -5,6 +5,7 @@ use crate::cli::{Command, parse};
 use crate::commands::add::AddOptions;
 use crate::commands::init::InitOptions;
 use crate::commands::tokens::TokensOptions;
+use crate::config::Surface;
 use crate::error::CliError;
 use crate::format::Format;
 
@@ -178,6 +179,38 @@ fn rejects_an_unknown_add_format() {
         parse(&args(&["add", "button", "--format", "less"])).unwrap_err(),
         CliError::Usage(_)
     ));
+}
+
+#[test]
+fn parses_add_with_a_surface_override() {
+    // `--surface` picks the surface for this run, as `--format` does the format.
+    let command = parse(&args(&["add", "kbd", "--surface", "elements"])).unwrap();
+
+    assert_eq!(
+        command,
+        Command::Add(AddOptions {
+            components: vec!["kbd".to_string()],
+            surface: Some(Surface::Elements),
+            ..Default::default()
+        })
+    );
+}
+
+#[test]
+fn parses_add_with_the_react_surface() {
+    let command = parse(&args(&["add", "kbd", "--surface", "react"])).unwrap();
+
+    assert!(matches!(command, Command::Add(AddOptions { surface: Some(Surface::React), .. })));
+}
+
+#[test]
+fn rejects_an_unknown_add_surface() {
+    let error = parse(&args(&["add", "kbd", "--surface", "vue"])).unwrap_err();
+
+    assert!(
+        matches!(&error, CliError::Usage(message) if message.contains("expected: react, elements")),
+        "{error:?}"
+    );
 }
 
 #[test]

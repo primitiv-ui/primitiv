@@ -52,6 +52,17 @@ pub enum Surface {
     Elements,
 }
 
+impl Surface {
+    /// Parse a `--surface` value, as written in `primitiv.json`.
+    pub fn parse(value: &str) -> Option<Surface> {
+        match value {
+            "react" => Some(Surface::React),
+            "elements" => Some(Surface::Elements),
+            _ => None,
+        }
+    }
+}
+
 /// Where copied component styles land and in what format (RFC 0005 §3.1).
 #[derive(Debug, Deserialize, PartialEq)]
 pub struct Styles {

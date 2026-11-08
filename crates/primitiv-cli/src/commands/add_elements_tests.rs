@@ -247,3 +247,175 @@ fn copies_the_stylesheet_snippet_and_contract_into_one_folder_per_component() {
     assert_eq!(read("src/components/kbd.recipe.ts"), None);
     assert_eq!(read("src/components/kbd.contract.json"), None);
 }
+
+/// `kbd_registry` plus `tabs`'s files, for runs that install both.
+fn kbd_and_tabs_registry() -> InMemoryRegistry {
+    kbd_registry()
+        .with_file("tabs", "styles.css", b".primitiv-tabs{}")
+        .with_file("tabs", "tabs.html", b"<primitiv-tabs></primitiv-tabs>\n")
+}
+
+/// Run a real (non-dry) elements `add` of `components` in `fs`.
+fn run(fs: &InMemoryFs, output: &InMemoryOutput, components: &[&str]) {
+    add(
+        fs,
+        &kbd_and_tabs_registry(),
+        output,
+        &InMemoryProcessRunner::new(),
+        &InMemoryPrompt::new(Decision::Keep),
+        false,
+        &AddOptions { components: components.iter().map(|c| c.to_string()).collect(), ..Default::default() },
+    )
+    .unwrap();
+}
+
+#[test]
+fn keeps_one_stylesheet_index_importing_every_installed_component() {
+    // A page then needs one <link> for every component, however many runs added them.
+    let fs = InMemoryFs::new();
+    fs.write(std::path::Path::new("primitiv.json"), ELEMENTS_CONFIG).unwrap();
+
+    run(&fs, &InMemoryOutput::new(), &["tabs"]);
+    run(&fs, &InMemoryOutput::new(), &["kbd"]);
+
+    assert_eq!(
+        String::from_utf8(fs.read(std::path::Path::new("primitiv/index.css")).unwrap()).unwrap(),
+        "@import \"./kbd/styles.css\";\n@import \"./tabs/styles.css\";\n"
+    );
+}
+
+#[test]
+fn ends_by_printing_the_links_a_page_needs() {
+    let fs = InMemoryFs::new();
+    fs.write(std::path::Path::new("primitiv.json"), ELEMENTS_CONFIG).unwrap();
+    fs.write(std::path::Path::new("primitiv/tokens.css"), b":root{}").unwrap();
+    let output = InMemoryOutput::new();
+
+    run(&fs, &output, &["kbd"]);
+
+    assert!(
+        String::from_utf8(output.captured()).unwrap().ends_with(
+            "\nLink the styles from your page:\n\n  \
+             <link rel=\"stylesheet\" href=\"primitiv/tokens.css\">\n  \
+             <link rel=\"stylesheet\" href=\"primitiv/index.css\">\n"
+        ),
+        "{}",
+        String::from_utf8(output.captured()).unwrap()
+    );
+}
+
+#[test]
+fn prints_no_links_under_json() {
+    let fs = InMemoryFs::new();
+    fs.write(std::path::Path::new("primitiv.json"), ELEMENTS_CONFIG).unwrap();
+    fs.write(std::path::Path::new("primitiv/tokens.css"), b":root{}").unwrap();
+    let output = InMemoryOutput::new();
+
+    add(
+        &fs,
+        &kbd_and_tabs_registry(),
+        &output,
+        &InMemoryProcessRunner::new(),
+        &InMemoryPrompt::new(Decision::Keep),
+        false,
+        &AddOptions { components: vec!["kbd".into()], json: true, ..Default::default() },
+    )
+    .unwrap();
+
+    let captured = String::from_utf8(output.captured()).unwrap();
+    serde_json::from_str::<serde_json::Value>(&captured).unwrap_or_else(|error| panic!("{error}: {captured}"));
+}
+
+#[test]
+fn indexes_scss_as_scss_and_leaves_linking_to_the_build() {
+    let fs = InMemoryFs::new();
+    fs.write(
+        std::path::Path::new("primitiv.json"),
+        &String::from_utf8(ELEMENTS_CONFIG.to_vec()).unwrap().replace("\"format\": \"css\", \"path\": \"primitiv\"", "\"format\": \"scss\", \"path\": \"primitiv\"").into_bytes(),
+    )
+    .unwrap();
+    fs.write(std::path::Path::new("primitiv/tokens.css"), b":root{}").unwrap();
+    let output = InMemoryOutput::new();
+    let registry_json = String::from_utf8(REGISTRY.to_vec()).unwrap().replace(
+        "\"formats\": { \"css\": [\"styles.css\"] },\n        \"react\"",
+        "\"formats\": { \"css\": [\"styles.css\"], \"scss\": [\"styles.scss\"] },\n        \"react\"",
+    );
+    assert_ne!(registry_json.as_bytes(), REGISTRY, "fixture rewrite missed");
+    let registry = InMemoryRegistry::new(registry_json.as_bytes())
+        .with_file("kbd", "styles.scss", b".primitiv-kbd{}")
+        .with_file("kbd", "kbd.html", b"<kbd></kbd>\n")
+        .with_file("kbd", "contract.json", b"{}");
+
+    add(
+        &fs,
+        &registry,
+        &output,
+        &InMemoryProcessRunner::new(),
+        &InMemoryPrompt::new(Decision::Keep),
+        false,
+        &AddOptions { components: vec!["kbd".into()], ..Default::default() },
+    )
+    .unwrap();
+
+    assert_eq!(
+        fs.read(std::path::Path::new("primitiv/index.scss")).unwrap(),
+        b"@import \"./kbd/styles.scss\";\n".to_vec()
+    );
+    assert!(!String::from_utf8(output.captured()).unwrap().contains("<link"));
+}
+
+#[test]
+fn surfaces_a_failed_stylesheet_index_write() {
+    let fs = InMemoryFs::new();
+    fs.write(std::path::Path::new("primitiv.json"), ELEMENTS_CONFIG).unwrap();
+    fs.fail_writes_to(std::path::Path::new("primitiv/index.css"));
+
+    let error = add(
+        &fs,
+        &kbd_and_tabs_registry(),
+        &InMemoryOutput::new(),
+        &InMemoryProcessRunner::new(),
+        &InMemoryPrompt::new(Decision::Keep),
+        false,
+        &AddOptions { components: vec!["kbd".into()], ..Default::default() },
+    )
+    .unwrap_err();
+
+    assert!(matches!(error, CliError::Io(_)), "{error:?}");
+}
+
+#[test]
+fn surfaces_a_failed_cdn_script_message() {
+    let fs = InMemoryFs::new();
+    let output = InMemoryOutput::new();
+    // The plan is the first write; the script message is the second.
+    output.fail_stdout_after(1);
+
+    let error = add_elements(&fs, &output, &InMemoryProcessRunner::new(), AddOptions { components: vec!["tabs".into()], ..Default::default() })
+        .unwrap_err();
+
+    assert!(matches!(error, CliError::Io(_)), "{error:?}");
+}
+
+#[test]
+fn surfaces_a_failed_link_message() {
+    let fs = InMemoryFs::new();
+    fs.write(std::path::Path::new("primitiv.json"), ELEMENTS_CONFIG).unwrap();
+    fs.write(std::path::Path::new("primitiv/tokens.css"), b":root{}").unwrap();
+    let output = InMemoryOutput::new();
+    // The plan, then the files written; the links are the third write.
+    output.fail_stdout_after(2);
+
+    let error = add(
+        &fs,
+        &kbd_and_tabs_registry(),
+        &output,
+        &InMemoryProcessRunner::new(),
+        &InMemoryPrompt::new(Decision::Keep),
+        false,
+        &AddOptions { components: vec!["kbd".into()], ..Default::default() },
+    )
+    .unwrap_err();
+
+    assert!(matches!(error, CliError::Io(_)), "{error:?}");
+}

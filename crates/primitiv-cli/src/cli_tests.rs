@@ -204,6 +204,14 @@ fn parses_add_with_the_react_surface() {
 }
 
 #[test]
+fn rejects_add_surface_with_no_value() {
+    assert!(matches!(
+        parse(&args(&["add", "kbd", "--surface"])).unwrap_err(),
+        CliError::Usage(_)
+    ));
+}
+
+#[test]
 fn rejects_an_unknown_add_surface() {
     let error = parse(&args(&["add", "kbd", "--surface", "vue"])).unwrap_err();
 

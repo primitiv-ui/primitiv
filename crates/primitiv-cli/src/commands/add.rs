@@ -182,10 +182,12 @@ pub fn add(
     let resolved = resolve(&index, requested)?;
     // `--surface` wins; otherwise the project's own, and React without a config
     // (every project before RFC 0033 had only that surface).
-    let surface = match surface {
-        Some(surface) => *surface,
-        None => config::try_resolve(fs, &fs.current_dir()?)?.map_or(Surface::React, |config| config.surface),
-    };
+    // The project and its config are read once, here, for every step below.
+    let dir = fs.current_dir()?;
+    let project_config = config::try_resolve(fs, &dir)?;
+    let surface = surface
+        .or(project_config.as_ref().map(|config| config.surface))
+        .unwrap_or(Surface::React);
     if surface == Surface::Elements {
         if let Some(name) = resolved.iter().find(|name| index.components[*name].elements.is_none()) {
             return Err(CliError::NotFound(format!(
@@ -203,8 +205,6 @@ pub fn add(
         if *no_styles {
             Some(vec![])
         } else {
-            let dir = fs.current_dir()?;
-            let project_config = config::try_resolve(fs, &dir)?;
             let components_dir = detect::components_path(fs, &dir)?
                 .unwrap_or_else(|| DEFAULT_COMPONENTS_DIR.to_string());
             let files = planned_files(
@@ -247,7 +247,6 @@ pub fn add(
         }
     }
     if !*dry_run {
-        let dir = fs.current_dir()?;
         if !*styles_only {
             // Without a package.json there is no package manager to run: a plain
             // HTML or server-rendered project loads the elements from the CDN.
@@ -265,11 +264,10 @@ pub fn add(
             if surface == Surface::React {
                 ensure_style_packages(fs, runner, &index, &resolved, &dir)?;
             }
-            let project_config = config::try_resolve(fs, &dir)?;
             let effective_format: Format = (*format)
                 .or_else(|| project_config.as_ref().map(|c| c.styles.format))
                 .unwrap_or(Format::Css);
-            let written = copy_styled_surface(
+            let (written, links) = copy_styled_surface(
                 fs,
                 registry,
                 prompt,
@@ -292,6 +290,19 @@ pub fn add(
                 offer_wiring(output, prompt, fs, interactive, *no_wiring, *json, &dir)?;
             }
             ensure_tokens(fs, output, registry, project_config.as_ref())?;
+            // A plain CSS page links the files directly; SCSS and Tailwind go
+            // through the project's own build, which knows its entry better.
+            if let (Some(links), false, Format::Css) = (links, *json, effective_format) {
+                output.write_stdout(
+                    format!(
+                        "\nLink the styles from your page:\n\n  \
+                         <link rel=\"stylesheet\" href=\"{}\">\n  \
+                         <link rel=\"stylesheet\" href=\"{}\">\n",
+                        links.tokens, links.index
+                    )
+                    .as_bytes(),
+                )?;
+            }
         }
     }
     Ok(())
@@ -493,14 +504,14 @@ fn copy_styled_surface(
     force: bool,
     config: Option<&Config>,
     surface: Surface,
-) -> Result<Vec<(String, &'static str)>, CliError> {
+) -> Result<(Vec<(String, &'static str)>, Option<StyleLinks>), CliError> {
     let lock_path = dir.join(lock::FILE_NAME);
     let mut lock = Lock::read(fs, &lock_path)?;
     let components_dir =
         detect::components_path(fs, dir)?.unwrap_or_else(|| DEFAULT_COMPONENTS_DIR.to_string());
     let files = planned_files(index, resolved, format, path, config, &components_dir, surface);
     if files.is_empty() {
-        return Ok(vec![]);
+        return Ok((vec![], None));
     }
     // Mark each resolved component (the requests plus their transitive deps,
     // whose surfaces also land) installed, so `list` can flag it (RFC 0005 §2.5).
@@ -512,16 +523,60 @@ fn copy_styled_surface(
         let label = copy_file(fs, registry, prompt, interactive, &mut lock, pf, force)?;
         written.push((pf.dest.to_string_lossy().into_owned(), label));
     }
-    // The barrel is a file this command writes too, so a report that omits it
-    // is not a report of what was written.
-    if let Some(barrel) = update_barrel(fs, &lock, Path::new(&components_dir))? {
-        written.push((barrel, "updated"));
-    }
+    // The barrel (React) or stylesheet index (elements) is a file this command
+    // writes too, so a report that omits it is not a report of what was written.
+    let links = if surface == Surface::Elements {
+        let config = config.expect("files are only planned from a config");
+        let styles_path = path.unwrap_or(&config.styles.path);
+        let extension = format.unwrap_or(config.styles.format).extension();
+        let index = update_style_index(fs, &lock, Path::new(styles_path), extension)?;
+        written.push((index.clone(), "updated"));
+        Some(StyleLinks {
+            tokens: config.tokens.path.clone(),
+            index,
+        })
+    } else {
+        if let Some(barrel) = update_barrel(fs, &lock, Path::new(&components_dir))? {
+            written.push((barrel, "updated"));
+        }
+        None
+    };
     // Deliberately a tail expression rather than `lock.write(...)?; Ok(written)`.
     // The `?` form introduces an error region nothing exercises — this failure
     // path had no region of its own before the report was added, and inventing
     // an untested one to carry the same behaviour is how a 100% gate rots.
-    lock.write(fs, &lock_path).map(|()| written)
+    lock.write(fs, &lock_path).map(|()| (written, links))
+}
+
+/// The stylesheets an elements page links (RFC 0033 §8.2): the token layer and
+/// the index of every installed component's stylesheet.
+struct StyleLinks {
+    tokens: String,
+    index: String,
+}
+
+/// Write `{styles_path}/index.{extension}`, importing every component
+/// stylesheet the lock records under `styles_path` (`<name>/<file>`), sorted —
+/// so an elements page links one file however many runs added components. Like
+/// the barrel it is regenerated on every `add` rather than tracked in the lock.
+fn update_style_index(
+    fs: &impl FileSystem,
+    lock: &Lock,
+    styles_path: &Path,
+    extension: &str,
+) -> Result<String, CliError> {
+    let imports: String = lock
+        .files
+        .keys()
+        .map(Path::new)
+        .filter(|file| file.parent().and_then(Path::parent) == Some(styles_path))
+        .filter(|file| file.extension().is_some_and(|ext| ext == extension))
+        .filter_map(|file| file.strip_prefix(styles_path).ok())
+        .map(|file| format!("@import \"./{}\";\n", file.to_string_lossy().replace('\\', "/")))
+        .collect();
+    let dest = styles_path.join(format!("index.{extension}"));
+    fs.write(&dest, imports.as_bytes())?;
+    Ok(dest.to_string_lossy().into_owned())
 }
 
 /// Enumerate every destination file the real copy would process — the same set

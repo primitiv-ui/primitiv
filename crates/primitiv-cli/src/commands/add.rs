@@ -248,7 +248,15 @@ pub fn add(
     if !*dry_run {
         let dir = fs.current_dir()?;
         if !*styles_only {
-            ensure_packages(fs, runner, &index, &resolved, surface, &dir)?;
+            // Without a package.json there is no package manager to run: a plain
+            // HTML or server-rendered project loads the elements from the CDN.
+            if surface == Surface::Elements && !fs.exists(&dir.join("package.json")) {
+                if !*json {
+                    print_cdn_scripts(output, &index, &resolved)?;
+                }
+            } else {
+                ensure_packages(fs, runner, &index, &resolved, surface, &dir)?;
+            }
         }
         if !*no_styles {
             // The style packages (cva) serve the React recipe, which only the
@@ -844,6 +852,38 @@ fn packages(index: &RegistryIndex, resolved: &[String], surface: Surface) -> Vec
         .collect::<BTreeSet<_>>()
         .into_iter()
         .collect()
+}
+
+/// The CDN bundle a project without a package manager loads the elements from.
+const WEB_PACKAGE: &str = "@primitiv-ui/web";
+
+/// Print the `<script>` that loads `@primitiv-ui/web`'s bundle from jsDelivr,
+/// pinned to the lowest version the resolved components declare (RFC 0033
+/// §8.2), for a project with no `package.json` to install into. Nothing is
+/// printed when no component needs it — one with no behaviour has no element.
+fn print_cdn_scripts(
+    output: &impl Output,
+    index: &RegistryIndex,
+    resolved: &[String],
+) -> Result<(), CliError> {
+    let specs: BTreeSet<String> = resolved
+        .iter()
+        .flat_map(|name| declared_packages(&index.components[name], Surface::Elements))
+        .filter(|package| package.name == WEB_PACKAGE)
+        .map(PackageDep::minimum_spec)
+        .collect();
+    if specs.is_empty() {
+        return Ok(());
+    }
+    let mut message =
+        "\nNo package.json here, so nothing was installed. Load the elements with:\n\n".to_string();
+    for spec in specs {
+        message.push_str(&format!(
+            "  <script type=\"module\" src=\"https://cdn.jsdelivr.net/npm/{spec}/dist/primitiv-web.js\"></script>\n"
+        ));
+    }
+    output.write_stdout(message.as_bytes())?;
+    Ok(())
 }
 
 /// The packages one component declares for `surface`: the headless library

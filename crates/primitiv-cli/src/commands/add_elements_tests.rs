@@ -168,3 +168,46 @@ fn installs_only_the_elements_packages_in_a_project_with_a_package_json() {
         )]
     );
 }
+
+#[test]
+fn prints_a_pinned_cdn_script_instead_of_installing_without_a_package_json() {
+    // A plain HTML or server-rendered project has no package manager to run.
+    let fs = InMemoryFs::new();
+    fs.set_current_dir(std::path::Path::new("site"));
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+
+    add_elements(&fs, &output, &runner, AddOptions { components: vec!["tabs".into()], ..Default::default() }).unwrap();
+
+    assert_eq!(runner.calls(), vec![]);
+    assert!(
+        String::from_utf8(output.captured()).unwrap().ends_with(
+            "\nNo package.json here, so nothing was installed. Load the elements with:\n\n  \
+             <script type=\"module\" src=\"https://cdn.jsdelivr.net/npm/@primitiv-ui/web@0.1.0/dist/primitiv-web.js\"></script>\n"
+        ),
+        "{}",
+        String::from_utf8(output.captured()).unwrap()
+    );
+}
+
+#[test]
+fn prints_no_script_when_no_component_needs_a_package() {
+    // Kbd has no behaviour (§8.3): there is no element to load.
+    let fs = InMemoryFs::new();
+    let output = InMemoryOutput::new();
+
+    add_elements(&fs, &output, &InMemoryProcessRunner::new(), AddOptions { components: vec!["kbd".into()], ..Default::default() }).unwrap();
+
+    assert!(!String::from_utf8(output.captured()).unwrap().contains("No package.json"));
+}
+
+#[test]
+fn keeps_json_output_to_the_plan_without_a_package_json() {
+    let fs = InMemoryFs::new();
+    let output = InMemoryOutput::new();
+
+    add_elements(&fs, &output, &InMemoryProcessRunner::new(), AddOptions { components: vec!["tabs".into()], json: true, ..Default::default() }).unwrap();
+
+    let captured = String::from_utf8(output.captured()).unwrap();
+    serde_json::from_str::<serde_json::Value>(&captured).unwrap_or_else(|error| panic!("{error}: {captured}"));
+}

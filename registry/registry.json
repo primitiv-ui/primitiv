@@ -202,7 +202,12 @@
           ]
         }
       },
-      "contract": "contract.json"
+      "contract": "contract.json",
+      "elements": {
+        "files": [
+          "badge.html"
+        ]
+      }
     },
     "blockquote": {
       "version": "0.1.0",
@@ -370,7 +375,12 @@
           ]
         }
       },
-      "contract": "contract.json"
+      "contract": "contract.json",
+      "elements": {
+        "files": [
+          "button.html"
+        ]
+      }
     },
     "card": {
       "version": "0.1.0",
@@ -1121,7 +1131,12 @@
           ]
         }
       },
-      "contract": "contract.json"
+      "contract": "contract.json",
+      "elements": {
+        "files": [
+          "inline-code.html"
+        ]
+      }
     },
     "input": {
       "version": "0.1.0",
@@ -1225,7 +1240,12 @@
           ]
         }
       },
-      "contract": "contract.json"
+      "contract": "contract.json",
+      "elements": {
+        "files": [
+          "kbd.html"
+        ]
+      }
     },
     "list": {
       "version": "0.1.0",
@@ -1998,7 +2018,12 @@
           ]
         }
       },
-      "contract": "contract.json"
+      "contract": "contract.json",
+      "elements": {
+        "files": [
+          "tag.html"
+        ]
+      }
     },
     "textarea": {
       "version": "0.1.0",

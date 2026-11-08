@@ -41,3 +41,36 @@ fn wraps_the_text_in_a_label_span_when_the_contract_asks() {
         emit_snippet(&contract)
     );
 }
+
+/// Drift guard: every snippet `registry.json` lists under a component's
+/// `elements.files` is exactly what its contract generates. Regenerate with
+/// `cargo run -p primitiv-emit --example regen-snippets`.
+#[test]
+fn committed_registry_snippets_match_their_contracts() {
+    let registry = concat!(env!("CARGO_MANIFEST_DIR"), "/../../registry");
+    let index: serde_json::Value = serde_json::from_str(
+        &std::fs::read_to_string(format!("{registry}/registry.json")).unwrap(),
+    )
+    .unwrap();
+    let mut checked = 0;
+    for (name, entry) in index["components"].as_object().unwrap() {
+        let files = entry["elements"]["files"].as_array().into_iter().flatten();
+        for file in files
+            .filter_map(|file| file.as_str())
+            .filter(|file| file.ends_with(".html"))
+        {
+            let dir = format!("{registry}/components/{name}");
+            let contract =
+                Contract::parse(&std::fs::read(format!("{dir}/contract.json")).unwrap()).unwrap();
+            let committed = std::fs::read_to_string(format!("{dir}/{file}"))
+                .unwrap_or_else(|error| panic!("{name}/{file}: {error}"));
+            assert_eq!(
+                committed,
+                emit_snippet(&contract),
+                "{name}/{file} has drifted"
+            );
+            checked += 1;
+        }
+    }
+    assert!(checked > 0, "no registry component lists a snippet");
+}

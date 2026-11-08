@@ -887,9 +887,13 @@ stays the plan alone.
 by `primitiv-emit` (`regen-snippets`), committed under
 `registry/components/<name>/`, embedded in the CLI, and held to its contract by
 a drift guard. Single-element components (§8.3) are generated generically from
-the contract today. Compound markup such as Tabs needs anatomy the contract
-does not record yet (which part nests in which, which repeats per value),
-which the Tabs slice settles.
+the contract today. A compound's example is **hand-written** (Tabs' is §5.1's
+markup, with `hidden` on the inactive panels so the page is right before the
+module loads, §5.5), because the contract does not record which part nests in
+which or which repeats per value. The same drift guard holds a hand-written
+example to its contract: it may use no class the contract does not define, and
+must use every part's class. Recording anatomy in the contract, so compounds
+can be generated too, waits until a second compound shows what it needs.
 
 ### 8.2 CLI changes (D26)
 
@@ -960,7 +964,7 @@ Still open:
 | 4 | **`@primitiv-ui/react` Tabs rebuilt as an adapter over `TabsController`** | Done 2026-11-07 on one commit: all 14 existing Tabs files unedited, the 7-case SSR golden byte-identical, conformance green, Tabs at 100% mutation; full React suite 454 files at 100% coverage; consumer smoke (node, vite) green |
 | 5 | Distribution: entry points, bundle, CEM + framework typings, size gate, lockstep release with `@primitiv-ui/react` depending on core and web | **The proof release:** published, React Tabs consumers see no change, elements work from jsDelivr on a blank page. Built 2026-11-07: `define` entries, the 2.3 KB-gzip bundle under a 3 KB gate (checked in real Chromium, RTL included), the Custom Elements Manifest with a completeness check, the opt-in npm-only tag map, `web` public and in every release loop. React / Vue / Svelte template typings moved to Phase 6, where those frameworks are installed to type-check against. The release itself is yours to run (RELEASING.md §3). |
 | 6 | `apps/interop-lab` (html, htmx, react, vue, svelte, angular) + Playwright | Shared spec and the ten HTMX cases green in CI. **Landed 2026-11-07 for html, htmx, React 19, Vue 3 and Svelte 5:** 48 Playwright cases in real Chromium (the shared Tabs contract on four pages, incl. `:dir()`, `:focus-visible`, StrictMode, controlled use and re-render survival; and all ten HTMX swap cases), plus the opt-in `@primitiv-ui/web/{react,vue,svelte}` template typings type-checked in the lab against real installs (Svelte's by a script over `svelte-check`, since its markup has no expect-error comment). **Completed 2026-11-07 with Angular 22** (AOT through Vite, zoneless, `OnPush` signals; `ngc` with `strictTemplates` checks its template expressions): 58 cases across five framework pages and the HTMX page. Angular gets no typing entry, since its schema-checked custom elements type `$event` as `Event` whatever is declared. |
-| 7 | CLI: the `elements` registry block, generated example markup, `--surface`; components with no behaviour first (§8.3), then Tabs | `primitiv add tabs --surface elements` works in every interop-lab app; Rust gate green. **Built 2026-11-08 for the components with no behaviour:** `surface` config with the `framework` alias, `init --surface` with detection and no-`package.json` sites, `add --surface` (copy layout, elements packages or the CDN script, `index.css`, `<link>` lines, printed markup), and `list`'s `SURFACES` column, at 100% lines, regions and functions. **Still open:** Tabs (its compound markup, the `display: contents` rule, its registry block) and the interop-lab proof. |
+| 7 | CLI: the `elements` registry block, generated example markup, `--surface`; components with no behaviour first (§8.3), then Tabs | `primitiv add tabs --surface elements` works in every interop-lab app; Rust gate green. **Built 2026-11-08 for the components with no behaviour:** `surface` config with the `framework` alias, `init --surface` with detection and no-`package.json` sites, `add --surface` (copy layout, elements packages or the CDN script, `index.css`, `<link>` lines, printed markup), and `list`'s `SURFACES` column, at 100% lines, regions and functions. Tabs followed the same day: its hand-written example, the `display: contents` rule in its stylesheet (synced to the kitchen-sink and docs-site copies), and an `elements` block on `@primitiv-ui/web` `^0.1.41`, the first release that will carry it. The interop lab proves it: before the run, the real CLI runs `init` and `add tabs` in a plain HTML folder, and a styled page links the copied stylesheets and renders the printed markup, which Playwright checks is styled and working. The framework pages already cover the element across frameworks, so the styled proof is the plain-HTML page only. |
 | 8 | Next components, one at a time, each through phases 2–5 | — |
 
 Phase 8 order, so each step reuses the core the previous one built:

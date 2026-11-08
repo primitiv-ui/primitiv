@@ -209,14 +209,17 @@ A fourth library, and the first one another library **depends on**:
   is now settings only: add the `NPM_TOKEN` repo secret, release, configure
   Trusted Publishing on the new package, then delete the secret and revoke the
   token. §2 step 3's "write the block" is done for you.
-- **JSR resolution of `workspace:*` is unverified.** JSR documents
-  `package.json` dependencies as a source of bare-specifier resolution but says
-  nothing about pnpm's `workspace:` protocol, and `jsr publish --dry-run` cannot
-  run in the cloud sandbox. The JSR preflight in `publish.yml` runs before any
-  npm publish, so a failure is safe, but run the publish workflow's preflight
-  (or `npx jsr publish --dry-run` in `packages/react` locally) before cutting
-  the first release that includes core. If it fails, the documented fix is a
-  `jsr:@primitiv-ui/core@<version>` value for JSR only.
+- **JSR cannot read `workspace:*`, so `jsr.json` pins the siblings.** JSR
+  publishes package.json's `workspace:*` as an unversioned `npm:` specifier and
+  rejects it ("specifier 'npm:@primitiv-ui/core' is missing a version
+  constraint"), which `jsr publish --dry-run` does **not** catch: it is checked at
+  upload. v0.1.42 hit it after npm had published. So `web` and `react` carry an
+  `imports` map in `jsr.json`: `jsr:@primitiv-ui/core@^0.1.42` (and `web` for
+  react). The pins are a caret floor, not the exact version, because the
+  preflight dry run resolves them **before** this release's packages exist on
+  JSR; an exact new version would fail it. The bump script leaves them alone.
+  **Raise the floor when the minor version changes** (0.2.0 needs `^0.2.0`),
+  or JSR consumers keep resolving the older line.
 
 ### `@primitiv-ui/web` (added 2026-11-07, RFC 0033 Phase 5)
 

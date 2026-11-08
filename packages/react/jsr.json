@@ -2,5 +2,9 @@
   "name": "@primitiv-ui/react",
   "version": "0.1.42",
   "exports": "./src/index.ts",
+  "imports": {
+    "@primitiv-ui/core": "jsr:@primitiv-ui/core@^0.1.42",
+    "@primitiv-ui/web": "jsr:@primitiv-ui/web@^0.1.42"
+  },
   "license": "MIT"
 }

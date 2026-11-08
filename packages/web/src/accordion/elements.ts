@@ -168,7 +168,10 @@ export class PrimitivAccordionElement extends ElementBase {
         if (!panel.hasAttribute("role")) panel.setAttribute("role", "region");
         write(panel, "aria-labelledby", button ? button.id : null);
         write(panel, "hidden", open || forced ? null : "");
-        write(panel, "aria-hidden", forced && !open ? "true" : null);
+        // Every closed panel, not only a force-mount one: a stylesheet that
+        // animates the panel gives it a display that wins over `hidden` (the
+        // registry's does), which would leave an empty region exposed.
+        write(panel, "aria-hidden", open ? null : "true");
         write(panel, "data-state", state);
         // An item that opens announces it, so a lazy panel can fetch its
         // content (`hx-trigger="primitiv-accordion-show once"`). The first
@@ -223,7 +226,7 @@ export class PrimitivAccordionTriggerElement extends ElementBase {}
  * its ARIA and hides it while the item is closed.
  *
  * @customElement primitiv-accordion-content
- * @attr {boolean} force-mount - Never sets `hidden`, so styles can animate the panel open and closed; `aria-hidden` hides it from assistive technology while closed instead.
+ * @attr {boolean} force-mount - Never sets `hidden`, so styles can animate the panel open and closed. A closed panel always carries `aria-hidden`, so it stays out of the accessibility tree either way.
  * @fires {CustomEvent} primitiv-accordion-show - Bubbles from the panel as its item opens (not on first render), so a lazy panel can fetch its content.
  */
 export class PrimitivAccordionContentElement extends ElementBase {}

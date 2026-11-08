@@ -102,6 +102,15 @@ describe("<primitiv-accordion> rendering", () => {
     expect(panel.hasAttribute("aria-hidden")).toBe(false);
   });
 
+  it("also hides a closed panel from assistive technology, for a stylesheet whose display overrides hidden", async () => {
+    // Arrange & Act
+    await mount(accordionHtml({ value: "two" }));
+
+    // Assert
+    expect(content(0).getAttribute("aria-hidden")).toBe("true");
+    expect(content(2).getAttribute("aria-hidden")).toBe("true");
+  });
+
   it("keeps a force-mount panel unhidden, hiding it from assistive technology while closed", async () => {
     // Arrange & Act
     await mount(accordionHtml({ value: "two", forceMount: true }));

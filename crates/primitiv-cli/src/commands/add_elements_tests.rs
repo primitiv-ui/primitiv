@@ -126,3 +126,23 @@ fn takes_the_surface_from_the_project_config_without_the_flag() {
 
     assert!(matches!(error, CliError::NotFound(_)), "{error:?}");
 }
+
+#[test]
+fn plans_the_elements_packages_in_place_of_the_react_ones() {
+    let fs = InMemoryFs::new();
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+
+    add_elements(
+        &fs,
+        &output,
+        &runner,
+        AddOptions { components: vec!["kbd".into(), "tabs".into()], dry_run: true, ..Default::default() },
+    )
+    .unwrap();
+
+    assert_eq!(
+        String::from_utf8(output.captured()).unwrap(),
+        "Resolved 2 components to add:\n  kbd   0.1.0\n  tabs  0.1.0\n\nPackages to ensure:\n  @primitiv-ui/web@^0.1.0\n"
+    );
+}

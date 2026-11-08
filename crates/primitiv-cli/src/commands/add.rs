@@ -12,7 +12,7 @@ use crate::ports::output::Output;
 use crate::ports::process::ProcessRunner;
 use crate::ports::prompt::{Decision, Prompt};
 use crate::ports::registry::{HttpsRegistry, LocalRegistry, Registry};
-use crate::registry::RegistryIndex;
+use crate::registry::{ComponentEntry, PackageDep, RegistryIndex};
 use crate::wiring;
 
 /// The order-free options `add` is invoked with (RFC 0005 §2.2 / §5), mirroring
@@ -231,9 +231,9 @@ pub fn add(
         None
     };
     let plan = if *json {
-        render_json(&index, &resolved, refresh_files.as_deref())
+        render_json(&index, &resolved, surface, refresh_files.as_deref())
     } else {
-        render(&index, &resolved)
+        render(&index, &resolved, surface)
     };
     output.write_stdout(plan.as_bytes())?;
     // When dry-running in human mode, append the "Refresh plan:" section after the
@@ -248,7 +248,7 @@ pub fn add(
     if !*dry_run {
         let dir = fs.current_dir()?;
         if !*styles_only {
-            ensure_packages(fs, runner, &index, &resolved, &dir)?;
+            ensure_packages(fs, runner, &index, &resolved, surface, &dir)?;
         }
         if !*no_styles {
             ensure_style_packages(fs, runner, &index, &resolved, &dir)?;
@@ -706,9 +706,10 @@ fn ensure_packages(
     runner: &impl ProcessRunner,
     index: &RegistryIndex,
     resolved: &[String],
+    surface: Surface,
     dir: &Path,
 ) -> Result<(), CliError> {
-    let packages = packages(index, resolved);
+    let packages = packages(index, resolved, surface);
     if packages.is_empty() {
         return Ok(());
     }
@@ -751,7 +752,7 @@ fn resolve(index: &RegistryIndex, requested: &[String]) -> Result<Vec<String>, C
 /// over an aligned `name  version` list, then (when any) the `Packages to
 /// ensure:` the components pull in. Both lists are sorted; the package list is
 /// the deduplicated union across the resolved components (RFC 0005 §4.4).
-fn render(index: &RegistryIndex, resolved: &[String]) -> String {
+fn render(index: &RegistryIndex, resolved: &[String], surface: Surface) -> String {
     let plural = if resolved.len() == 1 { "" } else { "s" };
     let width = resolved.iter().map(String::len).max().unwrap_or(0);
     let mut plan = format!("Resolved {} component{plural} to add:\n", resolved.len());
@@ -759,7 +760,7 @@ fn render(index: &RegistryIndex, resolved: &[String]) -> String {
         let version = &index.components[name].version;
         plan.push_str(&format!("  {name:<width$}  {version}\n"));
     }
-    let packages = packages(index, resolved);
+    let packages = packages(index, resolved, surface);
     if !packages.is_empty() {
         plan.push_str("\nPackages to ensure:\n");
         for package in &packages {
@@ -779,6 +780,7 @@ fn render(index: &RegistryIndex, resolved: &[String]) -> String {
 fn render_json(
     index: &RegistryIndex,
     resolved: &[String],
+    surface: Surface,
     files: Option<&[(String, &str)]>,
 ) -> String {
     let components: Vec<String> = resolved
@@ -788,7 +790,7 @@ fn render_json(
             format!("    {{ \"name\": \"{name}\", \"version\": \"{version}\" }}")
         })
         .collect();
-    let packages: Vec<String> = packages(index, resolved)
+    let packages: Vec<String> = packages(index, resolved, surface)
         .iter()
         .map(|package| format!("    \"{package}\""))
         .collect();
@@ -830,14 +832,23 @@ fn json_array(items: Vec<String>) -> String {
 /// (`name@range` when the component pins a version, bare `name` otherwise), so a
 /// component that requires a minimum `@primitiv-ui/react` drives the install to a
 /// version new enough to carry its exports (the version safeguard).
-fn packages(index: &RegistryIndex, resolved: &[String]) -> Vec<String> {
+fn packages(index: &RegistryIndex, resolved: &[String], surface: Surface) -> Vec<String> {
     resolved
         .iter()
-        .flat_map(|name| index.components[name].depends_on.packages.iter())
-        .map(crate::registry::PackageDep::spec)
+        .flat_map(|name| declared_packages(&index.components[name], surface))
+        .map(PackageDep::spec)
         .collect::<BTreeSet<_>>()
         .into_iter()
         .collect()
+}
+
+/// The packages one component declares for `surface`: the headless library
+/// for React, its `elements.packages` for the elements surface (RFC 0033 §8.2).
+fn declared_packages(entry: &ComponentEntry, surface: Surface) -> Vec<&PackageDep> {
+    match surface {
+        Surface::React => entry.depends_on.packages.iter().collect(),
+        Surface::Elements => entry.elements.iter().flat_map(|elements| &elements.packages).collect(),
+    }
 }
 
 /// The deduplicated, sorted list of styled-surface npm packages declared across

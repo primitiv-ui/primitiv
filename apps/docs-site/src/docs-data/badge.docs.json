@@ -93,5 +93,9 @@
   },
   "figma": {
     "componentSetKey": "1387:32589"
+  },
+  "elements": {
+    "package": null,
+    "example": "<span class=\"primitiv-badge primitiv-badge--success primitiv-badge--label primitiv-badge--md\">Badge</span>\n"
   }
 }

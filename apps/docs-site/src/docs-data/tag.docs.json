@@ -87,5 +87,9 @@
   },
   "figma": {
     "componentSetKey": "1390:32648"
+  },
+  "elements": {
+    "package": null,
+    "example": "<span class=\"primitiv-tag primitiv-tag--neutral primitiv-tag--md\">Tag</span>\n"
   }
 }

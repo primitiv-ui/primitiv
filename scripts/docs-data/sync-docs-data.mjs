@@ -132,6 +132,9 @@ const roster = registryIds.map((id) => {
     /* Whether a docs PAGE exists — i.e. whether this id has an extractor entry.
        The index links these and leaves the rest inert. */
     documented: Object.hasOwn(REGISTRY, id),
+    /* Whether it has an elements surface (RFC 0033 §8): the docs site's
+       Elements mode lists only these. */
+    elements: Boolean(registry.components[id].elements),
   };
 });
 

@@ -406,5 +406,9 @@
   },
   "figma": {
     "componentSetKey": "425:5528"
+  },
+  "elements": {
+    "package": "@primitiv-ui/web",
+    "example": "<primitiv-tabs value=\"one\" class=\"primitiv-tabs primitiv-tabs--md\">\n  <primitiv-tabs-list label=\"Sections\" class=\"primitiv-tabs__list primitiv-tabs__list--start\">\n    <primitiv-tabs-trigger value=\"one\">\n      <button type=\"button\" class=\"primitiv-tabs__trigger\">\n        <span class=\"primitiv-tabs__trigger-label\">One</span>\n      </button>\n    </primitiv-tabs-trigger>\n    <primitiv-tabs-trigger value=\"two\">\n      <button type=\"button\" class=\"primitiv-tabs__trigger\">\n        <span class=\"primitiv-tabs__trigger-label\">Two</span>\n      </button>\n    </primitiv-tabs-trigger>\n    <primitiv-tabs-trigger value=\"three\">\n      <button type=\"button\" class=\"primitiv-tabs__trigger\">\n        <span class=\"primitiv-tabs__trigger-label\">Three</span>\n      </button>\n    </primitiv-tabs-trigger>\n  </primitiv-tabs-list>\n  <primitiv-tabs-content value=\"one\" class=\"primitiv-tabs__panel\">First panel</primitiv-tabs-content>\n  <primitiv-tabs-content value=\"two\" class=\"primitiv-tabs__panel\" hidden>Second panel</primitiv-tabs-content>\n  <primitiv-tabs-content value=\"three\" class=\"primitiv-tabs__panel\" hidden>Third panel</primitiv-tabs-content>\n</primitiv-tabs>\n"
   }
 }

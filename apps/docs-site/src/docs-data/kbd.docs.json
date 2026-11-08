@@ -89,5 +89,9 @@
   },
   "figma": {
     "componentSetKey": "612:35198"
+  },
+  "elements": {
+    "package": null,
+    "example": "<kbd class=\"primitiv-kbd primitiv-kbd--md\">Kbd</kbd>\n"
   }
 }

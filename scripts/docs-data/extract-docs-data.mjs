@@ -533,6 +533,21 @@ const subComponents = cfg.subComponents.map((sc) => {
   };
 });
 
+/** The registry entry's `elements` block, resolved for the page: the package
+ *  it installs (none for a component with no behaviour, §8.3) and its example
+ *  markup's text. */
+function elementsSurface() {
+  const registry = JSON.parse(readFileSync(join(ROOT, "registry/registry.json"), "utf8"));
+  const block = registry.components[name]?.elements;
+  if (!block) return null;
+  return {
+    package: block.packages?.[0]?.name ?? null,
+    example: block.example
+      ? readFileSync(join(ROOT, `registry/components/${name}/${block.example}`), "utf8")
+      : null,
+  };
+}
+
 const out = {
   id: name, displayName: cfg.displayName, kind: cfg.kind, status: cfg.status,
   category: cfg.category,
@@ -545,6 +560,11 @@ const out = {
     dataAttributes,
   },
   figma: { componentSetKey: cfg.figmaComponentSetKey },
+  /* The elements surface (RFC 0033 §8), or null when the component has none
+     yet. Read from the registry entry, so a component gains the docs site's
+     Elements mode by gaining the block there, with no page edit. `example` is
+     the markup `primitiv add --surface elements` prints, verbatim. */
+  elements: elementsSurface(),
 };
 
 const outPath = join(ROOT, `scripts/docs-data/${name}.docs.json`);

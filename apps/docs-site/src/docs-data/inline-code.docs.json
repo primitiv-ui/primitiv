@@ -85,5 +85,9 @@
   },
   "figma": {
     "componentSetKey": "601:9492"
+  },
+  "elements": {
+    "package": null,
+    "example": "<code class=\"primitiv-inline-code primitiv-inline-code--md\">Inline code</code>\n"
   }
 }

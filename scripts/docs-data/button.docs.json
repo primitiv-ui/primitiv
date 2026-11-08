@@ -144,5 +144,9 @@
   },
   "figma": {
     "componentSetKey": "347:14161"
+  },
+  "elements": {
+    "package": null,
+    "example": "<button type=\"button\" class=\"primitiv-button primitiv-button--primary primitiv-button--md\">\n  <span class=\"primitiv-button__label\">Button</span>\n</button>\n"
   }
 }

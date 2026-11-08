@@ -208,6 +208,8 @@ export type RosterEntry = {
   readonly category: Category;
   readonly description: string;
   readonly documented: boolean;
+  /** Whether it has an elements surface (RFC 0033 §8): Elements mode lists only these. */
+  readonly elements: boolean;
 };
 
 export const ROSTER = rosterData as readonly RosterEntry[];
@@ -246,6 +248,16 @@ export type ComponentDocs = {
    * worse than no link — so the header omits the Figma link when this is absent.
    */
   readonly figma: { readonly componentSetKey?: string };
+  /**
+   * The elements surface (RFC 0033 §8), or `null` when the component has none
+   * yet. `package` is what it installs (`@primitiv-ui/web`), `null` for a
+   * component with no behaviour, whose classes on native markup are the whole
+   * component. `example` is the markup `primitiv add --surface elements` prints.
+   */
+  readonly elements: {
+    readonly package: string | null;
+    readonly example: string | null;
+  } | null;
 };
 
 const DOCS = {

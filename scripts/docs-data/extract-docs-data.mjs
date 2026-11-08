@@ -557,7 +557,37 @@ function elementsSurface() {
     example: block.example
       ? readFileSync(join(ROOT, `registry/components/${name}/${block.example}`), "utf8")
       : null,
+    api: pkg?.name === "@primitiv-ui/web" ? elementsApi() : [],
   };
+}
+
+/**
+ * Each custom element's attributes and events, read from the `@customElement`
+ * JSDoc in `packages/web/src/<name>/elements.ts` — the same tags the Custom
+ * Elements Manifest is analysed from, read here so the docs build needs no
+ * `dist/`. Source order is kept: it is root first, then the parts.
+ */
+function elementsApi() {
+  const file = join(ROOT, `packages/web/src/${name}/elements.ts`);
+  if (!existsSync(file)) return [];
+  const source = readFileSync(file, "utf8");
+  const tag = /^\s*\*\s*@(attr|fires)\s+\{(.+?)\}\s+(\S+)\s+-\s+(.*)$/;
+  return [...source.matchAll(/\/\*\*([\s\S]*?)\*\//g)]
+    .map(([, body]) => body)
+    .filter((body) => /@customElement\s/.test(body))
+    .map((body) => {
+      const lines = body.split("\n");
+      const rows = (kind) =>
+        lines
+          .map((line) => line.match(tag))
+          .filter((m) => m && m[1] === kind)
+          .map(([, , type, rowName, description]) => ({ name: rowName, type, description: description.trim() }));
+      return {
+        tag: body.match(/@customElement\s+(\S+)/)[1],
+        attributes: rows("attr"),
+        events: rows("fires"),
+      };
+    });
 }
 
 const out = {

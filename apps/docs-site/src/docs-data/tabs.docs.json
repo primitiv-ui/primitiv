@@ -424,6 +424,79 @@
     "version": "0.1.42",
     "element": "div",
     "wrapText": false,
-    "example": "<primitiv-tabs value=\"one\" class=\"primitiv-tabs primitiv-tabs--md\">\n  <primitiv-tabs-list label=\"Sections\" class=\"primitiv-tabs__list primitiv-tabs__list--start\">\n    <primitiv-tabs-trigger value=\"one\">\n      <button type=\"button\" class=\"primitiv-tabs__trigger\">\n        <span class=\"primitiv-tabs__trigger-label\">One</span>\n      </button>\n    </primitiv-tabs-trigger>\n    <primitiv-tabs-trigger value=\"two\">\n      <button type=\"button\" class=\"primitiv-tabs__trigger\">\n        <span class=\"primitiv-tabs__trigger-label\">Two</span>\n      </button>\n    </primitiv-tabs-trigger>\n    <primitiv-tabs-trigger value=\"three\">\n      <button type=\"button\" class=\"primitiv-tabs__trigger\">\n        <span class=\"primitiv-tabs__trigger-label\">Three</span>\n      </button>\n    </primitiv-tabs-trigger>\n  </primitiv-tabs-list>\n  <primitiv-tabs-content value=\"one\" class=\"primitiv-tabs__panel\">First panel</primitiv-tabs-content>\n  <primitiv-tabs-content value=\"two\" class=\"primitiv-tabs__panel\" hidden>Second panel</primitiv-tabs-content>\n  <primitiv-tabs-content value=\"three\" class=\"primitiv-tabs__panel\" hidden>Third panel</primitiv-tabs-content>\n</primitiv-tabs>\n"
+    "example": "<primitiv-tabs value=\"one\" class=\"primitiv-tabs primitiv-tabs--md\">\n  <primitiv-tabs-list label=\"Sections\" class=\"primitiv-tabs__list primitiv-tabs__list--start\">\n    <primitiv-tabs-trigger value=\"one\">\n      <button type=\"button\" class=\"primitiv-tabs__trigger\">\n        <span class=\"primitiv-tabs__trigger-label\">One</span>\n      </button>\n    </primitiv-tabs-trigger>\n    <primitiv-tabs-trigger value=\"two\">\n      <button type=\"button\" class=\"primitiv-tabs__trigger\">\n        <span class=\"primitiv-tabs__trigger-label\">Two</span>\n      </button>\n    </primitiv-tabs-trigger>\n    <primitiv-tabs-trigger value=\"three\">\n      <button type=\"button\" class=\"primitiv-tabs__trigger\">\n        <span class=\"primitiv-tabs__trigger-label\">Three</span>\n      </button>\n    </primitiv-tabs-trigger>\n  </primitiv-tabs-list>\n  <primitiv-tabs-content value=\"one\" class=\"primitiv-tabs__panel\">First panel</primitiv-tabs-content>\n  <primitiv-tabs-content value=\"two\" class=\"primitiv-tabs__panel\" hidden>Second panel</primitiv-tabs-content>\n  <primitiv-tabs-content value=\"three\" class=\"primitiv-tabs__panel\" hidden>Third panel</primitiv-tabs-content>\n</primitiv-tabs>\n",
+    "api": [
+      {
+        "tag": "primitiv-tabs",
+        "attributes": [
+          {
+            "name": "value",
+            "type": "string",
+            "description": "The active tab's value. Reflected: it moves as the user switches tabs, so a server re-render or a history snapshot sees the live selection."
+          },
+          {
+            "name": "orientation",
+            "type": "\"horizontal\" | \"vertical\"",
+            "description": "Layout axis, which picks the arrow-key pair. Defaults to `horizontal`."
+          },
+          {
+            "name": "activation-mode",
+            "type": "\"automatic\" | \"manual\"",
+            "description": "`automatic` activates a tab as focus arrives; `manual` waits for Enter or Space. Defaults to `automatic`."
+          }
+        ],
+        "events": [
+          {
+            "name": "primitiv-tabs-change",
+            "type": "CustomEvent<{ value: string; index: number }>",
+            "description": "Bubbles, cancelable, fired before a user-driven change is applied. Call `preventDefault()` to veto it."
+          }
+        ]
+      },
+      {
+        "tag": "primitiv-tabs-list",
+        "attributes": [
+          {
+            "name": "label",
+            "type": "string",
+            "description": "The tablist's accessible name. Give this or `aria-labelledby`."
+          }
+        ],
+        "events": []
+      },
+      {
+        "tag": "primitiv-tabs-trigger",
+        "attributes": [
+          {
+            "name": "value",
+            "type": "string",
+            "description": "The tab's value, pairing it with the panel of the same value."
+          },
+          {
+            "name": "disabled",
+            "type": "boolean",
+            "description": "Marks the tab disabled: arrow keys still land on it, but it never activates."
+          }
+        ],
+        "events": []
+      },
+      {
+        "tag": "primitiv-tabs-content",
+        "attributes": [
+          {
+            "name": "value",
+            "type": "string",
+            "description": "The panel's value, pairing it with the tab of the same value."
+          }
+        ],
+        "events": [
+          {
+            "name": "primitiv-tabs-show",
+            "type": "CustomEvent",
+            "description": "Bubbles from the panel as it becomes active (not on first render), so a lazy panel can fetch its content."
+          }
+        ]
+      }
+    ]
   }
 }

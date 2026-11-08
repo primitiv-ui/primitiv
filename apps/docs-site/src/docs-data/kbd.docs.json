@@ -102,6 +102,7 @@
     "version": null,
     "element": "kbd",
     "wrapText": false,
-    "example": "<kbd class=\"primitiv-kbd primitiv-kbd--md\">Kbd</kbd>\n"
+    "example": "<kbd class=\"primitiv-kbd primitiv-kbd--md\">Kbd</kbd>\n",
+    "api": []
   }
 }

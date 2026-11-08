@@ -73,7 +73,8 @@ Options:
 const LIST: &str = "\
 Usage: primitiv list [--json]
 
-Lists the registry's components and which are installed in this project.
+Lists the registry's components, which are installed in this project, and the
+surfaces (react, elements) each can be added on.
 
 Options:
   --json                         Print the list as JSON

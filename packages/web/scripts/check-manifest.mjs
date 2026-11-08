@@ -4,12 +4,24 @@
 // generators read. The analyzer can only see a tag through its
 // `@customElement` JSDoc, so a new element missing that tag would silently
 // drop out of every tool; this fails the build instead. Run after `pnpm build`.
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 
 const manifest = JSON.parse(readFileSync(new URL("../dist/custom-elements.json", import.meta.url), "utf8"));
-const source = readFileSync(new URL("../src/tabs/elements.ts", import.meta.url), "utf8");
+// Every component's elements module: `src/<component>/elements.ts`.
+const src = new URL("../src/", import.meta.url);
+const sources = readdirSync(src, { withFileTypes: true })
+  .filter((entry) => entry.isDirectory())
+  .flatMap((entry) => {
+    try {
+      return [readFileSync(new URL(`${entry.name}/elements.ts`, src), "utf8")];
+    } catch {
+      return [];
+    }
+  });
 
-const defined = [...source.matchAll(/^const \w+ = "(primitiv-[a-z-]+)";$/gm)].map((m) => m[1]);
+const defined = sources.flatMap((source) =>
+  [...source.matchAll(/^const \w+ = "(primitiv-[a-z-]+)";$/gm)].map((m) => m[1]),
+);
 const listed = new Set(
   manifest.modules.flatMap((module) => (module.declarations ?? []).map((d) => d.tagName)).filter(Boolean),
 );

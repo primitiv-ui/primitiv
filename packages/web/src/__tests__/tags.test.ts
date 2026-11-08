@@ -4,6 +4,11 @@
 import "../tags";
 
 import type {
+  PrimitivAccordionContentElement,
+  PrimitivAccordionElement,
+  PrimitivAccordionItemElement,
+  PrimitivAccordionTriggerElement,
+  PrimitivAccordionTriggerIconElement,
   PrimitivTabsContentElement,
   PrimitivTabsElement,
   PrimitivTabsListElement,
@@ -15,4 +20,14 @@ it("types every Tabs tag in HTMLElementTagNameMap", () => {
   expectTypeOf(document.createElement("primitiv-tabs-list")).toEqualTypeOf<PrimitivTabsListElement>();
   expectTypeOf(document.createElement("primitiv-tabs-trigger")).toEqualTypeOf<PrimitivTabsTriggerElement>();
   expectTypeOf(document.createElement("primitiv-tabs-content")).toEqualTypeOf<PrimitivTabsContentElement>();
+});
+
+it("types every Accordion tag in HTMLElementTagNameMap", () => {
+  expectTypeOf(document.querySelector("primitiv-accordion")).toEqualTypeOf<PrimitivAccordionElement | null>();
+  expectTypeOf(document.createElement("primitiv-accordion-item")).toEqualTypeOf<PrimitivAccordionItemElement>();
+  expectTypeOf(document.createElement("primitiv-accordion-trigger")).toEqualTypeOf<PrimitivAccordionTriggerElement>();
+  expectTypeOf(document.createElement("primitiv-accordion-content")).toEqualTypeOf<PrimitivAccordionContentElement>();
+  expectTypeOf(
+    document.createElement("primitiv-accordion-trigger-icon"),
+  ).toEqualTypeOf<PrimitivAccordionTriggerIconElement>();
 });

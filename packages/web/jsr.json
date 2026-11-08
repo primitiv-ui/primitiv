@@ -3,8 +3,10 @@
   "version": "0.1.43",
   "exports": {
     ".": "./src/index.ts",
+    "./accordion": "./src/accordion/index.ts",
     "./tabs": "./src/tabs/index.ts",
     "./define": "./src/define/index.ts",
+    "./define/accordion": "./src/define/accordion.ts",
     "./define/tabs": "./src/define/tabs.ts"
   },
   "imports": {

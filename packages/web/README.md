@@ -6,9 +6,15 @@ framework and no runtime dependencies beyond
 server-rendered stack (HTMX, Rails, Django, Laravel, Spring …), and inside
 React, Vue, Angular or any other framework.
 
-> **Status: publish-ready, first release pending.** Tabs is the first
-> component. See [RFC 0033](../../docs/rfcs/0033-web-components.md) for the
-> design.
+> **Status: published.** Tabs and Accordion so far. See
+> [RFC 0033](../../docs/rfcs/0033-web-components.md) for the design.
+
+## Components
+
+| Component | Elements | Change event | First release |
+|---|---|---|---|
+| Tabs | `primitiv-tabs`, `-list`, `-trigger`, `-content` | `primitiv-tabs-change` | 0.1.42 |
+| Accordion | `primitiv-accordion`, `-item`, `-trigger`, `-content`, `-trigger-icon` | `primitiv-accordion-change` | 0.1.44 |
 
 ## Use it
 
@@ -40,8 +46,9 @@ Each `dist/cdn/<component>.js` imports the code components share from
 downloads it once. `dist/primitiv-web.js` is the alternative: every element in
 one file. Per-component files ship from 0.1.43.
 
-The main entry (`@primitiv-ui/web`, `/tabs`) exports the classes and
-`defineTabs(registry?)` with **no side effects**.
+The main entry (`@primitiv-ui/web`, `/tabs`, `/accordion`) exports the classes
+and `defineTabs(registry?)` / `defineAccordion(registry?)` with **no side
+effects**.
 
 **Render `hidden` on inactive panels yourself.** Until the module loads, CSS
 cannot tell which panel is active, so markup that omits it shows every panel.
@@ -49,6 +56,42 @@ cannot tell which panel is active, so markup that omits it shows every panel.
 **Listen with `primitiv-tabs-change`** (bubbles, cancelable, `detail: { value,
 index }`) — call `preventDefault()` to veto a change — and `primitiv-tabs-show`
 on a panel as it becomes active, for lazy loading.
+
+### Accordion
+
+```html
+<script type="module" src="https://cdn.jsdelivr.net/npm/@primitiv-ui/web@<version>/dist/cdn/accordion.js"></script>
+
+<primitiv-accordion value="shipping">
+  <primitiv-accordion-item value="shipping">
+    <h3>
+      <primitiv-accordion-trigger><button type="button">Shipping</button></primitiv-accordion-trigger>
+    </h3>
+    <primitiv-accordion-content>Free on orders over £50.</primitiv-accordion-content>
+  </primitiv-accordion-item>
+  <primitiv-accordion-item value="returns">
+    <h3>
+      <primitiv-accordion-trigger><button type="button">Returns</button></primitiv-accordion-trigger>
+    </h3>
+    <primitiv-accordion-content hidden>30 days, no questions asked.</primitiv-accordion-content>
+  </primitiv-accordion-item>
+</primitiv-accordion>
+```
+
+- **`value` lists the open items, separated by spaces** (so item values cannot
+  contain whitespace), and is reflected as items toggle. `multiple` lets more
+  than one be open; `orientation="horizontal"` switches the arrow pair. The
+  `value` property reads as an array and accepts an array or a string.
+- **The heading is yours.** Wrap each trigger in a real `<h2>`–`<h6>` at the
+  level your outline needs; there is no header element.
+- **`force-mount` on a panel** keeps it unhidden so styles can animate it,
+  hiding it with `aria-hidden` while closed instead — the registry stylesheet
+  needs it.
+- **`role="none"` on a panel** opts it out of being a region landmark, for an
+  accordion with many items.
+- **Listen with `primitiv-accordion-change`** (bubbles, cancelable, `detail: {
+  value }`, every item open afterwards) and `primitiv-accordion-show` on a panel
+  as its item opens. Render `hidden` on closed panels yourself, as for Tabs.
 
 **TypeScript** — opt into the tag map so DOM queries return the element classes:
 `import type {} from "@primitiv-ui/web/tags"` (npm only).
@@ -84,7 +127,7 @@ The elements write no `class` and no `style`. For the registry look, apply the
 
 ## Layers
 
-- **Controllers** (`TabsController`) hold a component's DOM behaviour —
+- **Controllers** (`TabsController`, `AccordionController`) hold a component's DOM behaviour —
   listeners, focus, the ordered collection of parts — and attach to whatever
   elements register with them. They never own state; their host does.
 - **Element hosts** (`<primitiv-tabs>` …) are the public face: they keep state

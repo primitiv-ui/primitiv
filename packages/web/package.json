@@ -10,6 +10,10 @@
       "types": "./src/index.ts",
       "default": "./src/index.ts"
     },
+    "./accordion": {
+      "types": "./src/accordion/index.ts",
+      "default": "./src/accordion/index.ts"
+    },
     "./tabs": {
       "types": "./src/tabs/index.ts",
       "default": "./src/tabs/index.ts"
@@ -17,6 +21,10 @@
     "./define": {
       "types": "./src/define/index.ts",
       "default": "./src/define/index.ts"
+    },
+    "./define/accordion": {
+      "types": "./src/define/accordion.ts",
+      "default": "./src/define/accordion.ts"
     },
     "./define/tabs": {
       "types": "./src/define/tabs.ts",
@@ -93,6 +101,10 @@
         "types": "./dist/index.d.ts",
         "default": "./dist/index.js"
       },
+      "./accordion": {
+        "types": "./dist/accordion/index.d.ts",
+        "default": "./dist/accordion/index.js"
+      },
       "./tabs": {
         "types": "./dist/tabs/index.d.ts",
         "default": "./dist/tabs/index.js"
@@ -100,6 +112,10 @@
       "./define": {
         "types": "./dist/define/index.d.ts",
         "default": "./dist/define/index.js"
+      },
+      "./define/accordion": {
+        "types": "./dist/define/accordion.d.ts",
+        "default": "./dist/define/accordion.js"
       },
       "./define/tabs": {
         "types": "./dist/define/tabs.d.ts",

@@ -125,8 +125,13 @@ the trigger's):
 </Accordion.Trigger>
 ```
 
-`Enter` and `Space` are handled in `onKeyDown` so non-button elements (e.g.
-`<a>`) toggle correctly without relying on native click behaviour.
+`Enter` and `Space` are handled on keydown so non-button elements (e.g.
+`<a>`) toggle correctly without relying on native click behaviour. That
+handling — and click toggling and arrow-key focus — lives in the shared
+`AccordionController` from `@primitiv-ui/web`, listening on the root, so the
+`<primitiv-accordion>` custom element behaves identically. A consumer
+`onKeyDown` on a trigger runs alongside it rather than replacing it, and a
+consumer `onClick` still runs after the toggle (never on a disabled trigger).
 
 When `asChild` is combined with `disabled`, `role="button"` is injected
 automatically so that `aria-disabled` is semantically valid on non-button

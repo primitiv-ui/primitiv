@@ -141,20 +141,14 @@ export type AccordionContextValue = {
   orientation: "vertical" | "horizontal";
   /** Reading direction used for left/right key semantics. */
   dir: AccordionReadingDirection;
-  /** Toggles the expanded state of the given item. */
-  toggleItem: (itemId: string) => void;
-  /** Registers a trigger element so roving focus can reach it. */
+  /** Registers a trigger element with the root's controller. */
   registerTrigger: (
     itemId: string,
     element: HTMLButtonElement | null,
     disabled?: boolean,
   ) => void;
-  /** Ordered ids of registered triggers, used for focus movement. */
+  /** Ids of registered triggers, each of which must have a content panel. */
   registeredTriggerItemIds: string[];
-  /** Set of item ids whose triggers are disabled. */
-  disabledItemIds: Set<string>;
-  /** Moves focus to the given item's trigger. */
-  focusTrigger: (itemId: string) => void;
   /** Registers a content panel as mounted. */
   registerPanel: (itemId: string) => void;
   /** Removes a previously registered content panel. */

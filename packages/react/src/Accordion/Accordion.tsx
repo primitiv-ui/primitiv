@@ -2,7 +2,7 @@ import { Ref, useEffect } from "react";
 import type { ReactElement } from "react";
 
 import { useDirection } from "../DirectionProvider/index.ts";
-import { Slot } from "../Slot/index.ts";
+import { Slot, composeRefs } from "../Slot/index.ts";
 
 import type {
   AccordionRootProps,
@@ -80,10 +80,11 @@ export function AccordionRoot({
   onValueChange,
   orientation = "vertical",
   dir,
+  ref,
   ...rest
 }: AccordionRootProps): ReactElement {
   const resolvedDir = dir ?? useDirection();
-  const { contextValue } = useAccordionRoot(
+  const { contextValue, rootRef } = useAccordionRoot(
     controlledValue,
     defaultValue,
     multiple,
@@ -94,7 +95,7 @@ export function AccordionRoot({
 
   return (
     <AccordionContext.Provider value={contextValue}>
-      <div data-orientation={orientation} dir={resolvedDir} {...rest}>
+      <div ref={ref ? composeRefs(rootRef, ref) : rootRef} data-orientation={orientation} dir={resolvedDir} {...rest}>
         {children}
       </div>
     </AccordionContext.Provider>

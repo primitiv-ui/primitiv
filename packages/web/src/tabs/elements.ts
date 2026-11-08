@@ -5,16 +5,11 @@ import {
   type TabsOrientation,
 } from "@primitiv-ui/core";
 
+import { defineElements, ElementBase, reportOnce, write, type ElementRegistry } from "../internal/element.ts";
+import { PrimitivRootElement } from "../internal/RootElement.ts";
 import { TabsController, type TabsControllerHost } from "./TabsController.ts";
 
-/**
- * The base class every element extends. It falls back to an empty class where
- * the DOM does not exist, so a server renderer (Next.js, Nuxt, Angular SSR,
- * Astro) can import this module without `HTMLElement` throwing at load time
- * (RFC 0033 D21).
- */
-const ElementBase: typeof HTMLElement =
-  globalThis.HTMLElement ?? (class {} as unknown as typeof HTMLElement);
+export type { ElementRegistry };
 
 // Stryker disable StringLiteral: static — evaluated once at import, so runtime mutant switching never reaches them; the names are pinned by the defineTabs registry test instead.
 const ROOT = "primitiv-tabs";
@@ -22,11 +17,6 @@ const LIST = "primitiv-tabs-list";
 const TRIGGER = "primitiv-tabs-trigger";
 const CONTENT = "primitiv-tabs-content";
 // Stryker restore StringLiteral
-
-let generatedIds = 0;
-
-/** Triggers already reported as misused, so each is reported once, not per reconcile. */
-const reported = new WeakSet<Element>();
 
 /**
  * An interactive part decorates exactly one element child and needs a `value`.
@@ -38,39 +28,21 @@ function decoratable(trigger: HTMLElement): { tab: HTMLElement; value: string } 
   if (trigger.childElementCount === 1 && value !== null) {
     return { tab: trigger.firstElementChild as HTMLElement, value };
   }
-  if (!reported.has(trigger)) {
-    reported.add(trigger);
-    console.error(
-      `<${TRIGGER}> needs a value and exactly one element child (a <button>, an <a href> or a router link) to decorate.`,
-      trigger,
-    );
-  }
+  reportOnce(
+    trigger,
+    `<${TRIGGER}> needs a value and exactly one element child (a <button>, an <a href> or a router link) to decorate.`,
+  );
   return null;
-}
-
-/**
- * Write an attribute only when it would change: `null` removes it. The elements
- * write only the attributes in their contract (RFC 0033 §5.3), and comparing
- * first means a value a framework or the server already rendered is never
- * rewritten (D20).
- */
-function write(element: Element, name: string, value: string | null): void {
-  if (element.getAttribute(name) === value) return;
-  if (value === null) element.removeAttribute(name);
-  else element.setAttribute(name, value);
 }
 
 /**
  * `<primitiv-tabs>` — the state owner of a WAI-ARIA tab set.
  *
- * The root finds its own parts, scoped with `closest()` so a tab set nested in a
- * panel keeps its own, and reconciles their ARIA from its reflected state. It
- * never caches the parts, so markup that arrives later is picked up on the next
- * reconcile. One `MutationObserver` is the only trigger after connect: it sees
- * parts arriving and leaving, and every attribute the root reads, including the
- * root's own `value` and `orientation`, and it already delivers a task's changes
- * as one callback, so no further batching is needed. `activation-mode` is read
- * live at each key press, so a change to it needs no reconcile.
+ * The root finds its own parts, so a tab set nested in a panel keeps its own,
+ * and reconciles their ARIA from its reflected state whenever a part arrives,
+ * leaves, or changes an attribute the root reads (the lifecycle is
+ * `PrimitivRootElement`'s). `activation-mode` is read live at each key press,
+ * so a change to it needs no reconcile.
  *
  * @customElement primitiv-tabs
  * @summary The state owner of a WAI-ARIA tab set.
@@ -79,40 +51,12 @@ function write(element: Element, name: string, value: string | null): void {
  * @attr {"automatic" | "manual"} activation-mode - `automatic` activates a tab as focus arrives; `manual` waits for Enter or Space. Defaults to `automatic`.
  * @fires {CustomEvent<{ value: string; index: number }>} primitiv-tabs-change - Bubbles, cancelable, fired before a user-driven change is applied. Call `preventDefault()` to veto it.
  */
-export class PrimitivTabsElement extends ElementBase {
-  #generatedId: string | undefined;
+export class PrimitivTabsElement extends PrimitivRootElement {
   /** The value of the panel last shown, so a change fires primitiv-tabs-show. */
   #shown: string | undefined;
   #rendered = false;
-  readonly #controller = new TabsController(this, this.#host());
-
-  /**
-   * Watches the subtree for parts arriving, leaving, or changing the attributes
-   * the root reads. The root's own writes (role, aria-*, ids, data-*) are not in
-   * the filter, so reconciling never re-triggers itself.
-   */
-  readonly #observer = new MutationObserver(() => this.#reconcile());
-
-  connectedCallback(): void {
-    this.#controller.connect();
-    this.#observer.observe(this, {
-      subtree: true,
-      childList: true,
-      attributes: true,
-      attributeFilter: ["value", "disabled", "label", "orientation"],
-    });
-    this.#reconcile();
-  }
-
-  /**
-   * Leaving the document stops all listening. A move (an `hx-preserve`, a
-   * framework reparenting) is a disconnect followed by a connect, so handlers
-   * never stack.
-   */
-  disconnectedCallback(): void {
-    this.#controller.disconnect();
-    this.#observer.disconnect();
-  }
+  protected readonly controller: TabsController = new TabsController(this, this.#host());
+  protected readonly reconcileOn: readonly string[] = ["value", "disabled", "label", "orientation"];
 
   /** The active tab's value, reflected as the `value` attribute. */
   get value(): string | undefined {
@@ -123,27 +67,17 @@ export class PrimitivTabsElement extends ElementBase {
     this.setAttribute("value", next);
   }
 
-  /**
-   * The controller's view of this element. State lives in reflected attributes;
-   * an activation is announced first, as a cancelable event, so a listener can
-   * veto it — the elements' equivalent of React's controlled mode (D7).
-   */
+  /** The controller's view of this element: state lives in reflected attributes. */
   #host(): TabsControllerHost {
     return {
       state: () => ({
         active: this.value,
         orientation: this.#orientation(),
-        // Stryker disable next-line StringLiteral: equivalent — core tests only for "rtl", so any other string reads as left-to-right.
-        dir: this.matches(":dir(rtl)") ? "rtl" : "ltr",
+        dir: this.direction(),
         activationMode: this.#activationMode(),
       }),
       activate: (value, index) => {
-        const change = new CustomEvent("primitiv-tabs-change", {
-          bubbles: true,
-          cancelable: true,
-          detail: { value, index },
-        });
-        if (this.dispatchEvent(change)) this.value = value;
+        if (this.announce("primitiv-tabs-change", { value, index })) this.value = value;
       },
     };
   }
@@ -157,25 +91,13 @@ export class PrimitivTabsElement extends ElementBase {
     return this.getAttribute("orientation") === "vertical" ? "vertical" : "horizontal";
   }
 
-  /** Parts of this tab set only, never those of a nested one. */
-  #parts(selector: string): HTMLElement[] {
-    return [...this.querySelectorAll<HTMLElement>(selector)].filter(
-      (part) => part.closest(ROOT) === this,
-    );
-  }
-
-  #rootId(): string {
-    // Stryker disable next-line UpdateOperator: equivalent — counting down yields ids just as unique.
-    return this.id || (this.#generatedId ??= `${ROOT}-${++generatedIds}`);
-  }
-
-  #reconcile(): void {
+  protected reconcile(): void {
     const orientation = this.#orientation();
     const active = this.value;
-    const rootId = this.#rootId();
+    const rootId = this.rootId();
     write(this, "data-orientation", orientation);
 
-    for (const list of this.#parts(LIST)) {
+    for (const list of this.parts(LIST)) {
       write(list, "role", "tablist");
       write(list, "aria-orientation", orientation);
       write(list, "data-orientation", orientation);
@@ -184,12 +106,12 @@ export class PrimitivTabsElement extends ElementBase {
     }
 
     const panels = new Map<string, HTMLElement>();
-    for (const panel of this.#parts(CONTENT)) {
+    for (const panel of this.parts(CONTENT)) {
       const value = panel.getAttribute("value");
       if (value !== null) panels.set(value, panel);
     }
 
-    const triggers = this.#parts(TRIGGER).flatMap((trigger) => {
+    const triggers = this.parts(TRIGGER).flatMap((trigger) => {
       const part = decoratable(trigger);
       return part ? [{ trigger, ...part }] : [];
     });
@@ -197,7 +119,7 @@ export class PrimitivTabsElement extends ElementBase {
 
     // Replace the registration wholesale: a removed part, or a trigger whose child
     // a framework re-rendered, simply is not registered again.
-    this.#controller.setTriggers(
+    this.controller.setTriggers(
       triggers.map(({ trigger, tab, value }) => ({
         value,
         element: tab,
@@ -273,9 +195,6 @@ export class PrimitivTabsTriggerElement extends ElementBase {}
  */
 export class PrimitivTabsContentElement extends ElementBase {}
 
-/** The two calls `defineTabs` makes on a custom-element registry. */
-export type ElementRegistry = Pick<CustomElementRegistry, "get" | "define">;
-
 /**
  * Define the four Tabs elements on `registry` (the global `customElements` by
  * default, so a scoped registry can be passed when browsers support one). Safe
@@ -283,14 +202,10 @@ export type ElementRegistry = Pick<CustomElementRegistry, "get" | "define">;
  * render).
  */
 export function defineTabs(registry: ElementRegistry | undefined = globalThis.customElements): void {
-  if (!registry) return;
-  const elements: Array<[string, CustomElementConstructor]> = [
+  defineElements(registry, [
     [ROOT, PrimitivTabsElement],
     [LIST, PrimitivTabsListElement],
     [TRIGGER, PrimitivTabsTriggerElement],
     [CONTENT, PrimitivTabsContentElement],
-  ];
-  for (const [name, element] of elements) {
-    if (!registry.get(name)) registry.define(name, element);
-  }
+  ]);
 }

@@ -40,6 +40,23 @@
  * primitiv.reset and let the reset win (RFC 0008 §7). */
 @layer primitiv.reset, primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;
 
+/* The elements surface (RFC 0033 §5.6.1): the trigger's wrapper takes no box of
+   its own, so the <button> inside lays out exactly as the React one, and an
+   item — inline by default, as every custom element is — takes the block box
+   React's <div> has. The styled markup needs no force-mount: the content
+   class's display wins over a closed panel's `hidden`, so it still animates,
+   and the clip's visibility keeps it out of the accessibility tree. Zero
+   specificity, in the reset sublayer, so any consumer rule wins. */
+@layer primitiv.reset {
+  :where(primitiv-accordion-trigger) {
+    display: contents;
+  }
+
+  :where(primitiv-accordion-item) {
+    display: block;
+  }
+}
+
 @layer primitiv.base {
   .primitiv-accordion {
     /* Per-component API — the themable knobs, defaulting to the md size and
@@ -196,6 +213,9 @@
      shared panel/padding/* tokens are the same family Tabs' panel uses, so the
      two stay in sync independent of size. */
   .primitiv-accordion__content-body {
+    /* Block whatever element carries it: the elements' markup uses a <span>, so
+       the headless form derived from it drops the wrapper cleanly. */
+    display: block;
     padding-block: var(--primitiv-accordion-content-padding-block);
     padding-inline: var(--primitiv-accordion-content-padding-inline);
   }

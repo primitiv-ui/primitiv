@@ -13,6 +13,13 @@
  * JSR does not allow a published module to do (RFC 0033 §5.6.4).
  */
 import type {
+  PrimitivAccordionContentElement,
+  PrimitivAccordionElement,
+  PrimitivAccordionItemElement,
+  PrimitivAccordionTriggerElement,
+  PrimitivAccordionTriggerIconElement,
+} from "./accordion/elements.ts";
+import type {
   PrimitivTabsContentElement,
   PrimitivTabsElement,
   PrimitivTabsListElement,
@@ -21,6 +28,11 @@ import type {
 
 declare global {
   interface HTMLElementTagNameMap {
+    "primitiv-accordion": PrimitivAccordionElement;
+    "primitiv-accordion-item": PrimitivAccordionItemElement;
+    "primitiv-accordion-trigger": PrimitivAccordionTriggerElement;
+    "primitiv-accordion-content": PrimitivAccordionContentElement;
+    "primitiv-accordion-trigger-icon": PrimitivAccordionTriggerIconElement;
     "primitiv-tabs": PrimitivTabsElement;
     "primitiv-tabs-list": PrimitivTabsListElement;
     "primitiv-tabs-trigger": PrimitivTabsTriggerElement;

@@ -5,8 +5,9 @@ description: End-to-end playbook for giving a component its Elements surface (RF
 
 # New web component (Elements surface)
 
-Tabs was the first and is the reference for everything below: read
-`packages/web/src/tabs/`, `packages/core/src/tabs/`, and
+Tabs was the first and Accordion the second; together they are the reference
+for everything below: read `packages/web/src/{tabs,accordion}/`,
+`packages/web/src/internal/`, `packages/core/src/{tabs,accordion}/`, and
 `docs/rfcs/0033-web-components.md` before starting. The RFC records **why**
 each rule exists (§3 architecture, §5 the element contract, §6 testing, §7
 distribution, §8 CLI, §11 decision record). This skill is the order of work and
@@ -50,6 +51,30 @@ Move the component's framework-independent rules out of `packages/react` into
   pattern).
 
 ## 2. Web: controller + elements (TDD)
+
+**Start from the shared bases in `packages/web/src/internal/`**, extracted once
+a second component existed — don't copy a sibling's plumbing:
+
+- `TriggerController` — the ordered trigger collection (`registerTrigger`,
+  `setTriggers`, `unregisterTrigger`), `connect`/`disconnect` with an
+  `AbortController`, and finding the trigger an event happened in. A subclass
+  takes its host in the constructor and implements only
+  `onTriggerClick(trigger, event)` and `onTriggerKeydown(trigger, event)`,
+  using `this.ordered()` and `this.disabled()`. Document what "disabled" means
+  for the component (Tabs lands on it, Accordion skips it) on the subclass.
+- `PrimitivRootElement` — the root element's lifecycle: one `MutationObserver`
+  on `reconcileOn` attributes, the controller connected and disconnected with
+  the element, `rootId()` (the element's `id` or a generated
+  `<tag>-<n>`), `parts(selector)` scoped so a nested instance keeps its own,
+  `direction()` from `:dir()`, and `announce(type, detail)` for the cancelable
+  change event. A subclass declares `controller`, `reconcileOn` and
+  `reconcile()`.
+- `element.ts` — `ElementBase` (the parts' SSR-safe base), `write`,
+  `reportOnce`, `owned(scope, selector, owner)` for parts below the root (an
+  Accordion item's own trigger), and `defineElements`.
+
+What stays per component: the core policy, the show-event bookkeeping (Tabs
+tracks one value, Accordion a set), and the reconcile itself.
 
 Layout, mirroring Tabs:
 
@@ -106,11 +131,14 @@ Then wire the package (each is easy to miss):
 5. `package.json` — `./<component>` and `./define/<component>` in **both**
    `exports` (src, for the workspace) **and** `publishConfig.exports` (dist).
    `sideEffects` already covers `define/**`.
-6. `jsr.json` — the same two entries in `exports`. If web now uses a core API
-   that is newer than the floor in `imports`
-   (`"@primitiv-ui/core": "jsr:@primitiv-ui/core@^0.1.x"`), **raise the floor**
-   to the release that ships it. JSR does not support `workspace:*`; the dry
-   run doesn't catch an unresolvable specifier, only the real publish does.
+6. `jsr.json` — the same two entries in `exports`. **Leave the
+   `imports` floors (`jsr:@primitiv-ui/core@^0.1.x`) alone**, even when web
+   now uses a core API newer than the floor: the PR's JSR dry run resolves
+   them against what is **already published**, so a floor naming the
+   upcoming release fails it ("Could not find version … that matches").
+   The caret floor still resolves JSR consumers to the newest release.
+   Raise it only when the minor changes (`RELEASING.md` §5). JSR does not
+   support `workspace:*`.
 
 **The CDN file needs no wiring.** `scripts/build-cdn.mjs` builds
 `dist/cdn/<component>.js` from every `src/define/<component>.ts` in one esbuild
@@ -136,9 +164,17 @@ own cycle.
 
 ## 4. React: host the shared controller (D30)
 
-Rebuild the React primitive on the web controller: the root hook creates the
-controller on a ref and answers `state()` / `activate()` from React state
-(`useTabsRoot.ts` is the pattern). The acceptance bar (§6.3), all on one
+Rebuild the React primitive on the web controller with
+`useHostedController(snapshot, (root, latest) => new XController(root, host),
+{ itemsRef, keys })` from `src/hooks`: it returns the root ref, builds the
+controller once per mount, reads state through `latest()`, and hands over the
+`useCollection` triggers on every change (`useTabsRoot.ts` and
+`useAccordionRoot.ts` are the pattern). Add the component to the
+`src/hooks/useHostedController.ts` entry in `stryker.config.mjs`'s `SHARED`
+map so the hook stays under the mutation gate. If the root spreads `...rest`
+onto its element, compose a consumer `ref` with the returned one
+(`composeRefs`) — Accordion's root forwards a DOM ref and would otherwise
+lose the controller's. The acceptance bar (§6.3), all on one
 commit: the existing React suite passes unedited, conformance passes, 100%
 coverage, 100% mutation. Expect to add a **StrictMode** test (without
 `disconnect()` on effect cleanup, two controllers handle every event twice) and
@@ -273,7 +309,23 @@ plain HTML) and `--styled` copies the stylesheet and prints the markup. In the
 docs it is listed under Elements + Styled only; its spec's elements branches
 print classed markup with `markup()`.
 
-## Traps from the Tabs build
+## Traps from the Tabs and Accordion builds
+
+- **A stylesheet can override `hidden`.** The registry Accordion's panel is
+  `display: grid` so it can animate, which beats the UA's `[hidden]` rule, so
+  a closed panel stayed in the accessibility tree as an empty region until the
+  element also wrote `aria-hidden`. Only a real browser showed it
+  (`getByRole("region")` in the interop lab's styled page).
+- **The headless markup is derived by stripping classes and unwrapping bare
+  `<span>`s**, so any styling-only wrapper in the styled example must be a
+  `<span>` (give it `display: block` in the stylesheet if it needs a box) —
+  a `<div>` would survive into the headless form. The drift guard accepts
+  classes the component's own `styles.css` defines, for exactly these.
+- **Playwright treats `aria-disabled` as disabled**: clicking a disabled
+  trigger in an e2e needs `{ force: true }`.
+- **Docs previews load the definition on demand**, so an e2e that clicks right
+  away can beat the upgrade under load; wait for an attribute the element
+  writes first.
 
 - **The docs-site build resolves react's imports from `packages/react`, not the
   docs site's `node_modules`.** React imports `@primitiv-ui/web` and `/core`, so

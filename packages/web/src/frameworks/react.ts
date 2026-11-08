@@ -20,24 +20,48 @@
 import type { DetailedHTMLProps, HTMLAttributes } from "react";
 
 import type {
+  PrimitivAccordionContentElement,
+  PrimitivAccordionElement,
+  PrimitivAccordionItemElement,
+  PrimitivAccordionTriggerElement,
+  PrimitivAccordionTriggerIconElement,
+} from "../accordion/elements.ts";
+import type {
   PrimitivTabsContentElement,
   PrimitivTabsElement,
   PrimitivTabsListElement,
   PrimitivTabsTriggerElement,
 } from "../tabs/elements.ts";
-import type { PrimitivTabsChangeEvent } from "./events.ts";
+import type { PrimitivAccordionChangeEvent, PrimitivTabsChangeEvent } from "./events.ts";
 
 /** React's own props for an element, plus `class`, which React 19 passes to custom elements. */
 type ElementProps<E extends HTMLElement> = DetailedHTMLProps<HTMLAttributes<E>, E> & {
   class?: string;
 };
 
-export type { PrimitivTabsChangeEvent };
+export type { PrimitivAccordionChangeEvent, PrimitivTabsChangeEvent };
 
 declare module "react" {
   // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace JSX {
     interface IntrinsicElements {
+      "primitiv-accordion": ElementProps<PrimitivAccordionElement> & {
+        value?: string | readonly string[];
+        multiple?: boolean;
+        orientation?: "vertical" | "horizontal";
+        "onprimitiv-accordion-change"?: (event: PrimitivAccordionChangeEvent) => void;
+      };
+      "primitiv-accordion-item": ElementProps<PrimitivAccordionItemElement> & {
+        value: string;
+      };
+      "primitiv-accordion-trigger": ElementProps<PrimitivAccordionTriggerElement> & {
+        disabled?: boolean;
+      };
+      "primitiv-accordion-content": ElementProps<PrimitivAccordionContentElement> & {
+        "force-mount"?: boolean;
+        "onprimitiv-accordion-show"?: (event: CustomEvent) => void;
+      };
+      "primitiv-accordion-trigger-icon": ElementProps<PrimitivAccordionTriggerIconElement>;
       "primitiv-tabs": ElementProps<PrimitivTabsElement> & {
         value?: string;
         orientation?: "horizontal" | "vertical";

@@ -33,7 +33,16 @@
           ]
         }
       },
-      "contract": "contract.json"
+      "contract": "contract.json",
+      "elements": {
+        "packages": [
+          {
+            "name": "@primitiv-ui/web",
+            "version": "^0.1.44"
+          }
+        ],
+        "example": "accordion.html"
+      }
     },
     "alert": {
       "version": "0.1.0",

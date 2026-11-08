@@ -2,10 +2,13 @@
  * The HTML fragments the HTMX page fetches, served by a Vite middleware in
  * place of a real backend. Each is what a server-rendered app would send.
  */
+import { accordionHtml } from "./accordion-fixture.ts";
 import { tabsHtml } from "./fixture.ts";
 
 let lazyLoads = 0;
 let echoes = 0;
+let accordionLazyLoads = 0;
+let accordionEchoes = 0;
 
 export const fragments: Record<string, string | ((url: string) => string)> = {
   // Case 1: a whole tab set arrives in a fragment.
@@ -47,4 +50,22 @@ export const fragments: Record<string, string | ((url: string) => string)> = {
 
   // Case 10: a tab set rendered right to left.
   rtl: `<div dir="rtl">${tabsHtml({ value: "one" }, "rtl")}</div>`,
+
+  // The Accordion page's cases (accordion-htmx.html), named to match.
+  accordion: accordionHtml({ value: "two" }, "swapped"),
+  "accordion-nested":
+    '<primitiv-accordion id="inner"><primitiv-accordion-item value="a"><h4><primitiv-accordion-trigger>' +
+    '<button type="button">Inner A</button></primitiv-accordion-trigger></h4>' +
+    "<primitiv-accordion-content hidden>Inner first</primitiv-accordion-content></primitiv-accordion-item></primitiv-accordion>",
+  "accordion-oob-item":
+    '<div hx-swap-oob="beforeend:#oob">' +
+    '<primitiv-accordion-item value="four"><h3><primitiv-accordion-trigger><button type="button">Four</button>' +
+    "</primitiv-accordion-trigger></h3><primitiv-accordion-content hidden>Fourth panel</primitiv-accordion-content>" +
+    "</primitiv-accordion-item></div>",
+  "accordion-oob-value": `<div hx-swap-oob="outerHTML:#rerendered">${accordionHtml({ value: "three" }, "rerendered")}</div>`,
+  "accordion-preserve": `<div id="preserve-region"><p>Swapped region</p>${accordionHtml({ value: "one" }, "preserved").replace("<primitiv-accordion ", '<primitiv-accordion hx-preserve="true" ')}</div>`,
+  "accordion-lazy": () => `<p data-testid="lazy-content">Lazy content, load ${++accordionLazyLoads}</p>`,
+  "accordion-echo": (url: string) =>
+    `<span data-testid="echo">server saw ${new URL(url, "http://lab").searchParams.get("value")} (${++accordionEchoes})</span>`,
+  "accordion-rtl": `<div dir="rtl">${accordionHtml({ value: "", orientation: "horizontal" }, "rtl")}</div>`,
 };

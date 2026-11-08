@@ -24,10 +24,10 @@ export const REACT_STYLE_KEY = "primitiv-docs-style-react";
  * custom elements of `@primitiv-ui/web` are the direction the library is
  * heading, the base every framework will eventually reach through an adapter,
  * and they work in plain HTML or any framework today. React is the complete
- * library now. Vue and Svelte are shown, disabled, until their adapter pages
- * exist, so the eventual shape of the switch is visible from the start.
+ * library now. Other frameworks join when their adapter pages exist; until
+ * then, Elements is how a Vue or Svelte project uses Primitiv.
  */
-export const FRAMEWORKS = ["elements", "react", "vue", "svelte"] as const;
+export const FRAMEWORKS = ["elements", "react"] as const;
 export type Framework = (typeof FRAMEWORKS)[number];
 
 /**
@@ -51,8 +51,6 @@ const LABELS: Record<string, string> = {
   styled: "Styled",
   elements: "Elements",
   react: "React",
-  vue: "Vue",
-  svelte: "Svelte",
 };
 
 export const label = (value: string): string => LABELS[value] ?? value;

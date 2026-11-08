@@ -73,9 +73,9 @@ const ControlledExample = () => {
  * means something else entirely (`aria-pressed` commands that can all be off),
  * so the first example is the choice between them rather than a variant tour.
  *
- * This site uses it in its own header, which is where the `disabled`-per-segment
- * example comes from: the Vue and Svelte segments are real options that are not
- * available yet, and that is exactly the case a disabled segment is for.
+ * This site uses it in its own header. The `disabled`-per-segment example is a
+ * framework picker with options that are not available yet, which is exactly
+ * the case a disabled segment is for.
  */
 export const segmentedControlSpec: ComponentSpec = {
   playground: {
@@ -173,7 +173,7 @@ export const segmentedControlSpec: ComponentSpec = {
       title: "Disabling a segment, or all of them",
       render: () => (
         <InteractiveExample
-          caption="`disabled` on an **Item** takes that one segment out of play: it stops responding, leaves the roving tab order, and the arrow keys skip over it — which is what makes it right for an option that exists but is not available yet (this site's own header does exactly that for Vue and Svelte). `disabled` on the **Root** disables every segment and the whole control takes no tab stop, while still reporting which one is selected so it reads correctly."
+          caption="`disabled` on an **Item** takes that one segment out of play: it stops responding, leaves the roving tab order, and the arrow keys skip over it — which is what makes it right for an option that exists but is not available yet. `disabled` on the **Root** disables every segment and the whole control takes no tab stop, while still reporting which one is selected so it reads correctly."
           code={(_density, mode) =>
             [
               imports(mode),

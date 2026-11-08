@@ -42,13 +42,7 @@ export const HeaderModeControls = ({ size = "xs" }: { size?: "xs" | "sm" }) => {
           aria-labelledby={frameworkLabel}
         >
           {FRAMEWORKS.map((f) => (
-            <SegmentedControlItem
-              key={f}
-              value={f}
-              /* Disabled until their adapter pages exist: Elements already
-                 works in both, through `@primitiv-ui/web/vue` and `/svelte`. */
-              disabled={f === "vue" || f === "svelte"}
-            >
+            <SegmentedControlItem key={f} value={f}>
               {label(f)}
             </SegmentedControlItem>
           ))}

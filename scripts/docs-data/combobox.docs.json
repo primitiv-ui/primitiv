@@ -77,7 +77,14 @@
             "name": "size",
             "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
             "default": "md",
-            "description": "Control + panel + row scale, set once on the root and inherited by every part; `data-density` scales the sizing within each size. Re-points the control's framed-control knobs, the panel's dropdown geometry and every row knob plus the typography."
+            "description": "Control + panel + row scale, set once on the root and inherited by every part; `data-density` scales the sizing within each size. Re-points the control's framed-control knobs, the panel's dropdown geometry and every row knob plus the typography.",
+            "classes": {
+              "xs": "primitiv-combobox--xs",
+              "sm": "primitiv-combobox--sm",
+              "md": "primitiv-combobox--md",
+              "lg": "primitiv-combobox--lg",
+              "xl": "primitiv-combobox--xl"
+            }
           }
         ],
         "dataAttributes": [

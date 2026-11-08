@@ -409,6 +409,9 @@ const modsFor = (mods) => (mods || []).map((m) => ({
   type: (m.options || []).map((o) => `"${o.name}"`).join(" | "),
   default: m.default ?? null,
   description: stripInternalRefs(m.description || ""),
+  /* Each option's class, as the contract spells it: what the prop becomes on
+     the elements surface, where markup carries classes instead of props. */
+  classes: Object.fromEntries((m.options || []).map((o) => [o.name, o.class])),
 }));
 /*
  * A part's data attributes as full { name, value, when } rows.
@@ -540,8 +543,17 @@ function elementsSurface() {
   const registry = JSON.parse(readFileSync(join(ROOT, "registry/registry.json"), "utf8"));
   const block = registry.components[name]?.elements;
   if (!block) return null;
+  const pkg = block.packages?.[0] ?? null;
   return {
-    package: block.packages?.[0]?.name ?? null,
+    package: pkg?.name ?? null,
+    /* The lowest version the registry's range allows, the one the CLI pins
+       its CDN script to (a URL takes one version, not a range). */
+    version: pkg?.version?.replace(/^[\^~>=\s]+/, "") ?? null,
+    /* The root element and whether text sits in a label span: enough for the
+       page to build a single-element component's markup from the playground's
+       controls, the way the registry generates its example. */
+    element: contract.root?.element ?? null,
+    wrapText: Boolean(contract.wrapTextChildren),
     example: block.example
       ? readFileSync(join(ROOT, `registry/components/${name}/${block.example}`), "utf8")
       : null,

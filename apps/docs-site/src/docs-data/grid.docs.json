@@ -28,25 +28,54 @@
             "name": "columns",
             "type": "\"1\" | \"2\" | \"3\" | \"4\" | \"5\" | \"6\"",
             "default": "1",
-            "description": "The column count. The options below are the base tier, applied at every width. Each is also available per breakpoint as `primitiv-grid--{tier}-cols-{n}`, where tier is one of xs|sm|md|lg|xl|2xl — e.g. `primitiv-grid--md-cols-2`. Tiers are mobile-first floors, not ranges, and the stylesheet orders them ascending so the widest matching tier wins. A count outside 1–6, or a tier outside this scale, is a media query of your own against `--primitiv-grid-columns`."
+            "description": "The column count. The options below are the base tier, applied at every width. Each is also available per breakpoint as `primitiv-grid--{tier}-cols-{n}`, where tier is one of xs|sm|md|lg|xl|2xl — e.g. `primitiv-grid--md-cols-2`. Tiers are mobile-first floors, not ranges, and the stylesheet orders them ascending so the widest matching tier wins. A count outside 1–6, or a tier outside this scale, is a media query of your own against `--primitiv-grid-columns`.",
+            "classes": {
+              "1": "primitiv-grid--cols-1",
+              "2": "primitiv-grid--cols-2",
+              "3": "primitiv-grid--cols-3",
+              "4": "primitiv-grid--cols-4",
+              "5": "primitiv-grid--cols-5",
+              "6": "primitiv-grid--cols-6"
+            }
           },
           {
             "name": "gap",
             "type": "\"none\" | \"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
             "default": "md",
-            "description": "Space between tracks; each step (except none) is a density-scaled Context token, mirroring Stack's gap ramp step for step."
+            "description": "Space between tracks; each step (except none) is a density-scaled Context token, mirroring Stack's gap ramp step for step.",
+            "classes": {
+              "none": "primitiv-grid--gap-none",
+              "xs": "primitiv-grid--gap-xs",
+              "sm": "primitiv-grid--gap-sm",
+              "md": "primitiv-grid--gap-md",
+              "lg": "primitiv-grid--gap-lg",
+              "xl": "primitiv-grid--gap-xl"
+            }
           },
           {
             "name": "align",
             "type": "\"start\" | \"center\" | \"end\" | \"stretch\" | \"baseline\"",
             "default": "stretch",
-            "description": "How each item sits within its cell on the block axis (`align-items`), as a preset set rather than a raw CSS passthrough."
+            "description": "How each item sits within its cell on the block axis (`align-items`), as a preset set rather than a raw CSS passthrough.",
+            "classes": {
+              "start": "primitiv-grid--align-start",
+              "center": "primitiv-grid--align-center",
+              "end": "primitiv-grid--align-end",
+              "stretch": "primitiv-grid--align-stretch",
+              "baseline": "primitiv-grid--align-baseline"
+            }
           },
           {
             "name": "justify",
             "type": "\"start\" | \"center\" | \"end\" | \"stretch\"",
             "default": "stretch",
-            "description": "The inline-axis equivalent (`justify-items`). Grid distributes tracks itself, so there is no between/around/evenly here the way there is on Stack's flex justify-content."
+            "description": "The inline-axis equivalent (`justify-items`). Grid distributes tracks itself, so there is no between/around/evenly here the way there is on Stack's flex justify-content.",
+            "classes": {
+              "start": "primitiv-grid--justify-start",
+              "center": "primitiv-grid--justify-center",
+              "end": "primitiv-grid--justify-end",
+              "stretch": "primitiv-grid--justify-stretch"
+            }
           }
         ],
         "dataAttributes": [],

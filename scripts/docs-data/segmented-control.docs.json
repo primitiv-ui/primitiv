@@ -84,13 +84,24 @@
             "name": "size",
             "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
             "default": "md",
-            "description": "Control size for the whole control; `data-density` scales each size further."
+            "description": "Control size for the whole control; `data-density` scales each size further.",
+            "classes": {
+              "xs": "primitiv-segmented-control--xs",
+              "sm": "primitiv-segmented-control--sm",
+              "md": "primitiv-segmented-control--md",
+              "lg": "primitiv-segmented-control--lg",
+              "xl": "primitiv-segmented-control--xl"
+            }
           },
           {
             "name": "justify",
             "type": "\"content\" | \"justified\"",
             "default": "justified",
-            "description": "Whether segments share the track width equally or size to their content."
+            "description": "Whether segments share the track width equally or size to their content.",
+            "classes": {
+              "content": "",
+              "justified": "primitiv-segmented-control--justified"
+            }
           }
         ],
         "dataAttributes": [

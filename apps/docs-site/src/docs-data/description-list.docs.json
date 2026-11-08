@@ -20,13 +20,24 @@
             "name": "size",
             "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
             "default": "md",
-            "description": "Term + details text size; `data-density` scales each size further."
+            "description": "Term + details text size; `data-density` scales each size further.",
+            "classes": {
+              "xs": "primitiv-description-list--xs",
+              "sm": "primitiv-description-list--sm",
+              "md": "primitiv-description-list--md",
+              "lg": "primitiv-description-list--lg",
+              "xl": "primitiv-description-list--xl"
+            }
           },
           {
             "name": "layout",
             "type": "\"stacked\" | \"inline\"",
             "default": "stacked",
-            "description": "Pair arrangement, matching Figma's `Layout` axis."
+            "description": "Pair arrangement, matching Figma's `Layout` axis.",
+            "classes": {
+              "stacked": "primitiv-description-list--stacked",
+              "inline": "primitiv-description-list--inline"
+            }
           }
         ],
         "dataAttributes": [],

@@ -56,7 +56,14 @@
             "name": "size",
             "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
             "default": "md",
-            "description": "Control size; `data-density` scales each size further."
+            "description": "Control size; `data-density` scales each size further.",
+            "classes": {
+              "xs": "primitiv-radio--xs",
+              "sm": "primitiv-radio--sm",
+              "md": "primitiv-radio--md",
+              "lg": "primitiv-radio--lg",
+              "xl": "primitiv-radio--xl"
+            }
           }
         ],
         "dataAttributes": [

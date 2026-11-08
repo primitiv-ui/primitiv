@@ -130,19 +130,36 @@
             "name": "size",
             "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
             "default": "md",
-            "description": "Control scale; `data-density` scales the sizing within each size. Re-points the frame (height/padding/radius/gap/icon) and the typography. On `SelectContent` the same axis re-points the panel + row sizing knobs."
+            "description": "Control scale; `data-density` scales the sizing within each size. Re-points the frame (height/padding/radius/gap/icon) and the typography. On `SelectContent` the same axis re-points the panel + row sizing knobs.",
+            "classes": {
+              "xs": "primitiv-select--xs",
+              "sm": "primitiv-select--sm",
+              "md": "primitiv-select--md",
+              "lg": "primitiv-select--lg",
+              "xl": "primitiv-select--xl"
+            }
           },
           {
             "name": "mode",
             "type": "\"rich\" | \"native\"",
             "default": "rich",
-            "description": "Which render path the frame is dressing. `rich` lays the control out as `[leading][value][chevron]`; `native` leaves the inner layout and the popup to the platform, but paints its own chevron (matching the rich one's shape/size/inset) over the UA's default arrow."
+            "description": "Which render path the frame is dressing. `rich` lays the control out as `[leading][value][chevron]`; `native` leaves the inner layout and the popup to the platform, but paints its own chevron (matching the rich one's shape/size/inset) over the UA's default arrow.",
+            "classes": {
+              "rich": "primitiv-select--rich",
+              "native": "primitiv-select--native"
+            }
           },
           {
             "name": "placement",
             "type": "\"bottom-start\" | \"bottom-end\" | \"top-start\" | \"top-end\"",
             "default": "bottom-start",
-            "description": "Which side of the trigger the panel opens on, via anchor-positioning insets on `SelectContent`. The `anchor-name` / `position-anchor` pair is wired by the component from a `useId`-derived ident, so nothing is required of the consumer."
+            "description": "Which side of the trigger the panel opens on, via anchor-positioning insets on `SelectContent`. The `anchor-name` / `position-anchor` pair is wired by the component from a `useId`-derived ident, so nothing is required of the consumer.",
+            "classes": {
+              "bottom-start": "primitiv-select__content--bottom-start",
+              "bottom-end": "primitiv-select__content--bottom-end",
+              "top-start": "primitiv-select__content--top-start",
+              "top-end": "primitiv-select__content--top-end"
+            }
           }
         ],
         "dataAttributes": [

@@ -28,7 +28,14 @@
             "name": "size",
             "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
             "default": "md",
-            "description": "Quote size, mapped to the heading/* scale (xs→h5 ... xl→h1); `data-density` scales each size further."
+            "description": "Quote size, mapped to the heading/* scale (xs→h5 ... xl→h1); `data-density` scales each size further.",
+            "classes": {
+              "xs": "primitiv-pull-quote--xs",
+              "sm": "primitiv-pull-quote--sm",
+              "md": "primitiv-pull-quote--md",
+              "lg": "primitiv-pull-quote--lg",
+              "xl": "primitiv-pull-quote--xl"
+            }
           }
         ],
         "dataAttributes": [

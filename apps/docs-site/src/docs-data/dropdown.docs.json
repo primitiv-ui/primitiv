@@ -120,13 +120,27 @@
             "name": "size",
             "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
             "default": "md",
-            "description": "Panel + row scale; `data-density` scales the sizing within each size. Re-points every child sizing knob (item height/padding/gap/radius/font, panel radius/padding, label, separator)."
+            "description": "Panel + row scale; `data-density` scales the sizing within each size. Re-points every child sizing knob (item height/padding/gap/radius/font, panel radius/padding, label, separator).",
+            "classes": {
+              "xs": "primitiv-dropdown--xs",
+              "sm": "primitiv-dropdown--sm",
+              "md": "primitiv-dropdown--md",
+              "lg": "primitiv-dropdown--lg",
+              "xl": "primitiv-dropdown--xl"
+            }
           },
           {
             "name": "placement",
             "type": "\"bottom-start\" | \"bottom-end\" | \"top-start\" | \"top-end\" | \"submenu\"",
             "default": "bottom-start",
-            "description": "Which side of the trigger the panel opens on, via CSS `position-area`. Requires the consumer to wire `anchor-name` (on the trigger) + `position-anchor` (on Content). Submenus use the `submenu` value, which opens to the inline-end side."
+            "description": "Which side of the trigger the panel opens on, via CSS `position-area`. Requires the consumer to wire `anchor-name` (on the trigger) + `position-anchor` (on Content). Submenus use the `submenu` value, which opens to the inline-end side.",
+            "classes": {
+              "bottom-start": "primitiv-dropdown--bottom-start",
+              "bottom-end": "primitiv-dropdown--bottom-end",
+              "top-start": "primitiv-dropdown--top-start",
+              "top-end": "primitiv-dropdown--top-end",
+              "submenu": "primitiv-dropdown--submenu"
+            }
           }
         ],
         "dataAttributes": [

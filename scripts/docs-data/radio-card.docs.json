@@ -123,7 +123,14 @@
             "name": "size",
             "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
             "default": "md",
-            "description": "Card size; `data-density` scales each size further."
+            "description": "Card size; `data-density` scales each size further.",
+            "classes": {
+              "xs": "primitiv-radio-card--xs",
+              "sm": "primitiv-radio-card--sm",
+              "md": "primitiv-radio-card--md",
+              "lg": "primitiv-radio-card--lg",
+              "xl": "primitiv-radio-card--xl"
+            }
           }
         ],
         "dataAttributes": [

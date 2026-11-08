@@ -77,7 +77,14 @@
             "name": "size",
             "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
             "default": "md",
-            "description": "Entry + panel scale; `data-density` scales the sizing within each size. Re-points every child sizing knob (entry height/padding/gap/icon, panel radius/padding/offset, row padding and text gap)."
+            "description": "Entry + panel scale; `data-density` scales the sizing within each size. Re-points every child sizing knob (entry height/padding/gap/icon, panel radius/padding/offset, row padding and text gap).",
+            "classes": {
+              "xs": "primitiv-navigation-menu--xs",
+              "sm": "primitiv-navigation-menu--sm",
+              "md": "primitiv-navigation-menu--md",
+              "lg": "primitiv-navigation-menu--lg",
+              "xl": "primitiv-navigation-menu--xl"
+            }
           }
         ],
         "dataAttributes": [

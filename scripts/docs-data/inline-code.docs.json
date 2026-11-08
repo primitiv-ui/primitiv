@@ -28,7 +28,14 @@
             "name": "size",
             "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
             "default": "md",
-            "description": "Snippet size; `data-density` scales each size further."
+            "description": "Snippet size; `data-density` scales each size further.",
+            "classes": {
+              "xs": "primitiv-inline-code--xs",
+              "sm": "primitiv-inline-code--sm",
+              "md": "primitiv-inline-code--md",
+              "lg": "primitiv-inline-code--lg",
+              "xl": "primitiv-inline-code--xl"
+            }
           }
         ],
         "dataAttributes": [],
@@ -88,6 +95,9 @@
   },
   "elements": {
     "package": null,
+    "version": null,
+    "element": "code",
+    "wrapText": false,
     "example": "<code class=\"primitiv-inline-code primitiv-inline-code--md\">Inline code</code>\n"
   }
 }

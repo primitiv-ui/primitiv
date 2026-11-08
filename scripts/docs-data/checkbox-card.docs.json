@@ -70,7 +70,14 @@
             "name": "size",
             "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
             "default": "md",
-            "description": "Card size; `data-density` scales each size further."
+            "description": "Card size; `data-density` scales each size further.",
+            "classes": {
+              "xs": "primitiv-checkbox-card--xs",
+              "sm": "primitiv-checkbox-card--sm",
+              "md": "primitiv-checkbox-card--md",
+              "lg": "primitiv-checkbox-card--lg",
+              "xl": "primitiv-checkbox-card--xl"
+            }
           }
         ],
         "dataAttributes": [

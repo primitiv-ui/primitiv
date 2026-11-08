@@ -56,19 +56,34 @@
             "name": "variant",
             "type": "\"block\" | \"inline\"",
             "default": "block",
-            "description": "Presentation. `block` is the standalone code surface; `inline` is a chip that sits in a line of prose or beside a label — same highlighting, same syntax palette, no header or gutter."
+            "description": "Presentation. `block` is the standalone code surface; `inline` is a chip that sits in a line of prose or beside a label — same highlighting, same syntax palette, no header or gutter.",
+            "classes": {
+              "block": "",
+              "inline": "primitiv-code-block--inline"
+            }
           },
           {
             "name": "size",
             "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
             "default": "md",
-            "description": "Type size; `data-density` scales the padding further."
+            "description": "Type size; `data-density` scales the padding further.",
+            "classes": {
+              "xs": "primitiv-code-block--xs",
+              "sm": "primitiv-code-block--sm",
+              "md": "primitiv-code-block--md",
+              "lg": "primitiv-code-block--lg",
+              "xl": "primitiv-code-block--xl"
+            }
           },
           {
             "name": "wrap",
             "type": "\"true\" | \"false\"",
             "default": "true",
-            "description": "Whether long lines reflow to the container. Wrapping is the default because a horizontal scrollbar reads worse on a narrow viewport. Turn it off for content whose column alignment IS the content — a tree with aligned trailing `//` annotations, a table of values — where reflowing a line drops its annotation onto the next row and makes it read as belonging to the row below. The block then scrolls inside its own box."
+            "description": "Whether long lines reflow to the container. Wrapping is the default because a horizontal scrollbar reads worse on a narrow viewport. Turn it off for content whose column alignment IS the content — a tree with aligned trailing `//` annotations, a table of values — where reflowing a line drops its annotation onto the next row and makes it read as belonging to the row below. The block then scrolls inside its own box.",
+            "classes": {
+              "true": "",
+              "false": "primitiv-code-block--nowrap"
+            }
           }
         ],
         "dataAttributes": [

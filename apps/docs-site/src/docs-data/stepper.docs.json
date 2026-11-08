@@ -77,7 +77,14 @@
             "name": "size",
             "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
             "default": "md",
-            "description": "Rail size; `data-density` scales each size further."
+            "description": "Rail size; `data-density` scales each size further.",
+            "classes": {
+              "xs": "primitiv-stepper--xs",
+              "sm": "primitiv-stepper--sm",
+              "md": "primitiv-stepper--md",
+              "lg": "primitiv-stepper--lg",
+              "xl": "primitiv-stepper--xl"
+            }
           }
         ],
         "dataAttributes": [
@@ -145,7 +152,11 @@
             "name": "compact",
             "type": "\"false\" | \"true\"",
             "default": "false",
-            "description": "Collapses the rail into a progress bar — the same steps, drawn as segments with their markers and labels hidden. For narrow containers, where a labelled rail cannot fit. The steps stay in the DOM, so each panel keeps the `aria-labelledby` pointing at its trigger; swapping the rail out for a hand-rolled bar would break that. Drive it from the consumer side (e.g. `useMediaQuery`), and pair it with your own \"Step N of M\" line — Stepper owns no step data model."
+            "description": "Collapses the rail into a progress bar — the same steps, drawn as segments with their markers and labels hidden. For narrow containers, where a labelled rail cannot fit. The steps stay in the DOM, so each panel keeps the `aria-labelledby` pointing at its trigger; swapping the rail out for a hand-rolled bar would break that. Drive it from the consumer side (e.g. `useMediaQuery`), and pair it with your own \"Step N of M\" line — Stepper owns no step data model.",
+            "classes": {
+              "false": "",
+              "true": "primitiv-stepper__list--compact"
+            }
           }
         ],
         "dataAttributes": [],

@@ -96,6 +96,9 @@ export type DocsContractProp = {
   readonly type: string;
   readonly default: string | null;
   readonly description: string;
+  /** Each option's class, as the contract spells it — what the prop becomes in
+   *  Elements mode, where markup carries classes instead of props. */
+  readonly classes: Readonly<Record<string, string>>;
 };
 
 export type DocsSubComponent = {
@@ -256,6 +259,12 @@ export type ComponentDocs = {
    */
   readonly elements: {
     readonly package: string | null;
+    /** The lowest version the registry allows: the one the CDN script pins. */
+    readonly version: string | null;
+    /** The root element, for building a single-element component's markup. */
+    readonly element: string | null;
+    /** Whether text sits in a `__label` span inside the root. */
+    readonly wrapText: boolean;
     readonly example: string | null;
   } | null;
 };

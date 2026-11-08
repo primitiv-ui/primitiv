@@ -84,13 +84,24 @@
             "name": "size",
             "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
             "default": "md",
-            "description": "Control size for the whole widget; `data-density` scales each size further."
+            "description": "Control size for the whole widget; `data-density` scales each size further.",
+            "classes": {
+              "xs": "primitiv-toggle-group--xs",
+              "sm": "primitiv-toggle-group--sm",
+              "md": "primitiv-toggle-group--md",
+              "lg": "primitiv-toggle-group--lg",
+              "xl": "primitiv-toggle-group--xl"
+            }
           },
           {
             "name": "justify",
             "type": "\"content\" | \"justified\"",
             "default": "content",
-            "description": "Whether items size to their content or share the track width equally."
+            "description": "Whether items size to their content or share the track width equally.",
+            "classes": {
+              "content": "",
+              "justified": "primitiv-toggle-group--justified"
+            }
           }
         ],
         "dataAttributes": [

@@ -28,13 +28,24 @@
             "name": "tone",
             "type": "\"default\" | \"accent\"",
             "default": "default",
-            "description": "Accent-bar colour."
+            "description": "Accent-bar colour.",
+            "classes": {
+              "default": "primitiv-blockquote--default",
+              "accent": "primitiv-blockquote--accent"
+            }
           },
           {
             "name": "size",
             "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
             "default": "md",
-            "description": "Quote + citation size; `data-density` scales each size further."
+            "description": "Quote + citation size; `data-density` scales each size further.",
+            "classes": {
+              "xs": "primitiv-blockquote--xs",
+              "sm": "primitiv-blockquote--sm",
+              "md": "primitiv-blockquote--md",
+              "lg": "primitiv-blockquote--lg",
+              "xl": "primitiv-blockquote--xl"
+            }
           }
         ],
         "dataAttributes": [],

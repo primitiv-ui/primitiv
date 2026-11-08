@@ -42,7 +42,14 @@
             "name": "size",
             "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
             "default": "md",
-            "description": "Frame size; `data-density` scales each size further. Match the wrapped control's size."
+            "description": "Frame size; `data-density` scales each size further. Match the wrapped control's size.",
+            "classes": {
+              "xs": "primitiv-input-group--xs",
+              "sm": "primitiv-input-group--sm",
+              "md": "primitiv-input-group--md",
+              "lg": "primitiv-input-group--lg",
+              "xl": "primitiv-input-group--xl"
+            }
           }
         ],
         "dataAttributes": [

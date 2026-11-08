@@ -28,13 +28,24 @@
             "name": "orientation",
             "type": "\"vertical\" | \"horizontal\"",
             "default": "vertical",
-            "description": "Layout axis. `vertical` stacks the media above centred text — the canonical empty state. `horizontal` places the media beside inline-start-aligned text, for a compact/inline empty region."
+            "description": "Layout axis. `vertical` stacks the media above centred text — the canonical empty state. `horizontal` places the media beside inline-start-aligned text, for a compact/inline empty region.",
+            "classes": {
+              "vertical": "primitiv-empty-state--vertical",
+              "horizontal": "primitiv-empty-state--horizontal"
+            }
           },
           {
             "name": "size",
             "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
             "default": "md",
-            "description": "Empty-state size; `data-density` scales each size further."
+            "description": "Empty-state size; `data-density` scales each size further.",
+            "classes": {
+              "xs": "primitiv-empty-state--xs",
+              "sm": "primitiv-empty-state--sm",
+              "md": "primitiv-empty-state--md",
+              "lg": "primitiv-empty-state--lg",
+              "xl": "primitiv-empty-state--xl"
+            }
           }
         ],
         "dataAttributes": [],

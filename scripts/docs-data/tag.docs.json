@@ -28,13 +28,27 @@
             "name": "tone",
             "type": "\"neutral\" | \"success\" | \"warning\" | \"info\" | \"danger\"",
             "default": "neutral",
-            "description": "Semantic colour. `neutral` is the plain grey default; the other four are reserved for status."
+            "description": "Semantic colour. `neutral` is the plain grey default; the other four are reserved for status.",
+            "classes": {
+              "neutral": "primitiv-tag--neutral",
+              "success": "primitiv-tag--success",
+              "warning": "primitiv-tag--warning",
+              "info": "primitiv-tag--info",
+              "danger": "primitiv-tag--danger"
+            }
           },
           {
             "name": "size",
             "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
             "default": "md",
-            "description": "Tag size; `data-density` scales each size further."
+            "description": "Tag size; `data-density` scales each size further.",
+            "classes": {
+              "xs": "primitiv-tag--xs",
+              "sm": "primitiv-tag--sm",
+              "md": "primitiv-tag--md",
+              "lg": "primitiv-tag--lg",
+              "xl": "primitiv-tag--xl"
+            }
           }
         ],
         "dataAttributes": [],
@@ -90,6 +104,9 @@
   },
   "elements": {
     "package": null,
+    "version": null,
+    "element": "span",
+    "wrapText": false,
     "example": "<span class=\"primitiv-tag primitiv-tag--neutral primitiv-tag--md\">Tag</span>\n"
   }
 }

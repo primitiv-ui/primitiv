@@ -20,13 +20,24 @@
             "name": "size",
             "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
             "default": "md",
-            "description": "Type scale for the whole table; `data-density` scales cell padding further."
+            "description": "Type scale for the whole table; `data-density` scales cell padding further.",
+            "classes": {
+              "xs": "primitiv-table--xs",
+              "sm": "primitiv-table--sm",
+              "md": "primitiv-table--md",
+              "lg": "primitiv-table--lg",
+              "xl": "primitiv-table--xl"
+            }
           },
           {
             "name": "rows",
             "type": "\"plain\" | \"striped\"",
             "default": "plain",
-            "description": "Whether body rows alternate a subtle stripe for readability."
+            "description": "Whether body rows alternate a subtle stripe for readability.",
+            "classes": {
+              "plain": "",
+              "striped": "primitiv-table--striped"
+            }
           }
         ],
         "dataAttributes": [],
@@ -94,7 +105,12 @@
             "name": "align",
             "type": "\"start\" | \"center\" | \"end\"",
             "default": "start",
-            "description": "Column text alignment, matching Figma's Table / Header Cell `Align` axis. Set it to match the column's cells — `end` for numeric columns. Direction-aware — `start`/`end` follow the reading direction, flipping under RTL."
+            "description": "Column text alignment, matching Figma's Table / Header Cell `Align` axis. Set it to match the column's cells — `end` for numeric columns. Direction-aware — `start`/`end` follow the reading direction, flipping under RTL.",
+            "classes": {
+              "start": "primitiv-table__header--start",
+              "center": "primitiv-table__header--center",
+              "end": "primitiv-table__header--end"
+            }
           }
         ],
         "dataAttributes": [],
@@ -111,7 +127,12 @@
             "name": "align",
             "type": "\"start\" | \"center\" | \"end\"",
             "default": "start",
-            "description": "Cell text alignment, matching Figma's Table / Cell `Align` axis. CSS cannot align a whole column (`text-align` does not apply to `<col>`), so set this on every cell in the column. Direction-aware — `start`/`end` follow the reading direction, flipping under RTL."
+            "description": "Cell text alignment, matching Figma's Table / Cell `Align` axis. CSS cannot align a whole column (`text-align` does not apply to `<col>`), so set this on every cell in the column. Direction-aware — `start`/`end` follow the reading direction, flipping under RTL.",
+            "classes": {
+              "start": "primitiv-table__cell--start",
+              "center": "primitiv-table__cell--center",
+              "end": "primitiv-table__cell--end"
+            }
           }
         ],
         "dataAttributes": [],

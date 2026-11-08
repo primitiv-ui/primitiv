@@ -98,13 +98,24 @@
             "name": "size",
             "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
             "default": "md",
-            "description": "Row size for the whole tree; `data-density` scales each size further."
+            "description": "Row size for the whole tree; `data-density` scales each size further.",
+            "classes": {
+              "xs": "primitiv-tree--xs",
+              "sm": "primitiv-tree--sm",
+              "md": "primitiv-tree--md",
+              "lg": "primitiv-tree--lg",
+              "xl": "primitiv-tree--xl"
+            }
           },
           {
             "name": "connectors",
             "type": "\"lines\" | \"none\"",
             "default": "lines",
-            "description": "Whether nested rows are joined to their parent by hairline guide lines."
+            "description": "Whether nested rows are joined to their parent by hairline guide lines.",
+            "classes": {
+              "lines": "primitiv-tree--connectors-lines",
+              "none": "primitiv-tree--connectors-none"
+            }
           }
         ],
         "dataAttributes": [

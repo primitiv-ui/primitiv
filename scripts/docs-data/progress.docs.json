@@ -49,13 +49,25 @@
             "name": "size",
             "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
             "default": "md",
-            "description": "Track height; `data-density` scales each size further."
+            "description": "Track height; `data-density` scales each size further.",
+            "classes": {
+              "xs": "primitiv-progress--xs",
+              "sm": "primitiv-progress--sm",
+              "md": "primitiv-progress--md",
+              "lg": "primitiv-progress--lg",
+              "xl": "primitiv-progress--xl"
+            }
           },
           {
             "name": "intent",
             "type": "\"primary\" | \"secondary\" | \"danger\"",
             "default": "primary",
-            "description": "Fill colour, matching Figma's `Intent` axis. The track is neutral in every intent — only the fill changes."
+            "description": "Fill colour, matching Figma's `Intent` axis. The track is neutral in every intent — only the fill changes.",
+            "classes": {
+              "primary": "primitiv-progress--primary",
+              "secondary": "primitiv-progress--secondary",
+              "danger": "primitiv-progress--danger"
+            }
           }
         ],
         "dataAttributes": [

@@ -20,7 +20,14 @@
             "name": "size",
             "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
             "default": "md",
-            "description": "Control size; `data-density` scales each size further."
+            "description": "Control size; `data-density` scales each size further.",
+            "classes": {
+              "xs": "primitiv-breadcrumb--xs",
+              "sm": "primitiv-breadcrumb--sm",
+              "md": "primitiv-breadcrumb--md",
+              "lg": "primitiv-breadcrumb--lg",
+              "xl": "primitiv-breadcrumb--xl"
+            }
           }
         ],
         "dataAttributes": [],

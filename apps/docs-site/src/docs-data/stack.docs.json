@@ -28,31 +28,64 @@
             "name": "direction",
             "type": "\"column\" | \"row\" | \"column-reverse\" | \"row-reverse\"",
             "default": "column",
-            "description": "Flex axis, and its resting or reversed order — the four `flex-direction` keywords directly."
+            "description": "Flex axis, and its resting or reversed order — the four `flex-direction` keywords directly.",
+            "classes": {
+              "column": "primitiv-stack--column",
+              "row": "primitiv-stack--row",
+              "column-reverse": "primitiv-stack--column-reverse",
+              "row-reverse": "primitiv-stack--row-reverse"
+            }
           },
           {
             "name": "gap",
             "type": "\"none\" | \"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
             "default": "md",
-            "description": "Space between children; each step (except none) is a density-scaled Context token."
+            "description": "Space between children; each step (except none) is a density-scaled Context token.",
+            "classes": {
+              "none": "primitiv-stack--gap-none",
+              "xs": "primitiv-stack--gap-xs",
+              "sm": "primitiv-stack--gap-sm",
+              "md": "primitiv-stack--gap-md",
+              "lg": "primitiv-stack--gap-lg",
+              "xl": "primitiv-stack--gap-xl"
+            }
           },
           {
             "name": "align",
             "type": "\"start\" | \"center\" | \"end\" | \"stretch\" | \"baseline\"",
             "default": "stretch",
-            "description": "Cross-axis alignment (`align-items`), as a preset set rather than a raw CSS passthrough."
+            "description": "Cross-axis alignment (`align-items`), as a preset set rather than a raw CSS passthrough.",
+            "classes": {
+              "start": "primitiv-stack--align-start",
+              "center": "primitiv-stack--align-center",
+              "end": "primitiv-stack--align-end",
+              "stretch": "primitiv-stack--align-stretch",
+              "baseline": "primitiv-stack--align-baseline"
+            }
           },
           {
             "name": "wrap",
             "type": "\"nowrap\" | \"wrap\"",
             "default": "nowrap",
-            "description": "Whether children may wrap onto additional lines when the main axis runs out of room (`flex-wrap`)."
+            "description": "Whether children may wrap onto additional lines when the main axis runs out of room (`flex-wrap`).",
+            "classes": {
+              "nowrap": "primitiv-stack--nowrap",
+              "wrap": "primitiv-stack--wrap"
+            }
           },
           {
             "name": "justify",
             "type": "\"start\" | \"center\" | \"end\" | \"between\" | \"around\" | \"evenly\"",
             "default": "start",
-            "description": "Main-axis distribution (`justify-content`), as a preset set rather than a raw CSS passthrough."
+            "description": "Main-axis distribution (`justify-content`), as a preset set rather than a raw CSS passthrough.",
+            "classes": {
+              "start": "primitiv-stack--justify-start",
+              "center": "primitiv-stack--justify-center",
+              "end": "primitiv-stack--justify-end",
+              "between": "primitiv-stack--justify-between",
+              "around": "primitiv-stack--justify-around",
+              "evenly": "primitiv-stack--justify-evenly"
+            }
           }
         ],
         "dataAttributes": [],

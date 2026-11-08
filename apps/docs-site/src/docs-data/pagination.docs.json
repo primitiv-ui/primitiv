@@ -28,13 +28,24 @@
             "name": "size",
             "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
             "default": "md",
-            "description": "Control size; `data-density` scales each size further."
+            "description": "Control size; `data-density` scales each size further.",
+            "classes": {
+              "xs": "primitiv-pagination--xs",
+              "sm": "primitiv-pagination--sm",
+              "md": "primitiv-pagination--md",
+              "lg": "primitiv-pagination--lg",
+              "xl": "primitiv-pagination--xl"
+            }
           },
           {
             "name": "variant",
             "type": "\"numbered\" | \"compact\"",
             "default": "numbered",
-            "description": "Numbered page cells, or a compact `Page X of Y` readout for narrow containers."
+            "description": "Numbered page cells, or a compact `Page X of Y` readout for narrow containers.",
+            "classes": {
+              "numbered": "primitiv-pagination--numbered",
+              "compact": "primitiv-pagination--compact"
+            }
           }
         ],
         "dataAttributes": [],

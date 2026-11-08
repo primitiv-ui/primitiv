@@ -28,7 +28,12 @@
             "name": "axis",
             "type": "\"both\" | \"horizontal\" | \"vertical\"",
             "default": "both",
-            "description": "Which axis (or axes) to centre content along."
+            "description": "Which axis (or axes) to centre content along.",
+            "classes": {
+              "both": "primitiv-center--both",
+              "horizontal": "primitiv-center--horizontal",
+              "vertical": "primitiv-center--vertical"
+            }
           }
         ],
         "dataAttributes": [],

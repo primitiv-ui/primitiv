@@ -56,7 +56,14 @@
             "name": "size",
             "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
             "default": "md",
-            "description": "Control size; `data-density` scales each size further."
+            "description": "Control size; `data-density` scales each size further.",
+            "classes": {
+              "xs": "primitiv-checkbox--xs",
+              "sm": "primitiv-checkbox--sm",
+              "md": "primitiv-checkbox--md",
+              "lg": "primitiv-checkbox--lg",
+              "xl": "primitiv-checkbox--xl"
+            }
           }
         ],
         "dataAttributes": [

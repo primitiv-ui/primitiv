@@ -56,7 +56,14 @@
             "name": "size",
             "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
             "default": "md",
-            "description": "Row and column size for the whole strip; `data-density` scales each size further."
+            "description": "Row and column size for the whole strip; `data-density` scales each size further.",
+            "classes": {
+              "xs": "primitiv-miller-columns--xs",
+              "sm": "primitiv-miller-columns--sm",
+              "md": "primitiv-miller-columns--md",
+              "lg": "primitiv-miller-columns--lg",
+              "xl": "primitiv-miller-columns--xl"
+            }
           }
         ],
         "dataAttributes": [

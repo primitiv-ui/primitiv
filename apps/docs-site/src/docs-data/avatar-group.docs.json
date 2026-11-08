@@ -42,13 +42,24 @@
             "name": "size",
             "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
             "default": "md",
-            "description": "Matches the nested Avatars' size; `data-density` scales each size further."
+            "description": "Matches the nested Avatars' size; `data-density` scales each size further.",
+            "classes": {
+              "xs": "primitiv-avatar-group--xs",
+              "sm": "primitiv-avatar-group--sm",
+              "md": "primitiv-avatar-group--md",
+              "lg": "primitiv-avatar-group--lg",
+              "xl": "primitiv-avatar-group--xl"
+            }
           },
           {
             "name": "direction",
             "type": "\"ltr\" | \"rtl\"",
             "default": "ltr",
-            "description": "Which way the stack advances. Decides which end the counter lands on."
+            "description": "Which way the stack advances. Decides which end the counter lands on.",
+            "classes": {
+              "ltr": "primitiv-avatar-group--ltr",
+              "rtl": "primitiv-avatar-group--rtl"
+            }
           }
         ],
         "dataAttributes": [],

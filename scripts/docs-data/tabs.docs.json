@@ -77,7 +77,14 @@
             "name": "size",
             "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
             "default": "md",
-            "description": "Control size for the whole widget; `data-density` scales each size further."
+            "description": "Control size for the whole widget; `data-density` scales each size further.",
+            "classes": {
+              "xs": "primitiv-tabs--xs",
+              "sm": "primitiv-tabs--sm",
+              "md": "primitiv-tabs--md",
+              "lg": "primitiv-tabs--lg",
+              "xl": "primitiv-tabs--xl"
+            }
           }
         ],
         "dataAttributes": [
@@ -120,7 +127,12 @@
             "name": "justify",
             "type": "\"start\" | \"center\" | \"end\"",
             "default": "start",
-            "description": "Alignment of the triggers along the tablist. Direction-aware — `start`/`end` follow the reading direction, flipping under RTL via the inherited `DirectionProvider`."
+            "description": "Alignment of the triggers along the tablist. Direction-aware — `start`/`end` follow the reading direction, flipping under RTL via the inherited `DirectionProvider`.",
+            "classes": {
+              "start": "primitiv-tabs__list--start",
+              "center": "primitiv-tabs__list--center",
+              "end": "primitiv-tabs__list--end"
+            }
           }
         ],
         "dataAttributes": [
@@ -409,6 +421,9 @@
   },
   "elements": {
     "package": "@primitiv-ui/web",
+    "version": "0.1.42",
+    "element": "div",
+    "wrapText": false,
     "example": "<primitiv-tabs value=\"one\" class=\"primitiv-tabs primitiv-tabs--md\">\n  <primitiv-tabs-list label=\"Sections\" class=\"primitiv-tabs__list primitiv-tabs__list--start\">\n    <primitiv-tabs-trigger value=\"one\">\n      <button type=\"button\" class=\"primitiv-tabs__trigger\">\n        <span class=\"primitiv-tabs__trigger-label\">One</span>\n      </button>\n    </primitiv-tabs-trigger>\n    <primitiv-tabs-trigger value=\"two\">\n      <button type=\"button\" class=\"primitiv-tabs__trigger\">\n        <span class=\"primitiv-tabs__trigger-label\">Two</span>\n      </button>\n    </primitiv-tabs-trigger>\n    <primitiv-tabs-trigger value=\"three\">\n      <button type=\"button\" class=\"primitiv-tabs__trigger\">\n        <span class=\"primitiv-tabs__trigger-label\">Three</span>\n      </button>\n    </primitiv-tabs-trigger>\n  </primitiv-tabs-list>\n  <primitiv-tabs-content value=\"one\" class=\"primitiv-tabs__panel\">First panel</primitiv-tabs-content>\n  <primitiv-tabs-content value=\"two\" class=\"primitiv-tabs__panel\" hidden>Second panel</primitiv-tabs-content>\n  <primitiv-tabs-content value=\"three\" class=\"primitiv-tabs__panel\" hidden>Third panel</primitiv-tabs-content>\n</primitiv-tabs>\n"
   }
 }

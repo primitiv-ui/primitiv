@@ -167,7 +167,13 @@
             "name": "size",
             "type": "\"sm\" | \"md\" | \"lg\" | \"xl\"",
             "default": "md",
-            "description": "Dialog width; `data-density` scales the padding within each size."
+            "description": "Dialog width; `data-density` scales the padding within each size.",
+            "classes": {
+              "sm": "primitiv-modal--sm",
+              "md": "primitiv-modal--md",
+              "lg": "primitiv-modal--lg",
+              "xl": "primitiv-modal--xl"
+            }
           }
         ],
         "dataAttributes": [

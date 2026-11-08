@@ -49,13 +49,27 @@
             "name": "variant",
             "type": "\"primary\" | \"secondary\" | \"danger\" | \"ghost\" | \"link\"",
             "default": "primary",
-            "description": "Visual intent / emphasis."
+            "description": "Visual intent / emphasis.",
+            "classes": {
+              "primary": "primitiv-button--primary",
+              "secondary": "primitiv-button--secondary",
+              "danger": "primitiv-button--danger",
+              "ghost": "primitiv-button--ghost",
+              "link": "primitiv-button--link"
+            }
           },
           {
             "name": "size",
             "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
             "default": "md",
-            "description": "Control size; `data-density` scales each size further."
+            "description": "Control size; `data-density` scales each size further.",
+            "classes": {
+              "xs": "primitiv-button--xs",
+              "sm": "primitiv-button--sm",
+              "md": "primitiv-button--md",
+              "lg": "primitiv-button--lg",
+              "xl": "primitiv-button--xl"
+            }
           }
         ],
         "dataAttributes": [
@@ -147,6 +161,9 @@
   },
   "elements": {
     "package": null,
+    "version": null,
+    "element": "button",
+    "wrapText": true,
     "example": "<button type=\"button\" class=\"primitiv-button primitiv-button--primary primitiv-button--md\">\n  <span class=\"primitiv-button__label\">Button</span>\n</button>\n"
   }
 }

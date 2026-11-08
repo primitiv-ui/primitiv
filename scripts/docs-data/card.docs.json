@@ -42,25 +42,46 @@
             "name": "layout",
             "type": "\"vertical\" | \"horizontal\" | \"cover\"",
             "default": "vertical",
-            "description": "How the media region relates to the content."
+            "description": "How the media region relates to the content.",
+            "classes": {
+              "vertical": "primitiv-card--vertical",
+              "horizontal": "primitiv-card--horizontal",
+              "cover": "primitiv-card--cover"
+            }
           },
           {
             "name": "size",
             "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
             "default": "md",
-            "description": "Card size; `data-density` scales each size further."
+            "description": "Card size; `data-density` scales each size further.",
+            "classes": {
+              "xs": "primitiv-card--xs",
+              "sm": "primitiv-card--sm",
+              "md": "primitiv-card--md",
+              "lg": "primitiv-card--lg",
+              "xl": "primitiv-card--xl"
+            }
           },
           {
             "name": "elevation",
             "type": "\"flat\" | \"raised\"",
             "default": "flat",
-            "description": "Resting shadow depth."
+            "description": "Resting shadow depth.",
+            "classes": {
+              "flat": "primitiv-card--flat",
+              "raised": "primitiv-card--raised"
+            }
           },
           {
             "name": "scrim",
             "type": "\"soft\" | \"medium\" | \"strong\"",
             "default": "medium",
-            "description": "Strength of the legibility gradient. Only rendered by `layout=\"cover\"`."
+            "description": "Strength of the legibility gradient. Only rendered by `layout=\"cover\"`.",
+            "classes": {
+              "soft": "primitiv-card--scrim-soft",
+              "medium": "primitiv-card--scrim-medium",
+              "strong": "primitiv-card--scrim-strong"
+            }
           }
         ],
         "dataAttributes": [],

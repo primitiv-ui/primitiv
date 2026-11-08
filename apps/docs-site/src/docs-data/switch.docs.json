@@ -56,7 +56,14 @@
             "name": "size",
             "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
             "default": "md",
-            "description": "Control size; `data-density` scales each size further."
+            "description": "Control size; `data-density` scales each size further.",
+            "classes": {
+              "xs": "primitiv-switch--xs",
+              "sm": "primitiv-switch--sm",
+              "md": "primitiv-switch--md",
+              "lg": "primitiv-switch--lg",
+              "xl": "primitiv-switch--xl"
+            }
           }
         ],
         "dataAttributes": [

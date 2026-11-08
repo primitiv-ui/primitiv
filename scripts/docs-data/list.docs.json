@@ -28,25 +28,44 @@
             "name": "type",
             "type": "\"unordered\" | \"ordered\"",
             "default": "unordered",
-            "description": "Marker style."
+            "description": "Marker style.",
+            "classes": {
+              "unordered": "primitiv-list--unordered",
+              "ordered": "primitiv-list--ordered"
+            }
           },
           {
             "name": "marker",
             "type": "\"true\" | \"false\"",
             "default": "true",
-            "description": "Whether each item draws its leading bullet/number. `false` is the equivalent of `list-style: none` — the marker's box and its gap both go, so rows sit flush — for prose and landing-page lists where bullets read as noise. Independent of `indent`; combine both `false` for a fully flush list. Mirrors the Figma `List` set's `Marker` axis and `ListItem`'s `Show marker` boolean."
+            "description": "Whether each item draws its leading bullet/number. `false` is the equivalent of `list-style: none` — the marker's box and its gap both go, so rows sit flush — for prose and landing-page lists where bullets read as noise. Independent of `indent`; combine both `false` for a fully flush list. Mirrors the Figma `List` set's `Marker` axis and `ListItem`'s `Show marker` boolean.",
+            "classes": {
+              "true": "",
+              "false": "primitiv-list--no-marker"
+            }
           },
           {
             "name": "indent",
             "type": "\"true\" | \"false\"",
             "default": "true",
-            "description": "Whether the list applies its own left indent, or sits flush for inline/nested contexts where a parent already supplies it."
+            "description": "Whether the list applies its own left indent, or sits flush for inline/nested contexts where a parent already supplies it.",
+            "classes": {
+              "true": "primitiv-list--indent",
+              "false": ""
+            }
           },
           {
             "name": "size",
             "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
             "default": "md",
-            "description": "Item text size; `data-density` scales each size further."
+            "description": "Item text size; `data-density` scales each size further.",
+            "classes": {
+              "xs": "primitiv-list--xs",
+              "sm": "primitiv-list--sm",
+              "md": "primitiv-list--md",
+              "lg": "primitiv-list--lg",
+              "xl": "primitiv-list--xl"
+            }
           }
         ],
         "dataAttributes": [],

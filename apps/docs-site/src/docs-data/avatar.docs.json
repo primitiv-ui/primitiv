@@ -28,13 +28,24 @@
             "name": "size",
             "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
             "default": "md",
-            "description": "Control size; `data-density` scales each size further."
+            "description": "Control size; `data-density` scales each size further.",
+            "classes": {
+              "xs": "primitiv-avatar--xs",
+              "sm": "primitiv-avatar--sm",
+              "md": "primitiv-avatar--md",
+              "lg": "primitiv-avatar--lg",
+              "xl": "primitiv-avatar--xl"
+            }
           },
           {
             "name": "shape",
             "type": "\"circle\" | \"square\"",
             "default": "circle",
-            "description": "Corner treatment — fully rounded, or square with size-scaled corners."
+            "description": "Corner treatment — fully rounded, or square with size-scaled corners.",
+            "classes": {
+              "circle": "primitiv-avatar--circle",
+              "square": "primitiv-avatar--square"
+            }
           }
         ],
         "dataAttributes": [

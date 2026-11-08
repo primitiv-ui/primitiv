@@ -63,7 +63,14 @@
             "name": "size",
             "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
             "default": "md",
-            "description": "Control size for the whole field; `data-density` scales each size further."
+            "description": "Control size for the whole field; `data-density` scales each size further.",
+            "classes": {
+              "xs": "primitiv-field--xs",
+              "sm": "primitiv-field--sm",
+              "md": "primitiv-field--md",
+              "lg": "primitiv-field--lg",
+              "xl": "primitiv-field--xl"
+            }
           }
         ],
         "dataAttributes": [

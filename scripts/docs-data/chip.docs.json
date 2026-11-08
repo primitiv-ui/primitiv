@@ -56,7 +56,14 @@
             "name": "size",
             "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
             "default": "md",
-            "description": "Chip size; `data-density` scales each size further."
+            "description": "Chip size; `data-density` scales each size further.",
+            "classes": {
+              "xs": "primitiv-chip--xs",
+              "sm": "primitiv-chip--sm",
+              "md": "primitiv-chip--md",
+              "lg": "primitiv-chip--lg",
+              "xl": "primitiv-chip--xl"
+            }
           }
         ],
         "dataAttributes": [],

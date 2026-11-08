@@ -177,19 +177,43 @@
             "name": "tone",
             "type": "\"default\" | \"inverted\"",
             "default": "default",
-            "description": "The bubble's colour treatment. `default` is a high-contrast dark bubble (inverts with the theme); `inverted` is a surface-coloured bubble for use on dark backgrounds."
+            "description": "The bubble's colour treatment. `default` is a high-contrast dark bubble (inverts with the theme); `inverted` is a surface-coloured bubble for use on dark backgrounds.",
+            "classes": {
+              "default": "primitiv-tooltip--default",
+              "inverted": "primitiv-tooltip--inverted"
+            }
           },
           {
             "name": "size",
             "type": "\"sm\" | \"md\" | \"lg\" | \"xl\"",
             "default": "md",
-            "description": "Bubble size; `data-density` scales the padding within each size."
+            "description": "Bubble size; `data-density` scales the padding within each size.",
+            "classes": {
+              "sm": "primitiv-tooltip--sm",
+              "md": "primitiv-tooltip--md",
+              "lg": "primitiv-tooltip--lg",
+              "xl": "primitiv-tooltip--xl"
+            }
           },
           {
             "name": "placement",
             "type": "\"top\" | \"top-start\" | \"top-end\" | \"right\" | \"right-start\" | \"right-end\" | \"bottom\" | \"bottom-start\" | \"bottom-end\" | \"left\" | \"left-start\" | \"left-end\"",
             "default": "top",
-            "description": "Which side of the anchor the bubble sits on, and how it aligns — sets the CSS `position-area` and points the arrow at the anchor. Wire `anchor-name` on the trigger and a matching `position-anchor` on this bubble."
+            "description": "Which side of the anchor the bubble sits on, and how it aligns — sets the CSS `position-area` and points the arrow at the anchor. Wire `anchor-name` on the trigger and a matching `position-anchor` on this bubble.",
+            "classes": {
+              "top": "primitiv-tooltip--top",
+              "top-start": "primitiv-tooltip--top-start",
+              "top-end": "primitiv-tooltip--top-end",
+              "right": "primitiv-tooltip--right",
+              "right-start": "primitiv-tooltip--right-start",
+              "right-end": "primitiv-tooltip--right-end",
+              "bottom": "primitiv-tooltip--bottom",
+              "bottom-start": "primitiv-tooltip--bottom-start",
+              "bottom-end": "primitiv-tooltip--bottom-end",
+              "left": "primitiv-tooltip--left",
+              "left-start": "primitiv-tooltip--left-start",
+              "left-end": "primitiv-tooltip--left-end"
+            }
           }
         ],
         "dataAttributes": [

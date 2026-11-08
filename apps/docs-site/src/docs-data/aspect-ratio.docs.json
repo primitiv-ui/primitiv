@@ -20,7 +20,17 @@
             "name": "ratio",
             "type": "\"1/1\" | \"4/3\" | \"3/2\" | \"16/9\" | \"21/9\" | \"3/4\" | \"2/3\" | \"9/16\"",
             "default": "1/1",
-            "description": "Width-to-height ratio, from a curated preset set. A bespoke ratio is set by overriding the `--primitiv-aspect-ratio` custom property in your own stylesheet — the component writes no inline styles."
+            "description": "Width-to-height ratio, from a curated preset set. A bespoke ratio is set by overriding the `--primitiv-aspect-ratio` custom property in your own stylesheet — the component writes no inline styles.",
+            "classes": {
+              "1/1": "primitiv-aspect-ratio--1-1",
+              "4/3": "primitiv-aspect-ratio--4-3",
+              "3/2": "primitiv-aspect-ratio--3-2",
+              "16/9": "primitiv-aspect-ratio--16-9",
+              "21/9": "primitiv-aspect-ratio--21-9",
+              "3/4": "primitiv-aspect-ratio--3-4",
+              "2/3": "primitiv-aspect-ratio--2-3",
+              "9/16": "primitiv-aspect-ratio--9-16"
+            }
           }
         ],
         "dataAttributes": [],

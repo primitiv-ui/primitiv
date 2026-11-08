@@ -181,7 +181,14 @@
             "name": "width",
             "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
             "default": "md",
-            "description": "The drawer's cross-axis extent — width for a left/right drawer, height for a top/bottom sheet — stepped off the size/* scale. The long axis always fills the viewport; padding stays density-driven, independent of width."
+            "description": "The drawer's cross-axis extent — width for a left/right drawer, height for a top/bottom sheet — stepped off the size/* scale. The long axis always fills the viewport; padding stays density-driven, independent of width.",
+            "classes": {
+              "xs": "primitiv-drawer--xs",
+              "sm": "primitiv-drawer--sm",
+              "md": "primitiv-drawer--md",
+              "lg": "primitiv-drawer--lg",
+              "xl": "primitiv-drawer--xl"
+            }
           }
         ],
         "dataAttributes": [

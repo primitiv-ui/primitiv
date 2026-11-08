@@ -20,19 +20,34 @@
             "name": "size",
             "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
             "default": "md",
-            "description": "Type scale for the table and its bars; `data-density` scales padding further."
+            "description": "Type scale for the table and its bars; `data-density` scales padding further.",
+            "classes": {
+              "xs": "primitiv-data-table--xs",
+              "sm": "primitiv-data-table--sm",
+              "md": "primitiv-data-table--md",
+              "lg": "primitiv-data-table--lg",
+              "xl": "primitiv-data-table--xl"
+            }
           },
           {
             "name": "frame",
             "type": "\"framed\" | \"bare\"",
             "default": "framed",
-            "description": "Whether the shell draws its own surface, hairline and radius."
+            "description": "Whether the shell draws its own surface, hairline and radius.",
+            "classes": {
+              "framed": "",
+              "bare": "primitiv-data-table--bare"
+            }
           },
           {
             "name": "sticky",
             "type": "\"false\" | \"true\"",
             "default": "false",
-            "description": "Pins the header row while the body scrolls. Adds an opaque header background, which the base Table deliberately does not have."
+            "description": "Pins the header row while the body scrolls. Adds an opaque header background, which the base Table deliberately does not have.",
+            "classes": {
+              "false": "",
+              "true": "primitiv-data-table--sticky"
+            }
           }
         ],
         "dataAttributes": [],

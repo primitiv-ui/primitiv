@@ -49,13 +49,25 @@
             "name": "variant",
             "type": "\"plain\" | \"card\" | \"inline\"",
             "default": "plain",
-            "description": "Visual style of the widget."
+            "description": "Visual style of the widget.",
+            "classes": {
+              "plain": "primitiv-collapsible--plain",
+              "card": "primitiv-collapsible--card",
+              "inline": "primitiv-collapsible--inline"
+            }
           },
           {
             "name": "size",
             "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
             "default": "md",
-            "description": "Control size for the whole widget; `data-density` scales each size further."
+            "description": "Control size for the whole widget; `data-density` scales each size further.",
+            "classes": {
+              "xs": "primitiv-collapsible--xs",
+              "sm": "primitiv-collapsible--sm",
+              "md": "primitiv-collapsible--md",
+              "lg": "primitiv-collapsible--lg",
+              "xl": "primitiv-collapsible--xl"
+            }
           }
         ],
         "dataAttributes": [

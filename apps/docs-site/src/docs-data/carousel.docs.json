@@ -182,97 +182,174 @@
             "name": "peek",
             "type": "\"none\" | \"sm\" | \"md\" | \"lg\"",
             "default": "none",
-            "description": "Reveal a sliver of the adjacent slides on either side of the active one. Works in both orientations (inline edges when horizontal, block edges when vertical)."
+            "description": "Reveal a sliver of the adjacent slides on either side of the active one. Works in both orientations (inline edges when horizontal, block edges when vertical).",
+            "classes": {
+              "none": "primitiv-carousel--peek-none",
+              "sm": "primitiv-carousel--peek-sm",
+              "md": "primitiv-carousel--peek-md",
+              "lg": "primitiv-carousel--peek-lg"
+            }
           },
           {
             "name": "gap",
             "type": "\"none\" | \"sm\" | \"md\" | \"lg\"",
             "default": "md",
-            "description": "The spacing between slides. A t-shirt scale re-pointing --primitiv-carousel-gap to a spacing token; `md` is the default. Works in both orientations (the gap runs on the scroll axis) and composes with every other variant. Note: the `padding` modifier couples the gap to its inset for a clean framed track, so it overrides this within a padded track."
+            "description": "The spacing between slides. A t-shirt scale re-pointing --primitiv-carousel-gap to a spacing token; `md` is the default. Works in both orientations (the gap runs on the scroll axis) and composes with every other variant. Note: the `padding` modifier couples the gap to its inset for a clean framed track, so it overrides this within a padded track.",
+            "classes": {
+              "none": "primitiv-carousel--gap-none",
+              "sm": "primitiv-carousel--gap-sm",
+              "md": "primitiv-carousel--gap-md",
+              "lg": "primitiv-carousel--gap-lg"
+            }
           },
           {
             "name": "padding",
             "type": "\"none\" | \"sm\" | \"md\" | \"lg\"",
             "default": "none",
-            "description": "Make the viewport a padded, framed track: pad the slides inward from the viewport edges and draw the track outline (border + rounded corners). The gap is coupled to the padding so the resting track doesn't itself reveal a neighbour; add `peek` for a deliberate reveal within the track. The background fill is opt-in via the `surface` modifier — padding alone renders an outlined track."
+            "description": "Make the viewport a padded, framed track: pad the slides inward from the viewport edges and draw the track outline (border + rounded corners). The gap is coupled to the padding so the resting track doesn't itself reveal a neighbour; add `peek` for a deliberate reveal within the track. The background fill is opt-in via the `surface` modifier — padding alone renders an outlined track.",
+            "classes": {
+              "none": "primitiv-carousel--padding-none",
+              "sm": "primitiv-carousel--padding-sm",
+              "md": "primitiv-carousel--padding-md",
+              "lg": "primitiv-carousel--padding-lg"
+            }
           },
           {
             "name": "surface",
             "type": "\"none\" | \"subtle\"",
             "default": "none",
-            "description": "Opt into the viewport track's background fill. Off by default (a framed track is just an outline); pairs with `padding` to render a filled, framed track."
+            "description": "Opt into the viewport track's background fill. Off by default (a framed track is just an outline); pairs with `padding` to render a filled, framed track.",
+            "classes": {
+              "none": "primitiv-carousel--surface-none",
+              "subtle": "primitiv-carousel--surface-subtle"
+            }
           },
           {
             "name": "radius",
             "type": "\"none\" | \"md\"",
             "default": "none",
-            "description": "Opt into rounding the container (the viewport track around the slides), independent of the `padding` frame. Off by default (a square track); `md` rounds it to the shared, size/density-scaled carousel radius, so the track corners match the slide corners. (Distinct from the per-slide `radius` modifier, which rounds each slide; this rounds the track that clips them.)"
+            "description": "Opt into rounding the container (the viewport track around the slides), independent of the `padding` frame. Off by default (a square track); `md` rounds it to the shared, size/density-scaled carousel radius, so the track corners match the slide corners. (Distinct from the per-slide `radius` modifier, which rounds each slide; this rounds the track that clips them.)",
+            "classes": {
+              "none": "primitiv-carousel--radius-none",
+              "md": "primitiv-carousel--radius-md"
+            }
           },
           {
             "name": "placement",
             "type": "\"external\" | \"overlay\"",
             "default": "external",
-            "description": "Where the controls sit relative to the imagery — the one axis that is off-vs-on the slide. `external` (the default) keeps the controls off the imagery, in the space around the viewport. `overlay` insets them on the slide for edge-to-edge imagery. How the controls are *arranged* (one bar vs prev/next flanking the edges) is the orthogonal `cluster` axis; `side` / `distribution` / `align` / `orientation` then compose on top of both."
+            "description": "Where the controls sit relative to the imagery — the one axis that is off-vs-on the slide. `external` (the default) keeps the controls off the imagery, in the space around the viewport. `overlay` insets them on the slide for edge-to-edge imagery. How the controls are *arranged* (one bar vs prev/next flanking the edges) is the orthogonal `cluster` axis; `side` / `distribution` / `align` / `orientation` then compose on top of both.",
+            "classes": {
+              "external": "primitiv-carousel--placement-external",
+              "overlay": "primitiv-carousel--placement-overlay"
+            }
           },
           {
             "name": "side",
             "type": "\"after\" | \"before\"",
             "default": "after",
-            "description": "Which cross-axis edge the indicator cluster (or the joined bar) sits on, relative to the scroll direction. `after` is the trailing edge (below the viewport when horizontal, the inline-end/right side when vertical); `before` is the leading edge (above / inline-start). Orientation-relative and RTL-safe — it composes with `orientation` to reach all four physical edges. Read by both placements and both clusters."
+            "description": "Which cross-axis edge the indicator cluster (or the joined bar) sits on, relative to the scroll direction. `after` is the trailing edge (below the viewport when horizontal, the inline-end/right side when vertical); `before` is the leading edge (above / inline-start). Orientation-relative and RTL-safe — it composes with `orientation` to reach all four physical edges. Read by both placements and both clusters.",
+            "classes": {
+              "after": "primitiv-carousel--side-after",
+              "before": "primitiv-carousel--side-before"
+            }
           },
           {
             "name": "distribution",
             "type": "\"group\" | \"stretch\"",
             "default": "group",
-            "description": "How the controls spread along their edge. For `joined` it drives the whole prev/indicators/next bar — `group` (the default) bunches them, `stretch` pushes prev/next to the extremes with the indicators centred (space-between). For `split` it governs the indicator cluster (prev/next stay flanking the viewport edges) — `group` bunches the dots, `stretch` spreads them across the full edge. Applies to both placements."
+            "description": "How the controls spread along their edge. For `joined` it drives the whole prev/indicators/next bar — `group` (the default) bunches them, `stretch` pushes prev/next to the extremes with the indicators centred (space-between). For `split` it governs the indicator cluster (prev/next stay flanking the viewport edges) — `group` bunches the dots, `stretch` spreads them across the full edge. Applies to both placements.",
+            "classes": {
+              "group": "primitiv-carousel--distribution-group",
+              "stretch": "primitiv-carousel--distribution-stretch"
+            }
           },
           {
             "name": "align",
             "type": "\"start\" | \"center\" | \"end\"",
             "default": "center",
-            "description": "Where the grouped controls sit along their edge (only read under `distribution=group`; `stretch` fills the edge, so alignment is moot). `center` is the default; `start` / `end` pin the cluster to the leading / trailing end — the whole bar for `joined`, the indicator cluster for `split`. Applies to both placements. Logical, so it mirrors under RTL and follows the scroll axis when vertical."
+            "description": "Where the grouped controls sit along their edge (only read under `distribution=group`; `stretch` fills the edge, so alignment is moot). `center` is the default; `start` / `end` pin the cluster to the leading / trailing end — the whole bar for `joined`, the indicator cluster for `split`. Applies to both placements. Logical, so it mirrors under RTL and follows the scroll axis when vertical.",
+            "classes": {
+              "start": "primitiv-carousel--align-start",
+              "center": "primitiv-carousel--align-center",
+              "end": "primitiv-carousel--align-end"
+            }
           },
           {
             "name": "cluster",
             "type": "\"split\" | \"joined\"",
             "default": "split",
-            "description": "How the controls are arranged — the orthogonal companion to `placement`, read by both `external` and `overlay`. `split` (the default) sends prev/next to the viewport's two scroll-axis edges (flanking it — left/right when horizontal, top/bottom when vertical) and leaves the indicators as a separate cluster positioned by `side` / `distribution` / `align`. `joined` bundles prev + indicators + next into one `<CarouselControls>` bar that travels together, positioned as a unit by `side` / `distribution` / `align`. Compose the parts inside `<CarouselControls>` for `joined`, as direct children of the root for `split`. Together with `placement` this is the full 2×2 — external/overlay × split/joined."
+            "description": "How the controls are arranged — the orthogonal companion to `placement`, read by both `external` and `overlay`. `split` (the default) sends prev/next to the viewport's two scroll-axis edges (flanking it — left/right when horizontal, top/bottom when vertical) and leaves the indicators as a separate cluster positioned by `side` / `distribution` / `align`. `joined` bundles prev + indicators + next into one `<CarouselControls>` bar that travels together, positioned as a unit by `side` / `distribution` / `align`. Compose the parts inside `<CarouselControls>` for `joined`, as direct children of the root for `split`. Together with `placement` this is the full 2×2 — external/overlay × split/joined.",
+            "classes": {
+              "split": "primitiv-carousel--cluster-split",
+              "joined": "primitiv-carousel--cluster-joined"
+            }
           },
           {
             "name": "indicators",
             "type": "\"dots\" | \"thumbnails\"",
             "default": "dots",
-            "description": "What the indicators look like. `dots` (the default) is the compact dot row; `thumbnails` swaps each indicator for a rounded-rect image thumbnail — the active one ringed in the primary colour, the classic gallery pattern. Supply the thumbnail content as children of each `<CarouselIndicator>` (an `<img>` or a background element)."
+            "description": "What the indicators look like. `dots` (the default) is the compact dot row; `thumbnails` swaps each indicator for a rounded-rect image thumbnail — the active one ringed in the primary colour, the classic gallery pattern. Supply the thumbnail content as children of each `<CarouselIndicator>` (an `<img>` or a background element).",
+            "classes": {
+              "dots": "primitiv-carousel--indicators-dots",
+              "thumbnails": "primitiv-carousel--indicators-thumbnails"
+            }
           },
           {
             "name": "size",
             "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
             "default": "md",
-            "description": "Scale of the control chrome — the prev/next controls, indicator dots and thumbnails — on a t-shirt ramp, so a carousel matches the density of the UI around it. The viewport and slides stay container-driven (they fill their space); only the controls scale. Composes with the ambient `data-density` (which shifts every slot): `size` picks the slot, density shifts it. The prev/next controls track the shared framed-control ramp, so they match a same-size Button."
+            "description": "Scale of the control chrome — the prev/next controls, indicator dots and thumbnails — on a t-shirt ramp, so a carousel matches the density of the UI around it. The viewport and slides stay container-driven (they fill their space); only the controls scale. Composes with the ambient `data-density` (which shifts every slot): `size` picks the slot, density shifts it. The prev/next controls track the shared framed-control ramp, so they match a same-size Button.",
+            "classes": {
+              "xs": "primitiv-carousel--size-xs",
+              "sm": "primitiv-carousel--size-sm",
+              "md": "primitiv-carousel--size-md",
+              "lg": "primitiv-carousel--size-lg",
+              "xl": "primitiv-carousel--size-xl"
+            }
           },
           {
             "name": "ratio",
             "type": "\"square\" | \"standard\" | \"wide\" | \"ultrawide\"",
             "default": "wide",
-            "description": "The carousel's aspect ratio, applied uniformly to every slide (and tracked by the thumbnail indicators). Re-points --primitiv-carousel-slide-aspect-ratio at the root; the vertical viewport's shape defaults to the same knob, so `ratio` shapes the slides in both orientations (square vertical slides, a widescreen vertical scroller, ...). Override the knob directly for a bespoke value. (Per-slide ratios are a later revisit.)"
+            "description": "The carousel's aspect ratio, applied uniformly to every slide (and tracked by the thumbnail indicators). Re-points --primitiv-carousel-slide-aspect-ratio at the root; the vertical viewport's shape defaults to the same knob, so `ratio` shapes the slides in both orientations (square vertical slides, a widescreen vertical scroller, ...). Override the knob directly for a bespoke value. (Per-slide ratios are a later revisit.)",
+            "classes": {
+              "square": "primitiv-carousel--ratio-square",
+              "standard": "primitiv-carousel--ratio-standard",
+              "wide": "primitiv-carousel--ratio-wide",
+              "ultrawide": "primitiv-carousel--ratio-ultrawide"
+            }
           },
           {
             "name": "slideWidth",
             "type": "\"equal\" | \"content\"",
             "default": "equal",
-            "description": "How each slide's width (block size when vertical) is determined. `equal` (the default) shares the viewport's content box evenly across `slidesPerPage` slides, each holding its shape via the `ratio` aspect-ratio. `content` lets each slide size to its own content instead — an intrinsically-sized image, an explicit width on the slide, or any content with a natural size — so slides in one track can have genuinely different widths (Ark UI's `autoSize`). Scoped to `slidesPerPage=1`: the multi-slide windowing math assumes equal shares, which content-driven widths break."
+            "description": "How each slide's width (block size when vertical) is determined. `equal` (the default) shares the viewport's content box evenly across `slidesPerPage` slides, each holding its shape via the `ratio` aspect-ratio. `content` lets each slide size to its own content instead — an intrinsically-sized image, an explicit width on the slide, or any content with a natural size — so slides in one track can have genuinely different widths (Ark UI's `autoSize`). Scoped to `slidesPerPage=1`: the multi-slide windowing math assumes equal shares, which content-driven widths break.",
+            "classes": {
+              "equal": "primitiv-carousel--slide-width-equal",
+              "content": "primitiv-carousel--slide-width-content"
+            }
           },
           {
             "name": "effect",
             "type": "\"none\" | \"parallax\"",
             "default": "none",
-            "description": "An opt-in scroll-driven visual effect for the slide content, layered on top of scroll-snap paging. `none` (the default) renders slides plain. `parallax` gives each slide's <CarouselSlideContent> a native, zero-JavaScript drift as the slide crosses the viewport (Blossom Carousel's Slideshow example) — a CSS view-timeline scoped to the slide drives the content's transform via animation-range: cover, following the scroll axis (inline horizontal, block vertical). The effect requires wrapping the slide's media in <CarouselSlideContent>; browsers without animation-timeline: view() support fall back to reading the headless --slide-progress signal instead (an equivalent, continuously-updated transform with no extra JavaScript of our own), and it disables entirely under prefers-reduced-motion."
+            "description": "An opt-in scroll-driven visual effect for the slide content, layered on top of scroll-snap paging. `none` (the default) renders slides plain. `parallax` gives each slide's <CarouselSlideContent> a native, zero-JavaScript drift as the slide crosses the viewport (Blossom Carousel's Slideshow example) — a CSS view-timeline scoped to the slide drives the content's transform via animation-range: cover, following the scroll axis (inline horizontal, block vertical). The effect requires wrapping the slide's media in <CarouselSlideContent>; browsers without animation-timeline: view() support fall back to reading the headless --slide-progress signal instead (an equivalent, continuously-updated transform with no extra JavaScript of our own), and it disables entirely under prefers-reduced-motion.",
+            "classes": {
+              "none": "primitiv-carousel--effect-none",
+              "parallax": "primitiv-carousel--effect-parallax"
+            }
           },
           {
             "name": "glide",
             "type": "\"fast\" | \"medium\" | \"slow\"",
             "default": "medium",
-            "description": "How fast the infinite loop glides between pages (loop=\"infinite\" only — every other mode uses native scroll). A preset re-points --primitiv-carousel-glide-duration to a motion duration token; the engine reads it, with --primitiv-carousel-glide-easing, off the track and drives the transform transition. `medium` is the default. For a duration or easing outside the presets, re-point either custom property directly."
+            "description": "How fast the infinite loop glides between pages (loop=\"infinite\" only — every other mode uses native scroll). A preset re-points --primitiv-carousel-glide-duration to a motion duration token; the engine reads it, with --primitiv-carousel-glide-easing, off the track and drives the transform transition. `medium` is the default. For a duration or easing outside the presets, re-point either custom property directly.",
+            "classes": {
+              "fast": "primitiv-carousel--glide-fast",
+              "medium": "primitiv-carousel--glide-medium",
+              "slow": "primitiv-carousel--glide-slow"
+            }
           }
         ],
         "dataAttributes": [
@@ -396,19 +473,31 @@
             "name": "radius",
             "type": "\"md\" | \"none\"",
             "default": "md",
-            "description": "Corner rounding of the slide."
+            "description": "Corner rounding of the slide.",
+            "classes": {
+              "md": "primitiv-carousel__slide--radius-md",
+              "none": "primitiv-carousel__slide--radius-none"
+            }
           },
           {
             "name": "fit",
             "type": "\"cover\" | \"contain\"",
             "default": "cover",
-            "description": "How a media child (an img / picture / video) conforms to the slide box. The slide box is always sized by the layout; this decides how a real image — which has its own intrinsic size and ratio — fills it."
+            "description": "How a media child (an img / picture / video) conforms to the slide box. The slide box is always sized by the layout; this decides how a real image — which has its own intrinsic size and ratio — fills it.",
+            "classes": {
+              "cover": "primitiv-carousel__slide--fit-cover",
+              "contain": "primitiv-carousel__slide--fit-contain"
+            }
           },
           {
             "name": "surface",
             "type": "\"none\" | \"subtle\"",
             "default": "none",
-            "description": "Optional slide backdrop — the fill behind the media. Off by default (transparent), so a cover image or a slide with its own background is unaffected; opt in to give a `contain` letterbox (or a transparent image) a surface behind it. Mirrors the root `surface` modifier and uses the same token."
+            "description": "Optional slide backdrop — the fill behind the media. Off by default (transparent), so a cover image or a slide with its own background is unaffected; opt in to give a `contain` letterbox (or a transparent image) a surface behind it. Mirrors the root `surface` modifier and uses the same token.",
+            "classes": {
+              "none": "primitiv-carousel__slide--surface-none",
+              "subtle": "primitiv-carousel__slide--surface-subtle"
+            }
           }
         ],
         "dataAttributes": [

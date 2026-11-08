@@ -28,19 +28,36 @@
             "name": "tone",
             "type": "\"success\" | \"warning\" | \"info\" | \"danger\"",
             "default": "success",
-            "description": "Semantic colour."
+            "description": "Semantic colour.",
+            "classes": {
+              "success": "primitiv-badge--success",
+              "warning": "primitiv-badge--warning",
+              "info": "primitiv-badge--info",
+              "danger": "primitiv-badge--danger"
+            }
           },
           {
             "name": "variant",
             "type": "\"label\" | \"counter\"",
             "default": "label",
-            "description": "Visual treatment. `label` is the low-emphasis status-word chip; `counter` is the high-emphasis count chip."
+            "description": "Visual treatment. `label` is the low-emphasis status-word chip; `counter` is the high-emphasis count chip.",
+            "classes": {
+              "label": "primitiv-badge--label",
+              "counter": "primitiv-badge--counter"
+            }
           },
           {
             "name": "size",
             "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
             "default": "md",
-            "description": "Badge size; `data-density` scales each size further."
+            "description": "Badge size; `data-density` scales each size further.",
+            "classes": {
+              "xs": "primitiv-badge--xs",
+              "sm": "primitiv-badge--sm",
+              "md": "primitiv-badge--md",
+              "lg": "primitiv-badge--lg",
+              "xl": "primitiv-badge--xl"
+            }
           }
         ],
         "dataAttributes": [],
@@ -96,6 +113,9 @@
   },
   "elements": {
     "package": null,
+    "version": null,
+    "element": "span",
+    "wrapText": false,
     "example": "<span class=\"primitiv-badge primitiv-badge--success primitiv-badge--label primitiv-badge--md\">Badge</span>\n"
   }
 }

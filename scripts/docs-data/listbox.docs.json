@@ -91,7 +91,14 @@
             "name": "size",
             "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
             "default": "md",
-            "description": "Frame + row scale; `data-density` scales the sizing within each size. Re-points the frame (radius, padding, focus-ring geometry) and every row knob (height/padding/gap/radius/icon) plus the typography."
+            "description": "Frame + row scale; `data-density` scales the sizing within each size. Re-points the frame (radius, padding, focus-ring geometry) and every row knob (height/padding/gap/radius/icon) plus the typography.",
+            "classes": {
+              "xs": "primitiv-listbox--xs",
+              "sm": "primitiv-listbox--sm",
+              "md": "primitiv-listbox--md",
+              "lg": "primitiv-listbox--lg",
+              "xl": "primitiv-listbox--xl"
+            }
           }
         ],
         "dataAttributes": [

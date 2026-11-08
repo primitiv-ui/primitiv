@@ -119,7 +119,14 @@
             "name": "size",
             "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
             "default": "md",
-            "description": "Track thickness + thumb size; `data-density` scales each size further."
+            "description": "Track thickness + thumb size; `data-density` scales each size further.",
+            "classes": {
+              "xs": "primitiv-slider--xs",
+              "sm": "primitiv-slider--sm",
+              "md": "primitiv-slider--md",
+              "lg": "primitiv-slider--lg",
+              "xl": "primitiv-slider--xl"
+            }
           }
         ],
         "dataAttributes": [

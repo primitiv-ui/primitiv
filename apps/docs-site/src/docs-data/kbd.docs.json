@@ -28,7 +28,14 @@
             "name": "size",
             "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
             "default": "md",
-            "description": "Key-cap size; `data-density` scales each size further."
+            "description": "Key-cap size; `data-density` scales each size further.",
+            "classes": {
+              "xs": "primitiv-kbd--xs",
+              "sm": "primitiv-kbd--sm",
+              "md": "primitiv-kbd--md",
+              "lg": "primitiv-kbd--lg",
+              "xl": "primitiv-kbd--xl"
+            }
           }
         ],
         "dataAttributes": [],
@@ -92,6 +99,9 @@
   },
   "elements": {
     "package": null,
+    "version": null,
+    "element": "kbd",
+    "wrapText": false,
     "example": "<kbd class=\"primitiv-kbd primitiv-kbd--md\">Kbd</kbd>\n"
   }
 }

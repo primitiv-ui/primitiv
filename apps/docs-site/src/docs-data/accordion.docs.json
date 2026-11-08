@@ -63,7 +63,14 @@
             "name": "size",
             "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
             "default": "md",
-            "description": "Control size for the whole widget; `data-density` scales each size further."
+            "description": "Control size for the whole widget; `data-density` scales each size further.",
+            "classes": {
+              "xs": "primitiv-accordion--xs",
+              "sm": "primitiv-accordion--sm",
+              "md": "primitiv-accordion--md",
+              "lg": "primitiv-accordion--lg",
+              "xl": "primitiv-accordion--xl"
+            }
           }
         ],
         "dataAttributes": [

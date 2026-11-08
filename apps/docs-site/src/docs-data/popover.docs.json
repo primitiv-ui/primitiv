@@ -138,13 +138,33 @@
             "name": "size",
             "type": "\"sm\" | \"md\" | \"lg\" | \"xl\"",
             "default": "md",
-            "description": "Panel size; `data-density` scales the padding within each size."
+            "description": "Panel size; `data-density` scales the padding within each size.",
+            "classes": {
+              "sm": "primitiv-popover--sm",
+              "md": "primitiv-popover--md",
+              "lg": "primitiv-popover--lg",
+              "xl": "primitiv-popover--xl"
+            }
           },
           {
             "name": "placement",
             "type": "\"top\" | \"top-start\" | \"top-end\" | \"right\" | \"right-start\" | \"right-end\" | \"bottom\" | \"bottom-start\" | \"bottom-end\" | \"left\" | \"left-start\" | \"left-end\"",
             "default": "bottom",
-            "description": "Which side of the anchor the panel sits on, and how it aligns — sets the CSS `position-area` and points the arrow at the anchor. Requires the consumer to wire `anchor-name` (on the trigger or Popover.Anchor) + `position-anchor` (on Content)."
+            "description": "Which side of the anchor the panel sits on, and how it aligns — sets the CSS `position-area` and points the arrow at the anchor. Requires the consumer to wire `anchor-name` (on the trigger or Popover.Anchor) + `position-anchor` (on Content).",
+            "classes": {
+              "top": "primitiv-popover--top",
+              "top-start": "primitiv-popover--top-start",
+              "top-end": "primitiv-popover--top-end",
+              "right": "primitiv-popover--right",
+              "right-start": "primitiv-popover--right-start",
+              "right-end": "primitiv-popover--right-end",
+              "bottom": "primitiv-popover--bottom",
+              "bottom-start": "primitiv-popover--bottom-start",
+              "bottom-end": "primitiv-popover--bottom-end",
+              "left": "primitiv-popover--left",
+              "left-start": "primitiv-popover--left-start",
+              "left-end": "primitiv-popover--left-end"
+            }
           }
         ],
         "dataAttributes": [

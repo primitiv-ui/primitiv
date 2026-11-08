@@ -56,13 +56,26 @@
             "name": "tone",
             "type": "\"info\" | \"success\" | \"warning\" | \"danger\"",
             "default": "info",
-            "description": "Semantic colour; also selects the default leading icon."
+            "description": "Semantic colour; also selects the default leading icon.",
+            "classes": {
+              "info": "primitiv-alert--info",
+              "success": "primitiv-alert--success",
+              "warning": "primitiv-alert--warning",
+              "danger": "primitiv-alert--danger"
+            }
           },
           {
             "name": "size",
             "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
             "default": "md",
-            "description": "Alert size; `data-density` scales each size further."
+            "description": "Alert size; `data-density` scales each size further.",
+            "classes": {
+              "xs": "primitiv-alert--xs",
+              "sm": "primitiv-alert--sm",
+              "md": "primitiv-alert--md",
+              "lg": "primitiv-alert--lg",
+              "xl": "primitiv-alert--xl"
+            }
           }
         ],
         "dataAttributes": [],

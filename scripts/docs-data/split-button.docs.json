@@ -77,13 +77,25 @@
             "name": "variant",
             "type": "\"primary\" | \"secondary\" | \"danger\"",
             "default": "primary",
-            "description": "Visual intent, applied to both halves. Ghost and link are deliberately unavailable — neither has a box at rest for the seam to divide."
+            "description": "Visual intent, applied to both halves. Ghost and link are deliberately unavailable — neither has a box at rest for the seam to divide.",
+            "classes": {
+              "primary": "primitiv-split-button--primary",
+              "secondary": "primitiv-split-button--secondary",
+              "danger": "primitiv-split-button--danger"
+            }
           },
           {
             "name": "size",
             "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
             "default": "md",
-            "description": "Control size, applied to both halves and the menu; `data-density` scales each size further."
+            "description": "Control size, applied to both halves and the menu; `data-density` scales each size further.",
+            "classes": {
+              "xs": "primitiv-split-button--xs",
+              "sm": "primitiv-split-button--sm",
+              "md": "primitiv-split-button--md",
+              "lg": "primitiv-split-button--lg",
+              "xl": "primitiv-split-button--xl"
+            }
           }
         ],
         "dataAttributes": [

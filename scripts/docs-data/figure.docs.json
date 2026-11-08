@@ -20,13 +20,25 @@
             "name": "captionPosition",
             "type": "\"below\" | \"above\" | \"overlay\"",
             "default": "below",
-            "description": "Caption placement relative to the media."
+            "description": "Caption placement relative to the media.",
+            "classes": {
+              "below": "primitiv-figure--below",
+              "above": "primitiv-figure--above",
+              "overlay": "primitiv-figure--overlay"
+            }
           },
           {
             "name": "size",
             "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
             "default": "md",
-            "description": "Caption type size, matching Figma's `Size` axis — it drives the nested Figcaption's `body/{size}` scale only; the media is size-independent. `data-density` scales each size further."
+            "description": "Caption type size, matching Figma's `Size` axis — it drives the nested Figcaption's `body/{size}` scale only; the media is size-independent. `data-density` scales each size further.",
+            "classes": {
+              "xs": "primitiv-figure--xs",
+              "sm": "primitiv-figure--sm",
+              "md": "primitiv-figure--md",
+              "lg": "primitiv-figure--lg",
+              "xl": "primitiv-figure--xl"
+            }
           }
         ],
         "dataAttributes": [],
@@ -53,7 +65,12 @@
             "name": "align",
             "type": "\"start\" | \"center\" | \"end\"",
             "default": "start",
-            "description": "Caption text alignment, matching Figma's Figcaption `Align` axis. Direction-aware — `start`/`end` follow the reading direction, flipping under RTL."
+            "description": "Caption text alignment, matching Figma's Figcaption `Align` axis. Direction-aware — `start`/`end` follow the reading direction, flipping under RTL.",
+            "classes": {
+              "start": "primitiv-figure__caption--start",
+              "center": "primitiv-figure__caption--center",
+              "end": "primitiv-figure__caption--end"
+            }
           }
         ],
         "dataAttributes": [],

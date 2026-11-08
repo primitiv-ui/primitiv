@@ -161,6 +161,7 @@ fn plans_the_elements_packages_in_place_of_the_react_ones() {
         AddOptions {
             components: vec!["kbd".into(), "tabs".into()],
             dry_run: true,
+            styled: true,
             ..Default::default()
         },
     )
@@ -601,4 +602,199 @@ fn surfaces_an_example_the_registry_cannot_serve() {
     .unwrap_err();
 
     assert!(matches!(error, CliError::Registry(_)), "{error:?}");
+}
+
+/// `tabs` with the styled example the registry ships: classes on every part,
+/// and the label span the stylesheet trims.
+fn styled_tabs_registry() -> InMemoryRegistry {
+    kbd_registry()
+        .with_file("tabs", "styles.css", b".primitiv-tabs{}")
+        .with_file(
+            "tabs",
+            "tabs.html",
+            b"<primitiv-tabs value=\"one\" class=\"primitiv-tabs primitiv-tabs--md\">\n  \
+              <primitiv-tabs-trigger value=\"one\">\n    \
+              <button type=\"button\" class=\"primitiv-tabs__trigger\">\n      \
+              <span class=\"primitiv-tabs__trigger-label\">One</span>\n    \
+              </button>\n  \
+              </primitiv-tabs-trigger>\n\
+              </primitiv-tabs>\n",
+        )
+}
+
+/// A headless elements run (no config, no `--styled`) of `components`.
+fn headless(fs: &InMemoryFs, output: &InMemoryOutput, components: &[&str]) -> Result<(), CliError> {
+    add(
+        fs,
+        &styled_tabs_registry(),
+        output,
+        &InMemoryProcessRunner::new(),
+        &InMemoryPrompt::new(Decision::Keep),
+        false,
+        &AddOptions {
+            components: components.iter().map(|c| c.to_string()).collect(),
+            surface: Some(Surface::Elements),
+            ..Default::default()
+        },
+    )
+}
+
+#[test]
+fn headless_by_default_copies_no_stylesheet() {
+    let fs = InMemoryFs::new();
+
+    headless(&fs, &InMemoryOutput::new(), &["tabs"]).unwrap();
+
+    assert!(
+        fs.read(std::path::Path::new("primitiv/tabs/styles.css"))
+            .is_err()
+    );
+    assert!(fs.read(std::path::Path::new("primitiv/index.css")).is_err());
+}
+
+#[test]
+fn headless_prints_the_markup_without_the_registry_classes() {
+    let fs = InMemoryFs::new();
+    let output = InMemoryOutput::new();
+
+    headless(&fs, &output, &["tabs"]).unwrap();
+
+    let captured = String::from_utf8(output.captured()).unwrap();
+    assert!(
+        captured.ends_with(
+            "\nExample markup for tabs:\n\n  \
+             <primitiv-tabs value=\"one\">\n    \
+             <primitiv-tabs-trigger value=\"one\">\n      \
+             <button type=\"button\">\n        \
+             One\n      \
+             </button>\n    \
+             </primitiv-tabs-trigger>\n  \
+             </primitiv-tabs>\n"
+        ),
+        "{captured}"
+    );
+}
+
+#[test]
+fn headless_skips_a_component_with_no_behaviour_and_says_so() {
+    let fs = InMemoryFs::new();
+    let output = InMemoryOutput::new();
+
+    headless(&fs, &output, &["kbd"]).unwrap();
+
+    assert_eq!(output.captured(), Vec::<u8>::new());
+    assert_eq!(
+        String::from_utf8(output.captured_stderr()).unwrap(),
+        "kbd has no behaviour, so its headless form is plain HTML. \
+         Add --styled for Primitiv's styling.\n"
+    );
+    assert!(
+        fs.read(std::path::Path::new("primitiv/kbd/styles.css"))
+            .is_err()
+    );
+}
+
+#[test]
+fn headless_plans_only_the_components_with_behaviour() {
+    let fs = InMemoryFs::new();
+    let output = InMemoryOutput::new();
+
+    add(
+        &fs,
+        &styled_tabs_registry(),
+        &output,
+        &InMemoryProcessRunner::new(),
+        &InMemoryPrompt::new(Decision::Keep),
+        false,
+        &AddOptions {
+            components: vec!["kbd".into(), "tabs".into()],
+            surface: Some(Surface::Elements),
+            dry_run: true,
+            ..Default::default()
+        },
+    )
+    .unwrap();
+
+    assert_eq!(
+        String::from_utf8(output.captured()).unwrap(),
+        "Resolved 1 component to add:\n  tabs  0.1.0\n\nPackages to ensure:\n  @primitiv-ui/web@^0.1.0\n"
+    );
+}
+
+#[test]
+fn surfaces_a_failed_no_behaviour_note() {
+    let output = InMemoryOutput::new();
+    output.fail_stderr();
+
+    let error = headless(&InMemoryFs::new(), &output, &["kbd"]).unwrap_err();
+
+    assert!(matches!(error, CliError::Io(_)), "{error:?}");
+}
+
+#[test]
+fn styled_flag_copies_the_stylesheet_over_a_headless_config() {
+    let fs = InMemoryFs::new();
+    fs.write(
+        std::path::Path::new("primitiv.json"),
+        &String::from_utf8(ELEMENTS_CONFIG.to_vec())
+            .unwrap()
+            .replace("\"enabled\": true", "\"enabled\": false")
+            .into_bytes(),
+    )
+    .unwrap();
+
+    add(
+        &fs,
+        &styled_tabs_registry(),
+        &InMemoryOutput::new(),
+        &InMemoryProcessRunner::new(),
+        &InMemoryPrompt::new(Decision::Keep),
+        false,
+        &AddOptions {
+            components: vec!["kbd".into()],
+            surface: Some(Surface::Elements),
+            styled: true,
+            ..Default::default()
+        },
+    )
+    .unwrap();
+
+    assert_eq!(
+        fs.read(std::path::Path::new("primitiv/kbd/styles.css"))
+            .ok(),
+        Some(b".primitiv-kbd{}".to_vec())
+    );
+}
+
+#[test]
+fn a_config_without_styles_is_headless() {
+    // What `init --surface elements` writes unless styling is asked for.
+    let fs = InMemoryFs::new();
+    fs.write(
+        std::path::Path::new("primitiv.json"),
+        &String::from_utf8(ELEMENTS_CONFIG.to_vec())
+            .unwrap()
+            .replace("\"enabled\": true", "\"enabled\": false")
+            .into_bytes(),
+    )
+    .unwrap();
+
+    add(
+        &fs,
+        &styled_tabs_registry(),
+        &InMemoryOutput::new(),
+        &InMemoryProcessRunner::new(),
+        &InMemoryPrompt::new(Decision::Keep),
+        false,
+        &AddOptions {
+            components: vec!["tabs".into()],
+            ..Default::default()
+        },
+    )
+    .unwrap();
+
+    assert!(
+        fs.read(std::path::Path::new("primitiv/tabs/styles.css"))
+            .is_err()
+    );
 }

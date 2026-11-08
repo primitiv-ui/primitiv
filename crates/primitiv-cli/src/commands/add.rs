@@ -57,6 +57,11 @@ pub struct AddOptions {
     /// installs the markup snippets over `@primitiv-ui/web` instead of the React
     /// wrappers. When `None` the config's `surface` is used, else React.
     pub surface: Option<Surface>,
+    /// Opt into Primitiv's styling on the elements surface (RFC 0033): copy the
+    /// stylesheet and contract and print the markup with the registry's classes.
+    /// Without it, or a config whose `styles.enabled` is set, elements are
+    /// headless: the package is installed and bare markup printed, nothing copied.
+    pub styled: bool,
 }
 
 /// One file the real (non-dry) copy would process — used by both the dry-run
@@ -147,6 +152,7 @@ pub fn add(
         no_wiring,
         registry: registry_override,
         surface,
+        styled,
     } = options;
     // `--registry <ref>` overrides the registry source (RFC 0005 §6.4): an
     // `http(s)://` URL or a version tag fetches over the network, any other value
@@ -188,6 +194,13 @@ pub fn add(
     let surface = surface
         .or(project_config.as_ref().map(|config| config.surface))
         .unwrap_or(Surface::React);
+    // Elements are headless unless styling is asked for, by the flag or by an
+    // elements config that enabled styles; React is always the styled surface.
+    let headless = surface == Surface::Elements
+        && !*styled
+        && !project_config
+            .as_ref()
+            .is_some_and(|config| config.surface == Surface::Elements && config.styles.enabled);
     if surface == Surface::Elements
         && let Some(name) = resolved
             .iter()
@@ -197,6 +210,29 @@ pub fn add(
             "component '{name}' has no elements surface yet"
         )));
     }
+    // A component with no behaviour has no headless form beyond plain HTML, so
+    // there is nothing to install or print for it; say so, on stderr so an
+    // agent's JSON stays parseable, and carry on with the rest.
+    let resolved = if headless {
+        let (with, without): (Vec<String>, Vec<String>) = resolved
+            .into_iter()
+            .partition(|name| !declared_packages(&index.components[name], surface).is_empty());
+        for name in &without {
+            output.write_stderr(
+                format!(
+                    "{name} has no behaviour, so its headless form is plain HTML. \
+                     Add --styled for Primitiv's styling.\n"
+                )
+                .as_bytes(),
+            )?;
+        }
+        if with.is_empty() {
+            return Ok(());
+        }
+        with
+    } else {
+        resolved
+    };
     // Compute the per-file classification for the dry-run report. Both the human
     // ("Refresh plan:") and JSON ("files" array) outputs consume it.
     // - `None` when not dry-running (JSON omits the "files" key entirely).
@@ -204,7 +240,7 @@ pub fn add(
     //   includes the empty array, human section is suppressed).
     // - `Some(files)` otherwise, classifying each planned destination.
     let refresh_files: Option<Vec<(String, &'static str)>> = if *dry_run {
-        if *no_styles {
+        if *no_styles || headless {
             Some(vec![])
         } else {
             let components_dir = detect::components_path(fs, &dir)?
@@ -217,6 +253,7 @@ pub fn add(
                 project_config.as_ref(),
                 &components_dir,
                 surface,
+                *styled,
             );
             let lock_path = dir.join(lock::FILE_NAME);
             let lock = Lock::read(fs, &lock_path)?;
@@ -260,7 +297,10 @@ pub fn add(
                 ensure_packages(fs, runner, &index, &resolved, surface, &dir)?;
             }
         }
-        if !*no_styles {
+        if headless && !*json {
+            print_examples(output, registry, &index, &resolved, true)?;
+        }
+        if !*no_styles && !headless {
             // The style packages (cva) serve the React recipe, which only the
             // React surface copies.
             if surface == Surface::React {
@@ -282,6 +322,7 @@ pub fn add(
                 *force,
                 project_config.as_ref(),
                 surface,
+                *styled,
             )?;
             // JSON already describes the plan as data; this section is for the
             // human run, which until now finished without ever naming a file.
@@ -291,7 +332,7 @@ pub fn add(
             if effective_format == Format::Tailwind {
                 offer_wiring(output, prompt, fs, interactive, *no_wiring, *json, &dir)?;
             }
-            ensure_tokens(fs, output, registry, project_config.as_ref())?;
+            ensure_tokens(fs, output, registry, project_config.as_ref(), *styled)?;
             // A plain CSS page links the files directly; SCSS and Tailwind go
             // through the project's own build, which knows its entry better.
             if let (Some(links), false, Format::Css) = (links, *json, effective_format) {
@@ -306,7 +347,7 @@ pub fn add(
                 )?;
             }
             if surface == Surface::Elements && !*json {
-                print_examples(output, registry, &index, &resolved)?;
+                print_examples(output, registry, &index, &resolved, false)?;
             }
         }
     }
@@ -321,6 +362,7 @@ fn print_examples(
     registry: &dyn Registry,
     index: &RegistryIndex,
     resolved: &[String],
+    headless: bool,
 ) -> Result<(), CliError> {
     let mut message = String::new();
     for name in resolved {
@@ -335,7 +377,13 @@ fn print_examples(
             message.push_str(&format!("\nExample markup for {name}:\n\n"));
             // Indented like the other printed blocks (the `<link>` and `<script>`
             // lines); leading spaces are harmless wherever it is pasted.
-            for line in String::from_utf8_lossy(&markup).lines() {
+            let markup = String::from_utf8_lossy(&markup);
+            let markup = if headless {
+                without_classes(&markup)
+            } else {
+                markup.into_owned()
+            };
+            for line in markup.lines() {
                 message.push_str(&format!("  {line}\n"));
             }
         }
@@ -343,6 +391,23 @@ fn print_examples(
     output
         .write_stdout(message.as_bytes())
         .map_err(CliError::Io)
+}
+
+/// The headless form of the registry's example markup: the same elements with
+/// every `class` attribute removed, and the spans that existed only to carry a
+/// class unwrapped to their text. Derived rather than kept as a second file, so
+/// the two forms cannot drift.
+pub(crate) fn without_classes(markup: &str) -> String {
+    let mut out = String::with_capacity(markup.len());
+    let mut rest = markup;
+    while let Some(start) = rest.find(" class=\"") {
+        out.push_str(&rest[..start]);
+        let after = &rest[start + " class=\"".len()..];
+        let end = after.find('"').map_or(after.len(), |quote| quote + 1);
+        rest = &after[end..];
+    }
+    out.push_str(rest);
+    out.replace("<span>", "").replace("</span>", "")
 }
 
 /// The components directory `add` writes the React surface into when the project
@@ -388,11 +453,12 @@ fn ensure_tokens(
     output: &impl Output,
     registry: &dyn Registry,
     config: Option<&crate::config::Config>,
+    styled: bool,
 ) -> Result<(), CliError> {
     let Some(config) = config else {
         return Ok(());
     };
-    if !config.styles.enabled {
+    if !config.styles.enabled && !styled {
         return Ok(());
     }
     let token_path = PathBuf::from(&config.tokens.path);
@@ -541,6 +607,7 @@ fn copy_styled_surface(
     force: bool,
     config: Option<&Config>,
     surface: Surface,
+    styled: bool,
 ) -> Result<(Written, Option<StyleLinks>), CliError> {
     let lock_path = dir.join(lock::FILE_NAME);
     let mut lock = Lock::read(fs, &lock_path)?;
@@ -554,6 +621,7 @@ fn copy_styled_surface(
         config,
         &components_dir,
         surface,
+        styled,
     );
     if files.is_empty() {
         return Ok((vec![], None));
@@ -646,11 +714,13 @@ fn planned_files(
     config: Option<&Config>,
     components_dir: &str,
     surface: Surface,
+    styled: bool,
 ) -> Vec<PlannedFile> {
     let Some(config) = config else {
         return vec![];
     };
-    if !config.styles.enabled {
+    // `--styled` opts an elements project in for this run, whatever it recorded.
+    if !config.styles.enabled && !styled {
         return vec![];
     }
     let format = format.unwrap_or(config.styles.format);

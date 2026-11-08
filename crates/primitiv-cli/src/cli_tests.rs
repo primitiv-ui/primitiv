@@ -87,7 +87,13 @@ fn rejects_an_unknown_format_for_init() {
 
 #[test]
 fn rejects_init_value_flags_with_no_value() {
-    for flag in ["--format", "--name", "--brand", "--path", "--alias-components"] {
+    for flag in [
+        "--format",
+        "--name",
+        "--brand",
+        "--path",
+        "--alias-components",
+    ] {
         assert!(matches!(
             parse(&args(&["init", flag])).unwrap_err(),
             CliError::Usage(_)
@@ -201,7 +207,23 @@ fn parses_add_with_a_surface_override() {
 fn parses_add_with_the_react_surface() {
     let command = parse(&args(&["add", "kbd", "--surface", "react"])).unwrap();
 
-    assert!(matches!(command, Command::Add(AddOptions { surface: Some(Surface::React), .. })));
+    assert!(matches!(
+        command,
+        Command::Add(AddOptions {
+            surface: Some(Surface::React),
+            ..
+        })
+    ));
+}
+
+#[test]
+fn parses_add_with_the_styled_opt_in() {
+    let command = parse(&args(&["add", "tabs", "--surface", "elements", "--styled"])).unwrap();
+
+    assert!(matches!(
+        command,
+        Command::Add(AddOptions { styled: true, .. })
+    ));
 }
 
 #[test]
@@ -830,7 +852,13 @@ fn parses_a_help_request_for_one_command_wherever_the_flag_sits() {
     ] {
         let command = parse(&args(invocation)).unwrap();
 
-        assert_eq!(command, Command::Help { command: Some("add".to_string()) }, "{invocation:?}");
+        assert_eq!(
+            command,
+            Command::Help {
+                command: Some("add".to_string())
+            },
+            "{invocation:?}"
+        );
     }
 }
 
@@ -859,7 +887,13 @@ fn parses_init_with_a_surface() {
 
 #[test]
 fn rejects_init_surface_with_no_value_or_an_unknown_one() {
-    for argv in [&["init", "--surface"][..], &["init", "--surface", "vue"][..]] {
-        assert!(matches!(parse(&args(argv)).unwrap_err(), CliError::Usage(_)), "{argv:?}");
+    for argv in [
+        &["init", "--surface"][..],
+        &["init", "--surface", "vue"][..],
+    ] {
+        assert!(
+            matches!(parse(&args(argv)).unwrap_err(), CliError::Usage(_)),
+            "{argv:?}"
+        );
     }
 }

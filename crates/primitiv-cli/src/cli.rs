@@ -141,10 +141,12 @@ fn parse_add(args: &[String]) -> Result<Command, CliError> {
     let mut no_wiring = false;
     let mut registry = None;
     let mut surface = None;
+    let mut styled = false;
     let mut rest = args.iter();
     while let Some(arg) = rest.next() {
         match arg.as_str() {
             "--all" => all = true,
+            "--styled" => styled = true,
             "--surface" => surface = Some(parse_surface(&take_value(&mut rest, "--surface")?)?),
             "--json" => json = true,
             "--dry-run" => dry_run = true,
@@ -185,6 +187,7 @@ fn parse_add(args: &[String]) -> Result<Command, CliError> {
         no_wiring,
         registry,
         surface,
+        styled,
     }))
 }
 

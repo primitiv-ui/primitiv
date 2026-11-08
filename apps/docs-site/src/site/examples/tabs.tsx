@@ -264,6 +264,7 @@ export const tabsSpec: ComponentSpec = {
       title: "Controlled",
       render: () => (
         <InteractiveExample
+          elementsCaption="The `value` attribute is the state: set it from the server, from markup or with `setAttribute` to switch tabs, and listen for `primitiv-tabs-change` to follow the user. The event fires before the change and is cancelable, so `preventDefault()` keeps the current tab — for unsaved work, say."
           caption="Pass `value` with `onValueChange` to own the active tab yourself — for syncing to a URL, or to another control. Pass `defaultValue` instead to let the component own it. The two are mutually exclusive, which is the one thing the generated props table below cannot show you: `Tabs.Root`'s props are a discriminated union and the table flattens it."
           code={(_density, mode) => {
             if (mode === "elements")
@@ -304,6 +305,9 @@ export const tabsSpec: ComponentSpec = {
       title: "Activation mode",
       render: () => (
         <InteractiveExample
+          elementsCaption={
+            'With `activation-mode="automatic"` (the default) a tab activates as the arrow keys reach it, so the panel follows focus. `manual` moves focus only and waits for `Enter` or `Space`. Focus a trigger below and use the arrow keys to feel the difference — automatic is right for cheap panels, manual for a panel that fetches.'
+          }
           caption="`automatic` (the default) activates a tab as the arrow keys reach it, so the panel follows focus. `manual` moves focus only and waits for `Enter` or `Space`. Focus a trigger below and use the arrow keys to feel the difference — automatic is right for cheap panels, manual for a panel that fetches."
           code={(_density, mode) =>
             mode === "elements"
@@ -342,6 +346,9 @@ export const tabsSpec: ComponentSpec = {
           /* Braces, not a bare attribute string: a JSX attribute value is not a
              JS string literal, so `\"` inside one is a syntax error rather than
              an escaped quote. */
+          elementsCaption={
+            '`orientation="vertical"` on `<primitiv-tabs>` stacks the tablist beside the panel and switches the arrow keys to `ArrowUp`/`ArrowDown`. It is one attribute: every part carries `data-orientation`, and the stylesheet does the rest.'
+          }
           caption={
             '`orientation="vertical"` stacks the tablist beside the panel and switches the arrow keys to `ArrowUp`/`ArrowDown`. It is one prop: every part publishes `data-orientation`, and the stylesheet does the rest — the axis is not a separate component.'
           }
@@ -364,6 +371,7 @@ export const tabsSpec: ComponentSpec = {
       title: "Disabled trigger",
       render: () => (
         <InteractiveExample
+          elementsCaption="`disabled` on a `<primitiv-tabs-trigger>` marks its tab with `aria-disabled` and `data-disabled`. Keyboard navigation never activates it — arrow keys, `Home` and `End` all leave the current panel in place rather than opening a disabled one."
           caption="`disabled` on a `Trigger` sets the native attribute and exposes `data-disabled`. Keyboard navigation never activates it — arrow keys, `Home` and `End` all leave the current panel in place rather than opening a disabled one."
           code={(_density, mode) =>
             mode === "elements"
@@ -380,6 +388,44 @@ export const tabsSpec: ComponentSpec = {
       ),
     },
   ],
+
+  elements: {
+    anatomyMeta:
+      "Four elements. The `value` attribute is the whole wiring — it pairs a `<primitiv-tabs-trigger>` with the `<primitiv-tabs-content>` of the same value, and `<primitiv-tabs>` holds the active one in its own `value`. Each trigger wraps the `<button>` (or `<a href>`) you write, which becomes the tab.",
+    keyboardMeta:
+      "The tablist is a single tab stop, not one per trigger — a roving `tabindex` moves within it, so `Tab` leaves the list rather than walking it. With `activation-mode=\"automatic\"` (the default) arrow keys activate as they move; with `manual` they only move focus. A trigger with `disabled` is never activated by any of these keys.",
+    keyboard: [
+      {
+        keys: ["ArrowRight", "ArrowLeft"],
+        behaviour:
+          "Move between triggers in a horizontal tablist. They swap under right-to-left: set `dir=\"rtl\"` on the tab set or any ancestor.",
+      },
+      {
+        keys: ["ArrowDown", "ArrowUp"],
+        behaviour: "Move between triggers when `orientation=\"vertical\"`.",
+      },
+      { keys: ["Home", "End"], behaviour: "Jump to the first / last trigger." },
+      {
+        keys: ["Enter", "Space"],
+        behaviour:
+          "Activate the focused trigger. Only meaningful with `activation-mode=\"manual\"` — automatic activation has already happened on the arrow key.",
+      },
+      {
+        keys: ["Tab"],
+        behaviour:
+          "Move out of the tablist and into the active panel, which is the next tab stop.",
+      },
+    ],
+    accessibility: [
+      "`<primitiv-tabs-list>` needs a name: give it `label` or `aria-labelledby`. An unnamed `role=\"tablist\"` is the one thing this component lets you get wrong.",
+      "The elements write the full APG trio: `role=\"tablist\"` on the list, `role=\"tab\"` with `aria-selected` and `aria-controls` on the `<button>` inside each trigger, and `role=\"tabpanel\"` with `aria-labelledby` on each content, generating ids where you gave none.",
+      "The tablist is a **single tab stop**. A roving `tabindex` follows the active tab, so `Tab` moves into the panel rather than through every trigger.",
+      "Inactive panels stay in the page with the `hidden` attribute, so anything stateful inside one — a scroll position, a half-filled field — survives a switch. Render `hidden` on them in your own markup too: the page is then correct before the script loads, and stays correct if it never does.",
+      "A trigger decorates the one element you put inside it — a `<button>`, an `<a href>` or a router link — so the tab is a real native control with its own focus and activation, not a `<div>` that looks like one. A trigger with no `value`, or not exactly one element child, is reported once in the console and left alone.",
+      "`disabled` on a trigger sets `aria-disabled` and `data-disabled` on its tab, and no keyboard navigation activates it.",
+      "Every part carries `data-orientation`, so a vertical tablist is a styling concern rather than a different component or a different keyboard model to learn.",
+    ],
+  },
 
   accessibility: [
     "`Tabs.List` requires either `label` or `ariaLabelledBy` — an unnamed `role=\"tablist\"` is the one thing this component lets you get wrong, so the prop is not optional.",

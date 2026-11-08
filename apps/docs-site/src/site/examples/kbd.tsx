@@ -60,6 +60,9 @@ export const kbdSpec: ComponentSpec = {
       title: "Key combinations",
       render: () => (
         <InteractiveExample
+          elementsCaption={
+            'A combination is **separate `<kbd>` elements** joined by a plain `+`, not one `<kbd>` with the whole string — each physical key is its own cap, and a screen reader announces them one at a time. Keep the joiner (`+` or a thin space) outside the caps.'
+          }
           caption="A combination is **separate `Kbd`s** joined by a plain `+`, not one `Kbd` with the whole string — each physical key is its own cap, and a screen reader announces them one at a time. Keep the joiner (`+` or a thin space) outside the caps."
           code={(_density, mode) =>
             mode === "elements"
@@ -88,6 +91,9 @@ export const kbdSpec: ComponentSpec = {
       title: "Inline in prose",
       render: () => (
         <InteractiveExample
+          elementsCaption={
+            'A key cap sizes off the text around it, so a key named mid-sentence sits on the line without disturbing it. Reach for `<kbd>` when the thing is a **key to press**; for a literal value or a command, that is inline code.'
+          }
           caption="`Kbd` sizes off the text around it, so a key named mid-sentence sits on the line without disturbing it. Reach for `Kbd` when the thing is a **key to press**; for a literal value or a command, that is `InlineCode`."
           code={(_density, mode) =>
             mode === "elements"
@@ -111,6 +117,14 @@ export const kbdSpec: ComponentSpec = {
       ),
     },
   ],
+
+  elements: {
+    accessibility: [
+      "Use a real `<kbd>` element, so assistive tech announces it as keyboard input rather than as plain text — the semantics come from the element; the classes only style it.",
+      "For a combination, give each key its own `<kbd>` and keep the `+` joiner outside them: a screen reader then reads the keys individually instead of spelling out one run-together string.",
+      "It is presentational, not interactive — a `<kbd>` naming a key is not itself a control. The actual keyboard handling lives on the component the shortcut drives.",
+    ],
+  },
 
   accessibility: [
     "Kbd renders a real `<kbd>` element, so assistive tech announces it as keyboard input rather than as plain text — the semantics come for free from the right element.",

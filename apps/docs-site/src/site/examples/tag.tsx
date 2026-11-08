@@ -86,6 +86,9 @@ export const tagSpec: ComponentSpec = {
       title: "A group of tags",
       render: () => (
         <InteractiveExample
+          elementsCaption={
+            'Tags rarely travel alone — the common shape is a group labelling one thing by several categories at once. The group is your own layout (a wrapping row here), and the tags inside it stay `neutral`, since a list of topics is not a list of statuses. Give the group an accessible name if the set of tags means something as a whole.'
+          }
           caption="Tags rarely travel alone — the common shape is a group labelling one thing by several categories at once. The group is your own layout (a row-direction `Stack` that wraps here), and the tags inside it stay `neutral`, since a list of topics is not a list of statuses. Give the group an accessible name if the set of tags means something as a whole."
           code={(_density, mode) =>
             mode === "elements"
@@ -115,6 +118,9 @@ export const tagSpec: ComponentSpec = {
       title: "Sizes and density",
       render: () => (
         <InteractiveExample
+          elementsCaption={
+            'Five size classes, each rescaling again with the nearest `data-density` ancestor — a tag in a dense table row wants `xs`, one beside a heading `lg`. Change the density above and the whole ramp shifts: that is the Context system, not a class on the tag.'
+          }
           caption="Five sizes, each rescaling again with the nearest `data-density` ancestor — a tag in a dense table row wants `xs`, one beside a heading `lg`. Change the density above and the whole ramp shifts: that is the Context system, not a `Tag` prop."
           code={(density, mode) =>
             mode === "elements"
@@ -143,8 +149,12 @@ export const tagSpec: ComponentSpec = {
     {
       id: "as-child",
       title: "As another element (asChild)",
+      elementsTitle: "On another element",
       render: () => (
         <InteractiveExample
+          elementsCaption={
+            'The classes work on any element, not just a `<span>` — put them on an `<abbr>` or a list `<li>` that should read as a tag while keeping its own semantics. That is **not** a way to make a tag clickable: a tag is read-only by design, and a filterable, removable, or linked pill is a `Chip`, which is built to be interactive.'
+          }
           caption="`asChild` merges the tag's classes onto your own element instead of wrapping a `<span>` — for marking up an `<abbr>` or a list `<li>` that should read as a tag while keeping its own semantics. It is **not** a way to make a tag clickable: a tag is read-only by design, and a filterable, removable, or linked pill is a `Chip`, which is built to be interactive."
           code={(_density, mode) =>
             mode === "elements"
@@ -167,6 +177,16 @@ export const tagSpec: ComponentSpec = {
       ),
     },
   ],
+
+  elements: {
+    accessibility: [
+      "A tag is **read-only**. It takes no focus and handles no events — if you need something clickable, removable, or filterable that looks like this, use `Chip`, which is built for it, rather than putting a handler on a tag.",
+      "The tone is not the message. Colour alone carries no meaning for a screen-reader user or anyone who cannot distinguish the hues, so the text has to say it — and because `neutral` is the default, most tags rely on their words entirely.",
+      "A group of tags is your own markup, so its semantics are yours to give: if the set means something as a whole (\"topics\", \"applied filters\"), wrap it in a labelled `<ul>`/`<li>` or a region with an `aria-label` rather than leaving a bare run of `<span>`s.",
+      "The classes add styling only, so the element keeps its own semantics — an `<abbr>` is still an `<abbr>`, which is why they are the right hook for marking up an abbreviation or a list item.",
+      "**Tag or badge?** A tag carries the `neutral` tone for categories and topics; a badge drops neutral so every badge is one of four *statuses*. Choose on whether the label is a category or a state — and choose `Chip` the moment it needs to be interactive.",
+    ],
+  },
 
   accessibility: [
     "A tag is **read-only**. It renders a `<span>`, takes no focus and handles no events — if you need something clickable, removable, or filterable that looks like this, use `Chip`, which is built for it, rather than putting a handler on a tag.",

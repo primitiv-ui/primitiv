@@ -108,6 +108,9 @@ export const buttonSpec: ComponentSpec = {
       title: "Sizes",
       render: () => (
         <InteractiveExample
+          elementsCaption={
+            'Five size classes — and every one rescales again with the nearest `data-density` ancestor. Change the density above and watch the whole ramp shift: that is the Context system, not a class on the button.'
+          }
           caption="Five sizes — and every one rescales again with the nearest `data-density` ancestor. Change the density above and watch the whole ramp shift: that is the Context system, not a `Button` prop."
           code={(density, mode) =>
             mode === "elements"
@@ -140,6 +143,9 @@ export const buttonSpec: ComponentSpec = {
       title: "With icons",
       render: () => (
         <InteractiveExample
+          elementsCaption={
+            'Icons are just markup: put an `<svg>` before or after the `primitiv-button__label` span, and the button lays it out. Nothing to configure.'
+          }
           caption="Icons are `children`, not props, so a leading or trailing glyph is just composition — nothing to configure."
           code={(_density, mode) =>
             mode === "elements"
@@ -192,8 +198,12 @@ export const buttonSpec: ComponentSpec = {
     {
       id: "as-a-link",
       title: "As a link (asChild)",
+      elementsTitle: "As a link",
       render: () => (
         <InteractiveExample
+          elementsCaption={
+            "A link that should look like a button takes the same classes: put them on the `<a href>` itself. It stays a link to assistive tech, with the button's hit area and focus ring."
+          }
           caption={
             '`asChild` renders your own element instead of a `<button>` — here a Next `<Link>` — merging the button props and styles onto it. The a11y wiring follows, so it stays `role="link"`.'
           }
@@ -268,6 +278,17 @@ export const buttonSpec: ComponentSpec = {
       ),
     },
   ],
+
+  elements: {
+    description:
+      "A clickable action — a `<button>`, or an `<a href>` styled as one, carrying the registry classes.",
+    accessibility: [
+      "Use a real `<button type=\"button\">`: Space and Enter activate it natively, and the classes add no behaviour to re-implement.",
+      "A visible focus ring is drawn via `:focus-visible`, so it appears for keyboard users and not on mouse click.",
+      "The native `disabled` attribute is what stops interaction and tells assistive tech; the classes only style it.",
+      "Put the classes on an `<a href>` when the action navigates: it keeps `role=\"link\"` and is announced as a link, not a button.",
+    ],
+  },
 
   accessibility: [
     "Space and Enter both activate the button — the native `<button>` behaviour, kept rather than re-implemented.",

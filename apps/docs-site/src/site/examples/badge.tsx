@@ -87,6 +87,9 @@ export const badgeSpec: ComponentSpec = {
       title: "Counter",
       render: () => (
         <InteractiveExample
+          elementsCaption={
+            'The `primitiv-badge--counter` class is the number form — a pill sized for one or two digits rather than a word, for unread counts and totals beside a heading or an icon. A count still carries a tone class: an unread count is `info`, a failing-checks count is `danger`.'
+          }
           caption="`variant=&quot;counter&quot;` is the number form — a pill sized for one or two digits rather than a word, for unread counts and totals beside a heading or an icon. It is the same component, so a count still carries a tone: an unread count is `info`, a failing-checks count is `danger`."
           code={(_density, mode) =>
             mode === "elements"
@@ -117,6 +120,9 @@ export const badgeSpec: ComponentSpec = {
       title: "Sizes and density",
       render: () => (
         <InteractiveExample
+          elementsCaption={
+            'Five size classes, and every one rescales again with the nearest `data-density` ancestor — a badge beside a heading wants `lg`, one in a table row wants `xs`. Change the density above and the whole ramp shifts: that is the Context system, not a class on the badge.'
+          }
           caption="Five sizes, and every one rescales again with the nearest `data-density` ancestor — a badge beside a heading wants `lg`, one in a table row wants `xs`. Change the density above and the whole ramp shifts: that is the Context system, not a `Badge` prop."
           code={(density, mode) =>
             mode === "elements"
@@ -143,8 +149,12 @@ export const badgeSpec: ComponentSpec = {
     {
       id: "as-child",
       title: "As another element (asChild)",
+      elementsTitle: "On another element",
       render: () => (
         <InteractiveExample
+          elementsCaption={
+            'The classes work on any element, not just a `<span>` — put them on an `<abbr>` or a `<time>` that should read as a badge. That is **not** a way to make a badge clickable: a badge is read-only by design, and a link or button that looks like one should be a `Chip`, which is built to be interactive.'
+          }
           caption="`asChild` merges the badge's classes onto your own element instead of wrapping a `<span>` — useful for an `<abbr>` or a `<time>` that should read as a badge. It is **not** a way to make a badge clickable: a badge is read-only by design, and a link or button that looks like one should be a `Chip`, which is built to be interactive."
           code={(_density, mode) =>
             mode === "elements"
@@ -167,6 +177,16 @@ export const badgeSpec: ComponentSpec = {
       ),
     },
   ],
+
+  elements: {
+    accessibility: [
+      "A badge is **read-only**. It takes no focus and handles no events — if you need something clickable that looks like this, use `Chip`, which is built for it, rather than putting a handler on a badge.",
+      "The tone is not the message. Colour alone carries no meaning for a screen-reader user or anyone who cannot distinguish the hues, so the text has to say it: `Failing` in the danger tone, not a bare red dot.",
+      "A counter needs its own words. `8` on its own is announced as \"8\" — give the surrounding control the context, with an `aria-label` like \"8 unread messages\" on the element the badge is attached to.",
+      "The classes add styling only, so the element keeps its own semantics — a `<time>` is still a `<time>`, which is why they are the right hook for marking up a date or an abbreviation.",
+      "There is no neutral tone by design, so a status is always one of four meanings. Reach for a tag when the label is a category rather than a state.",
+    ],
+  },
 
   accessibility: [
     "A badge is **read-only**. It renders a `<span>`, takes no focus and handles no events — if you need something clickable that looks like this, use `Chip`, which is built for it, rather than putting a handler on a badge.",

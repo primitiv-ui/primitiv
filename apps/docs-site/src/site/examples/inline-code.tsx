@@ -41,6 +41,9 @@ export const inlineCodeSpec: ComponentSpec = {
       title: "Inline in text",
       render: () => (
         <InteractiveExample
+          elementsCaption={
+            'A `<code>` fragment for a value, identifier or path named in running text — `querySelector`, `--primitiv-space-16`, `package.json`. It reads as code without breaking the line. Reach for a `<kbd>` key cap instead when the thing is a key to press.'
+          }
           caption="A `<code>` fragment for a value, identifier or path named in running text — `useState`, `--primitiv-space-16`, `package.json`. It reads as code without breaking the line. Reach for `Kbd` instead when the thing is a key to press."
           code={(_density, mode) =>
             mode === "elements"
@@ -97,8 +100,12 @@ export const inlineCodeSpec: ComponentSpec = {
     {
       id: "as-child",
       title: "As a link (asChild)",
+      elementsTitle: "As a link",
       render: () => (
         <InteractiveExample
+          elementsCaption={
+            "Put the classes on an `<a href>` for a code fragment that is also a link to an API reference, say. The chip's look is the classes, so it transfers to whatever element carries them."
+          }
           caption="`asChild` renders your own element with the code styling merged on — a `<code>` fragment that is also a link to an API reference, say. The chip's look transfers to the element you supply."
           code={(_density, mode) =>
             mode === "elements"
@@ -125,6 +132,14 @@ export const inlineCodeSpec: ComponentSpec = {
       ),
     },
   ],
+
+  elements: {
+    accessibility: [
+      "Use a real `<code>` element, so assistive tech treats it as code rather than emphasised prose — the semantics are the element's, not a style.",
+      "The classes add no ARIA. On an `<a href>` the element stays a link.",
+      "The chip is tint + a hairline border, not colour alone, so the distinction from surrounding text survives for low-vision readers and does not lean on a single hue.",
+    ],
+  },
 
   accessibility: [
     "InlineCode renders a real `<code>` element, so assistive tech treats it as code rather than emphasised prose — the semantics are the element's, not a style.",

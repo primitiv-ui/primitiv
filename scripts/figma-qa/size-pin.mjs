@@ -39,8 +39,8 @@ const SPECIMENS = {
   prose: `<div class="primitiv-prose primitiv-prose--{SZ}"><p>Body</p><h2>Head</h2><li>Item</li></div>`,
 };
 
-const tokens = readFileSync(`${root}/apps/kitchen-sink/src/styles/primitiv/tokens.css`, "utf8");
-const base = readFileSync(`${root}/apps/kitchen-sink/src/styles/primitiv/primitiv-base.css`, "utf8");
+const tokens = readFileSync(`${root}/apps/docs-site/src/styles/primitiv/tokens.css`, "utf8");
+const base = readFileSync(`${root}/apps/docs-site/src/styles/primitiv/primitiv-base.css`, "utf8");
 const sheets = Object.keys(SPECIMENS)
   .map((n) => `${root}/registry/components/${n}/styles.css`)
   .filter((p) => existsSync(p))

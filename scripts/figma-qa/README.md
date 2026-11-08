@@ -1,6 +1,7 @@
-# `scripts/figma-qa` — browser measurement for the Figma ↔ kitchen-sink audit
+# `scripts/figma-qa` — browser measurement for the Figma ↔ registry audit
 
-Tooling for validating what the kitchen-sink **renders** against what Figma
+Tooling for validating what the registry components **render** (on the docs
+site; the audit was first run against the now-retired kitchen-sink) against what Figma
 **specifies**. Built 2026-07-28/29 after four CSS bugs in a row were diagnosed
 wrongly from screenshots and reasoning; every one was settled in minutes once the
 values were measured in a real browser.
@@ -21,9 +22,9 @@ deployed site), waits `waitMs` for the SPA to mount, evaluates the JS in
 single expression — wrap it in `(() => { ... })()`.
 
 ```sh
-# against the deployed kitchen-sink
+# against a component page on the deployed docs site
 node scripts/figma-qa/cdp.mjs \
-  https://primitiv-ui.dev/kitchen-sink/ /tmp/expr.js 7000
+  https://primitiv-ui.dev/components/aspect-ratio/ /tmp/expr.js 7000
 ```
 
 Injecting a candidate stylesheet into the live page and re-measuring is the

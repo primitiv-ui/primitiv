@@ -26,7 +26,7 @@ const REGISTRY: &[u8] = br##"{
         "react": ["kbd.recipe.ts", "kbd.tsx"]
       },
       "contract": "contract.json",
-      "elements": { "files": ["kbd.html"] }
+      "elements": { "example": "kbd.html" }
     },
     "tabs": {
       "version": "0.1.0",
@@ -34,11 +34,11 @@ const REGISTRY: &[u8] = br##"{
       "styles": { "packages": ["class-variance-authority"], "formats": { "css": ["styles.css"] } },
       "elements": {
         "packages": [{ "name": "@primitiv-ui/web", "version": "^0.1.0" }],
-        "files": ["tabs.html"]
+        "example": "tabs.html"
       }
     },
     "modal": { "version": "0.1.0" },
-    "confirm-dialog": { "version": "0.1.0", "dependsOn": { "components": ["modal"] }, "elements": { "files": ["confirm-dialog.html"] } }
+    "confirm-dialog": { "version": "0.1.0", "dependsOn": { "components": ["modal"] }, "elements": { "example": "confirm-dialog.html" } }
   }
 }"##;
 
@@ -46,7 +46,7 @@ const REGISTRY: &[u8] = br##"{
 fn add_elements(fs: &InMemoryFs, output: &InMemoryOutput, runner: &InMemoryProcessRunner, options: AddOptions) -> Result<(), CliError> {
     add(
         fs,
-        &InMemoryRegistry::new(REGISTRY),
+        &kbd_and_tabs_registry(),
         output,
         runner,
         &InMemoryPrompt::new(Decision::Keep),
@@ -181,7 +181,7 @@ fn prints_a_pinned_cdn_script_instead_of_installing_without_a_package_json() {
 
     assert_eq!(runner.calls(), vec![]);
     assert!(
-        String::from_utf8(output.captured()).unwrap().ends_with(
+        String::from_utf8(output.captured()).unwrap().contains(
             "\nNo package.json here, so nothing was installed. Load the elements with:\n\n  \
              <script type=\"module\" src=\"https://cdn.jsdelivr.net/npm/@primitiv-ui/web@0.1.0/dist/primitiv-web.js\"></script>\n"
         ),
@@ -223,7 +223,7 @@ fn kbd_registry() -> InMemoryRegistry {
 }
 
 #[test]
-fn copies_the_stylesheet_snippet_and_contract_into_one_folder_per_component() {
+fn copies_the_stylesheet_and_contract_into_one_folder_per_component() {
     let fs = InMemoryFs::new();
     fs.write(std::path::Path::new("primitiv.json"), ELEMENTS_CONFIG).unwrap();
 
@@ -240,7 +240,8 @@ fn copies_the_stylesheet_snippet_and_contract_into_one_folder_per_component() {
 
     let read = |path: &str| fs.read(std::path::Path::new(path)).ok();
     assert_eq!(read("primitiv/kbd/styles.css"), Some(b".primitiv-kbd{}".to_vec()));
-    assert_eq!(read("primitiv/kbd/kbd.html"), Some(b"<kbd class=\"primitiv-kbd\">Kbd</kbd>\n".to_vec()));
+    // The example markup is printed, not copied: nothing would import it.
+    assert_eq!(read("primitiv/kbd/kbd.html"), None);
     assert_eq!(read("primitiv/kbd/contract.json"), Some(b"{}".to_vec()));
     // The React surface stays behind.
     assert_eq!(read("src/components/kbd.tsx"), None);
@@ -294,7 +295,7 @@ fn ends_by_printing_the_links_a_page_needs() {
     run(&fs, &output, &["kbd"]);
 
     assert!(
-        String::from_utf8(output.captured()).unwrap().ends_with(
+        String::from_utf8(output.captured()).unwrap().contains(
             "\nLink the styles from your page:\n\n  \
              <link rel=\"stylesheet\" href=\"primitiv/tokens.css\">\n  \
              <link rel=\"stylesheet\" href=\"primitiv/index.css\">\n"
@@ -418,4 +419,46 @@ fn surfaces_a_failed_link_message() {
     .unwrap_err();
 
     assert!(matches!(error, CliError::Io(_)), "{error:?}");
+}
+
+#[test]
+fn ends_by_printing_each_components_example_markup() {
+    let fs = InMemoryFs::new();
+    fs.write(std::path::Path::new("primitiv.json"), ELEMENTS_CONFIG).unwrap();
+    fs.write(std::path::Path::new("primitiv/tokens.css"), b":root{}").unwrap();
+    let output = InMemoryOutput::new();
+
+    run(&fs, &output, &["kbd", "tabs"]);
+
+    assert!(
+        String::from_utf8(output.captured()).unwrap().ends_with(
+            "\nExample markup for kbd:\n\n<kbd class=\"primitiv-kbd\">Kbd</kbd>\n\
+             \nExample markup for tabs:\n\n<primitiv-tabs></primitiv-tabs>\n"
+        ),
+        "{}",
+        String::from_utf8(output.captured()).unwrap()
+    );
+}
+
+#[test]
+fn surfaces_an_example_the_registry_cannot_serve() {
+    let fs = InMemoryFs::new();
+    fs.write(std::path::Path::new("primitiv.json"), ELEMENTS_CONFIG).unwrap();
+    // Every file but the example.
+    let registry = InMemoryRegistry::new(REGISTRY)
+        .with_file("kbd", "styles.css", b".primitiv-kbd{}")
+        .with_file("kbd", "contract.json", b"{}");
+
+    let error = add(
+        &fs,
+        &registry,
+        &InMemoryOutput::new(),
+        &InMemoryProcessRunner::new(),
+        &InMemoryPrompt::new(Decision::Keep),
+        false,
+        &AddOptions { components: vec!["kbd".into()], ..Default::default() },
+    )
+    .unwrap_err();
+
+    assert!(matches!(error, CliError::Registry(_)), "{error:?}");
 }

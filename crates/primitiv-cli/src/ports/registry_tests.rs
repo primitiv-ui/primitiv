@@ -83,7 +83,7 @@ fn embedded_registry_serves_every_file_every_component_declares() {
             files.push(contract);
         }
         if let Some(elements) = &entry.elements {
-            files.extend(elements.files.iter().map(String::as_str));
+            files.extend(elements.example.as_deref());
         }
         for file in files {
             EmbeddedRegistry.file(name, file).unwrap_or_else(|error| {

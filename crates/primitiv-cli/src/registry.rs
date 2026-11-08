@@ -49,13 +49,14 @@ pub struct ComponentEntry {
 
 /// A component's elements surface (RFC 0033 §8.1): the npm `packages` it needs
 /// (`@primitiv-ui/web`; none for a component with no behaviour, §8.3) and the
-/// `files` copied beside its stylesheet, its markup snippet.
+/// `example` markup `add` prints for the developer to paste. The example is
+/// never copied: nothing imports markup, so a copy would only go stale.
 #[derive(Debug, Deserialize, PartialEq, Default)]
 pub struct Elements {
     #[serde(default)]
     pub packages: Vec<PackageDep>,
     #[serde(default)]
-    pub files: Vec<String>,
+    pub example: Option<String>,
 }
 
 /// A component's styled bundle (RFC 0005 §6.2): the per-format stylesheet `add`

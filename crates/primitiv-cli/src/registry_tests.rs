@@ -222,10 +222,10 @@ fn parses_a_components_elements_surface_and_defaults_it_to_none() {
       "version": "0.1.0",
       "elements": {
         "packages": [{ "name": "@primitiv-ui/web", "version": "^0.1.0" }],
-        "files": ["tabs.html"]
+        "example": "tabs.html"
       }
     },
-    "kbd": { "version": "0.1.0", "elements": { "files": ["kbd.html"] } },
+    "kbd": { "version": "0.1.0", "elements": { "example": "kbd.html" } },
     "modal": { "version": "0.1.0" }
   }
 }"##;
@@ -239,7 +239,7 @@ fn parses_a_components_elements_surface_and_defaults_it_to_none() {
                 name: "@primitiv-ui/web".into(),
                 version: Some("^0.1.0".into()),
             }],
-            files: vec!["tabs.html".into()],
+            example: Some("tabs.html".into()),
         })
     );
     // A component with no behaviour needs no package (RFC 0033 §8.3).
@@ -247,7 +247,7 @@ fn parses_a_components_elements_surface_and_defaults_it_to_none() {
         index.components["kbd"].elements,
         Some(Elements {
             packages: vec![],
-            files: vec!["kbd.html".into()],
+            example: Some("kbd.html".into()),
         })
     );
     // No block means no elements surface yet.

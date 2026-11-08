@@ -745,7 +745,7 @@ fn prints_help_and_exits_zero() {
 }
 
 #[test]
-fn add_on_the_elements_surface_copies_the_snippet_into_a_plain_html_site() {
+fn add_on_the_elements_surface_installs_into_a_plain_html_site_and_prints_the_markup() {
     // No package.json: a plain HTML site has nothing to install into, and Kbd
     // has no behaviour, so nothing is installed and no package manager runs
     // (RFC 0033 §8.3).
@@ -770,13 +770,16 @@ fn add_on_the_elements_surface_copies_the_snippet_into_a_plain_html_site() {
         .args(["add", "kbd"])
         .assert()
         .success()
-        .stdout(predicate::str::ends_with(
+        .stdout(predicate::str::contains(
             "  <link rel=\"stylesheet\" href=\"primitiv/tokens.css\">\n  \
              <link rel=\"stylesheet\" href=\"primitiv/index.css\">\n",
+        ))
+        .stdout(predicate::str::ends_with(
+            "Example markup for kbd:\n\n<kbd class=\"primitiv-kbd primitiv-kbd--md\">Kbd</kbd>\n",
         ));
 
-    dir.child("primitiv/kbd/kbd.html")
-        .assert(predicate::str::contains("<kbd class=\"primitiv-kbd primitiv-kbd--md\">Kbd</kbd>"));
+    // The markup is printed, never copied.
+    dir.child("primitiv/kbd/kbd.html").assert(predicate::path::missing());
     dir.child("primitiv/kbd/styles.css").assert(predicate::str::contains(".primitiv-kbd"));
     dir.child("primitiv/index.css").assert("@import \"./kbd/styles.css\";\n");
     dir.child("primitiv/tokens.css").assert(predicate::path::exists());

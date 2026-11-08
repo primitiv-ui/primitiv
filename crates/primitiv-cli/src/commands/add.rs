@@ -305,9 +305,38 @@ pub fn add(
                     .as_bytes(),
                 )?;
             }
+            if surface == Surface::Elements && !*json {
+                print_examples(output, registry, &index, &resolved)?;
+            }
         }
     }
     Ok(())
+}
+
+/// Print each resolved component's example markup (RFC 0033 §8.1), the classes
+/// already applied, for the developer to paste into whatever renders their
+/// pages. Printed rather than copied, because nothing would import it.
+fn print_examples(
+    output: &impl Output,
+    registry: &dyn Registry,
+    index: &RegistryIndex,
+    resolved: &[String],
+) -> Result<(), CliError> {
+    let mut message = String::new();
+    for name in resolved {
+        let examples = index.components[name]
+            .elements
+            .iter()
+            .flat_map(|elements| &elements.example);
+        for file in examples {
+            let markup = registry
+                .file(name, file)
+                .map_err(|error| CliError::Registry(error.to_string()))?;
+            message.push_str(&format!("\nExample markup for {name}:\n\n"));
+            message.push_str(&String::from_utf8_lossy(&markup));
+        }
+    }
+    output.write_stdout(message.as_bytes()).map_err(CliError::Io)
 }
 
 /// The components directory `add` writes the React surface into when the project
@@ -621,15 +650,14 @@ fn planned_files(
             });
         }
     }
-    // The elements surface keeps a component's snippet and contract beside its
-    // stylesheet, one folder per component (RFC 0033 §8.1): there is no import
-    // graph to place them by, and the folder is what the page links to.
+    // The elements surface keeps a component's contract beside its stylesheet,
+    // one folder per component (RFC 0033 §8.1): there is no import graph to
+    // place it by, and the folder is what the page links to.
     if surface == Surface::Elements {
         for name in resolved {
             let entry = &index.components[name];
             let component_dir = Path::new(styles_path).join(name);
-            let snippets = entry.elements.iter().flat_map(|elements| &elements.files);
-            for file in snippets.chain(&entry.contract) {
+            for file in &entry.contract {
                 files.push(PlannedFile {
                     name: name.clone(),
                     file: file.clone(),

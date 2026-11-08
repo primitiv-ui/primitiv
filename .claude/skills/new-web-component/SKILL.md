@@ -131,11 +131,14 @@ Then wire the package (each is easy to miss):
 5. `package.json` — `./<component>` and `./define/<component>` in **both**
    `exports` (src, for the workspace) **and** `publishConfig.exports` (dist).
    `sideEffects` already covers `define/**`.
-6. `jsr.json` — the same two entries in `exports`. If web now uses a core API
-   that is newer than the floor in `imports`
-   (`"@primitiv-ui/core": "jsr:@primitiv-ui/core@^0.1.x"`), **raise the floor**
-   to the release that ships it. JSR does not support `workspace:*`; the dry
-   run doesn't catch an unresolvable specifier, only the real publish does.
+6. `jsr.json` — the same two entries in `exports`. **Leave the
+   `imports` floors (`jsr:@primitiv-ui/core@^0.1.x`) alone**, even when web
+   now uses a core API newer than the floor: the PR's JSR dry run resolves
+   them against what is **already published**, so a floor naming the
+   upcoming release fails it ("Could not find version … that matches").
+   The caret floor still resolves JSR consumers to the newest release.
+   Raise it only when the minor changes (`RELEASING.md` §5). JSR does not
+   support `workspace:*`.
 
 **The CDN file needs no wiring.** `scripts/build-cdn.mjs` builds
 `dist/cdn/<component>.js` from every `src/define/<component>.ts` in one esbuild

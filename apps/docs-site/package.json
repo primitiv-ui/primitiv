@@ -23,8 +23,10 @@
     "test:e2e": "playwright test"
   },
   "dependencies": {
+    "@primitiv-ui/core": "link:../../packages/core",
     "@primitiv-ui/icons": "^0.1.29",
     "@primitiv-ui/react": "link:../../packages/react",
+    "@primitiv-ui/web": "link:../../packages/web",
     "class-variance-authority": "^0.7.1",
     "next": "^16.3.1",
     "prism-react-renderer": "^2.4.0",

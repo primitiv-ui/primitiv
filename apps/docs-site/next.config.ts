@@ -51,7 +51,16 @@ const nextConfig: NextConfig = {
    * (`files: ["src"]`). A consumer has to compile them itself, so these are not
    * optional: without them every import fails on the first untranspiled .ts.
    */
-  transpilePackages: ["@primitiv-ui/react", "@primitiv-ui/icons"],
+  transpilePackages: [
+    "@primitiv-ui/react",
+    "@primitiv-ui/icons",
+    /* React's Tabs runs on the web implementation (RFC 0033), so these two are
+       reached through `@primitiv-ui/react` and ship raw TypeScript the same way.
+       They are linked here, not just left to the workspace, because the deploy
+       installs this app alone: without the links nothing provides them. */
+    "@primitiv-ui/web",
+    "@primitiv-ui/core",
+  ],
 
   /*
    * Both are `link:` deps resolving to ../../packages/*, i.e. OUTSIDE this

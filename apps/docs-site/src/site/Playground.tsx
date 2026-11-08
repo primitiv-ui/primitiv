@@ -20,7 +20,7 @@ import {
   type PlaygroundControl,
 } from "@/lib/playground";
 
-import { useMode, type Mode } from "@/site/preferences";
+import type { Mode } from "@/site/preferences";
 import { useDensityGlide } from "@/site/use-density-glide";
 
 import "./playground.css";
@@ -188,13 +188,10 @@ export const Playground = ({
   const [values, setValues] = useState(() => initialValues(controls));
   const [density, setDensity, gliding] =
     useDensityGlide<Density>(DEFAULT_DENSITY);
-  const [mode, setMode] = useMode();
-
   /* The snippet has to know the mode: a compound's part names differ between
      headless (`Select.Trigger`) and styled (`SelectTrigger`), and only one of
-     the two is importable at a time. Read here rather than threaded from the
-     page, because `useMode` is a shared store — every caller subscribes to the
-     same key (see preferences.ts). */
+     the two is importable at a time. `ModeCodeBlock` asks for each mode it
+     shows, so nothing is read here. */
 
   /*
    * The snippet is rendered for BOTH consumption modes at once and tabbed,

@@ -10,7 +10,7 @@ import { Collapsible } from "@primitiv-ui/react";
 import { List } from "@/components/list";
 
 import { NAV, componentGroups, type NavSection } from "@/lib/nav";
-import { useMode } from "@/site/preferences";
+import { useFramework, useStyle } from "@/site/preferences";
 import { samePage, samePath } from "@/lib/path";
 
 import "./side-nav.css";
@@ -68,10 +68,11 @@ const Section = ({
   // section stays natural height and never scrolls.
   const fill = open && Boolean(section.groups);
 
-  /* The grouped section is Components, whose list follows the mode switch:
-     Elements mode lists only the components with an elements surface. */
-  const [mode] = useMode();
-  const groups = section.groups && componentGroups(mode);
+  /* The grouped section is Components, whose list follows the header: under
+     Elements, only the components with an elements surface (see listedFor). */
+  const [framework] = useFramework();
+  const [style] = useStyle();
+  const groups = section.groups && componentGroups(framework, style);
 
   // The grouped section is the only scroll container, so it is the only one
   // whose position is worth persisting across navigations.

@@ -5,49 +5,28 @@
 // each carried a `tabs/styles.css` import. `code-block.tsx` now declares the
 // dependency itself (`import "./tabs"`), so both workarounds are gone.
 import { CodeBlock } from "@/components/code-block";
-import { mergeImports } from "@/lib/playground";
-import {
-  type Mode,
-  useElementsAvailable,
-  useHeadlessAvailable,
-  useMode,
-} from "@/site/preferences";
+import { mergeImports, withoutClasses } from "@/lib/playground";
+import { type Mode, label, useView } from "@/site/preferences";
 
 /**
- * Styled FIRST, then Headless. Styled is the copy-and-go path and the default
- * mode (preferences.ts), so a cold visit lands on the first tab.
- *
- * Figma has no tab of its own and rests on Styled — JSX is not the artifact a
- * designer wants (the call `partNamer` already makes), and the copied file is
- * the closest thing a Figma-driven handoff produces.
- */
-const TABS = [
-  { value: "styled", label: "Styled", language: "tsx" },
-  { value: "headless", label: "Headless", language: "tsx" },
-  /* Markup, not TSX: the elements surface is plain HTML that pastes into any
-     template language (RFC 0033 §8.1). */
-  { value: "elements", label: "Elements", language: "html" },
-] as const;
-
-/**
- * A code block that shows BOTH consumption modes, tabbed, with the tablist
- * TWO-WAY bound to the top nav's mode switch.
+ * A code block showing a component both ways, headless and styled, in the
+ * framework the page is read in, with its tablist TWO-WAY bound to the header's
+ * Headless/Styled switch.
  *
  * Every code block on a component page uses this, so the page has one rule
  * rather than a mixture: the playground snippet, and each example's snippet.
  *
- * Why show both rather than follow the switch — "one design system, three ways
- * to build" is the product claim, and a component page is where the difference
- * is legible at a glance: the same component, the same controls, with the props
- * moving to class names and the import changing shape. A block that follows the
- * switch hides exactly that comparison, and it also hid a bug for a while, since
- * a reader never saw the mode they were not in.
+ * Why show both rather than follow the switch: a component page is where the
+ * difference is legible at a glance, the same component with the styling
+ * arriving or leaving. A block that only follows the switch hides exactly that.
  *
- * The binding is two-way because the alternative is worse than it sounds: a
- * local tab that only *reads* the mode can be left saying "Headless" while the
- * Installation section above it says `primitiv add`. `useMode` is a shared
- * `useLocalStorage` store, so the tablist and the nav switch are two views of
- * one value rather than two states to reconcile — a tab click IS a mode change.
+ * The binding is two-way because a local tab that only READ the switch could
+ * be left saying Headless while Installation above it says `primitiv add`. The
+ * style is a shared `useLocalStorage` store, so a tab click IS the switch.
+ *
+ * Under Elements the markup is plain HTML, and its headless form is derived
+ * from the styled one by removing the classes (`withoutClasses`), as the CLI
+ * derives it, so a spec writes its Elements markup once.
  *
  * `code` is called once per tab, not once per render, so a caller must not
  * assume it is only asked for the active mode.
@@ -62,46 +41,42 @@ export const ModeCodeBlock = ({
   code: (mode: Mode) => string;
   wrap?: boolean;
 }) => {
-  const [mode, setMode] = useMode();
-  const headlessAvailable = useHeadlessAvailable();
-  const elementsAvailable = useElementsAvailable();
-  /* Registry-only components have no Headless mode, so their code blocks leave
-     that tab out — offering it would only ever print the copied file's own
-     import, the same line Styled already shows. Elements is the same in
-     reverse: only a component with an elements surface has the tab. */
-  const tabs = TABS.filter(
-    (t) =>
-      (t.value !== "headless" || headlessAvailable) &&
-      (t.value !== "elements" || elementsAvailable),
-  );
-  const active = tabs.some((t) => t.value === mode) ? mode : "styled";
+  const { styles, style, setStyle, modeFor } = useView();
+  const snippet = (s: (typeof styles)[number]) => {
+    const mode = modeFor(s);
+    const text = mergeImports(code(mode));
+    return mode === "elements" && s === "headless" ? withoutClasses(text) : text;
+  };
+  /* Markup, not TSX, under Elements: plain HTML that pastes into any template
+     language (RFC 0033 §8.1). */
+  const language = modeFor("styled") === "elements" ? "html" : "tsx";
 
   return (
     <CodeBlock.Tabs
       size="sm"
       wrap={wrap}
-      value={active}
-      onValueChange={(next) => setMode(next as Mode)}
+      value={style}
+      onValueChange={(next) => setStyle(next as typeof style)}
     >
       <CodeBlock.Header>
         {/* `label`, not `ariaLabelledBy`: the nearest heading names the section
             (an example title, or "Playground"), not what these tabs switch. */}
-        <CodeBlock.List label="Consumption mode">
-          {tabs.map((t) => (
-            <CodeBlock.Trigger key={t.value} value={t.value}>
-              {t.label}
+        <CodeBlock.List label="Styling">
+          {styles.map((s) => (
+            <CodeBlock.Trigger key={s} value={s}>
+              {label(s)}
             </CodeBlock.Trigger>
           ))}
         </CodeBlock.List>
         <CodeBlock.Copy />
       </CodeBlock.Header>
 
-      {tabs.map((t) => (
+      {styles.map((s) => (
         <CodeBlock.Content
-          key={t.value}
-          value={t.value}
-          language={t.language}
-          code={mergeImports(code(t.value))}
+          key={s}
+          value={s}
+          language={language}
+          code={snippet(s)}
         />
       ))}
     </CodeBlock.Tabs>

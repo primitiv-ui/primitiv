@@ -28,7 +28,7 @@ import { getDocs } from "@/lib/docs-data";
 
 import { InstallTabs } from "./InstallTabs";
 import { LandingSection } from "./LandingSection";
-import { label, useMode } from "./preferences";
+import { label, useFramework, useStyle } from "./preferences";
 
 import { A11yAnimation } from "@/site/A11yAnimation";
 import { ThemedImage } from "@/site/ThemedImage";
@@ -329,7 +329,9 @@ export const DocumentationMap = () => (
 /* ── Installing a component ───────────────────────────────────────────────── */
 
 export const ComponentBlock = () => {
-  const [mode] = useMode();
+  const [framework] = useFramework();
+  const [style] = useStyle();
+  const elements = framework !== "react";
   const docs = getDocs("button");
   // First four props only — this is a taste of the component page, not a
   // duplicate of it.
@@ -353,17 +355,29 @@ export const ComponentBlock = () => {
           {/* Reads the same persisted key as the header's switch, so the two
               cannot disagree — that is the point being demonstrated. */}
           <p className="docs-block-note">
-            Reflects the global mode switch — currently {label(mode)}:
+            Reflects the header&rsquo;s switch — currently {label(framework)},{" "}
+            {label(style).toLowerCase()}:
           </p>
 
-          {mode === "styled" ? (
-            <InstallTabs kind="exec" target="primitiv add button" />
+          {style === "styled" ? (
+            <InstallTabs
+              kind="exec"
+              target={
+                elements
+                  ? "primitiv add button --surface elements --styled"
+                  : "primitiv add button"
+              }
+            />
           ) : (
-            <InstallTabs kind="install" target="@primitiv-ui/react" />
+            <InstallTabs
+              kind="install"
+              target={elements ? "@primitiv-ui/web" : "@primitiv-ui/react"}
+            />
           )}
 
           <p className="docs-block-meta">
-            import path <InlineCode>@primitiv-ui/react</InlineCode>
+            {elements ? "package" : "import path"}{" "}
+            <InlineCode>{elements ? "@primitiv-ui/web" : "@primitiv-ui/react"}</InlineCode>
           </p>
         </Stack>
 

@@ -3,19 +3,9 @@
 import type { ReactNode } from "react";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/tabs";
-import { type Mode, useHeadlessAvailable, useMode } from "@/site/preferences";
+import { type Mode, type Style, label as labelOf, useView } from "@/site/preferences";
 
 import "./mode-tabs.css";
-
-/**
- * Styled first, then Headless — the same order and the same Figma-mode fallback
- * as `ModeCodeBlock`, so the two controls behave identically wherever they sit
- * on a page.
- */
-const TABS = [
-  { value: "styled", label: "Styled" },
-  { value: "headless", label: "Headless" },
-] as const;
 
 /**
  * The Styled/Headless switch for a section whose content is NOT a code block.
@@ -50,30 +40,30 @@ export const ModeTabs = ({
   size?: "sm" | "md";
   children: (mode: Mode) => ReactNode;
 }) => {
-  const [mode, setMode] = useMode();
-  const headlessAvailable = useHeadlessAvailable();
-  /* One tab when the page has no Headless mode — see `ModeCodeBlock`. */
-  const tabs = headlessAvailable ? TABS : [TABS[0]];
-  const active = headlessAvailable && mode === "headless" ? "headless" : "styled";
+  /* The same tabs as `ModeCodeBlock`, from the same answer (`useView`). A
+     section of tables only needs to know headless from styled: under Elements,
+     headless is the bare element and styled is the registry class on it. */
+  const { styles, style, setStyle, modeFor } = useView();
+  const modeOf = (s: Style): Mode => (s === "headless" ? "headless" : modeFor(s));
 
   return (
     <Tabs
       className="docs-mode-tabs"
       size={size}
-      value={active}
-      onValueChange={(next) => setMode(next as Mode)}
+      value={style}
+      onValueChange={(next) => setStyle(next as Style)}
     >
       <TabsList label={label}>
-        {tabs.map((t) => (
-          <TabsTrigger key={t.value} value={t.value}>
-            {t.label}
+        {styles.map((s) => (
+          <TabsTrigger key={s} value={s}>
+            {labelOf(s)}
           </TabsTrigger>
         ))}
       </TabsList>
 
-      {tabs.map((t) => (
-        <TabsContent key={t.value} value={t.value}>
-          {children(t.value)}
+      {styles.map((s) => (
+        <TabsContent key={s} value={s}>
+          {children(modeOf(s))}
         </TabsContent>
       ))}
     </Tabs>

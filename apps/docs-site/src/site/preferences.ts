@@ -15,27 +15,41 @@ import { useLocalStorage } from "@primitiv-ui/react";
  * with no provider to thread through the tree.
  */
 
-export const MODE_KEY = "primitiv-docs-mode";
 export const FRAMEWORK_KEY = "primitiv-docs-framework";
+export const ELEMENTS_STYLE_KEY = "primitiv-docs-style-elements";
+export const REACT_STYLE_KEY = "primitiv-docs-style-react";
 
 /**
- * The consumption modes (docs-site-planning.md §1.1), plus Elements: the
- * custom elements of `@primitiv-ui/web` with the registry's classes on plain
- * markup (RFC 0033). Only components with an elements surface have it, so in
- * Elements mode the navigation lists just those.
+ * The framework a reader builds with. **Elements leads** (RFC 0033): the
+ * custom elements of `@primitiv-ui/web` are the direction the library is
+ * heading, the base every framework will eventually reach through an adapter,
+ * and they work in plain HTML or any framework today. React is the complete
+ * library now. Vue and Svelte are shown, disabled, until their adapter pages
+ * exist, so the eventual shape of the switch is visible from the start.
  */
-export const MODES = ["styled", "headless", "elements", "figma"] as const;
-export type Mode = (typeof MODES)[number];
-
-/** Framework flavour for code samples. */
-export const FRAMEWORKS = ["react", "vue", "svelte"] as const;
+export const FRAMEWORKS = ["elements", "react", "vue", "svelte"] as const;
 export type Framework = (typeof FRAMEWORKS)[number];
+
+/**
+ * Headless or styled, the second choice after the framework. Headless first:
+ * the behaviour is the product and the styling is the opt-in.
+ */
+export const STYLES = ["headless", "styled"] as const;
+export type Style = (typeof STYLES)[number];
+
+/**
+ * What a snippet is written for: the two React surfaces, or Elements markup.
+ * Derived from the framework and style (see `useMode`), never stored. Elements
+ * snippets are written STYLED, with the registry classes, and the headless form
+ * is derived from them by removing the classes (`withoutClasses`), the same
+ * derivation `primitiv add --surface elements` makes, so the two cannot drift.
+ */
+export type Mode = "styled" | "headless" | "elements";
 
 const LABELS: Record<string, string> = {
   headless: "Headless",
   styled: "Styled",
   elements: "Elements",
-  figma: "Figma",
   react: "React",
   vue: "Vue",
   svelte: "Svelte",
@@ -44,25 +58,31 @@ const LABELS: Record<string, string> = {
 export const label = (value: string): string => LABELS[value] ?? value;
 
 /**
- * The consumption mode, shared by every control that reads or writes it — the
- * top-nav switch and the playground's snippet tablist are two views of this one
- * value, not two pieces of state (`useLocalStorage` keys the store).
- *
- * **Defaults to `styled`** (changed 2026-08-21, was `headless`). Styled is the
- * copy-and-go path and the one a first-time reader almost always wants: it has
- * an install command that produces something that looks finished, and its
- * snippets carry the `variant`/`size` props the examples are demonstrating.
- * Headless is the more interesting product story but the sharper landing —
- * arriving in a mode whose snippets deliberately show no styling props reads as
- * "the docs are incomplete" rather than "the styling is yours".
- *
- * Only affects readers with no stored preference; anyone who has already chosen
- * keeps their choice.
+ * The framework, shared by every control that reads or writes it (a
+ * `useLocalStorage` store, so the header and the drawer copy stay in step).
  */
-export const useMode = () => useLocalStorage<Mode>(MODE_KEY, "styled");
-
 export const useFramework = () =>
-  useLocalStorage<Framework>(FRAMEWORK_KEY, "react");
+  useLocalStorage<Framework>(FRAMEWORK_KEY, "elements");
+
+/**
+ * Headless or styled, remembered PER FRAMEWORK, each with its own default:
+ * Elements opens headless (styling is the opt-in there), React opens styled
+ * (the copy-and-go path its readers have always landed on). Switching
+ * framework therefore lands on that framework's own last choice.
+ */
+export const useStyle = (): readonly [Style, (next: Style) => void] => {
+  const [framework] = useFramework();
+  const elements = useLocalStorage<Style>(ELEMENTS_STYLE_KEY, "headless");
+  const react = useLocalStorage<Style>(REACT_STYLE_KEY, "styled");
+  const [style, setStyle] = framework === "react" ? react : elements;
+  return [style, setStyle];
+};
+
+/** The snippet mode the current page is read in (see `useView`). */
+export const useMode = (): readonly [Mode] => {
+  const { modeFor, style } = useView();
+  return [modeFor(style)];
+};
 
 /**
  * Whether the current page HAS a headless mode.
@@ -84,20 +104,63 @@ export const HeadlessAvailableProvider = HeadlessAvailableContext.Provider;
 export const useHeadlessAvailable = () => useContext(HeadlessAvailableContext);
 
 /**
- * Whether the current page has an Elements mode: a component with an elements
- * surface (RFC 0033), Button, Badge, Tag, Kbd, Inline Code and Tabs today. On
- * every other page the code blocks leave the Elements tab out, as they leave
- * Headless out on a registry-only page. Defaults to `false`, since most
- * components have no elements surface yet.
+ * What elements surface the current page's component has (RFC 0033): a custom
+ * element with behaviour (`@primitiv-ui/web`, Tabs today), registry classes on
+ * plain markup only (`markup`: Button, Badge, Tag, Kbd, Inline Code), or none.
+ *
+ * A context for the same reason as `HeadlessAvailableContext`: the code blocks
+ * that read it sit deep inside the example specs. Defaults to `behaviour`, so
+ * anything outside a component page, the landing page's install block, reads
+ * every framework and style as available.
  */
-const ElementsAvailableContext = createContext(false);
-export const ElementsAvailableProvider = ElementsAvailableContext.Provider;
-export const useElementsAvailable = () => useContext(ElementsAvailableContext);
+export type ElementsSurface = "behaviour" | "markup" | null;
+const ElementsSurfaceContext = createContext<ElementsSurface>("behaviour");
+export const ElementsSurfaceProvider = ElementsSurfaceContext.Provider;
 
-/** The install command a given mode implies, shown on component pages. */
-export const installCommand = (mode: Mode, component: string) =>
-  mode === "styled"
-    ? `npx primitiv add ${component}`
-    : mode === "elements"
-      ? `npx primitiv add ${component} --surface elements`
+/**
+ * How the current page is read: one answer for every control on it, so the
+ * header, the code-block tabs and the Installation section cannot disagree.
+ *
+ * - `reading` is the framework actually shown. A page whose component has no
+ *   elements surface is read as React even when Elements is chosen, and
+ *   `fallback` says so, for the notice at the top of the page.
+ * - `styles` are the ones that mean something here. Headless React needs a
+ *   headless primitive (a registry-only component has none); headless Elements
+ *   needs behaviour, since a component with none is plain HTML without its
+ *   classes, which is nothing Primitiv adds.
+ * - `style` is the chosen one, or Styled where the choice is not offered.
+ */
+export const useView = () => {
+  const [framework] = useFramework();
+  const [chosen, setStyle] = useStyle();
+  const headlessReact = useHeadlessAvailable();
+  const elements = useContext(ElementsSurfaceContext);
+  const reading: "react" | "elements" =
+    framework !== "react" && elements ? "elements" : "react";
+  const styles = STYLES.filter(
+    (s) =>
+      s === "styled" ||
+      (reading === "react" ? headlessReact : elements === "behaviour"),
+  );
+  const style: Style = styles.includes(chosen) ? chosen : "styled";
+  return {
+    reading,
+    styles,
+    style,
+    chosen,
+    setStyle,
+    fallback: framework !== "react" && !elements,
+    /** The snippet mode a style is written in, on this page. */
+    modeFor: (s: Style): Mode => (reading === "elements" ? "elements" : s),
+  };
+};
+
+/** The install command a framework and style imply, shown on component pages. */
+export const installCommand = (mode: Mode, component: string, style: Style = "styled") =>
+  mode === "elements"
+    ? style === "styled"
+      ? `npx primitiv add ${component} --surface elements --styled`
+      : `npm i @primitiv-ui/web`
+    : mode === "styled"
+      ? `npx primitiv add ${component}`
       : `npm i @primitiv-ui/react`;

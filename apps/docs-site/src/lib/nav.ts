@@ -11,6 +11,7 @@
 import { getContentPage } from "@/lib/content-pages";
 import { CATEGORY_ORDER, ROSTER } from "@/lib/docs-data";
 import { humanName } from "@/lib/human-name";
+import type { Framework, Style } from "@/site/preferences";
 
 export type NavLink = {
   readonly title: string;
@@ -71,29 +72,41 @@ export const COMPONENT_GROUPS: readonly NavGroup[] = CATEGORY_ORDER.map(
   }),
 ).filter((group) => group.links.length > 0);
 
-/** Whether a component appears in `mode`: every documented one, except in
- *  Elements mode, which lists only those with an elements surface. */
-export const inMode = (
-  entry: { readonly documented: boolean; readonly elements: boolean },
-  mode: Mode,
-) => entry.documented && (mode !== "elements" || entry.elements);
+/**
+ * Whether a component is listed for a framework and style. React lists the
+ * whole library. Elements lists the components with an elements surface
+ * (RFC 0033): headless, only those with behaviour, since a component without
+ * any is plain HTML once its classes are gone; styled, those and the
+ * class-only ones too.
+ */
+export const listedFor = (
+  entry: { readonly elements: "behaviour" | "markup" | null },
+  framework: Framework,
+  style: Style,
+) =>
+  framework === "react" ||
+  (style === "styled" ? entry.elements !== null : entry.elements === "behaviour");
 
 /**
- * The Components section's groups for a mode. Elements mode keeps only the
- * components with an elements surface (RFC 0033), and with them only the
- * categories that still have one; every other mode is the full list.
+ * The Components section's groups for a framework and style: the categories
+ * keep only their listed components, and a category left empty drops out.
  */
-export const componentGroups = (mode: Mode): readonly NavGroup[] =>
-  mode === "elements"
-    ? COMPONENT_GROUPS.map((group) => ({
+export const componentGroups = (
+  framework: Framework,
+  style: Style,
+): readonly NavGroup[] =>
+  framework === "react"
+    ? COMPONENT_GROUPS
+    : COMPONENT_GROUPS.map((group) => ({
         ...group,
         links: group.links.filter((link) =>
           ROSTER.some(
-            (e) => e.elements && link.href === `/components/${e.id}/`,
+            (e) =>
+              listedFor(e, framework, style) &&
+              link.href === `/components/${e.id}/`,
           ),
         ),
-      })).filter((group) => group.links.length > 0)
-    : COMPONENT_GROUPS;
+      })).filter((group) => group.links.length > 0);
 
 /**
  * Links derived from the content pages themselves, so the nav lists the
@@ -158,13 +171,3 @@ export const NAV: readonly NavSection[] = [
     children: pageLinks("figma"),
   },
 ];
-
-/** The consumption modes (§1.1). Scoped to the Components section. */
-export const MODES = [
-  { value: "styled", label: "Styled" },
-  { value: "headless", label: "Headless" },
-  { value: "elements", label: "Elements" },
-  { value: "figma", label: "Figma" },
-] as const;
-
-export type Mode = (typeof MODES)[number]["value"];

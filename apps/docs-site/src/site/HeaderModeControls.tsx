@@ -9,10 +9,15 @@ import {
   SegmentedControlItem,
 } from "@/components/segmented-control";
 
-import { FRAMEWORKS, MODES, label, useFramework, useMode } from "./preferences";
+import { FRAMEWORKS, STYLES, label, useFramework, useStyle } from "./preferences";
 
 /**
- * The framework + consumption-mode segmented controls.
+ * The framework + headless/styled segmented controls.
+ *
+ * Two choices, in the order a reader makes them: what they build with, then
+ * whether they want Primitiv's styling. The second is remembered per framework
+ * (see `useStyle`). Figma is not here: it is the design track, reached from
+ * "Design in Figma" in the top bar, not a way of consuming the code.
  *
  * Extracted from `SiteHeader` so the header AND the mobile drawer can render the
  * same pair without colliding ids — the labels are `useId`-generated per
@@ -21,7 +26,7 @@ import { FRAMEWORKS, MODES, label, useFramework, useMode } from "./preferences";
  * the header copy and the drawer copy stay in step automatically.
  */
 export const HeaderModeControls = ({ size = "xs" }: { size?: "xs" | "sm" }) => {
-  const [mode, setMode] = useMode();
+  const [style, setStyle] = useStyle();
   const [framework, setFramework] = useFramework();
   const frameworkLabel = useId();
   const modeLabel = useId();
@@ -40,6 +45,8 @@ export const HeaderModeControls = ({ size = "xs" }: { size?: "xs" | "sm" }) => {
             <SegmentedControlItem
               key={f}
               value={f}
+              /* Disabled until their adapter pages exist: Elements already
+                 works in both, through `@primitiv-ui/web/vue` and `/svelte`. */
               disabled={f === "vue" || f === "svelte"}
             >
               {label(f)}
@@ -49,14 +56,14 @@ export const HeaderModeControls = ({ size = "xs" }: { size?: "xs" | "sm" }) => {
       </div>
 
       <div className="docs-header-control">
-        <VisuallyHidden id={modeLabel}>Consumption mode</VisuallyHidden>
+        <VisuallyHidden id={modeLabel}>Styling</VisuallyHidden>
         <SegmentedControl
           size={size}
-          value={mode}
-          onValueChange={(v) => setMode(v as typeof mode)}
+          value={style}
+          onValueChange={(v) => setStyle(v as typeof style)}
           aria-labelledby={modeLabel}
         >
-          {MODES.map((m) => (
+          {STYLES.map((m) => (
             <SegmentedControlItem key={m} value={m}>
               {label(m)}
             </SegmentedControlItem>

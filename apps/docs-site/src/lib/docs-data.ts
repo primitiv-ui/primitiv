@@ -211,8 +211,12 @@ export type RosterEntry = {
   readonly category: Category;
   readonly description: string;
   readonly documented: boolean;
-  /** Whether it has an elements surface (RFC 0033 §8): Elements mode lists only these. */
-  readonly elements: boolean;
+  /**
+   * Its elements surface (RFC 0033 §8): a custom element with behaviour, the
+   * registry's classes on plain markup, or none. Headless Elements lists only
+   * `behaviour`; styled Elements lists both.
+   */
+  readonly elements: "behaviour" | "markup" | null;
 };
 
 export const ROSTER = rosterData as readonly RosterEntry[];

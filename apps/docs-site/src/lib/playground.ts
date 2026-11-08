@@ -466,3 +466,12 @@ export const mergeImports = (code: string): string => {
     })
     .join("\n");
 };
+
+/**
+ * The headless form of Elements markup: every `class` attribute removed, and
+ * the spans that existed only to carry a class unwrapped to their text. The
+ * same derivation `primitiv add --surface elements` makes from the registry's
+ * styled example, so the page and the CLI print the same thing.
+ */
+export const withoutClasses = (markup: string): string =>
+  markup.replace(/ class="[^"]*"/g, "").replace(/<\/?span>/g, "");

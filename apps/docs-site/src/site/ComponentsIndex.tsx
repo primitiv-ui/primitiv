@@ -33,7 +33,7 @@ import { cardSummary } from "@/lib/card-summary";
 import { renderDoc } from "@/lib/render-doc";
 
 import { Shell } from "./Shell";
-import { useMode } from "./preferences";
+import { type Framework, type Style, useFramework, useStyle } from "./preferences";
 
 import { useCompactIndex } from "./use-compact-index";
 
@@ -41,6 +41,7 @@ import { CARD_MARKS, MARK_GRID, PLACEHOLDER_MARK, type MarkRole } from "./card-m
 
 import "./components-index.css";
 import { humanName } from "@/lib/human-name";
+import { listedFor } from "@/lib/nav";
 
 /**
  * A component's mark, or the stand-in when it has not been drawn yet.
@@ -249,20 +250,17 @@ const CategoryGrid = ({
  * linking the moment it has docs-data.
  */
 /**
- * The categories and their components for a mode. Elements mode lists only the
- * components with an elements surface (RFC 0033), so a category without one
- * drops out, heading and TOC entry together; every other mode is the whole
- * library.
+ * The categories and their components for a framework and style (see
+ * `listedFor`): React is the whole library; Elements lists the components with
+ * an elements surface, so a category without one drops out, heading and TOC
+ * entry together.
  */
-const groupsFor = (mode: string) =>
+const groupsFor = (framework: Framework, style: Style) =>
   CATEGORY_ORDER.map((category) => ({
     category,
     group: ROSTER.filter(
-      (entry) =>
-        entry.category === category && (mode !== "elements" || entry.elements),
+      (entry) => entry.category === category && listedFor(entry, framework, style),
     ),
-    /* Never expected outside Elements mode, since the roster covers the whole
-       registry, but a heading over an empty grid is worse than a missing one. */
   })).filter(({ group }) => group.length > 0);
 
 /**
@@ -273,8 +271,9 @@ const groupsFor = (mode: string) =>
  * and the headings from disagreeing about which categories exist.
  */
 export const ComponentsIndexPage = () => {
-  const [mode] = useMode();
-  const toc = groupsFor(mode).map(({ category }) => ({
+  const [framework] = useFramework();
+  const [style] = useStyle();
+  const toc = groupsFor(framework, style).map(({ category }) => ({
     id: categorySlug(category),
     title: category,
   }));
@@ -287,26 +286,34 @@ export const ComponentsIndexPage = () => {
 
 export const ComponentsIndex = () => {
   const compact = useCompactIndex();
-  const [mode] = useMode();
-  const groups = groupsFor(mode);
+  const [framework] = useFramework();
+  const [style] = useStyle();
+  const groups = groupsFor(framework, style);
 
   return (
     <>
       <h1 className="docs-index-title">Components</h1>
-      {mode === "elements" ? (
+      {framework === "react" ? (
         <p className="docs-index-lede">
-          Elements mode lists the components with an elements surface: standard
-          custom elements from <InlineCode size="md">@primitiv-ui/web</InlineCode>, or plain markup
-          with the registry&rsquo;s classes where a component has no behaviour.
-          They work in any HTML, any framework or none. More are on their way;
-          switch mode to see the whole library.
+          The React library, complete: every component as a headless primitive
+          and as a styled registry surface you own outright. Pick a component
+          to see both — pages marked <em>Docs soon</em> are on their way.
+        </p>
+      ) : style === "headless" ? (
+        <p className="docs-index-lede">
+          Custom elements from{" "}
+          <InlineCode size="md">@primitiv-ui/web</InlineCode>: the behaviour
+          and accessibility, no CSS, in plain HTML or any framework. Tabs is
+          the first; more are on their way. Switch to Styled for the components
+          that are styling alone, or to React for the whole library.
         </p>
       ) : (
         <p className="docs-index-lede">
-          Every component ships three ways: a headless primitive, a styled
-          registry surface you own outright, and a Figma component set. Pick a
-          component to see all three — pages marked <em>Docs soon</em> are on
-          their way.
+          Elements with Primitiv&rsquo;s styling: the custom elements from{" "}
+          <InlineCode size="md">@primitiv-ui/web</InlineCode> and plain markup
+          carrying the registry&rsquo;s classes, for the components that are
+          styling alone. They work in plain HTML or any framework. More are on
+          their way; switch to React for the whole library.
         </p>
       )}
 

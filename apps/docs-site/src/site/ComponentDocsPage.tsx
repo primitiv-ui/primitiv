@@ -5,14 +5,20 @@ import { InlineCode } from "@/components/inline-code";
 import { List } from "@/components/list";
 import { Stack } from "@/components/stack";
 
-import { getDocs, type ComponentId } from "@/lib/docs-data";
+import {
+  getDocs,
+  type ComponentDocs,
+  type ComponentId,
+  type DocsSubComponent,
+} from "@/lib/docs-data";
 import { renderDoc } from "@/lib/render-doc";
-import { contractControls } from "@/lib/playground";
+import { contractControls, type PlaygroundControl } from "@/lib/playground";
 import { Anatomy } from "@/site/Anatomy";
 import { ComponentPageHeader } from "@/site/ComponentPageHeader";
 import { DataAttributesTable } from "@/site/DataAttributesTable";
 import { DocsSection } from "@/site/DocsSection";
 import { SPECS } from "@/site/examples";
+import type { ComponentSpec } from "@/site/examples/types";
 import { InstallTabs } from "@/site/InstallTabs";
 import { KeyboardTable } from "@/site/KeyboardTable";
 import { Playground } from "@/site/Playground";
@@ -20,11 +26,12 @@ import { PropsTable } from "@/site/PropsTable";
 import { Shell } from "@/site/Shell";
 import { StylingContract } from "@/site/StylingContract";
 import {
-  ElementsAvailableProvider,
+  ElementsSurfaceProvider,
   HeadlessAvailableProvider,
+  type Mode,
   installCommand,
   label,
-  useMode,
+  useView,
 } from "@/site/preferences";
 import type { TocEntry } from "@/site/PageToc";
 
@@ -55,30 +62,9 @@ export const ComponentDocsPage = ({ id }: { id: ComponentId }) => {
     ...contractControls(subs),
     ...(spec.playground.controls ?? []),
   ].filter((c) => !excluded.includes(c.name));
-  const [rawMode] = useMode();
 
-  const cssVars = docs.styled.customProperties;
-  /* One group per part that actually emits something — Button and Select have a
-     single one, Tabs four. Built from the per-part rows rather than the flat
-     union, so each table can say which part it belongs to; see
-     DataAttributesTable for why they are not tabbed or collapsed. */
-  /* No headless primitive at all: the mode switch cannot change how you install
-     or import it, so Installation stops pretending it can. */
   const registryOnly = docs.kind === "registry-only";
-  /* Headless is not a mode a registry-only component has, so redirect it to
-     Styled for the page's own mode-dependent copy (Installation, the Examples
-     meta). Figma is left alone — a registry-only component can still have a
-     Figma set (Box, Badge do), so its Figma-library panel must survive. The
-     code blocks drop the Headless *tab* separately, through the context below. */
-  /* Elements is a mode only components with an elements surface have (RFC
-     0033). On any other page it reads as Styled, and the header says so. */
   const elements = docs.elements;
-  const elementsFallback = rawMode === "elements" && !elements;
-  const mode =
-    elementsFallback || (registryOnly && rawMode === "headless")
-      ? "styled"
-      : rawMode;
-  const inElements = mode === "elements" && elements !== null;
 
   const dataAttrGroups = subs
     .filter((sub) => sub.dataAttributes.length > 0)
@@ -130,9 +116,63 @@ export const ComponentDocsPage = ({ id }: { id: ComponentId }) => {
           code block on the page whether a Headless tab belongs — registry-only
           components have no headless mode, so they show Styled alone. */}
       <HeadlessAvailableProvider value={!registryOnly}>
-      <ElementsAvailableProvider value={elements !== null}>
+      <ElementsSurfaceProvider
+        value={elements ? (elements.package ? "behaviour" : "markup") : null}
+      >
+        <ComponentDocsBody
+          docs={docs}
+          spec={spec}
+          controls={controls}
+          dataAttrGroups={dataAttrGroups}
+        />
+      </ElementsSurfaceProvider>
+      </HeadlessAvailableProvider>
+    </Shell>
+  );
+};
+
+type DataAttrGroups = readonly {
+  part: string;
+  className: string | null;
+  headlessOnly?: boolean;
+  rows: DocsSubComponent["dataAttributes"];
+}[];
+
+/**
+ * Everything below the shell, inside the page's providers, so it reads the page
+ * through `useView`: the framework actually shown (a component with no
+ * elements surface reads as React even when Elements is chosen), and headless
+ * or styled where both mean something.
+ */
+const ComponentDocsBody = ({
+  docs,
+  spec,
+  controls,
+  dataAttrGroups,
+}: {
+  docs: ComponentDocs;
+  spec: ComponentSpec;
+  controls: readonly PlaygroundControl[];
+  dataAttrGroups: DataAttrGroups;
+}) => {
+  const subs = docs.headless.subComponents;
+  const cssVars = docs.styled.customProperties;
+  const registryOnly = docs.kind === "registry-only";
+  const elements = docs.elements;
+  const { reading, style, chosen, fallback } = useView();
+  const inElements = reading === "elements" && elements !== null;
+  const mode: Mode = inElements ? "elements" : style;
+  /* Headless was chosen but this component has none to give under Elements:
+     with no behaviour, its headless form is plain HTML. */
+  const noBehaviour = inElements && chosen === "headless" && style === "styled";
+  const webPackage = elements?.package ?? null;
+
+  return (
         <Stack gap="none" className="docs-page-column">
-        <ComponentPageHeader docs={docs} elementsFallback={elementsFallback} />
+        <ComponentPageHeader
+          docs={docs}
+          notice={fallback ? "no-elements" : noBehaviour ? "no-behaviour" : undefined}
+        />
 
         <DocsSection id="playground" title="Playground">
           <Playground
@@ -165,13 +205,19 @@ export const ComponentDocsPage = ({ id }: { id: ComponentId }) => {
           <div className="docs-install-grid">
             <InstallTabs
               kind={
-                mode === "styled" || registryOnly || inElements
-                  ? "exec"
-                  : "install"
+                inElements
+                  ? style === "styled"
+                    ? "exec"
+                    : "install"
+                  : mode === "styled" || registryOnly
+                    ? "exec"
+                    : "install"
               }
               target={
                 inElements
-                  ? `primitiv add ${docs.id} --surface elements`
+                  ? style === "styled"
+                    ? `primitiv add ${docs.id} --surface elements --styled`
+                    : (webPackage ?? "@primitiv-ui/web")
                   : mode === "styled" || registryOnly
                     ? `primitiv add ${docs.id}`
                     : docs.headless.package
@@ -179,33 +225,9 @@ export const ComponentDocsPage = ({ id }: { id: ComponentId }) => {
             />
 
             <Stack gap="sm">
-              <p className="docs-overline">
-                {mode === "figma"
-                  ? "Figma library"
-                  : inElements
-                    ? "Load"
-                    : "Import"}
-              </p>
-              {/*
-               * A whole import statement, not a bare module path — that is what
-               * a reader copies, and it also shows WHICH symbol to import,
-               * which a path alone does not. Same shape across modes so the
-               * line reads identically wherever you are: only the specifier
-               * changes.
-               *
-               * Figma is the exception, and honestly so: there is no import. It
-               * shows the library → component path instead, in the same slot,
-               * with the label changed rather than a fake import invented.
-               *
-               * And when the component has no Figma set at all, it says so
-               * rather than naming a path that would not resolve — the same call
-               * the header makes about the Figma link. `input-group` is the
-               * first: it exists in code and in the kitchen-sink, but the Figma
-               * file draws its adornment case as a note on Input rather than as
-               * a set of its own.
-               */}
+              <p className="docs-overline">{inElements ? "Load" : "Import"}</p>
               {inElements ? (
-                elements.package ? (
+                webPackage ? (
                   /* The element registers itself when its module loads: the
                      bundler import, or the CDN build for a page with no build
                      step. Either line is the whole of the setup. */
@@ -214,40 +236,26 @@ export const ComponentDocsPage = ({ id }: { id: ComponentId }) => {
                       variant="inline"
                       size="xs"
                       language="tsx"
-                      code={`import "${elements.package}/define";`}
+                      code={`import "${webPackage}/define";`}
                     />
                     <CodeBlock
                       variant="inline"
                       size="xs"
                       language="html"
-                      code={`<script type="module" src="https://cdn.jsdelivr.net/npm/${elements.package}@${elements.version ?? "latest"}/dist/primitiv-web.js"></script>`}
+                      code={`<script type="module" src="https://cdn.jsdelivr.net/npm/${webPackage}@${elements?.version ?? "latest"}/dist/primitiv-web.js"></script>`}
                     />
                   </Stack>
                 ) : (
                   <InlineCode size="sm">No script — markup and classes only</InlineCode>
                 )
-              ) : mode === "figma" ? (
-                /* Not code, so not a code chip: a library → component path,
-                   which syntax highlighting would misrepresent. */
-                <InlineCode size="sm">
-                  {docs.figma.componentSetKey
-                    ? `Primitiv / ${docs.displayName}`
-                    : "Not in the Figma library yet"}
-                </InlineCode>
               ) : (
-                /* CodeBlock's inline variant: the chip shape this slot had all
-                   along, now with the highlighting it was missing. Highlighting
-                   lives in CodeBlock — with the Prism theme and the syntax
-                   palette — so extending it beat teaching InlineCode to
-                   highlight, which would have meant a second copy of both and a
-                   highlighter dependency on an otherwise dependency-free chip. */
+                /* A whole import statement, not a bare module path: that is what
+                   a reader copies, and it shows WHICH symbol to import. Same
+                   shape in both styles, only the specifier changes. xs, because
+                   this column is narrow and the statement is the longest thing
+                   in it. */
                 <CodeBlock
                   variant="inline"
-                  /* xs, not sm: this column is narrow and the statement is the
-                     longest thing in it — `import { NavigationMenu } from
-                     "@/components/ui/navigation-menu";` is 62 characters. A step
-                     down keeps it on one line for most components, and the chip
-                     wraps rather than overflowing for the rest. */
                   size="xs"
                   language="tsx"
                   code={`import { ${docs.displayName} } from "${
@@ -259,19 +267,27 @@ export const ComponentDocsPage = ({ id }: { id: ComponentId }) => {
               )}
               <p className="docs-install-note">
                 {inElements ? (
-                  <>
-                    Copies the stylesheet and{" "}
-                    <InlineCode size="sm">contract.json</InlineCode>, then prints
-                    the markup to paste.{" "}
-                    {elements.package
-                      ? "The element adds the behaviour; the classes are the styling."
-                      : "The classes on that markup are the whole component."}
-                  </>
+                  style === "styled" ? (
+                    <>
+                      Copies the stylesheet and{" "}
+                      <InlineCode size="sm">contract.json</InlineCode>, then prints
+                      the markup to paste.{" "}
+                      {webPackage
+                        ? "The element adds the behaviour; the classes are the styling."
+                        : "The classes on that markup are the whole component."}
+                    </>
+                  ) : (
+                    <>
+                      Behaviour and accessibility only, no CSS: the element
+                      works in plain HTML or any framework. Bring your own
+                      styling.
+                    </>
+                  )
                 ) : registryOnly ? (
                   <>
                     No headless primitive — this one ships only as a copied
                     styled surface, so <InlineCode size="sm">primitiv add</InlineCode>{" "}
-                    is the only way in, whichever mode you are reading.
+                    is the only way in.
                   </>
                 ) : mode === "styled" ? (
                   <>
@@ -286,19 +302,24 @@ export const ComponentDocsPage = ({ id }: { id: ComponentId }) => {
                   </>
                 )}
               </p>
-              {/* The cross-mode hint only makes sense when there IS another mode.
-                  A registry-only component has no headless install to point at,
-                  so it would read as a promise the component cannot keep. */}
+              {/* The other style, where there is one: a registry-only React
+                  component and a behaviourless element have only Styled. */}
               {inElements ? (
-                <p className="docs-install-hint">
-                  {`Styled mode copies the React surface instead: ${installCommand("styled", docs.id)}`}
-                </p>
-              ) : !registryOnly && (
-                <p className="docs-install-hint">
-                  {mode === "styled"
-                    ? `Headless mode installs the npm package instead: ${docs.headless.package}`
-                    : `Styled mode copies the surface instead: ${installCommand("styled", docs.id)}`}
-                </p>
+                webPackage && (
+                  <p className="docs-install-hint">
+                    {style === "styled"
+                      ? `Headless installs the element alone: npm i ${webPackage}`
+                      : `Styled adds Primitiv's styling: ${installCommand("elements", docs.id, "styled")}`}
+                  </p>
+                )
+              ) : (
+                !registryOnly && (
+                  <p className="docs-install-hint">
+                    {mode === "styled"
+                      ? `Headless installs the npm package instead: ${docs.headless.package}`
+                      : `Styled copies the surface instead: ${installCommand("styled", docs.id)}`}
+                  </p>
+                )
               )}
             </Stack>
           </div>
@@ -414,7 +435,7 @@ export const ComponentDocsPage = ({ id }: { id: ComponentId }) => {
         <DocsSection
           id="examples"
           title="Examples"
-          meta={`Every example below reacts to the density control. Currently showing ${label(mode)} mode.`}
+          meta={`Every example below reacts to the density control. Currently showing ${label(inElements ? "elements" : "react")}, ${label(style).toLowerCase()}.`}
         >
           <Stack gap="lg">
             {spec.examples.map((example) => (
@@ -428,8 +449,5 @@ export const ComponentDocsPage = ({ id }: { id: ComponentId }) => {
           </Stack>
         </DocsSection>
         </Stack>
-      </ElementsAvailableProvider>
-      </HeadlessAvailableProvider>
-    </Shell>
   );
 };

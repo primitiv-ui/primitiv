@@ -49,11 +49,15 @@ const REPO = "https://github.com/primitiv-ui/primitiv";
  */
 export const ComponentPageHeader = ({
   docs,
-  elementsFallback = false,
+  notice,
 }: {
   docs: ComponentDocs;
-  /** The reader is in Elements mode and this component has no elements surface. */
-  elementsFallback?: boolean;
+  /**
+   * Why the page reads differently from the header's switch: Elements was
+   * chosen and this component has no elements surface (`no-elements`), or
+   * Headless Elements was chosen and it has no behaviour (`no-behaviour`).
+   */
+  notice?: "no-elements" | "no-behaviour";
 }) => (
   <Stack gap="sm">
     <Breadcrumb size="sm">
@@ -136,19 +140,31 @@ export const ComponentPageHeader = ({
       </Alert>
     )}
 
-    {/* Elements mode on a component with no elements surface yet (RFC 0033):
-        the navigation hides these in Elements mode, so this is the page a
-        reader reaches by a link or by switching mode while on it. It says why
-        the page reads as Styled rather than quietly showing a mode it lacks. */}
-    {elementsFallback && (
+    {/* The header's switch asked for something this component cannot show
+        (RFC 0033), so say what the page shows instead rather than quietly
+        showing something else. The navigation hides these components under the
+        same choice, so this is the page a link or a switch made in place lands
+        on. */}
+    {notice === "no-elements" && (
       <Alert
         className="docs-registry-only-alert"
         tone="info"
         title="No Elements surface yet"
         size="sm"
       >
-        {docs.displayName} has no custom element or Elements markup yet, so this
-        page shows Styled. Switch mode to read it another way.
+        {humanName(docs.displayName)} has no custom element or Elements markup
+        yet, so this page shows React.
+      </Alert>
+    )}
+    {notice === "no-behaviour" && (
+      <Alert
+        className="docs-registry-only-alert"
+        tone="info"
+        title="No headless form"
+        size="sm"
+      >
+        {humanName(docs.displayName)} has no behaviour, so without its classes
+        it is plain HTML. This page shows the styled markup.
       </Alert>
     )}
   </Stack>

@@ -765,7 +765,8 @@ one release), rather than relying on the existing suites to notice.
 @primitiv-ui/web/tabs       → one component's classes
 @primitiv-ui/web/define     → defines every element (side-effect import)
 @primitiv-ui/web/define/tabs→ defines one component's elements
-dist/primitiv-web.js        → prebuilt single ESM bundle, core inlined, for no-build stacks
+dist/cdn/tabs.js            → one component's elements for no-build stacks; shared code in dist/cdn/chunks/
+dist/primitiv-web.js        → prebuilt single ESM bundle, core inlined, every element
 ```
 
 - `package.json` lists `"sideEffects": ["./dist/define/**"]`, and every
@@ -776,8 +777,15 @@ dist/primitiv-web.js        → prebuilt single ESM bundle, core inlined, for no
   accepts a prefix override for teams that need to rename the elements to run
   two versions side by side.
 - **No-build consumers** (a static folder, or a CDN via jsDelivr from npm)
-  use `<script type="module" src=".../primitiv-web.js">`. The bundle is built
-  with the Vite/esbuild that is already in the toolchain. Per-module output
+  load one component at a time with `<script type="module"
+  src=".../dist/cdn/tabs.js">` (2026-11-08). One esbuild run with code
+  splitting writes a file per `src/define/<component>.ts`, and what they share
+  (core) lands in `dist/cdn/chunks/`, imported by a relative URL, so a page
+  loading two components downloads it once and no import map is needed.
+  `dist/primitiv-web.js` remains for "every element in one file". `primitiv add
+  --surface elements` without a package.json prints one script per component,
+  and the docs site's Load panel shows the same file. Both are built with the
+  esbuild already in the toolchain. Per-module output
   uses `tsc`, like `packages/react`.
 
 ### 7.2 Versioning and release
@@ -791,7 +799,9 @@ dist/primitiv-web.js        → prebuilt single ESM bundle, core inlined, for no
 ### 7.3 Size budget
 
 The CI gate is `size-limit` (or an equivalent script) on the min+gzip size of
-`define/tabs` *including the core it pulls in*. The opening target is **≤ 3 KB**,
+`define/tabs` *including the core it pulls in*, held by `scripts/check-size.mjs`
+for `dist/primitiv-web.js` and for each `dist/cdn/<component>.js` with the
+chunks it imports. The opening target is **≤ 3 KB**,
 to be confirmed once the first build exists and then held. The RFC also
 records, without gating on it, the React path for comparison:
 `@primitiv-ui/react` Tabs plus `react` and `react-dom`.
@@ -907,7 +917,7 @@ that `framework: "html"` would be wrong for every one of them.
 | **`init`** | `--surface <react\|elements>` plus a prompt, asked first because it decides the rest. The default is `react` when `package.json` lists `react` in any dependency list, and `elements` otherwise (Vue, Angular, Svelte, a server-rendered project, or no `package.json` at all). Only the React surface still requires a `package.json`. |
 | **`add`** | `--surface` as a per-run override, the way `--format` overrides the config today. A component with no elements surface yet fails clearly: *"modal has no elements surface yet"*. |
 | **Registry schema** | As built, additive: a component gains an `elements` block, `{ packages: [@primitiv-ui/web], example: "tabs.html" }`, beside its existing React keys, and having one is what gives it an elements surface. Components with no behaviour carry one with no package (§8.3). The draft moved the React keys under a `surfaces` block and bumped the schema version, but `add --registry <version>` lets an older CLI read a newer registry, and only an additive block keeps that working. |
-| **Package install** | With a `package.json`, `@primitiv-ui/web` installs through the detected package manager, and the React surface's style packages (cva) are not installed. Without one, nothing is installed and the CLI prints a version-pinned `<script type="module" src="https://cdn.jsdelivr.net/npm/@primitiv-ui/web@<version>/dist/primitiv-web.js">`, at the lowest version the components' declared range allows (a CDN URL takes one version, and that one exists and is compatible). Nothing is printed when no component needs the package. Copying the bundle into the project (`--vendor <dir>`) is a later addition, because embedding it would tie the Rust build to the JS build. |
+| **Package install** | With a `package.json`, `@primitiv-ui/web` installs through the detected package manager, and the React surface's style packages (cva) are not installed. Without one, nothing is installed and the CLI prints a version-pinned `<script type="module" src="https://cdn.jsdelivr.net/npm/@primitiv-ui/web@<version>/dist/cdn/<component>.js">` per component (the everything bundle until 2026-11-08), at the lowest version the components' declared range allows (a CDN URL takes one version, and that one exists and is compatible). Nothing is printed when no component needs the package. Copying the bundle into the project (`--vendor <dir>`) is a later addition, because embedding it would tie the Rust build to the JS build. |
 | **Wiring** | The tsx barrel and the stylesheet self-import line are React-only. For elements the CLI keeps `<styles path>/index.<ext>`, an `@import` per installed component (regenerated from the lock, so it covers every run), so a page needs one `<link>`. For CSS it prints the token-layer and index `<link>` lines, plus the `<script>` above, rather than editing a layout it cannot reliably find. SCSS and Tailwind go through the project's own build, so no `<link>` lines are printed for them. |
 | **Default path** | `src/styles/primitiv` (with components in `src/components`) for React, as today; `primitiv/` for elements, which holds the token layer, each component's folder and the index. Overridable with `--path` and recorded in the config. |
 | **`list`** | Gains a `SURFACES` column: `react`, `elements`, both, or `-`. |

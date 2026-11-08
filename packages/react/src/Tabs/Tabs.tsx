@@ -122,7 +122,7 @@ export const TabsRoot: ForwardRefExoticComponent<
   ref,
 ) {
   const resolvedDir = dir ?? useDirection();
-  const { contextValue } = useTabsRoot(
+  const { contextValue, rootRef } = useTabsRoot(
     {
       orientation,
       dir: resolvedDir,
@@ -139,6 +139,7 @@ export const TabsRoot: ForwardRefExoticComponent<
   return (
     <TabsProvider value={contextValue}>
       <div
+        ref={rootRef}
         dir={resolvedDir}
         className={className}
         data-orientation={contextValue.orientation}
@@ -292,9 +293,7 @@ export function TabsTrigger<T extends HTMLElement = HTMLButtonElement>({
     orientation,
     state,
     tabIndex,
-    handleClick,
-    handleKeyDown,
-  } = useTabsTrigger({ value, onClick, onKeyDown, disabled });
+  } = useTabsTrigger({ value, disabled });
 
   // Compose our internal ref with any external ref the consumer passes.
   // The external ref is cast to match the internal ref's element type —
@@ -316,8 +315,10 @@ export function TabsTrigger<T extends HTMLElement = HTMLButtonElement>({
     "data-orientation": orientation,
     "data-state": state,
     tabIndex,
-    onClick: handleClick,
-    onKeyDown: handleKeyDown,
+    // Both run after the root's TabsController, which listens natively on the
+    // Tabs root and so fires before React's delegated handlers (RFC 0033 §5.7).
+    onClick,
+    onKeyDown,
     ...rest,
   };
 

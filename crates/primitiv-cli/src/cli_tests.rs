@@ -5,6 +5,7 @@ use crate::cli::{Command, parse};
 use crate::commands::add::AddOptions;
 use crate::commands::init::InitOptions;
 use crate::commands::tokens::TokensOptions;
+use crate::config::Surface;
 use crate::error::CliError;
 use crate::format::Format;
 
@@ -50,6 +51,7 @@ fn parses_every_init_override_flag() {
             alias_components: Some("@/ui".to_string()),
             force: true,
             yes: true,
+            surface: None,
         })
     );
 }
@@ -178,6 +180,46 @@ fn rejects_an_unknown_add_format() {
         parse(&args(&["add", "button", "--format", "less"])).unwrap_err(),
         CliError::Usage(_)
     ));
+}
+
+#[test]
+fn parses_add_with_a_surface_override() {
+    // `--surface` picks the surface for this run, as `--format` does the format.
+    let command = parse(&args(&["add", "kbd", "--surface", "elements"])).unwrap();
+
+    assert_eq!(
+        command,
+        Command::Add(AddOptions {
+            components: vec!["kbd".to_string()],
+            surface: Some(Surface::Elements),
+            ..Default::default()
+        })
+    );
+}
+
+#[test]
+fn parses_add_with_the_react_surface() {
+    let command = parse(&args(&["add", "kbd", "--surface", "react"])).unwrap();
+
+    assert!(matches!(command, Command::Add(AddOptions { surface: Some(Surface::React), .. })));
+}
+
+#[test]
+fn rejects_add_surface_with_no_value() {
+    assert!(matches!(
+        parse(&args(&["add", "kbd", "--surface"])).unwrap_err(),
+        CliError::Usage(_)
+    ));
+}
+
+#[test]
+fn rejects_an_unknown_add_surface() {
+    let error = parse(&args(&["add", "kbd", "--surface", "vue"])).unwrap_err();
+
+    assert!(
+        matches!(&error, CliError::Usage(message) if message.contains("expected: react, elements")),
+        "{error:?}"
+    );
 }
 
 #[test]
@@ -800,4 +842,24 @@ fn rejects_help_for_an_unknown_command() {
         error.to_string(),
         "unknown command 'frob'; expected: init, add, list, theme, tokens, dtcg"
     );
+}
+
+#[test]
+fn parses_init_with_a_surface() {
+    let command = parse(&args(&["init", "--surface", "elements"])).unwrap();
+
+    assert_eq!(
+        command,
+        Command::Init(InitOptions {
+            surface: Some(Surface::Elements),
+            ..Default::default()
+        })
+    );
+}
+
+#[test]
+fn rejects_init_surface_with_no_value_or_an_unknown_one() {
+    for argv in [&["init", "--surface"][..], &["init", "--surface", "vue"][..]] {
+        assert!(matches!(parse(&args(argv)).unwrap_err(), CliError::Usage(_)), "{argv:?}");
+    }
 }

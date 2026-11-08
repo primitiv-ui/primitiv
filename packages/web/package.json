@@ -1,0 +1,142 @@
+{
+  "name": "@primitiv-ui/web",
+  "version": "0.1.41",
+  "description": "Primitiv's headless components as standard custom elements: light DOM, no framework, no runtime dependencies. Works in plain HTML, server-rendered stacks, React, Vue, Angular and anything else that renders HTML.",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    },
+    "./tabs": {
+      "types": "./src/tabs/index.ts",
+      "default": "./src/tabs/index.ts"
+    },
+    "./define": {
+      "types": "./src/define/index.ts",
+      "default": "./src/define/index.ts"
+    },
+    "./define/tabs": {
+      "types": "./src/define/tabs.ts",
+      "default": "./src/define/tabs.ts"
+    },
+    "./tags": {
+      "types": "./src/tags.ts",
+      "default": "./src/tags.ts"
+    },
+    "./react": {
+      "types": "./src/frameworks/react.ts",
+      "default": "./src/frameworks/react.ts"
+    },
+    "./vue": {
+      "types": "./src/frameworks/vue.ts",
+      "default": "./src/frameworks/vue.ts"
+    },
+    "./svelte": {
+      "types": "./src/frameworks/svelte.ts",
+      "default": "./src/frameworks/svelte.ts"
+    }
+  },
+  "sideEffects": [
+    "./src/define/**",
+    "./dist/define/**"
+  ],
+  "files": [
+    "dist"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/primitiv-ui/primitiv.git",
+    "directory": "packages/web"
+  },
+  "scripts": {
+    "build": "rm -rf dist && tsc -p tsconfig.build.json && node ../../scripts/finalize-dist.mjs dist && pnpm run build:bundle && pnpm run build:manifest",
+    "prepack": "pnpm run build",
+    "qa": "pnpm qa:units",
+    "qa:units": "vitest run --coverage",
+    "qa:units:watch": "vitest --coverage",
+    "mutate": "stryker run",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "build:bundle": "esbuild src/bundle.ts --bundle --format=esm --minify --target=es2022 --outfile=dist/primitiv-web.js",
+    "size": "node scripts/check-size.mjs",
+    "build:manifest": "cem analyze --globs \"src/**/elements.ts\" --outdir dist",
+    "manifest:check": "node scripts/check-manifest.mjs"
+  },
+  "dependencies": {
+    "@primitiv-ui/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@custom-elements-manifest/analyzer": "0.11.0",
+    "@primitiv-ui/conformance": "workspace:*",
+    "@stryker-mutator/core": "9.6.1",
+    "@stryker-mutator/vitest-runner": "9.6.1",
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/react": "^19.2.14",
+    "@vitest/coverage-v8": "^4.1.4",
+    "esbuild": "^0.28.0",
+    "jsdom": "^29.0.2",
+    "svelte": "^5.46.4",
+    "typescript": "^6.0.2",
+    "vitest": "^4.1.4",
+    "vue": "^3.5.0"
+  },
+  "publishConfig": {
+    "access": "public",
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "./tabs": {
+        "types": "./dist/tabs/index.d.ts",
+        "default": "./dist/tabs/index.js"
+      },
+      "./define": {
+        "types": "./dist/define/index.d.ts",
+        "default": "./dist/define/index.js"
+      },
+      "./define/tabs": {
+        "types": "./dist/define/tabs.d.ts",
+        "default": "./dist/define/tabs.js"
+      },
+      "./tags": {
+        "types": "./dist/tags.d.ts",
+        "default": "./dist/tags.js"
+      },
+      "./react": {
+        "types": "./dist/frameworks/react.d.ts",
+        "default": "./dist/frameworks/react.js"
+      },
+      "./vue": {
+        "types": "./dist/frameworks/vue.d.ts",
+        "default": "./dist/frameworks/vue.js"
+      },
+      "./svelte": {
+        "types": "./dist/frameworks/svelte.d.ts",
+        "default": "./dist/frameworks/svelte.js"
+      }
+    }
+  },
+  "customElements": "dist/custom-elements.json",
+  "peerDependencies": {
+    "@types/react": "^19.0.0",
+    "vue": "^3.3.0",
+    "svelte": "^5.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@types/react": {
+      "optional": true
+    },
+    "vue": {
+      "optional": true
+    },
+    "svelte": {
+      "optional": true
+    }
+  }
+}

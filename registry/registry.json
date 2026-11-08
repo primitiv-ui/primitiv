@@ -202,7 +202,10 @@
           ]
         }
       },
-      "contract": "contract.json"
+      "contract": "contract.json",
+      "elements": {
+        "example": "badge.html"
+      }
     },
     "blockquote": {
       "version": "0.1.0",
@@ -370,7 +373,10 @@
           ]
         }
       },
-      "contract": "contract.json"
+      "contract": "contract.json",
+      "elements": {
+        "example": "button.html"
+      }
     },
     "card": {
       "version": "0.1.0",
@@ -1121,7 +1127,10 @@
           ]
         }
       },
-      "contract": "contract.json"
+      "contract": "contract.json",
+      "elements": {
+        "example": "inline-code.html"
+      }
     },
     "input": {
       "version": "0.1.0",
@@ -1225,7 +1234,10 @@
           ]
         }
       },
-      "contract": "contract.json"
+      "contract": "contract.json",
+      "elements": {
+        "example": "kbd.html"
+      }
     },
     "list": {
       "version": "0.1.0",
@@ -1964,7 +1976,16 @@
           ]
         }
       },
-      "contract": "contract.json"
+      "contract": "contract.json",
+      "elements": {
+        "packages": [
+          {
+            "name": "@primitiv-ui/web",
+            "version": "^0.1.42"
+          }
+        ],
+        "example": "tabs.html"
+      }
     },
     "tag": {
       "version": "0.1.0",
@@ -1998,7 +2019,10 @@
           ]
         }
       },
-      "contract": "contract.json"
+      "contract": "contract.json",
+      "elements": {
+        "example": "tag.html"
+      }
     },
     "textarea": {
       "version": "0.1.0",

@@ -1,0 +1,21 @@
+{
+  // The Angular page, compiled ahead of time by @analogjs/vite-plugin-angular
+  // and template-checked by `ngc` with strictTemplates.
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "jsx": "preserve",
+    "experimentalDecorators": false,
+    "useDefineForClassFields": false,
+    // The Vite plugin compiles through this program, so it must emit.
+    "noEmit": false,
+    "outDir": "./node_modules/.cache/ngc",
+    // The workspace source the paths point at sits above this app.
+    "rootDir": "../.."
+  },
+  "angularCompilerOptions": {
+    "strictTemplates": true,
+    "strictInjectionParameters": true
+  },
+  "files": ["src/angular.ts"],
+  "include": []
+}

@@ -205,3 +205,21 @@ pub(crate) const BARE: &str = r#"{
     }
   ]
 }"#;
+
+/// Non-interactive synthetic contract — the markup snippet's case for a root
+/// that is not a `<button>` (Kbd's shape without being Kbd) and has no
+/// modifier groups: only the identity class, and no `type` attribute.
+pub(crate) const DEMO_MARK: &str = r#"{
+  "name": "demo-mark",
+  "description": "A demo inline mark.",
+  "root": { "element": "mark", "class": "primitiv-demo-mark" }
+}"#;
+
+/// Single-element synthetic contract that wraps its text in a label span
+/// (Button's `wrapTextChildren` without being Button).
+pub(crate) const DEMO_PILL: &str = r#"{
+  "name": "demo-pill",
+  "description": "A demo pill.",
+  "root": { "element": "span", "class": "primitiv-demo-pill" },
+  "wrapTextChildren": true
+}"#;

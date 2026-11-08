@@ -1,0 +1,84 @@
+name: Interop lab
+
+# The custom elements in real browsers and real frameworks (RFC 0033 §7.4):
+# apps/interop-lab renders the same Tabs on a plain HTML, an HTMX, a React 19
+# a Vue 3, a Svelte 5 and an Angular page and drives them all with one
+# Playwright spec. It runs from workspace source, so it gates core and web
+# changes before any release. The styled page is installed by the real CLI
+# (`primitiv add tabs` on the elements surface), so the CLI and registry gate
+# it too.
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "packages/core/**"
+      - "packages/web/**"
+      - "crates/primitiv-cli/**"
+      - "crates/primitiv-emit/**"
+      - "registry/**"
+      - "apps/interop-lab/**"
+      - ".github/workflows/interop-lab.yml"
+  pull_request:
+    paths:
+      - "packages/core/**"
+      - "packages/web/**"
+      - "crates/primitiv-cli/**"
+      - "crates/primitiv-emit/**"
+      - "registry/**"
+      - "apps/interop-lab/**"
+      - ".github/workflows/interop-lab.yml"
+
+concurrency:
+  group: interop-lab-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  playwright:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+
+      # The styled page is installed by the CLI, built from this checkout.
+      - uses: dtolnay/rust-toolchain@1.97.0
+
+      - uses: Swatinem/rust-cache@v2
+
+      # Outside the pnpm workspace on purpose: no framework's toolchain enters
+      # another's resolution. Vite aliases @primitiv-ui/{web,core} to source.
+      - name: Install interop-lab dependencies
+        run: pnpm install --ignore-workspace --frozen-lockfile
+        working-directory: apps/interop-lab
+        env:
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
+
+      # The React page and the @primitiv-ui/web/react typing tests: every
+      # @ts-expect-error must still be an error, everything else must compile.
+      - name: Type-check
+        run: pnpm typecheck
+        working-directory: apps/interop-lab
+
+      - name: Install Chromium
+        run: pnpm exec playwright install --with-deps chromium
+        working-directory: apps/interop-lab
+
+      - name: Run the interop spec
+        run: pnpm exec playwright test
+        working-directory: apps/interop-lab
+
+      - name: Upload Playwright report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: interop-lab-report
+          path: apps/interop-lab/playwright-report
+          retention-days: 14

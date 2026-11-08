@@ -38,6 +38,25 @@ pub struct ComponentEntry {
     /// entry does not declare one (headless-only installs).
     #[serde(default)]
     pub contract: Option<String>,
+    /// The component's elements surface (RFC 0033 §8.1): what `add --surface
+    /// elements` installs and copies in place of the React surface. `None` when
+    /// the component has no elements surface yet. It sits beside the React keys
+    /// rather than replacing them, so an older CLI reading a newer registry
+    /// (`--registry <version>`) still parses it.
+    #[serde(default)]
+    pub elements: Option<Elements>,
+}
+
+/// A component's elements surface (RFC 0033 §8.1): the npm `packages` it needs
+/// (`@primitiv-ui/web`; none for a component with no behaviour, §8.3) and the
+/// `example` markup `add` prints for the developer to paste. The example is
+/// never copied: nothing imports markup, so a copy would only go stale.
+#[derive(Debug, Deserialize, PartialEq, Default)]
+pub struct Elements {
+    #[serde(default)]
+    pub packages: Vec<PackageDep>,
+    #[serde(default)]
+    pub example: Option<String>,
 }
 
 /// A component's styled bundle (RFC 0005 §6.2): the per-format stylesheet `add`
@@ -114,6 +133,20 @@ impl PackageDep {
     pub fn spec(&self) -> String {
         match &self.version {
             Some(version) => format!("{}@{version}", self.name),
+            None => self.name.clone(),
+        }
+    }
+
+    /// `name@version` at the lowest version the declared range allows (`^0.1.40`
+    /// → `0.1.40`), for a CDN URL, which takes one version rather than a range
+    /// (RFC 0033 §8.2). Without a range it is the bare `name`, as in [`spec`](Self::spec).
+    pub fn minimum_spec(&self) -> String {
+        match &self.version {
+            Some(range) => format!(
+                "{}@{}",
+                self.name,
+                range.trim_start_matches(['^', '~', '>', '=', ' '])
+            ),
             None => self.name.clone(),
         }
     }

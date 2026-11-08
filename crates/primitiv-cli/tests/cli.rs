@@ -102,11 +102,12 @@ fn init_detects_the_components_alias_from_a_real_tsconfig() {
 fn init_refuses_to_run_outside_a_node_project_and_exits_eight() {
     let dir = assert_fs::TempDir::new().unwrap();
 
-    // An empty directory with no package.json: there is no project to configure.
+    // An empty directory with no package.json: there is no React project to
+    // configure (the elements surface needs none).
     Command::cargo_bin("primitiv")
         .unwrap()
         .current_dir(dir.path())
-        .arg("init")
+        .args(["init", "--surface", "react"])
         .assert()
         .code(8)
         .stderr(predicate::str::contains(
@@ -741,4 +742,50 @@ fn prints_help_and_exits_zero() {
         .assert()
         .success()
         .stdout(predicate::str::starts_with("Usage: primitiv add "));
+}
+
+#[test]
+fn add_on_the_elements_surface_installs_into_a_plain_html_site_and_prints_the_markup() {
+    // No package.json: a plain HTML site has nothing to install into, and Kbd
+    // has no behaviour, so nothing is installed and no package manager runs
+    // (RFC 0033 §8.3).
+    let dir = assert_fs::TempDir::new().unwrap();
+    dir.child("primitiv.json")
+        .write_str(
+            r##"{
+  "version": 1,
+  "surface": "elements",
+  "styles": { "enabled": true, "format": "css", "path": "primitiv" },
+  "tokens": { "format": "css", "path": "primitiv/tokens.css" },
+  "theme": {},
+  "aliases": {},
+  "registry": { "version": "0.1.0" }
+}"##,
+        )
+        .unwrap();
+
+    Command::cargo_bin("primitiv")
+        .unwrap()
+        .current_dir(dir.path())
+        .args(["add", "kbd"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains(
+            "  <link rel=\"stylesheet\" href=\"primitiv/tokens.css\">\n  \
+             <link rel=\"stylesheet\" href=\"primitiv/index.css\">\n",
+        ))
+        .stdout(predicate::str::ends_with(
+            "Example markup for kbd:\n\n  <kbd class=\"primitiv-kbd primitiv-kbd--md\">Kbd</kbd>\n",
+        ));
+
+    // The markup is printed, never copied.
+    dir.child("primitiv/kbd/kbd.html")
+        .assert(predicate::path::missing());
+    dir.child("primitiv/kbd/styles.css")
+        .assert(predicate::str::contains(".primitiv-kbd"));
+    dir.child("primitiv/index.css")
+        .assert("@import \"./kbd/styles.css\";\n");
+    dir.child("primitiv/tokens.css")
+        .assert(predicate::path::exists());
+    dir.child("src").assert(predicate::path::missing());
 }

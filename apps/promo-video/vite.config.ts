@@ -28,6 +28,8 @@ export default defineConfig({
       "@docs-public": `${DOCS}public`,
       "@primitiv-ui/react": `${REPO}packages/react/src/index.ts`,
       "@primitiv-ui/icons": `${REPO}packages/icons/src/index.ts`,
+      "@primitiv-ui/core": `${REPO}packages/core/src/index.ts`,
+      "@primitiv-ui/web": `${REPO}packages/web/src/index.ts`,
       "class-variance-authority": path("./node_modules/class-variance-authority"),
     },
   },

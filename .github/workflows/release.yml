@@ -44,7 +44,7 @@ jobs:
         with:
           node-version: 22
 
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: dtolnay/rust-toolchain@1.97.0
       - uses: Swatinem/rust-cache@v2
 
       - name: Configure git identity
@@ -73,8 +73,8 @@ jobs:
       - name: Commit and tag
         run: |
           git add \
-            packages/react/package.json packages/icons/package.json packages/tokens/package.json \
-            packages/react/jsr.json packages/icons/jsr.json packages/tokens/jsr.json \
+            packages/core/package.json packages/web/package.json packages/react/package.json packages/icons/package.json packages/tokens/package.json \
+            packages/core/jsr.json packages/web/jsr.json packages/react/jsr.json packages/icons/jsr.json packages/tokens/jsr.json \
             npm/cli-wrapper/package.json npm/cli-darwin-arm64/package.json \
             npm/cli-darwin-x64/package.json npm/cli-linux-arm64-gnu/package.json \
             npm/cli-linux-x64-gnu/package.json npm/cli-win32-x64/package.json \

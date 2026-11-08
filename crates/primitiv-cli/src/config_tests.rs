@@ -3,7 +3,9 @@ use std::path::Path;
 
 use pretty_assertions::assert_eq;
 
-use crate::config::{Config, NeutralEntry, Registry, Styles, Theme, Tokens, resolve, try_resolve};
+use crate::config::{
+    Config, NeutralEntry, Registry, Styles, Surface, Theme, Tokens, resolve, try_resolve,
+};
 use crate::format::Format;
 use crate::ports::fs::{FileSystem, InMemoryFs};
 
@@ -31,7 +33,8 @@ fn should_parse_a_full_primitiv_json_document() {
             // Absent in FULL, so it parses to the empty default — the backward-compatible
             // shape every pre-`name` config still has.
             name: String::new(),
-            framework: "react".into(),
+            // `framework` is still read, as an alias of `surface` (RFC 0033 §8.2).
+            surface: Surface::React,
             styles: Styles {
                 enabled: true,
                 format: Format::Css,
@@ -238,4 +241,22 @@ fn should_parse_a_neutral_block_beside_the_family_seeds() {
     assert_eq!(tint.source, "brand");
     assert_eq!(tint.strength, 0.2);
     assert_eq!(tint.bow, 0.1);
+}
+
+#[test]
+fn should_read_the_elements_surface() {
+    let config = Config::parse(
+        br##"{
+          "version": 1,
+          "surface": "elements",
+          "styles": { "enabled": true, "format": "css", "path": "primitiv" },
+          "tokens": { "format": "css", "path": "primitiv/tokens.css" },
+          "theme": {},
+          "aliases": {},
+          "registry": { "version": "0.1.0" }
+        }"##,
+    )
+    .unwrap();
+
+    assert_eq!(config.surface, Surface::Elements);
 }

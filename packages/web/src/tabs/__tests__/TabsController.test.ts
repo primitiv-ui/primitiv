@@ -1,0 +1,352 @@
+import userEvent from "@testing-library/user-event";
+
+import { TabsController, type TabsControllerHost } from "../TabsController";
+
+type HostState = ReturnType<TabsControllerHost["state"]>;
+
+/** Mounts a root holding one `<button>` per value and returns the buttons. */
+function mount(values: string[]) {
+  const root = document.createElement("div");
+  const buttons = values.map((value) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.textContent = value;
+    root.append(button);
+    return button;
+  });
+  document.body.append(root);
+  return { root, buttons };
+}
+
+function hostWith(overrides: Partial<HostState> = {}) {
+  const state: HostState = {
+    active: "one",
+    orientation: "horizontal",
+    dir: "ltr",
+    activationMode: "automatic",
+    ...overrides,
+  };
+  const host: TabsControllerHost & { activations: Array<[string, number]> } = {
+    activations: [],
+    state: () => state,
+    activate(value, index) {
+      host.activations.push([value, index]);
+    },
+  };
+  return host;
+}
+
+afterEach(() => {
+  document.body.replaceChildren();
+});
+
+describe("TabsController", () => {
+  describe("clicks", () => {
+    it("asks the host to activate a clicked tab, with its index", async () => {
+      // Arrange
+      const user = userEvent.setup();
+      const { root, buttons } = mount(["one", "two"]);
+      const host = hostWith();
+      const controller = new TabsController(root, host);
+      controller.registerTrigger("one", buttons[0]);
+      controller.registerTrigger("two", buttons[1]);
+      controller.connect();
+
+      // Act
+      await user.click(buttons[1]);
+
+      // Assert
+      expect(host.activations).toEqual([["two", 1]]);
+    });
+
+    it("ignores a click on a disabled tab", async () => {
+      // Arrange
+      const user = userEvent.setup();
+      const { root, buttons } = mount(["one", "two"]);
+      const host = hostWith();
+      const controller = new TabsController(root, host);
+      controller.registerTrigger("one", buttons[0]);
+      controller.registerTrigger("two", buttons[1], { disabled: true });
+      controller.connect();
+
+      // Act
+      await user.click(buttons[1]);
+
+      // Assert
+      expect(host.activations).toEqual([]);
+    });
+
+    it("ignores a click outside every trigger", async () => {
+      // Arrange
+      const user = userEvent.setup();
+      const { root, buttons } = mount(["one", "two"]);
+      const outside = document.createElement("p");
+      root.append(outside);
+      const host = hostWith();
+      const controller = new TabsController(root, host);
+      controller.registerTrigger("one", buttons[0]);
+      controller.registerTrigger("two", buttons[1]);
+      controller.connect();
+
+      // Act
+      await user.click(outside);
+
+      // Assert
+      expect(host.activations).toEqual([]);
+    });
+  });
+
+  describe("keyboard", () => {
+    it("moves focus to the next tab and activates it on ArrowRight", async () => {
+      // Arrange
+      const user = userEvent.setup();
+      const { root, buttons } = mount(["one", "two"]);
+      const host = hostWith();
+      const controller = new TabsController(root, host);
+      controller.registerTrigger("one", buttons[0]);
+      controller.registerTrigger("two", buttons[1]);
+      controller.connect();
+      buttons[0].focus();
+
+      // Act
+      await user.keyboard("{ArrowRight}");
+
+      // Assert
+      expect(host.activations).toEqual([["two", 1]]);
+      expect(buttons[1]).toBe(document.activeElement);
+    });
+
+    it("moves focus without activating in manual mode", async () => {
+      // Arrange
+      const user = userEvent.setup();
+      const { root, buttons } = mount(["one", "two"]);
+      const host = hostWith({ activationMode: "manual" });
+      const controller = new TabsController(root, host);
+      controller.registerTrigger("one", buttons[0]);
+      controller.registerTrigger("two", buttons[1]);
+      controller.connect();
+      buttons[0].focus();
+
+      // Act
+      await user.keyboard("{ArrowRight}");
+
+      // Assert
+      expect(host.activations).toEqual([]);
+      expect(buttons[1]).toBe(document.activeElement);
+    });
+
+    it("follows the host's orientation and reading direction", async () => {
+      // Arrange
+      const user = userEvent.setup();
+      const { root, buttons } = mount(["one", "two"]);
+      const host = hostWith({ orientation: "vertical" });
+      const controller = new TabsController(root, host);
+      controller.registerTrigger("one", buttons[0]);
+      controller.registerTrigger("two", buttons[1]);
+      controller.connect();
+      buttons[0].focus();
+
+      // Act
+      await user.keyboard("{ArrowRight}{ArrowDown}");
+
+      // Assert
+      expect(host.activations).toEqual([["two", 1]]);
+    });
+
+    it("prevents the default action only for the keys it handles", () => {
+      // Arrange
+      const { root, buttons } = mount(["one", "two"]);
+      const controller = new TabsController(root, hostWith());
+      controller.registerTrigger("one", buttons[0]);
+      controller.registerTrigger("two", buttons[1]);
+      controller.connect();
+      const handled = new KeyboardEvent("keydown", { key: "End", bubbles: true, cancelable: true });
+      const ignored = new KeyboardEvent("keydown", { key: "a", bubbles: true, cancelable: true });
+
+      // Act
+      buttons[0].dispatchEvent(handled);
+      buttons[0].dispatchEvent(ignored);
+
+      // Assert
+      expect(handled.defaultPrevented).toBe(true);
+      expect(ignored.defaultPrevented).toBe(false);
+    });
+
+    it("ignores key presses that do not come from a trigger", () => {
+      // Arrange
+      const { root, buttons } = mount(["one", "two"]);
+      const field = document.createElement("input");
+      root.append(field);
+      const host = hostWith();
+      const controller = new TabsController(root, host);
+      controller.registerTrigger("one", buttons[0]);
+      controller.registerTrigger("two", buttons[1]);
+      controller.connect();
+      const event = new KeyboardEvent("keydown", { key: "End", bubbles: true, cancelable: true });
+
+      // Act
+      field.dispatchEvent(event);
+
+      // Assert
+      expect(event.defaultPrevented).toBe(false);
+      expect(host.activations).toEqual([]);
+    });
+  });
+
+  describe("the collection", () => {
+    it("orders triggers by their place in the DOM, not by when they registered", async () => {
+      // Arrange
+      const user = userEvent.setup();
+      const { root, buttons } = mount(["one", "two", "three"]);
+      const host = hostWith();
+      const controller = new TabsController(root, host);
+      controller.registerTrigger("three", buttons[2]);
+      controller.registerTrigger("one", buttons[0]);
+      controller.registerTrigger("two", buttons[1]);
+      controller.connect();
+      buttons[0].focus();
+
+      // Act
+      await user.keyboard("{ArrowRight}");
+
+      // Assert
+      expect(host.activations).toEqual([["two", 1]]);
+      expect(buttons[1]).toBe(document.activeElement);
+    });
+
+    it("forgets a trigger once it unregisters", async () => {
+      // Arrange
+      const user = userEvent.setup();
+      const { root, buttons } = mount(["one", "two", "three"]);
+      const host = hostWith();
+      const controller = new TabsController(root, host);
+      controller.registerTrigger("one", buttons[0]);
+      controller.registerTrigger("two", buttons[1]);
+      controller.registerTrigger("three", buttons[2]);
+      controller.unregisterTrigger(buttons[1]);
+      controller.connect();
+      buttons[0].focus();
+
+      // Act
+      await user.keyboard("{ArrowRight}");
+
+      // Assert
+      expect(host.activations).toEqual([["three", 1]]);
+    });
+  });
+
+  describe("replacing the collection", () => {
+    it("replaces every registration in one call", async () => {
+      // Arrange
+      const user = userEvent.setup();
+      const { root, buttons } = mount(["one", "two", "three"]);
+      const host = hostWith();
+      const controller = new TabsController(root, host);
+      controller.registerTrigger("one", buttons[0]);
+      controller.registerTrigger("two", buttons[1]);
+      controller.connect();
+
+      // Act
+      controller.setTriggers([
+        { value: "one", element: buttons[0] },
+        { value: "three", element: buttons[2], disabled: true },
+      ]);
+      buttons[0].focus();
+      await user.keyboard("{ArrowRight}");
+      await user.click(buttons[1]);
+      await user.click(buttons[2]);
+
+      // Assert
+      expect(buttons[2]).toBe(document.activeElement);
+      expect(host.activations).toEqual([]);
+    });
+  });
+
+  describe("lifecycle", () => {
+    it("stops listening once disconnected", async () => {
+      // Arrange
+      const user = userEvent.setup();
+      const { root, buttons } = mount(["one", "two"]);
+      const host = hostWith();
+      const controller = new TabsController(root, host);
+      controller.registerTrigger("one", buttons[0]);
+      controller.registerTrigger("two", buttons[1]);
+      controller.connect();
+      controller.disconnect();
+
+      // Act
+      await user.click(buttons[1]);
+
+      // Assert
+      expect(host.activations).toEqual([]);
+    });
+
+    it("stops handling key presses once disconnected", () => {
+      // Arrange
+      const { root, buttons } = mount(["one", "two"]);
+      const host = hostWith();
+      const controller = new TabsController(root, host);
+      controller.registerTrigger("one", buttons[0]);
+      controller.registerTrigger("two", buttons[1]);
+      controller.connect();
+      controller.disconnect();
+      const event = new KeyboardEvent("keydown", { key: "End", bubbles: true, cancelable: true });
+
+      // Act
+      buttons[0].dispatchEvent(event);
+
+      // Assert
+      expect(event.defaultPrevented).toBe(false);
+      expect(host.activations).toEqual([]);
+    });
+
+    it("can be disconnected before it was ever connected", () => {
+      // Arrange
+      const { root } = mount([]);
+      const controller = new TabsController(root, hostWith());
+
+      // Act
+      const disconnect = () => controller.disconnect();
+
+      // Assert
+      expect(disconnect).not.toThrow();
+    });
+
+    it("handles each event once however many times it is connected", async () => {
+      // Arrange
+      const user = userEvent.setup();
+      const { root, buttons } = mount(["one", "two"]);
+      const host = hostWith();
+      const controller = new TabsController(root, host);
+      controller.registerTrigger("one", buttons[0]);
+      controller.registerTrigger("two", buttons[1]);
+      controller.connect();
+      controller.connect();
+
+      // Act
+      await user.click(buttons[1]);
+
+      // Assert
+      expect(host.activations).toEqual([["two", 1]]);
+    });
+
+    it("listens again after reconnecting", async () => {
+      // Arrange
+      const user = userEvent.setup();
+      const { root, buttons } = mount(["one", "two"]);
+      const host = hostWith();
+      const controller = new TabsController(root, host);
+      controller.registerTrigger("one", buttons[0]);
+      controller.registerTrigger("two", buttons[1]);
+      controller.connect();
+      controller.disconnect();
+      controller.connect();
+
+      // Act
+      await user.click(buttons[1]);
+
+      // Assert
+      expect(host.activations).toEqual([["two", 1]]);
+    });
+  });
+});

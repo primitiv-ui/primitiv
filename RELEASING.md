@@ -191,7 +191,53 @@ shippable at v0.1.0. Changes made:
 - [x] `"repository"` field set to `primitiv-ui/primitiv` (as instructed in
   the org-transfer checklist).
 
-The workflow already runs `qa:units` on all three before publishing, so
+### `@primitiv-ui/core` (added 2026-11-07, RFC 0033)
+
+A fourth library, and the first one another library **depends on**:
+`@primitiv-ui/react` declares `"@primitiv-ui/core": "workspace:*"`, which
+`pnpm publish` rewrites to the exact lockstep version. Three things follow:
+
+- **It publishes before `react`, not last.** The §2 "new package last" rule
+  protects packages that do not need the new one; `react` does need core, and a
+  `react` published without its core is uninstallable. So the core step is
+  first in both library loops, and a core failure stops `react` deliberately.
+- **Its first release needs the §2 token bootstrap in place before the run**,
+  on npm, and the package created and linked to this repo on jsr.io, because a
+  failure there now blocks `react` rather than costing a re-run of one step.
+  The npmrc line is **already in `publish.yml`** (the "Bootstrap token for a new
+  npm package" step, added 2026-11-07), guarded on the secret, so the bootstrap
+  is now settings only: add the `NPM_TOKEN` repo secret, release, configure
+  Trusted Publishing on the new package, then delete the secret and revoke the
+  token. §2 step 3's "write the block" is done for you.
+- **JSR resolution of `workspace:*` is unverified.** JSR documents
+  `package.json` dependencies as a source of bare-specifier resolution but says
+  nothing about pnpm's `workspace:` protocol, and `jsr publish --dry-run` cannot
+  run in the cloud sandbox. The JSR preflight in `publish.yml` runs before any
+  npm publish, so a failure is safe, but run the publish workflow's preflight
+  (or `npx jsr publish --dry-run` in `packages/react` locally) before cutting
+  the first release that includes core. If it fails, the documented fix is a
+  `jsr:@primitiv-ui/core@<version>` value for JSR only.
+
+### `@primitiv-ui/web` (added 2026-11-07, RFC 0033 Phase 5)
+
+The custom elements, and the second library `react` depends on (`react` runs
+Tabs on its `TabsController`). Everything above for core applies to it too, and
+both are new in the **same** release, so one bootstrap covers both:
+
+- **One `NPM_TOKEN` secret bootstraps both** — the guarded step writes it once
+  for every npm publish after it. After the green run, configure Trusted
+  Publishing on **both** packages before deleting the secret.
+- **Both need creating and linking on jsr.io.** `web`'s `jsr.json` excludes
+  `src/tags.ts` (a global `HTMLElementTagNameMap` augmentation, which JSR
+  rejects) and the browser bundle entry; JSR consumers simply do not get the
+  opt-in tag map.
+- **Publish order is core → web → react**, in both loops: web depends on core,
+  react on both.
+- **The npm tarball also carries `dist/primitiv-web.js`** (the no-build bundle,
+  served by jsDelivr from npm) and `dist/custom-elements.json`. CI builds both
+  and gates the bundle at 3 KB gzipped.
+
+The workflow already runs `qa:units` on all five before publishing, so
 tests gate the release. `pnpm -r publish` skips `private: true` packages
 (`apps/workbench`, `crates/harmoni-wasm/pkg`) automatically.
 
@@ -276,8 +322,8 @@ these by hand across multiple commits:
 
 | Location | What changes |
 |---|---|
-| `packages/{react,icons,tokens}/package.json` | `"version"` |
-| `packages/{react,icons,tokens}/jsr.json` | `"version"` |
+| `packages/{core,web,react,icons,tokens}/package.json` | `"version"` |
+| `packages/{core,web,react,icons,tokens}/jsr.json` | `"version"` |
 | `npm/cli-{darwin-arm64,darwin-x64,linux-arm64-gnu,linux-x64-gnu,win32-x64}/package.json` | `"version"` |
 | `npm/cli-wrapper/package.json` | `"version"` **and** all 5 `"optionalDependencies"` entries |
 | `npm/create-primitiv-ui/package.json` | `"version"` |

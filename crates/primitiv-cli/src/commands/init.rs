@@ -1,4 +1,4 @@
-use crate::config;
+use crate::config::{self, Surface};
 use crate::detect;
 use crate::error::CliError;
 use crate::format::Format;
@@ -22,6 +22,11 @@ pub const DEFAULT_BRAND: &str = "#236ce1";
 
 /// Where copied component styles land by default (RFC 0005 §3.1).
 pub const DEFAULT_STYLES_PATH: &str = "src/styles/primitiv";
+
+/// The elements surface's default (RFC 0033 §8.2): one folder at the site root
+/// holding the token layer, each component's stylesheet and snippet, and the
+/// index a page links — a site has no `src/` convention to follow.
+pub const DEFAULT_ELEMENTS_PATH: &str = "primitiv";
 
 /// The `$schema` URL written into every `primitiv.json` so editors can offer
 /// completion against the published schema (RFC 0005 §3.1).
@@ -51,12 +56,16 @@ pub struct InitOptions {
     /// Accept the detected defaults without prompting (the `--yes` flag) — so an
     /// interactive session can still run non-interactively (RFC 0005 §2.1 / §5).
     pub yes: bool,
+    /// The surface the project consumes (RFC 0033 §8.2): React wrappers or the
+    /// custom elements. `None` defers to detection from `package.json`.
+    pub surface: Option<Surface>,
 }
 
 /// The choices resolved into the exact values `render` writes — every `Option`
 /// from [`InitOptions`] collapsed to a concrete value by a flag, a prompt, or a
 /// default.
 struct ResolvedInit {
+    surface: Surface,
     format: Format,
     name: String,
     brand: String,
@@ -81,8 +90,11 @@ struct ResolvedInit {
 /// and a project with no detectable alias falls back to relative imports (an
 /// empty `aliases` map).
 ///
-/// `init` configures an **existing** project; it never scaffolds one. Run in a
-/// directory with no `package.json` it is a [`CliError::Project`] pointing at
+/// The surface (RFC 0033 §8.2) is `--surface`, else detected: React when the
+/// project's `package.json` lists `react`, elements otherwise.
+///
+/// `init` configures an **existing** project; it never scaffolds one. On the
+/// React surface, a directory with no `package.json` is a [`CliError::Project`] pointing at
 /// `npm create vite` / `create-next-app` (RFC 0005 §1.5.1), rather than seeding
 /// a `primitiv.json` next to nothing.
 pub fn init(
@@ -94,7 +106,22 @@ pub fn init(
     options: &InitOptions,
 ) -> Result<(), CliError> {
     let dir = fs.current_dir()?;
-    if !fs.exists(&dir.join("package.json")) {
+    // Asked first, because the surface decides whether a package.json is needed.
+    let surface = match options.surface {
+        Some(surface) => surface,
+        None => {
+            let detected = detect::surface(fs, &dir)?;
+            if interactive && !options.yes {
+                let answer = ask_text(prompt, "Surface (react, elements)", detected.as_str())?;
+                Surface::parse(&answer).unwrap_or(detected)
+            } else {
+                detected
+            }
+        }
+    };
+    // A plain HTML or server-rendered site has no package.json, and the elements
+    // surface needs no package manager; the React surface does.
+    if surface == Surface::React && !fs.exists(&dir.join("package.json")) {
         return Err(CliError::Project(format!(
             "no package.json found in {}; create an app first \
              (e.g. npm create vite or create-next-app), then run primitiv init",
@@ -122,7 +149,14 @@ pub fn init(
         .and_then(|name| name.to_str())
         .unwrap_or(theme::DEFAULT_STEM)
         .to_string();
-    let resolved = resolve(options, prompt, interactive, detected_alias, &default_name)?;
+    let resolved = resolve(
+        options,
+        prompt,
+        interactive,
+        detected_alias,
+        &default_name,
+        surface,
+    )?;
     fs.write(&path, render(&resolved).as_bytes())?;
     if resolved.styles_enabled {
         let token_dir = dir.join(&resolved.path);
@@ -175,6 +209,7 @@ fn resolve(
     interactive: bool,
     detected_alias: Option<String>,
     default_name: &str,
+    surface: Surface,
 ) -> Result<ResolvedInit, CliError> {
     let ask = interactive && !options.yes;
     let styles_enabled = match options.styles_enabled {
@@ -201,14 +236,14 @@ fn resolve(
         None if ask => ask_text(prompt, "Brand colour", DEFAULT_BRAND)?,
         None => DEFAULT_BRAND.to_string(),
     };
+    let default_path = match surface {
+        Surface::React => DEFAULT_STYLES_PATH,
+        Surface::Elements => DEFAULT_ELEMENTS_PATH,
+    };
     let path = match &options.path {
         Some(value) => value.clone(),
-        None if ask => ask_text(
-            prompt,
-            "Where should copied styles land",
-            DEFAULT_STYLES_PATH,
-        )?,
-        None => DEFAULT_STYLES_PATH.to_string(),
+        None if ask => ask_text(prompt, "Where should copied styles land", default_path)?,
+        None => default_path.to_string(),
     };
     let alias_components = match &options.alias_components {
         Some(value) => Some(value.clone()),
@@ -228,6 +263,7 @@ fn resolve(
         None => default_name.to_string(),
     };
     Ok(ResolvedInit {
+        surface,
         format,
         name,
         brand,
@@ -253,7 +289,7 @@ fn render(resolved: &ResolvedInit) -> String {
         None => "{}".to_string(),
     };
     format!(
-        "{{\n  \"$schema\": \"{schema}\",\n  \"version\": 1,\n  \"name\": \"{name}\",\n  \"framework\": \"react\",\n  \
+        "{{\n  \"$schema\": \"{schema}\",\n  \"version\": 1,\n  \"name\": \"{name}\",\n  \"surface\": \"{surface}\",\n  \
          \"styles\": {{ \"enabled\": {enabled}, \"format\": \"{format}\", \"path\": \"{path}\" }},\n  \
          \"tokens\": {{ \"format\": \"{format}\", \"path\": \"{path}/tokens.{ext}\" }},\n  \
          \"theme\": {{ \"brand\": \"{brand}\" }},\n  \
@@ -261,6 +297,7 @@ fn render(resolved: &ResolvedInit) -> String {
          \"registry\": {{ \"version\": \"0.1.0\" }}\n}}\n",
         schema = SCHEMA_URL,
         name = resolved.name,
+        surface = resolved.surface.as_str(),
         enabled = resolved.styles_enabled,
         format = resolved.format.as_str(),
         path = resolved.path,

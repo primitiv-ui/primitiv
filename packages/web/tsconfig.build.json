@@ -1,0 +1,16 @@
+{
+  // The npm build, mirroring packages/core and packages/react: the repo consumes
+  // `src/`, npm consumers get compiled JS + declarations from `dist/`.
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "allowImportingTsExtensions": false,
+    "rewriteRelativeImportExtensions": true,
+    "declaration": true,
+    "rootDir": "src",
+    "outDir": "dist",
+    "types": []
+  },
+  "include": ["src"],
+  "exclude": ["src/**/__tests__", "src/**/*.test.ts"]
+}

@@ -2,8 +2,9 @@ import { useCallback, type KeyboardEvent } from "react";
 
 import {
   getKeyToActionMap,
+  resolveRovingTarget,
   type RovingKeyAction,
-} from "../utils/getKeyToActionMap";
+} from "@primitiv-ui/core";
 
 type UseRovingTabindexOptions<K> = {
   /**
@@ -126,42 +127,14 @@ export function useRovingTabindex<K>({
         activate: includeActivate,
       })[e.key];
 
-      if (!action) return;
-      if (navigable.length === 0) return;
-
-      if (action === "activate") {
-        e.preventDefault();
-        onNavigate(currentKey, action);
-        return;
-      }
-
-      const total = navigable.length;
-      const currentIndex = navigable.indexOf(currentKey);
-      let targetIndex: number;
-      switch (action) {
-        case "first":
-          targetIndex = 0;
-          break;
-        case "last":
-          targetIndex = total - 1;
-          break;
-        case "next":
-        case "prev":
-          // Bail when the current key isn't in `navigable` — typically
-          // because the consumer filtered out a disabled current item
-          // (RadioGroup's contract: arrow keys do nothing while focus is
-          // on a disabled radio). Home/End above still work regardless,
-          // since they don't depend on a current position.
-          if (currentIndex === -1) return;
-          targetIndex =
-            action === "next"
-              ? (currentIndex + 1) % total
-              : (currentIndex - 1 + total) % total;
-          break;
-      }
+      // The index arithmetic lives in @primitiv-ui/core (RFC 0033 §4), so every
+      // surface resolves the same target for the same key press. A key that maps
+      // to no action resolves nothing.
+      const result = resolveRovingTarget({ action, navigable, currentKey });
+      if (!result) return;
 
       e.preventDefault();
-      onNavigate(navigable[targetIndex], action);
+      onNavigate(result.target, action);
     },
     [
       orientation,

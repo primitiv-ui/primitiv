@@ -45,7 +45,7 @@ jobs:
           token: ${{ secrets.RELEASE_TOKEN }}
 
       - name: Setup Rust
-        uses: dtolnay/rust-toolchain@stable
+        uses: dtolnay/rust-toolchain@1.97.0
 
       - name: Cache Rust build
         uses: Swatinem/rust-cache@v2

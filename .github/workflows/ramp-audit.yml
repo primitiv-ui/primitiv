@@ -55,7 +55,7 @@ jobs:
         uses: actions/checkout@v5
 
       - name: Setup Rust
-        uses: dtolnay/rust-toolchain@stable
+        uses: dtolnay/rust-toolchain@1.97.0
 
       # Shares the cache key with the Rust workflow, so this is usually a
       # warm build rather than a cold compile of the whole workspace.

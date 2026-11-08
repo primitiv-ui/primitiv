@@ -14,11 +14,15 @@ on:
     branches: [main]
     paths:
       - "packages/react/**"
+      - "packages/core/**"
+      - "packages/web/**"
       - "scripts/mutate.mjs"
       - ".github/workflows/mutation.yml"
   pull_request:
     paths:
       - "packages/react/**"
+      - "packages/core/**"
+      - "packages/web/**"
       - "scripts/mutate.mjs"
       - ".github/workflows/mutation.yml"
 
@@ -56,7 +60,7 @@ jobs:
           node-version-file: .nvmrc
           cache: pnpm
 
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: dtolnay/rust-toolchain@1.97.0
       - uses: Swatinem/rust-cache@v2
       - uses: jetli/wasm-pack-action@v0.4.0
 
@@ -87,4 +91,80 @@ jobs:
         with:
           name: mutation-report-${{ matrix.component }}
           path: packages/react/reports/mutation/${{ matrix.component }}.html
+          if-no-files-found: warn
+
+  # @primitiv-ui/core is pure functions, so it is mutated whole rather than per
+  # component, under the same hard 100% gate (RFC 0033 §4).
+  core:
+    name: mutate core
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - uses: dtolnay/rust-toolchain@1.97.0
+      - uses: Swatinem/rust-cache@v2
+      - uses: jetli/wasm-pack-action@v0.4.0
+
+      - name: Build harmoni-wasm
+        run: wasm-pack build crates/harmoni-wasm --target web
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Mutation test — core
+        run: pnpm --filter @primitiv-ui/core mutate
+
+      - name: Upload mutation report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mutation-report-core
+          path: packages/core/reports/mutation/core.html
+          if-no-files-found: warn
+
+  # @primitiv-ui/web is mutated whole too, under the same hard 100% gate
+  # (RFC 0033 §6).
+  web:
+    name: mutate web
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - uses: dtolnay/rust-toolchain@1.97.0
+      - uses: Swatinem/rust-cache@v2
+      - uses: jetli/wasm-pack-action@v0.4.0
+
+      - name: Build harmoni-wasm
+        run: wasm-pack build crates/harmoni-wasm --target web
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Mutation test — web
+        run: pnpm --filter @primitiv-ui/web mutate
+
+      - name: Upload mutation report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mutation-report-web
+          path: packages/web/reports/mutation/web.html
           if-no-files-found: warn

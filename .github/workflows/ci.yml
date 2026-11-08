@@ -31,7 +31,7 @@ jobs:
           node-version-file: .nvmrc
           cache: pnpm
 
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: dtolnay/rust-toolchain@1.97.0
       - uses: Swatinem/rust-cache@v2
       - uses: jetli/wasm-pack-action@v0.4.0
 
@@ -45,7 +45,7 @@ jobs:
         run: pnpm --filter @primitiv-ui/icons generate
 
       - name: Test libraries
-        run: pnpm -r --filter "@primitiv-ui/react" --filter "@primitiv-ui/icons" --filter "@primitiv-ui/tokens" qa:units
+        run: pnpm -r --filter "@primitiv-ui/core" --filter "@primitiv-ui/web" --filter "@primitiv-ui/react" --filter "@primitiv-ui/icons" --filter "@primitiv-ui/tokens" qa:units
 
       # Reporting only (README coverage badges) — not a gate. The vitest
       # thresholds above already fail the build on any coverage regression.
@@ -83,9 +83,21 @@ jobs:
       # package already self-checks via its own `lint` script.
       - name: Type-check libraries
         run: |
+          pnpm --filter @primitiv-ui/core typecheck
+          pnpm --filter @primitiv-ui/web typecheck
+          pnpm --filter @primitiv-ui/conformance typecheck
           pnpm --filter @primitiv-ui/react typecheck
           pnpm --filter @primitiv-ui/icons typecheck
           pnpm --filter @primitiv-ui/tokens lint
+
+      # The web package's build: the no-build browser bundle must stay within its
+      # gzip budget (core is inlined, so a heavy import shows up here), and every
+      # defined tag must reach the Custom Elements Manifest (RFC 0033 §5.6.4, §7.3).
+      - name: Web build — bundle budget and element manifest
+        run: |
+          pnpm --filter @primitiv-ui/web build
+          pnpm --filter @primitiv-ui/web size
+          pnpm --filter @primitiv-ui/web manifest:check
 
       # Guard the §1.16/§1.21 pattern: a custom prop narrowing a same-named
       # native attribute without Omit-ting it first resolves to an intersection

@@ -9,8 +9,10 @@ use crate::registry::RegistryIndex;
 const NAME_HEADER: &str = "COMPONENT";
 /// The version column header and the floor for its width.
 const VERSION_HEADER: &str = "VERSION";
-/// The installed-marker column header.
+/// The installed-marker column header, and the width of its column.
 const INSTALLED_HEADER: &str = "INSTALLED";
+/// The column naming each component's surfaces (RFC 0033 §8.2).
+const SURFACES_HEADER: &str = "SURFACES";
 
 /// The `primitiv list [--json]` command (RFC 0005 §2.5): load the registry index
 /// through the [`Registry`] port and write the available components, their
@@ -44,7 +46,8 @@ pub fn list(
 /// Format the index as an aligned `COMPONENT  VERSION  INSTALLED` table, the
 /// components in the index's (sorted) order. The name and version columns are
 /// padded to the widest of their values and headers; `INSTALLED` reads `yes` for
-/// a component the [`Lock`] records and `-` otherwise.
+/// a component the [`Lock`] records and `-` otherwise; `SURFACES` lists the
+/// surfaces `add` can install it on, or `-` for none.
 fn render(index: &RegistryIndex, lock: &Lock) -> String {
     let name_width = column_width(index.components.keys().map(String::len), NAME_HEADER);
     let version_width = column_width(
@@ -52,7 +55,7 @@ fn render(index: &RegistryIndex, lock: &Lock) -> String {
         VERSION_HEADER,
     );
     let mut table = format!(
-        "{NAME_HEADER:<name_width$}  {VERSION_HEADER:<version_width$}  {INSTALLED_HEADER}\n"
+        "{NAME_HEADER:<name_width$}  {VERSION_HEADER:<version_width$}  {INSTALLED_HEADER}  {SURFACES_HEADER}\n"
     );
     for (name, entry) in &index.components {
         let installed = if lock.components.contains(name) {
@@ -60,9 +63,19 @@ fn render(index: &RegistryIndex, lock: &Lock) -> String {
         } else {
             "-"
         };
+        let surfaces = [
+            (!entry.styles.react.is_empty()).then_some("react"),
+            entry.elements.as_ref().map(|_| "elements"),
+        ]
+        .into_iter()
+        .flatten()
+        .collect::<Vec<_>>()
+        .join(", ");
+        let surfaces = if surfaces.is_empty() { "-" } else { &surfaces };
         table.push_str(&format!(
-            "{name:<name_width$}  {version:<version_width$}  {installed}\n",
+            "{name:<name_width$}  {version:<version_width$}  {installed:<installed_width$}  {surfaces}\n",
             version = entry.version,
+            installed_width = INSTALLED_HEADER.len(),
         ));
     }
     table

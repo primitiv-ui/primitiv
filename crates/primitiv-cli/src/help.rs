@@ -39,6 +39,7 @@ Writes primitiv.json and generates the shared token layer. Prompts for any
 choice not given as a flag when run in a terminal.
 
 Options:
+  --surface <react|elements>     React components or custom elements (detected)
   --format <css|scss|tailwind>   Stylesheet format
   --name <name>                  Project name
   --brand <colour>               Brand seed colour (any CSS colour)
@@ -61,6 +62,7 @@ Options:
   --json                         Print the plan as JSON
   --styles-only                  Copy styles without installing the headless package
   --no-styles                    Install the headless package without copying styles
+  --surface <react|elements>     Override the configured surface
   --format <css|scss|tailwind>   Override the configured stylesheet format
   --path <dir>                   Override the configured styles path
   --force                        Overwrite files even if you have edited them
@@ -71,7 +73,8 @@ Options:
 const LIST: &str = "\
 Usage: primitiv list [--json]
 
-Lists the registry's components and which are installed in this project.
+Lists the registry's components, which are installed in this project, and the
+surfaces (react, elements) each can be added on.
 
 Options:
   --json                         Print the list as JSON

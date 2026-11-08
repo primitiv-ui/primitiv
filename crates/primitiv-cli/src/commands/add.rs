@@ -1,7 +1,7 @@
 use std::collections::BTreeSet;
 use std::path::{Path, PathBuf};
 
-use crate::config::{self, Config};
+use crate::config::{self, Config, Surface};
 use crate::detect;
 use crate::error::CliError;
 use crate::format::Format;
@@ -12,7 +12,7 @@ use crate::ports::output::Output;
 use crate::ports::process::ProcessRunner;
 use crate::ports::prompt::{Decision, Prompt};
 use crate::ports::registry::{HttpsRegistry, LocalRegistry, Registry};
-use crate::registry::RegistryIndex;
+use crate::registry::{ComponentEntry, PackageDep, RegistryIndex};
 use crate::wiring;
 
 /// The order-free options `add` is invoked with (RFC 0005 §2.2 / §5), mirroring
@@ -53,6 +53,10 @@ pub struct AddOptions {
     /// `r/<component>/<file>`) for monorepo dogfooding / offline use. When `None`
     /// the binary's embedded registry is used.
     pub registry: Option<String>,
+    /// Override the project's surface for this run (RFC 0033 §8.2): `elements`
+    /// installs the markup snippets over `@primitiv-ui/web` instead of the React
+    /// wrappers. When `None` the config's `surface` is used, else React.
+    pub surface: Option<Surface>,
 }
 
 /// One file the real (non-dry) copy would process — used by both the dry-run
@@ -142,6 +146,7 @@ pub fn add(
         force,
         no_wiring,
         registry: registry_override,
+        surface,
     } = options;
     // `--registry <ref>` overrides the registry source (RFC 0005 §6.4): an
     // `http(s)://` URL or a version tag fetches over the network, any other value
@@ -175,6 +180,23 @@ pub fn add(
         components
     };
     let resolved = resolve(&index, requested)?;
+    // `--surface` wins; otherwise the project's own, and React without a config
+    // (every project before RFC 0033 had only that surface).
+    // The project and its config are read once, here, for every step below.
+    let dir = fs.current_dir()?;
+    let project_config = config::try_resolve(fs, &dir)?;
+    let surface = surface
+        .or(project_config.as_ref().map(|config| config.surface))
+        .unwrap_or(Surface::React);
+    if surface == Surface::Elements
+        && let Some(name) = resolved
+            .iter()
+            .find(|name| index.components[*name].elements.is_none())
+    {
+        return Err(CliError::NotFound(format!(
+            "component '{name}' has no elements surface yet"
+        )));
+    }
     // Compute the per-file classification for the dry-run report. Both the human
     // ("Refresh plan:") and JSON ("files" array) outputs consume it.
     // - `None` when not dry-running (JSON omits the "files" key entirely).
@@ -185,8 +207,6 @@ pub fn add(
         if *no_styles {
             Some(vec![])
         } else {
-            let dir = fs.current_dir()?;
-            let project_config = config::try_resolve(fs, &dir)?;
             let components_dir = detect::components_path(fs, &dir)?
                 .unwrap_or_else(|| DEFAULT_COMPONENTS_DIR.to_string());
             let files = planned_files(
@@ -196,6 +216,7 @@ pub fn add(
                 path.as_deref(),
                 project_config.as_ref(),
                 &components_dir,
+                surface,
             );
             let lock_path = dir.join(lock::FILE_NAME);
             let lock = Lock::read(fs, &lock_path)?;
@@ -213,9 +234,9 @@ pub fn add(
         None
     };
     let plan = if *json {
-        render_json(&index, &resolved, refresh_files.as_deref())
+        render_json(&index, &resolved, surface, refresh_files.as_deref())
     } else {
-        render(&index, &resolved)
+        render(&index, &resolved, surface)
     };
     output.write_stdout(plan.as_bytes())?;
     // When dry-running in human mode, append the "Refresh plan:" section after the
@@ -228,17 +249,27 @@ pub fn add(
         }
     }
     if !*dry_run {
-        let dir = fs.current_dir()?;
         if !*styles_only {
-            ensure_packages(fs, runner, &index, &resolved, &dir)?;
+            // Without a package.json there is no package manager to run: a plain
+            // HTML or server-rendered project loads the elements from the CDN.
+            if surface == Surface::Elements && !fs.exists(&dir.join("package.json")) {
+                if !*json {
+                    print_cdn_scripts(output, &index, &resolved)?;
+                }
+            } else {
+                ensure_packages(fs, runner, &index, &resolved, surface, &dir)?;
+            }
         }
         if !*no_styles {
-            ensure_style_packages(fs, runner, &index, &resolved, &dir)?;
-            let project_config = config::try_resolve(fs, &dir)?;
+            // The style packages (cva) serve the React recipe, which only the
+            // React surface copies.
+            if surface == Surface::React {
+                ensure_style_packages(fs, runner, &index, &resolved, &dir)?;
+            }
             let effective_format: Format = (*format)
                 .or_else(|| project_config.as_ref().map(|c| c.styles.format))
                 .unwrap_or(Format::Css);
-            let written = copy_styled_surface(
+            let (written, links) = copy_styled_surface(
                 fs,
                 registry,
                 prompt,
@@ -250,6 +281,7 @@ pub fn add(
                 path.as_deref(),
                 *force,
                 project_config.as_ref(),
+                surface,
             )?;
             // JSON already describes the plan as data; this section is for the
             // human run, which until now finished without ever naming a file.
@@ -260,9 +292,57 @@ pub fn add(
                 offer_wiring(output, prompt, fs, interactive, *no_wiring, *json, &dir)?;
             }
             ensure_tokens(fs, output, registry, project_config.as_ref())?;
+            // A plain CSS page links the files directly; SCSS and Tailwind go
+            // through the project's own build, which knows its entry better.
+            if let (Some(links), false, Format::Css) = (links, *json, effective_format) {
+                output.write_stdout(
+                    format!(
+                        "\nLink the styles from your page:\n\n  \
+                         <link rel=\"stylesheet\" href=\"{}\">\n  \
+                         <link rel=\"stylesheet\" href=\"{}\">\n",
+                        links.tokens, links.index
+                    )
+                    .as_bytes(),
+                )?;
+            }
+            if surface == Surface::Elements && !*json {
+                print_examples(output, registry, &index, &resolved)?;
+            }
         }
     }
     Ok(())
+}
+
+/// Print each resolved component's example markup (RFC 0033 §8.1), the classes
+/// already applied, for the developer to paste into whatever renders their
+/// pages. Printed rather than copied, because nothing would import it.
+fn print_examples(
+    output: &impl Output,
+    registry: &dyn Registry,
+    index: &RegistryIndex,
+    resolved: &[String],
+) -> Result<(), CliError> {
+    let mut message = String::new();
+    for name in resolved {
+        let examples = index.components[name]
+            .elements
+            .iter()
+            .flat_map(|elements| &elements.example);
+        for file in examples {
+            let markup = registry
+                .file(name, file)
+                .map_err(|error| CliError::Registry(error.to_string()))?;
+            message.push_str(&format!("\nExample markup for {name}:\n\n"));
+            // Indented like the other printed blocks (the `<link>` and `<script>`
+            // lines); leading spaces are harmless wherever it is pasted.
+            for line in String::from_utf8_lossy(&markup).lines() {
+                message.push_str(&format!("  {line}\n"));
+            }
+        }
+    }
+    output
+        .write_stdout(message.as_bytes())
+        .map_err(CliError::Io)
 }
 
 /// The components directory `add` writes the React surface into when the project
@@ -460,14 +540,23 @@ fn copy_styled_surface(
     path: Option<&str>,
     force: bool,
     config: Option<&Config>,
-) -> Result<Vec<(String, &'static str)>, CliError> {
+    surface: Surface,
+) -> Result<(Written, Option<StyleLinks>), CliError> {
     let lock_path = dir.join(lock::FILE_NAME);
     let mut lock = Lock::read(fs, &lock_path)?;
     let components_dir =
         detect::components_path(fs, dir)?.unwrap_or_else(|| DEFAULT_COMPONENTS_DIR.to_string());
-    let files = planned_files(index, resolved, format, path, config, &components_dir);
+    let files = planned_files(
+        index,
+        resolved,
+        format,
+        path,
+        config,
+        &components_dir,
+        surface,
+    );
     if files.is_empty() {
-        return Ok(vec![]);
+        return Ok((vec![], None));
     }
     // Mark each resolved component (the requests plus their transitive deps,
     // whose surfaces also land) installed, so `list` can flag it (RFC 0005 §2.5).
@@ -479,16 +568,68 @@ fn copy_styled_surface(
         let label = copy_file(fs, registry, prompt, interactive, &mut lock, pf, force)?;
         written.push((pf.dest.to_string_lossy().into_owned(), label));
     }
-    // The barrel is a file this command writes too, so a report that omits it
-    // is not a report of what was written.
-    if let Some(barrel) = update_barrel(fs, &lock, Path::new(&components_dir))? {
-        written.push((barrel, "updated"));
-    }
+    // The barrel (React) or stylesheet index (elements) is a file this command
+    // writes too, so a report that omits it is not a report of what was written.
+    let links = if surface == Surface::Elements {
+        let config = config.expect("files are only planned from a config");
+        let styles_path = path.unwrap_or(&config.styles.path);
+        let extension = format.unwrap_or(config.styles.format).extension();
+        let index = update_style_index(fs, &lock, Path::new(styles_path), extension)?;
+        written.push((index.clone(), "updated"));
+        Some(StyleLinks {
+            tokens: config.tokens.path.clone(),
+            index,
+        })
+    } else {
+        if let Some(barrel) = update_barrel(fs, &lock, Path::new(&components_dir))? {
+            written.push((barrel, "updated"));
+        }
+        None
+    };
     // Deliberately a tail expression rather than `lock.write(...)?; Ok(written)`.
     // The `?` form introduces an error region nothing exercises — this failure
     // path had no region of its own before the report was added, and inventing
     // an untested one to carry the same behaviour is how a 100% gate rots.
-    lock.write(fs, &lock_path).map(|()| written)
+    lock.write(fs, &lock_path).map(|()| (written, links))
+}
+
+/// Each file a copy wrote, with what happened to it (`new`, `updated`, `kept`).
+type Written = Vec<(String, &'static str)>;
+
+/// The stylesheets an elements page links (RFC 0033 §8.2): the token layer and
+/// the index of every installed component's stylesheet.
+struct StyleLinks {
+    tokens: String,
+    index: String,
+}
+
+/// Write `{styles_path}/index.{extension}`, importing every component
+/// stylesheet the lock records under `styles_path` (`<name>/<file>`), sorted —
+/// so an elements page links one file however many runs added components. Like
+/// the barrel it is regenerated on every `add` rather than tracked in the lock.
+fn update_style_index(
+    fs: &impl FileSystem,
+    lock: &Lock,
+    styles_path: &Path,
+    extension: &str,
+) -> Result<String, CliError> {
+    let imports: String = lock
+        .files
+        .keys()
+        .map(Path::new)
+        .filter(|file| file.parent().and_then(Path::parent) == Some(styles_path))
+        .filter(|file| file.extension().is_some_and(|ext| ext == extension))
+        .filter_map(|file| file.strip_prefix(styles_path).ok())
+        .map(|file| {
+            format!(
+                "@import \"./{}\";\n",
+                file.to_string_lossy().replace('\\', "/")
+            )
+        })
+        .collect();
+    let dest = styles_path.join(format!("index.{extension}"));
+    fs.write(&dest, imports.as_bytes())?;
+    Ok(dest.to_string_lossy().into_owned())
 }
 
 /// Enumerate every destination file the real copy would process — the same set
@@ -504,6 +645,7 @@ fn planned_files(
     path: Option<&str>,
     config: Option<&Config>,
     components_dir: &str,
+    surface: Surface,
 ) -> Vec<PlannedFile> {
     let Some(config) = config else {
         return vec![];
@@ -526,6 +668,25 @@ fn planned_files(
                 styles_import: None,
             });
         }
+    }
+    // The elements surface keeps a component's contract beside its stylesheet,
+    // one folder per component (RFC 0033 §8.1): there is no import graph to
+    // place it by, and the folder is what the page links to.
+    if surface == Surface::Elements {
+        for name in resolved {
+            let entry = &index.components[name];
+            let component_dir = Path::new(styles_path).join(name);
+            if let Some(file) = &entry.contract {
+                files.push(PlannedFile {
+                    name: name.clone(),
+                    file: file.clone(),
+                    dest: component_dir.join(file),
+                    dir: component_dir.clone(),
+                    styles_import: None,
+                });
+            }
+        }
+        return files;
     }
     // React surface + contract: <components_dir>/<file> (shared directory, flat layout)
     let has_react = resolved
@@ -688,9 +849,10 @@ fn ensure_packages(
     runner: &impl ProcessRunner,
     index: &RegistryIndex,
     resolved: &[String],
+    surface: Surface,
     dir: &Path,
 ) -> Result<(), CliError> {
-    let packages = packages(index, resolved);
+    let packages = packages(index, resolved, surface);
     if packages.is_empty() {
         return Ok(());
     }
@@ -733,7 +895,7 @@ fn resolve(index: &RegistryIndex, requested: &[String]) -> Result<Vec<String>, C
 /// over an aligned `name  version` list, then (when any) the `Packages to
 /// ensure:` the components pull in. Both lists are sorted; the package list is
 /// the deduplicated union across the resolved components (RFC 0005 §4.4).
-fn render(index: &RegistryIndex, resolved: &[String]) -> String {
+fn render(index: &RegistryIndex, resolved: &[String], surface: Surface) -> String {
     let plural = if resolved.len() == 1 { "" } else { "s" };
     let width = resolved.iter().map(String::len).max().unwrap_or(0);
     let mut plan = format!("Resolved {} component{plural} to add:\n", resolved.len());
@@ -741,7 +903,7 @@ fn render(index: &RegistryIndex, resolved: &[String]) -> String {
         let version = &index.components[name].version;
         plan.push_str(&format!("  {name:<width$}  {version}\n"));
     }
-    let packages = packages(index, resolved);
+    let packages = packages(index, resolved, surface);
     if !packages.is_empty() {
         plan.push_str("\nPackages to ensure:\n");
         for package in &packages {
@@ -761,6 +923,7 @@ fn render(index: &RegistryIndex, resolved: &[String]) -> String {
 fn render_json(
     index: &RegistryIndex,
     resolved: &[String],
+    surface: Surface,
     files: Option<&[(String, &str)]>,
 ) -> String {
     let components: Vec<String> = resolved
@@ -770,7 +933,7 @@ fn render_json(
             format!("    {{ \"name\": \"{name}\", \"version\": \"{version}\" }}")
         })
         .collect();
-    let packages: Vec<String> = packages(index, resolved)
+    let packages: Vec<String> = packages(index, resolved, surface)
         .iter()
         .map(|package| format!("    \"{package}\""))
         .collect();
@@ -812,14 +975,59 @@ fn json_array(items: Vec<String>) -> String {
 /// (`name@range` when the component pins a version, bare `name` otherwise), so a
 /// component that requires a minimum `@primitiv-ui/react` drives the install to a
 /// version new enough to carry its exports (the version safeguard).
-fn packages(index: &RegistryIndex, resolved: &[String]) -> Vec<String> {
+fn packages(index: &RegistryIndex, resolved: &[String], surface: Surface) -> Vec<String> {
     resolved
         .iter()
-        .flat_map(|name| index.components[name].depends_on.packages.iter())
-        .map(crate::registry::PackageDep::spec)
+        .flat_map(|name| declared_packages(&index.components[name], surface))
+        .map(PackageDep::spec)
         .collect::<BTreeSet<_>>()
         .into_iter()
         .collect()
+}
+
+/// The CDN bundle a project without a package manager loads the elements from.
+const WEB_PACKAGE: &str = "@primitiv-ui/web";
+
+/// Print the `<script>` that loads `@primitiv-ui/web`'s bundle from jsDelivr,
+/// pinned to the lowest version the resolved components declare (RFC 0033
+/// §8.2), for a project with no `package.json` to install into. Nothing is
+/// printed when no component needs it — one with no behaviour has no element.
+fn print_cdn_scripts(
+    output: &impl Output,
+    index: &RegistryIndex,
+    resolved: &[String],
+) -> Result<(), CliError> {
+    let specs: BTreeSet<String> = resolved
+        .iter()
+        .flat_map(|name| declared_packages(&index.components[name], Surface::Elements))
+        .filter(|package| package.name == WEB_PACKAGE)
+        .map(PackageDep::minimum_spec)
+        .collect();
+    if specs.is_empty() {
+        return Ok(());
+    }
+    let mut message =
+        "\nNo package.json here, so nothing was installed. Load the elements with:\n\n".to_string();
+    for spec in specs {
+        message.push_str(&format!(
+            "  <script type=\"module\" src=\"https://cdn.jsdelivr.net/npm/{spec}/dist/primitiv-web.js\"></script>\n"
+        ));
+    }
+    output.write_stdout(message.as_bytes())?;
+    Ok(())
+}
+
+/// The packages one component declares for `surface`: the headless library
+/// for React, its `elements.packages` for the elements surface (RFC 0033 §8.2).
+fn declared_packages(entry: &ComponentEntry, surface: Surface) -> Vec<&PackageDep> {
+    match surface {
+        Surface::React => entry.depends_on.packages.iter().collect(),
+        Surface::Elements => entry
+            .elements
+            .iter()
+            .flat_map(|elements| &elements.packages)
+            .collect(),
+    }
 }
 
 /// The deduplicated, sorted list of styled-surface npm packages declared across

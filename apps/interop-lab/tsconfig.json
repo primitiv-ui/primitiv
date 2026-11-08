@@ -1,0 +1,26 @@
+{
+  // Type-checks the React page and the framework typing tests against the
+  // workspace source of @primitiv-ui/web, as the Vite aliases resolve it.
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "jsx": "react-jsx",
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "allowImportingTsExtensions": true,
+    "isolatedModules": true,
+    "paths": {
+      "@primitiv-ui/web": ["../../packages/web/src/index.ts"],
+      "@primitiv-ui/web/react": ["../../packages/web/src/frameworks/react.ts"],
+      "@primitiv-ui/web/define": ["../../packages/web/src/define/index.ts"],
+      "@primitiv-ui/core": ["../../packages/core/src/index.ts"],
+      // One copy of React's types, or the augmentation lands on a second copy.
+      "react": ["./node_modules/@types/react"],
+      "react/*": ["./node_modules/@types/react/*"]
+    }
+  },
+  "include": ["src/react.tsx", "src/react-types.check.tsx", "src/fixture.ts"]
+}

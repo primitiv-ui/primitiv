@@ -1,0 +1,20 @@
+{
+  "name": "@primitiv-ui/web",
+  "version": "0.1.41",
+  "exports": {
+    ".": "./src/index.ts",
+    "./tabs": "./src/tabs/index.ts",
+    "./define": "./src/define/index.ts",
+    "./define/tabs": "./src/define/tabs.ts"
+  },
+  "publish": {
+    "exclude": [
+      "src/tags.ts",
+      "src/frameworks",
+      "src/bundle.ts",
+      "src/**/__tests__",
+      "scripts"
+    ]
+  },
+  "license": "MIT"
+}

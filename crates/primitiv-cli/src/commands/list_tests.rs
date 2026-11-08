@@ -7,29 +7,38 @@ use crate::ports::fs::{FileSystem, InMemoryFs};
 use crate::ports::output::InMemoryOutput;
 use crate::ports::registry::InMemoryRegistry;
 
-/// A registry index the command formats — two components at distinct versions.
+/// A registry index the command formats — components at distinct versions:
+/// `button` on both surfaces, `switch` on React only, and a bare `dot` on none.
 const INDEX: &[u8] = br##"{
   "version": "0.1.0",
   "components": {
-    "button": { "version": "0.1.0" },
-    "switch": { "version": "0.2.0" }
+    "button": {
+      "version": "0.1.0",
+      "styles": { "react": ["button.tsx"] },
+      "elements": { "files": ["button.html"] }
+    },
+    "dot": { "version": "0.1.0" },
+    "switch": { "version": "0.2.0", "styles": { "react": ["switch.tsx"] } }
   }
 }"##;
 
 /// The hand-authored table with nothing installed: the name and version columns
 /// are padded to the widest of their values and headers, and every component's
-/// INSTALLED cell is the `-` placeholder.
+/// INSTALLED cell is the `-` placeholder. SURFACES names what `add --surface`
+/// can install (RFC 0033 §8.2).
 const EXPECTED_TABLE: &str = "\
-COMPONENT  VERSION  INSTALLED
-button     0.1.0    -
-switch     0.2.0    -
+COMPONENT  VERSION  INSTALLED  SURFACES
+button     0.1.0    -          react, elements
+dot        0.1.0    -          -
+switch     0.2.0    -          react
 ";
 
 /// The same table after `button` has been added: its INSTALLED cell reads `yes`.
 const EXPECTED_TABLE_WITH_INSTALL: &str = "\
-COMPONENT  VERSION  INSTALLED
-button     0.1.0    yes
-switch     0.2.0    -
+COMPONENT  VERSION  INSTALLED  SURFACES
+button     0.1.0    yes        react, elements
+dot        0.1.0    -          -
+switch     0.2.0    -          react
 ";
 
 #[test]

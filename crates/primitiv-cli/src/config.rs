@@ -27,12 +27,48 @@ pub struct Config {
     /// as the `primitiv` default — the naming every existing project already has.
     #[serde(default)]
     pub name: String,
-    pub framework: String,
+    /// Which surface `add` installs (RFC 0033 §8.2, D27): the React wrappers or
+    /// the custom elements. `framework`, the key every earlier config was
+    /// written with, is read as its alias, so `"framework": "react"` keeps
+    /// meaning the React surface.
+    #[serde(alias = "framework")]
+    pub surface: Surface,
     pub styles: Styles,
     pub tokens: Tokens,
     pub theme: Theme,
     pub aliases: BTreeMap<String, String>,
     pub registry: Registry,
+}
+
+/// A component surface (RFC 0033 §8.2): what a project consumes the registry
+/// as. It names the surface rather than a framework, because a Vue, Angular or
+/// plain HTML project installing elements has chosen the elements surface.
+#[derive(Debug, Deserialize, PartialEq, Clone, Copy)]
+#[serde(rename_all = "lowercase")]
+pub enum Surface {
+    /// The styled React wrappers over `@primitiv-ui/react`.
+    React,
+    /// The markup snippets over `@primitiv-ui/web`'s custom elements.
+    Elements,
+}
+
+impl Surface {
+    /// Parse a `--surface` value, as written in `primitiv.json`.
+    pub fn parse(value: &str) -> Option<Surface> {
+        match value {
+            "react" => Some(Surface::React),
+            "elements" => Some(Surface::Elements),
+            _ => None,
+        }
+    }
+
+    /// The value written into `primitiv.json`: the inverse of [`parse`](Surface::parse).
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Surface::React => "react",
+            Surface::Elements => "elements",
+        }
+    }
 }
 
 /// Where copied component styles land and in what format (RFC 0005 §3.1).

@@ -1,0 +1,29 @@
+{
+  "name": "@primitiv-ui/conformance",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Surface-agnostic behaviour suites, one per component, that every Primitiv surface (React, the custom elements) runs against its own rendering. Never published: it is the drift guard between surfaces (RFC 0033 §6.2).",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "peerDependencies": {
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/user-event": "^14.6.1",
+    "vitest": "^4.1.4"
+  },
+  "devDependencies": {
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/user-event": "^14.6.1",
+    "typescript": "^6.0.2",
+    "vitest": "^4.1.4"
+  }
+}

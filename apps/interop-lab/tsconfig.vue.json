@@ -1,0 +1,20 @@
+{
+  // vue-tsc over the Vue page and the @primitiv-ui/web/vue typing tests.
+  // checkUnknownComponents makes an unknown tag an error; a known tag's
+  // attribute types are checked either way.
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "jsx": "preserve",
+    "paths": {
+      "@primitiv-ui/web": ["../../packages/web/src/index.ts"],
+      "@primitiv-ui/web/vue": ["../../packages/web/src/frameworks/vue.ts"],
+      "@primitiv-ui/web/define": ["../../packages/web/src/define/index.ts"],
+      "@primitiv-ui/core": ["../../packages/core/src/index.ts"],
+      "vue": ["./node_modules/vue"]
+    }
+  },
+  "vueCompilerOptions": {
+    "checkUnknownComponents": true
+  },
+  "include": ["src/App.vue", "src/VueTypes.check.vue", "src/vue.ts", "src/fixture.ts", "src/vue-env.d.ts"]
+}

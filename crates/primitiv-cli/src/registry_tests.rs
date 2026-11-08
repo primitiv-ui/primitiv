@@ -3,7 +3,7 @@ use std::collections::BTreeMap;
 use pretty_assertions::assert_eq;
 
 use crate::format::Format;
-use crate::registry::{ComponentEntry, DependsOn, PackageDep, RegistryIndex, Styles};
+use crate::registry::{ComponentEntry, DependsOn, Elements, PackageDep, RegistryIndex, Styles};
 
 /// A registry index as `registry.json` carries it (RFC 0005 §6.2) — `button`
 /// carries a `contract` field (the consumer API spec) while `switch` omits it.
@@ -31,6 +31,7 @@ fn parses_the_index_components_and_their_versions() {
                         depends_on: DependsOn::default(),
                         styles: Styles::default(),
                         contract: Some("contract.json".into()),
+                        elements: None,
                     },
                 ),
                 (
@@ -40,6 +41,7 @@ fn parses_the_index_components_and_their_versions() {
                         depends_on: DependsOn::default(),
                         styles: Styles::default(),
                         contract: None,
+                        elements: None,
                     },
                 ),
             ]),
@@ -209,4 +211,64 @@ fn errors_on_a_malformed_registry_index() {
     let error = RegistryIndex::parse(b"{ not json }").unwrap_err();
 
     assert_eq!(error.exit_code(), 7);
+}
+
+#[test]
+fn parses_a_components_elements_surface_and_defaults_it_to_none() {
+    const INDEX: &[u8] = br##"{
+  "version": "0.1.0",
+  "components": {
+    "tabs": {
+      "version": "0.1.0",
+      "elements": {
+        "packages": [{ "name": "@primitiv-ui/web", "version": "^0.1.0" }],
+        "example": "tabs.html"
+      }
+    },
+    "kbd": { "version": "0.1.0", "elements": { "example": "kbd.html" } },
+    "modal": { "version": "0.1.0" }
+  }
+}"##;
+
+    let index = RegistryIndex::parse(INDEX).unwrap();
+
+    assert_eq!(
+        index.components["tabs"].elements,
+        Some(Elements {
+            packages: vec![PackageDep {
+                name: "@primitiv-ui/web".into(),
+                version: Some("^0.1.0".into()),
+            }],
+            example: Some("tabs.html".into()),
+        })
+    );
+    // A component with no behaviour needs no package (RFC 0033 §8.3).
+    assert_eq!(
+        index.components["kbd"].elements,
+        Some(Elements {
+            packages: vec![],
+            example: Some("kbd.html".into()),
+        })
+    );
+    // No block means no elements surface yet.
+    assert_eq!(index.components["modal"].elements, None);
+}
+
+#[test]
+fn pins_a_package_to_the_lowest_version_its_range_allows() {
+    // A CDN URL takes one version, not a range: the lowest the range allows is
+    // one that exists and that the component was released against.
+    let pinned = |version: Option<&str>| {
+        PackageDep {
+            name: "@primitiv-ui/web".into(),
+            version: version.map(String::from),
+        }
+        .minimum_spec()
+    };
+
+    assert_eq!(pinned(Some("^0.1.40")), "@primitiv-ui/web@0.1.40");
+    assert_eq!(pinned(Some("~1.2.3")), "@primitiv-ui/web@1.2.3");
+    assert_eq!(pinned(Some(">=2.0.0")), "@primitiv-ui/web@2.0.0");
+    // No range: whatever is latest, as `spec` installs it.
+    assert_eq!(pinned(None), "@primitiv-ui/web");
 }

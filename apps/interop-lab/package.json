@@ -1,0 +1,39 @@
+{
+  "name": "interop-lab",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "description": "Proves @primitiv-ui/web in real browsers and real frameworks: one page per environment, one shared Playwright spec (RFC 0033 §7.4). Outside the pnpm workspace so no framework's toolchain enters another's resolution.",
+  "scripts": {
+    "dev": "vite",
+    "test:e2e": "playwright test",
+    "typecheck": "tsc -p tsconfig.json && vue-tsc -p tsconfig.vue.json && node scripts/check-svelte-types.mjs && ngc -p tsconfig.angular.check.json"
+  },
+  "dependencies": {
+    "@angular/common": "22.2.5",
+    "@angular/compiler": "22.2.5",
+    "@angular/core": "22.2.5",
+    "@angular/platform-browser": "22.2.5",
+    "htmx.org": "2.0.10",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5",
+    "rxjs": "^7.8.2",
+    "svelte": "^5.57.3",
+    "vue": "^3.5.0"
+  },
+  "devDependencies": {
+    "@analogjs/vite-plugin-angular": "2.9.6",
+    "@angular/build": "^22.2.6",
+    "@angular/compiler-cli": "22.2.5",
+    "@playwright/test": "1.61.1",
+    "@sveltejs/vite-plugin-svelte": "^7.3.1",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.1",
+    "@vitejs/plugin-vue": "^6.0.0",
+    "svelte-check": "^4.7.8",
+    "typescript": "~6.0.2",
+    "vite": "^8.0.8",
+    "vue-tsc": "^3.3.14"
+  }
+}

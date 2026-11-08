@@ -295,14 +295,18 @@ fn refuses_to_run_outside_a_node_project() {
     let fs = InMemoryFs::new();
     fs.set_current_dir(Path::new("empty"));
 
-    // No package.json in the working directory: there is no project to configure.
+    // No package.json in the working directory: there is no React project to
+    // configure (the elements surface needs none, RFC 0033 §8.2).
     let err = init(
         &fs,
         &InMemoryOutput::new(),
         &EmbeddedRegistry,
         &silent_prompt(),
         false,
-        &default_options(),
+        &InitOptions {
+            surface: Some(crate::config::Surface::React),
+            ..default_options()
+        },
     )
     .unwrap_err();
 

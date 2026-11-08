@@ -210,3 +210,19 @@ fn surfaces_a_failure_to_read_a_config_when_resolving_the_path() {
 
     assert!(matches!(err, CliError::Io(_)));
 }
+
+#[test]
+fn finds_react_in_any_dependency_list_of_a_package_json() {
+    for list in ["dependencies", "devDependencies", "peerDependencies"] {
+        let manifest = format!(r#"{{ "{list}": {{ "react": "^19.0.0" }} }}"#);
+        assert!(crate::detect::lists_react(manifest.as_bytes()), "{list}");
+    }
+}
+
+#[test]
+fn finds_no_react_in_a_project_without_it_or_an_unreadable_manifest() {
+    // A Vue app, an empty manifest, and one that does not parse: none is React.
+    assert!(!crate::detect::lists_react(br#"{ "dependencies": { "vue": "^3.5.0", "react-icons": "^5.0.0" } }"#));
+    assert!(!crate::detect::lists_react(b"{}"));
+    assert!(!crate::detect::lists_react(b"not json"));
+}

@@ -85,8 +85,11 @@ struct ResolvedInit {
 /// and a project with no detectable alias falls back to relative imports (an
 /// empty `aliases` map).
 ///
-/// `init` configures an **existing** project; it never scaffolds one. Run in a
-/// directory with no `package.json` it is a [`CliError::Project`] pointing at
+/// The surface (RFC 0033 §8.2) is `--surface`, else detected: React when the
+/// project's `package.json` lists `react`, elements otherwise.
+///
+/// `init` configures an **existing** project; it never scaffolds one. On the
+/// React surface, a directory with no `package.json` is a [`CliError::Project`] pointing at
 /// `npm create vite` / `create-next-app` (RFC 0005 §1.5.1), rather than seeding
 /// a `primitiv.json` next to nothing.
 pub fn init(
@@ -98,7 +101,13 @@ pub fn init(
     options: &InitOptions,
 ) -> Result<(), CliError> {
     let dir = fs.current_dir()?;
-    if !fs.exists(&dir.join("package.json")) {
+    let surface = match options.surface {
+        Some(surface) => surface,
+        None => detect::surface(fs, &dir)?,
+    };
+    // A plain HTML or server-rendered site has no package.json, and the elements
+    // surface needs no package manager; the React surface does.
+    if surface == Surface::React && !fs.exists(&dir.join("package.json")) {
         return Err(CliError::Project(format!(
             "no package.json found in {}; create an app first \
              (e.g. npm create vite or create-next-app), then run primitiv init",
@@ -126,7 +135,7 @@ pub fn init(
         .and_then(|name| name.to_str())
         .unwrap_or(theme::DEFAULT_STEM)
         .to_string();
-    let resolved = resolve(options, prompt, interactive, detected_alias, &default_name)?;
+    let resolved = resolve(options, prompt, interactive, detected_alias, &default_name, surface)?;
     fs.write(&path, render(&resolved).as_bytes())?;
     if resolved.styles_enabled {
         let token_dir = dir.join(&resolved.path);
@@ -179,6 +188,7 @@ fn resolve(
     interactive: bool,
     detected_alias: Option<String>,
     default_name: &str,
+    surface: Surface,
 ) -> Result<ResolvedInit, CliError> {
     let ask = interactive && !options.yes;
     let styles_enabled = match options.styles_enabled {
@@ -232,7 +242,7 @@ fn resolve(
         None => default_name.to_string(),
     };
     Ok(ResolvedInit {
-        surface: options.surface.unwrap_or(Surface::React),
+        surface,
         format,
         name,
         brand,

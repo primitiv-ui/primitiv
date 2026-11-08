@@ -102,11 +102,12 @@ fn init_detects_the_components_alias_from_a_real_tsconfig() {
 fn init_refuses_to_run_outside_a_node_project_and_exits_eight() {
     let dir = assert_fs::TempDir::new().unwrap();
 
-    // An empty directory with no package.json: there is no project to configure.
+    // An empty directory with no package.json: there is no React project to
+    // configure (the elements surface needs none).
     Command::cargo_bin("primitiv")
         .unwrap()
         .current_dir(dir.path())
-        .arg("init")
+        .args(["init", "--surface", "react"])
         .assert()
         .code(8)
         .stderr(predicate::str::contains(

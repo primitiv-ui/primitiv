@@ -36,3 +36,21 @@ fn records_the_surface_it_is_given() {
 
     assert_eq!(config.surface, Surface::Elements);
 }
+
+#[test]
+fn defaults_a_project_without_react_to_the_elements_surface() {
+    // A Vue, Angular or server-rendered project lists no React.
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("package.json"), br#"{ "dependencies": { "vue": "^3.5.0" } }"#).unwrap();
+
+    assert_eq!(init_config(&fs, InitOptions::default()).surface, Surface::Elements);
+}
+
+#[test]
+fn configures_a_folder_with_no_package_json_for_the_elements_surface() {
+    // A plain HTML site has no package.json, and no package manager to need one.
+    let fs = InMemoryFs::new();
+
+    assert_eq!(init_config(&fs, InitOptions::default()).surface, Surface::Elements);
+}
+

@@ -4,6 +4,7 @@ use std::path::Path;
 
 use serde::Deserialize;
 
+use crate::config::Surface;
 use crate::error::CliError;
 use crate::ports::fs::FileSystem;
 
@@ -135,4 +136,27 @@ fn root_target_dir(target: &str) -> Option<&'static str> {
         "*" => Some(""),
         _ => None,
     }
+}
+
+/// The surface a project defaults to (RFC 0033 §8.2): React when its
+/// `package.json` lists `react`, and elements otherwise — a Vue, Angular, Svelte
+/// or server-rendered project, or no `package.json` at all. Any read failure
+/// other than a missing file is a hard [`CliError::Io`].
+pub fn surface(fs: &impl FileSystem, dir: &Path) -> Result<Surface, CliError> {
+    match fs.read(&dir.join("package.json")) {
+        Ok(bytes) if lists_react(&bytes) => Ok(Surface::React),
+        Ok(_) => Ok(Surface::Elements),
+        Err(error) if error.kind() == io::ErrorKind::NotFound => Ok(Surface::Elements),
+        Err(error) => Err(CliError::Io(error)),
+    }
+}
+
+/// Whether a `package.json`'s bytes list `react` as a dependency, dev
+/// dependency or peer dependency. A manifest that does not parse lists nothing.
+/// A pure function, so it unit-tests directly; the read lives in [`surface`].
+pub fn lists_react(bytes: &[u8]) -> bool {
+    let manifest: serde_json::Value = serde_json::from_slice(bytes).unwrap_or_default();
+    ["dependencies", "devDependencies", "peerDependencies"]
+        .iter()
+        .any(|list| manifest[list].get("react").is_some())
 }

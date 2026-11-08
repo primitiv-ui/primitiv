@@ -16,8 +16,11 @@ fn main() {
         if let Some(file) = entry["elements"]["example"].as_str() {
             let dir = registry.join("components").join(name);
             let contract = Contract::parse(&fs::read(dir.join("contract.json")).unwrap()).unwrap();
-            fs::write(dir.join(file), emit_snippet(&contract)).unwrap();
-            println!("wrote registry/components/{name}/{file}");
+            // A compound's example is hand-written (see `emit_snippet`).
+            if let Some(markup) = emit_snippet(&contract) {
+                fs::write(dir.join(file), markup).unwrap();
+                println!("wrote registry/components/{name}/{file}");
+            }
         }
     }
 }

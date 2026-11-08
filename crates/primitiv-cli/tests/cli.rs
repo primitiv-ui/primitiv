@@ -779,9 +779,13 @@ fn add_on_the_elements_surface_installs_into_a_plain_html_site_and_prints_the_ma
         ));
 
     // The markup is printed, never copied.
-    dir.child("primitiv/kbd/kbd.html").assert(predicate::path::missing());
-    dir.child("primitiv/kbd/styles.css").assert(predicate::str::contains(".primitiv-kbd"));
-    dir.child("primitiv/index.css").assert("@import \"./kbd/styles.css\";\n");
-    dir.child("primitiv/tokens.css").assert(predicate::path::exists());
+    dir.child("primitiv/kbd/kbd.html")
+        .assert(predicate::path::missing());
+    dir.child("primitiv/kbd/styles.css")
+        .assert(predicate::str::contains(".primitiv-kbd"));
+    dir.child("primitiv/index.css")
+        .assert("@import \"./kbd/styles.css\";\n");
+    dir.child("primitiv/tokens.css")
+        .assert(predicate::path::exists());
     dir.child("src").assert(predicate::path::missing());
 }

@@ -149,7 +149,14 @@ pub fn init(
         .and_then(|name| name.to_str())
         .unwrap_or(theme::DEFAULT_STEM)
         .to_string();
-    let resolved = resolve(options, prompt, interactive, detected_alias, &default_name, surface)?;
+    let resolved = resolve(
+        options,
+        prompt,
+        interactive,
+        detected_alias,
+        &default_name,
+        surface,
+    )?;
     fs.write(&path, render(&resolved).as_bytes())?;
     if resolved.styles_enabled {
         let token_dir = dir.join(&resolved.path);

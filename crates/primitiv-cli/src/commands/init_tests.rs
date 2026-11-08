@@ -122,7 +122,8 @@ const EXPECTED_DETECTED_ALIAS_IN_PROJECT: &str = r##"{
 fn detects_the_components_alias_from_tsconfig_when_no_flag_is_given() {
     let fs = InMemoryFs::new();
     fs.set_current_dir(Path::new("project"));
-    fs.write(Path::new("project/package.json"), REACT_PACKAGE_JSON).unwrap();
+    fs.write(Path::new("project/package.json"), REACT_PACKAGE_JSON)
+        .unwrap();
     fs.write(
         Path::new("project/tsconfig.json"),
         br#"{ "compilerOptions": { "paths": { "@/*": ["./src/*"] } } }"#,
@@ -147,7 +148,8 @@ fn detects_the_components_alias_from_tsconfig_when_no_flag_is_given() {
 fn an_explicit_alias_flag_wins_over_detection() {
     let fs = InMemoryFs::new();
     fs.set_current_dir(Path::new("project"));
-    fs.write(Path::new("project/package.json"), REACT_PACKAGE_JSON).unwrap();
+    fs.write(Path::new("project/package.json"), REACT_PACKAGE_JSON)
+        .unwrap();
     // A tsconfig that would otherwise detect `@/components` is ignored when the
     // flag is set.
     fs.write(
@@ -177,7 +179,8 @@ fn an_explicit_alias_flag_wins_over_detection() {
 fn surfaces_a_failure_to_detect_the_alias() {
     let fs = InMemoryFs::new();
     fs.set_current_dir(Path::new("project"));
-    fs.write(Path::new("project/package.json"), REACT_PACKAGE_JSON).unwrap();
+    fs.write(Path::new("project/package.json"), REACT_PACKAGE_JSON)
+        .unwrap();
     fs.fail_reads_to(Path::new("project/tsconfig.json"));
 
     let err = init(
@@ -197,7 +200,8 @@ fn surfaces_a_failure_to_detect_the_alias() {
 fn writes_a_default_primitiv_json_to_the_working_directory() {
     let fs = InMemoryFs::new();
     fs.set_current_dir(Path::new("project"));
-    fs.write(Path::new("project/package.json"), REACT_PACKAGE_JSON).unwrap();
+    fs.write(Path::new("project/package.json"), REACT_PACKAGE_JSON)
+        .unwrap();
 
     init(
         &fs,
@@ -216,7 +220,8 @@ fn writes_a_default_primitiv_json_to_the_working_directory() {
 #[test]
 fn reflects_every_overridden_choice_in_the_written_config() {
     let fs = InMemoryFs::new();
-    fs.write(Path::new("package.json"), REACT_PACKAGE_JSON).unwrap();
+    fs.write(Path::new("package.json"), REACT_PACKAGE_JSON)
+        .unwrap();
 
     init(
         &fs,
@@ -247,7 +252,8 @@ fn reflects_every_overridden_choice_in_the_written_config() {
 #[test]
 fn refuses_to_overwrite_an_existing_config() {
     let fs = InMemoryFs::new();
-    fs.write(Path::new("package.json"), REACT_PACKAGE_JSON).unwrap();
+    fs.write(Path::new("package.json"), REACT_PACKAGE_JSON)
+        .unwrap();
     let existing = Path::new("primitiv.json");
     fs.write(existing, b"{ \"hand\": \"edited\" }").unwrap();
 
@@ -269,7 +275,8 @@ fn refuses_to_overwrite_an_existing_config() {
 #[test]
 fn overwrites_an_existing_config_when_forced() {
     let fs = InMemoryFs::new();
-    fs.write(Path::new("package.json"), REACT_PACKAGE_JSON).unwrap();
+    fs.write(Path::new("package.json"), REACT_PACKAGE_JSON)
+        .unwrap();
     let existing = Path::new("primitiv.json");
     fs.write(existing, b"{ \"hand\": \"edited\" }").unwrap();
 
@@ -336,7 +343,8 @@ fn surfaces_a_failure_to_read_the_working_directory() {
 #[test]
 fn surfaces_a_write_failure() {
     let fs = InMemoryFs::new();
-    fs.write(Path::new("package.json"), REACT_PACKAGE_JSON).unwrap();
+    fs.write(Path::new("package.json"), REACT_PACKAGE_JSON)
+        .unwrap();
     fs.fail_writes_to(Path::new("primitiv.json"));
 
     let err = init(
@@ -355,7 +363,8 @@ fn surfaces_a_write_failure() {
 #[test]
 fn keeps_the_css_extension_for_the_tailwind_token_layer() {
     let fs = InMemoryFs::new();
-    fs.write(Path::new("package.json"), REACT_PACKAGE_JSON).unwrap();
+    fs.write(Path::new("package.json"), REACT_PACKAGE_JSON)
+        .unwrap();
 
     init(
         &fs,
@@ -392,7 +401,8 @@ const EXPECTED_INTERACTIVE: &str = r##"{
 #[test]
 fn interactive_init_prompts_for_each_omitted_choice() {
     let fs = InMemoryFs::new();
-    fs.write(Path::new("package.json"), REACT_PACKAGE_JSON).unwrap();
+    fs.write(Path::new("package.json"), REACT_PACKAGE_JSON)
+        .unwrap();
     let prompt = silent_prompt();
     // The free-text prompts are answered in order: surface, format, brand, path.
     // Styles is a [Y/n] confirm, which defaults to yes.
@@ -428,7 +438,8 @@ fn interactive_init_prompts_for_each_omitted_choice() {
 #[test]
 fn interactive_init_prompts_for_the_components_alias_pre_filled_with_detection() {
     let fs = InMemoryFs::new();
-    fs.write(Path::new("package.json"), REACT_PACKAGE_JSON).unwrap();
+    fs.write(Path::new("package.json"), REACT_PACKAGE_JSON)
+        .unwrap();
     // A tsconfig that detects `@/components`: the alias prompt is pre-filled with
     // it, and an empty answer (the exhausted queue) accepts the detected default.
     fs.write(
@@ -455,7 +466,8 @@ fn interactive_init_prompts_for_the_components_alias_pre_filled_with_detection()
 #[test]
 fn interactive_init_surfaces_an_alias_prompt_failure() {
     let fs = InMemoryFs::new();
-    fs.write(Path::new("package.json"), REACT_PACKAGE_JSON).unwrap();
+    fs.write(Path::new("package.json"), REACT_PACKAGE_JSON)
+        .unwrap();
     let prompt = silent_prompt();
     // surface + styles + format + brand + path succeed (calls 1–5); the alias
     // prompt (6) fails.
@@ -477,7 +489,8 @@ fn interactive_init_surfaces_an_alias_prompt_failure() {
 #[test]
 fn interactive_init_falls_back_to_css_for_an_unrecognised_format() {
     let fs = InMemoryFs::new();
-    fs.write(Path::new("package.json"), REACT_PACKAGE_JSON).unwrap();
+    fs.write(Path::new("package.json"), REACT_PACKAGE_JSON)
+        .unwrap();
     let prompt = silent_prompt();
     // An unparseable format answer falls back to CSS; brand and path are left to
     // their defaults (the queue is exhausted, so `ask` returns each default).
@@ -500,7 +513,8 @@ fn interactive_init_falls_back_to_css_for_an_unrecognised_format() {
 #[test]
 fn the_yes_flag_accepts_the_defaults_without_prompting() {
     let fs = InMemoryFs::new();
-    fs.write(Path::new("package.json"), REACT_PACKAGE_JSON).unwrap();
+    fs.write(Path::new("package.json"), REACT_PACKAGE_JSON)
+        .unwrap();
     let prompt = silent_prompt();
 
     // Interactive, but `--yes` short-circuits every prompt to its default.
@@ -526,7 +540,8 @@ fn the_yes_flag_accepts_the_defaults_without_prompting() {
 #[test]
 fn interactive_init_surfaces_a_styles_prompt_failure() {
     let fs = InMemoryFs::new();
-    fs.write(Path::new("package.json"), REACT_PACKAGE_JSON).unwrap();
+    fs.write(Path::new("package.json"), REACT_PACKAGE_JSON)
+        .unwrap();
     let prompt = silent_prompt();
     // The surface prompt (call 1) succeeds; the styles confirm (call 2) fails.
     prompt.fail_after(1);
@@ -547,7 +562,8 @@ fn interactive_init_surfaces_a_styles_prompt_failure() {
 #[test]
 fn interactive_init_surfaces_a_format_prompt_failure() {
     let fs = InMemoryFs::new();
-    fs.write(Path::new("package.json"), REACT_PACKAGE_JSON).unwrap();
+    fs.write(Path::new("package.json"), REACT_PACKAGE_JSON)
+        .unwrap();
     let prompt = silent_prompt();
     // surface + styles succeed (calls 1–2); the format prompt (3) fails.
     prompt.fail_after(2);
@@ -568,7 +584,8 @@ fn interactive_init_surfaces_a_format_prompt_failure() {
 #[test]
 fn interactive_init_surfaces_a_brand_prompt_failure() {
     let fs = InMemoryFs::new();
-    fs.write(Path::new("package.json"), REACT_PACKAGE_JSON).unwrap();
+    fs.write(Path::new("package.json"), REACT_PACKAGE_JSON)
+        .unwrap();
     let prompt = silent_prompt();
     // surface + styles + format succeed (calls 1–3); the brand prompt (4) fails.
     prompt.fail_after(3);
@@ -589,7 +606,8 @@ fn interactive_init_surfaces_a_brand_prompt_failure() {
 #[test]
 fn interactive_init_surfaces_a_path_prompt_failure() {
     let fs = InMemoryFs::new();
-    fs.write(Path::new("package.json"), REACT_PACKAGE_JSON).unwrap();
+    fs.write(Path::new("package.json"), REACT_PACKAGE_JSON)
+        .unwrap();
     let prompt = silent_prompt();
     // surface + styles + format + brand succeed (calls 1–4); the path prompt (5) fails.
     prompt.fail_after(4);
@@ -610,7 +628,8 @@ fn interactive_init_surfaces_a_path_prompt_failure() {
 #[test]
 fn interactive_init_surfaces_a_name_prompt_failure() {
     let fs = InMemoryFs::new();
-    fs.write(Path::new("package.json"), REACT_PACKAGE_JSON).unwrap();
+    fs.write(Path::new("package.json"), REACT_PACKAGE_JSON)
+        .unwrap();
     let prompt = silent_prompt();
     // surface + styles + format + brand + path + alias succeed (calls 1–6); the
     // name prompt (7) fails.
@@ -632,7 +651,8 @@ fn interactive_init_surfaces_a_name_prompt_failure() {
 #[test]
 fn records_an_explicit_project_name_and_names_the_theme_file_after_it() {
     let fs = InMemoryFs::new();
-    fs.write(Path::new("package.json"), REACT_PACKAGE_JSON).unwrap();
+    fs.write(Path::new("package.json"), REACT_PACKAGE_JSON)
+        .unwrap();
 
     init(
         &fs,
@@ -671,7 +691,8 @@ fn records_an_explicit_project_name_and_names_the_theme_file_after_it() {
 fn init_emits_the_token_layer_when_styles_are_enabled() {
     let fs = InMemoryFs::new();
     let output = InMemoryOutput::new();
-    fs.write(Path::new("package.json"), REACT_PACKAGE_JSON).unwrap();
+    fs.write(Path::new("package.json"), REACT_PACKAGE_JSON)
+        .unwrap();
 
     init(
         &fs,
@@ -693,7 +714,8 @@ fn init_emits_the_token_layer_when_styles_are_enabled() {
 fn init_does_not_emit_the_token_layer_when_styles_are_disabled() {
     let fs = InMemoryFs::new();
     let output = InMemoryOutput::new();
-    fs.write(Path::new("package.json"), REACT_PACKAGE_JSON).unwrap();
+    fs.write(Path::new("package.json"), REACT_PACKAGE_JSON)
+        .unwrap();
 
     init(
         &fs,
@@ -718,7 +740,8 @@ fn init_does_not_emit_the_token_layer_when_styles_are_disabled() {
 fn init_surfaces_a_token_layer_write_failure() {
     let fs = InMemoryFs::new();
     let output = InMemoryOutput::new();
-    fs.write(Path::new("package.json"), REACT_PACKAGE_JSON).unwrap();
+    fs.write(Path::new("package.json"), REACT_PACKAGE_JSON)
+        .unwrap();
     fs.fail_writes_to(Path::new("src/styles/primitiv/tokens.css"));
 
     let err = init(
@@ -738,7 +761,8 @@ fn init_surfaces_a_token_layer_write_failure() {
 fn init_surfaces_a_token_dir_creation_failure() {
     let fs = InMemoryFs::new();
     let output = InMemoryOutput::new();
-    fs.write(Path::new("package.json"), REACT_PACKAGE_JSON).unwrap();
+    fs.write(Path::new("package.json"), REACT_PACKAGE_JSON)
+        .unwrap();
     fs.fail_create_dir_to(Path::new("src/styles/primitiv"));
 
     let err = init(
@@ -782,7 +806,8 @@ fn the_default_brand_is_the_seed_the_shipped_palette_was_generated_from() {
 #[test]
 fn init_emits_theme_overrides_for_a_brand_it_was_given() {
     let fs = InMemoryFs::new();
-    fs.write(Path::new("package.json"), REACT_PACKAGE_JSON).unwrap();
+    fs.write(Path::new("package.json"), REACT_PACKAGE_JSON)
+        .unwrap();
 
     init(
         &fs,
@@ -814,7 +839,8 @@ fn init_emits_theme_overrides_for_a_brand_it_was_given() {
 #[test]
 fn init_writes_no_theme_overrides_when_the_brand_is_the_shipped_default() {
     let fs = InMemoryFs::new();
-    fs.write(Path::new("package.json"), REACT_PACKAGE_JSON).unwrap();
+    fs.write(Path::new("package.json"), REACT_PACKAGE_JSON)
+        .unwrap();
 
     init(
         &fs,
@@ -838,7 +864,8 @@ fn init_writes_no_theme_overrides_when_the_brand_is_the_shipped_default() {
 #[test]
 fn init_surfaces_a_theme_overrides_write_failure() {
     let fs = InMemoryFs::new();
-    fs.write(Path::new("package.json"), REACT_PACKAGE_JSON).unwrap();
+    fs.write(Path::new("package.json"), REACT_PACKAGE_JSON)
+        .unwrap();
     fs.fail_writes_to(Path::new("src/styles/primitiv/primitiv.theme.css"));
 
     let err = init(

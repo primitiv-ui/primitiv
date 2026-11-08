@@ -1976,7 +1976,16 @@
           ]
         }
       },
-      "contract": "contract.json"
+      "contract": "contract.json",
+      "elements": {
+        "packages": [
+          {
+            "name": "@primitiv-ui/web",
+            "version": "^0.1.41"
+          }
+        ],
+        "example": "tabs.html"
+      }
     },
     "tag": {
       "version": "0.1.0",

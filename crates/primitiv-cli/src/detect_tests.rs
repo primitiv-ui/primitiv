@@ -222,7 +222,9 @@ fn finds_react_in_any_dependency_list_of_a_package_json() {
 #[test]
 fn finds_no_react_in_a_project_without_it_or_an_unreadable_manifest() {
     // A Vue app, an empty manifest, and one that does not parse: none is React.
-    assert!(!crate::detect::lists_react(br#"{ "dependencies": { "vue": "^3.5.0", "react-icons": "^5.0.0" } }"#));
+    assert!(!crate::detect::lists_react(
+        br#"{ "dependencies": { "vue": "^3.5.0", "react-icons": "^5.0.0" } }"#
+    ));
     assert!(!crate::detect::lists_react(b"{}"));
     assert!(!crate::detect::lists_react(b"not json"));
 }

@@ -94,6 +94,7 @@ const FILES: &[(&str, &str, &str)] = &[
     registry_file!("tabs", "tabs.recipe.ts"),
     registry_file!("tabs", "tabs.tsx"),
     registry_file!("tabs", "contract.json"),
+    registry_file!("tabs", "tabs.html"),
     registry_file!("carousel", "styles.css"),
     registry_file!("carousel", "styles.scss"),
     registry_file!("carousel", "carousel.recipe.ts"),

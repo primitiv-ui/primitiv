@@ -27,11 +27,19 @@ fn init_config(fs: &InMemoryFs, options: InitOptions) -> Config {
 #[test]
 fn records_the_surface_it_is_given() {
     let fs = InMemoryFs::new();
-    fs.write(Path::new("package.json"), br#"{ "dependencies": { "react": "^19.0.0" } }"#).unwrap();
+    fs.write(
+        Path::new("package.json"),
+        br#"{ "dependencies": { "react": "^19.0.0" } }"#,
+    )
+    .unwrap();
 
     let config = init_config(
         &fs,
-        InitOptions { surface: Some(Surface::Elements), path: Some("site/styles".into()), ..Default::default() },
+        InitOptions {
+            surface: Some(Surface::Elements),
+            path: Some("site/styles".into()),
+            ..Default::default()
+        },
     );
 
     assert_eq!(config.surface, Surface::Elements);
@@ -41,9 +49,16 @@ fn records_the_surface_it_is_given() {
 fn defaults_a_project_without_react_to_the_elements_surface() {
     // A Vue, Angular or server-rendered project lists no React.
     let fs = InMemoryFs::new();
-    fs.write(Path::new("package.json"), br#"{ "dependencies": { "vue": "^3.5.0" } }"#).unwrap();
+    fs.write(
+        Path::new("package.json"),
+        br#"{ "dependencies": { "vue": "^3.5.0" } }"#,
+    )
+    .unwrap();
 
-    assert_eq!(init_config(&fs, InitOptions::default()).surface, Surface::Elements);
+    assert_eq!(
+        init_config(&fs, InitOptions::default()).surface,
+        Surface::Elements
+    );
 }
 
 #[test]
@@ -51,9 +66,11 @@ fn configures_a_folder_with_no_package_json_for_the_elements_surface() {
     // A plain HTML site has no package.json, and no package manager to need one.
     let fs = InMemoryFs::new();
 
-    assert_eq!(init_config(&fs, InitOptions::default()).surface, Surface::Elements);
+    assert_eq!(
+        init_config(&fs, InitOptions::default()).surface,
+        Surface::Elements
+    );
 }
-
 
 #[test]
 fn defaults_the_elements_styles_path_to_a_primitiv_folder() {
@@ -74,11 +91,22 @@ fn asks_for_the_surface_first_when_interactive_and_takes_the_answer() {
     let prompt = InMemoryPrompt::new(Decision::Keep);
     prompt.queue_answers(&["react"]);
 
-    init(&fs, &InMemoryOutput::new(), &EmbeddedRegistry, &prompt, true, &InitOptions::default()).unwrap();
+    init(
+        &fs,
+        &InMemoryOutput::new(),
+        &EmbeddedRegistry,
+        &prompt,
+        true,
+        &InitOptions::default(),
+    )
+    .unwrap();
 
     let config = Config::parse(&fs.read(Path::new("primitiv.json")).unwrap()).unwrap();
     assert_eq!(config.surface, Surface::React);
-    assert_eq!(prompt.questions().first().map(String::as_str), Some("Surface (react, elements)"));
+    assert_eq!(
+        prompt.questions().first().map(String::as_str),
+        Some("Surface (react, elements)")
+    );
 }
 
 #[test]
@@ -88,7 +116,15 @@ fn keeps_the_detected_surface_for_an_unrecognised_answer() {
     let prompt = InMemoryPrompt::new(Decision::Keep);
     prompt.queue_answers(&["vue"]);
 
-    init(&fs, &InMemoryOutput::new(), &EmbeddedRegistry, &prompt, true, &InitOptions::default()).unwrap();
+    init(
+        &fs,
+        &InMemoryOutput::new(),
+        &EmbeddedRegistry,
+        &prompt,
+        true,
+        &InitOptions::default(),
+    )
+    .unwrap();
 
     let config = Config::parse(&fs.read(Path::new("primitiv.json")).unwrap()).unwrap();
     assert_eq!(config.surface, Surface::Elements);
@@ -100,7 +136,15 @@ fn surfaces_a_failed_surface_prompt() {
     let prompt = InMemoryPrompt::new(Decision::Keep);
     prompt.fail();
 
-    let error = init(&fs, &InMemoryOutput::new(), &EmbeddedRegistry, &prompt, true, &InitOptions::default()).unwrap_err();
+    let error = init(
+        &fs,
+        &InMemoryOutput::new(),
+        &EmbeddedRegistry,
+        &prompt,
+        true,
+        &InitOptions::default(),
+    )
+    .unwrap_err();
 
     assert!(matches!(error, crate::error::CliError::Io(_)), "{error:?}");
     assert!(!fs.exists(Path::new("primitiv.json")));

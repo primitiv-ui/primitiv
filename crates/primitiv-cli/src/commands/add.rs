@@ -340,7 +340,9 @@ fn print_examples(
             }
         }
     }
-    output.write_stdout(message.as_bytes()).map_err(CliError::Io)
+    output
+        .write_stdout(message.as_bytes())
+        .map_err(CliError::Io)
 }
 
 /// The components directory `add` writes the React surface into when the project
@@ -544,7 +546,15 @@ fn copy_styled_surface(
     let mut lock = Lock::read(fs, &lock_path)?;
     let components_dir =
         detect::components_path(fs, dir)?.unwrap_or_else(|| DEFAULT_COMPONENTS_DIR.to_string());
-    let files = planned_files(index, resolved, format, path, config, &components_dir, surface);
+    let files = planned_files(
+        index,
+        resolved,
+        format,
+        path,
+        config,
+        &components_dir,
+        surface,
+    );
     if files.is_empty() {
         return Ok((vec![], None));
     }
@@ -610,7 +620,12 @@ fn update_style_index(
         .filter(|file| file.parent().and_then(Path::parent) == Some(styles_path))
         .filter(|file| file.extension().is_some_and(|ext| ext == extension))
         .filter_map(|file| file.strip_prefix(styles_path).ok())
-        .map(|file| format!("@import \"./{}\";\n", file.to_string_lossy().replace('\\', "/")))
+        .map(|file| {
+            format!(
+                "@import \"./{}\";\n",
+                file.to_string_lossy().replace('\\', "/")
+            )
+        })
         .collect();
     let dest = styles_path.join(format!("index.{extension}"));
     fs.write(&dest, imports.as_bytes())?;
@@ -1007,7 +1022,11 @@ fn print_cdn_scripts(
 fn declared_packages(entry: &ComponentEntry, surface: Surface) -> Vec<&PackageDep> {
     match surface {
         Surface::React => entry.depends_on.packages.iter().collect(),
-        Surface::Elements => entry.elements.iter().flat_map(|elements| &elements.packages).collect(),
+        Surface::Elements => entry
+            .elements
+            .iter()
+            .flat_map(|elements| &elements.packages)
+            .collect(),
     }
 }
 

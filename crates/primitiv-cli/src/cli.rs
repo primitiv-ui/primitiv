@@ -412,8 +412,11 @@ fn family_index(flag: &str) -> Option<usize> {
 
 /// Map a `--format` value to a [`Format`], erroring on an unrecognised one.
 fn parse_surface(value: &str) -> Result<Surface, CliError> {
-    Surface::parse(value)
-        .ok_or_else(|| usage(format!("unknown surface '{value}'; expected: react, elements")))
+    Surface::parse(value).ok_or_else(|| {
+        usage(format!(
+            "unknown surface '{value}'; expected: react, elements"
+        ))
+    })
 }
 
 fn parse_format(value: &str) -> Result<Format, CliError> {

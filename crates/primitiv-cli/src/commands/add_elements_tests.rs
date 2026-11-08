@@ -43,7 +43,12 @@ const REGISTRY: &[u8] = br##"{
 }"##;
 
 /// Run `add` on the elements surface against an empty project.
-fn add_elements(fs: &InMemoryFs, output: &InMemoryOutput, runner: &InMemoryProcessRunner, options: AddOptions) -> Result<(), CliError> {
+fn add_elements(
+    fs: &InMemoryFs,
+    output: &InMemoryOutput,
+    runner: &InMemoryProcessRunner,
+    options: AddOptions,
+) -> Result<(), CliError> {
     add(
         fs,
         &kbd_and_tabs_registry(),
@@ -51,7 +56,10 @@ fn add_elements(fs: &InMemoryFs, output: &InMemoryOutput, runner: &InMemoryProce
         runner,
         &InMemoryPrompt::new(Decision::Keep),
         false,
-        &AddOptions { surface: Some(Surface::Elements), ..options },
+        &AddOptions {
+            surface: Some(Surface::Elements),
+            ..options
+        },
     )
 }
 
@@ -65,7 +73,11 @@ fn rejects_a_component_with_no_elements_surface_yet() {
         &fs,
         &output,
         &runner,
-        AddOptions { components: vec!["modal".into()], dry_run: true, ..Default::default() },
+        AddOptions {
+            components: vec!["modal".into()],
+            dry_run: true,
+            ..Default::default()
+        },
     )
     .unwrap_err();
 
@@ -87,7 +99,11 @@ fn rejects_a_dependency_with_no_elements_surface_yet() {
         &fs,
         &output,
         &runner,
-        AddOptions { components: vec!["confirm-dialog".into()], dry_run: true, ..Default::default() },
+        AddOptions {
+            components: vec!["confirm-dialog".into()],
+            dry_run: true,
+            ..Default::default()
+        },
     )
     .unwrap_err();
 
@@ -111,7 +127,8 @@ const ELEMENTS_CONFIG: &[u8] = br##"{
 #[test]
 fn takes_the_surface_from_the_project_config_without_the_flag() {
     let fs = InMemoryFs::new();
-    fs.write(std::path::Path::new("primitiv.json"), ELEMENTS_CONFIG).unwrap();
+    fs.write(std::path::Path::new("primitiv.json"), ELEMENTS_CONFIG)
+        .unwrap();
 
     let error = add(
         &fs,
@@ -120,7 +137,11 @@ fn takes_the_surface_from_the_project_config_without_the_flag() {
         &InMemoryProcessRunner::new(),
         &InMemoryPrompt::new(Decision::Keep),
         false,
-        &AddOptions { components: vec!["modal".into()], dry_run: true, ..Default::default() },
+        &AddOptions {
+            components: vec!["modal".into()],
+            dry_run: true,
+            ..Default::default()
+        },
     )
     .unwrap_err();
 
@@ -137,7 +158,11 @@ fn plans_the_elements_packages_in_place_of_the_react_ones() {
         &fs,
         &output,
         &runner,
-        AddOptions { components: vec!["kbd".into(), "tabs".into()], dry_run: true, ..Default::default() },
+        AddOptions {
+            components: vec!["kbd".into(), "tabs".into()],
+            dry_run: true,
+            ..Default::default()
+        },
     )
     .unwrap();
 
@@ -152,18 +177,33 @@ fn installs_only_the_elements_packages_in_a_project_with_a_package_json() {
     // cva belongs to the React recipe, which the elements surface does not copy.
     let fs = InMemoryFs::new();
     fs.set_current_dir(std::path::Path::new("project"));
-    fs.write(std::path::Path::new("project/package.json"), b"{}").unwrap();
-    fs.write(std::path::Path::new("project/pnpm-lock.yaml"), b"").unwrap();
+    fs.write(std::path::Path::new("project/package.json"), b"{}")
+        .unwrap();
+    fs.write(std::path::Path::new("project/pnpm-lock.yaml"), b"")
+        .unwrap();
     let output = InMemoryOutput::new();
     let runner = InMemoryProcessRunner::new();
 
-    add_elements(&fs, &output, &runner, AddOptions { components: vec!["tabs".into()], ..Default::default() }).unwrap();
+    add_elements(
+        &fs,
+        &output,
+        &runner,
+        AddOptions {
+            components: vec!["tabs".into()],
+            ..Default::default()
+        },
+    )
+    .unwrap();
 
     assert_eq!(
         runner.calls(),
         vec![(
             "pnpm".to_string(),
-            vec!["add".to_string(), "@primitiv-ui/web@^0.1.0".to_string(), "--silent".to_string()],
+            vec![
+                "add".to_string(),
+                "@primitiv-ui/web@^0.1.0".to_string(),
+                "--silent".to_string()
+            ],
             std::path::Path::new("project").to_path_buf(),
         )]
     );
@@ -177,7 +217,16 @@ fn prints_a_pinned_cdn_script_instead_of_installing_without_a_package_json() {
     let output = InMemoryOutput::new();
     let runner = InMemoryProcessRunner::new();
 
-    add_elements(&fs, &output, &runner, AddOptions { components: vec!["tabs".into()], ..Default::default() }).unwrap();
+    add_elements(
+        &fs,
+        &output,
+        &runner,
+        AddOptions {
+            components: vec!["tabs".into()],
+            ..Default::default()
+        },
+    )
+    .unwrap();
 
     assert_eq!(runner.calls(), vec![]);
     assert!(
@@ -196,9 +245,22 @@ fn prints_no_script_when_no_component_needs_a_package() {
     let fs = InMemoryFs::new();
     let output = InMemoryOutput::new();
 
-    add_elements(&fs, &output, &InMemoryProcessRunner::new(), AddOptions { components: vec!["kbd".into()], ..Default::default() }).unwrap();
+    add_elements(
+        &fs,
+        &output,
+        &InMemoryProcessRunner::new(),
+        AddOptions {
+            components: vec!["kbd".into()],
+            ..Default::default()
+        },
+    )
+    .unwrap();
 
-    assert!(!String::from_utf8(output.captured()).unwrap().contains("No package.json"));
+    assert!(
+        !String::from_utf8(output.captured())
+            .unwrap()
+            .contains("No package.json")
+    );
 }
 
 #[test]
@@ -206,17 +268,32 @@ fn keeps_json_output_to_the_plan_without_a_package_json() {
     let fs = InMemoryFs::new();
     let output = InMemoryOutput::new();
 
-    add_elements(&fs, &output, &InMemoryProcessRunner::new(), AddOptions { components: vec!["tabs".into()], json: true, ..Default::default() }).unwrap();
+    add_elements(
+        &fs,
+        &output,
+        &InMemoryProcessRunner::new(),
+        AddOptions {
+            components: vec!["tabs".into()],
+            json: true,
+            ..Default::default()
+        },
+    )
+    .unwrap();
 
     let captured = String::from_utf8(output.captured()).unwrap();
-    serde_json::from_str::<serde_json::Value>(&captured).unwrap_or_else(|error| panic!("{error}: {captured}"));
+    serde_json::from_str::<serde_json::Value>(&captured)
+        .unwrap_or_else(|error| panic!("{error}: {captured}"));
 }
 
 /// The registry with the bytes `kbd`'s files carry, React surface included.
 fn kbd_registry() -> InMemoryRegistry {
     InMemoryRegistry::new(REGISTRY)
         .with_file("kbd", "styles.css", b".primitiv-kbd{}")
-        .with_file("kbd", "kbd.html", b"<kbd class=\"primitiv-kbd\">Kbd</kbd>\n")
+        .with_file(
+            "kbd",
+            "kbd.html",
+            b"<kbd class=\"primitiv-kbd\">Kbd</kbd>\n",
+        )
         .with_file("kbd", "contract.json", b"{}")
         .with_file("kbd", "kbd.recipe.ts", b"recipe")
         .with_file("kbd", "kbd.tsx", b"wrapper")
@@ -225,7 +302,8 @@ fn kbd_registry() -> InMemoryRegistry {
 #[test]
 fn copies_the_stylesheet_and_contract_into_one_folder_per_component() {
     let fs = InMemoryFs::new();
-    fs.write(std::path::Path::new("primitiv.json"), ELEMENTS_CONFIG).unwrap();
+    fs.write(std::path::Path::new("primitiv.json"), ELEMENTS_CONFIG)
+        .unwrap();
 
     add(
         &fs,
@@ -234,12 +312,18 @@ fn copies_the_stylesheet_and_contract_into_one_folder_per_component() {
         &InMemoryProcessRunner::new(),
         &InMemoryPrompt::new(Decision::Keep),
         false,
-        &AddOptions { components: vec!["kbd".into()], ..Default::default() },
+        &AddOptions {
+            components: vec!["kbd".into()],
+            ..Default::default()
+        },
     )
     .unwrap();
 
     let read = |path: &str| fs.read(std::path::Path::new(path)).ok();
-    assert_eq!(read("primitiv/kbd/styles.css"), Some(b".primitiv-kbd{}".to_vec()));
+    assert_eq!(
+        read("primitiv/kbd/styles.css"),
+        Some(b".primitiv-kbd{}".to_vec())
+    );
     // The example markup is printed, not copied: nothing would import it.
     assert_eq!(read("primitiv/kbd/kbd.html"), None);
     assert_eq!(read("primitiv/kbd/contract.json"), Some(b"{}".to_vec()));
@@ -253,7 +337,11 @@ fn copies_the_stylesheet_and_contract_into_one_folder_per_component() {
 fn kbd_and_tabs_registry() -> InMemoryRegistry {
     kbd_registry()
         .with_file("tabs", "styles.css", b".primitiv-tabs{}")
-        .with_file("tabs", "tabs.html", b"<primitiv-tabs>\n  <primitiv-tabs-list></primitiv-tabs-list>\n</primitiv-tabs>\n")
+        .with_file(
+            "tabs",
+            "tabs.html",
+            b"<primitiv-tabs>\n  <primitiv-tabs-list></primitiv-tabs-list>\n</primitiv-tabs>\n",
+        )
 }
 
 /// Run a real (non-dry) elements `add` of `components` in `fs`.
@@ -265,7 +353,10 @@ fn run(fs: &InMemoryFs, output: &InMemoryOutput, components: &[&str]) {
         &InMemoryProcessRunner::new(),
         &InMemoryPrompt::new(Decision::Keep),
         false,
-        &AddOptions { components: components.iter().map(|c| c.to_string()).collect(), ..Default::default() },
+        &AddOptions {
+            components: components.iter().map(|c| c.to_string()).collect(),
+            ..Default::default()
+        },
     )
     .unwrap();
 }
@@ -274,7 +365,8 @@ fn run(fs: &InMemoryFs, output: &InMemoryOutput, components: &[&str]) {
 fn keeps_one_stylesheet_index_importing_every_installed_component() {
     // A page then needs one <link> for every component, however many runs added them.
     let fs = InMemoryFs::new();
-    fs.write(std::path::Path::new("primitiv.json"), ELEMENTS_CONFIG).unwrap();
+    fs.write(std::path::Path::new("primitiv.json"), ELEMENTS_CONFIG)
+        .unwrap();
 
     run(&fs, &InMemoryOutput::new(), &["tabs"]);
     run(&fs, &InMemoryOutput::new(), &["kbd"]);
@@ -288,8 +380,10 @@ fn keeps_one_stylesheet_index_importing_every_installed_component() {
 #[test]
 fn ends_by_printing_the_links_a_page_needs() {
     let fs = InMemoryFs::new();
-    fs.write(std::path::Path::new("primitiv.json"), ELEMENTS_CONFIG).unwrap();
-    fs.write(std::path::Path::new("primitiv/tokens.css"), b":root{}").unwrap();
+    fs.write(std::path::Path::new("primitiv.json"), ELEMENTS_CONFIG)
+        .unwrap();
+    fs.write(std::path::Path::new("primitiv/tokens.css"), b":root{}")
+        .unwrap();
     let output = InMemoryOutput::new();
 
     run(&fs, &output, &["kbd"]);
@@ -308,8 +402,10 @@ fn ends_by_printing_the_links_a_page_needs() {
 #[test]
 fn prints_no_links_under_json() {
     let fs = InMemoryFs::new();
-    fs.write(std::path::Path::new("primitiv.json"), ELEMENTS_CONFIG).unwrap();
-    fs.write(std::path::Path::new("primitiv/tokens.css"), b":root{}").unwrap();
+    fs.write(std::path::Path::new("primitiv.json"), ELEMENTS_CONFIG)
+        .unwrap();
+    fs.write(std::path::Path::new("primitiv/tokens.css"), b":root{}")
+        .unwrap();
     let output = InMemoryOutput::new();
 
     add(
@@ -319,12 +415,17 @@ fn prints_no_links_under_json() {
         &InMemoryProcessRunner::new(),
         &InMemoryPrompt::new(Decision::Keep),
         false,
-        &AddOptions { components: vec!["kbd".into()], json: true, ..Default::default() },
+        &AddOptions {
+            components: vec!["kbd".into()],
+            json: true,
+            ..Default::default()
+        },
     )
     .unwrap();
 
     let captured = String::from_utf8(output.captured()).unwrap();
-    serde_json::from_str::<serde_json::Value>(&captured).unwrap_or_else(|error| panic!("{error}: {captured}"));
+    serde_json::from_str::<serde_json::Value>(&captured)
+        .unwrap_or_else(|error| panic!("{error}: {captured}"));
 }
 
 #[test]
@@ -332,10 +433,17 @@ fn indexes_scss_as_scss_and_leaves_linking_to_the_build() {
     let fs = InMemoryFs::new();
     fs.write(
         std::path::Path::new("primitiv.json"),
-        &String::from_utf8(ELEMENTS_CONFIG.to_vec()).unwrap().replace("\"format\": \"css\", \"path\": \"primitiv\"", "\"format\": \"scss\", \"path\": \"primitiv\"").into_bytes(),
+        &String::from_utf8(ELEMENTS_CONFIG.to_vec())
+            .unwrap()
+            .replace(
+                "\"format\": \"css\", \"path\": \"primitiv\"",
+                "\"format\": \"scss\", \"path\": \"primitiv\"",
+            )
+            .into_bytes(),
     )
     .unwrap();
-    fs.write(std::path::Path::new("primitiv/tokens.css"), b":root{}").unwrap();
+    fs.write(std::path::Path::new("primitiv/tokens.css"), b":root{}")
+        .unwrap();
     let output = InMemoryOutput::new();
     let registry_json = String::from_utf8(REGISTRY.to_vec()).unwrap().replace(
         "\"formats\": { \"css\": [\"styles.css\"] },\n        \"react\"",
@@ -354,21 +462,30 @@ fn indexes_scss_as_scss_and_leaves_linking_to_the_build() {
         &InMemoryProcessRunner::new(),
         &InMemoryPrompt::new(Decision::Keep),
         false,
-        &AddOptions { components: vec!["kbd".into()], ..Default::default() },
+        &AddOptions {
+            components: vec!["kbd".into()],
+            ..Default::default()
+        },
     )
     .unwrap();
 
     assert_eq!(
-        fs.read(std::path::Path::new("primitiv/index.scss")).unwrap(),
+        fs.read(std::path::Path::new("primitiv/index.scss"))
+            .unwrap(),
         b"@import \"./kbd/styles.scss\";\n".to_vec()
     );
-    assert!(!String::from_utf8(output.captured()).unwrap().contains("<link"));
+    assert!(
+        !String::from_utf8(output.captured())
+            .unwrap()
+            .contains("<link")
+    );
 }
 
 #[test]
 fn surfaces_a_failed_stylesheet_index_write() {
     let fs = InMemoryFs::new();
-    fs.write(std::path::Path::new("primitiv.json"), ELEMENTS_CONFIG).unwrap();
+    fs.write(std::path::Path::new("primitiv.json"), ELEMENTS_CONFIG)
+        .unwrap();
     fs.fail_writes_to(std::path::Path::new("primitiv/index.css"));
 
     let error = add(
@@ -378,7 +495,10 @@ fn surfaces_a_failed_stylesheet_index_write() {
         &InMemoryProcessRunner::new(),
         &InMemoryPrompt::new(Decision::Keep),
         false,
-        &AddOptions { components: vec!["kbd".into()], ..Default::default() },
+        &AddOptions {
+            components: vec!["kbd".into()],
+            ..Default::default()
+        },
     )
     .unwrap_err();
 
@@ -392,8 +512,16 @@ fn surfaces_a_failed_cdn_script_message() {
     // The plan is the first write; the script message is the second.
     output.fail_stdout_after(1);
 
-    let error = add_elements(&fs, &output, &InMemoryProcessRunner::new(), AddOptions { components: vec!["tabs".into()], ..Default::default() })
-        .unwrap_err();
+    let error = add_elements(
+        &fs,
+        &output,
+        &InMemoryProcessRunner::new(),
+        AddOptions {
+            components: vec!["tabs".into()],
+            ..Default::default()
+        },
+    )
+    .unwrap_err();
 
     assert!(matches!(error, CliError::Io(_)), "{error:?}");
 }
@@ -401,8 +529,10 @@ fn surfaces_a_failed_cdn_script_message() {
 #[test]
 fn surfaces_a_failed_link_message() {
     let fs = InMemoryFs::new();
-    fs.write(std::path::Path::new("primitiv.json"), ELEMENTS_CONFIG).unwrap();
-    fs.write(std::path::Path::new("primitiv/tokens.css"), b":root{}").unwrap();
+    fs.write(std::path::Path::new("primitiv.json"), ELEMENTS_CONFIG)
+        .unwrap();
+    fs.write(std::path::Path::new("primitiv/tokens.css"), b":root{}")
+        .unwrap();
     let output = InMemoryOutput::new();
     // The plan, then the files written; the links are the third write.
     output.fail_stdout_after(2);
@@ -414,7 +544,10 @@ fn surfaces_a_failed_link_message() {
         &InMemoryProcessRunner::new(),
         &InMemoryPrompt::new(Decision::Keep),
         false,
-        &AddOptions { components: vec!["kbd".into()], ..Default::default() },
+        &AddOptions {
+            components: vec!["kbd".into()],
+            ..Default::default()
+        },
     )
     .unwrap_err();
 
@@ -424,8 +557,10 @@ fn surfaces_a_failed_link_message() {
 #[test]
 fn ends_by_printing_each_components_example_markup() {
     let fs = InMemoryFs::new();
-    fs.write(std::path::Path::new("primitiv.json"), ELEMENTS_CONFIG).unwrap();
-    fs.write(std::path::Path::new("primitiv/tokens.css"), b":root{}").unwrap();
+    fs.write(std::path::Path::new("primitiv.json"), ELEMENTS_CONFIG)
+        .unwrap();
+    fs.write(std::path::Path::new("primitiv/tokens.css"), b":root{}")
+        .unwrap();
     let output = InMemoryOutput::new();
 
     run(&fs, &output, &["kbd", "tabs"]);
@@ -444,7 +579,8 @@ fn ends_by_printing_each_components_example_markup() {
 #[test]
 fn surfaces_an_example_the_registry_cannot_serve() {
     let fs = InMemoryFs::new();
-    fs.write(std::path::Path::new("primitiv.json"), ELEMENTS_CONFIG).unwrap();
+    fs.write(std::path::Path::new("primitiv.json"), ELEMENTS_CONFIG)
+        .unwrap();
     // Every file but the example.
     let registry = InMemoryRegistry::new(REGISTRY)
         .with_file("kbd", "styles.css", b".primitiv-kbd{}")
@@ -457,7 +593,10 @@ fn surfaces_an_example_the_registry_cannot_serve() {
         &InMemoryProcessRunner::new(),
         &InMemoryPrompt::new(Decision::Keep),
         false,
-        &AddOptions { components: vec!["kbd".into()], ..Default::default() },
+        &AddOptions {
+            components: vec!["kbd".into()],
+            ..Default::default()
+        },
     )
     .unwrap_err();
 

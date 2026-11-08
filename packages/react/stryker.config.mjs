@@ -42,6 +42,9 @@ const SHARED_MODULES = {
   // share took it out of every component's glob, silently dropping it from the
   // ratchet. Re-home it onto its consumers so the gate still covers it.
   "src/hooks/useTypeahead.ts": ["Listbox", "MillerColumns"],
+  // Hosting a @primitiv-ui/web controller (RFC 0033 D30), shared by every
+  // component the elements surface has moved onto it.
+  "src/hooks/useHostedController.ts": ["Tabs", "Accordion"],
 };
 
 /**

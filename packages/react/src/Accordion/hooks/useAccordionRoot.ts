@@ -2,7 +2,11 @@ import { useRef, useMemo, useCallback, useId, useEffect } from "react";
 
 import { AccordionController } from "@primitiv-ui/web";
 
-import { useCollection, useControllableState } from "../../hooks/index.ts";
+import {
+  useCollection,
+  useControllableState,
+  useHostedController,
+} from "../../hooks/index.ts";
 
 import type { AccordionReadingDirection } from "../types";
 
@@ -129,68 +133,40 @@ export function useAccordionRoot(
   // Accordion's DOM behaviour — clicks, the keyboard contract, focus — runs in
   // the web implementation's AccordionController, the same code the
   // <primitiv-accordion> element runs. React keeps rendering exactly the markup
-  // it always has and keeps the state; the controller reads that state through
-  // `latest` and asks for changes through `change`.
-  const rootRef = useRef<HTMLDivElement>(null);
-  const controllerRef = useRef<AccordionController | null>(null);
-  const snapshot = {
-    expandedItems,
-    multiple,
-    orientation,
-    dir,
-    isControlled,
-    setExpandedItems,
-    onValueChange,
-  };
-  const latest = useRef(snapshot);
-  latest.current = snapshot;
-
-  useEffect(
-    () => {
-      const controller = new AccordionController(
-        rootRef.current as HTMLDivElement,
-        {
-          state: () => ({
-            expanded: [...latest.current.expandedItems],
-            multiple: latest.current.multiple,
-            orientation: latest.current.orientation,
-            dir: latest.current.dir,
-          }),
-          change: (next) => {
-            const current = latest.current;
-            if (current.isControlled) {
-              // Controlled mode requires `onValueChange` (discriminated-union prop
-              // type), so the optional call can never no-op in valid usage.
-              // Stryker disable next-line OptionalChaining: unreachable — controlled requires onValueChange.
-              current.onValueChange?.(next);
-            } else {
-              current.setExpandedItems(new Set(next));
-            }
-          },
-        },
-      );
-      controllerRef.current = controller;
-      controller.connect();
-      return () => controller.disconnect();
+  // it always has and keeps the state; the controller reads it through
+  // `latest()` and asks for changes through `change`.
+  const rootRef = useHostedController(
+    {
+      expandedItems,
+      multiple,
+      orientation,
+      dir,
+      isControlled,
+      setExpandedItems,
+      onValueChange,
     },
-    // Stryker disable next-line ArrayDeclaration: equivalent — any constant dependency list runs this once per mount.
-    [],
+    (root, latest) =>
+      new AccordionController(root, {
+        state: () => ({
+          expanded: [...latest().expandedItems],
+          multiple: latest().multiple,
+          orientation: latest().orientation,
+          dir: latest().dir,
+        }),
+        change: (next) => {
+          const current = latest();
+          if (current.isControlled) {
+            // Controlled mode requires `onValueChange` (discriminated-union prop
+            // type), so the optional call can never no-op in valid usage.
+            // Stryker disable next-line OptionalChaining: unreachable — controlled requires onValueChange.
+            current.onValueChange?.(next);
+          } else {
+            current.setExpandedItems(new Set(next));
+          }
+        },
+      }),
+    { itemsRef: triggersRef, keys: registeredTriggerItemIds },
   );
-
-  // Hand the controller the current collection whenever it changes: it orders
-  // triggers by DOM position itself, and one that has unmounted is simply not
-  // in the list. `registeredTriggerItemIds` is a fresh array on every
-  // registration — including a trigger toggling `disabled` — so it is the only
-  // dependency.
-  useEffect(() => {
-    (controllerRef.current as AccordionController).setTriggers(
-      [...triggersRef.current].map(([itemId, meta]) => ({
-        value: itemId,
-        element: meta.element,
-        disabled: meta.disabled,
-      })),
-    );
-  }, [registeredTriggerItemIds, triggersRef]);
 
   return { contextValue, rootRef };
 }

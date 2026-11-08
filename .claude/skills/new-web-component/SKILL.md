@@ -203,11 +203,47 @@ Load the `docs-site-component-page` skill as well. For Elements:
    `src/lib/playground.ts` for single elements; write a tree helper for a
    compound (`elementsTree` in `tabs.tsx`). `asChild` has no Elements
    equivalent: put the classes on the element itself.
-3. The Installation and Load panels, the fallback notices and the
+3. **Write the page in the Elements reader's language, not React's.** The
+   hand-written prose names props, parts and hooks (`Tabs.List`,
+   `onValueChange`, `asChild`) that plain markup doesn't have. Each has an
+   Elements counterpart that replaces it only in Elements mode:
+   - `spec.elements` — `description` (replaces the JSDoc lede in the header),
+     `anatomyMeta`, `keyboardMeta`, `keyboard`, `accessibility`. Write them in
+     attribute and event terms (`activation-mode`, `primitiv-tabs-change`, "the
+     `<button>` inside a trigger").
+   - `elementsCaption` on each `InteractiveExample`, and `elementsTitle` on an
+     example whose title names something React-only ("As a link (asChild)" →
+     "As a link").
+   - Generated sections switch themselves: Props becomes **Attributes & events**
+     (`ElementsApiReference`, from the `@attr`/`@fires` JSDoc, so write those
+     tags well) for a component with behaviour, or **Classes**
+     (`ElementsClassReference`, from the contract) for a behaviourless one; the
+     Data attributes table labels its groups by element.
+   - Then **scan the built page for React terms**: open it in Elements mode,
+     read the text and grep for the part names, `on[A-Z]`, `asChild`, `props`,
+     `children`, `React`. Only the demo's own sample data should remain.
+4. **The previews are the real elements.** In Elements mode the playground and
+   every `InteractiveExample` mount the Elements markup with `ElementsPreview`
+   (loads `@primitiv-ui/web/define` on demand; strips classes when headless) —
+   a developer reading the page opens devtools and expects the DOM to match
+   the code tab. So the Elements code must be complete markup. Where it isn't
+   on purpose, give the example an override:
+   - `elementsPreview={(density, code) => …}` — return the full markup, e.g.
+     when the code elides repeated parts (Tabs "Controlled") or shows an icon
+     as `<!-- plus glyph -->` (Button's `withGlyphs` swaps the real
+     `@primitiv-ui/icons` paths in).
+   - `wire={(root) => cleanup}` — behaviour the code tab shows as a
+     `<script>`, e.g. a `primitiv-tabs-change` listener updating a readout.
+   Add the component to `apps/docs-site/e2e/elements-preview.spec.ts`: the
+   element is defined, its roles are wired, headless carries no classes, and
+   React mode renders no `primitiv-*` element. Add the spec file to the
+   `e2e-carousel.yml` paths.
+5. The Installation and Load panels, the fallback notices and the
    framework/styling switch need nothing: they read `docs.elements`.
-4. Gates: `node scripts/check-tokens.mjs`, `pnpm build`, `pnpm test:seo`, and a
-   real-browser look at the page in Elements + Headless and Elements + Styled
-   (Playwright from `apps/docs-site`; serve `out/` with `node e2e/serve.mjs`).
+6. Gates: `node scripts/check-tokens.mjs`, `pnpm build`, `pnpm test:seo`,
+   `pnpm test:e2e`, and a real-browser look at the page in Elements + Headless
+   and Elements + Styled (Playwright from `apps/docs-site`; serve `out/` with
+   `node e2e/serve.mjs`).
 
 ## 8. Release order
 
@@ -241,7 +277,13 @@ print classed markup with `markup()`.
   any workflow that builds the docs site runs
   `pnpm install --frozen-lockfile --filter "@primitiv-ui/react..."` at the root
   first (deploy and e2e workflows do). Linking the packages into the docs site
-  and Turbopack aliases were both tried and don't work.
+  and Turbopack aliases were both tried and don't fix *react's* imports. The
+  docs site does link `@primitiv-ui/web` itself, for `ElementsPreview` — an
+  import from the docs site's own `src` resolves through its own
+  `node_modules`, so that link works.
+- **The docs-site code tab and preview must agree.** A placeholder in the
+  Elements code is fine only if the example's `elementsPreview` fills it in;
+  otherwise the preview renders the placeholder.
 - **Don't trust the workspace install to prove a clean build.** It worked
   locally for a week while the deploy was broken. Reproduce CI in a fresh
   `git worktree` when a build depends on workspace packages.

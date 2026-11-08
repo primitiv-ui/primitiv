@@ -5,16 +5,10 @@ import {
   type TabsOrientation,
 } from "@primitiv-ui/core";
 
+import { defineElements, ElementBase, reportOnce, write, type ElementRegistry } from "../internal/element.ts";
 import { TabsController, type TabsControllerHost } from "./TabsController.ts";
 
-/**
- * The base class every element extends. It falls back to an empty class where
- * the DOM does not exist, so a server renderer (Next.js, Nuxt, Angular SSR,
- * Astro) can import this module without `HTMLElement` throwing at load time
- * (RFC 0033 D21).
- */
-const ElementBase: typeof HTMLElement =
-  globalThis.HTMLElement ?? (class {} as unknown as typeof HTMLElement);
+export type { ElementRegistry };
 
 // Stryker disable StringLiteral: static — evaluated once at import, so runtime mutant switching never reaches them; the names are pinned by the defineTabs registry test instead.
 const ROOT = "primitiv-tabs";
@@ -24,9 +18,6 @@ const CONTENT = "primitiv-tabs-content";
 // Stryker restore StringLiteral
 
 let generatedIds = 0;
-
-/** Triggers already reported as misused, so each is reported once, not per reconcile. */
-const reported = new WeakSet<Element>();
 
 /**
  * An interactive part decorates exactly one element child and needs a `value`.
@@ -38,26 +29,11 @@ function decoratable(trigger: HTMLElement): { tab: HTMLElement; value: string } 
   if (trigger.childElementCount === 1 && value !== null) {
     return { tab: trigger.firstElementChild as HTMLElement, value };
   }
-  if (!reported.has(trigger)) {
-    reported.add(trigger);
-    console.error(
-      `<${TRIGGER}> needs a value and exactly one element child (a <button>, an <a href> or a router link) to decorate.`,
-      trigger,
-    );
-  }
+  reportOnce(
+    trigger,
+    `<${TRIGGER}> needs a value and exactly one element child (a <button>, an <a href> or a router link) to decorate.`,
+  );
   return null;
-}
-
-/**
- * Write an attribute only when it would change: `null` removes it. The elements
- * write only the attributes in their contract (RFC 0033 §5.3), and comparing
- * first means a value a framework or the server already rendered is never
- * rewritten (D20).
- */
-function write(element: Element, name: string, value: string | null): void {
-  if (element.getAttribute(name) === value) return;
-  if (value === null) element.removeAttribute(name);
-  else element.setAttribute(name, value);
 }
 
 /**
@@ -273,9 +249,6 @@ export class PrimitivTabsTriggerElement extends ElementBase {}
  */
 export class PrimitivTabsContentElement extends ElementBase {}
 
-/** The two calls `defineTabs` makes on a custom-element registry. */
-export type ElementRegistry = Pick<CustomElementRegistry, "get" | "define">;
-
 /**
  * Define the four Tabs elements on `registry` (the global `customElements` by
  * default, so a scoped registry can be passed when browsers support one). Safe
@@ -283,14 +256,10 @@ export type ElementRegistry = Pick<CustomElementRegistry, "get" | "define">;
  * render).
  */
 export function defineTabs(registry: ElementRegistry | undefined = globalThis.customElements): void {
-  if (!registry) return;
-  const elements: Array<[string, CustomElementConstructor]> = [
+  defineElements(registry, [
     [ROOT, PrimitivTabsElement],
     [LIST, PrimitivTabsListElement],
     [TRIGGER, PrimitivTabsTriggerElement],
     [CONTENT, PrimitivTabsContentElement],
-  ];
-  for (const [name, element] of elements) {
-    if (!registry.get(name)) registry.define(name, element);
-  }
+  ]);
 }

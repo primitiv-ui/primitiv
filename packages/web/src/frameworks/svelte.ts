@@ -19,18 +19,42 @@
 import type { HTMLAttributes } from "svelte/elements";
 
 import type {
+  PrimitivAccordionContentElement,
+  PrimitivAccordionElement,
+  PrimitivAccordionItemElement,
+  PrimitivAccordionTriggerElement,
+  PrimitivAccordionTriggerIconElement,
+} from "../accordion/elements.ts";
+import type {
   PrimitivTabsContentElement,
   PrimitivTabsElement,
   PrimitivTabsListElement,
   PrimitivTabsTriggerElement,
 } from "../tabs/elements.ts";
-import type { PrimitivTabsChangeEvent } from "./events.ts";
+import type { PrimitivAccordionChangeEvent, PrimitivTabsChangeEvent } from "./events.ts";
 
 /** Svelte's own attributes and events for an element. */
 type Attributes<E extends HTMLElement> = HTMLAttributes<E>;
 
 declare module "svelte/elements" {
   interface SvelteHTMLElements {
+    "primitiv-accordion": Attributes<PrimitivAccordionElement> & {
+      value?: string | readonly string[];
+      multiple?: boolean;
+      orientation?: "vertical" | "horizontal";
+      "onprimitiv-accordion-change"?: (event: PrimitivAccordionChangeEvent) => void;
+    };
+    "primitiv-accordion-item": Attributes<PrimitivAccordionItemElement> & {
+      value: string;
+    };
+    "primitiv-accordion-trigger": Attributes<PrimitivAccordionTriggerElement> & {
+      disabled?: boolean;
+    };
+    "primitiv-accordion-content": Attributes<PrimitivAccordionContentElement> & {
+      "force-mount"?: boolean;
+      "onprimitiv-accordion-show"?: (event: CustomEvent) => void;
+    };
+    "primitiv-accordion-trigger-icon": Attributes<PrimitivAccordionTriggerIconElement>;
     "primitiv-tabs": Attributes<PrimitivTabsElement> & {
       value?: string;
       orientation?: "horizontal" | "vertical";

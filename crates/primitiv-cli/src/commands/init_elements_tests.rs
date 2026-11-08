@@ -65,3 +65,63 @@ fn defaults_the_elements_styles_path_to_a_primitiv_folder() {
     assert_eq!(config.styles.path, "primitiv");
     assert_eq!(config.tokens.path, "primitiv/tokens.css");
 }
+
+#[test]
+fn asks_for_the_surface_first_when_interactive_and_takes_the_answer() {
+    // Detection would say elements (no react); the person says react.
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("package.json"), b"{}").unwrap();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
+    prompt.queue_answers(&["react"]);
+
+    init(&fs, &InMemoryOutput::new(), &EmbeddedRegistry, &prompt, true, &InitOptions::default()).unwrap();
+
+    let config = Config::parse(&fs.read(Path::new("primitiv.json")).unwrap()).unwrap();
+    assert_eq!(config.surface, Surface::React);
+    assert_eq!(prompt.questions().first().map(String::as_str), Some("Surface (react, elements)"));
+}
+
+#[test]
+fn keeps_the_detected_surface_for_an_unrecognised_answer() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("package.json"), b"{}").unwrap();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
+    prompt.queue_answers(&["vue"]);
+
+    init(&fs, &InMemoryOutput::new(), &EmbeddedRegistry, &prompt, true, &InitOptions::default()).unwrap();
+
+    let config = Config::parse(&fs.read(Path::new("primitiv.json")).unwrap()).unwrap();
+    assert_eq!(config.surface, Surface::Elements);
+}
+
+#[test]
+fn surfaces_a_failed_surface_prompt() {
+    let fs = InMemoryFs::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
+    prompt.fail();
+
+    let error = init(&fs, &InMemoryOutput::new(), &EmbeddedRegistry, &prompt, true, &InitOptions::default()).unwrap_err();
+
+    assert!(matches!(error, crate::error::CliError::Io(_)), "{error:?}");
+    assert!(!fs.exists(Path::new("primitiv.json")));
+}
+
+#[test]
+fn surfaces_a_package_json_that_cannot_be_read() {
+    // Missing means "no React"; unreadable is an error, not a guess.
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("package.json"), b"{}").unwrap();
+    fs.fail_reads_to(Path::new("package.json"));
+
+    let error = init(
+        &fs,
+        &InMemoryOutput::new(),
+        &EmbeddedRegistry,
+        &InMemoryPrompt::new(Decision::Keep),
+        false,
+        &InitOptions::default(),
+    )
+    .unwrap_err();
+
+    assert!(matches!(error, crate::error::CliError::Io(_)), "{error:?}");
+}

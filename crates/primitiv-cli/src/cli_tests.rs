@@ -856,3 +856,10 @@ fn parses_init_with_a_surface() {
         })
     );
 }
+
+#[test]
+fn rejects_init_surface_with_no_value_or_an_unknown_one() {
+    for argv in [&["init", "--surface"][..], &["init", "--surface", "vue"][..]] {
+        assert!(matches!(parse(&args(argv)).unwrap_err(), CliError::Usage(_)), "{argv:?}");
+    }
+}

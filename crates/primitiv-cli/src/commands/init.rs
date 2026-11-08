@@ -106,9 +106,18 @@ pub fn init(
     options: &InitOptions,
 ) -> Result<(), CliError> {
     let dir = fs.current_dir()?;
+    // Asked first, because the surface decides whether a package.json is needed.
     let surface = match options.surface {
         Some(surface) => surface,
-        None => detect::surface(fs, &dir)?,
+        None => {
+            let detected = detect::surface(fs, &dir)?;
+            if interactive && !options.yes {
+                let answer = ask_text(prompt, "Surface (react, elements)", detected.as_str())?;
+                Surface::parse(&answer).unwrap_or(detected)
+            } else {
+                detected
+            }
+        }
     };
     // A plain HTML or server-rendered site has no package.json, and the elements
     // surface needs no package manager; the React surface does.

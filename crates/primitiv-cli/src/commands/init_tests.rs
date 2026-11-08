@@ -394,9 +394,9 @@ fn interactive_init_prompts_for_each_omitted_choice() {
     let fs = InMemoryFs::new();
     fs.write(Path::new("package.json"), REACT_PACKAGE_JSON).unwrap();
     let prompt = silent_prompt();
-    // The free-text prompts are answered in order: format, brand, path. Styles is
-    // a [Y/n] confirm, which defaults to yes.
-    prompt.queue_answers(&["scss", "#ff0000", "app/styles"]);
+    // The free-text prompts are answered in order: surface, format, brand, path.
+    // Styles is a [Y/n] confirm, which defaults to yes.
+    prompt.queue_answers(&["react", "scss", "#ff0000", "app/styles"]);
 
     init(
         &fs,
@@ -415,6 +415,7 @@ fn interactive_init_prompts_for_each_omitted_choice() {
     assert_eq!(
         prompt.questions(),
         vec![
+            "Surface (react, elements)",
             "Stylesheet format (css, scss, tailwind)",
             "Brand colour",
             "Where should copied styles land",
@@ -456,8 +457,9 @@ fn interactive_init_surfaces_an_alias_prompt_failure() {
     let fs = InMemoryFs::new();
     fs.write(Path::new("package.json"), REACT_PACKAGE_JSON).unwrap();
     let prompt = silent_prompt();
-    // styles + format + brand + path succeed (calls 1–4); the alias prompt (5) fails.
-    prompt.fail_after(4);
+    // surface + styles + format + brand + path succeed (calls 1–5); the alias
+    // prompt (6) fails.
+    prompt.fail_after(5);
 
     let err = init(
         &fs,
@@ -479,7 +481,7 @@ fn interactive_init_falls_back_to_css_for_an_unrecognised_format() {
     let prompt = silent_prompt();
     // An unparseable format answer falls back to CSS; brand and path are left to
     // their defaults (the queue is exhausted, so `ask` returns each default).
-    prompt.queue_answers(&["nonsense"]);
+    prompt.queue_answers(&["react", "nonsense"]);
 
     init(
         &fs,
@@ -526,7 +528,8 @@ fn interactive_init_surfaces_a_styles_prompt_failure() {
     let fs = InMemoryFs::new();
     fs.write(Path::new("package.json"), REACT_PACKAGE_JSON).unwrap();
     let prompt = silent_prompt();
-    prompt.fail();
+    // The surface prompt (call 1) succeeds; the styles confirm (call 2) fails.
+    prompt.fail_after(1);
 
     let err = init(
         &fs,
@@ -546,8 +549,8 @@ fn interactive_init_surfaces_a_format_prompt_failure() {
     let fs = InMemoryFs::new();
     fs.write(Path::new("package.json"), REACT_PACKAGE_JSON).unwrap();
     let prompt = silent_prompt();
-    // The styles confirm (call 1) succeeds; the format prompt (call 2) fails.
-    prompt.fail_after(1);
+    // surface + styles succeed (calls 1–2); the format prompt (3) fails.
+    prompt.fail_after(2);
 
     let err = init(
         &fs,
@@ -567,8 +570,8 @@ fn interactive_init_surfaces_a_brand_prompt_failure() {
     let fs = InMemoryFs::new();
     fs.write(Path::new("package.json"), REACT_PACKAGE_JSON).unwrap();
     let prompt = silent_prompt();
-    // styles confirm + format prompt succeed (calls 1–2); the brand prompt (3) fails.
-    prompt.fail_after(2);
+    // surface + styles + format succeed (calls 1–3); the brand prompt (4) fails.
+    prompt.fail_after(3);
 
     let err = init(
         &fs,
@@ -588,8 +591,8 @@ fn interactive_init_surfaces_a_path_prompt_failure() {
     let fs = InMemoryFs::new();
     fs.write(Path::new("package.json"), REACT_PACKAGE_JSON).unwrap();
     let prompt = silent_prompt();
-    // styles + format + brand succeed (calls 1–3); the path prompt (4) fails.
-    prompt.fail_after(3);
+    // surface + styles + format + brand succeed (calls 1–4); the path prompt (5) fails.
+    prompt.fail_after(4);
 
     let err = init(
         &fs,
@@ -609,8 +612,9 @@ fn interactive_init_surfaces_a_name_prompt_failure() {
     let fs = InMemoryFs::new();
     fs.write(Path::new("package.json"), REACT_PACKAGE_JSON).unwrap();
     let prompt = silent_prompt();
-    // styles + format + brand + path + alias succeed (calls 1–5); the name prompt (6) fails.
-    prompt.fail_after(5);
+    // surface + styles + format + brand + path + alias succeed (calls 1–6); the
+    // name prompt (7) fails.
+    prompt.fail_after(6);
 
     let err = init(
         &fs,

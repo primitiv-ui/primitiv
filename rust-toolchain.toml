@@ -1,0 +1,9 @@
+# The Rust toolchain every build uses, locally and in CI. Pinned because
+# committed outputs (palette.json, the token layer, the emitter goldens) are
+# compared to the last float digit, and a newer compiler can round that digit
+# differently. Moving to a newer Rust is a deliberate change: bump this and the
+# `dtolnay/rust-toolchain@<version>` in every workflow together, then run
+# `cargo test --workspace` and regenerate whatever it reports.
+[toolchain]
+channel = "1.97.0"
+components = ["rustfmt", "clippy", "llvm-tools-preview"]

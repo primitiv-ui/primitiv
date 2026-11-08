@@ -49,7 +49,7 @@ jobs:
           node-version-file: .nvmrc
 
       # The styled page is installed by the CLI, built from this checkout.
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: dtolnay/rust-toolchain@1.97.0
 
       - uses: Swatinem/rust-cache@v2
 

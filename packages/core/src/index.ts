@@ -14,3 +14,11 @@ export {
   type TabsReadingDirection,
   type TabsState,
 } from "./tabs/policy.ts";
+export {
+  accordionKeydown,
+  accordionToggle,
+  type AccordionKeyOutcome,
+  type AccordionOrientation,
+  type AccordionReadingDirection,
+  type AccordionState,
+} from "./accordion/policy.ts";

@@ -38,3 +38,41 @@ export function accordionToggle(
   if (state.expanded.includes(value)) return state.expanded.filter((open) => open !== value);
   return state.multiple ? [...state.expanded, value] : [value];
 }
+
+/** What a key press on a trigger asks for: a trigger to move focus to, or an
+ * item to toggle — never both. */
+export type AccordionKeyOutcome = { focus: string | null; toggle: string | null };
+
+/**
+ * Accordion's keyboard contract for a key press on the trigger of `focused`:
+ *
+ * - arrows follow `orientation`, mirrored under RTL, and wrap at the ends; Home
+ *   / End jump to the first and last enabled trigger. They move focus only;
+ * - Enter / Space toggle the focused item;
+ * - disabled items are **skipped**, unlike Tabs, which lands on them. While focus
+ *   sits on a disabled trigger the arrows and Enter / Space do nothing, though
+ *   Home / End still jump.
+ *
+ * Returns `null` for a key Accordion does not handle, which tells the caller to
+ * leave the event alone (no `preventDefault`).
+ */
+export function accordionKeydown(
+  state: AccordionState,
+  focused: string,
+  key: string,
+): AccordionKeyOutcome | null {
+  const action = getKeyToActionMap({
+    orientation: state.orientation,
+    dir: state.dir,
+    homeEnd: true,
+    activate: true,
+  })[key];
+
+  if (action === "activate") {
+    return state.disabled.has(focused) ? null : { focus: null, toggle: focused };
+  }
+
+  const navigable = state.values.filter((value) => !state.disabled.has(value));
+  const result = resolveRovingTarget({ action, navigable, currentKey: focused });
+  return result && { focus: result.target, toggle: null };
+}

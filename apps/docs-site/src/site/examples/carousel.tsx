@@ -515,6 +515,84 @@ export const carouselSpec: ComponentSpec = {
       ),
     },
     {
+      id: "infinite-loop",
+      title: "Infinite loop",
+      render: () => (
+        <InteractiveExample
+          caption={'`loop="infinite"` moves the track with a transform rather than native scrolling, so passing either end glides on to the next slide instead of rewinding. Seam copies of the edge slides make the join invisible; they carry `data-carousel-clone` and stay out of the counts and the accessibility tree. Press Next past the last slide, or drag with `allowMouseDrag`: it always settles on a real slide.'}
+          code={(_density, mode) => {
+            const p = partNamer(mode, "Carousel");
+            return [
+              imports(mode),
+              ``,
+              `<${p("Root")} ariaLabel="Featured" loop="infinite" allowMouseDrag>`,
+              `  <${p("Viewport")}>{/* slides */}</${p("Viewport")}>`,
+              `  <${p("PreviousTrigger")} aria-label="Previous slide"><ChevronLeft /></${p("PreviousTrigger")}>`,
+              `  <${p("NextTrigger")} aria-label="Next slide"><ChevronRight /></${p("NextTrigger")}>`,
+              `  <${p("Indicators")} label="Choose slide" />`,
+              `</${p("Root")}>`,
+            ].join("\n");
+          }}
+        >
+          {() => (
+            <div style={{ inlineSize: "100%" }}>
+              <Carousel ariaLabel="Featured products, infinite" loop="infinite" allowMouseDrag>
+                <CarouselViewport>
+                  <Slides />
+                </CarouselViewport>
+                <SplitControls />
+              </Carousel>
+            </div>
+          )}
+        </InteractiveExample>
+      ),
+    },
+    {
+      id: "linked-slides",
+      title: "Linked slides",
+      render: () => (
+        <InteractiveExample
+          caption="A slide can be a link. A tap or click reaches it; only a drag past a small threshold steers the track, and that drag suppresses the click, so dragging a linked slide never follows its link by accident."
+          code={(_density, mode) => {
+            const p = partNamer(mode, "Carousel");
+            return [
+              imports(mode),
+              ``,
+              `<${p("Root")} ariaLabel="Featured" loop="infinite" allowMouseDrag>`,
+              `  <${p("Viewport")}>`,
+              `    {products.map((product) => (`,
+              `      <${p("Slide")} key={product.id}>`,
+              `        <a href={product.href}>{product.name}</a>`,
+              `      </${p("Slide")}>`,
+              `    ))}`,
+              `  </${p("Viewport")}>`,
+              `  <${p("PreviousTrigger")} aria-label="Previous slide"><ChevronLeft /></${p("PreviousTrigger")}>`,
+              `  <${p("NextTrigger")} aria-label="Next slide"><ChevronRight /></${p("NextTrigger")}>`,
+              `  <${p("Indicators")} label="Choose slide" />`,
+              `</${p("Root")}>`,
+            ].join("\n");
+          }}
+        >
+          {() => (
+            <div style={{ inlineSize: "100%" }}>
+              <Carousel ariaLabel="Featured products, linked" loop="infinite" allowMouseDrag>
+                <CarouselViewport>
+                  {GRADIENTS.slice(0, 4).map((bg, i) => (
+                    <CarouselSlide key={i} style={{ background: bg }}>
+                      <a className="docs-carousel-slide-link" href={`#slide-${i + 1}`}>
+                        Slide {i + 1}
+                      </a>
+                    </CarouselSlide>
+                  ))}
+                </CarouselViewport>
+                <SplitControls />
+              </Carousel>
+            </div>
+          )}
+        </InteractiveExample>
+      ),
+    },
+    {
       id: "slideshow",
       title: "Slideshow (parallax)",
       render: () => (

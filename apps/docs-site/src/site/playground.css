@@ -451,3 +451,14 @@
   outline-offset: var(--primitiv-focus-ring-offset);
   border-radius: var(--primitiv-radii-2);
 }
+
+/* A linked slide in the Carousel page's "Linked slides" example: the anchor
+   fills its slide, so the whole slide is the target a tap reaches. */
+.docs-carousel-slide-link {
+  display: grid;
+  place-items: center;
+  inline-size: 100%;
+  block-size: 100%;
+  color: var(--primitiv-color-absolute-white, white);
+  font-weight: var(--primitiv-font-weight-semibold);
+}

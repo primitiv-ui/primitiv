@@ -12,10 +12,11 @@ React, Vue, Angular or any other framework.
 
 ## Use it
 
-**No build step** — one script tag defines every element:
+**No build step** — one script tag per component defines that component's
+elements and nothing else:
 
 ```html
-<script type="module" src="https://cdn.jsdelivr.net/npm/@primitiv-ui/web@<version>/dist/primitiv-web.js"></script>
+<script type="module" src="https://cdn.jsdelivr.net/npm/@primitiv-ui/web@<version>/dist/cdn/tabs.js"></script>
 
 <primitiv-tabs value="overview">
   <primitiv-tabs-list label="Account sections">
@@ -30,9 +31,14 @@ React, Vue, Angular or any other framework.
 **With a bundler** — import a `define` entry once, anywhere:
 
 ```ts
-import "@primitiv-ui/web/define";       // every element
-import "@primitiv-ui/web/define/tabs";  // or one component's
+import "@primitiv-ui/web/define/tabs";  // one component's elements
+import "@primitiv-ui/web/define";       // or every element
 ```
+
+Each `dist/cdn/<component>.js` imports the code components share from
+`dist/cdn/chunks/` by a relative URL, so a page that loads two components
+downloads it once. `dist/primitiv-web.js` is the alternative: every element in
+one file. Per-component files ship from 0.1.43.
 
 The main entry (`@primitiv-ui/web`, `/tabs`) exports the classes and
 `defineTabs(registry?)` with **no side effects**.

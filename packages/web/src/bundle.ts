@@ -6,7 +6,8 @@
  * <script type="module" src="https://cdn.jsdelivr.net/npm/@primitiv-ui/web@<version>/dist/primitiv-web.js"></script>
  * ```
  *
- * Loading it defines every element and exports every class.
+ * Loading it defines every element and exports every class. To load one
+ * component only, use its `dist/cdn/<component>.js` (scripts/build-cdn.mjs).
  */
 export * from "./index.ts";
 import "./define/index.ts";

@@ -52,7 +52,7 @@
     "directory": "packages/web"
   },
   "scripts": {
-    "build": "rm -rf dist && tsc -p tsconfig.build.json && node ../../scripts/finalize-dist.mjs dist && pnpm run build:bundle && pnpm run build:manifest",
+    "build": "rm -rf dist && tsc -p tsconfig.build.json && node ../../scripts/finalize-dist.mjs dist && pnpm run build:bundle && pnpm run build:cdn && pnpm run build:manifest",
     "prepack": "pnpm run build",
     "qa": "pnpm qa:units",
     "qa:units": "vitest run --coverage",
@@ -62,7 +62,8 @@
     "build:bundle": "esbuild src/bundle.ts --bundle --format=esm --minify --target=es2022 --outfile=dist/primitiv-web.js",
     "size": "node scripts/check-size.mjs",
     "build:manifest": "cem analyze --globs \"src/**/elements.ts\" --outdir dist",
-    "manifest:check": "node scripts/check-manifest.mjs"
+    "manifest:check": "node scripts/check-manifest.mjs",
+    "build:cdn": "node scripts/build-cdn.mjs"
   },
   "dependencies": {
     "@primitiv-ui/core": "workspace:*"

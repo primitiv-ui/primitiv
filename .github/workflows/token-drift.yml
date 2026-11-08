@@ -5,7 +5,7 @@ name: Token drift
 # hand-authored base stylesheet assets, but doesn't regenerate the committed
 # output, this fails.
 #
-# It covers everything `primitiv tokens` writes, for BOTH apps — the token layer
+# It covers everything `primitiv tokens` writes, for each app — the token layer
 # plus the `primitiv-base.css` and `breakpoints.ts` siblings emitted beside it.
 # Checking only the token layer is what let the base sheet drift twice in one
 # session (2026-08-18): the regenerate workflow staged a subset, so the rest
@@ -25,9 +25,6 @@ on:
       - 'packages/tokens/src/**'
       - 'crates/primitiv-emit/**'
       - 'crates/primitiv-cli/**'
-      - 'apps/kitchen-sink/src/styles/primitiv/tokens.css'
-      - 'apps/kitchen-sink/src/styles/primitiv/primitiv-base.css'
-      - 'apps/kitchen-sink/src/styles/primitiv/breakpoints.ts'
       - 'apps/workbench/src/primitiv-tokens.css'
       - 'apps/workbench/src/primitiv-base.css'
       - 'apps/docs-site/src/styles/primitiv/tokens.css'
@@ -40,9 +37,6 @@ on:
       - 'packages/tokens/src/**'
       - 'crates/primitiv-emit/**'
       - 'crates/primitiv-cli/**'
-      - 'apps/kitchen-sink/src/styles/primitiv/tokens.css'
-      - 'apps/kitchen-sink/src/styles/primitiv/primitiv-base.css'
-      - 'apps/kitchen-sink/src/styles/primitiv/breakpoints.ts'
       - 'apps/workbench/src/primitiv-tokens.css'
       - 'apps/workbench/src/primitiv-base.css'
       - 'apps/docs-site/src/styles/primitiv/tokens.css'
@@ -81,12 +75,8 @@ jobs:
               stale=1
             fi
           }
-          KS=apps/kitchen-sink/src/styles/primitiv
           WB=apps/workbench/src
           DS=apps/docs-site/src/styles/primitiv
-          check "$KS/tokens.css"          "${RUNNER_TEMP}/emit/tokens.css"
-          check "$KS/primitiv-base.css"   "${RUNNER_TEMP}/emit/primitiv-base.css"
-          check "$KS/breakpoints.ts"      "${RUNNER_TEMP}/emit/breakpoints.ts"
           # The workbench emits the same content under its own token-layer name.
           check "$WB/primitiv-tokens.css" "${RUNNER_TEMP}/emit/tokens.css"
           check "$WB/primitiv-base.css"   "${RUNNER_TEMP}/emit/primitiv-base.css"

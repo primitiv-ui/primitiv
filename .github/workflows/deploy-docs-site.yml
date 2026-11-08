@@ -4,9 +4,8 @@ name: Deploy docs site
 # (Actions → "Deploy docs site" → Run workflow) or by asking Claude to run it.
 #
 # Publishes the Next.js docs site (apps/docs-site) as the main GitHub Pages site
-# at the primitiv-ui.dev custom domain root (via apps/docs-site/public/CNAME),
-# with the kitchen-sink kept at /kitchen-sink/ for phone QA. (Replaces the old
-# VitePress deploy.)
+# at the primitiv-ui.dev custom domain root (via apps/docs-site/public/CNAME).
+# (Replaces the old VitePress deploy.)
 on:
   workflow_dispatch:
 
@@ -38,13 +37,11 @@ jobs:
           node-version-file: .nvmrc
           cache: pnpm
 
-      # Both apps/docs-site and apps/kitchen-sink are EXCLUDED from the pnpm
-      # workspace (pnpm-workspace.yaml) — they are standalone consumers with
-      # their own lockfiles, so each installs with --ignore-workspace and there
-      # is no root install (and no wasm) to do. @primitiv-ui/react is a `link:`
-      # to packages/react's SOURCE (zero runtime deps, transpiled by Next), so
-      # the build exercises the current branch's headless code; @primitiv-ui/icons
-      # is the published package.
+      # apps/docs-site is EXCLUDED from the pnpm workspace (pnpm-workspace.yaml):
+      # a standalone consumer with its own lockfile, installed with
+      # --ignore-workspace. @primitiv-ui/react is a `link:` to packages/react's
+      # SOURCE (transpiled by Next), so the build exercises the current branch's
+      # headless code; @primitiv-ui/icons is the published package.
       # @primitiv-ui/react imports @primitiv-ui/web and @primitiv-ui/core (RFC
       # 0033). The docs site compiles react from its source, and those imports
       # resolve from packages/react's own node_modules, so install react and what
@@ -72,33 +69,13 @@ jobs:
         run: pnpm test:seo
         working-directory: apps/docs-site
 
-      # The kitchen-sink is kept at /kitchen-sink/ for phone QA. Its
-      # Vite/tsconfig dev-alias @primitiv-ui/react + /icons to the workspace
-      # SOURCE, so this exercises the current branch too. Run `vite build`
-      # directly (not the package's `tsc -b && vite build`): the aliased source
-      # is outside the composite tsconfig's include (TS6307), and the real type
-      # gates run on packages/react anyway.
-      - name: Install kitchen-sink dependencies
-        run: pnpm install --ignore-workspace --no-frozen-lockfile
-        working-directory: apps/kitchen-sink
-
-      - name: Build kitchen-sink
-        env:
-          KITCHEN_SINK_BASE: /kitchen-sink/
-        run: pnpm exec vite build
-        working-directory: apps/kitchen-sink
-
-      # Assemble: the docs site is the root; the kitchen-sink is a sub-path (its
-      # own SPA / HTML document, so no CSS interaction with the docs site).
       # .nojekyll is REQUIRED — Next emits a `_next/` dir, and GitHub Pages'
       # Jekyll would otherwise drop every underscore-prefixed path. CNAME (from
       # apps/docs-site/public/) rides along in `out/` automatically since it's
       # a public asset, which is what keeps the custom domain pinned across
       # every redeploy.
       - name: Assemble site
-        run: |
-          cp -r apps/kitchen-sink/dist apps/docs-site/out/kitchen-sink
-          touch apps/docs-site/out/.nojekyll
+        run: touch apps/docs-site/out/.nojekyll
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3

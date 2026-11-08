@@ -55,9 +55,6 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Regenerate the kitchen-sink token layer
-        run: cargo run -q -p primitiv-cli -- tokens --format css --out apps/kitchen-sink/src/styles/primitiv/tokens.css
-
       - name: Regenerate the workbench token layer
         run: cargo run -q -p primitiv-cli -- tokens --format css --out apps/workbench/src/primitiv-tokens.css
 
@@ -74,9 +71,6 @@ jobs:
           # it emits beside each one. Staging a subset is what let the base sheet
           # drift.
           git add \
-            apps/kitchen-sink/src/styles/primitiv/tokens.css \
-            apps/kitchen-sink/src/styles/primitiv/primitiv-base.css \
-            apps/kitchen-sink/src/styles/primitiv/breakpoints.ts \
             apps/workbench/src/primitiv-tokens.css \
             apps/workbench/src/primitiv-base.css \
             apps/workbench/src/breakpoints.ts \

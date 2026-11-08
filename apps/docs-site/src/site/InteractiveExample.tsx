@@ -8,7 +8,7 @@ import { Stack } from "@/components/stack";
 import { DensityRadios } from "./DensityRadios";
 import { ElementsPreview } from "./ElementsPreview";
 import { ModeCodeBlock } from "./ModeCodeBlock";
-import { DEFAULT_DENSITY, type Density, withoutClasses } from "@/lib/playground";
+import { DEFAULT_DENSITY, type Density } from "@/lib/playground";
 import { renderDoc } from "@/lib/render-doc";
 import { type Mode, useView } from "@/site/preferences";
 import { useDensityGlide } from "@/site/use-density-glide";
@@ -46,8 +46,8 @@ export const InteractiveExample = ({
   /**
    * The markup the Elements preview renders, when the Elements code tab is not
    * complete markup on its own (it elides a repeated part, or shows an icon as
-   * a placeholder). Defaults to that code. Written styled; the headless preview
-   * strips the classes, as the code tab does. Receives the Elements code, so an
+   * a placeholder). Defaults to that code. Written styled, and previewed
+   * styled in both modes, as React mode's preview is. Receives the Elements code, so an
    * override can fill in a placeholder rather than restate the markup.
    */
   elementsPreview?: (density: Density, code: string) => string;
@@ -58,11 +58,10 @@ export const InteractiveExample = ({
 }) => {
   const [density, setDensity, gliding] =
     useDensityGlide<Density>(DEFAULT_DENSITY);
-  const { reading, style } = useView();
+  const { reading } = useView();
   const elementsHtml = () => {
     const markup = code(density, "elements");
-    const html = elementsPreview ? elementsPreview(density, markup) : markup;
-    return style === "headless" ? withoutClasses(html) : html;
+    return elementsPreview ? elementsPreview(density, markup) : markup;
   };
   const caption =
     reading === "elements" && elementsCaption ? elementsCaption : reactCaption;

@@ -3,7 +3,8 @@ import { test, expect, type Page } from "@playwright/test";
 // Elements mode previews render the REAL custom elements (`@primitiv-ui/web`),
 // not the React component styled to look like them, because a developer
 // reading the Elements page opens devtools and expects the DOM to match the
-// code tab. Elements is the default framework and opens headless.
+// code tab. Elements is the default framework and opens headless, but the
+// preview is always the styled markup: bare markup previews as unstyled HTML.
 
 const FRAMEWORK_KEY = "primitiv-docs-framework";
 
@@ -20,8 +21,9 @@ test("the Tabs playground and examples are defined <primitiv-tabs> elements", as
   // happens once the definition has loaded (it is imported on demand).
   await expect(tabs.first().locator("button").first()).toHaveAttribute("role", "tab");
   expect(await page.evaluate(() => !!customElements.get("primitiv-tabs"))).toBe(true);
-  // Headless by default: no Primitiv classes on the element.
-  await expect(tabs.first()).not.toHaveAttribute("class", /primitiv-tabs/);
+  // Styled even under Headless (the default): the preview always shows the
+  // finished component, as React mode's does; only the code tabs differ.
+  await expect(tabs.first()).toHaveAttribute("class", /primitiv-tabs/);
 });
 
 test("the Controlled example follows primitiv-tabs-change", async ({ page }) => {

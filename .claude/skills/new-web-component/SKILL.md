@@ -224,9 +224,11 @@ Load the `docs-site-component-page` skill as well. For Elements:
      `children`, `React`. Only the demo's own sample data should remain.
 4. **The previews are the real elements.** In Elements mode the playground and
    every `InteractiveExample` mount the Elements markup with `ElementsPreview`
-   (loads `@primitiv-ui/web/define` on demand; strips classes when headless) —
-   a developer reading the page opens devtools and expects the DOM to match
-   the code tab. So the Elements code must be complete markup. Where it isn't
+   (loads `@primitiv-ui/web/define` on demand) — a developer reading the page
+   opens devtools and expects real elements. The preview is the **styled**
+   markup in both modes, as React mode's preview always has been: stripping the
+   classes under Headless previews unstyled HTML (tried, and reverted). Only the
+   code tabs differ. So the Elements code must be complete markup. Where it isn't
    on purpose, give the example an override:
    - `elementsPreview={(density, code) => …}` — return the full markup, e.g.
      when the code elides repeated parts (Tabs "Controlled") or shows an icon
@@ -235,7 +237,8 @@ Load the `docs-site-component-page` skill as well. For Elements:
    - `wire={(root) => cleanup}` — behaviour the code tab shows as a
      `<script>`, e.g. a `primitiv-tabs-change` listener updating a readout.
    Add the component to `apps/docs-site/e2e/elements-preview.spec.ts`: the
-   element is defined, its roles are wired, headless carries no classes, and
+   element is defined, its roles are wired, the preview keeps its classes under
+   Headless, and
    React mode renders no `primitiv-*` element. Add the spec file to the
    `e2e-carousel.yml` paths.
 5. The Installation and Load panels, the fallback notices and the

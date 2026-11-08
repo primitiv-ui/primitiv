@@ -19,7 +19,6 @@ import {
   toJsx,
   type Density,
   type PlaygroundControl,
-  withoutClasses,
 } from "@/lib/playground";
 
 import { type Mode, useView } from "@/site/preferences";
@@ -188,7 +187,7 @@ export const Playground = ({
   elements,
 }: PlaygroundProps) => {
   const [values, setValues] = useState(() => initialValues(controls));
-  const { reading, style } = useView();
+  const { reading } = useView();
   const [density, setDensity, gliding, glide] =
     useDensityGlide<Density>(DEFAULT_DENSITY);
   /* The snippet has to know the mode: a compound's part names differ between
@@ -260,17 +259,12 @@ export const Playground = ({
                 data-density-gliding={gliding || undefined}
               >
                 {/* Elements mode previews the real custom elements, from the
-                    same string the Elements code tab shows (bare under
-                    Headless), so the DOM a reader inspects is the markup they
-                    are reading. */}
+                    same string as the Styled code tab. Styled under Headless
+                    too, as React mode's preview is: bare markup would preview
+                    as unstyled HTML, and the code tabs already show the
+                    difference. */}
                 {reading === "elements" ? (
-                  <ElementsPreview
-                    html={
-                      style === "headless"
-                        ? withoutClasses(codeFor("elements"))
-                        : codeFor("elements")
-                    }
-                  />
+                  <ElementsPreview html={codeFor("elements")} />
                 ) : (
                   children(values)
                 )}

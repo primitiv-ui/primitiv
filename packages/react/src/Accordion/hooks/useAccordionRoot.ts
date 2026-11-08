@@ -1,5 +1,7 @@
 import { useRef, useMemo, useCallback, useId, useEffect } from "react";
 
+import { AccordionController } from "@primitiv-ui/web";
+
 import { useCollection, useControllableState } from "../../hooks/index.ts";
 
 import type { AccordionReadingDirection } from "../types";
@@ -52,37 +54,10 @@ export function useAccordionRoot(
     [registerTriggerBase],
   );
 
-  const disabledItemIds = useMemo(
-    () =>
-      new Set(
-        Array.from(triggersRef.current.entries())
-          .filter(([, meta]) => meta.disabled)
-          .map(([id]) => id),
-      ),
-    // registeredTriggerItemIds is a fresh array on every register call (new
-    // identity even when the keys are the same), so the memo re-runs whenever
-    // any trigger mounts, unmounts, or toggles disabled — which is exactly
-    // the trigger we want for re-deriving disabledItemIds.
-    [registeredTriggerItemIds, triggersRef],
-  );
-
-  const focusTrigger = useCallback(
-    (itemId: string) => {
-      // `itemId` is always sourced from the navigable set (registered triggers),
-      // so a value that reaches here is guaranteed to have a live entry.
-      // Stryker disable next-line OptionalChaining: unreachable given that invariant.
-      triggersRef.current.get(itemId)?.element.focus();
-    },
-    // `triggersRef` is a stable RefObject, so emptying this array yields the
-    // identical memoised function.
-    // Stryker disable next-line ArrayDeclaration: equivalent — stable dependency.
-    [triggersRef],
-  );
-
   // Like Tabs, Accordion's existing public contract is that uncontrolled
   // mode does NOT call onValueChange — only the controlled path notifies the
   // consumer. So we don't pass onValueChange to useControllableState; the
-  // toggleItem branch below fires it directly in controlled mode.
+  // controller's `change` below fires it directly in controlled mode.
   const [expandedItems, setExpandedItems, isControlled] = useControllableState<
     Set<string>
   >(
@@ -92,34 +67,6 @@ export function useAccordionRoot(
     // `value ?? useId()`), so it is observationally identical to the empty set.
     // Stryker disable next-line ConditionalExpression
     defaultValue !== undefined ? new Set([defaultValue]) : new Set(),
-  );
-
-  const computeNext = (prev: Set<string>, itemId: string): Set<string> => {
-    const next = new Set(prev);
-    if (next.has(itemId)) {
-      next.delete(itemId);
-    } else if (multiple) {
-      next.add(itemId);
-    } else {
-      next.clear();
-      next.add(itemId);
-    }
-    return next;
-  };
-
-  const toggleItem = useCallback(
-    (itemId: string) => {
-      const next = computeNext(expandedItems, itemId);
-      if (isControlled) {
-        // Controlled mode requires `onValueChange` (discriminated-union prop
-        // type), so the optional call can never no-op in valid usage.
-        // Stryker disable next-line OptionalChaining: unreachable — controlled requires onValueChange.
-        onValueChange?.(Array.from(next));
-      } else {
-        setExpandedItems(next);
-      }
-    },
-    [expandedItems, isControlled, multiple, setExpandedItems, onValueChange],
   );
 
   // Panels are tracked in a ref only. registerPanel does NOT call setState —
@@ -161,11 +108,8 @@ export function useAccordionRoot(
       expandedItems,
       orientation,
       dir,
-      toggleItem,
       registerTrigger,
       registeredTriggerItemIds,
-      disabledItemIds,
-      focusTrigger,
       registerPanel,
       unregisterPanel,
     }),
@@ -174,15 +118,79 @@ export function useAccordionRoot(
       expandedItems,
       orientation,
       dir,
-      toggleItem,
       registerTrigger,
       registeredTriggerItemIds,
-      disabledItemIds,
-      focusTrigger,
       registerPanel,
       unregisterPanel,
     ],
   );
 
-  return { contextValue };
+  // ── The adapter (RFC 0033 §3.4, D28) ────────────────────────────────────
+  // Accordion's DOM behaviour — clicks, the keyboard contract, focus — runs in
+  // the web implementation's AccordionController, the same code the
+  // <primitiv-accordion> element runs. React keeps rendering exactly the markup
+  // it always has and keeps the state; the controller reads that state through
+  // `latest` and asks for changes through `change`.
+  const rootRef = useRef<HTMLDivElement>(null);
+  const controllerRef = useRef<AccordionController | null>(null);
+  const snapshot = {
+    expandedItems,
+    multiple,
+    orientation,
+    dir,
+    isControlled,
+    setExpandedItems,
+    onValueChange,
+  };
+  const latest = useRef(snapshot);
+  latest.current = snapshot;
+
+  useEffect(
+    () => {
+      const controller = new AccordionController(
+        rootRef.current as HTMLDivElement,
+        {
+          state: () => ({
+            expanded: [...latest.current.expandedItems],
+            multiple: latest.current.multiple,
+            orientation: latest.current.orientation,
+            dir: latest.current.dir,
+          }),
+          change: (next) => {
+            const current = latest.current;
+            if (current.isControlled) {
+              // Controlled mode requires `onValueChange` (discriminated-union prop
+              // type), so the optional call can never no-op in valid usage.
+              // Stryker disable next-line OptionalChaining: unreachable — controlled requires onValueChange.
+              current.onValueChange?.(next);
+            } else {
+              current.setExpandedItems(new Set(next));
+            }
+          },
+        },
+      );
+      controllerRef.current = controller;
+      controller.connect();
+      return () => controller.disconnect();
+    },
+    // Stryker disable next-line ArrayDeclaration: equivalent — any constant dependency list runs this once per mount.
+    [],
+  );
+
+  // Hand the controller the current collection whenever it changes: it orders
+  // triggers by DOM position itself, and one that has unmounted is simply not
+  // in the list. `registeredTriggerItemIds` is a fresh array on every
+  // registration — including a trigger toggling `disabled` — so it is the only
+  // dependency.
+  useEffect(() => {
+    (controllerRef.current as AccordionController).setTriggers(
+      [...triggersRef.current].map(([itemId, meta]) => ({
+        value: itemId,
+        element: meta.element,
+        disabled: meta.disabled,
+      })),
+    );
+  }, [registeredTriggerItemIds, triggersRef]);
+
+  return { contextValue, rootRef };
 }

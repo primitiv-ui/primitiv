@@ -1,6 +1,5 @@
-import { useMemo, useRef, useEffect, MouseEvent, KeyboardEvent } from "react";
+import { useRef, useEffect, MouseEvent } from "react";
 
-import { useRovingTabindex } from "../../hooks/index.ts";
 import { composeRefs } from "../../Slot/index.ts";
 
 import { AccordionTriggerProps } from "../types";
@@ -18,15 +17,7 @@ export function useAccordionTrigger({
   ...rest
 }: Omit<AccordionTriggerProps, "children">) {
   const { buttonId, panelId, itemId, isExpanded } = useAccordionItemContext();
-  const {
-    toggleItem,
-    registerTrigger,
-    registeredTriggerItemIds,
-    disabledItemIds,
-    focusTrigger,
-    orientation,
-    dir,
-  } = useAccordionContext();
+  const { registerTrigger } = useAccordionContext();
   const triggerRef = useRef<HTMLButtonElement>(null);
   const composedRef = ref ? composeRefs(triggerRef, ref) : triggerRef;
 
@@ -46,38 +37,15 @@ export function useAccordionTrigger({
     return () => registerTrigger(itemId, null);
   }, [itemId, disabled, registerTrigger]);
 
+  // Toggling — on click, Enter and Space — and arrow-key focus movement are not
+  // handled here: the root's AccordionController (from `@primitiv-ui/web`) owns
+  // Accordion's DOM behaviour for every surface (RFC 0033 §3.4). Its native
+  // listener on the root runs first, so a consumer `onClick` still runs after
+  // the toggle — and, as it always has, not at all on a disabled trigger. A
+  // consumer `onKeyDown` is just a prop on the rendered element.
   function handleClick(e: MouseEvent<HTMLButtonElement>) {
     if (disabled) return;
-    toggleItem(itemId);
     onClick?.(e);
-  }
-
-  // Pre-filter disabled triggers out of the navigable list — Accordion's
-  // ARIA contract is that arrow keys skip past disabled triggers (unlike
-  // Tabs, which lands on disabled triggers without activating them).
-  const enabledItemIds = useMemo(
-    () => registeredTriggerItemIds.filter((id) => !disabledItemIds.has(id)),
-    [registeredTriggerItemIds, disabledItemIds],
-  );
-  const { handleKeyDown: rovingKeyDown } = useRovingTabindex<string>({
-    orientation,
-    dir,
-    navigable: enabledItemIds,
-    currentKey: itemId,
-    onNavigate: focusTrigger,
-    includeHomeEnd: true,
-  });
-
-  function handleKeyDown(e: KeyboardEvent<HTMLButtonElement>) {
-    // Accordion-specific: Enter / Space toggle the focused item rather than
-    // activate something else, so they're handled here before delegating
-    // arrow / Home / End to the shared hook.
-    if ((e.key === "Enter" || e.key === " ") && !disabled) {
-      e.preventDefault();
-      toggleItem(itemId);
-      return;
-    }
-    rovingKeyDown(e);
   }
 
   const triggerProps = {
@@ -89,7 +57,6 @@ export function useAccordionTrigger({
     "data-disabled": disabled,
     ...(asChild && disabled ? { role: "button" } : {}),
     onClick: handleClick,
-    onKeyDown: handleKeyDown,
     "data-state": isExpanded ? "open" : "closed",
     ...rest,
   };

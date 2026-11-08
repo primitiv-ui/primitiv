@@ -297,9 +297,6 @@ pub fn add(
                 ensure_packages(fs, runner, &index, &resolved, surface, &dir)?;
             }
         }
-        if headless && !*json {
-            print_examples(output, registry, &index, &resolved, true)?;
-        }
         if !*no_styles && !headless {
             // The style packages (cva) serve the React recipe, which only the
             // React surface copies.
@@ -346,9 +343,11 @@ pub fn add(
                     .as_bytes(),
                 )?;
             }
-            if surface == Surface::Elements && !*json {
-                print_examples(output, registry, &index, &resolved, false)?;
-            }
+        }
+        // The markup is the last thing printed, styled or not: classes on it
+        // when the styling was copied, bare when the run was headless.
+        if surface == Surface::Elements && !*json && (headless || !*no_styles) {
+            print_examples(output, registry, &index, &resolved, headless)?;
         }
     }
     Ok(())

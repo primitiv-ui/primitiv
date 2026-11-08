@@ -18,7 +18,8 @@ const primitiv = (...args) =>
 
 rmSync(site, { recursive: true, force: true });
 mkdirSync(site, { recursive: true });
-primitiv("init", "--yes");
+// Styled: elements are headless unless styling is asked for at init.
+primitiv("init", "--yes", "--styles");
 const output = primitiv("add", "tabs");
 
 const heading = "Example markup for tabs:\n\n";

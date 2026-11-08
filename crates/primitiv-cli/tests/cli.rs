@@ -775,7 +775,7 @@ fn add_on_the_elements_surface_installs_into_a_plain_html_site_and_prints_the_ma
              <link rel=\"stylesheet\" href=\"primitiv/index.css\">\n",
         ))
         .stdout(predicate::str::ends_with(
-            "Example markup for kbd:\n\n<kbd class=\"primitiv-kbd primitiv-kbd--md\">Kbd</kbd>\n",
+            "Example markup for kbd:\n\n  <kbd class=\"primitiv-kbd primitiv-kbd--md\">Kbd</kbd>\n",
         ));
 
     // The markup is printed, never copied.

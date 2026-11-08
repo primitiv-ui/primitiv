@@ -333,7 +333,11 @@ fn print_examples(
                 .file(name, file)
                 .map_err(|error| CliError::Registry(error.to_string()))?;
             message.push_str(&format!("\nExample markup for {name}:\n\n"));
-            message.push_str(&String::from_utf8_lossy(&markup));
+            // Indented like the other printed blocks (the `<link>` and `<script>`
+            // lines); leading spaces are harmless wherever it is pasted.
+            for line in String::from_utf8_lossy(&markup).lines() {
+                message.push_str(&format!("  {line}\n"));
+            }
         }
     }
     output.write_stdout(message.as_bytes()).map_err(CliError::Io)
@@ -657,7 +661,7 @@ fn planned_files(
         for name in resolved {
             let entry = &index.components[name];
             let component_dir = Path::new(styles_path).join(name);
-            for file in &entry.contract {
+            if let Some(file) = &entry.contract {
                 files.push(PlannedFile {
                     name: name.clone(),
                     file: file.clone(),

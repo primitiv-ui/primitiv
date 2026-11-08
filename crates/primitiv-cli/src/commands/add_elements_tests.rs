@@ -253,7 +253,7 @@ fn copies_the_stylesheet_and_contract_into_one_folder_per_component() {
 fn kbd_and_tabs_registry() -> InMemoryRegistry {
     kbd_registry()
         .with_file("tabs", "styles.css", b".primitiv-tabs{}")
-        .with_file("tabs", "tabs.html", b"<primitiv-tabs></primitiv-tabs>\n")
+        .with_file("tabs", "tabs.html", b"<primitiv-tabs>\n  <primitiv-tabs-list></primitiv-tabs-list>\n</primitiv-tabs>\n")
 }
 
 /// Run a real (non-dry) elements `add` of `components` in `fs`.
@@ -432,8 +432,9 @@ fn ends_by_printing_each_components_example_markup() {
 
     assert!(
         String::from_utf8(output.captured()).unwrap().ends_with(
-            "\nExample markup for kbd:\n\n<kbd class=\"primitiv-kbd\">Kbd</kbd>\n\
-             \nExample markup for tabs:\n\n<primitiv-tabs></primitiv-tabs>\n"
+            // Indented like the other printed blocks, every line of it.
+            "\nExample markup for kbd:\n\n  <kbd class=\"primitiv-kbd\">Kbd</kbd>\n\
+             \nExample markup for tabs:\n\n  <primitiv-tabs>\n    <primitiv-tabs-list></primitiv-tabs-list>\n  </primitiv-tabs>\n"
         ),
         "{}",
         String::from_utf8(output.captured()).unwrap()

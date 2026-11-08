@@ -13,3 +13,7 @@
 # (a7b714e). Untracking it alone leaves it reappearing as an UNTRACKED file on
 # the next run, so the ignore rule is the half that makes that stick.
 next-env.d.ts
+
+# Playwright's run output (pnpm test:e2e).
+/test-results/
+/playwright-report/

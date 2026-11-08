@@ -33,7 +33,8 @@ fn wraps_the_text_in_a_label_span_when_the_contract_asks() {
 
     assert_eq!(
         emit_snippet(&contract),
-        "<span class=\"primitiv-demo-pill\"><span class=\"primitiv-demo-pill__label\">Demo pill</span></span>\n"
+        // A child element goes on its own line, indented, so the nesting reads.
+        "<span class=\"primitiv-demo-pill\">\n  <span class=\"primitiv-demo-pill__label\">Demo pill</span>\n</span>\n"
     );
 }
 

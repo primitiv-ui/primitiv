@@ -26,21 +26,19 @@ pub fn emit_snippet(contract: &Contract) -> String {
     } else {
         ""
     };
+    let open = format!("<{element}{kind} class=\"{}\">", classes.join(" "));
     let text = sample_text(&contract.name);
     // The styled wrapper puts text children in a label span (so `text-box-trim`
-    // sits on the text, not the flex box); the snippet writes the same span.
-    let content = if contract.wrap_text_children {
+    // sits on the text, not the flex box); the example writes the same span,
+    // on its own indented line so the nesting reads.
+    if contract.wrap_text_children {
         format!(
-            "<span class=\"{}__label\">{text}</span>",
+            "{open}\n  <span class=\"{}__label\">{text}</span>\n</{element}>\n",
             contract.root.class
         )
     } else {
-        text
-    };
-    format!(
-        "<{element}{kind} class=\"{}\">{content}</{element}>\n",
-        classes.join(" ")
-    )
+        format!("{open}{text}</{element}>\n")
+    }
 }
 
 /// Placeholder content: the component name in sentence case (`demo-box` →

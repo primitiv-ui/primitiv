@@ -10,6 +10,7 @@ pub mod mode;
 pub mod pipeline;
 pub mod recipe;
 pub mod scss;
+pub mod snippet;
 pub mod steps;
 pub mod tailwind;
 pub mod theme;
@@ -65,6 +66,8 @@ mod pipeline_tests;
 mod recipe_tests;
 #[cfg(test)]
 mod scss_tests;
+#[cfg(test)]
+mod snippet_tests;
 #[cfg(test)]
 mod steps_tests;
 #[cfg(test)]

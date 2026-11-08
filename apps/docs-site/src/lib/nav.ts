@@ -71,6 +71,30 @@ export const COMPONENT_GROUPS: readonly NavGroup[] = CATEGORY_ORDER.map(
   }),
 ).filter((group) => group.links.length > 0);
 
+/** Whether a component appears in `mode`: every documented one, except in
+ *  Elements mode, which lists only those with an elements surface. */
+export const inMode = (
+  entry: { readonly documented: boolean; readonly elements: boolean },
+  mode: Mode,
+) => entry.documented && (mode !== "elements" || entry.elements);
+
+/**
+ * The Components section's groups for a mode. Elements mode keeps only the
+ * components with an elements surface (RFC 0033), and with them only the
+ * categories that still have one; every other mode is the full list.
+ */
+export const componentGroups = (mode: Mode): readonly NavGroup[] =>
+  mode === "elements"
+    ? COMPONENT_GROUPS.map((group) => ({
+        ...group,
+        links: group.links.filter((link) =>
+          ROSTER.some(
+            (e) => e.elements && link.href === `/components/${e.id}/`,
+          ),
+        ),
+      })).filter((group) => group.links.length > 0)
+    : COMPONENT_GROUPS;
+
 /**
  * Links derived from the content pages themselves, so the nav lists the
  * sections a page actually has.
@@ -135,10 +159,11 @@ export const NAV: readonly NavSection[] = [
   },
 ];
 
-/** The three consumption modes (§1.1). Scoped to the Components section. */
+/** The consumption modes (§1.1). Scoped to the Components section. */
 export const MODES = [
   { value: "styled", label: "Styled" },
   { value: "headless", label: "Headless" },
+  { value: "elements", label: "Elements" },
   { value: "figma", label: "Figma" },
 ] as const;
 

@@ -9,7 +9,8 @@ import { Collapsible } from "@primitiv-ui/react";
 
 import { List } from "@/components/list";
 
-import { NAV, type NavSection } from "@/lib/nav";
+import { NAV, componentGroups, type NavSection } from "@/lib/nav";
+import { useMode } from "@/site/preferences";
 import { samePage, samePath } from "@/lib/path";
 
 import "./side-nav.css";
@@ -66,6 +67,11 @@ const Section = ({
   // region — see `.docs-nav-section--fill` in side-nav.css. A plain or closed
   // section stays natural height and never scrolls.
   const fill = open && Boolean(section.groups);
+
+  /* The grouped section is Components, whose list follows the mode switch:
+     Elements mode lists only the components with an elements surface. */
+  const [mode] = useMode();
+  const groups = section.groups && componentGroups(mode);
 
   // The grouped section is the only scroll container, so it is the only one
   // whose position is worth persisting across navigations.
@@ -132,9 +138,9 @@ const Section = ({
             inside it. */}
         <Collapsible.Content forceMount className="docs-nav-content">
           <div className="docs-nav-content-inner">
-            {section.groups ? (
+            {groups ? (
               <div className="docs-nav-groups" ref={groupsRef}>
-                {section.groups.map((group) => (
+                {groups.map((group) => (
                   <div className="docs-nav-group" key={group.title}>
                     <h3 className="docs-nav-group-title">{group.title}</h3>
                     {links(group.links)}

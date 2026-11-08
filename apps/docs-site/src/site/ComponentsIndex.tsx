@@ -21,6 +21,7 @@ import {
   CardMedia,
   CardTitle,
 } from "@/components/card";
+import { InlineCode } from "@/components/inline-code";
 import { Tag } from "@/components/tag";
 import {
   CATEGORY_ORDER,
@@ -30,6 +31,9 @@ import {
 } from "@/lib/docs-data";
 import { cardSummary } from "@/lib/card-summary";
 import { renderDoc } from "@/lib/render-doc";
+
+import { Shell } from "./Shell";
+import { useMode } from "./preferences";
 
 import { useCompactIndex } from "./use-compact-index";
 
@@ -244,25 +248,67 @@ const CategoryGrid = ({
  * component appears here the moment it is in `registry.json`, and it starts
  * linking the moment it has docs-data.
  */
+/**
+ * The categories and their components for a mode. Elements mode lists only the
+ * components with an elements surface (RFC 0033), so a category without one
+ * drops out, heading and TOC entry together; every other mode is the whole
+ * library.
+ */
+const groupsFor = (mode: string) =>
+  CATEGORY_ORDER.map((category) => ({
+    category,
+    group: ROSTER.filter(
+      (entry) =>
+        entry.category === category && (mode !== "elements" || entry.elements),
+    ),
+    /* Never expected outside Elements mode, since the roster covers the whole
+       registry, but a heading over an empty grid is worse than a missing one. */
+  })).filter(({ group }) => group.length > 0);
+
+/**
+ * The /components page: the index and its TOC rail, both from one list.
+ *
+ * A client component because the list follows the mode switch, which lives in
+ * the browser. Building the rail here rather than in the route keeps the rail
+ * and the headings from disagreeing about which categories exist.
+ */
+export const ComponentsIndexPage = () => {
+  const [mode] = useMode();
+  const toc = groupsFor(mode).map(({ category }) => ({
+    id: categorySlug(category),
+    title: category,
+  }));
+  return (
+    <Shell toc={toc}>
+      <ComponentsIndex />
+    </Shell>
+  );
+};
+
 export const ComponentsIndex = () => {
   const compact = useCompactIndex();
-
-  const groups = CATEGORY_ORDER.map((category) => ({
-    category,
-    group: ROSTER.filter((entry) => entry.category === category),
-    /* Never expected now that the roster covers the whole registry, but a
-       heading over an empty grid is worse than a missing heading. */
-  })).filter(({ group }) => group.length > 0);
+  const [mode] = useMode();
+  const groups = groupsFor(mode);
 
   return (
     <>
       <h1 className="docs-index-title">Components</h1>
-      <p className="docs-index-lede">
-        Every component ships three ways: a headless primitive, a styled
-        registry surface you own outright, and a Figma component set. Pick a
-        component to see all three — pages marked <em>Docs soon</em> are on
-        their way.
-      </p>
+      {mode === "elements" ? (
+        <p className="docs-index-lede">
+          Elements mode lists the components with an elements surface: standard
+          custom elements from <InlineCode size="md">@primitiv-ui/web</InlineCode>, or plain markup
+          with the registry&rsquo;s classes where a component has no behaviour.
+          They work in any HTML, any framework or none. More are on their way;
+          switch mode to see the whole library.
+        </p>
+      ) : (
+        <p className="docs-index-lede">
+          Every component ships three ways: a headless primitive, a styled
+          registry surface you own outright, and a Figma component set. Pick a
+          component to see all three — pages marked <em>Docs soon</em> are on
+          their way.
+        </p>
+      )}
 
       {compact ? (
         /*

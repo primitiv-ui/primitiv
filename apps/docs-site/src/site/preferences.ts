@@ -18,8 +18,13 @@ import { useLocalStorage } from "@primitiv-ui/react";
 export const MODE_KEY = "primitiv-docs-mode";
 export const FRAMEWORK_KEY = "primitiv-docs-framework";
 
-/** The three consumption modes (docs-site-planning.md §1.1). */
-export const MODES = ["styled", "headless", "figma"] as const;
+/**
+ * The consumption modes (docs-site-planning.md §1.1), plus Elements: the
+ * custom elements of `@primitiv-ui/web` with the registry's classes on plain
+ * markup (RFC 0033). Only components with an elements surface have it, so in
+ * Elements mode the navigation lists just those.
+ */
+export const MODES = ["styled", "headless", "elements", "figma"] as const;
 export type Mode = (typeof MODES)[number];
 
 /** Framework flavour for code samples. */
@@ -29,6 +34,7 @@ export type Framework = (typeof FRAMEWORKS)[number];
 const LABELS: Record<string, string> = {
   headless: "Headless",
   styled: "Styled",
+  elements: "Elements",
   figma: "Figma",
   react: "React",
   vue: "Vue",
@@ -77,8 +83,21 @@ const HeadlessAvailableContext = createContext(true);
 export const HeadlessAvailableProvider = HeadlessAvailableContext.Provider;
 export const useHeadlessAvailable = () => useContext(HeadlessAvailableContext);
 
+/**
+ * Whether the current page has an Elements mode: a component with an elements
+ * surface (RFC 0033), Button, Badge, Tag, Kbd, Inline Code and Tabs today. On
+ * every other page the code blocks leave the Elements tab out, as they leave
+ * Headless out on a registry-only page. Defaults to `false`, since most
+ * components have no elements surface yet.
+ */
+const ElementsAvailableContext = createContext(false);
+export const ElementsAvailableProvider = ElementsAvailableContext.Provider;
+export const useElementsAvailable = () => useContext(ElementsAvailableContext);
+
 /** The install command a given mode implies, shown on component pages. */
 export const installCommand = (mode: Mode, component: string) =>
   mode === "styled"
     ? `npx primitiv add ${component}`
-    : `npm i @primitiv-ui/react`;
+    : mode === "elements"
+      ? `npx primitiv add ${component} --surface elements`
+      : `npm i @primitiv-ui/react`;

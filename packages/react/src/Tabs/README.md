@@ -35,6 +35,11 @@ import { Tabs } from "@primitiv-ui/react";
 | `Enter` / `Space`          | Activate focused trigger (manual activation mode) |
 | `Tab`                      | Move from tablist into the active panel           |
 
+Your own `onKeyDown` (and `onClick`) on `Tabs.Trigger` runs **after** the
+built-in handling and cannot veto it, so a key Tabs handled arrives with
+`event.defaultPrevented` already `true`. Earlier releases let a consumer `onKeyDown`
+replace the built-in handler, which silently disabled arrow-key navigation.
+
 ## Reading direction
 
 Pass `dir` (`"ltr"` / `"rtl"`) to set the arrow-key direction for horizontal

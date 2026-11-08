@@ -189,4 +189,58 @@ describe('Tabs keyboard navigation', () => {
       expect(tab3).toHaveAttribute('aria-selected', 'false');
     });
   });
+
+  describe('A consumer onKeyDown', () => {
+    it('runs alongside arrow-key navigation instead of replacing it', async () => {
+      // Arrange
+      const user = userEvent.setup();
+      const keys: string[] = [];
+      render(
+        <Tabs.Root defaultValue="tab1">
+          <Tabs.List label="Test tabs">
+            <Tabs.Trigger value="tab1" onKeyDown={(event) => keys.push(event.key)}>
+              Tab 1
+            </Tabs.Trigger>
+            <Tabs.Trigger value="tab2">Tab 2</Tabs.Trigger>
+          </Tabs.List>
+          <Tabs.Content value="tab1">Content 1</Tabs.Content>
+          <Tabs.Content value="tab2">Content 2</Tabs.Content>
+        </Tabs.Root>,
+      );
+      screen.getByRole('tab', { name: 'Tab 1' }).focus();
+
+      // Act
+      await user.keyboard('{ArrowRight}');
+
+      // Assert
+      expect(keys).toEqual(['ArrowRight']);
+      expect(screen.getByRole('tab', { name: 'Tab 2' })).toHaveFocus();
+      expect(screen.getByRole('tab', { name: 'Tab 2' })).toHaveAttribute('aria-selected', 'true');
+    });
+
+    it('runs after the built-in handling, so it sees a handled key as already prevented', async () => {
+      // Arrange
+      const user = userEvent.setup();
+      const prevented: boolean[] = [];
+      render(
+        <Tabs.Root defaultValue="tab1">
+          <Tabs.List label="Test tabs">
+            <Tabs.Trigger value="tab1" onKeyDown={(event) => prevented.push(event.defaultPrevented)}>
+              Tab 1
+            </Tabs.Trigger>
+            <Tabs.Trigger value="tab2">Tab 2</Tabs.Trigger>
+          </Tabs.List>
+          <Tabs.Content value="tab1">Content 1</Tabs.Content>
+          <Tabs.Content value="tab2">Content 2</Tabs.Content>
+        </Tabs.Root>,
+      );
+      screen.getByRole('tab', { name: 'Tab 1' }).focus();
+
+      // Act
+      await user.keyboard('{ArrowRight}');
+
+      // Assert
+      expect(prevented).toEqual([true]);
+    });
+  });
 });

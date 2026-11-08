@@ -230,6 +230,11 @@ TabsList.displayName = "TabsList";
  * move focus without switching the panel — `Enter` or `Space` confirms the
  * selection. Use manual mode for panels that are expensive to render.
  *
+ * **Your `onClick` and `onKeyDown`** run *after* the built-in activation and
+ * keyboard navigation, and cannot veto them: by the time your `onKeyDown` sees
+ * a handled key, `event.defaultPrevented` is already `true`. Use them to observe
+ * or to add behaviour, not to replace the tab contract.
+ *
  * **`asChild` prop.** Pass `asChild` to render an arbitrary child element
  * instead of the default `<button>`. All tab ARIA attributes, event handlers,
  * and the roving `tabIndex` are merged onto the child element following the
@@ -275,6 +280,7 @@ export function TabsTrigger<T extends HTMLElement = HTMLButtonElement>({
   className = "",
   value,
   onClick,
+  onKeyDown,
   disabled = false,
   asChild = false,
   ...rest
@@ -309,7 +315,10 @@ export function TabsTrigger<T extends HTMLElement = HTMLButtonElement>({
     "data-orientation": orientation,
     "data-state": state,
     tabIndex,
+    // Both run after the root's TabsController, which listens natively on the
+    // Tabs root and so fires before React's delegated handlers (RFC 0033 §5.7).
     onClick,
+    onKeyDown,
     ...rest,
   };
 

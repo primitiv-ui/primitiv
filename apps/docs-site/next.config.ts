@@ -56,8 +56,8 @@ const nextConfig: NextConfig = {
     "@primitiv-ui/icons",
     /* React's Tabs runs on the web implementation (RFC 0033), so these two are
        reached through `@primitiv-ui/react` and ship raw TypeScript the same way.
-       They are linked here, not just left to the workspace, because the deploy
-       installs this app alone: without the links nothing provides them. */
+       They resolve from packages/react's own node_modules, so a workflow that
+       builds this app installs `@primitiv-ui/react...` from the workspace too. */
     "@primitiv-ui/web",
     "@primitiv-ui/core",
   ],

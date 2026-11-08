@@ -20,6 +20,8 @@ on:
       - "apps/docs-site/src/site/examples/carousel.tsx"
       - "apps/docs-site/e2e/**"
       - "apps/docs-site/playwright.config.ts"
+      - "apps/docs-site/next.config.ts"
+      - "apps/docs-site/package.json"
       - ".github/workflows/e2e-carousel.yml"
 
 # One run per ref; a new push cancels an in-flight run.
@@ -43,6 +45,14 @@ jobs:
         uses: actions/setup-node@v5
         with:
           node-version-file: .nvmrc
+
+      # @primitiv-ui/react imports @primitiv-ui/web and @primitiv-ui/core (RFC
+      # 0033). The docs site compiles react from its source, and those imports
+      # resolve from packages/react's own node_modules, so install react and what
+      # it depends on from the workspace (filtered, which leaves out the
+      # workbench and its wasm dependency).
+      - name: Install @primitiv-ui/react and its workspace dependencies
+        run: pnpm install --frozen-lockfile --filter "@primitiv-ui/react..."
 
       # The docs site is excluded from the pnpm workspace (own lockfile), so it
       # installs standalone, as the deploy workflow does. Browsers are installed

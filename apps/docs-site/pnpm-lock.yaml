@@ -8,18 +8,12 @@ importers:
 
   .:
     dependencies:
-      '@primitiv-ui/core':
-        specifier: link:../../packages/core
-        version: link:../../packages/core
       '@primitiv-ui/icons':
         specifier: ^0.1.29
         version: 0.1.29(@types/react@19.2.17)(react@19.2.8)
       '@primitiv-ui/react':
         specifier: link:../../packages/react
         version: link:../../packages/react
-      '@primitiv-ui/web':
-        specifier: link:../../packages/web
-        version: link:../../packages/web
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1

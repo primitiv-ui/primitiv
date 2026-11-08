@@ -38,6 +38,24 @@ pub struct ComponentEntry {
     /// entry does not declare one (headless-only installs).
     #[serde(default)]
     pub contract: Option<String>,
+    /// The component's elements surface (RFC 0033 §8.1): what `add --surface
+    /// elements` installs and copies in place of the React surface. `None` when
+    /// the component has no elements surface yet. It sits beside the React keys
+    /// rather than replacing them, so an older CLI reading a newer registry
+    /// (`--registry <version>`) still parses it.
+    #[serde(default)]
+    pub elements: Option<Elements>,
+}
+
+/// A component's elements surface (RFC 0033 §8.1): the npm `packages` it needs
+/// (`@primitiv-ui/web`; none for a component with no behaviour, §8.3) and the
+/// `files` copied beside its stylesheet, its markup snippet.
+#[derive(Debug, Deserialize, PartialEq, Default)]
+pub struct Elements {
+    #[serde(default)]
+    pub packages: Vec<PackageDep>,
+    #[serde(default)]
+    pub files: Vec<String>,
 }
 
 /// A component's styled bundle (RFC 0005 §6.2): the per-format stylesheet `add`

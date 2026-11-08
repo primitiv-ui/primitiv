@@ -186,7 +186,7 @@ export const Playground = ({
   elements,
 }: PlaygroundProps) => {
   const [values, setValues] = useState(() => initialValues(controls));
-  const [density, setDensity, gliding] =
+  const [density, setDensity, gliding, glide] =
     useDensityGlide<Density>(DEFAULT_DENSITY);
   /* The snippet has to know the mode: a compound's part names differ between
      headless (`Select.Trigger`) and styled (`SelectTrigger`), and only one of
@@ -283,9 +283,13 @@ export const Playground = ({
                       label={titleCase(control.name)}
                       options={control.options}
                       value={values[control.name]}
-                      onChange={(next) =>
-                        setValues((v) => ({ ...v, [control.name]: next }))
-                      }
+                      onChange={(next) => {
+                        /* Every control glides, not only density: a size or
+                           variant swaps a class, and the same window carries
+                           its padding, height and type to the new values. */
+                        setValues((v) => ({ ...v, [control.name]: next }));
+                        glide();
+                      }}
                     />
                   ))}
                 </div>

@@ -40,14 +40,25 @@ export const useDensityGlide = <T>(initial: T) => {
 
   useEffect(() => () => window.clearTimeout(timer.current), []);
 
-  const setDensity = useCallback((next: T) => {
-    setDensityState(next);
+  /* Opens the glide window without a density change, for any other change the
+     same transitions should carry: a size control swaps a modifier class, and
+     the new class's padding, height and type glide exactly as a density does.
+     Call it in the same update as the change, for the reason above. */
+  const glide = useCallback(() => {
     setGliding(true);
     window.clearTimeout(timer.current);
     timer.current = window.setTimeout(() => setGliding(false), glideMs());
   }, []);
 
-  return [density, setDensity, gliding] as const;
+  const setDensity = useCallback(
+    (next: T) => {
+      setDensityState(next);
+      glide();
+    },
+    [glide],
+  );
+
+  return [density, setDensity, gliding, glide] as const;
 };
 
 /** `--primitiv-motion-duration-expand` in milliseconds, `0` if unreadable. */

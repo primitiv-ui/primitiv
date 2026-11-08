@@ -188,12 +188,14 @@ pub fn add(
     let surface = surface
         .or(project_config.as_ref().map(|config| config.surface))
         .unwrap_or(Surface::React);
-    if surface == Surface::Elements {
-        if let Some(name) = resolved.iter().find(|name| index.components[*name].elements.is_none()) {
-            return Err(CliError::NotFound(format!(
-                "component '{name}' has no elements surface yet"
-            )));
-        }
+    if surface == Surface::Elements
+        && let Some(name) = resolved
+            .iter()
+            .find(|name| index.components[*name].elements.is_none())
+    {
+        return Err(CliError::NotFound(format!(
+            "component '{name}' has no elements surface yet"
+        )));
     }
     // Compute the per-file classification for the dry-run report. Both the human
     // ("Refresh plan:") and JSON ("files" array) outputs consume it.
@@ -504,7 +506,7 @@ fn copy_styled_surface(
     force: bool,
     config: Option<&Config>,
     surface: Surface,
-) -> Result<(Vec<(String, &'static str)>, Option<StyleLinks>), CliError> {
+) -> Result<(Written, Option<StyleLinks>), CliError> {
     let lock_path = dir.join(lock::FILE_NAME);
     let mut lock = Lock::read(fs, &lock_path)?;
     let components_dir =
@@ -547,6 +549,9 @@ fn copy_styled_surface(
     // an untested one to carry the same behaviour is how a 100% gate rots.
     lock.write(fs, &lock_path).map(|()| (written, links))
 }
+
+/// Each file a copy wrote, with what happened to it (`new`, `updated`, `kept`).
+type Written = Vec<(String, &'static str)>;
 
 /// The stylesheets an elements page links (RFC 0033 §8.2): the token layer and
 /// the index of every installed component's stylesheet.

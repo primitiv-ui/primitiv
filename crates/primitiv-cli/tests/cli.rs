@@ -742,3 +742,42 @@ fn prints_help_and_exits_zero() {
         .success()
         .stdout(predicate::str::starts_with("Usage: primitiv add "));
 }
+
+#[test]
+fn add_on_the_elements_surface_copies_the_snippet_into_a_plain_html_site() {
+    // No package.json: a plain HTML site has nothing to install into, and Kbd
+    // has no behaviour, so nothing is installed and no package manager runs
+    // (RFC 0033 §8.3).
+    let dir = assert_fs::TempDir::new().unwrap();
+    dir.child("primitiv.json")
+        .write_str(
+            r##"{
+  "version": 1,
+  "surface": "elements",
+  "styles": { "enabled": true, "format": "css", "path": "primitiv" },
+  "tokens": { "format": "css", "path": "primitiv/tokens.css" },
+  "theme": {},
+  "aliases": {},
+  "registry": { "version": "0.1.0" }
+}"##,
+        )
+        .unwrap();
+
+    Command::cargo_bin("primitiv")
+        .unwrap()
+        .current_dir(dir.path())
+        .args(["add", "kbd"])
+        .assert()
+        .success()
+        .stdout(predicate::str::ends_with(
+            "  <link rel=\"stylesheet\" href=\"primitiv/tokens.css\">\n  \
+             <link rel=\"stylesheet\" href=\"primitiv/index.css\">\n",
+        ));
+
+    dir.child("primitiv/kbd/kbd.html")
+        .assert(predicate::str::contains("<kbd class=\"primitiv-kbd primitiv-kbd--md\">Kbd</kbd>"));
+    dir.child("primitiv/kbd/styles.css").assert(predicate::str::contains(".primitiv-kbd"));
+    dir.child("primitiv/index.css").assert("@import \"./kbd/styles.css\";\n");
+    dir.child("primitiv/tokens.css").assert(predicate::path::exists());
+    dir.child("src").assert(predicate::path::missing());
+}

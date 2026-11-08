@@ -214,6 +214,7 @@ pub fn add(
                 path.as_deref(),
                 project_config.as_ref(),
                 &components_dir,
+                surface,
             );
             let lock_path = dir.join(lock::FILE_NAME);
             let lock = Lock::read(fs, &lock_path)?;
@@ -280,6 +281,7 @@ pub fn add(
                 path.as_deref(),
                 *force,
                 project_config.as_ref(),
+                surface,
             )?;
             // JSON already describes the plan as data; this section is for the
             // human run, which until now finished without ever naming a file.
@@ -490,12 +492,13 @@ fn copy_styled_surface(
     path: Option<&str>,
     force: bool,
     config: Option<&Config>,
+    surface: Surface,
 ) -> Result<Vec<(String, &'static str)>, CliError> {
     let lock_path = dir.join(lock::FILE_NAME);
     let mut lock = Lock::read(fs, &lock_path)?;
     let components_dir =
         detect::components_path(fs, dir)?.unwrap_or_else(|| DEFAULT_COMPONENTS_DIR.to_string());
-    let files = planned_files(index, resolved, format, path, config, &components_dir);
+    let files = planned_files(index, resolved, format, path, config, &components_dir, surface);
     if files.is_empty() {
         return Ok(vec![]);
     }
@@ -534,6 +537,7 @@ fn planned_files(
     path: Option<&str>,
     config: Option<&Config>,
     components_dir: &str,
+    surface: Surface,
 ) -> Vec<PlannedFile> {
     let Some(config) = config else {
         return vec![];
@@ -556,6 +560,26 @@ fn planned_files(
                 styles_import: None,
             });
         }
+    }
+    // The elements surface keeps a component's snippet and contract beside its
+    // stylesheet, one folder per component (RFC 0033 §8.1): there is no import
+    // graph to place them by, and the folder is what the page links to.
+    if surface == Surface::Elements {
+        for name in resolved {
+            let entry = &index.components[name];
+            let component_dir = Path::new(styles_path).join(name);
+            let snippets = entry.elements.iter().flat_map(|elements| &elements.files);
+            for file in snippets.chain(&entry.contract) {
+                files.push(PlannedFile {
+                    name: name.clone(),
+                    file: file.clone(),
+                    dest: component_dir.join(file),
+                    dir: component_dir.clone(),
+                    styles_import: None,
+                });
+            }
+        }
+        return files;
     }
     // React surface + contract: <components_dir>/<file> (shared directory, flat layout)
     let has_react = resolved

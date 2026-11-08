@@ -211,3 +211,39 @@ fn keeps_json_output_to_the_plan_without_a_package_json() {
     let captured = String::from_utf8(output.captured()).unwrap();
     serde_json::from_str::<serde_json::Value>(&captured).unwrap_or_else(|error| panic!("{error}: {captured}"));
 }
+
+/// The registry with the bytes `kbd`'s files carry, React surface included.
+fn kbd_registry() -> InMemoryRegistry {
+    InMemoryRegistry::new(REGISTRY)
+        .with_file("kbd", "styles.css", b".primitiv-kbd{}")
+        .with_file("kbd", "kbd.html", b"<kbd class=\"primitiv-kbd\">Kbd</kbd>\n")
+        .with_file("kbd", "contract.json", b"{}")
+        .with_file("kbd", "kbd.recipe.ts", b"recipe")
+        .with_file("kbd", "kbd.tsx", b"wrapper")
+}
+
+#[test]
+fn copies_the_stylesheet_snippet_and_contract_into_one_folder_per_component() {
+    let fs = InMemoryFs::new();
+    fs.write(std::path::Path::new("primitiv.json"), ELEMENTS_CONFIG).unwrap();
+
+    add(
+        &fs,
+        &kbd_registry(),
+        &InMemoryOutput::new(),
+        &InMemoryProcessRunner::new(),
+        &InMemoryPrompt::new(Decision::Keep),
+        false,
+        &AddOptions { components: vec!["kbd".into()], ..Default::default() },
+    )
+    .unwrap();
+
+    let read = |path: &str| fs.read(std::path::Path::new(path)).ok();
+    assert_eq!(read("primitiv/kbd/styles.css"), Some(b".primitiv-kbd{}".to_vec()));
+    assert_eq!(read("primitiv/kbd/kbd.html"), Some(b"<kbd class=\"primitiv-kbd\">Kbd</kbd>\n".to_vec()));
+    assert_eq!(read("primitiv/kbd/contract.json"), Some(b"{}".to_vec()));
+    // The React surface stays behind.
+    assert_eq!(read("src/components/kbd.tsx"), None);
+    assert_eq!(read("src/components/kbd.recipe.ts"), None);
+    assert_eq!(read("src/components/kbd.contract.json"), None);
+}

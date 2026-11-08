@@ -43,6 +43,7 @@ export default defineConfig({
     // The subpaths mirror packages/web's `exports` map.
     alias: [
       { find: /^@primitiv-ui\/web\/define\/tabs$/, replacement: workspace("web/src/define/tabs.ts") },
+      { find: /^@primitiv-ui\/web\/define\/accordion$/, replacement: workspace("web/src/define/accordion.ts") },
       { find: /^@primitiv-ui\/web\/define$/, replacement: workspace("web/src/define/index.ts") },
       { find: /^@primitiv-ui\/web\/svelte$/, replacement: workspace("web/src/frameworks/svelte.ts") },
       { find: /^@primitiv-ui\/web\/tabs$/, replacement: workspace("web/src/tabs/index.ts") },

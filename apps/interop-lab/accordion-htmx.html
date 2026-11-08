@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+  <head><meta charset="utf-8" /><link rel="icon" href="data:," /><title>Interop lab — Accordion, HTMX</title></head>
+  <body hx-history-elt>
+    <!-- 1. Full fragment swap -->
+    <section>
+      <button type="button" id="load-accordion" hx-get="/fragments/accordion" hx-target="#slot-1">Load accordion</button>
+      <div id="slot-1"></div>
+    </section>
+
+    <!-- 2. An accordion swapped into a panel of another -->
+    <section id="outer-region"></section>
+    <button type="button" id="load-nested" hx-get="/fragments/accordion-nested" hx-target="#outer-one">Load nested</button>
+
+    <!-- 3. An out-of-band item -->
+    <section id="oob-region"></section>
+    <button type="button" id="load-oob" hx-get="/fragments/accordion-oob-item" hx-swap="none">Add an item</button>
+
+    <!-- 4. Server re-render with a new value -->
+    <section id="rerender-region"></section>
+    <button type="button" id="load-value" hx-get="/fragments/accordion-oob-value" hx-swap="none">Open three</button>
+
+    <!-- 5. hx-preserve -->
+    <div id="preserve-region"></div>
+    <button type="button" id="swap-preserve" hx-get="/fragments/accordion-preserve" hx-target="#preserve-region" hx-swap="outerHTML">Swap region</button>
+
+    <!-- 6. History -->
+    <section id="history-region"></section>
+    <a id="go-two" href="/page-two" hx-get="/fragments/page-two" hx-target="#history-target" hx-push-url="/accordion-page-two">Go to page two</a>
+    <div id="history-target"></div>
+
+    <!-- 7. Lazy panel -->
+    <section id="lazy-region"></section>
+
+    <!-- 8. hx-trigger on the change event, and a veto -->
+    <section id="echo-region"></section>
+    <div id="echo-target"></div>
+
+    <!-- 9. Right to left -->
+    <button type="button" id="load-rtl" hx-get="/fragments/accordion-rtl" hx-target="#rtl-slot">Load RTL accordion</button>
+    <div id="rtl-slot"></div>
+
+    <script type="module" src="/src/accordion-htmx.ts"></script>
+  </body>
+</html>

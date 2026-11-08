@@ -29,9 +29,21 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
       - uses: actions/setup-node@v5
         with:
           node-version-file: .nvmrc
+          cache: pnpm
+
+      # JSR resolves imports through node_modules, so the package and its
+      # dependencies (core and web among them, as workspace links) must be
+      # installed. Filtered to the package and what it depends on, which keeps
+      # out the workbench and its wasm dependency that a full install needs.
+      - name: Install the package and its dependencies
+        run: pnpm install --frozen-lockfile --filter "@primitiv-ui/${{ matrix.package }}..."
 
       - name: jsr publish --dry-run
         run: npx --yes jsr publish --dry-run

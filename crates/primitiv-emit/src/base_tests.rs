@@ -136,3 +136,50 @@ fn the_base_layer_declares_no_custom_properties() {
         "base.css declares custom properties: {declared:?}"
     );
 }
+
+/// The declarations inside `selector`'s block, comments stripped, one per line.
+fn block(css: &str, selector: &str) -> Vec<String> {
+    let css = strip_comments(css);
+    let start = css
+        .find(&format!("\n  {selector} {{"))
+        .unwrap_or_else(|| panic!("base.css has a `{selector}` block"));
+    let body = &css[start..];
+    let open = body.find('{').unwrap() + 1;
+    let close = body.find('}').unwrap();
+    body[open..close]
+        .split(';')
+        .map(str::trim)
+        .filter(|line| !line.is_empty())
+        .map(String::from)
+        .collect()
+}
+
+/// A page with no class on it still reads as the design system: the body sets
+/// the text face, size, colour and background from tokens, so bare text in a
+/// `<div>` is not the browser's serif on white.
+#[test]
+fn the_body_takes_the_text_face_colour_and_surface_from_tokens() {
+    assert_eq!(
+        block(BASE_CSS, "body"),
+        vec![
+            "margin: var(--primitiv-space-space-0)",
+            "background-color: var(--primitiv-surface-default)",
+            "color: var(--primitiv-content-primary)",
+            "font-family: var(--primitiv-body-md-font-family)",
+            "font-size: var(--primitiv-body-md-font-size)",
+            "font-weight: var(--primitiv-body-md-font-weight)",
+            "line-height: var(--primitiv-body-md-line-height)",
+        ]
+    );
+}
+
+/// Form controls do not inherit type by default, so a bare `<input>` would sit
+/// in the browser's own font beside Primitiv's. The look (border, padding,
+/// focus ring) stays with the Input, Select and Button components.
+#[test]
+fn form_controls_inherit_the_type_around_them() {
+    assert_eq!(
+        block(BASE_CSS, "input,\n  button,\n  select,\n  textarea"),
+        vec!["font: inherit", "color: inherit"]
+    );
+}

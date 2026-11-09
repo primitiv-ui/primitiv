@@ -375,7 +375,14 @@ fn print_examples(
     resolved: &[String],
     headless: bool,
 ) -> Result<(), CliError> {
-    let mut message = String::new();
+    // Headless is the default, so a run that copied no styles says how to get
+    // them — before the markup, which stays the last thing printed.
+    let mut message = if headless {
+        "\nAdd --styled to copy each component's stylesheet and print its classed markup.\n"
+            .to_string()
+    } else {
+        String::new()
+    };
     for name in resolved {
         let examples = index.components[name]
             .elements

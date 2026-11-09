@@ -807,6 +807,33 @@ fn headless_prints_the_markup_without_the_registry_classes() {
 }
 
 #[test]
+fn headless_points_at_the_styled_install_before_the_markup() {
+    // Headless is the default, so a run that copied no styles says how to get them.
+    let fs = InMemoryFs::new();
+    let output = InMemoryOutput::new();
+
+    headless(&fs, &output, &["tabs"]).unwrap();
+
+    let captured = String::from_utf8(output.captured()).unwrap();
+    let hint = captured
+        .find("\nAdd --styled to copy each component's stylesheet and print its classed markup.\n")
+        .expect(&captured);
+    assert!(hint < captured.find("Example markup for tabs").unwrap(), "{captured}");
+}
+
+#[test]
+fn a_styled_run_prints_no_styled_hint() {
+    let fs = InMemoryFs::new();
+    fs.write(std::path::Path::new("primitiv.json"), ELEMENTS_CONFIG)
+        .unwrap();
+    let output = InMemoryOutput::new();
+
+    run(&fs, &output, &["tabs"]);
+
+    assert!(!String::from_utf8(output.captured()).unwrap().contains("Add --styled"));
+}
+
+#[test]
 fn headless_skips_a_component_with_no_behaviour_and_says_so() {
     let fs = InMemoryFs::new();
     let output = InMemoryOutput::new();

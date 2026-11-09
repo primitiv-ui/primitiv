@@ -149,6 +149,12 @@ pub fn init(
         .and_then(|name| name.to_str())
         .unwrap_or(theme::DEFAULT_STEM)
         .to_string();
+    // An elements project `init` recognises gets its own static folder as the
+    // default, so the styles land where its server already serves files from.
+    let static_root = match surface {
+        Surface::Elements => detect::static_root(fs, &dir),
+        Surface::React => None,
+    };
     let resolved = resolve(
         options,
         prompt,
@@ -156,6 +162,7 @@ pub fn init(
         detected_alias,
         &default_name,
         surface,
+        static_root,
     )?;
     fs.write(&path, render(&resolved).as_bytes())?;
     if resolved.styles_enabled {
@@ -210,6 +217,7 @@ fn resolve(
     detected_alias: Option<String>,
     default_name: &str,
     surface: Surface,
+    static_root: Option<detect::StaticRoot>,
 ) -> Result<ResolvedInit, CliError> {
     let ask = interactive && !options.yes;
     let styles_enabled = match options.styles_enabled {
@@ -238,9 +246,10 @@ fn resolve(
         None if ask => ask_text(prompt, "Brand colour", DEFAULT_BRAND)?,
         None => DEFAULT_BRAND.to_string(),
     };
-    let default_path = match surface {
-        Surface::React => DEFAULT_STYLES_PATH,
-        Surface::Elements => DEFAULT_ELEMENTS_PATH,
+    let default_path = match (surface, &static_root) {
+        (Surface::React, _) => DEFAULT_STYLES_PATH,
+        (Surface::Elements, Some(root)) => root.path,
+        (Surface::Elements, None) => DEFAULT_ELEMENTS_PATH,
     };
     let path = match &options.path {
         Some(value) => value.clone(),

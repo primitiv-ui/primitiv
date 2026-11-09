@@ -84,6 +84,18 @@ fn defaults_the_elements_styles_path_to_a_primitiv_folder() {
 }
 
 #[test]
+fn defaults_the_styles_path_to_the_static_folder_of_a_project_it_recognises() {
+    // A Spring Boot project serves src/main/resources/static at the site root.
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("pom.xml"), b"").unwrap();
+
+    let config = init_config(&fs, InitOptions::default());
+
+    assert_eq!(config.styles.path, "src/main/resources/static/primitiv");
+    assert_eq!(config.tokens.path, "src/main/resources/static/primitiv/tokens.css");
+}
+
+#[test]
 fn asks_for_the_surface_first_when_interactive_and_takes_the_answer() {
     // Detection would say elements (no react); the person says react.
     let fs = InMemoryFs::new();

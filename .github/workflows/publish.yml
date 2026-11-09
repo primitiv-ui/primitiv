@@ -52,8 +52,14 @@ jobs:
         include:
           - { os: macos-latest,     target: aarch64-apple-darwin,       npm-target: darwin-arm64    }
           - { os: macos-latest,     target: x86_64-apple-darwin,        npm-target: darwin-x64      }
-          - { os: ubuntu-latest,    target: x86_64-unknown-linux-gnu,   npm-target: linux-x64-gnu   }
-          - { os: ubuntu-24.04-arm, target: aarch64-unknown-linux-gnu,  npm-target: linux-arm64-gnu }
+          # Linux builds are static musl binaries: a -gnu binary needs a glibc at
+          # least as new as the runner's, and ubuntu-latest's (2.43) is newer than
+          # current LTS distros ship, so 0.1.43–0.1.44 failed on Ubuntu 24.04 with
+          # "GLIBC_2.43 not found". Static musl runs on any Linux, Alpine included.
+          # The npm packages keep their -gnu names: renaming would mean new
+          # packages and new Trusted Publishing setup for no behavioural gain.
+          - { os: ubuntu-latest,    target: x86_64-unknown-linux-musl,  npm-target: linux-x64-gnu   }
+          - { os: ubuntu-24.04-arm, target: aarch64-unknown-linux-musl, npm-target: linux-arm64-gnu }
           - { os: windows-latest,   target: x86_64-pc-windows-msvc,     npm-target: win32-x64       }
     runs-on: ${{ matrix.os }}
     steps:
@@ -67,8 +73,24 @@ jobs:
         with:
           key: ${{ matrix.target }}
 
+      # ring (rustls' crypto) compiles C, so a musl target needs musl-gcc.
+      - name: Install musl toolchain
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y musl-tools
+
       - name: Build
         run: cargo build --release --target ${{ matrix.target }} -p primitiv-cli
+
+      # Fail the release rather than ship a Linux binary that depends on the
+      # runner's glibc.
+      - name: Assert the Linux binary is static
+        if: runner.os == 'Linux'
+        run: |
+          binary="target/${{ matrix.target }}/release/primitiv"
+          file "$binary"
+          file "$binary" | grep -q "static"
+          ! strings "$binary" | grep -q "GLIBC_"
+          "$binary" --help > /dev/null
 
       # Stage the binary under a fixed name so the download path is predictable.
       - name: Stage binary

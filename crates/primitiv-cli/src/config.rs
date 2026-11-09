@@ -77,6 +77,12 @@ pub struct Styles {
     pub enabled: bool,
     pub format: Format,
     pub path: String,
+    /// The URL `path` is served at, for the `<link>` lines an elements project
+    /// pastes (RFC 0033 §8.2) — `/primitiv` for a Spring app whose `path` is
+    /// `src/main/resources/static/primitiv`. Only the project knows the mapping;
+    /// `None` in a config written before it was recorded.
+    #[serde(default)]
+    pub url: Option<String>,
 }
 
 /// The emitted token layer's format and destination (RFC 0005 §3.1).

@@ -39,6 +39,7 @@ fn should_parse_a_full_primitiv_json_document() {
                 enabled: true,
                 format: Format::Css,
                 path: "src/styles/primitiv".into(),
+                url: None,
             },
             tokens: Tokens {
                 format: Format::Css,
@@ -259,4 +260,24 @@ fn should_read_the_elements_surface() {
     .unwrap();
 
     assert_eq!(config.surface, Surface::Elements);
+}
+
+#[test]
+fn should_read_the_url_the_styles_folder_is_served_at() {
+    // On disk the folder is src/main/resources/static/primitiv; a browser asks
+    // for /primitiv. Only the project knows the mapping, so the config records it.
+    let config = Config::parse(
+        br#"{
+  "version": 1,
+  "surface": "elements",
+  "styles": { "enabled": true, "format": "css", "path": "src/main/resources/static/primitiv", "url": "/primitiv" },
+  "tokens": { "format": "css", "path": "src/main/resources/static/primitiv/tokens.css" },
+  "theme": {},
+  "aliases": {},
+  "registry": { "version": "0.1.0" }
+}"#,
+    )
+    .unwrap();
+
+    assert_eq!(config.styles.url.as_deref(), Some("/primitiv"));
 }

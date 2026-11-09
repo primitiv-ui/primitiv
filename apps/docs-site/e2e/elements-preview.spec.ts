@@ -92,6 +92,19 @@ test("the Collapsible read-more preview is clamped and swaps its label", async (
   await expect(example.getByRole("button", { name: "Show less" })).toHaveAttribute("aria-expanded", "true");
 });
 
+test("the Prose preview is plain markup whose children take the flow rhythm", async ({ page }) => {
+  await page.goto("/components/prose/");
+  const flow = page.locator(".docs-elements-preview .primitiv-flow").first();
+  await expect(flow).toBeAttached();
+  // No element to define: the class is the whole component.
+  expect(await page.evaluate(() => !!customElements.get("primitiv-prose"))).toBe(false);
+  // The owl spaces every direct child after the first.
+  const first = await flow.locator("> *").first().evaluate((e) => getComputedStyle(e).marginBlockStart);
+  const second = await flow.locator("> *").nth(1).evaluate((e) => getComputedStyle(e).marginBlockStart);
+  expect(first).toBe("0px");
+  expect(parseFloat(second)).toBeGreaterThan(0);
+});
+
 test("the Button icon examples render real glyphs, not placeholders", async ({
   page,
 }) => {

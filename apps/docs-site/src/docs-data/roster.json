@@ -357,7 +357,7 @@
     "category": "Typography",
     "description": "A flow-rhythm container — applies the `.primitiv-flow` context so every direct child gets density-scoped vertical spacing via a one-directional owl. Zero behaviour; renders a semantic element, composing the consumer's own element via `asChild`.",
     "documented": true,
-    "elements": null
+    "elements": "markup"
   },
   {
     "id": "pull-quote",

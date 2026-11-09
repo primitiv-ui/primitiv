@@ -68,5 +68,12 @@
     "dataAttributes": []
   },
   "figma": {},
-  "elements": null
+  "elements": {
+    "package": null,
+    "version": null,
+    "element": "div",
+    "wrapText": false,
+    "example": "<div class=\"primitiv-flow\">Prose</div>\n",
+    "api": []
+  }
 }

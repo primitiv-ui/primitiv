@@ -83,6 +83,102 @@ const Panel = ({
   </div>
 );
 
+/** The chevron `@primitiv-ui/icons` draws, inlined as the CLI's example does. */
+const CHEVRON =
+  '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.06 9 12 17.06 3.94 9 5 7.94l7 7 7-7L20.06 9Z"/></svg>';
+
+/**
+ * One collapsible as Elements markup (RFC 0033): the `@primitiv-ui/web` custom
+ * elements, in the shape `primitiv add collapsible --surface elements` prints.
+ * The trigger wraps a real `<button>`, and `open` on the root is the state. A
+ * closed panel carries `hidden`, so the page is right before the script loads;
+ * an open one pre-renders `data-state`, so the styled panel does not animate
+ * open on load. The spans inside the panel are the styled surface's clip, body
+ * and fade — the headless tab drops them with the classes.
+ */
+const elementsTree = ({
+  variant = "plain",
+  size = "md",
+  open = false,
+  label = "Section title",
+  body = "Panel content.",
+  rootAttrs = "",
+  collapsedHeight,
+  triggerLast = false,
+}: {
+  variant?: string;
+  size?: string;
+  open?: boolean;
+  label?: string;
+  body?: string;
+  rootAttrs?: string;
+  /** The panel's `collapsed-height`: a clamped preview, never `hidden`. */
+  collapsedHeight?: string;
+  /** Put the trigger after the panel, as a read-more does. */
+  triggerLast?: boolean;
+} = {}) => {
+  const state = open ? ' data-state="open"' : "";
+  const contentAttrs =
+    collapsedHeight !== undefined
+      ? ` collapsed-height="${collapsedHeight}"${state}`
+      : state || " hidden";
+  const trigger = [
+    `  <primitiv-collapsible-trigger>`,
+    `    <button type="button" class="primitiv-collapsible__trigger">`,
+    `      <span class="primitiv-collapsible__trigger-label">${label}</span>`,
+    `      <primitiv-collapsible-trigger-icon class="primitiv-collapsible__trigger-icon"${state}>${CHEVRON}</primitiv-collapsible-trigger-icon>`,
+    `    </button>`,
+    `  </primitiv-collapsible-trigger>`,
+  ];
+  const content = [
+    `  <primitiv-collapsible-content class="primitiv-collapsible__content"${contentAttrs}>`,
+    `    <span class="primitiv-collapsible__content-inner"><span class="primitiv-collapsible__content-body">${body}</span><span class="primitiv-collapsible__content-fade"></span></span>`,
+    `  </primitiv-collapsible-content>`,
+  ];
+  return [
+    `<primitiv-collapsible${open ? " open" : ""}${rootAttrs} class="primitiv-collapsible primitiv-collapsible--${variant} primitiv-collapsible--${size}">`,
+    ...(triggerLast ? [...content, ...trigger] : [...trigger, ...content]),
+    `</primitiv-collapsible>`,
+  ].join("\n");
+};
+
+/** A listener on `primitiv-collapsible-change`, for the code tab and the preview alike. */
+const onChange = (root: HTMLElement, apply: (open: boolean) => void) => {
+  const collapsible = root.querySelector("primitiv-collapsible");
+  if (!collapsible) return;
+  const listener = (event: Event) => apply((event as CustomEvent<{ open: boolean }>).detail.open);
+  collapsible.addEventListener("primitiv-collapsible-change", listener);
+  return () => collapsible.removeEventListener("primitiv-collapsible-change", listener);
+};
+
+/** The Controlled example's Elements preview: the tree plus the readout. */
+const controlledElementsPreview = () =>
+  [
+    `<div class="docs-example-stack">`,
+    `<p class="docs-prop-description">Panel is <span data-open-state>open</span>.</p>`,
+    elementsTree({
+      variant: "card",
+      open: true,
+      label: "Release notes",
+      body: "The open attribute is the state, so the same value can drive other UI or be saved between visits.",
+    }),
+    `</div>`,
+  ].join("\n");
+
+/** Follows `primitiv-collapsible-change` into the readout, as the code tab's listener does. */
+const wireControlled = (root: HTMLElement) =>
+  onChange(root, (open) => {
+    const readout = root.querySelector("[data-open-state]");
+    if (readout) readout.textContent = open ? "open" : "closed";
+  });
+
+/** Swaps the read-more trigger's label as it opens and closes, as the code tab's listener does. */
+const wireReadMore = (root: HTMLElement) =>
+  onChange(root, (open) => {
+    const label = root.querySelector(".primitiv-collapsible__trigger-label");
+    if (label) label.textContent = open ? "Show less" : "Show more";
+  });
+
 /** A passage long enough to overflow the read-more example's clamped preview. */
 const HARMONI_BLURB =
   "Harmoni is the palette-generation engine underneath Primitiv — a Rust core compiled to WebAssembly that turns a single brand colour into a full, perceptually even ramp. It handles light and dark modes, neutral and soft-neutral ramps, brand-hue tinting, and an OKLCH picker for dialling in the exact anchor colours, all from one input.";
@@ -149,6 +245,13 @@ export const collapsibleSpec: ComponentSpec = {
        `<Collapsible variant="plain" size="md" />`, hiding the parts a reader
        needs to see. */
     snippet: (values, mode) => {
+      if (mode === "elements")
+        return elementsTree({
+          variant: values.variant,
+          size: values.size,
+          open: true,
+          body: "A single disclosure widget: the trigger toggles this panel open and closed.",
+        });
       const p = partNamer(mode, "Collapsible");
       return [
         imports(mode),
@@ -180,6 +283,17 @@ export const collapsibleSpec: ComponentSpec = {
     {
       label: "Parts",
       code: (mode) => {
+        if (mode === "elements")
+          return [
+            `<primitiv-collapsible>`,
+            `  <primitiv-collapsible-trigger>`,
+            `    <button type="button">`,
+            `      <primitiv-collapsible-trigger-icon></primitiv-collapsible-trigger-icon>`,
+            `    </button>`,
+            `  </primitiv-collapsible-trigger>`,
+            `  <primitiv-collapsible-content></primitiv-collapsible-content>`,
+            `</primitiv-collapsible>`,
+          ].join("\n");
         const p = partNamer(mode, "Collapsible");
         return [
           `<${p("Root")}>`,
@@ -199,8 +313,19 @@ export const collapsibleSpec: ComponentSpec = {
       title: "Three dressings",
       render: () => (
         <InteractiveExample
+          elementsCaption="The dressing is a class on `<primitiv-collapsible>` — `primitiv-collapsible--plain`, `--card` or `--inline` — so the behaviour never changes with it. `plain` is a bare trigger row over a frameless panel, for inside a container that already has a frame. `card` encloses trigger and panel in one bordered box, with a hairline seam where the gap was once open. `inline` styles the trigger as a text link over continuous prose — the read-more pattern below."
           caption="`variant` picks the look without changing the behaviour. `plain` is a bare trigger row over a frameless panel — reach for it inside a container that already has a frame. `card` encloses trigger and panel in one bordered box, revealing a hairline seam where the gap was once open. `inline` styles the trigger as a text link over continuous prose — the read-more pattern below."
           code={(_density, mode) => {
+            if (mode === "elements")
+              return (["plain", "card", "inline"] as const)
+                .map((variant) =>
+                  elementsTree({
+                    variant,
+                    open: variant === "plain",
+                    label: `${variant[0].toUpperCase()}${variant.slice(1)} dressing`,
+                  }),
+                )
+                .join("\n\n");
             const p = partNamer(mode, "Collapsible");
             return [
               imports(mode),
@@ -246,10 +371,32 @@ export const collapsibleSpec: ComponentSpec = {
     {
       id: "read-more",
       title: "Read more (collapsedHeight)",
+      elementsTitle: "Read more (collapsed-height)",
       render: () => (
         <InteractiveExample
           caption="`collapsedHeight` shows a **clamped preview** of the panel while closed instead of hiding it — the read-more pattern. Pass a number (pixels) or any CSS length. The preview is real, readable content, so it stays in the accessibility tree; a bottom fade signals there is more, and disappears once the panel is fully open. Best paired with the `inline` dressing."
+          elementsCaption="`collapsed-height` on `<primitiv-collapsible-content>` shows a **clamped preview** while closed instead of hiding the panel — the read-more pattern. A bare number is pixels; any other CSS length is used as written. The preview is real, readable content, so the panel is never `hidden` and stays in the accessibility tree; a bottom fade signals there is more, and disappears once it is fully open. A `primitiv-collapsible-change` listener swaps the trigger's label."
+          elementsPreview={(_density, code) => code.slice(0, code.indexOf("\n\n<script"))}
+          wire={wireReadMore}
           code={(_density, mode) => {
+            if (mode === "elements")
+              return [
+                elementsTree({
+                  variant: "inline",
+                  label: "Show more",
+                  body: HARMONI_BLURB,
+                  collapsedHeight: "72",
+                  triggerLast: true,
+                }),
+                ``,
+                `<script type="module">`,
+                `  const collapsible = document.querySelector("primitiv-collapsible");`,
+                `  const label = collapsible.querySelector(".primitiv-collapsible__trigger-label");`,
+                `  collapsible.addEventListener("primitiv-collapsible-change", (event) => {`,
+                `    label.textContent = event.detail.open ? "Show less" : "Show more";`,
+                `  });`,
+                `</script>`,
+              ].join("\n");
             const p = partNamer(mode, "Collapsible");
             return [
               imports(mode, ["Content", "Trigger", "TriggerIcon"]),
@@ -280,8 +427,27 @@ export const collapsibleSpec: ComponentSpec = {
       title: "Controlled",
       render: () => (
         <InteractiveExample
+          elementsPreview={controlledElementsPreview}
+          wire={wireControlled}
+          elementsCaption="The `open` attribute is the state: set it from the server, from markup or with the `open` property to open the panel, and listen for `primitiv-collapsible-change` to follow the user. Its `detail.open` is the state afterwards; the event fires before the change and is cancelable, so `preventDefault()` keeps the panel as it is."
           caption="Pass `open` and `onOpenChange` together and the parent owns the state — needed to open the panel in response to something else on the page, to keep two widgets in step, or to persist the state. Omit both (or pass `defaultOpen`) for the uncontrolled form, where Collapsible owns it; the two shapes are mutually exclusive, so pick one."
           code={(_density, mode) => {
+            if (mode === "elements")
+              return [
+                `<!-- The open attribute is the state: set it to open the panel,`,
+                `     and listen for the change to follow the user. -->`,
+                `<primitiv-collapsible open class="primitiv-collapsible primitiv-collapsible--card primitiv-collapsible--md">`,
+                `  <!-- ... the trigger and content ... -->`,
+                `</primitiv-collapsible>`,
+                ``,
+                `<script type="module">`,
+                `  const collapsible = document.querySelector("primitiv-collapsible");`,
+                `  collapsible.addEventListener("primitiv-collapsible-change", (event) => {`,
+                `    console.log(event.detail.open); // preventDefault() vetoes it`,
+                `  });`,
+                `  collapsible.open = false;`,
+                `</script>`,
+              ].join("\n");
             const p = partNamer(mode, "Collapsible");
             return [
               imports(mode),
@@ -304,8 +470,16 @@ export const collapsibleSpec: ComponentSpec = {
       title: "Disabled",
       render: () => (
         <InteractiveExample
+          elementsCaption="`disabled` on `<primitiv-collapsible>` freezes it: the button inside the trigger gets `aria-disabled` (not the native attribute, so it stays focusable and discoverable) and neither a click nor Enter or Space toggles it. The state is mirrored as `data-disabled` onto the root, the button and the content for styling."
           caption="`disabled` freezes the widget: the trigger renders `aria-disabled` (not the native attribute, so it stays focusable and discoverable) and both click and keyboard activation are short-circuited. The state is mirrored as `data-disabled` onto Root, Trigger and Content for styling."
           code={(_density, mode) => {
+            if (mode === "elements")
+              return elementsTree({
+                variant: "card",
+                label: "Advanced settings",
+                rootAttrs: " disabled",
+                body: "You cannot reach this panel while the widget is disabled.",
+              });
             const p = partNamer(mode, "Collapsible");
             return [
               imports(mode),
@@ -326,6 +500,19 @@ export const collapsibleSpec: ComponentSpec = {
       ),
     },
   ],
+
+  elements: {
+    anatomyMeta:
+      "Four elements. `<primitiv-collapsible>` holds the state in its `open` attribute; the trigger wraps the `<button>` you write, which becomes the control; the content is the panel. There is no header element — a single disclosure needs no wrapping heading, which is the whole reason to reach for Collapsible over an accordion of one. `<primitiv-collapsible-trigger-icon>` is optional; leave it out for a trigger with no chevron.",
+    accessibility: [
+      "The trigger decorates the one `<button>` you put inside it, which receives `aria-expanded` and `aria-controls` wired to the panel, with ids generated from the root's `id` where you gave none. `Enter` and `Space` toggle it. A trigger without exactly one element child is reported once in the console and left alone.",
+      "A closed panel gets `hidden` and `aria-hidden`, so it is out of the accessibility tree even when a stylesheet keeps it displayed to animate it. Render `hidden` on a closed panel in your own markup too: the page is then correct before the script loads. `force-mount` keeps it unhidden for your own animation, still `aria-hidden` while closed.",
+      "`collapsed-height` is the exception: that preview is real, readable content, so the panel is never hidden, in either state.",
+      "`disabled` on the root sets `aria-disabled` and `data-disabled` on the button rather than the native attribute, so it stays focusable and discoverable while nothing toggles it.",
+      "`<primitiv-collapsible-trigger-icon>` is decorative: the element gives it `aria-hidden` and a `data-state` to flip on. The expanded state is already announced through `aria-expanded`.",
+      "Collapsible adds no heading of its own — if the trigger labels a section of the page, wrap or precede it with your own heading at the right level. For several related panels that should list as headings, reach for [Accordion](/components/accordion/) instead.",
+    ],
+  },
 
   accessibility: [
     "The trigger is a real `<button>` with `aria-expanded` and `aria-controls` wired to its panel, so `Space` and `Enter` toggle it — the native behaviour, kept rather than re-implemented.",

@@ -59,6 +59,39 @@ test("the Accordion Controlled example follows primitiv-accordion-change", async
   await expect(example.locator("[data-open-items]")).toHaveText("install, headless");
 });
 
+test("the Collapsible playground and examples are defined <primitiv-collapsible> elements", async ({
+  page,
+}) => {
+  await page.goto("/components/collapsible/");
+  const collapsible = page.locator(".docs-elements-preview primitiv-collapsible");
+  await expect(collapsible.first()).toBeAttached();
+  const trigger = collapsible.first().getByRole("button").first();
+  await expect(trigger).toHaveAttribute("aria-expanded", "true");
+  expect(await page.evaluate(() => !!customElements.get("primitiv-collapsible"))).toBe(true);
+  // Styled under Headless too.
+  await expect(collapsible.first()).toHaveAttribute("class", /primitiv-collapsible/);
+});
+
+test("the Collapsible Controlled example follows primitiv-collapsible-change", async ({ page }) => {
+  await page.goto("/components/collapsible/");
+  const example = cell(page, "controlled");
+  const trigger = example.getByRole("button", { name: "Release notes" });
+  // The definition loads on demand: wait for the element to have wired its button.
+  await expect(trigger).toHaveAttribute("aria-expanded", "true");
+  await trigger.click();
+  await expect(example.locator("[data-open-state]")).toHaveText("closed");
+});
+
+test("the Collapsible read-more preview is clamped and swaps its label", async ({ page }) => {
+  await page.goto("/components/collapsible/");
+  const example = cell(page, "read-more");
+  const content = example.locator("primitiv-collapsible-content");
+  await expect(content).toHaveAttribute("data-clamped", "true");
+  await expect(example.locator("script")).toHaveCount(0);
+  await example.getByRole("button", { name: "Show more" }).click();
+  await expect(example.getByRole("button", { name: "Show less" })).toHaveAttribute("aria-expanded", "true");
+});
+
 test("the Button icon examples render real glyphs, not placeholders", async ({
   page,
 }) => {

@@ -659,7 +659,16 @@
           ]
         }
       },
-      "contract": "contract.json"
+      "contract": "contract.json",
+      "elements": {
+        "packages": [
+          {
+            "name": "@primitiv-ui/web",
+            "version": "^0.1.46"
+          }
+        ],
+        "example": "collapsible.html"
+      }
     },
     "combobox": {
       "version": "0.1.0",

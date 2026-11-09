@@ -182,6 +182,7 @@ const FILES: &[(&str, &str, &str)] = &[
     registry_file!("collapsible", "collapsible.recipe.ts"),
     registry_file!("collapsible", "collapsible.tsx"),
     registry_file!("collapsible", "contract.json"),
+    registry_file!("collapsible", "collapsible.html"),
     registry_file!("select", "styles.css"),
     registry_file!("select", "styles.scss"),
     registry_file!("select", "select.recipe.ts"),

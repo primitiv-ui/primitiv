@@ -381,9 +381,23 @@ const ComponentDocsBody = ({
               {inElements ? (
                 webPackage && (
                   <p className="docs-install-hint">
-                    {style === "styled"
-                      ? `Headless prints the bare markup instead: ${installCommand("elements", docs.id, "headless")}`
-                      : `Styled adds Primitiv's styling: ${installCommand("elements", docs.id, "styled")}`}
+                    {/* Commands as code: the body face draws `--` as a dash. */}
+                    {style === "styled" ? (
+                      <>
+                        Headless prints the bare markup instead:{" "}
+                        <InlineCode size="sm">
+                          {installCommand("elements", docs.id, "headless")}
+                        </InlineCode>
+                      </>
+                    ) : (
+                      <>
+                        Styled adds Primitiv&rsquo;s styling, after{" "}
+                        <InlineCode size="sm">init --styles</InlineCode>:{" "}
+                        <InlineCode size="sm">
+                          {installCommand("elements", docs.id, "styled")}
+                        </InlineCode>
+                      </>
+                    )}
                   </p>
                 )
               ) : (

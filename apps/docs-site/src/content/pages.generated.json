@@ -166,6 +166,24 @@
             ]
           },
           {
+            "kind": "group",
+            "gap": "flow/normal",
+            "blocks": [
+              {
+                "kind": "h3",
+                "text": "Just the base styles"
+              },
+              {
+                "kind": "p",
+                "text": "init on its own already gives a page Primitiv's look with no components at all: the body text face, colour and background, headings, paragraphs, lists, links, tables, code, and form controls that take your type. It ends by printing the link line for tokens.css and a second one for the three fonts the tokens name. Without the fonts, text falls back to your system's sans-serif.",
+                "code": [
+                  "init",
+                  "tokens.css"
+                ]
+              }
+            ]
+          },
+          {
             "kind": "p",
             "text": "Then add components, as many as you like:",
             "code": []
@@ -185,7 +203,7 @@
           {
             "kind": "alert",
             "tone": "info",
-            "text": "Leave off --styled for the element on its own, with no styling. add then prints the script tag and the bare markup, and needs no init at all."
+            "text": "Drop the styled flag for the element on its own, with no styling. add then prints the script tag and the bare markup, and needs no init at all."
           }
         ]
       },
@@ -466,6 +484,10 @@
             "kind": "p",
             "text": "You can seed the status ramps the same way, with --danger, --warning, --success and --info. Record them once in primitiv.json and later runs pick them up.",
             "code": [
+              "--danger",
+              "--warning",
+              "--success",
+              "--info",
               "primitiv.json"
             ]
           },
@@ -1215,7 +1237,12 @@
               {
                 "kind": "p",
                 "text": "The status ramps take the same treatment: --danger, --warning, --success and --info. Ramps are ten steps unless you ask for another length, from 3 to 32. What that costs you is on the Tokens and theming page.",
-                "code": []
+                "code": [
+                  "--danger",
+                  "--warning",
+                  "--success",
+                  "--info"
+                ]
               },
               {
                 "kind": "h4",

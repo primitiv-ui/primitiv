@@ -69,7 +69,8 @@
 /* KNOWN DRIFT FROM FIGMA (2026-11-09, changed in code only, by decision):
    every `npx primitiv` became `npx primitiv-ui` (a bare `npx primitiv` runs an
    unrelated npm package when the CLI is not installed); Start Here gained the
-   "Elements without a build step" section; Registry & CLI gained --styled,
+   "Elements without a build step" section (with its "Just the base styles"
+   note); Registry & CLI gained --styled,
    --surface, the elements init options and `surface` / `styles.url` in the
    primitiv.json example. The frames still carry the old copy, so
    verify-docs-content-pages reports start-here and registry-cli until a text
@@ -121,10 +122,14 @@ const PAGES = {
           ['Django', 'static/primitiv inside an app, served at /static/primitiv with the default STATIC_URL.'],
           ['Plain HTML', 'primitiv, beside your pages, linked as primitiv/.'],
         ]],
+        ['group', 'flow/normal', [
+          ['h3', 'Just the base styles'],
+          ['p', 'init on its own already gives a page Primitiv\'s look with no components at all: the body text face, colour and background, headings, paragraphs, lists, links, tables, code, and form controls that take your type. It ends by printing the link line for tokens.css and a second one for the three fonts the tokens name. Without the fonts, text falls back to your system\'s sans-serif.', ['init', 'tokens.css']],
+        ]],
         ['p', 'Then add components, as many as you like:'],
         ['code', '$ npx primitiv-ui@latest add tabs --styled', { tabbed: true }],
         ['p', 'Each run copies the stylesheet into that folder and prints the three things a page needs: the link lines for the styles, the script tag that defines the element, and the example markup to paste into your template.'],
-        ['alert', 'info', 'Leave off --styled for the element on its own, with no styling. add then prints the script tag and the bare markup, and needs no init at all.'],
+        ['alert', 'info', 'Drop the styled flag for the element on its own, with no styling. add then prints the script tag and the bare markup, and needs no init at all.'],
       ]},
       { name: '04 — Your first component', blocks: [
         ['h2', 'Your first component'],
@@ -207,7 +212,7 @@ const PAGES = {
         ['p', 'To change the brand colour, regenerate the theme:'],
         ['code', '$ npx primitiv-ui theme --brand "#0a7755"', { tabbed: true }],
         ['p', 'That produces a full light and dark palette from your colour, with every semantic role reassigned by contrast. It writes into its own layer, so it beats the base tokens without you editing them. The standard ramps are fixed and are not touched by this.'],
-        ['p', 'You can seed the status ramps the same way, with --danger, --warning, --success and --info. Record them once in primitiv.json and later runs pick them up.', ['primitiv.json']],
+        ['p', 'You can seed the status ramps the same way, with --danger, --warning, --success and --info. Record them once in primitiv.json and later runs pick them up.', ['--danger', '--warning', '--success', '--info', 'primitiv.json']],
         ['p', 'To change something the generator does not own, such as a spacing value or a font, override the custom property in your own stylesheet. Token names are the contract, and they do not change under you.'],
         ['group', 'flow/normal', [
           ['h3', 'Ramp length'],
@@ -424,7 +429,7 @@ const PAGES = {
           ['h4', 'primitiv theme'],
           ['p', 'Generates a full light and dark palette from one brand colour, with every semantic role assigned by contrast. It writes into its own layer, so it beats the base tokens without editing them.'],
           ['code', '$ npx primitiv-ui theme --brand "#0a7755"\n$ npx primitiv-ui theme --brand "#0a7755" --steps 16'],
-          ['p', 'The status ramps take the same treatment: --danger, --warning, --success and --info. Ramps are ten steps unless you ask for another length, from 3 to 32. What that costs you is on the Tokens and theming page.'],
+          ['p', 'The status ramps take the same treatment: --danger, --warning, --success and --info. Ramps are ten steps unless you ask for another length, from 3 to 32. What that costs you is on the Tokens and theming page.', ['--danger', '--warning', '--success', '--info']],
           ['h4', 'primitiv dtcg'],
           ['p', 'Writes your ramps out as a design-token file, for when you want them somewhere other than a stylesheet.'],
           ['code', '$ npx primitiv-ui dtcg --brand "#0a7755" --out palette.json'],

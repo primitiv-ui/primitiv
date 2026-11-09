@@ -129,6 +129,8 @@ export type PlaygroundProps = {
   controls: readonly PlaygroundControl[];
   children: (values: Record<string, string>) => ReactNode;
   snippetChildren?: string;
+  elementsChildren?: string;
+  elementsPreview?: (code: string) => string;
   snippetPrefix?: string | ((mode: Mode) => string);
   /** Replaces the generated snippet — see `ComponentSpec.playground.snippet`. */
   snippet?: (values: Record<string, string>, mode: Mode) => string;
@@ -182,6 +184,8 @@ export const Playground = ({
   children,
   fill = false,
   snippetChildren,
+  elementsChildren,
+  elementsPreview,
   snippetPrefix,
   snippet,
   elements,
@@ -221,7 +225,7 @@ export const Playground = ({
         ...elements,
         values,
         controls,
-        children: snippetChildren ?? component,
+        children: elementsChildren ?? snippetChildren ?? component,
       });
     }
 
@@ -264,7 +268,13 @@ export const Playground = ({
                     as unstyled HTML, and the code tabs already show the
                     difference. */}
                 {reading === "elements" ? (
-                  <ElementsPreview html={codeFor("elements")} />
+                  <ElementsPreview
+                    html={
+                      elementsPreview
+                        ? elementsPreview(codeFor("elements"))
+                        : codeFor("elements")
+                    }
+                  />
                 ) : (
                   children(values)
                 )}

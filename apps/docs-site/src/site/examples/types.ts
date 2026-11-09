@@ -22,6 +22,19 @@ export type ComponentSpec = {
     /** Literal children placed inside the generated snippet. */
     readonly snippetChildren?: string;
     /**
+     * Elements mode only: the markup inside the root, for a component whose
+     * styled wrapper renders structure the contract does not record —
+     * Blockquote's `<p class="…__quote">`, a List's items. Falls back to
+     * `snippetChildren`.
+     */
+    readonly elementsChildren?: string;
+    /**
+     * Elements mode only: rewrite the code before the preview renders it, for
+     * code that names something the docs cannot serve (Figure's `<img>`) — the
+     * same hook `InteractiveExample` has.
+     */
+    readonly elementsPreview?: (code: string) => string;
+    /**
      * Extra lines above the snippet — in practice, the import block.
      *
      * A function when it depends on the consumption mode, which an import always

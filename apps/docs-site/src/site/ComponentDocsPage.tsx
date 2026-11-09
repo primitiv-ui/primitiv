@@ -43,6 +43,19 @@ import type { TocEntry } from "@/site/PageToc";
 
 import "./component-page.css";
 
+/** DOM interface names whose tag is not just the name lowercased. */
+const HTML_TAGS: Record<string, string> = {
+  Anchor: "a",
+  DList: "dl",
+  Image: "img",
+  OList: "ol",
+  Paragraph: "p",
+  Quote: "blockquote",
+  TableCell: "td",
+  TableRow: "tr",
+  UList: "ul",
+};
+
 /**
  * A React part's name as an Elements reader writes it: `Tabs.List` is
  * `<primitiv-tabs-list>`. An interactive part (a trigger, a link) decorates the
@@ -56,13 +69,14 @@ const elementLabel = (docs: ComponentDocs, part: string): string | undefined => 
     suffix === "Root"
       ? `primitiv-${docs.id}`
       : `primitiv-${docs.id}-${suffix.replace(/[A-Z]/g, (c, i) => (i ? "-" : "") + c.toLowerCase())}`;
-  if (!docs.elements?.api.some((e) => e.tag === tag)) {
-    /* No custom element: the root is the plain element the classes go on. */
-    return suffix === "Root" && docs.elements?.element
-      ? `<${docs.elements.element}>`
-      : undefined;
-  }
   const sub = docs.headless.subComponents.find((s) => s.name === part);
+  if (!docs.elements?.api.some((e) => e.tag === tag)) {
+    /* No custom element: the root is the plain element the classes go on, and a
+       part (a List's item) the element its DOM interface names. */
+    if (suffix === "Root") return docs.elements?.element ? `<${docs.elements.element}>` : undefined;
+    const tagOf = sub?.extends?.match(/^HTML(\w+)Element$/)?.[1];
+    return tagOf ? `<${HTML_TAGS[tagOf] ?? tagOf.toLowerCase()}>` : undefined;
+  }
   const child = sub?.extends?.match(/^HTML(Button|Anchor)Element$/)?.[1];
   return child ? `<${child === "Button" ? "button" : "a"}> in <${tag}>` : `<${tag}>`;
 };
@@ -230,6 +244,8 @@ const ComponentDocsBody = ({
             component={spec.playground.component}
             controls={controls}
             snippetChildren={spec.playground.snippetChildren}
+            elementsChildren={spec.playground.elementsChildren}
+            elementsPreview={spec.playground.elementsPreview}
             snippetPrefix={spec.playground.snippetPrefix}
             snippet={spec.playground.snippet}
             fill={spec.playground.fill}

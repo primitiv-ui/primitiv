@@ -66,6 +66,14 @@
      blocks above it into a two-column row, for briefs that ask for half the
      content width beside their prose.                                       */
 
+/* KNOWN DRIFT FROM FIGMA (2026-11-09, changed in code only, by decision):
+   every `npx primitiv` became `npx primitiv-ui` (a bare `npx primitiv` runs an
+   unrelated npm package when the CLI is not installed); Start Here gained the
+   "Elements without a build step" section; Registry & CLI gained --styled,
+   --surface, the elements init options and `surface` / `styles.url` in the
+   primitiv.json example. The frames still carry the old copy, so
+   verify-docs-content-pages reports start-here and registry-cli until a text
+   sync brings the canvas back in step. */
 const PAGES = {
   'start-here': {
     name: 'Start Here',
@@ -76,7 +84,7 @@ const PAGES = {
       ['p', 'There are 63 components. Every interactive one follows its WAI-ARIA pattern, with full keyboard support. The colour palette is generated rather than picked, so its contrast is correct by construction. And the whole system scales between four density settings, which is what lets one set of components suit a dense dashboard and a roomy marketing page.'],
     ],
     current: 'Introduction',
-    toc: ['Which path is yours', 'Install it', 'Your first component', 'Where to go next'],
+    toc: ['Which path is yours', 'Install it', 'Elements without a build step', 'Your first component', 'Where to go next'],
     sections: [
       { name: '02 — Which path is yours', blocks: [
         ['h2', 'Which path is yours'],
@@ -93,11 +101,30 @@ const PAGES = {
         ['p', 'The fastest way in is a new project with everything already wired up:'],
         ['code', '$ npm create primitiv-ui@latest', { tabbed: true }],
         ['p', 'To add it to an app you already have:'],
-        ['code', '$ npm i -D primitiv-ui\n$ npx primitiv add button', { tabbed: true }],
+        ['code', '$ npm i -D primitiv-ui\n$ npx primitiv-ui add button', { tabbed: true }],
         ['p', 'That second command does the whole setup the first time you run it. It installs what it needs, writes a primitiv.json config, generates your token layer, and copies the Button component into your project.', ['primitiv.json']],
         ['p', 'If you only want the headless components, skip the CLI:'],
         ['code', '$ npm i @primitiv-ui/react', { tabbed: true }],
         ['alert', 'info', 'The CLI runs a small native binary, so it will not work in StackBlitz or other in-browser Node environments. Use a local machine, a Codespace, or Docker.'],
+      ]},
+      /* Added in code, 2026-11-09: the Figma frames do not carry this section yet
+         (see the note on PAGES), so verify-docs-content-pages will report it. */
+      { name: '03b — Elements without a build step', blocks: [
+        ['h2', 'Elements without a build step'],
+        ['p', 'Primitiv also ships as standard custom elements, for a site whose pages come from a server: Spring, Rails, Django, Laravel, Go or plain HTML. The behaviour loads from a script tag and the styles are plain CSS files, so the project needs no package.json and no Node of its own. The CLI runs once from npx to copy the files.', ['package.json']],
+        ['p', 'Set the project up once, from its root:'],
+        ['code', '$ npx primitiv-ui@latest init --styles --path <your static folder>/primitiv', { tabbed: true }],
+        ['p', 'Point --path at the folder your server serves static files from. init records it, and asks for the URL that folder is served at, which is what your pages link to. A Maven or Gradle project is recognised, so there --yes takes both answers for you.', ['--path', 'init', '--yes']],
+        ['defs', [
+          ['Spring Boot', 'src/main/resources/static/primitiv, served at /primitiv. Detected from pom.xml or build.gradle.'],
+          ['Rails, Laravel', 'public/primitiv, served at /primitiv.'],
+          ['Django', 'static/primitiv inside an app, served at /static/primitiv with the default STATIC_URL.'],
+          ['Plain HTML', 'primitiv, beside your pages, linked as primitiv/.'],
+        ]],
+        ['p', 'Then add components, as many as you like:'],
+        ['code', '$ npx primitiv-ui@latest add tabs --styled', { tabbed: true }],
+        ['p', 'Each run copies the stylesheet into that folder and prints the three things a page needs: the link lines for the styles, the script tag that defines the element, and the example markup to paste into your template.'],
+        ['alert', 'info', 'Leave off --styled for the element on its own, with no styling. add then prints the script tag and the bare markup, and needs no init at all.'],
       ]},
       { name: '04 — Your first component', blocks: [
         ['h2', 'Your first component'],
@@ -178,14 +205,14 @@ const PAGES = {
       { name: '04 — Changing your tokens', blocks: [
         ['h2', 'Changing your tokens'],
         ['p', 'To change the brand colour, regenerate the theme:'],
-        ['code', '$ npx primitiv theme --brand "#0a7755"', { tabbed: true }],
+        ['code', '$ npx primitiv-ui theme --brand "#0a7755"', { tabbed: true }],
         ['p', 'That produces a full light and dark palette from your colour, with every semantic role reassigned by contrast. It writes into its own layer, so it beats the base tokens without you editing them. The standard ramps are fixed and are not touched by this.'],
         ['p', 'You can seed the status ramps the same way, with --danger, --warning, --success and --info. Record them once in primitiv.json and later runs pick them up.', ['primitiv.json']],
         ['p', 'To change something the generator does not own, such as a spacing value or a font, override the custom property in your own stylesheet. Token names are the contract, and they do not change under you.'],
         ['group', 'flow/normal', [
           ['h3', 'Ramp length'],
           ['p', 'Ten steps per ramp suits most projects. If you want finer gradations, or a smaller set, ask for a different length:'],
-          ['code', '$ npx primitiv theme --brand "#0a7755" --steps 16', { tabbed: true }],
+          ['code', '$ npx primitiv-ui theme --brand "#0a7755" --steps 16', { tabbed: true }],
           ['p', 'Anything from 3 to 32 works. The semantic roles keep up: a sixteen-step ramp has no 600, so any role that pointed at one moves to the nearest step that exists, written into the same file.'],
           ['p', 'The components do not keep up. Their stylesheets are written against ten steps, so at any other length the styling is yours to maintain. If you want a different length without that cost, 18 and 26 also carry every step the components ask for.'],
         ]],
@@ -372,43 +399,47 @@ const PAGES = {
         ['h2', 'The commands'],
         ['p', 'Six commands. Most days you only use one.'],
         ['p', 'Every command lists its own options with --help. On its own, it shows all six.', ['--help']],
-        ['code', '$ npx primitiv --help\n$ npx primitiv add --help'],
+        ['code', '$ npx primitiv-ui --help\n$ npx primitiv-ui add --help'],
         ['group', 'flow/section', [
           ['h4', 'primitiv add'],
           ['p', 'Copies one or more components into your project.'],
-          ['code', '$ npx primitiv add button\n$ npx primitiv add button select modal'],
+          ['code', '$ npx primitiv-ui add button\n$ npx primitiv-ui add button select modal'],
           ['flags', [
             ['--force', 'overwrites files you have changed, without asking.'],
             ['--styles-only', 'copies the stylesheet and skips the React file.'],
             ['--no-wiring', 'skips the project wiring, if you prefer to do it yourself.'],
             ['--dry-run', 'shows what would happen and writes nothing.'],
+            ['--styled', 'copies the stylesheet for the custom elements, which are headless otherwise.'],
+            ['--surface', 'picks react or elements for this run. Usually unneeded: init records it, and a project without React is detected as elements.'],
           ]],
           ['p', 'On its first run in a project it also does the setup: installs what it needs, writes primitiv.json, generates your token layer, and wires the stylesheet import. That is intentional, so a new project is one command rather than four.', ['primitiv.json']],
           ['h4', 'primitiv init'],
           ['p', 'Sets a project up without adding a component. It asks a few questions, or takes --yes to accept the defaults, and finishes by generating the token layer.', ['--yes']],
-          ['code', '$ npx primitiv init\n$ npx primitiv init --yes'],
+          ['code', '$ npx primitiv-ui init\n$ npx primitiv-ui init --yes'],
+          ['p', 'For the custom elements, --styles opts into the stylesheets, --path says where they go and --url the URL that folder is served at. On a Maven or Gradle project both are detected.', ['--styles', '--path', '--url']],
+          ['code', '$ npx primitiv-ui init --styles --path public/primitiv --url /primitiv'],
           ['h4', 'primitiv tokens'],
           ['p', 'Regenerates your token layer in the format your config asks for.'],
-          ['code', '$ npx primitiv tokens\n$ npx primitiv tokens --format scss'],
+          ['code', '$ npx primitiv-ui tokens\n$ npx primitiv-ui tokens --format scss'],
           ['h4', 'primitiv theme'],
           ['p', 'Generates a full light and dark palette from one brand colour, with every semantic role assigned by contrast. It writes into its own layer, so it beats the base tokens without editing them.'],
-          ['code', '$ npx primitiv theme --brand "#0a7755"\n$ npx primitiv theme --brand "#0a7755" --steps 16'],
+          ['code', '$ npx primitiv-ui theme --brand "#0a7755"\n$ npx primitiv-ui theme --brand "#0a7755" --steps 16'],
           ['p', 'The status ramps take the same treatment: --danger, --warning, --success and --info. Ramps are ten steps unless you ask for another length, from 3 to 32. What that costs you is on the Tokens and theming page.'],
           ['h4', 'primitiv dtcg'],
           ['p', 'Writes your ramps out as a design-token file, for when you want them somewhere other than a stylesheet.'],
-          ['code', '$ npx primitiv dtcg --brand "#0a7755" --out palette.json'],
+          ['code', '$ npx primitiv-ui dtcg --brand "#0a7755" --out palette.json'],
           ['p', 'The format is standard DTCG in hex, which is what design tools import. Use it to get a palette you generated in code into Figma.'],
           ['h4', 'primitiv list'],
           ['p', 'Shows what is installable, and what you already have.'],
-          ['code', '$ npx primitiv list\n$ npx primitiv list --json'],
+          ['code', '$ npx primitiv-ui list\n$ npx primitiv-ui list --json'],
         ]],
       ]},
       { name: '03 — The two files', blocks: [
         ['h2', 'The two files'],
         ['p', 'The CLI keeps two files in your project. Both are meant to be committed.'],
         ['p', 'primitiv.json — your settings.', ['primitiv.json']],
-        ['code', '{\n  "version": 1,\n  "framework": "react",\n  "styles": { "enabled": true, "format": "css",\n              "path": "src/styles/primitiv" },\n  "tokens": { "format": "css",\n              "path": "src/styles/primitiv/tokens.css" },\n  "theme": { "brand": "#0a7755" },\n  "aliases": {},\n  "registry": { "version": "0.1.0" }\n}', { lineNumbers: true }],
-        ['p', 'Edit it freely. It decides where files land, which format your tokens emit in, and which registry version you are pulling from.'],
+        ['code', '{\n  "version": 1,\n  "surface": "react",\n  "styles": { "enabled": true, "format": "css",\n              "path": "src/styles/primitiv" },\n  "tokens": { "format": "css",\n              "path": "src/styles/primitiv/tokens.css" },\n  "theme": { "brand": "#0a7755" },\n  "aliases": {},\n  "registry": { "version": "0.1.0" }\n}', { lineNumbers: true }],
+        ['p', 'Edit it freely. It decides where files land, which format your tokens emit in, and which registry version you are pulling from. An elements project also records styles.url, the URL its styles folder is served at, which the printed link lines use.', ['styles.url']],
         ['p', 'primitiv.lock — what you have.', ['primitiv.lock']],
         ['p', 'A list of the components you have added and a hash of every file. The CLI uses it to tell whether you have edited a copied file, so it can ask before overwriting your work rather than assuming.'],
         ['alert', 'info', 'If you edit a copied component and later run add for it again, the CLI notices and asks. Answering "keep" leaves your version alone. This is the whole reason the lock file exists.'],
@@ -417,7 +448,7 @@ const PAGES = {
         ['h2', 'Where components come from'],
         ['p', 'By default the CLI carries the registry inside itself, so add works with no network call and no version drift between the tool and the catalogue.', ['add']],
         ['p', 'You can point it somewhere else. --registry takes a local path, for a private registry of your own components, or a URL, to pull a specific published version.', ['--registry']],
-        ['code', '$ npx primitiv add button --registry ./my-registry\n$ npx primitiv add button --registry 0.1.0'],
+        ['code', '$ npx primitiv-ui add button --registry ./my-registry\n$ npx primitiv-ui add button --registry 0.1.0'],
         ['p', 'One consequence worth knowing: because the registry is baked into the binary, a change to a component reaches you when a new CLI version is published, not before. If a component looks out of date, update the CLI.'],
       ]},
       { name: '05 — Why a registry rather than a package', blocks: [

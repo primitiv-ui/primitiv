@@ -81,7 +81,7 @@
           },
           {
             "kind": "code",
-            "code": "$ npm i -D primitiv-ui\n$ npx primitiv add button",
+            "code": "$ npm i -D primitiv-ui\n$ npx primitiv-ui add button",
             "language": "bash",
             "header": true,
             "lineNumbers": false
@@ -109,6 +109,83 @@
             "kind": "alert",
             "tone": "info",
             "text": "The CLI runs a small native binary, so it will not work in StackBlitz or other in-browser Node environments. Use a local machine, a Codespace, or Docker."
+          }
+        ]
+      },
+      {
+        "id": "elements-without-a-build-step",
+        "title": "Elements without a build step",
+        "blocks": [
+          {
+            "kind": "p",
+            "text": "Primitiv also ships as standard custom elements, for a site whose pages come from a server: Spring, Rails, Django, Laravel, Go or plain HTML. The behaviour loads from a script tag and the styles are plain CSS files, so the project needs no package.json and no Node of its own. The CLI runs once from npx to copy the files.",
+            "code": [
+              "package.json"
+            ]
+          },
+          {
+            "kind": "p",
+            "text": "Set the project up once, from its root:",
+            "code": []
+          },
+          {
+            "kind": "code",
+            "code": "$ npx primitiv-ui@latest init --styles --path <your static folder>/primitiv",
+            "language": "bash",
+            "header": true,
+            "lineNumbers": false
+          },
+          {
+            "kind": "p",
+            "text": "Point --path at the folder your server serves static files from. init records it, and asks for the URL that folder is served at, which is what your pages link to. A Maven or Gradle project is recognised, so there --yes takes both answers for you.",
+            "code": [
+              "--path",
+              "init",
+              "--yes"
+            ]
+          },
+          {
+            "kind": "defs",
+            "defs": [
+              {
+                "term": "Spring Boot",
+                "description": "src/main/resources/static/primitiv, served at /primitiv. Detected from pom.xml or build.gradle."
+              },
+              {
+                "term": "Rails, Laravel",
+                "description": "public/primitiv, served at /primitiv."
+              },
+              {
+                "term": "Django",
+                "description": "static/primitiv inside an app, served at /static/primitiv with the default STATIC_URL."
+              },
+              {
+                "term": "Plain HTML",
+                "description": "primitiv, beside your pages, linked as primitiv/."
+              }
+            ]
+          },
+          {
+            "kind": "p",
+            "text": "Then add components, as many as you like:",
+            "code": []
+          },
+          {
+            "kind": "code",
+            "code": "$ npx primitiv-ui@latest add tabs --styled",
+            "language": "bash",
+            "header": true,
+            "lineNumbers": false
+          },
+          {
+            "kind": "p",
+            "text": "Each run copies the stylesheet into that folder and prints the three things a page needs: the link lines for the styles, the script tag that defines the element, and the example markup to paste into your template.",
+            "code": []
+          },
+          {
+            "kind": "alert",
+            "tone": "info",
+            "text": "Leave off --styled for the element on its own, with no styling. add then prints the script tag and the bare markup, and needs no init at all."
           }
         ]
       },
@@ -375,7 +452,7 @@
           },
           {
             "kind": "code",
-            "code": "$ npx primitiv theme --brand \"#0a7755\"",
+            "code": "$ npx primitiv-ui theme --brand \"#0a7755\"",
             "language": "bash",
             "header": true,
             "lineNumbers": false
@@ -412,7 +489,7 @@
               },
               {
                 "kind": "code",
-                "code": "$ npx primitiv theme --brand \"#0a7755\" --steps 16",
+                "code": "$ npx primitiv-ui theme --brand \"#0a7755\" --steps 16",
                 "language": "bash",
                 "header": true,
                 "lineNumbers": false
@@ -1008,7 +1085,7 @@
           },
           {
             "kind": "code",
-            "code": "$ npx primitiv --help\n$ npx primitiv add --help",
+            "code": "$ npx primitiv-ui --help\n$ npx primitiv-ui add --help",
             "language": "bash",
             "header": false,
             "lineNumbers": false
@@ -1028,7 +1105,7 @@
               },
               {
                 "kind": "code",
-                "code": "$ npx primitiv add button\n$ npx primitiv add button select modal",
+                "code": "$ npx primitiv-ui add button\n$ npx primitiv-ui add button select modal",
                 "language": "bash",
                 "header": false,
                 "lineNumbers": false
@@ -1051,6 +1128,14 @@
                   {
                     "flag": "--dry-run",
                     "description": "shows what would happen and writes nothing."
+                  },
+                  {
+                    "flag": "--styled",
+                    "description": "copies the stylesheet for the custom elements, which are headless otherwise."
+                  },
+                  {
+                    "flag": "--surface",
+                    "description": "picks react or elements for this run. Usually unneeded: init records it, and a project without React is detected as elements."
                   }
                 ]
               },
@@ -1074,7 +1159,23 @@
               },
               {
                 "kind": "code",
-                "code": "$ npx primitiv init\n$ npx primitiv init --yes",
+                "code": "$ npx primitiv-ui init\n$ npx primitiv-ui init --yes",
+                "language": "bash",
+                "header": false,
+                "lineNumbers": false
+              },
+              {
+                "kind": "p",
+                "text": "For the custom elements, --styles opts into the stylesheets, --path says where they go and --url the URL that folder is served at. On a Maven or Gradle project both are detected.",
+                "code": [
+                  "--styles",
+                  "--path",
+                  "--url"
+                ]
+              },
+              {
+                "kind": "code",
+                "code": "$ npx primitiv-ui init --styles --path public/primitiv --url /primitiv",
                 "language": "bash",
                 "header": false,
                 "lineNumbers": false
@@ -1090,7 +1191,7 @@
               },
               {
                 "kind": "code",
-                "code": "$ npx primitiv tokens\n$ npx primitiv tokens --format scss",
+                "code": "$ npx primitiv-ui tokens\n$ npx primitiv-ui tokens --format scss",
                 "language": "bash",
                 "header": false,
                 "lineNumbers": false
@@ -1106,7 +1207,7 @@
               },
               {
                 "kind": "code",
-                "code": "$ npx primitiv theme --brand \"#0a7755\"\n$ npx primitiv theme --brand \"#0a7755\" --steps 16",
+                "code": "$ npx primitiv-ui theme --brand \"#0a7755\"\n$ npx primitiv-ui theme --brand \"#0a7755\" --steps 16",
                 "language": "bash",
                 "header": false,
                 "lineNumbers": false
@@ -1127,7 +1228,7 @@
               },
               {
                 "kind": "code",
-                "code": "$ npx primitiv dtcg --brand \"#0a7755\" --out palette.json",
+                "code": "$ npx primitiv-ui dtcg --brand \"#0a7755\" --out palette.json",
                 "language": "bash",
                 "header": false,
                 "lineNumbers": false
@@ -1148,7 +1249,7 @@
               },
               {
                 "kind": "code",
-                "code": "$ npx primitiv list\n$ npx primitiv list --json",
+                "code": "$ npx primitiv-ui list\n$ npx primitiv-ui list --json",
                 "language": "bash",
                 "header": false,
                 "lineNumbers": false
@@ -1175,15 +1276,17 @@
           },
           {
             "kind": "code",
-            "code": "{\n  \"version\": 1,\n  \"framework\": \"react\",\n  \"styles\": { \"enabled\": true, \"format\": \"css\",\n              \"path\": \"src/styles/primitiv\" },\n  \"tokens\": { \"format\": \"css\",\n              \"path\": \"src/styles/primitiv/tokens.css\" },\n  \"theme\": { \"brand\": \"#0a7755\" },\n  \"aliases\": {},\n  \"registry\": { \"version\": \"0.1.0\" }\n}",
+            "code": "{\n  \"version\": 1,\n  \"surface\": \"react\",\n  \"styles\": { \"enabled\": true, \"format\": \"css\",\n              \"path\": \"src/styles/primitiv\" },\n  \"tokens\": { \"format\": \"css\",\n              \"path\": \"src/styles/primitiv/tokens.css\" },\n  \"theme\": { \"brand\": \"#0a7755\" },\n  \"aliases\": {},\n  \"registry\": { \"version\": \"0.1.0\" }\n}",
             "language": "json",
             "header": false,
             "lineNumbers": true
           },
           {
             "kind": "p",
-            "text": "Edit it freely. It decides where files land, which format your tokens emit in, and which registry version you are pulling from.",
-            "code": []
+            "text": "Edit it freely. It decides where files land, which format your tokens emit in, and which registry version you are pulling from. An elements project also records styles.url, the URL its styles folder is served at, which the printed link lines use.",
+            "code": [
+              "styles.url"
+            ]
           },
           {
             "kind": "p",
@@ -1224,7 +1327,7 @@
           },
           {
             "kind": "code",
-            "code": "$ npx primitiv add button --registry ./my-registry\n$ npx primitiv add button --registry 0.1.0",
+            "code": "$ npx primitiv-ui add button --registry ./my-registry\n$ npx primitiv-ui add button --registry 0.1.0",
             "language": "bash",
             "header": false,
             "lineNumbers": false

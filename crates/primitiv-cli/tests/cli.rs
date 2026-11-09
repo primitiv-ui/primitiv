@@ -789,3 +789,39 @@ fn add_on_the_elements_surface_installs_into_a_plain_html_site_and_prints_the_ma
         .assert(predicate::path::exists());
     dir.child("src").assert(predicate::path::missing());
 }
+
+#[test]
+fn a_spring_project_installs_styled_elements_with_init_and_add_alone() {
+    // An empty Spring Boot project: a pom.xml, no package.json, no Node.
+    let dir = assert_fs::TempDir::new().unwrap();
+    dir.child("pom.xml").write_str("<project/>").unwrap();
+
+    Command::cargo_bin("primitiv")
+        .unwrap()
+        .current_dir(dir.path())
+        .args(["init", "--yes", "--styles"])
+        .assert()
+        .success();
+    Command::cargo_bin("primitiv")
+        .unwrap()
+        .current_dir(dir.path())
+        .args(["add", "tabs"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains(
+            "<link rel=\"stylesheet\" href=\"/primitiv/tokens.css\">",
+        ))
+        .stdout(predicate::str::contains(
+            "<link rel=\"stylesheet\" href=\"/primitiv/index.css\">",
+        ))
+        .stdout(predicate::str::contains("/dist/cdn/tabs.js\"></script>"))
+        .stdout(predicate::str::contains("class=\"primitiv-tabs"));
+
+    let static_dir = dir.child("src/main/resources/static/primitiv");
+    static_dir.child("tokens.css").assert(predicate::path::exists());
+    static_dir.child("index.css").assert(predicate::str::contains("tabs/styles.css"));
+    static_dir.child("tabs/styles.css").assert(predicate::path::exists());
+    static_dir.child("breakpoints.ts").assert(predicate::path::missing());
+    dir.child("package.json").assert(predicate::path::missing());
+    dir.child("node_modules").assert(predicate::path::missing());
+}

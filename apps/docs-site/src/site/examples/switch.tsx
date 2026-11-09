@@ -71,6 +71,48 @@ const ControlledExample = () => {
   );
 };
 
+/** One switch as Elements markup: the classes around a native checkbox with `role="switch"`. */
+const switchHtml = (
+  label: string | null,
+  { size = "md", attrs = "", indent = "" }: { size?: string; attrs?: string; indent?: string } = {},
+) =>
+  [
+    `${indent}<label class="primitiv-switch primitiv-switch--${size}">`,
+    `${indent}  <input type="checkbox" role="switch"${attrs}>`,
+    `${indent}  <span class="primitiv-switch__control"><span class="primitiv-switch__thumb"></span></span>`,
+    ...(label === null ? [] : [`${indent}  <span class="primitiv-switch__label">${label}</span>`]),
+    `${indent}</label>`,
+  ];
+
+const STACK = `<div class="primitiv-stack primitiv-stack--column primitiv-stack--gap-sm primitiv-stack--align-start primitiv-stack--nowrap primitiv-stack--justify-start">`;
+const secondaryButton = (label: string, attrs = "") =>
+  `<button type="button"${attrs} class="primitiv-button primitiv-button--secondary primitiv-button--sm"><span class="primitiv-button__label">${label}</span></button>`;
+
+/** Setting the switch from script, as the Elements code tab prints it. */
+const SET_SCRIPT = [
+  `<script>`,
+  `  const toggle = document.getElementById("email-notifications");`,
+  `  document.getElementById("turn-on").addEventListener("click", () => (toggle.checked = true));`,
+  `  document.getElementById("turn-off").addEventListener("click", () => (toggle.checked = false));`,
+  `</script>`,
+];
+
+/** The same, scoped to the preview (scripts in injected markup never run). */
+const wireSet = (root: HTMLElement) => {
+  const toggle = root.querySelector<HTMLInputElement>("#email-notifications");
+  const on = root.querySelector("#turn-on");
+  const off = root.querySelector("#turn-off");
+  if (!toggle || !on || !off) return;
+  const setOn = () => (toggle.checked = true);
+  const setOff = () => (toggle.checked = false);
+  on.addEventListener("click", setOn);
+  off.addEventListener("click", setOff);
+  return () => {
+    on.removeEventListener("click", setOn);
+    off.removeEventListener("click", setOff);
+  };
+};
+
 /**
  * Switch's page content.
  *
@@ -94,7 +136,9 @@ export const switchSpec: ComponentSpec = {
      * differ in shape here, so the snippet has to be built per mode.
      */
     snippet: (values, mode) =>
-      [
+      mode === "elements"
+        ? switchHtml("Email notifications", { size: values.size }).join("\n")
+        : [
         imports(mode),
         ``,
         ...switchLines(mode, "Email notifications", {
@@ -111,6 +155,7 @@ export const switchSpec: ComponentSpec = {
     {
       label: "Parts",
       code: (mode) => {
+        if (mode === "elements") return switchHtml("Email notifications").join("\n");
         const p = partNamer(mode, "Switch");
         if (mode === "headless") {
           return [`<${p("Root")}>`, `  <${p("Thumb")} />`, `  Email notifications`, `</${p("Root")}>`].join(
@@ -128,9 +173,16 @@ export const switchSpec: ComponentSpec = {
       title: "Sizes and density",
       render: () => (
         <InteractiveExample
+          elementsCaption={"Five sizes, each rescaling again with the nearest `data-density` ancestor. The track height is deliberately the same as Checkbox's and Radio's box at every size and density, so mixed controls line up in a form."}
           caption="Five sizes, each rescaling again with the nearest `data-density` ancestor. The track height is deliberately the same as `Checkbox`'s and `Radio`'s box at every size and density, so a column mixing all three keeps one baseline — change the density above and the whole ramp shifts together."
           code={(density, mode) =>
-            [
+            mode === "elements"
+              ? [
+                  `<div data-density="${density}">`,
+                  ...SIZES.flatMap((size) => switchHtml("Email notifications", { size, indent: "  " })),
+                  `</div>`,
+                ].join("\n")
+              : [
               imports(mode),
               ``,
               `<div data-density="${density}">`,
@@ -157,11 +209,22 @@ export const switchSpec: ComponentSpec = {
     {
       id: "uncontrolled",
       title: "In a form (uncontrolled)",
+      elementsTitle: "In a form",
       render: () => (
         <InteractiveExample
+          elementsCaption={'A switch is a real, visually-hidden `<input type="checkbox">`, so with `name` and `value` it submits and resets like any native control — no wiring, no hidden field. Use `checked` for the starting state; the look reads the input\'s own `:checked`, so Reset puts it back with no script.'}
           caption="A switch is a real, visually-hidden `<input type=&quot;checkbox&quot;>`, so with `name` and `value` it submits and resets like any native control — no wiring, no hidden field. Pass `defaultChecked` and let the browser own the state. Press Reset: the switch returns to its default **and no React event fires**, which is exactly why the shipped stylesheet paints the on/off look from the input's native `:checked` rather than from `data-state`."
           code={(_density, mode) =>
-            [
+            mode === "elements"
+              ? [
+                  `<form>`,
+                  `  ${STACK}`,
+                  ...switchHtml("Email notifications", { attrs: ` name="notify" value="on" checked`, indent: "    " }),
+                  `    <button type="reset" class="primitiv-button primitiv-button--secondary primitiv-button--sm"><span class="primitiv-button__label">Reset</span></button>`,
+                  `  </div>`,
+                  `</form>`,
+                ].join("\n")
+              : [
               imports(mode),
               buttonImports(mode),
               ``,
@@ -193,11 +256,27 @@ export const switchSpec: ComponentSpec = {
     {
       id: "controlled",
       title: "Controlled",
+      elementsTitle: "Setting it from script",
       render: () => (
         <InteractiveExample
+          elementsCaption={"To change a switch from your own code, set the input's `checked` property — the look follows, because it reads `:checked`. Note that setting it from script fires no `change` event, so anything listening for the reader's toggles will not hear yours; call your own handler too if it needs to."}
+          wire={wireSet}
+          elementsPreview={(_density, code) => code.slice(0, code.indexOf("\n\n<script"))}
           caption="Pass `checked` and `onCheckedChange` together and the parent owns the value. The two are a **pair**: the props table flattens the controlled and uncontrolled shapes into one list, but TypeScript accepts only one of them at a time — `checked` with `onCheckedChange`, or `defaultChecked` alone. Mixing them is a type error, not a runtime surprise."
           code={(_density, mode) =>
-            [
+            mode === "elements"
+              ? [
+                  STACK,
+                  ...switchHtml("Email notifications", { attrs: ` id="email-notifications"`, indent: "  " }),
+                  `  <div class="primitiv-stack primitiv-stack--row primitiv-stack--gap-sm primitiv-stack--align-stretch primitiv-stack--nowrap primitiv-stack--justify-start">`,
+                  `    ${secondaryButton("Turn on", ` id="turn-on"`)}`,
+                  `    ${secondaryButton("Turn off", ` id="turn-off"`)}`,
+                  `  </div>`,
+                  `</div>`,
+                  ``,
+                  ...SET_SCRIPT,
+                ].join("\n")
+              : [
               `import { useState } from "react";`,
               imports(mode),
               ``,
@@ -218,9 +297,17 @@ export const switchSpec: ComponentSpec = {
       title: "Disabled",
       render: () => (
         <InteractiveExample
+          elementsCaption={'The native `disabled` attribute on the input stops the switch responding to clicks and takes it out of the tab order — the platform does the work — and the row dims from the same attribute.'}
           caption="`disabled` on the root sets the native attribute on the hidden input, so the switch stops responding to clicks and leaves the tab order — the platform does the work, not a handler that returns early. `data-disabled` lands on the track for styling. A disabled switch still submits nothing, exactly as a disabled checkbox does."
           code={(_density, mode) =>
-            [
+            mode === "elements"
+              ? [
+                  STACK,
+                  ...switchHtml("Email notifications", { attrs: " disabled", indent: "  " }),
+                  ...switchHtml("Push notifications", { attrs: " disabled checked", indent: "  " }),
+                  `</div>`,
+                ].join("\n")
+              : [
               imports(mode),
               stackImports(mode),
               ``,
@@ -250,9 +337,12 @@ export const switchSpec: ComponentSpec = {
       title: "Without a visible label",
       render: () => (
         <InteractiveExample
+          elementsCaption={'Leave out the `__label` span and you get the bare track — for a switch in a table row or a toolbar, where a neighbouring cell or heading already names it. It then **needs** an `aria-label` on the input, since nothing else gives it a name.'}
           caption="Omit the children and you get the bare track — for a switch in a table row or a toolbar, where a neighbouring cell or heading already names it. It then **needs** an `aria-label`, because nothing else does: the label span is where the accessible name normally comes from, and a switch announced as just “switch, off” tells you nothing about what it controls."
           code={(_density, mode) =>
-            [
+            mode === "elements"
+              ? switchHtml(null, { attrs: ` aria-label="Email notifications"` }).join("\n")
+              : [
               imports(mode),
               ``,
               ...(mode === "headless"
@@ -282,6 +372,20 @@ export const switchSpec: ComponentSpec = {
         "Does **nothing**. A checkbox-based control responds to `Space` only, and this one is a real checkbox — so a switch inside a `<form>` will not submit it either.",
     },
   ],
+
+  elements: {
+    description:
+      "A switch as classes: `primitiv-switch` and a size on a `<label>` that wraps a native `<input type=\"checkbox\" role=\"switch\">`, a `__control` track with its `__thumb`, and the `__label` text. The look reads the input's own `:checked` and `:disabled`.",
+    anatomyMeta:
+      "The `<label>` is the root and the input sits inside it, first, so the label association is structural. The input is visually hidden; `__control` is the track you see, `__thumb` the knob inside it, and `__label` the text — leave it out for a bare track with an `aria-label`.",
+    accessibility: [
+      "Write `role=\"switch\"` on the input, so it is announced as on/off rather than checked/unchecked. That is the reason to use a switch over a checkbox: it is an **immediate action**, not a choice submitted later.",
+      "The input is visually hidden, not `display: none` — it stays focusable, announced and submitted.",
+      "The `<label>` wraps the input, so clicking the text toggles the switch and the accessible name comes for free. With no visible label, put `aria-label` on the input.",
+      "Use the native `disabled` attribute: the switch leaves the tab order, which is right for a setting that is genuinely unavailable.",
+      "Do not put the on/off state in the label text. The role already announces it, so “Email notifications: on” is read twice — label the *thing*.",
+    ],
+  },
 
   accessibility: [
     "The hidden input carries `role=\"switch\"`, so it is announced as on/off rather than checked/unchecked. That is the whole reason to reach for this over `Checkbox`: a switch is an **immediate action**, a checkbox is a **selection** that takes effect when the form is submitted. If the setting only applies after a Save button, you want a checkbox.",

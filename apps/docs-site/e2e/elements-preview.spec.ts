@@ -124,6 +124,9 @@ for (const [id, rootClass] of [
   ["textarea", "primitiv-textarea"],
   ["field", "primitiv-field"],
   ["input-group", "primitiv-input-group"],
+  ["checkbox", "primitiv-checkbox"],
+  ["radio", "primitiv-radio"],
+  ["switch", "primitiv-switch"],
 ] as const) {
   test(`the ${id} preview is styled markup with no element to define`, async ({ page }) => {
     await page.goto(`/components/${id}/`);
@@ -154,4 +157,31 @@ test("React mode renders the React component, not the elements", async ({ page }
   await page.goto("/components/tabs/");
   await expect(page.getByRole("tab").first()).toBeVisible();
   await expect(page.locator("primitiv-tabs")).toHaveCount(0);
+});
+
+test("the Checkbox tri-state preview derives the parent from its children", async ({ page }) => {
+  await page.goto("/components/checkbox/");
+  const example = cell(page, "indeterminate");
+  const all = example.locator("#notify-all");
+  // One of three starts checked, so the parent is mixed.
+  await expect.poll(() => all.evaluate((el: HTMLInputElement) => el.indeterminate)).toBe(true);
+  await all.check({ force: true });
+  await expect(example.locator('input[name="notify"]:checked')).toHaveCount(3);
+  expect(await all.evaluate((el: HTMLInputElement) => el.indeterminate)).toBe(false);
+});
+
+test("the Radio value preview follows the selection", async ({ page }) => {
+  await page.goto("/components/radio/");
+  const example = cell(page, "controlled");
+  await example.getByRole("radio", { name: "Team" }).check({ force: true });
+  await expect(example.locator("#subscription-value")).toHaveText("team");
+});
+
+test("the Switch script preview sets the switch", async ({ page }) => {
+  await page.goto("/components/switch/");
+  const example = cell(page, "controlled");
+  await example.getByRole("button", { name: "Turn on" }).click();
+  await expect(example.getByRole("switch", { name: "Email notifications" })).toBeChecked();
+  await example.getByRole("button", { name: "Turn off" }).click();
+  await expect(example.getByRole("switch", { name: "Email notifications" })).not.toBeChecked();
 });

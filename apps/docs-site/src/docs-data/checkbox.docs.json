@@ -208,5 +208,12 @@
   "figma": {
     "componentSetKey": "369:30652"
   },
-  "elements": null
+  "elements": {
+    "package": null,
+    "version": null,
+    "element": "label",
+    "wrapText": false,
+    "example": "<label class=\"primitiv-checkbox primitiv-checkbox--md\">\n  <input type=\"checkbox\" name=\"updates\" value=\"yes\">\n  <span class=\"primitiv-checkbox__control\"><span class=\"primitiv-checkbox__indicator\"></span></span>\n  <span class=\"primitiv-checkbox__label\">Email me product updates</span>\n</label>\n",
+    "api": []
+  }
 }

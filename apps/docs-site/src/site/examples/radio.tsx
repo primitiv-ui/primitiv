@@ -76,6 +76,57 @@ const ControlledExample = () => {
   );
 };
 
+/** One radio as Elements markup: the classes around a native input. */
+const radioHtml = (
+  label: string,
+  { size = "md", attrs = "", indent = "" }: { size?: string; attrs?: string; indent?: string } = {},
+) =>
+  [
+    `${indent}<label class="primitiv-radio primitiv-radio--${size}">`,
+    `${indent}  <input type="radio"${attrs}>`,
+    `${indent}  <span class="primitiv-radio__control"><span class="primitiv-radio__indicator"></span></span>`,
+    `${indent}  <span class="primitiv-radio__label">${label}</span>`,
+    `${indent}</label>`,
+  ];
+
+const STACK = `<div class="primitiv-stack primitiv-stack--column primitiv-stack--gap-sm primitiv-stack--align-start primitiv-stack--nowrap primitiv-stack--justify-start">`;
+
+/** Plain radios in a column, the way the React previews stack them. */
+const radioStack = (name: string, indent = "", checked?: string) => [
+  `${indent}${STACK}`,
+  ...PLANS.flatMap((p) =>
+    radioHtml(p.label, {
+      attrs: ` name="${name}" value="${p.value}"${p.value === checked ? " checked" : ""}`,
+      indent: `${indent}  `,
+    }),
+  ),
+  `${indent}</div>`,
+];
+
+/** Reading the group's value, as the Elements code tab prints it. */
+const VALUE_SCRIPT = [
+  `<script>`,
+  `  const output = document.getElementById("subscription-value");`,
+  `  document.querySelectorAll('input[name="subscription"]').forEach((radio) =>`,
+  `    radio.addEventListener("change", () => (output.textContent = radio.value)),`,
+  `  );`,
+  `</script>`,
+];
+
+/** The same, scoped to the preview (scripts in injected markup never run). */
+const wireValue = (root: HTMLElement) => {
+  const output = root.querySelector("#subscription-value");
+  const radios = [...root.querySelectorAll<HTMLInputElement>('input[name="subscription"]')];
+  const handlers = radios.map((radio) => {
+    const onChange = () => {
+      if (output) output.textContent = radio.value;
+    };
+    radio.addEventListener("change", onChange);
+    return () => radio.removeEventListener("change", onChange);
+  });
+  return () => handlers.forEach((off) => off());
+};
+
 /**
  * Radio's page content.
  *
@@ -95,7 +146,9 @@ export const radioSpec: ComponentSpec = {
        print `<Radio>Pro</Radio>` under Headless, which renders a box with no
        dot — the headless compound expects you to place `Radio.Indicator`. */
     snippet: (values, mode) =>
-      [
+      mode === "elements"
+        ? radioHtml("Pro", { size: values.size, attrs: ` name="plan" value="pro" checked` }).join("\n")
+        : [
         imports(mode),
         ``,
         ...radioLines(mode, "Pro", {
@@ -116,6 +169,7 @@ export const radioSpec: ComponentSpec = {
     {
       label: "Parts",
       code: (mode) => {
+        if (mode === "elements") return radioHtml("Pro", { attrs: ` name="plan" value="pro"` }).join("\n");
         const p = partNamer(mode, "Radio");
         if (mode === "headless") {
           return [`<${p("Root")} name="plan" value="pro">`, `  <${p("Indicator")} />`, `  Pro`, `</${p("Root")}>`].join(
@@ -133,9 +187,12 @@ export const radioSpec: ComponentSpec = {
       title: "Grouping (the headline)",
       render: () => (
         <InteractiveExample
+          elementsCaption={'Give sibling radios the same `name` and **the browser groups them** — no script, no shared state. Selecting one deselects the rest, arrow keys move between them, and the form submits the one selected value under that name.'}
           caption="Give sibling radios the same `name` and **the browser groups them** — no shared state, no context, no controlled wiring. Selecting one deselects the rest, arrow keys move between them, and inside a `<form>` the chosen `value` submits under that name. This is the whole reason `Radio` exists as a lone control: the platform already implements the hard parts, so the component does not re-implement them."
           code={(_density, mode) =>
-            [
+            mode === "elements"
+              ? radioStack("billing").join("\n")
+              : [
               imports(mode),
               stackImports(mode),
               ``,
@@ -167,9 +224,18 @@ export const radioSpec: ComponentSpec = {
       title: "Labelling the group",
       render: () => (
         <InteractiveExample
+          elementsCaption={"Each radio labels itself, but the **set** needs a name too — otherwise the options are announced with no idea what they are choosing between. The native answer is a `<fieldset>` with a `<legend>`, and Field's classes style them. Link a description to the fieldset with `aria-describedby`."}
           caption="Each radio labels itself, but the **set** needs a name too — otherwise the options are announced with no idea what they are choosing between. The native answer is a `<fieldset>` whose `<legend>` names the group, which `asChild` gets you from `Field` without losing its layout or description. Note what this example deliberately does **not** do: a plain `Field.Label` beside radios renders a `<label htmlFor>` pointing at an id no radio claims — `Radio` does not read `FieldContext` — so the label would associate with nothing. A `<legend>` names its fieldset directly and needs no id at all."
           code={(_density, mode) =>
-            [
+            mode === "elements"
+              ? [
+                  `<fieldset class="primitiv-field primitiv-field--md" aria-describedby="tier-description">`,
+                  `  <legend class="primitiv-field__label">Plan</legend>`,
+                  ...radioStack("tier", "  "),
+                  `  <div class="primitiv-field__description" id="tier-description">You can change this at any time.</div>`,
+                  `</fieldset>`,
+                ].join("\n")
+              : [
               fieldImports(mode),
               imports(mode),
               stackImports(mode),
@@ -213,11 +279,23 @@ export const radioSpec: ComponentSpec = {
     {
       id: "controlled",
       title: "Controlled",
+      elementsTitle: "Reading the value",
       render: () => (
         <InteractiveExample
+          elementsCaption={'A form submits the selected value on its own, so you only need script when the selection drives something else on the page. Listen for `change` on the radios — it fires on the one being selected, never on the one being cleared — and read its `value`.'}
+          wire={wireValue}
+          elementsPreview={(_density, code) => code.slice(0, code.indexOf("\n\n<script"))}
           caption="Pass `checked` and `onCheckedChange` together and you own the value — worth it when the selection drives something else on the page. Note the shape: `onCheckedChange` fires on the radio being **selected**, so you set the group's value from that radio's own value rather than reading a shared event. As with the other choice controls, the props table flattens the controlled and uncontrolled shapes but TypeScript accepts only one at a time."
           code={(_density, mode) =>
-            [
+            mode === "elements"
+              ? [
+                  ...radioStack("subscription", "", "pro").slice(0, -1),
+                  `  <p>Selected: <output id="subscription-value">pro</output></p>`,
+                  `</div>`,
+                  ``,
+                  ...VALUE_SCRIPT,
+                ].join("\n")
+              : [
               `import { useState } from "react";`,
               imports(mode),
               ``,
@@ -240,9 +318,18 @@ export const radioSpec: ComponentSpec = {
       title: "Sizes and density",
       render: () => (
         <InteractiveExample
+          elementsCaption={"Five sizes, each rescaling again with the nearest `data-density` ancestor. The box is deliberately the same height as Checkbox's box and Switch's track at every size and density, so mixed controls line up in a form."}
           caption="Five sizes, each rescaling again with the nearest `data-density` ancestor. The box is deliberately the same height as `Checkbox`'s box and `Switch`'s track at every size and density, so a form mixing the three choice controls keeps one baseline."
           code={(density, mode) =>
-            [
+            mode === "elements"
+              ? [
+                  `<div data-density="${density}">`,
+                  ...SIZES.flatMap((size) =>
+                    radioHtml("Pro", { size, attrs: ` name="size-demo" value="${size}"`, indent: "  " }),
+                  ),
+                  `</div>`,
+                ].join("\n")
+              : [
               imports(mode),
               ``,
               `<div data-density="${density}">`,
@@ -271,9 +358,17 @@ export const radioSpec: ComponentSpec = {
       title: "Disabled",
       render: () => (
         <InteractiveExample
+          elementsCaption={'The native `disabled` attribute means the option cannot be chosen and leaves the arrow-key cycle, and the row dims from the same attribute. Disabling one option of a group is fine; say why nearby, as the label does here.'}
           caption="`disabled` forwards the native attribute, so the option cannot be chosen and leaves the tab order; `data-disabled` lands on the box for styling. Disabling one option of a group is the common case — the rest stay selectable, and the browser skips the disabled one with the arrow keys."
           code={(_density, mode) =>
-            [
+            mode === "elements"
+              ? [
+                  STACK,
+                  ...radioHtml("Free", { attrs: ` name="seat" value="free" checked`, indent: "  " }),
+                  ...radioHtml("Team (contact sales)", { attrs: ` name="seat" value="team" disabled`, indent: "  " }),
+                  `</div>`,
+                ].join("\n")
+              : [
               imports(mode),
               stackImports(mode),
               ``,
@@ -313,6 +408,20 @@ export const radioSpec: ComponentSpec = {
     { keys: ["ArrowUp", "ArrowLeft"], behaviour: "Move to the previous radio and select it." },
     { keys: ["Space"], behaviour: "Select the focused radio. Selection never moves *off* a radio by clicking it again — a native radio only ever moves into the checked state." },
   ],
+
+  elements: {
+    description:
+      "A radio as classes: `primitiv-radio` and a size on a `<label>` that wraps a native `<input type=\"radio\">`, a `__control` ring with its `__indicator` dot, and the `__label` text. Siblings sharing a `name` are one group — the browser does the rest.",
+    anatomyMeta:
+      "The `<label>` is the root and the input sits inside it, first, so the label association is structural. The input is visually hidden; `__control` is the ring you see, `__indicator` the dot (empty — drawn in CSS), and `__label` the text.",
+    accessibility: [
+      "Label the **group**, not just the options. Without a group label the choice is announced as unrelated options — wrap the set in a `<fieldset>` with a `<legend>`.",
+      "The shared `name` is what makes it a group in the accessibility tree, not just in your layout. Radios with different names are announced separately, and the arrow keys stop at each.",
+      "A group should have a default. Shipping a form where every group starts empty forces a choice nobody asked for and makes a required group fail on first submit.",
+      "The input is visually hidden, not `display: none` — it stays focusable, announced, and submitted.",
+      "The look keys off the input's own `:checked`, so it is right after the browser deselects a sibling and after a form reset, with no script.",
+    ],
+  },
 
   accessibility: [
     "**Radio or RadioGroup?** `Radio` is the lone native control, for when you own the grouping — a shared `name`, a bespoke layout, a single opt-in. The headless `RadioGroup` is the managed alternative: it composes `role=\"radio\"` items, owns the selected value, and implements roving tabindex itself. It has no copied styled surface, so under the Styled tab `Radio` is the one to reach for.",

@@ -202,5 +202,12 @@
   "figma": {
     "componentSetKey": "315:5884"
   },
-  "elements": null
+  "elements": {
+    "package": null,
+    "version": null,
+    "element": "label",
+    "wrapText": false,
+    "example": "<label class=\"primitiv-switch primitiv-switch--md\">\n  <input type=\"checkbox\" role=\"switch\" name=\"notifications\" checked>\n  <span class=\"primitiv-switch__control\"><span class=\"primitiv-switch__thumb\"></span></span>\n  <span class=\"primitiv-switch__label\">Notifications</span>\n</label>\n",
+    "api": []
+  }
 }

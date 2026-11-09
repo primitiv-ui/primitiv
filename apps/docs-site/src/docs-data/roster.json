@@ -117,7 +117,7 @@
     "category": "Forms",
     "description": "A tri-state checkbox with an optional inline label — an independent on/off (or mixed) form selection.",
     "documented": true,
-    "elements": null
+    "elements": "markup"
   },
   {
     "id": "checkbox-card",
@@ -373,7 +373,7 @@
     "category": "Forms",
     "description": "A single native radio input with an optional inline label, grouped with a shared `name`.",
     "documented": true,
-    "elements": null
+    "elements": "markup"
   },
   {
     "id": "radio-card",
@@ -445,7 +445,7 @@
     "category": "Forms",
     "description": "An on/off toggle with an optional inline label — a native switch input for an immediate binary setting.",
     "documented": true,
-    "elements": null
+    "elements": "markup"
   },
   {
     "id": "table",

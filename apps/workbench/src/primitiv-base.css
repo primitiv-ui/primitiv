@@ -49,6 +49,38 @@
     box-sizing: border-box;
   }
 
+  /* ===== Page ===== */
+
+  /* The page itself reads as the design system before any component is on it:
+     the body text face, size, colour and surface, so bare text in a <div> is
+     not the browser's serif on white. The UA's 8px body margin goes too. The
+     font token carries its own sans-serif fallback (the emitter appends it), so
+     the page stays sans-serif before Asta Sans loads, or if it never does.
+     Lowest layer: an app that styles <body> itself wins without trying. */
+  body {
+    margin: var(--primitiv-space-space-0);
+    background-color: var(--primitiv-surface-default);
+    color: var(--primitiv-content-primary);
+    font-family: var(--primitiv-body-md-font-family);
+    font-size: var(--primitiv-body-md-font-size);
+    font-weight: var(--primitiv-body-md-font-weight);
+    line-height: var(--primitiv-body-md-line-height);
+  }
+
+  /* ===== Form controls ===== */
+
+  /* Controls do not inherit type by default, so a bare <input> sits in the
+     browser's own font beside Primitiv's. They take the type around them and
+     nothing more: the look (border, padding, focus ring) belongs to the Input,
+     Select and Button components, and a second look here would compete. */
+  input,
+  button,
+  select,
+  textarea {
+    font: inherit;
+    color: inherit;
+  }
+
   /* ===== Font smoothing ===== */
 
   /* macOS renders text heavier than the design intends without these, and they

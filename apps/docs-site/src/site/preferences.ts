@@ -157,8 +157,8 @@ export const useView = () => {
 export const installCommand = (mode: Mode, component: string, style: Style = "styled") =>
   mode === "elements"
     ? style === "styled"
-      ? `npx primitiv add ${component} --surface elements --styled`
-      : `npm i @primitiv-ui/web`
+      ? `npx primitiv-ui@latest add ${component} --styled, after init --styles`
+      : `npx primitiv-ui@latest add ${component}`
     : mode === "styled"
-      ? `npx primitiv add ${component}`
+      ? `npx primitiv-ui@latest add ${component}`
       : `npm i @primitiv-ui/react`;

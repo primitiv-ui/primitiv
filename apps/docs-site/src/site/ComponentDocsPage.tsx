@@ -263,7 +263,7 @@ const ComponentDocsBody = ({
             <InstallTabs
               kind={
                 inElements
-                  ? style === "styled"
+                  ? style === "styled" || webPackage
                     ? "exec"
                     : "install"
                   : mode === "styled" || registryOnly
@@ -277,7 +277,9 @@ const ComponentDocsBody = ({
                         "primitiv-ui@latest init --styles",
                         `primitiv-ui@latest add ${docs.id} --styled`,
                       ]
-                    : (webPackage ?? "@primitiv-ui/web")
+                    : webPackage
+                      ? `primitiv-ui@latest add ${docs.id}`
+                      : "@primitiv-ui/web"
                   : mode === "styled" || registryOnly
                     ? `primitiv-ui@latest add ${docs.id}`
                     : docs.headless.package
@@ -347,7 +349,12 @@ const ComponentDocsBody = ({
                     <>
                       Behaviour and accessibility only, no CSS: the element
                       works in plain HTML or any framework. Bring your own
-                      styling.
+                      styling. Prints the{" "}
+                      <InlineCode size="sm">&lt;script&gt;</InlineCode> tag and
+                      the bare markup to paste, with no Node project needed.
+                      With a bundler, install the package instead:{" "}
+                      <InlineCode size="sm">npm i @primitiv-ui/web</InlineCode>{" "}
+                      and the import beside.
                     </>
                   )
                 ) : registryOnly ? (
@@ -375,7 +382,7 @@ const ComponentDocsBody = ({
                 webPackage && (
                   <p className="docs-install-hint">
                     {style === "styled"
-                      ? `Headless installs the element alone: npm i ${webPackage}`
+                      ? `Headless prints the bare markup instead: ${installCommand("elements", docs.id, "headless")}`
                       : `Styled adds Primitiv's styling: ${installCommand("elements", docs.id, "styled")}`}
                   </p>
                 )

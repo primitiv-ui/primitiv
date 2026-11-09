@@ -228,3 +228,32 @@ fn finds_no_react_in_a_project_without_it_or_an_unreadable_manifest() {
     assert!(!crate::detect::lists_react(b"{}"));
     assert!(!crate::detect::lists_react(b"not json"));
 }
+
+#[test]
+fn finds_the_static_folder_of_a_maven_or_gradle_project() {
+    // Spring Boot, and the JVM web stacks that copy it, serve
+    // src/main/resources/static at the site root.
+    for build in ["pom.xml", "build.gradle", "build.gradle.kts"] {
+        let fs = InMemoryFs::new();
+        fs.write(&Path::new("project").join(build), b"").unwrap();
+
+        let root = crate::detect::static_root(&fs, Path::new("project"));
+
+        assert_eq!(
+            root,
+            Some(crate::detect::StaticRoot {
+                path: "src/main/resources/static/primitiv",
+                url: "/primitiv",
+            }),
+            "{build}"
+        );
+    }
+}
+
+#[test]
+fn finds_no_static_folder_in_a_project_it_does_not_recognise() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("project/index.html"), b"").unwrap();
+
+    assert_eq!(crate::detect::static_root(&fs, Path::new("project")), None);
+}

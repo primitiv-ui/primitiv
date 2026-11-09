@@ -160,3 +160,25 @@ pub fn lists_react(bytes: &[u8]) -> bool {
         .iter()
         .any(|list| manifest[list].get("react").is_some())
 }
+
+/// Where a recognised server-side project serves static files from, and the
+/// URL that folder is served at.
+#[derive(Debug, PartialEq)]
+pub struct StaticRoot {
+    pub path: &'static str,
+    pub url: &'static str,
+}
+
+/// The static folder of a project `init` recognises, for the elements surface
+/// (RFC 0033 §8.2): a Maven or Gradle build is taken to be Spring Boot's layout,
+/// which serves `src/main/resources/static` at the site root. `None` for
+/// anything else, which `init` then asks about or gives the generic default.
+pub fn static_root(fs: &impl FileSystem, dir: &Path) -> Option<StaticRoot> {
+    ["pom.xml", "build.gradle", "build.gradle.kts"]
+        .iter()
+        .any(|build| fs.exists(&dir.join(build)))
+        .then_some(StaticRoot {
+            path: "src/main/resources/static/primitiv",
+            url: "/primitiv",
+        })
+}

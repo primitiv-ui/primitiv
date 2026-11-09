@@ -541,7 +541,11 @@
           ]
         }
       },
-      "contract": "contract.json"
+      "contract": "contract.json",
+      "elements": {
+        "example": "checkbox.html",
+        "handWritten": true
+      }
     },
     "checkbox-card": {
       "version": "0.1.0",
@@ -1685,7 +1689,11 @@
           ]
         }
       },
-      "contract": "contract.json"
+      "contract": "contract.json",
+      "elements": {
+        "example": "radio.html",
+        "handWritten": true
+      }
     },
     "radio-card": {
       "version": "0.1.0",
@@ -1997,7 +2005,11 @@
           ]
         }
       },
-      "contract": "contract.json"
+      "contract": "contract.json",
+      "elements": {
+        "example": "switch.html",
+        "handWritten": true
+      }
     },
     "table": {
       "version": "0.1.0",

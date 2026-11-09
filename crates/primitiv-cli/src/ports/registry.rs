@@ -120,6 +120,7 @@ const FILES: &[(&str, &str, &str)] = &[
     registry_file!("prose", "prose.recipe.ts"),
     registry_file!("prose", "prose.tsx"),
     registry_file!("prose", "contract.json"),
+    registry_file!("prose", "prose.html"),
     registry_file!("inline-code", "styles.css"),
     registry_file!("inline-code", "styles.scss"),
     registry_file!("inline-code", "inline-code.recipe.ts"),

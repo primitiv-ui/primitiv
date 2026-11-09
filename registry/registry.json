@@ -1559,7 +1559,10 @@
           ]
         }
       },
-      "contract": "contract.json"
+      "contract": "contract.json",
+      "elements": {
+        "example": "prose.html"
+      }
     },
     "pull-quote": {
       "version": "0.1.0",

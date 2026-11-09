@@ -1,4 +1,4 @@
-use crate::value::{ShadowLayer, format_cubic_bezier, format_number, format_shadow};
+use crate::value::{ShadowLayer, format_cubic_bezier, format_font_family, format_number, format_shadow};
 
 #[test]
 fn emits_length_categories_as_rem_against_a_16px_base() {
@@ -115,4 +115,26 @@ mod format_color {
         );
         assert_eq!(format_color("oklch(0.5 0.1 250)"), "oklch(0.5 0.1 250)");
     }
+}
+
+#[test]
+fn emits_a_font_family_quoted_with_a_sans_serif_fallback() {
+    // The source keeps the bare family name Figma needs; the stylesheet gets a
+    // stack, so text is never the browser's serif before the font loads.
+    assert_eq!(
+        format_font_family("text", "Asta Sans"),
+        "\"Asta Sans\", system-ui, sans-serif"
+    );
+    assert_eq!(
+        format_font_family("heading", "Khand"),
+        "\"Khand\", system-ui, sans-serif"
+    );
+}
+
+#[test]
+fn emits_the_mono_family_with_a_monospace_fallback() {
+    assert_eq!(
+        format_font_family("mono", "JetBrains Mono"),
+        "\"JetBrains Mono\", ui-monospace, monospace"
+    );
 }

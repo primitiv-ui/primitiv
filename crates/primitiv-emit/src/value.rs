@@ -136,3 +136,16 @@ fn is_oklch(value: &str) -> bool {
         .to_ascii_lowercase()
         .starts_with("oklch(")
 }
+
+/// A `font-family` token as a CSS value: the family quoted, then a generic
+/// fallback, so text stays sans-serif (or monospace for `mono`) until the font
+/// loads, or when it never does. The DTCG source keeps the bare family name,
+/// which is what Figma binds; only the stylesheet needs the stack.
+pub fn format_font_family(key: &str, family: &str) -> String {
+    let fallback = if key == "mono" {
+        "ui-monospace, monospace"
+    } else {
+        "system-ui, sans-serif"
+    };
+    format!("\"{family}\", {fallback}")
+}

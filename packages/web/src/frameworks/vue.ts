@@ -20,7 +20,11 @@
  */
 import type { DefineComponent, EmitsOptions } from "vue";
 
-import type { PrimitivAccordionChangeEvent, PrimitivTabsChangeEvent } from "./events.ts";
+import type {
+  PrimitivAccordionChangeEvent,
+  PrimitivCollapsibleChangeEvent,
+  PrimitivTabsChangeEvent,
+} from "./events.ts";
 
 /** A tag as Vue's template checker sees it: its props, and the events it emits. */
 type Tag<Props, Events extends EmitsOptions = Record<never, never>> = DefineComponent<
@@ -51,6 +55,16 @@ declare module "vue" {
       { "primitiv-accordion-show": (event: CustomEvent) => void }
     >;
     "primitiv-accordion-trigger-icon": Tag<Record<never, never>>;
+    "primitiv-collapsible": Tag<
+      { open?: boolean | ""; disabled?: boolean | "" },
+      { "primitiv-collapsible-change": (event: PrimitivCollapsibleChangeEvent) => void }
+    >;
+    "primitiv-collapsible-trigger": Tag<Record<never, never>>;
+    "primitiv-collapsible-content": Tag<
+      { forceMount?: boolean | ""; collapsedHeight?: string | number },
+      { "primitiv-collapsible-show": (event: CustomEvent) => void }
+    >;
+    "primitiv-collapsible-trigger-icon": Tag<Record<never, never>>;
     "primitiv-tabs": Tag<
       {
         value?: string;

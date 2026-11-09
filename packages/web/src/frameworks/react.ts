@@ -27,19 +27,29 @@ import type {
   PrimitivAccordionTriggerIconElement,
 } from "../accordion/elements.ts";
 import type {
+  PrimitivCollapsibleContentElement,
+  PrimitivCollapsibleElement,
+  PrimitivCollapsibleTriggerElement,
+  PrimitivCollapsibleTriggerIconElement,
+} from "../collapsible/elements.ts";
+import type {
   PrimitivTabsContentElement,
   PrimitivTabsElement,
   PrimitivTabsListElement,
   PrimitivTabsTriggerElement,
 } from "../tabs/elements.ts";
-import type { PrimitivAccordionChangeEvent, PrimitivTabsChangeEvent } from "./events.ts";
+import type {
+  PrimitivAccordionChangeEvent,
+  PrimitivCollapsibleChangeEvent,
+  PrimitivTabsChangeEvent,
+} from "./events.ts";
 
 /** React's own props for an element, plus `class`, which React 19 passes to custom elements. */
 type ElementProps<E extends HTMLElement> = DetailedHTMLProps<HTMLAttributes<E>, E> & {
   class?: string;
 };
 
-export type { PrimitivAccordionChangeEvent, PrimitivTabsChangeEvent };
+export type { PrimitivAccordionChangeEvent, PrimitivCollapsibleChangeEvent, PrimitivTabsChangeEvent };
 
 declare module "react" {
   // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -62,6 +72,18 @@ declare module "react" {
         "onprimitiv-accordion-show"?: (event: CustomEvent) => void;
       };
       "primitiv-accordion-trigger-icon": ElementProps<PrimitivAccordionTriggerIconElement>;
+      "primitiv-collapsible": ElementProps<PrimitivCollapsibleElement> & {
+        open?: boolean;
+        disabled?: boolean;
+        "onprimitiv-collapsible-change"?: (event: PrimitivCollapsibleChangeEvent) => void;
+      };
+      "primitiv-collapsible-trigger": ElementProps<PrimitivCollapsibleTriggerElement>;
+      "primitiv-collapsible-content": ElementProps<PrimitivCollapsibleContentElement> & {
+        "force-mount"?: boolean;
+        "collapsed-height"?: string | number;
+        "onprimitiv-collapsible-show"?: (event: CustomEvent) => void;
+      };
+      "primitiv-collapsible-trigger-icon": ElementProps<PrimitivCollapsibleTriggerIconElement>;
       "primitiv-tabs": ElementProps<PrimitivTabsElement> & {
         value?: string;
         orientation?: "horizontal" | "vertical";

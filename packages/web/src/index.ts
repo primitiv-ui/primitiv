@@ -4,4 +4,5 @@
  * `@primitiv-ui/web/define` (or `/define/<component>`) to register the tags.
  */
 export * from "./accordion/index.ts";
+export * from "./collapsible/index.ts";
 export * from "./tabs/index.ts";

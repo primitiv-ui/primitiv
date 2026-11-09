@@ -26,12 +26,22 @@ import type {
   PrimitivAccordionTriggerIconElement,
 } from "../accordion/elements.ts";
 import type {
+  PrimitivCollapsibleContentElement,
+  PrimitivCollapsibleElement,
+  PrimitivCollapsibleTriggerElement,
+  PrimitivCollapsibleTriggerIconElement,
+} from "../collapsible/elements.ts";
+import type {
   PrimitivTabsContentElement,
   PrimitivTabsElement,
   PrimitivTabsListElement,
   PrimitivTabsTriggerElement,
 } from "../tabs/elements.ts";
-import type { PrimitivAccordionChangeEvent, PrimitivTabsChangeEvent } from "./events.ts";
+import type {
+  PrimitivAccordionChangeEvent,
+  PrimitivCollapsibleChangeEvent,
+  PrimitivTabsChangeEvent,
+} from "./events.ts";
 
 /** Svelte's own attributes and events for an element. */
 type Attributes<E extends HTMLElement> = HTMLAttributes<E>;
@@ -55,6 +65,18 @@ declare module "svelte/elements" {
       "onprimitiv-accordion-show"?: (event: CustomEvent) => void;
     };
     "primitiv-accordion-trigger-icon": Attributes<PrimitivAccordionTriggerIconElement>;
+    "primitiv-collapsible": Attributes<PrimitivCollapsibleElement> & {
+      open?: boolean;
+      disabled?: boolean;
+      "onprimitiv-collapsible-change"?: (event: PrimitivCollapsibleChangeEvent) => void;
+    };
+    "primitiv-collapsible-trigger": Attributes<PrimitivCollapsibleTriggerElement>;
+    "primitiv-collapsible-content": Attributes<PrimitivCollapsibleContentElement> & {
+      "force-mount"?: boolean;
+      "collapsed-height"?: string | number;
+      "onprimitiv-collapsible-show"?: (event: CustomEvent) => void;
+    };
+    "primitiv-collapsible-trigger-icon": Attributes<PrimitivCollapsibleTriggerIconElement>;
     "primitiv-tabs": Attributes<PrimitivTabsElement> & {
       value?: string;
       orientation?: "horizontal" | "vertical";

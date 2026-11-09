@@ -14,6 +14,10 @@
       "types": "./src/accordion/index.ts",
       "default": "./src/accordion/index.ts"
     },
+    "./collapsible": {
+      "types": "./src/collapsible/index.ts",
+      "default": "./src/collapsible/index.ts"
+    },
     "./tabs": {
       "types": "./src/tabs/index.ts",
       "default": "./src/tabs/index.ts"
@@ -25,6 +29,10 @@
     "./define/accordion": {
       "types": "./src/define/accordion.ts",
       "default": "./src/define/accordion.ts"
+    },
+    "./define/collapsible": {
+      "types": "./src/define/collapsible.ts",
+      "default": "./src/define/collapsible.ts"
     },
     "./define/tabs": {
       "types": "./src/define/tabs.ts",
@@ -105,6 +113,10 @@
         "types": "./dist/accordion/index.d.ts",
         "default": "./dist/accordion/index.js"
       },
+      "./collapsible": {
+        "types": "./dist/collapsible/index.d.ts",
+        "default": "./dist/collapsible/index.js"
+      },
       "./tabs": {
         "types": "./dist/tabs/index.d.ts",
         "default": "./dist/tabs/index.js"
@@ -116,6 +128,10 @@
       "./define/accordion": {
         "types": "./dist/define/accordion.d.ts",
         "default": "./dist/define/accordion.js"
+      },
+      "./define/collapsible": {
+        "types": "./dist/define/collapsible.d.ts",
+        "default": "./dist/define/collapsible.js"
       },
       "./define/tabs": {
         "types": "./dist/define/tabs.d.ts",

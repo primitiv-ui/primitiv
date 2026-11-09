@@ -59,6 +59,10 @@ pub struct InitOptions {
     /// The surface the project consumes (RFC 0033 §8.2): React wrappers or the
     /// custom elements. `None` defers to detection from `package.json`.
     pub surface: Option<Surface>,
+    /// The URL the styles folder is served at (the `--url` flag), recorded for
+    /// an elements project's printed links. `None` defers to detection, a
+    /// prompt, or the path itself.
+    pub url: Option<String>,
 }
 
 /// The choices resolved into the exact values `render` writes — every `Option`
@@ -72,6 +76,9 @@ struct ResolvedInit {
     path: String,
     styles_enabled: bool,
     alias_components: Option<String>,
+    /// The URL the styles folder is served at — elements only, where a page
+    /// links the styles; `None` for React, whose bundler imports them.
+    url: Option<String>,
 }
 
 /// The `primitiv init` command (RFC 0005 §2.1): resolve the consumer's choices
@@ -256,6 +263,20 @@ fn resolve(
         None if ask => ask_text(prompt, "Where should copied styles land", default_path)?,
         None => default_path.to_string(),
     };
+    // The detected URL belongs to the detected folder; any other folder's URL is
+    // its path, which is what a site served from its own root links.
+    let default_url = match &static_root {
+        Some(root) if path == root.path => root.url.to_string(),
+        _ => path.clone(),
+    };
+    let url = match surface {
+        Surface::React => None,
+        Surface::Elements => Some(match &options.url {
+            Some(value) => value.clone(),
+            None if ask => ask_text(prompt, "URL the styles folder is served at", &default_url)?,
+            None => default_url,
+        }),
+    };
     let alias_components = match &options.alias_components {
         Some(value) => Some(value.clone()),
         None if ask => {
@@ -281,6 +302,7 @@ fn resolve(
         path,
         styles_enabled,
         alias_components,
+        url,
     })
 }
 
@@ -301,7 +323,7 @@ fn render(resolved: &ResolvedInit) -> String {
     };
     format!(
         "{{\n  \"$schema\": \"{schema}\",\n  \"version\": 1,\n  \"name\": \"{name}\",\n  \"surface\": \"{surface}\",\n  \
-         \"styles\": {{ \"enabled\": {enabled}, \"format\": \"{format}\", \"path\": \"{path}\" }},\n  \
+         \"styles\": {{ \"enabled\": {enabled}, \"format\": \"{format}\", \"path\": \"{path}\"{url} }},\n  \
          \"tokens\": {{ \"format\": \"{format}\", \"path\": \"{path}/tokens.{ext}\" }},\n  \
          \"theme\": {{ \"brand\": \"{brand}\" }},\n  \
          \"aliases\": {aliases},\n  \
@@ -312,6 +334,10 @@ fn render(resolved: &ResolvedInit) -> String {
         enabled = resolved.styles_enabled,
         format = resolved.format.as_str(),
         path = resolved.path,
+        url = match &resolved.url {
+            Some(url) => format!(", \"url\": \"{url}\""),
+            None => String::new(),
+        },
         ext = resolved.format.extension(),
         brand = resolved.brand,
         aliases = aliases,

@@ -37,6 +37,8 @@ fn parses_every_init_override_flag() {
         "@/ui",
         "--force",
         "--yes",
+        "--url",
+        "/assets/primitiv",
     ]))
     .unwrap();
 
@@ -52,6 +54,7 @@ fn parses_every_init_override_flag() {
             force: true,
             yes: true,
             surface: None,
+            url: Some("/assets/primitiv".to_string()),
         })
     );
 }

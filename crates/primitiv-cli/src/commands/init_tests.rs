@@ -241,6 +241,7 @@ fn reflects_every_overridden_choice_in_the_written_config() {
             force: false,
             yes: false,
             surface: None,
+            url: None,
         },
     )
     .unwrap();

@@ -189,3 +189,131 @@ fn records_an_elements_project_as_headless_by_default() {
 
     assert!(!init_config(&fs, InitOptions::default()).styles.enabled);
 }
+
+#[test]
+fn records_the_url_a_recognised_project_serves_its_styles_at() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("build.gradle.kts"), b"").unwrap();
+
+    let config = init_config(&fs, InitOptions::default());
+
+    assert_eq!(config.styles.url.as_deref(), Some("/primitiv"));
+}
+
+#[test]
+fn records_the_url_it_is_given() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("pom.xml"), b"").unwrap();
+
+    let config = init_config(
+        &fs,
+        InitOptions {
+            url: Some("/app/primitiv".into()),
+            ..Default::default()
+        },
+    );
+
+    assert_eq!(config.styles.url.as_deref(), Some("/app/primitiv"));
+}
+
+#[test]
+fn takes_the_path_as_the_url_of_a_site_it_does_not_recognise() {
+    // A plain site served from its own folder: the relative path is the URL,
+    // which is what the printed links have always been.
+    let fs = InMemoryFs::new();
+
+    let config = init_config(
+        &fs,
+        InitOptions {
+            path: Some("public/primitiv".into()),
+            ..Default::default()
+        },
+    );
+
+    assert_eq!(config.styles.url.as_deref(), Some("public/primitiv"));
+}
+
+#[test]
+fn keeps_the_detected_url_only_for_the_detected_path() {
+    // Choosing another folder makes the detected URL a guess about the wrong one.
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("pom.xml"), b"").unwrap();
+
+    let config = init_config(
+        &fs,
+        InitOptions {
+            path: Some("web/primitiv".into()),
+            ..Default::default()
+        },
+    );
+
+    assert_eq!(config.styles.url.as_deref(), Some("web/primitiv"));
+}
+
+#[test]
+fn records_no_url_for_the_react_surface() {
+    // A bundler imports the styles; there is no page to link them from.
+    let fs = InMemoryFs::new();
+    fs.write(
+        Path::new("package.json"),
+        br#"{ "dependencies": { "react": "^19.0.0" } }"#,
+    )
+    .unwrap();
+
+    let config = init_config(
+        &fs,
+        InitOptions {
+            surface: Some(Surface::React),
+            ..Default::default()
+        },
+    );
+
+    assert_eq!(config.styles.url, None);
+}
+
+#[test]
+fn asks_for_the_url_after_the_path_when_interactive() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("pom.xml"), b"").unwrap();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
+    // surface, format, brand, path, url
+    prompt.queue_answers(&["elements", "css", "#236ce1", "", "/static/primitiv"]);
+
+    init(
+        &fs,
+        &InMemoryOutput::new(),
+        &EmbeddedRegistry,
+        &prompt,
+        true,
+        &InitOptions::default(),
+    )
+    .unwrap();
+
+    let config = Config::parse(&fs.read(Path::new("primitiv.json")).unwrap()).unwrap();
+    assert_eq!(config.styles.url.as_deref(), Some("/static/primitiv"));
+    assert_eq!(
+        prompt.questions().get(4).map(String::as_str),
+        Some("URL the styles folder is served at")
+    );
+}
+
+#[test]
+fn surfaces_a_failed_url_prompt() {
+    let fs = InMemoryFs::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
+    // surface, styles, format, brand and path succeed; the URL prompt fails.
+    prompt.fail_after(5);
+
+    let error = init(
+        &fs,
+        &InMemoryOutput::new(),
+        &EmbeddedRegistry,
+        &prompt,
+        true,
+        &InitOptions::default(),
+    )
+    .unwrap_err();
+
+    assert!(matches!(error, crate::error::CliError::Io(_)), "{error:?}");
+    assert_eq!(prompt.questions().last().map(String::as_str), Some("Where should copied styles land"));
+}

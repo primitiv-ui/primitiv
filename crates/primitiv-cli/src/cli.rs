@@ -222,6 +222,7 @@ fn parse_init(args: &[String]) -> Result<Command, CliError> {
     let mut force = false;
     let mut yes = false;
     let mut surface = None;
+    let mut url = None;
     let mut rest = args.iter();
     while let Some(flag) = rest.next() {
         match flag.as_str() {
@@ -230,6 +231,7 @@ fn parse_init(args: &[String]) -> Result<Command, CliError> {
             "--name" => name = Some(take_value(&mut rest, "--name")?),
             "--brand" => brand = Some(take_value(&mut rest, "--brand")?),
             "--path" => path = Some(take_value(&mut rest, "--path")?),
+            "--url" => url = Some(take_value(&mut rest, "--url")?),
             "--styles" => styles_enabled = Some(true),
             "--no-styles" => styles_enabled = Some(false),
             "--alias-components" => {
@@ -250,6 +252,7 @@ fn parse_init(args: &[String]) -> Result<Command, CliError> {
         force,
         yes,
         surface,
+        url,
     }))
 }
 

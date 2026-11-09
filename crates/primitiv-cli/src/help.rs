@@ -43,7 +43,11 @@ Options:
   --format <css|scss|tailwind>   Stylesheet format
   --name <name>                  Project name
   --brand <colour>               Brand seed colour (any CSS colour)
-  --path <dir>                   Where component styles are written
+  --path <dir>                   Where component styles are written (detected
+                                 for a Maven or Gradle project)
+  --url <url>                    The URL that folder is served at, for the
+                                 links an elements page pastes (default: the
+                                 detected URL, else the path)
   --styles | --no-styles         Copy styled surfaces, or headless only
   --alias-components <alias>     Import alias for components (detected from tsconfig)
   --force                        Overwrite an existing primitiv.json

@@ -267,10 +267,10 @@ const ComponentDocsBody = ({
               target={
                 inElements
                   ? style === "styled"
-                    ? `primitiv add ${docs.id} --surface elements --styled`
+                    ? `primitiv-ui add ${docs.id} --styled`
                     : (webPackage ?? "@primitiv-ui/web")
                   : mode === "styled" || registryOnly
-                    ? `primitiv add ${docs.id}`
+                    ? `primitiv-ui add ${docs.id}`
                     : docs.headless.package
               }
             />
@@ -326,7 +326,13 @@ const ComponentDocsBody = ({
                       the markup to paste.{" "}
                       {webPackage
                         ? "The element adds the behaviour; the classes are the styling."
-                        : "The classes on that markup are the whole component."}
+                        : "The classes on that markup are the whole component."}{" "}
+                      Once per project, first:{" "}
+                      <InlineCode size="sm">
+                        primitiv-ui init --styles --path &lt;your static folder&gt;/primitiv
+                      </InlineCode>{" "}
+                      records where the styles go and the URL they are served at.
+                      No Node project needed.
                     </>
                   ) : (
                     <>

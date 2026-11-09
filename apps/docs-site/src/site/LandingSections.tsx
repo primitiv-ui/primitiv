@@ -49,7 +49,7 @@ const PATHS = [
     title: "Styled (registry)",
     description:
       "Headless props plus the style-layer contract and CSS variables. Copied into your app.",
-    install: { kind: "exec", target: "primitiv add button" },
+    install: { kind: "exec", target: "primitiv-ui add button" },
     link: { title: "Styled docs", href: "/components/button/" },
   },
   {
@@ -364,8 +364,8 @@ export const ComponentBlock = () => {
               kind="exec"
               target={
                 elements
-                  ? "primitiv add button --surface elements --styled"
-                  : "primitiv add button"
+                  ? "primitiv-ui add button --styled"
+                  : "primitiv-ui add button"
               }
             />
           ) : (

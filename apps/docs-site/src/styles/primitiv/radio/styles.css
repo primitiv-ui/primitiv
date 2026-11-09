@@ -227,7 +227,9 @@
      dims the whole row (box and label together). The data-disabled hook is a
      reliable prop mirror (unlike checked, disabled is never changed behind
      React's back), so it drives this rule directly. */
-  .primitiv-radio[data-disabled] {
+  /* The native :disabled on the input is read too, so hand-written markup
+     dims the same way; the primitive always sets both together. */
+  .primitiv-radio:is([data-disabled], :has(> input:disabled)) {
     opacity: var(--primitiv-opacity-50);
     cursor: not-allowed;
   }

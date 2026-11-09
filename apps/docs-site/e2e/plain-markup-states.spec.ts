@@ -71,3 +71,20 @@ test("a React-rendered field is not dimmed by a disabled control", async ({ page
   await mount(page, "/components/field/", reactField("disabled"));
   expect(await opacity(page, "#plain-markup .primitiv-field")).toBe("1");
 });
+
+// Checkbox, Radio and Switch wrap a native input, so a disabled one is the
+// input's own `disabled` attribute; the row dims from it.
+for (const [id, type, extra] of [
+  ["checkbox", "checkbox", ""],
+  ["radio", "radio", ""],
+  ["switch", "checkbox", ` role="switch"`],
+] as const) {
+  test(`a ${id} whose input is natively disabled is dimmed`, async ({ page }) => {
+    await mount(
+      page,
+      `/components/${id}/`,
+      `<label class="primitiv-${id} primitiv-${id}--md"><input type="${type}"${extra} disabled><span class="primitiv-${id}__control"></span><span class="primitiv-${id}__label">Label</span></label>`,
+    );
+    expect(await opacity(page, `#plain-markup .primitiv-${id}`)).toBe("0.5");
+  });
+}

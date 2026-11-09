@@ -664,7 +664,7 @@
         "packages": [
           {
             "name": "@primitiv-ui/web",
-            "version": "^0.1.46"
+            "version": "^0.1.47"
           }
         ],
         "example": "collapsible.html"

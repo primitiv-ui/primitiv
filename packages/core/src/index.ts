@@ -22,3 +22,9 @@ export {
   type AccordionReadingDirection,
   type AccordionState,
 } from "./accordion/policy.ts";
+export {
+  collapsibleKeydown,
+  collapsibleToggle,
+  type CollapsibleKeyOutcome,
+  type CollapsibleState,
+} from "./collapsible/policy.ts";

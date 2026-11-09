@@ -3,12 +3,15 @@
  * place of a real backend. Each is what a server-rendered app would send.
  */
 import { accordionHtml } from "./accordion-fixture.ts";
+import { collapsibleHtml } from "./collapsible-fixture.ts";
 import { tabsHtml } from "./fixture.ts";
 
 let lazyLoads = 0;
 let echoes = 0;
 let accordionLazyLoads = 0;
 let accordionEchoes = 0;
+let collapsibleLazyLoads = 0;
+let collapsibleEchoes = 0;
 
 export const fragments: Record<string, string | ((url: string) => string)> = {
   // Case 1: a whole tab set arrives in a fragment.
@@ -68,4 +71,15 @@ export const fragments: Record<string, string | ((url: string) => string)> = {
   "accordion-echo": (url: string) =>
     `<span data-testid="echo">server saw ${new URL(url, "http://lab").searchParams.get("value")} (${++accordionEchoes})</span>`,
   "accordion-rtl": `<div dir="rtl">${accordionHtml({ value: "", orientation: "horizontal" }, "rtl")}</div>`,
+
+  // The Collapsible page's cases (collapsible-htmx.html), named to match.
+  collapsible: collapsibleHtml({ open: true }, "swapped"),
+  "collapsible-nested": collapsibleHtml({}, "inner", { label: "Inner", panel: "Inner panel" }),
+  "collapsible-oob-panel":
+    '<div hx-swap-oob="beforeend:#oob"><primitiv-collapsible-content>Out-of-band panel</primitiv-collapsible-content></div>',
+  "collapsible-oob-open": `<div hx-swap-oob="outerHTML:#rerendered">${collapsibleHtml({ open: true }, "rerendered")}</div>`,
+  "collapsible-preserve": `<div id="preserve-region"><p>Swapped region</p>${collapsibleHtml({}, "preserved").replace("<primitiv-collapsible ", '<primitiv-collapsible hx-preserve="true" ')}</div>`,
+  "collapsible-lazy": () => `<p data-testid="lazy-content">Lazy content, load ${++collapsibleLazyLoads}</p>`,
+  "collapsible-echo": (url: string) =>
+    `<span data-testid="echo">server saw ${new URL(url, "http://lab").searchParams.get("open")} (${++collapsibleEchoes})</span>`,
 };

@@ -6,7 +6,9 @@ import { expect, test } from "./fixtures";
 
 test.beforeEach(async ({ page }) => {
   await page.goto("/styled.html");
-  await page.waitForFunction(() => customElements.get("primitiv-tabs") && customElements.get("primitiv-accordion"));
+  await page.waitForFunction(
+    () => customElements.get("primitiv-tabs") && customElements.get("primitiv-accordion") && customElements.get("primitiv-collapsible"),
+  );
 });
 
 const tab = (page: import("@playwright/test").Page, name: string) => page.getByRole("tab", { name, exact: true });
@@ -62,4 +64,26 @@ test("the printed accordion is styled and working, its closed panels collapsed r
   await expect(page.getByRole("region", { name: "Two" })).toHaveText("Second panel");
   await expect(page.locator(".primitiv-accordion__trigger-icon").nth(1)).toHaveAttribute("data-state", "open");
   await expect(page.getByRole("region")).toHaveCount(1);
+});
+
+test("add collapsible printed the per-component script for its first release", () => {
+  const output = readFileSync("styled-site/add-collapsible-output.txt", "utf8");
+  expect(output).toMatch(/@primitiv-ui\/web@[\d.]+\/dist\/cdn\/collapsible\.js/);
+});
+
+test("the printed collapsible is styled and working, its closed panel collapsed rather than display:none", async ({ page }) => {
+  const trigger = page.getByRole("button", { name: "Show shipping details", exact: true });
+  const content = page.locator("primitiv-collapsible-content");
+  await expect(page.locator("primitiv-collapsible-trigger")).toHaveCSS("display", "contents");
+  await expect(page.locator("primitiv-collapsible")).toHaveCSS("display", "flex");
+  await expect(trigger).toHaveCSS("display", "flex");
+  await expect(trigger).toHaveAttribute("aria-expanded", "false");
+  await expect(content).toHaveCSS("display", "grid");
+  await expect(content).toHaveAttribute("aria-hidden", "true");
+
+  await trigger.click();
+  await expect(trigger).toHaveAttribute("aria-expanded", "true");
+  await expect(content).not.toHaveAttribute("aria-hidden");
+  await expect(page.locator(".primitiv-collapsible__trigger-icon")).toHaveAttribute("data-state", "open");
+  await expect(page.locator(".primitiv-collapsible__content-body")).toHaveCSS("display", "block");
 });

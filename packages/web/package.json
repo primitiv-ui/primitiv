@@ -1,6 +1,6 @@
 {
   "name": "@primitiv-ui/web",
-  "version": "0.1.50",
+  "version": "0.1.51",
   "description": "Primitiv's headless components as standard custom elements: light DOM, no framework, no runtime dependencies. Works in plain HTML, server-rendered stacks, React, Vue, Angular and anything else that renders HTML.",
   "type": "module",
   "main": "./src/index.ts",

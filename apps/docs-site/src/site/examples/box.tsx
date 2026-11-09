@@ -40,6 +40,10 @@ const scopedChild: CSSProperties = {
   borderRadius: "var(--primitiv-radii-8)",
 };
 
+/** The demo's author style, as an HTML `style` attribute value. */
+const DEMO_STYLE =
+  "padding: var(--primitiv-space-space-16); border: 1px dashed var(--primitiv-border-default); border-radius: var(--primitiv-radii-8)";
+
 /**
  * Box's page content.
  *
@@ -57,7 +61,9 @@ export const boxSpec: ComponentSpec = {
        an author style so it is visible; the custom snippet shows that same
        style, since the generated `<Box />` would render nothing on screen. */
     snippet: (_values, mode) =>
-      [
+      mode === "elements"
+        ? `<div class="primitiv-box" style="${DEMO_STYLE}">A plain box you style yourself</div>`
+        : [
         imports(mode),
         ``,
         `<Box`,
@@ -77,11 +83,15 @@ export const boxSpec: ComponentSpec = {
     {
       id: "as-child",
       title: "As your own element",
+      elementsTitle: "On a semantic element",
       render: () => (
         <InteractiveExample
+          elementsCaption={"The class goes on any element, so put it on one that carries meaning — a `<section>`, `<article>` or `<nav>` — and get a real landmark rather than an anonymous `<div>` that adds nothing to the accessibility tree."}
           caption={"`asChild` renders the child element instead of a wrapping `<div>`, merging Box onto it. Reach for it when the wrapper should carry meaning — a `<section>`, `<article>` or `<nav>` — so you get a real landmark rather than an anonymous `<div>` that adds nothing to the accessibility tree."}
           code={(_density, mode) =>
-            [
+            mode === "elements"
+              ? `<section class="primitiv-box" aria-label="Account summary" style="${DEMO_STYLE}">A real &lt;section&gt; landmark</section>`
+              : [
               imports(mode),
               ``,
               `<Box asChild>`,
@@ -105,9 +115,19 @@ export const boxSpec: ComponentSpec = {
       title: "Scoping a design token",
       render: () => (
         <InteractiveExample
+          elementsCaption={"Because a design token is a CSS custom property, setting one on a box re-points it for everything inside — the token cascades, so descendants that resolve `--primitiv-space-space-16` inherit the new value with no extra wiring. This is the canonical Box use: a subtree-scoped override with somewhere to attach it."}
           caption={"Because a design token is a CSS custom property, setting one on a `Box` re-points it for everything inside — the token cascades, so descendants that resolve `--primitiv-space-space-16` inherit the new value here without prop-drilling. This is the canonical Box use: a subtree-scoped override with somewhere to attach it that is not a raw `<div>`."}
           code={(_density, mode) =>
-            [
+            mode === "elements"
+              ? [
+                  `<div class="primitiv-box" style="--primitiv-space-space-16: 2.5rem">`,
+                  `  <!-- Descendants resolving the token pick up the scoped value. -->`,
+                  `  <article style="padding: var(--primitiv-space-space-16); background: var(--primitiv-surface-raised); border-radius: var(--primitiv-radii-8)">`,
+                  `    Padded by the token this box re-points.`,
+                  `  </article>`,
+                  `</div>`,
+                ].join("\n")
+              : [
               imports(mode),
               ``,
               `<Box style={{ "--primitiv-space-space-16": "2.5rem" }}>`,
@@ -130,6 +150,16 @@ export const boxSpec: ComponentSpec = {
       ),
     },
   ],
+
+  elements: {
+    description:
+      "The escape hatch: `primitiv-box` on any element, with no visual opinion of its own beyond the border-box model. It exists so a one-off style or a scoped token has somewhere to land.",
+    accessibility: [
+      "The class adds no role, label or semantics — correct for a pure styling wrapper, which should be invisible to assistive tech.",
+      "When the wrapper *should* mean something, put the class on a real `<section>`, `<nav>` or `<article>` rather than nesting a bare `<div>`: a landmark a screen-reader user can navigate to beats an anonymous box.",
+      "It adds no script and no attributes, so it never fights or duplicates the semantics you write.",
+    ],
+  },
 
   accessibility: [
     "Box renders a plain `<div>` with no role, label or semantics of its own — correct for a pure styling wrapper, which should be invisible to assistive tech.",

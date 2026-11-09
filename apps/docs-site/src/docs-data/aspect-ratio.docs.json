@@ -52,5 +52,12 @@
   "figma": {
     "componentSetKey": "1815:59456"
   },
-  "elements": null
+  "elements": {
+    "package": null,
+    "version": null,
+    "element": "div",
+    "wrapText": false,
+    "example": "<div class=\"primitiv-aspect-ratio primitiv-aspect-ratio--16-9\">\n  <div class=\"primitiv-aspect-ratio__content\"><img src=\"image.jpg\" alt=\"Describe the image\"></div>\n</div>\n",
+    "api": []
+  }
 }

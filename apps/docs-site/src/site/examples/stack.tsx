@@ -6,6 +6,7 @@ import { Stack } from "@/components/stack";
 import { importBlock } from "@/lib/playground";
 import { InteractiveExample } from "@/site/InteractiveExample";
 import type { Mode } from "@/site/preferences";
+import { CELL_STYLE, withDemoCells, withRootStyle } from "./layout-demo";
 import type { ComponentSpec } from "./types";
 
 type Direction = "column" | "row" | "column-reverse" | "row-reverse";
@@ -46,6 +47,34 @@ const Cell = ({ children }: { children: ReactNode }) => (
    axis. */
 const playgroundBox: CSSProperties = { minBlockSize: "13rem" };
 
+/** The Elements markup for a stack of plain `<div>` children. */
+const stackHtml = (
+  {
+    direction = "column",
+    gap = "md",
+    align = "stretch",
+    wrap = "nowrap",
+    justify = "start",
+  }: Partial<Record<"direction" | "gap" | "align" | "wrap" | "justify", string>>,
+  children: readonly string[],
+) =>
+  [
+    `<div class="primitiv-stack primitiv-stack--${direction} primitiv-stack--gap-${gap} primitiv-stack--align-${align} primitiv-stack--${wrap} primitiv-stack--justify-${justify}">`,
+    ...children.map((c) => `  <div>${c}</div>`),
+    `</div>`,
+  ].join("\n");
+
+const TAGS = [
+  "Design",
+  "Engineering",
+  "Product",
+  "Research",
+  "Marketing",
+  "Support",
+  "Operations",
+  "Finance",
+];
+
 /**
  * Stack's page content.
  *
@@ -66,7 +95,9 @@ export const stackSpec: ComponentSpec = {
     /* A custom snippet only because the generated `toJsx` would need placeholder
        children, which read better written out. */
     snippet: (values, mode) =>
-      [
+      mode === "elements"
+        ? stackHtml(values, ["One", "Two", "Three"])
+        : [
         imports(mode),
         ``,
         `<Stack`,
@@ -80,6 +111,14 @@ export const stackSpec: ComponentSpec = {
         `  <div>Three</div>`,
         `</Stack>`,
       ].join("\n"),
+    /* The same slack and uneven middle cell as the React preview. */
+    elementsPreview: (code) =>
+      withDemoCells(
+        withRootStyle(code, "primitiv-stack", "min-block-size: 13rem").replace(
+          "<div>Two</div>",
+          "<div>Two<br>lines</div>",
+        ),
+      ),
     render: (values) => (
       <Stack
         direction={values.direction as Direction}
@@ -108,9 +147,13 @@ export const stackSpec: ComponentSpec = {
       title: "Direction",
       render: () => (
         <InteractiveExample
+          elementsCaption={"`primitiv-stack--{direction}` sets the main axis. The default is `column` — a vertical stack — and `row` lays the children out horizontally. The two `-reverse` modifiers flip the visual order; see the note under Accessibility, because reversing is *visual only* and does not move the DOM order focus and screen readers follow."}
           caption={"`direction` sets the main axis. The default is `column` — a vertical stack — and `row` lays the children out horizontally. The two `-reverse` values flip the visual order; see the note under Accessibility, because reversing is *visual only* and does not move the DOM order focus and screen readers follow."}
+          elementsPreview={(_density, code) => withDemoCells(code)}
           code={(_density, mode) =>
-            [
+            mode === "elements"
+              ? stackHtml({ direction: "row", gap: "sm" }, ["One", "Two", "Three"])
+              : [
               imports(mode),
               ``,
               `<Stack direction="row" gap="sm">`,
@@ -137,8 +180,18 @@ export const stackSpec: ComponentSpec = {
       render: () => (
         <InteractiveExample
           caption={"`gap` is a step on the space scale (`none`–`xl`), not a raw length — so the spacing stays on-system, and it **rescales with the nearest `data-density` ancestor**. Change the density above and the whole stack tightens or loosens: that is the Context system, resolved through `--primitiv-stack-gap-*`, not a fixed pixel value."}
+          elementsCaption={"The `primitiv-stack--gap-*` classes are steps on the space scale (`none`–`xl`), not raw lengths — so the spacing stays on-system, and it **rescales with the nearest `data-density` ancestor**. Change the density above and the whole stack tightens or loosens: the attribute re-points `--primitiv-stack-gap-*` for everything inside it."}
+          elementsPreview={(_density, code) => withDemoCells(code)}
           code={(density, mode) =>
-            [
+            mode === "elements"
+              ? [
+                  `<div data-density="${density}">`,
+                  ...stackHtml({ gap: "lg" }, ["One", "Two", "Three"])
+                    .split("\n")
+                    .map((l) => `  ${l}`),
+                  `</div>`,
+                ].join("\n")
+              : [
               imports(mode),
               ``,
               `<div data-density="${density}">`,
@@ -166,9 +219,23 @@ export const stackSpec: ComponentSpec = {
       title: "Alignment",
       render: () => (
         <InteractiveExample
+          elementsCaption={"Two axes: `primitiv-stack--align-*` positions children across the **cross** axis (the default `stretch` makes them fill it), and `primitiv-stack--justify-*` distributes them along the **main** axis, where `between`/`around`/`evenly` spread the free space. Both follow the direction, so on a row they mean the opposite screen axes they would on a column."}
           caption={"Two axes: `align` positions children across the **cross** axis (the default `stretch` makes them fill it — visible here because the cells have different heights), and `justify` distributes them along the **main** axis, where `between`/`around`/`evenly` spread the free space. Both follow `direction`, so on a `row` they mean the opposite screen axes they would on a `column`."}
+          elementsPreview={(_density, code) =>
+            withDemoCells(
+              code.replace(
+                "<div>A taller cell</div>",
+                `<div style="${CELL_STYLE}; padding-block: var(--primitiv-space-space-24)">A taller cell</div>`,
+              ),
+            )
+          }
           code={(_density, mode) =>
-            [
+            mode === "elements"
+              ? stackHtml(
+                  { direction: "row", gap: "sm", align: "center", justify: "between" },
+                  ["Short", "A taller cell", "End"],
+                )
+              : [
               imports(mode),
               ``,
               `<Stack direction="row" gap="sm" align="center" justify="between">`,
@@ -197,8 +264,12 @@ export const stackSpec: ComponentSpec = {
       render: () => (
         <InteractiveExample
           caption={"`wrap` defaults to `nowrap`, so a row that runs out of space overflows. Set `wrap=\"wrap\"` and the children break onto new lines instead — the usual choice for a row of tags or filters that must survive a narrow container. The `gap` applies between wrapped lines too."}
+          elementsCaption={"`primitiv-stack--nowrap` is the default, so a row that runs out of space overflows. Swap in `primitiv-stack--wrap` and the children break onto new lines instead — the usual choice for a row of tags or filters that must survive a narrow container. The gap applies between wrapped lines too."}
+          elementsPreview={(_density, code) => withDemoCells(code)}
           code={(_density, mode) =>
-            [
+            mode === "elements"
+              ? stackHtml({ direction: "row", gap: "sm", wrap: "wrap" }, TAGS)
+              : [
               imports(mode),
               ``,
               `<Stack direction="row" gap="sm" wrap="wrap">`,
@@ -211,16 +282,7 @@ export const stackSpec: ComponentSpec = {
         >
           {() => (
             <Stack direction="row" gap="sm" wrap="wrap">
-              {[
-                "Design",
-                "Engineering",
-                "Product",
-                "Research",
-                "Marketing",
-                "Support",
-                "Operations",
-                "Finance",
-              ].map((t) => (
+              {TAGS.map((t) => (
                 <Cell key={t}>{t}</Cell>
               ))}
             </Stack>
@@ -229,6 +291,17 @@ export const stackSpec: ComponentSpec = {
       ),
     },
   ],
+
+  elements: {
+    description:
+      "A flex container as classes: `primitiv-stack` plus one modifier per axis — direction, a token-scaled gap, cross-axis `align`, main-axis `justify` and `wrap`. Every modifier has a default, so write all five or rely on the stylesheet's.",
+    accessibility: [
+      "The class adds no role or semantics — it is pure layout, so a screen reader sees straight through it to the children.",
+      "When the group *is* something — a list, a set of navigation links — put the class on the right element (`<ul>`, `<nav>`, `<ol>`) instead of an anonymous `<div>`, so the structure is announced rather than flattened.",
+      "`primitiv-stack--row-reverse` and `--column-reverse` change the **visual** order only. Keyboard focus and screen-reader reading order still follow the source, so reorder the markup instead when the reading order is meant to change too.",
+      "The gap is space between items, not padding — the stack adds no inset of its own, so it never introduces a focus-ring-clipping edge.",
+    ],
+  },
 
   accessibility: [
     "Stack renders a plain `<div>` with no role or semantics — it is pure layout, so a screen reader sees straight through it to the children.",

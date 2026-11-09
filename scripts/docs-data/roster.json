@@ -21,7 +21,7 @@
     "category": "Layout",
     "description": "A box that constrains its content to a width-to-height ratio via CSS `aspect-ratio`. `ratio` is a curated preset set of modifier classes (1/1, 4/3, 3/2, 16/9, 21/9 and their portrait inverses); a bespoke ratio comes from overriding --primitiv-aspect-ratio in a stylesheet.",
     "documented": true,
-    "elements": null
+    "elements": "markup"
   },
   {
     "id": "avatar",
@@ -61,7 +61,7 @@
     "category": "Layout",
     "description": "The escape hatch — a bare polymorphic element with no visual opinion. Exists so a consumer has something to attach a custom property or a one-off style to without reaching for a raw <div>.",
     "documented": true,
-    "elements": null
+    "elements": "markup"
   },
   {
     "id": "breadcrumb",
@@ -93,7 +93,7 @@
     "category": "Data Display",
     "description": "A content container — an optional media region plus a padded content block holding a header, description and footer. `layout` picks the arrangement: `vertical` (media above), `horizontal` (media beside), or `cover` (media behind the content, under a legibility scrim). Sized xs–xl; `data-density` scales each size further.",
     "documented": true,
-    "elements": null
+    "elements": "markup"
   },
   {
     "id": "carousel",
@@ -109,7 +109,7 @@
     "category": "Layout",
     "description": "A single- or both-axis Flexbox centring box.",
     "documented": true,
-    "elements": null
+    "elements": "markup"
   },
   {
     "id": "checkbox",
@@ -173,7 +173,7 @@
     "category": "Layout",
     "description": "A centred, max-width content column with token-bound inline gutters. `size` caps the width against the breakpoint scale and `gutter` sets the inline padding — `responsive` (the default) escalates it at the md and lg breakpoints, the fixed steps pin one value at every width. No inline styles: both props are curated presets.",
     "documented": true,
-    "elements": null
+    "elements": "markup"
   },
   {
     "id": "context-menu",
@@ -253,7 +253,7 @@
     "category": "Layout",
     "description": "A CSS Grid container. `columns` takes a count or a mobile-first per-breakpoint map, `gap` the spacing (a density-scaled Context token per step), and `align`/`justify` how each item sits within its cell. No inline styles: the per-breakpoint column counts resolve to modifier classes, so the responsive behaviour is correct in server-rendered markup on the first paint.",
     "documented": true,
-    "elements": null
+    "elements": "markup"
   },
   {
     "id": "inline-code",
@@ -413,7 +413,7 @@
     "category": "Layout",
     "description": "A flex: 1 0 0 blank element for pushing flex siblings apart — toolbar left/right groups, card footers, nav bars.",
     "documented": true,
-    "elements": null
+    "elements": "markup"
   },
   {
     "id": "split-button",
@@ -429,7 +429,7 @@
     "category": "Layout",
     "description": "A Flexbox stack — `direction` picks the axis, `gap` the spacing (a density-scaled Context token per step), `wrap` whether the row may break onto additional lines, and `align`/`justify` the alignment, all as modifier classes. No inline styles: the alignment props are curated presets, not raw CSS keywords.",
     "documented": true,
-    "elements": null
+    "elements": "markup"
   },
   {
     "id": "stepper",

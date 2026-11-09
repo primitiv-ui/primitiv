@@ -112,12 +112,25 @@ for (const [id, rootClass] of [
   ["description-list", "primitiv-description-list"],
   ["figure", "primitiv-figure"],
   ["divider", "primitiv-divider"],
+  ["box", "primitiv-box"],
+  ["stack", "primitiv-stack"],
+  ["grid", "primitiv-grid"],
+  ["container", "primitiv-container"],
+  ["center", "primitiv-center"],
+  ["spacer", "primitiv-spacer"],
+  ["aspect-ratio", "primitiv-aspect-ratio"],
+  ["card", "primitiv-card"],
 ] as const) {
   test(`the ${id} preview is styled markup with no element to define`, async ({ page }) => {
     await page.goto(`/components/${id}/`);
     const root = page.locator(`.docs-elements-preview .${rootClass}`).first();
     await expect(root).toBeAttached();
-    expect(await page.evaluate(() => document.querySelectorAll(":not(:defined)").length)).toBe(0);
+    // Scoped to the previews: other page chrome may still be defining itself.
+    expect(
+      await page.evaluate(
+        () => document.querySelectorAll(".docs-elements-preview :not(:defined)").length,
+      ),
+    ).toBe(0);
     expect(await page.evaluate((name) => !!customElements.get(name), `primitiv-${id}`)).toBe(false);
   });
 }

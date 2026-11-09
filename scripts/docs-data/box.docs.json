@@ -38,5 +38,12 @@
   "figma": {
     "componentSetKey": "1815:59408"
   },
-  "elements": null
+  "elements": {
+    "package": null,
+    "version": null,
+    "element": "div",
+    "wrapText": false,
+    "example": "<div class=\"primitiv-box\">Anything you need a styling hook around, with no look of its own.</div>\n",
+    "api": []
+  }
 }

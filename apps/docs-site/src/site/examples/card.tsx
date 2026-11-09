@@ -103,6 +103,72 @@ const cardLines = ({ attrs = "", inset = false }: { attrs?: string; inset?: bool
     `</Card>`,
   ];
 
+/** Button's markup, for a card's footer actions. */
+const buttonHtml = (label: string, variant: "primary" | "secondary") =>
+  `<button type="button" class="primitiv-button primitiv-button--${variant} primitiv-button--sm"><span class="primitiv-button__label">${label}</span></button>`;
+
+/**
+ * The same card as Elements markup. Every root modifier is written out, as the
+ * copied example does; `footer: false` drops the actions (a link card, a cover).
+ */
+const cardHtml = ({
+  layout = "vertical",
+  size = "md",
+  elevation = "flat",
+  scrim = "medium",
+  inset = false,
+  footer = true,
+  title = "Winter light",
+  description = "First light over the Cairngorms.",
+  tag = "div",
+  attrs = "",
+}: {
+  layout?: string;
+  size?: string;
+  elevation?: string;
+  scrim?: string;
+  inset?: boolean;
+  footer?: boolean;
+  title?: string;
+  description?: string;
+  tag?: string;
+  attrs?: string;
+} = {}) =>
+  [
+    `<${tag}${attrs} class="primitiv-card primitiv-card--${layout} primitiv-card--${size} primitiv-card--${elevation} primitiv-card--scrim-${scrim}">`,
+    `  <div class="primitiv-card__media${inset ? " primitiv-card__media--inset" : ""}"><img src="photo.jpg" alt=""></div>`,
+    `  <div class="primitiv-card__content">`,
+    `    <div class="primitiv-card__header">`,
+    `      <h4 class="primitiv-card__title">${title}</h4>`,
+    `    </div>`,
+    `    <p class="primitiv-card__description">${description}</p>`,
+    ...(footer
+      ? [
+          `    <div class="primitiv-card__footer primitiv-card__footer--end">`,
+          `      ${buttonHtml("Share", "secondary")}`,
+          `      ${buttonHtml("View", "primary")}`,
+          `    </div>`,
+        ]
+      : []),
+    `  </div>`,
+    `</${tag}>`,
+  ].join("\n");
+
+/**
+ * Elements preview: the real photo in place of the placeholder, a cover card
+ * given the height its React twin gets, and a link card's text uncoloured.
+ */
+const withMedia = (code: string) =>
+  code
+    .replaceAll(`src="photo.jpg"`, `src="${MEDIA}"`)
+    .replaceAll(
+      `class="primitiv-card primitiv-card--cover`,
+      `style="min-block-size: 14rem" class="primitiv-card primitiv-card--cover`,
+    );
+
+const boxed = (width: string, inner: string) =>
+  `<div style="inline-size: 100%; max-inline-size: ${width}">${inner}</div>`;
+
 /**
  * Card's page content.
  *
@@ -126,12 +192,22 @@ export const cardSpec: ComponentSpec = {
        toggle in the default vertical playground — shown in the Cover example
        instead. */
     excludeControls: ["scrim"],
-    snippet: (values) =>
-      [
+    snippet: (values, mode) =>
+      mode === "elements"
+        ? cardHtml({ layout: values.layout, size: values.size, elevation: values.elevation })
+        : [
         imports(),
         ``,
         ...cardLines({ attrs: ` layout="${values.layout}" size="${values.size}" elevation="${values.elevation}"` }),
       ].join("\n"),
+    elementsPreview: (code) => {
+      const width = code.includes("card--horizontal")
+        ? "30rem"
+        : code.includes("card--cover")
+          ? "22rem"
+          : "20rem";
+      return boxed(width, withMedia(code));
+    },
     render: (values) => {
       const layout = values.layout as Layout;
       const width = layout === "horizontal" ? "30rem" : layout === "cover" ? "22rem" : "20rem";
@@ -149,8 +225,21 @@ export const cardSpec: ComponentSpec = {
   anatomy: [
     {
       label: "Parts",
-      code: () =>
-        [
+      code: (mode) =>
+        mode === "elements"
+          ? [
+              `<div class="primitiv-card">`,
+              `  <div class="primitiv-card__media"><!-- img / picture / video --></div>`,
+              `  <div class="primitiv-card__content">`,
+              `    <div class="primitiv-card__header">`,
+              `      <h3 class="primitiv-card__title">Title</h3>`,
+              `    </div>`,
+              `    <p class="primitiv-card__description">Body copy.</p>`,
+              `    <div class="primitiv-card__footer"><!-- actions --></div>`,
+              `  </div>`,
+              `</div>`,
+            ].join("\n")
+          : [
           `<Card>`,
           `  <CardMedia>{/* img / picture / video */}</CardMedia>`,
           `  <CardContent>`,
@@ -172,7 +261,11 @@ export const cardSpec: ComponentSpec = {
       render: () => (
         <InteractiveExample
           caption="The full composition: an optional `CardMedia`, then a `CardContent` holding a `CardHeader` (with the `CardTitle`), a `CardDescription`, and a `CardFooter` of actions. `CardContent` supplies the padding and the vertical rhythm between those regions — deliberately, so there is one padding box and no doubled seam where regions meet. `CardTitle` renders an `<h3>`; use `asChild` on it to set the heading level that fits your page outline."
-          code={() => [imports(), ``, ...cardLines()].join("\n")}
+          elementsCaption="The full composition: an optional `primitiv-card__media`, then a `primitiv-card__content` holding a `__header` (with the `__title`), a `__description`, and a `__footer` of actions. The content block supplies the padding and the vertical rhythm between those regions — deliberately, so there is one padding box and no doubled seam where regions meet. The title class goes on whichever heading level fits your page outline; the footer actions are Button markup, so add `button` too."
+          elementsPreview={(_density, code) => boxed("20rem", withMedia(code))}
+          code={(_density, mode) =>
+            mode === "elements" ? cardHtml() : [imports(), ``, ...cardLines()].join("\n")
+          }
         >
           {() => (
             <div style={{ inlineSize: "100%", maxInlineSize: "20rem" }}>
@@ -188,8 +281,17 @@ export const cardSpec: ComponentSpec = {
       render: () => (
         <InteractiveExample
           caption="`layout` decides where the media sits relative to the content: `&quot;vertical&quot;` (the default) stacks media on top, `&quot;horizontal&quot;` puts it to the side, and `&quot;cover&quot;` places it behind the content with a legibility scrim. Media and content are the same two siblings in every layout — only the CSS changes — so you switch presentation with one prop, not a different tree."
-          code={() =>
-            [
+          elementsCaption="The `primitiv-card--{layout}` modifier decides where the media sits relative to the content: `vertical` (the default) stacks media on top, `horizontal` puts it to the side, and `cover` places it behind the content with a legibility scrim. Media and content are the same two siblings in every layout — only the CSS changes — so you switch presentation by swapping one class, not rewriting the markup."
+          elementsPreview={(_density, code) => {
+            const [vertical, horizontal, cover] = code.split("\n\n");
+            return `<div style="display: flex; flex-direction: column; gap: 1.5rem; inline-size: 100%">${boxed("20rem", withMedia(vertical))}${boxed("30rem", withMedia(horizontal))}${boxed("22rem", withMedia(cover))}</div>`;
+          }}
+          code={(_density, mode) =>
+            mode === "elements"
+              ? (["vertical", "horizontal", "cover"] as const)
+                  .map((layout) => cardHtml({ layout, footer: layout !== "cover" }))
+                  .join("\n\n")
+              : [
               imports(),
               ``,
               `<Card layout="vertical">...</Card>`,
@@ -220,8 +322,15 @@ export const cardSpec: ComponentSpec = {
       render: () => (
         <InteractiveExample
           caption="`CardMedia`'s `inset` prop chooses how the image meets the frame. Flush (the default) bleeds the media to the border with square corners — the card's own `overflow: hidden` supplies the outer radius, and giving the media its own would round the inner seam into a visible notch. `inset` pulls the media in from the edge and rounds all four of its corners, for the more contained, panel-in-a-panel look."
-          code={() =>
-            [
+          elementsCaption="`primitiv-card__media--inset` chooses how the image meets the frame. Flush (the default) bleeds the media to the border with square corners — the card's own `overflow: hidden` supplies the outer radius, and giving the media its own would round the inner seam into a visible notch. The inset modifier pulls the media in from the edge and rounds all four of its corners, for the more contained, panel-in-a-panel look."
+          elementsPreview={(_density, code) => {
+            const [flush, inset] = code.split("\n\n");
+            return `<div style="display: flex; gap: 1.5rem; flex-wrap: wrap">${boxed("16rem", withMedia(flush))}${boxed("16rem", withMedia(inset))}</div>`;
+          }}
+          code={(_density, mode) =>
+            mode === "elements"
+              ? [cardHtml(), cardHtml({ inset: true })].join("\n\n")
+              : [
               imports(),
               ``,
               `{/* flush (default) */}`,
@@ -251,8 +360,27 @@ export const cardSpec: ComponentSpec = {
       render: () => (
         <InteractiveExample
           caption="Under `layout=&quot;cover&quot;` the content sits over the media, and a `scrim` gradient keeps it legible against any photo — `&quot;soft&quot;`, `&quot;medium&quot;` (default) or `&quot;strong&quot;`. The scrim is a pseudo-element on the card, so it costs nothing in the other layouts. The text is `coverForegroundLight` / `coverForegroundDark` (both default `&quot;white&quot;`, the only two absolute non-theme-flipping tones) — set them per photo, since a bright image can need dark text regardless of the app's own light/dark mode."
-          code={() =>
-            [
+          elementsCaption="Under `primitiv-card--cover` the content sits over the media, and a `primitiv-card--scrim-*` gradient keeps it legible against any photo — `soft`, `medium` (the default) or `strong`. The scrim is a pseudo-element on the card, so it costs nothing in the other layouts. The text colour is `--primitiv-card-cover-foreground-light` / `-dark` (both white by default) — set them per photo, since a bright image can need dark text regardless of the page's own light/dark mode."
+          elementsPreview={(_density, code) =>
+            `<div style="display: flex; gap: 1.5rem; flex-wrap: wrap">${code
+              .split("\n\n")
+              .map((c) => boxed("14rem", withMedia(c).replace("min-block-size: 14rem", "min-block-size: 13rem")))
+              .join("")}</div>`
+          }
+          code={(_density, mode) =>
+            mode === "elements"
+              ? (["soft", "medium", "strong"] as const)
+                  .map((scrim) =>
+                    cardHtml({
+                      layout: "cover",
+                      scrim,
+                      footer: false,
+                      title: scrim[0].toUpperCase() + scrim.slice(1),
+                      description: `Scrim strength ${scrim}.`,
+                    }),
+                  )
+                  .join("\n\n")
+              : [
               imports(),
               ``,
               `<Card layout="cover" scrim="strong" coverForegroundLight="white">`,
@@ -294,11 +422,24 @@ export const cardSpec: ComponentSpec = {
     {
       id: "as-link",
       title: "The whole card as a link (asChild)",
+      elementsTitle: "The whole card as a link",
       render: () => (
         <InteractiveExample
+          elementsCaption="The classes go on any element, so the entire card can be a single `<a>`. Prefer this to putting an `<a>` around a `<div>` full of other controls: one card, one link, one focus stop. Do **not** then also put buttons or links inside it — nested interactive elements inside a link are invalid; a card that is itself a link should have no other controls (drop the footer actions)."
+          elementsPreview={(_density, code) =>
+            boxed("30rem", withMedia(code).replace('href="/photos/winter-light"', 'href="#winter-light" style="text-decoration: none; color: inherit"'))
+          }
           caption="`asChild` on the root merges the card onto your own element, so the entire card can be a single link. Prefer this to putting an `<a>` around a `<div>` full of other controls: one card, one link, one focus stop. Do **not** then also put buttons or links inside it — nested interactive elements inside a link are invalid; a card that is itself a link should have no other controls (drop the footer actions)."
-          code={() =>
-            [
+          code={(_density, mode) =>
+            mode === "elements"
+              ? cardHtml({
+                  tag: "a",
+                  attrs: ` href="/photos/winter-light"`,
+                  layout: "horizontal",
+                  inset: true,
+                  footer: false,
+                })
+              : [
               imports(),
               ``,
               `<Card asChild layout="horizontal">`,
@@ -338,6 +479,20 @@ export const cardSpec: ComponentSpec = {
       ),
     },
   ],
+
+  elements: {
+    description:
+      "A content card as classes: `primitiv-card` with layout, size, elevation and scrim modifiers, and seven parts — media, content, header, title, description and footer. Structure and styling only; there is no script.",
+    anatomyMeta:
+      "`primitiv-card` is the frame and carries every root modifier; `__media` is the optional image region; `__content` is the padded block that holds everything else — and it owns **all** the padding, so `__header`, `__description` and `__footer` add none of their own. The title class goes on a real heading, at the level your outline needs. Media and content are always siblings — for `primitiv-card--cover` the CSS positions the media behind the content, no re-nesting.",
+    accessibility: [
+      "**A card is a container, not a role.** The classes add no semantics — the meaning comes from what you put in it. Put `primitiv-card__title` on a real heading (`<h2>`–`<h4>`) at the level that fits your outline, so headings never jump.",
+      "**Decide what the media announces.** A decorative photo takes `alt=\"\"` so a screen reader skips it; a meaningful image gets a real `alt`.",
+      "**One card, one link.** Putting the classes on an `<a>` makes the whole card one link — far better than an `<a>` wrapped around text and buttons. But a card that is itself a link must contain no other interactive elements.",
+      "**Footer actions are real controls, so order them by importance.** The `__footer--*` alignment is visual only; the DOM order is the tab order, so put the primary action first in the markup if it should be reached first.",
+      "Layout, size and elevation are presentational and change nothing in the accessibility tree. Check the title's contrast against the actual photo on a cover card — the scrim only helps so much over a busy image.",
+    ],
+  },
 
   accessibility: [
     "**A card is a container, not a role.** By itself it is a `<div>` with no semantics — the meaning comes from what you put in it. `CardTitle` renders a real `<h3>`, so it lands in the document outline; use `asChild` on it to pick the level that fits (an `<h2>` in a section of cards, say) rather than leaving heading levels to jump.",

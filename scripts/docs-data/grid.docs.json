@@ -101,5 +101,12 @@
   "figma": {
     "componentSetKey": "1815:59457"
   },
-  "elements": null
+  "elements": {
+    "package": null,
+    "version": null,
+    "element": "div",
+    "wrapText": false,
+    "example": "<div class=\"primitiv-grid primitiv-grid--cols-3 primitiv-grid--gap-md primitiv-grid--align-stretch primitiv-grid--justify-stretch\">\n  <div>One</div>\n  <div>Two</div>\n  <div>Three</div>\n</div>\n",
+    "api": []
+  }
 }

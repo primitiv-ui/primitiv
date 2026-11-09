@@ -76,5 +76,12 @@
   "figma": {
     "componentSetKey": "1765:41081"
   },
-  "elements": null
+  "elements": {
+    "package": null,
+    "version": null,
+    "element": "div",
+    "wrapText": false,
+    "example": "<div class=\"primitiv-container primitiv-container--lg primitiv-container--gutter-responsive\">\n  Page content, centred and capped at the large breakpoint, with gutters that widen as the screen does.\n</div>\n",
+    "api": []
+  }
 }

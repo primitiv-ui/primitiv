@@ -50,5 +50,12 @@
   "figma": {
     "componentSetKey": "1815:59439"
   },
-  "elements": null
+  "elements": {
+    "package": null,
+    "version": null,
+    "element": "div",
+    "wrapText": false,
+    "example": "<div class=\"primitiv-center primitiv-center--both\">\n  <p>Centred on both axes.</p>\n</div>\n",
+    "api": []
+  }
 }

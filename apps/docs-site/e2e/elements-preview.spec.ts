@@ -120,6 +120,10 @@ for (const [id, rootClass] of [
   ["spacer", "primitiv-spacer"],
   ["aspect-ratio", "primitiv-aspect-ratio"],
   ["card", "primitiv-card"],
+  ["input", "primitiv-input"],
+  ["textarea", "primitiv-textarea"],
+  ["field", "primitiv-field"],
+  ["input-group", "primitiv-input-group"],
 ] as const) {
   test(`the ${id} preview is styled markup with no element to define`, async ({ page }) => {
     await page.goto(`/components/${id}/`);

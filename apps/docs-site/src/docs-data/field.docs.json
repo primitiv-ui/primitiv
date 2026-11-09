@@ -261,5 +261,12 @@
   "figma": {
     "componentSetKey": "394:7449"
   },
-  "elements": null
+  "elements": {
+    "package": null,
+    "version": null,
+    "element": "div",
+    "wrapText": false,
+    "example": "<div class=\"primitiv-field primitiv-field--md\">\n  <label class=\"primitiv-field__label\" for=\"email\">Email</label>\n  <input type=\"email\" id=\"email\" name=\"email\" required aria-invalid=\"true\" aria-describedby=\"email-description email-error\">\n  <div class=\"primitiv-field__description\" id=\"email-description\">We only use it to send your receipt.</div>\n  <div class=\"primitiv-field__error\" id=\"email-error\" role=\"alert\">Enter an email address, like name@example.com.</div>\n</div>\n",
+    "api": []
+  }
 }

@@ -42,6 +42,24 @@ const ValidationExample = () => {
   );
 };
 
+/** Input's Elements markup, for the control inside a field. */
+const input = (attrs: string) => `<input class="primitiv-input primitiv-input--md" ${attrs}>`;
+
+/** A field as hand-wired markup: every line a part, every id written out. */
+const fieldHtml = (lines: readonly string[], attrs = "") =>
+  [
+    `<div class="primitiv-field primitiv-field--md"${attrs}>`,
+    ...lines.map((l) => `  ${l}`),
+    `</div>`,
+  ].join("\n");
+
+const label = (forId: string, text: string) =>
+  `<label class="primitiv-field__label" for="${forId}">${text}</label>`;
+const description = (id: string, text: string) =>
+  `<div class="primitiv-field__description" id="${id}">${text}</div>`;
+const errorText = (id: string, text: string) =>
+  `<div class="primitiv-field__error" id="${id}" role="alert">${text}</div>`;
+
 /**
  * Field's page content.
  *
@@ -62,6 +80,12 @@ export const fieldSpec: ComponentSpec = {
   playground: {
     component: "Field",
     snippet: (values, mode) => {
+      if (mode === "elements")
+        return fieldHtml([
+          label("email", "Email address"),
+          input(`type="email" id="email" placeholder="you@example.com" aria-describedby="email-description"`),
+          description("email-description", "We only use this to send receipts."),
+        ]).replace("primitiv-field--md", `primitiv-field--${values.size}`);
       const p = partNamer(mode, "Field");
       return [
         imports(mode),
@@ -91,6 +115,13 @@ export const fieldSpec: ComponentSpec = {
     {
       label: "Parts",
       code: (mode) => {
+        if (mode === "elements")
+          return fieldHtml([
+            `<label class="primitiv-field__label" for="email">Email address</label>`,
+            `<input id="email" aria-invalid="true" aria-describedby="email-description email-error">`,
+            `<div class="primitiv-field__description" id="email-description">...</div>`,
+            `<div class="primitiv-field__error" id="email-error" role="alert">...</div>`,
+          ]);
         const p = partNamer(mode, "Field");
         return [
           `<${p("Root")} invalid>`,
@@ -108,10 +139,18 @@ export const fieldSpec: ComponentSpec = {
     {
       id: "the-cascade",
       title: "The cascade (the headline)",
+      elementsTitle: "Showing an error",
       render: () => (
         <InteractiveExample
+          elementsCaption={'In markup there is no cascade to do the wiring, so an error is four things you render together, usually from the server: `aria-invalid="true"` on the control, a `primitiv-field__error` with `role="alert"`, its id added to the control\'s `aria-describedby`, and the message itself. Render the error only when there is one — an error left in the page and hidden with CSS can still be announced.'}
           caption="Type something without an `@`. One `invalid` prop on the Field does four things at once: it sets `aria-invalid` on the control, links the error text to it through `aria-describedby`, puts `data-field-invalid` on the wrapper for CSS, and **decides whether the error renders at all**. That last one is the surprise — `ErrorText` is gated, not hidden, so there is no stale error sitting in the DOM waiting to be announced."
           code={(_density, mode) => {
+            if (mode === "elements") return fieldHtml([
+                label("email", "Email address"),
+                input(`type="email" id="email" value="not-an-email" aria-invalid="true" aria-describedby="email-description email-error"`),
+                description("email-description", "We only use this to send receipts."),
+                errorText("email-error", "That does not look like an email address."),
+              ]);
             const p = partNamer(mode, "Field");
             return [
               `import { useState } from "react";`,
@@ -137,10 +176,17 @@ export const fieldSpec: ComponentSpec = {
     {
       id: "ids",
       title: "Ids you never write",
+      elementsTitle: "Wiring the ids",
       render: () => (
         <InteractiveExample
+          elementsCaption={"Three links make the field accessible, and in markup you write each one: the label's `for` names the control's `id`, and the control's `aria-describedby` lists the description's id (then the error's, when there is one). A naming scheme — `<id>-description`, `<id>-error` — keeps them straight."}
           caption="Give the Field an `id` and it derives the rest — `<id>-description` and `<id>-error` — then wires the label's `htmlFor`, the control's `id`, and the `aria-describedby` chain to match. Omit it and React's `useId` supplies one, which is the usual case: the ids only need to be unique and correct, not memorable. Inspect the control below and you will find all three links already made."
           code={(_density, mode) => {
+            if (mode === "elements") return fieldHtml([
+                label("email", "Email address"),
+                input(`type="email" id="email" placeholder="you@example.com" aria-describedby="email-description"`),
+                description("email-description", "We only use this to send receipts."),
+              ]);
             const p = partNamer(mode, "Field");
             return [
               imports(mode),
@@ -172,8 +218,18 @@ export const fieldSpec: ComponentSpec = {
       title: "Disabled and required",
       render: () => (
         <InteractiveExample
+          elementsCaption={"Put the native `required` or `disabled` on the control and the field follows: the stylesheet adds the label's required marker when the field contains a required control, and dims the whole field when it contains a disabled one. One attribute, in one place, drives both the behaviour and the look."}
           caption="Both cascade the same way `invalid` does, so you set them in **one** place rather than on the wrapper for styling and on the control for behaviour. `disabled` reaches the control's `disabled` prop and dims the label with it; `required` reaches the control's `required`. Each also lands on the wrapper as `data-field-disabled` / `data-field-required` for anything your own CSS needs."
           code={(_density, mode) => {
+            if (mode === "elements") return [
+                fieldHtml([label("name", "Full name"), input(`id="name" required placeholder="Ada Lovelace"`)]),
+                ``,
+                fieldHtml([
+                  label("account", "Account id"),
+                  input(`id="account" disabled value="acct_18f3" aria-describedby="account-description"`),
+                  description("account-description", "Assigned when the account was created."),
+                ]),
+              ].join("\n");
             const p = partNamer(mode, "Field");
             return [
               imports(mode),
@@ -211,10 +267,17 @@ export const fieldSpec: ComponentSpec = {
     {
       id: "any-control",
       title: "Which controls the cascade reaches",
+      elementsTitle: "Any control",
       render: () => (
         <InteractiveExample
+          elementsCaption={'Field styles only its own parts, so the control can be anything with an `id` its label can point at — a textarea here, a `<select>`, a date input. Each keeps its own native behaviour, and the required marker and disabled dimming follow whichever control is inside.'}
           caption="**Three controls read `FieldContext`: `Input`, `Textarea` and `Select`.** Those inherit the id, the `aria-describedby` chain, `aria-invalid`, `disabled` and `required` without being told about the field at all — `Textarea` below is given nothing but `rows`. Everything else is only *inside* the field, not wired to it: `Switch`, `Checkbox` and `Radio` bring their own `<label>`, and `Slider` and `SegmentedControl` need `aria-labelledby` pointing at a label you give an id. For those, `Field.Label`'s `htmlFor` has nothing to attach to — see the note under Accessibility."
           code={(_density, mode) => {
+            if (mode === "elements") return fieldHtml([
+                label("details", "What went wrong?"),
+                `<textarea class="primitiv-textarea primitiv-textarea--md" id="details" rows="3" required placeholder="Tell us what happened..." aria-describedby="details-description"></textarea>`,
+                description("details-description", "Include the steps you took."),
+              ]);
             const p = partNamer(mode, "Field");
             return [
               imports(mode),
@@ -244,10 +307,21 @@ export const fieldSpec: ComponentSpec = {
     {
       id: "fieldset",
       title: "A group of controls (asChild)",
+      elementsTitle: "A group of controls",
       render: () => (
         <InteractiveExample
+          elementsCaption={'A field holding several radios should be a `<fieldset>`, not a `<div>` — the native way to say “these options belong together” — with the label as its `<legend>`. The classes go straight onto those elements, and a legend needs no `for`: the fieldset groups its controls by containment.'}
           caption="A Field wrapping several radios needs to be a `<fieldset>`, not a `<div>` — that is the native way to say “these options belong together”, and the Label becomes its `<legend>`. `asChild` on both swaps the elements while keeping the context, the ids and the `data-field-*` hooks. This is the group-labelling requirement the `Radio` page describes, done with the components you already have."
           code={(_density, mode) => {
+            if (mode === "elements") return [
+                `<fieldset class="primitiv-field primitiv-field--md">`,
+                `  <legend class="primitiv-field__label">Plan</legend>`,
+                `  <div class="primitiv-stack primitiv-stack--column primitiv-stack--gap-sm primitiv-stack--align-start primitiv-stack--nowrap primitiv-stack--justify-start">`,
+                `    <label><input type="radio" name="plan" value="free" checked> Free</label>`,
+                `    <label><input type="radio" name="plan" value="pro"> Pro</label>`,
+                `  </div>`,
+                `</fieldset>`,
+              ].join("\n");
             const p = partNamer(mode, "Field");
             return [
               imports(mode),
@@ -291,10 +365,13 @@ export const fieldSpec: ComponentSpec = {
     {
       id: "overrides",
       title: "Overriding the cascade",
+      elementsTitle: "Every attribute is the control's own",
       render: () => (
         <InteractiveExample
+          elementsCaption={"In markup nothing is inherited, so there is nothing to override: each control carries exactly the attributes you write on it. The one thing to know runs the other way — the field's styling reads its controls, so a field dims when any control inside it is disabled. Keep a control that must stay editable in a field of its own."}
           caption="A prop you set on the control always beats the one the field cascaded — the field supplies a default, it does not seize control. That is what makes a mixed field possible: a disabled Field with one control that stays editable, or a control with its own `aria-describedby` pointing somewhere else. Outside a Field, every one of these components behaves exactly as it does on its own page."
           code={(_density, mode) => {
+            if (mode === "elements") return fieldHtml([label("coupon", "Coupon code"), input(`id="coupon" placeholder="Still editable"`)]);
             const p = partNamer(mode, "Field");
             return [
               imports(mode),
@@ -320,6 +397,20 @@ export const fieldSpec: ComponentSpec = {
       ),
     },
   ],
+
+  elements: {
+    description:
+      "The label, helper text and error message around a form control, as classes: `primitiv-field` and a size on the wrapper, `__label`, `__description` and `__error` on the parts. The wiring between them — `for`, `id`, `aria-describedby`, `aria-invalid` — is yours to write.",
+    anatomyMeta:
+      "Four parts, and only the wrapper and a label are required. `primitiv-field` is the wrapper (a `<div>`, or a `<fieldset>` for a group); `__label` goes on the `<label>` (or `<legend>`); `__description` and `__error` style the helper and the message. The control between them carries its own classes — Input's, Textarea's — or none.",
+    accessibility: [
+      "Write the three links every time: the label's `for` names the control's `id`, and the control's `aria-describedby` lists the description's id, then the error's. A label that points at nothing leaves the control unnamed.",
+      "Render the error only when there is one, with `role=\"alert\"` so it is announced, and set `aria-invalid=\"true\"` on the control alongside it. An error left in the page and hidden with CSS can still be announced.",
+      "Colour is not the error. The invalid ring and the red message help, but the error text has to *say* what is wrong — and it must be linked by `aria-describedby`, so it is read as part of the control.",
+      "For a group of controls — radios, related checkboxes — use a `<fieldset>` with the label as its `<legend>`. A `<div>` with text above it does not tell assistive technology that the options belong together.",
+      "`disabled` on a control removes it from the tab order. If the field needs to stay discoverable while unavailable, keep it enabled and explain the constraint in the description.",
+    ],
+  },
 
   accessibility: [
     "Field exists to make the wiring **impossible to get wrong**, not to add semantics of its own. The label points at the control, the description and error are linked by `aria-describedby`, and the ids are generated — so the failure mode where a label is visually beside a control but not associated with it cannot happen.",

@@ -31,6 +31,10 @@ const fieldImports = (mode: Mode) =>
     parts: ["Label", "Description"],
   });
 
+/** Input's Elements markup: the classes on a native `<input>`. */
+const inputHtml = (attrs: string, size = "md") =>
+  `<input class="primitiv-input primitiv-input--${size}" ${attrs}>`;
+
 /**
  * Input's page content.
  *
@@ -50,7 +54,9 @@ export const inputSpec: ComponentSpec = {
     /* No `snippetPrefix`: the snippet below writes its own imports, and the two
        together printed the import line twice. */
     snippet: (values, mode) =>
-      [
+      mode === "elements"
+        ? inputHtml(`type="email" placeholder="you@example.com" aria-label="Email address"`, values.size)
+        : [
         imports(mode),
         ``,
         `<Input${contractAttr({ mode, prop: "size", value: values.size })} type="email" placeholder="you@example.com" />`,
@@ -74,9 +80,18 @@ export const inputSpec: ComponentSpec = {
       title: "Labelling",
       render: () => (
         <InteractiveExample
+          elementsCaption="An `<input>` has no implicit accessible name, so every one needs a label — a `<label for>`, an `aria-label`, or `aria-labelledby`. In markup you wire it yourself: give the input an `id`, point the label's `for` at it, and list the description's id in `aria-describedby`. Field's classes style the label and the helper text around it."
           caption="An `<input>` has no implicit accessible name, so every one needs a label — a `<label htmlFor>`, an `aria-label`, or `aria-labelledby`. `Field` does the wiring for you: it generates the id, points the label at it, and links a description through `aria-describedby`, so the three stay in step when the input is replaced."
           code={(_density, mode) =>
-            [
+            mode === "elements"
+              ? [
+                  `<div class="primitiv-field primitiv-field--md">`,
+                  `  <label class="primitiv-field__label" for="email">Email address</label>`,
+                  `  ${inputHtml(`type="email" id="email" placeholder="you@example.com" aria-describedby="email-description"`)}`,
+                  `  <div class="primitiv-field__description" id="email-description">We only use this to send receipts.</div>`,
+                  `</div>`,
+                ].join("\n")
+              : [
               fieldImports(mode),
               imports(mode),
               ``,
@@ -107,9 +122,18 @@ export const inputSpec: ComponentSpec = {
       title: "Native validation",
       render: () => (
         <InteractiveExample
+          elementsCaption={'Every HTML constraint attribute works as the browser intends — `required`, `type`, `pattern`, `minlength` — because the classes only style the element. The browser sets `:invalid` itself and blocks submission. `aria-invalid="true"` is the separate, deliberate hook for showing an error your server or script knows about, and it is what the stylesheet keys the invalid ring off.'}
           caption="Every HTML constraint attribute works as the browser intends — `required`, `type`, `pattern`, `minLength` — because the component does not interfere with them. The browser sets `:invalid` itself and blocks submission. `aria-invalid` is the separate, deliberate hook for showing a *server* or library error, and it is what the stylesheet keys the invalid ring off."
           code={(_density, mode) =>
-            [
+            mode === "elements"
+              ? [
+                  `<!-- The browser validates this one on submit. -->`,
+                  inputHtml(`type="email" required placeholder="you@example.com" aria-label="Email, required"`),
+                  ``,
+                  `<!-- This one is being told it is wrong by your server. -->`,
+                  inputHtml(`type="email" aria-invalid="true" value="not-an-email" aria-label="Email, showing an error"`),
+                ].join("\n")
+              : [
               imports(mode),
               ``,
               `// The browser validates this one on submit.`,
@@ -144,9 +168,12 @@ export const inputSpec: ComponentSpec = {
       title: "Disabled",
       render: () => (
         <InteractiveExample
+          elementsCaption="The native `disabled` attribute is all it takes: the stylesheet reads `:disabled`, so the look and the real behaviour can never disagree — a disabled input is skipped by the tab order and omitted from form submission because the platform says so, not because CSS made it look that way."
           caption="`disabled` sets the native attribute and exposes `data-disabled`, so the styling hook and the real behaviour can never disagree — a disabled input is skipped by the tab order and omitted from form submission because the platform says so, not because CSS made it look that way."
           code={(_density, mode) =>
-            [
+            mode === "elements"
+              ? inputHtml(`disabled value="Read only for now" aria-label="Disabled example"`)
+              : [
               imports(mode),
               ``,
               `<Input disabled defaultValue="Read only for now" />`,
@@ -166,11 +193,15 @@ export const inputSpec: ComponentSpec = {
     {
       id: "as-child",
       title: "As another element (asChild)",
+      elementsTitle: "Any input type",
       render: () => (
         <InteractiveExample
+          elementsCaption="The classes style any text-like `<input>` — `search`, `url`, `tel`, `number`, `password` — so there is no separate component per type. The element keeps every native behaviour of its type, including the browser's own search clear button."
           caption="`asChild` renders your element instead of the native `<input>`, merging every prop, `data-*`, handler and the `ref` onto it — for a masked-input or autocomplete library that insists on owning the element. One asymmetry worth knowing: `type` is **not** forwarded in this mode, because the child owns its own type semantics."
           code={(_density, mode) =>
-            [
+            mode === "elements"
+              ? inputHtml(`type="search" placeholder="Search..." aria-label="Search"`)
+              : [
               imports(mode),
               ``,
               `<Input asChild>`,
@@ -192,6 +223,17 @@ export const inputSpec: ComponentSpec = {
       ),
     },
   ],
+
+  elements: {
+    description:
+      "A text input styled by classes: `primitiv-input` and a size modifier on a native `<input>`. Every native behaviour stays the platform's; the stylesheet reads `:disabled`, `:focus-visible` and `aria-invalid` straight off the element.",
+    accessibility: [
+      "An `<input>` has **no implicit accessible name**. Give it a `<label for>`, an `aria-label`, or an `aria-labelledby`. A placeholder is not a label: it disappears on the first keystroke and is not reliably announced.",
+      "Constraint validation is the platform's. `required`, `type`, `pattern` and friends work untouched, and the browser owns `:invalid`, the submit block and the native message.",
+      "`aria-invalid=\"true\"` is for an error your own code knows about — a server response, a script — and is what the invalid ring keys off. It is deliberately separate from `:invalid`, so a field is not painted red the moment it is focused and still empty. Pair it with `aria-describedby` pointing at the message.",
+      "Use the native `disabled` attribute: the platform removes the input from the tab order and from form submission, and the stylesheet dims it from the same attribute.",
+    ],
+  },
 
   accessibility: [
     "An `<input>` has **no implicit accessible name**. Give it a `<label htmlFor>`, an `aria-label`, or an `aria-labelledby` — or let `Field` wire the label, the id and the description for you. A placeholder is not a label: it disappears on the first keystroke and is not reliably announced.",

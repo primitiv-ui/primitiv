@@ -22,6 +22,26 @@ const fieldImports = (mode: Mode) =>
     parts: ["Label", "Description", "ErrorText"],
   });
 
+/** Textarea's Elements markup: the classes on a native `<textarea>`. */
+const textareaHtml = (attrs: string, content = "", size = "md") =>
+  `<textarea class="primitiv-textarea primitiv-textarea--${size}" ${attrs}>${content}</textarea>`;
+
+/** A Field around one textarea, wired by hand: `for`/`id` and `aria-describedby`. */
+const fieldHtml = (opts: {
+  label: string;
+  control: string;
+  helper: string;
+  helperId: string;
+  error?: boolean;
+}) =>
+  [
+    `<div class="primitiv-field primitiv-field--md">`,
+    `  <label class="primitiv-field__label" for="${opts.helperId.split("-")[0]}">${opts.label}</label>`,
+    `  ${opts.control}`,
+    `  <div class="${opts.error ? "primitiv-field__error" : "primitiv-field__description"}" id="${opts.helperId}"${opts.error ? ` role="alert"` : ""}>${opts.helper}</div>`,
+    `</div>`,
+  ].join("\n");
+
 /**
  * Textarea's page content.
  *
@@ -43,7 +63,9 @@ export const textareaSpec: ComponentSpec = {
   playground: {
     component: "Textarea",
     snippet: (values, mode) =>
-      [
+      mode === "elements"
+        ? textareaHtml(`rows="4" placeholder="Tell us what happened..." aria-label="Description"`, "", values.size)
+        : [
         imports(mode),
         ``,
         `<Textarea${contractAttr({ mode, prop: "size", value: values.size })} rows={4} placeholder="Tell us what happened..." />`,
@@ -67,9 +89,17 @@ export const textareaSpec: ComponentSpec = {
       title: "Labelling",
       render: () => (
         <InteractiveExample
+          elementsCaption={"A `<textarea>` has no implicit accessible name, so every one needs a label — a `<label for>`, an `aria-label`, or `aria-labelledby`. In markup you wire it yourself: an `id` on the textarea, the label's `for` pointing at it, and the description's id in `aria-describedby`. Field's classes style the label and helper text."}
           caption="A `<textarea>` has no implicit accessible name, so every one needs a label — a `<label htmlFor>`, an `aria-label`, or `aria-labelledby`. `Field` does the wiring: it generates the id, points the label at it, and links the description through `aria-describedby`, so the three stay in step when the field is replaced."
           code={(_density, mode) =>
-            [
+            mode === "elements"
+              ? fieldHtml({
+                  label: "What went wrong?",
+                  control: textareaHtml(`id="details" rows="4" placeholder="Tell us what happened..." aria-describedby="details-description"`),
+                  helper: "Include the steps you took, if you can.",
+                  helperId: "details-description",
+                })
+              : [
               fieldImports(mode),
               imports(mode),
               ``,
@@ -98,9 +128,15 @@ export const textareaSpec: ComponentSpec = {
       title: "Height, and who controls it",
       render: () => (
         <InteractiveExample
+          elementsCaption={'Three different things set the height, and only one of them is a class. The native `rows` attribute sets the **initial** height. The `primitiv-textarea--{size}` modifier sets the padding and type scale. And the reader can drag the handle to grow it on the block axis — the width tracks the form column, so it never resizes sideways.'}
           caption="Three different things set the height, and only one of them is a Primitiv prop. `rows` is the native attribute and sets the **initial** height. `size` (the contract prop, in the playground above) sets the type scale and a `min-height` floor the field will not shrink below. And the user sets the rest — the styled surface allows **vertical resizing only**, because the width already fills the form column, so a free-axis handle would just let someone drag the field out of its own layout. Drag the bottom edge of either field below."
           code={(_density, mode) =>
-            [
+            mode === "elements"
+              ? [
+                  textareaHtml(`rows="2" aria-label="Short note" placeholder="Two rows..."`),
+                  textareaHtml(`rows="6" aria-label="Long note" placeholder="Six rows..."`),
+                ].join("\n")
+              : [
               imports(mode),
               ``,
               `<Textarea rows={2} aria-label="Short note" placeholder="Two rows..." />`,
@@ -122,9 +158,18 @@ export const textareaSpec: ComponentSpec = {
       title: "Validation",
       render: () => (
         <InteractiveExample
+          elementsCaption={'Native constraints work exactly as the browser intends — `required`, `maxlength`, `minlength` — and the browser sets `:invalid` itself. For an error your server knows about, render `aria-invalid="true"` on the textarea and the message in a `primitiv-field__error` with `role="alert"`, linked through `aria-describedby`.'}
           caption="Native constraints work exactly as the browser intends — `required`, `maxLength`, `minLength` — because the component does not interfere with them; the browser sets `:invalid` itself and blocks submission. `aria-invalid` is the separate, deliberate hook for an error your *server* or validation library found, and it is what the stylesheet keys the invalid ring off. Inside a `Field`, `invalid` sets it for you and links the error text through `aria-describedby`."
           code={(_density, mode) =>
-            [
+            mode === "elements"
+              ? fieldHtml({
+                  label: "Summary",
+                  control: textareaHtml(`id="summary" rows="3" required maxlength="280" aria-invalid="true" aria-describedby="summary-error"`, "Too short"),
+                  helper: "Give us at least a sentence.",
+                  helperId: "summary-error",
+                  error: true,
+                })
+              : [
               fieldImports(mode),
               imports(mode),
               ``,
@@ -153,9 +198,12 @@ export const textareaSpec: ComponentSpec = {
       title: "Disabled",
       render: () => (
         <InteractiveExample
+          elementsCaption={'The native `disabled` attribute blocks input and removes the field from the tab order, and the stylesheet dims it by reading `:disabled` — one attribute, so the look and the behaviour cannot disagree.'}
           caption="`disabled` forwards the native attribute — blocking input and removing the field from the tab order — **and** sets `data-disabled` so CSS can style it without depending on the `:disabled` pseudo-class. Inside a `Field`, setting it on the field disables the control and dims the label with it, so you set it in one place."
           code={(_density, mode) =>
-            [
+            mode === "elements"
+              ? textareaHtml(`rows="3" disabled aria-label="Notes"`, "Read-only for now.")
+              : [
               imports(mode),
               ``,
               `<Textarea rows={3} disabled aria-label="Notes" defaultValue="Read-only for now." />`,
@@ -173,11 +221,15 @@ export const textareaSpec: ComponentSpec = {
     {
       id: "as-child",
       title: "As another element (asChild)",
+      elementsTitle: "Growing with its content",
       render: () => (
         <InteractiveExample
+          elementsCaption={'Want the field to grow as someone types? Modern browsers do it in CSS alone: add `field-sizing: content` and it sizes to its text, between whatever `min-block-size` and `max-block-size` you give it. No script — browsers without support keep the `rows` height.'}
           caption="`asChild` renders your element instead of the native `<textarea>`, merging every prop onto it — `aria-*`, `data-*`, handlers (yours runs first) and the ref. It exists here for one concrete case the component deliberately does not solve itself: **autosizing**. Reach for a library that grows the field as you type and keep this prop contract, rather than asking Primitiv to own a measurement loop."
           code={(_density, mode) =>
-            [
+            mode === "elements"
+              ? textareaHtml(`rows="2" aria-label="Bio" placeholder="Grows as you type..." style="field-sizing: content; max-block-size: 12rem"`)
+              : [
               `import AutosizeTextarea from "react-textarea-autosize";`,
               imports(mode),
               ``,
@@ -201,6 +253,18 @@ export const textareaSpec: ComponentSpec = {
       ),
     },
   ],
+
+  elements: {
+    description:
+      "A multi-line text field styled by classes: `primitiv-textarea` and a size modifier on a native `<textarea>`. The stylesheet reads `:disabled`, `:focus-visible` and `aria-invalid` off the element itself.",
+    accessibility: [
+      "A `<textarea>` has **no implicit accessible name**. Give it one every time — a `<label for>`, `aria-label`, or `aria-labelledby`.",
+      "Placeholder text is not a label. It disappears the moment someone types, it is announced inconsistently, and it usually fails contrast — use it for an example of the *format*, never for the field's name.",
+      "`disabled` removes the field from the tab order entirely, so a screen-reader user browsing by control will not find it. If the reason it is unavailable matters, say so in visible text near the field.",
+      "`aria-invalid=\"true\"` is for errors the browser cannot know about — a server rejection. Native constraints (`required`, `maxlength`) already set `:invalid` themselves.",
+      "A character limit needs to be announced, not just enforced. `maxlength` silently stops input at the cap; state the limit in a description linked by `aria-describedby`.",
+    ],
+  },
 
   accessibility: [
     "A `<textarea>` has **no implicit accessible name**. Give it one every time — a `<label htmlFor>`, `aria-label`, or `aria-labelledby`. `Field` is the path of least resistance because it generates the id and the wiring, so the two cannot drift apart.",

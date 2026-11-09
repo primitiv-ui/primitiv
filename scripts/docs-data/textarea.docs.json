@@ -139,5 +139,12 @@
   "figma": {
     "componentSetKey": "439:14511"
   },
-  "elements": null
+  "elements": {
+    "package": null,
+    "version": null,
+    "element": "textarea",
+    "wrapText": false,
+    "example": "<textarea class=\"primitiv-textarea primitiv-textarea--md\" name=\"message\" rows=\"4\" placeholder=\"Tell us a little more\" aria-label=\"Message\"></textarea>\n",
+    "api": []
+  }
 }

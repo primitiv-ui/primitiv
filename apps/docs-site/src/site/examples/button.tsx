@@ -7,6 +7,7 @@ import { Button } from "@/components/button";
 import { contractAttr, contractNote, importBlock, indent, markup } from "@/lib/playground";
 import { InteractiveExample } from "@/site/InteractiveExample";
 import type { Mode } from "@/site/preferences";
+import { withGlyphs } from "./glyphs";
 import type { ComponentSpec } from "./types";
 
 /**
@@ -21,23 +22,6 @@ import type { ComponentSpec } from "./types";
  * `size` are contract props of the copied styled file, so every snippet below
  * routes them through `contractAttr` rather than printing them unconditionally.
  */
-/**
- * The Elements code tabs show each icon as a commented placeholder — the paths
- * are noise there — so the live preview swaps the real `@primitiv-ui/icons`
- * glyphs back in, with `IconBase`'s own `<svg>` attributes.
- */
-const GLYPHS: Record<string, string> = {
-  plus: '<path d="M11.25 3.25h1.5v17.5h-1.5z"/><path d="M20.75 11.25v1.5H3.25v-1.5z"/>',
-  "arrow-right":
-    '<path d="M19.75 11.25v1.5H3.25v-1.5z"/><path d="M21.06 12 13 20.06 11.94 19l7-7-7-7L13 3.94z"/>',
-};
-const withGlyphs = (html: string) =>
-  html.replace(
-    /<svg aria-hidden="true"><!-- ([a-z-]+) glyph --><\/svg>/g,
-    (_, name: string) =>
-      `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">${GLYPHS[name]}</svg>`,
-  );
-
 const imports = (mode: Mode, icons: readonly string[] = []) =>
   importBlock({ mode, component: "Button", componentId: "button", icons });
 

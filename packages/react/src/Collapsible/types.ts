@@ -139,8 +139,9 @@ export type CollapsibleContextValue = {
   open: boolean;
   /** Whether the widget is disabled. */
   disabled: boolean;
-  /** Toggle the open state. */
-  toggle: () => void;
+  /** Register the trigger's element (`null` on unmount) with the root's
+   * controller, which toggles on its click, Enter and Space. */
+  registerTrigger: (element: HTMLElement | null) => void;
   /** Generated id linking trigger to content. */
   triggerId: string;
   /** Generated id of the content panel. */

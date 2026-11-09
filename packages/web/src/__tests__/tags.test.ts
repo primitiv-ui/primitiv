@@ -9,6 +9,10 @@ import type {
   PrimitivAccordionItemElement,
   PrimitivAccordionTriggerElement,
   PrimitivAccordionTriggerIconElement,
+  PrimitivCollapsibleContentElement,
+  PrimitivCollapsibleElement,
+  PrimitivCollapsibleTriggerElement,
+  PrimitivCollapsibleTriggerIconElement,
   PrimitivTabsContentElement,
   PrimitivTabsElement,
   PrimitivTabsListElement,
@@ -30,4 +34,11 @@ it("types every Accordion tag in HTMLElementTagNameMap", () => {
   expectTypeOf(
     document.createElement("primitiv-accordion-trigger-icon"),
   ).toEqualTypeOf<PrimitivAccordionTriggerIconElement>();
+});
+
+it("types every Collapsible tag in HTMLElementTagNameMap", () => {
+  expectTypeOf(document.querySelector("primitiv-collapsible")).toEqualTypeOf<PrimitivCollapsibleElement | null>();
+  expectTypeOf(document.createElement("primitiv-collapsible-trigger")).toEqualTypeOf<PrimitivCollapsibleTriggerElement>();
+  expectTypeOf(document.createElement("primitiv-collapsible-content")).toEqualTypeOf<PrimitivCollapsibleContentElement>();
+  expectTypeOf(document.createElement("primitiv-collapsible-trigger-icon")).toEqualTypeOf<PrimitivCollapsibleTriggerIconElement>();
 });

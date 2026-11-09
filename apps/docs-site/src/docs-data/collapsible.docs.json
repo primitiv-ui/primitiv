@@ -200,12 +200,12 @@
           {
             "name": "data-clamped",
             "value": "true",
-            "when": "collapsedHeight is set"
+            "when": "a collapsed height is set"
           },
           {
             "name": "data-clamped",
             "value": "false",
-            "when": "collapsedHeight is unset"
+            "when": "no collapsed height is set"
           }
         ],
         "class": "primitiv-collapsible__content"
@@ -414,12 +414,12 @@
       {
         "name": "data-clamped",
         "value": "true",
-        "when": "collapsedHeight is set"
+        "when": "a collapsed height is set"
       },
       {
         "name": "data-clamped",
         "value": "false",
-        "when": "collapsedHeight is unset"
+        "when": "no collapsed height is set"
       },
       {
         "name": "data-state",
@@ -436,5 +436,67 @@
   "figma": {
     "componentSetKey": "1207:43244"
   },
-  "elements": null
+  "elements": {
+    "package": "@primitiv-ui/web",
+    "version": "0.1.47",
+    "element": "div",
+    "wrapText": false,
+    "example": "<primitiv-collapsible class=\"primitiv-collapsible primitiv-collapsible--card primitiv-collapsible--md\">\n  <primitiv-collapsible-trigger>\n    <button type=\"button\" class=\"primitiv-collapsible__trigger\">\n      <span class=\"primitiv-collapsible__trigger-label\">Show shipping details</span>\n      <primitiv-collapsible-trigger-icon class=\"primitiv-collapsible__trigger-icon\"><svg viewBox=\"0 0 24 24\" fill=\"currentColor\"><path d=\"M20.06 9 12 17.06 3.94 9 5 7.94l7 7 7-7L20.06 9Z\"/></svg></primitiv-collapsible-trigger-icon>\n    </button>\n  </primitiv-collapsible-trigger>\n  <primitiv-collapsible-content class=\"primitiv-collapsible__content\" hidden>\n    <span class=\"primitiv-collapsible__content-inner\"><span class=\"primitiv-collapsible__content-body\">Orders ship within two business days. Tracking details arrive by email once the parcel leaves the warehouse.</span><span class=\"primitiv-collapsible__content-fade\"></span></span>\n  </primitiv-collapsible-content>\n</primitiv-collapsible>\n",
+    "api": [
+      {
+        "tag": "primitiv-collapsible",
+        "attributes": [
+          {
+            "name": "open",
+            "type": "boolean",
+            "description": "Whether the panel is open. Reflected: it changes as the user toggles, so a server re-render or a history snapshot sees the live state."
+          },
+          {
+            "name": "disabled",
+            "type": "boolean",
+            "description": "Disables the collapsible: the trigger's button stays focusable, is marked `aria-disabled`, and never toggles."
+          }
+        ],
+        "events": [
+          {
+            "name": "primitiv-collapsible-change",
+            "type": "CustomEvent<{ open: boolean }>",
+            "description": "Bubbles, cancelable, fired before a user-driven toggle is applied, with the open state afterwards. Call `preventDefault()` to veto it."
+          }
+        ]
+      },
+      {
+        "tag": "primitiv-collapsible-trigger",
+        "attributes": [],
+        "events": []
+      },
+      {
+        "tag": "primitiv-collapsible-content",
+        "attributes": [
+          {
+            "name": "force-mount",
+            "type": "boolean",
+            "description": "Never sets `hidden`, so styles can animate the panel open and closed. A closed panel always carries `aria-hidden`, so it stays out of the accessibility tree either way."
+          },
+          {
+            "name": "collapsed-height",
+            "type": "string",
+            "description": "Shows a clamped preview while closed instead of hiding the panel (the read-more pattern). A bare number is pixels; anything else is a CSS length, used verbatim. Published as the `--primitiv-collapsible-collapsed-height` custom property, with `data-clamped=\"true\"`; the panel is never hidden, since the preview is real content."
+          }
+        ],
+        "events": [
+          {
+            "name": "primitiv-collapsible-show",
+            "type": "CustomEvent",
+            "description": "Bubbles from the panel as it opens (not on first render), so a lazy panel can fetch its content."
+          }
+        ]
+      },
+      {
+        "tag": "primitiv-collapsible-trigger-icon",
+        "attributes": [],
+        "events": []
+      }
+    ]
+  }
 }

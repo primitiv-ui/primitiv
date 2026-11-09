@@ -40,6 +40,21 @@ it("defines the Accordion elements when define/accordion is imported", async () 
   }
 });
 
+it("defines the Collapsible elements when define/collapsible is imported", async () => {
+  // Arrange & Act
+  await import("../collapsible");
+
+  // Assert
+  for (const name of [
+    "primitiv-collapsible",
+    "primitiv-collapsible-trigger",
+    "primitiv-collapsible-content",
+    "primitiv-collapsible-trigger-icon",
+  ]) {
+    expect(customElements.get(name)).toBeDefined();
+  }
+});
+
 it("defines every component's elements when define is imported", async () => {
   // Arrange & Act
   const module = await import("../index");
@@ -48,4 +63,5 @@ it("defines every component's elements when define is imported", async () => {
   expect(module).toBeDefined();
   expect(customElements.get("primitiv-tabs")).toBeDefined();
   expect(customElements.get("primitiv-accordion")).toBeDefined();
+  expect(customElements.get("primitiv-collapsible")).toBeDefined();
 });

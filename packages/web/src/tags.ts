@@ -20,6 +20,12 @@ import type {
   PrimitivAccordionTriggerIconElement,
 } from "./accordion/elements.ts";
 import type {
+  PrimitivCollapsibleContentElement,
+  PrimitivCollapsibleElement,
+  PrimitivCollapsibleTriggerElement,
+  PrimitivCollapsibleTriggerIconElement,
+} from "./collapsible/elements.ts";
+import type {
   PrimitivTabsContentElement,
   PrimitivTabsElement,
   PrimitivTabsListElement,
@@ -33,6 +39,10 @@ declare global {
     "primitiv-accordion-trigger": PrimitivAccordionTriggerElement;
     "primitiv-accordion-content": PrimitivAccordionContentElement;
     "primitiv-accordion-trigger-icon": PrimitivAccordionTriggerIconElement;
+    "primitiv-collapsible": PrimitivCollapsibleElement;
+    "primitiv-collapsible-trigger": PrimitivCollapsibleTriggerElement;
+    "primitiv-collapsible-content": PrimitivCollapsibleContentElement;
+    "primitiv-collapsible-trigger-icon": PrimitivCollapsibleTriggerIconElement;
     "primitiv-tabs": PrimitivTabsElement;
     "primitiv-tabs-list": PrimitivTabsListElement;
     "primitiv-tabs-trigger": PrimitivTabsTriggerElement;

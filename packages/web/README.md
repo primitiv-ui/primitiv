@@ -6,7 +6,7 @@ framework and no runtime dependencies beyond
 server-rendered stack (HTMX, Rails, Django, Laravel, Spring …), and inside
 React, Vue, Angular or any other framework.
 
-> **Status: published.** Tabs and Accordion so far. See
+> **Status: published.** Tabs, Accordion and Collapsible so far. See
 > [RFC 0033](../../docs/rfcs/0033-web-components.md) for the design.
 
 ## Components
@@ -15,6 +15,7 @@ React, Vue, Angular or any other framework.
 |---|---|---|---|
 | Tabs | `primitiv-tabs`, `-list`, `-trigger`, `-content` | `primitiv-tabs-change` | 0.1.42 |
 | Accordion | `primitiv-accordion`, `-item`, `-trigger`, `-content`, `-trigger-icon` | `primitiv-accordion-change` | 0.1.44 |
+| Collapsible | `primitiv-collapsible`, `-trigger`, `-content`, `-trigger-icon` | `primitiv-collapsible-change` | 0.1.47 |
 
 ## Use it
 
@@ -46,9 +47,9 @@ Each `dist/cdn/<component>.js` imports the code components share from
 downloads it once. `dist/primitiv-web.js` is the alternative: every element in
 one file. Per-component files ship from 0.1.43.
 
-The main entry (`@primitiv-ui/web`, `/tabs`, `/accordion`) exports the classes
-and `defineTabs(registry?)` / `defineAccordion(registry?)` with **no side
-effects**.
+The main entry (`@primitiv-ui/web`, `/tabs`, `/accordion`, `/collapsible`)
+exports the classes and `defineTabs(registry?)` / `defineAccordion(registry?)` /
+`defineCollapsible(registry?)` with **no side effects**.
 
 **Render `hidden` on inactive panels yourself.** Until the module loads, CSS
 cannot tell which panel is active, so markup that omits it shows every panel.
@@ -93,6 +94,30 @@ on a panel as it becomes active, for lazy loading.
   value }`, every item open afterwards) and `primitiv-accordion-show` on a panel
   as its item opens. Render `hidden` on closed panels yourself, as for Tabs.
 
+### Collapsible
+
+```html
+<script type="module" src="https://cdn.jsdelivr.net/npm/@primitiv-ui/web@<version>/dist/cdn/collapsible.js"></script>
+
+<primitiv-collapsible>
+  <primitiv-collapsible-trigger><button type="button">Shipping details</button></primitiv-collapsible-trigger>
+  <primitiv-collapsible-content hidden>Orders ship within two business days.</primitiv-collapsible-content>
+</primitiv-collapsible>
+```
+
+- **`open` is the state**, a boolean attribute reflected as the user toggles,
+  and the `open` property reads and sets it. `disabled` on the root keeps the
+  button focusable but stops it toggling.
+- **`collapsed-height` on the panel** shows a clamped preview while closed (the
+  read-more pattern): a bare number is pixels, anything else a CSS length. It is
+  published as `--primitiv-collapsible-collapsed-height` with
+  `data-clamped="true"`, and the panel is never hidden, since the preview is
+  real content. `force-mount` keeps a closed panel unhidden for your own
+  animation, with `aria-hidden` instead.
+- **Listen with `primitiv-collapsible-change`** (bubbles, cancelable, `detail: {
+  open }`) and `primitiv-collapsible-show` on the panel as it opens. Render
+  `hidden` on a closed panel yourself, as for Tabs.
+
 **TypeScript** — opt into the tag map so DOM queries return the element classes:
 `import type {} from "@primitiv-ui/web/tags"` (npm only).
 
@@ -127,7 +152,7 @@ The elements write no `class` and no `style`. For the registry look, apply the
 
 ## Layers
 
-- **Controllers** (`TabsController`, `AccordionController`) hold a component's DOM behaviour —
+- **Controllers** (`TabsController`, `AccordionController`, `CollapsibleController`) hold a component's DOM behaviour —
   listeners, focus, the ordered collection of parts — and attach to whatever
   elements register with them. They never own state; their host does.
 - **Element hosts** (`<primitiv-tabs>` …) are the public face: they keep state

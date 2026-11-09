@@ -149,7 +149,7 @@
     "category": "Disclosure",
     "description": "A single disclosure widget pairing a trigger with a panel that expands and collapses — the single-item analogue of Accordion.",
     "documented": true,
-    "elements": null
+    "elements": "behaviour"
   },
   {
     "id": "combobox",

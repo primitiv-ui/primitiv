@@ -49,6 +49,18 @@
  * primitiv.reset and let the reset win (RFC 0008 §7). */
 @layer primitiv.reset, primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;
 
+/* The elements surface (RFC 0033 §5.6.1): the trigger's wrapper takes no box of
+   its own, so the <button> inside lays out exactly as the React one. The styled
+   markup needs no force-mount: the content class's display wins over a closed
+   panel's `hidden`, so it still animates, and the clip's visibility keeps it out
+   of the accessibility tree. Zero specificity, in the reset sublayer, so any
+   consumer rule wins. */
+@layer primitiv.reset {
+  :where(primitiv-collapsible-trigger) {
+    display: contents;
+  }
+}
+
 @layer primitiv.base {
   .primitiv-collapsible {
     /* Per-component API — the themable knobs, defaulting to the md size and
@@ -198,6 +210,9 @@
      that still closes to zero (no padding is added mid-open, so the copy
      never shifts). */
   .primitiv-collapsible__content-body {
+    /* Block whatever element carries it: the elements' markup uses a <span>, so
+       the headless form derived from it drops the wrapper cleanly. */
+    display: block;
     padding-block: var(--primitiv-collapsible-content-padding-block);
     padding-inline: var(--primitiv-collapsible-content-padding-inline);
   }

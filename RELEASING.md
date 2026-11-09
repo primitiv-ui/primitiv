@@ -53,8 +53,8 @@ per-platform-package pattern (same as esbuild, Biome, oxc). The pieces:
 |---|---|---|
 | `npm/cli-darwin-arm64/` | `@primitiv-ui/cli-darwin-arm64` | Binary for macOS Apple Silicon |
 | `npm/cli-darwin-x64/` | `@primitiv-ui/cli-darwin-x64` | Binary for macOS Intel |
-| `npm/cli-linux-x64-gnu/` | `@primitiv-ui/cli-linux-x64-gnu` | Binary for Linux x64 (glibc) |
-| `npm/cli-linux-arm64-gnu/` | `@primitiv-ui/cli-linux-arm64-gnu` | Binary for Linux arm64 (glibc) |
+| `npm/cli-linux-x64-gnu/` | `@primitiv-ui/cli-linux-x64-gnu` | Binary for Linux x64 (static musl, from 0.1.45) |
+| `npm/cli-linux-arm64-gnu/` | `@primitiv-ui/cli-linux-arm64-gnu` | Binary for Linux arm64 (static musl, from 0.1.45) |
 | `npm/cli-win32-x64/` | `@primitiv-ui/cli-win32-x64` | Binary for Windows x64 |
 | `npm/cli-wrapper/` | `primitiv-ui` | JS launcher; lists platform packages as `optionalDependencies` |
 | `npm/create-primitiv-ui/` | `create-primitiv-ui` | `npm create primitiv-ui` entry point |
@@ -70,7 +70,14 @@ package was installed and `spawnSync`s it.
 publishes immediately.
 
 **Platform matrix (v1):** `darwin-arm64`, `darwin-x64`, `linux-x64-gnu`,
-`linux-arm64-gnu`, `win32-x64`. musl is a documented fast-follow.
+`linux-arm64-gnu`, `win32-x64`. **The two Linux packages carry static musl
+binaries** (`*-unknown-linux-musl` targets) despite their `-gnu` names. A glibc
+build needs a glibc at least as new as the runner's: once `ubuntu-latest` moved
+to glibc 2.43, 0.1.43 and 0.1.44 failed on Ubuntu 24.04 LTS (glibc 2.39) with
+"GLIBC_2.43 not found". A static binary runs on any Linux, Alpine included.
+`publish.yml` installs `musl-tools` (ring compiles C) and fails the build if a
+Linux binary is not static; `rust.yml`'s `musl` job builds and runs the same
+target on every change, so a musl break shows up in a PR, not mid-release.
 `cargo install primitiv-cli` covers any target not yet packaged.
 
 **Versioning:** platform packages, wrapper, and scaffold are versioned
@@ -150,9 +157,9 @@ and **skipped `react`/`icons`/`tokens` on both npm and JSR** — a release that
 had already bumped every version and tagged. Put the new step after
 everything established and a first-publish failure costs only a re-run.
 
-**musl fast-follow** — when needed, add two more entries to the matrix and
-two more platform packages (`cli-linux-x64-musl`, `cli-linux-arm64-musl`),
-then add them to the wrapper's `optionalDependencies`.
+**musl** — done, by building the existing Linux packages statically (above)
+rather than adding `-musl` packages: one binary per architecture serves both
+libcs, so the wrapper needs no libc detection.
 
 ---
 

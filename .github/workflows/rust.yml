@@ -91,3 +91,38 @@ jobs:
           files: harmoni-core-lcov.info
           flags: harmoni-core
           fail_ci_if_error: false
+
+  # publish.yml builds the Linux CLI as a static musl binary, but only at
+  # release time; this builds the same target on every change, so a dependency
+  # that breaks musl (or links glibc back in) fails here, not mid-release.
+  musl:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@1.97.0
+        with:
+          targets: x86_64-unknown-linux-musl
+
+      - name: Cache Rust build
+        uses: Swatinem/rust-cache@v2
+        with:
+          key: x86_64-unknown-linux-musl
+
+      - name: Install musl toolchain
+        run: sudo apt-get update && sudo apt-get install -y musl-tools
+
+      - name: Build
+        run: cargo build --release --target x86_64-unknown-linux-musl -p primitiv-cli
+
+      - name: Assert the binary is static and runs
+        run: |
+          binary=target/x86_64-unknown-linux-musl/release/primitiv
+          file "$binary"
+          file "$binary" | grep -q "static"
+          ! strings "$binary" | grep -q "GLIBC_"
+          mkdir -p "$RUNNER_TEMP/site" && cd "$RUNNER_TEMP/site"
+          "$GITHUB_WORKSPACE/$binary" init --surface elements --yes
+          "$GITHUB_WORKSPACE/$binary" add accordion | grep -q "Example markup for accordion"

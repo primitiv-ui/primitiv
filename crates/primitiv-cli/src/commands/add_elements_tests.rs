@@ -1018,3 +1018,29 @@ fn serves_a_file_in_the_folder_under_its_url_and_any_other_where_it_is() {
         "src/main/resources/static/primitiv/index.css"
     );
 }
+
+#[test]
+fn surfaces_a_package_json_it_cannot_read_while_detecting_the_surface() {
+    // Missing means "not React"; unreadable is an error, not a guess.
+    let fs = InMemoryFs::new();
+    fs.write(std::path::Path::new("package.json"), b"{}").unwrap();
+    fs.fail_reads_to(std::path::Path::new("package.json"));
+    let output = InMemoryOutput::new();
+
+    let error = add(
+        &fs,
+        &kbd_and_tabs_registry(),
+        &output,
+        &InMemoryProcessRunner::new(),
+        &InMemoryPrompt::new(Decision::Keep),
+        false,
+        &AddOptions {
+            components: vec!["tabs".into()],
+            ..Default::default()
+        },
+    )
+    .unwrap_err();
+
+    assert!(matches!(error, CliError::Io(_)), "{error:?}");
+    assert_eq!(output.captured(), Vec::<u8>::new());
+}

@@ -900,3 +900,11 @@ fn rejects_init_surface_with_no_value_or_an_unknown_one() {
         );
     }
 }
+
+#[test]
+fn rejects_init_url_with_no_value() {
+    assert!(matches!(
+        parse(&args(&["init", "--url"])).unwrap_err(),
+        CliError::Usage(message) if message == "--url needs a value"
+    ));
+}

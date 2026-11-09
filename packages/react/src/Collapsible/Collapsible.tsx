@@ -1,7 +1,7 @@
 import { Ref } from "react";
 import type { CSSProperties, ReactElement } from "react";
 
-import { Slot } from "../Slot/index.ts";
+import { Slot, composeRefs } from "../Slot/index.ts";
 
 import {
   CollapsibleContext,
@@ -70,6 +70,7 @@ import type {
  * ```
  */
 export function CollapsibleRoot({
+  ref,
   children,
   defaultOpen = false,
   open: controlledOpen,
@@ -77,7 +78,7 @@ export function CollapsibleRoot({
   disabled = false,
   ...rest
 }: CollapsibleRootProps): ReactElement {
-  const { contextValue } = useCollapsibleRoot(
+  const { contextValue, rootRef } = useCollapsibleRoot(
     controlledOpen,
     defaultOpen,
     onOpenChange,
@@ -87,6 +88,7 @@ export function CollapsibleRoot({
   return (
     <CollapsibleContext.Provider value={contextValue}>
       <div
+        ref={ref ? composeRefs(rootRef, ref) : rootRef}
         data-state={contextValue.open ? "open" : "closed"}
         data-disabled={disabled}
         {...rest}

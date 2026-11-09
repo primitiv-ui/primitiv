@@ -150,10 +150,15 @@ runs first, then the trigger's):
 </Collapsible.Trigger>
 ```
 
-`Enter` and `Space` are handled in `onKeyDown` so non-button elements
+`Enter` and `Space` are handled on keydown so non-button elements
 (e.g. `<a>`, `<div>`) toggle correctly without relying on native click
 behaviour. `preventDefault` suppresses native activation so an anchor
-doesn't follow its `href` while toggling.
+doesn't follow its `href` while toggling. That handling — and click
+toggling — lives in the shared `CollapsibleController` from
+`@primitiv-ui/web`, listening on the root, so the `<primitiv-collapsible>`
+custom element behaves identically. A consumer `onKeyDown` on the trigger
+runs alongside it rather than replacing it, and a consumer `onClick` still
+runs after the toggle (never while disabled).
 
 When `asChild` is combined with `disabled`, `role="button"` is injected
 automatically so that `aria-disabled` is semantically valid on non-button

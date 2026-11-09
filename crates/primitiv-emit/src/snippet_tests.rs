@@ -28,6 +28,37 @@ fn gives_only_a_button_root_a_type() {
 }
 
 #[test]
+fn leaves_out_a_default_option_that_adds_no_class() {
+    // Prose's `measure` defaults to off, an option with an empty class: it adds
+    // nothing, so it must not leave a stray space in the attribute either.
+    let contract = Contract::parse(
+        br#"{
+  "name": "demo-flow",
+  "version": "0.1.0",
+  "description": "A container with an opt-in modifier.",
+  "root": { "element": "div", "class": "primitiv-demo-flow" },
+  "modifiers": [
+    {
+      "name": "measure",
+      "default": "false",
+      "description": "Caps the width.",
+      "options": [
+        { "name": "false", "class": "", "description": "Full width." },
+        { "name": "true", "class": "primitiv-demo-flow--measure", "description": "Capped." }
+      ]
+    }
+  ]
+}"#,
+    )
+    .unwrap();
+
+    assert_eq!(
+        emit_snippet(&contract).unwrap(),
+        "<div class=\"primitiv-demo-flow\">Demo flow</div>\n"
+    );
+}
+
+#[test]
 fn wraps_the_text_in_a_label_span_when_the_contract_asks() {
     let contract = Contract::parse(DEMO_PILL.as_bytes()).unwrap();
 

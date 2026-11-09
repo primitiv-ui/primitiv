@@ -25,6 +25,8 @@ pub fn emit_snippet(contract: &Contract) -> Option<String> {
             .iter()
             .filter(move |option| option.name == group.default)
             .map(|option| option.class.as_str())
+            // An option that adds no class (Prose's `measure` off) adds nothing.
+            .filter(|class| !class.is_empty())
     }));
     let element = &contract.root.element;
     // A `<button>` outside a form still defaults to `type="submit"`, so the

@@ -1631,15 +1631,17 @@ fn classify_registry_routes_each_ref_form() {
         classify_registry(Some("https://cdn.example/registry")),
         RegistrySource::Https(url) if url == "https://cdn.example/registry"
     ));
-    // A version tag → GitHub raw at that tag (with and without a leading `v`).
+    // A version → GitHub raw at its release tag. Release tags are `v`-prefixed,
+    // so a bare version gains the `v` and a prefixed one keeps its only one.
     assert!(matches!(
         classify_registry(Some("0.1.0")),
         RegistrySource::Https(url)
-            if url == "https://raw.githubusercontent.com/primitiv-ui/primitiv/0.1.0/registry"
+            if url == "https://raw.githubusercontent.com/primitiv-ui/primitiv/v0.1.0/registry"
     ));
     assert!(matches!(
         classify_registry(Some("v1.2.3")),
-        RegistrySource::Https(url) if url.ends_with("/v1.2.3/registry")
+        RegistrySource::Https(url)
+            if url == "https://raw.githubusercontent.com/primitiv-ui/primitiv/v1.2.3/registry"
     ));
     // Anything else is a repo-local path — including a dotted, non-digit value.
     assert!(matches!(

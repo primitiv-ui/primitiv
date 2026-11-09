@@ -492,10 +492,13 @@ fn is_version(value: &str) -> bool {
     core.contains('.') && core.starts_with(|c: char| c.is_ascii_digit())
 }
 
-/// The GitHub-raw base URL serving the registry at the pinned `version` tag — the
-/// `registry/` directory holding `registry.json` and `r/<component>/<file>`.
+/// The GitHub-raw base URL serving the registry at the pinned `version`'s
+/// release tag — the `registry/` directory holding `registry.json` and
+/// `r/<component>/<file>`. Release tags are `v`-prefixed (`v0.1.45`), so `0.1.45`
+/// and `v0.1.45` name the same tag.
 fn github_raw_base(version: &str) -> String {
-    format!("https://raw.githubusercontent.com/{REGISTRY_REPO}/{version}/registry")
+    let core = version.strip_prefix('v').unwrap_or(version);
+    format!("https://raw.githubusercontent.com/{REGISTRY_REPO}/v{core}/registry")
 }
 
 /// Offer the Tailwind project wiring (RFC 0005 §4.3). For non-interactive

@@ -1206,3 +1206,34 @@ fn says_nothing_when_an_installed_project_is_fully_covered() {
 
     assert_eq!(output.captured_stderr(), Vec::<u8>::new());
 }
+
+#[test]
+fn writes_no_breakpoints_module_for_an_elements_project() {
+    // breakpoints.ts serves a JS hook (useMediaQuery); an elements project's
+    // token folder is often a public static folder with no TypeScript build.
+    let fs = InMemoryFs::new();
+    fs.write(
+        Path::new("primitiv.json"),
+        br##"{
+  "version": 1,
+  "surface": "elements",
+  "styles": { "enabled": true, "format": "css", "path": "static/primitiv" },
+  "tokens": { "format": "css", "path": "static/primitiv/tokens.css" },
+  "theme": {},
+  "aliases": {},
+  "registry": { "version": "0.1.0" }
+}"##,
+    )
+    .unwrap();
+
+    tokens(
+        &fs,
+        &InMemoryOutput::new(),
+        &EmbeddedRegistry,
+        &TokensOptions::default(),
+    )
+    .unwrap();
+
+    assert!(fs.exists(Path::new("static/primitiv/tokens.css")));
+    assert!(!fs.exists(Path::new("static/primitiv/breakpoints.ts")));
+}

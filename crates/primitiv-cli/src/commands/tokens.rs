@@ -7,7 +7,7 @@ use primitiv_emit::{
 };
 
 use crate::commands::theme;
-use crate::config::{Config, try_resolve_at};
+use crate::config::{Config, Surface, try_resolve_at};
 use crate::error::CliError;
 use crate::format::Format;
 use crate::lock::{self, Lock};
@@ -144,12 +144,16 @@ pub fn tokens(
             fs.write(&path, imported.as_bytes())?;
             // A JS-consumable sibling for consumers that need a real value outside
             // the CSS cascade — e.g. useMediaQuery's matchMedia() (RFC 0025 §5).
-            let breakpoint_tokens = tokens_from_dtcg(&parse(BREAKPOINT));
-            let breakpoints_ts = emit_breakpoints_ts(&breakpoint_tokens);
-            fs.write(
-                &path.with_file_name("breakpoints.ts"),
-                breakpoints_ts.as_bytes(),
-            )?;
+            // Not for an elements project: no hook reads it there, and its token
+            // folder is often a public static folder with no TypeScript build.
+            if config.is_none_or(|config| config.surface == Surface::React) {
+                let breakpoint_tokens = tokens_from_dtcg(&parse(BREAKPOINT));
+                let breakpoints_ts = emit_breakpoints_ts(&breakpoint_tokens);
+                fs.write(
+                    &path.with_file_name("breakpoints.ts"),
+                    breakpoints_ts.as_bytes(),
+                )?;
+            }
         }
         // No file to host a sibling: inline the base layer after the tokens so the
         // streamed foundation stays self-contained.

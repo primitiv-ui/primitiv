@@ -882,7 +882,11 @@
           ]
         }
       },
-      "contract": "contract.json"
+      "contract": "contract.json",
+      "elements": {
+        "example": "description-list.html",
+        "handWritten": true
+      }
     },
     "divider": {
       "version": "0.1.0",
@@ -916,7 +920,11 @@
           ]
         }
       },
-      "contract": "contract.json"
+      "contract": "contract.json",
+      "elements": {
+        "example": "divider.html",
+        "handWritten": true
+      }
     },
     "drawer": {
       "version": "0.1.0",
@@ -1081,7 +1089,11 @@
           ]
         }
       },
-      "contract": "contract.json"
+      "contract": "contract.json",
+      "elements": {
+        "example": "figure.html",
+        "handWritten": true
+      }
     },
     "grid": {
       "version": "0.1.0",
@@ -1288,7 +1300,11 @@
           ]
         }
       },
-      "contract": "contract.json"
+      "contract": "contract.json",
+      "elements": {
+        "example": "list.html",
+        "handWritten": true
+      }
     },
     "listbox": {
       "version": "0.1.0",
@@ -1595,7 +1611,11 @@
           ]
         }
       },
-      "contract": "contract.json"
+      "contract": "contract.json",
+      "elements": {
+        "example": "pull-quote.html",
+        "handWritten": true
+      }
     },
     "radio": {
       "version": "0.1.0",

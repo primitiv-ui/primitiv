@@ -274,6 +274,34 @@ fn detects_the_elements_surface_without_a_config_or_a_package_json() {
 }
 
 #[test]
+fn styled_without_a_config_asks_for_init_instead_of_copying_nothing() {
+    // Without primitiv.json there is no folder to copy styles into; saying so
+    // beats a run that prints nothing and writes nothing.
+    let fs = InMemoryFs::new();
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+
+    let error = add_elements(
+        &fs,
+        &output,
+        &runner,
+        AddOptions {
+            components: vec!["tabs".into()],
+            styled: true,
+            ..Default::default()
+        },
+    )
+    .unwrap_err();
+
+    assert!(
+        matches!(&error, CliError::Config(message) if message.contains("primitiv init --styles")),
+        "{error:?}"
+    );
+    assert_eq!(output.captured(), Vec::<u8>::new());
+    assert_eq!(runner.calls(), vec![]);
+}
+
+#[test]
 fn prints_no_script_when_no_component_needs_a_package() {
     // Kbd has no behaviour (§8.3): there is no element to load.
     let fs = InMemoryFs::new();

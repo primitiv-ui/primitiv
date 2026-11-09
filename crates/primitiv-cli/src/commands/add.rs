@@ -196,6 +196,16 @@ pub fn add(
         Some(surface) => surface,
         None => detect::surface(fs, &dir)?,
     };
+    // Styling needs somewhere to go, and only `init` records it: say so rather
+    // than run to the end having copied nothing. A dry run only previews, so it
+    // still plans.
+    if surface == Surface::Elements && *styled && !*dry_run && project_config.is_none() {
+        return Err(CliError::Config(
+            "no primitiv.json here, so there is nowhere to copy the styles. \
+             Run `primitiv init --styles --path <your static folder>/primitiv` first."
+                .to_string(),
+        ));
+    }
     // Elements are headless unless styling is asked for, by the flag or by an
     // elements config that enabled styles; React is always the styled surface.
     let headless = surface == Surface::Elements

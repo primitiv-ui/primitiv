@@ -1106,19 +1106,28 @@ fn print_cdn_scripts(
     resolved: &[String],
 ) -> Result<(), CliError> {
     // One script per component, `dist/cdn/<component>.js`, which defines that
-    // component's elements only; what they share is one chunk they import.
+    // component's elements only; what they share is one chunk they import. All
+    // from one release — the newest any of them needs, which carries every older
+    // one's file — so the page downloads that chunk once.
+    let needs_web = |name: &&String| {
+        declared_packages(&index.components[*name], Surface::Elements)
+            .iter()
+            .any(|package| package.name == WEB_PACKAGE)
+    };
+    let newest = resolved
+        .iter()
+        .flat_map(|name| declared_packages(&index.components[name], Surface::Elements))
+        .filter(|package| package.name == WEB_PACKAGE)
+        .map(|package| package.minimum_spec())
+        .max_by_key(|spec| release_order(spec));
+    let Some(spec) = newest else {
+        return Ok(());
+    };
     let scripts: BTreeSet<String> = resolved
         .iter()
-        .flat_map(|name| {
-            declared_packages(&index.components[name], Surface::Elements)
-                .into_iter()
-                .filter(|package| package.name == WEB_PACKAGE)
-                .map(move |package| format!("{}/dist/cdn/{name}.js", package.minimum_spec()))
-        })
+        .filter(needs_web)
+        .map(|name| format!("{spec}/dist/cdn/{name}.js"))
         .collect();
-    if scripts.is_empty() {
-        return Ok(());
-    }
     let mut message =
         "\nNo package.json here, so nothing was installed. Load the elements with:\n\n".to_string();
     for script in scripts {
@@ -1128,6 +1137,12 @@ fn print_cdn_scripts(
     }
     output.write_stdout(message.as_bytes())?;
     Ok(())
+}
+
+/// A `name@1.2.3` spec's version as numbers, so `0.1.10` sorts after `0.1.9`.
+fn release_order(spec: &str) -> Vec<u64> {
+    let version = spec.rsplit_once('@').map_or("", |(_, version)| version);
+    version.split('.').map(|part| part.parse().unwrap_or(0)).collect()
 }
 
 /// The packages one component declares for `surface`: the headless library

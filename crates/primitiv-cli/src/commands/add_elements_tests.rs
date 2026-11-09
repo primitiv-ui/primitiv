@@ -302,6 +302,49 @@ fn styled_without_a_config_asks_for_init_instead_of_copying_nothing() {
 }
 
 #[test]
+fn loads_every_script_from_the_newest_release_any_component_needs() {
+    // Tabs shipped in 0.1.9 and Collapsible in 0.1.10: 0.1.10 carries both, and
+    // one version means the page downloads the shared chunk once.
+    let registry = InMemoryRegistry::new(
+        br##"{
+  "version": "0.1.0",
+  "components": {
+    "tabs": { "version": "0.1.0", "elements": { "packages": [{ "name": "@primitiv-ui/web", "version": "^0.1.9" }], "example": "tabs.html" } },
+    "collapsible": { "version": "0.1.0", "elements": { "packages": [{ "name": "@primitiv-ui/web", "version": "^0.1.10" }], "example": "collapsible.html" } }
+  }
+}"##,
+    )
+    .with_file("tabs", "tabs.html", b"<primitiv-tabs></primitiv-tabs>\n")
+    .with_file("collapsible", "collapsible.html", b"<primitiv-collapsible></primitiv-collapsible>\n");
+    let fs = InMemoryFs::new();
+    let output = InMemoryOutput::new();
+
+    add(
+        &fs,
+        &registry,
+        &output,
+        &InMemoryProcessRunner::new(),
+        &InMemoryPrompt::new(Decision::Keep),
+        false,
+        &AddOptions {
+            components: vec!["tabs".into(), "collapsible".into()],
+            surface: Some(Surface::Elements),
+            ..Default::default()
+        },
+    )
+    .unwrap();
+
+    let captured = String::from_utf8(output.captured()).unwrap();
+    assert!(
+        captured.contains(
+            "  <script type=\"module\" src=\"https://cdn.jsdelivr.net/npm/@primitiv-ui/web@0.1.10/dist/cdn/collapsible.js\"></script>\n  \
+             <script type=\"module\" src=\"https://cdn.jsdelivr.net/npm/@primitiv-ui/web@0.1.10/dist/cdn/tabs.js\"></script>\n"
+        ),
+        "{captured}"
+    );
+}
+
+#[test]
 fn prints_no_script_when_no_component_needs_a_package() {
     // Kbd has no behaviour (§8.3): there is no element to load.
     let fs = InMemoryFs::new();

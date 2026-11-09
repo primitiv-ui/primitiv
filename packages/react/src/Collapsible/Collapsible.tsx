@@ -42,9 +42,13 @@ import type {
  * **Context.** Root establishes {@link CollapsibleContext}, from which
  * {@link CollapsibleTrigger}, {@link CollapsibleContent}, and
  * {@link CollapsibleTriggerIcon} read the open state, the `disabled` flag,
- * the `toggle` action, and the generated `triggerId` / `contentId` that
- * wire the Trigger's `aria-controls` to the Content's `id`. Rendering any
- * sub-component outside a Root throws.
+ * the Trigger's registration with the root's controller, and the generated
+ * `triggerId` / `contentId` that wire the Trigger's `aria-controls` to the
+ * Content's `id`. Rendering any sub-component outside a Root throws.
+ *
+ * **Behaviour.** Toggling on click, Enter and Space runs in the shared
+ * `CollapsibleController` from `@primitiv-ui/web`, listening on this root —
+ * the same code the `<primitiv-collapsible>` custom element runs.
  *
  * **Styling hooks.** `data-state="open" | "closed"` and
  * `data-disabled="true" | "false"` are emitted on the rendered container.

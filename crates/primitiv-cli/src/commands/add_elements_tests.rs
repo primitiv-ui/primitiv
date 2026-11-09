@@ -461,6 +461,76 @@ fn ends_by_printing_the_links_a_page_needs() {
     );
 }
 
+/// A Spring Boot project's config: the styles live under its static folder,
+/// which the server serves at the site root.
+const SPRING_CONFIG: &[u8] = br##"{
+  "version": 1,
+  "surface": "elements",
+  "styles": { "enabled": true, "format": "css", "path": "src/main/resources/static/primitiv", "url": "/primitiv" },
+  "tokens": { "format": "css", "path": "src/main/resources/static/primitiv/tokens.css" },
+  "theme": {},
+  "aliases": {},
+  "registry": { "version": "0.1.0" }
+}"##;
+
+#[test]
+fn prints_the_links_at_the_url_the_styles_folder_is_served_at() {
+    // The page asks the server for /primitiv/..., not for a path on disk.
+    let fs = InMemoryFs::new();
+    fs.write(std::path::Path::new("primitiv.json"), SPRING_CONFIG)
+        .unwrap();
+    fs.write(
+        std::path::Path::new("src/main/resources/static/primitiv/tokens.css"),
+        b":root{}",
+    )
+    .unwrap();
+    let output = InMemoryOutput::new();
+
+    run(&fs, &output, &["kbd"]);
+
+    assert!(
+        String::from_utf8(output.captured()).unwrap().contains(
+            "\nLink the styles from your page:\n\n  \
+             <link rel=\"stylesheet\" href=\"/primitiv/tokens.css\">\n  \
+             <link rel=\"stylesheet\" href=\"/primitiv/index.css\">\n"
+        ),
+        "{}",
+        String::from_utf8(output.captured()).unwrap()
+    );
+}
+
+#[test]
+fn keeps_the_file_paths_when_the_run_writes_somewhere_else() {
+    // --path moves this run's files; the recorded URL belongs to the other folder.
+    let fs = InMemoryFs::new();
+    fs.write(std::path::Path::new("primitiv.json"), SPRING_CONFIG)
+        .unwrap();
+    let output = InMemoryOutput::new();
+
+    add(
+        &fs,
+        &kbd_and_tabs_registry(),
+        &output,
+        &InMemoryProcessRunner::new(),
+        &InMemoryPrompt::new(Decision::Keep),
+        false,
+        &AddOptions {
+            components: vec!["kbd".into()],
+            path: Some("elsewhere".into()),
+            ..Default::default()
+        },
+    )
+    .unwrap();
+
+    assert!(
+        String::from_utf8(output.captured())
+            .unwrap()
+            .contains("<link rel=\"stylesheet\" href=\"elsewhere/index.css\">"),
+        "{}",
+        String::from_utf8(output.captured()).unwrap()
+    );
+}
+
 #[test]
 fn prints_no_links_under_json() {
     let fs = InMemoryFs::new();
@@ -857,5 +927,24 @@ fn a_config_without_styles_is_headless() {
     assert!(
         fs.read(std::path::Path::new("primitiv/tabs/styles.css"))
             .is_err()
+    );
+}
+
+#[test]
+fn serves_a_file_in_the_folder_under_its_url_and_any_other_where_it_is() {
+    use crate::commands::add::served_at;
+    let folder = "src/main/resources/static/primitiv";
+
+    assert_eq!(
+        served_at("src/main/resources/static/primitiv/tabs/styles.css", folder, Some("/primitiv/")),
+        "/primitiv/tabs/styles.css"
+    );
+    assert_eq!(
+        served_at("assets/tokens.css", folder, Some("/primitiv")),
+        "assets/tokens.css"
+    );
+    assert_eq!(
+        served_at("src/main/resources/static/primitiv/index.css", folder, None),
+        "src/main/resources/static/primitiv/index.css"
     );
 }

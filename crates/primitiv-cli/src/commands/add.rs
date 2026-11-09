@@ -658,9 +658,16 @@ fn copy_styled_surface(
         let extension = format.unwrap_or(config.styles.format).extension();
         let index = update_style_index(fs, &lock, Path::new(styles_path), extension)?;
         written.push((index.clone(), "updated"));
+        // The recorded URL belongs to the configured folder; a run that writes
+        // elsewhere (`--path`) links its files where they are.
+        let url = config
+            .styles
+            .url
+            .as_deref()
+            .filter(|_| styles_path == config.styles.path);
         Some(StyleLinks {
-            tokens: config.tokens.path.clone(),
-            index,
+            tokens: served_at(&config.tokens.path, styles_path, url),
+            index: served_at(&index, styles_path, url),
         })
     } else {
         if let Some(barrel) = update_barrel(fs, &lock, Path::new(&components_dir))? {
@@ -673,6 +680,16 @@ fn copy_styled_surface(
     // path had no region of its own before the report was added, and inventing
     // an untested one to carry the same behaviour is how a 100% gate rots.
     lock.write(fs, &lock_path).map(|()| (written, links))
+}
+
+/// Where a page asks for `file`: under `url` when the file lives in `folder`,
+/// the folder that URL serves; the file path itself otherwise, which is what a
+/// site served from its own root links (RFC 0033 §8.2).
+pub(crate) fn served_at(file: &str, folder: &str, url: Option<&str>) -> String {
+    match (url, Path::new(file).strip_prefix(folder)) {
+        (Some(url), Ok(rest)) => format!("{}/{}", url.trim_end_matches('/'), rest.display()),
+        _ => file.to_string(),
+    }
 }
 
 /// Each file a copy wrote, with what happened to it (`new`, `updated`, `kept`).

@@ -53,3 +53,21 @@ test("a field whose control is disabled is dimmed", async ({ page }) => {
   await mount(page, "/components/field/", field("disabled"));
   expect(await opacity(page, "#plain-markup .primitiv-field")).toBe("0.5");
 });
+
+// A field the React primitive rendered carries `data-field` and states its own
+// required / disabled through its hooks, so a control's own attribute must not
+// override that: the native-state fallback is for hand-written markup only.
+const reactField = (attr: string) => field(attr).replace(`<div class=`, `<div data-field class=`);
+
+test("a React-rendered field does not take required from its control", async ({ page }) => {
+  await mount(page, "/components/field/", reactField("required"));
+  const marker = await page
+    .locator("#plain-markup .primitiv-field__label")
+    .evaluate((el) => getComputedStyle(el, "::after").content);
+  expect(marker).toBe("none");
+});
+
+test("a React-rendered field is not dimmed by a disabled control", async ({ page }) => {
+  await mount(page, "/components/field/", reactField("disabled"));
+  expect(await opacity(page, "#plain-markup .primitiv-field")).toBe("1");
+});

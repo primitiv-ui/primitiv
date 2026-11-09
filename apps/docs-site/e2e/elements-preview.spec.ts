@@ -105,6 +105,23 @@ test("the Prose preview is plain markup whose children take the flow rhythm", as
   expect(parseFloat(second)).toBeGreaterThan(0);
 });
 
+for (const [id, rootClass] of [
+  ["blockquote", "primitiv-blockquote"],
+  ["pull-quote", "primitiv-pull-quote"],
+  ["list", "primitiv-list"],
+  ["description-list", "primitiv-description-list"],
+  ["figure", "primitiv-figure"],
+  ["divider", "primitiv-divider"],
+] as const) {
+  test(`the ${id} preview is styled markup with no element to define`, async ({ page }) => {
+    await page.goto(`/components/${id}/`);
+    const root = page.locator(`.docs-elements-preview .${rootClass}`).first();
+    await expect(root).toBeAttached();
+    expect(await page.evaluate(() => document.querySelectorAll(":not(:defined)").length)).toBe(0);
+    expect(await page.evaluate((name) => !!customElements.get(name), `primitiv-${id}`)).toBe(false);
+  });
+}
+
 test("the Button icon examples render real glyphs, not placeholders", async ({
   page,
 }) => {

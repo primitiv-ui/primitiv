@@ -149,5 +149,12 @@
   "figma": {
     "componentSetKey": "586:7300"
   },
-  "elements": null
+  "elements": {
+    "package": null,
+    "version": null,
+    "element": "ul",
+    "wrapText": false,
+    "example": "<ul class=\"primitiv-list primitiv-list--unordered primitiv-list--indent primitiv-list--md\">\n  <li class=\"primitiv-list__item\"><span class=\"primitiv-list__item-content\">First item</span></li>\n  <li class=\"primitiv-list__item\"><span class=\"primitiv-list__item-content\">Second item</span></li>\n  <li class=\"primitiv-list__item\"><span class=\"primitiv-list__item-content\">Third item</span></li>\n</ul>\n",
+    "api": []
+  }
 }

@@ -65,6 +65,28 @@ const reservedSpacing = {
 } as CSSProperties;
 
 /**
+ * The rule as Elements markup (RFC 0033): a `<span>` with the separator role and
+ * its axis, which is all the headless primitive renders — there is no behaviour,
+ * so no element and no script. `attrs` is raw text with its leading space.
+ */
+const rule = (orientation = "horizontal", attrs = "") =>
+  `<span class="primitiv-divider" role="separator" aria-orientation="${orientation}"${attrs}></span>`;
+
+/** The demo layouts, as plain markup around the rule. */
+const COLUMN = `<div style="display: flex; flex-direction: column; gap: 1rem">`;
+const ROW = `<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 1rem">`;
+
+/**
+ * The playground's preview: a lone rule needs a container to show — a vertical
+ * one takes its height from a flex row — so it gets the same scaffolding the
+ * React demo draws around it.
+ */
+const inDemoLayout = (code: string) =>
+  code.includes('aria-orientation="vertical"')
+    ? [ROW, `<span>Overview</span>`, code, `<span>Pricing</span>`, code, `<span>Docs</span>`, `</div>`].join("\n")
+    : [COLUMN, `<span>Section one</span>`, code, `<span>Section two</span>`, `</div>`].join("\n");
+
+/**
  * Divider's page content.
  *
  * A single-part, non-interactive primitive, so there is no anatomy tree and no
@@ -96,9 +118,10 @@ export const dividerSpec: ComponentSpec = {
       },
     ],
     snippet: (values, mode) =>
-      [imports(mode), ``, `<Divider orientation="${values.orientation}" />`].join(
-        "\n",
-      ),
+      mode === "elements"
+        ? rule(values.orientation)
+        : [imports(mode), ``, `<Divider orientation="${values.orientation}" />`].join("\n"),
+    elementsPreview: inDemoLayout,
     render: (values) => {
       const orientation = (values.orientation ?? "horizontal") as
         | "horizontal"
@@ -131,9 +154,12 @@ export const dividerSpec: ComponentSpec = {
       title: "Separating sections",
       render: () => (
         <InteractiveExample
+          elementsCaption={"The default: a full-width hairline that spans its container and reads as a real `role=\"separator\"` to assistive tech. The breathing room around it is the container's `gap`, not the rule — the divider reserves no separation of its own (see below)."}
           caption={"The default: a full-width hairline that spans its container and reads as a real `role=\"separator\"` to assistive tech. Note the breathing room around it is the container's `gap`, not the rule — `Divider` reserves no separation of its own (see below)."}
           code={(_density, mode) =>
-            [
+            mode === "elements"
+              ? [COLUMN, `  <section>Section one</section>`, `  ${rule()}`, `  <section>Section two</section>`, `</div>`].join("\n")
+              : [
               imports(mode),
               ...wrapExtraImports(mode),
               ``,
@@ -165,9 +191,12 @@ export const dividerSpec: ComponentSpec = {
       title: "A vertical rule",
       render: () => (
         <InteractiveExample
+          elementsCaption={"`aria-orientation=\"vertical\"` turns the rule 90° and tells assistive tech its axis. A vertical divider takes its height from the flex row it sits in — a flex item stretches to the row's cross-axis by default — so a plain block or column gives it no height to span. Ideal between inline metadata or toolbar groups."}
           caption={"`orientation=\"vertical\"` sets `aria-orientation` and turns the rule 90°. A vertical divider takes its height from the flex row it sits in — a flex item stretches to the row's cross-axis by default — so a plain block or column gives it no height to span. Ideal between inline metadata or toolbar groups."}
           code={(_density, mode) =>
-            [
+            mode === "elements"
+              ? [ROW, `  <span>Overview</span>`, `  ${rule("vertical")}`, `  <span>Pricing</span>`, `  ${rule("vertical")}`, `  <span>Docs</span>`, `</div>`].join("\n")
+              : [
               imports(mode),
               ...wrapExtraImports(mode),
               ``,
@@ -198,11 +227,21 @@ export const dividerSpec: ComponentSpec = {
       title: "Spacing belongs to the container",
       render: () => (
         <InteractiveExample
+          elementsCaption="The divider ships **no margin** by default — separation is the container's job. A gap-based container already spaces its children, and a margin baked into the rule would double that, could never reach `0`, and could not track `data-density`. When a plain block-flow context has no gap of its own, give the rule its own margin through `--primitiv-divider-spacing`."
           caption="`Divider` ships **no margin** by default — separation is the container's job. A gap-based container already spaces its children, and a margin baked into the rule would double that, could never reach `0`, and could not track `data-density`. When a plain block-flow context has no gap of its own, give the rule its own margin: the styled surface exposes `--primitiv-divider-spacing` for exactly this, and in headless — where no styles ship at all — you set the margin directly."
           code={(_density, mode) => {
             /* Styled resolves the registry custom property (and a token behind
                it); headless has neither the stylesheet nor the token layer, so
                it sets a plain margin. */
+            if (mode === "elements")
+              return [
+                `<!-- Plain block flow: no container gap, so the rule reserves its own. -->`,
+                `<article>`,
+                `  <p>Above the rule.</p>`,
+                `  ${rule("horizontal", ' style="--primitiv-divider-spacing: var(--primitiv-space-space-16)"')}`,
+                `  <p>Below the rule.</p>`,
+                `</article>`,
+              ].join("\n");
             const styled = mode !== "headless";
             return [
               imports(mode),
@@ -235,9 +274,22 @@ export const dividerSpec: ComponentSpec = {
       title: "Decorative vs semantic",
       render: () => (
         <InteractiveExample
+          elementsCaption={"Left to itself, the rule announces as a separator. When it is purely visual — the surrounding structure already groups the content — add `aria-hidden=\"true\"` to drop it from the accessibility tree, so a screen reader is not told about a line that carries no meaning. Keep the semantic form when the divider genuinely separates distinct groups, like sections of a menu."}
           caption={"Left to itself, a `Divider` announces as a separator. When the rule is purely visual — the surrounding structure already groups the content — pass `aria-hidden=\"true\"` to drop it from the accessibility tree so a screen reader is not told about a line that carries no meaning. Keep the semantic form when the divider genuinely separates distinct groups, like sections of a menu."}
           code={(_density, mode) =>
-            [
+            mode === "elements"
+              ? [
+                  COLUMN,
+                  `  <span>Semantic separator</span>`,
+                  `  <!-- Semantic: a real boundary between content groups. -->`,
+                  `  ${rule()}`,
+                  `  <span>Decorative rule</span>`,
+                  `  <!-- Decorative: purely visual, hidden from assistive tech. -->`,
+                  `  ${rule("horizontal", ' aria-hidden="true"')}`,
+                  `  <span>End</span>`,
+                  `</div>`,
+                ].join("\n")
+              : [
               imports(mode),
               ``,
               `{/* Semantic: a real boundary between content groups. */}`,
@@ -261,6 +313,15 @@ export const dividerSpec: ComponentSpec = {
       ),
     },
   ],
+
+  elements: {
+    accessibility: [
+      "Write the rule as `<span role=\"separator\">`, so assistive tech announces it as a boundary between content groups rather than as decoration — the class only draws it.",
+      "`aria-orientation` says which axis it runs along — `\"horizontal\"` or `\"vertical\"` — and the stylesheet draws the matching hairline, so the announced axis always matches what is drawn.",
+      "There is no keyboard interaction and no script: a separator is not focusable and takes no input, which is correct — it marks a boundary, it does not act on one.",
+      "For a purely decorative rule, add `aria-hidden=\"true\"`. A separator whose meaning is already carried by the surrounding structure is noise in the accessibility tree.",
+    ],
+  },
 
   accessibility: [
     "The rule renders as `<span role=\"separator\">`, so assistive tech announces it as a boundary between content groups rather than as decoration.",

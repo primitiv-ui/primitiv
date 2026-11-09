@@ -53,7 +53,7 @@
     "category": "Typography",
     "description": "A <blockquote> with a left-stroke accent bar and an optional attribution line. `tone` picks the bar colour (default | accent); `size` scales the quote and citation type together.",
     "documented": true,
-    "elements": null
+    "elements": "markup"
   },
   {
     "id": "box",
@@ -197,7 +197,7 @@
     "category": "Typography",
     "description": "A <dl> compound — one <dt> (fixed SemiBold) + one <dd> per pair. `layout` picks `stacked` (dt above dd, dd indented) or `inline` (dt : dd side by side in a two-column grid), matching the two layouts in the Figma component set. Consumers compose multiple Term/Details pairs to form a full description list. row-gap/column-gap/details-indent are density-scaled Context tokens; inline's pair-to-pair gap reuses List's item-gap directly, matching the Figma binding.",
     "documented": true,
-    "elements": null
+    "elements": "markup"
   },
   {
     "id": "divider",
@@ -205,7 +205,7 @@
     "category": "Layout",
     "description": "A separator between content sections — a `<span role=\"separator\">` whose `aria-orientation` drives a horizontal or vertical rule.",
     "documented": true,
-    "elements": null
+    "elements": "markup"
   },
   {
     "id": "drawer",
@@ -245,7 +245,7 @@
     "category": "Typography",
     "description": "A <figure>/<figcaption> pairing that wraps self-contained content (an image, illustration, chart, code listing, table) with an optional caption in one of three positions — below (default), above, or overlaid on the media. `size` scales the caption's type off the body/{size} ramp (the media is size-independent, as in Figma); the caption's own `align` matches Figma's Figcaption Align axis.",
     "documented": true,
-    "elements": null
+    "elements": "markup"
   },
   {
     "id": "grid",
@@ -293,7 +293,7 @@
     "category": "Typography",
     "description": "A <ul>/<ol> with custom, token-coloured markers and a controllable item gap, marker gap and indent — the styled counterpart to the bare list styles in primitiv.reset.",
     "documented": true,
-    "elements": null
+    "elements": "markup"
   },
   {
     "id": "listbox",
@@ -365,7 +365,7 @@
     "category": "Typography",
     "description": "A large, centred editorial quote — no accent bar, no attribution, distinct from Blockquote. Rides the existing heading/* type scale; an optional decorative open-quote mark.",
     "documented": true,
-    "elements": null
+    "elements": "markup"
   },
   {
     "id": "radio",

@@ -97,5 +97,12 @@
   "figma": {
     "componentSetKey": "588:8752"
   },
-  "elements": null
+  "elements": {
+    "package": null,
+    "version": null,
+    "element": "blockquote",
+    "wrapText": false,
+    "example": "<blockquote class=\"primitiv-pull-quote primitiv-pull-quote--md\">\n  <p class=\"primitiv-pull-quote__text\">A line from the page worth repeating.</p>\n</blockquote>\n",
+    "api": []
+  }
 }

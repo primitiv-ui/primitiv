@@ -15,6 +15,39 @@ const imports = (mode: Mode) =>
 const ITEMS = ["Ships with zero styles", "Accessible by construction", "Yours to restyle"];
 
 /**
+ * A list as Elements markup (RFC 0033): `<ul>`/`<ol>` with the modifier classes,
+ * each `<li>` with its content in the span the styled wrapper renders (the row
+ * is a flex box, so mixed inline content needs one block to sit in). No
+ * behaviour, no script.
+ */
+const html = (
+  items: readonly string[],
+  {
+    type = "unordered",
+    marker = true,
+    indent = true,
+    size = "md",
+  }: { type?: string; marker?: boolean; indent?: boolean; size?: string } = {},
+) => {
+  const element = type === "ordered" ? "ol" : "ul";
+  const classes = [
+    "primitiv-list",
+    `primitiv-list--${type}`,
+    ...(marker ? [] : ["primitiv-list--no-marker"]),
+    ...(indent ? ["primitiv-list--indent"] : []),
+    `primitiv-list--${size}`,
+  ].join(" ");
+  return [
+    `<${element} class="${classes}">`,
+    ...items.map(
+      (item) =>
+        `  <li class="primitiv-list__item"><span class="primitiv-list__item-content">${item}</span></li>`,
+    ),
+    `</${element}>`,
+  ].join("\n");
+};
+
+/**
  * List's page content.
  *
  * Registry-only. `List` renders the `<ul>`/`<ol>`; `List.Item` the `<li>`.
@@ -27,6 +60,13 @@ export const listSpec: ComponentSpec = {
     component: "List",
     fill: true,
     snippet: (values, mode) => {
+      if (mode === "elements")
+        return html(ITEMS, {
+          type: values.type,
+          marker: values.marker !== "false",
+          indent: values.indent !== "false",
+          size: values.size,
+        });
       const attrs = [
         `type="${values.type}"`,
         values.marker === "false" ? "marker={false}" : "",
@@ -65,9 +105,12 @@ export const listSpec: ComponentSpec = {
       title: "Ordered and unordered",
       render: () => (
         <InteractiveExample
+          elementsCaption="Write a `<ul>` with `primitiv-list--unordered` for token-coloured bullets, or an `<ol>` with `primitiv-list--ordered` for numbers. The markers are drawn by the stylesheet, not the browser default, so they take the type colour and sit on the baseline."
           caption="`type` picks the element and the marker: `unordered` is a `<ul>` with token-coloured bullets, `ordered` an `<ol>` with numbers. The markers are drawn by the component, not the browser default, so they inherit the type colour and sit on the baseline."
           code={(_density, mode) =>
-            [
+            mode === "elements"
+              ? [html(ITEMS), html(["Run the CLI", "Copy the files", "Edit them"], { type: "ordered" })].join("\n\n")
+              : [
               imports(mode),
               ``,
               `<List type="ordered">`,
@@ -100,9 +143,12 @@ export const listSpec: ComponentSpec = {
       title: "A flush prose list",
       render: () => (
         <InteractiveExample
+          elementsCaption="`primitiv-list--no-marker` drops the bullet (the equivalent of `list-style: none`, gap and all), and leaving out `primitiv-list--indent` removes the inset — together they give a list that reads as plain lines, for prose or a nav, while staying a real `<ul>` so its semantics are unchanged. The two are independent."
           caption="`marker={false}` drops the bullet (the equivalent of `list-style: none`, gap and all) and `indent={false}` removes the inset — combine both for a list that reads as plain lines, for prose or a nav, while staying a real `<ul>` so its semantics are unchanged. The two are independent."
           code={(_density, mode) =>
-            [
+            mode === "elements"
+              ? html(ITEMS.slice(0, 2), { marker: false, indent: false })
+              : [
               imports(mode),
               ``,
               `<List marker={false} indent={false}>`,
@@ -129,10 +175,28 @@ export const listSpec: ComponentSpec = {
   anatomy: [
     {
       label: "Parts",
-      code: () =>
-        ["<List>", "  <List.Item />", "</List>"].join("\n"),
+      code: (mode) =>
+        mode === "elements"
+          ? [
+              `<ul class="primitiv-list">`,
+              `  <li class="primitiv-list__item">`,
+              `    <span class="primitiv-list__item-content"></span>`,
+              `  </li>`,
+              `</ul>`,
+            ].join("\n")
+          : ["<List>", "  <List.Item />", "</List>"].join("\n"),
     },
   ],
+
+  elements: {
+    anatomyMeta:
+      "Two parts: the `<ul>` or `<ol>` carries the type, marker, indent and size classes; each `<li class=\"primitiv-list__item\">` holds its content in a `primitiv-list__item-content` span, the block the row lays out beside its marker.",
+    accessibility: [
+      "Use a real `<ul>` or `<ol>` with real `<li>` items, so assistive tech announces the item count and position — dropping the marker with `primitiv-list--no-marker` changes the look, never the semantics.",
+      "The markers are drawn by the stylesheet rather than `list-style`, so they take the type colour and stay aligned, but they remain decoration on top of the native list structure.",
+      "`data-disabled` on an item dims the row (50% opacity) as a visual state only — a list item is not itself a control.",
+    ],
+  },
 
   accessibility: [
     "List renders a real `<ul>` or `<ol>` and `List.Item` a real `<li>`, so assistive tech announces the item count and position — dropping the marker with `marker={false}` changes the look, never the semantics.",

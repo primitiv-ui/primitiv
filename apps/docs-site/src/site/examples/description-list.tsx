@@ -34,6 +34,23 @@ const Pairs = () => (
 );
 
 /**
+ * A description list as Elements markup (RFC 0033): a `<dl>` with the layout and
+ * size classes, and a classed `<dt>` + `<dd>` per pair. No behaviour, no script.
+ */
+const html = (
+  pairs: readonly (readonly [string, string])[],
+  { layout = "stacked", size = "md" }: { layout?: string; size?: string } = {},
+) =>
+  [
+    `<dl class="primitiv-description-list primitiv-description-list--${size} primitiv-description-list--${layout}">`,
+    ...pairs.flatMap(([term, detail]) => [
+      `  <dt class="primitiv-description-list__term">${term}</dt>`,
+      `  <dd class="primitiv-description-list__details">${detail}</dd>`,
+    ]),
+    `</dl>`,
+  ].join("\n");
+
+/**
  * DescriptionList's page content.
  *
  * Registry-only. A `<dl>` compound — one `DescriptionList.Term` (`<dt>`) + one
@@ -45,7 +62,7 @@ export const descriptionListSpec: ComponentSpec = {
     component: "DescriptionList",
     fill: true,
     snippet: (values, mode) =>
-      [
+      mode === "elements" ? html(PAIRS.slice(0, 2), { layout: values.layout, size: values.size }) : [
         imports(mode),
         ``,
         `<DescriptionList layout="${values.layout}" size="${values.size}">`,
@@ -71,9 +88,12 @@ export const descriptionListSpec: ComponentSpec = {
       title: "Stacked and inline",
       render: () => (
         <InteractiveExample
+          elementsCaption="The layout class picks how each pair reads: `primitiv-description-list--stacked` puts the `<dd>` under its `<dt>` (indented) for longer values, `primitiv-description-list--inline` sets them `dt : dd` side by side for a compact key/value table — the metadata block on a settings page or a package summary."
           caption="`layout` picks how each pair reads: `stacked` puts the `<dd>` under its `<dt>` (indented) for longer values, `inline` sets them `dt : dd` side by side for a compact key/value table — the metadata block on a settings page or a package summary."
           code={(_density, mode) =>
-            [
+            mode === "elements"
+              ? [html(PAIRS, { layout: "stacked" }), html(PAIRS, { layout: "inline" })].join("\n\n")
+              : [
               imports(mode),
               ``,
               `<DescriptionList layout="inline">`,
@@ -103,8 +123,15 @@ export const descriptionListSpec: ComponentSpec = {
   anatomy: [
     {
       label: "Parts",
-      code: () =>
-        [
+      code: (mode) =>
+        mode === "elements"
+          ? [
+              `<dl class="primitiv-description-list">`,
+              `  <dt class="primitiv-description-list__term"></dt>`,
+              `  <dd class="primitiv-description-list__details"></dd>`,
+              `</dl>`,
+            ].join("\n")
+          : [
           "<DescriptionList>",
           "  <DescriptionList.Term />",
           "  <DescriptionList.Details />",
@@ -112,6 +139,16 @@ export const descriptionListSpec: ComponentSpec = {
         ].join("\n"),
     },
   ],
+
+  elements: {
+    anatomyMeta:
+      "Three parts: the `<dl>` carries the layout and size classes; write one `<dt class=\"primitiv-description-list__term\">` and one `<dd class=\"primitiv-description-list__details\">` per pair.",
+    accessibility: [
+      "Use a real `<dl>`/`<dt>`/`<dd>`, so assistive tech announces the term/description association — the classes only style that structure.",
+      "Write one `<dt>` and one `<dd>` per pair in source order; the association is positional in a `<dl>`, so keeping them adjacent is what makes the pairing correct for a screen reader.",
+      "It is content, not a control — no focus or keyboard surface, and no script.",
+    ],
+  },
 
   accessibility: [
     "The component renders a real `<dl>`/`<dt>`/`<dd>`, so assistive tech announces the term/description association — the styling never replaces that structure.",

@@ -1,7 +1,9 @@
 use serde_json::{Map, Value};
 
 use crate::token::Token;
-use crate::value::{ShadowLayer, format_color, format_cubic_bezier, format_number, format_shadow};
+use crate::value::{
+    ShadowLayer, format_color, format_cubic_bezier, format_font_family, format_number, format_shadow,
+};
 
 /// Flatten a DTCG token tree into resolved [`Token`]s (RFC 0006 §3–4).
 ///
@@ -53,6 +55,8 @@ fn collect(map: &Map<String, Value>, path: &mut Vec<String>, out: &mut Vec<Token
                     path: path.clone(),
                     value: if is_color(child) {
                         format_color(text)
+                    } else if path[0] == "font-family" {
+                        format_font_family(key, text)
                     } else {
                         text.to_string()
                     },

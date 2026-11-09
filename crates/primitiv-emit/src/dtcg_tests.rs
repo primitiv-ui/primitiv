@@ -304,3 +304,25 @@ mod writing {
         assert!(!document.contains("#000000"), "{document}");
     }
 }
+
+#[test]
+fn reads_a_font_family_token_as_a_fallback_stack() {
+    let dtcg = json!({
+        "font-family": {
+            "text": { "$type": "string", "$value": "Asta Sans" },
+            "mono": { "$type": "string", "$value": "JetBrains Mono" }
+        },
+        "font-weight": { "label": { "$type": "string", "$value": "semibold" } }
+    });
+
+    let tokens = tokens_from_dtcg(&dtcg);
+
+    assert_eq!(
+        tokens,
+        vec![
+            Token::new(&["font-family", "mono"], "\"JetBrains Mono\", ui-monospace, monospace"),
+            Token::new(&["font-family", "text"], "\"Asta Sans\", system-ui, sans-serif"),
+            Token::new(&["font-weight", "label"], "semibold"),
+        ]
+    );
+}

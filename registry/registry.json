@@ -1080,7 +1080,11 @@
           ]
         }
       },
-      "contract": "contract.json"
+      "contract": "contract.json",
+      "elements": {
+        "example": "field.html",
+        "handWritten": true
+      }
     },
     "figure": {
       "version": "0.1.0",
@@ -1222,7 +1226,11 @@
           ]
         }
       },
-      "contract": "contract.json"
+      "contract": "contract.json",
+      "elements": {
+        "example": "input.html",
+        "handWritten": true
+      }
     },
     "input-group": {
       "version": "0.1.0",
@@ -1258,7 +1266,11 @@
           ]
         }
       },
-      "contract": "contract.json"
+      "contract": "contract.json",
+      "elements": {
+        "example": "input-group.html",
+        "handWritten": true
+      }
     },
     "kbd": {
       "version": "0.1.0",
@@ -2133,7 +2145,11 @@
           ]
         }
       },
-      "contract": "contract.json"
+      "contract": "contract.json",
+      "elements": {
+        "example": "textarea.html",
+        "handWritten": true
+      }
     },
     "toggle-group": {
       "version": "0.1.0",

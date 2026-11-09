@@ -169,7 +169,7 @@
   }
 
   /* Disabled — state-neutral so it reads the same valid or invalid. */
-  .primitiv-textarea[data-disabled] {
+  .primitiv-textarea:is([data-disabled], :disabled) {
     opacity: var(--primitiv-opacity-50);
     cursor: not-allowed;
   }

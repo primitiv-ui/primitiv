@@ -136,8 +136,10 @@
 
 @layer primitiv.states {
   /* Required — the label grows a trailing marker. Driven by the field's own
-     data-field-required hook so the whole group stays a single source of truth. */
-  .primitiv-field[data-field-required] .primitiv-field__label::after {
+     data-field-required hook so the whole group stays a single source of truth,
+     or, in hand-written markup with no primitive to set it, by a required
+     control inside the field. */
+  .primitiv-field:is([data-field-required], :has(:required)) .primitiv-field__label::after {
     content: "*";
     margin-inline-start: var(--primitiv-field-required-gap);
     color: var(--primitiv-field-required-color);
@@ -145,7 +147,7 @@
 
   /* Disabled — dim the whole group. The control itself also reads the cascaded
      `disabled`, so it stops accepting input independently of this dimming. */
-  .primitiv-field[data-field-disabled] {
+  .primitiv-field:is([data-field-disabled], :has(:disabled)) {
     opacity: var(--primitiv-opacity-50);
   }
 }

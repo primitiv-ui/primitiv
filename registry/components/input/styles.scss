@@ -156,8 +156,10 @@
     border-color: var(--primitiv-input-border-color-invalid);
   }
 
-  /* Disabled — state-neutral so it reads the same valid or invalid. */
-  .primitiv-input[data-disabled] {
+  /* Disabled — state-neutral so it reads the same valid or invalid. Reads the
+     primitive's data-disabled hook or the native :disabled, so hand-written
+     markup gets the same look. */
+  .primitiv-input:is([data-disabled], :disabled) {
     opacity: var(--primitiv-opacity-50);
     cursor: not-allowed;
   }

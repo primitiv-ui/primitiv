@@ -317,3 +317,90 @@ fn surfaces_a_failed_url_prompt() {
     assert!(matches!(error, crate::error::CliError::Io(_)), "{error:?}");
     assert_eq!(prompt.questions().last().map(String::as_str), Some("Where should copied styles land"));
 }
+
+/// Run a non-interactive `init` and return what it printed.
+fn init_output(fs: &InMemoryFs, options: InitOptions) -> String {
+    let output = InMemoryOutput::new();
+    init(
+        fs,
+        &output,
+        &EmbeddedRegistry,
+        &InMemoryPrompt::new(Decision::Keep),
+        false,
+        &options,
+    )
+    .unwrap();
+    String::from_utf8(output.captured()).unwrap()
+}
+
+#[test]
+fn a_styled_elements_init_prints_the_links_its_page_needs() {
+    // The token layer it just wrote, at the URL the server serves it from, and
+    // the fonts the tokens name — loaded, or the stack falls back to sans-serif.
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("pom.xml"), b"").unwrap();
+
+    let printed = init_output(
+        &fs,
+        InitOptions {
+            styles_enabled: Some(true),
+            ..Default::default()
+        },
+    );
+
+    assert!(
+        printed.ends_with(
+            "\nLink the base styles from your page:\n\n  \
+             <link rel=\"stylesheet\" href=\"/primitiv/tokens.css\">\n\n\
+             The tokens name Asta Sans, Khand and JetBrains Mono. Load them, or text falls back to your system's sans-serif:\n\n  \
+             <link rel=\"stylesheet\" href=\"https://fonts.googleapis.com/css2?family=Asta+Sans:wght@300..800&family=Khand:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400..700&display=swap\">\n"
+        ),
+        "{printed}"
+    );
+}
+
+#[test]
+fn a_headless_elements_init_prints_no_links() {
+    // Nothing was written to link.
+    let fs = InMemoryFs::new();
+
+    assert!(!init_output(&fs, InitOptions::default()).contains("<link"));
+}
+
+#[test]
+fn an_elements_init_in_scss_leaves_linking_to_the_build() {
+    let fs = InMemoryFs::new();
+
+    let printed = init_output(
+        &fs,
+        InitOptions {
+            styles_enabled: Some(true),
+            format: Some(crate::format::Format::Scss),
+            ..Default::default()
+        },
+    );
+
+    assert!(!printed.contains("<link"), "{printed}");
+}
+
+#[test]
+fn surfaces_a_failure_printing_the_links() {
+    let fs = InMemoryFs::new();
+    let output = InMemoryOutput::new();
+    output.fail_stdout();
+
+    let error = init(
+        &fs,
+        &output,
+        &EmbeddedRegistry,
+        &InMemoryPrompt::new(Decision::Keep),
+        false,
+        &InitOptions {
+            styles_enabled: Some(true),
+            ..Default::default()
+        },
+    )
+    .unwrap_err();
+
+    assert!(matches!(error, crate::error::CliError::Io(_)), "{error:?}");
+}

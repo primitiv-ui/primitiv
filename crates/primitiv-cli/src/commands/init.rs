@@ -207,9 +207,28 @@ pub fn init(
                 ..Default::default()
             },
         )?;
+        // A plain CSS elements page links what was just written, from the URL
+        // its server serves the folder at; SCSS and Tailwind go through the
+        // project's own build, which knows its entry better.
+        if let (Some(url), Format::Css) = (&resolved.url, resolved.format) {
+            output.write_stdout(
+                format!(
+                    "\nLink the base styles from your page:\n\n  \
+                     <link rel=\"stylesheet\" href=\"{}/tokens.css\">\n\n\
+                     The tokens name Asta Sans, Khand and JetBrains Mono. Load them, or text falls back to your system's sans-serif:\n\n  \
+                     <link rel=\"stylesheet\" href=\"{FONTS_URL}\">\n",
+                    url.trim_end_matches('/')
+                )
+                .as_bytes(),
+            )?;
+        }
     }
     Ok(())
 }
+
+/// The three families the tokens name, from Google Fonts. Khand ships fixed
+/// weights, so it lists them; the other two are variable and take a range.
+const FONTS_URL: &str = "https://fonts.googleapis.com/css2?family=Asta+Sans:wght@300..800&family=Khand:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400..700&display=swap";
 
 /// Collapse each [`InitOptions`] choice to a concrete value: a given flag wins;
 /// otherwise an interactive session (not `--yes`) prompts for it pre-filled with

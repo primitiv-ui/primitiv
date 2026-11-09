@@ -103,7 +103,7 @@ fn dispatches_the_add_command_and_reports_the_plan() {
         &runner,
         &OsPrompt,
         false,
-        &args(&["add", "button"]),
+        &args(&["add", "button", "--surface", "react"]),
     )
     .unwrap();
 

@@ -241,6 +241,18 @@ const WITH_TWO_CONTRACTS: &[u8] = br##"{
 }"##;
 
 /// Turn string literals into the owned component list the command takes.
+/// A React project with no `primitiv.json`: its `package.json` lists `react`,
+/// which is what makes `add` pick the React surface without a config.
+fn react_project() -> InMemoryFs {
+    let fs = InMemoryFs::new();
+    fs.write(
+        Path::new("package.json"),
+        br#"{ "dependencies": { "react": "^19.0.0" } }"#,
+    )
+    .unwrap();
+    fs
+}
+
 fn names(parts: &[&str]) -> Vec<String> {
     parts.iter().map(|part| part.to_string()).collect()
 }
@@ -251,7 +263,7 @@ fn names(parts: &[&str]) -> Vec<String> {
 
 #[test]
 fn reports_a_single_resolved_component() {
-    let fs = InMemoryFs::new();
+    let fs = react_project();
     let registry = InMemoryRegistry::new(FLAT);
     let output = InMemoryOutput::new();
     let runner = InMemoryProcessRunner::new();
@@ -281,7 +293,7 @@ fn reports_a_single_resolved_component() {
 
 #[test]
 fn lists_the_npm_packages_to_ensure_sorted_and_deduplicated() {
-    let fs = InMemoryFs::new();
+    let fs = react_project();
     let registry = InMemoryRegistry::new(WITH_PACKAGES);
     let output = InMemoryOutput::new();
     let runner = InMemoryProcessRunner::new();
@@ -314,7 +326,7 @@ fn lists_the_npm_packages_to_ensure_sorted_and_deduplicated() {
 
 #[test]
 fn renders_the_plan_as_json_with_components_and_packages() {
-    let fs = InMemoryFs::new();
+    let fs = react_project();
     let registry = InMemoryRegistry::new(WITH_PACKAGES);
     let output = InMemoryOutput::new();
     let runner = InMemoryProcessRunner::new();
@@ -355,7 +367,7 @@ fn renders_the_plan_as_json_with_components_and_packages() {
 
 #[test]
 fn renders_json_with_an_empty_packages_array_when_there_are_none() {
-    let fs = InMemoryFs::new();
+    let fs = react_project();
     let registry = InMemoryRegistry::new(FLAT);
     let output = InMemoryOutput::new();
     let runner = InMemoryProcessRunner::new();
@@ -442,7 +454,7 @@ fn renders_json_dry_run_with_a_files_array_when_styles_are_configured() {
 fn renders_json_without_a_files_key_on_a_non_dry_run() {
     // A non-dry-run `--json` call omits the "files" key entirely
     // (it only appears under --dry-run).
-    let fs = InMemoryFs::new();
+    let fs = react_project();
     let registry = InMemoryRegistry::new(FLAT);
     let output = InMemoryOutput::new();
     let runner = InMemoryProcessRunner::new();
@@ -483,7 +495,7 @@ fn renders_json_without_a_files_key_on_a_non_dry_run() {
 
 #[test]
 fn reports_several_resolved_components_sorted_and_aligned() {
-    let fs = InMemoryFs::new();
+    let fs = react_project();
     let registry = InMemoryRegistry::new(FLAT);
     let output = InMemoryOutput::new();
     let runner = InMemoryProcessRunner::new();
@@ -514,7 +526,7 @@ fn reports_several_resolved_components_sorted_and_aligned() {
 
 #[test]
 fn all_resolves_every_component_in_the_registry() {
-    let fs = InMemoryFs::new();
+    let fs = react_project();
     let registry = InMemoryRegistry::new(FLAT);
     let output = InMemoryOutput::new();
     let runner = InMemoryProcessRunner::new();
@@ -544,7 +556,7 @@ fn all_resolves_every_component_in_the_registry() {
 
 #[test]
 fn pulls_in_transitive_component_dependencies() {
-    let fs = InMemoryFs::new();
+    let fs = react_project();
     let registry = InMemoryRegistry::new(WITH_DEPS);
     let output = InMemoryOutput::new();
     let runner = InMemoryProcessRunner::new();
@@ -574,7 +586,7 @@ fn pulls_in_transitive_component_dependencies() {
 
 #[test]
 fn deduplicates_a_component_requested_and_pulled_in_as_a_dependency() {
-    let fs = InMemoryFs::new();
+    let fs = react_project();
     let registry = InMemoryRegistry::new(WITH_DEPS);
     let output = InMemoryOutput::new();
     let runner = InMemoryProcessRunner::new();
@@ -720,7 +732,7 @@ fn errors_on_a_malformed_registry_index() {
 
 #[test]
 fn surfaces_a_stdout_failure() {
-    let fs = InMemoryFs::new();
+    let fs = react_project();
     let registry = InMemoryRegistry::new(FLAT);
     let output = InMemoryOutput::new();
     let runner = InMemoryProcessRunner::new();
@@ -750,6 +762,11 @@ fn surfaces_a_stdout_failure() {
 fn installs_the_packages_with_the_detected_manager() {
     let fs = InMemoryFs::new();
     fs.set_current_dir(Path::new("project"));
+    fs.write(
+        Path::new("project/package.json"),
+        br#"{ "dependencies": { "react": "^19.0.0" } }"#,
+    )
+    .unwrap();
     fs.write(Path::new("project/pnpm-lock.yaml"), b"").unwrap();
     let registry = InMemoryRegistry::new(WITH_PACKAGES);
     let output = InMemoryOutput::new();
@@ -793,6 +810,11 @@ fn installs_the_packages_with_the_detected_manager() {
 fn installs_the_pinned_version_when_a_component_declares_one() {
     let fs = InMemoryFs::new();
     fs.set_current_dir(Path::new("project"));
+    fs.write(
+        Path::new("project/package.json"),
+        br#"{ "dependencies": { "react": "^19.0.0" } }"#,
+    )
+    .unwrap();
     fs.write(Path::new("project/pnpm-lock.yaml"), b"").unwrap();
     let registry = InMemoryRegistry::new(WITH_PINNED_PACKAGE);
     let output = InMemoryOutput::new();
@@ -831,7 +853,7 @@ fn installs_the_pinned_version_when_a_component_declares_one() {
 
 #[test]
 fn lists_the_pinned_install_spec_in_the_plan() {
-    let fs = InMemoryFs::new();
+    let fs = react_project();
     let registry = InMemoryRegistry::new(WITH_PINNED_PACKAGE);
     let output = InMemoryOutput::new();
     let runner = InMemoryProcessRunner::new();
@@ -935,7 +957,7 @@ fn no_styles_installs_the_package_without_copying_styles() {
 
 #[test]
 fn does_not_install_under_dry_run() {
-    let fs = InMemoryFs::new();
+    let fs = react_project();
     let registry = InMemoryRegistry::new(WITH_PACKAGES);
     let output = InMemoryOutput::new();
     let runner = InMemoryProcessRunner::new();
@@ -962,7 +984,7 @@ fn does_not_install_under_dry_run() {
 
 #[test]
 fn does_not_install_when_no_component_needs_a_package() {
-    let fs = InMemoryFs::new();
+    let fs = react_project();
     let registry = InMemoryRegistry::new(FLAT);
     let output = InMemoryOutput::new();
     let runner = InMemoryProcessRunner::new();
@@ -990,7 +1012,7 @@ fn does_not_install_when_no_component_needs_a_package() {
 
 #[test]
 fn errors_when_the_package_manager_fails() {
-    let fs = InMemoryFs::new();
+    let fs = react_project();
     let registry = InMemoryRegistry::new(WITH_PACKAGES);
     let output = InMemoryOutput::new();
     let runner = InMemoryProcessRunner::new();
@@ -1082,7 +1104,7 @@ fn does_not_copy_styles_when_the_project_opts_out() {
 
 #[test]
 fn does_not_copy_styles_when_there_is_no_project_config() {
-    let fs = InMemoryFs::new();
+    let fs = react_project();
     // No primitiv.json: a headless-only install copies nothing.
     let registry =
         InMemoryRegistry::new(WITH_STYLES).with_file("button", "styles.css", b".primitiv-button{}");
@@ -1966,7 +1988,7 @@ fn dry_run_appends_the_refresh_plan_with_per_file_status() {
 
 #[test]
 fn dry_run_has_no_refresh_plan_when_no_config_is_present() {
-    let fs = InMemoryFs::new();
+    let fs = react_project();
     // No primitiv.json: no styled surface → no refresh plan section
     let registry = InMemoryRegistry::new(WITH_REACT_SURFACE);
     let output = InMemoryOutput::new();

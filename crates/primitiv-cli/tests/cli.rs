@@ -166,7 +166,7 @@ fn add_dry_run_reports_the_resolved_plan_without_installing() {
     // command layer with the process-runner fake.
     Command::cargo_bin("primitiv")
         .unwrap()
-        .args(["add", "button", "switch", "--dry-run"])
+        .args(["add", "button", "switch", "--dry-run", "--surface", "react"])
         .assert()
         .success()
         .stdout(predicate::str::contains("Resolved 2 components to add:"))
@@ -182,7 +182,7 @@ fn add_all_resolves_every_embedded_component() {
     // shortcut. `--dry-run` keeps it from shelling out to a package manager.
     Command::cargo_bin("primitiv")
         .unwrap()
-        .args(["add", "--all", "--dry-run"])
+        .args(["add", "--all", "--dry-run", "--surface", "react"])
         .assert()
         .success()
         // The 8 framed controls + the five prose entries (table, divider, prose,
@@ -280,7 +280,7 @@ fn add_all_resolves_every_embedded_component() {
 fn add_json_emits_the_structured_plan() {
     Command::cargo_bin("primitiv")
         .unwrap()
-        .args(["add", "button", "--json", "--dry-run"])
+        .args(["add", "button", "--json", "--dry-run", "--surface", "react"])
         .assert()
         .success()
         .stdout(predicate::str::contains("\"components\""))

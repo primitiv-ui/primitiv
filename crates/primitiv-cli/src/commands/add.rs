@@ -186,14 +186,16 @@ pub fn add(
         components
     };
     let resolved = resolve(&index, requested)?;
-    // `--surface` wins; otherwise the project's own, and React without a config
-    // (every project before RFC 0033 had only that surface).
+    // `--surface` wins; otherwise the project's own, and without a config the
+    // one `init` would detect — React only when `package.json` lists it, so a
+    // server-rendered project that never ran `init` is never handed npm.
     // The project and its config are read once, here, for every step below.
     let dir = fs.current_dir()?;
     let project_config = config::try_resolve(fs, &dir)?;
-    let surface = surface
-        .or(project_config.as_ref().map(|config| config.surface))
-        .unwrap_or(Surface::React);
+    let surface = match surface.or(project_config.as_ref().map(|config| config.surface)) {
+        Some(surface) => surface,
+        None => detect::surface(fs, &dir)?,
+    };
     // Elements are headless unless styling is asked for, by the flag or by an
     // elements config that enabled styles; React is always the styled surface.
     let headless = surface == Surface::Elements

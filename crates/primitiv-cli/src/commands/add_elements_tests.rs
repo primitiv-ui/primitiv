@@ -241,6 +241,39 @@ fn prints_a_pinned_cdn_script_instead_of_installing_without_a_package_json() {
 }
 
 #[test]
+fn detects_the_elements_surface_without_a_config_or_a_package_json() {
+    // A server-rendered project (a Spring app, say) that never ran `init`:
+    // nothing in it says React, so `add` must not reach for npm.
+    let fs = InMemoryFs::new();
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+
+    add(
+        &fs,
+        &kbd_and_tabs_registry(),
+        &output,
+        &runner,
+        &InMemoryPrompt::new(Decision::Keep),
+        false,
+        &AddOptions {
+            components: vec!["tabs".into()],
+            ..Default::default()
+        },
+    )
+    .unwrap();
+
+    assert_eq!(runner.calls(), vec![]);
+    assert!(!fs.exists(std::path::Path::new("package.json")));
+    assert!(
+        String::from_utf8(output.captured())
+            .unwrap()
+            .contains("dist/cdn/tabs.js"),
+        "{}",
+        String::from_utf8(output.captured()).unwrap()
+    );
+}
+
+#[test]
 fn prints_no_script_when_no_component_needs_a_package() {
     // Kbd has no behaviour (§8.3): there is no element to load.
     let fs = InMemoryFs::new();

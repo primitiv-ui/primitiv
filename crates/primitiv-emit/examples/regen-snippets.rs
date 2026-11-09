@@ -13,10 +13,15 @@ fn main() {
     let index: serde_json::Value =
         serde_json::from_str(&fs::read_to_string(registry.join("registry.json")).unwrap()).unwrap();
     for (name, entry) in index["components"].as_object().unwrap() {
+        // A hand-written example carries structure its contract does not
+        // record, so it is never written over.
+        if entry["elements"]["handWritten"] == true {
+            continue;
+        }
         if let Some(file) = entry["elements"]["example"].as_str() {
             let dir = registry.join("components").join(name);
             let contract = Contract::parse(&fs::read(dir.join("contract.json")).unwrap()).unwrap();
-            // A compound's example is hand-written (see `emit_snippet`).
+            // A compound's example is hand-written too (see `emit_snippet`).
             if let Some(markup) = emit_snippet(&contract) {
                 fs::write(dir.join(file), markup).unwrap();
                 println!("wrote registry/components/{name}/{file}");

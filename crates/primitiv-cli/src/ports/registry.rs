@@ -260,6 +260,7 @@ const FILES: &[(&str, &str, &str)] = &[
     registry_file!("blockquote", "blockquote.recipe.ts"),
     registry_file!("blockquote", "blockquote.tsx"),
     registry_file!("blockquote", "contract.json"),
+    registry_file!("blockquote", "blockquote.html"),
     registry_file!("pull-quote", "styles.css"),
     registry_file!("pull-quote", "styles.scss"),
     registry_file!("pull-quote", "pull-quote.recipe.ts"),

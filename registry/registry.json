@@ -243,7 +243,11 @@
           ]
         }
       },
-      "contract": "contract.json"
+      "contract": "contract.json",
+      "elements": {
+        "example": "blockquote.html",
+        "handWritten": true
+      }
     },
     "box": {
       "version": "0.1.0",

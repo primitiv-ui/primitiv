@@ -99,7 +99,15 @@ fn committed_registry_examples_match_their_contracts() {
                 Contract::parse(&std::fs::read(format!("{dir}/contract.json")).unwrap()).unwrap();
             let committed = std::fs::read_to_string(format!("{dir}/{file}"))
                 .unwrap_or_else(|error| panic!("{name}/{file}: {error}"));
-            match emit_snippet(&contract) {
+            // `handWritten` marks an example whose markup carries structure the
+            // contract does not record (Blockquote's quote paragraph): it is
+            // held to the contract's classes, never regenerated over.
+            let generated_markup = if entry["elements"]["handWritten"] == true {
+                None
+            } else {
+                emit_snippet(&contract)
+            };
+            match generated_markup {
                 Some(markup) => {
                     assert_eq!(committed, markup, "{name}/{file} has drifted");
                     generated += 1;

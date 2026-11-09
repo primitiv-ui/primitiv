@@ -107,7 +107,11 @@
           ]
         }
       },
-      "contract": "contract.json"
+      "contract": "contract.json",
+      "elements": {
+        "example": "aspect-ratio.html",
+        "handWritten": true
+      }
     },
     "avatar": {
       "version": "0.1.0",
@@ -281,7 +285,11 @@
           ]
         }
       },
-      "contract": "contract.json"
+      "contract": "contract.json",
+      "elements": {
+        "example": "box.html",
+        "handWritten": true
+      }
     },
     "breadcrumb": {
       "version": "0.1.0",
@@ -423,7 +431,11 @@
           ]
         }
       },
-      "contract": "contract.json"
+      "contract": "contract.json",
+      "elements": {
+        "example": "card.html",
+        "handWritten": true
+      }
     },
     "carousel": {
       "version": "0.1.0",
@@ -491,7 +503,11 @@
           ]
         }
       },
-      "contract": "contract.json"
+      "contract": "contract.json",
+      "elements": {
+        "example": "center.html",
+        "handWritten": true
+      }
     },
     "checkbox": {
       "version": "0.1.0",
@@ -777,7 +793,11 @@
           ]
         }
       },
-      "contract": "contract.json"
+      "contract": "contract.json",
+      "elements": {
+        "example": "container.html",
+        "handWritten": true
+      }
     },
     "context-menu": {
       "version": "0.1.0",
@@ -1127,7 +1147,11 @@
           ]
         }
       },
-      "contract": "contract.json"
+      "contract": "contract.json",
+      "elements": {
+        "example": "grid.html",
+        "handWritten": true
+      }
     },
     "inline-code": {
       "version": "0.1.0",
@@ -1814,7 +1838,11 @@
           ]
         }
       },
-      "contract": "contract.json"
+      "contract": "contract.json",
+      "elements": {
+        "example": "spacer.html",
+        "handWritten": true
+      }
     },
     "split-button": {
       "version": "0.1.0",
@@ -1885,7 +1913,11 @@
           ]
         }
       },
-      "contract": "contract.json"
+      "contract": "contract.json",
+      "elements": {
+        "example": "stack.html",
+        "handWritten": true
+      }
     },
     "stepper": {
       "version": "0.1.0",

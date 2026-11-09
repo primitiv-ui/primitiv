@@ -27,13 +27,17 @@ const MANAGERS = [
  * and one-off-executing a binary are different commands per manager (`npm i` vs
  * `npx`, `pnpm add` vs `pnpm dlx`), which is exactly the sort of detail a
  * hand-written block gets wrong for three of the four.
+ *
+ * `target` may be several commands, one per line, each prefixed for the active
+ * manager — so a setup step (`init`) sits above the command it enables, in the
+ * same block and the same manager.
  */
 export const InstallTabs = ({
   kind,
   target,
 }: {
   kind: "install" | "exec";
-  target: string;
+  target: string | readonly string[];
 }) => (
   <CodeBlock.Tabs size="sm" defaultValue="npm">
     <CodeBlock.Header>
@@ -54,7 +58,9 @@ export const InstallTabs = ({
         key={m.value}
         value={m.value}
         language="bash"
-        code={`${kind === "install" ? m.run : m.exec} ${target}`}
+        code={(typeof target === "string" ? [target] : target)
+          .map((line) => `${kind === "install" ? m.run : m.exec} ${line}`)
+          .join("\n")}
       />
     ))}
   </CodeBlock.Tabs>

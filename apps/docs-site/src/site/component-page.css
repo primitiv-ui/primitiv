@@ -51,6 +51,16 @@
 }
 
 /*
+ * Elements + Styled runs two commands, `init` then `add`, and at half the
+ * content width each broke mid-flag (`init --` / `styles`). The block takes the
+ * whole row instead, with the Load panel beneath it, so every command reads on
+ * one line.
+ */
+.docs-install-grid--setup {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+/*
  * Docs prose in a registry `List` — the accessibility notes, the data-attribute
  * rundowns — carries API identifiers with no break opportunity inside them:
  * `Dropdown.CheckboxItem and Dropdown.RadioItem` overflowed a 240px item at a

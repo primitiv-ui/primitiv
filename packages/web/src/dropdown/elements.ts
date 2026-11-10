@@ -244,6 +244,8 @@ export class PrimitivDropdownSubElement extends PrimitivRootElement {
   #content: HTMLElement | null = null;
   #menu: DropdownSubController | null = null;
   #trigger: HTMLElement | null = null;
+  /** The sub-trigger part (whose `disabled` the sub reads), as of the last reconcile. */
+  #triggerPart: HTMLElement | null = null;
   /** Whether the pointer is over the sub-trigger. */
   #hovered = false;
   #listening: AbortController | null = null;
@@ -278,9 +280,9 @@ export class PrimitivDropdownSubElement extends PrimitivRootElement {
     else queueMicrotask(() => this.#menu?.sync());
   }
 
-  /** Whether the sub-trigger is disabled. */
+  /** Whether the sub-trigger is disabled. Only asked once a decorated sub-trigger exists. */
   #disabled(): boolean {
-    return this.parts(SUB_TRIGGER)[0]?.hasAttribute("disabled") ?? false;
+    return (this.#triggerPart as HTMLElement).hasAttribute("disabled");
   }
 
   #connect(): void {
@@ -343,7 +345,8 @@ export class PrimitivDropdownSubElement extends PrimitivRootElement {
   protected reconcile(): void {
     const open = this.open;
     const [content = null] = this.parts(SUB_CONTENT);
-    const [triggerPart] = this.parts(SUB_TRIGGER);
+    const [triggerPart = null] = this.parts(SUB_TRIGGER);
+    this.#triggerPart = triggerPart;
     this.#trigger = triggerPart ? decoratable(triggerPart, "an <li>") : null;
 
     if (content) {

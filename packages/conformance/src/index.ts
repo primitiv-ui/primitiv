@@ -11,6 +11,12 @@ export {
   type CollapsibleConformanceFixture,
   type CollapsibleMount,
 } from "./collapsible.ts";
+export {
+  DROPDOWN,
+  runDropdownConformance,
+  type DropdownConformanceFixture,
+  type DropdownMount,
+} from "./dropdown.ts";
 export { MODAL, runModalConformance, type ModalConformanceFixture, type ModalMount } from "./modal.ts";
 export {
   POPOVER,

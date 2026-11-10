@@ -319,5 +319,72 @@
   "figma": {
     "componentSetKey": "1168:35600"
   },
-  "elements": null
+  "elements": {
+    "package": "@primitiv-ui/web",
+    "module": "tooltip",
+    "version": "0.1.56",
+    "element": "div",
+    "wrapText": false,
+    "example": "<primitiv-tooltip>\n  <primitiv-tooltip-trigger>\n    <button type=\"button\">Save</button>\n  </primitiv-tooltip-trigger>\n  <primitiv-tooltip-content class=\"primitiv-tooltip primitiv-tooltip--default primitiv-tooltip--md primitiv-tooltip--top\" popover=\"manual\">\n    Saves your work\n    <primitiv-tooltip-arrow class=\"primitiv-tooltip__arrow\"></primitiv-tooltip-arrow>\n  </primitiv-tooltip-content>\n</primitiv-tooltip>\n",
+    "api": [
+      {
+        "tag": "primitiv-tooltip-provider",
+        "attributes": [
+          {
+            "name": "delay-duration",
+            "type": "number",
+            "description": "How long, in milliseconds, a pointer rests on a trigger before its tooltip opens. Default 700. A tooltip's own `delay-duration` overrides it."
+          },
+          {
+            "name": "skip-delay-duration",
+            "type": "number",
+            "description": "How long, in milliseconds, after one tooltip closes that hovering another opens it at once. Default 300."
+          }
+        ],
+        "events": []
+      },
+      {
+        "tag": "primitiv-tooltip",
+        "attributes": [
+          {
+            "name": "open",
+            "type": "boolean",
+            "description": "Whether the tooltip is showing. Reflected: it changes as the user hovers, focuses and dismisses it. Set it (or the `open` property) to show or hide it from script."
+          },
+          {
+            "name": "delay-duration",
+            "type": "number",
+            "description": "How long, in milliseconds, a pointer rests on the trigger before the tooltip opens. Defaults to the provider's, or 700. Focus always opens it at once."
+          },
+          {
+            "name": "disable-hoverable-content",
+            "type": "boolean",
+            "description": "Close as soon as the pointer leaves the trigger, rather than giving it a moment to reach the tooltip."
+          }
+        ],
+        "events": [
+          {
+            "name": "primitiv-tooltip-change",
+            "type": "CustomEvent<{ open: boolean }>",
+            "description": "Bubbles, cancelable, fired before a user-driven change is applied — hover, focus, blur, Escape or a press outside — with the open state afterwards. Call `preventDefault()` to veto it."
+          }
+        ]
+      },
+      {
+        "tag": "primitiv-tooltip-trigger",
+        "attributes": [],
+        "events": []
+      },
+      {
+        "tag": "primitiv-tooltip-content",
+        "attributes": [],
+        "events": []
+      },
+      {
+        "tag": "primitiv-tooltip-arrow",
+        "attributes": [],
+        "events": []
+      }
+    ]
+  }
 }

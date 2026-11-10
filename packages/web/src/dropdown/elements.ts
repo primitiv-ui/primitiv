@@ -149,7 +149,8 @@ export class PrimitivDropdownElement extends PrimitivRootElement {
     if (!part || part.hasAttribute("disabled")) return;
     if (part.localName === CHECKBOX_ITEM) {
       const checked = checkedState(part) !== true;
-      if (announceOn(part, "primitiv-dropdown-checked-change", { checked })) part.toggleAttribute("checked", checked);
+      // `write`, not `toggleAttribute`: a mixed item's "indeterminate" must become plain checked.
+      if (announceOn(part, "primitiv-dropdown-checked-change", { checked })) write(part, "checked", checked ? "" : null);
     } else if (part.localName === RADIO_ITEM && !radioChecked(part)) {
       const group = part.closest(RADIO_GROUP) as HTMLElement;
       const value = part.getAttribute("value") as string;

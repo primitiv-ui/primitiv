@@ -36,3 +36,9 @@ export {
   type ModalTabOutcome,
   type ModalTabState,
 } from "./modal/policy.ts";
+export {
+  popoverKeydown,
+  popoverPressDismisses,
+  type PopoverKeyOutcome,
+  type PopoverPress,
+} from "./popover/policy.ts";

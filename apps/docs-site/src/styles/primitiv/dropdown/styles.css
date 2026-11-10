@@ -87,6 +87,12 @@
   :where(primitiv-dropdown-group, primitiv-dropdown-radio-group, primitiv-dropdown-separator) {
     display: block;
   }
+  /* The element shows each menu with its trigger row as the source, which makes
+     that row its implicit anchor; `auto` lets the anchor() insets below use it
+     (the initial `normal` uses it only for position-area). */
+  :where(primitiv-dropdown-content, primitiv-dropdown-sub-content) {
+    position-anchor: auto;
+  }
 }
 
 @layer primitiv.reset {

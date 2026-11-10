@@ -67,8 +67,7 @@ import {
   `right-start` / `right-end` / `bottom` (default) / `bottom-start` /
   `bottom-end` / `left` / `left-start` / `left-end`. Sets the CSS `position-area`
   and points the arrow at the anchor. `position-try-fallbacks` auto-flips the
-  panel to the opposite side if the chosen placement would overflow, and the
-  arrow flips with it (anchored container queries; elsewhere the arrow stays put).
+  panel to the opposite side if the chosen placement would overflow.
 
 ## The arrow
 

@@ -248,6 +248,13 @@ still fits, so getting back to the base placement takes a lack of room on the
 fallback side, not just room again; and a pseudo-element has no box, so find a
 `::after` arrow by `elementFromPoint` just past each edge.
 
+**But do not ship `@container anchored(...)` in a registry stylesheet yet.** It
+works in Chromium, but lightningcss (Turbopack, Parcel, Vite's lightningcss
+mode) fails the whole build on `anchored(` — the docs site went red on it. The
+spaced `anchored (…)` parses but is a different query Chromium ignores. Run
+`pnpm --filter docs-site build` after any new CSS syntax; the Tooltip and
+Popover flip tests are `test.fixme` until there is a form both accept.
+
 ## 7. Docs site
 
 Load the `docs-site-component-page` skill as well. For Elements:

@@ -210,7 +210,13 @@ test("the printed tooltip opens anchored above its trigger, arrow and all, with 
   await expect(bubble).toBeHidden();
 });
 
-test("the printed tooltip's arrow follows the bubble when it flips as the page scrolls", async ({ page }) => {
+// Fixme: the CSS that makes the arrow follow a flip — `container-type: anchored`
+// with `@container anchored(fallback: flip-block | flip-inline)` — works in
+// Chromium but lightningcss cannot parse `anchored(`, which breaks every
+// lightningcss build (Turbopack, Parcel, Vite in lightningcss mode), the docs
+// site's included. Restore these once that syntax builds, or the arrow is
+// flipped another way.
+test.fixme("the printed tooltip's arrow follows the bubble when it flips as the page scrolls", async ({ page }) => {
   // Room to scroll the trigger to the very top of the viewport and back.
   await page.evaluate(() => {
     document.body.style.paddingBlock = "100vh";
@@ -246,7 +252,7 @@ test("the printed tooltip's arrow follows the bubble when it flips as the page s
   await expect.poll(sides).toEqual({ bubble: "above", arrow: "bottom edge" });
 });
 
-test("the printed tooltip's arrow follows the bubble when it flips across the inline axis", async ({ page }) => {
+test.fixme("the printed tooltip's arrow follows the bubble when it flips across the inline axis", async ({ page }) => {
   const trigger = page.getByRole("button", { name: "Save", exact: true }).last();
   const bubble = page.getByRole("tooltip", { name: "Saves your work" });
   const arrow = page.locator("primitiv-tooltip-arrow").last();
@@ -277,7 +283,7 @@ test("the printed tooltip's arrow follows the bubble when it flips across the in
   await expect.poll(sides).toEqual({ bubble: "left", arrow: "right edge" });
 });
 
-test("the printed popover's arrow follows the panel when it flips as the page scrolls", async ({ page }) => {
+test.fixme("the printed popover's arrow follows the panel when it flips as the page scrolls", async ({ page }) => {
   await page.evaluate(() => {
     document.body.style.paddingBlock = "100vh";
   });
@@ -310,7 +316,7 @@ test("the printed popover's arrow follows the panel when it flips as the page sc
   await expect.poll(sides).toEqual({ panel: "above", arrow: "bottom edge" });
 });
 
-test("the printed popover's arrow follows the panel when it flips across the inline axis", async ({ page }) => {
+test.fixme("the printed popover's arrow follows the panel when it flips across the inline axis", async ({ page }) => {
   const trigger = page.getByRole("button", { name: "Edit profile", exact: true }).last();
   const panel = page.getByRole("dialog", { name: "Profile" });
   await page

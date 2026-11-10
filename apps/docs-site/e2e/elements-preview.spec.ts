@@ -92,6 +92,46 @@ test("the Collapsible read-more preview is clamped and swaps its label", async (
   await expect(example.getByRole("button", { name: "Show less" })).toHaveAttribute("aria-expanded", "true");
 });
 
+test("the Modal playground and examples are defined <primitiv-modal> elements", async ({ page }) => {
+  await page.goto("/components/modal/");
+  const modal = page.locator(".docs-elements-preview primitiv-modal");
+  await expect(modal.first()).toBeAttached();
+  const trigger = modal.first().getByRole("button", { name: "Open dialog" });
+  // The definition loads on demand: wait for the element to have wired its button.
+  await expect(trigger).toHaveAttribute("aria-haspopup", "dialog");
+  expect(await page.evaluate(() => !!customElements.get("primitiv-modal"))).toBe(true);
+  // Styled under Headless too: the dialog wears the registry classes.
+  await expect(modal.first().locator("dialog")).toHaveClass(/primitiv-modal/);
+
+  await trigger.click();
+  const dialog = page.getByRole("dialog", { name: "Payment details" });
+  await expect(dialog).toBeVisible();
+  expect(await dialog.evaluate((element) => element.matches(":modal"))).toBe(true);
+  await page.keyboard.press("Escape");
+  await expect(dialog).toBeHidden();
+  await expect(trigger).toBeFocused();
+});
+
+test("the Modal headless code drops the lines its styling wrappers stood on", async ({ page }) => {
+  await page.goto("/components/modal/");
+  const code = await cell(page, "regions").locator("pre").first().innerText();
+  expect(code).toContain("<dialog>\n");
+  expect(code).not.toMatch(/\n[ \t]*\n[ \t]*<primitiv-modal-title>/);
+});
+
+test("the Modal veto example keeps the dialog open while the form is dirty", async ({ page }) => {
+  await page.goto("/components/modal/");
+  const example = cell(page, "vetoing-dismissal");
+  const trigger = example.getByRole("button", { name: "Open a form" });
+  await expect(trigger).toHaveAttribute("aria-haspopup", "dialog");
+  await trigger.click();
+  await page.getByRole("textbox", { name: "Project name" }).fill("Primitiv");
+  await page.keyboard.press("Escape");
+  await expect(page.getByRole("dialog", { name: "Rename project" })).toBeVisible();
+  await page.getByRole("dialog", { name: "Rename project" }).getByRole("button", { name: "Cancel" }).click();
+  await expect(page.getByRole("dialog", { name: "Rename project" })).toBeHidden();
+});
+
 test("the Prose preview is plain markup whose children take the flow rhythm", async ({ page }) => {
   await page.goto("/components/prose/");
   const flow = page.locator(".docs-elements-preview .primitiv-flow").first();

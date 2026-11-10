@@ -27,6 +27,7 @@ import {
   ModalTrigger,
 } from "@/components/modal";
 import { contractAttr, importBlock, partNamer } from "@/lib/playground";
+import { glyph, withGlyphs } from "./glyphs";
 import { InteractiveExample } from "@/site/InteractiveExample";
 import type { Mode } from "@/site/preferences";
 import type { ComponentSpec } from "./types";
@@ -191,6 +192,193 @@ const confirmLine = (mode: Mode, indent: string, label: string) =>
   mode === "headless"
     ? `${indent}<button>${label}</button>`
     : `${indent}<Button>${label}</Button>`;
+
+/* ------------------------------------------------------------------ *
+ * Elements markup
+ * ------------------------------------------------------------------ */
+
+/** A registry Button as Elements markup: classes, and the label span the React wrapper adds. */
+const buttonMarkup = (label: string, { intent = "primary", size = "md", attrs = "" } = {}) =>
+  `<button type="button" class="primitiv-button primitiv-button--${intent} primitiv-button--${size}"${attrs}><span class="primitiv-button__label">${label}</span></button>`;
+
+/**
+ * One modal as Elements markup (RFC 0033): the `@primitiv-ui/web` custom
+ * elements, in the shape `primitiv add modal --surface elements` prints. The
+ * root holds the state in `open`; the trigger and close wrap real `<button>`s,
+ * the content wraps the native `<dialog>`, and the title and description wrap
+ * the heading and paragraph whose ids name and describe it. The header, body
+ * and footer are styling-only `<span>`s, so the headless tab drops them with
+ * the classes. The buttons are the registry Button the React previews use.
+ */
+const elementsModal = ({
+  size = "md",
+  trigger = "Open dialog",
+  triggerIntent = "primary",
+  title = "Payment details",
+  description = "We only charge the card once the order ships.",
+  body = [] as readonly string[],
+  footer,
+  rootAttrs = "",
+  noTrigger = false,
+}: {
+  size?: Size;
+  trigger?: string;
+  triggerIntent?: string;
+  title?: string;
+  description?: string;
+  /** Extra lines in the body, after the description. */
+  body?: readonly string[];
+  /** The footer's lines; omit for Cancel + Confirm, pass [] for no footer. */
+  footer?: readonly string[];
+  rootAttrs?: string;
+  /** Leave the trigger out, for a modal opened from script. */
+  noTrigger?: boolean;
+} = {}) => {
+  const footerLines = footer ?? [
+    `        <primitiv-modal-close>`,
+    `          ${buttonMarkup("Cancel", { intent: "secondary" })}`,
+    `        </primitiv-modal-close>`,
+    `        ${buttonMarkup("Confirm")}`,
+  ];
+  return [
+    `<primitiv-modal${rootAttrs}>`,
+    ...(noTrigger
+      ? []
+      : [
+          `  <primitiv-modal-trigger>`,
+          `    ${buttonMarkup(trigger, { intent: triggerIntent })}`,
+          `  </primitiv-modal-trigger>`,
+        ]),
+    `  <primitiv-modal-content>`,
+    `    <dialog class="primitiv-modal primitiv-modal--${size}">`,
+    `      <span class="primitiv-modal__header">`,
+    `        <primitiv-modal-title><h2 class="primitiv-modal__title">${title}</h2></primitiv-modal-title>`,
+    `        <primitiv-modal-close>`,
+    `          <button type="button" class="primitiv-button primitiv-button--ghost primitiv-button--${CLOSE_SIZE[size]} primitiv-modal__close" aria-label="Close">${glyph("close")}</button>`,
+    `        </primitiv-modal-close>`,
+    `      </span>`,
+    `      <span class="primitiv-modal__body">`,
+    `        <primitiv-modal-description><p class="primitiv-modal__description">${description}</p></primitiv-modal-description>`,
+    ...body.map((line) => `        ${line}`),
+    `      </span>`,
+    ...(footerLines.length
+      ? [`      <span class="primitiv-modal__footer">`, ...footerLines, `      </span>`]
+      : []),
+    `    </dialog>`,
+    `  </primitiv-modal-content>`,
+    `</primitiv-modal>`,
+  ].join("\n");
+};
+
+/** A registry Field holding an Input, as Elements markup. */
+const fieldMarkup = (id: string, label: string, value: string) => [
+  `<div class="primitiv-field primitiv-field--md">`,
+  `  <label class="primitiv-field__label" for="${id}">${label}</label>`,
+  `  <input class="primitiv-input primitiv-input--md" id="${id}" value="${value}">`,
+  `</div>`,
+];
+
+/** The Sizes example's four modals, in full for the preview. */
+const sizesElements = () =>
+  [
+    `<div class="docs-example-row">`,
+    ...SIZES.map((size) =>
+      elementsModal({
+        size,
+        trigger: size,
+        triggerIntent: "secondary",
+        title: `Dialog at ${size}`,
+        description: "Every size scales again with the nearest data-density ancestor.",
+        footer: [],
+      }),
+    ),
+    `</div>`,
+  ].join("\n");
+
+/** The Controlled example: a Publish button outside the modal, and the modal it opens from script. */
+const controlledElements = () =>
+  [
+    buttonMarkup("Publish", { attrs: " data-publish" }),
+    elementsModal({
+      size: "sm",
+      noTrigger: true,
+      rootAttrs: ' id="publish"',
+      title: "Publish release",
+      description: "This makes v2.1 available to everyone.",
+      footer: [
+        `        <primitiv-modal-close>`,
+        `          ${buttonMarkup("Cancel", { intent: "secondary" })}`,
+        `        </primitiv-modal-close>`,
+        `        ${buttonMarkup("Publish", { attrs: " data-confirm" })}`,
+      ],
+    }),
+  ].join("\n");
+
+/** Opens the controlled modal from the outside button, and closes it on confirm, as the code tab's script does. */
+const wireControlled = (root: HTMLElement) => {
+  const modal = root.querySelector<HTMLElement & { open: boolean }>("primitiv-modal");
+  const publish = root.querySelector("[data-publish]");
+  const confirm = root.querySelector("[data-confirm]");
+  if (!modal || !publish || !confirm) return;
+  const show = () => (modal.open = true);
+  const done = () => (modal.open = false);
+  publish.addEventListener("click", show);
+  confirm.addEventListener("click", done);
+  return () => {
+    publish.removeEventListener("click", show);
+    confirm.removeEventListener("click", done);
+  };
+};
+
+/** The veto example: a form whose dismissal is refused once edited. */
+const vetoElements = () =>
+  elementsModal({
+    size: "sm",
+    trigger: "Open a form",
+    title: "Rename project",
+    description: "Type something, then try Escape or a click outside.",
+    body: fieldMarkup("project-name", "Project name", "Harmoni"),
+    footer: [
+      `        ${buttonMarkup("Cancel", { intent: "secondary", attrs: " data-done" })}`,
+      `        ${buttonMarkup("Save", { attrs: " data-done" })}`,
+    ],
+  });
+
+/**
+ * Vetoes every user-driven close once the field is edited, and closes from
+ * the footer buttons by setting `open` — which is not announced, so it is
+ * never vetoed. The same script the code tab shows.
+ */
+const wireVeto = (root: HTMLElement) => {
+  const modal = root.querySelector<HTMLElement & { open: boolean }>("primitiv-modal");
+  if (!modal) return;
+  let dirty = false;
+  const description = modal.querySelector("p");
+  const onInput = () => {
+    dirty = true;
+    if (description)
+      description.textContent =
+        "Escape and backdrop clicks are vetoed while there are unsaved changes -- use Cancel or Save.";
+  };
+  const onChange = (event: Event) => {
+    const { open } = (event as CustomEvent<{ open: boolean }>).detail;
+    if (!open && dirty) event.preventDefault();
+  };
+  const onClick = (event: Event) => {
+    if (!(event.target as Element).closest("[data-done]")) return;
+    modal.open = false;
+    dirty = false;
+    if (description) description.textContent = "Type something, then try Escape or a click outside.";
+  };
+  modal.addEventListener("input", onInput);
+  modal.addEventListener("primitiv-modal-change", onChange);
+  modal.addEventListener("click", onClick);
+  return () => {
+    modal.removeEventListener("input", onInput);
+    modal.removeEventListener("primitiv-modal-change", onChange);
+    modal.removeEventListener("click", onClick);
+  };
+};
 
 /* ------------------------------------------------------------------ *
  * Live previews
@@ -358,6 +546,7 @@ export const modalSpec: ComponentSpec = {
        the generated `toJsx` would print `<Modal size="md" />` — a prop the root
        does not accept, on a component that renders no element of its own. */
     snippet: (values, mode) => {
+      if (mode === "elements") return elementsModal({ size: values.size as Size });
       const p = partNamer(mode, "Modal");
       const size = values.size as Size;
       return [
@@ -399,6 +588,19 @@ export const modalSpec: ComponentSpec = {
     {
       label: "Parts",
       code: (mode) => {
+        if (mode === "elements")
+          return [
+            `<primitiv-modal>`,
+            `  <primitiv-modal-trigger><button type="button"></button></primitiv-modal-trigger>`,
+            `  <primitiv-modal-content>`,
+            `    <dialog>`,
+            `      <primitiv-modal-title><h2></h2></primitiv-modal-title>`,
+            `      <primitiv-modal-description><p></p></primitiv-modal-description>`,
+            `      <primitiv-modal-close><button type="button"></button></primitiv-modal-close>`,
+            `    </dialog>`,
+            `  </primitiv-modal-content>`,
+            `</primitiv-modal>`,
+          ].join("\n");
         const p = partNamer(mode, "Modal");
         const headless = mode === "headless";
         return [
@@ -457,8 +659,23 @@ export const modalSpec: ComponentSpec = {
       title: "Header, body and footer",
       render: () => (
         <InteractiveExample
+          elementsPreview={(_density, code) => withGlyphs(code)}
+          elementsCaption="Three regions the **styled surface** supplies — `primitiv-modal__header` carrying the title and the close, `primitiv-modal__body`, and `primitiv-modal__footer` for the actions. They are classed `<span>`s, layout rather than behaviour, which is why the Headless tab drops them. `<primitiv-modal-title>` and `<primitiv-modal-description>` are not decoration: the heading and paragraph inside them get ids that become the dialog's `aria-labelledby` and `aria-describedby`, so what you write there is what a screen reader announces on open."
           caption="Three regions the **styled surface** supplies — a divided header carrying the title and the close, a scrolling body, and a right-aligned footer for the actions. They are layout, not behaviour, which is why the Headless tab shows plain elements in their place. Drop any you do not need: a confirmation has no body worth the name. `Modal.Title` and `Modal.Description` are not decoration either way — they register their generated ids as the dialog's `aria-labelledby` and `aria-describedby`, so what you write there is what a screen reader announces on open."
           code={(_density, mode) => {
+            if (mode === "elements")
+              return elementsModal({
+                trigger: "Edit profile",
+                title: "Edit profile",
+                description: "Changes apply to every workspace.",
+                body: fieldMarkup("display-name", "Display name", "Ada Lovelace"),
+                footer: [
+                  `        <primitiv-modal-close>`,
+                  `          ${buttonMarkup("Cancel", { intent: "secondary" })}`,
+                  `        </primitiv-modal-close>`,
+                  `        ${buttonMarkup("Save changes")}`,
+                ],
+              });
             const p = partNamer(mode, "Modal");
             return [
               imports(
@@ -539,8 +756,18 @@ export const modalSpec: ComponentSpec = {
       title: "Sizes and density",
       render: () => (
         <InteractiveExample
+          elementsPreview={() => withGlyphs(sizesElements())}
+          elementsCaption="Four widths, set as a class on the `<dialog>`: `primitiv-modal--sm` to `--xl`. `sm` is a confirmation, `xl` is a work surface, and each rescales again with the nearest `data-density` ancestor. The dialog stays where you wrote it in the document — it is painted in the top layer, not moved there — so it inherits a `data-density` set on a section, with nothing to portal."
           caption="Four widths, set on `Modal.Content` rather than on the root — the root renders no element of its own, so there is nothing there to size. `sm` is a confirmation, `xl` is a work surface, and each rescales again with the nearest `data-density` ancestor. One trap worth knowing: `Modal.Portal` renders into `document.body` by default, so a dialog **escapes** a `data-density` set on a section rather than on the document. Pass `container` to portal it somewhere that inherits what you meant — which is exactly what these previews do, or the density control above would do nothing."
           code={(density, mode) => {
+            if (mode === "elements")
+              return [
+                `<div data-density="${density}">`,
+                ...SIZES.map(
+                  (s) => `  <dialog class="primitiv-modal primitiv-modal--${s}">...</dialog>`,
+                ),
+                `</div>`,
+              ].join("\n");
             const p = partNamer(mode, "Modal");
             return [
               imports(mode, ["Portal", "Content", "Title"]),
@@ -587,8 +814,30 @@ export const modalSpec: ComponentSpec = {
       title: "Controlled",
       render: () => (
         <InteractiveExample
+          elementsPreview={() => withGlyphs(controlledElements())}
+          wire={wireControlled}
+          elementsCaption="The `open` attribute is the state: set it, or the `open` property, from anywhere — a button outside the modal, a route change, a save that succeeded — and the dialog opens modally or closes. Setting it yourself is not announced. What the user does is: the trigger, a close button, Escape, a backdrop click and a `<form method=&quot;dialog&quot;>` each fire `primitiv-modal-change` first, with `detail.open` the state afterwards, so one listener follows every route out."
           caption="Pass `open` and `onOpenChange` and the parent owns the flag — needed whenever something other than the trigger decides: a route change, a save that succeeded, a queue of dialogs. `onOpenChange` fires for **every** route out — the trigger, `Modal.Close`, Escape and a backdrop click alike — so one handler is enough. The uncontrolled form (`defaultOpen`, or nothing at all) is the default, and is what every other example here uses."
           code={(_density, mode) => {
+            if (mode === "elements")
+              return [
+                buttonMarkup("Publish", { attrs: " data-publish" }),
+                ``,
+                `<!-- No trigger: the button above opens it from script. -->`,
+                `<primitiv-modal id="publish">`,
+                `  <!-- ... the content, title, description and footer ... -->`,
+                `</primitiv-modal>`,
+                ``,
+                `<script type="module">`,
+                `  const modal = document.getElementById("publish");`,
+                `  document.querySelector("[data-publish]").addEventListener("click", () => {`,
+                `    modal.open = true;`,
+                `  });`,
+                `  modal.addEventListener("primitiv-modal-change", (event) => {`,
+                `    console.log(event.detail.open); // every route the user takes`,
+                `  });`,
+                `</script>`,
+              ].join("\n");
             const p = partNamer(mode, "Modal");
             return [
               imports(
@@ -635,8 +884,29 @@ export const modalSpec: ComponentSpec = {
       title: "Vetoing dismissal",
       render: () => (
         <InteractiveExample
+          elementsPreview={() => withGlyphs(vetoElements())}
+          wire={wireVeto}
+          elementsCaption="`primitiv-modal-change` is cancelable and fires **before** the dialog closes, so `event.preventDefault()` keeps it open — the one veto for Escape, a backdrop click, a close button and the trigger alike. Use it for unsaved work. The footer buttons here are plain buttons that close it by setting `open = false`, which is not announced and so is never vetoed: that is the explicit way out a vetoing dialog owes the keyboard user."
           caption="`onEscapeKeyDown` and `onPointerDownOutside` fire on the two gestures the browser drives itself — the dialog's native `cancel` event, and a pointer landing on the `::backdrop`. Both hand you the **raw native event**, so `event.preventDefault()` keeps the dialog open. Use it for unsaved work, and keep an explicit way out on screen: a dialog that swallows Escape and offers no exit is a keyboard trap."
           code={(_density, mode) => {
+            if (mode === "elements")
+              return [
+                `<script type="module">`,
+                `  const modal = document.querySelector("primitiv-modal");`,
+                `  let dirty = false;`,
+                `  modal.addEventListener("input", () => (dirty = true));`,
+                `  modal.addEventListener("primitiv-modal-change", (event) => {`,
+                `    if (!event.detail.open && dirty) event.preventDefault();`,
+                `  });`,
+                `  // Save and Cancel close it directly: not announced, never vetoed.`,
+                `  for (const button of modal.querySelectorAll("[data-done]")) {`,
+                `    button.addEventListener("click", () => {`,
+                `      modal.open = false;`,
+                `      dirty = false;`,
+                `    });`,
+                `  }`,
+                `</script>`,
+              ].join("\n");
             const p = partNamer(mode, "Modal");
             return [
               imports(mode, ["Content"]),
@@ -663,8 +933,32 @@ export const modalSpec: ComponentSpec = {
       title: "Animating the backdrop",
       render: () => (
         <InteractiveExample
+          elementsPreview={() =>
+            withGlyphs(
+              elementsModal({
+                size: "sm",
+                trigger: "Open with a fading backdrop",
+                title: "A fading backdrop",
+                description: "The native backdrop fades in and out with the dialog.",
+                footer: [],
+              }),
+            )
+          }
+          elementsCaption="There is no overlay element: the native `::backdrop` is the layer, and it is yours to style. The registry stylesheet already fades it with the dialog, both ways — the `<dialog>` is always in the document, so its `[open]` transitions play on close as well as open, with nothing to force-mount. Scroll-lock is deliberately not shipped: it is one line of your own CSS, `html:has(dialog[open]) { overflow: hidden; }`."
           caption="`Modal.Overlay` is **optional** — the native `::backdrop` already dims the page, and most dialogs should not render one. Add it only to animate or restyle that layer, since it is an ordinary element you can transition. Pair it with `forceMount` on both the portal and the overlay so the subtree survives the close long enough for an exit animation keyed off `data-state=&quot;closed&quot;` to play. Scroll-lock is deliberately not shipped: it is one line of your own CSS, `html:has(dialog[open]) { overflow: hidden; }`."
           code={(_density, mode) => {
+            if (mode === "elements")
+              return [
+                `/* Your stylesheet: the dialog's own backdrop, keyed off [open]. */`,
+                `.primitiv-modal::backdrop {`,
+                `  opacity: 0;`,
+                `  transition: opacity 200ms, display 200ms allow-discrete, overlay 200ms allow-discrete;`,
+                `}`,
+                `.primitiv-modal[open]::backdrop { opacity: 1; }`,
+                `@starting-style {`,
+                `  .primitiv-modal[open]::backdrop { opacity: 0; }`,
+                `}`,
+              ].join("\n");
             const p = partNamer(mode, "Modal");
             const selector =
               mode === "headless" ? ".my-overlay" : ".primitiv-modal__overlay";
@@ -715,6 +1009,39 @@ export const modalSpec: ComponentSpec = {
       ),
     },
   ],
+
+  elements: {
+    description:
+      "An accessible modal dialog on the native `<dialog>` element: `<primitiv-modal>` opens it with `showModal()`, so the browser supplies the top layer, the `::backdrop` and the inert page behind it, and the element adds the rest of the WAI-ARIA Modal Dialog pattern — Tab wraps inside, Escape and a backdrop click close it, and focus returns to the button that opened it.",
+    anatomyMeta:
+      "Six elements. `<primitiv-modal>` holds the state in its `open` attribute. The other five each wrap one element you write: the trigger and close a `<button>`, the content a native `<dialog>`, the title a heading and the description a paragraph. A modal may have several triggers and several close buttons. There is no overlay element — the dialog's own `::backdrop` is the layer — and no portal: the dialog stays where you wrote it, painted in the top layer.",
+    keyboardMeta:
+      "While the dialog is open. The page behind it is **inert**: `showModal()` takes everything else out of the tab order and the accessibility tree, so no key reaches it.",
+    keyboard: [
+      {
+        keys: ["Tab", "Shift+Tab"],
+        behaviour: "Move through the dialog's focusable content, wrapping at each end.",
+      },
+      {
+        keys: ["Escape"],
+        behaviour:
+          "Close the dialog and return focus to the trigger. A `primitiv-modal-change` listener can veto it.",
+      },
+      {
+        keys: ["Enter", "Space"],
+        behaviour: "Activate the focused control — the platform's, since every part wraps a real `<button>`.",
+      },
+    ],
+    accessibility: [
+      "It is a real `<dialog>`, opened with `showModal()`. That is what supplies the top-layer stacking and the **inert** background — everything behind it leaves the tab order and the accessibility tree — rather than a `z-index` and an `aria-hidden` sweep that has to be kept in step.",
+      "Tab **wraps**, which the platform does not do on its own: a native modal dialog lets Tab walk out to the browser chrome. Only the two boundaries are intercepted, so the browser's inert-aware order governs everything in between.",
+      "The trigger's `<button>` gets `aria-haspopup=\"dialog\"`, `aria-expanded` and `aria-controls`; the heading and paragraph inside the title and description get ids, generated from the root's `id` where you gave none, which become the dialog's `aria-labelledby` and `aria-describedby`. A dialog with no title is announced unnamed — keep the heading and hide it visually rather than dropping it.",
+      "Focus returns to the trigger on close, every route out included. If the element that opened it is gone by then, move focus somewhere deliberate yourself.",
+      "Leave `open` off the `<dialog>`: the root opens it, modally. A `<dialog open>` would show non-modally, so one that arrives that way — a history snapshot — is reopened modally, or closed if the root is.",
+      "A veto is a promise to offer another way out, so keep a visible close button. An icon-only close needs its own `aria-label`: the glyph carries no accessible name.",
+      "A part that does not wrap exactly one element is reported once in the console and left alone, rather than throwing on a server-rendered page.",
+    ],
+  },
 
   accessibility: [
     "It is a real `<dialog>`, opened with `showModal()`. That is what supplies the top-layer stacking and the **inert** background — everything behind it leaves the tab order and the accessibility tree — rather than a `z-index` and an `aria-hidden` sweep that has to be kept in step.",

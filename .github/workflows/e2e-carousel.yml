@@ -28,6 +28,7 @@ on:
       - "apps/docs-site/src/site/Playground.tsx"
       - "apps/docs-site/src/site/examples/tabs.tsx"
       - "apps/docs-site/src/site/examples/button.tsx"
+      - "apps/docs-site/src/site/examples/modal.tsx"
       - "apps/docs-site/e2e/**"
       - "apps/docs-site/playwright.config.ts"
       - "apps/docs-site/next.config.ts"

@@ -72,7 +72,9 @@
      --primitiv-motion-duration-* tokens (75–300ms) — no existing token fits,
      so it stays literal, same as the motion-literal exceptions already
      documented in registry-stylesheet-conventions. */
-  .primitiv-progress[data-state="indeterminate"] .primitiv-progress__indicator {
+  /* Hand-written markup has no primitive to set data-state, so there a
+     progressbar with no aria-valuenow (indeterminate, per WAI-ARIA) gets it. */
+  .primitiv-progress:is([data-state="indeterminate"], :not([data-state]):not([aria-valuenow])) .primitiv-progress__indicator {
     /*
      * Indeterminate is a full-width fill with a highlight sweeping across it,
      * not a short bar travelling the track.
@@ -119,7 +121,7 @@
 
   @media (prefers-reduced-motion: reduce) {
     /* The same picture minus the sweep: a flat fill, no travelling highlight. */
-    .primitiv-progress[data-state="indeterminate"] .primitiv-progress__indicator {
+    .primitiv-progress:is([data-state="indeterminate"], :not([data-state]):not([aria-valuenow])) .primitiv-progress__indicator {
       animation: none;
       background: var(--primitiv-progress-fill-bg);
       inline-size: 100%;

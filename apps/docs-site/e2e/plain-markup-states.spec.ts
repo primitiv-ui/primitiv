@@ -88,3 +88,31 @@ for (const [id, type, extra] of [
     expect(await opacity(page, `#plain-markup .primitiv-${id}`)).toBe("0.5");
   });
 }
+
+// A progressbar with no `aria-valuenow` is indeterminate (WAI-ARIA), so
+// hand-written markup states it that way; the primitive sets data-state itself.
+test("a markup progressbar with no value is indeterminate", async ({ page }) => {
+  await mount(
+    page,
+    "/components/progress/",
+    `<div class="primitiv-progress primitiv-progress--md primitiv-progress--primary" role="progressbar" aria-label="Loading"><div class="primitiv-progress__indicator"></div></div>`,
+  );
+  const animation = await page
+    .locator("#plain-markup .primitiv-progress__indicator")
+    .evaluate((el) => getComputedStyle(el).animationName);
+  expect(animation).not.toBe("none");
+});
+
+// The primitive marks the image loaded once it decodes; hand-written markup has
+// no script to, so its image shows (covering the fallback) as an <img> would.
+test("a markup avatar shows its image", async ({ page }) => {
+  await mount(
+    page,
+    "/components/avatar/",
+    `<span class="primitiv-avatar primitiv-avatar--md primitiv-avatar--circle"><img class="primitiv-avatar__image" src="/card-media-1.jpg" alt="Ada Lovelace"><span class="primitiv-avatar__fallback">AL</span></span>`,
+  );
+  const display = await page
+    .locator("#plain-markup .primitiv-avatar__image")
+    .evaluate((el) => getComputedStyle(el).display);
+  expect(display).not.toBe("none");
+});

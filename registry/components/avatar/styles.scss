@@ -83,12 +83,12 @@
      border-radius, so it curves with the clip. It sits on the clipping frame
      rather than the <img>: the frame owns the radius, and overflow: hidden would
      crop a square outline off an inner element. */
-  .primitiv-avatar:has(.primitiv-avatar__image[data-status="loaded"]) {
+  .primitiv-avatar:has(.primitiv-avatar__image:is([data-status="loaded"], :not([data-status]))) {
     outline: var(--primitiv-border-width-1) solid #0000001a;
     outline-offset: calc(-1 * var(--primitiv-border-width-1));
   }
 
-  [data-theme="dark"] .primitiv-avatar:has(.primitiv-avatar__image[data-status="loaded"]) {
+  [data-theme="dark"] .primitiv-avatar:has(.primitiv-avatar__image:is([data-status="loaded"], :not([data-status]))) {
     outline-color: #ffffff1a;
   }
 
@@ -188,8 +188,10 @@
   /* Only one of image/fallback is ever meant to be visible: the image stays
      mounted through "loading"/"error" (so its own load lifecycle isn't lost)
      but is hidden until it actually decodes, leaving the fallback showing
-     through in every other status. */
-  .primitiv-avatar__image:not([data-status="loaded"]) {
+     through in every other status. Hand-written markup has no primitive to
+     report a status (no data-status), so its image simply shows, covering the
+     fallback as any <img> would. */
+  .primitiv-avatar__image[data-status]:not([data-status="loaded"]) {
     display: none;
   }
 }

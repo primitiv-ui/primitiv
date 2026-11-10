@@ -1,6 +1,6 @@
 {
   "name": "@primitiv-ui/core",
-  "version": "0.1.52",
+  "version": "0.1.53",
   "exports": "./src/index.ts",
   "license": "MIT"
 }

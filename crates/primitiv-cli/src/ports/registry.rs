@@ -164,6 +164,7 @@ const FILES: &[(&str, &str, &str)] = &[
     registry_file!("dropdown", "dropdown.recipe.ts"),
     registry_file!("dropdown", "dropdown.tsx"),
     registry_file!("dropdown", "contract.json"),
+    registry_file!("dropdown", "dropdown.html"),
     registry_file!("toggle-group", "styles.css"),
     registry_file!("toggle-group", "styles.scss"),
     registry_file!("toggle-group", "toggle-group.recipe.ts"),

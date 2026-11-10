@@ -1061,7 +1061,16 @@
           ]
         }
       },
-      "contract": "contract.json"
+      "contract": "contract.json",
+      "elements": {
+        "packages": [
+          {
+            "name": "@primitiv-ui/web",
+            "version": "^0.1.57"
+          }
+        ],
+        "example": "dropdown.html"
+      }
     },
     "empty-state": {
       "version": "0.1.0",

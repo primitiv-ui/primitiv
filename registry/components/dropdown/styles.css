@@ -68,6 +68,27 @@
   margin-block: 0 var(--primitiv-dropdown-offset);
 }
 
+/* The elements surface (RFC 0033 §5.6.1): each wrapper part takes no box of its
+   own, so the <button> and <li> rows each decorates lay out exactly as the React
+   ones; the group, radio group and separator elements are blocks, as React's
+   <li>s are. The content element is the panel itself, so it keeps its box.
+   Zero specificity, in the reset sublayer, so any consumer rule wins. */
+@layer primitiv.reset {
+  :where(
+      primitiv-dropdown-trigger,
+      primitiv-dropdown-item,
+      primitiv-dropdown-checkbox-item,
+      primitiv-dropdown-radio-item,
+      primitiv-dropdown-sub,
+      primitiv-dropdown-sub-trigger
+    ) {
+    display: contents;
+  }
+  :where(primitiv-dropdown-group, primitiv-dropdown-radio-group, primitiv-dropdown-separator) {
+    display: block;
+  }
+}
+
 @layer primitiv.reset {
   .primitiv-dropdown {
     /* Reset the native [popover] UA defaults: `margin: auto; inset: 0`
@@ -357,6 +378,12 @@
     inline-size: var(--primitiv-dropdown-item-icon-size);
     block-size: var(--primitiv-dropdown-item-icon-size);
     color: currentColor;
+  }
+
+  /* An unchecked item's indicator: React unmounts it, the elements surface
+     marks it `hidden` — which the display above would otherwise override. */
+  .primitiv-dropdown__item-indicator[hidden] {
+    display: none;
   }
 
   /* ── Label — a Khand small-caps section header ── */

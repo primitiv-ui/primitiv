@@ -44,6 +44,24 @@
  * primitiv.reset and let the reset win (RFC 0008 §7). */
 @layer primitiv.reset, primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;
 
+/* The elements surface (RFC 0033 §5.6.1): a drawer's markup is the Modal
+   elements, and each wrapper part takes no box of its own, so the <button>,
+   <dialog>, heading and paragraph each decorates lay out exactly as the React
+   ones. Repeated here rather than relied on from modal/styles.css, which a
+   drawer does not install. Zero specificity, in the reset sublayer, so any
+   consumer rule wins. */
+@layer primitiv.reset {
+  :where(
+      primitiv-modal-trigger,
+      primitiv-modal-content,
+      primitiv-modal-title,
+      primitiv-modal-description,
+      primitiv-modal-close
+    ) {
+    display: contents;
+  }
+}
+
 @layer primitiv.reset {
   /* Shed the UA dialog defaults: no inner padding, no auto-centring margin, and
      no `fit-content` sizing. A `<dialog>` defaults to width/height: fit-content,

@@ -1013,7 +1013,21 @@
           ]
         }
       },
-      "contract": "contract.json"
+      "contract": "contract.json",
+      "elements": {
+        "packages": [
+          {
+            "name": "@primitiv-ui/web",
+            "version": "^0.1.54"
+          }
+        ],
+        "definedBy": "modal",
+        "example": "drawer.html",
+        "handWritten": true,
+        "omits": [
+          "overlay"
+        ]
+      }
     },
     "dropdown": {
       "version": "0.1.0",

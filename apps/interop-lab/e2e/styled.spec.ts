@@ -209,3 +209,70 @@ test("the printed tooltip opens anchored above its trigger, arrow and all, with 
   await page.keyboard.press("Escape");
   await expect(bubble).toBeHidden();
 });
+
+test("the printed tooltip's arrow follows the bubble when it flips as the page scrolls", async ({ page }) => {
+  // Room to scroll the trigger to the very top of the viewport and back.
+  await page.evaluate(() => {
+    document.body.style.paddingBlock = "100vh";
+  });
+  const trigger = page.getByRole("button", { name: "Save", exact: true }).last();
+  const bubble = page.getByRole("tooltip", { name: "Saves your work" });
+  const arrow = page.locator("primitiv-tooltip-arrow").last();
+  const scrollTriggerTo = (top: number) =>
+    trigger.evaluate((el, top) => window.scrollBy(0, el.getBoundingClientRect().top - top), top);
+  const sides = async () => {
+    const [t, b, a] = await Promise.all([trigger.boundingBox(), bubble.boundingBox(), arrow.boundingBox()]);
+    return {
+      bubble: b!.y + b!.height <= t!.y ? "above" : b!.y >= t!.y + t!.height ? "below" : "overlapping",
+      // The arrow pokes out of the edge that faces the trigger.
+      arrow: a!.y < b!.y ? "top edge" : a!.y + a!.height > b!.y + b!.height ? "bottom edge" : "inside",
+    };
+  };
+
+  await scrollTriggerTo(300);
+  await trigger.focus();
+  await expect(bubble).toBeVisible();
+  await expect.poll(sides).toEqual({ bubble: "above", arrow: "bottom edge" });
+
+  // No room above: the bubble flips below the trigger, and its arrow with it.
+  await scrollTriggerTo(2);
+  await expect.poll(sides).toEqual({ bubble: "below", arrow: "top edge" });
+
+  // The browser keeps a fallback while it still fits, so it takes no room below
+  // to send the bubble back above — and the arrow back underneath.
+  const viewport = page.viewportSize()!.height;
+  const { height } = (await trigger.boundingBox())!;
+  await scrollTriggerTo(viewport - height - 2);
+  await expect.poll(sides).toEqual({ bubble: "above", arrow: "bottom edge" });
+});
+
+test("the printed tooltip's arrow follows the bubble when it flips across the inline axis", async ({ page }) => {
+  const trigger = page.getByRole("button", { name: "Save", exact: true }).last();
+  const bubble = page.getByRole("tooltip", { name: "Saves your work" });
+  const arrow = page.locator("primitiv-tooltip-arrow").last();
+  // A right placement, and a trigger pinned where it can be moved to either edge.
+  await page
+    .locator("primitiv-tooltip-content")
+    .last()
+    .evaluate((el) => el.classList.replace("primitiv-tooltip--top", "primitiv-tooltip--right"));
+  const pinTrigger = (side: "left" | "right") =>
+    trigger.evaluate((el, side) => {
+      el.style.cssText = `position: fixed; top: 300px; ${side}: 2px`;
+    }, side);
+  const sides = async () => {
+    const [t, b, a] = await Promise.all([trigger.boundingBox(), bubble.boundingBox(), arrow.boundingBox()]);
+    return {
+      bubble: b!.x >= t!.x + t!.width ? "right" : b!.x + b!.width <= t!.x ? "left" : "overlapping",
+      arrow: a!.x < b!.x ? "left edge" : a!.x + a!.width > b!.x + b!.width ? "right edge" : "inside",
+    };
+  };
+
+  await pinTrigger("left");
+  await trigger.focus();
+  await expect(bubble).toBeVisible();
+  await expect.poll(sides).toEqual({ bubble: "right", arrow: "left edge" });
+
+  // No room to the right: the bubble flips to the left, and its arrow with it.
+  await pinTrigger("right");
+  await expect.poll(sides).toEqual({ bubble: "left", arrow: "right edge" });
+});

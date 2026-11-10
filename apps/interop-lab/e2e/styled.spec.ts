@@ -98,7 +98,7 @@ test("add modal printed the per-component script for its first release", () => {
 });
 
 test("the printed modal is styled and working: a hidden dialog that opens as a styled modal", async ({ page }) => {
-  const dialog = page.locator("dialog.primitiv-modal");
+  const dialog = page.locator("dialog.primitiv-modal:not(.primitiv-confirm-dialog)");
   for (const part of ["trigger", "content", "title", "description", "close"]) {
     await expect(page.locator(`primitiv-modal-${part}`).first()).toHaveCSS("display", "contents");
   }
@@ -108,11 +108,28 @@ test("the printed modal is styled and working: a hidden dialog that opens as a s
   await expect(page.getByRole("dialog", { name: "Edit profile" })).toBeVisible();
   await expect(dialog).toHaveCSS("display", "flex");
   await expect(dialog).toHaveAttribute("data-state", "open");
-  await expect(page.locator(".primitiv-modal__header")).toHaveCSS("display", "flex");
-  await expect(page.locator(".primitiv-modal__body")).toHaveCSS("display", "flex");
+  await expect(dialog.locator(".primitiv-modal__header")).toHaveCSS("display", "flex");
+  await expect(dialog.locator(".primitiv-modal__body")).toHaveCSS("display", "flex");
   expect(parseFloat(await dialog.evaluate((element) => getComputedStyle(element).borderTopWidth))).toBeGreaterThan(0);
 
   await page.getByRole("button", { name: "Done" }).click();
-  await expect(page.locator("primitiv-modal")).not.toHaveAttribute("open");
+  await expect(page.locator("primitiv-modal").first()).not.toHaveAttribute("open");
+  await expect(dialog).toBeHidden();
+});
+
+test("add confirm-dialog loads Modal's script: its markup is the Modal elements", () => {
+  const output = readFileSync("styled-site/add-confirm-dialog-output.txt", "utf8");
+  expect(output).toMatch(/@primitiv-ui\/web@[\d.]+\/dist\/cdn\/modal\.js/);
+  expect(output).not.toContain("confirm-dialog.js");
+});
+
+test("the printed confirm dialog is a styled modal whose Cancel closes it", async ({ page }) => {
+  await page.getByRole("button", { name: "Remove member" }).click();
+  const dialog = page.getByRole("dialog", { name: "Remove member?" });
+  await expect(dialog).toBeVisible();
+  await expect(dialog).toHaveClass(/primitiv-confirm-dialog/);
+  await expect(dialog).toHaveAccessibleDescription("They will lose access immediately. This can't be undone.");
+  await expect(dialog.getByRole("button", { name: "Remove" })).toHaveCSS("display", "flex");
+  await dialog.getByRole("button", { name: "Cancel" }).click();
   await expect(dialog).toBeHidden();
 });

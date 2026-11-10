@@ -29,7 +29,15 @@ export {
   type CollapsibleState,
 } from "./collapsible/policy.ts";
 export { FOCUSABLE_SELECTOR } from "./focus/focusable.ts";
-export { menuKeydown, type MenuKeyOutcome, type MenuKeyState } from "./menu/policy.ts";
+export {
+  MENU_TYPEAHEAD_RESET_MS,
+  menuKeydown,
+  menuTypeahead,
+  type MenuKeyOutcome,
+  type MenuKeyState,
+  type MenuTypeaheadOutcome,
+  type MenuTypeaheadState,
+} from "./menu/policy.ts";
 export {
   modalPointerOutside,
   modalTabKeydown,

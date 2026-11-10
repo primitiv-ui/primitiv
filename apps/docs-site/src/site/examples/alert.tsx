@@ -7,6 +7,7 @@ import { Stack } from "@/components/stack";
 import { contractAttr, importBlock, stackImports } from "@/lib/playground";
 import { InteractiveExample } from "@/site/InteractiveExample";
 import type { Mode } from "@/site/preferences";
+import { glyph, withGlyphs } from "./glyphs";
 import type { ComponentSpec } from "./types";
 
 type Size = "xs" | "sm" | "md" | "lg" | "xl";
@@ -90,6 +91,47 @@ const DismissExample = () => {
  * handler bolted onto a button that is always there. And it does not hide
  * anything itself — the caller owns that.
  */
+/**
+ * An alert as Elements markup. The tone picks the class AND the glyph you write;
+ * the dismiss button removes the alert with a one-line handler.
+ */
+const alertHtml = ({
+  tone = "info",
+  size = "md",
+  title,
+  body,
+  dismiss = false,
+  indent = "",
+}: {
+  tone?: string;
+  size?: string;
+  title?: string;
+  body: string;
+  dismiss?: boolean;
+  indent?: string;
+}) =>
+  [
+    `<div class="primitiv-alert primitiv-alert--${tone} primitiv-alert--${size}" role="alert">`,
+    `  <span class="primitiv-alert__icon-wrapper">${glyph(tone as "info")}</span>`,
+    `  <div class="primitiv-alert__content">`,
+    ...(title ? [`    <div class="primitiv-alert__title">${title}</div>`] : []),
+    `    <div class="primitiv-alert__description">${body}</div>`,
+    `  </div>`,
+    ...(dismiss
+      ? [
+          `  <button type="button" class="primitiv-alert__dismiss primitiv-button primitiv-button--ghost primitiv-button--${size}" aria-label="Dismiss" onclick="this.closest('.primitiv-alert').remove()">${glyph("close")}</button>`,
+        ]
+      : []),
+    `</div>`,
+  ]
+    .map((l) => indent + l)
+    .join("\n");
+
+const STACK =
+  '<div class="primitiv-stack primitiv-stack--column primitiv-stack--gap-md primitiv-stack--align-stretch primitiv-stack--nowrap primitiv-stack--justify-start">';
+
+const stacked = (_density: unknown, code: string) => `<div class="docs-example-stack">${withGlyphs(code)}</div>`;
+
 export const alertSpec: ComponentSpec = {
   playground: {
     component: "Alert",
@@ -114,6 +156,14 @@ export const alertSpec: ComponentSpec = {
      */
     snippet: (values, mode) => {
       const t = toneContent(values.tone);
+      if (mode === "elements")
+        return alertHtml({
+          tone: values.tone,
+          size: values.size,
+          title: t.title,
+          body: t.body,
+          dismiss: values.dismissible === "true",
+        });
       return [
         imports(mode),
         ``,
@@ -129,6 +179,7 @@ export const alertSpec: ComponentSpec = {
         ),
       ].join("\n");
     },
+    elementsPreview: (code) => stacked(null, code),
     render: (values) => {
       const t = toneContent(values.tone);
       return (
@@ -153,7 +204,9 @@ export const alertSpec: ComponentSpec = {
     {
       label: "Parts",
       code: (mode) =>
-        alertLines(mode, { title: "Payment failed", body: "Your card was declined." }, {
+        mode === "elements"
+          ? alertHtml({ tone: "danger", title: "Payment failed", body: "Your card was declined.", dismiss: true })
+          : alertLines(mode, { title: "Payment failed", body: "Your card was declined." }, {
           attrs: mode === "headless" ? "" : ` tone="danger"`,
         }).join("\n"),
     },
@@ -165,9 +218,16 @@ export const alertSpec: ComponentSpec = {
       title: "It interrupts (the headline)",
       render: () => (
         <InteractiveExample
+          elementsCaption={'Write `role="alert"` on the root and it is an **assertive live region** — it interrupts a screen reader the moment it appears. That is right for “you must know this now” (a payment failed) and wrong for routine confirmations, which belong in a calmer `role="status"` element instead.'}
+          elementsPreview={stacked}
           caption="`Alert` is an **assertive live region** — `role=&quot;alert&quot;`, which implies `aria-live=&quot;assertive&quot;` and `aria-atomic=&quot;true&quot;`. A screen reader abandons whatever it was saying and reads the alert immediately. That is right for a failed payment and wrong for a page banner about next Sunday's maintenance, so reach for it only when the message is genuinely time-sensitive and the user must know now. For anything calmer, render your own container with `role=&quot;status&quot;` (polite), or no role at all if there is nothing to announce because the content was there when the page loaded. The headless primitive injects its children **after** the region is in the DOM, which is what makes the announcement fire at all — a live region that is added already-populated is frequently not announced."
           code={(_density, mode) =>
-            [
+            mode === "elements"
+              ? [
+                  `<!-- Assertive: interrupts. Only for "you must know this now". -->`,
+                  alertHtml({ tone: "danger", title: "Payment failed", body: "Your card was declined. Try a different payment method." }),
+                ].join("\n")
+              : [
               imports(mode),
               ``,
               `{/* Assertive: interrupts. Only for "you must know this now". */}`,
@@ -197,9 +257,13 @@ export const alertSpec: ComponentSpec = {
       title: "Tones",
       render: () => (
         <InteractiveExample
+          elementsCaption={'Four tones, set by the `primitiv-alert--{tone}` modifier. Write the matching icon in the `__icon-wrapper` — an info circle, a success check, a warning triangle, a danger cross — so the severity is never carried by colour alone.'}
+          elementsPreview={stacked}
           caption="Four tones, and each one **also picks the leading icon** — an info circle, a success check, a warning triangle, a danger x-circle — so `tone` is one decision rather than a colour plus a matching glyph. Override the glyph with `icon` when the default is wrong for the message; the tone's colour stays. Note that tone is purely visual: all four are the same assertive live region, so a `success` alert interrupts exactly as a `danger` one does. Colour is not the message either — the text has to carry it for anyone who cannot see the tone."
           code={(_density, mode) =>
-            [
+            mode === "elements"
+              ? [STACK, ...TONES.map((t) => alertHtml({ tone: t.tone, title: t.title, body: t.body, indent: "  " })), `</div>`].join("\n")
+              : [
               imports(mode),
               stackImports(mode),
               ``,
@@ -233,9 +297,18 @@ export const alertSpec: ComponentSpec = {
       title: "With and without a title",
       render: () => (
         <InteractiveExample
+          elementsCaption={'The `__title` is optional: leave it out for one line of message beside the icon. Use a title when the alert needs a headline and a sentence of detail.'}
+          elementsPreview={stacked}
           caption="`title` is optional, and leaving it off is the headless primitive's own simplest shape — one line of message beside the icon. Use a title when the alert has both a summary and a detail worth separating; skip it when the whole message is one sentence, because a title that just restates the sentence reads as a stutter. `children` is always required: it is the message, not a slot you can leave empty."
           code={(_density, mode) =>
-            [
+            mode === "elements"
+              ? [
+                  STACK,
+                  alertHtml({ tone: "success", body: "Changes saved.", indent: "  " }),
+                  alertHtml({ tone: "warning", title: "Quota almost used", body: "You have used 92% of this month’s build minutes.", indent: "  " }),
+                  `</div>`,
+                ].join("\n")
+              : [
               imports(mode),
               stackImports(mode),
               ``,
@@ -271,9 +344,13 @@ export const alertSpec: ComponentSpec = {
       title: "Dismissing",
       render: () => (
         <InteractiveExample
+          elementsCaption={"The dismiss button is Button's ghost classes plus `__dismiss`, and a one-line `onclick` removes the alert. Render the button only when dismissing means something. If your page forbids inline handlers (a strict Content-Security-Policy), attach the same `click` listener from your own script."}
+          elementsPreview={stacked}
           caption="**`onDismiss` is what makes the dismiss button exist** — there is no `dismissible` boolean, because a dismiss control with nothing listening is a button that does nothing. Two consequences worth planning for. It does not hide the alert for you: the callback is yours, and so is the state that unmounts it, which is what lets you persist the dismissal or animate the exit. And the button is a real `Button` (`ghost` variant) instance rather than a bare glyph, so it inherits the focus ring and hit area — matching the Modal close convention. Rename it with `dismissLabel` when &quot;Dismiss&quot; is not specific enough."
           code={(_density, mode) =>
-            [
+            mode === "elements"
+              ? alertHtml({ tone: "success", body: "Changes saved. Dismiss this to hide it.", dismiss: true })
+              : [
               `import { useState } from "react";`,
               imports(mode),
               ``,
@@ -303,9 +380,21 @@ export const alertSpec: ComponentSpec = {
       title: "Sizes and density",
       render: () => (
         <InteractiveExample
+          elementsCaption={'Five sizes, each rescaling again with the nearest `data-density` ancestor. The size modifier moves the padding, the icon and the type ramp together; give the dismiss button the matching size.'}
+          elementsPreview={(_density, code) => stacked(null, code.split("\n").slice(2, -2).map((l) => l.slice(4)).join("\n"))}
           caption="Five sizes, each rescaling again with the nearest `data-density` ancestor. Size moves the padding, the icon, the type ramp and the dismiss button together, so the alert stays proportionate rather than growing a large icon beside small text."
           code={(density, mode) =>
-            [
+            mode === "elements"
+              ? [
+                  `<div data-density="${density}">`,
+                  `  ${STACK}`,
+                  ...SIZES.map((size) =>
+                    alertHtml({ size, title: size.toUpperCase(), body: "Your card was declined.", indent: "    " }),
+                  ),
+                  `  </div>`,
+                  `</div>`,
+                ].join("\n")
+              : [
               imports(mode),
               stackImports(mode),
               ``,
@@ -337,6 +426,21 @@ export const alertSpec: ComponentSpec = {
       ),
     },
   ],
+
+  elements: {
+    description:
+      "An interrupting message: `primitiv-alert` with a tone and a size on an element with `role=\"alert\"`, an `__icon-wrapper` for the tone's glyph, a `__content` with an optional `__title` and the `__description`, and an optional `__dismiss` button.",
+    anatomyMeta:
+      "The root is the assertive live region and the frame. Inside, the `__icon-wrapper` holds the glyph you choose for the tone, `__content` stacks the `__title` over the `__description`, and the `__dismiss` button — Button's ghost classes plus its own — sits at the end.",
+    accessibility: [
+      "**Assertive by design.** `role=\"alert\"` interrupts a screen reader the moment the alert appears. Keep it for things the user must know now; use `role=\"status\"` for routine confirmations.",
+      "**It has to arrive to be announced.** An alert already in the page at load is not announced — insert it when the problem happens.",
+      "Do not show several alerts at once; each one interrupts, and the user hears fragments of all of them.",
+      "Tone is visual only. Put the severity in the words — “Payment failed” — and in the icon, not only the colour.",
+      "Give the dismiss button an accessible name, and make it specific when a page can show more than one alert.",
+      "The title is styled text, not a heading; it adds nothing to the document outline.",
+    ],
+  },
 
   accessibility: [
     "**Assertive by construction.** `role=\"alert\"` implies `aria-live=\"assertive\"` and `aria-atomic=\"true\"`, so the alert interrupts a screen reader mid-sentence and is read as a whole. That is the right behaviour for an error the user must act on, and the wrong behaviour for standing page furniture. `role` is set internally and passing your own is ignored — if you want a polite region, this is not the component.",

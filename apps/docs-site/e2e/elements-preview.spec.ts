@@ -134,6 +134,8 @@ for (const [id, rootClass] of [
   ["table", "primitiv-table"],
   ["breadcrumb", "primitiv-breadcrumb"],
   ["pagination", "primitiv-pagination"],
+  ["alert", "primitiv-alert"],
+  ["chip", "primitiv-chip"],
 ] as const) {
   test(`the ${id} preview is styled markup with no element to define`, async ({ page }) => {
     await page.goto(`/components/${id}/`);
@@ -205,4 +207,19 @@ test("a broken Avatar image falls back to its initials", async ({ page }) => {
   const example = cell(page, "missing-or-broken");
   await expect(example.locator(".docs-elements-preview img")).toHaveCount(0);
   await expect(example.locator(".primitiv-avatar__fallback-label")).toHaveText("GH");
+});
+
+test("the Alert dismiss button removes the alert", async ({ page }) => {
+  await page.goto("/components/alert/");
+  const example = cell(page, "dismissible");
+  await example.getByRole("button", { name: "Dismiss" }).click();
+  await expect(example.locator(".docs-elements-preview .primitiv-alert")).toHaveCount(0);
+});
+
+test("removing a Chip filter hands focus to its neighbour", async ({ page }) => {
+  await page.goto("/components/chip/");
+  const example = cell(page, "removable-filters");
+  await example.getByRole("button", { name: "Remove Status: Active" }).click();
+  await expect(example.locator(".primitiv-chip")).toHaveCount(2);
+  await expect(example.getByRole("button", { name: "Remove Owner: You" })).toBeFocused();
 });

@@ -13,7 +13,7 @@
     "category": "Feedback & Status",
     "description": "An assertive banner for high-priority, time-sensitive messages — a tone-matched icon, an optional title, a description, and an optional dismiss button. Composes the headless Alert primitive (role=\"alert\") for the message and the registry Button (ghost variant) for the dismiss affordance. Sized xs–xl; `data-density` scales each size further.",
     "documented": true,
-    "elements": null
+    "elements": "markup"
   },
   {
     "id": "aspect-ratio",
@@ -133,7 +133,7 @@
     "category": "Data Display",
     "description": "An interactive, removable label chip — filter bars, multi-select fields, inputs. The trailing remove button is core to the anatomy, not optional; an optional leading icon or avatar may precede the label. Sized xs–xl; `data-density` scales each size further.",
     "documented": true,
-    "elements": null
+    "elements": "markup"
   },
   {
     "id": "code-block",

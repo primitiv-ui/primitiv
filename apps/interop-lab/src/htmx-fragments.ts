@@ -4,6 +4,7 @@
  */
 import { accordionHtml } from "./accordion-fixture.ts";
 import { collapsibleHtml } from "./collapsible-fixture.ts";
+import { modalHtml } from "./modal-fixture.ts";
 import { tabsHtml } from "./fixture.ts";
 
 let lazyLoads = 0;
@@ -12,6 +13,7 @@ let accordionLazyLoads = 0;
 let accordionEchoes = 0;
 let collapsibleLazyLoads = 0;
 let collapsibleEchoes = 0;
+let modalEchoes = 0;
 
 export const fragments: Record<string, string | ((url: string) => string)> = {
   // Case 1: a whole tab set arrives in a fragment.
@@ -82,4 +84,17 @@ export const fragments: Record<string, string | ((url: string) => string)> = {
   "collapsible-lazy": () => `<p data-testid="lazy-content">Lazy content, load ${++collapsibleLazyLoads}</p>`,
   "collapsible-echo": (url: string) =>
     `<span data-testid="echo">server saw ${new URL(url, "http://lab").searchParams.get("open")} (${++collapsibleEchoes})</span>`,
+
+  // The Modal page's cases (modal-htmx.html), named to match.
+  modal: modalHtml({ open: true }, "swapped", { label: "Open swapped", title: "Swapped" }),
+  "modal-nested": modalHtml({}, "inner", { label: "Open inner", title: "Inner" }),
+  "modal-oob-content":
+    '<div hx-swap-oob="beforeend:#oob"><primitiv-modal-content><dialog>' +
+    "<primitiv-modal-title><h2>Out of band</h2></primitiv-modal-title>" +
+    '<primitiv-modal-close><button type="button">Cancel</button></primitiv-modal-close>' +
+    "</dialog></primitiv-modal-content></div>",
+  "modal-oob-open": `<div hx-swap-oob="outerHTML:#rerendered">${modalHtml({ open: true }, "rerendered", { label: "Open rerendered", title: "Rerendered" })}</div>`,
+  "modal-preserve": `<div id="preserve-region"><p>Swapped region</p>${modalHtml({}, "preserved", { label: "Open preserved", title: "Preserved" }).replace("<primitiv-modal ", '<primitiv-modal hx-preserve="true" ')}</div>`,
+  "modal-echo": (url: string) =>
+    `<span data-testid="echo">server saw ${new URL(url, "http://lab").searchParams.get("open")} (${++modalEchoes})</span>`,
 };

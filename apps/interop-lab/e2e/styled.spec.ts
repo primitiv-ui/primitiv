@@ -7,7 +7,11 @@ import { expect, test } from "./fixtures";
 test.beforeEach(async ({ page }) => {
   await page.goto("/styled.html");
   await page.waitForFunction(
-    () => customElements.get("primitiv-tabs") && customElements.get("primitiv-accordion") && customElements.get("primitiv-collapsible"),
+    () =>
+      customElements.get("primitiv-tabs") &&
+      customElements.get("primitiv-accordion") &&
+      customElements.get("primitiv-collapsible") &&
+      customElements.get("primitiv-modal"),
   );
 });
 
@@ -86,4 +90,29 @@ test("the printed collapsible is styled and working, its closed panel collapsed 
   await expect(content).not.toHaveAttribute("aria-hidden");
   await expect(page.locator(".primitiv-collapsible__trigger-icon")).toHaveAttribute("data-state", "open");
   await expect(page.locator(".primitiv-collapsible__content-body")).toHaveCSS("display", "block");
+});
+
+test("add modal printed the per-component script for its first release", () => {
+  const output = readFileSync("styled-site/add-modal-output.txt", "utf8");
+  expect(output).toMatch(/@primitiv-ui\/web@[\d.]+\/dist\/cdn\/modal\.js/);
+});
+
+test("the printed modal is styled and working: a hidden dialog that opens as a styled modal", async ({ page }) => {
+  const dialog = page.locator("dialog.primitiv-modal");
+  for (const part of ["trigger", "content", "title", "description", "close"]) {
+    await expect(page.locator(`primitiv-modal-${part}`).first()).toHaveCSS("display", "contents");
+  }
+  await expect(dialog).toBeHidden();
+
+  await page.getByRole("button", { name: "Edit profile", exact: true }).click();
+  await expect(page.getByRole("dialog", { name: "Edit profile" })).toBeVisible();
+  await expect(dialog).toHaveCSS("display", "flex");
+  await expect(dialog).toHaveAttribute("data-state", "open");
+  await expect(page.locator(".primitiv-modal__header")).toHaveCSS("display", "flex");
+  await expect(page.locator(".primitiv-modal__body")).toHaveCSS("display", "flex");
+  expect(parseFloat(await dialog.evaluate((element) => getComputedStyle(element).borderTopWidth))).toBeGreaterThan(0);
+
+  await page.getByRole("button", { name: "Done" }).click();
+  await expect(page.locator("primitiv-modal")).not.toHaveAttribute("open");
+  await expect(dialog).toBeHidden();
 });

@@ -102,4 +102,12 @@ describe("TooltipGroup", () => {
     // Assert
     expect(vi.getTimerCount()).toBe(0);
   });
+
+  it("can be disposed with no close pending", () => {
+    // Arrange
+    const group = new TooltipGroup(() => 300);
+
+    // Act & Assert
+    expect(() => group.dispose()).not.toThrow();
+  });
 });

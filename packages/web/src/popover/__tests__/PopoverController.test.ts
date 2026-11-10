@@ -351,7 +351,7 @@ describe("PopoverController", () => {
 
       // Act
       controller.connect();
-      fireEvent.keyDown(content, { key: "Escape" });
+      content.dispatchEvent(Object.assign(new Event("toggle"), { newState: "closed" }));
 
       // Assert
       expect(host.changes).toEqual([false]);

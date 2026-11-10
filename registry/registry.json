@@ -1616,7 +1616,16 @@
           ]
         }
       },
-      "contract": "contract.json"
+      "contract": "contract.json",
+      "elements": {
+        "packages": [
+          {
+            "name": "@primitiv-ui/web",
+            "version": "^0.1.55"
+          }
+        ],
+        "example": "popover.html"
+      }
     },
     "progress": {
       "version": "0.1.0",

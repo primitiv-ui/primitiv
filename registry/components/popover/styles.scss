@@ -40,6 +40,22 @@
  * token layer (RFC 0008 §7). */
 @layer primitiv.reset, primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;
 
+/* The elements surface (RFC 0033 §5.6.1): each wrapper part takes no box of its
+   own, so the <button>, heading and paragraph each decorates lay out exactly as
+   the React ones. The content element is the panel itself, so it keeps its box.
+   Zero specificity, in the reset sublayer, so any consumer rule wins. */
+@layer primitiv.reset {
+  :where(
+      primitiv-popover-trigger,
+      primitiv-popover-anchor,
+      primitiv-popover-title,
+      primitiv-popover-description,
+      primitiv-popover-close
+    ) {
+    display: contents;
+  }
+}
+
 @layer primitiv.reset {
   .primitiv-popover {
     /* Reset the native [popover] UA defaults: `margin: auto; inset: 0` (viewport

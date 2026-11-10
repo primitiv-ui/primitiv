@@ -4,6 +4,20 @@
 import "../tags";
 
 import type {
+  PrimitivDropdownCheckboxItemElement,
+  PrimitivDropdownContentElement,
+  PrimitivDropdownElement,
+  PrimitivDropdownGroupElement,
+  PrimitivDropdownItemElement,
+  PrimitivDropdownItemIndicatorElement,
+  PrimitivDropdownLabelElement,
+  PrimitivDropdownRadioGroupElement,
+  PrimitivDropdownRadioItemElement,
+  PrimitivDropdownSeparatorElement,
+  PrimitivDropdownSubContentElement,
+  PrimitivDropdownSubElement,
+  PrimitivDropdownSubTriggerElement,
+  PrimitivDropdownTriggerElement,
   PrimitivAccordionContentElement,
   PrimitivAccordionElement,
   PrimitivAccordionItemElement,
@@ -86,4 +100,21 @@ it("types every Tooltip tag in HTMLElementTagNameMap", () => {
   expectTypeOf(document.createElement("primitiv-tooltip-trigger")).toEqualTypeOf<PrimitivTooltipTriggerElement>();
   expectTypeOf(document.createElement("primitiv-tooltip-content")).toEqualTypeOf<PrimitivTooltipContentElement>();
   expectTypeOf(document.createElement("primitiv-tooltip-arrow")).toEqualTypeOf<PrimitivTooltipArrowElement>();
+});
+
+it("types every Dropdown tag in HTMLElementTagNameMap", () => {
+  expectTypeOf(document.querySelector("primitiv-dropdown")).toEqualTypeOf<PrimitivDropdownElement | null>();
+  expectTypeOf(document.createElement("primitiv-dropdown-trigger")).toEqualTypeOf<PrimitivDropdownTriggerElement>();
+  expectTypeOf(document.createElement("primitiv-dropdown-content")).toEqualTypeOf<PrimitivDropdownContentElement>();
+  expectTypeOf(document.createElement("primitiv-dropdown-item")).toEqualTypeOf<PrimitivDropdownItemElement>();
+  expectTypeOf(document.createElement("primitiv-dropdown-checkbox-item")).toEqualTypeOf<PrimitivDropdownCheckboxItemElement>();
+  expectTypeOf(document.createElement("primitiv-dropdown-radio-group")).toEqualTypeOf<PrimitivDropdownRadioGroupElement>();
+  expectTypeOf(document.createElement("primitiv-dropdown-radio-item")).toEqualTypeOf<PrimitivDropdownRadioItemElement>();
+  expectTypeOf(document.createElement("primitiv-dropdown-item-indicator")).toEqualTypeOf<PrimitivDropdownItemIndicatorElement>();
+  expectTypeOf(document.createElement("primitiv-dropdown-group")).toEqualTypeOf<PrimitivDropdownGroupElement>();
+  expectTypeOf(document.createElement("primitiv-dropdown-label")).toEqualTypeOf<PrimitivDropdownLabelElement>();
+  expectTypeOf(document.createElement("primitiv-dropdown-separator")).toEqualTypeOf<PrimitivDropdownSeparatorElement>();
+  expectTypeOf(document.createElement("primitiv-dropdown-sub")).toEqualTypeOf<PrimitivDropdownSubElement>();
+  expectTypeOf(document.createElement("primitiv-dropdown-sub-trigger")).toEqualTypeOf<PrimitivDropdownSubTriggerElement>();
+  expectTypeOf(document.createElement("primitiv-dropdown-sub-content")).toEqualTypeOf<PrimitivDropdownSubContentElement>();
 });

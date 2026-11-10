@@ -90,6 +90,31 @@ it("defines the Popover elements when define/popover is imported", async () => {
   }
 });
 
+it("defines the Dropdown elements when define/dropdown is imported", async () => {
+  // Arrange & Act
+  await import("../dropdown");
+
+  // Assert
+  for (const name of [
+    "primitiv-dropdown",
+    "primitiv-dropdown-trigger",
+    "primitiv-dropdown-content",
+    "primitiv-dropdown-item",
+    "primitiv-dropdown-checkbox-item",
+    "primitiv-dropdown-radio-group",
+    "primitiv-dropdown-radio-item",
+    "primitiv-dropdown-item-indicator",
+    "primitiv-dropdown-group",
+    "primitiv-dropdown-label",
+    "primitiv-dropdown-separator",
+    "primitiv-dropdown-sub",
+    "primitiv-dropdown-sub-trigger",
+    "primitiv-dropdown-sub-content",
+  ]) {
+    expect(customElements.get(name)).toBeDefined();
+  }
+});
+
 it("defines the Tooltip elements when define/tooltip is imported", async () => {
   // Arrange & Act
   await import("../tooltip");
@@ -118,4 +143,5 @@ it("defines every component's elements when define is imported", async () => {
   expect(customElements.get("primitiv-modal")).toBeDefined();
   expect(customElements.get("primitiv-popover")).toBeDefined();
   expect(customElements.get("primitiv-tooltip")).toBeDefined();
+  expect(customElements.get("primitiv-dropdown")).toBeDefined();
 });

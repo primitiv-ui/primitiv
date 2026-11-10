@@ -22,6 +22,11 @@ import type { DefineComponent, EmitsOptions } from "vue";
 
 import type {
   PrimitivAccordionChangeEvent,
+  PrimitivDropdownChangeEvent,
+  PrimitivDropdownCheckedChangeEvent,
+  PrimitivDropdownSelectEvent,
+  PrimitivDropdownSubChangeEvent,
+  PrimitivDropdownValueChangeEvent,
   PrimitivCollapsibleChangeEvent,
   PrimitivModalChangeEvent,
   PrimitivPopoverChangeEvent,
@@ -68,6 +73,20 @@ declare module "vue" {
       { "primitiv-collapsible-show": (event: CustomEvent) => void }
     >;
     "primitiv-collapsible-trigger-icon": Tag<Record<never, never>>;
+    "primitiv-dropdown": Tag<{ open?: boolean | "" }, { "primitiv-dropdown-change": (event: PrimitivDropdownChangeEvent) => void }>;
+    "primitiv-dropdown-trigger": Tag<Record<never, never>>;
+    "primitiv-dropdown-content": Tag<{ popover?: "auto" | "manual" | "" }>;
+    "primitiv-dropdown-item": Tag<{ disabled?: boolean | "" }, { "primitiv-dropdown-select": (event: PrimitivDropdownSelectEvent) => void }>;
+    "primitiv-dropdown-checkbox-item": Tag<{ checked?: boolean | "indeterminate"; disabled?: boolean | "" }, { "primitiv-dropdown-checked-change": (event: PrimitivDropdownCheckedChangeEvent) => void; "primitiv-dropdown-select": (event: PrimitivDropdownSelectEvent) => void }>;
+    "primitiv-dropdown-radio-group": Tag<{ value?: string }, { "primitiv-dropdown-value-change": (event: PrimitivDropdownValueChangeEvent) => void }>;
+    "primitiv-dropdown-radio-item": Tag<{ value: string; disabled?: boolean | "" }, { "primitiv-dropdown-select": (event: PrimitivDropdownSelectEvent) => void }>;
+    "primitiv-dropdown-item-indicator": Tag<{ forceMount?: boolean | "" }>;
+    "primitiv-dropdown-group": Tag<Record<never, never>>;
+    "primitiv-dropdown-label": Tag<Record<never, never>>;
+    "primitiv-dropdown-separator": Tag<Record<never, never>>;
+    "primitiv-dropdown-sub": Tag<{ open?: boolean | "" }, { "primitiv-dropdown-sub-change": (event: PrimitivDropdownSubChangeEvent) => void }>;
+    "primitiv-dropdown-sub-trigger": Tag<{ disabled?: boolean | "" }>;
+    "primitiv-dropdown-sub-content": Tag<{ popover?: "auto" | "manual" | "" }>;
     "primitiv-modal": Tag<
       { open?: boolean | "" },
       { "primitiv-modal-change": (event: PrimitivModalChangeEvent) => void }

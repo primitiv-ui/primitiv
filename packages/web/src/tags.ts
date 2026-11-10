@@ -26,6 +26,22 @@ import type {
   PrimitivCollapsibleTriggerIconElement,
 } from "./collapsible/elements.ts";
 import type {
+  PrimitivDropdownCheckboxItemElement,
+  PrimitivDropdownContentElement,
+  PrimitivDropdownElement,
+  PrimitivDropdownGroupElement,
+  PrimitivDropdownItemElement,
+  PrimitivDropdownItemIndicatorElement,
+  PrimitivDropdownLabelElement,
+  PrimitivDropdownRadioGroupElement,
+  PrimitivDropdownRadioItemElement,
+  PrimitivDropdownSeparatorElement,
+  PrimitivDropdownSubContentElement,
+  PrimitivDropdownSubElement,
+  PrimitivDropdownSubTriggerElement,
+  PrimitivDropdownTriggerElement,
+} from "./dropdown/elements.ts";
+import type {
   PrimitivModalCloseElement,
   PrimitivModalContentElement,
   PrimitivModalDescriptionElement,
@@ -84,6 +100,20 @@ declare global {
     "primitiv-tabs-list": PrimitivTabsListElement;
     "primitiv-tabs-trigger": PrimitivTabsTriggerElement;
     "primitiv-tabs-content": PrimitivTabsContentElement;
+    "primitiv-dropdown": PrimitivDropdownElement;
+    "primitiv-dropdown-trigger": PrimitivDropdownTriggerElement;
+    "primitiv-dropdown-content": PrimitivDropdownContentElement;
+    "primitiv-dropdown-item": PrimitivDropdownItemElement;
+    "primitiv-dropdown-checkbox-item": PrimitivDropdownCheckboxItemElement;
+    "primitiv-dropdown-radio-group": PrimitivDropdownRadioGroupElement;
+    "primitiv-dropdown-radio-item": PrimitivDropdownRadioItemElement;
+    "primitiv-dropdown-item-indicator": PrimitivDropdownItemIndicatorElement;
+    "primitiv-dropdown-group": PrimitivDropdownGroupElement;
+    "primitiv-dropdown-label": PrimitivDropdownLabelElement;
+    "primitiv-dropdown-separator": PrimitivDropdownSeparatorElement;
+    "primitiv-dropdown-sub": PrimitivDropdownSubElement;
+    "primitiv-dropdown-sub-trigger": PrimitivDropdownSubTriggerElement;
+    "primitiv-dropdown-sub-content": PrimitivDropdownSubContentElement;
     "primitiv-tooltip": PrimitivTooltipElement;
     "primitiv-tooltip-provider": PrimitivTooltipProviderElement;
     "primitiv-tooltip-trigger": PrimitivTooltipTriggerElement;

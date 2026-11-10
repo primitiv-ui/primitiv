@@ -32,6 +32,22 @@ import type {
   PrimitivCollapsibleTriggerIconElement,
 } from "../collapsible/elements.ts";
 import type {
+  PrimitivDropdownCheckboxItemElement,
+  PrimitivDropdownContentElement,
+  PrimitivDropdownElement,
+  PrimitivDropdownGroupElement,
+  PrimitivDropdownItemElement,
+  PrimitivDropdownItemIndicatorElement,
+  PrimitivDropdownLabelElement,
+  PrimitivDropdownRadioGroupElement,
+  PrimitivDropdownRadioItemElement,
+  PrimitivDropdownSeparatorElement,
+  PrimitivDropdownSubContentElement,
+  PrimitivDropdownSubElement,
+  PrimitivDropdownSubTriggerElement,
+  PrimitivDropdownTriggerElement,
+} from "../dropdown/elements.ts";
+import type {
   PrimitivModalCloseElement,
   PrimitivModalContentElement,
   PrimitivModalDescriptionElement,
@@ -63,6 +79,11 @@ import type {
 } from "../tooltip/elements.ts";
 import type {
   PrimitivAccordionChangeEvent,
+  PrimitivDropdownChangeEvent,
+  PrimitivDropdownCheckedChangeEvent,
+  PrimitivDropdownSelectEvent,
+  PrimitivDropdownSubChangeEvent,
+  PrimitivDropdownValueChangeEvent,
   PrimitivCollapsibleChangeEvent,
   PrimitivModalChangeEvent,
   PrimitivPopoverChangeEvent,
@@ -104,6 +125,49 @@ declare module "svelte/elements" {
       "onprimitiv-collapsible-show"?: (event: CustomEvent) => void;
     };
     "primitiv-collapsible-trigger-icon": Attributes<PrimitivCollapsibleTriggerIconElement>;
+    "primitiv-dropdown": Attributes<PrimitivDropdownElement> & {
+      open?: boolean;
+      "onprimitiv-dropdown-change"?: (event: PrimitivDropdownChangeEvent) => void;
+    };
+    "primitiv-dropdown-trigger": Attributes<PrimitivDropdownTriggerElement>;
+    "primitiv-dropdown-content": Attributes<PrimitivDropdownContentElement> & {
+      popover?: "auto" | "manual" | "";
+    };
+    "primitiv-dropdown-item": Attributes<PrimitivDropdownItemElement> & {
+      disabled?: boolean;
+      "onprimitiv-dropdown-select"?: (event: PrimitivDropdownSelectEvent) => void;
+    };
+    "primitiv-dropdown-checkbox-item": Attributes<PrimitivDropdownCheckboxItemElement> & {
+      checked?: boolean | "indeterminate";
+      disabled?: boolean;
+      "onprimitiv-dropdown-checked-change"?: (event: PrimitivDropdownCheckedChangeEvent) => void;
+      "onprimitiv-dropdown-select"?: (event: PrimitivDropdownSelectEvent) => void;
+    };
+    "primitiv-dropdown-radio-group": Attributes<PrimitivDropdownRadioGroupElement> & {
+      value?: string;
+      "onprimitiv-dropdown-value-change"?: (event: PrimitivDropdownValueChangeEvent) => void;
+    };
+    "primitiv-dropdown-radio-item": Attributes<PrimitivDropdownRadioItemElement> & {
+      value: string;
+      disabled?: boolean;
+      "onprimitiv-dropdown-select"?: (event: PrimitivDropdownSelectEvent) => void;
+    };
+    "primitiv-dropdown-item-indicator": Attributes<PrimitivDropdownItemIndicatorElement> & {
+      "force-mount"?: boolean;
+    };
+    "primitiv-dropdown-group": Attributes<PrimitivDropdownGroupElement>;
+    "primitiv-dropdown-label": Attributes<PrimitivDropdownLabelElement>;
+    "primitiv-dropdown-separator": Attributes<PrimitivDropdownSeparatorElement>;
+    "primitiv-dropdown-sub": Attributes<PrimitivDropdownSubElement> & {
+      open?: boolean;
+      "onprimitiv-dropdown-sub-change"?: (event: PrimitivDropdownSubChangeEvent) => void;
+    };
+    "primitiv-dropdown-sub-trigger": Attributes<PrimitivDropdownSubTriggerElement> & {
+      disabled?: boolean;
+    };
+    "primitiv-dropdown-sub-content": Attributes<PrimitivDropdownSubContentElement> & {
+      popover?: "auto" | "manual" | "";
+    };
     "primitiv-modal": Attributes<PrimitivModalElement> & {
       open?: boolean;
       "onprimitiv-modal-change"?: (event: PrimitivModalChangeEvent) => void;

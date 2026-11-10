@@ -20,3 +20,18 @@ export type PrimitivPopoverChangeEvent = CustomEvent<{ open: boolean }>;
 
 /** The `primitiv-tooltip-change` event: bubbles, cancelable, fired before the change applies, with the open state afterwards. */
 export type PrimitivTooltipChangeEvent = CustomEvent<{ open: boolean }>;
+
+/** The `primitiv-dropdown-change` event: bubbles, cancelable, fired before the change applies, with the open state afterwards. */
+export type PrimitivDropdownChangeEvent = CustomEvent<{ open: boolean }>;
+
+/** The `primitiv-dropdown-sub-change` event: bubbles, cancelable, fired before a submenu's change applies, with its open state afterwards. */
+export type PrimitivDropdownSubChangeEvent = CustomEvent<{ open: boolean }>;
+
+/** The `primitiv-dropdown-select` event: bubbles, cancelable, fired on an item as it is chosen; cancel it to keep the menu open. */
+export type PrimitivDropdownSelectEvent = CustomEvent<null>;
+
+/** The `primitiv-dropdown-checked-change` event: bubbles, cancelable, fired on a checkbox item before it changes, with its state afterwards. */
+export type PrimitivDropdownCheckedChangeEvent = CustomEvent<{ checked: boolean }>;
+
+/** The `primitiv-dropdown-value-change` event: bubbles, cancelable, fired on a radio group before its value changes, with the value afterwards. */
+export type PrimitivDropdownValueChangeEvent = CustomEvent<{ value: string }>;

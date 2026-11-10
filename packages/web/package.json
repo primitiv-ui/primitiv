@@ -18,6 +18,10 @@
       "types": "./src/collapsible/index.ts",
       "default": "./src/collapsible/index.ts"
     },
+    "./dropdown": {
+      "types": "./src/dropdown/index.ts",
+      "default": "./src/dropdown/index.ts"
+    },
     "./modal": {
       "types": "./src/modal/index.ts",
       "default": "./src/modal/index.ts"
@@ -45,6 +49,10 @@
     "./define/collapsible": {
       "types": "./src/define/collapsible.ts",
       "default": "./src/define/collapsible.ts"
+    },
+    "./define/dropdown": {
+      "types": "./src/define/dropdown.ts",
+      "default": "./src/define/dropdown.ts"
     },
     "./define/modal": {
       "types": "./src/define/modal.ts",
@@ -141,6 +149,10 @@
         "types": "./dist/collapsible/index.d.ts",
         "default": "./dist/collapsible/index.js"
       },
+      "./dropdown": {
+        "types": "./dist/dropdown/index.d.ts",
+        "default": "./dist/dropdown/index.js"
+      },
       "./modal": {
         "types": "./dist/modal/index.d.ts",
         "default": "./dist/modal/index.js"
@@ -168,6 +180,10 @@
       "./define/collapsible": {
         "types": "./dist/define/collapsible.d.ts",
         "default": "./dist/define/collapsible.js"
+      },
+      "./define/dropdown": {
+        "types": "./dist/define/dropdown.d.ts",
+        "default": "./dist/define/dropdown.js"
       },
       "./define/modal": {
         "types": "./dist/define/modal.d.ts",

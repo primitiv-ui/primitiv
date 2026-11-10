@@ -33,6 +33,22 @@ import type {
   PrimitivCollapsibleTriggerIconElement,
 } from "../collapsible/elements.ts";
 import type {
+  PrimitivDropdownCheckboxItemElement,
+  PrimitivDropdownContentElement,
+  PrimitivDropdownElement,
+  PrimitivDropdownGroupElement,
+  PrimitivDropdownItemElement,
+  PrimitivDropdownItemIndicatorElement,
+  PrimitivDropdownLabelElement,
+  PrimitivDropdownRadioGroupElement,
+  PrimitivDropdownRadioItemElement,
+  PrimitivDropdownSeparatorElement,
+  PrimitivDropdownSubContentElement,
+  PrimitivDropdownSubElement,
+  PrimitivDropdownSubTriggerElement,
+  PrimitivDropdownTriggerElement,
+} from "../dropdown/elements.ts";
+import type {
   PrimitivModalCloseElement,
   PrimitivModalContentElement,
   PrimitivModalDescriptionElement,
@@ -64,6 +80,11 @@ import type {
 } from "../tooltip/elements.ts";
 import type {
   PrimitivAccordionChangeEvent,
+  PrimitivDropdownChangeEvent,
+  PrimitivDropdownCheckedChangeEvent,
+  PrimitivDropdownSelectEvent,
+  PrimitivDropdownSubChangeEvent,
+  PrimitivDropdownValueChangeEvent,
   PrimitivCollapsibleChangeEvent,
   PrimitivModalChangeEvent,
   PrimitivPopoverChangeEvent,
@@ -78,6 +99,11 @@ type ElementProps<E extends HTMLElement> = DetailedHTMLProps<HTMLAttributes<E>, 
 
 export type {
   PrimitivAccordionChangeEvent,
+  PrimitivDropdownChangeEvent,
+  PrimitivDropdownCheckedChangeEvent,
+  PrimitivDropdownSelectEvent,
+  PrimitivDropdownSubChangeEvent,
+  PrimitivDropdownValueChangeEvent,
   PrimitivCollapsibleChangeEvent,
   PrimitivModalChangeEvent,
   PrimitivPopoverChangeEvent,
@@ -118,6 +144,49 @@ declare module "react" {
         "onprimitiv-collapsible-show"?: (event: CustomEvent) => void;
       };
       "primitiv-collapsible-trigger-icon": ElementProps<PrimitivCollapsibleTriggerIconElement>;
+      "primitiv-dropdown": ElementProps<PrimitivDropdownElement> & {
+        open?: boolean;
+        "onprimitiv-dropdown-change"?: (event: PrimitivDropdownChangeEvent) => void;
+      };
+      "primitiv-dropdown-trigger": ElementProps<PrimitivDropdownTriggerElement>;
+      "primitiv-dropdown-content": ElementProps<PrimitivDropdownContentElement> & {
+        popover?: "auto" | "manual" | "";
+      };
+      "primitiv-dropdown-item": ElementProps<PrimitivDropdownItemElement> & {
+        disabled?: boolean;
+        "onprimitiv-dropdown-select"?: (event: PrimitivDropdownSelectEvent) => void;
+      };
+      "primitiv-dropdown-checkbox-item": ElementProps<PrimitivDropdownCheckboxItemElement> & {
+        checked?: boolean | "indeterminate";
+        disabled?: boolean;
+        "onprimitiv-dropdown-checked-change"?: (event: PrimitivDropdownCheckedChangeEvent) => void;
+        "onprimitiv-dropdown-select"?: (event: PrimitivDropdownSelectEvent) => void;
+      };
+      "primitiv-dropdown-radio-group": ElementProps<PrimitivDropdownRadioGroupElement> & {
+        value?: string;
+        "onprimitiv-dropdown-value-change"?: (event: PrimitivDropdownValueChangeEvent) => void;
+      };
+      "primitiv-dropdown-radio-item": ElementProps<PrimitivDropdownRadioItemElement> & {
+        value: string;
+        disabled?: boolean;
+        "onprimitiv-dropdown-select"?: (event: PrimitivDropdownSelectEvent) => void;
+      };
+      "primitiv-dropdown-item-indicator": ElementProps<PrimitivDropdownItemIndicatorElement> & {
+        "force-mount"?: boolean;
+      };
+      "primitiv-dropdown-group": ElementProps<PrimitivDropdownGroupElement>;
+      "primitiv-dropdown-label": ElementProps<PrimitivDropdownLabelElement>;
+      "primitiv-dropdown-separator": ElementProps<PrimitivDropdownSeparatorElement>;
+      "primitiv-dropdown-sub": ElementProps<PrimitivDropdownSubElement> & {
+        open?: boolean;
+        "onprimitiv-dropdown-sub-change"?: (event: PrimitivDropdownSubChangeEvent) => void;
+      };
+      "primitiv-dropdown-sub-trigger": ElementProps<PrimitivDropdownSubTriggerElement> & {
+        disabled?: boolean;
+      };
+      "primitiv-dropdown-sub-content": ElementProps<PrimitivDropdownSubContentElement> & {
+        popover?: "auto" | "manual" | "";
+      };
       "primitiv-modal": ElementProps<PrimitivModalElement> & {
         open?: boolean;
         "onprimitiv-modal-change"?: (event: PrimitivModalChangeEvent) => void;

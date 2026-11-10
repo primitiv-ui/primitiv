@@ -26,8 +26,8 @@ export function useModalContent() {
       const controller = new ModalController(ref.current as HTMLDialogElement, {
         state: () => ({ open: latest.current.open }),
         change: (next) => latest.current.setOpen(next),
-        escapeKeyDown: (event) => contentCallbacksRef.current?.onEscapeKeyDown?.(event),
-        pointerDownOutside: (event) => contentCallbacksRef.current?.onPointerDownOutside?.(event),
+        escapeKeyDown: (event) => contentCallbacksRef.current.onEscapeKeyDown?.(event),
+        pointerDownOutside: (event) => contentCallbacksRef.current.onPointerDownOutside?.(event),
       });
       controllerRef.current = controller;
       controller.connect();

@@ -200,6 +200,29 @@ test("the Popover previews are <primitiv-popover> elements anchored to their tri
   await expect(trigger).toBeFocused();
 });
 
+test("the Tooltip previews are <primitiv-tooltip> elements anchored above their trigger", async ({ page }) => {
+  await page.goto("/components/tooltip/");
+  await expect(page.getByText(/dist\/cdn\/tooltip\.js/).first()).toBeVisible();
+  const example = cell(page, "basic");
+  const trigger = example.getByRole("button", { name: "Hover or focus me" });
+  // The definition loads on demand: wait for the element to have wired its button.
+  await expect(trigger).toHaveAttribute("aria-describedby", /.+/);
+  await trigger.focus();
+  const bubble = page.getByRole("tooltip", { name: "Opens on hover and focus" });
+  await expect(bubble).toBeVisible();
+  await expect(bubble).toHaveClass(/primitiv-tooltip/);
+  // No anchor-name in the markup: the trigger is the bubble's implicit anchor.
+  await expect
+    .poll(async () => {
+      const [t, b] = await Promise.all([trigger.boundingBox(), bubble.boundingBox()]);
+      return b!.y + b!.height <= t!.y;
+    })
+    .toBe(true);
+  await page.keyboard.press("Escape");
+  await expect(bubble).toBeHidden();
+  await expect(trigger).toBeFocused();
+});
+
 test("the Prose preview is plain markup whose children take the flow rhythm", async ({ page }) => {
   await page.goto("/components/prose/");
   const flow = page.locator(".docs-elements-preview .primitiv-flow").first();

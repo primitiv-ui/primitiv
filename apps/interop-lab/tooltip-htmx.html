@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+  <head><meta charset="utf-8" /><link rel="icon" href="data:," /><title>Interop lab — Tooltip, HTMX</title></head>
+  <body>
+    <!-- 1. Full fragment swap -->
+    <section>
+      <button type="button" id="load-tooltip" hx-get="/fragments/tooltip" hx-target="#slot-1">Load tooltip</button>
+      <div id="slot-1"></div>
+    </section>
+
+    <!-- 2. Content arriving out of band -->
+    <section id="oob-region"></section>
+    <button type="button" id="load-oob" hx-get="/fragments/tooltip-oob-content" hx-swap="none">Add the content</button>
+
+    <!-- 3. Server re-render, now open -->
+    <section id="rerender-region"></section>
+    <button type="button" id="load-open" hx-get="/fragments/tooltip-oob-open" hx-swap="none">Open it</button>
+
+    <!-- 4. hx-preserve -->
+    <div id="preserve-region"></div>
+
+    <!-- 5. An open tooltip swapped away, and the next one -->
+    <section id="doomed-region"></section>
+    <section id="next-region"></section>
+
+    <!-- 6. hx-trigger on the change event, and a veto -->
+    <section id="echo-region"></section>
+    <div id="echo-target"></div>
+
+    <script type="module" src="/src/tooltip-htmx.ts"></script>
+  </body>
+</html>

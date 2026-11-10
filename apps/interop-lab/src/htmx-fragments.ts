@@ -6,6 +6,7 @@ import { accordionHtml } from "./accordion-fixture.ts";
 import { collapsibleHtml } from "./collapsible-fixture.ts";
 import { modalHtml } from "./modal-fixture.ts";
 import { popoverHtml } from "./popover-fixture.ts";
+import { tooltipHtml } from "./tooltip-fixture.ts";
 import { tabsHtml } from "./fixture.ts";
 
 let lazyLoads = 0;
@@ -16,6 +17,7 @@ let collapsibleLazyLoads = 0;
 let collapsibleEchoes = 0;
 let modalEchoes = 0;
 let popoverEchoes = 0;
+let tooltipEchoes = 0;
 
 export const fragments: Record<string, string | ((url: string) => string)> = {
   // Case 1: a whole tab set arrives in a fragment.
@@ -112,4 +114,14 @@ export const fragments: Record<string, string | ((url: string) => string)> = {
   "popover-preserve": `<div id="preserve-region"><p>Swapped region</p>${popoverHtml({}, "preserved", { label: "Open preserved", title: "Preserved" }).replace("<primitiv-popover ", '<primitiv-popover hx-preserve="true" ')}</div>`,
   "popover-echo": (url: string) =>
     `<span data-testid="echo">server saw ${new URL(url, "http://lab").searchParams.get("open")} (${++popoverEchoes})</span>`,
+
+  // The Tooltip page's cases (tooltip-htmx.html), named to match.
+  tooltip: tooltipHtml({ open: true }, { id: "swapped", label: "Swapped", tip: "Swapped tip" }),
+  "tooltip-oob-content":
+    '<div hx-swap-oob="beforeend:#oob"><primitiv-tooltip-content popover="manual">Arrived late</primitiv-tooltip-content></div>',
+  "tooltip-oob-open": `<div hx-swap-oob="outerHTML:#rerendered">${tooltipHtml({ open: true }, { id: "rerendered", label: "Rerendered", tip: "Rerendered tip" })}</div>`,
+  "tooltip-preserve": `<div id="preserve-region"><p>Swapped region</p>${tooltipHtml({}, { id: "preserved", label: "Preserved", tip: "Preserved tip" }).replace("<primitiv-tooltip ", '<primitiv-tooltip hx-preserve="true" ')}</div>`,
+  "tooltip-gone": "<p>Gone</p>",
+  "tooltip-echo": (url: string) =>
+    `<span data-testid="echo">server saw ${new URL(url, "http://lab").searchParams.get("open")} (${++tooltipEchoes})</span>`,
 };

@@ -180,3 +180,32 @@ test("the printed popover opens anchored under its trigger with no anchor-name w
   await panel.getByRole("button", { name: "Close" }).click();
   await expect(panel).toBeHidden();
 });
+
+test("add tooltip printed the per-component script for its first release", () => {
+  const output = readFileSync("styled-site/add-tooltip-output.txt", "utf8");
+  expect(output).toMatch(/@primitiv-ui\/web@[\d.]+\/dist\/cdn\/tooltip\.js/);
+});
+
+test("the printed tooltip opens anchored above its trigger, arrow and all, with no anchor-name wired", async ({ page }) => {
+  const trigger = page.getByRole("button", { name: "Save", exact: true }).last();
+  await trigger.focus();
+  const bubble = page.getByRole("tooltip", { name: "Saves your work" });
+  await expect(bubble).toBeVisible();
+  await expect(bubble).toHaveCSS("display", "block");
+  // The trigger is the bubble's implicit anchor (showPopover's source), so the
+  // top placement puts the bubble above it, centred on it; the arrow pokes
+  // out past the bubble's bottom edge rather than being clipped by the
+  // popover's UA overflow.
+  const arrow = page.locator("primitiv-tooltip-arrow").last();
+  const geometry = async () => {
+    const [t, b, a] = await Promise.all([trigger.boundingBox(), bubble.boundingBox(), arrow.boundingBox()]);
+    return {
+      above: b!.y + b!.height <= t!.y,
+      centred: Math.abs(b!.x + b!.width / 2 - (t!.x + t!.width / 2)) < 2,
+      tail: a!.y + a!.height > b!.y + b!.height,
+    };
+  };
+  await expect.poll(geometry).toEqual({ above: true, centred: true, tail: true });
+  await page.keyboard.press("Escape");
+  await expect(bubble).toBeHidden();
+});

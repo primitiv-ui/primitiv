@@ -217,6 +217,19 @@ describe("PopoverController", () => {
       expect(document.activeElement).toBe(trigger);
     });
 
+    it("leaves an Escape that a popover nested inside it already handled", () => {
+      // Arrange
+      const { content, host } = connected(true);
+      const nested = content.querySelector("button")!;
+      nested.addEventListener("keydown", (event) => event.preventDefault());
+
+      // Act
+      fireEvent.keyDown(nested, { key: "Escape" });
+
+      // Assert
+      expect(host.changes).toEqual([]);
+    });
+
     it("leaves other keys alone", () => {
       // Arrange
       const { content, host } = connected(true);

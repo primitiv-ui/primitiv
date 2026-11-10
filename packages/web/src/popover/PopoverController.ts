@@ -106,7 +106,9 @@ export class PopoverController {
   }
 
   #keydown(event: KeyboardEvent): void {
-    if (!popoverKeydown(event.key)) return;
+    // A popover nested in this panel handles its own Escape first, as the
+    // event bubbles out of it; leave that one alone, or both would close.
+    if (event.defaultPrevented || !popoverKeydown(event.key)) return;
     event.preventDefault();
     this.#host.change(false);
     this.#host.trigger()?.focus();

@@ -395,5 +395,55 @@
   "figma": {
     "componentSetKey": "435:10250"
   },
-  "elements": null
+  "elements": {
+    "package": "@primitiv-ui/web",
+    "version": "0.1.54",
+    "element": "dialog",
+    "wrapText": false,
+    "example": "<primitiv-modal>\n  <primitiv-modal-trigger>\n    <button type=\"button\">Edit profile</button>\n  </primitiv-modal-trigger>\n  <primitiv-modal-content>\n    <dialog class=\"primitiv-modal primitiv-modal--md\">\n      <span class=\"primitiv-modal__header\">\n        <primitiv-modal-title><h2 class=\"primitiv-modal__title\">Edit profile</h2></primitiv-modal-title>\n        <primitiv-modal-close>\n          <button type=\"button\" class=\"primitiv-modal__close\" aria-label=\"Close\"><svg viewBox=\"0 0 24 24\" width=\"24\" height=\"24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M20.06 19 19 20.06 3.94 5 5 3.94z\"/><path d=\"M20.06 5 5 20.06 3.94 19 19 3.94z\"/></svg></button>\n        </primitiv-modal-close>\n      </span>\n      <span class=\"primitiv-modal__body\">\n        <primitiv-modal-description><p class=\"primitiv-modal__description\">Changes are saved to your account when you close this dialog.</p></primitiv-modal-description>\n      </span>\n      <span class=\"primitiv-modal__footer\">\n        <primitiv-modal-close>\n          <button type=\"button\" class=\"primitiv-modal__close\">Done</button>\n        </primitiv-modal-close>\n      </span>\n    </dialog>\n  </primitiv-modal-content>\n</primitiv-modal>\n",
+    "api": [
+      {
+        "tag": "primitiv-modal",
+        "attributes": [
+          {
+            "name": "open",
+            "type": "boolean",
+            "description": "Whether the dialog is open. Reflected: it changes as the user opens and dismisses the dialog, so a server re-render or a history snapshot sees the live state. Set it (or the `open` property) to open or close the dialog from script."
+          }
+        ],
+        "events": [
+          {
+            "name": "primitiv-modal-change",
+            "type": "CustomEvent<{ open: boolean }>",
+            "description": "Bubbles, cancelable, fired before a user-driven change is applied — a trigger or close click, Escape, a press on the backdrop, or the dialog closing natively — with the open state afterwards. Call `preventDefault()` to veto it, e.g. to keep a form with unsaved changes open."
+          }
+        ]
+      },
+      {
+        "tag": "primitiv-modal-trigger",
+        "attributes": [],
+        "events": []
+      },
+      {
+        "tag": "primitiv-modal-content",
+        "attributes": [],
+        "events": []
+      },
+      {
+        "tag": "primitiv-modal-title",
+        "attributes": [],
+        "events": []
+      },
+      {
+        "tag": "primitiv-modal-description",
+        "attributes": [],
+        "events": []
+      },
+      {
+        "tag": "primitiv-modal-close",
+        "attributes": [],
+        "events": []
+      }
+    ]
+  }
 }

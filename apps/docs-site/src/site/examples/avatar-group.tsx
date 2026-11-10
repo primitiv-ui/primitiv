@@ -62,11 +62,56 @@ const faceLines = (list: typeof FACES, { size, indent = "  " }: { size?: Size; i
  * are not playground controls (the playground derives its knobs from the
  * contract) — `size` and `direction` are, and `max` gets its own example.
  */
+/**
+ * A group as Elements markup. With no component to count the children, the
+ * page renders the faces it shows (each in an item with a descending z-index,
+ * so the first paints on top) and the `+N` counter itself.
+ */
+const groupHtml = ({
+  list = FACES,
+  size = "md",
+  direction = "ltr",
+  max,
+  attrs = "",
+}: {
+  list?: typeof FACES;
+  size?: string;
+  direction?: string;
+  max?: number;
+  attrs?: string;
+} = {}) => {
+  const shown = max !== undefined && list.length > max ? list.slice(0, max) : list;
+  const overflow = list.length - shown.length;
+  const avatar = (inner: string, extra = "") =>
+    `<span class="primitiv-avatar primitiv-avatar--${size} primitiv-avatar--circle${extra}">${inner}</span>`;
+  return [
+    `<div class="primitiv-avatar-group primitiv-avatar-group--${size} primitiv-avatar-group--${direction}"${attrs}>`,
+    ...shown.flatMap((f, i) => [
+      `  <span class="primitiv-avatar-group__item" style="z-index: ${shown.length - i}">`,
+      `    ${avatar(`<img class="primitiv-avatar__image" src="${f.src}" alt="" onerror="this.remove()"><span class="primitiv-avatar__fallback"><span class="primitiv-avatar__fallback-label">${f.initials}</span></span>`)}`,
+      `  </span>`,
+    ]),
+    ...(overflow > 0
+      ? [
+          `  <span class="primitiv-avatar-group__item primitiv-avatar-group__item--counter">`,
+          `    ${avatar(`<span class="primitiv-avatar__fallback" aria-label="${overflow} more people"><span class="primitiv-avatar__fallback-label">+${overflow}</span></span>`, " primitiv-avatar-group__counter")}`,
+          `  </span>`,
+        ]
+      : []),
+    `</div>`,
+  ].join("\n");
+};
+
+const column = (code: string) =>
+  `<div style="display: flex; flex-direction: column; gap: 1rem; align-items: flex-start">${code}</div>`;
+
 export const avatarGroupSpec: ComponentSpec = {
   playground: {
     component: "AvatarGroup",
-    snippet: (values) =>
-      [
+    snippet: (values, mode) =>
+      mode === "elements"
+        ? groupHtml({ size: values.size, direction: values.direction })
+        : [
         imports(),
         ``,
         `<AvatarGroup size="${values.size}" direction="${values.direction}">`,
@@ -86,9 +131,12 @@ export const avatarGroupSpec: ComponentSpec = {
       title: "Overlapping faces (the headline)",
       render: () => (
         <InteractiveExample
+          elementsCaption={"A row of avatars the group overlaps and rings. Each face sits in a `__item` with a descending `z-index`, so the first face paints on top — the stack reads as something you count into. Give every avatar the group's size."}
           caption="A row of `Avatar`s the group overlaps and rings. The faces are your own elements — the group lays them out but cannot set their `size`, so pass the same `size` to the group **and** to each `Avatar`. Stacking counts *into* the row: the first face paints on top of the second, and so on. The ring between them is drawn in the surface colour so it reads as a cutout, not a border."
-          code={() =>
-            [imports(), ``, `<AvatarGroup>`, ...faceLines(FACES.slice(0, 4)), `</AvatarGroup>`].join("\n")
+          code={(_density, mode) =>
+            mode === "elements"
+              ? groupHtml({ list: FACES.slice(0, 4) })
+              : [imports(), ``, `<AvatarGroup>`, ...faceLines(FACES.slice(0, 4)), `</AvatarGroup>`].join("\n")
           }
         >
           {() => <AvatarGroup>{faces(FACES.slice(0, 4))}</AvatarGroup>}
@@ -100,9 +148,12 @@ export const avatarGroupSpec: ComponentSpec = {
       title: "The overflow counter (max)",
       render: () => (
         <InteractiveExample
+          elementsCaption={'Show a few faces and fold the rest into a `+N` counter — itself an avatar, in an item carrying `__item--counter` and the `__counter` class. In markup the page decides how many to show, so render the counter with the real count and give it an `aria-label` a person can use: “3 more people”, not “+3”.'}
           caption="`max` shows at most that many faces and folds the rest into a `+N` counter — the counter is itself an `Avatar`, not a `Badge`, so it inherits the ring, size, shape and radius for free (Badge has no neutral tone, and a status colour on an overflow count would be a lie). Give it a real accessible name with `overflowLabel`, since `&quot;+3&quot;` alone tells a screen-reader user nothing."
-          code={() =>
-            [
+          code={(_density, mode) =>
+            mode === "elements"
+              ? groupHtml({ list: TEAM, max: 4 })
+              : [
               imports(),
               ``,
               `// members: { id, avatar, initials }[] — 7 people here`,
@@ -130,9 +181,19 @@ export const avatarGroupSpec: ComponentSpec = {
       title: "Sizes and density",
       render: () => (
         <InteractiveExample
+          elementsCaption={"Five sizes, each rescaling again with the nearest `data-density` ancestor. The group's size modifier sets the overlap and the ring; give each avatar inside the matching size."}
+          elementsPreview={(_density, code) => column(code.split("\n").slice(1, -1).map((l) => l.slice(2)).join("\n"))}
           caption="Five sizes, each rescaling again with the nearest `data-density` ancestor — the same `framed-control/*` scale the `Avatar` itself uses. `size` sets the overlap and ring width; the reminder bears repeating because it is the one real gotcha here: the group cannot size its children, so `size` goes on the group **and** every `Avatar` inside it."
-          code={() =>
-            [
+          code={(density, mode) =>
+            mode === "elements"
+              ? [
+                  `<div data-density="${density}">`,
+                  ...SIZES.map((size) => groupHtml({ list: FACES.slice(0, 3), size })).flatMap((g) =>
+                    g.split("\n").map((l) => `  ${l}`),
+                  ),
+                  `</div>`,
+                ].join("\n")
+              : [
               imports(),
               ``,
               `{["xs", "sm", "md", "lg", "xl"].map((size) => (`,
@@ -165,9 +226,13 @@ export const avatarGroupSpec: ComponentSpec = {
       title: "Direction",
       render: () => (
         <InteractiveExample
+          elementsCaption={'`primitiv-avatar-group--ltr` (the default) advances rightward with the first face on top; `--rtl` mirrors it for a right-to-left locale, so the counter lands on the other end.'}
+          elementsPreview={(_density, code) => column(code)}
           caption="`direction` decides which way the stack advances and, with `max`, which end the counter lands on. `&quot;ltr&quot;` (the default) advances rightward with the counter trailing on the right; `&quot;rtl&quot;` mirrors it for a right-to-left locale. Set it to match the reading direction of the surrounding content rather than hand-reordering the children."
-          code={() =>
-            [
+          code={(_density, mode) =>
+            mode === "elements"
+              ? [groupHtml({ list: TEAM, max: 4 }), groupHtml({ list: TEAM, max: 4, direction: "rtl" })].join("\n")
+              : [
               imports(),
               ``,
               `<AvatarGroup direction="rtl" max={4}>`,
@@ -199,9 +264,22 @@ export const avatarGroupSpec: ComponentSpec = {
       title: "The ring on a tinted background",
       render: () => (
         <InteractiveExample
+          elementsCaption={'The separating ring is the surface colour by default, so it reads as a cutout on a default surface — and is wrong by construction on any other background. Set `--primitiv-avatar-group-ring-color` to the real background, on the group itself.'}
+          elementsPreview={(_density, code) => code.replace('<div style="', '<div style="border-radius: 0.5rem; ')}
           caption="The separating ring is the `surface` colour by default, so it reads as a cutout on a default surface. On any other background it will be wrong by construction — set `--primitiv-avatar-group-ring-color` to that background's colour, **on the group itself** (the component re-declares its own default, which shadows a value merely inherited from an ancestor)."
-          code={() =>
-            [
+          code={(_density, mode) =>
+            mode === "elements"
+              ? [
+                  `<div style="background: var(--primitiv-surface-sunken); padding: 1rem">`,
+                  ...groupHtml({
+                    list: FACES.slice(0, 4),
+                    attrs: ` style="--primitiv-avatar-group-ring-color: var(--primitiv-surface-sunken)"`,
+                  })
+                    .split("\n")
+                    .map((l) => `  ${l}`),
+                  `</div>`,
+                ].join("\n")
+              : [
               imports(),
               ``,
               `<div style={{ background: "var(--primitiv-surface-sunken)", padding: "1rem" }}>`,
@@ -227,6 +305,19 @@ export const avatarGroupSpec: ComponentSpec = {
       ),
     },
   ],
+
+  elements: {
+    description:
+      "A row of overlapping avatars: `primitiv-avatar-group` with a size and a direction, each Avatar in a `__item`, and an optional `+N` counter avatar for the faces you leave out.",
+    accessibility: [
+      "**Name the counter.** Give its fallback an `aria-label` a person can use — “3 more people”, not “+3”.",
+      "**Decide what each face announces.** Faces beside their own names are decorative: `alt=\"\"` on each image.",
+      "The group is a plain `<div>` with no list semantics. If the collection matters as a list, put the classes on a `<ul>` with each item an `<li>`.",
+      "Direction is visual: it mirrors the layout for right-to-left, but the reading order is the source order.",
+      "Tooltips are not built in. To name faces on hover, add your own around each avatar.",
+      "Set `--primitiv-avatar-group-ring-color` to the real background, or the cutout reads as a coloured outline.",
+    ],
+  },
 
   accessibility: [
     "**Name the counter.** The `+N` avatar is decorative by default; pass `overflowLabel` so it announces something a person can use (`&quot;3 more people&quot;`, not `&quot;+3&quot;`). Everything else in the group is your `Avatar`s, whose names you control there.",

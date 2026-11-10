@@ -127,6 +127,13 @@ for (const [id, rootClass] of [
   ["checkbox", "primitiv-checkbox"],
   ["radio", "primitiv-radio"],
   ["switch", "primitiv-switch"],
+  ["empty-state", "primitiv-empty-state"],
+  ["progress", "primitiv-progress"],
+  ["avatar", "primitiv-avatar"],
+  ["avatar-group", "primitiv-avatar-group"],
+  ["table", "primitiv-table"],
+  ["breadcrumb", "primitiv-breadcrumb"],
+  ["pagination", "primitiv-pagination"],
 ] as const) {
   test(`the ${id} preview is styled markup with no element to define`, async ({ page }) => {
     await page.goto(`/components/${id}/`);
@@ -184,4 +191,18 @@ test("the Switch script preview sets the switch", async ({ page }) => {
   await expect(example.getByRole("switch", { name: "Email notifications" })).toBeChecked();
   await example.getByRole("button", { name: "Turn off" }).click();
   await expect(example.getByRole("switch", { name: "Email notifications" })).not.toBeChecked();
+});
+
+test("the Progress live preview moves the bar", async ({ page }) => {
+  await page.goto("/components/progress/");
+  const bar = cell(page, "live").getByRole("progressbar", { name: "Uploading files" });
+  const first = await bar.getAttribute("aria-valuenow");
+  await expect.poll(() => bar.getAttribute("aria-valuenow")).not.toBe(first);
+});
+
+test("a broken Avatar image falls back to its initials", async ({ page }) => {
+  await page.goto("/components/avatar/");
+  const example = cell(page, "missing-or-broken");
+  await expect(example.locator(".docs-elements-preview img")).toHaveCount(0);
+  await expect(example.locator(".primitiv-avatar__fallback-label")).toHaveText("GH");
 });

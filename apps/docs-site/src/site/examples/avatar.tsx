@@ -7,6 +7,7 @@ import { Stack } from "@/components/stack";
 import { contractAttr, importBlock, partNamer, stackImports } from "@/lib/playground";
 import { InteractiveExample } from "@/site/InteractiveExample";
 import type { Mode } from "@/site/preferences";
+import { glyph, withGlyphs } from "./glyphs";
 import type { ComponentSpec } from "./types";
 
 type Size = "xs" | "sm" | "md" | "lg" | "xl";
@@ -64,6 +65,42 @@ const avatarLines = (
  * styled file is a thin per-part wrapper over the headless compound, adding only
  * `size` / `shape` — so the two modes differ in names, not in shape.
  */
+/**
+ * An avatar as Elements markup. With no script to report a load, the `<img>`
+ * simply shows over the fallback; `onerror` removes a broken one so the
+ * fallback shows through instead.
+ */
+const avatarHtml = ({
+  size = "md",
+  shape = "circle",
+  src,
+  alt = "Ada Lovelace",
+  fallback = "AL",
+  icon = false,
+  attrs = "",
+  indent = "",
+}: {
+  size?: string;
+  shape?: string;
+  src?: string;
+  alt?: string;
+  fallback?: string;
+  icon?: boolean;
+  attrs?: string;
+  indent?: string;
+} = {}) =>
+  [
+    `${indent}<span class="primitiv-avatar primitiv-avatar--${size} primitiv-avatar--${shape}"${attrs}>`,
+    ...(src ? [`${indent}  <img class="primitiv-avatar__image" src="${src}" alt="${alt}" onerror="this.remove()">`] : []),
+    icon
+      ? `${indent}  <span class="primitiv-avatar__fallback">${glyph("user")}</span>`
+      : `${indent}  <span class="primitiv-avatar__fallback"><span class="primitiv-avatar__fallback-label">${fallback}</span></span>`,
+    `${indent}</span>`,
+  ].join("\n");
+
+const ROW =
+  '<div class="primitiv-stack primitiv-stack--row primitiv-stack--gap-sm primitiv-stack--align-center primitiv-stack--nowrap primitiv-stack--justify-start">';
+
 export const avatarSpec: ComponentSpec = {
   playground: {
     component: "Avatar",
@@ -71,7 +108,9 @@ export const avatarSpec: ComponentSpec = {
        renders one tag with a string child, and would print `size`/`shape` in
        headless mode where they are not props. */
     snippet: (values, mode) =>
-      [
+      mode === "elements"
+        ? avatarHtml({ src: DEMO_SRC, size: values.size, shape: values.shape })
+        : [
         imports(mode),
         ``,
         ...avatarLines(mode, {
@@ -99,7 +138,8 @@ export const avatarSpec: ComponentSpec = {
       label: "Parts",
       /* The tree only — Image is shown because it is a real part, though an
          Image-less fallback-only avatar is equally valid. */
-      code: (mode) => avatarLines(mode, { src: DEMO_SRC }).join("\n"),
+      code: (mode) =>
+        mode === "elements" ? avatarHtml({ src: DEMO_SRC }) : avatarLines(mode, { src: DEMO_SRC }).join("\n"),
     },
   ],
 
@@ -109,9 +149,12 @@ export const avatarSpec: ComponentSpec = {
       title: "Image with a fallback (the headline)",
       render: () => (
         <InteractiveExample
+          elementsCaption={'The normal shape: an `<img>` for the photo stacked over a `__fallback` for when there is none. In markup there is no script watching the load, so the image simply shows and covers the fallback; the `onerror` handler removes a broken image so the fallback shows through instead.'}
           caption="The normal shape: an `Avatar.Image` for the photo and an `Avatar.Fallback` for while it loads, or if it is missing. `Avatar.Root` holds a single `data-status` (`idle` → `loading` → `loaded` / `error`); the Image reports its transitions up and the Fallback shows through until the image is `loaded`. Both fill the same clipping frame and only one is visible, so there is no crossfade — and the `<img>` stays mounted through every status, so its load lifecycle is never lost."
           code={(_density, mode) =>
-            [imports(mode), ``, ...avatarLines(mode, { src: DEMO_SRC })].join("\n")
+            mode === "elements"
+              ? avatarHtml({ src: DEMO_SRC })
+              : [imports(mode), ``, ...avatarLines(mode, { src: DEMO_SRC })].join("\n")
           }
         >
           {() => (
@@ -128,9 +171,18 @@ export const avatarSpec: ComponentSpec = {
       title: "Fallback: initials or an icon",
       render: () => (
         <InteractiveExample
+          elementsCaption={'With no image, the fallback is what shows. Initials are the usual choice when you have a name; a neutral icon when you do not. An icon is decorative, so name the avatar itself with `aria-label` — and give the label `role="img"` so that name is announced.'}
+          elementsPreview={(_density, code) => withGlyphs(code)}
           caption="With no `Avatar.Image` — or before one loads — the Fallback is what shows. Initials are the usual choice when you have a name; a neutral icon like `User` covers the case where you do not. The styled Fallback wraps *text* children in a label span so `text-box-trim` can centre the glyphs optically, but passes an element child (the icon) straight through, so an icon sits centred by the flex frame instead. Mind the accessible name either way — see the notes below."
           code={(_density, mode) =>
-            [
+            mode === "elements"
+              ? [
+                  ROW,
+                  avatarHtml({ indent: "  " }),
+                  avatarHtml({ icon: true, attrs: ` role="img" aria-label="Ada Lovelace"`, indent: "  " }),
+                  `</div>`,
+                ].join("\n")
+              : [
               imports(mode, ["User"]),
               stackImports(mode),
               ``,
@@ -165,9 +217,12 @@ export const avatarSpec: ComponentSpec = {
       title: "When the image is missing or broken",
       render: () => (
         <InteractiveExample
+          elementsCaption={"A `src` that 404s would show the browser's broken-image glyph, so the `onerror` handler removes the `<img>` and the fallback underneath shows through. If your page forbids inline handlers (a strict Content-Security-Policy), attach the same `error` listener from your own script."}
           caption="A `src` that 404s (or none at all) never shows a broken-image glyph: the `<img>` is hidden rather than unmounted and the Fallback shows through, so a missing photo degrades to initials. On fast connections a fallback can instead flash before a working image decodes; `delayMs` on the Fallback withholds it for that many milliseconds after mount to avoid the flicker. It is a Fallback prop, listed in the props table below."
           code={(_density, mode) =>
-            [
+            mode === "elements"
+              ? avatarHtml({ src: "/does-not-exist.jpg", alt: "Grace Hopper", fallback: "GH" })
+              : [
               imports(mode),
               ``,
               ...avatarLines(mode, { src: "/does-not-exist.jpg", alt: "Grace Hopper", fallback: "GH" }),
@@ -188,9 +243,17 @@ export const avatarSpec: ComponentSpec = {
       title: "Shape",
       render: () => (
         <InteractiveExample
+          elementsCaption={'`primitiv-avatar--circle` is fully rounded at any size; `primitiv-avatar--square` swaps in size-scaled corners — for an organisation or a bot rather than a person.'}
           caption="`shape` is `&quot;circle&quot;` by default — fully rounded at any size — or `&quot;square&quot;`, which swaps in size-scaled corners rather than a hard right angle, so a small square avatar and a large one keep the same visual softness. The corner radius is its own `avatar/radius/*` token family, independent of the shared sizing scale."
           code={(_density, mode) =>
-            [
+            mode === "elements"
+              ? [
+                  ROW,
+                  avatarHtml({ src: DEMO_SRC, indent: "  " }),
+                  avatarHtml({ src: DEMO_SRC, shape: "square", indent: "  " }),
+                  `</div>`,
+                ].join("\n")
+              : [
               imports(mode),
               stackImports(mode),
               ``,
@@ -225,9 +288,18 @@ export const avatarSpec: ComponentSpec = {
       title: "Sizes and density",
       render: () => (
         <InteractiveExample
+          elementsCaption={'Five sizes, each rescaling again with the nearest `data-density` ancestor. Avatars use the same size scale as buttons and inputs, so an avatar beside a control lines up with it.'}
           caption="Five sizes, each rescaling again with the nearest `data-density` ancestor. Sizing reuses the shared `framed-control/*` scale directly — the same token an Input or Button of that size uses — so an avatar lines up cleanly beside a control of the matching size rather than needing its own scale."
           code={(density, mode) =>
-            [
+            mode === "elements"
+              ? [
+                  `<div data-density="${density}">`,
+                  `  ${ROW}`,
+                  ...SIZES.map((size) => avatarHtml({ src: DEMO_SRC, size, indent: "    " })),
+                  `  </div>`,
+                  `</div>`,
+                ].join("\n")
+              : [
               imports(mode),
               stackImports(mode),
               ``,
@@ -259,6 +331,19 @@ export const avatarSpec: ComponentSpec = {
       ),
     },
   ],
+
+  elements: {
+    description:
+      "A user's picture with a fallback: `primitiv-avatar` with a size and a shape on a `<span>`, an `<img class=\"primitiv-avatar__image\">` and a `__fallback` with initials or an icon beneath it. The image covers the fallback whenever it loads.",
+    anatomyMeta:
+      "Three parts. The root is the frame that clips to the shape; the `__image` is stacked over the `__fallback`, so whichever is on top is what shows. Remove a broken image (`onerror`) and the fallback is left.",
+    accessibility: [
+      "**Give the image a considered `alt`.** If the avatar sits next to the person's name, the picture is decorative — `alt=\"\"` — so the name is not read twice.",
+      "**A fallback needs a name too.** Initials are announced as-is, which is often not much use. An icon fallback is decorative: name the avatar with `role=\"img\"` and `aria-label`.",
+      "Size and shape are purely visual and change nothing in the accessibility tree.",
+      "The root is a non-interactive `<span>`. To make an avatar a link, put the classes inside an `<a>` with its own accessible name.",
+    ],
+  },
 
   accessibility: [
     "**Give the image a considered `alt`.** If the avatar sits next to the person's name, the picture is decorative — pass `alt=\"\"` so a screen reader does not announce the name twice. If it stands alone (a bare avatar in a toolbar), `alt` should name the person, since it is the only label they get.",

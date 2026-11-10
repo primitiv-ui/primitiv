@@ -89,5 +89,12 @@
   "figma": {
     "componentSetKey": "1480:44052"
   },
-  "elements": null
+  "elements": {
+    "package": null,
+    "version": null,
+    "element": "div",
+    "wrapText": false,
+    "example": "<div class=\"primitiv-avatar-group primitiv-avatar-group--md primitiv-avatar-group--ltr\">\n  <span class=\"primitiv-avatar-group__item\" style=\"z-index: 3\">\n    <span class=\"primitiv-avatar primitiv-avatar--md primitiv-avatar--circle\"><span class=\"primitiv-avatar__fallback\"><span class=\"primitiv-avatar__fallback-label\">AL</span></span></span>\n  </span>\n  <span class=\"primitiv-avatar-group__item\" style=\"z-index: 2\">\n    <span class=\"primitiv-avatar primitiv-avatar--md primitiv-avatar--circle\"><span class=\"primitiv-avatar__fallback\"><span class=\"primitiv-avatar__fallback-label\">GH</span></span></span>\n  </span>\n  <span class=\"primitiv-avatar-group__item\" style=\"z-index: 1\">\n    <span class=\"primitiv-avatar primitiv-avatar--md primitiv-avatar--circle\"><span class=\"primitiv-avatar__fallback\"><span class=\"primitiv-avatar__fallback-label\">KJ</span></span></span>\n  </span>\n  <span class=\"primitiv-avatar-group__item primitiv-avatar-group__item--counter\">\n    <span class=\"primitiv-avatar primitiv-avatar--md primitiv-avatar--circle primitiv-avatar-group__counter\"><span class=\"primitiv-avatar__fallback\" aria-label=\"4 more\"><span class=\"primitiv-avatar__fallback-label\">+4</span></span></span>\n  </span>\n</div>\n",
+    "api": []
+  }
 }

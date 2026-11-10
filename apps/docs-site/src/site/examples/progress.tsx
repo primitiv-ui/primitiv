@@ -75,6 +75,72 @@ const ClimbingExample = () => {
  * passes `aria-label`. The props table cannot say that, because the name comes
  * from a native attribute the component never declares.
  */
+/**
+ * A bar as Elements markup. The value is written twice — once for assistive tech
+ * (`aria-valuenow`) and once for the fill (`--primitiv-progress-value`) — and
+ * omitting it means indeterminate, exactly as in React.
+ */
+const barHtml = ({
+  size = "md",
+  intent = "primary",
+  value,
+  max = 100,
+  label,
+  valueText,
+  id,
+  indent = "",
+}: {
+  size?: string;
+  intent?: string;
+  value?: number;
+  max?: number;
+  label: string;
+  valueText?: string;
+  id?: string;
+  indent?: string;
+}) => {
+  const valued =
+    value === undefined
+      ? ""
+      : ` aria-valuemin="0" aria-valuemax="${max}" aria-valuenow="${value}"${valueText ? ` aria-valuetext="${valueText}"` : ""} style="--primitiv-progress-value: ${value}${max === 100 ? "" : `; --primitiv-progress-max: ${max}`}"`;
+  return [
+    `${indent}<div class="primitiv-progress primitiv-progress--${size} primitiv-progress--${intent}"${id ? ` id="${id}"` : ""} role="progressbar" aria-label="${label}"${valued}>`,
+    `${indent}  <div class="primitiv-progress__indicator"></div>`,
+    `${indent}</div>`,
+  ].join("\n");
+};
+
+const STACK =
+  '<div class="primitiv-stack primitiv-stack--column primitiv-stack--gap-lg primitiv-stack--align-stretch primitiv-stack--nowrap primitiv-stack--justify-start">';
+
+/** Updating the bar from script, as the Elements code tab prints it. */
+const LIVE_SCRIPT = [
+  `<script>`,
+  `  const bar = document.getElementById("upload");`,
+  `  let value = 12;`,
+  `  setInterval(() => {`,
+  `    value = value >= 100 ? 0 : value + 4;`,
+  `    bar.setAttribute("aria-valuenow", value);`,
+  `    bar.style.setProperty("--primitiv-progress-value", value);`,
+  `  }, 400);`,
+  `</script>`,
+];
+
+/** The same, scoped to the preview (scripts in injected markup never run). */
+const wireLive = (root: HTMLElement) => {
+  const bar = root.querySelector<HTMLElement>("#upload");
+  if (!bar) return;
+  let value = 12;
+  const id = setInterval(() => {
+    value = value >= 100 ? 0 : value + 4;
+    bar.setAttribute("aria-valuenow", String(value));
+    bar.style.setProperty("--primitiv-progress-value", String(value));
+  }, 400);
+  return () => clearInterval(id);
+};
+
+const stacked = (_density: unknown, code: string) => `<div class="docs-example-stack">${code}</div>`;
+
 export const progressSpec: ComponentSpec = {
   playground: {
     component: "Progress",
@@ -91,7 +157,11 @@ export const progressSpec: ComponentSpec = {
        would drop it under Headless), and the Indicator is a part the generated
        childless line would omit — leaving an empty track. */
     snippet: (values, mode) =>
-      [
+      mode === "elements"
+        ? values.indeterminate === "true"
+          ? barHtml({ size: values.size, intent: values.intent, label: "Loading, progress unknown" })
+          : barHtml({ size: values.size, intent: values.intent, value: 60, label: "60% complete" })
+        : [
         imports(mode),
         ``,
         ...barLines(mode, {
@@ -102,6 +172,7 @@ export const progressSpec: ComponentSpec = {
             ` aria-label="${values.indeterminate === "true" ? "Loading, progress unknown" : "60% complete"}"`,
         }),
       ].join("\n"),
+    elementsPreview: (code) => `<div class="docs-example-stack">${code}</div>`,
     render: (values) => (
       <div className="docs-example-stack">
         <Progress
@@ -122,7 +193,10 @@ export const progressSpec: ComponentSpec = {
   anatomy: [
     {
       label: "Parts",
-      code: (mode) => barLines(mode, { attrs: ` value={60} aria-label="60% complete"` }).join("\n"),
+      code: (mode) =>
+        mode === "elements"
+          ? barHtml({ value: 60, label: "60% complete" })
+          : barLines(mode, { attrs: ` value={60} aria-label="60% complete"` }).join("\n"),
     },
   ],
 
@@ -132,9 +206,24 @@ export const progressSpec: ComponentSpec = {
       title: "Value, and the absence of one (the headline)",
       render: () => (
         <InteractiveExample
+          elementsCaption={'**Leaving out the value means indeterminate, not zero.** A determinate bar states its value twice — `aria-valuenow` for assistive tech and `--primitiv-progress-value` for the fill — while an indeterminate one has neither, which is also the correct ARIA for unknown progress. The stylesheet reads the missing `aria-valuenow` and animates the bar.'}
+          elementsPreview={stacked}
           caption="`value` is `number | null`, and **omitting it means indeterminate, not zero**. A determinate bar reports `aria-valuenow` and a percentage through `aria-valuetext`, and resolves `data-state` to `loading` or `complete`; an indeterminate one reports neither, sets `data-state=&quot;indeterminate&quot;`, and animates to say so. That distinction is the whole reason `value` is nullable rather than defaulting to 0 — `0` is a known amount of progress, and `null` is not knowing."
           code={(_density, mode) =>
-            [
+            mode === "elements"
+              ? [
+                  STACK,
+                  `  <!-- determinate: reports 40% -->`,
+                  barHtml({ value: 40, label: "40% complete", indent: "  " }),
+                  ``,
+                  `  <!-- indeterminate: no value at all, NOT 0 -->`,
+                  barHtml({ label: "Loading, progress unknown", indent: "  " }),
+                  ``,
+                  `  <!-- complete -->`,
+                  barHtml({ value: 100, label: "Complete", indent: "  " }),
+                  `</div>`,
+                ].join("\n")
+              : [
               imports(mode),
               stackImports(mode),
               ``,
@@ -174,9 +263,14 @@ export const progressSpec: ComponentSpec = {
       title: "A value that changes",
       render: () => (
         <InteractiveExample
+          elementsCaption={"To move the bar, update the same two places the markup set: `aria-valuenow` for assistive tech and `--primitiv-progress-value` for the fill. The fill animates between values on its own. Usually the new value comes from a fetch or an upload's progress event; here a timer stands in."}
+          wire={wireLive}
+          elementsPreview={(_density, code) => `<div class="docs-example-stack">${code.slice(0, code.indexOf("\n\n<script"))}</div>`}
           caption="Nothing to wire up: pass a new `value` and the fill follows. The Root republishes `data-value` and `data-max` on every render — as **attributes**, not just custom properties, so CSS can read the number and a test can assert on it without computing a style. `data-state` flips to `complete` at `value === max`, which is the hook to key a finished treatment off rather than comparing numbers in your own code."
           code={(_density, mode) =>
-            [
+            mode === "elements"
+              ? [barHtml({ id: "upload", value: 12, label: "Uploading files" }), ``, ...LIVE_SCRIPT].join("\n")
+              : [
               `import { useEffect, useState } from "react";`,
               imports(mode),
               ``,
@@ -203,9 +297,13 @@ export const progressSpec: ComponentSpec = {
       title: "A scale other than percent",
       render: () => (
         <InteractiveExample
+          elementsCaption={'`aria-valuemax` and `--primitiv-progress-max` move the upper bound together, so the value can be a count rather than a percentage — 7 of 12 steps. Add `aria-valuetext` so it is read as “Step 7 of 12” rather than as a bare number.'}
+          elementsPreview={stacked}
           caption="`max` moves the upper bound, so `value` can be a count rather than a percentage — 7 of 12 steps, 3 of 5 uploads. The visual fill is the ratio either way, but the announcement should not be: `getValueLabel` writes `aria-valuetext`, and its default is a rounded percentage, which reads as &quot;58%&quot; when the useful sentence is &quot;7 of 12&quot;. Note it is not called at all while indeterminate — there is no value to describe. `max` must be positive and finite, and a non-null `value` outside `0..max` **throws** rather than clamping, on the grounds that a bar silently pinned at 100% hides the bug that produced it."
           code={(_density, mode) =>
-            [
+            mode === "elements"
+              ? barHtml({ value: 7, max: 12, valueText: "Step 7 of 12", label: "Setup progress" })
+              : [
               imports(mode),
               ``,
               ...barLines(mode, {
@@ -234,9 +332,17 @@ export const progressSpec: ComponentSpec = {
       title: "Intent",
       render: () => (
         <InteractiveExample
+          elementsCaption={'Three fills, set by the `primitiv-progress--{intent}` modifier. The **track stays neutral in every intent** — only the fill changes — so bars of different intents still read as the same control.'}
+          elementsPreview={stacked}
           caption="Three fills. The **track stays neutral in every intent** — only the fill changes — so bars of different intents still read as the same control on one page. `secondary` is for progress that should not compete for attention (a background sync), and `danger` for progress *toward* a bad outcome, like a quota filling up. Intent is decoration: it carries no ARIA, so a `danger` bar announces exactly as a `primary` one does, and anything the colour is meant to convey needs saying in the label too."
           code={(_density, mode) =>
-            [
+            mode === "elements"
+              ? [
+                  STACK,
+                  ...INTENTS.map((intent) => barHtml({ intent, value: 60, label: `60% complete, ${intent}`, indent: "  " })),
+                  `</div>`,
+                ].join("\n")
+              : [
               imports(mode),
               stackImports(mode),
               ``,
@@ -270,9 +376,19 @@ export const progressSpec: ComponentSpec = {
       title: "Sizes and density",
       render: () => (
         <InteractiveExample
+          elementsCaption={'Five track heights, each rescaling again with the nearest `data-density` ancestor. Size is the only thing that moves — the radius stays fully rounded at every height.'}
+          elementsPreview={stacked}
           caption="Five track heights, each rescaling again with the nearest `data-density` ancestor. Size is the only thing that moves — the radius stays fully rounded at every height, so a bar never reads as a rectangle at `xl`."
           code={(density, mode) =>
-            [
+            mode === "elements"
+              ? [
+                  `<div data-density="${density}">`,
+                  `  ${STACK}`,
+                  ...SIZES.map((size) => barHtml({ size, value: 60, label: `60% complete, ${size}`, indent: "    " })),
+                  `  </div>`,
+                  `</div>`,
+                ].join("\n")
+              : [
               imports(mode),
               stackImports(mode),
               ``,
@@ -304,6 +420,21 @@ export const progressSpec: ComponentSpec = {
       ),
     },
   ],
+
+  elements: {
+    description:
+      "A progress bar as classes: `primitiv-progress` with a size and an intent on an element with `role=\"progressbar\"`, holding a `__indicator` fill. The value lives in `aria-valuenow` and in `--primitiv-progress-value`; leave both out for an indeterminate bar.",
+    anatomyMeta:
+      "Two parts. The root is the track and the progressbar: it carries the role, the name and the `aria-value*` attributes, plus the custom properties that size the fill. `__indicator` is the fill inside it.",
+    accessibility: [
+      "**Always give it a name** — `aria-label` or `aria-labelledby`. An unnamed bar is announced as “progress bar” and nothing else.",
+      "Keep `aria-valuenow` and `--primitiv-progress-value` in step: the first is what assistive tech reads, the second is what the eye sees.",
+      "An indeterminate bar has **no** `aria-valuenow` — the correct ARIA for unknown progress. A bar that claimed `0` would be telling assistive tech nothing has happened.",
+      "For a scale other than percent, add `aria-valuetext` (“Step 7 of 12”) — otherwise the value is read as a bare number or a percentage.",
+      "**A progress bar is not a live region.** Nothing is announced as the value changes. If completion needs announcing, put a message in a `role=\"status\"` element when it finishes.",
+      "The intent colour carries no meaning for assistive tech. If it is doing semantic work, say so in the label too.",
+    ],
+  },
 
   accessibility: [
     "**Always pass a name.** `role=\"progressbar\"` is set for you, but the name is not — an unnamed bar is announced as \"progress bar\" and nothing else. Use `aria-label`, or `aria-labelledby` pointing at visible text. Every example on this page does; the props table cannot tell you to, because the name arrives through a native attribute the component never declares.",

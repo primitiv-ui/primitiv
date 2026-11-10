@@ -17,6 +17,7 @@ import {
 } from "@/components/pagination";
 import { Select, SelectItem } from "@/components/select";
 import { InteractiveExample } from "@/site/InteractiveExample";
+import { glyph, withGlyphs } from "./glyphs";
 import type { ComponentSpec } from "./types";
 
 type Size = "xs" | "sm" | "md" | "lg" | "xl";
@@ -166,12 +167,76 @@ function SummaryJumpDemo() {
  * Registry-only, so its snippets are the copied parts whichever mode you read;
  * `usePagination` comes from `@primitiv-ui/react` in every case.
  */
+/**
+ * Pagination as Elements markup: every page a real link, rendered by the server
+ * for the current page. The window is fixed here (page 3 of 10) — the page
+ * computes it, as `usePagination` does in React.
+ */
+const paginationHtml = ({
+  size = "md",
+  variant = "numbered",
+  label = "Results",
+  summary = false,
+  jump = false,
+  indent = "",
+}: {
+  size?: string;
+  variant?: string;
+  label?: string;
+  summary?: boolean;
+  jump?: boolean;
+  indent?: string;
+} = {}) => {
+  const button = (kind: string, extra: string) => `class="${extra} primitiv-button primitiv-button--${kind} primitiv-button--${size}"`;
+  const nav = (dir: "previous" | "next", page: number) =>
+    `<li class="primitiv-pagination__cell"><a ${button("ghost", "primitiv-pagination__nav")} href="?page=${page}" aria-label="Go to ${dir} page">${glyph(dir === "previous" ? "chevron-left" : "chevron-right")}</a></li>`;
+  const page = (n: number) =>
+    n === 3
+      ? `<li class="primitiv-pagination__cell"><a ${button("primary", "primitiv-pagination__item")} href="?page=3" aria-current="page"><span class="primitiv-button__label">3</span></a></li>`
+      : `<li class="primitiv-pagination__cell"><a ${button("secondary", "primitiv-pagination__item")} href="?page=${n}"><span class="primitiv-button__label">${n}</span></a></li>`;
+  const cells =
+    variant === "compact"
+      ? [nav("previous", 2), `<li class="primitiv-pagination__cell"><span class="primitiv-pagination__status">Page 3 of 10</span></li>`, nav("next", 4)]
+      : [
+          nav("previous", 2),
+          ...[1, 2, 3, 4, 5].map(page),
+          `<li class="primitiv-pagination__cell"><span class="primitiv-pagination__ellipsis" aria-hidden="true">...</span></li>`,
+          page(10),
+          nav("next", 4),
+        ];
+  return [
+    `<nav class="primitiv-pagination primitiv-pagination--${variant} primitiv-pagination--${size}" aria-label="${label}">`,
+    ...(summary ? [`  <span class="primitiv-pagination__summary">Showing 21–30 of 97</span>`] : []),
+    `  <ul class="primitiv-pagination__controls">`,
+    ...cells.map((c) => `    ${c}`),
+    `  </ul>`,
+    ...(jump
+      ? [
+          `  <span class="primitiv-pagination__trailing">`,
+          `    <form method="get" style="display: flex; align-items: center; gap: 0.5rem">`,
+          `      <label for="jump">Go to</label>`,
+          `      <select id="jump" name="page">${Array.from({ length: 10 }, (_, i) => `<option${i === 2 ? " selected" : ""}>${i + 1}</option>`).join("")}</select>`,
+          `      <button type="submit" class="primitiv-button primitiv-button--secondary primitiv-button--sm"><span class="primitiv-button__label">Go</span></button>`,
+          `    </form>`,
+          `  </span>`,
+        ]
+      : []),
+    `</nav>`,
+  ]
+    .map((l) => indent + l)
+    .join("\n");
+};
+
+const fullWidth = (_density: unknown, code: string) => `<div style="inline-size: 100%">${withGlyphs(code)}</div>`;
+
 export const paginationSpec: ComponentSpec = {
   playground: {
     component: "Pagination",
     fill: true,
-    snippet: (values) =>
-      values.variant === "compact"
+    snippet: (values, mode) =>
+      mode === "elements"
+        ? paginationHtml({ size: values.size, variant: values.variant })
+        : values.variant === "compact"
         ? [
             imports(),
             ``,
@@ -208,6 +273,7 @@ export const paginationSpec: ComponentSpec = {
             `  </PaginationList>`,
             `</Pagination>`,
           ].join("\n"),
+    elementsPreview: (code) => fullWidth(null, code),
     render: (values) => (
       <div style={{ inlineSize: "100%" }}>
         <PlaygroundPagination variant={values.variant as Variant} size={values.size as Size} />
@@ -221,8 +287,20 @@ export const paginationSpec: ComponentSpec = {
   anatomy: [
     {
       label: "Parts",
-      code: () =>
-        [
+      code: (mode) =>
+        mode === "elements"
+          ? [
+              `<nav class="primitiv-pagination" aria-label="Results">`,
+              `  <span class="primitiv-pagination__summary">…</span>          <!-- optional -->`,
+              `  <ul class="primitiv-pagination__controls">`,
+              `    <li class="primitiv-pagination__cell"><a class="primitiv-pagination__nav primitiv-button">…</a></li>`,
+              `    <li class="primitiv-pagination__cell"><a class="primitiv-pagination__item primitiv-button" aria-current="page">1</a></li>`,
+              `    <li class="primitiv-pagination__cell"><span class="primitiv-pagination__ellipsis">...</span></li>`,
+              `  </ul>`,
+              `  <span class="primitiv-pagination__trailing">…</span>        <!-- optional -->`,
+              `</nav>`,
+            ].join("\n")
+          : [
           `<Pagination label="Results">`,
           `  <PaginationSummary>…</PaginationSummary>          {/* optional */}`,
           `  <PaginationList>`,
@@ -245,9 +323,13 @@ export const paginationSpec: ComponentSpec = {
       title: "Numbered pages",
       render: () => (
         <InteractiveExample
+          elementsCaption={'The default: a row of page cells between previous and next chevrons, each a real link to its page — the server renders the window around the current one. The cells are Button\'s classes on an `<a>`; adding pagination installs Button with it. The current page is marked with `aria-current="page"` as well as the primary fill, and the gap is a static `...` hidden from assistive tech.'}
+          elementsPreview={fullWidth}
           caption="The default: a row of page cells between prev/next chevrons, driven by `usePagination`. The hook returns `items` — a mix of `page` and `gap` entries — so a long range collapses behind a `PaginationEllipsis` whose menu lists the hidden pages (this demo is 10 pages; click the `…`). `isActive` on the current `PaginationLink` is what sets `aria-current=&quot;page&quot;`; disable the chevrons from `canPrevious` / `canNext`."
-          code={() =>
-            [
+          code={(_density, mode) =>
+            mode === "elements"
+              ? paginationHtml({ label: "Search results" })
+              : [
               imports(),
               ``,
               `const { page, items, setPage, next, previous, canPrevious, canNext } =`,
@@ -292,9 +374,13 @@ export const paginationSpec: ComponentSpec = {
       title: "Compact",
       render: () => (
         <InteractiveExample
+          elementsCaption={'`primitiv-pagination--compact` drops the number cells for a `__status` readout between the chevrons — for narrow containers, where a row of numbers would not fit.'}
+          elementsPreview={fullWidth}
           caption="`variant=&quot;compact&quot;` drops the number cells for a `PaginationStatus` readout between the chevrons — for narrow containers, and the intended default in a data-table footer. Same hook, less chrome: you show `Page {page} of {pageCount}` instead of every cell."
-          code={() =>
-            [
+          code={(_density, mode) =>
+            mode === "elements"
+              ? paginationHtml({ variant: "compact" })
+              : [
               imports(),
               ``,
               `const { page, pageCount, next, previous, canPrevious, canNext } =`,
@@ -323,9 +409,13 @@ export const paginationSpec: ComponentSpec = {
       title: "Summary and jump-to",
       render: () => (
         <InteractiveExample
+          elementsCaption={'Two optional slots wrap the list: a `__summary` before it for a “showing X–Y of N” line, and a `__trailing` slot after it — here a small GET form that jumps straight to a page, with no script at all.'}
+          elementsPreview={fullWidth}
           caption="Two optional slots wrap the list: `PaginationSummary` before it for a “showing X–Y of N” line (from the hook's `startIndex` / `endIndex`), and `PaginationTrailing` after it for a jump-to control — a native `Select` here, so far pages are one action away rather than many clicks. Omit either and nothing renders."
-          code={() =>
-            [
+          code={(_density, mode) =>
+            mode === "elements"
+              ? paginationHtml({ summary: true, jump: true })
+              : [
               imports(),
               `import { Select, SelectItem } from "@/components/ui/select";`,
               ``,
@@ -355,9 +445,17 @@ export const paginationSpec: ComponentSpec = {
       title: "Sizes and density",
       render: () => (
         <InteractiveExample
+          elementsCaption={"Five sizes, each rescaling again with the nearest `data-density` ancestor. Give the cells' Button classes the same size as the pagination, so they stay square."}
+          elementsPreview={(_density, code) => `<div style="display: flex; flex-direction: column; gap: 1rem; inline-size: 100%">${withGlyphs(code.split("\n").slice(1, -1).map((l) => l.slice(2)).join("\n"))}</div>`}
           caption="Five sizes, each rescaling again with the nearest `data-density` ancestor — the same `framed-control/*` scale the chevrons and cells share with Button and Input, so a pagination row lines up with the controls around it."
-          code={(density) =>
-            [
+          code={(density, mode) =>
+            mode === "elements"
+              ? [
+                  `<div data-density="${density}">`,
+                  ...(["sm", "md", "lg"] as const).map((size) => paginationHtml({ size, label: `Results ${size}`, indent: "  " })),
+                  `</div>`,
+                ].join("\n")
+              : [
               imports(),
               ``,
               `<div data-density="${density}">`,
@@ -377,6 +475,20 @@ export const paginationSpec: ComponentSpec = {
       ),
     },
   ],
+
+  elements: {
+    description:
+      "Links between pages of results: `primitiv-pagination` with a variant and a size on a `<nav>`, a `__controls` list of `__cell` items, and Button's classes on each page link. Optional `__summary` and `__trailing` slots sit either side.",
+    anatomyMeta:
+      "The `<nav>` is the landmark; `__controls` is the `<ul>` and each `__cell` an `<li>`. Page links carry `__item` plus Button's classes, the chevrons `__nav`, the gap a static `__ellipsis`, and the compact readout `__status`.",
+    accessibility: [
+      "**It is a `<nav>` landmark — name it** with `aria-label`, since a page can have more than one navigation landmark.",
+      "**Mark the current page with `aria-current=\"page\"`**, not only the primary fill — that is how assistive tech announces where you are.",
+      "**The chevrons are icon-only**, so each needs an `aria-label` (“Go to next page”).",
+      "**The ellipsis is decoration here**: `aria-hidden=\"true\"`. The pages it stands for are still reachable through the neighbouring links and the jump form.",
+      "**Use links when each page is a URL.** `<a href=\"?page=3\">` gives you back/forward, bookmarking and crawling for free.",
+    ],
+  },
 
   accessibility: [
     "**It is a `<nav>` landmark — name it.** `Pagination` renders a `<nav>` and needs a `label` (`aria-label`), since a page can have more than one navigation landmark; “Search results” or “Table pages” distinguishes them in a screen reader's landmark list.",

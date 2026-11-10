@@ -6,7 +6,7 @@ framework and no runtime dependencies beyond
 server-rendered stack (HTMX, Rails, Django, Laravel, Spring …), and inside
 React, Vue, Angular or any other framework.
 
-> **Status: published.** Tabs, Accordion and Collapsible so far. See
+> **Status: published.** Tabs, Accordion, Collapsible and Modal so far. See
 > [RFC 0033](../../docs/rfcs/0033-web-components.md) for the design.
 
 ## Components
@@ -16,6 +16,7 @@ React, Vue, Angular or any other framework.
 | Tabs | `primitiv-tabs`, `-list`, `-trigger`, `-content` | `primitiv-tabs-change` | 0.1.42 |
 | Accordion | `primitiv-accordion`, `-item`, `-trigger`, `-content`, `-trigger-icon` | `primitiv-accordion-change` | 0.1.44 |
 | Collapsible | `primitiv-collapsible`, `-trigger`, `-content`, `-trigger-icon` | `primitiv-collapsible-change` | 0.1.47 |
+| Modal | `primitiv-modal`, `-trigger`, `-content`, `-title`, `-description`, `-close` | `primitiv-modal-change` | 0.1.54 |
 
 ## Use it
 
@@ -47,9 +48,10 @@ Each `dist/cdn/<component>.js` imports the code components share from
 downloads it once. `dist/primitiv-web.js` is the alternative: every element in
 one file. Per-component files ship from 0.1.43.
 
-The main entry (`@primitiv-ui/web`, `/tabs`, `/accordion`, `/collapsible`)
-exports the classes and `defineTabs(registry?)` / `defineAccordion(registry?)` /
-`defineCollapsible(registry?)` with **no side effects**.
+The main entry (`@primitiv-ui/web`, `/tabs`, `/accordion`, `/collapsible`,
+`/modal`) exports the classes and `defineTabs(registry?)` /
+`defineAccordion(registry?)` / `defineCollapsible(registry?)` /
+`defineModal(registry?)` with **no side effects**.
 
 **Render `hidden` on inactive panels yourself.** Until the module loads, CSS
 cannot tell which panel is active, so markup that omits it shows every panel.
@@ -117,6 +119,40 @@ on a panel as it becomes active, for lazy loading.
 - **Listen with `primitiv-collapsible-change`** (bubbles, cancelable, `detail: {
   open }`) and `primitiv-collapsible-show` on the panel as it opens. Render
   `hidden` on a closed panel yourself, as for Tabs.
+
+### Modal
+
+```html
+<script type="module" src="https://cdn.jsdelivr.net/npm/@primitiv-ui/web@<version>/dist/cdn/modal.js"></script>
+
+<primitiv-modal>
+  <primitiv-modal-trigger><button type="button">Edit profile</button></primitiv-modal-trigger>
+  <primitiv-modal-content>
+    <dialog>
+      <primitiv-modal-title><h2>Edit profile</h2></primitiv-modal-title>
+      <primitiv-modal-description><p>Changes apply to every workspace.</p></primitiv-modal-description>
+      <primitiv-modal-close><button type="button">Done</button></primitiv-modal-close>
+    </dialog>
+  </primitiv-modal-content>
+</primitiv-modal>
+```
+
+- **It is a native `<dialog>`, opened with `showModal()`**: the browser supplies
+  the top layer, the `::backdrop` and the inert page. The element adds the
+  Tab wrap, closing on Escape and on a backdrop press, and the ARIA wiring —
+  `aria-haspopup`, `aria-expanded` and `aria-controls` on the trigger's button,
+  `aria-labelledby` / `aria-describedby` from the title's heading and the
+  description's paragraph. Focus returns to the trigger on close.
+- **`open` on the root is the state**, reflected as the user opens and dismisses
+  it; the `open` property reads and sets it, and setting it is not announced.
+  Leave `open` off the `<dialog>` itself — the root opens it modally, and
+  reopens modally one that arrives with it (a history snapshot).
+- **Several triggers and close buttons** are fine. There is no overlay element:
+  style `::backdrop`.
+- **Listen with `primitiv-modal-change`** (bubbles, cancelable, `detail: { open
+  }`), fired before every user-driven change — trigger, close, Escape, a backdrop
+  press, a `<form method="dialog">` — so `preventDefault()` keeps a dirty form
+  open.
 
 **TypeScript** — opt into the tag map so DOM queries return the element classes:
 `import type {} from "@primitiv-ui/web/tags"` (npm only).

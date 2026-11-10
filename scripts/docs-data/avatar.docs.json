@@ -279,7 +279,7 @@
     "version": null,
     "element": "span",
     "wrapText": false,
-    "example": "<span class=\"primitiv-avatar primitiv-avatar--md primitiv-avatar--circle\">\n  <img class=\"primitiv-avatar__image\" src=\"ada.jpg\" alt=\"Ada Lovelace\">\n  <span class=\"primitiv-avatar__fallback\"><span class=\"primitiv-avatar__fallback-label\">AL</span></span>\n</span>\n",
+    "example": "<span class=\"primitiv-avatar primitiv-avatar--md primitiv-avatar--circle\">\n  <img class=\"primitiv-avatar__image\" src=\"ada.jpg\" alt=\"Ada Lovelace\" onerror=\"this.remove()\">\n  <span class=\"primitiv-avatar__fallback\"><span class=\"primitiv-avatar__fallback-label\">AL</span></span>\n</span>\n",
     "api": []
   }
 }

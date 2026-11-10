@@ -213,4 +213,158 @@ describe("DropdownController", () => {
       expect(host.changes).toEqual([false]);
     });
   });
+
+  describe("keyboard", () => {
+    /** An open, synced menu with focus on `name`. */
+    function focusedOn(name: string, inner = ITEMS) {
+      const user = userEvent.setup();
+      const parts = connected(true, inner);
+      parts.controller.sync();
+      item(name)?.focus();
+      return { user, ...parts };
+    }
+
+    it("moves down and up through the enabled items, wrapping at the ends", async () => {
+      // Arrange
+      const { user } = focusedOn("Copy");
+
+      // Act
+      await user.keyboard("{ArrowDown}");
+      const afterDown = document.activeElement;
+      await user.keyboard("{ArrowDown}{ArrowDown}");
+      const afterWrap = document.activeElement;
+      await user.keyboard("{ArrowUp}");
+
+      // Assert
+      expect(afterDown).toBe(item("Paste"));
+      expect(afterWrap).toBe(item("Copy"));
+      expect(document.activeElement).toBe(item("Print"));
+    });
+
+    it("jumps to the last item on End and the first on Home", async () => {
+      // Arrange
+      const { user } = focusedOn("Copy");
+
+      // Act
+      await user.keyboard("{End}");
+      const afterEnd = document.activeElement;
+      await user.keyboard("{Home}");
+
+      // Assert
+      expect(afterEnd).toBe(item("Print"));
+      expect(document.activeElement).toBe(item("Copy"));
+    });
+
+    it.each(["{Enter}", " "])("activates the focused item on %j", async (key) => {
+      // Arrange
+      const { user } = focusedOn("Paste");
+      const clicked = vi.fn();
+      item("Paste")?.addEventListener("click", clicked);
+
+      // Act
+      await user.keyboard(key);
+
+      // Assert
+      expect(clicked).toHaveBeenCalledTimes(1);
+    });
+
+    it("closes on Escape and hands focus back to the trigger", async () => {
+      // Arrange
+      const { user, host, trigger } = focusedOn("Paste");
+
+      // Act
+      await user.keyboard("{Escape}");
+
+      // Assert
+      expect(host.changes).toEqual([false]);
+      expect(document.activeElement).toBe(trigger);
+    });
+
+    it("leaves other keys alone", async () => {
+      // Arrange
+      const { user } = focusedOn("Copy");
+      const seen: boolean[] = [];
+      document.addEventListener("keydown", (event) => seen.push(event.defaultPrevented));
+
+      // Act
+      await user.keyboard("{ArrowRight}{Tab}");
+
+      // Assert
+      expect(seen).toEqual([false, false]);
+    });
+
+    it("moves only among the items of the menu holding focus, a submenu's own or the parent's", async () => {
+      // Arrange
+      const nested =
+        '<li role="menuitem" tabindex="-1">Copy</li><li role="menuitem" tabindex="-1">Share</li>' +
+        '<menu id="sub" role="menu" popover="auto"><li role="menuitem" tabindex="-1">Email</li><li role="menuitem" tabindex="-1">Link</li></menu>' +
+        '<li role="menuitem" tabindex="-1">Delete</li>';
+      const { user } = focusedOn("Share", nested);
+      await user.keyboard("{ArrowDown}");
+      const inParent = document.activeElement;
+      (document.getElementById("sub") as HTMLElement).showPopover();
+      item("Link")?.focus();
+
+      // Act
+      await user.keyboard("{ArrowDown}");
+
+      // Assert
+      expect(inParent).toBe(item("Delete"));
+      expect(document.activeElement).toBe(item("Email"));
+    });
+
+    it("does nothing in a menu with no enabled items", async () => {
+      // Arrange
+      const { user, menu, host } = focusedOn("Off", '<li role="menuitem" tabindex="-1" aria-disabled="true">Off</li>');
+      menu.focus();
+
+      // Act
+      await user.keyboard("{ArrowDown}{Escape}");
+
+      // Assert
+      expect(host.changes).toEqual([]);
+    });
+
+    it("focuses the item the typed letters start, and starts afresh after a pause", async () => {
+      // Arrange
+      const { user } = focusedOn("Copy");
+
+      // Act
+      await user.keyboard("pr");
+      const typed = document.activeElement;
+      await new Promise((resolve) => setTimeout(resolve, 600));
+      await user.keyboard("c");
+
+      // Assert
+      expect(typed).toBe(item("Print"));
+      expect(document.activeElement).toBe(item("Copy"));
+    });
+
+    it("keeps typing as one query within the pause", async () => {
+      // Arrange
+      const { user } = focusedOn("Copy");
+
+      // Act
+      await user.keyboard("p");
+      await new Promise((resolve) => setTimeout(resolve, 300));
+      await user.keyboard("r");
+
+      // Assert
+      expect(document.activeElement).toBe(item("Print"));
+    });
+
+    it("leaves a typed letter that matches nothing alone", async () => {
+      // Arrange
+      const { user } = focusedOn("Copy");
+      const seen: boolean[] = [];
+      document.addEventListener("keydown", (event) => seen.push(event.defaultPrevented));
+
+      // Act
+      await user.keyboard("z");
+
+      // Assert
+      expect(seen).toEqual([false]);
+      expect(document.activeElement).toBe(item("Copy"));
+    });
+  });
 });

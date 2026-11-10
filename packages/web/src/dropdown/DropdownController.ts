@@ -1,4 +1,4 @@
-import { MENU_ITEM_SELECTOR } from "@primitiv-ui/core";
+import { MENU_ITEM_SELECTOR, MENU_TYPEAHEAD_RESET_MS, menuKeydown, menuTypeahead } from "@primitiv-ui/core";
 
 /**
  * What a {@link DropdownController} asks of whoever hosts it. The controller
@@ -43,6 +43,10 @@ type Showable = HTMLElement & { showPopover(options?: { source: HTMLElement }): 
  * - **Dismissal** — the browser hiding the menu is reported, and so is a press
  *   outside it (not on the trigger, and not inside any popover, so a submenu
  *   keeps its parent open).
+ * - **Keyboard** — the arrows, Home and End move through the enabled items of
+ *   the menu holding focus (this one or an open submenu inside it), Enter and
+ *   Space click the focused item, typing focuses the item it starts, and Escape
+ *   closes the menu and hands focus back to the trigger.
  *
  * Opening from the trigger, and what an item does when chosen, are the host's.
  */
@@ -52,6 +56,9 @@ export class DropdownController {
   #connection: AbortController | null = null;
   /** Whether this controller showed the menu and has not hidden it since. */
   #shown = false;
+  /** The typeahead query so far, and the timer that lapses it. */
+  #query = "";
+  #lapse: ReturnType<typeof setTimeout> | undefined;
 
   constructor(menu: HTMLElement, host: DropdownControllerHost) {
     this.#menu = menu as Showable;
@@ -67,6 +74,7 @@ export class DropdownController {
     this.#connection = new AbortController();
     const { signal } = this.#connection;
     this.#menu.addEventListener("toggle", (event) => this.#toggle(event as ToggleEvent), { signal });
+    this.#menu.addEventListener("keydown", (event) => this.#keydown(event), { signal });
     document.addEventListener("click", (event) => this.#press(event), { signal });
   }
 
@@ -104,6 +112,40 @@ export class DropdownController {
     if (event.newState !== "closed") return;
     this.#shown = false;
     this.#host.change(false);
+  }
+
+  #keydown(event: KeyboardEvent): void {
+    // The items of the menu holding focus: this one, or an open submenu inside
+    // it — never those of a deeper, closed submenu.
+    const scope = (document.activeElement?.closest<HTMLElement>("[popover]") ?? this.#menu) as HTMLElement;
+    const items = [...scope.querySelectorAll<HTMLElement>(MENU_ITEM_SELECTOR)].filter(
+      (item) => item.closest("[popover]") === scope,
+    );
+    const active = items.indexOf(document.activeElement as HTMLElement);
+    const outcome = menuKeydown({ key: event.key, active, count: items.length });
+    if (outcome) {
+      event.preventDefault();
+      if ("focus" in outcome) items[outcome.focus].focus();
+      else if ("activate" in outcome) items[outcome.activate].click();
+      else {
+        this.#host.change(false);
+        this.#host.trigger()?.focus();
+      }
+      return;
+    }
+    const typed = menuTypeahead({
+      query: this.#query,
+      key: event.key,
+      labels: items.map((item) => item.textContent as string),
+      active,
+    });
+    if (!typed) return;
+    this.#query = typed.query;
+    clearTimeout(this.#lapse);
+    this.#lapse = setTimeout(() => (this.#query = ""), MENU_TYPEAHEAD_RESET_MS);
+    if (typed.focus === null) return;
+    event.preventDefault();
+    items[typed.focus].focus();
   }
 
   #press(event: MouseEvent): void {

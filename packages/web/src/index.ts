@@ -8,3 +8,4 @@ export * from "./collapsible/index.ts";
 export * from "./modal/index.ts";
 export * from "./popover/index.ts";
 export * from "./tabs/index.ts";
+export * from "./tooltip/index.ts";

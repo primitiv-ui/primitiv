@@ -1,4 +1,4 @@
-// Installs Tabs, Accordion, Collapsible, Modal and ConfirmDialog with the real CLI into a plain HTML site, the way a consumer
+// Installs Tabs, Accordion, Collapsible, Modal, ConfirmDialog and Drawer with the real CLI into a plain HTML site, the way a consumer
 // would (RFC 0033 §8): `primitiv init`, then `primitiv add` for each, in a folder
 // with no package.json. The styled page then links what was copied and renders
 // the markup `add` printed, so the lab tests the CLI's output, not a copy of it.
@@ -20,7 +20,7 @@ rmSync(site, { recursive: true, force: true });
 mkdirSync(site, { recursive: true });
 // Styled: elements are headless unless styling is asked for at init.
 primitiv("init", "--yes", "--styles");
-for (const component of ["tabs", "accordion", "collapsible", "modal", "confirm-dialog"]) {
+for (const component of ["tabs", "accordion", "collapsible", "modal", "confirm-dialog", "drawer"]) {
   const output = primitiv("add", component);
   const heading = `Example markup for ${component}:\n\n`;
   const start = output.indexOf(heading);

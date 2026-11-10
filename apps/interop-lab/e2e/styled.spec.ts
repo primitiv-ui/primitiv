@@ -133,3 +133,25 @@ test("the printed confirm dialog is a styled modal whose Cancel closes it", asyn
   await dialog.getByRole("button", { name: "Cancel" }).click();
   await expect(dialog).toBeHidden();
 });
+
+test("add drawer loads Modal's script: a drawer is the Modal elements", () => {
+  const output = readFileSync("styled-site/add-drawer-output.txt", "utf8");
+  expect(output).toMatch(/@primitiv-ui\/web@[\d.]+\/dist\/cdn\/modal\.js/);
+  expect(output).not.toContain("drawer.js");
+});
+
+test("the printed drawer opens modally, docked to the right edge, and Done closes it", async ({ page }) => {
+  await page.getByRole("button", { name: "Open settings" }).click();
+  const dialog = page.getByRole("dialog", { name: "Settings" });
+  await expect(dialog).toBeVisible();
+  expect(await dialog.evaluate((element) => element.matches(":modal"))).toBe(true);
+  // Polled: the drawer slides in, so its box settles at the edge after the transition.
+  const edge = () => dialog.evaluate((element) => {
+    const { right, top } = element.getBoundingClientRect();
+    return [Math.round(right), Math.round(top)];
+  });
+  await expect.poll(edge).toEqual([page.viewportSize()!.width, 0]);
+  await expect(dialog.locator(".primitiv-drawer__header")).toHaveCSS("display", "flex");
+  await dialog.getByRole("button", { name: "Done" }).click();
+  await expect(dialog).toBeHidden();
+});

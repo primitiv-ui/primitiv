@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+  <head><meta charset="utf-8" /><link rel="icon" href="data:," /><title>Interop lab — Popover, HTMX</title></head>
+  <body hx-history-elt>
+    <!-- 1. Full fragment swap -->
+    <section>
+      <button type="button" id="load-popover" hx-get="/fragments/popover" hx-target="#slot-1">Load popover</button>
+      <div id="slot-1"></div>
+    </section>
+
+    <!-- 2. A popover swapped into the panel of another -->
+    <section id="outer-region"></section>
+
+    <!-- 3. A panel arriving out of band -->
+    <section id="oob-region"></section>
+    <button type="button" id="load-oob" hx-get="/fragments/popover-oob-content" hx-swap="none">Add the panel</button>
+
+    <!-- 4. Server re-render, now open -->
+    <section id="rerender-region"></section>
+    <button type="button" id="load-open" hx-get="/fragments/popover-oob-open" hx-swap="none">Open it</button>
+
+    <!-- 5. hx-preserve -->
+    <div id="preserve-region"></div>
+
+    <!-- 6. History -->
+    <section id="history-region"></section>
+    <div id="history-target"></div>
+
+    <!-- 7. hx-trigger on the change event, and a veto -->
+    <section id="echo-region"></section>
+    <div id="echo-target"></div>
+
+    <script type="module" src="/src/popover-htmx.ts"></script>
+  </body>
+</html>

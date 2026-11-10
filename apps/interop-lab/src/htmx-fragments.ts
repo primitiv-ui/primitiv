@@ -5,6 +5,7 @@
 import { accordionHtml } from "./accordion-fixture.ts";
 import { collapsibleHtml } from "./collapsible-fixture.ts";
 import { modalHtml } from "./modal-fixture.ts";
+import { popoverHtml } from "./popover-fixture.ts";
 import { tabsHtml } from "./fixture.ts";
 
 let lazyLoads = 0;
@@ -14,6 +15,7 @@ let accordionEchoes = 0;
 let collapsibleLazyLoads = 0;
 let collapsibleEchoes = 0;
 let modalEchoes = 0;
+let popoverEchoes = 0;
 
 export const fragments: Record<string, string | ((url: string) => string)> = {
   // Case 1: a whole tab set arrives in a fragment.
@@ -97,4 +99,17 @@ export const fragments: Record<string, string | ((url: string) => string)> = {
   "modal-preserve": `<div id="preserve-region"><p>Swapped region</p>${modalHtml({}, "preserved", { label: "Open preserved", title: "Preserved" }).replace("<primitiv-modal ", '<primitiv-modal hx-preserve="true" ')}</div>`,
   "modal-echo": (url: string) =>
     `<span data-testid="echo">server saw ${new URL(url, "http://lab").searchParams.get("open")} (${++modalEchoes})</span>`,
+
+  // The Popover page's cases (popover-htmx.html), named to match.
+  popover: popoverHtml({ open: true }, "swapped", { label: "Open swapped", title: "Swapped" }),
+  "popover-nested": popoverHtml({}, "inner", { label: "Open inner", title: "Inner" }),
+  "popover-oob-content":
+    '<div hx-swap-oob="beforeend:#oob"><primitiv-popover-content popover="auto">' +
+    "<primitiv-popover-title><h2>Out of band</h2></primitiv-popover-title>" +
+    '<primitiv-popover-close><button type="button">Done</button></primitiv-popover-close>' +
+    "</primitiv-popover-content></div>",
+  "popover-oob-open": `<div hx-swap-oob="outerHTML:#rerendered">${popoverHtml({ open: true }, "rerendered", { label: "Open rerendered", title: "Rerendered" })}</div>`,
+  "popover-preserve": `<div id="preserve-region"><p>Swapped region</p>${popoverHtml({}, "preserved", { label: "Open preserved", title: "Preserved" }).replace("<primitiv-popover ", '<primitiv-popover hx-preserve="true" ')}</div>`,
+  "popover-echo": (url: string) =>
+    `<span data-testid="echo">server saw ${new URL(url, "http://lab").searchParams.get("open")} (${++popoverEchoes})</span>`,
 };

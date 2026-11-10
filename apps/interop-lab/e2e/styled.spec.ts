@@ -104,7 +104,7 @@ test("the printed modal is styled and working: a hidden dialog that opens as a s
   }
   await expect(dialog).toBeHidden();
 
-  await page.getByRole("button", { name: "Edit profile", exact: true }).click();
+  await page.getByRole("button", { name: "Edit profile", exact: true }).first().click();
   await expect(page.getByRole("dialog", { name: "Edit profile" })).toBeVisible();
   await expect(dialog).toHaveCSS("display", "flex");
   await expect(dialog).toHaveAttribute("data-state", "open");
@@ -154,4 +154,29 @@ test("the printed drawer opens modally, docked to the right edge, and Done close
   await expect(dialog.locator(".primitiv-drawer__header")).toHaveCSS("display", "flex");
   await dialog.getByRole("button", { name: "Done" }).click();
   await expect(dialog).toBeHidden();
+});
+
+test("add popover printed the per-component script for its first release", () => {
+  const output = readFileSync("styled-site/add-popover-output.txt", "utf8");
+  expect(output).toMatch(/@primitiv-ui\/web@[\d.]+\/dist\/cdn\/popover\.js/);
+});
+
+test("the printed popover opens anchored under its trigger with no anchor-name wired", async ({ page }) => {
+  const trigger = page.getByRole("button", { name: "Edit profile", exact: true }).last();
+  await trigger.click();
+  const panel = page.getByRole("dialog", { name: "Profile" });
+  await expect(panel).toBeVisible();
+  await expect(panel).toHaveCSS("display", "flex");
+  // The trigger is the panel's implicit anchor (showPopover's source), so the
+  // bottom placement puts the panel below it, centred on it.
+  const geometry = async () => {
+    const [t, p] = await Promise.all([trigger.boundingBox(), panel.boundingBox()]);
+    return {
+      below: p!.y >= t!.y + t!.height,
+      centred: Math.abs(p!.x + p!.width / 2 - (t!.x + t!.width / 2)) < 2,
+    };
+  };
+  await expect.poll(geometry).toEqual({ below: true, centred: true });
+  await panel.getByRole("button", { name: "Close" }).click();
+  await expect(panel).toBeHidden();
 });

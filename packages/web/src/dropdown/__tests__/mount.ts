@@ -26,3 +26,10 @@ export const trigger = () => document.querySelector("primitiv-dropdown-trigger >
 export const row = (name: string) =>
   [...document.querySelectorAll<HTMLElement>("li")].find((li) => li.firstChild?.textContent === name) as HTMLElement;
 export const shown = (menu: HTMLElement = content()) => menu.hasAttribute("data-popover-open");
+
+/**
+ * Errors thrown inside event listeners. jsdom reports them on `window` rather
+ * than failing the test, so each suite asserts this stays empty.
+ */
+export const listenerErrors: unknown[] = [];
+window.addEventListener("error", (event) => listenerErrors.push(event.error));

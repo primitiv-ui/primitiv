@@ -199,18 +199,82 @@ describe("DropdownController", () => {
     it("stops listening once disconnected, and connects only once", async () => {
       // Arrange
       const user = userEvent.setup();
-      const { outside, host, controller } = connected(true);
+      const { menu, outside, host, controller } = connected(true);
       controller.connect();
+      controller.sync();
       await user.click(outside);
       const whileConnected = [...host.changes];
 
       // Act
       controller.disconnect();
       await user.click(outside);
+      menu.hidePopover();
+      item("Copy")?.focus();
+      await user.keyboard("{ArrowDown}");
 
       // Assert
       expect(whileConnected).toEqual([false]);
       expect(host.changes).toEqual([false]);
+      expect(document.activeElement).toBe(item("Copy"));
+    });
+
+    it("disconnects safely before it ever connected", () => {
+      // Arrange
+      document.body.innerHTML = '<menu id="menu" popover="auto"></menu>';
+      const controller = new DropdownController(document.getElementById("menu") as HTMLElement, hostWith(false, document.body));
+
+      // Act & Assert
+      expect(() => controller.disconnect()).not.toThrow();
+    });
+
+    it("forgets the menu was showing once disconnected, so a reconnect shows it again", () => {
+      // Arrange
+      const { menu, controller } = connected(true);
+      controller.sync();
+      const showPopover = vi.spyOn(menu, "showPopover");
+
+      // Act
+      controller.disconnect();
+      controller.connect();
+      controller.sync();
+
+      // Assert
+      expect(showPopover).toHaveBeenCalledTimes(1);
+    });
+
+    it("shows the menu again when it reopens after closing, before the browser reports the hide", () => {
+      // Arrange
+      const { menu, host, controller } = connected(true);
+      controller.sync();
+      const showPopover = vi.spyOn(menu, "showPopover");
+      // A browser queues the toggle event; the polyfill would fire it at once.
+      vi.spyOn(menu, "hidePopover").mockImplementation(() => menu.removeAttribute("data-popover-open"));
+      host.open = false;
+      controller.sync();
+
+      // Act
+      host.open = true;
+      controller.sync();
+
+      // Assert
+      expect(showPopover).toHaveBeenCalledTimes(1);
+    });
+
+    it("closes on Escape and on a press outside with no trigger to return to", async () => {
+      // Arrange
+      const user = userEvent.setup();
+      const { outside, host, controller } = connected(true, ITEMS, { trigger: () => null });
+      controller.sync();
+      const errors: unknown[] = [];
+      window.addEventListener("error", (event) => errors.push(event.error));
+
+      // Act
+      await user.keyboard("{Escape}");
+      await user.click(outside);
+
+      // Assert
+      expect(host.changes).toEqual([false, false]);
+      expect(errors).toEqual([]);
     });
   });
 

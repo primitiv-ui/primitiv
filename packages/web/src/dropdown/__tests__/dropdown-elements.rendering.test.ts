@@ -1,9 +1,10 @@
 import { defineDropdown, type ElementRegistry } from "../elements";
 import { dropdownHtml, LABELS } from "./dropdown.fixtures";
-import { content, mount, row, settle, shown, sub, subContent, trigger } from "./mount";
+import { content, listenerErrors, mount, root, row, settle, shown, sub, subContent, trigger } from "./mount";
 
 afterEach(() => {
   document.body.replaceChildren();
+  expect(listenerErrors.splice(0)).toEqual([]);
 });
 
 const ELEMENTS = [
@@ -55,6 +56,31 @@ describe("<primitiv-dropdown> rendering", () => {
     expect(subContent().getAttribute("role")).toBe("menu");
     expect(row(LABELS.share).getAttribute("aria-controls")).toBe("share-menu");
     expect(row(LABELS.share).getAttribute("tabindex")).toBe("-1");
+    expect(row(LABELS.share).hasAttribute("data-highlighted")).toBe(false);
+    expect(row(LABELS.copy).hasAttribute("aria-checked")).toBe(false);
+  });
+
+  it("keeps the menus' own ids and popover values", async () => {
+    // Arrange & Act
+    await mount(
+      dropdownHtml()
+        .replace('<primitiv-dropdown-content popover="auto">', '<primitiv-dropdown-content id="mine" popover="manual">')
+        .replace('<primitiv-dropdown-sub-content popover="auto">', '<primitiv-dropdown-sub-content popover="manual">'),
+    );
+
+    // Assert
+    expect(content().id).toBe("mine");
+    expect(content().getAttribute("popover")).toBe("manual");
+    expect(subContent().getAttribute("popover")).toBe("manual");
+  });
+
+  it("names a submenu that has no id after its sub", async () => {
+    // Arrange & Act
+    await mount(dropdownHtml());
+
+    // Assert
+    expect(subContent().id).toMatch(/^primitiv-dropdown-sub-\d+-content$/);
+    expect(row(LABELS.share).getAttribute("aria-controls")).toBe(subContent().id);
   });
 
   it("makes the menus popovers when the markup leaves it out", async () => {
@@ -101,7 +127,7 @@ describe("<primitiv-dropdown> rendering", () => {
     await mount(dropdownHtml());
 
     // Assert
-    expect(indicator(LABELS.grid).hidden).toBe(true);
+    expect(indicator(LABELS.grid).getAttribute("hidden")).toBe("");
     expect(indicator(LABELS.grid).getAttribute("data-state")).toBe("unchecked");
     expect(indicator(LABELS.small).hidden).toBe(false);
     expect(indicator(LABELS.small).getAttribute("data-state")).toBe("checked");
@@ -142,6 +168,34 @@ describe("<primitiv-dropdown> rendering", () => {
     expect(document.getElementById("stray")?.hidden).toBe(true);
   });
 
+  it("labels a group by its own label, not one in a group nested inside it", async () => {
+    // Arrange & Act
+    await mount(
+      dropdownHtml({ id: "file" }).replace(
+        "<primitiv-dropdown-separator></primitiv-dropdown-separator>",
+        '<primitiv-dropdown-group id="outer"><primitiv-dropdown-group id="inner"><primitiv-dropdown-label>Inner</primitiv-dropdown-label>' +
+          "</primitiv-dropdown-group></primitiv-dropdown-group>",
+      ),
+    );
+
+    // Assert
+    expect(document.getElementById("outer")?.hasAttribute("aria-labelledby")).toBe(false);
+    expect(document.getElementById("inner")?.getAttribute("aria-labelledby")).toBe("file-label-1");
+  });
+
+  it("leaves a radio item outside any group unchecked", async () => {
+    // Arrange & Act
+    await mount(
+      dropdownHtml().replace(
+        "<primitiv-dropdown-separator></primitiv-dropdown-separator>",
+        '<primitiv-dropdown-radio-item value="stray"><li>Stray</li></primitiv-dropdown-radio-item>',
+      ),
+    );
+
+    // Assert
+    expect(row("Stray").getAttribute("aria-checked")).toBe("false");
+  });
+
   it("follows the radio group's value set from outside", async () => {
     // Arrange
     await mount(dropdownHtml());
@@ -162,12 +216,30 @@ describe("<primitiv-dropdown> rendering", () => {
 
     // Act
     document.querySelector("primitiv-dropdown-item[disabled]")?.removeAttribute("disabled");
+    document.querySelector("primitiv-dropdown-sub-trigger")?.removeAttribute("disabled");
     await settle();
 
     // Assert
     expect(subDisabled).toBe("true");
     expect(row(LABELS.cut).hasAttribute("aria-disabled")).toBe(false);
     expect(row(LABELS.copy).hasAttribute("aria-disabled")).toBe(false);
+    expect(row(LABELS.share).hasAttribute("aria-disabled")).toBe(false);
+  });
+
+  it("shows both menus with their trigger rows as their anchors", async () => {
+    // Arrange
+    await mount(dropdownHtml());
+    const showMenu = vi.spyOn(content(), "showPopover");
+    const showSub = vi.spyOn(subContent(), "showPopover");
+
+    // Act
+    root().open = true;
+    sub().open = true;
+    await settle();
+
+    // Assert
+    expect(showMenu).toHaveBeenCalledWith({ source: trigger() });
+    expect(showSub).toHaveBeenCalledWith({ source: row(LABELS.share) });
   });
 
   it("shows a menu and submenu the server rendered open, highlighting the open submenu's row", async () => {
@@ -179,7 +251,7 @@ describe("<primitiv-dropdown> rendering", () => {
     expect(shown(subContent())).toBe(true);
     expect(trigger().getAttribute("aria-expanded")).toBe("true");
     expect(row(LABELS.share).getAttribute("aria-expanded")).toBe("true");
-    expect(row(LABELS.share).hasAttribute("data-highlighted")).toBe(true);
+    expect(row(LABELS.share).getAttribute("data-highlighted")).toBe("");
     expect(sub().open).toBe(true);
   });
 });

@@ -180,4 +180,68 @@ describe("DropdownSubController", () => {
     expect(whileConnected).toEqual([false]);
     expect(host.changes).toEqual([false]);
   });
+
+  it("stops reporting the browser hiding it once disconnected", () => {
+    // Arrange
+    const { menu, host, controller } = connected(true);
+    controller.sync();
+    controller.disconnect();
+
+    // Act
+    menu.hidePopover();
+
+    // Assert
+    expect(host.changes).toEqual([]);
+  });
+
+  it("disconnects safely before it ever connected", () => {
+    // Arrange
+    const { menu, host } = connected(false);
+    const controller = new DropdownSubController(menu, host);
+
+    // Act & Assert
+    expect(() => controller.disconnect()).not.toThrow();
+  });
+
+  it("forgets the submenu was showing once disconnected, and shows it again when it reopens", () => {
+    // Arrange
+    const { menu, host, controller } = connected(true);
+    controller.sync();
+    const showPopover = vi.spyOn(menu, "showPopover");
+    controller.disconnect();
+    controller.connect();
+    controller.sync();
+    const afterReconnect = showPopover.mock.calls.length;
+    // A browser queues the toggle event; the polyfill would fire it at once.
+    vi.spyOn(menu, "hidePopover").mockImplementation(() => menu.removeAttribute("data-popover-open"));
+    host.open = false;
+    controller.sync();
+
+    // Act
+    host.open = true;
+    controller.sync();
+
+    // Assert
+    expect(afterReconnect).toBe(1);
+    expect(showPopover).toHaveBeenCalledTimes(2);
+  });
+
+  it("opens with no items to focus, and closes with no trigger to return to", async () => {
+    // Arrange
+    const user = userEvent.setup();
+    const { menu, host, controller } = connected(true, { trigger: () => null });
+    menu.replaceChildren();
+    const errors: unknown[] = [];
+    window.addEventListener("error", (event) => errors.push(event.error));
+
+    // Act
+    controller.sync();
+    menu.tabIndex = -1;
+    menu.focus();
+    await user.keyboard("{ArrowLeft}");
+
+    // Assert
+    expect(host.changes).toEqual([false]);
+    expect(errors).toEqual([]);
+  });
 });

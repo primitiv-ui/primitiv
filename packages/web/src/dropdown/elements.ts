@@ -127,13 +127,17 @@ export class PrimitivDropdownElement extends PrimitivRootElement {
 
   /** The item part (of this root) an event landed in, or `null`. */
   #itemOf(target: EventTarget | null): HTMLElement | null {
-    const part = (target as Element | null)?.closest?.<HTMLElement>(ITEMS) ?? null;
+    const part = (target as Element | null)?.closest<HTMLElement>(ITEMS) ?? null;
     return part?.closest(ROOT) === this ? part : null;
   }
 
   /** Mark the item the pointer is over, as React's `data-highlighted`. */
   #highlight(event: PointerEvent, over: boolean): void {
     const part = this.#itemOf(event.target);
+    // The relatedTarget test keeps the highlight steady as the pointer crosses
+    // the row's own children. user-event sets no relatedTarget, so only a real
+    // browser can tell: the interop lab's dropdown spec counts the flips.
+    // Stryker disable next-line ConditionalExpression,LogicalOperator: see above — unobservable in jsdom, proven in Chromium.
     if (!part || part === this.#itemOf(event.relatedTarget)) return;
     const child = part.firstElementChild as HTMLElement;
     write(child, "data-highlighted", over ? "" : null);
@@ -320,7 +324,11 @@ export class PrimitivDropdownSubElement extends PrimitivRootElement {
   }
 
   #pointer(event: PointerEvent, over: boolean): void {
-    if (!this.#onTrigger(event) || this.#trigger?.contains(event.relatedTarget as Node | null)) return;
+    // Past the first test there is a decorated trigger. The relatedTarget test
+    // keeps the hover steady across the row's own children, which only a real
+    // browser can show (see #highlight).
+    // Stryker disable next-line ConditionalExpression,LogicalOperator: unobservable in jsdom, proven in Chromium by the interop lab.
+    if (!this.#onTrigger(event) || (this.#trigger as HTMLElement).contains(event.relatedTarget as Node | null)) return;
     this.#hovered = over;
     this.reconcile();
     if (over) this.#openIfEnabled();
@@ -329,8 +337,9 @@ export class PrimitivDropdownSubElement extends PrimitivRootElement {
   /** The pointer reached another row of the parent menu: close, as moving the keyboard there would. */
   #sibling(event: PointerEvent): void {
     if (!this.open || this.contains(event.target as Node)) return;
-    const row = (event.target as Element).closest?.('[role^="menuitem"]');
-    if (row && row.closest('[role="menu"]') === this.parentElement?.closest('[role="menu"]')) this.#change(false);
+    const row = (event.target as Element).closest('[role^="menuitem"]');
+    // A connected sub always has a parent; only a row of its parent's menu closes it.
+    if (row && row.closest('[role="menu"]') === (this.parentElement as HTMLElement).closest('[role="menu"]')) this.#change(false);
   }
 
   #use(content: HTMLElement | null): void {

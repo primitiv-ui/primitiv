@@ -1,10 +1,11 @@
 import userEvent from "@testing-library/user-event";
 
 import { dropdownHtml, LABELS } from "./dropdown.fixtures";
-import { content, mount, root, row, settle, shown, sub, subContent, trigger } from "./mount";
+import { content, mount, root, row, settle, shown, sub, subContent, trigger, listenerErrors } from "./mount";
 
 afterEach(() => {
   document.body.replaceChildren();
+  expect(listenerErrors.splice(0)).toEqual([]);
   vi.restoreAllMocks();
 });
 
@@ -40,10 +41,36 @@ describe("<primitiv-dropdown> edges", () => {
     // Act
     root().open = true;
     await settle();
+    await userEvent.setup().click(row(LABELS.copy));
+    await settle();
 
     // Assert
     expect(showPopover).toHaveBeenCalledWith();
-    expect(shown()).toBe(true);
+    expect(root().open).toBe(false);
+  });
+
+  it("survives a cancelled change with no menu, and a cancelled submenu change with no submenu", async () => {
+    // Arrange
+    const user = userEvent.setup();
+    await mount(
+      `<primitiv-dropdown><primitiv-dropdown-trigger><button type="button">${LABELS.trigger}</button></primitiv-dropdown-trigger>` +
+        `<primitiv-dropdown-sub><primitiv-dropdown-sub-trigger><li>${LABELS.share}</li></primitiv-dropdown-sub-trigger></primitiv-dropdown-sub></primitiv-dropdown>`,
+    );
+    const veto = (event: Event) => event.preventDefault();
+    document.addEventListener("primitiv-dropdown-change", veto);
+    document.addEventListener("primitiv-dropdown-sub-change", veto);
+
+    // Act
+    await user.click(trigger());
+    await user.click(row(LABELS.share));
+    await settle();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    document.removeEventListener("primitiv-dropdown-change", veto);
+    document.removeEventListener("primitiv-dropdown-sub-change", veto);
+
+    // Assert
+    expect(root().open).toBe(false);
+    expect(sub().open).toBe(false);
   });
 
   it("gives a trigger with no menu no aria-controls, and toggles safely", async () => {

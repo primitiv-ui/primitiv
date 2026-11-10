@@ -1,10 +1,11 @@
 import userEvent from "@testing-library/user-event";
 
 import { dropdownHtml, LABELS } from "./dropdown.fixtures";
-import { content, mount, root, row, settle, shown, sub, subContent, trigger } from "./mount";
+import { content, mount, root, row, settle, shown, sub, subContent, trigger, listenerErrors } from "./mount";
 
 afterEach(() => {
   document.body.replaceChildren();
+  expect(listenerErrors.splice(0)).toEqual([]);
 });
 
 /** Record every `type` event's detail and whether it was cancelable and bubbled to the document. */
@@ -142,6 +143,7 @@ describe("<primitiv-dropdown> interaction", () => {
       await user.click(row(LABELS.grid));
       await settle();
       const afterMixed = row(LABELS.grid).getAttribute("aria-checked");
+      const attribute = document.querySelector("primitiv-dropdown-checkbox-item")?.getAttribute("checked");
       await user.click(row(LABELS.grid));
       await settle();
       stop();
@@ -149,7 +151,9 @@ describe("<primitiv-dropdown> interaction", () => {
 
       // Assert
       expect(changes.seen).toEqual([{ checked: true }, { checked: false }]);
+      expect(attribute).toBe("");
       expect(afterMixed).toBe("true");
+      expect(document.querySelector("primitiv-dropdown-checkbox-item")?.hasAttribute("checked")).toBe(false);
       expect(row(LABELS.grid).getAttribute("aria-checked")).toBe("false");
     });
 
@@ -230,22 +234,21 @@ describe("<primitiv-dropdown> interaction", () => {
 
       // Assert
       expect(over).toBe(true);
+      expect(row(LABELS.remove).getAttribute("data-highlighted")).toBe("");
       expect(row(LABELS.copy).hasAttribute("data-highlighted")).toBe(false);
       expect(row(LABELS.remove).hasAttribute("data-highlighted")).toBe(true);
     });
 
-    it("keeps the highlight while the pointer moves within the item", async () => {
+    it("highlights an item the pointer reaches from between items", async () => {
       // Arrange
-      const user = await opened(
-        dropdownHtml().replace(`<li>${LABELS.copy}</li>`, `<li>${LABELS.copy}<kbd id="shortcut">⌘C</kbd></li>`),
-      );
-      await user.hover(row(LABELS.copy));
+      const user = await opened();
+      await user.hover(document.querySelector("primitiv-dropdown-separator") as HTMLElement);
 
       // Act
-      await user.hover(document.getElementById("shortcut") as HTMLElement);
+      await user.hover(row(LABELS.small));
 
       // Assert
-      expect(row(LABELS.copy).hasAttribute("data-highlighted")).toBe(true);
+      expect(row(LABELS.small).hasAttribute("data-highlighted")).toBe(true);
     });
   });
 
@@ -276,6 +279,74 @@ describe("<primitiv-dropdown> interaction", () => {
       expect(changes.seen).toEqual([{ open: true }, { open: false }]);
     });
 
+    it("opens from its row on Enter, with no pointer", async () => {
+      // Arrange
+      const user = await opened();
+      row(LABELS.share).focus();
+
+      // Act
+      await user.keyboard("{Enter}");
+      await settle();
+
+      // Assert
+      expect(sub().open).toBe(true);
+      expect(document.activeElement).toBe(row(LABELS.email));
+    });
+
+    it("opens only from its own row: a press on one of its items while it is shut leaves it shut", async () => {
+      // Arrange
+      await opened();
+      const stop = veto("primitiv-dropdown-select");
+
+      // Act — a script's click: the submenu's rows cannot be reached by a pointer while it is shut.
+      row(LABELS.email).click();
+      await settle();
+      stop();
+
+      // Assert
+      expect(sub().open).toBe(false);
+    });
+
+    it("ignores the pointer over its items while it is shut", async () => {
+      // Arrange
+      const user = await opened();
+
+      // Act
+      await user.hover(row(LABELS.email));
+      await settle();
+
+      // Assert
+      expect(sub().open).toBe(false);
+    });
+
+    it("stays shut when the pointer leaves its row after the keyboard closed it", async () => {
+      // Arrange
+      const user = await opened(dropdownHtml() + '<p id="away">Away</p>');
+      await user.hover(row(LABELS.share));
+      await settle();
+      await user.keyboard("{ArrowLeft}");
+      await settle();
+
+      // Act
+      await user.hover(document.getElementById("away") as HTMLElement);
+      await settle();
+
+      // Assert
+      expect(sub().open).toBe(false);
+    });
+
+    it("stays open when the pointer reaches a row of some other menu", async () => {
+      // Arrange
+      const user = await opened(dropdownHtml() + '<menu role="menu"><li role="menuitem" id="elsewhere">Elsewhere</li></menu>');
+      await user.hover(row(LABELS.share));
+
+      // Act
+      await user.hover(document.getElementById("elsewhere") as HTMLElement);
+
+      // Assert
+      expect(sub().open).toBe(true);
+    });
+
     it("stays open when the pointer leaves the menus altogether", async () => {
       // Arrange
       const user = await opened(dropdownHtml() + '<p id="away">Away</p>');
@@ -286,6 +357,7 @@ describe("<primitiv-dropdown> interaction", () => {
 
       // Assert
       expect(sub().open).toBe(true);
+      expect(listenerErrors).toEqual([]);
     });
 
     it("stays shut, and its row only highlights, while its trigger is disabled", async () => {

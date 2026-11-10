@@ -1,10 +1,11 @@
 import userEvent from "@testing-library/user-event";
 
 import { dropdownHtml, LABELS } from "./dropdown.fixtures";
-import { content, mount, root, row, settle, shown, sub, subContent, trigger } from "./mount";
+import { content, mount, root, row, settle, shown, sub, subContent, trigger, listenerErrors } from "./mount";
 
 afterEach(() => {
   document.body.replaceChildren();
+  expect(listenerErrors.splice(0)).toEqual([]);
 });
 
 describe("<primitiv-dropdown> lifecycle", () => {
@@ -106,5 +107,20 @@ describe("<primitiv-dropdown> lifecycle", () => {
     expect(trigger().hasAttribute("aria-controls")).toBe(false);
     expect(row(LABELS.share)).toBeUndefined();
     expect(root().open).toBe(false);
+  });
+
+  it("stops a removed submenu listening to its own row", async () => {
+    // Arrange
+    await mount(dropdownHtml({ open: true }));
+    const element = sub();
+    const share = row(LABELS.share);
+    element.remove();
+
+    // Act — a script's click: the detached row cannot be reached any other way.
+    share.click();
+    await settle();
+
+    // Assert
+    expect(element.open).toBe(false);
   });
 });

@@ -150,6 +150,28 @@ describe("<primitiv-modal> lifecycle", () => {
     showModal.mockRestore();
   });
 
+  it("announces nothing and stays open when moved while open", async () => {
+    // Arrange
+    const seen: boolean[] = [];
+    const listening = new AbortController();
+    document.addEventListener(
+      "primitiv-modal-change",
+      (event) => seen.push((event as CustomEvent<{ open: boolean }>).detail.open),
+      { signal: listening.signal },
+    );
+    await mount(modalHtml({ open: true }) + "<div id='elsewhere'></div>");
+
+    // Act
+    document.getElementById("elsewhere")!.append(root());
+    await settle();
+    listening.abort();
+
+    // Assert
+    expect(seen).toEqual([]);
+    expect(root().hasAttribute("open")).toBe(true);
+    expect(dialog().open).toBe(true);
+  });
+
   it("handles each event exactly once after being moved", async () => {
     // Arrange
     const user = userEvent.setup();

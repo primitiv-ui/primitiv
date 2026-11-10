@@ -33,7 +33,9 @@ if (typeof proto.close !== "function") {
     if (returnValue !== undefined) {
       (this as DialogProto).returnValue = String(returnValue);
     }
-    this.dispatchEvent(new Event("close"));
+    // Browsers queue the close event rather than firing it inside close(), so
+    // a listener attached in between still hears it; so does this.
+    queueMicrotask(() => this.dispatchEvent(new Event("close")));
   };
 }
 

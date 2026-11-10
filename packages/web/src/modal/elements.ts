@@ -108,9 +108,11 @@ export class PrimitivModalElement extends PrimitivRootElement {
     this.#listening = null;
     this.#modal?.disconnect();
     // Leaving the document drops the dialog from the top layer but leaves it
-    // `open`, so a move would bring it back non-modally. Close it — nothing is
-    // listening now, so the state is kept — and the next connect reopens it.
-    this.#dialog?.close();
+    // `open`, so a move would bring it back non-modally. Drop the attribute
+    // rather than calling close(): close() queues a close event that a move's
+    // reconnect would hear as the user dismissing it. The state is kept, and
+    // the next connect reopens the dialog modally.
+    if (this.#dialog) write(this.#dialog, "open", null);
   }
 
   #click(event: MouseEvent): void {

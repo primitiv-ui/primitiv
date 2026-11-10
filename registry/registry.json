@@ -2311,7 +2311,16 @@
           ]
         }
       },
-      "contract": "contract.json"
+      "contract": "contract.json",
+      "elements": {
+        "packages": [
+          {
+            "name": "@primitiv-ui/web",
+            "version": "^0.1.56"
+          }
+        ],
+        "example": "tooltip.html"
+      }
     },
     "tree": {
       "version": "0.1.0",

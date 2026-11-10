@@ -35,6 +35,31 @@
  * token layer (RFC 0008 §7). */
 @layer primitiv.reset, primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;
 
+/* The elements surface (RFC 0033 §5.6.1): the trigger part takes no box of its
+   own, so the <button> it decorates lays out exactly as the React one. The
+   content element is the bubble itself, so it keeps its box. Zero specificity,
+   in the reset sublayer, so any consumer rule wins. */
+@layer primitiv.reset {
+  :where(primitiv-tooltip-trigger) {
+    display: contents;
+  }
+}
+
+@layer primitiv.reset {
+  .primitiv-tooltip {
+    /* The elements surface shows the bubble as a native [popover="manual"] in the
+       top layer: reset its UA defaults — `margin: auto; inset: 0` (viewport
+       centering), so the placement modifiers' anchor positioning takes over, and
+       `overflow: auto`, which clips the arrow poking past the bubble's edge. A
+       no-op on the React bubble, a plain <div>. */
+    margin: 0;
+    inset: auto;
+    padding: 0;
+    border: 0;
+    overflow: visible;
+  }
+}
+
 @layer primitiv.base {
   .primitiv-tooltip {
     /* Per-component API — the themable knobs, defaulting to the md size + default

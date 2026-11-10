@@ -16,6 +16,7 @@ import {
 } from "@/components/confirm-dialog";
 import { ModalOverlay, ModalPortal } from "@/components/modal";
 import { InteractiveExample } from "@/site/InteractiveExample";
+import { glyph, withGlyphs } from "./glyphs";
 import type { ComponentSpec } from "./types";
 
 type Size = "sm" | "md" | "lg" | "xl";
@@ -90,6 +91,105 @@ const imports = (
   ]
     .filter(Boolean)
     .join("\n");
+
+/* ------------------------------------------------------------------ *
+ * Elements markup
+ * ------------------------------------------------------------------ */
+
+/** The close button steps down one size with the dialog, as `showClose` does. */
+const CLOSE_SIZE: Record<Size, string> = { sm: "xs", md: "sm", lg: "md", xl: "lg" };
+
+/** A registry Button as Elements markup, with the label span the React wrapper adds. */
+const button = (label: string, variant: string, size: string, attrs = "") =>
+  `<button type="button" class="primitiv-button primitiv-button--${variant} primitiv-button--${size}"${attrs}><span class="primitiv-button__label">${label}</span></button>`;
+
+/**
+ * A confirmation as Elements markup (RFC 0033): ConfirmDialog has no element of
+ * its own — it is the `<primitiv-modal>` elements wearing the confirm-dialog
+ * and Button classes, in the shape `primitiv add confirm-dialog --surface
+ * elements` prints. Cancel and Confirm both sit in `<primitiv-modal-close>`, so
+ * each closes it; the page listens for Confirm's click to act. The message is
+ * the description, so it is announced as the dialog's `aria-describedby`.
+ */
+const elementsConfirm = ({
+  tone = "default",
+  size = "sm",
+  showClose = false,
+  trigger,
+  triggerVariant,
+  title,
+  body,
+  confirmLabel = "Confirm",
+  confirmClose = true,
+}: {
+  tone?: Tone;
+  size?: Size;
+  showClose?: boolean;
+  trigger: string;
+  triggerVariant?: string;
+  title: string;
+  /** The description's text, then any further body lines. */
+  body: readonly string[];
+  confirmLabel?: string;
+  /** Wrap Confirm in a close part; off for a confirm the page closes itself. */
+  confirmClose?: boolean;
+}) => {
+  const variant = tone === "danger" ? "danger" : "primary";
+  const [message, ...rest] = body;
+  const confirm = button(confirmLabel, variant, size, " data-confirm");
+  return [
+    `<primitiv-modal>`,
+    `  <primitiv-modal-trigger>`,
+    `    ${button(trigger, triggerVariant ?? variant, "md")}`,
+    `  </primitiv-modal-trigger>`,
+    `  <primitiv-modal-content>`,
+    `    <dialog class="primitiv-modal primitiv-modal--${size} primitiv-confirm-dialog">`,
+    `      <span class="primitiv-modal__header">`,
+    `        <primitiv-modal-title><h2 class="primitiv-modal__title">${title}</h2></primitiv-modal-title>`,
+    ...(showClose
+      ? [
+          `        <primitiv-modal-close>`,
+          `          <button type="button" class="primitiv-button primitiv-button--ghost primitiv-button--${CLOSE_SIZE[size]} primitiv-modal__close" aria-label="Close">${glyph("close")}</button>`,
+          `        </primitiv-modal-close>`,
+        ]
+      : []),
+    `      </span>`,
+    `      <span class="primitiv-modal__body">`,
+    `        <primitiv-modal-description><p class="primitiv-modal__description">${message}</p></primitiv-modal-description>`,
+    ...rest.map((line) => `        ${line}`),
+    `      </span>`,
+    `      <span class="primitiv-modal__footer">`,
+    `        <primitiv-modal-close>`,
+    `          ${button("Cancel", "secondary", size)}`,
+    `        </primitiv-modal-close>`,
+    ...(confirmClose
+      ? [`        <primitiv-modal-close>`, `          ${confirm}`, `        </primitiv-modal-close>`]
+      : [`        ${confirm}`]),
+    `      </span>`,
+    `    </dialog>`,
+    `  </primitiv-modal-content>`,
+    `</primitiv-modal>`,
+  ].join("\n");
+};
+
+/** The script a confirmation's code tab shows: act on Confirm's click. */
+const confirmScript = (action: string) => [
+  ``,
+  `<script type="module">`,
+  `  document.querySelector("[data-confirm]").addEventListener("click", () => {`,
+  `    ${action}(); // the close part around the button closes the dialog`,
+  `  });`,
+  `</script>`,
+];
+
+/** The code tab's markup, then its script; the preview renders the markup alone. */
+const withScript = (markup: string, action: string) => [markup, ...confirmScript(action)].join("\n");
+
+/** The markup half of a code tab that ends in a script, glyphs filled in. */
+const markupOnly = (_density: unknown, code: string) => {
+  const script = code.indexOf("\n\n<script");
+  return withGlyphs(script === -1 ? code : code.slice(0, script));
+};
 
 /* ------------------------------------------------------------------ *
  * Live previews
@@ -217,11 +317,26 @@ export const confirmDialogSpec: ComponentSpec = {
           "Shows a header close (×) button alongside the title, in addition to the footer actions.",
       },
     ],
-    snippet: (values) => {
+    elementsPreview: (code) => withGlyphs(code),
+    snippet: (values, mode) => {
       const tone = values.tone as Tone;
       const size = values.size as Size;
       const showClose = values.showClose === "true";
       const danger = tone === "danger";
+      if (mode === "elements")
+        return elementsConfirm({
+          tone,
+          size,
+          showClose,
+          trigger: danger ? "Remove member" : "Publish release",
+          title: danger ? "Remove member?" : "Publish release?",
+          body: [
+            danger
+              ? "This person will lose access immediately. This can't be undone."
+              : "This makes v2.1 available to everyone.",
+          ],
+          confirmLabel: danger ? "Remove" : "Publish",
+        });
       return [
         imports({ button: true }),
         ``,
@@ -261,8 +376,22 @@ export const confirmDialogSpec: ComponentSpec = {
   anatomy: [
     {
       label: "Parts",
-      code: () =>
-        [
+      code: (mode) =>
+        mode === "elements"
+          ? [
+              `<primitiv-modal>`,
+              `  <primitiv-modal-trigger><button type="button"></button></primitiv-modal-trigger>`,
+              `  <primitiv-modal-content>`,
+              `    <dialog class="primitiv-modal primitiv-confirm-dialog">`,
+              `      <primitiv-modal-title><h2></h2></primitiv-modal-title>`,
+              `      <primitiv-modal-description><p></p></primitiv-modal-description>`,
+              `      <primitiv-modal-close><button type="button">Cancel</button></primitiv-modal-close>`,
+              `      <primitiv-modal-close><button type="button">Confirm</button></primitiv-modal-close>`,
+              `    </dialog>`,
+              `  </primitiv-modal-content>`,
+              `</primitiv-modal>`,
+            ].join("\n")
+          : [
           `<ConfirmDialog>`,
           `  <ConfirmDialogTrigger />`,
           `  <ModalPortal>`,
@@ -301,9 +430,21 @@ export const confirmDialogSpec: ComponentSpec = {
       title: "Confirming an action",
       render: () => (
         <InteractiveExample
+          elementsPreview={markupOnly}
+          elementsCaption="The default shape: a title, a one-line message, and a `primary` Confirm beside Cancel. Both buttons sit in `<primitiv-modal-close>`, so either one closes the dialog and hands focus back to the trigger; the page listens for Confirm's click (`data-confirm` here is only a hook for the script) to do the work. The message is the description, so a screen reader announces it with the title on open."
           caption="The default shape: a title, a one-line body, and a `primary` Confirm beside Cancel. `onConfirm` fires when Confirm is pressed but does **not** close the dialog itself — drive `open`/`onOpenChange` from the callback (here `setOpen(false)`) so confirming dismisses it. Cancel always closes on its own; it is wrapped in `ModalClose`."
-          code={() =>
-            [
+          code={(_density, mode) =>
+            mode === "elements"
+              ? withScript(
+                  elementsConfirm({
+                    trigger: "Publish release",
+                    title: "Publish release?",
+                    body: ["This makes v2.1 available to everyone."],
+                    confirmLabel: "Publish",
+                  }),
+                  "publish",
+                )
+              : [
               imports({ button: true }),
               ``,
               `const [open, setOpen] = useState(false);`,
@@ -346,9 +487,22 @@ export const confirmDialogSpec: ComponentSpec = {
       title: "Destructive actions",
       render: () => (
         <InteractiveExample
+          elementsPreview={markupOnly}
+          elementsCaption="For a destructive confirmation, give Confirm the `primitiv-button--danger` class — the action's own tone drives the dialog, so there is no separate colour scheme. Match the trigger's tone too, and label the button with the verb (`Remove`, `Delete`), not `OK`, so the consequence is legible before the click."
           caption="Pass `tone=&quot;danger&quot;` for a destructive confirmation and the Confirm button turns `danger` — the action's own tone drives the dialog, so there is no separate colour scheme. Match the trigger's tone too, and label the button with the verb (`Remove`, `Delete`), not `OK`, so the consequence is legible before the click."
-          code={() =>
-            [
+          code={(_density, mode) =>
+            mode === "elements"
+              ? withScript(
+                  elementsConfirm({
+                    tone: "danger",
+                    trigger: "Remove member",
+                    title: "Remove member?",
+                    body: ["This person will lose access immediately. This can't be undone."],
+                    confirmLabel: "Remove",
+                  }),
+                  "removeMember",
+                )
+              : [
               imports({ button: true }),
               ``,
               `const [open, setOpen] = useState(false);`,
@@ -392,9 +546,28 @@ export const confirmDialogSpec: ComponentSpec = {
       title: "A richer body",
       render: () => (
         <InteractiveExample
+          elementsPreview={markupOnly}
+          elementsCaption="The body region takes any markup, so it can carry more than a sentence when the decision needs it. Keep the lead sentence in `<primitiv-modal-description>` so it is announced, and the rest after it. Keep it short: a confirmation is a fork in the road, not a form."
           caption="`children` is a genuine `ModalBody` slot, not a `message` string — so the body can carry more than a sentence when the decision needs it. Keep it short: a confirmation is a fork in the road, not a form."
-          code={() =>
-            [
+          code={(_density, mode) =>
+            mode === "elements"
+              ? withScript(
+                  elementsConfirm({
+                    tone: "danger",
+                    trigger: "Delete project",
+                    title: 'Delete "Harmoni"?',
+                    body: [
+                      "Deleting a project removes:",
+                      `<ul class="primitiv-list primitiv-list--unordered primitiv-list--indent primitiv-list--sm">`,
+                      `  <li class="primitiv-list__item"><span class="primitiv-list__item-content">all 42 palettes and their history</span></li>`,
+                      `  <li class="primitiv-list__item"><span class="primitiv-list__item-content">every share link and export</span></li>`,
+                      `</ul>`,
+                    ],
+                    confirmLabel: "Delete project",
+                  }),
+                  "deleteProject",
+                )
+              : [
               imports({ button: true }),
               ``,
               `const [open, setOpen] = useState(false);`,
@@ -450,9 +623,35 @@ export const confirmDialogSpec: ComponentSpec = {
       title: "Sizes and density",
       render: () => (
         <InteractiveExample
+          elementsPreview={() =>
+            withGlyphs(
+              [
+                `<div class="docs-example-row">`,
+                ...SIZES.map((size) =>
+                  elementsConfirm({
+                    size,
+                    trigger: size,
+                    triggerVariant: "secondary",
+                    title: `Confirm at ${size}`,
+                    body: ["Every size scales again with the nearest data-density ancestor."],
+                  }),
+                ),
+                `</div>`,
+              ].join("\n"),
+            )
+          }
+          elementsCaption="The width is the `primitiv-modal--sm` to `--xl` class on the `<dialog>`; a confirmation is a short, low-content surface, so start at `sm`, and size the footer buttons with it. Each size rescales again with the nearest `data-density` ancestor — the dialog stays where you wrote it in the document, so it inherits one set on a section."
           caption="`size` forwards to `ModalContent` and defaults to `sm` — a confirmation is a short, low-content surface. Reach for a larger size only when the body genuinely needs the room, and each size rescales again with the nearest `data-density` ancestor. `ModalPortal` defaults to `document.body`, so pass `container` to keep a dialog under a `data-density` set on a section rather than the document — which is what these previews do."
-          code={(density) =>
-            [
+          code={(density, mode) =>
+            mode === "elements"
+              ? [
+                  `<div data-density="${density}">`,
+                  ...SIZES.map(
+                    (s) => `  <dialog class="primitiv-modal primitiv-modal--${s} primitiv-confirm-dialog">...</dialog>`,
+                  ),
+                  `</div>`,
+                ].join("\n")
+              : [
               imports(),
               ``,
               `<div data-density="${density}">`,
@@ -493,9 +692,22 @@ export const confirmDialogSpec: ComponentSpec = {
       title: "A header close button",
       render: () => (
         <InteractiveExample
+          elementsPreview={markupOnly}
+          elementsCaption="A third `<primitiv-modal-close>` in the header, around an icon-only ghost button with its own `aria-label`, adds a `×` beside the title. It is left out by default — the footer's Cancel already covers backing out of a short confirmation, so a second close reads as noise. Add it for a longer or richer surface where the escape hatch at the top-right is worth the extra target."
           caption="`showClose` adds a `×` button in the header, in addition to the footer's Cancel. It is **off by default** — the exploration found the footer's Cancel already covers the &quot;back out&quot; affordance for a short confirmation, so a second close reads as noise. Turn it on for a longer or richer surface where the escape hatch at the top-right is worth the extra target."
-          code={() =>
-            [
+          code={(_density, mode) =>
+            mode === "elements"
+              ? withScript(
+                  elementsConfirm({
+                    showClose: true,
+                    trigger: "Leave feedback",
+                    title: "Send feedback?",
+                    body: ["Your note goes to the team — thank you."],
+                    confirmLabel: "Send",
+                  }),
+                  "send",
+                )
+              : [
               imports({ button: true }),
               ``,
               `<ConfirmDialog>`,
@@ -534,6 +746,36 @@ export const confirmDialogSpec: ComponentSpec = {
       ),
     },
   ],
+
+  elements: {
+    description:
+      "A pre-arranged Modal for confirming or cancelling a single action. In plain markup it is the `<primitiv-modal>` elements with the confirm-dialog and Button classes — a title, a message, and Cancel beside a Confirm whose tone follows the action — so it loads Modal's script and adds no element of its own.",
+    anatomyMeta:
+      "No elements of its own: the Modal elements, arranged. `<primitiv-modal>` holds the state in `open`; the trigger, title, description and the two closes each wrap the element you write, and the `<dialog>` carries `primitiv-confirm-dialog` beside the Modal classes. Its attributes and events are Modal's, listed below.",
+    keyboardMeta:
+      "The keyboard model is Modal's — a real `<dialog>` opened with `showModal()`, so the page behind it is **inert**.",
+    keyboard: [
+      {
+        keys: ["Tab", "Shift+Tab"],
+        behaviour: "Move between Cancel, Confirm and the optional close button, wrapping at each end.",
+      },
+      {
+        keys: ["Escape"],
+        behaviour: "Close the dialog and return focus to the trigger — the Cancel route, from the keyboard.",
+      },
+      {
+        keys: ["Enter", "Space"],
+        behaviour: "Activate the focused button. Inside `<primitiv-modal-close>`, Confirm closes the dialog too.",
+      },
+    ],
+    accessibility: [
+      "It is a real `<dialog>` opened with `showModal()` by `<primitiv-modal>`: the top layer, the **inert** page, the Tab wrap and Escape-to-close all come from Modal.",
+      "The heading inside `<primitiv-modal-title>` is the dialog's accessible name and the paragraph inside `<primitiv-modal-description>` its description, so both are announced on open. Keep the title — an untitled confirmation is announced as an unnamed dialog.",
+      "The danger class changes only Confirm's **colour**, never its name: label it with the verb (`Remove`, `Delete`), not `OK`, so a screen-reader user hears the consequence.",
+      "Focus returns to the trigger on close, every route out included. If the trigger is gone by then — a row this dialog deleted — move focus somewhere deliberate yourself.",
+      "A Confirm that waits for async work should say so: disable it (or mark it `aria-busy`) while the work runs, and close the dialog by setting `open = false` when it finishes.",
+    ],
+  },
 
   accessibility: [
     "It is a real `<dialog>` opened with `showModal()`, inherited wholesale from `Modal`: the top-layer stacking, the **inert** background, focus trapping and Escape-to-close all come for free, not from a `z-index` and an `aria-hidden` sweep.",

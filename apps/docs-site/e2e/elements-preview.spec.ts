@@ -132,6 +132,26 @@ test("the Modal veto example keeps the dialog open while the form is dirty", asy
   await expect(page.getByRole("dialog", { name: "Rename project" })).toBeHidden();
 });
 
+test("the ConfirmDialog previews are <primitiv-modal> elements, loaded from modal.js", async ({ page }) => {
+  await page.goto("/components/confirm-dialog/");
+  // Its markup is the Modal elements: the script that defines them is modal's.
+  await expect(page.getByText(/dist\/cdn\/modal\.js/).first()).toBeVisible();
+  await expect(page.getByText(/define\/modal"/).first()).toBeVisible();
+  await expect(page.getByText("confirm-dialog.js")).toHaveCount(0);
+
+  const example = cell(page, "confirming-an-action");
+  const trigger = example.getByRole("button", { name: "Publish release" });
+  await expect(trigger).toHaveAttribute("aria-haspopup", "dialog");
+  await trigger.click();
+  const dialog = page.getByRole("dialog", { name: "Publish release?" });
+  await expect(dialog).toBeVisible();
+  await expect(dialog).toHaveClass(/primitiv-confirm-dialog/);
+  // Confirm closes it through the wired listener, as the code tab's script does.
+  await dialog.getByRole("button", { name: "Publish" }).click();
+  await expect(dialog).toBeHidden();
+  await expect(trigger).toBeFocused();
+});
+
 test("the Prose preview is plain markup whose children take the flow rhythm", async ({ page }) => {
   await page.goto("/components/prose/");
   const flow = page.locator(".docs-elements-preview .primitiv-flow").first();

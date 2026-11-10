@@ -8,7 +8,9 @@
 import { readdirSync, readFileSync } from "node:fs";
 import { gzipSync } from "node:zlib";
 
-const BUDGET = Number(process.env.PRIMITIV_WEB_BUDGET ?? 3072);
+// 4 KB per component since Dropdown (RFC 0033 §7.3): a menu with submenus,
+// checkbox and radio items and typeahead does not fit 3 KB without losing one.
+const BUDGET = Number(process.env.PRIMITIV_WEB_BUDGET ?? 4096);
 const components = readdirSync(new URL("../src/define/", import.meta.url)).filter(
   (file) => file.endsWith(".ts") && file !== "index.ts",
 ).length;

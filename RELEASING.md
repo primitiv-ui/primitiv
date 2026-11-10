@@ -245,7 +245,7 @@ both are new in the **same** release, so one bootstrap covers both:
   react on both.
 - **The npm tarball also carries `dist/primitiv-web.js`** (the no-build bundle,
   served by jsDelivr from npm) and `dist/custom-elements.json`. CI builds both
-  and gates the bundle at 3 KB gzipped.
+  and gates the bundle at 4 KB gzipped per component it defines.
 
 The workflow already runs `qa:units` on all five before publishing, so
 tests gate the release. `pnpm -r publish` skips `private: true` packages

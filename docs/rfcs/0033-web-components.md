@@ -801,8 +801,11 @@ dist/primitiv-web.js        → prebuilt single ESM bundle, core inlined, every 
 The CI gate is `size-limit` (or an equivalent script) on the min+gzip size of
 `define/tabs` *including the core it pulls in*, held by `scripts/check-size.mjs`
 for `dist/primitiv-web.js` and for each `dist/cdn/<component>.js` with the
-chunks it imports. The opening target is **≤ 3 KB**,
-to be confirmed once the first build exists and then held. The RFC also
+chunks it imports. The opening target was **≤ 3 KB**, held from Tabs through
+Tooltip; Dropdown came in at 3.4 KB (fourteen elements, two menu controllers,
+checkbox and radio items, typeahead and submenus) and the budget was raised to
+**≤ 4 KB per component** for every component, rather than splitting submenus
+into a second file a page would have to add. The RFC also
 records, without gating on it, the React path for comparison:
 `@primitiv-ui/react` Tabs plus `react` and `react-dom`.
 

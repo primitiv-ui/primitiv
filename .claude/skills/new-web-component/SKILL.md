@@ -144,8 +144,8 @@ Then wire the package (each is easy to miss):
 `dist/cdn/<component>.js` from every `src/define/<component>.ts` in one esbuild
 run with code splitting; shared code lands once in `dist/cdn/chunks/`. Run
 `pnpm --filter @primitiv-ui/web build` and `size`: `check-size.mjs` holds each
-CDN file (with the chunks it imports) and `primitiv-web.js` to the 3 KB gzipped
-budget. Once two components exist, check the shared chunk really appears.
+CDN file (with the chunks it imports) to the 4 KB gzipped budget, and
+`primitiv-web.js` to 4 KB per component it defines. Once two components exist, check the shared chunk really appears.
 
 ## 3. Conformance: one suite, both surfaces
 

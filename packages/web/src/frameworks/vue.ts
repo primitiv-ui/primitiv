@@ -23,6 +23,7 @@ import type { DefineComponent, EmitsOptions } from "vue";
 import type {
   PrimitivAccordionChangeEvent,
   PrimitivCollapsibleChangeEvent,
+  PrimitivModalChangeEvent,
   PrimitivTabsChangeEvent,
 } from "./events.ts";
 
@@ -65,6 +66,15 @@ declare module "vue" {
       { "primitiv-collapsible-show": (event: CustomEvent) => void }
     >;
     "primitiv-collapsible-trigger-icon": Tag<Record<never, never>>;
+    "primitiv-modal": Tag<
+      { open?: boolean | "" },
+      { "primitiv-modal-change": (event: PrimitivModalChangeEvent) => void }
+    >;
+    "primitiv-modal-trigger": Tag<Record<never, never>>;
+    "primitiv-modal-content": Tag<Record<never, never>>;
+    "primitiv-modal-title": Tag<Record<never, never>>;
+    "primitiv-modal-description": Tag<Record<never, never>>;
+    "primitiv-modal-close": Tag<Record<never, never>>;
     "primitiv-tabs": Tag<
       {
         value?: string;

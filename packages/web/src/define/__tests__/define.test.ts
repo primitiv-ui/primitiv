@@ -55,6 +55,23 @@ it("defines the Collapsible elements when define/collapsible is imported", async
   }
 });
 
+it("defines the Modal elements when define/modal is imported", async () => {
+  // Arrange & Act
+  await import("../modal");
+
+  // Assert
+  for (const name of [
+    "primitiv-modal",
+    "primitiv-modal-trigger",
+    "primitiv-modal-content",
+    "primitiv-modal-title",
+    "primitiv-modal-description",
+    "primitiv-modal-close",
+  ]) {
+    expect(customElements.get(name)).toBeDefined();
+  }
+});
+
 it("defines every component's elements when define is imported", async () => {
   // Arrange & Act
   const module = await import("../index");
@@ -64,4 +81,5 @@ it("defines every component's elements when define is imported", async () => {
   expect(customElements.get("primitiv-tabs")).toBeDefined();
   expect(customElements.get("primitiv-accordion")).toBeDefined();
   expect(customElements.get("primitiv-collapsible")).toBeDefined();
+  expect(customElements.get("primitiv-modal")).toBeDefined();
 });

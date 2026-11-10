@@ -11,3 +11,4 @@ export {
   type CollapsibleConformanceFixture,
   type CollapsibleMount,
 } from "./collapsible.ts";
+export { MODAL, runModalConformance, type ModalConformanceFixture, type ModalMount } from "./modal.ts";

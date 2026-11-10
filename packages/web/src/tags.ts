@@ -26,6 +26,14 @@ import type {
   PrimitivCollapsibleTriggerIconElement,
 } from "./collapsible/elements.ts";
 import type {
+  PrimitivModalCloseElement,
+  PrimitivModalContentElement,
+  PrimitivModalDescriptionElement,
+  PrimitivModalElement,
+  PrimitivModalTitleElement,
+  PrimitivModalTriggerElement,
+} from "./modal/elements.ts";
+import type {
   PrimitivTabsContentElement,
   PrimitivTabsElement,
   PrimitivTabsListElement,
@@ -43,6 +51,12 @@ declare global {
     "primitiv-collapsible-trigger": PrimitivCollapsibleTriggerElement;
     "primitiv-collapsible-content": PrimitivCollapsibleContentElement;
     "primitiv-collapsible-trigger-icon": PrimitivCollapsibleTriggerIconElement;
+    "primitiv-modal": PrimitivModalElement;
+    "primitiv-modal-trigger": PrimitivModalTriggerElement;
+    "primitiv-modal-content": PrimitivModalContentElement;
+    "primitiv-modal-title": PrimitivModalTitleElement;
+    "primitiv-modal-description": PrimitivModalDescriptionElement;
+    "primitiv-modal-close": PrimitivModalCloseElement;
     "primitiv-tabs": PrimitivTabsElement;
     "primitiv-tabs-list": PrimitivTabsListElement;
     "primitiv-tabs-trigger": PrimitivTabsTriggerElement;

@@ -4,4 +4,5 @@
  */
 import "./accordion.ts";
 import "./collapsible.ts";
+import "./modal.ts";
 import "./tabs.ts";

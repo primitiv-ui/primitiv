@@ -32,6 +32,14 @@ import type {
   PrimitivCollapsibleTriggerIconElement,
 } from "../collapsible/elements.ts";
 import type {
+  PrimitivModalCloseElement,
+  PrimitivModalContentElement,
+  PrimitivModalDescriptionElement,
+  PrimitivModalElement,
+  PrimitivModalTitleElement,
+  PrimitivModalTriggerElement,
+} from "../modal/elements.ts";
+import type {
   PrimitivTabsContentElement,
   PrimitivTabsElement,
   PrimitivTabsListElement,
@@ -40,6 +48,7 @@ import type {
 import type {
   PrimitivAccordionChangeEvent,
   PrimitivCollapsibleChangeEvent,
+  PrimitivModalChangeEvent,
   PrimitivTabsChangeEvent,
 } from "./events.ts";
 
@@ -77,6 +86,15 @@ declare module "svelte/elements" {
       "onprimitiv-collapsible-show"?: (event: CustomEvent) => void;
     };
     "primitiv-collapsible-trigger-icon": Attributes<PrimitivCollapsibleTriggerIconElement>;
+    "primitiv-modal": Attributes<PrimitivModalElement> & {
+      open?: boolean;
+      "onprimitiv-modal-change"?: (event: PrimitivModalChangeEvent) => void;
+    };
+    "primitiv-modal-trigger": Attributes<PrimitivModalTriggerElement>;
+    "primitiv-modal-content": Attributes<PrimitivModalContentElement>;
+    "primitiv-modal-title": Attributes<PrimitivModalTitleElement>;
+    "primitiv-modal-description": Attributes<PrimitivModalDescriptionElement>;
+    "primitiv-modal-close": Attributes<PrimitivModalCloseElement>;
     "primitiv-tabs": Attributes<PrimitivTabsElement> & {
       value?: string;
       orientation?: "horizontal" | "vertical";

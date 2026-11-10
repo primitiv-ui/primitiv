@@ -33,6 +33,14 @@ import type {
   PrimitivCollapsibleTriggerIconElement,
 } from "../collapsible/elements.ts";
 import type {
+  PrimitivModalCloseElement,
+  PrimitivModalContentElement,
+  PrimitivModalDescriptionElement,
+  PrimitivModalElement,
+  PrimitivModalTitleElement,
+  PrimitivModalTriggerElement,
+} from "../modal/elements.ts";
+import type {
   PrimitivTabsContentElement,
   PrimitivTabsElement,
   PrimitivTabsListElement,
@@ -41,6 +49,7 @@ import type {
 import type {
   PrimitivAccordionChangeEvent,
   PrimitivCollapsibleChangeEvent,
+  PrimitivModalChangeEvent,
   PrimitivTabsChangeEvent,
 } from "./events.ts";
 
@@ -49,7 +58,12 @@ type ElementProps<E extends HTMLElement> = DetailedHTMLProps<HTMLAttributes<E>, 
   class?: string;
 };
 
-export type { PrimitivAccordionChangeEvent, PrimitivCollapsibleChangeEvent, PrimitivTabsChangeEvent };
+export type {
+  PrimitivAccordionChangeEvent,
+  PrimitivCollapsibleChangeEvent,
+  PrimitivModalChangeEvent,
+  PrimitivTabsChangeEvent,
+};
 
 declare module "react" {
   // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -84,6 +98,15 @@ declare module "react" {
         "onprimitiv-collapsible-show"?: (event: CustomEvent) => void;
       };
       "primitiv-collapsible-trigger-icon": ElementProps<PrimitivCollapsibleTriggerIconElement>;
+      "primitiv-modal": ElementProps<PrimitivModalElement> & {
+        open?: boolean;
+        "onprimitiv-modal-change"?: (event: PrimitivModalChangeEvent) => void;
+      };
+      "primitiv-modal-trigger": ElementProps<PrimitivModalTriggerElement>;
+      "primitiv-modal-content": ElementProps<PrimitivModalContentElement>;
+      "primitiv-modal-title": ElementProps<PrimitivModalTitleElement>;
+      "primitiv-modal-description": ElementProps<PrimitivModalDescriptionElement>;
+      "primitiv-modal-close": ElementProps<PrimitivModalCloseElement>;
       "primitiv-tabs": ElementProps<PrimitivTabsElement> & {
         value?: string;
         orientation?: "horizontal" | "vertical";

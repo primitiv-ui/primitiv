@@ -13,6 +13,12 @@ import type {
   PrimitivCollapsibleElement,
   PrimitivCollapsibleTriggerElement,
   PrimitivCollapsibleTriggerIconElement,
+  PrimitivModalCloseElement,
+  PrimitivModalContentElement,
+  PrimitivModalDescriptionElement,
+  PrimitivModalElement,
+  PrimitivModalTitleElement,
+  PrimitivModalTriggerElement,
   PrimitivTabsContentElement,
   PrimitivTabsElement,
   PrimitivTabsListElement,
@@ -41,4 +47,13 @@ it("types every Collapsible tag in HTMLElementTagNameMap", () => {
   expectTypeOf(document.createElement("primitiv-collapsible-trigger")).toEqualTypeOf<PrimitivCollapsibleTriggerElement>();
   expectTypeOf(document.createElement("primitiv-collapsible-content")).toEqualTypeOf<PrimitivCollapsibleContentElement>();
   expectTypeOf(document.createElement("primitiv-collapsible-trigger-icon")).toEqualTypeOf<PrimitivCollapsibleTriggerIconElement>();
+});
+
+it("types every Modal tag in HTMLElementTagNameMap", () => {
+  expectTypeOf(document.querySelector("primitiv-modal")).toEqualTypeOf<PrimitivModalElement | null>();
+  expectTypeOf(document.createElement("primitiv-modal-trigger")).toEqualTypeOf<PrimitivModalTriggerElement>();
+  expectTypeOf(document.createElement("primitiv-modal-content")).toEqualTypeOf<PrimitivModalContentElement>();
+  expectTypeOf(document.createElement("primitiv-modal-title")).toEqualTypeOf<PrimitivModalTitleElement>();
+  expectTypeOf(document.createElement("primitiv-modal-description")).toEqualTypeOf<PrimitivModalDescriptionElement>();
+  expectTypeOf(document.createElement("primitiv-modal-close")).toEqualTypeOf<PrimitivModalCloseElement>();
 });

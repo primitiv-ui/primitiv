@@ -11,3 +11,6 @@ export type PrimitivAccordionChangeEvent = CustomEvent<{ value: string[] }>;
 
 /** The `primitiv-collapsible-change` event: bubbles, cancelable, fired before the change applies, with the open state afterwards. */
 export type PrimitivCollapsibleChangeEvent = CustomEvent<{ open: boolean }>;
+
+/** The `primitiv-modal-change` event: bubbles, cancelable, fired before the change applies, with the open state afterwards. */
+export type PrimitivModalChangeEvent = CustomEvent<{ open: boolean }>;

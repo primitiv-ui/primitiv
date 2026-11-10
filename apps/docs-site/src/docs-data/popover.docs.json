@@ -359,5 +359,61 @@
   "figma": {
     "componentSetKey": "1168:36142"
   },
-  "elements": null
+  "elements": {
+    "package": "@primitiv-ui/web",
+    "module": "popover",
+    "version": "0.1.55",
+    "element": "div",
+    "wrapText": false,
+    "example": "<primitiv-popover>\n  <primitiv-popover-trigger>\n    <button type=\"button\">Edit profile</button>\n  </primitiv-popover-trigger>\n  <primitiv-popover-content class=\"primitiv-popover primitiv-popover--md primitiv-popover--bottom\" popover=\"auto\">\n    <primitiv-popover-title><h2 class=\"primitiv-popover__title\">Profile</h2></primitiv-popover-title>\n    <primitiv-popover-description><p class=\"primitiv-popover__description\">Your display name is shown on every comment.</p></primitiv-popover-description>\n    <primitiv-popover-close>\n      <button type=\"button\" class=\"primitiv-popover__close\" aria-label=\"Close\"><svg viewBox=\"0 0 24 24\" width=\"24\" height=\"24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M20.06 19 19 20.06 3.94 5 5 3.94z\"/><path d=\"M20.06 5 5 20.06 3.94 19 19 3.94z\"/></svg></button>\n    </primitiv-popover-close>\n  </primitiv-popover-content>\n</primitiv-popover>\n",
+    "api": [
+      {
+        "tag": "primitiv-popover",
+        "attributes": [
+          {
+            "name": "open",
+            "type": "boolean",
+            "description": "Whether the panel is open. Reflected: it changes as the user opens and dismisses it, so a server re-render or a history snapshot sees the live state. Set it (or the `open` property) to open or close the panel from script."
+          }
+        ],
+        "events": [
+          {
+            "name": "primitiv-popover-change",
+            "type": "CustomEvent<{ open: boolean }>",
+            "description": "Bubbles, cancelable, fired before a user-driven change is applied — a trigger or close click, Escape, or a light dismiss — with the open state afterwards. Call `preventDefault()` to veto it."
+          }
+        ]
+      },
+      {
+        "tag": "primitiv-popover-trigger",
+        "attributes": [],
+        "events": []
+      },
+      {
+        "tag": "primitiv-popover-anchor",
+        "attributes": [],
+        "events": []
+      },
+      {
+        "tag": "primitiv-popover-content",
+        "attributes": [],
+        "events": []
+      },
+      {
+        "tag": "primitiv-popover-title",
+        "attributes": [],
+        "events": []
+      },
+      {
+        "tag": "primitiv-popover-description",
+        "attributes": [],
+        "events": []
+      },
+      {
+        "tag": "primitiv-popover-close",
+        "attributes": [],
+        "events": []
+      }
+    ]
+  }
 }

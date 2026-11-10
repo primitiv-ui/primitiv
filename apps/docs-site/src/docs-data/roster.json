@@ -341,7 +341,7 @@
     "category": "Overlays",
     "description": "A non-modal floating panel anchored to a trigger, built on the native HTML Popover API — a borderless, shadow-defined surface with a pointer arrow, positioned with CSS anchor positioning across all twelve placements.",
     "documented": true,
-    "elements": null
+    "elements": "behaviour"
   },
   {
     "id": "progress",

@@ -276,3 +276,67 @@ test("the printed tooltip's arrow follows the bubble when it flips across the in
   await pinTrigger("right");
   await expect.poll(sides).toEqual({ bubble: "left", arrow: "right edge" });
 });
+
+test("the printed popover's arrow follows the panel when it flips as the page scrolls", async ({ page }) => {
+  await page.evaluate(() => {
+    document.body.style.paddingBlock = "100vh";
+  });
+  const trigger = page.getByRole("button", { name: "Edit profile", exact: true }).last();
+  const panel = page.getByRole("dialog", { name: "Profile" });
+  const scrollTriggerTo = (top: number) =>
+    trigger.evaluate((el, top) => window.scrollBy(0, el.getBoundingClientRect().top - top), top);
+  // The arrow is the panel's ::after, which has no box of its own to measure: a
+  // hit just past an edge, on the centre line, lands on the panel only where
+  // the arrow's tail pokes out.
+  const sides = async () => {
+    const [t, p] = await Promise.all([trigger.boundingBox(), panel.boundingBox()]);
+    const arrow = await panel.evaluate((el, p) => {
+      const x = p.x + p.width / 2;
+      const hits = (y: number) => el.contains(document.elementFromPoint(x, y));
+      return hits(p.y - 2) ? "top edge" : hits(p.y + p.height + 2) ? "bottom edge" : "none";
+    }, p!);
+    return { panel: p!.y >= t!.y + t!.height ? "below" : p!.y + p!.height <= t!.y ? "above" : "overlapping", arrow };
+  };
+
+  await scrollTriggerTo(100);
+  await trigger.click();
+  await expect(panel).toBeVisible();
+  await expect.poll(sides).toEqual({ panel: "below", arrow: "top edge" });
+
+  // No room below: the panel flips above the trigger, and its arrow with it.
+  const viewport = page.viewportSize()!.height;
+  const { height } = (await trigger.boundingBox())!;
+  await scrollTriggerTo(viewport - height - 2);
+  await expect.poll(sides).toEqual({ panel: "above", arrow: "bottom edge" });
+});
+
+test("the printed popover's arrow follows the panel when it flips across the inline axis", async ({ page }) => {
+  const trigger = page.getByRole("button", { name: "Edit profile", exact: true }).last();
+  const panel = page.getByRole("dialog", { name: "Profile" });
+  await page
+    .locator("primitiv-popover-content")
+    .last()
+    .evaluate((el) => el.classList.replace("primitiv-popover--bottom", "primitiv-popover--right"));
+  const pinTrigger = (side: "left" | "right") =>
+    trigger.evaluate((el, side) => {
+      el.style.cssText = `position: fixed; top: 300px; ${side}: 2px`;
+    }, side);
+  const sides = async () => {
+    const [t, p] = await Promise.all([trigger.boundingBox(), panel.boundingBox()]);
+    const arrow = await panel.evaluate((el, p) => {
+      const y = p.y + p.height / 2;
+      const hits = (x: number) => el.contains(document.elementFromPoint(x, y));
+      return hits(p.x - 2) ? "left edge" : hits(p.x + p.width + 2) ? "right edge" : "none";
+    }, p!);
+    return { panel: p!.x >= t!.x + t!.width ? "right" : p!.x + p!.width <= t!.x ? "left" : "overlapping", arrow };
+  };
+
+  await pinTrigger("left");
+  await trigger.click();
+  await expect(panel).toBeVisible();
+  await expect.poll(sides).toEqual({ panel: "right", arrow: "left edge" });
+
+  // No room to the right: the panel flips to the left, and its arrow with it.
+  await pinTrigger("right");
+  await expect.poll(sides).toEqual({ panel: "left", arrow: "right edge" });
+});

@@ -30,6 +30,7 @@ export {
 } from "./collapsible/policy.ts";
 export { FOCUSABLE_SELECTOR } from "./focus/focusable.ts";
 export {
+  MENU_ITEM_SELECTOR,
   MENU_TYPEAHEAD_RESET_MS,
   menuKeydown,
   menuTypeahead,

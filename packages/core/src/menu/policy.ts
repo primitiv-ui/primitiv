@@ -1,3 +1,7 @@
+/** A menu's enabled items, as the selector a host finds them with: every item role, bar the disabled. */
+export const MENU_ITEM_SELECTOR: string =
+  '[role="menuitem"]:not([aria-disabled="true"]), [role="menuitemcheckbox"]:not([aria-disabled="true"]), [role="menuitemradio"]:not([aria-disabled="true"])';
+
 /** A key press inside an open menu, with where focus is among its enabled items. */
 export type MenuKeyState = {
   /** The key pressed. */

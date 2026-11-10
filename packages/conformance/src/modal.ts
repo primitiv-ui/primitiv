@@ -11,7 +11,7 @@
  * purpose* — React's `asChild`, portal, overlay and callbacks, the elements'
  * reflected attribute and DOM events — belongs in that surface's own suite.
  */
-import { fireEvent, screen } from "@testing-library/dom";
+import { screen } from "@testing-library/dom";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it } from "vitest";
 
@@ -102,11 +102,11 @@ export function runModalConformance(mount: ModalMount): void {
 
       it("closes on Escape", async () => {
         // Arrange
+        const user = userEvent.setup();
         await render({ open: true });
-        const cancel = new Event("cancel", { cancelable: true });
 
         // Act
-        fireEvent(dialog(), cancel);
+        await user.keyboard("{Escape}");
         await settle();
 
         // Assert
@@ -115,14 +115,15 @@ export function runModalConformance(mount: ModalMount): void {
 
       it("closes on a press on the backdrop, and not on one inside the dialog", async () => {
         // Arrange
+        const user = userEvent.setup();
         await render({ open: true });
         dialog().getBoundingClientRect = () => ({ left: 100, top: 100, right: 300, bottom: 300 }) as DOMRect;
 
         // Act
-        fireEvent.pointerDown(dialog(), { clientX: 200, clientY: 200 });
+        await user.pointer({ keys: "[MouseLeft]", target: dialog(), coords: { clientX: 200, clientY: 200 } });
         await settle();
         const afterInside = dialog().open;
-        fireEvent.pointerDown(dialog(), { clientX: 20, clientY: 20 });
+        await user.pointer({ keys: "[MouseLeft]", target: dialog(), coords: { clientX: 20, clientY: 20 } });
         await settle();
 
         // Assert

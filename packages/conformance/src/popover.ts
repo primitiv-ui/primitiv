@@ -12,7 +12,7 @@
  * React's `asChild` and anchor wiring, the elements' reflected attribute,
  * events and implicit anchor — belongs in that surface's own suite.
  */
-import { fireEvent, screen } from "@testing-library/dom";
+import { screen } from "@testing-library/dom";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it } from "vitest";
 
@@ -125,10 +125,12 @@ export function runPopoverConformance(mount: PopoverMount): void {
 
       it("closes on Escape inside the panel and hands focus back to the trigger", async () => {
         // Arrange
+        const user = userEvent.setup();
         await render({ open: true });
+        await user.click(screen.getByRole("textbox", { name: POPOVER.field, hidden: true }));
 
         // Act
-        fireEvent.keyDown(screen.getByRole("textbox", { name: POPOVER.field, hidden: true }), { key: "Escape" });
+        await user.keyboard("{Escape}");
         await settle();
 
         // Assert

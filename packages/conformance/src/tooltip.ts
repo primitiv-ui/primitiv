@@ -10,7 +10,7 @@
  * callbacks, the elements' reflected attribute, events and top-layer popover —
  * belongs in that surface's own suite.
  */
-import { fireEvent, screen } from "@testing-library/dom";
+import { screen } from "@testing-library/dom";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it } from "vitest";
 
@@ -74,13 +74,14 @@ export function runTooltipConformance(mount: TooltipMount): void {
     describe("focus", () => {
       it("opens at once on focus, and closes on blur", async () => {
         // Arrange
+        const user = userEvent.setup();
         await render({});
 
         // Act
-        trigger().focus();
+        await user.tab();
         await wait();
         const afterFocus = isOpen();
-        trigger().blur();
+        await user.tab();
         await wait();
 
         // Assert
@@ -124,10 +125,11 @@ export function runTooltipConformance(mount: TooltipMount): void {
 
       it("closes on a press outside", async () => {
         // Arrange
+        const user = userEvent.setup();
         await render({ open: true });
 
         // Act
-        fireEvent.pointerDown(document.body);
+        await user.pointer({ keys: "[MouseLeft>]", target: document.body });
         await wait();
 
         // Assert
@@ -138,10 +140,11 @@ export function runTooltipConformance(mount: TooltipMount): void {
     describe("keyboard", () => {
       it("closes on Escape", async () => {
         // Arrange
+        const user = userEvent.setup();
         await render({ open: true });
 
         // Act
-        fireEvent.keyDown(trigger(), { key: "Escape" });
+        await user.keyboard("{Escape}");
         await wait();
 
         // Assert

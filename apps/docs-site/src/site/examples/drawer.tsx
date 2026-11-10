@@ -27,6 +27,7 @@ import {
 import { contractAttr, importBlock, partNamer } from "@/lib/playground";
 import { InteractiveExample } from "@/site/InteractiveExample";
 import type { Mode } from "@/site/preferences";
+import { glyph, withGlyphs } from "./glyphs";
 import type { ComponentSpec } from "./types";
 
 type Width = "xs" | "sm" | "md" | "lg" | "xl";
@@ -70,6 +71,71 @@ const imports = (mode: Mode, parts: readonly string[], button = false) =>
    headless mode, where `@primitiv-ui/react` exports no such part. */
 const region = (mode: Mode, part: "Header" | "Body" | "Footer") =>
   mode === "headless" ? "div" : partNamer(mode, "Drawer")(part);
+
+/** A registry Button as Elements markup, with the label span the React wrapper adds. */
+const button = (label: string, variant: string, size = "md") =>
+  `<button type="button" class="primitiv-button primitiv-button--${variant} primitiv-button--${size}"><span class="primitiv-button__label">${label}</span></button>`;
+
+/**
+ * One drawer as Elements markup (RFC 0033). A drawer has no element of its own
+ * — React's Drawer delegates every part to Modal — so its markup is the
+ * `<primitiv-modal>` elements around a `<dialog>` wearing the drawer classes,
+ * in the shape `primitiv add drawer --surface elements` prints. `data-side` is
+ * written on the dialog by hand: it is a styling hook the element never reads.
+ */
+const elementsDrawer = ({
+  width = "md",
+  side = "right",
+  trigger = "Open drawer",
+  triggerVariant = "primary",
+  triggerSize = "md",
+  title = "Filters",
+  description = "Narrow the results — the drawer keeps the list behind it in view.",
+  footer = true,
+}: {
+  width?: string;
+  side?: Side;
+  trigger?: string;
+  triggerVariant?: string;
+  triggerSize?: string;
+  title?: string;
+  description?: string;
+  footer?: boolean;
+} = {}) =>
+  [
+    `<primitiv-modal>`,
+    `  <primitiv-modal-trigger>`,
+    `    ${button(trigger, triggerVariant, triggerSize)}`,
+    `  </primitiv-modal-trigger>`,
+    `  <primitiv-modal-content>`,
+    `    <dialog class="primitiv-drawer primitiv-drawer--${width}" data-side="${side}">`,
+    `      <span class="primitiv-drawer__header">`,
+    `        <primitiv-modal-title><h2 class="primitiv-drawer__title">${title}</h2></primitiv-modal-title>`,
+    `        <primitiv-modal-close>`,
+    `          <button type="button" class="primitiv-button primitiv-button--ghost primitiv-button--sm primitiv-drawer__close" aria-label="Close">${glyph("close")}</button>`,
+    `        </primitiv-modal-close>`,
+    `      </span>`,
+    `      <span class="primitiv-drawer__body">`,
+    `        <primitiv-modal-description><p class="primitiv-drawer__description">${description}</p></primitiv-modal-description>`,
+    `      </span>`,
+    ...(footer
+      ? [
+          `      <span class="primitiv-drawer__footer">`,
+          `        <primitiv-modal-close>`,
+          `          ${button("Cancel", "secondary")}`,
+          `        </primitiv-modal-close>`,
+          `        <primitiv-modal-close>`,
+          `          ${button("Apply", "primary")}`,
+          `        </primitiv-modal-close>`,
+          `      </span>`,
+        ]
+      : []),
+    `    </dialog>`,
+    `  </primitiv-modal-content>`,
+    `</primitiv-modal>`,
+  ].join("\n");
+
+const SIDES = ["left", "right", "top", "bottom"] as const;
 
 const CloseButton = () => (
   <DrawerClose asChild>
@@ -131,7 +197,10 @@ export const drawerSpec: ComponentSpec = {
         description: "Screen edge the drawer docks to and slides in from.",
       },
     ],
+    elementsPreview: (code) => withGlyphs(code),
     snippet: (values, mode) => {
+      if (mode === "elements")
+        return elementsDrawer({ width: values.width, side: values.side as Side });
       const p = partNamer(mode, "Drawer");
       const width = contractAttr({ mode, prop: "width", value: values.width });
       return [
@@ -165,6 +234,19 @@ export const drawerSpec: ComponentSpec = {
     {
       label: "Parts",
       code: (mode) => {
+        if (mode === "elements")
+          return [
+            `<primitiv-modal>`,
+            `  <primitiv-modal-trigger><button type="button"></button></primitiv-modal-trigger>`,
+            `  <primitiv-modal-content>`,
+            `    <dialog class="primitiv-drawer" data-side="right">`,
+            `      <primitiv-modal-title><h2></h2></primitiv-modal-title>`,
+            `      <primitiv-modal-description><p></p></primitiv-modal-description>`,
+            `      <primitiv-modal-close><button type="button"></button></primitiv-modal-close>`,
+            `    </dialog>`,
+            `  </primitiv-modal-content>`,
+            `</primitiv-modal>`,
+          ].join("\n");
         const p = partNamer(mode, "Drawer");
         return [
           `<${p("Root")}>`,
@@ -200,8 +282,31 @@ export const drawerSpec: ComponentSpec = {
       title: "Sides",
       render: () => (
         <InteractiveExample
+          elementsPreview={() =>
+            withGlyphs(
+              [
+                `<div class="docs-example-row">`,
+                ...SIDES.map((side) =>
+                  elementsDrawer({
+                    side,
+                    width: "sm",
+                    trigger: side,
+                    triggerVariant: "secondary",
+                    triggerSize: "sm",
+                    title: `From the ${side}`,
+                    description: `This drawer docks to the ${side} edge.`,
+                    footer: false,
+                  }),
+                ),
+                `</div>`,
+              ].join("\n"),
+            )
+          }
+          elementsCaption="`data-side` on the `<dialog>` docks it to an edge and slides it in from there: `right` and `left` for navigation and filters, `bottom` for a mobile action sheet, `top` for a notification tray. It is a styling hook you write — the element never reads it. The `primitiv-drawer--xs` to `--xl` class sets the cross-axis extent: the width for left and right, the height for top and bottom. **Click a trigger** to open it."
           caption="`side` docks the drawer to an edge and slides it in from there: `right` (the default) and `left` for navigation and filters, `bottom` for a mobile action sheet, `top` for a notification tray. `width` sets the cross-axis extent — the width for left/right, the height for top/bottom. **Click a trigger** to open it."
           code={(_density, mode) => {
+            if (mode === "elements")
+              return `<dialog class="primitiv-drawer primitiv-drawer--sm" data-side="left">…</dialog>`;
             const p = partNamer(mode, "Drawer");
             return [
               imports(mode, ["Content"], false),
@@ -243,6 +348,27 @@ export const drawerSpec: ComponentSpec = {
       ),
     },
   ],
+
+  elements: {
+    description:
+      "An accessible drawer: a modal dialog on the native `<dialog>` element that slides in from a screen edge. In plain markup it is the `<primitiv-modal>` elements around a `<dialog>` wearing the drawer classes and a `data-side`, so it loads Modal's script and adds no element of its own.",
+    anatomyMeta:
+      "No elements of its own: the Modal elements, docked to an edge. `<primitiv-modal>` holds the state in `open`; the trigger, title, description and closes each wrap the element you write, and the `<dialog>` carries `primitiv-drawer`, a width class and `data-side`. There is no overlay element — the dialog's own `::backdrop` dims the page. Its attributes and events are Modal's, listed below.",
+    keyboardMeta:
+      "A drawer is a modal dialog, so it traps focus: Tab and Shift+Tab cycle within the panel and never reach the inert page behind it. Escape closes it and returns focus to the trigger; a press on the backdrop dismisses it too.",
+    keyboard: [
+      { keys: ["Enter", "Space"], behaviour: "Open the drawer from the focused trigger." },
+      { keys: ["Escape"], behaviour: "Close the drawer and return focus to the trigger." },
+      { keys: ["Tab"], behaviour: "Cycle focus within the drawer — the background is inert, so focus cannot leave it." },
+    ],
+    accessibility: [
+      "The `<dialog>` is opened with `showModal()` by `<primitiv-modal>`, so the browser inerts the rest of the page — background controls cannot be focused or clicked while the drawer is open.",
+      "Focus is trapped inside the drawer and cycles at the boundaries, and returns to the trigger on close, so a keyboard user is never stranded on the inert page behind it.",
+      "The heading inside `<primitiv-modal-title>` names the dialog (`aria-labelledby`) and the paragraph inside `<primitiv-modal-description>` describes it — always give a drawer a title, so a screen reader announces what opened rather than a bare panel.",
+      "Escape and a backdrop press both dismiss it, and a cancelable `primitiv-modal-change` lets a listener veto either, as on Modal.",
+      "Reach for Popover instead when the content is optional and non-blocking: a drawer is modal and takes over, so use it for a focused task (filters, a form, navigation), not a passing hint.",
+    ],
+  },
 
   accessibility: [
     "`Drawer.Content` is a native `<dialog>` opened as a modal, so the browser inerts the rest of the page for you — background controls cannot be focused or clicked while the drawer is open, no `aria-hidden` bookkeeping required.",

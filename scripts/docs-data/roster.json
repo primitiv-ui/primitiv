@@ -213,7 +213,7 @@
     "category": "Overlays",
     "description": "An accessible drawer — a Modal dialog built on the native `<dialog>` element that slides in from a screen edge (top, right, bottom, or left).",
     "documented": true,
-    "elements": null
+    "elements": "behaviour"
   },
   {
     "id": "dropdown",

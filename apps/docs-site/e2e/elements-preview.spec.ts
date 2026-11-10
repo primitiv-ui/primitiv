@@ -152,6 +152,31 @@ test("the ConfirmDialog previews are <primitiv-modal> elements, loaded from moda
   await expect(trigger).toBeFocused();
 });
 
+test("the Drawer previews are <primitiv-modal> elements that slide in from their side", async ({ page }) => {
+  await page.goto("/components/drawer/");
+  await expect(page.getByText(/dist\/cdn\/modal\.js/).first()).toBeVisible();
+  await expect(page.getByText("drawer.js")).toHaveCount(0);
+
+  const trigger = page.locator(".docs-elements-preview primitiv-modal-trigger button").first();
+  await expect(trigger).toHaveAttribute("aria-haspopup", "dialog");
+  await trigger.click();
+  const dialog = page.locator("dialog.primitiv-drawer[open]");
+  await expect(dialog).toBeVisible();
+  expect(await dialog.evaluate((element) => element.matches(":modal"))).toBe(true);
+  await expect(dialog).toHaveAttribute("data-side", /^(top|right|bottom|left)$/);
+  // Docked to its edge: a right drawer's box touches the viewport's right edge.
+  const side = await dialog.getAttribute("data-side");
+  if (side === "right") {
+    // Polled: it slides in, so the box settles at the edge after the transition.
+    await expect
+      .poll(() => dialog.evaluate((element) => Math.round(element.getBoundingClientRect().right)))
+      .toBe(page.viewportSize()!.width);
+  }
+  await page.keyboard.press("Escape");
+  await expect(dialog).toBeHidden();
+  await expect(trigger).toBeFocused();
+});
+
 test("the Prose preview is plain markup whose children take the flow rhythm", async ({ page }) => {
   await page.goto("/components/prose/");
   const flow = page.locator(".docs-elements-preview .primitiv-flow").first();

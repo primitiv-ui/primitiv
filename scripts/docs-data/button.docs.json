@@ -161,6 +161,7 @@
   },
   "elements": {
     "package": null,
+    "module": "button",
     "version": null,
     "element": "button",
     "wrapText": true,

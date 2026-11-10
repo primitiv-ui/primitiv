@@ -137,6 +137,7 @@
   },
   "elements": {
     "package": null,
+    "module": "input",
     "version": null,
     "element": "input",
     "wrapText": false,

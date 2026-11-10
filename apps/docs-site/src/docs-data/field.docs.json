@@ -263,6 +263,7 @@
   },
   "elements": {
     "package": null,
+    "module": "field",
     "version": null,
     "element": "div",
     "wrapText": false,

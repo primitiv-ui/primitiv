@@ -91,6 +91,7 @@
   },
   "elements": {
     "package": null,
+    "module": "avatar-group",
     "version": null,
     "element": "div",
     "wrapText": false,

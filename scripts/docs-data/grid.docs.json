@@ -103,6 +103,7 @@
   },
   "elements": {
     "package": null,
+    "module": "grid",
     "version": null,
     "element": "div",
     "wrapText": false,

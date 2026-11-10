@@ -263,6 +263,12 @@ export type ComponentDocs = {
    */
   readonly elements: {
     readonly package: string | null;
+    /**
+     * The component whose elements the markup uses — its define entry and CDN
+     * file load them. The component's own id unless it composes another's
+     * (ConfirmDialog's is `modal`).
+     */
+    readonly module: string;
     /** The lowest version the registry allows: the one the CDN script pins. */
     readonly version: string | null;
     /** The root element, for building a single-element component's markup. */

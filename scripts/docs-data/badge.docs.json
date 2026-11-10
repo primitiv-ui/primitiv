@@ -113,6 +113,7 @@
   },
   "elements": {
     "package": null,
+    "module": "badge",
     "version": null,
     "element": "span",
     "wrapText": false,

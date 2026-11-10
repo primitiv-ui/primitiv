@@ -175,6 +175,7 @@
   },
   "elements": {
     "package": null,
+    "module": "breadcrumb",
     "version": null,
     "element": "nav",
     "wrapText": false,

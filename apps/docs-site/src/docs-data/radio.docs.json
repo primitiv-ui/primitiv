@@ -196,6 +196,7 @@
   },
   "elements": {
     "package": null,
+    "module": "radio",
     "version": null,
     "element": "label",
     "wrapText": false,

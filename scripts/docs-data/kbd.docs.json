@@ -99,6 +99,7 @@
   },
   "elements": {
     "package": null,
+    "module": "kbd",
     "version": null,
     "element": "kbd",
     "wrapText": false,

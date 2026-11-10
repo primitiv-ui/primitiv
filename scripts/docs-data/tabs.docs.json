@@ -421,6 +421,7 @@
   },
   "elements": {
     "package": "@primitiv-ui/web",
+    "module": "tabs",
     "version": "0.1.43",
     "element": "div",
     "wrapText": false,

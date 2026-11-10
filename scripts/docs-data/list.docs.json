@@ -151,6 +151,7 @@
   },
   "elements": {
     "package": null,
+    "module": "list",
     "version": null,
     "element": "ul",
     "wrapText": false,

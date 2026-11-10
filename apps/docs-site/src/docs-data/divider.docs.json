@@ -53,6 +53,7 @@
   },
   "elements": {
     "package": null,
+    "module": "divider",
     "version": null,
     "element": "span",
     "wrapText": false,

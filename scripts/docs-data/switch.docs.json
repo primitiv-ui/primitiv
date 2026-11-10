@@ -204,6 +204,7 @@
   },
   "elements": {
     "package": null,
+    "module": "switch",
     "version": null,
     "element": "label",
     "wrapText": false,

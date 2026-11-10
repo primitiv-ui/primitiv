@@ -105,6 +105,7 @@
   },
   "elements": {
     "package": null,
+    "module": "blockquote",
     "version": null,
     "element": "blockquote",
     "wrapText": false,

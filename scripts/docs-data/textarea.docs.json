@@ -141,6 +141,7 @@
   },
   "elements": {
     "package": null,
+    "module": "textarea",
     "version": null,
     "element": "textarea",
     "wrapText": false,

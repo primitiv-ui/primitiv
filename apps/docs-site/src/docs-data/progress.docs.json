@@ -208,6 +208,7 @@
   },
   "elements": {
     "package": null,
+    "module": "progress",
     "version": null,
     "element": "div",
     "wrapText": false,

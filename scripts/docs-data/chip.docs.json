@@ -135,6 +135,7 @@
   },
   "elements": {
     "package": null,
+    "module": "chip",
     "version": null,
     "element": "span",
     "wrapText": false,

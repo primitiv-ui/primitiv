@@ -312,6 +312,7 @@
   },
   "elements": {
     "package": null,
+    "module": "card",
     "version": null,
     "element": "div",
     "wrapText": false,

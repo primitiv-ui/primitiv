@@ -126,6 +126,7 @@
   },
   "elements": {
     "package": null,
+    "module": "figure",
     "version": null,
     "element": "figure",
     "wrapText": false,

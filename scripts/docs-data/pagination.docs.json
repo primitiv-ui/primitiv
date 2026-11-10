@@ -373,6 +373,7 @@
   "figma": {},
   "elements": {
     "package": null,
+    "module": "pagination",
     "version": null,
     "element": "nav",
     "wrapText": false,

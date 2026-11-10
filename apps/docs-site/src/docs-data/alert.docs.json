@@ -187,6 +187,7 @@
   },
   "elements": {
     "package": null,
+    "module": "alert",
     "version": null,
     "element": "div",
     "wrapText": false,

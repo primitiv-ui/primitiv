@@ -397,6 +397,7 @@
   },
   "elements": {
     "package": "@primitiv-ui/web",
+    "module": "modal",
     "version": "0.1.54",
     "element": "dialog",
     "wrapText": false,

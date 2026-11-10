@@ -315,13 +315,13 @@ const ComponentDocsBody = ({
                       variant="inline"
                       size="xs"
                       language="tsx"
-                      code={`import "${webPackage}/define/${docs.id}";`}
+                      code={`import "${webPackage}/define/${elements?.module ?? docs.id}";`}
                     />
                     <CodeBlock
                       variant="inline"
                       size="xs"
                       language="html"
-                      code={`<script type="module" src="https://cdn.jsdelivr.net/npm/${webPackage}@${elements?.version ?? "latest"}/dist/cdn/${docs.id}.js"></script>`}
+                      code={`<script type="module" src="https://cdn.jsdelivr.net/npm/${webPackage}@${elements?.version ?? "latest"}/dist/cdn/${elements?.module ?? docs.id}.js"></script>`}
                     />
                   </Stack>
                 ) : (

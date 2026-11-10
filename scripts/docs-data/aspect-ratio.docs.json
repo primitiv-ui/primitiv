@@ -54,6 +54,7 @@
   },
   "elements": {
     "package": null,
+    "module": "aspect-ratio",
     "version": null,
     "element": "div",
     "wrapText": false,

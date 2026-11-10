@@ -438,6 +438,7 @@
   },
   "elements": {
     "package": "@primitiv-ui/web",
+    "module": "collapsible",
     "version": "0.1.47",
     "element": "div",
     "wrapText": false,

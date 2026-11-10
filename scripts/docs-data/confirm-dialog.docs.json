@@ -192,5 +192,56 @@
     ]
   },
   "figma": {},
-  "elements": null
+  "elements": {
+    "package": "@primitiv-ui/web",
+    "module": "modal",
+    "version": "0.1.54",
+    "element": "dialog",
+    "wrapText": false,
+    "example": "<primitiv-modal>\n  <primitiv-modal-trigger>\n    <button type=\"button\" class=\"primitiv-button primitiv-button--danger primitiv-button--md\"><span class=\"primitiv-button__label\">Remove member</span></button>\n  </primitiv-modal-trigger>\n  <primitiv-modal-content>\n    <dialog class=\"primitiv-modal primitiv-modal--sm primitiv-confirm-dialog\">\n      <span class=\"primitiv-modal__header\">\n        <primitiv-modal-title><h2 class=\"primitiv-modal__title\">Remove member?</h2></primitiv-modal-title>\n      </span>\n      <span class=\"primitiv-modal__body\">\n        <primitiv-modal-description><p class=\"primitiv-modal__description\">They will lose access immediately. This can't be undone.</p></primitiv-modal-description>\n      </span>\n      <span class=\"primitiv-modal__footer\">\n        <primitiv-modal-close>\n          <button type=\"button\" class=\"primitiv-button primitiv-button--secondary primitiv-button--sm\"><span class=\"primitiv-button__label\">Cancel</span></button>\n        </primitiv-modal-close>\n        <primitiv-modal-close>\n          <button type=\"button\" class=\"primitiv-button primitiv-button--danger primitiv-button--sm\" data-confirm><span class=\"primitiv-button__label\">Remove</span></button>\n        </primitiv-modal-close>\n      </span>\n    </dialog>\n  </primitiv-modal-content>\n</primitiv-modal>\n",
+    "api": [
+      {
+        "tag": "primitiv-modal",
+        "attributes": [
+          {
+            "name": "open",
+            "type": "boolean",
+            "description": "Whether the dialog is open. Reflected: it changes as the user opens and dismisses the dialog, so a server re-render or a history snapshot sees the live state. Set it (or the `open` property) to open or close the dialog from script."
+          }
+        ],
+        "events": [
+          {
+            "name": "primitiv-modal-change",
+            "type": "CustomEvent<{ open: boolean }>",
+            "description": "Bubbles, cancelable, fired before a user-driven change is applied — a trigger or close click, Escape, a press on the backdrop, or the dialog closing natively — with the open state afterwards. Call `preventDefault()` to veto it, e.g. to keep a form with unsaved changes open."
+          }
+        ]
+      },
+      {
+        "tag": "primitiv-modal-trigger",
+        "attributes": [],
+        "events": []
+      },
+      {
+        "tag": "primitiv-modal-content",
+        "attributes": [],
+        "events": []
+      },
+      {
+        "tag": "primitiv-modal-title",
+        "attributes": [],
+        "events": []
+      },
+      {
+        "tag": "primitiv-modal-description",
+        "attributes": [],
+        "events": []
+      },
+      {
+        "tag": "primitiv-modal-close",
+        "attributes": [],
+        "events": []
+      }
+    ]
+  }
 }

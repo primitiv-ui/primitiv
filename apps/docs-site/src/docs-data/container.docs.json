@@ -78,6 +78,7 @@
   },
   "elements": {
     "package": null,
+    "module": "container",
     "version": null,
     "element": "div",
     "wrapText": false,

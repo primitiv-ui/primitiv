@@ -407,6 +407,7 @@
   },
   "elements": {
     "package": "@primitiv-ui/web",
+    "module": "accordion",
     "version": "0.1.44",
     "element": "div",
     "wrapText": false,

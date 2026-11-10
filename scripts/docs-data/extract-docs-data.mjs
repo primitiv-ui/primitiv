@@ -544,8 +544,13 @@ function elementsSurface() {
   const block = registry.components[name]?.elements;
   if (!block) return null;
   const pkg = block.packages?.[0] ?? null;
+  /* The component whose elements the markup uses, and so whose define entry
+     and CDN file load it: its own, unless the block names another's
+     (ConfirmDialog's markup is <primitiv-modal>). */
+  const module = block.definedBy ?? name;
   return {
     package: pkg?.name ?? null,
+    module,
     /* The lowest version the registry's range allows, the one the CLI pins
        its CDN script to (a URL takes one version, not a range). */
     version: pkg?.version?.replace(/^[\^~>=\s]+/, "") ?? null,
@@ -557,18 +562,18 @@ function elementsSurface() {
     example: block.example
       ? readFileSync(join(ROOT, `registry/components/${name}/${block.example}`), "utf8")
       : null,
-    api: pkg?.name === "@primitiv-ui/web" ? elementsApi() : [],
+    api: pkg?.name === "@primitiv-ui/web" ? elementsApi(module) : [],
   };
 }
 
 /**
  * Each custom element's attributes and events, read from the `@customElement`
- * JSDoc in `packages/web/src/<name>/elements.ts` — the same tags the Custom
+ * JSDoc in `packages/web/src/<module>/elements.ts` — the same tags the Custom
  * Elements Manifest is analysed from, read here so the docs build needs no
  * `dist/`. Source order is kept: it is root first, then the parts.
  */
-function elementsApi() {
-  const file = join(ROOT, `packages/web/src/${name}/elements.ts`);
+function elementsApi(module) {
+  const file = join(ROOT, `packages/web/src/${module}/elements.ts`);
   if (!existsSync(file)) return [];
   const source = readFileSync(file, "utf8");
   const tag = /^\s*\*\s*@(attr|fires)\s+\{(.+?)\}\s+(\S+)\s+-\s+(.*)$/;

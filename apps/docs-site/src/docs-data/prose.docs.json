@@ -70,6 +70,7 @@
   "figma": {},
   "elements": {
     "package": null,
+    "module": "prose",
     "version": null,
     "element": "div",
     "wrapText": false,

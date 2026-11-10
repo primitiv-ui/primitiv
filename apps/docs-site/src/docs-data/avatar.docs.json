@@ -276,6 +276,7 @@
   },
   "elements": {
     "package": null,
+    "module": "avatar",
     "version": null,
     "element": "span",
     "wrapText": false,

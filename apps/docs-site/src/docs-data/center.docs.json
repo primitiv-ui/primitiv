@@ -52,6 +52,7 @@
   },
   "elements": {
     "package": null,
+    "module": "center",
     "version": null,
     "element": "div",
     "wrapText": false,

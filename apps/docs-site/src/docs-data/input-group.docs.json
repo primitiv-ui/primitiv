@@ -229,6 +229,7 @@
   "figma": {},
   "elements": {
     "package": null,
+    "module": "input-group",
     "version": null,
     "element": "div",
     "wrapText": false,

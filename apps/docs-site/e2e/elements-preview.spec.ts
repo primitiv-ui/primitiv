@@ -177,6 +177,29 @@ test("the Drawer previews are <primitiv-modal> elements that slide in from their
   await expect(trigger).toBeFocused();
 });
 
+test("the Popover previews are <primitiv-popover> elements anchored to their trigger", async ({ page }) => {
+  await page.goto("/components/popover/");
+  await expect(page.getByText(/dist\/cdn\/popover\.js/).first()).toBeVisible();
+  const example = cell(page, "basic");
+  const trigger = example.getByRole("button", { name: "Share" });
+  // The definition loads on demand: wait for the element to have wired its button.
+  await expect(trigger).toHaveAttribute("aria-haspopup", "dialog");
+  await trigger.click();
+  const panel = page.getByRole("dialog", { name: "Share this page" });
+  await expect(panel).toBeVisible();
+  await expect(panel).toHaveClass(/primitiv-popover/);
+  // No anchor-name in the markup: the trigger is the panel's implicit anchor.
+  await expect
+    .poll(async () => {
+      const [t, p] = await Promise.all([trigger.boundingBox(), panel.boundingBox()]);
+      return p!.y >= t!.y + t!.height;
+    })
+    .toBe(true);
+  await page.keyboard.press("Escape");
+  await expect(panel).toBeHidden();
+  await expect(trigger).toBeFocused();
+});
+
 test("the Prose preview is plain markup whose children take the flow rhythm", async ({ page }) => {
   await page.goto("/components/prose/");
   const flow = page.locator(".docs-elements-preview .primitiv-flow").first();

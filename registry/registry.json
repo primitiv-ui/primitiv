@@ -78,7 +78,11 @@
           ]
         }
       },
-      "contract": "contract.json"
+      "contract": "contract.json",
+      "elements": {
+        "example": "alert.html",
+        "handWritten": true
+      }
     },
     "aspect-ratio": {
       "version": "0.1.0",
@@ -620,7 +624,11 @@
           ]
         }
       },
-      "contract": "contract.json"
+      "contract": "contract.json",
+      "elements": {
+        "example": "chip.html",
+        "handWritten": true
+      }
     },
     "code-block": {
       "version": "0.1.0",

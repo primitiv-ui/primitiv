@@ -9,8 +9,8 @@ import { Collapsible } from "@primitiv-ui/react";
 
 import { List } from "@/components/list";
 
-import { NAV, componentGroups, type NavSection } from "@/lib/nav";
-import { useFramework, useStyle } from "@/site/preferences";
+import { NAV, componentGroups, type NavLink, type NavSection } from "@/lib/nav";
+import { useFramework } from "@/site/preferences";
 import { samePage, samePath } from "@/lib/path";
 
 import "./side-nav.css";
@@ -69,16 +69,16 @@ const Section = ({
   const fill = open && Boolean(section.groups);
 
   /* The grouped section is Components, whose list follows the header: under
-     Elements, only the components with an elements surface (see listedFor). */
+     Elements, only the components with an elements surface (see listedFor),
+     the class-only ones marked. */
   const [framework] = useFramework();
-  const [style] = useStyle();
-  const groups = section.groups && componentGroups(framework, style);
+  const groups = section.groups && componentGroups(framework);
 
   // The grouped section is the only scroll container, so it is the only one
   // whose position is worth persisting across navigations.
   const groupsRef = usePersistentScroll(NAV_SCROLL_KEY, Boolean(section.groups));
 
-  const links = (items: readonly { title: string; href: string }[]) => (
+  const links = (items: readonly NavLink[]) => (
     <List marker={false} size="sm" className="docs-nav-links">
       {items.map((child) => (
         <List.Item key={child.href}>
@@ -86,8 +86,18 @@ const Section = ({
             className="docs-nav-link"
             href={child.href}
             aria-current={samePath(child.href, pathname) ? "page" : undefined}
+            /* The link is a flex row, and the browser joins flex items (and an
+               absolutely positioned visually-hidden span) with a space, giving
+               "Stack , CSS only". So the name is stated once, here, and the
+               pill is for the eye only. */
+            aria-label={child.cssOnly ? `${child.title}, CSS only` : undefined}
           >
             {child.title}
+            {child.cssOnly && (
+              <span className="docs-nav-tag" aria-hidden="true">
+                CSS only
+              </span>
+            )}
           </Link>
         </List.Item>
       ))}

@@ -11,11 +11,13 @@
 import { getContentPage } from "@/lib/content-pages";
 import { CATEGORY_ORDER, ROSTER } from "@/lib/docs-data";
 import { humanName } from "@/lib/human-name";
-import type { Framework, Style } from "@/site/preferences";
+import type { Framework } from "@/site/preferences";
 
 export type NavLink = {
   readonly title: string;
   readonly href: string;
+  /** Elements only: the component is classes alone, with no script to load. */
+  readonly cssOnly?: boolean;
 };
 
 /** A named run of links inside a section — the Components category groups. */
@@ -74,38 +76,38 @@ export const COMPONENT_GROUPS: readonly NavGroup[] = CATEGORY_ORDER.map(
 
 /**
  * Whether a component is listed for a framework and style. React lists the
- * whole library. Elements lists the components with an elements surface
- * (RFC 0033): headless, only those with behaviour, since a component without
- * any is plain HTML once its classes are gone; styled, those and the
- * class-only ones too.
+ * whole library. Elements lists every component with an elements surface
+ * (RFC 0033), under Headless and Styled alike: a class-only component has no
+ * script, but its page still carries the accessible markup pattern and its
+ * notes, and hiding it left a first visit (Elements + Headless) with three
+ * components. The class-only ones are marked instead (`cssOnly`).
  */
 export const listedFor = (
   entry: { readonly elements: "behaviour" | "markup" | null },
   framework: Framework,
-  style: Style,
-) =>
-  framework === "react" ||
-  (style === "styled" ? entry.elements !== null : entry.elements === "behaviour");
+) => framework === "react" || entry.elements !== null;
+
+/** Whether a listed component is classes alone under this framework. */
+export const cssOnlyFor = (
+  entry: { readonly elements: "behaviour" | "markup" | null },
+  framework: Framework,
+) => framework === "elements" && entry.elements === "markup";
 
 /**
  * The Components section's groups for a framework and style: the categories
  * keep only their listed components, and a category left empty drops out.
  */
-export const componentGroups = (
-  framework: Framework,
-  style: Style,
-): readonly NavGroup[] =>
+export const componentGroups = (framework: Framework): readonly NavGroup[] =>
   framework === "react"
     ? COMPONENT_GROUPS
     : COMPONENT_GROUPS.map((group) => ({
         ...group,
-        links: group.links.filter((link) =>
-          ROSTER.some(
-            (e) =>
-              listedFor(e, framework, style) &&
-              link.href === `/components/${e.id}/`,
-          ),
-        ),
+        links: group.links.flatMap((link) => {
+          const entry = ROSTER.find((e) => link.href === `/components/${e.id}/`);
+          return entry && listedFor(entry, framework)
+            ? [{ ...link, cssOnly: cssOnlyFor(entry, framework) }]
+            : [];
+        }),
       })).filter((group) => group.links.length > 0);
 
 /**

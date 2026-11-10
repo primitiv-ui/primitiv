@@ -33,7 +33,7 @@ import { cardSummary } from "@/lib/card-summary";
 import { renderDoc } from "@/lib/render-doc";
 
 import { Shell } from "./Shell";
-import { type Framework, type Style, useFramework, useStyle } from "./preferences";
+import { type Framework, useFramework, useStyle } from "./preferences";
 
 import { useCompactIndex } from "./use-compact-index";
 
@@ -41,7 +41,7 @@ import { CARD_MARKS, MARK_GRID, PLACEHOLDER_MARK, type MarkRole } from "./card-m
 
 import "./components-index.css";
 import { humanName } from "@/lib/human-name";
-import { listedFor } from "@/lib/nav";
+import { cssOnlyFor, listedFor } from "@/lib/nav";
 
 /**
  * A component's mark, or the stand-in when it has not been drawn yet.
@@ -133,7 +133,7 @@ const CardMediaMark = ({ id }: { id: string }) => {
  * apart visually: the only difference between them is the wrapper (a `Link` vs a
  * plain `Card`) and the status pill.
  */
-const CardBody = ({ entry }: { entry: RosterEntry }) => (
+const CardBody = ({ entry, cssOnly }: { entry: RosterEntry; cssOnly: boolean }) => (
   <>
     {/* Flush, not inset: the card's own overflow supplies the outer radius, and
         an inset media would round the inner seam against the content too. */}
@@ -145,6 +145,13 @@ const CardBody = ({ entry }: { entry: RosterEntry }) => (
     <CardContent>
       <CardHeader>
         <CardTitle>{humanName(entry.displayName)}</CardTitle>
+        {cssOnly && (
+          /* Neutral like "Docs soon": having no script is not a status. */
+          /* xs, not sm: Tag's sm stands taller than Badge's sm beside it. */
+          <Tag tone="neutral" size="xs">
+            CSS only
+          </Tag>
+        )}
         {entry.documented ? (
           /* Badge ships no neutral tone (success|warning|info|danger only), so
              "stable" reads as success — accurate here. */
@@ -202,7 +209,9 @@ const CategoryGrid = ({
 }: {
   group: readonly RosterEntry[];
   compact: boolean;
-}) => (
+}) => {
+  const [framework] = useFramework();
+  return (
   <ul className="docs-index-grid" data-compact={compact ? "" : undefined}>
     {group.map((entry) => (
       <li key={entry.id}>
@@ -213,7 +222,7 @@ const CategoryGrid = ({
              screen-reader users two overlapping targets. */
           <Card asChild layout={compact ? "horizontal" : "vertical"}>
             <Link className="docs-index-card" href={`/components/${entry.id}/`}>
-              <CardBody entry={entry} />
+              <CardBody entry={entry} cssOnly={cssOnlyFor(entry, framework)} />
             </Link>
           </Card>
         ) : (
@@ -225,13 +234,14 @@ const CategoryGrid = ({
             className="docs-index-card docs-index-card--inert"
             layout={compact ? "horizontal" : "vertical"}
           >
-            <CardBody entry={entry} />
+            <CardBody entry={entry} cssOnly={cssOnlyFor(entry, framework)} />
           </Card>
         )}
       </li>
     ))}
   </ul>
-);
+  );
+};
 
 /**
  * The `/components` index.
@@ -255,11 +265,11 @@ const CategoryGrid = ({
  * an elements surface, so a category without one drops out, heading and TOC
  * entry together.
  */
-const groupsFor = (framework: Framework, style: Style) =>
+const groupsFor = (framework: Framework) =>
   CATEGORY_ORDER.map((category) => ({
     category,
     group: ROSTER.filter(
-      (entry) => entry.category === category && listedFor(entry, framework, style),
+      (entry) => entry.category === category && listedFor(entry, framework),
     ),
   })).filter(({ group }) => group.length > 0);
 
@@ -272,8 +282,7 @@ const groupsFor = (framework: Framework, style: Style) =>
  */
 export const ComponentsIndexPage = () => {
   const [framework] = useFramework();
-  const [style] = useStyle();
-  const toc = groupsFor(framework, style).map(({ category }) => ({
+  const toc = groupsFor(framework).map(({ category }) => ({
     id: categorySlug(category),
     title: category,
   }));
@@ -288,7 +297,7 @@ export const ComponentsIndex = () => {
   const compact = useCompactIndex();
   const [framework] = useFramework();
   const [style] = useStyle();
-  const groups = groupsFor(framework, style);
+  const groups = groupsFor(framework);
 
   return (
     <>
@@ -301,11 +310,12 @@ export const ComponentsIndex = () => {
         </p>
       ) : style === "headless" ? (
         <p className="docs-index-lede">
-          Custom elements from{" "}
-          <InlineCode size="md">@primitiv-ui/web</InlineCode>: the behaviour
-          and accessibility, no CSS, in plain HTML or any framework. Tabs is
-          the first; more are on their way. Switch to Styled for the components
-          that are styling alone, or to React for the whole library.
+          The behaviour and accessibility, without Primitiv&rsquo;s CSS, in plain
+          HTML or any framework: custom elements from{" "}
+          <InlineCode size="md">@primitiv-ui/web</InlineCode>, and accessible
+          markup patterns for the components marked <em>CSS only</em>, which
+          need no script at all. More are on their way; switch to React for the
+          whole library.
         </p>
       ) : (
         <p className="docs-index-lede">

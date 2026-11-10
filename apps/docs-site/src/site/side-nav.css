@@ -275,3 +275,15 @@
 .docs-nav-group .docs-nav-links {
   --primitiv-list-indent: var(--primitiv-space-space-12);
 }
+
+/* "CSS only": an Elements component that is classes alone, with no script. */
+.docs-nav-tag {
+  margin-inline-start: auto;
+  padding-inline: var(--primitiv-space-space-6);
+  border: var(--primitiv-border-width-1) solid var(--primitiv-border-subtle);
+  border-radius: var(--primitiv-radii-full);
+  font-size: var(--primitiv-body-xs-font-size);
+  line-height: var(--primitiv-body-xs-line-height);
+  color: var(--primitiv-content-muted);
+  white-space: nowrap;
+}

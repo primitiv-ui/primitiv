@@ -1,13 +1,8 @@
-import {
-  KeyboardEvent,
-  KeyboardEventHandler,
-  Ref,
-  useEffect,
-  useRef,
-} from "react";
+import { KeyboardEventHandler, Ref, useEffect, useRef } from "react";
 
-import { composeEventHandlers, composeRefs } from "../../Slot/index.ts";
-import { FOCUSABLE_SELECTOR } from "../../utils/index.ts";
+import { PopoverController } from "@primitiv-ui/web";
+
+import { composeRefs } from "../../Slot/index.ts";
 import { usePopoverContext } from "../PopoverContext";
 
 type UsePopoverContentArgs = {
@@ -23,64 +18,38 @@ export function usePopoverContent({
     usePopoverContext();
   const contentRef = useRef<HTMLDivElement | null>(null);
   const composedRef = ref ? composeRefs(contentRef, ref) : contentRef;
+  const controllerRef = useRef<PopoverController | null>(null);
+  const latest = useRef({ open, setOpen });
+  latest.current = { open, setOpen };
+
+  // ── The adapter (RFC 0033 §3.4, D28) ────────────────────────────────────
+  // The panel's DOM behaviour — showPopover/hidePopover with focus moving in,
+  // light dismiss, Escape back to the trigger, and the outside-press fallback
+  // for environments without the Popover API — runs in the web
+  // implementation's PopoverController, the same code <primitiv-popover>
+  // runs. React keeps rendering the panel it always has and keeps the state;
+  // the controller reads it through `latest`. No `source` is passed, so the
+  // panel's positioning stays the consumer's `anchor-name` wiring, as before.
+  useEffect(
+    () => {
+      const controller = new PopoverController(contentRef.current!, {
+        state: () => ({ open: latest.current.open }),
+        change: (next) => latest.current.setOpen(next),
+        trigger: () => triggerRef.current,
+      });
+      controllerRef.current = controller;
+      controller.connect();
+      return () => controller.disconnect();
+    },
+    // The controller is built once per mount; the state it needs later comes
+    // through `latest` and the trigger ref, so no dependency can go stale.
+    // Stryker disable next-line ArrayDeclaration: equivalent — any constant dependency list runs this once per mount.
+    [],
+  );
 
   useEffect(() => {
-    const content = contentRef.current!;
-    if (open) {
-      content.showPopover();
-      // Move focus into the popover (WAI-ARIA non-modal dialog): the first
-      // focusable descendant, or the content itself (it carries tabIndex=-1).
-      const focusable = content.querySelector<HTMLElement>(FOCUSABLE_SELECTOR);
-      (focusable ?? content).focus();
-    } else {
-      try {
-        content.hidePopover();
-      } catch {
-        // already hidden — no-op (e.g. browser already light-dismissed it)
-      }
-    }
+    (controllerRef.current as PopoverController).sync();
   }, [open]);
-
-  // Sync React state when the browser closes the popover without our code
-  // doing it (real-browser ToggleEvent on light-dismiss or native Escape).
-  useEffect(() => {
-    const content = contentRef.current!;
-    const handleToggle = (event: Event) => {
-      if ((event as ToggleEvent).newState === "closed") setOpen(false);
-    };
-    content.addEventListener("toggle", handleToggle);
-    return () => content.removeEventListener("toggle", handleToggle);
-  }, [setOpen]);
-
-  // Close on clicks outside the popover. This is only a fallback for
-  // environments WITHOUT the native Popover API (e.g. jsdom): a real browser
-  // already light-dismisses an `auto` popover on an outside click and fires the
-  // `toggle` event we sync above. Running this listener in a real browser is
-  // not just redundant — React 19 can flush this effect synchronously inside
-  // the very click that opened the popover from an external control, so the
-  // listener would catch that click and immediately re-close it. Gate it to
-  // non-native environments; `"popover" in HTMLElement.prototype` is true only
-  // where the native API (and its own light-dismiss) exists.
-  useEffect(() => {
-    if (!open) return;
-    if ("popover" in HTMLElement.prototype) return;
-    const handleClick = (event: MouseEvent) => {
-      const target = event.target as Element;
-      if (triggerRef.current?.contains(target)) return;
-      if (target.closest?.("[popover]")) return;
-      setOpen(false);
-    };
-    document.addEventListener("click", handleClick);
-    return () => document.removeEventListener("click", handleClick);
-  }, [open, setOpen, triggerRef]);
-
-  const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
-    if (event.key === "Escape") {
-      event.preventDefault();
-      setOpen(false);
-      triggerRef.current?.focus();
-    }
-  };
 
   const contentProps = {
     ref: composedRef,
@@ -91,7 +60,8 @@ export function usePopoverContent({
     "aria-labelledby": titleId,
     "aria-describedby": descriptionId,
     "data-state": (open ? "open" : "closed") as "open" | "closed",
-    onKeyDown: composeEventHandlers(onKeyDown, handleKeyDown),
+    // Escape is the controller's; a consumer's own handler runs beside it.
+    onKeyDown,
   };
 
   return { contentProps };

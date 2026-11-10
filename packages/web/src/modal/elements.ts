@@ -62,9 +62,9 @@ export class PrimitivModalElement extends PrimitivRootElement {
   #closers: HTMLElement[] = [];
   /** The root's own click listener, while connected. */
   #listening: AbortController | null = null;
-  protected readonly controller = {
-    connect: () => this.#connect(),
-    disconnect: () => this.#disconnect(),
+  protected readonly controller: { connect(): void; disconnect(): void } = {
+    connect: (): void => this.#connect(),
+    disconnect: (): void => this.#disconnect(),
   };
   protected readonly reconcileOn: readonly string[] = ["open"];
 

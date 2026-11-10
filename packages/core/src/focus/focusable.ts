@@ -5,7 +5,7 @@
  * (e.g. `Modal`). `[tabindex="-1"]` is excluded because such elements are only
  * programmatically focusable, not tabbable.
  */
-export const FOCUSABLE_SELECTOR = [
+export const FOCUSABLE_SELECTOR: string = [
   "a[href]",
   "button:not([disabled])",
   "input:not([disabled])",

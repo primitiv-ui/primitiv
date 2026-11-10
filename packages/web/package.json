@@ -30,6 +30,10 @@
       "types": "./src/tabs/index.ts",
       "default": "./src/tabs/index.ts"
     },
+    "./tooltip": {
+      "types": "./src/tooltip/index.ts",
+      "default": "./src/tooltip/index.ts"
+    },
     "./define": {
       "types": "./src/define/index.ts",
       "default": "./src/define/index.ts"
@@ -53,6 +57,10 @@
     "./define/tabs": {
       "types": "./src/define/tabs.ts",
       "default": "./src/define/tabs.ts"
+    },
+    "./define/tooltip": {
+      "types": "./src/define/tooltip.ts",
+      "default": "./src/define/tooltip.ts"
     },
     "./tags": {
       "types": "./src/tags.ts",
@@ -145,6 +153,10 @@
         "types": "./dist/tabs/index.d.ts",
         "default": "./dist/tabs/index.js"
       },
+      "./tooltip": {
+        "types": "./dist/tooltip/index.d.ts",
+        "default": "./dist/tooltip/index.js"
+      },
       "./define": {
         "types": "./dist/define/index.d.ts",
         "default": "./dist/define/index.js"
@@ -168,6 +180,10 @@
       "./define/tabs": {
         "types": "./dist/define/tabs.d.ts",
         "default": "./dist/define/tabs.js"
+      },
+      "./define/tooltip": {
+        "types": "./dist/define/tooltip.d.ts",
+        "default": "./dist/define/tooltip.js"
       },
       "./tags": {
         "types": "./dist/tags.d.ts",

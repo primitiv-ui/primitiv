@@ -56,11 +56,19 @@ import type {
   PrimitivTabsTriggerElement,
 } from "../tabs/elements.ts";
 import type {
+  PrimitivTooltipArrowElement,
+  PrimitivTooltipContentElement,
+  PrimitivTooltipElement,
+  PrimitivTooltipProviderElement,
+  PrimitivTooltipTriggerElement,
+} from "../tooltip/elements.ts";
+import type {
   PrimitivAccordionChangeEvent,
   PrimitivCollapsibleChangeEvent,
   PrimitivModalChangeEvent,
   PrimitivPopoverChangeEvent,
   PrimitivTabsChangeEvent,
+  PrimitivTooltipChangeEvent,
 } from "./events.ts";
 
 /** React's own props for an element, plus `class`, which React 19 passes to custom elements. */
@@ -74,6 +82,7 @@ export type {
   PrimitivModalChangeEvent,
   PrimitivPopoverChangeEvent,
   PrimitivTabsChangeEvent,
+  PrimitivTooltipChangeEvent,
 };
 
 declare module "react" {
@@ -147,6 +156,21 @@ declare module "react" {
         value: string;
         "onprimitiv-tabs-show"?: (event: CustomEvent) => void;
       };
+      "primitiv-tooltip": ElementProps<PrimitivTooltipElement> & {
+        open?: boolean;
+        "delay-duration"?: number | string;
+        "disable-hoverable-content"?: boolean;
+        "onprimitiv-tooltip-change"?: (event: PrimitivTooltipChangeEvent) => void;
+      };
+      "primitiv-tooltip-provider": ElementProps<PrimitivTooltipProviderElement> & {
+        "delay-duration"?: number | string;
+        "skip-delay-duration"?: number | string;
+      };
+      "primitiv-tooltip-trigger": ElementProps<PrimitivTooltipTriggerElement>;
+      "primitiv-tooltip-content": ElementProps<PrimitivTooltipContentElement> & {
+        popover?: "auto" | "manual" | "";
+      };
+      "primitiv-tooltip-arrow": ElementProps<PrimitivTooltipArrowElement>;
     }
   }
 }

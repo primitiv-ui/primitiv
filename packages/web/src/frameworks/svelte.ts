@@ -55,11 +55,19 @@ import type {
   PrimitivTabsTriggerElement,
 } from "../tabs/elements.ts";
 import type {
+  PrimitivTooltipArrowElement,
+  PrimitivTooltipContentElement,
+  PrimitivTooltipElement,
+  PrimitivTooltipProviderElement,
+  PrimitivTooltipTriggerElement,
+} from "../tooltip/elements.ts";
+import type {
   PrimitivAccordionChangeEvent,
   PrimitivCollapsibleChangeEvent,
   PrimitivModalChangeEvent,
   PrimitivPopoverChangeEvent,
   PrimitivTabsChangeEvent,
+  PrimitivTooltipChangeEvent,
 } from "./events.ts";
 
 /** Svelte's own attributes and events for an element. */
@@ -132,5 +140,18 @@ declare module "svelte/elements" {
       value: string;
       "onprimitiv-tabs-show"?: (event: CustomEvent) => void;
     };
+    "primitiv-tooltip": Attributes<PrimitivTooltipElement> & {
+      open?: boolean;
+      "delay-duration"?: number | string;
+      "disable-hoverable-content"?: boolean;
+      "onprimitiv-tooltip-change"?: (event: PrimitivTooltipChangeEvent) => void;
+    };
+    "primitiv-tooltip-provider": Attributes<PrimitivTooltipProviderElement> & {
+      "delay-duration"?: number | string;
+      "skip-delay-duration"?: number | string;
+    };
+    "primitiv-tooltip-trigger": Attributes<PrimitivTooltipTriggerElement>;
+    "primitiv-tooltip-content": Attributes<PrimitivTooltipContentElement>;
+    "primitiv-tooltip-arrow": Attributes<PrimitivTooltipArrowElement>;
   }
 }

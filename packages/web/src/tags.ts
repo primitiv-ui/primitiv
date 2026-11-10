@@ -49,6 +49,13 @@ import type {
   PrimitivTabsTriggerElement,
 } from "./tabs/elements.ts";
 
+import type {
+  PrimitivTooltipArrowElement,
+  PrimitivTooltipContentElement,
+  PrimitivTooltipElement,
+  PrimitivTooltipProviderElement,
+  PrimitivTooltipTriggerElement,
+} from "./tooltip/elements.ts";
 declare global {
   interface HTMLElementTagNameMap {
     "primitiv-accordion": PrimitivAccordionElement;
@@ -77,6 +84,11 @@ declare global {
     "primitiv-tabs-list": PrimitivTabsListElement;
     "primitiv-tabs-trigger": PrimitivTabsTriggerElement;
     "primitiv-tabs-content": PrimitivTabsContentElement;
+    "primitiv-tooltip": PrimitivTooltipElement;
+    "primitiv-tooltip-provider": PrimitivTooltipProviderElement;
+    "primitiv-tooltip-trigger": PrimitivTooltipTriggerElement;
+    "primitiv-tooltip-content": PrimitivTooltipContentElement;
+    "primitiv-tooltip-arrow": PrimitivTooltipArrowElement;
   }
 }
 

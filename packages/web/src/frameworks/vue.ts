@@ -26,6 +26,7 @@ import type {
   PrimitivModalChangeEvent,
   PrimitivPopoverChangeEvent,
   PrimitivTabsChangeEvent,
+  PrimitivTooltipChangeEvent,
 } from "./events.ts";
 
 /** A tag as Vue's template checker sees it: its props, and the events it emits. */
@@ -97,5 +98,13 @@ declare module "vue" {
     "primitiv-tabs-list": Tag<{ label?: string }>;
     "primitiv-tabs-trigger": Tag<{ value: string; disabled?: boolean | "" }>;
     "primitiv-tabs-content": Tag<{ value: string }, { "primitiv-tabs-show": (event: CustomEvent) => void }>;
+    "primitiv-tooltip": Tag<
+      { open?: boolean | ""; delayDuration?: number | string; disableHoverableContent?: boolean | "" },
+      { "primitiv-tooltip-change": (event: PrimitivTooltipChangeEvent) => void }
+    >;
+    "primitiv-tooltip-provider": Tag<{ delayDuration?: number | string; skipDelayDuration?: number | string }>;
+    "primitiv-tooltip-trigger": Tag<Record<never, never>>;
+    "primitiv-tooltip-content": Tag<Record<never, never>>;
+    "primitiv-tooltip-arrow": Tag<Record<never, never>>;
   }
 }

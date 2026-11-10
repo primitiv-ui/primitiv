@@ -90,6 +90,22 @@ it("defines the Popover elements when define/popover is imported", async () => {
   }
 });
 
+it("defines the Tooltip elements when define/tooltip is imported", async () => {
+  // Arrange & Act
+  await import("../tooltip");
+
+  // Assert
+  for (const name of [
+    "primitiv-tooltip",
+    "primitiv-tooltip-provider",
+    "primitiv-tooltip-trigger",
+    "primitiv-tooltip-content",
+    "primitiv-tooltip-arrow",
+  ]) {
+    expect(customElements.get(name)).toBeDefined();
+  }
+});
+
 it("defines every component's elements when define is imported", async () => {
   // Arrange & Act
   const module = await import("../index");
@@ -101,4 +117,5 @@ it("defines every component's elements when define is imported", async () => {
   expect(customElements.get("primitiv-collapsible")).toBeDefined();
   expect(customElements.get("primitiv-modal")).toBeDefined();
   expect(customElements.get("primitiv-popover")).toBeDefined();
+  expect(customElements.get("primitiv-tooltip")).toBeDefined();
 });

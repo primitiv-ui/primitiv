@@ -1,5 +1,6 @@
 import userEvent from "@testing-library/user-event";
 
+import { defineModal } from "../elements";
 import { modalHtml } from "./modal.fixtures";
 import { dialog, mount, root, settle, trigger } from "./mount";
 
@@ -131,6 +132,22 @@ describe("<primitiv-modal> lifecycle", () => {
     // Assert
     expect(showModal).toHaveBeenCalledTimes(1);
     expect(dialog().open).toBe(true);
+  });
+
+  it("reopens modally a dialog restored with open on it, as a history snapshot has it", async () => {
+    // Arrange
+    const snapshot = modalHtml({ open: true }).replace("<dialog>", "<dialog open>");
+    defineModal();
+    const showModal = vi.spyOn(HTMLDialogElement.prototype, "showModal");
+
+    // Act
+    document.body.innerHTML = snapshot;
+    await settle();
+
+    // Assert
+    expect(showModal).toHaveBeenCalledTimes(1);
+    expect(dialog().open).toBe(true);
+    showModal.mockRestore();
   });
 
   it("handles each event exactly once after being moved", async () => {

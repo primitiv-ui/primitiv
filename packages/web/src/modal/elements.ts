@@ -128,6 +128,11 @@ export class PrimitivModalElement extends PrimitivRootElement {
     // Stryker disable next-line ConditionalExpression: equivalent — rebuilding the controller over the same dialog swaps one listener set for an identical one.
     if (dialog === this.#dialog) return;
     this.#modal?.disconnect();
+    // A dialog that arrives already `open` — a history snapshot, taken while it
+    // was showing — is open non-modally, and `showModal()` would leave it so.
+    // Drop the attribute (that fires no close event), and the sync below
+    // reopens it modally if the root says it is open.
+    if (dialog) write(dialog, "open", null);
     this.#dialog = dialog;
     this.#modal = dialog ? new ModalController(dialog, this.#host()) : null;
     this.#modal?.connect();

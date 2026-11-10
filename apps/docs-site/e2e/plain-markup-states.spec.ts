@@ -116,3 +116,12 @@ test("a markup avatar shows its image", async ({ page }) => {
     .evaluate((el) => getComputedStyle(el).display);
   expect(display).not.toBe("none");
 });
+
+test("a natively disabled button is dimmed", async ({ page }) => {
+  await mount(
+    page,
+    "/components/button/",
+    `<button type="button" class="primitiv-button primitiv-button--primary primitiv-button--md" disabled><span class="primitiv-button__label">Save</span></button>`,
+  );
+  expect(await opacity(page, "#plain-markup .primitiv-button")).toBe("0.5");
+});

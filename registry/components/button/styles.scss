@@ -333,8 +333,10 @@
   }
 
   /* Disabled is intent-neutral so it reads the same on every variant; the
-     states layer sits above variants, so it always wins (RFC 0008 §2.3). */
-  .primitiv-button[data-disabled] {
+     states layer sits above variants, so it always wins (RFC 0008 §2.3). The
+     native :disabled is read too, so a hand-written <button disabled> dims the
+     same way; the primitive always sets both together. */
+  .primitiv-button:is([data-disabled], :disabled) {
     opacity: var(--primitiv-opacity-50);
     cursor: not-allowed;
   }

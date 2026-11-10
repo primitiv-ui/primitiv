@@ -6,7 +6,7 @@ framework and no runtime dependencies beyond
 server-rendered stack (HTMX, Rails, Django, Laravel, Spring …), and inside
 React, Vue, Angular or any other framework.
 
-> **Status: published.** Tabs, Accordion, Collapsible and Modal so far. See
+> **Status: published.** Tabs, Accordion, Collapsible, Modal and Popover so far. See
 > [RFC 0033](../../docs/rfcs/0033-web-components.md) for the design.
 
 ## Components
@@ -17,6 +17,7 @@ React, Vue, Angular or any other framework.
 | Accordion | `primitiv-accordion`, `-item`, `-trigger`, `-content`, `-trigger-icon` | `primitiv-accordion-change` | 0.1.44 |
 | Collapsible | `primitiv-collapsible`, `-trigger`, `-content`, `-trigger-icon` | `primitiv-collapsible-change` | 0.1.47 |
 | Modal | `primitiv-modal`, `-trigger`, `-content`, `-title`, `-description`, `-close` | `primitiv-modal-change` | 0.1.54 |
+| Popover | `primitiv-popover`, `-trigger`, `-anchor`, `-content`, `-title`, `-description`, `-close` | `primitiv-popover-change` | 0.1.55 |
 
 ## Use it
 
@@ -49,9 +50,9 @@ downloads it once. `dist/primitiv-web.js` is the alternative: every element in
 one file. Per-component files ship from 0.1.43.
 
 The main entry (`@primitiv-ui/web`, `/tabs`, `/accordion`, `/collapsible`,
-`/modal`) exports the classes and `defineTabs(registry?)` /
+`/modal`, `/popover`) exports the classes and `defineTabs(registry?)` /
 `defineAccordion(registry?)` / `defineCollapsible(registry?)` /
-`defineModal(registry?)` with **no side effects**.
+`defineModal(registry?)` / `definePopover(registry?)` with **no side effects**.
 
 **Render `hidden` on inactive panels yourself.** Until the module loads, CSS
 cannot tell which panel is active, so markup that omits it shows every panel.
@@ -153,6 +154,34 @@ on a panel as it becomes active, for lazy loading.
   }`), fired before every user-driven change — trigger, close, Escape, a backdrop
   press, a `<form method="dialog">` — so `preventDefault()` keeps a dirty form
   open.
+
+### Popover
+
+```html
+<script type="module" src="https://cdn.jsdelivr.net/npm/@primitiv-ui/web@<version>/dist/cdn/popover.js"></script>
+
+<primitiv-popover>
+  <primitiv-popover-trigger><button type="button">Share</button></primitiv-popover-trigger>
+  <primitiv-popover-content popover="auto">
+    <primitiv-popover-title><h2>Share this page</h2></primitiv-popover-title>
+    <primitiv-popover-description><p>Anyone with the link can view it.</p></primitiv-popover-description>
+    <primitiv-popover-close><button type="button">Done</button></primitiv-popover-close>
+  </primitiv-popover-content>
+</primitiv-popover>
+```
+
+- **It is a native `popover="auto"` panel**: the browser supplies the top layer
+  and light dismiss. The element adds `role="dialog"` and the trigger's ARIA,
+  moves focus into the panel on open, and closes it on Escape with focus back on
+  the trigger. Write `popover="auto"` yourself so the panel is hidden before the
+  script loads.
+- **No anchor wiring.** The panel is shown with its trigger as its source (or
+  the element inside `<primitiv-popover-anchor>`), which makes it the implicit
+  anchor, so CSS anchor positioning (`position-area`) places it with no
+  `anchor-name` / `position-anchor` pair.
+- **`open` on the root is the state**; the `open` property reads and sets it.
+  **Listen with `primitiv-popover-change`** (bubbles, cancelable, `detail: {
+  open }`), fired before every user-driven change, a light dismiss included.
 
 **TypeScript** — opt into the tag map so DOM queries return the element classes:
 `import type {} from "@primitiv-ui/web/tags"` (npm only).

@@ -783,7 +783,18 @@
           ]
         }
       },
-      "contract": "contract.json"
+      "contract": "contract.json",
+      "elements": {
+        "packages": [
+          {
+            "name": "@primitiv-ui/web",
+            "version": "^0.1.54"
+          }
+        ],
+        "definedBy": "modal",
+        "example": "confirm-dialog.html",
+        "handWritten": true
+      }
     },
     "container": {
       "version": "0.1.0",

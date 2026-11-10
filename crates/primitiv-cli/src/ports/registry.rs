@@ -375,6 +375,7 @@ const FILES: &[(&str, &str, &str)] = &[
     registry_file!("confirm-dialog", "confirm-dialog.recipe.ts"),
     registry_file!("confirm-dialog", "confirm-dialog.tsx"),
     registry_file!("confirm-dialog", "contract.json"),
+    registry_file!("confirm-dialog", "confirm-dialog.html"),
     registry_file!("empty-state", "styles.css"),
     registry_file!("empty-state", "styles.scss"),
     registry_file!("empty-state", "empty-state.recipe.ts"),

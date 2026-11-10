@@ -157,6 +157,19 @@ surface runs it with its own mount:
 - `packages/react/src/<Component>/__tests__/<Component>.conformance.test.tsx`
 - `packages/web/src/<component>/__tests__/<component>.conformance.test.ts`
 
+**`user-event` for every interaction — never `fireEvent`.** It is not just
+style: `fireEvent` from `@testing-library/dom` dispatches the one event you
+name, while React listens for the bubbling twin (`onFocus` is `focusin`,
+`onPointerEnter` rides `pointerover`), so a `fireEvent.focus` never reaches
+React and the case fails for a reason that has nothing to do with the
+component — or, worse, passes because nothing ran. Use `user.tab()` for focus
+and blur, `user.hover` / `user.unhover` for the pointer, `user.pointer({ keys:
+"[MouseLeft>]", target, coords })` for a bare press (with coordinates for a
+backdrop hit test), `user.keyboard("{Escape}")` for keys. Where jsdom lacks the
+browser step a real key would trigger, teach the test polyfill that step rather
+than dispatching the result by hand: the `<dialog>` polyfills raise `cancel` on
+Escape for the topmost modal, so the Modal suite presses a real Escape.
+
 Write it against the element **before** the element exists, so it starts red
 there; on React it passes first run — allowed, because React is the reference
 it describes (RFC §6.2). Any case React fails is a real React bug, fixed in its

@@ -49,8 +49,13 @@ The space gotcha is real: `user.keyboard("{Space}")` emits
 `e.key === "Space"`, which doesn't match what real browsers produce.
 The keymap in this library checks for `" "`. Always use the literal.
 
-Every interaction is `await`ed. Don't intermix sync `fireEvent` with
-async userEvent in the same test.
+Every interaction is `await`ed. **Don't use `fireEvent` in new tests** —
+drive everything through `userEvent`. `fireEvent` dispatches only the event
+you name, so it skips what a real browser fires around it (`focusin`,
+`pointerover`, the press before a click) and can test a path no user takes.
+Where jsdom is missing the browser behaviour a real key or press would cause
+(a `<dialog>`'s Escape → `cancel`), add it to the test polyfill rather than
+firing the resulting event by hand.
 
 ## Coverage
 

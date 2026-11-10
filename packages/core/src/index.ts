@@ -42,3 +42,4 @@ export {
   type PopoverKeyOutcome,
   type PopoverPress,
 } from "./popover/policy.ts";
+export { TOOLTIP_GRACE_MS, tooltipOpenDelay, type TooltipDelayState } from "./tooltip/policy.ts";

@@ -145,7 +145,11 @@
           ]
         }
       },
-      "contract": "contract.json"
+      "contract": "contract.json",
+      "elements": {
+        "example": "avatar.html",
+        "handWritten": true
+      }
     },
     "avatar-group": {
       "version": "0.1.0",
@@ -181,7 +185,11 @@
           ]
         }
       },
-      "contract": "contract.json"
+      "contract": "contract.json",
+      "elements": {
+        "example": "avatar-group.html",
+        "handWritten": true
+      }
     },
     "badge": {
       "version": "0.1.0",
@@ -323,7 +331,11 @@
           ]
         }
       },
-      "contract": "contract.json"
+      "contract": "contract.json",
+      "elements": {
+        "example": "breadcrumb.html",
+        "handWritten": true
+      }
     },
     "breadcrumb-overflow": {
       "version": "0.1.0",
@@ -1050,7 +1062,11 @@
           ]
         }
       },
-      "contract": "contract.json"
+      "contract": "contract.json",
+      "elements": {
+        "example": "empty-state.html",
+        "handWritten": true
+      }
     },
     "field": {
       "version": "0.1.0",
@@ -1517,7 +1533,11 @@
           ]
         }
       },
-      "contract": "contract.json"
+      "contract": "contract.json",
+      "elements": {
+        "example": "pagination.html",
+        "handWritten": true
+      }
     },
     "popover": {
       "version": "0.1.0",
@@ -1585,7 +1605,11 @@
           ]
         }
       },
-      "contract": "contract.json"
+      "contract": "contract.json",
+      "elements": {
+        "example": "progress.html",
+        "handWritten": true
+      }
     },
     "prose": {
       "version": "0.1.0",
@@ -2043,7 +2067,11 @@
           ]
         }
       },
-      "contract": "contract.json"
+      "contract": "contract.json",
+      "elements": {
+        "example": "table.html",
+        "handWritten": true
+      }
     },
     "tabs": {
       "version": "0.1.0",

@@ -114,9 +114,28 @@ fn committed_registry_examples_match_their_contracts() {
                 }
                 None => {
                     let stylesheet = std::fs::read_to_string(format!("{dir}/styles.css")).unwrap();
+                    // A component's declared dependencies are always installed
+                    // with it, so their classes are fair game too: Avatar Group
+                    // holds Avatars, Pagination's cells are Buttons.
+                    let dependencies: Vec<(Contract, String)> = entry["dependsOn"]["components"]
+                        .as_array()
+                        .into_iter()
+                        .flatten()
+                        .map(|dep| {
+                            let dir = format!("{registry}/components/{}", dep.as_str().unwrap());
+                            (
+                                Contract::parse(
+                                    &std::fs::read(format!("{dir}/contract.json")).unwrap(),
+                                )
+                                .unwrap(),
+                                std::fs::read_to_string(format!("{dir}/styles.css")).unwrap(),
+                            )
+                        })
+                        .collect();
                     assert_uses_the_contracts_classes(
                         &contract,
                         &stylesheet,
+                        &dependencies,
                         &committed,
                         &format!("{name}/{file}"),
                     );
@@ -139,33 +158,20 @@ fn committed_registry_examples_match_their_contracts() {
 /// nor the component's own stylesheet defines (a typo or a renamed part), and
 /// every part's own class present (a part the example forgot). The stylesheet
 /// counts because a hand-authored wrapper can style structure the contract does
-/// not model — Accordion's content clip and body.
+/// not model — Accordion's content clip and body. A declared dependency's
+/// classes are allowed as well (never required): it is installed alongside.
 fn assert_uses_the_contracts_classes(
     contract: &Contract,
     stylesheet: &str,
+    dependencies: &[(Contract, String)],
     markup: &str,
     file: &str,
 ) {
-    let label = |class: &str, wraps: bool| wraps.then(|| format!("{class}-label"));
-    let mut required = vec![contract.root.class.clone()];
-    required.extend(contract.parts.iter().map(|part| part.class.clone()));
-    for sub in &contract.subcomponents {
-        required.push(sub.class.clone());
-        required.extend(label(&sub.class, sub.wrap_text_children));
+    let required = required_classes(contract);
+    let mut allowed = defined_classes(contract, stylesheet);
+    for (dependency, dependency_stylesheet) in dependencies {
+        allowed.extend(defined_classes(dependency, dependency_stylesheet));
     }
-    let mut allowed: std::collections::BTreeSet<String> = required.iter().cloned().collect();
-    let groups = contract
-        .modifiers
-        .iter()
-        .chain(contract.subcomponents.iter().flat_map(|sub| &sub.modifiers));
-    allowed
-        .extend(groups.flat_map(|group| group.options.iter().map(|option| option.class.clone())));
-    allowed.extend(stylesheet.split('.').skip(1).map(|rest| {
-        rest.split(|c: char| !(c.is_ascii_alphanumeric() || c == '-' || c == '_'))
-            .next()
-            .unwrap()
-            .to_string()
-    }));
     let used: std::collections::BTreeSet<String> = markup
         .split("class=\"")
         .skip(1)
@@ -185,4 +191,36 @@ fn assert_uses_the_contracts_classes(
         missing.is_empty(),
         "{file} leaves out parts of its contract: {missing:?}"
     );
+}
+
+/// The root's and every part's class: each must appear in an example.
+fn required_classes(contract: &Contract) -> Vec<String> {
+    let label = |class: &str, wraps: bool| wraps.then(|| format!("{class}-label"));
+    let mut required = vec![contract.root.class.clone()];
+    required.extend(contract.parts.iter().map(|part| part.class.clone()));
+    for sub in &contract.subcomponents {
+        required.push(sub.class.clone());
+        required.extend(label(&sub.class, sub.wrap_text_children));
+    }
+    required
+}
+
+/// Every class a component defines: its parts, its modifiers, and anything its
+/// own stylesheet selects.
+fn defined_classes(contract: &Contract, stylesheet: &str) -> std::collections::BTreeSet<String> {
+    let mut defined: std::collections::BTreeSet<String> =
+        required_classes(contract).into_iter().collect();
+    let groups = contract
+        .modifiers
+        .iter()
+        .chain(contract.subcomponents.iter().flat_map(|sub| &sub.modifiers));
+    defined
+        .extend(groups.flat_map(|group| group.options.iter().map(|option| option.class.clone())));
+    defined.extend(stylesheet.split('.').skip(1).map(|rest| {
+        rest.split(|c: char| !(c.is_ascii_alphanumeric() || c == '-' || c == '_'))
+            .next()
+            .unwrap()
+            .to_string()
+    }));
+    defined
 }

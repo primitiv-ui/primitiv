@@ -54,7 +54,11 @@ export class TooltipController {
   readonly #host: TooltipControllerHost;
   #opening: ReturnType<typeof setTimeout> | null = null;
   #grace: ReturnType<typeof setTimeout> | null = null;
-  #listening: AbortController | null = null;
+  // The document listeners, added and removed by hand rather than through an
+  // AbortSignal, so a host can see the very handler removed. Adding the same
+  // function twice is a no-op, so syncing open again never stacks them.
+  readonly #onKeydown = (event: KeyboardEvent): void => this.#keydown(event);
+  readonly #onPointerdown = (event: PointerEvent): void => this.#pointerdown(event);
 
   constructor(host: TooltipControllerHost) {
     this.#host = host;
@@ -109,14 +113,17 @@ export class TooltipController {
   /** Listen for Escape and outside presses while open, and only then. */
   sync(): void {
     const { open } = this.#host.state();
-    if (open && !this.#listening) {
-      this.#listening = new AbortController();
-      const { signal } = this.#listening;
-      document.addEventListener("keydown", (event) => this.#keydown(event), { signal });
-      document.addEventListener("pointerdown", (event) => this.#pointerdown(event), { signal });
-    } else if (!open) {
+    if (open) {
+      document.addEventListener("keydown", this.#onKeydown);
+      document.addEventListener("pointerdown", this.#onPointerdown);
+    } else {
       this.#stopListening();
     }
+  }
+
+  #stopListening(): void {
+    document.removeEventListener("keydown", this.#onKeydown);
+    document.removeEventListener("pointerdown", this.#onPointerdown);
   }
 
   /** Cancel every timer and stop listening, so nothing outlives the host. */
@@ -132,11 +139,6 @@ export class TooltipController {
       clearTimeout(this.#opening);
       this.#opening = null;
     }
-  }
-
-  #stopListening(): void {
-    this.#listening?.abort();
-    this.#listening = null;
   }
 
   #keydown(event: KeyboardEvent): void {

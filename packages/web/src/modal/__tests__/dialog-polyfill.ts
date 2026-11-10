@@ -31,7 +31,7 @@ if (typeof proto.showModal !== "function") {
   // The browser's own Escape step runs after the keydown, unless it was cancelled.
   document.addEventListener("keydown", (event) => {
     if (event.key !== "Escape" || event.defaultPrevented) return;
-    const top = modals.findLast((dialog) => dialog.isConnected && dialog.hasAttribute("open"));
+    const top = modals.filter((dialog) => dialog.isConnected && dialog.hasAttribute("open")).pop();
     if (!top) return;
     const cancel = new Event("cancel", { cancelable: true });
     if (top.dispatchEvent(cancel)) top.close();

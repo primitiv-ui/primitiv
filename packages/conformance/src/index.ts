@@ -18,3 +18,9 @@ export {
   type PopoverConformanceFixture,
   type PopoverMount,
 } from "./popover.ts";
+export {
+  runTooltipConformance,
+  TOOLTIP,
+  type TooltipConformanceFixture,
+  type TooltipMount,
+} from "./tooltip.ts";

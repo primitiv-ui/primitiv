@@ -425,7 +425,14 @@ pub(crate) fn without_classes(markup: &str) -> String {
         rest = &after[end..];
     }
     out.push_str(rest);
-    out.replace("<span>", "").replace("</span>", "")
+    // A wrapper that stood on a line of its own (Modal's header, body and
+    // footer) leaves that line blank once unwrapped: drop it, keeping the blank
+    // lines the styled markup already had.
+    out.split_inclusive('\n')
+        .map(|line| (line, line.replace("<span>", "").replace("</span>", "")))
+        .filter(|(line, unwrapped)| !unwrapped.trim().is_empty() || line.trim().is_empty())
+        .map(|(_, unwrapped)| unwrapped)
+        .collect()
 }
 
 /// The components directory `add` writes the React surface into when the project

@@ -1044,3 +1044,12 @@ fn surfaces_a_package_json_it_cannot_read_while_detecting_the_surface() {
     assert!(matches!(error, CliError::Io(_)), "{error:?}");
     assert_eq!(output.captured(), Vec::<u8>::new());
 }
+
+#[test]
+fn headless_drops_the_lines_a_styling_wrapper_stood_on() {
+    let styled = "<dialog class=\"modal\">\n  <span class=\"modal__header\">\n    <h2 class=\"title\">Title</h2>\n  </span>\n\n  <p>Body</p>\n</dialog>\n";
+
+    let headless = crate::commands::add::without_classes(styled);
+
+    assert_eq!(headless, "<dialog>\n    <h2>Title</h2>\n\n  <p>Body</p>\n</dialog>\n");
+}

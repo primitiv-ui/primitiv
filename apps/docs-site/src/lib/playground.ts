@@ -474,4 +474,14 @@ export const mergeImports = (code: string): string => {
  * styled example, so the page and the CLI print the same thing.
  */
 export const withoutClasses = (markup: string): string =>
-  markup.replace(/ class="[^"]*"/g, "").replace(/<\/?span>/g, "");
+  markup
+    .replace(/ class="[^"]*"/g, "")
+    .split("\n")
+    // A wrapper that stood on a line of its own (Modal's header, body and
+    // footer) leaves that line blank once unwrapped: drop it, keeping the
+    // blank lines the styled markup already had — as the CLI does.
+    .flatMap((line) => {
+      const unwrapped = line.replace(/<\/?span>/g, "");
+      return unwrapped.trim() || !line.trim() ? [unwrapped] : [];
+    })
+    .join("\n");

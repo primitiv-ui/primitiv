@@ -5,6 +5,7 @@
 import { accordionHtml } from "./accordion-fixture.ts";
 import { collapsibleHtml } from "./collapsible-fixture.ts";
 import { modalHtml } from "./modal-fixture.ts";
+import { dropdownHtml } from "./dropdown-fixture.ts";
 import { popoverHtml } from "./popover-fixture.ts";
 import { tooltipHtml } from "./tooltip-fixture.ts";
 import { tabsHtml } from "./fixture.ts";
@@ -18,6 +19,7 @@ let collapsibleEchoes = 0;
 let modalEchoes = 0;
 let popoverEchoes = 0;
 let tooltipEchoes = 0;
+let dropdownEchoes = 0;
 
 export const fragments: Record<string, string | ((url: string) => string)> = {
   // Case 1: a whole tab set arrives in a fragment.
@@ -124,4 +126,15 @@ export const fragments: Record<string, string | ((url: string) => string)> = {
   "tooltip-gone": "<p>Gone</p>",
   "tooltip-echo": (url: string) =>
     `<span data-testid="echo">server saw ${new URL(url, "http://lab").searchParams.get("open")} (${++tooltipEchoes})</span>`,
+
+  // The Dropdown page's cases (dropdown-htmx.html), named to match.
+  dropdown: dropdownHtml({ open: true }, "swapped", { label: "Swapped" }),
+  "dropdown-oob-content":
+    '<div hx-swap-oob="beforeend:#oob"><primitiv-dropdown-content popover="auto">' +
+    "<primitiv-dropdown-item><li>Arrived late</li></primitiv-dropdown-item></primitiv-dropdown-content></div>",
+  "dropdown-oob-open": `<div hx-swap-oob="outerHTML:#rerendered">${dropdownHtml({ open: true }, "rerendered", { label: "Rerendered" })}</div>`,
+  "dropdown-preserve": `<div id="preserve-region"><p>Swapped region</p>${dropdownHtml({}, "preserved", { label: "Preserved" }).replace("<primitiv-dropdown ", '<primitiv-dropdown hx-preserve="true" ')}</div>`,
+  "dropdown-lazy": "<primitiv-dropdown-item><li>Loaded later</li></primitiv-dropdown-item>",
+  "dropdown-echo": (url: string) =>
+    `<span data-testid="echo">server saw ${new URL(url, "http://lab").searchParams.get("open")} (${++dropdownEchoes})</span>`,
 };

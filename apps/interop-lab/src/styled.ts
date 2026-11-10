@@ -1,14 +1,15 @@
-// The markup `primitiv add tabs`, `add accordion`, `add collapsible`, `add modal`, `add confirm-dialog`, `add drawer`, `add popover` and `add tooltip` printed, pasted into the page as a consumer
+// The markup `primitiv add tabs`, `add accordion`, `add collapsible`, `add modal`, `add confirm-dialog`, `add drawer`, `add popover`, `add tooltip` and `add dropdown` printed, pasted into the page as a consumer
 // would, then the elements defined over it (the lab's stand-in for the CDN
 // script, so it runs from workspace source).
 import accordion from "../styled-site/accordion.example.html?raw";
 import collapsible from "../styled-site/collapsible.example.html?raw";
 import confirmDialog from "../styled-site/confirm-dialog.example.html?raw";
 import drawer from "../styled-site/drawer.example.html?raw";
+import dropdown from "../styled-site/dropdown.example.html?raw";
 import popover from "../styled-site/popover.example.html?raw";
 import modal from "../styled-site/modal.example.html?raw";
 import tabs from "../styled-site/tabs.example.html?raw";
 import tooltip from "../styled-site/tooltip.example.html?raw";
 
-(document.getElementById("app") as HTMLElement).innerHTML = tabs + accordion + collapsible + modal + confirmDialog + drawer + popover + tooltip;
+(document.getElementById("app") as HTMLElement).innerHTML = tabs + accordion + collapsible + modal + confirmDialog + drawer + popover + tooltip + dropdown;
 await import("@primitiv-ui/web/define");

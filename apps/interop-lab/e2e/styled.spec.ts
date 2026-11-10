@@ -340,3 +340,48 @@ test("the printed popover's arrow follows the panel when it flips across the inl
   await pinTrigger("right");
   await expect.poll(sides).toEqual({ panel: "left", arrow: "right edge" });
 });
+
+test("add dropdown printed the per-component script for its first release", () => {
+  const output = readFileSync("styled-site/add-dropdown-output.txt", "utf8");
+  expect(output).toMatch(/@primitiv-ui\/web@[\d.]+\/dist\/cdn\/dropdown\.js/);
+});
+
+test("the printed dropdown opens below its trigger with only the checked indicators showing", async ({ page }) => {
+  const trigger = page.getByRole("button", { name: "Options", exact: true }).last();
+  // Room below for the whole menu, so it takes its bottom-start placement
+  // rather than a fallback above.
+  await page.evaluate(() => {
+    document.body.style.paddingBlockEnd = "100vh";
+  });
+  await trigger.evaluate((el) => window.scrollBy(0, el.getBoundingClientRect().top - 40));
+  await trigger.click();
+  const menu = page.locator("primitiv-dropdown-content").last();
+  await expect(menu).toBeVisible();
+  await expect(menu).toHaveCSS("display", "flex");
+  // The trigger is the menu's implicit anchor: bottom-start puts the menu
+  // under it, its inline-start edge on the trigger's.
+  const geometry = async () => {
+    const [t, m] = await Promise.all([trigger.boundingBox(), menu.boundingBox()]);
+    return { below: m!.y >= t!.y + t!.height, aligned: Math.abs(m!.x - t!.x) < 2 };
+  };
+  await expect.poll(geometry).toEqual({ below: true, aligned: true });
+  await expect(page.getByRole("menuitem", { name: "Copy" }).last()).toBeFocused();
+  const indicators = menu.locator("primitiv-dropdown-item-indicator");
+  // Show grid is checked, Light is the radio group's value; Dark is not.
+  await expect(indicators.nth(0)).toBeVisible();
+  await expect(indicators.nth(1)).toBeVisible();
+  await expect(indicators.nth(2)).toBeHidden();
+  await page.keyboard.press("Escape");
+  await expect(menu).toBeHidden();
+});
+
+test("the printed dropdown's submenu opens beside its row with no anchor-name wired", async ({ page }) => {
+  await page.getByRole("button", { name: "Options", exact: true }).last().click();
+  const share = page.getByRole("menuitem", { name: "Share" }).last();
+  await share.hover();
+  const submenu = page.locator("primitiv-dropdown-sub-content").last();
+  await expect(submenu).toBeVisible();
+  const [row, sub] = await Promise.all([share.boundingBox(), submenu.boundingBox()]);
+  expect(sub!.x).toBeGreaterThanOrEqual(row!.x + row!.width - 1);
+  expect(Math.abs(sub!.y - row!.y)).toBeLessThan(16);
+});

@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" /><link rel="icon" href="data:," /><title>Interop lab — Dropdown, plain HTML</title>
+    <!-- Positioning only, with no anchor-name: the element shows each menu with
+         its trigger row as the source, which makes that row its implicit anchor. -->
+    <style>
+      primitiv-dropdown-content[popover], primitiv-dropdown-sub-content[popover] { margin: 0; inset: auto; padding: 4px; }
+      primitiv-dropdown-content[popover] { position-area: bottom span-right; }
+      primitiv-dropdown-sub-content[popover] { position-area: right span-bottom; }
+      primitiv-dropdown-item, primitiv-dropdown-checkbox-item, primitiv-dropdown-sub, primitiv-dropdown-sub-trigger { display: contents; }
+      li { list-style: none; padding: 4px 8px; }
+      [data-highlighted] { background: #ddd; }
+    </style>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/dropdown.ts"></script>
+  </body>
+</html>

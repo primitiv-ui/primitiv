@@ -1,7 +1,7 @@
 import userEvent from "@testing-library/user-event";
 
 import { dropdownHtml, LABELS } from "./dropdown.fixtures";
-import { content, mount, root, row, settle, shown, sub, subContent, trigger, listenerErrors } from "./mount";
+import { content, mount, root, row, settle, sub, subContent, trigger, listenerErrors } from "./mount";
 
 afterEach(() => {
   document.body.replaceChildren();

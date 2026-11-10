@@ -40,6 +40,23 @@
  * primitiv.reset and let the reset win (RFC 0008 §7). */
 @layer primitiv.reset, primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;
 
+/* The elements surface (RFC 0033 §5.6.1): every wrapper part takes no box of its
+   own, so the <button>, <dialog>, heading and paragraph each decorates lay out
+   exactly as the React ones. The <dialog> needs no force-mount: it is always in
+   the document, so the [open] transitions below play in both directions. Zero
+   specificity, in the reset sublayer, so any consumer rule wins. */
+@layer primitiv.reset {
+  :where(
+      primitiv-modal-trigger,
+      primitiv-modal-content,
+      primitiv-modal-title,
+      primitiv-modal-description,
+      primitiv-modal-close
+    ) {
+    display: contents;
+  }
+}
+
 @layer primitiv.reset {
   .primitiv-modal {
     padding: 0;

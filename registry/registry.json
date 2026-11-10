@@ -1470,7 +1470,19 @@
           ]
         }
       },
-      "contract": "contract.json"
+      "contract": "contract.json",
+      "elements": {
+        "packages": [
+          {
+            "name": "@primitiv-ui/web",
+            "version": "^0.1.54"
+          }
+        ],
+        "example": "modal.html",
+        "omits": [
+          "overlay"
+        ]
+      }
     },
     "navigation-menu": {
       "version": "0.1.0",

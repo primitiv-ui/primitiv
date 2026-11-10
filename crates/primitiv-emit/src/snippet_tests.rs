@@ -132,10 +132,20 @@ fn committed_registry_examples_match_their_contracts() {
                             )
                         })
                         .collect();
+                    // `omits` names parts the elements surface does without on
+                    // purpose: Modal's overlay, whose job the native
+                    // `::backdrop` does. They stay allowed, never required.
+                    let omits: Vec<&str> = entry["elements"]["omits"]
+                        .as_array()
+                        .into_iter()
+                        .flatten()
+                        .map(|part| part.as_str().unwrap())
+                        .collect();
                     assert_uses_the_contracts_classes(
                         &contract,
                         &stylesheet,
                         &dependencies,
+                        &omits,
                         &committed,
                         &format!("{name}/{file}"),
                     );
@@ -156,7 +166,8 @@ fn committed_registry_examples_match_their_contracts() {
 
 /// Hold hand-written markup to its contract: no class that neither the contract
 /// nor the component's own stylesheet defines (a typo or a renamed part), and
-/// every part's own class present (a part the example forgot). The stylesheet
+/// every part's own class present (a part the example forgot) bar the ones its
+/// `elements` block `omits`. The stylesheet
 /// counts because a hand-authored wrapper can style structure the contract does
 /// not model — Accordion's content clip and body. A declared dependency's
 /// classes are allowed as well (never required): it is installed alongside.
@@ -164,10 +175,20 @@ fn assert_uses_the_contracts_classes(
     contract: &Contract,
     stylesheet: &str,
     dependencies: &[(Contract, String)],
+    omits: &[&str],
     markup: &str,
     file: &str,
 ) {
-    let required = required_classes(contract);
+    let omitted: Vec<String> = contract
+        .subcomponents
+        .iter()
+        .filter(|sub| omits.contains(&sub.name.as_str()))
+        .map(|sub| sub.class.clone())
+        .collect();
+    let required: Vec<String> = required_classes(contract)
+        .into_iter()
+        .filter(|class| !omitted.contains(class))
+        .collect();
     let mut allowed = defined_classes(contract, stylesheet);
     for (dependency, dependency_stylesheet) in dependencies {
         allowed.extend(defined_classes(dependency, dependency_stylesheet));

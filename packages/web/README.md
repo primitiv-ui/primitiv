@@ -6,7 +6,7 @@ framework and no runtime dependencies beyond
 server-rendered stack (HTMX, Rails, Django, Laravel, Spring …), and inside
 React, Vue, Angular or any other framework.
 
-> **Status: published.** Tabs, Accordion, Collapsible, Modal and Popover so far. See
+> **Status: published.** Tabs, Accordion, Collapsible, Modal, Popover and Tooltip so far. See
 > [RFC 0033](../../docs/rfcs/0033-web-components.md) for the design.
 
 ## Components
@@ -18,6 +18,7 @@ React, Vue, Angular or any other framework.
 | Collapsible | `primitiv-collapsible`, `-trigger`, `-content`, `-trigger-icon` | `primitiv-collapsible-change` | 0.1.47 |
 | Modal | `primitiv-modal`, `-trigger`, `-content`, `-title`, `-description`, `-close` | `primitiv-modal-change` | 0.1.54 |
 | Popover | `primitiv-popover`, `-trigger`, `-anchor`, `-content`, `-title`, `-description`, `-close` | `primitiv-popover-change` | 0.1.55 |
+| Tooltip | `primitiv-tooltip`, `-provider`, `-trigger`, `-content`, `-arrow` | `primitiv-tooltip-change` | 0.1.56 |
 
 ## Use it
 
@@ -50,9 +51,10 @@ downloads it once. `dist/primitiv-web.js` is the alternative: every element in
 one file. Per-component files ship from 0.1.43.
 
 The main entry (`@primitiv-ui/web`, `/tabs`, `/accordion`, `/collapsible`,
-`/modal`, `/popover`) exports the classes and `defineTabs(registry?)` /
+`/modal`, `/popover`, `/tooltip`) exports the classes and `defineTabs(registry?)` /
 `defineAccordion(registry?)` / `defineCollapsible(registry?)` /
-`defineModal(registry?)` / `definePopover(registry?)` with **no side effects**.
+`defineModal(registry?)` / `definePopover(registry?)` / `defineTooltip(registry?)`
+with **no side effects**.
 
 **Render `hidden` on inactive panels yourself.** Until the module loads, CSS
 cannot tell which panel is active, so markup that omits it shows every panel.
@@ -182,6 +184,37 @@ on a panel as it becomes active, for lazy loading.
 - **`open` on the root is the state**; the `open` property reads and sets it.
   **Listen with `primitiv-popover-change`** (bubbles, cancelable, `detail: {
   open }`), fired before every user-driven change, a light dismiss included.
+
+### Tooltip
+
+```html
+<script type="module" src="https://cdn.jsdelivr.net/npm/@primitiv-ui/web@<version>/dist/cdn/tooltip.js"></script>
+
+<primitiv-tooltip>
+  <primitiv-tooltip-trigger><button type="button">Save</button></primitiv-tooltip-trigger>
+  <primitiv-tooltip-content popover="manual">
+    Saves your work
+    <primitiv-tooltip-arrow></primitiv-tooltip-arrow>
+  </primitiv-tooltip-content>
+</primitiv-tooltip>
+```
+
+- **It opens on hover after `delay-duration` (700 ms) and on focus at once**,
+  and closes when the pointer leaves (after a short grace period, so the pointer
+  can reach the bubble — `disable-hoverable-content` turns that off), on blur,
+  on Escape and on a press outside. The element gives the bubble
+  `role="tooltip"` and the trigger's button `aria-describedby`.
+- **It is a native `popover="manual"`** in the top layer, shown with the
+  trigger as its source, so CSS anchor positioning places it with no
+  `anchor-name` / `position-anchor` pair. Write `popover="manual"` yourself so
+  the bubble is hidden before the script loads.
+- **Moving from one trigger to the next opens each next tooltip at once** (the
+  skip delay, 300 ms). Tooltips inside a `<primitiv-tooltip-provider>` share its
+  `delay-duration` and `skip-delay-duration`; the rest share a document-wide
+  window.
+- **`open` on the root is the state**; the `open` property reads and sets it.
+  **Listen with `primitiv-tooltip-change`** (bubbles, cancelable, `detail: {
+  open }`), fired before every user-driven change.
 
 **TypeScript** — opt into the tag map so DOM queries return the element classes:
 `import type {} from "@primitiv-ui/web/tags"` (npm only).

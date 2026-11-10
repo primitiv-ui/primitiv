@@ -345,6 +345,47 @@ fn loads_every_script_from_the_newest_release_any_component_needs() {
 }
 
 #[test]
+fn loads_the_script_of_the_component_whose_elements_the_markup_uses() {
+    // ConfirmDialog is a pre-arranged Modal: its markup is <primitiv-modal>, so
+    // the script that defines it is modal.js, and there is no confirm-dialog.js.
+    let registry = InMemoryRegistry::new(
+        br##"{
+  "version": "0.1.0",
+  "components": {
+    "confirm-dialog": { "version": "0.1.0", "elements": { "packages": [{ "name": "@primitiv-ui/web", "version": "^0.1.54" }], "definedBy": "modal", "example": "confirm-dialog.html" } }
+  }
+}"##,
+    )
+    .with_file("confirm-dialog", "confirm-dialog.html", b"<primitiv-modal></primitiv-modal>\n");
+    let fs = InMemoryFs::new();
+    let output = InMemoryOutput::new();
+
+    add(
+        &fs,
+        &registry,
+        &output,
+        &InMemoryProcessRunner::new(),
+        &InMemoryPrompt::new(Decision::Keep),
+        false,
+        &AddOptions {
+            components: vec!["confirm-dialog".into()],
+            surface: Some(Surface::Elements),
+            ..Default::default()
+        },
+    )
+    .unwrap();
+
+    let captured = String::from_utf8(output.captured()).unwrap();
+    assert!(
+        captured.contains(
+            "  <script type=\"module\" src=\"https://cdn.jsdelivr.net/npm/@primitiv-ui/web@0.1.54/dist/cdn/modal.js\"></script>\n"
+        ),
+        "{captured}"
+    );
+    assert!(!captured.contains("confirm-dialog.js"), "{captured}");
+}
+
+#[test]
 fn prints_no_script_when_no_component_needs_a_package() {
     // Kbd has no behaviour (§8.3): there is no element to load.
     let fs = InMemoryFs::new();

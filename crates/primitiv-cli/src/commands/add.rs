@@ -1133,7 +1133,13 @@ fn print_cdn_scripts(
     let scripts: BTreeSet<String> = resolved
         .iter()
         .filter(needs_web)
-        .map(|name| format!("{spec}/dist/cdn/{name}.js"))
+        .map(|name| {
+            let defined_by = index.components[name]
+                .elements
+                .as_ref()
+                .and_then(|elements| elements.defined_by.as_deref());
+            format!("{spec}/dist/cdn/{}.js", defined_by.unwrap_or(name))
+        })
         .collect();
     let mut message =
         "\nNo package.json here, so nothing was installed. Load the elements with:\n\n".to_string();

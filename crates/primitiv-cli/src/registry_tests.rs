@@ -240,6 +240,7 @@ fn parses_a_components_elements_surface_and_defaults_it_to_none() {
                 version: Some("^0.1.0".into()),
             }],
             example: Some("tabs.html".into()),
+            defined_by: None,
         })
     );
     // A component with no behaviour needs no package (RFC 0033 §8.3).
@@ -248,6 +249,7 @@ fn parses_a_components_elements_surface_and_defaults_it_to_none() {
         Some(Elements {
             packages: vec![],
             example: Some("kbd.html".into()),
+            defined_by: None,
         })
     );
     // No block means no elements surface yet.

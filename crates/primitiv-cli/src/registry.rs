@@ -51,12 +51,18 @@ pub struct ComponentEntry {
 /// (`@primitiv-ui/web`; none for a component with no behaviour, §8.3) and the
 /// `example` markup `add` prints for the developer to paste. The example is
 /// never copied: nothing imports markup, so a copy would only go stale.
+/// `defined_by` names the component whose elements the markup uses, when that
+/// is another one's — ConfirmDialog's markup is `<primitiv-modal>` — so the CDN
+/// script printed is that component's file.
 #[derive(Debug, Deserialize, PartialEq, Default)]
+#[serde(rename_all = "camelCase")]
 pub struct Elements {
     #[serde(default)]
     pub packages: Vec<PackageDep>,
     #[serde(default)]
     pub example: Option<String>,
+    #[serde(default)]
+    pub defined_by: Option<String>,
 }
 
 /// A component's styled bundle (RFC 0005 §6.2): the per-format stylesheet `add`

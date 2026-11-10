@@ -34,6 +34,15 @@ import type {
   PrimitivModalTriggerElement,
 } from "./modal/elements.ts";
 import type {
+  PrimitivPopoverAnchorElement,
+  PrimitivPopoverCloseElement,
+  PrimitivPopoverContentElement,
+  PrimitivPopoverDescriptionElement,
+  PrimitivPopoverElement,
+  PrimitivPopoverTitleElement,
+  PrimitivPopoverTriggerElement,
+} from "./popover/elements.ts";
+import type {
   PrimitivTabsContentElement,
   PrimitivTabsElement,
   PrimitivTabsListElement,
@@ -57,6 +66,13 @@ declare global {
     "primitiv-modal-title": PrimitivModalTitleElement;
     "primitiv-modal-description": PrimitivModalDescriptionElement;
     "primitiv-modal-close": PrimitivModalCloseElement;
+    "primitiv-popover": PrimitivPopoverElement;
+    "primitiv-popover-trigger": PrimitivPopoverTriggerElement;
+    "primitiv-popover-anchor": PrimitivPopoverAnchorElement;
+    "primitiv-popover-content": PrimitivPopoverContentElement;
+    "primitiv-popover-title": PrimitivPopoverTitleElement;
+    "primitiv-popover-description": PrimitivPopoverDescriptionElement;
+    "primitiv-popover-close": PrimitivPopoverCloseElement;
     "primitiv-tabs": PrimitivTabsElement;
     "primitiv-tabs-list": PrimitivTabsListElement;
     "primitiv-tabs-trigger": PrimitivTabsTriggerElement;

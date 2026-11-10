@@ -40,6 +40,15 @@ import type {
   PrimitivModalTriggerElement,
 } from "../modal/elements.ts";
 import type {
+  PrimitivPopoverAnchorElement,
+  PrimitivPopoverCloseElement,
+  PrimitivPopoverContentElement,
+  PrimitivPopoverDescriptionElement,
+  PrimitivPopoverElement,
+  PrimitivPopoverTitleElement,
+  PrimitivPopoverTriggerElement,
+} from "../popover/elements.ts";
+import type {
   PrimitivTabsContentElement,
   PrimitivTabsElement,
   PrimitivTabsListElement,
@@ -49,6 +58,7 @@ import type {
   PrimitivAccordionChangeEvent,
   PrimitivCollapsibleChangeEvent,
   PrimitivModalChangeEvent,
+  PrimitivPopoverChangeEvent,
   PrimitivTabsChangeEvent,
 } from "./events.ts";
 
@@ -95,6 +105,16 @@ declare module "svelte/elements" {
     "primitiv-modal-title": Attributes<PrimitivModalTitleElement>;
     "primitiv-modal-description": Attributes<PrimitivModalDescriptionElement>;
     "primitiv-modal-close": Attributes<PrimitivModalCloseElement>;
+    "primitiv-popover": Attributes<PrimitivPopoverElement> & {
+      open?: boolean;
+      "onprimitiv-popover-change"?: (event: PrimitivPopoverChangeEvent) => void;
+    };
+    "primitiv-popover-trigger": Attributes<PrimitivPopoverTriggerElement>;
+    "primitiv-popover-anchor": Attributes<PrimitivPopoverAnchorElement>;
+    "primitiv-popover-content": Attributes<PrimitivPopoverContentElement>;
+    "primitiv-popover-title": Attributes<PrimitivPopoverTitleElement>;
+    "primitiv-popover-description": Attributes<PrimitivPopoverDescriptionElement>;
+    "primitiv-popover-close": Attributes<PrimitivPopoverCloseElement>;
     "primitiv-tabs": Attributes<PrimitivTabsElement> & {
       value?: string;
       orientation?: "horizontal" | "vertical";

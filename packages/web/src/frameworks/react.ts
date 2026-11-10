@@ -41,6 +41,15 @@ import type {
   PrimitivModalTriggerElement,
 } from "../modal/elements.ts";
 import type {
+  PrimitivPopoverAnchorElement,
+  PrimitivPopoverCloseElement,
+  PrimitivPopoverContentElement,
+  PrimitivPopoverDescriptionElement,
+  PrimitivPopoverElement,
+  PrimitivPopoverTitleElement,
+  PrimitivPopoverTriggerElement,
+} from "../popover/elements.ts";
+import type {
   PrimitivTabsContentElement,
   PrimitivTabsElement,
   PrimitivTabsListElement,
@@ -50,6 +59,7 @@ import type {
   PrimitivAccordionChangeEvent,
   PrimitivCollapsibleChangeEvent,
   PrimitivModalChangeEvent,
+  PrimitivPopoverChangeEvent,
   PrimitivTabsChangeEvent,
 } from "./events.ts";
 
@@ -62,6 +72,7 @@ export type {
   PrimitivAccordionChangeEvent,
   PrimitivCollapsibleChangeEvent,
   PrimitivModalChangeEvent,
+  PrimitivPopoverChangeEvent,
   PrimitivTabsChangeEvent,
 };
 
@@ -107,6 +118,18 @@ declare module "react" {
       "primitiv-modal-title": ElementProps<PrimitivModalTitleElement>;
       "primitiv-modal-description": ElementProps<PrimitivModalDescriptionElement>;
       "primitiv-modal-close": ElementProps<PrimitivModalCloseElement>;
+      "primitiv-popover": ElementProps<PrimitivPopoverElement> & {
+        open?: boolean;
+        "onprimitiv-popover-change"?: (event: PrimitivPopoverChangeEvent) => void;
+      };
+      "primitiv-popover-trigger": ElementProps<PrimitivPopoverTriggerElement>;
+      "primitiv-popover-anchor": ElementProps<PrimitivPopoverAnchorElement>;
+      "primitiv-popover-title": ElementProps<PrimitivPopoverTitleElement>;
+      "primitiv-popover-description": ElementProps<PrimitivPopoverDescriptionElement>;
+      "primitiv-popover-close": ElementProps<PrimitivPopoverCloseElement>;
+      "primitiv-popover-content": ElementProps<PrimitivPopoverContentElement> & {
+        popover?: "auto" | "manual" | "";
+      };
       "primitiv-tabs": ElementProps<PrimitivTabsElement> & {
         value?: string;
         orientation?: "horizontal" | "vertical";

@@ -19,6 +19,13 @@ import type {
   PrimitivModalElement,
   PrimitivModalTitleElement,
   PrimitivModalTriggerElement,
+  PrimitivPopoverAnchorElement,
+  PrimitivPopoverCloseElement,
+  PrimitivPopoverContentElement,
+  PrimitivPopoverDescriptionElement,
+  PrimitivPopoverElement,
+  PrimitivPopoverTitleElement,
+  PrimitivPopoverTriggerElement,
   PrimitivTabsContentElement,
   PrimitivTabsElement,
   PrimitivTabsListElement,
@@ -56,4 +63,14 @@ it("types every Modal tag in HTMLElementTagNameMap", () => {
   expectTypeOf(document.createElement("primitiv-modal-title")).toEqualTypeOf<PrimitivModalTitleElement>();
   expectTypeOf(document.createElement("primitiv-modal-description")).toEqualTypeOf<PrimitivModalDescriptionElement>();
   expectTypeOf(document.createElement("primitiv-modal-close")).toEqualTypeOf<PrimitivModalCloseElement>();
+});
+
+it("types every Popover tag in HTMLElementTagNameMap", () => {
+  expectTypeOf(document.querySelector("primitiv-popover")).toEqualTypeOf<PrimitivPopoverElement | null>();
+  expectTypeOf(document.createElement("primitiv-popover-trigger")).toEqualTypeOf<PrimitivPopoverTriggerElement>();
+  expectTypeOf(document.createElement("primitiv-popover-anchor")).toEqualTypeOf<PrimitivPopoverAnchorElement>();
+  expectTypeOf(document.createElement("primitiv-popover-content")).toEqualTypeOf<PrimitivPopoverContentElement>();
+  expectTypeOf(document.createElement("primitiv-popover-title")).toEqualTypeOf<PrimitivPopoverTitleElement>();
+  expectTypeOf(document.createElement("primitiv-popover-description")).toEqualTypeOf<PrimitivPopoverDescriptionElement>();
+  expectTypeOf(document.createElement("primitiv-popover-close")).toEqualTypeOf<PrimitivPopoverCloseElement>();
 });

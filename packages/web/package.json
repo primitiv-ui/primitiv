@@ -22,6 +22,10 @@
       "types": "./src/modal/index.ts",
       "default": "./src/modal/index.ts"
     },
+    "./popover": {
+      "types": "./src/popover/index.ts",
+      "default": "./src/popover/index.ts"
+    },
     "./tabs": {
       "types": "./src/tabs/index.ts",
       "default": "./src/tabs/index.ts"
@@ -41,6 +45,10 @@
     "./define/modal": {
       "types": "./src/define/modal.ts",
       "default": "./src/define/modal.ts"
+    },
+    "./define/popover": {
+      "types": "./src/define/popover.ts",
+      "default": "./src/define/popover.ts"
     },
     "./define/tabs": {
       "types": "./src/define/tabs.ts",
@@ -129,6 +137,10 @@
         "types": "./dist/modal/index.d.ts",
         "default": "./dist/modal/index.js"
       },
+      "./popover": {
+        "types": "./dist/popover/index.d.ts",
+        "default": "./dist/popover/index.js"
+      },
       "./tabs": {
         "types": "./dist/tabs/index.d.ts",
         "default": "./dist/tabs/index.js"
@@ -148,6 +160,10 @@
       "./define/modal": {
         "types": "./dist/define/modal.d.ts",
         "default": "./dist/define/modal.js"
+      },
+      "./define/popover": {
+        "types": "./dist/define/popover.d.ts",
+        "default": "./dist/define/popover.js"
       },
       "./define/tabs": {
         "types": "./dist/define/tabs.d.ts",

@@ -5,4 +5,5 @@
 import "./accordion.ts";
 import "./collapsible.ts";
 import "./modal.ts";
+import "./popover.ts";
 import "./tabs.ts";

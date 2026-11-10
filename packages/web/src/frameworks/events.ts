@@ -14,3 +14,6 @@ export type PrimitivCollapsibleChangeEvent = CustomEvent<{ open: boolean }>;
 
 /** The `primitiv-modal-change` event: bubbles, cancelable, fired before the change applies, with the open state afterwards. */
 export type PrimitivModalChangeEvent = CustomEvent<{ open: boolean }>;
+
+/** The `primitiv-popover-change` event: bubbles, cancelable, fired before the change applies, with the open state afterwards. */
+export type PrimitivPopoverChangeEvent = CustomEvent<{ open: boolean }>;

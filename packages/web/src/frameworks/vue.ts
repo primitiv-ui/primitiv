@@ -24,6 +24,7 @@ import type {
   PrimitivAccordionChangeEvent,
   PrimitivCollapsibleChangeEvent,
   PrimitivModalChangeEvent,
+  PrimitivPopoverChangeEvent,
   PrimitivTabsChangeEvent,
 } from "./events.ts";
 
@@ -75,6 +76,16 @@ declare module "vue" {
     "primitiv-modal-title": Tag<Record<never, never>>;
     "primitiv-modal-description": Tag<Record<never, never>>;
     "primitiv-modal-close": Tag<Record<never, never>>;
+    "primitiv-popover": Tag<
+      { open?: boolean | "" },
+      { "primitiv-popover-change": (event: PrimitivPopoverChangeEvent) => void }
+    >;
+    "primitiv-popover-trigger": Tag<Record<never, never>>;
+    "primitiv-popover-anchor": Tag<Record<never, never>>;
+    "primitiv-popover-content": Tag<Record<never, never>>;
+    "primitiv-popover-title": Tag<Record<never, never>>;
+    "primitiv-popover-description": Tag<Record<never, never>>;
+    "primitiv-popover-close": Tag<Record<never, never>>;
     "primitiv-tabs": Tag<
       {
         value?: string;

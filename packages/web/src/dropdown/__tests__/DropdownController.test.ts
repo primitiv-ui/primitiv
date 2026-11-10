@@ -313,6 +313,19 @@ describe("DropdownController", () => {
       expect(document.activeElement).toBe(item("Email"));
     });
 
+    it("searches this menu for a key a script dispatches on it while focus is outside", () => {
+      // Arrange
+      const { menu, trigger, controller } = connected(true);
+      controller.sync();
+      trigger.focus();
+
+      // Act — a script, not the user: no input device can send a key to an element without focus.
+      menu.dispatchEvent(new KeyboardEvent("keydown", { key: "End", bubbles: true }));
+
+      // Assert
+      expect(document.activeElement).toBe(item("Print"));
+    });
+
     it("does nothing in a menu with no enabled items", async () => {
       // Arrange
       const { user, menu, host } = focusedOn("Off", '<li role="menuitem" tabindex="-1" aria-disabled="true">Off</li>');

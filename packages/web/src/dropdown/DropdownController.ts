@@ -116,8 +116,9 @@ export class DropdownController {
 
   #keydown(event: KeyboardEvent): void {
     // The items of the menu holding focus: this one, or an open submenu inside
-    // it — never those of a deeper, closed submenu.
-    const scope = (document.activeElement?.closest<HTMLElement>("[popover]") ?? this.#menu) as HTMLElement;
+    // it — never those of a deeper, closed submenu. A key a script dispatches on
+    // the menu while focus is elsewhere searches this menu.
+    const scope = (document.activeElement as Element).closest<HTMLElement>("[popover]") ?? this.#menu;
     const items = [...scope.querySelectorAll<HTMLElement>(MENU_ITEM_SELECTOR)].filter(
       (item) => item.closest("[popover]") === scope,
     );

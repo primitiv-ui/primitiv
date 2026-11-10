@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 
 import { composeEventHandlers } from "../../Slot/index.ts";
 import { useTooltipContext } from "../TooltipContext";
@@ -11,35 +11,25 @@ export function useTooltipContent({
   onPointerLeave,
   ...rest
 }: Omit<TooltipContentProps, "forceMount"> = {}) {
-  const { open, contentId, cancelGrace, closeImmediate } = useTooltipContext();
-  const internalRef = useRef<HTMLDivElement>(null);
+  const {
+    open,
+    contentId,
+    cancelGrace,
+    closeImmediate,
+    controller,
+    contentRef,
+    contentCallbacksRef,
+  } = useTooltipContext();
+  // The controller reads the dismissal callbacks through this ref, so it
+  // always sees the current render's.
+  contentCallbacksRef.current = { onEscapeKeyDown, onPointerDownOutside };
 
+  // Escape and a press outside dismiss it while the content is open, through
+  // the shared controller: it listens once open and stops as it closes, and
+  // the root's unmount stops it too.
   useEffect(() => {
-    if (!open) return;
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key !== "Escape") return;
-      onEscapeKeyDown?.(event);
-      if (event.defaultPrevented) return;
-      closeImmediate();
-    };
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [open, onEscapeKeyDown, closeImmediate]);
-
-  useEffect(() => {
-    if (!open) return;
-    const handlePointerDown = (event: PointerEvent) => {
-      // Stryker disable next-line OptionalChaining: equivalent — this listener
-      // is only attached while `open` is true, and the Content `<div>` (and
-      // therefore internalRef.current) is always mounted whenever open is true.
-      if (internalRef.current?.contains(event.target as Node)) return;
-      onPointerDownOutside?.(event);
-      if (event.defaultPrevented) return;
-      closeImmediate();
-    };
-    document.addEventListener("pointerdown", handlePointerDown);
-    return () => document.removeEventListener("pointerdown", handlePointerDown);
-  }, [open, onPointerDownOutside, closeImmediate]);
+    controller.sync();
+  }, [open, controller]);
 
   function getContentProps() {
     return {
@@ -52,5 +42,5 @@ export function useTooltipContent({
     };
   }
 
-  return { getContentProps, internalRef };
+  return { getContentProps, internalRef: contentRef };
 }

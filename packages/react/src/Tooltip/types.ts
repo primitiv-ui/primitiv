@@ -1,4 +1,6 @@
-import { ComponentProps, ReactNode } from "react";
+import { ComponentProps, ReactNode, RefObject } from "react";
+
+import type { TooltipController, TooltipGroup } from "@primitiv-ui/web";
 
 /**
  * Context published by {@link Tooltip.Provider} — the shared open / skip
@@ -8,8 +10,8 @@ import { ComponentProps, ReactNode } from "react";
 export type TooltipProviderContextValue = {
   delayDuration: number;
   skipDelayDuration: number;
-  isOpenGlobally: boolean;
-  onOpenGlobally: () => void;
+  /** The shared skip-delay window, from `@primitiv-ui/web`. */
+  group: TooltipGroup;
   onCloseGlobally: () => void;
 };
 
@@ -27,6 +29,12 @@ export type TooltipContextValue = {
   closeImmediate: () => void;
   closeWithGrace: () => void;
   cancelGrace: () => void;
+  /** The tooltip's shared controller, which the content listens through while open. */
+  controller: TooltipController;
+  /** The content element, so a press inside it is not a press outside. */
+  contentRef: RefObject<HTMLDivElement | null>;
+  /** The content's dismissal callbacks, kept current on every render. */
+  contentCallbacksRef: RefObject<Pick<TooltipContentProps, "onEscapeKeyDown" | "onPointerDownOutside">>;
 };
 
 /**

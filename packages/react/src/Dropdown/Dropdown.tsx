@@ -4,6 +4,8 @@ import type { ReactElement } from "react";
 import { useCheckboxRoot } from "../Checkbox/hooks/index.ts";
 import { useDirection } from "../DirectionProvider/index.ts";
 import { useRadioGroupRoot } from "../RadioGroup/hooks/index.ts";
+import { DropdownSubController } from "@primitiv-ui/web";
+
 import { composeEventHandlers, Slot } from "../Slot/index.ts";
 
 import { DropdownContext } from "./DropdownContext";
@@ -39,7 +41,6 @@ import {
   DropdownSubTriggerProps,
   DropdownTriggerProps,
 } from "./types";
-import { MENUITEM_SELECTOR } from "./constants";
 
 /**
  * The root of a Dropdown menu — owns the open state and provides context to
@@ -875,40 +876,36 @@ export function DropdownSubContent({
 }: DropdownSubContentProps): ReactElement {
   const sub = useDropdownSubContext();
   const { dir } = useDropdownContext();
-  const closeKey = dir === "rtl" ? "ArrowRight" : "ArrowLeft";
   const menuRef = useRef<HTMLMenuElement | null>(null);
+  const controllerRef = useRef<DropdownSubController | null>(null);
+  const latest = useRef({ sub, dir });
+  latest.current = { sub, dir };
+
+  // ── The adapter (RFC 0033 §3.4, D28) ──────────────────────────────────
+  // Showing and hiding the submenu, focus on its first item, light dismiss
+  // and the close key run in the web implementation's DropdownSubController,
+  // the same code <primitiv-dropdown-sub-content> runs; the parent menu's
+  // controller moves focus through its items.
+  useEffect(
+    () => {
+      const controller = new DropdownSubController(menuRef.current!, {
+        state: () => ({ open: latest.current.sub.open }),
+        change: (next) => latest.current.sub.setOpen(next),
+        trigger: () => latest.current.sub.triggerRef.current,
+        closeKey: () => (latest.current.dir === "rtl" ? "ArrowRight" : "ArrowLeft"),
+      });
+      controllerRef.current = controller;
+      controller.connect();
+      return () => controller.disconnect();
+    },
+    // Built once per mount; everything it needs later comes through `latest`.
+    // Stryker disable next-line ArrayDeclaration: equivalent — any constant dependency list runs this once per mount.
+    [],
+  );
 
   useEffect(() => {
-    const menu = menuRef.current!;
-    if (sub.open) {
-      menu.showPopover();
-      const firstItem = menu.querySelector<HTMLElement>(MENUITEM_SELECTOR);
-      firstItem?.focus();
-    } else {
-      try {
-        menu.hidePopover();
-      } catch {
-        // already hidden — no-op
-      }
-    }
+    (controllerRef.current as DropdownSubController).sync();
   }, [sub.open]);
-
-  useEffect(() => {
-    const menu = menuRef.current!;
-    const handleToggle = (event: ToggleEvent) => {
-      if (event.newState === "closed") sub.setOpen(false);
-    };
-    menu.addEventListener("toggle", handleToggle);
-    return () => menu.removeEventListener("toggle", handleToggle);
-  }, [sub.setOpen]);
-
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLMenuElement>) => {
-    if (event.key !== closeKey) return;
-    event.preventDefault();
-    event.stopPropagation();
-    sub.setOpen(false);
-    sub.triggerRef.current?.focus();
-  };
 
   const closeOpenSubRef = useRef<(() => void) | null>(null);
   const contentContextValue = useMemo(() => ({ closeOpenSubRef }), []);
@@ -919,7 +916,8 @@ export function DropdownSubContent({
     id: sub.contentId,
     role: "menu" as const,
     popover: "auto" as const,
-    onKeyDown: composeEventHandlers(onKeyDown, handleKeyDown),
+    // The close key is the controller's; a consumer's own handler runs beside it.
+    onKeyDown,
   };
   return (
     <DropdownContentContext.Provider value={contentContextValue}>

@@ -117,6 +117,21 @@ test("a markup avatar shows its image", async ({ page }) => {
   expect(display).not.toBe("none");
 });
 
+test("a markup avatar's loaded image paints over its fallback", async ({ page }) => {
+  await mount(
+    page,
+    "/components/avatar/",
+    // Pinned to the viewport: the docs page scrolls an inner container, so a
+    // node appended to <body> sits off-screen where hit-testing finds nothing.
+    `<div style="position: fixed; inset-block-start: 0; inset-inline-start: 0; z-index: 9999"><span class="primitiv-avatar primitiv-avatar--xl primitiv-avatar--circle"><img class="primitiv-avatar__image" src="/card-media-1.jpg" alt="Ada Lovelace"><span class="primitiv-avatar__fallback"><span class="primitiv-avatar__fallback-label">AL</span></span></span></div>`,
+  );
+  const top = await page.locator("#plain-markup .primitiv-avatar").evaluate((el) => {
+    const box = el.getBoundingClientRect();
+    return document.elementFromPoint(box.x + box.width / 2, box.y + box.height / 2)?.tagName;
+  });
+  expect(top).toBe("IMG");
+});
+
 test("a natively disabled button is dimmed", async ({ page }) => {
   await mount(
     page,

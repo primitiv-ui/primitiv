@@ -194,4 +194,11 @@
   .primitiv-avatar__image[data-status]:not([data-status="loaded"]) {
     display: none;
   }
+
+  /* The primitive unmounts the fallback once the image loads; hand-written
+     markup keeps both, and the fallback comes later in the DOM, so lift the
+     image over it. A broken image is removed (onerror), leaving the fallback. */
+  .primitiv-avatar__image:not([data-status]) {
+    z-index: 1;
+  }
 }

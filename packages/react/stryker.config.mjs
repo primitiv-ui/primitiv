@@ -43,7 +43,10 @@ const SHARED_MODULES = {
   // ratchet. Re-home it onto its consumers so the gate still covers it.
   "src/hooks/useTypeahead.ts": ["Listbox", "MillerColumns"],
   // Hosting a @primitiv-ui/web controller (RFC 0033 D30), shared by every
-  // component the elements surface has moved onto it.
+  // component the elements surface has moved onto it. CheckboxCard hosts it too
+  // but is left off: its card registers in an effect after the controller's
+  // first hand-over, so StrictMode's discarded controller never holds the card
+  // and its disconnect is unobservable there — the components listed observe it.
   "src/hooks/useHostedController.ts": ["Tabs", "Accordion", "Collapsible", "ToggleGroup", "SegmentedControl", "RadioCard"],
 };
 

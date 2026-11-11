@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import type { ReactElement } from "react";
 
-import { Slot, composeEventHandlers } from "../Slot/index.ts";
+import { Slot, composeRefs } from "../Slot/index.ts";
 
 import { CheckboxCardContext } from "./CheckboxCardContext";
 import { useCheckboxCardContext, useCheckboxCardRoot } from "./hooks/index.ts";
@@ -40,8 +40,9 @@ function dataStateOf(checked: CheckedState) {
  * on the root, plus `data-disabled=""` when disabled.
  *
  * **`asChild` prop.** Pass `asChild` to render any consumer-supplied element
- * with the checkbox's ARIA attributes, `data-state`, composed `onClick`, and
- * `ref` merged in via the {@link Slot} pattern. See
+ * with the checkbox's ARIA attributes, `data-state`, `disabled` and `ref`
+ * merged in via the {@link Slot} pattern; a click on it toggles through the
+ * shared controller, beside any `onClick` of the consumer's. See
  * {@link CheckboxCardRootBaseProps}.
  *
  * @extends HTMLButtonElement
@@ -72,17 +73,20 @@ export function CheckboxCardRoot(props: CheckboxCardRootProps): ReactElement {
     defaultChecked,
     checked,
     onCheckedChange,
-    onClick,
     disabled,
     asChild = false,
     children,
+    ref,
     ...rest
   } = props;
-  const { checked: isChecked, toggle } = useCheckboxCardRoot({
+  const { checked: isChecked, rootRef } = useCheckboxCardRoot({
     defaultChecked,
     checked,
     onCheckedChange,
+    disabled: disabled ?? false,
   });
+  // The controller listens on the card, so a consumer ref is composed with it.
+  const setRef = useMemo(() => composeRefs(rootRef, ref), [rootRef, ref]);
   const contextValue = useMemo(() => ({ checked: isChecked }), [isChecked]);
   const rootProps = {
     ...rest,
@@ -94,7 +98,7 @@ export function CheckboxCardRoot(props: CheckboxCardRootProps): ReactElement {
     "data-state": dataStateOf(isChecked),
     "data-disabled": disabled ? "" : undefined,
     disabled,
-    onClick: composeEventHandlers(onClick, toggle),
+    ref: setRef,
   };
   return (
     <CheckboxCardContext.Provider value={contextValue}>

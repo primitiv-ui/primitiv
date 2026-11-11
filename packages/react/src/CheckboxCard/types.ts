@@ -39,8 +39,8 @@ export type CheckboxCardRootBaseProps = Omit<
   /**
    * When `true`, render the consumer's own element instead of the default
    * `<button type="button">`, merging `role`, `aria-checked`, `data-state`,
-   * the composed `onClick`, `disabled`, and `ref` onto it via the
-   * {@link Slot} pattern.
+   * `disabled`, and `ref` onto it via the {@link Slot} pattern; a click on
+   * it toggles through the shared controller.
    * @default false
    */
   asChild?: boolean;

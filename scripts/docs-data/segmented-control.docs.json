@@ -139,7 +139,7 @@
             "type": "boolean",
             "required": false,
             "default": "false",
-            "description": "When `true`, renders the single child element via the {@link Slot }\npattern instead of the default `<button>`; ARIA, `data-state`,\n`data-disabled`, `tabIndex`, `onClick`, `onKeyDown`, `disabled`, and\n`ref` are merged onto it. A non-focusable child must be made focusable\nby the consumer."
+            "description": "When `true`, renders the single child element via the {@link Slot }\npattern instead of the default `<button>`; ARIA, `data-state`,\n`data-disabled`, `tabIndex`, `disabled`, and `ref` are merged onto it,\nand clicks and arrow keys on it are handled by the root's shared\ncontroller. A non-focusable child must be made focusable by the consumer."
           },
           {
             "name": "children",
@@ -316,5 +316,57 @@
   "figma": {
     "componentSetKey": "1216:44224"
   },
-  "elements": null
+  "elements": {
+    "package": "@primitiv-ui/web",
+    "module": "segmented-control",
+    "version": "0.1.60",
+    "element": "div",
+    "wrapText": false,
+    "example": "<primitiv-segmented-control value=\"week\" aria-label=\"Range\" class=\"primitiv-segmented-control primitiv-segmented-control--md primitiv-segmented-control--justified\">\n  <primitiv-segmented-control-item value=\"day\">\n    <button type=\"button\" class=\"primitiv-segmented-control__item\">\n      <span class=\"primitiv-segmented-control__item-label\">Day</span>\n    </button>\n  </primitiv-segmented-control-item>\n  <primitiv-segmented-control-item value=\"week\">\n    <button type=\"button\" class=\"primitiv-segmented-control__item\">\n      <span class=\"primitiv-segmented-control__item-label\">Week</span>\n    </button>\n  </primitiv-segmented-control-item>\n  <primitiv-segmented-control-item value=\"month\">\n    <button type=\"button\" class=\"primitiv-segmented-control__item\">\n      <span class=\"primitiv-segmented-control__item-label\">Month</span>\n    </button>\n  </primitiv-segmented-control-item>\n</primitiv-segmented-control>\n",
+    "api": [
+      {
+        "tag": "primitiv-segmented-control",
+        "attributes": [
+          {
+            "name": "value",
+            "type": "string",
+            "description": "The selected segment's value. Reflected: it changes as the user selects, so a server re-render or a history snapshot sees the live selection. Omit it for nothing selected."
+          },
+          {
+            "name": "orientation",
+            "type": "\"horizontal\" | \"vertical\"",
+            "description": "Layout axis, which picks the arrow-key pair. Defaults to `horizontal`."
+          },
+          {
+            "name": "disabled",
+            "type": "boolean",
+            "description": "Disables the whole control: every segment is skipped by the arrow keys and never selected, and `data-disabled` is set on the root and every segment."
+          }
+        ],
+        "events": [
+          {
+            "name": "primitiv-segmented-control-change",
+            "type": "CustomEvent<{ value: string }>",
+            "description": "Bubbles, cancelable, fired before a user-driven selection is applied, with the segment selected afterwards. Call `preventDefault()` to veto it."
+          }
+        ]
+      },
+      {
+        "tag": "primitiv-segmented-control-item",
+        "attributes": [
+          {
+            "name": "value",
+            "type": "string",
+            "description": "The segment's value, the root's `value` while it is selected."
+          },
+          {
+            "name": "disabled",
+            "type": "boolean",
+            "description": "Skipped by the arrow keys and never selected (`aria-disabled` and `data-disabled` on the child)."
+          }
+        ],
+        "events": []
+      }
+    ]
+  }
 }

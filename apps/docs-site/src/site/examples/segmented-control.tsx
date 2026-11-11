@@ -4,7 +4,7 @@ import { useState } from "react";
 
 import { SegmentedControl, SegmentedControlItem } from "@/components/segmented-control";
 import { Stack } from "@/components/stack";
-import { contractAttr, importBlock, partNamer } from "@/lib/playground";
+import { contractAttr, importBlock, indent, partNamer } from "@/lib/playground";
 import { InteractiveExample } from "@/site/InteractiveExample";
 import type { Mode } from "@/site/preferences";
 import type { ComponentSpec } from "./types";
@@ -44,6 +44,107 @@ const controlLines = (
   ];
 };
 
+/** A segment of Elements markup: its value, its label, and whether it is disabled. */
+type ElementsSegment = { value: string; label: string; disabled?: boolean };
+
+/**
+ * One segmented control as Elements markup (RFC 0033): the `@primitiv-ui/web`
+ * custom elements, in the shape `primitiv add segmented-control --surface
+ * elements` prints. The root is the radio group — name it with `aria-label` or
+ * `aria-labelledby` — and `value` is the selected segment. Each segment wraps a
+ * real `<button>`; the label span is the styled surface's, which the headless
+ * tab drops with the classes.
+ */
+const elementsControl = ({
+  value = "grid",
+  name = ` aria-label="View"`,
+  size = "md",
+  justify = "justified",
+  orientation,
+  disabled = false,
+  items = VIEWS,
+}: {
+  /** The selected segment, or "" for none. */
+  value?: string;
+  /** The naming attribute, written verbatim with its leading space. */
+  name?: string;
+  size?: string;
+  justify?: string;
+  orientation?: "vertical";
+  /** Whether the whole control is disabled. */
+  disabled?: boolean;
+  items?: readonly ElementsSegment[];
+} = {}) => {
+  const classes = [
+    "primitiv-segmented-control",
+    `primitiv-segmented-control--${size}`,
+    ...(justify === "justified" ? ["primitiv-segmented-control--justified"] : []),
+  ].join(" ");
+  const attrs = [
+    value ? ` value="${value}"` : "",
+    orientation ? ` orientation="${orientation}"` : "",
+    disabled ? " disabled" : "",
+    name,
+  ].join("");
+  return [
+    `<primitiv-segmented-control${attrs} class="${classes}">`,
+    ...items.flatMap((item) => [
+      `  <primitiv-segmented-control-item value="${item.value}"${item.disabled ? " disabled" : ""}>`,
+      `    <button type="button" class="primitiv-segmented-control__item">`,
+      `      <span class="primitiv-segmented-control__item-label">${item.label}</span>`,
+      `    </button>`,
+      `  </primitiv-segmented-control-item>`,
+    ]),
+    `</primitiv-segmented-control>`,
+  ].join("\n");
+};
+
+/** A column of Elements markup, as the React examples' `<Stack>` lays them out. */
+const elementsStack = (blocks: readonly string[], align = "start") =>
+  [
+    `<div class="primitiv-stack primitiv-stack--column primitiv-stack--gap-md primitiv-stack--nowrap primitiv-stack--align-${align} primitiv-stack--justify-start">`,
+    ...blocks.map((block) => indent(block)),
+    `</div>`,
+  ].join("\n");
+
+/** The controlled example's Elements preview: the control above a readout of the selection. */
+const readoutPreview = () =>
+  [
+    `<div class="primitiv-stack primitiv-stack--column primitiv-stack--gap-sm primitiv-stack--nowrap primitiv-stack--align-start primitiv-stack--justify-start">`,
+    indent(elementsControl()),
+    `  <p class="docs-example-caption">Selected: <code data-selected-segment>grid</code></p>`,
+    `</div>`,
+  ].join("\n");
+
+/** Follows `primitiv-segmented-control-change` into the readout, as the code tab's listener does. */
+const wireReadout = (root: HTMLElement) => {
+  const control = root.querySelector("primitiv-segmented-control");
+  const readout = root.querySelector("[data-selected-segment]");
+  if (!control || !readout) return;
+  const onChange = (event: Event) => {
+    readout.textContent = (event as CustomEvent<{ value: string }>).detail.value;
+  };
+  control.addEventListener("primitiv-segmented-control-change", onChange);
+  return () => control.removeEventListener("primitiv-segmented-control-change", onChange);
+};
+
+const FRAMEWORKS: readonly ElementsSegment[] = [
+  { value: "react", label: "React" },
+  { value: "vue", label: "Vue", disabled: true },
+  { value: "svelte", label: "Svelte", disabled: true },
+];
+
+const PERIODS: readonly ElementsSegment[] = [
+  { value: "day", label: "Day" },
+  { value: "week", label: "Week" },
+  { value: "quarter", label: "This quarter" },
+];
+
+const DENSITIES: readonly ElementsSegment[] = [
+  { value: "compact", label: "Compact" },
+  { value: "comfortable", label: "Comfortable" },
+];
+
 /** The controlled example's live half. */
 const ControlledExample = () => {
   const [view, setView] = useState("grid");
@@ -82,7 +183,9 @@ export const segmentedControlSpec: ComponentSpec = {
     component: "SegmentedControl",
     fill: true,
     snippet: (values, mode) =>
-      [
+      mode === "elements"
+        ? elementsControl({ size: values.size, justify: values.justify })
+        : [
         imports(mode),
         ``,
         ...controlLines(mode, {
@@ -115,7 +218,8 @@ export const segmentedControlSpec: ComponentSpec = {
   anatomy: [
     {
       label: "Parts",
-      code: (mode) => controlLines(mode, { attrs: ` defaultValue="grid" aria-label="View"` }).join("\n"),
+      code: (mode) =>
+        mode === "elements" ? elementsControl() : controlLines(mode, { attrs: ` defaultValue="grid" aria-label="View"` }).join("\n"),
     },
   ],
 
@@ -123,11 +227,15 @@ export const segmentedControlSpec: ComponentSpec = {
     {
       id: "vs-toggle-group",
       title: "SegmentedControl or ToggleGroup?",
+      elementsTitle: "Segmented control or toggle group?",
       render: () => (
         <InteractiveExample
           caption="They look almost identical and mean different things, so pick by **semantics**, not appearance. Use `SegmentedControl` when the choice is a **value** and one option is always active — a view mode, a density, a plan. Use `ToggleGroup` when the buttons are **commands or toggles** that can each be on or off, including “none selected”. Under the hood: this is `role=&quot;radiogroup&quot;` / `role=&quot;radio&quot;` with `aria-checked` and no way to deselect; `ToggleGroup` is `role=&quot;group&quot;` with `aria-pressed` and can end up empty. Try clicking the selected segment below — nothing happens, because a value cannot be un-chosen."
+          elementsCaption="They look almost identical and mean different things, so pick by **semantics**, not appearance. Use `<primitiv-segmented-control>` when the choice is a **value** and one option is always active — a view mode, a density, a plan. Use `<primitiv-toggle-group>` when the buttons are **commands or toggles** that can each be on or off, including none. Under the hood: this is `role=&quot;radiogroup&quot;` with `role=&quot;radio&quot;` and `aria-checked` on each `<button>`, and no way to deselect; a toggle group is `role=&quot;group&quot;` with `aria-pressed` and can end up empty. Try clicking the selected segment below — nothing happens, because a value cannot be un-chosen."
           code={(_density, mode) =>
-            [
+            mode === "elements"
+              ? [`<!-- one of these is always active -->`, elementsControl()].join("\n")
+              : [
               imports(mode),
               ``,
               `// one of these is always active`,
@@ -150,11 +258,26 @@ export const segmentedControlSpec: ComponentSpec = {
     {
       id: "controlled",
       title: "Controlled",
+      elementsTitle: "Listening for changes",
       render: () => (
         <InteractiveExample
+          elementsCaption="The element keeps the selection in its own `value` attribute, so there is nothing to wire for it to work. To follow it, listen for `primitiv-segmented-control-change`: it bubbles, fires **before** the change applies with the new segment in `detail.value`, and `preventDefault()` vetoes it — the equivalent of a controlled component refusing an update. Setting `value` (the attribute or the property) selects a segment from script."
+          elementsPreview={() => readoutPreview()}
+          wire={wireReadout}
           caption="Pass `value` and `onValueChange` together and the parent owns the selection — the usual reason being that the value drives something else on the page. `onValueChange` hands you the segment's `value` string, so there is no event to unpack."
           code={(_density, mode) =>
-            [
+            mode === "elements"
+              ? [
+                  elementsControl(),
+                  ``,
+                  `<script type="module">`,
+                  `  const control = document.querySelector("primitiv-segmented-control");`,
+                  `  control.addEventListener("primitiv-segmented-control-change", (event) => {`,
+                  `    console.log(event.detail.value); // the segment selected; preventDefault() vetoes it`,
+                  `  });`,
+                  `</script>`,
+                ].join("\n")
+              : [
               `import { useState } from "react";`,
               imports(mode),
               ``,
@@ -174,8 +297,23 @@ export const segmentedControlSpec: ComponentSpec = {
       render: () => (
         <InteractiveExample
           caption="`disabled` on an **Item** takes that one segment out of play: it stops responding, leaves the roving tab order, and the arrow keys skip over it — which is what makes it right for an option that exists but is not available yet. `disabled` on the **Root** disables every segment and the whole control takes no tab stop, while still reporting which one is selected so it reads correctly."
+          elementsCaption="`disabled` on a `<primitiv-segmented-control-item>` takes that one segment out of play: its `<button>` gets `aria-disabled` and `data-disabled`, the arrow keys skip it, the tab stop never lands on it and a click does nothing — right for an option that exists but is not available yet. `disabled` on `<primitiv-segmented-control>` disables every segment, while the selected one still reports `aria-checked` so the control reads correctly."
+          elementsPreview={() =>
+            elementsStack([
+              elementsControl({ value: "react", name: ` aria-label="Framework"`, items: FRAMEWORKS }),
+              elementsControl({ disabled: true, name: ` aria-label="View, unavailable"` }),
+            ])
+          }
           code={(_density, mode) =>
-            [
+            mode === "elements"
+              ? [
+                  `<!-- one unavailable option -->`,
+                  elementsControl({ value: "react", name: ` aria-label="Framework"`, items: FRAMEWORKS }),
+                  ``,
+                  `<!-- the whole control inert -->`,
+                  elementsControl({ disabled: true }),
+                ].join("\n")
+              : [
               imports(mode),
               ``,
               `// one unavailable option`,
@@ -222,8 +360,21 @@ export const segmentedControlSpec: ComponentSpec = {
       render: () => (
         <InteractiveExample
           caption="`justify` decides what sets the width. `justified` (the default) splits the strip evenly, so every segment is the same width regardless of label length — right for a control that fills a column or sits in a toolbar of fixed width. `content` sizes each segment to its own label, so the strip hugs its contents. The difference only shows when the labels are uneven, which is why this example uses one long one."
+          elementsCaption="The `primitiv-segmented-control--justified` class decides what sets the width. With it (the styled default) the strip splits evenly, so every segment is the same width regardless of label length — right for a control that fills a column or sits in a toolbar of fixed width. Without it each segment sizes to its own label and the strip hugs its contents. The difference only shows when the labels are uneven, which is why this example uses one long one."
+          elementsPreview={() =>
+            elementsStack(
+              (["justified", "content"] as const).map((justify) =>
+                elementsControl({ value: "day", justify, name: ` aria-label="Period, ${justify}"`, items: PERIODS }),
+              ),
+              "stretch",
+            )
+          }
           code={(_density, mode) =>
-            [
+            mode === "elements"
+              ? (["justified", "content"] as const)
+                  .map((justify) => elementsControl({ value: "day", justify, name: ` aria-label="Period"`, items: PERIODS }))
+                  .join("\n\n")
+              : [
               imports(mode),
               ``,
               ...(["justified", "content"] as const).flatMap((j) =>
@@ -259,8 +410,12 @@ export const segmentedControlSpec: ComponentSpec = {
       render: () => (
         <InteractiveExample
           caption="`orientation=&quot;vertical&quot;` stacks the segments and moves the arrow keys with them — `ArrowDown` / `ArrowUp` navigate, and `aria-orientation` tells assistive technology which axis it is on. Worth knowing that the keys follow the orientation rather than being fixed, so you do not have to document a different keymap for a vertical strip."
+          elementsCaption="`orientation=&quot;vertical&quot;` stacks the segments and moves the arrow keys with them — `ArrowDown` / `ArrowUp` navigate, and the element writes `aria-orientation` so assistive technology knows which axis it is on. The keys follow the orientation rather than being fixed, so a vertical strip needs no keymap of its own."
+          elementsPreview={() => elementsControl({ orientation: "vertical", name: ` aria-label="View, vertical"` })}
           code={(_density, mode) =>
-            [
+            mode === "elements"
+              ? elementsControl({ orientation: "vertical" })
+              : [
               imports(mode),
               ``,
               ...controlLines(mode, {
@@ -287,8 +442,26 @@ export const segmentedControlSpec: ComponentSpec = {
       render: () => (
         <InteractiveExample
           caption="The group needs a name — each segment labels itself, but without one the options are announced with no idea what they choose between. `aria-label` on the Root is the quick path and, unlike `Slider`, it works: the Root **is** the `role=&quot;radiogroup&quot;`. For a **visible** label, give it an id and point `aria-labelledby` at it. Not a `Field.Label`: that renders a `<label htmlFor>` aimed at an id no segment claims — only `Input`, `Textarea` and `Select` read `FieldContext` — so it would associate with nothing."
-          code={(_density, mode) =>
+          elementsCaption="The group needs a name — each segment labels itself, but without one the options are announced with no idea what they choose between. `aria-label` on `<primitiv-segmented-control>` is the quick path, and it works because the element **is** the `role=&quot;radiogroup&quot;`. For a **visible** label, give it an id and point `aria-labelledby` at it. Not a `<label for>`: no segment is a labellable form control, so it would associate with nothing."
+          elementsPreview={() =>
             [
+              `<div class="docs-example-stack">`,
+              `  <span id="density-label-elements" class="docs-example-title">Density</span>`,
+              indent(elementsControl({ value: "comfortable", name: ` aria-labelledby="density-label-elements"`, items: DENSITIES })),
+              `</div>`,
+            ].join("\n")
+          }
+          code={(_density, mode) =>
+            mode === "elements"
+              ? [
+                  `<!-- visible label, referenced by the group -->`,
+                  `<span id="density-label">Density</span>`,
+                  elementsControl({ value: "comfortable", name: ` aria-labelledby="density-label"`, items: DENSITIES }),
+                  ``,
+                  `<!-- no visible label? name the group directly -->`,
+                  `<primitiv-segmented-control aria-label="Density" class="primitiv-segmented-control primitiv-segmented-control--md primitiv-segmented-control--justified">`,
+                ].join("\n")
+              : [
               imports(mode),
               ``,
               `// visible label, referenced by the group`,
@@ -322,6 +495,33 @@ export const segmentedControlSpec: ComponentSpec = {
       ),
     },
   ],
+
+  elements: {
+    description:
+      "A single-select strip of segments where exactly one is always selected. `<primitiv-segmented-control>` is the radio group and keeps the selected segment in its `value` attribute; each `<primitiv-segmented-control-item>` wraps the `<button>` you write, which becomes a `role=\"radio\"` with `aria-checked`. One Tab stop for the whole control, with the arrow keys moving the selection.",
+    anatomyMeta:
+      "Two elements. `<primitiv-segmented-control>` is the `role=\"radiogroup\"` — name it with `aria-label` or `aria-labelledby` — and owns `value`, `orientation` and `disabled`. Each `<primitiv-segmented-control-item>` carries a `value` and wraps the `<button>` you write, which receives `role=\"radio\"`, `aria-checked`, `data-state=\"checked\" | \"unchecked\"` and the roving `tabindex`; the wrapper itself takes no box, so the buttons are the track's own items.",
+    keyboardMeta:
+      "One Tab stop for the whole control — the selected segment, or the first enabled one when nothing is selected — with the arrows navigating inside it. That is the radio-group model, and it is why a five-segment control does not cost five presses of `Tab` to get past.",
+    keyboard: [
+      { keys: ["Tab"], behaviour: "Move into or out of the control in **one** keystroke, landing on the selected segment." },
+      {
+        keys: ["ArrowRight", "ArrowLeft"],
+        behaviour:
+          "Move focus **and** selection to the next / previous segment, wrapping at the ends and skipping `disabled` ones. They swap under right-to-left: set `dir=\"rtl\"` on the control or any ancestor.",
+      },
+      { keys: ["ArrowDown", "ArrowUp"], behaviour: "The same, with `orientation=\"vertical\"`." },
+      { keys: ["Space", "Enter"], behaviour: "Select the focused segment — the native `<button>`'s own click, so it also works if focus arrived by other means." },
+    ],
+    accessibility: [
+      "This is `role=\"radiogroup\"` with `role=\"radio\"` segments and `aria-checked` — the same semantics as a radio group, drawn as a strip. It announces as a set of exclusive options, which is only honest if one of them really is always active.",
+      "**Not** `<primitiv-toggle-group>`. That one is `role=\"group\"` with `aria-pressed` and can be emptied. Choosing by appearance rather than meaning gives assistive technology the wrong model of the control, and no visual review catches it.",
+      "**Name the group.** `aria-label` on `<primitiv-segmented-control>`, or `aria-labelledby` pointing at a visible label. Without a name, a screen-reader user hears three options and no question.",
+      "The arrow keys move selection, not just focus, so `primitiv-segmented-control-change` fires as someone navigates. Anything expensive downstream should react to the settled value rather than every event.",
+      "A segment decorates the one `<button>` you put inside it. A segment with no `value`, or without exactly one element child, is reported once in the console and left alone.",
+      "`disabled` on a segment sets `aria-disabled` and `data-disabled` on its button rather than the native attribute, so it stays announced while the arrows skip it and nothing selects it. `disabled` on the control does the same for every segment and keeps the current selection checked.",
+    ],
+  },
 
   keyboardMeta:
     "One tab stop for the whole control — the selected segment, or the first enabled one when nothing is selected — with the arrows navigating inside it. That is the radio-group model, and it is why a five-segment control does not cost five presses of `Tab` to get past.",

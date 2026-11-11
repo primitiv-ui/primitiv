@@ -449,3 +449,32 @@ test("the Toggle Group single example clears, and the readout says so", async ({
   await expect(grid).toHaveAttribute("aria-pressed", "false");
   await expect(example.locator("[data-pressed-items]")).toHaveText("nothing (cleared)");
 });
+
+test("the Segmented Control previews are <primitiv-segmented-control> elements, and the readout follows the change", async ({ page }) => {
+  await page.goto("/components/segmented-control/");
+  await expect(page.getByText(/dist\/cdn\/segmented-control\.js/).first()).toBeVisible();
+  const example = cell(page, "controlled");
+  const control = example.locator("primitiv-segmented-control");
+  await expect(control).toHaveClass(/primitiv-segmented-control/);
+  // The definition loads on demand: wait for the element to have wired its buttons.
+  const grid = example.getByRole("radio", { name: "Grid" });
+  await expect(grid).toHaveAttribute("aria-checked", "true");
+  await example.getByRole("radio", { name: "Board" }).click();
+  await expect(example.getByRole("radio", { name: "Board" })).toHaveAttribute("aria-checked", "true");
+  await expect(example.locator("[data-selected-segment]")).toHaveText("board");
+  // A selected segment never lets go.
+  await example.getByRole("radio", { name: "Board" }).click();
+  await expect(control).toHaveAttribute("value", "board");
+});
+
+test("the Segmented Control's segment wrappers take no box, so justified segments share the track", async ({ page }) => {
+  await page.goto("/components/segmented-control/");
+  const example = cell(page, "justify");
+  const justified = example.getByRole("radiogroup", { name: "Period, justified" });
+  await expect(justified.getByRole("radio", { name: "Day" })).toHaveAttribute("aria-checked", "true");
+  const [day, quarter] = await Promise.all([
+    justified.getByRole("radio", { name: "Day" }).boundingBox(),
+    justified.getByRole("radio", { name: "This quarter" }).boundingBox(),
+  ]);
+  expect(Math.abs(day!.width - quarter!.width)).toBeLessThan(1);
+});

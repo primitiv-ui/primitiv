@@ -9,6 +9,8 @@ import {
 } from "react";
 import type { ReactElement } from "react";
 
+import { DropdownController, DropdownSubController } from "@primitiv-ui/web";
+
 import { useCheckboxRoot } from "../Checkbox/hooks/index.ts";
 import { useDirection } from "../DirectionProvider/index.ts";
 import { useRadioGroupRoot } from "../RadioGroup/hooks/index.ts";
@@ -44,7 +46,6 @@ import {
   ContextMenuSubTriggerProps,
   ContextMenuTriggerProps,
 } from "./types";
-import { MENUITEM_SELECTOR, TYPEAHEAD_RESET_MS } from "./constants";
 
 /**
  * The root of a ContextMenu — owns the open state and the position the
@@ -273,116 +274,37 @@ export function ContextMenuContent({
   const { open, setOpen, position, contentId, triggerRef } =
     useContextMenuContext();
   const menuRef = useRef<HTMLMenuElement | null>(null);
-  const typeaheadRef = useRef<{ query: string; timer: number | null }>({
-    query: "",
-    timer: null,
-  });
+  const controllerRef = useRef<DropdownController | null>(null);
+  const latest = useRef({ open, setOpen });
+  latest.current = { open, setOpen };
+
+  // ── The adapter (RFC 0033 §3.4, D28) ────────────────────────────────────
+  // The menu's DOM behaviour — showing and hiding it with focus on the first
+  // item, the outside press, the arrow / Home / End / Enter / Space / Escape
+  // keyboard and typeahead — runs in the web implementation's
+  // DropdownController, the same code <primitiv-context-menu> runs; a context
+  // menu is that menu, opened at the pointer. React keeps rendering the menu
+  // and keeps the state; the controller reads it through `latest`.
+  useEffect(
+    () => {
+      const controller = new DropdownController(menuRef.current!, {
+        state: () => ({ open: latest.current.open }),
+        change: (next) => latest.current.setOpen(next),
+        trigger: () => triggerRef.current,
+      });
+      controllerRef.current = controller;
+      controller.connect();
+      return () => controller.disconnect();
+    },
+    // Built once per mount; the state it needs later comes through `latest`
+    // and the trigger ref, so no dependency can go stale.
+    // Stryker disable next-line ArrayDeclaration: equivalent — any constant dependency list runs this once per mount.
+    [],
+  );
 
   useEffect(() => {
-    const menu = menuRef.current!;
-    if (open) {
-      menu.showPopover();
-      if (!menu.contains(document.activeElement)) {
-        const firstItem = menu.querySelector<HTMLElement>(MENUITEM_SELECTOR);
-        firstItem?.focus();
-      }
-    } else {
-      try {
-        menu.hidePopover();
-      } catch {
-        // already hidden — no-op
-      }
-    }
+    (controllerRef.current as DropdownController).sync();
   }, [open]);
-
-  useEffect(() => {
-    const menu = menuRef.current!;
-    const handleToggle = (event: Event) => {
-      if ((event as ToggleEvent).newState === "closed") setOpen(false);
-    };
-    menu.addEventListener("toggle", handleToggle);
-    return () => menu.removeEventListener("toggle", handleToggle);
-  }, [setOpen]);
-
-  useEffect(() => {
-    if (!open) return;
-    const handleClick = (event: MouseEvent) => {
-      const target = event.target as Element;
-      if (triggerRef.current?.contains(target)) return;
-      if (target.closest?.("[popover]")) return;
-      setOpen(false);
-    };
-    document.addEventListener("click", handleClick);
-    return () => document.removeEventListener("click", handleClick);
-  }, [open, setOpen, triggerRef]);
-
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLMenuElement>) => {
-    const menu = menuRef.current!;
-    const focused = document.activeElement as HTMLElement | null;
-    const scope = (focused?.closest("[popover]") as HTMLElement | null) ?? menu;
-    const items = Array.from(
-      scope.querySelectorAll<HTMLElement>(MENUITEM_SELECTOR),
-    ).filter((el) => el.closest("[popover]") === scope);
-    if (items.length === 0) return;
-    const currentIndex = items.indexOf(document.activeElement as HTMLElement);
-
-    let nextIndex: number | null = null;
-    if (event.key === "ArrowDown") {
-      nextIndex = (currentIndex + 1) % items.length;
-    } else if (event.key === "ArrowUp") {
-      nextIndex = currentIndex <= 0 ? items.length - 1 : currentIndex - 1;
-    } else if (event.key === "Home") {
-      nextIndex = 0;
-    } else if (event.key === "End") {
-      nextIndex = items.length - 1;
-    }
-
-    if (nextIndex !== null) {
-      event.preventDefault();
-      items[nextIndex].focus();
-      return;
-    }
-
-    if (event.key === "Enter" || event.key === " ") {
-      if (currentIndex < 0) return;
-      event.preventDefault();
-      items[currentIndex].click();
-      return;
-    }
-
-    if (event.key === "Escape") {
-      event.preventDefault();
-      setOpen(false);
-      triggerRef.current?.focus();
-      return;
-    }
-
-    if (event.key.length === 1 && event.key !== " ") {
-      const state = typeaheadRef.current;
-      if (state.timer !== null) window.clearTimeout(state.timer);
-      state.query = (state.query + event.key).toLowerCase();
-      state.timer = window.setTimeout(() => {
-        state.query = "";
-        state.timer = null;
-      }, TYPEAHEAD_RESET_MS);
-
-      const isRepeat =
-        state.query.length > 1 &&
-        state.query.split("").every((c) => c === state.query[0]);
-      const searchQuery = isRepeat ? state.query[0] : state.query;
-      const startIndex = currentIndex < 0 ? 0 : currentIndex;
-      const offset = searchQuery.length === 1 || isRepeat ? 1 : 0;
-      for (let i = 0; i < items.length; i++) {
-        const index = (startIndex + offset + i) % items.length;
-        const text = items[index].textContent!.trim().toLowerCase();
-        if (text.startsWith(searchQuery)) {
-          event.preventDefault();
-          items[index].focus();
-          return;
-        }
-      }
-    }
-  };
 
   // Both `left`/`top` and `--primitiv-context-menu-x`/`-y` are set: the
   // explicit insets position the menu at the cursor by default, and the
@@ -427,7 +349,8 @@ export function ContextMenuContent({
     popover: "manual" as const,
     "data-state": (open ? "open" : "closed") as "open" | "closed",
     style: positionedStyle,
-    onKeyDown: composeEventHandlers(onKeyDown, handleKeyDown),
+    // The keyboard is the controller's; a consumer's own handler runs beside it.
+    onKeyDown,
   };
 
   return (
@@ -1139,40 +1062,35 @@ export function ContextMenuSubContent({
 }: ContextMenuSubContentProps): ReactElement {
   const sub = useContextMenuSubContext();
   const { dir } = useContextMenuContext();
-  const closeKey = dir === "rtl" ? "ArrowRight" : "ArrowLeft";
   const menuRef = useRef<HTMLMenuElement | null>(null);
+  const controllerRef = useRef<DropdownSubController | null>(null);
+  const latest = useRef({ sub, dir });
+  latest.current = { sub, dir };
+
+  // ── The adapter (RFC 0033 §3.4, D28) ──────────────────────────────────
+  // Showing and hiding the submenu, focus on its first item, light dismiss
+  // and the close key run in the web implementation's DropdownSubController,
+  // the same code the <primitiv-context-menu-sub-content> element runs.
+  useEffect(
+    () => {
+      const controller = new DropdownSubController(menuRef.current!, {
+        state: () => ({ open: latest.current.sub.open }),
+        change: (next) => latest.current.sub.setOpen(next),
+        trigger: () => latest.current.sub.triggerRef.current,
+        closeKey: () => (latest.current.dir === "rtl" ? "ArrowRight" : "ArrowLeft"),
+      });
+      controllerRef.current = controller;
+      controller.connect();
+      return () => controller.disconnect();
+    },
+    // Built once per mount; everything it needs later comes through `latest`.
+    // Stryker disable next-line ArrayDeclaration: equivalent — any constant dependency list runs this once per mount.
+    [],
+  );
 
   useEffect(() => {
-    const menu = menuRef.current!;
-    if (sub.open) {
-      menu.showPopover();
-      const firstItem = menu.querySelector<HTMLElement>(MENUITEM_SELECTOR);
-      firstItem?.focus();
-    } else {
-      try {
-        menu.hidePopover();
-      } catch {
-        // already hidden — no-op
-      }
-    }
+    (controllerRef.current as DropdownSubController).sync();
   }, [sub.open]);
-
-  useEffect(() => {
-    const menu = menuRef.current!;
-    const handleToggle = (event: Event) => {
-      if ((event as ToggleEvent).newState === "closed") sub.setOpen(false);
-    };
-    menu.addEventListener("toggle", handleToggle);
-    return () => menu.removeEventListener("toggle", handleToggle);
-  }, [sub.setOpen]);
-
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLMenuElement>) => {
-    if (event.key !== closeKey) return;
-    event.preventDefault();
-    event.stopPropagation();
-    sub.setOpen(false);
-    sub.triggerRef.current?.focus();
-  };
 
   const closeOpenSubRef = useRef<(() => void) | null>(null);
   const contentContextValue = useMemo(() => ({ closeOpenSubRef }), []);
@@ -1188,7 +1106,8 @@ export function ContextMenuSubContent({
     id: sub.contentId,
     role: "menu" as const,
     popover: "auto" as const,
-    onKeyDown: composeEventHandlers(onKeyDown, handleKeyDown),
+    // The close key is the controller's; a consumer's own handler runs beside it.
+    onKeyDown,
   };
 
   return (

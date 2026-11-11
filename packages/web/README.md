@@ -6,7 +6,7 @@ framework and no runtime dependencies beyond
 server-rendered stack (HTMX, Rails, Django, Laravel, Spring …), and inside
 React, Vue, Angular or any other framework.
 
-> **Status: published.** Tabs, Accordion, Collapsible, Modal, Popover, Tooltip, Dropdown and Context Menu so far. See
+> **Status: published.** Tabs, Accordion, Collapsible, Modal, Popover, Tooltip, Dropdown, Context Menu and Toggle Group so far. See
 > [RFC 0033](../../docs/rfcs/0033-web-components.md) for the design.
 
 ## Components
@@ -21,6 +21,7 @@ React, Vue, Angular or any other framework.
 | Tooltip | `primitiv-tooltip`, `-provider`, `-trigger`, `-content`, `-arrow` | `primitiv-tooltip-change` | 0.1.56 |
 | Dropdown | `primitiv-dropdown`, `-trigger`, `-content`, `-item`, `-checkbox-item`, `-radio-group`, `-radio-item`, `-item-indicator`, `-group`, `-label`, `-separator`, `-sub`, `-sub-trigger`, `-sub-content` | `primitiv-dropdown-change`, `-sub-change`, `-select`, `-checked-change`, `-value-change` | 0.1.57 |
 | Context Menu | `primitiv-context-menu`, and the same thirteen parts as Dropdown under `primitiv-context-menu-` | `primitiv-context-menu-change`, `-sub-change`, `-select`, `-checked-change`, `-value-change` | 0.1.58 |
+| Toggle Group | `primitiv-toggle-group`, `-item` | `primitiv-toggle-group-change` | 0.1.59 |
 
 ## Use it
 
@@ -53,10 +54,11 @@ downloads it once. `dist/primitiv-web.js` is the alternative: every element in
 one file. Per-component files ship from 0.1.43.
 
 The main entry (`@primitiv-ui/web`, `/tabs`, `/accordion`, `/collapsible`,
-`/modal`, `/popover`, `/tooltip`, `/dropdown`, `/context-menu`) exports the classes and `defineTabs(registry?)` /
+`/modal`, `/popover`, `/tooltip`, `/dropdown`, `/context-menu`, `/toggle-group`) exports the classes and `defineTabs(registry?)` /
 `defineAccordion(registry?)` / `defineCollapsible(registry?)` /
 `defineModal(registry?)` / `definePopover(registry?)` / `defineTooltip(registry?)` /
-`defineDropdown(registry?)` / `defineContextMenu(registry?)` with **no side
+`defineDropdown(registry?)` / `defineContextMenu(registry?)` /
+`defineToggleGroup(registry?)` with **no side
 effects**.
 
 **Render `hidden` on inactive panels yourself.** Until the module loads, CSS
@@ -279,6 +281,28 @@ on a panel as it becomes active, for lazy loading.
   position the element publishes on the menu — the one style the elements
   write, since a point cannot be an anchor: `left: var(--primitiv-context-menu-x);
   top: var(--primitiv-context-menu-y)`. The registry stylesheet does this.
+
+### Toggle Group
+
+```html
+<script type="module" src="https://cdn.jsdelivr.net/npm/@primitiv-ui/web@<version>/dist/cdn/toggle-group.js"></script>
+
+<primitiv-toggle-group type="multiple" value="bold" aria-label="Formatting">
+  <primitiv-toggle-group-item value="bold"><button type="button">Bold</button></primitiv-toggle-group-item>
+  <primitiv-toggle-group-item value="italic"><button type="button">Italic</button></primitiv-toggle-group-item>
+</primitiv-toggle-group>
+```
+
+- **The root is the `role="group"`**: name it with `aria-label`. Each item
+  wraps the `<button>` you write, which gets `aria-pressed` and
+  `data-state="on" | "off"`.
+- **`value` lists the pressed items**, separated by spaces. `type="multiple"`
+  lets items toggle independently; without it the group is single, and pressing
+  the pressed item clears it. `primitiv-toggle-group-change` fires first, with
+  every item pressed afterwards, and is cancelable.
+- **One Tab stop for the group**, on the item focus last moved to, else the
+  first pressed item, else the first. The arrows move focus without pressing,
+  skipping `disabled` items; Enter and Space toggle.
 
 **TypeScript** — opt into the tag map so DOM queries return the element classes:
 `import type {} from "@primitiv-ui/web/tags"` (npm only).

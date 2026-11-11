@@ -77,6 +77,7 @@ import codeBlockDocs from "@/docs-data/code-block.docs.json";
 import tooltipDocs from "@/docs-data/tooltip.docs.json";
 import popoverDocs from "@/docs-data/popover.docs.json";
 import drawerDocs from "@/docs-data/drawer.docs.json";
+import contextMenuDocs from "@/docs-data/context-menu.docs.json";
 import dropdownDocs from "@/docs-data/dropdown.docs.json";
 import confirmDialogDocs from "@/docs-data/confirm-dialog.docs.json";
 import navigationMenuDocs from "@/docs-data/navigation-menu.docs.json";
@@ -351,6 +352,7 @@ const DOCS = {
   tooltip: tooltipDocs as unknown as ComponentDocs,
   popover: popoverDocs as unknown as ComponentDocs,
   drawer: drawerDocs as unknown as ComponentDocs,
+  "context-menu": contextMenuDocs as unknown as ComponentDocs,
   dropdown: dropdownDocs as unknown as ComponentDocs,
   "confirm-dialog": confirmDialogDocs as unknown as ComponentDocs,
   "navigation-menu": navigationMenuDocs as unknown as ComponentDocs,

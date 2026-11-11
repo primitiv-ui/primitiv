@@ -60,6 +60,7 @@ import { codeBlockSpec } from "./code-block";
 import { tooltipSpec } from "./tooltip";
 import { popoverSpec } from "./popover";
 import { drawerSpec } from "./drawer";
+import { contextMenuSpec } from "./context-menu";
 import { dropdownSpec } from "./dropdown";
 import { confirmDialogSpec } from "./confirm-dialog";
 import { navigationMenuSpec } from "./navigation-menu";
@@ -130,6 +131,7 @@ export const SPECS: Record<ComponentId, ComponentSpec> = {
   tooltip: tooltipSpec,
   popover: popoverSpec,
   drawer: drawerSpec,
+  "context-menu": contextMenuSpec,
   dropdown: dropdownSpec,
   "confirm-dialog": confirmDialogSpec,
   "navigation-menu": navigationMenuSpec,

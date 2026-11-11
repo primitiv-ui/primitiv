@@ -180,7 +180,7 @@
     "displayName": "Context Menu",
     "category": "Overlays",
     "description": "A right-click / long-press context menu built on the native HTML Popover API — the same bordered, shadow-defined panel of selectable rows (plain items, checkbox/radio items, submenus) as Dropdown, positioned at the pointer instead of anchored to a trigger. Keyboard, typeahead, and focus are owned by the headless primitive.",
-    "documented": false,
+    "documented": true,
     "elements": "behaviour"
   },
   {

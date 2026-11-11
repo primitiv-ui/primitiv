@@ -1,0 +1,1021 @@
+{
+  "id": "context-menu",
+  "displayName": "Context Menu",
+  "kind": "registry",
+  "status": "stable",
+  "category": "Overlays",
+  "description": "A right-click / long-press context menu built on the native HTML Popover API — the same bordered, shadow-defined panel of selectable rows (plain items, checkbox/radio items, submenus) as Dropdown, positioned at the pointer instead of anchored to a trigger. Keyboard, typeahead, and focus are owned by the headless primitive.",
+  "headless": {
+    "package": "@primitiv-ui/react",
+    "importPath": "@primitiv-ui/react",
+    "subComponents": [
+      {
+        "name": "ContextMenu.Root",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": false,
+            "default": null,
+            "description": "The {@link ContextMenu.Trigger } and {@link ContextMenu.Content } pair\n(Root renders no wrapping element of its own)."
+          },
+          {
+            "name": "defaultOpen",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Whether the menu is open on first render.\nForbidden in controlled mode — use `open` instead."
+          },
+          {
+            "name": "dir",
+            "type": "\"ltr\" | \"rtl\"",
+            "required": false,
+            "default": null,
+            "description": "Reading direction for the menu. Affects which arrow key opens / closes\na submenu — `ArrowRight` opens in `\"ltr\"`, `ArrowLeft` opens in\n`\"rtl\"`. Falls back to the inherited {@link DirectionProvider } value,\nor to `\"ltr\"` if no provider is present."
+          },
+          {
+            "name": "onOpenChange",
+            "type": "(open: boolean) => void",
+            "required": false,
+            "default": null,
+            "description": "Observes open-state transitions. Fires only on user-driven changes\n(right-click, Escape, selection, outside click), never on external\nflips. Optional in uncontrolled mode.\nCalled with the requested open state on each user-driven transition.\nRequired in controlled mode."
+          },
+          {
+            "name": "open",
+            "type": "boolean",
+            "required": false,
+            "default": null,
+            "description": "Forbidden in uncontrolled mode — use `defaultOpen` instead.\nWhether the menu is open. Must be kept in sync by the parent via\n`onOpenChange`."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": true,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": null
+      },
+      {
+        "name": "ContextMenu.Trigger",
+        "extends": "HTMLSpanElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Render the child element instead of the default `<span>`, merging the\ntrigger's `contextmenu` handler and data-attributes onto it via the\n{@link Slot } pattern. The child must accept a `ref`."
+          },
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": false,
+            "default": null,
+            "description": "The content the right-click gesture is bound to."
+          },
+          {
+            "name": "disabled",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "When `true`, the trigger ignores the `contextmenu` gesture entirely,\nletting the native browser menu through. Exposed as `data-disabled=\"\"`."
+          },
+          {
+            "name": "ref",
+            "type": "Ref<HTMLSpanElement>",
+            "required": false,
+            "default": null,
+            "description": "Allows getting a ref to the component instance.\nOnce the component unmounts, React will set `ref.current` to `null`\n(or call the ref with `null` if you passed a callback ref).\nForwarded to the underlying `HTMLSpanElement` (or the `asChild` host)."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": true,
+        "contractProps": [],
+        "dataAttributes": [
+          {
+            "name": "data-disabled",
+            "value": "",
+            "when": "the trigger is disabled, so right-click opens nothing"
+          },
+          {
+            "name": "data-state",
+            "value": "closed",
+            "when": "the trigger is enabled — it carries no open state of its own"
+          }
+        ],
+        "class": null
+      },
+      {
+        "name": "ContextMenu.Content",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Render the child element instead of the default `<menu>`, merging the\nmanaged `role` / `popover` / positioning props and the keyboard handler\nonto it via the {@link Slot } pattern."
+          },
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": false,
+            "default": null,
+            "description": "The menu items — {@link ContextMenuItem }, {@link ContextMenuGroup },\n{@link ContextMenuSub }, and friends."
+          },
+          {
+            "name": "ref",
+            "type": "Ref<HTMLMenuElement>",
+            "required": false,
+            "default": null,
+            "description": "Forwarded to the underlying `HTMLMenuElement` (or the `asChild` host)."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": true,
+        "contractProps": [
+          {
+            "name": "size",
+            "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
+            "default": "md",
+            "description": "Panel + row scale; `data-density` scales the sizing within each size. Re-points every child sizing knob (item height/padding/gap/radius/font, panel radius/padding, label, separator) — the same size scale as Dropdown.",
+            "classes": {
+              "xs": "primitiv-context-menu--xs",
+              "sm": "primitiv-context-menu--sm",
+              "md": "primitiv-context-menu--md",
+              "lg": "primitiv-context-menu--lg",
+              "xl": "primitiv-context-menu--xl"
+            }
+          },
+          {
+            "name": "placement",
+            "type": "\"bottom-start\" | \"bottom-end\" | \"top-start\" | \"top-end\" | \"submenu\"",
+            "default": "submenu",
+            "description": "SubContent only — the root Content is always positioned at the pointer (no placement prop) via the headless layer's `left` / `top`, with `@position-try` fallbacks flipping it on viewport overflow. A submenu, like Dropdown's, is anchor-positioned to its SubTrigger via CSS anchor positioning and opens to the inline-end side by default.",
+            "classes": {
+              "bottom-start": "primitiv-context-menu--bottom-start",
+              "bottom-end": "primitiv-context-menu--bottom-end",
+              "top-start": "primitiv-context-menu--top-start",
+              "top-end": "primitiv-context-menu--top-end",
+              "submenu": "primitiv-context-menu--submenu"
+            }
+          }
+        ],
+        "dataAttributes": [
+          {
+            "name": "data-state",
+            "value": "open",
+            "when": "open"
+          },
+          {
+            "name": "data-state",
+            "value": "closed",
+            "when": "closed"
+          }
+        ],
+        "class": "primitiv-context-menu"
+      },
+      {
+        "name": "ContextMenu.Item",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Render the child element instead of the default `<li role=\"menuitem\">`,\nmerging the item's props onto it via the {@link Slot } pattern (e.g. to\nrender a menu item as an `<a>`)."
+          },
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": false,
+            "default": null,
+            "description": "The item's visible content."
+          },
+          {
+            "name": "disabled",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Removes the item from activation and marks it `aria-disabled`; it\nstill renders for assistive technology but no-ops on click / Enter, and\narrow navigation and typeahead skip it."
+          },
+          {
+            "name": "onSelect",
+            "type": "(event: Event) => void",
+            "required": false,
+            "default": null,
+            "description": "Fires when the item is activated (click, Enter, or Space). Called\nwith an event whose `preventDefault()` skips the auto-close that\nContextMenu performs after selection."
+          },
+          {
+            "name": "ref",
+            "type": "Ref<HTMLLIElement>",
+            "required": false,
+            "default": null,
+            "description": "Allows getting a ref to the component instance.\nOnce the component unmounts, React will set `ref.current` to `null`\n(or call the ref with `null` if you passed a callback ref).\nForwarded to the underlying `HTMLLIElement` (or the `asChild` host)."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": true,
+        "contractProps": [],
+        "dataAttributes": [
+          {
+            "name": "data-highlighted",
+            "value": "",
+            "when": "the cursor is on this row — set on pointer-enter and by keyboard navigation alike"
+          }
+        ],
+        "class": "primitiv-context-menu__item"
+      },
+      {
+        "name": "ContextMenu.ItemLeading",
+        "extends": "HTMLSpanElement",
+        "props": [],
+        "styledOnly": true,
+        "headlessOnly": true,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-context-menu__item-leading"
+      },
+      {
+        "name": "ContextMenu.ItemLabel",
+        "extends": "HTMLSpanElement",
+        "props": [],
+        "styledOnly": true,
+        "headlessOnly": true,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-context-menu__item-label"
+      },
+      {
+        "name": "ContextMenu.ItemTrailing",
+        "extends": "HTMLSpanElement",
+        "props": [],
+        "styledOnly": true,
+        "headlessOnly": true,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-context-menu__item-trailing"
+      },
+      {
+        "name": "ContextMenu.CheckboxItem",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Render the child element instead of the default\n`<li role=\"menuitemcheckbox\">`, merging the item's props onto it via\nthe {@link Slot } pattern."
+          },
+          {
+            "name": "checked",
+            "type": "CheckedState",
+            "required": false,
+            "default": null,
+            "description": "Forbidden in uncontrolled mode — use `defaultChecked` instead.\nThe current checked state. Accepts the tri-state {@link CheckedState}\n(`true` / `false` / `\"indeterminate\"`, the last rendered as\n`aria-checked=\"mixed\"`). Must be kept in sync via `onCheckedChange`."
+          },
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": false,
+            "default": null,
+            "description": "The item's visible content, typically including a\n{@link ContextMenuItemIndicator }."
+          },
+          {
+            "name": "defaultChecked",
+            "type": "CheckedState",
+            "required": false,
+            "default": "false",
+            "description": "Checked state on first render. Accepts the tri-state\n{@link CheckedState} (`true` / `false` / `\"indeterminate\"`).\nForbidden in controlled mode — use `checked` instead."
+          },
+          {
+            "name": "disabled",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Removes the item from activation and marks it `aria-disabled`; it\nstill renders for assistive technology but no-ops on click / Enter."
+          },
+          {
+            "name": "onCheckedChange",
+            "type": "(checked: boolean) => void",
+            "required": false,
+            "default": null,
+            "description": "Called with the resolved boolean checked state on each toggle.\nOptional in uncontrolled mode.\nCalled with the resolved boolean checked state on each toggle.\nRequired in controlled mode."
+          },
+          {
+            "name": "onSelect",
+            "type": "(event: Event) => void",
+            "required": false,
+            "default": null,
+            "description": "Fires when activation completes and the auto-close fires. Call\n`event.preventDefault()` to keep the menu open after toggling."
+          },
+          {
+            "name": "ref",
+            "type": "Ref<HTMLLIElement>",
+            "required": false,
+            "default": null,
+            "description": "Allows getting a ref to the component instance.\nOnce the component unmounts, React will set `ref.current` to `null`\n(or call the ref with `null` if you passed a callback ref).\nForwarded to the underlying `HTMLLIElement` (or the `asChild` host)."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": true,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-context-menu__checkbox-item"
+      },
+      {
+        "name": "ContextMenu.RadioGroup",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Render the child element instead of the default `<li role=\"group\">`,\nmerging the group's props onto it via the {@link Slot } pattern."
+          },
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": false,
+            "default": null,
+            "description": ""
+          },
+          {
+            "name": "defaultValue",
+            "type": "string",
+            "required": false,
+            "default": null,
+            "description": "Value of the {@link ContextMenuRadioItem } selected on first render.\nForbidden in controlled mode — use `value` instead."
+          },
+          {
+            "name": "onValueChange",
+            "type": "(value: string) => void",
+            "required": false,
+            "default": null,
+            "description": "Called with the newly-selected item's `value` on each change.\nOptional in uncontrolled mode.\nCalled with the newly-selected item's `value` on each change.\nRequired in controlled mode."
+          },
+          {
+            "name": "ref",
+            "type": "Ref<HTMLLIElement>",
+            "required": false,
+            "default": null,
+            "description": "Allows getting a ref to the component instance.\nOnce the component unmounts, React will set `ref.current` to `null`\n(or call the ref with `null` if you passed a callback ref)."
+          },
+          {
+            "name": "value",
+            "type": "string",
+            "required": false,
+            "default": null,
+            "description": "Forbidden in uncontrolled mode — use `defaultValue` instead.\nThe `value` of the currently-selected {@link ContextMenuRadioItem }.\nMust be kept in sync by the parent via `onValueChange`."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": true,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-context-menu__radio-group"
+      },
+      {
+        "name": "ContextMenu.RadioItem",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "value",
+            "type": "string",
+            "required": true,
+            "default": null,
+            "description": "Identifies this choice within the enclosing\n{@link ContextMenuRadioGroup }. When it matches the group's active\nvalue, the item is checked."
+          },
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Render the child element instead of the default `<li role=\"menuitemradio\">`,\nmerging the item's props onto it via the {@link Slot } pattern."
+          },
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": false,
+            "default": null,
+            "description": ""
+          },
+          {
+            "name": "disabled",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Removes the item from activation and marks it `aria-disabled`; it\nstill renders for assistive technology but no-ops on click / Enter."
+          },
+          {
+            "name": "onSelect",
+            "type": "(event: Event) => void",
+            "required": false,
+            "default": null,
+            "description": "Fires when the item is activated (click, Enter, or Space). Call\n`event.preventDefault()` to skip the auto-close after selection."
+          },
+          {
+            "name": "ref",
+            "type": "Ref<HTMLLIElement>",
+            "required": false,
+            "default": null,
+            "description": "Allows getting a ref to the component instance.\nOnce the component unmounts, React will set `ref.current` to `null`\n(or call the ref with `null` if you passed a callback ref)."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": true,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-context-menu__radio-item"
+      },
+      {
+        "name": "ContextMenu.ItemIndicator",
+        "extends": "HTMLSpanElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Render the child element instead of the default `<span>`, merging the\n`data-state` attribute onto it via the {@link Slot } pattern (e.g. to\ncompose onto an SVG icon)."
+          },
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": false,
+            "default": null,
+            "description": "The mark to show — usually a checkmark or radio-dot icon."
+          },
+          {
+            "name": "forceMount",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Render the indicator even when its parent item is unchecked. The\n`data-state` attribute still reflects the live state."
+          },
+          {
+            "name": "ref",
+            "type": "Ref<HTMLSpanElement>",
+            "required": false,
+            "default": null,
+            "description": "Allows getting a ref to the component instance.\nOnce the component unmounts, React will set `ref.current` to `null`\n(or call the ref with `null` if you passed a callback ref).\nForwarded to the underlying `HTMLSpanElement` (or the `asChild` host)."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": true,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-context-menu__item-indicator"
+      },
+      {
+        "name": "ContextMenu.Label",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Render the child element instead of the default `<li>`, merging the\n(auto-wired) `id` onto it via the {@link Slot } pattern."
+          },
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": false,
+            "default": null,
+            "description": "The label text."
+          },
+          {
+            "name": "ref",
+            "type": "Ref<HTMLLIElement>",
+            "required": false,
+            "default": null,
+            "description": "Allows getting a ref to the component instance.\nOnce the component unmounts, React will set `ref.current` to `null`\n(or call the ref with `null` if you passed a callback ref).\nForwarded to the underlying `HTMLLIElement` (or the `asChild` host)."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": true,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-context-menu__label"
+      },
+      {
+        "name": "ContextMenu.Separator",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Render the child element instead of the default\n`<li role=\"separator\">`, merging the managed `role` onto it via the\n{@link Slot } pattern."
+          },
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": false,
+            "default": null,
+            "description": "Usually empty — a separator renders no content by default."
+          },
+          {
+            "name": "ref",
+            "type": "Ref<HTMLLIElement>",
+            "required": false,
+            "default": null,
+            "description": "Allows getting a ref to the component instance.\nOnce the component unmounts, React will set `ref.current` to `null`\n(or call the ref with `null` if you passed a callback ref).\nForwarded to the underlying `HTMLLIElement` (or the `asChild` host)."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": true,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-context-menu__separator"
+      },
+      {
+        "name": "ContextMenu.Group",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Render the child element instead of the default `<li role=\"group\">`\n(which otherwise wraps an inner `<ul role=\"none\">`), merging the group's\nprops onto it via the {@link Slot } pattern."
+          },
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": false,
+            "default": null,
+            "description": "The grouped items, optionally led by a {@link ContextMenu.Label }."
+          },
+          {
+            "name": "ref",
+            "type": "Ref<HTMLLIElement>",
+            "required": false,
+            "default": null,
+            "description": "Allows getting a ref to the component instance.\nOnce the component unmounts, React will set `ref.current` to `null`\n(or call the ref with `null` if you passed a callback ref).\nForwarded to the underlying `HTMLLIElement` (or the `asChild` host)."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": true,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-context-menu__group"
+      },
+      {
+        "name": "ContextMenu.Sub",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": false,
+            "default": null,
+            "description": "The {@link ContextMenu.SubTrigger } and {@link ContextMenu.SubContent }\npair (Sub renders no wrapping element of its own)."
+          },
+          {
+            "name": "defaultOpen",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Whether the submenu is open on first render.\nForbidden in controlled mode — use `open` instead."
+          },
+          {
+            "name": "onOpenChange",
+            "type": "(open: boolean) => void",
+            "required": false,
+            "default": null,
+            "description": "Observes submenu open-state transitions. Optional in uncontrolled mode.\nCalled with the requested open state on each transition.\nRequired in controlled mode."
+          },
+          {
+            "name": "open",
+            "type": "boolean",
+            "required": false,
+            "default": null,
+            "description": "Forbidden in uncontrolled mode — use `defaultOpen` instead.\nWhether the submenu is open. Must be kept in sync via `onOpenChange`."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": true,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": null
+      },
+      {
+        "name": "ContextMenu.SubTrigger",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Render the child element instead of the default\n`<li role=\"menuitem\">`, merging the submenu-wiring ARIA and handlers\nonto it via the {@link Slot } pattern."
+          },
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": false,
+            "default": null,
+            "description": "The trigger's visible content (typically the submenu's name)."
+          },
+          {
+            "name": "disabled",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "When `true`, the trigger refuses to open the submenu on both click\nand the inline-forward arrow key, and is marked `aria-disabled`."
+          },
+          {
+            "name": "ref",
+            "type": "Ref<HTMLLIElement>",
+            "required": false,
+            "default": null,
+            "description": "Allows getting a ref to the component instance.\nOnce the component unmounts, React will set `ref.current` to `null`\n(or call the ref with `null` if you passed a callback ref).\nForwarded to the underlying `HTMLLIElement` (or the `asChild` host)."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": true,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": "primitiv-context-menu__sub-trigger"
+      },
+      {
+        "name": "ContextMenu.SubContent",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Render the child element instead of the default `<menu>`, merging the\nmanaged `role` / `popover` / `id` and the keyboard handler onto it via\nthe {@link Slot } pattern."
+          },
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": false,
+            "default": null,
+            "description": "The submenu's items."
+          },
+          {
+            "name": "ref",
+            "type": "Ref<HTMLMenuElement>",
+            "required": false,
+            "default": null,
+            "description": "Forwarded to the underlying `HTMLMenuElement` (or the `asChild` host)."
+          }
+        ],
+        "styledOnly": false,
+        "headlessOnly": true,
+        "contractProps": [],
+        "dataAttributes": [],
+        "class": null
+      }
+    ]
+  },
+  "styled": {
+    "installCommand": "primitiv add context-menu",
+    "rootClass": "primitiv-context-menu",
+    "customProperties": [
+      {
+        "name": "--primitiv-context-menu-surface",
+        "defaultsTo": "var(--primitiv-surface-default)"
+      },
+      {
+        "name": "--primitiv-context-menu-fg",
+        "defaultsTo": "var(--primitiv-content-primary)"
+      },
+      {
+        "name": "--primitiv-context-menu-border-width",
+        "defaultsTo": "var(--primitiv-border-width-1)"
+      },
+      {
+        "name": "--primitiv-context-menu-border-color",
+        "defaultsTo": "var(--primitiv-border-default)"
+      },
+      {
+        "name": "--primitiv-context-menu-shadow",
+        "defaultsTo": "var(--primitiv-elevation-overlay)"
+      },
+      {
+        "name": "--primitiv-context-menu-radius",
+        "defaultsTo": "var(--primitiv-dropdown-md-panel-radius)"
+      },
+      {
+        "name": "--primitiv-context-menu-padding-block",
+        "defaultsTo": "var(--primitiv-dropdown-md-panel-padding-block)"
+      },
+      {
+        "name": "--primitiv-context-menu-padding-inline",
+        "defaultsTo": "var(--primitiv-space-space-4)"
+      },
+      {
+        "name": "--primitiv-context-menu-min-inline-size",
+        "defaultsTo": "12rem"
+      },
+      {
+        "name": "--primitiv-context-menu-offset",
+        "defaultsTo": "var(--primitiv-space-space-4)"
+      },
+      {
+        "name": "--primitiv-context-menu-item-height",
+        "defaultsTo": "var(--primitiv-dropdown-md-item-height)"
+      },
+      {
+        "name": "--primitiv-context-menu-item-padding-inline",
+        "defaultsTo": "var(--primitiv-dropdown-md-item-padding-inline)"
+      },
+      {
+        "name": "--primitiv-context-menu-item-gap",
+        "defaultsTo": "var(--primitiv-dropdown-md-item-gap)"
+      },
+      {
+        "name": "--primitiv-context-menu-item-radius",
+        "defaultsTo": "var(--primitiv-dropdown-md-item-radius)"
+      },
+      {
+        "name": "--primitiv-context-menu-item-font-size",
+        "defaultsTo": "var(--primitiv-dropdown-md-item-font-size)"
+      },
+      {
+        "name": "--primitiv-context-menu-item-line-height",
+        "defaultsTo": "var(--primitiv-dropdown-md-item-line-height)"
+      },
+      {
+        "name": "--primitiv-context-menu-item-icon-size",
+        "defaultsTo": "var(--primitiv-dropdown-md-item-icon-size)"
+      },
+      {
+        "name": "--primitiv-context-menu-item-font-family",
+        "defaultsTo": "var(--primitiv-body-sm-font-family)"
+      },
+      {
+        "name": "--primitiv-context-menu-item-font-weight",
+        "defaultsTo": "var(--primitiv-body-sm-font-weight)"
+      },
+      {
+        "name": "--primitiv-context-menu-item-color",
+        "defaultsTo": "var(--primitiv-content-primary)"
+      },
+      {
+        "name": "--primitiv-context-menu-item-bg",
+        "defaultsTo": "var(--primitiv-color-transparent)"
+      },
+      {
+        "name": "--primitiv-context-menu-item-bg-highlighted",
+        "defaultsTo": "var(--primitiv-action-secondary-default)"
+      },
+      {
+        "name": "--primitiv-context-menu-row-inset",
+        "defaultsTo": "var(--primitiv-context-menu-item-padding-inline)"
+      },
+      {
+        "name": "--primitiv-context-menu-label-height",
+        "defaultsTo": "var(--primitiv-dropdown-md-label-height)"
+      },
+      {
+        "name": "--primitiv-context-menu-label-padding-inline",
+        "defaultsTo": "var(--primitiv-dropdown-md-label-padding-inline)"
+      },
+      {
+        "name": "--primitiv-context-menu-label-color",
+        "defaultsTo": "var(--primitiv-content-muted)"
+      },
+      {
+        "name": "--primitiv-context-menu-label-font-family",
+        "defaultsTo": "var(--primitiv-label-xs-font-family)"
+      },
+      {
+        "name": "--primitiv-context-menu-label-font-size",
+        "defaultsTo": "var(--primitiv-label-xs-font-size)"
+      },
+      {
+        "name": "--primitiv-context-menu-label-font-weight",
+        "defaultsTo": "var(--primitiv-label-xs-font-weight)"
+      },
+      {
+        "name": "--primitiv-context-menu-label-line-height",
+        "defaultsTo": "var(--primitiv-label-xs-line-height)"
+      },
+      {
+        "name": "--primitiv-context-menu-label-letter-spacing",
+        "defaultsTo": "var(--primitiv-letter-spacing-wide)"
+      },
+      {
+        "name": "--primitiv-context-menu-separator-spacing",
+        "defaultsTo": "var(--primitiv-dropdown-md-separator-spacing)"
+      },
+      {
+        "name": "--primitiv-context-menu-separator-color",
+        "defaultsTo": "var(--primitiv-border-subtle)"
+      },
+      {
+        "name": "--primitiv-context-menu-separator-thickness",
+        "defaultsTo": "var(--primitiv-border-width-1)"
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-state",
+        "value": "open",
+        "when": "open"
+      },
+      {
+        "name": "data-state",
+        "value": "closed",
+        "when": "closed"
+      },
+      {
+        "name": "data-highlighted",
+        "value": "",
+        "when": "the cursor is on this row — set on pointer-enter and by keyboard navigation alike"
+      },
+      {
+        "name": "data-disabled",
+        "value": "",
+        "when": "the trigger is disabled, so right-click opens nothing"
+      },
+      {
+        "name": "data-state",
+        "value": "closed",
+        "when": "the trigger is enabled — it carries no open state of its own"
+      }
+    ]
+  },
+  "figma": {},
+  "elements": {
+    "package": "@primitiv-ui/web",
+    "module": "context-menu",
+    "version": "0.1.58",
+    "element": "menu",
+    "wrapText": false,
+    "example": "<primitiv-context-menu>\n  <primitiv-context-menu-trigger>Right-click anywhere in this region</primitiv-context-menu-trigger>\n  <primitiv-context-menu-content class=\"primitiv-context-menu primitiv-context-menu--md\" popover=\"manual\">\n    <primitiv-context-menu-item>\n      <li class=\"primitiv-context-menu__item\"><span class=\"primitiv-context-menu__item-leading\"><svg viewBox=\"0 0 24 24\" width=\"24\" height=\"24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M20.75 7.25v13.5H7.25V7.25h13.5Zm-12 12h10.5V8.75H8.75v10.5Z\"/><path d=\"M15.25 4.75H4.75v10.5h4v1.5h-5.5V3.25h13.5v5.5h-1.5v-4Z\"/></svg></span><span class=\"primitiv-context-menu__item-label\">Copy</span><span class=\"primitiv-context-menu__item-trailing\">⌘C</span></li>\n    </primitiv-context-menu-item>\n    <primitiv-context-menu-item disabled>\n      <li class=\"primitiv-context-menu__item\"><span class=\"primitiv-context-menu__item-leading\"><svg viewBox=\"0 0 24 24\" width=\"24\" height=\"24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M21.06 8 8.31 20.75H3.25v-5.06L16 2.94 21.06 8ZM4.75 16.31v2.94h2.94L18.94 8 16 5.06 4.75 16.31Z\"/><path d=\"M18.06 11 17 12.06 11.94 7 13 5.94 18.06 11Z\"/></svg></span><span class=\"primitiv-context-menu__item-label\">Rename</span></li>\n    </primitiv-context-menu-item>\n    <primitiv-context-menu-sub>\n      <primitiv-context-menu-sub-trigger>\n        <li class=\"primitiv-context-menu__sub-trigger\"><span class=\"primitiv-context-menu__item-label\">Share</span><svg viewBox=\"0 0 24 24\" width=\"24\" height=\"24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M17.06 12 9 20.06 7.94 19l7-7-7-7L9 3.94 17.06 12Z\"/></svg></li>\n      </primitiv-context-menu-sub-trigger>\n      <primitiv-context-menu-sub-content class=\"primitiv-context-menu primitiv-context-menu--md primitiv-context-menu--submenu\" popover=\"auto\">\n        <primitiv-context-menu-item><li class=\"primitiv-context-menu__item\"><span class=\"primitiv-context-menu__item-label\">Email</span></li></primitiv-context-menu-item>\n        <primitiv-context-menu-item><li class=\"primitiv-context-menu__item\"><span class=\"primitiv-context-menu__item-label\">Copy link</span></li></primitiv-context-menu-item>\n      </primitiv-context-menu-sub-content>\n    </primitiv-context-menu-sub>\n    <primitiv-context-menu-separator class=\"primitiv-context-menu__separator\"></primitiv-context-menu-separator>\n    <primitiv-context-menu-checkbox-item checked>\n      <li class=\"primitiv-context-menu__checkbox-item\"><primitiv-context-menu-item-indicator class=\"primitiv-context-menu__item-indicator\"><svg viewBox=\"0 0 24 24\" width=\"24\" height=\"24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M21.057 5.904 10.05 19.111 2.939 12 4 10.94l5.95 5.949 9.954-11.946 1.153.961Z\"/></svg></primitiv-context-menu-item-indicator><span class=\"primitiv-context-menu__item-label\">Show grid</span></li>\n    </primitiv-context-menu-checkbox-item>\n    <primitiv-context-menu-group class=\"primitiv-context-menu__group\">\n      <primitiv-context-menu-label class=\"primitiv-context-menu__label\">Theme</primitiv-context-menu-label>\n      <primitiv-context-menu-radio-group class=\"primitiv-context-menu__radio-group\" value=\"light\">\n        <primitiv-context-menu-radio-item value=\"light\">\n          <li class=\"primitiv-context-menu__radio-item\"><primitiv-context-menu-item-indicator class=\"primitiv-context-menu__item-indicator\"><svg viewBox=\"0 0 24 24\" width=\"24\" height=\"24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M21.057 5.904 10.05 19.111 2.939 12 4 10.94l5.95 5.949 9.954-11.946 1.153.961Z\"/></svg></primitiv-context-menu-item-indicator><span class=\"primitiv-context-menu__item-label\">Light</span></li>\n        </primitiv-context-menu-radio-item>\n        <primitiv-context-menu-radio-item value=\"dark\">\n          <li class=\"primitiv-context-menu__radio-item\"><primitiv-context-menu-item-indicator class=\"primitiv-context-menu__item-indicator\"><svg viewBox=\"0 0 24 24\" width=\"24\" height=\"24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M21.057 5.904 10.05 19.111 2.939 12 4 10.94l5.95 5.949 9.954-11.946 1.153.961Z\"/></svg></primitiv-context-menu-item-indicator><span class=\"primitiv-context-menu__item-label\">Dark</span></li>\n        </primitiv-context-menu-radio-item>\n      </primitiv-context-menu-radio-group>\n    </primitiv-context-menu-group>\n    <primitiv-context-menu-separator class=\"primitiv-context-menu__separator\"></primitiv-context-menu-separator>\n    <primitiv-context-menu-item>\n      <li class=\"primitiv-context-menu__item\"><span class=\"primitiv-context-menu__item-leading\"><svg viewBox=\"0 0 24 24\" width=\"24\" height=\"24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M20.75 6.25v1.5H3.25v-1.5h17.5Z\"/><path d=\"M18.81 7.314 17.69 20.75H6.31L5.19 7.314l1.496-.124 1.003 12.06h8.622l1.003-12.06 1.496.124Z\"/><path d=\"M14.25 4.75h-4.5v3h-1.5v-4.5h7.5v4.5h-1.5v-3Zm-5 5.5h1.5v7.5h-1.5v-7.5Zm4 0h1.5v7.5h-1.5v-7.5Z\"/></svg></span><span class=\"primitiv-context-menu__item-label\">Delete</span></li>\n    </primitiv-context-menu-item>\n  </primitiv-context-menu-content>\n</primitiv-context-menu>\n",
+    "api": [
+      {
+        "tag": "primitiv-context-menu",
+        "attributes": [
+          {
+            "name": "open",
+            "type": "boolean",
+            "description": "Whether the menu is open. Reflected: it changes as the user opens and dismisses it. Set it (or the `open` property) to open or close it from script, where it opens at its last position."
+          }
+        ],
+        "events": [
+          {
+            "name": "primitiv-context-menu-change",
+            "type": "CustomEvent<{ open: boolean }>",
+            "description": "Bubbles, cancelable, fired before a user-driven change is applied — a right-click, Escape, a press outside or a chosen item — with the open state afterwards. Call `preventDefault()` to veto it."
+          },
+          {
+            "name": "primitiv-context-menu-select",
+            "type": "CustomEvent<null>",
+            "description": "Bubbles, cancelable, fired on the item part when an item is chosen, after a checkbox or radio item has changed. Call `preventDefault()` to keep the menu open."
+          },
+          {
+            "name": "primitiv-context-menu-checked-change",
+            "type": "CustomEvent<{ checked: boolean }>",
+            "description": "Bubbles, cancelable, fired on a checkbox item before it changes, with its state afterwards. Call `preventDefault()` to veto it."
+          },
+          {
+            "name": "primitiv-context-menu-value-change",
+            "type": "CustomEvent<{ value: string }>",
+            "description": "Bubbles, cancelable, fired on a radio group before its value changes, with the value afterwards. Call `preventDefault()` to veto it."
+          }
+        ]
+      },
+      {
+        "tag": "primitiv-context-menu-sub",
+        "attributes": [
+          {
+            "name": "open",
+            "type": "boolean",
+            "description": "Whether the submenu is open. Reflected."
+          }
+        ],
+        "events": [
+          {
+            "name": "primitiv-context-menu-sub-change",
+            "type": "CustomEvent<{ open: boolean }>",
+            "description": "Bubbles, cancelable, fired before a user-driven change is applied, with the open state afterwards. Call `preventDefault()` to veto it."
+          }
+        ]
+      },
+      {
+        "tag": "primitiv-context-menu-trigger",
+        "attributes": [
+          {
+            "name": "disabled",
+            "type": "boolean",
+            "description": "A right-click here opens nothing, and the browser's own menu shows."
+          }
+        ],
+        "events": []
+      },
+      {
+        "tag": "primitiv-context-menu-content",
+        "attributes": [],
+        "events": []
+      },
+      {
+        "tag": "primitiv-context-menu-item",
+        "attributes": [
+          {
+            "name": "disabled",
+            "type": "boolean",
+            "description": "Skipped by the keyboard, and does nothing when clicked (`aria-disabled` on the child)."
+          }
+        ],
+        "events": []
+      },
+      {
+        "tag": "primitiv-context-menu-checkbox-item",
+        "attributes": [
+          {
+            "name": "checked",
+            "type": "boolean",
+            "description": "Whether it is checked; `checked=\"indeterminate\"` for mixed. Reflected."
+          },
+          {
+            "name": "disabled",
+            "type": "boolean",
+            "description": "As on an item."
+          }
+        ],
+        "events": []
+      },
+      {
+        "tag": "primitiv-context-menu-radio-group",
+        "attributes": [
+          {
+            "name": "value",
+            "type": "string",
+            "description": "The checked item's value. Reflected."
+          }
+        ],
+        "events": []
+      },
+      {
+        "tag": "primitiv-context-menu-radio-item",
+        "attributes": [
+          {
+            "name": "value",
+            "type": "string",
+            "description": "The value it sets on its group."
+          },
+          {
+            "name": "disabled",
+            "type": "boolean",
+            "description": "As on an item."
+          }
+        ],
+        "events": []
+      },
+      {
+        "tag": "primitiv-context-menu-item-indicator",
+        "attributes": [
+          {
+            "name": "force-mount",
+            "type": "boolean",
+            "description": "Keep it shown while unchecked, to animate it."
+          }
+        ],
+        "events": []
+      },
+      {
+        "tag": "primitiv-context-menu-group",
+        "attributes": [],
+        "events": []
+      },
+      {
+        "tag": "primitiv-context-menu-label",
+        "attributes": [],
+        "events": []
+      },
+      {
+        "tag": "primitiv-context-menu-separator",
+        "attributes": [],
+        "events": []
+      },
+      {
+        "tag": "primitiv-context-menu-sub-trigger",
+        "attributes": [
+          {
+            "name": "disabled",
+            "type": "boolean",
+            "description": "It does not open the submenu."
+          }
+        ],
+        "events": []
+      },
+      {
+        "tag": "primitiv-context-menu-sub-content",
+        "attributes": [],
+        "events": []
+      }
+    ]
+  }
+}

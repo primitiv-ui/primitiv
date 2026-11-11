@@ -6,7 +6,7 @@ framework and no runtime dependencies beyond
 server-rendered stack (HTMX, Rails, Django, Laravel, Spring …), and inside
 React, Vue, Angular or any other framework.
 
-> **Status: published.** Tabs, Accordion, Collapsible, Modal, Popover, Tooltip, Dropdown, Context Menu, Toggle Group and Segmented Control so far. See
+> **Status: published.** Tabs, Accordion, Collapsible, Modal, Popover, Tooltip, Dropdown, Context Menu, Toggle Group, Segmented Control, Radio Card, Checkbox Card and Slider so far. See
 > [RFC 0033](../../docs/rfcs/0033-web-components.md) for the design.
 
 ## Components
@@ -23,6 +23,9 @@ React, Vue, Angular or any other framework.
 | Context Menu | `primitiv-context-menu`, and the same thirteen parts as Dropdown under `primitiv-context-menu-` | `primitiv-context-menu-change`, `-sub-change`, `-select`, `-checked-change`, `-value-change` | 0.1.58 |
 | Toggle Group | `primitiv-toggle-group`, `-item` | `primitiv-toggle-group-change` | 0.1.59 |
 | Segmented Control | `primitiv-segmented-control`, `-item` | `primitiv-segmented-control-change` | 0.1.60 |
+| Radio Card | `primitiv-radio-card`, `-item`, `-indicator` | `primitiv-radio-card-change` | 0.1.61 |
+| Checkbox Card | `primitiv-checkbox-card`, `-indicator` | `primitiv-checkbox-card-change` | 0.1.61 |
+| Slider | `primitiv-slider`, `-track`, `-range`, `-thumb` | `primitiv-slider-change`, `primitiv-slider-commit` | 0.1.61 |
 
 ## Use it
 
@@ -55,11 +58,12 @@ downloads it once. `dist/primitiv-web.js` is the alternative: every element in
 one file. Per-component files ship from 0.1.43.
 
 The main entry (`@primitiv-ui/web`, `/tabs`, `/accordion`, `/collapsible`,
-`/modal`, `/popover`, `/tooltip`, `/dropdown`, `/context-menu`, `/toggle-group`, `/segmented-control`) exports the classes and `defineTabs(registry?)` /
+`/modal`, `/popover`, `/tooltip`, `/dropdown`, `/context-menu`, `/toggle-group`, `/segmented-control`, `/radio-card`, `/checkbox-card`, `/slider`) exports the classes and `defineTabs(registry?)` /
 `defineAccordion(registry?)` / `defineCollapsible(registry?)` /
 `defineModal(registry?)` / `definePopover(registry?)` / `defineTooltip(registry?)` /
 `defineDropdown(registry?)` / `defineContextMenu(registry?)` /
-`defineToggleGroup(registry?)` / `defineSegmentedControl(registry?)` with **no side
+`defineToggleGroup(registry?)` / `defineSegmentedControl(registry?)` /
+`defineRadioCard(registry?)` / `defineCheckboxCard(registry?)` / `defineSlider(registry?)` with **no side
 effects**.
 
 **Render `hidden` on inactive panels yourself.** Until the module loads, CSS
@@ -326,6 +330,75 @@ on a panel as it becomes active, for lazy loading.
 - **One Tab stop for the control**, on the selected segment, else the first
   enabled one. The arrows move focus **and** selection, skipping `disabled`
   segments and wrapping; Enter and Space are the button's own click.
+
+### Radio Card
+
+```html
+<script type="module" src="https://cdn.jsdelivr.net/npm/@primitiv-ui/web@<version>/dist/cdn/radio-card.js"></script>
+
+<primitiv-radio-card value="pro" aria-label="Plan">
+  <primitiv-radio-card-item value="basic">
+    <button type="button"><primitiv-radio-card-indicator></primitiv-radio-card-indicator>Basic</button>
+  </primitiv-radio-card-item>
+  <primitiv-radio-card-item value="pro">
+    <button type="button"><primitiv-radio-card-indicator></primitiv-radio-card-indicator>Pro</button>
+  </primitiv-radio-card-item>
+</primitiv-radio-card>
+```
+
+- **The same radio group as Segmented Control, laid out as cards**: the root is
+  the `role="radiogroup"`, each card's `<button>` a `role="radio"`, and `value`
+  the selected card. It lays nothing out — put the cards in a Stack or grid.
+- **`orientation` defaults to `both`**: all four arrows move the selection, for
+  cards that wrap into a grid. `horizontal` or `vertical` keeps to one pair and
+  writes `aria-orientation`.
+- **`<primitiv-radio-card-indicator>`** anywhere in a card is `hidden` while the
+  card is unchecked, unless it carries `force-mount` (so a stylesheet can animate
+  it from `data-state`).
+
+### Checkbox Card
+
+```html
+<script type="module" src="https://cdn.jsdelivr.net/npm/@primitiv-ui/web@<version>/dist/cdn/checkbox-card.js"></script>
+
+<primitiv-checkbox-card checked>
+  <button type="button"><primitiv-checkbox-card-indicator></primitiv-checkbox-card-indicator>Email updates</button>
+</primitiv-checkbox-card>
+```
+
+- **One card, one checkbox**: it decorates the `<button>` you write as a
+  `role="checkbox"`. `checked` is present, absent, or `"indeterminate"`
+  (`aria-checked="mixed"`); a press on a mixed card checks it.
+  `primitiv-checkbox-card-change` fires first, with `checked` afterwards, and is
+  cancelable.
+- **Cards are independent** and each is its own tab stop; Space and Enter are
+  the button's own click. Like the radio card, it submits nothing with a form.
+
+### Slider
+
+```html
+<script type="module" src="https://cdn.jsdelivr.net/npm/@primitiv-ui/web@<version>/dist/cdn/slider.js"></script>
+
+<primitiv-slider value="20 80" min="0" max="100" name="price">
+  <primitiv-slider-track><primitiv-slider-range></primitiv-slider-range></primitiv-slider-track>
+  <primitiv-slider-thumb aria-label="Minimum"></primitiv-slider-thumb>
+  <primitiv-slider-thumb aria-label="Maximum"></primitiv-slider-thumb>
+</primitiv-slider>
+```
+
+- **`value` lists one number per thumb**, separated by spaces; the number of
+  thumbs is the number of thumb elements. `step`, `min-steps-between-thumbs`,
+  `orientation`, `inverted` and `disabled` work as on React's Slider.
+- **Each thumb is the `role="slider"`**: name it, not the root. The arrows step,
+  Page Up / Page Down step ten, Home / End jump; a press on the slider jumps the
+  nearest thumb and drags it.
+- **Positions are written inline.** Each thumb and the range get
+  `position: absolute` and their inset along the track as a percentage, as
+  React's Slider does — the one style the elements write, since it is the value.
+- **Two events**: `primitiv-slider-change` before each change (cancelable, on
+  every step of a drag), `primitiv-slider-commit` once the interaction ends.
+- **`name` submits it with a form**: the slider keeps one hidden `<input>` per
+  value inside itself (`name[]` for several thumbs).
 
 **TypeScript** — opt into the tag map so DOM queries return the element classes:
 `import type {} from "@primitiv-ui/web/tags"` (npm only).

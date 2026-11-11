@@ -1,6 +1,6 @@
 {
   "name": "@primitiv-ui/web",
-  "version": "0.1.57",
+  "version": "0.1.58",
   "exports": {
     ".": "./src/index.ts",
     "./accordion": "./src/accordion/index.ts",

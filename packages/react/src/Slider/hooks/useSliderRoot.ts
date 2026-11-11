@@ -1,10 +1,10 @@
-import { useCallback, useEffect, useMemo, useRef } from "react";
-import type { PointerEvent as ReactPointerEvent } from "react";
+import { useCallback, useMemo } from "react";
 
-import { useCollection, useControllableState } from "../../hooks/index.ts";
+import { SliderController } from "@primitiv-ui/web";
+
+import { useCollection, useControllableState, useHostedController } from "../../hooks/index.ts";
 import type { SliderContextValue } from "../SliderContext";
 import type { SliderDirection, SliderOrientation } from "../types";
-import { clamp, getClosestThumbIndex, getPointerValue } from "../utils";
 
 type UseSliderRootArgs = {
   min: number;
@@ -21,6 +21,8 @@ type UseSliderRootArgs = {
   onValueCommit?: (value: number[]) => void;
 };
 
+type ThumbMeta = { element: HTMLSpanElement; disabled: boolean };
+
 export function useSliderRoot({
   min,
   max,
@@ -35,163 +37,64 @@ export function useSliderRoot({
   onValueChange,
   onValueCommit,
 }: UseSliderRootArgs) {
-  const [values, setValues] = useControllableState<number[]>(
-    value,
-    defaultValue ?? [min],
-    onValueChange,
-  );
-  const valuesRef = useRef(values);
-  valuesRef.current = values;
+  const [values, setValues] = useControllableState<number[]>(value, defaultValue ?? [min], onValueChange);
 
-  const rootRef = useRef<HTMLSpanElement>(null);
-  const {
-    register: registerThumb,
-    itemsRef,
-    keys: orderedThumbIds,
-  } = useCollection<string, HTMLSpanElement>();
+  const { register, itemsRef, keys: orderedThumbIds } = useCollection<string, ThumbMeta>();
 
-  const setThumbValue = useCallback(
-    (index: number, nextValue: number): number[] | null => {
-      const current = valuesRef.current;
-      const gap = minStepsBetweenThumbs * step;
-      const lowerBound = index > 0 ? current[index - 1] + gap : min;
-      const upperBound =
-        index < current.length - 1 ? current[index + 1] - gap : max;
-      const clamped = clamp(nextValue, lowerBound, upperBound);
-      if (current[index] === clamped) {
-        return null;
-      }
-      const next = current.map((entry, i) => (i === index ? clamped : entry));
-      setValues(next);
-      return next;
+  const registerThumb = useCallback(
+    (id: string, element: HTMLSpanElement | null) => {
+      // A thumb is never disabled on its own: the controller reads the slider's
+      // `disabled` from Root, so the flag the collection carries goes unread.
+      // Stryker disable next-line BooleanLiteral: equivalent — SliderController never reads a thumb's own disabled flag.
+      register(id, element ? { element, disabled: false } : null);
     },
-    [min, max, step, minStepsBetweenThumbs, setValues],
+    // `register` is a stable useCollection callback (its own deps never
+    // change), so emptying this array yields the identical memoised function.
+    // Stryker disable next-line ArrayDeclaration: equivalent — stable dependency.
+    [register],
   );
 
-  const commit = useCallback(
-    (committed: number[]) => {
-      onValueCommit?.(committed);
+  // The keys and the press-and-drag run in the shared SliderController
+  // (@primitiv-ui/web, RFC 0033 D30) — the code <primitiv-slider> runs. React
+  // keeps the values and answers it; every change goes through
+  // `onValueChange`, and the end of an interaction through `onValueCommit`.
+  const rootRef = useHostedController<
+    {
+      values: number[];
+      min: number;
+      max: number;
+      step: number;
+      minStepsBetweenThumbs: number;
+      orientation: SliderOrientation;
+      dir: SliderDirection;
+      inverted: boolean;
+      disabled: boolean;
+      setValues: typeof setValues;
+      onValueCommit: typeof onValueCommit;
     },
-    [onValueCommit],
-  );
-
-  const dragRef = useRef<{
-    move: (event: PointerEvent) => void;
-    up: () => void;
-  } | null>(null);
-
-  const onPointerDown = useCallback(
-    (event: ReactPointerEvent<HTMLSpanElement>) => {
-      if (disabled) {
-        return;
-      }
-      const rect = rootRef.current!.getBoundingClientRect();
-      const pointerValue = getPointerValue(event.clientX, event.clientY, rect, {
-        min,
-        max,
-        step,
-        orientation,
-        dir,
-        inverted,
-      });
-      const index = getClosestThumbIndex(pointerValue, valuesRef.current);
-      let pendingCommit = setThumbValue(index, pointerValue);
-      itemsRef.current.get(orderedThumbIds[index])?.focus();
-
-      const move = (moveEvent: PointerEvent) => {
-        const moveRect = rootRef.current!.getBoundingClientRect();
-        const next = setThumbValue(
-          index,
-          getPointerValue(moveEvent.clientX, moveEvent.clientY, moveRect, {
-            min,
-            max,
-            step,
-            orientation,
-            dir,
-            inverted,
-          }),
-        );
-        if (next) {
-          pendingCommit = next;
-        }
-      };
-      const up = () => {
-        document.removeEventListener("pointermove", move);
-        document.removeEventListener("pointerup", up);
-        dragRef.current = null;
-        if (pendingCommit) {
-          commit(pendingCommit);
-        }
-      };
-      dragRef.current = { move, up };
-      document.addEventListener("pointermove", move);
-      document.addEventListener("pointerup", up);
-      event.preventDefault();
-    },
-    [
-      min,
-      max,
-      step,
-      orientation,
-      dir,
-      inverted,
-      disabled,
-      setThumbValue,
-      commit,
-      orderedThumbIds,
-      itemsRef,
-    ],
-  );
-
-  useEffect(
-    () => () => {
-      if (dragRef.current) {
-        document.removeEventListener("pointermove", dragRef.current.move);
-        document.removeEventListener("pointerup", dragRef.current.up);
-      }
-    },
-    [],
+    HTMLSpanElement
+  >(
+    { values, min, max, step, minStepsBetweenThumbs, orientation, dir, inverted, disabled, setValues, onValueCommit },
+    (root, latest) =>
+      new SliderController(root, {
+        state: () => latest(),
+        change: (next) => latest().setValues(next),
+        commit: (next) => latest().onValueCommit?.(next),
+      }),
+    { itemsRef, keys: orderedThumbIds },
   );
 
   const contextValue = useMemo<SliderContextValue>(
-    () => ({
-      values,
-      min,
-      max,
-      step,
-      orientation,
-      dir,
-      inverted,
-      disabled,
-      registerThumb,
-      orderedThumbIds,
-      setThumbValue,
-      commit,
-    }),
-    [
-      values,
-      min,
-      max,
-      step,
-      orientation,
-      dir,
-      inverted,
-      disabled,
-      registerThumb,
-      orderedThumbIds,
-      setThumbValue,
-      commit,
-    ],
+    () => ({ values, min, max, orientation, dir, inverted, disabled, registerThumb, orderedThumbIds }),
+    [values, min, max, orientation, dir, inverted, disabled, registerThumb, orderedThumbIds],
   );
 
   if (min >= max) {
-    throw new Error(
-      `Slider: \`min\` (${min}) must be less than \`max\` (${max}).`,
-    );
+    throw new Error(`Slider: \`min\` (${min}) must be less than \`max\` (${max}).`);
   }
   if (step <= 0) {
     throw new Error(`Slider: \`step\` (${step}) must be greater than 0.`);
   }
 
-  return { contextValue, rootRef, onPointerDown };
+  return { contextValue, rootRef };
 }

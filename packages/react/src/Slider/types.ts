@@ -103,8 +103,8 @@ export type SliderRootSharedProps = Omit<
   name?: string;
   /**
    * Render the child element in place of the default `<span>` via the
-   * {@link Slot} pattern, merging `Slider.Root`'s `dir`, `data-*` hooks,
-   * pointer handler, and ref onto it.
+   * {@link Slot} pattern, merging `Slider.Root`'s `dir`, `data-*` hooks and
+   * ref onto it; the shared controller listens on it for presses.
    * @default false
    */
   asChild?: boolean;

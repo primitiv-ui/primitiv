@@ -5,9 +5,10 @@ import type { SliderDirection, SliderOrientation } from "./types";
 
 /**
  * Shared state published by {@link SliderRoot | `Slider.Root`} to its
- * sub-components: the current values, range/step bounds, orientation and
- * direction, thumb registration, and the value-change / value-commit
- * callbacks. Read it with {@link useSliderContext}; it throws when a
+ * sub-components: the current values, bounds, orientation and direction, and
+ * thumb registration. The keys and pointer interaction run in the shared
+ * `SliderController` on the root, which reads the values from Root itself.
+ * Read it with {@link useSliderContext}; it throws when a
  * sub-component is rendered outside a `<Slider.Root>`.
  */
 export type SliderContextValue = {
@@ -17,8 +18,6 @@ export type SliderContextValue = {
   min: number;
   /** Highest value (track end edge). */
   max: number;
-  /** Granularity; every value snaps to a multiple of this anchored at `min`. */
-  step: number;
   /** Resolved layout axis; see {@link SliderOrientation}. */
   orientation: SliderOrientation;
   /** Resolved reading direction (after inheriting from `DirectionProvider`); see {@link SliderDirection}. */
@@ -35,15 +34,6 @@ export type SliderContextValue = {
   registerThumb: (id: string, element: HTMLSpanElement | null) => void;
   /** Registered thumb ids in DOM order; a thumb's index into `values` is its position here. */
   orderedThumbIds: string[];
-  /**
-   * Sets the thumb at `index` to `value`, clamped between its neighbours (plus
-   * `minStepsBetweenThumbs`) and the `[min, max]` bounds. Returns the next
-   * value array when it changed, or `null` when the clamped value was
-   * unchanged (so callers can skip a redundant commit).
-   */
-  setThumbValue: (index: number, value: number) => number[] | null;
-  /** Fires `onValueCommit` with the settled array at the end of an interaction. */
-  commit: (values: number[]) => void;
 };
 
 const sliderContextPair = createStrictContext<SliderContextValue>(

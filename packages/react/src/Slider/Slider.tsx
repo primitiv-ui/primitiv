@@ -1,7 +1,7 @@
 import type { ReactElement } from "react";
 
 import { useDirection } from "../DirectionProvider/index.ts";
-import { Slot, composeEventHandlers, composeRefs } from "../Slot/index.ts";
+import { Slot, composeRefs } from "../Slot/index.ts";
 
 import { SliderContext } from "./SliderContext";
 import {
@@ -91,17 +91,12 @@ export function SliderRoot({
   onValueCommit,
   name,
   asChild = false,
-  onPointerDown,
   ref,
   children,
   ...rest
 }: SliderRootProps): ReactElement {
   const resolvedDir = dir ?? useDirection();
-  const {
-    contextValue,
-    rootRef,
-    onPointerDown: handlePointerDown,
-  } = useSliderRoot({
+  const { contextValue, rootRef } = useSliderRoot({
     min,
     max,
     step,
@@ -121,7 +116,6 @@ export function SliderRoot({
     dir: resolvedDir,
     "data-orientation": orientation,
     "data-disabled": disabled ? "" : undefined,
-    onPointerDown: composeEventHandlers(onPointerDown, handlePointerDown),
   };
   return (
     <SliderContext.Provider value={contextValue}>
@@ -145,6 +139,9 @@ export function SliderRoot({
 }
 
 /** @internal */
+// Runtime-dead: the compound alias below (same object via Object.assign)
+// overwrites this to "Slider" at load, so the value is never observable.
+// Stryker disable next-line StringLiteral: overwritten by the compound alias — an equivalent mutant.
 SliderRoot.displayName = "SliderRoot";
 
 /**
@@ -254,7 +251,8 @@ SliderRange.displayName = "SliderRange";
  * element and read in place of the bare number.
  *
  * **`asChild` prop.** Render a consumer element in place of the `<span>`;
- * the slider role, ARIA value attributes, keyboard handler, and ref merge in.
+ * the slider role, ARIA value attributes, position and ref merge in. Its keys
+ * are handled by the shared controller on the root.
  *
  * @throws if rendered outside a `Slider.Root`.
  *
@@ -268,7 +266,6 @@ SliderRange.displayName = "SliderRange";
 export function SliderThumb({
   style,
   ref: forwardedRef,
-  onKeyDown,
   asChild = false,
   children,
   ...rest
@@ -281,7 +278,6 @@ export function SliderThumb({
     orientation,
     disabled,
     style: positionStyle,
-    onKeyDown: handleKeyDown,
   } = useSliderThumb();
   const thumbProps = {
     ...rest,
@@ -295,7 +291,6 @@ export function SliderThumb({
     "aria-disabled": disabled || undefined,
     "data-orientation": orientation,
     "data-disabled": disabled ? "" : undefined,
-    onKeyDown: composeEventHandlers(onKeyDown, handleKeyDown),
     style: { ...positionStyle, ...style },
   };
   return asChild ? (

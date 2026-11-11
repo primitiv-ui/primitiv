@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+  <head><meta charset="utf-8" /><link rel="icon" href="data:," /><title>Interop lab — Slider, HTMX</title></head>
+  <body hx-history-elt>
+    <!-- 1. Full fragment swap -->
+    <section>
+      <button type="button" id="load-slider" hx-get="/fragments/slider" hx-target="#slot-1">Load slider</button>
+      <div id="slot-1"></div>
+    </section>
+
+    <!-- 2. An out-of-band thumb -->
+    <section id="oob-region"></section>
+    <button type="button" id="load-oob" hx-get="/fragments/slider-oob-thumb" hx-swap="none">Add a thumb</button>
+
+    <!-- 3. Server re-render with new values -->
+    <section id="rerender-region"></section>
+    <button type="button" id="load-value" hx-get="/fragments/slider-oob-value" hx-swap="none">Set 75</button>
+
+    <!-- 4. hx-preserve -->
+    <div id="preserve-region"></div>
+    <button type="button" id="swap-preserve" hx-get="/fragments/slider-preserve" hx-target="#preserve-region" hx-swap="outerHTML">Swap region</button>
+
+    <!-- 5. History -->
+    <section id="history-region"></section>
+    <a id="go-two" href="/page-two" hx-get="/fragments/page-two" hx-target="#history-target" hx-push-url="/slider-page-two">Go to page two</a>
+    <div id="history-target"></div>
+
+    <!-- 6. hx-trigger on the commit event, and a veto on the change event -->
+    <section id="echo-region"></section>
+    <div id="echo-target"></div>
+
+    <!-- 7. Right to left -->
+    <button type="button" id="load-rtl" hx-get="/fragments/slider-rtl" hx-target="#rtl-slot">Load RTL slider</button>
+    <div id="rtl-slot"></div>
+
+    <script type="module" src="/src/slider-htmx.ts"></script>
+  </body>
+</html>

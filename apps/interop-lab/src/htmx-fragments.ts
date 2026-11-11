@@ -10,7 +10,10 @@ import { dropdownHtml } from "./dropdown-fixture.ts";
 import { popoverHtml } from "./popover-fixture.ts";
 import { tooltipHtml } from "./tooltip-fixture.ts";
 import { tabsHtml } from "./fixture.ts";
+import { checkboxCardHtml } from "./checkbox-card-fixture.ts";
+import { radioCardHtml } from "./radio-card-fixture.ts";
 import { segmentedControlHtml } from "./segmented-control-fixture.ts";
+import { sliderHtml } from "./slider-fixture.ts";
 import { toggleGroupHtml } from "./toggle-group-fixture.ts";
 
 let lazyLoads = 0;
@@ -26,6 +29,9 @@ let dropdownEchoes = 0;
 let contextMenuEchoes = 0;
 let toggleGroupEchoes = 0;
 let segmentedControlEchoes = 0;
+let radioCardEchoes = 0;
+let checkboxCardEchoes = 0;
+let sliderEchoes = 0;
 
 export const fragments: Record<string, string | ((url: string) => string)> = {
   // Case 1: a whole tab set arrives in a fragment.
@@ -155,6 +161,35 @@ export const fragments: Record<string, string | ((url: string) => string)> = {
   "context-menu-echo": (url: string) =>
     `<span data-testid="echo">server saw ${new URL(url, "http://lab").searchParams.get("open")} (${++contextMenuEchoes})</span>`,
 
+  // The RadioCard page's cases (radio-card-htmx.html), named to match.
+  "radio-card": radioCardHtml({ value: "pro" }, "swapped"),
+  "radio-card-nested":
+    '<primitiv-radio-card id="inner" aria-label="Inner"><primitiv-radio-card-item value="a">' +
+    '<button type="button">Inner A</button></primitiv-radio-card-item></primitiv-radio-card>',
+  "radio-card-oob-item":
+    '<div hx-swap-oob="beforeend:#oob">' +
+    '<primitiv-radio-card-item value="enterprise"><button type="button">Enterprise</button></primitiv-radio-card-item></div>',
+  "radio-card-oob-value": `<div hx-swap-oob="outerHTML:#rerendered">${radioCardHtml({ value: "team" }, "rerendered")}</div>`,
+  "radio-card-preserve": `<div id="preserve-region"><p>Swapped region</p>${radioCardHtml({}, "preserved").replace("<primitiv-radio-card ", '<primitiv-radio-card hx-preserve="true" ')}</div>`,
+  "radio-card-echo": (url: string) =>
+    `<span data-testid="echo">server saw ${new URL(url, "http://lab").searchParams.get("value")} (${++radioCardEchoes})</span>`,
+  "radio-card-rtl": `<div dir="rtl">${radioCardHtml({}, "rtl")}</div>`,
+  // The CheckboxCard page's cases (checkbox-card-htmx.html), named to match.
+  "checkbox-card": checkboxCardHtml({ checked: "indeterminate" }, "swapped", "Swapped"),
+  "checkbox-card-oob": `<div hx-swap-oob="beforeend:#oob-region">${checkboxCardHtml({}, "second", "Second")}</div>`,
+  "checkbox-card-oob-value": `<div hx-swap-oob="outerHTML:#rerendered">${checkboxCardHtml({ checked: "true" }, "rerendered", "Re-rendered")}</div>`,
+  "checkbox-card-preserve": `<div id="preserve-region"><p>Swapped region</p>${checkboxCardHtml({}, "preserved", "Preserved").replace("<primitiv-checkbox-card ", '<primitiv-checkbox-card hx-preserve="true" ')}</div>`,
+  "checkbox-card-echo": (url: string) =>
+    `<span data-testid="echo">server saw ${new URL(url, "http://lab").searchParams.get("checked")} (${++checkboxCardEchoes})</span>`,
+  // The Slider page's cases (slider-htmx.html), named to match.
+  slider: sliderHtml({ value: "30" }, "swapped"),
+  "slider-oob-thumb":
+    '<div hx-swap-oob="beforeend:#oob"><primitiv-slider-thumb aria-label="oob thumb 3" style="display:block;width:12px;height:12px"></primitiv-slider-thumb></div>',
+  "slider-oob-value": `<div hx-swap-oob="outerHTML:#rerendered">${sliderHtml({ value: "75" }, "rerendered")}</div>`,
+  "slider-preserve": `<div id="preserve-region"><p>Swapped region</p>${sliderHtml({}, "preserved").replace("<primitiv-slider ", '<primitiv-slider hx-preserve="true" ')}</div>`,
+  "slider-echo": (url: string) =>
+    `<span data-testid="echo">server saw ${new URL(url, "http://lab").searchParams.get("value")} (${++sliderEchoes})</span>`,
+  "slider-rtl": `<div dir="rtl">${sliderHtml({}, "rtl")}</div>`,
   // The SegmentedControl page's cases (segmented-control-htmx.html), named to match.
   "segmented-control": segmentedControlHtml({ value: "week" }, "swapped"),
   "segmented-control-nested":

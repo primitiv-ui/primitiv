@@ -491,3 +491,51 @@ test("the printed segmented control's segments are the track's grid items, style
   expect(Math.abs(a!.y - b!.y)).toBeLessThan(1);
   expect(Math.abs(a!.width - b!.width)).toBeLessThan(1);
 });
+
+for (const component of ["radio-card", "checkbox-card", "slider"]) {
+  test(`add ${component} printed the per-component script for its first release`, () => {
+    const output = readFileSync(`styled-site/add-${component}-output.txt`, "utf8");
+    expect(output).toMatch(new RegExp(`@primitiv-ui/web@[\\d.]+/dist/cdn/${component}\\.js`));
+  });
+}
+
+test("the printed radio cards are styled and working, the dot following the selection", async ({ page }) => {
+  const group = page.getByRole("radiogroup", { name: "Plan" });
+  await expect(group).toHaveCSS("display", "block");
+  await expect(page.locator("primitiv-radio-card-item").first()).toHaveCSS("display", "contents");
+  const pro = group.getByRole("radio", { name: /Pro/ });
+  const starter = group.getByRole("radio", { name: /Starter/ });
+  await expect(pro).toHaveAttribute("aria-checked", "true");
+  const border = (locator: typeof pro) => locator.evaluate((el) => getComputedStyle(el).borderColor);
+  expect(await border(pro)).not.toBe(await border(starter));
+  await starter.click();
+  await expect(starter).toHaveAttribute("aria-checked", "true");
+  await expect(group).toHaveAttribute("value", "starter");
+  await expect(starter.locator(".primitiv-radio-card__dot")).toHaveAttribute("data-state", "checked");
+});
+
+test("the printed checkbox card is styled and working, its mark following the state", async ({ page }) => {
+  const card = page.getByRole("checkbox", { name: /Email updates/ });
+  await expect(page.locator("primitiv-checkbox-card")).toHaveCSS("display", "contents");
+  await expect(card).toHaveAttribute("aria-checked", "true");
+  const mark = card.locator(".primitiv-checkbox-card__mark");
+  await expect(mark).toHaveAttribute("data-state", "checked");
+  await card.click();
+  await expect(card).toHaveAttribute("aria-checked", "false");
+  await expect(mark).toHaveAttribute("data-state", "unchecked");
+});
+
+test("the printed slider is styled and working: the thumb sits at its value and follows a press", async ({ page }) => {
+  const root = page.locator("primitiv-slider");
+  const thumb = page.getByRole("slider", { name: "Volume" });
+  await expect(thumb).toHaveAttribute("aria-valuenow", "40");
+  await root.scrollIntoViewIfNeeded();
+  const box = (await root.boundingBox())!;
+  const thumbBox = (await thumb.boundingBox())!;
+  // The registry centres the thumb on its inset with a -50% translate.
+  expect(Math.abs(thumbBox.x + thumbBox.width / 2 - (box.x + box.width * 0.4))).toBeLessThan(2);
+  await page.mouse.click(box.x + box.width * 0.8, box.y + box.height / 2);
+  await expect(thumb).toHaveAttribute("aria-valuenow", "80");
+  const range = (await page.locator("primitiv-slider-range").boundingBox())!;
+  expect(Math.abs(range.x + range.width - (box.x + box.width * 0.8))).toBeLessThan(2);
+});

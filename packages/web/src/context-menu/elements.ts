@@ -1,5 +1,5 @@
-import { defineElements, ElementBase, write, type ElementRegistry } from "../internal/element.ts";
-import { MenuRootElement, MenuSubElement, menuTags, type MenuTags } from "../menu/elements.ts";
+import { ElementBase, write, type ElementRegistry } from "../internal/element.ts";
+import { defineMenu, MenuRootElement, MenuSubElement, menuTags, type MenuTags } from "../menu/elements.ts";
 
 export type { ElementRegistry };
 
@@ -210,20 +210,20 @@ export class PrimitivContextMenuSubContentElement extends ElementBase {}
  * there is no registry (a server render).
  */
 export function defineContextMenu(registry: ElementRegistry | undefined = globalThis.customElements): void {
-  defineElements(registry, [
-    [TAGS.root, PrimitivContextMenuElement],
-    [TAGS.trigger, PrimitivContextMenuTriggerElement],
-    [TAGS.content, PrimitivContextMenuContentElement],
-    [TAGS.item, PrimitivContextMenuItemElement],
-    [TAGS.checkboxItem, PrimitivContextMenuCheckboxItemElement],
-    [TAGS.radioGroup, PrimitivContextMenuRadioGroupElement],
-    [TAGS.radioItem, PrimitivContextMenuRadioItemElement],
-    [TAGS.indicator, PrimitivContextMenuItemIndicatorElement],
-    [TAGS.group, PrimitivContextMenuGroupElement],
-    [TAGS.label, PrimitivContextMenuLabelElement],
-    [TAGS.separator, PrimitivContextMenuSeparatorElement],
-    [TAGS.sub, PrimitivContextMenuSubElement],
-    [TAGS.subTrigger, PrimitivContextMenuSubTriggerElement],
-    [TAGS.subContent, PrimitivContextMenuSubContentElement],
+  defineMenu(registry, TAGS, [
+    PrimitivContextMenuElement,
+    PrimitivContextMenuTriggerElement,
+    PrimitivContextMenuContentElement,
+    PrimitivContextMenuItemElement,
+    PrimitivContextMenuCheckboxItemElement,
+    PrimitivContextMenuRadioGroupElement,
+    PrimitivContextMenuRadioItemElement,
+    PrimitivContextMenuItemIndicatorElement,
+    PrimitivContextMenuGroupElement,
+    PrimitivContextMenuLabelElement,
+    PrimitivContextMenuSeparatorElement,
+    PrimitivContextMenuSubElement,
+    PrimitivContextMenuSubTriggerElement,
+    PrimitivContextMenuSubContentElement,
   ]);
 }

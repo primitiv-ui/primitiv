@@ -1,4 +1,4 @@
-import { reportOnce, write } from "../internal/element.ts";
+import { defineElements, reportOnce, write, type ElementRegistry } from "../internal/element.ts";
 import { PrimitivRootElement } from "../internal/RootElement.ts";
 import { DropdownController, type DropdownControllerHost } from "../dropdown/DropdownController.ts";
 import { DropdownSubController, type DropdownSubControllerHost } from "../dropdown/DropdownSubController.ts";
@@ -42,6 +42,24 @@ export function menuTags(root: string): MenuTags {
     subContent: `${root}-sub-content`,
   };
   return { ...tags, items: `${tags.item},${tags.checkboxItem},${tags.radioItem}` };
+}
+
+/**
+ * Define a menu component's fourteen elements on `registry`: `classes` in the
+ * order of {@link MenuTags} — root, trigger, content, item, checkbox item,
+ * radio group, radio item, indicator, group, label, separator, sub,
+ * sub-trigger, sub-content.
+ */
+export function defineMenu(
+  registry: ElementRegistry | undefined,
+  tags: MenuTags,
+  classes: readonly CustomElementConstructor[],
+): void {
+  const names = Object.values(tags);
+  defineElements(
+    registry,
+    classes.map((element, index) => [names[index], element]),
+  );
 }
 
 /** The one element child an interactive part decorates, or `null`, reported once, without exactly one. */
@@ -99,6 +117,7 @@ export abstract class MenuRootElement extends PrimitivRootElement {
   protected abstract reconcileContent(content: HTMLElement, open: boolean): void;
 
   /** The element to show the menu from, its implicit anchor; none by default. */
+  // Stryker disable next-line BlockStatement: equivalent — undefined and null both mean no source to the controller.
   protected source(): HTMLElement | null {
     return null;
   }

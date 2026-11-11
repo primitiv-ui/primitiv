@@ -1,5 +1,5 @@
-import { defineElements, ElementBase, write, type ElementRegistry } from "../internal/element.ts";
-import { decoratable, MenuRootElement, MenuSubElement, menuTags, type MenuTags } from "../menu/elements.ts";
+import { ElementBase, write, type ElementRegistry } from "../internal/element.ts";
+import { decoratable, defineMenu, MenuRootElement, MenuSubElement, menuTags, type MenuTags } from "../menu/elements.ts";
 
 export type { ElementRegistry };
 
@@ -189,20 +189,20 @@ export class PrimitivDropdownSubContentElement extends ElementBase {}
  * there is no registry (a server render).
  */
 export function defineDropdown(registry: ElementRegistry | undefined = globalThis.customElements): void {
-  defineElements(registry, [
-    [TAGS.root, PrimitivDropdownElement],
-    [TAGS.trigger, PrimitivDropdownTriggerElement],
-    [TAGS.content, PrimitivDropdownContentElement],
-    [TAGS.item, PrimitivDropdownItemElement],
-    [TAGS.checkboxItem, PrimitivDropdownCheckboxItemElement],
-    [TAGS.radioGroup, PrimitivDropdownRadioGroupElement],
-    [TAGS.radioItem, PrimitivDropdownRadioItemElement],
-    [TAGS.indicator, PrimitivDropdownItemIndicatorElement],
-    [TAGS.group, PrimitivDropdownGroupElement],
-    [TAGS.label, PrimitivDropdownLabelElement],
-    [TAGS.separator, PrimitivDropdownSeparatorElement],
-    [TAGS.sub, PrimitivDropdownSubElement],
-    [TAGS.subTrigger, PrimitivDropdownSubTriggerElement],
-    [TAGS.subContent, PrimitivDropdownSubContentElement],
+  defineMenu(registry, TAGS, [
+    PrimitivDropdownElement,
+    PrimitivDropdownTriggerElement,
+    PrimitivDropdownContentElement,
+    PrimitivDropdownItemElement,
+    PrimitivDropdownCheckboxItemElement,
+    PrimitivDropdownRadioGroupElement,
+    PrimitivDropdownRadioItemElement,
+    PrimitivDropdownItemIndicatorElement,
+    PrimitivDropdownGroupElement,
+    PrimitivDropdownLabelElement,
+    PrimitivDropdownSeparatorElement,
+    PrimitivDropdownSubElement,
+    PrimitivDropdownSubTriggerElement,
+    PrimitivDropdownSubContentElement,
   ]);
 }

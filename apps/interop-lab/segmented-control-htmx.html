@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+  <head><meta charset="utf-8" /><link rel="icon" href="data:," /><title>Interop lab — Segmented Control, HTMX</title></head>
+  <body hx-history-elt>
+    <!-- 1. Full fragment swap -->
+    <section>
+      <button type="button" id="load-control" hx-get="/fragments/segmented-control" hx-target="#slot-1">Load control</button>
+      <div id="slot-1"></div>
+    </section>
+
+    <!-- 2. A control swapped into another -->
+    <section id="outer-region"></section>
+    <button type="button" id="load-nested" hx-get="/fragments/segmented-control-nested" hx-target="#outer-slot">Load nested</button>
+
+    <!-- 3. An out-of-band segment -->
+    <section id="oob-region"></section>
+    <button type="button" id="load-oob" hx-get="/fragments/segmented-control-oob-item" hx-swap="none">Add a segment</button>
+
+    <!-- 4. Server re-render with a new value -->
+    <section id="rerender-region"></section>
+    <button type="button" id="load-value" hx-get="/fragments/segmented-control-oob-value" hx-swap="none">Select month</button>
+
+    <!-- 5. hx-preserve -->
+    <div id="preserve-region"></div>
+    <button type="button" id="swap-preserve" hx-get="/fragments/segmented-control-preserve" hx-target="#preserve-region" hx-swap="outerHTML">Swap region</button>
+
+    <!-- 6. History -->
+    <section id="history-region"></section>
+    <a id="go-two" href="/page-two" hx-get="/fragments/page-two" hx-target="#history-target" hx-push-url="/segmented-control-page-two">Go to page two</a>
+    <div id="history-target"></div>
+
+    <!-- 7. hx-trigger on the change event, and a veto -->
+    <section id="echo-region"></section>
+    <div id="echo-target"></div>
+
+    <!-- 8. Right to left -->
+    <button type="button" id="load-rtl" hx-get="/fragments/segmented-control-rtl" hx-target="#rtl-slot">Load RTL control</button>
+    <div id="rtl-slot"></div>
+
+    <script type="module" src="/src/segmented-control-htmx.ts"></script>
+  </body>
+</html>

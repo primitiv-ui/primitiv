@@ -466,3 +466,28 @@ test("the printed toggle group's items are the track's flex items, styled and wo
   expect(Math.abs(a!.y - b!.y)).toBeLessThan(1);
   expect(b!.x).toBeGreaterThan(a!.x + a!.width - 1);
 });
+
+test("add segmented-control printed the per-component script for its first release", () => {
+  const output = readFileSync("styled-site/add-segmented-control-output.txt", "utf8");
+  expect(output).toMatch(/@primitiv-ui\/web@[\d.]+\/dist\/cdn\/segmented-control\.js/);
+});
+
+test("the printed segmented control's segments are the track's grid items, styled and working", async ({ page }) => {
+  const control = page.getByRole("radiogroup", { name: "Range" });
+  await expect(page.locator("primitiv-segmented-control-item").first()).toHaveCSS("display", "contents");
+  await expect(control).toHaveCSS("display", /grid/);
+  const day = control.getByRole("radio", { name: "Day" });
+  const week = control.getByRole("radio", { name: "Week" });
+  const month = control.getByRole("radio", { name: "Month" });
+  await expect(week).toHaveAttribute("aria-checked", "true");
+  // A selected segment and an unselected one are painted differently.
+  const fill = (locator: typeof day) => locator.evaluate((el) => getComputedStyle(el).backgroundColor);
+  expect(await fill(week)).not.toBe(await fill(day));
+  await month.click();
+  await expect(month).toHaveAttribute("aria-checked", "true");
+  await expect(control).toHaveAttribute("value", "month");
+  // --justified shares the track: the segments sit side by side at one width.
+  const [a, b] = await Promise.all([day.boundingBox(), month.boundingBox()]);
+  expect(Math.abs(a!.y - b!.y)).toBeLessThan(1);
+  expect(Math.abs(a!.width - b!.width)).toBeLessThan(1);
+});

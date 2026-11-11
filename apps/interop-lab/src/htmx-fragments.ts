@@ -10,6 +10,7 @@ import { dropdownHtml } from "./dropdown-fixture.ts";
 import { popoverHtml } from "./popover-fixture.ts";
 import { tooltipHtml } from "./tooltip-fixture.ts";
 import { tabsHtml } from "./fixture.ts";
+import { segmentedControlHtml } from "./segmented-control-fixture.ts";
 import { toggleGroupHtml } from "./toggle-group-fixture.ts";
 
 let lazyLoads = 0;
@@ -24,6 +25,7 @@ let tooltipEchoes = 0;
 let dropdownEchoes = 0;
 let contextMenuEchoes = 0;
 let toggleGroupEchoes = 0;
+let segmentedControlEchoes = 0;
 
 export const fragments: Record<string, string | ((url: string) => string)> = {
   // Case 1: a whole tab set arrives in a fragment.
@@ -153,6 +155,19 @@ export const fragments: Record<string, string | ((url: string) => string)> = {
   "context-menu-echo": (url: string) =>
     `<span data-testid="echo">server saw ${new URL(url, "http://lab").searchParams.get("open")} (${++contextMenuEchoes})</span>`,
 
+  // The SegmentedControl page's cases (segmented-control-htmx.html), named to match.
+  "segmented-control": segmentedControlHtml({ value: "week" }, "swapped"),
+  "segmented-control-nested":
+    '<primitiv-segmented-control id="inner" aria-label="Inner"><primitiv-segmented-control-item value="a">' +
+    '<button type="button">Inner A</button></primitiv-segmented-control-item></primitiv-segmented-control>',
+  "segmented-control-oob-item":
+    '<div hx-swap-oob="beforeend:#oob">' +
+    '<primitiv-segmented-control-item value="year"><button type="button">Year</button></primitiv-segmented-control-item></div>',
+  "segmented-control-oob-value": `<div hx-swap-oob="outerHTML:#rerendered">${segmentedControlHtml({ value: "month" }, "rerendered")}</div>`,
+  "segmented-control-preserve": `<div id="preserve-region"><p>Swapped region</p>${segmentedControlHtml({}, "preserved").replace("<primitiv-segmented-control ", '<primitiv-segmented-control hx-preserve="true" ')}</div>`,
+  "segmented-control-echo": (url: string) =>
+    `<span data-testid="echo">server saw ${new URL(url, "http://lab").searchParams.get("value")} (${++segmentedControlEchoes})</span>`,
+  "segmented-control-rtl": `<div dir="rtl">${segmentedControlHtml({}, "rtl")}</div>`,
   // The ToggleGroup page's cases (toggle-group-htmx.html), named to match.
   "toggle-group": toggleGroupHtml({ value: "italic" }, "swapped"),
   "toggle-group-nested":

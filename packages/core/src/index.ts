@@ -55,6 +55,23 @@ export {
   type CheckboxCardState,
 } from "./checkbox-card/policy.ts";
 export {
+  sliderClosestThumb,
+  sliderEdge,
+  sliderKeyValue,
+  sliderPercent,
+  sliderPointerValue,
+  sliderRangeInsets,
+  sliderSetThumb,
+  sliderSnap,
+  sliderThumbInset,
+  type SliderAxis,
+  type SliderEdge,
+  type SliderInset,
+  type SliderOrientation,
+  type SliderReadingDirection,
+  type SliderScale,
+} from "./slider/policy.ts";
+export {
   collapsibleKeydown,
   collapsibleToggle,
   type CollapsibleKeyOutcome,

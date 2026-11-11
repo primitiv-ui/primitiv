@@ -1,4 +1,4 @@
-import { menuKeydown, menuTypeahead } from "../policy";
+import { MENU_ITEM_SELECTOR, menuKeydown, menuTypeahead } from "../policy";
 
 describe("menuKeydown", () => {
   it("moves down to the next item, wrapping from the last to the first", () => {
@@ -90,5 +90,12 @@ describe("menuTypeahead", () => {
   it.each([" ", "ArrowDown", "Enter"])("leaves %j alone", (key) => {
     // Arrange & Act & Assert
     expect(menuTypeahead({ query: "p", key, labels, active: 0 })).toBeNull();
+  });
+});
+
+describe("MENU_ITEM_SELECTOR", () => {
+  it("matches every item role — menuitem, menuitemcheckbox, menuitemradio — leaving out the disabled", () => {
+    // Arrange & Act & Assert
+    expect(MENU_ITEM_SELECTOR).toBe('[role^="menuitem"]:not([aria-disabled="true"])');
   });
 });

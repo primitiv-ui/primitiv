@@ -247,6 +247,33 @@ test("the Dropdown previews are <primitiv-dropdown> elements anchored to their t
   await expect(trigger).toBeFocused();
 });
 
+test("the Context Menu previews are <primitiv-context-menu> elements opened at the pointer", async ({ page }) => {
+  await page.goto("/components/context-menu/");
+  await expect(page.getByText(/dist\/cdn\/context-menu\.js/).first()).toBeVisible();
+  const example = cell(page, "actions");
+  const region = example.locator("primitiv-context-menu-trigger");
+  // The definition loads on demand: wait for the element to have marked its region.
+  await expect(region).toHaveAttribute("data-state", "closed");
+  // Click the region itself, so a late layout shift cannot move it from under the pointer.
+  await region.click({ button: "right", position: { x: 30, y: 20 } });
+  const box = (await region.boundingBox())!;
+  const [x, y] = [box.x + 30, box.y + 20];
+  const menu = example.locator("primitiv-context-menu-content");
+  await expect(menu).toBeVisible();
+  await expect(menu).toHaveClass(/primitiv-context-menu/);
+  await expect(page.getByRole("menuitem", { name: /^Cut/ })).toBeFocused();
+  // No inline left / top: the menu is placed from the position the element publishes.
+  const near = (a: number, b: number) => Math.abs(a - b) < 2;
+  await expect
+    .poll(async () => {
+      const m = (await menu.boundingBox())!;
+      return (near(m.x, x) || near(m.x + m.width, x)) && (near(m.y, y) || near(m.y + m.height, y));
+    })
+    .toBe(true);
+  await page.keyboard.press("Escape");
+  await expect(menu).toBeHidden();
+});
+
 test("the Prose preview is plain markup whose children take the flow rhythm", async ({ page }) => {
   await page.goto("/components/prose/");
   const flow = page.locator(".docs-elements-preview .primitiv-flow").first();

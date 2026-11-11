@@ -73,13 +73,28 @@ jobs:
         with:
           key: ${{ matrix.target }}
 
-      # ring (rustls' crypto) compiles C, so a musl target needs musl-gcc.
-      - name: Install musl toolchain
+      # ring (rustls' crypto) compiles C, so a musl target needs a C toolchain
+      # for musl. Zig is that toolchain, through cargo-zigbuild, both from PyPI:
+      # apt's musl-tools tied every release to the runners reaching Ubuntu's
+      # mirrors, and 0.1.60's publish failed twice when they could not.
+      - name: Set up Python for the Zig toolchain
         if: runner.os == 'Linux'
-        run: sudo apt-get update && sudo apt-get install -y musl-tools
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Zig and cargo-zigbuild
+        if: runner.os == 'Linux'
+        run: python -m pip install ziglang==0.17.1 cargo-zigbuild==0.24.1
 
       - name: Build
-        run: cargo build --release --target ${{ matrix.target }} -p primitiv-cli
+        shell: bash
+        run: |
+          if [ "${{ runner.os }}" = "Linux" ]; then
+            cargo zigbuild --release --target ${{ matrix.target }} -p primitiv-cli
+          else
+            cargo build --release --target ${{ matrix.target }} -p primitiv-cli
+          fi
 
       # Fail the release rather than ship a Linux binary that depends on the
       # runner's glibc.

@@ -223,6 +223,30 @@ test("the Tooltip previews are <primitiv-tooltip> elements anchored above their 
   await expect(trigger).toBeFocused();
 });
 
+test("the Dropdown previews are <primitiv-dropdown> elements anchored to their trigger", async ({ page }) => {
+  await page.goto("/components/dropdown/");
+  await expect(page.getByText(/dist\/cdn\/dropdown\.js/).first()).toBeVisible();
+  const example = cell(page, "actions");
+  const trigger = example.getByRole("button", { name: "Actions" });
+  // The definition loads on demand: wait for the element to have wired its button.
+  await expect(trigger).toHaveAttribute("aria-haspopup", "menu");
+  await trigger.click();
+  const menu = page.getByRole("menu").filter({ has: page.getByRole("menuitem", { name: "Duplicate" }) });
+  await expect(menu).toBeVisible();
+  await expect(menu).toHaveClass(/primitiv-dropdown/);
+  await expect(page.getByRole("menuitem", { name: "Edit" })).toBeFocused();
+  // No anchor-name in the markup: the trigger is the menu's implicit anchor.
+  await expect
+    .poll(async () => {
+      const [t, m] = await Promise.all([trigger.boundingBox(), menu.boundingBox()]);
+      return Math.abs(m!.x - t!.x) < 2 && (m!.y >= t!.y + t!.height || m!.y + m!.height <= t!.y);
+    })
+    .toBe(true);
+  await page.keyboard.press("Escape");
+  await expect(menu).toBeHidden();
+  await expect(trigger).toBeFocused();
+});
+
 test("the Prose preview is plain markup whose children take the flow rhythm", async ({ page }) => {
   await page.goto("/components/prose/");
   const flow = page.locator(".docs-elements-preview .primitiv-flow").first();

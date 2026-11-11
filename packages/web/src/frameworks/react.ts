@@ -98,6 +98,11 @@ import type {
   PrimitivSegmentedControlElement,
   PrimitivSegmentedControlItemElement,
 } from "../segmented-control/elements.ts";
+import type {
+  PrimitivRadioCardElement,
+  PrimitivRadioCardIndicatorElement,
+  PrimitivRadioCardItemElement,
+} from "../radio-card/elements.ts";
 import type { PrimitivToggleGroupElement, PrimitivToggleGroupItemElement } from "../toggle-group/elements.ts";
 import type {
   PrimitivAccordionChangeEvent,
@@ -118,6 +123,7 @@ import type {
   PrimitivTooltipChangeEvent,
   PrimitivToggleGroupChangeEvent,
   PrimitivSegmentedControlChangeEvent,
+  PrimitivRadioCardChangeEvent,
 } from "./events.ts";
 
 /** React's own props for an element, plus `class`, which React 19 passes to custom elements. */
@@ -338,6 +344,18 @@ declare module "react" {
       "primitiv-segmented-control-item": ElementProps<PrimitivSegmentedControlItemElement> & {
         value: string;
         disabled?: boolean;
+      };
+      "primitiv-radio-card": ElementProps<PrimitivRadioCardElement> & {
+        value?: string;
+        orientation?: "both" | "horizontal" | "vertical";
+        "onprimitiv-radio-card-change"?: (event: PrimitivRadioCardChangeEvent) => void;
+      };
+      "primitiv-radio-card-item": ElementProps<PrimitivRadioCardItemElement> & {
+        value: string;
+        disabled?: boolean;
+      };
+      "primitiv-radio-card-indicator": ElementProps<PrimitivRadioCardIndicatorElement> & {
+        "force-mount"?: boolean;
       };
     }
   }

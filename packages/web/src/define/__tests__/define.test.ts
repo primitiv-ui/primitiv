@@ -176,6 +176,16 @@ it("defines the SegmentedControl elements when define/segmented-control is impor
   }
 });
 
+it("defines the RadioCard elements when define/radio-card is imported", async () => {
+  // Arrange & Act
+  await import("../radio-card");
+
+  // Assert
+  for (const name of ["primitiv-radio-card", "primitiv-radio-card-item", "primitiv-radio-card-indicator"]) {
+    expect(customElements.get(name)).toBeDefined();
+  }
+});
+
 it("defines every component's elements when define is imported", async () => {
   // Arrange & Act
   const module = await import("../index");
@@ -192,4 +202,5 @@ it("defines every component's elements when define is imported", async () => {
   expect(customElements.get("primitiv-context-menu")).toBeDefined();
   expect(customElements.get("primitiv-toggle-group")).toBeDefined();
   expect(customElements.get("primitiv-segmented-control")).toBeDefined();
+  expect(customElements.get("primitiv-radio-card")).toBeDefined();
 });

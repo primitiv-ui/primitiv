@@ -27,6 +27,9 @@ export type PrimitivToggleGroupChangeEvent = CustomEvent<{ value: string[] }>;
 /** The `primitiv-segmented-control-change` event: bubbles, cancelable, fired before the change applies, with the segment selected afterwards. */
 export type PrimitivSegmentedControlChangeEvent = CustomEvent<{ value: string }>;
 
+/** The `primitiv-radio-card-change` event: bubbles, cancelable, fired before the change applies, with the card selected afterwards. */
+export type PrimitivRadioCardChangeEvent = CustomEvent<{ value: string }>;
+
 /** The `primitiv-dropdown-change` event: bubbles, cancelable, fired before the change applies, with the open state afterwards. */
 export type PrimitivDropdownChangeEvent = CustomEvent<{ open: boolean }>;
 

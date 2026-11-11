@@ -97,6 +97,11 @@ import type {
   PrimitivSegmentedControlElement,
   PrimitivSegmentedControlItemElement,
 } from "../segmented-control/elements.ts";
+import type {
+  PrimitivRadioCardElement,
+  PrimitivRadioCardIndicatorElement,
+  PrimitivRadioCardItemElement,
+} from "../radio-card/elements.ts";
 import type { PrimitivToggleGroupElement, PrimitivToggleGroupItemElement } from "../toggle-group/elements.ts";
 import type {
   PrimitivAccordionChangeEvent,
@@ -117,6 +122,7 @@ import type {
   PrimitivTooltipChangeEvent,
   PrimitivToggleGroupChangeEvent,
   PrimitivSegmentedControlChangeEvent,
+  PrimitivRadioCardChangeEvent,
 } from "./events.ts";
 
 /** Svelte's own attributes and events for an element. */
@@ -309,6 +315,18 @@ declare module "svelte/elements" {
     "primitiv-segmented-control-item": Attributes<PrimitivSegmentedControlItemElement> & {
       value: string;
       disabled?: boolean;
+    };
+    "primitiv-radio-card": Attributes<PrimitivRadioCardElement> & {
+      value?: string;
+      orientation?: "both" | "horizontal" | "vertical";
+      "onprimitiv-radio-card-change"?: (event: PrimitivRadioCardChangeEvent) => void;
+    };
+    "primitiv-radio-card-item": Attributes<PrimitivRadioCardItemElement> & {
+      value: string;
+      disabled?: boolean;
+    };
+    "primitiv-radio-card-indicator": Attributes<PrimitivRadioCardIndicatorElement> & {
+      "force-mount"?: boolean;
     };
   }
 }

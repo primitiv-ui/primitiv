@@ -89,6 +89,11 @@ import type {
   PrimitivTooltipTriggerElement,
 } from "./tooltip/elements.ts";
 import type {
+  PrimitivRadioCardElement,
+  PrimitivRadioCardIndicatorElement,
+  PrimitivRadioCardItemElement,
+} from "./radio-card/elements.ts";
+import type {
   PrimitivSegmentedControlElement,
   PrimitivSegmentedControlItemElement,
 } from "./segmented-control/elements.ts";
@@ -158,6 +163,9 @@ declare global {
     "primitiv-toggle-group-item": PrimitivToggleGroupItemElement;
     "primitiv-segmented-control": PrimitivSegmentedControlElement;
     "primitiv-segmented-control-item": PrimitivSegmentedControlItemElement;
+    "primitiv-radio-card": PrimitivRadioCardElement;
+    "primitiv-radio-card-item": PrimitivRadioCardItemElement;
+    "primitiv-radio-card-indicator": PrimitivRadioCardIndicatorElement;
   }
 }
 

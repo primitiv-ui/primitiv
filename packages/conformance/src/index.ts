@@ -48,3 +48,9 @@ export {
   type SegmentedControlConformanceFixture,
   type SegmentedControlMount,
 } from "./segmented-control.ts";
+export {
+  RADIO_CARD_ITEMS,
+  runRadioCardConformance,
+  type RadioCardConformanceFixture,
+  type RadioCardMount,
+} from "./radio-card.ts";

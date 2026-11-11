@@ -39,6 +39,7 @@ import type {
   PrimitivTooltipChangeEvent,
   PrimitivToggleGroupChangeEvent,
   PrimitivSegmentedControlChangeEvent,
+  PrimitivRadioCardChangeEvent,
 } from "./events.ts";
 
 /** A tag as Vue's template checker sees it: its props, and the events it emits. */
@@ -156,5 +157,11 @@ declare module "vue" {
       { "primitiv-segmented-control-change": (event: PrimitivSegmentedControlChangeEvent) => void }
     >;
     "primitiv-segmented-control-item": Tag<{ value: string; disabled?: boolean | "" }>;
+    "primitiv-radio-card": Tag<
+      { value?: string; orientation?: "both" | "horizontal" | "vertical" },
+      { "primitiv-radio-card-change": (event: PrimitivRadioCardChangeEvent) => void }
+    >;
+    "primitiv-radio-card-item": Tag<{ value: string; disabled?: boolean | "" }>;
+    "primitiv-radio-card-indicator": Tag<{ forceMount?: boolean | "" }>;
   }
 }

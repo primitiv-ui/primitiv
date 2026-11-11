@@ -34,6 +34,10 @@
       "types": "./src/popover/index.ts",
       "default": "./src/popover/index.ts"
     },
+    "./radio-card": {
+      "types": "./src/radio-card/index.ts",
+      "default": "./src/radio-card/index.ts"
+    },
     "./segmented-control": {
       "types": "./src/segmented-control/index.ts",
       "default": "./src/segmented-control/index.ts"
@@ -77,6 +81,10 @@
     "./define/popover": {
       "types": "./src/define/popover.ts",
       "default": "./src/define/popover.ts"
+    },
+    "./define/radio-card": {
+      "types": "./src/define/radio-card.ts",
+      "default": "./src/define/radio-card.ts"
     },
     "./define/segmented-control": {
       "types": "./src/define/segmented-control.ts",
@@ -189,6 +197,10 @@
         "types": "./dist/popover/index.d.ts",
         "default": "./dist/popover/index.js"
       },
+      "./radio-card": {
+        "types": "./dist/radio-card/index.d.ts",
+        "default": "./dist/radio-card/index.js"
+      },
       "./segmented-control": {
         "types": "./dist/segmented-control/index.d.ts",
         "default": "./dist/segmented-control/index.js"
@@ -232,6 +244,10 @@
       "./define/popover": {
         "types": "./dist/define/popover.d.ts",
         "default": "./dist/define/popover.js"
+      },
+      "./define/radio-card": {
+        "types": "./dist/define/radio-card.d.ts",
+        "default": "./dist/define/radio-card.js"
       },
       "./define/segmented-control": {
         "types": "./dist/define/segmented-control.d.ts",

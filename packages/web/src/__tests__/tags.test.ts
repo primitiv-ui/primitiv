@@ -63,6 +63,9 @@ import type {
   PrimitivTooltipElement,
   PrimitivTooltipProviderElement,
   PrimitivTooltipTriggerElement,
+  PrimitivRadioCardElement,
+  PrimitivRadioCardIndicatorElement,
+  PrimitivRadioCardItemElement,
   PrimitivSegmentedControlElement,
   PrimitivSegmentedControlItemElement,
   PrimitivToggleGroupElement,
@@ -110,6 +113,12 @@ it("types every Popover tag in HTMLElementTagNameMap", () => {
   expectTypeOf(document.createElement("primitiv-popover-title")).toEqualTypeOf<PrimitivPopoverTitleElement>();
   expectTypeOf(document.createElement("primitiv-popover-description")).toEqualTypeOf<PrimitivPopoverDescriptionElement>();
   expectTypeOf(document.createElement("primitiv-popover-close")).toEqualTypeOf<PrimitivPopoverCloseElement>();
+});
+
+it("types every RadioCard tag in HTMLElementTagNameMap", () => {
+  expectTypeOf(document.querySelector("primitiv-radio-card")).toEqualTypeOf<PrimitivRadioCardElement | null>();
+  expectTypeOf(document.createElement("primitiv-radio-card-item")).toEqualTypeOf<PrimitivRadioCardItemElement>();
+  expectTypeOf(document.createElement("primitiv-radio-card-indicator")).toEqualTypeOf<PrimitivRadioCardIndicatorElement>();
 });
 
 it("types every SegmentedControl tag in HTMLElementTagNameMap", () => {

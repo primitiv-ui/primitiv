@@ -1,51 +1,11 @@
-import { defineElements, ElementBase, reportOnce, write, type ElementRegistry } from "../internal/element.ts";
-import { PrimitivRootElement } from "../internal/RootElement.ts";
-import { DropdownController, type DropdownControllerHost } from "./DropdownController.ts";
-import { DropdownSubController, type DropdownSubControllerHost } from "./DropdownSubController.ts";
+import { defineElements, ElementBase, write, type ElementRegistry } from "../internal/element.ts";
+import { decoratable, MenuRootElement, MenuSubElement, menuTags, type MenuTags } from "../menu/elements.ts";
 
 export type { ElementRegistry };
 
-// Stryker disable StringLiteral: static — evaluated once at import, so runtime mutant switching never reaches them; the names are pinned by the defineDropdown registry test instead.
-const ROOT = "primitiv-dropdown";
-const TRIGGER = "primitiv-dropdown-trigger";
-const CONTENT = "primitiv-dropdown-content";
-const ITEM = "primitiv-dropdown-item";
-const CHECKBOX_ITEM = "primitiv-dropdown-checkbox-item";
-const RADIO_GROUP = "primitiv-dropdown-radio-group";
-const RADIO_ITEM = "primitiv-dropdown-radio-item";
-const INDICATOR = "primitiv-dropdown-item-indicator";
-const GROUP = "primitiv-dropdown-group";
-const LABEL = "primitiv-dropdown-label";
-const SEPARATOR = "primitiv-dropdown-separator";
-const SUB = "primitiv-dropdown-sub";
-const SUB_TRIGGER = "primitiv-dropdown-sub-trigger";
-const SUB_CONTENT = "primitiv-dropdown-sub-content";
-/** Every part that is a chosen item: the plain, checkbox and radio items. */
-const ITEMS = `${ITEM},${CHECKBOX_ITEM},${RADIO_ITEM}`;
+// Stryker disable StringLiteral: static — evaluated once at import, so runtime mutant switching never reaches it; the names are pinned by the defineDropdown registry test instead.
+const TAGS: MenuTags = menuTags("primitiv-dropdown");
 // Stryker restore StringLiteral
-
-/** The one element child an interactive part decorates, or `null`, reported once, without exactly one. */
-function decoratable(part: HTMLElement, what: string): HTMLElement | null {
-  if (part.childElementCount === 1) return part.firstElementChild as HTMLElement;
-  reportOnce(part, `<${part.localName}> needs exactly one element child (${what}) to decorate.`);
-  return null;
-}
-
-/** Fire a bubbling, cancelable event on `target`; whether no listener vetoed it. */
-function announceOn(target: Element, type: string, detail: unknown): boolean {
-  return target.dispatchEvent(new CustomEvent(type, { bubbles: true, cancelable: true, detail }));
-}
-
-/** A checkbox item's state, from its `checked` attribute: absent, present, or `"indeterminate"`. */
-function checkedState(part: Element): boolean | "indeterminate" {
-  const value = part.getAttribute("checked");
-  return value === "indeterminate" ? value : value !== null;
-}
-
-/** A radio item's state: whether its value is its group's. */
-function radioChecked(part: Element): boolean {
-  return part.closest(RADIO_GROUP)?.getAttribute("value") === part.getAttribute("value");
-}
 
 /**
  * `<primitiv-dropdown>` — the state owner of a dropdown menu (WAI-ARIA APG
@@ -67,168 +27,34 @@ function radioChecked(part: Element): boolean {
  * @fires {CustomEvent<{ checked: boolean }>} primitiv-dropdown-checked-change - Bubbles, cancelable, fired on a checkbox item before it changes, with its state afterwards. Call `preventDefault()` to veto it.
  * @fires {CustomEvent<{ value: string }>} primitiv-dropdown-value-change - Bubbles, cancelable, fired on a radio group before its value changes, with the value afterwards. Call `preventDefault()` to veto it.
  */
-export class PrimitivDropdownElement extends PrimitivRootElement {
-  /** The menu the root currently decorates, and the controller over it. */
-  #content: HTMLElement | null = null;
-  #menu: DropdownController | null = null;
+export class PrimitivDropdownElement extends MenuRootElement {
+  protected readonly tags: MenuTags = TAGS;
   /** The decorated trigger, as of the last reconcile. */
   #trigger: HTMLElement | null = null;
-  /** The root's own listeners, while connected. */
-  #listening: AbortController | null = null;
-  protected readonly controller: { connect(): void; disconnect(): void } = {
-    connect: (): void => this.#connect(),
-    disconnect: (): void => this.#disconnect(),
-  };
-  protected readonly reconcileOn: readonly string[] = ["open", "disabled", "checked", "value"];
 
-  /** Whether the menu is open, reflected as the boolean `open` attribute. */
-  get open(): boolean {
-    return this.hasAttribute("open");
+  /** The trigger toggles the menu. */
+  protected clickTrigger(target: Node): void {
+    if (this.#trigger?.contains(target)) this.change(!this.open);
   }
 
-  set open(next: boolean) {
-    this.toggleAttribute("open", next);
+  /** The menu is shown from its trigger, its implicit anchor. */
+  protected source(): HTMLElement | null {
+    return this.#trigger;
   }
 
-  /** The controller's view of this element: state lives in the reflected attribute. */
-  #host(): DropdownControllerHost {
-    return {
-      state: () => ({ open: this.open }),
-      change: (open) => this.#change(open),
-      trigger: () => this.#trigger,
-      source: () => this.#trigger,
-    };
+  protected reconcileContent(content: HTMLElement): void {
+    if (!content.hasAttribute("popover")) content.setAttribute("popover", "auto");
   }
 
-  /** A change the user asked for: announced first, so a listener can veto it. */
-  #change(open: boolean): void {
-    if (open === this.open) return;
-    if (this.announce("primitiv-dropdown-change", { open })) this.open = open;
-    // A veto can leave the menu out of step — the browser is light-dismissing
-    // it — so put it back where the state says, once that dismissal is done.
-    else queueMicrotask(() => this.#menu?.sync());
-  }
-
-  #connect(): void {
-    this.#listening = new AbortController();
-    const options = { signal: this.#listening.signal };
-    this.addEventListener("click", (event) => this.#click(event), options);
-    this.addEventListener("pointerover", (event) => this.#highlight(event, true), options);
-    this.addEventListener("pointerout", (event) => this.#highlight(event, false), options);
-    this.#menu?.connect();
-  }
-
-  #disconnect(): void {
-    // A root disconnects only after it connected, so it is listening.
-    (this.#listening as AbortController).abort();
-    this.#listening = null;
-    this.#menu?.disconnect();
-  }
-
-  /** The item part (of this root) an event landed in, or `null`. */
-  #itemOf(target: EventTarget | null): HTMLElement | null {
-    const part = (target as Element | null)?.closest<HTMLElement>(ITEMS) ?? null;
-    return part?.closest(ROOT) === this ? part : null;
-  }
-
-  /** Mark the item the pointer is over, as React's `data-highlighted`. */
-  #highlight(event: PointerEvent, over: boolean): void {
-    const part = this.#itemOf(event.target);
-    // The relatedTarget test keeps the highlight steady as the pointer crosses
-    // the row's own children. user-event sets no relatedTarget, so only a real
-    // browser can tell: the interop lab's dropdown spec counts the flips.
-    // Stryker disable next-line ConditionalExpression,LogicalOperator: see above — unobservable in jsdom, proven in Chromium.
-    if (!part || part === this.#itemOf(event.relatedTarget)) return;
-    const child = part.firstElementChild as HTMLElement;
-    write(child, "data-highlighted", over ? "" : null);
-  }
-
-  #click(event: MouseEvent): void {
-    const target = event.target as Node;
-    if (this.#trigger?.contains(target)) {
-      this.#change(!this.open);
-      return;
-    }
-    const part = this.#itemOf(target);
-    if (!part || part.hasAttribute("disabled")) return;
-    if (part.localName === CHECKBOX_ITEM) {
-      const checked = checkedState(part) !== true;
-      // `write`, not `toggleAttribute`: a mixed item's "indeterminate" must become plain checked.
-      if (announceOn(part, "primitiv-dropdown-checked-change", { checked })) write(part, "checked", checked ? "" : null);
-    } else if (part.localName === RADIO_ITEM && !radioChecked(part)) {
-      const group = part.closest(RADIO_GROUP) as HTMLElement;
-      const value = part.getAttribute("value") as string;
-      if (announceOn(group, "primitiv-dropdown-value-change", { value })) group.setAttribute("value", value);
-    }
-    if (!announceOn(part, "primitiv-dropdown-select", null)) return;
-    this.#change(false);
-    this.#trigger?.focus();
-  }
-
-  /**
-   * Decorate `content` from now on: the controller follows it. Only a
-   * reconcile calls this, and a root reconciles only while connected, so the
-   * new controller listens at once.
-   */
-  #use(content: HTMLElement | null): void {
-    // Stryker disable next-line ConditionalExpression: equivalent — rebuilding the controller over the same menu swaps one listener set for an identical one.
-    if (content === this.#content) return;
-    this.#menu?.disconnect();
-    this.#content = content;
-    this.#menu = content ? new DropdownController(content, this.#host()) : null;
-    this.#menu?.connect();
-  }
-
-  protected reconcile(): void {
-    const open = this.open;
-    const rootId = this.rootId();
-
-    const [content = null] = this.parts(CONTENT);
-    const [triggerPart] = this.parts(TRIGGER);
+  protected reconcileTrigger(open: boolean, content: HTMLElement | null): HTMLElement | null {
+    const [triggerPart] = this.parts(TAGS.trigger);
     this.#trigger = triggerPart ? decoratable(triggerPart, "a <button>") : null;
-
-    if (content) {
-      if (!content.id) content.id = `${rootId}-content`;
-      write(content, "role", "menu");
-      if (!content.hasAttribute("popover")) content.setAttribute("popover", "auto");
-    }
     if (this.#trigger) {
       write(this.#trigger, "aria-haspopup", "menu");
       write(this.#trigger, "aria-expanded", String(open));
       write(this.#trigger, "aria-controls", content ? content.id : null);
     }
-
-    for (const part of this.parts(ITEMS)) {
-      const child = decoratable(part, "an <li>");
-      if (!child) continue;
-      const checkbox = part.localName === CHECKBOX_ITEM;
-      const radio = part.localName === RADIO_ITEM;
-      const checked = checkbox ? checkedState(part) : radio && radioChecked(part);
-      write(child, "role", checkbox ? "menuitemcheckbox" : radio ? "menuitemradio" : "menuitem");
-      write(child, "tabindex", "-1");
-      write(child, "aria-disabled", part.hasAttribute("disabled") ? "true" : null);
-      write(child, "aria-checked", checkbox || radio ? (checked === "indeterminate" ? "mixed" : String(checked)) : null);
-    }
-    for (const indicator of this.parts(INDICATOR)) {
-      const item = indicator.closest(`${CHECKBOX_ITEM},${RADIO_ITEM}`);
-      const checked = item?.localName === CHECKBOX_ITEM ? checkedState(item) : item ? radioChecked(item) : false;
-      write(indicator, "data-state", checked === "indeterminate" ? checked : checked ? "checked" : "unchecked");
-      write(indicator, "hidden", checked || indicator.hasAttribute("force-mount") ? null : "");
-    }
-    let labels = 0;
-    for (const label of this.parts(LABEL)) {
-      if (!label.id) label.id = `${rootId}-label-${++labels}`;
-    }
-    for (const group of this.parts(GROUP)) {
-      const label = [...group.querySelectorAll(LABEL)].find((candidate) => candidate.closest(GROUP) === group);
-      write(group, "role", "group");
-      write(group, "aria-labelledby", label ? label.id : null);
-    }
-    for (const group of this.parts(RADIO_GROUP)) write(group, "role", "group");
-    for (const separator of this.parts(SEPARATOR)) write(separator, "role", "separator");
-
-    this.#use(content);
-    this.#menu?.sync();
+    return this.#trigger;
   }
 }
 
@@ -244,138 +70,8 @@ export class PrimitivDropdownElement extends PrimitivRootElement {
  * @attr {boolean} open - Whether the submenu is open. Reflected.
  * @fires {CustomEvent<{ open: boolean }>} primitiv-dropdown-sub-change - Bubbles, cancelable, fired before a user-driven change is applied, with the open state afterwards. Call `preventDefault()` to veto it.
  */
-export class PrimitivDropdownSubElement extends PrimitivRootElement {
-  #content: HTMLElement | null = null;
-  #menu: DropdownSubController | null = null;
-  #trigger: HTMLElement | null = null;
-  /** The sub-trigger part (whose `disabled` the sub reads), as of the last reconcile. */
-  #triggerPart: HTMLElement | null = null;
-  /** Whether the pointer is over the sub-trigger. */
-  #hovered = false;
-  #listening: AbortController | null = null;
-  protected readonly controller: { connect(): void; disconnect(): void } = {
-    connect: (): void => this.#connect(),
-    disconnect: (): void => this.#disconnect(),
-  };
-  protected readonly reconcileOn: readonly string[] = ["open", "disabled"];
-
-  /** Whether the submenu is open, reflected as the boolean `open` attribute. */
-  get open(): boolean {
-    return this.hasAttribute("open");
-  }
-
-  set open(next: boolean) {
-    this.toggleAttribute("open", next);
-  }
-
-  #host(): DropdownSubControllerHost {
-    return {
-      state: () => ({ open: this.open }),
-      change: (open) => this.#change(open),
-      trigger: () => this.#trigger,
-      source: () => this.#trigger,
-      closeKey: () => (this.direction() === "rtl" ? "ArrowRight" : "ArrowLeft"),
-    };
-  }
-
-  #change(open: boolean): void {
-    if (open === this.open) return;
-    if (this.announce("primitiv-dropdown-sub-change", { open })) this.open = open;
-    else queueMicrotask(() => this.#menu?.sync());
-  }
-
-  /** Whether the sub-trigger is disabled. Only asked once a decorated sub-trigger exists. */
-  #disabled(): boolean {
-    return (this.#triggerPart as HTMLElement).hasAttribute("disabled");
-  }
-
-  #connect(): void {
-    this.#listening = new AbortController();
-    const options = { signal: this.#listening.signal };
-    this.addEventListener("click", (event) => this.#onTrigger(event) && this.#openIfEnabled(), options);
-    this.addEventListener("keydown", (event) => this.#keydown(event), options);
-    this.addEventListener("pointerover", (event) => this.#pointer(event, true), options);
-    this.addEventListener("pointerout", (event) => this.#pointer(event, false), options);
-    document.addEventListener("pointerover", (event) => this.#sibling(event), options);
-    this.#menu?.connect();
-  }
-
-  #disconnect(): void {
-    (this.#listening as AbortController).abort();
-    this.#listening = null;
-    this.#menu?.disconnect();
-  }
-
-  /** Whether an event landed on the decorated sub-trigger. */
-  #onTrigger(event: Event): boolean {
-    return this.#trigger?.contains(event.target as Node) ?? false;
-  }
-
-  #openIfEnabled(): void {
-    if (!this.#disabled()) this.#change(true);
-  }
-
-  #keydown(event: KeyboardEvent): void {
-    if (!this.#onTrigger(event) || this.#disabled()) return;
-    if (event.key !== (this.direction() === "rtl" ? "ArrowLeft" : "ArrowRight")) return;
-    event.preventDefault();
-    event.stopPropagation();
-    this.#change(true);
-  }
-
-  #pointer(event: PointerEvent, over: boolean): void {
-    // Past the first test there is a decorated trigger. The relatedTarget test
-    // keeps the hover steady across the row's own children, which only a real
-    // browser can show (see #highlight).
-    // Stryker disable next-line ConditionalExpression,LogicalOperator: unobservable in jsdom, proven in Chromium by the interop lab.
-    if (!this.#onTrigger(event) || (this.#trigger as HTMLElement).contains(event.relatedTarget as Node | null)) return;
-    this.#hovered = over;
-    this.reconcile();
-    if (over) this.#openIfEnabled();
-  }
-
-  /** The pointer reached another row of the parent menu: close, as moving the keyboard there would. */
-  #sibling(event: PointerEvent): void {
-    if (!this.open || this.contains(event.target as Node)) return;
-    const row = (event.target as Element).closest('[role^="menuitem"]');
-    // A connected sub always has a parent; only a row of its parent's menu closes it.
-    if (row && row.closest('[role="menu"]') === (this.parentElement as HTMLElement).closest('[role="menu"]')) this.#change(false);
-  }
-
-  #use(content: HTMLElement | null): void {
-    // Stryker disable next-line ConditionalExpression: equivalent — rebuilding the controller over the same menu swaps one listener set for an identical one.
-    if (content === this.#content) return;
-    this.#menu?.disconnect();
-    this.#content = content;
-    this.#menu = content ? new DropdownSubController(content, this.#host()) : null;
-    this.#menu?.connect();
-  }
-
-  protected reconcile(): void {
-    const open = this.open;
-    const [content = null] = this.parts(SUB_CONTENT);
-    const [triggerPart = null] = this.parts(SUB_TRIGGER);
-    this.#triggerPart = triggerPart;
-    this.#trigger = triggerPart ? decoratable(triggerPart, "an <li>") : null;
-
-    if (content) {
-      if (!content.id) content.id = `${this.rootId()}-content`;
-      write(content, "role", "menu");
-      if (!content.hasAttribute("popover")) content.setAttribute("popover", "auto");
-    }
-    if (this.#trigger) {
-      write(this.#trigger, "role", "menuitem");
-      write(this.#trigger, "tabindex", "-1");
-      write(this.#trigger, "aria-haspopup", "menu");
-      write(this.#trigger, "aria-expanded", String(open));
-      write(this.#trigger, "aria-controls", content ? content.id : null);
-      write(this.#trigger, "aria-disabled", this.#disabled() ? "true" : null);
-      write(this.#trigger, "data-highlighted", this.#hovered || open ? "" : null);
-    }
-
-    this.#use(content);
-    this.#menu?.sync();
-  }
+export class PrimitivDropdownSubElement extends MenuSubElement {
+  protected readonly tags: MenuTags = TAGS;
 }
 
 /**
@@ -494,19 +190,19 @@ export class PrimitivDropdownSubContentElement extends ElementBase {}
  */
 export function defineDropdown(registry: ElementRegistry | undefined = globalThis.customElements): void {
   defineElements(registry, [
-    [ROOT, PrimitivDropdownElement],
-    [TRIGGER, PrimitivDropdownTriggerElement],
-    [CONTENT, PrimitivDropdownContentElement],
-    [ITEM, PrimitivDropdownItemElement],
-    [CHECKBOX_ITEM, PrimitivDropdownCheckboxItemElement],
-    [RADIO_GROUP, PrimitivDropdownRadioGroupElement],
-    [RADIO_ITEM, PrimitivDropdownRadioItemElement],
-    [INDICATOR, PrimitivDropdownItemIndicatorElement],
-    [GROUP, PrimitivDropdownGroupElement],
-    [LABEL, PrimitivDropdownLabelElement],
-    [SEPARATOR, PrimitivDropdownSeparatorElement],
-    [SUB, PrimitivDropdownSubElement],
-    [SUB_TRIGGER, PrimitivDropdownSubTriggerElement],
-    [SUB_CONTENT, PrimitivDropdownSubContentElement],
+    [TAGS.root, PrimitivDropdownElement],
+    [TAGS.trigger, PrimitivDropdownTriggerElement],
+    [TAGS.content, PrimitivDropdownContentElement],
+    [TAGS.item, PrimitivDropdownItemElement],
+    [TAGS.checkboxItem, PrimitivDropdownCheckboxItemElement],
+    [TAGS.radioGroup, PrimitivDropdownRadioGroupElement],
+    [TAGS.radioItem, PrimitivDropdownRadioItemElement],
+    [TAGS.indicator, PrimitivDropdownItemIndicatorElement],
+    [TAGS.group, PrimitivDropdownGroupElement],
+    [TAGS.label, PrimitivDropdownLabelElement],
+    [TAGS.separator, PrimitivDropdownSeparatorElement],
+    [TAGS.sub, PrimitivDropdownSubElement],
+    [TAGS.subTrigger, PrimitivDropdownSubTriggerElement],
+    [TAGS.subContent, PrimitivDropdownSubContentElement],
   ]);
 }

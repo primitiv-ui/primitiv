@@ -4,24 +4,18 @@
 // generators read. The analyzer can only see a tag through its
 // `@customElement` JSDoc, so a new element missing that tag would silently
 // drop out of every tool; this fails the build instead. Run after `pnpm build`.
-import { readdirSync, readFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
 
 const manifest = JSON.parse(readFileSync(new URL("../dist/custom-elements.json", import.meta.url), "utf8"));
-// Every component's elements module: `src/<component>/elements.ts`.
-const src = new URL("../src/", import.meta.url);
-const sources = readdirSync(src, { withFileTypes: true })
-  .filter((entry) => entry.isDirectory())
-  .flatMap((entry) => {
-    try {
-      return [readFileSync(new URL(`${entry.name}/elements.ts`, src), "utf8")];
-    } catch {
-      return [];
-    }
-  });
-
-const defined = sources.flatMap((source) =>
-  [...source.matchAll(/^const \w+ = "(primitiv-[a-z-]+)";$/gm)].map((m) => m[1]),
-);
+// Every tag the package defines, as its own `define…()` functions define them:
+// each runs against a registry that only records the names. (The elements are
+// safe to import without a DOM, so this needs none.)
+const entry = await import(new URL("../dist/index.js", import.meta.url).href);
+const defined = [];
+const recorder = { get: () => undefined, define: (name) => defined.push(name) };
+for (const [name, value] of Object.entries(entry)) {
+  if (name.startsWith("define") && typeof value === "function") value(recorder);
+}
 const listed = new Set(
   manifest.modules.flatMap((module) => (module.declarations ?? []).map((d) => d.tagName)).filter(Boolean),
 );

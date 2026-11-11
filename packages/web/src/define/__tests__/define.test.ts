@@ -196,6 +196,16 @@ it("defines the CheckboxCard elements when define/checkbox-card is imported", as
   }
 });
 
+it("defines the Slider elements when define/slider is imported", async () => {
+  // Arrange & Act
+  await import("../slider");
+
+  // Assert
+  for (const name of ["primitiv-slider", "primitiv-slider-track", "primitiv-slider-range", "primitiv-slider-thumb"]) {
+    expect(customElements.get(name)).toBeDefined();
+  }
+});
+
 it("defines every component's elements when define is imported", async () => {
   // Arrange & Act
   const module = await import("../index");
@@ -214,4 +224,5 @@ it("defines every component's elements when define is imported", async () => {
   expect(customElements.get("primitiv-segmented-control")).toBeDefined();
   expect(customElements.get("primitiv-radio-card")).toBeDefined();
   expect(customElements.get("primitiv-checkbox-card")).toBeDefined();
+  expect(customElements.get("primitiv-slider")).toBeDefined();
 });

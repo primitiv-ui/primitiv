@@ -60,3 +60,4 @@ export {
   type CheckboxCardConformanceFixture,
   type CheckboxCardMount,
 } from "./checkbox-card.ts";
+export { runSliderConformance, type SliderConformanceFixture, type SliderMount } from "./slider.ts";

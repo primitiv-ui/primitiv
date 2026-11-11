@@ -41,6 +41,8 @@ import type {
   PrimitivSegmentedControlChangeEvent,
   PrimitivRadioCardChangeEvent,
   PrimitivCheckboxCardChangeEvent,
+  PrimitivSliderChangeEvent,
+  PrimitivSliderCommitEvent,
 } from "./events.ts";
 
 /** A tag as Vue's template checker sees it: its props, and the events it emits. */
@@ -169,5 +171,25 @@ declare module "vue" {
       { "primitiv-checkbox-card-change": (event: PrimitivCheckboxCardChangeEvent) => void }
     >;
     "primitiv-checkbox-card-indicator": Tag<{ forceMount?: boolean | "" }>;
+    "primitiv-slider": Tag<
+      {
+        value?: string;
+        min?: number | string;
+        max?: number | string;
+        step?: number | string;
+        minStepsBetweenThumbs?: number | string;
+        orientation?: "horizontal" | "vertical";
+        inverted?: boolean | "";
+        disabled?: boolean | "";
+        name?: string;
+      },
+      {
+        "primitiv-slider-change": (event: PrimitivSliderChangeEvent) => void;
+        "primitiv-slider-commit": (event: PrimitivSliderCommitEvent) => void;
+      }
+    >;
+    "primitiv-slider-track": Tag<Record<never, never>>;
+    "primitiv-slider-range": Tag<Record<never, never>>;
+    "primitiv-slider-thumb": Tag<Record<never, never>>;
   }
 }

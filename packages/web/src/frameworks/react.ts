@@ -104,6 +104,12 @@ import type {
   PrimitivRadioCardItemElement,
 } from "../radio-card/elements.ts";
 import type { PrimitivCheckboxCardElement, PrimitivCheckboxCardIndicatorElement } from "../checkbox-card/elements.ts";
+import type {
+  PrimitivSliderElement,
+  PrimitivSliderRangeElement,
+  PrimitivSliderThumbElement,
+  PrimitivSliderTrackElement,
+} from "../slider/elements.ts";
 import type { PrimitivToggleGroupElement, PrimitivToggleGroupItemElement } from "../toggle-group/elements.ts";
 import type {
   PrimitivAccordionChangeEvent,
@@ -126,6 +132,8 @@ import type {
   PrimitivSegmentedControlChangeEvent,
   PrimitivRadioCardChangeEvent,
   PrimitivCheckboxCardChangeEvent,
+  PrimitivSliderChangeEvent,
+  PrimitivSliderCommitEvent,
 } from "./events.ts";
 
 /** React's own props for an element, plus `class`, which React 19 passes to custom elements. */
@@ -367,6 +375,22 @@ declare module "react" {
       "primitiv-checkbox-card-indicator": ElementProps<PrimitivCheckboxCardIndicatorElement> & {
         "force-mount"?: boolean;
       };
+      "primitiv-slider": ElementProps<PrimitivSliderElement> & {
+        value?: string;
+        min?: number | string;
+        max?: number | string;
+        step?: number | string;
+        "min-steps-between-thumbs"?: number | string;
+        orientation?: "horizontal" | "vertical";
+        inverted?: boolean;
+        disabled?: boolean;
+        name?: string;
+        "onprimitiv-slider-change"?: (event: PrimitivSliderChangeEvent) => void;
+        "onprimitiv-slider-commit"?: (event: PrimitivSliderCommitEvent) => void;
+      };
+      "primitiv-slider-track": ElementProps<PrimitivSliderTrackElement>;
+      "primitiv-slider-range": ElementProps<PrimitivSliderRangeElement>;
+      "primitiv-slider-thumb": ElementProps<PrimitivSliderThumbElement>;
     }
   }
 }

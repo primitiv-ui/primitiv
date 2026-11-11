@@ -70,6 +70,10 @@ import type {
   PrimitivRadioCardItemElement,
   PrimitivSegmentedControlElement,
   PrimitivSegmentedControlItemElement,
+  PrimitivSliderElement,
+  PrimitivSliderRangeElement,
+  PrimitivSliderThumbElement,
+  PrimitivSliderTrackElement,
   PrimitivToggleGroupElement,
   PrimitivToggleGroupItemElement,
 } from "../index";
@@ -135,6 +139,13 @@ it("types every SegmentedControl tag in HTMLElementTagNameMap", () => {
   expectTypeOf(
     document.createElement("primitiv-segmented-control-item"),
   ).toEqualTypeOf<PrimitivSegmentedControlItemElement>();
+});
+
+it("types every Slider tag in HTMLElementTagNameMap", () => {
+  expectTypeOf(document.querySelector("primitiv-slider")).toEqualTypeOf<PrimitivSliderElement | null>();
+  expectTypeOf(document.createElement("primitiv-slider-track")).toEqualTypeOf<PrimitivSliderTrackElement>();
+  expectTypeOf(document.createElement("primitiv-slider-range")).toEqualTypeOf<PrimitivSliderRangeElement>();
+  expectTypeOf(document.createElement("primitiv-slider-thumb")).toEqualTypeOf<PrimitivSliderThumbElement>();
 });
 
 it("types every ToggleGroup tag in HTMLElementTagNameMap", () => {

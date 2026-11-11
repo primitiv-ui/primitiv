@@ -103,6 +103,12 @@ import type {
   PrimitivRadioCardItemElement,
 } from "../radio-card/elements.ts";
 import type { PrimitivCheckboxCardElement, PrimitivCheckboxCardIndicatorElement } from "../checkbox-card/elements.ts";
+import type {
+  PrimitivSliderElement,
+  PrimitivSliderRangeElement,
+  PrimitivSliderThumbElement,
+  PrimitivSliderTrackElement,
+} from "../slider/elements.ts";
 import type { PrimitivToggleGroupElement, PrimitivToggleGroupItemElement } from "../toggle-group/elements.ts";
 import type {
   PrimitivAccordionChangeEvent,
@@ -125,6 +131,8 @@ import type {
   PrimitivSegmentedControlChangeEvent,
   PrimitivRadioCardChangeEvent,
   PrimitivCheckboxCardChangeEvent,
+  PrimitivSliderChangeEvent,
+  PrimitivSliderCommitEvent,
 } from "./events.ts";
 
 /** Svelte's own attributes and events for an element. */
@@ -338,5 +346,21 @@ declare module "svelte/elements" {
     "primitiv-checkbox-card-indicator": Attributes<PrimitivCheckboxCardIndicatorElement> & {
       "force-mount"?: boolean;
     };
+    "primitiv-slider": Attributes<PrimitivSliderElement> & {
+      value?: string;
+      min?: number | string;
+      max?: number | string;
+      step?: number | string;
+      "min-steps-between-thumbs"?: number | string;
+      orientation?: "horizontal" | "vertical";
+      inverted?: boolean;
+      disabled?: boolean;
+      name?: string;
+      "onprimitiv-slider-change"?: (event: PrimitivSliderChangeEvent) => void;
+      "onprimitiv-slider-commit"?: (event: PrimitivSliderCommitEvent) => void;
+    };
+    "primitiv-slider-track": Attributes<PrimitivSliderTrackElement>;
+    "primitiv-slider-range": Attributes<PrimitivSliderRangeElement>;
+    "primitiv-slider-thumb": Attributes<PrimitivSliderThumbElement>;
   }
 }

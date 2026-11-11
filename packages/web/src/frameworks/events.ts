@@ -33,6 +33,12 @@ export type PrimitivRadioCardChangeEvent = CustomEvent<{ value: string }>;
 /** The `primitiv-checkbox-card-change` event: bubbles, cancelable, fired before the change applies, with the state afterwards. */
 export type PrimitivCheckboxCardChangeEvent = CustomEvent<{ checked: boolean }>;
 
+/** The `primitiv-slider-change` event: bubbles, cancelable, fired before each change applies, with every thumb's value afterwards. */
+export type PrimitivSliderChangeEvent = CustomEvent<{ value: number[] }>;
+
+/** The `primitiv-slider-commit` event: bubbles, fired once an interaction ends, with the values the slider then holds. */
+export type PrimitivSliderCommitEvent = CustomEvent<{ value: number[] }>;
+
 /** The `primitiv-dropdown-change` event: bubbles, cancelable, fired before the change applies, with the open state afterwards. */
 export type PrimitivDropdownChangeEvent = CustomEvent<{ open: boolean }>;
 

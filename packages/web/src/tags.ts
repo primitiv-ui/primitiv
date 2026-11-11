@@ -98,6 +98,12 @@ import type {
   PrimitivSegmentedControlElement,
   PrimitivSegmentedControlItemElement,
 } from "./segmented-control/elements.ts";
+import type {
+  PrimitivSliderElement,
+  PrimitivSliderRangeElement,
+  PrimitivSliderThumbElement,
+  PrimitivSliderTrackElement,
+} from "./slider/elements.ts";
 import type { PrimitivToggleGroupElement, PrimitivToggleGroupItemElement } from "./toggle-group/elements.ts";
 declare global {
   interface HTMLElementTagNameMap {
@@ -169,6 +175,10 @@ declare global {
     "primitiv-radio-card-indicator": PrimitivRadioCardIndicatorElement;
     "primitiv-checkbox-card": PrimitivCheckboxCardElement;
     "primitiv-checkbox-card-indicator": PrimitivCheckboxCardIndicatorElement;
+    "primitiv-slider": PrimitivSliderElement;
+    "primitiv-slider-track": PrimitivSliderTrackElement;
+    "primitiv-slider-range": PrimitivSliderRangeElement;
+    "primitiv-slider-thumb": PrimitivSliderThumbElement;
   }
 }
 

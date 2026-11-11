@@ -179,6 +179,33 @@ describe("SliderController", () => {
       expect(changes).toEqual([[30]]);
     });
 
+    it("keeps what the press moved when the drag then moves nothing", async () => {
+      // Arrange
+      const user = userEvent.setup();
+      const { root, commits } = connected([10]);
+
+      // Act
+      await user.pointer([
+        { keys: "[MouseLeft>]", target: root, coords: { clientX: 30 } },
+        { target: root, coords: { clientX: 30.2 } },
+        { keys: "[/MouseLeft]", target: root, coords: { clientX: 30.2 } },
+      ]);
+
+      // Assert
+      expect(commits).toEqual([[30]]);
+    });
+
+    it("makes no change of its own for a click on a thumb — the press before it did the moving", () => {
+      // Arrange
+      const { thumbs, changes } = connected([30]);
+
+      // Act
+      thumbs[0].dispatchEvent(new MouseEvent("click", { bubbles: true }));
+
+      // Assert
+      expect(changes).toEqual([]);
+    });
+
     it("commits nothing for a press that moves nothing", async () => {
       // Arrange
       const user = userEvent.setup();

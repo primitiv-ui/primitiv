@@ -12,6 +12,7 @@
     "./popover": "./src/popover/index.ts",
     "./radio-card": "./src/radio-card/index.ts",
     "./segmented-control": "./src/segmented-control/index.ts",
+    "./slider": "./src/slider/index.ts",
     "./tabs": "./src/tabs/index.ts",
     "./tooltip": "./src/tooltip/index.ts",
     "./toggle-group": "./src/toggle-group/index.ts",
@@ -25,6 +26,7 @@
     "./define/popover": "./src/define/popover.ts",
     "./define/radio-card": "./src/define/radio-card.ts",
     "./define/segmented-control": "./src/define/segmented-control.ts",
+    "./define/slider": "./src/define/slider.ts",
     "./define/tabs": "./src/define/tabs.ts",
     "./define/tooltip": "./src/define/tooltip.ts",
     "./define/toggle-group": "./src/define/toggle-group.ts"

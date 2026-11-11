@@ -442,3 +442,27 @@ test("the printed context menu's submenu opens beside its row with no anchor-nam
   const [row, sub] = await Promise.all([share.boundingBox(), submenu.boundingBox()]);
   expect(sub!.x).toBeGreaterThanOrEqual(row!.x + row!.width - 1);
 });
+
+test("add toggle-group printed the per-component script for its first release", () => {
+  const output = readFileSync("styled-site/add-toggle-group-output.txt", "utf8");
+  expect(output).toMatch(/@primitiv-ui\/web@[\d.]+\/dist\/cdn\/toggle-group\.js/);
+});
+
+test("the printed toggle group's items are the track's flex items, styled and working", async ({ page }) => {
+  const group = page.getByRole("group", { name: "Formatting" });
+  await expect(page.locator("primitiv-toggle-group-item").first()).toHaveCSS("display", "contents");
+  await expect(group).toHaveCSS("display", /flex/);
+  const bold = group.getByRole("button", { name: "Bold" });
+  const italic = group.getByRole("button", { name: "Italic" });
+  await expect(bold).toHaveAttribute("aria-pressed", "true");
+  // A pressed item and an unpressed one are painted differently.
+  const fill = (locator: typeof bold) => locator.evaluate((el) => getComputedStyle(el).backgroundColor);
+  expect(await fill(bold)).not.toBe(await fill(italic));
+  await italic.click();
+  await expect(italic).toHaveAttribute("aria-pressed", "true");
+  await expect(group).toHaveAttribute("value", "bold italic");
+  // The items sit side by side in the track, as React's buttons do.
+  const [a, b] = await Promise.all([bold.boundingBox(), italic.boundingBox()]);
+  expect(Math.abs(a!.y - b!.y)).toBeLessThan(1);
+  expect(b!.x).toBeGreaterThan(a!.x + a!.width - 1);
+});

@@ -50,6 +50,7 @@ export default defineConfig({
       { find: /^@primitiv-ui\/web\/define\/dropdown$/, replacement: workspace("web/src/define/dropdown.ts") },
       { find: /^@primitiv-ui\/web\/define\/popover$/, replacement: workspace("web/src/define/popover.ts") },
       { find: /^@primitiv-ui\/web\/define\/tooltip$/, replacement: workspace("web/src/define/tooltip.ts") },
+      { find: /^@primitiv-ui\/web\/define\/toggle-group$/, replacement: workspace("web/src/define/toggle-group.ts") },
       { find: /^@primitiv-ui\/web\/define$/, replacement: workspace("web/src/define/index.ts") },
       { find: /^@primitiv-ui\/web\/svelte$/, replacement: workspace("web/src/frameworks/svelte.ts") },
       { find: /^@primitiv-ui\/web\/tabs$/, replacement: workspace("web/src/tabs/index.ts") },

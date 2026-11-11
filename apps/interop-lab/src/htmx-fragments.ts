@@ -10,6 +10,7 @@ import { dropdownHtml } from "./dropdown-fixture.ts";
 import { popoverHtml } from "./popover-fixture.ts";
 import { tooltipHtml } from "./tooltip-fixture.ts";
 import { tabsHtml } from "./fixture.ts";
+import { toggleGroupHtml } from "./toggle-group-fixture.ts";
 
 let lazyLoads = 0;
 let echoes = 0;
@@ -22,6 +23,7 @@ let popoverEchoes = 0;
 let tooltipEchoes = 0;
 let dropdownEchoes = 0;
 let contextMenuEchoes = 0;
+let toggleGroupEchoes = 0;
 
 export const fragments: Record<string, string | ((url: string) => string)> = {
   // Case 1: a whole tab set arrives in a fragment.
@@ -150,4 +152,18 @@ export const fragments: Record<string, string | ((url: string) => string)> = {
   "context-menu-lazy": "<primitiv-context-menu-item><li>Loaded later</li></primitiv-context-menu-item>",
   "context-menu-echo": (url: string) =>
     `<span data-testid="echo">server saw ${new URL(url, "http://lab").searchParams.get("open")} (${++contextMenuEchoes})</span>`,
+
+  // The ToggleGroup page's cases (toggle-group-htmx.html), named to match.
+  "toggle-group": toggleGroupHtml({ value: "italic" }, "swapped"),
+  "toggle-group-nested":
+    '<primitiv-toggle-group id="inner" aria-label="Inner"><primitiv-toggle-group-item value="a">' +
+    '<button type="button">Inner A</button></primitiv-toggle-group-item></primitiv-toggle-group>',
+  "toggle-group-oob-item":
+    '<div hx-swap-oob="beforeend:#oob">' +
+    '<primitiv-toggle-group-item value="strike"><button type="button">Strike</button></primitiv-toggle-group-item></div>',
+  "toggle-group-oob-value": `<div hx-swap-oob="outerHTML:#rerendered">${toggleGroupHtml({ value: "underline" }, "rerendered")}</div>`,
+  "toggle-group-preserve": `<div id="preserve-region"><p>Swapped region</p>${toggleGroupHtml({}, "preserved").replace("<primitiv-toggle-group ", '<primitiv-toggle-group hx-preserve="true" ')}</div>`,
+  "toggle-group-echo": (url: string) =>
+    `<span data-testid="echo">server saw ${new URL(url, "http://lab").searchParams.get("value")} (${++toggleGroupEchoes})</span>`,
+  "toggle-group-rtl": `<div dir="rtl">${toggleGroupHtml({ value: "" }, "rtl")}</div>`,
 };

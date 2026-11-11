@@ -595,7 +595,16 @@
           ]
         }
       },
-      "contract": "contract.json"
+      "contract": "contract.json",
+      "elements": {
+        "packages": [
+          {
+            "name": "@primitiv-ui/web",
+            "version": "^0.1.61"
+          }
+        ],
+        "example": "checkbox-card.html"
+      }
     },
     "chip": {
       "version": "0.1.0",

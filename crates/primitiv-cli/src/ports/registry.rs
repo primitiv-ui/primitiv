@@ -372,6 +372,7 @@ const FILES: &[(&str, &str, &str)] = &[
     registry_file!("checkbox-card", "checkbox-card.recipe.ts"),
     registry_file!("checkbox-card", "checkbox-card.tsx"),
     registry_file!("checkbox-card", "contract.json"),
+    registry_file!("checkbox-card", "checkbox-card.html"),
     registry_file!("radio-card", "styles.css"),
     registry_file!("radio-card", "styles.scss"),
     registry_file!("radio-card", "radio-card.recipe.ts"),

@@ -1,4 +1,6 @@
-import { FOCUSABLE_SELECTOR, popoverKeydown, popoverPressDismisses } from "@primitiv-ui/core";
+import { FOCUSABLE_SELECTOR, panelPlacement, popoverKeydown, popoverPressDismisses } from "@primitiv-ui/core";
+
+import { write } from "../internal/element.ts";
 
 /**
  * What a {@link PopoverController} asks of whoever hosts it. The controller
@@ -40,6 +42,12 @@ type Showable = HTMLElement & { showPopover(options?: { source: HTMLElement }): 
  *   inside it closes it and hands focus back to the trigger, and where the
  *   browser has no Popover API a press outside closes it.
  *
+ * - **Placement** — while it shows, the panel carries `data-side` (the side of
+ *   its anchor it landed on, after any `position-try-fallbacks` flip) and
+ *   `data-align` (the third of its facing edge the anchor's centre is in),
+ *   measured as it opens and again on every scroll and resize, so a stylesheet
+ *   can point an arrow at the anchor whichever way it flipped.
+ *
  * Opening from the trigger is the host's, as a plain click.
  */
 export class PopoverController {
@@ -48,6 +56,8 @@ export class PopoverController {
   #connection: AbortController | null = null;
   /** Whether this controller showed the panel and has not hidden it since. */
   #shown = false;
+  /** The scroll and resize listeners that re-measure the placement, while it shows. */
+  #following: AbortController | null = null;
 
   constructor(content: HTMLElement, host: PopoverControllerHost) {
     this.#content = content as Showable;
@@ -76,6 +86,7 @@ export class PopoverController {
     this.#connection?.abort();
     this.#connection = null;
     this.#shown = false;
+    this.#unfollow();
   }
 
   /** Show or hide the panel to match the host's state. */
@@ -89,8 +100,10 @@ export class PopoverController {
       // Move focus into the panel (WAI-ARIA non-modal dialog): the first
       // focusable, or the panel itself, which carries tabindex="-1".
       (this.#content.querySelector<HTMLElement>(FOCUSABLE_SELECTOR) ?? this.#content).focus();
+      this.#follow();
     } else if (!open && this.#shown) {
       this.#shown = false;
+      this.#unfollow();
       try {
         this.#content.hidePopover();
       } catch {
@@ -99,9 +112,33 @@ export class PopoverController {
     }
   }
 
+  /** Measure the placement now, and again on every scroll and resize until it hides. */
+  #follow(): void {
+    this.#following = new AbortController();
+    const options = { capture: true, passive: true, signal: this.#following.signal };
+    window.addEventListener("scroll", () => this.#place(), options);
+    window.addEventListener("resize", () => this.#place(), options);
+    this.#place();
+  }
+
+  #unfollow(): void {
+    this.#following?.abort();
+    this.#following = null;
+  }
+
+  /** Mark the side and alignment the panel landed on, against the element it is anchored to. */
+  #place(): void {
+    const anchor = this.#host.source?.() ?? this.#host.trigger();
+    if (!anchor) return;
+    const { side, align } = panelPlacement(this.#content.getBoundingClientRect(), anchor.getBoundingClientRect());
+    write(this.#content, "data-side", side);
+    write(this.#content, "data-align", align);
+  }
+
   #toggle(event: ToggleEvent): void {
     if (event.newState !== "closed") return;
     this.#shown = false;
+    this.#unfollow();
     this.#host.change(false);
   }
 

@@ -372,4 +372,114 @@ describe("PopoverController", () => {
       expect(showPopover).toHaveBeenCalledTimes(1);
     });
   });
+
+  describe("placement", () => {
+    /** Stub an element's box: jsdom lays nothing out. */
+    const at = (element: HTMLElement, left: number, top: number, width: number, height: number) => {
+      element.getBoundingClientRect = () => ({ left, top, right: left + width, bottom: top + height }) as DOMRect;
+    };
+    /** The browser's scroll or resize, which jsdom cannot produce: no input device scrolls it. */
+    const browser = (type: "scroll" | "resize") => window.dispatchEvent(new Event(type));
+
+    it("marks the side and alignment the panel landed on as it shows", () => {
+      // Arrange
+      const { trigger, content, controller } = connected(true);
+      at(trigger, 100, 100, 60, 20);
+      at(content, 80, 130, 100, 50);
+
+      // Act
+      controller.sync();
+
+      // Assert
+      expect(content.getAttribute("data-side")).toBe("bottom");
+      expect(content.getAttribute("data-align")).toBe("center");
+    });
+
+    it("measures against the anchor it was shown from, over the trigger", () => {
+      // Arrange
+      const anchor = document.createElement("span");
+      document.body.append(anchor);
+      const { trigger, content, controller } = connected(true, "Text", { source: () => anchor });
+      at(trigger, 100, 100, 60, 20);
+      at(anchor, 400, 300, 60, 20);
+      at(content, 380, 200, 100, 50);
+
+      // Act
+      controller.sync();
+
+      // Assert
+      expect(content.getAttribute("data-side")).toBe("top");
+    });
+
+    it("follows the panel as the page scrolls and resizes while it is open", () => {
+      // Arrange
+      const { trigger, content, controller } = connected(true);
+      at(trigger, 100, 100, 60, 20);
+      at(content, 80, 130, 100, 50);
+      controller.sync();
+
+      // Act
+      at(content, 80, 40, 100, 50);
+      browser("scroll");
+      const afterScroll = content.getAttribute("data-side");
+      at(content, 170, 85, 100, 50);
+      browser("resize");
+
+      // Assert
+      expect(afterScroll).toBe("top");
+      expect(content.getAttribute("data-side")).toBe("right");
+    });
+
+    it("stops following once hidden, and once disconnected", () => {
+      // Arrange
+      const { trigger, content, host, controller } = connected(true);
+      at(trigger, 100, 100, 60, 20);
+      at(content, 80, 130, 100, 50);
+      controller.sync();
+      host.open = false;
+      controller.sync();
+      at(content, 80, 40, 100, 50);
+      browser("scroll");
+      const afterHide = content.getAttribute("data-side");
+      host.open = true;
+      controller.sync();
+      controller.disconnect();
+
+      // Act
+      at(content, 170, 85, 100, 50);
+      browser("resize");
+
+      // Assert
+      expect(afterHide).toBe("bottom");
+      expect(content.getAttribute("data-side")).toBe("top");
+    });
+
+    it("stops following once the browser dismisses it", () => {
+      // Arrange
+      const { trigger, content, controller } = connected(true);
+      at(trigger, 100, 100, 60, 20);
+      at(content, 80, 130, 100, 50);
+      controller.sync();
+
+      // Act
+      content.hidePopover();
+      at(content, 80, 40, 100, 50);
+      browser("scroll");
+
+      // Assert
+      expect(content.getAttribute("data-side")).toBe("bottom");
+    });
+
+    it("marks nothing with no anchor to measure against", () => {
+      // Arrange
+      const { content, controller } = connected(true, "Text", { trigger: () => null });
+
+      // Act
+      controller.sync();
+      browser("scroll");
+
+      // Assert
+      expect(content.hasAttribute("data-side")).toBe(false);
+    });
+  });
 });

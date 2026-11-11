@@ -6,7 +6,7 @@ framework and no runtime dependencies beyond
 server-rendered stack (HTMX, Rails, Django, Laravel, Spring …), and inside
 React, Vue, Angular or any other framework.
 
-> **Status: published.** Tabs, Accordion, Collapsible, Modal, Popover, Tooltip, Dropdown, Context Menu and Toggle Group so far. See
+> **Status: published.** Tabs, Accordion, Collapsible, Modal, Popover, Tooltip, Dropdown, Context Menu, Toggle Group and Segmented Control so far. See
 > [RFC 0033](../../docs/rfcs/0033-web-components.md) for the design.
 
 ## Components
@@ -22,6 +22,7 @@ React, Vue, Angular or any other framework.
 | Dropdown | `primitiv-dropdown`, `-trigger`, `-content`, `-item`, `-checkbox-item`, `-radio-group`, `-radio-item`, `-item-indicator`, `-group`, `-label`, `-separator`, `-sub`, `-sub-trigger`, `-sub-content` | `primitiv-dropdown-change`, `-sub-change`, `-select`, `-checked-change`, `-value-change` | 0.1.57 |
 | Context Menu | `primitiv-context-menu`, and the same thirteen parts as Dropdown under `primitiv-context-menu-` | `primitiv-context-menu-change`, `-sub-change`, `-select`, `-checked-change`, `-value-change` | 0.1.58 |
 | Toggle Group | `primitiv-toggle-group`, `-item` | `primitiv-toggle-group-change` | 0.1.59 |
+| Segmented Control | `primitiv-segmented-control`, `-item` | `primitiv-segmented-control-change` | 0.1.60 |
 
 ## Use it
 
@@ -54,11 +55,11 @@ downloads it once. `dist/primitiv-web.js` is the alternative: every element in
 one file. Per-component files ship from 0.1.43.
 
 The main entry (`@primitiv-ui/web`, `/tabs`, `/accordion`, `/collapsible`,
-`/modal`, `/popover`, `/tooltip`, `/dropdown`, `/context-menu`, `/toggle-group`) exports the classes and `defineTabs(registry?)` /
+`/modal`, `/popover`, `/tooltip`, `/dropdown`, `/context-menu`, `/toggle-group`, `/segmented-control`) exports the classes and `defineTabs(registry?)` /
 `defineAccordion(registry?)` / `defineCollapsible(registry?)` /
 `defineModal(registry?)` / `definePopover(registry?)` / `defineTooltip(registry?)` /
 `defineDropdown(registry?)` / `defineContextMenu(registry?)` /
-`defineToggleGroup(registry?)` with **no side
+`defineToggleGroup(registry?)` / `defineSegmentedControl(registry?)` with **no side
 effects**.
 
 **Render `hidden` on inactive panels yourself.** Until the module loads, CSS
@@ -303,6 +304,28 @@ on a panel as it becomes active, for lazy loading.
 - **One Tab stop for the group**, on the item focus last moved to, else the
   first pressed item, else the first. The arrows move focus without pressing,
   skipping `disabled` items; Enter and Space toggle.
+
+### Segmented Control
+
+```html
+<script type="module" src="https://cdn.jsdelivr.net/npm/@primitiv-ui/web@<version>/dist/cdn/segmented-control.js"></script>
+
+<primitiv-segmented-control value="week" aria-label="Range">
+  <primitiv-segmented-control-item value="day"><button type="button">Day</button></primitiv-segmented-control-item>
+  <primitiv-segmented-control-item value="week"><button type="button">Week</button></primitiv-segmented-control-item>
+</primitiv-segmented-control>
+```
+
+- **The root is the `role="radiogroup"`**: name it with `aria-label`. Each
+  segment wraps the `<button>` you write, which gets `role="radio"`,
+  `aria-checked` and `data-state="checked" | "unchecked"`.
+- **`value` is the selected segment**, and a selected segment never lets go —
+  unlike a toggle group, the control cannot be emptied by the user.
+  `primitiv-segmented-control-change` fires first, with the segment selected
+  afterwards, and is cancelable. `disabled` on the root disables every segment.
+- **One Tab stop for the control**, on the selected segment, else the first
+  enabled one. The arrows move focus **and** selection, skipping `disabled`
+  segments and wrapping; Enter and Space are the button's own click.
 
 **TypeScript** — opt into the tag map so DOM queries return the element classes:
 `import type {} from "@primitiv-ui/web/tags"` (npm only).

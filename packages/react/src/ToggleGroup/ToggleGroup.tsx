@@ -2,7 +2,6 @@ import { useEffect, useMemo, useRef } from "react";
 import type { ReactElement } from "react";
 
 import { useDirection } from "../DirectionProvider/index.ts";
-import { useRovingTabindex } from "../hooks/index.ts";
 import { Slot, composeEventHandlers, composeRefs } from "../Slot/index.ts";
 
 import { ToggleGroupContext } from "./ToggleGroupContext";
@@ -78,16 +77,8 @@ export function ToggleGroupRoot({
   ...rest
 }: ToggleGroupRootProps): ReactElement {
   const resolvedDir = dir ?? useDirection();
-  const {
-    value,
-    toggle,
-    registerItem,
-    itemValues,
-    disabledValues,
-    focusItem,
-    focusedValue,
-    setFocusedValue,
-  } = useToggleGroupRoot({
+  const { rootRef, value, registerItem, itemValues, disabledValues, focusedValue, setFocusedValue } =
+    useToggleGroupRoot({
     type,
     defaultValue,
     value: controlledValue,
@@ -97,35 +88,15 @@ export function ToggleGroupRoot({
   });
 
   const contextValue = useMemo(
-    () => ({
-      value,
-      toggle,
-      registerItem,
-      itemValues,
-      disabledValues,
-      focusItem,
-      focusedValue,
-      setFocusedValue,
-      orientation,
-      dir: resolvedDir,
-    }),
-    [
-      value,
-      toggle,
-      registerItem,
-      itemValues,
-      disabledValues,
-      focusItem,
-      focusedValue,
-      setFocusedValue,
-      orientation,
-      resolvedDir,
-    ],
+    () => ({ value, registerItem, itemValues, disabledValues, focusedValue, setFocusedValue }),
+    [value, registerItem, itemValues, disabledValues, focusedValue, setFocusedValue],
   );
+  // The controller listens on the root, so a consumer ref is composed with it.
+  const setRootRef = useMemo(() => composeRefs(rootRef, ref), [rootRef, ref]);
 
   const rootProps = {
     ...rest,
-    ref,
+    ref: setRootRef,
     role: "group" as const,
     "data-orientation": orientation,
   };
@@ -186,25 +157,13 @@ export function ToggleGroupItem({
   value,
   disabled,
   asChild = false,
-  onClick,
-  onKeyDown,
   onFocus,
   children,
   ref,
   ...rest
 }: ToggleGroupItemProps): ReactElement {
-  const {
-    value: groupValue,
-    toggle,
-    registerItem,
-    itemValues,
-    disabledValues,
-    focusItem,
-    focusedValue,
-    setFocusedValue,
-    orientation,
-    dir,
-  } = useToggleGroupContext();
+  const { value: groupValue, registerItem, itemValues, disabledValues, focusedValue, setFocusedValue } =
+    useToggleGroupContext();
 
   const isPressed = groupValue.includes(value);
 
@@ -228,21 +187,6 @@ export function ToggleGroupItem({
     return () => registerItem(value, null);
   }, [value, disabled, registerItem]);
 
-  const { handleKeyDown } = useRovingTabindex<string>({
-    orientation,
-    dir,
-    navigable: enabledValues,
-    currentKey: value,
-    includeHomeEnd: true,
-    includeActivate: true,
-    onNavigate: (target, action) => {
-      if (action === "activate") {
-        toggle(target);
-      }
-      focusItem(target);
-    },
-  });
-
   const itemProps = {
     ...rest,
     ref: setRef,
@@ -251,8 +195,6 @@ export function ToggleGroupItem({
     "data-disabled": disabled ? "" : undefined,
     tabIndex: isTabstop ? 0 : -1,
     disabled,
-    onClick: composeEventHandlers(onClick, () => toggle(value)),
-    onKeyDown: composeEventHandlers(onKeyDown, handleKeyDown),
     onFocus: composeEventHandlers(onFocus, () => setFocusedValue(value)),
   };
 

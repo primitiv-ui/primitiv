@@ -1,6 +1,8 @@
 import { useCallback, useMemo, useState } from "react";
 
-import { useCollection, useControllableState } from "../../hooks/index.ts";
+import { ToggleGroupController } from "@primitiv-ui/web";
+
+import { useCollection, useControllableState, useHostedController } from "../../hooks/index.ts";
 
 type ItemMeta = { element: HTMLButtonElement; disabled: boolean };
 
@@ -8,9 +10,7 @@ type UseToggleGroupRootArgs = {
   type: "single" | "multiple";
   defaultValue?: string | string[];
   value?: string | string[] | undefined;
-  onValueChange?:
-    | ((v: string | undefined) => void)
-    | ((v: string[]) => void);
+  onValueChange?: ((v: string | undefined) => void) | ((v: string[]) => void);
   orientation: "horizontal" | "vertical";
   dir: "ltr" | "rtl";
 };
@@ -33,45 +33,9 @@ export function useToggleGroupRoot({
   const normalizedControlled = isControlled ? toArray(rawControlled) : undefined;
   const normalizedDefault = toArray(defaultValue);
 
-  const [value, setValue] = useControllableState<string[]>(
-    normalizedControlled,
-    normalizedDefault,
-  );
+  const [value, setValue] = useControllableState<string[]>(normalizedControlled, normalizedDefault);
 
-  const toggle = useCallback(
-    (itemValue: string) => {
-      const isSelected = value.includes(itemValue);
-      if (type === "single") {
-        // Deselecting clears the selection to the empty array. Stryker's
-        // ArrayDeclaration mutant fills this with a phantom value, but since
-        // that value can never equal a registered item's `value` — and single
-        // mode always overwrites the whole array on the next selection — no
-        // item ever reads it as pressed. The mutation is observationally
-        // identical, so it is isolated here to keep the disable off the tested
-        // `[itemValue]` literal below.
-        // Stryker disable next-line ArrayDeclaration
-        const cleared: string[] = [];
-        const next = isSelected ? cleared : [itemValue];
-        setValue(next);
-        (onValueChange as ((v: string | undefined) => void) | undefined)?.(
-          isSelected ? undefined : itemValue,
-        );
-      } else {
-        const next = isSelected
-          ? value.filter((v) => v !== itemValue)
-          : [...value, itemValue];
-        setValue(next);
-        (onValueChange as ((v: string[]) => void) | undefined)?.(next);
-      }
-    },
-    [type, value, setValue, onValueChange],
-  );
-
-  const {
-    register: registerBase,
-    itemsRef,
-    keys: itemValues,
-  } = useCollection<string, ItemMeta>();
+  const { register: registerBase, itemsRef, keys: itemValues } = useCollection<string, ItemMeta>();
 
   const registerItem = useCallback(
     (itemValue: string, element: HTMLButtonElement | null, disabled = false) => {
@@ -93,38 +57,38 @@ export function useToggleGroupRoot({
     [itemValues, itemsRef],
   );
 
-  const focusItem = useCallback(
-    (itemValue: string) => {
-      // `itemValue` is always sourced from `navigable` (the enabled subset of
-      // `itemValues`), and useCollection's register() writes `itemsRef` and the
-      // `itemValues` state together — so a value that reaches here is guaranteed
-      // to have a live entry in the map.
-      // Stryker disable next-line OptionalChaining: unreachable given that invariant.
-      itemsRef.current.get(itemValue)?.element.focus();
-    },
-    // `itemsRef` is a stable RefObject, so emptying this array yields the
-    // identical memoised function.
-    // Stryker disable next-line ArrayDeclaration: equivalent — stable dependency.
-    [itemsRef],
+  // The clicks and keys run in the shared ToggleGroupController
+  // (@primitiv-ui/web, RFC 0033 D30); React keeps the state and answers it.
+  const rootRef = useHostedController(
+    { value, type, orientation, dir, setValue, onValueChange },
+    (root, latest) =>
+      new ToggleGroupController(root, {
+        state: () => {
+          const { value, type, orientation, dir } = latest();
+          return { pressed: value, multiple: type === "multiple", orientation, dir };
+        },
+        change: (next) => {
+          const { type, setValue, onValueChange } = latest();
+          setValue(next);
+          if (type === "single") (onValueChange as ((v: string | undefined) => void) | undefined)?.(next[0]);
+          else (onValueChange as ((v: string[]) => void) | undefined)?.(next);
+        },
+      }),
+    { itemsRef, keys: itemValues },
   );
 
   // Tracks which item holds the tabstop. Initialises to the first pressed
   // value so the selected item is immediately tabbable. Updated via the
   // onFocus handler in each Item so the tabstop follows actual focus.
-  const [focusedValue, setFocusedValue] = useState<string | undefined>(
-    () => value[0],
-  );
+  const [focusedValue, setFocusedValue] = useState<string | undefined>(() => value[0]);
 
   return {
+    rootRef,
     value,
-    toggle,
     registerItem,
     itemValues,
     disabledValues,
-    focusItem,
     focusedValue,
     setFocusedValue,
-    orientation,
-    dir,
   };
 }

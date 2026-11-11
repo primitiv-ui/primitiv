@@ -56,3 +56,29 @@ describe("ToggleGroup.Item ref forwarding", () => {
     expect(secondReceived).toContain(button);
   });
 });
+
+describe("ToggleGroup.Root ref forwarding", () => {
+  it("re-attaches to a replacement ref when the ref prop changes", () => {
+    // Arrange — the root's ref is composed with the controller's, and that
+    // composition must follow a changed ref.
+    const secondReceived: (HTMLDivElement | null)[] = [];
+    const secondRef = (node: HTMLDivElement | null) => {
+      secondReceived.push(node);
+    };
+
+    // Act
+    const { rerender } = render(
+      <ToggleGroup.Root type="single" aria-label="Alignment" ref={() => {}}>
+        <ToggleGroup.Item value="left">Left</ToggleGroup.Item>
+      </ToggleGroup.Root>,
+    );
+    rerender(
+      <ToggleGroup.Root type="single" aria-label="Alignment" ref={secondRef}>
+        <ToggleGroup.Item value="left">Left</ToggleGroup.Item>
+      </ToggleGroup.Root>,
+    );
+
+    // Assert
+    expect(secondReceived).toContain(screen.getByRole("group", { name: "Alignment" }));
+  });
+});

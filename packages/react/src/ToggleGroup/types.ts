@@ -149,7 +149,6 @@ export type ToggleGroupItemProps = Omit<
  */
 export type ToggleGroupContextValue = {
   value: string[];
-  toggle: (itemValue: string) => void;
   registerItem: (
     itemValue: string,
     element: HTMLButtonElement | null,
@@ -157,9 +156,6 @@ export type ToggleGroupContextValue = {
   ) => void;
   itemValues: string[];
   disabledValues: Set<string>;
-  focusItem: (itemValue: string) => void;
   focusedValue: string | undefined;
   setFocusedValue: (itemValue: string) => void;
-  orientation: "horizontal" | "vertical";
-  dir: "ltr" | "rtl";
 };

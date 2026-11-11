@@ -25,6 +25,12 @@ describe("ToggleGroup disabled item", () => {
     expect(screen.getByRole("button", { name: "Center" })).toBeDisabled();
   });
 
+  it("never makes a disabled first item the tab stop", () => {
+    render(<Fixture disabledItem="left" />);
+    expect(screen.getByRole("button", { name: "Center" })).toHaveAttribute("tabindex", "0");
+    expect(screen.getByRole("button", { name: "Left" })).toHaveAttribute("tabindex", "-1");
+  });
+
   it('sets data-disabled="" on the disabled item', () => {
     render(<Fixture disabledItem="center" />);
     expect(screen.getByRole("button", { name: "Center" })).toHaveAttribute(

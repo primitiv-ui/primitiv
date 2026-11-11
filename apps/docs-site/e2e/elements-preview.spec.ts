@@ -478,3 +478,57 @@ test("the Segmented Control's segment wrappers take no box, so justified segment
   ]);
   expect(Math.abs(day!.width - quarter!.width)).toBeLessThan(1);
 });
+
+test("the Radio Card previews are <primitiv-radio-card> elements, and the readout follows the change", async ({ page }) => {
+  await page.goto("/components/radio-card/");
+  await expect(page.getByText(/dist\/cdn\/radio-card\.js/).first()).toBeVisible();
+  const example = cell(page, "controlled");
+  const group = example.locator("primitiv-radio-card");
+  // The definition loads on demand: wait for the element to have wired its buttons.
+  const pro = example.getByRole("radio", { name: /Pro/ });
+  await expect(pro).toHaveAttribute("aria-checked", "true");
+  await example.getByRole("radio", { name: /Team/ }).click();
+  await expect(group).toHaveAttribute("value", "team");
+  await expect(example.locator("[data-selected-plan]")).toHaveText("team");
+  await expect(example.locator(".primitiv-radio-card__dot").nth(2)).toHaveAttribute("data-state", "checked");
+});
+
+test("the Checkbox Card select-all example keeps the parent in step with its children", async ({ page }) => {
+  await page.goto("/components/checkbox-card/");
+  await expect(page.getByText(/dist\/cdn\/checkbox-card\.js/).first()).toBeVisible();
+  const example = cell(page, "indeterminate");
+  const parent = example.getByRole("checkbox", { name: /All features/ });
+  await expect(parent).toHaveAttribute("aria-checked", "mixed");
+  await parent.click();
+  await expect(example.getByRole("checkbox", { name: "Exports" })).toHaveAttribute("aria-checked", "true");
+  await expect(parent).toHaveAttribute("aria-checked", "true");
+  await example.getByRole("checkbox", { name: "Alerts" }).click();
+  await expect(parent).toHaveAttribute("aria-checked", "mixed");
+  await expect(parent).toContainText("2 of 3 selected");
+});
+
+test("the Slider previews are <primitiv-slider> elements, positioned and following the keys", async ({ page }) => {
+  await page.goto("/components/slider/");
+  await expect(page.getByText(/dist\/cdn\/slider\.js/).first()).toBeVisible();
+  const example = cell(page, "range");
+  const max = example.getByRole("slider", { name: "Maximum" });
+  await expect(max).toHaveAttribute("aria-valuenow", "60");
+  await expect(max).toHaveCSS("position", "absolute");
+  await max.focus();
+  await page.keyboard.press("ArrowRight");
+  await expect(example.locator("[data-slider-value]")).toHaveText("[20, 61]");
+  await page.keyboard.press("Home");
+  await expect(max).toHaveAttribute("aria-valuenow", "30");
+});
+
+test("the Slider commit example counts each change and one commit per key press", async ({ page }) => {
+  await page.goto("/components/slider/");
+  const example = cell(page, "commit");
+  const thumb = example.getByRole("slider", { name: "Quality" });
+  await expect(thumb).toHaveAttribute("aria-valuenow", "40");
+  await thumb.focus();
+  await page.keyboard.press("ArrowRight");
+  await page.keyboard.press("ArrowRight");
+  await expect(example.locator("[data-changes]")).toHaveText("2");
+  await expect(example.locator("[data-commits]")).toHaveText("2");
+});

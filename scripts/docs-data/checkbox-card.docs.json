@@ -320,5 +320,47 @@
   "figma": {
     "componentSetKey": "1417:34712"
   },
-  "elements": null
+  "elements": {
+    "package": "@primitiv-ui/web",
+    "module": "checkbox-card",
+    "version": "0.1.61",
+    "element": "button",
+    "wrapText": false,
+    "example": "<primitiv-checkbox-card checked>\n  <button type=\"button\" class=\"primitiv-checkbox-card primitiv-checkbox-card--md\">\n    <span class=\"primitiv-checkbox-card__indicator-wrapper\">\n      <span class=\"primitiv-checkbox-card__indicator\">\n        <primitiv-checkbox-card-indicator force-mount class=\"primitiv-checkbox-card__mark\"></primitiv-checkbox-card-indicator>\n      </span>\n    </span>\n    <span class=\"primitiv-checkbox-card__content\">\n      <span class=\"primitiv-checkbox-card__title\">Email updates</span>\n      <span class=\"primitiv-checkbox-card__description\">A weekly summary of what changed</span>\n    </span>\n  </button>\n</primitiv-checkbox-card>\n",
+    "api": [
+      {
+        "tag": "primitiv-checkbox-card",
+        "attributes": [
+          {
+            "name": "checked",
+            "type": "boolean | \"indeterminate\"",
+            "description": "Whether it is checked; `checked=\"indeterminate\"` for mixed. Reflected: it changes as the user toggles, so a server re-render or a history snapshot sees the live state."
+          },
+          {
+            "name": "disabled",
+            "type": "boolean",
+            "description": "The card never toggles (`aria-disabled` and `data-disabled` on the button), staying focusable and announced."
+          }
+        ],
+        "events": [
+          {
+            "name": "primitiv-checkbox-card-change",
+            "type": "CustomEvent<{ checked: boolean }>",
+            "description": "Bubbles, cancelable, fired before a user-driven toggle is applied, with the state afterwards. Call `preventDefault()` to veto it."
+          }
+        ]
+      },
+      {
+        "tag": "primitiv-checkbox-card-indicator",
+        "attributes": [
+          {
+            "name": "force-mount",
+            "type": "boolean",
+            "description": "Keep the indicator shown while the card is unchecked, so a stylesheet can animate it in and out from `data-state`."
+          }
+        ],
+        "events": []
+      }
+    ]
+  }
 }

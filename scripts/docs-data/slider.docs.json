@@ -18,7 +18,7 @@
             "type": "boolean",
             "required": false,
             "default": "false",
-            "description": "Render the child element in place of the default `<span>` via the\n{@link Slot } pattern, merging `Slider.Root`'s `dir`, `data-*` hooks,\npointer handler, and ref onto it."
+            "description": "Render the child element in place of the default `<span>` via the\n{@link Slot } pattern, merging `Slider.Root`'s `dir`, `data-*` hooks and\nref onto it; the shared controller listens on it for presses."
           },
           {
             "name": "defaultValue",
@@ -367,5 +367,91 @@
   "figma": {
     "componentSetKey": "392:5196"
   },
-  "elements": null
+  "elements": {
+    "package": "@primitiv-ui/web",
+    "module": "slider",
+    "version": "0.1.61",
+    "element": "span",
+    "wrapText": false,
+    "example": "<primitiv-slider value=\"40\" class=\"primitiv-slider primitiv-slider--md\">\n  <primitiv-slider-track class=\"primitiv-slider__track\">\n    <primitiv-slider-range class=\"primitiv-slider__range\"></primitiv-slider-range>\n  </primitiv-slider-track>\n  <primitiv-slider-thumb aria-label=\"Volume\" class=\"primitiv-slider__thumb\"></primitiv-slider-thumb>\n</primitiv-slider>\n",
+    "api": [
+      {
+        "tag": "primitiv-slider",
+        "attributes": [
+          {
+            "name": "value",
+            "type": "string",
+            "description": "Each thumb's value, separated by spaces, in thumb order. Reflected: it changes as the user moves a thumb, so a server re-render or a history snapshot sees the live values. Defaults to `min`."
+          },
+          {
+            "name": "min",
+            "type": "number",
+            "description": "The lowest value. Defaults to `0`."
+          },
+          {
+            "name": "max",
+            "type": "number",
+            "description": "The highest value. Defaults to `100`."
+          },
+          {
+            "name": "step",
+            "type": "number",
+            "description": "The interval values snap to. Defaults to `1`. Read at each interaction."
+          },
+          {
+            "name": "min-steps-between-thumbs",
+            "type": "number",
+            "description": "How many steps apart neighbouring thumbs must stay. Defaults to `0`. Read at each interaction."
+          },
+          {
+            "name": "orientation",
+            "type": "\"horizontal\" | \"vertical\"",
+            "description": "Layout axis. Defaults to `horizontal`."
+          },
+          {
+            "name": "inverted",
+            "type": "boolean",
+            "description": "Run from the opposite end: `max` at the start edge."
+          },
+          {
+            "name": "disabled",
+            "type": "boolean",
+            "description": "Ignore keys and presses, and take the thumbs out of the Tab order."
+          },
+          {
+            "name": "name",
+            "type": "string",
+            "description": "Submit the values with a form: the slider keeps one hidden `<input>` per value inside itself, named `name` (or `name[]` for several thumbs)."
+          }
+        ],
+        "events": [
+          {
+            "name": "primitiv-slider-change",
+            "type": "CustomEvent<{ value: number[] }>",
+            "description": "Bubbles, cancelable, fired before each user-driven change is applied, with every thumb's value afterwards — on every step of a drag. Call `preventDefault()` to veto it."
+          },
+          {
+            "name": "primitiv-slider-commit",
+            "type": "CustomEvent<{ value: number[] }>",
+            "description": "Bubbles, fired once an interaction ends — a key press, or the release of a drag — with the values the slider then holds."
+          }
+        ]
+      },
+      {
+        "tag": "primitiv-slider-track",
+        "attributes": [],
+        "events": []
+      },
+      {
+        "tag": "primitiv-slider-range",
+        "attributes": [],
+        "events": []
+      },
+      {
+        "tag": "primitiv-slider-thumb",
+        "attributes": [],
+        "events": []
+      }
+    ]
+  }
 }

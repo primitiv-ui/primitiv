@@ -345,5 +345,63 @@
   "figma": {
     "componentSetKey": "1417:35178"
   },
-  "elements": null
+  "elements": {
+    "package": "@primitiv-ui/web",
+    "module": "radio-card",
+    "version": "0.1.61",
+    "element": "button",
+    "wrapText": false,
+    "example": "<primitiv-radio-card value=\"pro\" aria-label=\"Plan\">\n  <primitiv-radio-card-item value=\"starter\">\n    <button type=\"button\" class=\"primitiv-radio-card primitiv-radio-card--md\">\n      <span class=\"primitiv-radio-card__indicator-wrapper\">\n        <span class=\"primitiv-radio-card__indicator\">\n          <primitiv-radio-card-indicator force-mount class=\"primitiv-radio-card__dot\"></primitiv-radio-card-indicator>\n        </span>\n      </span>\n      <span class=\"primitiv-radio-card__content\">\n        <span class=\"primitiv-radio-card__title\">Starter</span>\n        <span class=\"primitiv-radio-card__description\">Free forever</span>\n      </span>\n    </button>\n  </primitiv-radio-card-item>\n  <primitiv-radio-card-item value=\"pro\">\n    <button type=\"button\" class=\"primitiv-radio-card primitiv-radio-card--md\">\n      <span class=\"primitiv-radio-card__indicator-wrapper\">\n        <span class=\"primitiv-radio-card__indicator\">\n          <primitiv-radio-card-indicator force-mount class=\"primitiv-radio-card__dot\"></primitiv-radio-card-indicator>\n        </span>\n      </span>\n      <span class=\"primitiv-radio-card__content\">\n        <span class=\"primitiv-radio-card__title\">Pro</span>\n        <span class=\"primitiv-radio-card__description\">$9/month</span>\n      </span>\n    </button>\n  </primitiv-radio-card-item>\n  <primitiv-radio-card-item value=\"enterprise\">\n    <button type=\"button\" class=\"primitiv-radio-card primitiv-radio-card--md\">\n      <span class=\"primitiv-radio-card__indicator-wrapper\">\n        <span class=\"primitiv-radio-card__indicator\">\n          <primitiv-radio-card-indicator force-mount class=\"primitiv-radio-card__dot\"></primitiv-radio-card-indicator>\n        </span>\n      </span>\n      <span class=\"primitiv-radio-card__content\">\n        <span class=\"primitiv-radio-card__title\">Enterprise</span>\n        <span class=\"primitiv-radio-card__description\">Contact us</span>\n      </span>\n    </button>\n  </primitiv-radio-card-item>\n</primitiv-radio-card>\n",
+    "api": [
+      {
+        "tag": "primitiv-radio-card",
+        "attributes": [
+          {
+            "name": "value",
+            "type": "string",
+            "description": "The selected card's value. Reflected: it changes as the user selects, so a server re-render or a history snapshot sees the live selection. Omit it for nothing selected."
+          },
+          {
+            "name": "orientation",
+            "type": "\"both\" | \"horizontal\" | \"vertical\"",
+            "description": "Which arrow keys move between cards. `both` (the default) uses all four, for cards that wrap into a grid, and writes no `aria-orientation`; `horizontal` or `vertical` keeps to one pair and states it."
+          }
+        ],
+        "events": [
+          {
+            "name": "primitiv-radio-card-change",
+            "type": "CustomEvent<{ value: string }>",
+            "description": "Bubbles, cancelable, fired before a user-driven selection is applied, with the card selected afterwards. Call `preventDefault()` to veto it."
+          }
+        ]
+      },
+      {
+        "tag": "primitiv-radio-card-item",
+        "attributes": [
+          {
+            "name": "value",
+            "type": "string",
+            "description": "The card's value, the root's `value` while it is selected."
+          },
+          {
+            "name": "disabled",
+            "type": "boolean",
+            "description": "Skipped by the arrow keys and never selected (`aria-disabled` and `data-disabled` on the child)."
+          }
+        ],
+        "events": []
+      },
+      {
+        "tag": "primitiv-radio-card-indicator",
+        "attributes": [
+          {
+            "name": "force-mount",
+            "type": "boolean",
+            "description": "Keep the indicator shown while its card is unchecked, so a stylesheet can animate it in and out from `data-state`."
+          }
+        ],
+        "events": []
+      }
+    ]
+  }
 }

@@ -5,7 +5,7 @@ import { useState } from "react";
 import { Field, FieldDescription, FieldLabel } from "@/components/field";
 import { RadioCard, RadioCardItem } from "@/components/radio-card";
 import { Stack } from "@/components/stack";
-import { contractAttr, importBlock, partNamer, stackImports } from "@/lib/playground";
+import { contractAttr, importBlock, indent, partNamer, stackImports } from "@/lib/playground";
 import { InteractiveExample } from "@/site/InteractiveExample";
 import type { Mode } from "@/site/preferences";
 import type { ComponentSpec } from "./types";
@@ -94,6 +94,86 @@ const groupLines = (
   ];
 };
 
+/** A card of Elements markup. */
+type ElementsCard = { value: string; title: string; description?: string; disabled?: boolean; size?: string };
+
+/**
+ * One group of radio cards as Elements markup (RFC 0033): the `@primitiv-ui/web`
+ * custom elements, in the shape `primitiv add radio-card --surface elements`
+ * prints. The group lays nothing out, so the cards sit in a Stack inside it, as
+ * the React examples' `<Stack>` does. Each card wraps the `<button>` you write;
+ * the wrapper spans are the styled surface's, which the headless tab drops with
+ * the classes.
+ */
+const elementsGroup = ({
+  value = "pro",
+  name = ` aria-label="Plan"`,
+  orientation,
+  cards = PLANS,
+  size = "md",
+  row = false,
+}: {
+  value?: string;
+  /** The naming attribute, written verbatim with its leading space. */
+  name?: string;
+  orientation?: "horizontal" | "vertical";
+  cards?: readonly ElementsCard[];
+  size?: string;
+  row?: boolean;
+} = {}) =>
+  [
+    `<primitiv-radio-card value="${value}"${orientation ? ` orientation="${orientation}"` : ""}${name}>`,
+    `  <div class="primitiv-stack primitiv-stack--${row ? "row" : "column"} primitiv-stack--gap-sm primitiv-stack--align-stretch primitiv-stack--${row ? "wrap" : "nowrap"} primitiv-stack--justify-start">`,
+    ...cards.flatMap((card) => [
+      `    <primitiv-radio-card-item value="${card.value}"${card.disabled ? " disabled" : ""}>`,
+      `      <button type="button" class="primitiv-radio-card primitiv-radio-card--${card.size ?? size}">`,
+      `        <span class="primitiv-radio-card__indicator-wrapper">`,
+      `          <span class="primitiv-radio-card__indicator">`,
+      `            <primitiv-radio-card-indicator force-mount class="primitiv-radio-card__dot"></primitiv-radio-card-indicator>`,
+      `          </span>`,
+      `        </span>`,
+      `        <span class="primitiv-radio-card__content">`,
+      `          <span class="primitiv-radio-card__title">${card.title}</span>`,
+      ...(card.description ? [`          <span class="primitiv-radio-card__description">${card.description}</span>`] : []),
+      `        </span>`,
+      `      </button>`,
+      `    </primitiv-radio-card-item>`,
+    ]),
+    `  </div>`,
+    `</primitiv-radio-card>`,
+  ].join("\n");
+
+/** The controlled example's Elements preview: the group above a readout of the selection. */
+const readoutPreview = () =>
+  [
+    `<div class="docs-example-stack">`,
+    indent(elementsGroup()),
+    `  <p class="docs-example-caption">Selected: <code data-selected-plan>pro</code></p>`,
+    `</div>`,
+  ].join("\n");
+
+/** Follows `primitiv-radio-card-change` into the readout, as the code tab's listener does. */
+const wireReadout = (root: HTMLElement) => {
+  const group = root.querySelector("primitiv-radio-card");
+  const readout = root.querySelector("[data-selected-plan]");
+  if (!group || !readout) return;
+  const onChange = (event: Event) => {
+    readout.textContent = (event as CustomEvent<{ value: string }>).detail.value;
+  };
+  group.addEventListener("primitiv-radio-card-change", onChange);
+  return () => group.removeEventListener("primitiv-radio-card-change", onChange);
+};
+
+/** The disabled example's cards: the first and last unavailable. */
+const DISABLED_PLANS: readonly ElementsCard[] = [
+  { value: "starter", title: "Starter", description: "Not available on your account.", disabled: true },
+  { value: "pro", title: "Pro", description: "Unlimited projects, email support." },
+  { value: "team", title: "Team", description: "Contact sales.", disabled: true },
+];
+
+/** Wraps Elements markup in the full-width stack the React examples render into. */
+const stacked = (markup: string) => [`<div class="docs-example-stack">`, indent(markup), `</div>`].join("\n");
+
 /** The controlled example's live half. */
 const ControlledExample = () => {
   const [plan, setPlan] = useState("pro");
@@ -135,6 +215,9 @@ const ControlledExample = () => {
 export const radioCardSpec: ComponentSpec = {
   playground: {
     component: "RadioCard",
+    /* The cards are `<button>`s that shrink-to-fit; the same full-width wrapper
+       the React preview renders into keeps them at a stable width. */
+    elementsPreview: (code) => stacked(code),
     controls: [
       {
         name: "showDescription",
@@ -149,7 +232,12 @@ export const radioCardSpec: ComponentSpec = {
        place, on a component that does not accept it), and `showDescription` is a
        spec control that must survive the Headless tab. */
     snippet: (values, mode) =>
-      [
+      mode === "elements"
+        ? elementsGroup({
+            size: values.size,
+            cards: PLANS.map((p) => (values.showDescription === "true" ? p : { value: p.value, title: p.title })),
+          })
+        : [
         imports(mode),
         stackImports(mode),
         ``,
@@ -194,7 +282,9 @@ export const radioCardSpec: ComponentSpec = {
     {
       label: "Parts",
       code: (mode) =>
-        groupLines(mode, {
+        mode === "elements"
+          ? elementsGroup({ cards: PLANS.slice(0, 2) })
+          : groupLines(mode, {
           attrs: ` defaultValue="pro" aria-label="Plan"`,
           items: PLANS.slice(0, 2),
           /* Parts only — the `Stack` every example composes is the consumer's
@@ -211,8 +301,12 @@ export const radioCardSpec: ComponentSpec = {
       render: () => (
         <InteractiveExample
           caption="These are `<button role=&quot;radio&quot;>`s in a `<div role=&quot;radiogroup&quot;>`, and the group holds the selected `value` in React. Two consequences. **Nothing submits with a form** — there is no input and no `name`, so read `value` and post it yourself, or use `Radio` when you want the browser's own form handling. And the grouping is explicit: `Radio` becomes a group because siblings share a `name`, whereas here the group is a real component that owns the state, which is why arrow keys and the single tab stop work no matter how you lay the Items out."
+          elementsCaption="`<primitiv-radio-card>` is the `role=&quot;radiogroup&quot;` and keeps the selected card in its own `value` attribute; each `<primitiv-radio-card-item>` wraps the `<button>` you write, which becomes a `role=&quot;radio&quot;`. Two consequences. **Nothing submits with a form** — there is no input and no `name`, so read `value` and post it yourself, or use a native radio when you want the browser's own form handling. And the grouping is explicit: the group element owns the state, which is why the arrow keys and the single tab stop work however you lay the cards out."
+          elementsPreview={() => stacked(elementsGroup())}
           code={(_density, mode) =>
-            [
+            mode === "elements"
+              ? [`<!-- A radiogroup of buttons — no name, nothing in FormData. -->`, elementsGroup()].join("\n")
+              : [
               imports(mode),
               stackImports(mode),
               ``,
@@ -241,8 +335,14 @@ export const radioCardSpec: ComponentSpec = {
       render: () => (
         <InteractiveExample
           caption="The group renders no layout of its own, so a row is just a row-direction `Stack` inside it. What you **must** keep in step is `orientation`: it decides which arrow keys navigate, and it defaults to `&quot;both&quot;` (all four). Set `&quot;horizontal&quot;` on a row or `&quot;vertical&quot;` on a column and the group also publishes `aria-orientation`, so a screen reader announces the axis that is actually on screen. Leaving it at `&quot;both&quot;` is not wrong — it just declines to tell anyone which way the options run."
+          elementsCaption="The group lays nothing out, so a row is just a row of cards inside it. What you **must** keep in step is `orientation`: it decides which arrow keys move the selection, and it defaults to `both` (all four). Set `orientation=&quot;horizontal&quot;` on a row or `&quot;vertical&quot;` on a column and the group also writes `aria-orientation`, so a screen reader announces the axis that is actually on screen."
+          elementsPreview={() =>
+            stacked(elementsGroup({ orientation: "horizontal", row: true, cards: PLANS.map((p) => ({ value: p.value, title: p.title })) }))
+          }
           code={(_density, mode) =>
-            [
+            mode === "elements"
+              ? elementsGroup({ orientation: "horizontal", row: true, cards: PLANS.map((p) => ({ value: p.value, title: p.title })) })
+              : [
               imports(mode),
               stackImports(mode),
               ``,
@@ -282,8 +382,28 @@ export const radioCardSpec: ComponentSpec = {
       render: () => (
         <InteractiveExample
           caption="A `radiogroup` with no accessible name announces three options and no idea what they are choosing between, so the group needs `aria-label` or `aria-labelledby` — every example on this page passes one. When the choice needs visible label text and a hint, `Field` with `asChild` gets you a real `<fieldset>` and `<legend>` while keeping its layout and description. Note what this deliberately avoids: a plain `Field.Label` renders a `<label htmlFor>` pointing at an id no Item claims — `RadioCard` does not read `FieldContext` — whereas a `<legend>` names its fieldset directly and needs no id at all."
-          code={(_density, mode) =>
+          elementsCaption="A `radiogroup` with no accessible name announces three options and no idea what they are choosing between, so give `<primitiv-radio-card>` an `aria-label`, or `aria-labelledby` pointing at visible text. When the choice needs a visible label and a hint, a `<fieldset>` with a `<legend>` is the natural frame — point `aria-labelledby` at the legend's `id`. Avoid a `<label for>`: no card is a labellable form control, so it would associate with nothing."
+          elementsPreview={() =>
             [
+              `<div class="docs-example-stack">`,
+              `  <fieldset class="primitiv-field">`,
+              `    <legend id="plan-legend-elements" class="primitiv-field__label">Plan</legend>`,
+              indent(elementsGroup({ name: ` aria-labelledby="plan-legend-elements"` }), "    "),
+              `    <p class="primitiv-field__description">You can change this at any time.</p>`,
+              `  </fieldset>`,
+              `</div>`,
+            ].join("\n")
+          }
+          code={(_density, mode) =>
+            mode === "elements"
+              ? [
+                  `<fieldset class="primitiv-field">`,
+                  `  <legend id="plan-legend" class="primitiv-field__label">Plan</legend>`,
+                  indent(elementsGroup({ name: ` aria-labelledby="plan-legend"` })),
+                  `  <p class="primitiv-field__description">You can change this at any time.</p>`,
+                  `</fieldset>`,
+                ].join("\n")
+              : [
               fieldImports(mode),
               imports(mode),
               stackImports(mode),
@@ -323,11 +443,26 @@ export const radioCardSpec: ComponentSpec = {
     {
       id: "controlled",
       title: "Controlled",
+      elementsTitle: "Listening for changes",
       render: () => (
         <InteractiveExample
           caption="Pass `value` and `onValueChange` on the **group** — not on the Items — and you own the selection. This is the normal way to use the component, because with no form to submit into the value has to reach your code somehow. Uncontrolled works too via `defaultValue`; the props table lists both, but TypeScript accepts one or the other."
+          elementsCaption="The group keeps the selection in its own `value` attribute, so it works with no script at all. To follow it, listen for `primitiv-radio-card-change`: it bubbles, fires **before** the change applies with the new card in `detail.value`, and `preventDefault()` vetoes it — the elements' equivalent of a controlled component refusing an update. With no form to submit into, this is how the value reaches your code."
+          elementsPreview={() => readoutPreview()}
+          wire={wireReadout}
           code={(_density, mode) =>
-            [
+            mode === "elements"
+              ? [
+                  elementsGroup(),
+                  ``,
+                  `<script type="module">`,
+                  `  const group = document.querySelector("primitiv-radio-card");`,
+                  `  group.addEventListener("primitiv-radio-card-change", (event) => {`,
+                  `    console.log(event.detail.value); // the card selected; preventDefault() vetoes it`,
+                  `  });`,
+                  `</script>`,
+                ].join("\n")
+              : [
               `import { useState } from "react";`,
               imports(mode),
               stackImports(mode),
@@ -352,8 +487,21 @@ export const radioCardSpec: ComponentSpec = {
       render: () => (
         <InteractiveExample
           caption="`size` is the **Item's** prop, not the group's — the group has no styling to size. Five sizes, each rescaling again with the nearest `data-density` ancestor, and matching `CheckboxCard`'s scale exactly so a form mixing single-choice and multi-choice cards keeps one baseline."
+          elementsCaption="Size is the **card's** class, on each `<button>` — the group has no styling to size. Five sizes, `primitiv-radio-card--xs` to `--xl`, each rescaling again with the nearest `data-density` ancestor, and matching the checkbox card's scale so a form mixing single-choice and multi-choice cards keeps one baseline."
           code={(density, mode) =>
-            [
+            mode === "elements"
+              ? [
+                  `<div data-density="${density}" class="docs-example-stack">`,
+                  indent(
+                    elementsGroup({
+                      value: "md",
+                      name: ` aria-label="Size"`,
+                      cards: SIZES.map((s) => ({ value: s, title: s.toUpperCase(), description: "Supporting text.", size: s })),
+                    }),
+                  ),
+                  `</div>`,
+                ].join("\n")
+              : [
               imports(mode),
               stackImports(mode),
               ``,
@@ -399,8 +547,12 @@ export const radioCardSpec: ComponentSpec = {
       render: () => (
         <InteractiveExample
           caption="`disabled` on an Item forwards the native `<button>` attribute, and the group excludes it from two things: arrow-key navigation skips over it, and it can never be the group's tab stop. That second part matters — with nothing selected the tab stop is the first *non-disabled* Item, so a group whose first option is unavailable still receives focus somewhere sensible."
+          elementsCaption="`disabled` on a `<primitiv-radio-card-item>` gives its button `aria-disabled` and `data-disabled`, and the group leaves it out of two things: the arrow keys skip it, and it can never be the tab stop. That second part matters — with nothing selected the stop is the first *enabled* card, so a group whose first option is unavailable still takes focus somewhere sensible. The card stays focusable and announced rather than taking the native attribute."
+          elementsPreview={() => stacked(elementsGroup({ cards: DISABLED_PLANS }))}
           code={(_density, mode) =>
-            [
+            mode === "elements"
+              ? elementsGroup({ cards: DISABLED_PLANS })
+              : [
               imports(mode),
               stackImports(mode),
               ``,
@@ -433,6 +585,38 @@ export const radioCardSpec: ComponentSpec = {
       ),
     },
   ],
+
+  elements: {
+    description:
+      "A group of cards whose whole surface picks one value. `<primitiv-radio-card>` is the radio group and keeps the selected card in its `value` attribute; each `<primitiv-radio-card-item>` wraps the `<button>` you write, which becomes a `role=\"radio\"` with `aria-checked`, and `<primitiv-radio-card-indicator>` marks the selected one. One Tab stop for the group, with the arrow keys moving the selection.",
+    anatomyMeta:
+      "Three elements. `<primitiv-radio-card>` is the `role=\"radiogroup\"` — name it — and owns `value` and `orientation`; it has **no styling of its own** and lays nothing out, so put the cards in a Stack or grid inside it. Each `<primitiv-radio-card-item>` carries a `value` and wraps the `<button>` you write, which receives the radio's ARIA, `data-state` and the roving `tabindex`; the wrapper takes no box. `<primitiv-radio-card-indicator>`, anywhere inside the button, is the decorative mark: `hidden` while its card is unchecked unless it carries `force-mount`, which the styled card uses so its dot can animate.",
+    keyboardMeta:
+      "The full ARIA radio-group model: the group is **one tab stop**, and the arrow keys move focus *and* selection together. Which arrows work depends on `orientation` — `both` (the default) enables all four.",
+    keyboard: [
+      {
+        keys: ["Tab"],
+        behaviour:
+          "Move focus into the group, landing on the **selected** card — or, with nothing selected, the first enabled one. The whole group is a single tab stop.",
+      },
+      {
+        keys: ["ArrowDown", "ArrowRight"],
+        behaviour:
+          "Move to the next card **and select it**, wrapping at the end and skipping `disabled` cards. `ArrowRight` is inert when `orientation=\"vertical\"`, and swaps with `ArrowLeft` under `dir=\"rtl\"`.",
+      },
+      { keys: ["ArrowUp", "ArrowLeft"], behaviour: "Move to the previous card and select it, wrapping at the start." },
+      { keys: ["Space", "Enter"], behaviour: "Select the focused card — the `<button>`'s own click. A selected card never lets go." },
+    ],
+    accessibility: [
+      "**A native radio or a radio card?** `<input type=\"radio\">` siblings sharing a `name` are grouped by the browser and submit with the form. `<primitiv-radio-card>` is a `radiogroup` of buttons — no inputs, no `name`, nothing in `FormData` — for when each option deserves a whole surface. Choose on form participation first.",
+      "**Always name the group** with `aria-label`, or `aria-labelledby` pointing at visible text such as a `<legend>`. Without one, the options are announced with no indication of what is being chosen.",
+      "Each card's accessible name comes from the `<button>`'s **content**, so it includes the description as well as the title. Put an `aria-label` on the button when the description is long or boilerplate.",
+      "Set `orientation` to match the layout. It decides which arrows navigate, and `horizontal` / `vertical` write `aria-orientation`; the default `both` omits it, since claiming an axis that does not exist would be worse.",
+      "A card decorates the one `<button>` you put inside it. A card with no `value`, or without exactly one element child, is reported once in the console and left alone.",
+      "`disabled` on a card sets `aria-disabled` and `data-disabled` on its button rather than the native attribute, so it stays announced while the arrows skip it and nothing selects it. There is no `disabled` for the whole group: disable each card.",
+      "The whole card is the hit target, so nothing interactive belongs **inside** it — a link or button there would be a control nested in a button. Put them beside the group.",
+    ],
+  },
 
   keyboardMeta:
     "The full ARIA radio-group model: the group is **one tab stop**, and the arrow keys move focus *and* selection together. Which arrows work depends on the group's `orientation` — `\"both\"` (the default) enables all four.",

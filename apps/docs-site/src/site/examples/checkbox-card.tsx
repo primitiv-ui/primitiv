@@ -4,7 +4,7 @@ import { useState } from "react";
 
 import { CheckboxCard } from "@/components/checkbox-card";
 import { Stack } from "@/components/stack";
-import { contractAttr, importBlock, partNamer, stackImports } from "@/lib/playground";
+import { contractAttr, importBlock, indent, partNamer, stackImports } from "@/lib/playground";
 import { InteractiveExample } from "@/site/InteractiveExample";
 import type { Mode } from "@/site/preferences";
 import type { ComponentSpec } from "./types";
@@ -48,6 +48,123 @@ const cardLines = (
   }
   const desc = description ? ` description="${description}"` : "";
   return [`${indent}<CheckboxCard${attrs} title="${title}"${desc} />`];
+};
+
+/**
+ * One card as Elements markup (RFC 0033): the `@primitiv-ui/web` custom
+ * element, in the shape `primitiv add checkbox-card --surface elements` prints.
+ * It wraps the `<button>` you write; the wrapper spans are the styled surface's,
+ * which the headless tab drops with the classes.
+ */
+const elementsCard = ({
+  title,
+  description,
+  checked,
+  disabled = false,
+  size = "md",
+  id,
+}: {
+  title: string;
+  description?: string;
+  checked?: boolean | "indeterminate";
+  disabled?: boolean;
+  size?: string;
+  id?: string;
+}) =>
+  [
+    `<primitiv-checkbox-card${id ? ` id="${id}"` : ""}${checked === "indeterminate" ? ' checked="indeterminate"' : checked ? " checked" : ""}${disabled ? " disabled" : ""}>`,
+    `  <button type="button" class="primitiv-checkbox-card primitiv-checkbox-card--${size}">`,
+    `    <span class="primitiv-checkbox-card__indicator-wrapper">`,
+    `      <span class="primitiv-checkbox-card__indicator">`,
+    `        <primitiv-checkbox-card-indicator force-mount class="primitiv-checkbox-card__mark"></primitiv-checkbox-card-indicator>`,
+    `      </span>`,
+    `    </span>`,
+    `    <span class="primitiv-checkbox-card__content">`,
+    `      <span class="primitiv-checkbox-card__title">${title}</span>`,
+    ...(description ? [`      <span class="primitiv-checkbox-card__description">${description}</span>`] : []),
+    `    </span>`,
+    `  </button>`,
+    `</primitiv-checkbox-card>`,
+  ].join("\n");
+
+/** Cards in a column, as the React examples' `<Stack gap="sm">` lays them out. */
+const elementsStack = (cards: readonly string[], extra = "") =>
+  [
+    `<div class="primitiv-stack primitiv-stack--column primitiv-stack--gap-sm primitiv-stack--align-stretch primitiv-stack--nowrap primitiv-stack--justify-start"${extra}>`,
+    ...cards.map((card) => indent(card)),
+    `</div>`,
+  ].join("\n");
+
+/** The disabled example's cards: one locked on, one unavailable. */
+const DISABLED_CARDS = () => [
+  elementsCard({ title: "Analytics", description: "Included in every plan.", checked: true, disabled: true }),
+  elementsCard({ title: "Exports", description: "Available on the Team plan.", disabled: true }),
+];
+
+/** Wraps Elements markup in the full-width stack the React examples render into. */
+const stacked = (markup: string) => [`<div class="docs-example-stack">`, indent(markup), `</div>`].join("\n");
+
+const FEATURE_CARDS = (checked: readonly string[] = []) =>
+  FEATURES.map((f) => elementsCard({ ...f, id: f.value, checked: checked.includes(f.value) }));
+
+/** The listening example's Elements preview: the cards above a readout of the ones on. */
+const enabledPreview = () =>
+  stacked(
+    elementsStack([...FEATURE_CARDS(["analytics"]), `<p class="docs-example-caption">Enabled: <code data-enabled>analytics</code></p>`]),
+  );
+
+/** Follows each card's `primitiv-checkbox-card-change` into the readout, as the code tab's listener does. */
+const wireEnabled = (root: HTMLElement) => {
+  const readout = root.querySelector("[data-enabled]");
+  if (!readout) return;
+  const onChange = (event: Event) => {
+    const card = event.target as HTMLElement;
+    const on = new Set([...root.querySelectorAll("primitiv-checkbox-card[checked]")].map((c) => c.id));
+    if ((event as CustomEvent<{ checked: boolean }>).detail.checked) on.add(card.id);
+    else on.delete(card.id);
+    readout.textContent = on.size ? [...on].sort().join(", ") : "none";
+  };
+  root.addEventListener("primitiv-checkbox-card-change", onChange);
+  return () => root.removeEventListener("primitiv-checkbox-card-change", onChange);
+};
+
+/** The select-all example's Elements markup: a parent card over the three features. */
+const selectAllMarkup = () =>
+  elementsStack([
+    elementsCard({ id: "all", title: "All features", description: "1 of 3 selected", checked: "indeterminate" }),
+    [
+      `<div class="docs-example-indent">`,
+      indent(
+        elementsStack(FEATURES.map((f) => elementsCard({ id: f.value, title: f.title, size: "sm", checked: f.value === "analytics" }))),
+      ),
+      `</div>`,
+    ].join("\n"),
+  ]);
+
+/**
+ * Keeps the parent card in step with its children, and its press selecting or
+ * clearing them all — the script the select-all code tab shows. Runs after each
+ * change has applied, so it reads the cards' own `checked` attributes.
+ */
+const wireSelectAll = (root: HTMLElement) => {
+  const parent = root.querySelector<HTMLElement & { checked: boolean | "indeterminate" }>("#all");
+  const description = parent?.querySelector(".primitiv-checkbox-card__description");
+  if (!parent || !description) return;
+  const children = FEATURES.map((f) => root.querySelector<HTMLElement & { checked: boolean | "indeterminate" }>(`#${f.value}`)!);
+  const sync = () => {
+    const on = children.filter((child) => child.checked === true).length;
+    parent.checked = on === children.length ? true : on === 0 ? false : "indeterminate";
+    description.textContent = `${on} of ${children.length} selected`;
+  };
+  const onChange = (event: Event) => {
+    const checked = (event as CustomEvent<{ checked: boolean }>).detail.checked;
+    queueMicrotask(() => {
+      if (event.target === parent) for (const child of children) child.checked = checked;
+      sync();
+    });
+  };
+  root.addEventListener("primitiv-checkbox-card-change", onChange);
+  return () => root.removeEventListener("primitiv-checkbox-card-change", onChange);
 };
 
 /** The controlled example's live half. */
@@ -131,6 +248,9 @@ const SelectAllExample = () => {
 export const checkboxCardSpec: ComponentSpec = {
   playground: {
     component: "CheckboxCard",
+    /* The cards are `<button>`s that shrink-to-fit; the same full-width wrapper
+       the React preview renders into keeps them at a stable width. */
+    elementsPreview: (code) => stacked(code),
     controls: [
       {
         name: "showDescription",
@@ -144,7 +264,14 @@ export const checkboxCardSpec: ComponentSpec = {
        `toJsx` would drop it under Headless) and because the Headless branch has
        a different tree, not a different name — see `cardLines`. */
     snippet: (values, mode) =>
-      [
+      mode === "elements"
+        ? elementsCard({
+            title: "Analytics",
+            description: values.showDescription === "true" ? "Page views, referrers and conversion funnels." : undefined,
+            checked: true,
+            size: values.size,
+          })
+        : [
         imports(mode),
         ``,
         ...cardLines(
@@ -186,7 +313,10 @@ export const checkboxCardSpec: ComponentSpec = {
   anatomy: [
     {
       label: "Parts",
-      code: (mode) => cardLines(mode, { title: "Analytics", description: "Page views and referrers." }).join("\n"),
+      code: (mode) =>
+        mode === "elements"
+          ? elementsCard({ title: "Analytics", description: "Page views and referrers." })
+          : cardLines(mode, { title: "Analytics", description: "Page views and referrers." }).join("\n"),
     },
   ],
 
@@ -197,8 +327,14 @@ export const checkboxCardSpec: ComponentSpec = {
       render: () => (
         <InteractiveExample
           caption="`CheckboxCard` renders a `<button type=&quot;button&quot; role=&quot;checkbox&quot;>`. There is no hidden `<input>` anywhere in it, which has one consequence worth knowing before you choose it: **it does not submit with a form, and it takes no `name`**. Read its state from React and post it yourself, or use `Checkbox` — a real `<input type=&quot;checkbox&quot;>` in a `<label>` — when the browser's own form handling is what you want. Everything else follows from the same fact: the accessible state is `aria-checked`, not `:checked`, and the whole bordered surface is the hit target rather than a small box plus a label."
+          elementsCaption="`<primitiv-checkbox-card>` decorates the `<button type=&quot;button&quot;>` you write as a `role=&quot;checkbox&quot;`. There is no hidden `<input>` anywhere in it, which has one consequence worth knowing before you choose it: **it does not submit with a form, and it takes no `name`**. Read its `checked` attribute and post it yourself, or use a native `<input type=&quot;checkbox&quot;>` in a `<label>` when the browser's own form handling is what you want. The accessible state is `aria-checked`, and the whole bordered surface is the hit target."
           code={(_density, mode) =>
-            [
+            mode === "elements"
+              ? [
+                  `<!-- A button, so no name and nothing in FormData — you own the value. -->`,
+                  elementsCard({ title: "Analytics", description: "Page views, referrers and conversion funnels." }),
+                ].join("\n")
+              : [
               imports(mode),
               ``,
               `// A button, so no name and nothing in FormData — you own the value.`,
@@ -221,8 +357,12 @@ export const checkboxCardSpec: ComponentSpec = {
       render: () => (
         <InteractiveExample
           caption="Unlike `RadioCard`, there is no group: each card owns its own state and nothing coordinates them. That is what makes this the multi-select control — three cards mean three independent answers, and turning one on never turns another off. Layout is deliberately not baked in either; stack them, put them in a row, or drop them in a grid, and the cards fill whatever you compose them into."
+          elementsCaption="There is no group element: each `<primitiv-checkbox-card>` owns its own `checked` and nothing coordinates them. That is what makes this the multi-select control — three cards mean three independent answers, and turning one on never turns another off. Lay them out however you like; here they sit in a Stack."
+          elementsPreview={() => stacked(elementsStack(FEATURES.map((f) => elementsCard(f))))}
           code={(_density, mode) =>
-            [
+            mode === "elements"
+              ? elementsStack(FEATURES.map((f) => elementsCard(f)))
+              : [
               imports(mode),
               stackImports(mode),
               ``,
@@ -250,8 +390,31 @@ export const checkboxCardSpec: ComponentSpec = {
       render: () => (
         <InteractiveExample
           caption="`checked` is tri-state — `true`, `false` or `&quot;indeterminate&quot;` — which is what makes the select-all pattern possible: the parent is indeterminate exactly when *some but not all* children are on, a state no boolean can hold. Two shapes to note. `onCheckedChange` is always called with a **boolean**, never with `&quot;indeterminate&quot;`, because an indeterminate card resolves to `true` on click — so the parent's handler is a plain select-all/clear-all. And the styling treats indeterminate as selected: the card fills the same way a checked one does, and only the mark differs (a bar instead of a tick). The indentation here is the page's own CSS — the primitive does not bake in a hierarchy."
+          elementsCaption="`checked` is tri-state — present, absent or `checked=&quot;indeterminate&quot;` — which is what makes the select-all pattern possible: the parent is indeterminate exactly when *some but not all* of the cards beneath it are on. The element does not coordinate them; a few lines of script do, listening for `primitiv-checkbox-card-change`. Its `detail.checked` is always a **boolean**, because a mixed card resolves to checked when pressed. The styling treats indeterminate as selected: only the mark differs (a bar instead of a tick)."
+          elementsPreview={() => stacked(selectAllMarkup())}
+          wire={wireSelectAll}
           code={(_density, mode) =>
-            [
+            mode === "elements"
+              ? [
+                  selectAllMarkup(),
+                  ``,
+                  `<script type="module">`,
+                  `  const parent = document.getElementById("all");`,
+                  `  const cards = ["analytics", "alerts", "exports"].map((id) => document.getElementById(id));`,
+                  `  const sync = () => {`,
+                  `    const on = cards.filter((card) => card.checked === true).length;`,
+                  `    parent.checked = on === cards.length ? true : on === 0 ? false : "indeterminate";`,
+                  `  };`,
+                  `  document.addEventListener("primitiv-checkbox-card-change", (event) => {`,
+                  `    // Fired before the change applies: act once it has.`,
+                  `    queueMicrotask(() => {`,
+                  `      if (event.target === parent) for (const card of cards) card.checked = event.detail.checked;`,
+                  `      sync();`,
+                  `    });`,
+                  `  });`,
+                  `</script>`,
+                ].join("\n")
+              : [
               `import { useState } from "react";`,
               imports(mode),
               stackImports(mode),
@@ -293,11 +456,25 @@ export const checkboxCardSpec: ComponentSpec = {
     {
       id: "controlled",
       title: "Controlled",
+      elementsTitle: "Listening for changes",
       render: () => (
         <InteractiveExample
           caption="Pass `checked` and `onCheckedChange` together and you own the value. Both are **required together** in controlled mode — the props table flattens the two shapes into one list, but TypeScript accepts either `checked` + `onCheckedChange` or `defaultChecked`, never a mix. Since there is no form to submit into, controlled is the normal way to use these cards: the value has to reach your code somehow."
+          elementsCaption="Each card keeps its state in its own `checked` attribute, so it works with no script. To follow it, listen for `primitiv-checkbox-card-change` — it bubbles, so one listener on a container hears every card. It fires **before** the change applies, with the state afterwards in `detail.checked`, and `preventDefault()` vetoes it. With no form to submit into, this is how the values reach your code."
+          elementsPreview={() => enabledPreview()}
+          wire={wireEnabled}
           code={(_density, mode) =>
-            [
+            mode === "elements"
+              ? [
+                  elementsStack(FEATURE_CARDS(["analytics"])),
+                  ``,
+                  `<script type="module">`,
+                  `  document.addEventListener("primitiv-checkbox-card-change", (event) => {`,
+                  `    console.log(event.target.id, event.detail.checked); // preventDefault() vetoes it`,
+                  `  });`,
+                  `</script>`,
+                ].join("\n")
+              : [
               `import { useState } from "react";`,
               imports(mode),
               ``,
@@ -325,8 +502,12 @@ export const checkboxCardSpec: ComponentSpec = {
       render: () => (
         <InteractiveExample
           caption="`description` is optional, and `showDescription` toggles it without unmounting the title — useful when the supporting text is conditional and you do not want the card's identity to change with it. Note that `showDescription` only has an effect when there is a `description` to show: the copied file renders the description only when **both** are truthy, so `showDescription` on a card with no description does nothing rather than reserving empty space."
+          elementsCaption="The description is optional: leave its span out and the card is title-only. Nothing reserves space for a description that is not there."
+          elementsPreview={() => stacked(elementsStack([elementsCard({ title: "Analytics" }), elementsCard({ title: "Alerts" })]))}
           code={(_density, mode) =>
-            [
+            mode === "elements"
+              ? elementsStack([elementsCard({ title: "Analytics" }), elementsCard({ title: "Alerts" })])
+              : [
               imports(mode),
               stackImports(mode),
               ``,
@@ -358,8 +539,17 @@ export const checkboxCardSpec: ComponentSpec = {
       render: () => (
         <InteractiveExample
           caption="Five sizes, each rescaling again with the nearest `data-density` ancestor. Size moves the whole card — padding, radius, the indicator, and both text ramps — so the smaller sizes are for dense option lists rather than for squeezing a long description into a small card."
+          elementsCaption="Five sizes, `primitiv-checkbox-card--xs` to `--xl` on the button, each rescaling again with the nearest `data-density` ancestor. Size moves the whole card — padding, radius, the indicator, and both text ramps."
+          elementsPreview={(density) =>
+            stacked(elementsStack(SIZES.map((s) => elementsCard({ title: s.toUpperCase(), description: "Supporting text.", size: s })), ` data-density="${density}"`))
+          }
           code={(density, mode) =>
-            [
+            mode === "elements"
+              ? elementsStack(
+                  SIZES.map((s) => elementsCard({ title: s.toUpperCase(), description: "Supporting text.", size: s })),
+                  ` data-density="${density}"`,
+                )
+              : [
               imports(mode),
               stackImports(mode),
               ``,
@@ -395,8 +585,12 @@ export const checkboxCardSpec: ComponentSpec = {
       render: () => (
         <InteractiveExample
           caption="`disabled` forwards the native `<button>` attribute, so the card cannot be toggled and leaves the tab order; `data-disabled` lands on the root for styling. A disabled card keeps its checked look — `data-state` is independent of `data-disabled`, which is what lets you show a locked-on option rather than an option that merely looks unavailable."
+          elementsCaption="`disabled` on `<primitiv-checkbox-card>` gives its button `aria-disabled` and `data-disabled`, and the card never toggles. It stays focusable and announced rather than taking the native attribute. A disabled card keeps its checked look — `data-state` is independent of `data-disabled`, which is what lets you show a locked-on option."
+          elementsPreview={() => stacked(elementsStack(DISABLED_CARDS()))}
           code={(_density, mode) =>
-            [
+            mode === "elements"
+              ? elementsStack(DISABLED_CARDS())
+              : [
               imports(mode),
               stackImports(mode),
               ``,
@@ -427,6 +621,31 @@ export const checkboxCardSpec: ComponentSpec = {
       ),
     },
   ],
+
+  elements: {
+    description:
+      "A card whose whole surface is one checkbox. `<primitiv-checkbox-card>` keeps the state in its `checked` attribute — present, absent, or `\"indeterminate\"` — and decorates the `<button>` you write as a `role=\"checkbox\"` with `aria-checked`. Cards are independent: no group, each its own tab stop.",
+    anatomyMeta:
+      "Two elements. `<primitiv-checkbox-card>` owns `checked` and `disabled` and decorates exactly one child, the `<button>` holding the card's content, which gets the checkbox's ARIA and `data-state`; the element itself takes no box. `<primitiv-checkbox-card-indicator>`, anywhere inside the button, is the decorative mark: `hidden` while the card is unchecked unless it carries `force-mount`, which the styled card uses so its mark can animate.",
+    keyboardMeta:
+      "All native, because the card is a real `<button>` — the element adds no key handling of its own. Every card is its own tab stop, since there is no group to rove within.",
+    keyboard: [
+      { keys: ["Tab"], behaviour: "Move focus to the card. Each card is a separate tab stop." },
+      {
+        keys: ["Space", "Enter"],
+        behaviour: "Toggle the card — the button's own click. An `\"indeterminate\"` card resolves to **checked**.",
+      },
+    ],
+    accessibility: [
+      "**A native checkbox or a checkbox card?** `<input type=\"checkbox\">` in a `<label>` submits with a form and takes a `name`. `<primitiv-checkbox-card>` is a button — no input, no `name`, nothing in `FormData` — for when the option deserves a whole surface. Choose on form participation first.",
+      "The card's accessible name comes from the `<button>`'s **content**, so it includes the description. Put an `aria-label` on the button when the description is long or boilerplate.",
+      "`aria-checked` carries the state, including `mixed` for indeterminate — what a screen reader announces as partially checked. `data-state` (`checked` / `unchecked` / `indeterminate`) is its CSS mirror; style off `data-state`.",
+      "A card decorates the one `<button>` you put inside it. A card without exactly one element child is reported once in the console and left alone.",
+      "`disabled` sets `aria-disabled` and `data-disabled` on the button rather than the native attribute, so the card stays focusable and announced while nothing toggles it.",
+      "A set of related cards still needs a group label: put them in a `<fieldset>` with a `<legend>`, or a container with `role=\"group\"` and `aria-labelledby`.",
+      "The whole card is the hit target, so nothing interactive belongs **inside** it. Put links and buttons beside it.",
+    ],
+  },
 
   keyboardMeta:
     "All native, because the root is a real `<button>` — the component adds no key handling of its own. Note the difference from `RadioCard`: every card here is its own tab stop, since there is no group to rove within.",

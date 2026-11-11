@@ -405,3 +405,23 @@ test("removing a Chip filter hands focus to its neighbour", async ({ page }) => 
   await expect(example.locator(".primitiv-chip")).toHaveCount(2);
   await expect(example.getByRole("button", { name: "Remove Owner: You" })).toBeFocused();
 });
+
+for (const framework of ["elements", "react"]) {
+  test(`the Context Menu region (${framework}) is a full-width dashed drop zone`, async ({ page }) => {
+    await page.addInitScript(
+      ([key, value]) => localStorage.setItem(key, JSON.stringify(value)),
+      [FRAMEWORK_KEY, framework],
+    );
+    await page.goto("/components/context-menu/");
+    const example = cell(page, "actions");
+    // Wait for the stored framework to take over from the default render.
+    await expect(example.locator("primitiv-context-menu")).toHaveCount(framework === "react" ? 0 : 1);
+    const region = example.locator(".docs-context-region");
+    await expect(region).toBeVisible();
+    const [r, e] = await Promise.all([region.boundingBox(), example.boundingBox()]);
+    // Spans the preview, less its padding, and is tall enough to read as a zone.
+    expect(r!.width).toBeGreaterThan(e!.width * 0.75);
+    expect(r!.height).toBeGreaterThanOrEqual(160);
+    expect(await region.evaluate((el) => getComputedStyle(el).borderTopStyle)).toBe("dashed");
+  });
+}

@@ -4,7 +4,6 @@ import { useId, useState, type CSSProperties, type ReactNode } from "react";
 
 import { Check } from "@primitiv-ui/icons";
 
-import { Card, CardContent } from "@/components/card";
 import {
   ContextMenu,
   ContextMenuCheckboxItem,
@@ -57,7 +56,7 @@ const row = {
 /**
  * One context menu as Elements markup (RFC 0033): the `@primitiv-ui/web`
  * custom elements, in the shape `primitiv add context-menu --surface elements`
- * prints. The trigger element IS the region — here a card, so the card's
+ * prints. The trigger element IS the region — here a dashed area, so its
  * classes sit on it — and the content element IS the menu, carrying
  * `popover="manual"` so it is hidden before the script loads. Nothing places
  * it by hand: the element publishes the pointer's position on the menu as
@@ -75,9 +74,9 @@ const elementsContextMenu = ({
   rows: string[];
 }) =>
   [
-    `<primitiv-context-menu>`,
-    `  <primitiv-context-menu-trigger class="primitiv-card primitiv-card--vertical primitiv-card--lg primitiv-card--flat primitiv-card--scrim-medium" tabindex="0"${disabled ? " disabled" : ""}>`,
-    `    <div class="primitiv-card__content">${region}</div>`,
+    `<primitiv-context-menu class="docs-context-region-host">`,
+    `  <primitiv-context-menu-trigger class="docs-context-region" tabindex="0"${disabled ? " disabled" : ""}>`,
+    `    ${region}`,
     `  </primitiv-context-menu-trigger>`,
     `  <primitiv-context-menu-content class="primitiv-context-menu primitiv-context-menu--${size}" popover="manual">`,
     ...rows.map((r) => `    ${r}`),
@@ -104,7 +103,7 @@ const toAnchorName = (id: string) => `--sub${id.replace(/[^a-zA-Z0-9_-]/g, "-")}
 const anchorNameStyle = (n: string) => ({ anchorName: n }) as CSSProperties;
 const positionAnchorStyle = (n: string) => ({ positionAnchor: n }) as CSSProperties;
 
-/** A docs context menu: a card to right-click, with the menu passed as children. */
+/** A docs context menu: an area to right-click, with the menu passed as children. */
 const DocsContextMenu = ({
   region,
   size,
@@ -118,9 +117,7 @@ const DocsContextMenu = ({
 }) => (
   <ContextMenu>
     <ContextMenuTrigger asChild disabled={disabled} tabIndex={0}>
-      <Card>
-        <CardContent>{region}</CardContent>
-      </Card>
+      <div className="docs-context-region">{region}</div>
     </ContextMenuTrigger>
     <ContextMenuContent size={size}>{children}</ContextMenuContent>
   </ContextMenu>
@@ -169,7 +166,7 @@ const ChoicesMenu = () => {
 /**
  * Context Menu's page content.
  *
- * Dropdown's menu, opened at the pointer: every example is a card to
+ * Dropdown's menu, opened at the pointer: every example is an area to
  * right-click (or focus and press Shift+F10), because a pinned-open context
  * menu misrepresents the component. The root needs no anchor wiring — the
  * headless layer places it at the cursor — but a submenu is anchored to its
@@ -272,12 +269,12 @@ export const contextMenuSpec: ComponentSpec = {
       title: "A menu of actions",
       render: () => (
         <InteractiveExample
-          elementsCaption="**Right-click the card** — or focus it and press Shift+F10 — to open a menu of actions at the pointer. Choosing an item fires a cancelable `primitiv-context-menu-select` on it — listen for that to act — and closes the menu. Nothing places it by hand: the element publishes the pointer's position on the menu as `--primitiv-context-menu-x` / `-y`, and the stylesheet places it from them, flipping it off the far edge when there is not room."
-          caption="**Right-click the card** — or focus it and press Shift+F10 — to open a menu of actions at the pointer. Each `ContextMenu.Item` runs its `onSelect` and closes the menu; `ContextMenu.ItemTrailing` holds a shortcut hint. The root needs no anchor: it is placed at the cursor, and flips off the far edge when there is not room."
+          elementsCaption="**Right-click the area** — or focus it and press Shift+F10 — to open a menu of actions at the pointer. Choosing an item fires a cancelable `primitiv-context-menu-select` on it — listen for that to act — and closes the menu. Nothing places it by hand: the element publishes the pointer's position on the menu as `--primitiv-context-menu-x` / `-y`, and the stylesheet places it from them, flipping it off the far edge when there is not room."
+          caption="**Right-click the area** — or focus it and press Shift+F10 — to open a menu of actions at the pointer. Each `ContextMenu.Item` runs its `onSelect` and closes the menu; `ContextMenu.ItemTrailing` holds a shortcut hint. The root needs no anchor: it is placed at the cursor, and flips off the far edge when there is not room."
           code={(_density, mode) => {
             if (mode === "elements")
               return elementsContextMenu({
-                region: "Right-click this card",
+                region: "Right-click this area",
                 rows: [row.item("Cut", "⌘X"), row.item("Copy", "⌘C"), row.item("Paste", "⌘V"), row.separator, row.item("Delete")],
               });
             const p = partNamer(mode, "ContextMenu");
@@ -299,7 +296,7 @@ export const contextMenuSpec: ComponentSpec = {
           }}
         >
           {() => (
-            <DocsContextMenu region="Right-click this card">
+            <DocsContextMenu region="Right-click this area">
               {[
                 ["Cut", "⌘X"],
                 ["Copy", "⌘C"],

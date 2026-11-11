@@ -462,3 +462,30 @@
   color: var(--primitiv-color-absolute-white, white);
   font-weight: var(--primitiv-font-weight-semibold);
 }
+
+/*
+ * The area a Context Menu example is right-clicked in. The menu opens at the
+ * pointer, so a card-sized target made it look as if the menu were floating on
+ * top of its trigger; a full-width dashed zone reads as a region instead, and
+ * the hint sits in its centre.
+ */
+.docs-context-region {
+  --docs-context-region-height: var(--primitiv-space-space-200);
+
+  inline-size: 100%;
+  min-block-size: var(--docs-context-region-height);
+  display: grid;
+  place-items: center;
+  text-align: center;
+  border: var(--primitiv-border-width-1) dashed var(--primitiv-border-default);
+  border-radius: var(--primitiv-radii-8);
+  padding: var(--primitiv-space-space-24);
+  color: var(--primitiv-content-secondary);
+}
+
+/* The Elements root is a real element in the example row: let it take the
+   row's width so the region inside it can. */
+.docs-context-region-host {
+  display: block;
+  inline-size: 100%;
+}

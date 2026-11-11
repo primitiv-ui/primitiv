@@ -21,6 +21,9 @@ export type PrimitivPopoverChangeEvent = CustomEvent<{ open: boolean }>;
 /** The `primitiv-tooltip-change` event: bubbles, cancelable, fired before the change applies, with the open state afterwards. */
 export type PrimitivTooltipChangeEvent = CustomEvent<{ open: boolean }>;
 
+/** The `primitiv-toggle-group-change` event: bubbles, cancelable, fired before the change applies, with every item pressed afterwards. */
+export type PrimitivToggleGroupChangeEvent = CustomEvent<{ value: string[] }>;
+
 /** The `primitiv-dropdown-change` event: bubbles, cancelable, fired before the change applies, with the open state afterwards. */
 export type PrimitivDropdownChangeEvent = CustomEvent<{ open: boolean }>;
 

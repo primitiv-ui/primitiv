@@ -42,6 +42,10 @@
       "types": "./src/tooltip/index.ts",
       "default": "./src/tooltip/index.ts"
     },
+    "./toggle-group": {
+      "types": "./src/toggle-group/index.ts",
+      "default": "./src/toggle-group/index.ts"
+    },
     "./define": {
       "types": "./src/define/index.ts",
       "default": "./src/define/index.ts"
@@ -77,6 +81,10 @@
     "./define/tooltip": {
       "types": "./src/define/tooltip.ts",
       "default": "./src/define/tooltip.ts"
+    },
+    "./define/toggle-group": {
+      "types": "./src/define/toggle-group.ts",
+      "default": "./src/define/toggle-group.ts"
     },
     "./tags": {
       "types": "./src/tags.ts",
@@ -181,6 +189,10 @@
         "types": "./dist/tooltip/index.d.ts",
         "default": "./dist/tooltip/index.js"
       },
+      "./toggle-group": {
+        "types": "./dist/toggle-group/index.d.ts",
+        "default": "./dist/toggle-group/index.js"
+      },
       "./define": {
         "types": "./dist/define/index.d.ts",
         "default": "./dist/define/index.js"
@@ -216,6 +228,10 @@
       "./define/tooltip": {
         "types": "./dist/define/tooltip.d.ts",
         "default": "./dist/define/tooltip.js"
+      },
+      "./define/toggle-group": {
+        "types": "./dist/define/toggle-group.d.ts",
+        "default": "./dist/define/toggle-group.js"
       },
       "./tags": {
         "types": "./dist/tags.d.ts",

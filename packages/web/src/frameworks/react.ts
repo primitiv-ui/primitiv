@@ -94,6 +94,7 @@ import type {
   PrimitivTooltipProviderElement,
   PrimitivTooltipTriggerElement,
 } from "../tooltip/elements.ts";
+import type { PrimitivToggleGroupElement, PrimitivToggleGroupItemElement } from "../toggle-group/elements.ts";
 import type {
   PrimitivAccordionChangeEvent,
   PrimitivContextMenuChangeEvent,
@@ -111,6 +112,7 @@ import type {
   PrimitivPopoverChangeEvent,
   PrimitivTabsChangeEvent,
   PrimitivTooltipChangeEvent,
+  PrimitivToggleGroupChangeEvent,
 } from "./events.ts";
 
 /** React's own props for an element, plus `class`, which React 19 passes to custom elements. */
@@ -135,6 +137,7 @@ export type {
   PrimitivPopoverChangeEvent,
   PrimitivTabsChangeEvent,
   PrimitivTooltipChangeEvent,
+  PrimitivToggleGroupChangeEvent,
 };
 
 declare module "react" {
@@ -311,6 +314,16 @@ declare module "react" {
         popover?: "auto" | "manual" | "";
       };
       "primitiv-tooltip-arrow": ElementProps<PrimitivTooltipArrowElement>;
+      "primitiv-toggle-group": ElementProps<PrimitivToggleGroupElement> & {
+        value?: string;
+        type?: "single" | "multiple";
+        orientation?: "horizontal" | "vertical";
+        "onprimitiv-toggle-group-change"?: (event: PrimitivToggleGroupChangeEvent) => void;
+      };
+      "primitiv-toggle-group-item": ElementProps<PrimitivToggleGroupItemElement> & {
+        value: string;
+        disabled?: boolean;
+      };
     }
   }
 }

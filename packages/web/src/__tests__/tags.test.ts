@@ -63,6 +63,8 @@ import type {
   PrimitivTooltipElement,
   PrimitivTooltipProviderElement,
   PrimitivTooltipTriggerElement,
+  PrimitivToggleGroupElement,
+  PrimitivToggleGroupItemElement,
 } from "../index";
 
 it("types every Tabs tag in HTMLElementTagNameMap", () => {
@@ -106,6 +108,11 @@ it("types every Popover tag in HTMLElementTagNameMap", () => {
   expectTypeOf(document.createElement("primitiv-popover-title")).toEqualTypeOf<PrimitivPopoverTitleElement>();
   expectTypeOf(document.createElement("primitiv-popover-description")).toEqualTypeOf<PrimitivPopoverDescriptionElement>();
   expectTypeOf(document.createElement("primitiv-popover-close")).toEqualTypeOf<PrimitivPopoverCloseElement>();
+});
+
+it("types every ToggleGroup tag in HTMLElementTagNameMap", () => {
+  expectTypeOf(document.querySelector("primitiv-toggle-group")).toEqualTypeOf<PrimitivToggleGroupElement | null>();
+  expectTypeOf(document.createElement("primitiv-toggle-group-item")).toEqualTypeOf<PrimitivToggleGroupItemElement>();
 });
 
 it("types every Tooltip tag in HTMLElementTagNameMap", () => {

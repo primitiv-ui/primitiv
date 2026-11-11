@@ -37,6 +37,7 @@ import type {
   PrimitivPopoverChangeEvent,
   PrimitivTabsChangeEvent,
   PrimitivTooltipChangeEvent,
+  PrimitivToggleGroupChangeEvent,
 } from "./events.ts";
 
 /** A tag as Vue's template checker sees it: its props, and the events it emits. */
@@ -144,5 +145,10 @@ declare module "vue" {
     "primitiv-tooltip-trigger": Tag<Record<never, never>>;
     "primitiv-tooltip-content": Tag<Record<never, never>>;
     "primitiv-tooltip-arrow": Tag<Record<never, never>>;
+    "primitiv-toggle-group": Tag<
+      { value?: string; type?: "single" | "multiple"; orientation?: "horizontal" | "vertical" },
+      { "primitiv-toggle-group-change": (event: PrimitivToggleGroupChangeEvent) => void }
+    >;
+    "primitiv-toggle-group-item": Tag<{ value: string; disabled?: boolean | "" }>;
   }
 }

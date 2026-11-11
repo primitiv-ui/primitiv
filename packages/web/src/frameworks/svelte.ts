@@ -93,6 +93,7 @@ import type {
   PrimitivTooltipProviderElement,
   PrimitivTooltipTriggerElement,
 } from "../tooltip/elements.ts";
+import type { PrimitivToggleGroupElement, PrimitivToggleGroupItemElement } from "../toggle-group/elements.ts";
 import type {
   PrimitivAccordionChangeEvent,
   PrimitivContextMenuChangeEvent,
@@ -110,6 +111,7 @@ import type {
   PrimitivPopoverChangeEvent,
   PrimitivTabsChangeEvent,
   PrimitivTooltipChangeEvent,
+  PrimitivToggleGroupChangeEvent,
 } from "./events.ts";
 
 /** Svelte's own attributes and events for an element. */
@@ -283,5 +285,15 @@ declare module "svelte/elements" {
     "primitiv-tooltip-trigger": Attributes<PrimitivTooltipTriggerElement>;
     "primitiv-tooltip-content": Attributes<PrimitivTooltipContentElement>;
     "primitiv-tooltip-arrow": Attributes<PrimitivTooltipArrowElement>;
+    "primitiv-toggle-group": Attributes<PrimitivToggleGroupElement> & {
+      value?: string;
+      type?: "single" | "multiple";
+      orientation?: "horizontal" | "vertical";
+      "onprimitiv-toggle-group-change"?: (event: PrimitivToggleGroupChangeEvent) => void;
+    };
+    "primitiv-toggle-group-item": Attributes<PrimitivToggleGroupItemElement> & {
+      value: string;
+      disabled?: boolean;
+    };
   }
 }

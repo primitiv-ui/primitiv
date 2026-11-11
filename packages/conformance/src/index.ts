@@ -36,3 +36,9 @@ export {
   type TooltipConformanceFixture,
   type TooltipMount,
 } from "./tooltip.ts";
+export {
+  runToggleGroupConformance,
+  TOGGLE_GROUP_ITEMS,
+  type ToggleGroupConformanceFixture,
+  type ToggleGroupMount,
+} from "./toggle-group.ts";

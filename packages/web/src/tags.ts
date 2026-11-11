@@ -88,6 +88,7 @@ import type {
   PrimitivTooltipProviderElement,
   PrimitivTooltipTriggerElement,
 } from "./tooltip/elements.ts";
+import type { PrimitivToggleGroupElement, PrimitivToggleGroupItemElement } from "./toggle-group/elements.ts";
 declare global {
   interface HTMLElementTagNameMap {
     "primitiv-accordion": PrimitivAccordionElement;
@@ -149,6 +150,8 @@ declare global {
     "primitiv-tooltip-trigger": PrimitivTooltipTriggerElement;
     "primitiv-tooltip-content": PrimitivTooltipContentElement;
     "primitiv-tooltip-arrow": PrimitivTooltipArrowElement;
+    "primitiv-toggle-group": PrimitivToggleGroupElement;
+    "primitiv-toggle-group-item": PrimitivToggleGroupItemElement;
   }
 }
 

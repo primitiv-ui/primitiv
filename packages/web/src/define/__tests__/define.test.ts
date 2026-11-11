@@ -156,6 +156,16 @@ it("defines the Tooltip elements when define/tooltip is imported", async () => {
   }
 });
 
+it("defines the ToggleGroup elements when define/toggle-group is imported", async () => {
+  // Arrange & Act
+  await import("../toggle-group");
+
+  // Assert
+  for (const name of ["primitiv-toggle-group", "primitiv-toggle-group-item"]) {
+    expect(customElements.get(name)).toBeDefined();
+  }
+});
+
 it("defines every component's elements when define is imported", async () => {
   // Arrange & Act
   const module = await import("../index");
@@ -170,4 +180,5 @@ it("defines every component's elements when define is imported", async () => {
   expect(customElements.get("primitiv-tooltip")).toBeDefined();
   expect(customElements.get("primitiv-dropdown")).toBeDefined();
   expect(customElements.get("primitiv-context-menu")).toBeDefined();
+  expect(customElements.get("primitiv-toggle-group")).toBeDefined();
 });

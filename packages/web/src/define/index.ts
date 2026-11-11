@@ -9,4 +9,5 @@ import "./dropdown.ts";
 import "./modal.ts";
 import "./popover.ts";
 import "./tabs.ts";
+import "./toggle-group.ts";
 import "./tooltip.ts";

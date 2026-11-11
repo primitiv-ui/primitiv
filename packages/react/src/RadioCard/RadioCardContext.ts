@@ -1,14 +1,11 @@
 import type { Context } from "react";
 import { createStrictContext } from "../utils/index.ts";
 
-import { RadioCardOrientation, RadioCardReadingDirection } from "./types";
-
 /** The value shared by `RadioCard.Root` with its items through context: the
- * current selection and setter, the item registry used for roving focus and
- * keyboard navigation, and the resolved orientation/direction. */
+ * current selection and the item registry the roving tab stop and the shared
+ * controller read. */
 export type RadioCardContextValue = {
   value: string | undefined;
-  select: (value: string) => void;
   registerItem: (
     value: string,
     element: HTMLButtonElement | null,
@@ -16,9 +13,6 @@ export type RadioCardContextValue = {
   ) => void;
   itemValues: string[];
   disabledValues: Set<string>;
-  focusItem: (value: string) => void;
-  orientation: RadioCardOrientation;
-  dir: RadioCardReadingDirection;
 };
 
 const radioCardContextPair = createStrictContext<RadioCardContextValue>(

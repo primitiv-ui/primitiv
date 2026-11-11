@@ -113,8 +113,9 @@ export type RadioCardItemProps = Omit<
   /**
    * When `true`, renders the single child element via the {@link Slot}
    * pattern instead of the default `<button>`; ARIA, `data-state`,
-   * `tabIndex`, `onClick`, `onKeyDown`, `disabled`, and `ref` are merged
-   * onto it. A non-focusable child must be made focusable by the consumer.
+   * `tabIndex`, `disabled`, and `ref` are merged onto it, and clicks and
+   * arrow keys on it are handled by the root's shared controller. A
+   * non-focusable child must be made focusable by the consumer.
    * @default false
    */
   asChild?: boolean;

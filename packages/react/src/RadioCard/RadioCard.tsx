@@ -2,8 +2,9 @@ import { useEffect, useMemo, useRef } from "react";
 import type { ReactElement } from "react";
 
 import { useDirection } from "../DirectionProvider/index.ts";
-import { useRovingTabindex } from "../hooks/index.ts";
-import { Slot, composeEventHandlers, composeRefs } from "../Slot/index.ts";
+import { radioGroupTabStop } from "@primitiv-ui/core";
+
+import { Slot, composeRefs } from "../Slot/index.ts";
 
 import { RadioCardContext } from "./RadioCardContext";
 import { RadioCardItemContext } from "./RadioCardItemContext";
@@ -83,42 +84,29 @@ export function RadioCardRoot({
   dir,
   asChild = false,
   children,
+  ref,
   ...rest
 }: RadioCardRootProps): ReactElement {
   const resolvedDir = dir ?? useDirection();
-  const { value, select, registerItem, itemValues, disabledValues, focusItem } =
-    useRadioCardRoot({
-      defaultValue,
-      value: controlledValue,
-      onValueChange,
-    });
+  const { rootRef, value, registerItem, itemValues, disabledValues } = useRadioCardRoot({
+    defaultValue,
+    value: controlledValue,
+    onValueChange,
+    orientation,
+    dir: resolvedDir,
+  });
   const contextValue = useMemo(
-    () => ({
-      value,
-      select,
-      registerItem,
-      itemValues,
-      disabledValues,
-      focusItem,
-      orientation,
-      dir: resolvedDir,
-    }),
-    [
-      value,
-      select,
-      registerItem,
-      itemValues,
-      disabledValues,
-      focusItem,
-      orientation,
-      resolvedDir,
-    ],
+    () => ({ value, registerItem, itemValues, disabledValues }),
+    [value, registerItem, itemValues, disabledValues],
   );
+  // The controller listens on the root, so a consumer ref is composed with it.
+  const setRootRef = useMemo(() => composeRefs(rootRef, ref), [rootRef, ref]);
   const rootProps = {
     role: "radiogroup" as const,
     "aria-orientation": orientation === "both" ? undefined : orientation,
     dir: resolvedDir,
     ...rest,
+    ref: setRootRef,
   };
   return (
     <RadioCardContext.Provider value={contextValue}>
@@ -131,7 +119,6 @@ export function RadioCardRoot({
   );
 }
 
-/** @internal */
 // Runtime-dead: the compound alias below (same object via Object.assign)
 // overwrites this to "RadioCard" at load, so the value is never observable.
 // The assignment stays because it declares `displayName` on
@@ -163,8 +150,9 @@ RadioCardRoot.displayName = "RadioCardRoot";
  * both.
  *
  * **`asChild` prop.** Pass `asChild` to render any consumer element with
- * the Item's ARIA, data-state, tabIndex, onClick, onKeyDown, disabled, and
- * ref merged onto it.
+ * the Item's ARIA, data-state, tabIndex, disabled, and ref merged onto it.
+ * Clicks and arrow keys on it are handled by the shared controller listening
+ * on the root, beside any `onClick` / `onKeyDown` of the consumer's.
  *
  * @extends HTMLButtonElement
  *
@@ -173,30 +161,17 @@ RadioCardRoot.displayName = "RadioCardRoot";
 export function RadioCardItem({
   value,
   children,
-  onClick,
-  onKeyDown,
   disabled,
   asChild = false,
   ref,
   ...rest
 }: RadioCardItemProps): ReactElement {
-  const {
-    value: selectedValue,
-    select,
-    registerItem,
-    itemValues,
-    disabledValues,
-    focusItem,
-    orientation,
-    dir,
-  } = useRadioCardContext();
+  const { value: selectedValue, registerItem, itemValues, disabledValues } = useRadioCardContext();
   const isChecked = selectedValue === value;
-  const enabledValues = useMemo(
-    () => itemValues.filter((v) => !disabledValues.has(v)),
-    [itemValues, disabledValues],
-  );
+  // The tab stop is core's radio-group rule, shared with the elements: the
+  // selected card, else the first enabled one.
   const isTabStop =
-    selectedValue !== undefined ? isChecked : enabledValues[0] === value;
+    radioGroupTabStop({ values: itemValues, disabled: disabledValues, selected: selectedValue }) === value;
 
   const localRef = useRef<HTMLButtonElement | null>(null);
   const setRef = useMemo(() => composeRefs(localRef, ref), [ref]);
@@ -205,17 +180,6 @@ export function RadioCardItem({
     registerItem(value, localRef.current, disabled);
     return () => registerItem(value, null);
   }, [value, disabled, registerItem]);
-
-  const { handleKeyDown } = useRovingTabindex<string>({
-    orientation,
-    dir,
-    navigable: enabledValues,
-    currentKey: value,
-    onNavigate: (target) => {
-      select(target);
-      focusItem(target);
-    },
-  });
 
   const itemContextValue = useMemo(() => ({ checked: isChecked }), [isChecked]);
 
@@ -228,8 +192,6 @@ export function RadioCardItem({
     "data-disabled": disabled ? "" : undefined,
     tabIndex: isTabStop ? 0 : -1,
     disabled,
-    onClick: composeEventHandlers(onClick, () => select(value)),
-    onKeyDown: composeEventHandlers(onKeyDown, handleKeyDown),
   };
 
   return (

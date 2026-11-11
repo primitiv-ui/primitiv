@@ -1,11 +1,16 @@
 import { useCallback, useMemo } from "react";
 
-import { useCollection, useControllableState } from "../../hooks/index.ts";
+import { RadioCardController } from "@primitiv-ui/web";
+
+import { useCollection, useControllableState, useHostedController } from "../../hooks/index.ts";
+import type { RadioCardOrientation, RadioCardReadingDirection } from "../types";
 
 type UseRadioCardRootArgs = {
   defaultValue?: string;
   value?: string;
   onValueChange?: (value: string) => void;
+  orientation: RadioCardOrientation;
+  dir: RadioCardReadingDirection;
 };
 
 type ItemMeta = {
@@ -17,33 +22,15 @@ export function useRadioCardRoot({
   defaultValue,
   value: controlledValue,
   onValueChange,
+  orientation,
+  dir,
 }: UseRadioCardRootArgs) {
-  const [value, setValue] = useControllableState<string>(
-    controlledValue,
-    defaultValue,
-    onValueChange,
-  );
+  const [value, setValue] = useControllableState<string>(controlledValue, defaultValue, onValueChange);
 
-  const select = useCallback(
-    (next: string) => {
-      if (value === next) return;
-      setValue(next);
-    },
-    [value, setValue],
-  );
-
-  const {
-    register: registerItemBase,
-    itemsRef,
-    keys: itemValues,
-  } = useCollection<string, ItemMeta>();
+  const { register: registerItemBase, itemsRef, keys: itemValues } = useCollection<string, ItemMeta>();
 
   const registerItem = useCallback(
-    (
-      itemValue: string,
-      element: HTMLButtonElement | null,
-      disabled = false,
-    ) => {
+    (itemValue: string, element: HTMLButtonElement | null, disabled = false) => {
       registerItemBase(itemValue, element ? { element, disabled } : null);
     },
     // `registerItemBase` is a stable useCollection callback (its own deps never
@@ -62,27 +49,20 @@ export function useRadioCardRoot({
     [itemValues, itemsRef],
   );
 
-  const focusItem = useCallback(
-    (itemValue: string) => {
-      // `itemValue` is always sourced from `navigable` (the enabled subset of
-      // `itemValues`), and `useCollection`'s register() writes `itemsRef` and
-      // the `itemValues` state together in the same call — so a value that
-      // appears here is guaranteed to already have a live entry in the map.
-      // Stryker disable next-line OptionalChaining: unreachable given that invariant.
-      itemsRef.current.get(itemValue)?.element.focus();
-    },
-    // `itemsRef` is a stable RefObject, so emptying this array yields the
-    // identical memoised function.
-    // Stryker disable next-line ArrayDeclaration: equivalent — stable dependency.
-    [itemsRef],
+  // The clicks and keys run in the shared RadioCardController
+  // (@primitiv-ui/web, RFC 0033 D30); React keeps the state and answers it.
+  const rootRef = useHostedController(
+    { value, orientation, dir, setValue },
+    (root, latest) =>
+      new RadioCardController(root, {
+        state: () => {
+          const { value, orientation, dir } = latest();
+          return { selected: value, orientation, dir };
+        },
+        change: (next) => latest().setValue(next),
+      }),
+    { itemsRef, keys: itemValues },
   );
 
-  return {
-    value,
-    select,
-    registerItem,
-    itemValues,
-    disabledValues,
-    focusItem,
-  };
+  return { rootRef, value, registerItem, itemValues, disabledValues };
 }

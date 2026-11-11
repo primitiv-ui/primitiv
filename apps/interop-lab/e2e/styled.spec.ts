@@ -394,3 +394,51 @@ test("the printed dropdown's submenu opens beside its row with no anchor-name wi
   expect(sub!.x).toBeGreaterThanOrEqual(row!.x + row!.width - 1);
   expect(Math.abs(sub!.y - row!.y)).toBeLessThan(16);
 });
+
+test("add context-menu printed the per-component script for its first release", () => {
+  const output = readFileSync("styled-site/add-context-menu-output.txt", "utf8");
+  expect(output).toMatch(/@primitiv-ui\/web@[\d.]+\/dist\/cdn\/context-menu\.js/);
+});
+
+test("the printed context menu opens at the pointer, styled, with only the checked indicators showing", async ({ page }) => {
+  const region = page.locator("primitiv-context-menu-trigger").last();
+  await region.scrollIntoViewIfNeeded();
+  const box = (await region.boundingBox())!;
+  const [x, y] = [box.x + 20, box.y + box.height / 2];
+  await page.mouse.move(x, y);
+  await page.mouse.down({ button: "right" });
+  await page.mouse.up({ button: "right" });
+  const menu = page.locator("primitiv-context-menu-content").last();
+  await expect(menu).toBeVisible();
+  await expect(menu).toHaveCSS("display", "flex");
+  // A corner of the menu on the pointer, once its enter animation settles; it
+  // flips above or before the pointer when there is not room below or after.
+  const near = (a: number, b: number) => Math.abs(a - b) < 2;
+  await expect
+    .poll(async () => {
+      const m = (await menu.boundingBox())!;
+      return (near(m.x, x) || near(m.x + m.width, x)) && (near(m.y, y) || near(m.y + m.height, y));
+    })
+    .toBe(true);
+  const indicators = menu.locator("primitiv-context-menu-item-indicator");
+  await expect(indicators.nth(0)).toBeVisible();
+  await expect(indicators.nth(1)).toBeVisible();
+  await expect(indicators.nth(2)).toBeHidden();
+  await page.keyboard.press("Escape");
+  await expect(menu).toBeHidden();
+});
+
+test("the printed context menu's submenu opens beside its row with no anchor-name wired", async ({ page }) => {
+  const region = page.locator("primitiv-context-menu-trigger").last();
+  await region.scrollIntoViewIfNeeded();
+  const box = (await region.boundingBox())!;
+  await page.mouse.move(box.x + 20, box.y + box.height / 2);
+  await page.mouse.down({ button: "right" });
+  await page.mouse.up({ button: "right" });
+  const share = page.locator("primitiv-context-menu-content").last().getByRole("menuitem", { name: "Share" });
+  await share.hover();
+  const submenu = page.locator("primitiv-context-menu-sub-content").last();
+  await expect(submenu).toBeVisible();
+  const [row, sub] = await Promise.all([share.boundingBox(), submenu.boundingBox()]);
+  expect(sub!.x).toBeGreaterThanOrEqual(row!.x + row!.width - 1);
+});

@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" /><link rel="icon" href="data:," /><title>Interop lab — Context Menu, plain HTML</title>
+    <!-- Positioning only: the element publishes the pointer's position on the
+         menu as custom properties, and each submenu's row is its implicit anchor. -->
+    <style>
+      primitiv-context-menu-trigger { display: block; inline-size: 300px; block-size: 120px; border: 1px dashed; }
+      primitiv-context-menu-content[popover], primitiv-context-menu-sub-content[popover] { margin: 0; inset: auto; padding: 4px; }
+      primitiv-context-menu-content[popover] { position: fixed; left: var(--primitiv-context-menu-x); top: var(--primitiv-context-menu-y); }
+      primitiv-context-menu-sub-content[popover] { position-anchor: auto; position-area: right span-bottom; }
+      primitiv-context-menu-item, primitiv-context-menu-checkbox-item, primitiv-context-menu-sub, primitiv-context-menu-sub-trigger { display: contents; }
+      li { list-style: none; padding: 4px 8px; }
+      [data-highlighted] { background: #ddd; }
+    </style>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/context-menu.ts"></script>
+  </body>
+</html>

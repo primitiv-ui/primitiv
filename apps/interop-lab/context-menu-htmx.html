@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" /><link rel="icon" href="data:," /><title>Interop lab — Context Menu, HTMX</title>
+    <style>
+      primitiv-context-menu-content[popover], primitiv-context-menu-sub-content[popover] { margin: 0; inset: auto; padding: 4px; }
+      primitiv-context-menu-content[popover] { position: fixed; left: var(--primitiv-context-menu-x); top: var(--primitiv-context-menu-y); }
+      primitiv-context-menu-sub-content[popover] { position-anchor: auto; position-area: right span-bottom; }
+      primitiv-context-menu-trigger { display: block; padding: 8px; border: 1px dashed; }
+    </style>
+  </head>
+  <body>
+    <!-- 1. Full fragment swap -->
+    <section>
+      <button type="button" id="load-context-menu" hx-get="/fragments/context-menu" hx-target="#slot-1">Load context menu</button>
+      <div id="slot-1"></div>
+    </section>
+
+    <!-- 2. A menu arriving out of band -->
+    <section id="oob-region"></section>
+    <button type="button" id="load-oob" hx-get="/fragments/context-menu-oob-content" hx-swap="none">Add the menu</button>
+
+    <!-- 3. Server re-render, now open -->
+    <section id="rerender-region"></section>
+    <button type="button" id="load-open" hx-get="/fragments/context-menu-oob-open" hx-swap="none">Open it</button>
+
+    <!-- 4. hx-preserve -->
+    <div id="preserve-region"></div>
+
+    <!-- 5. Items loaded into an open menu -->
+    <section id="lazy-region"></section>
+
+    <!-- 6. hx-trigger on the change event, and a veto -->
+    <section id="echo-region"></section>
+    <div id="echo-target"></div>
+
+    <script type="module" src="/src/context-menu-htmx.ts"></script>
+  </body>
+</html>

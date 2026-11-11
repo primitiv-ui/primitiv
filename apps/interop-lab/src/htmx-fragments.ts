@@ -5,6 +5,7 @@
 import { accordionHtml } from "./accordion-fixture.ts";
 import { collapsibleHtml } from "./collapsible-fixture.ts";
 import { modalHtml } from "./modal-fixture.ts";
+import { contextMenuHtml } from "./context-menu-fixture.ts";
 import { dropdownHtml } from "./dropdown-fixture.ts";
 import { popoverHtml } from "./popover-fixture.ts";
 import { tooltipHtml } from "./tooltip-fixture.ts";
@@ -20,6 +21,7 @@ let modalEchoes = 0;
 let popoverEchoes = 0;
 let tooltipEchoes = 0;
 let dropdownEchoes = 0;
+let contextMenuEchoes = 0;
 
 export const fragments: Record<string, string | ((url: string) => string)> = {
   // Case 1: a whole tab set arrives in a fragment.
@@ -137,4 +139,15 @@ export const fragments: Record<string, string | ((url: string) => string)> = {
   "dropdown-lazy": "<primitiv-dropdown-item><li>Loaded later</li></primitiv-dropdown-item>",
   "dropdown-echo": (url: string) =>
     `<span data-testid="echo">server saw ${new URL(url, "http://lab").searchParams.get("open")} (${++dropdownEchoes})</span>`,
+
+  // The Context Menu page's cases (context-menu-htmx.html), named to match.
+  "context-menu": contextMenuHtml({ open: true }, "swapped", { label: "Swapped" }),
+  "context-menu-oob-content":
+    '<div hx-swap-oob="beforeend:#oob"><primitiv-context-menu-content popover="manual">' +
+    "<primitiv-context-menu-item><li>Arrived late</li></primitiv-context-menu-item></primitiv-context-menu-content></div>",
+  "context-menu-oob-open": `<div hx-swap-oob="outerHTML:#rerendered">${contextMenuHtml({ open: true }, "rerendered", { label: "Rerendered" })}</div>`,
+  "context-menu-preserve": `<div id="preserve-region"><p>Swapped region</p>${contextMenuHtml({}, "preserved", { label: "Preserved" }).replace("<primitiv-context-menu ", '<primitiv-context-menu hx-preserve="true" ')}</div>`,
+  "context-menu-lazy": "<primitiv-context-menu-item><li>Loaded later</li></primitiv-context-menu-item>",
+  "context-menu-echo": (url: string) =>
+    `<span data-testid="echo">server saw ${new URL(url, "http://lab").searchParams.get("open")} (${++contextMenuEchoes})</span>`,
 };

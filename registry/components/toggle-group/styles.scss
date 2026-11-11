@@ -62,6 +62,16 @@
  * primitiv.reset and let the reset win (RFC 0008 §7). */
 @layer primitiv.reset, primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;
 
+/* The elements surface (RFC 0033 §5.6.1): an item's wrapper takes no box of
+   its own, so the <button> inside is the track's flex item exactly as the React
+   one is — which is what lets --justified share the width. Zero specificity, in
+   the reset sublayer, so any consumer rule wins. */
+@layer primitiv.reset {
+  :where(primitiv-toggle-group-item) {
+    display: contents;
+  }
+}
+
 @layer primitiv.base {
   .primitiv-toggle-group {
     /* Per-component API — the themable knobs, defaulting to the md size and the

@@ -170,6 +170,7 @@ const FILES: &[(&str, &str, &str)] = &[
     registry_file!("toggle-group", "toggle-group.recipe.ts"),
     registry_file!("toggle-group", "toggle-group.tsx"),
     registry_file!("toggle-group", "contract.json"),
+    registry_file!("toggle-group", "toggle-group.html"),
     registry_file!("accordion", "styles.css"),
     registry_file!("accordion", "styles.scss"),
     registry_file!("accordion", "accordion.recipe.ts"),

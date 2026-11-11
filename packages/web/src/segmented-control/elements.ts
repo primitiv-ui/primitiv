@@ -1,8 +1,7 @@
-import { segmentedControlTabStop, type SegmentedControlOrientation } from "@primitiv-ui/core";
+import type { SegmentedControlOrientation } from "@primitiv-ui/core";
 
-import { defineElements, ElementBase, reportOnce, write, type ElementRegistry } from "../internal/element.ts";
-import { PrimitivRootElement } from "../internal/RootElement.ts";
-import { SegmentedControlController, type SegmentedControlControllerHost } from "./SegmentedControlController.ts";
+import { defineElements, ElementBase, write, type ElementRegistry } from "../internal/element.ts";
+import { RadioRootElement } from "../internal/RadioRootElement.ts";
 
 export type { ElementRegistry };
 
@@ -10,23 +9,6 @@ export type { ElementRegistry };
 const ROOT = "primitiv-segmented-control";
 const ITEM = "primitiv-segmented-control-item";
 // Stryker restore StringLiteral
-
-/** A segment the root can decorate: its value, the child it decorates, and whether it is disabled. */
-type Item = { value: string; button: HTMLElement; disabled: boolean };
-
-/**
- * A segment decorates exactly one element child and needs a `value`. Anything
- * else is reported once and left undecorated rather than thrown: a
- * server-rendered page has no error boundary to catch a throw (RFC 0033 D24).
- */
-function decoratable(item: HTMLElement): Item | null {
-  const value = item.getAttribute("value");
-  if (item.childElementCount === 1 && value !== null) {
-    return { value, button: item.firstElementChild as HTMLElement, disabled: item.hasAttribute("disabled") };
-  }
-  reportOnce(item, `<${ITEM}> needs a value and exactly one element child (a <button>) to decorate.`);
-  return null;
-}
 
 /**
  * `<primitiv-segmented-control>` — the state owner of a segmented control: a
@@ -48,69 +30,21 @@ function decoratable(item: HTMLElement): Item | null {
  * @attr {boolean} disabled - Disables the whole control: every segment is skipped by the arrow keys and never selected, and `data-disabled` is set on the root and every segment.
  * @fires {CustomEvent<{ value: string }>} primitiv-segmented-control-change - Bubbles, cancelable, fired before a user-driven selection is applied, with the segment selected afterwards. Call `preventDefault()` to veto it.
  */
-export class PrimitivSegmentedControlElement extends PrimitivRootElement {
-  protected readonly controller: SegmentedControlController = new SegmentedControlController(this, this.#host());
+export class PrimitivSegmentedControlElement extends RadioRootElement {
+  protected readonly itemTag: string = ITEM;
+  protected readonly changeEvent: string = "primitiv-segmented-control-change";
+  protected readonly disableable: boolean = true;
   protected readonly reconcileOn: readonly string[] = ["value", "disabled", "orientation"];
 
-  /** The selected segment's value, reflected as the `value` attribute; `undefined` while none is selected. */
-  get value(): string | undefined {
-    return this.getAttribute("value") ?? undefined;
-  }
-
-  /** Select the segment whose value is `next`. */
-  set value(next: string) {
-    this.setAttribute("value", next);
-  }
-
-  /** The controller's view of this element: state lives in reflected attributes. */
-  #host(): SegmentedControlControllerHost {
-    return {
-      state: () => ({
-        selected: this.value,
-        disabled: this.hasAttribute("disabled"),
-        orientation: this.#orientation(),
-        dir: this.direction(),
-      }),
-      change: (value) => {
-        if (this.announce("primitiv-segmented-control-change", { value })) this.value = value;
-      },
-    };
-  }
-
-  #orientation(): SegmentedControlOrientation {
+  protected orientation(): SegmentedControlOrientation {
     return this.getAttribute("orientation") === "vertical" ? "vertical" : "horizontal";
   }
 
-  protected reconcile(): void {
-    const selected = this.value;
-    const orientation = this.#orientation();
-    const controlDisabled = this.hasAttribute("disabled");
+  protected writeRoot(orientation: SegmentedControlOrientation, disabled: boolean): void {
     write(this, "role", "radiogroup");
     write(this, "aria-orientation", orientation);
     write(this, "data-orientation", orientation);
-    write(this, "data-disabled", controlDisabled ? "" : null);
-
-    const items = this.parts(ITEM).flatMap((item) => decoratable(item) ?? []);
-    const stop = segmentedControlTabStop({
-      values: items.map((item) => item.value),
-      disabled: new Set(items.filter((item) => controlDisabled || item.disabled).map((item) => item.value)),
-      selected,
-    });
-
-    // Replace the registration wholesale: a removed segment, or a segment whose
-    // child a framework re-rendered, simply is not registered again.
-    this.controller.setTriggers(items.map(({ value, button, disabled }) => ({ value, element: button, disabled })));
-
-    for (const { value, button, disabled } of items) {
-      const on = value === selected;
-      const off = controlDisabled || disabled;
-      write(button, "role", "radio");
-      write(button, "aria-checked", String(on));
-      write(button, "data-state", on ? "checked" : "unchecked");
-      write(button, "tabindex", value === stop ? "0" : "-1");
-      write(button, "aria-disabled", off ? "true" : null);
-      write(button, "data-disabled", off ? "" : null);
-    }
+    write(this, "data-disabled", disabled ? "" : null);
   }
 }
 

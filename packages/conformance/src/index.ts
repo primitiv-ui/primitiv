@@ -12,6 +12,12 @@ export {
   type CollapsibleMount,
 } from "./collapsible.ts";
 export {
+  CONTEXT_MENU,
+  runContextMenuConformance,
+  type ContextMenuConformanceFixture,
+  type ContextMenuMount,
+} from "./context-menu.ts";
+export {
   DROPDOWN,
   runDropdownConformance,
   type DropdownConformanceFixture,

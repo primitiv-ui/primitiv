@@ -20,6 +20,7 @@ export function useTooltipTrigger({
     openImmediate,
     closeImmediate,
     closeWithGrace,
+    triggerRef,
   } = useTooltipContext();
 
   function getTriggerProps() {
@@ -40,5 +41,5 @@ export function useTooltipTrigger({
     };
   }
 
-  return { getTriggerProps };
+  return { getTriggerProps, triggerRef };
 }

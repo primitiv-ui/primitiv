@@ -340,4 +340,94 @@ describe("TooltipController", () => {
       expect(host.changes).toEqual([]);
     });
   });
+
+  describe("placement", () => {
+    /** Stub an element's box: jsdom lays nothing out. */
+    const at = (element: HTMLElement, left: number, top: number, width: number, height: number) => {
+      element.getBoundingClientRect = () => ({ left, top, right: left + width, bottom: top + height }) as DOMRect;
+    };
+    /** The browser's scroll or resize, which jsdom cannot produce: no input device scrolls it. */
+    const browser = (type: "scroll" | "resize") => window.dispatchEvent(new Event(type));
+
+    /** An open host whose tooltip sits above an anchor. */
+    function placed() {
+      const anchor = document.body.appendChild(document.createElement("button"));
+      const host = hostWith(true, { anchor: () => anchor });
+      const content = host.content() as HTMLElement;
+      at(anchor, 100, 100, 60, 20);
+      at(content, 80, 40, 100, 50);
+      return { host, content, controller: new TooltipController(host) };
+    }
+
+    it("marks the side and alignment the tooltip landed on once it is open", () => {
+      // Arrange
+      const { content, controller } = placed();
+
+      // Act
+      controller.sync();
+
+      // Assert
+      expect(content.getAttribute("data-side")).toBe("top");
+      expect(content.getAttribute("data-align")).toBe("center");
+    });
+
+    it("follows the tooltip as the page scrolls and resizes while it is open, once however often it syncs", () => {
+      // Arrange
+      const { content, controller } = placed();
+      controller.sync();
+      controller.sync();
+      let measured = 0;
+      content.getBoundingClientRect = () => {
+        measured++;
+        return { left: 80, top: 130, right: 180, bottom: 180 } as DOMRect;
+      };
+
+      // Act
+      browser("scroll");
+      const afterScroll = content.getAttribute("data-side");
+      at(content, 170, 85, 100, 50);
+      browser("resize");
+
+      // Assert
+      expect(afterScroll).toBe("bottom");
+      expect(measured).toBe(1);
+      expect(content.getAttribute("data-side")).toBe("right");
+    });
+
+    it("stops following once closed, and once disconnected", () => {
+      // Arrange
+      const { host, content, controller } = placed();
+      controller.sync();
+      host.open = false;
+      controller.sync();
+      at(content, 80, 130, 100, 50);
+      browser("scroll");
+      const afterClose = content.getAttribute("data-side");
+      host.open = true;
+      controller.sync();
+      controller.disconnect();
+
+      // Act
+      at(content, 170, 85, 100, 50);
+      browser("resize");
+
+      // Assert
+      expect(afterClose).toBe("top");
+      expect(content.getAttribute("data-side")).toBe("bottom");
+    });
+
+    it("marks nothing without an anchor or a tooltip to measure", () => {
+      // Arrange
+      const anchorless = hostWith(true);
+      const contentless = hostWith(true, { anchor: () => document.body, content: () => null });
+
+      // Act
+      new TooltipController(anchorless).sync();
+      new TooltipController(contentless).sync();
+      browser("scroll");
+
+      // Assert
+      expect((anchorless.content() as HTMLElement).hasAttribute("data-side")).toBe(false);
+    });
+  });
 });

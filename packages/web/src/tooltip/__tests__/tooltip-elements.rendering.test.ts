@@ -127,4 +127,19 @@ describe("<primitiv-tooltip> rendering", () => {
     }
     expect(document.querySelector("primitiv-tooltip-arrow")!.attributes).toHaveLength(0);
   });
+
+  it("marks the side the tooltip landed on against its trigger", async () => {
+    // Arrange — jsdom lays nothing out: the tooltip sits below its trigger.
+    vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockImplementation(function (this: HTMLElement) {
+      const [left, top, width, height] = this.localName === "primitiv-tooltip-content" ? [80, 130, 100, 50] : [100, 100, 60, 20];
+      return { left, top, right: left + width, bottom: top + height } as DOMRect;
+    });
+
+    // Act
+    await mount(tooltipHtml({ open: true }));
+
+    // Assert
+    expect(content().getAttribute("data-side")).toBe("bottom");
+    vi.restoreAllMocks();
+  });
 });

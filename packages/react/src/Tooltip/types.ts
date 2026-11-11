@@ -33,6 +33,8 @@ export type TooltipContextValue = {
   controller: TooltipController;
   /** The content element, so a press inside it is not a press outside. */
   contentRef: RefObject<HTMLDivElement | null>;
+  /** The trigger element, the anchor the content's placement is measured against. */
+  triggerRef: RefObject<HTMLElement | null>;
   /** The content's dismissal callbacks, kept current on every render. */
   contentCallbacksRef: RefObject<Pick<TooltipContentProps, "onEscapeKeyDown" | "onPointerDownOutside">>;
 };

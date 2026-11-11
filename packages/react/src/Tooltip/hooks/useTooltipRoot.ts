@@ -28,6 +28,7 @@ export function useTooltipRoot({
   const effectiveDelayDuration = instanceDelayDuration ?? providerCtx.delayDuration;
 
   const contentRef = useRef<HTMLDivElement | null>(null);
+  const triggerRef = useRef<HTMLElement | null>(null);
   const contentCallbacksRef = useRef<
     Pick<TooltipContentProps, "onEscapeKeyDown" | "onPointerDownOutside">
   >({});
@@ -49,6 +50,7 @@ export function useTooltipRoot({
     delay: () => latest.current.delay,
     tooltipGroup: () => latest.current.group,
     content: () => contentRef.current,
+    anchor: () => triggerRef.current,
     escapeKeyDown: (event) => contentCallbacksRef.current.onEscapeKeyDown?.(event),
     pointerDownOutside: (event) => contentCallbacksRef.current.onPointerDownOutside?.(event),
   });
@@ -73,6 +75,7 @@ export function useTooltipRoot({
       cancelGrace: () => controller.holdOpen(),
       controller,
       contentRef,
+      triggerRef,
       contentCallbacksRef,
     }),
     [open, contentId, disableHoverableContent, controller],

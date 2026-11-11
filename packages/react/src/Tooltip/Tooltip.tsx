@@ -1,4 +1,4 @@
-import type { ReactElement } from "react";
+import type { ReactElement, Ref } from "react";
 
 import { Portal } from "../Portal/index.ts";
 import { Slot, composeRefs } from "../Slot/index.ts";
@@ -163,7 +163,7 @@ export function TooltipTrigger({
   type,
   ...rest
 }: TooltipTriggerProps): ReactElement {
-  const { getTriggerProps } = useTooltipTrigger({
+  const { getTriggerProps, triggerRef } = useTooltipTrigger({
     onPointerEnter,
     onPointerLeave,
     onFocus,
@@ -172,11 +172,14 @@ export function TooltipTrigger({
     ...rest,
   });
 
+  // The trigger is the anchor the content's placement is measured against.
+  const composed = ref ? composeRefs(triggerRef, ref) : triggerRef;
+
   if (asChild) {
-    return <Slot ref={ref} {...getTriggerProps()} />;
+    return <Slot ref={composed} {...getTriggerProps()} />;
   }
 
-  return <button ref={ref} type={type ?? "button"} {...getTriggerProps()} />;
+  return <button ref={composed as Ref<HTMLButtonElement>} type={type ?? "button"} {...getTriggerProps()} />;
 }
 
 /** @internal */

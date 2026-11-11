@@ -1,4 +1,6 @@
-import { TOOLTIP_GRACE_MS, tooltipOpenDelay } from "@primitiv-ui/core";
+import { panelPlacement, TOOLTIP_GRACE_MS, tooltipOpenDelay } from "@primitiv-ui/core";
+
+import { write } from "../internal/element.ts";
 
 import type { TooltipGroup } from "./TooltipGroup.ts";
 
@@ -26,6 +28,11 @@ export type TooltipControllerHost = {
   tooltipGroup(): TooltipGroup;
   /** The tooltip's content, so a press inside it is not a press outside. */
   content(): HTMLElement | null;
+  /**
+   * The element the tooltip is anchored to, to measure which side of it the
+   * tooltip landed on. Optional: without it no placement is marked.
+   */
+  anchor?(): HTMLElement | null;
   /** Escape was pressed while open. Call `preventDefault()` on `event` to keep it open. Optional. */
   escapeKeyDown?(event: KeyboardEvent): void;
   /** A pointer went down outside the content while open. Call `preventDefault()` to keep it open. Optional. */
@@ -48,7 +55,10 @@ export type TooltipControllerHost = {
  * - {@link TooltipController.openNow | `openNow`} / {@link TooltipController.closeNow | `closeNow`} —
  *   focus and blur, Escape on the trigger, the pointer leaving the content.
  * - {@link TooltipController.sync | `sync`} — listen for Escape and outside
- *   presses while open; a host calls it whenever the state may have changed.
+ *   presses while open, and mark the tooltip's `data-side` and `data-align`
+ *   (where it landed against its anchor, after any flip) as it opens and on
+ *   every scroll and resize; a host calls it whenever the state may have
+ *   changed, after showing the tooltip.
  */
 export class TooltipController {
   readonly #host: TooltipControllerHost;
@@ -59,6 +69,8 @@ export class TooltipController {
   // function twice is a no-op, so syncing open again never stacks them.
   readonly #onKeydown = (event: KeyboardEvent): void => this.#keydown(event);
   readonly #onPointerdown = (event: PointerEvent): void => this.#pointerdown(event);
+  /** The scroll and resize listeners that re-measure the placement, while open. */
+  #following: AbortController | null = null;
 
   constructor(host: TooltipControllerHost) {
     this.#host = host;
@@ -116,14 +128,36 @@ export class TooltipController {
     if (open) {
       document.addEventListener("keydown", this.#onKeydown);
       document.addEventListener("pointerdown", this.#onPointerdown);
+      if (!this.#following) this.#follow();
     } else {
       this.#stopListening();
     }
   }
 
+  /** Measure the placement now, and again on every scroll and resize until it closes. */
+  #follow(): void {
+    this.#following = new AbortController();
+    const options = { capture: true, passive: true, signal: this.#following.signal };
+    window.addEventListener("scroll", () => this.#place(), options);
+    window.addEventListener("resize", () => this.#place(), options);
+    this.#place();
+  }
+
+  /** Mark the side and alignment the tooltip landed on, against its anchor. */
+  #place(): void {
+    const content = this.#host.content();
+    const anchor = this.#host.anchor?.();
+    if (!content || !anchor) return;
+    const { side, align } = panelPlacement(content.getBoundingClientRect(), anchor.getBoundingClientRect());
+    write(content, "data-side", side);
+    write(content, "data-align", align);
+  }
+
   #stopListening(): void {
     document.removeEventListener("keydown", this.#onKeydown);
     document.removeEventListener("pointerdown", this.#onPointerdown);
+    this.#following?.abort();
+    this.#following = null;
   }
 
   /** Cancel every timer and stop listening, so nothing outlives the host. */

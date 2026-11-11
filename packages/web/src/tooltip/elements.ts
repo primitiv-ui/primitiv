@@ -107,6 +107,7 @@ export class PrimitivTooltipElement extends PrimitivRootElement {
       },
       tooltipGroup: () => provider()?.group ?? documentGroup,
       content: () => this.#content,
+      anchor: () => this.#trigger,
     };
   }
 

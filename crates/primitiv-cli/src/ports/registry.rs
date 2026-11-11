@@ -325,6 +325,7 @@ const FILES: &[(&str, &str, &str)] = &[
     registry_file!("slider", "slider.recipe.ts"),
     registry_file!("slider", "slider.tsx"),
     registry_file!("slider", "contract.json"),
+    registry_file!("slider", "slider.html"),
     registry_file!("textarea", "styles.css"),
     registry_file!("textarea", "styles.scss"),
     registry_file!("textarea", "textarea.recipe.ts"),

@@ -46,6 +46,7 @@ export {
   type ModalTabOutcome,
   type ModalTabState,
 } from "./modal/policy.ts";
+export { panelPlacement, type PanelPlacement, type PlacementBox } from "./placement/placement.ts";
 export {
   popoverKeydown,
   popoverPressDismisses,

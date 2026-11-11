@@ -6,7 +6,7 @@ framework and no runtime dependencies beyond
 server-rendered stack (HTMX, Rails, Django, Laravel, Spring …), and inside
 React, Vue, Angular or any other framework.
 
-> **Status: published.** Tabs, Accordion, Collapsible, Modal, Popover, Tooltip and Dropdown so far. See
+> **Status: published.** Tabs, Accordion, Collapsible, Modal, Popover, Tooltip, Dropdown and Context Menu so far. See
 > [RFC 0033](../../docs/rfcs/0033-web-components.md) for the design.
 
 ## Components
@@ -20,6 +20,7 @@ React, Vue, Angular or any other framework.
 | Popover | `primitiv-popover`, `-trigger`, `-anchor`, `-content`, `-title`, `-description`, `-close` | `primitiv-popover-change` | 0.1.55 |
 | Tooltip | `primitiv-tooltip`, `-provider`, `-trigger`, `-content`, `-arrow` | `primitiv-tooltip-change` | 0.1.56 |
 | Dropdown | `primitiv-dropdown`, `-trigger`, `-content`, `-item`, `-checkbox-item`, `-radio-group`, `-radio-item`, `-item-indicator`, `-group`, `-label`, `-separator`, `-sub`, `-sub-trigger`, `-sub-content` | `primitiv-dropdown-change`, `-sub-change`, `-select`, `-checked-change`, `-value-change` | 0.1.57 |
+| Context Menu | `primitiv-context-menu`, and the same thirteen parts as Dropdown under `primitiv-context-menu-` | `primitiv-context-menu-change`, `-sub-change`, `-select`, `-checked-change`, `-value-change` | 0.1.58 |
 
 ## Use it
 
@@ -52,10 +53,11 @@ downloads it once. `dist/primitiv-web.js` is the alternative: every element in
 one file. Per-component files ship from 0.1.43.
 
 The main entry (`@primitiv-ui/web`, `/tabs`, `/accordion`, `/collapsible`,
-`/modal`, `/popover`, `/tooltip`, `/dropdown`) exports the classes and `defineTabs(registry?)` /
+`/modal`, `/popover`, `/tooltip`, `/dropdown`, `/context-menu`) exports the classes and `defineTabs(registry?)` /
 `defineAccordion(registry?)` / `defineCollapsible(registry?)` /
 `defineModal(registry?)` / `definePopover(registry?)` / `defineTooltip(registry?)` /
-`defineDropdown(registry?)` with **no side effects**.
+`defineDropdown(registry?)` / `defineContextMenu(registry?)` with **no side
+effects**.
 
 **Render `hidden` on inactive panels yourself.** Until the module loads, CSS
 cannot tell which panel is active, so markup that omits it shows every panel.
@@ -249,6 +251,34 @@ on a panel as it becomes active, for lazy loading.
   mixed), `value` on a radio group. Each change fires a cancelable event first;
   **listen for `primitiv-dropdown-select`** on an item to act on it, and cancel
   it to keep the menu open.
+
+### Context Menu
+
+```html
+<script type="module" src="https://cdn.jsdelivr.net/npm/@primitiv-ui/web@<version>/dist/cdn/context-menu.js"></script>
+
+<primitiv-context-menu>
+  <primitiv-context-menu-trigger>Right-click here</primitiv-context-menu-trigger>
+  <primitiv-context-menu-content popover="manual">
+    <primitiv-context-menu-item><li>Copy</li></primitiv-context-menu-item>
+    <primitiv-context-menu-item><li>Delete</li></primitiv-context-menu-item>
+  </primitiv-context-menu-content>
+</primitiv-context-menu>
+```
+
+- **Dropdown's menu, opened at the pointer**: a right-click in the
+  `<primitiv-context-menu-trigger>` region — which is the region itself, not a
+  wrapper — or the keyboard's context-menu key on it opens the menu, with the
+  same rows, keyboard, typeahead, submenus, attributes and events (prefixed
+  `primitiv-context-menu-`). `disabled` on the region leaves the browser its
+  own menu.
+- **The menu is `popover="manual"`**: an `auto` one would close on the
+  right-click's own release. Escape, a press outside and a chosen item close it,
+  and its submenus close with it.
+- **Position it from `--primitiv-context-menu-x` / `-y`**, the pointer's
+  position the element publishes on the menu — the one style the elements
+  write, since a point cannot be an anchor: `left: var(--primitiv-context-menu-x);
+  top: var(--primitiv-context-menu-y)`. The registry stylesheet does this.
 
 **TypeScript** — opt into the tag map so DOM queries return the element classes:
 `import type {} from "@primitiv-ui/web/tags"` (npm only).

@@ -26,6 +26,22 @@ import type {
   PrimitivCollapsibleTriggerIconElement,
 } from "./collapsible/elements.ts";
 import type {
+  PrimitivContextMenuCheckboxItemElement,
+  PrimitivContextMenuContentElement,
+  PrimitivContextMenuElement,
+  PrimitivContextMenuGroupElement,
+  PrimitivContextMenuItemElement,
+  PrimitivContextMenuItemIndicatorElement,
+  PrimitivContextMenuLabelElement,
+  PrimitivContextMenuRadioGroupElement,
+  PrimitivContextMenuRadioItemElement,
+  PrimitivContextMenuSeparatorElement,
+  PrimitivContextMenuSubContentElement,
+  PrimitivContextMenuSubElement,
+  PrimitivContextMenuSubTriggerElement,
+  PrimitivContextMenuTriggerElement,
+} from "./context-menu/elements.ts";
+import type {
   PrimitivDropdownCheckboxItemElement,
   PrimitivDropdownContentElement,
   PrimitivDropdownElement,
@@ -100,6 +116,20 @@ declare global {
     "primitiv-tabs-list": PrimitivTabsListElement;
     "primitiv-tabs-trigger": PrimitivTabsTriggerElement;
     "primitiv-tabs-content": PrimitivTabsContentElement;
+    "primitiv-context-menu": PrimitivContextMenuElement;
+    "primitiv-context-menu-trigger": PrimitivContextMenuTriggerElement;
+    "primitiv-context-menu-content": PrimitivContextMenuContentElement;
+    "primitiv-context-menu-item": PrimitivContextMenuItemElement;
+    "primitiv-context-menu-checkbox-item": PrimitivContextMenuCheckboxItemElement;
+    "primitiv-context-menu-radio-group": PrimitivContextMenuRadioGroupElement;
+    "primitiv-context-menu-radio-item": PrimitivContextMenuRadioItemElement;
+    "primitiv-context-menu-item-indicator": PrimitivContextMenuItemIndicatorElement;
+    "primitiv-context-menu-group": PrimitivContextMenuGroupElement;
+    "primitiv-context-menu-label": PrimitivContextMenuLabelElement;
+    "primitiv-context-menu-separator": PrimitivContextMenuSeparatorElement;
+    "primitiv-context-menu-sub": PrimitivContextMenuSubElement;
+    "primitiv-context-menu-sub-trigger": PrimitivContextMenuSubTriggerElement;
+    "primitiv-context-menu-sub-content": PrimitivContextMenuSubContentElement;
     "primitiv-dropdown": PrimitivDropdownElement;
     "primitiv-dropdown-trigger": PrimitivDropdownTriggerElement;
     "primitiv-dropdown-content": PrimitivDropdownContentElement;

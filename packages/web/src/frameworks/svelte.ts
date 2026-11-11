@@ -32,6 +32,22 @@ import type {
   PrimitivCollapsibleTriggerIconElement,
 } from "../collapsible/elements.ts";
 import type {
+  PrimitivContextMenuCheckboxItemElement,
+  PrimitivContextMenuContentElement,
+  PrimitivContextMenuElement,
+  PrimitivContextMenuGroupElement,
+  PrimitivContextMenuItemElement,
+  PrimitivContextMenuItemIndicatorElement,
+  PrimitivContextMenuLabelElement,
+  PrimitivContextMenuRadioGroupElement,
+  PrimitivContextMenuRadioItemElement,
+  PrimitivContextMenuSeparatorElement,
+  PrimitivContextMenuSubContentElement,
+  PrimitivContextMenuSubElement,
+  PrimitivContextMenuSubTriggerElement,
+  PrimitivContextMenuTriggerElement,
+} from "../context-menu/elements.ts";
+import type {
   PrimitivDropdownCheckboxItemElement,
   PrimitivDropdownContentElement,
   PrimitivDropdownElement,
@@ -79,6 +95,11 @@ import type {
 } from "../tooltip/elements.ts";
 import type {
   PrimitivAccordionChangeEvent,
+  PrimitivContextMenuChangeEvent,
+  PrimitivContextMenuCheckedChangeEvent,
+  PrimitivContextMenuSelectEvent,
+  PrimitivContextMenuSubChangeEvent,
+  PrimitivContextMenuValueChangeEvent,
   PrimitivDropdownChangeEvent,
   PrimitivDropdownCheckedChangeEvent,
   PrimitivDropdownSelectEvent,
@@ -125,6 +146,51 @@ declare module "svelte/elements" {
       "onprimitiv-collapsible-show"?: (event: CustomEvent) => void;
     };
     "primitiv-collapsible-trigger-icon": Attributes<PrimitivCollapsibleTriggerIconElement>;
+    "primitiv-context-menu": Attributes<PrimitivContextMenuElement> & {
+      open?: boolean;
+      "onprimitiv-context-menu-change"?: (event: PrimitivContextMenuChangeEvent) => void;
+    };
+    "primitiv-context-menu-trigger": Attributes<PrimitivContextMenuTriggerElement> & {
+      disabled?: boolean;
+    };
+    "primitiv-context-menu-content": Attributes<PrimitivContextMenuContentElement> & {
+      popover?: "auto" | "manual" | "";
+    };
+    "primitiv-context-menu-item": Attributes<PrimitivContextMenuItemElement> & {
+      disabled?: boolean;
+      "onprimitiv-context-menu-select"?: (event: PrimitivContextMenuSelectEvent) => void;
+    };
+    "primitiv-context-menu-checkbox-item": Attributes<PrimitivContextMenuCheckboxItemElement> & {
+      checked?: boolean | "indeterminate";
+      disabled?: boolean;
+      "onprimitiv-context-menu-checked-change"?: (event: PrimitivContextMenuCheckedChangeEvent) => void;
+      "onprimitiv-context-menu-select"?: (event: PrimitivContextMenuSelectEvent) => void;
+    };
+    "primitiv-context-menu-radio-group": Attributes<PrimitivContextMenuRadioGroupElement> & {
+      value?: string;
+      "onprimitiv-context-menu-value-change"?: (event: PrimitivContextMenuValueChangeEvent) => void;
+    };
+    "primitiv-context-menu-radio-item": Attributes<PrimitivContextMenuRadioItemElement> & {
+      value: string;
+      disabled?: boolean;
+      "onprimitiv-context-menu-select"?: (event: PrimitivContextMenuSelectEvent) => void;
+    };
+    "primitiv-context-menu-item-indicator": Attributes<PrimitivContextMenuItemIndicatorElement> & {
+      "force-mount"?: boolean;
+    };
+    "primitiv-context-menu-group": Attributes<PrimitivContextMenuGroupElement>;
+    "primitiv-context-menu-label": Attributes<PrimitivContextMenuLabelElement>;
+    "primitiv-context-menu-separator": Attributes<PrimitivContextMenuSeparatorElement>;
+    "primitiv-context-menu-sub": Attributes<PrimitivContextMenuSubElement> & {
+      open?: boolean;
+      "onprimitiv-context-menu-sub-change"?: (event: PrimitivContextMenuSubChangeEvent) => void;
+    };
+    "primitiv-context-menu-sub-trigger": Attributes<PrimitivContextMenuSubTriggerElement> & {
+      disabled?: boolean;
+    };
+    "primitiv-context-menu-sub-content": Attributes<PrimitivContextMenuSubContentElement> & {
+      popover?: "auto" | "manual" | "";
+    };
     "primitiv-dropdown": Attributes<PrimitivDropdownElement> & {
       open?: boolean;
       "onprimitiv-dropdown-change"?: (event: PrimitivDropdownChangeEvent) => void;

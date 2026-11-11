@@ -18,6 +18,10 @@
       "types": "./src/collapsible/index.ts",
       "default": "./src/collapsible/index.ts"
     },
+    "./context-menu": {
+      "types": "./src/context-menu/index.ts",
+      "default": "./src/context-menu/index.ts"
+    },
     "./dropdown": {
       "types": "./src/dropdown/index.ts",
       "default": "./src/dropdown/index.ts"
@@ -49,6 +53,10 @@
     "./define/collapsible": {
       "types": "./src/define/collapsible.ts",
       "default": "./src/define/collapsible.ts"
+    },
+    "./define/context-menu": {
+      "types": "./src/define/context-menu.ts",
+      "default": "./src/define/context-menu.ts"
     },
     "./define/dropdown": {
       "types": "./src/define/dropdown.ts",
@@ -149,6 +157,10 @@
         "types": "./dist/collapsible/index.d.ts",
         "default": "./dist/collapsible/index.js"
       },
+      "./context-menu": {
+        "types": "./dist/context-menu/index.d.ts",
+        "default": "./dist/context-menu/index.js"
+      },
       "./dropdown": {
         "types": "./dist/dropdown/index.d.ts",
         "default": "./dist/dropdown/index.js"
@@ -180,6 +192,10 @@
       "./define/collapsible": {
         "types": "./dist/define/collapsible.d.ts",
         "default": "./dist/define/collapsible.js"
+      },
+      "./define/context-menu": {
+        "types": "./dist/define/context-menu.d.ts",
+        "default": "./dist/define/context-menu.js"
       },
       "./define/dropdown": {
         "types": "./dist/define/dropdown.d.ts",

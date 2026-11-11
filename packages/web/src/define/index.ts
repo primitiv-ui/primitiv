@@ -4,6 +4,7 @@
  */
 import "./accordion.ts";
 import "./collapsible.ts";
+import "./context-menu.ts";
 import "./dropdown.ts";
 import "./modal.ts";
 import "./popover.ts";

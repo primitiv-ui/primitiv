@@ -22,6 +22,11 @@ import type { DefineComponent, EmitsOptions } from "vue";
 
 import type {
   PrimitivAccordionChangeEvent,
+  PrimitivContextMenuChangeEvent,
+  PrimitivContextMenuCheckedChangeEvent,
+  PrimitivContextMenuSelectEvent,
+  PrimitivContextMenuSubChangeEvent,
+  PrimitivContextMenuValueChangeEvent,
   PrimitivDropdownChangeEvent,
   PrimitivDropdownCheckedChangeEvent,
   PrimitivDropdownSelectEvent,
@@ -73,6 +78,20 @@ declare module "vue" {
       { "primitiv-collapsible-show": (event: CustomEvent) => void }
     >;
     "primitiv-collapsible-trigger-icon": Tag<Record<never, never>>;
+    "primitiv-context-menu": Tag<{ open?: boolean | "" }, { "primitiv-context-menu-change": (event: PrimitivContextMenuChangeEvent) => void }>;
+    "primitiv-context-menu-trigger": Tag<{ disabled?: boolean | "" }>;
+    "primitiv-context-menu-content": Tag<{ popover?: "auto" | "manual" | "" }>;
+    "primitiv-context-menu-item": Tag<{ disabled?: boolean | "" }, { "primitiv-context-menu-select": (event: PrimitivContextMenuSelectEvent) => void }>;
+    "primitiv-context-menu-checkbox-item": Tag<{ checked?: boolean | "indeterminate"; disabled?: boolean | "" }, { "primitiv-context-menu-checked-change": (event: PrimitivContextMenuCheckedChangeEvent) => void; "primitiv-context-menu-select": (event: PrimitivContextMenuSelectEvent) => void }>;
+    "primitiv-context-menu-radio-group": Tag<{ value?: string }, { "primitiv-context-menu-value-change": (event: PrimitivContextMenuValueChangeEvent) => void }>;
+    "primitiv-context-menu-radio-item": Tag<{ value: string; disabled?: boolean | "" }, { "primitiv-context-menu-select": (event: PrimitivContextMenuSelectEvent) => void }>;
+    "primitiv-context-menu-item-indicator": Tag<{ forceMount?: boolean | "" }>;
+    "primitiv-context-menu-group": Tag<Record<never, never>>;
+    "primitiv-context-menu-label": Tag<Record<never, never>>;
+    "primitiv-context-menu-separator": Tag<Record<never, never>>;
+    "primitiv-context-menu-sub": Tag<{ open?: boolean | "" }, { "primitiv-context-menu-sub-change": (event: PrimitivContextMenuSubChangeEvent) => void }>;
+    "primitiv-context-menu-sub-trigger": Tag<{ disabled?: boolean | "" }>;
+    "primitiv-context-menu-sub-content": Tag<{ popover?: "auto" | "manual" | "" }>;
     "primitiv-dropdown": Tag<{ open?: boolean | "" }, { "primitiv-dropdown-change": (event: PrimitivDropdownChangeEvent) => void }>;
     "primitiv-dropdown-trigger": Tag<Record<never, never>>;
     "primitiv-dropdown-content": Tag<{ popover?: "auto" | "manual" | "" }>;

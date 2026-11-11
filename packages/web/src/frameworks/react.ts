@@ -33,6 +33,22 @@ import type {
   PrimitivCollapsibleTriggerIconElement,
 } from "../collapsible/elements.ts";
 import type {
+  PrimitivContextMenuCheckboxItemElement,
+  PrimitivContextMenuContentElement,
+  PrimitivContextMenuElement,
+  PrimitivContextMenuGroupElement,
+  PrimitivContextMenuItemElement,
+  PrimitivContextMenuItemIndicatorElement,
+  PrimitivContextMenuLabelElement,
+  PrimitivContextMenuRadioGroupElement,
+  PrimitivContextMenuRadioItemElement,
+  PrimitivContextMenuSeparatorElement,
+  PrimitivContextMenuSubContentElement,
+  PrimitivContextMenuSubElement,
+  PrimitivContextMenuSubTriggerElement,
+  PrimitivContextMenuTriggerElement,
+} from "../context-menu/elements.ts";
+import type {
   PrimitivDropdownCheckboxItemElement,
   PrimitivDropdownContentElement,
   PrimitivDropdownElement,
@@ -80,6 +96,11 @@ import type {
 } from "../tooltip/elements.ts";
 import type {
   PrimitivAccordionChangeEvent,
+  PrimitivContextMenuChangeEvent,
+  PrimitivContextMenuCheckedChangeEvent,
+  PrimitivContextMenuSelectEvent,
+  PrimitivContextMenuSubChangeEvent,
+  PrimitivContextMenuValueChangeEvent,
   PrimitivDropdownChangeEvent,
   PrimitivDropdownCheckedChangeEvent,
   PrimitivDropdownSelectEvent,
@@ -99,6 +120,11 @@ type ElementProps<E extends HTMLElement> = DetailedHTMLProps<HTMLAttributes<E>, 
 
 export type {
   PrimitivAccordionChangeEvent,
+  PrimitivContextMenuChangeEvent,
+  PrimitivContextMenuCheckedChangeEvent,
+  PrimitivContextMenuSelectEvent,
+  PrimitivContextMenuSubChangeEvent,
+  PrimitivContextMenuValueChangeEvent,
   PrimitivDropdownChangeEvent,
   PrimitivDropdownCheckedChangeEvent,
   PrimitivDropdownSelectEvent,
@@ -144,6 +170,51 @@ declare module "react" {
         "onprimitiv-collapsible-show"?: (event: CustomEvent) => void;
       };
       "primitiv-collapsible-trigger-icon": ElementProps<PrimitivCollapsibleTriggerIconElement>;
+      "primitiv-context-menu": ElementProps<PrimitivContextMenuElement> & {
+        open?: boolean;
+        "onprimitiv-context-menu-change"?: (event: PrimitivContextMenuChangeEvent) => void;
+      };
+      "primitiv-context-menu-trigger": ElementProps<PrimitivContextMenuTriggerElement> & {
+        disabled?: boolean;
+      };
+      "primitiv-context-menu-content": ElementProps<PrimitivContextMenuContentElement> & {
+        popover?: "auto" | "manual" | "";
+      };
+      "primitiv-context-menu-item": ElementProps<PrimitivContextMenuItemElement> & {
+        disabled?: boolean;
+        "onprimitiv-context-menu-select"?: (event: PrimitivContextMenuSelectEvent) => void;
+      };
+      "primitiv-context-menu-checkbox-item": ElementProps<PrimitivContextMenuCheckboxItemElement> & {
+        checked?: boolean | "indeterminate";
+        disabled?: boolean;
+        "onprimitiv-context-menu-checked-change"?: (event: PrimitivContextMenuCheckedChangeEvent) => void;
+        "onprimitiv-context-menu-select"?: (event: PrimitivContextMenuSelectEvent) => void;
+      };
+      "primitiv-context-menu-radio-group": ElementProps<PrimitivContextMenuRadioGroupElement> & {
+        value?: string;
+        "onprimitiv-context-menu-value-change"?: (event: PrimitivContextMenuValueChangeEvent) => void;
+      };
+      "primitiv-context-menu-radio-item": ElementProps<PrimitivContextMenuRadioItemElement> & {
+        value: string;
+        disabled?: boolean;
+        "onprimitiv-context-menu-select"?: (event: PrimitivContextMenuSelectEvent) => void;
+      };
+      "primitiv-context-menu-item-indicator": ElementProps<PrimitivContextMenuItemIndicatorElement> & {
+        "force-mount"?: boolean;
+      };
+      "primitiv-context-menu-group": ElementProps<PrimitivContextMenuGroupElement>;
+      "primitiv-context-menu-label": ElementProps<PrimitivContextMenuLabelElement>;
+      "primitiv-context-menu-separator": ElementProps<PrimitivContextMenuSeparatorElement>;
+      "primitiv-context-menu-sub": ElementProps<PrimitivContextMenuSubElement> & {
+        open?: boolean;
+        "onprimitiv-context-menu-sub-change"?: (event: PrimitivContextMenuSubChangeEvent) => void;
+      };
+      "primitiv-context-menu-sub-trigger": ElementProps<PrimitivContextMenuSubTriggerElement> & {
+        disabled?: boolean;
+      };
+      "primitiv-context-menu-sub-content": ElementProps<PrimitivContextMenuSubContentElement> & {
+        popover?: "auto" | "manual" | "";
+      };
       "primitiv-dropdown": ElementProps<PrimitivDropdownElement> & {
         open?: boolean;
         "onprimitiv-dropdown-change"?: (event: PrimitivDropdownChangeEvent) => void;

@@ -4,6 +4,20 @@
 import "../tags";
 
 import type {
+  PrimitivContextMenuCheckboxItemElement,
+  PrimitivContextMenuContentElement,
+  PrimitivContextMenuElement,
+  PrimitivContextMenuGroupElement,
+  PrimitivContextMenuItemElement,
+  PrimitivContextMenuItemIndicatorElement,
+  PrimitivContextMenuLabelElement,
+  PrimitivContextMenuRadioGroupElement,
+  PrimitivContextMenuRadioItemElement,
+  PrimitivContextMenuSeparatorElement,
+  PrimitivContextMenuSubContentElement,
+  PrimitivContextMenuSubElement,
+  PrimitivContextMenuSubTriggerElement,
+  PrimitivContextMenuTriggerElement,
   PrimitivDropdownCheckboxItemElement,
   PrimitivDropdownContentElement,
   PrimitivDropdownElement,
@@ -117,4 +131,21 @@ it("types every Dropdown tag in HTMLElementTagNameMap", () => {
   expectTypeOf(document.createElement("primitiv-dropdown-sub")).toEqualTypeOf<PrimitivDropdownSubElement>();
   expectTypeOf(document.createElement("primitiv-dropdown-sub-trigger")).toEqualTypeOf<PrimitivDropdownSubTriggerElement>();
   expectTypeOf(document.createElement("primitiv-dropdown-sub-content")).toEqualTypeOf<PrimitivDropdownSubContentElement>();
+});
+
+it("types every Context Menu tag in HTMLElementTagNameMap", () => {
+  expectTypeOf(document.querySelector("primitiv-context-menu")).toEqualTypeOf<PrimitivContextMenuElement | null>();
+  expectTypeOf(document.createElement("primitiv-context-menu-trigger")).toEqualTypeOf<PrimitivContextMenuTriggerElement>();
+  expectTypeOf(document.createElement("primitiv-context-menu-content")).toEqualTypeOf<PrimitivContextMenuContentElement>();
+  expectTypeOf(document.createElement("primitiv-context-menu-item")).toEqualTypeOf<PrimitivContextMenuItemElement>();
+  expectTypeOf(document.createElement("primitiv-context-menu-checkbox-item")).toEqualTypeOf<PrimitivContextMenuCheckboxItemElement>();
+  expectTypeOf(document.createElement("primitiv-context-menu-radio-group")).toEqualTypeOf<PrimitivContextMenuRadioGroupElement>();
+  expectTypeOf(document.createElement("primitiv-context-menu-radio-item")).toEqualTypeOf<PrimitivContextMenuRadioItemElement>();
+  expectTypeOf(document.createElement("primitiv-context-menu-item-indicator")).toEqualTypeOf<PrimitivContextMenuItemIndicatorElement>();
+  expectTypeOf(document.createElement("primitiv-context-menu-group")).toEqualTypeOf<PrimitivContextMenuGroupElement>();
+  expectTypeOf(document.createElement("primitiv-context-menu-label")).toEqualTypeOf<PrimitivContextMenuLabelElement>();
+  expectTypeOf(document.createElement("primitiv-context-menu-separator")).toEqualTypeOf<PrimitivContextMenuSeparatorElement>();
+  expectTypeOf(document.createElement("primitiv-context-menu-sub")).toEqualTypeOf<PrimitivContextMenuSubElement>();
+  expectTypeOf(document.createElement("primitiv-context-menu-sub-trigger")).toEqualTypeOf<PrimitivContextMenuSubTriggerElement>();
+  expectTypeOf(document.createElement("primitiv-context-menu-sub-content")).toEqualTypeOf<PrimitivContextMenuSubContentElement>();
 });

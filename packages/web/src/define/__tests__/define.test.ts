@@ -90,6 +90,31 @@ it("defines the Popover elements when define/popover is imported", async () => {
   }
 });
 
+it("defines the Context Menu elements when define/context-menu is imported", async () => {
+  // Arrange & Act
+  await import("../context-menu");
+
+  // Assert
+  for (const name of [
+    "primitiv-context-menu",
+    "primitiv-context-menu-trigger",
+    "primitiv-context-menu-content",
+    "primitiv-context-menu-item",
+    "primitiv-context-menu-checkbox-item",
+    "primitiv-context-menu-radio-group",
+    "primitiv-context-menu-radio-item",
+    "primitiv-context-menu-item-indicator",
+    "primitiv-context-menu-group",
+    "primitiv-context-menu-label",
+    "primitiv-context-menu-separator",
+    "primitiv-context-menu-sub",
+    "primitiv-context-menu-sub-trigger",
+    "primitiv-context-menu-sub-content",
+  ]) {
+    expect(customElements.get(name)).toBeDefined();
+  }
+});
+
 it("defines the Dropdown elements when define/dropdown is imported", async () => {
   // Arrange & Act
   await import("../dropdown");
@@ -144,4 +169,5 @@ it("defines every component's elements when define is imported", async () => {
   expect(customElements.get("primitiv-popover")).toBeDefined();
   expect(customElements.get("primitiv-tooltip")).toBeDefined();
   expect(customElements.get("primitiv-dropdown")).toBeDefined();
+  expect(customElements.get("primitiv-context-menu")).toBeDefined();
 });

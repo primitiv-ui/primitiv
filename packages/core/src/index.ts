@@ -23,6 +23,15 @@ export {
   type AccordionState,
 } from "./accordion/policy.ts";
 export {
+  toggleGroupKeydown,
+  toggleGroupTabStop,
+  toggleGroupToggle,
+  type ToggleGroupKeyOutcome,
+  type ToggleGroupOrientation,
+  type ToggleGroupReadingDirection,
+  type ToggleGroupState,
+} from "./toggle-group/policy.ts";
+export {
   collapsibleKeydown,
   collapsibleToggle,
   type CollapsibleKeyOutcome,

@@ -63,6 +63,8 @@ import type {
   PrimitivTooltipElement,
   PrimitivTooltipProviderElement,
   PrimitivTooltipTriggerElement,
+  PrimitivCheckboxCardElement,
+  PrimitivCheckboxCardIndicatorElement,
   PrimitivRadioCardElement,
   PrimitivRadioCardIndicatorElement,
   PrimitivRadioCardItemElement,
@@ -113,6 +115,13 @@ it("types every Popover tag in HTMLElementTagNameMap", () => {
   expectTypeOf(document.createElement("primitiv-popover-title")).toEqualTypeOf<PrimitivPopoverTitleElement>();
   expectTypeOf(document.createElement("primitiv-popover-description")).toEqualTypeOf<PrimitivPopoverDescriptionElement>();
   expectTypeOf(document.createElement("primitiv-popover-close")).toEqualTypeOf<PrimitivPopoverCloseElement>();
+});
+
+it("types every CheckboxCard tag in HTMLElementTagNameMap", () => {
+  expectTypeOf(document.querySelector("primitiv-checkbox-card")).toEqualTypeOf<PrimitivCheckboxCardElement | null>();
+  expectTypeOf(
+    document.createElement("primitiv-checkbox-card-indicator"),
+  ).toEqualTypeOf<PrimitivCheckboxCardIndicatorElement>();
 });
 
 it("types every RadioCard tag in HTMLElementTagNameMap", () => {

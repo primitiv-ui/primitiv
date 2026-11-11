@@ -30,6 +30,9 @@ export type PrimitivSegmentedControlChangeEvent = CustomEvent<{ value: string }>
 /** The `primitiv-radio-card-change` event: bubbles, cancelable, fired before the change applies, with the card selected afterwards. */
 export type PrimitivRadioCardChangeEvent = CustomEvent<{ value: string }>;
 
+/** The `primitiv-checkbox-card-change` event: bubbles, cancelable, fired before the change applies, with the state afterwards. */
+export type PrimitivCheckboxCardChangeEvent = CustomEvent<{ checked: boolean }>;
+
 /** The `primitiv-dropdown-change` event: bubbles, cancelable, fired before the change applies, with the open state afterwards. */
 export type PrimitivDropdownChangeEvent = CustomEvent<{ open: boolean }>;
 

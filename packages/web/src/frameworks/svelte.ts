@@ -102,6 +102,7 @@ import type {
   PrimitivRadioCardIndicatorElement,
   PrimitivRadioCardItemElement,
 } from "../radio-card/elements.ts";
+import type { PrimitivCheckboxCardElement, PrimitivCheckboxCardIndicatorElement } from "../checkbox-card/elements.ts";
 import type { PrimitivToggleGroupElement, PrimitivToggleGroupItemElement } from "../toggle-group/elements.ts";
 import type {
   PrimitivAccordionChangeEvent,
@@ -123,6 +124,7 @@ import type {
   PrimitivToggleGroupChangeEvent,
   PrimitivSegmentedControlChangeEvent,
   PrimitivRadioCardChangeEvent,
+  PrimitivCheckboxCardChangeEvent,
 } from "./events.ts";
 
 /** Svelte's own attributes and events for an element. */
@@ -326,6 +328,14 @@ declare module "svelte/elements" {
       disabled?: boolean;
     };
     "primitiv-radio-card-indicator": Attributes<PrimitivRadioCardIndicatorElement> & {
+      "force-mount"?: boolean;
+    };
+    "primitiv-checkbox-card": Attributes<PrimitivCheckboxCardElement> & {
+      checked?: boolean | "indeterminate";
+      disabled?: boolean;
+      "onprimitiv-checkbox-card-change"?: (event: PrimitivCheckboxCardChangeEvent) => void;
+    };
+    "primitiv-checkbox-card-indicator": Attributes<PrimitivCheckboxCardIndicatorElement> & {
       "force-mount"?: boolean;
     };
   }

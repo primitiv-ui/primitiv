@@ -88,6 +88,7 @@ import type {
   PrimitivTooltipProviderElement,
   PrimitivTooltipTriggerElement,
 } from "./tooltip/elements.ts";
+import type { PrimitivCheckboxCardElement, PrimitivCheckboxCardIndicatorElement } from "./checkbox-card/elements.ts";
 import type {
   PrimitivRadioCardElement,
   PrimitivRadioCardIndicatorElement,
@@ -166,6 +167,8 @@ declare global {
     "primitiv-radio-card": PrimitivRadioCardElement;
     "primitiv-radio-card-item": PrimitivRadioCardItemElement;
     "primitiv-radio-card-indicator": PrimitivRadioCardIndicatorElement;
+    "primitiv-checkbox-card": PrimitivCheckboxCardElement;
+    "primitiv-checkbox-card-indicator": PrimitivCheckboxCardIndicatorElement;
   }
 }
 

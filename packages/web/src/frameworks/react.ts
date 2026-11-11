@@ -103,6 +103,7 @@ import type {
   PrimitivRadioCardIndicatorElement,
   PrimitivRadioCardItemElement,
 } from "../radio-card/elements.ts";
+import type { PrimitivCheckboxCardElement, PrimitivCheckboxCardIndicatorElement } from "../checkbox-card/elements.ts";
 import type { PrimitivToggleGroupElement, PrimitivToggleGroupItemElement } from "../toggle-group/elements.ts";
 import type {
   PrimitivAccordionChangeEvent,
@@ -124,6 +125,7 @@ import type {
   PrimitivToggleGroupChangeEvent,
   PrimitivSegmentedControlChangeEvent,
   PrimitivRadioCardChangeEvent,
+  PrimitivCheckboxCardChangeEvent,
 } from "./events.ts";
 
 /** React's own props for an element, plus `class`, which React 19 passes to custom elements. */
@@ -355,6 +357,14 @@ declare module "react" {
         disabled?: boolean;
       };
       "primitiv-radio-card-indicator": ElementProps<PrimitivRadioCardIndicatorElement> & {
+        "force-mount"?: boolean;
+      };
+      "primitiv-checkbox-card": ElementProps<PrimitivCheckboxCardElement> & {
+        checked?: boolean | "indeterminate";
+        disabled?: boolean;
+        "onprimitiv-checkbox-card-change"?: (event: PrimitivCheckboxCardChangeEvent) => void;
+      };
+      "primitiv-checkbox-card-indicator": ElementProps<PrimitivCheckboxCardIndicatorElement> & {
         "force-mount"?: boolean;
       };
     }

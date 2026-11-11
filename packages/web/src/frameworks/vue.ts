@@ -40,6 +40,7 @@ import type {
   PrimitivToggleGroupChangeEvent,
   PrimitivSegmentedControlChangeEvent,
   PrimitivRadioCardChangeEvent,
+  PrimitivCheckboxCardChangeEvent,
 } from "./events.ts";
 
 /** A tag as Vue's template checker sees it: its props, and the events it emits. */
@@ -163,5 +164,10 @@ declare module "vue" {
     >;
     "primitiv-radio-card-item": Tag<{ value: string; disabled?: boolean | "" }>;
     "primitiv-radio-card-indicator": Tag<{ forceMount?: boolean | "" }>;
+    "primitiv-checkbox-card": Tag<
+      { checked?: boolean | "" | "indeterminate"; disabled?: boolean | "" },
+      { "primitiv-checkbox-card-change": (event: PrimitivCheckboxCardChangeEvent) => void }
+    >;
+    "primitiv-checkbox-card-indicator": Tag<{ forceMount?: boolean | "" }>;
   }
 }

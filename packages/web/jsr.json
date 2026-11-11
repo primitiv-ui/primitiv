@@ -4,6 +4,7 @@
   "exports": {
     ".": "./src/index.ts",
     "./accordion": "./src/accordion/index.ts",
+    "./checkbox-card": "./src/checkbox-card/index.ts",
     "./collapsible": "./src/collapsible/index.ts",
     "./context-menu": "./src/context-menu/index.ts",
     "./dropdown": "./src/dropdown/index.ts",
@@ -16,6 +17,7 @@
     "./toggle-group": "./src/toggle-group/index.ts",
     "./define": "./src/define/index.ts",
     "./define/accordion": "./src/define/accordion.ts",
+    "./define/checkbox-card": "./src/define/checkbox-card.ts",
     "./define/collapsible": "./src/define/collapsible.ts",
     "./define/context-menu": "./src/define/context-menu.ts",
     "./define/dropdown": "./src/define/dropdown.ts",

@@ -186,6 +186,16 @@ it("defines the RadioCard elements when define/radio-card is imported", async ()
   }
 });
 
+it("defines the CheckboxCard elements when define/checkbox-card is imported", async () => {
+  // Arrange & Act
+  await import("../checkbox-card");
+
+  // Assert
+  for (const name of ["primitiv-checkbox-card", "primitiv-checkbox-card-indicator"]) {
+    expect(customElements.get(name)).toBeDefined();
+  }
+});
+
 it("defines every component's elements when define is imported", async () => {
   // Arrange & Act
   const module = await import("../index");
@@ -203,4 +213,5 @@ it("defines every component's elements when define is imported", async () => {
   expect(customElements.get("primitiv-toggle-group")).toBeDefined();
   expect(customElements.get("primitiv-segmented-control")).toBeDefined();
   expect(customElements.get("primitiv-radio-card")).toBeDefined();
+  expect(customElements.get("primitiv-checkbox-card")).toBeDefined();
 });

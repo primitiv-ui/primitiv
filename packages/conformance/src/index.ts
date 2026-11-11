@@ -54,3 +54,9 @@ export {
   type RadioCardConformanceFixture,
   type RadioCardMount,
 } from "./radio-card.ts";
+export {
+  CHECKBOX_CARD_LABEL,
+  runCheckboxCardConformance,
+  type CheckboxCardConformanceFixture,
+  type CheckboxCardMount,
+} from "./checkbox-card.ts";

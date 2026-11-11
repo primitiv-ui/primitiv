@@ -14,6 +14,10 @@
       "types": "./src/accordion/index.ts",
       "default": "./src/accordion/index.ts"
     },
+    "./checkbox-card": {
+      "types": "./src/checkbox-card/index.ts",
+      "default": "./src/checkbox-card/index.ts"
+    },
     "./collapsible": {
       "types": "./src/collapsible/index.ts",
       "default": "./src/collapsible/index.ts"
@@ -61,6 +65,10 @@
     "./define/accordion": {
       "types": "./src/define/accordion.ts",
       "default": "./src/define/accordion.ts"
+    },
+    "./define/checkbox-card": {
+      "types": "./src/define/checkbox-card.ts",
+      "default": "./src/define/checkbox-card.ts"
     },
     "./define/collapsible": {
       "types": "./src/define/collapsible.ts",
@@ -177,6 +185,10 @@
         "types": "./dist/accordion/index.d.ts",
         "default": "./dist/accordion/index.js"
       },
+      "./checkbox-card": {
+        "types": "./dist/checkbox-card/index.d.ts",
+        "default": "./dist/checkbox-card/index.js"
+      },
       "./collapsible": {
         "types": "./dist/collapsible/index.d.ts",
         "default": "./dist/collapsible/index.js"
@@ -224,6 +236,10 @@
       "./define/accordion": {
         "types": "./dist/define/accordion.d.ts",
         "default": "./dist/define/accordion.js"
+      },
+      "./define/checkbox-card": {
+        "types": "./dist/define/checkbox-card.d.ts",
+        "default": "./dist/define/checkbox-card.js"
       },
       "./define/collapsible": {
         "types": "./dist/define/collapsible.d.ts",

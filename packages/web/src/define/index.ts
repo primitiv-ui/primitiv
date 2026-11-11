@@ -3,6 +3,7 @@
  * Import `@primitiv-ui/web/define/<component>` instead to define only one.
  */
 import "./accordion.ts";
+import "./checkbox-card.ts";
 import "./collapsible.ts";
 import "./context-menu.ts";
 import "./dropdown.ts";

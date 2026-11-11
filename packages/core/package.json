@@ -1,6 +1,6 @@
 {
   "name": "@primitiv-ui/core",
-  "version": "0.1.60",
+  "version": "0.1.61",
   "description": "The framework-free behaviour core shared by every Primitiv surface — keyboard maps, roving-focus targets, id derivation and per-component policy, as pure functions with no DOM and no dependencies.",
   "type": "module",
   "main": "./src/index.ts",

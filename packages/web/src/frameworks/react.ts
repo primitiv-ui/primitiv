@@ -94,6 +94,10 @@ import type {
   PrimitivTooltipProviderElement,
   PrimitivTooltipTriggerElement,
 } from "../tooltip/elements.ts";
+import type {
+  PrimitivSegmentedControlElement,
+  PrimitivSegmentedControlItemElement,
+} from "../segmented-control/elements.ts";
 import type { PrimitivToggleGroupElement, PrimitivToggleGroupItemElement } from "../toggle-group/elements.ts";
 import type {
   PrimitivAccordionChangeEvent,
@@ -113,6 +117,7 @@ import type {
   PrimitivTabsChangeEvent,
   PrimitivTooltipChangeEvent,
   PrimitivToggleGroupChangeEvent,
+  PrimitivSegmentedControlChangeEvent,
 } from "./events.ts";
 
 /** React's own props for an element, plus `class`, which React 19 passes to custom elements. */
@@ -321,6 +326,16 @@ declare module "react" {
         "onprimitiv-toggle-group-change"?: (event: PrimitivToggleGroupChangeEvent) => void;
       };
       "primitiv-toggle-group-item": ElementProps<PrimitivToggleGroupItemElement> & {
+        value: string;
+        disabled?: boolean;
+      };
+      "primitiv-segmented-control": ElementProps<PrimitivSegmentedControlElement> & {
+        value?: string;
+        orientation?: "horizontal" | "vertical";
+        disabled?: boolean;
+        "onprimitiv-segmented-control-change"?: (event: PrimitivSegmentedControlChangeEvent) => void;
+      };
+      "primitiv-segmented-control-item": ElementProps<PrimitivSegmentedControlItemElement> & {
         value: string;
         disabled?: boolean;
       };

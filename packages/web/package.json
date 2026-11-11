@@ -34,6 +34,10 @@
       "types": "./src/popover/index.ts",
       "default": "./src/popover/index.ts"
     },
+    "./segmented-control": {
+      "types": "./src/segmented-control/index.ts",
+      "default": "./src/segmented-control/index.ts"
+    },
     "./tabs": {
       "types": "./src/tabs/index.ts",
       "default": "./src/tabs/index.ts"
@@ -73,6 +77,10 @@
     "./define/popover": {
       "types": "./src/define/popover.ts",
       "default": "./src/define/popover.ts"
+    },
+    "./define/segmented-control": {
+      "types": "./src/define/segmented-control.ts",
+      "default": "./src/define/segmented-control.ts"
     },
     "./define/tabs": {
       "types": "./src/define/tabs.ts",
@@ -181,6 +189,10 @@
         "types": "./dist/popover/index.d.ts",
         "default": "./dist/popover/index.js"
       },
+      "./segmented-control": {
+        "types": "./dist/segmented-control/index.d.ts",
+        "default": "./dist/segmented-control/index.js"
+      },
       "./tabs": {
         "types": "./dist/tabs/index.d.ts",
         "default": "./dist/tabs/index.js"
@@ -220,6 +232,10 @@
       "./define/popover": {
         "types": "./dist/define/popover.d.ts",
         "default": "./dist/define/popover.js"
+      },
+      "./define/segmented-control": {
+        "types": "./dist/define/segmented-control.d.ts",
+        "default": "./dist/define/segmented-control.js"
       },
       "./define/tabs": {
         "types": "./dist/define/tabs.d.ts",

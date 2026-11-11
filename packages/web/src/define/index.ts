@@ -8,6 +8,7 @@ import "./context-menu.ts";
 import "./dropdown.ts";
 import "./modal.ts";
 import "./popover.ts";
+import "./segmented-control.ts";
 import "./tabs.ts";
 import "./toggle-group.ts";
 import "./tooltip.ts";

@@ -9,6 +9,7 @@
     "./dropdown": "./src/dropdown/index.ts",
     "./modal": "./src/modal/index.ts",
     "./popover": "./src/popover/index.ts",
+    "./segmented-control": "./src/segmented-control/index.ts",
     "./tabs": "./src/tabs/index.ts",
     "./tooltip": "./src/tooltip/index.ts",
     "./toggle-group": "./src/toggle-group/index.ts",
@@ -19,6 +20,7 @@
     "./define/dropdown": "./src/define/dropdown.ts",
     "./define/modal": "./src/define/modal.ts",
     "./define/popover": "./src/define/popover.ts",
+    "./define/segmented-control": "./src/define/segmented-control.ts",
     "./define/tabs": "./src/define/tabs.ts",
     "./define/tooltip": "./src/define/tooltip.ts",
     "./define/toggle-group": "./src/define/toggle-group.ts"

@@ -42,3 +42,9 @@ export {
   type ToggleGroupConformanceFixture,
   type ToggleGroupMount,
 } from "./toggle-group.ts";
+export {
+  runSegmentedControlConformance,
+  SEGMENTED_CONTROL_ITEMS,
+  type SegmentedControlConformanceFixture,
+  type SegmentedControlMount,
+} from "./segmented-control.ts";

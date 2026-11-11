@@ -6,6 +6,7 @@
 export * from "./accordion/index.ts";
 export * from "./collapsible/index.ts";
 export * from "./toggle-group/index.ts";
+export * from "./segmented-control/index.ts";
 export * from "./context-menu/index.ts";
 export * from "./dropdown/index.ts";
 export * from "./modal/index.ts";

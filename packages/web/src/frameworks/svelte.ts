@@ -93,6 +93,10 @@ import type {
   PrimitivTooltipProviderElement,
   PrimitivTooltipTriggerElement,
 } from "../tooltip/elements.ts";
+import type {
+  PrimitivSegmentedControlElement,
+  PrimitivSegmentedControlItemElement,
+} from "../segmented-control/elements.ts";
 import type { PrimitivToggleGroupElement, PrimitivToggleGroupItemElement } from "../toggle-group/elements.ts";
 import type {
   PrimitivAccordionChangeEvent,
@@ -112,6 +116,7 @@ import type {
   PrimitivTabsChangeEvent,
   PrimitivTooltipChangeEvent,
   PrimitivToggleGroupChangeEvent,
+  PrimitivSegmentedControlChangeEvent,
 } from "./events.ts";
 
 /** Svelte's own attributes and events for an element. */
@@ -292,6 +297,16 @@ declare module "svelte/elements" {
       "onprimitiv-toggle-group-change"?: (event: PrimitivToggleGroupChangeEvent) => void;
     };
     "primitiv-toggle-group-item": Attributes<PrimitivToggleGroupItemElement> & {
+      value: string;
+      disabled?: boolean;
+    };
+    "primitiv-segmented-control": Attributes<PrimitivSegmentedControlElement> & {
+      value?: string;
+      orientation?: "horizontal" | "vertical";
+      disabled?: boolean;
+      "onprimitiv-segmented-control-change"?: (event: PrimitivSegmentedControlChangeEvent) => void;
+    };
+    "primitiv-segmented-control-item": Attributes<PrimitivSegmentedControlItemElement> & {
       value: string;
       disabled?: boolean;
     };

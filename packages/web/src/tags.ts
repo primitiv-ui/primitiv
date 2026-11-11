@@ -88,6 +88,10 @@ import type {
   PrimitivTooltipProviderElement,
   PrimitivTooltipTriggerElement,
 } from "./tooltip/elements.ts";
+import type {
+  PrimitivSegmentedControlElement,
+  PrimitivSegmentedControlItemElement,
+} from "./segmented-control/elements.ts";
 import type { PrimitivToggleGroupElement, PrimitivToggleGroupItemElement } from "./toggle-group/elements.ts";
 declare global {
   interface HTMLElementTagNameMap {
@@ -152,6 +156,8 @@ declare global {
     "primitiv-tooltip-arrow": PrimitivTooltipArrowElement;
     "primitiv-toggle-group": PrimitivToggleGroupElement;
     "primitiv-toggle-group-item": PrimitivToggleGroupItemElement;
+    "primitiv-segmented-control": PrimitivSegmentedControlElement;
+    "primitiv-segmented-control-item": PrimitivSegmentedControlItemElement;
   }
 }
 

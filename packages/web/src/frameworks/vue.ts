@@ -38,6 +38,7 @@ import type {
   PrimitivTabsChangeEvent,
   PrimitivTooltipChangeEvent,
   PrimitivToggleGroupChangeEvent,
+  PrimitivSegmentedControlChangeEvent,
 } from "./events.ts";
 
 /** A tag as Vue's template checker sees it: its props, and the events it emits. */
@@ -150,5 +151,10 @@ declare module "vue" {
       { "primitiv-toggle-group-change": (event: PrimitivToggleGroupChangeEvent) => void }
     >;
     "primitiv-toggle-group-item": Tag<{ value: string; disabled?: boolean | "" }>;
+    "primitiv-segmented-control": Tag<
+      { value?: string; orientation?: "horizontal" | "vertical"; disabled?: boolean | "" },
+      { "primitiv-segmented-control-change": (event: PrimitivSegmentedControlChangeEvent) => void }
+    >;
+    "primitiv-segmented-control-item": Tag<{ value: string; disabled?: boolean | "" }>;
   }
 }

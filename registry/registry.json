@@ -866,7 +866,16 @@
           ]
         }
       },
-      "contract": "contract.json"
+      "contract": "contract.json",
+      "elements": {
+        "packages": [
+          {
+            "name": "@primitiv-ui/web",
+            "version": "^0.1.58"
+          }
+        ],
+        "example": "context-menu.html"
+      }
     },
     "data-table": {
       "version": "0.1.0",

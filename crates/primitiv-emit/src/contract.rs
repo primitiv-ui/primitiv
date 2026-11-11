@@ -81,7 +81,10 @@ pub struct Subcomponent {
     /// part renders `{Primitive}.{component}` and ignores this.
     #[serde(default)]
     pub element: Option<String>,
-    /// The BEM part class the wrapper applies (`primitiv-tabs__list`).
+    /// The BEM part class the wrapper applies (`primitiv-tabs__list`). Empty for
+    /// a part the consumer styles alone, which the contract writes as `null` —
+    /// Context Menu's trigger region.
+    #[serde(deserialize_with = "class_or_none")]
     pub class: String,
     /// The part's own modifier groups, in authored order. Empty for a part with no
     /// visual variants (a trigger).
@@ -231,4 +234,9 @@ fn capitalize(segment: &str) -> String {
     let mut chars = segment.chars();
     let first = chars.next().expect("name segment is non-empty");
     first.to_uppercase().collect::<String>() + chars.as_str()
+}
+
+/// A part's class, or the empty string for one the contract leaves `null`.
+fn class_or_none<'de, D: serde::Deserializer<'de>>(deserializer: D) -> Result<String, D::Error> {
+    Ok(Option::<String>::deserialize(deserializer)?.unwrap_or_default())
 }

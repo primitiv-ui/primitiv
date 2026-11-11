@@ -219,7 +219,8 @@ fn required_classes(contract: &Contract) -> Vec<String> {
     let label = |class: &str, wraps: bool| wraps.then(|| format!("{class}-label"));
     let mut required = vec![contract.root.class.clone()];
     required.extend(contract.parts.iter().map(|part| part.class.clone()));
-    for sub in &contract.subcomponents {
+    // A part with no class (Context Menu's trigger region) requires none.
+    for sub in contract.subcomponents.iter().filter(|sub| !sub.class.is_empty()) {
         required.push(sub.class.clone());
         required.extend(label(&sub.class, sub.wrap_text_children));
     }

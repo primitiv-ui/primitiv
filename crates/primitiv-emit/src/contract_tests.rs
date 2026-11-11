@@ -37,3 +37,20 @@ fn a_reserved_word_name_gets_a_recipe_suffix() {
     // `export const switch = ...` is a syntax error, so the binding disambiguates.
     assert_eq!(recipe_binding("switch"), "switchRecipe");
 }
+
+#[test]
+fn a_subcomponent_with_no_class_parses_as_classless() {
+    // Context Menu's trigger is a region the consumer styles: it has no class.
+    let json = r#"{
+      "name": "demo-region",
+      "version": "0.1.0",
+      "description": "A region.",
+      "docs": "https://primitiv-ui.dev/docs/components/demo-region",
+      "root": { "element": "div", "class": "primitiv-demo-region", "component": "Content" },
+      "subcomponents": [{ "name": "trigger", "component": "Trigger", "element": "span", "class": null }]
+    }"#;
+
+    let contract = Contract::parse(json.as_bytes()).expect("a classless part parses");
+
+    assert_eq!(contract.subcomponents[0].class, "");
+}

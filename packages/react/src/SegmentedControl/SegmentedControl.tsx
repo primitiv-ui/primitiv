@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useRef } from "react";
 import type { ReactElement } from "react";
 
+import { segmentedControlTabStop } from "@primitiv-ui/core";
+
 import { useDirection } from "../DirectionProvider/index.ts";
-import { useRovingTabindex } from "../hooks/index.ts";
-import { Slot, composeEventHandlers, composeRefs } from "../Slot/index.ts";
+import { Slot, composeRefs } from "../Slot/index.ts";
 
 import { SegmentedControlContext } from "./SegmentedControlContext";
 import {
@@ -86,39 +87,25 @@ export function SegmentedControlRoot({
   disabled = false,
   asChild = false,
   children,
+  ref,
   ...rest
 }: SegmentedControlRootProps): ReactElement {
   const resolvedDir = dir ?? useDirection();
-  const { value, select, registerItem, itemValues, disabledValues, focusItem } =
+  const { rootRef, value, registerItem, itemValues, disabledValues } =
     useSegmentedControlRoot({
       defaultValue,
       value: controlledValue,
       onValueChange,
-    });
-  const contextValue = useMemo(
-    () => ({
-      value,
-      select,
-      registerItem,
-      itemValues,
-      disabledValues,
-      focusItem,
       orientation,
       dir: resolvedDir,
       disabled,
-    }),
-    [
-      value,
-      select,
-      registerItem,
-      itemValues,
-      disabledValues,
-      focusItem,
-      orientation,
-      resolvedDir,
-      disabled,
-    ],
+    });
+  const contextValue = useMemo(
+    () => ({ value, registerItem, itemValues, disabledValues, disabled }),
+    [value, registerItem, itemValues, disabledValues, disabled],
   );
+  // The controller listens on the root, so a consumer ref is composed with it.
+  const setRootRef = useMemo(() => composeRefs(rootRef, ref), [rootRef, ref]);
   const rootProps = {
     role: "radiogroup" as const,
     "aria-orientation": orientation,
@@ -126,6 +113,7 @@ export function SegmentedControlRoot({
     "data-disabled": disabled ? "" : undefined,
     dir: resolvedDir,
     ...rest,
+    ref: setRootRef,
   };
   return (
     <SegmentedControlContext.Provider value={contextValue}>
@@ -172,9 +160,10 @@ SegmentedControlRoot.displayName = "SegmentedControlRoot";
  *
  * **`asChild` prop.** Pass `asChild` to render any consumer element in place
  * of the native `<button>`, with the segment's ARIA, `data-state`,
- * `data-disabled`, `tabIndex`, `onClick`, `onKeyDown`, `disabled`, and `ref`
- * merged onto it. A non-focusable child must be made focusable by the
- * consumer.
+ * `data-disabled`, `tabIndex`, `disabled`, and `ref` merged onto it. Clicks
+ * and arrow keys on it are handled by the shared controller listening on the
+ * root, beside any `onClick` / `onKeyDown` of the consumer's. A non-focusable
+ * child must be made focusable by the consumer.
  *
  * @extends HTMLButtonElement
  *
@@ -183,8 +172,6 @@ SegmentedControlRoot.displayName = "SegmentedControlRoot";
 export function SegmentedControlItem({
   value,
   children,
-  onClick,
-  onKeyDown,
   disabled: itemDisabled,
   asChild = false,
   ref,
@@ -192,26 +179,21 @@ export function SegmentedControlItem({
 }: SegmentedControlItemProps): ReactElement {
   const {
     value: selectedValue,
-    select,
     registerItem,
     itemValues,
     disabledValues,
-    focusItem,
-    orientation,
-    dir,
     disabled: groupDisabled,
   } = useSegmentedControlContext();
   const isChecked = selectedValue === value;
   const isDisabled = itemDisabled || groupDisabled;
-  // Arrow-key navigation walks only enabled items: the per-item disabled
-  // set is excluded, and when the whole control is disabled the predicate
-  // fails for every item so the navigable list is empty.
-  const enabledValues = useMemo(
-    () => itemValues.filter((v) => !groupDisabled && !disabledValues.has(v)),
-    [groupDisabled, itemValues, disabledValues],
-  );
+  // The tab stop is core's rule, shared with the elements: the selected segment,
+  // else the first enabled one. A whole-control disable disables every segment.
   const isTabStop =
-    selectedValue !== undefined ? isChecked : enabledValues[0] === value;
+    segmentedControlTabStop({
+      values: itemValues,
+      disabled: groupDisabled ? new Set(itemValues) : disabledValues,
+      selected: selectedValue,
+    }) === value;
 
   const localRef = useRef<HTMLButtonElement | null>(null);
   const setRef = useMemo(() => composeRefs(localRef, ref), [ref]);
@@ -221,17 +203,8 @@ export function SegmentedControlItem({
     return () => registerItem(value, null);
   }, [value, itemDisabled, registerItem]);
 
-  const { handleKeyDown } = useRovingTabindex<string>({
-    orientation,
-    dir,
-    navigable: enabledValues,
-    currentKey: value,
-    onNavigate: (target) => {
-      select(target);
-      focusItem(target);
-    },
-  });
-
+  // Clicks and arrow keys are handled by the controller on the root; a
+  // consumer's own onClick / onKeyDown stay in `rest` and run as usual.
   const itemProps = {
     ...rest,
     ref: setRef,
@@ -241,8 +214,6 @@ export function SegmentedControlItem({
     "data-disabled": isDisabled ? "" : undefined,
     tabIndex: isTabStop ? 0 : -1,
     disabled: isDisabled,
-    onClick: composeEventHandlers(onClick, () => select(value)),
-    onKeyDown: composeEventHandlers(onKeyDown, handleKeyDown),
   };
 
   return asChild ? (

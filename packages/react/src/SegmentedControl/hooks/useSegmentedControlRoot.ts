@@ -1,11 +1,16 @@
 import { useCallback, useMemo } from "react";
 
-import { useCollection, useControllableState } from "../../hooks/index.ts";
+import { SegmentedControlController } from "@primitiv-ui/web";
+
+import { useCollection, useControllableState, useHostedController } from "../../hooks/index.ts";
 
 type UseSegmentedControlRootArgs = {
   defaultValue?: string;
   value?: string;
   onValueChange?: (value: string) => void;
+  orientation: "horizontal" | "vertical";
+  dir: "ltr" | "rtl";
+  disabled: boolean;
 };
 
 type ItemMeta = {
@@ -17,36 +22,26 @@ export function useSegmentedControlRoot({
   defaultValue,
   value: controlledValue,
   onValueChange,
+  orientation,
+  dir,
+  disabled,
 }: UseSegmentedControlRootArgs) {
-  const [value, setValue] = useControllableState<string>(
-    controlledValue,
-    defaultValue,
-    onValueChange,
-  );
+  const [value, setValue] = useControllableState<string>(controlledValue, defaultValue, onValueChange);
 
-  const select = useCallback(
-    (next: string) => {
-      if (value === next) return;
-      setValue(next);
-    },
-    [value, setValue],
-  );
-
-  // Track registered item metadata in a ref (for focus handling) and their
-  // ordered values as state — required for the roving-tabindex home base.
-  // Disabled values are derived per render from itemsRef; any change that
-  // affects the set (mount, unmount, disabled toggle) re-runs the registrar
-  // effect, which updates the keys state and forces the recompute.
-  const {
-    register: registerItemBase,
-    itemsRef,
-    keys: itemValues,
-  } = useCollection<string, ItemMeta>();
+  // Track registered item metadata in a ref and their ordered values as state —
+  // required for the roving-tabindex home base. Disabled values are derived per
+  // render from itemsRef; any change that affects the set (mount, unmount,
+  // disabled toggle) re-runs the registrar effect, which updates the keys state
+  // and forces the recompute.
+  const { register: registerItemBase, itemsRef, keys: itemValues } = useCollection<string, ItemMeta>();
 
   const registerItem = useCallback(
-    (itemValue: string, element: HTMLButtonElement | null, disabled = false) => {
-      registerItemBase(itemValue, element ? { element, disabled } : null);
+    (itemValue: string, element: HTMLButtonElement | null, itemDisabled = false) => {
+      registerItemBase(itemValue, element ? { element, disabled: itemDisabled } : null);
     },
+    // `registerItemBase` is a stable useCollection callback (its own deps never
+    // change), so emptying this array yields the identical memoised function.
+    // Stryker disable next-line ArrayDeclaration: equivalent — stable dependency.
     [registerItemBase],
   );
 
@@ -63,25 +58,20 @@ export function useSegmentedControlRoot({
     [itemValues, itemsRef],
   );
 
-  const focusItem = useCallback(
-    (itemValue: string) => {
-      // `itemValue` is always sourced from `navigable` (the enabled subset of
-      // `itemValues`), and useCollection's register() writes `itemsRef` and
-      // the `itemValues` state together — so a value that appears here is
-      // guaranteed to already have a live entry in the map.
-      // Stryker disable next-line OptionalChaining: unreachable given that invariant.
-      itemsRef.current.get(itemValue)?.element.focus();
-    },
-    // Stryker disable next-line ArrayDeclaration: equivalent — itemsRef is a stable RefObject.
-    [itemsRef],
+  // The clicks and keys run in the shared SegmentedControlController
+  // (@primitiv-ui/web, RFC 0033 D30); React keeps the state and answers it.
+  const rootRef = useHostedController(
+    { value, orientation, dir, disabled, setValue },
+    (root, latest) =>
+      new SegmentedControlController(root, {
+        state: () => {
+          const { value, orientation, dir, disabled } = latest();
+          return { selected: value, disabled, orientation, dir };
+        },
+        change: (next) => latest().setValue(next),
+      }),
+    { itemsRef, keys: itemValues },
   );
 
-  return {
-    value,
-    select,
-    registerItem,
-    itemValues,
-    disabledValues,
-    focusItem,
-  };
+  return { rootRef, value, registerItem, itemValues, disabledValues };
 }

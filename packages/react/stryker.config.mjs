@@ -44,7 +44,7 @@ const SHARED_MODULES = {
   "src/hooks/useTypeahead.ts": ["Listbox", "MillerColumns"],
   // Hosting a @primitiv-ui/web controller (RFC 0033 D30), shared by every
   // component the elements surface has moved onto it.
-  "src/hooks/useHostedController.ts": ["Tabs", "Accordion", "Collapsible", "ToggleGroup"],
+  "src/hooks/useHostedController.ts": ["Tabs", "Accordion", "Collapsible", "ToggleGroup", "SegmentedControl"],
 };
 
 /**

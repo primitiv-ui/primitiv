@@ -425,3 +425,27 @@ for (const framework of ["elements", "react"]) {
     expect(await region.evaluate((el) => getComputedStyle(el).borderTopStyle)).toBe("dashed");
   });
 }
+
+test("the Toggle Group previews are <primitiv-toggle-group> elements, and the readout follows the change", async ({ page }) => {
+  await page.goto("/components/toggle-group/");
+  await expect(page.getByText(/dist\/cdn\/toggle-group\.js/).first()).toBeVisible();
+  const example = cell(page, "multiple");
+  const group = example.locator("primitiv-toggle-group");
+  await expect(group).toHaveClass(/primitiv-toggle-group/);
+  // The definition loads on demand: wait for the element to have wired its buttons.
+  const bold = example.getByRole("button", { name: "Bold" });
+  await expect(bold).toHaveAttribute("aria-pressed", "true");
+  await example.getByRole("button", { name: "Italic" }).click();
+  await expect(example.getByRole("button", { name: "Italic" })).toHaveAttribute("aria-pressed", "true");
+  await expect(example.locator("[data-pressed-items]")).toHaveText('["bold", "italic"]');
+});
+
+test("the Toggle Group single example clears, and the readout says so", async ({ page }) => {
+  await page.goto("/components/toggle-group/");
+  const example = cell(page, "single");
+  const grid = example.getByRole("button", { name: "Grid" });
+  await expect(grid).toHaveAttribute("aria-pressed", "true");
+  await grid.click();
+  await expect(grid).toHaveAttribute("aria-pressed", "false");
+  await expect(example.locator("[data-pressed-items]")).toHaveText("nothing (cleared)");
+});

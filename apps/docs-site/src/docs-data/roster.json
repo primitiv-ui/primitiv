@@ -485,7 +485,7 @@
     "category": "Navigation",
     "description": "A set of independent on/off buttons in a shared track — any number can be pressed, including none. Framed like a Button: a pressed item is action/primary, an unpressed one action/secondary, inside a transparent bordered track whose radius is concentric with the items.",
     "documented": true,
-    "elements": null
+    "elements": "behaviour"
   },
   {
     "id": "tooltip",

@@ -295,5 +295,57 @@
   "figma": {
     "componentSetKey": "2045:1395"
   },
-  "elements": null
+  "elements": {
+    "package": "@primitiv-ui/web",
+    "module": "toggle-group",
+    "version": "0.1.59",
+    "element": "div",
+    "wrapText": false,
+    "example": "<primitiv-toggle-group type=\"multiple\" value=\"bold\" aria-label=\"Formatting\" class=\"primitiv-toggle-group primitiv-toggle-group--md\">\n  <primitiv-toggle-group-item value=\"bold\">\n    <button type=\"button\" class=\"primitiv-toggle-group__item\">\n      <span class=\"primitiv-toggle-group__item-label\">Bold</span>\n    </button>\n  </primitiv-toggle-group-item>\n  <primitiv-toggle-group-item value=\"italic\">\n    <button type=\"button\" class=\"primitiv-toggle-group__item\">\n      <span class=\"primitiv-toggle-group__item-label\">Italic</span>\n    </button>\n  </primitiv-toggle-group-item>\n  <primitiv-toggle-group-item value=\"underline\">\n    <button type=\"button\" class=\"primitiv-toggle-group__item\">\n      <span class=\"primitiv-toggle-group__item-label\">Underline</span>\n    </button>\n  </primitiv-toggle-group-item>\n</primitiv-toggle-group>\n",
+    "api": [
+      {
+        "tag": "primitiv-toggle-group",
+        "attributes": [
+          {
+            "name": "value",
+            "type": "string",
+            "description": "The pressed items' values, separated by spaces. Reflected: it changes as the user presses items, so a server re-render or a history snapshot sees what is pressed. Item values therefore cannot contain whitespace."
+          },
+          {
+            "name": "type",
+            "type": "\"single\" | \"multiple\"",
+            "description": "`single` keeps at most one item pressed — pressing another lets go of it, and pressing it again leaves none; `multiple` lets items toggle independently. Defaults to `single`."
+          },
+          {
+            "name": "orientation",
+            "type": "\"horizontal\" | \"vertical\"",
+            "description": "Layout axis, which picks the arrow-key pair. Defaults to `horizontal`."
+          }
+        ],
+        "events": [
+          {
+            "name": "primitiv-toggle-group-change",
+            "type": "CustomEvent<{ value: string[] }>",
+            "description": "Bubbles, cancelable, fired before a user-driven toggle is applied, with every item pressed afterwards. Call `preventDefault()` to veto it."
+          }
+        ]
+      },
+      {
+        "tag": "primitiv-toggle-group-item",
+        "attributes": [
+          {
+            "name": "value",
+            "type": "string",
+            "description": "The item's value, listed in the root's `value` while it is pressed. No whitespace."
+          },
+          {
+            "name": "disabled",
+            "type": "boolean",
+            "description": "Skipped by the arrow keys and never pressed (`aria-disabled` and `data-disabled` on the child)."
+          }
+        ],
+        "events": []
+      }
+    ]
+  }
 }

@@ -32,6 +32,15 @@ export {
   type ToggleGroupState,
 } from "./toggle-group/policy.ts";
 export {
+  radioGroupKeydown,
+  radioGroupSelect,
+  radioGroupTabStop,
+  type RadioGroupKeyOutcome,
+  type RadioGroupOrientation,
+  type RadioGroupReadingDirection,
+  type RadioGroupState,
+} from "./radio-group/policy.ts";
+export {
   segmentedControlKeydown,
   segmentedControlSelect,
   segmentedControlTabStop,

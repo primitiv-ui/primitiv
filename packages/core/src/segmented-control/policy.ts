@@ -1,5 +1,4 @@
-import { getKeyToActionMap } from "../keyboard/getKeyToActionMap.ts";
-import { resolveRovingTarget } from "../keyboard/resolveRovingTarget.ts";
+import { radioGroupKeydown, radioGroupSelect, radioGroupTabStop } from "../radio-group/policy.ts";
 
 /** Layout axis of the control: which arrow pair moves between segments. */
 export type SegmentedControlOrientation = "horizontal" | "vertical";
@@ -31,13 +30,13 @@ export type SegmentedControlKeyOutcome = { focus: string; select: string | null 
 /**
  * The segment a click on `value` selects: `null` when it is disabled or
  * already selected. A selected segment never lets go, so — unlike a toggle
- * group — the selection cannot be cleared to nothing.
+ * group — the selection cannot be cleared to nothing. The radio group's rule.
  */
 export function segmentedControlSelect(
   state: Pick<SegmentedControlState, "disabled" | "selected">,
   value: string,
 ): string | null {
-  return state.disabled.has(value) || state.selected === value ? null : value;
+  return radioGroupSelect(state, value);
 }
 
 /**
@@ -56,10 +55,7 @@ export function segmentedControlKeydown(
   focused: string,
   key: string,
 ): SegmentedControlKeyOutcome | null {
-  const action = getKeyToActionMap({ orientation: state.orientation, dir: state.dir })[key];
-  const navigable = state.values.filter((value) => !state.disabled.has(value));
-  const result = resolveRovingTarget({ action, navigable, currentKey: focused });
-  return result && { focus: result.target, select: segmentedControlSelect(state, result.target) };
+  return radioGroupKeydown(state, focused, key);
 }
 
 /**
@@ -71,5 +67,5 @@ export function segmentedControlKeydown(
 export function segmentedControlTabStop(
   state: Pick<SegmentedControlState, "values" | "disabled" | "selected">,
 ): string | undefined {
-  return state.selected ?? state.values.find((value) => !state.disabled.has(value));
+  return radioGroupTabStop(state);
 }

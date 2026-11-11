@@ -50,6 +50,11 @@ export {
   type SegmentedControlState,
 } from "./segmented-control/policy.ts";
 export {
+  checkboxCardToggle,
+  type CheckboxCardCheckedState,
+  type CheckboxCardState,
+} from "./checkbox-card/policy.ts";
+export {
   collapsibleKeydown,
   collapsibleToggle,
   type CollapsibleKeyOutcome,

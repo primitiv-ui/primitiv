@@ -32,6 +32,15 @@ export {
   type ToggleGroupState,
 } from "./toggle-group/policy.ts";
 export {
+  segmentedControlKeydown,
+  segmentedControlSelect,
+  segmentedControlTabStop,
+  type SegmentedControlKeyOutcome,
+  type SegmentedControlOrientation,
+  type SegmentedControlReadingDirection,
+  type SegmentedControlState,
+} from "./segmented-control/policy.ts";
+export {
   collapsibleKeydown,
   collapsibleToggle,
   type CollapsibleKeyOutcome,

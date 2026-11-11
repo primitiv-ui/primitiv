@@ -6,7 +6,7 @@ framework and no runtime dependencies beyond
 server-rendered stack (HTMX, Rails, Django, Laravel, Spring …), and inside
 React, Vue, Angular or any other framework.
 
-> **Status: published.** Tabs, Accordion, Collapsible, Modal, Popover and Tooltip so far. See
+> **Status: published.** Tabs, Accordion, Collapsible, Modal, Popover, Tooltip and Dropdown so far. See
 > [RFC 0033](../../docs/rfcs/0033-web-components.md) for the design.
 
 ## Components
@@ -19,6 +19,7 @@ React, Vue, Angular or any other framework.
 | Modal | `primitiv-modal`, `-trigger`, `-content`, `-title`, `-description`, `-close` | `primitiv-modal-change` | 0.1.54 |
 | Popover | `primitiv-popover`, `-trigger`, `-anchor`, `-content`, `-title`, `-description`, `-close` | `primitiv-popover-change` | 0.1.55 |
 | Tooltip | `primitiv-tooltip`, `-provider`, `-trigger`, `-content`, `-arrow` | `primitiv-tooltip-change` | 0.1.56 |
+| Dropdown | `primitiv-dropdown`, `-trigger`, `-content`, `-item`, `-checkbox-item`, `-radio-group`, `-radio-item`, `-item-indicator`, `-group`, `-label`, `-separator`, `-sub`, `-sub-trigger`, `-sub-content` | `primitiv-dropdown-change`, `-sub-change`, `-select`, `-checked-change`, `-value-change` | 0.1.57 |
 
 ## Use it
 
@@ -51,10 +52,10 @@ downloads it once. `dist/primitiv-web.js` is the alternative: every element in
 one file. Per-component files ship from 0.1.43.
 
 The main entry (`@primitiv-ui/web`, `/tabs`, `/accordion`, `/collapsible`,
-`/modal`, `/popover`, `/tooltip`) exports the classes and `defineTabs(registry?)` /
+`/modal`, `/popover`, `/tooltip`, `/dropdown`) exports the classes and `defineTabs(registry?)` /
 `defineAccordion(registry?)` / `defineCollapsible(registry?)` /
-`defineModal(registry?)` / `definePopover(registry?)` / `defineTooltip(registry?)`
-with **no side effects**.
+`defineModal(registry?)` / `definePopover(registry?)` / `defineTooltip(registry?)` /
+`defineDropdown(registry?)` with **no side effects**.
 
 **Render `hidden` on inactive panels yourself.** Until the module loads, CSS
 cannot tell which panel is active, so markup that omits it shows every panel.
@@ -215,6 +216,39 @@ on a panel as it becomes active, for lazy loading.
 - **`open` on the root is the state**; the `open` property reads and sets it.
   **Listen with `primitiv-tooltip-change`** (bubbles, cancelable, `detail: {
   open }`), fired before every user-driven change.
+
+### Dropdown
+
+```html
+<script type="module" src="https://cdn.jsdelivr.net/npm/@primitiv-ui/web@<version>/dist/cdn/dropdown.js"></script>
+
+<primitiv-dropdown>
+  <primitiv-dropdown-trigger><button type="button">Options</button></primitiv-dropdown-trigger>
+  <primitiv-dropdown-content popover="auto">
+    <primitiv-dropdown-item><li>Copy</li></primitiv-dropdown-item>
+    <primitiv-dropdown-checkbox-item checked><li>Show grid</li></primitiv-dropdown-checkbox-item>
+    <primitiv-dropdown-sub>
+      <primitiv-dropdown-sub-trigger><li>Share</li></primitiv-dropdown-sub-trigger>
+      <primitiv-dropdown-sub-content popover="auto">
+        <primitiv-dropdown-item><li>Email</li></primitiv-dropdown-item>
+      </primitiv-dropdown-sub-content>
+    </primitiv-dropdown-sub>
+  </primitiv-dropdown-content>
+</primitiv-dropdown>
+```
+
+- **A menu button over a native `popover="auto"`**, anchored to its trigger
+  with no wiring. It opens focused on the first item; the arrows, Home and End
+  move, Enter and Space choose, typing finds an item, and Escape, a press
+  outside or a chosen item closes it with focus back on the trigger.
+- **Each row wraps the element you write** (an `<li>`, or a link), which gets
+  its menu role. Close every `<li>`: the HTML parser ends an open `<li>` at the
+  next one, custom elements or not. `disabled` on a row skips it.
+- **State is attributes**: `open` on the root and on each
+  `<primitiv-dropdown-sub>`, `checked` on a checkbox item (`indeterminate` for
+  mixed), `value` on a radio group. Each change fires a cancelable event first;
+  **listen for `primitiv-dropdown-select`** on an item to act on it, and cancel
+  it to keep the menu open.
 
 **TypeScript** — opt into the tag map so DOM queries return the element classes:
 `import type {} from "@primitiv-ui/web/tags"` (npm only).

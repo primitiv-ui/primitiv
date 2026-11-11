@@ -137,7 +137,13 @@ export class TooltipController {
   /** Measure the placement now, and again on every scroll and resize until it closes. */
   #follow(): void {
     this.#following = new AbortController();
-    const options = { capture: true, passive: true, signal: this.#following.signal };
+    const options = {
+      // A scroll inside an overflow pane does not bubble to the window.
+      capture: true,
+      // Stryker disable next-line BooleanLiteral: equivalent — passive only spares the scroll from waiting on the listener.
+      passive: true,
+      signal: this.#following.signal,
+    };
     window.addEventListener("scroll", () => this.#place(), options);
     window.addEventListener("resize", () => this.#place(), options);
     this.#place();

@@ -67,7 +67,10 @@ import {
   `right-start` / `right-end` / `bottom` (default) / `bottom-start` /
   `bottom-end` / `left` / `left-start` / `left-end`. Sets the CSS `position-area`
   and points the arrow at the anchor. `position-try-fallbacks` auto-flips the
-  panel to the opposite side if the chosen placement would overflow.
+  panel to the opposite side if the chosen placement would overflow, and the
+  arrow follows it: the headless controller marks where the panel landed as
+  `data-side` / `data-align` (re-measured on scroll and resize), which the
+  stylesheet reads.
 
 ## The arrow
 

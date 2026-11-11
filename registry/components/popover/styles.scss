@@ -363,6 +363,51 @@
   .primitiv-popover--right-end::after {
     inset-block-end: var(--primitiv-popover-padding-block);
   }
+
+  /* Where the panel actually landed, after any position-try-fallbacks flip: the
+     controller marks it data-side (the side of the anchor it is on) and
+     data-align (the third of its facing edge the anchor's centre is in), as it
+     opens and on every scroll and resize. These point the arrow at the anchor
+     from there, overriding the placement's default above; until the panel is
+     measured, the placement's arrow stands. */
+  .primitiv-popover[data-side]::after {
+    inset: auto;
+    translate: none;
+  }
+  .primitiv-popover[data-side="top"]::after {
+    bottom: calc(var(--primitiv-popover-arrow-size) / -2);
+  }
+  .primitiv-popover[data-side="bottom"]::after {
+    top: calc(var(--primitiv-popover-arrow-size) / -2);
+  }
+  .primitiv-popover[data-side="left"]::after {
+    right: calc(var(--primitiv-popover-arrow-size) / -2);
+  }
+  .primitiv-popover[data-side="right"]::after {
+    left: calc(var(--primitiv-popover-arrow-size) / -2);
+  }
+  .primitiv-popover[data-align="left"]::after {
+    left: var(--primitiv-popover-padding-inline);
+  }
+  .primitiv-popover[data-align="right"]::after {
+    right: var(--primitiv-popover-padding-inline);
+  }
+  .primitiv-popover[data-align="top"]::after {
+    top: var(--primitiv-popover-padding-block);
+  }
+  .primitiv-popover[data-align="bottom"]::after {
+    bottom: var(--primitiv-popover-padding-block);
+  }
+  .primitiv-popover[data-side="top"][data-align="center"]::after,
+  .primitiv-popover[data-side="bottom"][data-align="center"]::after {
+    left: 50%;
+    translate: -50% 0;
+  }
+  .primitiv-popover[data-side="left"][data-align="center"]::after,
+  .primitiv-popover[data-side="right"][data-align="center"]::after {
+    top: 50%;
+    translate: 0 -50%;
+  }
 }
 
 @layer primitiv.states {

@@ -430,6 +430,22 @@ describe("PopoverController", () => {
       expect(content.getAttribute("data-side")).toBe("right");
     });
 
+    it("follows a scroll inside a scrolling container, which does not bubble to the window", () => {
+      // Arrange
+      const { trigger, content, controller } = connected(true);
+      const pane = document.body.appendChild(document.createElement("div"));
+      at(trigger, 100, 100, 60, 20);
+      at(content, 80, 130, 100, 50);
+      controller.sync();
+
+      // Act — the browser's scroll of an overflow pane, which jsdom cannot produce.
+      at(content, 80, 40, 100, 50);
+      pane.dispatchEvent(new Event("scroll"));
+
+      // Assert
+      expect(content.getAttribute("data-side")).toBe("top");
+    });
+
     it("stops following once hidden, and once disconnected", () => {
       // Arrange
       const { trigger, content, host, controller } = connected(true);

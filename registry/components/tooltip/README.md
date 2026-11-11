@@ -67,7 +67,7 @@ open/close delay); every `Tooltip` beneath it works.
 |---|---|---|---|
 | `tone` | `default` · `inverted` | `default` | Bubble colour treatment (see [Tone](#tone)). |
 | `size` | `sm` · `md` · `lg` · `xl` | `md` | Bubble size; `data-density` scales padding within each. |
-| `placement` | `top`/`right`/`bottom`/`left` (+ `-start`/`-end`) | `top` | Side + alignment; sets `position-area` and points the arrow. |
+| `placement` | `top`/`right`/`bottom`/`left` (+ `-start`/`-end`) | `top` | Side + alignment; sets `position-area` and points the arrow. A preference: with no room on that side the bubble flips, and the arrow follows it — the headless controller marks where it landed as `data-side` / `data-align`, which the stylesheet reads. |
 
 ## Animation
 

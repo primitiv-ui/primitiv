@@ -238,22 +238,19 @@ the real CLI (`scripts/install-elements-site.mjs` runs `init --styles` then
 **An anchored overlay with an arrow needs a flip test in the styled spec.**
 `position-try-fallbacks` flips the panel when its side has no room, but not an
 arrow set on a fixed edge, which is then left pointing away from the trigger —
-Tooltip and Popover both shipped that way, invisible to jsdom and to every
-pinned-open check. Scroll (or pin) the trigger against the edge, assert both the
-panel's side *and* which edge the arrow pokes from, on both axes. The fix is
-`container-type: anchored` on the panel and `@container anchored(fallback:
-flip-block | flip-inline)` rules that swap the arrow's insets (a container's own
-`::after` responds too). Two traps: the browser keeps the last fallback while it
-still fits, so getting back to the base placement takes a lack of room on the
-fallback side, not just room again; and a pseudo-element has no box, so find a
-`::after` arrow by `elementFromPoint` just past each edge.
+invisible to jsdom and to every pinned-open check. Scroll (or pin, then open)
+the trigger against the edge and assert both the panel's side *and* which edge
+the arrow pokes from, on both axes. The fix is the controller's: it measures
+where the panel landed with core's `panelPlacement` and writes `data-side` /
+`data-align` on it as it opens and on every scroll (captured, for overflow
+panes) and resize; the stylesheet keys the arrow off those. A pseudo-element
+arrow has no box, so find it by `elementFromPoint` just past each edge.
 
-**But do not ship `@container anchored(...)` in a registry stylesheet yet.** It
-works in Chromium, but lightningcss (Turbopack, Parcel, Vite's lightningcss
-mode) fails the whole build on `anchored(` — the docs site went red on it. The
-spaced `anchored (…)` parses but is a different query Chromium ignores. Run
-`pnpm --filter docs-site build` after any new CSS syntax; the Tooltip and
-Popover flip tests are `test.fixme` until there is a form both accept.
+**Do not reach for `@container anchored(...)` instead.** It works in Chromium,
+but lightningcss (Turbopack, Parcel, Vite's lightningcss mode) fails the whole
+build on `anchored(` — the docs site went red on it — and the spaced
+`anchored (…)` parses but is a different query Chromium ignores. Run the
+docs-site build after any new CSS syntax.
 
 ## 7. Docs site
 

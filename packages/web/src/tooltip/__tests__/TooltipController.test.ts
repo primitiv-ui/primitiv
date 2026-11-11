@@ -394,6 +394,20 @@ describe("TooltipController", () => {
       expect(content.getAttribute("data-side")).toBe("right");
     });
 
+    it("follows a scroll inside a scrolling container, which does not bubble to the window", () => {
+      // Arrange
+      const { content, controller } = placed();
+      const pane = document.body.appendChild(document.createElement("div"));
+      controller.sync();
+
+      // Act — the browser's scroll of an overflow pane, which jsdom cannot produce.
+      at(content, 80, 130, 100, 50);
+      pane.dispatchEvent(new Event("scroll"));
+
+      // Assert
+      expect(content.getAttribute("data-side")).toBe("bottom");
+    });
+
     it("stops following once closed, and once disconnected", () => {
       // Arrange
       const { host, content, controller } = placed();

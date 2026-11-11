@@ -210,13 +210,7 @@ test("the printed tooltip opens anchored above its trigger, arrow and all, with 
   await expect(bubble).toBeHidden();
 });
 
-// Fixme: the CSS that makes the arrow follow a flip — `container-type: anchored`
-// with `@container anchored(fallback: flip-block | flip-inline)` — works in
-// Chromium but lightningcss cannot parse `anchored(`, which breaks every
-// lightningcss build (Turbopack, Parcel, Vite in lightningcss mode), the docs
-// site's included. Restore these once that syntax builds, or the arrow is
-// flipped another way.
-test.fixme("the printed tooltip's arrow follows the bubble when it flips as the page scrolls", async ({ page }) => {
+test("the printed tooltip's arrow follows the bubble when it flips as the page scrolls", async ({ page }) => {
   // Room to scroll the trigger to the very top of the viewport and back.
   await page.evaluate(() => {
     document.body.style.paddingBlock = "100vh";
@@ -252,7 +246,7 @@ test.fixme("the printed tooltip's arrow follows the bubble when it flips as the 
   await expect.poll(sides).toEqual({ bubble: "above", arrow: "bottom edge" });
 });
 
-test.fixme("the printed tooltip's arrow follows the bubble when it flips across the inline axis", async ({ page }) => {
+test("the printed tooltip's arrow follows the bubble when it flips across the inline axis", async ({ page }) => {
   const trigger = page.getByRole("button", { name: "Save", exact: true }).last();
   const bubble = page.getByRole("tooltip", { name: "Saves your work" });
   const arrow = page.locator("primitiv-tooltip-arrow").last();
@@ -278,12 +272,17 @@ test.fixme("the printed tooltip's arrow follows the bubble when it flips across 
   await expect(bubble).toBeVisible();
   await expect.poll(sides).toEqual({ bubble: "right", arrow: "left edge" });
 
-  // No room to the right: the bubble flips to the left, and its arrow with it.
+  // No room to the right: opened there, the bubble flips to the left, and its
+  // arrow with it. (A move with the bubble open fires no scroll or resize, so
+  // it is measured as it opens; the scroll test covers a move while open.)
+  await trigger.blur();
   await pinTrigger("right");
+  await trigger.focus();
   await expect.poll(sides).toEqual({ bubble: "left", arrow: "right edge" });
 });
 
-test.fixme("the printed popover's arrow follows the panel when it flips as the page scrolls", async ({ page }) => {
+
+test("the printed popover's arrow follows the panel when it flips as the page scrolls", async ({ page }) => {
   await page.evaluate(() => {
     document.body.style.paddingBlock = "100vh";
   });
@@ -316,7 +315,7 @@ test.fixme("the printed popover's arrow follows the panel when it flips as the p
   await expect.poll(sides).toEqual({ panel: "above", arrow: "bottom edge" });
 });
 
-test.fixme("the printed popover's arrow follows the panel when it flips across the inline axis", async ({ page }) => {
+test("the printed popover's arrow follows the panel when it flips across the inline axis", async ({ page }) => {
   const trigger = page.getByRole("button", { name: "Edit profile", exact: true }).last();
   const panel = page.getByRole("dialog", { name: "Profile" });
   await page
@@ -342,8 +341,12 @@ test.fixme("the printed popover's arrow follows the panel when it flips across t
   await expect(panel).toBeVisible();
   await expect.poll(sides).toEqual({ panel: "right", arrow: "left edge" });
 
-  // No room to the right: the panel flips to the left, and its arrow with it.
+  // No room to the right: opened there, the panel flips to the left, and its
+  // arrow with it.
+  await trigger.click();
+  await expect(panel).toBeHidden();
   await pinTrigger("right");
+  await trigger.click();
   await expect.poll(sides).toEqual({ panel: "left", arrow: "right edge" });
 });
 

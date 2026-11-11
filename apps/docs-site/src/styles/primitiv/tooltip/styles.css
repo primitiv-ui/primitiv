@@ -291,6 +291,51 @@
   .primitiv-tooltip--right-end .primitiv-tooltip__arrow {
     inset-block-end: var(--primitiv-tooltip-padding-block);
   }
+
+  /* Where the panel actually landed, after any position-try-fallbacks flip: the
+     controller marks it data-side (the side of the anchor it is on) and
+     data-align (the third of its facing edge the anchor's centre is in), as it
+     opens and on every scroll and resize. These point the arrow at the anchor
+     from there, overriding the placement's default above; until the panel is
+     measured, the placement's arrow stands. */
+  .primitiv-tooltip[data-side] .primitiv-tooltip__arrow {
+    inset: auto;
+    translate: none;
+  }
+  .primitiv-tooltip[data-side="top"] .primitiv-tooltip__arrow {
+    bottom: calc(var(--primitiv-tooltip-arrow-size) / -2);
+  }
+  .primitiv-tooltip[data-side="bottom"] .primitiv-tooltip__arrow {
+    top: calc(var(--primitiv-tooltip-arrow-size) / -2);
+  }
+  .primitiv-tooltip[data-side="left"] .primitiv-tooltip__arrow {
+    right: calc(var(--primitiv-tooltip-arrow-size) / -2);
+  }
+  .primitiv-tooltip[data-side="right"] .primitiv-tooltip__arrow {
+    left: calc(var(--primitiv-tooltip-arrow-size) / -2);
+  }
+  .primitiv-tooltip[data-align="left"] .primitiv-tooltip__arrow {
+    left: var(--primitiv-tooltip-padding-inline);
+  }
+  .primitiv-tooltip[data-align="right"] .primitiv-tooltip__arrow {
+    right: var(--primitiv-tooltip-padding-inline);
+  }
+  .primitiv-tooltip[data-align="top"] .primitiv-tooltip__arrow {
+    top: var(--primitiv-tooltip-padding-block);
+  }
+  .primitiv-tooltip[data-align="bottom"] .primitiv-tooltip__arrow {
+    bottom: var(--primitiv-tooltip-padding-block);
+  }
+  .primitiv-tooltip[data-side="top"][data-align="center"] .primitiv-tooltip__arrow,
+  .primitiv-tooltip[data-side="bottom"][data-align="center"] .primitiv-tooltip__arrow {
+    left: 50%;
+    translate: -50% 0;
+  }
+  .primitiv-tooltip[data-side="left"][data-align="center"] .primitiv-tooltip__arrow,
+  .primitiv-tooltip[data-side="right"][data-align="center"] .primitiv-tooltip__arrow {
+    top: 50%;
+    translate: 0 -50%;
+  }
 }
 
 @layer primitiv.states {

@@ -517,6 +517,7 @@
     "api": [
       {
         "tag": "primitiv-combobox",
+        "description": "`<primitiv-combobox>` — an editable text field with a popup list of suggestions to choose from (WAI-ARIA APG combobox, list autocomplete).\n\nThe root owns the state: `value`, the committed item, and `open`, both reflected. The `<input>` inside `<primitiv-combobox-input>` keeps real focus throughout; `<primitiv-combobox-content>` is the list, a `popover=\"auto\"` panel in the top layer that closes on a press outside. Typing opens it and fires `primitiv-combobox-query-change`; ArrowDown opens it too. While it is open the arrows move a cursor over the shown, enabled items — published as `aria-activedescendant` on the field and `data-highlighted` on the item — Home and End jump, and Enter or a click commits: the value changes, the field shows the item's text and the list closes. Escape, or a press outside, closes and puts the committed text back. Emptying the field clears the value.\n\n**Filtering is yours.** The element shows every item it holds: on each `primitiv-combobox-query-change` (or the field's own `input` event) hide the items that do not match with `hidden`, or swap in new ones from a server. Hidden items are skipped by the cursor, and `<primitiv-combobox-empty>` shows while no item is.\n\nWith a `name` it keeps a hidden input inside itself, so the value — not the field's text — submits with a form, and a form reset restores the value it first rendered with.",
         "attributes": [
           {
             "name": "value",
@@ -554,16 +555,19 @@
       },
       {
         "tag": "primitiv-combobox-input",
+        "description": "`<primitiv-combobox-input>` — an interactive part: it decorates exactly one child you write, an `<input>`, which keeps real focus and gets `role=\"combobox\"`, `aria-autocomplete=\"list\"`, `aria-expanded`, `aria-controls` and `aria-activedescendant`. Name the input; consider `autocomplete=\"off\"` so the browser's own suggestions stay out of the way.",
         "attributes": [],
         "events": []
       },
       {
         "tag": "primitiv-combobox-content",
+        "description": "`<primitiv-combobox-content>` — a structural part: the list itself, `role=\"listbox\"` and `popover=\"auto\"`, shown in the top layer while the combobox is open. Shown with the root's child that holds the field as its source, so that box is its implicit CSS anchor.",
         "attributes": [],
         "events": []
       },
       {
         "tag": "primitiv-combobox-item",
+        "description": "`<primitiv-combobox-item>` — a structural part: one suggestion. The element is the option itself (`role=\"option\"`), with `aria-selected`, an `id` derived from the root's and its value, and `data-highlighted` while the cursor is on it. Style the cursor from `data-highlighted`, not `:focus`.",
         "attributes": [
           {
             "name": "value",
@@ -590,6 +594,7 @@
       },
       {
         "tag": "primitiv-combobox-empty",
+        "description": "`<primitiv-combobox-empty>` — a structural part: the no-results message, `role=\"presentation\"`, shown only while no item is.",
         "attributes": [],
         "events": []
       }

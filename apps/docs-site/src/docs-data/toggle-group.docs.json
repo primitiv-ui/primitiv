@@ -305,6 +305,7 @@
     "api": [
       {
         "tag": "primitiv-toggle-group",
+        "description": "`<primitiv-toggle-group>` — the state owner of a group of toggle buttons.\n\nThe root is the group: it takes `role=\"group\"`, so name it with `aria-label` or `aria-labelledby`. Only one item is in the page's Tab order at a time — the item focus last moved to, else the first pressed item, else the first — and the arrow keys move between items. The root reconciles its items' ARIA whenever an item arrives, leaves, or changes an attribute the root reads (the lifecycle is `PrimitivRootElement`'s). `type` is read live at each toggle, so a change to it needs no reconcile.",
         "attributes": [
           {
             "name": "value",
@@ -332,6 +333,7 @@
       },
       {
         "tag": "primitiv-toggle-group-item",
+        "description": "`<primitiv-toggle-group-item>` — an interactive part: one toggle. It decorates exactly one child the consumer writes, a `<button>`, which gets `aria-pressed`, `data-state=\"on\" | \"off\"` and the roving `tabindex`.",
         "attributes": [
           {
             "name": "value",

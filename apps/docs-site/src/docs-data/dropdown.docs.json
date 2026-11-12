@@ -839,6 +839,7 @@
     "api": [
       {
         "tag": "primitiv-dropdown",
+        "description": "`<primitiv-dropdown>` — the state owner of a dropdown menu (WAI-ARIA APG Menu Button): a trigger that opens a menu of items. The menu is a `popover=\"auto\"` in the top layer, shown with the trigger as its source, which makes the trigger its implicit anchor for CSS anchor positioning. Choosing an item — any item, a submenu's too — closes the menu and hands focus back to the trigger.\n\nThe root finds its own parts and reconciles their ARIA from its reflected state whenever a part arrives, leaves, or changes an attribute the root reads (the lifecycle is `PrimitivRootElement`'s).",
         "attributes": [
           {
             "name": "open",
@@ -871,6 +872,7 @@
       },
       {
         "tag": "primitiv-dropdown-sub",
+        "description": "`<primitiv-dropdown-sub>` — the state owner of a submenu, inside a dropdown's menu: a sub-trigger row that opens a nested menu on a click, a hover, or the arrow pointing away from its parent (ArrowRight, or ArrowLeft right to left), and closes it on the arrow back, or when the pointer moves to another row of the parent menu.",
         "attributes": [
           {
             "name": "open",
@@ -888,16 +890,19 @@
       },
       {
         "tag": "primitiv-dropdown-trigger",
+        "description": "`<primitiv-dropdown-trigger>` — an interactive part. It decorates exactly one child the consumer writes, a `<button>`, which toggles the menu and is its menu button (`aria-haspopup`, `aria-expanded`, `aria-controls`).",
         "attributes": [],
         "events": []
       },
       {
         "tag": "primitiv-dropdown-content",
+        "description": "`<primitiv-dropdown-content>` — the menu itself. Structural: the root gives it an id, `role=\"menu\"` and `popover=\"auto\"` (write it in your markup too, so it is hidden before the script loads).",
         "attributes": [],
         "events": []
       },
       {
         "tag": "primitiv-dropdown-item",
+        "description": "`<primitiv-dropdown-item>` — an interactive part: one item. It decorates exactly one child the consumer writes, an `<li>` (or a link), which gets `role=\"menuitem\"`, `tabindex=\"-1\"` and `data-highlighted` while the pointer is over it.",
         "attributes": [
           {
             "name": "disabled",
@@ -909,6 +914,7 @@
       },
       {
         "tag": "primitiv-dropdown-checkbox-item",
+        "description": "`<primitiv-dropdown-checkbox-item>` — an item that toggles. Its child gets `role=\"menuitemcheckbox\"` and `aria-checked`.",
         "attributes": [
           {
             "name": "checked",
@@ -925,6 +931,7 @@
       },
       {
         "tag": "primitiv-dropdown-radio-group",
+        "description": "`<primitiv-dropdown-radio-group>` — a group of radio items, one of which is checked. Structural: `role=\"group\"`.",
         "attributes": [
           {
             "name": "value",
@@ -936,6 +943,7 @@
       },
       {
         "tag": "primitiv-dropdown-radio-item",
+        "description": "`<primitiv-dropdown-radio-item>` — an item checked when its value is its group's. Its child gets `role=\"menuitemradio\"` and `aria-checked`.",
         "attributes": [
           {
             "name": "value",
@@ -952,6 +960,7 @@
       },
       {
         "tag": "primitiv-dropdown-item-indicator",
+        "description": "`<primitiv-dropdown-item-indicator>` — the check or dot inside a checkbox or radio item, `hidden` while unchecked. Structural: it gets `data-state`.",
         "attributes": [
           {
             "name": "force-mount",
@@ -963,21 +972,25 @@
       },
       {
         "tag": "primitiv-dropdown-group",
+        "description": "`<primitiv-dropdown-group>` — a labelled group of items. Structural: `role=\"group\"`, named by the label inside it.",
         "attributes": [],
         "events": []
       },
       {
         "tag": "primitiv-dropdown-label",
+        "description": "`<primitiv-dropdown-label>` — a group's label, not an item. Structural: the root gives it an id.",
         "attributes": [],
         "events": []
       },
       {
         "tag": "primitiv-dropdown-separator",
+        "description": "`<primitiv-dropdown-separator>` — a rule between items. Structural: `role=\"separator\"`.",
         "attributes": [],
         "events": []
       },
       {
         "tag": "primitiv-dropdown-sub-trigger",
+        "description": "`<primitiv-dropdown-sub-trigger>` — the row that opens a submenu. It decorates exactly one child, an `<li>`, which gets `role=\"menuitem\"` and the submenu's `aria-haspopup`, `aria-expanded` and `aria-controls`.",
         "attributes": [
           {
             "name": "disabled",
@@ -989,6 +1002,7 @@
       },
       {
         "tag": "primitiv-dropdown-sub-content",
+        "description": "`<primitiv-dropdown-sub-content>` — the submenu itself, inside the parent menu. Structural, as the content: an id, `role=\"menu\"`, `popover=\"auto\"`.",
         "attributes": [],
         "events": []
       }

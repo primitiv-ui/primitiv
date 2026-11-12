@@ -289,6 +289,8 @@ export type ComponentDocs = {
 /** One custom element's public API: what Elements mode's reference table lists. */
 export type DocsElementApi = {
   readonly tag: string;
+  /** What the element is and how it is used: its JSDoc prose, paragraphs kept. */
+  readonly description: string;
   readonly attributes: readonly { name: string; type: string; description: string }[];
   readonly events: readonly { name: string; type: string; description: string }[];
 };

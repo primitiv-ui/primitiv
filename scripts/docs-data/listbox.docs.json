@@ -556,6 +556,7 @@
     "api": [
       {
         "tag": "primitiv-listbox",
+        "description": "`<primitiv-listbox>` — a list of options the user chooses from, always visible (WAI-ARIA APG listbox).\n\nThe root is the listbox and the only tab stop: it takes `role=\"listbox\"` and `tabindex=\"0\"`, so name it with `aria-label` or `aria-labelledby`. Real focus never moves to an option. A cursor does instead, published as `aria-activedescendant` and as `data-highlighted` on the option: it lands on the first selected option (else the first) when the list takes focus, and is cleared when it loses it. The arrow keys move it — following `orientation`, mirrored under right-to-left — Home and End jump to the ends, Enter and Space choose the option under it, and typing jumps to the next option whose text starts with what was typed. In a `multiple` listbox, Shift+Arrow extends the selection, Ctrl/Cmd+A selects every option (or none once all are) and Ctrl/Cmd+Shift+Home/End selects through to that end. A click chooses an option too. Disabled options are skipped and never chosen.\n\nThe root reconciles its options' ARIA whenever an option arrives, leaves, or changes an attribute the root reads (the lifecycle is `PrimitivRootElement`'s). `selection-follows-focus` is read live at each key press.",
         "attributes": [
           {
             "name": "value",
@@ -588,6 +589,7 @@
       },
       {
         "tag": "primitiv-listbox-option",
+        "description": "`<primitiv-listbox-option>` — a structural part: one choice. The element is the option itself (`role=\"option\"`), with `aria-selected`, and an `id` derived from the root's and its value unless it already has one. Style the cursor from `data-highlighted`, not `:focus`: real focus stays on the root.",
         "attributes": [
           {
             "name": "value",
@@ -604,11 +606,13 @@
       },
       {
         "tag": "primitiv-listbox-group",
+        "description": "`<primitiv-listbox-group>` — a structural part: a named cluster of options, `role=\"group\"`. It is named by the `<primitiv-listbox-group-label>` inside it, through `aria-labelledby`; a group with no label part keeps whatever `aria-label` you write.",
         "attributes": [],
         "events": []
       },
       {
         "tag": "primitiv-listbox-group-label",
+        "description": "`<primitiv-listbox-group-label>` — a structural part: a group's visible heading. It is `role=\"presentation\"`, so it is not read as an option, and it keeps its own `id` or is given one for the group to point at.",
         "attributes": [],
         "events": []
       }

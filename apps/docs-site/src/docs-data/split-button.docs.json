@@ -410,6 +410,7 @@
     "api": [
       {
         "tag": "primitiv-split-button",
+        "description": "`<primitiv-split-button>` — one primary action welded to a menu of related alternatives (WAI-ARIA APG Button + Menu Button), bound into a single `role=\"group\"`. It holds two things the consumer writes: a `<primitiv-split-button-action>` around the action's `<button>`, and a `<primitiv-dropdown>` whose trigger is the chevron half and whose content is the menu — so the menu's whole behaviour, and its `open` state and events, are the dropdown's.\n\nWhat the group adds: ArrowDown on the action opens the menu (through the trigger, so the dropdown's change event still fires), `data-state` mirroring the menu, a `disabled` that disables both halves, and the trigger's accessible name — unless the trigger carries `aria-label` or `aria-labelledby`, it is named by its own content then the action's (`aria-labelledby=\"<trigger id> <action id>\"`), so a visually hidden \"More options\" reads as \"More options, Squash and merge\". Defining it defines the Dropdown elements too.",
         "attributes": [
           {
             "name": "disabled",
@@ -421,6 +422,7 @@
       },
       {
         "tag": "primitiv-split-button-action",
+        "description": "`<primitiv-split-button-action>` — an interactive part: the primary half. It decorates exactly one child the consumer writes, a `<button>` (or a link), which keeps its own click and gets `data-split-button-action`, an id if it has none, and ArrowDown to open the menu.",
         "attributes": [
           {
             "name": "disabled",

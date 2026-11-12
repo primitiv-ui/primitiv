@@ -355,6 +355,7 @@
     "api": [
       {
         "tag": "primitiv-radio-card",
+        "description": "`<primitiv-radio-card>` — the state owner of a group of radio cards: tiles whose whole surface picks one value, exactly one of which is selected.\n\nThe root is a radio group: it takes `role=\"radiogroup\"`, so name it with `aria-label` or `aria-labelledby`, and each card's `<button>` takes `role=\"radio\"`. Only the selected card is in the page's Tab order — the first enabled one while none is selected — and the arrow keys move focus and selection together, wrapping at the ends and skipping disabled cards. By default all four arrows work, since cards usually wrap into a grid. A selected card never lets go: clicking it again changes nothing.",
         "attributes": [
           {
             "name": "value",
@@ -377,6 +378,7 @@
       },
       {
         "tag": "primitiv-radio-card-item",
+        "description": "`<primitiv-radio-card-item>` — an interactive part: one card. It decorates exactly one child the consumer writes, a `<button>` holding the card's content, which gets `role=\"radio\"`, `aria-checked`, `data-state=\"checked\" | \"unchecked\"` and the roving `tabindex`.",
         "attributes": [
           {
             "name": "value",
@@ -393,6 +395,7 @@
       },
       {
         "tag": "primitiv-radio-card-indicator",
+        "description": "`<primitiv-radio-card-indicator>` — the card's selected mark, placed anywhere inside its `<button>`. Decorative (`aria-hidden`), with the card's `data-state`, and `hidden` while its card is unchecked unless it carries `force-mount`.",
         "attributes": [
           {
             "name": "force-mount",

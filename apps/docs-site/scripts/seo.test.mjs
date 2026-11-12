@@ -237,6 +237,91 @@ test("every component page has a Markdown mirror carrying its whole API", () => 
   }
 });
 
+/*
+ * The Elements surface (RFC 0033): an agent told to build with the custom
+ * elements, not React, must find in the mirror everything the page's Elements
+ * mode shows — how to install and load it, the markup, and every element with
+ * what it does and its attributes and events.
+ */
+// The derivation `primitiv add` makes (and `withoutClasses` in the site): a
+// span left bare unwraps with its own closing tag; one with an attribute stays.
+const withoutClasses = (markup) => {
+  const bare = [];
+  return markup
+    .replace(/ class="[^"]*"/g, "")
+    .split("\n")
+    .flatMap((line) => {
+      const unwrapped = line.replace(/<span>|<span\s[^>]*>|<\/span>/g, (tag) => {
+        if (tag === "</span>") return bare.pop() === true ? "" : tag;
+        bare.push(tag === "<span>");
+        return tag === "<span>" ? "" : tag;
+      });
+      return unwrapped.trim() || !line.trim() ? [unwrapped] : [];
+    })
+    .join("\n");
+};
+
+const elementsDocs = () =>
+  pages
+    .filter((path) => /^\/components\/[^/]+\/$/.test(path))
+    .map((path) => [path, JSON.parse(readFileSync(join(DOCS_DATA, `${path.split("/")[2]}.docs.json`), "utf8"))])
+    .filter(([, docs]) => docs.elements);
+
+test("every component with Elements carries them in its Markdown mirror", () => {
+  const all = elementsDocs();
+  assert.ok(all.length > 0);
+  for (const [path, docs] of all) {
+    const md = markdown(path);
+    const section = md.slice(md.indexOf("\n## Elements\n"));
+    assert.ok(md.includes("\n## Elements\n"), `${path}: Elements section`);
+    const { package: pkg, module, version, example, api } = docs.elements;
+    if (pkg) {
+      assert.ok(
+        section.includes(`<script type="module" src="https://cdn.jsdelivr.net/npm/${pkg}@${version}/dist/cdn/${module}.js"></script>`),
+        `${path}: CDN script`,
+      );
+      assert.ok(section.includes(`import "${pkg}/define/${module}";`), `${path}: bundler import`);
+    } else {
+      assert.match(section, /no script/i, `${path}: says no script is needed`);
+    }
+    assert.ok(section.includes(`npx primitiv-ui@latest add ${docs.id}`), `${path}: CLI`);
+    if (example) {
+      assert.ok(section.includes(example.trimEnd()), `${path}: styled markup`);
+      if (pkg) assert.ok(section.includes(withoutClasses(example).trimEnd()), `${path}: headless markup`);
+    }
+    for (const element of api) {
+      assert.ok(section.includes(`\n### \`<${element.tag}>\`\n`), `${path}: ${element.tag}`);
+      assert.ok(section.includes(element.description.split("\n")[0]), `${path}: ${element.tag} description`);
+      for (const row of [...element.attributes, ...element.events]) {
+        assert.ok(section.includes(`| \`${row.name}\` |`), `${path}: ${element.tag} ${row.name}`);
+      }
+    }
+  }
+});
+
+test("every headless Elements markup block opens and closes its spans in pairs", () => {
+  for (const [path] of elementsDocs()) {
+    const md = markdown(path);
+    const headless = md.split("Headless — the elements alone, no classes:\n\n```html\n")[1]?.split("\n```")[0];
+    if (!headless) continue;
+    const opens = (headless.match(/<span[\s>]/g) ?? []).length;
+    const closes = (headless.match(/<\/span>/g) ?? []).length;
+    assert.equal(opens, closes, `${path}: unbalanced <span> in the headless markup`);
+  }
+});
+
+test("llms-elements.txt holds every component's Elements, and no React, linked from llms.txt", () => {
+  const file = readFileSync(join(OUT, "llms-elements.txt"), "utf8");
+  for (const [path, docs] of elementsDocs()) {
+    const md = markdown(path);
+    assert.ok(file.includes(md.slice(md.indexOf("\n## Elements\n") + 1).trimEnd()), `${path}: Elements section`);
+  }
+  assert.doesNotMatch(file, /@primitiv-ui\/react|Combobox\.Root/);
+  const llms = readFileSync(join(OUT, "llms.txt"), "utf8");
+  assert.match(llms, new RegExp(`- \\[[^\\]]+\\]\\(${ORIGIN}/llms-elements\\.txt\\): \\S`));
+  assert.match(llms, /custom elements/i);
+});
+
 const CONTENT = JSON.parse(
   readFileSync(
     resolve(dirname(fileURLToPath(import.meta.url)), "../src/content/pages.generated.json"),

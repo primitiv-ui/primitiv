@@ -330,6 +330,7 @@
     "api": [
       {
         "tag": "primitiv-checkbox-card",
+        "description": "`<primitiv-checkbox-card>` — a card whose whole surface is one checkbox. It owns the state and decorates exactly one child the consumer writes, a `<button>` holding the card's content, which gets `role=\"checkbox\"`, `aria-checked` (`mixed` while indeterminate) and `data-state=\"checked\" | \"unchecked\" | \"indeterminate\"`. A click — or Space or Enter, the button's own click — toggles it, a mixed card becoming checked. Cards are independent: group several in a `<fieldset>` with a `<legend>`.",
         "attributes": [
           {
             "name": "checked",
@@ -352,6 +353,7 @@
       },
       {
         "tag": "primitiv-checkbox-card-indicator",
+        "description": "`<primitiv-checkbox-card-indicator>` — the card's check mark, placed anywhere inside its `<button>`. Decorative (`aria-hidden`), with the card's `data-state`, and `hidden` while the card is unchecked unless it carries `force-mount`.",
         "attributes": [
           {
             "name": "force-mount",

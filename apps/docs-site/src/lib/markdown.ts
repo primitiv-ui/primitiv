@@ -7,6 +7,7 @@ import {
   type DocsSubComponent,
 } from "./docs-data";
 import { humanName } from "./human-name";
+import { withoutClasses } from "./playground";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "./site";
 
 /*
@@ -94,6 +95,89 @@ const part = (sub: DocsSubComponent): string => {
     .join("\n\n");
 };
 
+/** The address the CDN serves an Elements module at, pinned to one version. */
+const cdnScript = (pkg: string, version: string | null, module: string): string =>
+  `<script type="module" src="https://cdn.jsdelivr.net/npm/${pkg}@${version ?? "latest"}/dist/cdn/${module}.js"></script>`;
+
+const fenced = (language: string, body: string): string => `\`\`\`${language}\n${body.trimEnd()}\n\`\`\``;
+
+/**
+ * A component's Elements surface (RFC 0033) as Markdown: how to install and
+ * load it, the markup — headless, then styled — and every element with what it
+ * does and its attributes and events. Everything here comes from the registry
+ * block and the elements' own JSDoc, the sources the page's Elements mode reads.
+ */
+export const elementsMarkdown = (docs: ComponentDocs): string => {
+  const elements = docs.elements;
+  if (!elements) return "";
+  const name = humanName(docs.displayName);
+  const { package: pkg, module, version, example, api } = elements;
+  const borrowed = module !== docs.id;
+
+  const intro = pkg
+    ? `${name} is also a set of standard custom elements from \`${pkg}\`: no framework and no build step, ` +
+      "so it works in any page a server renders. The element adds the behaviour and the accessibility; " +
+      "the state lives in reflected attributes, so server-rendered markup is adopted as it is, and changes " +
+      "are announced as bubbling DOM events." +
+      (borrowed ? ` It uses the \`${module}\` elements, so it loads the \`${module}\` module.` : "")
+    : `${name} needs no script and no package in a page without React: the markup and the registry classes are the whole component.`;
+
+  const install = [
+    "### Install",
+    "The `primitiv` CLI copies the stylesheet and prints the markup to paste. It needs Node only to run, not in your project: a project with no `package.json` works, and a Maven or Gradle project's static folder is detected.",
+    fenced(
+      "sh",
+      [
+        "# once per project: writes primitiv.json and the token layer (--styles copies stylesheets too)",
+        "npx primitiv-ui@latest init --styles",
+        `npx primitiv-ui@latest add ${docs.id}`,
+      ].join("\n"),
+    ),
+    "Without `--styles` the elements are headless: no classes, and no stylesheet copied.",
+  ];
+
+  const load = pkg
+    ? [
+        "### Load",
+        "The module defines the elements when it loads, and only this component's. With no build step, add the script to the page:",
+        fenced("html", cdnScript(pkg, version, module)),
+        `With a bundler, \`npm i ${pkg}\` and import it once:`,
+        fenced("js", `import "${pkg}/define/${module}";`),
+      ]
+    : [];
+
+  const markup = example
+    ? pkg
+      ? [
+          "### Markup",
+          "Headless — the elements alone, no classes:",
+          fenced("html", withoutClasses(example)),
+          "Styled — the same markup with the registry classes, as `primitiv add` prints it:",
+          fenced("html", example),
+        ]
+      : ["### Markup", fenced("html", example)]
+    : [];
+
+  const parts = api.flatMap((element) => [
+    `### \`<${element.tag}>\``,
+    resolveLinks(element.description),
+    element.attributes.length
+      ? `Attributes:\n\n${table(
+          ["Attribute", "Type", "Description"],
+          element.attributes.map((a) => [code(a.name), code(a.type), cell(a.description)]),
+        )}`
+      : "",
+    element.events.length
+      ? `Events:\n\n${table(
+          ["Event", "Type", "Description"],
+          element.events.map((e) => [code(e.name), code(e.type), cell(e.description)]),
+        )}`
+      : "",
+  ]);
+
+  return ["## Elements", intro, ...install, ...load, ...markup, ...parts].filter(Boolean).join("\n\n");
+};
+
 /** A component page's Markdown: description, installation, then the API. */
 export const componentMarkdown = (docs: ComponentDocs): string => {
   const name = humanName(docs.displayName);
@@ -106,6 +190,11 @@ export const componentMarkdown = (docs: ComponentDocs): string => {
     `# ${name}`,
     resolveLinks(docs.description),
     `Documentation: ${SITE_URL}/components/${docs.id}/`,
+    ...(docs.elements
+      ? [
+          "Two surfaces: React (Installation and API below) and standard custom elements for any server-rendered page (the Elements section at the end).",
+        ]
+      : []),
     "## Installation",
     // The CLI is the `primitiv-ui` package; a bare `npx primitiv` would fetch an
     // unrelated package called `primitiv`.
@@ -123,6 +212,7 @@ export const componentMarkdown = (docs: ComponentDocs): string => {
           ),
         ]
       : []),
+    ...(docs.elements ? [elementsMarkdown(docs)] : []),
   ].join("\n\n").concat("\n");
 };
 
@@ -213,6 +303,10 @@ export const llmsIndex = (): string =>
       "as source files you own, by the `primitiv` CLI: `npm i -D primitiv-ui`, then " +
       "`npx primitiv add <component>`. Every link below is the Markdown version of a " +
       "docs page.",
+    "For a page a server renders, with no React, the components also ship as standard " +
+      "custom elements (`@primitiv-ui/web`): loaded by a script tag, styled by the same " +
+      `classes. Everything about them is in one file: ${SITE_URL}/llms-elements.txt — ` +
+      "each component page's Markdown also ends with its Elements section.",
     // Content ledes are one or two sentences and read as a unit; component
     // descriptions run long, so those are cut to their first sentence.
     "## Docs",
@@ -232,6 +326,7 @@ export const llmsIndex = (): string =>
     }),
     "## Optional",
     `- [Everything above in one file](${SITE_URL}/llms-full.txt): every page's Markdown, concatenated, for loading the whole site at once.`,
+    `- [The custom elements in one file](${SITE_URL}/llms-elements.txt): only the Elements — how to install and load them, then every component's markup, elements, attributes and events — for a project with no React.`,
   ]
     .join("\n\n")
     .concat("\n");
@@ -252,3 +347,51 @@ export const llmsFull = (): string =>
 /** A Markdown route's response, typed so a browser shows it as text. */
 export const markdownResponse = (body: string): Response =>
   new Response(body, { headers: { "Content-Type": "text/markdown; charset=utf-8" } });
+
+/**
+ * `/llms-elements.txt` — the custom elements alone, for an agent building a page
+ * a server renders, with no React: how they work, then every component that has
+ * them — its description, its Elements section verbatim from the mirror, and
+ * the custom properties that restyle it. Nothing React-specific, so the file is
+ * small enough to load whole.
+ */
+export const llmsElements = (): string =>
+  [
+    [
+      `# ${SITE_NAME} — custom elements`,
+      "> Primitiv's components as standard custom elements: behaviour and accessibility from a script tag, styling from plain CSS classes, in any page a server renders.",
+      [
+        "How they work, for every component below:",
+        "",
+        "- **Install with the CLI**, which needs Node only to run: `npx primitiv-ui@latest init --styles` once per project (it writes `primitiv.json` and the token layer, and asks where static files are served from — a Maven or Gradle project is detected), then `npx primitiv-ui@latest add <component>` for each component. `add` copies the stylesheet and prints the `<script>` and `<link>` lines and the markup to paste. Without `--styles` the elements are headless.",
+        "- **Load** a component with its one `<script type=\"module\">` from the CDN (each component's section names it), or `import \"@primitiv-ui/web/define/<component>\"` with a bundler. Components marked \"no script\" are markup and classes only.",
+        "- **Write the markup the server renders.** An element adopts server-rendered markup as it is and writes only the ARIA it owns. Parts that arrive later, leave, or move (a fragment swapped in) are picked up with no script call.",
+        "- **State lives in reflected attributes** (`value`, `open` …), so a server re-render or a history snapshot sees the user's choice. Set an attribute or property to change it from code.",
+        "- **Changes are announced as bubbling events** named `primitiv-<component>-<what>`, with the new state in `event.detail`. A user-driven change fires before it applies and is cancelable: `preventDefault()` vetoes it.",
+        "- **Interactive parts decorate the element you write** — a `<button>`, `<a href>` or `<input>` inside the part — so links and native form controls keep working. A component with a `name` submits its value with its form.",
+      ].join("\n"),
+      `Every page's full documentation, React included: ${SITE_URL}/llms.txt`,
+    ].join("\n\n"),
+    ...CATEGORY_ORDER.flatMap((category) =>
+      ALL_DOCS.filter((d) => d.category === category && d.elements).map((docs) =>
+        [
+          `# ${humanName(docs.displayName)}`,
+          resolveLinks(docs.description),
+          `Documentation: ${SITE_URL}/components/${docs.id}/`,
+          elementsMarkdown(docs),
+          ...(docs.styled.customProperties.length
+            ? [
+                "### CSS custom properties",
+                `Set these on ${code(`.${docs.styled.rootClass}`)} (or an ancestor) to restyle the styled component.`,
+                table(
+                  ["Property", "Default"],
+                  docs.styled.customProperties.map((p) => [code(p.name), code(p.defaultsTo)]),
+                ),
+              ]
+            : []),
+        ].join("\n\n"),
+      ),
+    ),
+  ]
+    .join("\n\n---\n\n")
+    .concat("\n");

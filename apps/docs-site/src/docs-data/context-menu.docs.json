@@ -857,6 +857,7 @@
     "api": [
       {
         "tag": "primitiv-context-menu",
+        "description": "`<primitiv-context-menu>` — the state owner of a context menu (WAI-ARIA APG Menu): a region that opens a menu at the pointer on a right-click, or on the keyboard's context-menu key. The menu is a `popover=\"manual\"` in the top layer — a right-click's own release would light-dismiss an `auto` one — so the root closes it on Escape, a press outside and a chosen item, and closes its submenus with it.\n\nIt publishes the pointer's position on the menu as the custom properties `--primitiv-context-menu-x` / `-y`, the one style the elements write (RFC 0033 D25): a point cannot be an anchor, so a stylesheet places the menu by them.",
         "attributes": [
           {
             "name": "open",
@@ -889,6 +890,7 @@
       },
       {
         "tag": "primitiv-context-menu-sub",
+        "description": "`<primitiv-context-menu-sub>` — the state owner of a submenu, inside a context menu: a sub-trigger row that opens a nested menu on a click, a hover, or the arrow pointing away from its parent (ArrowRight, or ArrowLeft right to left), and closes it on the arrow back, when the pointer moves to another row of the parent menu, or when the context menu closes.",
         "attributes": [
           {
             "name": "open",
@@ -906,6 +908,7 @@
       },
       {
         "tag": "primitiv-context-menu-trigger",
+        "description": "`<primitiv-context-menu-trigger>` — the region a right-click opens the menu in. Structural: it is the region itself, and gets `data-state` (or `data-disabled`).",
         "attributes": [
           {
             "name": "disabled",
@@ -917,11 +920,13 @@
       },
       {
         "tag": "primitiv-context-menu-content",
+        "description": "`<primitiv-context-menu-content>` — the menu itself. Structural: the root gives it an id, `role=\"menu\"`, `popover=\"manual\"` (write it in your markup too, so it is hidden before the script loads), `data-state`, and the pointer's position as `--primitiv-context-menu-x` / `-y` for a stylesheet to place it by.",
         "attributes": [],
         "events": []
       },
       {
         "tag": "primitiv-context-menu-item",
+        "description": "`<primitiv-context-menu-item>` — an interactive part: one item. It decorates exactly one child the consumer writes, an `<li>` (or a link), which gets `role=\"menuitem\"`, `tabindex=\"-1\"` and `data-highlighted` while the pointer is over it.",
         "attributes": [
           {
             "name": "disabled",
@@ -933,6 +938,7 @@
       },
       {
         "tag": "primitiv-context-menu-checkbox-item",
+        "description": "`<primitiv-context-menu-checkbox-item>` — an item that toggles. Its child gets `role=\"menuitemcheckbox\"` and `aria-checked`.",
         "attributes": [
           {
             "name": "checked",
@@ -949,6 +955,7 @@
       },
       {
         "tag": "primitiv-context-menu-radio-group",
+        "description": "`<primitiv-context-menu-radio-group>` — a group of radio items, one of which is checked. Structural: `role=\"group\"`.",
         "attributes": [
           {
             "name": "value",
@@ -960,6 +967,7 @@
       },
       {
         "tag": "primitiv-context-menu-radio-item",
+        "description": "`<primitiv-context-menu-radio-item>` — an item checked when its value is its group's. Its child gets `role=\"menuitemradio\"` and `aria-checked`.",
         "attributes": [
           {
             "name": "value",
@@ -976,6 +984,7 @@
       },
       {
         "tag": "primitiv-context-menu-item-indicator",
+        "description": "`<primitiv-context-menu-item-indicator>` — the check or dot inside a checkbox or radio item, `hidden` while unchecked. Structural: it gets `data-state`.",
         "attributes": [
           {
             "name": "force-mount",
@@ -987,21 +996,25 @@
       },
       {
         "tag": "primitiv-context-menu-group",
+        "description": "`<primitiv-context-menu-group>` — a labelled group of items. Structural: `role=\"group\"`, named by the label inside it.",
         "attributes": [],
         "events": []
       },
       {
         "tag": "primitiv-context-menu-label",
+        "description": "`<primitiv-context-menu-label>` — a group's label, not an item. Structural: the root gives it an id.",
         "attributes": [],
         "events": []
       },
       {
         "tag": "primitiv-context-menu-separator",
+        "description": "`<primitiv-context-menu-separator>` — a rule between items. Structural: `role=\"separator\"`.",
         "attributes": [],
         "events": []
       },
       {
         "tag": "primitiv-context-menu-sub-trigger",
+        "description": "`<primitiv-context-menu-sub-trigger>` — the row that opens a submenu. It decorates exactly one child, an `<li>`, which gets `role=\"menuitem\"` and the submenu's `aria-haspopup`, `aria-expanded` and `aria-controls`.",
         "attributes": [
           {
             "name": "disabled",
@@ -1013,6 +1026,7 @@
       },
       {
         "tag": "primitiv-context-menu-sub-content",
+        "description": "`<primitiv-context-menu-sub-content>` — the submenu itself, inside the parent menu. Structural, as the content: an id, `role=\"menu\"`, `popover=\"auto\"`.",
         "attributes": [],
         "events": []
       }

@@ -377,6 +377,7 @@
     "api": [
       {
         "tag": "primitiv-slider",
+        "description": "`<primitiv-slider>` — the state owner of a slider: one or more thumbs along a track, each picking a value between `min` and `max` in `step`s.\n\nEach `<primitiv-slider-thumb>` is itself the `role=\"slider\"`: give it an `aria-label` (or `aria-labelledby`). Every thumb is in the Tab order. The arrows step by one `step`, Page Up / Page Down by ten, Home / End jump to the ends; a press on the slider jumps the nearest thumb there and drags it until release. A thumb never passes its neighbours.\n\n**Positions are written inline**, as React's Slider does: each thumb and the range get `position: absolute` and their inset along the track as a percentage — the one style the elements write, since it is the value itself (RFC 0033 D25). Style everything else from the attributes.",
         "attributes": [
           {
             "name": "value",
@@ -439,16 +440,19 @@
       },
       {
         "tag": "primitiv-slider-track",
+        "description": "`<primitiv-slider-track>` — a structural part: the bar the range fills.",
         "attributes": [],
         "events": []
       },
       {
         "tag": "primitiv-slider-range",
+        "description": "`<primitiv-slider-range>` — a structural part: the filled stretch of the track, from its start edge to a single thumb or between the outermost of several. Positioned inline from the values.",
         "attributes": [],
         "events": []
       },
       {
         "tag": "primitiv-slider-thumb",
+        "description": "`<primitiv-slider-thumb>` — a handle, and itself the `role=\"slider\"`: it gets `aria-valuenow`, `aria-valuemin`, `aria-valuemax`, `aria-orientation`, the Tab stop and its inline position. Its value is the root's value at the thumb's position in document order. Name each with `aria-label`.",
         "attributes": [],
         "events": []
       }

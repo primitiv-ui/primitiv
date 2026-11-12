@@ -415,6 +415,7 @@
     "api": [
       {
         "tag": "primitiv-accordion",
+        "description": "`<primitiv-accordion>` — the state owner of a WAI-ARIA accordion.\n\nThe root finds its own items, so an accordion nested in a panel keeps its own, and reconciles every part's ARIA from its reflected state whenever a part arrives, leaves, or changes an attribute the root reads (the lifecycle is `PrimitivRootElement`'s). `multiple` is read live at each toggle, so a change to it needs no reconcile.\n\nEach trigger sits in a heading you write (`<h3>`, at the level the page's outline needs): a real heading element is the header, so there is no element for it.",
         "attributes": [
           {
             "name": "value",
@@ -442,6 +443,7 @@
       },
       {
         "tag": "primitiv-accordion-item",
+        "description": "`<primitiv-accordion-item>` — one collapsible section. Structural: it pairs a trigger and a panel and carries the value the root's `value` lists.",
         "attributes": [
           {
             "name": "value",
@@ -453,6 +455,7 @@
       },
       {
         "tag": "primitiv-accordion-trigger",
+        "description": "`<primitiv-accordion-trigger>` — an interactive part. It decorates exactly one child the consumer writes, a `<button>`, which receives `aria-expanded`, `aria-controls` and the state attributes, so the rendered DOM matches React's `<button aria-expanded>` (RFC 0033 D24). Put it inside a heading.",
         "attributes": [
           {
             "name": "disabled",
@@ -464,6 +467,7 @@
       },
       {
         "tag": "primitiv-accordion-content",
+        "description": "`<primitiv-accordion-content>` — an item's panel. Structural: the root writes its ARIA and hides it while the item is closed.",
         "attributes": [
           {
             "name": "force-mount",
@@ -481,6 +485,7 @@
       },
       {
         "tag": "primitiv-accordion-trigger-icon",
+        "description": "`<primitiv-accordion-trigger-icon>` — a decorative indicator inside the trigger's button. The root hides it from assistive technology and mirrors its item's `data-state`, for a chevron that flips.",
         "attributes": [],
         "events": []
       }

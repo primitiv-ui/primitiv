@@ -329,6 +329,7 @@
     "api": [
       {
         "tag": "primitiv-tooltip-provider",
+        "description": "`<primitiv-tooltip-provider>` — optional. The tooltips inside it share one skip-delay window and its default delay, as inside React's `Tooltip.Provider`; tooltips outside any provider share a document-wide one.",
         "attributes": [
           {
             "name": "delay-duration",
@@ -345,6 +346,7 @@
       },
       {
         "tag": "primitiv-tooltip",
+        "description": "`<primitiv-tooltip>` — the state owner of a tooltip: a short description of its trigger that appears on hover after a delay, and at once on focus. It closes when the pointer leaves (after a moment, so it can be reached), on blur, on Escape and on a press outside. Moving from one trigger to the next opens each next tooltip at once (the skip delay). The tooltip is shown as a `popover=\"manual\"` in the top layer, with the trigger as its source, which makes the trigger its implicit anchor for CSS anchor positioning.\n\nThe root finds its own parts and reconciles their ARIA from its reflected state whenever a part arrives, leaves, or changes an attribute the root reads (the lifecycle is `PrimitivRootElement`'s).",
         "attributes": [
           {
             "name": "open",
@@ -372,16 +374,19 @@
       },
       {
         "tag": "primitiv-tooltip-trigger",
+        "description": "`<primitiv-tooltip-trigger>` — an interactive part. It decorates exactly one child the consumer writes, a `<button>`, which opens the tooltip on hover and focus and is described by it (`aria-describedby`), so the rendered DOM matches React's (RFC 0033 D24).",
         "attributes": [],
         "events": []
       },
       {
         "tag": "primitiv-tooltip-content",
+        "description": "`<primitiv-tooltip-content>` — the tooltip itself. Structural: the root gives it an id, `role=\"tooltip\"`, `popover=\"manual\"` (write it in your markup too, so it is hidden before the script loads) and `data-state`.",
         "attributes": [],
         "events": []
       },
       {
         "tag": "primitiv-tooltip-arrow",
+        "description": "`<primitiv-tooltip-arrow>` — an optional, decorative pointer, inside the content. The element writes nothing on it; style it as you like.",
         "attributes": [],
         "events": []
       }

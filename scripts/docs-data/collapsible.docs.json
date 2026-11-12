@@ -446,6 +446,7 @@
     "api": [
       {
         "tag": "primitiv-collapsible",
+        "description": "`<primitiv-collapsible>` — the state owner of a single disclosure: a trigger that shows and hides one panel.\n\nThe root finds its own parts, so a collapsible nested in a panel keeps its own, and reconciles their ARIA from its reflected state whenever a part arrives, leaves, or changes an attribute the root reads (the lifecycle is `PrimitivRootElement`'s).",
         "attributes": [
           {
             "name": "open",
@@ -468,11 +469,13 @@
       },
       {
         "tag": "primitiv-collapsible-trigger",
+        "description": "`<primitiv-collapsible-trigger>` — an interactive part. It decorates exactly one child the consumer writes, a `<button>`, which receives `aria-expanded`, `aria-controls` and the state attributes, so the rendered DOM matches React's `<button aria-expanded>` (RFC 0033 D24).",
         "attributes": [],
         "events": []
       },
       {
         "tag": "primitiv-collapsible-content",
+        "description": "`<primitiv-collapsible-content>` — the panel. Structural: the root writes its id and state and hides it while closed.",
         "attributes": [
           {
             "name": "force-mount",
@@ -495,6 +498,7 @@
       },
       {
         "tag": "primitiv-collapsible-trigger-icon",
+        "description": "`<primitiv-collapsible-trigger-icon>` — a decorative indicator, usually inside the trigger's button. The root hides it from assistive technology and mirrors the `data-state`, for a chevron that flips.",
         "attributes": [],
         "events": []
       }

@@ -369,6 +369,7 @@
     "api": [
       {
         "tag": "primitiv-popover",
+        "description": "`<primitiv-popover>` — the state owner of a non-modal popover: a trigger that opens a floating panel, built on the native Popover API. The browser puts the panel in the top layer and light-dismisses it; the element adds the rest of the WAI-ARIA non-modal dialog pattern — focus moves into the panel as it opens, Escape closes it and hands focus back to the trigger, and the trigger's `aria-expanded` follows it.\n\nThe panel is shown with its trigger (or the anchor) as its source, which makes that element the panel's implicit anchor, so CSS anchor positioning (`position-area`) places it with no `anchor-name` to wire.\n\nThe root finds its own parts, so a popover nested in a panel keeps its own, and reconciles their ARIA from its reflected state whenever a part arrives, leaves, or changes an attribute the root reads (the lifecycle is `PrimitivRootElement`'s).",
         "attributes": [
           {
             "name": "open",
@@ -386,31 +387,37 @@
       },
       {
         "tag": "primitiv-popover-trigger",
+        "description": "`<primitiv-popover-trigger>` — an interactive part. It decorates exactly one child the consumer writes, a `<button>`, which toggles the panel and receives `aria-haspopup=\"dialog\"`, `aria-expanded` and `aria-controls`, so the rendered DOM matches React's (RFC 0033 D24).",
         "attributes": [],
         "events": []
       },
       {
         "tag": "primitiv-popover-anchor",
+        "description": "`<primitiv-popover-anchor>` — optional. It decorates exactly one element the consumer writes, which the panel is anchored to in place of the trigger: a field, say, whose trigger is an icon inside it.",
         "attributes": [],
         "events": []
       },
       {
         "tag": "primitiv-popover-content",
+        "description": "`<primitiv-popover-content>` — the panel. Structural: the root gives it an id, `role=\"dialog\"`, `popover=\"auto\"` (write it in your markup too, so the panel is hidden before the script loads), `tabindex=\"-1\"`, `data-state`, and `aria-labelledby` / `aria-describedby` pointing at the title and description.",
         "attributes": [],
         "events": []
       },
       {
         "tag": "primitiv-popover-title",
+        "description": "`<primitiv-popover-title>` — decorates exactly one heading the consumer writes, whose id becomes the panel's `aria-labelledby`.",
         "attributes": [],
         "events": []
       },
       {
         "tag": "primitiv-popover-description",
+        "description": "`<primitiv-popover-description>` — decorates exactly one element the consumer writes (a `<p>`, usually), whose id becomes the panel's `aria-describedby`.",
         "attributes": [],
         "events": []
       },
       {
         "tag": "primitiv-popover-close",
+        "description": "`<primitiv-popover-close>` — an interactive part. It decorates exactly one `<button>` the consumer writes, which closes the panel. A popover may have several.",
         "attributes": [],
         "events": []
       }

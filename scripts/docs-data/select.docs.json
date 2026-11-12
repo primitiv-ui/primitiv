@@ -734,6 +734,7 @@
     "api": [
       {
         "tag": "primitiv-select",
+        "description": "`<primitiv-select>` — a value chosen from a list that opens from a trigger (WAI-ARIA APG select-only combobox, as a button and a listbox).\n\nThe root owns the state: `value`, the chosen item, and `open`, both reflected. The `<button>` inside `<primitiv-select-trigger>` opens and closes the list; `<primitiv-select-content>` is the list, a `popover=\"auto\"` panel in the top layer that closes on a press outside or Escape. Opening focuses the selected item (else the first); the arrows, Home and End move, typing jumps to the item it starts, and Enter, Space or a click chooses — which closes the list and hands focus back to the trigger.\n\nWith a `name` it takes part in forms like a native select: it keeps a visually hidden `<select>` inside itself, so the value submits, `required` validates and `disabled` leaves it out, and a form reset restores the value it first rendered with.",
         "attributes": [
           {
             "name": "value",
@@ -776,11 +777,13 @@
       },
       {
         "tag": "primitiv-select-trigger",
+        "description": "`<primitiv-select-trigger>` — an interactive part: it decorates exactly one child you write, a `<button>`, which opens and closes the list and gets `aria-haspopup=\"listbox\"`, `aria-expanded` and `aria-controls`. Put a `<primitiv-select-value>` inside the button to show the choice.",
         "attributes": [],
         "events": []
       },
       {
         "tag": "primitiv-select-value",
+        "description": "`<primitiv-select-value>` — a structural part: shows a copy of the chosen item's content (its indicator left out), or the `placeholder` with `data-placeholder` set while nothing is chosen.",
         "attributes": [
           {
             "name": "placeholder",
@@ -792,11 +795,13 @@
       },
       {
         "tag": "primitiv-select-content",
+        "description": "`<primitiv-select-content>` — a structural part: the list itself, `role=\"listbox\"` and `popover=\"auto\"`, shown in the top layer while the select is open.",
         "attributes": [],
         "events": []
       },
       {
         "tag": "primitiv-select-item",
+        "description": "`<primitiv-select-item>` — a structural part: one choice. The element is the option itself (`role=\"option\"`), with `aria-selected` and `data-state=\"checked\" | \"unchecked\"`, focused as the arrows move.",
         "attributes": [
           {
             "name": "value",
@@ -813,6 +818,7 @@
       },
       {
         "tag": "primitiv-select-item-indicator",
+        "description": "`<primitiv-select-item-indicator>` — a structural part: a mark inside an item, `hidden` unless that item is chosen, with `data-state`. Left out of the value part's copy.",
         "attributes": [
           {
             "name": "force-mount",
@@ -824,6 +830,7 @@
       },
       {
         "tag": "primitiv-select-group",
+        "description": "`<primitiv-select-group>` — a structural part: a named cluster of items, `role=\"group\"`.",
         "attributes": [
           {
             "name": "label",
@@ -835,6 +842,7 @@
       },
       {
         "tag": "primitiv-select-separator",
+        "description": "`<primitiv-select-separator>` — a structural part: a divider between items, `role=\"separator\"`.",
         "attributes": [],
         "events": []
       }

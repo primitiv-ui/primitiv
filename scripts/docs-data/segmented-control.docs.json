@@ -326,6 +326,7 @@
     "api": [
       {
         "tag": "primitiv-segmented-control",
+        "description": "`<primitiv-segmented-control>` — the state owner of a segmented control: a linear strip of segments of which exactly one is selected.\n\nThe root is a radio group: it takes `role=\"radiogroup\"`, so name it with `aria-label` or `aria-labelledby`, and each segment's `<button>` takes `role=\"radio\"`. Only the selected segment is in the page's Tab order — the first enabled one while none is selected — and the arrow keys move focus and selection together, wrapping at the ends and skipping disabled segments. A selected segment never lets go: clicking it again changes nothing. The root reconciles its segments' ARIA whenever a segment arrives, leaves, or changes an attribute the root reads (the lifecycle is `PrimitivRootElement`'s).",
         "attributes": [
           {
             "name": "value",
@@ -353,6 +354,7 @@
       },
       {
         "tag": "primitiv-segmented-control-item",
+        "description": "`<primitiv-segmented-control-item>` — an interactive part: one segment. It decorates exactly one child the consumer writes, a `<button>`, which gets `role=\"radio\"`, `aria-checked`, `data-state=\"checked\" | \"unchecked\"` and the roving `tabindex`.",
         "attributes": [
           {
             "name": "value",

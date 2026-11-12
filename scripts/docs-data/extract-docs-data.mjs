@@ -587,8 +587,22 @@ function elementsApi(module) {
           .map((line) => line.match(tag))
           .filter((m) => m && m[1] === kind)
           .map(([, , type, rowName, description]) => ({ name: rowName, type, description: description.trim() }));
+      // The prose above the first tag: what the element is and how it is used,
+      // already written in the Elements reader's terms. Paragraphs are kept.
+      const prose = [];
+      for (const line of lines) {
+        const text = line.replace(/^\s*\*\s?/, "");
+        if (text.startsWith("@")) break;
+        prose.push(text.trimEnd());
+      }
       return {
         tag: body.match(/@customElement\s+(\S+)/)[1],
+        description: prose
+          .join("\n")
+          .trim()
+          .split(/\n\s*\n/)
+          .map((paragraph) => paragraph.replace(/\s*\n\s*/g, " "))
+          .join("\n\n"),
         attributes: rows("attr"),
         events: rows("fires"),
       };

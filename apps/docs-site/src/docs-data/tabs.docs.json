@@ -429,6 +429,7 @@
     "api": [
       {
         "tag": "primitiv-tabs",
+        "description": "`<primitiv-tabs>` — the state owner of a WAI-ARIA tab set.\n\nThe root finds its own parts, so a tab set nested in a panel keeps its own, and reconciles their ARIA from its reflected state whenever a part arrives, leaves, or changes an attribute the root reads (the lifecycle is `PrimitivRootElement`'s). `activation-mode` is read live at each key press, so a change to it needs no reconcile.",
         "attributes": [
           {
             "name": "value",
@@ -456,6 +457,7 @@
       },
       {
         "tag": "primitiv-tabs-list",
+        "description": "`<primitiv-tabs-list>` — the tablist. Structural: the root writes its ARIA.",
         "attributes": [
           {
             "name": "label",
@@ -467,6 +469,7 @@
       },
       {
         "tag": "primitiv-tabs-trigger",
+        "description": "`<primitiv-tabs-trigger>` — an interactive part. It decorates exactly one child the consumer writes (a `<button>`, an `<a href>`, a router link), which receives the tab role, so the rendered DOM matches React's `<button role=\"tab\">` (RFC 0033 D24).",
         "attributes": [
           {
             "name": "value",
@@ -483,6 +486,7 @@
       },
       {
         "tag": "primitiv-tabs-content",
+        "description": "`<primitiv-tabs-content>` — a tab panel. Structural: the root writes its ARIA.",
         "attributes": [
           {
             "name": "value",

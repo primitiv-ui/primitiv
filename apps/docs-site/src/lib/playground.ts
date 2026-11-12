@@ -473,15 +473,26 @@ export const mergeImports = (code: string): string => {
  * same derivation `primitiv add --surface elements` makes from the registry's
  * styled example, so the page and the CLI print the same thing.
  */
-export const withoutClasses = (markup: string): string =>
-  markup
-    .replace(/ class="[^"]*"/g, "")
-    .split("\n")
-    // A wrapper that stood on a line of its own (Modal's header, body and
-    // footer) leaves that line blank once unwrapped: drop it, keeping the
-    // blank lines the styled markup already had — as the CLI does.
-    .flatMap((line) => {
-      const unwrapped = line.replace(/<\/?span>/g, "");
-      return unwrapped.trim() || !line.trim() ? [unwrapped] : [];
-    })
-    .join("\n");
+export const withoutClasses = (markup: string): string => {
+  // Only a span left bare unwraps, and only ITS closing tag goes with it: a
+  // span that keeps an attribute (`aria-hidden`) keeps both of its tags, or
+  // the markup would be left with an unclosed span swallowing what follows.
+  const bare: boolean[] = [];
+  return (
+    markup
+      .replace(/ class="[^"]*"/g, "")
+      .split("\n")
+      // A wrapper that stood on a line of its own (Modal's header, body and
+      // footer) leaves that line blank once unwrapped: drop it, keeping the
+      // blank lines the styled markup already had — as the CLI does.
+      .flatMap((line) => {
+        const unwrapped = line.replace(/<span>|<span\s[^>]*>|<\/span>/g, (tag) => {
+          if (tag === "</span>") return bare.pop() === true ? "" : tag;
+          bare.push(tag === "<span>");
+          return tag === "<span>" ? "" : tag;
+        });
+        return unwrapped.trim() || !line.trim() ? [unwrapped] : [];
+      })
+      .join("\n")
+  );
+};

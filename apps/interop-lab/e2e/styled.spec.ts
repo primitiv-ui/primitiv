@@ -187,7 +187,7 @@ test("add tooltip printed the per-component script for its first release", () =>
 });
 
 test("the printed tooltip opens anchored above its trigger, arrow and all, with no anchor-name wired", async ({ page }) => {
-  const trigger = page.getByRole("button", { name: "Save", exact: true }).last();
+  const trigger = page.locator("primitiv-tooltip-trigger").getByRole("button", { name: "Save", exact: true }).last();
   await trigger.focus();
   const bubble = page.getByRole("tooltip", { name: "Saves your work" });
   await expect(bubble).toBeVisible();
@@ -215,7 +215,7 @@ test("the printed tooltip's arrow follows the bubble when it flips as the page s
   await page.evaluate(() => {
     document.body.style.paddingBlock = "100vh";
   });
-  const trigger = page.getByRole("button", { name: "Save", exact: true }).last();
+  const trigger = page.locator("primitiv-tooltip-trigger").getByRole("button", { name: "Save", exact: true }).last();
   const bubble = page.getByRole("tooltip", { name: "Saves your work" });
   const arrow = page.locator("primitiv-tooltip-arrow").last();
   const scrollTriggerTo = (top: number) =>
@@ -247,7 +247,7 @@ test("the printed tooltip's arrow follows the bubble when it flips as the page s
 });
 
 test("the printed tooltip's arrow follows the bubble when it flips across the inline axis", async ({ page }) => {
-  const trigger = page.getByRole("button", { name: "Save", exact: true }).last();
+  const trigger = page.locator("primitiv-tooltip-trigger").getByRole("button", { name: "Save", exact: true }).last();
   const bubble = page.getByRole("tooltip", { name: "Saves your work" });
   const arrow = page.locator("primitiv-tooltip-arrow").last();
   // A right placement, and a trigger pinned where it can be moved to either edge.
@@ -566,6 +566,43 @@ test("the printed breadcrumb overflow opens a styled menu of the hidden crumbs, 
   const [t, m] = await Promise.all([trigger.boundingBox(), menu.boundingBox()]);
   expect(m!.y).toBeGreaterThanOrEqual(t!.y + t!.height - 1);
   expect(Math.abs(m!.x - t!.x)).toBeLessThan(24);
+  await page.keyboard.press("Escape");
+  await expect(menu).toBeHidden();
+  await expect(trigger).toBeFocused();
+});
+
+test("add split-button prints its own script, which defines the Dropdown its menu is made of", () => {
+  const output = readFileSync("styled-site/add-split-button-output.txt", "utf8");
+  expect(output).toMatch(/@primitiv-ui\/web@[\d.]+\/dist\/cdn\/split-button\.js/);
+});
+
+test("the printed split button welds two halves and opens a styled menu under the group, as wide as it", async ({ page }) => {
+  const group = page.locator("primitiv-split-button");
+  // Room below for the menu, so it takes its bottom-start placement rather
+  // than the fallback above.
+  await page.evaluate(() => {
+    document.body.style.paddingBlockEnd = "100vh";
+  });
+  await group.evaluate((el) => window.scrollBy(0, el.getBoundingClientRect().top - 40));
+  const action = group.getByRole("button", { name: "Save", exact: true });
+  const trigger = group.getByRole("button", { name: "Change save action" });
+  const [a, t] = await Promise.all([action.boundingBox(), trigger.boundingBox()]);
+  // The weld: one row, the same height, the trigger overlapping by one border.
+  expect(Math.abs(a!.y - t!.y)).toBeLessThan(1);
+  expect(Math.abs(a!.height - t!.height)).toBeLessThan(1);
+  expect(Math.abs(t!.x - (a!.x + a!.width))).toBeLessThanOrEqual(1);
+  await action.focus();
+  await page.keyboard.press("ArrowDown");
+  const menu = group.getByRole("menu");
+  await expect(menu).toBeVisible();
+  await expect(menu.getByRole("menuitem", { name: "Save", exact: true })).toBeFocused();
+  // The menu scales in from 0.97: measure once it has settled.
+  await menu.evaluate((el) => Promise.all(el.getAnimations().map((animation) => animation.finished)));
+  const [g, m] = await Promise.all([group.boundingBox(), menu.boundingBox()]);
+  // Anchored to the group, not the trigger: leading edges aligned, at least as wide.
+  expect(m!.y).toBeGreaterThanOrEqual(g!.y + g!.height - 1);
+  expect(Math.abs(m!.x - g!.x)).toBeLessThan(2);
+  expect(m!.width).toBeGreaterThanOrEqual(g!.width - 1);
   await page.keyboard.press("Escape");
   await expect(menu).toBeHidden();
   await expect(trigger).toBeFocused();

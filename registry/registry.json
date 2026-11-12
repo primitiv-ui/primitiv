@@ -1465,7 +1465,22 @@
           ]
         }
       },
-      "contract": "contract.json"
+      "contract": "contract.json",
+      "elements": {
+        "packages": [
+          {
+            "name": "@primitiv-ui/web",
+            "version": "^0.2.1"
+          }
+        ],
+        "example": "listbox.html",
+        "omits": [
+          "option-indicator",
+          "option-leading",
+          "option-trailing",
+          "empty"
+        ]
+      }
     },
     "miller-columns": {
       "version": "0.1.0",

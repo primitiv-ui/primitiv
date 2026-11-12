@@ -17,6 +17,7 @@ import { segmentedControlHtml } from "./segmented-control-fixture.ts";
 import { sliderHtml } from "./slider-fixture.ts";
 import { toggleGroupHtml } from "./toggle-group-fixture.ts";
 import { listboxHtml } from "./listbox-fixture.ts";
+import { selectHtml } from "./select-fixture.ts";
 
 let lazyLoads = 0;
 let echoes = 0;
@@ -36,6 +37,7 @@ let checkboxCardEchoes = 0;
 let splitButtonEchoes = 0;
 let sliderEchoes = 0;
 let listboxEchoes = 0;
+let selectEchoes = 0;
 
 export const fragments: Record<string, string | ((url: string) => string)> = {
   // Case 1: a whole tab set arrives in a fragment.
@@ -242,4 +244,15 @@ export const fragments: Record<string, string | ((url: string) => string)> = {
   "listbox-echo": (url: string) =>
     `<span data-testid="echo">server saw ${new URL(url, "http://lab").searchParams.get("value")} (${++listboxEchoes})</span>`,
   "listbox-rtl": `<div dir="rtl">${listboxHtml({ value: "", orientation: "horizontal" }, "rtl")}</div>`,
+  // The Select page's cases (select-htmx.html), named to match.
+  select: selectHtml({ value: "banana" }, "swapped"),
+  "select-oob-item":
+    '<div hx-swap-oob="beforeend:#oob primitiv-select-content">' +
+    '<primitiv-select-item value="date" style="display: block">Date</primitiv-select-item></div>',
+  "select-oob-value": `<div hx-swap-oob="outerHTML:#rerendered">${selectHtml({ value: "cherry" }, "rerendered")}</div>`,
+  "select-preserve": `<div id="preserve-region"><p>Swapped region</p>${selectHtml({}, "preserved").replace("<primitiv-select ", '<primitiv-select hx-preserve="true" ')}</div>`,
+  "select-echo": (url: string) =>
+    `<span data-testid="echo">server saw ${new URL(url, "http://lab").searchParams.get("value")} (${++selectEchoes})</span>`,
+  "select-include": (url: string) =>
+    `<span data-testid="included">server saw ${new URL(url, "http://lab").searchParams.get("fruit")}</span>`,
 };

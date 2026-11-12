@@ -628,3 +628,32 @@ test("the printed listbox is a styled column whose selected option shows its mar
   await expect(listbox).toHaveAttribute("value", "apple banana");
   await expect(banana).toHaveAttribute("aria-selected", "true");
 });
+
+test("add select printed the per-component script for its first release", () => {
+  const output = readFileSync("styled-site/add-select-output.txt", "utf8");
+  expect(output).toMatch(/@primitiv-ui\/web@[\d.]+\/dist\/cdn\/select\.js/);
+});
+
+test("the printed select opens its list anchored under the trigger, and chooses", async ({ page }) => {
+  const trigger = page.getByRole("button", { name: "Fruit", exact: true });
+  await expect(trigger).toHaveText("Apple");
+  // The select ends the page: give the list room below so it keeps its default
+  // placement rather than flipping above (which position-try-fallbacks does).
+  await page.setViewportSize({ width: 1280, height: 2000 });
+  await trigger.evaluate((el) => el.scrollIntoView({ block: "center" }));
+  await trigger.click();
+  const list = page.locator("primitiv-select-content");
+  await expect(list).toBeVisible();
+  // The list scales in as it opens: measure where it settles, not mid-animation.
+  await list.evaluate((el) => Promise.all(el.getAnimations().map((animation) => animation.finished)));
+  const [t, l] = await Promise.all([trigger.boundingBox(), list.boundingBox()]);
+  // Below the trigger, hugging its inline-start edge, at least as wide.
+  expect(l!.y).toBeGreaterThanOrEqual(t!.y + t!.height - 1);
+  expect(Math.abs(l!.x - t!.x)).toBeLessThan(2);
+  expect(l!.width).toBeGreaterThanOrEqual(t!.width - 1);
+  // Only the chosen item's indicator shows.
+  await expect(list.locator("primitiv-select-item-indicator:visible")).toHaveCount(1);
+  await list.getByRole("option", { name: "Carrot" }).click();
+  await expect(trigger).toHaveText("Carrot");
+  await expect(list).toBeHidden();
+});

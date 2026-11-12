@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+  <head><meta charset="utf-8" /><link rel="icon" href="data:," /><title>Interop lab — Select, HTMX</title></head>
+  <body hx-history-elt>
+    <!-- 1. Full fragment swap -->
+    <section>
+      <button type="button" id="load-select" hx-get="/fragments/select" hx-target="#slot-1">Load select</button>
+      <div id="slot-1"></div>
+    </section>
+
+    <!-- 2. An out-of-band item -->
+    <section id="oob-region"></section>
+    <button type="button" id="load-oob" hx-get="/fragments/select-oob-item" hx-swap="none">Add an item</button>
+
+    <!-- 3. Server re-render with a new value -->
+    <section id="rerender-region"></section>
+    <button type="button" id="load-value" hx-get="/fragments/select-oob-value" hx-swap="none">Choose cherry</button>
+
+    <!-- 4. hx-preserve -->
+    <div id="preserve-region"></div>
+    <button type="button" id="swap-preserve" hx-get="/fragments/select-preserve" hx-target="#preserve-region" hx-swap="outerHTML">Swap region</button>
+
+    <!-- 5. History -->
+    <section id="history-region"></section>
+    <a id="go-two" href="/page-two" hx-get="/fragments/page-two" hx-target="#history-target" hx-push-url="/select-page-two">Go to page two</a>
+    <div id="history-target"></div>
+
+    <!-- 6. hx-trigger on the change event, and a veto -->
+    <section id="echo-region"></section>
+    <div id="echo-target"></div>
+
+    <!-- 7. hx-include reads the value through the hidden native select -->
+    <section id="include-region"></section>
+    <button type="button" id="send-include" hx-get="/fragments/select-include" hx-include="#include-region" hx-target="#include-target">Send</button>
+    <div id="include-target"></div>
+
+    <script type="module" src="/src/select-htmx.ts"></script>
+  </body>
+</html>

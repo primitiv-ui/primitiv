@@ -564,3 +564,30 @@ test("the Split Button previews are <primitiv-split-button> elements, and a chos
   await expect(example.getByRole("button", { name: "Save as draft", exact: true })).toBeVisible();
   await expect(example.locator("primitiv-split-button")).toHaveAttribute("data-state", "closed");
 });
+
+test("the Listbox previews are <primitiv-listbox> elements, and the readout follows the change", async ({ page }) => {
+  await page.goto("/components/listbox/");
+  await expect(page.getByText(/dist\/cdn\/listbox\.js/).first()).toBeVisible();
+  const example = cell(page, "multiple");
+  const list = example.locator("primitiv-listbox");
+  // The definition loads on demand: wait for the element to have wired its options.
+  await expect(example.getByRole("option", { name: "Paris" })).toHaveAttribute("aria-selected", "true");
+  // Styled even under Headless (the default), as React mode's preview is.
+  await expect(list).toHaveAttribute("class", /primitiv-listbox/);
+  await example.getByRole("option", { name: "Berlin" }).click();
+  await expect(list).toHaveAttribute("value", "ams par ber");
+  await expect(example.locator("[data-selected-cities]")).toHaveText("ams, par, ber");
+});
+
+test("the Listbox search example filters the list and drives it from the input", async ({ page }) => {
+  await page.goto("/components/listbox/");
+  const example = cell(page, "search-driven");
+  const input = example.getByRole("searchbox", { name: "Search cities" });
+  await expect(example.getByRole("option", { name: "Rome" })).toHaveAttribute("aria-selected", "false");
+  await input.fill("ro");
+  await expect(example.getByRole("option")).toHaveCount(1);
+  await input.press("ArrowDown");
+  await input.press("Enter");
+  await expect(example.locator("primitiv-listbox")).toHaveAttribute("value", "rom");
+  await expect(input).toBeFocused();
+});

@@ -546,5 +546,72 @@
   "figma": {
     "componentSetKey": "1569:4829"
   },
-  "elements": null
+  "elements": {
+    "package": "@primitiv-ui/web",
+    "module": "listbox",
+    "version": "0.2.1",
+    "element": "div",
+    "wrapText": false,
+    "example": "<primitiv-listbox type=\"multiple\" value=\"apple\" aria-label=\"Produce\" class=\"primitiv-listbox primitiv-listbox--md\">\n  <primitiv-listbox-group class=\"primitiv-listbox__group\">\n    <primitiv-listbox-group-label class=\"primitiv-listbox__group-label\">Fruit</primitiv-listbox-group-label>\n    <primitiv-listbox-option value=\"apple\" class=\"primitiv-listbox__option\">\n      <span class=\"primitiv-listbox__option-checkbox\"></span>\n      <span class=\"primitiv-listbox__option-label\">Apple</span>\n    </primitiv-listbox-option>\n    <primitiv-listbox-option value=\"banana\" class=\"primitiv-listbox__option\">\n      <span class=\"primitiv-listbox__option-checkbox\"></span>\n      <span class=\"primitiv-listbox__option-label\">Banana</span>\n    </primitiv-listbox-option>\n  </primitiv-listbox-group>\n  <primitiv-listbox-group class=\"primitiv-listbox__group\">\n    <primitiv-listbox-group-label class=\"primitiv-listbox__group-label\">Vegetables</primitiv-listbox-group-label>\n    <primitiv-listbox-option value=\"carrot\" class=\"primitiv-listbox__option\">\n      <span class=\"primitiv-listbox__option-checkbox\"></span>\n      <span class=\"primitiv-listbox__option-label\">Carrot</span>\n    </primitiv-listbox-option>\n  </primitiv-listbox-group>\n</primitiv-listbox>\n",
+    "api": [
+      {
+        "tag": "primitiv-listbox",
+        "attributes": [
+          {
+            "name": "value",
+            "type": "string",
+            "description": "The selected options' values, separated by spaces. Reflected: it changes as the user chooses, so a server re-render or a history snapshot sees the selection. Option values therefore cannot contain whitespace."
+          },
+          {
+            "name": "type",
+            "type": "\"single\" | \"multiple\"",
+            "description": "`single` keeps one option selected — choosing another replaces it, and choosing it again keeps it; `multiple` lets options toggle independently and turns on range selection. Defaults to `single`."
+          },
+          {
+            "name": "orientation",
+            "type": "\"horizontal\" | \"vertical\"",
+            "description": "Layout axis, which picks the arrow-key pair. Defaults to `vertical`."
+          },
+          {
+            "name": "selection-follows-focus",
+            "type": "boolean",
+            "description": "Moving the cursor with the arrows, Home, End or typeahead also selects the option it lands on. A click is unaffected."
+          }
+        ],
+        "events": [
+          {
+            "name": "primitiv-listbox-change",
+            "type": "CustomEvent<{ value: string[] }>",
+            "description": "Bubbles, cancelable, fired before a user-driven selection change is applied, with every option selected afterwards. Call `preventDefault()` to veto it."
+          }
+        ]
+      },
+      {
+        "tag": "primitiv-listbox-option",
+        "attributes": [
+          {
+            "name": "value",
+            "type": "string",
+            "description": "The option's value, listed in the root's `value` while it is selected. No whitespace."
+          },
+          {
+            "name": "disabled",
+            "type": "boolean",
+            "description": "Skipped by the cursor and typeahead, and never chosen (`aria-disabled` and `data-disabled`)."
+          }
+        ],
+        "events": []
+      },
+      {
+        "tag": "primitiv-listbox-group",
+        "attributes": [],
+        "events": []
+      },
+      {
+        "tag": "primitiv-listbox-group-label",
+        "attributes": [],
+        "events": []
+      }
+    ]
+  }
 }

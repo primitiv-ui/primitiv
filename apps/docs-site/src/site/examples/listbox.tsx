@@ -18,9 +18,10 @@ import {
   ListboxOptionLeading,
   ListboxOptionTrailing,
 } from "@/components/listbox";
-import { contractAttr, importBlock, partNamer } from "@/lib/playground";
+import { contractAttr, importBlock, indent, partNamer } from "@/lib/playground";
 import { InteractiveExample } from "@/site/InteractiveExample";
 import type { Mode } from "@/site/preferences";
+import { glyph, withGlyphs } from "./glyphs";
 import type { ComponentSpec } from "./types";
 
 type Size = "xs" | "sm" | "md" | "lg" | "xl";
@@ -107,6 +108,126 @@ const MultiExample = () => {
 };
 
 /**
+ * One option as Elements markup (RFC 0033): the `<primitiv-listbox-option>` is
+ * the option itself, and the mark and label spans are the styled surface's,
+ * which the headless tab drops with the classes. The single-select checkmark is
+ * a glyph placeholder the preview fills in (`withGlyphs`); the multi-select
+ * checkbox is drawn in CSS, so it needs none.
+ */
+const elementsOption = (
+  value: string,
+  label: string,
+  { mark = "indicator", indent = "  " }: { mark?: "indicator" | "checkbox" | "none"; indent?: string } = {},
+) => [
+  `${indent}<primitiv-listbox-option value="${value}" class="primitiv-listbox__option">`,
+  ...(mark === "checkbox"
+    ? [`${indent}  <span class="primitiv-listbox__option-checkbox"></span>`]
+    : mark === "indicator"
+      ? [`${indent}  <span class="primitiv-listbox__option-indicator">${glyph("check")}</span>`]
+      : []),
+  `${indent}  <span class="primitiv-listbox__option-label">${label}</span>`,
+  `${indent}</primitiv-listbox-option>`,
+];
+
+/**
+ * One listbox as Elements markup, in the shape `primitiv add listbox` prints:
+ * the root is the listbox — name it with `aria-label` — and `value` lists the
+ * selected options separated by spaces.
+ */
+const elementsList = ({
+  type = "single",
+  value = "",
+  label = "Cities",
+  size = "md",
+  body,
+}: {
+  type?: "single" | "multiple";
+  value?: string;
+  label?: string;
+  size?: string;
+  body: readonly string[];
+}) =>
+  [
+    `<primitiv-listbox${type === "multiple" ? ' type="multiple"' : ""}${value ? ` value="${value}"` : ""} aria-label="${label}" class="primitiv-listbox primitiv-listbox--${size}">`,
+    ...body,
+    `</primitiv-listbox>`,
+  ].join("\n");
+
+/** Every city as an Elements option. */
+const elementsCities = (mark: "indicator" | "checkbox" = "indicator") =>
+  CITIES.flatMap((c) => elementsOption(c.id, c.label, { mark }));
+
+/** The multi-select example's Elements preview: a readout above the list, as the React preview has. */
+const elementsReadout = (list: string, initial: string) =>
+  [
+    `<div class="docs-example-stack" style="inline-size: 100%">`,
+    `  <p class="docs-prop-description">Selected: <span data-selected-cities>${initial}</span></p>`,
+    indent(list),
+    `</div>`,
+  ].join("\n");
+
+/** Follows `primitiv-listbox-change` into the readout, as the code tab's listener does. */
+const wireReadout = (root: HTMLElement) => {
+  const list = root.querySelector("primitiv-listbox");
+  const readout = root.querySelector("[data-selected-cities]");
+  if (!list || !readout) return;
+  const onChange = (event: Event) => {
+    const value = (event as CustomEvent<{ value: string[] }>).detail.value;
+    readout.textContent = value.length > 0 ? value.join(", ") : "nothing";
+  };
+  list.addEventListener("primitiv-listbox-change", onChange);
+  return () => list.removeEventListener("primitiv-listbox-change", onChange);
+};
+
+/** The search-driven example as Elements markup: an input, the listbox it drives, and the script between them. */
+const elementsSearch = () =>
+  [
+    `<input type="search" aria-label="Search cities" placeholder="Search cities" class="primitiv-input primitiv-input--md">`,
+    elementsList({ label: "City results", body: elementsCities() }),
+    ``,
+    `<script type="module">`,
+    `  const input = document.querySelector('input[type="search"]');`,
+    `  const list = document.querySelector("primitiv-listbox");`,
+    `  const options = [...list.querySelectorAll("primitiv-listbox-option")];`,
+    `  // Filter by taking options out of the list, not hiding them: a hidden option`,
+    `  // would still be navigable, and the list picks up the change on its own.`,
+    `  input.addEventListener("input", () => {`,
+    `    const query = input.value.trim().toLowerCase();`,
+    `    list.replaceChildren(...options.filter((o) => o.textContent.toLowerCase().includes(query)));`,
+    `  });`,
+    `  // Focus stays in the input: forward the list's keys to it.`,
+    `  input.addEventListener("keydown", (event) => {`,
+    `    if (!["ArrowDown", "ArrowUp", "Home", "End", "Enter"].includes(event.key)) return;`,
+    `    list.dispatchEvent(new KeyboardEvent("keydown", { key: event.key, bubbles: true, cancelable: true }));`,
+    `    event.preventDefault();`,
+    `  });`,
+    `</script>`,
+  ].join("\n");
+
+/** The same script, scoped to the preview (scripts in injected markup never run). */
+const wireSearch = (root: HTMLElement) => {
+  const input = root.querySelector<HTMLInputElement>('input[type="search"]');
+  const list = root.querySelector("primitiv-listbox");
+  if (!input || !list) return;
+  const options = [...list.querySelectorAll("primitiv-listbox-option")];
+  const onInput = () => {
+    const query = input.value.trim().toLowerCase();
+    list.replaceChildren(...options.filter((o) => (o.textContent ?? "").toLowerCase().includes(query)));
+  };
+  const onKeydown = (event: KeyboardEvent) => {
+    if (!["ArrowDown", "ArrowUp", "Home", "End", "Enter"].includes(event.key)) return;
+    list.dispatchEvent(new KeyboardEvent("keydown", { key: event.key, bubbles: true, cancelable: true }));
+    event.preventDefault();
+  };
+  input.addEventListener("input", onInput);
+  input.addEventListener("keydown", onKeydown);
+  return () => {
+    input.removeEventListener("input", onInput);
+    input.removeEventListener("keydown", onKeydown);
+  };
+};
+
+/**
  * The search-driven example — the composition Listbox exists for. Focus stays
  * in the input; the list shows the cursor with no ring near it, and the input
  * forwards the navigation keys to the frame (which owns the keymap only while
@@ -177,6 +298,7 @@ export const listboxSpec: ComponentSpec = {
   playground: {
     component: "Listbox",
     snippet: (values, mode) => {
+      if (mode === "elements") return elementsList({ value: "ams", size: values.size, body: elementsCities() });
       const p = partNamer(mode, "Listbox");
       return [
         imports(mode, ["Option", "OptionIndicator", "OptionLabel"], ["Check"]),
@@ -188,6 +310,7 @@ export const listboxSpec: ComponentSpec = {
       ].join("\n");
     },
     fill: true,
+    elementsPreview: (code) => withGlyphs(code),
     render: (values) => (
       <div style={{ inlineSize: "100%" }}>
         <Listbox
@@ -269,7 +392,10 @@ export const listboxSpec: ComponentSpec = {
       render: () => (
         <InteractiveExample
           caption={"`type=\"single\"` selects at most one option; `defaultValue` seeds it (or `value` + `onValueChange` to control it). Each row is composed — a `Listbox.OptionIndicator` holding your own checkmark glyph, revealed by CSS on the selected row, beside a `Listbox.OptionLabel`. Click a row, or focus the list and use the arrow keys."}
+          elementsCaption={"Without `type`, a listbox is single: one option selected, and `value` names it. Each row is composed — an indicator span holding your own checkmark glyph, revealed by CSS on the selected row, beside a label span. Click a row, or Tab to the list and use the arrow keys: the cursor moves, and Enter or Space chooses. In headless markup the glyph is yours to style: show it only on `[aria-selected=\"true\"]`, as the registry stylesheet does."}
+          elementsPreview={(_density, code) => withGlyphs(code)}
           code={(_density, mode) => {
+            if (mode === "elements") return elementsList({ value: "ams", body: elementsCities() });
             const p = partNamer(mode, "Listbox");
             return [
               imports(mode, ["Option", "OptionIndicator", "OptionLabel"], ["Check"]),
@@ -297,8 +423,24 @@ export const listboxSpec: ComponentSpec = {
       title: "Multiple select",
       render: () => (
         <InteractiveExample
+          elementsCaption={"`type=\"multiple\"` toggles options independently, and `value` lists them separated by spaces. Listen for `primitiv-listbox-change`: its `detail.value` is every option selected afterwards, always an array, and `preventDefault()` vetoes it. The mark is the checkbox span, drawn in CSS and filled when the row is selected; it holds no glyph, so the headless markup loses nothing with it."}
+          elementsPreview={() =>
+            elementsReadout(elementsList({ type: "multiple", value: "ams par", body: elementsCities("checkbox") }), "ams, par")
+          }
+          wire={wireReadout}
           caption={"`type=\"multiple\"` toggles options independently — `value` is a string array. Swap the mark for `Listbox.OptionCheckbox`, a checkbox drawn in CSS and filled when the row is selected (single-select uses a checkmark, multi a checkbox, deliberately). It is presentational and `aria-hidden`: the row's own `aria-selected` carries the state, so there is no second focusable control inside a row."}
           code={(_density, mode) => {
+            if (mode === "elements")
+              return [
+                elementsList({ type: "multiple", value: "ams par", body: elementsCities("checkbox") }),
+                ``,
+                `<script type="module">`,
+                `  const list = document.querySelector("primitiv-listbox");`,
+                `  list.addEventListener("primitiv-listbox-change", (event) => {`,
+                `    console.log(event.detail.value); // every selected option; preventDefault() vetoes it`,
+                `  });`,
+                `</script>`,
+              ].join("\n");
             const p = partNamer(mode, "Listbox");
             return [
               imports(mode, ["Option", "OptionCheckbox", "OptionLabel"]),
@@ -323,7 +465,21 @@ export const listboxSpec: ComponentSpec = {
       render: () => (
         <InteractiveExample
           caption={"`Listbox.Group` clusters options under a `Listbox.GroupLabel` — a visible heading that names the group (`role=\"group\"` + `aria-labelledby`) and sticks to the top while its options scroll past."}
+          elementsCaption={"`<primitiv-listbox-group>` clusters options under a `<primitiv-listbox-group-label>` — a visible heading the group is named by (`role=\"group\"` + `aria-labelledby`, wired for you) that sticks to the top while its options scroll past. The arrows and typeahead still run through every option as one list."}
+          elementsPreview={(_density, code) => withGlyphs(code)}
           code={(_density, mode) => {
+            if (mode === "elements") {
+              const group = (heading: string, ids: readonly string[]) => [
+                `  <primitiv-listbox-group class="primitiv-listbox__group">`,
+                `    <primitiv-listbox-group-label class="primitiv-listbox__group-label">${heading}</primitiv-listbox-group-label>`,
+                ...ids.flatMap((id) => elementsOption(id, CITIES.find((c) => c.id === id)!.label, { indent: "    " })),
+                `  </primitiv-listbox-group>`,
+              ];
+              return elementsList({
+                value: "ams",
+                body: [...group("Western Europe", ["ams", "ber", "lon"]), ...group("Southern Europe", ["mad", "par", "rom"])],
+              });
+            }
             const p = partNamer(mode, "Listbox");
             return [
               imports(mode, ["Group", "GroupLabel", "Option", "OptionIndicator", "OptionLabel"], ["Check"]),
@@ -387,8 +543,12 @@ export const listboxSpec: ComponentSpec = {
       title: "Driven by a search input",
       render: () => (
         <InteractiveExample
+          elementsCaption={"The composition this component exists for. Because the cursor is virtual focus (`aria-activedescendant`), real focus can stay in a separate control — here a search input — while it drives the list. Forward the input's arrow keys, Home, End and Enter to the listbox yourself (it handles keys only while it has focus), and filter by taking options out of the list rather than hiding them, since a hidden option is still navigable. Type to filter, then arrow through the results without leaving the field."}
+          elementsPreview={() => elementsSearch().slice(0, elementsSearch().indexOf("\n\n<script"))}
+          wire={wireSearch}
           caption={"The composition this component exists for. Because the cursor is virtual focus (`aria-activedescendant`), DOM focus can stay in a separate control — here a search input — while it drives the list. Forward the input's arrow/Enter keys to the frame yourself (the primitive owns the keymap only while the frame has focus), and render `Listbox.Empty` when nothing matches. Type to filter, then arrow through the results without leaving the field."}
           code={(_density, mode) => {
+            if (mode === "elements") return elementsSearch();
             const p = partNamer(mode, "Listbox");
             return [
               imports(mode, ["Option", "OptionIndicator", "OptionLabel", "Empty"], ["Check"]),
@@ -428,8 +588,26 @@ export const listboxSpec: ComponentSpec = {
       title: "Rich rows",
       render: () => (
         <InteractiveExample
+          elementsCaption="A row can carry more than a label. A leading span holds a glyph after the mark column, and a trailing span a shortcut or badge pinned to the inline-end edge — the command-palette row. The label span takes the free space between them and truncates. Typeahead matches the whole row's text, so keep the label first."
+          elementsPreview={(_density, code) => withGlyphs(code)}
           caption="A row can carry more than a label. `Listbox.OptionLeading` holds a glyph after the mark column, and `Listbox.OptionTrailing` a shortcut or badge pinned to the inline-end edge — the command-palette row. The `Listbox.OptionLabel` takes the free space between them and truncates."
           code={(_density, mode) => {
+            if (mode === "elements")
+              return elementsList({
+                value: "search",
+                label: "Commands",
+                body: [
+                  ["search", "Search files", "⌘K"],
+                  ["new", "New file", "⌘N"],
+                  ["settings", "Open settings", "⌘,"],
+                ].flatMap(([id, label, shortcut]) => [
+                  `  <primitiv-listbox-option value="${id}" class="primitiv-listbox__option">`,
+                  `    <span class="primitiv-listbox__option-leading">${glyph("search")}</span>`,
+                  `    <span class="primitiv-listbox__option-label">${label}</span>`,
+                  `    <span class="primitiv-listbox__option-trailing"><kbd class="primitiv-kbd primitiv-kbd--md">${shortcut}</kbd></span>`,
+                  `  </primitiv-listbox-option>`,
+                ]),
+              });
             const p = partNamer(mode, "Listbox");
             if (mode === "headless") {
               return [
@@ -482,6 +660,52 @@ export const listboxSpec: ComponentSpec = {
       ),
     },
   ],
+
+  elements: {
+    description:
+      "An always-visible list of options to choose from. `<primitiv-listbox>` is the listbox and the only Tab stop, and keeps the selection in its `value` attribute; each `<primitiv-listbox-option>` is an option itself. Real focus never moves to an option: a cursor does, published as `aria-activedescendant`, which is what lets a search input hold focus and drive the list.",
+    anatomyMeta:
+      "Four elements. `<primitiv-listbox>` is the `role=\"listbox\"` — name it with `aria-label` — and owns `value`, the selected options separated by spaces, `type` and `orientation`. Each `<primitiv-listbox-option>` carries a `value` and *is* the `role=\"option\"`, with `aria-selected` and an `id` derived from the root's: there is no button inside, since an option is never focused. `<primitiv-listbox-group>` clusters options and is named by the `<primitiv-listbox-group-label>` inside it. Inside an option, the mark, leading, label and trailing spans are the styled surface's, so headless markup keeps only their content: a checkmark glyph stays, and showing it only on `[aria-selected=\"true\"]` is then your stylesheet's job.",
+    keyboardMeta:
+      "The listbox is the single Tab stop, and the cursor is **virtual**: `aria-activedescendant` on the listbox, `data-highlighted` on the option, so focus never leaves the listbox. The cursor lands on the first selected option (else the first) when the list takes focus, and is cleared when it leaves. Choosing is manual unless `selection-follows-focus` is set. A `multiple` listbox adds APG's range shortcuts.",
+    keyboard: [
+      {
+        keys: ["ArrowDown", "ArrowUp"],
+        behaviour:
+          "Move the cursor to the next / previous option, skipping `disabled` ones and wrapping. `ArrowRight` / `ArrowLeft` with `orientation=\"horizontal\"`, swapped under right-to-left — set `dir=\"rtl\"` on the listbox or any ancestor.",
+      },
+      { keys: ["Home", "End"], behaviour: "Move the cursor to the first / last option." },
+      {
+        keys: ["Enter", "Space"],
+        behaviour: "Choose the option under the cursor — replacing the selection, or toggling it with `type=\"multiple\"`.",
+      },
+      {
+        keys: ["character"],
+        literal: true,
+        behaviour: "Typeahead — jump the cursor to the next option whose text starts with what was typed.",
+      },
+      {
+        keys: ["Shift+ArrowDown"],
+        behaviour: "With `type=\"multiple\"`: move the cursor and add the option it lands on. Does not wrap.",
+      },
+      {
+        keys: ["Ctrl+A"],
+        behaviour: "With `type=\"multiple\"`: select every enabled option, or none once all are. `Cmd` on a Mac.",
+      },
+      {
+        keys: ["Ctrl+Shift+End"],
+        behaviour: "With `type=\"multiple\"`: select from the cursor to the last option (`Home` for the first). `Cmd` on a Mac.",
+      },
+    ],
+    accessibility: [
+      "`<primitiv-listbox>` is `role=\"listbox\"` and the only Tab stop; each `<primitiv-listbox-option>` is a `role=\"option\"` with `aria-selected`. **Name the listbox** with `aria-label`, or `aria-labelledby` pointing at a visible heading — without a name a screen-reader user has no idea what the list is for.",
+      "The cursor is **virtual focus**: focus never leaves the listbox, which points `aria-activedescendant` at the current option (marked `data-highlighted`). That is what lets a separate control drive the list, and it means an option never matches `:focus` — style the cursor with `[data-highlighted]`.",
+      "The mark spans are presentational: the option's own `aria-selected` carries the state, so a screen reader is never told the selection twice.",
+      "`disabled` on an option sets `aria-disabled` and `data-disabled`: the cursor and typeahead skip it and a click does nothing, while it stays announced. An option with no `value` is reported once in the console and left alone.",
+      "`primitiv-listbox-change` fires before a change applies and is cancelable, so a listener can refuse a selection. Set `aria-invalid` on the listbox yourself when it fails validation; the border follows.",
+      "Related: reach for [Select](/components/select/) when the list should live in a popup opened from a trigger. Listbox is the always-visible case.",
+    ],
+  },
 
   accessibility: [
     "The frame is `role=\"listbox\"` and the only tab stop; each row is a `role=\"option\"` with `aria-selected`. Name the frame with `aria-label` or `aria-labelledby` — without a name a screen-reader user has no idea what the list is for.",

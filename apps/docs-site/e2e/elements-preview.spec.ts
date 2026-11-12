@@ -606,3 +606,28 @@ test("the Select previews are <primitiv-select> elements: the list opens, and a 
   await expect(example.locator("[data-select-value]")).toHaveText("solid");
   await expect(example.getByRole("button", { name: "Solid" })).toBeFocused();
 });
+
+test("the Combobox previews are <primitiv-combobox> elements: the page's filter narrows the list, and a commit reaches the readout", async ({ page }) => {
+  await page.goto("/components/combobox/");
+  await expect(page.getByText(/dist\/cdn\/combobox\.js/).first()).toBeVisible();
+  const basic = cell(page, "basic");
+  const field = basic.getByRole("combobox", { name: "Framework" });
+  // The definition loads on demand: wait for the element to have wired its input.
+  await expect(field).toHaveAttribute("aria-autocomplete", "list");
+  await field.click();
+  await page.keyboard.type("sv");
+  await expect(basic.getByRole("option")).toHaveText(["Svelte"]);
+  await page.keyboard.press("ArrowDown");
+  await page.keyboard.press("Enter");
+  await expect(field).toHaveValue("Svelte");
+  await expect(field).toBeFocused();
+
+  const controlled = cell(page, "controlled");
+  const input = controlled.getByRole("combobox", { name: "Framework" });
+  await expect(input).toHaveAttribute("aria-autocomplete", "list");
+  await input.click();
+  await page.keyboard.type("vu");
+  await controlled.getByRole("option", { name: "Vue" }).click();
+  await expect(controlled.locator("primitiv-combobox")).toHaveAttribute("value", "vue");
+  await expect(controlled.locator("[data-combobox-value]")).toHaveText("vue");
+});

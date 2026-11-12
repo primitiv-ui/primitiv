@@ -331,6 +331,13 @@ on a panel as it becomes active, for lazy loading.
   enabled one. The arrows move focus **and** selection, skipping `disabled`
   segments and wrapping; Enter and Space are the button's own click.
 
+### Breadcrumb Overflow
+
+No element of its own: write Breadcrumb's markup with the collapsed crumbs in a
+`<primitiv-dropdown>`, each `<a>` wrapped in a `<primitiv-dropdown-item>`, and
+load `dist/cdn/dropdown.js`. The menu anchors to its `...` trigger with no
+`anchor-name`, and Enter on a hidden crumb follows its link.
+
 ### Radio Card
 
 ```html

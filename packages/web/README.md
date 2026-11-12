@@ -6,7 +6,7 @@ framework and no runtime dependencies beyond
 server-rendered stack (HTMX, Rails, Django, Laravel, Spring …), and inside
 React, Vue, Angular or any other framework.
 
-> **Status: published.** Tabs, Accordion, Collapsible, Modal, Popover, Tooltip, Dropdown, Context Menu, Toggle Group, Segmented Control, Radio Card, Checkbox Card and Slider so far. See
+> **Status: published.** Tabs, Accordion, Collapsible, Modal, Popover, Tooltip, Dropdown, Context Menu, Toggle Group, Segmented Control, Radio Card, Checkbox Card, Slider and Split Button so far. See
 > [RFC 0033](../../docs/rfcs/0033-web-components.md) for the design.
 
 ## Components
@@ -26,6 +26,7 @@ React, Vue, Angular or any other framework.
 | Radio Card | `primitiv-radio-card`, `-item`, `-indicator` | `primitiv-radio-card-change` | 0.1.61 |
 | Checkbox Card | `primitiv-checkbox-card`, `-indicator` | `primitiv-checkbox-card-change` | 0.1.61 |
 | Slider | `primitiv-slider`, `-track`, `-range`, `-thumb` | `primitiv-slider-change`, `primitiv-slider-commit` | 0.1.61 |
+| Split Button | `primitiv-split-button`, `-action` (its menu is a nested `primitiv-dropdown`) | the Dropdown's | 0.1.62 |
 
 ## Use it
 
@@ -58,12 +59,12 @@ downloads it once. `dist/primitiv-web.js` is the alternative: every element in
 one file. Per-component files ship from 0.1.43.
 
 The main entry (`@primitiv-ui/web`, `/tabs`, `/accordion`, `/collapsible`,
-`/modal`, `/popover`, `/tooltip`, `/dropdown`, `/context-menu`, `/toggle-group`, `/segmented-control`, `/radio-card`, `/checkbox-card`, `/slider`) exports the classes and `defineTabs(registry?)` /
+`/modal`, `/popover`, `/tooltip`, `/dropdown`, `/context-menu`, `/toggle-group`, `/segmented-control`, `/radio-card`, `/checkbox-card`, `/slider`, `/split-button`) exports the classes and `defineTabs(registry?)` /
 `defineAccordion(registry?)` / `defineCollapsible(registry?)` /
 `defineModal(registry?)` / `definePopover(registry?)` / `defineTooltip(registry?)` /
 `defineDropdown(registry?)` / `defineContextMenu(registry?)` /
 `defineToggleGroup(registry?)` / `defineSegmentedControl(registry?)` /
-`defineRadioCard(registry?)` / `defineCheckboxCard(registry?)` / `defineSlider(registry?)` with **no side
+`defineRadioCard(registry?)` / `defineCheckboxCard(registry?)` / `defineSlider(registry?)` / `defineSplitButton(registry?)` with **no side
 effects**.
 
 **Render `hidden` on inactive panels yourself.** Until the module loads, CSS
@@ -406,6 +407,34 @@ load `dist/cdn/dropdown.js`. The menu anchors to its `...` trigger with no
   every step of a drag), `primitiv-slider-commit` once the interaction ends.
 - **`name` submits it with a form**: the slider keeps one hidden `<input>` per
   value inside itself (`name[]` for several thumbs).
+
+### Split Button
+
+```html
+<script type="module" src="https://cdn.jsdelivr.net/npm/@primitiv-ui/web@<version>/dist/cdn/split-button.js"></script>
+
+<primitiv-split-button>
+  <primitiv-split-button-action><button type="button">Save</button></primitiv-split-button-action>
+  <primitiv-dropdown>
+    <primitiv-dropdown-trigger><button type="button" aria-label="Change save action">⌄</button></primitiv-dropdown-trigger>
+    <primitiv-dropdown-content popover="auto">
+      <primitiv-dropdown-item><li>Save and close</li></primitiv-dropdown-item>
+      <primitiv-dropdown-item><li>Save as draft</li></primitiv-dropdown-item>
+    </primitiv-dropdown-content>
+  </primitiv-dropdown>
+</primitiv-split-button>
+```
+
+- **The menu is a Dropdown**: its `open` state and events are
+  `<primitiv-dropdown>`'s, and `split-button.js` defines the Dropdown elements
+  too. The group is the `role="group"`, mirroring the menu in `data-state`.
+- **ArrowDown on the action opens the menu** on its first item, through the
+  trigger, so the cancelable `primitiv-dropdown-change` still fires.
+- **The trigger is named for you**: unless its `<button>` has `aria-label` or
+  `aria-labelledby`, it gets `aria-labelledby="<trigger id> <action id>"`.
+- **`disabled`** on the group disables both halves; put it on
+  `<primitiv-split-button-action>` or `<primitiv-dropdown-trigger>` to disable
+  one half alone.
 
 **TypeScript** — opt into the tag map so DOM queries return the element classes:
 `import type {} from "@primitiv-ui/web/tags"` (npm only).

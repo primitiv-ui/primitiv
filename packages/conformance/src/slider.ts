@@ -11,7 +11,7 @@ import { afterEach, describe, expect, it } from "vitest";
 /**
  * Pure data describing one slider; each surface turns it into its own markup:
  * a root marked `data-testid="root"`, a track holding a range marked
- * `data-testid="range"`, and one thumb per value, labelled `Thumb 1`, `Thumb 2` …
+ * `data-testid="range"`, and one thumb per value, labelled `Thumb 1`, `Thumb 2` ...
  */
 export type SliderConformanceFixture = {
   /** One value per thumb. */

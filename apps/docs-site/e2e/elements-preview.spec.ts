@@ -544,3 +544,19 @@ test("the Breadcrumb Overflow previews are Dropdown elements in the trail, openi
   await trigger.click();
   await expect(example.getByRole("menuitem")).toHaveText(["Library", "Fiction", "Mystery"]);
 });
+
+test("the Split Button previews are <primitiv-split-button> elements, and a chosen row becomes the action", async ({ page }) => {
+  await page.goto("/components/split-button/");
+  await expect(page.getByText(/dist\/cdn\/split-button\.js/).first()).toBeVisible();
+  const example = cell(page, "menu-of-actions");
+  await expect(example.locator("primitiv-split-button")).toHaveCount(1);
+  const action = example.getByRole("button", { name: "Save", exact: true });
+  // The definition loads on demand: wait for the group to have decorated its action.
+  await expect(action).toHaveAttribute("data-split-button-action", "");
+  await action.focus();
+  await page.keyboard.press("ArrowDown");
+  await expect(example.getByRole("menuitem", { name: "Save", exact: true })).toBeFocused();
+  await example.getByRole("menuitem", { name: "Save as draft" }).click();
+  await expect(example.getByRole("button", { name: "Save as draft", exact: true })).toBeVisible();
+  await expect(example.locator("primitiv-split-button")).toHaveAttribute("data-state", "closed");
+});

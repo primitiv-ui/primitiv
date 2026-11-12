@@ -37,6 +37,33 @@ describe("MillerColumns — typeahead", () => {
     expect(screen.getByRole("treeitem", { name: "Cherry" })).toHaveFocus();
   });
 
+  it("lets a non-character key pass without breaking the query", async () => {
+    const user = userEvent.setup();
+
+    render(<Tree />);
+    screen.getByRole("treeitem", { name: "Apricot" }).focus();
+
+    await user.keyboard("b{Shift}l");
+
+    expect(screen.getByRole("treeitem", { name: "Blueberry" })).toHaveFocus();
+  });
+
+  it("leaves a letter that matches nothing to the browser", async () => {
+    const user = userEvent.setup();
+    const prevented: boolean[] = [];
+    const record = (event: KeyboardEvent) => prevented.push(event.defaultPrevented);
+    document.addEventListener("keydown", record);
+
+    render(<Tree />);
+    screen.getByRole("treeitem", { name: "Apricot" }).focus();
+
+    await user.keyboard("z");
+    document.removeEventListener("keydown", record);
+
+    expect(prevented).toEqual([false]);
+    expect(screen.getByRole("treeitem", { name: "Apricot" })).toHaveFocus();
+  });
+
   it("accumulates characters into a prefix query", async () => {
     const user = userEvent.setup();
 

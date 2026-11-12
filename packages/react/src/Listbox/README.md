@@ -95,6 +95,14 @@ Every other chorded shortcut is left alone: `Alt+Arrow` and any unclaimed
 the browser. That is what lets you bind a toolbar to `Alt+Arrow`, as APG's
 rearrangeable example does.
 
+Your own `onKeyDown`, `onFocus` and `onBlur` on the root, and `onClick` on an
+option, run **after** the listbox has handled the event, and calling
+`preventDefault()` in them no longer stops it. The keyboard and pointer
+behaviour runs in the shared `ListboxController` from `@primitiv-ui/web`, which
+listens on the root natively and so ahead of React's delegated handlers — the
+same order every component on the shared controllers has. To decide what gets
+selected, control `value` and accept or ignore `onValueChange` instead.
+
 Moving the cursor **does not** select, by default. APG leaves
 selection-follows-focus optional for single-select listboxes and warns it can
 degrade accessibility; the manual model is also what a command palette needs,

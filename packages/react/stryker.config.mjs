@@ -40,14 +40,16 @@ const SHARED_MODULES = {
   // Printable-character typeahead. It began life under src/Listbox/hooks and so
   // was mutated by Listbox's run; promoting it to src/hooks for MillerColumns to
   // share took it out of every component's glob, silently dropping it from the
-  // ratchet. Re-home it onto its consumers so the gate still covers it.
-  "src/hooks/useTypeahead.ts": ["Listbox", "MillerColumns"],
+  // ratchet. Re-home it onto its consumer so the gate still covers it. Listbox
+  // left it when it moved onto the shared ListboxController (RFC 0033 D30), so
+  // MillerColumns is the one consumer now; the matching itself is core's.
+  "src/hooks/useTypeahead.ts": ["MillerColumns"],
   // Hosting a @primitiv-ui/web controller (RFC 0033 D30), shared by every
   // component the elements surface has moved onto it. CheckboxCard hosts it too
   // but is left off: its card registers in an effect after the controller's
   // first hand-over, so StrictMode's discarded controller never holds the card
   // and its disconnect is unobservable there — the components listed observe it.
-  "src/hooks/useHostedController.ts": ["Tabs", "Accordion", "Collapsible", "ToggleGroup", "SegmentedControl", "RadioCard", "Slider", "SplitButton"],
+  "src/hooks/useHostedController.ts": ["Tabs", "Accordion", "Collapsible", "ToggleGroup", "SegmentedControl", "RadioCard", "Slider", "SplitButton", "Listbox"],
 };
 
 /**

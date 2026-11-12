@@ -218,13 +218,8 @@ export type ListboxGroupContextValue = {
 export type ListboxContextValue = {
   /** Every currently selected option value. Single mode holds at most one. */
   selectedValues: string[];
-  /** Selects (single) or toggles (multiple) the given option. */
-  select: (optionValue: string) => void;
   /** The option the cursor is on, or `undefined` before the root is focused. */
   activeValue: string | undefined;
-  /** Moves the cursor onto the given option and scrolls it into view. Used by
-   * `Listbox.Option` so a click leaves the cursor where the user clicked. */
-  moveCursor: (optionValue: string) => void;
   /** Registers a mounted option's element and disabled state; pass `null` as
    * the element to unregister. */
   registerOption: (

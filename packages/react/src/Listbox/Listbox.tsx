@@ -8,7 +8,7 @@ import {
 } from "react";
 
 import { useDirection } from "../DirectionProvider/index.ts";
-import { Slot, composeEventHandlers, composeRefs } from "../Slot/index.ts";
+import { Slot, composeRefs } from "../Slot/index.ts";
 
 import {
   ListboxGroupProvider,
@@ -118,25 +118,12 @@ export function ListboxRoot({
   orientation = "vertical",
   dir,
   asChild = false,
-  onFocus,
-  onBlur,
-  onKeyDown,
   children,
   ref,
   ...rest
 }: ListboxRootProps): ReactElement {
   const resolvedDir = dir ?? useDirection();
-  const {
-    selectedValues,
-    select,
-    activeValue,
-    registerOption,
-    getOptionId,
-    seedActiveValue,
-    clearActiveValue,
-    handleKeyDown,
-    moveCursor,
-  } = useListboxRoot({
+  const { rootRef, selectedValues, activeValue, registerOption, getOptionId } = useListboxRoot({
     type,
     defaultValue,
     value: controlledValue,
@@ -147,27 +134,17 @@ export function ListboxRoot({
   });
 
   const contextValue = useMemo(
-    () => ({
-      selectedValues,
-      select,
-      activeValue,
-      registerOption,
-      getOptionId,
-      moveCursor,
-    }),
-    [
-      selectedValues,
-      select,
-      activeValue,
-      registerOption,
-      getOptionId,
-      moveCursor,
-    ],
+    () => ({ selectedValues, activeValue, registerOption, getOptionId }),
+    [selectedValues, activeValue, registerOption, getOptionId],
   );
+  // The controller listens on the root, so a consumer's ref is composed with
+  // the one the hosted controller attaches to.
+  // Stryker disable next-line ArrayDeclaration: equivalent — rootRef is a stable RefObject, so the composed ref behaves identically however the deps are spelled.
+  const setRootRef = useMemo(() => composeRefs(rootRef, ref), [ref]);
 
   const rootProps = {
     ...rest,
-    ref,
+    ref: setRootRef,
     role: "listbox" as const,
     tabIndex: 0,
     "aria-multiselectable": type === "multiple" ? true : undefined,
@@ -176,9 +153,6 @@ export function ListboxRoot({
     "data-orientation": orientation,
     "aria-activedescendant":
       activeValue === undefined ? undefined : getOptionId(activeValue),
-    onFocus: composeEventHandlers(onFocus, seedActiveValue),
-    onBlur: composeEventHandlers(onBlur, clearActiveValue),
-    onKeyDown: composeEventHandlers(onKeyDown, handleKeyDown),
   };
 
   return (
@@ -239,19 +213,11 @@ export function ListboxOption({
   value,
   disabled = false,
   asChild = false,
-  onClick,
   children,
   ref,
   ...rest
 }: ListboxOptionProps): ReactElement {
-  const {
-    selectedValues,
-    select,
-    activeValue,
-    registerOption,
-    getOptionId,
-    moveCursor,
-  } = useListboxContext();
+  const { selectedValues, activeValue, registerOption, getOptionId } = useListboxContext();
   const selected = selectedValues.includes(value);
 
   const localRef = useRef<HTMLDivElement | null>(null);
@@ -272,19 +238,6 @@ export function ListboxOption({
     "aria-disabled": disabled || undefined,
     "data-disabled": disabled ? "" : undefined,
     "data-highlighted": activeValue === value ? "" : undefined,
-    onClick: composeEventHandlers(onClick, () => {
-      if (disabled) return;
-      select(value);
-      // A click is a deliberate act of choosing, so it also becomes the
-      // cursor's position — APG treats the clicked option as the focused one.
-      // Without this the two ways of choosing disagree about where you are in
-      // the list: focus (which fires first) seeds the cursor onto the
-      // previously-selected option, and the next arrow key would resume from
-      // there rather than from the row just clicked. Deliberately not
-      // `navigateTo`, which would re-apply selectionFollowsFocus and, in
-      // multiple mode, toggle the option straight back off.
-      moveCursor(value);
-    }),
   };
 
   return asChild ? (

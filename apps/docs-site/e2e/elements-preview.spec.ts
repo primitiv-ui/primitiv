@@ -532,3 +532,15 @@ test("the Slider commit example counts each change and one commit per key press"
   await expect(example.locator("[data-changes]")).toHaveText("2");
   await expect(example.locator("[data-commits]")).toHaveText("2");
 });
+
+test("the Breadcrumb Overflow previews are Dropdown elements in the trail, opening a menu of the hidden links", async ({ page }) => {
+  await page.goto("/components/breadcrumb-overflow/");
+  await expect(page.getByText(/dist\/cdn\/dropdown\.js/).first()).toBeVisible();
+  const example = cell(page, "collapsing");
+  await expect(example.locator("nav primitiv-dropdown")).toHaveCount(1);
+  const trigger = example.getByRole("button", { name: "Show hidden pages" });
+  // The definition loads on demand: wait for the element to have wired its trigger.
+  await expect(trigger).toHaveAttribute("aria-haspopup", "menu");
+  await trigger.click();
+  await expect(example.getByRole("menuitem")).toHaveText(["Library", "Fiction", "Mystery"]);
+});

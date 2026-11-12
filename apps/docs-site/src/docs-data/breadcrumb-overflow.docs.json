@@ -75,5 +75,169 @@
   "figma": {
     "componentSetKey": "436:12911"
   },
-  "elements": null
+  "elements": {
+    "package": "@primitiv-ui/web",
+    "module": "dropdown",
+    "version": "0.1.57",
+    "element": "nav",
+    "wrapText": false,
+    "example": "<nav aria-label=\"Breadcrumb\" class=\"primitiv-breadcrumb primitiv-breadcrumb--md primitiv-breadcrumb-overflow\">\n  <ol class=\"primitiv-breadcrumb__list\">\n    <li class=\"primitiv-breadcrumb__item\"><a class=\"primitiv-breadcrumb__link\" href=\"/\">Home</a></li>\n    <li class=\"primitiv-breadcrumb__separator\" role=\"presentation\" aria-hidden=\"true\">/</li>\n    <li class=\"primitiv-breadcrumb__item\">\n      <primitiv-dropdown>\n        <primitiv-dropdown-trigger>\n          <button type=\"button\" class=\"primitiv-breadcrumb-overflow__trigger\" aria-label=\"Show hidden pages\"><span class=\"primitiv-breadcrumb__ellipsis\" role=\"presentation\" aria-hidden=\"true\">...</span></button>\n        </primitiv-dropdown-trigger>\n        <primitiv-dropdown-content class=\"primitiv-dropdown primitiv-dropdown--md primitiv-dropdown--bottom-start\" popover=\"auto\">\n          <primitiv-dropdown-item><a class=\"primitiv-breadcrumb__link primitiv-dropdown__item\" href=\"/library\">Library</a></primitiv-dropdown-item>\n          <primitiv-dropdown-item><a class=\"primitiv-breadcrumb__link primitiv-dropdown__item\" href=\"/library/fiction\">Fiction</a></primitiv-dropdown-item>\n          <primitiv-dropdown-item><a class=\"primitiv-breadcrumb__link primitiv-dropdown__item\" href=\"/library/fiction/mystery\">Mystery</a></primitiv-dropdown-item>\n        </primitiv-dropdown-content>\n      </primitiv-dropdown>\n    </li>\n    <li class=\"primitiv-breadcrumb__separator\" role=\"presentation\" aria-hidden=\"true\">/</li>\n    <li class=\"primitiv-breadcrumb__item\"><span class=\"primitiv-breadcrumb__page\" aria-current=\"page\">Neuromancer</span></li>\n  </ol>\n</nav>\n",
+    "api": [
+      {
+        "tag": "primitiv-dropdown",
+        "attributes": [
+          {
+            "name": "open",
+            "type": "boolean",
+            "description": "Whether the menu is open. Reflected: it changes as the user opens and dismisses it. Set it (or the `open` property) to open or close it from script."
+          }
+        ],
+        "events": [
+          {
+            "name": "primitiv-dropdown-change",
+            "type": "CustomEvent<{ open: boolean }>",
+            "description": "Bubbles, cancelable, fired before a user-driven change is applied — the trigger, Escape, a press outside or a chosen item — with the open state afterwards. Call `preventDefault()` to veto it."
+          },
+          {
+            "name": "primitiv-dropdown-select",
+            "type": "CustomEvent<null>",
+            "description": "Bubbles, cancelable, fired on the item part when an item is chosen, after a checkbox or radio item has changed. Call `preventDefault()` to keep the menu open."
+          },
+          {
+            "name": "primitiv-dropdown-checked-change",
+            "type": "CustomEvent<{ checked: boolean }>",
+            "description": "Bubbles, cancelable, fired on a checkbox item before it changes, with its state afterwards. Call `preventDefault()` to veto it."
+          },
+          {
+            "name": "primitiv-dropdown-value-change",
+            "type": "CustomEvent<{ value: string }>",
+            "description": "Bubbles, cancelable, fired on a radio group before its value changes, with the value afterwards. Call `preventDefault()` to veto it."
+          }
+        ]
+      },
+      {
+        "tag": "primitiv-dropdown-sub",
+        "attributes": [
+          {
+            "name": "open",
+            "type": "boolean",
+            "description": "Whether the submenu is open. Reflected."
+          }
+        ],
+        "events": [
+          {
+            "name": "primitiv-dropdown-sub-change",
+            "type": "CustomEvent<{ open: boolean }>",
+            "description": "Bubbles, cancelable, fired before a user-driven change is applied, with the open state afterwards. Call `preventDefault()` to veto it."
+          }
+        ]
+      },
+      {
+        "tag": "primitiv-dropdown-trigger",
+        "attributes": [],
+        "events": []
+      },
+      {
+        "tag": "primitiv-dropdown-content",
+        "attributes": [],
+        "events": []
+      },
+      {
+        "tag": "primitiv-dropdown-item",
+        "attributes": [
+          {
+            "name": "disabled",
+            "type": "boolean",
+            "description": "Skipped by the keyboard, and does nothing when clicked (`aria-disabled` on the child)."
+          }
+        ],
+        "events": []
+      },
+      {
+        "tag": "primitiv-dropdown-checkbox-item",
+        "attributes": [
+          {
+            "name": "checked",
+            "type": "boolean",
+            "description": "Whether it is checked; `checked=\"indeterminate\"` for mixed. Reflected."
+          },
+          {
+            "name": "disabled",
+            "type": "boolean",
+            "description": "As on an item."
+          }
+        ],
+        "events": []
+      },
+      {
+        "tag": "primitiv-dropdown-radio-group",
+        "attributes": [
+          {
+            "name": "value",
+            "type": "string",
+            "description": "The checked item's value. Reflected."
+          }
+        ],
+        "events": []
+      },
+      {
+        "tag": "primitiv-dropdown-radio-item",
+        "attributes": [
+          {
+            "name": "value",
+            "type": "string",
+            "description": "The value it sets on its group."
+          },
+          {
+            "name": "disabled",
+            "type": "boolean",
+            "description": "As on an item."
+          }
+        ],
+        "events": []
+      },
+      {
+        "tag": "primitiv-dropdown-item-indicator",
+        "attributes": [
+          {
+            "name": "force-mount",
+            "type": "boolean",
+            "description": "Keep it shown while unchecked, to animate it."
+          }
+        ],
+        "events": []
+      },
+      {
+        "tag": "primitiv-dropdown-group",
+        "attributes": [],
+        "events": []
+      },
+      {
+        "tag": "primitiv-dropdown-label",
+        "attributes": [],
+        "events": []
+      },
+      {
+        "tag": "primitiv-dropdown-separator",
+        "attributes": [],
+        "events": []
+      },
+      {
+        "tag": "primitiv-dropdown-sub-trigger",
+        "attributes": [
+          {
+            "name": "disabled",
+            "type": "boolean",
+            "description": "It does not open the submenu."
+          }
+        ],
+        "events": []
+      },
+      {
+        "tag": "primitiv-dropdown-sub-content",
+        "attributes": [],
+        "events": []
+      }
+    ]
+  }
 }

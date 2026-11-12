@@ -54,6 +54,7 @@ export {
   type CheckboxCardCheckedState,
   type CheckboxCardState,
 } from "./checkbox-card/policy.ts";
+export { splitButtonOpensMenu, type SplitButtonActionKey } from "./split-button/policy.ts";
 export {
   sliderClosestThumb,
   sliderEdge,

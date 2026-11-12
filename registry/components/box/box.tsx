@@ -28,7 +28,7 @@ export type BoxProps = ComponentPropsWithRef<"div"> & {
  *
  * @example
  * ```tsx
- * <Box style={{ "--primitiv-space-space-16": "1.25rem" }}>
+ * <Box style={{ "--primitiv-space-16": "1.25rem" }}>
  *   <Card />
  * </Box>
  *

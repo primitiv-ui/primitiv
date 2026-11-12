@@ -55,8 +55,8 @@
   /* Sized to the arrow's ROTATED extent. `rotate` leaves the layout box alone,
      so a box only as wide as the upright glyph would let the turned arrow paint
      straight over the column beside it. */
-  inline-size: var(--primitiv-space-space-48);
-  block-size: var(--primitiv-space-space-48);
+  inline-size: var(--primitiv-space-48);
+  block-size: var(--primitiv-space-48);
   color: var(--primitiv-content-muted);
 }
 
@@ -107,8 +107,8 @@
   grid-area: 2 / 3;
   display: grid;
   grid-template-columns: auto auto;
-  column-gap: var(--primitiv-space-space-24);
-  row-gap: var(--primitiv-space-space-4);
+  column-gap: var(--primitiv-space-24);
+  row-gap: var(--primitiv-space-4);
   margin: 0;
 }
 
@@ -126,7 +126,7 @@
 .docs-tokens__roles {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--primitiv-space-space-24);
+  gap: var(--primitiv-space-24);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -143,7 +143,7 @@
 .docs-tokens__ramp {
   display: grid;
   grid-template-columns: repeat(11, minmax(0, 1fr));
-  gap: var(--primitiv-space-space-8);
+  gap: var(--primitiv-space-8);
   inline-size: 100%;
   margin: 0;
   padding: 0;
@@ -154,7 +154,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--primitiv-space-space-4);
+  gap: var(--primitiv-space-4);
   min-inline-size: 0;
 }
 
@@ -258,6 +258,6 @@
    */
   .docs-tokens__ramp {
     grid-template-columns: repeat(6, minmax(0, 1fr));
-    row-gap: var(--primitiv-space-space-16);
+    row-gap: var(--primitiv-space-16);
   }
 }

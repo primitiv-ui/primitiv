@@ -14,7 +14,7 @@
   block-size: var(--docs-nav-height);
   display: flex;
   align-items: center;
-  padding-block: var(--primitiv-space-space-16);
+  padding-block: var(--primitiv-space-16);
   border-block-end: var(--primitiv-border-width-1) solid
     var(--primitiv-border-subtle);
   background-color: var(--primitiv-surface-default);
@@ -35,7 +35,7 @@
 
 .docs-brand:focus-visible {
   outline: var(--primitiv-border-width-2) solid var(--primitiv-focus-ring);
-  outline-offset: var(--primitiv-space-space-4);
+  outline-offset: var(--primitiv-space-4);
 }
 
 .docs-header-nav-list {

@@ -59,7 +59,7 @@
     --primitiv-code-block-border-width: var(--primitiv-border-width-1);
     --primitiv-code-block-radius: var(--primitiv-radii-8);
     --primitiv-code-block-padding: var(--primitiv-code-padding);
-    --primitiv-code-block-header-padding-block: var(--primitiv-space-space-8);
+    --primitiv-code-block-header-padding-block: var(--primitiv-space-8);
     --primitiv-code-block-font-family: var(--primitiv-font-family-mono);
     --primitiv-code-block-font-size: var(--primitiv-body-md-font-size);
     --primitiv-code-block-line-height: var(--primitiv-body-md-line-height);
@@ -67,7 +67,7 @@
     --primitiv-code-block-filename-color: var(--primitiv-content-secondary);
     /* Tabbed variant only — the tablist's top breathing room (re-pointed per
        size in the variants layer, matching the Figma per-size header padding). */
-    --primitiv-code-block-tabs-header-padding: var(--primitiv-space-space-12);
+    --primitiv-code-block-tabs-header-padding: var(--primitiv-space-12);
 
     /* Syntax theme — light. The [data-theme="dark"] block below swaps the set. */
     --primitiv-code-syntax-keyword: oklch(0.5 0.19 305);
@@ -139,7 +139,7 @@
      of the baseline while the tabs stay anchored to it. Needs the `tabs`
      component stylesheet. */
   .primitiv-code-block.primitiv-tabs .primitiv-code-block__header {
-    padding-block: var(--primitiv-space-space-0);
+    padding-block: var(--primitiv-space-0);
   }
 
   .primitiv-code-block.primitiv-tabs .primitiv-tabs__list {
@@ -156,7 +156,7 @@
   /* The scroll surface. text-size-adjust stops iOS Safari inflating text in a
      horizontally-overflowing block (which mis-sizes wrapped lines in portrait). */
   .primitiv-code-block__pre {
-    margin-block: var(--primitiv-space-space-0);
+    margin-block: var(--primitiv-space-0);
     padding: var(--primitiv-code-block-padding);
     /* Wrap long lines to the container rather than forcing the block wider: on a
        narrow viewport the code reflows instead of pushing a horizontal scrollbar,
@@ -326,27 +326,27 @@
   .primitiv-code-block--xs {
     --primitiv-code-block-font-size: var(--primitiv-body-xs-font-size);
     --primitiv-code-block-line-height: var(--primitiv-body-xs-line-height);
-    --primitiv-code-block-tabs-header-padding: var(--primitiv-space-space-8);
+    --primitiv-code-block-tabs-header-padding: var(--primitiv-space-8);
   }
   .primitiv-code-block--sm {
     --primitiv-code-block-font-size: var(--primitiv-body-sm-font-size);
     --primitiv-code-block-line-height: var(--primitiv-body-sm-line-height);
-    --primitiv-code-block-tabs-header-padding: var(--primitiv-space-space-8);
+    --primitiv-code-block-tabs-header-padding: var(--primitiv-space-8);
   }
   .primitiv-code-block--md {
     --primitiv-code-block-font-size: var(--primitiv-body-md-font-size);
     --primitiv-code-block-line-height: var(--primitiv-body-md-line-height);
-    --primitiv-code-block-tabs-header-padding: var(--primitiv-space-space-12);
+    --primitiv-code-block-tabs-header-padding: var(--primitiv-space-12);
   }
   .primitiv-code-block--lg {
     --primitiv-code-block-font-size: var(--primitiv-body-lg-font-size);
     --primitiv-code-block-line-height: var(--primitiv-body-lg-line-height);
-    --primitiv-code-block-tabs-header-padding: var(--primitiv-space-space-12);
+    --primitiv-code-block-tabs-header-padding: var(--primitiv-space-12);
   }
   .primitiv-code-block--xl {
     --primitiv-code-block-font-size: var(--primitiv-body-xl-font-size);
     --primitiv-code-block-line-height: var(--primitiv-body-xl-line-height);
-    --primitiv-code-block-tabs-header-padding: var(--primitiv-space-space-16);
+    --primitiv-code-block-tabs-header-padding: var(--primitiv-space-16);
   }
 
   /* Opt out of wrapping (`wrap={false}`). For content whose column alignment IS

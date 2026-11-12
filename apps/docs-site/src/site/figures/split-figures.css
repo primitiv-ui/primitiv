@@ -63,7 +63,7 @@
 .docs-split__rule-label {
   writing-mode: vertical-rl;
   rotate: 180deg;
-  padding-block: var(--primitiv-space-space-8);
+  padding-block: var(--primitiv-space-8);
   background: var(--primitiv-surface-default);
   font-family: var(--primitiv-body-sm-font-family);
   font-size: var(--primitiv-body-sm-font-size);
@@ -90,6 +90,6 @@
     writing-mode: horizontal-tb;
     rotate: none;
     padding-block: 0;
-    padding-inline: var(--primitiv-space-space-8);
+    padding-inline: var(--primitiv-space-8);
   }
 }

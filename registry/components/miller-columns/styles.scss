@@ -73,7 +73,7 @@
 @layer primitiv.base {
   .primitiv-miller-columns {
     /* Vertical slack for the label's clip box — see the truncation rule below. */
-    --primitiv-miller-columns-label-ink-slack: var(--primitiv-space-space-1);
+    --primitiv-miller-columns-label-ink-slack: var(--primitiv-space-1);
     /* Per-component API — the themable knobs, defaulting to the md size. The
        size modifiers re-point the sizing knobs; consumers can override any one
        without touching the rule. */

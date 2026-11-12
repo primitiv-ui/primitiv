@@ -54,6 +54,6 @@ if (scene === "figma-01-composite") {
   createRoot(app).render(<CodeOne />);
 } else {
   const { size, controls, options, rowGap } = config;
-  root.style.setProperty("--scene-row-gap", `var(--primitiv-space-space-${rowGap})`);
+  root.style.setProperty("--scene-row-gap", `var(--primitiv-space-${rowGap})`);
   createRoot(app).render(<Scene size={size} controls={controls} options={options} />);
 }

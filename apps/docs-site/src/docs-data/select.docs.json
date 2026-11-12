@@ -549,7 +549,7 @@
       },
       {
         "name": "--primitiv-select-content-padding-inline",
-        "defaultsTo": "var(--primitiv-space-space-4)"
+        "defaultsTo": "var(--primitiv-space-4)"
       },
       {
         "name": "--primitiv-select-content-min-inline-size",
@@ -561,7 +561,7 @@
       },
       {
         "name": "--primitiv-select-offset",
-        "defaultsTo": "var(--primitiv-space-space-4)"
+        "defaultsTo": "var(--primitiv-space-4)"
       },
       {
         "name": "--primitiv-select-item-height",
@@ -665,7 +665,7 @@
       },
       {
         "name": "--primitiv-select-label-ink-slack",
-        "defaultsTo": "var(--primitiv-space-space-1)"
+        "defaultsTo": "var(--primitiv-space-1)"
       }
     ],
     "dataAttributes": [

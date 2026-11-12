@@ -10,10 +10,10 @@
  *
  * Mode aliases (control↔label gap, per density), matching
  * packages/tokens/src/context.json:
- *   - Dense       -> space/space-4
- *   - Compact     -> space/space-6
- *   - Comfortable -> space/space-8
- *   - Spacious    -> space/space-12
+ *   - Dense       -> space/4
+ *   - Compact     -> space/6
+ *   - Comfortable -> space/8
+ *   - Spacious    -> space/12
  *
  * The new variable mirrors an existing sibling gap (`label-control/lg/gap`):
  * same FLOAT type and scopes, so a later Figma → DTCG sync re-exports it
@@ -36,10 +36,10 @@
   const TARGET = "label-control/xl/gap";
   // Per-density gap value (the space primitive each mode aliases to).
   const valueByMode = {
-    Dense: "space/space-4",
-    Compact: "space/space-6",
-    Comfortable: "space/space-8",
-    Spacious: "space/space-12",
+    Dense: "space/4",
+    Compact: "space/6",
+    Comfortable: "space/8",
+    Spacious: "space/12",
   };
 
   // Find-or-create the variable, mirroring an existing sibling gap's shape.

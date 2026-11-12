@@ -61,7 +61,7 @@
        (viewport centering) so the anchor-positioning insets take over. */
     margin: 0;
     inset: auto;
-    padding: var(--primitiv-space-space-0);
+    padding: var(--primitiv-space-0);
     border: var(--primitiv-border-width-0);
   }
 }
@@ -69,7 +69,7 @@
 @layer primitiv.base {
   .primitiv-select {
     /* Vertical slack for the label's clip box — see the truncation rule below. */
-    --primitiv-select-label-ink-slack: var(--primitiv-space-space-1);
+    --primitiv-select-label-ink-slack: var(--primitiv-space-1);
     /* Per-component API — the themable knobs, defaulting to the md size and the
        resting (default) border. The states layer below re-points the border on
        hover / focus / invalid; consumers can override any one without touching
@@ -249,7 +249,7 @@
     --primitiv-select-content-padding-block: var(--primitiv-dropdown-md-panel-padding-block);
     /* A small inline inset so a row's highlight / rounded corners sit inside the
        panel edge instead of running flush against the border. */
-    --primitiv-select-content-padding-inline: var(--primitiv-space-space-4);
+    --primitiv-select-content-padding-inline: var(--primitiv-space-4);
     /* At least as wide as the trigger it is anchored to (Figma: the Panel
        instance FILLs the Trigger's width), free to grow for longer options. */
     --primitiv-select-content-min-inline-size: anchor-size(width);
@@ -257,7 +257,7 @@
        overflow" decision. There is no token for a popup viewport height. */
     --primitiv-select-content-max-block-size: 18rem;
     /* Gap between the trigger and the panel. */
-    --primitiv-select-offset: var(--primitiv-space-space-4);
+    --primitiv-select-offset: var(--primitiv-space-4);
 
     --primitiv-select-item-height: var(--primitiv-dropdown-md-item-height);
     --primitiv-select-item-padding-inline: var(--primitiv-dropdown-md-item-padding-inline);

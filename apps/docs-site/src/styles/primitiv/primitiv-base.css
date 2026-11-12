@@ -22,7 +22,7 @@
  * --primitiv-heading-*, --primitiv-label-*, --primitiv-content-*,
  * --primitiv-surface-*, --primitiv-border-*, --primitiv-action-link-*,
  * --primitiv-highlight-background, --primitiv-font-family-*, --primitiv-font-weight-*,
- * --primitiv-space-space-*, --primitiv-radii-*, --primitiv-list-*, --primitiv-quote-*,
+ * --primitiv-space-*, --primitiv-radii-*, --primitiv-list-*, --primitiv-quote-*,
  * --primitiv-code-*, --primitiv-table-* and --primitiv-figure-* custom properties
  * it resolves.
  */
@@ -58,7 +58,7 @@
      the page stays sans-serif before Asta Sans loads, or if it never does.
      Lowest layer: an app that styles <body> itself wins without trying. */
   body {
-    margin: var(--primitiv-space-space-0);
+    margin: var(--primitiv-space-0);
     background-color: var(--primitiv-surface-default);
     color: var(--primitiv-content-primary);
     font-family: var(--primitiv-body-md-font-family);
@@ -234,8 +234,8 @@
     background-color: var(--primitiv-surface-raised);
     border: var(--primitiv-border-width-1) solid var(--primitiv-border-default);
     border-radius: var(--primitiv-radii-4);
-    padding-inline: var(--primitiv-space-space-4);
-    padding-block: var(--primitiv-space-space-2);
+    padding-inline: var(--primitiv-space-4);
+    padding-block: var(--primitiv-space-2);
   }
 
   /* ===== Block prose ===== */
@@ -249,7 +249,7 @@
     font-weight: var(--primitiv-body-md-font-weight);
     line-height: var(--primitiv-body-md-line-height);
     color: var(--primitiv-content-primary);
-    margin-block: var(--primitiv-space-space-0);
+    margin-block: var(--primitiv-space-0);
   }
 
   /* Headings: HTML level maps 1:1 to the heading scale slot. No outer margin —
@@ -261,7 +261,7 @@
   h5,
   h6 {
     color: var(--primitiv-content-primary);
-    margin-block: var(--primitiv-space-space-0);
+    margin-block: var(--primitiv-space-0);
     /* Distribute a wrapped heading evenly across its lines instead of leaving a
        short last line. Headings only — `balance` is capped at a few lines by
        design and is the wrong tool for long-form copy, which is why `p` below
@@ -336,7 +336,7 @@
     line-height: var(--primitiv-body-md-line-height);
     color: var(--primitiv-content-primary);
     padding-inline-start: var(--primitiv-list-indent);
-    margin-block: var(--primitiv-space-space-0);
+    margin-block: var(--primitiv-space-0);
   }
 
   /* Inter-item rhythm on the gap between items, never above the first — and only
@@ -382,7 +382,7 @@
      different scale: label/sm only coincides with body/md at Comfortable, and
      diverges at Compact (14 vs 16), Spacious (18 vs 16) and Dense (11 vs 12). */
   dl {
-    margin-block: var(--primitiv-space-space-0);
+    margin-block: var(--primitiv-space-0);
   }
 
   dt {
@@ -413,8 +413,8 @@
     color: var(--primitiv-content-secondary);
     border-inline-start: var(--primitiv-border-width-3) solid var(--primitiv-border-strong);
     padding-inline-start: var(--primitiv-quote-padding-inline);
-    margin-inline: var(--primitiv-space-space-0);
-    margin-block: var(--primitiv-space-space-0);
+    margin-inline: var(--primitiv-space-0);
+    margin-block: var(--primitiv-space-0);
   }
 
   /* Contact address: upright secondary body text. The UA italic is dropped to
@@ -427,7 +427,7 @@
     line-height: var(--primitiv-body-md-line-height);
     color: var(--primitiv-content-secondary);
     font-style: normal;
-    margin-block: var(--primitiv-space-space-0);
+    margin-block: var(--primitiv-space-0);
   }
 
   /* Horizontal rule: a single subtle line drawn as a background fill, the
@@ -437,14 +437,14 @@
     block-size: var(--primitiv-border-width-1);
     background-color: var(--primitiv-border-subtle);
     border-width: var(--primitiv-border-width-0);
-    margin-inline: var(--primitiv-space-space-0);
-    margin-block: var(--primitiv-space-space-0);
+    margin-inline: var(--primitiv-space-0);
+    margin-block: var(--primitiv-space-0);
   }
 
   /* Figure: zero the UA inline + block margins; caption sits below the media. */
   figure {
-    margin-inline: var(--primitiv-space-space-0);
-    margin-block: var(--primitiv-space-space-0);
+    margin-inline: var(--primitiv-space-0);
+    margin-block: var(--primitiv-space-0);
   }
 
   figcaption {
@@ -465,8 +465,8 @@
     background-color: var(--primitiv-surface-subtle);
     border: var(--primitiv-border-width-1) solid var(--primitiv-border-subtle);
     border-radius: var(--primitiv-radii-4);
-    padding-inline: var(--primitiv-space-space-4);
-    padding-block: var(--primitiv-space-space-2);
+    padding-inline: var(--primitiv-space-4);
+    padding-block: var(--primitiv-space-2);
   }
 
   /* Code block: the same surface, scrollable, body line-height for readability. */
@@ -479,7 +479,7 @@
     border: var(--primitiv-border-width-1) solid var(--primitiv-border-subtle);
     border-radius: var(--primitiv-radii-8);
     padding: var(--primitiv-code-padding);
-    margin-block: var(--primitiv-space-space-0);
+    margin-block: var(--primitiv-space-0);
     overflow: auto;
   }
 
@@ -488,8 +488,8 @@
     background-color: var(--primitiv-color-transparent);
     border-width: var(--primitiv-border-width-0);
     border-radius: var(--primitiv-radii-0);
-    padding-inline: var(--primitiv-space-space-0);
-    padding-block: var(--primitiv-space-space-0);
+    padding-inline: var(--primitiv-space-0);
+    padding-block: var(--primitiv-space-0);
   }
 
   /* Links: brand foreground across resting / visited / hover / active. */

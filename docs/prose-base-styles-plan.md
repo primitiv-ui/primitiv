@@ -53,7 +53,7 @@ typographic marks built in Figma.
 `--primitiv-body-{xs..xl}-{font-family,font-size,line-height,font-style,font-weight}`,
 `--primitiv-heading-{h1..h6}-*`, `--primitiv-content-{primary,secondary,muted,disabled}`,
 `--primitiv-highlight-background`, `--primitiv-surface-*`, `--primitiv-border-*`,
-`--primitiv-font-family-{text,heading,mono}`, `--primitiv-space-space-N`,
+`--primitiv-font-family-{text,heading,mono}`, `--primitiv-space-N`,
 `--primitiv-radii-N`. Density resolves automatically via `[data-density]`, theme
 via `[data-theme]` (already in the token layer).
 

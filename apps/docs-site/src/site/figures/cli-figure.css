@@ -44,13 +44,13 @@
 .docs-cli__zone--repo {
   background: var(--primitiv-surface-subtle);
   border-radius: var(--primitiv-radii-12);
-  padding: var(--primitiv-space-space-24);
+  padding: var(--primitiv-space-24);
 }
 
 .docs-cli__files {
   display: flex;
   flex-direction: column;
-  gap: var(--primitiv-space-space-8);
+  gap: var(--primitiv-space-8);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -65,7 +65,7 @@
 .docs-cli__file {
   border: var(--primitiv-border-width-1) solid var(--primitiv-border-default);
   border-radius: var(--primitiv-radii-8);
-  padding: var(--primitiv-space-space-8) var(--primitiv-space-space-16);
+  padding: var(--primitiv-space-8) var(--primitiv-space-16);
   background: var(--primitiv-surface-default);
   color: var(--primitiv-content-primary);
   /* A path is one token to a reader; breaking it across lines turns it into
@@ -81,10 +81,10 @@
 .docs-cli__flow {
   display: flex;
   flex-direction: column;
-  gap: var(--primitiv-space-space-8);
+  gap: var(--primitiv-space-8);
   align-items: center;
   /* Lands the arrow on the first file chip, which is what it points at. */
-  padding-block-start: var(--primitiv-space-space-48);
+  padding-block-start: var(--primitiv-space-48);
   color: var(--primitiv-content-muted);
   min-inline-size: 0;
 }
@@ -137,11 +137,11 @@
   }
 
   .docs-cli__arrow-box {
-    block-size: var(--primitiv-space-space-96);
+    block-size: var(--primitiv-space-96);
   }
 
   .docs-cli__arrow {
-    inline-size: var(--primitiv-space-space-96);
+    inline-size: var(--primitiv-space-96);
     rotate: -90deg;
   }
 

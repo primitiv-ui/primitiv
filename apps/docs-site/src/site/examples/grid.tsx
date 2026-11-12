@@ -18,7 +18,7 @@ const imports = (mode: Mode) =>
   importBlock({ mode, component: "Grid", componentId: "grid", registryOnly: true });
 
 const cell: CSSProperties = {
-  padding: "var(--primitiv-space-space-8) var(--primitiv-space-space-12)",
+  padding: "var(--primitiv-space-8) var(--primitiv-space-12)",
   background: "var(--primitiv-surface-raised)",
   border: "var(--primitiv-border-width-1) solid var(--primitiv-border-subtle)",
   borderRadius: "var(--primitiv-radii-8)",

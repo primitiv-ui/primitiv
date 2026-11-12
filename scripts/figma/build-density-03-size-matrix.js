@@ -153,7 +153,7 @@ for (const p of [
 
 // ── the matrix ───────────────────────────────────────────────────────────
 const gap = frame(content, 'DENSITY-03 · size and density', 'VERTICAL',
-                  MOBILE ? 20 : 24, MOBILE ? 'space/space-20' : 'space/space-24');
+                  MOBILE ? 20 : 24, MOBILE ? 'space/20' : 'space/24');
 content.insertChild(idx + 2, gap);
 gap.counterAxisAlignItems = 'CENTER';
 gap.layoutSizingHorizontal = 'FILL';
@@ -204,7 +204,7 @@ const addStrip = (parent, modeId) => {
 
 for (const [mode, id] of MODES) {
   if (MOBILE) {
-    const group = frame(gap, 'row — ' + mode, 'VERTICAL', 8, 'space/space-8');
+    const group = frame(gap, 'row — ' + mode, 'VERTICAL', 8, 'space/8');
     group.counterAxisAlignItems = 'MIN';
     text(group, mode, LBL);                            // label ABOVE at 342px
     addStrip(group, id);

@@ -93,9 +93,9 @@ its own step):
 
 | step | dense | compact | comfortable | spacious |
 |---|---|---|---|---|
-| sm | `space/space-8` (8) | `space/space-12` (12) | `space/space-16` (16) | `space/space-20` (20) |
-| md | `space/space-12` (12) | `space/space-16` (16) | `space/space-24` (24) | `space/space-32` (32) |
-| lg | `space/space-16` (16) | `space/space-24` (24) | `space/space-32` (32) | `space/space-48` (48) |
+| sm | `space/8` (8) | `space/12` (12) | `space/16` (16) | `space/20` (20) |
+| md | `space/12` (12) | `space/16` (16) | `space/24` (24) | `space/32` (32) |
+| lg | `space/16` (16) | `space/24` (24) | `space/32` (32) | `space/48` (48) |
 
 ### `grid/gap/{xs,sm,md,lg,xl}`
 

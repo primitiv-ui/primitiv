@@ -84,7 +84,7 @@
     { "name": "--primitiv-collapsible-seam-color", "defaultsTo": "var(--primitiv-border-subtle)" },
     { "name": "--primitiv-collapsible-radius", "defaultsTo": "var(--primitiv-framed-control-md-radius)" },
     { "name": "--primitiv-collapsible-bg", "defaultsTo": "var(--primitiv-color-transparent)" },
-    { "name": "--primitiv-collapsible-gap", "defaultsTo": "var(--primitiv-space-space-8)" },
+    { "name": "--primitiv-collapsible-gap", "defaultsTo": "var(--primitiv-space-8)" },
     { "name": "--primitiv-collapsible-trigger-padding-inline", "defaultsTo": "var(--primitiv-framed-control-md-padding-inline)" },
     { "name": "--primitiv-collapsible-trigger-gap", "defaultsTo": "var(--primitiv-framed-control-md-gap)" },
     { "name": "--primitiv-collapsible-trigger-icon-size", "defaultsTo": "var(--primitiv-framed-control-md-icon-size)" },
@@ -104,6 +104,6 @@
     { "name": "--primitiv-collapsible-content-transition-duration", "defaultsTo": "var(--primitiv-motion-duration-control)" },
     { "name": "--primitiv-collapsible-content-transition-easing", "defaultsTo": "var(--primitiv-motion-easing-default)" },
     { "name": "--primitiv-collapsible-fade-color", "defaultsTo": "var(--primitiv-surface-default)" },
-    { "name": "--primitiv-collapsible-fade-height", "defaultsTo": "var(--primitiv-space-space-32)" }
+    { "name": "--primitiv-collapsible-fade-height", "defaultsTo": "var(--primitiv-space-32)" }
   ]
 }

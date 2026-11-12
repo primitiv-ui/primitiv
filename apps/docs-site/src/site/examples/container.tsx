@@ -21,7 +21,7 @@ const outline: CSSProperties = {
   borderRadius: "var(--primitiv-radii-8)",
 };
 const content: CSSProperties = {
-  padding: "var(--primitiv-space-space-12)",
+  padding: "var(--primitiv-space-12)",
   background: "var(--primitiv-surface-raised)",
   borderRadius: "var(--primitiv-radii-8)",
   color: "var(--primitiv-content-secondary)",
@@ -35,7 +35,7 @@ const Content = ({ children }: { children: ReactNode }) => (
 const OUTLINE_STYLE =
   "border: var(--primitiv-border-width-1) dashed var(--primitiv-border-default); border-radius: var(--primitiv-radii-8)";
 const CONTENT_STYLE =
-  "padding: var(--primitiv-space-space-12); background: var(--primitiv-surface-raised); border-radius: var(--primitiv-radii-8); color: var(--primitiv-content-secondary); text-align: center";
+  "padding: var(--primitiv-space-12); background: var(--primitiv-surface-raised); border-radius: var(--primitiv-radii-8); color: var(--primitiv-content-secondary); text-align: center";
 
 /** Outlines each container and fills its bare `<div>` content. */
 const elementsDemo = (code: string) =>

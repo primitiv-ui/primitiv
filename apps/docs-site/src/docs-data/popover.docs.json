@@ -272,7 +272,7 @@
       },
       {
         "name": "--primitiv-popover-shadow",
-        "defaultsTo": "drop-shadow(0 var(--primitiv-space-space-2) var(--primitiv-space-space-4) var(--primitiv-shadow-color-strong)) drop-shadow(0 var(--primitiv-space-space-4) var(--primitiv-space-space-8) var(--primitiv-shadow-color-medium)) drop-shadow(0 var(--primitiv-space-space-8) var(--primitiv-space-space-16) var(--primitiv-shadow-color-soft))"
+        "defaultsTo": "drop-shadow(0 var(--primitiv-space-2) var(--primitiv-space-4) var(--primitiv-shadow-color-strong)) drop-shadow(0 var(--primitiv-space-4) var(--primitiv-space-8) var(--primitiv-shadow-color-medium)) drop-shadow(0 var(--primitiv-space-8) var(--primitiv-space-16) var(--primitiv-shadow-color-soft))"
       },
       {
         "name": "--primitiv-popover-radius",

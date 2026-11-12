@@ -90,7 +90,7 @@ by `scripts/check-registry-types.mjs` like every other registry wrapper.
 |---|---|
 | `--primitiv-breakpoint-{xs...2xl}` | The width caps. Referenced directly — no `container/max-width/*` family exists, deliberately (see below). |
 | `--primitiv-container-gutter-{sm,md,lg}` | The gutter ramp — a density-scaled Context family, so the gutter re-tightens under `[data-density]`. |
-| `--primitiv-space-space-0` | `gutter="none"`. Zero has no density curve to scale, so it pins the flat primitive directly. |
+| `--primitiv-space-0` | `gutter="none"`. Zero has no density curve to scale, so it pins the flat primitive directly. |
 
 **Why the caps reference breakpoints directly.** A `container/max-width/*`
 Context family would be the wrong collection — Context is density-scoped across

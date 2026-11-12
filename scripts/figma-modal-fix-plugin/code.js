@@ -5,10 +5,10 @@
  * cell to its matching primitive, computed from the current value:
  *
  *   - <size>/radius                                  -> radii/<value>
- *   - <size>/gap, padding-block, padding-inline      -> space/space-<value>
+ *   - <size>/gap, padding-block, padding-inline      -> space/<value>
  *
  * The one off-scale value (modal/lg/gap Spacious = 18, the space scale jumps
- * 16 -> 20) is rounded up to space/space-20; that single change is flagged in
+ * 16 -> 20) is rounded up to space/20; that single change is flagged in
  * the log. Mutates the Figma file. Idempotent: already-aliased cells are skipped.
  *
  * Run from the plugin sandbox: Plugins -> Development -> Import plugin from
@@ -43,7 +43,7 @@
       } else if (SPACE.has(prop)) {
         const n = val === 18 ? 20 : val;
         if (n !== val) note = "  (rounded " + val + " -> " + n + ")";
-        targetName = "space/space-" + n;
+        targetName = "space/" + n;
       } else {
         log.push("SKIP (unhandled prop): " + v.name);
         continue;

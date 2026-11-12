@@ -115,28 +115,28 @@ Height and padding are **fixed per size tier** — they do not scale with densit
   "size": {
     "xs": {
       "typography": "{label.xs}",
-      "height": "{size.size-28}",
-      "padding-x": "{space.space-12}"
+      "height": "{size.28}",
+      "padding-x": "{space.12}"
     },
     "sm": {
       "typography": "{label.sm}",
-      "height": "{size.size-32}",
-      "padding-x": "{space.space-12}"
+      "height": "{size.32}",
+      "padding-x": "{space.12}"
     },
     "md": {
       "typography": "{label.md}",
-      "height": "{size.size-40}",
-      "padding-x": "{space.space-16}"
+      "height": "{size.40}",
+      "padding-x": "{space.16}"
     },
     "lg": {
       "typography": "{label.lg}",
-      "height": "{size.size-48}",
-      "padding-x": "{space.space-20}"
+      "height": "{size.48}",
+      "padding-x": "{space.20}"
     },
     "xl": {
       "typography": "{label.xl}",
-      "height": "{size.size-56}",
-      "padding-x": "{space.space-24}"
+      "height": "{size.56}",
+      "padding-x": "{space.24}"
     }
   }
 }

@@ -292,19 +292,19 @@
       },
       {
         "name": "--primitiv-stepper-connector-gap",
-        "defaultsTo": "var(--primitiv-space-space-12)"
+        "defaultsTo": "var(--primitiv-space-12)"
       },
       {
         "name": "--primitiv-stepper-connector-inset",
-        "defaultsTo": "var(--primitiv-space-space-4)"
+        "defaultsTo": "var(--primitiv-space-4)"
       },
       {
         "name": "--primitiv-stepper-compact-segment-height",
-        "defaultsTo": "var(--primitiv-size-size-4)"
+        "defaultsTo": "var(--primitiv-size-4)"
       },
       {
         "name": "--primitiv-stepper-compact-gap",
-        "defaultsTo": "var(--primitiv-space-space-6)"
+        "defaultsTo": "var(--primitiv-space-6)"
       },
       {
         "name": "--primitiv-stepper-marker-background",
@@ -408,7 +408,7 @@
       },
       {
         "name": "--primitiv-stepper-tap-target",
-        "defaultsTo": "var(--primitiv-size-size-48)"
+        "defaultsTo": "var(--primitiv-size-48)"
       },
       {
         "name": "--primitiv-stepper-transition-duration",

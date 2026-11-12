@@ -151,11 +151,11 @@
     /* A small inline inset so a row's highlight / rounded corners sit inside the
        panel edge instead of running flush against the border (most visible on
        hover). */
-    --primitiv-context-menu-padding-inline: var(--primitiv-space-space-4);
+    --primitiv-context-menu-padding-inline: var(--primitiv-space-4);
     --primitiv-context-menu-min-inline-size: 12rem;
     /* Gap between a SubTrigger and its SubContent — the root panel needs no
        offset of its own, it opens flush at the cursor. */
-    --primitiv-context-menu-offset: var(--primitiv-space-space-4);
+    --primitiv-context-menu-offset: var(--primitiv-space-4);
 
     --primitiv-context-menu-item-height: var(--primitiv-dropdown-md-item-height);
     --primitiv-context-menu-item-padding-inline: var(--primitiv-dropdown-md-item-padding-inline);

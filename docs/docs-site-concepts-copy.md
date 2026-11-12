@@ -120,7 +120,7 @@ tokens:
   block-labels: label/md
   sub-lines: body/sm, content/muted
   caption-strip: body/sm, content/muted
-  tier-gap: space/space-24
+  tier-gap: space/24
 
 frame:
   ratio: "3:2"
@@ -268,7 +268,7 @@ tokens:
   highlighted-path: border/focus for connectors, content/primary for names
   quiet-rows: content/muted
   closing-line: body/sm, content/muted
-  tier-gap: space/space-40
+  tier-gap: space/40
 
 frame:
   ratio: "4:3"
@@ -497,7 +497,7 @@ tokens:
   figures: the mono face at font-size/12, content/muted
   column-separators: border/subtle
   closing-line: body/sm, content/muted
-  column-gap: space/space-24
+  column-gap: space/24
 
 frame:
   ratio: "16:9"
@@ -967,7 +967,7 @@ tokens:
   items: body/sm, content/secondary
   divider: border/strong at 1px
   closing-line: body/sm, content/muted
-  region-padding: space/space-24
+  region-padding: space/24
 
 frame:
   ratio: "3:1"

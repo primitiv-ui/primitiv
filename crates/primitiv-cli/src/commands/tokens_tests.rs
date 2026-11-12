@@ -56,7 +56,7 @@ fn writes_the_design_system_token_layer_as_css() {
         "@layer primitiv.reset, primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;"
     ));
     // A real primitive routed into the base :root block (space-4 = 4px → 0.25rem).
-    assert!(written.contains("--primitiv-space-space-4: 0.25rem;"));
+    assert!(written.contains("--primitiv-space-4: 0.25rem;"));
     // The theme and density axes are scoped (palette/intent and context routed).
     assert!(written.contains("[data-theme=\"dark\"]"));
     assert!(written.contains("[data-density="));
@@ -84,7 +84,7 @@ fn writes_the_token_layer_as_scss_when_the_format_is_scss() {
     let written = String::from_utf8(fs.read(out).unwrap()).unwrap();
     // The SCSS surface is the canonical CSS plus resolving $primitiv-* variables.
     assert!(written.contains("@layer primitiv.reset"));
-    assert!(written.contains("$primitiv-space-space-4: var(--primitiv-space-space-4);"));
+    assert!(written.contains("$primitiv-space-4: var(--primitiv-space-4);"));
 }
 
 #[test]
@@ -109,7 +109,7 @@ fn writes_the_token_layer_as_a_tailwind_preset_when_the_format_is_tailwind() {
     let written = String::from_utf8(fs.read(out).unwrap()).unwrap();
     // The Tailwind v4 @theme preset maps names onto Tailwind namespaces.
     assert!(written.contains("@theme {"));
-    assert!(written.contains("--spacing-space-4: var(--primitiv-space-space-4);"));
+    assert!(written.contains("--spacing-space-4: var(--primitiv-space-4);"));
 }
 
 #[test]
@@ -315,7 +315,7 @@ fn defaults_the_format_from_the_config_when_it_is_omitted() {
 
     let written =
         String::from_utf8(fs.read(Path::new("src/styles/from-config.scss")).unwrap()).unwrap();
-    assert!(written.contains("$primitiv-space-space-4: var(--primitiv-space-space-4);"));
+    assert!(written.contains("$primitiv-space-4: var(--primitiv-space-4);"));
 }
 
 #[test]
@@ -341,7 +341,7 @@ fn defaults_the_format_to_css_when_omitted_and_no_config_exists() {
 
     let written = String::from_utf8(fs.read(out).unwrap()).unwrap();
     assert!(written.contains("@layer primitiv.reset"));
-    assert!(written.contains("--primitiv-space-space-4: 0.25rem;"));
+    assert!(written.contains("--primitiv-space-4: 0.25rem;"));
 }
 
 #[test]
@@ -366,7 +366,7 @@ fn streams_to_stdout_when_neither_out_nor_a_config_is_present() {
 
     let streamed = String::from_utf8(stdout.captured()).unwrap();
     assert!(streamed.contains("@layer primitiv.reset"));
-    assert!(streamed.contains("--primitiv-space-space-4: 0.25rem;"));
+    assert!(streamed.contains("--primitiv-space-4: 0.25rem;"));
     // Nothing was written to disk.
     assert!(!fs.exists(Path::new("project/tokens.css")));
 }

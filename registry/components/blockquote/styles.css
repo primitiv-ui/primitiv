@@ -47,7 +47,7 @@
     /* Inline margins only: the block margins belong to the flow context
        (.primitiv-flow) and are already zero outside one (the base layer resets
        them). A `margin: 0` here tied with the flow rule and won by load order. */
-    margin-inline: var(--primitiv-space-space-0);
+    margin-inline: var(--primitiv-space-0);
     border-inline-start: var(--primitiv-blockquote-border-width) solid var(--primitiv-blockquote-border-color);
     padding-inline-start: var(--primitiv-blockquote-padding-inline);
     display: flex;

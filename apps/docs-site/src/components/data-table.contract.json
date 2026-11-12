@@ -74,7 +74,7 @@
     { "name": "--primitiv-data-table-font-weight", "defaultsTo": "var(--primitiv-body-md-font-weight)" },
     { "name": "--primitiv-data-table-line-height", "defaultsTo": "var(--primitiv-body-md-line-height)" },
     { "name": "--primitiv-data-table-icon-size", "defaultsTo": "var(--primitiv-framed-control-sm-icon-size)" },
-    { "name": "--primitiv-data-table-sort-gap", "defaultsTo": "var(--primitiv-space-space-4)" },
+    { "name": "--primitiv-data-table-sort-gap", "defaultsTo": "var(--primitiv-space-4)" },
     { "name": "--primitiv-data-table-sort-hover-background", "defaultsTo": "var(--primitiv-table-row-hover)" },
     { "name": "--primitiv-data-table-sort-idle-color", "defaultsTo": "var(--primitiv-content-muted)" },
     { "name": "--primitiv-data-table-detail-padding-inline", "defaultsTo": "var(--primitiv-table-cell-padding-inline)" },

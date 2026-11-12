@@ -63,8 +63,8 @@
     align-items: center;
     border: none;
     background: var(--primitiv-color-transparent);
-    padding: var(--primitiv-space-space-2) var(--primitiv-space-space-6);
-    margin: calc(-1 * var(--primitiv-space-space-2)) calc(-1 * var(--primitiv-space-space-6));
+    padding: var(--primitiv-space-2) var(--primitiv-space-6);
+    margin: calc(-1 * var(--primitiv-space-2)) calc(-1 * var(--primitiv-space-6));
     border-radius: var(--primitiv-radii-4);
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;

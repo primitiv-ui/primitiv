@@ -71,9 +71,9 @@
     }
   ],
   "customProperties": [
-    { "name": "--primitiv-list-item-gap", "defaultsTo": "var(--primitiv-space-space-8)" },
-    { "name": "--primitiv-list-marker-gap", "defaultsTo": "var(--primitiv-space-space-8)" },
-    { "name": "--primitiv-list-indent", "defaultsTo": "var(--primitiv-space-space-28)" },
+    { "name": "--primitiv-list-item-gap", "defaultsTo": "var(--primitiv-space-8)" },
+    { "name": "--primitiv-list-marker-gap", "defaultsTo": "var(--primitiv-space-8)" },
+    { "name": "--primitiv-list-indent", "defaultsTo": "var(--primitiv-space-28)" },
     { "name": "--primitiv-list-marker-color", "defaultsTo": "var(--primitiv-list-marker-foreground)" },
     { "name": "--primitiv-list-item-disabled-opacity", "defaultsTo": "var(--primitiv-opacity-50)" },
     { "name": "--primitiv-list-item-color", "defaultsTo": "var(--primitiv-content-primary)" },

@@ -32,12 +32,12 @@
   .primitiv-carousel {
     /* Per-component API — the themable knobs. Consumers override any one
        without touching the rules below. */
-    --primitiv-carousel-gap: var(--primitiv-space-space-16);
+    --primitiv-carousel-gap: var(--primitiv-space-16);
     /* Peek gutter — the sliver of the adjacent slides revealed on either side of
        the active one. 0 = no peek (the active slide fills the viewport). The
        `peek` modifier re-points it; the viewport maps it to the axis that
        matches the orientation (inline for horizontal, block for vertical). */
-    --primitiv-carousel-peek: var(--primitiv-space-space-0);
+    --primitiv-carousel-peek: var(--primitiv-space-0);
     /* Viewport padding — inner breathing room *inside the viewport*, so the
        slides sit inset from the track edges. Paired with the viewport frame knobs
        below (surface / border / radius), it renders the viewport as a padded,
@@ -46,7 +46,7 @@
        composes with peek on the scroll axis (peek narrows the slides further to
        reveal the neighbours within the track); the `padding` sizes couple the
        inter-slide gap so the resting track stays clean (no accidental peek). */
-    --primitiv-carousel-viewport-padding: var(--primitiv-space-space-0);
+    --primitiv-carousel-viewport-padding: var(--primitiv-space-0);
     /* Content-spacing ramp — a shared 4-rung scale that peek / viewport-padding /
        inter-slide gap all draw from, so the three content gutters breathe together
        with size + ambient density (the `carousel-{slot}-content-space-*` tokens are
@@ -119,7 +119,7 @@
     --primitiv-carousel-control-bg-active: var(--primitiv-action-secondary-active);
     --primitiv-carousel-control-fg: var(--primitiv-action-secondary-foreground-default);
     --primitiv-carousel-control-icon-size: var(--primitiv-framed-control-md-icon-size);
-    --primitiv-carousel-indicator-gap: var(--primitiv-space-space-0);
+    --primitiv-carousel-indicator-gap: var(--primitiv-space-0);
     --primitiv-carousel-indicator-hit-area: var(--primitiv-carousel-md-dot-hit-area);
     --primitiv-carousel-indicator-size: var(--primitiv-carousel-md-dot-size);
     /* The active dot elongates into a pill along the dot row's axis. */
@@ -142,7 +142,7 @@
        thumbnails (per-slide ratios are a later revisit). */
     --primitiv-carousel-thumbnail-inline-size: var(--primitiv-carousel-md-thumbnail-size);
     --primitiv-carousel-thumbnail-aspect-ratio: var(--primitiv-carousel-slide-aspect-ratio);
-    --primitiv-carousel-thumbnail-gap: var(--primitiv-space-space-8);
+    --primitiv-carousel-thumbnail-gap: var(--primitiv-space-8);
     --primitiv-carousel-thumbnail-radius: var(--primitiv-radii-8);
     --primitiv-carousel-thumbnail-ring-width: var(--primitiv-border-width-2);
     --primitiv-carousel-thumbnail-ring-color: var(--primitiv-action-primary-default);
@@ -153,14 +153,14 @@
        neutral-alpha ramp (a dark veil in light mode, a light veil in dark mode),
        so a control reads on arbitrary photography in either theme; the glyph is
        `content-inverse`, which inverts to match. */
-    --primitiv-carousel-overlay-control-inset: var(--primitiv-space-space-16);
+    --primitiv-carousel-overlay-control-inset: var(--primitiv-space-16);
     /* One step more opaque than the design's 500 base so the controls read more
        solidly on bright imagery (still a translucent scrim). */
     --primitiv-carousel-overlay-control-bg: var(--primitiv-color-neutral-alpha-600);
     --primitiv-carousel-overlay-control-bg-hover: var(--primitiv-color-neutral-alpha-700);
     --primitiv-carousel-overlay-control-bg-active: var(--primitiv-color-neutral-alpha-800);
     --primitiv-carousel-overlay-control-fg: var(--primitiv-content-inverse);
-    --primitiv-carousel-overlay-indicator-inset: var(--primitiv-space-space-8);
+    --primitiv-carousel-overlay-indicator-inset: var(--primitiv-space-8);
     /* Dots on the scrim pill: inactive is a translucent inverse veil, active a
        solid inverse (white on the light-mode dark scrim, black on the dark-mode
        light scrim) — both read on the pill in either theme. The Figma binds the
@@ -501,7 +501,7 @@
     block-size: var(--primitiv-carousel-control-size);
     /* Reset the UA button padding — at small sizes/densities its inline 6px
        squeezes the grid content box and knocks the glyph off centre. */
-    padding: var(--primitiv-space-space-0);
+    padding: var(--primitiv-space-0);
     border: none;
     border-radius: var(--primitiv-carousel-control-radius);
     background: var(--primitiv-carousel-control-bg);
@@ -747,7 +747,7 @@
       var(--primitiv-carousel-peek) + var(--primitiv-carousel-viewport-padding)
     );
     padding-inline: var(--primitiv-carousel-viewport-padding);
-    scroll-padding-inline: var(--primitiv-space-space-0);
+    scroll-padding-inline: var(--primitiv-space-0);
   }
   /* Vertical mirror of the horizontal proximity override above — axis y
      instead of x, same reasoning. */
@@ -772,7 +772,7 @@
      both orientations (the viewport maps the knob to the right axis). `none` is
      the default (no peek). */
   .primitiv-carousel--peek-none {
-    --primitiv-carousel-peek: var(--primitiv-space-space-0);
+    --primitiv-carousel-peek: var(--primitiv-space-0);
   }
   .primitiv-carousel--peek-sm {
     --primitiv-carousel-peek: var(--primitiv-carousel-content-space-2);
@@ -807,7 +807,7 @@
      the padding rules below so the framed-track gap coupling still wins when both
      are set. */
   .primitiv-carousel--gap-none {
-    --primitiv-carousel-gap: var(--primitiv-space-space-0);
+    --primitiv-carousel-gap: var(--primitiv-space-0);
   }
   .primitiv-carousel--gap-sm {
     --primitiv-carousel-gap: var(--primitiv-carousel-content-space-1);
@@ -836,7 +836,7 @@
     --primitiv-carousel-viewport-radius: var(--primitiv-carousel-radius);
   }
   .primitiv-carousel--padding-none {
-    --primitiv-carousel-viewport-padding: var(--primitiv-space-space-0);
+    --primitiv-carousel-viewport-padding: var(--primitiv-space-0);
   }
   .primitiv-carousel--padding-sm {
     --primitiv-carousel-viewport-padding: var(--primitiv-carousel-content-space-2);
@@ -1614,7 +1614,7 @@
   .primitiv-carousel--indicators-dots {
     /* Compact dots — the base styling already draws them, nothing to re-point.
        Declared so the indicators axis stays explicit if toggled dynamically. */
-    --primitiv-carousel-indicator-gap: var(--primitiv-space-space-0);
+    --primitiv-carousel-indicator-gap: var(--primitiv-space-0);
   }
   .primitiv-carousel--indicators-thumbnails {
     /* Real breathing room between the thumbnails (the dot row sits flush at 0). */
@@ -1630,9 +1630,9 @@
   .primitiv-carousel--indicators-thumbnails .primitiv-carousel__indicator-group > button {
     inline-size: var(--primitiv-carousel-thumbnail-inline-size);
     aspect-ratio: var(--primitiv-carousel-thumbnail-aspect-ratio);
-    min-inline-size: var(--primitiv-space-space-0);
-    min-block-size: var(--primitiv-space-space-0);
-    padding: var(--primitiv-space-space-0);
+    min-inline-size: var(--primitiv-space-0);
+    min-block-size: var(--primitiv-space-0);
+    padding: var(--primitiv-space-0);
     border-radius: var(--primitiv-carousel-thumbnail-radius);
     /* A real border (this one and the multi-slide-per-page group frame below)
        sits on the border-box, not added on top of it, so a thumbnail's
@@ -1874,10 +1874,10 @@
        shrink below intrinsic width — a grid shape, like the vertical layout). */
     grid-template-columns: minmax(0, 1fr);
     /* No scroll track — neutralise the snap / scroll / peek machinery. */
-    gap: var(--primitiv-space-space-0);
+    gap: var(--primitiv-space-0);
     overflow: hidden;
-    padding-inline: var(--primitiv-space-space-0);
-    padding-block: var(--primitiv-space-space-0);
+    padding-inline: var(--primitiv-space-0);
+    padding-block: var(--primitiv-space-0);
   }
 
   /* Every slide shares the single cell; only the active one is shown.

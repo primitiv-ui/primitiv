@@ -27,7 +27,7 @@
  * declared once in the shared token layer (primitiv.tokens.css); this file only
  * re-opens the named sublayers. Requires the token layer (`primitiv tokens`) for
  * the --primitiv-border-subtle, --primitiv-border-width-1 and
- * --primitiv-space-space-0 custom properties it resolves.
+ * --primitiv-space-0 custom properties it resolves.
  */
 
 /* Declare the sublayer order up front so this sheet is safe to load ahead of
@@ -48,7 +48,7 @@
        does not own. */
     --primitiv-divider-color: var(--primitiv-border-subtle);
     --primitiv-divider-thickness: var(--primitiv-border-width-1);
-    --primitiv-divider-spacing: var(--primitiv-space-space-0);
+    --primitiv-divider-spacing: var(--primitiv-space-0);
 
     display: block;
     background-color: var(--primitiv-divider-color);

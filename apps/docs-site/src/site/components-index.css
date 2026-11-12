@@ -40,7 +40,7 @@
      every other anchored heading on the site (docs-section.css,
      component-page.css, landing-section.css): the 73px bar plus clearance, so
      the heading arrives with air above it rather than flush under the bar. */
-  scroll-margin-block-start: var(--primitiv-space-space-96);
+  scroll-margin-block-start: var(--primitiv-space-96);
 }
 
 .docs-index-grid {
@@ -120,7 +120,7 @@
 
 .docs-index-card:focus-visible {
   outline: var(--primitiv-border-width-2) solid var(--primitiv-focus-ring);
-  outline-offset: var(--primitiv-space-space-2);
+  outline-offset: var(--primitiv-space-2);
 }
 
 /*

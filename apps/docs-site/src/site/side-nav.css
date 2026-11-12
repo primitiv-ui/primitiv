@@ -46,11 +46,11 @@
   min-block-size: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--primitiv-space-space-16);
+  gap: var(--primitiv-space-16);
   margin: 0;
   padding: 0;
   list-style: none;
-  --primitiv-list-indent: var(--primitiv-space-space-20);
+  --primitiv-list-indent: var(--primitiv-space-20);
 }
 
 /* Each section, and its Collapsible root, is a flex column so a bounded height
@@ -159,7 +159,7 @@
 .docs-nav-disclosure:focus-visible,
 .docs-nav-link:focus-visible {
   outline: var(--primitiv-border-width-2) solid var(--primitiv-focus-ring);
-  outline-offset: var(--primitiv-space-space-2);
+  outline-offset: var(--primitiv-space-2);
 }
 
 /* A real button with aria-expanded, so the disclosure is operable and announced
@@ -170,7 +170,7 @@
   justify-content: center;
   inline-size: var(--docs-nav-chevron-size);
   block-size: var(--docs-nav-chevron-size);
-  padding: var(--primitiv-space-space-0);
+  padding: var(--primitiv-space-0);
   border: none;
   border-radius: var(--primitiv-radii-4);
   background-color: transparent;
@@ -195,7 +195,7 @@
 /* Rows abut: each link is already `--docs-nav-row-height` tall, so the section
    rhythm above would double-space them. */
 .docs-nav-links {
-  --primitiv-list-item-gap: var(--primitiv-space-space-0);
+  --primitiv-list-item-gap: var(--primitiv-space-0);
 }
 
 .docs-nav-link {
@@ -231,11 +231,11 @@
   display: flex;
   flex-direction: column;
   gap: var(--primitiv-stack-gap-sm);
-  padding-inline-start: var(--primitiv-space-space-20);
+  padding-inline-start: var(--primitiv-space-20);
   /* Breathing room under the section's own trigger, so the first category
      heading reads as the start of a new run rather than as another row of the
      disclosure it sits inside. */
-  margin-block-start: var(--primitiv-space-space-12);
+  margin-block-start: var(--primitiv-space-12);
 }
 
 /*
@@ -273,13 +273,13 @@
    is already indented 20 from the section, and stacking two full steps pushes a
    name like "Navigation Menu" against the rail's edge. */
 .docs-nav-group .docs-nav-links {
-  --primitiv-list-indent: var(--primitiv-space-space-12);
+  --primitiv-list-indent: var(--primitiv-space-12);
 }
 
 /* "CSS only": an Elements component that is classes alone, with no script. */
 .docs-nav-tag {
   margin-inline-start: auto;
-  padding-inline: var(--primitiv-space-space-6);
+  padding-inline: var(--primitiv-space-6);
   border: var(--primitiv-border-width-1) solid var(--primitiv-border-subtle);
   border-radius: var(--primitiv-radii-full);
   font-size: var(--primitiv-body-xs-font-size);

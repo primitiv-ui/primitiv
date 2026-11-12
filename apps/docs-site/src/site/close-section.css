@@ -4,7 +4,7 @@
  */
 .docs-close-section {
   --docs-close-measure: 50ch;
-  padding-block: var(--primitiv-space-space-96);
+  padding-block: var(--primitiv-space-96);
   text-align: center;
 }
 

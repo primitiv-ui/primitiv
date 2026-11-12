@@ -9,8 +9,8 @@ import primitives from './primitives.json'
 
 /*
  * A token's path becomes its custom-property name segment by segment, so a key
- * that repeats its group's name doubles in every stylesheet: `space.space-4`
- * emitted as `--primitiv-space-space-4`. The scale keys belong bare under their
+ * that repeats its group's name doubles in every stylesheet: `space.4`
+ * emitted as `--primitiv-space-4`. The scale keys belong bare under their
  * group (`space.4`), the way `radii.4` and `opacity.40` already are.
  */
 

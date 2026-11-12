@@ -36,7 +36,7 @@
      item/separator sitting on its own stray baseline. Same fix Dropdown and
      NavigationMenu apply to their own rows. */
   .primitiv-breadcrumb li {
-    margin-block: var(--primitiv-space-space-0);
+    margin-block: var(--primitiv-space-0);
   }
 }
 
@@ -45,7 +45,7 @@
     /* Per-component API — the themable knobs, defaulting to the md size. The
        variants layer below re-points them; consumers can override any one
        without touching the rule. */
-    --primitiv-breadcrumb-gap: var(--primitiv-space-space-4);
+    --primitiv-breadcrumb-gap: var(--primitiv-space-4);
     --primitiv-breadcrumb-icon-size: var(--primitiv-breadcrumb-md-icon-size);
     --primitiv-breadcrumb-font-family: var(--primitiv-body-md-font-family);
     --primitiv-breadcrumb-font-size: var(--primitiv-body-md-font-size);
@@ -66,8 +66,8 @@
     flex-wrap: wrap;
     align-items: center;
     gap: var(--primitiv-breadcrumb-gap);
-    margin: var(--primitiv-space-space-0);
-    padding-inline-start: var(--primitiv-space-space-0);
+    margin: var(--primitiv-space-0);
+    padding-inline-start: var(--primitiv-space-0);
     list-style: none;
   }
 

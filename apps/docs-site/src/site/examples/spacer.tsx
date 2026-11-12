@@ -23,12 +23,12 @@ const bar: CSSProperties = {
   gap: "0.5rem",
   width: "100%",
   overflowX: "auto",
-  padding: "var(--primitiv-space-space-8) var(--primitiv-space-space-12)",
+  padding: "var(--primitiv-space-8) var(--primitiv-space-12)",
   border: "var(--primitiv-border-width-1) solid var(--primitiv-border-subtle)",
   borderRadius: "var(--primitiv-radii-8)",
 };
 const chip: CSSProperties = {
-  padding: "var(--primitiv-space-space-4) var(--primitiv-space-space-8)",
+  padding: "var(--primitiv-space-4) var(--primitiv-space-8)",
   background: "var(--primitiv-surface-raised)",
   borderRadius: "var(--primitiv-radii-8)",
   color: "var(--primitiv-content-secondary)",
@@ -43,9 +43,9 @@ const ROW = `<div style="display: flex; align-items: center; gap: 0.5rem">`;
 
 /** The preview's bar and chips, as HTML style values. */
 const BAR_STYLE =
-  "display: flex; align-items: center; gap: 0.5rem; width: 100%; overflow-x: auto; padding: var(--primitiv-space-space-8) var(--primitiv-space-space-12); border: var(--primitiv-border-width-1) solid var(--primitiv-border-subtle); border-radius: var(--primitiv-radii-8)";
+  "display: flex; align-items: center; gap: 0.5rem; width: 100%; overflow-x: auto; padding: var(--primitiv-space-8) var(--primitiv-space-12); border: var(--primitiv-border-width-1) solid var(--primitiv-border-subtle); border-radius: var(--primitiv-radii-8)";
 const CHIP_STYLE =
-  "padding: var(--primitiv-space-space-4) var(--primitiv-space-space-8); background: var(--primitiv-surface-raised); border-radius: var(--primitiv-radii-8); color: var(--primitiv-content-secondary); white-space: nowrap; border: none; font: inherit";
+  "padding: var(--primitiv-space-4) var(--primitiv-space-8); background: var(--primitiv-surface-raised); border-radius: var(--primitiv-radii-8); color: var(--primitiv-content-secondary); white-space: nowrap; border: none; font: inherit";
 
 /** Swaps the snippet's plain flex row for the bordered demo bar. */
 const elementsDemo = (code: string) =>

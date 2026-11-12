@@ -77,7 +77,7 @@ does not own. Set the knob when you need reserved margin in a plain block-flow
 context that has no gap of its own:
 
 ```css
-.prose > .primitiv-divider { --primitiv-divider-spacing: var(--primitiv-space-space-48); }
+.prose > .primitiv-divider { --primitiv-divider-spacing: var(--primitiv-space-48); }
 ```
 
 ### `display: inline-block` on the vertical rule is for inline flow only
@@ -87,9 +87,9 @@ blockified — so in the documented usage (inside a flex row) it computes to
 `block`. Measured, not assumed. The declaration is kept for the inline-flow case,
 where the rule sits between spans of text rather than between flex children.
 
-### Thickness resolves through `border-width/1`, not Figma's `size/size-1`
+### Thickness resolves through `border-width/1`, not Figma's `size/1`
 
-Figma binds the rule's dimension to `size/size-1`; the stylesheet uses
+Figma binds the rule's dimension to `size/1`; the stylesheet uses
 `border-width/1`. Both are `0.0625rem` (1px), so there is **no visual drift** —
 this is a token-family choice, kept because `border-width/*` is the family every
 other hairline in the registry resolves through.

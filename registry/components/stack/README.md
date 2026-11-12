@@ -30,7 +30,7 @@ spacing," generalised into a component instead of ad hoc CSS per consumer.
   step except `none` is its own density-scaled Context token
   (`--primitiv-stack-gap-{xs,sm,md,lg,xl}`), so the gap re-tightens under
   `[data-density]` the same way every other spacing knob in the system
-  does; `none` pins the flat `space-space-0` primitive (zero has no density
+  does; `none` pins the flat `space-0` primitive (zero has no density
   curve to scale).
 - `wrap` — `"nowrap"` (default) or `"wrap"`. `nowrap` is the CSS default — a
   row may overflow its container rather than break onto additional lines.

@@ -87,10 +87,10 @@
   }
 
   .primitiv-slider[data-orientation="horizontal"] .primitiv-slider__range {
-    inset-block: var(--primitiv-space-space-0);
+    inset-block: var(--primitiv-space-0);
   }
   .primitiv-slider[data-orientation="vertical"] .primitiv-slider__range {
-    inset-inline: var(--primitiv-space-space-0);
+    inset-inline: var(--primitiv-space-0);
   }
 
   .primitiv-slider__thumb {

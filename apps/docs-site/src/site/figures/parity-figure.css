@@ -24,7 +24,7 @@
  */
 .docs-parity__fork {
   inline-size: 100%;
-  block-size: var(--primitiv-space-space-32);
+  block-size: var(--primitiv-space-32);
   color: var(--primitiv-border-default);
 }
 
@@ -59,7 +59,7 @@
      the children laid out at max-content (180px inside a 142px arm) and spilled
      — visible only inside the narrow paired column on /figma/. */
   grid-template-columns: minmax(0, 1fr);
-  gap: var(--primitiv-space-space-8);
+  gap: var(--primitiv-space-8);
   min-inline-size: 0;
 }
 
@@ -95,7 +95,7 @@
 
 .docs-parity__token .docs-parity__swatch {
   display: inline-block;
-  margin-inline-end: var(--primitiv-space-space-8);
+  margin-inline-end: var(--primitiv-space-8);
   /* Sits on the text's own baseline rather than the line box's, so it tracks
      the mono type if that scale ever moves. */
   vertical-align: baseline;
@@ -107,8 +107,8 @@
  */
 .docs-parity__swatch {
   flex: none;
-  inline-size: var(--primitiv-space-space-12);
-  block-size: var(--primitiv-space-space-12);
+  inline-size: var(--primitiv-space-12);
+  block-size: var(--primitiv-space-12);
   border-radius: var(--primitiv-radii-2);
   background: var(--primitiv-action-primary-default);
 }

@@ -30,9 +30,9 @@
   ],
   "customProperties": [
     { "name": "--primitiv-prose-measure", "defaultsTo": "51ch" },
-    { "name": "--primitiv-flow-tight", "defaultsTo": "var(--primitiv-space-space-12)" },
-    { "name": "--primitiv-flow-normal", "defaultsTo": "var(--primitiv-space-space-20)" },
-    { "name": "--primitiv-flow-section", "defaultsTo": "var(--primitiv-space-space-32)" },
-    { "name": "--primitiv-flow-region", "defaultsTo": "var(--primitiv-space-space-48)" }
+    { "name": "--primitiv-flow-tight", "defaultsTo": "var(--primitiv-space-12)" },
+    { "name": "--primitiv-flow-normal", "defaultsTo": "var(--primitiv-space-20)" },
+    { "name": "--primitiv-flow-section", "defaultsTo": "var(--primitiv-space-32)" },
+    { "name": "--primitiv-flow-region", "defaultsTo": "var(--primitiv-space-48)" }
   ]
 }

@@ -360,7 +360,7 @@
       },
       {
         "name": "--primitiv-code-block-header-padding-block",
-        "defaultsTo": "var(--primitiv-space-space-8)"
+        "defaultsTo": "var(--primitiv-space-8)"
       },
       {
         "name": "--primitiv-code-block-font-family",
@@ -384,7 +384,7 @@
       },
       {
         "name": "--primitiv-code-block-tabs-header-padding",
-        "defaultsTo": "var(--primitiv-space-space-12)"
+        "defaultsTo": "var(--primitiv-space-12)"
       },
       {
         "name": "--primitiv-code-syntax-keyword",

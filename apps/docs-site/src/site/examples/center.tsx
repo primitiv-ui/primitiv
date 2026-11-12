@@ -23,7 +23,7 @@ const frame: CSSProperties = {
   borderRadius: "var(--primitiv-radii-8)",
 };
 const puck: CSSProperties = {
-  padding: "var(--primitiv-space-space-8) var(--primitiv-space-space-16)",
+  padding: "var(--primitiv-space-8) var(--primitiv-space-16)",
   background: "var(--primitiv-surface-raised)",
   borderRadius: "var(--primitiv-radii-8)",
   color: "var(--primitiv-content-secondary)",
@@ -36,7 +36,7 @@ const Puck = ({ children }: { children: ReactNode }) => (
 const FRAME_STYLE =
   "min-block-size: 12rem; inline-size: 100%; border: var(--primitiv-border-width-1) solid var(--primitiv-border-subtle); border-radius: var(--primitiv-radii-8)";
 const PUCK_STYLE =
-  "padding: var(--primitiv-space-space-8) var(--primitiv-space-space-16); background: var(--primitiv-surface-raised); border-radius: var(--primitiv-radii-8); color: var(--primitiv-content-secondary)";
+  "padding: var(--primitiv-space-8) var(--primitiv-space-16); background: var(--primitiv-surface-raised); border-radius: var(--primitiv-radii-8); color: var(--primitiv-content-secondary)";
 
 const centerHtml = (axis: string, child: string, style = "") =>
   [

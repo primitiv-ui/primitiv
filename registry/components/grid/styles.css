@@ -11,7 +11,7 @@
  * count is a plain count or a mobile-first per-breakpoint map, and whose `gap`
  * resolves against a dedicated, density-scaled grid/gap-* Context token per
  * step — the same treatment Stack's gap steps get, so the gap re-tightens
- * under [data-density]. `none` pins the flat space-space-0 primitive directly
+ * under [data-density]. `none` pins the flat space-0 primitive directly
  * (zero is zero at every density, so there is nothing to scale). The grid/gap-*
  * ramp deliberately mirrors stack/gap-* step for step, so a Grid and a Stack at
  * the same step line up when nested; if that duplication ever needs collapsing,
@@ -36,7 +36,7 @@
  * token layer. Keep all three in step if the scale ever moves.
  *
  * Requires the token layer (`primitiv tokens`) for the --primitiv-grid-gap-*
- * and --primitiv-space-space-0 custom properties it resolves.
+ * and --primitiv-space-0 custom properties it resolves.
  */
 
 /* Declare the sublayer order up front so this sheet is safe to load ahead of
@@ -67,10 +67,10 @@
 @layer primitiv.variants {
   /* gap steps — each a dedicated density-scaled Context token
      (--primitiv-grid-gap-{xs,sm,md,lg,xl}). `none` is the one exception: zero
-     has no density curve to scale, so it pins the flat space-space-0 primitive
+     has no density curve to scale, so it pins the flat space-0 primitive
      directly. */
   .primitiv-grid--gap-none {
-    --primitiv-grid-gap: var(--primitiv-space-space-0);
+    --primitiv-grid-gap: var(--primitiv-space-0);
   }
   .primitiv-grid--gap-xs {
     --primitiv-grid-gap: var(--primitiv-grid-gap-xs);

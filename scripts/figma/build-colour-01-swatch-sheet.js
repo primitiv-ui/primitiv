@@ -50,7 +50,7 @@
  *   both ways: with ten steps and a step header above the columns the scale
  *   still reads, and the tiles let each swatch be looked AT rather than
  *   scanned past. `swatch/md/radius` rounds them; the gap between them is
- *   `space/space-12`, the same value as the gap between rows.
+ *   `space/12`, the same value as the gap between rows.
  * • THE RAGGED FLIP IS THE EVIDENCE — do not tidy it. The foreground flips
  *   from light to dark at a different step in different ramps (brand, success
  *   and danger at 600; warning at 400; info at 500) because the engine decided
@@ -106,11 +106,11 @@ card.counterAxisSizingMode = 'FIXED';
 card.resize(1200, 100);
 card.primaryAxisSizingMode = 'AUTO';                     // re-assert after resize (gotcha 7)
 card.itemSpacing = GAP;
-card.setBoundVariable('itemSpacing', V['space/space-12']);
+card.setBoundVariable('itemSpacing', V['space/12']);
 card.paddingTop = card.paddingBottom = 32;
 card.paddingLeft = card.paddingRight = CARD_PAD_X;
-for (const p of ['paddingTop','paddingBottom']) card.setBoundVariable(p, V['space/space-32']);
-for (const p of ['paddingLeft','paddingRight']) card.setBoundVariable(p, V['space/space-24']);
+for (const p of ['paddingTop','paddingBottom']) card.setBoundVariable(p, V['space/32']);
+for (const p of ['paddingLeft','paddingRight']) card.setBoundVariable(p, V['space/24']);
 card.fills = [figma.variables.setBoundVariableForPaint(figma.util.solidPaint('#ffffff'), 'color', V['surface/raised'])];
 card.strokes = [figma.variables.setBoundVariableForPaint(figma.util.solidPaint('#000000'), 'color', V['border/subtle'])];
 card.strokeAlign = 'INSIDE'; card.strokeWeight = 1; card.setBoundVariable('strokeWeight', V['border-width/1']);
@@ -141,7 +141,7 @@ const rowShell = (name) => {
   row.layoutMode = 'HORIZONTAL'; row.counterAxisAlignItems = 'CENTER';
   row.primaryAxisSizingMode = 'FIXED'; row.counterAxisSizingMode = 'AUTO';
   row.itemSpacing = 8;
-  row.setBoundVariable('itemSpacing', V['space/space-8']);
+  row.setBoundVariable('itemSpacing', V['space/8']);
   row.fills = [];
   row.layoutSizingHorizontal = 'FILL';
   return row;
@@ -155,7 +155,7 @@ const stripShell = (row, name) => {
   // own inner spacing and reads as five strips sitting near each other; one
   // shared value makes the sheet a single even grid.
   strip.itemSpacing = GAP;
-  strip.setBoundVariable('itemSpacing', V['space/space-12']);
+  strip.setBoundVariable('itemSpacing', V['space/12']);
   strip.counterAxisSizingMode = 'AUTO'; strip.primaryAxisSizingMode = 'FIXED';
   strip.fills = []; strip.clipsContent = false;
   strip.layoutSizingHorizontal = 'FILL';

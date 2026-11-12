@@ -86,7 +86,7 @@
   gap: var(--primitiv-flow-tight);
   border: var(--primitiv-border-width-1) solid var(--primitiv-border-default);
   border-radius: var(--primitiv-radii-12);
-  padding: var(--primitiv-space-space-20);
+  padding: var(--primitiv-space-20);
   background: var(--primitiv-surface-subtle);
   min-inline-size: 0;
 }
@@ -119,10 +119,10 @@
 .docs-figure__chip {
   display: inline-flex;
   align-items: center;
-  gap: var(--primitiv-space-space-8);
+  gap: var(--primitiv-space-8);
   border: var(--primitiv-border-width-1) solid var(--primitiv-border-default);
   border-radius: var(--primitiv-radii-8);
-  padding: var(--primitiv-space-space-8) var(--primitiv-space-space-12);
+  padding: var(--primitiv-space-8) var(--primitiv-space-12);
   background: var(--primitiv-surface-default);
   font-family: var(--primitiv-font-family-mono);
   font-size: var(--primitiv-font-size-12);
@@ -133,7 +133,7 @@
 /* A connector. One asset, pointing down; `--up` turns it. Colour comes from the
    cascade (`stroke="currentColor"`), so one SVG serves both themes. */
 .docs-figure__arrow {
-  block-size: var(--primitiv-space-space-32);
+  block-size: var(--primitiv-space-32);
   inline-size: auto;
   color: var(--primitiv-content-muted);
 }

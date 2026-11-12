@@ -43,7 +43,7 @@
 @layer primitiv.base {
   .primitiv-listbox {
     /* Vertical slack for the label's clip box — see the truncation rule below. */
-    --primitiv-listbox-label-ink-slack: var(--primitiv-space-space-1);
+    --primitiv-listbox-label-ink-slack: var(--primitiv-space-1);
     /* Frame — Input's geometry, deliberately WITHOUT elevation. A shadow is a
        claim that the surface floats above the page; this one is in the page, and
        the lift reads as a stuck-open dropdown (Figma exploration §A2, rejected).
@@ -60,7 +60,7 @@
     /* A small inset so a row's tint sits inside the frame edge rather than
        running flush against the border — the same value the Dropdown panel
        uses. */
-    --primitiv-listbox-padding-inline: var(--primitiv-space-space-4);
+    --primitiv-listbox-padding-inline: var(--primitiv-space-4);
     /* Past this the list scrolls. Consumer-owned: no token can know how many
        rows a given list should show (the same conclusion Select reached for its
        popup viewport). To stop the viewport on a row boundary rather than

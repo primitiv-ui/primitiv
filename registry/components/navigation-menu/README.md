@@ -165,7 +165,7 @@ travelled, not the full journey Radix's own reference implementation makes
 
 ```css
 .primitiv-navigation-menu {
-  --primitiv-navigation-menu-panel-slide: var(--primitiv-space-space-200);
+  --primitiv-navigation-menu-panel-slide: var(--primitiv-space-200);
 }
 ```
 

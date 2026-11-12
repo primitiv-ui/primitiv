@@ -50,7 +50,7 @@
 
 .docs-compose__dom {
   inline-size: 100%;
-  gap: var(--primitiv-space-space-8);
+  gap: var(--primitiv-space-8);
 }
 
 .docs-compose__tag {
@@ -69,6 +69,6 @@
 .docs-compose__tag--nested {
   border: var(--primitiv-border-width-1) solid var(--primitiv-border-default);
   border-radius: var(--primitiv-radii-8);
-  padding: var(--primitiv-space-space-8) var(--primitiv-space-space-12);
+  padding: var(--primitiv-space-8) var(--primitiv-space-12);
   background: var(--primitiv-surface-default);
 }

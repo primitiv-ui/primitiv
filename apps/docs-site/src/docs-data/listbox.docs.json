@@ -337,7 +337,7 @@
       },
       {
         "name": "--primitiv-listbox-padding-inline",
-        "defaultsTo": "var(--primitiv-space-space-4)"
+        "defaultsTo": "var(--primitiv-space-4)"
       },
       {
         "name": "--primitiv-listbox-max-block-size",
@@ -497,7 +497,7 @@
       },
       {
         "name": "--primitiv-listbox-label-ink-slack",
-        "defaultsTo": "var(--primitiv-space-space-1)"
+        "defaultsTo": "var(--primitiv-space-1)"
       }
     ],
     "dataAttributes": [

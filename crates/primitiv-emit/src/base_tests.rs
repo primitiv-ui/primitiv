@@ -162,7 +162,7 @@ fn the_body_takes_the_text_face_colour_and_surface_from_tokens() {
     assert_eq!(
         block(BASE_CSS, "body"),
         vec![
-            "margin: var(--primitiv-space-space-0)",
+            "margin: var(--primitiv-space-0)",
             "background-color: var(--primitiv-surface-default)",
             "color: var(--primitiv-content-primary)",
             "font-family: var(--primitiv-body-md-font-family)",

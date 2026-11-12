@@ -65,7 +65,7 @@
     }
   ],
   "customProperties": [
-    { "name": "--primitiv-breadcrumb-gap", "defaultsTo": "var(--primitiv-space-space-4)" },
+    { "name": "--primitiv-breadcrumb-gap", "defaultsTo": "var(--primitiv-space-4)" },
     { "name": "--primitiv-breadcrumb-icon-size", "defaultsTo": "var(--primitiv-breadcrumb-md-icon-size)" },
     { "name": "--primitiv-breadcrumb-font-family", "defaultsTo": "var(--primitiv-body-md-font-family)" },
     { "name": "--primitiv-breadcrumb-font-size", "defaultsTo": "var(--primitiv-body-md-font-size)" },

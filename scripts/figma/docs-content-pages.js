@@ -815,7 +815,7 @@ async function buildMobile(key, x, y) {
   spec.sections.forEach((s, i) => {
     const band = F(s.name, 'VERTICAL', 'flow/section', [48, 24, 0, 24]);
     root.appendChild(band); fh(band);
-    if (i === spec.sections.length - 1) band.setBoundVariable('paddingBottom', V('space/space-56'));
+    if (i === spec.sections.length - 1) band.setBoundVariable('paddingBottom', V('space/56'));
     for (const b of s.blocks) renderBlock(band, b);
   });
 
@@ -872,8 +872,8 @@ function centreCodeBlocks(root) {
     const parent = cb.parent, idx = parent.children.indexOf(cb);
     const well = F('code · well', 'HORIZONTAL', null, [0, 0, 0, 0]);
     well.primaryAxisAlignItems = 'CENTER';
-    well.setBoundVariable('paddingLeft', V('space/space-48'));
-    well.setBoundVariable('paddingRight', V('space/space-48'));
+    well.setBoundVariable('paddingLeft', V('space/48'));
+    well.setBoundVariable('paddingRight', V('space/48'));
     parent.insertChild(idx, well);
     well.primaryAxisSizingMode = 'FIXED'; well.layoutSizingHorizontal = 'FILL';
     well.appendChild(cb); cb.layoutSizingHorizontal = 'FILL';
@@ -927,7 +927,7 @@ async function buildDesktop(key, x, y) {
 
   const main = F('main', 'VERTICAL', null, [48, 0, 0, 0]);
   main.itemSpacing = 0;
-  main.setBoundVariable('paddingBottom', V('space/space-96'));
+  main.setBoundVariable('paddingBottom', V('space/96'));
   grid.appendChild(main); main.layoutSizingHorizontal = 'FILL';
   const names = ['01 — Page head'].concat(spec.sections.map((s) => s.name));
   for (const n of names) {

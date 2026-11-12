@@ -2,7 +2,7 @@
    global sheet, so a bare selector would leak onto other pages. */
 
 .elev-example {
-  padding: var(--primitiv-space-space-24);
+  padding: var(--primitiv-space-24);
   /* Paint the wrapper's own surface so the locally-toggled theme reads behind
      the cards, instead of falling through to the app shell's background. */
   background: var(--primitiv-surface-default);
@@ -12,11 +12,11 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--primitiv-space-space-16);
+  gap: var(--primitiv-space-16);
 }
 
 .elev-example__theme-toggle {
-  padding: var(--primitiv-space-space-8) var(--primitiv-space-space-16);
+  padding: var(--primitiv-space-8) var(--primitiv-space-16);
   border: var(--primitiv-border-width-1) solid var(--primitiv-border-default);
   border-radius: var(--primitiv-radii-3);
   background: var(--primitiv-surface-raised);
@@ -35,7 +35,7 @@
 }
 
 .elev-example__section {
-  margin-block-start: var(--primitiv-space-space-32);
+  margin-block-start: var(--primitiv-space-32);
 }
 
 .elev-example__section-title {
@@ -47,7 +47,7 @@
 
 .elev-example__description {
   max-inline-size: 60ch;
-  margin-block: var(--primitiv-space-space-4) var(--primitiv-space-space-16);
+  margin-block: var(--primitiv-space-4) var(--primitiv-space-16);
   font-family: var(--primitiv-body-md-font-family);
   font-size: var(--primitiv-body-md-font-size);
   color: var(--primitiv-content-secondary);
@@ -58,16 +58,16 @@
 .elev-example__grid {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--primitiv-space-space-32);
-  padding: var(--primitiv-space-space-16);
+  gap: var(--primitiv-space-32);
+  padding: var(--primitiv-space-16);
 }
 
 .elev-example__card {
   display: flex;
   flex-direction: column;
-  gap: var(--primitiv-space-space-2);
-  inline-size: var(--primitiv-size-size-200);
-  padding: var(--primitiv-space-space-16);
+  gap: var(--primitiv-space-2);
+  inline-size: var(--primitiv-size-200);
+  padding: var(--primitiv-space-16);
   border-radius: var(--primitiv-radii-3);
   background: var(--primitiv-surface-default);
 }

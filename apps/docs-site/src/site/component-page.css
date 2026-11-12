@@ -23,7 +23,7 @@
   font-weight: var(--primitiv-heading-h3-font-weight);
   line-height: var(--primitiv-heading-h3-line-height);
   color: var(--primitiv-content-primary);
-  scroll-margin-block-start: var(--primitiv-space-space-96);
+  scroll-margin-block-start: var(--primitiv-space-96);
 }
 
 /* ── Installation: two columns ────────────────────────────────────────────── */

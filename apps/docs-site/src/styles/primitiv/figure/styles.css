@@ -21,7 +21,7 @@
  *
  * Requires the token layer (`primitiv tokens`) for the --primitiv-figure-*,
  * --primitiv-radii-*, --primitiv-content-*, --primitiv-surface-*,
- * --primitiv-body-* and --primitiv-space-space-0
+ * --primitiv-body-* and --primitiv-space-0
  * custom properties it resolves.
  */
 
@@ -127,7 +127,7 @@
     grid-template-columns: 1fr;
     grid-template-rows: max-content;
     align-content: start;
-    gap: var(--primitiv-space-space-0);
+    gap: var(--primitiv-space-0);
   }
   .primitiv-figure--overlay > .primitiv-figure__media {
     grid-area: 1 / 1;

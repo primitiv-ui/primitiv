@@ -14,8 +14,8 @@
 .oklch-picker {
   display: flex;
   flex-direction: column;
-  gap: var(--primitiv-space-space-16);
-  padding: var(--primitiv-space-space-16);
+  gap: var(--primitiv-space-16);
+  padding: var(--primitiv-space-16);
   /* Responsive: fill the host container, but stay usable in a narrow panel
      (RFC 0010 §5, the responsive-charts pass). The host caps the width. */
   width: 100%;
@@ -29,7 +29,7 @@
 .oklch-picker__charts {
   display: flex;
   flex-direction: column;
-  gap: var(--primitiv-space-space-12);
+  gap: var(--primitiv-space-12);
 }
 
 .oklch-picker__toolbar {
@@ -42,17 +42,17 @@
 .oklch-picker__axes {
   display: flex;
   flex-direction: column;
-  gap: var(--primitiv-space-space-16);
+  gap: var(--primitiv-space-16);
 }
 
 .oklch-picker__axis {
   display: flex;
   flex-direction: column;
-  gap: var(--primitiv-space-space-12);
+  gap: var(--primitiv-space-12);
   width: 100%;
   box-sizing: border-box;
   /* A left gutter for the y-axis label that sits outside the chart (oklch.com). */
-  padding-left: var(--primitiv-space-space-16);
+  padding-left: var(--primitiv-space-16);
 }
 
 /* Row layout (RFC 0010 §9): the three columns sit side by side and share the
@@ -68,7 +68,7 @@
 .oklch-picker--row .oklch-picker__axis {
   flex: 1;
   min-width: 0;
-  padding-left: var(--primitiv-space-space-8);
+  padding-left: var(--primitiv-space-8);
 }
 
 .oklch-picker--row .plane-chart {
@@ -87,7 +87,7 @@
 }
 
 .gamut-toggle__item {
-  padding: var(--primitiv-space-space-4) var(--primitiv-space-space-12);
+  padding: var(--primitiv-space-4) var(--primitiv-space-12);
   border: none;
   border-radius: var(--primitiv-surface-sm-radius);
   background: transparent;
@@ -121,7 +121,7 @@
   /* Visible so the cursor and the axis labels can sit outside the plotting box
      (the canvas clips itself via its own radius); a bottom gutter holds the
      x-axis label clear of the slider (oklch.com). */
-  margin-bottom: var(--primitiv-space-space-8);
+  margin-bottom: var(--primitiv-space-8);
   touch-action: none;
   cursor: crosshair;
 }
@@ -156,7 +156,7 @@
 /* The P3 boundary is dashed so the band between it and the solid sRGB curve
    reads as the sRGB→P3 extended region (RFC 0010 §7). */
 .plane-chart__boundary--extended {
-  stroke-dasharray: var(--primitiv-space-space-4) var(--primitiv-space-space-4);
+  stroke-dasharray: var(--primitiv-space-4) var(--primitiv-space-4);
 }
 
 /* Shared crosshair guide lines that link charts sharing an axis (the net).
@@ -183,18 +183,18 @@
    centred on their guide line and clear of the selection dot (oklch.com). */
 .plane-chart__axis-label--x {
   top: 100%;
-  translate: -50% var(--primitiv-space-space-4);
+  translate: -50% var(--primitiv-space-4);
 }
 
 .plane-chart__axis-label--y {
   right: 100%;
-  translate: calc(-1 * var(--primitiv-space-space-4)) -50%;
+  translate: calc(-1 * var(--primitiv-space-4)) -50%;
 }
 
 .plane-chart__cursor {
   position: absolute;
-  width: var(--primitiv-space-space-16);
-  height: var(--primitiv-space-space-16);
+  width: var(--primitiv-space-16);
+  height: var(--primitiv-space-16);
   border-radius: 50%;
   border: var(--primitiv-border-width-2) solid var(--primitiv-color-absolute-white);
   box-shadow: 0 0 0 var(--primitiv-border-width-1) var(--primitiv-color-absolute-black);
@@ -215,7 +215,7 @@
   display: flex;
   align-items: center;
   width: 100%;
-  height: var(--primitiv-space-space-20);
+  height: var(--primitiv-space-20);
 }
 
 .axis-slider__strip {
@@ -234,8 +234,8 @@
 }
 
 .axis-slider__thumb {
-  width: var(--primitiv-space-space-20);
-  height: var(--primitiv-space-space-20);
+  width: var(--primitiv-space-20);
+  height: var(--primitiv-space-20);
   border-radius: 50%;
   background: var(--primitiv-surface-default);
   border: var(--primitiv-border-width-2) solid var(--primitiv-color-absolute-white);
@@ -253,7 +253,7 @@
 .oklch-picker__axis-field {
   display: flex;
   align-items: center;
-  gap: var(--primitiv-space-space-8);
+  gap: var(--primitiv-space-8);
 }
 
 /* White so the title reads on the dark chart chrome; the number field grows. */
@@ -272,7 +272,7 @@
 .oklch-picker__text {
   display: flex;
   flex-direction: column;
-  gap: var(--primitiv-space-space-4);
+  gap: var(--primitiv-space-4);
 }
 
 /* Ramp feedback (RFC 0027 §6) ---------------------------------------------- */
@@ -280,15 +280,15 @@
 .ramp-feedback {
   display: flex;
   flex-direction: column;
-  gap: var(--primitiv-space-space-16);
-  padding-block-start: var(--primitiv-space-space-16);
+  gap: var(--primitiv-space-16);
+  padding-block-start: var(--primitiv-space-16);
   border-block-start: var(--primitiv-border-width-1) solid var(--primitiv-border-subtle);
 }
 
 .ramp-feedback__block {
   display: flex;
   flex-direction: column;
-  gap: var(--primitiv-space-space-8);
+  gap: var(--primitiv-space-8);
 }
 
 .ramp-feedback__heading {
@@ -311,7 +311,7 @@
 .ramp-feedback__steps {
   display: flex;
   flex-direction: column;
-  gap: var(--primitiv-space-space-4);
+  gap: var(--primitiv-space-4);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -321,7 +321,7 @@
   display: grid;
   grid-template-columns: 3rem 1fr 3rem;
   align-items: center;
-  gap: var(--primitiv-space-space-8);
+  gap: var(--primitiv-space-8);
   font-size: var(--primitiv-body-sm-font-size);
   font-variant-numeric: tabular-nums;
   color: var(--primitiv-content-secondary);
@@ -331,7 +331,7 @@
    filled portion is exactly the fraction of requested chroma the step gets. */
 .ramp-feedback__bar {
   position: relative;
-  height: var(--primitiv-space-space-8);
+  height: var(--primitiv-space-8);
   border-radius: var(--primitiv-radii-full);
   background: var(--primitiv-surface-sunken);
   overflow: hidden;

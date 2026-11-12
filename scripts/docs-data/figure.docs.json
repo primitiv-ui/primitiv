@@ -84,7 +84,7 @@
     "customProperties": [
       {
         "name": "--primitiv-figure-caption-gap",
-        "defaultsTo": "var(--primitiv-space-space-12)"
+        "defaultsTo": "var(--primitiv-space-12)"
       },
       {
         "name": "--primitiv-figure-media-radius",

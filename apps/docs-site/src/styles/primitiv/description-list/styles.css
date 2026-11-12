@@ -138,7 +138,7 @@
     margin-block-end: var(--primitiv-description-list-row-gap);
   }
   .primitiv-description-list--stacked > :last-child {
-    margin-block-end: var(--primitiv-space-space-0);
+    margin-block-end: var(--primitiv-space-0);
   }
 
   .primitiv-description-list--inline {
@@ -164,7 +164,7 @@
   .primitiv-description-list--inline .primitiv-description-list__details {
     /* The grid column already separates term from detail — the stacked
        layout's indent would double up as unwanted inline whitespace. */
-    padding-inline-start: var(--primitiv-space-space-0);
+    padding-inline-start: var(--primitiv-space-0);
     /* End-aligned, matching Figma: the inline detail FILLs its column with
        `textAlignHorizontal: RIGHT`, so values line up on the far edge and read
        as a two-column table of pairs. `end` rather than `right` so it follows

@@ -61,7 +61,7 @@ const rowStyle: CSSProperties = {
 
 /** Reserve space through the knob for the block-flow example, via a real token. */
 const reservedSpacing = {
-  "--primitiv-divider-spacing": "var(--primitiv-space-space-16)",
+  "--primitiv-divider-spacing": "var(--primitiv-space-16)",
 } as CSSProperties;
 
 /**
@@ -238,7 +238,7 @@ export const dividerSpec: ComponentSpec = {
                 `<!-- Plain block flow: no container gap, so the rule reserves its own. -->`,
                 `<article>`,
                 `  <p>Above the rule.</p>`,
-                `  ${rule("horizontal", ' style="--primitiv-divider-spacing: var(--primitiv-space-space-16)"')}`,
+                `  ${rule("horizontal", ' style="--primitiv-divider-spacing: var(--primitiv-space-16)"')}`,
                 `  <p>Below the rule.</p>`,
                 `</article>`,
               ].join("\n");
@@ -250,7 +250,7 @@ export const dividerSpec: ComponentSpec = {
               `<article>`,
               `  <p>{/* ... */}</p>`,
               styled
-                ? `  <Divider style={{ "--primitiv-divider-spacing": "var(--primitiv-space-space-16)" }} />`
+                ? `  <Divider style={{ "--primitiv-divider-spacing": "var(--primitiv-space-16)" }} />`
                 : `  <Divider style={{ marginBlock: "1rem" }} />`,
               `  <p>{/* ... */}</p>`,
               `</article>`,

@@ -88,8 +88,8 @@ gap.clipsContent = false;
 gap.paddingLeft = gap.paddingRight = 0;
 if (MOBILE) {
   gap.paddingTop = gap.paddingBottom = 40;
-  for (const p of ['paddingTop', 'paddingBottom']) gap.setBoundVariable(p, V['space/space-40']);
-  gap.itemSpacing = 40; gap.setBoundVariable('itemSpacing', V['space/space-40']);
+  for (const p of ['paddingTop', 'paddingBottom']) gap.setBoundVariable(p, V['space/40']);
+  gap.itemSpacing = 40; gap.setBoundVariable('itemSpacing', V['space/40']);
   gap.layoutSizingHorizontal = 'FILL';
 } else {
   gap.paddingTop = gap.paddingBottom = 0;
@@ -104,7 +104,7 @@ if (!MOBILE) {
   host.layoutMode = 'HORIZONTAL';
   host.primaryAxisSizingMode = 'AUTO'; host.counterAxisSizingMode = 'AUTO';
   host.counterAxisAlignItems = 'MIN';
-  host.itemSpacing = 56; host.setBoundVariable('itemSpacing', V['space/space-56']);
+  host.itemSpacing = 56; host.setBoundVariable('itemSpacing', V['space/56']);
 }
 
 const master = sets['Button'].children.find(c => c.name === 'Variant=primary, Size=md, State=default');
@@ -115,7 +115,7 @@ for (const d of DATA) {
   col.layoutMode = 'VERTICAL';
   col.primaryAxisSizingMode = 'AUTO'; col.counterAxisSizingMode = 'AUTO';
   col.counterAxisAlignItems = 'CENTER';
-  col.itemSpacing = 12; col.setBoundVariable('itemSpacing', V['space/space-12']);
+  col.itemSpacing = 12; col.setBoundVariable('itemSpacing', V['space/12']);
 
   const well = figma.createFrame(); col.appendChild(well);
   well.name = 'well'; well.fills = [];

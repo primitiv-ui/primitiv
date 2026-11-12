@@ -110,7 +110,7 @@ are concatenated in `grid.tsx`. Everything else on the component is an ordinary
 | Token | Role |
 |---|---|
 | `--primitiv-grid-gap-{xs,sm,md,lg,xl}` | The gap ramp — a density-scaled Context family, so the gap re-tightens under `[data-density]`. |
-| `--primitiv-space-space-0` | `gap="none"`. Zero has no density curve to scale, so it pins the flat primitive directly. |
+| `--primitiv-space-0` | `gap="none"`. Zero has no density curve to scale, so it pins the flat primitive directly. |
 
 The `grid/gap-*` ramp deliberately mirrors `stack/gap-*` step for step, so a
 Grid and a Stack at the same step line up when nested. If that duplication ever

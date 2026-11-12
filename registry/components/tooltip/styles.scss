@@ -74,7 +74,7 @@
     /* Gap between the bubble and the anchor, tied to the arrow size so the tail
        always clears into the gap (matches the Popover). */
     --primitiv-tooltip-offset: var(--primitiv-tooltip-arrow-size);
-    --primitiv-tooltip-max-inline-size: var(--primitiv-size-size-240);
+    --primitiv-tooltip-max-inline-size: var(--primitiv-size-240);
     --primitiv-tooltip-font-family: var(--primitiv-body-md-font-family);
     --primitiv-tooltip-font-size: var(--primitiv-body-md-font-size);
     --primitiv-tooltip-font-weight: var(--primitiv-body-md-font-weight);

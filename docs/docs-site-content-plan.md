@@ -1179,7 +1179,7 @@ and the full stop after it, so atoms with no space between them share one
 zero-gap group, which is a single flex item. The source string is stored on the
 frame's `pluginData`, so a paragraph can be rebuilt without retyping it.
 
-**Code blocks sit in a centred well on desktop** (`space/space-48` either
+**Code blocks sit in a centred well on desktop** (`space/48` either
 side), settled with the human after three readings of "centred" were measured
 and rejected — the block's internal padding was intact and the main column was
 already page-centred. Inside a half-width paired column they step to `Size=xs`,
@@ -1225,7 +1225,7 @@ frames on the content pages. Eight of the ten briefs remain.
 Two deviations from the briefs, both deliberate:
 
 - **A11Y-C01 came out 2.63:1, not the brief's 3:1.** Six items on the right at
-  `body/sm` with `space/space-24` padding is 240px tall at 632 wide; 211 meant
+  `body/sm` with `space/24` padding is 240px tall at 632 wide; 211 meant
   either 10px padding or type below what the brief's own `tokens` block
   specifies. The ratios in these briefs were written before the content
   existed, so the content wins and the deviation is recorded rather than
@@ -2120,7 +2120,7 @@ Step 10, done properly rather than only in the nav:
 
 #### The well is a width, not a margin
 
-A code block sits inset by `space/space-48` on desktop (§6.0.4). Applying
+A code block sits inset by `space/48` on desktop (§6.0.4). Applying
 that as `margin-inline` overflowed every section by exactly 48px: the
 component sets `inline-size: 100%` **deliberately** (a flex item that is
 itself a flex container with `overflow: hidden` does not reliably resolve
@@ -2657,7 +2657,7 @@ spacing between the text scales as well?* It was not, and it was a real defect.
 adjustment per mode" was true of the first build and is still true — and it
 passed while the demo was visibly wrong, because there is a second way to freeze
 something that has nothing to do with per-mode overrides: resolve a **primitive**
-token. Each region was spaced with `gap: var(--primitiv-space-space-12)`. A
+token. Each region was spaced with `gap: var(--primitiv-space-12)`. A
 primitive is the same value in every mode by definition, so the type scaled
 16 → 52 and the control heights scaled with it while the space *between the
 blocks* sat at 12px — in the one demo on the site whose entire job is to show

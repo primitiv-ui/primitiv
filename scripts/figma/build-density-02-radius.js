@@ -109,8 +109,8 @@ const text = (parent, chars, o) => {
 };
 
 const W       = MOBILE ? 342 : 560;
-const PAD_X   = MOBILE ? 20 : 32,  PAD_X_VAR = MOBILE ? 'space/space-20' : 'space/space-32';
-const PAD_Y   = MOBILE ? 24 : 32,  PAD_Y_VAR = MOBILE ? 'space/space-24' : 'space/space-32';
+const PAD_X   = MOBILE ? 20 : 32,  PAD_X_VAR = MOBILE ? 'space/20' : 'space/32';
+const PAD_Y   = MOBILE ? 24 : 32,  PAD_Y_VAR = MOBILE ? 'space/24' : 'space/32';
 // A generic label, not a realistic one ("Continue"). The frame is a specimen of
 // geometry, and a long word makes the Dense button so wide it stops reading as
 // the tightest of the four.
@@ -162,13 +162,13 @@ list.layoutSizingHorizontal = 'FILL';
 // four HUG columns of near-equal width gives 57 / 51 / 52.
 list.primaryAxisAlignItems = MOBILE ? 'MIN' : 'SPACE_AROUND';
 list.counterAxisAlignItems = 'MIN';
-if (MOBILE) { list.itemSpacing = 20; list.setBoundVariable('itemSpacing', V['space/space-20']); }
+if (MOBILE) { list.itemSpacing = 20; list.setBoundVariable('itemSpacing', V['space/20']); }
 
 for (const [name, modeId, h, r] of MODES) {
   const cell = MOBILE ? frame(list, 'row — ' + name, 'HORIZONTAL')
                       : frame(list, 'column — ' + name, 'VERTICAL', 'flow/tight');
   if (MOBILE) {
-    cell.itemSpacing = 16; cell.setBoundVariable('itemSpacing', V['space/space-16']);
+    cell.itemSpacing = 16; cell.setBoundVariable('itemSpacing', V['space/16']);
     cell.counterAxisAlignItems = 'CENTER';
   } else {
     cell.counterAxisAlignItems = 'CENTER';

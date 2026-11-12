@@ -14,7 +14,7 @@
  * exactly where the `lg` breakpoint begins. `gutter` resolves against a
  * dedicated, density-scaled container/gutter-* Context token per step, the
  * same treatment Stack's gap steps get, so the gutter re-tightens under
- * [data-density]; `none` pins the flat space-space-0 primitive directly (zero
+ * [data-density]; `none` pins the flat space-0 primitive directly (zero
  * is zero at every density, so there is nothing to scale).
  *
  * box-sizing is border-box, so the gutter sits inside the cap: at size="lg"
@@ -24,7 +24,7 @@
  * Container centres itself; centring content within it is <Center>'s job.
  *
  * Requires the token layer (`primitiv tokens`) for the --primitiv-breakpoint-*,
- * --primitiv-container-gutter-* and --primitiv-space-space-0 custom properties
+ * --primitiv-container-gutter-* and --primitiv-space-0 custom properties
  * it resolves.
  */
 
@@ -80,7 +80,7 @@
 
   /* Gutter — fixed steps pin one density-scaled token at every width. */
   .primitiv-container--gutter-none {
-    --primitiv-container-gutter: var(--primitiv-space-space-0);
+    --primitiv-container-gutter: var(--primitiv-space-0);
   }
   .primitiv-container--gutter-sm {
     --primitiv-container-gutter: var(--primitiv-container-gutter-sm);

@@ -10,7 +10,7 @@
 .docs-density-card {
   display: flex;
   flex-direction: column;
-  gap: var(--primitiv-space-space-16);
+  gap: var(--primitiv-space-16);
 }
 
 /* The control strip: radios at the start, the live readout at the end. It sits
@@ -21,14 +21,14 @@
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: var(--primitiv-space-space-16);
+  gap: var(--primitiv-space-16);
 }
 
 .docs-density-fieldset {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--primitiv-space-space-16);
+  gap: var(--primitiv-space-16);
   margin: 0;
   padding: 0;
   border: 0;
@@ -59,12 +59,12 @@
 
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-  gap: var(--primitiv-space-space-32);
+  gap: var(--primitiv-space-32);
   block-size: var(--docs-stage-height);
   overflow-y: auto;
   background: var(--primitiv-surface-default);
   border-radius: var(--primitiv-radii-8);
-  padding: var(--primitiv-space-space-16);
+  padding: var(--primitiv-space-16);
 }
 
 /*
@@ -201,6 +201,6 @@
   }
 
   .docs-density-fieldset {
-    gap: var(--primitiv-space-space-8);
+    gap: var(--primitiv-space-8);
   }
 }

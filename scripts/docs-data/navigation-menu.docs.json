@@ -435,7 +435,7 @@
       },
       {
         "name": "--primitiv-navigation-menu-panel-padding-inline",
-        "defaultsTo": "var(--primitiv-space-space-4)"
+        "defaultsTo": "var(--primitiv-space-4)"
       },
       {
         "name": "--primitiv-navigation-menu-panel-offset",
@@ -443,7 +443,7 @@
       },
       {
         "name": "--primitiv-navigation-menu-safe-area",
-        "defaultsTo": "var(--primitiv-space-space-8)"
+        "defaultsTo": "var(--primitiv-space-8)"
       },
       {
         "name": "--primitiv-navigation-menu-panel-shadow",
@@ -451,7 +451,7 @@
       },
       {
         "name": "--primitiv-navigation-menu-content-gap",
-        "defaultsTo": "var(--primitiv-space-space-16)"
+        "defaultsTo": "var(--primitiv-space-16)"
       },
       {
         "name": "--primitiv-navigation-menu-content-columns",
@@ -459,7 +459,7 @@
       },
       {
         "name": "--primitiv-navigation-menu-panel-slide",
-        "defaultsTo": "var(--primitiv-space-space-68)"
+        "defaultsTo": "var(--primitiv-space-68)"
       },
       {
         "name": "--primitiv-navigation-menu-row-padding-inline",
@@ -511,7 +511,7 @@
       },
       {
         "name": "--primitiv-navigation-menu-indicator-arrow-size",
-        "defaultsTo": "var(--primitiv-space-space-8)"
+        "defaultsTo": "var(--primitiv-space-8)"
       },
       {
         "name": "--primitiv-navigation-menu-transition-duration",

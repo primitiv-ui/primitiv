@@ -28,7 +28,7 @@ const imports = (mode: Mode) =>
    so the snippets show plain `<div>`s: the boxes' own styling is not what Stack
    does. */
 const cell: CSSProperties = {
-  padding: "var(--primitiv-space-space-8) var(--primitiv-space-space-12)",
+  padding: "var(--primitiv-space-8) var(--primitiv-space-12)",
   background: "var(--primitiv-surface-raised)",
   border: "var(--primitiv-border-width-1) solid var(--primitiv-border-subtle)",
   borderRadius: "var(--primitiv-radii-8)",
@@ -225,7 +225,7 @@ export const stackSpec: ComponentSpec = {
             withDemoCells(
               code.replace(
                 "<div>A taller cell</div>",
-                `<div style="${CELL_STYLE}; padding-block: var(--primitiv-space-space-24)">A taller cell</div>`,
+                `<div style="${CELL_STYLE}; padding-block: var(--primitiv-space-24)">A taller cell</div>`,
               ),
             )
           }
@@ -249,7 +249,7 @@ export const stackSpec: ComponentSpec = {
           {() => (
             <Stack direction="row" gap="sm" align="center" justify="between">
               <Cell>Short</Cell>
-              <div style={{ ...cell, paddingBlock: "var(--primitiv-space-space-24)" }}>
+              <div style={{ ...cell, paddingBlock: "var(--primitiv-space-24)" }}>
                 A taller cell
               </div>
               <Cell>End</Cell>

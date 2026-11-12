@@ -172,7 +172,7 @@
   flex-wrap: wrap;
   align-items: center;
   gap: var(--primitiv-stack-gap-md);
-  min-block-size: var(--primitiv-space-space-56);
+  min-block-size: var(--primitiv-space-56);
 }
 
 /*
@@ -351,7 +351,7 @@
  * caption says as much, so a reader does not copy an indent that does not exist.
  */
 .docs-example-indent {
-  padding-inline-start: var(--primitiv-space-space-32);
+  padding-inline-start: var(--primitiv-space-32);
 }
 
 .docs-example-caption {
@@ -376,7 +376,7 @@
   /* Off the space scale even though this is only an example's scaffolding —
      `--docs-*` may hold a bare length, but a token is preferable and these snap
      to the scale exactly. Reach for a token first, a rem only if nothing fits. */
-  --docs-empty-state-height: var(--primitiv-space-space-240);
+  --docs-empty-state-height: var(--primitiv-space-240);
 
   inline-size: 100%;
   min-block-size: var(--docs-empty-state-height);
@@ -393,11 +393,11 @@
   display: grid;
   border: var(--primitiv-border-width-1) dashed var(--primitiv-border-subtle);
   border-radius: var(--primitiv-radii-8);
-  padding: var(--primitiv-space-space-24);
+  padding: var(--primitiv-space-24);
 }
 
 .docs-empty-state-region--short {
-  --docs-empty-state-height: var(--primitiv-space-space-140);
+  --docs-empty-state-height: var(--primitiv-space-140);
 }
 
 /*
@@ -419,11 +419,11 @@
      icon and a word. That needs real width, so these wrap two-up at the content
      width instead of five across; adjacent sizes still sit side by side, which
      is what makes a ramp legible. */
-  --docs-empty-state-height: var(--primitiv-space-space-200);
-  --docs-empty-state-row-min: var(--primitiv-space-space-240);
+  --docs-empty-state-height: var(--primitiv-space-200);
+  --docs-empty-state-row-min: var(--primitiv-space-240);
 
   flex: 1 1 var(--docs-empty-state-row-min);
-  padding: var(--primitiv-space-space-16);
+  padding: var(--primitiv-space-16);
 }
 
 /*
@@ -470,7 +470,7 @@
  * the hint sits in its centre.
  */
 .docs-context-region {
-  --docs-context-region-height: var(--primitiv-space-space-200);
+  --docs-context-region-height: var(--primitiv-space-200);
 
   inline-size: 100%;
   min-block-size: var(--docs-context-region-height);
@@ -479,7 +479,7 @@
   text-align: center;
   border: var(--primitiv-border-width-1) dashed var(--primitiv-border-default);
   border-radius: var(--primitiv-radii-8);
-  padding: var(--primitiv-space-space-24);
+  padding: var(--primitiv-space-24);
   color: var(--primitiv-content-secondary);
 }
 

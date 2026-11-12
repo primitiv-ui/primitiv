@@ -118,3 +118,4 @@ export {
   type ListboxTypeaheadOutcome,
   type ListboxTypeaheadState,
 } from "./listbox/policy.ts";
+export { SELECT_OPTION_SELECTOR, selectKeydown } from "./select/policy.ts";

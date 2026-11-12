@@ -1,6 +1,6 @@
 {
   "name": "@primitiv-ui/react",
-  "version": "0.1.62",
+  "version": "0.2.0",
   "exports": "./src/index.ts",
   "imports": {
     "@primitiv-ui/core": "jsr:@primitiv-ui/core@^0.1.42",

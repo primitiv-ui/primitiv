@@ -411,6 +411,7 @@ const FILES: &[(&str, &str, &str)] = &[
     registry_file!("combobox", "combobox.recipe.ts"),
     registry_file!("combobox", "combobox.tsx"),
     registry_file!("combobox", "contract.json"),
+    registry_file!("combobox", "combobox.html"),
     registry_file!("container", "styles.css"),
     registry_file!("container", "styles.scss"),
     registry_file!("container", "container.recipe.ts"),

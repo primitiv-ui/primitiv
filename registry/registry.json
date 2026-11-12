@@ -766,7 +766,21 @@
           ]
         }
       },
-      "contract": "contract.json"
+      "contract": "contract.json",
+      "elements": {
+        "packages": [
+          {
+            "name": "@primitiv-ui/web",
+            "version": "^0.2.1"
+          }
+        ],
+        "example": "combobox.html",
+        "omits": [
+          "leading",
+          "item-leading",
+          "item-trailing"
+        ]
+      }
     },
     "confirm-dialog": {
       "version": "0.1.0",

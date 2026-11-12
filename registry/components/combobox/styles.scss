@@ -118,6 +118,27 @@
   }
 }
 
+/* The elements surface (RFC 0033 §5.6.1): the root element is the box React's
+   root <div> is, and the input part takes no box of its own, so the <input> it
+   decorates is a flex item of the control exactly as React's is. The content,
+   item and empty elements are the parts themselves, so they keep their boxes.
+   Zero specificity, in the reset sublayer, so any consumer rule wins. */
+@layer primitiv.reset {
+  :where(primitiv-combobox) {
+    display: block;
+  }
+  :where(primitiv-combobox-input) {
+    display: contents;
+  }
+  /* The element shows the list with the root's child that holds the field — the
+     control — as its source, which makes the control its implicit anchor; `auto`
+     lets the anchor() insets and anchor-size() use it (the initial `normal` uses
+     it only for position-area). */
+  :where(primitiv-combobox-content) {
+    position-anchor: auto;
+  }
+}
+
 @layer primitiv.base {
   .primitiv-combobox {
     /* Vertical slack for a label's clip box — see the truncation rule below. */
@@ -611,6 +632,15 @@
      cursor wins on a row that is both. */
   .primitiv-combobox__item[data-highlighted] {
     background: var(--primitiv-combobox-item-bg-highlighted);
+  }
+
+  /* The elements filter by setting `hidden` on an item and show the empty part
+     by clearing it, rather than unmounting as React does — and the base rules'
+     display would win over the UA's [hidden], so state it here, where it
+     outranks the base layer. */
+  .primitiv-combobox__item[hidden],
+  .primitiv-combobox__empty[hidden] {
+    display: none;
   }
 
   /* Selection reveals the mark. visibility rather than display, so the column it

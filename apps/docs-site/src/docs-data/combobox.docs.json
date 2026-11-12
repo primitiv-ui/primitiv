@@ -507,5 +507,92 @@
   "figma": {
     "componentSetKey": "1816:61259"
   },
-  "elements": null
+  "elements": {
+    "package": "@primitiv-ui/web",
+    "module": "combobox",
+    "version": "0.2.1",
+    "element": "div",
+    "wrapText": false,
+    "example": "<primitiv-combobox name=\"framework\" class=\"primitiv-combobox primitiv-combobox--md\">\n  <span class=\"primitiv-combobox__control\">\n    <primitiv-combobox-input>\n      <input class=\"primitiv-combobox__input\" aria-label=\"Framework\" placeholder=\"Search frameworks...\" autocomplete=\"off\">\n    </primitiv-combobox-input>\n    <span class=\"primitiv-combobox__icon\" aria-hidden=\"true\"><svg viewBox=\"0 0 24 24\" width=\"24\" height=\"24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M20.06 9 12 17.06 3.94 9 5 7.94l7 7 7-7z\"/></svg></span>\n  </span>\n  <primitiv-combobox-content aria-label=\"Frameworks\" class=\"primitiv-combobox__content\">\n    <primitiv-combobox-item value=\"react\" class=\"primitiv-combobox__item\">\n      <span class=\"primitiv-combobox__item-indicator\" aria-hidden=\"true\"><svg viewBox=\"0 0 24 24\" width=\"24\" height=\"24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M21.057 5.904 10.05 19.111 2.939 12 4 10.94l5.95 5.949 9.954-11.946 1.153.961Z\"/></svg></span>\n      <span class=\"primitiv-combobox__item-label\">React</span>\n    </primitiv-combobox-item>\n    <primitiv-combobox-item value=\"preact\" class=\"primitiv-combobox__item\">\n      <span class=\"primitiv-combobox__item-indicator\" aria-hidden=\"true\"><svg viewBox=\"0 0 24 24\" width=\"24\" height=\"24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M21.057 5.904 10.05 19.111 2.939 12 4 10.94l5.95 5.949 9.954-11.946 1.153.961Z\"/></svg></span>\n      <span class=\"primitiv-combobox__item-label\">Preact</span>\n    </primitiv-combobox-item>\n    <primitiv-combobox-item value=\"svelte\" class=\"primitiv-combobox__item\">\n      <span class=\"primitiv-combobox__item-indicator\" aria-hidden=\"true\"><svg viewBox=\"0 0 24 24\" width=\"24\" height=\"24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M21.057 5.904 10.05 19.111 2.939 12 4 10.94l5.95 5.949 9.954-11.946 1.153.961Z\"/></svg></span>\n      <span class=\"primitiv-combobox__item-label\">Svelte</span>\n    </primitiv-combobox-item>\n    <primitiv-combobox-item value=\"vue\" class=\"primitiv-combobox__item\">\n      <span class=\"primitiv-combobox__item-indicator\" aria-hidden=\"true\"><svg viewBox=\"0 0 24 24\" width=\"24\" height=\"24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M21.057 5.904 10.05 19.111 2.939 12 4 10.94l5.95 5.949 9.954-11.946 1.153.961Z\"/></svg></span>\n      <span class=\"primitiv-combobox__item-label\">Vue</span>\n    </primitiv-combobox-item>\n    <primitiv-combobox-empty class=\"primitiv-combobox__empty\">No matches</primitiv-combobox-empty>\n  </primitiv-combobox-content>\n</primitiv-combobox>\n",
+    "api": [
+      {
+        "tag": "primitiv-combobox",
+        "attributes": [
+          {
+            "name": "value",
+            "type": "string",
+            "description": "The committed item's value. Reflected: it changes as the user chooses, so a server re-render or a history snapshot sees it."
+          },
+          {
+            "name": "open",
+            "type": "boolean",
+            "description": "Whether the list is showing. Reflected."
+          },
+          {
+            "name": "name",
+            "type": "string",
+            "description": "The name the value submits under. Without one the combobox takes no part in forms."
+          }
+        ],
+        "events": [
+          {
+            "name": "primitiv-combobox-change",
+            "type": "CustomEvent<{ value: string }>",
+            "description": "Bubbles, cancelable, fired before a committed or cleared value is applied. Call `preventDefault()` to veto it; the field shows the kept value's text."
+          },
+          {
+            "name": "primitiv-combobox-open-change",
+            "type": "CustomEvent<{ open: boolean }>",
+            "description": "Bubbles, cancelable, fired before the list opens or closes. Call `preventDefault()` to veto it."
+          },
+          {
+            "name": "primitiv-combobox-query-change",
+            "type": "CustomEvent<{ query: string }>",
+            "description": "Bubbles, fired as the field's text changes from typing. Filter the items from it."
+          }
+        ]
+      },
+      {
+        "tag": "primitiv-combobox-input",
+        "attributes": [],
+        "events": []
+      },
+      {
+        "tag": "primitiv-combobox-content",
+        "attributes": [],
+        "events": []
+      },
+      {
+        "tag": "primitiv-combobox-item",
+        "attributes": [
+          {
+            "name": "value",
+            "type": "string",
+            "description": "The value the combobox takes when this item is committed."
+          },
+          {
+            "name": "label",
+            "type": "string",
+            "description": "The text the field shows once this item is committed. Defaults to the item's text."
+          },
+          {
+            "name": "disabled",
+            "type": "boolean",
+            "description": "Skipped by the cursor, and never committed (`aria-disabled` and `data-disabled`)."
+          },
+          {
+            "name": "hidden",
+            "type": "boolean",
+            "description": "Filtered out: not shown, and skipped by the cursor."
+          }
+        ],
+        "events": []
+      },
+      {
+        "tag": "primitiv-combobox-empty",
+        "attributes": [],
+        "events": []
+      }
+    ]
+  }
 }

@@ -421,7 +421,7 @@
     "category": "Buttons",
     "description": "One primary action welded to a chevron trigger that opens a menu of related alternatives, bound into a single role=\"group\" widget.",
     "documented": true,
-    "elements": null
+    "elements": "behaviour"
   },
   {
     "id": "stack",

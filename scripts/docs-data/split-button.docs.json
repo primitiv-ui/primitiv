@@ -400,5 +400,36 @@
     ]
   },
   "figma": {},
-  "elements": null
+  "elements": {
+    "package": "@primitiv-ui/web",
+    "module": "split-button",
+    "version": "0.1.62",
+    "element": "div",
+    "wrapText": false,
+    "example": "<primitiv-split-button class=\"primitiv-split-button primitiv-split-button--primary primitiv-split-button--md\">\n  <primitiv-split-button-action>\n    <button type=\"button\" class=\"primitiv-button primitiv-button--primary primitiv-button--md primitiv-split-button__action\">\n      <span class=\"primitiv-button__label\">Save</span>\n    </button>\n  </primitiv-split-button-action>\n  <primitiv-dropdown>\n    <primitiv-dropdown-trigger>\n      <button type=\"button\" class=\"primitiv-button primitiv-button--primary primitiv-button--md primitiv-split-button__trigger\" aria-label=\"Change save action\"><svg viewBox=\"0 0 24 24\" width=\"24\" height=\"24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M20.06 9 12 17.06 3.94 9 5 7.94l7 7 7-7L20.06 9Z\"/></svg></button>\n    </primitiv-dropdown-trigger>\n    <primitiv-dropdown-content class=\"primitiv-dropdown primitiv-dropdown--md primitiv-dropdown--bottom-start primitiv-split-button__menu\" popover=\"auto\">\n      <primitiv-dropdown-item><li class=\"primitiv-dropdown__item\">Save</li></primitiv-dropdown-item>\n      <primitiv-dropdown-item><li class=\"primitiv-dropdown__item\">Save and close</li></primitiv-dropdown-item>\n      <primitiv-dropdown-item><li class=\"primitiv-dropdown__item\">Save as draft</li></primitiv-dropdown-item>\n      <primitiv-dropdown-separator class=\"primitiv-dropdown__separator\"></primitiv-dropdown-separator>\n      <primitiv-dropdown-item><li class=\"primitiv-dropdown__item\">Save as template</li></primitiv-dropdown-item>\n    </primitiv-dropdown-content>\n  </primitiv-dropdown>\n</primitiv-split-button>\n",
+    "api": [
+      {
+        "tag": "primitiv-split-button",
+        "attributes": [
+          {
+            "name": "disabled",
+            "type": "boolean",
+            "description": "Disables both halves: native `disabled` and `data-disabled` on each button. To disable one half alone, put `disabled` on its part — `<primitiv-split-button-action>` or `<primitiv-dropdown-trigger>` — not on the button, which the group owns."
+          }
+        ],
+        "events": []
+      },
+      {
+        "tag": "primitiv-split-button-action",
+        "attributes": [
+          {
+            "name": "disabled",
+            "type": "boolean",
+            "description": "Disables the action half alone (native `disabled` and `data-disabled` on its button)."
+          }
+        ],
+        "events": []
+      }
+    ]
+  }
 }

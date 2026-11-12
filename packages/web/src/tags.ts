@@ -104,6 +104,7 @@ import type {
   PrimitivSliderThumbElement,
   PrimitivSliderTrackElement,
 } from "./slider/elements.ts";
+import type { PrimitivSplitButtonActionElement, PrimitivSplitButtonElement } from "./split-button/elements.ts";
 import type { PrimitivToggleGroupElement, PrimitivToggleGroupItemElement } from "./toggle-group/elements.ts";
 declare global {
   interface HTMLElementTagNameMap {
@@ -179,6 +180,8 @@ declare global {
     "primitiv-slider-track": PrimitivSliderTrackElement;
     "primitiv-slider-range": PrimitivSliderRangeElement;
     "primitiv-slider-thumb": PrimitivSliderThumbElement;
+    "primitiv-split-button": PrimitivSplitButtonElement;
+    "primitiv-split-button-action": PrimitivSplitButtonActionElement;
   }
 }
 

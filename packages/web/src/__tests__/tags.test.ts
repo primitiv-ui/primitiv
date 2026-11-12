@@ -74,6 +74,8 @@ import type {
   PrimitivSliderRangeElement,
   PrimitivSliderThumbElement,
   PrimitivSliderTrackElement,
+  PrimitivSplitButtonActionElement,
+  PrimitivSplitButtonElement,
   PrimitivToggleGroupElement,
   PrimitivToggleGroupItemElement,
 } from "../index";
@@ -193,4 +195,9 @@ it("types every Context Menu tag in HTMLElementTagNameMap", () => {
   expectTypeOf(document.createElement("primitiv-context-menu-sub")).toEqualTypeOf<PrimitivContextMenuSubElement>();
   expectTypeOf(document.createElement("primitiv-context-menu-sub-trigger")).toEqualTypeOf<PrimitivContextMenuSubTriggerElement>();
   expectTypeOf(document.createElement("primitiv-context-menu-sub-content")).toEqualTypeOf<PrimitivContextMenuSubContentElement>();
+});
+
+it("types every SplitButton tag in HTMLElementTagNameMap", () => {
+  expectTypeOf(document.querySelector("primitiv-split-button")).toEqualTypeOf<PrimitivSplitButtonElement | null>();
+  expectTypeOf(document.createElement("primitiv-split-button-action")).toEqualTypeOf<PrimitivSplitButtonActionElement>();
 });

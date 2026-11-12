@@ -206,6 +206,16 @@ it("defines the Slider elements when define/slider is imported", async () => {
   }
 });
 
+it("defines the SplitButton elements, and the Dropdown elements its menu is made of, when define/split-button is imported", async () => {
+  // Arrange & Act
+  await import("../split-button");
+
+  // Assert
+  for (const name of ["primitiv-split-button", "primitiv-split-button-action", "primitiv-dropdown", "primitiv-dropdown-trigger"]) {
+    expect(customElements.get(name)).toBeDefined();
+  }
+});
+
 it("defines every component's elements when define is imported", async () => {
   // Arrange & Act
   const module = await import("../index");
@@ -225,4 +235,5 @@ it("defines every component's elements when define is imported", async () => {
   expect(customElements.get("primitiv-radio-card")).toBeDefined();
   expect(customElements.get("primitiv-checkbox-card")).toBeDefined();
   expect(customElements.get("primitiv-slider")).toBeDefined();
+  expect(customElements.get("primitiv-split-button")).toBeDefined();
 });

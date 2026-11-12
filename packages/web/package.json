@@ -50,6 +50,10 @@
       "types": "./src/slider/index.ts",
       "default": "./src/slider/index.ts"
     },
+    "./split-button": {
+      "types": "./src/split-button/index.ts",
+      "default": "./src/split-button/index.ts"
+    },
     "./tabs": {
       "types": "./src/tabs/index.ts",
       "default": "./src/tabs/index.ts"
@@ -105,6 +109,10 @@
     "./define/slider": {
       "types": "./src/define/slider.ts",
       "default": "./src/define/slider.ts"
+    },
+    "./define/split-button": {
+      "types": "./src/define/split-button.ts",
+      "default": "./src/define/split-button.ts"
     },
     "./define/tabs": {
       "types": "./src/define/tabs.ts",
@@ -229,6 +237,10 @@
         "types": "./dist/slider/index.d.ts",
         "default": "./dist/slider/index.js"
       },
+      "./split-button": {
+        "types": "./dist/split-button/index.d.ts",
+        "default": "./dist/split-button/index.js"
+      },
       "./tabs": {
         "types": "./dist/tabs/index.d.ts",
         "default": "./dist/tabs/index.js"
@@ -284,6 +296,10 @@
       "./define/slider": {
         "types": "./dist/define/slider.d.ts",
         "default": "./dist/define/slider.js"
+      },
+      "./define/split-button": {
+        "types": "./dist/define/split-button.d.ts",
+        "default": "./dist/define/split-button.js"
       },
       "./define/tabs": {
         "types": "./dist/define/tabs.d.ts",

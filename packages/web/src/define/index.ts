@@ -12,6 +12,7 @@ import "./popover.ts";
 import "./radio-card.ts";
 import "./segmented-control.ts";
 import "./slider.ts";
+import "./split-button.ts";
 import "./tabs.ts";
 import "./toggle-group.ts";
 import "./tooltip.ts";

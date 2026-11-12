@@ -191,5 +191,7 @@ declare module "vue" {
     "primitiv-slider-track": Tag<Record<never, never>>;
     "primitiv-slider-range": Tag<Record<never, never>>;
     "primitiv-slider-thumb": Tag<Record<never, never>>;
+    "primitiv-split-button": Tag<{ disabled?: boolean | "" }>;
+    "primitiv-split-button-action": Tag<{ disabled?: boolean | "" }>;
   }
 }

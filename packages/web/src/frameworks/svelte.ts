@@ -109,6 +109,7 @@ import type {
   PrimitivSliderThumbElement,
   PrimitivSliderTrackElement,
 } from "../slider/elements.ts";
+import type { PrimitivSplitButtonActionElement, PrimitivSplitButtonElement } from "../split-button/elements.ts";
 import type { PrimitivToggleGroupElement, PrimitivToggleGroupItemElement } from "../toggle-group/elements.ts";
 import type {
   PrimitivAccordionChangeEvent,
@@ -362,5 +363,11 @@ declare module "svelte/elements" {
     "primitiv-slider-track": Attributes<PrimitivSliderTrackElement>;
     "primitiv-slider-range": Attributes<PrimitivSliderRangeElement>;
     "primitiv-slider-thumb": Attributes<PrimitivSliderThumbElement>;
+    "primitiv-split-button": Attributes<PrimitivSplitButtonElement> & {
+      disabled?: boolean;
+    };
+    "primitiv-split-button-action": Attributes<PrimitivSplitButtonActionElement> & {
+      disabled?: boolean;
+    };
   }
 }

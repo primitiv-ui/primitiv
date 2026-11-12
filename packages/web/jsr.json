@@ -13,6 +13,7 @@
     "./radio-card": "./src/radio-card/index.ts",
     "./segmented-control": "./src/segmented-control/index.ts",
     "./slider": "./src/slider/index.ts",
+    "./split-button": "./src/split-button/index.ts",
     "./tabs": "./src/tabs/index.ts",
     "./tooltip": "./src/tooltip/index.ts",
     "./toggle-group": "./src/toggle-group/index.ts",
@@ -27,6 +28,7 @@
     "./define/radio-card": "./src/define/radio-card.ts",
     "./define/segmented-control": "./src/define/segmented-control.ts",
     "./define/slider": "./src/define/slider.ts",
+    "./define/split-button": "./src/define/split-button.ts",
     "./define/tabs": "./src/define/tabs.ts",
     "./define/tooltip": "./src/define/tooltip.ts",
     "./define/toggle-group": "./src/define/toggle-group.ts"

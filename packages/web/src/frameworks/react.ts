@@ -110,6 +110,7 @@ import type {
   PrimitivSliderThumbElement,
   PrimitivSliderTrackElement,
 } from "../slider/elements.ts";
+import type { PrimitivSplitButtonActionElement, PrimitivSplitButtonElement } from "../split-button/elements.ts";
 import type { PrimitivToggleGroupElement, PrimitivToggleGroupItemElement } from "../toggle-group/elements.ts";
 import type {
   PrimitivAccordionChangeEvent,
@@ -391,6 +392,12 @@ declare module "react" {
       "primitiv-slider-track": ElementProps<PrimitivSliderTrackElement>;
       "primitiv-slider-range": ElementProps<PrimitivSliderRangeElement>;
       "primitiv-slider-thumb": ElementProps<PrimitivSliderThumbElement>;
+      "primitiv-split-button": ElementProps<PrimitivSplitButtonElement> & {
+        disabled?: boolean;
+      };
+      "primitiv-split-button-action": ElementProps<PrimitivSplitButtonActionElement> & {
+        disabled?: boolean;
+      };
     }
   }
 }

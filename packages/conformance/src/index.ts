@@ -79,3 +79,9 @@ export {
   type SelectConformanceFixture,
   type SelectMount,
 } from "./select.ts";
+export {
+  COMBOBOX_ITEMS,
+  runComboboxConformance,
+  type ComboboxConformanceFixture,
+  type ComboboxMount,
+} from "./combobox.ts";

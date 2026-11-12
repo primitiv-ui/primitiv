@@ -6,7 +6,7 @@ framework and no runtime dependencies beyond
 server-rendered stack (HTMX, Rails, Django, Laravel, Spring …), and inside
 React, Vue, Angular or any other framework.
 
-> **Status: published.** Tabs, Accordion, Collapsible, Modal, Popover, Tooltip, Dropdown, Context Menu, Toggle Group, Segmented Control, Radio Card, Checkbox Card, Slider, Split Button and Listbox so far. See
+> **Status: published.** Tabs, Accordion, Collapsible, Modal, Popover, Tooltip, Dropdown, Context Menu, Toggle Group, Segmented Control, Radio Card, Checkbox Card, Slider, Split Button, Listbox and Select so far. See
 > [RFC 0033](../../docs/rfcs/0033-web-components.md) for the design.
 
 ## Components
@@ -28,6 +28,7 @@ React, Vue, Angular or any other framework.
 | Slider | `primitiv-slider`, `-track`, `-range`, `-thumb` | `primitiv-slider-change`, `primitiv-slider-commit` | 0.1.61 |
 | Split Button | `primitiv-split-button`, `-action` (its menu is a nested `primitiv-dropdown`) | the Dropdown's | 0.1.62 |
 | Listbox | `primitiv-listbox`, `-option`, `-group`, `-group-label` | `primitiv-listbox-change` | 0.2.1 |
+| Select | `primitiv-select`, `-trigger`, `-value`, `-content`, `-item`, `-item-indicator`, `-group`, `-separator` | `primitiv-select-change`, `-open-change` | 0.2.1 |
 
 ## Use it
 
@@ -60,13 +61,13 @@ downloads it once. `dist/primitiv-web.js` is the alternative: every element in
 one file. Per-component files ship from 0.1.43.
 
 The main entry (`@primitiv-ui/web`, `/tabs`, `/accordion`, `/collapsible`,
-`/modal`, `/popover`, `/tooltip`, `/dropdown`, `/context-menu`, `/toggle-group`, `/segmented-control`, `/radio-card`, `/checkbox-card`, `/slider`, `/split-button`, `/listbox`) exports the classes and `defineTabs(registry?)` /
+`/modal`, `/popover`, `/tooltip`, `/dropdown`, `/context-menu`, `/toggle-group`, `/segmented-control`, `/radio-card`, `/checkbox-card`, `/slider`, `/split-button`, `/listbox`, `/select`) exports the classes and `defineTabs(registry?)` /
 `defineAccordion(registry?)` / `defineCollapsible(registry?)` /
 `defineModal(registry?)` / `definePopover(registry?)` / `defineTooltip(registry?)` /
 `defineDropdown(registry?)` / `defineContextMenu(registry?)` /
 `defineToggleGroup(registry?)` / `defineSegmentedControl(registry?)` /
 `defineRadioCard(registry?)` / `defineCheckboxCard(registry?)` / `defineSlider(registry?)` / `defineSplitButton(registry?)` /
-`defineListbox(registry?)` with **no side
+`defineListbox(registry?)` / `defineSelect(registry?)` with **no side
 effects**.
 
 **Render `hidden` on inactive panels yourself.** Until the module loads, CSS
@@ -499,6 +500,39 @@ The elements write no `class` and no `style`. For the registry look, apply the
 - **Group options** in `<primitiv-listbox-group>`, named by a
   `<primitiv-listbox-group-label>` inside it. `disabled` options are skipped
   and never chosen.
+
+### Select
+
+```html
+<script type="module" src="https://cdn.jsdelivr.net/npm/@primitiv-ui/web@<version>/dist/cdn/select.js"></script>
+
+<primitiv-select name="fruit" value="apple">
+  <primitiv-select-trigger>
+    <button type="button" aria-label="Fruit"><primitiv-select-value placeholder="Pick a fruit"></primitiv-select-value></button>
+  </primitiv-select-trigger>
+  <primitiv-select-content>
+    <primitiv-select-item value="apple">Apple</primitiv-select-item>
+    <primitiv-select-item value="banana">Banana</primitiv-select-item>
+  </primitiv-select-content>
+</primitiv-select>
+```
+
+- **The `<button>` you write opens the list**; `<primitiv-select-content>` is
+  the list itself, a `role="listbox"` shown as a `popover="auto"` panel in the
+  top layer and anchored to the button. Each `<primitiv-select-item>` is an
+  option. Opening focuses the chosen item; the arrows, Home, End and typing
+  move; Enter, Space or a click chooses and returns focus to the button.
+- **`value` is the chosen item**, mirrored into `<primitiv-select-value>` (an
+  item's `<primitiv-select-item-indicator>` left out), which shows its
+  `placeholder` until something is chosen. `primitiv-select-change` fires
+  first and is cancelable; `primitiv-select-open-change` does the same for
+  `open`.
+- **A form control with a `name`.** The select keeps a visually hidden native
+  `<select>` inside itself — as React's Select does — so the value submits,
+  `required` blocks an empty submit, `disabled` leaves it out, and a form reset
+  restores the value it first rendered with.
+- A native `<select>` with the registry classes needs no element at all: reach
+  for it when the list needs nothing but text.
 
 ## Layers
 

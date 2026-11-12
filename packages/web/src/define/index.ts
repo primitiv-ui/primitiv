@@ -16,4 +16,5 @@ import "./split-button.ts";
 import "./tabs.ts";
 import "./toggle-group.ts";
 import "./listbox.ts";
+import "./select.ts";
 import "./tooltip.ts";

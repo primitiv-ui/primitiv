@@ -39,6 +39,8 @@ import type {
   PrimitivTooltipChangeEvent,
   PrimitivToggleGroupChangeEvent,
   PrimitivListboxChangeEvent,
+  PrimitivSelectChangeEvent,
+  PrimitivSelectOpenChangeEvent,
   PrimitivSegmentedControlChangeEvent,
   PrimitivRadioCardChangeEvent,
   PrimitivCheckboxCardChangeEvent,
@@ -163,6 +165,20 @@ declare module "vue" {
     "primitiv-listbox-option": Tag<{ value: string; disabled?: boolean | "" }>;
     "primitiv-listbox-group": Tag<Record<never, never>>;
     "primitiv-listbox-group-label": Tag<Record<never, never>>;
+    "primitiv-select": Tag<
+      { value?: string; open?: boolean | ""; name?: string; required?: boolean | ""; disabled?: boolean | "" },
+      {
+        "primitiv-select-change": (event: PrimitivSelectChangeEvent) => void;
+        "primitiv-select-open-change": (event: PrimitivSelectOpenChangeEvent) => void;
+      }
+    >;
+    "primitiv-select-trigger": Tag<Record<never, never>>;
+    "primitiv-select-value": Tag<{ placeholder?: string }>;
+    "primitiv-select-content": Tag<Record<never, never>>;
+    "primitiv-select-item": Tag<{ value: string; disabled?: boolean | "" }>;
+    "primitiv-select-item-indicator": Tag<{ forceMount?: boolean | "" }>;
+    "primitiv-select-group": Tag<{ label?: string }>;
+    "primitiv-select-separator": Tag<Record<never, never>>;
     "primitiv-segmented-control": Tag<
       { value?: string; orientation?: "horizontal" | "vertical"; disabled?: boolean | "" },
       { "primitiv-segmented-control-change": (event: PrimitivSegmentedControlChangeEvent) => void }

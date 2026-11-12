@@ -112,6 +112,16 @@ import type {
   PrimitivListboxGroupLabelElement,
   PrimitivListboxOptionElement,
 } from "./listbox/elements.ts";
+import type {
+  PrimitivSelectContentElement,
+  PrimitivSelectElement,
+  PrimitivSelectGroupElement,
+  PrimitivSelectItemElement,
+  PrimitivSelectItemIndicatorElement,
+  PrimitivSelectSeparatorElement,
+  PrimitivSelectTriggerElement,
+  PrimitivSelectValueElement,
+} from "./select/elements.ts";
 declare global {
   interface HTMLElementTagNameMap {
     "primitiv-accordion": PrimitivAccordionElement;
@@ -179,6 +189,14 @@ declare global {
     "primitiv-listbox-option": PrimitivListboxOptionElement;
     "primitiv-listbox-group": PrimitivListboxGroupElement;
     "primitiv-listbox-group-label": PrimitivListboxGroupLabelElement;
+    "primitiv-select": PrimitivSelectElement;
+    "primitiv-select-trigger": PrimitivSelectTriggerElement;
+    "primitiv-select-value": PrimitivSelectValueElement;
+    "primitiv-select-content": PrimitivSelectContentElement;
+    "primitiv-select-item": PrimitivSelectItemElement;
+    "primitiv-select-item-indicator": PrimitivSelectItemIndicatorElement;
+    "primitiv-select-group": PrimitivSelectGroupElement;
+    "primitiv-select-separator": PrimitivSelectSeparatorElement;
     "primitiv-segmented-control": PrimitivSegmentedControlElement;
     "primitiv-segmented-control-item": PrimitivSegmentedControlItemElement;
     "primitiv-radio-card": PrimitivRadioCardElement;

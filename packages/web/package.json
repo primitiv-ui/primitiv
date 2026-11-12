@@ -70,6 +70,10 @@
       "types": "./src/listbox/index.ts",
       "default": "./src/listbox/index.ts"
     },
+    "./select": {
+      "types": "./src/select/index.ts",
+      "default": "./src/select/index.ts"
+    },
     "./define": {
       "types": "./src/define/index.ts",
       "default": "./src/define/index.ts"
@@ -133,6 +137,10 @@
     "./define/listbox": {
       "types": "./src/define/listbox.ts",
       "default": "./src/define/listbox.ts"
+    },
+    "./define/select": {
+      "types": "./src/define/select.ts",
+      "default": "./src/define/select.ts"
     },
     "./tags": {
       "types": "./src/tags.ts",
@@ -265,6 +273,10 @@
         "types": "./dist/listbox/index.d.ts",
         "default": "./dist/listbox/index.js"
       },
+      "./select": {
+        "types": "./dist/select/index.d.ts",
+        "default": "./dist/select/index.js"
+      },
       "./define": {
         "types": "./dist/define/index.d.ts",
         "default": "./dist/define/index.js"
@@ -328,6 +340,10 @@
       "./define/listbox": {
         "types": "./dist/define/listbox.d.ts",
         "default": "./dist/define/listbox.js"
+      },
+      "./define/select": {
+        "types": "./dist/define/select.d.ts",
+        "default": "./dist/define/select.js"
       },
       "./tags": {
         "types": "./dist/tags.d.ts",

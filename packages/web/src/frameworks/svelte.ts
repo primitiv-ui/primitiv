@@ -118,6 +118,16 @@ import type {
   PrimitivListboxOptionElement,
 } from "../listbox/elements.ts";
 import type {
+  PrimitivSelectContentElement,
+  PrimitivSelectElement,
+  PrimitivSelectGroupElement,
+  PrimitivSelectItemElement,
+  PrimitivSelectItemIndicatorElement,
+  PrimitivSelectSeparatorElement,
+  PrimitivSelectTriggerElement,
+  PrimitivSelectValueElement,
+} from "../select/elements.ts";
+import type {
   PrimitivAccordionChangeEvent,
   PrimitivContextMenuChangeEvent,
   PrimitivContextMenuCheckedChangeEvent,
@@ -136,6 +146,8 @@ import type {
   PrimitivTooltipChangeEvent,
   PrimitivToggleGroupChangeEvent,
   PrimitivListboxChangeEvent,
+  PrimitivSelectChangeEvent,
+  PrimitivSelectOpenChangeEvent,
   PrimitivSegmentedControlChangeEvent,
   PrimitivRadioCardChangeEvent,
   PrimitivCheckboxCardChangeEvent,
@@ -337,6 +349,25 @@ declare module "svelte/elements" {
     };
     "primitiv-listbox-group": Attributes<PrimitivListboxGroupElement>;
     "primitiv-listbox-group-label": Attributes<PrimitivListboxGroupLabelElement>;
+    "primitiv-select": Attributes<PrimitivSelectElement> & {
+      value?: string;
+      open?: boolean;
+      name?: string;
+      required?: boolean;
+      disabled?: boolean;
+      "onprimitiv-select-change"?: (event: PrimitivSelectChangeEvent) => void;
+      "onprimitiv-select-open-change"?: (event: PrimitivSelectOpenChangeEvent) => void;
+    };
+    "primitiv-select-trigger": Attributes<PrimitivSelectTriggerElement>;
+    "primitiv-select-value": Attributes<PrimitivSelectValueElement> & { placeholder?: string };
+    "primitiv-select-content": Attributes<PrimitivSelectContentElement>;
+    "primitiv-select-item": Attributes<PrimitivSelectItemElement> & {
+      value: string;
+      disabled?: boolean;
+    };
+    "primitiv-select-item-indicator": Attributes<PrimitivSelectItemIndicatorElement> & { "force-mount"?: boolean };
+    "primitiv-select-group": Attributes<PrimitivSelectGroupElement> & { label?: string };
+    "primitiv-select-separator": Attributes<PrimitivSelectSeparatorElement>;
     "primitiv-segmented-control": Attributes<PrimitivSegmentedControlElement> & {
       value?: string;
       orientation?: "horizontal" | "vertical";

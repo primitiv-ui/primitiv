@@ -27,6 +27,12 @@ export type PrimitivToggleGroupChangeEvent = CustomEvent<{ value: string[] }>;
 /** The `primitiv-listbox-change` event: bubbles, cancelable, fired before the change applies, with every option selected afterwards. */
 export type PrimitivListboxChangeEvent = CustomEvent<{ value: string[] }>;
 
+/** The `primitiv-select-change` event: bubbles, cancelable, fired before a chosen value applies. */
+export type PrimitivSelectChangeEvent = CustomEvent<{ value: string }>;
+
+/** The `primitiv-select-open-change` event: bubbles, cancelable, fired before the list opens or closes. */
+export type PrimitivSelectOpenChangeEvent = CustomEvent<{ open: boolean }>;
+
 /** The `primitiv-segmented-control-change` event: bubbles, cancelable, fired before the change applies, with the segment selected afterwards. */
 export type PrimitivSegmentedControlChangeEvent = CustomEvent<{ value: string }>;
 

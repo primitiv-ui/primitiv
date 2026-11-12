@@ -119,6 +119,16 @@ import type {
   PrimitivListboxOptionElement,
 } from "../listbox/elements.ts";
 import type {
+  PrimitivSelectContentElement,
+  PrimitivSelectElement,
+  PrimitivSelectGroupElement,
+  PrimitivSelectItemElement,
+  PrimitivSelectItemIndicatorElement,
+  PrimitivSelectSeparatorElement,
+  PrimitivSelectTriggerElement,
+  PrimitivSelectValueElement,
+} from "../select/elements.ts";
+import type {
   PrimitivAccordionChangeEvent,
   PrimitivContextMenuChangeEvent,
   PrimitivContextMenuCheckedChangeEvent,
@@ -137,6 +147,8 @@ import type {
   PrimitivTooltipChangeEvent,
   PrimitivToggleGroupChangeEvent,
   PrimitivListboxChangeEvent,
+  PrimitivSelectChangeEvent,
+  PrimitivSelectOpenChangeEvent,
   PrimitivSegmentedControlChangeEvent,
   PrimitivRadioCardChangeEvent,
   PrimitivCheckboxCardChangeEvent,
@@ -168,6 +180,8 @@ export type {
   PrimitivTooltipChangeEvent,
   PrimitivToggleGroupChangeEvent,
   PrimitivListboxChangeEvent,
+  PrimitivSelectChangeEvent,
+  PrimitivSelectOpenChangeEvent,
 };
 
 declare module "react" {
@@ -367,6 +381,25 @@ declare module "react" {
       };
       "primitiv-listbox-group": ElementProps<PrimitivListboxGroupElement>;
       "primitiv-listbox-group-label": ElementProps<PrimitivListboxGroupLabelElement>;
+      "primitiv-select": ElementProps<PrimitivSelectElement> & {
+        value?: string;
+        open?: boolean;
+        name?: string;
+        required?: boolean;
+        disabled?: boolean;
+        "onprimitiv-select-change"?: (event: PrimitivSelectChangeEvent) => void;
+        "onprimitiv-select-open-change"?: (event: PrimitivSelectOpenChangeEvent) => void;
+      };
+      "primitiv-select-trigger": ElementProps<PrimitivSelectTriggerElement>;
+      "primitiv-select-value": ElementProps<PrimitivSelectValueElement> & { placeholder?: string };
+      "primitiv-select-content": ElementProps<PrimitivSelectContentElement>;
+      "primitiv-select-item": ElementProps<PrimitivSelectItemElement> & {
+        value: string;
+        disabled?: boolean;
+      };
+      "primitiv-select-item-indicator": ElementProps<PrimitivSelectItemIndicatorElement> & { "force-mount"?: boolean };
+      "primitiv-select-group": ElementProps<PrimitivSelectGroupElement> & { label?: string };
+      "primitiv-select-separator": ElementProps<PrimitivSelectSeparatorElement>;
       "primitiv-segmented-control": ElementProps<PrimitivSegmentedControlElement> & {
         value?: string;
         orientation?: "horizontal" | "vertical";

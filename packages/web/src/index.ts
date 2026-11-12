@@ -7,6 +7,7 @@ export * from "./accordion/index.ts";
 export * from "./collapsible/index.ts";
 export * from "./toggle-group/index.ts";
 export * from "./listbox/index.ts";
+export * from "./select/index.ts";
 export * from "./segmented-control/index.ts";
 export * from "./radio-card/index.ts";
 export * from "./checkbox-card/index.ts";

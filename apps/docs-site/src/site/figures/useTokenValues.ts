@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from "react";
  * The resolved value of one or more design tokens, read off a rendered element.
  *
  * Only for tokens a figure has to print as TEXT. A token that merely colours or
- * sizes something belongs in CSS, where `var(--primitiv-…)` resolves it with no
+ * sizes something belongs in CSS, where `var(--primitiv-...)` resolves it with no
  * JavaScript at all and `scripts/check-tokens.mjs` can see it — TOKENS-01's
  * eleven swatches are keyed off a `data-step` attribute for exactly that reason.
  * This hook exists for the case CSS cannot serve: putting a token's own value

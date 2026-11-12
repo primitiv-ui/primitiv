@@ -24,7 +24,7 @@ export type ComponentSpec = {
     /**
      * Elements mode only: the markup inside the root, for a component whose
      * styled wrapper renders structure the contract does not record —
-     * Blockquote's `<p class="…__quote">`, a List's items. Falls back to
+     * Blockquote's `<p class="...__quote">`, a List's items. Falls back to
      * `snippetChildren`.
      */
     readonly elementsChildren?: string;

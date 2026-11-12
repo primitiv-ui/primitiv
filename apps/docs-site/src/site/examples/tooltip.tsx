@@ -282,13 +282,13 @@ export const tooltipSpec: ComponentSpec = {
           caption="`placement` sets where the content sits relative to the trigger — `top`/`right`/`bottom`/`left` plus `-start`/`-end` alignments (13 in all). The arrow follows. It is a preference: if there is not room on that side, the tooltip flips to the opposite edge automatically. **Hover or focus** each trigger to see it."
           code={(_density, mode) => {
             if (mode === "elements")
-              return `<primitiv-tooltip-content class="primitiv-tooltip primitiv-tooltip--default primitiv-tooltip--md primitiv-tooltip--right" popover="manual">…</primitiv-tooltip-content>`;
+              return `<primitiv-tooltip-content class="primitiv-tooltip primitiv-tooltip--default primitiv-tooltip--md primitiv-tooltip--right" popover="manual">...</primitiv-tooltip-content>`;
             const p = partNamer(mode, "Tooltip");
             return [
               imports(mode),
               ``,
               `<${p("Content")} placement="right" style={{ positionAnchor: "--tip" }}>`,
-              `  …<${p("Arrow")} />`,
+              `  ...<${p("Arrow")} />`,
               `</${p("Content")}>`,
             ].join("\n");
           }}
@@ -335,13 +335,13 @@ export const tooltipSpec: ComponentSpec = {
           caption="Two tones: `default` is a surface-coloured bubble that sits quietly against the page, `inverted` is a high-contrast dark chip for when the tooltip needs to read over busy or image content. Both carry the arrow. **Hover or focus** a trigger to see the tooltip."
           code={(_density, mode) => {
             if (mode === "elements")
-              return `<primitiv-tooltip-content class="primitiv-tooltip primitiv-tooltip--inverted primitiv-tooltip--md primitiv-tooltip--top" popover="manual">…</primitiv-tooltip-content>`;
+              return `<primitiv-tooltip-content class="primitiv-tooltip primitiv-tooltip--inverted primitiv-tooltip--md primitiv-tooltip--top" popover="manual">...</primitiv-tooltip-content>`;
             const p = partNamer(mode, "Tooltip");
             return [
               imports(mode),
               ``,
               `<${p("Content")}${contractAttr({ mode, prop: "tone", value: "inverted" })} style={{ positionAnchor: "--tip" }}>`,
-              `  …`,
+              `  ...`,
               `</${p("Content")}>`,
             ].join("\n");
           }}

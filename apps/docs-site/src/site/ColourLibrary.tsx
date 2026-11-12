@@ -95,7 +95,7 @@ const HueTable = ({ ramp, steps }: { ramp: string; steps: readonly Step[] }) => 
   <div className="docs-library-table">
     <p className="docs-library-table-note">
       Background <InlineCode size="sm">{tokenOf(`${ramp}-<step>`)}</InlineCode>; each
-      text name is a <InlineCode size="sm">{tokenOf("…")}</InlineCode> token.
+      text name is a <InlineCode size="sm">{tokenOf("...")}</InlineCode> token.
     </p>
     <TableScrollArea>
       <Table size="sm">

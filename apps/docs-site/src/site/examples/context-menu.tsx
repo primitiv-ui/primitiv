@@ -86,7 +86,7 @@ const elementsContextMenu = ({
 
 const SUBMENU = [
   `<primitiv-context-menu-sub>`,
-  `<primitiv-context-menu-sub-trigger><li class="primitiv-context-menu__sub-trigger">Move to…</li></primitiv-context-menu-sub-trigger>`,
+  `<primitiv-context-menu-sub-trigger><li class="primitiv-context-menu__sub-trigger">Move to...</li></primitiv-context-menu-sub-trigger>`,
   `<primitiv-context-menu-sub-content class="primitiv-context-menu primitiv-context-menu--md primitiv-context-menu--submenu" popover="auto">`,
   row.item("Project Atlas") + row.item("Project Beacon") + row.item("Project Cascade"),
   `</primitiv-context-menu-sub-content>`,
@@ -376,7 +376,7 @@ export const contextMenuSpec: ComponentSpec = {
               imports(mode, ["Content", "Item", "Sub", "SubTrigger", "SubContent"]),
               ``,
               `<${p("Sub")}>`,
-              `  <${p("SubTrigger")} style={{ anchorName: "--move" }}>Move to…</${p("SubTrigger")}>`,
+              `  <${p("SubTrigger")} style={{ anchorName: "--move" }}>Move to...</${p("SubTrigger")}>`,
               `  <${p("SubContent")} style={{ positionAnchor: "--move" }}>`,
               `    <${p("Item")}>Project Atlas</${p("Item")}>`,
               `    <${p("Item")}>Project Beacon</${p("Item")}>`,
@@ -388,7 +388,7 @@ export const contextMenuSpec: ComponentSpec = {
           {() => (
             <DocsContextMenu region="Right-click for a submenu">
               <ContextMenuItem>Rename</ContextMenuItem>
-              <DocsSub label="Move to…">
+              <DocsSub label="Move to...">
                 <ContextMenuItem>Project Atlas</ContextMenuItem>
                 <ContextMenuItem>Project Beacon</ContextMenuItem>
                 <ContextMenuItem>Project Cascade</ContextMenuItem>
@@ -458,7 +458,7 @@ export const contextMenuSpec: ComponentSpec = {
                 rows: [row.item("Never shown")],
               });
             const p = partNamer(mode, "ContextMenu");
-            return [imports(mode, ["Trigger"]), ``, `<${p("Trigger")} disabled>…</${p("Trigger")}>`].join("\n");
+            return [imports(mode, ["Trigger"]), ``, `<${p("Trigger")} disabled>...</${p("Trigger")}>`].join("\n");
           }}
         >
           {() => (

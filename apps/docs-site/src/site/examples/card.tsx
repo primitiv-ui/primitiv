@@ -89,7 +89,7 @@ const cardLines = ({ attrs = "", inset = false }: { attrs?: string; inset?: bool
     `  <CardContent>`,
     `    <CardHeader>`,
     `      {/* asChild picks the heading level for your outline; a bare`,
-    `          <CardTitle>…</CardTitle> renders an <h3>. */}`,
+    `          <CardTitle>...</CardTitle> renders an <h3>. */}`,
     `      <CardTitle asChild>`,
     `        <h4>Winter light</h4>`,
     `      </CardTitle>`,

@@ -306,12 +306,12 @@ export const drawerSpec: ComponentSpec = {
           caption="`side` docks the drawer to an edge and slides it in from there: `right` (the default) and `left` for navigation and filters, `bottom` for a mobile action sheet, `top` for a notification tray. `width` sets the cross-axis extent — the width for left/right, the height for top/bottom. **Click a trigger** to open it."
           code={(_density, mode) => {
             if (mode === "elements")
-              return `<dialog class="primitiv-drawer primitiv-drawer--sm" data-side="left">…</dialog>`;
+              return `<dialog class="primitiv-drawer primitiv-drawer--sm" data-side="left">...</dialog>`;
             const p = partNamer(mode, "Drawer");
             return [
               imports(mode, ["Content"], false),
               ``,
-              `<${p("Content")} side="left" width="sm">…</${p("Content")}>`,
+              `<${p("Content")} side="left" width="sm">...</${p("Content")}>`,
             ].join("\n");
           }}
         >

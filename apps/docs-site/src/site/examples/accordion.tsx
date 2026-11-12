@@ -273,7 +273,7 @@ export const accordionSpec: ComponentSpec = {
         if (mode === "elements")
           return [
             `<primitiv-accordion>`,
-            `  <primitiv-accordion-item value="…">`,
+            `  <primitiv-accordion-item value="...">`,
             `    <h3>`,
             `      <primitiv-accordion-trigger>`,
             `        <button type="button">`,

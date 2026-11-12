@@ -291,27 +291,27 @@ export const paginationSpec: ComponentSpec = {
         mode === "elements"
           ? [
               `<nav class="primitiv-pagination" aria-label="Results">`,
-              `  <span class="primitiv-pagination__summary">…</span>          <!-- optional -->`,
+              `  <span class="primitiv-pagination__summary">...</span>          <!-- optional -->`,
               `  <ul class="primitiv-pagination__controls">`,
-              `    <li class="primitiv-pagination__cell"><a class="primitiv-pagination__nav primitiv-button">…</a></li>`,
+              `    <li class="primitiv-pagination__cell"><a class="primitiv-pagination__nav primitiv-button">...</a></li>`,
               `    <li class="primitiv-pagination__cell"><a class="primitiv-pagination__item primitiv-button" aria-current="page">1</a></li>`,
               `    <li class="primitiv-pagination__cell"><span class="primitiv-pagination__ellipsis">...</span></li>`,
               `  </ul>`,
-              `  <span class="primitiv-pagination__trailing">…</span>        <!-- optional -->`,
+              `  <span class="primitiv-pagination__trailing">...</span>        <!-- optional -->`,
               `</nav>`,
             ].join("\n")
           : [
           `<Pagination label="Results">`,
-          `  <PaginationSummary>…</PaginationSummary>          {/* optional */}`,
+          `  <PaginationSummary>...</PaginationSummary>          {/* optional */}`,
           `  <PaginationList>`,
           `    <PaginationItem><PaginationPrevious /></PaginationItem>`,
           `    <PaginationItem><PaginationLink isActive>1</PaginationLink></PaginationItem>`,
           `    <PaginationItem>`,
-          `      <PaginationEllipsis><PaginationMenuItem>…</PaginationMenuItem></PaginationEllipsis>`,
+          `      <PaginationEllipsis><PaginationMenuItem>...</PaginationMenuItem></PaginationEllipsis>`,
           `    </PaginationItem>`,
           `    <PaginationItem><PaginationNext /></PaginationItem>`,
           `  </PaginationList>`,
-          `  <PaginationTrailing>…</PaginationTrailing>        {/* optional */}`,
+          `  <PaginationTrailing>...</PaginationTrailing>        {/* optional */}`,
           `</Pagination>`,
         ].join("\n"),
     },
@@ -325,7 +325,7 @@ export const paginationSpec: ComponentSpec = {
         <InteractiveExample
           elementsCaption={'The default: a row of page cells between previous and next chevrons, each a real link to its page — the server renders the window around the current one. The cells are Button\'s classes on an `<a>`; adding pagination installs Button with it. The current page is marked with `aria-current="page"` as well as the primary fill, and the gap is a static `...` hidden from assistive tech.'}
           elementsPreview={fullWidth}
-          caption="The default: a row of page cells between prev/next chevrons, driven by `usePagination`. The hook returns `items` — a mix of `page` and `gap` entries — so a long range collapses behind a `PaginationEllipsis` whose menu lists the hidden pages (this demo is 10 pages; click the `…`). `isActive` on the current `PaginationLink` is what sets `aria-current=&quot;page&quot;`; disable the chevrons from `canPrevious` / `canNext`."
+          caption="The default: a row of page cells between prev/next chevrons, driven by `usePagination`. The hook returns `items` — a mix of `page` and `gap` entries — so a long range collapses behind a `PaginationEllipsis` whose menu lists the hidden pages (this demo is 10 pages; click the `...`). `isActive` on the current `PaginationLink` is what sets `aria-current=&quot;page&quot;`; disable the chevrons from `canPrevious` / `canNext`."
           code={(_density, mode) =>
             mode === "elements"
               ? paginationHtml({ label: "Search results" })
@@ -421,7 +421,7 @@ export const paginationSpec: ComponentSpec = {
               ``,
               `<Pagination label="Results">`,
               `  <PaginationSummary>Showing {startIndex + 1}–{endIndex} of {total}</PaginationSummary>`,
-              `  <PaginationList>{/* … prev / pages / next … */}</PaginationList>`,
+              `  <PaginationList>{/* ... prev / pages / next ... */}</PaginationList>`,
               `  <PaginationTrailing>`,
               `    <span>Go to</span>`,
               `    <Select native value={String(page)} onValueChange={(v) => setPage(Number(v))} aria-label="Go to page">`,
@@ -459,7 +459,7 @@ export const paginationSpec: ComponentSpec = {
               imports(),
               ``,
               `<div data-density="${density}">`,
-              `  <Pagination size="sm" label="Results">{/* … */}</Pagination>`,
+              `  <Pagination size="sm" label="Results">{/* ... */}</Pagination>`,
               `</div>`,
             ].join("\n")
           }
@@ -494,7 +494,7 @@ export const paginationSpec: ComponentSpec = {
     "**It is a `<nav>` landmark — name it.** `Pagination` renders a `<nav>` and needs a `label` (`aria-label`), since a page can have more than one navigation landmark; “Search results” or “Table pages” distinguishes them in a screen reader's landmark list.",
     "**The current page is marked with `aria-current`, not just colour.** `isActive` on a `PaginationLink` sets `aria-current=\"page\"`, which is how assistive technology announces which page you are on — the highlight alone is invisible to it.",
     "**Prev/next carry their own names and disabled state.** `PaginationPrevious` / `PaginationNext` are icon-only, so they set an `aria-label` (`Go to previous page`) themselves; wire `disabled` from `canPrevious` / `canNext` so the first/last page can't be over-stepped.",
-    "**The ellipsis is a real menu, not decoration.** `PaginationEllipsis` opens a `dropdown` of the collapsed pages (`PaginationMenuItem`s), so every page stays reachable by keyboard — a bare “…” glyph would strand the hidden pages.",
+    "**The ellipsis is a real menu, not decoration.** `PaginationEllipsis` opens a `dropdown` of the collapsed pages (`PaginationMenuItem`s), so every page stays reachable by keyboard — a bare “...” glyph would strand the hidden pages.",
     "**Links or buttons?** These are `button`-based controls driving client state, not `<a href>`s — right for a SPA. If each page is a real URL, render `PaginationLink` `asChild` around your router's link so they are genuine, right-clickable links.",
     "**The state is the hook's, the arithmetic is too.** `usePagination` clamps out-of-range requests and computes the truncated range, so you don't hand-roll off-by-one page maths that a keyboard or screen-reader user then trips over.",
   ],

@@ -25,7 +25,7 @@ type Size = "xs" | "sm" | "md" | "lg" | "xl";
  * function is for: authoring markup printed as punctuation.
  *
  * Markdown links `[label](href)` are supported too — for hand-authored cross-links
- * between doc pages (e.g. Breadcrumb → BreadcrumbOverflow). An internal `/…` href
+ * between doc pages (e.g. Breadcrumb → BreadcrumbOverflow). An internal `/...` href
  * routes through `next/link`; an `http(s)` one is a plain external `<a>`. Bare
  * `<a>` styling comes from `primitiv-base.css`, so no class is needed.
  *
@@ -65,7 +65,7 @@ export const renderDoc = (text: string, size: Size = "md"): ReactNode[] => {
     if (part.length > 2 && part.startsWith("*") && part.endsWith("*")) {
       return <em key={i}>{renderDoc(part.slice(1, -1), size)}</em>;
     }
-    // Markdown link `[label](href)`. Internal `/…` routes via next/link;
+    // Markdown link `[label](href)`. Internal `/...` routes via next/link;
     // external `http(s)` is a plain <a>. Code span is matched first, so a link
     // inside backticks stays a chip.
     const md = part.match(/^\[([^\]]+)\]\(([^)]+)\)$/);

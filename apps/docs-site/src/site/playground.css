@@ -227,7 +227,7 @@
  * scroller rather than reflow: a tab list and a segmented control are each ONE
  * control whose options sit in a row, and their labels are the content. Wrapping
  * a segmented control into two rows stops it reading as a single control, and
- * truncating "This quarter" to "This qu…" loses the option's meaning — which is
+ * truncating "This quarter" to "This qu..." loses the option's meaning — which is
  * exactly what WCAG 2.1 SC 1.4.10 excepts as content requiring two-dimensional
  * layout, with a scroll container as the accepted technique.
  *

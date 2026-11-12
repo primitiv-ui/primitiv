@@ -63,7 +63,7 @@ export const ElementsApiReference = ({ api }: { api: readonly DocsElementApi[] }
                   </TableRow>
                 ))}
                 {/* Events after attributes, named as a listener is written
-                    (`addEventListener("primitiv-tabs-change", …)`), with the
+                    (`addEventListener("primitiv-tabs-change", ...)`), with the
                     event type in the type column. */}
                 {element.events.map((event) => (
                   <TableRow key={`event-${event.name}`}>

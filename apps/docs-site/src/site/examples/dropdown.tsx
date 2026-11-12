@@ -77,7 +77,7 @@ const elementsDropdown = ({ trigger, size = "md", rows }: { trigger: string; siz
 
 const SUBMENU = [
   `<primitiv-dropdown-sub>`,
-  `<primitiv-dropdown-sub-trigger><li class="primitiv-dropdown__sub-trigger">Move to…</li></primitiv-dropdown-sub-trigger>`,
+  `<primitiv-dropdown-sub-trigger><li class="primitiv-dropdown__sub-trigger">Move to...</li></primitiv-dropdown-sub-trigger>`,
   `<primitiv-dropdown-sub-content class="primitiv-dropdown primitiv-dropdown--md primitiv-dropdown--submenu" popover="auto">`,
   row.item("Project Atlas") + row.item("Project Beacon") + row.item("Project Cascade"),
   `</primitiv-dropdown-sub-content>`,
@@ -259,7 +259,7 @@ export const dropdownSpec: ComponentSpec = {
             if (mode === "elements")
               return elementsDropdown({
                 trigger: "Actions",
-                rows: [row.item("Edit"), row.item("Duplicate"), row.item("Move to…"), row.separator, row.item("Delete")],
+                rows: [row.item("Edit"), row.item("Duplicate"), row.item("Move to..."), row.separator, row.item("Delete")],
               });
             const p = partNamer(mode, "Dropdown");
             return [
@@ -283,7 +283,7 @@ export const dropdownSpec: ComponentSpec = {
             <DocsDropdown triggerLabel="Actions">
               <DropdownItem>Edit</DropdownItem>
               <DropdownItem>Duplicate</DropdownItem>
-              <DropdownItem>Move to…</DropdownItem>
+              <DropdownItem>Move to...</DropdownItem>
               <DropdownSeparator />
               <DropdownItem>Delete</DropdownItem>
             </DocsDropdown>
@@ -353,7 +353,7 @@ export const dropdownSpec: ComponentSpec = {
               imports(mode, ["Content", "Item", "Sub", "SubTrigger", "SubContent"]),
               ``,
               `<${p("Sub")}>`,
-              `  <${p("SubTrigger")}>Move to…</${p("SubTrigger")}>`,
+              `  <${p("SubTrigger")}>Move to...</${p("SubTrigger")}>`,
               `  <${p("SubContent")}>`,
               `    <${p("Item")}>Project A</${p("Item")}>`,
               `    <${p("Item")}>Project B</${p("Item")}>`,
@@ -366,7 +366,7 @@ export const dropdownSpec: ComponentSpec = {
             <DocsDropdown triggerLabel="With a submenu">
               <DropdownItem>Rename</DropdownItem>
               <DropdownSub>
-                <DropdownSubTrigger>Move to…</DropdownSubTrigger>
+                <DropdownSubTrigger>Move to...</DropdownSubTrigger>
                 <DropdownSubContent>
                   <DropdownItem>Project Atlas</DropdownItem>
                   <DropdownItem>Project Beacon</DropdownItem>

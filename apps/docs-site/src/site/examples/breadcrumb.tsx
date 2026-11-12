@@ -191,7 +191,7 @@ export const breadcrumbSpec: ComponentSpec = {
         <InteractiveExample
           elementsCaption={'A deep trail can collapse its middle behind a `__ellipsis` — a presentational `...` in place of the hidden crumbs. This one is **static**: the crumbs it stands for are gone from the page, for sight and keyboard alike. If they need to stay reachable, keep the full trail instead, or make the ellipsis a link to a page that lists them.'}
           elementsPreview={fullWidth}
-          caption="A deep trail can collapse its middle behind a `Breadcrumb.Ellipsis` — a presentational `…` in place of the hidden crumbs. This one is **static**: it just shows the ellipsis. For an ellipsis that actually opens a menu of the hidden pages (and decides how many to keep at each end), reach for [BreadcrumbOverflow](/components/breadcrumb-overflow/), which composes this with a `Dropdown`."
+          caption="A deep trail can collapse its middle behind a `Breadcrumb.Ellipsis` — a presentational `...` in place of the hidden crumbs. This one is **static**: it just shows the ellipsis. For an ellipsis that actually opens a menu of the hidden pages (and decides how many to keep at each end), reach for [BreadcrumbOverflow](/components/breadcrumb-overflow/), which composes this with a `Dropdown`."
           code={(_density, mode) => {
             if (mode === "elements") return trailHtml([link("/", "Home"), SEPARATOR, ELLIPSIS, SEPARATOR, PAGE]);
             const p = partNamer(mode, "Breadcrumb");

@@ -417,7 +417,7 @@ export const stackImports = (mode: Mode): string =>
   importBlock({ mode, component: "Stack", componentId: "stack", registryOnly: true });
 
 /**
- * Collapse `import { … } from "X"` statements that share a module into one.
+ * Collapse `import { ... } from "X"` statements that share a module into one.
  *
  * A snippet composing two headless components calls `importBlock` once per
  * component, so it emits `import { Field } from "@primitiv-ui/react"` AND

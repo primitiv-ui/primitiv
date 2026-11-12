@@ -34,7 +34,7 @@ const html = ({ size = "md", marks = false }: { size?: string; marks?: boolean }
 /**
  * PullQuote's page content.
  *
- * Registry-only. `size` rides the heading scale (`xs`→h5 … `xl`→h1); `marks` is
+ * Registry-only. `size` rides the heading scale (`xs`→h5 ... `xl`→h1); `marks` is
  * a headless boolean (a decorative quotation glyph), so it is a spec-declared
  * control with its own snippet. Distinct from Blockquote: large, centred, no
  * accent bar, no attribution.

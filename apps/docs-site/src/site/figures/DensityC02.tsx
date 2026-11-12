@@ -17,7 +17,7 @@ import "./density-figures.css";
  * Built against the frame `DENSITY-C02 — desktop`, which stays the design
  * record (plan §6.0.29).
  *
- * The `data-density="…"` strings are drawn as visible labels, exactly as the
+ * The `data-density="..."` strings are drawn as visible labels, exactly as the
  * frame does, and they are `InlineCode`-styled rather than real `InlineCode`
  * instances: they label the box they sit in rather than appearing in a
  * sentence, so they carry no chip background of their own.

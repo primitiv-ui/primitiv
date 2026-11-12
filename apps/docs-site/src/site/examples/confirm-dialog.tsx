@@ -657,7 +657,7 @@ export const confirmDialogSpec: ComponentSpec = {
               `<div data-density="${density}">`,
               ...SIZES.map(
                 (s) =>
-                  `  <ConfirmDialogContent size="${s}" title="…" onConfirm={…}>…</ConfirmDialogContent>`,
+                  `  <ConfirmDialogContent size="${s}" title="..." onConfirm={...}>...</ConfirmDialogContent>`,
               ),
               `</div>`,
             ].join("\n")

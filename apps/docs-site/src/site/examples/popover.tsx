@@ -287,13 +287,13 @@ export const popoverSpec: ComponentSpec = {
           caption="`placement` sets where the panel opens relative to the trigger — the same 13 values as Tooltip (`top`/`right`/`bottom`/`left` × `-start`/`-end`). It flips to the opposite side when there is not room, so a `bottom` popover near the viewport floor opens upward instead. **Click each trigger** to see it."
           code={(_density, mode) => {
             if (mode === "elements")
-              return `<primitiv-popover-content class="primitiv-popover primitiv-popover--sm primitiv-popover--right" popover="auto">…</primitiv-popover-content>`;
+              return `<primitiv-popover-content class="primitiv-popover primitiv-popover--sm primitiv-popover--right" popover="auto">...</primitiv-popover-content>`;
             const p = partNamer(mode, "Popover");
             return [
               imports(mode),
               ``,
               `<${p("Content")} placement="right" style={{ positionAnchor: "--pop" }}>`,
-              `  …`,
+              `  ...`,
               `</${p("Content")}>`,
             ].join("\n");
           }}

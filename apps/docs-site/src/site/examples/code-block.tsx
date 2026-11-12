@@ -198,7 +198,7 @@ export const codeBlockSpec: ComponentSpec = {
   anatomy: [
     {
       label: "Block",
-      code: () => "<CodeBlock code={…} language=\"tsx\" />",
+      code: () => "<CodeBlock code={...} language=\"tsx\" />",
     },
     {
       label: "Tabbed",

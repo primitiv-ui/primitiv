@@ -95,7 +95,12 @@ for (const env of ["html", "react", "vue", "svelte", "angular"] as const) {
 
       test("is controlled by framework state through preventDefault", async ({ page }) => {
         await open(page);
+        // Keys alone don't wait for the element to upgrade the way a click's
+        // actionability check does: under load, an ArrowRight pressed before the
+        // button is a tab did nothing. Wait for the tab, and for focus on it.
+        await expect(tab(page, "One")).toHaveAttribute("aria-selected", "true");
         await page.keyboard.press("Tab");
+        await expect(tab(page, "One")).toBeFocused();
         await page.keyboard.press("ArrowRight");
         await expect(page.getByTestId("state")).toHaveText("two");
         await expect(page.locator("primitiv-tabs")).toHaveAttribute("value", "two");

@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { StrictMode } from "react";
+import { StrictMode, useState } from "react";
 
 import { Select } from "../Select";
 
@@ -111,3 +111,56 @@ function Grow({ items }: { items: readonly string[] }) {
     </Select.Root>
   );
 }
+
+describe("Select state the controller relies on", () => {
+  it("reports Escape closing a list its parent opened through a controlled open", async () => {
+    // Arrange
+    const user = userEvent.setup();
+    const onOpenChange = vi.fn();
+    function Controlled() {
+      const [open, setOpen] = useState(false);
+      return (
+        <>
+          <button type="button" onClick={() => setOpen(true)}>
+            Open from outside
+          </button>
+          <Select.Root
+            open={open}
+            onOpenChange={(next) => {
+              onOpenChange(next);
+              setOpen(next);
+            }}
+          >
+            <Select.Trigger aria-label="Fruit">
+              <Select.Value placeholder="Pick a fruit" />
+            </Select.Trigger>
+            <Select.Content>
+              <Select.Item value="apple">Apple</Select.Item>
+            </Select.Content>
+          </Select.Root>
+        </>
+      );
+    }
+    render(<Controlled />);
+    await user.click(screen.getByRole("button", { name: "Open from outside" }));
+
+    // Act
+    await user.keyboard("{Escape}");
+
+    // Assert
+    expect(onOpenChange).toHaveBeenCalledWith(false);
+  });
+
+  it("leaves a native select on its first option when an item, not a placeholder, has the empty value", () => {
+    // Arrange & Act
+    render(
+      <Select.Root native aria-label="Fruit">
+        <Select.Item value="apple">Apple</Select.Item>
+        <Select.Item value="">None</Select.Item>
+      </Select.Root>,
+    );
+
+    // Assert
+    expect((screen.getByRole("combobox", { name: "Fruit" }) as HTMLSelectElement).value).toBe("apple");
+  });
+});

@@ -73,3 +73,9 @@ export {
   type ListboxConformanceFixture,
   type ListboxMount,
 } from "./listbox.ts";
+export {
+  runSelectConformance,
+  SELECT_ITEMS,
+  type SelectConformanceFixture,
+  type SelectMount,
+} from "./select.ts";

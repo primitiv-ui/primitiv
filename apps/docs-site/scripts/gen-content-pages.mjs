@@ -1,5 +1,5 @@
 /*
- * Generates the eight content pages' data from the Figma builder's `PAGES`.
+ * Generates the content pages' data from the Figma builder's `PAGES`.
  *
  *   node scripts/gen-content-pages.mjs           # write
  *   node scripts/gen-content-pages.mjs --check   # fail if the committed file is stale
@@ -50,6 +50,7 @@ const PAGE_ROUTES = {
   composition: "/concepts/composition/",
   accessibility: "/concepts/accessibility/",
   "registry-cli": "/registry-cli/",
+  elements: "/elements/",
   figma: "/figma/",
 };
 
@@ -69,6 +70,7 @@ const ROUTES = {
   Composition: "/concepts/composition/",
   Accessibility: "/concepts/accessibility/",
   "The registry and CLI": "/registry-cli/",
+  "Custom elements": "/elements/",
   "Design in Figma": "/figma/",
 };
 

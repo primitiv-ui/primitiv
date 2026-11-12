@@ -251,6 +251,7 @@ const MAP_LEFT = [
   },
   { title: "Components", href: "/components/", modeScoped: true },
   { title: "Registry & CLI", href: "/registry-cli/" },
+  { title: "Custom elements", href: "/elements/" },
 ] as const;
 
 const MAP_RIGHT = [{ title: "Design in Figma", href: "/figma/" }] as const;

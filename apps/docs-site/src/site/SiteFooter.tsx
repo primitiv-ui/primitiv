@@ -36,6 +36,7 @@ const COLUMNS = [
     heading: "Build",
     links: [
       { title: "Registry & CLI", href: "/registry-cli/" },
+      { title: "Custom elements", href: "/elements/" },
       { title: "Tokens & theming", href: "/concepts/tokens/" },
       { title: "GitHub", href: "https://github.com/primitiv-ui/primitiv" },
     ],

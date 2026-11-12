@@ -204,6 +204,15 @@
             "kind": "alert",
             "tone": "info",
             "text": "Drop the styled flag for the element on its own, with no styling. add then prints the script tag and the bare markup, and needs no init at all."
+          },
+          {
+            "kind": "links",
+            "links": [
+              {
+                "label": "Custom elements",
+                "href": "/elements/"
+              }
+            ]
           }
         ]
       },
@@ -1399,6 +1408,320 @@
               {
                 "label": "Browse components",
                 "href": "/components/"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "pairs": []
+  },
+  {
+    "key": "elements",
+    "route": "/elements/",
+    "name": "Custom elements",
+    "eyebrow": "BUILD",
+    "title": "Custom elements",
+    "lede": "Most of the interactive components also ship as standard custom elements, for pages your server renders. The behaviour loads from a script tag and the look comes from plain CSS classes, so it works with any backend and any templating language.",
+    "head": [
+      {
+        "kind": "p",
+        "text": "The elements are the same components as the React ones. They run the same keyboard and focus code, write the same ARIA and take the same classes. Pick them when your pages come from a server rather than from React.",
+        "code": []
+      },
+      {
+        "kind": "p",
+        "text": "They live in @primitiv-ui/web. The components with no behaviour, such as Button, Badge and Card, need no element at all: their classes on ordinary HTML are the whole component. A component page that has no Elements mode has no element yet.",
+        "code": [
+          "@primitiv-ui/web"
+        ]
+      }
+    ],
+    "sections": [
+      {
+        "id": "install-and-load",
+        "title": "Install and load",
+        "blocks": [
+          {
+            "kind": "p",
+            "text": "The CLI copies the stylesheets and prints the markup to paste. It needs Node to run, but your project does not: a project with no package.json works. Run init once, from the project root.",
+            "code": [
+              "package.json",
+              "init"
+            ]
+          },
+          {
+            "kind": "code",
+            "code": "$ npx primitiv-ui@latest init --styles\n$ npx primitiv-ui@latest add combobox",
+            "language": "bash",
+            "header": true,
+            "lineNumbers": false
+          },
+          {
+            "kind": "p",
+            "text": "init asks where your server serves static files from, and the URL it serves them at. A Maven or Gradle project is recognised, so --yes takes both answers for you. Drop --styles for the elements on their own, with no classes and no stylesheet.",
+            "code": [
+              "init",
+              "--yes",
+              "--styles"
+            ]
+          },
+          {
+            "kind": "p",
+            "text": "Each add prints three things: the link lines for the styles, the script tag that defines the element, and example markup. Every component has its own script, so a page loads only what it uses:",
+            "code": [
+              "add"
+            ]
+          },
+          {
+            "kind": "code",
+            "code": "<link rel=\"stylesheet\" href=\"/primitiv/tokens.css\">\n<link rel=\"stylesheet\" href=\"/primitiv/index.css\">\n<script type=\"module\" src=\"https://cdn.jsdelivr.net/npm/@primitiv-ui/web@0.2.1/dist/cdn/combobox.js\"></script>",
+            "language": "html",
+            "header": false,
+            "lineNumbers": true
+          },
+          {
+            "kind": "p",
+            "text": "With a bundler, install the package and import one define entry per component, or the one that defines them all:",
+            "code": []
+          },
+          {
+            "kind": "code",
+            "code": "$ npm i @primitiv-ui/web\n\nimport \"@primitiv-ui/web/define/combobox\";\nimport \"@primitiv-ui/web/define\";",
+            "language": "tsx",
+            "header": false,
+            "lineNumbers": false
+          },
+          {
+            "kind": "p",
+            "text": "Each component page has an Elements mode with its exact markup, attributes and events. Choose it from the switch at the top of the page.",
+            "code": []
+          }
+        ]
+      },
+      {
+        "id": "how-an-element-is-put-together",
+        "title": "How an element is put together",
+        "blocks": [
+          {
+            "kind": "p",
+            "text": "A component is a root element and its parts. The root owns the state. The parts mark out the pieces it controls.",
+            "code": []
+          },
+          {
+            "kind": "group",
+            "gap": "flow/section",
+            "blocks": [
+              {
+                "kind": "block",
+                "heading": "Structural parts are the element itself.",
+                "text": "A panel, a list or an option is the custom element you write, such as <primitiv-tabs-content>. The root gives it its role and ARIA.",
+                "code": [
+                  "<primitiv-tabs-content>"
+                ]
+              },
+              {
+                "kind": "block",
+                "heading": "Interactive parts wrap an element you write.",
+                "text": "A trigger holds exactly one child: a <button>, an <a href> or an <input>. That child receives the role, the focus and the clicks, so links still navigate and form controls still submit.",
+                "code": [
+                  "<button>",
+                  "<a href>",
+                  "<input>"
+                ]
+              }
+            ]
+          },
+          {
+            "kind": "code",
+            "code": "<primitiv-select-trigger>\n  <button type=\"button\">Choose a fruit</button>\n</primitiv-select-trigger>",
+            "language": "html",
+            "header": false,
+            "lineNumbers": false
+          },
+          {
+            "kind": "p",
+            "text": "A part that is used wrongly, such as a trigger with two children or an item with no value, is reported once in the browser console and left alone. Nothing throws, because a page rendered by a server has nowhere to catch an error.",
+            "code": []
+          }
+        ]
+      },
+      {
+        "id": "state-lives-in-attributes",
+        "title": "State lives in attributes",
+        "blocks": [
+          {
+            "kind": "p",
+            "text": "The root keeps its state in attributes, such as value and open, and updates them as the user acts. Render them from your server to set the starting state. Read them, or set them, to work with the component from a script.",
+            "code": [
+              "value",
+              "open"
+            ]
+          },
+          {
+            "kind": "code",
+            "code": "<primitiv-tabs value=\"billing\">…</primitiv-tabs>\n\nconst tabs = document.querySelector(\"primitiv-tabs\");\ntabs.value = \"overview\";",
+            "language": "html",
+            "header": false,
+            "lineNumbers": false
+          },
+          {
+            "kind": "p",
+            "text": "Because the state is in the markup, anything that snapshots the page keeps it. A server re-render, a history entry or a cached fragment all come back showing what the user chose.",
+            "code": []
+          }
+        ]
+      },
+      {
+        "id": "listening-for-changes",
+        "title": "Listening for changes",
+        "blocks": [
+          {
+            "kind": "p",
+            "text": "Every change is announced with a DOM event named after the component, such as primitiv-tabs-change. It bubbles, and event.detail carries the new state.",
+            "code": [
+              "primitiv-tabs-change",
+              "event.detail"
+            ]
+          },
+          {
+            "kind": "code",
+            "code": "tabs.addEventListener(\"primitiv-tabs-change\", (event) => {\n  console.log(event.detail.value);\n});",
+            "language": "text",
+            "header": false,
+            "lineNumbers": true
+          },
+          {
+            "kind": "p",
+            "text": "A change the user makes fires before it is applied, and it can be cancelled. Call preventDefault() and the component stays as it was. That is how you guard a change, or hand the decision to your server.",
+            "code": [
+              "preventDefault()"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "markup-your-server-renders",
+        "title": "Markup your server renders",
+        "blocks": [
+          {
+            "kind": "p",
+            "text": "An element adopts the markup it finds. It writes only the attributes it owns, and only when they would change, so markup your server rendered correctly is left exactly as it is.",
+            "code": []
+          },
+          {
+            "kind": "p",
+            "text": "Parts can arrive after the page loads. An item appended to a list, a fragment swapped in, or a whole component moved to another place is picked up as it lands. There is nothing to initialise and nothing to tear down.",
+            "code": []
+          },
+          {
+            "kind": "alert",
+            "tone": "info",
+            "text": "Render hidden on the panels that start closed, such as the inactive tabs. The element sets it as soon as its script loads, but until then only your markup can keep those panels out of sight."
+          }
+        ]
+      },
+      {
+        "id": "forms",
+        "title": "Forms",
+        "blocks": [
+          {
+            "kind": "p",
+            "text": "Give a value-holding component a name and it takes part in its form like a native control. Select, Combobox and Slider keep a hidden native control inside themselves, so the value submits and a form reset restores the value it started with. A Select marked required also blocks an empty submit.",
+            "code": [
+              "name",
+              "required"
+            ]
+          },
+          {
+            "kind": "code",
+            "code": "<form method=\"post\">\n  <primitiv-select name=\"fruit\" value=\"apple\">…</primitiv-select>\n  <button>Save</button>\n</form>",
+            "language": "html",
+            "header": false,
+            "lineNumbers": false
+          },
+          {
+            "kind": "p",
+            "text": "A component whose control is already native, such as a checkbox or a text field, needs nothing extra. Write the <input> and name it as usual.",
+            "code": [
+              "<input>"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "styling",
+        "title": "Styling",
+        "blocks": [
+          {
+            "kind": "p",
+            "text": "The elements are headless. On their own they write no class and no style, so they carry no look until you give them one.",
+            "code": []
+          },
+          {
+            "kind": "p",
+            "text": "The styled markup add prints carries the registry classes, and the stylesheet it copied gives them their look. Change it with the CSS custom properties each component page lists, or edit the copied stylesheet, which is yours. Density works as it does everywhere else: set data-density on any container.",
+            "code": [
+              "add",
+              "data-density"
+            ]
+          },
+          {
+            "kind": "p",
+            "text": "Two components write an inline position, because it is their state rather than styling. A Slider places its thumbs, and a Context Menu publishes where the pointer was.",
+            "code": []
+          }
+        ]
+      },
+      {
+        "id": "inside-a-framework",
+        "title": "Inside a framework",
+        "blocks": [
+          {
+            "kind": "p",
+            "text": "They are standard custom elements, so any framework that renders HTML can use them. For a typed template, import the entry for yours:",
+            "code": []
+          },
+          {
+            "kind": "defs",
+            "defs": [
+              {
+                "term": "React 19",
+                "description": "import type {} from \"@primitiv-ui/web/react\". Event props take the event name as written, such as onprimitiv-tabs-change."
+              },
+              {
+                "term": "Vue 3",
+                "description": "import type {} from \"@primitiv-ui/web/vue\", and tell the compiler every primitiv- tag is a custom element."
+              },
+              {
+                "term": "Svelte 5",
+                "description": "import type {} from \"@primitiv-ui/web/svelte\"."
+              },
+              {
+                "term": "Angular",
+                "description": "Add CUSTOM_ELEMENTS_SCHEMA to the component and bind events by name."
+              }
+            ]
+          },
+          {
+            "kind": "p",
+            "text": "If your app is React, the React components are the better fit. The elements are for everything else.",
+            "code": []
+          },
+          {
+            "kind": "links",
+            "links": [
+              {
+                "label": "Browse components",
+                "href": "/components/"
+              },
+              {
+                "label": "The registry and CLI",
+                "href": "/registry-cli/"
+              },
+              {
+                "label": "Tokens and theming",
+                "href": "/concepts/tokens/"
               }
             ]
           }

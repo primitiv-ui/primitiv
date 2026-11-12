@@ -168,6 +168,11 @@ export const NAV: readonly NavSection[] = [
     children: pageLinks("registry-cli"),
   },
   {
+    title: "Custom elements",
+    href: "/elements/",
+    children: pageLinks("elements"),
+  },
+  {
     title: "Design in Figma",
     href: "/figma/",
     children: pageLinks("figma"),

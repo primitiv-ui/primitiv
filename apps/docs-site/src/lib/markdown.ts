@@ -402,7 +402,7 @@ export const llmsElements = (): string =>
         "- **Changes are announced as bubbling events** named `primitiv-<component>-<what>`, with the new state in `event.detail`. A user-driven change fires before it applies and is cancelable: `preventDefault()` vetoes it.",
         "- **Interactive parts decorate the element you write** — a `<button>`, `<a href>` or `<input>` inside the part — so links and native form controls keep working. A component with a `name` submits its value with its form.",
       ].join("\n"),
-      `Every page's full documentation, React included: ${SITE_URL}/llms.txt`,
+      `The same, at length, for people: ${SITE_URL}/elements/ (Markdown: ${SITE_URL}${markdownPath("/elements/")}). Every page's documentation, React included: ${SITE_URL}/llms.txt`,
     ].join("\n\n"),
     ...CATEGORY_ORDER.flatMap((category) =>
       ALL_DOCS.filter((d) => d.category === category && d.elements).map((docs) =>

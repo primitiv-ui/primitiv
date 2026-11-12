@@ -1,6 +1,6 @@
 /*
- * The eight prose pages — Start Here, the five Concepts pages, Registry & CLI,
- * and Design in Figma.
+ * The nine prose pages — Start Here, the five Concepts pages, Registry & CLI,
+ * Custom elements and Design in Figma.
  *
  * The copy is NEVER hand-authored here, the same constraint the props tables
  * carry (docs-site-planning.md §1.5) and for the same reason. `scripts/figma/

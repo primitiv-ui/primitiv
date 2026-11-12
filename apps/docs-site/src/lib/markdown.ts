@@ -1,3 +1,6 @@
+import { readdirSync, readFileSync } from "node:fs";
+import { join } from "node:path";
+
 import { CONTENT_PAGES, type ContentBlock, type ContentPage } from "./content-pages";
 import {
   ALL_DOCS,
@@ -95,6 +98,34 @@ const part = (sub: DocsSubComponent): string => {
     .join("\n\n");
 };
 
+/*
+ * Glyphs, named rather than drawn. Path data is noise to a reader and most of
+ * the bulk of the Elements markup, so each inline `<svg>` becomes a comment
+ * naming the `@primitiv-ui/icons` glyph it draws — the same placeholder the
+ * page's code tabs use. A glyph is recognised by the opening of each of its
+ * paths, which tells apart the icons that share an outline (info, success and
+ * error are one circle). `primitiv add` still prints the real SVG.
+ */
+const ICONS_DIR = join(process.cwd(), "../../packages/icons/icons/svg");
+
+const pathKey = (svg: string): string =>
+  [...svg.matchAll(/\sd="([^"]{0,16})/g)].map((m) => m[1]).join("|");
+
+const ICONS: ReadonlyMap<string, string> = new Map(
+  readdirSync(ICONS_DIR)
+    .filter((file) => file.endsWith(".svg"))
+    .map((file) => [pathKey(readFileSync(join(ICONS_DIR, file), "utf8")), file.slice(0, -4)]),
+);
+
+const namedGlyphs = (markup: string): string =>
+  markup.replace(
+    /<svg[\s>][\s\S]*?<\/svg>/g,
+    (svg) => `<svg aria-hidden="true"><!-- icon: ${ICONS.get(pathKey(svg)) ?? "glyph"} --></svg>`,
+  );
+
+const GLYPH_NOTE =
+  "Each `<!-- icon: name -->` stands for that `@primitiv-ui/icons` glyph's inline `<svg>`, which `primitiv add` prints in full.";
+
 /** The address the CDN serves an Elements module at, pinned to one version. */
 const cdnScript = (pkg: string, version: string | null, module: string): string =>
   `<script type="module" src="https://cdn.jsdelivr.net/npm/${pkg}@${version ?? "latest"}/dist/cdn/${module}.js"></script>`;
@@ -151,11 +182,12 @@ export const elementsMarkdown = (docs: ComponentDocs): string => {
       ? [
           "### Markup",
           "Headless — the elements alone, no classes:",
-          fenced("html", withoutClasses(example)),
+          fenced("html", namedGlyphs(withoutClasses(example))),
           "Styled — the same markup with the registry classes, as `primitiv add` prints it:",
-          fenced("html", example),
+          fenced("html", namedGlyphs(example)),
+          GLYPH_NOTE,
         ]
-      : ["### Markup", fenced("html", example)]
+      : ["### Markup", fenced("html", namedGlyphs(example)), ...(example.includes("<svg") ? [GLYPH_NOTE] : [])]
     : [];
 
   const parts = api.flatMap((element) => [

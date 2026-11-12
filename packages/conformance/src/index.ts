@@ -61,3 +61,9 @@ export {
   type CheckboxCardMount,
 } from "./checkbox-card.ts";
 export { runSliderConformance, type SliderConformanceFixture, type SliderMount } from "./slider.ts";
+export {
+  runSplitButtonConformance,
+  SPLIT_BUTTON,
+  type SplitButtonConformanceFixture,
+  type SplitButtonMount,
+} from "./split-button.ts";

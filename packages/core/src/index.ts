@@ -119,3 +119,10 @@ export {
   type ListboxTypeaheadState,
 } from "./listbox/policy.ts";
 export { SELECT_OPTION_SELECTOR, selectKeydown } from "./select/policy.ts";
+export {
+  comboboxKeydown,
+  comboboxQuery,
+  type ComboboxKeyOutcome,
+  type ComboboxKeyState,
+  type ComboboxQueryState,
+} from "./combobox/policy.ts";

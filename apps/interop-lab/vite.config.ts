@@ -56,6 +56,7 @@ export default defineConfig({
       { find: /^@primitiv-ui\/web\/define\/split-button$/, replacement: workspace("web/src/define/split-button.ts") },
       { find: /^@primitiv-ui\/web\/define\/segmented-control$/, replacement: workspace("web/src/define/segmented-control.ts") },
       { find: /^@primitiv-ui\/web\/define\/toggle-group$/, replacement: workspace("web/src/define/toggle-group.ts") },
+      { find: /^@primitiv-ui\/web\/define\/listbox$/, replacement: workspace("web/src/define/listbox.ts") },
       { find: /^@primitiv-ui\/web\/define$/, replacement: workspace("web/src/define/index.ts") },
       { find: /^@primitiv-ui\/web\/svelte$/, replacement: workspace("web/src/frameworks/svelte.ts") },
       { find: /^@primitiv-ui\/web\/tabs$/, replacement: workspace("web/src/tabs/index.ts") },

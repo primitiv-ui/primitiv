@@ -16,6 +16,7 @@ import { radioCardHtml } from "./radio-card-fixture.ts";
 import { segmentedControlHtml } from "./segmented-control-fixture.ts";
 import { sliderHtml } from "./slider-fixture.ts";
 import { toggleGroupHtml } from "./toggle-group-fixture.ts";
+import { listboxHtml } from "./listbox-fixture.ts";
 
 let lazyLoads = 0;
 let echoes = 0;
@@ -34,6 +35,7 @@ let radioCardEchoes = 0;
 let checkboxCardEchoes = 0;
 let splitButtonEchoes = 0;
 let sliderEchoes = 0;
+let listboxEchoes = 0;
 
 export const fragments: Record<string, string | ((url: string) => string)> = {
   // Case 1: a whole tab set arrives in a fragment.
@@ -226,4 +228,18 @@ export const fragments: Record<string, string | ((url: string) => string)> = {
   "toggle-group-echo": (url: string) =>
     `<span data-testid="echo">server saw ${new URL(url, "http://lab").searchParams.get("value")} (${++toggleGroupEchoes})</span>`,
   "toggle-group-rtl": `<div dir="rtl">${toggleGroupHtml({ value: "" }, "rtl")}</div>`,
+  // The Listbox page's cases (listbox-htmx.html), named to match.
+  listbox: listboxHtml({ value: "banana" }, "swapped"),
+  "listbox-oob-group":
+    '<div hx-swap-oob="beforeend:#grouped">' +
+    '<primitiv-listbox-group><primitiv-listbox-group-label>Herbs</primitiv-listbox-group-label>' +
+    '<primitiv-listbox-option value="basil" style="display: block">Basil</primitiv-listbox-option></primitiv-listbox-group></div>',
+  "listbox-oob-option":
+    '<div hx-swap-oob="beforeend:#oob">' +
+    '<primitiv-listbox-option value="date" style="display: block">Date</primitiv-listbox-option></div>',
+  "listbox-oob-value": `<div hx-swap-oob="outerHTML:#rerendered">${listboxHtml({ value: "carrot" }, "rerendered")}</div>`,
+  "listbox-preserve": `<div id="preserve-region"><p>Swapped region</p>${listboxHtml({}, "preserved").replace("<primitiv-listbox ", '<primitiv-listbox hx-preserve="true" ')}</div>`,
+  "listbox-echo": (url: string) =>
+    `<span data-testid="echo">server saw ${new URL(url, "http://lab").searchParams.get("value")} (${++listboxEchoes})</span>`,
+  "listbox-rtl": `<div dir="rtl">${listboxHtml({ value: "", orientation: "horizontal" }, "rtl")}</div>`,
 };

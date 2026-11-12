@@ -607,3 +607,24 @@ test("the printed split button welds two halves and opens a styled menu under th
   await expect(menu).toBeHidden();
   await expect(trigger).toBeFocused();
 });
+
+test("add listbox printed the per-component script for its first release", () => {
+  const output = readFileSync("styled-site/add-listbox-output.txt", "utf8");
+  expect(output).toMatch(/@primitiv-ui\/web@[\d.]+\/dist\/cdn\/listbox\.js/);
+});
+
+test("the printed listbox is a styled column whose selected option shows its mark", async ({ page }) => {
+  const listbox = page.getByRole("listbox", { name: "Produce" });
+  await expect(listbox).toHaveCSS("display", "flex");
+  await expect(listbox.getByRole("group", { name: "Fruit" })).toBeVisible();
+  const apple = listbox.getByRole("option", { name: "Apple" });
+  const banana = listbox.getByRole("option", { name: "Banana" });
+  await expect(apple).toHaveAttribute("aria-selected", "true");
+  // The checkbox mark is drawn in CSS, filled only while its option is selected.
+  const mark = (option: typeof apple) =>
+    option.locator(".primitiv-listbox__option-checkbox").evaluate((el) => getComputedStyle(el).backgroundColor);
+  expect(await mark(apple)).not.toBe(await mark(banana));
+  await banana.click();
+  await expect(listbox).toHaveAttribute("value", "apple banana");
+  await expect(banana).toHaveAttribute("aria-selected", "true");
+});

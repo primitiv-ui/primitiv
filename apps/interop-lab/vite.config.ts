@@ -58,6 +58,7 @@ export default defineConfig({
       { find: /^@primitiv-ui\/web\/define\/toggle-group$/, replacement: workspace("web/src/define/toggle-group.ts") },
       { find: /^@primitiv-ui\/web\/define\/listbox$/, replacement: workspace("web/src/define/listbox.ts") },
       { find: /^@primitiv-ui\/web\/define\/select$/, replacement: workspace("web/src/define/select.ts") },
+      { find: /^@primitiv-ui\/web\/define\/combobox$/, replacement: workspace("web/src/define/combobox.ts") },
       { find: /^@primitiv-ui\/web\/define$/, replacement: workspace("web/src/define/index.ts") },
       { find: /^@primitiv-ui\/web\/svelte$/, replacement: workspace("web/src/frameworks/svelte.ts") },
       { find: /^@primitiv-ui\/web\/tabs$/, replacement: workspace("web/src/tabs/index.ts") },

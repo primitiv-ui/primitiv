@@ -657,3 +657,49 @@ test("the printed select opens its list anchored under the trigger, and chooses"
   await expect(trigger).toHaveText("Carrot");
   await expect(list).toBeHidden();
 });
+
+test("add combobox printed the per-component script for its first release", () => {
+  const output = readFileSync("styled-site/add-combobox-output.txt", "utf8");
+  expect(output).toMatch(/@primitiv-ui\/web@[\d.]+\/dist\/cdn\/combobox\.js/);
+});
+
+test("the printed combobox opens its list anchored under the control, and commits", async ({ page }) => {
+  const field = page.getByRole("combobox", { name: "Framework", exact: true });
+  const control = page.locator(".primitiv-combobox__control");
+  await expect(field).toHaveAttribute("role", "combobox");
+  // The combobox ends the page: give the list room below so it keeps its
+  // default placement rather than flipping above.
+  await page.setViewportSize({ width: 1280, height: 2000 });
+  await field.evaluate((el) => el.scrollIntoView({ block: "center" }));
+  await field.click();
+  await page.keyboard.type("s");
+  const list = page.locator("primitiv-combobox-content");
+  await expect(list).toBeVisible();
+  // The list scales in as it opens: measure where it settles, not mid-animation.
+  await list.evaluate((el) => Promise.all(el.getAnimations().map((animation) => animation.finished)));
+  const [c, l] = await Promise.all([control.boundingBox(), list.boundingBox()]);
+  // Below the control, hugging its inline-start edge, at least as wide.
+  expect(l!.y).toBeGreaterThanOrEqual(c!.y + c!.height - 1);
+  expect(Math.abs(l!.x - c!.x)).toBeLessThan(2);
+  expect(l!.width).toBeGreaterThanOrEqual(c!.width - 1);
+  // The control is the framed box, and the field sits inside it.
+  const f = await field.boundingBox();
+  expect(f!.x).toBeGreaterThan(c!.x);
+  expect(f!.x + f!.width).toBeLessThan(c!.x + c!.width);
+  // No mark shows until something is committed.
+  await expect(list.locator(".primitiv-combobox__item-indicator:visible")).toHaveCount(0);
+  await page.keyboard.press("ArrowDown");
+  await expect(list.getByRole("option", { name: "React", exact: true })).toHaveAttribute("data-highlighted", "");
+  await list.getByRole("option", { name: "Svelte" }).click();
+  await expect(field).toHaveValue("Svelte");
+  await expect(list).toBeHidden();
+  // A filtered-out item is display: none even though the item class sets a display.
+  await field.fill("zzz");
+  await expect(list).toBeVisible();
+  await expect(list.getByRole("option", { name: "React", exact: true })).toBeVisible();
+  await page.evaluate(() => {
+    for (const item of document.querySelectorAll<HTMLElement>("primitiv-combobox-item")) item.hidden = true;
+  });
+  await expect(list.getByRole("option")).toHaveCount(0);
+  await expect(list.getByText("No matches")).toBeVisible();
+});

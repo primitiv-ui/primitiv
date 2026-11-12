@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+  <head><meta charset="utf-8" /><link rel="icon" href="data:," /><title>Interop lab — Combobox, HTMX</title></head>
+  <body hx-history-elt>
+    <!-- 1. Full fragment swap -->
+    <section>
+      <button type="button" id="load-combobox" hx-get="/fragments/combobox" hx-target="#slot-1">Load combobox</button>
+      <div id="slot-1"></div>
+    </section>
+
+    <!-- 2. An out-of-band item -->
+    <section id="oob-region"></section>
+    <button type="button" id="load-oob" hx-get="/fragments/combobox-oob-item" hx-swap="none">Add an item</button>
+
+    <!-- 3. Server re-render with a new value -->
+    <section id="rerender-region"></section>
+    <button type="button" id="load-value" hx-get="/fragments/combobox-oob-value" hx-swap="none">Choose Svelte</button>
+
+    <!-- 4. hx-preserve -->
+    <div id="preserve-region"></div>
+    <button type="button" id="swap-preserve" hx-get="/fragments/combobox-preserve" hx-target="#preserve-region" hx-swap="outerHTML">Swap region</button>
+
+    <!-- 5. History -->
+    <section id="history-region"></section>
+    <a id="go-two" href="/page-two" hx-get="/fragments/page-two" hx-target="#history-target" hx-push-url="/combobox-page-two">Go to page two</a>
+    <div id="history-target"></div>
+
+    <!-- 6. hx-trigger on the change event, and a veto -->
+    <section id="echo-region"></section>
+    <div id="echo-target"></div>
+
+    <!-- 7. The server filters: each query swaps in the items that match -->
+    <section id="filter-region"></section>
+
+    <!-- 8. hx-include reads the value through the hidden input -->
+    <section id="include-region"></section>
+    <button type="button" id="send-include" hx-get="/fragments/combobox-include" hx-include="#include-region" hx-target="#include-target">Send</button>
+    <div id="include-target"></div>
+
+    <script type="module" src="/src/combobox-htmx.ts"></script>
+  </body>
+</html>

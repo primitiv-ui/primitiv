@@ -18,6 +18,7 @@ import { sliderHtml } from "./slider-fixture.ts";
 import { toggleGroupHtml } from "./toggle-group-fixture.ts";
 import { listboxHtml } from "./listbox-fixture.ts";
 import { selectHtml } from "./select-fixture.ts";
+import { comboboxHtml, comboboxItemsHtml } from "./combobox-fixture.ts";
 
 let lazyLoads = 0;
 let echoes = 0;
@@ -38,6 +39,7 @@ let splitButtonEchoes = 0;
 let sliderEchoes = 0;
 let listboxEchoes = 0;
 let selectEchoes = 0;
+let comboboxEchoes = 0;
 
 export const fragments: Record<string, string | ((url: string) => string)> = {
   // Case 1: a whole tab set arrives in a fragment.
@@ -255,4 +257,16 @@ export const fragments: Record<string, string | ((url: string) => string)> = {
     `<span data-testid="echo">server saw ${new URL(url, "http://lab").searchParams.get("value")} (${++selectEchoes})</span>`,
   "select-include": (url: string) =>
     `<span data-testid="included">server saw ${new URL(url, "http://lab").searchParams.get("fruit")}</span>`,
+  // The Combobox page's cases (combobox-htmx.html), named to match.
+  combobox: comboboxHtml({ value: "preact" }, "swapped"),
+  "combobox-oob-item":
+    '<div hx-swap-oob="beforeend:#oob primitiv-combobox-content">' +
+    '<primitiv-combobox-item value="solid">Solid</primitiv-combobox-item></div>',
+  "combobox-oob-value": `<div hx-swap-oob="outerHTML:#rerendered">${comboboxHtml({ value: "svelte" }, "rerendered")}</div>`,
+  "combobox-preserve": `<div id="preserve-region"><p>Swapped region</p>${comboboxHtml({}, "preserved").replace("<primitiv-combobox ", '<primitiv-combobox hx-preserve="true" ')}</div>`,
+  "combobox-echo": (url: string) =>
+    `<span data-testid="echo">server saw ${new URL(url, "http://lab").searchParams.get("value")} (${++comboboxEchoes})</span>`,
+  "combobox-filter": (url: string) => comboboxItemsHtml(new URL(url, "http://lab").searchParams.get("q") ?? ""),
+  "combobox-include": (url: string) =>
+    `<span data-testid="included">server saw ${new URL(url, "http://lab").searchParams.get("framework")}</span>`,
 };

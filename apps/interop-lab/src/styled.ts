@@ -1,4 +1,4 @@
-// The markup `primitiv add tabs`, `add accordion`, `add collapsible`, `add modal`, `add confirm-dialog`, `add drawer`, `add popover`, `add tooltip`, `add dropdown`, `add context-menu`, `add toggle-group`, `add segmented-control`, `add radio-card`, `add checkbox-card`, `add slider`, `add breadcrumb-overflow`, `add split-button`, `add listbox` and `add select` printed, pasted into the page as a consumer
+// The markup `primitiv add tabs`, `add accordion`, `add collapsible`, `add modal`, `add confirm-dialog`, `add drawer`, `add popover`, `add tooltip`, `add dropdown`, `add context-menu`, `add toggle-group`, `add segmented-control`, `add radio-card`, `add checkbox-card`, `add slider`, `add breadcrumb-overflow`, `add split-button`, `add listbox`, `add select` and `add combobox` printed, pasted into the page as a consumer
 // would, then the elements defined over it (the lab's stand-in for the CDN
 // script, so it runs from workspace source).
 import accordion from "../styled-site/accordion.example.html?raw";
@@ -20,6 +20,7 @@ import splitButton from "../styled-site/split-button.example.html?raw";
 import tooltip from "../styled-site/tooltip.example.html?raw";
 import listbox from "../styled-site/listbox.example.html?raw";
 import select from "../styled-site/select.example.html?raw";
+import combobox from "../styled-site/combobox.example.html?raw";
 
-(document.getElementById("app") as HTMLElement).innerHTML = tabs + accordion + collapsible + modal + confirmDialog + drawer + popover + tooltip + dropdown + contextMenu + toggleGroup + segmentedControl + radioCard + checkboxCard + slider + breadcrumbOverflow + splitButton + listbox + select;
+(document.getElementById("app") as HTMLElement).innerHTML = tabs + accordion + collapsible + modal + confirmDialog + drawer + popover + tooltip + dropdown + contextMenu + toggleGroup + segmentedControl + radioCard + checkboxCard + slider + breadcrumbOverflow + splitButton + listbox + select + combobox;
 await import("@primitiv-ui/web/define");

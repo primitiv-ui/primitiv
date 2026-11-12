@@ -1094,3 +1094,15 @@ fn headless_drops_the_lines_a_styling_wrapper_stood_on() {
 
     assert_eq!(headless, "<dialog>\n    <h2>Title</h2>\n\n  <p>Body</p>\n</dialog>\n");
 }
+
+#[test]
+fn headless_keeps_the_closing_tag_of_a_span_that_keeps_an_attribute() {
+    let styled = "<span class=\"control\">\n  <input class=\"input\">\n  <span class=\"icon\" aria-hidden=\"true\"><svg></svg></span>\n</span>\n<div class=\"list\"><span class=\"label\">Vue</span></div>\n";
+
+    let headless = crate::commands::add::without_classes(styled);
+
+    assert_eq!(
+        headless,
+        "  <input>\n  <span aria-hidden=\"true\"><svg></svg></span>\n<div>Vue</div>\n"
+    );
+}

@@ -428,11 +428,45 @@ pub(crate) fn without_classes(markup: &str) -> String {
     // A wrapper that stood on a line of its own (Modal's header, body and
     // footer) leaves that line blank once unwrapped: drop it, keeping the blank
     // lines the styled markup already had.
+    // Only a span left bare unwraps, and only ITS closing tag goes with it: a
+    // span that keeps an attribute (`aria-hidden`) keeps both of its tags, or
+    // the markup would be left with an unclosed span swallowing what follows.
+    let mut bare: Vec<bool> = Vec::new();
     out.split_inclusive('\n')
-        .map(|line| (line, line.replace("<span>", "").replace("</span>", "")))
+        .map(|line| (line, unwrap_bare_spans(line, &mut bare)))
         .filter(|(line, unwrapped)| !unwrapped.trim().is_empty() || line.trim().is_empty())
         .map(|(_, unwrapped)| unwrapped)
         .collect()
+}
+
+/// Remove `line`'s bare `<span>` tags and the `</span>` tags that close them,
+/// tracking which open spans were bare in `bare` across lines.
+fn unwrap_bare_spans(line: &str, bare: &mut Vec<bool>) -> String {
+    let mut out = String::with_capacity(line.len());
+    let mut rest = line;
+    while let Some(at) = rest.find("<span").into_iter().chain(rest.find("</span>")).min() {
+        out.push_str(&rest[..at]);
+        let tag = &rest[at..];
+        // Registry markup is well formed, so a tag always ends in `>`.
+        let len = tag.find('>').unwrap_or(tag.len() - 1) + 1;
+        let (text, keep) = match &tag[..len] {
+            "<span>" => {
+                bare.push(true);
+                ("", false)
+            }
+            "</span>" => ("</span>", bare.pop() != Some(true)),
+            open => {
+                bare.push(false);
+                (open, true)
+            }
+        };
+        if keep {
+            out.push_str(text);
+        }
+        rest = &tag[len..];
+    }
+    out.push_str(rest);
+    out
 }
 
 /// The components directory `add` writes the React surface into when the project

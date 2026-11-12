@@ -39,15 +39,13 @@ function decoratable(part: HTMLElement): HTMLElement | null {
  *
  * @customElement primitiv-split-button
  * @summary One primary action welded to a menu of alternatives.
- * @attr {boolean} disabled - Disables both halves (native `disabled` and `data-disabled` on each button). A half disabled on its own gets `data-disabled` too.
+ * @attr {boolean} disabled - Disables both halves: native `disabled` and `data-disabled` on each button. To disable one half alone, put `disabled` on its part — `<primitiv-split-button-action>` or `<primitiv-dropdown-trigger>` — not on the button, which the group owns.
  */
 export class PrimitivSplitButtonElement extends PrimitivRootElement {
   protected readonly controller: SplitButtonController = new SplitButtonController(this, this.#host());
   protected readonly reconcileOn: readonly string[] = ["open", "disabled", "aria-label", "aria-labelledby", "id"];
   /** The menu's trigger `<button>`, as of the last reconcile. */
   #trigger: HTMLElement | null = null;
-  /** The buttons this group disabled, so re-enabling it never undoes a half the consumer disabled. */
-  readonly #disabledByGroup = new WeakSet<HTMLElement>();
   /** The `aria-labelledby` this group wrote on each trigger, so one the consumer wrote is left alone. */
   readonly #derivedName = new WeakMap<HTMLElement, string>();
 
@@ -56,16 +54,10 @@ export class PrimitivSplitButtonElement extends PrimitivRootElement {
     return { open: () => this.#trigger?.click() };
   }
 
-  /** Disable `button` with the group, or undo only what the group did. */
-  #disable(button: HTMLElement, group: boolean): boolean {
-    if (group && !button.hasAttribute("disabled")) {
-      button.setAttribute("disabled", "");
-      this.#disabledByGroup.add(button);
-    } else if (!group && this.#disabledByGroup.has(button)) {
-      button.removeAttribute("disabled");
-      this.#disabledByGroup.delete(button);
-    }
-    const disabled = button.hasAttribute("disabled");
+  /** Disable a half's `button` with its part or the group; whether it is disabled. */
+  #disable(part: HTMLElement, button: HTMLElement, group: boolean): boolean {
+    const disabled = group || part.hasAttribute("disabled");
+    write(button, "disabled", disabled ? "" : null);
     write(button, "data-disabled", disabled ? "" : null);
     return disabled;
   }
@@ -84,7 +76,7 @@ export class PrimitivSplitButtonElement extends PrimitivRootElement {
     if (action) {
       if (!action.id) action.id = `${rootId}-action`;
       write(action, "data-split-button-action", "");
-      this.controller.setTriggers([{ value: ACTION, element: action, disabled: this.#disable(action, disabled) }]);
+      this.controller.setTriggers([{ value: ACTION, element: action, disabled: this.#disable(actionPart, action, disabled) }]);
     } else {
       this.controller.setTriggers([]);
     }
@@ -95,11 +87,14 @@ export class PrimitivSplitButtonElement extends PrimitivRootElement {
     if (!trigger) return;
     if (!trigger.id) trigger.id = `${rootId}-trigger`;
     write(trigger, "data-split-button-trigger", "");
-    this.#disable(trigger, disabled);
+    this.#disable(triggerPart, trigger, disabled);
+    // The trigger is named by its own content then the action's, unless the
+    // consumer named it: an `aria-label` (which this name would outrank), or an
+    // `aria-labelledby` that is neither the one this group wrote nor the one it
+    // would write — a pre-rendered page's derived name is adopted as its own.
+    const derived = action && !trigger.hasAttribute("aria-label") ? `${trigger.id} ${action.id}` : null;
     const labelledBy = trigger.getAttribute("aria-labelledby");
-    const named = trigger.hasAttribute("aria-label") || (labelledBy !== null && labelledBy !== this.#derivedName.get(trigger));
-    if (named) return;
-    const derived = action ? `${trigger.id} ${action.id}` : null;
+    if (labelledBy !== null && labelledBy !== this.#derivedName.get(trigger) && labelledBy !== derived) return;
     if (derived) this.#derivedName.set(trigger, derived);
     write(trigger, "aria-labelledby", derived);
   }
@@ -112,6 +107,7 @@ export class PrimitivSplitButtonElement extends PrimitivRootElement {
  * has none, and ArrowDown to open the menu.
  *
  * @customElement primitiv-split-button-action
+ * @attr {boolean} disabled - Disables the action half alone (native `disabled` and `data-disabled` on its button).
  */
 export class PrimitivSplitButtonActionElement extends ElementBase {}
 

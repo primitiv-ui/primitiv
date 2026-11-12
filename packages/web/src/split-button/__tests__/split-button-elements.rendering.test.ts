@@ -135,15 +135,54 @@ describe("<primitiv-split-button> rendering", () => {
     expect(trigger().getAttribute("data-disabled")).toBe("");
   });
 
-  it("marks a half the consumer disabled on its own", async () => {
+  it("disables the action half on its own", async () => {
     // Arrange & Act
-    await mount(splitButtonHtml({ actionAttrs: " disabled" }));
+    await mount(splitButtonHtml({ actionDisabled: true }));
 
     // Assert
+    expect((action() as HTMLButtonElement).disabled).toBe(true);
     expect(action().getAttribute("data-disabled")).toBe("");
     expect((trigger() as HTMLButtonElement).disabled).toBe(false);
     expect(trigger().hasAttribute("data-disabled")).toBe(false);
     expect(group().hasAttribute("data-disabled")).toBe(false);
+  });
+
+  it("disables the trigger half on its own", async () => {
+    // Arrange & Act
+    await mount(splitButtonHtml({ triggerDisabled: true }));
+
+    // Assert
+    expect((trigger() as HTMLButtonElement).disabled).toBe(true);
+    expect(trigger().getAttribute("data-disabled")).toBe("");
+    expect((action() as HTMLButtonElement).disabled).toBe(false);
+    expect(action().hasAttribute("data-disabled")).toBe(false);
+  });
+
+  it("writes nothing over markup that is already correct, so pre-rendered HTML is adopted as it is", async () => {
+    // Arrange
+    await mount(splitButtonHtml({ open: true }) + splitButtonHtml({ disabled: true }) + splitButtonHtml({ triggerDisabled: true }));
+    const rendered = document.body.innerHTML;
+    document.body.replaceChildren();
+    const writes = vi.spyOn(Element.prototype, "setAttribute");
+    const removals = vi.spyOn(Element.prototype, "removeAttribute");
+
+    // Act
+    document.body.innerHTML = rendered;
+    await Promise.resolve();
+
+    // Assert
+    expect(writes.mock.calls.filter(([name]) => name !== "data-popover-open")).toEqual([]);
+    expect(removals).not.toHaveBeenCalled();
+    writes.mockRestore();
+    removals.mockRestore();
+  });
+
+  it("writes no class and no style on anything", async () => {
+    // Arrange & Act
+    await mount(splitButtonHtml({ open: true }));
+
+    // Assert
+    expect(document.querySelectorAll("[class], [style]")).toHaveLength(0);
   });
 
   it("leaves the menu itself to the dropdown", async () => {

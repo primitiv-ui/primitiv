@@ -113,6 +113,13 @@ import type {
   PrimitivListboxOptionElement,
 } from "./listbox/elements.ts";
 import type {
+  PrimitivComboboxContentElement,
+  PrimitivComboboxElement,
+  PrimitivComboboxEmptyElement,
+  PrimitivComboboxInputElement,
+  PrimitivComboboxItemElement,
+} from "./combobox/elements.ts";
+import type {
   PrimitivSelectContentElement,
   PrimitivSelectElement,
   PrimitivSelectGroupElement,
@@ -189,6 +196,11 @@ declare global {
     "primitiv-listbox-option": PrimitivListboxOptionElement;
     "primitiv-listbox-group": PrimitivListboxGroupElement;
     "primitiv-listbox-group-label": PrimitivListboxGroupLabelElement;
+    "primitiv-combobox": PrimitivComboboxElement;
+    "primitiv-combobox-input": PrimitivComboboxInputElement;
+    "primitiv-combobox-content": PrimitivComboboxContentElement;
+    "primitiv-combobox-item": PrimitivComboboxItemElement;
+    "primitiv-combobox-empty": PrimitivComboboxEmptyElement;
     "primitiv-select": PrimitivSelectElement;
     "primitiv-select-trigger": PrimitivSelectTriggerElement;
     "primitiv-select-value": PrimitivSelectValueElement;

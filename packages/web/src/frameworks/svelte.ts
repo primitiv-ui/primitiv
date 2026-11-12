@@ -118,6 +118,13 @@ import type {
   PrimitivListboxOptionElement,
 } from "../listbox/elements.ts";
 import type {
+  PrimitivComboboxContentElement,
+  PrimitivComboboxElement,
+  PrimitivComboboxEmptyElement,
+  PrimitivComboboxInputElement,
+  PrimitivComboboxItemElement,
+} from "../combobox/elements.ts";
+import type {
   PrimitivSelectContentElement,
   PrimitivSelectElement,
   PrimitivSelectGroupElement,
@@ -146,6 +153,9 @@ import type {
   PrimitivTooltipChangeEvent,
   PrimitivToggleGroupChangeEvent,
   PrimitivListboxChangeEvent,
+  PrimitivComboboxChangeEvent,
+  PrimitivComboboxOpenChangeEvent,
+  PrimitivComboboxQueryChangeEvent,
   PrimitivSelectChangeEvent,
   PrimitivSelectOpenChangeEvent,
   PrimitivSegmentedControlChangeEvent,
@@ -349,6 +359,22 @@ declare module "svelte/elements" {
     };
     "primitiv-listbox-group": Attributes<PrimitivListboxGroupElement>;
     "primitiv-listbox-group-label": Attributes<PrimitivListboxGroupLabelElement>;
+    "primitiv-combobox": Attributes<PrimitivComboboxElement> & {
+      value?: string;
+      open?: boolean;
+      name?: string;
+      "onprimitiv-combobox-change"?: (event: PrimitivComboboxChangeEvent) => void;
+      "onprimitiv-combobox-open-change"?: (event: PrimitivComboboxOpenChangeEvent) => void;
+      "onprimitiv-combobox-query-change"?: (event: PrimitivComboboxQueryChangeEvent) => void;
+    };
+    "primitiv-combobox-input": Attributes<PrimitivComboboxInputElement>;
+    "primitiv-combobox-content": Attributes<PrimitivComboboxContentElement>;
+    "primitiv-combobox-item": Attributes<PrimitivComboboxItemElement> & {
+      value: string;
+      label?: string;
+      disabled?: boolean;
+    };
+    "primitiv-combobox-empty": Attributes<PrimitivComboboxEmptyElement>;
     "primitiv-select": Attributes<PrimitivSelectElement> & {
       value?: string;
       open?: boolean;

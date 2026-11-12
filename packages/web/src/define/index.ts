@@ -17,4 +17,5 @@ import "./tabs.ts";
 import "./toggle-group.ts";
 import "./listbox.ts";
 import "./select.ts";
+import "./combobox.ts";
 import "./tooltip.ts";

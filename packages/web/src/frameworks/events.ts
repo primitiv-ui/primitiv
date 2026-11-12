@@ -33,6 +33,15 @@ export type PrimitivSelectChangeEvent = CustomEvent<{ value: string }>;
 /** The `primitiv-select-open-change` event: bubbles, cancelable, fired before the list opens or closes. */
 export type PrimitivSelectOpenChangeEvent = CustomEvent<{ open: boolean }>;
 
+/** The `primitiv-combobox-change` event: bubbles, cancelable, fired before a committed or cleared value applies. */
+export type PrimitivComboboxChangeEvent = CustomEvent<{ value: string }>;
+
+/** The `primitiv-combobox-open-change` event: bubbles, cancelable, fired before the list opens or closes. */
+export type PrimitivComboboxOpenChangeEvent = CustomEvent<{ open: boolean }>;
+
+/** The `primitiv-combobox-query-change` event: bubbles, fired as the field's text changes from typing. */
+export type PrimitivComboboxQueryChangeEvent = CustomEvent<{ query: string }>;
+
 /** The `primitiv-segmented-control-change` event: bubbles, cancelable, fired before the change applies, with the segment selected afterwards. */
 export type PrimitivSegmentedControlChangeEvent = CustomEvent<{ value: string }>;
 

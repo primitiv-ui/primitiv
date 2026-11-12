@@ -19,6 +19,7 @@
     "./toggle-group": "./src/toggle-group/index.ts",
     "./listbox": "./src/listbox/index.ts",
     "./select": "./src/select/index.ts",
+    "./combobox": "./src/combobox/index.ts",
     "./define": "./src/define/index.ts",
     "./define/accordion": "./src/define/accordion.ts",
     "./define/checkbox-card": "./src/define/checkbox-card.ts",
@@ -35,7 +36,8 @@
     "./define/tooltip": "./src/define/tooltip.ts",
     "./define/toggle-group": "./src/define/toggle-group.ts",
     "./define/listbox": "./src/define/listbox.ts",
-    "./define/select": "./src/define/select.ts"
+    "./define/select": "./src/define/select.ts",
+    "./define/combobox": "./src/define/combobox.ts"
   },
   "imports": {
     "@primitiv-ui/core": "jsr:@primitiv-ui/core@^0.1.42"

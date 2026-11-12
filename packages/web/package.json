@@ -74,6 +74,10 @@
       "types": "./src/select/index.ts",
       "default": "./src/select/index.ts"
     },
+    "./combobox": {
+      "types": "./src/combobox/index.ts",
+      "default": "./src/combobox/index.ts"
+    },
     "./define": {
       "types": "./src/define/index.ts",
       "default": "./src/define/index.ts"
@@ -141,6 +145,10 @@
     "./define/select": {
       "types": "./src/define/select.ts",
       "default": "./src/define/select.ts"
+    },
+    "./define/combobox": {
+      "types": "./src/define/combobox.ts",
+      "default": "./src/define/combobox.ts"
     },
     "./tags": {
       "types": "./src/tags.ts",
@@ -277,6 +285,10 @@
         "types": "./dist/select/index.d.ts",
         "default": "./dist/select/index.js"
       },
+      "./combobox": {
+        "types": "./dist/combobox/index.d.ts",
+        "default": "./dist/combobox/index.js"
+      },
       "./define": {
         "types": "./dist/define/index.d.ts",
         "default": "./dist/define/index.js"
@@ -344,6 +356,10 @@
       "./define/select": {
         "types": "./dist/define/select.d.ts",
         "default": "./dist/define/select.js"
+      },
+      "./define/combobox": {
+        "types": "./dist/define/combobox.d.ts",
+        "default": "./dist/define/combobox.js"
       },
       "./tags": {
         "types": "./dist/tags.d.ts",

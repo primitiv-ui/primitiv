@@ -6,7 +6,7 @@ framework and no runtime dependencies beyond
 server-rendered stack (HTMX, Rails, Django, Laravel, Spring …), and inside
 React, Vue, Angular or any other framework.
 
-> **Status: published.** Tabs, Accordion, Collapsible, Modal, Popover, Tooltip, Dropdown, Context Menu, Toggle Group, Segmented Control, Radio Card, Checkbox Card, Slider, Split Button, Listbox and Select so far. See
+> **Status: published.** Tabs, Accordion, Collapsible, Modal, Popover, Tooltip, Dropdown, Context Menu, Toggle Group, Segmented Control, Radio Card, Checkbox Card, Slider, Split Button, Listbox, Select and Combobox so far. See
 > [RFC 0033](../../docs/rfcs/0033-web-components.md) for the design.
 
 ## Components
@@ -29,6 +29,7 @@ React, Vue, Angular or any other framework.
 | Split Button | `primitiv-split-button`, `-action` (its menu is a nested `primitiv-dropdown`) | the Dropdown's | 0.1.62 |
 | Listbox | `primitiv-listbox`, `-option`, `-group`, `-group-label` | `primitiv-listbox-change` | 0.2.1 |
 | Select | `primitiv-select`, `-trigger`, `-value`, `-content`, `-item`, `-item-indicator`, `-group`, `-separator` | `primitiv-select-change`, `-open-change` | 0.2.1 |
+| Combobox | `primitiv-combobox`, `-input`, `-content`, `-item`, `-empty` | `primitiv-combobox-change`, `-open-change`, `-query-change` | 0.2.1 |
 
 ## Use it
 
@@ -61,13 +62,13 @@ downloads it once. `dist/primitiv-web.js` is the alternative: every element in
 one file. Per-component files ship from 0.1.43.
 
 The main entry (`@primitiv-ui/web`, `/tabs`, `/accordion`, `/collapsible`,
-`/modal`, `/popover`, `/tooltip`, `/dropdown`, `/context-menu`, `/toggle-group`, `/segmented-control`, `/radio-card`, `/checkbox-card`, `/slider`, `/split-button`, `/listbox`, `/select`) exports the classes and `defineTabs(registry?)` /
+`/modal`, `/popover`, `/tooltip`, `/dropdown`, `/context-menu`, `/toggle-group`, `/segmented-control`, `/radio-card`, `/checkbox-card`, `/slider`, `/split-button`, `/listbox`, `/select`, `/combobox`) exports the classes and `defineTabs(registry?)` /
 `defineAccordion(registry?)` / `defineCollapsible(registry?)` /
 `defineModal(registry?)` / `definePopover(registry?)` / `defineTooltip(registry?)` /
 `defineDropdown(registry?)` / `defineContextMenu(registry?)` /
 `defineToggleGroup(registry?)` / `defineSegmentedControl(registry?)` /
 `defineRadioCard(registry?)` / `defineCheckboxCard(registry?)` / `defineSlider(registry?)` / `defineSplitButton(registry?)` /
-`defineListbox(registry?)` / `defineSelect(registry?)` with **no side
+`defineListbox(registry?)` / `defineSelect(registry?)` / `defineCombobox(registry?)` with **no side
 effects**.
 
 **Render `hidden` on inactive panels yourself.** Until the module loads, CSS
@@ -533,6 +534,40 @@ The elements write no `class` and no `style`. For the registry look, apply the
   restores the value it first rendered with.
 - A native `<select>` with the registry classes needs no element at all: reach
   for it when the list needs nothing but text.
+
+### Combobox
+
+```html
+<script type="module" src="https://cdn.jsdelivr.net/npm/@primitiv-ui/web@<version>/dist/cdn/combobox.js"></script>
+
+<primitiv-combobox name="framework">
+  <primitiv-combobox-input>
+    <input aria-label="Framework" autocomplete="off" placeholder="Search...">
+  </primitiv-combobox-input>
+  <primitiv-combobox-content aria-label="Frameworks">
+    <primitiv-combobox-item value="react">React</primitiv-combobox-item>
+    <primitiv-combobox-item value="vue">Vue</primitiv-combobox-item>
+    <primitiv-combobox-empty>No matches</primitiv-combobox-empty>
+  </primitiv-combobox-content>
+</primitiv-combobox>
+```
+
+- **The `<input>` you write keeps focus throughout.** It becomes the
+  `role="combobox"`; `<primitiv-combobox-content>` is a `role="listbox"` shown
+  as a `popover="auto"` panel in the top layer, anchored to the root's child
+  that holds the input. Typing or ArrowDown opens it; the arrows, Home and End
+  move a virtual cursor (`aria-activedescendant`, and `data-highlighted` on the
+  item); Enter or a click commits; Escape or a press outside closes and puts
+  the committed text back. Emptying the field clears the value.
+- **Filtering is yours.** Listen for `primitiv-combobox-query-change` (or the
+  input's own `input` event) and set `hidden` on the items that do not match,
+  or swap in new items from a server. Hidden and `disabled` items are skipped,
+  and `<primitiv-combobox-empty>` shows only while no item is.
+- **`value` is the committed item**; the field shows its text (its `label`
+  attribute, else its text content). `primitiv-combobox-change` fires first
+  and is cancelable, as does `primitiv-combobox-open-change` for `open`.
+- **With a `name`** a hidden input inside the root submits the value — not the
+  field's text — and a form reset restores the value it first rendered with.
 
 ## Layers
 

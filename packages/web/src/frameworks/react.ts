@@ -119,6 +119,13 @@ import type {
   PrimitivListboxOptionElement,
 } from "../listbox/elements.ts";
 import type {
+  PrimitivComboboxContentElement,
+  PrimitivComboboxElement,
+  PrimitivComboboxEmptyElement,
+  PrimitivComboboxInputElement,
+  PrimitivComboboxItemElement,
+} from "../combobox/elements.ts";
+import type {
   PrimitivSelectContentElement,
   PrimitivSelectElement,
   PrimitivSelectGroupElement,
@@ -147,6 +154,9 @@ import type {
   PrimitivTooltipChangeEvent,
   PrimitivToggleGroupChangeEvent,
   PrimitivListboxChangeEvent,
+  PrimitivComboboxChangeEvent,
+  PrimitivComboboxOpenChangeEvent,
+  PrimitivComboboxQueryChangeEvent,
   PrimitivSelectChangeEvent,
   PrimitivSelectOpenChangeEvent,
   PrimitivSegmentedControlChangeEvent,
@@ -180,6 +190,9 @@ export type {
   PrimitivTooltipChangeEvent,
   PrimitivToggleGroupChangeEvent,
   PrimitivListboxChangeEvent,
+  PrimitivComboboxChangeEvent,
+  PrimitivComboboxOpenChangeEvent,
+  PrimitivComboboxQueryChangeEvent,
   PrimitivSelectChangeEvent,
   PrimitivSelectOpenChangeEvent,
 };
@@ -381,6 +394,22 @@ declare module "react" {
       };
       "primitiv-listbox-group": ElementProps<PrimitivListboxGroupElement>;
       "primitiv-listbox-group-label": ElementProps<PrimitivListboxGroupLabelElement>;
+      "primitiv-combobox": ElementProps<PrimitivComboboxElement> & {
+        value?: string;
+        open?: boolean;
+        name?: string;
+        "onprimitiv-combobox-change"?: (event: PrimitivComboboxChangeEvent) => void;
+        "onprimitiv-combobox-open-change"?: (event: PrimitivComboboxOpenChangeEvent) => void;
+        "onprimitiv-combobox-query-change"?: (event: PrimitivComboboxQueryChangeEvent) => void;
+      };
+      "primitiv-combobox-input": ElementProps<PrimitivComboboxInputElement>;
+      "primitiv-combobox-content": ElementProps<PrimitivComboboxContentElement>;
+      "primitiv-combobox-item": ElementProps<PrimitivComboboxItemElement> & {
+        value: string;
+        label?: string;
+        disabled?: boolean;
+      };
+      "primitiv-combobox-empty": ElementProps<PrimitivComboboxEmptyElement>;
       "primitiv-select": ElementProps<PrimitivSelectElement> & {
         value?: string;
         open?: boolean;

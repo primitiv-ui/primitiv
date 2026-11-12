@@ -39,6 +39,9 @@ import type {
   PrimitivTooltipChangeEvent,
   PrimitivToggleGroupChangeEvent,
   PrimitivListboxChangeEvent,
+  PrimitivComboboxChangeEvent,
+  PrimitivComboboxOpenChangeEvent,
+  PrimitivComboboxQueryChangeEvent,
   PrimitivSelectChangeEvent,
   PrimitivSelectOpenChangeEvent,
   PrimitivSegmentedControlChangeEvent,
@@ -165,6 +168,18 @@ declare module "vue" {
     "primitiv-listbox-option": Tag<{ value: string; disabled?: boolean | "" }>;
     "primitiv-listbox-group": Tag<Record<never, never>>;
     "primitiv-listbox-group-label": Tag<Record<never, never>>;
+    "primitiv-combobox": Tag<
+      { value?: string; open?: boolean | ""; name?: string },
+      {
+        "primitiv-combobox-change": (event: PrimitivComboboxChangeEvent) => void;
+        "primitiv-combobox-open-change": (event: PrimitivComboboxOpenChangeEvent) => void;
+        "primitiv-combobox-query-change": (event: PrimitivComboboxQueryChangeEvent) => void;
+      }
+    >;
+    "primitiv-combobox-input": Tag<Record<never, never>>;
+    "primitiv-combobox-content": Tag<Record<never, never>>;
+    "primitiv-combobox-item": Tag<{ value: string; label?: string; disabled?: boolean | "" }>;
+    "primitiv-combobox-empty": Tag<Record<never, never>>;
     "primitiv-select": Tag<
       { value?: string; open?: boolean | ""; name?: string; required?: boolean | ""; disabled?: boolean | "" },
       {

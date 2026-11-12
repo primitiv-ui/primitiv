@@ -1,12 +1,8 @@
-import { KeyboardEvent, KeyboardEventHandler, useEffect, useRef } from "react";
+import { KeyboardEventHandler, useEffect, useRef } from "react";
 
-import { composeEventHandlers } from "../../Slot/index.ts";
+import { SelectController } from "@primitiv-ui/web";
+
 import { useSelectContext } from "../SelectContext";
-import {
-  OPTION_SELECTOR,
-  SELECTED_OPTION_SELECTOR,
-  TYPEAHEAD_RESET_MS,
-} from "../constants";
 import type { SelectContentProps } from "../types";
 
 type UseSelectContentArgs = {
@@ -14,126 +10,51 @@ type UseSelectContentArgs = {
   restProps: Omit<SelectContentProps, "children" | "onKeyDown" | "asChild">;
 };
 
-/**
- * Drives the listbox popover for the rich Select: opens/closes the native
- * Popover in sync with context `open`, moves focus onto the selected (or
- * first enabled) option on open, syncs React state when the browser
- * light-dismisses (`toggle`), and implements the WAI-ARIA listbox keyboard
- * contract — Arrow/Home/End roving focus (skipping disabled, wrapping),
- * Enter/Space to select, Escape to close (refocusing the trigger), and
- * printable-character typeahead.
- */
 export function useSelectContent({ onKeyDown, restProps }: UseSelectContentArgs) {
-  const { open, setOpen, contentId, triggerRef } = useSelectContext();
+  const { open, setOpen, select, contentId, triggerRef, optionsRef, optionKeys } = useSelectContext();
   const listRef = useRef<HTMLDivElement | null>(null);
-  const typeaheadRef = useRef<{ query: string; timer: number | null }>({
-    query: "",
-    timer: null,
-  });
+  const controllerRef = useRef<SelectController | null>(null);
+  // Stryker disable next-line ObjectLiteral: equivalent — reassigned on every render, before any effect reads it.
+  const latest = useRef({ open, setOpen, select });
+  latest.current = { open, setOpen, select };
+
+  // ── The adapter (RFC 0033 §3.4, D28) ────────────────────────────────────
+  // The list's DOM behaviour — showPopover/hidePopover with focus on the
+  // selected option, light dismiss, the arrow / Home / End / Enter / Space /
+  // Escape keyboard and typeahead, and choosing an option by click — runs in
+  // the web implementation's SelectController, the same code <primitiv-select>
+  // runs. React keeps rendering the list it always has and keeps the state; the
+  // controller reads it through `latest`. No `source` is passed, so the list's
+  // positioning stays the consumer's `anchor-name` wiring, as before.
+  useEffect(
+    () => {
+      const controller = new SelectController(listRef.current!, {
+        state: () => ({ open: latest.current.open }),
+        change: (next) => latest.current.setOpen(next),
+        select: (value) => latest.current.select(value),
+        trigger: () => triggerRef.current,
+      });
+      controllerRef.current = controller;
+      controller.connect();
+      return () => controller.disconnect();
+    },
+    // The controller is built once per mount; the state it needs later comes
+    // through `latest` and the trigger ref, so no dependency can go stale.
+    // Stryker disable next-line ArrayDeclaration: equivalent — any constant dependency list runs this once per mount.
+    [],
+  );
 
   useEffect(() => {
-    const list = listRef.current!;
-    if (open) {
-      list.showPopover();
-      const selected = list.querySelector<HTMLElement>(SELECTED_OPTION_SELECTOR);
-      const first = list.querySelector<HTMLElement>(OPTION_SELECTOR);
-      (selected ?? first ?? list).focus();
-    } else {
-      try {
-        list.hidePopover();
-      } catch {
-        /* already hidden — no-op (e.g. browser already light-dismissed) */
-      }
-    }
+    (controllerRef.current as SelectController).sync();
   }, [open]);
 
+  // `optionKeys` is a fresh array on every registration — including an option
+  // toggling `disabled` — so it is the only dependency the hand-over needs.
   useEffect(() => {
-    const list = listRef.current!;
-    const handleToggle = (event: Event) => {
-      if ((event as ToggleEvent).newState === "closed") setOpen(false);
-    };
-    list.addEventListener("toggle", handleToggle);
-    // Stryker disable next-line StringLiteral,ArrowFunction: equivalent — unmount cleanup on a discarded node; removing/altering it only leaks a listener, unobservable.
-    return () => list.removeEventListener("toggle", handleToggle);
-  },
-  // Stryker disable next-line ArrayDeclaration: equivalent — setOpen is stable, so the effect subscribes once either way.
-  [setOpen]);
-
-  const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
-    if (event.key === "Escape") {
-      event.preventDefault();
-      setOpen(false);
-      // Stryker disable next-line OptionalChaining: unreachable — the trigger is always mounted while the listbox is open.
-      triggerRef.current?.focus();
-      return;
-    }
-
-    const list = listRef.current!;
-    const items = Array.from(
-      list.querySelectorAll<HTMLElement>(OPTION_SELECTOR),
+    (controllerRef.current as SelectController).setTriggers(
+      [...optionsRef.current].map(([value, option]) => ({ value, ...option })),
     );
-    if (items.length === 0) return;
-    const currentIndex = items.indexOf(document.activeElement as HTMLElement);
-
-    let nextIndex: number | null = null;
-    if (event.key === "ArrowDown") {
-      nextIndex = (currentIndex + 1) % items.length;
-    } else if (event.key === "ArrowUp") {
-      nextIndex = currentIndex <= 0 ? items.length - 1 : currentIndex - 1;
-    } else if (event.key === "Home") {
-      nextIndex = 0;
-    } else if (event.key === "End") {
-      nextIndex = items.length - 1;
-    }
-
-    if (nextIndex !== null) {
-      event.preventDefault();
-      items[nextIndex].focus();
-      return;
-    }
-
-    if (event.key === "Enter" || event.key === " ") {
-      if (currentIndex < 0) return;
-      event.preventDefault();
-      items[currentIndex].click();
-      return;
-    }
-
-    // Space is already handled by the Enter/Space branch above, so any
-    // remaining single-character key is a typeahead search.
-    // Stryker disable next-line ConditionalExpression,EqualityOperator: the false / length!==1 variants are killed by the typeahead tests; the always-true variant is equivalent — no unhandled multi-character key (modifiers, arrows) can prefix-match an option.
-    if (event.key.length === 1) {
-      const state = typeaheadRef.current;
-      // Stryker disable next-line ConditionalExpression,EqualityOperator,MethodExpression,BlockStatement: clearing the pending timer is a real-time optimization; keystroke handling here is synchronous, so its presence/condition/target never changes the search outcome.
-      if (state.timer !== null) window.clearTimeout(state.timer);
-      state.query = (state.query + event.key).toLowerCase();
-      state.timer = window.setTimeout(() => {
-        state.query = "";
-        state.timer = null;
-      }, TYPEAHEAD_RESET_MS);
-
-      const isRepeat =
-        // Stryker disable next-line EqualityOperator,ConditionalExpression: equivalent — `length > 1 → true` reduces to `every(...)`, which for a single char produces the same searchQuery/offset outcome; the < 1 / false variants are killed by the repeated-char cycle test.
-        state.query.length > 1 &&
-        state.query.split("").every((c) => c === state.query[0]);
-      const searchQuery = isRepeat ? state.query[0] : state.query;
-      // Stryker disable next-line EqualityOperator: <= 0 is equivalent — currentIndex 0 yields startIndex 0 either way; the >= 0 variant is killed by the cycle test (advancing from a focused non-first item).
-      const startIndex = currentIndex < 0 ? 0 : currentIndex;
-      // Stryker disable next-line EqualityOperator: the length comparison variants are equivalent — a length-1 query and an isRepeat query both take offset 1 with the same outcome across the fixtures; the killable path is covered by the multi-char prefix test.
-      const offset = searchQuery.length === 1 || isRepeat ? 1 : 0;
-      // Stryker disable next-line EqualityOperator: <= is equivalent — the index wraps via % items.length, so the extra iteration only re-checks an already-visited index.
-      for (let i = 0; i < items.length; i++) {
-        const index = (startIndex + offset + i) % items.length;
-        // Stryker disable next-line MethodExpression: dropping .trim() is equivalent — the fixtures' (and real) option labels carry no surrounding whitespace; dropping .toLowerCase() is killed by the typeahead tests (lowercase query vs title-case labels).
-        const text = items[index].textContent!.trim().toLowerCase();
-        if (text.startsWith(searchQuery)) {
-          event.preventDefault();
-          items[index].focus();
-          return;
-        }
-      }
-    }
-  };
+  }, [optionKeys, optionsRef]);
 
   const contentProps = {
     ...restProps,
@@ -142,7 +63,8 @@ export function useSelectContent({ onKeyDown, restProps }: UseSelectContentArgs)
     role: "listbox" as const,
     tabIndex: -1,
     popover: "auto" as const,
-    onKeyDown: composeEventHandlers(onKeyDown, handleKeyDown),
+    // The keyboard is the controller's; a consumer's own handler runs beside it.
+    onKeyDown,
   };
 
   return { contentProps };

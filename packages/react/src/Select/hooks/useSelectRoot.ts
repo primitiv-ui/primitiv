@@ -8,7 +8,7 @@ import {
   useState,
 } from "react";
 
-import { useControllableState } from "../../hooks/index.ts";
+import { useCollection, useControllableState } from "../../hooks/index.ts";
 import type { SelectContextValue } from "../SelectContext";
 
 type UseSelectRootArgs = {
@@ -115,6 +115,13 @@ export function useSelectRoot({
     [itemVersion],
   );
 
+  // The options' elements, for the shared SelectController to map a click to
+  // its value (React's options carry no value attribute to read one from).
+  const { register: registerOption, itemsRef: optionsRef, keys: optionKeys } = useCollection<
+    string,
+    { element: HTMLElement; disabled: boolean }
+  >();
+
   const contextValue = useMemo(
     () => ({
       open,
@@ -127,6 +134,9 @@ export function useSelectRoot({
       contentId,
       triggerId,
       triggerRef,
+      registerOption,
+      optionsRef,
+      optionKeys,
     }),
     // itemVersion is intentionally in the dep list (not the value) so the
     // context identity changes when items mount/unmount, re-rendering
@@ -142,6 +152,9 @@ export function useSelectRoot({
       contentId,
       triggerId,
       itemVersion,
+      registerOption,
+      optionsRef,
+      optionKeys,
     ],
   );
 

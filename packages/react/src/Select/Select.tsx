@@ -6,6 +6,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
 } from "react";
 import type { ReactElement } from "react";
 
@@ -233,7 +234,7 @@ export function SelectRoot({
       <SelectContext.Provider value={contextValue}>
         {children}
         <select
-          key={`${selectedValue}\n${itemValues.join("\n")}`}
+          key={JSON.stringify([selectedValue, itemValues])}
           name={merged.name}
           defaultValue={selectedValue}
           required={merged.required}
@@ -297,7 +298,16 @@ export function SelectItem({
   const ctx = useContext(SelectContext);
   const registerItem = ctx?.registerItem;
   const unregisterItem = ctx?.unregisterItem;
+  const registerOption = ctx?.registerOption;
   const selected = ctx?.value === value;
+  const optionRef = useRef<HTMLDivElement | null>(null);
+
+  // Hand the option's element to the shared controller, which maps a click on
+  // it to this value. Native mode has no rich context, so nothing registers.
+  useEffect(() => {
+    registerOption?.(value, { element: optionRef.current as HTMLElement, disabled: Boolean(disabled) });
+    return () => registerOption?.(value, null);
+  }, [registerOption, value, disabled]);
 
   // Keep the registered content current every render (silent — no bump).
   useEffect(() => {
@@ -325,21 +335,19 @@ export function SelectItem({
     );
   }
 
-  // Rich mode — a listbox option that can carry arbitrary content. Clicking
-  // it (when enabled) commits the selection and closes the listbox.
-  const handleClick = () => {
-    if (disabled) return;
-    ctx.select(value);
-  };
+  // Rich mode — a listbox option that can carry arbitrary content. Choosing
+  // it (a click, or Enter / Space) is the shared SelectController's, which
+  // commits the selection and closes the listbox; a consumer onClick runs beside it.
   const itemProps = {
     ...rest,
+    ref: optionRef,
     role: "option" as const,
     tabIndex: -1,
     "aria-selected": selected,
     "aria-disabled": disabled || undefined,
     "data-disabled": disabled ? "" : undefined,
     "data-state": selected ? "checked" : "unchecked",
-    onClick: composeEventHandlers(onClick, handleClick),
+    onClick,
   };
   return (
     <SelectItemIndicatorContext.Provider value={indicatorContext}>

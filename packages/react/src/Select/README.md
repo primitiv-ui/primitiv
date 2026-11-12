@@ -100,6 +100,13 @@ While the listbox is open:
 Disabled options are skipped by arrows and typeahead. On open, focus moves to
 the selected option (or the first enabled one).
 
+The list's keyboard, typeahead and choosing by click run in the shared
+`SelectController` from `@primitiv-ui/web` — the same code `<primitiv-select>`
+runs. It listens on the list natively, so your own `onKeyDown` on
+`Select.Content` and `onClick` on a `Select.Item` run **after** it, and calling
+`preventDefault()` in them no longer stops a choice. To decide what gets
+chosen, control `value` and accept or ignore `onValueChange` instead.
+
 ### Popup placement
 
 `Select.Content` uses the native Popover API (`popover="auto"`) for the top

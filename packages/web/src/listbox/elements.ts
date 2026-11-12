@@ -115,7 +115,7 @@ export class PrimitivListboxElement extends PrimitivRootElement {
     write(this, "data-orientation", orientation);
 
     const options = this.parts(OPTION).flatMap((option) => decoratable(option) ?? []);
-    this.controller.setOptions(options);
+    this.controller.setTriggers(options);
 
     let cursor: string | null = null;
     for (const { value, element, disabled } of options) {

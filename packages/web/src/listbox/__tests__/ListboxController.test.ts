@@ -50,7 +50,7 @@ function hostWith(overrides: Partial<HostState> = {}) {
 function connected(labels: string[], host: ListboxControllerHost, disabled: string[] = []) {
   const { root, options } = mount(labels);
   const controller = new ListboxController(root, host);
-  controller.setOptions(
+  controller.setTriggers(
     labels.map((label, index) => ({
       value: label.toLowerCase(),
       element: options[index],
@@ -525,7 +525,7 @@ describe("ListboxController", () => {
       const user = userEvent.setup();
       const host = hostWith();
       const { options, controller } = connected(FRUIT, host);
-      controller.setOptions([{ value: "banana", element: options[2] }]);
+      controller.setTriggers([{ value: "banana", element: options[2] }]);
 
       // Act
       await user.click(options[0]);

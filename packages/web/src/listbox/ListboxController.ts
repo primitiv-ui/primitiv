@@ -63,8 +63,13 @@ export class ListboxController {
     this.#host = host;
   }
 
-  /** Replace the registered options with what the host has now. */
-  setOptions(options: readonly ListboxOption[]): void {
+  /**
+   * Replace the registered options with what the host has now. Named for the
+   * hosted-controller contract every component shares (`useHostedController`
+   * hands a React collection over through it); for a listbox the triggers are
+   * its options.
+   */
+  setTriggers(options: readonly ListboxOption[]): void {
     this.#options = [...options];
   }
 

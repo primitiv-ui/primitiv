@@ -224,13 +224,16 @@ export function SelectRoot({
   // context, and renders a visually-hidden native <select> so the selection
   // still submits through the browser (mirroring what `native` gets free).
   // The hidden select is uncontrolled + remounted by `key` on each change,
-  // so it needs no onChange and stays warning-free.
+  // so it needs no onChange and stays warning-free. The key carries the
+  // options as well as the value: the items register in an effect, after the
+  // select first renders, so an initial value would otherwise land on an
+  // option that did not exist yet and submit as "" until the user chose.
   if (!native) {
     return (
       <SelectContext.Provider value={contextValue}>
         {children}
         <select
-          key={selectedValue}
+          key={`${selectedValue}\n${itemValues.join("\n")}`}
           name={merged.name}
           defaultValue={selectedValue}
           required={merged.required}

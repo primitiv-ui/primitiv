@@ -743,15 +743,15 @@
     "customProperties": [
       {
         "name": "--primitiv-carousel-gap",
-        "defaultsTo": "var(--primitiv-space-space-16)"
+        "defaultsTo": "var(--primitiv-space-16)"
       },
       {
         "name": "--primitiv-carousel-peek",
-        "defaultsTo": "var(--primitiv-space-space-0)"
+        "defaultsTo": "var(--primitiv-space-0)"
       },
       {
         "name": "--primitiv-carousel-viewport-padding",
-        "defaultsTo": "var(--primitiv-space-space-0)"
+        "defaultsTo": "var(--primitiv-space-0)"
       },
       {
         "name": "--primitiv-carousel-content-space-1",
@@ -855,7 +855,7 @@
       },
       {
         "name": "--primitiv-carousel-indicator-gap",
-        "defaultsTo": "var(--primitiv-space-space-0)"
+        "defaultsTo": "var(--primitiv-space-0)"
       },
       {
         "name": "--primitiv-carousel-indicator-hit-area",
@@ -895,7 +895,7 @@
       },
       {
         "name": "--primitiv-carousel-thumbnail-gap",
-        "defaultsTo": "var(--primitiv-space-space-8)"
+        "defaultsTo": "var(--primitiv-space-8)"
       },
       {
         "name": "--primitiv-carousel-thumbnail-radius",
@@ -915,7 +915,7 @@
       },
       {
         "name": "--primitiv-carousel-overlay-control-inset",
-        "defaultsTo": "var(--primitiv-space-space-8)"
+        "defaultsTo": "var(--primitiv-space-8)"
       },
       {
         "name": "--primitiv-carousel-overlay-control-bg",
@@ -935,7 +935,7 @@
       },
       {
         "name": "--primitiv-carousel-overlay-indicator-inset",
-        "defaultsTo": "var(--primitiv-space-space-8)"
+        "defaultsTo": "var(--primitiv-space-8)"
       },
       {
         "name": "--primitiv-carousel-overlay-indicator-color",

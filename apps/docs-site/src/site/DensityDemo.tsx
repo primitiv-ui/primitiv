@@ -37,7 +37,7 @@ import "./density-demo.css";
  * and the cascade does the rest: geometry, type *and* rhythm. The two are
  * different failures and only the first is obvious. A first pass had no per-mode
  * override anywhere (correct) but spaced each region with
- * `gap: var(--primitiv-space-space-12)` — a primitive, so 12px in every mode.
+ * `gap: var(--primitiv-space-12)` — a primitive, so 12px in every mode.
  * Type scaled 16 → 52 and control heights scaled with it while the space between
  * the blocks sat still, in the one demo whose entire job is to show them moving
  * together. The rule the brief implies but does not say: **inside a density

@@ -129,14 +129,14 @@
     --primitiv-tree-transition-duration: var(--primitiv-motion-duration-control);
     --primitiv-tree-transition-easing: var(--primitiv-motion-easing-default);
 
-    --primitiv-tree-selection-path-gap: var(--primitiv-space-space-4);
+    --primitiv-tree-selection-path-gap: var(--primitiv-space-4);
     /* The selected node is marked by WEIGHT, never by size — see the selection
        path rules below for why. */
     --primitiv-tree-selection-path-current-font-weight: var(
       --primitiv-font-weight-semibold
     );
     /* Vertical slack for the row label's clip box — see the label rule below. */
-    --primitiv-tree-label-ink-slack: var(--primitiv-space-space-1);
+    --primitiv-tree-label-ink-slack: var(--primitiv-space-1);
 
     color: var(--primitiv-tree-item-color);
     font-family: var(--primitiv-tree-item-font-family);

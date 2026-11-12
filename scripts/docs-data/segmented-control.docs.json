@@ -205,11 +205,11 @@
       },
       {
         "name": "--primitiv-segmented-control-track-padding",
-        "defaultsTo": "var(--primitiv-space-space-4)"
+        "defaultsTo": "var(--primitiv-space-4)"
       },
       {
         "name": "--primitiv-segmented-control-track-gap",
-        "defaultsTo": "var(--primitiv-space-space-4)"
+        "defaultsTo": "var(--primitiv-space-4)"
       },
       {
         "name": "--primitiv-segmented-control-item-radius",

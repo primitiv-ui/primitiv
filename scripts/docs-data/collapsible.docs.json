@@ -267,7 +267,7 @@
       },
       {
         "name": "--primitiv-collapsible-gap",
-        "defaultsTo": "var(--primitiv-space-space-8)"
+        "defaultsTo": "var(--primitiv-space-8)"
       },
       {
         "name": "--primitiv-collapsible-trigger-padding-inline",
@@ -347,7 +347,7 @@
       },
       {
         "name": "--primitiv-collapsible-fade-height",
-        "defaultsTo": "var(--primitiv-space-space-32)"
+        "defaultsTo": "var(--primitiv-space-32)"
       }
     ],
     "dataAttributes": [

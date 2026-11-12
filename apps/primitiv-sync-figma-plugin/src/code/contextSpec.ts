@@ -272,33 +272,33 @@ const COMFORTABLE_TYPOGRAPHY = {
 
 const COMFORTABLE_ANATOMY = {
   'framed-control': {
-    xs: { height: 'size-24', paddingInline: 'space-8',  gap: 'space-4',  iconSize: 'size-12', radius: '4' },
-    sm: { height: 'size-32', paddingInline: 'space-12', gap: 'space-4',  iconSize: 'size-14', radius: '6' },
-    md: { height: 'size-40', paddingInline: 'space-16', gap: 'space-8',  iconSize: 'size-16', radius: '6' },
-    lg: { height: 'size-48', paddingInline: 'space-20', gap: 'space-8',  iconSize: 'size-20', radius: '8' },
-    xl: { height: 'size-56', paddingInline: 'space-24', gap: 'space-12', iconSize: 'size-24', radius: '8' },
+    xs: { height: '24', paddingInline: '8',  gap: '4',  iconSize: '12', radius: '4' },
+    sm: { height: '32', paddingInline: '12', gap: '4',  iconSize: '14', radius: '6' },
+    md: { height: '40', paddingInline: '16', gap: '8',  iconSize: '16', radius: '6' },
+    lg: { height: '48', paddingInline: '20', gap: '8',  iconSize: '20', radius: '8' },
+    xl: { height: '56', paddingInline: '24', gap: '12', iconSize: '24', radius: '8' },
   },
 } satisfies Record<string, Record<string, AnatomyTier>>
 
 const COMFORTABLE_LABEL_CONTROL = {
-  xs: { paddingInline: 'space-4',  paddingBlock: 'space-2', gap: 'space-2', iconSize: 'size-10', radius: '2' },
-  sm: { paddingInline: 'space-6',  paddingBlock: 'space-2', gap: 'space-4', iconSize: 'size-12', radius: '2' },
-  md: { paddingInline: 'space-8',  paddingBlock: 'space-4', gap: 'space-4', iconSize: 'size-14', radius: '4' },
-  lg: { paddingInline: 'space-12', paddingBlock: 'space-6', gap: 'space-6', iconSize: 'size-16', radius: '6' },
+  xs: { paddingInline: '4',  paddingBlock: '2', gap: '2', iconSize: '10', radius: '2' },
+  sm: { paddingInline: '6',  paddingBlock: '2', gap: '4', iconSize: '12', radius: '2' },
+  md: { paddingInline: '8',  paddingBlock: '4', gap: '4', iconSize: '14', radius: '4' },
+  lg: { paddingInline: '12', paddingBlock: '6', gap: '6', iconSize: '16', radius: '6' },
 } satisfies Record<string, LabelControlTier>
 
 const COMFORTABLE_NAV_ITEM = {
-  xs: { height: 'size-24', paddingInline: 'space-8',  gap: 'space-4', iconSize: 'size-12' },
-  sm: { height: 'size-32', paddingInline: 'space-12', gap: 'space-4', iconSize: 'size-14' },
-  md: { height: 'size-40', paddingInline: 'space-16', gap: 'space-8', iconSize: 'size-16' },
-  lg: { height: 'size-48', paddingInline: 'space-20', gap: 'space-8', iconSize: 'size-20' },
+  xs: { height: '24', paddingInline: '8',  gap: '4', iconSize: '12' },
+  sm: { height: '32', paddingInline: '12', gap: '4', iconSize: '14' },
+  md: { height: '40', paddingInline: '16', gap: '8', iconSize: '16' },
+  lg: { height: '48', paddingInline: '20', gap: '8', iconSize: '20' },
 } satisfies Record<string, NavItemTier>
 
 const COMFORTABLE_CONTAINER = {
-  sm: { padding: 'space-12', gap: 'space-8',  radius: '6' },
-  md: { padding: 'space-16', gap: 'space-12', radius: '8' },
-  lg: { padding: 'space-24', gap: 'space-16', radius: '12' },
-  xl: { padding: 'space-32', gap: 'space-20', radius: '16' },
+  sm: { padding: '12', gap: '8',  radius: '6' },
+  md: { padding: '16', gap: '12', radius: '8' },
+  lg: { padding: '24', gap: '16', radius: '12' },
+  xl: { padding: '32', gap: '20', radius: '16' },
 } satisfies Record<string, ContainerTier>
 
 const COMPACT_TYPOGRAPHY = {
@@ -334,33 +334,33 @@ const COMPACT_TYPOGRAPHY = {
 
 const COMPACT_ANATOMY = {
   'framed-control': {
-    xs: { height: 'size-20', paddingInline: 'space-6',  gap: 'space-4', iconSize: 'size-12', radius: '4' },
-    sm: { height: 'size-28', paddingInline: 'space-10', gap: 'space-4', iconSize: 'size-14', radius: '6' },
-    md: { height: 'size-32', paddingInline: 'space-12', gap: 'space-4', iconSize: 'size-16', radius: '6' },
-    lg: { height: 'size-40', paddingInline: 'space-16', gap: 'space-6', iconSize: 'size-20', radius: '8' },
-    xl: { height: 'size-48', paddingInline: 'space-20', gap: 'space-8', iconSize: 'size-24', radius: '8' },
+    xs: { height: '20', paddingInline: '6',  gap: '4', iconSize: '12', radius: '4' },
+    sm: { height: '28', paddingInline: '10', gap: '4', iconSize: '14', radius: '6' },
+    md: { height: '32', paddingInline: '12', gap: '4', iconSize: '16', radius: '6' },
+    lg: { height: '40', paddingInline: '16', gap: '6', iconSize: '20', radius: '8' },
+    xl: { height: '48', paddingInline: '20', gap: '8', iconSize: '24', radius: '8' },
   },
 } satisfies Record<string, Record<string, AnatomyTier>>
 
 const COMPACT_LABEL_CONTROL = {
-  xs: { paddingInline: 'space-3',  paddingBlock: 'space-1', gap: 'space-1', iconSize: 'size-8',  radius: '2' },
-  sm: { paddingInline: 'space-4',  paddingBlock: 'space-2', gap: 'space-3', iconSize: 'size-10', radius: '2' },
-  md: { paddingInline: 'space-6',  paddingBlock: 'space-3', gap: 'space-3', iconSize: 'size-12', radius: '4' },
-  lg: { paddingInline: 'space-10', paddingBlock: 'space-4', gap: 'space-4', iconSize: 'size-14', radius: '4' },
+  xs: { paddingInline: '3',  paddingBlock: '1', gap: '1', iconSize: '8',  radius: '2' },
+  sm: { paddingInline: '4',  paddingBlock: '2', gap: '3', iconSize: '10', radius: '2' },
+  md: { paddingInline: '6',  paddingBlock: '3', gap: '3', iconSize: '12', radius: '4' },
+  lg: { paddingInline: '10', paddingBlock: '4', gap: '4', iconSize: '14', radius: '4' },
 } satisfies Record<string, LabelControlTier>
 
 const COMPACT_NAV_ITEM = {
-  xs: { height: 'size-20', paddingInline: 'space-6',  gap: 'space-4', iconSize: 'size-12' },
-  sm: { height: 'size-28', paddingInline: 'space-10', gap: 'space-4', iconSize: 'size-14' },
-  md: { height: 'size-32', paddingInline: 'space-12', gap: 'space-6', iconSize: 'size-16' },
-  lg: { height: 'size-40', paddingInline: 'space-16', gap: 'space-6', iconSize: 'size-20' },
+  xs: { height: '20', paddingInline: '6',  gap: '4', iconSize: '12' },
+  sm: { height: '28', paddingInline: '10', gap: '4', iconSize: '14' },
+  md: { height: '32', paddingInline: '12', gap: '6', iconSize: '16' },
+  lg: { height: '40', paddingInline: '16', gap: '6', iconSize: '20' },
 } satisfies Record<string, NavItemTier>
 
 const COMPACT_CONTAINER = {
-  sm: { padding: 'space-8',  gap: 'space-4',  radius: '4' },
-  md: { padding: 'space-12', gap: 'space-8',  radius: '6' },
-  lg: { padding: 'space-20', gap: 'space-12', radius: '10' },
-  xl: { padding: 'space-28', gap: 'space-16', radius: '12' },
+  sm: { padding: '8',  gap: '4',  radius: '4' },
+  md: { padding: '12', gap: '8',  radius: '6' },
+  lg: { padding: '20', gap: '12', radius: '10' },
+  xl: { padding: '28', gap: '16', radius: '12' },
 } satisfies Record<string, ContainerTier>
 
 const SPACIOUS_TYPOGRAPHY = {
@@ -396,33 +396,33 @@ const SPACIOUS_TYPOGRAPHY = {
 
 const SPACIOUS_ANATOMY = {
   'framed-control': {
-    xs: { height: 'size-28', paddingInline: 'space-10', gap: 'space-4',  iconSize: 'size-14', radius: '6' },
-    sm: { height: 'size-40', paddingInline: 'space-14', gap: 'space-6',  iconSize: 'size-16', radius: '8' },
-    md: { height: 'size-48', paddingInline: 'space-20', gap: 'space-8',  iconSize: 'size-20', radius: '8' },
-    lg: { height: 'size-56', paddingInline: 'space-28', gap: 'space-10', iconSize: 'size-24', radius: '10' },
-    xl: { height: 'size-68', paddingInline: 'space-32', gap: 'space-12', iconSize: 'size-28', radius: '12' },
+    xs: { height: '28', paddingInline: '10', gap: '4',  iconSize: '14', radius: '6' },
+    sm: { height: '40', paddingInline: '14', gap: '6',  iconSize: '16', radius: '8' },
+    md: { height: '48', paddingInline: '20', gap: '8',  iconSize: '20', radius: '8' },
+    lg: { height: '56', paddingInline: '28', gap: '10', iconSize: '24', radius: '10' },
+    xl: { height: '68', paddingInline: '32', gap: '12', iconSize: '28', radius: '12' },
   },
 } satisfies Record<string, Record<string, AnatomyTier>>
 
 const SPACIOUS_LABEL_CONTROL = {
-  xs: { paddingInline: 'space-6',  paddingBlock: 'space-3',  gap: 'space-3',  iconSize: 'size-12', radius: '4' },
-  sm: { paddingInline: 'space-8',  paddingBlock: 'space-4',  gap: 'space-6',  iconSize: 'size-14', radius: '4' },
-  md: { paddingInline: 'space-12', paddingBlock: 'space-6',  gap: 'space-6',  iconSize: 'size-16', radius: '6' },
-  lg: { paddingInline: 'space-16', paddingBlock: 'space-10', gap: 'space-10', iconSize: 'size-20', radius: '8' },
+  xs: { paddingInline: '6',  paddingBlock: '3',  gap: '3',  iconSize: '12', radius: '4' },
+  sm: { paddingInline: '8',  paddingBlock: '4',  gap: '6',  iconSize: '14', radius: '4' },
+  md: { paddingInline: '12', paddingBlock: '6',  gap: '6',  iconSize: '16', radius: '6' },
+  lg: { paddingInline: '16', paddingBlock: '10', gap: '10', iconSize: '20', radius: '8' },
 } satisfies Record<string, LabelControlTier>
 
 const SPACIOUS_NAV_ITEM = {
-  xs: { height: 'size-28', paddingInline: 'space-10', gap: 'space-4',  iconSize: 'size-14' },
-  sm: { height: 'size-40', paddingInline: 'space-14', gap: 'space-6',  iconSize: 'size-16' },
-  md: { height: 'size-48', paddingInline: 'space-20', gap: 'space-10', iconSize: 'size-20' },
-  lg: { height: 'size-56', paddingInline: 'space-28', gap: 'space-12', iconSize: 'size-24' },
+  xs: { height: '28', paddingInline: '10', gap: '4',  iconSize: '14' },
+  sm: { height: '40', paddingInline: '14', gap: '6',  iconSize: '16' },
+  md: { height: '48', paddingInline: '20', gap: '10', iconSize: '20' },
+  lg: { height: '56', paddingInline: '28', gap: '12', iconSize: '24' },
 } satisfies Record<string, NavItemTier>
 
 const SPACIOUS_CONTAINER = {
-  sm: { padding: 'space-16', gap: 'space-12', radius: '8' },
-  md: { padding: 'space-24', gap: 'space-16', radius: '12' },
-  lg: { padding: 'space-32', gap: 'space-20', radius: '16' },
-  xl: { padding: 'space-48', gap: 'space-32', radius: '20' },
+  sm: { padding: '16', gap: '12', radius: '8' },
+  md: { padding: '24', gap: '16', radius: '12' },
+  lg: { padding: '32', gap: '20', radius: '16' },
+  xl: { padding: '48', gap: '32', radius: '20' },
 } satisfies Record<string, ContainerTier>
 
 const DENSE_TYPOGRAPHY = {
@@ -458,33 +458,33 @@ const DENSE_TYPOGRAPHY = {
 
 const DENSE_ANATOMY = {
   'framed-control': {
-    xs: { height: 'size-16', paddingInline: 'space-4',  gap: 'space-2', iconSize: 'size-10', radius: '2' },
-    sm: { height: 'size-20', paddingInline: 'space-6',  gap: 'space-4', iconSize: 'size-12', radius: '4' },
-    md: { height: 'size-24', paddingInline: 'space-8',  gap: 'space-4', iconSize: 'size-14', radius: '4' },
-    lg: { height: 'size-32', paddingInline: 'space-12', gap: 'space-4', iconSize: 'size-16', radius: '4' },
-    xl: { height: 'size-40', paddingInline: 'space-16', gap: 'space-6', iconSize: 'size-20', radius: '6' },
+    xs: { height: '16', paddingInline: '4',  gap: '2', iconSize: '10', radius: '2' },
+    sm: { height: '20', paddingInline: '6',  gap: '4', iconSize: '12', radius: '4' },
+    md: { height: '24', paddingInline: '8',  gap: '4', iconSize: '14', radius: '4' },
+    lg: { height: '32', paddingInline: '12', gap: '4', iconSize: '16', radius: '4' },
+    xl: { height: '40', paddingInline: '16', gap: '6', iconSize: '20', radius: '6' },
   },
 } satisfies Record<string, Record<string, AnatomyTier>>
 
 const DENSE_LABEL_CONTROL = {
-  xs: { paddingInline: 'space-2', paddingBlock: 'space-1', gap: 'space-1', iconSize: 'size-8',  radius: '2' },
-  sm: { paddingInline: 'space-3', paddingBlock: 'space-1', gap: 'space-2', iconSize: 'size-10', radius: '2' },
-  md: { paddingInline: 'space-4', paddingBlock: 'space-2', gap: 'space-3', iconSize: 'size-10', radius: '2' },
-  lg: { paddingInline: 'space-6', paddingBlock: 'space-3', gap: 'space-3', iconSize: 'size-12', radius: '4' },
+  xs: { paddingInline: '2', paddingBlock: '1', gap: '1', iconSize: '8',  radius: '2' },
+  sm: { paddingInline: '3', paddingBlock: '1', gap: '2', iconSize: '10', radius: '2' },
+  md: { paddingInline: '4', paddingBlock: '2', gap: '3', iconSize: '10', radius: '2' },
+  lg: { paddingInline: '6', paddingBlock: '3', gap: '3', iconSize: '12', radius: '4' },
 } satisfies Record<string, LabelControlTier>
 
 const DENSE_NAV_ITEM = {
-  xs: { height: 'size-16', paddingInline: 'space-4',  gap: 'space-2', iconSize: 'size-10' },
-  sm: { height: 'size-20', paddingInline: 'space-6',  gap: 'space-4', iconSize: 'size-12' },
-  md: { height: 'size-24', paddingInline: 'space-8',  gap: 'space-4', iconSize: 'size-14' },
-  lg: { height: 'size-32', paddingInline: 'space-12', gap: 'space-6', iconSize: 'size-16' },
+  xs: { height: '16', paddingInline: '4',  gap: '2', iconSize: '10' },
+  sm: { height: '20', paddingInline: '6',  gap: '4', iconSize: '12' },
+  md: { height: '24', paddingInline: '8',  gap: '4', iconSize: '14' },
+  lg: { height: '32', paddingInline: '12', gap: '6', iconSize: '16' },
 } satisfies Record<string, NavItemTier>
 
 const DENSE_CONTAINER = {
-  sm: { padding: 'space-8',  gap: 'space-4',  radius: '4' },
-  md: { padding: 'space-10', gap: 'space-6',  radius: '4' },
-  lg: { padding: 'space-14', gap: 'space-10', radius: '6' },
-  xl: { padding: 'space-20', gap: 'space-14', radius: '8' },
+  sm: { padding: '8',  gap: '4',  radius: '4' },
+  md: { padding: '10', gap: '6',  radius: '4' },
+  lg: { padding: '14', gap: '10', radius: '6' },
+  xl: { padding: '20', gap: '14', radius: '8' },
 } satisfies Record<string, ContainerTier>
 
 function buildSpec(

@@ -107,9 +107,9 @@ card.name = 'drift comparison';
 card.layoutMode = 'VERTICAL'; card.counterAxisSizingMode = 'FIXED';
 card.resize(560, 100);
 card.primaryAxisSizingMode = 'AUTO';                      // re-assert after resize (gotcha 7)
-card.itemSpacing = 24; card.setBoundVariable('itemSpacing', V['space/space-24']);
+card.itemSpacing = 24; card.setBoundVariable('itemSpacing', V['space/24']);
 card.paddingTop = card.paddingBottom = card.paddingLeft = card.paddingRight = 24;
-for (const p of ['paddingTop','paddingBottom','paddingLeft','paddingRight']) card.setBoundVariable(p, V['space/space-24']);
+for (const p of ['paddingTop','paddingBottom','paddingLeft','paddingRight']) card.setBoundVariable(p, V['space/24']);
 card.fills = [bound('surface/raised')];
 card.strokes = [bound('border/subtle')];
 card.strokeAlign = 'INSIDE'; card.strokeWeight = 1; card.setBoundVariable('strokeWeight', V['border-width/1']);
@@ -137,7 +137,7 @@ const block = (label, rows) => {
 
   const strip = figma.createFrame(); b.appendChild(strip);
   strip.name = 'ramp'; strip.layoutMode = 'HORIZONTAL';
-  strip.itemSpacing = 6; strip.setBoundVariable('itemSpacing', V['space/space-6']);
+  strip.itemSpacing = 6; strip.setBoundVariable('itemSpacing', V['space/6']);
   strip.counterAxisSizingMode = 'AUTO'; strip.primaryAxisSizingMode = 'FIXED';
   strip.fills = []; strip.layoutSizingHorizontal = 'FILL';
   for (const [step, hex] of rows) {

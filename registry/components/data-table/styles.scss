@@ -152,7 +152,7 @@
        the same tier and was a rung too big at every size — caught by reading the
        Figma file, not by eye. */
     --primitiv-data-table-icon-size: var(--primitiv-framed-control-sm-icon-size);
-    --primitiv-data-table-sort-gap: var(--primitiv-space-space-4);
+    --primitiv-data-table-sort-gap: var(--primitiv-space-4);
     --primitiv-data-table-sort-hover-background: var(--primitiv-table-row-hover);
     --primitiv-data-table-sort-idle-color: var(--primitiv-content-muted);
     /* No expand-color / -hover-background / -radius knobs: the expander is a
@@ -309,7 +309,7 @@
   .primitiv-data-table__sort {
     display: flex;
     align-items: center;
-    gap: var(--primitiv-data-table-sort-gap, var(--primitiv-space-space-4));
+    gap: var(--primitiv-data-table-sort-gap, var(--primitiv-space-4));
     /* Inherit the cell's own padding rather than adding a second inset: the
        header cell zeroes its padding and hands it to the button below. */
     padding-inline: var(--primitiv-table-cell-padding-inline);
@@ -566,7 +566,7 @@
 
   /* Icon-only Button correction — see the note in primitiv.base. */
   .primitiv-data-table__expand {
-    padding-inline: var(--primitiv-space-space-0);
+    padding-inline: var(--primitiv-space-0);
     min-inline-size: var(--primitiv-button-height);
   }
 

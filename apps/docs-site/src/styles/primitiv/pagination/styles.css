@@ -52,8 +52,8 @@
   /* The controls are a real <ul> for the a11y tree (nav > ul > li), so the
      list affordances have to go. */
   .primitiv-pagination__controls {
-    margin: var(--primitiv-space-space-0);
-    padding: var(--primitiv-space-space-0);
+    margin: var(--primitiv-space-0);
+    padding: var(--primitiv-space-0);
     list-style: none;
   }
 
@@ -66,7 +66,7 @@
      is a confusing way for the real cause to present. Same fix Breadcrumb,
      Dropdown and NavigationMenu apply to their own rows. */
   .primitiv-pagination__cell {
-    margin-block: var(--primitiv-space-space-0);
+    margin-block: var(--primitiv-space-0);
   }
 }
 
@@ -84,7 +84,7 @@
     --primitiv-pagination-control-gap: var(--primitiv-framed-control-md-gap);
     --primitiv-pagination-icon-size: var(--primitiv-framed-control-md-icon-size);
     --primitiv-pagination-menu-min-inline-size: var(--primitiv-pagination-md-item-min-width);
-    --primitiv-pagination-menu-max-block-size: var(--primitiv-size-size-288);
+    --primitiv-pagination-menu-max-block-size: var(--primitiv-size-288);
     /* Type, declared on the ROOT so the three text parts (__summary, __status,
        __trailing) inherit it. They carried no type at all, so they resolved the
        page's body copy and ignored both the size modifier and density — the
@@ -205,7 +205,7 @@
    * order. A later layer always wins. (Same trap Alert hit re-pointing Button's
    * --primitiv-button-fg, and the dropdown menu's min-inline-size below.) */
   .primitiv-pagination__nav {
-    padding-inline: var(--primitiv-space-space-0);
+    padding-inline: var(--primitiv-space-0);
   }
 
   /* Size — both knobs come from the same size slot, so a cell stays square at

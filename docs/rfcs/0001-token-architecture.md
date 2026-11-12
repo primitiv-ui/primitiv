@@ -1421,7 +1421,7 @@ this order:
    (xs/sm/md/lg, no radius), and `container` (sm/md/lg/xl, only
    padding/gap/radius). Each pattern has its own tier table and
    expander so the field sets stay distinct. Values seeded from the
-   existing `space/space-N`, `size/size-N`, and `radii/N` primitives;
+   existing `space/N`, `size/N`, and `radii/N` primitives;
    tuning happens via editing the tier tables.
 
 2. **The `mono` typography role.** Reserved in §5.1, deferred in

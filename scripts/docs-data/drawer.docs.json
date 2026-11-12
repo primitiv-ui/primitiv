@@ -349,7 +349,7 @@
       },
       {
         "name": "--primitiv-drawer-size",
-        "defaultsTo": "var(--primitiv-size-size-240)"
+        "defaultsTo": "var(--primitiv-size-240)"
       },
       {
         "name": "--primitiv-drawer-border-width",

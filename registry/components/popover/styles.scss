@@ -84,9 +84,9 @@
        --primitiv-shadow-3 (three layers, zero spread → drop-shadow-compatible);
        keep in step if elevation/overlay changes. */
     --primitiv-popover-shadow:
-      drop-shadow(0 var(--primitiv-space-space-2) var(--primitiv-space-space-4) var(--primitiv-shadow-color-strong))
-      drop-shadow(0 var(--primitiv-space-space-4) var(--primitiv-space-space-8) var(--primitiv-shadow-color-medium))
-      drop-shadow(0 var(--primitiv-space-space-8) var(--primitiv-space-space-16) var(--primitiv-shadow-color-soft));
+      drop-shadow(0 var(--primitiv-space-2) var(--primitiv-space-4) var(--primitiv-shadow-color-strong))
+      drop-shadow(0 var(--primitiv-space-4) var(--primitiv-space-8) var(--primitiv-shadow-color-medium))
+      drop-shadow(0 var(--primitiv-space-8) var(--primitiv-space-16) var(--primitiv-shadow-color-soft));
     --primitiv-popover-radius: var(--primitiv-popover-md-radius);
     --primitiv-popover-padding-inline: var(--primitiv-popover-md-padding-inline);
     --primitiv-popover-padding-block: var(--primitiv-popover-md-padding-block);

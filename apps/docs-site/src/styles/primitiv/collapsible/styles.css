@@ -73,7 +73,7 @@
     --primitiv-collapsible-seam-color: var(--primitiv-border-subtle);
     --primitiv-collapsible-radius: var(--primitiv-framed-control-md-radius);
     --primitiv-collapsible-bg: var(--primitiv-color-transparent);
-    --primitiv-collapsible-gap: var(--primitiv-space-space-8);
+    --primitiv-collapsible-gap: var(--primitiv-space-8);
     --primitiv-collapsible-trigger-padding-inline: var(--primitiv-framed-control-md-padding-inline);
     --primitiv-collapsible-trigger-gap: var(--primitiv-framed-control-md-gap);
     --primitiv-collapsible-trigger-icon-size: var(--primitiv-framed-control-md-icon-size);
@@ -93,7 +93,7 @@
     --primitiv-collapsible-content-transition-duration: var(--primitiv-motion-duration-control);
     --primitiv-collapsible-content-transition-easing: var(--primitiv-motion-easing-default);
     --primitiv-collapsible-fade-color: var(--primitiv-surface-default);
-    --primitiv-collapsible-fade-height: var(--primitiv-space-space-32);
+    --primitiv-collapsible-fade-height: var(--primitiv-space-32);
 
     display: flex;
     flex-direction: column;
@@ -256,7 +256,7 @@
   .primitiv-collapsible--card {
     --primitiv-collapsible-border-width: var(--primitiv-framed-control-border-width);
     --primitiv-collapsible-bg: var(--primitiv-surface-default);
-    --primitiv-collapsible-gap: var(--primitiv-space-space-0);
+    --primitiv-collapsible-gap: var(--primitiv-space-0);
     --primitiv-collapsible-fade-color: var(--primitiv-surface-default);
   }
 
@@ -276,8 +276,8 @@
      models only closed/open, not a hover state, for this trigger). */
   .primitiv-collapsible--inline {
     --primitiv-collapsible-border-width: var(--primitiv-border-width-0);
-    --primitiv-collapsible-trigger-padding-block: var(--primitiv-space-space-0);
-    --primitiv-collapsible-trigger-padding-inline: var(--primitiv-space-space-0);
+    --primitiv-collapsible-trigger-padding-block: var(--primitiv-space-0);
+    --primitiv-collapsible-trigger-padding-inline: var(--primitiv-space-0);
     --primitiv-collapsible-trigger-fg: var(--primitiv-content-primary);
   }
 

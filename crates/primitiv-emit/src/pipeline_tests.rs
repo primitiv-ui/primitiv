@@ -20,7 +20,7 @@ struct Documents {
 
 fn documents() -> Documents {
     let primitives = json!({
-        "space": { "space-4": { "$type": "number", "$value": 4 } },
+        "space": { "4": { "$type": "number", "$value": 4 } },
         "opacity": { "60": { "$type": "number", "$value": 60 } }
     });
     let interaction = json!({
@@ -35,8 +35,8 @@ fn documents() -> Documents {
         "dark":  { "action": { "primary": { "$type": "color", "$value": "{color.brand.500}" } } }
     });
     let context = json!({
-        "comfortable": { "control": { "height": { "$type": "number", "$value": "{size.size-40}" } } },
-        "dense":       { "control": { "height": { "$type": "number", "$value": "{size.size-24}" } } }
+        "comfortable": { "control": { "height": { "$type": "number", "$value": "{size.40}" } } },
+        "dense":       { "control": { "height": { "$type": "number", "$value": "{size.24}" } } }
     });
 
     Documents {

@@ -7,13 +7,13 @@
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--primitiv-space-space-24);
+  gap: var(--primitiv-space-24);
 }
 
 .docs-hue-row {
   display: flex;
   flex-direction: column;
-  gap: var(--primitiv-space-space-8);
+  gap: var(--primitiv-space-8);
 }
 
 .docs-hue-label {
@@ -29,7 +29,7 @@
 .docs-hue-ramp {
   display: grid;
   grid-template-columns: repeat(10, minmax(0, 1fr));
-  block-size: var(--primitiv-size-size-32);
+  block-size: var(--primitiv-size-32);
   border-radius: var(--primitiv-radii-4);
   /* The radius belongs to the scale, not each step. */
   overflow: hidden;
@@ -48,7 +48,7 @@
  */
 .docs-hue-track {
   position: relative;
-  block-size: var(--primitiv-size-size-12);
+  block-size: var(--primitiv-size-12);
   border-radius: var(--primitiv-radii-full);
 }
 
@@ -62,8 +62,8 @@
   position: absolute;
   inset-block: 50%;
   inset-inline-start: var(--docs-hue-at);
-  inline-size: var(--primitiv-size-size-12);
-  block-size: var(--primitiv-size-size-12);
+  inline-size: var(--primitiv-size-12);
+  block-size: var(--primitiv-size-12);
   translate: -50% -50%;
   border: var(--primitiv-border-width-2) solid var(--primitiv-content-primary);
   border-radius: var(--primitiv-radii-full);

@@ -180,7 +180,7 @@
     "customProperties": [
       {
         "name": "--primitiv-field-gap",
-        "defaultsTo": "var(--primitiv-space-space-8)"
+        "defaultsTo": "var(--primitiv-space-8)"
       },
       {
         "name": "--primitiv-field-label-color",
@@ -232,7 +232,7 @@
       },
       {
         "name": "--primitiv-field-required-gap",
-        "defaultsTo": "var(--primitiv-space-space-2)"
+        "defaultsTo": "var(--primitiv-space-2)"
       }
     ],
     "dataAttributes": [

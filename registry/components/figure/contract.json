@@ -61,7 +61,7 @@
     }
   ],
   "customProperties": [
-    { "name": "--primitiv-figure-caption-gap", "defaultsTo": "var(--primitiv-space-space-12)" },
+    { "name": "--primitiv-figure-caption-gap", "defaultsTo": "var(--primitiv-space-12)" },
     { "name": "--primitiv-figure-media-radius", "defaultsTo": "var(--primitiv-radii-8)" },
     { "name": "--primitiv-figure-caption-color", "defaultsTo": "var(--primitiv-content-muted)" },
     { "name": "--primitiv-figure-overlay-scrim", "defaultsTo": "var(--primitiv-surface-inverse)" },

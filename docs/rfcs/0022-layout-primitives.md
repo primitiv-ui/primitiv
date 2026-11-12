@@ -145,7 +145,7 @@ pre-settled by the draft:
 - **Each step (except `none`) is its own density-scaled `stack/gap-*`
   Context token, not a direct reference to a flat `space-*` primitive.**
   The first build bound the gap steps straight to `space-*` (`gap-md` →
-  `space-space-16`, etc.), which meant a Stack's gap didn't re-tighten
+  `space-16`, etc.), which meant a Stack's gap didn't re-tighten
   under `[data-density]` — every other spacing knob in the system that
   scales with a size-like axis (Accordion's `framed-control-{size}-gap`,
   Dropdown's `dropdown-{size}-item-gap`) does so through a dedicated
@@ -153,7 +153,7 @@ pre-settled by the draft:
   family (5 new tokens × 4 density modes, sized proportionally against the
   existing `space-*` scale) was added to `context.json` and wired in as a
   follow-up fix. `none` is the one exception — zero has no density curve to
-  scale, so it still pins `space-space-0` directly.
+  scale, so it still pins `space-0` directly.
 - **`align`/`justify` are inline-style passthroughs, not modifier
   classes** — they're plain Flexbox keywords (`"center"`,
   `"space-between"`, ...), not design tokens, so there's no fixed enum to

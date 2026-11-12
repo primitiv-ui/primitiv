@@ -113,7 +113,7 @@ tokens:
   commands: the mono face at font-size/13, content/muted
   route-separators: border/subtle at 1px
   closing-line: body/sm, content/muted
-  route-gap: space/space-32
+  route-gap: space/32
 
 frame:
   ratio: "4:1"

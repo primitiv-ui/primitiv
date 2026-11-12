@@ -119,10 +119,10 @@
     { "name": "--primitiv-select-content-shadow", "defaultsTo": "var(--primitiv-elevation-overlay)" },
     { "name": "--primitiv-select-content-radius", "defaultsTo": "var(--primitiv-dropdown-md-panel-radius)" },
     { "name": "--primitiv-select-content-padding-block", "defaultsTo": "var(--primitiv-dropdown-md-panel-padding-block)" },
-    { "name": "--primitiv-select-content-padding-inline", "defaultsTo": "var(--primitiv-space-space-4)" },
+    { "name": "--primitiv-select-content-padding-inline", "defaultsTo": "var(--primitiv-space-4)" },
     { "name": "--primitiv-select-content-min-inline-size", "defaultsTo": "anchor-size(width)" },
     { "name": "--primitiv-select-content-max-block-size", "defaultsTo": "18rem" },
-    { "name": "--primitiv-select-offset", "defaultsTo": "var(--primitiv-space-space-4)" },
+    { "name": "--primitiv-select-offset", "defaultsTo": "var(--primitiv-space-4)" },
     { "name": "--primitiv-select-item-height", "defaultsTo": "var(--primitiv-dropdown-md-item-height)" },
     { "name": "--primitiv-select-item-padding-inline", "defaultsTo": "var(--primitiv-dropdown-md-item-padding-inline)" },
     { "name": "--primitiv-select-item-gap", "defaultsTo": "var(--primitiv-dropdown-md-item-gap)" },
@@ -148,6 +148,6 @@
     { "name": "--primitiv-select-separator-spacing", "defaultsTo": "var(--primitiv-dropdown-md-separator-spacing)" },
     { "name": "--primitiv-select-separator-color", "defaultsTo": "var(--primitiv-border-subtle)" },
     { "name": "--primitiv-select-separator-thickness", "defaultsTo": "var(--primitiv-border-width-1)" },
-    { "name": "--primitiv-select-label-ink-slack", "defaultsTo": "var(--primitiv-space-space-1)" }
+    { "name": "--primitiv-select-label-ink-slack", "defaultsTo": "var(--primitiv-space-1)" }
   ]
 }

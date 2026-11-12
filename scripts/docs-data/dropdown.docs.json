@@ -693,7 +693,7 @@
       },
       {
         "name": "--primitiv-dropdown-padding-inline",
-        "defaultsTo": "var(--primitiv-space-space-4)"
+        "defaultsTo": "var(--primitiv-space-4)"
       },
       {
         "name": "--primitiv-dropdown-min-inline-size",
@@ -701,7 +701,7 @@
       },
       {
         "name": "--primitiv-dropdown-offset",
-        "defaultsTo": "var(--primitiv-space-space-4)"
+        "defaultsTo": "var(--primitiv-space-4)"
       },
       {
         "name": "--primitiv-dropdown-item-height",
@@ -805,7 +805,7 @@
       },
       {
         "name": "--primitiv-dropdown-viewport-margin",
-        "defaultsTo": "var(--primitiv-space-space-8)"
+        "defaultsTo": "var(--primitiv-space-8)"
       }
     ],
     "dataAttributes": [

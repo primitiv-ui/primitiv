@@ -56,7 +56,7 @@
  * always spans exactly the rendered rows with nothing to keep in sync.
  */
 .docs-toc-list {
-  --primitiv-list-item-gap: var(--primitiv-space-space-4);
+  --primitiv-list-item-gap: var(--primitiv-space-4);
   /*
    * The nested indent is ZERO on the list, and applied to the LINK's padding
    * instead (below). That is what keeps a nested entry's active bar on the
@@ -65,7 +65,7 @@
    * strip every other entry uses. Padding pushes the text without moving the
    * border.
    */
-  --primitiv-list-indent: var(--primitiv-space-space-0);
+  --primitiv-list-indent: var(--primitiv-space-0);
 
   border-inline-start: var(--docs-toc-rail-width) solid
     var(--primitiv-border-subtle);
@@ -79,7 +79,7 @@
      as a segment OF the rail rather than a second line beside it. */
   margin-inline-start: calc(-1 * var(--docs-toc-rail-width));
   border-inline-start: var(--docs-toc-rail-width) solid transparent;
-  padding-inline-start: var(--primitiv-space-space-16);
+  padding-inline-start: var(--primitiv-space-16);
   font-family: var(--primitiv-body-sm-font-family);
   font-size: var(--primitiv-body-sm-font-size);
   line-height: var(--primitiv-body-sm-line-height);
@@ -95,7 +95,7 @@
 /* Nested entries: text stepped in, border still on the rail. */
 .docs-toc-nested .docs-toc-link {
   padding-inline-start: calc(
-    var(--primitiv-space-space-16) + var(--primitiv-space-space-20)
+    var(--primitiv-space-16) + var(--primitiv-space-20)
   );
 }
 
@@ -105,7 +105,7 @@
 
 .docs-toc-link:focus-visible {
   outline: var(--primitiv-border-width-2) solid var(--primitiv-focus-ring);
-  outline-offset: var(--primitiv-space-space-2);
+  outline-offset: var(--primitiv-space-2);
   border-radius: var(--primitiv-radii-4);
 }
 

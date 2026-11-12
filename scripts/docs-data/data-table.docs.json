@@ -336,7 +336,7 @@
       },
       {
         "name": "--primitiv-data-table-sort-gap",
-        "defaultsTo": "var(--primitiv-space-space-4)"
+        "defaultsTo": "var(--primitiv-space-4)"
       },
       {
         "name": "--primitiv-data-table-sort-hover-background",

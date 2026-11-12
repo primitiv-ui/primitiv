@@ -93,7 +93,7 @@
     --primitiv-drawer-padding-inline: var(--primitiv-modal-md-padding-inline);
     --primitiv-drawer-padding-block: var(--primitiv-modal-md-padding-block);
     --primitiv-drawer-gap: var(--primitiv-modal-md-gap);
-    --primitiv-drawer-size: var(--primitiv-size-size-240);
+    --primitiv-drawer-size: var(--primitiv-size-240);
     --primitiv-drawer-border-width: var(--primitiv-border-width-1);
     --primitiv-drawer-border-color: var(--primitiv-border-default);
     --primitiv-drawer-divider-color: var(--primitiv-border-subtle);
@@ -350,19 +350,19 @@
      density ambiently (RFC 0009), so a drawer's inner spacing is independent of
      how wide it is. */
   .primitiv-drawer--xs {
-    --primitiv-drawer-size: var(--primitiv-size-size-168);
+    --primitiv-drawer-size: var(--primitiv-size-168);
   }
   .primitiv-drawer--sm {
-    --primitiv-drawer-size: var(--primitiv-size-size-200);
+    --primitiv-drawer-size: var(--primitiv-size-200);
   }
   .primitiv-drawer--md {
-    --primitiv-drawer-size: var(--primitiv-size-size-240);
+    --primitiv-drawer-size: var(--primitiv-size-240);
   }
   .primitiv-drawer--lg {
-    --primitiv-drawer-size: var(--primitiv-size-size-288);
+    --primitiv-drawer-size: var(--primitiv-size-288);
   }
   .primitiv-drawer--xl {
-    --primitiv-drawer-size: var(--primitiv-size-size-344);
+    --primitiv-drawer-size: var(--primitiv-size-344);
   }
 }
 

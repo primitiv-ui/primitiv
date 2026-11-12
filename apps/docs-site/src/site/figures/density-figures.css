@@ -113,7 +113,7 @@
   gap: var(--primitiv-flow-normal);
   border: var(--primitiv-border-width-1) solid var(--primitiv-border-default);
   border-radius: var(--primitiv-radii-12);
-  padding: var(--primitiv-space-space-24);
+  padding: var(--primitiv-space-24);
 }
 
 /*

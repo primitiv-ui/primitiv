@@ -52,7 +52,7 @@
     { "name": "--primitiv-listbox-border-color-invalid", "defaultsTo": "var(--primitiv-border-invalid)" },
     { "name": "--primitiv-listbox-radius", "defaultsTo": "var(--primitiv-framed-control-md-radius)" },
     { "name": "--primitiv-listbox-padding-block", "defaultsTo": "var(--primitiv-dropdown-md-panel-padding-block)" },
-    { "name": "--primitiv-listbox-padding-inline", "defaultsTo": "var(--primitiv-space-space-4)" },
+    { "name": "--primitiv-listbox-padding-inline", "defaultsTo": "var(--primitiv-space-4)" },
     { "name": "--primitiv-listbox-max-block-size", "defaultsTo": "18rem" },
     { "name": "--primitiv-listbox-ring-color", "defaultsTo": "var(--primitiv-border-focus)" },
     { "name": "--primitiv-listbox-ring-width", "defaultsTo": "var(--primitiv-focus-ring-width)" },
@@ -92,6 +92,6 @@
     { "name": "--primitiv-listbox-group-label-letter-spacing", "defaultsTo": "var(--primitiv-letter-spacing-wide)" },
     { "name": "--primitiv-listbox-empty-color", "defaultsTo": "var(--primitiv-content-muted)" },
     { "name": "--primitiv-listbox-empty-min-block-size", "defaultsTo": "calc(var(--primitiv-listbox-option-height) * 2)" },
-    { "name": "--primitiv-listbox-label-ink-slack", "defaultsTo": "var(--primitiv-space-space-1)" }
+    { "name": "--primitiv-listbox-label-ink-slack", "defaultsTo": "var(--primitiv-space-1)" }
   ]
 }

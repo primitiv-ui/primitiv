@@ -87,7 +87,7 @@
     position: absolute;
     inline-size: 1px;
     block-size: 1px;
-    padding: var(--primitiv-space-space-0);
+    padding: var(--primitiv-space-0);
     margin: -1px;
     overflow: hidden;
     clip: rect(0 0 0 0);

@@ -70,7 +70,7 @@
     { "name": "--primitiv-tooltip-padding-block", "defaultsTo": "var(--primitiv-tooltip-md-padding-block)" },
     { "name": "--primitiv-tooltip-arrow-size", "defaultsTo": "var(--primitiv-tooltip-md-arrow-size)" },
     { "name": "--primitiv-tooltip-offset", "defaultsTo": "var(--primitiv-tooltip-arrow-size)" },
-    { "name": "--primitiv-tooltip-max-inline-size", "defaultsTo": "var(--primitiv-size-size-240)" },
+    { "name": "--primitiv-tooltip-max-inline-size", "defaultsTo": "var(--primitiv-size-240)" },
     { "name": "--primitiv-tooltip-font-family", "defaultsTo": "var(--primitiv-body-md-font-family)" },
     { "name": "--primitiv-tooltip-font-size", "defaultsTo": "var(--primitiv-body-md-font-size)" },
     { "name": "--primitiv-tooltip-font-weight", "defaultsTo": "var(--primitiv-body-md-font-weight)" },

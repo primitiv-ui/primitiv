@@ -42,7 +42,7 @@
   display: grid;
   align-content: center;
 
-  padding-block: var(--primitiv-space-space-96);
+  padding-block: var(--primitiv-space-96);
   text-align: center;
   background-color: var(--primitiv-surface-default);
 }
@@ -87,6 +87,6 @@
 @media (max-width: 47.9375rem) {
   .docs-hero {
     --docs-hero-heading-size: 2.5rem;
-    padding-block: var(--primitiv-space-space-56);
+    padding-block: var(--primitiv-space-56);
   }
 }

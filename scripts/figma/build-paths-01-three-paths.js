@@ -76,7 +76,7 @@ gap.primaryAxisSizingMode = MOBILE ? 'AUTO' : 'FIXED';    // re-assert after res
 gap.clipsContent = false;
 gap.paddingTop = gap.paddingBottom = gap.paddingLeft = gap.paddingRight = 0;
 if (MOBILE) {
-  gap.itemSpacing = 24; gap.setBoundVariable('itemSpacing', V['space/space-24']);
+  gap.itemSpacing = 24; gap.setBoundVariable('itemSpacing', V['space/24']);
   gap.counterAxisAlignItems = 'MIN';
   gap.layoutSizingHorizontal = 'FILL';
 } else {
@@ -109,7 +109,7 @@ const slab = (parent, name, size, fillVar, roundOuter) => {
   f.counterAxisSizingMode = 'FIXED';
   f.resize(MOBILE ? size : W, MOBILE ? MH : size);
   f.primaryAxisSizingMode = 'FIXED';
-  const pad = MOBILE ? 16 : 20, padVar = MOBILE ? 'space/space-16' : 'space/space-20';
+  const pad = MOBILE ? 16 : 20, padVar = MOBILE ? 'space/16' : 'space/20';
   for (const p of ['paddingLeft','paddingRight','paddingTop','paddingBottom'])
     { f[p] = pad; f.setBoundVariable(p, V[padVar]); }
   f.itemSpacing = MOBILE ? 2 : 4;
@@ -134,11 +134,11 @@ const label = (host, name, sub) => {
 };
 
 const stack = frame(gap, 'paths', MOBILE ? 'VERTICAL' : 'HORIZONTAL',
-                    MOBILE ? 16 : 56, MOBILE ? 'space/space-16' : 'space/space-56');
+                    MOBILE ? 16 : 56, MOBILE ? 'space/16' : 'space/56');
 stack.counterAxisAlignItems = MOBILE ? 'MIN' : 'MAX';
 if (MOBILE) stack.layoutSizingHorizontal = 'FILL';
 
-const pair = MOBILE ? stack : frame(stack, 'code paths', 'HORIZONTAL', 24, 'space/space-24');
+const pair = MOBILE ? stack : frame(stack, 'code paths', 'HORIZONTAL', 24, 'space/24');
 if (!MOBILE) pair.counterAxisAlignItems = 'MAX';
 
 const headless = slab(pair, 'Headless', MOBILE ? W_HEADLESS : H_HEADLESS, 'surface/raised', true);
@@ -164,7 +164,7 @@ if (MOBILE) {
   spacer.name = 'gap before Figma'; spacer.fills = []; spacer.layoutMode = 'VERTICAL';
   spacer.resize(1, 24);
   spacer.layoutSizingVertical = 'FIXED';
-  spacer.setBoundVariable('height', V['space/space-24']);
+  spacer.setBoundVariable('height', V['space/24']);
   spacer.opacity = 0;                                     // stays in flow (prose-layout §6)
 }
 

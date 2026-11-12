@@ -97,11 +97,11 @@ one layer of the landed one for it.
 
 ```css
 @layer primitiv.reset {
-  p          { /* ...type... */ margin-block: var(--primitiv-space-space-0) var(--primitiv-space-space-16); }
-  h1,h2,h3,h4,h5,h6 { /* ...type... */ margin-block: var(--primitiv-space-space-24) var(--primitiv-space-space-8); }
-  ul,ol      { /* ...type... */ margin-block: var(--primitiv-space-space-0) var(--primitiv-space-space-16); }
-  blockquote { /* ...type... */ margin-block: var(--primitiv-space-space-16); }
-  hr         { /* ...line... */ margin-block: var(--primitiv-space-space-24); }
+  p          { /* ...type... */ margin-block: var(--primitiv-space-0) var(--primitiv-space-16); }
+  h1,h2,h3,h4,h5,h6 { /* ...type... */ margin-block: var(--primitiv-space-24) var(--primitiv-space-8); }
+  ul,ol      { /* ...type... */ margin-block: var(--primitiv-space-0) var(--primitiv-space-16); }
+  blockquote { /* ...type... */ margin-block: var(--primitiv-space-16); }
+  hr         { /* ...line... */ margin-block: var(--primitiv-space-24); }
   /* figure, dd, li + li ... */
 }
 ```

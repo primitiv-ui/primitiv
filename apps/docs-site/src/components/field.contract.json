@@ -50,7 +50,7 @@
     }
   ],
   "customProperties": [
-    { "name": "--primitiv-field-gap", "defaultsTo": "var(--primitiv-space-space-8)" },
+    { "name": "--primitiv-field-gap", "defaultsTo": "var(--primitiv-space-8)" },
     { "name": "--primitiv-field-label-color", "defaultsTo": "var(--primitiv-content-primary)" },
     { "name": "--primitiv-field-label-font-family", "defaultsTo": "var(--primitiv-label-md-font-family)" },
     { "name": "--primitiv-field-label-font-size", "defaultsTo": "var(--primitiv-label-md-font-size)" },
@@ -63,6 +63,6 @@
     { "name": "--primitiv-field-helper-font-weight", "defaultsTo": "var(--primitiv-body-sm-font-weight)" },
     { "name": "--primitiv-field-helper-line-height", "defaultsTo": "var(--primitiv-body-sm-line-height)" },
     { "name": "--primitiv-field-required-color", "defaultsTo": "var(--primitiv-content-error)" },
-    { "name": "--primitiv-field-required-gap", "defaultsTo": "var(--primitiv-space-space-2)" }
+    { "name": "--primitiv-field-required-gap", "defaultsTo": "var(--primitiv-space-2)" }
   ]
 }

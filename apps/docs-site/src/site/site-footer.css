@@ -4,7 +4,7 @@
  */
 
 .docs-site-footer {
-  padding-block: var(--primitiv-space-space-56);
+  padding-block: var(--primitiv-space-56);
   border-block-start: var(--primitiv-border-width-1) solid
     var(--primitiv-border-subtle);
   background-color: var(--primitiv-surface-default);

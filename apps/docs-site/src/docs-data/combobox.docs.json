@@ -351,7 +351,7 @@
       },
       {
         "name": "--primitiv-combobox-label-ink-slack",
-        "defaultsTo": "var(--primitiv-space-space-1)"
+        "defaultsTo": "var(--primitiv-space-1)"
       },
       {
         "name": "--primitiv-combobox-content-surface",
@@ -383,7 +383,7 @@
       },
       {
         "name": "--primitiv-combobox-content-padding-inline",
-        "defaultsTo": "var(--primitiv-space-space-4)"
+        "defaultsTo": "var(--primitiv-space-4)"
       },
       {
         "name": "--primitiv-combobox-content-min-inline-size",

@@ -140,8 +140,8 @@ tokens:
   board-elevation: elevation/floating
   board-radius: the card/lg/radius value, not an invented radius
   page-ground: surface/default
-  gap-between-rows: space/space-32
-  board-padding: space/space-40
+  gap-between-rows: space/32
+  board-padding: space/40
   table-row-border: border/subtle
 
 frame:
@@ -344,8 +344,8 @@ assets:
 tokens:
   captions: label/sm, content/muted
   ground: surface/default
-  gap-between-buttons: space/space-56
-  caption-gap: space/space-12
+  gap-between-buttons: space/56
+  caption-gap: space/12
   blues: >
     Three points near the brand hue but NOT from the ramp - the point is
     that these were guessed, not derived. Take the brand hue and shift
@@ -518,8 +518,8 @@ tokens:
   region-divider: border/subtle
   region-labels: overline, content/muted
   readout: the mono face at font-size/12, content/muted
-  control-strip-padding: space/space-16
-  region-gap: space/space-32
+  control-strip-padding: space/16
+  region-gap: space/32
 
 frame:
   ratio: roughly 16:9
@@ -931,10 +931,10 @@ tokens:
   step-caption-size: swatch/md/sample-caption-size
   swatch-radius: swatch/md/radius
   swatch-gap: swatch/md/gap
-  row-gap: space/space-16
+  row-gap: space/16
   ramp-labels: label/sm, content/secondary
   card: surface/raised, elevation/raised, border/subtle
-  card-padding: space/space-32
+  card-padding: space/32
 
 frame:
   ratio: roughly 5:3
@@ -1052,7 +1052,7 @@ tokens:
   row-labels: label/sm, content/secondary
   hue-track: border/subtle at 1px, markers in content/muted
   closing-line: body/sm, content/muted
-  row-gap: space/space-24
+  row-gap: space/24
 
 frame:
   ratio: "4:3"
@@ -1588,8 +1588,8 @@ tokens:
   shared-layer-within-styled: the same fill as Block 1, so the stacking reads
   figma-block: surface/subtle with border/default, to sit slightly apart
   labels: label/md inside blocks, label/sm for the sub-lines
-  block-gap: space/space-24
-  figma-gap: space/space-56
+  block-gap: space/24
+  figma-gap: space/56
 
 frame:
   ratio: "5:2"
@@ -1737,7 +1737,7 @@ tokens:
   card: surface/raised, elevation/raised, border/subtle
   focus-ring: focus/ring and border/focus, at the real geometry
   kbd-cap: the real Kbd component's own tokens
-  form-gap: space/space-20
+  form-gap: space/20
 
 frame:
   ratio: "4:3"

@@ -19,10 +19,10 @@
       "$value": [
         {
           "color": "{shadow.color.strong}",
-          "offsetX": "{space.space-0}",
-          "offsetY": "{space.space-1}",
-          "blur": "{space.space-2}",
-          "spread": "{space.space-0}"
+          "offsetX": "{space.0}",
+          "offsetY": "{space.1}",
+          "blur": "{space.2}",
+          "spread": "{space.0}"
         }
       ]
     },
@@ -31,17 +31,17 @@
       "$value": [
         {
           "color": "{shadow.color.strong}",
-          "offsetX": "{space.space-0}",
-          "offsetY": "{space.space-1}",
-          "blur": "{space.space-2}",
-          "spread": "{space.space-0}"
+          "offsetX": "{space.0}",
+          "offsetY": "{space.1}",
+          "blur": "{space.2}",
+          "spread": "{space.0}"
         },
         {
           "color": "{shadow.color.soft}",
-          "offsetX": "{space.space-0}",
-          "offsetY": "{space.space-2}",
-          "blur": "{space.space-4}",
-          "spread": "{space.space-0}"
+          "offsetX": "{space.0}",
+          "offsetY": "{space.2}",
+          "blur": "{space.4}",
+          "spread": "{space.0}"
         }
       ]
     },
@@ -50,24 +50,24 @@
       "$value": [
         {
           "color": "{shadow.color.strong}",
-          "offsetX": "{space.space-0}",
-          "offsetY": "{space.space-2}",
-          "blur": "{space.space-4}",
-          "spread": "{space.space-0}"
+          "offsetX": "{space.0}",
+          "offsetY": "{space.2}",
+          "blur": "{space.4}",
+          "spread": "{space.0}"
         },
         {
           "color": "{shadow.color.medium}",
-          "offsetX": "{space.space-0}",
-          "offsetY": "{space.space-4}",
-          "blur": "{space.space-8}",
-          "spread": "{space.space-0}"
+          "offsetX": "{space.0}",
+          "offsetY": "{space.4}",
+          "blur": "{space.8}",
+          "spread": "{space.0}"
         },
         {
           "color": "{shadow.color.soft}",
-          "offsetX": "{space.space-0}",
-          "offsetY": "{space.space-8}",
-          "blur": "{space.space-16}",
-          "spread": "{space.space-0}"
+          "offsetX": "{space.0}",
+          "offsetY": "{space.8}",
+          "blur": "{space.16}",
+          "spread": "{space.0}"
         }
       ]
     },
@@ -76,24 +76,24 @@
       "$value": [
         {
           "color": "{shadow.color.strong}",
-          "offsetX": "{space.space-0}",
-          "offsetY": "{space.space-4}",
-          "blur": "{space.space-8}",
-          "spread": "{space.space-0}"
+          "offsetX": "{space.0}",
+          "offsetY": "{space.4}",
+          "blur": "{space.8}",
+          "spread": "{space.0}"
         },
         {
           "color": "{shadow.color.medium}",
-          "offsetX": "{space.space-0}",
-          "offsetY": "{space.space-8}",
-          "blur": "{space.space-16}",
-          "spread": "{space.space-0}"
+          "offsetX": "{space.0}",
+          "offsetY": "{space.8}",
+          "blur": "{space.16}",
+          "spread": "{space.0}"
         },
         {
           "color": "{shadow.color.soft}",
-          "offsetX": "{space.space-0}",
-          "offsetY": "{space.space-16}",
-          "blur": "{space.space-24}",
-          "spread": "{space.space-0}"
+          "offsetX": "{space.0}",
+          "offsetY": "{space.16}",
+          "blur": "{space.24}",
+          "spread": "{space.0}"
         }
       ]
     },
@@ -102,24 +102,24 @@
       "$value": [
         {
           "color": "{shadow.color.strong}",
-          "offsetX": "{space.space-0}",
-          "offsetY": "{space.space-8}",
-          "blur": "{space.space-16}",
-          "spread": "{space.space-0}"
+          "offsetX": "{space.0}",
+          "offsetY": "{space.8}",
+          "blur": "{space.16}",
+          "spread": "{space.0}"
         },
         {
           "color": "{shadow.color.medium}",
-          "offsetX": "{space.space-0}",
-          "offsetY": "{space.space-16}",
-          "blur": "{space.space-32}",
-          "spread": "{space.space-0}"
+          "offsetX": "{space.0}",
+          "offsetY": "{space.16}",
+          "blur": "{space.32}",
+          "spread": "{space.0}"
         },
         {
           "color": "{shadow.color.soft}",
-          "offsetX": "{space.space-0}",
-          "offsetY": "{space.space-24}",
-          "blur": "{space.space-48}",
-          "spread": "{space.space-0}"
+          "offsetX": "{space.0}",
+          "offsetY": "{space.24}",
+          "blur": "{space.48}",
+          "spread": "{space.0}"
         }
       ]
     }

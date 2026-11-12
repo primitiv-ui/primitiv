@@ -149,7 +149,7 @@
       "name": "--primitiv-combobox-line-height",
       "defaultsTo": "var(--primitiv-body-md-line-height)"
     },
-    { "name": "--primitiv-combobox-label-ink-slack", "defaultsTo": "var(--primitiv-space-space-1)" },
+    { "name": "--primitiv-combobox-label-ink-slack", "defaultsTo": "var(--primitiv-space-1)" },
     {
       "name": "--primitiv-combobox-content-surface",
       "defaultsTo": "var(--primitiv-surface-default)"
@@ -180,7 +180,7 @@
     },
     {
       "name": "--primitiv-combobox-content-padding-inline",
-      "defaultsTo": "var(--primitiv-space-space-4)"
+      "defaultsTo": "var(--primitiv-space-4)"
     },
     {
       "name": "--primitiv-combobox-content-min-inline-size",

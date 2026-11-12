@@ -58,14 +58,14 @@
     --primitiv-stepper-connector-size: var(--primitiv-stepper-connector-thickness);
     --primitiv-stepper-connector-color: var(--primitiv-border-default);
     --primitiv-stepper-connector-color-reached: var(--primitiv-action-primary-default);
-    --primitiv-stepper-connector-gap: var(--primitiv-space-space-12);
+    --primitiv-stepper-connector-gap: var(--primitiv-space-12);
     /* The vertical rail's connector lives entirely inside the row gap, so it
        needs a much smaller inset than the horizontal one, which has to clear a
        marker's full diameter along the rail. */
-    --primitiv-stepper-connector-inset: var(--primitiv-space-space-4);
+    --primitiv-stepper-connector-inset: var(--primitiv-space-4);
     /* Compact — the rail collapsed to a progress bar for narrow containers. */
-    --primitiv-stepper-compact-segment-height: var(--primitiv-size-size-4);
-    --primitiv-stepper-compact-gap: var(--primitiv-space-space-6);
+    --primitiv-stepper-compact-segment-height: var(--primitiv-size-4);
+    --primitiv-stepper-compact-gap: var(--primitiv-space-6);
     --primitiv-stepper-marker-background: var(--primitiv-surface-default);
     --primitiv-stepper-marker-border-color: var(--primitiv-border-default);
     --primitiv-stepper-marker-border-width: var(--primitiv-framed-control-border-width);
@@ -95,7 +95,7 @@
     --primitiv-stepper-panel-font-size: var(--primitiv-body-md-font-size);
     --primitiv-stepper-panel-font-weight: var(--primitiv-body-md-font-weight);
     --primitiv-stepper-panel-line-height: var(--primitiv-body-md-line-height);
-    --primitiv-stepper-tap-target: var(--primitiv-size-size-48);
+    --primitiv-stepper-tap-target: var(--primitiv-size-48);
     --primitiv-stepper-transition-duration: var(--primitiv-motion-duration-control);
     --primitiv-stepper-connector-duration: var(--primitiv-motion-duration-expand);
     --primitiv-stepper-transition-easing: var(--primitiv-motion-easing-default);

@@ -146,7 +146,7 @@ Tokens named in the creative brief:
 ```
 card         surface/raised · elevation/raised (effect style) · border/subtle
 focus ring   focus/ring · border/focus · focus/ring/width · focus/ring/offset
-form gap     space/space-20
+form gap     space/20
 kbd cap      the Kbd component's own tokens — do not override
 ```
 

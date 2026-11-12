@@ -514,7 +514,7 @@
       },
       {
         "name": "--primitiv-tree-selection-path-gap",
-        "defaultsTo": "var(--primitiv-space-space-4)"
+        "defaultsTo": "var(--primitiv-space-4)"
       },
       {
         "name": "--primitiv-tree-selection-path-current-font-weight",
@@ -522,7 +522,7 @@
       },
       {
         "name": "--primitiv-tree-label-ink-slack",
-        "defaultsTo": "var(--primitiv-space-space-1)"
+        "defaultsTo": "var(--primitiv-space-1)"
       }
     ],
     "dataAttributes": [

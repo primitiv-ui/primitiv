@@ -71,11 +71,11 @@
     "customProperties": [
       {
         "name": "--primitiv-description-list-row-gap",
-        "defaultsTo": "var(--primitiv-space-space-2)"
+        "defaultsTo": "var(--primitiv-space-2)"
       },
       {
         "name": "--primitiv-description-list-column-gap",
-        "defaultsTo": "var(--primitiv-space-space-24)"
+        "defaultsTo": "var(--primitiv-space-24)"
       },
       {
         "name": "--primitiv-description-list-pair-gap",
@@ -83,7 +83,7 @@
       },
       {
         "name": "--primitiv-description-list-details-indent",
-        "defaultsTo": "var(--primitiv-space-space-16)"
+        "defaultsTo": "var(--primitiv-space-16)"
       },
       {
         "name": "--primitiv-description-list-color",

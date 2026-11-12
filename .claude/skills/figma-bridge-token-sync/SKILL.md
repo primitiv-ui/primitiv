@@ -143,7 +143,7 @@ const coll  = await figma.variables.getVariableCollectionByIdAsync(collId);
   `paddingLeft/Right/Top/Bottom`, `itemSpacing`, `topLeftRadius`, `fills`,
   `strokes`, `strokeWeight`). Paint bindings (`fills`/`strokes`) go on the paint,
   not the node: `figma.variables.setBoundVariableForPaint(paint, "color", v)`.
-- Find a primitive's id by name (`font-size/13`, `space/space-4`, `size/size-20`).
+- Find a primitive's id by name (`font-size/13`, `space/4`, `size/20`).
   Collections & mode IDs (Context = 4 density modes, Intent = Light/Dark) are in
   `figma-variable-architecture`. `boundVariables` may read stale right after a
   write — re-read in a second call to confirm.

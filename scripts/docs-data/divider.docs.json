@@ -43,7 +43,7 @@
       },
       {
         "name": "--primitiv-divider-spacing",
-        "defaultsTo": "var(--primitiv-space-space-0)"
+        "defaultsTo": "var(--primitiv-space-0)"
       }
     ],
     "dataAttributes": []

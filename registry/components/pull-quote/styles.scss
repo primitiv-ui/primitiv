@@ -44,7 +44,7 @@
     --primitiv-pull-quote-font-weight: var(--primitiv-heading-h3-font-weight);
     --primitiv-pull-quote-color: var(--primitiv-content-primary);
     --primitiv-pull-quote-mark-color: var(--primitiv-content-muted);
-    --primitiv-pull-quote-mark-gap: var(--primitiv-space-space-12);
+    --primitiv-pull-quote-mark-gap: var(--primitiv-space-12);
     --primitiv-pull-quote-mark-height: calc(0.875 * var(--primitiv-pull-quote-font-size));
 
     /* A <blockquote>, so undo the base layer's quote bar and indent: a pull
@@ -52,9 +52,9 @@
        zeroed here; the block margins belong to the flow context (.primitiv-flow)
        and are already zero outside one (the base layer resets them). A
        `margin: 0` here tied with the flow rule and won by load order. */
-    margin-inline: var(--primitiv-space-space-0);
+    margin-inline: var(--primitiv-space-0);
     border-inline-start: none;
-    padding-inline-start: var(--primitiv-space-space-0);
+    padding-inline-start: var(--primitiv-space-0);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -104,7 +104,7 @@
     --primitiv-pull-quote-font-size: var(--primitiv-heading-h5-font-size);
     --primitiv-pull-quote-line-height: var(--primitiv-heading-h5-line-height);
     --primitiv-pull-quote-font-weight: var(--primitiv-heading-h5-font-weight);
-    --primitiv-pull-quote-mark-gap: var(--primitiv-space-space-8);
+    --primitiv-pull-quote-mark-gap: var(--primitiv-space-8);
     --primitiv-pull-quote-mark-height: calc(0.75 * var(--primitiv-pull-quote-font-size));
   }
   .primitiv-pull-quote--sm {
@@ -112,7 +112,7 @@
     --primitiv-pull-quote-font-size: var(--primitiv-heading-h4-font-size);
     --primitiv-pull-quote-line-height: var(--primitiv-heading-h4-line-height);
     --primitiv-pull-quote-font-weight: var(--primitiv-heading-h4-font-weight);
-    --primitiv-pull-quote-mark-gap: var(--primitiv-space-space-8);
+    --primitiv-pull-quote-mark-gap: var(--primitiv-space-8);
     --primitiv-pull-quote-mark-height: calc(0.7857 * var(--primitiv-pull-quote-font-size));
   }
   .primitiv-pull-quote--md {
@@ -120,7 +120,7 @@
     --primitiv-pull-quote-font-size: var(--primitiv-heading-h3-font-size);
     --primitiv-pull-quote-line-height: var(--primitiv-heading-h3-line-height);
     --primitiv-pull-quote-font-weight: var(--primitiv-heading-h3-font-weight);
-    --primitiv-pull-quote-mark-gap: var(--primitiv-space-space-12);
+    --primitiv-pull-quote-mark-gap: var(--primitiv-space-12);
     --primitiv-pull-quote-mark-height: calc(0.875 * var(--primitiv-pull-quote-font-size));
   }
   .primitiv-pull-quote--lg {
@@ -128,7 +128,7 @@
     --primitiv-pull-quote-font-size: var(--primitiv-heading-h2-font-size);
     --primitiv-pull-quote-line-height: var(--primitiv-heading-h2-line-height);
     --primitiv-pull-quote-font-weight: var(--primitiv-heading-h2-font-weight);
-    --primitiv-pull-quote-mark-gap: var(--primitiv-space-space-16);
+    --primitiv-pull-quote-mark-gap: var(--primitiv-space-16);
     --primitiv-pull-quote-mark-height: calc(0.8 * var(--primitiv-pull-quote-font-size));
   }
   .primitiv-pull-quote--xl {
@@ -136,7 +136,7 @@
     --primitiv-pull-quote-font-size: var(--primitiv-heading-h1-font-size);
     --primitiv-pull-quote-line-height: var(--primitiv-heading-h1-line-height);
     --primitiv-pull-quote-font-weight: var(--primitiv-heading-h1-font-weight);
-    --primitiv-pull-quote-mark-gap: var(--primitiv-space-space-20);
+    --primitiv-pull-quote-mark-gap: var(--primitiv-space-20);
     --primitiv-pull-quote-mark-height: calc(0.7917 * var(--primitiv-pull-quote-font-size));
   }
 }

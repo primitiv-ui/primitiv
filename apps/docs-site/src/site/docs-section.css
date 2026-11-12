@@ -16,7 +16,7 @@
   color: var(--primitiv-content-primary);
   /* The header is sticky, so an anchored heading would otherwise land behind
      it. `scroll-margin` is the modern fix — no offset spacer elements. */
-  scroll-margin-block-start: var(--primitiv-space-space-96);
+  scroll-margin-block-start: var(--primitiv-space-96);
 }
 
 /* The annotation under each section heading. Body text, not a 12px caption:

@@ -88,7 +88,7 @@
     { "name": "--primitiv-drawer-padding-inline", "defaultsTo": "var(--primitiv-modal-md-padding-inline)" },
     { "name": "--primitiv-drawer-padding-block", "defaultsTo": "var(--primitiv-modal-md-padding-block)" },
     { "name": "--primitiv-drawer-gap", "defaultsTo": "var(--primitiv-modal-md-gap)" },
-    { "name": "--primitiv-drawer-size", "defaultsTo": "var(--primitiv-size-size-240)" },
+    { "name": "--primitiv-drawer-size", "defaultsTo": "var(--primitiv-size-240)" },
     { "name": "--primitiv-drawer-border-width", "defaultsTo": "var(--primitiv-border-width-1)" },
     { "name": "--primitiv-drawer-border-color", "defaultsTo": "var(--primitiv-border-default)" },
     { "name": "--primitiv-drawer-divider-color", "defaultsTo": "var(--primitiv-border-subtle)" },

@@ -17,7 +17,7 @@
 
 .docs-prop-required {
   color: var(--primitiv-content-error);
-  margin-inline-start: var(--primitiv-space-space-2);
+  margin-inline-start: var(--primitiv-space-2);
 }
 
 .docs-prop-description {
@@ -46,7 +46,7 @@
      following its own TOC entry lands it behind the header. It is the one
      anchor target that was missed when that fix went in; every other id on the
      page belongs to a `.docs-section-title` or a `.docs-example-title`. */
-  scroll-margin-block-start: var(--primitiv-space-space-96);
+  scroll-margin-block-start: var(--primitiv-space-96);
 }
 
 .docs-props-empty {
@@ -81,7 +81,7 @@
    bottom margin exactly, so the two sat flush and read as one wrapped line. The
    heading's `flow-tight` now stands, and this only spaces itself from the table. */
 .docs-data-attributes-class {
-  margin-block: var(--primitiv-space-space-0) var(--primitiv-flow-tight);
+  margin-block: var(--primitiv-space-0) var(--primitiv-flow-tight);
 }
 
 /* The "|" between an attribute's values. Muted, because it is the page's

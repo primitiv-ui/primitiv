@@ -691,7 +691,7 @@ strategy (§1–2) and the 8-item rule do **not** apply. Single `Size` axis
 
 ```
 InlineCode/Size=md  (HORIZONTAL auto-layout, HUG × HUG, items centred)
-  paddingLeft/Right → space/space-4   ·  paddingTop/Bottom → space/space-2
+  paddingLeft/Right → space/4   ·  paddingTop/Bottom → space/2
   4 corner radii → radii/4
   fills → surface/subtle  ·  strokes → border/subtle (1px, INSIDE)
   Code text (TEXT):

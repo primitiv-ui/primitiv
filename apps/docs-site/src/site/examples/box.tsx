@@ -24,7 +24,7 @@ const imports = (mode: Mode) =>
    padding to make the otherwise-invisible element visible. Kept as a constant
    so the snippet below stays in exact parity with what renders. */
 const demoBox: CSSProperties = {
-  padding: "var(--primitiv-space-space-16)",
+  padding: "var(--primitiv-space-16)",
   border: "1px dashed var(--primitiv-border-default)",
   borderRadius: "var(--primitiv-radii-8)",
 };
@@ -32,17 +32,17 @@ const demoBox: CSSProperties = {
 /* The token-scoping example: re-point a design token on the Box, and every
    descendant that resolves it picks up the new value. */
 const scopedToken = {
-  "--primitiv-space-space-16": "2.5rem",
+  "--primitiv-space-16": "2.5rem",
 } as CSSProperties;
 const scopedChild: CSSProperties = {
-  padding: "var(--primitiv-space-space-16)",
+  padding: "var(--primitiv-space-16)",
   background: "var(--primitiv-surface-raised)",
   borderRadius: "var(--primitiv-radii-8)",
 };
 
 /** The demo's author style, as an HTML `style` attribute value. */
 const DEMO_STYLE =
-  "padding: var(--primitiv-space-space-16); border: 1px dashed var(--primitiv-border-default); border-radius: var(--primitiv-radii-8)";
+  "padding: var(--primitiv-space-16); border: 1px dashed var(--primitiv-border-default); border-radius: var(--primitiv-radii-8)";
 
 /**
  * Box's page content.
@@ -68,7 +68,7 @@ export const boxSpec: ComponentSpec = {
         ``,
         `<Box`,
         `  style={{`,
-        `    padding: "var(--primitiv-space-space-16)",`,
+        `    padding: "var(--primitiv-space-16)",`,
         `    border: "1px dashed var(--primitiv-border-default)",`,
         `    borderRadius: "var(--primitiv-radii-8)",`,
         `  }}`,
@@ -115,14 +115,14 @@ export const boxSpec: ComponentSpec = {
       title: "Scoping a design token",
       render: () => (
         <InteractiveExample
-          elementsCaption={"Because a design token is a CSS custom property, setting one on a box re-points it for everything inside — the token cascades, so descendants that resolve `--primitiv-space-space-16` inherit the new value with no extra wiring. This is the canonical Box use: a subtree-scoped override with somewhere to attach it."}
-          caption={"Because a design token is a CSS custom property, setting one on a `Box` re-points it for everything inside — the token cascades, so descendants that resolve `--primitiv-space-space-16` inherit the new value here without prop-drilling. This is the canonical Box use: a subtree-scoped override with somewhere to attach it that is not a raw `<div>`."}
+          elementsCaption={"Because a design token is a CSS custom property, setting one on a box re-points it for everything inside — the token cascades, so descendants that resolve `--primitiv-space-16` inherit the new value with no extra wiring. This is the canonical Box use: a subtree-scoped override with somewhere to attach it."}
+          caption={"Because a design token is a CSS custom property, setting one on a `Box` re-points it for everything inside — the token cascades, so descendants that resolve `--primitiv-space-16` inherit the new value here without prop-drilling. This is the canonical Box use: a subtree-scoped override with somewhere to attach it that is not a raw `<div>`."}
           code={(_density, mode) =>
             mode === "elements"
               ? [
-                  `<div class="primitiv-box" style="--primitiv-space-space-16: 2.5rem">`,
+                  `<div class="primitiv-box" style="--primitiv-space-16: 2.5rem">`,
                   `  <!-- Descendants resolving the token pick up the scoped value. -->`,
-                  `  <article style="padding: var(--primitiv-space-space-16); background: var(--primitiv-surface-raised); border-radius: var(--primitiv-radii-8)">`,
+                  `  <article style="padding: var(--primitiv-space-16); background: var(--primitiv-surface-raised); border-radius: var(--primitiv-radii-8)">`,
                   `    Padded by the token this box re-points.`,
                   `  </article>`,
                   `</div>`,
@@ -130,9 +130,9 @@ export const boxSpec: ComponentSpec = {
               : [
               imports(mode),
               ``,
-              `<Box style={{ "--primitiv-space-space-16": "2.5rem" }}>`,
+              `<Box style={{ "--primitiv-space-16": "2.5rem" }}>`,
               `  {/* Descendants resolving the token pick up the scoped value. */}`,
-              `  <article style={{ padding: "var(--primitiv-space-space-16)" }}>`,
+              `  <article style={{ padding: "var(--primitiv-space-16)" }}>`,
               `    {/* ... */}`,
               `  </article>`,
               `</Box>`,

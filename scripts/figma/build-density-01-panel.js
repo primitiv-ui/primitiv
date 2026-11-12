@@ -172,15 +172,15 @@ for (const c of CORNERS) card.setBoundVariable(c, V[MOBILE ? 'card/md/radius' : 
 card.clipsContent = true; card.layoutSizingHorizontal = 'FILL';
 
 // ── control strip ──────────────────────────────────────────────────────────
-const strip = MOBILE ? frame(card, 'control strip', 'VERTICAL', 8, 'space/space-8')
-                     : frame(card, 'control strip', 'HORIZONTAL', 16, 'space/space-16');
-pad(strip, MOBILE ? 12 : 16, MOBILE ? 'space/space-12' : 'space/space-16');
+const strip = MOBILE ? frame(card, 'control strip', 'VERTICAL', 8, 'space/8')
+                     : frame(card, 'control strip', 'HORIZONTAL', 16, 'space/16');
+pad(strip, MOBILE ? 12 : 16, MOBILE ? 'space/12' : 'space/16');
 strip.counterAxisAlignItems = MOBILE ? 'MIN' : 'CENTER';
 if (!MOBILE) strip.primaryAxisAlignItems = 'SPACE_BETWEEN';
 strip.layoutSizingHorizontal = 'FILL';
 
 const radios = frame(strip, 'density radios', 'HORIZONTAL',
-                     MOBILE ? 8 : 24, MOBILE ? 'space/space-8' : 'space/space-24');
+                     MOBILE ? 8 : 24, MOBILE ? 'space/8' : 'space/24');
 radios.counterAxisAlignItems = 'CENTER';
 for (const [label, on] of [['Dense', 0], ['Compact', 0], ['Comfortable', 1], ['Spacious', 0]])
   put(radios, 'Radio', `Size=${MOBILE ? 'xs' : 'md'}, State=${on ? 'checked' : 'unchecked'}, Interaction=default`,
@@ -193,8 +193,8 @@ fillH(put(card, 'Divider', 'Orientation=horizontal'));
 
 // ── stage ──────────────────────────────────────────────────────────────────
 const stage = frame(card, 'stage', MOBILE ? 'VERTICAL' : 'HORIZONTAL',
-                    MOBILE ? 24 : 32, MOBILE ? 'space/space-24' : 'space/space-32');
-pad(stage, MOBILE ? 16 : 32, MOBILE ? 'space/space-16' : 'space/space-32');
+                    MOBILE ? 24 : 32, MOBILE ? 'space/24' : 'space/32');
+pad(stage, MOBILE ? 16 : 32, MOBILE ? 'space/16' : 'space/32');
 stage.counterAxisAlignItems = 'MIN';
 stage.layoutSizingHorizontal = 'FILL';
 stage.clipsContent = true;
@@ -202,7 +202,7 @@ stage.setExplicitVariableModeForCollection(ctxCollection, MODES.Comfortable);
 
 const OVERLINE = { size: 12, lh: 16, weight: 'Medium', colour: 'content/muted', fam: 'overline/xs' };
 const region = (name) => {
-  const r = frame(stage, name, 'VERTICAL', MOBILE ? 12 : 16, MOBILE ? 'space/space-12' : 'space/space-16');
+  const r = frame(stage, name, 'VERTICAL', MOBILE ? 12 : 16, MOBILE ? 'space/12' : 'space/16');
   r.counterAxisAlignItems = 'MIN';
   return fillH(r);
 };
@@ -210,7 +210,7 @@ const region = (name) => {
 // LEFT / TOP — the operations scene
 const ops = region('region — operations');
 text(ops, 'OPERATIONS', OVERLINE);
-const toolbar = frame(ops, 'toolbar', 'HORIZONTAL', MOBILE ? 8 : 16, MOBILE ? 'space/space-8' : 'space/space-16');
+const toolbar = frame(ops, 'toolbar', 'HORIZONTAL', MOBILE ? 8 : 16, MOBILE ? 'space/8' : 'space/16');
 toolbar.counterAxisAlignItems = 'CENTER';
 toolbar.primaryAxisAlignItems = 'SPACE_BETWEEN';
 fillH(toolbar);

@@ -15,7 +15,7 @@
  */
 
 .docs-landing-section {
-  padding-block: var(--primitiv-space-space-96);
+  padding-block: var(--primitiv-space-96);
 }
 
 /* The overline sits a full region rung above its heading in v3 — not the 4px
@@ -65,5 +65,5 @@
   letter-spacing: var(--primitiv-heading-h2-letter-spacing);
   color: var(--primitiv-content-primary);
   /* Sticky header offset for in-page anchors. */
-  scroll-margin-block-start: var(--primitiv-space-space-96);
+  scroll-margin-block-start: var(--primitiv-space-96);
 }

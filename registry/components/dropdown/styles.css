@@ -159,7 +159,7 @@
     /* A small inline inset so a row's highlight / rounded corners sit inside the
        panel edge instead of running flush against the border (most visible on
        hover). */
-    --primitiv-dropdown-padding-inline: var(--primitiv-space-space-4);
+    --primitiv-dropdown-padding-inline: var(--primitiv-space-4);
     --primitiv-dropdown-min-inline-size: 12rem;
     /* Hard cap on the panel's height, independent of collisions. `none` by
        default so short menus are unaffected; set it when a menu can be
@@ -167,9 +167,9 @@
        numbers) and you want it bounded even in open space. */
     --primitiv-dropdown-max-block-size: none;
     /* Breathing room kept between a clamped panel and the viewport edge. */
-    --primitiv-dropdown-viewport-margin: var(--primitiv-space-space-8);
+    --primitiv-dropdown-viewport-margin: var(--primitiv-space-8);
     /* Gap between the trigger and the panel. */
-    --primitiv-dropdown-offset: var(--primitiv-space-space-4);
+    --primitiv-dropdown-offset: var(--primitiv-space-4);
 
     --primitiv-dropdown-item-height: var(--primitiv-dropdown-md-item-height);
     --primitiv-dropdown-item-padding-inline: var(--primitiv-dropdown-md-item-padding-inline);

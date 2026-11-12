@@ -22,7 +22,7 @@
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
-  gap: var(--primitiv-space-space-8) var(--primitiv-space-space-16);
+  gap: var(--primitiv-space-8) var(--primitiv-space-16);
 }
 
 .docs-library-hue-name {
@@ -53,7 +53,7 @@
 .docs-library-table {
   display: flex;
   flex-direction: column;
-  gap: var(--primitiv-space-space-8);
+  gap: var(--primitiv-space-8);
 }
 
 .docs-library-table-note {

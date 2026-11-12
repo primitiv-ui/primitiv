@@ -45,12 +45,12 @@
    it out of the tab order and defeat the point. */
 .docs-skip-link {
   position: absolute;
-  inset-inline-start: var(--primitiv-space-space-8);
-  inset-block-start: var(--primitiv-space-space-8);
+  inset-inline-start: var(--primitiv-space-8);
+  inset-block-start: var(--primitiv-space-8);
   z-index: 100;
   transform: translateY(-200%);
-  padding-block: var(--primitiv-space-space-8);
-  padding-inline: var(--primitiv-space-space-16);
+  padding-block: var(--primitiv-space-8);
+  padding-inline: var(--primitiv-space-16);
   border-radius: var(--primitiv-radii-8);
   background-color: var(--primitiv-surface-default);
   color: var(--primitiv-content-primary);
@@ -108,10 +108,10 @@
 .docs-rail {
   position: sticky;
   inset-block-start: calc(
-    var(--docs-nav-height) + var(--primitiv-space-space-24)
+    var(--docs-nav-height) + var(--primitiv-space-24)
   );
   max-block-size: calc(
-    100dvh - var(--docs-nav-height) - var(--primitiv-space-space-48)
+    100dvh - var(--docs-nav-height) - var(--primitiv-space-48)
   );
 }
 

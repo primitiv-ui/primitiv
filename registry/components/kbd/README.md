@@ -89,8 +89,8 @@ weight silently tracking a future change to one step of the body scale.
 
 ### One deliberate difference: the chip padding densifies
 
-Figma binds the key cap's padding to the **raw `space/space-4`** (inline) and
-**`space/space-2`** (block) primitives. This build uses the density-scaled
+Figma binds the key cap's padding to the **raw `space/4`** (inline) and
+**`space/2`** (block) primitives. This build uses the density-scaled
 `code/inline/padding-inline` / `-padding-block` Context tokens instead — the
 same pair `inline-code` consumes.
 

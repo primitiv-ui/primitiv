@@ -46,7 +46,7 @@
      horizontal bar reads as a stray top margin on each button. Same fix Dropdown
      applies to its menu rows. */
   .primitiv-navigation-menu li {
-    margin-block: var(--primitiv-space-space-0);
+    margin-block: var(--primitiv-space-0);
   }
 }
 
@@ -81,14 +81,14 @@
     /* Equal on all sides, and generous: unlike a Dropdown panel — whose rows run
        edge to edge so it needs almost none — a mega-menu panel is a content surface
        and reads cramped without real breathing room. */
-    --primitiv-navigation-menu-panel-padding-block: var(--primitiv-space-space-16);
-    --primitiv-navigation-menu-panel-padding-inline: var(--primitiv-space-space-16);
+    --primitiv-navigation-menu-panel-padding-block: var(--primitiv-space-16);
+    --primitiv-navigation-menu-panel-padding-inline: var(--primitiv-space-16);
     --primitiv-navigation-menu-panel-offset: var(--primitiv-nav-item-md-panel-offset);
     /* Transparent hit-area collar around the open panel. Slipping a few pixels
        off the panel edge otherwise leaves the nav immediately and starts the
        close timer, which reads as the panel vanishing the instant you graze it.
        Set to 0 to opt out. */
-    --primitiv-navigation-menu-safe-area: var(--primitiv-space-space-8);
+    --primitiv-navigation-menu-safe-area: var(--primitiv-space-8);
     /* elevation/overlay (= shadow-3) rebuilt as chained drop-shadows so the shadow
        follows the panel + arrow silhouette as ONE shape. A box-shadow is
        per-element — it would draw a seam across the arrow's base and leave the
@@ -96,10 +96,10 @@
        (three layers, zero spread → drop-shadow-compatible); keep in step if
        elevation/overlay changes. Mirrors Popover, which solved this first. */
     --primitiv-navigation-menu-panel-shadow:
-      drop-shadow(0 var(--primitiv-space-space-2) var(--primitiv-space-space-4) var(--primitiv-shadow-color-strong))
-      drop-shadow(0 var(--primitiv-space-space-4) var(--primitiv-space-space-8) var(--primitiv-shadow-color-medium))
-      drop-shadow(0 var(--primitiv-space-space-8) var(--primitiv-space-space-16) var(--primitiv-shadow-color-soft));
-    --primitiv-navigation-menu-content-gap: var(--primitiv-space-space-16);
+      drop-shadow(0 var(--primitiv-space-2) var(--primitiv-space-4) var(--primitiv-shadow-color-strong))
+      drop-shadow(0 var(--primitiv-space-4) var(--primitiv-space-8) var(--primitiv-shadow-color-medium))
+      drop-shadow(0 var(--primitiv-space-8) var(--primitiv-space-16) var(--primitiv-shadow-color-soft));
+    --primitiv-navigation-menu-content-gap: var(--primitiv-space-16);
     /* The panel's whole grid definition — override it for any arrangement (`1fr 1fr`,
        `repeat(auto-fit, minmax(14rem, 1fr))`, named areas). One column is the default
        because it is the only predictable one: auto-fitting would silently spread a
@@ -109,7 +109,7 @@
        came from, not a full journey like Radix's own 200px reference. space-68
        (4.25rem, 68px) is the closest step to a 64px target: the scale jumps
        from space-56 straight to space-68, nothing sits at 64px. */
-    --primitiv-navigation-menu-panel-slide: var(--primitiv-space-space-68);
+    --primitiv-navigation-menu-panel-slide: var(--primitiv-space-68);
 
     /* Panel rows. */
     --primitiv-navigation-menu-row-padding-inline: var(--primitiv-nav-item-md-padding-inline);
@@ -126,7 +126,7 @@
     /* Marker. */
     --primitiv-navigation-menu-indicator-thickness: var(--primitiv-border-width-2);
     --primitiv-navigation-menu-indicator-color: var(--primitiv-action-primary-default);
-    --primitiv-navigation-menu-indicator-arrow-size: var(--primitiv-space-space-8);
+    --primitiv-navigation-menu-indicator-arrow-size: var(--primitiv-space-8);
 
     --primitiv-navigation-menu-transition-duration: var(--primitiv-motion-duration-overlay);
     --primitiv-navigation-menu-transition-easing: var(--primitiv-motion-easing-default);
@@ -141,9 +141,9 @@
     align-items: center;
     /* Entries sit flush; their own padding-inline does the separating, so the
        hover tints of adjacent entries meet without a gap between them. */
-    gap: var(--primitiv-space-space-0);
-    margin: var(--primitiv-space-space-0);
-    padding: var(--primitiv-space-space-0);
+    gap: var(--primitiv-space-0);
+    margin: var(--primitiv-space-0);
+    padding: var(--primitiv-space-0);
     list-style: none;
   }
 
@@ -220,7 +220,7 @@
     content: "";
     position: absolute;
     inset-block-start: 100%;
-    inset-inline: var(--primitiv-space-space-0);
+    inset-inline: var(--primitiv-space-0);
     block-size: var(--primitiv-navigation-menu-panel-offset);
   }
 
@@ -246,7 +246,7 @@
        overrides these two insets to center the box under whichever trigger is
        open instead). */
     inset-block-start: 100%;
-    inset-inline-start: var(--primitiv-space-space-0);
+    inset-inline-start: var(--primitiv-space-0);
     margin-block-start: var(--primitiv-navigation-menu-panel-offset);
     /* The measured size of the open panel, published by the headless Viewport, so
        the shared box morphs between panels. Falls back to hugging its content, which
@@ -507,7 +507,7 @@
       var(--primitiv-navigation-menu-entry-height) -
         var(--primitiv-navigation-menu-indicator-thickness)
     );
-    inset-inline-start: var(--primitiv-space-space-0);
+    inset-inline-start: var(--primitiv-space-0);
     inline-size: var(--primitiv-navigation-menu-indicator-size, 0);
     block-size: var(--primitiv-navigation-menu-indicator-thickness);
     background: var(--primitiv-navigation-menu-indicator-color);
@@ -521,7 +521,7 @@
      the panel are the parts most likely to need tuning once this renders. */
   .primitiv-navigation-menu__indicator--arrow {
     inset-block-start: calc(100% + var(--primitiv-navigation-menu-panel-offset));
-    inset-inline-start: var(--primitiv-space-space-0);
+    inset-inline-start: var(--primitiv-space-0);
     inline-size: var(--primitiv-navigation-menu-indicator-arrow-size);
     block-size: var(--primitiv-navigation-menu-indicator-arrow-size);
     border-radius: var(--primitiv-radii-2);
@@ -551,8 +551,8 @@
     --primitiv-navigation-menu-entry-line-height: var(--primitiv-label-xs-line-height);
     --primitiv-navigation-menu-icon-size: var(--primitiv-nav-item-xs-icon-size);
     --primitiv-navigation-menu-panel-radius: var(--primitiv-dropdown-xs-panel-radius);
-    --primitiv-navigation-menu-panel-padding-block: var(--primitiv-space-space-8);
-    --primitiv-navigation-menu-panel-padding-inline: var(--primitiv-space-space-8);
+    --primitiv-navigation-menu-panel-padding-block: var(--primitiv-space-8);
+    --primitiv-navigation-menu-panel-padding-inline: var(--primitiv-space-8);
     --primitiv-navigation-menu-panel-offset: var(--primitiv-nav-item-xs-panel-offset);
     --primitiv-navigation-menu-row-padding-inline: var(--primitiv-nav-item-xs-padding-inline);
     --primitiv-navigation-menu-row-padding-block: var(--primitiv-nav-item-xs-padding-block);
@@ -576,8 +576,8 @@
     --primitiv-navigation-menu-entry-line-height: var(--primitiv-label-sm-line-height);
     --primitiv-navigation-menu-icon-size: var(--primitiv-nav-item-sm-icon-size);
     --primitiv-navigation-menu-panel-radius: var(--primitiv-dropdown-sm-panel-radius);
-    --primitiv-navigation-menu-panel-padding-block: var(--primitiv-space-space-12);
-    --primitiv-navigation-menu-panel-padding-inline: var(--primitiv-space-space-12);
+    --primitiv-navigation-menu-panel-padding-block: var(--primitiv-space-12);
+    --primitiv-navigation-menu-panel-padding-inline: var(--primitiv-space-12);
     --primitiv-navigation-menu-panel-offset: var(--primitiv-nav-item-sm-panel-offset);
     --primitiv-navigation-menu-row-padding-inline: var(--primitiv-nav-item-sm-padding-inline);
     --primitiv-navigation-menu-row-padding-block: var(--primitiv-nav-item-sm-padding-block);
@@ -599,8 +599,8 @@
     --primitiv-navigation-menu-entry-line-height: var(--primitiv-label-md-line-height);
     --primitiv-navigation-menu-icon-size: var(--primitiv-nav-item-md-icon-size);
     --primitiv-navigation-menu-panel-radius: var(--primitiv-dropdown-md-panel-radius);
-    --primitiv-navigation-menu-panel-padding-block: var(--primitiv-space-space-16);
-    --primitiv-navigation-menu-panel-padding-inline: var(--primitiv-space-space-16);
+    --primitiv-navigation-menu-panel-padding-block: var(--primitiv-space-16);
+    --primitiv-navigation-menu-panel-padding-inline: var(--primitiv-space-16);
     --primitiv-navigation-menu-panel-offset: var(--primitiv-nav-item-md-panel-offset);
     --primitiv-navigation-menu-row-padding-inline: var(--primitiv-nav-item-md-padding-inline);
     --primitiv-navigation-menu-row-padding-block: var(--primitiv-nav-item-md-padding-block);
@@ -622,8 +622,8 @@
     --primitiv-navigation-menu-entry-line-height: var(--primitiv-label-lg-line-height);
     --primitiv-navigation-menu-icon-size: var(--primitiv-nav-item-lg-icon-size);
     --primitiv-navigation-menu-panel-radius: var(--primitiv-dropdown-lg-panel-radius);
-    --primitiv-navigation-menu-panel-padding-block: var(--primitiv-space-space-20);
-    --primitiv-navigation-menu-panel-padding-inline: var(--primitiv-space-space-20);
+    --primitiv-navigation-menu-panel-padding-block: var(--primitiv-space-20);
+    --primitiv-navigation-menu-panel-padding-inline: var(--primitiv-space-20);
     --primitiv-navigation-menu-panel-offset: var(--primitiv-nav-item-lg-panel-offset);
     --primitiv-navigation-menu-row-padding-inline: var(--primitiv-nav-item-lg-padding-inline);
     --primitiv-navigation-menu-row-padding-block: var(--primitiv-nav-item-lg-padding-block);
@@ -645,8 +645,8 @@
     --primitiv-navigation-menu-entry-line-height: var(--primitiv-label-xl-line-height);
     --primitiv-navigation-menu-icon-size: var(--primitiv-nav-item-xl-icon-size);
     --primitiv-navigation-menu-panel-radius: var(--primitiv-dropdown-xl-panel-radius);
-    --primitiv-navigation-menu-panel-padding-block: var(--primitiv-space-space-24);
-    --primitiv-navigation-menu-panel-padding-inline: var(--primitiv-space-space-24);
+    --primitiv-navigation-menu-panel-padding-block: var(--primitiv-space-24);
+    --primitiv-navigation-menu-panel-padding-inline: var(--primitiv-space-24);
     --primitiv-navigation-menu-panel-offset: var(--primitiv-nav-item-xl-panel-offset);
     --primitiv-navigation-menu-row-padding-inline: var(--primitiv-nav-item-xl-padding-inline);
     --primitiv-navigation-menu-row-padding-block: var(--primitiv-nav-item-xl-padding-block);

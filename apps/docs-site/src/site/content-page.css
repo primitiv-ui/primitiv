@@ -37,18 +37,18 @@
   display: flex;
   flex-direction: column;
   gap: var(--primitiv-flow-section);
-  padding-block-start: var(--primitiv-space-space-40);
+  padding-block-start: var(--primitiv-space-40);
 }
 
 .docs-content-section {
   display: flex;
   flex-direction: column;
   gap: var(--primitiv-stack-gap-xl);
-  padding-block-start: var(--primitiv-space-space-48);
+  padding-block-start: var(--primitiv-space-48);
 }
 
 .docs-content-section:last-child {
-  padding-block-end: var(--primitiv-space-space-56);
+  padding-block-end: var(--primitiv-space-56);
 }
 
 /* The 12px pairing, now used in exactly two places: the masthead's title/lede,
@@ -98,7 +98,7 @@
 .docs-content-h4 {
   color: var(--primitiv-content-primary);
   /* The header is sticky, so an anchored heading would land behind it. */
-  scroll-margin-block-start: var(--primitiv-space-space-96);
+  scroll-margin-block-start: var(--primitiv-space-96);
 }
 
 .docs-content-h2 {
@@ -140,7 +140,7 @@
  * two tiers, so the pages re-point the gap rather than the component change.
  */
 .docs-content-defs > dt {
-  margin-block-end: var(--primitiv-space-space-2);
+  margin-block-end: var(--primitiv-space-2);
 }
 
 .docs-content-defs > dd {
@@ -152,7 +152,7 @@
 }
 
 /*
- * A code block sits in a centred well on desktop — `space/space-48` either
+ * A code block sits in a centred well on desktop — `space/48` either
  * side, settled with the human after three readings of "centred" (§6.0.4).
  * Below the rails' breakpoint the column is already the whole width.
  *
@@ -166,7 +166,7 @@
  * prevent, so the width is re-stated as the same definite value minus the well.
  */
 .docs-content-code {
-  inline-size: calc(100% - var(--primitiv-space-space-96));
+  inline-size: calc(100% - var(--primitiv-space-96));
   margin-inline: auto;
 }
 
@@ -197,7 +197,7 @@
 .docs-content-link:focus-visible,
 .docs-content-door:focus-visible {
   outline: var(--primitiv-border-width-2) solid var(--primitiv-focus-ring);
-  outline-offset: var(--primitiv-space-space-2);
+  outline-offset: var(--primitiv-space-2);
   border-radius: var(--primitiv-radii-4);
 }
 
@@ -219,7 +219,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--primitiv-flow-tight);
-  padding-block: var(--primitiv-space-space-16);
+  padding-block: var(--primitiv-space-16);
 }
 
 .docs-content-door-label {

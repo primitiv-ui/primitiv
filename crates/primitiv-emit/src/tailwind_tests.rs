@@ -64,6 +64,18 @@ fn renames_categories_to_their_tailwind_namespaces() {
     );
 }
 
+/// Tailwind numbers its spacing scale as a multiplier (`p-4` = 4 × 0.25rem),
+/// Primitiv numbers its own in pixels (`space.4` = 4px). Emitting `--spacing-4`
+/// would silently turn every consumer's `p-4` from 16px into 4px, so the space
+/// scale keeps a `space-` prefix and is reached as `p-space-4` instead.
+#[test]
+fn keeps_a_space_prefix_so_tailwinds_own_spacing_numbers_are_never_overridden() {
+    let tailwind = emit_tailwind(&[Token::new(&["space", "4"], "0.25rem")]);
+
+    assert!(tailwind.contains("  --spacing-space-4: var(--primitiv-space-4);\n"));
+    assert!(!tailwind.contains("--spacing-4:"));
+}
+
 #[test]
 fn omits_tailwinds_own_default_breakpoints_keeping_only_the_additive_xs() {
     let tailwind = emit_tailwind(&breakpoint_tokens());

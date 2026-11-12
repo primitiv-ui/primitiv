@@ -19,7 +19,7 @@
   /* Small gaps BETWEEN rows so the six ramps stay distinct, while the swatches
      within a row stay flush. The contrast between the two is the whole
      composition. */
-  gap: var(--primitiv-space-space-16);
+  gap: var(--primitiv-space-16);
 }
 
 .docs-colour-row {
@@ -116,7 +116,7 @@
        a third of a phone's width and leave the ramp unreadable. */
     flex-direction: column;
     align-items: stretch;
-    gap: var(--primitiv-space-space-4);
+    gap: var(--primitiv-space-4);
   }
 
   .docs-colour-sample {
@@ -124,7 +124,7 @@
   }
 
   .docs-colour-swatch {
-    min-block-size: var(--primitiv-size-size-32);
+    min-block-size: var(--primitiv-size-32);
   }
 }
 

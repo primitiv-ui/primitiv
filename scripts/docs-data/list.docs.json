@@ -103,15 +103,15 @@
     "customProperties": [
       {
         "name": "--primitiv-list-item-gap",
-        "defaultsTo": "var(--primitiv-space-space-8)"
+        "defaultsTo": "var(--primitiv-space-8)"
       },
       {
         "name": "--primitiv-list-marker-gap",
-        "defaultsTo": "var(--primitiv-space-space-8)"
+        "defaultsTo": "var(--primitiv-space-8)"
       },
       {
         "name": "--primitiv-list-indent",
-        "defaultsTo": "var(--primitiv-space-space-28)"
+        "defaultsTo": "var(--primitiv-space-28)"
       },
       {
         "name": "--primitiv-list-marker-color",

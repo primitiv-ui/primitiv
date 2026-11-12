@@ -11,8 +11,8 @@
 .pf-page {
   display: flex;
   flex-direction: column;
-  gap: var(--primitiv-space-space-16);
-  padding: var(--primitiv-space-space-16);
+  gap: var(--primitiv-space-16);
+  padding: var(--primitiv-space-16);
 }
 
 .pf-page__head {
@@ -20,31 +20,31 @@
   max-width: 48rem;
   display: flex;
   flex-direction: column;
-  gap: var(--primitiv-space-space-8);
+  gap: var(--primitiv-space-8);
 }
 
 .pf-controls {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--primitiv-space-space-16);
+  gap: var(--primitiv-space-16);
 }
 
 .pf-width-control {
   display: inline-flex;
-  gap: var(--primitiv-space-space-4);
+  gap: var(--primitiv-space-4);
 }
 
 .pf-aspect-control {
   display: inline-flex;
   align-items: center;
-  gap: var(--primitiv-space-space-8);
+  gap: var(--primitiv-space-8);
   color: var(--primitiv-content-secondary);
   font-size: var(--primitiv-body-sm-font-size);
 }
 
 .pf-aspect-control__slider {
-  width: var(--primitiv-space-space-200);
+  width: var(--primitiv-space-200);
 }
 
 /* ─── System Slider (plain, non-painted) ────────────────────────────────── */
@@ -54,7 +54,7 @@
   display: flex;
   align-items: center;
   width: 100%;
-  height: var(--primitiv-space-space-20);
+  height: var(--primitiv-space-20);
   touch-action: none;
 }
 
@@ -65,7 +65,7 @@
 .pf-slider__track {
   position: relative;
   flex: 1;
-  height: var(--primitiv-space-space-6);
+  height: var(--primitiv-space-6);
   border-radius: 9999px;
   background: var(--primitiv-surface-subtle);
 }
@@ -78,8 +78,8 @@
 }
 
 .pf-slider__thumb {
-  width: var(--primitiv-space-space-16);
-  height: var(--primitiv-space-space-16);
+  width: var(--primitiv-space-16);
+  height: var(--primitiv-space-16);
   border-radius: 50%;
   background: var(--primitiv-surface-default);
   border: var(--primitiv-border-width-2) solid
@@ -99,7 +99,7 @@
   border: var(--primitiv-border-width-2) solid var(--primitiv-border-default);
   border-radius: var(--primitiv-surface-md-radius);
   overflow: hidden;
-  box-shadow: 0 var(--primitiv-space-space-8) var(--primitiv-space-space-24)
+  box-shadow: 0 var(--primitiv-space-8) var(--primitiv-space-24)
     rgb(0 0 0 / 0.25);
 }
 
@@ -117,8 +117,8 @@
 .pf-color-engine {
   display: flex;
   flex-direction: column;
-  gap: var(--primitiv-space-space-12);
-  padding: var(--primitiv-space-space-16);
+  gap: var(--primitiv-space-12);
+  padding: var(--primitiv-space-16);
 }
 
 .pf-color-engine h1 {
@@ -130,7 +130,7 @@
 
 .pf-color-engine > section > div > p,
 .pf-color-engine__inputs > p {
-  margin: 0 0 var(--primitiv-space-space-4);
+  margin: 0 0 var(--primitiv-space-4);
   font-size: var(--primitiv-body-sm-font-size);
   font-weight: var(--primitiv-font-weight-medium);
   text-transform: uppercase;
@@ -141,13 +141,13 @@
 .pf-color-engine__inputs {
   display: flex;
   flex-direction: column;
-  gap: var(--primitiv-space-space-16);
+  gap: var(--primitiv-space-16);
 }
 
 .pf-color-engine__palettes {
   display: flex;
   flex-direction: column;
-  gap: var(--primitiv-space-space-8);
+  gap: var(--primitiv-space-8);
 }
 
 .pf-color-engine__palettes > div {
@@ -176,7 +176,7 @@
   justify-content: center;
   align-items: center;
   width: 100%;
-  height: var(--primitiv-space-space-80);
+  height: var(--primitiv-space-80);
 }
 
 .pf-palette__swatch-inner p {
@@ -191,7 +191,7 @@
 .pf-palette__swatch--step {
   font-size: var(--primitiv-body-xs-font-size);
   text-align: center;
-  margin: var(--primitiv-space-space-2) 0 0;
+  margin: var(--primitiv-space-2) 0 0;
 }
 
 /* ─── Alpha ramps (throwaway preview) ────────────────────────────────────── */
@@ -201,7 +201,7 @@
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  gap: var(--primitiv-space-space-8);
+  gap: var(--primitiv-space-8);
 }
 
 .pf-alpha-toggle {
@@ -211,7 +211,7 @@
 .pf-alpha-strip {
   display: flex;
   width: 100%;
-  margin-top: var(--primitiv-space-space-4);
+  margin-top: var(--primitiv-space-4);
 }
 
 .pf-alpha-strip__swatch {
@@ -227,7 +227,7 @@
 .pf-alpha-strip__checker {
   position: relative;
   width: 100%;
-  height: var(--primitiv-space-space-80);
+  height: var(--primitiv-space-80);
   background-color: var(--primitiv-surface-default);
   background-image:
     linear-gradient(45deg, var(--primitiv-border-subtle) 25%, transparent 25%),
@@ -246,7 +246,7 @@
 .pf-alpha-strip__label {
   font-size: var(--primitiv-body-xs-font-size);
   text-align: center;
-  margin: var(--primitiv-space-space-2) 0 0;
+  margin: var(--primitiv-space-2) 0 0;
 }
 
 /* ─── Lightness-curve editor (per-swatch vertical sliders) ───────────────── */
@@ -254,8 +254,8 @@
 .pf-curve {
   display: flex;
   width: 100%;
-  height: var(--primitiv-space-space-80);
-  margin-top: var(--primitiv-space-space-4);
+  height: var(--primitiv-space-80);
+  margin-top: var(--primitiv-space-4);
 }
 
 .pf-curve__col {
@@ -322,7 +322,7 @@
   position: absolute;
   left: 0;
   right: 0;
-  height: var(--primitiv-space-space-12);
+  height: var(--primitiv-space-12);
   pointer-events: auto;
   cursor: ns-resize;
 }
@@ -364,8 +364,8 @@
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  width: var(--primitiv-space-space-12);
-  height: var(--primitiv-space-space-12);
+  width: var(--primitiv-space-12);
+  height: var(--primitiv-space-12);
   border-radius: 50%;
   /* Same visibility treatment as the picker's slider thumbs: a white border and
      a thin black outer ring so the knob reads on any background. */
@@ -376,12 +376,12 @@
 
 .pf-padding__handle--start {
   right: 100%;
-  margin-right: var(--primitiv-space-space-2);
+  margin-right: var(--primitiv-space-2);
 }
 
 .pf-padding__handle--end {
   left: 100%;
-  margin-left: var(--primitiv-space-space-2);
+  margin-left: var(--primitiv-space-2);
 }
 
 /* ─── White / black lightness anchors ───────────────────────────────────── */
@@ -389,7 +389,7 @@
 .pf-anchors {
   display: flex;
   flex-direction: row;
-  gap: var(--primitiv-space-space-16);
+  gap: var(--primitiv-space-16);
 }
 
 .pf-anchor {
@@ -398,7 +398,7 @@
   display: grid;
   grid-template-columns: auto auto 1fr 3ch;
   align-items: center;
-  gap: var(--primitiv-space-space-8);
+  gap: var(--primitiv-space-8);
 }
 
 .pf-anchor__label {
@@ -407,8 +407,8 @@
 
 .pf-anchor__swatch,
 .pf-brand__swatch {
-  width: var(--primitiv-space-space-16);
-  height: var(--primitiv-space-space-16);
+  width: var(--primitiv-space-16);
+  height: var(--primitiv-space-16);
   border-radius: var(--primitiv-surface-sm-radius);
   border: var(--primitiv-border-width-1) solid var(--primitiv-border-subtle);
 }
@@ -423,13 +423,13 @@
 .pf-brand {
   display: flex;
   flex-direction: column;
-  gap: var(--primitiv-space-space-8);
+  gap: var(--primitiv-space-8);
 }
 
 .pf-brand__head {
   display: flex;
   align-items: center;
-  gap: var(--primitiv-space-space-8);
+  gap: var(--primitiv-space-8);
 }
 
 .pf-brand__label {
@@ -454,13 +454,13 @@
 .pf-neutral-tint {
   display: flex;
   flex-direction: column;
-  gap: var(--primitiv-space-space-12);
+  gap: var(--primitiv-space-12);
 }
 
 .pf-neutral-tint__head {
   display: flex;
   align-items: center;
-  gap: var(--primitiv-space-space-8);
+  gap: var(--primitiv-space-8);
 }
 
 .pf-neutral-tint__title {
@@ -476,13 +476,13 @@
 /* The three knobs share one row; each is a labelled column. */
 .pf-tint-controls {
   display: flex;
-  gap: var(--primitiv-space-space-16);
+  gap: var(--primitiv-space-16);
 }
 
 .pf-neutral-tint__swatch {
   display: inline-block;
-  width: var(--primitiv-space-space-16);
-  height: var(--primitiv-space-space-16);
+  width: var(--primitiv-space-16);
+  height: var(--primitiv-space-16);
   border-radius: 50%;
   border: var(--primitiv-border-width-1) solid var(--primitiv-border-subtle);
   flex-shrink: 0;
@@ -495,14 +495,14 @@
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--primitiv-space-space-4);
+  gap: var(--primitiv-space-4);
 }
 
 .pf-tint-control__row {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  gap: var(--primitiv-space-space-8);
+  gap: var(--primitiv-space-8);
 }
 
 .pf-tint-control__label {
@@ -522,13 +522,13 @@
 .pf-tint-control__spread {
   display: flex;
   align-items: center;
-  gap: var(--primitiv-space-space-8);
+  gap: var(--primitiv-space-8);
 }
 
 .pf-tint-control__chip {
   display: inline-block;
-  width: var(--primitiv-space-space-16);
-  height: var(--primitiv-space-space-16);
+  width: var(--primitiv-space-16);
+  height: var(--primitiv-space-16);
   border-radius: 50%;
   border: var(--primitiv-border-width-1) solid var(--primitiv-border-subtle);
   flex-shrink: 0;

@@ -57,8 +57,8 @@
     --primitiv-segmented-control-track-border-width: var(--primitiv-framed-control-border-width);
     /* The inset separating each segment from the track edge and its neighbours
        (used as both padding and gap so the spacing reads uniform). */
-    --primitiv-segmented-control-track-padding: var(--primitiv-space-space-4);
-    --primitiv-segmented-control-track-gap: var(--primitiv-space-space-4);
+    --primitiv-segmented-control-track-padding: var(--primitiv-space-4);
+    --primitiv-segmented-control-track-gap: var(--primitiv-space-4);
     /* The track radius is CONCENTRIC with the segments: the item radius plus the
        track padding, so the outer curve runs parallel to the inner one at every
        size. Re-derives automatically when the size modifier re-points the item

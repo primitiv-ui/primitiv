@@ -319,7 +319,7 @@
     },
     {
       "name": "--primitiv-miller-columns-label-ink-slack",
-      "defaultsTo": "var(--primitiv-space-space-1)"
+      "defaultsTo": "var(--primitiv-space-1)"
     }
   ]
 }

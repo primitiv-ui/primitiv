@@ -711,7 +711,7 @@
       },
       {
         "name": "--primitiv-context-menu-padding-inline",
-        "defaultsTo": "var(--primitiv-space-space-4)"
+        "defaultsTo": "var(--primitiv-space-4)"
       },
       {
         "name": "--primitiv-context-menu-min-inline-size",
@@ -719,7 +719,7 @@
       },
       {
         "name": "--primitiv-context-menu-offset",
-        "defaultsTo": "var(--primitiv-space-space-4)"
+        "defaultsTo": "var(--primitiv-space-4)"
       },
       {
         "name": "--primitiv-context-menu-item-height",

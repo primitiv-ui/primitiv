@@ -22,16 +22,11 @@ This applies to **intent-carrying and structural values alike**, including zeros
 | ------------------------------- | --------------------------------------------- |
 | `9999px` (pill radius)          | `var(--primitiv-radii-full)`                  |
 | `border: 0`, `border-block: 0`  | `var(--primitiv-border-width-0)`              |
-| `padding: 0`                    | `var(--primitiv-space-space-0)` *             |
+| `padding: 0`                    | `var(--primitiv-space-0)`                     |
 | `border-radius: 0`              | `var(--primitiv-radii-0)`                     |
-| a fixed dimension (e.g. `80px`) | the matching size step, `var(--primitiv-size-size-80)` * |
+| a fixed dimension (e.g. `80px`) | the matching size step, `var(--primitiv-size-80)` |
 | `opacity: 0.5` (disabled)       | `var(--primitiv-opacity-50)` †                |
 | `transparent` (a colour)        | `var(--primitiv-color-transparent)`           |
-
-\* `size-size-*` / `space-space-*` are doubled today because of a Figma
-variable-naming wart — see the deferred item in
-`docs/transfer-and-next-steps.md`. Use the doubled names until that is fixed;
-they are what the emitter currently produces.
 
 † `--primitiv-opacity-50` is the exact-value primitive. A semantic
 disabled-opacity token (`--primitiv-disabled-opacity`, currently 0.4) exists but
@@ -171,7 +166,7 @@ Any element that pairs `overflow: hidden` with text — i.e. every
 }
 ```
 
-with `--primitiv-x-label-ink-slack: var(--primitiv-space-space-1)` declared in
+with `--primitiv-x-label-ink-slack: var(--primitiv-space-1)` declared in
 the component's base rule and registered in `contract.json`.
 
 **Why.** The clip box is the line box, and the house text face (Asta Sans) has a
@@ -206,7 +201,7 @@ is not the thing to measure, ink is.
 The custom property is `--primitiv-<dtcg-path-joined-by-dashes>`. Confirm a token
 exists (and its exact emitted name) against the generated token layer — run
 `primitiv tokens` or grep `apps/workbench/src/primitiv-tokens.css` — rather than
-guessing; the path-doubling above is one reason the name isn't always obvious.
+guessing.
 
 ## `text-box-trim` on button/pill-shaped labels
 

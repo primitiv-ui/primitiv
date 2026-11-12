@@ -121,7 +121,7 @@
 @layer primitiv.base {
   .primitiv-combobox {
     /* Vertical slack for a label's clip box — see the truncation rule below. */
-    --primitiv-combobox-label-ink-slack: var(--primitiv-space-space-1);
+    --primitiv-combobox-label-ink-slack: var(--primitiv-space-1);
 
     /* ── Control — Input's own knobs, verbatim (exploration §B1). Declared on
        the root so the panel inherits the same size context. ── */
@@ -157,7 +157,7 @@
     --primitiv-combobox-content-padding-block: var(--primitiv-dropdown-md-panel-padding-block);
     /* A small inline inset so a row's tint sits inside the panel edge instead of
        running flush against the border. */
-    --primitiv-combobox-content-padding-inline: var(--primitiv-space-space-4);
+    --primitiv-combobox-content-padding-inline: var(--primitiv-space-4);
     /* At least as wide as the control it is anchored to, free to grow for longer
        options. */
     --primitiv-combobox-content-min-inline-size: anchor-size(width);

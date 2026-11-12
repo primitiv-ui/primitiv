@@ -12,14 +12,14 @@
   --docs-proof-tile: 175px;
   --docs-proof-divider-height: 56px;
   background: var(--primitiv-surface-subtle);
-  padding-block: var(--primitiv-space-space-40);
+  padding-block: var(--primitiv-space-40);
 }
 
 .docs-proof-row {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: var(--primitiv-space-space-40);
+  gap: var(--primitiv-space-40);
 }
 
 .docs-proof-tile {
@@ -29,7 +29,7 @@
      qualifier. The frame's `stat` and caption are both counterAxis CENTER. */
   align-items: center;
   text-align: center;
-  gap: var(--primitiv-space-space-12);
+  gap: var(--primitiv-space-12);
   /* Fixed, not fluid: the frame's tiles are 175 and the figure is sized to
      that measure. Letting them grow would leave the numbers marooned. */
   flex: none;
@@ -43,7 +43,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--primitiv-space-space-8);
+  gap: var(--primitiv-space-8);
   color: var(--primitiv-content-secondary);
 }
 
@@ -88,7 +88,7 @@
 @media (width < 80rem) {
   .docs-proof-row {
     flex-direction: column;
-    gap: var(--primitiv-space-space-32);
+    gap: var(--primitiv-space-32);
   }
 
   .docs-proof-tile {

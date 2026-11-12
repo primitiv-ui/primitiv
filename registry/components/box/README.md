@@ -31,7 +31,7 @@ consumer's own padding/border math is predictable.
 import { Box } from "@/components/box";
 
 // A one-off styling attachment point:
-<Box style={{ "--primitiv-space-space-16": "1.25rem" }}>
+<Box style={{ "--primitiv-space-16": "1.25rem" }}>
   <Card />
 </Box>
 

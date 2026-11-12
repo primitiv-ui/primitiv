@@ -23,7 +23,7 @@ Radio set (401:17958) — **40 variants** (5 sizes × 2 states × 4 interactions
 
 ## Token namespace: `radio/*` in Context collection (25 vars)
 All five sizes (xs–xl) each have:
-- `radio/{size}/box-size` — aliases `size/size-*` Primitives (same values as `checkbox/{size}/box-size`)
+- `radio/{size}/box-size` — aliases `size/*` Primitives (same values as `checkbox/{size}/box-size`)
 - `radio/{size}/box-radius` — raw float = box-size/2 (ensures full circle; no matching Primitive)
 - `radio/{size}/dot-size` — raw float = box-size/2 (50% indicator fill)
 - `radio/{size}/focus-ring-gap-radius` — raw float = box-size/2 + 2

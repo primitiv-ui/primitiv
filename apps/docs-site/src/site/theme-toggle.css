@@ -10,7 +10,7 @@
   justify-content: center;
   inline-size: var(--docs-theme-toggle-size);
   block-size: var(--docs-theme-toggle-size);
-  padding: var(--primitiv-space-space-0);
+  padding: var(--primitiv-space-0);
   border: none;
   border-radius: var(--primitiv-radii-8);
   background-color: transparent;
@@ -34,5 +34,5 @@
 
 .docs-theme-toggle:focus-visible {
   outline: var(--primitiv-border-width-2) solid var(--primitiv-focus-ring);
-  outline-offset: var(--primitiv-space-space-2);
+  outline-offset: var(--primitiv-space-2);
 }

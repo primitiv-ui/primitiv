@@ -112,7 +112,7 @@ with contact sheets, never with full renders.
   (render stills before and after and `cmp` them).
 - **Inside a density scope, every gap must come from a density-scaled token**
   (`--primitiv-card-*-gap`, `-padding`, `flow-*`, `framed-control-*`). A
-  primitive like `space-space-12` stays put while everything around it moves,
+  primitive like `space-12` stays put while everything around it moves,
   which defeats the demo.
 - **Use size `sm` inside density scopes** and let density do the scaling.
 - **Real focus rings:** call `el.focus({ focusVisible: true })` from a layout

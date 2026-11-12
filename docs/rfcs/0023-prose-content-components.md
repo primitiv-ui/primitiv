@@ -196,7 +196,7 @@ things worth recording that the draft didn't anticipate:
   `--primitiv-opacity-90` already exists as a primitive, and its zero-value
   `gap`/`inset-*` overrides were literal `0` where the codebase's own
   established pattern (Carousel, NavigationMenu, Breadcrumb) tokenizes a
-  themed zero as `var(--primitiv-space-space-0)`. Separately,
+  themed zero as `var(--primitiv-space-0)`. Separately,
   DescriptionList's pair-gap/term-gap/details-indent were bound directly to
   flat `space-*` primitives, so they didn't re-tighten under
   `[data-density]` the way List's structurally-identical item-gap/

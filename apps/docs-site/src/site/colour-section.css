@@ -58,7 +58,7 @@
 
 .docs-colour-link:focus-visible {
   outline: var(--primitiv-border-width-2) solid var(--primitiv-focus-ring);
-  outline-offset: var(--primitiv-space-space-2);
+  outline-offset: var(--primitiv-space-2);
   border-radius: var(--primitiv-radii-4);
 }
 

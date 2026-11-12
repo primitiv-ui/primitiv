@@ -8,6 +8,6 @@
  * axis, so the tables line up with the props tables above them.
  */
 .docs-mode-tabs .primitiv-tabs__panel {
-  padding-inline: var(--primitiv-space-space-0);
-  padding-block-end: var(--primitiv-space-space-0);
+  padding-inline: var(--primitiv-space-0);
+  padding-block-end: var(--primitiv-space-0);
 }

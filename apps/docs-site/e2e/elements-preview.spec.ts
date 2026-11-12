@@ -591,3 +591,18 @@ test("the Listbox search example filters the list and drives it from the input",
   await expect(example.locator("primitiv-listbox")).toHaveAttribute("value", "rom");
   await expect(input).toBeFocused();
 });
+
+test("the Select previews are <primitiv-select> elements: the list opens, and a choice reaches the readout", async ({ page }) => {
+  await page.goto("/components/select/");
+  await expect(page.getByText(/dist\/cdn\/select\.js/).first()).toBeVisible();
+  const example = cell(page, "controlled");
+  const trigger = example.getByRole("button", { name: "React" });
+  // The definition loads on demand: wait for the element to have wired its button.
+  await expect(trigger).toHaveAttribute("aria-haspopup", "listbox");
+  await trigger.click();
+  await expect(example.getByRole("option", { name: "React" })).toBeFocused();
+  await example.getByRole("option", { name: "Solid" }).click();
+  await expect(example.locator("primitiv-select")).toHaveAttribute("value", "solid");
+  await expect(example.locator("[data-select-value]")).toHaveText("solid");
+  await expect(example.getByRole("button", { name: "Solid" })).toBeFocused();
+});

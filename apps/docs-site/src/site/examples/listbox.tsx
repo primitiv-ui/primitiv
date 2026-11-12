@@ -332,6 +332,19 @@ export const listboxSpec: ComponentSpec = {
     {
       label: "Parts",
       code: (mode) => {
+        if (mode === "elements")
+          return [
+            `<primitiv-listbox>`,
+            `  <primitiv-listbox-group>`,
+            `    <primitiv-listbox-group-label>`,
+            `    <primitiv-listbox-option value="...">`,
+            `  </primitiv-listbox-group>`,
+            `  <primitiv-listbox-option value="...">`,
+            `</primitiv-listbox>`,
+            ``,
+            `// The mark, leading, label and trailing spans inside an option are the`,
+            `// styled surface's — headless, an option's content is your own markup.`,
+          ].join("\n");
         const p = partNamer(mode, "Listbox");
         if (mode === "headless") {
           return [

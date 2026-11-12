@@ -26,6 +26,7 @@ import {
 import { contractAttr, importBlock, partNamer } from "@/lib/playground";
 import { InteractiveExample } from "@/site/InteractiveExample";
 import type { Mode } from "@/site/preferences";
+import { glyph, withGlyphs } from "./glyphs";
 import type { ComponentSpec } from "./types";
 
 /*
@@ -162,6 +163,98 @@ const FrameworkTrigger = ({ size }: { size?: Size }) => (
 );
 
 /**
+ * Elements markup (RFC 0033), in the shape `primitiv add select` prints. The
+ * root `<primitiv-select>` keeps `value`; the trigger part wraps the `<button>`
+ * you write, the content element is the list, and each item element is an
+ * option. Glyphs are placeholders the preview fills in (`withGlyphs`); the
+ * styled spans and classes drop away in the headless tab.
+ */
+type ElementsItem = { value: string; label: string; leading?: string };
+
+const elementsItem = ({ value, label, leading }: ElementsItem, indentBy = "    ") =>
+  [
+    `<primitiv-select-item value="${value}" class="primitiv-select__item">`,
+    `  <primitiv-select-item-indicator class="primitiv-select__item-indicator">${glyph("check")}</primitiv-select-item-indicator>`,
+    ...(leading ? [`  <span class="primitiv-select__item-leading">${glyph(leading as "sun")}</span>`] : []),
+    `  <span class="primitiv-select__item-label">${label}</span>`,
+    `</primitiv-select-item>`,
+  ].map((line) => indentBy + line);
+
+const elementsSelect = ({
+  value,
+  placeholder,
+  size = "md",
+  placement = "bottom-start",
+  name,
+  body,
+}: {
+  value?: string;
+  placeholder: string;
+  size?: string;
+  placement?: string;
+  name?: string;
+  body: readonly string[];
+}) =>
+  [
+    `<primitiv-select${name ? ` name="${name}"` : ""}${value ? ` value="${value}"` : ""}>`,
+    `  <primitiv-select-trigger>`,
+    `    <button type="button" class="primitiv-select primitiv-select--${size} primitiv-select--rich">`,
+    `      <primitiv-select-value placeholder="${placeholder}" class="primitiv-select__value"></primitiv-select-value>`,
+    `      <span class="primitiv-select__icon" aria-hidden="true">${glyph("chevron-down")}</span>`,
+    `    </button>`,
+    `  </primitiv-select-trigger>`,
+    `  <primitiv-select-content class="primitiv-select__content primitiv-select__content--${size} primitiv-select__content--${placement}">`,
+    ...body,
+    `  </primitiv-select-content>`,
+    `</primitiv-select>`,
+  ].join("\n");
+
+const THEME_ITEMS: readonly ElementsItem[] = [
+  { value: "light", label: "Light", leading: "sun" },
+  { value: "dark", label: "Dark", leading: "moon" },
+  { value: "system", label: "System", leading: "settings" },
+];
+
+/** Native mode under Elements: a plain `<select>` with the registry classes — no element needed. */
+const elementsNative = (size = "md", value = "react", items: readonly { value: string; label: string }[] = FRAMEWORKS, label = "Choose a framework") =>
+  [
+    `<select aria-label="${label}" class="primitiv-select primitiv-select--${size} primitiv-select--native">`,
+    ...items.map((item) => `  <option value="${item.value}"${item.value === value ? " selected" : ""}>${item.label}</option>`),
+    `</select>`,
+  ].join("\n");
+
+/** The controlled example's Elements code: the select, and the listener that follows it. */
+const elementsReadingValue = () =>
+  [
+    `<p>Selected: <output data-select-value>react</output></p>`,
+    elementsSelect({
+      value: "react",
+      placeholder: "Choose a framework...",
+      body: FRAMEWORKS.flatMap((f) => elementsItem(f)),
+    }),
+    ``,
+    `<script type="module">`,
+    `  const select = document.querySelector("primitiv-select");`,
+    `  select.addEventListener("primitiv-select-change", (event) => {`,
+    `    document.querySelector("[data-select-value]").textContent = event.detail.value;`,
+    `    // preventDefault() here would veto the choice`,
+    `  });`,
+    `</script>`,
+  ].join("\n");
+
+/** The same listener, scoped to the preview (scripts in injected markup never run). */
+const wireReadingValue = (root: HTMLElement) => {
+  const select = root.querySelector("primitiv-select");
+  const output = root.querySelector("[data-select-value]");
+  if (!select || !output) return;
+  const onChange = (event: Event) => {
+    output.textContent = (event as CustomEvent<{ value: string }>).detail.value;
+  };
+  select.addEventListener("primitiv-select-change", onChange);
+  return () => select.removeEventListener("primitiv-select-change", onChange);
+};
+
+/**
  * Select's page content.
  *
  * The section set mirrors the Figma "Component page — Select (desktop)" frame,
@@ -178,6 +271,16 @@ export const selectSpec: ComponentSpec = {
      * would put all three on `<Select>`, which accepts none of them.
      */
     snippet: (values, mode) => {
+      if (mode === "elements")
+        return values.mode === "native"
+          ? elementsNative(values.size, "light", THEMES, "Theme")
+          : elementsSelect({
+              value: "light",
+              placeholder: "Choose a theme...",
+              size: values.size,
+              placement: values.placement,
+              body: THEME_ITEMS.flatMap((item) => elementsItem(item)),
+            });
       const p = partNamer(mode, "Select");
       return values.mode === "native"
         ? [
@@ -222,6 +325,7 @@ export const selectSpec: ComponentSpec = {
      * a snippet is a readout of the live preview, so a control that moved the
      * code without moving the picture would be the drift it warns about.
      */
+    elementsPreview: (code) => withGlyphs(code),
     render: (values) =>
       values.mode === "native" ? (
         /*
@@ -289,6 +393,25 @@ export const selectSpec: ComponentSpec = {
     {
       label: "Rich",
       code: (mode) => {
+        if (mode === "elements")
+          return [
+            `<primitiv-select>`,
+            `  <primitiv-select-trigger>`,
+            `    <button>`,
+            `      <primitiv-select-value placeholder="Choose a framework...">`,
+            `    </button>`,
+            `  </primitiv-select-trigger>`,
+            `  <primitiv-select-content>`,
+            `    <primitiv-select-group label="Stable">`,
+            `      <primitiv-select-item value="react">`,
+            `        <primitiv-select-item-indicator>`,
+            `        React`,
+            `      </primitiv-select-item>`,
+            `    </primitiv-select-group>`,
+            `    <primitiv-select-separator>`,
+            `  </primitiv-select-content>`,
+            `</primitiv-select>`,
+          ].join("\n");
         const p = partNamer(mode, "Select");
         return [
           `<${p("Root")}>`,
@@ -314,6 +437,17 @@ export const selectSpec: ComponentSpec = {
     {
       label: "Native",
       code: (mode) => {
+        if (mode === "elements")
+          return [
+            `<select>`,
+            `  <option value="" disabled hidden>Choose a framework...</option>`,
+            `  <optgroup label="Stable">`,
+            `    <option value="react">React</option>`,
+            `  </optgroup>`,
+            `</select>`,
+            ``,
+            `// A plain <select> with the registry classes: no element, no script.`,
+          ].join("\n");
         const p = partNamer(mode, "Select");
         return [
           `<${p("Root")} native>`,
@@ -363,10 +497,19 @@ export const selectSpec: ComponentSpec = {
     {
       id: "rich-mode",
       title: "Rich mode (the default)",
+      elementsTitle: "A rich select",
       render: () => (
         <InteractiveExample
+          elementsCaption="A Popover-API listbox. Each option carries a leading glyph and a selected mark, and `<primitiv-select-value>` copies the chosen row — glyph included, its indicator left out — into the closed trigger. The list lives in the top layer, so it escapes ancestor `overflow` and stacking contexts, and it anchors itself to its trigger with no `anchor-name` to wire. Open it and use the arrows, Home, End or a letter; Enter, Space or a click chooses."
+          elementsPreview={(_density, code) => withGlyphs(code)}
           caption="A Popover-API listbox. Each option carries a leading icon and a selected mark, and `Select.Value` mirrors the chosen row — icon included — straight into the closed trigger, so the trigger needs no icon of its own. The panel lives in the top layer, so it escapes ancestor `overflow` and stacking contexts, and it anchors itself to its trigger with no `anchor-name` to wire."
           code={(density, mode) => {
+            if (mode === "elements")
+              return elementsSelect({
+                value: "light",
+                placeholder: "Choose a theme...",
+                body: THEME_ITEMS.flatMap((item) => elementsItem(item)),
+              });
             const p = partNamer(mode, "Select");
             return [
               imports(
@@ -408,10 +551,13 @@ export const selectSpec: ComponentSpec = {
     {
       id: "native-mode",
       title: "Native mode",
+      elementsTitle: "A native select",
       render: () => (
         <InteractiveExample
+          elementsCaption="For a flat list of text, an OS wheel picker or maximum compatibility, write a real `<select>` with the registry classes: it needs no element and no script, and the stylesheet paints the chevron over the platform's arrow. An `<option>` holds text only, so glyphs and marks are the rich select's."
           caption="`native` renders a real `<select>` / `<option>`, for flat lists, OS wheel pickers and maximum-compatibility forms. The composition is genuinely different: items sit directly on the root, with no `Trigger` or `Content` — the root *is* the control, so those parts have nothing to wrap. Element children on an `Item` are dropped too, and only its text survives as the option label, because an `<option>` cannot contain elements."
           code={(density, mode) => {
+            if (mode === "elements") return elementsNative();
             const p = partNamer(mode, "Select");
             return [
               imports(mode, ["Item"]),
@@ -445,8 +591,26 @@ export const selectSpec: ComponentSpec = {
       title: "Grouped options",
       render: () => (
         <InteractiveExample
+          elementsCaption="`<primitiv-select-group>` takes a `label` — the group's accessible name, so a group without one is inaccessible — and `<primitiv-select-separator>` divides groups. The arrows and typeahead run through every item as one list, skipping the separator."
+          elementsPreview={(_density, code) => withGlyphs(code)}
           caption="`SelectGroup` takes a required `label` — the `<optgroup>` label under native, the group's `aria-label` in rich mode. Either way it is the group's accessible name, so a group without one is inaccessible. It is a string prop rather than JSX children, which sidesteps the text-vs-element extraction problem `Item` has under native. `SelectSeparator` divides groups and is skipped by keyboard navigation."
           code={(density, mode) => {
+            if (mode === "elements") {
+              const group = (region: keyof typeof CITIES) => [
+                `    <primitiv-select-group label="${region}" class="primitiv-select__group">`,
+                ...CITIES[region].flatMap((city) => elementsItem(city, "      ")),
+                `    </primitiv-select-group>`,
+              ];
+              return elementsSelect({
+                value: "london",
+                placeholder: "Choose a city...",
+                body: [
+                  ...group("Americas"),
+                  `    <primitiv-select-separator class="primitiv-select__separator"></primitiv-select-separator>`,
+                  ...group("Europe"),
+                ],
+              });
+            }
             const p = partNamer(mode, "Select");
             return [
               imports(mode, ["Content", "Group", "Item", "Separator"]),
@@ -502,9 +666,38 @@ export const selectSpec: ComponentSpec = {
     {
       id: "controlled",
       title: "Controlled",
+      elementsTitle: "Reading the value",
       render: () => <ControlledSelectExample />,
     },
   ],
+
+  elements: {
+    description:
+      "A value chosen from a list that opens from a trigger. `<primitiv-select>` keeps the choice in its `value` attribute; the `<button>` inside `<primitiv-select-trigger>` opens `<primitiv-select-content>`, a listbox in the top layer, and `<primitiv-select-value>` shows the chosen item. Give it a `name` and it takes part in forms like a native select.",
+    anatomyMeta:
+      "Eight elements. `<primitiv-select>` owns `value` and `open`, both reflected, and `name`, `required` and `disabled` for forms. `<primitiv-select-trigger>` decorates the one `<button>` you write, which gets `aria-haspopup=\"listbox\"`, `aria-expanded` and `aria-controls`; put `<primitiv-select-value>` inside it. `<primitiv-select-content>` is the list itself — `role=\"listbox\"`, `popover=\"auto\"` — and each `<primitiv-select-item>` is an option. `<primitiv-select-item-indicator>` is shown only on the chosen item; `<primitiv-select-group>` (named by `label`) and `<primitiv-select-separator>` structure the list. For a text-only list, a plain `<select>` with the registry classes needs no element at all.",
+    keyboardMeta:
+      "The `<button>` you write opens and closes the list. While it is open, focus moves through the items themselves — it starts on the chosen item, else the first enabled one — and disabled items are skipped by the arrows and typeahead. Choosing, or Escape, hands focus back to the button; a press outside closes the list where focus is.",
+    keyboard: [
+      { keys: ["Enter", "Space"], behaviour: "On the button: open or close the list. In the list: choose the focused item and close." },
+      { keys: ["ArrowDown", "ArrowUp"], behaviour: "Move focus to the next / previous item, wrapping." },
+      { keys: ["Home", "End"], behaviour: "First / last item." },
+      { keys: ["Escape"], behaviour: "Close without choosing, and return focus to the button." },
+      {
+        keys: ["character"],
+        literal: true,
+        behaviour: "Typeahead — focus the next item whose text starts with what was typed.",
+      },
+    ],
+    accessibility: [
+      "The list is a real listbox: `role=\"listbox\"` on `<primitiv-select-content>` and `role=\"option\"` on each item, with `aria-selected` following the value, and `aria-haspopup=\"listbox\"` with `aria-expanded` on the button.",
+      "**Name the control.** The button is named by its content — the chosen item, or the placeholder — so pair it with a visible label (`aria-labelledby`) when the placeholder alone would not say what is being chosen.",
+      "The list lives in the top layer through the Popover API, so it escapes ancestor `overflow` and stacking contexts, and light dismiss is the browser's. While closed it is hidden, so it is out of the accessibility tree.",
+      "With a `name`, the select keeps a visually hidden native `<select>` inside itself: the value submits with its form, `required` blocks an empty submit with the browser's own message, `disabled` leaves it out, and a form reset restores the value it first rendered with. That `<select>` is `aria-hidden` and never a Tab stop.",
+      "`primitiv-select-change` fires before a choice applies and is cancelable, and `primitiv-select-open-change` does the same for opening and closing.",
+      "An item with no `value`, or a trigger part without exactly one element child, is reported once in the console and left alone.",
+    ],
+  },
 
   accessibility: [
     "Rich mode renders a real listbox: `role=\"listbox\"` on the panel and `role=\"option\"` on each row, with `aria-selected` tracking the value and `aria-haspopup=\"listbox\"` on the trigger.",
@@ -527,8 +720,12 @@ const ControlledSelectExample = () => {
 
   return (
     <InteractiveExample
+      elementsCaption="`value` on `<primitiv-select>` is the choice, reflected as you choose, so a server re-render or a history snapshot sees it. Listen for `primitiv-select-change` to follow it: its `detail.value` is the item about to be chosen, and `preventDefault()` vetoes it — the list still closes. Give the select a `name` and it submits with its form, through a hidden native `<select>` it keeps inside itself."
+      elementsPreview={() => withGlyphs(elementsReadingValue().slice(0, elementsReadingValue().indexOf("\n\n<script")))}
+      wire={wireReadingValue}
       caption="Pass `value` with `onValueChange` and the parent owns the selection. `defaultValue` is then forbidden at the type level — a discriminated union enforces it, so only one shape compiles. That constraint is why you will not find it in the props table above: a union collapses to a flat prop list when the types are extracted, so it has to be stated here."
       code={(_density, mode) => {
+        if (mode === "elements") return elementsReadingValue();
         const p = partNamer(mode, "Select");
         return [
           `import { useState } from "react";`,

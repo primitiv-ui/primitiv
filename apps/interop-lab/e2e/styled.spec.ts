@@ -364,7 +364,8 @@ test("the printed dropdown opens below its trigger with only the checked indicat
   });
   await trigger.evaluate((el) => window.scrollBy(0, el.getBoundingClientRect().top - 40));
   await trigger.click();
-  const menu = page.locator("primitiv-dropdown-content").last();
+  // The menu its own trigger opens — not another trail's on the page.
+  const menu = page.locator("primitiv-dropdown", { has: trigger }).locator("primitiv-dropdown-content").first();
   await expect(menu).toBeVisible();
   await expect(menu).toHaveCSS("display", "flex");
   // The trigger is the menu's implicit anchor: bottom-start puts the menu
@@ -538,4 +539,34 @@ test("the printed slider is styled and working: the thumb sits at its value and 
   await expect(thumb).toHaveAttribute("aria-valuenow", "80");
   const range = (await page.locator("primitiv-slider-range").boundingBox())!;
   expect(Math.abs(range.x + range.width - (box.x + box.width * 0.8))).toBeLessThan(2);
+});
+
+test("add breadcrumb-overflow loads Dropdown's script: its menu is the Dropdown elements", () => {
+  const output = readFileSync("styled-site/add-breadcrumb-overflow-output.txt", "utf8");
+  expect(output).toMatch(/@primitiv-ui\/web@[\d.]+\/dist\/cdn\/dropdown\.js/);
+  expect(output).not.toContain("breadcrumb-overflow.js");
+});
+
+test("the printed breadcrumb overflow opens a styled menu of the hidden crumbs, anchored under its trigger", async ({ page }) => {
+  const trail = page.locator("nav.primitiv-breadcrumb-overflow");
+  // Room below for the menu, so it takes its bottom-start placement rather
+  // than the fallback above.
+  await page.evaluate(() => {
+    document.body.style.paddingBlockEnd = "100vh";
+  });
+  await trail.evaluate((el) => window.scrollBy(0, el.getBoundingClientRect().top - 40));
+  const trigger = trail.getByRole("button", { name: "Show hidden pages" });
+  // The trigger reads as a bare glyph in the trail, not a framed button.
+  await expect(trigger).toHaveCSS("border-top-width", "0px");
+  await trigger.click();
+  const menu = trail.getByRole("menu");
+  await expect(menu).toBeVisible();
+  await expect(menu.getByRole("menuitem")).toHaveText(["Library", "Fiction", "Mystery"]);
+  await expect(menu.getByRole("menuitem", { name: "Fiction" })).toHaveAttribute("href", "/library/fiction");
+  const [t, m] = await Promise.all([trigger.boundingBox(), menu.boundingBox()]);
+  expect(m!.y).toBeGreaterThanOrEqual(t!.y + t!.height - 1);
+  expect(Math.abs(m!.x - t!.x)).toBeLessThan(24);
+  await page.keyboard.press("Escape");
+  await expect(menu).toBeHidden();
+  await expect(trigger).toBeFocused();
 });

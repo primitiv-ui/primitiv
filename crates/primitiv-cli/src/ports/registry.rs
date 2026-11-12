@@ -234,6 +234,7 @@ const FILES: &[(&str, &str, &str)] = &[
     registry_file!("breadcrumb-overflow", "breadcrumb-overflow.recipe.ts"),
     registry_file!("breadcrumb-overflow", "breadcrumb-overflow.tsx"),
     registry_file!("breadcrumb-overflow", "contract.json"),
+    registry_file!("breadcrumb-overflow", "breadcrumb-overflow.html"),
     registry_file!("context-menu", "styles.css"),
     registry_file!("context-menu", "styles.scss"),
     registry_file!("context-menu", "context-menu.recipe.ts"),

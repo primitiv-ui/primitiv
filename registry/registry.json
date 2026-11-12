@@ -376,7 +376,18 @@
           ]
         }
       },
-      "contract": "contract.json"
+      "contract": "contract.json",
+      "elements": {
+        "packages": [
+          {
+            "name": "@primitiv-ui/web",
+            "version": "^0.1.57"
+          }
+        ],
+        "definedBy": "dropdown",
+        "example": "breadcrumb-overflow.html",
+        "handWritten": true
+      }
     },
     "button": {
       "version": "0.1.0",

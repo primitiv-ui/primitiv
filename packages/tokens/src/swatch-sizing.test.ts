@@ -13,7 +13,7 @@ import primitives from './primitives.json'
  *
  * The two ladders below are what make the `Size` and density axes mean
  * anything. They are asserted rather than eyeballed because a single
- * mis-keyed alias — `{space.space-8}` where `{space.space-4}` belongs — is
+ * mis-keyed alias — `{space.8}` where `{space.4}` belongs — is
  * invisible in a 120-cell table and shows up only as one size looking wrong.
  */
 
@@ -31,7 +31,7 @@ function member(mode: Mode, size: string, name: string): DtcgNode | undefined {
   return (swatch?.[size] as DtcgNode | undefined)?.[name] as DtcgNode | undefined
 }
 
-/** Resolve a DTCG alias (`{space.space-8}`) against the primitive tree. */
+/** Resolve a DTCG alias (`{space.8}`) against the primitive tree. */
 function resolvePrimitive(ref: string): number {
   const path = ref.slice(1, -1).split('.')
   let node: DtcgNode = primitives as DtcgNode

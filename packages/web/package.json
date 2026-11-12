@@ -66,6 +66,10 @@
       "types": "./src/toggle-group/index.ts",
       "default": "./src/toggle-group/index.ts"
     },
+    "./listbox": {
+      "types": "./src/listbox/index.ts",
+      "default": "./src/listbox/index.ts"
+    },
     "./define": {
       "types": "./src/define/index.ts",
       "default": "./src/define/index.ts"
@@ -125,6 +129,10 @@
     "./define/toggle-group": {
       "types": "./src/define/toggle-group.ts",
       "default": "./src/define/toggle-group.ts"
+    },
+    "./define/listbox": {
+      "types": "./src/define/listbox.ts",
+      "default": "./src/define/listbox.ts"
     },
     "./tags": {
       "types": "./src/tags.ts",
@@ -253,6 +261,10 @@
         "types": "./dist/toggle-group/index.d.ts",
         "default": "./dist/toggle-group/index.js"
       },
+      "./listbox": {
+        "types": "./dist/listbox/index.d.ts",
+        "default": "./dist/listbox/index.js"
+      },
       "./define": {
         "types": "./dist/define/index.d.ts",
         "default": "./dist/define/index.js"
@@ -312,6 +324,10 @@
       "./define/toggle-group": {
         "types": "./dist/define/toggle-group.d.ts",
         "default": "./dist/define/toggle-group.js"
+      },
+      "./define/listbox": {
+        "types": "./dist/define/listbox.d.ts",
+        "default": "./dist/define/listbox.js"
       },
       "./tags": {
         "types": "./dist/tags.d.ts",

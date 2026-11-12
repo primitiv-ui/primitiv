@@ -6,7 +6,7 @@ framework and no runtime dependencies beyond
 server-rendered stack (HTMX, Rails, Django, Laravel, Spring …), and inside
 React, Vue, Angular or any other framework.
 
-> **Status: published.** Tabs, Accordion, Collapsible, Modal, Popover, Tooltip, Dropdown, Context Menu, Toggle Group, Segmented Control, Radio Card, Checkbox Card, Slider and Split Button so far. See
+> **Status: published.** Tabs, Accordion, Collapsible, Modal, Popover, Tooltip, Dropdown, Context Menu, Toggle Group, Segmented Control, Radio Card, Checkbox Card, Slider, Split Button and Listbox so far. See
 > [RFC 0033](../../docs/rfcs/0033-web-components.md) for the design.
 
 ## Components
@@ -27,6 +27,7 @@ React, Vue, Angular or any other framework.
 | Checkbox Card | `primitiv-checkbox-card`, `-indicator` | `primitiv-checkbox-card-change` | 0.1.61 |
 | Slider | `primitiv-slider`, `-track`, `-range`, `-thumb` | `primitiv-slider-change`, `primitiv-slider-commit` | 0.1.61 |
 | Split Button | `primitiv-split-button`, `-action` (its menu is a nested `primitiv-dropdown`) | the Dropdown's | 0.1.62 |
+| Listbox | `primitiv-listbox`, `-option`, `-group`, `-group-label` | `primitiv-listbox-change` | 0.2.1 |
 
 ## Use it
 
@@ -59,12 +60,13 @@ downloads it once. `dist/primitiv-web.js` is the alternative: every element in
 one file. Per-component files ship from 0.1.43.
 
 The main entry (`@primitiv-ui/web`, `/tabs`, `/accordion`, `/collapsible`,
-`/modal`, `/popover`, `/tooltip`, `/dropdown`, `/context-menu`, `/toggle-group`, `/segmented-control`, `/radio-card`, `/checkbox-card`, `/slider`, `/split-button`) exports the classes and `defineTabs(registry?)` /
+`/modal`, `/popover`, `/tooltip`, `/dropdown`, `/context-menu`, `/toggle-group`, `/segmented-control`, `/radio-card`, `/checkbox-card`, `/slider`, `/split-button`, `/listbox`) exports the classes and `defineTabs(registry?)` /
 `defineAccordion(registry?)` / `defineCollapsible(registry?)` /
 `defineModal(registry?)` / `definePopover(registry?)` / `defineTooltip(registry?)` /
 `defineDropdown(registry?)` / `defineContextMenu(registry?)` /
 `defineToggleGroup(registry?)` / `defineSegmentedControl(registry?)` /
-`defineRadioCard(registry?)` / `defineCheckboxCard(registry?)` / `defineSlider(registry?)` / `defineSplitButton(registry?)` with **no side
+`defineRadioCard(registry?)` / `defineCheckboxCard(registry?)` / `defineSlider(registry?)` / `defineSplitButton(registry?)` /
+`defineListbox(registry?)` with **no side
 effects**.
 
 **Render `hidden` on inactive panels yourself.** Until the module loads, CSS
@@ -467,6 +469,36 @@ as `customElements` in `package.json`, for editor completion and Storybook.
 
 The elements write no `class` and no `style`. For the registry look, apply the
 `primitiv-tabs*` classes from the registry stylesheet to your markup.
+
+### Listbox
+
+```html
+<script type="module" src="https://cdn.jsdelivr.net/npm/@primitiv-ui/web@<version>/dist/cdn/listbox.js"></script>
+
+<primitiv-listbox value="apple" aria-label="Fruit">
+  <primitiv-listbox-option value="apple">Apple</primitiv-listbox-option>
+  <primitiv-listbox-option value="banana">Banana</primitiv-listbox-option>
+</primitiv-listbox>
+```
+
+- **The root is the `role="listbox"` and the only Tab stop**: name it with
+  `aria-label`. Each option element *is* the `role="option"` — there is no
+  button to write, since an option is never focused.
+- **A cursor instead of focus.** Real focus stays on the root; the option under
+  the cursor is published as `aria-activedescendant` and marked
+  `data-highlighted`, so style that, not `:focus`. The cursor lands on the
+  first selected option (else the first) when the list takes focus, and is
+  cleared when it loses it. The arrows, Home, End and typing move it; Enter,
+  Space or a click chooses.
+- **`value` lists the selected options**, separated by spaces.
+  `type="multiple"` lets options toggle independently and adds Shift+Arrow,
+  Ctrl/Cmd+A and Ctrl/Cmd+Shift+Home/End range selection;
+  `selection-follows-focus` selects as the cursor moves.
+  `primitiv-listbox-change` fires first, with every option selected
+  afterwards, and is cancelable.
+- **Group options** in `<primitiv-listbox-group>`, named by a
+  `<primitiv-listbox-group-label>` inside it. `disabled` options are skipped
+  and never chosen.
 
 ## Layers
 

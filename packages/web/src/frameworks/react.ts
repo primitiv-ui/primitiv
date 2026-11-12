@@ -113,6 +113,12 @@ import type {
 import type { PrimitivSplitButtonActionElement, PrimitivSplitButtonElement } from "../split-button/elements.ts";
 import type { PrimitivToggleGroupElement, PrimitivToggleGroupItemElement } from "../toggle-group/elements.ts";
 import type {
+  PrimitivListboxElement,
+  PrimitivListboxGroupElement,
+  PrimitivListboxGroupLabelElement,
+  PrimitivListboxOptionElement,
+} from "../listbox/elements.ts";
+import type {
   PrimitivAccordionChangeEvent,
   PrimitivContextMenuChangeEvent,
   PrimitivContextMenuCheckedChangeEvent,
@@ -130,6 +136,7 @@ import type {
   PrimitivTabsChangeEvent,
   PrimitivTooltipChangeEvent,
   PrimitivToggleGroupChangeEvent,
+  PrimitivListboxChangeEvent,
   PrimitivSegmentedControlChangeEvent,
   PrimitivRadioCardChangeEvent,
   PrimitivCheckboxCardChangeEvent,
@@ -160,6 +167,7 @@ export type {
   PrimitivTabsChangeEvent,
   PrimitivTooltipChangeEvent,
   PrimitivToggleGroupChangeEvent,
+  PrimitivListboxChangeEvent,
 };
 
 declare module "react" {
@@ -346,6 +354,19 @@ declare module "react" {
         value: string;
         disabled?: boolean;
       };
+      "primitiv-listbox": ElementProps<PrimitivListboxElement> & {
+        value?: string;
+        type?: "single" | "multiple";
+        orientation?: "horizontal" | "vertical";
+        "selection-follows-focus"?: boolean;
+        "onprimitiv-listbox-change"?: (event: PrimitivListboxChangeEvent) => void;
+      };
+      "primitiv-listbox-option": ElementProps<PrimitivListboxOptionElement> & {
+        value: string;
+        disabled?: boolean;
+      };
+      "primitiv-listbox-group": ElementProps<PrimitivListboxGroupElement>;
+      "primitiv-listbox-group-label": ElementProps<PrimitivListboxGroupLabelElement>;
       "primitiv-segmented-control": ElementProps<PrimitivSegmentedControlElement> & {
         value?: string;
         orientation?: "horizontal" | "vertical";

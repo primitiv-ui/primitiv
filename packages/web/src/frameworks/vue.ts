@@ -38,6 +38,7 @@ import type {
   PrimitivTabsChangeEvent,
   PrimitivTooltipChangeEvent,
   PrimitivToggleGroupChangeEvent,
+  PrimitivListboxChangeEvent,
   PrimitivSegmentedControlChangeEvent,
   PrimitivRadioCardChangeEvent,
   PrimitivCheckboxCardChangeEvent,
@@ -155,6 +156,13 @@ declare module "vue" {
       { "primitiv-toggle-group-change": (event: PrimitivToggleGroupChangeEvent) => void }
     >;
     "primitiv-toggle-group-item": Tag<{ value: string; disabled?: boolean | "" }>;
+    "primitiv-listbox": Tag<
+      { value?: string; type?: "single" | "multiple"; orientation?: "horizontal" | "vertical"; selectionFollowsFocus?: boolean | "" },
+      { "primitiv-listbox-change": (event: PrimitivListboxChangeEvent) => void }
+    >;
+    "primitiv-listbox-option": Tag<{ value: string; disabled?: boolean | "" }>;
+    "primitiv-listbox-group": Tag<Record<never, never>>;
+    "primitiv-listbox-group-label": Tag<Record<never, never>>;
     "primitiv-segmented-control": Tag<
       { value?: string; orientation?: "horizontal" | "vertical"; disabled?: boolean | "" },
       { "primitiv-segmented-control-change": (event: PrimitivSegmentedControlChangeEvent) => void }

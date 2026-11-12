@@ -112,6 +112,12 @@ import type {
 import type { PrimitivSplitButtonActionElement, PrimitivSplitButtonElement } from "../split-button/elements.ts";
 import type { PrimitivToggleGroupElement, PrimitivToggleGroupItemElement } from "../toggle-group/elements.ts";
 import type {
+  PrimitivListboxElement,
+  PrimitivListboxGroupElement,
+  PrimitivListboxGroupLabelElement,
+  PrimitivListboxOptionElement,
+} from "../listbox/elements.ts";
+import type {
   PrimitivAccordionChangeEvent,
   PrimitivContextMenuChangeEvent,
   PrimitivContextMenuCheckedChangeEvent,
@@ -129,6 +135,7 @@ import type {
   PrimitivTabsChangeEvent,
   PrimitivTooltipChangeEvent,
   PrimitivToggleGroupChangeEvent,
+  PrimitivListboxChangeEvent,
   PrimitivSegmentedControlChangeEvent,
   PrimitivRadioCardChangeEvent,
   PrimitivCheckboxCardChangeEvent,
@@ -317,6 +324,19 @@ declare module "svelte/elements" {
       value: string;
       disabled?: boolean;
     };
+    "primitiv-listbox": Attributes<PrimitivListboxElement> & {
+      value?: string;
+      type?: "single" | "multiple";
+      orientation?: "horizontal" | "vertical";
+      "selection-follows-focus"?: boolean;
+      "onprimitiv-listbox-change"?: (event: PrimitivListboxChangeEvent) => void;
+    };
+    "primitiv-listbox-option": Attributes<PrimitivListboxOptionElement> & {
+      value: string;
+      disabled?: boolean;
+    };
+    "primitiv-listbox-group": Attributes<PrimitivListboxGroupElement>;
+    "primitiv-listbox-group-label": Attributes<PrimitivListboxGroupLabelElement>;
     "primitiv-segmented-control": Attributes<PrimitivSegmentedControlElement> & {
       value?: string;
       orientation?: "horizontal" | "vertical";

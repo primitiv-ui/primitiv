@@ -106,6 +106,12 @@ import type {
 } from "./slider/elements.ts";
 import type { PrimitivSplitButtonActionElement, PrimitivSplitButtonElement } from "./split-button/elements.ts";
 import type { PrimitivToggleGroupElement, PrimitivToggleGroupItemElement } from "./toggle-group/elements.ts";
+import type {
+  PrimitivListboxElement,
+  PrimitivListboxGroupElement,
+  PrimitivListboxGroupLabelElement,
+  PrimitivListboxOptionElement,
+} from "./listbox/elements.ts";
 declare global {
   interface HTMLElementTagNameMap {
     "primitiv-accordion": PrimitivAccordionElement;
@@ -169,6 +175,10 @@ declare global {
     "primitiv-tooltip-arrow": PrimitivTooltipArrowElement;
     "primitiv-toggle-group": PrimitivToggleGroupElement;
     "primitiv-toggle-group-item": PrimitivToggleGroupItemElement;
+    "primitiv-listbox": PrimitivListboxElement;
+    "primitiv-listbox-option": PrimitivListboxOptionElement;
+    "primitiv-listbox-group": PrimitivListboxGroupElement;
+    "primitiv-listbox-group-label": PrimitivListboxGroupLabelElement;
     "primitiv-segmented-control": PrimitivSegmentedControlElement;
     "primitiv-segmented-control-item": PrimitivSegmentedControlItemElement;
     "primitiv-radio-card": PrimitivRadioCardElement;

@@ -29,6 +29,16 @@
  * primitiv.reset and let the reset win (RFC 0008 §7). */
 @layer primitiv.reset, primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;
 
+/* The elements surface (RFC 0033 §5.6.1): the action's wrapper and the nested
+   <primitiv-dropdown> take no box of their own, so both halves are flex items
+   of the group exactly as React's two buttons are. Zero specificity, in the
+   reset sublayer, so any consumer rule wins. */
+@layer primitiv.reset {
+  :where(primitiv-split-button-action, primitiv-split-button primitiv-dropdown) {
+    display: contents;
+  }
+}
+
 @layer primitiv.base {
   .primitiv-split-button {
     /* Per-component API. The seam is the hairline dividing the two halves. On
@@ -39,6 +49,12 @@
 
     display: inline-flex;
     align-items: stretch;
+    /* The menu's anchor, scoped to this group so several on a page never
+       share one. The React wrapper also sets a per-instance anchor-name and
+       position-anchor inline, which win; markup with no script of its own
+       (the elements surface) relies on this pair alone. */
+    anchor-name: --primitiv-split-button;
+    anchor-scope: --primitiv-split-button;
   }
 
   /* Everything targeting a half is scoped under the group so it outranks
@@ -101,6 +117,7 @@
      insets. */
   .primitiv-split-button .primitiv-split-button__menu {
     --primitiv-dropdown-min-inline-size: anchor-size(width);
+    position-anchor: --primitiv-split-button;
   }
 }
 

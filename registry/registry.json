@@ -2042,7 +2042,17 @@
           ]
         }
       },
-      "contract": "contract.json"
+      "contract": "contract.json",
+      "elements": {
+        "packages": [
+          {
+            "name": "@primitiv-ui/web",
+            "version": "^0.1.62"
+          }
+        ],
+        "example": "split-button.html",
+        "handWritten": true
+      }
     },
     "stack": {
       "version": "0.1.0",

@@ -136,6 +136,8 @@ export type SplitButtonContextValue = {
   triggerId: string;
   /** Whether the whole widget is disabled (Root's `disabled` prop). */
   disabled: boolean;
+  /** Registers the action with the shared controller (`null` unregisters). */
+  register: (key: string, value: { element: HTMLElement; disabled: boolean } | null) => void;
 };
 
 /**

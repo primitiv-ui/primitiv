@@ -1,9 +1,12 @@
-import { useId, useMemo, type KeyboardEvent, type ReactElement } from "react";
+import { useEffect, useId, useMemo, useRef, type ReactElement } from "react";
+
+import { SplitButtonController } from "@primitiv-ui/web";
 
 import { Dropdown } from "../Dropdown/index.ts";
 import { useDropdownContext } from "../Dropdown/hooks/index.ts";
 import type { DropdownRootProps } from "../Dropdown/types";
-import { Slot, composeEventHandlers } from "../Slot/index.ts";
+import { useCollection, useHostedController } from "../hooks/index.ts";
+import { Slot, composeRefs } from "../Slot/index.ts";
 import { deriveId } from "../utils/index.ts";
 import {
   SplitButtonProvider,
@@ -112,20 +115,32 @@ function SplitButtonFrame({
   ref,
   ...rest
 }: SplitButtonFrameProps): ReactElement {
-  const { open } = useDropdownContext();
+  const { open, setOpen } = useDropdownContext();
   const rootId = useId();
+  const { register, itemsRef, keys } = useCollection<string, { element: HTMLElement; disabled: boolean }>();
+
+  // The action's ArrowDown runs in the shared SplitButtonController
+  // (@primitiv-ui/web, RFC 0033 D30) — the code <primitiv-split-button> runs.
+  // The open state stays the Dropdown's; the controller only asks to open it.
+  const rootRef = useHostedController<{ setOpen: typeof setOpen }>(
+    { setOpen },
+    (root, latest) => new SplitButtonController(root, { open: () => latest().setOpen(true) }),
+    { itemsRef, keys },
+  );
+
   const contextValue = useMemo(
     () => ({
       actionId: deriveId(rootId, "split-button", "action"),
       triggerId: deriveId(rootId, "split-button", "trigger"),
       disabled,
+      register,
     }),
-    [rootId, disabled],
+    [rootId, disabled, register],
   );
 
   const frameProps = {
     ...rest,
-    ref,
+    ref: composeRefs(ref, rootRef),
     role: "group" as const,
     "data-split-button": "",
     "data-state": open ? ("open" as const) : ("closed" as const),
@@ -150,8 +165,10 @@ function SplitButtonFrame({
  *
  * **Keyboard.** `ArrowDown` opens the menu and moves focus to its first item,
  * the standard split-button affordance for reaching the alternatives without
- * tabbing past the action. Every other key falls through, and a consumer's own
- * `onKeyDown` runs first.
+ * tabbing past the action — handled by the shared `SplitButtonController` from
+ * `@primitiv-ui/web`, the code `<primitiv-split-button>` runs, so a disabled
+ * `asChild` link opens nothing either. Every other key falls through, and a
+ * consumer's own `onKeyDown` still runs.
  *
  * **Accessible naming.** This element's `id` is component-owned (hence
  * `Omit`-ted from the props) because
@@ -187,26 +204,27 @@ export function SplitButtonAction({
   asChild = false,
   children,
   disabled,
-  onKeyDown,
   ref,
   ...rest
 }: SplitButtonActionProps): ReactElement {
-  const { actionId, disabled: groupDisabled } = useSplitButtonContext();
-  const { setOpen } = useDropdownContext();
+  const { actionId, disabled: groupDisabled, register } = useSplitButtonContext();
   const isDisabled = groupDisabled || disabled === true;
+  const actionRef = useRef<HTMLButtonElement>(null);
 
-  const openMenu = (event: KeyboardEvent<HTMLButtonElement>) => {
-    if (event.key !== "ArrowDown") return;
-    event.preventDefault();
-    setOpen(true);
-  };
+  // The action is the shared controller's one trigger: registered once
+  // mounted, and again as `disabled` changes. No cleanup: an unmounted
+  // action's button has left the group, so no key on it can reach the
+  // controller, and a remount registers its new button under the same key.
+  useEffect(() => {
+    // Stryker disable next-line StringLiteral: equivalent — the action is the collection's only key, so any key names it.
+    register("action", { element: actionRef.current as HTMLElement, disabled: isDisabled });
+  }, [register, isDisabled]);
 
   const actionProps = {
     ...rest,
-    ref,
+    ref: composeRefs(ref, actionRef),
     id: actionId,
     disabled: isDisabled,
-    onKeyDown: composeEventHandlers(onKeyDown, openMenu),
     "data-disabled": isDisabled ? "" : undefined,
     "data-split-button-action": "",
   };

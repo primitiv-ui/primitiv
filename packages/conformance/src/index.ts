@@ -67,3 +67,9 @@ export {
   type SplitButtonConformanceFixture,
   type SplitButtonMount,
 } from "./split-button.ts";
+export {
+  LISTBOX_OPTIONS,
+  runListboxConformance,
+  type ListboxConformanceFixture,
+  type ListboxMount,
+} from "./listbox.ts";

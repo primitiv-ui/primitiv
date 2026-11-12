@@ -206,8 +206,12 @@
   max-inline-size: 100%;
 }
 
-.docs-example-row *,
-.docs-example-stack * {
+/* Never a popover, though: it paints in the top layer, sized against its anchor
+   rather than the preview, and this unlayered rule would outrank the registry's
+   layered `min-inline-size: anchor-size(width)` — Combobox's panel shrank to its
+   longest row under a 358px field. */
+.docs-example-row *:not([popover]),
+.docs-example-stack *:not([popover]) {
   min-inline-size: 0;
 }
 

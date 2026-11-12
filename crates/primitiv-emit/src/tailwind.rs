@@ -59,8 +59,8 @@ fn scope_tokens(scopes: &[Scope]) -> Vec<Token> {
 
 /// A token's Tailwind theme-variable name: its category (first path segment)
 /// renamed to Tailwind v4's canonical namespace, then the rest of the path.
-/// Renaming the category is what lets a `space-4` token drive `p-4`/`m-4`,
-/// a `font-size-lg` token drive `text-lg`, and so on.
+/// Renaming the category is what lets a `font-size-lg` token drive `text-lg`,
+/// a `radii-md` token drive `rounded-md`, and so on.
 fn theme_name(path: &[String]) -> String {
     let (category, rest) = path.split_first().expect("token path is never empty");
     let mut segments = vec![tailwind_namespace(category).to_string()];
@@ -83,9 +83,15 @@ fn is_tailwinds_own_default_breakpoint(path: &[String]) -> bool {
 /// Map a token category onto Tailwind v4's theme namespace where the names
 /// differ; categories Tailwind already spells the same (`color`, `radius`,
 /// `font-weight`) and ones it has no namespace for pass through unchanged.
+///
+/// `space` is the one exception that keeps its own name inside the namespace
+/// (`--spacing-space-4`, reached as `p-space-4`): Tailwind numbers spacing as a
+/// multiplier of `--spacing` (`p-4` = 1rem) while Primitiv numbers it in pixels
+/// (`space.4` = 4px), so a bare `--spacing-4` would silently override the
+/// consumer's own `p-4` with a value a quarter of the size.
 fn tailwind_namespace(category: &str) -> &str {
     match category {
-        "space" => "spacing",
+        "space" => "spacing-space",
         "radii" => "radius",
         "font-size" => "text",
         "line-height" => "leading",

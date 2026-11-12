@@ -66,6 +66,27 @@
   }
 }
 
+/* The elements surface (RFC 0033 §5.6.1): the root and the trigger part take no
+   box of their own, so the <button> the trigger decorates lays out exactly as
+   React's, and the separator element is a block, as React's <div> is. The
+   content, item and value elements are the parts themselves, so they keep
+   their boxes. Zero specificity, in the reset sublayer, so any consumer rule
+   wins. */
+@layer primitiv.reset {
+  :where(primitiv-select, primitiv-select-trigger) {
+    display: contents;
+  }
+  :where(primitiv-select-separator) {
+    display: block;
+  }
+  /* The element shows the list with its trigger as the source, which makes the
+     trigger its implicit anchor; `auto` lets the anchor() insets below use it
+     (the initial `normal` uses it only for position-area). */
+  :where(primitiv-select-content) {
+    position-anchor: auto;
+  }
+}
+
 @layer primitiv.base {
   .primitiv-select {
     /* Vertical slack for the label's clip box — see the truncation rule below. */
@@ -702,6 +723,13 @@
 }
 
 @layer primitiv.states {
+  /* The element hides an unchosen item's indicator with `hidden` rather than
+     unmounting it as React does, and the base rule's display would win over the
+     UA's [hidden] — so state it here, where it outranks the base layer. */
+  .primitiv-select__item-indicator[hidden] {
+    display: none;
+  }
+
   /* Hover — the frame firms up, matching Input. Guarded so a tap on a touch
      device doesn't leave the control stuck in its hover shade. */
   @media (hover: hover) {

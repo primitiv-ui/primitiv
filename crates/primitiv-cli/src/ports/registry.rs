@@ -206,6 +206,7 @@ const FILES: &[(&str, &str, &str)] = &[
     registry_file!("select", "select.recipe.ts"),
     registry_file!("select", "select.tsx"),
     registry_file!("select", "contract.json"),
+    registry_file!("select", "select.html"),
     registry_file!("navigation-menu", "styles.css"),
     registry_file!("navigation-menu", "styles.scss"),
     registry_file!("navigation-menu", "navigation-menu.recipe.ts"),

@@ -1944,7 +1944,21 @@
           ]
         }
       },
-      "contract": "contract.json"
+      "contract": "contract.json",
+      "elements": {
+        "packages": [
+          {
+            "name": "@primitiv-ui/web",
+            "version": "^0.2.1"
+          }
+        ],
+        "example": "select.html",
+        "omits": [
+          "leading",
+          "item-leading",
+          "item-trailing"
+        ]
+      }
     },
     "slider": {
       "version": "0.1.0",

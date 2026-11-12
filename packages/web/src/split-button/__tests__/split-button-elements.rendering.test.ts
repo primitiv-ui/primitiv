@@ -129,6 +129,8 @@ describe("<primitiv-split-button> rendering", () => {
 
     // Assert
     expect(group().getAttribute("data-disabled")).toBe("");
+    expect(action().getAttribute("disabled")).toBe("");
+    expect(trigger().getAttribute("disabled")).toBe("");
     expect((action() as HTMLButtonElement).disabled).toBe(true);
     expect(action().getAttribute("data-disabled")).toBe("");
     expect((trigger() as HTMLButtonElement).disabled).toBe(true);

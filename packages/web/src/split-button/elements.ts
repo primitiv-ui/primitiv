@@ -1,5 +1,5 @@
 import { defineDropdown } from "../dropdown/elements.ts";
-import { defineElements, ElementBase, owned, reportOnce, write, type ElementRegistry } from "../internal/element.ts";
+import { defineElements, ElementBase, reportOnce, write, type ElementRegistry } from "../internal/element.ts";
 import { PrimitivRootElement } from "../internal/RootElement.ts";
 import { SplitButtonController, type SplitButtonControllerHost } from "./SplitButtonController.ts";
 
@@ -47,7 +47,7 @@ export class PrimitivSplitButtonElement extends PrimitivRootElement {
   /** The menu's trigger `<button>`, as of the last reconcile. */
   #trigger: HTMLElement | null = null;
   /** The `aria-labelledby` this group wrote on each trigger, so one the consumer wrote is left alone. */
-  readonly #derivedName = new WeakMap<HTMLElement, string>();
+  readonly #derivedName = new WeakMap<HTMLElement, string | null>();
 
   /** The controller's view of this element: the menu opens through its trigger. */
   #host(): SplitButtonControllerHost {
@@ -81,10 +81,11 @@ export class PrimitivSplitButtonElement extends PrimitivRootElement {
       this.controller.setTriggers([]);
     }
 
-    const [triggerPart] = dropdown ? owned(dropdown, DROPDOWN_TRIGGER, DROPDOWN) : [];
+    // A dropdown's own trigger comes before its menu, so the first is never a nested one's.
+    const triggerPart = dropdown?.querySelector<HTMLElement>(DROPDOWN_TRIGGER);
     this.#trigger = triggerPart?.childElementCount === 1 ? (triggerPart.firstElementChild as HTMLElement) : null;
     const trigger = this.#trigger;
-    if (!trigger) return;
+    if (!triggerPart || !trigger) return;
     if (!trigger.id) trigger.id = `${rootId}-trigger`;
     write(trigger, "data-split-button-trigger", "");
     this.#disable(triggerPart, trigger, disabled);
@@ -95,7 +96,7 @@ export class PrimitivSplitButtonElement extends PrimitivRootElement {
     const derived = action && !trigger.hasAttribute("aria-label") ? `${trigger.id} ${action.id}` : null;
     const labelledBy = trigger.getAttribute("aria-labelledby");
     if (labelledBy !== null && labelledBy !== this.#derivedName.get(trigger) && labelledBy !== derived) return;
-    if (derived) this.#derivedName.set(trigger, derived);
+    this.#derivedName.set(trigger, derived);
     write(trigger, "aria-labelledby", derived);
   }
 }

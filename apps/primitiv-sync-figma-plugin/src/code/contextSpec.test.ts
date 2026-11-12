@@ -70,10 +70,10 @@ describe('anatomyVars', () => {
   it('expands an anatomy tier into five variable specs', () => {
     const tiers = {
       md: {
-        height: 'size-40',
-        paddingInline: 'space-16',
-        gap: 'space-8',
-        iconSize: 'size-16',
+        height: '40',
+        paddingInline: '16',
+        gap: '8',
+        iconSize: '16',
         radius: '6',
       },
     }
@@ -81,10 +81,10 @@ describe('anatomyVars', () => {
     const result = anatomyVars('framed-control', tiers)
 
     expect(result).toEqual([
-      { name: 'framed-control/md/height', type: 'FLOAT', aliasTo: 'size/size-40' },
-      { name: 'framed-control/md/padding-inline', type: 'FLOAT', aliasTo: 'space/space-16' },
-      { name: 'framed-control/md/gap', type: 'FLOAT', aliasTo: 'space/space-8' },
-      { name: 'framed-control/md/icon-size', type: 'FLOAT', aliasTo: 'size/size-16' },
+      { name: 'framed-control/md/height', type: 'FLOAT', aliasTo: 'size/40' },
+      { name: 'framed-control/md/padding-inline', type: 'FLOAT', aliasTo: 'space/16' },
+      { name: 'framed-control/md/gap', type: 'FLOAT', aliasTo: 'space/8' },
+      { name: 'framed-control/md/icon-size', type: 'FLOAT', aliasTo: 'size/16' },
       { name: 'framed-control/md/radius', type: 'FLOAT', aliasTo: 'radii/6' },
     ])
   })
@@ -94,10 +94,10 @@ describe('labelControlVars', () => {
   it('expands a tier into five variable specs — padding-inline, padding-block, gap, icon-size, radius', () => {
     const tiers = {
       md: {
-        paddingInline: 'space-8',
-        paddingBlock: 'space-4',
-        gap: 'space-4',
-        iconSize: 'size-14',
+        paddingInline: '8',
+        paddingBlock: '4',
+        gap: '4',
+        iconSize: '14',
         radius: '4',
       },
     }
@@ -105,10 +105,10 @@ describe('labelControlVars', () => {
     const result = labelControlVars('label-control', tiers)
 
     expect(result).toEqual([
-      { name: 'label-control/md/padding-inline', type: 'FLOAT', aliasTo: 'space/space-8' },
-      { name: 'label-control/md/padding-block', type: 'FLOAT', aliasTo: 'space/space-4' },
-      { name: 'label-control/md/gap', type: 'FLOAT', aliasTo: 'space/space-4' },
-      { name: 'label-control/md/icon-size', type: 'FLOAT', aliasTo: 'size/size-14' },
+      { name: 'label-control/md/padding-inline', type: 'FLOAT', aliasTo: 'space/8' },
+      { name: 'label-control/md/padding-block', type: 'FLOAT', aliasTo: 'space/4' },
+      { name: 'label-control/md/gap', type: 'FLOAT', aliasTo: 'space/4' },
+      { name: 'label-control/md/icon-size', type: 'FLOAT', aliasTo: 'size/14' },
       { name: 'label-control/md/radius', type: 'FLOAT', aliasTo: 'radii/4' },
     ])
   })
@@ -118,20 +118,20 @@ describe('navItemVars', () => {
   it('expands a tier into four variable specs — height, padding-inline, gap, icon-size (no radius)', () => {
     const tiers = {
       md: {
-        height: 'size-40',
-        paddingInline: 'space-16',
-        gap: 'space-8',
-        iconSize: 'size-16',
+        height: '40',
+        paddingInline: '16',
+        gap: '8',
+        iconSize: '16',
       },
     }
 
     const result = navItemVars('nav-item', tiers)
 
     expect(result).toEqual([
-      { name: 'nav-item/md/height', type: 'FLOAT', aliasTo: 'size/size-40' },
-      { name: 'nav-item/md/padding-inline', type: 'FLOAT', aliasTo: 'space/space-16' },
-      { name: 'nav-item/md/gap', type: 'FLOAT', aliasTo: 'space/space-8' },
-      { name: 'nav-item/md/icon-size', type: 'FLOAT', aliasTo: 'size/size-16' },
+      { name: 'nav-item/md/height', type: 'FLOAT', aliasTo: 'size/40' },
+      { name: 'nav-item/md/padding-inline', type: 'FLOAT', aliasTo: 'space/16' },
+      { name: 'nav-item/md/gap', type: 'FLOAT', aliasTo: 'space/8' },
+      { name: 'nav-item/md/icon-size', type: 'FLOAT', aliasTo: 'size/16' },
     ])
   })
 })
@@ -140,8 +140,8 @@ describe('containerVars', () => {
   it('expands a tier into three variable specs — padding, gap, radius', () => {
     const tiers = {
       md: {
-        padding: 'space-16',
-        gap: 'space-12',
+        padding: '16',
+        gap: '12',
         radius: '8',
       },
     }
@@ -149,8 +149,8 @@ describe('containerVars', () => {
     const result = containerVars('container', tiers)
 
     expect(result).toEqual([
-      { name: 'container/md/padding', type: 'FLOAT', aliasTo: 'space/space-16' },
-      { name: 'container/md/gap', type: 'FLOAT', aliasTo: 'space/space-12' },
+      { name: 'container/md/padding', type: 'FLOAT', aliasTo: 'space/16' },
+      { name: 'container/md/gap', type: 'FLOAT', aliasTo: 'space/12' },
       { name: 'container/md/radius', type: 'FLOAT', aliasTo: 'radii/8' },
     ])
   })

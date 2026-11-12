@@ -1,6 +1,6 @@
 {
   "name": "@primitiv-ui/cli-linux-x64-gnu",
-  "version": "0.1.61",
+  "version": "0.1.62",
   "description": "The primitiv CLI binary for Linux x64 (statically linked: any glibc or musl)",
   "os": [
     "linux"

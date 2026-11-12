@@ -1,4 +1,4 @@
-import type { ComponentProps, KeyboardEvent } from "react";
+import type { ComponentProps, RefObject } from "react";
 
 /** What a mounted `Combobox.Item` registers with the root. */
 export interface ComboboxItemMeta {
@@ -20,20 +20,8 @@ export interface ComboboxContextValue {
   listboxId: string;
   /** The text currently in the input — the live query while open. */
   query: string;
-  /** Sets the query, opening the popup, as the user types. */
-  setQuery: (query: string) => void;
   /** The selected value, or `""` when nothing is selected. */
   value: string;
-  /** Commits a selection: sets the value, closes, and resets the input text. */
-  select: (value: string, label: string) => void;
-  /** The input's whole keydown behaviour: Escape, cursor seeding, arrow keys. */
-  handleInputKeyDown: (event: KeyboardEvent<HTMLElement>) => void;
-  /**
-   * Closes the popup, clears the cursor and resets the input text from the
-   * committed value. Shared by Escape and by the browser's own light-dismiss, so
-   * clicking away and pressing Escape leave the field in the same state.
-   */
-  dismiss: () => void;
   /** The value the virtual-focus cursor sits on, or `null` for no cursor. */
   activeValue: string | null;
   /** Builds the DOM id for an item, so the input can point at it. */
@@ -43,6 +31,10 @@ export interface ComboboxContextValue {
    * resolve the same label a click would.
    */
   registerItem: (value: string, meta: ComboboxItemMeta | null) => void;
+  /** The field, which the shared controller listens to and keeps focus in. */
+  inputRef: RefObject<HTMLInputElement | null>;
+  /** The popup, which the shared controller shows and hides. */
+  contentRef: RefObject<HTMLDivElement | null>;
 }
 
 /** Props shared by every asChild-capable part. */

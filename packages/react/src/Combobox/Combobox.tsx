@@ -1,19 +1,11 @@
-import {
-  useCallback,
-  useEffect,
-  useId,
-  useMemo,
-  useRef,
-  useState,
-  type KeyboardEvent,
-  type ReactElement,
-} from "react";
+import { useCallback, useEffect, useId, useMemo, useRef, useState, type ReactElement } from "react";
 
-import { useCollection, useControllableState, useRovingTabindex } from "../hooks/index.ts";
-import { Slot, composeEventHandlers, composeRefs } from "../Slot/index.ts";
+import { useCollection, useControllableState } from "../hooks/index.ts";
+import { Slot, composeRefs } from "../Slot/index.ts";
 import { deriveId } from "../utils/index.ts";
 
 import { ComboboxProvider, useComboboxContext } from "./ComboboxContext";
+import { useComboboxRoot } from "./hooks";
 import type {
   ComboboxContentProps,
   ComboboxEmptyProps,
@@ -44,6 +36,11 @@ import type {
  * `data-highlighted` on the item, which is what lets the input keep focus while
  * driving the list.
  *
+ * **One behaviour, two surfaces.** The keyboard, typing, choosing by click,
+ * the popup's top layer and its light dismiss all run in `@primitiv-ui/web`'s
+ * `ComboboxController` — the code `<primitiv-combobox>` runs (RFC 0033 D30) —
+ * hosted on this root element, which is why the root always renders one.
+ *
  * @extends HTMLDivElement
  */
 export function ComboboxRoot({
@@ -56,184 +53,81 @@ export function ComboboxRoot({
   onQueryChange,
   onValueChange,
   children,
+  ref,
   ...rest
 }: ComboboxRootProps): ReactElement {
   const [open, setOpen] = useControllableState(openProp, defaultOpen, onOpenChange);
-  const [query, setQueryState] = useState("");
+  const [query, setQuery] = useState("");
   const [value, setValue] = useControllableState(valueProp, defaultValue, onValueChange);
   // The label of the committed value, kept so Escape can put the text back
   // after the user has typed over it (D1: the field never keeps a stale query).
   const [committedLabel, setCommittedLabel] = useState("");
+  // The cursor. Null until the user asks for one with an arrow key — an
+  // unopened combobox must not imply a pre-made choice.
+  const [activeValue, setActiveValue] = useState<string | null>(null);
   // One listbox per combobox, so this is a fixed suffix rather than a
   // `deriveId` per-item id — there is no per-item value to discriminate on.
   const comboboxId = useId();
   const listboxId = `${comboboxId}-listbox`;
-  // Typing always opens the popup: the user is narrowing a list, so the list
-  // has to be on screen to be narrowed.
-  const setQuery = useCallback(
-    (next: string) => {
-      setQueryState(next);
-      setOpen(true);
-      onQueryChange?.(next);
-      // Emptying the field is a DESELECT. D1 resets the text from the value on
-      // close, which taken alone made a cleared field un-clearable — Escape put
-      // the deleted label straight back. Clearing the value too keeps D1's
-      // invariant (the field never shows text that is not the value: here both
-      // are empty) while letting the gesture mean what the user intended.
-      // Guarded on there being something to clear, so an already-empty field
-      // never reports a change the consumer did not cause.
-      if (next === "" && value !== "") {
-        setValue("");
-        setCommittedLabel("");
-      }
-    },
-    [onQueryChange, setOpen, setValue, value],
-  );
-
-  // D1: committing a choice closes the popup and resets the text FROM THE
-  // VALUE, so the field never sits showing a half-typed query that is not the
-  // value. The label comes from the item because the value alone cannot say
-  // how it should read.
-  const select = useCallback(
-    (nextValue: string, label: string) => {
-      setValue(nextValue);
-      setQueryState(label);
-      setCommittedLabel(label);
-      setOpen(false);
-    },
-    [setValue, setOpen],
-  );
-
-  // The cursor. Null until the user asks for one with an arrow key — an
-  // unopened combobox must not imply a pre-made choice.
-  const [activeValue, setActiveValue] = useState<string | null>(null);
-  const {
-    register: registerItem,
-    keys: itemValues,
-    itemsRef,
-  } = useCollection<string, ComboboxItemMeta>();
+  const inputRef = useRef<HTMLInputElement | null>(null);
+  const contentRef = useRef<HTMLDivElement | null>(null);
+  const { register: registerItem, keys, itemsRef } = useCollection<string, ComboboxItemMeta>();
   const getItemId = useCallback(
     (itemValue: string) => deriveId(comboboxId, "option", itemValue),
+    // Stryker disable next-line ArrayDeclaration: equivalent — useId is stable for the root's lifetime, so the deps never change however they are spelled.
     [comboboxId],
   );
 
-  // APG: when the referenced option is not fully visible, scroll it into view.
-  // Every cursor move goes through here rather than calling setActiveValue
-  // directly, so no path can move the cursor without bringing it on screen —
-  // which matters because the styled panel scrolls (18rem by default), so an
-  // unscrolled cursor simply walks off the bottom of a filtered list. Mirrors
-  // Listbox's own `moveCursor`, down to `block: "nearest"` — the option that
-  // does nothing when the item is already visible, so ordinary arrowing does not
-  // jerk the list about.
-  const moveCursor = useCallback(
-    (target: string) => {
-      setActiveValue(target);
-      // The cursor only ever holds a value the registry put there, so the lookup
-      // cannot miss — the same assertion the Enter branch below relies on.
-      itemsRef.current.get(target)!.element.scrollIntoView({ block: "nearest" });
-    },
-    [itemsRef],
-  );
-
-  // Keys only — no tabIndex is manipulated anywhere, because DOM focus never
-  // leaves the input. Same use of this hook as NavigationMenu.
-  // `string | null`: unlike NavigationMenu's roving tabstop there is
-  // legitimately no cursor until the user asks for one, so null is a real
-  // state rather than an absence to be defaulted away.
-  const { handleKeyDown: handleArrowKeys } = useRovingTabindex<string | null>({
-    orientation: "vertical",
-    navigable: itemValues,
-    currentKey: activeValue,
-    includeHomeEnd: true,
-    onNavigate: (target) => {
-      // The hook is instantiated with `string | null` so that `currentKey` can be
-      // null (no cursor yet), which widens `target` to match — but null is only
-      // ever a *current* key, never a navigable one: `navigable` is itemValues,
-      // which holds strings only. So a navigation target is always a real value.
-      moveCursor(target!);
+  const rootRef = useComboboxRoot({
+    open,
+    itemsRef,
+    keys,
+    inputRef,
+    contentRef,
+    snapshot: {
+      state: () => ({ open, value, active: activeValue ?? undefined }),
+      change: setOpen,
+      query: (text) => {
+        setQuery(text);
+        onQueryChange?.(text);
+      },
+      // D1: committing a choice closes the popup and resets the text FROM THE
+      // VALUE, so the field never sits showing a half-typed query that is not
+      // the value.
+      select: (nextValue, label) => {
+        setValue(nextValue);
+        setQuery(label);
+        setCommittedLabel(label);
+        setOpen(false);
+      },
+      // Emptying the field is a DESELECT: Escape then leaves it empty rather
+      // than putting the deleted label straight back.
+      clear: () => {
+        setValue("");
+        setCommittedLabel("");
+      },
+      dismiss: () => {
+        setOpen(false);
+        setQuery(committedLabel);
+        setActiveValue(null);
+      },
+      moveCursor: (next) => setActiveValue(next ?? null),
     },
   });
-
-  const dismiss = useCallback(() => {
-    setOpen(false);
-    setQueryState(committedLabel);
-    setActiveValue(null);
-  }, [committedLabel, setOpen]);
-
-  // useRovingTabindex deliberately refuses to move `next`/`prev` when there is
-  // no current key (RadioGroup's disabled-current contract), so seeding the
-  // first cursor is this component's job: per APG, ArrowDown takes the first
-  // item and ArrowUp the last.
-  const handleInputKeyDown = useCallback(
-    (event: KeyboardEvent<HTMLElement>) => {
-      if (event.key === "Escape") {
-        dismiss();
-        return;
-      }
-
-      if (event.key === "Enter") {
-        if (activeValue === null) return;
-        event.preventDefault();
-        // Enter resolves the label from the registry so it agrees with what a
-        // click on the same item would commit. The cursor can only ever hold a
-        // value the registry put there, so the lookup cannot miss — asserted
-        // rather than branched, as Listbox does for the same registry.
-        select(activeValue, itemsRef.current.get(activeValue)!.label);
-        return;
-      }
-
-      if (activeValue === null && itemValues.length > 0) {
-        if (event.key === "ArrowDown") {
-          event.preventDefault();
-          moveCursor(itemValues[0]);
-          return;
-        }
-        if (event.key === "ArrowUp") {
-          event.preventDefault();
-          moveCursor(itemValues[itemValues.length - 1]);
-          return;
-        }
-      }
-
-      handleArrowKeys(event);
-    },
-    [dismiss, activeValue, itemValues, handleArrowKeys, moveCursor, select, itemsRef],
-  );
+  const setRootRef = useMemo(() => composeRefs(rootRef, ref), [rootRef, ref]);
 
   const contextValue = useMemo(
-    () => ({
-      open,
-      listboxId,
-      query,
-      setQuery,
-      value,
-      select,
-      handleInputKeyDown,
-      dismiss,
-      activeValue,
-      getItemId,
-      registerItem,
-    }),
-    [
-      open,
-      listboxId,
-      query,
-      setQuery,
-      value,
-      select,
-      handleInputKeyDown,
-      dismiss,
-      activeValue,
-      getItemId,
-      registerItem,
-    ],
+    () => ({ open, listboxId, query, value, activeValue, getItemId, registerItem, inputRef, contentRef }),
+    [open, listboxId, query, value, activeValue, getItemId, registerItem],
   );
 
   const Root = asChild ? Slot : "div";
 
   return (
     <ComboboxProvider value={contextValue}>
-      <Root {...rest}>{children}</Root>
+      <Root {...rest} ref={setRootRef}>
+        {children}
+      </Root>
     </ComboboxProvider>
   );
 }
@@ -246,20 +140,22 @@ ComboboxRoot.displayName = "ComboboxRoot";
  * `aria-controls`, `aria-autocomplete="list"` and — once the user asks for a
  * cursor — `aria-activedescendant`, per the ARIA 1.2 combobox pattern.
  *
- * Owns the whole keyboard model: ArrowDown/ArrowUp move the cursor (seeding the
- * first/last item when there is none), Home/End jump to the ends, Enter commits
- * the cursor item, and Escape closes and restores the committed label.
+ * Owns the whole keyboard model: ArrowDown/ArrowUp open the popup while it is
+ * closed, then move the cursor (entering at the first/last item when there is
+ * none); Home/End jump to the ends, Enter commits the cursor item, and Escape
+ * closes and restores the committed label. A consumer's `onKeyDown` and
+ * `onChange` run beside it.
  *
  * @extends HTMLInputElement
  */
 export function ComboboxInput({
   asChild = false,
   onChange,
-  onKeyDown,
+  ref,
   ...rest
 }: ComboboxInputProps): ReactElement {
-  const { open, listboxId, query, setQuery, activeValue, getItemId, handleInputKeyDown } =
-    useComboboxContext();
+  const { open, listboxId, query, activeValue, getItemId, inputRef } = useComboboxContext();
+  const setRef = useMemo(() => composeRefs(inputRef, ref), [inputRef, ref]);
 
   const Input = asChild ? Slot : "input";
 
@@ -271,12 +167,17 @@ export function ComboboxInput({
       aria-autocomplete="list"
       value={query}
       aria-activedescendant={activeValue === null ? undefined : getItemId(activeValue)}
-      onChange={composeEventHandlers(onChange, (event) => setQuery(event.target.value))}
-      onKeyDown={composeEventHandlers(onKeyDown, handleInputKeyDown)}
+      // The typing itself is the controller's, which hears the native `input`
+      // event; React still needs a handler on a controlled field.
+      onChange={onChange ?? noop}
       {...rest}
+      ref={setRef}
     />
   );
 }
+
+/** The change handler a controlled field needs when the consumer passes none. */
+function noop(): void {}
 
 // Stryker disable next-line StringLiteral: equivalent — a DevTools label, asserted by no behaviour.
 ComboboxInput.displayName = "ComboboxInput";
@@ -285,17 +186,16 @@ ComboboxInput.displayName = "ComboboxInput";
  * The popup listbox. **Unmounted while closed**, so a closed combobox has no
  * list in the accessibility tree at all — not a hidden one.
  *
- * Rendered as a `popover="auto"` element and promoted with `showPopover()` on
+ * Rendered as a `popover="auto"` element and shown with `showPopover()` on
  * open, which buys two things no amount of CSS can: the **top layer**, so nothing
  * on the page can paint over the panel, and the browser's own **light dismiss**,
  * so clicking outside closes it. There is deliberately no hand-rolled
  * pointerdown-outside listener — the browser already does that detection, and it
- * reports the result back as a `toggle` event, which is the only way React hears
- * about a close it did not initiate. Same construction as `Select.Content`.
+ * reports the result back as a `toggle` event, which the shared controller hears.
  *
- * A light dismiss runs the full {@link ComboboxContextValue.dismiss | `dismiss`},
- * not just a close, so clicking away and pressing Escape leave the field in the
- * same state rather than one of them stranding a half-typed query on screen.
+ * A light dismiss runs the full dismissal, not just a close, so clicking away
+ * and pressing Escape leave the field in the same state rather than one of them
+ * stranding a half-typed query on screen.
  *
  * @extends HTMLDivElement
  */
@@ -305,34 +205,11 @@ export function ComboboxContent({
   ref,
   ...rest
 }: ComboboxContentProps): ReactElement | null {
-  const { open, listboxId, dismiss } = useComboboxContext();
-  const localRef = useRef<HTMLDivElement | null>(null);
-  // Composed, not overwritten: the popover machinery needs `localRef` to call
-  // showPopover() on, so a consumer ref replacing it would silently take out both
+  const { open, listboxId, contentRef } = useComboboxContext();
+  // Composed, not overwritten: the controller shows the popup through
+  // `contentRef`, so a consumer ref replacing it would silently take out both
   // the top layer and light dismiss.
-  const setRef = useMemo(() => composeRefs(localRef, ref), [ref]);
-
-  // Promote into the top layer. Keyed on `open` rather than mount, because this
-  // component stays mounted across opens and only its DOM output comes and goes —
-  // and because `open` is a boolean, the element can never already be showing
-  // when this runs, so showPopover() cannot throw InvalidStateError.
-  useEffect(() => {
-    if (!open) return;
-    localRef.current!.showPopover();
-  }, [open]);
-
-  // The browser's report that it closed the popup behind React's back.
-  useEffect(() => {
-    if (!open) return;
-    const element = localRef.current!;
-    const handleToggle = (event: Event) => {
-      // Only a close is news. A toggle to "open" is this component's own
-      // showPopover() echoing back, and acting on it would thrash state.
-      if ((event as ToggleEvent).newState === "closed") dismiss();
-    };
-    element.addEventListener("toggle", handleToggle);
-    return () => element.removeEventListener("toggle", handleToggle);
-  }, [open, dismiss]);
+  const setRef = useMemo(() => composeRefs(contentRef, ref), [contentRef, ref]);
 
   if (!open) return null;
 
@@ -361,11 +238,10 @@ export function ComboboxItem({
   asChild = false,
   value: itemValue,
   children,
-  onClick,
   ref,
   ...rest
 }: ComboboxItemProps): ReactElement {
-  const { value, select, activeValue, getItemId, registerItem } = useComboboxContext();
+  const { value, activeValue, getItemId, registerItem } = useComboboxContext();
   const selected = value === itemValue;
   const highlighted = activeValue === itemValue;
 
@@ -377,10 +253,8 @@ export function ComboboxItem({
 
   const localRef = useRef<HTMLDivElement | null>(null);
   // Composed, not overwritten. Spreading `ref={localRef}` ahead of `{...rest}`
-  // would let a consumer ref replace it, registering `element: null` — the same
-  // shape of bug that silently disabled Content's whole popover. Harmless today
-  // because nothing reads `element` yet, which is precisely why it would have gone
-  // unnoticed until the first feature that does (scroll-into-view).
+  // would let a consumer ref replace it, registering `element: null` — and the
+  // controller clicks, scrolls and orders items through that element.
   const setRef = useMemo(() => composeRefs(localRef, ref), [ref]);
   useEffect(() => {
     // Non-null by construction: this effect runs after React has attached the
@@ -398,9 +272,6 @@ export function ComboboxItem({
       id={getItemId(itemValue)}
       aria-selected={selected}
       data-highlighted={highlighted ? "" : undefined}
-      onClick={composeEventHandlers(onClick, () => {
-        select(itemValue, label);
-      })}
       {...rest}
       ref={setRef}
     >

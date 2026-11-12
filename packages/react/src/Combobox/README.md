@@ -83,7 +83,7 @@ Three ways out, and all three land in the same state:
 | ----------------- | ------------------------------------------------------------ |
 | <kbd>Escape</kbd> | Handled on the input                                         |
 | Click outside     | The browser's own light dismiss                              |
-| Commit an item    | Click or <kbd>Enter</kbd>                                    |
+| Commit an item    | Click or <kbd>Enter</kbd>; a click hands focus back to the input |
 
 `Combobox.Content` renders as a **`popover="auto"`** element and promotes itself
 with `showPopover()`, which is what buys the outside-click behaviour: the browser
@@ -106,11 +106,24 @@ trade for a closed combobox having no listbox in the accessibility tree at all.
 | --------------------- | ---------------------------------------------------------------- |
 | any printable char    | Sets the query and **opens** the popup                           |
 | clearing the field    | Clears the query **and the value** (see above)                    |
+| <kbd>↓</kbd> / <kbd>↑</kbd> while closed | **Opens** the popup, placing no cursor yet     |
 | <kbd>↓</kbd>          | Moves the cursor down; seeds it on the **first** item if none     |
 | <kbd>↑</kbd>          | Moves the cursor up; seeds it on the **last** item if none        |
-| <kbd>Home</kbd> / <kbd>End</kbd> | Jumps the cursor to the first / last item             |
-| <kbd>Enter</kbd>      | Commits the cursor item. Ignored when there is no cursor          |
-| <kbd>Escape</kbd>     | Closes, clears the cursor, restores the committed label           |
+| <kbd>Home</kbd> / <kbd>End</kbd> | Jumps the cursor to the first / last item, while open |
+| <kbd>Enter</kbd>      | Commits the cursor item and clears the cursor. Ignored with none  |
+| <kbd>Escape</kbd>     | While open: closes, clears the cursor, restores the committed label |
+
+While closed, <kbd>Escape</kbd>, <kbd>Enter</kbd>, <kbd>Home</kbd> and
+<kbd>End</kbd> are left to the input and the page, so an enclosing dialog still
+closes on Escape and a form still submits on Enter.
+
+**The behaviour is shared with `<primitiv-combobox>`.** The typing, keys,
+click-to-commit, top-layer promotion and light dismiss run in
+`@primitiv-ui/web`'s `ComboboxController` (RFC 0033 D30), hosted on
+`Combobox.Root`'s element. It listens there with native listeners, which run
+before React's: your `onKeyDown` and `onChange` on `Combobox.Input` still fire,
+but calling `preventDefault()` in them no longer suppresses the built-in
+handling.
 
 Arrow travel wraps at both ends, and every cursor move **scrolls the item into
 view** (`scrollIntoView({ block: "nearest" })`, so a move to an already-visible item

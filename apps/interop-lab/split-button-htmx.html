@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+  <head><meta charset="utf-8" /><link rel="icon" href="data:," /><title>Interop lab — Split Button, HTMX</title></head>
+  <body hx-history-elt>
+    <!-- 1. Full fragment swap -->
+    <section>
+      <button type="button" id="load-split" hx-get="/fragments/split-button" hx-target="#slot-1">Load split button</button>
+      <div id="slot-1"></div>
+    </section>
+
+    <!-- 2. A split button arriving out of band beside another -->
+    <section id="oob-region"></section>
+    <button type="button" id="load-oob" hx-get="/fragments/split-button-oob" hx-swap="none">Add a split button</button>
+
+    <!-- 3. Server re-render as disabled -->
+    <section id="rerender-region"></section>
+    <button type="button" id="load-value" hx-get="/fragments/split-button-oob-value" hx-swap="none">Disable it</button>
+
+    <!-- 4. hx-preserve -->
+    <div id="preserve-region"></div>
+    <button type="button" id="swap-preserve" hx-get="/fragments/split-button-preserve" hx-target="#preserve-region" hx-swap="outerHTML">Swap region</button>
+
+    <!-- 5. History -->
+    <section id="history-region"></section>
+    <a id="go-two" href="/page-two" hx-get="/fragments/page-two" hx-target="#history-target" hx-push-url="/split-button-page-two">Go to page two</a>
+    <div id="history-target"></div>
+
+    <!-- 6. hx-trigger on the menu's change event, and a veto -->
+    <section id="echo-region"></section>
+    <section id="veto-region"></section>
+    <div id="echo-target"></div>
+
+    <!-- 7. Right to left -->
+    <section>
+      <button type="button" id="load-rtl" hx-get="/fragments/split-button-rtl" hx-target="#rtl-slot">Load RTL</button>
+      <div id="rtl-slot"></div>
+    </section>
+
+    <script type="module" src="/src/split-button-htmx.ts"></script>
+  </body>
+</html>

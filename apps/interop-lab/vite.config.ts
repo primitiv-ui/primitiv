@@ -53,6 +53,7 @@ export default defineConfig({
       { find: /^@primitiv-ui\/web\/define\/radio-card$/, replacement: workspace("web/src/define/radio-card.ts") },
       { find: /^@primitiv-ui\/web\/define\/checkbox-card$/, replacement: workspace("web/src/define/checkbox-card.ts") },
       { find: /^@primitiv-ui\/web\/define\/slider$/, replacement: workspace("web/src/define/slider.ts") },
+      { find: /^@primitiv-ui\/web\/define\/split-button$/, replacement: workspace("web/src/define/split-button.ts") },
       { find: /^@primitiv-ui\/web\/define\/segmented-control$/, replacement: workspace("web/src/define/segmented-control.ts") },
       { find: /^@primitiv-ui\/web\/define\/toggle-group$/, replacement: workspace("web/src/define/toggle-group.ts") },
       { find: /^@primitiv-ui\/web\/define$/, replacement: workspace("web/src/define/index.ts") },

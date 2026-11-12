@@ -11,6 +11,7 @@ import { popoverHtml } from "./popover-fixture.ts";
 import { tooltipHtml } from "./tooltip-fixture.ts";
 import { tabsHtml } from "./fixture.ts";
 import { checkboxCardHtml } from "./checkbox-card-fixture.ts";
+import { splitButtonHtml } from "./split-button-fixture.ts";
 import { radioCardHtml } from "./radio-card-fixture.ts";
 import { segmentedControlHtml } from "./segmented-control-fixture.ts";
 import { sliderHtml } from "./slider-fixture.ts";
@@ -31,6 +32,7 @@ let toggleGroupEchoes = 0;
 let segmentedControlEchoes = 0;
 let radioCardEchoes = 0;
 let checkboxCardEchoes = 0;
+let splitButtonEchoes = 0;
 let sliderEchoes = 0;
 
 export const fragments: Record<string, string | ((url: string) => string)> = {
@@ -181,6 +183,14 @@ export const fragments: Record<string, string | ((url: string) => string)> = {
   "checkbox-card-preserve": `<div id="preserve-region"><p>Swapped region</p>${checkboxCardHtml({}, "preserved", "Preserved").replace("<primitiv-checkbox-card ", '<primitiv-checkbox-card hx-preserve="true" ')}</div>`,
   "checkbox-card-echo": (url: string) =>
     `<span data-testid="echo">server saw ${new URL(url, "http://lab").searchParams.get("checked")} (${++checkboxCardEchoes})</span>`,
+  // The SplitButton page's cases (split-button-htmx.html), named to match.
+  "split-button": splitButtonHtml({}, "swapped", "Swapped"),
+  "split-button-oob": `<div hx-swap-oob="beforeend:#oob-region">${splitButtonHtml({}, "second", "Second")}</div>`,
+  "split-button-oob-value": `<div hx-swap-oob="outerHTML:#rerendered">${splitButtonHtml({ disabled: true }, "rerendered", "Rerendered")}</div>`,
+  "split-button-preserve": `<div id="preserve-region"><p>Swapped region</p>${splitButtonHtml({}, "preserved", "Preserved").replace("<primitiv-split-button ", '<primitiv-split-button hx-preserve="true" ')}</div>`,
+  "split-button-echo": (url: string) =>
+    `<span data-testid="echo">server saw ${new URL(url, "http://lab").searchParams.get("open")} (${++splitButtonEchoes})</span>`,
+  "split-button-rtl": `<div dir="rtl">${splitButtonHtml({}, "rtl", "Rtl")}</div>`,
   // The Slider page's cases (slider-htmx.html), named to match.
   slider: sliderHtml({ value: "30" }, "swapped"),
   "slider-oob-thumb":

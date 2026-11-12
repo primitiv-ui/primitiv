@@ -429,6 +429,20 @@ describe("ListboxController", () => {
       expect(prevented).toEqual([true, false]);
     });
 
+    it("never treats a chorded or Alt key as typeahead", async () => {
+      // Arrange
+      const user = userEvent.setup();
+      const host = hostWith();
+      connected(FRUIT, host);
+      await user.tab();
+
+      // Act
+      await user.keyboard("{Control>}a{/Control}{Meta>}a{/Meta}{Alt>}b{/Alt}");
+
+      // Assert
+      expect(host.cursors).toEqual(["apple"]);
+    });
+
     it("searches only the enabled options", async () => {
       // Arrange
       const user = userEvent.setup();

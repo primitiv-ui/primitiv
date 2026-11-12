@@ -131,6 +131,8 @@ export class ListboxController {
       return;
     }
 
+    // A chord or Alt left alone above belongs to the browser and the page, not to typeahead.
+    if (event.ctrlKey || event.metaKey || event.altKey) return;
     const match = listboxTypeahead({
       query: this.#query,
       key: event.key,

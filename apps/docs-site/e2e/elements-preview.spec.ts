@@ -356,7 +356,10 @@ test("the Checkbox tri-state preview derives the parent from its children", asyn
   const all = example.locator("#notify-all");
   // One of three starts checked, so the parent is mixed.
   await expect.poll(() => all.evaluate((el: HTMLInputElement) => el.indeterminate)).toBe(true);
-  await all.check({ force: true });
+  // Click the label, as a user does: the native input is clipped to an sr-only
+  // 1px box, and a forced click at its centre lands on whatever WebKit
+  // hit-tests there instead.
+  await example.locator(".docs-elements-preview").getByText("Notifications", { exact: true }).click();
   await expect(example.locator('input[name="notify"]:checked')).toHaveCount(3);
   expect(await all.evaluate((el: HTMLInputElement) => el.indeterminate)).toBe(false);
 });
@@ -364,7 +367,8 @@ test("the Checkbox tri-state preview derives the parent from its children", asyn
 test("the Radio value preview follows the selection", async ({ page }) => {
   await page.goto("/components/radio/");
   const example = cell(page, "controlled");
-  await example.getByRole("radio", { name: "Team" }).check({ force: true });
+  await example.locator(".docs-elements-preview").getByText("Team", { exact: true }).click();
+  await expect(example.getByRole("radio", { name: "Team" })).toBeChecked();
   await expect(example.locator("#subscription-value")).toHaveText("team");
 });
 

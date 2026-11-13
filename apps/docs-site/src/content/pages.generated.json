@@ -1155,6 +1155,10 @@
                 "kind": "flags",
                 "flags": [
                   {
+                    "flag": "--all",
+                    "description": "adds every component in the registry."
+                  },
+                  {
                     "flag": "--force",
                     "description": "overwrites files you have changed, without asking."
                   },
@@ -1163,12 +1167,32 @@
                     "description": "copies the stylesheet and skips the React file. React projects only."
                   },
                   {
+                    "flag": "--no-styles",
+                    "description": "installs the headless package and copies no stylesheet. React projects only."
+                  },
+                  {
                     "flag": "--no-wiring",
                     "description": "skips the project wiring, if you prefer to do it yourself."
                   },
                   {
                     "flag": "--dry-run",
                     "description": "shows what would happen and writes nothing."
+                  },
+                  {
+                    "flag": "--json",
+                    "description": "prints the plan as JSON, for scripts and agents."
+                  },
+                  {
+                    "flag": "--format",
+                    "description": "css, scss or tailwind, overriding the format your config sets for this run."
+                  },
+                  {
+                    "flag": "--path",
+                    "description": "where this run writes the stylesheets, overriding your config."
+                  },
+                  {
+                    "flag": "--registry",
+                    "description": "reads components from another registry: a released version, a URL or a local folder."
                   },
                   {
                     "flag": "--styled",
@@ -1673,6 +1697,27 @@
             "kind": "alert",
             "tone": "info",
             "text": "Render hidden on the panels that start closed, such as the inactive tabs. The element sets it as soon as its script loads, but until then only your markup can keep those panels out of sight."
+          },
+          {
+            "kind": "h3",
+            "text": "Options from your server"
+          },
+          {
+            "kind": "p",
+            "text": "A Combobox does no filtering of its own. To search on the server, listen for its primitiv-combobox-query-change event, ask the server with event.detail.query, and replace the items inside <primitiv-combobox-content> with what comes back, the <primitiv-combobox-empty> part included. The new items are picked up as they land.",
+            "code": [
+              "primitiv-combobox-query-change",
+              "event.detail.query",
+              "<primitiv-combobox-content>",
+              "<primitiv-combobox-empty>"
+            ]
+          },
+          {
+            "kind": "p",
+            "text": "The selected item does not need to be in the list. Render the root's value and the field's text yourself, and the element keeps both: a field that arrives holding text keeps it, and a field that arrives empty shows the value.",
+            "code": [
+              "value"
+            ]
           }
         ]
       },
@@ -1682,10 +1727,24 @@
         "blocks": [
           {
             "kind": "p",
-            "text": "Give a value-holding component a name and it takes part in its form like a native control. Select, Combobox and Slider keep a hidden native control inside themselves, so the value submits and a form reset restores the value it started with. A Select marked required also blocks an empty submit.",
+            "text": "Give a value-holding component a name and it takes part in its form like a native control. name is optional: without it, the component submits nothing. Select, Combobox and Slider keep a hidden native control inside themselves, so the value submits and a form reset restores the value it started with. A Select marked required also blocks an empty submit.",
             "code": [
               "name",
               "required"
+            ]
+          },
+          {
+            "kind": "p",
+            "text": "Segmented Control, Radio Card and Toggle Group submit their selected value, or one entry per pressed item, through hidden inputs inside the root. A Checkbox Card submits its value, or on without one, while it is checked, as a native checkbox does.",
+            "code": [
+              "on"
+            ]
+          },
+          {
+            "kind": "p",
+            "text": "Every one of them is an ordinary form field, so anything that reads the form sees it: a plain submit, new FormData(form), or a library that serialises the form for a request.",
+            "code": [
+              "new FormData(form)"
             ]
           },
           {
@@ -1700,6 +1759,13 @@
             "text": "A component whose control is already native, such as a checkbox or a text field, needs nothing extra. Write the <input> and name it as usual.",
             "code": [
               "<input>"
+            ]
+          },
+          {
+            "kind": "p",
+            "text": "A menu item can be a submit button. Write <button type=\"submit\" name=\"intent\" value=\"draft\"> inside a Dropdown or Split Button item and choosing it, by click or Enter, submits the form with that button as the submitter.",
+            "code": [
+              "<button type=\"submit\" name=\"intent\" value=\"draft\">"
             ]
           }
         ]
@@ -1731,8 +1797,29 @@
           },
           {
             "kind": "p",
+            "text": "Elements hide what is closed with the hidden attribute. A display you set in your CSS beats the browser's own [hidden] rule, so a panel you style as display: flex shows even while hidden. Scope it, as in [role=\"tabpanel\"]:not([hidden]) { display: flex }, or add [hidden] { display: none !important } to your base styles.",
+            "code": [
+              "hidden",
+              "display",
+              "[hidden]",
+              "[role=\"tabpanel\"]:not([hidden]) { display: flex }",
+              "[hidden] { display: none !important }"
+            ]
+          },
+          {
+            "kind": "p",
             "text": "Two components write an inline position, because it is their state rather than styling. A Slider places its thumbs, and a Context Menu publishes where the pointer was.",
             "code": []
+          },
+          {
+            "kind": "p",
+            "text": "A Slider sets each thumb's left (or bottom, when vertical) to a percentage of the track, which places the thumb's edge on the value. Centre it with translate: -50% (or translate: 0 50% vertically).",
+            "code": [
+              "left",
+              "bottom",
+              "translate: -50%",
+              "translate: 0 50%"
+            ]
           },
           {
             "kind": "h3",

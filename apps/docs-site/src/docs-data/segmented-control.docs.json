@@ -49,6 +49,13 @@
             "description": "Disables the entire control — every segment is non-interactive and\nexcluded from arrow-key navigation, and `data-disabled=\"\"` is set on\nthe root. Individual segments can also be disabled via the Item's own\n`disabled` prop."
           },
           {
+            "name": "name",
+            "type": "string",
+            "required": false,
+            "default": "undefined",
+            "description": "Submit the selected value with the surrounding form under this name, as a\nchecked radio would: nothing while no segment is selected or the control is disabled. Optional:\nwithout it the control takes no part in forms."
+          },
+          {
             "name": "onValueChange",
             "type": "(value: string) => void",
             "required": false,
@@ -319,7 +326,6 @@
   "elements": {
     "package": "@primitiv-ui/web",
     "module": "segmented-control",
-    "version": "0.2.2",
     "element": "div",
     "wrapText": false,
     "example": "<primitiv-segmented-control value=\"week\" aria-label=\"Range\" class=\"primitiv-segmented-control primitiv-segmented-control--md primitiv-segmented-control--justified\">\n  <primitiv-segmented-control-item value=\"day\">\n    <button type=\"button\" class=\"primitiv-segmented-control__item\">\n      <span class=\"primitiv-segmented-control__item-label\">Day</span>\n    </button>\n  </primitiv-segmented-control-item>\n  <primitiv-segmented-control-item value=\"week\">\n    <button type=\"button\" class=\"primitiv-segmented-control__item\">\n      <span class=\"primitiv-segmented-control__item-label\">Week</span>\n    </button>\n  </primitiv-segmented-control-item>\n  <primitiv-segmented-control-item value=\"month\">\n    <button type=\"button\" class=\"primitiv-segmented-control__item\">\n      <span class=\"primitiv-segmented-control__item-label\">Month</span>\n    </button>\n  </primitiv-segmented-control-item>\n</primitiv-segmented-control>\n",
@@ -337,6 +343,11 @@
             "name": "orientation",
             "type": "\"horizontal\" | \"vertical\"",
             "description": "Layout axis, which picks the arrow-key pair. Defaults to `horizontal`."
+          },
+          {
+            "name": "name",
+            "type": "string",
+            "description": "Submit the selected value with a form, under this name, as a checked radio would: nothing while none is selected or the control is disabled. A form reset restores the value the control first rendered with. Without it the control takes no part in forms."
           },
           {
             "name": "disabled",

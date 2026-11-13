@@ -323,7 +323,6 @@
   "elements": {
     "package": "@primitiv-ui/web",
     "module": "checkbox-card",
-    "version": "0.2.2",
     "element": "button",
     "wrapText": false,
     "example": "<primitiv-checkbox-card checked>\n  <button type=\"button\" class=\"primitiv-checkbox-card primitiv-checkbox-card--md\">\n    <span class=\"primitiv-checkbox-card__indicator-wrapper\">\n      <span class=\"primitiv-checkbox-card__indicator\">\n        <primitiv-checkbox-card-indicator force-mount class=\"primitiv-checkbox-card__mark\"></primitiv-checkbox-card-indicator>\n      </span>\n    </span>\n    <span class=\"primitiv-checkbox-card__content\">\n      <span class=\"primitiv-checkbox-card__title\">Email updates</span>\n      <span class=\"primitiv-checkbox-card__description\">A weekly summary of what changed</span>\n    </span>\n  </button>\n</primitiv-checkbox-card>\n",

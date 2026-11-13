@@ -1507,10 +1507,17 @@
           },
           {
             "kind": "code",
-            "code": "<link rel=\"stylesheet\" href=\"/primitiv/tokens.css\">\n<link rel=\"stylesheet\" href=\"/primitiv/index.css\">\n<script type=\"module\" src=\"https://cdn.jsdelivr.net/npm/@primitiv-ui/web@0.2.1/dist/cdn/combobox.js\"></script>",
+            "code": "<link rel=\"stylesheet\" href=\"/primitiv/tokens.css\">\n<link rel=\"stylesheet\" href=\"/primitiv/index.css\">\n<script type=\"module\" src=\"https://cdn.jsdelivr.net/npm/@primitiv-ui/web@<version>/dist/cdn/combobox.js\"></script>",
             "language": "html",
             "header": false,
             "lineNumbers": true
+          },
+          {
+            "kind": "p",
+            "text": "The CLI fills in <version> with the release it came from, and each component page shows the same one. Use that version for every component on a page.",
+            "code": [
+              "<version>"
+            ]
           },
           {
             "kind": "p",

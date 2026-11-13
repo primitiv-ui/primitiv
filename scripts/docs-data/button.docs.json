@@ -162,7 +162,6 @@
   "elements": {
     "package": null,
     "module": "button",
-    "version": null,
     "element": "button",
     "wrapText": true,
     "example": "<button type=\"button\" class=\"primitiv-button primitiv-button--primary primitiv-button--md\">\n  <span class=\"primitiv-button__label\">Button</span>\n</button>\n",

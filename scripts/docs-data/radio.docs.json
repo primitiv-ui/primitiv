@@ -197,7 +197,6 @@
   "elements": {
     "package": null,
     "module": "radio",
-    "version": null,
     "element": "label",
     "wrapText": false,
     "example": "<fieldset>\n  <legend>Plan</legend>\n  <label class=\"primitiv-radio primitiv-radio--md\">\n    <input type=\"radio\" name=\"plan\" value=\"free\" checked>\n    <span class=\"primitiv-radio__control\"><span class=\"primitiv-radio__indicator\"></span></span>\n    <span class=\"primitiv-radio__label\">Free</span>\n  </label>\n  <label class=\"primitiv-radio primitiv-radio--md\">\n    <input type=\"radio\" name=\"plan\" value=\"pro\">\n    <span class=\"primitiv-radio__control\"><span class=\"primitiv-radio__indicator\"></span></span>\n    <span class=\"primitiv-radio__label\">Pro</span>\n  </label>\n</fieldset>\n",

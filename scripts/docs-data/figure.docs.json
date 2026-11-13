@@ -127,7 +127,6 @@
   "elements": {
     "package": null,
     "module": "figure",
-    "version": null,
     "element": "figure",
     "wrapText": false,
     "example": "<figure class=\"primitiv-figure primitiv-figure--below primitiv-figure--md\">\n  <div class=\"primitiv-figure__media\"><img src=\"image.jpg\" alt=\"Describe the image\"></div>\n  <figcaption class=\"primitiv-figure__caption primitiv-figure__caption--start\">A caption for the image.</figcaption>\n</figure>\n",

@@ -114,7 +114,6 @@
   "elements": {
     "package": null,
     "module": "badge",
-    "version": null,
     "element": "span",
     "wrapText": false,
     "example": "<span class=\"primitiv-badge primitiv-badge--success primitiv-badge--label primitiv-badge--md\">Badge</span>\n",

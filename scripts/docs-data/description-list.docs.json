@@ -114,7 +114,6 @@
   "elements": {
     "package": null,
     "module": "description-list",
-    "version": null,
     "element": "dl",
     "wrapText": false,
     "example": "<dl class=\"primitiv-description-list primitiv-description-list--md primitiv-description-list--stacked\">\n  <dt class=\"primitiv-description-list__term\">Term</dt>\n  <dd class=\"primitiv-description-list__details\">What the term means.</dd>\n  <dt class=\"primitiv-description-list__term\">Another term</dt>\n  <dd class=\"primitiv-description-list__details\">What that one means.</dd>\n</dl>\n",

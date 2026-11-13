@@ -42,6 +42,13 @@
             "description": "Reading direction. In `\"rtl\"` the horizontal arrow pair is swapped so\nArrow Left moves forward. When omitted, it is inherited from the\nnearest {@link DirectionProvider }, falling back to `\"ltr\"`."
           },
           {
+            "name": "name",
+            "type": "string",
+            "required": false,
+            "default": "undefined",
+            "description": "Submit the selected value with the surrounding form under this name, as a\nchecked radio would: nothing while no card is selected. Optional:\nwithout it the group takes no part in forms."
+          },
+          {
             "name": "onValueChange",
             "type": "(value: string) => void",
             "required": false,
@@ -348,7 +355,6 @@
   "elements": {
     "package": "@primitiv-ui/web",
     "module": "radio-card",
-    "version": "0.2.2",
     "element": "button",
     "wrapText": false,
     "example": "<primitiv-radio-card value=\"pro\" aria-label=\"Plan\">\n  <primitiv-radio-card-item value=\"starter\">\n    <button type=\"button\" class=\"primitiv-radio-card primitiv-radio-card--md\">\n      <span class=\"primitiv-radio-card__indicator-wrapper\">\n        <span class=\"primitiv-radio-card__indicator\">\n          <primitiv-radio-card-indicator force-mount class=\"primitiv-radio-card__dot\"></primitiv-radio-card-indicator>\n        </span>\n      </span>\n      <span class=\"primitiv-radio-card__content\">\n        <span class=\"primitiv-radio-card__title\">Starter</span>\n        <span class=\"primitiv-radio-card__description\">Free forever</span>\n      </span>\n    </button>\n  </primitiv-radio-card-item>\n  <primitiv-radio-card-item value=\"pro\">\n    <button type=\"button\" class=\"primitiv-radio-card primitiv-radio-card--md\">\n      <span class=\"primitiv-radio-card__indicator-wrapper\">\n        <span class=\"primitiv-radio-card__indicator\">\n          <primitiv-radio-card-indicator force-mount class=\"primitiv-radio-card__dot\"></primitiv-radio-card-indicator>\n        </span>\n      </span>\n      <span class=\"primitiv-radio-card__content\">\n        <span class=\"primitiv-radio-card__title\">Pro</span>\n        <span class=\"primitiv-radio-card__description\">$9/month</span>\n      </span>\n    </button>\n  </primitiv-radio-card-item>\n  <primitiv-radio-card-item value=\"enterprise\">\n    <button type=\"button\" class=\"primitiv-radio-card primitiv-radio-card--md\">\n      <span class=\"primitiv-radio-card__indicator-wrapper\">\n        <span class=\"primitiv-radio-card__indicator\">\n          <primitiv-radio-card-indicator force-mount class=\"primitiv-radio-card__dot\"></primitiv-radio-card-indicator>\n        </span>\n      </span>\n      <span class=\"primitiv-radio-card__content\">\n        <span class=\"primitiv-radio-card__title\">Enterprise</span>\n        <span class=\"primitiv-radio-card__description\">Contact us</span>\n      </span>\n    </button>\n  </primitiv-radio-card-item>\n</primitiv-radio-card>\n",
@@ -366,6 +372,11 @@
             "name": "orientation",
             "type": "\"both\" | \"horizontal\" | \"vertical\"",
             "description": "Which arrow keys move between cards. `both` (the default) uses all four, for cards that wrap into a grid, and writes no `aria-orientation`; `horizontal` or `vertical` keeps to one pair and states it."
+          },
+          {
+            "name": "name",
+            "type": "string",
+            "description": "Submit the selected value with a form, under this name, as a checked radio would: nothing while none is selected. A form reset restores the value the group first rendered with. Without it the group takes no part in forms."
           }
         ],
         "events": [

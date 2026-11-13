@@ -275,7 +275,9 @@ test("every component with Elements carries them in its Markdown mirror", () => 
     const md = markdown(path);
     const section = md.slice(md.indexOf("\n## Elements\n"));
     assert.ok(md.includes("\n## Elements\n"), `${path}: Elements section`);
-    const { package: pkg, module, version, example, api } = docs.elements;
+    const { package: pkg, module, example, api } = docs.elements;
+    // The release the site was built against, never a copy stored in docs-data.
+    const version = JSON.parse(readFileSync(resolve(DOCS_DATA, "../../../../packages/web/package.json"), "utf8")).version;
     if (pkg) {
       assert.ok(
         section.includes(`<script type="module" src="https://cdn.jsdelivr.net/npm/${pkg}@${version}/dist/cdn/${module}.js"></script>`),

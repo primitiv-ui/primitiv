@@ -105,7 +105,6 @@
   "elements": {
     "package": null,
     "module": "tag",
-    "version": null,
     "element": "span",
     "wrapText": false,
     "example": "<span class=\"primitiv-tag primitiv-tag--neutral primitiv-tag--md\">Tag</span>\n",

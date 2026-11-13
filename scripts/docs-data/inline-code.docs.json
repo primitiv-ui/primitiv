@@ -96,7 +96,6 @@
   "elements": {
     "package": null,
     "module": "inline-code",
-    "version": null,
     "element": "code",
     "wrapText": false,
     "example": "<code class=\"primitiv-inline-code primitiv-inline-code--md\">Inline code</code>\n",

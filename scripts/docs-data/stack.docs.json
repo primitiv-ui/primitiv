@@ -110,7 +110,6 @@
   "elements": {
     "package": null,
     "module": "stack",
-    "version": null,
     "element": "div",
     "wrapText": false,
     "example": "<div class=\"primitiv-stack primitiv-stack--column primitiv-stack--gap-md primitiv-stack--align-stretch primitiv-stack--nowrap primitiv-stack--justify-start\">\n  <div>First</div>\n  <div>Second</div>\n  <div>Third</div>\n</div>\n",

@@ -106,7 +106,6 @@
   "elements": {
     "package": null,
     "module": "blockquote",
-    "version": null,
     "element": "blockquote",
     "wrapText": false,
     "example": "<blockquote class=\"primitiv-blockquote primitiv-blockquote--default primitiv-blockquote--md\">\n  <p class=\"primitiv-blockquote__quote\">The quoted passage, as the source wrote it.</p>\n  <cite class=\"primitiv-blockquote__citation\">The source</cite>\n</blockquote>\n",

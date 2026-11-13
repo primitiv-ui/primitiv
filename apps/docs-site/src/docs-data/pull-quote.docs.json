@@ -100,7 +100,6 @@
   "elements": {
     "package": null,
     "module": "pull-quote",
-    "version": null,
     "element": "blockquote",
     "wrapText": false,
     "example": "<blockquote class=\"primitiv-pull-quote primitiv-pull-quote--md\">\n  <p class=\"primitiv-pull-quote__text\">A line from the page worth repeating.</p>\n</blockquote>\n",

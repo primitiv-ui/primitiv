@@ -209,7 +209,6 @@
   "elements": {
     "package": null,
     "module": "progress",
-    "version": null,
     "element": "div",
     "wrapText": false,
     "example": "<div class=\"primitiv-progress primitiv-progress--md primitiv-progress--primary\" role=\"progressbar\" aria-label=\"Uploading report.pdf\" aria-valuemin=\"0\" aria-valuemax=\"100\" aria-valuenow=\"40\" style=\"--primitiv-progress-value: 40; --primitiv-progress-max: 100\">\n  <div class=\"primitiv-progress__indicator\"></div>\n</div>\n",

@@ -370,7 +370,6 @@
   "elements": {
     "package": "@primitiv-ui/web",
     "module": "slider",
-    "version": "0.2.2",
     "element": "span",
     "wrapText": false,
     "example": "<primitiv-slider value=\"40\" class=\"primitiv-slider primitiv-slider--md\">\n  <primitiv-slider-track class=\"primitiv-slider__track\">\n    <primitiv-slider-range class=\"primitiv-slider__range\"></primitiv-slider-range>\n  </primitiv-slider-track>\n  <primitiv-slider-thumb aria-label=\"Volume\" class=\"primitiv-slider__thumb\"></primitiv-slider-thumb>\n</primitiv-slider>\n",

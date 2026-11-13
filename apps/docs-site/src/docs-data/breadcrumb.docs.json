@@ -176,7 +176,6 @@
   "elements": {
     "package": null,
     "module": "breadcrumb",
-    "version": null,
     "element": "nav",
     "wrapText": false,
     "example": "<nav class=\"primitiv-breadcrumb primitiv-breadcrumb--md\" aria-label=\"Breadcrumb\">\n  <ol class=\"primitiv-breadcrumb__list\">\n    <li class=\"primitiv-breadcrumb__item\"><a class=\"primitiv-breadcrumb__link\" href=\"/\">Home</a></li>\n    <li class=\"primitiv-breadcrumb__separator\" role=\"presentation\" aria-hidden=\"true\">/</li>\n    <li class=\"primitiv-breadcrumb__item\"><span class=\"primitiv-breadcrumb__ellipsis\" role=\"presentation\" aria-hidden=\"true\">...</span></li>\n    <li class=\"primitiv-breadcrumb__separator\" role=\"presentation\" aria-hidden=\"true\">/</li>\n    <li class=\"primitiv-breadcrumb__item\"><a class=\"primitiv-breadcrumb__link\" href=\"/docs/components\">Components</a></li>\n    <li class=\"primitiv-breadcrumb__separator\" role=\"presentation\" aria-hidden=\"true\">/</li>\n    <li class=\"primitiv-breadcrumb__item\"><span class=\"primitiv-breadcrumb__page\" aria-current=\"page\">Breadcrumb</span></li>\n  </ol>\n</nav>\n",

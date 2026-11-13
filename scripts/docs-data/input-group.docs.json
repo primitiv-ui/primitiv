@@ -230,7 +230,6 @@
   "elements": {
     "package": null,
     "module": "input-group",
-    "version": null,
     "element": "div",
     "wrapText": false,
     "example": "<div class=\"primitiv-input-group primitiv-input-group--md\">\n  <span class=\"primitiv-input-group__leading\" aria-hidden=\"true\">£</span>\n  <input type=\"number\" class=\"primitiv-input primitiv-input--md\" name=\"budget\" placeholder=\"0.00\" aria-label=\"Budget in pounds per month\">\n  <span class=\"primitiv-input-group__trailing\" aria-hidden=\"true\">per month</span>\n</div>\n",

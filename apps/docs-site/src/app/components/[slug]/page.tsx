@@ -8,6 +8,7 @@ import { humanName } from "@/lib/human-name";
 import { pageMetadata } from "@/lib/page-metadata";
 import { SITE_URL } from "@/lib/site";
 import { JsonLd } from "@/site/JsonLd";
+import { WEB_RELEASE } from "@/lib/web-release";
 
 /*
  * One route for every component, rather than a folder each.
@@ -75,7 +76,7 @@ export default async function ComponentPage({
   return (
     <>
       <JsonLd data={breadcrumbs} />
-      <ComponentDocsPage id={slug} />
+      <ComponentDocsPage id={slug} release={WEB_RELEASE} />
     </>
   );
 }

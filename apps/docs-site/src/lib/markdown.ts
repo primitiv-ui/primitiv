@@ -11,6 +11,7 @@ import {
 } from "./docs-data";
 import { humanName } from "./human-name";
 import { withoutClasses } from "./playground";
+import { WEB_RELEASE } from "./web-release";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "./site";
 
 /*
@@ -142,7 +143,7 @@ export const elementsMarkdown = (docs: ComponentDocs): string => {
   const elements = docs.elements;
   if (!elements) return "";
   const name = humanName(docs.displayName);
-  const { package: pkg, module, version, example, api } = elements;
+  const { package: pkg, module, example, api } = elements;
   const borrowed = module !== docs.id;
 
   const intro = pkg
@@ -167,7 +168,7 @@ export const elementsMarkdown = (docs: ComponentDocs): string => {
     ? [
         "### Load",
         "The module defines the elements when it loads, and only this component's. With no build step, add the script to the page:",
-        fenced("html", cdnScript(pkg, version, module)),
+        fenced("html", cdnScript(pkg, WEB_RELEASE, module)),
         `With a bundler, \`npm i ${pkg}\` and import it once:`,
         fenced("js", `import "${pkg}/define/${module}";`),
       ]

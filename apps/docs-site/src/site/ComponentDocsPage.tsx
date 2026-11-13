@@ -93,7 +93,7 @@ const propsHeadingId = (subName: string) =>
  * is what keeps the TOC honest: a heading and its TOC entry cannot drift,
  * because both come from `docs` + `spec` in one pass.
  */
-export const ComponentDocsPage = ({ id }: { id: ComponentId }) => {
+export const ComponentDocsPage = ({ id, release }: { id: ComponentId; release: string }) => {
   const docs = getDocs(id);
   const spec = SPECS[id];
   const subs = docs.headless.subComponents;
@@ -186,6 +186,7 @@ export const ComponentDocsPage = ({ id }: { id: ComponentId }) => {
           spec={spec}
           controls={controls}
           dataAttrGroups={dataAttrGroups}
+          release={release}
         />
       </ElementsSurfaceProvider>
       </HeadlessAvailableProvider>
@@ -211,11 +212,14 @@ const ComponentDocsBody = ({
   spec,
   controls,
   dataAttrGroups,
+  release,
 }: {
   docs: ComponentDocs;
   spec: ComponentSpec;
   controls: readonly PlaygroundControl[];
   dataAttrGroups: DataAttrGroups;
+  /** The `@primitiv-ui/web` release every CDN script pins, read on the server. */
+  release: string;
 }) => {
   const subs = docs.headless.subComponents;
   const cssVars = docs.styled.customProperties;
@@ -321,7 +325,7 @@ const ComponentDocsBody = ({
                       variant="inline"
                       size="xs"
                       language="html"
-                      code={`<script type="module" src="https://cdn.jsdelivr.net/npm/${webPackage}@${elements?.version ?? "latest"}/dist/cdn/${elements?.module ?? docs.id}.js"></script>`}
+                      code={`<script type="module" src="https://cdn.jsdelivr.net/npm/${webPackage}@${release}/dist/cdn/${elements?.module ?? docs.id}.js"></script>`}
                     />
                   </Stack>
                 ) : (

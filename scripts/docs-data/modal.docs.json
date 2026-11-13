@@ -398,7 +398,6 @@
   "elements": {
     "package": "@primitiv-ui/web",
     "module": "modal",
-    "version": "0.2.2",
     "element": "dialog",
     "wrapText": false,
     "example": "<primitiv-modal>\n  <primitiv-modal-trigger>\n    <button type=\"button\">Edit profile</button>\n  </primitiv-modal-trigger>\n  <primitiv-modal-content>\n    <dialog class=\"primitiv-modal primitiv-modal--md\">\n      <span class=\"primitiv-modal__header\">\n        <primitiv-modal-title><h2 class=\"primitiv-modal__title\">Edit profile</h2></primitiv-modal-title>\n        <primitiv-modal-close>\n          <button type=\"button\" class=\"primitiv-modal__close\" aria-label=\"Close\"><svg viewBox=\"0 0 24 24\" width=\"24\" height=\"24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M20.06 19 19 20.06 3.94 5 5 3.94z\"/><path d=\"M20.06 5 5 20.06 3.94 19 19 3.94z\"/></svg></button>\n        </primitiv-modal-close>\n      </span>\n      <span class=\"primitiv-modal__body\">\n        <primitiv-modal-description><p class=\"primitiv-modal__description\">Changes are saved to your account when you close this dialog.</p></primitiv-modal-description>\n      </span>\n      <span class=\"primitiv-modal__footer\">\n        <primitiv-modal-close>\n          <button type=\"button\" class=\"primitiv-modal__close\">Done</button>\n        </primitiv-modal-close>\n      </span>\n    </dialog>\n  </primitiv-modal-content>\n</primitiv-modal>\n",

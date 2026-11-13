@@ -313,7 +313,6 @@
   "elements": {
     "package": null,
     "module": "card",
-    "version": null,
     "element": "div",
     "wrapText": false,
     "example": "<div class=\"primitiv-card primitiv-card--vertical primitiv-card--md primitiv-card--flat primitiv-card--scrim-medium\">\n  <div class=\"primitiv-card__media\"><img src=\"image.jpg\" alt=\"Describe the image\"></div>\n  <div class=\"primitiv-card__content\">\n    <div class=\"primitiv-card__header\">\n      <h3 class=\"primitiv-card__title\">Card title</h3>\n    </div>\n    <p class=\"primitiv-card__description\">A sentence or two about what the card links to.</p>\n    <div class=\"primitiv-card__footer primitiv-card__footer--end\">\n      <a href=\"#\">Read more</a>\n    </div>\n  </div>\n</div>\n",

@@ -49,6 +49,13 @@
             "description": "Reading direction. In `\"rtl\"` the horizontal arrow keys are mirrored so\nfocus follows the visual order. Inherited from the nearest\n{@link DirectionProvider } when omitted, falling back to `\"ltr\"`."
           },
           {
+            "name": "name",
+            "type": "string",
+            "required": false,
+            "default": "undefined",
+            "description": "Submit every pressed value with the surrounding form under this name, as\nsame-named checked checkboxes would: nothing while no item is pressed.\nOptional: without it the group takes no part in forms."
+          },
+          {
             "name": "onValueChange",
             "type": "((value: string | undefined) => void) | ((value: string[]) => void)",
             "required": false,
@@ -298,7 +305,6 @@
   "elements": {
     "package": "@primitiv-ui/web",
     "module": "toggle-group",
-    "version": "0.2.2",
     "element": "div",
     "wrapText": false,
     "example": "<primitiv-toggle-group type=\"multiple\" value=\"bold\" aria-label=\"Formatting\" class=\"primitiv-toggle-group primitiv-toggle-group--md\">\n  <primitiv-toggle-group-item value=\"bold\">\n    <button type=\"button\" class=\"primitiv-toggle-group__item\">\n      <span class=\"primitiv-toggle-group__item-label\">Bold</span>\n    </button>\n  </primitiv-toggle-group-item>\n  <primitiv-toggle-group-item value=\"italic\">\n    <button type=\"button\" class=\"primitiv-toggle-group__item\">\n      <span class=\"primitiv-toggle-group__item-label\">Italic</span>\n    </button>\n  </primitiv-toggle-group-item>\n  <primitiv-toggle-group-item value=\"underline\">\n    <button type=\"button\" class=\"primitiv-toggle-group__item\">\n      <span class=\"primitiv-toggle-group__item-label\">Underline</span>\n    </button>\n  </primitiv-toggle-group-item>\n</primitiv-toggle-group>\n",
@@ -321,6 +327,11 @@
             "name": "orientation",
             "type": "\"horizontal\" | \"vertical\"",
             "description": "Layout axis, which picks the arrow-key pair. Defaults to `horizontal`."
+          },
+          {
+            "name": "name",
+            "type": "string",
+            "description": "Submit the pressed values with a form, each under this name, as same-named checked checkboxes would: nothing while none is pressed. A form reset restores the values the group first rendered with. Without it the group takes no part in forms."
           }
         ],
         "events": [

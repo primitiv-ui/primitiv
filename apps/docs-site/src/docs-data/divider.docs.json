@@ -54,7 +54,6 @@
   "elements": {
     "package": null,
     "module": "divider",
-    "version": null,
     "element": "span",
     "wrapText": false,
     "example": "<span class=\"primitiv-divider\" role=\"separator\" aria-orientation=\"horizontal\"></span>\n",

@@ -33,7 +33,6 @@
   "elements": {
     "package": null,
     "module": "spacer",
-    "version": null,
     "element": "div",
     "wrapText": false,
     "example": "<nav style=\"display: flex; align-items: center; gap: 1rem\">\n  <a href=\"/\">Home</a>\n  <div class=\"primitiv-spacer\" aria-hidden=\"true\"></div>\n  <a href=\"/account\">Account</a>\n</nav>\n",

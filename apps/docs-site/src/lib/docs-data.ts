@@ -270,8 +270,6 @@ export type ComponentDocs = {
      * (ConfirmDialog's is `modal`).
      */
     readonly module: string;
-    /** The release the CDN script pins: `@primitiv-ui/web`'s own version, the one `primitiv add` prints. */
-    readonly version: string | null;
     /** The root element, for building a single-element component's markup. */
     readonly element: string | null;
     /** Whether text sits in a `__label` span inside the root. */

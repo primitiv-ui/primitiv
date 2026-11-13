@@ -439,7 +439,6 @@
   "elements": {
     "package": "@primitiv-ui/web",
     "module": "collapsible",
-    "version": "0.2.2",
     "element": "div",
     "wrapText": false,
     "example": "<primitiv-collapsible class=\"primitiv-collapsible primitiv-collapsible--card primitiv-collapsible--md\">\n  <primitiv-collapsible-trigger>\n    <button type=\"button\" class=\"primitiv-collapsible__trigger\">\n      <span class=\"primitiv-collapsible__trigger-label\">Show shipping details</span>\n      <primitiv-collapsible-trigger-icon class=\"primitiv-collapsible__trigger-icon\"><svg viewBox=\"0 0 24 24\" fill=\"currentColor\"><path d=\"M20.06 9 12 17.06 3.94 9 5 7.94l7 7 7-7L20.06 9Z\"/></svg></primitiv-collapsible-trigger-icon>\n    </button>\n  </primitiv-collapsible-trigger>\n  <primitiv-collapsible-content class=\"primitiv-collapsible__content\" hidden>\n    <span class=\"primitiv-collapsible__content-inner\"><span class=\"primitiv-collapsible__content-body\">Orders ship within two business days. Tracking details arrive by email once the parcel leaves the warehouse.</span><span class=\"primitiv-collapsible__content-fade\"></span></span>\n  </primitiv-collapsible-content>\n</primitiv-collapsible>\n",

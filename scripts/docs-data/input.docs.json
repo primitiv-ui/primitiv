@@ -138,7 +138,6 @@
   "elements": {
     "package": null,
     "module": "input",
-    "version": null,
     "element": "input",
     "wrapText": false,
     "example": "<input type=\"email\" class=\"primitiv-input primitiv-input--md\" name=\"email\" placeholder=\"you@example.com\" aria-label=\"Email\">\n",

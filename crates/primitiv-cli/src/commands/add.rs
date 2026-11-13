@@ -1140,13 +1140,41 @@ fn json_array(items: Vec<String>) -> String {
 /// component that requires a minimum `@primitiv-ui/react` drives the install to a
 /// version new enough to carry its exports (the version safeguard).
 fn packages(index: &RegistryIndex, resolved: &[String], surface: Surface) -> Vec<String> {
-    resolved
+    let declared: Vec<&PackageDep> = resolved
         .iter()
         .flat_map(|name| declared_packages(&index.components[name], surface))
-        .map(PackageDep::spec)
+        .collect();
+    // Each element component records the release that first carried it, but a
+    // project wants one dependency: on the release that carries them all, the
+    // one the printed scripts load.
+    let web = declared
+        .iter()
+        .any(|package| package.name == WEB_PACKAGE)
+        .then(|| format!("{WEB_PACKAGE}@^{}", web_release(index, resolved)));
+    declared
+        .iter()
+        .filter(|package| package.name != WEB_PACKAGE)
+        .map(|package| package.spec())
+        .chain(web)
         .collect::<BTreeSet<_>>()
         .into_iter()
         .collect()
+}
+
+/// The `@primitiv-ui/web` release a set of components loads from: this CLI's
+/// own, unless a component's floor is newer still — which only an unreleased
+/// build can carry, for a component whose file has no older home.
+fn web_release(index: &RegistryIndex, resolved: &[String]) -> String {
+    let newest = resolved
+        .iter()
+        .flat_map(|name| declared_packages(&index.components[name], Surface::Elements))
+        .filter(|package| package.name == WEB_PACKAGE)
+        .map(|package| package.minimum_spec())
+        .chain(std::iter::once(format!("{WEB_PACKAGE}@{RELEASE}")))
+        .max_by_key(|spec| release_order(spec))
+        // Never empty — the release is always there — so the default is unreachable.
+        .unwrap_or_default();
+    newest.rsplit_once('@').map_or(String::new(), |(_, version)| version.to_string())
 }
 
 /// The CDN bundle a project without a package manager loads the elements from.
@@ -1179,15 +1207,7 @@ fn print_cdn_scripts(
     if !resolved.iter().any(|name| needs_web(&name)) {
         return Ok(());
     }
-    // Never empty — the release is always there — so the default is unreachable.
-    let spec = resolved
-        .iter()
-        .flat_map(|name| declared_packages(&index.components[name], Surface::Elements))
-        .filter(|package| package.name == WEB_PACKAGE)
-        .map(|package| package.minimum_spec())
-        .chain(std::iter::once(format!("{WEB_PACKAGE}@{RELEASE}")))
-        .max_by_key(|spec| release_order(spec))
-        .unwrap_or_default();
+    let spec = format!("{WEB_PACKAGE}@{}", web_release(index, resolved));
     let scripts: BTreeSet<String> = resolved
         .iter()
         .filter(needs_web)

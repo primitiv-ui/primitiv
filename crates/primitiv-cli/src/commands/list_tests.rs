@@ -22,23 +22,23 @@ const INDEX: &[u8] = br##"{
   }
 }"##;
 
-/// The hand-authored table with nothing installed: the name and version columns
+/// The hand-authored table with nothing installed: the name and contract columns
 /// are padded to the widest of their values and headers, and every component's
 /// INSTALLED cell is the `-` placeholder. SURFACES names what `add --surface`
 /// can install (RFC 0033 §8.2).
 const EXPECTED_TABLE: &str = "\
-COMPONENT  VERSION  INSTALLED  SURFACES
-button     0.1.0    -          react, elements
-dot        0.1.0    -          -
-switch     0.2.0    -          react
+COMPONENT  CONTRACT  INSTALLED  SURFACES
+button     0.1.0     -          react, elements
+dot        0.1.0     -          -
+switch     0.2.0     -          react
 ";
 
 /// The same table after `button` has been added: its INSTALLED cell reads `yes`.
 const EXPECTED_TABLE_WITH_INSTALL: &str = "\
-COMPONENT  VERSION  INSTALLED  SURFACES
-button     0.1.0    yes        react, elements
-dot        0.1.0    -          -
-switch     0.2.0    -          react
+COMPONENT  CONTRACT  INSTALLED  SURFACES
+button     0.1.0     yes        react, elements
+dot        0.1.0     -          -
+switch     0.2.0     -          react
 ";
 
 #[test]

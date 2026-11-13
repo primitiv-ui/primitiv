@@ -58,8 +58,10 @@ Options:
 const ADD: &str = "\
 Usage: primitiv add <component...> | --all [options]
 
-Copies each component's styles and React wrapper into the project and installs
-the packages it needs.
+React: copies each component's styles and React wrapper into the project and
+installs the packages it needs. Elements: prints each component's script tag and
+markup, copies its stylesheet when the project is styled (init --styles, or
+--styled), and installs @primitiv-ui/web only where there is a package.json.
 
 Options:
   --all                          Add every component in the registry
@@ -81,6 +83,10 @@ Usage: primitiv list [--json]
 
 Lists the registry's components, which are installed in this project, and the
 surfaces (react, elements) each can be added on.
+
+CONTRACT is the version of a component's styling contract, which changes only
+when its classes or custom properties do. The release of the CLI and of every
+package it installs is `primitiv --version`.
 
 Options:
   --json                         Print the list as JSON

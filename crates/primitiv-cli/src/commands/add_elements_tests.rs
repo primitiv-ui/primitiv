@@ -169,7 +169,10 @@ fn plans_the_elements_packages_in_place_of_the_react_ones() {
 
     assert_eq!(
         String::from_utf8(output.captured()).unwrap(),
-        "Resolved 2 components to add:\n  kbd   0.1.0\n  tabs  0.1.0\n\nPackages to ensure:\n  @primitiv-ui/web@^0.1.0\n"
+        format!(
+            "Resolved 2 components to add:\n  kbd   0.1.0\n  tabs  0.1.0\n\nPackages to ensure:\n  @primitiv-ui/web@^{RELEASE}\n",
+            RELEASE = env!("CARGO_PKG_VERSION")
+        )
     );
 }
 
@@ -202,7 +205,7 @@ fn installs_only_the_elements_packages_in_a_project_with_a_package_json() {
             "pnpm".to_string(),
             vec![
                 "add".to_string(),
-                "@primitiv-ui/web@^0.1.0".to_string(),
+                format!("@primitiv-ui/web@^{}", env!("CARGO_PKG_VERSION")),
                 "--silent".to_string()
             ],
             std::path::Path::new("project").to_path_buf(),
@@ -1004,7 +1007,10 @@ fn headless_plans_only_the_components_with_behaviour() {
 
     assert_eq!(
         String::from_utf8(output.captured()).unwrap(),
-        "Resolved 1 component to add:\n  tabs  0.1.0\n\nPackages to ensure:\n  @primitiv-ui/web@^0.1.0\n"
+        format!(
+            "Resolved 1 component to add:\n  tabs  0.1.0\n\nPackages to ensure:\n  @primitiv-ui/web@^{RELEASE}\n",
+            RELEASE = env!("CARGO_PKG_VERSION")
+        )
     );
 }
 
@@ -1235,4 +1241,48 @@ fn surfaces_a_lock_a_headless_add_cannot_read_or_write() {
 
         assert!(matches!(error, CliError::Io(_)), "{error:?}");
     }
+}
+
+
+#[test]
+fn ensures_the_elements_package_once_at_this_cli_s_release_whatever_the_floors() {
+    // Each component records the release that first carried it; a project wants
+    // one dependency on the release that carries them all.
+    let registry = InMemoryRegistry::new(
+        br##"{
+  "version": "0.1.0",
+  "components": {
+    "tabs": { "version": "0.1.0", "elements": { "packages": [{ "name": "@primitiv-ui/web", "version": "^0.1.9" }], "example": "tabs.html" } },
+    "collapsible": { "version": "0.1.0", "elements": { "packages": [{ "name": "@primitiv-ui/web", "version": "^0.1.10" }], "example": "collapsible.html" } }
+  }
+}"##,
+    )
+    .with_file("tabs", "tabs.html", b"<primitiv-tabs></primitiv-tabs>\n")
+    .with_file("collapsible", "collapsible.html", b"<primitiv-collapsible></primitiv-collapsible>\n");
+    let output = InMemoryOutput::new();
+
+    add(
+        &InMemoryFs::new(),
+        &registry,
+        &output,
+        &InMemoryProcessRunner::new(),
+        &InMemoryPrompt::new(Decision::Keep),
+        false,
+        &AddOptions {
+            components: vec!["tabs".into(), "collapsible".into()],
+            surface: Some(Surface::Elements),
+            dry_run: true,
+            ..Default::default()
+        },
+    )
+    .unwrap();
+
+    let captured = String::from_utf8(output.captured()).unwrap();
+    assert!(
+        captured.ends_with(&format!(
+            "\nPackages to ensure:\n  @primitiv-ui/web@^{}\n",
+            env!("CARGO_PKG_VERSION")
+        )),
+        "{captured}"
+    );
 }

@@ -7,8 +7,10 @@ use crate::registry::RegistryIndex;
 
 /// The column header for the component name, and the floor for its width.
 const NAME_HEADER: &str = "COMPONENT";
-/// The version column header and the floor for its width.
-const VERSION_HEADER: &str = "VERSION";
+/// The column header for each entry's own version — the version of its styling
+/// contract, which moves only when its classes or custom properties do; not a
+/// package release (that is `primitiv --version`) — and the floor for its width.
+const VERSION_HEADER: &str = "CONTRACT";
 /// The installed-marker column header, and the width of its column.
 const INSTALLED_HEADER: &str = "INSTALLED";
 /// The column naming each component's surfaces (RFC 0033 §8.2).
@@ -43,7 +45,7 @@ pub fn list(
     Ok(())
 }
 
-/// Format the index as an aligned `COMPONENT  VERSION  INSTALLED` table, the
+/// Format the index as an aligned `COMPONENT  CONTRACT  INSTALLED` table, the
 /// components in the index's (sorted) order. The name and version columns are
 /// padded to the widest of their values and headers; `INSTALLED` reads `yes` for
 /// a component the [`Lock`] records and `-` otherwise; `SURFACES` lists the

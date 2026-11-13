@@ -25,7 +25,7 @@ const ITEM = "primitiv-segmented-control-item";
  *
  * @customElement primitiv-segmented-control
  * @summary The state owner of a single-select segmented control.
- * @attr {string} value - The selected segment's value. Reflected: it changes as the user selects, so a server re-render or a history snapshot sees the live selection. Omit it for nothing selected.
+ * @attr {string} value - The selected segment's value. Reflected: it changes as the user selects, so a server re-render or a history snapshot sees the live selection. Omit it for nothing selected. A segment may carry `value=""`, for an "All" choice.
  * @attr {"horizontal" | "vertical"} orientation - Layout axis, which picks the arrow-key pair. Defaults to `horizontal`.
  * @attr {string} name - Submit the selected value with a form, under this name, as a checked radio would: nothing while none is selected or the control is disabled. A form reset restores the value the control first rendered with. Without it the control takes no part in forms.
  * @attr {boolean} disabled - Disables the whole control: every segment is skipped by the arrow keys and never selected, and `data-disabled` is set on the root and every segment.

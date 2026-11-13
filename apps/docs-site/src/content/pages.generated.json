@@ -1182,9 +1182,18 @@
               },
               {
                 "kind": "p",
-                "text": "On its first run in a project it also does the setup: installs what it needs, writes primitiv.json, generates your token layer, and wires the stylesheet import. That is intentional, so a new project is one command rather than four.",
+                "text": "In a React project, its first run also does the setup: installs what it needs, writes primitiv.json, generates your token layer, and wires the stylesheet import. That is intentional, so a new project is one command rather than four.",
                 "code": [
                   "primitiv.json"
+                ]
+              },
+              {
+                "kind": "p",
+                "text": "For the custom elements it does less. Headless, it prints the script tag and the markup and records the component in primitiv.lock, and that is all: the elements need nothing else. Run init --styles first and each add also copies the component's stylesheet and prints the classed markup.",
+                "code": [
+                  "primitiv.lock",
+                  "init --styles",
+                  "add"
                 ]
               },
               {
@@ -1724,6 +1733,40 @@
             "kind": "p",
             "text": "Two components write an inline position, because it is their state rather than styling. A Slider places its thumbs, and a Context Menu publishes where the pointer was.",
             "code": []
+          },
+          {
+            "kind": "h3",
+            "text": "Positioning a panel"
+          },
+          {
+            "kind": "p",
+            "text": "A panel that opens from a trigger, such as a Select list, a Dropdown or Combobox menu, a Popover or a Tooltip, is shown in the top layer with its trigger as its implicit CSS anchor. Primitiv's stylesheets place it against that anchor. Headless, nothing does, and the browser leaves it where popovers sit by default. Place it yourself:",
+            "code": [
+              "Select",
+              "Dropdown",
+              "Combobox",
+              "Popover",
+              "Tooltip"
+            ]
+          },
+          {
+            "kind": "code",
+            "code": "primitiv-select-content:popover-open {\n  position: fixed;\n  inset: auto;\n  margin: 0;\n  position-anchor: auto;\n  top: anchor(bottom);\n  left: anchor(left);\n  min-width: anchor-size(width);\n  position-try-fallbacks: flip-block;\n}",
+            "language": "text",
+            "header": false,
+            "lineNumbers": true
+          },
+          {
+            "kind": "p",
+            "text": "position-anchor: auto is what reaches the trigger, so there is no anchor-name to write. Use the same rule for each panel element, and change top and left for another side. A Context Menu has no anchor: place it from --primitiv-context-menu-x and --primitiv-context-menu-y, which it sets as it opens.",
+            "code": [
+              "position-anchor: auto",
+              "anchor-name",
+              "top",
+              "left",
+              "--primitiv-context-menu-x",
+              "--primitiv-context-menu-y"
+            ]
           }
         ]
       },

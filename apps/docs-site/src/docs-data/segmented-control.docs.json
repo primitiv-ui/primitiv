@@ -337,7 +337,7 @@
           {
             "name": "value",
             "type": "string",
-            "description": "The selected segment's value. Reflected: it changes as the user selects, so a server re-render or a history snapshot sees the live selection. Omit it for nothing selected."
+            "description": "The selected segment's value. Reflected: it changes as the user selects, so a server re-render or a history snapshot sees the live selection. Omit it for nothing selected. A segment may carry `value=\"\"`, for an \"All\" choice."
           },
           {
             "name": "orientation",

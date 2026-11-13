@@ -43,13 +43,14 @@ function decoratableDialog(content: HTMLElement): HTMLDialogElement | null {
  * The root finds its own parts, and only inside itself: a trigger or close
  * part must be a descendant of the `<primitiv-modal>` it works, though it may
  * sit anywhere in it, outside the dialog included, and may arrive later (rows
- * swapped into a list). To open a modal from a button elsewhere on the page,
- * set its `open`. A modal nested in another, inside its dialog or beside it,
+ * swapped into a list). A modal needs no trigger part at all: to open it from
+ * a button elsewhere on the page, set its `open`. A modal nested in another, inside its dialog or beside it,
  * keeps its own parts; its events still bubble through the outer root, so a
  * listener there checks `event.target`. The root reconciles its parts' ARIA
  * from its reflected state whenever a part arrives, leaves, or changes an
  * attribute the root reads (the lifecycle is `PrimitivRootElement`'s), so
- * content swapped into an open dialog is wired as it lands. Leave `open` off
+ * content swapped into an open dialog is wired as it lands, a title or
+ * description included. Leave `open` off
  * the `<dialog>` itself: the root opens it, modally.
  *
  * Setting `open` from script fires no `primitiv-modal-change`: the event

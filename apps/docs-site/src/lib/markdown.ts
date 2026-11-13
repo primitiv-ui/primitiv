@@ -147,11 +147,13 @@ export const elementsMarkdown = (docs: ComponentDocs): string => {
   const borrowed = module !== docs.id;
 
   const intro = pkg
-    ? `${name} is also a set of standard custom elements from \`${pkg}\`: no framework and no build step, ` +
+    ? (borrowed
+        ? `${name} has no element of its own: it is the \`${module}\` elements in the markup below, so it loads the \`${module}\` module and its attributes and events are \`${module}\`'s. `
+        : "") +
+      `${name} ${borrowed ? "therefore works" : "is also a set of standard custom elements"} from \`${pkg}\`: no framework and no build step, ` +
       "so it works in any page a server renders. The element adds the behaviour and the accessibility; " +
       "the state lives in reflected attributes, so server-rendered markup is adopted as it is, and changes " +
-      "are announced as bubbling DOM events." +
-      (borrowed ? ` It uses the \`${module}\` elements, so it loads the \`${module}\` module.` : "")
+      "are announced as bubbling DOM events."
     : `${name} has no behaviour, so it has no custom element: in a page without React it is ordinary HTML. Headless, with your own CSS, there is nothing of Primitiv to install or load. Its value there is the styled form, the registry classes on that HTML.`;
 
   const install = [
@@ -204,7 +206,17 @@ export const elementsMarkdown = (docs: ComponentDocs): string => {
       : "",
   ]);
 
-  return ["## Elements", intro, ...install, ...load, ...markup, ...parts].filter(Boolean).join("\n\n");
+  // What a headless stylesheet keys off: the state attributes the component
+  // writes, from its contract — the same ones Primitiv's own stylesheet uses.
+  const hooks = docs.styled.dataAttributes.length
+    ? [
+        "### Styling hooks",
+        "The attributes the elements write as their state changes, which your own CSS can select on. Primitiv's stylesheet uses the same ones.",
+        dataAttributeTable(docs.styled.dataAttributes),
+      ]
+    : [];
+
+  return ["## Elements", intro, ...install, ...load, ...markup, ...parts, ...hooks].filter(Boolean).join("\n\n");
 };
 
 /** A component page's Markdown: description, installation, then the API. */
@@ -394,6 +406,7 @@ export const llmsElements = (): string =>
         "How they work, for every component below:",
         "",
         "- **Install with the CLI**, which needs Node only to run (the npm package is `primitiv-ui`; the command it installs is `primitiv`). Headless, with your own CSS: `npx primitiv-ui@latest add <component>` prints the `<script>` tag and the markup, and needs no setup. Styled: `npx primitiv-ui@latest init --styles` once per project (it writes `primitiv.json` and the token layer, and asks where static files are served from — a Maven or Gradle project is detected); every `add` after it also copies the stylesheet and prints the `<link>` lines and the classed markup. `add --styled` styles a single run. `add --no-styles` and `add --styles-only` are for React projects.",
+        "- **Place every panel yourself when headless.** A panel that opens from a trigger (Select, Combobox, Dropdown, Popover, Tooltip) is shown in the top layer with the trigger as its implicit CSS anchor; Primitiv's stylesheets place it, and headless nothing does. `position: fixed; inset: auto; margin: 0; position-anchor: auto; top: anchor(bottom); left: anchor(left); min-width: anchor-size(width);` on the panel element while `:popover-open` puts it under its trigger with no `anchor-name` to write. A Context Menu has no anchor: place it from `--primitiv-context-menu-x` / `-y`, which it sets as it opens.",
         "- **Pin one version.** Load every component from the same `@primitiv-ui/web` version, the one `add` prints: they share code, and one version downloads it once.",
         "- **Load** a component with its one `<script type=\"module\">` from the CDN (each component's section names it), or `import \"@primitiv-ui/web/define/<component>\"` with a bundler. Components marked \"no script\" are markup and classes only.",
         "- **Write the markup the server renders.** An element adopts server-rendered markup as it is and writes only the ARIA it owns. Parts that arrive later, leave, or move (a fragment swapped in) are picked up with no script call.",

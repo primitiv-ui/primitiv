@@ -908,3 +908,10 @@ fn rejects_init_url_with_no_value() {
         CliError::Usage(message) if message == "--url needs a value"
     ));
 }
+
+#[test]
+fn parses_a_version_request_in_either_spelling() {
+    for spelling in ["--version", "-V"] {
+        assert_eq!(parse(&args(&[spelling])).unwrap(), Command::Version, "{spelling}");
+    }
+}

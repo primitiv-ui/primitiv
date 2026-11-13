@@ -225,3 +225,46 @@ fn reports_a_failed_help_write_as_an_io_error() {
 
     assert!(matches!(error, CliError::Io(_)), "{error:?}");
 }
+
+#[test]
+fn prints_the_release_this_cli_came_from_for_a_version_request() {
+    for spelling in ["--version", "-V"] {
+        assert_eq!(
+            help_for(&[spelling]),
+            format!("primitiv {}\n", env!("CARGO_PKG_VERSION")),
+            "{spelling}"
+        );
+    }
+}
+
+#[test]
+fn says_in_the_overview_that_it_reports_its_version() {
+    assert!(help_for(&["--help"]).contains("primitiv --version"));
+}
+
+#[test]
+fn marks_the_add_flags_that_only_a_react_project_reads() {
+    let help = help_for(&["add", "--help"]);
+
+    assert!(help.contains("--styles-only                  React: copy styles without installing the headless package"), "{help}");
+    assert!(help.contains("--no-styles                    React: install the headless package without copying styles"), "{help}");
+}
+
+#[test]
+fn reports_a_failed_version_write_as_an_io_error() {
+    let stdout = InMemoryOutput::new();
+    stdout.fail_stdout();
+
+    let error = run(
+        &InMemoryFs::new(),
+        &stdout,
+        &EmbeddedRegistry,
+        &InMemoryProcessRunner::new(),
+        &OsPrompt,
+        false,
+        &args(&["--version"]),
+    )
+    .unwrap_err();
+
+    assert!(matches!(error, CliError::Io(_)), "{error:?}");
+}

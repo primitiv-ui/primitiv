@@ -9,6 +9,8 @@
  *   - 2 crates/*-wasm/Cargo.toml "version" fields (wasm-pack reads these into the
  *     published @primitiv-ui/{harmoni,primitiv-emit}-wasm package.json at publish
  *     time)
+ *   - crates/primitiv-cli/Cargo.toml "version" (the CLI pins the CDN scripts it
+ *     prints to its own release, read from this at compile time)
  *
  * Usage:
  *   node scripts/bump-version.mjs 0.1.8
@@ -82,6 +84,9 @@ function bump(rel, mutate) {
 const CARGO_TOML_PATHS = [
   "crates/harmoni-wasm/Cargo.toml",
   "crates/primitiv-emit-wasm/Cargo.toml",
+  // Not published to npm itself, but its version is compiled into the binary
+  // as the release the printed CDN scripts load (`commands/add.rs` RELEASE).
+  "crates/primitiv-cli/Cargo.toml",
 ];
 
 function bumpCargoToml(rel, version) {

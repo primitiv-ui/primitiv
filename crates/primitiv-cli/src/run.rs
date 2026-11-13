@@ -43,6 +43,9 @@ pub fn run(
         } => theme(fs, &seeds, out.as_deref().map(Path::new), format, steps),
         Command::Dtcg { seeds, out, steps } => dtcg(fs, &seeds, Path::new(&out), steps),
         Command::Tokens(options) => tokens(fs, output, registry, &options),
+        Command::Version => output
+            .write_stdout(format!("primitiv {}\n", env!("CARGO_PKG_VERSION")).as_bytes())
+            .map_err(CliError::Io),
         Command::Help { command } => output
             .write_stdout(help_text(command.as_deref()).as_bytes())
             .map_err(CliError::Io),

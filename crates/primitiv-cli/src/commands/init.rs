@@ -172,6 +172,15 @@ pub fn init(
         static_root,
     )?;
     fs.write(&path, render(&resolved).as_bytes())?;
+    // A headless elements project needs nothing past the config, so there is no
+    // token layer to link below: say what was written, or the run is silent.
+    if surface == Surface::Elements && !resolved.styles_enabled {
+        output.write_stdout(
+            b"Wrote primitiv.json: custom elements, headless. Nothing else is needed: \
+              `primitiv add <component>` prints each component's script tag and markup. \
+              Run `primitiv init --styles --force` instead for Primitiv's styling and token layer.\n",
+        )?;
+    }
     if resolved.styles_enabled {
         let token_dir = dir.join(&resolved.path);
         let token_out = token_dir.join(format!("tokens.{}", resolved.format.extension()));

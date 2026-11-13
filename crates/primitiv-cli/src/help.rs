@@ -29,7 +29,8 @@ Commands:
   tokens   Emit the design-token layer as CSS, SCSS or Tailwind
   dtcg     Export palette ramps as a DTCG token document for design tools
 
-Run `primitiv <command> --help` for a command's options.
+Run `primitiv <command> --help` for a command's options, and
+`primitiv --version` for the release this CLI came from.
 ";
 
 const INIT: &str = "\
@@ -64,8 +65,8 @@ Options:
   --all                          Add every component in the registry
   --dry-run                      Show the plan without changing anything
   --json                         Print the plan as JSON
-  --styles-only                  Copy styles without installing the headless package
-  --no-styles                    Install the headless package without copying styles
+  --styles-only                  React: copy styles without installing the headless package
+  --no-styles                    React: install the headless package without copying styles
   --surface <react|elements>     Override the configured surface
   --styled                       Elements: copy Primitiv's styling (headless otherwise)
   --format <css|scss|tailwind>   Override the configured stylesheet format

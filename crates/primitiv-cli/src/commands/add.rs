@@ -230,9 +230,15 @@ pub fn add(
             .into_iter()
             .partition(|name| !declared_packages(&index.components[name], surface).is_empty());
         for name in &without {
+            // A dependency nobody asked for by name says what brought it in.
+            let brought_by = with
+                .iter()
+                .find(|other| index.components[*other].depends_on.components.contains(name))
+                .map(|other| format!(", which {other} uses,"))
+                .unwrap_or_default();
             output.write_stderr(
                 format!(
-                    "{name} has no behaviour, so its headless form is plain HTML. \
+                    "{name}{brought_by} has no behaviour, so its headless form is plain HTML. \
                      Add --styled for Primitiv's styling.\n"
                 )
                 .as_bytes(),
@@ -355,6 +361,15 @@ pub fn add(
                     .as_bytes(),
                 )?;
             }
+        } else if headless {
+            // A headless element copies nothing, but the project uses it all the
+            // same: the lock still records it, or `list` would say it was never added.
+            let lock_path = dir.join(lock::FILE_NAME);
+            let mut lock = Lock::read(fs, &lock_path)?;
+            for name in &resolved {
+                lock.record_component(name);
+            }
+            lock.write(fs, &lock_path)?;
         }
         // The markup is the last thing printed, styled or not: classes on it
         // when the styling was copied, bare when the run was headless.
@@ -1137,9 +1152,14 @@ fn packages(index: &RegistryIndex, resolved: &[String], surface: Surface) -> Vec
 /// The CDN bundle a project without a package manager loads the elements from.
 const WEB_PACKAGE: &str = "@primitiv-ui/web";
 
+/// The release this CLI came from. The registry is baked into the binary and
+/// versioned in lockstep with `@primitiv-ui/web` (`scripts/bump-version.mjs`),
+/// so this release holds every component's CDN file and every fix since.
+const RELEASE: &str = env!("CARGO_PKG_VERSION");
+
 /// Print the `<script>` that loads `@primitiv-ui/web`'s bundle from jsDelivr,
-/// pinned to the lowest version the resolved components declare (RFC 0033
-/// §8.2), for a project with no `package.json` to install into. Nothing is
+/// pinned to this CLI's own release (RFC 0033 §8.2), for a project with no
+/// `package.json` to install into. Nothing is
 /// printed when no component needs it — one with no behaviour has no element.
 fn print_cdn_scripts(
     output: &impl Output,
@@ -1148,22 +1168,26 @@ fn print_cdn_scripts(
 ) -> Result<(), CliError> {
     // One script per component, `dist/cdn/<component>.js`, which defines that
     // component's elements only; what they share is one chunk they import. All
-    // from one release — the newest any of them needs, which carries every older
-    // one's file — so the page downloads that chunk once.
+    // from one release, so the page downloads that chunk once: this CLI's, the
+    // same in every run, unless a component's floor is newer still — which only
+    // an unreleased build can carry, for a component whose file has no older home.
     let needs_web = |name: &&String| {
         declared_packages(&index.components[*name], Surface::Elements)
             .iter()
             .any(|package| package.name == WEB_PACKAGE)
     };
-    let newest = resolved
+    if !resolved.iter().any(|name| needs_web(&name)) {
+        return Ok(());
+    }
+    // Never empty — the release is always there — so the default is unreachable.
+    let spec = resolved
         .iter()
         .flat_map(|name| declared_packages(&index.components[name], Surface::Elements))
         .filter(|package| package.name == WEB_PACKAGE)
         .map(|package| package.minimum_spec())
-        .max_by_key(|spec| release_order(spec));
-    let Some(spec) = newest else {
-        return Ok(());
-    };
+        .chain(std::iter::once(format!("{WEB_PACKAGE}@{RELEASE}")))
+        .max_by_key(|spec| release_order(spec))
+        .unwrap_or_default();
     let scripts: BTreeSet<String> = resolved
         .iter()
         .filter(needs_web)

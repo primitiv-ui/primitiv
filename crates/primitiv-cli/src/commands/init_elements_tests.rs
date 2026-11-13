@@ -404,3 +404,55 @@ fn surfaces_a_failure_printing_the_links() {
 
     assert!(matches!(error, crate::error::CliError::Io(_)), "{error:?}");
 }
+
+#[test]
+fn says_what_a_headless_elements_init_wrote_and_what_comes_next() {
+    // Without --styles there is no token layer to link, which used to leave the
+    // run silent: it must still say what it did, and that nothing else is owed.
+    let fs = InMemoryFs::new();
+    let output = InMemoryOutput::new();
+
+    init(
+        &fs,
+        &output,
+        &EmbeddedRegistry,
+        &InMemoryPrompt::new(Decision::Keep),
+        false,
+        &InitOptions {
+            surface: Some(Surface::Elements),
+            styles_enabled: Some(false),
+            ..Default::default()
+        },
+    )
+    .unwrap();
+
+    assert_eq!(
+        String::from_utf8(output.captured()).unwrap(),
+        "Wrote primitiv.json: custom elements, headless. Nothing else is needed: \
+         `primitiv add <component>` prints each component's script tag and markup. \
+         Run `primitiv init --styles --force` instead for Primitiv's styling and token layer.\n"
+    );
+}
+
+#[test]
+fn surfaces_a_failed_write_of_the_headless_summary() {
+    let fs = InMemoryFs::new();
+    let output = InMemoryOutput::new();
+    output.fail_stdout();
+
+    let error = init(
+        &fs,
+        &output,
+        &EmbeddedRegistry,
+        &InMemoryPrompt::new(Decision::Keep),
+        false,
+        &InitOptions {
+            surface: Some(Surface::Elements),
+            styles_enabled: Some(false),
+            ..Default::default()
+        },
+    )
+    .unwrap_err();
+
+    assert!(matches!(error, crate::error::CliError::Io(_)), "{error:?}");
+}

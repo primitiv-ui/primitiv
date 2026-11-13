@@ -14,6 +14,8 @@ use crate::format::Format;
 /// data enum lets the parser be a pure, fully-tested function.
 #[derive(Debug, PartialEq)]
 pub enum Command {
+    /// `--version` / `-V`: print the release this binary came from.
+    Version,
     Init(InitOptions),
     Add(AddOptions),
     List {
@@ -76,6 +78,9 @@ pub fn parse(args: &[String]) -> Result<Command, CliError> {
     let (name, rest) = args
         .split_first()
         .ok_or_else(|| usage("no command given; expected: init, add, list, theme, tokens, dtcg"))?;
+    if matches!(name.as_str(), "--version" | "-V") {
+        return Ok(Command::Version);
+    }
     if is_help(name) {
         return parse_help(rest);
     }

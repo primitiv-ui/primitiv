@@ -231,10 +231,11 @@ fn prints_a_pinned_cdn_script_instead_of_installing_without_a_package_json() {
 
     assert_eq!(runner.calls(), vec![]);
     assert!(
-        String::from_utf8(output.captured()).unwrap().contains(
+        String::from_utf8(output.captured()).unwrap().contains(&format!(
             "\nNo package.json here, so nothing was installed. Load the elements with:\n\n  \
-             <script type=\"module\" src=\"https://cdn.jsdelivr.net/npm/@primitiv-ui/web@0.1.0/dist/cdn/tabs.js\"></script>\n"
-        ),
+             <script type=\"module\" src=\"https://cdn.jsdelivr.net/npm/@primitiv-ui/web@{}/dist/cdn/tabs.js\"></script>\n",
+            env!("CARGO_PKG_VERSION")
+        )),
         "{}",
         String::from_utf8(output.captured()).unwrap()
     );
@@ -302,15 +303,58 @@ fn styled_without_a_config_asks_for_init_instead_of_copying_nothing() {
 }
 
 #[test]
-fn loads_every_script_from_the_newest_release_any_component_needs() {
-    // Tabs shipped in 0.1.9 and Collapsible in 0.1.10: 0.1.10 carries both, and
-    // one version means the page downloads the shared chunk once.
+fn loads_every_script_from_this_cli_s_own_release() {
+    // The registry is baked into the CLI, so the release the CLI came from holds
+    // every component's file and every fix since its floor. One version for
+    // every run, too: a page adding components across runs never loads two.
+    let registry = InMemoryRegistry::new(
+        br##"{
+  "version": "0.1.0",
+  "components": {
+    "tabs": { "version": "0.1.0", "elements": { "packages": [{ "name": "@primitiv-ui/web", "version": "^0.1.9" }], "example": "tabs.html" } }
+  }
+}"##,
+    )
+    .with_file("tabs", "tabs.html", b"<primitiv-tabs></primitiv-tabs>\n");
+    let fs = InMemoryFs::new();
+    let output = InMemoryOutput::new();
+
+    add(
+        &fs,
+        &registry,
+        &output,
+        &InMemoryProcessRunner::new(),
+        &InMemoryPrompt::new(Decision::Keep),
+        false,
+        &AddOptions {
+            components: vec!["tabs".into()],
+            surface: Some(Surface::Elements),
+            ..Default::default()
+        },
+    )
+    .unwrap();
+
+    let captured = String::from_utf8(output.captured()).unwrap();
+    assert!(
+        captured.contains(&format!(
+            "https://cdn.jsdelivr.net/npm/@primitiv-ui/web@{}/dist/cdn/tabs.js",
+            env!("CARGO_PKG_VERSION")
+        )),
+        "{captured}"
+    );
+}
+
+#[test]
+fn loads_every_script_from_a_floor_newer_than_this_cli_s_release() {
+    // Only an unreleased build can carry a component whose first release is
+    // still to come: its file exists nowhere older, so that floor wins, and
+    // every script takes it so the page downloads the shared chunk once.
     let registry = InMemoryRegistry::new(
         br##"{
   "version": "0.1.0",
   "components": {
     "tabs": { "version": "0.1.0", "elements": { "packages": [{ "name": "@primitiv-ui/web", "version": "^0.1.9" }], "example": "tabs.html" } },
-    "collapsible": { "version": "0.1.0", "elements": { "packages": [{ "name": "@primitiv-ui/web", "version": "^0.1.10" }], "example": "collapsible.html" } }
+    "collapsible": { "version": "0.1.0", "elements": { "packages": [{ "name": "@primitiv-ui/web", "version": "^99.0.10" }], "example": "collapsible.html" } }
   }
 }"##,
     )
@@ -337,8 +381,8 @@ fn loads_every_script_from_the_newest_release_any_component_needs() {
     let captured = String::from_utf8(output.captured()).unwrap();
     assert!(
         captured.contains(
-            "  <script type=\"module\" src=\"https://cdn.jsdelivr.net/npm/@primitiv-ui/web@0.1.10/dist/cdn/collapsible.js\"></script>\n  \
-             <script type=\"module\" src=\"https://cdn.jsdelivr.net/npm/@primitiv-ui/web@0.1.10/dist/cdn/tabs.js\"></script>\n"
+            "  <script type=\"module\" src=\"https://cdn.jsdelivr.net/npm/@primitiv-ui/web@99.0.10/dist/cdn/collapsible.js\"></script>\n  \
+             <script type=\"module\" src=\"https://cdn.jsdelivr.net/npm/@primitiv-ui/web@99.0.10/dist/cdn/tabs.js\"></script>\n"
         ),
         "{captured}"
     );
@@ -377,9 +421,10 @@ fn loads_the_script_of_the_component_whose_elements_the_markup_uses() {
 
     let captured = String::from_utf8(output.captured()).unwrap();
     assert!(
-        captured.contains(
-            "  <script type=\"module\" src=\"https://cdn.jsdelivr.net/npm/@primitiv-ui/web@0.1.54/dist/cdn/modal.js\"></script>\n"
-        ),
+        captured.contains(&format!(
+            "  <script type=\"module\" src=\"https://cdn.jsdelivr.net/npm/@primitiv-ui/web@{}/dist/cdn/modal.js\"></script>\n",
+            env!("CARGO_PKG_VERSION")
+        )),
         "{captured}"
     );
     assert!(!captured.contains("confirm-dialog.js"), "{captured}");
@@ -1105,4 +1150,89 @@ fn headless_keeps_the_closing_tag_of_a_span_that_keeps_an_attribute() {
         headless,
         "  <input>\n  <span aria-hidden=\"true\"><svg></svg></span>\n<div>Vue</div>\n"
     );
+}
+
+#[test]
+fn records_a_headless_add_in_the_lock_though_it_copies_no_file() {
+    // Nothing lands on disk for a headless element, but the project still uses
+    // it: the lock is what `list` reads to say so.
+    let fs = InMemoryFs::new();
+    fs.set_current_dir(std::path::Path::new("site"));
+    let output = InMemoryOutput::new();
+
+    add_elements(
+        &fs,
+        &output,
+        &InMemoryProcessRunner::new(),
+        AddOptions {
+            components: vec!["tabs".into()],
+            ..Default::default()
+        },
+    )
+    .unwrap();
+
+    let lock = String::from_utf8(fs.read(std::path::Path::new("site/primitiv.lock")).unwrap()).unwrap();
+    assert!(lock.contains("\"components\": [\n    \"tabs\"\n  ]"), "{lock}");
+}
+
+#[test]
+fn names_the_component_that_brought_in_a_dependency_with_no_behaviour() {
+    // Confirm Dialog's markup holds Buttons: asking for it brings Button in, and
+    // the note about Button must say why it is there at all.
+    let registry = InMemoryRegistry::new(
+        br##"{
+  "version": "0.1.0",
+  "components": {
+    "kbd": { "version": "0.1.0", "elements": { "example": "kbd.html" } },
+    "shortcut": { "version": "0.1.0", "dependsOn": { "components": ["kbd"] }, "elements": { "packages": [{ "name": "@primitiv-ui/web", "version": "^0.1.0" }], "example": "shortcut.html" } }
+  }
+}"##,
+    )
+    .with_file("kbd", "kbd.html", b"<kbd>K</kbd>\n")
+    .with_file("shortcut", "shortcut.html", b"<primitiv-shortcut></primitiv-shortcut>\n");
+    let fs = InMemoryFs::new();
+    let output = InMemoryOutput::new();
+
+    add(
+        &fs,
+        &registry,
+        &output,
+        &InMemoryProcessRunner::new(),
+        &InMemoryPrompt::new(Decision::Keep),
+        false,
+        &AddOptions {
+            components: vec!["shortcut".into()],
+            surface: Some(Surface::Elements),
+            ..Default::default()
+        },
+    )
+    .unwrap();
+
+    assert_eq!(
+        String::from_utf8(output.captured_stderr()).unwrap(),
+        "kbd, which shortcut uses, has no behaviour, so its headless form is plain HTML. \
+         Add --styled for Primitiv's styling.\n"
+    );
+}
+
+#[test]
+fn surfaces_a_lock_a_headless_add_cannot_read_or_write() {
+    for fail in [InMemoryFs::fail_reads_to, InMemoryFs::fail_writes_to] {
+        let fs = InMemoryFs::new();
+        fs.set_current_dir(std::path::Path::new("site"));
+        fail(&fs, std::path::Path::new("site/primitiv.lock"));
+
+        let error = add_elements(
+            &fs,
+            &InMemoryOutput::new(),
+            &InMemoryProcessRunner::new(),
+            AddOptions {
+                components: vec!["tabs".into()],
+                ..Default::default()
+            },
+        )
+        .unwrap_err();
+
+        assert!(matches!(error, CliError::Io(_)), "{error:?}");
+    }
 }

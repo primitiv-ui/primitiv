@@ -52,7 +52,8 @@ type Showable = HTMLElement & { showPopover(options?: { source: HTMLElement }): 
  * - **Sync** — {@link ComboboxController.sync | `sync()`} shows or hides the
  *   popup to match the host's state. It is shown with the root's child that
  *   holds the field as its `source`, which makes that box the popup's implicit
- *   anchor for CSS anchor positioning.
+ *   anchor for CSS anchor positioning — or with the field itself when that
+ *   child is `display: contents` and so has no box.
  * - **Typing** — core's `comboboxQuery`: every keystroke is reported and opens
  *   the popup, and emptying the field clears the value. Filtering is the
  *   consumer's: hide or remove the options that do not match.
@@ -129,11 +130,16 @@ export class ComboboxController {
     }
   }
 
-  /** The root's child that holds the field: the box the popup anchors to. */
+  /**
+   * The root's child that holds the field: the box the popup anchors to. A
+   * child with no box of its own (`display: contents`) cannot anchor anything,
+   * so the field itself does instead.
+   */
   #source(): HTMLElement | null {
-    let box: HTMLElement | null = this.#host.input();
+    const input = this.#host.input();
+    let box = input;
     while (box && box.parentElement !== this.#root) box = box.parentElement;
-    return box;
+    return box && getComputedStyle(box).display === "contents" ? input : box;
   }
 
   /** The options the cursor can land on, in document order: enabled and shown. */

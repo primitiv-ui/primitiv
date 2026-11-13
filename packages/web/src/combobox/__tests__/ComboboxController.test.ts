@@ -113,6 +113,19 @@ describe("ComboboxController", () => {
       expect(showPopover).toHaveBeenCalledWith({ source: document.getElementById("control") });
     });
 
+    it("anchors the popup to the field itself when the child holding it has no box", () => {
+      // Arrange
+      const { input, list, controller } = connected({ open: true });
+      (document.getElementById("control") as HTMLElement).style.display = "contents";
+      const showPopover = vi.spyOn(list, "showPopover");
+
+      // Act
+      controller.sync();
+
+      // Assert
+      expect(showPopover).toHaveBeenCalledWith({ source: input });
+    });
+
     it("shows the popup with no source when there is no field", () => {
       // Arrange
       const { list, controller } = connected({ open: true }, { extra: { input: () => null } });

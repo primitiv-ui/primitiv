@@ -283,7 +283,8 @@ export class PrimitivComboboxInputElement extends ElementBase {}
  * `<primitiv-combobox-content>` — a structural part: the list itself,
  * `role="listbox"` and `popover="auto"`, shown in the top layer while the
  * combobox is open. Shown with the root's child that holds the field as its
- * source, so that box is its implicit CSS anchor.
+ * source, so that box is its implicit CSS anchor — or the `<input>` itself when
+ * that child is `display: contents`.
  *
  * @customElement primitiv-combobox-content
  */

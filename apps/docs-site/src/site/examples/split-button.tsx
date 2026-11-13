@@ -144,8 +144,8 @@ const elementsSplit = ({
     r === null
       ? `<primitiv-dropdown-separator class="primitiv-dropdown__separator"></primitiv-dropdown-separator>`
       : typeof r === "string"
-        ? `<primitiv-dropdown-item><li class="primitiv-dropdown__item">${r}</li></primitiv-dropdown-item>`
-        : `<primitiv-dropdown-item><li class="primitiv-dropdown__item"><span class="primitiv-dropdown__item-leading">${r.icon}</span><span class="primitiv-dropdown__item-label">${r.label}</span></li></primitiv-dropdown-item>`;
+        ? `<primitiv-dropdown-item><div class="primitiv-dropdown__item">${r}</div></primitiv-dropdown-item>`
+        : `<primitiv-dropdown-item><div class="primitiv-dropdown__item"><span class="primitiv-dropdown__item-leading">${r.icon}</span><span class="primitiv-dropdown__item-label">${r.label}</span></div></primitiv-dropdown-item>`;
   return [
     `<primitiv-split-button class="primitiv-split-button primitiv-split-button--${variant} primitiv-split-button--${size}">`,
     `  <primitiv-split-button-action>`,
@@ -254,9 +254,9 @@ export const splitButtonSpec: ComponentSpec = {
             `      <button type="button">More</button>       <!-- the chevron, opens the menu -->`,
             `    </primitiv-dropdown-trigger>`,
             `    <primitiv-dropdown-content popover="auto">`,
-            `      <primitiv-dropdown-item><li>Save and close</li></primitiv-dropdown-item>`,
+            `      <primitiv-dropdown-item><div>Save and close</div></primitiv-dropdown-item>`,
             `      <primitiv-dropdown-separator></primitiv-dropdown-separator>`,
-            `      <primitiv-dropdown-item><li>Save as template</li></primitiv-dropdown-item>`,
+            `      <primitiv-dropdown-item><div>Save as template</div></primitiv-dropdown-item>`,
             `    </primitiv-dropdown-content>`,
             `  </primitiv-dropdown>`,
             `</primitiv-split-button>`,

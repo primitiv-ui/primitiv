@@ -38,17 +38,17 @@ const CHECK =
 /** Elements markup for the rows inside a menu. */
 const row = {
   item: (label: string, shortcut?: string) =>
-    `<primitiv-context-menu-item><li class="primitiv-context-menu__item">` +
+    `<primitiv-context-menu-item><div class="primitiv-context-menu__item">` +
     (shortcut
       ? `<span class="primitiv-context-menu__item-label">${label}</span><span class="primitiv-context-menu__item-trailing">${shortcut}</span>`
       : label) +
-    `</li></primitiv-context-menu-item>`,
+    `</div></primitiv-context-menu-item>`,
   checkbox: (label: string, checked: boolean) =>
-    `<primitiv-context-menu-checkbox-item${checked ? " checked" : ""}><li class="primitiv-context-menu__checkbox-item">` +
-    `<primitiv-context-menu-item-indicator class="primitiv-context-menu__item-indicator">${CHECK}</primitiv-context-menu-item-indicator>${label}</li></primitiv-context-menu-checkbox-item>`,
+    `<primitiv-context-menu-checkbox-item${checked ? " checked" : ""}><div class="primitiv-context-menu__checkbox-item">` +
+    `<primitiv-context-menu-item-indicator class="primitiv-context-menu__item-indicator">${CHECK}</primitiv-context-menu-item-indicator>${label}</div></primitiv-context-menu-checkbox-item>`,
   radio: (value: string, label: string) =>
-    `<primitiv-context-menu-radio-item value="${value}"><li class="primitiv-context-menu__radio-item">` +
-    `<primitiv-context-menu-item-indicator class="primitiv-context-menu__item-indicator">${CHECK}</primitiv-context-menu-item-indicator>${label}</li></primitiv-context-menu-radio-item>`,
+    `<primitiv-context-menu-radio-item value="${value}"><div class="primitiv-context-menu__radio-item">` +
+    `<primitiv-context-menu-item-indicator class="primitiv-context-menu__item-indicator">${CHECK}</primitiv-context-menu-item-indicator>${label}</div></primitiv-context-menu-radio-item>`,
   separator: `<primitiv-context-menu-separator class="primitiv-context-menu__separator"></primitiv-context-menu-separator>`,
   label: (text: string) => `<primitiv-context-menu-label class="primitiv-context-menu__label">${text}</primitiv-context-menu-label>`,
 };
@@ -86,7 +86,7 @@ const elementsContextMenu = ({
 
 const SUBMENU = [
   `<primitiv-context-menu-sub>`,
-  `<primitiv-context-menu-sub-trigger><li class="primitiv-context-menu__sub-trigger">Move to...</li></primitiv-context-menu-sub-trigger>`,
+  `<primitiv-context-menu-sub-trigger><div class="primitiv-context-menu__sub-trigger">Move to...</div></primitiv-context-menu-sub-trigger>`,
   `<primitiv-context-menu-sub-content class="primitiv-context-menu primitiv-context-menu--md primitiv-context-menu--submenu" popover="auto">`,
   row.item("Project Atlas") + row.item("Project Beacon") + row.item("Project Cascade"),
   `</primitiv-context-menu-sub-content>`,
@@ -222,11 +222,11 @@ export const contextMenuSpec: ComponentSpec = {
             `<primitiv-context-menu>`,
             `  <primitiv-context-menu-trigger></primitiv-context-menu-trigger>`,
             `  <primitiv-context-menu-content popover="manual">`,
-            `    <primitiv-context-menu-item><li></li></primitiv-context-menu-item>`,
+            `    <primitiv-context-menu-item><div></div></primitiv-context-menu-item>`,
             `    <primitiv-context-menu-separator></primitiv-context-menu-separator>`,
-            `    <primitiv-context-menu-checkbox-item><li><primitiv-context-menu-item-indicator></primitiv-context-menu-item-indicator></li></primitiv-context-menu-checkbox-item>`,
+            `    <primitiv-context-menu-checkbox-item><div><primitiv-context-menu-item-indicator></primitiv-context-menu-item-indicator></div></primitiv-context-menu-checkbox-item>`,
             `    <primitiv-context-menu-sub>`,
-            `      <primitiv-context-menu-sub-trigger><li></li></primitiv-context-menu-sub-trigger>`,
+            `      <primitiv-context-menu-sub-trigger><div></div></primitiv-context-menu-sub-trigger>`,
             `      <primitiv-context-menu-sub-content popover="auto"></primitiv-context-menu-sub-content>`,
             `    </primitiv-context-menu-sub>`,
             `  </primitiv-context-menu-content>`,
@@ -475,7 +475,7 @@ export const contextMenuSpec: ComponentSpec = {
     description:
       "Dropdown's menu, opened at the pointer: `<primitiv-context-menu>` opens its `popover=\"manual\"` menu on a right-click in its region — or the context-menu key on it — moves focus to the first item, runs the menu's keyboard and typeahead, and closes it on a chosen item, Escape or a press outside.",
     anatomyMeta:
-      "Fourteen elements. `<primitiv-context-menu>` holds the state in its `open` attribute. `<primitiv-context-menu-trigger>` is the region itself — put your classes on it — and the content element is the menu, so the registry classes go on it. Every row wraps the `<li>` you write, which gets its menu role; groups, labels, separators and indicators are their own elements, and `<primitiv-context-menu-sub>` nests a submenu.",
+      "Fourteen elements. `<primitiv-context-menu>` holds the state in its `open` attribute. `<primitiv-context-menu-trigger>` is the region itself — put your classes on it — and the content element is the menu, so the registry classes go on it. Every row wraps the `<div>` you write, which gets its menu role; groups, labels, separators and indicators are their own elements, and `<primitiv-context-menu-sub>` nests a submenu.",
     keyboardMeta:
       "The browser raises the same `contextmenu` event for a right-click and for the context-menu key or Shift+F10 on a focused element, so give the region `tabindex=\"0\"` and it opens from the keyboard too. Once open it is the Menu pattern: roving focus, a single tab stop.",
     keyboard: [

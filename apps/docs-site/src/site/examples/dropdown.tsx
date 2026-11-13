@@ -43,13 +43,13 @@ const CHECK =
 /** Elements markup for the rows inside a menu. */
 const row = {
   item: (label: string) =>
-    `<primitiv-dropdown-item><li class="primitiv-dropdown__item">${label}</li></primitiv-dropdown-item>`,
+    `<primitiv-dropdown-item><div class="primitiv-dropdown__item">${label}</div></primitiv-dropdown-item>`,
   checkbox: (label: string, checked: boolean) =>
-    `<primitiv-dropdown-checkbox-item${checked ? " checked" : ""}><li class="primitiv-dropdown__checkbox-item">` +
-    `<primitiv-dropdown-item-indicator class="primitiv-dropdown__item-indicator">${CHECK}</primitiv-dropdown-item-indicator>${label}</li></primitiv-dropdown-checkbox-item>`,
+    `<primitiv-dropdown-checkbox-item${checked ? " checked" : ""}><div class="primitiv-dropdown__checkbox-item">` +
+    `<primitiv-dropdown-item-indicator class="primitiv-dropdown__item-indicator">${CHECK}</primitiv-dropdown-item-indicator>${label}</div></primitiv-dropdown-checkbox-item>`,
   radio: (value: string, label: string) =>
-    `<primitiv-dropdown-radio-item value="${value}"><li class="primitiv-dropdown__radio-item">` +
-    `<primitiv-dropdown-item-indicator class="primitiv-dropdown__item-indicator">${CHECK}</primitiv-dropdown-item-indicator>${label}</li></primitiv-dropdown-radio-item>`,
+    `<primitiv-dropdown-radio-item value="${value}"><div class="primitiv-dropdown__radio-item">` +
+    `<primitiv-dropdown-item-indicator class="primitiv-dropdown__item-indicator">${CHECK}</primitiv-dropdown-item-indicator>${label}</div></primitiv-dropdown-radio-item>`,
   separator: `<primitiv-dropdown-separator class="primitiv-dropdown__separator"></primitiv-dropdown-separator>`,
   label: (text: string) => `<primitiv-dropdown-label class="primitiv-dropdown__label">${text}</primitiv-dropdown-label>`,
 };
@@ -77,7 +77,7 @@ const elementsDropdown = ({ trigger, size = "md", rows }: { trigger: string; siz
 
 const SUBMENU = [
   `<primitiv-dropdown-sub>`,
-  `<primitiv-dropdown-sub-trigger><li class="primitiv-dropdown__sub-trigger">Move to...</li></primitiv-dropdown-sub-trigger>`,
+  `<primitiv-dropdown-sub-trigger><div class="primitiv-dropdown__sub-trigger">Move to...</div></primitiv-dropdown-sub-trigger>`,
   `<primitiv-dropdown-sub-content class="primitiv-dropdown primitiv-dropdown--md primitiv-dropdown--submenu" popover="auto">`,
   row.item("Project Atlas") + row.item("Project Beacon") + row.item("Project Cascade"),
   `</primitiv-dropdown-sub-content>`,
@@ -207,11 +207,11 @@ export const dropdownSpec: ComponentSpec = {
             `<primitiv-dropdown>`,
             `  <primitiv-dropdown-trigger><button type="button"></button></primitiv-dropdown-trigger>`,
             `  <primitiv-dropdown-content popover="auto">`,
-            `    <primitiv-dropdown-item><li></li></primitiv-dropdown-item>`,
+            `    <primitiv-dropdown-item><div></div></primitiv-dropdown-item>`,
             `    <primitiv-dropdown-separator></primitiv-dropdown-separator>`,
-            `    <primitiv-dropdown-checkbox-item><li><primitiv-dropdown-item-indicator></primitiv-dropdown-item-indicator></li></primitiv-dropdown-checkbox-item>`,
+            `    <primitiv-dropdown-checkbox-item><div><primitiv-dropdown-item-indicator></primitiv-dropdown-item-indicator></div></primitiv-dropdown-checkbox-item>`,
             `    <primitiv-dropdown-sub>`,
-            `      <primitiv-dropdown-sub-trigger><li></li></primitiv-dropdown-sub-trigger>`,
+            `      <primitiv-dropdown-sub-trigger><div></div></primitiv-dropdown-sub-trigger>`,
             `      <primitiv-dropdown-sub-content popover="auto"></primitiv-dropdown-sub-content>`,
             `    </primitiv-dropdown-sub>`,
             `  </primitiv-dropdown-content>`,
@@ -429,7 +429,7 @@ export const dropdownSpec: ComponentSpec = {
     description:
       "A menu button on the native Popover API: `<primitiv-dropdown>` shows its menu in the top layer with the trigger as its anchor, moves focus to the first item, runs the menu's keyboard and typeahead, and closes it on a chosen item, Escape or a press outside.",
     anatomyMeta:
-      "Fourteen elements. `<primitiv-dropdown>` holds the state in its `open` attribute. The trigger and every row — item, checkbox item, radio item, sub-trigger — wrap the element you write (a `<button>`, an `<li>`), which gets the menu roles; the content element is the menu itself, so the registry classes go on it. Groups, labels, separators and indicators are their own elements. `<primitiv-dropdown-sub>` nests a submenu with its own `open`. Close every `<li>` you write: the HTML parser ends an open `<li>` at the next one, custom elements or not.",
+      "Fourteen elements. `<primitiv-dropdown>` holds the state in its `open` attribute. The trigger and every row — item, checkbox item, radio item, sub-trigger — wrap the element you write (a `<button>`, a `<div>` — not an `<li>`: the content element is not a list, so a list item has no valid parent), which gets the menu roles; the content element is the menu itself, so the registry classes go on it. Groups, labels, separators and indicators are their own elements. `<primitiv-dropdown-sub>` nests a submenu with its own `open`.",
     keyboardMeta:
       "The menu is a roving-focus list: it opens focused on the first item and the arrow keys move between items — the WAI-ARIA Menu pattern, a single tab stop. Typing focuses the item it starts.",
     keyboard: [

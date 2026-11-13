@@ -115,9 +115,11 @@ export class PrimitivContextMenuContentElement extends ElementBase {}
 
 /**
  * `<primitiv-context-menu-item>` — an interactive part: one item. It decorates
- * exactly one child the consumer writes, an `<li>` (or a link), which gets
- * `role="menuitem"`, `tabindex="-1"` and `data-highlighted` while the pointer
- * is over it.
+ * exactly one child the consumer writes — a `<div>`, a link, or a
+ * `<button>` — which gets `role="menuitem"`, `tabindex="-1"` and
+ * `data-highlighted` while the pointer is over it. A
+ * `<button type="submit" name value>` submits its form as the submitter, by
+ * click or Enter. Not an `<li>`: the content element is not a list.
  *
  * @customElement primitiv-context-menu-item
  * @attr {boolean} disabled - Skipped by the keyboard, and does nothing when clicked (`aria-disabled` on the child).
@@ -188,7 +190,7 @@ export class PrimitivContextMenuSeparatorElement extends ElementBase {}
 
 /**
  * `<primitiv-context-menu-sub-trigger>` — the row that opens a submenu. It
- * decorates exactly one child, an `<li>`, which gets `role="menuitem"` and the
+ * decorates exactly one child, a `<div>`, which gets `role="menuitem"` and the
  * submenu's `aria-haspopup`, `aria-expanded` and `aria-controls`.
  *
  * @customElement primitiv-context-menu-sub-trigger

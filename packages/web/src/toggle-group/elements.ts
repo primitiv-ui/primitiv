@@ -1,6 +1,7 @@
 import { toggleGroupTabStop, type ToggleGroupOrientation } from "@primitiv-ui/core";
 
 import { defineElements, ElementBase, reportOnce, write, type ElementRegistry } from "../internal/element.ts";
+import { FormReset, reconcileFormValues } from "../internal/form.ts";
 import { PrimitivRootElement } from "../internal/RootElement.ts";
 import { ToggleGroupController, type ToggleGroupControllerHost } from "./ToggleGroupController.ts";
 
@@ -50,19 +51,31 @@ function decoratable(item: HTMLElement): Item | null {
  * @attr {string} value - The pressed items' values, separated by spaces. Reflected: it changes as the user presses items, so a server re-render or a history snapshot sees what is pressed. Item values therefore cannot contain whitespace.
  * @attr {"single" | "multiple"} type - `single` keeps at most one item pressed — pressing another lets go of it, and pressing it again leaves none; `multiple` lets items toggle independently. Defaults to `single`.
  * @attr {"horizontal" | "vertical"} orientation - Layout axis, which picks the arrow-key pair. Defaults to `horizontal`.
+ * @attr {string} name - Submit the pressed values with a form, each under this name, as same-named checked checkboxes would: nothing while none is pressed. A form reset restores the values the group first rendered with. Without it the group takes no part in forms.
  * @fires {CustomEvent<{ value: string[] }>} primitiv-toggle-group-change - Bubbles, cancelable, fired before a user-driven toggle is applied, with every item pressed afterwards. Call `preventDefault()` to veto it.
  */
 export class PrimitivToggleGroupElement extends PrimitivRootElement {
   /** The item focus last moved to, which holds the tab stop. */
   #focused: string | undefined;
   protected readonly controller: ToggleGroupController = new ToggleGroupController(this, this.#host());
-  protected readonly reconcileOn: readonly string[] = ["value", "disabled", "orientation"];
+  protected readonly reconcileOn: readonly string[] = ["value", "disabled", "orientation", "name"];
+  readonly #reset = new FormReset();
 
   constructor() {
     super();
     // On the root itself, so it needs no removing: it cannot fire while the
     // root is out of the document.
     this.addEventListener("focusin", (event) => this.#focus(event.target as Node));
+  }
+
+  connectedCallback(): void {
+    super.connectedCallback();
+    this.#reset.connect(this);
+  }
+
+  disconnectedCallback(): void {
+    super.disconnectedCallback();
+    this.#reset.disconnect();
   }
 
   /** The pressed items' values, reflected as the space-separated `value` attribute. */
@@ -133,6 +146,9 @@ export class PrimitivToggleGroupElement extends PrimitivRootElement {
       write(button, "aria-disabled", disabled ? "true" : null);
       write(button, "data-disabled", disabled ? "" : null);
     }
+
+    // With a `name`, each pressed value submits as a checked checkbox would.
+    reconcileFormValues(this, this.getAttribute("name"), pressed);
   }
 }
 

@@ -5,6 +5,8 @@
 export type RadioCardFixture = {
   /** The root's `value` attribute, verbatim. */
   value?: string;
+  /** The root's `name`: submit the value with a form. */
+  name?: string;
   orientation?: "horizontal" | "vertical" | "both";
   /** The values of the disabled cards. */
   disabled?: readonly string[];
@@ -22,6 +24,7 @@ export const ITEMS = [
 
 export function radioCardHtml({
   value,
+  name,
   orientation,
   disabled = [],
   forceMount = false,
@@ -30,6 +33,7 @@ export function radioCardHtml({
   const attrs = [
     ` aria-label="${label}"`,
     value === undefined ? "" : ` value="${value}"`,
+    name === undefined ? "" : ` name="${name}"`,
     orientation ? ` orientation="${orientation}"` : "",
   ].join("");
   const items = ITEMS.map(

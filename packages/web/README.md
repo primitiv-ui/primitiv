@@ -313,6 +313,10 @@ on a panel as it becomes active, for lazy loading.
 - **One Tab stop for the group**, on the item focus last moved to, else the
   first pressed item, else the first. The arrows move focus without pressing,
   skipping `disabled` items; Enter and Space toggle.
+- **A form control with a `name`.** Each pressed value submits under it, as
+  same-named checkboxes do, through hidden inputs the group keeps inside itself;
+  a form reset restores the values it first rendered with. Optional: without a
+  `name` the group takes no part in forms.
 
 ### Segmented Control
 
@@ -335,6 +339,10 @@ on a panel as it becomes active, for lazy loading.
 - **One Tab stop for the control**, on the selected segment, else the first
   enabled one. The arrows move focus **and** selection, skipping `disabled`
   segments and wrapping; Enter and Space are the button's own click.
+- **A form control with a `name`.** The selected value submits under it, as a
+  checked radio does: nothing while none is selected or the control is
+  `disabled`, and a form reset restores the first value. Optional. For an "All"
+  choice, give a segment `value=""`.
 
 ### Breadcrumb Overflow
 
@@ -364,6 +372,8 @@ load `dist/cdn/dropdown.js`. The menu anchors to its `...` trigger with no
 - **`orientation` defaults to `both`**: all four arrows move the selection, for
   cards that wrap into a grid. `horizontal` or `vertical` keeps to one pair and
   writes `aria-orientation`.
+- **A form control with a `name`**, exactly as Segmented Control: the selected
+  value submits under it, and a form reset restores the first value. Optional.
 - **`<primitiv-radio-card-indicator>`** anywhere in a card is `hidden` while the
   card is unchecked, unless it carries `force-mount` (so a stylesheet can animate
   it from `data-state`).

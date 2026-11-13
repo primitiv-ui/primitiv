@@ -338,6 +338,7 @@ declare module "svelte/elements" {
     "primitiv-tooltip-arrow": Attributes<PrimitivTooltipArrowElement>;
     "primitiv-toggle-group": Attributes<PrimitivToggleGroupElement> & {
       value?: string;
+      name?: string;
       type?: "single" | "multiple";
       orientation?: "horizontal" | "vertical";
       "onprimitiv-toggle-group-change"?: (event: PrimitivToggleGroupChangeEvent) => void;
@@ -396,6 +397,7 @@ declare module "svelte/elements" {
     "primitiv-select-separator": Attributes<PrimitivSelectSeparatorElement>;
     "primitiv-segmented-control": Attributes<PrimitivSegmentedControlElement> & {
       value?: string;
+      name?: string;
       orientation?: "horizontal" | "vertical";
       disabled?: boolean;
       "onprimitiv-segmented-control-change"?: (event: PrimitivSegmentedControlChangeEvent) => void;
@@ -406,6 +408,7 @@ declare module "svelte/elements" {
     };
     "primitiv-radio-card": Attributes<PrimitivRadioCardElement> & {
       value?: string;
+      name?: string;
       orientation?: "both" | "horizontal" | "vertical";
       "onprimitiv-radio-card-change"?: (event: PrimitivRadioCardChangeEvent) => void;
     };

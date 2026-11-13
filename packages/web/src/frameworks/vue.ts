@@ -157,7 +157,7 @@ declare module "vue" {
     "primitiv-tooltip-content": Tag<Record<never, never>>;
     "primitiv-tooltip-arrow": Tag<Record<never, never>>;
     "primitiv-toggle-group": Tag<
-      { value?: string; type?: "single" | "multiple"; orientation?: "horizontal" | "vertical" },
+      { value?: string; name?: string; type?: "single" | "multiple"; orientation?: "horizontal" | "vertical" },
       { "primitiv-toggle-group-change": (event: PrimitivToggleGroupChangeEvent) => void }
     >;
     "primitiv-toggle-group-item": Tag<{ value: string; disabled?: boolean | "" }>;
@@ -195,12 +195,12 @@ declare module "vue" {
     "primitiv-select-group": Tag<{ label?: string }>;
     "primitiv-select-separator": Tag<Record<never, never>>;
     "primitiv-segmented-control": Tag<
-      { value?: string; orientation?: "horizontal" | "vertical"; disabled?: boolean | "" },
+      { value?: string; name?: string; orientation?: "horizontal" | "vertical"; disabled?: boolean | "" },
       { "primitiv-segmented-control-change": (event: PrimitivSegmentedControlChangeEvent) => void }
     >;
     "primitiv-segmented-control-item": Tag<{ value: string; disabled?: boolean | "" }>;
     "primitiv-radio-card": Tag<
-      { value?: string; orientation?: "both" | "horizontal" | "vertical" },
+      { value?: string; name?: string; orientation?: "both" | "horizontal" | "vertical" },
       { "primitiv-radio-card-change": (event: PrimitivRadioCardChangeEvent) => void }
     >;
     "primitiv-radio-card-item": Tag<{ value: string; disabled?: boolean | "" }>;

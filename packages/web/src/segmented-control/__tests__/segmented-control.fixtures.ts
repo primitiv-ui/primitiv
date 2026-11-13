@@ -6,6 +6,8 @@
 export type SegmentedControlFixture = {
   /** The root's `value` attribute, verbatim. */
   value?: string;
+  /** The root's `name`: submit the value with a form. */
+  name?: string;
   orientation?: "horizontal" | "vertical";
   /** The values of the disabled segments. */
   disabled?: readonly string[];
@@ -23,6 +25,7 @@ export const ITEMS = [
 
 export function segmentedControlHtml({
   value,
+  name,
   orientation,
   disabled = [],
   controlDisabled = false,
@@ -31,6 +34,7 @@ export function segmentedControlHtml({
   const attrs = [
     ` aria-label="${label}"`,
     value === undefined ? "" : ` value="${value}"`,
+    name === undefined ? "" : ` name="${name}"`,
     orientation ? ` orientation="${orientation}"` : "",
     controlDisabled ? " disabled" : "",
   ].join("");

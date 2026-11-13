@@ -5,6 +5,8 @@
 export type ToggleGroupFixture = {
   /** The root's `value` attribute, verbatim. */
   value?: string;
+  /** The root's `name`: submit the value with a form. */
+  name?: string;
   type?: "single" | "multiple";
   orientation?: "horizontal" | "vertical";
   disabled?: readonly string[];
@@ -22,6 +24,7 @@ export const ITEMS = [
 
 export function toggleGroupHtml({
   value,
+  name,
   type,
   orientation,
   disabled = [],
@@ -32,6 +35,7 @@ export function toggleGroupHtml({
     ` aria-label="${label}"`,
     type ? ` type="${type}"` : "",
     value === undefined ? "" : ` value="${value}"`,
+    name === undefined ? "" : ` name="${name}"`,
     orientation ? ` orientation="${orientation}"` : "",
   ].join("");
   const items = ITEMS.map(

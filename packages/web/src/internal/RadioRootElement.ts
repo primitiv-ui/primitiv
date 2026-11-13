@@ -1,6 +1,7 @@
 import { radioGroupTabStop, type RadioGroupOrientation } from "@primitiv-ui/core";
 
 import { reportOnce, write } from "./element.ts";
+import { FormReset, reconcileFormValues } from "./form.ts";
 import { RadioGroupController, type RadioGroupControllerHost } from "./RadioGroupController.ts";
 import { PrimitivRootElement } from "./RootElement.ts";
 
@@ -21,6 +22,17 @@ export abstract class RadioRootElement extends PrimitivRootElement {
   /** The change event's type. */
   protected abstract readonly changeEvent: string;
   protected readonly controller: RadioGroupController = new RadioGroupController(this, this.#host());
+  readonly #reset = new FormReset();
+
+  connectedCallback(): void {
+    super.connectedCallback();
+    this.#reset.connect(this);
+  }
+
+  disconnectedCallback(): void {
+    super.disconnectedCallback();
+    this.#reset.disconnect();
+  }
 
   /** The selected item's value, reflected as the `value` attribute; `undefined` while none is selected. */
   get value(): string | undefined {
@@ -105,5 +117,10 @@ export abstract class RadioRootElement extends PrimitivRootElement {
       write(button, "data-disabled", off ? "" : null);
       this.decorateItem(item, on);
     }
+
+    // With a `name`, the selection submits like a checked radio: nothing while
+    // none is selected, and nothing while the whole group is disabled.
+    const submits = selected !== undefined && !groupDisabled;
+    reconcileFormValues(this, this.getAttribute("name"), submits ? [selected] : []);
   }
 }

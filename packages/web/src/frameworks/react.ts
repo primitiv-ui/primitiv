@@ -373,6 +373,7 @@ declare module "react" {
       "primitiv-tooltip-arrow": ElementProps<PrimitivTooltipArrowElement>;
       "primitiv-toggle-group": ElementProps<PrimitivToggleGroupElement> & {
         value?: string;
+        name?: string;
         type?: "single" | "multiple";
         orientation?: "horizontal" | "vertical";
         "onprimitiv-toggle-group-change"?: (event: PrimitivToggleGroupChangeEvent) => void;
@@ -431,6 +432,7 @@ declare module "react" {
       "primitiv-select-separator": ElementProps<PrimitivSelectSeparatorElement>;
       "primitiv-segmented-control": ElementProps<PrimitivSegmentedControlElement> & {
         value?: string;
+        name?: string;
         orientation?: "horizontal" | "vertical";
         disabled?: boolean;
         "onprimitiv-segmented-control-change"?: (event: PrimitivSegmentedControlChangeEvent) => void;
@@ -441,6 +443,7 @@ declare module "react" {
       };
       "primitiv-radio-card": ElementProps<PrimitivRadioCardElement> & {
         value?: string;
+        name?: string;
         orientation?: "both" | "horizontal" | "vertical";
         "onprimitiv-radio-card-change"?: (event: PrimitivRadioCardChangeEvent) => void;
       };

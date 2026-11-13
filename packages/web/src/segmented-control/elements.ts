@@ -27,6 +27,7 @@ const ITEM = "primitiv-segmented-control-item";
  * @summary The state owner of a single-select segmented control.
  * @attr {string} value - The selected segment's value. Reflected: it changes as the user selects, so a server re-render or a history snapshot sees the live selection. Omit it for nothing selected.
  * @attr {"horizontal" | "vertical"} orientation - Layout axis, which picks the arrow-key pair. Defaults to `horizontal`.
+ * @attr {string} name - Submit the selected value with a form, under this name, as a checked radio would: nothing while none is selected or the control is disabled. A form reset restores the value the control first rendered with. Without it the control takes no part in forms.
  * @attr {boolean} disabled - Disables the whole control: every segment is skipped by the arrow keys and never selected, and `data-disabled` is set on the root and every segment.
  * @fires {CustomEvent<{ value: string }>} primitiv-segmented-control-change - Bubbles, cancelable, fired before a user-driven selection is applied, with the segment selected afterwards. Call `preventDefault()` to veto it.
  */
@@ -34,7 +35,7 @@ export class PrimitivSegmentedControlElement extends RadioRootElement {
   protected readonly itemTag: string = ITEM;
   protected readonly changeEvent: string = "primitiv-segmented-control-change";
   protected readonly disableable: boolean = true;
-  protected readonly reconcileOn: readonly string[] = ["value", "disabled", "orientation"];
+  protected readonly reconcileOn: readonly string[] = ["value", "disabled", "orientation", "name"];
 
   protected orientation(): SegmentedControlOrientation {
     return this.getAttribute("orientation") === "vertical" ? "vertical" : "horizontal";

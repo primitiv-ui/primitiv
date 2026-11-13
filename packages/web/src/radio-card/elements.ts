@@ -27,6 +27,7 @@ const INDICATOR = "primitiv-radio-card-indicator";
  * @summary The state owner of a group of radio cards.
  * @attr {string} value - The selected card's value. Reflected: it changes as the user selects, so a server re-render or a history snapshot sees the live selection. Omit it for nothing selected.
  * @attr {"both" | "horizontal" | "vertical"} orientation - Which arrow keys move between cards. `both` (the default) uses all four, for cards that wrap into a grid, and writes no `aria-orientation`; `horizontal` or `vertical` keeps to one pair and states it.
+ * @attr {string} name - Submit the selected value with a form, under this name, as a checked radio would: nothing while none is selected. A form reset restores the value the group first rendered with. Without it the group takes no part in forms.
  * @fires {CustomEvent<{ value: string }>} primitiv-radio-card-change - Bubbles, cancelable, fired before a user-driven selection is applied, with the card selected afterwards. Call `preventDefault()` to veto it.
  */
 export class PrimitivRadioCardElement extends RadioRootElement {
@@ -34,7 +35,7 @@ export class PrimitivRadioCardElement extends RadioRootElement {
   protected readonly changeEvent: string = "primitiv-radio-card-change";
   /** A group of cards is never disabled as a whole; disable each card instead. */
   protected readonly disableable: boolean = false;
-  protected readonly reconcileOn: readonly string[] = ["value", "disabled", "orientation", "force-mount"];
+  protected readonly reconcileOn: readonly string[] = ["value", "disabled", "orientation", "force-mount", "name"];
 
   protected orientation(): RadioGroupOrientation {
     const orientation = this.getAttribute("orientation");

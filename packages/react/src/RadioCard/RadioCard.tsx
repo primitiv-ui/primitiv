@@ -4,6 +4,7 @@ import type { ReactElement } from "react";
 import { useDirection } from "../DirectionProvider/index.ts";
 import { radioGroupTabStop } from "@primitiv-ui/core";
 
+import { FormValues } from "../utils/index.ts";
 import { Slot, composeRefs } from "../Slot/index.ts";
 
 import { RadioCardContext } from "./RadioCardContext";
@@ -80,6 +81,7 @@ export function RadioCardRoot({
   defaultValue,
   value: controlledValue,
   onValueChange,
+  name,
   orientation = "both",
   dir,
   asChild = false,
@@ -115,6 +117,7 @@ export function RadioCardRoot({
       ) : (
         <div {...rootProps}>{children}</div>
       )}
+      <FormValues name={name} values={value !== undefined ? [value] : []} />
     </RadioCardContext.Provider>
   );
 }

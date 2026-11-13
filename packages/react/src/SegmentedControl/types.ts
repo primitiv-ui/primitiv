@@ -23,6 +23,14 @@ export type SegmentedControlRootBaseProps = Omit<
   /** The control's segments — {@link SegmentedControlItemProps | `SegmentedControl.Item`}
    * elements. */
   children?: ReactNode;
+  /**
+   * Submit the selected value with the surrounding form under this name, as a
+   * checked radio would: nothing while no segment is selected or the control is disabled. Optional:
+   * without it the control takes no part in forms.
+   *
+   * @default undefined
+   */
+  name?: string;
   /** Forwarded to the underlying `HTMLDivElement`. */
   ref?: Ref<HTMLDivElement>;
   /**

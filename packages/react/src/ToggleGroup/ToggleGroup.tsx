@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef } from "react";
 import type { ReactElement } from "react";
 
 import { useDirection } from "../DirectionProvider/index.ts";
+import { FormValues } from "../utils/index.ts";
 import { Slot, composeEventHandlers, composeRefs } from "../Slot/index.ts";
 
 import { ToggleGroupContext } from "./ToggleGroupContext";
@@ -69,6 +70,7 @@ export function ToggleGroupRoot({
   defaultValue,
   value: controlledValue,
   onValueChange,
+  name,
   orientation = "horizontal",
   dir,
   asChild = false,
@@ -108,6 +110,7 @@ export function ToggleGroupRoot({
       ) : (
         <div {...rootProps}>{children}</div>
       )}
+      <FormValues name={name} values={value} />
     </ToggleGroupContext.Provider>
   );
 }

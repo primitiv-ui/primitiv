@@ -108,6 +108,25 @@ navigation.
 </ToggleGroup.Item>
 ```
 
+## Forms
+
+Give the root a `name` and every pressed value submits with its form under it,
+the way same-named checkboxes do: one entry per pressed item, and nothing while
+none is pressed. It is optional, and without a `name` the group takes no part in
+forms.
+
+```tsx
+<form>
+  <ToggleGroup.Root type="multiple" name="style" defaultValue={["bold"]} aria-label="Formatting">
+    <ToggleGroup.Item value="bold">Bold</ToggleGroup.Item>
+    <ToggleGroup.Item value="italic">Italic</ToggleGroup.Item>
+  </ToggleGroup.Root>
+</form>
+```
+
+The values travel in hidden `<input>`s rendered just after the root, so an
+`asChild` root keeps its single child.
+
 ## `asChild` composition
 
 Both `Root` and `Item` accept `asChild`. When set, the component delegates

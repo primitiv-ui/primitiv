@@ -4,6 +4,7 @@ import type { ReactElement } from "react";
 import { segmentedControlTabStop } from "@primitiv-ui/core";
 
 import { useDirection } from "../DirectionProvider/index.ts";
+import { FormValues } from "../utils/index.ts";
 import { Slot, composeRefs } from "../Slot/index.ts";
 
 import { SegmentedControlContext } from "./SegmentedControlContext";
@@ -82,6 +83,7 @@ export function SegmentedControlRoot({
   defaultValue,
   value: controlledValue,
   onValueChange,
+  name,
   orientation = "horizontal",
   dir,
   disabled = false,
@@ -122,6 +124,7 @@ export function SegmentedControlRoot({
       ) : (
         <div {...rootProps}>{children}</div>
       )}
+      <FormValues name={name} values={!disabled && value !== undefined ? [value] : []} />
     </SegmentedControlContext.Provider>
   );
 }

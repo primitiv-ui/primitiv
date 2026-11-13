@@ -9,6 +9,14 @@ export type ToggleGroupRootBaseProps = Omit<
   HTMLAttributes<HTMLDivElement>,
   "dir" | "defaultValue"
 > & {
+  /**
+   * Submit every pressed value with the surrounding form under this name, as
+   * same-named checked checkboxes would: nothing while no item is pressed.
+   * Optional: without it the group takes no part in forms.
+   *
+   * @default undefined
+   */
+  name?: string;
   /** Layout axis for keyboard navigation. `"horizontal"` binds
    * ArrowLeft/ArrowRight; `"vertical"` binds ArrowUp/ArrowDown. Surfaces as
    * `data-orientation` on the root for styling; it does not itself apply any

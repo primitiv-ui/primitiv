@@ -49,6 +49,9 @@ const SHARED_MODULES = {
   // but is left off: its card registers in an effect after the controller's
   // first hand-over, so StrictMode's discarded controller never holds the card
   // and its disconnect is unobservable there — the components listed observe it.
+  // Hidden inputs for a group's optional `name`, shared by the three groups that
+  // submit with a form.
+  "src/utils/FormValues.tsx": ["SegmentedControl", "RadioCard", "ToggleGroup"],
   "src/hooks/useHostedController.ts": ["Tabs", "Accordion", "Collapsible", "ToggleGroup", "SegmentedControl", "RadioCard", "Slider", "SplitButton", "Listbox"],
 };
 

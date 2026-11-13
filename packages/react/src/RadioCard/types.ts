@@ -23,6 +23,14 @@ export type RadioCardRootBaseProps = Omit<
   /** The group's cards — typically {@link RadioCardItemProps | `RadioCard.Item`}
    * elements, each optionally wrapping a {@link RadioCardIndicatorProps | `RadioCard.Indicator`}. */
   children?: ReactNode;
+  /**
+   * Submit the selected value with the surrounding form under this name, as a
+   * checked radio would: nothing while no card is selected. Optional:
+   * without it the group takes no part in forms.
+   *
+   * @default undefined
+   */
+  name?: string;
   /** Forwarded to the underlying `HTMLDivElement`. */
   ref?: Ref<HTMLDivElement>;
   /**

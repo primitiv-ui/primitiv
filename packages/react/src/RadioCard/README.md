@@ -99,6 +99,14 @@ and the roving-tabindex home base.
 </RadioCard.Root>
 ```
 
+## Forms
+
+Give the root a `name` and the selected card's value submits with its form, the
+way a checked radio does: nothing while no card is selected. It is optional, and
+without a `name` the group takes no part in forms. The value travels in a hidden
+`<input>` rendered just after the root, so an `asChild` root keeps its single
+child.
+
 ## `asChild` composition
 
 All three sub-components accept `asChild`. The library's ARIA attributes,

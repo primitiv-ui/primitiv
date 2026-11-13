@@ -24,10 +24,12 @@ export type ToggleGroupConformanceFixture = {
   dir?: "ltr" | "rtl";
   disabled?: readonly string[];
   /** The group's accessible name. Always "Formatting" in these cases. */
+  /** Submit the value with the surrounding form under this name. */
+  name?: string;
   label: string;
 };
 
-/** Render `fixture` into `document.body`; resolves to a cleanup function once settled. */
+/** Render `fixture` inside a `<form>` in `document.body`; resolves to a cleanup function once settled. */
 export type ToggleGroupMount = (fixture: ToggleGroupConformanceFixture) => Promise<() => void>;
 
 const item = (name: string) => screen.getByRole("button", { name });
@@ -36,6 +38,9 @@ const pressed = () =>
     .getAllByRole("button")
     .filter((button) => button.getAttribute("aria-pressed") === "true")
     .map((button) => button.textContent);
+
+/** What the surrounding form would submit, as name/value pairs. */
+const submitted = () => [...new FormData(document.querySelector("form") as HTMLFormElement).entries()];
 
 export function runToggleGroupConformance(mount: ToggleGroupMount): void {
   let cleanup: (() => void) | undefined;
@@ -260,6 +265,37 @@ export function runToggleGroupConformance(mount: ToggleGroupMount): void {
         expect(item("Bold").hasAttribute("data-disabled")).toBe(false);
         expect(skippedTo).toBe(item("Underline"));
         expect(pressed()).toEqual([]);
+      });
+    });
+
+    describe("forms", () => {
+      it("submits every pressed value under its name, and follows the presses", async () => {
+        // Arrange
+        const user = userEvent.setup();
+        await render({ type: "multiple", value: ["bold"], name: "style" });
+        const before = submitted();
+
+        // Act
+        await user.click(item("Underline"));
+
+        // Assert
+        expect(before).toEqual([["style", "bold"]]);
+        expect(submitted()).toEqual([
+          ["style", "bold"],
+          ["style", "underline"],
+        ]);
+      });
+
+      it("submits nothing without a name, or while nothing is pressed", async () => {
+        // Arrange & Act
+        await render({ type: "multiple", value: ["bold"] });
+        const unnamed = submitted();
+        cleanup?.();
+        await render({ type: "multiple", name: "style" });
+
+        // Assert
+        expect(unnamed).toEqual([]);
+        expect(submitted()).toEqual([]);
       });
     });
   });

@@ -41,6 +41,26 @@ describe("<primitiv-segmented-control> in a form", () => {
     expect(input.getAttribute("data-primitiv-form")).toBe("");
   });
 
+  it("selects and submits an empty value, for an \"All\" segment", async () => {
+    // Arrange
+    const user = userEvent.setup();
+    await mount(
+      segmentedControlHtml({ value: "week", name: "range" }).replace(
+        "<primitiv-segmented-control-item",
+        '<primitiv-segmented-control-item value=""><button type="button">All</button></primitiv-segmented-control-item><primitiv-segmented-control-item',
+      ),
+    );
+
+    // Act
+    await user.click(screen.getByRole("radio", { name: "All" }));
+    await settle();
+
+    // Assert
+    expect(screen.getByRole("radio", { name: "All" }).getAttribute("aria-checked")).toBe("true");
+    expect(root().getAttribute("value")).toBe("");
+    expect(submitted()).toEqual([["range", ""]]);
+  });
+
   it("follows the selection as the user changes it", async () => {
     // Arrange
     const user = userEvent.setup();

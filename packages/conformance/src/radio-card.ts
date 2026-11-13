@@ -26,11 +26,13 @@ export type RadioCardConformanceFixture = {
   disabled?: readonly string[];
   /** Whether every card's indicator stays rendered while unchecked. */
   forceMount?: boolean;
+  /** Submit the value with the surrounding form under this name. */
+  name?: string;
   /** The group's accessible name. Always "Plan" in these cases. */
   label: string;
 };
 
-/** Render `fixture` into `document.body`; resolves to a cleanup function once settled. */
+/** Render `fixture` inside a `<form>` in `document.body`; resolves to a cleanup function once settled. */
 export type RadioCardMount = (fixture: RadioCardConformanceFixture) => Promise<() => void>;
 
 const card = (name: string) => screen.getByRole("radio", { name });
@@ -41,6 +43,9 @@ const checked = () =>
     .map((radio) => radio.textContent);
 /** A card's rendered indicator: decorative, and not hidden. */
 const indicator = (radio: HTMLElement) => radio.querySelector<HTMLElement>('[aria-hidden="true"]:not([hidden])');
+
+/** What the surrounding form would submit, as name/value pairs. */
+const submitted = () => [...new FormData(document.querySelector("form") as HTMLFormElement).entries()];
 
 export function runRadioCardConformance(mount: RadioCardMount): void {
   let cleanup: (() => void) | undefined;
@@ -225,6 +230,34 @@ export function runRadioCardConformance(mount: RadioCardMount): void {
         expect(card("Basic").hasAttribute("data-disabled")).toBe(false);
         expect(skippedTo).toBe(card("Team"));
         expect(checked()).toEqual(["Team"]);
+      });
+    });
+
+    describe("forms", () => {
+      it("submits the selected value under its name, and follows the selection", async () => {
+        // Arrange
+        const user = userEvent.setup();
+        await render({ value: "basic", name: "plan" });
+        const before = submitted();
+
+        // Act
+        await user.click(screen.getByRole("radio", { name: "Team" }));
+
+        // Assert
+        expect(before).toEqual([["plan", "basic"]]);
+        expect(submitted()).toEqual([["plan", "team"]]);
+      });
+
+      it("submits nothing without a name, or while nothing is selected", async () => {
+        // Arrange & Act
+        await render({ value: "basic" });
+        const unnamed = submitted();
+        cleanup?.();
+        await render({ name: "plan" });
+
+        // Assert
+        expect(unnamed).toEqual([]);
+        expect(submitted()).toEqual([]);
       });
     });
   });

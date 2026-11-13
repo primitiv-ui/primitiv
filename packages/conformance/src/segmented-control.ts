@@ -25,11 +25,13 @@ export type SegmentedControlConformanceFixture = {
   disabled?: readonly string[];
   /** Whether the whole control is disabled. */
   controlDisabled?: boolean;
+  /** Submit the value with the surrounding form under this name. */
+  name?: string;
   /** The control's accessible name. Always "Range" in these cases. */
   label: string;
 };
 
-/** Render `fixture` into `document.body`; resolves to a cleanup function once settled. */
+/** Render `fixture` inside a `<form>` in `document.body`; resolves to a cleanup function once settled. */
 export type SegmentedControlMount = (fixture: SegmentedControlConformanceFixture) => Promise<() => void>;
 
 const segment = (name: string) => screen.getByRole("radio", { name });
@@ -38,6 +40,9 @@ const checked = () =>
     .getAllByRole("radio")
     .filter((radio) => radio.getAttribute("aria-checked") === "true")
     .map((radio) => radio.textContent);
+
+/** What the surrounding form would submit, as name/value pairs. */
+const submitted = () => [...new FormData(document.querySelector("form") as HTMLFormElement).entries()];
 
 export function runSegmentedControlConformance(mount: SegmentedControlMount): void {
   let cleanup: (() => void) | undefined;
@@ -221,6 +226,38 @@ export function runSegmentedControlConformance(mount: SegmentedControlMount): vo
         expect(screen.getByRole("radiogroup").hasAttribute("data-disabled")).toBe(true);
         expect(screen.getAllByRole("radio").every((radio) => radio.hasAttribute("data-disabled"))).toBe(true);
         expect(checked()).toEqual(["Day"]);
+      });
+    });
+
+    describe("forms", () => {
+      it("submits the selected value under its name, and follows the selection", async () => {
+        // Arrange
+        const user = userEvent.setup();
+        await render({ value: "day", name: "range" });
+        const before = submitted();
+
+        // Act
+        await user.click(segment("Month"));
+
+        // Assert
+        expect(before).toEqual([["range", "day"]]);
+        expect(submitted()).toEqual([["range", "month"]]);
+      });
+
+      it("submits nothing without a name, while nothing is selected, or while disabled", async () => {
+        // Arrange & Act
+        await render({ value: "day" });
+        const unnamed = submitted();
+        cleanup?.();
+        await render({ name: "range" });
+        const unselected = submitted();
+        cleanup?.();
+        await render({ value: "day", name: "range", controlDisabled: true });
+
+        // Assert
+        expect(unnamed).toEqual([]);
+        expect(unselected).toEqual([]);
+        expect(submitted()).toEqual([]);
       });
     });
   });

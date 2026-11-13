@@ -113,6 +113,25 @@ inert.
 </SegmentedControl.Root>
 ```
 
+## Forms
+
+Give the root a `name` and the selected value submits with its form, the way a
+checked radio does: nothing while no segment is selected or the control is
+`disabled`. It is optional, and without a `name` the control takes no part in
+forms. For an "All" choice, give a segment `value=""`.
+
+```tsx
+<form>
+  <SegmentedControl.Root name="range" defaultValue="week" aria-label="Range">
+    <SegmentedControl.Item value="">All</SegmentedControl.Item>
+    <SegmentedControl.Item value="week">Week</SegmentedControl.Item>
+  </SegmentedControl.Root>
+</form>
+```
+
+The value travels in a hidden `<input>` rendered just after the root, so an
+`asChild` root keeps its single child.
+
 ## `asChild` composition
 
 `SegmentedControl.Root` and `SegmentedControl.Item` each accept an `asChild`

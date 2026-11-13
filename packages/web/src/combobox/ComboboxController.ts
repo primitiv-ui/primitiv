@@ -137,7 +137,7 @@ export class ComboboxController {
    */
   #source(): HTMLElement | null {
     const input = this.#host.input();
-    let box = input;
+    let box: HTMLElement | null = input;
     while (box && box.parentElement !== this.#root) box = box.parentElement;
     return box && getComputedStyle(box).display === "contents" ? input : box;
   }

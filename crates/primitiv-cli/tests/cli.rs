@@ -745,6 +745,16 @@ fn prints_help_and_exits_zero() {
 }
 
 #[test]
+fn prints_its_release_and_exits_zero() {
+    Command::cargo_bin("primitiv")
+        .unwrap()
+        .arg("--version")
+        .assert()
+        .success()
+        .stdout(format!("primitiv {}\n", env!("CARGO_PKG_VERSION")));
+}
+
+#[test]
 fn add_on_the_elements_surface_installs_into_a_plain_html_site_and_prints_the_markup() {
     // No package.json: a plain HTML site has nothing to install into, and Kbd
     // has no behaviour, so nothing is installed and no package manager runs

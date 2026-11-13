@@ -298,7 +298,7 @@
   "elements": {
     "package": "@primitiv-ui/web",
     "module": "toggle-group",
-    "version": "0.1.59",
+    "version": "0.2.2",
     "element": "div",
     "wrapText": false,
     "example": "<primitiv-toggle-group type=\"multiple\" value=\"bold\" aria-label=\"Formatting\" class=\"primitiv-toggle-group primitiv-toggle-group--md\">\n  <primitiv-toggle-group-item value=\"bold\">\n    <button type=\"button\" class=\"primitiv-toggle-group__item\">\n      <span class=\"primitiv-toggle-group__item-label\">Bold</span>\n    </button>\n  </primitiv-toggle-group-item>\n  <primitiv-toggle-group-item value=\"italic\">\n    <button type=\"button\" class=\"primitiv-toggle-group__item\">\n      <span class=\"primitiv-toggle-group__item-label\">Italic</span>\n    </button>\n  </primitiv-toggle-group-item>\n  <primitiv-toggle-group-item value=\"underline\">\n    <button type=\"button\" class=\"primitiv-toggle-group__item\">\n      <span class=\"primitiv-toggle-group__item-label\">Underline</span>\n    </button>\n  </primitiv-toggle-group-item>\n</primitiv-toggle-group>\n",

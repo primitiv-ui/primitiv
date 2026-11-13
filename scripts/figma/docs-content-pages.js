@@ -406,6 +406,7 @@ const PAGES = {
       { name: '02 — The commands', blocks: [
         ['h2', 'The commands'],
         ['p', 'Six commands. Most days you only use one.'],
+        ['p', 'The npm package is primitiv-ui and the command it installs is primitiv. In a project that has installed it, npx primitiv works. Anywhere else, npx primitiv-ui@latest runs the newest release with nothing installed.', ['primitiv-ui', 'primitiv', 'npx primitiv', 'npx primitiv-ui@latest']],
         ['p', 'Every command lists its own options with --help. On its own, it shows all six.', ['--help']],
         ['code', '$ npx primitiv-ui --help\n$ npx primitiv-ui add --help'],
         ['group', 'flow/section', [
@@ -414,17 +415,17 @@ const PAGES = {
           ['code', '$ npx primitiv-ui add button\n$ npx primitiv-ui add button select modal'],
           ['flags', [
             ['--force', 'overwrites files you have changed, without asking.'],
-            ['--styles-only', 'copies the stylesheet and skips the React file.'],
+            ['--styles-only', 'copies the stylesheet and skips the React file. React projects only.'],
             ['--no-wiring', 'skips the project wiring, if you prefer to do it yourself.'],
             ['--dry-run', 'shows what would happen and writes nothing.'],
-            ['--styled', 'copies the stylesheet for the custom elements, which are headless otherwise.'],
+            ['--styled', 'copies the stylesheet for the custom elements on this run, which are headless otherwise. init --styles makes every run styled.'],
             ['--surface', 'picks react or elements for this run. Usually unneeded: init records it, and a project without React is detected as elements.'],
           ]],
           ['p', 'On its first run in a project it also does the setup: installs what it needs, writes primitiv.json, generates your token layer, and wires the stylesheet import. That is intentional, so a new project is one command rather than four.', ['primitiv.json']],
           ['h4', 'primitiv init'],
           ['p', 'Sets a project up without adding a component. It asks a few questions, or takes --yes to accept the defaults, and finishes by generating the token layer.', ['--yes']],
           ['code', '$ npx primitiv-ui init\n$ npx primitiv-ui init --yes'],
-          ['p', 'For the custom elements, --styles opts into the stylesheets, --path says where they go and --url the URL that folder is served at. On a Maven or Gradle project both are detected.', ['--styles', '--path', '--url']],
+          ['p', 'For the custom elements, --styles opts into the stylesheets and the token layer, --path says where they go and --url the URL that folder is served at. On a Maven or Gradle project both are detected. Without --styles, init writes only primitiv.json: the elements need nothing else.', ['--styles', '--path', '--url', 'primitiv.json']],
           ['code', '$ npx primitiv-ui init --styles --path public/primitiv --url /primitiv'],
           ['h4', 'primitiv tokens'],
           ['p', 'Regenerates your token layer in the format your config asks for.'],
@@ -449,7 +450,7 @@ const PAGES = {
         ['code', '{\n  "version": 1,\n  "surface": "react",\n  "styles": { "enabled": true, "format": "css",\n              "path": "src/styles/primitiv" },\n  "tokens": { "format": "css",\n              "path": "src/styles/primitiv/tokens.css" },\n  "theme": { "brand": "#0a7755" },\n  "aliases": {},\n  "registry": { "version": "0.1.0" }\n}', { lineNumbers: true }],
         ['p', 'Edit it freely. It decides where files land, which format your tokens emit in, and which registry version you are pulling from. An elements project also records styles.url, the URL its styles folder is served at, which the printed link lines use.', ['styles.url']],
         ['p', 'primitiv.lock — what you have.', ['primitiv.lock']],
-        ['p', 'A list of the components you have added and a hash of every file. The CLI uses it to tell whether you have edited a copied file, so it can ask before overwriting your work rather than assuming.'],
+        ['p', 'A list of the components you have added and a hash of every file it copied. The CLI uses it to tell whether you have edited a copied file, so it can ask before overwriting your work rather than assuming. A headless custom element copies no file, but it is still listed, so list shows it as installed.', ['list']],
         ['alert', 'info', 'If you edit a copied component and later run add for it again, the CLI notices and asks. Answering "keep" leaves your version alone. This is the whole reason the lock file exists.'],
       ]},
       { name: '04 — Where components come from', blocks: [
@@ -485,11 +486,14 @@ const PAGES = {
     sections: [
       { name: '02 — Install and load', blocks: [
         ['h2', 'Install and load'],
-        ['p', 'The CLI copies the stylesheets and prints the markup to paste. It needs Node to run, but your project does not: a project with no package.json works. Run init once, from the project root.', ['package.json', 'init']],
+        ['p', 'The CLI prints what to paste, and copies Primitiv\'s stylesheets if you want them. It needs Node to run, but your project does not: a project with no package.json works. The npm package is primitiv-ui and the command it installs is primitiv, so npx primitiv-ui@latest runs it with nothing installed.', ['package.json', 'primitiv-ui', 'primitiv', 'npx primitiv-ui@latest']],
+        ['p', 'For the elements alone, with your own CSS, there is no setup. add prints the script tag and the markup:', ['add']],
+        ['code', '$ npx primitiv-ui@latest add combobox', { tabbed: true }],
+        ['p', 'For Primitiv\'s styling, run init --styles once, from the project root. It asks where your server serves static files from and the URL it serves them at, and a Maven or Gradle project is recognised, so --yes takes both answers for you. Every add after it also copies the stylesheet and prints the classed markup. To style a single run instead, use add --styled. The add flags --no-styles and --styles-only are for React projects.', ['init --styles', '--yes', 'add', 'add --styled', '--no-styles', '--styles-only']],
         ['code', '$ npx primitiv-ui@latest init --styles\n$ npx primitiv-ui@latest add combobox', { tabbed: true }],
-        ['p', 'init asks where your server serves static files from, and the URL it serves them at. A Maven or Gradle project is recognised, so --yes takes both answers for you. Drop --styles for the elements on their own, with no classes and no stylesheet.', ['init', '--yes', '--styles']],
-        ['p', 'Each add prints three things: the link lines for the styles, the script tag that defines the element, and example markup. Every component has its own script, so a page loads only what it uses:', ['add']],
+        ['p', 'A styled add prints three things: the link lines for the styles, the script tag that defines the element, and example markup. Every component has its own script, so a page loads only what it uses:', ['add']],
         ['code', '<link rel="stylesheet" href="/primitiv/tokens.css">\n<link rel="stylesheet" href="/primitiv/index.css">\n<script type="module" src="https://cdn.jsdelivr.net/npm/@primitiv-ui/web@0.2.1/dist/cdn/combobox.js"></script>', { lineNumbers: true }],
+        ['p', 'Load every component from the same version, the one add prints. The components share code, and one version downloads it once.', ['add']],
         ['p', 'With a bundler, install the package and import one define entry per component, or the one that defines them all:'],
         ['code', '$ npm i @primitiv-ui/web\n\nimport "@primitiv-ui/web/define/combobox";\nimport "@primitiv-ui/web/define";'],
         ['p', 'Each component page has an Elements mode with its exact markup, attributes and events. Choose it from the switch at the top of the page.'],
@@ -531,6 +535,7 @@ const PAGES = {
       { name: '08 — Styling', blocks: [
         ['h2', 'Styling'],
         ['p', 'The elements are headless. On their own they write no class and no style, so they carry no look until you give them one.'],
+        ['p', 'Like any element the browser does not know, a custom element is display: inline until your CSS says otherwise. Give a root or a panel the box its layout needs, and give a wrapper that only decorates its child, such as a trigger, display: contents so the child lays out as if the wrapper were not there.', ['display: inline', 'display: contents']],
         ['p', 'The styled markup add prints carries the registry classes, and the stylesheet it copied gives them their look. Change it with the CSS custom properties each component page lists, or edit the copied stylesheet, which is yours. Density works as it does everywhere else: set data-density on any container.', ['add', 'data-density']],
         ['p', 'Two components write an inline position, because it is their state rather than styling. A Slider places its thumbs, and a Context Menu publishes where the pointer was.'],
       ]},

@@ -551,9 +551,11 @@ function elementsSurface() {
   return {
     package: pkg?.name ?? null,
     module,
-    /* The lowest version the registry's range allows, the one the CLI pins
-       its CDN script to (a URL takes one version, not a range). */
-    version: pkg?.version?.replace(/^[\^~>=\s]+/, "") ?? null,
+    /* The release the CDN script loads: @primitiv-ui/web's own version, which
+       moves in lockstep with every release and the CLI's, so every component
+       page names the same one — the version `primitiv add` prints. A page
+       loading two versions would download their shared code twice. */
+    version: pkg ? JSON.parse(readFileSync(join(ROOT, "packages/web/package.json"), "utf8")).version : null,
     /* The root element and whether text sits in a label span: enough for the
        page to build a single-element component's markup from the playground's
        controls, the way the registry generates its example. */

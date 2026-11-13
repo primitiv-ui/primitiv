@@ -8,5 +8,5 @@ export const SITE_URL = "https://primitiv-ui.dev";
 export const SITE_NAME = "Primitiv";
 
 export const SITE_DESCRIPTION =
-  "Headless React components, a styled registry you own, and a token engine — " +
-  "documented across three consumption modes.";
+  "Accessible components as React components and as standard custom elements, a " +
+  "styled registry you own, and a token engine.";

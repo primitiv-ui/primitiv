@@ -151,20 +151,16 @@ export const elementsMarkdown = (docs: ComponentDocs): string => {
       "the state lives in reflected attributes, so server-rendered markup is adopted as it is, and changes " +
       "are announced as bubbling DOM events." +
       (borrowed ? ` It uses the \`${module}\` elements, so it loads the \`${module}\` module.` : "")
-    : `${name} needs no script and no package in a page without React: the markup and the registry classes are the whole component.`;
+    : `${name} has no behaviour, so it has no custom element: in a page without React it is ordinary HTML. Headless, with your own CSS, there is nothing of Primitiv to install or load. Its value there is the styled form, the registry classes on that HTML.`;
 
   const install = [
     "### Install",
-    "The `primitiv` CLI copies the stylesheet and prints the markup to paste. It needs Node only to run, not in your project: a project with no `package.json` works, and a Maven or Gradle project's static folder is detected.",
-    fenced(
-      "sh",
-      [
-        "# once per project: writes primitiv.json and the token layer (--styles copies stylesheets too)",
-        "npx primitiv-ui@latest init --styles",
-        `npx primitiv-ui@latest add ${docs.id}`,
-      ].join("\n"),
-    ),
-    "Without `--styles` the elements are headless: no classes, and no stylesheet copied.",
+    `The CLI ${pkg ? "prints the script tag and the markup to paste, and copies" : "copies"} the stylesheet when you want Primitiv's styling${pkg ? "" : ", and prints the classed markup"}. It needs Node only to run, not in your project: a project with no \`package.json\` works.`,
+    ...(pkg
+      ? ["Headless (the elements alone, with your own CSS): no setup is needed.", fenced("sh", `npx primitiv-ui@latest add ${docs.id}`)]
+      : []),
+    "Styled: run `init --styles` once per project. It writes `primitiv.json` and the token layer, and asks where your server serves static files from (a Maven or Gradle project is detected). Every `add` after it copies the stylesheet and prints the classed markup. `add --styled` styles a single run instead.",
+    fenced("sh", ["npx primitiv-ui@latest init --styles", `npx primitiv-ui@latest add ${docs.id}`].join("\n")),
   ];
 
   const load = pkg
@@ -229,8 +225,8 @@ export const componentMarkdown = (docs: ComponentDocs): string => {
       : []),
     "## Installation",
     // The CLI is the `primitiv-ui` package; a bare `npx primitiv` would fetch an
-    // unrelated package called `primitiv`.
-    `Styled (copies the component's source and stylesheet into your project):\n\n\`\`\`sh\nnpm i -D primitiv-ui\nnpx ${docs.styled.installCommand}\n\`\`\``,
+    // unrelated package called `primitiv`. `@latest` runs it with nothing installed.
+    `Styled (copies the component's source and stylesheet into your project):\n\n\`\`\`sh\nnpx primitiv-ui@latest ${docs.styled.installCommand.replace(/^primitiv /, "")}\n\`\`\``,
     installation,
     "## API",
     ...docs.headless.subComponents.map(part),
@@ -329,16 +325,17 @@ export const llmsIndex = (): string =>
   [
     `# ${SITE_NAME}`,
     `> ${SITE_DESCRIPTION}`,
-    "Primitiv ships in two layers over one set of design tokens. The headless " +
-      "components (`npm i @primitiv-ui/react`) provide behaviour and accessibility " +
-      "with no styles. The styled registry components are copied into your project " +
-      "as source files you own, by the `primitiv` CLI: `npm i -D primitiv-ui`, then " +
-      "`npx primitiv add <component>`. Every link below is the Markdown version of a " +
-      "docs page.",
-    "For a page a server renders, with no React, the components also ship as standard " +
-      "custom elements (`@primitiv-ui/web`): loaded by a script tag, styled by the same " +
-      `classes. Everything about them is in one file: ${SITE_URL}/llms-elements.txt — ` +
-      "each component page's Markdown also ends with its Elements section.",
+    "Primitiv's components come two ways over one set of design tokens: as React " +
+      "components (`npm i @primitiv-ui/react`), and as standard custom elements " +
+      "(`@primitiv-ui/web`) for pages a server renders, loaded by a script tag. Both are " +
+      "headless — behaviour and accessibility, no styles — and the styled versions are " +
+      "copied into your project as files you own by the CLI.",
+    "The CLI is the npm package `primitiv-ui`, and the command it installs is " +
+      "`primitiv`. `npx primitiv-ui@latest <command>` runs it with nothing installed, " +
+      "which is the form every page here uses.",
+    "Building with the custom elements, with no React? Everything about them is in one " +
+      `file: ${SITE_URL}/llms-elements.txt. Each component page's Markdown also ends with ` +
+      "its Elements section. Every link below is the Markdown version of a docs page.",
     // Content ledes are one or two sentences and read as a unit; component
     // descriptions run long, so those are cut to their first sentence.
     "## Docs",
@@ -395,7 +392,8 @@ export const llmsElements = (): string =>
       [
         "How they work, for every component below:",
         "",
-        "- **Install with the CLI**, which needs Node only to run: `npx primitiv-ui@latest init --styles` once per project (it writes `primitiv.json` and the token layer, and asks where static files are served from — a Maven or Gradle project is detected), then `npx primitiv-ui@latest add <component>` for each component. `add` copies the stylesheet and prints the `<script>` and `<link>` lines and the markup to paste. Without `--styles` the elements are headless.",
+        "- **Install with the CLI**, which needs Node only to run (the npm package is `primitiv-ui`; the command it installs is `primitiv`). Headless, with your own CSS: `npx primitiv-ui@latest add <component>` prints the `<script>` tag and the markup, and needs no setup. Styled: `npx primitiv-ui@latest init --styles` once per project (it writes `primitiv.json` and the token layer, and asks where static files are served from — a Maven or Gradle project is detected); every `add` after it also copies the stylesheet and prints the `<link>` lines and the classed markup. `add --styled` styles a single run. `add --no-styles` and `add --styles-only` are for React projects.",
+        "- **Pin one version.** Load every component from the same `@primitiv-ui/web` version, the one `add` prints: they share code, and one version downloads it once.",
         "- **Load** a component with its one `<script type=\"module\">` from the CDN (each component's section names it), or `import \"@primitiv-ui/web/define/<component>\"` with a bundler. Components marked \"no script\" are markup and classes only.",
         "- **Write the markup the server renders.** An element adopts server-rendered markup as it is and writes only the ARIA it owns. Parts that arrive later, leave, or move (a fragment swapped in) are picked up with no script call.",
         "- **State lives in reflected attributes** (`value`, `open` …), so a server re-render or a history snapshot sees the user's choice. Set an attribute or property to change it from code.",

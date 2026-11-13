@@ -40,11 +40,21 @@ function decoratableDialog(content: HTMLElement): HTMLDialogElement | null {
  * Escape and a press on the backdrop close it, and closing hands focus back to
  * the button that opened it.
  *
- * The root finds its own parts, so a modal nested in a dialog keeps its own,
- * and reconciles their ARIA from its reflected state whenever a part arrives,
- * leaves, or changes an attribute the root reads (the lifecycle is
- * `PrimitivRootElement`'s). Leave `open` off the `<dialog>` itself: the root
- * opens it, modally.
+ * The root finds its own parts, and only inside itself: a trigger or close
+ * part must be a descendant of the `<primitiv-modal>` it works, though it may
+ * sit anywhere in it, outside the dialog included, and may arrive later (rows
+ * swapped into a list). To open a modal from a button elsewhere on the page,
+ * set its `open`. A modal nested in another, inside its dialog or beside it,
+ * keeps its own parts; its events still bubble through the outer root, so a
+ * listener there checks `event.target`. The root reconciles its parts' ARIA
+ * from its reflected state whenever a part arrives, leaves, or changes an
+ * attribute the root reads (the lifecycle is `PrimitivRootElement`'s), so
+ * content swapped into an open dialog is wired as it lands. Leave `open` off
+ * the `<dialog>` itself: the root opens it, modally.
+ *
+ * Setting `open` from script fires no `primitiv-modal-change`: the event
+ * announces changes the user asks for. However it closes, the dialog hands
+ * focus back to what had it when it opened.
  *
  * @customElement primitiv-modal
  * @summary The state owner of a modal dialog on the native `<dialog>`.

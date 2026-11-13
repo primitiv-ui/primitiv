@@ -549,7 +549,7 @@
   "elements": {
     "package": "@primitiv-ui/web",
     "module": "listbox",
-    "version": "0.2.1",
+    "version": "0.2.2",
     "element": "div",
     "wrapText": false,
     "example": "<primitiv-listbox type=\"multiple\" value=\"apple\" aria-label=\"Produce\" class=\"primitiv-listbox primitiv-listbox--md\">\n  <primitiv-listbox-group class=\"primitiv-listbox__group\">\n    <primitiv-listbox-group-label class=\"primitiv-listbox__group-label\">Fruit</primitiv-listbox-group-label>\n    <primitiv-listbox-option value=\"apple\" class=\"primitiv-listbox__option\">\n      <span class=\"primitiv-listbox__option-checkbox\"></span>\n      <span class=\"primitiv-listbox__option-label\">Apple</span>\n    </primitiv-listbox-option>\n    <primitiv-listbox-option value=\"banana\" class=\"primitiv-listbox__option\">\n      <span class=\"primitiv-listbox__option-checkbox\"></span>\n      <span class=\"primitiv-listbox__option-label\">Banana</span>\n    </primitiv-listbox-option>\n  </primitiv-listbox-group>\n  <primitiv-listbox-group class=\"primitiv-listbox__group\">\n    <primitiv-listbox-group-label class=\"primitiv-listbox__group-label\">Vegetables</primitiv-listbox-group-label>\n    <primitiv-listbox-option value=\"carrot\" class=\"primitiv-listbox__option\">\n      <span class=\"primitiv-listbox__option-checkbox\"></span>\n      <span class=\"primitiv-listbox__option-label\">Carrot</span>\n    </primitiv-listbox-option>\n  </primitiv-listbox-group>\n</primitiv-listbox>\n",

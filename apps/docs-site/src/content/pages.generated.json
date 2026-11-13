@@ -1109,6 +1109,16 @@
           },
           {
             "kind": "p",
+            "text": "The npm package is primitiv-ui and the command it installs is primitiv. In a project that has installed it, npx primitiv works. Anywhere else, npx primitiv-ui@latest runs the newest release with nothing installed.",
+            "code": [
+              "primitiv-ui",
+              "primitiv",
+              "npx primitiv",
+              "npx primitiv-ui@latest"
+            ]
+          },
+          {
+            "kind": "p",
             "text": "Every command lists its own options with --help. On its own, it shows all six.",
             "code": [
               "--help"
@@ -1150,7 +1160,7 @@
                   },
                   {
                     "flag": "--styles-only",
-                    "description": "copies the stylesheet and skips the React file."
+                    "description": "copies the stylesheet and skips the React file. React projects only."
                   },
                   {
                     "flag": "--no-wiring",
@@ -1162,7 +1172,7 @@
                   },
                   {
                     "flag": "--styled",
-                    "description": "copies the stylesheet for the custom elements, which are headless otherwise."
+                    "description": "copies the stylesheet for the custom elements on this run, which are headless otherwise. init --styles makes every run styled."
                   },
                   {
                     "flag": "--surface",
@@ -1197,11 +1207,12 @@
               },
               {
                 "kind": "p",
-                "text": "For the custom elements, --styles opts into the stylesheets, --path says where they go and --url the URL that folder is served at. On a Maven or Gradle project both are detected.",
+                "text": "For the custom elements, --styles opts into the stylesheets and the token layer, --path says where they go and --url the URL that folder is served at. On a Maven or Gradle project both are detected. Without --styles, init writes only primitiv.json: the elements need nothing else.",
                 "code": [
                   "--styles",
                   "--path",
-                  "--url"
+                  "--url",
+                  "primitiv.json"
                 ]
               },
               {
@@ -1333,8 +1344,10 @@
           },
           {
             "kind": "p",
-            "text": "A list of the components you have added and a hash of every file. The CLI uses it to tell whether you have edited a copied file, so it can ask before overwriting your work rather than assuming.",
-            "code": []
+            "text": "A list of the components you have added and a hash of every file it copied. The CLI uses it to tell whether you have edited a copied file, so it can ask before overwriting your work rather than assuming. A headless custom element copies no file, but it is still listed, so list shows it as installed.",
+            "code": [
+              "list"
+            ]
           },
           {
             "kind": "alert",
@@ -1444,10 +1457,38 @@
         "blocks": [
           {
             "kind": "p",
-            "text": "The CLI copies the stylesheets and prints the markup to paste. It needs Node to run, but your project does not: a project with no package.json works. Run init once, from the project root.",
+            "text": "The CLI prints what to paste, and copies Primitiv's stylesheets if you want them. It needs Node to run, but your project does not: a project with no package.json works. The npm package is primitiv-ui and the command it installs is primitiv, so npx primitiv-ui@latest runs it with nothing installed.",
             "code": [
               "package.json",
-              "init"
+              "primitiv-ui",
+              "primitiv",
+              "npx primitiv-ui@latest"
+            ]
+          },
+          {
+            "kind": "p",
+            "text": "For the elements alone, with your own CSS, there is no setup. add prints the script tag and the markup:",
+            "code": [
+              "add"
+            ]
+          },
+          {
+            "kind": "code",
+            "code": "$ npx primitiv-ui@latest add combobox",
+            "language": "bash",
+            "header": true,
+            "lineNumbers": false
+          },
+          {
+            "kind": "p",
+            "text": "For Primitiv's styling, run init --styles once, from the project root. It asks where your server serves static files from and the URL it serves them at, and a Maven or Gradle project is recognised, so --yes takes both answers for you. Every add after it also copies the stylesheet and prints the classed markup. To style a single run instead, use add --styled. The add flags --no-styles and --styles-only are for React projects.",
+            "code": [
+              "init --styles",
+              "--yes",
+              "add",
+              "add --styled",
+              "--no-styles",
+              "--styles-only"
             ]
           },
           {
@@ -1459,16 +1500,7 @@
           },
           {
             "kind": "p",
-            "text": "init asks where your server serves static files from, and the URL it serves them at. A Maven or Gradle project is recognised, so --yes takes both answers for you. Drop --styles for the elements on their own, with no classes and no stylesheet.",
-            "code": [
-              "init",
-              "--yes",
-              "--styles"
-            ]
-          },
-          {
-            "kind": "p",
-            "text": "Each add prints three things: the link lines for the styles, the script tag that defines the element, and example markup. Every component has its own script, so a page loads only what it uses:",
+            "text": "A styled add prints three things: the link lines for the styles, the script tag that defines the element, and example markup. Every component has its own script, so a page loads only what it uses:",
             "code": [
               "add"
             ]
@@ -1479,6 +1511,13 @@
             "language": "html",
             "header": false,
             "lineNumbers": true
+          },
+          {
+            "kind": "p",
+            "text": "Load every component from the same version, the one add prints. The components share code, and one version downloads it once.",
+            "code": [
+              "add"
+            ]
           },
           {
             "kind": "p",
@@ -1657,6 +1696,14 @@
             "kind": "p",
             "text": "The elements are headless. On their own they write no class and no style, so they carry no look until you give them one.",
             "code": []
+          },
+          {
+            "kind": "p",
+            "text": "Like any element the browser does not know, a custom element is display: inline until your CSS says otherwise. Give a root or a panel the box its layout needs, and give a wrapper that only decorates its child, such as a trigger, display: contents so the child lays out as if the wrapper were not there.",
+            "code": [
+              "display: inline",
+              "display: contents"
+            ]
           },
           {
             "kind": "p",

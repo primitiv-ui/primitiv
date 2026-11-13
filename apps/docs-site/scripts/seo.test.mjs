@@ -214,12 +214,13 @@ test("every component page has a Markdown mirror carrying its whole API", () => 
 
     assert.ok(md.startsWith(`# ${heading}\n`), path);
     assert.ok(md.includes(`${ORIGIN}${path}`), `${path}: links back to the page`);
-    // `npx primitiv` resolves only once `primitiv-ui` is installed — without it,
-    // npx would fetch an unrelated package called `primitiv`.
+    // A bare `npx primitiv` would fetch an unrelated package called `primitiv`:
+    // the CLI is `primitiv-ui`, run with nothing installed via `@latest`.
     assert.ok(
-      md.includes(`\nnpm i -D primitiv-ui\nnpx ${docs.styled.installCommand}\n`),
+      md.includes(`\nnpx primitiv-ui@latest ${docs.styled.installCommand.replace(/^primitiv /, "")}\n`),
       `${path}: install command`,
     );
+    assert.doesNotMatch(md, /npx primitiv /, `${path}: bare npx primitiv`);
     assert.doesNotMatch(md, /\{@link/, path);
     assert.doesNotMatch(md, /\| `` \|/, `${path}: empty code span`);
     // A value holding a backtick (a template-literal default) needs CommonMark's
@@ -282,7 +283,7 @@ test("every component with Elements carries them in its Markdown mirror", () => 
       );
       assert.ok(section.includes(`import "${pkg}/define/${module}";`), `${path}: bundler import`);
     } else {
-      assert.match(section, /no script/i, `${path}: says no script is needed`);
+      assert.match(section, /has no custom element/i, `${path}: says there is no element`);
     }
     assert.ok(section.includes(`npx primitiv-ui@latest add ${docs.id}`), `${path}: CLI`);
     if (example) {

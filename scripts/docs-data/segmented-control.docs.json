@@ -319,7 +319,7 @@
   "elements": {
     "package": "@primitiv-ui/web",
     "module": "segmented-control",
-    "version": "0.1.60",
+    "version": "0.2.2",
     "element": "div",
     "wrapText": false,
     "example": "<primitiv-segmented-control value=\"week\" aria-label=\"Range\" class=\"primitiv-segmented-control primitiv-segmented-control--md primitiv-segmented-control--justified\">\n  <primitiv-segmented-control-item value=\"day\">\n    <button type=\"button\" class=\"primitiv-segmented-control__item\">\n      <span class=\"primitiv-segmented-control__item-label\">Day</span>\n    </button>\n  </primitiv-segmented-control-item>\n  <primitiv-segmented-control-item value=\"week\">\n    <button type=\"button\" class=\"primitiv-segmented-control__item\">\n      <span class=\"primitiv-segmented-control__item-label\">Week</span>\n    </button>\n  </primitiv-segmented-control-item>\n  <primitiv-segmented-control-item value=\"month\">\n    <button type=\"button\" class=\"primitiv-segmented-control__item\">\n      <span class=\"primitiv-segmented-control__item-label\">Month</span>\n    </button>\n  </primitiv-segmented-control-item>\n</primitiv-segmented-control>\n",

@@ -161,6 +161,23 @@ describe("ModalController", () => {
       expect(host.changes).toEqual([]);
     });
 
+    it("ignores a press on something inside the dialog that hangs outside its box", () => {
+      // A select's list is a top-layer popover, so it can paint past the dialog's
+      // edge while still being the dialog's descendant: pressing an option there
+      // is a press in the dialog, not on the backdrop.
+      const pointerDownOutside = vi.fn();
+      const host = hostWith(true, { pointerDownOutside });
+      const { dialog } = connected(host, '<div role="listbox"><div role="option">Work</div></div>');
+      placed(dialog);
+
+      // Act
+      fireEvent.pointerDown(dialog.querySelector('[role="option"]') as HTMLElement, { clientX: 200, clientY: 360 });
+
+      // Assert
+      expect(pointerDownOutside).not.toHaveBeenCalled();
+      expect(host.changes).toEqual([]);
+    });
+
     it("ignores a press inside the dialog's box", () => {
       // Arrange
       const pointerDownOutside = vi.fn();

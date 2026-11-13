@@ -94,6 +94,10 @@ export class ModalController {
   }
 
   #pointerdown(event: PointerEvent): void {
+    // A press on the backdrop targets the dialog itself. Anything inside it —
+    // including a top-layer popover such as a select's list, which can paint
+    // past the dialog's edge — is a press in the dialog, wherever it lands.
+    if (event.target !== this.#dialog) return;
     const point = { x: event.clientX, y: event.clientY };
     if (!modalPointerOutside(this.#dialog.getBoundingClientRect(), point)) return;
     this.#host.pointerDownOutside?.(event);

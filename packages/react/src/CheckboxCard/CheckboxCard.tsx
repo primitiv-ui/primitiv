@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import type { ReactElement } from "react";
 
 import { Slot, composeRefs } from "../Slot/index.ts";
+import { FormValues } from "../utils/index.ts";
 
 import { CheckboxCardContext } from "./CheckboxCardContext";
 import { useCheckboxCardContext, useCheckboxCardRoot } from "./hooks/index.ts";
@@ -32,6 +33,12 @@ function dataStateOf(checked: CheckedState) {
  * Both `checked` and `defaultChecked` accept `boolean | "indeterminate"`.
  * Clicking an indeterminate card resolves it to `true` per the WAI-ARIA
  * tri-state convention, then flips boolean on subsequent clicks.
+ *
+ * **Forms.** With a {@link CheckboxCardRootBaseProps.name | `name`}, a
+ * checked card submits its {@link CheckboxCardRootBaseProps.value | `value`}
+ * with the surrounding form through a hidden input rendered beside it, as a
+ * native checkbox does; an unchecked, indeterminate or disabled card submits
+ * nothing.
  *
  * **ARIA.** `role="checkbox"` and `aria-checked` are set automatically;
  * `aria-checked="mixed"` represents the indeterminate state.
@@ -77,6 +84,8 @@ export function CheckboxCardRoot(props: CheckboxCardRootProps): ReactElement {
     asChild = false,
     children,
     ref,
+    name,
+    value = "on",
     ...rest
   } = props;
   const { checked: isChecked, rootRef } = useCheckboxCardRoot({
@@ -109,6 +118,7 @@ export function CheckboxCardRoot(props: CheckboxCardRootProps): ReactElement {
           {children}
         </button>
       )}
+      <FormValues name={name} values={isChecked === true && !disabled ? [value] : []} />
     </CheckboxCardContext.Provider>
   );
 }

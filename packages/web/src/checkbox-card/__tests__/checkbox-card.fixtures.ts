@@ -7,6 +7,8 @@ export type CheckboxCardFixture = {
   disabled?: boolean;
   forceMount?: boolean;
   label?: string;
+  name?: string;
+  value?: string;
 };
 
 export function checkboxCardHtml({
@@ -14,10 +16,14 @@ export function checkboxCardHtml({
   disabled = false,
   forceMount = false,
   label = "Email updates",
+  name,
+  value,
 }: CheckboxCardFixture = {}): string {
   const attrs = [
     checked === "indeterminate" ? ' checked="indeterminate"' : checked ? " checked" : "",
     disabled ? " disabled" : "",
+    name === undefined ? "" : ` name="${name}"`,
+    value === undefined ? "" : ` value="${value}"`,
   ].join("");
   return (
     `<primitiv-checkbox-card${attrs}><button type="button">` +

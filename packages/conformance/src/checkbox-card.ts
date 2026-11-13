@@ -18,13 +18,19 @@ export type CheckboxCardConformanceFixture = {
   disabled?: boolean;
   /** Whether the indicator stays rendered while unchecked. */
   forceMount?: boolean;
+  /** Submit the card with the surrounding form under this name. */
+  name?: string;
+  /** What it submits while checked; `"on"` when omitted, as a native checkbox. */
+  value?: string;
 };
 
-/** Render `fixture` into `document.body`; resolves to a cleanup function once settled. */
+/** Render `fixture` inside a `<form>` in `document.body`; resolves to a cleanup function once settled. */
 export type CheckboxCardMount = (fixture: CheckboxCardConformanceFixture) => Promise<() => void>;
 
 const card = () => screen.getByRole("checkbox", { name: CHECKBOX_CARD_LABEL });
 /** The card's rendered indicator: decorative, and not hidden. */
+/** What the surrounding form would submit, as name/value pairs. */
+const submitted = () => [...new FormData(document.querySelector("form") as HTMLFormElement).entries()];
 const indicator = () => card().querySelector<HTMLElement>('[aria-hidden="true"]:not([hidden])');
 
 export function runCheckboxCardConformance(mount: CheckboxCardMount): void {
@@ -141,6 +147,42 @@ export function runCheckboxCardConformance(mount: CheckboxCardMount): void {
 
         // Assert
         expect(indicator()?.getAttribute("data-state")).toBe("unchecked");
+      });
+    });
+
+    describe("forms", () => {
+      it("submits its value under its name while checked, and follows the toggle", async () => {
+        // Arrange
+        const user = userEvent.setup();
+        await render({ checked: true, name: "updates", value: "weekly" });
+        const before = submitted();
+
+        // Act
+        await user.click(card());
+
+        // Assert
+        expect(before).toEqual([["updates", "weekly"]]);
+        expect(submitted()).toEqual([]);
+      });
+
+      it("submits \"on\" when it has no value, as a native checkbox does", async () => {
+        // Arrange & Act
+        await render({ checked: true, name: "updates" });
+
+        // Assert
+        expect(submitted()).toEqual([["updates", "on"]]);
+      });
+
+      it.each([
+        ["without a name", { checked: true }],
+        ["while indeterminate", { checked: "indeterminate", name: "updates" }],
+        ["while disabled", { checked: true, disabled: true, name: "updates" }],
+      ] as const)("submits nothing %s", async (_, fixture) => {
+        // Arrange & Act
+        await render(fixture);
+
+        // Assert
+        expect(submitted()).toEqual([]);
       });
     });
   });

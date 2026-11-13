@@ -51,7 +51,7 @@ const SHARED_MODULES = {
   // and its disconnect is unobservable there — the components listed observe it.
   // Hidden inputs for a group's optional `name`, shared by the three groups that
   // submit with a form.
-  "src/utils/FormValues.tsx": ["SegmentedControl", "RadioCard", "ToggleGroup"],
+  "src/utils/FormValues.tsx": ["SegmentedControl", "RadioCard", "ToggleGroup", "CheckboxCard"],
   "src/hooks/useHostedController.ts": ["Tabs", "Accordion", "Collapsible", "ToggleGroup", "SegmentedControl", "RadioCard", "Slider", "SplitButton", "Listbox"],
 };
 

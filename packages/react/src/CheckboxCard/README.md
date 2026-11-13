@@ -83,6 +83,24 @@ the card from the focus ring, and `data-disabled=""` is set for CSS targeting.
 </CheckboxCard.Root>
 ```
 
+## Forms
+
+Give the root a `name` and a checked card submits its `value` with its form,
+the way a native checkbox does — `"on"` when no `value` is given, and nothing
+while the card is unchecked, indeterminate or disabled. Both are optional;
+without a `name` the card takes no part in forms. The value travels in a hidden
+`<input>` rendered just after the root, so an `asChild` root keeps its single
+child.
+
+```tsx
+<form>
+  <CheckboxCard.Root name="updates" value="weekly" defaultChecked>
+    <CheckboxCard.Indicator />
+    Weekly updates
+  </CheckboxCard.Root>
+</form>
+```
+
 ## `asChild` composition
 
 Both sub-components accept `asChild`. The library's ARIA attributes,

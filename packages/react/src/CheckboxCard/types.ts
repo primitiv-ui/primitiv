@@ -29,13 +29,24 @@ export type CheckboxCardIndicatorProps = ComponentProps<"span"> & {
 /**
  * Shared base for both {@link CheckboxCardRootProps} variants — the native
  * `<button>` attributes (minus the ones the component owns: `type`, `role`,
- * `aria-checked`, and `defaultChecked`), plus the `asChild` escape hatch and a
- * typed `ref`.
+ * `aria-checked`, `defaultChecked`, and the form's `name` / `value`), plus the
+ * `asChild` escape hatch and a typed `ref`.
  */
 export type CheckboxCardRootBaseProps = Omit<
   ComponentProps<"button">,
-  "type" | "role" | "aria-checked" | "defaultChecked"
+  "type" | "role" | "aria-checked" | "defaultChecked" | "name" | "value"
 > & {
+  /**
+   * Submit the card with the surrounding form under this name, through a
+   * hidden input rendered beside it. Optional: without it, nothing is submitted.
+   */
+  name?: string;
+  /**
+   * What a checked card submits under {@link CheckboxCardRootBaseProps.name | `name`};
+   * an unchecked, indeterminate or disabled card submits nothing.
+   * @default "on"
+   */
+  value?: string;
   /**
    * When `true`, render the consumer's own element instead of the default
    * `<button type="button">`, merging `role`, `aria-checked`, `data-state`,

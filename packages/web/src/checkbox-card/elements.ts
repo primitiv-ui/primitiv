@@ -1,6 +1,7 @@
 import type { CheckboxCardCheckedState } from "@primitiv-ui/core";
 
 import { defineElements, ElementBase, reportOnce, write, type ElementRegistry } from "../internal/element.ts";
+import { reconcileFormValues } from "../internal/form.ts";
 import { PrimitivRootElement } from "../internal/RootElement.ts";
 import { CheckboxCardController, type CheckboxCardControllerHost } from "./CheckboxCardController.ts";
 
@@ -24,16 +25,21 @@ function dataState(checked: CheckboxCardCheckedState): string {
  * `data-state="checked" | "unchecked" | "indeterminate"`. A click — or Space or
  * Enter, the button's own click — toggles it, a mixed card becoming checked.
  * Cards are independent: group several in a `<fieldset>` with a `<legend>`.
+ * With a `name`, a checked card submits its `value` (`"on"` without one) with
+ * the surrounding form through a hidden input beside the button, as a native
+ * checkbox does; an unchecked, mixed or disabled card submits nothing.
  *
  * @customElement primitiv-checkbox-card
  * @summary A card whose whole surface is one checkbox.
  * @attr {boolean | "indeterminate"} checked - Whether it is checked; `checked="indeterminate"` for mixed. Reflected: it changes as the user toggles, so a server re-render or a history snapshot sees the live state.
  * @attr {boolean} disabled - The card never toggles (`aria-disabled` and `data-disabled` on the button), staying focusable and announced.
+ * @attr {string} name - Submit the card with the surrounding form under this name. Optional: without it, nothing is submitted.
+ * @attr {string} value - What a checked card submits; `"on"` when absent, as a native checkbox.
  * @fires {CustomEvent<{ checked: boolean }>} primitiv-checkbox-card-change - Bubbles, cancelable, fired before a user-driven toggle is applied, with the state afterwards. Call `preventDefault()` to veto it.
  */
 export class PrimitivCheckboxCardElement extends PrimitivRootElement {
   protected readonly controller: CheckboxCardController = new CheckboxCardController(this, this.#host());
-  protected readonly reconcileOn: readonly string[] = ["checked", "disabled", "force-mount"];
+  protected readonly reconcileOn: readonly string[] = ["checked", "disabled", "force-mount", "name", "value"];
 
   /** The state, from the `checked` attribute: absent, present, or `"indeterminate"`. */
   get checked(): CheckboxCardCheckedState {
@@ -58,12 +64,14 @@ export class PrimitivCheckboxCardElement extends PrimitivRootElement {
   }
 
   protected reconcile(): void {
-    if (this.childElementCount !== 1) {
+    // The hidden input a named card submits through is the card's own, not a child to decorate.
+    const children = [...this.children].filter((child) => !child.hasAttribute("data-primitiv-form"));
+    if (children.length !== 1) {
       reportOnce(this, `<${ROOT}> needs exactly one element child (a <button>) to decorate.`);
       this.controller.setTriggers([]);
       return;
     }
-    const button = this.firstElementChild as HTMLElement;
+    const button = children[0] as HTMLElement;
     const checked = this.checked;
     const disabled = this.hasAttribute("disabled");
     this.controller.setTriggers([{ value: ROOT, element: button, disabled }]);
@@ -80,6 +88,8 @@ export class PrimitivCheckboxCardElement extends PrimitivRootElement {
       write(indicator, "data-state", dataState(checked));
       write(indicator, "hidden", checked !== false || indicator.hasAttribute("force-mount") ? null : "");
     }
+    const submits = checked === true && !disabled;
+    reconcileFormValues(this, this.getAttribute("name"), submits ? [this.getAttribute("value") ?? "on"] : []);
   }
 }
 

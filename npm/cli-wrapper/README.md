@@ -2,7 +2,19 @@
 
 The **Primitiv UI** design-system CLI. Add headless, accessible,
 fully-styled components — and their design tokens — to any Vite or
-Next.js project from the command line.
+Next.js project from the command line, or add **Primitiv Elements**
+(standard custom elements) to any HTML or server-rendered project —
+Spring, Maven, Gradle and friends included, with no package.json needed.
+
+> The command this package installs is `primitiv`. It is unrelated to the
+> `@primitiv/cli` package on npm.
+
+## Elements (any HTML project)
+
+```sh
+npx primitiv-ui@latest add combobox            # prints the script tag and markup
+npx primitiv-ui@latest init --styles           # once, to copy Primitiv's styling
+```
 
 ## Quick start
 

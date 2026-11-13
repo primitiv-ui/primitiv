@@ -3,6 +3,10 @@
 Set up **Primitiv UI** in an existing Vite or Next.js project with a
 single command.
 
+This is for React projects. For Primitiv Elements in an HTML or
+server-rendered project, run `npx primitiv-ui@latest add <component>`
+instead — it needs no package.json.
+
 ## Usage
 
 ```sh

@@ -151,6 +151,7 @@ fn takes_the_surface_from_the_project_config_without_the_flag() {
 #[test]
 fn plans_the_elements_packages_in_place_of_the_react_ones() {
     let fs = InMemoryFs::new();
+    fs.write(std::path::Path::new("package.json"), b"{}").unwrap();
     let output = InMemoryOutput::new();
     let runner = InMemoryProcessRunner::new();
 
@@ -1011,6 +1012,7 @@ fn headless_skips_a_component_with_no_behaviour_and_says_so() {
 #[test]
 fn headless_plans_only_the_components_with_behaviour() {
     let fs = InMemoryFs::new();
+    fs.write(std::path::Path::new("package.json"), b"{}").unwrap();
     let output = InMemoryOutput::new();
 
     add(
@@ -1285,8 +1287,11 @@ fn ensures_the_elements_package_once_at_this_cli_s_release_whatever_the_floors()
     .with_file("collapsible", "collapsible.html", b"<primitiv-collapsible></primitiv-collapsible>\n");
     let output = InMemoryOutput::new();
 
+    let fs = InMemoryFs::new();
+    fs.write(std::path::Path::new("package.json"), b"{}").unwrap();
+
     add(
-        &InMemoryFs::new(),
+        &fs,
         &registry,
         &output,
         &InMemoryProcessRunner::new(),

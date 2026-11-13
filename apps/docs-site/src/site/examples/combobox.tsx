@@ -227,7 +227,7 @@ const elementsCombobox = ({
       ? [`    <span class="primitiv-combobox__icon" aria-hidden="true">${glyph("chevron-down")}</span>`]
       : []),
     `  </span>`,
-    `  <primitiv-combobox-content aria-label="Frameworks" class="primitiv-combobox__content">`,
+    `  <primitiv-combobox-content popover="auto" aria-label="Frameworks" class="primitiv-combobox__content">`,
     ...FRAMEWORKS.flatMap((f) => elementsItem(f, row(f))),
     `    <primitiv-combobox-empty class="primitiv-combobox__empty">No frameworks match</primitiv-combobox-empty>`,
     `  </primitiv-combobox-content>`,
@@ -337,7 +337,7 @@ export const comboboxSpec: ComponentSpec = {
             `  <primitiv-combobox-input>`,
             `    <input>`,
             `  </primitiv-combobox-input>`,
-            `  <primitiv-combobox-content>`,
+            `  <primitiv-combobox-content popover="auto">`,
             `    <primitiv-combobox-item value="react">`,
             `      React`,
             `    </primitiv-combobox-item>`,

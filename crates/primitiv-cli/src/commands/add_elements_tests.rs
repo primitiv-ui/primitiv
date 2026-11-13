@@ -245,6 +245,30 @@ fn prints_a_pinned_cdn_script_instead_of_installing_without_a_package_json() {
 }
 
 #[test]
+fn lists_no_packages_to_ensure_when_it_will_install_none() {
+    // Without a package.json nothing is installed, so a "Packages to ensure"
+    // list beside the CDN script reads as a step the user still has to take.
+    let fs = InMemoryFs::new();
+    fs.set_current_dir(std::path::Path::new("site"));
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+
+    add_elements(
+        &fs,
+        &output,
+        &runner,
+        AddOptions {
+            components: vec!["tabs".into()],
+            ..Default::default()
+        },
+    )
+    .unwrap();
+
+    let printed = String::from_utf8(output.captured()).unwrap();
+    assert!(!printed.contains("Packages to ensure"), "{printed}");
+}
+
+#[test]
 fn detects_the_elements_surface_without_a_config_or_a_package_json() {
     // A server-rendered project (a Spring app, say) that never ran `init`:
     // nothing in it says React, so `add` must not reach for npm.

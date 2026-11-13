@@ -288,10 +288,13 @@ pub fn add(
     } else {
         None
     };
+    // Without a package.json there is no package manager to run: a plain HTML
+    // or server-rendered project loads the elements from the CDN instead.
+    let cdn_only = surface == Surface::Elements && !fs.exists(&dir.join("package.json"));
     let plan = if *json {
         render_json(&index, &resolved, surface, refresh_files.as_deref())
     } else {
-        render(&index, &resolved, surface)
+        render(&index, &resolved, surface, cdn_only)
     };
     output.write_stdout(plan.as_bytes())?;
     // When dry-running in human mode, append the "Refresh plan:" section after the
@@ -305,9 +308,7 @@ pub fn add(
     }
     if !*dry_run {
         if !*styles_only {
-            // Without a package.json there is no package manager to run: a plain
-            // HTML or server-rendered project loads the elements from the CDN.
-            if surface == Surface::Elements && !fs.exists(&dir.join("package.json")) {
+            if cdn_only {
                 if !*json {
                     print_cdn_scripts(output, &index, &resolved)?;
                 }
@@ -1058,8 +1059,9 @@ fn resolve(index: &RegistryIndex, requested: &[String]) -> Result<Vec<String>, C
 /// Format the resolved set as a plan — a `Resolved N component(s) to add:` header
 /// over an aligned `name  version` list, then (when any) the `Packages to
 /// ensure:` the components pull in. Both lists are sorted; the package list is
-/// the deduplicated union across the resolved components (RFC 0005 §4.4).
-fn render(index: &RegistryIndex, resolved: &[String], surface: Surface) -> String {
+/// the deduplicated union across the resolved components (RFC 0005 §4.4). A
+/// `cdn_only` run installs nothing, so it lists no packages either.
+fn render(index: &RegistryIndex, resolved: &[String], surface: Surface, cdn_only: bool) -> String {
     let plural = if resolved.len() == 1 { "" } else { "s" };
     let width = resolved.iter().map(String::len).max().unwrap_or(0);
     let mut plan = format!("Resolved {} component{plural} to add:\n", resolved.len());
@@ -1068,7 +1070,7 @@ fn render(index: &RegistryIndex, resolved: &[String], surface: Surface) -> Strin
         plan.push_str(&format!("  {name:<width$}  {version}\n"));
     }
     let packages = packages(index, resolved, surface);
-    if !packages.is_empty() {
+    if !cdn_only && !packages.is_empty() {
         plan.push_str("\nPackages to ensure:\n");
         for package in &packages {
             plan.push_str(&format!("  {package}\n"));

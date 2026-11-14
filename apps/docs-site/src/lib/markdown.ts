@@ -9,6 +9,7 @@ import {
 } from "./docs-data";
 import { humanName } from "./human-name";
 import { iconPlaceholders } from "./icon-placeholders";
+import { ICONS, iconUrl } from "./icons";
 import { tokenReferenceMarkdown } from "./token-reference";
 import { withoutClasses } from "./playground";
 import { WEB_RELEASE } from "./web-release";
@@ -110,7 +111,7 @@ const namedGlyphs = iconPlaceholders;
 const glyphNote = (markup: string): string[] =>
   namedGlyphs(markup).includes("<!-- Insert your SVG icon here") ? [GLYPH_NOTE] : [];
 
-const GLYPH_NOTE = `Each \`<!-- Insert your SVG icon here: <name> -->\` marks where an icon goes, and names the \`@primitiv-ui/icons\` glyph Primitiv draws there. Use your own icon set, or paste that glyph's SVG from https://cdn.jsdelivr.net/npm/@primitiv-ui/icons@${WEB_RELEASE}/svg/<name>.svg — it takes \`currentColor\` and is \`aria-hidden="true"\`.`;
+const GLYPH_NOTE = `Each \`<!-- Insert your SVG icon here: <name> -->\` marks where an icon goes, and names the \`@primitiv-ui/icons\` glyph Primitiv draws there. Use your own icon set, or Primitiv's: every icon, with its SVG to copy, is at ${SITE_URL}/icons/ (Markdown: ${SITE_URL}${markdownPath("/icons/")}), and the CDN serves each one at ${iconUrl("<name>", WEB_RELEASE)} — it takes \`currentColor\` and is \`aria-hidden="true"\`.`;
 
 /** The address the CDN serves an Elements module at, pinned to one version. */
 const cdnScript = (pkg: string, version: string | null, module: string): string =>
@@ -356,6 +357,7 @@ export const llmsIndex = (): string =>
         "/tokens/",
         "Every design token by category, with its value in each theme and density.",
       ),
+      indexEntry("Icons", "/icons/", "Every icon in `@primitiv-ui/icons` by name, with its SVG and its React component."),
     ].join("\n"),
     ...CATEGORY_ORDER.flatMap((category) => {
       const docs = ALL_DOCS.filter((d) => d.category === category);
@@ -386,6 +388,7 @@ export const llmsFull = (): string =>
   [
     ...CONTENT_PAGES.map(contentMarkdown),
     tokenReferenceMarkdown(SITE_URL),
+    iconsMarkdown(),
     ...CATEGORY_ORDER.flatMap((category) =>
       ALL_DOCS.filter((d) => d.category === category).map(componentMarkdown),
     ),
@@ -418,7 +421,7 @@ export const llmsElements = (): string =>
         "- **State lives in reflected attributes** (`value`, `open` …), so a server re-render or a history snapshot sees the user's choice. Set an attribute or property to change it from code.",
         "- **Changes are announced as bubbling events** named `primitiv-<component>-<what>`, with the new state in `event.detail`. A user-driven change fires before it applies and is cancelable: `preventDefault()` vetoes it.",
         "- **Interactive parts decorate the element you write** — a `<button>`, `<a href>` or `<input>` inside the part — so links and native form controls keep working. A component with a `name` submits its value with its form.",
-        "- **Icons are yours.** Markup marks each icon's place with `<!-- Insert your SVG icon here: name -->`. Use your own icons, or paste Primitiv's from `https://cdn.jsdelivr.net/npm/@primitiv-ui/icons@<version>/svg/<name>.svg` (`currentColor`, `aria-hidden`).",
+        `- **Icons are yours.** Markup marks each icon's place with \`<!-- Insert your SVG icon here: name -->\`. Use your own icons, or Primitiv's: every icon by name is listed at ${SITE_URL}${markdownPath("/icons/")}, and each one's SVG is at \`${iconUrl("<name>", WEB_RELEASE)}\` (\`currentColor\`, \`aria-hidden\`).`,
         `- **Tokens.** Every design token, by category, with its value in each theme and density: ${SITE_URL}${markdownPath("/tokens/")}. Read them with \`var(--primitiv-…)\` in your own CSS.`,
       ].join("\n"),
       `The same, at length, for people: ${SITE_URL}/elements/ (Markdown: ${SITE_URL}${markdownPath("/elements/")}). Every page's documentation, React included: ${SITE_URL}/llms.txt`,
@@ -445,4 +448,23 @@ export const llmsElements = (): string =>
     ),
   ]
     .join("\n\n---\n\n")
+    .concat("\n");
+
+/**
+ * `/icons/index.html.md` — every icon by name, for agents: what an Elements
+ * icon slot names, where its SVG is, and its React component. The SVGs
+ * themselves are left at their URLs: path data is noise in a list.
+ */
+export const iconsMarkdown = (): string =>
+  [
+    "# Icons",
+    `The ${ICONS.length} icons in \`@primitiv-ui/icons\`. Each is a 24px solid glyph that takes \`currentColor\`.`,
+    "Elements markup marks each icon's place with a comment such as `<!-- Insert your SVG icon here: close -->`: replace it with that icon's SVG, fetched from its URL below. Every SVG is `aria-hidden=\"true\"`; when an icon is the only thing in a control, name the control instead, as in `<button aria-label=\"Close\">`.",
+    "In React, import the component: `import { Close } from \"@primitiv-ui/icons\";`.",
+    table(
+      ["Icon", "SVG", "React"],
+      ICONS.map((icon) => [code(icon.name), iconUrl(icon.name, WEB_RELEASE), code(icon.component)]),
+    ),
+  ]
+    .join("\n\n")
     .concat("\n");

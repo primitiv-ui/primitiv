@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 import { CodeBlock } from "@/components/code-block";
 import { InlineCode } from "@/components/inline-code";
 import { List } from "@/components/list";
@@ -396,6 +398,16 @@ const ComponentDocsBody = ({
                   </>
                 )}
               </p>
+              {/* Elements markup marks where each icon goes rather than
+                  drawing it, so say where the icons are. */}
+              {inElements && elements?.example?.includes("Insert your SVG icon here") && (
+                <p className="docs-install-note">
+                  The markup marks each icon&apos;s place with{" "}
+                  <InlineCode size="sm">{"<!-- Insert your SVG icon here: name -->"}</InlineCode>.
+                  Copy that icon&apos;s SVG from the <Link href="/icons/">Icons</Link> page, or
+                  use your own.
+                </p>
+              )}
               {/* The other style, where there is one: a registry-only React
                   component and a behaviourless element have only Styled. */}
               {inElements ? (

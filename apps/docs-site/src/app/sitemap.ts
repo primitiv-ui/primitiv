@@ -21,6 +21,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/components/",
     "/colours/",
     "/tokens/",
+    "/icons/",
     ...CONTENT_PAGES.map((page) => page.route),
     ...ALL_DOCS.map((docs) => `/components/${docs.id}/`),
   ];

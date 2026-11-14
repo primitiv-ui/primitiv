@@ -152,6 +152,7 @@ export const NAV: readonly NavSection[] = [
       { title: "Tokens & theming", href: "/concepts/tokens/" },
       { title: "Token reference", href: "/tokens/" },
       { title: "Colour library", href: "/colours/" },
+      { title: "Icons", href: "/icons/" },
       { title: "Density & Context", href: "/concepts/density/" },
       { title: "Composition patterns", href: "/concepts/composition/" },
       { title: "Accessibility", href: "/concepts/accessibility/" },

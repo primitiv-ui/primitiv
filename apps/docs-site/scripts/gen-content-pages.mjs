@@ -66,6 +66,7 @@ const ROUTES = {
   "Browse components": "/components/",
   "Tokens and theming": "/concepts/tokens/",
   "Token reference": "/tokens/",
+  Icons: "/icons/",
   Density: "/concepts/density/",
   "Density and the Context tier": "/concepts/density/",
   Composition: "/concepts/composition/",

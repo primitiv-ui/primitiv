@@ -1,0 +1,38 @@
+/*
+ * The icon gallery (/icons/). The tiles reuse the components index's auto-fill
+ * grid technique: `min(..., 100%)` keeps a narrow container from overflowing.
+ */
+
+.docs-icon-grid {
+  --docs-icon-tile-min: 8.5rem;
+
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(var(--docs-icon-tile-min), 100%), 1fr));
+  gap: var(--primitiv-grid-gap-sm);
+}
+
+.docs-icon-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--primitiv-space-12);
+  padding: var(--primitiv-space-20) var(--primitiv-space-12) var(--primitiv-space-16);
+  border: var(--primitiv-border-width-1) solid var(--primitiv-border-subtle);
+  border-radius: var(--primitiv-radii-8);
+  background: var(--primitiv-surface-default);
+  color: var(--primitiv-content-primary);
+}
+
+.docs-icon-glyph {
+  display: flex;
+  inline-size: var(--primitiv-space-32);
+  block-size: var(--primitiv-space-32);
+}
+
+.docs-icon-glyph svg {
+  inline-size: 100%;
+  block-size: 100%;
+}

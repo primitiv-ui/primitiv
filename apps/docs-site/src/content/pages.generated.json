@@ -1871,6 +1871,22 @@
           },
           {
             "kind": "p",
+            "text": "Icons are yours to supply. Markup marks each one's place with a comment such as <!-- Insert your SVG icon here: close -->. Primitiv's own icons, each with its SVG to copy, are on the Icons page.",
+            "code": [
+              "<!-- Insert your SVG icon here: close -->"
+            ]
+          },
+          {
+            "kind": "links",
+            "links": [
+              {
+                "label": "Icons",
+                "href": "/icons/"
+              }
+            ]
+          },
+          {
+            "kind": "p",
             "text": "Two components write an inline position, because it is their state rather than styling. A Slider places its thumbs, and a Context Menu publishes where the pointer was.",
             "code": []
           },

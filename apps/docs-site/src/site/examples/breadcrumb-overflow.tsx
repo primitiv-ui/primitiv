@@ -290,7 +290,7 @@ export const breadcrumbOverflowSpec: ComponentSpec = {
 
   elements: {
     description:
-      "A breadcrumb trail whose middle crumbs fold behind a `...` menu. There is no element of its own: it is the Breadcrumb's markup with a `<primitiv-dropdown>` in the collapsed crumb, so load Dropdown's script, and each hidden crumb's link becomes a menu item.",
+      "A breadcrumb trail whose middle crumbs fold behind a `...` menu. There is no element of its own: it is the Breadcrumb's markup with a `<primitiv-dropdown>` in the collapsed crumb, so load Dropdown's script, and each hidden crumb's link becomes a menu item. Nothing folds by itself here, unlike React's `keepStart` and `keepEnd`: your server chooses which crumbs stay in the trail and writes the rest into the menu.",
     anatomyMeta:
       "Breadcrumb's `<nav>`, `<ol>`, items and separators, written as plain markup, with one crumb holding a `<primitiv-dropdown>`: its `<primitiv-dropdown-trigger>` wraps the `...` `<button class=\"primitiv-breadcrumb-overflow__trigger\">`, and its `<primitiv-dropdown-content>` holds one `<primitiv-dropdown-item>` per hidden crumb, each wrapping that crumb's own `<a>`. The menu is anchored to the trigger by the element, with no `anchor-name` to wire.",
     keyboardMeta:

@@ -486,6 +486,15 @@
           },
           {
             "kind": "p",
+            "text": "Or give the brand when you set the project up: init --styles --brand \"#0a7755\" writes the same theme in the same step. Either way it lands in <project>.theme.css beside tokens.css, named after the project, and tokens.css imports it, so you link tokens.css alone.",
+            "code": [
+              "init --styles --brand \"#0a7755\"",
+              "<project>.theme.css",
+              "tokens.css"
+            ]
+          },
+          {
+            "kind": "p",
             "text": "That produces a full light and dark palette from your colour, with every semantic role reassigned by contrast. It writes into its own layer, so it beats the base tokens without you editing them. The standard ramps are fixed and are not touched by this.",
             "code": []
           },
@@ -668,6 +677,17 @@
             "language": "html",
             "header": false,
             "lineNumbers": false
+          },
+          {
+            "kind": "p",
+            "text": "The four values are dense, compact, comfortable and spacious. With no data-density anywhere, a page is comfortable.",
+            "code": [
+              "dense",
+              "compact",
+              "comfortable",
+              "spacious",
+              "data-density"
+            ]
           },
           {
             "kind": "p",
@@ -1589,6 +1609,20 @@
           },
           {
             "kind": "p",
+            "text": "The tokens name three typefaces: Asta Sans for text, Khand for headings and JetBrains Mono for code. Load them from Google Fonts, or text falls back to the system sans-serif. init prints this line too:",
+            "code": [
+              "init"
+            ]
+          },
+          {
+            "kind": "code",
+            "code": "<link rel=\"stylesheet\" href=\"https://fonts.googleapis.com/css2?family=Asta+Sans:wght@300..800&family=Khand:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400..700&display=swap\">",
+            "language": "html",
+            "header": false,
+            "lineNumbers": false
+          },
+          {
+            "kind": "p",
             "text": "The CLI fills in <version> with the release it came from, and each component page shows the same one. Use that version for every component on a page.",
             "code": [
               "<version>"
@@ -1785,6 +1819,13 @@
             "kind": "p",
             "text": "Parts can arrive after the page loads. An item appended to a list, a fragment swapped in, or a whole component moved to another place is picked up as it lands. There is nothing to initialise and nothing to tear down.",
             "code": []
+          },
+          {
+            "kind": "p",
+            "text": "That includes state. A fragment that arrives as <primitiv-modal open> opens as it lands, which is how a server shows a dialog in answer to a request: render it open, and swap it in.",
+            "code": [
+              "<primitiv-modal open>"
+            ]
           },
           {
             "kind": "alert",

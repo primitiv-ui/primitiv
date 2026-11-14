@@ -471,7 +471,14 @@ styledByComponent[partKey(rootComp)] = {
 };
 for (const sub of contract.subcomponents || []) {
   const entry = {
-    contractProps: modsFor(sub.modifiers),
+    /* Both shapes again: a part's own `modifiers`, and the contract-level
+       `subcomponentModifiers` list naming its part (navigation-menu's Link
+       `placement` and Indicator `marker`). Reading only the first dropped
+       those two from the page without a word. */
+    contractProps: modsFor([
+      ...(sub.modifiers || []),
+      ...(contract.subcomponentModifiers || []).filter((mod) => mod.subcomponent === sub.name),
+    ]),
     dataAttributes: rowsFor(sub.dataAttributes),
     /* The class a styled-mode reader actually writes in their CSS. In headless
        mode there is no class — the element is theirs — so the page shows the

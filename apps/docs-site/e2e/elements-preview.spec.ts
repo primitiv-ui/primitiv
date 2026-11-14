@@ -200,6 +200,44 @@ test("the Popover previews are <primitiv-popover> elements anchored to their tri
   await expect(trigger).toBeFocused();
 });
 
+test("the Navigation Menu previews are elements whose panel opens under the open trigger", async ({ page }) => {
+  await page.goto("/components/navigation-menu/");
+  await expect(page.getByText(/dist\/cdn\/navigation-menu\.js/).first()).toBeVisible();
+  const example = cell(page, "disclosure-panels");
+  const nav = example.locator("primitiv-navigation-menu");
+  await expect(nav).toHaveClass(/primitiv-navigation-menu/);
+  const trigger = example.getByRole("button", { name: "Resources" });
+  // The definition loads on demand: wait for the element to have wired its button.
+  await expect(trigger).toHaveAttribute("aria-expanded", "false");
+  await trigger.click();
+  await expect(trigger).toHaveAttribute("aria-expanded", "true");
+  const link = example.getByRole("link", { name: /GitHub/ });
+  await expect(link).toBeVisible();
+  // No anchor-name in the markup: the open trigger takes a scoped one from the stylesheet.
+  const viewport = example.locator(".primitiv-navigation-menu__viewport");
+  await expect
+    .poll(async () => {
+      const [t, v] = await Promise.all([trigger.boundingBox(), viewport.boundingBox()]);
+      const centre = t!.x + t!.width / 2;
+      return v!.y >= t!.y + t!.height && Math.abs(v!.x + v!.width / 2 - centre) < 2;
+    })
+    .toBe(true);
+  await link.focus();
+  await page.keyboard.press("Escape");
+  await expect(trigger).toBeFocused();
+  await expect(trigger).toHaveAttribute("aria-expanded", "false");
+});
+
+test("React mode renders the React Navigation Menu, not the elements", async ({ page }) => {
+  await page.addInitScript(
+    ([key]) => localStorage.setItem(key, JSON.stringify("react")),
+    [FRAMEWORK_KEY],
+  );
+  await page.goto("/components/navigation-menu/");
+  await expect(page.getByRole("navigation", { name: "Docs" }).first()).toBeVisible();
+  await expect(page.locator("primitiv-navigation-menu")).toHaveCount(0);
+});
+
 test("the Tooltip previews are <primitiv-tooltip> elements anchored above their trigger", async ({ page }) => {
   await page.goto("/components/tooltip/");
   await expect(page.getByText(/dist\/cdn\/tooltip\.js/).first()).toBeVisible();

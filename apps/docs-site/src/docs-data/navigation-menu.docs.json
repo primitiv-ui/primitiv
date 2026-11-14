@@ -262,7 +262,18 @@
         ],
         "styledOnly": false,
         "headlessOnly": false,
-        "contractProps": [],
+        "contractProps": [
+          {
+            "name": "marker",
+            "type": "\"arrow\" | \"underline\"",
+            "default": "arrow",
+            "description": "How the open trigger is marked. `arrow` is a rotated square sharing the panel's fill, pointing up at the trigger from the panel's top edge; `underline` is a rule beneath the trigger. Mirrors the Figma `Navigation Menu / Indicator` Style axis.",
+            "classes": {
+              "arrow": "primitiv-navigation-menu__indicator--arrow",
+              "underline": "primitiv-navigation-menu__indicator--underline"
+            }
+          }
+        ],
         "dataAttributes": [
           {
             "name": "data-value",
@@ -293,7 +304,18 @@
         ],
         "styledOnly": false,
         "headlessOnly": false,
-        "contractProps": [],
+        "contractProps": [
+          {
+            "name": "placement",
+            "type": "\"bar\" | \"panel\"",
+            "default": "bar",
+            "description": "Which of the two placements of the single headless `Link` part this is. `bar` is a top-level entry sitting beside the triggers (one line, entry geometry); `panel` is a row inside an open panel (two lines — title plus optional description — with optional leading/trailing slots). Mirrors the Figma `Navigation Menu / Bar Link` and `Navigation Menu / Panel Link` sets.",
+            "classes": {
+              "bar": "primitiv-navigation-menu__link--bar",
+              "panel": "primitiv-navigation-menu__link--panel"
+            }
+          }
+        ],
         "dataAttributes": [],
         "class": "primitiv-navigation-menu__link"
       },

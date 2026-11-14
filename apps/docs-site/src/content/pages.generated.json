@@ -1561,6 +1561,27 @@
           },
           {
             "kind": "p",
+            "text": "init --styles writes tokens.css and primitiv-base.css, the base styles for plain elements such as headings and links. tokens.css imports primitiv-base.css, so tokens.css is the only one you link. index.css arrives with your first add, and imports the stylesheet of every component you have added.",
+            "code": [
+              "init --styles",
+              "tokens.css",
+              "primitiv-base.css",
+              "index.css",
+              "add"
+            ]
+          },
+          {
+            "kind": "p",
+            "text": "The version to pin is the release: what primitiv --version prints, the CDN URLs carry, and npm installs. primitiv.json and each copied contract.json also carry a version, for the format of the copied files; those move on their own and you never pin to them. --registry takes a release too.",
+            "code": [
+              "primitiv --version",
+              "primitiv.json",
+              "contract.json",
+              "--registry"
+            ]
+          },
+          {
+            "kind": "p",
             "text": "With a bundler, install the package and import one define entry per component, or the one that defines them all:",
             "code": []
           },
@@ -1646,6 +1667,25 @@
           },
           {
             "kind": "p",
+            "text": "A boolean attribute, such as open, disabled or checked, works as in HTML: present means true, whatever its value, so checked=\"checked\" from a template is checked. The one exception is a value an attribute names, such as checked=\"indeterminate\" on a Checkbox Card.",
+            "code": [
+              "open",
+              "disabled",
+              "checked",
+              "checked=\"checked\"",
+              "checked=\"indeterminate\""
+            ]
+          },
+          {
+            "kind": "p",
+            "text": "An empty value selects nothing. value=\"\" starts an Accordion with every item closed, with each panel rendered hidden.",
+            "code": [
+              "value=\"\"",
+              "hidden"
+            ]
+          },
+          {
+            "kind": "p",
             "text": "Because the state is in the markup, anything that snapshots the page keeps it. A server re-render, a history entry or a cached fragment all come back showing what the user chose.",
             "code": []
           }
@@ -1675,6 +1715,17 @@
             "text": "A change the user makes fires before it is applied, and it can be cancelled. Call preventDefault() and the component stays as it was. That is how you guard a change, or hand the decision to your server.",
             "code": [
               "preventDefault()"
+            ]
+          },
+          {
+            "kind": "h3",
+            "text": "Confirming a server action"
+          },
+          {
+            "kind": "p",
+            "text": "A Confirm Dialog's buttons close it, and the Confirm button's own click runs first, before the dialog reports closing. So put the action on the Confirm button: a form it submits, or a request it sends. For one dialog shared by many rows, have each row open it with modal.open = true, keep which row asked, and send that row's request from the Confirm click.",
+            "code": [
+              "modal.open = true"
             ]
           }
         ]
@@ -1735,9 +1786,9 @@
           },
           {
             "kind": "p",
-            "text": "Segmented Control, Radio Card and Toggle Group submit their selected value, or one entry per pressed item, through hidden inputs inside the root. A Checkbox Card submits its value, or on without one, while it is checked, as a native checkbox does.",
+            "text": "Segmented Control, Radio Card and Toggle Group submit their selected value, or one entry per pressed item, through hidden inputs inside the root. A Checkbox Card submits its value while it is checked, as a native checkbox does, and the value defaults to \"on\".",
             "code": [
-              "on"
+              "\"on\""
             ]
           },
           {
@@ -1745,6 +1796,14 @@
             "text": "Every one of them is an ordinary form field, so anything that reads the form sees it: a plain submit, new FormData(form), or a library that serialises the form for a request.",
             "code": [
               "new FormData(form)"
+            ]
+          },
+          {
+            "kind": "p",
+            "text": "A Combobox submits its value under the root's name. If you also name its <input>, the text in the field submits too, under that second name: useful for a search, or for showing the text again after a failed validation. Leave the input unnamed otherwise.",
+            "code": [
+              "name",
+              "<input>"
             ]
           },
           {

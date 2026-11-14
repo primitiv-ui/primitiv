@@ -324,7 +324,7 @@
     "module": "tooltip",
     "element": "div",
     "wrapText": false,
-    "example": "<primitiv-tooltip>\n  <primitiv-tooltip-trigger>\n    <button type=\"button\">Save</button>\n  </primitiv-tooltip-trigger>\n  <primitiv-tooltip-content class=\"primitiv-tooltip primitiv-tooltip--default primitiv-tooltip--md primitiv-tooltip--top\" popover=\"manual\">\n    Saves your work\n    <primitiv-tooltip-arrow class=\"primitiv-tooltip__arrow\"></primitiv-tooltip-arrow>\n  </primitiv-tooltip-content>\n</primitiv-tooltip>\n",
+    "example": "<primitiv-tooltip>\n  <primitiv-tooltip-trigger>\n    <!-- Your own button: style it yourself, or as a Button (primitiv add button). -->\n    <button type=\"button\" class=\"primitiv-button primitiv-button--secondary primitiv-button--md\"><span class=\"primitiv-button__label\">Save</span></button>\n  </primitiv-tooltip-trigger>\n  <primitiv-tooltip-content class=\"primitiv-tooltip primitiv-tooltip--default primitiv-tooltip--md primitiv-tooltip--top\" popover=\"manual\">\n    Saves your work\n    <primitiv-tooltip-arrow class=\"primitiv-tooltip__arrow\"></primitiv-tooltip-arrow>\n  </primitiv-tooltip-content>\n</primitiv-tooltip>\n",
     "api": [
       {
         "tag": "primitiv-tooltip-provider",

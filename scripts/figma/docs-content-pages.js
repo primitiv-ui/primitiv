@@ -502,6 +502,8 @@ const PAGES = {
         ['code', '<link rel="stylesheet" href="/primitiv/tokens.css">\n<link rel="stylesheet" href="/primitiv/index.css">\n<script type="module" src="https://cdn.jsdelivr.net/npm/@primitiv-ui/web@<version>/dist/cdn/combobox.js"></script>', { lineNumbers: true }],
         ['p', 'The CLI fills in <version> with the release it came from, and each component page shows the same one. Use that version for every component on a page.', ['<version>']],
         ['p', 'Load every component from the same version, the one add prints. The components share code, and one version downloads it once.', ['add']],
+        ['p', 'init --styles writes tokens.css and primitiv-base.css, the base styles for plain elements such as headings and links. tokens.css imports primitiv-base.css, so tokens.css is the only one you link. index.css arrives with your first add, and imports the stylesheet of every component you have added.', ['init --styles', 'tokens.css', 'primitiv-base.css', 'index.css', 'add']],
+        ['p', 'The version to pin is the release: what primitiv --version prints, the CDN URLs carry, and npm installs. primitiv.json and each copied contract.json also carry a version, for the format of the copied files; those move on their own and you never pin to them. --registry takes a release too.', ['primitiv --version', 'primitiv.json', 'contract.json', '--registry']],
         ['p', 'With a bundler, install the package and import one define entry per component, or the one that defines them all:'],
         ['code', '$ npm i @primitiv-ui/web\n\nimport "@primitiv-ui/web/define/combobox";\nimport "@primitiv-ui/web/define";'],
         ['p', 'Each component page has an Elements mode with its exact markup, attributes and events. Choose it from the switch at the top of the page.'],
@@ -520,6 +522,8 @@ const PAGES = {
         ['h2', 'State lives in attributes'],
         ['p', 'The root keeps its state in attributes, such as value and open, and updates them as the user acts. Render them from your server to set the starting state. Read them, or set them, to work with the component from a script.', ['value', 'open']],
         ['code', '<primitiv-tabs value="billing">…</primitiv-tabs>\n\nconst tabs = document.querySelector("primitiv-tabs");\ntabs.value = "overview";'],
+        ['p', 'A boolean attribute, such as open, disabled or checked, works as in HTML: present means true, whatever its value, so checked="checked" from a template is checked. The one exception is a value an attribute names, such as checked="indeterminate" on a Checkbox Card.', ['open', 'disabled', 'checked', 'checked="checked"', 'checked="indeterminate"']],
+        ['p', 'An empty value selects nothing. value="" starts an Accordion with every item closed, with each panel rendered hidden.', ['value=""', 'hidden']],
         ['p', 'Because the state is in the markup, anything that snapshots the page keeps it. A server re-render, a history entry or a cached fragment all come back showing what the user chose.'],
       ]},
       { name: '05 — Listening for changes', blocks: [
@@ -527,6 +531,8 @@ const PAGES = {
         ['p', 'Every change is announced with a DOM event named after the component, such as primitiv-tabs-change. It bubbles, and event.detail carries the new state.', ['primitiv-tabs-change', 'event.detail']],
         ['code', 'tabs.addEventListener("primitiv-tabs-change", (event) => {\n  console.log(event.detail.value);\n});', { lineNumbers: true }],
         ['p', 'A change the user makes fires before it is applied, and it can be cancelled. Call preventDefault() and the component stays as it was. That is how you guard a change, or hand the decision to your server.', ['preventDefault()']],
+        ['h3', 'Confirming a server action'],
+        ['p', 'A Confirm Dialog\'s buttons close it, and the Confirm button\'s own click runs first, before the dialog reports closing. So put the action on the Confirm button: a form it submits, or a request it sends. For one dialog shared by many rows, have each row open it with modal.open = true, keep which row asked, and send that row\'s request from the Confirm click.', ['modal.open = true']],
       ]},
       { name: '06 — Markup your server renders', blocks: [
         ['h2', 'Markup your server renders'],
@@ -540,8 +546,9 @@ const PAGES = {
       { name: '07 — Forms', blocks: [
         ['h2', 'Forms'],
         ['p', 'Give a value-holding component a name and it takes part in its form like a native control. name is optional: without it, the component submits nothing. Select, Combobox and Slider keep a hidden native control inside themselves, so the value submits and a form reset restores the value it started with. A Select marked required also blocks an empty submit.', ['name', 'required']],
-        ['p', 'Segmented Control, Radio Card and Toggle Group submit their selected value, or one entry per pressed item, through hidden inputs inside the root. A Checkbox Card submits its value, or on without one, while it is checked, as a native checkbox does.', ['on']],
+        ['p', 'Segmented Control, Radio Card and Toggle Group submit their selected value, or one entry per pressed item, through hidden inputs inside the root. A Checkbox Card submits its value while it is checked, as a native checkbox does, and the value defaults to "on".', ['"on"']],
         ['p', 'Every one of them is an ordinary form field, so anything that reads the form sees it: a plain submit, new FormData(form), or a library that serialises the form for a request.', ['new FormData(form)']],
+        ['p', 'A Combobox submits its value under the root\'s name. If you also name its <input>, the text in the field submits too, under that second name: useful for a search, or for showing the text again after a failed validation. Leave the input unnamed otherwise.', ['name', '<input>']],
         ['code', '<form method="post">\n  <primitiv-select name="fruit" value="apple">…</primitiv-select>\n  <button>Save</button>\n</form>'],
         ['p', 'A component whose control is already native, such as a checkbox or a text field, needs nothing extra. Write the <input> and name it as usual.', ['<input>']],
         ['p', 'A menu item can be a submit button. Write <button type="submit" name="intent" value="draft"> inside a Dropdown or Split Button item and choosing it, by click or Enter, submits the form with that button as the submitter.', ['<button type="submit" name="intent" value="draft">']],

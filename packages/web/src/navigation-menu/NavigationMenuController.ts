@@ -162,6 +162,26 @@ export class NavigationMenuController {
     this.#host.panel(value)?.querySelector<HTMLElement>(NAVIGATION_MENU_PANEL_FOCUSABLE)?.focus();
   }
 
+  /**
+   * A link was followed: the interaction is over, so the menu closes — never
+   * leaving a panel open over the page the user just went to.
+   */
+  linkClick(): void {
+    this.#cancelOpen();
+    this.#host.change("");
+  }
+
+  /**
+   * The pointer reached a **top-level** link (a host never calls this for a
+   * link inside a panel, whose hover must not close its own panel): travelling
+   * along the bar past a plain entry closes what is open, as reaching another
+   * trigger would. A click-only menu stays click-only.
+   */
+  linkPointerEnter(): void {
+    if (!this.#host.state().openOnHover) return;
+    this.linkClick();
+  }
+
   /** Cancel every timer, so nothing outlives the host. */
   disconnect(): void {
     this.#cancelOpen();

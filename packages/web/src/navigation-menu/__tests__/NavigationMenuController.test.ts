@@ -534,4 +534,60 @@ describe("NavigationMenuController", () => {
       expect(host.changes).toEqual([]);
     });
   });
+
+  describe("links", () => {
+    it("closes the menu when a link is followed, cancelling a pending open", () => {
+      // Arrange
+      vi.useFakeTimers();
+      const host = hostWith("");
+      const controller = new NavigationMenuController(host);
+      controller.triggerPointerEnter("docs");
+
+      // Act
+      controller.linkClick();
+      vi.advanceTimersByTime(500);
+
+      // Assert
+      expect(host.changes).toEqual([""]);
+    });
+
+    it("closes the open panel as the pointer reaches a top-level link", () => {
+      // Arrange
+      const host = hostWith("docs");
+      const controller = new NavigationMenuController(host);
+
+      // Act
+      controller.linkPointerEnter();
+
+      // Assert
+      expect(host.changes).toEqual([""]);
+    });
+
+    it("cancels a pending hover open as the pointer reaches a top-level link", () => {
+      // Arrange
+      vi.useFakeTimers();
+      const host = hostWith("");
+      const controller = new NavigationMenuController(host);
+      controller.triggerPointerEnter("docs");
+
+      // Act
+      controller.linkPointerEnter();
+      vi.advanceTimersByTime(500);
+
+      // Assert
+      expect(host.changes).toEqual([""]);
+    });
+
+    it("leaves the menu alone on a link hover when hover-to-open is off", () => {
+      // Arrange
+      const host = hostWith("docs", { openOnHover: false });
+      const controller = new NavigationMenuController(host);
+
+      // Act
+      controller.linkPointerEnter();
+
+      // Assert
+      expect(host.changes).toEqual([]);
+    });
+  });
 });

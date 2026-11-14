@@ -220,15 +220,12 @@ export class PrimitivNavigationMenuElement extends PrimitivRootElement {
   #keydown(event: KeyboardEvent): void {
     const target = event.target as Node;
     const scan = this.#scan();
-    let handled = false;
+    // A key press is in at most one trigger or top-level link: neither part nests the other.
     for (const [value, { button }] of scan.entries) {
-      if (button?.contains(target)) {
-        this.#nav.triggerKeydown(value, button, event);
-        handled = true;
-      }
+      if (button?.contains(target)) this.#nav.triggerKeydown(value, button, event);
     }
     const link = scan.links.find(({ anchor, top }) => top && anchor.contains(target));
-    if (!handled && link) this.#nav.travel(link.anchor, event);
+    if (link) this.#nav.travel(link.anchor, event);
     this.#nav.rootKeydown(event);
   }
 

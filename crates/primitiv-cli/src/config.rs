@@ -90,6 +90,11 @@ pub struct Styles {
 pub struct Tokens {
     pub format: Format,
     pub path: String,
+    /// Whether `primitiv tokens` also writes `utilities.css` beside the token
+    /// layer (RFC 0034), as `init --utilities` records. Absent in every config
+    /// written before it, which reads as no.
+    #[serde(default)]
+    pub utilities: bool,
 }
 
 /// The ramp seeds the theme overrides are derived from (RFC 0005 §3.1) — one

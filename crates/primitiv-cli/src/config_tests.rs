@@ -44,6 +44,7 @@ fn should_parse_a_full_primitiv_json_document() {
             tokens: Tokens {
                 format: Format::Css,
                 path: "src/styles/primitiv/tokens.css".into(),
+                utilities: false,
             },
             theme: Theme {
                 seeds: BTreeMap::from([("brand".into(), "#0a7755".into())]),
@@ -280,4 +281,24 @@ fn should_read_the_url_the_styles_folder_is_served_at() {
     .unwrap();
 
     assert_eq!(config.styles.url.as_deref(), Some("/primitiv"));
+}
+
+#[test]
+fn should_read_whether_the_project_keeps_the_utility_classes() {
+    let config = Config::parse(
+        br##"{
+          "version": 1,
+          "surface": "elements",
+          "styles": { "enabled": true, "format": "css", "path": "primitiv" },
+          "tokens": { "format": "css", "path": "primitiv/tokens.css", "utilities": true },
+          "theme": {},
+          "aliases": {},
+          "registry": { "version": "0.1.0" }
+        }"##,
+    )
+    .unwrap();
+
+    assert!(config.tokens.utilities);
+    // Absent, as in every config written before RFC 0034: no utilities.
+    assert!(!Config::parse(FULL).unwrap().tokens.utilities);
 }

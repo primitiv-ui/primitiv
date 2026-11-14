@@ -1,6 +1,6 @@
 {
   "name": "create-primitiv-ui",
-  "version": "0.2.6",
+  "version": "0.2.7",
   "description": "Set up Primitiv UI in an existing Vite or Next.js React project. Use with: pnpm create primitiv-ui. For Primitiv Elements in an HTML or server-rendered project, use npx primitiv-ui@latest instead.",
   "keywords": [
     "primitiv",

@@ -573,5 +573,128 @@
   "figma": {
     "componentSetKey": "1334:51944"
   },
-  "elements": null
+  "elements": {
+    "package": "@primitiv-ui/web",
+    "module": "navigation-menu",
+    "element": "nav",
+    "wrapText": false,
+    "example": "<primitiv-navigation-menu class=\"primitiv-navigation-menu primitiv-navigation-menu--md\" role=\"navigation\" aria-label=\"Main\">\n  <primitiv-navigation-menu-list class=\"primitiv-navigation-menu__list\">\n    <primitiv-navigation-menu-item value=\"concepts\" class=\"primitiv-navigation-menu__item\">\n      <primitiv-navigation-menu-trigger>\n        <button type=\"button\" class=\"primitiv-navigation-menu__trigger\"><span class=\"primitiv-navigation-menu__trigger-label\">Concepts</span><span class=\"primitiv-navigation-menu__trigger-icon\" aria-hidden=\"true\"><!-- Insert your SVG icon here: chevron-down --></span></button>\n      </primitiv-navigation-menu-trigger>\n    </primitiv-navigation-menu-item>\n    <primitiv-navigation-menu-item value=\"resources\" class=\"primitiv-navigation-menu__item\">\n      <primitiv-navigation-menu-trigger>\n        <button type=\"button\" class=\"primitiv-navigation-menu__trigger\"><span class=\"primitiv-navigation-menu__trigger-label\">Resources</span><span class=\"primitiv-navigation-menu__trigger-icon\" aria-hidden=\"true\"><!-- Insert your SVG icon here: chevron-down --></span></button>\n      </primitiv-navigation-menu-trigger>\n    </primitiv-navigation-menu-item>\n    <primitiv-navigation-menu-item class=\"primitiv-navigation-menu__item\">\n      <primitiv-navigation-menu-link active>\n        <a href=\"/changelog\" class=\"primitiv-navigation-menu__link primitiv-navigation-menu__link--bar\">Changelog</a>\n      </primitiv-navigation-menu-link>\n    </primitiv-navigation-menu-item>\n  </primitiv-navigation-menu-list>\n  <primitiv-navigation-menu-indicator class=\"primitiv-navigation-menu__indicator primitiv-navigation-menu__indicator--arrow\" force-mount data-state=\"closed\"></primitiv-navigation-menu-indicator>\n  <primitiv-navigation-menu-viewport class=\"primitiv-navigation-menu__viewport\" force-mount data-state=\"closed\">\n    <span class=\"primitiv-navigation-menu__viewport-clip\">\n      <primitiv-navigation-menu-content value=\"concepts\" class=\"primitiv-navigation-menu__content\" hidden>\n        <primitiv-navigation-menu-link>\n          <a href=\"/tokens\" class=\"primitiv-navigation-menu__link primitiv-navigation-menu__link--panel\"><span class=\"primitiv-navigation-menu__link-text\"><span class=\"primitiv-navigation-menu__link-title\">Tokens</span> <span class=\"primitiv-navigation-menu__link-description\">The three-tier token architecture</span></span></a>\n        </primitiv-navigation-menu-link>\n        <primitiv-navigation-menu-link>\n          <a href=\"/theming\" class=\"primitiv-navigation-menu__link primitiv-navigation-menu__link--panel\"><span class=\"primitiv-navigation-menu__link-text\"><span class=\"primitiv-navigation-menu__link-title\">Density &amp; theming</span> <span class=\"primitiv-navigation-menu__link-description\">Four densities, light and dark</span></span></a>\n        </primitiv-navigation-menu-link>\n      </primitiv-navigation-menu-content>\n      <primitiv-navigation-menu-content value=\"resources\" class=\"primitiv-navigation-menu__content\" hidden>\n        <primitiv-navigation-menu-link>\n          <a href=\"/github\" class=\"primitiv-navigation-menu__link primitiv-navigation-menu__link--panel\"><span class=\"primitiv-navigation-menu__link-leading\" aria-hidden=\"true\"><!-- Insert your SVG icon here: file --></span><span class=\"primitiv-navigation-menu__link-text\"><span class=\"primitiv-navigation-menu__link-title\">GitHub</span> <span class=\"primitiv-navigation-menu__link-description\">Source, issues and discussions</span></span></a>\n        </primitiv-navigation-menu-link>\n        <primitiv-navigation-menu-link>\n          <a href=\"/releases\" class=\"primitiv-navigation-menu__link primitiv-navigation-menu__link--panel\"><span class=\"primitiv-navigation-menu__link-text\"><span class=\"primitiv-navigation-menu__link-title\">Releases</span> <span class=\"primitiv-navigation-menu__link-description\">Version history and changelog</span></span><span class=\"primitiv-navigation-menu__link-trailing\" aria-hidden=\"true\"><!-- Insert your SVG icon here: chevron-right --></span></a>\n        </primitiv-navigation-menu-link>\n      </primitiv-navigation-menu-content>\n    </span>\n  </primitiv-navigation-menu-viewport>\n</primitiv-navigation-menu>\n",
+    "api": [
+      {
+        "tag": "primitiv-navigation-menu",
+        "description": "`<primitiv-navigation-menu>` — the state owner of a site navigation: a bar of top-level entries, each a plain link or a trigger that discloses a panel, with one panel open at a time. It is the WAI-ARIA *Disclosure Navigation Menu*, not a menubar: every top-level entry stays in the Tab order, the arrows only move focus between them, and there are no menu roles.\n\nThe root is the `navigation` landmark, named \"Main\" unless it carries an `aria-label` or `aria-labelledby`. It owns the hover intent (`open-on-hover`, `delay-duration`, `close-delay`) and the one Escape handler, and reconciles every part from its reflected `value` whenever a part arrives, leaves, or changes an attribute it reads (the lifecycle is `PrimitivRootElement`'s).",
+        "attributes": [
+          {
+            "name": "value",
+            "type": "string",
+            "description": "The open entry's `value`, or absent while nothing is open. Reflected: it changes as the user opens and closes panels, so a server re-render or a history snapshot sees the live state. Set it (or the `value` property, where `\"\"` closes) to open an entry from script."
+          },
+          {
+            "name": "orientation",
+            "type": "\"horizontal\" | \"vertical\"",
+            "description": "The bar's axis, which picks the arrow-key pair. Defaults to `horizontal`."
+          },
+          {
+            "name": "open-on-hover",
+            "type": "\"false\"",
+            "description": "Set to `false` for a click-only menu. Hover opens a panel by default."
+          },
+          {
+            "name": "delay-duration",
+            "type": "number",
+            "description": "How long, in milliseconds, the pointer rests on a trigger before the first panel opens. Default 200; once a panel is open, hovering a sibling swaps at once."
+          },
+          {
+            "name": "close-delay",
+            "type": "number",
+            "description": "How long, in milliseconds, after the pointer leaves the nav that the open panel closes. Default 150."
+          }
+        ],
+        "events": [
+          {
+            "name": "primitiv-navigation-menu-change",
+            "type": "CustomEvent<{ value: string }>",
+            "description": "Bubbles, cancelable, fired before a user-driven change is applied — a click, hover, key, Escape, focus leaving or a followed link — with the open entry afterwards (`\"\"` for none). Call `preventDefault()` to veto it."
+          }
+        ]
+      },
+      {
+        "tag": "primitiv-navigation-menu-list",
+        "description": "`<primitiv-navigation-menu-list>` — the list of top-level entries. Structural: the root gives it `role=\"list\"` and `data-orientation`.",
+        "attributes": [],
+        "events": []
+      },
+      {
+        "tag": "primitiv-navigation-menu-item",
+        "description": "`<primitiv-navigation-menu-item>` — one top-level entry. Structural: the root gives it `role=\"listitem\"`. Its `value` is what makes it a disclosure: give it one to hold a trigger and a panel, or leave it out for a plain link entry.",
+        "attributes": [
+          {
+            "name": "value",
+            "type": "string",
+            "description": "The entry's value, which the root's `value` names while its panel is open. Omit it for a plain link entry; a trigger in an item without one is reported and left undecorated."
+          }
+        ],
+        "events": []
+      },
+      {
+        "tag": "primitiv-navigation-menu-trigger",
+        "description": "`<primitiv-navigation-menu-trigger>` — an interactive part. It decorates exactly one `<button>` the consumer writes, which toggles its item's panel (on click, and on hover after the delay) and receives `aria-expanded`, `aria-controls` and `data-state`, so the rendered DOM matches React's.",
+        "attributes": [],
+        "events": []
+      },
+      {
+        "tag": "primitiv-navigation-menu-content",
+        "description": "`<primitiv-navigation-menu-content>` — an entry's panel. Structural: the root gives it an id, `aria-labelledby`, `data-state`, `data-motion` (which way it travels as the open entry changes) and `hidden` while closed (write `hidden` in your markup too, so it is hidden before the script loads). Put it in its item, or in the shared `<primitiv-navigation-menu-viewport>` with its own `value`, where React's panels project.",
+        "attributes": [
+          {
+            "name": "value",
+            "type": "string",
+            "description": "The entry this panel belongs to. Needed only in a viewport; in an item it defaults to the item's `value`."
+          },
+          {
+            "name": "force-mount",
+            "type": "boolean",
+            "description": "Keep the panel rendered while closed (`aria-hidden` rather than `hidden`), so a stylesheet can animate it out."
+          }
+        ],
+        "events": []
+      },
+      {
+        "tag": "primitiv-navigation-menu-viewport",
+        "description": "`<primitiv-navigation-menu-viewport>` — the one shared box every panel placed in it opens in, so the open panel morphs into the next. Structural: the root gives it `data-state`, `data-value` (the open entry), `data-orientation` and `hidden` while closed, and publishes the open panel's size as `--primitiv-navigation-menu-viewport-width` / `-height`, kept through a close so the exit animates from it.",
+        "attributes": [
+          {
+            "name": "force-mount",
+            "type": "boolean",
+            "description": "Keep the viewport rendered while closed, so a stylesheet can animate it out."
+          }
+        ],
+        "events": []
+      },
+      {
+        "tag": "primitiv-navigation-menu-indicator",
+        "description": "`<primitiv-navigation-menu-indicator>` — the marker that tracks the open trigger. Structural: the root gives it `data-state`, `data-value`, `data-orientation` and `hidden` while closed, and publishes the open trigger's geometry as `--primitiv-navigation-menu-indicator-position` / `-size` (re-measured on resize), so the stylesheet decides how to draw it.",
+        "attributes": [
+          {
+            "name": "force-mount",
+            "type": "boolean",
+            "description": "Keep the indicator rendered while closed, so a stylesheet can animate it out."
+          }
+        ],
+        "events": []
+      },
+      {
+        "tag": "primitiv-navigation-menu-link",
+        "description": "`<primitiv-navigation-menu-link>` — an interactive part. It decorates exactly one `<a href>` (or a router link) the consumer writes. Following it closes the menu. A link directly in an item is a top-level entry the arrow keys travel to, and hovering it closes the open panel; a link in a panel is reached with Tab.",
+        "attributes": [
+          {
+            "name": "active",
+            "type": "boolean",
+            "description": "Marks the link as the current page: `aria-current=\"page\"` and `data-active` on the anchor."
+          }
+        ],
+        "events": []
+      }
+    ]
+  }
 }

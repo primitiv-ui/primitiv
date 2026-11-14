@@ -153,6 +153,7 @@ const FILES: &[(&str, &str, &str)] = &[
     registry_file!("popover", "popover.tsx"),
     registry_file!("popover", "contract.json"),
     registry_file!("popover", "popover.html"),
+    registry_file!("navigation-menu", "navigation-menu.html"),
     registry_file!("pagination", "styles.css"),
     registry_file!("pagination", "styles.scss"),
     registry_file!("pagination", "pagination.recipe.ts"),

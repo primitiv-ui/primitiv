@@ -1608,7 +1608,16 @@
           ]
         }
       },
-      "contract": "contract.json"
+      "contract": "contract.json",
+      "elements": {
+        "packages": [
+          {
+            "name": "@primitiv-ui/web",
+            "version": "^0.2.10"
+          }
+        ],
+        "example": "navigation-menu.html"
+      }
     },
     "pagination": {
       "version": "0.1.0",

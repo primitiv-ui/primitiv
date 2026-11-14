@@ -48,6 +48,19 @@
   .primitiv-navigation-menu li {
     margin-block: var(--primitiv-space-0);
   }
+
+  /* The elements surface (RFC 0033 §5.6.1): the root is the landmark a <nav>
+     would be, so it lays out as a block, and a trigger's or a link's wrapper
+     takes no box of its own, so the <button> or <a> inside lays out exactly as
+     the React one. Zero specificity, in the reset sublayer, so any consumer
+     rule wins. */
+  :where(primitiv-navigation-menu) {
+    display: block;
+  }
+
+  :where(primitiv-navigation-menu-trigger, primitiv-navigation-menu-link) {
+    display: contents;
+  }
 }
 
 @layer primitiv.base {
@@ -312,9 +325,26 @@
      already clamps a trigger near either end of the nav on its own, so no
      extra `@position-try` fallbacks are needed. */
   @supports (anchor-name: --primitiv-navigation-menu-probe) {
+    /* The elements write no inline style, so there no trigger carries an
+       anchor-name of its own and the root publishes no active anchor: the open
+       trigger takes one fixed name instead, scoped to its own nav by
+       anchor-scope so two menus never share it. React's per-trigger inline
+       anchor-name outranks this rule and its published custom property replaces
+       the fallback, so React's positioning is unchanged. */
+    .primitiv-navigation-menu {
+      anchor-scope: --primitiv-navigation-menu-open-trigger;
+    }
+
+    .primitiv-navigation-menu__trigger[aria-expanded="true"] {
+      anchor-name: --primitiv-navigation-menu-open-trigger;
+    }
+
     .primitiv-navigation-menu__viewport {
       position: fixed;
-      position-anchor: var(--primitiv-navigation-menu-active-trigger-anchor);
+      position-anchor: var(
+        --primitiv-navigation-menu-active-trigger-anchor,
+        --primitiv-navigation-menu-open-trigger
+      );
       inset-block-start: anchor(end);
       inset-inline-start: auto;
       justify-self: anchor-center;

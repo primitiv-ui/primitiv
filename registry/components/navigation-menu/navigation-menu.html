@@ -1,0 +1,40 @@
+<primitiv-navigation-menu class="primitiv-navigation-menu primitiv-navigation-menu--md" role="navigation" aria-label="Main">
+  <primitiv-navigation-menu-list class="primitiv-navigation-menu__list">
+    <primitiv-navigation-menu-item value="concepts" class="primitiv-navigation-menu__item">
+      <primitiv-navigation-menu-trigger>
+        <button type="button" class="primitiv-navigation-menu__trigger"><span class="primitiv-navigation-menu__trigger-label">Concepts</span><span class="primitiv-navigation-menu__trigger-icon" aria-hidden="true"><!-- Insert your SVG icon here: chevron-down --></span></button>
+      </primitiv-navigation-menu-trigger>
+    </primitiv-navigation-menu-item>
+    <primitiv-navigation-menu-item value="resources" class="primitiv-navigation-menu__item">
+      <primitiv-navigation-menu-trigger>
+        <button type="button" class="primitiv-navigation-menu__trigger"><span class="primitiv-navigation-menu__trigger-label">Resources</span><span class="primitiv-navigation-menu__trigger-icon" aria-hidden="true"><!-- Insert your SVG icon here: chevron-down --></span></button>
+      </primitiv-navigation-menu-trigger>
+    </primitiv-navigation-menu-item>
+    <primitiv-navigation-menu-item class="primitiv-navigation-menu__item">
+      <primitiv-navigation-menu-link active>
+        <a href="/changelog" class="primitiv-navigation-menu__link primitiv-navigation-menu__link--bar">Changelog</a>
+      </primitiv-navigation-menu-link>
+    </primitiv-navigation-menu-item>
+  </primitiv-navigation-menu-list>
+  <primitiv-navigation-menu-indicator class="primitiv-navigation-menu__indicator primitiv-navigation-menu__indicator--arrow" force-mount data-state="closed"></primitiv-navigation-menu-indicator>
+  <primitiv-navigation-menu-viewport class="primitiv-navigation-menu__viewport" force-mount data-state="closed">
+    <span class="primitiv-navigation-menu__viewport-clip">
+      <primitiv-navigation-menu-content value="concepts" class="primitiv-navigation-menu__content" hidden>
+        <primitiv-navigation-menu-link>
+          <a href="/tokens" class="primitiv-navigation-menu__link primitiv-navigation-menu__link--panel"><span class="primitiv-navigation-menu__link-text"><span class="primitiv-navigation-menu__link-title">Tokens</span> <span class="primitiv-navigation-menu__link-description">The three-tier token architecture</span></span></a>
+        </primitiv-navigation-menu-link>
+        <primitiv-navigation-menu-link>
+          <a href="/theming" class="primitiv-navigation-menu__link primitiv-navigation-menu__link--panel"><span class="primitiv-navigation-menu__link-text"><span class="primitiv-navigation-menu__link-title">Density &amp; theming</span> <span class="primitiv-navigation-menu__link-description">Four densities, light and dark</span></span></a>
+        </primitiv-navigation-menu-link>
+      </primitiv-navigation-menu-content>
+      <primitiv-navigation-menu-content value="resources" class="primitiv-navigation-menu__content" hidden>
+        <primitiv-navigation-menu-link>
+          <a href="/github" class="primitiv-navigation-menu__link primitiv-navigation-menu__link--panel"><span class="primitiv-navigation-menu__link-leading" aria-hidden="true"><!-- Insert your SVG icon here: file --></span><span class="primitiv-navigation-menu__link-text"><span class="primitiv-navigation-menu__link-title">GitHub</span> <span class="primitiv-navigation-menu__link-description">Source, issues and discussions</span></span></a>
+        </primitiv-navigation-menu-link>
+        <primitiv-navigation-menu-link>
+          <a href="/releases" class="primitiv-navigation-menu__link primitiv-navigation-menu__link--panel"><span class="primitiv-navigation-menu__link-text"><span class="primitiv-navigation-menu__link-title">Releases</span> <span class="primitiv-navigation-menu__link-description">Version history and changelog</span></span><span class="primitiv-navigation-menu__link-trailing" aria-hidden="true"><!-- Insert your SVG icon here: chevron-right --></span></a>
+        </primitiv-navigation-menu-link>
+      </primitiv-navigation-menu-content>
+    </span>
+  </primitiv-navigation-menu-viewport>
+</primitiv-navigation-menu>

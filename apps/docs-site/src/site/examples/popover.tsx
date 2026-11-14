@@ -66,7 +66,7 @@ const elementsPopover = ({
     `    <primitiv-popover-title><h2 class="primitiv-popover__title">${title}</h2></primitiv-popover-title>`,
     `    <primitiv-popover-description><p class="primitiv-popover__description">${description}</p></primitiv-popover-description>`,
     `    <primitiv-popover-close>`,
-    `      ${button(closeLabel, closeVariant, "sm")}`,
+    `      ${button(closeLabel, closeVariant, "sm").replace('class="', 'class="primitiv-popover__close ')}`,
     `    </primitiv-popover-close>`,
     `  </primitiv-popover-content>`,
     `</primitiv-popover>`,

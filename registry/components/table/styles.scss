@@ -131,6 +131,9 @@
      page has only this class, so the class carries the scroll mechanics too.
      Without them a wide table pushes the page sideways instead of scrolling. */
   .primitiv-table__scroll-area {
+    /* Positioned, so text a cell hides with sr-only (position: absolute) stays
+       inside the scroller rather than widening the page. */
+    position: relative;
     max-inline-size: 100%;
     overflow-x: auto;
   }

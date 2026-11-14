@@ -55,6 +55,14 @@
  * token layer (RFC 0008 §7). */
 @layer primitiv.reset, primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;
 
+/* A panel shows in the top layer but still inherits from where it sits in the
+   DOM, so one opened from a right-aligned table cell would right-align its text. */
+@layer primitiv.reset {
+  .primitiv-select__content {
+    text-align: start;
+  }
+}
+
 @layer primitiv.reset {
   .primitiv-select__content {
     /* Reset the native [popover] UA defaults: `margin: auto; inset: 0`

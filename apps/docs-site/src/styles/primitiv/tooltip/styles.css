@@ -35,6 +35,14 @@
  * token layer (RFC 0008 §7). */
 @layer primitiv.reset, primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;
 
+/* A panel shows in the top layer but still inherits from where it sits in the
+   DOM, so one opened from a right-aligned table cell would right-align its text. */
+@layer primitiv.reset {
+  .primitiv-tooltip {
+    text-align: start;
+  }
+}
+
 /* The elements surface (RFC 0033 §5.6.1): the trigger part takes no box of its
    own, so the <button> it decorates lays out exactly as the React one. The
    content element is the bubble itself, so it keeps its box. Zero specificity,

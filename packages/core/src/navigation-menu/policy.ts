@@ -161,3 +161,11 @@ export function navigationMenuIndicatorGeometry(
     ? { position: box.offsetLeft, size: box.offsetWidth }
     : { position: box.offsetTop, size: box.offsetHeight };
 }
+
+/**
+ * What a panel hands focus to when the enter-panel arrow opens it: its first
+ * link, enabled button or tabbable element. Deliberately narrower than a
+ * dialog's focusable set — nav panels hold links and the occasional button.
+ */
+export const NAVIGATION_MENU_PANEL_FOCUSABLE: string =
+  'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])';

@@ -1,4 +1,5 @@
 import {
+  NAVIGATION_MENU_PANEL_FOCUSABLE,
   navigationMenuEntersPanel,
   navigationMenuIds,
   navigationMenuIndicatorGeometry,
@@ -181,5 +182,15 @@ describe("navigationMenuIndicatorGeometry", () => {
   it("measures along the block axis of a vertical rail", () => {
     // Arrange & Act & Assert
     expect(navigationMenuIndicatorGeometry("vertical", box)).toEqual({ position: 20, size: 40 });
+  });
+});
+
+describe("NAVIGATION_MENU_PANEL_FOCUSABLE", () => {
+  it("lands on a panel's links, enabled buttons and tabbable elements", () => {
+    // Arrange & Act
+    const selectors = NAVIGATION_MENU_PANEL_FOCUSABLE.split(", ");
+
+    // Assert
+    expect(selectors).toEqual(["a[href]", "button:not([disabled])", '[tabindex]:not([tabindex="-1"])']);
   });
 });

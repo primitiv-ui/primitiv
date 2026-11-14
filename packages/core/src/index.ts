@@ -126,3 +126,20 @@ export {
   type ComboboxKeyState,
   type ComboboxQueryState,
 } from "./combobox/policy.ts";
+export {
+  NAVIGATION_MENU_PANEL_FOCUSABLE,
+  navigationMenuEntersPanel,
+  navigationMenuIds,
+  navigationMenuIndicatorGeometry,
+  navigationMenuKeydown,
+  navigationMenuOpenDelay,
+  navigationMenuPanelMotion,
+  navigationMenuToggle,
+  type NavigationMenuMotionState,
+  type NavigationMenuOrientation,
+  type NavigationMenuPanelMotion,
+  type NavigationMenuReadingDirection,
+  type NavigationMenuToggleState,
+  type NavigationMenuTravelState,
+  type NavigationMenuTriggerBox,
+} from "./navigation-menu/policy.ts";

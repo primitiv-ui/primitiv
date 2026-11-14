@@ -19,8 +19,19 @@ fn renders_a_rule_inside_the_utilities_layer_after_the_full_layer_order() {
     );
 }
 
-/// Unused until a later cycle reads token values; keeps the import honest.
-#[allow(dead_code)]
+/// A trimmed slice of the token surface: enough for each rule under test.
 fn tokens() -> Vec<Token> {
-    Vec::new()
+    vec![
+        Token::new(&["space", "16"], "1rem"),
+        Token::new(&["content", "muted"], "var(--primitiv-color-neutral-600)"),
+    ]
+}
+
+#[test]
+fn reads_a_token_as_its_custom_property() {
+    let rules = [Rule::tokens("p-16", &[("padding", "space.16")])];
+
+    let css = emit_rules(&rules, &tokens()).unwrap();
+
+    assert!(css.contains("  .p-16 { padding: var(--primitiv-space-16); }\n"), "{css}");
 }

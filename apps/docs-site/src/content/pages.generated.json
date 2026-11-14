@@ -465,6 +465,23 @@
             "code": [
               "surface/default"
             ]
+          },
+          {
+            "kind": "p",
+            "text": "The theme is one attribute, data-theme, with two values: light and dark. With none set, a page follows the reader's system setting, light or dark. Set it on <html> to choose for the whole page, or on any container to theme just that part. A theme picker writes the attribute and keeps the choice, in a cookie the server reads or in localStorage.",
+            "code": [
+              "data-theme",
+              "light",
+              "dark",
+              "<html>"
+            ]
+          },
+          {
+            "kind": "code",
+            "code": "<html data-theme=\"dark\">\n\n<div data-theme=\"light\">\n  <!-- a light panel inside a dark page -->\n</div>",
+            "language": "html",
+            "header": false,
+            "lineNumbers": false
           }
         ]
       },
@@ -1128,7 +1145,7 @@
         "blocks": [
           {
             "kind": "p",
-            "text": "Seven commands. Most days you only use one.",
+            "text": "Eight commands. Most days you only use one.",
             "code": []
           },
           {
@@ -1143,7 +1160,7 @@
           },
           {
             "kind": "p",
-            "text": "Every command lists its own options with --help. On its own, it shows all seven.",
+            "text": "Every command lists its own options with --help. On its own, it shows all eight.",
             "code": [
               "--help"
             ]
@@ -1243,6 +1260,26 @@
                   "init --styles",
                   "add"
                 ]
+              },
+              {
+                "kind": "h4",
+                "text": "primitiv remove"
+              },
+              {
+                "kind": "p",
+                "text": "Undoes an add: deletes the files it copied, takes the component out of primitiv.lock, and updates the stylesheet index or the components barrel. It refuses a component another installed one still uses, and keeps files you have edited unless you pass --force. Take the markup out of your pages yourself.",
+                "code": [
+                  "add",
+                  "primitiv.lock",
+                  "--force"
+                ]
+              },
+              {
+                "kind": "code",
+                "code": "$ npx primitiv-ui remove tooltip",
+                "language": "bash",
+                "header": false,
+                "lineNumbers": false
               },
               {
                 "kind": "h4",

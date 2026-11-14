@@ -209,6 +209,8 @@ const PAGES = {
         ['h2', 'Why the layering matters'],
         ['p', 'Because only the bottom tier holds a value, a rebrand is a change to one tier. Every role above it keeps pointing where it pointed, and the new colour arrives everywhere at once.'],
         ['p', 'The same rule gives you dark mode. surface/default means "the page background" in both themes and resolves to a different palette step in each, so a theme is a set of values rather than a set of overrides.', ['surface/default']],
+        ['p', 'The theme is one attribute, data-theme, with two values: light and dark. With none set, a page follows the reader\'s system setting, light or dark. Set it on <html> to choose for the whole page, or on any container to theme just that part. A theme picker writes the attribute and keeps the choice, in a cookie the server reads or in localStorage.', ['data-theme', 'light', 'dark', '<html>']],
+        ['code', '<html data-theme="dark">\n\n<div data-theme="light">\n  <!-- a light panel inside a dark page -->\n</div>'],
       ]},
       { name: '04 — Changing your tokens', blocks: [
         ['h2', 'Changing your tokens'],
@@ -407,9 +409,9 @@ const PAGES = {
     sections: [
       { name: '02 — The commands', blocks: [
         ['h2', 'The commands'],
-        ['p', 'Seven commands. Most days you only use one.'],
+        ['p', 'Eight commands. Most days you only use one.'],
         ['p', 'The npm package is primitiv-ui and the command it installs is primitiv. In a project that has installed it, npx primitiv works. Anywhere else, npx primitiv-ui@latest runs the newest release with nothing installed.', ['primitiv-ui', 'primitiv', 'npx primitiv', 'npx primitiv-ui@latest']],
-        ['p', 'Every command lists its own options with --help. On its own, it shows all seven.', ['--help']],
+        ['p', 'Every command lists its own options with --help. On its own, it shows all eight.', ['--help']],
         ['code', '$ npx primitiv-ui --help\n$ npx primitiv-ui add --help'],
         ['group', 'flow/section', [
           ['h4', 'primitiv add'],
@@ -431,6 +433,9 @@ const PAGES = {
           ]],
           ['p', 'In a React project, its first run also does the setup: installs what it needs, writes primitiv.json, generates your token layer, and wires the stylesheet import. That is intentional, so a new project is one command rather than four.', ['primitiv.json']],
           ['p', 'For the custom elements it does less. Headless, it prints the script tag and the markup and records the component in primitiv.lock, and that is all: the elements need nothing else. Run init --styles first and each add also copies the component\'s stylesheet and prints the classed markup.', ['primitiv.lock', 'init --styles', 'add']],
+          ['h4', 'primitiv remove'],
+          ['p', 'Undoes an add: deletes the files it copied, takes the component out of primitiv.lock, and updates the stylesheet index or the components barrel. It refuses a component another installed one still uses, and keeps files you have edited unless you pass --force. Take the markup out of your pages yourself.', ['add', 'primitiv.lock', '--force']],
+          ['code', '$ npx primitiv-ui remove tooltip'],
           ['h4', 'primitiv init'],
           ['p', 'Sets a project up without adding a component. It asks a few questions, or takes --yes to accept the defaults, and finishes by generating the token layer.', ['--yes']],
           ['code', '$ npx primitiv-ui init\n$ npx primitiv-ui init --yes'],

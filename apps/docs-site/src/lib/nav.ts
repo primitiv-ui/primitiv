@@ -150,6 +150,7 @@ export const NAV: readonly NavSection[] = [
     children: [
       { title: "What Primitiv is", href: "/concepts/what-primitiv-is/" },
       { title: "Tokens & theming", href: "/concepts/tokens/" },
+      { title: "Token reference", href: "/tokens/" },
       { title: "Colour library", href: "/colours/" },
       { title: "Density & Context", href: "/concepts/density/" },
       { title: "Composition patterns", href: "/concepts/composition/" },

@@ -576,6 +576,10 @@
             "kind": "links",
             "links": [
               {
+                "label": "Token reference",
+                "href": "/tokens/"
+              },
+              {
                 "label": "Density and the Context tier",
                 "href": "/concepts/density/"
               },

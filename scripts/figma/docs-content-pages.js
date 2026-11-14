@@ -243,7 +243,7 @@ const PAGES = {
           ['p', 'Two things follow from it being fixed. Regenerating your theme does not change it, so a chart keeps its colours when your brand colour moves. And nothing in the components uses it, so leaving it off costs you nothing.'],
           ['alert', 'warning', 'PENDING — this block describes work that is planned, not shipped. Do not publish it until the standard ramps are in packages/tokens and the primitiv.json key exists. The config key above is a placeholder and must be checked against config::resolve first.'],
         ]],
-        ['links', ['Density and the Context tier →', 'Design in Figma →']],
+        ['links', ['Token reference →', 'Density and the Context tier →', 'Design in Figma →']],
       ]},
     ],
   },

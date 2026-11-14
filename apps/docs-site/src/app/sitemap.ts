@@ -7,7 +7,7 @@ import { SITE_URL } from "@/lib/site";
 /*
  * Built from the same lists the routes' `generateStaticParams` read, so a new
  * component or content page reaches the sitemap without being added here. The
- * three hand-written routes are the ones with no list behind them;
+ * hand-written routes are the ones with no list behind them;
  * `scripts/seo.test.mjs` fails if this and the export ever disagree.
  *
  * `force-static` is required, not belt-and-braces: without it `output: "export"`
@@ -20,6 +20,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/",
     "/components/",
     "/colours/",
+    "/tokens/",
     ...CONTENT_PAGES.map((page) => page.route),
     ...ALL_DOCS.map((docs) => `/components/${docs.id}/`),
   ];

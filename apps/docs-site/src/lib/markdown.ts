@@ -9,6 +9,7 @@ import {
 } from "./docs-data";
 import { humanName } from "./human-name";
 import { iconPlaceholders } from "./icon-placeholders";
+import { tokenReferenceMarkdown } from "./token-reference";
 import { withoutClasses } from "./playground";
 import { WEB_RELEASE } from "./web-release";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "./site";
@@ -109,7 +110,7 @@ const namedGlyphs = iconPlaceholders;
 const glyphNote = (markup: string): string[] =>
   namedGlyphs(markup).includes("<!-- Insert your SVG icon here") ? [GLYPH_NOTE] : [];
 
-const GLYPH_NOTE = `Each \`<!-- Insert your SVG icon here: name -->\` marks where an icon goes, and names the \`@primitiv-ui/icons\` glyph Primitiv draws there. Use your own icon set, or paste that glyph's SVG from https://cdn.jsdelivr.net/npm/@primitiv-ui/icons@${WEB_RELEASE}/svg/<name>.svg — it takes \`currentColor\` and is \`aria-hidden="true"\`.`;
+const GLYPH_NOTE = `Each \`<!-- Insert your SVG icon here: <name> -->\` marks where an icon goes, and names the \`@primitiv-ui/icons\` glyph Primitiv draws there. Use your own icon set, or paste that glyph's SVG from https://cdn.jsdelivr.net/npm/@primitiv-ui/icons@${WEB_RELEASE}/svg/<name>.svg — it takes \`currentColor\` and is \`aria-hidden="true"\`.`;
 
 /** The address the CDN serves an Elements module at, pinned to one version. */
 const cdnScript = (pkg: string, version: string | null, module: string): string =>
@@ -203,7 +204,9 @@ export const elementsMarkdown = (docs: ComponentDocs): string => {
           : `${name} has no custom element, so nothing writes these attributes for you: they are what the React component sets. In plain markup, set the ones your CSS needs yourself, or select the native state instead (\`:checked\`, \`:required\`, \`[aria-invalid]\`).`,
         ...byPart.map((sub) =>
           [
-            `#### ${sub.name}${sub.class ? ` (${code(`.${sub.class}`)})` : ""}`,
+            // The part's own name (`Trigger`), not the React export
+            // (`Tabs.Trigger`): this section is read by pages with no React.
+            `#### ${sub.name.split(".").pop()}${sub.class ? ` (${code(`.${sub.class}`)})` : ""}`,
             dataAttributeTable(sub.dataAttributes),
           ].join("\n\n"),
         ),
@@ -346,7 +349,14 @@ export const llmsIndex = (): string =>
     // Content ledes are one or two sentences and read as a unit; component
     // descriptions run long, so those are cut to their first sentence.
     "## Docs",
-    CONTENT_PAGES.map((page) => indexEntry(page.title, page.route, page.lede)).join("\n"),
+    [
+      ...CONTENT_PAGES.map((page) => indexEntry(page.title, page.route, page.lede)),
+      indexEntry(
+        "Token reference",
+        "/tokens/",
+        "Every design token by category, with its value in each theme and density.",
+      ),
+    ].join("\n"),
     ...CATEGORY_ORDER.flatMap((category) => {
       const docs = ALL_DOCS.filter((d) => d.category === category);
       return docs.length === 0
@@ -375,6 +385,7 @@ export const llmsIndex = (): string =>
 export const llmsFull = (): string =>
   [
     ...CONTENT_PAGES.map(contentMarkdown),
+    tokenReferenceMarkdown(SITE_URL),
     ...CATEGORY_ORDER.flatMap((category) =>
       ALL_DOCS.filter((d) => d.category === category).map(componentMarkdown),
     ),
@@ -407,6 +418,8 @@ export const llmsElements = (): string =>
         "- **State lives in reflected attributes** (`value`, `open` …), so a server re-render or a history snapshot sees the user's choice. Set an attribute or property to change it from code.",
         "- **Changes are announced as bubbling events** named `primitiv-<component>-<what>`, with the new state in `event.detail`. A user-driven change fires before it applies and is cancelable: `preventDefault()` vetoes it.",
         "- **Interactive parts decorate the element you write** — a `<button>`, `<a href>` or `<input>` inside the part — so links and native form controls keep working. A component with a `name` submits its value with its form.",
+        "- **Icons are yours.** Markup marks each icon's place with `<!-- Insert your SVG icon here: name -->`. Use your own icons, or paste Primitiv's from `https://cdn.jsdelivr.net/npm/@primitiv-ui/icons@<version>/svg/<name>.svg` (`currentColor`, `aria-hidden`).",
+        `- **Tokens.** Every design token, by category, with its value in each theme and density: ${SITE_URL}${markdownPath("/tokens/")}. Read them with \`var(--primitiv-…)\` in your own CSS.`,
       ].join("\n"),
       `The same, at length, for people: ${SITE_URL}/elements/ (Markdown: ${SITE_URL}${markdownPath("/elements/")}). Every page's documentation, React included: ${SITE_URL}/llms.txt`,
     ].join("\n\n"),

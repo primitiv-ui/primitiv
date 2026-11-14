@@ -1,0 +1,50 @@
+/*
+ * The token reference page (/tokens/). Layout only: the tables are the
+ * registry Table, the code the registry InlineCode.
+ */
+
+/* Flex items default to their content's width, so without min-inline-size a
+   wide table would push the column past the page instead of scrolling. */
+.docs-token-groups,
+.docs-token-group {
+  min-inline-size: 0;
+}
+
+.docs-token-groups {
+  display: flex;
+  flex-direction: column;
+  gap: var(--primitiv-stack-gap-lg);
+}
+
+.docs-token-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--primitiv-stack-gap-sm);
+}
+
+.docs-token-group-title {
+  text-transform: capitalize;
+}
+
+.docs-token-name {
+  white-space: nowrap;
+}
+
+/* The swatch reads the token itself, so it follows the site theme. */
+.docs-token-swatch {
+  display: inline-block;
+  inline-size: var(--primitiv-space-14);
+  block-size: var(--primitiv-space-14);
+  margin-inline-end: var(--primitiv-space-8);
+  vertical-align: middle;
+  border: var(--primitiv-border-width-1) solid var(--primitiv-border-subtle);
+  border-radius: var(--primitiv-radii-4);
+}
+
+.docs-token-value {
+  white-space: nowrap;
+}
+
+.docs-token-count {
+  color: var(--primitiv-content-secondary);
+}

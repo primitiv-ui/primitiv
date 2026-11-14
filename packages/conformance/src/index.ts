@@ -85,3 +85,10 @@ export {
   type ComboboxConformanceFixture,
   type ComboboxMount,
 } from "./combobox.ts";
+export {
+  NAVIGATION_MENU,
+  runNavigationMenuConformance,
+  type NavigationMenuConformanceFixture,
+  type NavigationMenuMount,
+  type NavigationMenuMounted,
+} from "./navigation-menu.ts";

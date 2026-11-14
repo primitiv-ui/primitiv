@@ -157,9 +157,10 @@ export class NavigationMenuController {
   /** Spend a pending enter-panel focus once its entry is open. A host calls this after showing a change. */
   sync(): void {
     const value = this.#entering;
-    if (value === null || this.#host.state().value !== value) return;
+    // The open value is always a string, so a null (nothing pending) never matches.
+    if (this.#host.state().value !== value) return;
     this.#entering = null;
-    this.#host.panel(value)?.querySelector<HTMLElement>(NAVIGATION_MENU_PANEL_FOCUSABLE)?.focus();
+    this.#host.panel(value as string)?.querySelector<HTMLElement>(NAVIGATION_MENU_PANEL_FOCUSABLE)?.focus();
   }
 
   /**

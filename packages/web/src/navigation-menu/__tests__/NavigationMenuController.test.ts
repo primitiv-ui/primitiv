@@ -480,6 +480,31 @@ describe("NavigationMenuController", () => {
       expect(document.activeElement).toBe(el("docs"));
     });
 
+    it("still closes with Escape when the open entry has no trigger to refocus", () => {
+      // Arrange
+      const host = hostWith("faq");
+      const controller = new NavigationMenuController(host);
+
+      // Act
+      controller.rootKeydown(key("Escape"));
+
+      // Assert
+      expect(host.changes).toEqual([""]);
+    });
+
+    it("opens an entry with no panel to focus without throwing", () => {
+      // Arrange
+      const host = hostWith();
+      const controller = new NavigationMenuController(host);
+
+      // Act
+      controller.triggerKeydown("faq", el("docs"), key("ArrowDown"));
+      controller.sync();
+
+      // Assert
+      expect(host.changes).toEqual(["faq"]);
+    });
+
     it.each([
       ["nothing is open", "", "Escape"],
       ["the key is not Escape", "docs", "Enter"],

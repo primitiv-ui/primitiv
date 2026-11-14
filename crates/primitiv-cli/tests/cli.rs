@@ -835,3 +835,20 @@ fn a_spring_project_installs_styled_elements_with_init_and_add_alone() {
     dir.child("package.json").assert(predicate::path::missing());
     dir.child("node_modules").assert(predicate::path::missing());
 }
+
+#[test]
+fn utilities_writes_the_utility_classes_where_out_says() {
+    let dir = assert_fs::TempDir::new().unwrap();
+
+    Command::cargo_bin("primitiv")
+        .unwrap()
+        .current_dir(dir.path())
+        .args(["utilities", "--out", "utilities.css"])
+        .assert()
+        .success()
+        .stdout("Wrote utilities.css.\n");
+
+    dir.child("utilities.css")
+        .assert(predicate::str::contains("@layer primitiv.utilities {"))
+        .assert(predicate::str::contains("  .md\\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }"));
+}

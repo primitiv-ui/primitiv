@@ -872,7 +872,7 @@ fn rejects_help_for_an_unknown_command() {
 
     assert_eq!(
         error.to_string(),
-        "unknown command 'frob'; expected: init, add, list, theme, tokens, dtcg"
+        "unknown command 'frob'; expected: init, add, list, theme, tokens, utilities, dtcg"
     );
 }
 
@@ -928,4 +928,25 @@ fn parses_init_with_the_utility_classes() {
             ..Default::default()
         })
     );
+}
+
+#[test]
+fn parses_utilities_with_and_without_a_destination() {
+    assert_eq!(
+        parse(&args(&["utilities"])).unwrap(),
+        Command::Utilities { out: None }
+    );
+    assert_eq!(
+        parse(&args(&["utilities", "--out", "static/utilities.css"])).unwrap(),
+        Command::Utilities {
+            out: Some("static/utilities.css".to_string())
+        }
+    );
+}
+
+#[test]
+fn rejects_an_unknown_utilities_argument() {
+    let error = parse(&args(&["utilities", "--format", "scss"])).unwrap_err();
+
+    assert_eq!(error.to_string(), "unexpected argument '--format'");
 }

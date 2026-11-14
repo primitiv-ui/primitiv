@@ -13,6 +13,7 @@ pub fn help_text(command: Option<&str>) -> &'static str {
         Some("list") => LIST,
         Some("theme") => THEME,
         Some("tokens") => TOKENS,
+        Some("utilities") => UTILITIES,
         Some("dtcg") => DTCG,
         _ => OVERVIEW,
     }
@@ -22,12 +23,13 @@ const OVERVIEW: &str = "\
 Usage: primitiv <command> [options]
 
 Commands:
-  init     Set up Primitiv in this project: writes primitiv.json and the token layer
-  add      Copy styled components into the project, as code you own
-  list     List the components the registry carries
-  theme    Generate palette ramps from brand / status colours
-  tokens   Emit the design-token layer as CSS, SCSS or Tailwind
-  dtcg     Export palette ramps as a DTCG token document for design tools
+  init       Set up Primitiv in this project: writes primitiv.json and the token layer
+  add        Copy styled components into the project, as code you own
+  list       List the components the registry carries
+  theme      Generate palette ramps from brand / status colours
+  tokens     Emit the design-token layer as CSS, SCSS or Tailwind
+  utilities  Write the utility classes (flex, p-16, text-muted ...) over the tokens
+  dtcg       Export palette ramps as a DTCG token document for design tools
 
 Run `primitiv <command> --help` for a command's options, and
 `primitiv --version` for the release this CLI came from.
@@ -51,6 +53,8 @@ Options:
                                  detected URL, else the path)
   --styles | --no-styles         Copy styled surfaces, or headless only
   --alias-components <alias>     Import alias for components (detected from tsconfig)
+  --utilities                    Also write the utility classes, and keep them
+                                 regenerated with the token layer (CSS, SCSS)
   --force                        Overwrite an existing primitiv.json
   --yes                          Accept every default without prompting
 ";
@@ -116,6 +120,18 @@ Options:
   --format <css|scss|tailwind>   Output format
   --from <palette>               Apply a palette document
   --ramps-only                   Emit only the colour ramps
+";
+
+const UTILITIES: &str = "\
+Usage: primitiv utilities [options]
+
+Writes the utility classes: about 210 classes such as flex, gap-16, p-16,
+text-muted and md:grid-cols-3, each reading a design token, in a last cascade
+layer. Defaults beside the token layer; without primitiv.json or --out,
+streams to stdout. For CSS and SCSS projects (Tailwind has its own).
+
+Options:
+  --out <path>                   Where to write
 ";
 
 const DTCG: &str = "\

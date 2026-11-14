@@ -4,6 +4,7 @@ pub mod init;
 pub mod list;
 pub mod theme;
 pub mod tokens;
+pub mod utilities;
 
 #[cfg(test)]
 mod add_elements_tests;
@@ -21,3 +22,5 @@ mod list_tests;
 mod theme_tests;
 #[cfg(test)]
 mod tokens_tests;
+#[cfg(test)]
+mod utilities_tests;

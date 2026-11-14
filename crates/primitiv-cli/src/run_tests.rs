@@ -134,6 +134,25 @@ fn dispatches_the_tokens_command_and_writes_the_file() {
 }
 
 #[test]
+fn dispatches_the_utilities_command_and_writes_the_file() {
+    let fs = InMemoryFs::new();
+
+    run(
+        &fs,
+        &InMemoryOutput::new(),
+        &EmbeddedRegistry,
+        &InMemoryProcessRunner::new(),
+        &OsPrompt,
+        false,
+        &args(&["utilities", "--out", "utilities.css"]),
+    )
+    .unwrap();
+
+    let written = String::from_utf8(fs.read(Path::new("utilities.css")).unwrap()).unwrap();
+    assert!(written.contains("@layer primitiv.utilities {"));
+}
+
+#[test]
 fn propagates_a_parse_error() {
     let fs = InMemoryFs::new();
     let stdout = InMemoryOutput::new();

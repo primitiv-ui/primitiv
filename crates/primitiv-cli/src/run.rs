@@ -7,6 +7,7 @@ use crate::commands::init::init;
 use crate::commands::list::list;
 use crate::commands::theme::theme;
 use crate::commands::tokens::tokens;
+use crate::commands::utilities::utilities;
 use crate::error::CliError;
 use crate::help::help_text;
 use crate::ports::fs::FileSystem;
@@ -43,6 +44,7 @@ pub fn run(
         } => theme(fs, &seeds, out.as_deref().map(Path::new), format, steps),
         Command::Dtcg { seeds, out, steps } => dtcg(fs, &seeds, Path::new(&out), steps),
         Command::Tokens(options) => tokens(fs, output, registry, &options),
+        Command::Utilities { out } => utilities(fs, output, out.as_deref().map(Path::new)),
         Command::Version => output
             .write_stdout(format!("primitiv {}\n", env!("CARGO_PKG_VERSION")).as_bytes())
             .map_err(CliError::Io),

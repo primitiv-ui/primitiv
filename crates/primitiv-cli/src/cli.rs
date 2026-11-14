@@ -38,6 +38,11 @@ pub enum Command {
         steps: usize,
     },
     Tokens(TokensOptions),
+    /// Write the utility classes (RFC 0034) to `out`, beside the configured
+    /// token layer, or to stdout.
+    Utilities {
+        out: Option<String>,
+    },
     Dtcg {
         /// The ramp seeds to export, as `(family, colour)` in [`RAMP_FAMILIES`]
         /// order — the same seeds `theme` takes.
@@ -54,7 +59,7 @@ pub enum Command {
 }
 
 /// Every command, in the order usage messages list them.
-pub const COMMANDS: &[&str] = &["init", "add", "list", "theme", "tokens", "dtcg"];
+pub const COMMANDS: &[&str] = &["init", "add", "list", "theme", "tokens", "utilities", "dtcg"];
 
 /// The palette families a `theme` seed can re-skin, in the order they are
 /// emitted. One list drives the `--<family>` flags, the `primitiv.json`
@@ -77,7 +82,7 @@ pub const RAMP_FAMILIES: &[&str] = &["brand", "danger", "warning", "success", "i
 pub fn parse(args: &[String]) -> Result<Command, CliError> {
     let (name, rest) = args
         .split_first()
-        .ok_or_else(|| usage("no command given; expected: init, add, list, theme, tokens, dtcg"))?;
+        .ok_or_else(|| usage("no command given; expected: init, add, list, theme, tokens, utilities, dtcg"))?;
     if matches!(name.as_str(), "--version" | "-V") {
         return Ok(Command::Version);
     }
@@ -93,9 +98,10 @@ pub fn parse(args: &[String]) -> Result<Command, CliError> {
         "list" => parse_list(rest),
         "theme" => parse_theme(rest),
         "tokens" => parse_tokens(rest),
+        "utilities" => parse_utilities(rest),
         "dtcg" => parse_dtcg(rest),
         other => Err(usage(format!(
-            "unknown command '{other}'; expected: init, add, list, theme, tokens, dtcg"
+            "unknown command '{other}'; expected: init, add, list, theme, tokens, utilities, dtcg"
         ))),
     }
 }
@@ -113,7 +119,7 @@ fn parse_help(args: &[String]) -> Result<Command, CliError> {
             command: Some(name.clone()),
         }),
         Some(other) => Err(usage(format!(
-            "unknown command '{other}'; expected: init, add, list, theme, tokens, dtcg"
+            "unknown command '{other}'; expected: init, add, list, theme, tokens, utilities, dtcg"
         ))),
     }
 }
@@ -262,6 +268,19 @@ fn parse_init(args: &[String]) -> Result<Command, CliError> {
         url,
         utilities,
     }))
+}
+
+/// Parse `utilities [--out <path>]` — the one optional flag.
+fn parse_utilities(args: &[String]) -> Result<Command, CliError> {
+    let mut out = None;
+    let mut rest = args.iter();
+    while let Some(flag) = rest.next() {
+        match flag.as_str() {
+            "--out" => out = Some(take_value(&mut rest, "--out")?),
+            other => return Err(usage(format!("unexpected argument '{other}'"))),
+        }
+    }
+    Ok(Command::Utilities { out })
 }
 
 /// Parse `tokens [--out <path>] [--format <fmt>] [--from <palette>] [--ramps-only]`

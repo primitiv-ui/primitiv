@@ -749,7 +749,7 @@ export const confirmDialogSpec: ComponentSpec = {
 
   elements: {
     description:
-      "A pre-arranged Modal for confirming or cancelling a single action. In plain markup it is the `<primitiv-modal>` elements with the confirm-dialog and Button classes — a title, a message, and Cancel beside a Confirm whose tone follows the action — so it loads Modal's script and adds no element of its own.",
+      "A pre-arranged Modal for confirming or cancelling a single action. In plain markup it is the `<primitiv-modal>` elements with the confirm-dialog and Button classes — a title, a message, and Cancel beside a Confirm whose tone follows the action — so it loads Modal's script and adds no element of its own. Closing returns focus to whatever opened the dialog. When confirming deletes that very thing (a row's own menu, say), there is nothing to return to and focus falls to the page: once your request has removed it, move focus yourself, to the next row or the list's heading.",
     anatomyMeta:
       "No elements of its own: the Modal elements, arranged. `<primitiv-modal>` holds the state in `open`; the trigger, title, description and the two closes each wrap the element you write, and the `<dialog>` carries `primitiv-confirm-dialog` beside the Modal classes. Its attributes and events are Modal's, listed below.",
     keyboardMeta:

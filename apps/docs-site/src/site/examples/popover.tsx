@@ -320,7 +320,7 @@ export const popoverSpec: ComponentSpec = {
 
   elements: {
     description:
-      "A non-modal floating panel anchored to a trigger, built on the native Popover API: `<primitiv-popover>` shows its panel in the top layer with the trigger as its anchor, moves focus in, closes it on Escape or a press outside, and hands focus back.",
+      "A non-modal floating panel anchored to a trigger, built on the native Popover API: `<primitiv-popover>` shows its panel in the top layer with the trigger as its anchor, moves focus in, closes it on Escape or a press outside, and hands focus back. The panel shows in the top layer but still inherits from where its trigger sits: opened from a `data-density=\"dense\"` table, it is dense too. Give `<primitiv-popover-content>` its own `data-density` when it should not follow.",
     anatomyMeta:
       "Seven elements. `<primitiv-popover>` holds the state in its `open` attribute. The trigger and close wrap the `<button>` you write, the title and description wrap a heading and a paragraph, and the content element is the panel itself, so the registry classes go on it. `<primitiv-popover-anchor>` is optional: wrap another element in it to anchor the panel there instead of to the trigger.",
     keyboardMeta:

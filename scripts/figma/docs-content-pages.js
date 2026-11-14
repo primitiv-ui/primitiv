@@ -217,6 +217,7 @@ const PAGES = {
         ['p', 'To change the brand colour, regenerate the theme:'],
         ['code', '$ npx primitiv-ui theme --brand "#0a7755"', { tabbed: true }],
         ['p', 'Or give the brand when you set the project up: init --styles --brand "#0a7755" writes the same theme in the same step. Either way it lands in <project>.theme.css beside tokens.css, named after the project, and tokens.css imports it, so you link tokens.css alone.', ['init --styles --brand "#0a7755"', '<project>.theme.css', 'tokens.css']],
+        ['p', 'Without --brand, init still records a brand in primitiv.json: Primitiv\'s own, which tokens.css already carries. That is why no theme file is written for it.', ['--brand', 'primitiv.json', 'tokens.css']],
         ['p', 'That produces a full light and dark palette from your colour, with every semantic role reassigned by contrast. It writes into its own layer, so it beats the base tokens without you editing them. The standard ramps are fixed and are not touched by this.'],
         ['p', 'You can seed the status ramps the same way, with --danger, --warning, --success and --info. Record them once in primitiv.json and later runs pick them up.', ['--danger', '--warning', '--success', '--info', 'primitiv.json']],
         ['p', 'To change something the generator does not own, such as a spacing value or a font, override the custom property in your own stylesheet. Token names are the contract, and they do not change under you.'],
@@ -545,6 +546,7 @@ const PAGES = {
         ['p', 'Every change is announced with a DOM event named after the component, such as primitiv-tabs-change. It bubbles, and event.detail carries the new state.', ['primitiv-tabs-change', 'event.detail']],
         ['code', 'tabs.addEventListener("primitiv-tabs-change", (event) => {\n  console.log(event.detail.value);\n});', { lineNumbers: true }],
         ['p', 'A change the user makes fires before it is applied, and it can be cancelled. Call preventDefault() and the component stays as it was. That is how you guard a change, or hand the decision to your server.', ['preventDefault()']],
+        ['p', 'Because it fires first, the component still holds the old value while it runs: read the new one from event.detail. Once the change has applied, a component with a value (Select, Combobox, Slider, Segmented Control, Radio Card, Toggle Group and Checkbox Card) also fires a plain change event, as a form control does. By then its hidden form inputs hold the new value, so anything listening for change, or reading the form, sees what the user chose.', ['event.detail', 'change']],
         ['h3', 'Confirming a server action'],
         ['p', 'A Confirm Dialog\'s buttons close it, and the Confirm button\'s own click runs first, before the dialog reports closing. So put the action on the Confirm button: a form it submits, or a request it sends. For one dialog shared by many rows, have each row open it with modal.open = true, keep which row asked, and send that row\'s request from the Confirm click.', ['modal.open = true']],
       ]},
@@ -584,6 +586,7 @@ const PAGES = {
         ['p', 'A panel that opens from a trigger, such as a Select list, a Dropdown or Combobox menu, a Popover or a Tooltip, is shown in the top layer with its trigger as its implicit CSS anchor. Primitiv\'s stylesheets place it against that anchor. Headless, nothing does, and the browser leaves it where popovers sit by default. Place it yourself:', ['Select', 'Dropdown', 'Combobox', 'Popover', 'Tooltip']],
         ['code', 'primitiv-select-content:popover-open {\n  position: fixed;\n  inset: auto;\n  margin: 0;\n  position-anchor: auto;\n  top: anchor(bottom);\n  left: anchor(left);\n  min-width: anchor-size(width);\n  position-try-fallbacks: flip-block;\n}', { lineNumbers: true }],
         ['p', 'position-anchor: auto is what reaches the trigger, so there is no anchor-name to write. Use the same rule for each panel element, and change top and left for another side. A Context Menu has no anchor: place it from --primitiv-context-menu-x and --primitiv-context-menu-y, which it sets as it opens.', ['position-anchor: auto', 'anchor-name', 'top', 'left', '--primitiv-context-menu-x', '--primitiv-context-menu-y']],
+        ['p', 'A panel shows in the top layer, but it still inherits from where it sits in your markup. Opened from a dense table, it is dense too; give the panel its own data-density when it should not follow. Primitiv\'s panel styles reset text-align, so a panel in an end-aligned cell still reads left to right.', ['data-density', 'text-align']],
       ]},
       { name: '09 — Inside a framework', blocks: [
         ['h2', 'Inside a framework'],

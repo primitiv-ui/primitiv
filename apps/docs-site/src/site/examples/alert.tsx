@@ -429,7 +429,7 @@ export const alertSpec: ComponentSpec = {
 
   elements: {
     description:
-      "An interrupting message: `primitiv-alert` with a tone and a size on an element with `role=\"alert\"`, an `__icon-wrapper` for the tone's glyph, a `__content` with an optional `__title` and the `__description`, and an optional `__dismiss` button.",
+      "An interrupting message: `primitiv-alert` with a tone and a size on an element with `role=\"alert\"`, an `__icon-wrapper` for the tone's glyph, a `__content` with an optional `__title` and the `__description`, and an optional `__dismiss` button. The dismiss button in the printed markup removes the alert with an inline `onclick`, which a strict Content-Security-Policy blocks, and forgets the dismissal on the next page load. Under such a policy, give the button a listener from your own script, or have it ask your server to dismiss the alert, remember that, and remove it from the page.",
     anatomyMeta:
       "The root is the assertive live region and the frame. Inside, the `__icon-wrapper` holds the glyph you choose for the tone, `__content` stacks the `__title` over the `__description`, and the `__dismiss` button — Button's ghost classes plus its own — sits at the end.",
     accessibility: [

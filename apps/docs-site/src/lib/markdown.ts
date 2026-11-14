@@ -193,6 +193,35 @@ export const elementsMarkdown = (docs: ComponentDocs): string => {
       : "",
   ]);
 
+  // Every modifier class the styled markup can take, by part: the printed
+  // example shows one of each (one placement, one size), so without this list
+  // the rest are only findable in the copied stylesheet.
+  const styledParts = docs.headless.subComponents.filter(
+    (sub) => sub.class && (sub.contractProps ?? []).some((prop) => Object.keys(prop.classes).length > 0),
+  );
+  const classes = styledParts.length
+    ? [
+        "### Classes",
+        "The modifier classes the styled markup takes, by part, each with the value it stands for. Use one from each row.",
+        ...styledParts.map((sub) =>
+          [
+            `#### ${sub.name.split(".").pop()} (${code(`.${sub.class}`)})`,
+            table(
+              ["Option", "Classes"],
+              (sub.contractProps ?? [])
+                .filter((prop) => Object.keys(prop.classes).length > 0)
+                .map((prop) => [
+                  code(prop.name),
+                  Object.entries(prop.classes)
+                    .map(([value, cls]) => `${code(cls)}${value === prop.default ? " (default)" : ""}`)
+                    .join(" · "),
+                ]),
+            ),
+          ].join("\n\n"),
+        ),
+      ]
+    : [];
+
   // What a headless stylesheet keys off: the state attributes the component
   // writes, from its contract — the same ones Primitiv's own stylesheet uses.
   // Grouped by part, because one attribute (Tabs' `data-orientation`) is often
@@ -215,7 +244,7 @@ export const elementsMarkdown = (docs: ComponentDocs): string => {
       ]
     : [];
 
-  return ["## Elements", intro, ...install, ...load, ...markup, ...parts, ...hooks].filter(Boolean).join("\n\n");
+  return ["## Elements", intro, ...install, ...load, ...markup, ...classes, ...parts, ...hooks].filter(Boolean).join("\n\n");
 };
 
 /** A component page's Markdown: description, installation, then the API. */

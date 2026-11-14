@@ -512,6 +512,15 @@
           },
           {
             "kind": "p",
+            "text": "Without --brand, init still records a brand in primitiv.json: Primitiv's own, which tokens.css already carries. That is why no theme file is written for it.",
+            "code": [
+              "--brand",
+              "primitiv.json",
+              "tokens.css"
+            ]
+          },
+          {
+            "kind": "p",
             "text": "That produces a full light and dark palette from your colour, with every semantic role reassigned by contrast. It writes into its own layer, so it beats the base tokens without you editing them. The standard ramps are fixed and are not touched by this.",
             "code": []
           },
@@ -1831,6 +1840,14 @@
             ]
           },
           {
+            "kind": "p",
+            "text": "Because it fires first, the component still holds the old value while it runs: read the new one from event.detail. Once the change has applied, a component with a value (Select, Combobox, Slider, Segmented Control, Radio Card, Toggle Group and Checkbox Card) also fires a plain change event, as a form control does. By then its hidden form inputs hold the new value, so anything listening for change, or reading the form, sees what the user chose.",
+            "code": [
+              "event.detail",
+              "change"
+            ]
+          },
+          {
             "kind": "h3",
             "text": "Confirming a server action"
           },
@@ -2069,6 +2086,14 @@
               "left",
               "--primitiv-context-menu-x",
               "--primitiv-context-menu-y"
+            ]
+          },
+          {
+            "kind": "p",
+            "text": "A panel shows in the top layer, but it still inherits from where it sits in your markup. Opened from a dense table, it is dense too; give the panel its own data-density when it should not follow. Primitiv's panel styles reset text-align, so a panel in an end-aligned cell still reads left to right.",
+            "code": [
+              "data-density",
+              "text-align"
             ]
           }
         ]

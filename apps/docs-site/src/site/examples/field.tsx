@@ -400,7 +400,7 @@ export const fieldSpec: ComponentSpec = {
 
   elements: {
     description:
-      "The label, helper text and error message around a form control, as classes: `primitiv-field` and a size on the wrapper, `__label`, `__description` and `__error` on the parts. The wiring between them — `for`, `id`, `aria-describedby`, `aria-invalid` — is yours to write.",
+      "The label, helper text and error message around a form control, as classes: `primitiv-field` and a size on the wrapper, `__label`, `__description` and `__error` on the parts. The wiring between them — `for`, `id`, `aria-describedby`, `aria-invalid` — is yours to write. Field's own stylesheet reads two hooks: `data-field-required` puts the asterisk on the label and `data-field-disabled` dims the group, both only when the wrapper carries `data-field`; without it, a native `required` or `disabled` control inside does the same. So a field your server validates, with no native `required`, takes `data-field data-field-required` on the wrapper. Nothing in Field styles an error: render the `__error` message when there is one, and give the control `aria-invalid=\"true\"`, which the Input stylesheet colours.",
     anatomyMeta:
       "Four parts, and only the wrapper and a label are required. `primitiv-field` is the wrapper (a `<div>`, or a `<fieldset>` for a group); `__label` goes on the `<label>` (or `<legend>`); `__description` and `__error` style the helper and the message. The control between them carries its own classes — Input's, Textarea's — or none.",
     accessibility: [

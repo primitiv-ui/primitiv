@@ -1,7 +1,9 @@
 /**
  * The Elements code tabs show each icon as a commented placeholder — the paths
  * are noise there — so the live preview swaps the real `@primitiv-ui/icons`
- * glyphs back in, with `IconBase`'s own `<svg>` attributes.
+ * glyphs back in, with `IconBase`'s own `<svg>` attributes. Each key is the
+ * glyph's file name in `packages/icons/icons/svg`, which is the name the code
+ * tab's `<!-- Insert your SVG icon here: name -->` gives a reader to look up.
  */
 const GLYPHS: Record<string, string> = {
   plus: '<path d="M11.25 3.25h1.5v17.5h-1.5z"/><path d="M20.75 11.25v1.5H3.25v-1.5z"/>',
@@ -21,7 +23,7 @@ const GLYPHS: Record<string, string> = {
   info: '<path d="M20.25 12a8.25 8.25 0 1 0-16.5 0 8.25 8.25 0 0 0 16.5 0m1.5 0c0 5.385-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12 6.615 2.25 12 2.25s9.75 4.365 9.75 9.75"/><path d="M11.25 10.25h1.5v7.5h-1.5zm0-4h1.5v2.5h-1.5z"/>',
   success: '<path d="M20.25 12a8.25 8.25 0 1 0-16.5 0 8.25 8.25 0 0 0 16.5 0m1.5 0c0 5.385-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12 6.615 2.25 12 2.25s9.75 4.365 9.75 9.75"/><path d="m18.058 8.919-7.016 8.183L5.939 12 7 10.94l3.957 3.957 5.962-6.955z"/>',
   warning: '<path d="M23.311 20.75H.688L12 1.52zm-20-1.5H20.69L12 4.479z"/><path d="M11.25 8.25h1.5v6.5h-1.5zm0 7.5h1.5v2.5h-1.5z"/>',
-  danger: '<path d="M20.25 12a8.25 8.25 0 1 0-16.5 0 8.25 8.25 0 0 0 16.5 0m1.5 0c0 5.385-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12 6.615 2.25 12 2.25s9.75 4.365 9.75 9.75"/><path d="M17.06 16 16 17.06 6.94 8 8 6.94z"/><path d="M17.06 8 8 17.06 6.94 16 16 6.94z"/>',
+  error: '<path d="M20.25 12a8.25 8.25 0 1 0-16.5 0 8.25 8.25 0 0 0 16.5 0m1.5 0c0 5.385-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12 6.615 2.25 12 2.25s9.75 4.365 9.75 9.75"/><path d="M17.06 16 16 17.06 6.94 8 8 6.94z"/><path d="M17.06 8 8 17.06 6.94 16 16 6.94z"/>',
   close: '<path d="M20.06 19 19 20.06 3.94 5 5 3.94z"/><path d="M20.06 5 5 20.06 3.94 19 19 3.94z"/>',
 };
 

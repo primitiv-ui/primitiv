@@ -112,7 +112,7 @@ const alertHtml = ({
 }) =>
   [
     `<div class="primitiv-alert primitiv-alert--${tone} primitiv-alert--${size}" role="alert">`,
-    `  <span class="primitiv-alert__icon-wrapper">${glyph(tone as "info")}</span>`,
+    `  <span class="primitiv-alert__icon-wrapper">${glyph(tone === "danger" ? "error" : (tone as "info"))}</span>`,
     `  <div class="primitiv-alert__content">`,
     ...(title ? [`    <div class="primitiv-alert__title">${title}</div>`] : []),
     `    <div class="primitiv-alert__description">${body}</div>`,

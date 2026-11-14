@@ -15,7 +15,9 @@ const NAMES: Readonly<Record<string, string>> = ICON_NAMES;
  * comment, from the registry's own example markup.
  */
 export const iconPlaceholders = (markup: string): string =>
-  markup.replace(
-    /<svg[\s>][\s\S]*?<\/svg>/g,
-    (svg) => `<!-- Insert your SVG icon here: ${NAMES[pathKey(svg)] ?? "icon"} -->`,
-  );
+  markup.replace(/<svg[\s>][\s\S]*?<\/svg>/g, (svg) => {
+    /* The page examples already name their glyph (examples/glyphs.ts) and draw
+       it only in the preview; anything else is recognised by its paths. */
+    const named = /<!-- ([a-z-]+) glyph -->/.exec(svg)?.[1];
+    return `<!-- Insert your SVG icon here: ${named ?? NAMES[pathKey(svg)] ?? "icon"} -->`;
+  });

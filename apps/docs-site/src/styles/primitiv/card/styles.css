@@ -393,6 +393,12 @@
     -webkit-tap-highlight-color: transparent;
   }
 
+  /* A link card is one big target, not a run of linked text: without this the
+     base layer's link underline runs under its title and description. */
+  a.primitiv-card {
+    text-decoration: none;
+  }
+
   /* The dark-theme half of the cover layout's foreground (see the base rule
      above): a HIGHER-SPECIFICITY selector in a LATER layer, so it wins over
      the light-context default regardless of where each stylesheet is loaded

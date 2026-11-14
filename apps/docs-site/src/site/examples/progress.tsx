@@ -423,7 +423,7 @@ export const progressSpec: ComponentSpec = {
 
   elements: {
     description:
-      "A progress bar as classes: `primitiv-progress` with a size and an intent on an element with `role=\"progressbar\"`, holding a `__indicator` fill. The value lives in `aria-valuenow` and in `--primitiv-progress-value`; leave both out for an indeterminate bar.",
+      "A progress bar as classes: `primitiv-progress` with a size and an intent on an element with `role=\"progressbar\"`, holding a `__indicator` fill. The value lives in `aria-valuenow` and in `--primitiv-progress-value`; leave both out for an indeterminate bar. The track is the same colour as a `surface/subtle` panel, so on one set `--primitiv-progress-track-bg: var(--primitiv-border-subtle)`.",
     anatomyMeta:
       "Two parts. The root is the track and the progressbar: it carries the role, the name and the `aria-value*` attributes, plus the custom properties that size the fill. `__indicator` is the fill inside it.",
     accessibility: [

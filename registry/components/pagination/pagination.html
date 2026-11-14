@@ -5,6 +5,21 @@
     <li class="primitiv-pagination__cell"><a class="primitiv-pagination__item primitiv-button primitiv-button--secondary primitiv-button--md" href="?page=2"><span class="primitiv-button__label">2</span></a></li>
     <li class="primitiv-pagination__cell"><a class="primitiv-pagination__item primitiv-button primitiv-button--primary primitiv-button--md" href="?page=3" aria-current="page"><span class="primitiv-button__label">3</span></a></li>
     <li class="primitiv-pagination__cell"><a class="primitiv-pagination__item primitiv-button primitiv-button--secondary primitiv-button--md" href="?page=4"><span class="primitiv-button__label">4</span></a></li>
+    <li class="primitiv-pagination__cell">
+      <!-- The gap: the pages the range hides, in a Dropdown. Load dropdown.js. -->
+      <primitiv-dropdown>
+        <primitiv-dropdown-trigger>
+          <button type="button" class="primitiv-pagination__ellipsis primitiv-button primitiv-button--ghost primitiv-button--md" aria-label="Show more pages">&hellip;</button>
+        </primitiv-dropdown-trigger>
+        <primitiv-dropdown-content class="primitiv-pagination__menu primitiv-dropdown primitiv-dropdown--md primitiv-dropdown--bottom-start" popover="auto">
+          <primitiv-dropdown-item><a class="primitiv-dropdown__item" href="?page=5">5</a></primitiv-dropdown-item>
+          <primitiv-dropdown-item><a class="primitiv-dropdown__item" href="?page=6">6</a></primitiv-dropdown-item>
+          <primitiv-dropdown-item><a class="primitiv-dropdown__item" href="?page=7">7</a></primitiv-dropdown-item>
+          <primitiv-dropdown-item><a class="primitiv-dropdown__item" href="?page=8">8</a></primitiv-dropdown-item>
+          <primitiv-dropdown-item><a class="primitiv-dropdown__item" href="?page=9">9</a></primitiv-dropdown-item>
+        </primitiv-dropdown-content>
+      </primitiv-dropdown>
+    </li>
     <li class="primitiv-pagination__cell"><a class="primitiv-pagination__item primitiv-button primitiv-button--secondary primitiv-button--md" href="?page=10"><span class="primitiv-button__label">10</span></a></li>
     <li class="primitiv-pagination__cell"><a class="primitiv-pagination__nav primitiv-button primitiv-button--ghost primitiv-button--md" href="?page=4" aria-label="Go to next page"><!-- Insert your SVG icon here: chevron-right --></a></li>
   </ul>

@@ -49,6 +49,16 @@ import { Progress, ProgressIndicator } from "@/components/progress";
 </Progress>
 ```
 
+## On a subtle surface
+
+The track is `action/secondary/default`, which is the same colour as
+`surface/subtle`, so a bar placed on a `bg-subtle` panel shows no track. Point
+the track at the next step out there:
+
+```css
+.upload-row { --primitiv-progress-track-bg: var(--primitiv-border-subtle); }
+```
+
 ## The default theme (`styles.css`)
 
 Root is the track (a pill-shaped, clipping bar); `Indicator` is the fill.

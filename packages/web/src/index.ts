@@ -17,6 +17,7 @@ export * from "./split-button/index.ts";
 export * from "./context-menu/index.ts";
 export * from "./dropdown/index.ts";
 export * from "./modal/index.ts";
+export * from "./navigation-menu/index.ts";
 export * from "./popover/index.ts";
 export * from "./tabs/index.ts";
 export * from "./tooltip/index.ts";

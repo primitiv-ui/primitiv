@@ -75,6 +75,16 @@ import type {
   PrimitivPopoverTriggerElement,
 } from "./popover/elements.ts";
 import type {
+  PrimitivNavigationMenuContentElement,
+  PrimitivNavigationMenuElement,
+  PrimitivNavigationMenuIndicatorElement,
+  PrimitivNavigationMenuItemElement,
+  PrimitivNavigationMenuLinkElement,
+  PrimitivNavigationMenuListElement,
+  PrimitivNavigationMenuTriggerElement,
+  PrimitivNavigationMenuViewportElement,
+} from "./navigation-menu/elements.ts";
+import type {
   PrimitivTabsContentElement,
   PrimitivTabsElement,
   PrimitivTabsListElement,
@@ -153,6 +163,14 @@ declare global {
     "primitiv-popover-title": PrimitivPopoverTitleElement;
     "primitiv-popover-description": PrimitivPopoverDescriptionElement;
     "primitiv-popover-close": PrimitivPopoverCloseElement;
+    "primitiv-navigation-menu": PrimitivNavigationMenuElement;
+    "primitiv-navigation-menu-list": PrimitivNavigationMenuListElement;
+    "primitiv-navigation-menu-item": PrimitivNavigationMenuItemElement;
+    "primitiv-navigation-menu-trigger": PrimitivNavigationMenuTriggerElement;
+    "primitiv-navigation-menu-content": PrimitivNavigationMenuContentElement;
+    "primitiv-navigation-menu-viewport": PrimitivNavigationMenuViewportElement;
+    "primitiv-navigation-menu-indicator": PrimitivNavigationMenuIndicatorElement;
+    "primitiv-navigation-menu-link": PrimitivNavigationMenuLinkElement;
     "primitiv-tabs": PrimitivTabsElement;
     "primitiv-tabs-list": PrimitivTabsListElement;
     "primitiv-tabs-trigger": PrimitivTabsTriggerElement;

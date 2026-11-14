@@ -36,9 +36,9 @@ export type NavigationMenuControllerHost = {
    */
   change(value: string): void;
   /** The trigger of the entry `value`: Escape hands focus back to it. */
-  trigger(value: string): HTMLElement | null;
+  trigger(value: string): HTMLElement | null | undefined;
   /** The panel of the entry `value`: the enter-panel arrow moves focus into it. */
-  panel(value: string): HTMLElement | null;
+  panel(value: string): HTMLElement | null | undefined;
   /** Every top-level entry — triggers and plain links — in DOM order. */
   entries(): HTMLElement[];
 };
@@ -65,20 +65,20 @@ export class NavigationMenuController {
   }
 
   /** The pointer arrived on the trigger of `value`: remember what was open, and open with intent. */
-  triggerPointerEnter(value: string): void {
+  hoverStart(value: string): void {
     const state = this.#host.state();
     this.#arrival = { value, open: state.value === value };
     if (state.openOnHover) this.#openWithIntent(value);
   }
 
   /** The pointer left a trigger: forget its arrival and cancel a pending open. */
-  triggerPointerLeave(): void {
+  hoverEnd(): void {
     this.#arrival = null;
     this.#cancelOpen();
   }
 
   /** A click on the trigger of `value` — toggled against what was open when the pointer arrived. */
-  triggerClick(value: string): void {
+  toggle(value: string): void {
     this.#cancelOpen();
     const arrival = this.#arrival?.value === value ? this.#arrival.open : undefined;
     if (arrival !== undefined) this.#arrival = null;
@@ -86,7 +86,7 @@ export class NavigationMenuController {
   }
 
   /** The pointer is over the nav: it is not done with the menu. */
-  rootPointerEnter(): void {
+  holdOpen(): void {
     this.#cancelClose();
   }
 
@@ -94,7 +94,7 @@ export class NavigationMenuController {
    * The pointer left the nav — the only leave that means the user is done
    * with the menu, since leaving a trigger for its own panel must not close it.
    */
-  rootPointerLeave(): void {
+  leave(): void {
     this.#cancelOpen();
     this.#cancelClose();
     this.#closing = setTimeout(() => {
@@ -121,7 +121,7 @@ export class NavigationMenuController {
    * panel and moves focus into it — at once if it is open, else on the
    * {@link sync} after the host shows it — and every other key travels.
    */
-  triggerKeydown(value: string, entry: HTMLElement, event: KeyboardEvent): void {
+  keydown(value: string, entry: HTMLElement, event: KeyboardEvent): void {
     const state = this.#host.state();
     if (!navigationMenuEntersPanel(state, event.key)) {
       this.travel(entry, event);
@@ -138,7 +138,7 @@ export class NavigationMenuController {
    * Escape from anywhere in the nav closes the open panel and hands focus back
    * to its trigger, so the user is not stranded on an element that just hid.
    */
-  rootKeydown(event: KeyboardEvent): void {
+  escape(event: KeyboardEvent): void {
     const { value } = this.#host.state();
     if (event.key !== "Escape" || value === "") return;
     this.#host.trigger(value)?.focus();
@@ -167,7 +167,7 @@ export class NavigationMenuController {
    * A link was followed: the interaction is over, so the menu closes — never
    * leaving a panel open over the page the user just went to.
    */
-  linkClick(): void {
+  dismiss(): void {
     this.#cancelOpen();
     this.#host.change("");
   }
@@ -178,9 +178,9 @@ export class NavigationMenuController {
    * along the bar past a plain entry closes what is open, as reaching another
    * trigger would. A click-only menu stays click-only.
    */
-  linkPointerEnter(): void {
+  linkHover(): void {
     if (!this.#host.state().openOnHover) return;
-    this.linkClick();
+    this.dismiss();
   }
 
   /** Cancel every timer, so nothing outlives the host. */

@@ -82,6 +82,16 @@ import type {
   PrimitivPopoverTriggerElement,
 } from "../popover/elements.ts";
 import type {
+  PrimitivNavigationMenuContentElement,
+  PrimitivNavigationMenuElement,
+  PrimitivNavigationMenuIndicatorElement,
+  PrimitivNavigationMenuItemElement,
+  PrimitivNavigationMenuLinkElement,
+  PrimitivNavigationMenuListElement,
+  PrimitivNavigationMenuTriggerElement,
+  PrimitivNavigationMenuViewportElement,
+} from "../navigation-menu/elements.ts";
+import type {
   PrimitivTabsContentElement,
   PrimitivTabsElement,
   PrimitivTabsListElement,
@@ -149,6 +159,7 @@ import type {
   PrimitivDropdownValueChangeEvent,
   PrimitivCollapsibleChangeEvent,
   PrimitivModalChangeEvent,
+  PrimitivNavigationMenuChangeEvent,
   PrimitivPopoverChangeEvent,
   PrimitivTabsChangeEvent,
   PrimitivTooltipChangeEvent,
@@ -185,6 +196,7 @@ export type {
   PrimitivDropdownValueChangeEvent,
   PrimitivCollapsibleChangeEvent,
   PrimitivModalChangeEvent,
+  PrimitivNavigationMenuChangeEvent,
   PrimitivPopoverChangeEvent,
   PrimitivTabsChangeEvent,
   PrimitivTooltipChangeEvent,
@@ -336,6 +348,21 @@ declare module "react" {
       "primitiv-popover-title": ElementProps<PrimitivPopoverTitleElement>;
       "primitiv-popover-description": ElementProps<PrimitivPopoverDescriptionElement>;
       "primitiv-popover-close": ElementProps<PrimitivPopoverCloseElement>;
+      "primitiv-navigation-menu": ElementProps<PrimitivNavigationMenuElement> & {
+        value?: string;
+        orientation?: "horizontal" | "vertical";
+        "open-on-hover"?: "true" | "false";
+        "delay-duration"?: string | number;
+        "close-delay"?: string | number;
+        "onprimitiv-navigation-menu-change"?: (event: PrimitivNavigationMenuChangeEvent) => void;
+      };
+      "primitiv-navigation-menu-list": ElementProps<PrimitivNavigationMenuListElement>;
+      "primitiv-navigation-menu-item": ElementProps<PrimitivNavigationMenuItemElement> & { value?: string };
+      "primitiv-navigation-menu-trigger": ElementProps<PrimitivNavigationMenuTriggerElement>;
+      "primitiv-navigation-menu-content": ElementProps<PrimitivNavigationMenuContentElement> & { value?: string; "force-mount"?: boolean };
+      "primitiv-navigation-menu-viewport": ElementProps<PrimitivNavigationMenuViewportElement> & { "force-mount"?: boolean };
+      "primitiv-navigation-menu-indicator": ElementProps<PrimitivNavigationMenuIndicatorElement> & { "force-mount"?: boolean };
+      "primitiv-navigation-menu-link": ElementProps<PrimitivNavigationMenuLinkElement> & { active?: boolean };
       "primitiv-popover-content": ElementProps<PrimitivPopoverContentElement> & {
         popover?: "auto" | "manual" | "";
       };

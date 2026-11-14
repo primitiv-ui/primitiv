@@ -81,6 +81,16 @@ import type {
   PrimitivPopoverTriggerElement,
 } from "../popover/elements.ts";
 import type {
+  PrimitivNavigationMenuContentElement,
+  PrimitivNavigationMenuElement,
+  PrimitivNavigationMenuIndicatorElement,
+  PrimitivNavigationMenuItemElement,
+  PrimitivNavigationMenuLinkElement,
+  PrimitivNavigationMenuListElement,
+  PrimitivNavigationMenuTriggerElement,
+  PrimitivNavigationMenuViewportElement,
+} from "../navigation-menu/elements.ts";
+import type {
   PrimitivTabsContentElement,
   PrimitivTabsElement,
   PrimitivTabsListElement,
@@ -148,6 +158,7 @@ import type {
   PrimitivDropdownValueChangeEvent,
   PrimitivCollapsibleChangeEvent,
   PrimitivModalChangeEvent,
+  PrimitivNavigationMenuChangeEvent,
   PrimitivPopoverChangeEvent,
   PrimitivTabsChangeEvent,
   PrimitivTooltipChangeEvent,
@@ -306,6 +317,21 @@ declare module "svelte/elements" {
     "primitiv-popover-title": Attributes<PrimitivPopoverTitleElement>;
     "primitiv-popover-description": Attributes<PrimitivPopoverDescriptionElement>;
     "primitiv-popover-close": Attributes<PrimitivPopoverCloseElement>;
+    "primitiv-navigation-menu": Attributes<PrimitivNavigationMenuElement> & {
+      value?: string;
+      orientation?: "horizontal" | "vertical";
+      "open-on-hover"?: "true" | "false";
+      "delay-duration"?: string | number;
+      "close-delay"?: string | number;
+      "onprimitiv-navigation-menu-change"?: (event: PrimitivNavigationMenuChangeEvent) => void;
+    };
+    "primitiv-navigation-menu-list": Attributes<PrimitivNavigationMenuListElement>;
+    "primitiv-navigation-menu-item": Attributes<PrimitivNavigationMenuItemElement> & { value?: string };
+    "primitiv-navigation-menu-trigger": Attributes<PrimitivNavigationMenuTriggerElement>;
+    "primitiv-navigation-menu-content": Attributes<PrimitivNavigationMenuContentElement> & { value?: string; "force-mount"?: boolean };
+    "primitiv-navigation-menu-viewport": Attributes<PrimitivNavigationMenuViewportElement> & { "force-mount"?: boolean };
+    "primitiv-navigation-menu-indicator": Attributes<PrimitivNavigationMenuIndicatorElement> & { "force-mount"?: boolean };
+    "primitiv-navigation-menu-link": Attributes<PrimitivNavigationMenuLinkElement> & { active?: boolean };
     "primitiv-tabs": Attributes<PrimitivTabsElement> & {
       value?: string;
       orientation?: "horizontal" | "vertical";

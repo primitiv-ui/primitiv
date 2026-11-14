@@ -1,6 +1,6 @@
 import { screen } from "@testing-library/dom";
 
-import { PrimitivNavigationMenuElement } from "../elements";
+import { defineNavigationMenu, PrimitivNavigationMenuElement, type ElementRegistry } from "../elements";
 import { navigationMenuHtml } from "./navigation-menu.fixtures";
 import { anchor, button, mount, panel, part, root, settle, listenerErrors } from "./mount";
 
@@ -10,7 +10,28 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
+const ELEMENTS = ["", "-list", "-item", "-trigger", "-content", "-viewport", "-indicator", "-link"].map(
+  (suffix) => `primitiv-navigation-menu${suffix}`,
+);
+
 describe("<primitiv-navigation-menu> rendering", () => {
+  it("defines exactly the eight tag names on the registry it is given, skipping any already there", () => {
+    // Arrange
+    const defined: string[] = [];
+    const registry: ElementRegistry = {
+      get: (name: string) => (name === "primitiv-navigation-menu-item" ? class {} : undefined) as never,
+      define: (name: string) => {
+        defined.push(name);
+      },
+    };
+
+    // Act
+    defineNavigationMenu(registry);
+
+    // Assert
+    expect(defined).toEqual(ELEMENTS.filter((name) => name !== "primitiv-navigation-menu-item"));
+  });
+
   it("keeps a name the markup gives the landmark", async () => {
     // Arrange & Act
     await mount('<primitiv-navigation-menu aria-label="Docs"></primitiv-navigation-menu>');

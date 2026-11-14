@@ -90,6 +90,25 @@ it("defines the Popover elements when define/popover is imported", async () => {
   }
 });
 
+it("defines the Navigation Menu elements when define/navigation-menu is imported", async () => {
+  // Arrange & Act
+  await import("../navigation-menu");
+
+  // Assert
+  for (const name of [
+    "primitiv-navigation-menu",
+    "primitiv-navigation-menu-list",
+    "primitiv-navigation-menu-item",
+    "primitiv-navigation-menu-trigger",
+    "primitiv-navigation-menu-content",
+    "primitiv-navigation-menu-viewport",
+    "primitiv-navigation-menu-indicator",
+    "primitiv-navigation-menu-link",
+  ]) {
+    expect(customElements.get(name)).toBeDefined();
+  }
+});
+
 it("defines the Context Menu elements when define/context-menu is imported", async () => {
   // Arrange & Act
   await import("../context-menu");
@@ -236,4 +255,5 @@ it("defines every component's elements when define is imported", async () => {
   expect(customElements.get("primitiv-checkbox-card")).toBeDefined();
   expect(customElements.get("primitiv-slider")).toBeDefined();
   expect(customElements.get("primitiv-split-button")).toBeDefined();
+  expect(customElements.get("primitiv-navigation-menu")).toBeDefined();
 });

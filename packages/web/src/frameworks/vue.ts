@@ -34,6 +34,7 @@ import type {
   PrimitivDropdownValueChangeEvent,
   PrimitivCollapsibleChangeEvent,
   PrimitivModalChangeEvent,
+  PrimitivNavigationMenuChangeEvent,
   PrimitivPopoverChangeEvent,
   PrimitivTabsChangeEvent,
   PrimitivTooltipChangeEvent,
@@ -137,6 +138,23 @@ declare module "vue" {
     "primitiv-popover-title": Tag<Record<never, never>>;
     "primitiv-popover-description": Tag<Record<never, never>>;
     "primitiv-popover-close": Tag<Record<never, never>>;
+    "primitiv-navigation-menu": Tag<
+      {
+        value?: string;
+        orientation?: "horizontal" | "vertical";
+        openOnHover?: "true" | "false";
+        delayDuration?: string | number;
+        closeDelay?: string | number;
+      },
+      { "primitiv-navigation-menu-change": (event: PrimitivNavigationMenuChangeEvent) => void }
+    >;
+    "primitiv-navigation-menu-list": Tag<Record<never, never>>;
+    "primitiv-navigation-menu-item": Tag<{ value?: string }>;
+    "primitiv-navigation-menu-trigger": Tag<Record<never, never>>;
+    "primitiv-navigation-menu-content": Tag<{ value?: string; forceMount?: boolean | "" }>;
+    "primitiv-navigation-menu-viewport": Tag<{ forceMount?: boolean | "" }>;
+    "primitiv-navigation-menu-indicator": Tag<{ forceMount?: boolean | "" }>;
+    "primitiv-navigation-menu-link": Tag<{ active?: boolean | "" }>;
     "primitiv-tabs": Tag<
       {
         value?: string;

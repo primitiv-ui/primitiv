@@ -44,8 +44,8 @@ describe("NavigationMenuController", () => {
       const controller = new NavigationMenuController(host);
 
       // Act
-      controller.triggerClick("docs");
-      controller.triggerClick("docs");
+      controller.toggle("docs");
+      controller.toggle("docs");
 
       // Assert
       expect(host.changes).toEqual(["docs", ""]);
@@ -57,8 +57,8 @@ describe("NavigationMenuController", () => {
       const controller = new NavigationMenuController(host);
 
       // Act
-      controller.triggerPointerEnter("docs");
-      controller.triggerClick("docs");
+      controller.hoverStart("docs");
+      controller.toggle("docs");
 
       // Assert
       expect(host.changes).toEqual(["docs", "docs"]);
@@ -70,9 +70,9 @@ describe("NavigationMenuController", () => {
       const controller = new NavigationMenuController(host);
 
       // Act
-      controller.triggerPointerEnter("docs");
-      controller.triggerClick("docs");
-      controller.triggerClick("docs");
+      controller.hoverStart("docs");
+      controller.toggle("docs");
+      controller.toggle("docs");
 
       // Assert
       expect(host.changes).toEqual(["docs", "docs", ""]);
@@ -84,9 +84,9 @@ describe("NavigationMenuController", () => {
       const controller = new NavigationMenuController(host);
 
       // Act
-      controller.triggerPointerEnter("docs");
-      controller.triggerPointerLeave();
-      controller.triggerClick("docs");
+      controller.hoverStart("docs");
+      controller.hoverEnd();
+      controller.toggle("docs");
 
       // Assert
       expect(host.changes).toEqual(["docs", ""]);
@@ -98,9 +98,9 @@ describe("NavigationMenuController", () => {
       const controller = new NavigationMenuController(host);
 
       // Act
-      controller.triggerPointerEnter("docs");
-      controller.triggerClick("blog");
-      controller.triggerClick("docs");
+      controller.hoverStart("docs");
+      controller.toggle("blog");
+      controller.toggle("docs");
 
       // Assert
       expect(host.changes).toEqual(["blog", ""]);
@@ -113,8 +113,8 @@ describe("NavigationMenuController", () => {
       const controller = new NavigationMenuController(host);
 
       // Act
-      controller.triggerPointerEnter("docs");
-      controller.triggerClick("blog");
+      controller.hoverStart("docs");
+      controller.toggle("blog");
       vi.advanceTimersByTime(500);
 
       // Assert
@@ -133,7 +133,7 @@ describe("NavigationMenuController", () => {
       const controller = new NavigationMenuController(host);
 
       // Act
-      controller.triggerPointerEnter("docs");
+      controller.hoverStart("docs");
       vi.advanceTimersByTime(199);
       const early = [...host.changes];
       vi.advanceTimersByTime(1);
@@ -149,7 +149,7 @@ describe("NavigationMenuController", () => {
       const controller = new NavigationMenuController(host);
 
       // Act
-      controller.triggerPointerEnter("docs");
+      controller.hoverStart("docs");
 
       // Assert
       expect(host.changes).toEqual(["docs"]);
@@ -161,7 +161,7 @@ describe("NavigationMenuController", () => {
       const controller = new NavigationMenuController(host);
 
       // Act
-      controller.triggerPointerEnter("blog");
+      controller.hoverStart("blog");
 
       // Assert
       expect(host.changes).toEqual(["blog"]);
@@ -173,8 +173,8 @@ describe("NavigationMenuController", () => {
       const controller = new NavigationMenuController(host);
 
       // Act
-      controller.triggerPointerEnter("docs");
-      controller.triggerPointerLeave();
+      controller.hoverStart("docs");
+      controller.hoverEnd();
       vi.advanceTimersByTime(500);
 
       // Assert
@@ -187,9 +187,9 @@ describe("NavigationMenuController", () => {
       const controller = new NavigationMenuController(host);
 
       // Act
-      controller.triggerPointerEnter("docs");
+      controller.hoverStart("docs");
       vi.advanceTimersByTime(100);
-      controller.triggerPointerEnter("blog");
+      controller.hoverStart("blog");
       vi.advanceTimersByTime(500);
 
       // Assert
@@ -202,7 +202,7 @@ describe("NavigationMenuController", () => {
       const controller = new NavigationMenuController(host);
 
       // Act
-      controller.triggerPointerEnter("docs");
+      controller.hoverStart("docs");
       vi.advanceTimersByTime(500);
 
       // Assert
@@ -215,7 +215,7 @@ describe("NavigationMenuController", () => {
       const controller = new NavigationMenuController(host);
 
       // Act
-      controller.rootPointerLeave();
+      controller.leave();
       vi.advanceTimersByTime(149);
       const early = [...host.changes];
       vi.advanceTimersByTime(1);
@@ -231,8 +231,8 @@ describe("NavigationMenuController", () => {
       const controller = new NavigationMenuController(host);
 
       // Act
-      controller.rootPointerLeave();
-      controller.rootPointerEnter();
+      controller.leave();
+      controller.holdOpen();
       vi.advanceTimersByTime(500);
 
       // Assert
@@ -245,9 +245,9 @@ describe("NavigationMenuController", () => {
       const controller = new NavigationMenuController(host);
 
       // Act
-      controller.rootPointerLeave();
-      controller.rootPointerLeave();
-      controller.rootPointerEnter();
+      controller.leave();
+      controller.leave();
+      controller.holdOpen();
       vi.advanceTimersByTime(500);
 
       // Assert
@@ -260,8 +260,8 @@ describe("NavigationMenuController", () => {
       const controller = new NavigationMenuController(host);
 
       // Act
-      controller.triggerPointerEnter("docs");
-      controller.rootPointerLeave();
+      controller.hoverStart("docs");
+      controller.leave();
       vi.advanceTimersByTime(500);
 
       // Assert
@@ -274,8 +274,8 @@ describe("NavigationMenuController", () => {
       const controller = new NavigationMenuController(host);
 
       // Act
-      controller.rootPointerLeave();
-      controller.triggerPointerEnter("blog");
+      controller.leave();
+      controller.hoverStart("blog");
       vi.advanceTimersByTime(500);
 
       // Assert
@@ -286,10 +286,10 @@ describe("NavigationMenuController", () => {
       // Arrange
       const host = hostWith();
       const controller = new NavigationMenuController(host);
-      controller.triggerPointerEnter("docs");
+      controller.hoverStart("docs");
       const leavingHost = hostWith("docs");
       const leaving = new NavigationMenuController(leavingHost);
-      leaving.rootPointerLeave();
+      leaving.leave();
 
       // Act
       controller.disconnect();
@@ -367,7 +367,7 @@ describe("NavigationMenuController", () => {
       const event = key("ArrowDown");
 
       // Act
-      controller.triggerKeydown("docs", el("docs"), event);
+      controller.keydown("docs", el("docs"), event);
       const before = document.activeElement;
       controller.sync();
 
@@ -386,7 +386,7 @@ describe("NavigationMenuController", () => {
       el("docs").focus();
 
       // Act
-      controller.triggerKeydown("docs", el("docs"), key("ArrowDown"));
+      controller.keydown("docs", el("docs"), key("ArrowDown"));
       controller.sync();
       const vetoed = document.activeElement;
       host.current = { ...host.current, value: "docs" };
@@ -401,7 +401,7 @@ describe("NavigationMenuController", () => {
       // Arrange
       const host = hostWith();
       const controller = new NavigationMenuController(host);
-      controller.triggerKeydown("docs", el("docs"), key("ArrowDown"));
+      controller.keydown("docs", el("docs"), key("ArrowDown"));
       controller.sync();
       el("pricing").focus();
 
@@ -418,7 +418,7 @@ describe("NavigationMenuController", () => {
       const controller = new NavigationMenuController(host);
 
       // Act
-      controller.triggerKeydown("docs", el("docs"), key("ArrowDown"));
+      controller.keydown("docs", el("docs"), key("ArrowDown"));
 
       // Assert
       expect(host.changes).toEqual([]);
@@ -430,10 +430,10 @@ describe("NavigationMenuController", () => {
       vi.useFakeTimers();
       const host = hostWith();
       const controller = new NavigationMenuController(host);
-      controller.triggerPointerEnter("blog");
+      controller.hoverStart("blog");
 
       // Act
-      controller.triggerKeydown("docs", el("docs"), key("ArrowDown"));
+      controller.keydown("docs", el("docs"), key("ArrowDown"));
       vi.advanceTimersByTime(500);
 
       // Assert
@@ -447,7 +447,7 @@ describe("NavigationMenuController", () => {
       el("blog").focus();
 
       // Act
-      controller.triggerKeydown("blog", el("blog"), key("ArrowDown"));
+      controller.keydown("blog", el("blog"), key("ArrowDown"));
 
       // Assert
       expect(document.activeElement).toBe(el("blog"));
@@ -459,7 +459,7 @@ describe("NavigationMenuController", () => {
       const controller = new NavigationMenuController(host);
 
       // Act
-      controller.triggerKeydown("docs", el("docs"), key("ArrowRight"));
+      controller.keydown("docs", el("docs"), key("ArrowRight"));
 
       // Assert
       expect(host.changes).toEqual([]);
@@ -473,7 +473,7 @@ describe("NavigationMenuController", () => {
       el("pricing").focus();
 
       // Act
-      controller.rootKeydown(key("Escape"));
+      controller.escape(key("Escape"));
 
       // Assert
       expect(host.changes).toEqual([""]);
@@ -486,7 +486,7 @@ describe("NavigationMenuController", () => {
       const controller = new NavigationMenuController(host);
 
       // Act
-      controller.rootKeydown(key("Escape"));
+      controller.escape(key("Escape"));
 
       // Assert
       expect(host.changes).toEqual([""]);
@@ -498,7 +498,7 @@ describe("NavigationMenuController", () => {
       const controller = new NavigationMenuController(host);
 
       // Act
-      controller.triggerKeydown("faq", el("docs"), key("ArrowDown"));
+      controller.keydown("faq", el("docs"), key("ArrowDown"));
       controller.sync();
 
       // Assert
@@ -514,7 +514,7 @@ describe("NavigationMenuController", () => {
       const controller = new NavigationMenuController(host);
 
       // Act
-      controller.rootKeydown(key(k));
+      controller.escape(key(k));
 
       // Assert
       expect(host.changes).toEqual([]);
@@ -566,10 +566,10 @@ describe("NavigationMenuController", () => {
       vi.useFakeTimers();
       const host = hostWith("");
       const controller = new NavigationMenuController(host);
-      controller.triggerPointerEnter("docs");
+      controller.hoverStart("docs");
 
       // Act
-      controller.linkClick();
+      controller.dismiss();
       vi.advanceTimersByTime(500);
 
       // Assert
@@ -582,7 +582,7 @@ describe("NavigationMenuController", () => {
       const controller = new NavigationMenuController(host);
 
       // Act
-      controller.linkPointerEnter();
+      controller.linkHover();
 
       // Assert
       expect(host.changes).toEqual([""]);
@@ -593,10 +593,10 @@ describe("NavigationMenuController", () => {
       vi.useFakeTimers();
       const host = hostWith("");
       const controller = new NavigationMenuController(host);
-      controller.triggerPointerEnter("docs");
+      controller.hoverStart("docs");
 
       // Act
-      controller.linkPointerEnter();
+      controller.linkHover();
       vi.advanceTimersByTime(500);
 
       // Assert
@@ -609,7 +609,7 @@ describe("NavigationMenuController", () => {
       const controller = new NavigationMenuController(host);
 
       // Act
-      controller.linkPointerEnter();
+      controller.linkHover();
 
       // Assert
       expect(host.changes).toEqual([]);

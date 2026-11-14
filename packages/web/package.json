@@ -34,6 +34,10 @@
       "types": "./src/modal/index.ts",
       "default": "./src/modal/index.ts"
     },
+    "./navigation-menu": {
+      "types": "./src/navigation-menu/index.ts",
+      "default": "./src/navigation-menu/index.ts"
+    },
     "./popover": {
       "types": "./src/popover/index.ts",
       "default": "./src/popover/index.ts"
@@ -105,6 +109,10 @@
     "./define/modal": {
       "types": "./src/define/modal.ts",
       "default": "./src/define/modal.ts"
+    },
+    "./define/navigation-menu": {
+      "types": "./src/define/navigation-menu.ts",
+      "default": "./src/define/navigation-menu.ts"
     },
     "./define/popover": {
       "types": "./src/define/popover.ts",
@@ -245,6 +253,10 @@
         "types": "./dist/modal/index.d.ts",
         "default": "./dist/modal/index.js"
       },
+      "./navigation-menu": {
+        "types": "./dist/navigation-menu/index.d.ts",
+        "default": "./dist/navigation-menu/index.js"
+      },
       "./popover": {
         "types": "./dist/popover/index.d.ts",
         "default": "./dist/popover/index.js"
@@ -316,6 +328,10 @@
       "./define/modal": {
         "types": "./dist/define/modal.d.ts",
         "default": "./dist/define/modal.js"
+      },
+      "./define/navigation-menu": {
+        "types": "./dist/define/navigation-menu.d.ts",
+        "default": "./dist/define/navigation-menu.js"
       },
       "./define/popover": {
         "types": "./dist/define/popover.d.ts",

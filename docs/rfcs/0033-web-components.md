@@ -805,7 +805,11 @@ chunks it imports. The opening target was **≤ 3 KB**, held from Tabs through
 Tooltip; Dropdown came in at 3.4 KB (fourteen elements, two menu controllers,
 checkbox and radio items, typeahead and submenus) and the budget was raised to
 **≤ 4 KB per component** for every component, rather than splitting submenus
-into a second file a page would have to add. The RFC also
+into a second file a page would have to add. Navigation Menu came in at 4.2 KB
+(eight elements, hover intent with two timers, a shared viewport, and the
+indicator and viewport geometry it publishes, re-measured a frame later and on
+a font swap as React does), and the budget became **≤ 4.5 KB per component**
+on the same reasoning: the alternative was dropping a behaviour React has. The RFC also
 records, without gating on it, the React path for comparison:
 `@primitiv-ui/react` Tabs plus `react` and `react-dom`.
 

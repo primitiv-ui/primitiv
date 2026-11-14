@@ -16,17 +16,17 @@ describe("<primitiv-navigation-menu> edge cases", () => {
     [
       "a trigger in an item with no value",
       '<primitiv-navigation-menu-item><primitiv-navigation-menu-trigger><button>Docs</button></primitiv-navigation-menu-trigger></primitiv-navigation-menu-item>',
-      "<primitiv-navigation-menu-trigger> needs a <primitiv-navigation-menu-item> with a value: an item without one is a plain link entry.",
+      "<primitiv-navigation-menu-trigger> needs a value.",
     ],
     [
       "a trigger outside any item",
       "<primitiv-navigation-menu-trigger><button>Docs</button></primitiv-navigation-menu-trigger>",
-      "<primitiv-navigation-menu-trigger> needs a <primitiv-navigation-menu-item> with a value: an item without one is a plain link entry.",
+      "<primitiv-navigation-menu-trigger> needs a value.",
     ],
     [
       "a trigger with two children",
       '<primitiv-navigation-menu-item value="docs"><primitiv-navigation-menu-trigger><button>Docs</button><span>x</span></primitiv-navigation-menu-trigger></primitiv-navigation-menu-item>',
-      "<primitiv-navigation-menu-trigger> needs exactly one element child (a <button>) to decorate.",
+      "<primitiv-navigation-menu-trigger> needs one <button> child.",
     ],
   ])("reports %s once and leaves it undecorated", async (_case, inner, message) => {
     // Arrange
@@ -52,7 +52,7 @@ describe("<primitiv-navigation-menu> edge cases", () => {
 
     // Assert
     expect(error).toHaveBeenCalledWith(
-      "<primitiv-navigation-menu-content> needs a value, its own or its <primitiv-navigation-menu-item>'s, naming the entry it belongs to.",
+      "<primitiv-navigation-menu-content> needs a value.",
       expect.any(HTMLElement),
     );
     expect(document.querySelector("primitiv-navigation-menu-content")?.hasAttribute("data-state")).toBe(false);
@@ -67,7 +67,7 @@ describe("<primitiv-navigation-menu> edge cases", () => {
 
     // Assert
     expect(error).toHaveBeenCalledWith(
-      "<primitiv-navigation-menu-link> needs exactly one element child (an <a href>) to decorate.",
+      "<primitiv-navigation-menu-link> needs one <a> child.",
       expect.any(HTMLElement),
     );
   });

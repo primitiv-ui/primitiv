@@ -20,6 +20,7 @@ const CONTENT = "primitiv-navigation-menu-content";
 const VIEWPORT = "primitiv-navigation-menu-viewport";
 const INDICATOR = "primitiv-navigation-menu-indicator";
 const LINK = "primitiv-navigation-menu-link";
+const VAR = "--primitiv-navigation-menu-";
 // Stryker restore StringLiteral
 
 /** React's `NavigationMenu.Root` defaults, for a root that sets none. */
@@ -41,7 +42,7 @@ function publish(element: HTMLElement, name: string, value: string | null): void
 /** The one element child an interactive part decorates, or `null`, reported once. */
 function decoratable(part: HTMLElement, what: string): HTMLElement | null {
   if (part.childElementCount === 1) return part.firstElementChild as HTMLElement;
-  reportOnce(part, `<${part.localName}> needs exactly one element child (${what}) to decorate.`);
+  reportOnce(part, `<${part.localName}> needs one ${what} child.`);
   return null;
 }
 
@@ -120,19 +121,20 @@ export class PrimitivNavigationMenuElement extends PrimitivRootElement {
       change: (value) => {
         if (value !== this.value && this.announce("primitiv-navigation-menu-change", { value })) this.value = value;
       },
-      trigger: (value) => this.#scan().entries.get(value)?.button ?? null,
-      panel: (value) => this.#scan().entries.get(value)?.panel ?? null,
+      trigger: (value) => this.#scan().entries.get(value)?.button,
+      panel: (value) => this.#scan().entries.get(value)?.panel,
       entries: () => this.#topLevel(this.#scan()),
     };
   }
 
   /** Every top-level entry — trigger buttons and plain links — in DOM order. */
   #topLevel(scan: Scan): HTMLElement[] {
-    const buttons = [...scan.entries.values()].flatMap(({ button }) => button ?? []);
-    const links = scan.links.flatMap(({ anchor, top }) => (top ? [anchor] : []));
-    return [...buttons, ...links].sort((a, b) =>
-      a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1,
-    );
+    const decorated = new Set<Element | null | undefined>([
+      ...scan.links.filter(({ top }) => top).map(({ anchor }) => anchor),
+      ...[...scan.entries.values()].map(({ button }) => button),
+    ]);
+    // One query returns the parts' children in document order, so nothing needs sorting.
+    return this.parts(`${TRIGGER} > *, ${LINK} > *`).filter((child) => decorated.has(child));
   }
 
   #scan(): Scan {
@@ -145,21 +147,21 @@ export class PrimitivNavigationMenuElement extends PrimitivRootElement {
     for (const part of this.parts(TRIGGER)) {
       const value = part.closest(ITEM)?.getAttribute("value") ?? null;
       if (value === null) {
-        reportOnce(part, `<${TRIGGER}> needs a <${ITEM}> with a value: an item without one is a plain link entry.`);
+        reportOnce(part, `<${TRIGGER}> needs a value.`);
         continue;
       }
-      entry(value).button = decoratable(part, "a <button>");
+      entry(value).button = decoratable(part, "<button>");
     }
     for (const panel of this.parts(CONTENT)) {
       const value = panel.getAttribute("value") ?? panel.closest(ITEM)?.getAttribute("value") ?? null;
       if (value === null) {
-        reportOnce(panel, `<${CONTENT}> needs a value, its own or its <${ITEM}>'s, naming the entry it belongs to.`);
+        reportOnce(panel, `<${CONTENT}> needs a value.`);
         continue;
       }
       entry(value).panel = panel;
     }
     const links = this.parts(LINK).flatMap((part) => {
-      const anchor = decoratable(part, "an <a href>");
+      const anchor = decoratable(part, "<a>");
       return anchor ? [{ part, anchor, top: part.closest(CONTENT) === null }] : [];
     });
     return { entries, links };
@@ -189,42 +191,40 @@ export class PrimitivNavigationMenuElement extends PrimitivRootElement {
     cancelAnimationFrame(this.#frame);
   }
 
-  #pointer(event: Event, enter: boolean): void {
-    const target = event.target;
-    if (target === this) {
-      if (enter) this.#nav.rootPointerEnter();
-      else this.#nav.rootPointerLeave();
-      return;
-    }
+  /**
+   * The trigger button or decorated link `target` is in — or, `exact`, is: a
+   * trigger's `value`, the element, and whether it is a top-level entry.
+   */
+  #locate(target: Node, exact?: boolean): { value?: string; element: HTMLElement; top?: boolean } | undefined {
     const scan = this.#scan();
+    const hit = (element: HTMLElement) => (exact ? element === target : element.contains(target));
     for (const [value, { button }] of scan.entries) {
-      if (button !== target) continue;
-      if (enter) this.#nav.triggerPointerEnter(value);
-      else this.#nav.triggerPointerLeave();
-      return;
+      if (button && hit(button)) return { value, element: button };
     }
-    if (enter && scan.links.some(({ anchor, top }) => top && anchor === target)) this.#nav.linkPointerEnter();
+    const link = scan.links.find(({ anchor }) => hit(anchor));
+    return link && { element: link.anchor, top: link.top };
+  }
+
+  #pointer(event: Event, enter: boolean): void {
+    if (event.target === this) return enter ? this.#nav.holdOpen() : this.#nav.leave();
+    const hit = this.#locate(event.target as Node, true);
+    if (hit?.value !== undefined) {
+      if (enter) this.#nav.hoverStart(hit.value);
+      else this.#nav.hoverEnd();
+    } else if (enter && hit?.top) this.#nav.linkHover();
   }
 
   #click(event: MouseEvent): void {
-    const target = event.target as Node;
-    const scan = this.#scan();
-    for (const [value, { button }] of scan.entries) {
-      if (button?.contains(target)) return this.#nav.triggerClick(value);
-    }
-    if (scan.links.some(({ anchor }) => anchor.contains(target))) this.#nav.linkClick();
+    const hit = this.#locate(event.target as Node);
+    if (hit?.value !== undefined) this.#nav.toggle(hit.value);
+    else if (hit) this.#nav.dismiss();
   }
 
   #keydown(event: KeyboardEvent): void {
-    const target = event.target as Node;
-    const scan = this.#scan();
-    // A key press is in at most one trigger or top-level link: neither part nests the other.
-    for (const [value, { button }] of scan.entries) {
-      if (button?.contains(target)) this.#nav.triggerKeydown(value, button, event);
-    }
-    const link = scan.links.find(({ anchor, top }) => top && anchor.contains(target));
-    if (link) this.#nav.travel(link.anchor, event);
-    this.#nav.rootKeydown(event);
+    const hit = this.#locate(event.target as Node);
+    if (hit?.value !== undefined) this.#nav.keydown(hit.value, hit.element, event);
+    else if (hit?.top) this.#nav.travel(hit.element, event);
+    this.#nav.escape(event);
   }
 
   protected reconcile(): void {
@@ -305,14 +305,14 @@ export class PrimitivNavigationMenuElement extends PrimitivRootElement {
     const open = scan.entries.get(value);
     const geometry = open?.button ? navigationMenuIndicatorGeometry(this.#orientation(), open.button) : null;
     for (const indicator of this.parts(INDICATOR)) {
-      publish(indicator, "--primitiv-navigation-menu-indicator-position", geometry && `${geometry.position}px`);
-      publish(indicator, "--primitiv-navigation-menu-indicator-size", geometry && `${geometry.size}px`);
+      publish(indicator, `${VAR}indicator-position`, geometry && `${geometry.position}px`);
+      publish(indicator, `${VAR}indicator-size`, geometry && `${geometry.size}px`);
     }
     if (value === "") return;
     for (const viewport of this.parts(VIEWPORT)) {
       const panel = open?.panel && viewport.contains(open.panel) ? open.panel : null;
-      publish(viewport, "--primitiv-navigation-menu-viewport-width", panel && `${panel.offsetWidth}px`);
-      publish(viewport, "--primitiv-navigation-menu-viewport-height", panel && `${panel.offsetHeight}px`);
+      publish(viewport, `${VAR}viewport-width`, panel && `${panel.offsetWidth}px`);
+      publish(viewport, `${VAR}viewport-height`, panel && `${panel.offsetHeight}px`);
     }
   }
 }

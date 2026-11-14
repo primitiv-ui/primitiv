@@ -207,4 +207,61 @@ describe("<primitiv-navigation-menu> interaction", () => {
     // Assert
     expect(seen).toEqual([]);
   });
+
+  it("keeps the arrival it recorded as the pointer moves onto the trigger's own label", async () => {
+    // Arrange
+    const user = userEvent.setup();
+    await mount(navigationMenuHtml({ delay: 0, closeDelay: 5000 }).replace(">Docs</button>", "><span>Docs</span></button>"));
+    const trigger = document.querySelector("button") as HTMLElement;
+
+    // Act
+    await user.hover(trigger);
+    await user.hover(trigger.firstElementChild as HTMLElement);
+    await user.click(trigger.firstElementChild as HTMLElement);
+
+    // Assert
+    expect(root().getAttribute("value")).toBe("docs");
+  });
+
+  it("opens nothing with ArrowDown on a link entry", async () => {
+    // Arrange
+    const user = userEvent.setup();
+    await mount(navigationMenuHtml());
+    const seen = changes();
+    anchor("Pricing").focus();
+
+    // Act
+    await user.keyboard("{ArrowDown}");
+
+    // Assert
+    expect(seen).toEqual([]);
+  });
+
+  it("leaves Home to the page inside an open panel", async () => {
+    // Arrange
+    const user = userEvent.setup();
+    await mount(navigationMenuHtml({ value: "docs" }));
+    anchor("API").focus();
+
+    // Act
+    await user.keyboard("{Home}");
+
+    // Assert
+    expect(document.activeElement).toBe(anchor("API"));
+  });
+
+  it("still closes with Escape from an element in a panel that is no part", async () => {
+    // Arrange
+    const user = userEvent.setup();
+    await mount(navigationMenuHtml({ value: "docs" }));
+    panel("docs").insertAdjacentHTML("beforeend", "<button>More</button>");
+    button("More").focus();
+
+    // Act
+    await user.keyboard("{Escape}");
+
+    // Assert
+    expect(root().hasAttribute("value")).toBe(false);
+    expect(document.activeElement).toBe(button("Docs"));
+  });
 });

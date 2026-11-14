@@ -8,6 +8,7 @@ import "./collapsible.ts";
 import "./context-menu.ts";
 import "./dropdown.ts";
 import "./modal.ts";
+import "./navigation-menu.ts";
 import "./popover.ts";
 import "./radio-card.ts";
 import "./segmented-control.ts";

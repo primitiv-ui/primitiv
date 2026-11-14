@@ -852,3 +852,22 @@ fn utilities_writes_the_utility_classes_where_out_says() {
         .assert(predicate::str::contains("@layer primitiv.utilities {"))
         .assert(predicate::str::contains("  .md\\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }"));
 }
+
+#[test]
+fn remove_takes_a_component_out_of_the_lock() {
+    let dir = assert_fs::TempDir::new().unwrap();
+    dir.child("primitiv.lock")
+        .write_str("{ \"components\": [\"tabs\"], \"files\": {} }")
+        .unwrap();
+
+    Command::cargo_bin("primitiv")
+        .unwrap()
+        .current_dir(dir.path())
+        .args(["remove", "tabs"])
+        .assert()
+        .success()
+        .stdout(predicate::str::starts_with("Removed tabs:\n"));
+
+    dir.child("primitiv.lock")
+        .assert("{\n  \"components\": [],\n  \"files\": {}\n}\n");
+}

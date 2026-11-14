@@ -111,29 +111,27 @@ pub fn remove(
     let elements = config.is_none_or(|config| config.surface == Surface::Elements);
     if let Some(config) = config.filter(|config| config.styles.enabled) {
         let updated = if elements {
-            Some(update_style_index(
+            update_style_index(
                 fs,
                 &lock,
                 Path::new(&config.styles.path),
                 config.styles.format.extension(),
-            )?)
+            )?
         } else {
             let components_dir = detect::components_path(fs, &dir)?
                 .unwrap_or_else(|| DEFAULT_COMPONENTS_DIR.to_string());
             match update_barrel(fs, &lock, Path::new(&components_dir))? {
-                Some(barrel) => Some(barrel),
+                Some(barrel) => barrel,
                 // `add` writes no barrel for an empty set, but this one already
                 // exports what was just deleted: empty it, or imports of it break.
                 None => {
                     let barrel = Path::new(&components_dir).join("index.ts");
                     fs.write(&barrel, b"")?;
-                    Some(barrel.to_string_lossy().into_owned())
+                    barrel.to_string_lossy().into_owned()
                 }
             }
         };
-        if let Some(updated) = updated {
-            report.push_str(&format!("  {updated}  updated\n"));
-        }
+        report.push_str(&format!("  {updated}  updated\n"));
     }
     lock.write(fs, &lock_path)?;
     let pronoun = if removing.len() == 1 { "it" } else { "them" };

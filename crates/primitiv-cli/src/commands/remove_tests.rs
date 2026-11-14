@@ -263,3 +263,91 @@ fn surfaces_a_working_directory_that_cannot_be_read() {
 
     assert!(matches!(error, CliError::Io(_)));
 }
+
+/// An elements project whose styles are not Primitiv's: nothing to re-index.
+const HEADLESS: &[u8] = br##"{
+  "version": 1,
+  "surface": "elements",
+  "styles": { "enabled": false, "format": "css", "path": "primitiv" },
+  "tokens": { "format": "css", "path": "primitiv/tokens.css" },
+  "theme": {},
+  "aliases": {},
+  "registry": { "version": "0.1.0" }
+}"##;
+
+#[test]
+fn writes_no_index_for_a_project_that_does_not_copy_styles() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("primitiv.json"), HEADLESS).unwrap();
+    fs.write(Path::new("primitiv.lock"), b"{ \"components\": [\"tabs\"], \"files\": {} }")
+        .unwrap();
+
+    remove(&fs, &EmbeddedRegistry, &InMemoryOutput::new(), &options(&["tabs"])).unwrap();
+
+    assert!(!fs.exists(Path::new("primitiv/index.css")));
+}
+
+/// Run `remove tooltip` on a styled elements project with `fail` set up first,
+/// and return the error.
+fn failing(fail: impl Fn(&InMemoryFs, &InMemoryOutput)) -> CliError {
+    let fs = project(ELEMENTS, &["tooltip", "tabs"]);
+    let output = InMemoryOutput::new();
+    fail(&fs, &output);
+    remove(&fs, &EmbeddedRegistry, &output, &options(&["tooltip"])).unwrap_err()
+}
+
+#[test]
+fn surfaces_every_failure_it_meets() {
+    let config = failing(|fs, _| fs.write(Path::new("primitiv.json"), b"{ not json").unwrap());
+    let lock = failing(|fs, _| fs.fail_reads_to(Path::new("primitiv.lock")));
+    let file = failing(|fs, _| fs.fail_reads_to(Path::new("static/primitiv/tooltip/styles.css")));
+    let index = failing(|fs, _| fs.fail_writes_to(Path::new("static/primitiv/index.css")));
+    let lock_write = failing(|fs, _| fs.fail_writes_to(Path::new("primitiv.lock")));
+    let stdout = failing(|_, output| output.fail_stdout());
+
+    assert!(matches!(config, CliError::Config(_)), "{config}");
+    for error in [lock, file, index, lock_write, stdout] {
+        assert!(matches!(error, CliError::Io(_)), "{error}");
+    }
+}
+
+#[test]
+fn surfaces_a_registry_index_it_cannot_parse() {
+    let fs = project(ELEMENTS, &["tooltip"]);
+
+    let error = remove(
+        &fs,
+        &InMemoryRegistry::new(b"not json"),
+        &InMemoryOutput::new(),
+        &options(&["tooltip"]),
+    )
+    .unwrap_err();
+
+    assert!(!matches!(error, CliError::Io(_)), "{error}");
+}
+
+#[test]
+fn surfaces_a_barrel_it_cannot_write() {
+    // Two components: the barrel is rewritten with the one that stays.
+    let fs = react_project(&["kbd", "badge"]);
+    fs.fail_writes_to(Path::new("src/components/index.ts"));
+    let rewritten = remove(&fs, &EmbeddedRegistry, &InMemoryOutput::new(), &options(&["kbd"])).unwrap_err();
+    // One component: the barrel is emptied.
+    let fs = react_project(&["kbd"]);
+    fs.fail_writes_to(Path::new("src/components/index.ts"));
+    let emptied = remove(&fs, &EmbeddedRegistry, &InMemoryOutput::new(), &options(&["kbd"])).unwrap_err();
+
+    assert!(matches!(rewritten, CliError::Io(_)));
+    assert!(matches!(emptied, CliError::Io(_)));
+}
+
+#[test]
+fn surfaces_a_components_folder_it_cannot_detect() {
+    let fs = react_project(&["kbd"]);
+    fs.write(Path::new("tsconfig.json"), b"{}").unwrap();
+    fs.fail_reads_to(Path::new("tsconfig.json"));
+
+    let error = remove(&fs, &EmbeddedRegistry, &InMemoryOutput::new(), &options(&["kbd"])).unwrap_err();
+
+    assert!(matches!(error, CliError::Io(_)));
+}

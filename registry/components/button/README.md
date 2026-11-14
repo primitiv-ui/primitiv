@@ -104,3 +104,23 @@ whenever styles are added — never for a headless-only install.
 
 Drift guards in `crates/primitiv-emit/src/{recipe,wrapper}_tests.rs` assert each
 committed artifact equals the generator's output for the committed contract.
+
+## Icon-only buttons
+
+There is no icon-only variant, because none is needed: a Button holding only an
+icon is one. Give it its name with `aria-label`, and mark the icon
+`aria-hidden="true"`. The optical inset that evens out an icon beside a label
+applies only when there is a `primitiv-button__label` span, so an icon on its own
+keeps even padding on both sides.
+
+```tsx
+<Button variant="ghost" aria-label="Settings">
+  <Settings aria-hidden="true" />
+</Button>
+```
+
+```html
+<button type="button" class="primitiv-button primitiv-button--ghost primitiv-button--md" aria-label="Settings">
+  <!-- Insert your SVG icon here: settings -->
+</button>
+```

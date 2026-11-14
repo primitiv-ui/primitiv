@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Plus } from "@primitiv-ui/icons";
+import { ArrowRight, Close, Plus, Settings } from "@primitiv-ui/icons";
 
 import { Button } from "@/components/button";
 import { contractAttr, contractNote, importBlock, indent, markup } from "@/lib/playground";
@@ -54,7 +54,7 @@ const wrap = (density: string, blocks: readonly string[]) =>
  * Button's page content.
  *
  * The example set mirrors the Figma "Component page — Button (desktop)" frame:
- * Variants, Sizes, With icons, As a link (asChild), Disabled.
+ * Variants, Sizes, With icons, Icon only, As a link (asChild), Disabled.
  */
 export const buttonSpec: ComponentSpec = {
   playground: {
@@ -191,6 +191,53 @@ export const buttonSpec: ComponentSpec = {
               <Button variant="secondary">
                 Continue
                 <ArrowRight />
+              </Button>
+            </>
+          )}
+        </InteractiveExample>
+      ),
+    },
+    {
+      id: "icon-only",
+      title: "Icon only",
+      render: () => (
+        <InteractiveExample
+          elementsPreview={(_density, code) => withGlyphs(code)}
+          elementsCaption={
+            "An icon-only button is a Button with only an `<svg>` inside: no variant and no extra class. The icon is `aria-hidden`, so the button needs its name from `aria-label`. With nothing beside the icon, the padding stays even on both sides."
+          }
+          caption="An icon-only button is a Button with only an icon inside: no variant and no extra prop. The icon is decorative, so the button needs its name from `aria-label`."
+          code={(_density, mode) =>
+            mode === "elements"
+              ? [
+                  `<button type="button" class="primitiv-button primitiv-button--ghost primitiv-button--md" aria-label="Settings">`,
+                  `  <svg aria-hidden="true"><!-- settings glyph --></svg>`,
+                  `</button>`,
+                  ``,
+                  `<button type="button" class="primitiv-button primitiv-button--secondary primitiv-button--md" aria-label="Close">`,
+                  `  <svg aria-hidden="true"><!-- close glyph --></svg>`,
+                  `</button>`,
+                ].join("\n")
+              : [
+                  imports(mode, ["Close", "Settings"]),
+                  ``,
+                  `<Button${contractAttr({ mode, prop: "variant", value: "ghost" })} aria-label="Settings">`,
+                  `  <Settings aria-hidden="true" />`,
+                  `</Button>`,
+                  ``,
+                  `<Button${contractAttr({ mode, prop: "variant", value: "secondary" })} aria-label="Close">`,
+                  `  <Close aria-hidden="true" />`,
+                  `</Button>`,
+                ].join("\n")
+          }
+        >
+          {() => (
+            <>
+              <Button variant="ghost" aria-label="Settings">
+                <Settings aria-hidden="true" />
+              </Button>
+              <Button variant="secondary" aria-label="Close">
+                <Close aria-hidden="true" />
               </Button>
             </>
           )}

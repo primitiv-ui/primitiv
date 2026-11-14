@@ -48,7 +48,7 @@ runNavigationMenuConformance(
     });
     return {
       cleanup: () => unmount(),
-      wait: (ms) => act(() => new Promise((resolve) => setTimeout(resolve, ms))),
+      wait: (ms) => act(() => new Promise<void>((resolve) => setTimeout(resolve, ms))),
     };
   },
 );

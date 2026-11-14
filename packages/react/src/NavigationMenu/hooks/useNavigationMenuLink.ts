@@ -28,7 +28,7 @@ export function useNavigationMenuLink({
   handleClick: (event: MouseEvent<HTMLAnchorElement>) => void;
   handlePointerEnter: (event: PointerEvent<HTMLAnchorElement>) => void;
 } {
-  const { setOpenValue, cancelOpen, openOnHover } = useNavigationMenuContext();
+  const { controller } = useNavigationMenuContext();
   // A link directly inside an Item is a top-level entry and joins the
   // arrow-key travel order; a link inside a Content panel is reached by Tab
   // instead, so it must stay out of that order.
@@ -46,10 +46,7 @@ export function useNavigationMenuLink({
   // avoids.
   const handleClick = composeEventHandlers<MouseEvent<HTMLAnchorElement>>(
     onClick,
-    () => {
-      cancelOpen();
-      setOpenValue("");
-    },
+    () => controller.dismiss(),
   );
 
   // Hovering a top-level link dismisses whatever is open, so travelling along the
@@ -63,9 +60,7 @@ export function useNavigationMenuLink({
   const handlePointerEnter = composeEventHandlers<
     PointerEvent<HTMLAnchorElement>
   >(onPointerEnter, () => {
-    if (insidePanel || !openOnHover) return;
-    cancelOpen();
-    setOpenValue("");
+    if (!insidePanel) controller.linkHover();
   });
 
   return { linkRef, handleKeyDown, handleClick, handlePointerEnter };

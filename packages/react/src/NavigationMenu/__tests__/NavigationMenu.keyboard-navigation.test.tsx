@@ -123,4 +123,76 @@ describe("NavigationMenu — keyboard navigation", () => {
 
     expect(screen.getByRole("link", { name: "Changelog" })).toHaveFocus();
   });
+
+  it("jumps Home to the first entry in DOM order, even one that mounted last", async () => {
+    function LateHome() {
+      const [home, setHome] = useState(false);
+      return (
+        <>
+          <NavigationMenu.Root>
+            <NavigationMenu.List>
+              {home && (
+                <NavigationMenu.Item>
+                  <NavigationMenu.Link href="#home">Home</NavigationMenu.Link>
+                </NavigationMenu.Item>
+              )}
+              <NavigationMenu.Item>
+                <NavigationMenu.Link href="#docs">Docs</NavigationMenu.Link>
+              </NavigationMenu.Item>
+            </NavigationMenu.List>
+          </NavigationMenu.Root>
+          <button type="button" onClick={() => setHome(true)}>
+            Add home
+          </button>
+        </>
+      );
+    }
+    const user = userEvent.setup();
+    render(<LateHome />);
+    await user.click(screen.getByRole("button", { name: "Add home" }));
+
+    screen.getByRole("link", { name: "Docs" }).focus();
+    await user.keyboard("{Home}");
+
+    expect(screen.getByRole("link", { name: "Home" })).toHaveFocus();
+  });
+
+  it("leaves an entry that unmounted out of the travel order", async () => {
+    function Shrinking() {
+      const [blog, setBlog] = useState(true);
+      return (
+        <>
+          <NavigationMenu.Root>
+            <NavigationMenu.List>
+              <NavigationMenu.Item>
+                <NavigationMenu.Link href="#docs">Docs</NavigationMenu.Link>
+              </NavigationMenu.Item>
+              {blog && (
+                <NavigationMenu.Item>
+                  <NavigationMenu.Link href="#blog">Blog</NavigationMenu.Link>
+                </NavigationMenu.Item>
+              )}
+              <NavigationMenu.Item>
+                <NavigationMenu.Link href="#pricing">Pricing</NavigationMenu.Link>
+              </NavigationMenu.Item>
+            </NavigationMenu.List>
+          </NavigationMenu.Root>
+          <button type="button" onClick={() => setBlog(false)}>
+            Remove blog
+          </button>
+        </>
+      );
+    }
+    const user = userEvent.setup();
+    render(<Shrinking />);
+    await user.click(screen.getByRole("button", { name: "Remove blog" }));
+
+    screen.getByRole("link", { name: "Docs" }).focus();
+    await user.keyboard("{ArrowLeft}");
+    const wrappedBack = document.activeElement;
+    await user.keyboard("{ArrowRight}");
+
+    expect(wrappedBack).toBe(screen.getByRole("link", { name: "Pricing" }));
+    expect(screen.getByRole("link", { name: "Docs" })).toHaveFocus();
+  });
 });

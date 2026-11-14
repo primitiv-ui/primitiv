@@ -1,5 +1,7 @@
-import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import type { CSSProperties, FocusEvent, KeyboardEvent } from "react";
+
+import { NavigationMenuController } from "@primitiv-ui/web";
 
 import { useCollection, useControllableState } from "../../hooks/index.ts";
 
@@ -71,11 +73,10 @@ export function useNavigationMenuRoot({
     setTrackedValue(openValue);
   }
 
-  const {
-    register: registerEntry,
-    itemsRef: entriesRef,
-    keys: entryKeys,
-  } = useCollection<string, HTMLElement>();
+  const { register: registerEntry, itemsRef: entriesRef } = useCollection<
+    string,
+    HTMLElement
+  >();
 
   // A second registry, keyed by the Item's own `value`. The entry registry above
   // can't serve this: it keys by a generated id because plain link entries join it
@@ -109,20 +110,6 @@ export function useNavigationMenuRoot({
     [registeredValues, itemElementsRef],
   );
 
-  const focusEntry = useCallback(
-    (key: string) => {
-      // `key` only ever arrives from `entryKeys`, and `useCollection`'s
-      // register() writes `entriesRef` and the `keys` state in the same call —
-      // so a key that reaches here always has a live element in the map.
-      // Stryker disable next-line OptionalChaining: unreachable given that invariant.
-      entriesRef.current.get(key)?.focus();
-    },
-    // `entriesRef` is a stable RefObject, so emptying this array yields the
-    // identical memoised function.
-    // Stryker disable next-line ArrayDeclaration: equivalent — stable dependency.
-    [entriesRef],
-  );
-
   // Held as state, not a ref, because Content has to re-render once the
   // viewport exists in order to portal into it. The Viewport hands its element
   // over in a ref callback, which React runs before paint — so the one commit
@@ -131,108 +118,57 @@ export function useNavigationMenuRoot({
   // identity, so wrapping it would only add indirection.
   const [viewport, setViewport] = useState<HTMLDivElement | null>(null);
 
-  // `undefined` rather than `null` for "no timer pending", because
-  // `clearTimeout(undefined)` is a spec'd no-op — cancelling is then one
-  // unconditional clear instead of a guarded one, with nothing to get wrong.
-  const openTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(
-    undefined,
-  );
-  const closeTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(
-    undefined,
-  );
+  // ── The adapter (RFC 0033 §3.4, D28) ────────────────────────────────────
+  // Click-to-toggle, hover intent, the travel and enter-panel keys, Escape and
+  // focus leaving run in the web implementation's NavigationMenuController,
+  // the same code the <primitiv-navigation-menu> elements run. React keeps
+  // wiring each part's events, composed with its consumers' handlers as
+  // before, and keeps the state; the controller reads it through `latest`.
+  const snapshot = {
+    openValue,
+    orientation,
+    dir,
+    openOnHover,
+    delayDuration,
+    closeDelay,
+    setOpenValue,
+  };
+  const latest = useRef(snapshot);
+  latest.current = snapshot;
+  const controllerRef = useRef<NavigationMenuController | null>(null);
+  controllerRef.current ??= new NavigationMenuController({
+    state: () => ({
+      value: latest.current.openValue,
+      orientation: latest.current.orientation,
+      dir: latest.current.dir,
+      openOnHover: latest.current.openOnHover,
+      delay: latest.current.delayDuration,
+      closeDelay: latest.current.closeDelay,
+    }),
+    change: (next) => latest.current.setOpenValue(next),
+    trigger: (entry) =>
+      document.getElementById(getTriggerAndPanelIds(navigationMenuId, entry).triggerId),
+    panel: (entry) =>
+      document.getElementById(getTriggerAndPanelIds(navigationMenuId, entry).panelId),
+    // `useCollection` keys follow registration, not the layout, so ask the DOM.
+    entries: () =>
+      [...entriesRef.current.values()].sort((a, b) =>
+        a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1,
+      ),
+  });
+  const controller = controllerRef.current;
 
-  // `openValue` is read inside callbacks that must not be re-created on every
-  // open/close — a fresh `openWithIntent` identity would re-run the Trigger's
-  // handlers. A ref keeps the reads current without widening the deps.
-  const openValueRef = useRef(openValue);
-  openValueRef.current = openValue;
+  // The enter-panel arrow can only focus into a panel once it has rendered
+  // unhidden, so the controller spends that intent here, after the commit.
+  useEffect(() => {
+    controller.sync();
+  }, [controller, openValue]);
 
-  const cancelOpen = useCallback(
-    () => {
-      clearTimeout(openTimerRef.current);
-      openTimerRef.current = undefined;
-    },
-    // Stryker's only mutation of an empty dependency array is
-    // `["Stryker was here"]` — a string literal React compares `===`-equal on
-    // every render, so the memoised identity is unchanged either way.
-    // Stryker disable next-line ArrayDeclaration: equivalent — no dependency to freeze.
-    [],
-  );
-
-  const cancelClose = useCallback(
-    () => {
-      clearTimeout(closeTimerRef.current);
-      closeTimerRef.current = undefined;
-    },
-    // Stryker disable next-line ArrayDeclaration: equivalent — no dependency to freeze (see cancelOpen).
-    [],
-  );
-
-  const openWithIntent = useCallback(
-    (next: string) => {
-      cancelClose();
-      cancelOpen();
-      // Once one panel is open the nav is already "active", so crossing to a
-      // sibling trigger swaps panels instantly — waiting again would feel
-      // broken. The delay only guards the first open.
-      if (openValueRef.current !== "" || delayDuration === 0) {
-        setOpenValue(next);
-        return;
-      }
-      openTimerRef.current = setTimeout(() => {
-        openTimerRef.current = undefined;
-        setOpenValue(next);
-      }, delayDuration);
-    },
-    [cancelClose, cancelOpen, delayDuration, setOpenValue],
-  );
-
-  // Escape is handled once, at the `<nav>`, because it must work from anywhere
-  // inside the menu — including from a link deep in an open panel — and
-  // returning focus to the trigger is what stops the user being stranded on an
-  // element that just went `hidden`.
-  const closeAndRefocusTrigger = useCallback(() => {
-    const value = openValueRef.current;
-    if (value === "") return;
-    cancelOpen();
-    const { triggerId } = getTriggerAndPanelIds(navigationMenuId, value);
-    document.getElementById(triggerId)?.focus();
-    setOpenValue("");
-  }, [cancelOpen, navigationMenuId, setOpenValue]);
-
-  const closeWithDelay = useCallback(() => {
-    cancelOpen();
-    closeTimerRef.current = setTimeout(() => {
-      closeTimerRef.current = undefined;
-      setOpenValue("");
-    }, closeDelay);
-  }, [cancelOpen, closeDelay, setOpenValue]);
-
-  // Keyboard focus leaving the `<nav>` entirely — Tab past the last entry, or
-  // into an unrelated element such as a second, independent NavigationMenu —
-  // means the open panel is no longer where focus is. Unlike Escape this
-  // doesn't refocus the trigger: focus already chose where it's going, and
-  // fighting that would break Tab order. `relatedTarget` is `null` for some
-  // focus transitions (e.g. the browser chrome); treated as "outside", the
-  // same call Carousel's own blur handler makes.
-  const closeOnFocusOutside = useCallback((event: FocusEvent<HTMLElement>) => {
-    if (openValueRef.current === "") return;
-    const next = event.relatedTarget;
-    if (next && event.currentTarget.contains(next)) return;
-    cancelOpen();
-    setOpenValue("");
-  }, [cancelOpen, setOpenValue]);
-
+  // Its timers are raw `setTimeout`s: cancel them as the nav unmounts.
   useEffect(
-    () => () => {
-      cancelOpen();
-      cancelClose();
-    },
-    // Both are `useCallback(..., [])`, so their identities are fixed for the
-    // component's lifetime: emptying this array subscribes the cleanup exactly
-    // once either way.
-    // Stryker disable next-line ArrayDeclaration: equivalent — stable dependencies.
-    [cancelOpen, cancelClose],
+    () => () => controller.disconnect(),
+    // Stryker disable next-line ArrayDeclaration: equivalent — the controller is created once, so any constant dependency list runs this once per mount.
+    [],
   );
 
   const contextValue = useMemo<NavigationMenuContextValue>(
@@ -244,13 +180,10 @@ export function useNavigationMenuRoot({
       previousValue,
       setOpenValue,
       openOnHover,
-      openWithIntent,
-      cancelOpen,
+      controller,
       registerEntry,
-      entryKeys,
       registerItem,
       itemValues,
-      focusEntry,
       viewport,
       registerViewport: setViewport,
     }),
@@ -262,23 +195,12 @@ export function useNavigationMenuRoot({
       previousValue,
       setOpenValue,
       openOnHover,
-      openWithIntent,
-      cancelOpen,
+      controller,
       registerEntry,
-      entryKeys,
       registerItem,
       itemValues,
-      focusEntry,
       viewport,
     ],
-  );
-
-  const handleKeyDown = useCallback(
-    (event: KeyboardEvent<HTMLElement>) => {
-      if (event.key !== "Escape") return;
-      closeAndRefocusTrigger();
-    },
-    [closeAndRefocusTrigger],
   );
 
   const style = {
@@ -292,10 +214,11 @@ export function useNavigationMenuRoot({
 
   return {
     contextValue,
-    cancelClose,
-    closeWithDelay,
-    closeOnFocusOutside,
-    handleKeyDown,
+    cancelClose: () => controller.holdOpen(),
+    closeWithDelay: () => controller.leave(),
+    closeOnFocusOutside: (event) =>
+      controller.focusOut(event.currentTarget, event.relatedTarget),
+    handleKeyDown: (event) => controller.escape(event.nativeEvent),
     style,
   };
 }

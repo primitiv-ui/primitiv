@@ -1,4 +1,4 @@
-import { deriveId } from "../utils/index.ts";
+import { navigationMenuIds, navigationMenuPanelMotion } from "@primitiv-ui/core";
 
 /** Derives the paired trigger / panel ids for one entry, so `aria-controls`
  * and `aria-labelledby` line up without either side constructing the
@@ -7,10 +7,7 @@ export function getTriggerAndPanelIds(
   navigationMenuId: string,
   value: string,
 ): { triggerId: string; panelId: string } {
-  return {
-    triggerId: deriveId(navigationMenuId, "trigger", value),
-    panelId: deriveId(navigationMenuId, "panel", value),
-  };
+  return navigationMenuIds(navigationMenuId, value);
 }
 
 /** Turns an id into a CSS `<custom-ident>`-safe fragment for use inside an
@@ -59,31 +56,5 @@ export function getPanelMotion({
   previousValue: string;
   itemValues: readonly string[];
 }): NavigationMenuPanelMotion | undefined {
-  const opening = value === openValue;
-  const closing = value === previousValue;
-  // A panel that is neither the current nor the outgoing one is a bystander.
-  if (!opening && !closing) return undefined;
-
-  // No `value !== ""` guard: the empty string is never a registered entry, so the
-  // lookup below rejects it on the same path as any other unknown value.
-  const selfIndex = itemValues.indexOf(value);
-  if (selfIndex === -1) return undefined;
-
-  if (opening) {
-    const fromIndex = itemValues.indexOf(previousValue);
-    if (fromIndex === -1) return undefined;
-    // Travelling toward the end means the new panel arrives from the end side.
-    // The two indices can only be equal if previousValue === openValue, and Root
-    // records a previous value only when the open value *changes* — so `<` and `<=`
-    // agree on every input that can actually reach here.
-    // Stryker disable next-line EqualityOperator: equivalent — see above.
-    return fromIndex < selfIndex ? "from-end" : "from-start";
-  }
-
-  const toIndex = itemValues.indexOf(openValue);
-  if (toIndex === -1) return undefined;
-  // The outgoing panel leaves opposite the direction of travel. Equal indices are
-  // unreachable for the same reason as the entering branch above.
-  // Stryker disable next-line EqualityOperator: equivalent — see above.
-  return toIndex > selfIndex ? "to-start" : "to-end";
+  return navigationMenuPanelMotion({ value, openValue, previousValue, values: itemValues });
 }

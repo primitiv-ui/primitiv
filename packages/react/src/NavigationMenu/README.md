@@ -144,12 +144,21 @@ as expected.
 | `ArrowDown` (horizontal), `ArrowRight`/`ArrowLeft` (vertical) | Open the panel and move focus to its first link |
 | `Escape` | Close the open panel and return focus to its trigger |
 
-Movement **wraps** at the ends.
+Movement **wraps** at the ends, and follows the entries' **DOM order** — an
+entry that mounts later (a conditionally rendered link) takes its place in the
+layout, not at the end.
 
 **Not a roving tabindex.** Every top-level entry keeps `tabIndex` untouched and
 stays in the tab order — a keyboard user must be able to Tab through page links
-without discovering that arrow keys are required. `useRovingTabindex` is used
-internally for its orientation/RTL-aware keymap only.
+without discovering that arrow keys are required. The orientation/RTL-aware
+keymap is `@primitiv-ui/core`'s, and it only ever moves focus.
+
+**One behaviour, two surfaces.** Click-to-toggle, hover intent, the travel and
+enter-panel keys, Escape and focus leaving run in `@primitiv-ui/web`'s
+`NavigationMenuController` — the same code the `<primitiv-navigation-menu>`
+custom elements run (RFC 0033 §3.4). Each part still composes your handler
+first, so calling `event.preventDefault()` in an `onClick`, `onPointerEnter`,
+`onPointerLeave` or `onKeyDown` skips the built-in behaviour as before.
 
 **Panel links are not top-level entries.** A `Link` inside a `Content` is
 reached by Tab and is excluded from the top-level arrow order, so `Home`/`End`

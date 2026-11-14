@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
+
+import { navigationMenuIndicatorGeometry } from "@primitiv-ui/core";
 import type { CSSProperties } from "react";
 
 import { useNavigationMenuContext } from "../NavigationMenuContext";
@@ -36,11 +38,7 @@ export function useNavigationMenuIndicator(): {
       setGeometry(null);
       return;
     }
-    setGeometry(
-      orientation === "horizontal"
-        ? { position: trigger.offsetLeft, size: trigger.offsetWidth }
-        : { position: trigger.offsetTop, size: trigger.offsetHeight },
-    );
+    setGeometry(navigationMenuIndicatorGeometry(orientation, trigger));
   }, [navigationMenuId, openValue, orientation]);
 
   useEffect(() => {

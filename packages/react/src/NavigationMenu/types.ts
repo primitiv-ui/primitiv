@@ -1,3 +1,4 @@
+import type { NavigationMenuController } from "@primitiv-ui/web";
 import { ComponentProps, Ref } from "react";
 
 /** Layout axis of the navigation list. `"horizontal"` binds
@@ -221,31 +222,26 @@ export type NavigationMenuContextValue = {
   navigationMenuId: string;
   openValue: string;
   /** The entry that was open immediately before {@link openValue}, or `""` when
-   * the menu was closed. Together with `entryKeys` this is what lets a panel
+   * the menu was closed. Together with `itemValues` this is what lets a panel
    * derive its travel direction; see `getPanelMotion`. */
   previousValue: string;
   setOpenValue: (next: string) => void;
   openOnHover: boolean;
-  /** Opens `value` after the hover-intent delay, or immediately when another
-   * panel is already open. */
-  openWithIntent: (value: string) => void;
-  /** Abandons a hover-intent open that hasn't fired yet. */
-  cancelOpen: () => void;
+  /** The shared `@primitiv-ui/web` controller that owns the behaviour — hover
+   * intent, toggling, the travel and enter-panel keys — which each part's
+   * handlers call into. */
+  controller: NavigationMenuController;
   /** Adds (or, with `null`, removes) a top-level entry's element from the
    * registry that arrow-key navigation walks. */
   registerEntry: (key: string, element: HTMLElement | null) => void;
-  /** Registry keys in DOM order — the arrow-key travel order. */
-  entryKeys: string[];
   /** Adds (or, with `null`, removes) a disclosure entry's `<li>` from the
    * value-keyed registry. */
   registerItem: (value: string, element: HTMLLIElement | null) => void;
   /** The disclosure entries' `value`s in DOM order. Distinct from
-   * {@link NavigationMenuContextValue.entryKeys | `entryKeys`}, which is keyed by
-   * generated id so plain link entries can join it — this one is what a panel
+   * the entry registry, which is keyed by generated id so plain link entries can
+   * join it — this one is what a panel
    * uses to work out which direction the open entry moved. */
   itemValues: string[];
-  /** Moves DOM focus to a registered top-level entry. */
-  focusEntry: (key: string) => void;
   /** The mounted `NavigationMenu.Viewport` element, or `null` when the nav
    * doesn't use one. Panels project into it when it exists. */
   viewport: HTMLDivElement | null;

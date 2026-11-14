@@ -7,6 +7,7 @@ import { collapsibleHtml } from "./collapsible-fixture.ts";
 import { modalHtml } from "./modal-fixture.ts";
 import { contextMenuHtml } from "./context-menu-fixture.ts";
 import { dropdownHtml } from "./dropdown-fixture.ts";
+import { navigationMenuHtml } from "./navigation-menu-fixture.ts";
 import { popoverHtml } from "./popover-fixture.ts";
 import { tooltipHtml } from "./tooltip-fixture.ts";
 import { tabsHtml } from "./fixture.ts";
@@ -28,6 +29,7 @@ let collapsibleLazyLoads = 0;
 let collapsibleEchoes = 0;
 let modalEchoes = 0;
 let popoverEchoes = 0;
+let navigationMenuEchoes = 0;
 let tooltipEchoes = 0;
 let dropdownEchoes = 0;
 let contextMenuEchoes = 0;
@@ -100,6 +102,15 @@ export const fragments: Record<string, string | ((url: string) => string)> = {
     `<span data-testid="echo">server saw ${new URL(url, "http://lab").searchParams.get("value")} (${++accordionEchoes})</span>`,
   "accordion-rtl": `<div dir="rtl">${accordionHtml({ value: "", orientation: "horizontal" }, "rtl")}</div>`,
 
+  // The Navigation Menu page's cases (navigation-menu-htmx.html), named to match.
+  "navigation-menu": navigationMenuHtml({ value: "docs" }, "swapped", { attrs: ' open-on-hover="false"' }),
+  "navigation-menu-nested": navigationMenuHtml({}, "inner", { label: "Inner", attrs: ' open-on-hover="false" aria-label="Inner"' }),
+  "navigation-menu-oob-panel":
+    '<div hx-swap-oob="beforeend:#oob-viewport"><primitiv-navigation-menu-content value="docs" hidden><primitiv-navigation-menu-link><a href="#oob">Out-of-band link</a></primitiv-navigation-menu-link></primitiv-navigation-menu-content></div>',
+  "navigation-menu-oob-open": `<div hx-swap-oob="outerHTML:#rerendered">${navigationMenuHtml({ value: "blog" }, "rerendered", { attrs: ' open-on-hover="false"' })}</div>`,
+  "navigation-menu-preserve": `<div id="preserve-region"><p>Swapped region</p>${navigationMenuHtml({}, "preserved", { attrs: ' hx-preserve="true" open-on-hover="false"' })}</div>`,
+  "navigation-menu-echo": (url: string) =>
+    `<span data-testid="echo">server saw ${new URL(url, "http://lab").searchParams.get("value")} (${++navigationMenuEchoes})</span>`,
   // The Collapsible page's cases (collapsible-htmx.html), named to match.
   collapsible: collapsibleHtml({ open: true }, "swapped"),
   "collapsible-nested": collapsibleHtml({}, "inner", { label: "Inner", panel: "Inner panel" }),

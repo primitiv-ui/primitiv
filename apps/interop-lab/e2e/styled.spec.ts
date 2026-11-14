@@ -703,3 +703,44 @@ test("the printed combobox opens its list anchored under the control, and commit
   await expect(list.getByRole("option")).toHaveCount(0);
   await expect(list.getByText("No matches")).toBeVisible();
 });
+
+test("add navigation-menu printed the per-component script for its first release", () => {
+  const output = readFileSync("styled-site/add-navigation-menu-output.txt", "utf8");
+  expect(output).toMatch(/@primitiv-ui\/web@[\d.]+\/dist\/cdn\/navigation-menu\.js/);
+});
+
+test("the printed navigation menu is a block landmark whose wrappers take no box", async ({ page }) => {
+  const nav = page.getByRole("navigation", { name: "Main" });
+  await expect(nav).toHaveCSS("display", "block");
+  await expect(page.locator("primitiv-navigation-menu-trigger").first()).toHaveCSS("display", "contents");
+  await expect(page.locator("primitiv-navigation-menu-link").first()).toHaveCSS("display", "contents");
+  // Before anything opens, the force-mounted viewport and indicator are invisible and let clicks through.
+  await expect(page.locator(".primitiv-navigation-menu__viewport")).toHaveCSS("opacity", "0");
+  await expect(page.locator(".primitiv-navigation-menu__viewport")).toHaveCSS("pointer-events", "none");
+});
+
+test("the printed navigation menu opens its panel anchored under the open trigger, the arrow pointing at it", async ({ page }) => {
+  const nav = page.getByRole("navigation", { name: "Main" });
+  await nav.scrollIntoViewIfNeeded();
+  const viewport = page.locator(".primitiv-navigation-menu__viewport");
+  const arrow = page.locator(".primitiv-navigation-menu__indicator");
+  for (const name of ["Concepts", "Resources"]) {
+    const trigger = nav.getByRole("button", { name, exact: true });
+    await trigger.click();
+    await expect(viewport).toHaveCSS("opacity", "1");
+    const geometry = async () => {
+      const [t, v, a] = await Promise.all([trigger.boundingBox(), viewport.boundingBox(), arrow.boundingBox()]);
+      const centre = t!.x + t!.width / 2;
+      return {
+        below: v!.y >= t!.y + t!.height,
+        under: v!.x <= centre && centre <= v!.x + v!.width,
+        arrowAtTrigger: Math.abs(a!.x + a!.width / 2 - centre) < 2,
+      };
+    };
+    await expect.poll(geometry).toEqual({ below: true, under: true, arrowAtTrigger: true });
+  }
+  await expect(nav.getByRole("link", { name: /GitHub/ })).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(viewport).toHaveCSS("opacity", "0");
+});
+

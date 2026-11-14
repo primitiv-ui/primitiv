@@ -49,6 +49,7 @@ export default defineConfig({
       { find: /^@primitiv-ui\/web\/define\/context-menu$/, replacement: workspace("web/src/define/context-menu.ts") },
       { find: /^@primitiv-ui\/web\/define\/dropdown$/, replacement: workspace("web/src/define/dropdown.ts") },
       { find: /^@primitiv-ui\/web\/define\/popover$/, replacement: workspace("web/src/define/popover.ts") },
+      { find: /^@primitiv-ui\/web\/define\/navigation-menu$/, replacement: workspace("web/src/define/navigation-menu.ts") },
       { find: /^@primitiv-ui\/web\/define\/tooltip$/, replacement: workspace("web/src/define/tooltip.ts") },
       { find: /^@primitiv-ui\/web\/define\/radio-card$/, replacement: workspace("web/src/define/radio-card.ts") },
       { find: /^@primitiv-ui\/web\/define\/checkbox-card$/, replacement: workspace("web/src/define/checkbox-card.ts") },

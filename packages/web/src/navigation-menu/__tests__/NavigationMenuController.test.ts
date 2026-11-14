@@ -301,4 +301,237 @@ describe("NavigationMenuController", () => {
       expect(leavingHost.changes).toEqual([]);
     });
   });
+
+  describe("keyboard", () => {
+    const key = (k: string) => new KeyboardEvent("keydown", { key: k, cancelable: true });
+    const el = (id: string) => document.getElementById(id) as HTMLElement;
+
+    it("travels the top-level entries with the arrows and claims the key", () => {
+      // Arrange
+      const host = hostWith();
+      const controller = new NavigationMenuController(host);
+      const event = key("ArrowRight");
+
+      // Act
+      controller.travel(el("blog"), event);
+
+      // Assert
+      expect(document.activeElement).toBe(el("pricing"));
+      expect(event.defaultPrevented).toBe(true);
+    });
+
+    it("reads the axis and direction live", () => {
+      // Arrange
+      const host = hostWith("", { orientation: "vertical" });
+      const controller = new NavigationMenuController(host);
+
+      // Act
+      controller.travel(el("docs"), key("ArrowUp"));
+
+      // Assert
+      expect(document.activeElement).toBe(el("pricing"));
+    });
+
+    it("mirrors under RTL", () => {
+      // Arrange
+      const host = hostWith("", { dir: "rtl" });
+      const controller = new NavigationMenuController(host);
+
+      // Act
+      controller.travel(el("docs"), key("ArrowLeft"));
+
+      // Assert
+      expect(document.activeElement).toBe(el("blog"));
+    });
+
+    it("leaves a key it does not travel with alone", () => {
+      // Arrange
+      const host = hostWith();
+      const controller = new NavigationMenuController(host);
+      el("docs").focus();
+      const event = key("Enter");
+
+      // Act
+      controller.travel(el("docs"), event);
+
+      // Assert
+      expect(document.activeElement).toBe(el("docs"));
+      expect(event.defaultPrevented).toBe(false);
+    });
+
+    it("opens a closed panel with the enter-panel arrow, and focuses it once the host syncs", () => {
+      // Arrange
+      const host = hostWith();
+      const controller = new NavigationMenuController(host);
+      el("docs").focus();
+      const event = key("ArrowDown");
+
+      // Act
+      controller.triggerKeydown("docs", el("docs"), event);
+      const before = document.activeElement;
+      controller.sync();
+
+      // Assert
+      expect(event.defaultPrevented).toBe(true);
+      expect(host.changes).toEqual(["docs"]);
+      expect(before).toBe(el("docs"));
+      expect(document.activeElement?.textContent).toBe("Guides");
+    });
+
+    it("spends the pending focus only once the entry is open", () => {
+      // Arrange
+      const host = hostWith();
+      const controller = new NavigationMenuController(host);
+      host.change = (next) => host.changes.push(next);
+      el("docs").focus();
+
+      // Act
+      controller.triggerKeydown("docs", el("docs"), key("ArrowDown"));
+      controller.sync();
+      const vetoed = document.activeElement;
+      host.current = { ...host.current, value: "docs" };
+      controller.sync();
+
+      // Assert
+      expect(vetoed).toBe(el("docs"));
+      expect(document.activeElement?.textContent).toBe("Guides");
+    });
+
+    it("spends the pending focus once, so a later sync does not steal focus back", () => {
+      // Arrange
+      const host = hostWith();
+      const controller = new NavigationMenuController(host);
+      controller.triggerKeydown("docs", el("docs"), key("ArrowDown"));
+      controller.sync();
+      el("pricing").focus();
+
+      // Act
+      controller.sync();
+
+      // Assert
+      expect(document.activeElement).toBe(el("pricing"));
+    });
+
+    it("moves straight into an already-open panel", () => {
+      // Arrange
+      const host = hostWith("docs");
+      const controller = new NavigationMenuController(host);
+
+      // Act
+      controller.triggerKeydown("docs", el("docs"), key("ArrowDown"));
+
+      // Assert
+      expect(host.changes).toEqual([]);
+      expect(document.activeElement?.textContent).toBe("Guides");
+    });
+
+    it("cancels a pending hover open as the keyboard enters a panel", () => {
+      // Arrange
+      vi.useFakeTimers();
+      const host = hostWith();
+      const controller = new NavigationMenuController(host);
+      controller.triggerPointerEnter("blog");
+
+      // Act
+      controller.triggerKeydown("docs", el("docs"), key("ArrowDown"));
+      vi.advanceTimersByTime(500);
+
+      // Assert
+      expect(host.changes).toEqual(["docs"]);
+    });
+
+    it("leaves focus where it is when an open panel has nothing to focus", () => {
+      // Arrange
+      const host = hostWith("blog");
+      const controller = new NavigationMenuController(host);
+      el("blog").focus();
+
+      // Act
+      controller.triggerKeydown("blog", el("blog"), key("ArrowDown"));
+
+      // Assert
+      expect(document.activeElement).toBe(el("blog"));
+    });
+
+    it("travels from a trigger with the keys that do not enter its panel", () => {
+      // Arrange
+      const host = hostWith();
+      const controller = new NavigationMenuController(host);
+
+      // Act
+      controller.triggerKeydown("docs", el("docs"), key("ArrowRight"));
+
+      // Assert
+      expect(host.changes).toEqual([]);
+      expect(document.activeElement).toBe(el("blog"));
+    });
+
+    it("closes with Escape and hands focus back to the open entry's trigger", () => {
+      // Arrange
+      const host = hostWith("docs");
+      const controller = new NavigationMenuController(host);
+      el("pricing").focus();
+
+      // Act
+      controller.rootKeydown(key("Escape"));
+
+      // Assert
+      expect(host.changes).toEqual([""]);
+      expect(document.activeElement).toBe(el("docs"));
+    });
+
+    it.each([
+      ["nothing is open", "", "Escape"],
+      ["the key is not Escape", "docs", "Enter"],
+    ])("ignores the root's keys when %s", (_case, value, k) => {
+      // Arrange
+      const host = hostWith(value);
+      const controller = new NavigationMenuController(host);
+
+      // Act
+      controller.rootKeydown(key(k));
+
+      // Assert
+      expect(host.changes).toEqual([]);
+    });
+
+    it("closes when focus leaves the nav, without moving it", () => {
+      // Arrange
+      const host = hostWith("docs");
+      const controller = new NavigationMenuController(host);
+
+      // Act
+      controller.focusOut(el("docs").parentElement as HTMLElement, el("outside"));
+
+      // Assert
+      expect(host.changes).toEqual([""]);
+    });
+
+    it("closes when focus leaves for nowhere", () => {
+      // Arrange
+      const host = hostWith("docs");
+      const controller = new NavigationMenuController(host);
+
+      // Act
+      controller.focusOut(el("docs").parentElement as HTMLElement, null);
+
+      // Assert
+      expect(host.changes).toEqual([""]);
+    });
+
+    it.each([
+      ["focus moves within the nav", "docs", "pricing"],
+      ["nothing is open", "", "outside"],
+    ])("stays as it is when %s", (_case, value, next) => {
+      // Arrange
+      const host = hostWith(value);
+      const controller = new NavigationMenuController(host);
+
+      // Act
+      controller.focusOut(el("docs").parentElement as HTMLElement, el(next));
+
+      // Assert
+      expect(host.changes).toEqual([]);
+    });
+  });
 });

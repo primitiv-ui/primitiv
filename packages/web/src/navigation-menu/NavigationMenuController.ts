@@ -1,4 +1,7 @@
 import {
+  NAVIGATION_MENU_PANEL_FOCUSABLE,
+  navigationMenuEntersPanel,
+  navigationMenuKeydown,
   navigationMenuOpenDelay,
   navigationMenuToggle,
   type NavigationMenuOrientation,
@@ -52,6 +55,8 @@ export class NavigationMenuController {
   readonly #host: NavigationMenuControllerHost;
   #opening: ReturnType<typeof setTimeout> | undefined;
   #closing: ReturnType<typeof setTimeout> | undefined;
+  /** The entry the enter-panel arrow opened, whose panel takes focus once it shows. */
+  #entering: string | null = null;
   /** The trigger the pointer is over, and whether its entry was open as it arrived. */
   #arrival: { value: string; open: boolean } | null = null;
 
@@ -96,6 +101,65 @@ export class NavigationMenuController {
       this.#closing = undefined;
       this.#host.change("");
     }, this.#host.state().closeDelay);
+  }
+
+  /**
+   * A key press on the top-level `entry`: the arrows travel the bar (wrapping,
+   * mirrored under RTL) and Home / End jump to its ends. Focus only — no tab
+   * stop is roved, so every entry stays in the Tab order.
+   */
+  travel(entry: HTMLElement, event: KeyboardEvent): void {
+    const { orientation, dir } = this.#host.state();
+    const outcome = navigationMenuKeydown({ entries: this.#host.entries(), orientation, dir }, entry, event.key);
+    if (!outcome) return;
+    event.preventDefault();
+    outcome.focus.focus();
+  }
+
+  /**
+   * A key press on the trigger of `value`: the arrow across the bar opens its
+   * panel and moves focus into it — at once if it is open, else on the
+   * {@link sync} after the host shows it — and every other key travels.
+   */
+  triggerKeydown(value: string, entry: HTMLElement, event: KeyboardEvent): void {
+    const state = this.#host.state();
+    if (!navigationMenuEntersPanel(state, event.key)) {
+      this.travel(entry, event);
+      return;
+    }
+    event.preventDefault();
+    this.#cancelOpen();
+    this.#entering = value;
+    if (state.value === value) this.sync();
+    else this.#host.change(value);
+  }
+
+  /**
+   * Escape from anywhere in the nav closes the open panel and hands focus back
+   * to its trigger, so the user is not stranded on an element that just hid.
+   */
+  rootKeydown(event: KeyboardEvent): void {
+    const { value } = this.#host.state();
+    if (event.key !== "Escape" || value === "") return;
+    this.#host.trigger(value)?.focus();
+    this.#host.change("");
+  }
+
+  /**
+   * Focus left `root` for `next` (or for nowhere): close, leaving focus where
+   * it went, since fighting it would break the Tab order.
+   */
+  focusOut(root: Node, next: Node | null): void {
+    if (this.#host.state().value === "" || (next && root.contains(next))) return;
+    this.#host.change("");
+  }
+
+  /** Spend a pending enter-panel focus once its entry is open. A host calls this after showing a change. */
+  sync(): void {
+    const value = this.#entering;
+    if (value === null || this.#host.state().value !== value) return;
+    this.#entering = null;
+    this.#host.panel(value)?.querySelector<HTMLElement>(NAVIGATION_MENU_PANEL_FOCUSABLE)?.focus();
   }
 
   /** Cancel every timer, so nothing outlives the host. */

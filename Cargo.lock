@@ -264,7 +264,7 @@ dependencies = [
 
 [[package]]
 name = "harmoni-wasm"
-version = "0.2.8"
+version = "0.2.9"
 dependencies = [
  "harmoni-core",
  "js-sys",
@@ -534,7 +534,7 @@ dependencies = [
 
 [[package]]
 name = "primitiv-cli"
-version = "0.2.8"
+version = "0.2.9"
 dependencies = [
  "assert_cmd",
  "assert_fs",
@@ -559,7 +559,7 @@ dependencies = [
 
 [[package]]
 name = "primitiv-emit-wasm"
-version = "0.2.8"
+version = "0.2.9"
 dependencies = [
  "primitiv-emit",
  "serde-wasm-bindgen",

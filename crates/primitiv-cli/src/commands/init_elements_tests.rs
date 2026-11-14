@@ -456,3 +456,95 @@ fn surfaces_a_failed_write_of_the_headless_summary() {
 
     assert!(matches!(error, crate::error::CliError::Io(_)), "{error:?}");
 }
+
+#[test]
+fn records_and_writes_the_utility_classes_when_asked() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("pom.xml"), b"").unwrap();
+
+    let config = init_config(
+        &fs,
+        InitOptions {
+            styles_enabled: Some(true),
+            utilities: true,
+            ..Default::default()
+        },
+    );
+
+    assert!(config.tokens.utilities);
+    assert!(fs.exists(Path::new("src/main/resources/static/primitiv/utilities.css")));
+}
+
+#[test]
+fn prints_the_utilities_link_beside_the_base_styles() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("pom.xml"), b"").unwrap();
+
+    let printed = init_output(
+        &fs,
+        InitOptions {
+            styles_enabled: Some(true),
+            utilities: true,
+            ..Default::default()
+        },
+    );
+
+    assert!(
+        printed.contains(
+            "\nLink the base styles from your page:\n\n  \
+             <link rel=\"stylesheet\" href=\"/primitiv/tokens.css\">\n  \
+             <link rel=\"stylesheet\" href=\"/primitiv/utilities.css\">\n\n"
+        ),
+        "{printed}"
+    );
+}
+
+#[test]
+fn refuses_the_utility_classes_without_the_token_layer_they_read() {
+    let fs = InMemoryFs::new();
+
+    let error = init(
+        &fs,
+        &InMemoryOutput::new(),
+        &EmbeddedRegistry,
+        &InMemoryPrompt::new(Decision::Keep),
+        false,
+        &InitOptions {
+            styles_enabled: Some(false),
+            utilities: true,
+            ..Default::default()
+        },
+    )
+    .unwrap_err();
+
+    assert_eq!(
+        error.to_string(),
+        "--utilities needs the token layer the classes read: add --styles"
+    );
+    assert!(!fs.exists(Path::new("primitiv.json")));
+}
+
+#[test]
+fn refuses_the_utility_classes_in_a_tailwind_project() {
+    let fs = InMemoryFs::new();
+
+    let error = init(
+        &fs,
+        &InMemoryOutput::new(),
+        &EmbeddedRegistry,
+        &InMemoryPrompt::new(Decision::Keep),
+        false,
+        &InitOptions {
+            styles_enabled: Some(true),
+            format: Some(crate::format::Format::Tailwind),
+            utilities: true,
+            ..Default::default()
+        },
+    )
+    .unwrap_err();
+
+    assert_eq!(
+        error.to_string(),
+        "--utilities is for CSS and SCSS projects; Tailwind already writes these classes from Primitiv's tokens (--format tailwind)"
+    );
+}

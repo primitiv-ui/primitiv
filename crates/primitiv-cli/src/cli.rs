@@ -228,6 +228,7 @@ fn parse_init(args: &[String]) -> Result<Command, CliError> {
     let mut yes = false;
     let mut surface = None;
     let mut url = None;
+    let mut utilities = false;
     let mut rest = args.iter();
     while let Some(flag) = rest.next() {
         match flag.as_str() {
@@ -244,6 +245,7 @@ fn parse_init(args: &[String]) -> Result<Command, CliError> {
             }
             "--force" => force = true,
             "--yes" => yes = true,
+            "--utilities" => utilities = true,
             other => return Err(usage(format!("unexpected argument '{other}'"))),
         }
     }
@@ -258,6 +260,7 @@ fn parse_init(args: &[String]) -> Result<Command, CliError> {
         yes,
         surface,
         url,
+        utilities,
     }))
 }
 

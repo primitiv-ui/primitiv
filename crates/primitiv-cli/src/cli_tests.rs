@@ -55,6 +55,7 @@ fn parses_every_init_override_flag() {
             yes: true,
             surface: None,
             url: Some("/assets/primitiv".to_string()),
+            utilities: false,
         })
     );
 }
@@ -914,4 +915,17 @@ fn parses_a_version_request_in_either_spelling() {
     for spelling in ["--version", "-V"] {
         assert_eq!(parse(&args(&[spelling])).unwrap(), Command::Version, "{spelling}");
     }
+}
+
+#[test]
+fn parses_init_with_the_utility_classes() {
+    let command = parse(&args(&["init", "--utilities"])).unwrap();
+
+    assert_eq!(
+        command,
+        Command::Init(InitOptions {
+            utilities: true,
+            ..Default::default()
+        })
+    );
 }

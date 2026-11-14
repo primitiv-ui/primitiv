@@ -7,6 +7,7 @@ use crate::ports::output::Output;
 use harmoni_core::api::DEFAULT_STEPS;
 
 use crate::commands::theme;
+use crate::commands::tokens::UTILITIES_FILE;
 use crate::ports::prompt::Prompt;
 use crate::ports::registry::Registry;
 
@@ -63,6 +64,9 @@ pub struct InitOptions {
     /// an elements project's printed links. `None` defers to detection, a
     /// prompt, or the path itself.
     pub url: Option<String>,
+    /// Also write the utility classes, and record that the project keeps them
+    /// (`--utilities`, RFC 0034).
+    pub utilities: bool,
 }
 
 /// The choices resolved into the exact values `render` writes — every `Option`
@@ -79,6 +83,7 @@ struct ResolvedInit {
     /// The URL the styles folder is served at — elements only, where a page
     /// links the styles; `None` for React, whose bundler imports them.
     url: Option<String>,
+    utilities: bool,
 }
 
 /// The `primitiv init` command (RFC 0005 §2.1): resolve the consumer's choices
@@ -171,6 +176,20 @@ pub fn init(
         surface,
         static_root,
     )?;
+    // The utility classes read the token layer, which only a styled project
+    // writes, and a Tailwind project gets the same classes from Tailwind itself.
+    if resolved.utilities && !resolved.styles_enabled {
+        return Err(CliError::Usage(
+            "--utilities needs the token layer the classes read: add --styles".to_string(),
+        ));
+    }
+    if resolved.utilities && resolved.format == Format::Tailwind {
+        return Err(CliError::Usage(
+            "--utilities is for CSS and SCSS projects; Tailwind already writes these classes \
+             from Primitiv's tokens (--format tailwind)"
+                .to_string(),
+        ));
+    }
     fs.write(&path, render(&resolved).as_bytes())?;
     // A headless elements project needs nothing past the config, so there is no
     // token layer to link below: say what was written, or the run is silent.
@@ -223,10 +242,18 @@ pub fn init(
             output.write_stdout(
                 format!(
                     "\nLink the base styles from your page:\n\n  \
-                     <link rel=\"stylesheet\" href=\"{}/tokens.css\">\n\n\
+                     <link rel=\"stylesheet\" href=\"{url}/tokens.css\">\n{utilities}\n\
                      The tokens name Asta Sans, Khand and JetBrains Mono. Load them, or text falls back to your system's sans-serif:\n\n  \
                      <link rel=\"stylesheet\" href=\"{FONTS_URL}\">\n",
-                    url.trim_end_matches('/')
+                    url = url.trim_end_matches('/'),
+                    utilities = if resolved.utilities {
+                        format!(
+                            "  <link rel=\"stylesheet\" href=\"{}/{UTILITIES_FILE}\">\n",
+                            url.trim_end_matches('/')
+                        )
+                    } else {
+                        String::new()
+                    },
                 )
                 .as_bytes(),
             )?;
@@ -331,6 +358,7 @@ fn resolve(
         styles_enabled,
         alias_components,
         url,
+        utilities: options.utilities,
     })
 }
 
@@ -352,7 +380,7 @@ fn render(resolved: &ResolvedInit) -> String {
     format!(
         "{{\n  \"$schema\": \"{schema}\",\n  \"version\": 1,\n  \"name\": \"{name}\",\n  \"surface\": \"{surface}\",\n  \
          \"styles\": {{ \"enabled\": {enabled}, \"format\": \"{format}\", \"path\": \"{path}\"{url} }},\n  \
-         \"tokens\": {{ \"format\": \"{format}\", \"path\": \"{path}/tokens.{ext}\" }},\n  \
+         \"tokens\": {{ \"format\": \"{format}\", \"path\": \"{path}/tokens.{ext}\"{utilities} }},\n  \
          \"theme\": {{ \"brand\": \"{brand}\" }},\n  \
          \"aliases\": {aliases},\n  \
          \"registry\": {{ \"version\": \"0.1.0\" }}\n}}\n",
@@ -367,6 +395,7 @@ fn render(resolved: &ResolvedInit) -> String {
             None => String::new(),
         },
         ext = resolved.format.extension(),
+        utilities = if resolved.utilities { ", \"utilities\": true" } else { "" },
         brand = resolved.brand,
         aliases = aliases,
     )

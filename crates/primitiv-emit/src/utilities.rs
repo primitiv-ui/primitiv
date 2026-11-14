@@ -30,10 +30,16 @@ enum Value {
     Token(String),
 }
 
+/// The breakpoints a responsive utility repeats under, smallest first, each a
+/// `breakpoint.*` token: the emitter writes their values into real media
+/// queries, which `var()` cannot appear in (RFC 0034 §4.10).
+const BREAKPOINTS: [&str; 3] = ["sm", "md", "lg"];
+
 /// One utility class and its declarations.
 pub struct Rule {
     class: String,
     declarations: Vec<(String, Value)>,
+    responsive: bool,
 }
 
 impl Rule {
@@ -45,6 +51,7 @@ impl Rule {
                 .iter()
                 .map(|(property, value)| (property.to_string(), Value::Raw(value.to_string())))
                 .collect(),
+            responsive: false,
         }
     }
 
@@ -57,32 +64,67 @@ impl Rule {
                 .iter()
                 .map(|(property, path)| (property.to_string(), Value::Token(path.to_string())))
                 .collect(),
+            responsive: false,
         }
+    }
+
+    /// Also emit this rule as `sm:`, `md:` and `lg:` variants, each applying
+    /// from that breakpoint up.
+    pub fn responsive(mut self) -> Self {
+        self.responsive = true;
+        self
     }
 }
 
+/// The rule's declarations, as one line, with every token checked.
+fn body(rule: &Rule, tokens: &[Token]) -> Result<String, UnknownToken> {
+    let mut declarations = Vec::new();
+    for (property, value) in &rule.declarations {
+        declarations.push(match value {
+            Value::Raw(raw) => format!("{property}: {raw};"),
+            Value::Token(path) => {
+                let segments: Vec<&str> = path.split('.').collect();
+                if !tokens.iter().any(|token| token.path == segments) {
+                    return Err(UnknownToken {
+                        class: rule.class.clone(),
+                        path: path.clone(),
+                    });
+                }
+                format!("{property}: var(--primitiv-{});", segments.join("-"))
+            }
+        });
+    }
+    Ok(declarations.join(" "))
+}
+
 /// Render `rules` as the utilities stylesheet, resolving token references
-/// against `tokens`.
+/// against `tokens`: every rule, then each breakpoint's media query holding the
+/// responsive ones, so a wider breakpoint's variant wins by source order.
 pub fn emit_rules(rules: &[Rule], tokens: &[Token]) -> Result<String, UnknownToken> {
     let mut css = format!("{LAYER_ORDER}\n\n@layer primitiv.utilities {{\n");
+    let mut responsive = Vec::new();
     for rule in rules {
-        let mut body = Vec::new();
-        for (property, value) in &rule.declarations {
-            body.push(match value {
-                Value::Raw(raw) => format!("{property}: {raw};"),
-                Value::Token(path) => {
-                    let segments: Vec<&str> = path.split('.').collect();
-                    if !tokens.iter().any(|token| token.path == segments) {
-                        return Err(UnknownToken {
-                            class: rule.class.clone(),
-                            path: path.clone(),
-                        });
-                    }
-                    format!("{property}: var(--primitiv-{});", segments.join("-"))
-                }
-            });
+        let body = body(rule, tokens)?;
+        css.push_str(&format!("  .{} {{ {body} }}\n", rule.class));
+        if rule.responsive {
+            responsive.push((&rule.class, body));
         }
-        css.push_str(&format!("  .{} {{ {} }}\n", rule.class, body.join(" ")));
+    }
+    if !responsive.is_empty() {
+        for breakpoint in BREAKPOINTS {
+            let width = tokens
+                .iter()
+                .find(|token| token.path == ["breakpoint", breakpoint])
+                .ok_or_else(|| UnknownToken {
+                    class: format!("{breakpoint}:{}", responsive[0].0),
+                    path: format!("breakpoint.{breakpoint}"),
+                })?;
+            css.push_str(&format!("\n  @media (min-width: {}) {{\n", width.value));
+            for (class, body) in &responsive {
+                css.push_str(&format!("    .{breakpoint}\\:{class} {{ {body} }}\n"));
+            }
+            css.push_str("  }\n");
+        }
     }
     css.push_str("}\n");
     Ok(css)

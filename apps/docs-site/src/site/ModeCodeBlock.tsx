@@ -5,6 +5,7 @@
 // each carried a `tabs/styles.css` import. `code-block.tsx` now declares the
 // dependency itself (`import "./tabs"`), so both workarounds are gone.
 import { CodeBlock } from "@/components/code-block";
+import { iconPlaceholders } from "@/lib/icon-placeholders";
 import { mergeImports, withoutClasses } from "@/lib/playground";
 import { type Mode, label, useView } from "@/site/preferences";
 
@@ -26,7 +27,9 @@ import { type Mode, label, useView } from "@/site/preferences";
  *
  * Under Elements the markup is plain HTML, and its headless form is derived
  * from the styled one by removing the classes (`withoutClasses`), as the CLI
- * derives it, so a spec writes its Elements markup once.
+ * derives it, so a spec writes its Elements markup once. Its inline `<svg>`s
+ * become `<!-- Insert your SVG icon here: name -->` comments, as the CLI prints
+ * them; the preview beside it keeps the real glyphs.
  *
  * `code` is called once per tab, not once per render, so a caller must not
  * assume it is only asked for the active mode.
@@ -45,7 +48,10 @@ export const ModeCodeBlock = ({
   const snippet = (s: (typeof styles)[number]) => {
     const mode = modeFor(s);
     const text = mergeImports(code(mode));
-    return mode === "elements" && s === "headless" ? withoutClasses(text) : text;
+    if (mode !== "elements") return text;
+    /* Elements pages bring their own icons: the code shows where each goes. */
+    const markup = iconPlaceholders(text);
+    return s === "headless" ? withoutClasses(markup) : markup;
   };
   /* Markup, not TSX, under Elements: plain HTML that pastes into any template
      language (RFC 0033 §8.1). */

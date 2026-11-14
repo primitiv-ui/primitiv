@@ -291,10 +291,11 @@ test("every component with Elements carries them in its Markdown mirror", () => 
     if (example) {
       // Glyphs are named rather than drawn: path data is noise to a reader.
       assert.doesNotMatch(section, /<path\s/, `${path}: raw SVG path data`);
-      const svgs = (example.match(/<svg[\s>]/g) ?? []).length;
-      const named = (section.match(/<svg aria-hidden="true"><!-- icon: [a-z-]+ --><\/svg>/g) ?? []).length;
-      assert.equal(named, svgs * (pkg ? 2 : 1), `${path}: every glyph named, in each markup form`);
-      const shape = (markup) => markup.replace(/<svg[\s>][\s\S]*?<\/svg>/g, "<svg/>").trimEnd();
+      const slot = /<!-- Insert your SVG icon here: [a-z-]+ -->/g;
+      const glyphs = (example.match(/<svg[\s>]|<!-- Insert your SVG icon here/g) ?? []).length;
+      assert.equal((section.match(slot) ?? []).length, glyphs * (pkg ? 2 : 1), `${path}: every glyph named, in each markup form`);
+      const shape = (markup) =>
+        markup.replace(/<svg[\s>][\s\S]*?<\/svg>|<!-- Insert your SVG icon here: [a-z-]+ -->/g, "<svg/>").trimEnd();
       assert.ok(shape(section).includes(shape(example)), `${path}: styled markup`);
       if (pkg) assert.ok(shape(section).includes(shape(withoutClasses(example))), `${path}: headless markup`);
     }

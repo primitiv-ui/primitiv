@@ -1,5 +1,3 @@
-import { readdirSync, readFileSync } from "node:fs";
-import { join } from "node:path";
 
 import { CONTENT_PAGES, type ContentBlock, type ContentPage } from "./content-pages";
 import {
@@ -10,6 +8,7 @@ import {
   type DocsSubComponent,
 } from "./docs-data";
 import { humanName } from "./human-name";
+import { iconPlaceholders } from "./icon-placeholders";
 import { withoutClasses } from "./playground";
 import { WEB_RELEASE } from "./web-release";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "./site";
@@ -100,32 +99,17 @@ const part = (sub: DocsSubComponent): string => {
 };
 
 /*
- * Glyphs, named rather than drawn. Path data is noise to a reader and most of
- * the bulk of the Elements markup, so each inline `<svg>` becomes a comment
- * naming the `@primitiv-ui/icons` glyph it draws — the same placeholder the
- * page's code tabs use. A glyph is recognised by the opening of each of its
- * paths, which tells apart the icons that share an outline (info, success and
- * error are one circle). `primitiv add` still prints the real SVG.
+ * Glyphs, named rather than drawn. Elements pages bring their own icons, so
+ * each inline `<svg>` becomes a comment saying which icon goes there — the same
+ * placeholder the page's code tabs and `primitiv add` show.
  */
-const ICONS_DIR = join(process.cwd(), "../../packages/icons/icons/svg");
+const namedGlyphs = iconPlaceholders;
 
-const pathKey = (svg: string): string =>
-  [...svg.matchAll(/\sd="([^"]{0,16})/g)].map((m) => m[1]).join("|");
+/** The note explaining the icon comments, for markup that has any. */
+const glyphNote = (markup: string): string[] =>
+  namedGlyphs(markup).includes("<!-- Insert your SVG icon here") ? [GLYPH_NOTE] : [];
 
-const ICONS: ReadonlyMap<string, string> = new Map(
-  readdirSync(ICONS_DIR)
-    .filter((file) => file.endsWith(".svg"))
-    .map((file) => [pathKey(readFileSync(join(ICONS_DIR, file), "utf8")), file.slice(0, -4)]),
-);
-
-const namedGlyphs = (markup: string): string =>
-  markup.replace(
-    /<svg[\s>][\s\S]*?<\/svg>/g,
-    (svg) => `<svg aria-hidden="true"><!-- icon: ${ICONS.get(pathKey(svg)) ?? "glyph"} --></svg>`,
-  );
-
-const GLYPH_NOTE =
-  "Each `<!-- icon: name -->` stands for that `@primitiv-ui/icons` glyph's inline `<svg>`, which `primitiv add` prints in full.";
+const GLYPH_NOTE = `Each \`<!-- Insert your SVG icon here: name -->\` marks where an icon goes, and names the \`@primitiv-ui/icons\` glyph Primitiv draws there. Use your own icon set, or paste that glyph's SVG from https://cdn.jsdelivr.net/npm/@primitiv-ui/icons@${WEB_RELEASE}/svg/<name>.svg — it takes \`currentColor\` and is \`aria-hidden="true"\`.`;
 
 /** The address the CDN serves an Elements module at, pinned to one version. */
 const cdnScript = (pkg: string, version: string | null, module: string): string =>
@@ -184,9 +168,9 @@ export const elementsMarkdown = (docs: ComponentDocs): string => {
           fenced("html", namedGlyphs(withoutClasses(example))),
           "Styled — the same markup with the registry classes, as `primitiv add` prints it:",
           fenced("html", namedGlyphs(example)),
-          GLYPH_NOTE,
+          ...glyphNote(example),
         ]
-      : ["### Markup", fenced("html", namedGlyphs(example)), ...(example.includes("<svg") ? [GLYPH_NOTE] : [])]
+      : ["### Markup", fenced("html", namedGlyphs(example)), ...glyphNote(example)]
     : [];
 
   const parts = api.flatMap((element) => [
@@ -208,11 +192,21 @@ export const elementsMarkdown = (docs: ComponentDocs): string => {
 
   // What a headless stylesheet keys off: the state attributes the component
   // writes, from its contract — the same ones Primitiv's own stylesheet uses.
-  const hooks = docs.styled.dataAttributes.length
+  // Grouped by part, because one attribute (Tabs' `data-orientation`) is often
+  // written on several, and a flat table cannot say which.
+  const byPart = docs.headless.subComponents.filter((sub) => sub.dataAttributes.length);
+  const hooks = byPart.length
     ? [
         "### Styling hooks",
-        "The attributes the elements write as their state changes, which your own CSS can select on. Primitiv's stylesheet uses the same ones.",
-        dataAttributeTable(docs.styled.dataAttributes),
+        pkg
+          ? "The attributes the elements write as their state changes, by part, which your own CSS can select on. Primitiv's stylesheet uses the same ones."
+          : `${name} has no custom element, so nothing writes these attributes for you: they are what the React component sets. In plain markup, set the ones your CSS needs yourself, or select the native state instead (\`:checked\`, \`:required\`, \`[aria-invalid]\`).`,
+        ...byPart.map((sub) =>
+          [
+            `#### ${sub.name}${sub.class ? ` (${code(`.${sub.class}`)})` : ""}`,
+            dataAttributeTable(sub.dataAttributes),
+          ].join("\n\n"),
+        ),
       ]
     : [];
 

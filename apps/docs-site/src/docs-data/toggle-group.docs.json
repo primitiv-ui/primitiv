@@ -339,6 +339,11 @@
             "name": "primitiv-toggle-group-change",
             "type": "CustomEvent<{ value: string[] }>",
             "description": "Bubbles, cancelable, fired before a user-driven toggle is applied, with every item pressed afterwards. Call `preventDefault()` to veto it."
+          },
+          {
+            "name": "change",
+            "type": "Event",
+            "description": "Bubbles, fired after a user's change has applied, as a form control's is: the hidden form inputs already hold the new value, so a `change` listener, `hx-trigger=\"change\"` or `new FormData()` reads it. Not cancelable; veto with the event above."
           }
         ]
       },

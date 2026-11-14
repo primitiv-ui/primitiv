@@ -768,6 +768,11 @@
             "description": "Bubbles, cancelable, fired before a chosen value is applied. Call `preventDefault()` to veto it; the list closes either way."
           },
           {
+            "name": "change",
+            "type": "Event",
+            "description": "Bubbles, fired after a user's change has applied, as a form control's is: the hidden form inputs already hold the new value, so a `change` listener, `hx-trigger=\"change\"` or `new FormData()` reads it. Not cancelable; veto with the event above."
+          },
+          {
             "name": "primitiv-select-open-change",
             "type": "CustomEvent<{ open: boolean }>",
             "description": "Bubbles, cancelable, fired before the list opens or closes. Call `preventDefault()` to veto it."

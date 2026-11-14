@@ -431,6 +431,11 @@
             "description": "Bubbles, cancelable, fired before each user-driven change is applied, with every thumb's value afterwards — on every step of a drag. Call `preventDefault()` to veto it."
           },
           {
+            "name": "change",
+            "type": "Event",
+            "description": "Bubbles, fired after a user's change has applied, as a form control's is: the hidden form inputs already hold the new value, so a `change` listener, `hx-trigger=\"change\"` or `new FormData()` reads it. Not cancelable; veto with the event above."
+          },
+          {
             "name": "primitiv-slider-commit",
             "type": "CustomEvent<{ value: number[] }>",
             "description": "Bubbles, fired once an interaction ends — a key press, or the release of a drag — with the values the slider then holds."

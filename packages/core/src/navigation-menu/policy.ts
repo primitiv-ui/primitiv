@@ -1,3 +1,4 @@
+import { deriveId } from "../ids/deriveId.ts";
 import { getKeyToActionMap } from "../keyboard/getKeyToActionMap.ts";
 import { resolveRovingTarget } from "../keyboard/resolveRovingTarget.ts";
 
@@ -83,4 +84,12 @@ export function navigationMenuEntersPanel(
 ): boolean {
   const enter = state.orientation === "horizontal" ? "ArrowDown" : state.dir === "rtl" ? "ArrowLeft" : "ArrowRight";
   return key === enter;
+}
+
+/**
+ * The paired ids for one entry's trigger and panel, so `aria-controls` and
+ * `aria-labelledby` line up without either side building the id itself.
+ */
+export function navigationMenuIds(rootId: string, value: string): { triggerId: string; panelId: string } {
+  return { triggerId: deriveId(rootId, "trigger", value), panelId: deriveId(rootId, "panel", value) };
 }

@@ -1,5 +1,6 @@
 import {
   navigationMenuEntersPanel,
+  navigationMenuIds,
   navigationMenuKeydown,
   navigationMenuOpenDelay,
   navigationMenuToggle,
@@ -128,5 +129,15 @@ describe("navigationMenuEntersPanel", () => {
 
     // Assert
     expect(outcome).toBe(enters);
+  });
+});
+
+describe("navigationMenuIds", () => {
+  it("pairs an entry's trigger and panel ids under the root's", () => {
+    // Arrange & Act
+    const ids = navigationMenuIds("nav", "docs");
+
+    // Assert
+    expect(ids).toEqual({ triggerId: "nav-trigger-docs", panelId: "nav-panel-docs" });
   });
 });

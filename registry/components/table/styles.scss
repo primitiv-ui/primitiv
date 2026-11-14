@@ -127,10 +127,12 @@
     color: var(--primitiv-table-caption-foreground);
   }
 
-  /* Scroll wrapper: the headless layer sets the scroll mechanics inline; the
-     class is a styling hook for adding a frame/radius if wanted. */
+  /* Scroll wrapper. The React ScrollArea also sets these inline; an Elements
+     page has only this class, so the class carries the scroll mechanics too.
+     Without them a wide table pushes the page sideways instead of scrolling. */
   .primitiv-table__scroll-area {
     max-inline-size: 100%;
+    overflow-x: auto;
   }
 }
 

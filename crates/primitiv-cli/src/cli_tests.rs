@@ -950,3 +950,10 @@ fn rejects_an_unknown_utilities_argument() {
 
     assert_eq!(error.to_string(), "unexpected argument '--format'");
 }
+
+#[test]
+fn rejects_utilities_out_with_no_value() {
+    let error = parse(&args(&["utilities", "--out"])).unwrap_err();
+
+    assert!(matches!(error, CliError::Usage(_)));
+}

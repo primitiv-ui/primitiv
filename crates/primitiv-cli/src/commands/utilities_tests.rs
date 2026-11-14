@@ -142,3 +142,24 @@ fn surfaces_a_stdout_failure() {
 
     assert!(matches!(error, CliError::Io(_)));
 }
+
+#[test]
+fn surfaces_a_malformed_config() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("primitiv.json"), b"{ not json").unwrap();
+
+    let error = utilities(&fs, &InMemoryOutput::new(), None).unwrap_err();
+
+    assert!(matches!(error, CliError::Config(_)));
+}
+
+#[test]
+fn surfaces_a_write_failure_beside_the_token_layer() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("primitiv.json"), ELEMENTS).unwrap();
+    fs.fail_writes_to(Path::new("static/primitiv/utilities.css"));
+
+    let error = utilities(&fs, &InMemoryOutput::new(), None).unwrap_err();
+
+    assert!(matches!(error, CliError::Io(_)));
+}

@@ -1,4 +1,5 @@
 import {
+  navigationMenuEntersPanel,
   navigationMenuKeydown,
   navigationMenuOpenDelay,
   navigationMenuToggle,
@@ -108,5 +109,24 @@ describe("navigationMenuKeydown", () => {
 
     // Assert
     expect(outcome).toBeNull();
+  });
+});
+
+describe("navigationMenuEntersPanel", () => {
+  it.each([
+    ["horizontal", "ltr", "ArrowDown", true],
+    ["horizontal", "rtl", "ArrowDown", true],
+    ["horizontal", "ltr", "ArrowRight", false],
+    ["vertical", "ltr", "ArrowRight", true],
+    ["vertical", "ltr", "ArrowLeft", false],
+    ["vertical", "rtl", "ArrowLeft", true],
+    ["vertical", "rtl", "ArrowRight", false],
+    ["vertical", "ltr", "ArrowDown", false],
+  ] as const)("on a %s %s menu, %s enters the panel: %s", (orientation, dir, key, enters) => {
+    // Arrange & Act
+    const outcome = navigationMenuEntersPanel({ orientation, dir }, key);
+
+    // Assert
+    expect(outcome).toBe(enters);
   });
 });

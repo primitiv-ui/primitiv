@@ -71,3 +71,16 @@ export function navigationMenuKeydown<K>(
   const result = resolveRovingTarget({ action, navigable: state.entries, currentKey: focused });
   return result && { focus: result.target };
 }
+
+/**
+ * Whether `key` on a trigger opens its panel and moves focus into it: the arrow
+ * pointing across the bar's axis — down out of a horizontal bar, sideways out of
+ * a vertical rail, that sideways key mirrored under RTL.
+ */
+export function navigationMenuEntersPanel(
+  state: Pick<NavigationMenuTravelState<unknown>, "orientation" | "dir">,
+  key: string,
+): boolean {
+  const enter = state.orientation === "horizontal" ? "ArrowDown" : state.dir === "rtl" ? "ArrowLeft" : "ArrowRight";
+  return key === enter;
+}

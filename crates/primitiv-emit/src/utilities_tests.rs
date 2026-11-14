@@ -39,7 +39,10 @@ fn reads_a_token_as_its_custom_property() {
 
     let css = emit_rules(&rules, &tokens()).unwrap();
 
-    assert!(css.contains("  .p-16 { padding: var(--primitiv-space-16); }\n"), "{css}");
+    assert!(
+        css.contains("  .p-16 { padding: var(--primitiv-space-16); }\n"),
+        "{css}"
+    );
 }
 
 #[test]
@@ -55,7 +58,10 @@ fn refuses_a_rule_whose_token_does_not_exist() {
             path: "space.64".to_string()
         }
     );
-    assert_eq!(error.to_string(), "the utility .p-64 reads space.64, which is not a token");
+    assert_eq!(
+        error.to_string(),
+        "the utility .p-64 reads space.64, which is not a token"
+    );
 }
 
 #[test]
@@ -151,12 +157,35 @@ const SPACE: [&str; 8] = ["0", "4", "8", "12", "16", "24", "32", "48"];
 
 fn rfc_classes() -> Vec<String> {
     let mut expected: Vec<String> = [
-        "block", "inline-block", "inline", "flex", "inline-flex", "grid", "inline-grid", "contents", "hidden",
-        "flex-row", "flex-col", "flex-wrap", "flex-nowrap",
-        "items-start", "items-center", "items-end", "items-stretch", "items-baseline",
-        "justify-start", "justify-center", "justify-end", "justify-between",
-        "grow", "shrink-0", "min-w-0",
-        "grid-cols-1", "grid-cols-2", "grid-cols-3", "grid-cols-4",
+        "block",
+        "inline-block",
+        "inline",
+        "flex",
+        "inline-flex",
+        "grid",
+        "inline-grid",
+        "contents",
+        "hidden",
+        "flex-row",
+        "flex-col",
+        "flex-wrap",
+        "flex-nowrap",
+        "items-start",
+        "items-center",
+        "items-end",
+        "items-stretch",
+        "items-baseline",
+        "justify-start",
+        "justify-center",
+        "justify-end",
+        "justify-between",
+        "grow",
+        "shrink-0",
+        "min-w-0",
+        "grid-cols-1",
+        "grid-cols-2",
+        "grid-cols-3",
+        "grid-cols-4",
     ]
     .iter()
     .map(|c| c.to_string())
@@ -170,29 +199,101 @@ fn rfc_classes() -> Vec<String> {
     }
     expected.extend(
         [
-            "w-25", "w-33", "w-50", "w-66", "w-75", "w-100", "w-auto", "max-w-prose", "h-100", "h-auto",
-            "text-primary", "text-secondary", "text-muted", "text-disabled", "text-inverse", "text-error",
-            "text-success", "text-warning", "text-info", "text-danger",
-            "body-xs", "body-sm", "body-md", "body-lg", "body-xl",
-            "label-xs", "label-sm", "label-md", "label-lg", "label-xl",
-            "heading-1", "heading-2", "heading-3", "heading-4", "heading-5", "heading-6",
-            "display-lg", "display-xl", "overline",
-            "font-regular", "font-medium", "font-semibold", "font-bold",
-            "text-start", "text-center", "text-end", "truncate",
-            "bg-default", "bg-subtle", "bg-raised", "bg-sunken", "bg-inverse", "bg-selected",
-            "bg-success", "bg-warning", "bg-info", "bg-danger",
-            "border", "border-subtle", "border-strong", "border-0",
-            "rounded-0", "rounded-4", "rounded-8", "rounded-12", "rounded-16", "rounded-full",
-            "shadow-flat", "shadow-raised", "shadow-overlay", "shadow-floating", "shadow-modal",
+            "w-25",
+            "w-33",
+            "w-50",
+            "w-66",
+            "w-75",
+            "w-100",
+            "w-auto",
+            "max-w-prose",
+            "h-100",
+            "h-auto",
+            "text-primary",
+            "text-secondary",
+            "text-muted",
+            "text-disabled",
+            "text-inverse",
+            "text-error",
+            "text-success",
+            "text-warning",
+            "text-info",
+            "text-danger",
+            "body-xs",
+            "body-sm",
+            "body-md",
+            "body-lg",
+            "body-xl",
+            "label-xs",
+            "label-sm",
+            "label-md",
+            "label-lg",
+            "label-xl",
+            "heading-1",
+            "heading-2",
+            "heading-3",
+            "heading-4",
+            "heading-5",
+            "heading-6",
+            "display-lg",
+            "display-xl",
+            "overline",
+            "font-regular",
+            "font-medium",
+            "font-semibold",
+            "font-bold",
+            "text-start",
+            "text-center",
+            "text-end",
+            "truncate",
+            "bg-default",
+            "bg-subtle",
+            "bg-raised",
+            "bg-sunken",
+            "bg-inverse",
+            "bg-selected",
+            "bg-success",
+            "bg-warning",
+            "bg-info",
+            "bg-danger",
+            "border",
+            "border-subtle",
+            "border-strong",
+            "border-0",
+            "rounded-0",
+            "rounded-4",
+            "rounded-8",
+            "rounded-12",
+            "rounded-16",
+            "rounded-full",
+            "shadow-flat",
+            "shadow-raised",
+            "shadow-overlay",
+            "shadow-floating",
+            "shadow-modal",
             "sr-only",
         ]
         .iter()
         .map(|c| c.to_string()),
     );
     let responsive = [
-        "block", "inline-block", "inline", "flex", "inline-flex", "grid", "inline-grid", "contents", "hidden",
-        "flex-row", "flex-col", "flex-wrap", "flex-nowrap",
-        "grid-cols-1", "grid-cols-2", "grid-cols-3", "grid-cols-4",
+        "block",
+        "inline-block",
+        "inline",
+        "flex",
+        "inline-flex",
+        "grid",
+        "inline-grid",
+        "contents",
+        "hidden",
+        "flex-row",
+        "flex-col",
+        "flex-wrap",
+        "flex-nowrap",
+        "grid-cols-1",
+        "grid-cols-2",
+        "grid-cols-3",
+        "grid-cols-4",
     ];
     for breakpoint in ["sm", "md", "lg"] {
         expected.extend(responsive.iter().map(|c| format!("{breakpoint}:{c}")));
@@ -205,4 +306,22 @@ fn ships_exactly_the_rfc_0034_classes_from_the_token_sources() {
     let css = shipped();
 
     assert_eq!(classes(&css), rfc_classes());
+}
+
+#[test]
+fn sets_the_overline_in_capitals_with_room_between_words() {
+    let css = shipped();
+
+    let overline = css
+        .lines()
+        .find(|line| line.trim_start().starts_with(".overline "))
+        .unwrap();
+    assert!(
+        overline.contains("text-transform: uppercase;"),
+        "{overline}"
+    );
+    assert!(
+        overline.contains("letter-spacing: var(--primitiv-letter-spacing-wide);"),
+        "{overline}"
+    );
 }

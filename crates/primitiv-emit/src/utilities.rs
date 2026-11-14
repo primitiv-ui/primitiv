@@ -21,7 +21,11 @@ pub struct UnknownToken {
 
 impl std::fmt::Display for UnknownToken {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "the utility .{} reads {}, which is not a token", self.class, self.path)
+        write!(
+            f,
+            "the utility .{} reads {}, which is not a token",
+            self.class, self.path
+        )
     }
 }
 
@@ -224,7 +228,10 @@ pub fn utility_rules() -> Vec<Rule> {
         rules.push(
             Rule::raw(
                 &format!("grid-cols-{columns}"),
-                &[("grid-template-columns", &format!("repeat({columns}, minmax(0, 1fr))"))],
+                &[(
+                    "grid-template-columns",
+                    &format!("repeat({columns}, minmax(0, 1fr))"),
+                )],
             )
             .responsive(),
         );
@@ -239,14 +246,20 @@ pub fn utility_rules() -> Vec<Rule> {
         ("pt", "padding-block-start"),
     ] {
         for step in SPACE {
-            rules.push(Rule::tokens(&format!("{prefix}-{step}"), &[(property, &format!("space.{step}"))]));
+            rules.push(Rule::tokens(
+                &format!("{prefix}-{step}"),
+                &[(property, &format!("space.{step}"))],
+            ));
         }
     }
     rules.push(Rule::tokens("m-0", &[("margin", "space.0")]));
     rules.push(Rule::raw("mx-auto", &[("margin-inline", "auto")]));
     for (prefix, property) in [("mt", "margin-block-start"), ("mb", "margin-block-end")] {
         for step in SPACE {
-            rules.push(Rule::tokens(&format!("{prefix}-{step}"), &[(property, &format!("space.{step}"))]));
+            rules.push(Rule::tokens(
+                &format!("{prefix}-{step}"),
+                &[(property, &format!("space.{step}"))],
+            ));
         }
     }
 
@@ -267,8 +280,18 @@ pub fn utility_rules() -> Vec<Rule> {
     rules.push(Rule::raw("h-auto", &[("block-size", "auto")]));
 
     // §4.7 Text: colour from the roles, then the text styles.
-    for role in ["primary", "secondary", "muted", "disabled", "inverse", "error"] {
-        rules.push(Rule::tokens(&format!("text-{role}"), &[("color", &format!("content.{role}"))]));
+    for role in [
+        "primary",
+        "secondary",
+        "muted",
+        "disabled",
+        "inverse",
+        "error",
+    ] {
+        rules.push(Rule::tokens(
+            &format!("text-{role}"),
+            &[("color", &format!("content.{role}"))],
+        ));
     }
     for tone in ["success", "warning", "info", "danger"] {
         rules.push(Rule::tokens(
@@ -277,37 +300,81 @@ pub fn utility_rules() -> Vec<Rule> {
         ));
     }
     for size in ["xs", "sm", "md", "lg", "xl"] {
-        rules.push(text_style(&format!("body-{size}"), &format!("body.{size}"), false));
+        rules.push(text_style(
+            &format!("body-{size}"),
+            &format!("body.{size}"),
+            false,
+        ));
     }
     for size in ["xs", "sm", "md", "lg", "xl"] {
-        rules.push(text_style(&format!("label-{size}"), &format!("label.{size}"), false));
+        rules.push(text_style(
+            &format!("label-{size}"),
+            &format!("label.{size}"),
+            false,
+        ));
     }
     for level in 1..=6 {
-        rules.push(text_style(&format!("heading-{level}"), &format!("heading.h{level}"), true));
+        rules.push(text_style(
+            &format!("heading-{level}"),
+            &format!("heading.h{level}"),
+            true,
+        ));
     }
     for size in ["lg", "xl"] {
-        rules.push(text_style(&format!("display-{size}"), &format!("display.{size}"), false));
+        rules.push(text_style(
+            &format!("display-{size}"),
+            &format!("display.{size}"),
+            false,
+        ));
     }
-    rules.push(text_style("overline", "overline.md", false));
+    // The overline tokens carry no case or tracking: set in capitals, the
+    // condensed overline face loses its word spaces without `wide` tracking —
+    // the same correction the docs site's own overlines make.
+    let mut overline = text_style("overline", "overline.md", false);
+    overline
+        .declarations
+        .push(("letter-spacing".to_string(), token("letter-spacing.wide")));
+    overline
+        .declarations
+        .push(("text-transform".to_string(), raw("uppercase")));
+    rules.push(overline);
     for weight in ["regular", "medium", "semibold", "bold"] {
-        rules.push(Rule::tokens(&format!("font-{weight}"), &[("font-weight", &format!("font-weight.{weight}"))]));
+        rules.push(Rule::tokens(
+            &format!("font-{weight}"),
+            &[("font-weight", &format!("font-weight.{weight}"))],
+        ));
     }
     for align in ["start", "center", "end"] {
-        rules.push(Rule::raw(&format!("text-{align}"), &[("text-align", align)]));
+        rules.push(Rule::raw(
+            &format!("text-{align}"),
+            &[("text-align", align)],
+        ));
     }
     rules.push(Rule::raw(
         "truncate",
-        &[("overflow", "hidden"), ("text-overflow", "ellipsis"), ("white-space", "nowrap")],
+        &[
+            ("overflow", "hidden"),
+            ("text-overflow", "ellipsis"),
+            ("white-space", "nowrap"),
+        ],
     ));
 
     // §4.8 Surface, border, radius, shadow.
-    for role in ["default", "subtle", "raised", "sunken", "inverse", "selected"] {
-        rules.push(Rule::tokens(&format!("bg-{role}"), &[("background-color", &format!("surface.{role}"))]));
+    for role in [
+        "default", "subtle", "raised", "sunken", "inverse", "selected",
+    ] {
+        rules.push(Rule::tokens(
+            &format!("bg-{role}"),
+            &[("background-color", &format!("surface.{role}"))],
+        ));
     }
     for tone in ["success", "warning", "info", "danger"] {
         rules.push(Rule::tokens(
             &format!("bg-{tone}"),
-            &[("background-color", &format!("feedback.{tone}.soft.background"))],
+            &[(
+                "background-color",
+                &format!("feedback.{tone}.soft.background"),
+            )],
         ));
     }
     rules.push(Rule::new(
@@ -318,14 +385,29 @@ pub fn utility_rules() -> Vec<Rule> {
             ("border-color", token("border.default")),
         ],
     ));
-    rules.push(Rule::tokens("border-subtle", &[("border-color", "border.subtle")]));
-    rules.push(Rule::tokens("border-strong", &[("border-color", "border.strong")]));
-    rules.push(Rule::tokens("border-0", &[("border-width", "border-width.0")]));
+    rules.push(Rule::tokens(
+        "border-subtle",
+        &[("border-color", "border.subtle")],
+    ));
+    rules.push(Rule::tokens(
+        "border-strong",
+        &[("border-color", "border.strong")],
+    ));
+    rules.push(Rule::tokens(
+        "border-0",
+        &[("border-width", "border-width.0")],
+    ));
     for radius in ["0", "4", "8", "12", "16", "full"] {
-        rules.push(Rule::tokens(&format!("rounded-{radius}"), &[("border-radius", &format!("radii.{radius}"))]));
+        rules.push(Rule::tokens(
+            &format!("rounded-{radius}"),
+            &[("border-radius", &format!("radii.{radius}"))],
+        ));
     }
     for depth in ["flat", "raised", "overlay", "floating", "modal"] {
-        rules.push(Rule::tokens(&format!("shadow-{depth}"), &[("box-shadow", &format!("elevation.{depth}"))]));
+        rules.push(Rule::tokens(
+            &format!("shadow-{depth}"),
+            &[("box-shadow", &format!("elevation.{depth}"))],
+        ));
     }
 
     // §4.9 Accessibility: visually hidden, still announced.

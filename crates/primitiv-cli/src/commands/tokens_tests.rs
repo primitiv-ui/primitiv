@@ -1237,3 +1237,40 @@ fn writes_no_breakpoints_module_for_an_elements_project() {
     assert!(fs.exists(Path::new("static/primitiv/tokens.css")));
     assert!(!fs.exists(Path::new("static/primitiv/breakpoints.ts")));
 }
+
+/// A config that keeps the utility classes (RFC 0034).
+const CONFIG_UTILITIES: &[u8] = br##"{
+  "version": 1,
+  "surface": "elements",
+  "styles": { "enabled": true, "format": "css", "path": "static/primitiv" },
+  "tokens": { "format": "css", "path": "static/primitiv/tokens.css", "utilities": true },
+  "theme": {},
+  "aliases": {},
+  "registry": { "version": "0.1.0" }
+}"##;
+
+#[test]
+fn writes_the_utility_classes_beside_the_token_layer_when_the_config_keeps_them() {
+    let fs = InMemoryFs::new();
+    let stdout = InMemoryOutput::new();
+    fs.write(Path::new("primitiv.json"), CONFIG_UTILITIES).unwrap();
+
+    tokens(&fs, &stdout, &EmbeddedRegistry, &TokensOptions::default()).unwrap();
+
+    let utilities =
+        String::from_utf8(fs.read(Path::new("static/primitiv/utilities.css")).unwrap()).unwrap();
+    assert!(utilities.contains("@layer primitiv.utilities {"), "{utilities}");
+    assert!(utilities.contains("  .p-16 { padding: var(--primitiv-space-16); }\n"));
+}
+
+#[test]
+fn surfaces_a_utilities_write_failure() {
+    let fs = InMemoryFs::new();
+    let stdout = InMemoryOutput::new();
+    fs.write(Path::new("primitiv.json"), CONFIG_UTILITIES).unwrap();
+    fs.fail_writes_to(Path::new("static/primitiv/utilities.css"));
+
+    let err = tokens(&fs, &stdout, &EmbeddedRegistry, &TokensOptions::default()).unwrap_err();
+
+    assert!(matches!(err, CliError::Io(_)));
+}

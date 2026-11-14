@@ -3,7 +3,7 @@ use std::path::{Path, PathBuf};
 use primitiv_emit::{
     BASE_CSS, BASE_SCSS, TokenSources, emit_breakpoints_ts, emit_tailwind_tokens,
     emit_theme_overrides_css, emit_theme_overrides_scss, emit_theme_overrides_tailwind,
-    emit_tokens_css, emit_tokens_scss, tokens_from_dtcg,
+    emit_tokens_css, emit_tokens_scss, emit_utilities_css, tokens_from_dtcg,
 };
 
 use crate::commands::theme;
@@ -142,6 +142,12 @@ pub fn tokens(
                 leading_imports(fs, &path, base_name, format, &theme_stem)
             );
             fs.write(&path, imported.as_bytes())?;
+            // The utility classes (RFC 0034), regenerated with the layer they
+            // read so the two cannot drift. Plain CSS in every format: a page
+            // links it, a build imports it as it would any stylesheet.
+            if config.is_some_and(|config| config.tokens.utilities) {
+                fs.write(&path.with_file_name(UTILITIES_FILE), utilities_css(&sources).as_bytes())?;
+            }
             // A JS-consumable sibling for consumers that need a real value outside
             // the CSS cascade — e.g. useMediaQuery's matchMedia() (RFC 0025 §5).
             // Not for an elements project: no hook reads it there, and its token
@@ -160,6 +166,16 @@ pub fn tokens(
         None => output.write_stdout(format!("{rendered}\n{base_styles}").as_bytes())?,
     }
     Ok(())
+}
+
+/// The utility classes' file name, beside the token layer.
+pub const UTILITIES_FILE: &str = "utilities.css";
+
+/// The utility classes (RFC 0034) over the shipped token sources. Every token
+/// the classes read is checked when the emitter's own tests run against these
+/// same sources, so a failure here is a broken build, not a user error.
+pub fn utilities_css(sources: &TokenSources) -> String {
+    emit_utilities_css(sources).expect("every utility reads a shipped token")
 }
 
 /// Write the palette's override layer beside the token layer, where this project

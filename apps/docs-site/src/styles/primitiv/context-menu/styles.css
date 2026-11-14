@@ -133,6 +133,21 @@
   .primitiv-context-menu li {
     margin-block: 0;
   }
+
+  /* The panel sits in the top layer but inherits from its place in the DOM, so
+     a menu inside a right-aligned table cell would right-align its labels. */
+  .primitiv-context-menu {
+    text-align: start;
+  }
+
+  /* A row may be a <button> (a submit button in a form, say): strip its UA box
+     so it reads as a row, not a button inside one. */
+  button:is(.primitiv-context-menu__item, .primitiv-context-menu__checkbox-item, .primitiv-context-menu__radio-item, .primitiv-context-menu__sub-trigger) {
+    inline-size: 100%;
+    margin: 0;
+    border: 0;
+    text-align: start;
+  }
 }
 
 @layer primitiv.base {

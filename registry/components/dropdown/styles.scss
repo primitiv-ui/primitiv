@@ -129,6 +129,21 @@
   .primitiv-dropdown li {
     margin-block: 0;
   }
+
+  /* The panel sits in the top layer but inherits from its place in the DOM, so
+     a menu inside a right-aligned table cell would right-align its labels. */
+  .primitiv-dropdown {
+    text-align: start;
+  }
+
+  /* A row may be a <button> (a submit button in a form, say): strip its UA box
+     so it reads as a row, not a button inside one. */
+  button:is(.primitiv-dropdown__item, .primitiv-dropdown__checkbox-item, .primitiv-dropdown__radio-item, .primitiv-dropdown__sub-trigger) {
+    inline-size: 100%;
+    margin: 0;
+    border: 0;
+    text-align: start;
+  }
 }
 
 @layer primitiv.base {

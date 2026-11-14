@@ -134,6 +134,13 @@
     color-scheme: dark;
     scrollbar-color: var(--primitiv-color-neutral-700) transparent;
   }
+  /* The same, for a page that sets no theme while the reader's system prefers dark. */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      scrollbar-color: var(--primitiv-color-neutral-700) transparent;
+    }
+  }
 
   /* ===== Inline / text-level marks ===== */
 

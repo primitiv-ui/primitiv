@@ -462,6 +462,12 @@
   [data-theme="dark"] .primitiv-carousel__slide:has(> :is(img, video, picture)) {
     outline-color: #ffffff1a;
   }
+  /* The same, for a page that sets no theme while the reader's system prefers dark. */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .primitiv-carousel__slide:has(> :is(img, video, picture)) {
+      outline-color: #ffffff1a;
+    }
+  }
 
   /* Optional inner content layer, sized to fill the slide box exactly like a
      direct media child above. A plain positioning layer on its own (no

@@ -15,6 +15,12 @@
     --primitiv-color-brand-500: oklch(0.788 0.1233 166.2009);
     --primitiv-action-primary: var(--primitiv-color-brand-500);
   }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --primitiv-color-brand-500: oklch(0.788 0.1233 166.2009);
+      --primitiv-action-primary: var(--primitiv-color-brand-500);
+    }
+  }
   :root,
   [data-density="comfortable"] {
     --primitiv-control-height: var(--primitiv-size-40);

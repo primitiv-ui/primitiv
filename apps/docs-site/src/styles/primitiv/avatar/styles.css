@@ -91,6 +91,12 @@
   [data-theme="dark"] .primitiv-avatar:has(.primitiv-avatar__image:is([data-status="loaded"], :not([data-status]))) {
     outline-color: #ffffff1a;
   }
+  /* The same, for a page that sets no theme while the reader's system prefers dark. */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .primitiv-avatar:has(.primitiv-avatar__image:is([data-status="loaded"], :not([data-status]))) {
+      outline-color: #ffffff1a;
+    }
+  }
 
   /* The fallback is the same frame filled with the resting background,
      flex-centring whatever content a consumer renders — generated initials

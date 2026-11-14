@@ -548,6 +548,12 @@
   [data-theme="dark"] .primitiv-select--native {
     --primitiv-select-native-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23e5ecf6'%3E%3Cpath d='M20.06 9 12 17.06 3.94 9 5 7.94l7 7 7-7z'/%3E%3C/svg%3E");
   }
+  /* The same, for a page that sets no theme while the reader's system prefers dark. */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .primitiv-select--native {
+      --primitiv-select-native-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23e5ecf6'%3E%3Cpath d='M20.06 9 12 17.06 3.94 9 5 7.94l7 7 7-7z'/%3E%3C/svg%3E");
+    }
+  }
 
   /* Mirror the paint position under RTL — background-position has no logical
      equivalent, unlike the padding above, which already flips on its own. */

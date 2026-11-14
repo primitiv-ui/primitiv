@@ -261,9 +261,10 @@ fn emits_every_seeded_ramp_family_into_each_theme_scope() {
     .expect("valid seeds");
 
     // One scope per mode, each carrying both families — a role that references
-    // either one re-skins from the same file.
-    assert_eq!(css.matches("--primitiv-color-brand-500:").count(), 2);
-    assert_eq!(css.matches("--primitiv-color-danger-500:").count(), 2);
+    // either one re-skins from the same file. Dark is written twice: for
+    // `data-theme="dark"`, and for a system that prefers dark.
+    assert_eq!(css.matches("--primitiv-color-brand-500:").count(), 3);
+    assert_eq!(css.matches("--primitiv-color-danger-500:").count(), 3);
 }
 
 #[test]
@@ -393,7 +394,8 @@ fn emits_a_neutral_ramp_into_both_theme_scopes() {
     // this a consumer who tuned their greys in the plugin got Primitiv's stock
     // ones back and no warning. It lands in the same two scopes as the seeded
     // families, under its own family name.
-    assert_eq!(css.matches("--primitiv-color-neutral-500:").count(), 2);
+    // Light, dark, and dark again for a system that prefers it.
+    assert_eq!(css.matches("--primitiv-color-neutral-500:").count(), 3);
     // Light and dark are the same anchors run opposite ways, so the ramp's ends
     // swap between the modes rather than repeating.
     let light_50 = css.find("--primitiv-color-neutral-50:").unwrap();

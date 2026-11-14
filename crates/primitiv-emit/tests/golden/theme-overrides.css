@@ -6,4 +6,9 @@
   [data-theme="dark"] {
     --primitiv-color-primary: oklch(0.72 0.13 162);
   }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --primitiv-color-primary: oklch(0.72 0.13 162);
+    }
+  }
 }

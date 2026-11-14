@@ -75,6 +75,12 @@
   [data-theme="dark"] .primitiv-figure__media:has(:is(img, picture, video)) {
     outline-color: #ffffff1a;
   }
+  /* The same, for a page that sets no theme while the reader's system prefers dark. */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .primitiv-figure__media:has(:is(img, picture, video)) {
+      outline-color: #ffffff1a;
+    }
+  }
 
   /* The caption restates `font-weight` alongside the rest of its type, rather
      than letting it inherit. `primitiv.reset` dresses a bare `figcaption` at

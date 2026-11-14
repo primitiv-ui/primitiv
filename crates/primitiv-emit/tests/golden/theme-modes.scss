@@ -8,6 +8,11 @@
   [data-theme="dark"] {
     --primitiv-color-bg: #111;
   }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --primitiv-color-bg: #111;
+    }
+  }
 }
 
 $primitiv-color-bg: var(--primitiv-color-bg);

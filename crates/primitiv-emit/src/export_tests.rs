@@ -152,13 +152,14 @@ fn a_stylesheet_export_carries_the_soft_neutrals_in_both_themes() {
 
     // One step-less token each, beside the ramps, rendered like any other value.
     assert_eq!(
+        // Light, dark, and dark again for a system that prefers it.
         css.matches("--primitiv-color-white: oklch(").count(),
-        2,
+        3,
         "white in both themes: {css}"
     );
     assert_eq!(
         css.matches("--primitiv-color-black: oklch(").count(),
-        2,
+        3,
         "black in both themes: {css}"
     );
 }

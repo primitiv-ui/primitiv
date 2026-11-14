@@ -279,6 +279,18 @@
     --primitiv-code-syntax-comment: oklch(0.58 0.015 260);
     --primitiv-code-syntax-punctuation: oklch(0.72 0.02 260);
   }
+  /* The same, for a page that sets no theme while the reader's system prefers dark. */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .primitiv-code-block {
+      --primitiv-code-syntax-keyword: oklch(0.8 0.15 305);
+      --primitiv-code-syntax-function: oklch(0.78 0.13 258);
+      --primitiv-code-syntax-string: oklch(0.82 0.11 150);
+      --primitiv-code-syntax-property: oklch(0.8 0.13 25);
+      --primitiv-code-syntax-number: oklch(0.84 0.11 68);
+      --primitiv-code-syntax-comment: oklch(0.58 0.015 260);
+      --primitiv-code-syntax-punctuation: oklch(0.72 0.02 260);
+    }
+  }
 }
 
 @layer primitiv.variants {

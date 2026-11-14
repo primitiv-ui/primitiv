@@ -51,22 +51,42 @@ pub fn emit_theme_css(scopes: &[Scope]) -> String {
     emit_layer("primitiv.theme", scopes)
 }
 
+/// The selector of the theme's dark scope, the one block the operating
+/// system's preference can also turn on.
+const DARK_SCOPE: &str = "[data-theme=\"dark\"]";
+
 /// Render the scope blocks inside one named `@layer`, shared by every layer the
 /// emitter writes — the `--primitiv-<path>: <value>` custom properties under
 /// each scope's comma-joined selectors.
+///
+/// The dark theme scope is written twice: once for `data-theme="dark"`, and
+/// once inside `@media (prefers-color-scheme: dark)` for a page that sets no
+/// theme of its own, so a site follows the reader's system setting until it
+/// chooses. An explicit `data-theme="light"` on the root opts out.
 fn emit_layer(layer: &str, scopes: &[Scope]) -> String {
     let mut out = format!("@layer {layer} {{\n");
     for scope in scopes {
-        out.push_str(&format!("  {} {{\n", scope.selectors.join(",\n  ")));
-        for token in &scope.tokens {
-            out.push_str(&format!(
-                "    --primitiv-{}: {};\n",
-                token.path.join("-"),
-                token.value
-            ));
+        out.push_str(&block(&scope.selectors.join(",\n  "), &scope.tokens, "  "));
+        if scope.selectors == [DARK_SCOPE] {
+            out.push_str("  @media (prefers-color-scheme: dark) {\n");
+            out.push_str(&block(":root:not([data-theme=\"light\"])", &scope.tokens, "    "));
+            out.push_str("  }\n");
         }
-        out.push_str("  }\n");
     }
     out.push_str("}\n");
+    out
+}
+
+/// One selector block of custom properties, at `indent`.
+fn block(selector: &str, tokens: &[Token], indent: &str) -> String {
+    let mut out = format!("{indent}{selector} {{\n");
+    for token in tokens {
+        out.push_str(&format!(
+            "{indent}  --primitiv-{}: {};\n",
+            token.path.join("-"),
+            token.value
+        ));
+    }
+    out.push_str(&format!("{indent}}}\n"));
     out
 }

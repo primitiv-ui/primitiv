@@ -323,9 +323,10 @@ fn writes_the_projects_neutral_ramp_from_the_config() {
     // The ramp a seed cannot express now reaches the stylesheet, tinted by the
     // brand it was told to follow.
     let written = String::from_utf8(fs.read(out).unwrap()).unwrap();
+    // Light, dark, and dark again for a system that prefers it.
     assert_eq!(
         written.matches("--primitiv-color-neutral-500:").count(),
-        2,
+        3,
         "{written}"
     );
     // Tinted, not grey: the brand's own hue reaches the anchors.

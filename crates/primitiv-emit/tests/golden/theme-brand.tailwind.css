@@ -24,6 +24,20 @@
     --primitiv-color-brand-800: oklch(0.862 0.0644 164.4939);
     --primitiv-color-brand-900: oklch(0.94 0.0496 164.4939);
   }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --primitiv-color-brand-50: oklch(0.21 0.0119 164.4939);
+      --primitiv-color-brand-100: oklch(0.2448 0.0347 164.4939);
+      --primitiv-color-brand-200: oklch(0.2882 0.058 164.4939);
+      --primitiv-color-brand-300: oklch(0.349 0.0702 164.4939);
+      --primitiv-color-brand-400: oklch(0.4272 0.0859 164.4939);
+      --primitiv-color-brand-500: oklch(0.5054 0.1043 164.4939);
+      --primitiv-color-brand-600: oklch(0.628 0.0912 164.4939);
+      --primitiv-color-brand-700: oklch(0.7506 0.0793 164.4939);
+      --primitiv-color-brand-800: oklch(0.862 0.0644 164.4939);
+      --primitiv-color-brand-900: oklch(0.94 0.0496 164.4939);
+    }
+  }
 }
 
 @theme {

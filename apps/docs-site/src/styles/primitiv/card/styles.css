@@ -109,6 +109,12 @@
   [data-theme="dark"] .primitiv-card__media:has(:is(img, picture, video)) {
     outline-color: #ffffff1a;
   }
+  /* The same, for a page that sets no theme while the reader's system prefers dark. */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .primitiv-card__media:has(:is(img, picture, video)) {
+      outline-color: #ffffff1a;
+    }
+  }
 
   .primitiv-card__content {
     display: flex;
@@ -409,5 +415,12 @@
   [data-theme="dark"] .primitiv-card--cover {
     --primitiv-card-title-color: var(--primitiv-card-cover-foreground-dark);
     --primitiv-card-description-color: var(--primitiv-card-cover-foreground-dark);
+  }
+  /* The same, for a page that sets no theme while the reader's system prefers dark. */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .primitiv-card--cover {
+      --primitiv-card-title-color: var(--primitiv-card-cover-foreground-dark);
+      --primitiv-card-description-color: var(--primitiv-card-cover-foreground-dark);
+    }
   }
 }

@@ -2,9 +2,10 @@ import { screen } from "@testing-library/dom";
 
 import { PrimitivNavigationMenuElement } from "../elements";
 import { navigationMenuHtml } from "./navigation-menu.fixtures";
-import { anchor, button, mount, panel, part, root, settle } from "./mount";
+import { anchor, button, mount, panel, part, root, settle, listenerErrors } from "./mount";
 
 afterEach(() => {
+  expect(listenerErrors.splice(0)).toEqual([]);
   document.body.replaceChildren();
   vi.restoreAllMocks();
 });
@@ -111,7 +112,9 @@ describe("<primitiv-navigation-menu> rendering", () => {
       ["docs", false],
       ["docs", false],
     ]);
+    expect(panel("docs").getAttribute("hidden")).toBe("");
     for (const marker of [part("viewport"), part("indicator")]) {
+      expect(marker.getAttribute("hidden")).toBe("");
       expect(marker.hasAttribute("data-value")).toBe(false);
       expect(marker.hidden).toBe(true);
       expect(marker.getAttribute("data-state")).toBe("closed");
@@ -164,15 +167,32 @@ describe("<primitiv-navigation-menu> rendering", () => {
     expect(panel("docs").hasAttribute("data-motion")).toBe(false);
   });
 
-  it("follows a link's active attribute as it comes and goes", async () => {
+  it("keeps a panel's motion through a reconcile that changes nothing open", async () => {
     // Arrange
-    await mount(navigationMenuHtml({ active: true }));
+    await mount(navigationMenuHtml({ value: "docs", active: true }));
+    (root() as PrimitivNavigationMenuElement).value = "blog";
+    await settle();
 
     // Act
     anchor("Pricing").parentElement?.removeAttribute("active");
     await settle();
 
     // Assert
+    expect(panel("blog").getAttribute("data-motion")).toBe("from-end");
+    expect(panel("docs").getAttribute("data-motion")).toBe("to-start");
+  });
+
+  it("follows a link's active attribute as it comes and goes", async () => {
+    // Arrange
+    await mount(navigationMenuHtml({ active: true }));
+    const marked = anchor("Pricing").getAttribute("data-active");
+
+    // Act
+    anchor("Pricing").parentElement?.removeAttribute("active");
+    await settle();
+
+    // Assert
+    expect(marked).toBe("");
     expect(anchor("Pricing").hasAttribute("aria-current")).toBe(false);
     expect(anchor("Pricing").hasAttribute("data-active")).toBe(false);
   });
@@ -198,7 +218,7 @@ describe("<primitiv-navigation-menu> rendering", () => {
     // Arrange
     await mount(
       navigationMenuHtml({ id: "site", value: "docs", indicator: true, active: true }) +
-        navigationMenuHtml({ id: "two", viewport: true, forceMount: true }),
+        navigationMenuHtml({ id: "two", viewport: true, indicator: true, forceMount: true }),
     );
     const rendered = document.body.innerHTML;
     document.body.replaceChildren();

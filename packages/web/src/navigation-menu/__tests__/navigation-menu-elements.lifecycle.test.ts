@@ -2,9 +2,10 @@ import userEvent from "@testing-library/user-event";
 
 import type { PrimitivNavigationMenuElement } from "../elements";
 import { navigationMenuHtml } from "./navigation-menu.fixtures";
-import { anchor, button, mount, panel, part, root, settle, sleep } from "./mount";
+import { anchor, button, mount, panel, part, root, settle, sleep, listenerErrors } from "./mount";
 
 afterEach(() => {
+  expect(listenerErrors.splice(0)).toEqual([]);
   document.body.replaceChildren();
   vi.restoreAllMocks();
 });

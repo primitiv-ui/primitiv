@@ -1,9 +1,10 @@
 import userEvent from "@testing-library/user-event";
 
 import { navigationMenuHtml } from "./navigation-menu.fixtures";
-import { anchor, button, mount, panel, root, settle, sleep } from "./mount";
+import { anchor, button, mount, panel, root, settle, sleep, listenerErrors } from "./mount";
 
 afterEach(() => {
+  expect(listenerErrors.splice(0)).toEqual([]);
   document.body.replaceChildren();
 });
 

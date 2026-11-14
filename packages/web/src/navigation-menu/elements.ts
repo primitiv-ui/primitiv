@@ -34,9 +34,8 @@ function milliseconds(element: Element, name: string, fallback: number): number 
 
 /** Set a custom property only when it would change: `null` removes it. */
 function publish(element: HTMLElement, name: string, value: string | null): void {
-  if (element.style.getPropertyValue(name) === (value ?? "")) return;
-  if (value === null) element.style.removeProperty(name);
-  else element.style.setProperty(name, value);
+  // A null value removes the property.
+  if (element.style.getPropertyValue(name) !== (value ?? "")) element.style.setProperty(name, value);
 }
 
 /** The one element child an interactive part decorates, or `null`, reported once. */
@@ -47,7 +46,7 @@ function decoratable(part: HTMLElement, what: string): HTMLElement | null {
 }
 
 /** A disclosure entry as of a scan: its trigger's button and its panel. */
-type Entry = { button: HTMLElement | null; panel: HTMLElement | null };
+type Entry = { button?: HTMLElement | null; panel?: HTMLElement };
 
 /** Everything the root decorates, read fresh from the DOM — parts are never cached. */
 type Scan = {
@@ -82,7 +81,7 @@ export class PrimitivNavigationMenuElement extends PrimitivRootElement {
   readonly #nav: NavigationMenuController = new NavigationMenuController(this.#host());
   /** The open value as of the last reconcile, and the one before it changed, for the panels' motion. */
   #tracked: string | undefined;
-  #previous = "";
+  #previous: string | undefined;
   /** The root's own listeners, while connected. */
   #listening: AbortController | null = null;
   /** The pending re-measure of the viewport, a frame after a panel opens. */
@@ -140,7 +139,7 @@ export class PrimitivNavigationMenuElement extends PrimitivRootElement {
     const entries = new Map<string, Entry>();
     const entry = (value: string): Entry => {
       let found = entries.get(value);
-      if (!found) entries.set(value, (found = { button: null, panel: null }));
+      if (!found) entries.set(value, (found = {}));
       return found;
     };
     for (const part of this.parts(TRIGGER)) {
@@ -149,8 +148,7 @@ export class PrimitivNavigationMenuElement extends PrimitivRootElement {
         reportOnce(part, `<${TRIGGER}> needs a <${ITEM}> with a value: an item without one is a plain link entry.`);
         continue;
       }
-      const button = decoratable(part, "a <button>");
-      if (button) entry(value).button = button;
+      entry(value).button = decoratable(part, "a <button>");
     }
     for (const panel of this.parts(CONTENT)) {
       const value = panel.getAttribute("value") ?? panel.closest(ITEM)?.getAttribute("value") ?? null;
@@ -234,7 +232,7 @@ export class PrimitivNavigationMenuElement extends PrimitivRootElement {
     const orientation = this.#orientation();
     const rootId = this.rootId();
     if (value !== this.#tracked) {
-      this.#previous = this.#tracked ?? "";
+      this.#previous = this.#tracked;
       this.#tracked = value;
     }
     const state = (open: boolean) => (open ? "open" : "closed");
@@ -249,7 +247,8 @@ export class PrimitivNavigationMenuElement extends PrimitivRootElement {
     for (const item of this.parts(ITEM)) write(item, "role", "listitem");
 
     const scan = this.#scan();
-    const values = [...scan.entries.keys()];
+    // The disclosure items' values in DOM order, which way a panel travels is read from.
+    const values = this.parts(`${ITEM}[value]`).map((item) => item.getAttribute("value") as string);
     for (const [entryValue, { button, panel }] of scan.entries) {
       const open = entryValue === value;
       const ids = navigationMenuIds(rootId, entryValue);
@@ -267,7 +266,9 @@ export class PrimitivNavigationMenuElement extends PrimitivRootElement {
         write(
           panel,
           "data-motion",
-          navigationMenuPanelMotion({ value: entryValue, openValue: value, previousValue: this.#previous, values }) ??
+          // The seed is only fed to `indexOf`, which rejects "" and any other unregistered string alike.
+          // Stryker disable next-line StringLiteral: equivalent — see above.
+          navigationMenuPanelMotion({ value: entryValue, openValue: value, previousValue: this.#previous ?? "", values }) ??
             null,
         );
         write(panel, "hidden", forced || open ? null : "");

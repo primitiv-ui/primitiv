@@ -27,3 +27,10 @@ export const panel = (value: string): HTMLElement =>
   ) as HTMLElement;
 export const part = (name: string): HTMLElement =>
   document.querySelector(`primitiv-navigation-menu-${name}`) as HTMLElement;
+
+/**
+ * Errors thrown inside event listeners. jsdom reports them on `window` rather
+ * than failing the test, so each suite asserts this stays empty.
+ */
+export const listenerErrors: unknown[] = [];
+window.addEventListener("error", (event) => listenerErrors.push(event.error));

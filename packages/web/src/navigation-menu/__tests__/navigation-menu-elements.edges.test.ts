@@ -1,7 +1,10 @@
+import userEvent from "@testing-library/user-event";
+
 import { navigationMenuHtml } from "./navigation-menu.fixtures";
-import { button, mount, panel, root, settle } from "./mount";
+import { button, mount, panel, root, settle, listenerErrors } from "./mount";
 
 afterEach(() => {
+  expect(listenerErrors.splice(0)).toEqual([]);
   document.body.replaceChildren();
   vi.restoreAllMocks();
 });
@@ -101,5 +104,42 @@ describe("<primitiv-navigation-menu> edge cases", () => {
 
     // Assert
     expect(button("Docs").hasAttribute("aria-controls")).toBe(false);
+  });
+
+  it("works around a panel-only entry, clicking and travelling the rest", async () => {
+    // Arrange
+    const user = userEvent.setup();
+    await mount(navigationMenuHtml({ openOnHover: false, viewport: true }).replace(
+      '<primitiv-navigation-menu-item value="docs"><primitiv-navigation-menu-trigger><button type="button">Docs</button></primitiv-navigation-menu-trigger></primitiv-navigation-menu-item>',
+      "",
+    ));
+
+    // Act
+    await user.click(button("Blog"));
+    const opened = root().getAttribute("value");
+    await user.keyboard("{ArrowRight}");
+    await user.click(document.activeElement as HTMLElement);
+
+    // Assert
+    expect(opened).toBe("blog");
+    expect(root().hasAttribute("value")).toBe(false);
+    expect(document.activeElement?.textContent).toBe("Pricing");
+  });
+
+  it("survives its entry leaving as the enter-panel arrow opens it", async () => {
+    // Arrange
+    const user = userEvent.setup();
+    await mount(navigationMenuHtml());
+    root().addEventListener("primitiv-navigation-menu-change", () =>
+      document.querySelector('primitiv-navigation-menu-item[value="docs"]')?.remove(),
+    );
+    button("Docs").focus();
+
+    // Act
+    await user.keyboard("{ArrowDown}");
+    await settle();
+
+    // Assert
+    expect(root().getAttribute("value")).toBe("docs");
   });
 });

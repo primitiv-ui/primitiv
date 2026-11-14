@@ -1,6 +1,7 @@
 import {
   navigationMenuEntersPanel,
   navigationMenuIds,
+  navigationMenuIndicatorGeometry,
   navigationMenuKeydown,
   navigationMenuOpenDelay,
   navigationMenuPanelMotion,
@@ -166,5 +167,19 @@ describe("navigationMenuPanelMotion", () => {
   ])("has no direction for %s", (_case, value, openValue, previousValue) => {
     // Arrange & Act & Assert
     expect(motion(value, openValue, previousValue)).toBeUndefined();
+  });
+});
+
+describe("navigationMenuIndicatorGeometry", () => {
+  const box = { offsetLeft: 10, offsetTop: 20, offsetWidth: 30, offsetHeight: 40 };
+
+  it("measures along the inline axis of a horizontal bar", () => {
+    // Arrange & Act & Assert
+    expect(navigationMenuIndicatorGeometry("horizontal", box)).toEqual({ position: 10, size: 30 });
+  });
+
+  it("measures along the block axis of a vertical rail", () => {
+    // Arrange & Act & Assert
+    expect(navigationMenuIndicatorGeometry("vertical", box)).toEqual({ position: 20, size: 40 });
   });
 });

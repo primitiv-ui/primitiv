@@ -139,3 +139,25 @@ export function navigationMenuPanelMotion({
   // Stryker disable next-line EqualityOperator: equivalent — see above.
   return other > self ? "to-start" : "to-end";
 }
+
+/** The offsets of the open trigger an indicator is measured from. */
+export type NavigationMenuTriggerBox = {
+  offsetLeft: number;
+  offsetTop: number;
+  offsetWidth: number;
+  offsetHeight: number;
+};
+
+/**
+ * Where the indicator sits along the bar, from the open trigger's offsets:
+ * published as `--primitiv-navigation-menu-indicator-position` / `-size`, so
+ * the stylesheet decides whether that means a translate, a border or nothing.
+ */
+export function navigationMenuIndicatorGeometry(
+  orientation: NavigationMenuOrientation,
+  box: NavigationMenuTriggerBox,
+): { position: number; size: number } {
+  return orientation === "horizontal"
+    ? { position: box.offsetLeft, size: box.offsetWidth }
+    : { position: box.offsetTop, size: box.offsetHeight };
+}

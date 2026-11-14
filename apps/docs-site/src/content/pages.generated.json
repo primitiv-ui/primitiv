@@ -1108,7 +1108,7 @@
         "blocks": [
           {
             "kind": "p",
-            "text": "Six commands. Most days you only use one.",
+            "text": "Seven commands. Most days you only use one.",
             "code": []
           },
           {
@@ -1123,7 +1123,7 @@
           },
           {
             "kind": "p",
-            "text": "Every command lists its own options with --help. On its own, it shows all six.",
+            "text": "Every command lists its own options with --help. On its own, it shows all seven.",
             "code": [
               "--help"
             ]
@@ -1260,6 +1260,17 @@
                 "lineNumbers": false
               },
               {
+                "kind": "p",
+                "text": "Add --utilities to also write utilities.css: small classes such as flex, gap-16 and text-muted over the same tokens, kept regenerated with the token layer. CSS and SCSS projects only.",
+                "code": [
+                  "--utilities",
+                  "utilities.css",
+                  "flex",
+                  "gap-16",
+                  "text-muted"
+                ]
+              },
+              {
                 "kind": "h4",
                 "text": "primitiv tokens"
               },
@@ -1274,6 +1285,33 @@
                 "language": "bash",
                 "header": false,
                 "lineNumbers": false
+              },
+              {
+                "kind": "h4",
+                "text": "primitiv utilities"
+              },
+              {
+                "kind": "p",
+                "text": "Writes the utility classes beside your token layer, or where --out says, for a project that did not ask for them at init. Every class is on the Utility classes page.",
+                "code": [
+                  "--out"
+                ]
+              },
+              {
+                "kind": "code",
+                "code": "$ npx primitiv-ui utilities",
+                "language": "bash",
+                "header": false,
+                "lineNumbers": false
+              },
+              {
+                "kind": "links",
+                "links": [
+                  {
+                    "label": "Utility classes",
+                    "href": "/utilities/"
+                  }
+                ]
               },
               {
                 "kind": "h4",
@@ -1882,6 +1920,27 @@
               {
                 "label": "Icons",
                 "href": "/icons/"
+              }
+            ]
+          },
+          {
+            "kind": "p",
+            "text": "For your own layout around the components, init --utilities adds small classes over the same tokens: flex, gap-16, p-16, text-muted, md:grid-cols-3.",
+            "code": [
+              "init --utilities",
+              "flex",
+              "gap-16",
+              "p-16",
+              "text-muted",
+              "md:grid-cols-3"
+            ]
+          },
+          {
+            "kind": "links",
+            "links": [
+              {
+                "label": "Utility classes",
+                "href": "/utilities/"
               }
             ]
           },

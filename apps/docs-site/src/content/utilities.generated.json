@@ -1,0 +1,1257 @@
+{
+ "sections": [
+  {
+   "id": "display",
+   "title": "Display",
+   "classes": [
+    {
+     "name": "block",
+     "declarations": [
+      "display: block"
+     ],
+     "responsive": true
+    },
+    {
+     "name": "inline-block",
+     "declarations": [
+      "display: inline-block"
+     ],
+     "responsive": true
+    },
+    {
+     "name": "inline",
+     "declarations": [
+      "display: inline"
+     ],
+     "responsive": true
+    },
+    {
+     "name": "flex",
+     "declarations": [
+      "display: flex"
+     ],
+     "responsive": true
+    },
+    {
+     "name": "inline-flex",
+     "declarations": [
+      "display: inline-flex"
+     ],
+     "responsive": true
+    },
+    {
+     "name": "grid",
+     "declarations": [
+      "display: grid"
+     ],
+     "responsive": true
+    },
+    {
+     "name": "inline-grid",
+     "declarations": [
+      "display: inline-grid"
+     ],
+     "responsive": true
+    },
+    {
+     "name": "contents",
+     "declarations": [
+      "display: contents"
+     ],
+     "responsive": true
+    },
+    {
+     "name": "hidden",
+     "declarations": [
+      "display: none"
+     ],
+     "responsive": true
+    }
+   ]
+  },
+  {
+   "id": "flex-and-grid",
+   "title": "Flex and grid",
+   "classes": [
+    {
+     "name": "flex-row",
+     "declarations": [
+      "flex-direction: row"
+     ],
+     "responsive": true
+    },
+    {
+     "name": "flex-col",
+     "declarations": [
+      "flex-direction: column"
+     ],
+     "responsive": true
+    },
+    {
+     "name": "flex-wrap",
+     "declarations": [
+      "flex-wrap: wrap"
+     ],
+     "responsive": true
+    },
+    {
+     "name": "flex-nowrap",
+     "declarations": [
+      "flex-wrap: nowrap"
+     ],
+     "responsive": true
+    },
+    {
+     "name": "items-start",
+     "declarations": [
+      "align-items: start"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "items-center",
+     "declarations": [
+      "align-items: center"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "items-end",
+     "declarations": [
+      "align-items: end"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "items-stretch",
+     "declarations": [
+      "align-items: stretch"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "items-baseline",
+     "declarations": [
+      "align-items: baseline"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "justify-start",
+     "declarations": [
+      "justify-content: start"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "justify-center",
+     "declarations": [
+      "justify-content: center"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "justify-end",
+     "declarations": [
+      "justify-content: end"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "justify-between",
+     "declarations": [
+      "justify-content: space-between"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "grow",
+     "declarations": [
+      "flex: 1 1 0%"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "shrink-0",
+     "declarations": [
+      "flex-shrink: 0"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "min-w-0",
+     "declarations": [
+      "min-inline-size: 0"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "grid-cols-1",
+     "declarations": [
+      "grid-template-columns: repeat(1, minmax(0, 1fr))"
+     ],
+     "responsive": true
+    },
+    {
+     "name": "grid-cols-2",
+     "declarations": [
+      "grid-template-columns: repeat(2, minmax(0, 1fr))"
+     ],
+     "responsive": true
+    },
+    {
+     "name": "grid-cols-3",
+     "declarations": [
+      "grid-template-columns: repeat(3, minmax(0, 1fr))"
+     ],
+     "responsive": true
+    },
+    {
+     "name": "grid-cols-4",
+     "declarations": [
+      "grid-template-columns: repeat(4, minmax(0, 1fr))"
+     ],
+     "responsive": true
+    }
+   ]
+  },
+  {
+   "id": "spacing",
+   "title": "Spacing",
+   "classes": [
+    {
+     "name": "gap-0",
+     "declarations": [
+      "gap: var(--primitiv-space-0)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "gap-4",
+     "declarations": [
+      "gap: var(--primitiv-space-4)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "gap-8",
+     "declarations": [
+      "gap: var(--primitiv-space-8)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "gap-12",
+     "declarations": [
+      "gap: var(--primitiv-space-12)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "gap-16",
+     "declarations": [
+      "gap: var(--primitiv-space-16)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "gap-24",
+     "declarations": [
+      "gap: var(--primitiv-space-24)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "gap-32",
+     "declarations": [
+      "gap: var(--primitiv-space-32)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "gap-48",
+     "declarations": [
+      "gap: var(--primitiv-space-48)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "p-0",
+     "declarations": [
+      "padding: var(--primitiv-space-0)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "p-4",
+     "declarations": [
+      "padding: var(--primitiv-space-4)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "p-8",
+     "declarations": [
+      "padding: var(--primitiv-space-8)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "p-12",
+     "declarations": [
+      "padding: var(--primitiv-space-12)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "p-16",
+     "declarations": [
+      "padding: var(--primitiv-space-16)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "p-24",
+     "declarations": [
+      "padding: var(--primitiv-space-24)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "p-32",
+     "declarations": [
+      "padding: var(--primitiv-space-32)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "p-48",
+     "declarations": [
+      "padding: var(--primitiv-space-48)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "px-0",
+     "declarations": [
+      "padding-inline: var(--primitiv-space-0)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "px-4",
+     "declarations": [
+      "padding-inline: var(--primitiv-space-4)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "px-8",
+     "declarations": [
+      "padding-inline: var(--primitiv-space-8)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "px-12",
+     "declarations": [
+      "padding-inline: var(--primitiv-space-12)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "px-16",
+     "declarations": [
+      "padding-inline: var(--primitiv-space-16)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "px-24",
+     "declarations": [
+      "padding-inline: var(--primitiv-space-24)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "px-32",
+     "declarations": [
+      "padding-inline: var(--primitiv-space-32)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "px-48",
+     "declarations": [
+      "padding-inline: var(--primitiv-space-48)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "py-0",
+     "declarations": [
+      "padding-block: var(--primitiv-space-0)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "py-4",
+     "declarations": [
+      "padding-block: var(--primitiv-space-4)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "py-8",
+     "declarations": [
+      "padding-block: var(--primitiv-space-8)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "py-12",
+     "declarations": [
+      "padding-block: var(--primitiv-space-12)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "py-16",
+     "declarations": [
+      "padding-block: var(--primitiv-space-16)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "py-24",
+     "declarations": [
+      "padding-block: var(--primitiv-space-24)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "py-32",
+     "declarations": [
+      "padding-block: var(--primitiv-space-32)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "py-48",
+     "declarations": [
+      "padding-block: var(--primitiv-space-48)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "pt-0",
+     "declarations": [
+      "padding-block-start: var(--primitiv-space-0)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "pt-4",
+     "declarations": [
+      "padding-block-start: var(--primitiv-space-4)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "pt-8",
+     "declarations": [
+      "padding-block-start: var(--primitiv-space-8)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "pt-12",
+     "declarations": [
+      "padding-block-start: var(--primitiv-space-12)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "pt-16",
+     "declarations": [
+      "padding-block-start: var(--primitiv-space-16)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "pt-24",
+     "declarations": [
+      "padding-block-start: var(--primitiv-space-24)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "pt-32",
+     "declarations": [
+      "padding-block-start: var(--primitiv-space-32)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "pt-48",
+     "declarations": [
+      "padding-block-start: var(--primitiv-space-48)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "m-0",
+     "declarations": [
+      "margin: var(--primitiv-space-0)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "mx-auto",
+     "declarations": [
+      "margin-inline: auto"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "mt-0",
+     "declarations": [
+      "margin-block-start: var(--primitiv-space-0)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "mt-4",
+     "declarations": [
+      "margin-block-start: var(--primitiv-space-4)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "mt-8",
+     "declarations": [
+      "margin-block-start: var(--primitiv-space-8)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "mt-12",
+     "declarations": [
+      "margin-block-start: var(--primitiv-space-12)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "mt-16",
+     "declarations": [
+      "margin-block-start: var(--primitiv-space-16)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "mt-24",
+     "declarations": [
+      "margin-block-start: var(--primitiv-space-24)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "mt-32",
+     "declarations": [
+      "margin-block-start: var(--primitiv-space-32)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "mt-48",
+     "declarations": [
+      "margin-block-start: var(--primitiv-space-48)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "mb-0",
+     "declarations": [
+      "margin-block-end: var(--primitiv-space-0)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "mb-4",
+     "declarations": [
+      "margin-block-end: var(--primitiv-space-4)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "mb-8",
+     "declarations": [
+      "margin-block-end: var(--primitiv-space-8)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "mb-12",
+     "declarations": [
+      "margin-block-end: var(--primitiv-space-12)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "mb-16",
+     "declarations": [
+      "margin-block-end: var(--primitiv-space-16)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "mb-24",
+     "declarations": [
+      "margin-block-end: var(--primitiv-space-24)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "mb-32",
+     "declarations": [
+      "margin-block-end: var(--primitiv-space-32)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "mb-48",
+     "declarations": [
+      "margin-block-end: var(--primitiv-space-48)"
+     ],
+     "responsive": false
+    }
+   ]
+  },
+  {
+   "id": "size",
+   "title": "Width and height",
+   "classes": [
+    {
+     "name": "w-25",
+     "declarations": [
+      "inline-size: 25%"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "w-33",
+     "declarations": [
+      "inline-size: 33.333%"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "w-50",
+     "declarations": [
+      "inline-size: 50%"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "w-66",
+     "declarations": [
+      "inline-size: 66.667%"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "w-75",
+     "declarations": [
+      "inline-size: 75%"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "w-100",
+     "declarations": [
+      "inline-size: 100%"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "w-auto",
+     "declarations": [
+      "inline-size: auto"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "max-w-prose",
+     "declarations": [
+      "max-inline-size: 65ch"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "h-100",
+     "declarations": [
+      "block-size: 100%"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "h-auto",
+     "declarations": [
+      "block-size: auto"
+     ],
+     "responsive": false
+    }
+   ]
+  },
+  {
+   "id": "text",
+   "title": "Text",
+   "classes": [
+    {
+     "name": "text-primary",
+     "declarations": [
+      "color: var(--primitiv-content-primary)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "text-secondary",
+     "declarations": [
+      "color: var(--primitiv-content-secondary)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "text-muted",
+     "declarations": [
+      "color: var(--primitiv-content-muted)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "text-disabled",
+     "declarations": [
+      "color: var(--primitiv-content-disabled)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "text-inverse",
+     "declarations": [
+      "color: var(--primitiv-content-inverse)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "text-error",
+     "declarations": [
+      "color: var(--primitiv-content-error)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "text-success",
+     "declarations": [
+      "color: var(--primitiv-feedback-success-soft-foreground)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "text-warning",
+     "declarations": [
+      "color: var(--primitiv-feedback-warning-soft-foreground)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "text-info",
+     "declarations": [
+      "color: var(--primitiv-feedback-info-soft-foreground)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "text-danger",
+     "declarations": [
+      "color: var(--primitiv-feedback-danger-soft-foreground)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "body-xs",
+     "declarations": [
+      "font-family: var(--primitiv-body-xs-font-family)",
+      "font-weight: var(--primitiv-body-xs-font-weight)",
+      "font-size: var(--primitiv-body-xs-font-size)",
+      "line-height: var(--primitiv-body-xs-line-height)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "body-sm",
+     "declarations": [
+      "font-family: var(--primitiv-body-sm-font-family)",
+      "font-weight: var(--primitiv-body-sm-font-weight)",
+      "font-size: var(--primitiv-body-sm-font-size)",
+      "line-height: var(--primitiv-body-sm-line-height)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "body-md",
+     "declarations": [
+      "font-family: var(--primitiv-body-md-font-family)",
+      "font-weight: var(--primitiv-body-md-font-weight)",
+      "font-size: var(--primitiv-body-md-font-size)",
+      "line-height: var(--primitiv-body-md-line-height)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "body-lg",
+     "declarations": [
+      "font-family: var(--primitiv-body-lg-font-family)",
+      "font-weight: var(--primitiv-body-lg-font-weight)",
+      "font-size: var(--primitiv-body-lg-font-size)",
+      "line-height: var(--primitiv-body-lg-line-height)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "body-xl",
+     "declarations": [
+      "font-family: var(--primitiv-body-xl-font-family)",
+      "font-weight: var(--primitiv-body-xl-font-weight)",
+      "font-size: var(--primitiv-body-xl-font-size)",
+      "line-height: var(--primitiv-body-xl-line-height)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "label-xs",
+     "declarations": [
+      "font-family: var(--primitiv-label-xs-font-family)",
+      "font-weight: var(--primitiv-label-xs-font-weight)",
+      "font-size: var(--primitiv-label-xs-font-size)",
+      "line-height: var(--primitiv-label-xs-line-height)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "label-sm",
+     "declarations": [
+      "font-family: var(--primitiv-label-sm-font-family)",
+      "font-weight: var(--primitiv-label-sm-font-weight)",
+      "font-size: var(--primitiv-label-sm-font-size)",
+      "line-height: var(--primitiv-label-sm-line-height)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "label-md",
+     "declarations": [
+      "font-family: var(--primitiv-label-md-font-family)",
+      "font-weight: var(--primitiv-label-md-font-weight)",
+      "font-size: var(--primitiv-label-md-font-size)",
+      "line-height: var(--primitiv-label-md-line-height)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "label-lg",
+     "declarations": [
+      "font-family: var(--primitiv-label-lg-font-family)",
+      "font-weight: var(--primitiv-label-lg-font-weight)",
+      "font-size: var(--primitiv-label-lg-font-size)",
+      "line-height: var(--primitiv-label-lg-line-height)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "label-xl",
+     "declarations": [
+      "font-family: var(--primitiv-label-xl-font-family)",
+      "font-weight: var(--primitiv-label-xl-font-weight)",
+      "font-size: var(--primitiv-label-xl-font-size)",
+      "line-height: var(--primitiv-label-xl-line-height)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "heading-1",
+     "declarations": [
+      "font-family: var(--primitiv-heading-h1-font-family)",
+      "font-weight: var(--primitiv-heading-h1-font-weight)",
+      "font-size: var(--primitiv-heading-h1-font-size)",
+      "line-height: var(--primitiv-heading-h1-line-height)",
+      "letter-spacing: var(--primitiv-heading-h1-letter-spacing)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "heading-2",
+     "declarations": [
+      "font-family: var(--primitiv-heading-h2-font-family)",
+      "font-weight: var(--primitiv-heading-h2-font-weight)",
+      "font-size: var(--primitiv-heading-h2-font-size)",
+      "line-height: var(--primitiv-heading-h2-line-height)",
+      "letter-spacing: var(--primitiv-heading-h2-letter-spacing)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "heading-3",
+     "declarations": [
+      "font-family: var(--primitiv-heading-h3-font-family)",
+      "font-weight: var(--primitiv-heading-h3-font-weight)",
+      "font-size: var(--primitiv-heading-h3-font-size)",
+      "line-height: var(--primitiv-heading-h3-line-height)",
+      "letter-spacing: var(--primitiv-heading-h3-letter-spacing)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "heading-4",
+     "declarations": [
+      "font-family: var(--primitiv-heading-h4-font-family)",
+      "font-weight: var(--primitiv-heading-h4-font-weight)",
+      "font-size: var(--primitiv-heading-h4-font-size)",
+      "line-height: var(--primitiv-heading-h4-line-height)",
+      "letter-spacing: var(--primitiv-heading-h4-letter-spacing)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "heading-5",
+     "declarations": [
+      "font-family: var(--primitiv-heading-h5-font-family)",
+      "font-weight: var(--primitiv-heading-h5-font-weight)",
+      "font-size: var(--primitiv-heading-h5-font-size)",
+      "line-height: var(--primitiv-heading-h5-line-height)",
+      "letter-spacing: var(--primitiv-heading-h5-letter-spacing)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "heading-6",
+     "declarations": [
+      "font-family: var(--primitiv-heading-h6-font-family)",
+      "font-weight: var(--primitiv-heading-h6-font-weight)",
+      "font-size: var(--primitiv-heading-h6-font-size)",
+      "line-height: var(--primitiv-heading-h6-line-height)",
+      "letter-spacing: var(--primitiv-heading-h6-letter-spacing)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "display-lg",
+     "declarations": [
+      "font-family: var(--primitiv-display-lg-font-family)",
+      "font-weight: var(--primitiv-display-lg-font-weight)",
+      "font-size: var(--primitiv-display-lg-font-size)",
+      "line-height: var(--primitiv-display-lg-line-height)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "display-xl",
+     "declarations": [
+      "font-family: var(--primitiv-display-xl-font-family)",
+      "font-weight: var(--primitiv-display-xl-font-weight)",
+      "font-size: var(--primitiv-display-xl-font-size)",
+      "line-height: var(--primitiv-display-xl-line-height)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "overline",
+     "declarations": [
+      "font-family: var(--primitiv-overline-md-font-family)",
+      "font-weight: var(--primitiv-overline-md-font-weight)",
+      "font-size: var(--primitiv-overline-md-font-size)",
+      "line-height: var(--primitiv-overline-md-line-height)",
+      "letter-spacing: var(--primitiv-letter-spacing-wide)",
+      "text-transform: uppercase"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "font-regular",
+     "declarations": [
+      "font-weight: var(--primitiv-font-weight-regular)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "font-medium",
+     "declarations": [
+      "font-weight: var(--primitiv-font-weight-medium)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "font-semibold",
+     "declarations": [
+      "font-weight: var(--primitiv-font-weight-semibold)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "font-bold",
+     "declarations": [
+      "font-weight: var(--primitiv-font-weight-bold)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "text-start",
+     "declarations": [
+      "text-align: start"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "text-center",
+     "declarations": [
+      "text-align: center"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "text-end",
+     "declarations": [
+      "text-align: end"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "truncate",
+     "declarations": [
+      "overflow: hidden",
+      "text-overflow: ellipsis",
+      "white-space: nowrap"
+     ],
+     "responsive": false
+    }
+   ]
+  },
+  {
+   "id": "surface",
+   "title": "Surface, border, radius and shadow",
+   "classes": [
+    {
+     "name": "bg-default",
+     "declarations": [
+      "background-color: var(--primitiv-surface-default)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "bg-subtle",
+     "declarations": [
+      "background-color: var(--primitiv-surface-subtle)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "bg-raised",
+     "declarations": [
+      "background-color: var(--primitiv-surface-raised)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "bg-sunken",
+     "declarations": [
+      "background-color: var(--primitiv-surface-sunken)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "bg-inverse",
+     "declarations": [
+      "background-color: var(--primitiv-surface-inverse)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "bg-selected",
+     "declarations": [
+      "background-color: var(--primitiv-surface-selected)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "bg-success",
+     "declarations": [
+      "background-color: var(--primitiv-feedback-success-soft-background)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "bg-warning",
+     "declarations": [
+      "background-color: var(--primitiv-feedback-warning-soft-background)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "bg-info",
+     "declarations": [
+      "background-color: var(--primitiv-feedback-info-soft-background)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "bg-danger",
+     "declarations": [
+      "background-color: var(--primitiv-feedback-danger-soft-background)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "border",
+     "declarations": [
+      "border-width: var(--primitiv-border-width-1)",
+      "border-style: solid",
+      "border-color: var(--primitiv-border-default)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "border-subtle",
+     "declarations": [
+      "border-color: var(--primitiv-border-subtle)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "border-strong",
+     "declarations": [
+      "border-color: var(--primitiv-border-strong)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "border-0",
+     "declarations": [
+      "border-width: var(--primitiv-border-width-0)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "rounded-0",
+     "declarations": [
+      "border-radius: var(--primitiv-radii-0)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "rounded-4",
+     "declarations": [
+      "border-radius: var(--primitiv-radii-4)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "rounded-8",
+     "declarations": [
+      "border-radius: var(--primitiv-radii-8)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "rounded-12",
+     "declarations": [
+      "border-radius: var(--primitiv-radii-12)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "rounded-16",
+     "declarations": [
+      "border-radius: var(--primitiv-radii-16)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "rounded-full",
+     "declarations": [
+      "border-radius: var(--primitiv-radii-full)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "shadow-flat",
+     "declarations": [
+      "box-shadow: var(--primitiv-elevation-flat)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "shadow-raised",
+     "declarations": [
+      "box-shadow: var(--primitiv-elevation-raised)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "shadow-overlay",
+     "declarations": [
+      "box-shadow: var(--primitiv-elevation-overlay)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "shadow-floating",
+     "declarations": [
+      "box-shadow: var(--primitiv-elevation-floating)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "shadow-modal",
+     "declarations": [
+      "box-shadow: var(--primitiv-elevation-modal)"
+     ],
+     "responsive": false
+    }
+   ]
+  },
+  {
+   "id": "accessibility",
+   "title": "Accessibility",
+   "classes": [
+    {
+     "name": "sr-only",
+     "declarations": [
+      "position: absolute",
+      "inline-size: 1px",
+      "block-size: 1px",
+      "padding: 0",
+      "margin: -1px",
+      "overflow: hidden",
+      "clip-path: inset(50%)",
+      "white-space: nowrap",
+      "border-width: 0"
+     ],
+     "responsive": false
+    }
+   ]
+  }
+ ],
+ "breakpoints": [
+  {
+   "min": "40rem",
+   "name": "sm"
+  },
+  {
+   "min": "48rem",
+   "name": "md"
+  },
+  {
+   "min": "64rem",
+   "name": "lg"
+  }
+ ]
+}

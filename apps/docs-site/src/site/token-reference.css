@@ -48,3 +48,10 @@
 .docs-token-count {
   color: var(--primitiv-content-secondary);
 }
+
+/* The Utilities page: a class's declarations, one code span each. */
+.docs-utility-css {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--primitiv-space-4);
+}

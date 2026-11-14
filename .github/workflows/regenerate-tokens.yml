@@ -65,6 +65,11 @@ jobs:
       - name: Regenerate the docs-site token layer
         run: cargo run -q -p primitiv-cli -- tokens --format css --out apps/docs-site/src/styles/primitiv/tokens.css
 
+      # The utility classes (RFC 0034) read the token layer, and the docs site's
+      # Utilities page is generated from this copy.
+      - name: Regenerate the docs-site utility classes
+        run: cargo run -q -p primitiv-cli -- utilities --out apps/docs-site/src/styles/primitiv/utilities.css
+
       - name: Commit and push if changed
         run: |
           # Every file the command writes — the token layer plus the two siblings
@@ -76,7 +81,8 @@ jobs:
             apps/workbench/src/breakpoints.ts \
             apps/docs-site/src/styles/primitiv/tokens.css \
             apps/docs-site/src/styles/primitiv/primitiv-base.css \
-            apps/docs-site/src/styles/primitiv/breakpoints.ts
+            apps/docs-site/src/styles/primitiv/breakpoints.ts \
+            apps/docs-site/src/styles/primitiv/utilities.css
           if git diff --cached --quiet; then
             echo "Every generated token file is already up to date — nothing to commit."
           else

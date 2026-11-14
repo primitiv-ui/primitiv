@@ -151,6 +151,7 @@ export const NAV: readonly NavSection[] = [
       { title: "What Primitiv is", href: "/concepts/what-primitiv-is/" },
       { title: "Tokens & theming", href: "/concepts/tokens/" },
       { title: "Token reference", href: "/tokens/" },
+      { title: "Utility classes", href: "/utilities/" },
       { title: "Colour library", href: "/colours/" },
       { title: "Icons", href: "/icons/" },
       { title: "Density & Context", href: "/concepts/density/" },

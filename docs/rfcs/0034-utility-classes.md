@@ -1,6 +1,6 @@
 # RFC 0034 — Utility classes
 
-**Status:** Accepted (2026-11-14) — building
+**Status:** Built (2026-11-14) — `primitiv-emit::utilities`, `primitiv utilities`, `init --utilities`, and the docs site's /utilities/ page
 **Decision sought:** ship a small, fixed set of utility classes, generated from
 the tokens, that `primitiv` installs on request: enough for everyday layout and
 colour in your own markup, in Primitiv's style, without a utility framework.
@@ -181,7 +181,7 @@ column counts, 17 classes — under `sm:` `md:` `lg:` (`.md\:flex`, written
 
 ### 4.11 Size
 
-161 base classes and 51 responsive ones, about 210 rules at roughly 55 bytes
+160 base classes and 51 responsive ones, about 210 rules at roughly 55 bytes
 each: **≈ 12 KB, ≈ 3 KB gzipped.** Smaller
 than `tokens.css` by an order of magnitude, so there is no case for purging it.
 

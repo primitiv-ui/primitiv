@@ -11,6 +11,7 @@ import { humanName } from "./human-name";
 import { iconPlaceholders } from "./icon-placeholders";
 import { ICONS, iconUrl } from "./icons";
 import { tokenReferenceMarkdown } from "./token-reference";
+import { utilitiesMarkdown } from "./utilities";
 import { withoutClasses } from "./playground";
 import { WEB_RELEASE } from "./web-release";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "./site";
@@ -358,6 +359,11 @@ export const llmsIndex = (): string =>
         "Every design token by category, with its value in each theme and density.",
       ),
       indexEntry("Icons", "/icons/", "Every icon in `@primitiv-ui/icons` by name, with its SVG and its React component."),
+      indexEntry(
+        "Utility classes",
+        "/utilities/",
+        "Small classes over the design tokens (flex, gap-16, p-16, text-muted, md:grid-cols-3) for plain CSS, SCSS and Elements pages.",
+      ),
     ].join("\n"),
     ...CATEGORY_ORDER.flatMap((category) => {
       const docs = ALL_DOCS.filter((d) => d.category === category);
@@ -389,6 +395,7 @@ export const llmsFull = (): string =>
     ...CONTENT_PAGES.map(contentMarkdown),
     tokenReferenceMarkdown(SITE_URL),
     iconsMarkdown(),
+    utilitiesMarkdown(),
     ...CATEGORY_ORDER.flatMap((category) =>
       ALL_DOCS.filter((d) => d.category === category).map(componentMarkdown),
     ),
@@ -423,6 +430,7 @@ export const llmsElements = (): string =>
         "- **Interactive parts decorate the element you write** — a `<button>`, `<a href>` or `<input>` inside the part — so links and native form controls keep working. A component with a `name` submits its value with its form.",
         `- **Icons are yours.** Markup marks each icon's place with \`<!-- Insert your SVG icon here: name -->\`. Use your own icons, or Primitiv's: every icon by name is listed at ${SITE_URL}${markdownPath("/icons/")}, and each one's SVG is at \`${iconUrl("<name>", WEB_RELEASE)}\` (\`currentColor\`, \`aria-hidden\`).`,
         `- **Tokens.** Every design token, by category, with its value in each theme and density: ${SITE_URL}${markdownPath("/tokens/")}. Read them with \`var(--primitiv-…)\` in your own CSS.`,
+        `- **Utility classes** for your own layout, over the same tokens: \`npx primitiv-ui@latest init --styles --utilities\`, then link \`utilities.css\` after \`tokens.css\` and write \`class="flex md:flex-row gap-16 p-16 text-muted"\`. Every class: ${SITE_URL}${markdownPath("/utilities/")}.`,
       ].join("\n"),
       `The same, at length, for people: ${SITE_URL}/elements/ (Markdown: ${SITE_URL}${markdownPath("/elements/")}). Every page's documentation, React included: ${SITE_URL}/llms.txt`,
     ].join("\n\n"),

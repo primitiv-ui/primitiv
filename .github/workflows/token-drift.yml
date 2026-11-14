@@ -30,6 +30,7 @@ on:
       - 'apps/docs-site/src/styles/primitiv/tokens.css'
       - 'apps/docs-site/src/styles/primitiv/primitiv-base.css'
       - 'apps/docs-site/src/styles/primitiv/breakpoints.ts'
+      - 'apps/docs-site/src/styles/primitiv/utilities.css'
       - 'apps/workbench/src/breakpoints.ts'
       - '.github/workflows/token-drift.yml'
   pull_request:
@@ -42,6 +43,7 @@ on:
       - 'apps/docs-site/src/styles/primitiv/tokens.css'
       - 'apps/docs-site/src/styles/primitiv/primitiv-base.css'
       - 'apps/docs-site/src/styles/primitiv/breakpoints.ts'
+      - 'apps/docs-site/src/styles/primitiv/utilities.css'
       - 'apps/workbench/src/breakpoints.ts'
       - '.github/workflows/token-drift.yml'
 
@@ -63,6 +65,7 @@ jobs:
           mkdir -p "${RUNNER_TEMP}/emit"
           # One invocation writes all three files into the temp directory.
           cargo run -q -p primitiv-cli -- tokens --format css --out "${RUNNER_TEMP}/emit/tokens.css"
+          cargo run -q -p primitiv-cli -- utilities --out "${RUNNER_TEMP}/emit/utilities.css"
 
       - name: Fail if any committed generated file is stale
         run: |
@@ -86,5 +89,6 @@ jobs:
           check "$DS/tokens.css"          "${RUNNER_TEMP}/emit/tokens.css"
           check "$DS/primitiv-base.css"   "${RUNNER_TEMP}/emit/primitiv-base.css"
           check "$DS/breakpoints.ts"      "${RUNNER_TEMP}/emit/breakpoints.ts"
+          check "$DS/utilities.css"       "${RUNNER_TEMP}/emit/utilities.css"
           if [ "$stale" -ne 0 ]; then exit 1; fi
           echo "Every committed generated token file is up to date with the DTCG source."

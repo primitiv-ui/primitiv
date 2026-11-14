@@ -36,6 +36,7 @@ function dataState(checked: CheckboxCardCheckedState): string {
  * @attr {string} name - Submit the card with the surrounding form under this name. Optional: without it, nothing is submitted.
  * @attr {string} value - What a checked card submits; `"on"` when absent, as a native checkbox.
  * @fires {CustomEvent<{ checked: boolean }>} primitiv-checkbox-card-change - Bubbles, cancelable, fired before a user-driven toggle is applied, with the state afterwards. Call `preventDefault()` to veto it.
+ * @fires {Event} change - Bubbles, fired after a user's change has applied, as a form control's is: the hidden form inputs already hold the new value, so a `change` listener, `hx-trigger="change"` or `new FormData()` reads it. Not cancelable; veto with the event above.
  */
 export class PrimitivCheckboxCardElement extends PrimitivRootElement {
   protected readonly controller: CheckboxCardController = new CheckboxCardController(this, this.#host());
@@ -58,7 +59,7 @@ export class PrimitivCheckboxCardElement extends PrimitivRootElement {
     return {
       state: () => ({ checked: this.checked }),
       change: (checked) => {
-        if (this.announce("primitiv-checkbox-card-change", { checked })) this.checked = checked;
+        if (this.announceValue("primitiv-checkbox-card-change", { checked })) this.checked = checked;
       },
     };
   }

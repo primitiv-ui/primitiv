@@ -29,6 +29,7 @@ const INDICATOR = "primitiv-radio-card-indicator";
  * @attr {"both" | "horizontal" | "vertical"} orientation - Which arrow keys move between cards. `both` (the default) uses all four, for cards that wrap into a grid, and writes no `aria-orientation`; `horizontal` or `vertical` keeps to one pair and states it.
  * @attr {string} name - Submit the selected value with a form, under this name, as a checked radio would: nothing while none is selected. A form reset restores the value the group first rendered with. Without it the group takes no part in forms.
  * @fires {CustomEvent<{ value: string }>} primitiv-radio-card-change - Bubbles, cancelable, fired before a user-driven selection is applied, with the card selected afterwards. Call `preventDefault()` to veto it.
+ * @fires {Event} change - Bubbles, fired after a user's change has applied, as a form control's is: the hidden form inputs already hold the new value, so a `change` listener, `hx-trigger="change"` or `new FormData()` reads it. Not cancelable; veto with the event above.
  */
 export class PrimitivRadioCardElement extends RadioRootElement {
   protected readonly itemTag: string = ITEM;

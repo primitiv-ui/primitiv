@@ -66,6 +66,7 @@ function decoratable(item: HTMLElement): Option | null {
  * @attr {boolean} open - Whether the list is showing. Reflected.
  * @attr {string} name - The name the value submits under. Without one the combobox takes no part in forms.
  * @fires {CustomEvent<{ value: string }>} primitiv-combobox-change - Bubbles, cancelable, fired before a committed or cleared value is applied. Call `preventDefault()` to veto it; the field shows the kept value's text.
+ * @fires {Event} change - Bubbles, fired after a user's change has applied, as a form control's is: the hidden form inputs already hold the new value, so a `change` listener, `hx-trigger="change"` or `new FormData()` reads it. Not cancelable; veto with the event above.
  * @fires {CustomEvent<{ open: boolean }>} primitiv-combobox-open-change - Bubbles, cancelable, fired before the list opens or closes. Call `preventDefault()` to veto it.
  * @fires {CustomEvent<{ query: string }>} primitiv-combobox-query-change - Bubbles, fired as the field's text changes from typing. Filter the items from it.
  */
@@ -119,13 +120,13 @@ export class PrimitivComboboxElement extends PrimitivRootElement {
         this.dispatchEvent(new CustomEvent("primitiv-combobox-query-change", { bubbles: true, detail: { query } }));
       },
       select: (value, label) => {
-        if (value !== this.value && this.announce("primitiv-combobox-change", { value })) this.#commit(value, label);
+        if (value !== this.value && this.announceValue("primitiv-combobox-change", { value })) this.#commit(value, label);
         this.#putBack();
         this.#change(false);
       },
       clear: () => {
         // The field is empty already; bringing it in line with "" keeps it so.
-        if (this.announce("primitiv-combobox-change", { value: "" })) this.value = "";
+        if (this.announceValue("primitiv-combobox-change", { value: "" })) this.value = "";
       },
       dismiss: () => {
         this.#active = undefined;

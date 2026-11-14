@@ -71,7 +71,7 @@ export abstract class RadioRootElement extends PrimitivRootElement {
         dir: this.direction(),
       }),
       change: (value) => {
-        if (this.announce(this.changeEvent, { value })) this.value = value;
+        if (this.announceValue(this.changeEvent, { value })) this.value = value;
       },
     };
   }

@@ -24,7 +24,12 @@ let generatedIds = 0;
  */
 export abstract class PrimitivRootElement extends ElementBase {
   #generatedId: string | undefined;
-  readonly #observer = new MutationObserver(() => this.reconcile());
+  readonly #observer = new MutationObserver(() => {
+    this.reconcile();
+    this.#settleChange();
+  });
+  /** A user's value change was applied and its native `change` is still owed. */
+  #changeOwed = false;
 
   /** The behaviour this root hosts, listening while the root is connected. */
   protected abstract readonly controller: Connectable;
@@ -75,5 +80,26 @@ export abstract class PrimitivRootElement extends ElementBase {
    */
   protected announce(type: string, detail: unknown): boolean {
     return this.dispatchEvent(new CustomEvent(type, { bubbles: true, cancelable: true, detail }));
+  }
+
+  /**
+   * Announce a user's change to the value this root submits with a form, as
+   * {@link announce} does, and owe a native `change` once it has applied. The
+   * change is fired after the reconcile the applied value triggers, so the
+   * hidden form inputs already hold it: a `change` listener, `hx-trigger="change"`
+   * or `new FormData()` reads the value the user chose, which the cancelable
+   * event, fired before it applies, cannot offer. A vetoed change owes nothing.
+   */
+  protected announceValue(type: string, detail: unknown): boolean {
+    const applied = this.announce(type, detail);
+    this.#changeOwed ||= applied;
+    return applied;
+  }
+
+  /** Fire the native `change` a just-applied value is owed. */
+  #settleChange(): void {
+    if (!this.#changeOwed) return;
+    this.#changeOwed = false;
+    this.dispatchEvent(new Event("change", { bubbles: true }));
   }
 }

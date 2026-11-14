@@ -59,6 +59,7 @@ function decoratable(item: HTMLElement): SelectOption | null {
  * @attr {boolean} required - The form is invalid while nothing is chosen.
  * @attr {boolean} disabled - Leaves the value out of the form. Disable the trigger's `<button>` to stop it opening.
  * @fires {CustomEvent<{ value: string }>} primitiv-select-change - Bubbles, cancelable, fired before a chosen value is applied. Call `preventDefault()` to veto it; the list closes either way.
+ * @fires {Event} change - Bubbles, fired after a user's change has applied, as a form control's is: the hidden form inputs already hold the new value, so a `change` listener, `hx-trigger="change"` or `new FormData()` reads it. Not cancelable; veto with the event above.
  * @fires {CustomEvent<{ open: boolean }>} primitiv-select-open-change - Bubbles, cancelable, fired before the list opens or closes. Call `preventDefault()` to veto it.
  */
 export class PrimitivSelectElement extends PrimitivRootElement {
@@ -97,7 +98,7 @@ export class PrimitivSelectElement extends PrimitivRootElement {
       state: () => ({ open: this.open }),
       change: (open) => this.#change(open),
       select: (value) => {
-        if (value !== this.value && this.announce("primitiv-select-change", { value })) this.value = value;
+        if (value !== this.value && this.announceValue("primitiv-select-change", { value })) this.value = value;
       },
       trigger: () => this.#trigger,
       source: () => this.#trigger,

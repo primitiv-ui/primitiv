@@ -30,6 +30,7 @@ const ITEM = "primitiv-segmented-control-item";
  * @attr {string} name - Submit the selected value with a form, under this name, as a checked radio would: nothing while none is selected or the control is disabled. A form reset restores the value the control first rendered with. Without it the control takes no part in forms.
  * @attr {boolean} disabled - Disables the whole control: every segment is skipped by the arrow keys and never selected, and `data-disabled` is set on the root and every segment.
  * @fires {CustomEvent<{ value: string }>} primitiv-segmented-control-change - Bubbles, cancelable, fired before a user-driven selection is applied, with the segment selected afterwards. Call `preventDefault()` to veto it.
+ * @fires {Event} change - Bubbles, fired after a user's change has applied, as a form control's is: the hidden form inputs already hold the new value, so a `change` listener, `hx-trigger="change"` or `new FormData()` reads it. Not cancelable; veto with the event above.
  */
 export class PrimitivSegmentedControlElement extends RadioRootElement {
   protected readonly itemTag: string = ITEM;

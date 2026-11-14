@@ -62,6 +62,7 @@ function place(element: HTMLElement, insets: readonly SliderInset[]): void {
  * @attr {boolean} disabled - Ignore keys and presses, and take the thumbs out of the Tab order.
  * @attr {string} name - Submit the values with a form: the slider keeps one hidden `<input>` per value inside itself, named `name` (or `name[]` for several thumbs).
  * @fires {CustomEvent<{ value: number[] }>} primitiv-slider-change - Bubbles, cancelable, fired before each user-driven change is applied, with every thumb's value afterwards — on every step of a drag. Call `preventDefault()` to veto it.
+ * @fires {Event} change - Bubbles, fired after a user's change has applied, as a form control's is: the hidden form inputs already hold the new value, so a `change` listener, `hx-trigger="change"` or `new FormData()` reads it. Not cancelable; veto with the event above.
  * @fires {CustomEvent<{ value: number[] }>} primitiv-slider-commit - Bubbles, fired once an interaction ends — a key press, or the release of a drag — with the values the slider then holds.
  */
 export class PrimitivSliderElement extends PrimitivRootElement {
@@ -117,7 +118,7 @@ export class PrimitivSliderElement extends PrimitivRootElement {
         ...this.#axis(),
       }),
       change: (value) => {
-        if (this.announce("primitiv-slider-change", { value })) this.value = value;
+        if (this.announceValue("primitiv-slider-change", { value })) this.value = value;
       },
       // The values the slider holds now: a vetoed change was never applied.
       commit: () => {

@@ -53,6 +53,7 @@ function decoratable(item: HTMLElement): Item | null {
  * @attr {"horizontal" | "vertical"} orientation - Layout axis, which picks the arrow-key pair. Defaults to `horizontal`.
  * @attr {string} name - Submit the pressed values with a form, each under this name, as same-named checked checkboxes would: nothing while none is pressed. A form reset restores the values the group first rendered with. Without it the group takes no part in forms.
  * @fires {CustomEvent<{ value: string[] }>} primitiv-toggle-group-change - Bubbles, cancelable, fired before a user-driven toggle is applied, with every item pressed afterwards. Call `preventDefault()` to veto it.
+ * @fires {Event} change - Bubbles, fired after a user's change has applied, as a form control's is: the hidden form inputs already hold the new value, so a `change` listener, `hx-trigger="change"` or `new FormData()` reads it. Not cancelable; veto with the event above.
  */
 export class PrimitivToggleGroupElement extends PrimitivRootElement {
   /** The item focus last moved to, which holds the tab stop. */
@@ -98,7 +99,7 @@ export class PrimitivToggleGroupElement extends PrimitivRootElement {
         dir: this.direction(),
       }),
       change: (value) => {
-        if (this.announce("primitiv-toggle-group-change", { value })) this.value = value;
+        if (this.announceValue("primitiv-toggle-group-change", { value })) this.value = value;
       },
     };
   }

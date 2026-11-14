@@ -26,3 +26,13 @@ export function navigationMenuToggle(state: NavigationMenuToggleState, value: st
   const wasOpen = state.arrival ?? state.open === value;
   return wasOpen ? "" : value;
 }
+
+/**
+ * How long a hovered trigger waits before opening its panel: the delay for the
+ * first open only. Once a panel is open the menu is already "active", so
+ * crossing to a sibling trigger swaps panels at once — waiting again would feel
+ * broken.
+ */
+export function navigationMenuOpenDelay(state: { open: string; delay: number }): number {
+  return state.open === "" ? state.delay : 0;
+}

@@ -1,4 +1,4 @@
-import { navigationMenuToggle } from "../policy";
+import { navigationMenuOpenDelay, navigationMenuToggle } from "../policy";
 
 describe("navigationMenuToggle", () => {
   it("opens a closed entry", () => {
@@ -39,5 +39,23 @@ describe("navigationMenuToggle", () => {
 
     // Assert
     expect(next).toBe("");
+  });
+});
+
+describe("navigationMenuOpenDelay", () => {
+  it("waits the delay for the first open", () => {
+    // Arrange & Act
+    const delay = navigationMenuOpenDelay({ open: "", delay: 200 });
+
+    // Assert
+    expect(delay).toBe(200);
+  });
+
+  it("swaps at once while another panel is already open", () => {
+    // Arrange & Act
+    const delay = navigationMenuOpenDelay({ open: "blog", delay: 200 });
+
+    // Assert
+    expect(delay).toBe(0);
   });
 });

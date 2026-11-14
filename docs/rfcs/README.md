@@ -120,6 +120,7 @@ live in [`../consumption-design.md`](../consumption-design.md).
 | [0016](0016-spacing-and-flow-rhythm.md) | Spacing & flow rhythm | Implemented — no default margins; opt-in `.primitiv-flow` / `<Prose>` |
 | [0020](0020-agent-manifest-and-mcp-server.md) | Agent manifest & MCP server | Draft |
 | [0033](0033-web-components.md) | Web components & a shared behaviour core | Draft — proposed |
+| [0034](0034-utility-classes.md) | Utility classes | Draft — proposed |
 
 - **0004** — the foundation: the hybrid model (versioned headless packages +
   opt-in copy-in styles) and the four-part styling contract (root class +
@@ -192,6 +193,14 @@ surface and applies once those are read.
 |---|---|---|
 | [0010](0010-oklch-color-picker.md) | OKLCH colour picker | Draft |
 | [0011](0011-duotone-neutral-ramps.md) | Duotone neutral ramps | Implemented (engine + workbench UI) |
+
+- **0034** — utility classes: a small, fixed set (about 210) of Tailwind-named
+  classes generated from the tokens, for plain CSS, SCSS and Elements pages
+  that have no utility framework. Every value is a `var(--primitiv-…)` (colour
+  from the roles, never the ramps), they live in a last `primitiv.utilities`
+  layer so they beat component rules without `!important`, and `primitiv
+  utilities` / `init --utilities` install them. No prefix, no configuration, no
+  state variants; responsive variants only for layout.
 
 - **0010** — the OKLCH-first, oklch.com-style colour picker that replaces the
   hex input: paint-backed Lightness×Chroma and Hue charts with a live gamut

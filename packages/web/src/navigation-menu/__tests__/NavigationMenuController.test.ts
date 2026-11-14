@@ -121,4 +121,184 @@ describe("NavigationMenuController", () => {
       expect(host.changes).toEqual(["blog"]);
     });
   });
+
+  describe("hover intent", () => {
+    beforeEach(() => {
+      vi.useFakeTimers();
+    });
+
+    it("opens after the delay", () => {
+      // Arrange
+      const host = hostWith();
+      const controller = new NavigationMenuController(host);
+
+      // Act
+      controller.triggerPointerEnter("docs");
+      vi.advanceTimersByTime(199);
+      const early = [...host.changes];
+      vi.advanceTimersByTime(1);
+
+      // Assert
+      expect(early).toEqual([]);
+      expect(host.changes).toEqual(["docs"]);
+    });
+
+    it("opens at once with no delay", () => {
+      // Arrange
+      const host = hostWith("", { delay: 0 });
+      const controller = new NavigationMenuController(host);
+
+      // Act
+      controller.triggerPointerEnter("docs");
+
+      // Assert
+      expect(host.changes).toEqual(["docs"]);
+    });
+
+    it("swaps to a sibling at once while a panel is open", () => {
+      // Arrange
+      const host = hostWith("docs");
+      const controller = new NavigationMenuController(host);
+
+      // Act
+      controller.triggerPointerEnter("blog");
+
+      // Assert
+      expect(host.changes).toEqual(["blog"]);
+    });
+
+    it("cancels the pending open when the pointer leaves first", () => {
+      // Arrange
+      const host = hostWith();
+      const controller = new NavigationMenuController(host);
+
+      // Act
+      controller.triggerPointerEnter("docs");
+      controller.triggerPointerLeave();
+      vi.advanceTimersByTime(500);
+
+      // Assert
+      expect(host.changes).toEqual([]);
+    });
+
+    it("restarts the delay when the pointer crosses to another trigger before it opens", () => {
+      // Arrange
+      const host = hostWith();
+      const controller = new NavigationMenuController(host);
+
+      // Act
+      controller.triggerPointerEnter("docs");
+      vi.advanceTimersByTime(100);
+      controller.triggerPointerEnter("blog");
+      vi.advanceTimersByTime(500);
+
+      // Assert
+      expect(host.changes).toEqual(["blog"]);
+    });
+
+    it("does nothing on hover when hover-to-open is off", () => {
+      // Arrange
+      const host = hostWith("", { openOnHover: false });
+      const controller = new NavigationMenuController(host);
+
+      // Act
+      controller.triggerPointerEnter("docs");
+      vi.advanceTimersByTime(500);
+
+      // Assert
+      expect(host.changes).toEqual([]);
+    });
+
+    it("closes after the close delay once the pointer leaves the nav", () => {
+      // Arrange
+      const host = hostWith("docs");
+      const controller = new NavigationMenuController(host);
+
+      // Act
+      controller.rootPointerLeave();
+      vi.advanceTimersByTime(149);
+      const early = [...host.changes];
+      vi.advanceTimersByTime(1);
+
+      // Assert
+      expect(early).toEqual([]);
+      expect(host.changes).toEqual([""]);
+    });
+
+    it("stays open when the pointer comes back before the close delay", () => {
+      // Arrange
+      const host = hostWith("docs");
+      const controller = new NavigationMenuController(host);
+
+      // Act
+      controller.rootPointerLeave();
+      controller.rootPointerEnter();
+      vi.advanceTimersByTime(500);
+
+      // Assert
+      expect(host.changes).toEqual([]);
+    });
+
+    it("replaces a pending close on a second leave, so one return keeps it open", () => {
+      // Arrange
+      const host = hostWith("docs");
+      const controller = new NavigationMenuController(host);
+
+      // Act
+      controller.rootPointerLeave();
+      controller.rootPointerLeave();
+      controller.rootPointerEnter();
+      vi.advanceTimersByTime(500);
+
+      // Assert
+      expect(host.changes).toEqual([]);
+    });
+
+    it("cancels a pending hover open as the pointer leaves the nav", () => {
+      // Arrange
+      const host = hostWith("", { closeDelay: 1000 });
+      const controller = new NavigationMenuController(host);
+
+      // Act
+      controller.triggerPointerEnter("docs");
+      controller.rootPointerLeave();
+      vi.advanceTimersByTime(500);
+
+      // Assert
+      expect(host.changes).toEqual([]);
+    });
+
+    it("cancels a pending close when hover opens another entry", () => {
+      // Arrange
+      const host = hostWith("docs");
+      const controller = new NavigationMenuController(host);
+
+      // Act
+      controller.rootPointerLeave();
+      controller.triggerPointerEnter("blog");
+      vi.advanceTimersByTime(500);
+
+      // Assert
+      expect(host.changes).toEqual(["blog"]);
+    });
+
+    it("cancels every timer as it disconnects", () => {
+      // Arrange
+      const host = hostWith();
+      const controller = new NavigationMenuController(host);
+      controller.triggerPointerEnter("docs");
+      const leavingHost = hostWith("docs");
+      const leaving = new NavigationMenuController(leavingHost);
+      leaving.rootPointerLeave();
+
+      // Act
+      controller.disconnect();
+      leaving.disconnect();
+      vi.advanceTimersByTime(500);
+
+      // Assert
+      expect(host.changes).toEqual([]);
+      expect(leavingHost.changes).toEqual([]);
+    });
+  });
 });

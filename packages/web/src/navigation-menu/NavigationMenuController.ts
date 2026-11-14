@@ -51,6 +51,7 @@ export type NavigationMenuControllerHost = {
 export class NavigationMenuController {
   readonly #host: NavigationMenuControllerHost;
   #opening: ReturnType<typeof setTimeout> | undefined;
+  #closing: ReturnType<typeof setTimeout> | undefined;
   /** The trigger the pointer is over, and whether its entry was open as it arrived. */
   #arrival: { value: string; open: boolean } | null = null;
 
@@ -79,7 +80,32 @@ export class NavigationMenuController {
     this.#host.change(navigationMenuToggle({ open: this.#host.state().value, arrival }, value));
   }
 
+  /** The pointer is over the nav: it is not done with the menu. */
+  rootPointerEnter(): void {
+    this.#cancelClose();
+  }
+
+  /**
+   * The pointer left the nav — the only leave that means the user is done
+   * with the menu, since leaving a trigger for its own panel must not close it.
+   */
+  rootPointerLeave(): void {
+    this.#cancelOpen();
+    this.#cancelClose();
+    this.#closing = setTimeout(() => {
+      this.#closing = undefined;
+      this.#host.change("");
+    }, this.#host.state().closeDelay);
+  }
+
+  /** Cancel every timer, so nothing outlives the host. */
+  disconnect(): void {
+    this.#cancelOpen();
+    this.#cancelClose();
+  }
+
   #openWithIntent(value: string): void {
+    this.#cancelClose();
     this.#cancelOpen();
     const { value: open, delay: wait } = this.#host.state();
     const delay = navigationMenuOpenDelay({ open, delay: wait });
@@ -97,5 +123,10 @@ export class NavigationMenuController {
     // clearTimeout(undefined) is a spec'd no-op, so cancelling needs no guard.
     clearTimeout(this.#opening);
     this.#opening = undefined;
+  }
+
+  #cancelClose(): void {
+    clearTimeout(this.#closing);
+    this.#closing = undefined;
   }
 }

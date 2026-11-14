@@ -6,7 +6,7 @@ framework and no runtime dependencies beyond
 server-rendered stack (HTMX, Rails, Django, Laravel, Spring …), and inside
 React, Vue, Angular or any other framework.
 
-> **Status: published.** Tabs, Accordion, Collapsible, Modal, Popover, Tooltip, Dropdown, Context Menu, Toggle Group, Segmented Control, Radio Card, Checkbox Card, Slider, Split Button, Listbox, Select and Combobox so far. See
+> **Status: published.** Tabs, Accordion, Collapsible, Modal, Popover, Tooltip, Dropdown, Context Menu, Toggle Group, Segmented Control, Radio Card, Checkbox Card, Slider, Split Button, Listbox, Select, Combobox and Navigation Menu so far. See
 > [RFC 0033](../../docs/rfcs/0033-web-components.md) for the design.
 
 ## Components
@@ -30,6 +30,7 @@ React, Vue, Angular or any other framework.
 | Listbox | `primitiv-listbox`, `-option`, `-group`, `-group-label` | `primitiv-listbox-change` | 0.2.1 |
 | Select | `primitiv-select`, `-trigger`, `-value`, `-content`, `-item`, `-item-indicator`, `-group`, `-separator` | `primitiv-select-change`, `-open-change` | 0.2.1 |
 | Combobox | `primitiv-combobox`, `-input`, `-content`, `-item`, `-empty` | `primitiv-combobox-change`, `-open-change`, `-query-change` | 0.2.1 |
+| Navigation Menu | `primitiv-navigation-menu`, `-list`, `-item`, `-trigger`, `-content`, `-viewport`, `-indicator`, `-link` | `primitiv-navigation-menu-change` | 0.2.10 |
 
 ## Use it
 
@@ -62,13 +63,14 @@ downloads it once. `dist/primitiv-web.js` is the alternative: every element in
 one file. Per-component files ship from 0.1.43.
 
 The main entry (`@primitiv-ui/web`, `/tabs`, `/accordion`, `/collapsible`,
-`/modal`, `/popover`, `/tooltip`, `/dropdown`, `/context-menu`, `/toggle-group`, `/segmented-control`, `/radio-card`, `/checkbox-card`, `/slider`, `/split-button`, `/listbox`, `/select`, `/combobox`) exports the classes and `defineTabs(registry?)` /
+`/modal`, `/popover`, `/tooltip`, `/dropdown`, `/context-menu`, `/toggle-group`, `/segmented-control`, `/radio-card`, `/checkbox-card`, `/slider`, `/split-button`, `/listbox`, `/select`, `/combobox`, `/navigation-menu`) exports the classes and `defineTabs(registry?)` /
 `defineAccordion(registry?)` / `defineCollapsible(registry?)` /
 `defineModal(registry?)` / `definePopover(registry?)` / `defineTooltip(registry?)` /
 `defineDropdown(registry?)` / `defineContextMenu(registry?)` /
 `defineToggleGroup(registry?)` / `defineSegmentedControl(registry?)` /
 `defineRadioCard(registry?)` / `defineCheckboxCard(registry?)` / `defineSlider(registry?)` / `defineSplitButton(registry?)` /
-`defineListbox(registry?)` / `defineSelect(registry?)` / `defineCombobox(registry?)` with **no side
+`defineListbox(registry?)` / `defineSelect(registry?)` / `defineCombobox(registry?)` /
+`defineNavigationMenu(registry?)` with **no side
 effects**.
 
 **Render `hidden` on inactive panels yourself.** Until the module loads, CSS
@@ -578,6 +580,51 @@ The elements write no `class` and no `style`. For the registry look, apply the
   and is cancelable, as does `primitiv-combobox-open-change` for `open`.
 - **With a `name`** a hidden input inside the root submits the value — not the
   field's text — and a form reset restores the value it first rendered with.
+
+### Navigation Menu
+
+```html
+<script type="module" src="https://cdn.jsdelivr.net/npm/@primitiv-ui/web@<version>/dist/cdn/navigation-menu.js"></script>
+
+<primitiv-navigation-menu role="navigation" aria-label="Main">
+  <primitiv-navigation-menu-list>
+    <primitiv-navigation-menu-item value="docs">
+      <primitiv-navigation-menu-trigger><button type="button">Docs</button></primitiv-navigation-menu-trigger>
+    </primitiv-navigation-menu-item>
+    <primitiv-navigation-menu-item>
+      <primitiv-navigation-menu-link active><a href="/pricing">Pricing</a></primitiv-navigation-menu-link>
+    </primitiv-navigation-menu-item>
+  </primitiv-navigation-menu-list>
+  <primitiv-navigation-menu-viewport>
+    <primitiv-navigation-menu-content value="docs" hidden>
+      <primitiv-navigation-menu-link><a href="/guides">Guides</a></primitiv-navigation-menu-link>
+    </primitiv-navigation-menu-content>
+  </primitiv-navigation-menu-viewport>
+</primitiv-navigation-menu>
+```
+
+- **The ARIA APG Disclosure Navigation Menu, not a menubar.** Every top-level
+  entry stays in the Tab order; the arrows only move focus along the bar
+  (mirrored under `dir="rtl"`), Home and End jump to its ends, the arrow across
+  it opens a panel and focuses its first link, and Escape closes from anywhere
+  with focus back on the trigger. Focus leaving the nav closes it too.
+- **An item's `value` makes it a disclosure**; leave it out for a plain link
+  entry. The `<button>` in its trigger toggles the panel with the same `value`
+  — placed in its item, or in the shared `<primitiv-navigation-menu-viewport>`,
+  where every panel opens in one box. Write `hidden` on panels yourself.
+- **Hover intent lives on the root**: `delay-duration` (200 ms) before the
+  first open, instant swaps between siblings, `close-delay` (150 ms) after the
+  pointer leaves; `open-on-hover="false"` makes it click-only. A click toggles
+  against what was open when the pointer arrived, so a hover open is never
+  undone by the click that follows it.
+- **`value` on the root is the open entry** (absent while closed).
+  `primitiv-navigation-menu-change` (bubbles, cancelable, `detail: { value }`,
+  `""` for closed) fires before every user-driven change.
+- **It publishes geometry, as React does**: the open trigger's position and
+  size on `<primitiv-navigation-menu-indicator>`, the open panel's size on the
+  viewport, as `--primitiv-navigation-menu-*` custom properties. The styled
+  viewport anchors to whichever trigger is open with no `anchor-name` in your
+  markup.
 
 ## Layers
 

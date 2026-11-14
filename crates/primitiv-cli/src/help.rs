@@ -139,7 +139,7 @@ Options:
 const UTILITIES: &str = "\
 Usage: primitiv utilities [options]
 
-Writes the utility classes: about 245 classes such as flex, gap-16, p-16,
+Writes the utility classes: about 275 classes such as flex, gap-16, p-16,
 text-muted and md:grid-cols-3, each reading a design token, in a last cascade
 layer. Defaults beside the token layer; without primitiv.json or --out,
 streams to stdout. For CSS and SCSS projects (Tailwind has its own).

@@ -211,7 +211,7 @@ pub fn utility_rules() -> Vec<Rule> {
         ("items-stretch", "stretch"),
         ("items-baseline", "baseline"),
     ] {
-        rules.push(Rule::raw(class, &[("align-items", value)]));
+        rules.push(Rule::raw(class, &[("align-items", value)]).responsive());
     }
     for (class, value) in [
         ("justify-start", "start"),
@@ -219,7 +219,7 @@ pub fn utility_rules() -> Vec<Rule> {
         ("justify-end", "end"),
         ("justify-between", "space-between"),
     ] {
-        rules.push(Rule::raw(class, &[("justify-content", value)]));
+        rules.push(Rule::raw(class, &[("justify-content", value)]).responsive());
     }
     rules.push(Rule::raw("grow", &[("flex", "1 1 0%")]));
     rules.push(Rule::raw("shrink-0", &[("flex-shrink", "0")]));
@@ -462,6 +462,16 @@ pub fn utility_rules() -> Vec<Rule> {
         );
     }
     rules.push(Rule::raw("col-span-full", &[("grid-column", "1 / -1")]).responsive());
+
+    // §4.13 Icon sizes (trial 6): an inline SVG outside a component keeps its
+    // own 24px attributes, and a page with no CSS has no other way to size it.
+    for size in ["16", "20", "24", "32"] {
+        let token = format!("size.{size}");
+        rules.push(Rule::tokens(
+            &format!("size-{size}"),
+            &[("inline-size", &token), ("block-size", &token)],
+        ));
+    }
 
     rules
 }

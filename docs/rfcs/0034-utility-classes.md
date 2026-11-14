@@ -24,7 +24,7 @@ framework through.
 
 ## 2. What it is, and what it is not
 
-- **Small and fixed.** About 245 classes (§4), the same in every project. No
+- **Small and fixed.** About 275 classes (§4), the same in every project. No
   configuration, no prefix option, no purge step. If a page needs something the
   set does not have, that is what the page's own CSS is for.
 - **Every value is a token.** A utility is one declaration reading one
@@ -170,13 +170,13 @@ original request: `.w-50`, not `.w-1/2`, which needs an escape in CSS),
 
 `sr-only` — visually hidden, still announced.
 
-### 4.10 Responsive layout (66 since §4.12)
+### 4.10 Responsive layout (93 since §4.13)
 
 The one place a static file can do something hand-written CSS cannot: the
 emitter knows the breakpoint values (`breakpoint.*`), so it can write real media
 queries, which `var()` cannot appear in. Limited to the classes that change a
 layout — display (4.1, `hidden` included), direction and wrap, and the four
-column counts, 17 classes (22 with §4.12's column spans) — under `sm:` `md:` `lg:` (`.md\:flex`, written
+column counts, 17 classes (31 with §4.12's column spans and §4.13's alignment) — under `sm:` `md:` `lg:` (`.md\:flex`, written
 `md:flex` in markup), min-width, mobile first.
 
 ### 4.12 App-shell amendment (19, 2026-11-14)
@@ -194,10 +194,19 @@ not be removed, and nothing spanned grid columns.
 - Text: `no-underline` `underline` `list-none`
 - Grid: `col-span-1` … `col-span-4` `col-span-full`, also responsive
 
-### 4.11 Size
+### 4.13 Trial 6 amendment (4 classes, 27 responsive variants, 2026-11-15)
 
-179 base classes and 66 responsive ones since §4.12, about 245 rules:
-**≈ 17 KB, ≈ 2.5 KB gzipped.** Smaller
+- Icon sizes: `size-16` `size-20` `size-24` `size-32`, setting both
+  `inline-size` and `block-size` from the size scale. An inline SVG outside a
+  component keeps its own 24px attributes, and a page with no CSS of its own had
+  no way to size one.
+- The alignment classes (`items-*`, `justify-*`) become responsive, so a row
+  that stacks on a phone can also re-align (`md:items-center`).
+
+### 4.14 Size
+
+183 base classes and 93 responsive ones since §4.13, about 275 rules:
+**≈ 19 KB, ≈ 2.7 KB gzipped.** Smaller
 than `tokens.css` by an order of magnitude, so there is no case for purging it.
 
 ## 5. Documentation

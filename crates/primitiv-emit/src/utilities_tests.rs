@@ -292,6 +292,11 @@ fn rfc_classes() -> Vec<String> {
             "col-span-3",
             "col-span-4",
             "col-span-full",
+            // RFC 0034 §4.13 (trial 6): icon sizes.
+            "size-16",
+            "size-20",
+            "size-24",
+            "size-32",
         ]
         .iter()
         .map(|c| c.to_string()),
@@ -310,6 +315,15 @@ fn rfc_classes() -> Vec<String> {
         "flex-col",
         "flex-wrap",
         "flex-nowrap",
+        "items-start",
+        "items-center",
+        "items-end",
+        "items-stretch",
+        "items-baseline",
+        "justify-start",
+        "justify-center",
+        "justify-end",
+        "justify-between",
         "grid-cols-1",
         "grid-cols-2",
         "grid-cols-3",

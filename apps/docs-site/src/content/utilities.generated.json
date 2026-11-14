@@ -106,63 +106,63 @@
      "declarations": [
       "align-items: start"
      ],
-     "responsive": false
+     "responsive": true
     },
     {
      "name": "items-center",
      "declarations": [
       "align-items: center"
      ],
-     "responsive": false
+     "responsive": true
     },
     {
      "name": "items-end",
      "declarations": [
       "align-items: end"
      ],
-     "responsive": false
+     "responsive": true
     },
     {
      "name": "items-stretch",
      "declarations": [
       "align-items: stretch"
      ],
-     "responsive": false
+     "responsive": true
     },
     {
      "name": "items-baseline",
      "declarations": [
       "align-items: baseline"
      ],
-     "responsive": false
+     "responsive": true
     },
     {
      "name": "justify-start",
      "declarations": [
       "justify-content: start"
      ],
-     "responsive": false
+     "responsive": true
     },
     {
      "name": "justify-center",
      "declarations": [
       "justify-content: center"
      ],
-     "responsive": false
+     "responsive": true
     },
     {
      "name": "justify-end",
      "declarations": [
       "justify-content: end"
      ],
-     "responsive": false
+     "responsive": true
     },
     {
      "name": "justify-between",
      "declarations": [
       "justify-content: space-between"
      ],
-     "responsive": false
+     "responsive": true
     },
     {
      "name": "grow",
@@ -775,6 +775,38 @@
      "name": "w-344",
      "declarations": [
       "inline-size: var(--primitiv-size-344)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "size-16",
+     "declarations": [
+      "inline-size: var(--primitiv-size-16)",
+      "block-size: var(--primitiv-size-16)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "size-20",
+     "declarations": [
+      "inline-size: var(--primitiv-size-20)",
+      "block-size: var(--primitiv-size-20)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "size-24",
+     "declarations": [
+      "inline-size: var(--primitiv-size-24)",
+      "block-size: var(--primitiv-size-24)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "size-32",
+     "declarations": [
+      "inline-size: var(--primitiv-size-32)",
+      "block-size: var(--primitiv-size-32)"
      ],
      "responsive": false
     }

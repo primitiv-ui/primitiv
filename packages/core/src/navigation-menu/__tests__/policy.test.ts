@@ -1,4 +1,9 @@
-import { navigationMenuOpenDelay, navigationMenuToggle } from "../policy";
+import {
+  navigationMenuKeydown,
+  navigationMenuOpenDelay,
+  navigationMenuToggle,
+  type NavigationMenuTravelState,
+} from "../policy";
 
 describe("navigationMenuToggle", () => {
   it("opens a closed entry", () => {
@@ -57,5 +62,51 @@ describe("navigationMenuOpenDelay", () => {
 
     // Assert
     expect(delay).toBe(0);
+  });
+});
+
+describe("navigationMenuKeydown", () => {
+  const bar: NavigationMenuTravelState<string> = {
+    entries: ["docs", "blog", "pricing"],
+    orientation: "horizontal",
+    dir: "ltr",
+  };
+
+  it.each([
+    ["ArrowRight", "docs", "blog"],
+    ["ArrowLeft", "docs", "pricing"],
+    ["ArrowRight", "pricing", "docs"],
+    ["Home", "blog", "docs"],
+    ["End", "docs", "pricing"],
+  ])("moves %s from %s to %s along a horizontal bar", (key, focused, target) => {
+    // Arrange & Act
+    const outcome = navigationMenuKeydown(bar, focused, key);
+
+    // Assert
+    expect(outcome).toEqual({ focus: target });
+  });
+
+  it("mirrors the horizontal arrows under RTL", () => {
+    // Arrange & Act
+    const outcome = navigationMenuKeydown({ ...bar, dir: "rtl" }, "docs", "ArrowLeft");
+
+    // Assert
+    expect(outcome).toEqual({ focus: "blog" });
+  });
+
+  it("travels with the vertical arrows on a vertical rail", () => {
+    // Arrange & Act
+    const outcome = navigationMenuKeydown({ ...bar, orientation: "vertical" }, "docs", "ArrowDown");
+
+    // Assert
+    expect(outcome).toEqual({ focus: "blog" });
+  });
+
+  it.each(["Enter", " ", "ArrowDown", "Escape", "a"])("leaves %j to the browser on a horizontal bar", (key) => {
+    // Arrange & Act
+    const outcome = navigationMenuKeydown(bar, "docs", key);
+
+    // Assert
+    expect(outcome).toBeNull();
   });
 });

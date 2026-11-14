@@ -1,3 +1,6 @@
+import { getKeyToActionMap } from "../keyboard/getKeyToActionMap.ts";
+import { resolveRovingTarget } from "../keyboard/resolveRovingTarget.ts";
+
 /**
  * Navigation Menu's rules — the ARIA APG *Disclosure Navigation Menu*, not a
  * menubar — as pure functions. The open entry is a single string where `""`
@@ -35,4 +38,36 @@ export function navigationMenuToggle(state: NavigationMenuToggleState, value: st
  */
 export function navigationMenuOpenDelay(state: { open: string; delay: number }): number {
   return state.open === "" ? state.delay : 0;
+}
+
+/** Layout axis of the bar of top-level entries. */
+export type NavigationMenuOrientation = "horizontal" | "vertical";
+
+/** Reading direction. Under `"rtl"` the horizontal arrows are mirrored. */
+export type NavigationMenuReadingDirection = "ltr" | "rtl";
+
+/** What the top-level arrow keys travel over. */
+export type NavigationMenuTravelState<K> = {
+  /** Every top-level entry — triggers and plain links — in DOM order. */
+  entries: readonly K[];
+  orientation: NavigationMenuOrientation;
+  dir: NavigationMenuReadingDirection;
+};
+
+/**
+ * The top-level travel keys for a key press on the entry `focused`: arrows
+ * along the bar's axis (mirrored under RTL) wrap, Home and End jump to the
+ * ends. This is **not** a roving tab stop — every entry stays tabbable, as the
+ * Disclosure Navigation Menu pattern has it — so the outcome is only where focus
+ * goes. Enter and Space are left alone, so a button's click and a link's
+ * navigation stay native; `null` means leave the event alone.
+ */
+export function navigationMenuKeydown<K>(
+  state: NavigationMenuTravelState<K>,
+  focused: K,
+  key: string,
+): { focus: K } | null {
+  const action = getKeyToActionMap({ orientation: state.orientation, dir: state.dir, homeEnd: true })[key];
+  const result = resolveRovingTarget({ action, navigable: state.entries, currentKey: focused });
+  return result && { focus: result.target };
 }

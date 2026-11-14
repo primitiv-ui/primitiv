@@ -15,6 +15,7 @@ pub mod steps;
 pub mod tailwind;
 pub mod theme;
 pub mod token;
+pub mod utilities;
 pub mod value;
 pub mod wrapper;
 
@@ -74,6 +75,8 @@ mod steps_tests;
 mod tailwind_tests;
 #[cfg(test)]
 mod theme_tests;
+#[cfg(test)]
+mod utilities_tests;
 #[cfg(test)]
 mod value_tests;
 #[cfg(test)]

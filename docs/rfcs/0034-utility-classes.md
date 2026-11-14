@@ -1,6 +1,6 @@
 # RFC 0034 — Utility classes
 
-**Status:** Draft — proposed (2026-11-14)
+**Status:** Accepted (2026-11-14) — building
 **Decision sought:** ship a small, fixed set of utility classes, generated from
 the tokens, that `primitiv` installs on request: enough for everyday layout and
 colour in your own markup, in Primitiv's style, without a utility framework.
@@ -44,18 +44,22 @@ framework through.
 
 ### 3.1 The cascade layer
 
-Utilities live in a new last layer, `primitiv.utilities`, appended to the order
-every stylesheet already declares (RFC 0008 §3.1):
+Utilities live in a new last layer, `primitiv.utilities`. `utilities.css` opens
+with the full order every stylesheet already declares (RFC 0008 §3.1), with the
+new layer appended:
 
 ```css
 @layer primitiv.reset, primitiv.tokens, primitiv.theme, primitiv.base,
   primitiv.variants, primitiv.states, primitiv.utilities;
 ```
 
-So a utility beats any component rule without `!important` — `class="primitiv-button p-24"`
-gets the padding — and the page's own unlayered CSS still beats both. Every
-copied stylesheet's `@layer` line gains the name, which the existing guard over
-the embedded registry checks.
+Layer order is fixed by each name's first appearance, and every other stylesheet
+lists the same six in the same order, so `primitiv.utilities` lands last
+whichever file the page loads first. No copied stylesheet needs to change.
+
+So a utility beats any component rule without `!important` —
+`class="primitiv-button p-24"` gets the padding — and the page's own unlayered
+CSS still beats both.
 
 ### 3.2 Names
 
@@ -192,24 +196,21 @@ than `tokens.css` by an order of magnitude, so there is no case for purging it.
   own layout and the odd adjustment, never as a second way to style a
   component's internals (that is what its custom properties are for).
 
-## 6. Open questions
+## 6. Decisions
 
-1. **The eight spacing steps.** They match what the components use today. Is
-   `64` worth adding for page-level spacing? (It is not a token: the scale goes
-   56 → 68, so it would be `56` or `68`.)
-2. **Responsive variants in v1, or after?** They are most of the value for page
-   layout, and also about a quarter of the file. The alternative is shipping §4.1–4.9
-   first and adding §4.10 once a trial shows the need.
-3. **Figma.** Utilities have no Figma counterpart, and none is proposed: they
-   are a code-side convenience over tokens that Figma already has as variables.
+Settled 2026-11-14:
+
+1. **The spacing steps stay at eight**, all from the existing scale. Nothing is
+   added to the scale for page-level spacing.
+2. **Responsive variants ship in v1** (§4.10).
+3. **No Figma work.** Utilities are a code-side convenience over tokens that
+   Figma already has as variables.
 
 ## 7. Build order
 
-1. The `primitiv.utilities` layer in the shared `@layer` declaration, and the
-   embedded-registry guard updated.
-2. `primitiv-emit::utilities`: the table, the token check, the golden file.
-3. `primitiv utilities` and `init --utilities`, with `primitiv.json` recording it
+1. `primitiv-emit::utilities`: the table, the token check, the golden file.
+2. `primitiv utilities` and `init --utilities`, with `primitiv.json` recording it
    and `primitiv tokens` regenerating it. Held at 100% lines, regions and
    functions like the rest of the CLI.
-4. The docs page, generated from the table, and the links in §5.
-5. A trial whose brief asks for a page built from Elements and utilities alone.
+3. The docs page, generated from the table, and the links in §5.
+4. A trial whose brief asks for a page built from Elements and utilities alone.

@@ -120,7 +120,7 @@ live in [`../consumption-design.md`](../consumption-design.md).
 | [0016](0016-spacing-and-flow-rhythm.md) | Spacing & flow rhythm | Implemented — no default margins; opt-in `.primitiv-flow` / `<Prose>` |
 | [0020](0020-agent-manifest-and-mcp-server.md) | Agent manifest & MCP server | Draft |
 | [0033](0033-web-components.md) | Web components & a shared behaviour core | Draft — proposed |
-| [0034](0034-utility-classes.md) | Utility classes | Draft — proposed |
+| [0034](0034-utility-classes.md) | Utility classes | Accepted — building |
 
 - **0004** — the foundation: the hybrid model (versioned headless packages +
   opt-in copy-in styles) and the four-part styling contract (root class +

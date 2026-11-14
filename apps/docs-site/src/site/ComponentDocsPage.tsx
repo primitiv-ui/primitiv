@@ -252,6 +252,7 @@ const ComponentDocsBody = ({
             snippetChildren={spec.playground.snippetChildren}
             elementsChildren={spec.playground.elementsChildren}
             elementsPreview={spec.playground.elementsPreview}
+            elementsWire={spec.playground.elementsWire}
             snippetPrefix={spec.playground.snippetPrefix}
             snippet={spec.playground.snippet}
             fill={spec.playground.fill}

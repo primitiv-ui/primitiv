@@ -209,7 +209,8 @@ export const splitButtonSpec: ComponentSpec = {
   playground: {
     component: "SplitButton",
     snippet: (values, mode) => {
-      if (mode === "elements") return elementsSplit({ variant: values.variant, size: values.size });
+      if (mode === "elements")
+        return [elementsSplit({ variant: values.variant, size: values.size }), ``, ...STICKY_SCRIPT].join("\n");
       const p = partNamer(mode, "SplitButton");
       const attrs =
         contractAttr({ mode, prop: "variant", value: values.variant }) +
@@ -234,6 +235,7 @@ export const splitButtonSpec: ComponentSpec = {
     render: (values) => (
       <SaveSplitButton variant={values.variant as Variant} size={values.size as Size} />
     ),
+    elementsWire: wireSticky,
   },
 
   anatomyMeta:
@@ -328,7 +330,8 @@ export const splitButtonSpec: ComponentSpec = {
       title: "Variants",
       render: () => (
         <InteractiveExample
-          elementsCaption="The intent is a class on the group **and** on both buttons — `primitiv-split-button--danger` with `primitiv-button--danger` on each half — so keep them in step and the seam divides one coherent control. Three intents: `primary`, `secondary`, `danger`. `ghost` and `link` are deliberately unavailable — neither has a box at rest for the seam to divide."
+          elementsCaption="The intent is a class on the group **and** on both buttons — `primitiv-split-button--danger` with `primitiv-button--danger` on each half — so keep them in step and the seam divides one coherent control. Three intents: `primary`, `secondary`, `danger`. `ghost` and `link` are deliberately unavailable — neither has a box at rest for the seam to divide. Choosing a row makes it the new default with the same few lines as the first example, so the script is in the code."
+          wire={wireSticky}
           elementsPreview={() => elementsRow((["primary", "secondary", "danger"] as const).map((v) =>
       elementsSplit({
         action: v[0].toUpperCase() + v.slice(1),
@@ -344,6 +347,8 @@ export const splitButtonSpec: ComponentSpec = {
                 `<div data-density="${density}">`,
                 indent(elementsSplit({ action: "Danger", label: "More danger options", rows: ["Alternative one", "Alternative two"], variant: "danger" })),
                 `</div>`,
+                ``,
+                ...STICKY_SCRIPT,
               ].join("\n");
             const open = rootOpen(mode, contractAttr({ mode, prop: "variant", value: "danger" }));
             return [
@@ -379,7 +384,8 @@ export const splitButtonSpec: ComponentSpec = {
       title: "Sizes and density",
       render: () => (
         <InteractiveExample
-          elementsCaption="The size is a class too — `primitiv-split-button--sm` on the group, `primitiv-button--sm` on both halves and `primitiv-dropdown--sm` on the menu — five sizes, `xs` to `xl`, and each rescales again with the nearest `data-density` ancestor. The chevron half stays square at every size."
+          elementsCaption="The size is a class too — `primitiv-split-button--sm` on the group, `primitiv-button--sm` on both halves and `primitiv-dropdown--sm` on the menu — five sizes, `xs` to `xl`, and each rescales again with the nearest `data-density` ancestor. The chevron half stays square at every size. Choosing a row makes it the new default with the same few lines as the first example, so the script is in the code."
+          wire={wireSticky}
           elementsPreview={(density) =>
             [`<div data-density="${density}">`, indent(elementsRow((["xs", "sm", "md", "lg", "xl"] as const).map((s) =>
       elementsSplit({ action: `Save ${s}`, label: `More options (${s})`, rows: ["Save and close", "Save as draft"], size: s }),
@@ -392,6 +398,8 @@ export const splitButtonSpec: ComponentSpec = {
                 `<div data-density="${density}">`,
                 indent(elementsSplit({ action: "Save sm", label: "More options (sm)", rows: ["Save and close", "Save as draft"], size: "sm" })),
                 `</div>`,
+                ``,
+                ...STICKY_SCRIPT,
               ].join("\n");
             const p = partNamer(mode, "SplitButton");
             return [
@@ -430,7 +438,8 @@ export const splitButtonSpec: ComponentSpec = {
       title: "Richer menu rows",
       render: () => (
         <InteractiveExample
-          elementsCaption="The menu is a real `<primitiv-dropdown>`, so every Dropdown part works inside it — here a `primitiv-dropdown__item-leading` icon beside a `primitiv-dropdown__item-label` for an icon-plus-label row. Groups and labels, checkbox and radio items, and submenus compose the same way."
+          elementsCaption="The menu is a real `<primitiv-dropdown>`, so every Dropdown part works inside it — here a `primitiv-dropdown__item-leading` icon beside a `primitiv-dropdown__item-label` for an icon-plus-label row. Groups and labels, checkbox and radio items, and submenus compose the same way. Choosing a row makes it the new default with the same few lines as the first example, so the script is in the code."
+          wire={wireSticky}
           elementsPreview={() => elementsSplit({
       action: "Create",
       label: "More create options",
@@ -441,14 +450,14 @@ export const splitButtonSpec: ComponentSpec = {
     })}
           caption="`SplitButton` provides the Dropdown context, so any Dropdown row part composes inside `SplitButton.Menu` — here `DropdownItemLeading` + `DropdownItemLabel` for an icon-plus-label row. `DropdownGroup`/`DropdownLabel`, `DropdownCheckboxItem` and `DropdownSub` work the same way; import them from the `dropdown` component."
           code={(_density, mode) => {
-            if (mode === "elements") return elementsSplit({
+            if (mode === "elements") return [elementsSplit({
       action: "Create",
       label: "More create options",
       rows: [
         { icon: PLUS, label: "New from template" },
         { icon: FILE, label: "Duplicate" },
       ],
-    });
+    }), ``, ...STICKY_SCRIPT].join("\n");
             const p = partNamer(mode, "SplitButton");
             return [
               imports(mode, ["Action", "Trigger", "Menu", "Item"], ["ChevronDown", "File", "Plus"]),

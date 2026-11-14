@@ -131,6 +131,7 @@ export type PlaygroundProps = {
   snippetChildren?: string;
   elementsChildren?: string;
   elementsPreview?: (code: string) => string;
+  elementsWire?: (root: HTMLElement) => (() => void) | void;
   snippetPrefix?: string | ((mode: Mode) => string);
   /** Replaces the generated snippet — see `ComponentSpec.playground.snippet`. */
   snippet?: (values: Record<string, string>, mode: Mode) => string;
@@ -186,6 +187,7 @@ export const Playground = ({
   snippetChildren,
   elementsChildren,
   elementsPreview,
+  elementsWire,
   snippetPrefix,
   snippet,
   elements,
@@ -274,6 +276,7 @@ export const Playground = ({
                         ? elementsPreview(codeFor("elements"))
                         : codeFor("elements")
                     }
+                    wire={elementsWire}
                   />
                 ) : (
                   children(values)

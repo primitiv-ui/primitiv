@@ -35,6 +35,12 @@ export type ComponentSpec = {
      */
     readonly elementsPreview?: (code: string) => string;
     /**
+     * Elements mode only: wires behaviour into the live preview, as the code
+     * tab's script does — a sticky default, say. Returns its cleanup. The same
+     * hook `InteractiveExample` has, so the playground can match its examples.
+     */
+    readonly elementsWire?: (root: HTMLElement) => (() => void) | void;
+    /**
      * Extra lines above the snippet — in practice, the import block.
      *
      * A function when it depends on the consumption mode, which an import always

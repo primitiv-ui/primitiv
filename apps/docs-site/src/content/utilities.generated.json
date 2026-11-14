@@ -212,6 +212,41 @@
       "grid-template-columns: repeat(4, minmax(0, 1fr))"
      ],
      "responsive": true
+    },
+    {
+     "name": "col-span-1",
+     "declarations": [
+      "grid-column: span 1 / span 1"
+     ],
+     "responsive": true
+    },
+    {
+     "name": "col-span-2",
+     "declarations": [
+      "grid-column: span 2 / span 2"
+     ],
+     "responsive": true
+    },
+    {
+     "name": "col-span-3",
+     "declarations": [
+      "grid-column: span 3 / span 3"
+     ],
+     "responsive": true
+    },
+    {
+     "name": "col-span-4",
+     "declarations": [
+      "grid-column: span 4 / span 4"
+     ],
+     "responsive": true
+    },
+    {
+     "name": "col-span-full",
+     "declarations": [
+      "grid-column: 1 / -1"
+     ],
+     "responsive": true
     }
    ]
   },
@@ -700,6 +735,89 @@
       "block-size: auto"
      ],
      "responsive": false
+    },
+    {
+     "name": "min-h-screen",
+     "declarations": [
+      "min-block-size: 100dvh"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "h-screen",
+     "declarations": [
+      "block-size: 100dvh"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "w-200",
+     "declarations": [
+      "inline-size: var(--primitiv-size-200)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "w-240",
+     "declarations": [
+      "inline-size: var(--primitiv-size-240)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "w-288",
+     "declarations": [
+      "inline-size: var(--primitiv-size-288)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "w-344",
+     "declarations": [
+      "inline-size: var(--primitiv-size-344)"
+     ],
+     "responsive": false
+    }
+   ]
+  },
+  {
+   "id": "position",
+   "title": "Position and overflow",
+   "classes": [
+    {
+     "name": "relative",
+     "declarations": [
+      "position: relative"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "sticky",
+     "declarations": [
+      "position: sticky"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "top-0",
+     "declarations": [
+      "inset-block-start: var(--primitiv-space-0)"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "overflow-auto",
+     "declarations": [
+      "overflow: auto"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "overflow-hidden",
+     "declarations": [
+      "overflow: hidden"
+     ],
+     "responsive": false
     }
    ]
   },
@@ -1030,6 +1148,27 @@
       "overflow: hidden",
       "text-overflow: ellipsis",
       "white-space: nowrap"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "no-underline",
+     "declarations": [
+      "text-decoration-line: none"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "underline",
+     "declarations": [
+      "text-decoration-line: underline"
+     ],
+     "responsive": false
+    },
+    {
+     "name": "list-none",
+     "declarations": [
+      "list-style: none"
      ],
      "responsive": false
     }

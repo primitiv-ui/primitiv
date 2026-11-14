@@ -426,6 +426,43 @@ pub fn utility_rules() -> Vec<Rule> {
         ],
     ));
 
+    // §4.12 The app-shell amendment (trial 5): what a page needs to be an
+    // application frame with no CSS of its own — a full-height sidebar, a
+    // header that stays put, a scrolling pane, plain lists and links, and grid
+    // items that span columns.
+    rules.push(Rule::raw("min-h-screen", &[("min-block-size", "100dvh")]));
+    rules.push(Rule::raw("h-screen", &[("block-size", "100dvh")]));
+    for width in ["200", "240", "288", "344"] {
+        rules.push(Rule::tokens(
+            &format!("w-{width}"),
+            &[("inline-size", &format!("size.{width}"))],
+        ));
+    }
+    rules.push(Rule::raw("relative", &[("position", "relative")]));
+    rules.push(Rule::raw("sticky", &[("position", "sticky")]));
+    rules.push(Rule::tokens("top-0", &[("inset-block-start", "space.0")]));
+    rules.push(Rule::raw("overflow-auto", &[("overflow", "auto")]));
+    rules.push(Rule::raw("overflow-hidden", &[("overflow", "hidden")]));
+    rules.push(Rule::raw(
+        "no-underline",
+        &[("text-decoration-line", "none")],
+    ));
+    rules.push(Rule::raw(
+        "underline",
+        &[("text-decoration-line", "underline")],
+    ));
+    rules.push(Rule::raw("list-none", &[("list-style", "none")]));
+    for span in 1..=4 {
+        rules.push(
+            Rule::raw(
+                &format!("col-span-{span}"),
+                &[("grid-column", &format!("span {span} / span {span}"))],
+            )
+            .responsive(),
+        );
+    }
+    rules.push(Rule::raw("col-span-full", &[("grid-column", "1 / -1")]).responsive());
+
     rules
 }
 

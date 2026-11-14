@@ -161,6 +161,25 @@
   .shadow-floating { box-shadow: var(--primitiv-elevation-floating); }
   .shadow-modal { box-shadow: var(--primitiv-elevation-modal); }
   .sr-only { position: absolute; inline-size: 1px; block-size: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border-width: 0; }
+  .min-h-screen { min-block-size: 100dvh; }
+  .h-screen { block-size: 100dvh; }
+  .w-200 { inline-size: var(--primitiv-size-200); }
+  .w-240 { inline-size: var(--primitiv-size-240); }
+  .w-288 { inline-size: var(--primitiv-size-288); }
+  .w-344 { inline-size: var(--primitiv-size-344); }
+  .relative { position: relative; }
+  .sticky { position: sticky; }
+  .top-0 { inset-block-start: var(--primitiv-space-0); }
+  .overflow-auto { overflow: auto; }
+  .overflow-hidden { overflow: hidden; }
+  .no-underline { text-decoration-line: none; }
+  .underline { text-decoration-line: underline; }
+  .list-none { list-style: none; }
+  .col-span-1 { grid-column: span 1 / span 1; }
+  .col-span-2 { grid-column: span 2 / span 2; }
+  .col-span-3 { grid-column: span 3 / span 3; }
+  .col-span-4 { grid-column: span 4 / span 4; }
+  .col-span-full { grid-column: 1 / -1; }
 
   @media (min-width: 40rem) {
     .sm\:block { display: block; }
@@ -180,6 +199,11 @@
     .sm\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .sm\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     .sm\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .sm\:col-span-1 { grid-column: span 1 / span 1; }
+    .sm\:col-span-2 { grid-column: span 2 / span 2; }
+    .sm\:col-span-3 { grid-column: span 3 / span 3; }
+    .sm\:col-span-4 { grid-column: span 4 / span 4; }
+    .sm\:col-span-full { grid-column: 1 / -1; }
   }
 
   @media (min-width: 48rem) {
@@ -200,6 +224,11 @@
     .md\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .md\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     .md\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .md\:col-span-1 { grid-column: span 1 / span 1; }
+    .md\:col-span-2 { grid-column: span 2 / span 2; }
+    .md\:col-span-3 { grid-column: span 3 / span 3; }
+    .md\:col-span-4 { grid-column: span 4 / span 4; }
+    .md\:col-span-full { grid-column: 1 / -1; }
   }
 
   @media (min-width: 64rem) {
@@ -220,5 +249,10 @@
     .lg\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .lg\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     .lg\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .lg\:col-span-1 { grid-column: span 1 / span 1; }
+    .lg\:col-span-2 { grid-column: span 2 / span 2; }
+    .lg\:col-span-3 { grid-column: span 3 / span 3; }
+    .lg\:col-span-4 { grid-column: span 4 / span 4; }
+    .lg\:col-span-full { grid-column: 1 / -1; }
   }
 }

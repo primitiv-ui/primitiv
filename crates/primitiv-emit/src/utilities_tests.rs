@@ -272,6 +272,26 @@ fn rfc_classes() -> Vec<String> {
             "shadow-floating",
             "shadow-modal",
             "sr-only",
+            // RFC 0034 §4.12, the app-shell amendment (trial 5).
+            "min-h-screen",
+            "h-screen",
+            "w-200",
+            "w-240",
+            "w-288",
+            "w-344",
+            "relative",
+            "sticky",
+            "top-0",
+            "overflow-auto",
+            "overflow-hidden",
+            "no-underline",
+            "underline",
+            "list-none",
+            "col-span-1",
+            "col-span-2",
+            "col-span-3",
+            "col-span-4",
+            "col-span-full",
         ]
         .iter()
         .map(|c| c.to_string()),
@@ -294,6 +314,11 @@ fn rfc_classes() -> Vec<String> {
         "grid-cols-2",
         "grid-cols-3",
         "grid-cols-4",
+        "col-span-1",
+        "col-span-2",
+        "col-span-3",
+        "col-span-4",
+        "col-span-full",
     ];
     for breakpoint in ["sm", "md", "lg"] {
         expected.extend(responsive.iter().map(|c| format!("{breakpoint}:{c}")));

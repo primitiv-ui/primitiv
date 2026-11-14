@@ -194,7 +194,7 @@ surface and applies once those are read.
 | [0010](0010-oklch-color-picker.md) | OKLCH colour picker | Draft |
 | [0011](0011-duotone-neutral-ramps.md) | Duotone neutral ramps | Implemented (engine + workbench UI) |
 
-- **0034** — utility classes: a small, fixed set (about 210) of Tailwind-named
+- **0034** — utility classes: a small, fixed set (about 245) of Tailwind-named
   classes generated from the tokens, for plain CSS, SCSS and Elements pages
   that have no utility framework. Every value is a `var(--primitiv-…)` (colour
   from the roles, never the ramps), they live in a last `primitiv.utilities`

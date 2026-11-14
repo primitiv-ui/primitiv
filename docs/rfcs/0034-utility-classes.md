@@ -24,7 +24,7 @@ framework through.
 
 ## 2. What it is, and what it is not
 
-- **Small and fixed.** About 210 classes (§4), the same in every project. No
+- **Small and fixed.** About 245 classes (§4), the same in every project. No
   configuration, no prefix option, no purge step. If a page needs something the
   set does not have, that is what the page's own CSS is for.
 - **Every value is a token.** A utility is one declaration reading one
@@ -170,19 +170,34 @@ original request: `.w-50`, not `.w-1/2`, which needs an escape in CSS),
 
 `sr-only` — visually hidden, still announced.
 
-### 4.10 Responsive layout (51)
+### 4.10 Responsive layout (66 since §4.12)
 
 The one place a static file can do something hand-written CSS cannot: the
 emitter knows the breakpoint values (`breakpoint.*`), so it can write real media
 queries, which `var()` cannot appear in. Limited to the classes that change a
 layout — display (4.1, `hidden` included), direction and wrap, and the four
-column counts, 17 classes — under `sm:` `md:` `lg:` (`.md\:flex`, written
+column counts, 17 classes (22 with §4.12's column spans) — under `sm:` `md:` `lg:` (`.md\:flex`, written
 `md:flex` in markup), min-width, mobile first.
+
+### 4.12 App-shell amendment (19, 2026-11-14)
+
+Added after trial 5, whose agent built a whole app with no CSS of its own and
+could not make an application frame from §4.1–4.10: the sidebar stopped short
+of the window, the header scrolled away, list bullets and link underlines could
+not be removed, and nothing spanned grid columns.
+
+- Height: `min-h-screen` `h-screen` (`100dvh`, so a mobile browser's bars do not
+  overflow it)
+- Fixed widths from the size scale: `w-200` `w-240` `w-288` `w-344`
+- Position: `relative` `sticky` `top-0`
+- Overflow: `overflow-auto` `overflow-hidden`
+- Text: `no-underline` `underline` `list-none`
+- Grid: `col-span-1` … `col-span-4` `col-span-full`, also responsive
 
 ### 4.11 Size
 
-160 base classes and 51 responsive ones, about 210 rules at roughly 55 bytes
-each: **≈ 12 KB, ≈ 3 KB gzipped.** Smaller
+179 base classes and 66 responsive ones since §4.12, about 245 rules:
+**≈ 17 KB, ≈ 2.5 KB gzipped.** Smaller
 than `tokens.css` by an order of magnitude, so there is no case for purging it.
 
 ## 5. Documentation

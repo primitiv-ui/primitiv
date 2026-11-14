@@ -24,21 +24,22 @@ const SECTIONS = [
   {
     id: "flex-and-grid",
     title: "Flex and grid",
-    properties: ["flex-direction", "flex-wrap", "align-items", "justify-content", "flex", "flex-shrink", "min-inline-size", "grid-template-columns"],
+    properties: ["flex-direction", "flex-wrap", "align-items", "justify-content", "flex", "flex-shrink", "min-inline-size", "grid-template-columns", "grid-column"],
   },
   {
     id: "spacing",
     title: "Spacing",
     properties: ["gap", "padding", "padding-inline", "padding-block", "padding-block-start", "margin", "margin-inline", "margin-block-start", "margin-block-end"],
   },
-  { id: "size", title: "Width and height", properties: ["inline-size", "max-inline-size", "block-size"] },
-  { id: "text", title: "Text", properties: ["color", "font-family", "font-weight", "text-align", "overflow"] },
+  { id: "size", title: "Width and height", properties: ["inline-size", "max-inline-size", "block-size", "min-block-size"] },
+  { id: "position", title: "Position and overflow", properties: ["position", "inset-block-start", "overflow"] },
+  { id: "text", title: "Text", properties: ["color", "font-family", "font-weight", "text-align", "text-decoration-line", "list-style"] },
   {
     id: "surface",
     title: "Surface, border, radius and shadow",
     properties: ["background-color", "border-width", "border-color", "border-radius", "box-shadow"],
   },
-  { id: "accessibility", title: "Accessibility", properties: ["position"] },
+  { id: "accessibility", title: "Accessibility", properties: [] },
 ];
 
 const rule = /^ {2}\.([^\s{]+) \{ (.+) \}$/;
@@ -67,7 +68,15 @@ for (const line of CSS.split("\n")) {
   const [, name, body] = match;
   const declarations = body.split(/;\s*/).filter(Boolean);
   const property = declarations[0].split(":")[0];
-  const section = SECTIONS.findIndex((s) => s.properties.includes(property));
+  /* By its first property, except two classes whose first property says
+     nothing about their job: truncate opens with overflow, sr-only with
+     position. */
+  const section =
+    name === "truncate"
+      ? SECTIONS.findIndex((s) => s.id === "text")
+      : name === "sr-only"
+        ? SECTIONS.findIndex((s) => s.id === "accessibility")
+        : SECTIONS.findIndex((s) => s.properties.includes(property));
   if (section === -1) throw new Error(`No section on the Utilities page for .${name} (${property})`);
   sections[section].classes.push({ name, declarations });
 }

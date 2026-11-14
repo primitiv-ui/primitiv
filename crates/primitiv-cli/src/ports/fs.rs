@@ -25,6 +25,8 @@ pub trait FileSystem {
     /// The directory a walk-up (e.g. [`config::resolve`](crate::config::resolve))
     /// starts from — the process working directory for the real bin.
     fn current_dir(&self) -> io::Result<PathBuf>;
+    /// Delete the file at `path` (`std::fs::remove_file`), for `remove`.
+    fn remove_file(&self, path: &Path) -> io::Result<()>;
 }
 
 /// The OS-backed [`FileSystem`] adapter the real bin runs on — a thin
@@ -53,6 +55,10 @@ impl FileSystem for OsFs {
     fn current_dir(&self) -> io::Result<PathBuf> {
         std::env::current_dir()
     }
+
+    fn remove_file(&self, path: &Path) -> io::Result<()> {
+        std::fs::remove_file(path)
+    }
 }
 
 /// An in-memory [`FileSystem`] fake for command-layer tests (RFC 0007 §2.2,
@@ -65,6 +71,7 @@ pub struct InMemoryFs {
     fail_writes: RefCell<Option<PathBuf>>,
     fail_reads: RefCell<Option<PathBuf>>,
     fail_create_dir: RefCell<Option<PathBuf>>,
+    fail_removes: RefCell<Option<PathBuf>>,
     cwd: RefCell<PathBuf>,
     fail_current_dir: RefCell<bool>,
 }
@@ -95,6 +102,12 @@ impl InMemoryFs {
     /// error branch without a real, unwritable filesystem.
     pub fn fail_create_dir_to(&self, path: &Path) {
         *self.fail_create_dir.borrow_mut() = Some(path.to_path_buf());
+    }
+
+    /// Make any [`remove_file`](FileSystem::remove_file) of `path` fail with
+    /// `PermissionDenied`, so a command can drive its delete-error branch.
+    pub fn fail_removes_to(&self, path: &Path) {
+        *self.fail_removes.borrow_mut() = Some(path.to_path_buf());
     }
 
     /// Set the directory [`current_dir`](FileSystem::current_dir) reports, so a
@@ -161,5 +174,16 @@ impl FileSystem for InMemoryFs {
             ));
         }
         Ok(self.cwd.borrow().clone())
+    }
+
+    fn remove_file(&self, path: &Path) -> io::Result<()> {
+        if self.fail_removes.borrow().as_deref() == Some(path) {
+            return Err(io::Error::new(
+                io::ErrorKind::PermissionDenied,
+                "remove blocked",
+            ));
+        }
+        self.files.borrow_mut().remove(path);
+        Ok(())
     }
 }

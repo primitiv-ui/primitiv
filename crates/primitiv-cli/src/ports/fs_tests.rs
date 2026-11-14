@@ -125,3 +125,30 @@ fn in_memory_fs_can_fail_current_dir() {
         std::io::ErrorKind::NotFound
     );
 }
+
+#[test]
+fn os_fs_removes_a_real_file() {
+    let dir = assert_fs::TempDir::new().unwrap();
+    let file = dir.child("button/styles.css");
+    OsFs.create_dir_all(file.path().parent().unwrap()).unwrap();
+    OsFs.write(file.path(), b".primitiv-button {}").unwrap();
+
+    OsFs.remove_file(file.path()).unwrap();
+
+    assert!(!OsFs.exists(file.path()));
+}
+
+#[test]
+fn in_memory_fs_removes_a_file_and_can_fail_to() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("a.css"), b"a").unwrap();
+    fs.write(Path::new("b.css"), b"b").unwrap();
+    fs.fail_removes_to(Path::new("b.css"));
+
+    fs.remove_file(Path::new("a.css")).unwrap();
+    let blocked = fs.remove_file(Path::new("b.css")).unwrap_err();
+
+    assert!(!fs.exists(Path::new("a.css")));
+    assert!(fs.exists(Path::new("b.css")));
+    assert_eq!(blocked.kind(), std::io::ErrorKind::PermissionDenied);
+}

@@ -25,6 +25,20 @@ import { Check } from "@primitiv-ui/icons";
 <Check aria-label="Confirmed" />
 ```
 
+## Plain SVGs (Primitiv Elements, server templates)
+
+Every icon also ships as a plain SVG in `svg/`, taking `currentColor` and marked
+`aria-hidden="true"`. Paste it where an Elements example says
+`<!-- Insert your SVG icon here: close -->`, straight from a CDN:
+
+```text
+https://cdn.jsdelivr.net/npm/@primitiv-ui/icons@<version>/svg/close.svg
+```
+
+Or, with a bundler, import its URL from `@primitiv-ui/icons/svg/close.svg`.
+Remove `aria-hidden` and give the SVG a `role="img"` and an `aria-label` when
+the icon carries meaning on its own.
+
 ## Props
 
 All icons share the same props via `IconProps`:

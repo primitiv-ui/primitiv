@@ -4,8 +4,13 @@ import { join, basename } from 'path'
 
 const SVG_DIR = join(import.meta.dirname, '../icons/svg')
 const OUT_DIR = join(import.meta.dirname, '../src/icons')
+// Plain SVGs for pages that are not React — Primitiv Elements, a server
+// template — published with the package and served by any npm CDN. Each one
+// takes `currentColor` and is decorative by default, like the components.
+const SVG_OUT_DIR = join(import.meta.dirname, '../svg')
 
 mkdirSync(OUT_DIR, { recursive: true })
+mkdirSync(SVG_OUT_DIR, { recursive: true })
 
 function toPascalCase(name: string): string {
   return name
@@ -103,6 +108,10 @@ export const ${componentName} = (props: IconProps): ReactElement => (
 `
 
   writeFileSync(join(OUT_DIR, `${componentName}.tsx`), component)
+  writeFileSync(
+    join(SVG_OUT_DIR, file),
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="currentColor" aria-hidden="true">${stripFills(extractInnerSvg(optimized))}</svg>\n`,
+  )
   componentNames.push(componentName)
   console.log(`✓ ${componentName}`)
 }
